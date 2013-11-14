@@ -66,25 +66,25 @@ function get_test_result ()
 
 function boot_and_test_master_device ()
 {
-	submit_test $WORKSPACE/lava-gerrit-testing/jobs/master-smoke.json
+	submit_test $WORKSPACE/lava-ci/jobs/master-smoke.json
 	get_test_result "Master Device"
 }
 
 function boot_and_test_bootloader_device ()
 {
-	submit_test $WORKSPACE/lava-gerrit-testing/jobs/bootloader-smoke.json
+	submit_test $WORKSPACE/lava-ci/jobs/bootloader-smoke.json
 	get_test_result "Bootloader Device"
 }
 
 function boot_and_test_kvm_device ()
 {
-	submit_test $WORKSPACE/lava-gerrit-testing/jobs/kvm-smoke.json
+	submit_test $WORKSPACE/lava-ci/jobs/kvm-smoke.json
 	get_test_result "KVM Device"
 }
 
 function boot_and_test_fastmodel_device ()
 {
-	submit_test $WORKSPACE/lava-gerrit-testing/jobs/fastmodel-smoke.json
+	submit_test $WORKSPACE/lava-ci/jobs/fastmodel-smoke.json
 	get_test_result "Fastmodel Device"
 }
 
