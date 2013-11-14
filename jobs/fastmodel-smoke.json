@@ -1,0 +1,41 @@
+{
+  "device_type": "rtsm_foundation-armv8",
+  "logging_level": "DEBUG",
+  "actions": [
+    {
+      "command": "deploy_linaro_image",
+      "parameters": {
+        "image": "http://community.validation.linaro.org/images/armv8-foundation/vexpress64-openembedded_minimal-armv8_20130820-436.img.gz"
+      }
+    },
+    {
+      "command": "boot_linaro_image",
+      "parameters": {
+        "options": [
+          "boot_cmds=boot_cmds_oe"
+        ]
+      }
+    },
+    {
+      "command": "lava_test_shell",
+      "parameters": {
+        "testdef_repos": [
+          {
+            "git-repo": "git://git.linaro.org/qa/test-definitions.git",
+            "testdef": "openembedded/busybox.yaml"
+          }
+        ],
+        "timeout": 800
+      }
+    },
+    {
+      "command": "submit_results",
+      "parameters": {
+        "stream": "/anonymous/smoke-tests/",
+        "server": "http://127.0.0.1/RPC2/"
+      }
+    }
+  ],
+  "timeout": 18000,
+  "job_name": "fastmodel-armv8-foundation-device-defined-boot-cmds-lava-test-shell"
+}
