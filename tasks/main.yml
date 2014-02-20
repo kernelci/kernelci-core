@@ -1,0 +1,2 @@
+---
+- include: hostname-nickname.yml

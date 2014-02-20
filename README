@@ -1,0 +1,42 @@
+Linaro Ansible Common
+=====================
+
+A container for a common Ansible role. This is meant to be used as a subtree
+when starting to work on a new ansible playbook.
+
+The prefix where this should be stored is under roles/common/ in a role-based
+playbook. From the playbook, then just use the "common" role.
+
+To include it:
+
+    git remote add ansible_common $PATH_TO_THIS_REPO
+    git fetch ansible_common
+    git read-tree --prefix=common/ -u ansible_common
+
+Then commit normally.
+
+Alternatively, you can use it as an external source for a role. In this case
+you need to tell Ansible where to look for roles. Please refer to Ansible
+documentation.
+
+What's Included
+===============
+
+Apache Handlers
+---------------
+
+Common Apache2 handlers are include:
+ * start-apache
+ * stop-apache
+ * started-apache
+ * reload-apache
+ * restart-apache
+
+Other handlers might be include, look at the handlers/ folder.
+
+Tasks
+-----
+
+Some default tasks that should be run on all system.
+Look at the tasks/ folder for more information, and at each tasks to see which
+are the possible needed default variable names.
