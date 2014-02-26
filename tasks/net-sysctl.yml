@@ -1,0 +1,8 @@
+---
+# Make sure some default and optimized values are used.
+- name: net-sysctl-conf
+  copy: src=sysctl.conf
+        dest=/etc/sysctl.conf
+        owner=root
+        group=root
+        mode=0644
