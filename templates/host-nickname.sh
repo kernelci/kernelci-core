@@ -1,2 +1,2 @@
 # Managed via ansible.
-export NICKNAME={{ hostname }}
+export NICKNAME={{ nickname }}

@@ -7,7 +7,7 @@
 # This will only work for new users, already existing users will have to tweak
 # their bashrc file accordingly.
 #
-# This role requires the variable 'hostname' to be set.
+# This role requires the variable 'nickname' to be set.
 #
 
 - name: host-nickname-var-file

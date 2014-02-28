@@ -110,4 +110,3 @@ fi
 if [ "$NICKNAME" ]; then
     PS1=$(echo "$PS1" | sed 's.\\h.$NICKNAME.g')
 fi
-
