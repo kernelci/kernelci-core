@@ -121,10 +121,9 @@ def pep8_check(ignore_options):
 def init():
     result_message_list.append('* LAVABOT RESULTS: for patch set: %s' % os.environ['GERRIT_PATCHSET_REVISION'])
 
-def main(ignore_options, test):
-    if test:
-        debug = True
-        dummy_env()
+def main(ignore_options):
+    #debug = True
+    #dummy_env()
     if check_enviroment():
         print 'All required environment variables have been set...continuing'
     else:
@@ -138,4 +137,4 @@ def main(ignore_options, test):
     exit(0)
 
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2])
+    main(sys.argv[1])
