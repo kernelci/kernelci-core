@@ -96,26 +96,38 @@ def checkout_and_rebase():
         exit(1)
 
 def run_unit_tests():
+    lava_project = os.environ['GERRIT_PROJECT'].split('/')[1]
     os.chdir(os.environ['WORKSPACE'])
-    os.chdir(os.environ['GERRIT_PROJECT'].split('/')[1])
-    cmd = './ci-run'
+    os.chdir(lava_project)
+    if lava_project == 'lava-server':
+        cmd = './ci-run'
+    elif lava_project == 'lava-dispatcher':
+        cmd = './ci-run'
+    elif lava_project == 'lava-tool':
+        cmd = './ci-build'
+    else:
+        cmd = './ci-run'
     try:
         output = subprocess.check_output(cmd, shell=True)
         if debug:
             print output
-        message = '* TEST CASE PASSED: %s' % cmd
+        message_list = []
+        message_list.append('* TEST CASE PASSED: %s' % cmd)
+        message_list.append('* TEST RESULTS: %s' % os.environ['BUILD_URL'])
+        message = '\n'.join(message_list)
         result_message_list.append(message)
     except subprocess.CalledProcessError as e:
         message_list = []
         message_list.append('* TEST CASE FAILED: %s' % cmd)
-        message_list.append('* For details of the failure, please see the console log here: %s' % os.environ['BUILD_URL'])
+        message_list.append('* TEST RESULTS: %s' % os.environ['BUILD_URL'])
+        message = '\n'.join(message_list)
         result_message_list.append(message)
         print e.output
         publish_result(False)
         exit(1)
 
 def init():
-    result_message_list.append('* LAVABOT RESULTS: for patch set: %s' % os.environ['GERRIT_PATCHSET_REVISION'])
+    result_message_list.append('* LAVABOT UNIT TEST RESULTS: for patch set: %s' % os.environ['GERRIT_PATCHSET_REVISION'])
 
 def main():
     #debug = True
@@ -123,7 +135,7 @@ def main():
     if check_enviroment():
         print 'All required environment variables have been set...continuing'
     else:
-        print 'All required environment variables have been set...exiting'
+        print 'All required environment variables have not been set...exiting'
         exit(1)
     notify_committer()
     init()

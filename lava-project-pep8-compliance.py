@@ -103,12 +103,15 @@ def pep8_check(ignore_options):
         output = subprocess.check_output(cmd, shell=True)
         if debug:
             print output
-        message = '* TEST CASE PASSED: %s' % cmd
+        message_list = []
+        message_list.append('* TEST CASE PASSED: %s' % cmd)
+        message_list.append('* TEST RESULTS: %s' % os.environ['BUILD_URL'])
+        message = '\n'.join(message_list)
         result_message_list.append(message)
     except subprocess.CalledProcessError as e:
         message_list = []
         message_list.append('* TEST CASE FAILED: %s' % cmd)
-        message_list.append('* For more verbose PEP8 output, please see the console log here: %s' % os.environ['BUILD_URL'])
+        message_list.append('* TEST RESULTS: %s' % os.environ['BUILD_URL'])
         message_list.append('* TEST CASE OUTPUT:')
         for line in e.output.splitlines():
             message_list.append('* ' + line)
@@ -121,7 +124,7 @@ def pep8_check(ignore_options):
         exit(1)
 
 def init():
-    result_message_list.append('* LAVABOT RESULTS: for patch set: %s' % os.environ['GERRIT_PATCHSET_REVISION'])
+    result_message_list.append('* LAVABOT PEP8 RESULTS: for patch set: %s' % os.environ['GERRIT_PATCHSET_REVISION'])
 
 def main(ignore_options):
     #debug = True
@@ -129,7 +132,7 @@ def main(ignore_options):
     if check_enviroment():
         print 'All required environment variables have been set...continuing'
     else:
-        print 'All required environment variables have been set...exiting'
+        print 'All required environment variables have not been set...exiting'
         exit(1)
     notify_committer()
     init()
