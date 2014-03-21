@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Usage ./lava-project-pep8-compliance <pep-ignore-options> <debug>
+# Usage ./lava-projectci.py <pep-ignore-options>
 import sys
 import os
 import subprocess
@@ -78,7 +78,6 @@ def checkout_and_rebase():
     except subprocess.CalledProcessError as e:
         message = '* SETUP STEP FAILED: %s' % cmd
         result_message_list.append(message)
-        print e.output
         publish_result()
         exit(1)
 
@@ -115,7 +114,6 @@ def pep8_check(ignore_options):
             message_list.append('* ' + line)
         message = '\n'.join(message_list)
         result_message_list.append(message)
-        print e.output
         cmd_verbose = 'pep8 --ignore %s --show-source --show-pep8 .' % ignore_options
         subprocess.call(cmd_verbose, shell=True)
         publish_result(False)
