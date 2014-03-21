@@ -44,7 +44,7 @@ def add_gerrit_comment(message, review):
 def notify_committer():
     message_list= []
     message_list.append('* Hello %s' % os.environ['GERRIT_CHANGE_OWNER_NAME'])
-    message_list.append('* Your patch set %s has triggered a PEP8 check.' % os.environ['GERRIT_PATCHSET_REVISION'])
+    message_list.append('* Your patch set %s has triggered a automated testing.' % os.environ['GERRIT_PATCHSET_REVISION'])
     message_list.append('* Please do not merge this commit until after I have reviewed the results with you.')
     message_list.append('* %s' % os.environ['BUILD_URL'])
     message = '\n'.join(message_list)
@@ -123,8 +123,39 @@ def pep8_check(ignore_options):
         publish_result(False)
         exit(1)
 
+def run_unit_tests():
+    lava_project = os.environ['GERRIT_PROJECT'].split('/')[1]
+    os.chdir(os.environ['WORKSPACE'])
+    os.chdir(lava_project)
+    if lava_project == 'lava-server':
+        cmd = './ci-run'
+    elif lava_project == 'lava-dispatcher':
+        cmd = './ci-run'
+    elif lava_project == 'lava-tool':
+        cmd = './ci-build'
+    else:
+        cmd = './ci-run'
+    try:
+        output = subprocess.check_output(cmd, shell=True)
+        if debug:
+            print output
+        message_list = []
+        message_list.append('* TEST CASE PASSED: %s' % cmd)
+        message_list.append('* TEST RESULTS: %s' % os.environ['BUILD_URL'])
+        message = '\n'.join(message_list)
+        result_message_list.append(message)
+    except subprocess.CalledProcessError as e:
+        message_list = []
+        message_list.append('* TEST CASE FAILED: %s' % cmd)
+        message_list.append('* TEST RESULTS: %s' % os.environ['BUILD_URL'])
+        message = '\n'.join(message_list)
+        result_message_list.append(message)
+        print e.output
+        publish_result(False)
+        exit(1)
+
 def init():
-    result_message_list.append('* LAVABOT PEP8 RESULTS: for patch set: %s' % os.environ['GERRIT_PATCHSET_REVISION'])
+    result_message_list.append('* LAVABOT RESULTS: for patch set: %s' % os.environ['GERRIT_PATCHSET_REVISION'])
 
 def main(ignore_options):
     #debug = True
@@ -138,6 +169,7 @@ def main(ignore_options):
     init()
     checkout_and_rebase()
     pep8_check(ignore_options)
+    run_unit_tests()
     publish_result(True)
     exit(0)
 
