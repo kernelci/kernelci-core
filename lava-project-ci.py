@@ -147,7 +147,7 @@ def run_unit_tests():
         exit(1)
 
 def init():
-    result_message_list.append('* LAVABOT: [RESULTS]: for patch set: %s' % os.environ['GERRIT_PATCHSET_REVISION'])
+    result_message_list.append('* LAVABOT: [RESULTS]: Automated test results for patch set: %s' % os.environ['GERRIT_PATCHSET_REVISION'])
 
 def main(ignore_options):
     # Uncomment the following to run locally
