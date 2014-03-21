@@ -95,7 +95,7 @@ def checkout_and_rebase():
         publish_result()
         exit(1)
 
-def run_unit_tests(ignore_options):
+def run_unit_tests():
     os.chdir(os.environ['WORKSPACE'])
     os.chdir(os.environ['GERRIT_PROJECT'].split('/')[1])
     cmd = './ci-run'
