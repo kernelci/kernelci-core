@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Usage ./lava-project-pep8-compliance <pep-ignore-options> <debug>
+# Usage ./lava-server-unit-tests
 import sys
 import os
 import subprocess
@@ -11,12 +11,12 @@ result_message_list = []
 debug = False
 
 def dummy_env():
-    os.environ['WORKSPACE'] = '/home/lava-bot/workspace/lava-project-pep8-compliance'
-    os.environ['BUILD_URL'] = 'https://ci.linaro.org/jenkins/job/lava-project-pep8-compliance/686/'
-    os.environ['GERRIT_PROJECT'] = 'lava/lava-dispatcher'
-    os.environ['GERRIT_REFSPEC'] = 'refs/changes/19/1419/4'
-    os.environ['GERRIT_PATCHSET_REVISION'] = '9a8a1e81ada025d5601c11fc60db1f3bc6294414'
-    os.environ['GERRIT_CHANGE_OWNER_NAME'] = 'Tyler Baker'
+    os.environ['WORKSPACE'] = '/home/lava-bot/workspace/lava-unit-tests'
+    os.environ['BUILD_URL'] = 'https://ci.linaro.org/jenkins/job/lava-server-unit-tests/4/'
+    os.environ['GERRIT_PROJECT'] = 'lava/lava-server'
+    os.environ['GERRIT_REFSPEC'] = 'refs/changes/07/1107/14'
+    os.environ['GERRIT_PATCHSET_REVISION'] = '42de85c0e6d08c63b10574977aaae2a0580c5adb'
+    os.environ['GERRIT_CHANGE_OWNER_NAME'] = 'Senthil Kumaran'
 
 def check_enviroment():
     is_env_set = True
@@ -44,7 +44,7 @@ def add_gerrit_comment(message, review):
 def notify_committer():
     message_list= []
     message_list.append('* Hello %s' % os.environ['GERRIT_CHANGE_OWNER_NAME'])
-    message_list.append('* Your patch set %s has triggered a PEP8 check.' % os.environ['GERRIT_PATCHSET_REVISION'])
+    message_list.append('* Your patch set %s has triggered the lava-server unit tests.' % os.environ['GERRIT_PATCHSET_REVISION'])
     message_list.append('* Please do not merge this commit until after I have reviewed the results with you.')
     message_list.append('* %s' % os.environ['BUILD_URL'])
     message = '\n'.join(message_list)
@@ -95,10 +95,10 @@ def checkout_and_rebase():
         publish_result()
         exit(1)
 
-def pep8_check(ignore_options):
+def run_unit_tests(ignore_options):
     os.chdir(os.environ['WORKSPACE'])
     os.chdir(os.environ['GERRIT_PROJECT'].split('/')[1])
-    cmd = 'pep8 --ignore %s .' % ignore_options
+    cmd = './ci-run'
     try:
         output = subprocess.check_output(cmd, shell=True)
         if debug:
@@ -108,22 +108,16 @@ def pep8_check(ignore_options):
     except subprocess.CalledProcessError as e:
         message_list = []
         message_list.append('* TEST CASE FAILED: %s' % cmd)
-        message_list.append('* For more verbose PEP8 output, please see the console log here: %s' % os.environ['BUILD_URL'])
-        message_list.append('* TEST CASE OUTPUT:')
-        for line in e.output.splitlines():
-            message_list.append('* ' + line)
-        message = '\n'.join(message_list)
+        message_list.append('* For details of the failure, please see the console log here: %s' % os.environ['BUILD_URL'])
         result_message_list.append(message)
         print e.output
-        cmd_verbose = 'pep8 --ignore %s --show-source --show-pep8 .' % ignore_options
-        subprocess.call(cmd_verbose, shell=True)
         publish_result(False)
         exit(1)
 
 def init():
     result_message_list.append('* LAVABOT RESULTS: for patch set: %s' % os.environ['GERRIT_PATCHSET_REVISION'])
 
-def main(ignore_options):
+def main():
     #debug = True
     #dummy_env()
     if check_enviroment():
@@ -134,9 +128,9 @@ def main(ignore_options):
     notify_committer()
     init()
     checkout_and_rebase()
-    pep8_check(ignore_options)
+    run_unit_tests()
     publish_result(True)
     exit(0)
 
 if __name__ == '__main__':
-    main(sys.argv[1])
+    main()
