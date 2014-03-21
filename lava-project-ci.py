@@ -35,7 +35,7 @@ def add_gerrit_comment(message, review):
     try:
         output = subprocess.check_output(cmd, shell=True)
     except subprocess.CalledProcessError as e:
-        message = '* SETUP STEP FAILED: %s' % cmd
+        message = '* SETUP STEP: [FAILED]: %s' % cmd
         result_message_list.append(message)
         print e.output
         publish_result()
@@ -73,10 +73,10 @@ def checkout_and_rebase():
         output = subprocess.check_output(cmd, shell=True)
         if debug:
             print output
-        message = '* SETUP STEP PASSED: %s' % cmd
+        message = '* SETUP STEP: [PASSED]: %s' % cmd
         result_message_list.append(message)
     except subprocess.CalledProcessError as e:
-        message = '* SETUP STEP FAILED: %s' % cmd
+        message = '* SETUP STEP: [FAILED]: %s' % cmd
         result_message_list.append(message)
         publish_result()
         exit(1)
@@ -87,10 +87,10 @@ def checkout_and_rebase():
         print cmd
     try:
         output = subprocess.check_output(cmd, shell=True)
-        message = '* SETUP STEP PASSED: %s' % cmd
+        message = '* SETUP STEP: [PASSED]: %s' % cmd
         result_message_list.append(message)
     except subprocess.CalledProcessError as e:
-        message = '* SETUP STEP FAILED: %s' % cmd
+        message = '* SETUP STEP: [FAILED]: %s' % cmd
         result_message_list.append(message)
         print e.output
         publish_result()
@@ -104,12 +104,12 @@ def pep8_check(ignore_options):
         output = subprocess.check_output(cmd, shell=True)
         if debug:
             print output
-        message = '* TEST CASE PASSED: %s' % cmd
+        message = '* PEP8 CHECK: [PASSED]: %s' % cmd
         result_message_list.append(message)
     except subprocess.CalledProcessError as e:
         message_list = []
-        message_list.append('* TEST CASE FAILED: %s' % cmd)
-        message_list.append('* TEST CASE OUTPUT:')
+        message_list.append('* PEP8 CHECK: [FAILED]: %s' % cmd)
+        message_list.append('* PEP8 CHECK: [OUTPUT]:')
         for line in e.output.splitlines():
             message_list.append('* ' + line)
         message = '\n'.join(message_list)
@@ -135,11 +135,11 @@ def run_unit_tests():
         output = subprocess.check_output(cmd, shell=True)
         if debug:
             print output
-        message = '* TEST CASE PASSED: %s' % cmd
+        message = '* UNIT TESTS: [PASSED]: %s' % cmd
         result_message_list.append(message)
     except subprocess.CalledProcessError as e:
         message_list = []
-        message_list.append('* TEST CASE FAILED: %s' % cmd)
+        message_list.append('* UNIT TEST: [FAILED]: %s' % cmd)
         message = '\n'.join(message_list)
         result_message_list.append(message)
         print e.output
@@ -147,9 +147,10 @@ def run_unit_tests():
         exit(1)
 
 def init():
-    result_message_list.append('* LAVABOT RESULTS: for patch set: %s' % os.environ['GERRIT_PATCHSET_REVISION'])
+    result_message_list.append('* LAVABOT: [RESULTS]: for patch set: %s' % os.environ['GERRIT_PATCHSET_REVISION'])
 
 def main(ignore_options):
+    # Uncomment the following to run locally
     #debug = True
     #dummy_env()
     if check_enviroment():
