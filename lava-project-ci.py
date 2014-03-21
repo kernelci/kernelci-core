@@ -53,6 +53,8 @@ def notify_committer():
     add_gerrit_comment(message, 0)
 
 def publish_result(result=None):
+    test_results = os.environ['BUILD_URL'] + 'console'
+    result_message_list.append('* TEST RESULTS: %s' % test_results)
     result_message = '\n'.join(result_message_list)
     if result is None:
         add_gerrit_comment(result_message, 0)
@@ -103,15 +105,11 @@ def pep8_check(ignore_options):
         output = subprocess.check_output(cmd, shell=True)
         if debug:
             print output
-        message_list = []
-        message_list.append('* TEST CASE PASSED: %s' % cmd)
-        message_list.append('* TEST RESULTS: %s' % os.environ['BUILD_URL'])
-        message = '\n'.join(message_list)
+        message = '* TEST CASE PASSED: %s' % cmd
         result_message_list.append(message)
     except subprocess.CalledProcessError as e:
         message_list = []
         message_list.append('* TEST CASE FAILED: %s' % cmd)
-        message_list.append('* TEST RESULTS: %s' % os.environ['BUILD_URL'])
         message_list.append('* TEST CASE OUTPUT:')
         for line in e.output.splitlines():
             message_list.append('* ' + line)
@@ -139,15 +137,11 @@ def run_unit_tests():
         output = subprocess.check_output(cmd, shell=True)
         if debug:
             print output
-        message_list = []
-        message_list.append('* TEST CASE PASSED: %s' % cmd)
-        message_list.append('* TEST RESULTS: %s' % os.environ['BUILD_URL'])
-        message = '\n'.join(message_list)
+        message = '* TEST CASE PASSED: %s' % cmd
         result_message_list.append(message)
     except subprocess.CalledProcessError as e:
         message_list = []
         message_list.append('* TEST CASE FAILED: %s' % cmd)
-        message_list.append('* TEST RESULTS: %s' % os.environ['BUILD_URL'])
         message = '\n'.join(message_list)
         result_message_list.append(message)
         print e.output
