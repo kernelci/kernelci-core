@@ -44,7 +44,7 @@ def add_gerrit_comment(message, review):
 def notify_committer():
     message_list= []
     message_list.append('* Hello %s' % os.environ['GERRIT_CHANGE_OWNER_NAME'])
-    message_list.append('* Your patch set %s has triggered a automated testing.' % os.environ['GERRIT_PATCHSET_REVISION'])
+    message_list.append('* Your patch set %s has triggered automated testing.' % os.environ['GERRIT_PATCHSET_REVISION'])
     message_list.append('* Please do not merge this commit until after I have reviewed the results with you.')
     message_list.append('* %s' % os.environ['BUILD_URL'])
     message = '\n'.join(message_list)
