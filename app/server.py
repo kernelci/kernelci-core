@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # Copyright (C) 2014 Linaro Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
@@ -18,19 +17,14 @@ import pymongo
 import tornado.ioloop
 import tornado.web
 
-from handlers import (
-    DefConfHandler,
-    JobHandler
-)
+from urls import app_urls
 
 if __name__ == '__main__':
     client = pymongo.MongoClient()
 
     application = tornado.web.Application(
-        [
-            (r'/api/job', JobHandler),
-            (r'/api/defconfig', DefConfHandler)
-        ], client=client,
+        app_urls,
+        client=client,
     )
 
     application.listen(8888)
