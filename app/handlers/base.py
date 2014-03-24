@@ -18,6 +18,7 @@ import tornado.web
 ACCEPTED_MEDIA_TYPE = 'application/json'
 ERROR_MESSAGES = {
     415: 'Please use "%s" as the default media type.' % (ACCEPTED_MEDIA_TYPE),
+    400: 'Provided JSON is not valid.',
 }
 
 
@@ -34,4 +35,4 @@ class BaseHandler(tornado.web.RequestHandler):
                 }
             )
         else:
-            super(BaseHandler, self).write_error(status_code, kwargs)
+            super(BaseHandler, self).write_error(status_code)
