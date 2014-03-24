@@ -26,15 +26,21 @@ from models import (
 BASE_PATH = '/var/www/images/kernel-ci'
 
 
-def import_job_from_json(json_doc, db, base_path=BASE_PATH):
-    pass
+def import_job_from_json(json_doc, db, base_path=BASE_PATH, callback=None):
+    job_dir = json_doc['job']
+    kernel_dir = json_doc['kernel']
+
+    import_job(job_dir, kernel_dir, db, base_path)
+
+    if callback:
+        callback("DONE")
 
 
 def import_job(job, kernel, db, base_path=BASE_PATH):
     job_dir = os.path.join(base_path, job, kernel)
     job_id = JobDocument.JOB_ID_FORMAT % (job, kernel)
 
-    docs = JobDocument(job_id)
+    docs = [JobDocument(job_id)]
 
     if os.path.isdir(job_dir):
         docs.extend(traverse_defconf_dir(job_dir, job_id))
