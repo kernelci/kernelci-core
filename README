@@ -1,0 +1,26 @@
+Kernel CI Backend
+=================
+
+Backend engine, Tornado powerd, for the Kernel CI reporting dashboard.
+
+Requirements
+============
+
+Non exhaustive list of requirements is in the 'requirements.txt' file: those
+need to be installed via pip.
+
+For the rest of the necessary packages, see the ansible playbook.
+
+Tests
+=====
+
+From the 'app/' folder, run:
+
+  python -m unittest discover
+
+Run the server
+==============
+
+From the 'app/' folder, run:
+
+  python server.py
