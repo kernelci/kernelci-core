@@ -15,27 +15,46 @@
 
 import json
 
+from tornado import gen
+from tornado.web import asynchronous
+
 from bson.json_util import dumps
 
 from base import (
     ACCEPTED_MEDIA_TYPE,
     BaseHandler,
 )
-from models import DB_NAME
-from models.job import JOB_COLLECTION
+from models import (
+    DB_NAME,
+    JOB_COLLECTION,
+)
+from utils import (
+    valid_json_job_put,
+    import_job_from_json,
+)
 
 
 class JobHandler(BaseHandler):
 
-    def get(self, id=None):
+    def get(self, *args, **kwargs):
         db = self.settings['client'][DB_NAME]
         jobs = db[JOB_COLLECTION].find()
 
         self.write(dumps(jobs))
 
-    def post(self):
+    @asynchronous
+    @gen.engine
+    def post(self, *args, **kwargs):
         if self.request.headers['Content-Type'] != ACCEPTED_MEDIA_TYPE:
             self.send_error(status_code=415)
         else:
             json_doc = json.loads(self.request.body.decode('utf8'))
-            print json_doc
+            if valid_json_job_put(json_doc):
+                response = yield gen.Task(
+                    import_job_from_json,
+                    json_doc,
+                    self.settings['client'][DB_NAME]
+                )
+                self.finish(response)
+            else:
+                self.send_error(status_code=400)
