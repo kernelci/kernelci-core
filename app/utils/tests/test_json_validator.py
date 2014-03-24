@@ -13,12 +13,27 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import json
+import unittest
 
-def valid_json_job_put(json_doc):
-    is_valid = False
-    keys = json_doc.keys()
+from utils.json_validator import (
+    valid_json_job_put,
+)
 
-    if 'job' in keys and 'kernel' in keys:
-        is_valid |= True
 
-    return is_valid
+class JsonValidatorTest(unittest.TestCase):
+
+    def test_valid_json_job_put_valid(self):
+        json_string = '{"job": "job", "kernel": "kernel"}'
+
+        self.assertTrue(valid_json_job_put(json.loads(json_string)))
+
+    def test_valid_json_job_put_not_valid_job(self):
+        json_string = '{"job": "job"}'
+
+        self.assertFalse(valid_json_job_put(json.loads(json_string)))
+
+    def test_valid_json_job_put_not_valid_kernel(self):
+        json_string = '{"kernel": "kernel"}'
+
+        self.assertFalse(valid_json_job_put(json.loads(json_string)))
