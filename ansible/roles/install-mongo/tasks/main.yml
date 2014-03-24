@@ -1,0 +1,21 @@
+---
+#  sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
+
+- name: Add MongoDB apt key
+  apt_key:  id=7F0CEB10
+            url=hkp://keyserver.ubuntu.com:80
+  tags:
+    - install
+
+- name: Add MongoDB repository
+  apt_repository: repo='deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen'
+                  state=present
+                  update_cache=yes
+  tags:
+    - install
+
+- name: Install MongoDB
+  apt:  name=mongodb-10gen
+        state=latest
+  tags:
+    - install

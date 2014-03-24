@@ -1,0 +1,8 @@
+---
+- hosts: all
+  sudo: yes
+  gather_facts: no
+  roles:
+    - install-deps-os
+    - install-mongo
+  
