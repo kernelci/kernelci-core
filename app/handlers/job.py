@@ -18,8 +18,6 @@ import json
 from tornado import gen
 from tornado.web import asynchronous
 
-from bson.json_util import dumps
-
 from base import (
     ACCEPTED_MEDIA_TYPE,
     BaseHandler,
@@ -29,18 +27,16 @@ from models import (
     JOB_COLLECTION,
 )
 from utils import (
-    valid_json_job_put,
     import_job_from_json,
+    valid_json_job_put,
 )
 
 
 class JobHandler(BaseHandler):
 
-    def get(self, *args, **kwargs):
-        db = self.settings['client'][DB_NAME]
-        jobs = db[JOB_COLLECTION].find()
-
-        self.write(dumps(jobs))
+    @property
+    def collection(self):
+        return JOB_COLLECTION
 
     @asynchronous
     @gen.engine

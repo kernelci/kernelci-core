@@ -15,6 +15,10 @@
 
 import tornado.web
 
+from bson.json_util import dumps
+
+from models import DB_NAME
+
 ACCEPTED_MEDIA_TYPE = 'application/json'
 ERROR_MESSAGES = {
     415: 'Please use "%s" as the default media type.' % (ACCEPTED_MEDIA_TYPE),
@@ -23,6 +27,24 @@ ERROR_MESSAGES = {
 
 
 class BaseHandler(tornado.web.RequestHandler):
+
+    @property
+    def collection(self):
+        return ''
+
+    def get(self, *args, **kwargs):
+        db = self.settings['client'][DB_NAME]
+
+        if kwargs and kwargs['id']:
+            result = db[self.collection].find_one(
+                {
+                    "_id": {"$in": [kwargs['id']]}
+                }
+            )
+        else:
+            result = db[self.collection].find()
+
+        self.write(dumps(result))
 
     def write_error(self, status_code, **kwargs):
         if status_code in ERROR_MESSAGES.keys():

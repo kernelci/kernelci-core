@@ -13,19 +13,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import tornado.web
 
-from bson.json_util import dumps
-
-from models import DB_NAME
-from models.defconfig import DEFCONFIG_COLLECTION
+from base import BaseHandler
+from models import DEFCONFIG_COLLECTION
 
 
-class DefConfHandler(tornado.web.RequestHandler):
+class DefConfHandler(BaseHandler):
 
-    def get(self, id=None):
-
-        db = self.settings['client'][DB_NAME]
-        defconfs = db[DEFCONFIG_COLLECTION].find()
-
-        self.write(dumps(defconfs))
+    @property
+    def collection(self):
+        return DEFCONFIG_COLLECTION
