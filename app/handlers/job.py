@@ -22,10 +22,7 @@ from base import (
     ACCEPTED_MEDIA_TYPE,
     BaseHandler,
 )
-from models import (
-    DB_NAME,
-    JOB_COLLECTION,
-)
+from models import JOB_COLLECTION
 from utils import (
     import_job_from_json,
     valid_json_job_put,
@@ -36,7 +33,7 @@ class JobHandler(BaseHandler):
 
     @property
     def collection(self):
-        return JOB_COLLECTION
+        return self.db[JOB_COLLECTION]
 
     @asynchronous
     @gen.engine
@@ -49,7 +46,7 @@ class JobHandler(BaseHandler):
                 response = yield gen.Task(
                     import_job_from_json,
                     json_doc,
-                    self.settings['client'][DB_NAME]
+                    self.db
                 )
                 self.finish(response)
             else:

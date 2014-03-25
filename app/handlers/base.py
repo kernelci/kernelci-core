@@ -30,19 +30,21 @@ class BaseHandler(tornado.web.RequestHandler):
 
     @property
     def collection(self):
-        return ''
+        return None
+
+    @property
+    def db(self):
+        return self.settings['client'][DB_NAME]
 
     def get(self, *args, **kwargs):
-        db = self.settings['client'][DB_NAME]
-
         if kwargs and kwargs['id']:
-            result = db[self.collection].find_one(
+            result = self.collection.find_one(
                 {
                     "_id": {"$in": [kwargs['id']]}
                 }
             )
         else:
-            result = db[self.collection].find()
+            result = self.collection.find()
 
         self.write(dumps(result))
 

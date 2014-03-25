@@ -22,4 +22,4 @@ class DefConfHandler(BaseHandler):
 
     @property
     def collection(self):
-        return DEFCONFIG_COLLECTION
+        return self.db[DEFCONFIG_COLLECTION]
