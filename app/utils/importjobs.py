@@ -66,13 +66,13 @@ def import_all(base_path=BASE_PATH):
         job_dir = os.path.join(base_path, job_dir)
 
         for kernel_dir in os.listdir(job_dir):
-            job_id = JobDocument.JOB_ID_FORMAT % (job_id, kernel_dir)
-            job_doc = JobDocument(job_id)
+            doc_id = JobDocument.JOB_ID_FORMAT % (job_id, kernel_dir)
+            job_doc = JobDocument(doc_id)
             docs.append(job_doc)
 
             kernel_dir = os.path.join(job_dir, kernel_dir)
 
-            docs.extend(traverse_defconf_dir(kernel_dir, job_id))
+            docs.extend(traverse_defconf_dir(kernel_dir, doc_id))
 
     return docs
 
