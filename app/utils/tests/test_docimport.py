@@ -17,7 +17,7 @@ import unittest
 
 from mock import patch
 
-from utils.importjobs import (
+from utils.docimport import (
     import_all,
 )
 

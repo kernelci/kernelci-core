@@ -16,7 +16,7 @@
 import json
 import unittest
 
-from utils.json_validator import (
+from utils.validator import (
     valid_json_job_put,
 )
 

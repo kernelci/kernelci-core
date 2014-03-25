@@ -13,9 +13,9 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from importjobs import (
+from docimport import (
     import_job,
     import_job_from_json,
 )
 
-from json_validator import *
+from validator import *

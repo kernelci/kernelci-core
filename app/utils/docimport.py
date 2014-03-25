@@ -45,7 +45,7 @@ def import_job(job, kernel, db, base_path=BASE_PATH):
     if os.path.isdir(job_dir):
         docs.extend(traverse_defconf_dir(job_dir, job_id))
 
-    import_jobs(db, docs)
+    save_documents(db, docs)
 
 
 def traverse_defconf_dir(kernel_dir, job_id):
@@ -77,15 +77,16 @@ def import_all(base_path=BASE_PATH):
     return docs
 
 
-def import_jobs(db, documents):
+def save_documents(db, documents):
     for document in documents:
         db[document.collection].save(document.to_dict())
+
 
 if __name__ == '__main__':
     conn = pymongo.MongoClient()
     db = conn[DB_NAME]
 
     docs = import_all()
-    import_jobs(db, docs)
+    save_documents(db, docs)
 
     conn.disconnect()
