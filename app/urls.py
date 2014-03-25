@@ -14,12 +14,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from tornado.web import url
 from handlers import (
     DefConfHandler,
     JobHandler,
 )
 
 app_urls = [
-    (r'/api/defconfig(?P<sl>/)?(?P<id>.*)', DefConfHandler),
-    (r'/api/job(?P<sl>/)?(?P<id>.*)', JobHandler),
+    url(r'/api/defconfig(?P<sl>/)?(?P<id>.*)', DefConfHandler, name="defconf"),
+    url(r'/api/job(?P<sl>/)?(?P<id>.*)', JobHandler, name="job"),
 ]

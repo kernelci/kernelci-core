@@ -21,15 +21,18 @@ from urls import app_urls
 
 
 class KernelCiBackend(tornado.web.Application):
+
+    @property
+    def client(self):
+        return pymongo.MongoClient()
+
     def __init__(self, **overrides):
-        client = pymongo.MongoClient()
-        handlers = app_urls
 
         settings = {
-            "client": client,
+            "client": self.client,
         }
 
-        super(KernelCiBackend, self).__init__(handlers, **settings)
+        super(KernelCiBackend, self).__init__(app_urls, **settings)
 
 
 if __name__ == '__main__':
