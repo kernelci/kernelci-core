@@ -24,3 +24,26 @@ Run the server
 From the 'app/' folder, run:
 
   python server.py
+
+Basic interactions
+==================
+
+GET
+---
+
+  curl localhost:8888/api/job
+  curl localhost:8888/api/defconfig
+
+  curl localhost:8888/api/job/$JOB_ID
+  curl localhost:8888/api/defconfig/$DEFCONF_ID
+
+  curl localhost:8888/api/job?limit=40
+  curl localhost:8888/api/job?limit=40&skip=20
+
+POST
+----
+
+This command will tell the application to parse the directory located at
+'stable/v3.12.14' and import everything there.
+
+  curl -X POST -H "Content-Type: application/json" -d '{"job": "stable", "kernel": "v3.12.14"}' localhost:8888/api/job
