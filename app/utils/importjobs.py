@@ -48,9 +48,9 @@ def import_job(job, kernel, db, base_path=BASE_PATH):
     import_jobs(db, docs)
 
 
-def traverse_defconf_dir(job_dir, job_id):
+def traverse_defconf_dir(kernel_dir, job_id):
     defconf_docs = []
-    for defconf_dir in os.listdir(job_dir):
+    for defconf_dir in os.listdir(kernel_dir):
         defconf_doc = DefConfigDocument(defconf_dir)
         defconf_doc.job_id = job_id
         defconf_docs.append(defconf_doc)
