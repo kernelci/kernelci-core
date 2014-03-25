@@ -44,7 +44,9 @@ class BaseHandler(tornado.web.RequestHandler):
                 }
             )
         else:
-            result = self.collection.find()
+            limit = int(self.get_query_argument('limit', default=20))
+            skip = int(self.get_query_argument('skip', default=0))
+            result = self.collection.find(limit=limit, skip=skip)
 
         self.write(dumps(result))
 
