@@ -19,13 +19,20 @@ import tornado.web
 
 from urls import app_urls
 
+
+class KernelCiBackend(tornado.web.Application):
+    def __init__(self, **overrides):
+        client = pymongo.MongoClient()
+        handlers = app_urls
+
+        settings = {
+            "client": client,
+        }
+
+        super(KernelCiBackend, self).__init__(handlers, **settings)
+
+
 if __name__ == '__main__':
-    client = pymongo.MongoClient()
-
-    application = tornado.web.Application(
-        app_urls,
-        client=client,
-    )
-
+    application = KernelCiBackend()
     application.listen(8888)
     tornado.ioloop.IOLoop.instance().start()
