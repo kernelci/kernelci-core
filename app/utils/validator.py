@@ -14,17 +14,23 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-def valid_job_json_put(json_doc):
-    is_valid = False
-    keys = json_doc.keys()
+def is_valid_json_put(json_obj, accepted_keys):
+    """Validate JSON object for PUT request.
 
-    if 'job' in keys and 'kernel' in keys:
-        is_valid |= True
+    To be invalid, just one of the keys passed needs not to be found.
 
-    return is_valid
+    :param json_obj: The JSON object to validate. It will be treated as a
+                     Python dictionary.
+    :param accepted_keys: A list of keys that needs to be found in the JSON
+                          object.
+    :return True or False.
+    """
+    is_valid = True
+    json_keys = json_obj.keys()
 
+    for key in accepted_keys:
+        if key not in json_keys:
+            is_valid &= False
+            break
 
-def valid_subscription_json_put(json_doc):
-    is_valid = False
-    keys = json_dod.keys()
     return is_valid

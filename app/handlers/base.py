@@ -18,12 +18,8 @@ import tornado.web
 from bson.json_util import dumps
 
 from models import DB_NAME
+from utils import is_valid_json_put
 
-ACCEPTED_MEDIA_TYPE = 'application/json'
-ERROR_MESSAGES = {
-    415: 'Please use "%s" as the default media type.' % (ACCEPTED_MEDIA_TYPE),
-    400: 'Provided JSON is not valid.',
-}
 
 DEFAULT_LIMIT = 20
 MAX_LIMIT = 100
@@ -38,6 +34,32 @@ class BaseHandler(tornado.web.RequestHandler):
     @property
     def db(self):
         return self.settings['client'][DB_NAME]
+
+    @property
+    def accepted_keys(self):
+        return ()
+
+    def get_error_message(self, code):
+        error_messages = {
+            415: (
+                'Please use "%s" as the default media type.' %
+                self.accepted_content_type
+            ),
+            400: 'Provided JSON is not valid.',
+        }
+
+        return error_messages.get(code, None)
+
+    @property
+    def accepted_content_type(self):
+        """The accepted Content-Type for PUT request.
+
+        Defaults to 'application/json'.
+        """
+        return 'application/json'
+
+    def is_valid_put(self, json_doc):
+        return is_valid_json_put(json_doc, self.accepted_keys)
 
     def get(self, *args, **kwargs):
         if kwargs and kwargs['id']:
@@ -59,13 +81,14 @@ class BaseHandler(tornado.web.RequestHandler):
         self.write(dumps(result))
 
     def write_error(self, status_code, **kwargs):
-        if status_code in ERROR_MESSAGES.keys():
+        error_msg = self.get_error_message(status_code)
+        if error_msg:
             self.finish(
                 "<html><title>%(code)s: %(default_msg)s</title>"
                 "<body>%(error_msg)s</body></html>" % {
                     "code": status_code,
                     "default_msg": self._reason,
-                    "error_msg": ERROR_MESSAGES[status_code]
+                    "error_msg": error_msg
                 }
             )
         else:

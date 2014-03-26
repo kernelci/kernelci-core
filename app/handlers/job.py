@@ -18,15 +18,9 @@ import json
 from tornado import gen
 from tornado.web import asynchronous
 
-from base import (
-    ACCEPTED_MEDIA_TYPE,
-    BaseHandler,
-)
+from base import BaseHandler
 from models import JOB_COLLECTION
-from utils import (
-    import_job_from_json,
-    valid_job_json_put,
-)
+from utils import import_job_from_json
 
 
 class JobHandler(BaseHandler):
@@ -35,14 +29,18 @@ class JobHandler(BaseHandler):
     def collection(self):
         return self.db[JOB_COLLECTION]
 
+    @property
+    def accepted_keys(self):
+        return ('job', 'kernel')
+
     @asynchronous
     @gen.engine
     def post(self, *args, **kwargs):
-        if self.request.headers['Content-Type'] != ACCEPTED_MEDIA_TYPE:
+        if self.request.headers['Content-Type'] != self.accepted_content_type:
             self.send_error(status_code=415)
         else:
             json_doc = json.loads(self.request.body.decode('utf8'))
-            if valid_job_json_put(json_doc):
+            if self.is_valid_put(json_doc):
                 response = yield gen.Task(
                     import_job_from_json,
                     json_doc,
