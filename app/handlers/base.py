@@ -20,7 +20,7 @@ from bson.json_util import dumps
 from models import DB_NAME
 from utils import is_valid_json_put
 
-
+# Default and maximum limit for how many results to get back from the db.
 DEFAULT_LIMIT = 20
 MAX_LIMIT = 100
 
@@ -29,17 +29,27 @@ class BaseHandler(tornado.web.RequestHandler):
 
     @property
     def collection(self):
+        """The name of the database collection for this object."""
         return None
 
     @property
     def db(self):
+        """The database instance associated with the object."""
         return self.settings['client'][DB_NAME]
 
     @property
     def accepted_keys(self):
+        """The list of accepted keys to validate a JSON object."""
         return ()
 
     def get_error_message(self, code):
+        """Get custom error message based on the status code.
+
+        :param code: The status code to get the message of.
+        :type int
+        :return The error message string, or None if the code does not have
+                a custom message.
+        """
         error_messages = {
             415: (
                 'Please use "%s" as the default media type.' %
@@ -58,8 +68,13 @@ class BaseHandler(tornado.web.RequestHandler):
         """
         return 'application/json'
 
-    def is_valid_put(self, json_doc):
-        return is_valid_json_put(json_doc, self.accepted_keys)
+    def is_valid_put(self, json_obj):
+        """Validate PUT requests content.
+
+        :param json_obj: The JSON object to validate.
+        :return True or False.
+        """
+        return is_valid_json_put(json_obj, self.accepted_keys)
 
     def get(self, *args, **kwargs):
         if kwargs and kwargs['id']:
