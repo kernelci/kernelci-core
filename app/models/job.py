@@ -22,9 +22,54 @@ class JobDocument(BaseDocument):
 
     JOB_ID_FORMAT = '%s-%s'
 
-    def __init__(self, name):
+    def __init__(self, name, job=None, kernel=None):
         super(JobDocument, self).__init__(name)
+
+        self._private = False
+        self._job = job
+        self._kernel = kernel
+        self._created = None
 
     @property
     def collection(self):
         return JOB_COLLECTION
+
+    @property
+    def private(self):
+        return self._private
+
+    @private.setter
+    def private(self, value):
+        self._private = value
+
+    @property
+    def job(self):
+        return self._job
+
+    @job.setter
+    def job(self, value):
+        self._job = value
+
+    @property
+    def kernel(self):
+        return self._kernel
+
+    @kernel.setter
+    def kernel(self, value):
+        self._kernel = value
+
+    @property
+    def created(self):
+        return self._created
+
+    @created.setter
+    def created(self, value):
+        self._created = value
+
+    def to_dict(self):
+        job_dict = super(JobDocument, self).to_dict()
+        job_dict['private'] = self._private
+        job_dict['job'] = self._job
+        job_dict['kernel'] = self._kernel
+        job_dict['created'] = str(self._created)
+        return job_dict
