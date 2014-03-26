@@ -16,6 +16,12 @@
 from base import BaseDocument
 
 DEFCONFIG_COLLECTION = 'defconfig'
+DEFCONFIG_ACCEPTED_FILES = {
+    'zImage': 'zimage',
+    'Image': 'image',
+    'System.map': 'system_map',
+    'kernel.config': 'kernel_conf',
+}
 
 
 class DefConfigDocument(BaseDocument):
@@ -24,6 +30,10 @@ class DefConfigDocument(BaseDocument):
         super(DefConfigDocument, self).__init__(name)
 
         self._job_id = job_id
+        self._zimage = None
+        self._image = None
+        self._system_map = None
+        self._kernel_conf = None
 
     @property
     def collection(self):
@@ -37,7 +47,43 @@ class DefConfigDocument(BaseDocument):
     def job_id(self, value):
         self._job_id = value
 
+    @property
+    def zimage(self):
+        return self._zimage
+
+    @zimage.setter
+    def zimage(self, value):
+        self._zimage = value
+
+    @property
+    def image(self):
+        return self._image
+
+    @image.setter
+    def image(self, value):
+        self._image = value
+
+    @property
+    def system_map(self):
+        return self._system_map
+
+    @system_map.setter
+    def system_map(self, value):
+        self._system_map = value
+
+    @property
+    def kernel_conf(self):
+        return self._kernel_conf
+
+    @kernel_conf.setter
+    def kernel_conf(self, value):
+        self._kernel_conf = value
+
     def to_dict(self):
         defconf_dict = super(DefConfigDocument, self).to_dict()
         defconf_dict['job_id'] = self._job_id
+        defconf_dict['zimage'] = self._zimage
+        defconf_dict['image'] = self._image
+        defconf_dict['system_map'] = self._system_map
+        defconf_dict['kernel_conf'] = self._kernel_conf
         return defconf_dict
