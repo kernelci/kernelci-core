@@ -25,7 +25,7 @@ from base import (
 from models import JOB_COLLECTION
 from utils import (
     import_job_from_json,
-    valid_json_job_put,
+    valid_job_json_put,
 )
 
 
@@ -42,7 +42,7 @@ class JobHandler(BaseHandler):
             self.send_error(status_code=415)
         else:
             json_doc = json.loads(self.request.body.decode('utf8'))
-            if valid_json_job_put(json_doc):
+            if valid_job_json_put(json_doc):
                 response = yield gen.Task(
                     import_job_from_json,
                     json_doc,

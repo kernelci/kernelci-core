@@ -18,9 +18,13 @@ import pymongo
 
 from models import (
     DB_NAME,
+    DEFCONFIG_ACCEPTED_FILES,
     DefConfigDocument,
     JobDocument,
 )
+
+from utils.utc import utc
+from datetime import datetime
 
 
 BASE_PATH = '/var/www/images/kernel-ci'
@@ -40,7 +44,11 @@ def import_job(job, kernel, db, base_path=BASE_PATH):
     job_dir = os.path.join(base_path, job, kernel)
     job_id = JobDocument.JOB_ID_FORMAT % (job, kernel)
 
-    docs = [JobDocument(job_id)]
+    docs = []
+    doc = JobDocument(job_id, job=job, kernel=kernel)
+    doc.created = datetime.now(tz=utc).isoformat()
+
+    docs.append(doc)
 
     if os.path.isdir(job_dir):
         docs.extend(traverse_defconf_dir(job_dir, job_id))
@@ -53,6 +61,14 @@ def traverse_defconf_dir(kernel_dir, job_id):
     for defconf_dir in os.listdir(kernel_dir):
         defconf_doc = DefConfigDocument(defconf_dir)
         defconf_doc.job_id = job_id
+
+        for dirname, subdirs, files in os.walk(
+                os.path.join(kernel_dir, defconf_dir)):
+            # Consider only the actual directory and its files.
+            subdirs[:] = []
+            for key, val in DEFCONFIG_ACCEPTED_FILES.iteritems():
+                if key in files:
+                    setattr(defconf_doc, val, os.path.join(dirname, key))
         defconf_docs.append(defconf_doc)
     return defconf_docs
 
@@ -67,7 +83,8 @@ def import_all(base_path=BASE_PATH):
 
         for kernel_dir in os.listdir(job_dir):
             doc_id = JobDocument.JOB_ID_FORMAT % (job_id, kernel_dir)
-            job_doc = JobDocument(doc_id)
+            job_doc = JobDocument(doc_id, job=job_id, kernel=kernel_dir)
+            job_doc.created = datetime.now(tz=utc).isoformat()
             docs.append(job_doc)
 
             kernel_dir = os.path.join(job_dir, kernel_dir)

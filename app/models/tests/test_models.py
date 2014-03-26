@@ -29,15 +29,25 @@ class TestModels(unittest.TestCase):
         self.assertIsInstance(job_doc, BaseDocument)
 
     def test_job_document_to_dict(self):
+        expected = {
+            'kernel': None,
+            'job': None,
+            '_id': 'job',
+            'private': False,
+            'created': 'None'
+        }
         job_doc = JobDocument('job')
-        self.assertEqual(job_doc.to_dict(), {'_id': 'job'})
+        self.assertEqual(job_doc.to_dict(), expected)
 
     def test_job_document_collection(self):
         job_doc = JobDocument('job')
         self.assertEqual(job_doc.collection, 'job')
 
     def test_job_document_to_json(self):
-        expected_json = '{"_id": "job"}'
+        expected_json = (
+            '{"kernel": null, "job": null, "_id": "job", "private": false, '
+            '"created": "None"}'
+        )
 
         job_doc = JobDocument('job')
         self.assertEqual(job_doc.to_json(), expected_json)
@@ -47,23 +57,37 @@ class TestModels(unittest.TestCase):
         self.assertIsInstance(defconf_doc, BaseDocument)
 
     def test_defconfig_document_to_dict(self):
-        expected_dict = {'_id': 'defconfig', 'job_id': None}
+        expected = {
+            'job_id': None,
+            'image': None,
+            'system_map': None,
+            'zimage': None,
+            '_id': 'defconfig',
+            'job_id': None,
+            'kernel_conf': None,
+        }
 
         defconfig_doc = DefConfigDocument('defconfig')
-        self.assertEqual(defconfig_doc.to_dict(), expected_dict)
+        self.assertEqual(defconfig_doc.to_dict(), expected)
 
     def test_defconfig_document_collection(self):
         defconfig_doc = DefConfigDocument('defconfig')
         self.assertEqual(defconfig_doc.collection, 'defconfig')
 
     def test_defconfig_document_to_json(self):
-        expected_json = '{"_id": "defconfig", "job_id": null}'
+        expected_json = (
+            '{"job_id": null, "image": null, "system_map": null, '
+            '"zimage": null, "_id": "defconfig", "kernel_conf": null}'
+        )
 
         defconfig_doc = DefConfigDocument('defconfig')
         self.assertEqual(defconfig_doc.to_json(), expected_json)
 
     def test_defconfig_document_kernel_setter(self):
-        expected_json = '{"_id": "defconfig", "job_id": "job"}'
+        expected_json = (
+            '{"job_id": "job", "image": null, "system_map": null, '
+            '"zimage": null, "_id": "defconfig", "kernel_conf": null}'
+        )
 
         defconf_doc = DefConfigDocument('defconfig')
         defconf_doc.job_id = "job"

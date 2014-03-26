@@ -17,23 +17,23 @@ import json
 import unittest
 
 from utils.validator import (
-    valid_json_job_put,
+    valid_job_json_put,
 )
 
 
-class JsonValidatorTest(unittest.TestCase):
+class TestValidator(unittest.TestCase):
 
-    def test_valid_json_job_put_valid(self):
+    def test_valid_job_json_put_valid(self):
         json_string = '{"job": "job", "kernel": "kernel"}'
 
-        self.assertTrue(valid_json_job_put(json.loads(json_string)))
+        self.assertTrue(valid_job_json_put(json.loads(json_string)))
 
-    def test_valid_json_job_put_not_valid_job(self):
+    def test_valid_job_json_put_not_valid_job(self):
         json_string = '{"job": "job"}'
 
-        self.assertFalse(valid_json_job_put(json.loads(json_string)))
+        self.assertFalse(valid_job_json_put(json.loads(json_string)))
 
-    def test_valid_json_job_put_not_valid_kernel(self):
+    def test_valid_job_json_put_not_valid_kernel(self):
         json_string = '{"kernel": "kernel"}'
 
-        self.assertFalse(valid_json_job_put(json.loads(json_string)))
+        self.assertFalse(valid_job_json_put(json.loads(json_string)))

@@ -14,11 +14,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-def valid_json_job_put(json_doc):
+def valid_job_json_put(json_doc):
     is_valid = False
     keys = json_doc.keys()
 
     if 'job' in keys and 'kernel' in keys:
         is_valid |= True
 
+    return is_valid
+
+
+def valid_subscription_json_put(json_doc):
+    is_valid = False
+    keys = json_dod.keys()
     return is_valid
