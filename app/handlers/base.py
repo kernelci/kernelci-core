@@ -25,6 +25,9 @@ ERROR_MESSAGES = {
     400: 'Provided JSON is not valid.',
 }
 
+DEFAULT_LIMIT = 20
+MAX_LIMIT = 100
+
 
 class BaseHandler(tornado.web.RequestHandler):
 
@@ -44,8 +47,13 @@ class BaseHandler(tornado.web.RequestHandler):
                 }
             )
         else:
-            limit = int(self.get_query_argument('limit', default=20))
             skip = int(self.get_query_argument('skip', default=0))
+            limit = int(
+                self.get_query_argument('limit', default=DEFAULT_LIMIT)
+            )
+            if limit > MAX_LIMIT:
+                limit = MAX_LIMIT
+
             result = self.collection.find(limit=limit, skip=skip)
 
         self.write(dumps(result))
