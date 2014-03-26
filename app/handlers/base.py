@@ -52,7 +52,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
     @property
     def accepted_content_type(self):
-        """The accepted Content-Type for PUT request.
+        """The accepted Content-Type for PUT requests.
 
         Defaults to 'application/json'.
         """

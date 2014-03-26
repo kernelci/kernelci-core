@@ -17,3 +17,4 @@ from job import *
 from defconfig import *
 
 DB_NAME = 'kernel-ci'
+SUBSCRIPTION_COLLECTION = 'subscription'
