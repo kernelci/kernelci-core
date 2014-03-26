@@ -33,13 +33,14 @@ class TestParseJob(unittest.TestCase):
         docs = import_all()
         self.assertEqual(len(docs), 2)
 
+    @patch("os.walk")
     @patch("os.listdir")
-    def test_import_all_complex(self, mock_os_listdir):
+    def test_import_all_complex(self, mock_os_listdir, mock_os_walk):
         mock_os_listdir.side_effect = [
             ['job1', 'job2'],
             ['kernel1', 'kernel2'],
             ['defconf1', 'defconf2'],
-            ['defconf3,', 'defconf4'],
+            ['defconf3', 'defconf4'],
             ['kernel3'],
             ['defconf5']
         ]
