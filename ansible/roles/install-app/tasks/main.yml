@@ -1,0 +1,27 @@
+---
+
+- name: Checkout kernel-ci-backend code
+  git:  repo=http://git.linaro.org/git/infrastructure/kernel-ci-backend.git
+        dest={{ install_base }}/{{ hostname }}
+        version={{ git_head }}
+        update=yes
+  notify: restart-kernel-ci-backend
+  tags:
+    - install
+    - app
+
+- name: Fix cloned repo permissions
+  file: path={{ install_base }}/{{ hostname }}
+        state=directory
+        recurse=yes
+        owner={{ app_user }}
+        group={{ app_user }}
+  tags:
+    - install
+    - app
+
+- name: Install pip requirements
+  pip: requirements={{ install_base }}/{{ hostname }}/requirements.txt
+  tags:
+    - install
+    - app

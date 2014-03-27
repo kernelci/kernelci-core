@@ -6,6 +6,7 @@
             url=hkp://keyserver.ubuntu.com:80
   tags:
     - install
+    - mongodb
 
 - name: Add MongoDB repository
   apt_repository: repo='deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen'
@@ -13,9 +14,11 @@
                   update_cache=yes
   tags:
     - install
+    - mongodb
 
 - name: Install MongoDB
   apt:  name=mongodb-10gen
         state=latest
   tags:
     - install
+    - mongodb

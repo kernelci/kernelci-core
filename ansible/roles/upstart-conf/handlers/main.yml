@@ -1,0 +1,13 @@
+---
+
+- name: start-kernel-ci-backend
+  service:  name={{ upstart_service }}
+            state=started
+
+- name: restart-kernel-ci-backend
+  service:  name={{ upstart_service }}
+            state=restarted
+
+- name: stop-kernel-ci-backend
+  service:  name={{ upstart_service }}
+            state=stopped

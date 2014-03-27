@@ -1,0 +1,8 @@
+---
+
+- name: Install Upstart conf
+  template: src=kernel-ci-backend.conf
+            dest=/etc/init/{{ upstart_service }}.conf
+            mode=0644
+            owner=root
+            group=root

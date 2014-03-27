@@ -4,16 +4,15 @@
         state=latest
   with_items:
     - build-essential
-    - python2.7-dev
+    - git
+    - python-jinja
+    - python-mock
+    - python-paramiko
     - python-pip
     - python-simplejson
+    - python-yaml
+    - python2.7-dev
   tags:
     - install
 
-- name: Install OS depencencies to run tests
-  apt:  name={{ item }}
-        state=latest
-  with_items:
-    - python-mock
-  tags:
-    - tests
+- include: install-mongodb.yml
