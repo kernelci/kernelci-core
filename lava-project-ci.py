@@ -153,10 +153,10 @@ def drop_test_db():
             output = subprocess.check_output(cmd, shell=True)
             if debug:
                 print output
-            message = '* TEARDOWN STEP: [PASSED]: %s' % cmd
+            message = '* TEAR DOWN STEP: [PASSED]: %s' % cmd
             result_message_list.append(message)
         except subprocess.CalledProcessError as e:
-            message = '* TEARDOWN STEP: [FAILED]: %s' % cmd
+            message = '* TEAR DOWN STEP: [FAILED]: %s' % cmd
             result_message_list.append(message)
             print e.output
             publish_result(False)
