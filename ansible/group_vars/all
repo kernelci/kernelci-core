@@ -1,2 +1,4 @@
-checkout_dir: /home/ubuntu
+ansible_ssh_user: ubuntu
+checkout_dir: /home/{{ ansible_ssh_user }}
 install_base: /srv
+hostname: kernel-ci.backend.linaro.org
