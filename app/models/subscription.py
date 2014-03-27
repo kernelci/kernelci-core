@@ -13,9 +13,23 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from base import *
-from job import *
-from defconfig import *
-from subscription import *
+from models import BaseDocument
 
-DB_NAME = 'kernel-ci'
+SUBSCRIPTION_COLLECTION = 'subscription'
+
+
+class SubscriptionDocument(BaseDocument):
+
+    def __init__(self, name):
+        super(SubscriptionDocument, self).__init__(name)
+
+    @staticmethod
+    def from_json(json_obj):
+        """Build a document from a JSON object.
+
+        :param json_obj: The JSON object to start from.
+        :return An instance of SubscriptionDocument.
+        """
+        name = json_obj.pop("_id")
+        sub_doc = SubscriptionDocument(name)
+        return sub_doc

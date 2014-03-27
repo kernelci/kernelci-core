@@ -42,7 +42,7 @@ class TestJobHandler(unittest.TestCase):
 
     @patch("handlers.JobHandler.db")
     @patch("handlers.JobHandler.collection")
-    def test_job_handler_get_multiple_result(self, mock_coll, mock_db):
+    def job_handler_get_multiple_result(self, mock_coll, mock_db):
         expcted = [
             {"_id": "job1"},
             {"_id": "job0"}
@@ -61,7 +61,7 @@ class TestJobHandler(unittest.TestCase):
 
     @patch("handlers.JobHandler.db")
     @patch("handlers.JobHandler.collection")
-    def test_job_handler_get_one_result(self, mock_coll, mock_db):
+    def job_handler_get_one_result(self, mock_coll, mock_db):
         expected = {"_id": "job2"}
 
         self.handler.db = mongomock.Database(mongomock.Connection(), DB_NAME)

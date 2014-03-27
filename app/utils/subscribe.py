@@ -13,9 +13,26 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from base import *
-from job import *
-from defconfig import *
-from subscription import *
+from models import (
+    JOB_COLLECTION,
+    SUBSCRIPTION_COLLECTION,
+)
+from utils.db import find_one
 
-DB_NAME = 'kernel-ci'
+
+def subscribe_emails(json_obj, db, callback):
+    job = json_obj['job']
+    emails = json_obj['emails']
+
+    if not isinstance(emails, list):
+        emails = list(emails)
+
+    result = find_one(db[JOB_COLLECTION], job)
+    if result:
+        sub_id = None
+        subscription = find_one(db[SUBSCRIPTION_COLLECTION])
+        # Search for an already available subscription
+        # If there is, update the list of emails, otherwise create new.
+        # db[SUBSCRIPTION_COLLECTION].save()
+    print result
+    callback("DONE")

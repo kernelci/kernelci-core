@@ -19,3 +19,4 @@ from docimport import (
 )
 
 from validator import *
+from subscribe import *

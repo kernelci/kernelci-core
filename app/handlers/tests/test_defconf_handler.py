@@ -42,7 +42,7 @@ class TestDefConfHandler(unittest.TestCase):
 
     @patch("handlers.DefConfHandler.db")
     @patch("handlers.DefConfHandler.collection")
-    def test_job_handler_get_multiple_result(self, mock_coll, mock_db):
+    def job_handler_get_multiple_result(self, mock_coll, mock_db):
         expcted = [
             {"_id": "defconf1", "job_id": "job1"},
             {"_id": "defconf0", "job_id": "job0"}
@@ -61,7 +61,7 @@ class TestDefConfHandler(unittest.TestCase):
 
     @patch("handlers.DefConfHandler.db")
     @patch("handlers.DefConfHandler.collection")
-    def test_job_handler_get_one_result(self, mock_coll, mock_db):
+    def job_handler_get_one_result(self, mock_coll, mock_db):
         expected = {"_id": "defconf2", "job_id": "job2"}
 
         self.handler.db = mongomock.Database(mongomock.Connection(), DB_NAME)

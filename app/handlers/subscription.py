@@ -20,6 +20,7 @@ from tornado.web import asynchronous
 
 from base import BaseHandler
 from models import SUBSCRIPTION_COLLECTION
+from utils import subscribe_emails
 
 
 class SubscriptionHandler(BaseHandler):
@@ -40,7 +41,14 @@ class SubscriptionHandler(BaseHandler):
         else:
             json_doc = json.loads(self.request.body.decode('utf8'))
             if self.is_valid_put(json_doc):
-                response = 200
+                response = yield gen.Task(
+                    subscribe_emails,
+                    json_doc,
+                    self.db
+                )
                 self.finish(response)
             else:
                 self.send_error(status_code=400)
+
+    def delete(self, *args, **kwargs):
+        self.write_error(status_code=404)

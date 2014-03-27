@@ -16,9 +16,12 @@
 import tornado.web
 
 from bson.json_util import dumps
+from tornado import gen
+from tornado.web import asynchronous
 
 from models import DB_NAME
 from utils import is_valid_json_put
+from utils.db import find_one_async, find_async
 
 # Default and maximum limit for how many results to get back from the db.
 DEFAULT_LIMIT = 20
@@ -76,12 +79,14 @@ class BaseHandler(tornado.web.RequestHandler):
         """
         return is_valid_json_put(json_obj, self.accepted_keys)
 
+    @asynchronous
+    @gen.engine
     def get(self, *args, **kwargs):
         if kwargs and kwargs['id']:
-            result = self.collection.find_one(
-                {
-                    "_id": {"$in": [kwargs['id']]}
-                }
+            result = yield gen.Task(
+                find_one_async,
+                self.collection,
+                kwargs['id'],
             )
         else:
             skip = int(self.get_query_argument('skip', default=0))
@@ -91,9 +96,14 @@ class BaseHandler(tornado.web.RequestHandler):
             if limit > MAX_LIMIT:
                 limit = MAX_LIMIT
 
-            result = self.collection.find(limit=limit, skip=skip)
+            result = yield gen.Task(
+                find_async,
+                self.collection,
+                limit,
+                skip,
+            )
 
-        self.write(dumps(result))
+        self.finish(dumps(result))
 
     def write_error(self, status_code, **kwargs):
         error_msg = self.get_error_message(status_code)

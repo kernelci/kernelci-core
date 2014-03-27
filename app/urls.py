@@ -18,9 +18,11 @@ from tornado.web import url
 from handlers import (
     DefConfHandler,
     JobHandler,
+    SubscriptionHandler
 )
 
 app_urls = [
-    url(r'/api/defconfig(?P<sl>/)?(?P<id>.*)', DefConfHandler, name="defconf"),
-    url(r'/api/job(?P<sl>/)?(?P<id>.*)', JobHandler, name="job"),
+    url(r'/api/defconfig(?P<sl>/)?(?P<id>.*)', DefConfHandler, name='defconf'),
+    url(r'/api/job(?P<sl>/)?(?P<id>.*)', JobHandler, name='job'),
+    url(r'/api/subscription', SubscriptionHandler, name='subscription')
 ]
