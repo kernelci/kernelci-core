@@ -2,6 +2,7 @@
 - name: Install OS dependencies
   apt:  name={{ item }}
         state=latest
+        update_cache=yes
   with_items:
     - build-essential
     - git
@@ -9,6 +10,7 @@
     - python-mock
     - python-paramiko
     - python-pip
+    - python-pycurl
     - python-simplejson
     - python-yaml
     - python2.7-dev
