@@ -138,13 +138,28 @@ def run_unit_tests():
         message = '* UNIT TESTS: [PASSED]: %s' % cmd
         result_message_list.append(message)
     except subprocess.CalledProcessError as e:
-        message_list = []
-        message_list.append('* UNIT TEST: [FAILED]: %s' % cmd)
-        message = '\n'.join(message_list)
+        message = '* UNIT TEST: [FAILED]: %s' % cmd
         result_message_list.append(message)
         print e.output
         publish_result(False)
         exit(1)
+
+def drop_test_db():
+    lava_project = os.environ['GERRIT_PROJECT'].split('/')[1]
+    if lava_project == 'lava-server':
+        cmd = "dropdb 'test_lava-lavabot'"
+        try:
+            output = subprocess.check_output(cmd, shell=True)
+            if debug:
+                print output
+            message = '* TEARDOWN STEP: [PASSED]: %s' % cmd
+            result_message_list.append(message)
+        except subprocess.CalledProcessError as e:
+            message = '* TEARDOWN STEP: [FAILED]: %s' % cmd
+            result_message_list.append(message)
+            print e.output
+            publish_result(False)
+            exit(1)
 
 def init():
     result_message_list.append('* LAVABOT: [RESULTS]: Automated test results for patch set: %s' % os.environ['GERRIT_PATCHSET_REVISION'])
@@ -163,6 +178,7 @@ def main(ignore_options):
     checkout_and_rebase()
     pep8_check(ignore_options)
     run_unit_tests()
+    drop_test_db()
     publish_result(True)
     exit(0)
 
