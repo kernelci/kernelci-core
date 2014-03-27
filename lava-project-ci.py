@@ -140,6 +140,7 @@ def run_unit_tests():
     except subprocess.CalledProcessError as e:
         message = '* UNIT TEST: [FAILED]: %s' % cmd
         result_message_list.append(message)
+        drop_test_db()
         print e.output
         publish_result(False)
         exit(1)
@@ -178,7 +179,6 @@ def main(ignore_options):
     checkout_and_rebase()
     pep8_check(ignore_options)
     run_unit_tests()
-    drop_test_db()
     publish_result(True)
     exit(0)
 
