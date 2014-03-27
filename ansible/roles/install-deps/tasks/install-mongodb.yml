@@ -22,3 +22,10 @@
   tags:
     - install
     - mongodb
+
+- name: Make sure MongoDB is running
+  service:  name=mongodb
+            state=started
+  tags:
+    - install
+    - mongodb
