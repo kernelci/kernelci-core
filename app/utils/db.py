@@ -17,7 +17,7 @@ import types
 
 from pymongo.errors import OperationFailure
 
-from models import BaseDocument
+from models.base import BaseDocument
 
 
 def find_one_async(collection, values, field="_id", callback=None):
@@ -100,7 +100,17 @@ def find(collection, limit, skip):
     return collection.find(limit=limit, skip=skip)
 
 
-def save(collection, documents):
+def save(database, documents):
+    """Save documents into the database.
+
+    :param database: The database where to save.
+    :type
+    :param documents: The document to save, can be a list or a single document:
+                      the type of each document must be: BaseDocument or a
+                      subclass.
+    :type list, BaseDocument
+    :return 200 if the save has success, 500 in case of errors.
+    """
     ret_value = 200
 
     if not isinstance(documents, types.ListType):
@@ -110,11 +120,12 @@ def save(collection, documents):
         to_save = None
         if isinstance(document, BaseDocument):
             to_save = document.to_dict()
-        elif isinstance(document, types.DictionaryType):
-            to_save = document
+        else:
+            # TODO log that we cannot save the document.
+            continue
 
         try:
-            collection.save(to_save, manipulate=False)
+            database[document.collection].save(to_save, manipulate=False)
         except OperationFailure:
             ret_value = 500
 

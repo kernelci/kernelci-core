@@ -18,7 +18,7 @@ import unittest
 from mock import patch
 
 from utils.docimport import (
-    import_all,
+    _import_all,
 )
 
 
@@ -30,7 +30,7 @@ class TestParseJob(unittest.TestCase):
             ['job'], ['kernel'], ['defconf'],
         ]
 
-        docs = import_all()
+        docs = _import_all()
         self.assertEqual(len(docs), 2)
 
     @patch("os.walk")
@@ -45,7 +45,7 @@ class TestParseJob(unittest.TestCase):
             ['defconf5']
         ]
 
-        docs = import_all()
+        docs = _import_all()
         self.assertEqual(len(docs), 8)
 
     @patch("os.listdir")
@@ -54,7 +54,7 @@ class TestParseJob(unittest.TestCase):
             ['job'], ['kernel'], ['defconf'],
         ]
 
-        docs = import_all()
+        docs = _import_all()
         self.assertEqual(len(docs), 2)
         self.assertEqual(docs[0].name, "job-kernel")
         self.assertEqual(docs[1].job_id, "job-kernel")

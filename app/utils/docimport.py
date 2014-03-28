@@ -13,34 +13,61 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""Container for all the import related functions."""
+
 import os
 import pymongo
 
-from models import (
-    DB_NAME,
+from datetime import datetime
+
+from models import DB_NAME
+from models.defconfig import (
     DEFCONFIG_ACCEPTED_FILES,
     DefConfigDocument,
-    JobDocument,
 )
-
+from models.job import JobDocument
+from utils.db import save
 from utils.utc import utc
-from datetime import datetime
 
 
 BASE_PATH = '/var/www/images/kernel-ci'
 
 
-def import_job_from_json(json_doc, db, base_path=BASE_PATH, callback=None):
-    job_dir = json_doc['job']
-    kernel_dir = json_doc['kernel']
+def import_job_from_json(
+        json_obj, database, base_path=BASE_PATH, callback=None):
+    """Import a job based on the provided JSON object.
 
-    import_job(job_dir, kernel_dir, db, base_path)
+    The provided JSON object, a dict-like object, should contain at least the
+    `job' and `kernel' keys. These keys will be used to traverse the directory
+    structure found at the `/job/kernel' path (starting from the default
+    location).
+
+    :param json_obj: A dict-like object, that should contain the keys `job' and
+                     `kernel'.
+    :param database: The database where to save the parsed data.
+    :param base_path: The base path where to start constructing the traverse
+                      directory. It defaults to: /var/www/images/kernel-ci.
+    :param callback: Optional function that will be called at the end of
+                     execution.
+    """
+    job_dir = json_obj['job']
+    kernel_dir = json_obj['kernel']
+
+    return_code = _import_job(job_dir, kernel_dir, database, base_path)
 
     if callback:
-        callback("DONE")
+        callback(return_code)
 
 
-def import_job(job, kernel, db, base_path=BASE_PATH):
+def _import_job(job, kernel, database, base_path=BASE_PATH):
+    """Traverse the job dir and create the documenst to save.
+
+    :param job: The name of the job.
+    :param kernel: The name of the kernel.
+    :param database: The databse where to save the parsed data.
+    :param base_path: The base path where to strat the traversing.
+    :return Return a status code based on the save operation.
+    """
     job_dir = os.path.join(base_path, job, kernel)
     job_id = JobDocument.JOB_ID_FORMAT % (job, kernel)
 
@@ -51,12 +78,18 @@ def import_job(job, kernel, db, base_path=BASE_PATH):
     docs.append(doc)
 
     if os.path.isdir(job_dir):
-        docs.extend(traverse_defconf_dir(job_dir, job_id))
+        docs.extend(_traverse_defconf_dir(job_dir, job_id))
 
-    save_documents(db, docs)
+    return save(database, docs)
 
 
-def traverse_defconf_dir(kernel_dir, job_id):
+def _traverse_defconf_dir(kernel_dir, job_id):
+    """Traverse the defconfing directories.
+
+    :param kernel_dir: The kernel dir where to start.
+    :param job_id: The id of the JobDocument the defconfing will be linked to.
+    :return A list of documents.
+    """
     defconf_docs = []
     for defconf_dir in os.listdir(kernel_dir):
         defconf_doc = DefConfigDocument(defconf_dir)
@@ -73,7 +106,14 @@ def traverse_defconf_dir(kernel_dir, job_id):
     return defconf_docs
 
 
-def import_all(base_path=BASE_PATH):
+def _import_all(base_path=BASE_PATH):
+    """This function is used only to trigger the import from the command line.
+
+    Do not use it elsewhere.
+    :param base_path: Where to start traversing directories. Defaults to:
+                      /var/www/images/kernel-ci.
+    :return The docs to save. All docs are subclasses of BaseDocument.
+    """
 
     docs = []
 
@@ -89,21 +129,16 @@ def import_all(base_path=BASE_PATH):
 
             kernel_dir = os.path.join(job_dir, kernel_dir)
 
-            docs.extend(traverse_defconf_dir(kernel_dir, doc_id))
+            docs.extend(_traverse_defconf_dir(kernel_dir, doc_id))
 
     return docs
 
 
-def save_documents(db, documents):
-    for document in documents:
-        db[document.collection].save(document.to_dict())
-
-
 if __name__ == '__main__':
-    conn = pymongo.MongoClient()
-    db = conn[DB_NAME]
+    connection = pymongo.MongoClient()
+    database = connection[DB_NAME]
 
-    docs = import_all()
-    save_documents(db, docs)
+    documents = _import_all()
+    save(database, documents)
 
-    conn.disconnect()
+    connection.disconnect()

@@ -15,8 +15,9 @@
 
 import types
 
-from models import (
-    JOB_COLLECTION,
+from models import ID_KEY
+from models.job import JOB_COLLECTION
+from models.subscription import (
     SUBSCRIPTION_COLLECTION,
     SubscriptionDocument,
 )
@@ -26,7 +27,7 @@ from utils.db import (
 )
 
 
-def subscribe_email(json_obj, db, callback):
+def subscribe_email(json_obj, database, callback):
     """Subscribe an email to a job.
 
     It accepts a dict-like object that should contain at least the `job_id' and
@@ -35,7 +36,7 @@ def subscribe_email(json_obj, db, callback):
     At the moment no validation is run on the email provided.
 
     :param json_obj: A dict-like object with `job_id' and `email' fields.
-    :param db: The database connection where to store the data.
+    :param database: The database connection where to store the data.
     :param callback: A function that will be called at the end.
     :return This function return 200 when the subscription has been performed,
             404 if the job to subscribe to does not exist, or 500 in case of
@@ -49,11 +50,11 @@ def subscribe_email(json_obj, db, callback):
         # more than one subscription.
         emails = [emails]
 
-    job_doc = find_one(db[JOB_COLLECTION], job)
+    job_doc = find_one(database[JOB_COLLECTION], job)
     if job_doc:
-        job_id = job_doc['_id']
+        job_id = job_doc[ID_KEY]
         subscription = find_one(
-            db[SUBSCRIPTION_COLLECTION],
+            database[SUBSCRIPTION_COLLECTION],
             job_id,
             'job_id'
         )
@@ -67,7 +68,7 @@ def subscribe_email(json_obj, db, callback):
             )
             sub_obj = SubscriptionDocument(sub_id, job_id, emails)
 
-        callback(save(db[SUBSCRIPTION_COLLECTION], sub_obj))
+        callback(save(database, sub_obj))
     else:
         # Document not found.
         callback(404)
