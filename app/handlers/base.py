@@ -16,6 +16,7 @@
 """The base RequestHandler that all subclasses should inherit from."""
 
 import types
+import httplib
 
 from bson.json_util import dumps
 from tornado import gen
@@ -70,7 +71,6 @@ class BaseHandler(RequestHandler):
                 a custom message.
         """
         status_messages = {
-            200: 'OK',
             400: 'Provided JSON is not valid.',
             404: 'Resource not found.',
             405: 'Operation not allowed.',
@@ -78,10 +78,17 @@ class BaseHandler(RequestHandler):
                 'Please use "%s" as the default media type.' %
                 self.accepted_content_type
             ),
-            500: 'Internal database error.'
+            500: 'Internal database error.',
+            501: 'Method not implemented.'
         }
 
-        return status_messages.get(status_code, None)
+        message = status_messages.get(status_code, None)
+        if not message:
+            # If we do not have a custom message, try to see into
+            # the Python lib for the default one or fail safely.
+            message = httplib.responses.get(
+                status_code, "Unknown status code returned.")
+        return message
 
     @property
     def accepted_content_type(self):
