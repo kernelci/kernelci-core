@@ -16,23 +16,33 @@
 from models import (
     JOB_COLLECTION,
     SUBSCRIPTION_COLLECTION,
+    SubscriptionDocument,
 )
-from utils.db import find_one
+from utils.db import (
+    find_one,
+    save,
+)
 
 
 def subscribe_emails(json_obj, db, callback):
     job = json_obj['job']
     emails = json_obj['emails']
 
-    if not isinstance(emails, list):
-        emails = list(emails)
+    job_doc = find_one(db[JOB_COLLECTION], job)
+    if job_doc:
+        subscription = find_one(
+            db[SUBSCRIPTION_COLLECTION],
+            job_doc["_id"],
+            "job_id"
+        )
 
-    result = find_one(db[JOB_COLLECTION], job)
-    if result:
-        sub_id = None
-        subscription = find_one(db[SUBSCRIPTION_COLLECTION])
-        # Search for an already available subscription
-        # If there is, update the list of emails, otherwise create new.
-        # db[SUBSCRIPTION_COLLECTION].save()
-    print result
-    callback("DONE")
+        if subscription:
+            sub_obj = SubscriptionDocument.from_json(json_obj)
+            sub_obj.emails = emails
+        else:
+            sub_id = (
+                SubscriptionDocument.SUBSCRIPTION_ID_FORMAT % (job_doc["_id"]))
+            sub_obj = SubscriptionDocument(sub_id)
+            sub_obj.emails = emails
+
+        callback(save(db[SUBSCRIPTION_COLLECTION], sub_obj.to_dict()))

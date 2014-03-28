@@ -15,27 +15,44 @@
 
 import types
 
+from pymongo.errors import OperationFailure
 
-def find_one_async(collection, doc_id, callback):
-    """Search a single document by its id.
+from models import BaseDocument
+
+
+def find_one_async(collection, values, field="_id", callback=None):
+    """Search for specific document, async version.
 
     Accepts an extra callback function that will be called with the results.
 
+    The `field' value can be specified, and by default is "_id".
+    The search executed is like:
+
+      collection.find_one({"_id": {"$in": values}})
+
     :param collection: The collection where to search.
-    :param doc_id: The '_id' of the document to find.
+    :param values: The values to search. Can be a list of multiple values.
+    :param field: The field where the value should be searched. Defaults to
+                  "_id".
     :param callback: Function to call with the results.
     :return None or the search result.
     """
-    result = find_one(collection, doc_id)
+    result = find_one(collection, values, field)
     callback(result)
 
 
 def find_one(collection, values, field="_id"):
-    """Search a single document by its id.
+    """Search for specific document.
+
+    The `field' value can be specified, and by default is "_id".
+    The search executed is like:
+
+      collection.find_one({"_id": {"$in": values}})
 
     :param collection: The collection where to search.
     :param values: The values to search. Can be a list of multiple values.
-    :param field: The field where the value should be searched.
+    :param field: The field where the value should be searched. Defaults to
+                  "_id".
     :return None or the search result.
     """
 
@@ -54,19 +71,51 @@ def find_one(collection, values, field="_id"):
     return result
 
 
-def find_one_where(collection, field, values):
-    result = collection.find_one(
-        {
-            field: {"$in": values}
-        }
-    )
+def find_async(collection, limit, skip, callback=None):
+    """Find all the documents in a collection, async version.
 
-    return result
+    Accept and extra `callback' argument.
 
-
-def find_async(collection, limit, skip, callback):
+    :param collection: The mongodb collection to look into.
+    :param limit: How many documents to return.
+    :type int
+    :param skip: How many documents to skip from the mongodb result.
+    :type int
+    :param callback: Function to call with the results.
+    :return A list of documents.
+    """
     callback(find(collection, limit, skip))
 
 
 def find(collection, limit, skip):
+    """Find all the documents in a collection.
+
+    :param collection: The mongodb collection to look into.
+    :param limit: How many documents to return.
+    :type int
+    :param skip: How many documents to skip from the mongodb result.
+    :type int
+    :return A list of documents.
+    """
     return collection.find(limit=limit, skip=skip)
+
+
+def save(collection, documents):
+    ret_value = 200
+
+    if not isinstance(documents, types.ListType):
+        documents = list(documents)
+
+    for document in documents:
+        to_save = None
+        if isinstance(document, BaseDocument):
+            to_save = document.to_dict()
+        elif isinstance(document, types.DictionaryType):
+            to_save = document
+
+        try:
+            collection.save(to_save, manipulate=False)
+        except OperationFailure:
+            ret_value = 500
+
+    return ret_value
