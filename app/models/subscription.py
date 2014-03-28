@@ -19,7 +19,8 @@ The model that represents a subscription document in the mongodb collection.
 
 import types
 
-from base import BaseDocument
+from models import ID_KEY
+from models.base import BaseDocument
 
 SUBSCRIPTION_COLLECTION = 'subscription'
 
@@ -37,6 +38,10 @@ class SubscriptionDocument(BaseDocument):
         super(SubscriptionDocument, self).__init__(name)
         self._job_id = job_id
         self._emails = [] if emails is None else emails
+
+    @property
+    def collection(self):
+        return SUBSCRIPTION_COLLECTION
 
     @property
     def job_id(self):
@@ -80,7 +85,7 @@ class SubscriptionDocument(BaseDocument):
         :return An instance of SubscriptionDocument.
         """
         sub_doc = SubscriptionDocument(
-            json_obj['_id'],
+            json_obj[ID_KEY],
             json_obj['job_id'],
             json_obj['emails']
         )

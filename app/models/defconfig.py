@@ -15,7 +15,7 @@
 
 """The model that represents a defconfing document in the mongodb collection."""
 
-from base import BaseDocument
+from models.base import BaseDocument
 
 DEFCONFIG_COLLECTION = 'defconfig'
 # Mapping used during the import phase.

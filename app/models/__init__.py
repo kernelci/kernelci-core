@@ -13,9 +13,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from base import *
-from job import *
-from defconfig import *
-from subscription import *
-
+# The default mongodb database name.
 DB_NAME = 'kernel-ci'
+
+# The default ID key for mongodb documents.
+ID_KEY = '_id'

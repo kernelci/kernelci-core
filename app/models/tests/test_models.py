@@ -15,11 +15,9 @@
 
 import unittest
 
-from models import (
-    BaseDocument,
-    DefConfigDocument,
-    JobDocument,
-)
+from models.base import BaseDocument
+from models.defconfig import DefConfigDocument
+from models.job import JobDocument
 
 
 class TestModels(unittest.TestCase):

@@ -15,7 +15,7 @@
 
 """The model that represents a job document in the mongodb collection."""
 
-from base import BaseDocument
+from models.base import BaseDocument
 
 JOB_COLLECTION = 'job'
 

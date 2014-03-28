@@ -17,6 +17,8 @@
 
 import json
 
+from models import ID_KEY
+
 
 class BaseDocument(object):
     """The base document model for all other documents."""
@@ -52,7 +54,7 @@ class BaseDocument(object):
         :return A dictionary.
         """
         return {
-            '_id': self._name
+            ID_KEY: self._name
         }
 
     def to_json(self):
