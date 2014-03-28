@@ -46,9 +46,11 @@ class SubscriptionHandler(BaseHandler):
                     json_doc,
                     self.db
                 )
-                self.finish(response)
+
+                self.write(response)
+                self.finish()
             else:
                 self.send_error(status_code=400)
 
     def delete(self, *args, **kwargs):
-        self.write_error(status_code=404)
+        self.write_error(status_code=405)

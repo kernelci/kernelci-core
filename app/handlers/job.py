@@ -46,6 +46,8 @@ class JobHandler(BaseHandler):
                     json_doc,
                     self.db
                 )
-                self.finish(response)
+
+                self.write(response)
+                self.finish()
             else:
                 self.send_error(status_code=400)
