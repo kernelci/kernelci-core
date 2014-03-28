@@ -22,7 +22,7 @@ from tornado.web import asynchronous
 
 from base import BaseHandler
 from models import SUBSCRIPTION_COLLECTION
-from utils import subscribe_emails
+from utils import subscribe_email
 
 
 class SubscriptionHandler(BaseHandler):
@@ -34,7 +34,7 @@ class SubscriptionHandler(BaseHandler):
 
     @property
     def accepted_keys(self):
-        return ('job', 'emails')
+        return ('job', 'email')
 
     @asynchronous
     @gen.engine
@@ -44,12 +44,16 @@ class SubscriptionHandler(BaseHandler):
         else:
             json_doc = json.loads(self.request.body.decode('utf8'))
             if self.is_valid_put(json_doc):
-                response = yield gen.Task(
-                    subscribe_emails,
+                result = yield gen.Task(
+                    subscribe_email,
                     json_doc,
                     self.db
                 )
 
+                status_code, response = self._create_valid_response(result)
+                response = dict(code=status_code, message=response)
+
+                self.set_status(status_code)
                 self.write(response)
                 self.finish()
             else:
