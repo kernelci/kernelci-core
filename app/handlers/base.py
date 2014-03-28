@@ -13,11 +13,16 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import tornado.web
+import types
 
 from bson.json_util import dumps
 from tornado import gen
-from tornado.web import asynchronous
+from tornado.web import (
+    RequestHandler,
+    asynchronous,
+)
+
+from pymongo.cursor import Cursor
 
 from models import DB_NAME
 from utils import is_valid_json_put
@@ -28,7 +33,7 @@ DEFAULT_LIMIT = 20
 MAX_LIMIT = 100
 
 
-class BaseHandler(tornado.web.RequestHandler):
+class BaseHandler(RequestHandler):
 
     @property
     def collection(self):
@@ -45,7 +50,7 @@ class BaseHandler(tornado.web.RequestHandler):
         """The list of accepted keys to validate a JSON object."""
         return ()
 
-    def get_error_message(self, code):
+    def get_status_message(self, code):
         """Get custom error message based on the status code.
 
         :param code: The status code to get the message of.
@@ -53,15 +58,19 @@ class BaseHandler(tornado.web.RequestHandler):
         :return The error message string, or None if the code does not have
                 a custom message.
         """
-        error_messages = {
+        status_messages = {
+            200: 'OK',
+            400: 'Provided JSON is not valid.',
+            404: 'Resource not found.',
+            405: 'Operation not allowed.',
             415: (
                 'Please use "%s" as the default media type.' %
                 self.accepted_content_type
             ),
-            400: 'Provided JSON is not valid.',
+            500: 'Internal database error.'
         }
 
-        return error_messages.get(code, None)
+        return status_messages.get(code, None)
 
     @property
     def accepted_content_type(self):
@@ -79,6 +88,26 @@ class BaseHandler(tornado.web.RequestHandler):
         """
         return is_valid_json_put(json_obj, self.accepted_keys)
 
+    def _create_valid_response(self, response):
+        """Create a valid JSON response based on its type.
+
+        :param response: The response we have from a query to the database.
+        :return A (int, str) tuple composed of the status code, and the
+                message.
+        """
+        valid_response = (200, self.get_status_message(200))
+
+        if isinstance(response, types.DictionaryType):
+            valid_response = (200, dumps(response))
+        elif isinstance(response, types.IntType):
+            valid_response = (response, self.get_status_message(response))
+        elif isinstance(response, Cursor):
+            valid_response = (200, dumps(response))
+        elif isinstance(response, types.NoneType):
+            valid_response = (404, self.get_status_message(404))
+
+        return valid_response
+
     @asynchronous
     @gen.engine
     def get(self, *args, **kwargs):
@@ -88,6 +117,9 @@ class BaseHandler(tornado.web.RequestHandler):
                 self.collection,
                 kwargs['id'],
             )
+
+            status_code, response = self._create_valid_response(result)
+            response = dict(code=status_code, message=response)
         else:
             skip = int(self.get_query_argument('skip', default=0))
             limit = int(
@@ -103,18 +135,19 @@ class BaseHandler(tornado.web.RequestHandler):
                 skip,
             )
 
-        self.finish(dumps(result))
+            status_code, response = self._create_valid_response(result)
+            response = dict(code=status_code, limit=limit, message=response)
+
+        self.set_status(status_code)
+        self.write(response)
+        self.finish()
 
     def write_error(self, status_code, **kwargs):
-        error_msg = self.get_error_message(status_code)
-        if error_msg:
-            self.finish(
-                "<html><title>%(code)s: %(default_msg)s</title>"
-                "<body>%(error_msg)s</body></html>" % {
-                    "code": status_code,
-                    "default_msg": self._reason,
-                    "error_msg": error_msg
-                }
-            )
+        status_message = self.get_status_message(status_code)
+
+        if status_message:
+            self.set_status(status_code)
+            self.write(dict(code=status_code, message=status_message))
+            self.finish()
         else:
             super(BaseHandler, self).write_error(status_code)
