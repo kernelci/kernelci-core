@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import types
+
 from models import BaseDocument
 
 SUBSCRIPTION_COLLECTION = 'subscription'
@@ -20,8 +22,32 @@ SUBSCRIPTION_COLLECTION = 'subscription'
 
 class SubscriptionDocument(BaseDocument):
 
-    def __init__(self, name):
+    SUBSCRIPTION_ID_FORMAT = 'sub-%s'
+
+    def __init__(self, name, emails=[]):
         super(SubscriptionDocument, self).__init__(name)
+        self._emails = emails
+
+    @property
+    def emails(self):
+        return self._emails
+
+    @emails.setter
+    def emails(self, value):
+        if not isinstance(value, types.ListType):
+            if isinstance(value, types.StringTypes):
+                value = [value]
+            else:
+                value = list(value)
+
+        self._emails.extend(value)
+        # Make sure the list is unique.
+        self._emails = list(set(self._emails))
+
+    def to_dict(self):
+        sub_dict = super(SubscriptionDocument, self).to_dict()
+        sub_dict['emails'] = self._emails
+        return sub_dict
 
     @staticmethod
     def from_json(json_obj):
@@ -30,6 +56,7 @@ class SubscriptionDocument(BaseDocument):
         :param json_obj: The JSON object to start from.
         :return An instance of SubscriptionDocument.
         """
-        name = json_obj.pop("_id")
-        sub_doc = SubscriptionDocument(name)
+        sub_doc = SubscriptionDocument(
+            json_obj["_id"],
+            json_obj["emails"])
         return sub_doc
