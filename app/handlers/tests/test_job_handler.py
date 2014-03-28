@@ -23,10 +23,8 @@ from mock import (
 )
 
 from handlers import JobHandler
-from models import (
-    DB_NAME,
-    JOB_COLLECTION
-)
+from models import DB_NAME
+from models.job import JOB_COLLECTION
 
 
 class TestJobHandler(unittest.TestCase):

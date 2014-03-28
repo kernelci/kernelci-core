@@ -23,10 +23,8 @@ from mock import (
 )
 
 from handlers import DefConfHandler
-from models import (
-    DB_NAME,
-    DEFCONFIG_COLLECTION
-)
+from models import DB_NAME
+from models.defconfig import DEFCONFIG_COLLECTION
 
 
 class TestDefConfHandler(unittest.TestCase):

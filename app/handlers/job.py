@@ -20,9 +20,9 @@ import json
 from tornado import gen
 from tornado.web import asynchronous
 
-from base import BaseHandler
-from models import JOB_COLLECTION
-from utils import import_job_from_json
+from handlers.base import BaseHandler
+from models.job import JOB_COLLECTION
+from utils.docimport import import_job_from_json
 
 
 class JobHandler(BaseHandler):

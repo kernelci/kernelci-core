@@ -20,9 +20,9 @@ import json
 from tornado import gen
 from tornado.web import asynchronous
 
-from base import BaseHandler
-from models import SUBSCRIPTION_COLLECTION
-from utils import subscribe_email
+from handlers.base import BaseHandler
+from models.subscription import SUBSCRIPTION_COLLECTION
+from utils.subscribe import subscribe_email
 
 
 class SubscriptionHandler(BaseHandler):
@@ -60,4 +60,4 @@ class SubscriptionHandler(BaseHandler):
                 self.send_error(status_code=400)
 
     def delete(self, *args, **kwargs):
-        self.write_error(status_code=405)
+        self.write_error(status_code=501)
