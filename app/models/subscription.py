@@ -13,27 +13,38 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+The model that represents a subscription document in the mongodb collection.
+"""
+
 import types
 
-from models import BaseDocument
+from base import BaseDocument
 
 SUBSCRIPTION_COLLECTION = 'subscription'
 
 
 class SubscriptionDocument(BaseDocument):
+    """This class represents a subscription document in the mongodb database.
+
+    A subscription document contains a list of emails that shoule be notified.
+    It contains an external ID that points to the job ID.
+    """
 
     SUBSCRIPTION_ID_FORMAT = 'sub-%s'
 
-    def __init__(self, name, emails=[]):
+    def __init__(self, name, emails=None):
         super(SubscriptionDocument, self).__init__(name)
-        self._emails = emails
+        self._emails = [] if emails is None else emails
 
     @property
     def emails(self):
+        """The list of emails subscribed."""
         return self._emails
 
     @emails.setter
     def emails(self, value):
+        """Set the emails subscribed."""
         if not isinstance(value, types.ListType):
             if isinstance(value, types.StringTypes):
                 value = [value]

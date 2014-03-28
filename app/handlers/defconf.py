@@ -13,12 +13,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""The RequestHandler for /defconfig URLs."""
 
-from base import BaseHandler
-from models import DEFCONFIG_COLLECTION
+from handlers.base import BaseHandler
+from models.defconfig import DEFCONFIG_COLLECTION
 
 
 class DefConfHandler(BaseHandler):
+    """Handle the /defconfig URLs."""
+
+    def __init__(self, application, request, **kwargs):
+        super(DefConfHandler, self).__init__(application, request, **kwargs)
 
     @property
     def collection(self):

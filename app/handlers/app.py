@@ -13,6 +13,11 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+A very simple RequestHandler used as the default one for the Tornado
+application.
+"""
+
 from tornado.web import RequestHandler
 
 

@@ -13,28 +13,51 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""The base document model that represents a mongodb document."""
+
 import json
 
 
 class BaseDocument(object):
+    """The base document model for all other documents."""
+
     def __init__(self, name):
         self._name = name
 
     @property
     def name(self):
+        """The name of this document.
+
+        It should be used as the `_id' field in a mongodb document.
+        """
         return self._name
 
     @property
     def collection(self):
-        raise NotImplementedError
+        """The collection this document should belong to.
+
+        :return None, subclasses should implement it.
+        """
+        return None
 
     def __repr__(self):
         return self.to_json()
 
     def to_dict(self):
+        """Return a dictionary view of the document.
+
+        The name attribute will be available as the `_id' key, useful for
+        mongodb document.
+
+        :return A dictionary.
+        """
         return {
             '_id': self._name
         }
 
     def to_json(self):
+        """Return a JSON string for this object.
+
+        :return A JSON string.
+        """
         return json.dumps(self.to_dict())

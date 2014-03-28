@@ -13,12 +13,20 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""The model that represents a job document in the mongodb collection."""
+
 from base import BaseDocument
 
 JOB_COLLECTION = 'job'
 
 
 class JobDocument(BaseDocument):
+    """This class represents a job as seen on the file system.
+
+    Each job on the file system is composed of a real job name (usually who
+    triggered the job), and a kernel directory. This job is the combination
+    of the two, and its name is of the form `job-kernel'.
+    """
 
     JOB_ID_FORMAT = '%s-%s'
 
@@ -36,34 +44,51 @@ class JobDocument(BaseDocument):
 
     @property
     def private(self):
+        """If the job is private or not.
+
+        :return True or False
+        """
         return self._private
 
     @private.setter
     def private(self, value):
+        """Set the private attribute."""
         self._private = value
 
     @property
     def job(self):
+        """Return the real job name as found on the file system."""
         return self._job
 
     @job.setter
     def job(self, value):
+        """Set the real job name as found on the file system."""
         self._job = value
 
     @property
     def kernel(self):
+        """Return the real kernel name as found on the file system."""
         return self._kernel
 
     @kernel.setter
     def kernel(self, value):
+        """Set the real kernel name as found on the file system."""
         self._kernel = value
 
     @property
     def created(self):
+        """Return the date this document was created or last updated.
+
+        :return A datetime object in UTC format.
+        """
         return self._created
 
     @created.setter
     def created(self, value):
+        """Set the date this document was created or last updated.
+
+        :param value: A datetime object, in UTC format.
+        """
         self._created = value
 
     def to_dict(self):

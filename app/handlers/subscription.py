@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""The RequetHandler for /subscription URLs."""
+
 import json
 
 from tornado import gen
@@ -24,6 +26,7 @@ from utils import subscribe_emails
 
 
 class SubscriptionHandler(BaseHandler):
+    """Handle the /subscription URLs."""
 
     @property
     def collection(self):

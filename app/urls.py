@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""Define URLs and handlers to server them."""
 
 from tornado.web import url
 from handlers import (
@@ -21,7 +22,7 @@ from handlers import (
     SubscriptionHandler
 )
 
-app_urls = [
+APP_URLS = [
     url(r'/api/defconfig(?P<sl>/)?(?P<id>.*)', DefConfHandler, name='defconf'),
     url(r'/api/job(?P<sl>/)?(?P<id>.*)', JobHandler, name='job'),
     url(r'/api/subscription', SubscriptionHandler, name='subscription')

@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""The base RequestHandler that all subclasses should inherit from."""
+
 import types
 
 from bson.json_util import dumps
@@ -25,8 +27,11 @@ from tornado.web import (
 from pymongo.cursor import Cursor
 
 from models import DB_NAME
-from utils import is_valid_json_put
-from utils.db import find_one_async, find_async
+from utils.validator import is_valid_json_put
+from utils.db import (
+    find_async,
+    find_one_async,
+)
 
 # Default and maximum limit for how many results to get back from the db.
 DEFAULT_LIMIT = 20
@@ -34,6 +39,12 @@ MAX_LIMIT = 100
 
 
 class BaseHandler(RequestHandler):
+    """The base handler."""
+
+    ACCEPTED_CONTENT_TYPE = 'application/json'
+
+    def __init__(self, application, request, **kwargs):
+        super(BaseHandler, self).__init__(application, request, **kwargs)
 
     @property
     def collection(self):
@@ -78,7 +89,7 @@ class BaseHandler(RequestHandler):
 
         Defaults to 'application/json'.
         """
-        return 'application/json'
+        return self.ACCEPTED_CONTENT_TYPE
 
     def is_valid_put(self, json_obj):
         """Validate PUT requests content.

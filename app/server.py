@@ -14,32 +14,40 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""The Tornado application base module."""
+
 import pymongo
 import tornado.ioloop
 
 from tornado.web import Application
 
 from handlers.app import AppHandler
-from urls import app_urls
+from urls import APP_URLS
 
 
 class KernelCiBackend(Application):
+    """The Kernel CI backend application.
+
+    Where everything starts.
+    """
+
+    mongodb_client = pymongo.MongoClient()
 
     @property
     def client(self):
-        return pymongo.MongoClient()
+        """The database client of this application."""
+        return self.mongodb_client
 
-    def __init__(self, **overrides):
+    def __init__(self):
 
         settings = {
             "client": self.client,
             "default_handler_class": AppHandler,
         }
 
-        super(KernelCiBackend, self).__init__(app_urls, **settings)
+        super(KernelCiBackend, self).__init__(APP_URLS, **settings)
 
 
 if __name__ == '__main__':
-    application = KernelCiBackend()
-    application.listen(8888)
+    KernelCiBackend().listen(8888)
     tornado.ioloop.IOLoop.instance().start()
