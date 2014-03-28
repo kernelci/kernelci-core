@@ -33,9 +33,20 @@ class SubscriptionDocument(BaseDocument):
 
     SUBSCRIPTION_ID_FORMAT = 'sub-%s'
 
-    def __init__(self, name, emails=None):
+    def __init__(self, name, job_id, emails=None):
         super(SubscriptionDocument, self).__init__(name)
+        self._job_id = job_id
         self._emails = [] if emails is None else emails
+
+    @property
+    def job_id(self):
+        """The job ID this subscriptions belong to."""
+        return self._job_id
+
+    @job_id.setter
+    def job_id(self, value):
+        """Set the job ID."""
+        self._job_id = value
 
     @property
     def emails(self):
@@ -58,6 +69,7 @@ class SubscriptionDocument(BaseDocument):
     def to_dict(self):
         sub_dict = super(SubscriptionDocument, self).to_dict()
         sub_dict['emails'] = self._emails
+        sub_dict['job_id'] = self._job_id
         return sub_dict
 
     @staticmethod
@@ -68,6 +80,8 @@ class SubscriptionDocument(BaseDocument):
         :return An instance of SubscriptionDocument.
         """
         sub_doc = SubscriptionDocument(
-            json_obj["_id"],
-            json_obj["emails"])
+            json_obj['_id'],
+            json_obj['job_id'],
+            json_obj['emails']
+        )
         return sub_doc
