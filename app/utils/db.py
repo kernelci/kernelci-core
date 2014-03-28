@@ -42,9 +42,9 @@ def find_one_async(collection, values, field="_id", callback=None):
 
 
 def find_one(collection, values, field="_id"):
-    """Search for specific document.
+    """Search for a specific document.
 
-    The `field' value can be specified, and by default is "_id".
+    The `field' value can be specified, and by default is `_id'.
     The search executed is like:
 
       collection.find_one({"_id": {"$in": values}})
@@ -52,7 +52,7 @@ def find_one(collection, values, field="_id"):
     :param collection: The collection where to search.
     :param values: The values to search. Can be a list of multiple values.
     :param field: The field where the value should be searched. Defaults to
-                  "_id".
+                  '_id'.
     :return None or the search result.
     """
 
@@ -104,7 +104,7 @@ def save(collection, documents):
     ret_value = 200
 
     if not isinstance(documents, types.ListType):
-        documents = list(documents)
+        documents = [documents]
 
     for document in documents:
         to_save = None
