@@ -61,10 +61,10 @@ class BaseHandler(RequestHandler):
         """The list of accepted keys to validate a JSON object."""
         return ()
 
-    def get_status_message(self, code):
+    def _get_status_message(self, status_code):
         """Get custom error message based on the status code.
 
-        :param code: The status code to get the message of.
+        :param status_code: The status code to get the message of.
         :type int
         :return The error message string, or None if the code does not have
                 a custom message.
@@ -81,7 +81,7 @@ class BaseHandler(RequestHandler):
             500: 'Internal database error.'
         }
 
-        return status_messages.get(code, None)
+        return status_messages.get(status_code, None)
 
     @property
     def accepted_content_type(self):
@@ -106,16 +106,16 @@ class BaseHandler(RequestHandler):
         :return A (int, str) tuple composed of the status code, and the
                 message.
         """
-        valid_response = (200, self.get_status_message(200))
+        valid_response = (200, self._get_status_message(200))
 
         if isinstance(response, types.DictionaryType):
             valid_response = (200, dumps(response))
         elif isinstance(response, types.IntType):
-            valid_response = (response, self.get_status_message(response))
+            valid_response = (response, self._get_status_message(response))
         elif isinstance(response, Cursor):
             valid_response = (200, dumps(response))
         elif isinstance(response, types.NoneType):
-            valid_response = (404, self.get_status_message(404))
+            valid_response = (404, self._get_status_message(404))
 
         return valid_response
 
@@ -154,7 +154,7 @@ class BaseHandler(RequestHandler):
         self.finish()
 
     def write_error(self, status_code, **kwargs):
-        status_message = self.get_status_message(status_code)
+        status_message = self._get_status_message(status_code)
 
         if status_message:
             self.set_status(status_code)
