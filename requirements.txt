@@ -1,5 +1,6 @@
 futures==2.1.6
 pycares==0.5.0
 tornado==3.2
-pymongo
+pymongo==2.5
+motor==0.1.2
 mongomock==1.2.0
