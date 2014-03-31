@@ -13,11 +13,14 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import json
+import types
 import unittest
 
 from models.base import BaseDocument
 from models.defconfig import DefConfigDocument
 from models.job import JobDocument
+from models.subscription import SubscriptionDocument
 
 
 class TestModels(unittest.TestCase):
@@ -92,3 +95,52 @@ class TestModels(unittest.TestCase):
 
         self.assertEqual(defconf_doc.job_id, 'job')
         self.assertEqual(defconf_doc.to_json(), expected_json)
+
+    def test_subscription_document_emails_attribute(self):
+        subscription_doc = SubscriptionDocument('sub', 'job')
+        self.assertIsInstance(subscription_doc.emails, types.ListType)
+        self.assertItemsEqual([], subscription_doc.emails)
+
+    def test_subscription_document_emails_attribute_set(self):
+        subscription_doc = SubscriptionDocument('sub', 'job', 'email')
+
+        self.assertIsInstance(subscription_doc.emails, types.ListType)
+        self.assertNotIsInstance(subscription_doc.emails, types.StringTypes)
+
+    def test_subscription_document_emails_extended(self):
+        subscription_doc = SubscriptionDocument('sub', 'job', 'email')
+        subscription_doc.emails = 'email2'
+
+        self.assertIsInstance(subscription_doc.emails, types.ListType)
+        self.assertEquals(['email2', 'email'], subscription_doc.emails)
+
+    def test_subscription_document_emails_setter_str(self):
+        subscription_doc = SubscriptionDocument('sub', 'job')
+        subscription_doc.emails = 'an_email'
+
+        self.assertIsInstance(subscription_doc.emails, types.ListType)
+        self.assertEqual(['an_email'], subscription_doc.emails)
+
+    def test_subscription_document_to_dict(self):
+        expected = dict(_id='sub', emails=[], job_id='job')
+        subscription_doc = SubscriptionDocument('sub', 'job')
+
+        self.assertEqual(expected, subscription_doc.to_dict())
+
+    def test_subscription_document_to_json(self):
+        expected = (
+            '{"_id": "sub", "emails": [], "job_id": "job"}'
+        )
+        subscription_doc = SubscriptionDocument('sub', 'job')
+        self.assertEqual(expected, subscription_doc.to_json())
+
+    def test_subscription_document_from_json(self):
+        json_str = (
+            '{"_id": "sub", "emails": [], "job_id": "job"}'
+        )
+        json_obj = json.loads(json_str)
+
+        subscription_doc = SubscriptionDocument.from_json(json_obj)
+
+        self.assertIsInstance(subscription_doc, SubscriptionDocument)
+        self.assertIsInstance(subscription_doc, BaseDocument)
