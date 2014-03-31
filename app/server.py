@@ -16,6 +16,7 @@
 
 """The Tornado application base module."""
 
+import motor
 import pymongo
 import tornado.ioloop
 
@@ -31,18 +32,25 @@ class KernelCiBackend(Application):
     Where everything starts.
     """
 
-    mongodb_client = pymongo.MongoClient()
+    mongodb_client = motor.MotorClient().open_sync()
+    mongodb_client_sync = pymongo.MongoClient()
 
     @property
     def client(self):
         """The database client of this application."""
         return self.mongodb_client
 
+    @property
+    def sync_client(self):
+        """The database sync-client of this application."""
+        return self.mongodb_client_sync
+
     def __init__(self):
 
         settings = {
-            "client": self.client,
-            "default_handler_class": AppHandler,
+            'client': self.client,
+            'sync_client': self.sync_client,
+            'default_handler_class': AppHandler,
         }
 
         super(KernelCiBackend, self).__init__(APP_URLS, **settings)
