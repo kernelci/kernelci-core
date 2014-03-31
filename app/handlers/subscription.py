@@ -22,7 +22,7 @@ from tornado.web import asynchronous
 
 from handlers.base import BaseHandler
 from models.subscription import SUBSCRIPTION_COLLECTION
-from utils.subscribe import subscribe_email
+from utils.subscription import subscribe_email
 
 
 class SubscriptionHandler(BaseHandler):

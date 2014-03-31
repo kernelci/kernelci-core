@@ -19,7 +19,7 @@ import unittest
 from mock import patch
 
 from models import DB_NAME
-from utils.subscribe import subscribe_email
+from utils.subscription import subscribe_email
 
 
 class TestSubscription(unittest.TestCase):
@@ -27,7 +27,7 @@ class TestSubscription(unittest.TestCase):
     def setUp(self):
         self.database = mongomock.Database(mongomock.Connection(), DB_NAME)
 
-    @patch("utils.subscribe.find_one")
+    @patch("utils.subscription.find_one")
     def test_subscribe_email_no_job(self, mock_find_one):
 
         def callback(result):
@@ -41,7 +41,7 @@ class TestSubscription(unittest.TestCase):
 
         subscribe_email(json_obj, self.database, callback)
 
-    @patch("utils.subscribe.find_one")
+    @patch("utils.subscription.find_one")
     def test_subscribe_email_valid_job(self, mock_find_one):
 
         def callback(result):
