@@ -42,9 +42,6 @@ class BaseDocument(object):
         """
         return None
 
-    def __repr__(self):
-        return self.to_json()
-
     def to_dict(self):
         """Return a dictionary view of the document.
 
