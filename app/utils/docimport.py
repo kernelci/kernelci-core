@@ -33,8 +33,7 @@ from utils.utc import utc
 BASE_PATH = '/var/www/images/kernel-ci'
 
 
-def import_job_from_json(
-        json_obj, database, base_path=BASE_PATH, callback=None):
+def import_job_from_json(json_obj, base_path=BASE_PATH):
     """Import a job based on the provided JSON object.
 
     The provided JSON object, a dict-like object, should contain at least the
@@ -44,29 +43,23 @@ def import_job_from_json(
 
     :param json_obj: A dict-like object, that should contain the keys `job' and
                      `kernel'.
-    :param database: The database where to save the parsed data.
     :param base_path: The base path where to start constructing the traverse
                       directory. It defaults to: /var/www/images/kernel-ci.
-    :param callback: Optional function that will be called at the end of
-                     execution.
+    :return The documents to be save.
     """
     job_dir = json_obj['job']
     kernel_dir = json_obj['kernel']
 
-    return_code = _import_job(job_dir, kernel_dir, database, base_path)
-
-    if callback:
-        callback(return_code)
+    return _import_job(job_dir, kernel_dir, base_path)
 
 
-def _import_job(job, kernel, database, base_path=BASE_PATH):
+def _import_job(job, kernel, base_path=BASE_PATH):
     """Traverse the job dir and create the documenst to save.
 
     :param job: The name of the job.
     :param kernel: The name of the kernel.
-    :param database: The databse where to save the parsed data.
     :param base_path: The base path where to strat the traversing.
-    :return Return a status code based on the save operation.
+    :return The documents to be save.
     """
     job_dir = os.path.join(base_path, job, kernel)
     job_id = JobDocument.JOB_ID_FORMAT % (job, kernel)
@@ -80,7 +73,7 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
     if os.path.isdir(job_dir):
         docs.extend(_traverse_defconf_dir(job_dir, job_id))
 
-    return save(database, docs)
+    return docs
 
 
 def _traverse_defconf_dir(kernel_dir, job_id):
@@ -103,6 +96,7 @@ def _traverse_defconf_dir(kernel_dir, job_id):
                 if key in files:
                     setattr(defconf_doc, val, os.path.join(dirname, key))
         defconf_docs.append(defconf_doc)
+
     return defconf_docs
 
 
