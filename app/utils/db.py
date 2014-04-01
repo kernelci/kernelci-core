@@ -75,7 +75,7 @@ def save(database, documents):
     :type list, BaseDocument
     :return 200 if the save has success, 500 in case of errors.
     """
-    ret_value = 200
+    ret_value = 201
 
     if not isinstance(documents, types.ListType):
         documents = [documents]
