@@ -25,6 +25,17 @@ From the 'app/' folder, run:
 
   python server.py
 
+
+Run the Celery worker
+---------------------
+
+To run external tasks, Celery is used, and it is necessary to start it
+manually for now:
+
+  cd $DOWNLOAD?DIR/app
+  celery worker --autoscale=10,0 --broker=redis://localhost --app=celeryqueue
+
+
 Basic interactions
 ==================
 
