@@ -16,10 +16,10 @@
 
 """The Tornado application base module."""
 
-import motor
 import pymongo
-import tornado.ioloop
+import tornado
 
+from concurrent.futures import ThreadPoolExecutor
 from tornado.web import Application
 
 from handlers.app import AppHandler
@@ -32,8 +32,7 @@ class KernelCiBackend(Application):
     Where everything starts.
     """
 
-    mongodb_client = motor.MotorClient().open_sync()
-    mongodb_client_sync = pymongo.MongoClient()
+    mongodb_client = pymongo.MongoClient()
 
     @property
     def client(self):
@@ -49,8 +48,8 @@ class KernelCiBackend(Application):
 
         settings = {
             'client': self.client,
-            'sync_client': self.sync_client,
             'default_handler_class': AppHandler,
+            'executor': ThreadPoolExecutor(max_workers=10),
         }
 
         super(KernelCiBackend, self).__init__(APP_URLS, **settings)
