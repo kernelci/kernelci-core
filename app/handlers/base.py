@@ -15,24 +15,23 @@
 
 """The base RequestHandler that all subclasses should inherit from."""
 
-import types
 import httplib
+import tornado
+import types
 
 from bson.json_util import dumps
-from tornado import gen
+from functools import partial
 from tornado.web import (
     RequestHandler,
     asynchronous,
 )
 
-from pymongo.cursor import Cursor
-
 from models import DB_NAME
-from utils.validator import is_valid_json_put
 from utils.db import (
-    find_async,
-    find_one_async,
+    find,
+    find_one,
 )
+from utils.validator import is_valid_json_put
 
 # Default and maximum limit for how many results to get back from the db.
 DEFAULT_LIMIT = 20
@@ -46,6 +45,10 @@ class BaseHandler(RequestHandler):
 
     def __init__(self, application, request, **kwargs):
         super(BaseHandler, self).__init__(application, request, **kwargs)
+
+    @property
+    def executor(self):
+        return self.settings['executor']
 
     @property
     def collection(self):
@@ -113,31 +116,51 @@ class BaseHandler(RequestHandler):
         :return A (int, str) tuple composed of the status code, and the
                 message.
         """
-        valid_response = (200, self._get_status_message(200))
+        status, message = 200, self._get_status_message(200)
 
-        if isinstance(response, types.DictionaryType):
-            valid_response = (200, dumps(response))
+        if isinstance(response, (types.DictionaryType, types.ListType)):
+            status, message = 200, dumps(response)
         elif isinstance(response, types.IntType):
-            valid_response = (response, self._get_status_message(response))
-        elif isinstance(response, Cursor):
-            valid_response = (200, dumps(response))
+            status, message = response, self._get_status_message(response)
         elif isinstance(response, types.NoneType):
-            valid_response = (404, self._get_status_message(404))
+            status, message = 404, self._get_status_message(404)
 
-        return valid_response
+        self.set_status(status)
+        self.write(dict(status=status, message=message))
+        self.finish()
+
+    def _get_callback(self, limit, result):
+        """Callback used for GET operations.
+
+        :param limit: The number of elements returned.
+        :param result: The result from the future instance.
+        """
+        response = dict(
+            status=200, limit=limit, message=dumps(result)
+        )
+
+        self.set_status(200)
+        self.write(response)
+        self.finish()
+
+    def _post_callback(self, result):
+        """Callback used for POST operations.
+
+        :param result: The result from the future instance.
+        """
+        self._create_valid_response(result)
 
     @asynchronous
-    @gen.engine
     def get(self, *args, **kwargs):
         if kwargs and kwargs['id']:
-            result = yield gen.Task(
-                find_one_async,
-                self.collection,
-                kwargs['id'],
-            )
 
-            status_code, response = self._create_valid_response(result)
-            response = dict(code=status_code, message=response)
+            self.executor.submit(
+                partial(find_one, self.collection, kwargs['id'])
+            ).add_done_callback(
+                lambda future: tornado.ioloop.IOLoop.instance().add_callback(
+                    partial(self._create_valid_response, future.result())
+                )
+            )
         else:
             skip = int(self.get_query_argument('skip', default=0))
             limit = int(
@@ -146,19 +169,13 @@ class BaseHandler(RequestHandler):
             if limit > MAX_LIMIT:
                 limit = MAX_LIMIT
 
-            result = yield gen.Task(
-                find_async,
-                self.collection,
-                limit,
-                skip,
+            self.executor.submit(
+                partial(find, self.collection, limit, skip)
+            ).add_done_callback(
+                lambda future:
+                tornado.ioloop.IOLoop.instance().add_callback(
+                    partial(self._get_callback, limit, future.result()))
             )
-
-            status_code, response = self._create_valid_response(result)
-            response = dict(code=status_code, limit=limit, message=response)
-
-        self.set_status(status_code)
-        self.write(response)
-        self.finish()
 
     def write_error(self, status_code, **kwargs):
         status_message = self._get_status_message(status_code)

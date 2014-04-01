@@ -16,13 +16,21 @@
 """The RequetHandler for /subscription URLs."""
 
 import json
+import tornado
 
-from tornado import gen
+from functools import partial
 from tornado.web import asynchronous
 
 from handlers.base import BaseHandler
-from models.subscription import SUBSCRIPTION_COLLECTION
-from utils.subscription import subscribe_email
+from models.job import JOB_COLLECTION
+from models.subscription import (
+    SUBSCRIPTION_COLLECTION,
+    SubscriptionDocument,
+)
+from utils.db import (
+    find_one,
+    save,
+)
 
 
 class SubscriptionHandler(BaseHandler):
@@ -37,27 +45,49 @@ class SubscriptionHandler(BaseHandler):
         return ('job', 'email')
 
     @asynchronous
-    @gen.engine
     def post(self, *args, **kwargs):
         if self.request.headers['Content-Type'] != self.accepted_content_type:
             self.send_error(status_code=415)
         else:
-            json_doc = json.loads(self.request.body.decode('utf8'))
-            if self.is_valid_put(json_doc):
-                result = yield gen.Task(
-                    subscribe_email,
-                    json_doc,
-                    self.db
+            json_obj = json.loads(self.request.body.decode('utf8'))
+            if self.is_valid_put(json_obj):
+
+                self.executor.submit(
+                    partial(self._subscribe, json_obj)
+                ).add_done_callback(
+                    lambda future:
+                    tornado.ioloop.IOLoop.instance().add_callback(
+                        partial(self._post_callback, future.result()))
                 )
 
-                status_code, response = self._create_valid_response(result)
-                response = dict(code=status_code, message=response)
-
-                self.set_status(status_code)
-                self.write(response)
-                self.finish()
             else:
                 self.send_error(status_code=400)
+
+    def _subscribe(self, json_obj):
+        """Internal function to handle subscriptions.
+
+        Should be run on a separate thread.
+
+        :param json_obj: The JSON-like object with all the information.
+        """
+        job_id = json_obj['job']
+        email = json_obj['email']
+
+        job_doc = find_one(self.db[JOB_COLLECTION], job_id)
+
+        if job_doc:
+            subscription = find_one(self.collection, job_id, 'job_id')
+
+            if subscription:
+                sub_doc = SubscriptionDocument.from_json(subscription)
+                sub_doc.emails = email
+            else:
+                sub_id = SubscriptionDocument.SUBSCRIPTION_ID_FORMAT % job_id
+                sub_doc = SubscriptionDocument(sub_id, job_id, email)
+
+            return save(self.db, sub_doc)
+        else:
+            return 404
 
     def delete(self, *args, **kwargs):
         self.write_error(status_code=501)
