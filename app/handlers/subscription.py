@@ -22,15 +22,8 @@ from functools import partial
 from tornado.web import asynchronous
 
 from handlers.base import BaseHandler
-from models.job import JOB_COLLECTION
-from models.subscription import (
-    SUBSCRIPTION_COLLECTION,
-    SubscriptionDocument,
-)
-from utils.db import (
-    find_one,
-    save,
-)
+from models.subscription import SUBSCRIPTION_COLLECTION
+from utils.subscription import subscribe
 
 
 class SubscriptionHandler(BaseHandler):
@@ -53,7 +46,7 @@ class SubscriptionHandler(BaseHandler):
             if self.is_valid_put(json_obj):
 
                 self.executor.submit(
-                    partial(self._subscribe, json_obj)
+                    partial(subscribe, json_obj, self.db)
                 ).add_done_callback(
                     lambda future:
                     tornado.ioloop.IOLoop.instance().add_callback(
@@ -62,32 +55,6 @@ class SubscriptionHandler(BaseHandler):
 
             else:
                 self.send_error(status_code=400)
-
-    def _subscribe(self, json_obj):
-        """Internal function to handle subscriptions.
-
-        Should be run on a separate thread.
-
-        :param json_obj: The JSON-like object with all the information.
-        """
-        job_id = json_obj['job']
-        email = json_obj['email']
-
-        job_doc = find_one(self.db[JOB_COLLECTION], job_id)
-
-        if job_doc:
-            subscription = find_one(self.collection, job_id, 'job_id')
-
-            if subscription:
-                sub_doc = SubscriptionDocument.from_json(subscription)
-                sub_doc.emails = email
-            else:
-                sub_id = SubscriptionDocument.SUBSCRIPTION_ID_FORMAT % job_id
-                sub_doc = SubscriptionDocument(sub_id, job_id, email)
-
-            return save(self.db, sub_doc)
-        else:
-            return 404
 
     def delete(self, *args, **kwargs):
         self.write_error(status_code=501)

@@ -29,7 +29,7 @@ from utils.db import (
 )
 
 
-def subscribe_email(json_obj, database, callback):
+def subscribe(json_obj, database):
     """Subscribe an email to a job.
 
     It accepts a dict-like object that should contain at least the `job_id' and
@@ -39,7 +39,6 @@ def subscribe_email(json_obj, database, callback):
 
     :param json_obj: A dict-like object with `job_id' and `email' fields.
     :param database: The database connection where to store the data.
-    :param callback: A function that will be called at the end.
     :return This function return 200 when the subscription has been performed,
             404 if the job to subscribe to does not exist, or 500 in case of
             an internal database error.
@@ -70,7 +69,6 @@ def subscribe_email(json_obj, database, callback):
             )
             sub_obj = SubscriptionDocument(sub_id, job_id, emails)
 
-        callback(save(database, sub_obj))
+        return save(database, sub_obj)
     else:
-        # Document not found.
-        callback(404)
+        return 404
