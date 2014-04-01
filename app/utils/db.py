@@ -22,27 +22,6 @@ from pymongo.errors import OperationFailure
 from models.base import BaseDocument
 
 
-def find_one_async(collection, values, field="_id", callback=None):
-    """Search for specific document, async version.
-
-    Accepts an extra callback function that will be called with the results.
-
-    The `field' value can be specified, and by default is "_id".
-    The search executed is like:
-
-      collection.find_one({"_id": {"$in": values}})
-
-    :param collection: The collection where to search.
-    :param values: The values to search. Can be a list of multiple values.
-    :param field: The field where the value should be searched. Defaults to
-                  "_id".
-    :param callback: Function to call with the results.
-    :return None or the search result.
-    """
-    result = find_one(collection, values, field)
-    callback(result)
-
-
 def find_one(collection, values, field="_id"):
     """Search for a specific document.
 
@@ -67,26 +46,10 @@ def find_one(collection, values, field="_id"):
     result = collection.find_one(
         {
             field: {"$in": values}
-        }
+        },
     )
 
     return result
-
-
-def find_async(collection, limit, skip, callback=None):
-    """Find all the documents in a collection, async version.
-
-    Accept and extra `callback' argument.
-
-    :param collection: The mongodb collection to look into.
-    :param limit: How many documents to return.
-    :type int
-    :param skip: How many documents to skip from the mongodb result.
-    :type int
-    :param callback: Function to call with the results.
-    :return A list of documents.
-    """
-    callback(find(collection, limit, skip))
 
 
 def find(collection, limit, skip):
@@ -106,7 +69,6 @@ def save(database, documents):
     """Save documents into the database.
 
     :param database: The database where to save.
-    :type
     :param documents: The document to save, can be a list or a single document:
                       the type of each document must be: BaseDocument or a
                       subclass.
