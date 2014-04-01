@@ -23,7 +23,7 @@ app = Celery(
     'tasks',
     broker='redis://localhost',
     backend='redis://localhost',
-    include=['queueapp.tasks']
+    include=['celeryqueue.tasks']
 )
 
 if __name__ == '__main__':
