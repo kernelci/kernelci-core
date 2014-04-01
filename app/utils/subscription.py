@@ -15,9 +15,12 @@
 
 """Collection of utilities to handle subscriptions."""
 
-import types
+import pymongo
 
-from models import ID_KEY
+from models import (
+    DB_NAME,
+    ID_KEY,
+)
 from models.job import JOB_COLLECTION
 from models.subscription import (
     SUBSCRIPTION_COLLECTION,
@@ -39,17 +42,12 @@ def subscribe(json_obj, database):
 
     :param json_obj: A dict-like object with `job_id' and `email' fields.
     :param database: The database connection where to store the data.
-    :return This function return 200 when the subscription has been performed,
+    :return This function return 201 when the subscription has been performed,
             404 if the job to subscribe to does not exist, or 500 in case of
             an internal database error.
     """
     job = json_obj['job']
     emails = json_obj['email']
-
-    if not isinstance(emails, types.ListType):
-        # The subscription model store emails in a list, since we can have
-        # more than one subscription.
-        emails = [emails]
 
     job_doc = find_one(database[JOB_COLLECTION], job)
     if job_doc:
@@ -72,3 +70,19 @@ def subscribe(json_obj, database):
         return save(database, sub_obj)
     else:
         return 404
+
+
+def send(job_id):
+    """Send emails to the subscribers.
+
+    :param job_id: The job ID for which to send notifications.
+    :param database: The database where to search for subscribers.
+    """
+    database = pymongo.MongoClient()[DB_NAME]
+
+    subscription = find_one(
+        database[SUBSCRIPTION_COLLECTION], job_id, 'job_id'
+    )
+
+    if subscription:
+        emails = subscription['emails']
