@@ -17,7 +17,7 @@
     - mongodb
 
 - name: Install MongoDB
-  apt:  name=mongodb-10gen
+  apt:  pkg=mongodb-10gen
         state=latest
   tags:
     - install
