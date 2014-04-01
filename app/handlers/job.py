@@ -22,9 +22,13 @@ from functools import partial
 from tornado.web import asynchronous
 
 from handlers.base import BaseHandler
-from models.job import JOB_COLLECTION
+from models.job import (
+    JOB_COLLECTION,
+    JobDocument,
+)
 from utils.db import save
 from utils.docimport import import_job_from_json
+from celeryqueue.tasks import send_emails
 
 
 class JobHandler(BaseHandler):
@@ -68,5 +72,11 @@ class JobHandler(BaseHandler):
 
         if response:
             result = save(self.db, response)
+
+            job_id = (
+                JobDocument.JOB_ID_FORMAT %
+                (json_obj['job'], json_obj['kernel'])
+            )
+            send_emails.delay(job_id)
 
         return result
