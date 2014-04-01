@@ -19,7 +19,7 @@ import unittest
 from mock import patch
 
 from models import DB_NAME
-from utils.subscription import subscribe_email
+from utils.subscription import subscribe
 
 
 class TestSubscription(unittest.TestCase):
@@ -30,16 +30,14 @@ class TestSubscription(unittest.TestCase):
     @patch("utils.subscription.find_one")
     def test_subscribe_email_no_job(self, mock_find_one):
 
-        def callback(result):
-            self.assertEquals(result, 404)
-
         mock_find_one.side_effect = [None]
         json_obj = dict(
             job='job',
             email='email'
         )
 
-        subscribe_email(json_obj, self.database, callback)
+        result = subscribe(json_obj, self.database)
+        self.assertEqual(result, 404)
 
     @patch("utils.subscription.find_one")
     def test_subscribe_email_valid_job(self, mock_find_one):
@@ -56,4 +54,5 @@ class TestSubscription(unittest.TestCase):
             email='email'
         )
 
-        subscribe_email(json_obj, self.database, callback)
+        result = subscribe(json_obj, self.database)
+        self.assertEqual(result, 201)
