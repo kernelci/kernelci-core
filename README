@@ -33,7 +33,12 @@ To run external tasks, Celery is used, and it is necessary to start it
 manually for now:
 
   cd $DOWNLOAD?DIR/app
-  celery worker --autoscale=10,0 --broker=redis://localhost --app=celeryqueue
+  celery worker --autoscale=4,1 --app=taskqueue
+
+It is possible to pass an external configuration file (key=value) using an
+environment variable: `CELERY_CONFIG_MODULE`.
+
+CELERY_CONFIG_MODULE=$PATH celery worker --autoscale=4,1 --app=taskqueue
 
 
 Basic interactions

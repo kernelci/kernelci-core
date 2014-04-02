@@ -13,18 +13,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""The Celery application."""
+"""Celery configuration values."""
 
-from __future__ import absolute_import
-
-from celery import Celery
-
-app = Celery(
-    'tasks',
-    broker='redis://localhost',
-    backend='redis://localhost',
-    include=['celeryqueue.tasks']
-)
-
-if __name__ == '__main__':
-    app.start()
+BROKER_URL = 'redis://localhost'
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_ENABLE_UTC = True

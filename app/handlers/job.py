@@ -28,7 +28,7 @@ from models.job import (
 )
 from utils.db import save
 from utils.docimport import import_job_from_json
-from celeryqueue.tasks import send_emails
+from taskqueue.tasks import send_emails
 
 
 class JobHandler(BaseHandler):

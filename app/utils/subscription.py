@@ -78,6 +78,8 @@ def send(job_id):
     :param job_id: The job ID for which to send notifications.
     :param database: The database where to search for subscribers.
     """
+    # TODO: add logic to make sure we can send the notifications.
+    # We should store the job status.
     database = pymongo.MongoClient()[DB_NAME]
 
     subscription = find_one(

@@ -13,18 +13,29 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Tasks that should be run via Celery."""
+"""The Celery application."""
 
-from celeryqueue.celery import app
-from utils.subscription import send
+from __future__ import absolute_import
+
+import os
+
+from celery import Celery
 
 
-@app.task(name='send-emails')
-def send_emails(job_id):
-    """Just a wrapper around the real `send` function.
+TASKS_LIST = ['taskqueue.tasks']
 
-    This is used to provide a Celery-task access to the underlying function.
 
-    :param job_id: The job ID to trigger notifications for.
-    """
-    send(job_id)
+app = Celery(
+    'tasks',
+    include=TASKS_LIST
+)
+
+if os.environ.get('CELERY_CONFIG_MODULE', None):
+    app.config_from_envar('CELERY_CONFIG_MODULE')
+else:
+    import taskqueue.celeryconfig as celeryconfig
+    app.config_from_object(celeryconfig)
+
+
+if __name__ == '__main__':
+    app.start()
