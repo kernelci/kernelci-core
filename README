@@ -26,19 +26,15 @@ From the 'app/' folder, run:
   python server.py
 
 
-Run the Celery worker
+The Celery worker
 ---------------------
 
-To run external tasks, Celery is used, and it is necessary to start it
-manually for now:
-
-  cd $DOWNLOAD?DIR/app
-  celery worker --autoscale=4,1 --app=taskqueue
+To run external tasks, Celery is used. It will start automatically at boot
+time. In the ansible playbook, there is the upstart configuration file to be
+used.
 
 It is possible to pass an external configuration file (key=value) using an
-environment variable: `CELERY_CONFIG_MODULE`.
-
-CELERY_CONFIG_MODULE=$PATH celery worker --autoscale=4,1 --app=taskqueue
+environment variable: CELERY_CONFIG_MODULE.
 
 
 Basic interactions
