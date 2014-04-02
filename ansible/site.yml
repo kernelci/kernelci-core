@@ -5,6 +5,6 @@
   roles:
     - common
     - install-deps
-    - upstart-conf
     - install-app
+    - upstart-conf
   
