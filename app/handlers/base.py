@@ -116,14 +116,14 @@ class BaseHandler(RequestHandler):
         :return A (int, str) tuple composed of the status code, and the
                 message.
         """
-        status, message = 200, self._get_status_message(200)
-
         if isinstance(response, (types.DictionaryType, types.ListType)):
             status, message = 200, dumps(response)
         elif isinstance(response, types.IntType):
             status, message = response, self._get_status_message(response)
         elif isinstance(response, types.NoneType):
             status, message = 404, self._get_status_message(404)
+        else:
+            status, message = 200, self._get_status_message(200)
 
         self.set_status(status)
         self.write(dict(status=status, message=message))
@@ -150,10 +150,13 @@ class BaseHandler(RequestHandler):
         """
         self._create_valid_response(result)
 
+    def _check_content_type(self):
+        if self.request.headers['Content-Type'] != self.accepted_content_type:
+            self.send_error(status_code=415)
+
     @asynchronous
     def get(self, *args, **kwargs):
         if kwargs and kwargs['id']:
-
             self.executor.submit(
                 partial(find_one, self.collection, kwargs['id'])
             ).add_done_callback(
@@ -182,7 +185,7 @@ class BaseHandler(RequestHandler):
 
         if status_message:
             self.set_status(status_code)
-            self.write(dict(code=status_code, message=status_message))
+            self.write(dict(status=status_code, message=status_message))
             self.finish()
         else:
             super(BaseHandler, self).write_error(status_code)
