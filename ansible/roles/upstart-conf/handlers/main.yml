@@ -11,3 +11,15 @@
 - name: stop-kernel-ci-backend
   service:  name={{ upstart_service }}
             state=stopped
+
+- name: stop-celery
+  service:  name=celery
+            state=stopped
+
+- name: start-celery
+  service:  name=celery
+            state=started
+
+- name: restart-celery
+  service:  name=celery
+            state=restarted

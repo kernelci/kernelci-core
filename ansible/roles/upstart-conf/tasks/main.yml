@@ -6,3 +6,12 @@
             mode=0644
             owner=root
             group=root
+
+- name: Install celery upstart configuration
+  template: src=celery.conf
+            dest=/etc/init/celery.conf
+            owner=root
+            group=root
+            mode=0644
+  notify:
+    - restart-celery

@@ -25,6 +25,18 @@ From the 'app/' folder, run:
 
   python server.py
 
+
+The Celery worker
+---------------------
+
+To run external tasks, Celery is used. It will start automatically at boot
+time. In the ansible playbook, there is the upstart configuration file to be
+used.
+
+It is possible to pass an external configuration file (key=value) using an
+environment variable: CELERY_CONFIG_MODULE.
+
+
 Basic interactions
 ==================
 

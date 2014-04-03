@@ -73,7 +73,7 @@ def save(database, documents):
                       the type of each document must be: BaseDocument or a
                       subclass.
     :type list, BaseDocument
-    :return 200 if the save has success, 500 in case of errors.
+    :return 201 if the save has success, 500 in case of an error.
     """
     ret_value = 201
 
@@ -92,5 +92,6 @@ def save(database, documents):
             database[document.collection].save(to_save, manipulate=False)
         except OperationFailure:
             ret_value = 500
+            break
 
     return ret_value

@@ -1,6 +1,6 @@
 ---
 - name: Install OS dependencies
-  apt:  name={{ item }}
+  apt:  pkg={{ item }}
         state=latest
         update_cache=yes
   with_items:
@@ -18,3 +18,4 @@
     - install
 
 - include: install-mongodb.yml
+- include: install-redis.yml
