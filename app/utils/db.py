@@ -95,3 +95,35 @@ def save(database, documents):
             break
 
     return ret_value
+
+
+def update(collection, spec, document, operation='$set'):
+    """Update a document with the provided values.
+
+    The operation is performed on the collection based on the `spec` provided.
+    `spec` can specify and document fields. `document` is a dict with the
+    key-value to update.
+
+    The default operation performed is `$set`.
+
+    :param spec: The fields that will be matched in the document to update.
+    :type dict
+    :param document: The key-value to update.
+    :type dict
+    :param operation: The operation to perform. Be default is `$set`.
+    :type str
+    :return 200 if the update has success, 500 in case of an error.
+    """
+    ret_val = 200
+
+    try:
+        collection.update(
+            spec,
+            {
+                operation: document,
+            }
+        )
+    except OperationFailure:
+        ret_val = 500
+
+    return ret_val
