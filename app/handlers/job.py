@@ -16,19 +16,12 @@
 """The RequestHandler for /job URLs."""
 
 import json
-import tornado
 
-from functools import partial
 from tornado.web import asynchronous
 
 from handlers.base import BaseHandler
-from models.job import (
-    JOB_COLLECTION,
-    JobDocument,
-)
-from utils.db import save
-from utils.docimport import import_job_from_json
-from taskqueue.tasks import send_emails
+from models.job import JOB_COLLECTION
+from taskqueue.tasks import send_emails, import_job
 
 
 class JobHandler(BaseHandler):
@@ -50,33 +43,7 @@ class JobHandler(BaseHandler):
             json_obj = json.loads(self.request.body.decode('utf8'))
             if self.is_valid_put(json_obj):
 
-                self.executor.submit(
-                    partial(self._import, json_obj)
-                ).add_done_callback(
-                    lambda future:
-                    tornado.ioloop.IOLoop.instance().add_callback(
-                        partial(self._post_callback, future.result()))
-                )
-
+                import_job.apply_async([json_obj], link=send_emails.s())
+                self._create_valid_response(200)
             else:
                 self.send_error(status_code=400)
-
-    def _import(self, json_obj):
-        """Internal function to handle jobs import.
-
-        Should be run on a separate thread.
-
-        :param json_obj: The JSON-like object with the information.
-        """
-        response = import_job_from_json(json_obj)
-
-        if response:
-            result = save(self.db, response)
-
-            job_id = (
-                JobDocument.JOB_ID_FORMAT %
-                (json_obj['job'], json_obj['kernel'])
-            )
-            send_emails.delay(job_id)
-
-        return result
