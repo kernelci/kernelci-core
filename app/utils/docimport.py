@@ -33,6 +33,26 @@ from utils.utc import utc
 BASE_PATH = '/var/www/images/kernel-ci'
 
 
+def import_and_save(json_obj):
+    """Wrapper function to be used as an external task.
+
+    This function should only be called by Celery or other task managers.
+
+    :param json_obj: The JSON object with the values to be parsed.
+    :return The ID of the created document.
+    """
+    docs, job_id = import_job_from_json(json_obj)
+
+    database = pymongo.MongoClient()[DB_NAME]
+
+    try:
+        save(database, docs)
+    finally:
+        database.connection.disconnect()
+
+    return job_id
+
+
 def import_job_from_json(json_obj, base_path=BASE_PATH):
     """Import a job based on the provided JSON object.
 
@@ -45,7 +65,7 @@ def import_job_from_json(json_obj, base_path=BASE_PATH):
                      `kernel'.
     :param base_path: The base path where to start constructing the traverse
                       directory. It defaults to: /var/www/images/kernel-ci.
-    :return The documents to be save.
+    :return The documents to be saved, and the job document ID.
     """
     job_dir = json_obj['job']
     kernel_dir = json_obj['kernel']
@@ -59,7 +79,7 @@ def _import_job(job, kernel, base_path=BASE_PATH):
     :param job: The name of the job.
     :param kernel: The name of the kernel.
     :param base_path: The base path where to strat the traversing.
-    :return The documents to be save.
+    :return The documents to be saved, and the job document ID.
     """
     job_dir = os.path.join(base_path, job, kernel)
     job_id = JobDocument.JOB_ID_FORMAT % (job, kernel)
@@ -73,7 +93,7 @@ def _import_job(job, kernel, base_path=BASE_PATH):
     if os.path.isdir(job_dir):
         docs.extend(_traverse_defconf_dir(job_dir, job_id))
 
-    return docs
+    return (docs, job_id)
 
 
 def _traverse_defconf_dir(kernel_dir, job_id):
