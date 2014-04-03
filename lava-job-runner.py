@@ -29,10 +29,10 @@ def poll_jobs():
             for job in submitted_jobs:
                 status = server.scheduler.job_status(job)
                 if status['job_status'] == 'Complete':
-                    print os.path.basename(submitted_jobs[job]) + ': pass'
+                    print 'job-id-' + str(job) + '-' + os.path.basename(submitted_jobs[job]) + ' : pass'
                     submitted_jobs.pop(job, None)
                 elif status['job_status'] == 'Incomplete':
-                    print os.path.basename(submitted_jobs[job]) + ': fail'
+                    print 'job-id-' + str(job) + '-' + os.path.basename(submitted_jobs[job]) + ' : fail'
                     submitted_jobs.pop(job, None)
                 else:
                     print str(job) + ' - ' + str(status['job_status'])
@@ -60,18 +60,18 @@ def submit_jobs():
             if 'target' in job_info:
                 if job_info['target'] in offline_devices:
                     print "%s is OFFLINE skipping submission" % job_info['target']
-                    print job + ': skip'
+                    print os.path.basename(job) + ': skip'
                 else:
                     job_map[job] = server.scheduler.submit_job(job_data)
             elif 'device_type' in job_info:
                 if job_info['device_type'] in offline_device_types:
                     print "All device types: %s are OFFLINE, skipping..." % job_info['target']
-                    print job + ': skip'
+                    print os.path.basename(job) + ' : skip'
                 else:
                     job_map[job] = server.scheduler.submit_job(job_data)
             else:
                 print "Malformed JSON: No device_type or target present, skipping..."
-                print job + ': skip'
+                print os.path.basename(job) + ' : skip'
     except (xmlrpclib.ProtocolError, xmlrpclib.Fault, IOError) as e:
         print "ERROR!"
         print e
@@ -88,11 +88,11 @@ def retrieve_jobs(jobs):
         print "Cloning LAVA Jobs..."
         subprocess.check_output(cmd, shell=True)
         print "Clone Successful!"
-        print "clone-jobs: pass"
+        print "clone-jobs : pass"
     except subprocess.CalledProcessError as e:
         print "ERROR!"
         print "Unable to clone %s" % jobs
-        print "clone-jobs: fail"
+        print "clone-jobs : fail"
         exit(1)
 
 def gather_devices():
@@ -129,12 +129,12 @@ def connect(url):
         gather_device_types()
         gather_devices()
         print "Connection Successful!"
-        print "connect-to-server: pass"
+        print "connect-to-server : pass"
     except (xmlrpclib.ProtocolError, xmlrpclib.Fault, IOError) as e:
         print "ERROR!"
         print "Unable to connect to %s" % url
         print "The URL should be in the form http(s)://<user>:<token>@hostname/RPC2"
-        print "connect-to-server: fail"
+        print "connect-to-server : fail"
         print e
         exit(1)
 
