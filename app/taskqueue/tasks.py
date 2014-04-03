@@ -17,6 +17,7 @@
 
 from taskqueue.celery import app
 from utils.subscription import send
+from utils.docimport import import_and_save
 
 
 @app.task(name='send-emails')
@@ -28,3 +29,15 @@ def send_emails(job_id):
     :param job_id: The job ID to trigger notifications for.
     """
     send(job_id)
+
+
+@app.task(name='import-job')
+def import_job(json_obj):
+    """Just a wrapper around the real import function.
+
+    This is used to provide a Celery-task access to the import function.
+
+    :param json_obj: The JSON object with the values necessary to import the
+                     job.
+    """
+    return import_and_save(json_obj)
