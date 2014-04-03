@@ -64,7 +64,11 @@ class SubscriptionHandler(BaseHandler):
         if self.is_valid_put(json_obj):
             self.executor.submit(
                 partial(
-                    unsubscribe, json_obj['job'], json_obj['email'], self.db)
+                    unsubscribe,
+                    json_obj['job'],
+                    json_obj['email'],
+                    self.collection
+                )
             ).add_done_callback(
                 lambda future:
                 tornado.ioloop.IOLoop.instance().add_callback(

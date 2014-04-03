@@ -91,6 +91,7 @@ def save(database, documents):
         try:
             database[document.collection].save(to_save, manipulate=False)
         except OperationFailure:
+            # TODO log error
             ret_value = 500
             break
 
@@ -124,6 +125,7 @@ def update(collection, spec, document, operation='$set'):
             }
         )
     except OperationFailure:
+        # TODO log error
         ret_val = 500
 
     return ret_val

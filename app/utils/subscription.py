@@ -95,7 +95,9 @@ def unsubscribe(job_id, email, collection):
         emails = subscription['emails']
         try:
             emails.remove(email)
-            ret_val = update(collection, {'job_id': job_id}, emails)
+            ret_val = update(
+                collection, {'job_id': job_id}, {'emails': emails}
+            )
         except ValueError:
             # TODO log error
             pass
@@ -107,7 +109,6 @@ def send(job_id):
     """Send emails to the subscribers.
 
     :param job_id: The job ID for which to send notifications.
-    :param database: The database where to search for subscribers.
     """
     # TODO: add logic to make sure we can send the notifications.
     # We should store the job status.
