@@ -37,13 +37,12 @@ class JobHandler(BaseHandler):
 
     @asynchronous
     def post(self, *args, **kwargs):
-        if self.request.headers['Content-Type'] != self.accepted_content_type:
-            self.send_error(status_code=415)
-        else:
-            json_obj = json.loads(self.request.body.decode('utf8'))
-            if self.is_valid_put(json_obj):
 
-                import_job.apply_async([json_obj], link=send_emails.s())
-                self._create_valid_response(200)
-            else:
-                self.send_error(status_code=400)
+        self._check_content_type()
+
+        json_obj = json.loads(self.request.body.decode('utf8'))
+        if self.is_valid_put(json_obj):
+            import_job.apply_async([json_obj], link=send_emails.s())
+            self._create_valid_response(200)
+        else:
+            self.send_error(status_code=400)
