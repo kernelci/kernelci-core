@@ -6,9 +6,10 @@
   with_items:
     - build-essential
     - git
-    - python-jinja
+    - python-jinja2
     - python-mock
     - python-paramiko
+    - python-markupsafe
     - python-pip
     - python-pycurl
     - python-simplejson
