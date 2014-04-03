@@ -29,6 +29,7 @@ from models.subscription import (
 from utils.db import (
     find_one,
     save,
+    update,
 )
 
 
@@ -46,6 +47,8 @@ def subscribe(json_obj, database):
             404 if the job to subscribe to does not exist, or 500 in case of
             an internal database error.
     """
+    ret_val = 404
+
     job = json_obj['job']
     emails = json_obj['email']
 
@@ -67,9 +70,37 @@ def subscribe(json_obj, database):
             )
             sub_obj = SubscriptionDocument(sub_id, job_id, emails)
 
-        return save(database, sub_obj)
-    else:
-        return 404
+        ret_val = save(database, sub_obj)
+
+    return ret_val
+
+
+def unsubscribe(job_id, email, collection):
+    """Unsubscribe an email from a job.
+
+    :param job_id: The job ID from which the email should be unsubscribed.
+    :type str
+    :param email: The email to unsubscribe.
+    :type str
+    :return 200 on success, 400 if there is an error removing an email, 500
+            in case of a database error.
+    """
+    ret_val = 400
+
+    subscription = find_one(
+        collection, job_id, 'job_id'
+    )
+
+    if subscription:
+        emails = subscription['emails']
+        try:
+            emails.remove(email)
+            ret_val = update(collection, {'job_id': job_id}, emails)
+        except ValueError:
+            # TODO log error
+            pass
+
+    return ret_val
 
 
 def send(job_id):
