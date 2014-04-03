@@ -42,9 +42,6 @@ class TestSubscription(unittest.TestCase):
     @patch("utils.subscription.find_one")
     def test_subscribe_email_valid_job(self, mock_find_one):
 
-        def callback(result):
-            self.assertEquals(result, 200)
-
         mock_find_one.side_effect = [
             dict(_id='job'),
             None,
