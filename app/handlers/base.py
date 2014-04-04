@@ -31,6 +31,7 @@ from utils.db import (
     find,
     find_one,
 )
+from utils.log import get_log
 from utils.validator import is_valid_json
 
 # Default and maximum limit for how many results to get back from the db.
@@ -64,6 +65,10 @@ class BaseHandler(RequestHandler):
     def accepted_keys(self):
         """The list of accepted keys to validate a JSON object."""
         return ()
+
+    @property
+    def log(self):
+        return get_log()
 
     def _valid_keys(self, method):
         """The accepted keys for the valid sent content type.

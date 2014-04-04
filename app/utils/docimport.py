@@ -27,10 +27,13 @@ from models.defconfig import (
 )
 from models.job import JobDocument
 from utils.db import save
+from utils.log import get_log
 from utils.utc import utc
 
 
 BASE_PATH = '/var/www/images/kernel-ci'
+
+log = get_log()
 
 
 def import_and_save(json_obj):
@@ -42,6 +45,10 @@ def import_and_save(json_obj):
     :return The ID of the created document.
     """
     docs, job_id = import_job_from_json(json_obj)
+
+    log.info(
+        "Importing %d documents with job ID: %s" % (len(docs), job_id)
+    )
 
     database = pymongo.MongoClient()[DB_NAME]
 

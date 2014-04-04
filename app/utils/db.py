@@ -20,6 +20,10 @@ import types
 from pymongo.errors import OperationFailure
 
 from models.base import BaseDocument
+from utils.log import get_log
+
+
+log = get_log()
 
 
 def find_one(collection, values, field='_id', operator='$in'):
@@ -64,6 +68,7 @@ def find(collection, limit, skip):
     :type int
     :return A list of documents.
     """
+    log.info("Finding stuff")
     return collection.find(limit=limit, skip=skip)
 
 
@@ -141,7 +146,7 @@ def save(database, documents):
         try:
             database[document.collection].save(to_save, manipulate=False)
         except OperationFailure:
-            # TODO log error
+            log.error("Error saving the following document: %s" % to_save.name)
             ret_value = 500
             break
 
@@ -175,7 +180,9 @@ def update(collection, spec, document, operation='$set'):
             }
         )
     except OperationFailure:
-        # TODO log error
+        log.error(
+            "Error updating the following document: %s" % (str(document))
+        )
         ret_val = 500
 
     return ret_val
@@ -196,7 +203,9 @@ def delete(collection, spec_or_id):
     try:
         collection.remove(spec_or_id)
     except OperationFailure:
-        # TODO log error
+        log.error(
+            "Error removing the following document: %s" % (str(spec_or_id))
+        )
         ret_val = 500
 
     return ret_val
