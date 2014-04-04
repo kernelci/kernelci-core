@@ -19,4 +19,4 @@ run:
     steps:
         - "git clone http://git.linaro.org/git/lava-team/lava-ci.git"
         - "cd lava-ci"
-        - "python lava-job-runner.py $USER $TOKEN $SERVER $JOB_REPO $BUNDLE_STREAM"
+        - "python lava-job-runner.py $USERNAME $TOKEN $SERVER $JOB_REPO $BUNDLE_STREAM"
