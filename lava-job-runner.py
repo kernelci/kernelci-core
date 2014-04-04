@@ -7,6 +7,7 @@ import fnmatch
 import os
 import json
 import time
+import re
 
 server = None
 online_device_types = []
@@ -14,7 +15,6 @@ offline_device_types = []
 online_devices = []
 offline_devices = []
 job_map = {}
-
 
 def poll_jobs():
     run = True
@@ -25,15 +25,17 @@ def poll_jobs():
             submitted_jobs[job_map[job]] = job
 
     while run:
-        try:
-            for job in submitted_jobs:
+        for job in submitted_jobs:
+            try:
                 status = server.scheduler.job_status(job)
                 if status['job_status'] == 'Complete':
                     print 'job-id-' + str(job) + '-' + os.path.basename(submitted_jobs[job]) + ' : pass'
                     submitted_jobs.pop(job, None)
+                    break
                 elif status['job_status'] == 'Incomplete':
                     print 'job-id-' + str(job) + '-' + os.path.basename(submitted_jobs[job]) + ' : fail'
                     submitted_jobs.pop(job, None)
+                    break
                 else:
                     print str(job) + ' - ' + str(status['job_status'])
                 if not submitted_jobs:
@@ -41,40 +43,51 @@ def poll_jobs():
                     break
                 else:
                     time.sleep(10)
-        except (xmlrpclib.ProtocolError, xmlrpclib.Fault, IOError) as e:
-            print e
-            continue
+            except (xmlrpclib.ProtocolError, xmlrpclib.Fault, IOError) as e:
+                print "POLLING ERROR!"
+                print e
+                continue
 
-def submit_jobs():
+def submit_jobs(lava_server, bundle_stream):
     global online_devices
     global offline_devices
     global online_device_types
     global offline_device_types
-    try:
-        print "Submitting Jobs to Server..."
-        for job in job_map:
+    print "Submitting Jobs to Server..."
+    for job in job_map:
+        try:
             with open(job, 'rb') as stream:
                 job_data = stream.read()
+                job_data = re.sub('LAVA_SERVER', lava_server, job_data)
+                job_data = re.sub('BUNDLE_STREAM', bundle_stream, job_data)
             job_info = json.loads(job_data)
-            # Check if target is online
+            # Check if request device(s) are available
             if 'target' in job_info:
                 if job_info['target'] in offline_devices:
                     print "%s is OFFLINE skipping submission" % job_info['target']
                     print os.path.basename(job) + ': skip'
-                else:
+                elif job_info['target'] in online_devices:
                     job_map[job] = server.scheduler.submit_job(job_data)
+                else:
+                    print "No target available on server, skipping..."
+                    print os.path.basename(job) + ' : skip'
             elif 'device_type' in job_info:
                 if job_info['device_type'] in offline_device_types:
-                    print "All device types: %s are OFFLINE, skipping..." % job_info['target']
+                    print "All device types: %s are OFFLINE, skipping..." % job_info['device_type']
                     print os.path.basename(job) + ' : skip'
-                else:
+                elif job_info['device_type'] in online_device_types:
                     job_map[job] = server.scheduler.submit_job(job_data)
+                else:
+                    print "No device-type available on server, skipping..."
+                    print os.path.basename(job) + ' : skip'
             else:
-                print "Malformed JSON: No device_type or target present, skipping..."
+                print "Multinode Job not supported, skipping..."
                 print os.path.basename(job) + ' : skip'
-    except (xmlrpclib.ProtocolError, xmlrpclib.Fault, IOError) as e:
-        print "ERROR!"
-        print e
+        except (xmlrpclib.ProtocolError, xmlrpclib.Fault, IOError, ValueError) as e:
+            print "JSON VALIDATION ERROR!"
+            print job
+            print e
+            continue
 
 def load_jobs():
     top = os.getcwd()
@@ -113,10 +126,15 @@ def gather_device_types():
     print "Gathering Device Types..."
     all_device_types = server.scheduler.all_device_types()
     for device_type in all_device_types:
-        if device_type['idle'] < device_type['offline']:
+        # Retired
+        if device_type['idle'] == 0 and device_type['busy'] == 0 and device_type['offline'] == 0:
             offline_device_types.append(device_type['name'])
-        else:
+        # Running
+        elif device_type['idle'] > 0 or device_type['busy'] > 0:
             online_device_types.append(device_type['name'])
+        # Offline
+        else:
+            offline_device_types.append(device_type['name'])
     print "Gathered Device Types Successfully!"
 
 def connect(url):
@@ -138,13 +156,13 @@ def connect(url):
         print e
         exit(1)
 
-def main(url, jobs):
+def main(url, jobs, lava_server, bundle_stream):
     connect(url)
     retrieve_jobs(jobs)
     load_jobs()
-    submit_jobs()
+    submit_jobs(lava_server, bundle_stream)
     poll_jobs()
     exit(0)
 
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2])
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
