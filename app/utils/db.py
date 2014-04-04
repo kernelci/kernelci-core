@@ -57,14 +57,62 @@ def find_one(collection, values, field='_id', operator='$in'):
 def find(collection, limit, skip):
     """Find all the documents in a collection.
 
-    :param collection: The mongodb collection to look into.
+    :param collection: The collection where to search.
     :param limit: How many documents to return.
     :type int
-    :param skip: How many documents to skip from the mongodb result.
+    :param skip: How many documents to skip from the result.
     :type int
     :return A list of documents.
     """
     return collection.find(limit=limit, skip=skip)
+
+
+def find_docs(collection, spec, limit, skip, fields=None):
+    """Find documents with the specified values.
+
+    The `spec` argument is a dictionary of fields and values that should be
+    searched in the collection documents. Only the documents matching will be
+    returned.
+
+    :param collection: The collection where to search.
+    :param spec: A dictionary object with key-value fields to be matched.
+    :type dict
+    :param limit: How many documents to return.
+    :type int
+    :param skip: How many document to skip from the result.
+    :type int
+    :param fields: The fields that should be returned or excluded from the
+                   result.
+    :type str, list, dict
+    :return A list of documents matching the specified values.
+    """
+    return collection.find(
+        spec=spec, limit=limit, skip=skip, fields=fields
+    )
+
+
+def count_docs(collection, spec):
+    """Count all the documents matching the specified values.
+
+    The `spec` argument is a dictionary of fields and values that should be
+    searched in the collection documents. Only the documents matching will be
+    returned.
+
+    :param collection: The collection where to search.
+    :param spec: A dictionary object with key-valu fields to be matched.
+    :type dict
+    :return The number of documents matching the specified values.
+    """
+    return collection.find(spec=spec, fields='_id').count()
+
+
+def count(collection):
+    """Count all the documents in a collection.
+
+    :param collection: The collection whose documents should be counted.
+    :return The number of documents in the collection.
+    """
+    return collection.count()
 
 
 def save(database, documents):
@@ -133,19 +181,20 @@ def update(collection, spec, document, operation='$set'):
     return ret_val
 
 
-def delete(collection, doc_id):
+def delete(collection, spec_or_id):
     """Remove a document or multiple documents from the collection.
 
     Use with care: the removed documents cannot be recovered!
 
     :param collection: The collection where the documents should be removed.
-    :param doc_id: The `_id` of the document to remove.
+    :param spec_or_id: The `_id` of the document to remove, or a dictionary
+                       with the ID to remove.
     :return 200 if the deletion has success, 500 in case of an error.
     """
     ret_val = 200
 
     try:
-        collection.remove(doc_id)
+        collection.remove(spec_or_id)
     except OperationFailure:
         # TODO log error
         ret_val = 500
