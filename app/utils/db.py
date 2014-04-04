@@ -22,7 +22,7 @@ from pymongo.errors import OperationFailure
 from models.base import BaseDocument
 
 
-def find_one(collection, values, field="_id"):
+def find_one(collection, values, field='_id', operator='$in'):
     """Search for a specific document.
 
     The `field' value can be specified, and by default is `_id'.
@@ -33,7 +33,9 @@ def find_one(collection, values, field="_id"):
     :param collection: The collection where to search.
     :param values: The values to search. Can be a list of multiple values.
     :param field: The field where the value should be searched. Defaults to
-                  '_id'.
+                  `_id`.
+    :param oeprator: The operator used to perform the comparison. Defaults to
+                      `$in`.
     :return None or the search result.
     """
 
@@ -45,7 +47,7 @@ def find_one(collection, values, field="_id"):
 
     result = collection.find_one(
         {
-            field: {"$in": values}
+            field: {operator: values}
         },
     )
 
