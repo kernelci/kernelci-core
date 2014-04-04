@@ -16,7 +16,7 @@
 import json
 import unittest
 
-from utils.validator import is_valid_json_put
+from utils.validator import is_valid_json
 
 
 class TestValidator(unittest.TestCase):
@@ -26,7 +26,7 @@ class TestValidator(unittest.TestCase):
         accepted_keys = ('job', 'kernel')
 
         self.assertTrue(
-            is_valid_json_put(json.loads(json_string), accepted_keys)
+            is_valid_json(json.loads(json_string), accepted_keys)
         )
 
     def test_is_valid_json_put_not_valid_job(self):
@@ -34,7 +34,7 @@ class TestValidator(unittest.TestCase):
         accepted_keys = ('job', 'kernel')
 
         self.assertFalse(
-            is_valid_json_put(json.loads(json_string), accepted_keys)
+            is_valid_json(json.loads(json_string), accepted_keys)
         )
 
     def test_is_valid_json_put_not_valid_kernel(self):
@@ -42,5 +42,5 @@ class TestValidator(unittest.TestCase):
         accepted_keys = ('job', 'kernel')
 
         self.assertFalse(
-            is_valid_json_put(json.loads(json_string), accepted_keys)
+            is_valid_json(json.loads(json_string), accepted_keys)
         )

@@ -14,10 +14,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-def is_valid_json_put(json_obj, accepted_keys):
+def is_valid_json(json_obj, accepted_keys):
     """Validate JSON object for PUT request.
 
-    To be invalid, just one of the keys passed needs not to be found.
+    To be invalid, just one of the keys passed needs not to be found, or there
+    are no keys passed.
 
     :param json_obj: The JSON object to validate. It will be treated as a
                      Python dictionary.
@@ -28,9 +29,12 @@ def is_valid_json_put(json_obj, accepted_keys):
     is_valid = True
     json_keys = json_obj.keys()
 
-    for key in accepted_keys:
-        if key not in json_keys:
-            is_valid &= False
-            break
+    if accepted_keys:
+        for key in accepted_keys:
+            if key not in json_keys:
+                is_valid &= False
+                break
+    else:
+        is_valid = False
 
     return is_valid

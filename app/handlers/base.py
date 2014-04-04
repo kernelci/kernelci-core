@@ -31,7 +31,7 @@ from utils.db import (
     find,
     find_one,
 )
-from utils.validator import is_valid_json_put
+from utils.validator import is_valid_json
 
 # Default and maximum limit for how many results to get back from the db.
 DEFAULT_LIMIT = 20
@@ -64,6 +64,14 @@ class BaseHandler(RequestHandler):
     def accepted_keys(self):
         """The list of accepted keys to validate a JSON object."""
         return ()
+
+    def _valid_keys(self, method):
+        """The accepted keys for the valid sent content type.
+
+        :param method: The HTTP method that originated the request.
+        :return A list of keys that the method accepts.
+        """
+        return None
 
     def _get_status_message(self, status_code):
         """Get custom error message based on the status code.
@@ -101,13 +109,16 @@ class BaseHandler(RequestHandler):
         """
         return self.ACCEPTED_CONTENT_TYPE
 
-    def is_valid_put(self, json_obj):
-        """Validate PUT requests content.
+    def _has_valid_keys(self, json_obj, keys):
+        """Validate the keys of sent JSON data.
 
-        :param json_obj: The JSON object to validate.
+        Just make sure that the JSON data sent contains the required keys.
+
+        :param json_obj: The JSON data to validate.
+        :param keys: List of keys the JSON data should contain.
         :return True or False.
         """
-        return is_valid_json_put(json_obj, self.accepted_keys)
+        return is_valid_json(json_obj, keys)
 
     def _create_valid_response(self, response):
         """Create a valid JSON response based on its type.
@@ -142,13 +153,6 @@ class BaseHandler(RequestHandler):
         self.set_status(200)
         self.write(response)
         self.finish()
-
-    def _post_callback(self, result):
-        """Callback used for POST operations.
-
-        :param result: The result from the future instance.
-        """
-        self._create_valid_response(result)
 
     def _check_content_type(self):
         if self.request.headers['Content-Type'] != self.accepted_content_type:

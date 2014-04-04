@@ -36,22 +36,26 @@ class SubscriptionHandler(BaseHandler):
     def collection(self):
         return self.db[SUBSCRIPTION_COLLECTION]
 
-    @property
-    def accepted_keys(self):
-        return ('job', 'email')
+    def _valid_keys(self, method):
+        valid_keys = {
+            'POST': ['job', 'email'],
+            'DELETE': ['job', 'email'],
+        }
+
+        return valid_keys.get(method, None)
 
     @asynchronous
     def post(self, *args, **kwargs):
         self._check_content_type()
 
         json_obj = json.loads(self.request.body.decode('utf8'))
-        if self.is_valid_put(json_obj):
+        if self._has_valid_keys(json_obj, self._valid_keys('POST')):
             self.executor.submit(
                 partial(subscribe, json_obj, self.db)
             ).add_done_callback(
                 lambda future:
                 tornado.ioloop.IOLoop.instance().add_callback(
-                    partial(self._post_callback, future.result()))
+                    partial(self._create_valid_response, future.result()))
             )
         else:
             self.send_error(status_code=400)
@@ -61,7 +65,7 @@ class SubscriptionHandler(BaseHandler):
         self._check_content_type()
 
         json_obj = json.loads(self.request.body.decode('utf8'))
-        if self.is_valid_put(json_obj):
+        if self._has_valid_keys(json_obj, self._valid_keys('DELETE')):
             self.executor.submit(
                 partial(
                     unsubscribe,

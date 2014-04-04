@@ -102,7 +102,7 @@ def update(collection, spec, document, operation='$set'):
     """Update a document with the provided values.
 
     The operation is performed on the collection based on the `spec` provided.
-    `spec` can specify and document fields. `document` is a dict with the
+    `spec` can specify any document fields. `document` is a dict with the
     key-value to update.
 
     The default operation performed is `$set`.
@@ -124,6 +124,26 @@ def update(collection, spec, document, operation='$set'):
                 operation: document,
             }
         )
+    except OperationFailure:
+        # TODO log error
+        ret_val = 500
+
+    return ret_val
+
+
+def delete(collection, doc_id):
+    """Remove a document or multiple documents from the collection.
+
+    Use with care: the removed documents cannot be recovered!
+
+    :param collection: The collection where the documents should be removed.
+    :param doc_id: The `_id` of the document to remove.
+    :return 200 if the deletion has success, 500 in case of an error.
+    """
+    ret_val = 200
+
+    try:
+        collection.remove(doc_id)
     except OperationFailure:
         # TODO log error
         ret_val = 500
