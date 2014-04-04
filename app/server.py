@@ -34,20 +34,10 @@ class KernelCiBackend(Application):
 
     mongodb_client = pymongo.MongoClient()
 
-    @property
-    def client(self):
-        """The database client of this application."""
-        return self.mongodb_client
-
-    @property
-    def sync_client(self):
-        """The database sync-client of this application."""
-        return self.mongodb_client_sync
-
     def __init__(self):
 
         settings = {
-            'client': self.client,
+            'client': self.mongodb_client,
             'default_handler_class': AppHandler,
             'executor': ThreadPoolExecutor(max_workers=10),
         }
