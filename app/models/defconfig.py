@@ -30,8 +30,12 @@ DEFCONFIG_ACCEPTED_FILES = {
 class DefConfigDocument(BaseDocument):
     """This class represents a defconfig folder as seen on the file system."""
 
-    def __init__(self, name, job_id=None):
-        super(DefConfigDocument, self).__init__(name)
+    DEFCONFIG_ID_FORMAT = '%s-%s'
+
+    def __init__(self, name, job_id):
+        super(DefConfigDocument, self).__init__(
+            self.DEFCONFIG_ID_FORMAT % (job_id, name)
+        )
 
         self._job_id = job_id
         self._zimage = None

@@ -54,47 +54,34 @@ class TestModels(unittest.TestCase):
         self.assertEqual(job_doc.to_json(), expected_json)
 
     def test_defconfig_document_valid_instance(self):
-        defconf_doc = DefConfigDocument('defconf')
+        defconf_doc = DefConfigDocument('defconf', 'job')
         self.assertIsInstance(defconf_doc, BaseDocument)
 
     def test_defconfig_document_to_dict(self):
         expected = {
-            'job_id': None,
+            'job_id': 'job',
             'image': None,
             'system_map': None,
             'zimage': None,
-            '_id': 'defconfig',
-            'job_id': None,
+            '_id': 'job-defconfig',
             'kernel_conf': None,
         }
 
-        defconfig_doc = DefConfigDocument('defconfig')
+        defconfig_doc = DefConfigDocument('defconfig', 'job')
         self.assertEqual(defconfig_doc.to_dict(), expected)
 
     def test_defconfig_document_collection(self):
-        defconfig_doc = DefConfigDocument('defconfig')
+        defconfig_doc = DefConfigDocument('defconfig', 'job')
         self.assertEqual(defconfig_doc.collection, 'defconfig')
 
     def test_defconfig_document_to_json(self):
         expected_json = (
-            '{"job_id": null, "image": null, "system_map": null, '
-            '"zimage": null, "_id": "defconfig", "kernel_conf": null}'
-        )
-
-        defconfig_doc = DefConfigDocument('defconfig')
-        self.assertEqual(defconfig_doc.to_json(), expected_json)
-
-    def test_defconfig_document_kernel_setter(self):
-        expected_json = (
             '{"job_id": "job", "image": null, "system_map": null, '
-            '"zimage": null, "_id": "defconfig", "kernel_conf": null}'
+            '"zimage": null, "_id": "job-defconfig", "kernel_conf": null}'
         )
 
-        defconf_doc = DefConfigDocument('defconfig')
-        defconf_doc.job_id = "job"
-
-        self.assertEqual(defconf_doc.job_id, 'job')
-        self.assertEqual(defconf_doc.to_json(), expected_json)
+        defconfig_doc = DefConfigDocument('defconfig', 'job')
+        self.assertEqual(defconfig_doc.to_json(), expected_json)
 
     def test_subscription_document_emails_attribute(self):
         subscription_doc = SubscriptionDocument('sub', 'job')

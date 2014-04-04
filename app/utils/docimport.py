@@ -105,8 +105,7 @@ def _traverse_defconf_dir(kernel_dir, job_id):
     """
     defconf_docs = []
     for defconf_dir in os.listdir(kernel_dir):
-        defconf_doc = DefConfigDocument(defconf_dir)
-        defconf_doc.job_id = job_id
+        defconf_doc = DefConfigDocument(defconf_dir, job_id)
 
         for dirname, subdirs, files in os.walk(
                 os.path.join(kernel_dir, defconf_dir)):
