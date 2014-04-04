@@ -155,6 +155,7 @@ class BaseHandler(RequestHandler):
         self.finish()
 
     def _check_content_type(self):
+        """Handy method to check the content type of the request body."""
         if self.request.headers['Content-Type'] != self.accepted_content_type:
             self.send_error(status_code=415)
 
