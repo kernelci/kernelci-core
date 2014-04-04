@@ -25,5 +25,9 @@ from handlers import (
 APP_URLS = [
     url(r'/api/defconfig(?P<sl>/)?(?P<id>.*)', DefConfHandler, name='defconf'),
     url(r'/api/job(?P<sl>/)?(?P<id>.*)', JobHandler, name='job'),
-    url(r'/api/subscription', SubscriptionHandler, name='subscription')
+    url(
+        r'/api/subscription(?P<sl>/)?(?P<id>.*)',
+        SubscriptionHandler,
+        name='subscription'
+    )
 ]
