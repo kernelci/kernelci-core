@@ -1,0 +1,22 @@
+metadata:
+    name: lava-functional-tests
+    format: "Lava-Test-Shell Test Definition 1.0"
+    description: "Runs LAVA Functional Tests"
+
+params:
+    USERNAME: lava
+    TOKEN: lava
+    JOB_REPO: http://git.linaro.org/git/lava-team/lava-functional-tests.git
+    SERVER: https://staging.validation.linaro.org/RPC2/
+    BUNDLE_STREAM: /anonymous/lava-functional-tests/ 
+
+install:
+    deps:
+        - python
+        - git
+
+run:
+    steps:
+        - "git clone http://git.linaro.org/git/lava-team/lava-ci.git"
+        - "cd lava-ci"
+        - "python lava-job-runner.py $USER $TOKEN $SERVER $JOB_REPO $BUNDLE_STREAM"
