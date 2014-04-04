@@ -101,6 +101,7 @@ def submit_jobs(connection, lava_server, bundle_stream):
                             print "Server does not have enough online devices to submit job!"
                             print os.path.basename(job) + ' : skip'
                             server_has_required_devices = False
+                            break
                         elif groups['count'] <= multinode_online_device_types[groups['device_type']]:
                             print "Server has enough devices for this group!"
                             multinode_online_device_types[groups['device_type']] = multinode_online_device_types[groups['device_type']] - groups['count']
@@ -108,6 +109,7 @@ def submit_jobs(connection, lava_server, bundle_stream):
                             print "Should never get here!"
                             print os.path.basename(job) + ' : skip'
                             server_has_required_devices = False
+                            break
                     else:
                         print "No device-type available on server, skipping..."
                         print os.path.basename(job) + ' : skip'
