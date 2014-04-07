@@ -36,7 +36,7 @@ class DefConfHandler(BaseHandler):
 
     def _valid_keys(self, method):
         valid_keys = {
-            'DELETE': ['defonf']
+            'DELETE': ['defconf']
         }
 
         return valid_keys.get(method, None)
