@@ -29,7 +29,7 @@ from tornado.web import (
 
 from models import DB_NAME
 from utils.db import (
-    find,
+    find_and_count,
     find_one,
 )
 from utils.log import get_log
@@ -142,18 +142,17 @@ class BaseHandler(RequestHandler):
         self.write(dict(status=status, message=message))
         self.finish()
 
-    def _get_callback(self, limit, result):
+    def _get_callback(self, result):
         """Callback used for GET operations.
 
         :param limit: The number of elements returned.
-        :param result: The result from the future instance.
+        :param result: The result from the future instance. A dictionary with
+            at least the `result` key.
         """
-        response = dict(
-            status=200, limit=limit, message=dumps(result)
-        )
+        result['result'] = dumps(result['result'])
 
         self.set_status(200)
-        self.write(response)
+        self.write(result)
         self.finish()
 
     def _is_valid_request(self):
@@ -246,11 +245,11 @@ class BaseHandler(RequestHandler):
                 limit = MAX_LIMIT
 
             self.executor.submit(
-                partial(find, self.collection, limit, skip)
+                partial(find_and_count, self.collection, limit, skip)
             ).add_done_callback(
                 lambda future:
                 tornado.ioloop.IOLoop.instance().add_callback(
-                    partial(self._get_callback, limit, future.result()))
+                    partial(self._get_callback, future.result()))
             )
 
     def write_error(self, status_code, **kwargs):
