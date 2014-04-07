@@ -16,6 +16,7 @@
 """The base RequestHandler that all subclasses should inherit from."""
 
 import httplib
+import json
 import tornado
 import types
 
@@ -62,18 +63,14 @@ class BaseHandler(RequestHandler):
         return self.settings['client'][DB_NAME]
 
     @property
-    def accepted_keys(self):
-        """The list of accepted keys to validate a JSON object."""
-        return ()
-
-    @property
     def log(self):
         return get_log()
 
     def _valid_keys(self, method):
         """The accepted keys for the valid sent content type.
 
-        :param method: The HTTP method that originated the request.
+        :param method: The HTTP method name that originated the request.
+        :type str
         :return A list of keys that the method accepts.
         """
         return None
@@ -159,10 +156,76 @@ class BaseHandler(RequestHandler):
         self.write(response)
         self.finish()
 
-    def _check_content_type(self):
-        """Handy method to check the content type of the request body."""
-        if self.request.headers['Content-Type'] != self.accepted_content_type:
-            self.send_error(status_code=415)
+    def _is_valid_request(self):
+        """Verify if a request is valid.
+
+        :return 200 in case the request is valid, any other status code if not.
+        """
+        return_code = 200
+
+        if not self.request.headers.get('X-Xsrf-Header', None):
+            # TODO need token mechanism to authorize requests.
+            return_code = 403
+        else:
+            if self.request.headers['Content-Type'] != \
+                    self.accepted_content_type:
+                return_code = 415
+
+        return return_code
+
+    @asynchronous
+    def post(self, *args, **kwargs):
+
+        valid_request = self._is_valid_request()
+
+        if valid_request == 200:
+            json_obj = json.loads(self.request.body.decode('utf8'))
+
+            if self._has_valid_keys(json_obj, self._valid_keys('POST')):
+                self._post(json_obj)
+            else:
+                self.send_error(valid_request=400)
+        else:
+            self.send_error(status_code=valid_request)
+
+    def _post(self, json_obj):
+        """Placeholder method - used internally.
+
+        This is called by the actual method that implements POST request.
+        Subclasses should provide their own implementation.
+
+        This will return a status code of 501.
+
+        :param json_obj: A JSON object.
+        """
+        self.send_error(status_code=501)
+
+    @asynchronous
+    def delete(self, *args, **kwargs):
+
+        valid_request = self._is_valid_request()
+
+        if valid_request == 200:
+            json_obj = json.loads(self.request.body.decode('utf8'))
+
+            if self._has_valid_keys(json_obj, self._valid_keys('DELETE')):
+                self._delete(json_obj)
+            else:
+                self.send_error(status_code=400)
+        else:
+            self.send_error(status_code=valid_request)
+
+    def _delete(self, json_obj):
+        """Placeholder method - used internally.
+
+        This is called by the actual method that implements DELETE request.
+        Subclasses should provide their own implementation.
+
+        This will return a status code of 501.
+
+        :param json_obj: A JSON object.
+        """
+        self.send_error(status_code=501)
 
     @asynchronous
     def get(self, *args, **kwargs):
