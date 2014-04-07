@@ -68,8 +68,31 @@ def find(collection, limit, skip):
     :type int
     :return A list of documents.
     """
-    log.info("Finding stuff")
     return collection.find(limit=limit, skip=skip)
+
+
+def find_and_count(collection, limit, skip):
+    """Find all the documents in a collection, and return the total count.
+
+    This will execute two operations: a `find` that will retrieve the documents
+    with the specified `limit` and `skip` values, and then a `count` on the
+    collection. It returns the total number of documents in the collection.
+
+    :param collection: The collection where to search.
+    :param limit: How many documents to return.
+    :type int
+    :param skip: How many documents to skip from the result.
+    :type int
+    :return A dictionary with the result of the `find` operation, the total
+        number of documents in the collection, and the `limit` value.
+    """
+    result = dict(
+        result=find(collection, limit, skip),
+        count=count(collection),
+        limit=limit,
+    )
+
+    return result
 
 
 def find_docs(collection, spec, limit, skip, fields=None):
@@ -133,20 +156,24 @@ def save(database, documents):
     ret_value = 201
 
     if not isinstance(documents, types.ListType):
-        documents = [documents]
+        documents = list(documents)
 
     for document in documents:
         to_save = None
         if isinstance(document, BaseDocument):
             to_save = document.to_dict()
         else:
-            # TODO log that we cannot save the document.
+            log.warn(
+                "Cannot save document, it is not of type BaseDocument, got %s"
+                % (type(to_save))
+            )
             continue
 
         try:
             database[document.collection].save(to_save, manipulate=False)
-        except OperationFailure:
+        except OperationFailure, ex:
             log.error("Error saving the following document: %s" % to_save.name)
+            log.exception(str(ex))
             ret_value = 500
             break
 
@@ -179,10 +206,11 @@ def update(collection, spec, document, operation='$set'):
                 operation: document,
             }
         )
-    except OperationFailure:
+    except OperationFailure, ex:
         log.error(
             "Error updating the following document: %s" % (str(document))
         )
+        log.exception(str(ex))
         ret_val = 500
 
     return ret_val
@@ -202,10 +230,11 @@ def delete(collection, spec_or_id):
 
     try:
         collection.remove(spec_or_id)
-    except OperationFailure:
+    except OperationFailure, ex:
         log.error(
             "Error removing the following document: %s" % (str(spec_or_id))
         )
+        log.exception(str(ex))
         ret_val = 500
 
     return ret_val
