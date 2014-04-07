@@ -15,6 +15,7 @@
 
 """The model that represents a job document in the mongodb collection."""
 
+from models import ID_KEY
 from models.base import BaseDocument
 
 JOB_COLLECTION = 'job'
@@ -39,8 +40,9 @@ class JobDocument(BaseDocument):
         self._private = False
         self._job = job
         self._kernel = kernel
-        self._created = None
         self._status = None
+        self._created = None
+        self._updated = None
 
     @property
     def collection(self):
@@ -81,26 +83,49 @@ class JobDocument(BaseDocument):
 
     @property
     def created(self):
-        """Return the date this document was created or last updated.
+        """Return the date this document was created.
 
-        :return A datetime object in UTC format.
+        :return A string representing a datetime object in ISO format,
+                UTC time zone.
         """
         return self._created
 
     @created.setter
     def created(self, value):
-        """Set the date this document was created or last updated.
+        """Set the date this document was created.
 
-        :param value: A datetime object, in UTC format.
+        :param value: A string representing a datetime object in ISO format.
         """
         self._created = value
 
     @property
+    def updated(self):
+        """The date this document was last updated.
+
+        :return A string representing a datetime object in ISO format,
+                UTC time zone.
+        """
+        return self._updated
+
+    @updated.setter
+    def updated(self, value):
+        """Set the date this document was last updated.
+
+        :param value: A string representing a datetime object in ISO format.
+        """
+        self._updated = value
+
+    @property
     def status(self):
+        """The build status of this job."""
         return self._status
 
     @status.setter
     def status(self, value):
+        """Set the build status of the job.
+
+        :param value: The status.
+        """
         self._status = value
 
     def to_dict(self):
@@ -108,6 +133,17 @@ class JobDocument(BaseDocument):
         job_dict['private'] = self._private
         job_dict['job'] = self._job
         job_dict['kernel'] = self._kernel
-        job_dict['created'] = str(self._created)
+        job_dict['created'] = self._created
+        job_dict['updated'] = self._updated
         job_dict['status'] = self._status
         return job_dict
+
+    @staticmethod
+    def from_json(json_obj):
+        name = json_obj.pop(ID_KEY)
+
+        job_doc = JobDocument(name)
+        for key, value in json_obj.iteritems():
+            setattr(job_doc, key, value)
+
+        return job_doc
