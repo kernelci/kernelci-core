@@ -15,11 +15,9 @@
 
 """The RequetHandler for /subscription URLs."""
 
-import json
 import tornado
 
 from functools import partial
-from tornado.web import asynchronous
 
 from handlers.base import BaseHandler
 from models.subscription import SUBSCRIPTION_COLLECTION
@@ -44,39 +42,24 @@ class SubscriptionHandler(BaseHandler):
 
         return valid_keys.get(method, None)
 
-    @asynchronous
-    def post(self, *args, **kwargs):
-        self._check_content_type()
-
-        json_obj = json.loads(self.request.body.decode('utf8'))
-        if self._has_valid_keys(json_obj, self._valid_keys('POST')):
-            self.executor.submit(
-                partial(subscribe, json_obj, self.db)
-            ).add_done_callback(
+    def _post(self, json_obj):
+        self.executor.submit(
+            partial(subscribe, json_obj, self.db)).add_done_callback(
                 lambda future:
                 tornado.ioloop.IOLoop.instance().add_callback(
                     partial(self._create_valid_response, future.result()))
             )
-        else:
-            self.send_error(status_code=400)
 
-    @asynchronous
-    def delete(self, *args, **kwargs):
-        self._check_content_type()
-
-        json_obj = json.loads(self.request.body.decode('utf8'))
-        if self._has_valid_keys(json_obj, self._valid_keys('DELETE')):
-            self.executor.submit(
-                partial(
-                    unsubscribe,
-                    json_obj['job'],
-                    json_obj['email'],
-                    self.collection
-                )
-            ).add_done_callback(
-                lambda future:
-                tornado.ioloop.IOLoop.instance().add_callback(
-                    partial(self._create_valid_response, future.result()))
+    def _delete(self, json_obj):
+        self.executor.submit(
+            partial(
+                unsubscribe,
+                json_obj['job'],
+                json_obj['email'],
+                self.collection
             )
-        else:
-            self.send_error(status_code=400)
+        ).add_done_callback(
+            lambda future:
+            tornado.ioloop.IOLoop.instance().add_callback(
+                partial(self._create_valid_response, future.result()))
+        )
