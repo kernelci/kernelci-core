@@ -25,10 +25,13 @@ class JobDocument(BaseDocument):
 
     Each job on the file system is composed of a real job name (usually who
     triggered the job), and a kernel directory. This job is the combination
-    of the two, and its name is of the form `job-kernel'.
+    of the two, and its name is of the form `job-kernel`.
     """
 
     JOB_ID_FORMAT = '%s-%s'
+    JOB_BUILDING = 'BUILDING'
+    JOB_DONE = 'DONE'
+    JOB_FAILED = 'FAILED'
 
     def __init__(self, name, job=None, kernel=None):
         super(JobDocument, self).__init__(name)
@@ -37,6 +40,7 @@ class JobDocument(BaseDocument):
         self._job = job
         self._kernel = kernel
         self._created = None
+        self._status = None
 
     @property
     def collection(self):
@@ -91,10 +95,19 @@ class JobDocument(BaseDocument):
         """
         self._created = value
 
+    @property
+    def status(self):
+        return self._status
+
+    @status.setter
+    def status(self, value):
+        self._status = value
+
     def to_dict(self):
         job_dict = super(JobDocument, self).to_dict()
         job_dict['private'] = self._private
         job_dict['job'] = self._job
         job_dict['kernel'] = self._kernel
         job_dict['created'] = str(self._created)
+        job_dict['status'] = self._status
         return job_dict

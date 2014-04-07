@@ -35,7 +35,8 @@ class TestModels(unittest.TestCase):
             'job': None,
             '_id': 'job',
             'private': False,
-            'created': 'None'
+            'created': 'None',
+            'status': None,
         }
         job_doc = JobDocument('job')
         self.assertEqual(job_doc.to_dict(), expected)
@@ -46,8 +47,8 @@ class TestModels(unittest.TestCase):
 
     def test_job_document_to_json(self):
         expected_json = (
-            '{"kernel": null, "job": null, "_id": "job", "private": false, '
-            '"created": "None"}'
+            '{"status": null, "kernel": null, "created": "None", '
+            '"private": false, "job": null, "_id": "job"}'
         )
 
         job_doc = JobDocument('job')

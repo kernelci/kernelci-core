@@ -32,11 +32,13 @@ from utils.utc import utc
 
 
 BASE_PATH = '/var/www/images/kernel-ci'
+# Filename that should be available when a job has finished.
+JOB_DONE_FILE = '.done'
 
 log = get_log()
 
 
-def import_and_save(json_obj):
+def import_and_save(json_obj, base_path=BASE_PATH):
     """Wrapper function to be used as an external task.
 
     This function should only be called by Celery or other task managers.
@@ -44,7 +46,7 @@ def import_and_save(json_obj):
     :param json_obj: The JSON object with the values to be parsed.
     :return The ID of the created document.
     """
-    docs, job_id = import_job_from_json(json_obj)
+    docs, job_id = import_job_from_json(json_obj, base_path)
 
     log.info(
         "Importing %d documents with job ID: %s" % (len(docs), job_id)
@@ -98,7 +100,15 @@ def _import_job(job, kernel, base_path=BASE_PATH):
     docs.append(doc)
 
     if os.path.isdir(job_dir):
+        if os.path.exists(os.path.join(job_dir, JOB_DONE_FILE)):
+            # TODO: need to check if this will still be the case going forward.
+            # TODO: what about failed jobs?
+            doc.status = doc.JOB_DONE
         docs.extend(_traverse_defconf_dir(job_dir, job_id))
+    else:
+        # Job has been triggered, but there is no directory structure on the
+        # filesystem: the job is being built.
+        doc.status = doc.JOB_BUILDING
 
     return (docs, job_id)
 

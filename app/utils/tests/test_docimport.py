@@ -13,16 +13,26 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+import mongomock
 import unittest
 
 from mock import patch
 
 from utils.docimport import (
+    import_and_save,
     _import_all,
+    _import_job,
 )
 
 
 class TestParseJob(unittest.TestCase):
+
+    def setUp(self):
+        logging.disable(logging.CRITICAL)
+
+    def tearDown(self):
+        logging.disable(logging.NOTSET)
 
     @patch("os.listdir")
     def test_import_all_simple(self, mock_os_listdir):
@@ -58,3 +68,27 @@ class TestParseJob(unittest.TestCase):
         self.assertEqual(len(docs), 2)
         self.assertEqual(docs[0].name, "job-kernel")
         self.assertEqual(docs[1].job_id, "job-kernel")
+
+    @patch('pymongo.MongoClient')
+    def test_import_and_save(self, mocked_client=mongomock.Connection()):
+        json_obj = dict(job='job', kernel='kernel')
+
+        self.assertEqual(import_and_save(json_obj), 'job-kernel')
+
+    def test_import_job_building(self):
+        docs, job_id = _import_job('job', 'kernel')
+
+        self.assertEqual(len(docs), 1)
+        self.assertEqual(docs[0].status, 'BUILDING')
+
+    @patch('utils.docimport._traverse_defconf_dir')
+    @patch('os.path.exists')
+    @patch('os.path.isdir')
+    def test_import_job_done(self, mock_isdir, mock_exists, mock_traverse):
+        mock_isdir.return_value = True
+        mock_exists.return_value = True
+        mock_traverse.return_value = []
+
+        docs, job_id = _import_job('job', 'kernel')
+        self.assertEqual(len(docs), 1)
+        self.assertEqual(docs[0].status, 'DONE')
