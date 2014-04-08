@@ -16,18 +16,25 @@
 """Define URLs and handlers to server them."""
 
 from tornado.web import url
+
 from handlers import (
     DefConfHandler,
     JobHandler,
     SubscriptionHandler
 )
 
+_JOB_URL = url(r'/api/job(?P<sl>/)?(?P<id>.*)', JobHandler, name='job')
+_DEFCONF_URL = url(
+    r'/api/defconfig(?P<sl>/)?(?P<id>.*)', DefConfHandler, name='defconf'
+)
+_SUBSCRIPTION_URL = url(
+    r'/api/subscription(?P<sl>/)?(?P<id>.*)',
+    SubscriptionHandler,
+    name='subscription',
+)
+
 APP_URLS = [
-    url(r'/api/defconfig(?P<sl>/)?(?P<id>.*)', DefConfHandler, name='defconf'),
-    url(r'/api/job(?P<sl>/)?(?P<id>.*)', JobHandler, name='job'),
-    url(
-        r'/api/subscription(?P<sl>/)?(?P<id>.*)',
-        SubscriptionHandler,
-        name='subscription'
-    )
+    _DEFCONF_URL,
+    _JOB_URL,
+    _SUBSCRIPTION_URL,
 ]
