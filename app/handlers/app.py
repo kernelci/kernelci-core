@@ -31,3 +31,4 @@ class AppHandler(RequestHandler):
     def write_error(self, status_code, **kwargs):
         self.set_status(404)
         self.write(dict(code=404, message="Resource not found."))
+        self.finish()
