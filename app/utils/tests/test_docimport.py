@@ -87,12 +87,15 @@ class TestParseJob(unittest.TestCase):
 
     @patch('utils.docimport.find_one')
     @patch('utils.docimport._traverse_defconf_dir')
+    @patch('os.listdir')
     @patch('os.path.exists')
     @patch('os.path.isdir')
     def test_import_job_done(
-            self, mock_isdir, mock_exists, mock_traverse, mock_find_one):
+            self, mock_isdir, mock_exists, mock_listdir, mock_traverse,
+            mock_find_one):
         mock_isdir.return_value = True
         mock_exists.return_value = True
+        mock_listdir.return_value = []
         mock_traverse.return_value = []
         mock_find_one.return_value = []
 

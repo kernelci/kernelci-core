@@ -95,7 +95,7 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
     :param base_path: The base path where to strat the traversing.
     :return The documents to be saved, and the job document ID.
     """
-    job_dir = os.path.join(base_path, job, kernel)
+    kernel_dir = os.path.join(base_path, job, kernel)
     job_id = JobDocument.JOB_ID_FORMAT % (job, kernel)
 
     docs = []
@@ -110,12 +110,19 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
 
     docs.append(doc)
 
-    if os.path.isdir(job_dir):
-        if os.path.exists(os.path.join(job_dir, JOB_DONE_FILE)):
+    if os.path.isdir(kernel_dir):
+        if os.path.exists(os.path.join(kernel_dir, JOB_DONE_FILE)):
             # TODO: need to check if this will still be the case going forward.
             # TODO: what about failed jobs?
             doc.status = doc.JOB_DONE
-        docs.extend(_traverse_defconf_dir(job_dir, job_id))
+        docs.extend(
+            [
+                _traverse_defconf_dir(
+                    job_id, kernel_dir, defconf_dir
+                ) for defconf_dir in os.listdir(kernel_dir)
+            ]
+            # _traverse_defconf_dir(kernel_dir, job_id)
+        )
     else:
         # Job has been triggered, but there is no directory structure on the
         # filesystem: the job is being built.
@@ -124,27 +131,28 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
     return (docs, job_id)
 
 
-def _traverse_defconf_dir(kernel_dir, job_id):
-    """Traverse the defconfing directories.
+def _traverse_defconf_dir(job_id, kernel_dir, defconf_dir):
+    """Traverse the defconfig directory looking for files.
 
-    :param kernel_dir: The kernel dir where to start.
-    :param job_id: The id of the JobDocument the defconfing will be linked to.
-    :return A list of documents.
+    :param job_id: The ID of the parent job.
+    :param kernel_dir: The parent directory of this defconfig.
+    :param defconf_dir: The actual defconfig directory to parse.
+    :return A `DefConfigDocument` instance.
     """
-    defconf_docs = []
-    for defconf_dir in os.listdir(kernel_dir):
-        defconf_doc = DefConfigDocument(defconf_dir, job_id)
+    defconf_doc = DefConfigDocument(defconf_dir, job_id)
 
-        for dirname, subdirs, files in os.walk(
-                os.path.join(kernel_dir, defconf_dir)):
-            # Consider only the actual directory and its files.
-            subdirs[:] = []
-            for key, val in DEFCONFIG_ACCEPTED_FILES.iteritems():
-                if key in files:
-                    setattr(defconf_doc, val, os.path.join(dirname, key))
-        defconf_docs.append(defconf_doc)
+    for dirname, subdirs, files in os.walk(
+            os.path.join(kernel_dir, defconf_dir)):
+        # Consider only the actual directory and its files.
+        subdirs[:] = []
+        for key, val in DEFCONFIG_ACCEPTED_FILES.iteritems():
+            if key in files:
+                setattr(defconf_doc, val, os.path.join(dirname, key))
 
-    return defconf_docs
+        if os.path.exists(os.path.join(dirname, 'build.PASS')):
+            defconf_doc.status = 'SUCCESS'
+
+    return defconf_doc
 
 
 def _import_all(base_path=BASE_PATH):
@@ -170,7 +178,13 @@ def _import_all(base_path=BASE_PATH):
 
             kernel_dir = os.path.join(job_dir, kernel_dir)
 
-            docs.extend(_traverse_defconf_dir(kernel_dir, doc_id))
+            docs.extend(
+                [
+                    _traverse_defconf_dir(
+                        doc_id, kernel_dir, defconf_dir
+                    ) for defconf_dir in os.listdir(kernel_dir)
+                ]
+            )
 
     return docs
 
