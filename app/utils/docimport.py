@@ -25,8 +25,14 @@ from models.defconfig import (
     DEFCONFIG_ACCEPTED_FILES,
     DefConfigDocument,
 )
-from models.job import JobDocument
-from utils.db import save
+from models.job import (
+    JOB_COLLECTION,
+    JobDocument,
+)
+from utils.db import (
+    find_one,
+    save,
+)
 from utils.log import get_log
 from utils.utc import utc
 
@@ -46,13 +52,12 @@ def import_and_save(json_obj, base_path=BASE_PATH):
     :param json_obj: The JSON object with the values to be parsed.
     :return The ID of the created document.
     """
-    docs, job_id = import_job_from_json(json_obj, base_path)
+    database = pymongo.MongoClient()[DB_NAME]
+    docs, job_id = import_job_from_json(json_obj, database, base_path)
 
     log.info(
         "Importing %d documents with job ID: %s" % (len(docs), job_id)
     )
-
-    database = pymongo.MongoClient()[DB_NAME]
 
     try:
         save(database, docs)
@@ -62,7 +67,7 @@ def import_and_save(json_obj, base_path=BASE_PATH):
     return job_id
 
 
-def import_job_from_json(json_obj, base_path=BASE_PATH):
+def import_job_from_json(json_obj, database, base_path=BASE_PATH):
     """Import a job based on the provided JSON object.
 
     The provided JSON object, a dict-like object, should contain at least the
@@ -79,10 +84,10 @@ def import_job_from_json(json_obj, base_path=BASE_PATH):
     job_dir = json_obj['job']
     kernel_dir = json_obj['kernel']
 
-    return _import_job(job_dir, kernel_dir, base_path)
+    return _import_job(job_dir, kernel_dir, database, base_path)
 
 
-def _import_job(job, kernel, base_path=BASE_PATH):
+def _import_job(job, kernel, database, base_path=BASE_PATH):
     """Traverse the job dir and create the documenst to save.
 
     :param job: The name of the job.
@@ -94,8 +99,14 @@ def _import_job(job, kernel, base_path=BASE_PATH):
     job_id = JobDocument.JOB_ID_FORMAT % (job, kernel)
 
     docs = []
-    doc = JobDocument(job_id, job=job, kernel=kernel)
-    doc.created = datetime.now(tz=utc).isoformat()
+
+    saved_doc = find_one(database[JOB_COLLECTION], [job_id])
+    if saved_doc:
+        doc = JobDocument.from_json(saved_doc)
+        doc.updated = datetime.now(tz=utc).isoformat()
+    else:
+        doc = JobDocument(job_id, job=job, kernel=kernel)
+        doc.created = datetime.now(tz=utc).isoformat()
 
     docs.append(doc)
 
