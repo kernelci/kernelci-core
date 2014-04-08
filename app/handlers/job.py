@@ -36,6 +36,9 @@ from taskqueue.tasks import (
 class JobHandler(BaseHandler):
     """Handle the /job URLs."""
 
+    def __init__(self, application, request, **kwargs):
+        super(JobHandler, self).__init__(application, request, **kwargs)
+
     @property
     def collection(self):
         return self.db[JOB_COLLECTION]

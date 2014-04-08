@@ -30,6 +30,11 @@ from utils.subscription import (
 class SubscriptionHandler(BaseHandler):
     """Handle the /subscription URLs."""
 
+    def __init__(self, application, request, **kwargs):
+        super(SubscriptionHandler, self).__init__(
+            application, request, **kwargs
+        )
+
     @property
     def collection(self):
         return self.db[SUBSCRIPTION_COLLECTION]
