@@ -75,20 +75,29 @@ class TestParseJob(unittest.TestCase):
 
         self.assertEqual(import_and_save(json_obj), 'job-kernel')
 
-    def test_import_job_building(self):
-        docs, job_id = _import_job('job', 'kernel')
+    @patch('utils.docimport.find_one')
+    def test_import_job_building(self, mock_find_one):
+        mock_find_one.return_value = []
+        database = mongomock.Connection()
+
+        docs, job_id = _import_job('job', 'kernel', database)
 
         self.assertEqual(len(docs), 1)
         self.assertEqual(docs[0].status, 'BUILDING')
 
+    @patch('utils.docimport.find_one')
     @patch('utils.docimport._traverse_defconf_dir')
     @patch('os.path.exists')
     @patch('os.path.isdir')
-    def test_import_job_done(self, mock_isdir, mock_exists, mock_traverse):
+    def test_import_job_done(
+            self, mock_isdir, mock_exists, mock_traverse, mock_find_one):
         mock_isdir.return_value = True
         mock_exists.return_value = True
         mock_traverse.return_value = []
+        mock_find_one.return_value = []
 
-        docs, job_id = _import_job('job', 'kernel')
+        database = mongomock.Connection()
+
+        docs, job_id = _import_job('job', 'kernel', database)
         self.assertEqual(len(docs), 1)
         self.assertEqual(docs[0].status, 'DONE')

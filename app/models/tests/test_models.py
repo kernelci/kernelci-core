@@ -16,6 +16,9 @@
 import json
 import types
 import unittest
+from datetime import datetime
+
+from utils.utc import utc
 
 from models.base import BaseDocument
 from models.defconfig import DefConfigDocument
@@ -23,7 +26,7 @@ from models.job import JobDocument
 from models.subscription import SubscriptionDocument
 
 
-class TestModels(unittest.TestCase):
+class TestJobModel(unittest.TestCase):
 
     def test_job_documet_valid_instance(self):
         job_doc = JobDocument('job')
@@ -35,8 +38,9 @@ class TestModels(unittest.TestCase):
             'job': None,
             '_id': 'job',
             'private': False,
-            'created': 'None',
+            'created': None,
             'status': None,
+            'updated': None,
         }
         job_doc = JobDocument('job')
         self.assertEqual(job_doc.to_dict(), expected)
@@ -47,12 +51,29 @@ class TestModels(unittest.TestCase):
 
     def test_job_document_to_json(self):
         expected_json = (
-            '{"status": null, "kernel": null, "created": "None", '
-            '"private": false, "job": null, "_id": "job"}'
+            '{"status": null, "kernel": null, "updated": null, '
+            '"created": null, "private": false, "job": null, "_id": "job"}'
         )
 
         job_doc = JobDocument('job')
         self.assertEqual(job_doc.to_json(), expected_json)
+
+    def test_job_document_from_json(self):
+        now = datetime.now(tz=utc).isoformat()
+
+        json_obj = dict(
+            _id='job-kernel',
+            job='job',
+            kernel='kernel',
+            created=now
+        )
+
+        job_doc = JobDocument.from_json(json_obj)
+        self.assertIsInstance(job_doc, JobDocument)
+        self.assertIsInstance(job_doc, BaseDocument)
+
+
+class TestDefconfModel(unittest.TestCase):
 
     def test_defconfig_document_valid_instance(self):
         defconf_doc = DefConfigDocument('defconf', 'job')
@@ -83,6 +104,9 @@ class TestModels(unittest.TestCase):
 
         defconfig_doc = DefConfigDocument('defconfig', 'job')
         self.assertEqual(defconfig_doc.to_json(), expected_json)
+
+
+class TestSubscriptionModel(unittest.TestCase):
 
     def test_subscription_document_emails_attribute(self):
         subscription_doc = SubscriptionDocument('sub', 'job')
