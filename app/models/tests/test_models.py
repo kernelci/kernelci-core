@@ -65,12 +65,17 @@ class TestJobModel(unittest.TestCase):
             _id='job-kernel',
             job='job',
             kernel='kernel',
-            created=now
+            created=now,
+            status='BUILDING',
         )
 
         job_doc = JobDocument.from_json(json_obj)
+
         self.assertIsInstance(job_doc, JobDocument)
         self.assertIsInstance(job_doc, BaseDocument)
+        self.assertEqual(job_doc.name, 'job-kernel')
+        self.assertEqual(job_doc.created, now)
+        self.assertEqual(job_doc.status, 'BUILDING')
 
 
 class TestDefconfModel(unittest.TestCase):
@@ -109,42 +114,42 @@ class TestDefconfModel(unittest.TestCase):
 class TestSubscriptionModel(unittest.TestCase):
 
     def test_subscription_document_emails_attribute(self):
-        subscription_doc = SubscriptionDocument('sub', 'job')
-        self.assertIsInstance(subscription_doc.emails, types.ListType)
-        self.assertItemsEqual([], subscription_doc.emails)
+        sub_doc = SubscriptionDocument('sub', 'job')
+        self.assertIsInstance(sub_doc.emails, types.ListType)
+        self.assertItemsEqual([], sub_doc.emails)
 
     def test_subscription_document_emails_attribute_set(self):
-        subscription_doc = SubscriptionDocument('sub', 'job', 'email')
+        sub_doc = SubscriptionDocument('sub', 'job', 'email')
 
-        self.assertIsInstance(subscription_doc.emails, types.ListType)
-        self.assertNotIsInstance(subscription_doc.emails, types.StringTypes)
+        self.assertIsInstance(sub_doc.emails, types.ListType)
+        self.assertNotIsInstance(sub_doc.emails, types.StringTypes)
 
     def test_subscription_document_emails_extended(self):
-        subscription_doc = SubscriptionDocument('sub', 'job', 'email')
-        subscription_doc.emails = 'email2'
+        sub_doc = SubscriptionDocument('sub', 'job', 'email')
+        sub_doc.emails = 'email2'
 
-        self.assertIsInstance(subscription_doc.emails, types.ListType)
-        self.assertEquals(['email2', 'email'], subscription_doc.emails)
+        self.assertIsInstance(sub_doc.emails, types.ListType)
+        self.assertEquals(['email2', 'email'], sub_doc.emails)
 
     def test_subscription_document_emails_setter_str(self):
-        subscription_doc = SubscriptionDocument('sub', 'job')
-        subscription_doc.emails = 'an_email'
+        sub_doc = SubscriptionDocument('sub', 'job')
+        sub_doc.emails = 'an_email'
 
-        self.assertIsInstance(subscription_doc.emails, types.ListType)
-        self.assertEqual(['an_email'], subscription_doc.emails)
+        self.assertIsInstance(sub_doc.emails, types.ListType)
+        self.assertEqual(['an_email'], sub_doc.emails)
 
     def test_subscription_document_to_dict(self):
         expected = dict(_id='sub', emails=[], job_id='job')
-        subscription_doc = SubscriptionDocument('sub', 'job')
+        sub_doc = SubscriptionDocument('sub', 'job')
 
-        self.assertEqual(expected, subscription_doc.to_dict())
+        self.assertEqual(expected, sub_doc.to_dict())
 
     def test_subscription_document_to_json(self):
         expected = (
             '{"_id": "sub", "emails": [], "job_id": "job"}'
         )
-        subscription_doc = SubscriptionDocument('sub', 'job')
-        self.assertEqual(expected, subscription_doc.to_json())
+        sub_doc = SubscriptionDocument('sub', 'job')
+        self.assertEqual(expected, sub_doc.to_json())
 
     def test_subscription_document_from_json(self):
         json_str = (
@@ -152,7 +157,23 @@ class TestSubscriptionModel(unittest.TestCase):
         )
         json_obj = json.loads(json_str)
 
-        subscription_doc = SubscriptionDocument.from_json(json_obj)
+        sub_doc = SubscriptionDocument.from_json(json_obj)
 
-        self.assertIsInstance(subscription_doc, SubscriptionDocument)
-        self.assertIsInstance(subscription_doc, BaseDocument)
+        self.assertIsInstance(sub_doc, SubscriptionDocument)
+        self.assertIsInstance(sub_doc, BaseDocument)
+
+        self.assertEqual(sub_doc.name, 'sub')
+        self.assertEqual(sub_doc.job_id, 'job')
+        self.assertIsInstance(sub_doc.emails, types.ListType)
+
+    def test_subscription_document_from_json_with_emails(self):
+        json_obj = dict(
+            _id='sub',
+            job_id='job',
+            emails=['a@example.org', 'b@example.org']
+        )
+
+        sub_doc = SubscriptionDocument.from_json(json_obj)
+
+        self.assertIsInstance(sub_doc.emails, types.ListType)
+        self.assertEqual(len(sub_doc.emails), 2)

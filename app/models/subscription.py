@@ -88,11 +88,14 @@ class SubscriptionDocument(BaseDocument):
         """Build a document from a JSON object.
 
         :param json_obj: The JSON object to start from.
-        :return An instance of SubscriptionDocument.
+        :return An instance of `SubscriptionDocument`.
         """
-        sub_doc = SubscriptionDocument(
-            json_obj[ID_KEY],
-            json_obj['job_id'],
-            json_obj['emails']
-        )
+        name = json_obj.pop(ID_KEY)
+        job_id = json_obj.pop('job_id')
+
+        sub_doc = SubscriptionDocument(name, job_id)
+
+        for key, value in json_obj.iteritems():
+            setattr(sub_doc, key, value)
+
         return sub_doc

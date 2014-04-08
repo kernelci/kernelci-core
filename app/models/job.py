@@ -140,6 +140,11 @@ class JobDocument(BaseDocument):
 
     @staticmethod
     def from_json(json_obj):
+        """Build a document from a JSON object.
+
+        :param json_obj: The JSON object to start from.
+        :return An instance of `JobDocument`.
+        """
         name = json_obj.pop(ID_KEY)
 
         job_doc = JobDocument(name)
