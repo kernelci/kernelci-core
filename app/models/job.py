@@ -30,9 +30,6 @@ class JobDocument(BaseDocument):
     """
 
     JOB_ID_FORMAT = '%s-%s'
-    JOB_BUILDING = 'BUILDING'
-    JOB_DONE = 'DONE'
-    JOB_FAILED = 'FAILED'
 
     def __init__(self, name, job=None, kernel=None):
         super(JobDocument, self).__init__(name)

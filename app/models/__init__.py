@@ -18,3 +18,9 @@ DB_NAME = 'kernel-ci'
 
 # The default ID key for mongodb documents.
 ID_KEY = '_id'
+
+# Job and/or build status.
+BUILDING_STATUS = 'BUILDING'
+DONE_STATUS = 'DONE'
+FAILED_STATUS = 'FAILED'
+SUCCESS_STATUS = 'SUCCESS'

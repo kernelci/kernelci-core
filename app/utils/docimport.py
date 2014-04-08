@@ -20,7 +20,12 @@ import pymongo
 
 from datetime import datetime
 
-from models import DB_NAME
+from models import (
+    BUILDING_STATUS,
+    DB_NAME,
+    DONE_STATUS,
+    SUCCESS_STATUS,
+)
 from models.defconfig import (
     DEFCONFIG_ACCEPTED_FILES,
     DefConfigDocument,
@@ -39,7 +44,7 @@ from utils.utc import utc
 
 BASE_PATH = '/var/www/images/kernel-ci'
 # Filename that should be available when a job has finished.
-JOB_DONE_FILE = '.done'
+DONE_FILE = '.done'
 
 log = get_log()
 
@@ -111,10 +116,10 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
     docs.append(doc)
 
     if os.path.isdir(kernel_dir):
-        if os.path.exists(os.path.join(kernel_dir, JOB_DONE_FILE)):
+        if os.path.exists(os.path.join(kernel_dir, DONE_FILE)):
             # TODO: need to check if this will still be the case going forward.
             # TODO: what about failed jobs?
-            doc.status = doc.JOB_DONE
+            doc.status = DONE_STATUS
         docs.extend(
             [
                 _traverse_defconf_dir(
@@ -126,7 +131,7 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
     else:
         # Job has been triggered, but there is no directory structure on the
         # filesystem: the job is being built.
-        doc.status = doc.JOB_BUILDING
+        doc.status = BUILDING_STATUS
 
     return (docs, job_id)
 
@@ -150,7 +155,7 @@ def _traverse_defconf_dir(job_id, kernel_dir, defconf_dir):
                 setattr(defconf_doc, val, os.path.join(dirname, key))
 
         if os.path.exists(os.path.join(dirname, 'build.PASS')):
-            defconf_doc.status = 'SUCCESS'
+            defconf_doc.status = SUCCESS_STATUS
 
     return defconf_doc
 
