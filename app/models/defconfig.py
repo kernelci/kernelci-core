@@ -24,6 +24,7 @@ DEFCONFIG_ACCEPTED_FILES = {
     'Image': 'image',
     'System.map': 'system_map',
     'kernel.config': 'kernel_conf',
+    'build.log': 'build_log',
 }
 
 
@@ -42,6 +43,8 @@ class DefConfigDocument(BaseDocument):
         self._image = None
         self._system_map = None
         self._kernel_conf = None
+        self._status = None
+        self._build_log = None
 
     @property
     def collection(self):
@@ -109,6 +112,19 @@ class DefConfigDocument(BaseDocument):
         """Set the kernel.config path."""
         self._kernel_conf = value
 
+    @property
+    def build_log(self):
+        """The path to the `build.log` file.
+
+        :return None if there is no `build.log` file, or its path.
+        """
+        return self._build_log
+
+    @build_log.setter
+    def build_log(self, value):
+        """Set the build.log path."""
+        self._build_log = value
+
     def to_dict(self):
         defconf_dict = super(DefConfigDocument, self).to_dict()
         defconf_dict['job_id'] = self._job_id
@@ -116,4 +132,6 @@ class DefConfigDocument(BaseDocument):
         defconf_dict['image'] = self._image
         defconf_dict['system_map'] = self._system_map
         defconf_dict['kernel_conf'] = self._kernel_conf
+        defconf_dict['build_log'] = self._build_log
+        defconf_dict['status'] = self._status
         return defconf_dict
