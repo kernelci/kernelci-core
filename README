@@ -58,4 +58,7 @@ POST
 This command will tell the application to parse the directory located at
 'stable/v3.12.14' and import everything there.
 
-  curl -X POST -H "Content-Type: application/json" -d '{"job": "stable", "kernel": "v3.12.14"}' localhost:8888/api/job
+  curl -X POST -H "Content-Type: application/json" -H "X-XSRF-Header: foo" -d '{"job": "stable", "kernel": "v3.12.14"}' localhost:8888/api/job
+
+The content of the `X-XSFR-Header` is not important at the moment. All requests
+without that header will be discarded though.
