@@ -120,3 +120,22 @@ class TestSubscriptionHandler(
         self.assertEqual(response.code, 201)
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    @patch('utils.subscription.find_one')
+    def test_delete_valid(self, mock_find_one):
+        mock_find_one.return_value = dict(
+            _id='sub', emails=['email'], job_id='job'
+        )
+
+        headers = {'X-XSRF-Header': 'foo', 'Content-Type': 'application/json'}
+
+        body = json.dumps(dict(email='email'))
+
+        response = self.fetch(
+            '/api/subscription/sub', method='DELETE', body=body,
+            headers=headers, allow_nonstandard_methods=True,
+        )
+
+        self.assertEqual(response.code, 200)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
