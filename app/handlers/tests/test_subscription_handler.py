@@ -15,6 +15,7 @@
 
 """Test module for the DefConfHandler handler.."""
 
+import json
 import mongomock
 
 from concurrent.futures import ThreadPoolExecutor
@@ -80,5 +81,26 @@ class TestSubscriptionHandler(
         response = self.fetch('/api/subscription/sub')
 
         self.assertEqual(response.code, 404)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    def test_post_without_xsrf(self):
+
+        body = json.dumps(dict(job='job', kernel='kernel'))
+
+        response = self.fetch('/api/subscription', method='POST', body=body)
+
+        self.assertEqual(response.code, 403)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    def test_post_not_json(self):
+        headers = {'X-XSRF-Header': 'foo'}
+
+        response = self.fetch(
+            '/api/subscription', method='POST', body='', headers=headers
+        )
+
+        self.assertEqual(response.code, 415)
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)

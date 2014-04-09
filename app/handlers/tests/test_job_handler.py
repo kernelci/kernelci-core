@@ -15,6 +15,7 @@
 
 """Test module for the JobHandler handler."""
 
+import json
 import mongomock
 
 from concurrent.futures import ThreadPoolExecutor
@@ -108,3 +109,24 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
         self.assertEqual(response.code, 200)
         self.assertEqual(response.body, expected_body)
+
+    def test_post_without_xsrf(self):
+
+        body = json.dumps(dict(job='job', kernel='kernel'))
+
+        response = self.fetch('/api/job', method='POST', body=body)
+
+        self.assertEqual(response.code, 403)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    def test_post_not_json(self):
+        headers = {'X-XSRF-Header': 'foo'}
+
+        response = self.fetch(
+            '/api/job', method='POST', body='', headers=headers
+        )
+
+        self.assertEqual(response.code, 415)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
