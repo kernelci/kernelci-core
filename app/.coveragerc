@@ -1,0 +1,14 @@
+[run]
+branch = True
+source = .
+omit =
+    setup*
+    */tests/*
+
+[report]
+precision = 2
+show_missing = True
+
+[html]
+title = Code Coverage of kernel-ci-backend
+directory = kernel-ci-backend-coverage

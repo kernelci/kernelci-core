@@ -1,0 +1,10 @@
+Test Code Coverage
+==================
+
+To have a test coverage report, install the `coverage` package via pip, and
+then execute:
+
+  cd app/
+  coverage run -m unittest tests.test_suite 2>/dev/null && coverage html
+
+The output will be stored in the `kernel-ci-backend-coverage` directory.
