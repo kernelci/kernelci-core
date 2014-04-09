@@ -122,7 +122,7 @@ class TestSubscriptionHandler(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
     @patch('utils.subscription.find_one')
-    def test_delete_valid(self, mock_find_one):
+    def test_delete_valid_with_payload(self, mock_find_one):
         mock_find_one.return_value = dict(
             _id='sub', emails=['email'], job_id='job'
         )
@@ -134,6 +134,17 @@ class TestSubscriptionHandler(
         response = self.fetch(
             '/api/subscription/sub', method='DELETE', body=body,
             headers=headers, allow_nonstandard_methods=True,
+        )
+
+        self.assertEqual(response.code, 200)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    def test_delete_valid_without_payload(self):
+        headers = {'X-XSRF-Header': 'foo'}
+
+        response = self.fetch(
+            '/api/subscription/sub', method='DELETE', headers=headers,
         )
 
         self.assertEqual(response.code, 200)
