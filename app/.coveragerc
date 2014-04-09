@@ -2,6 +2,7 @@
 branch = True
 source = .
 omit =
+    server.py
     setup*
     */tests/*
 
