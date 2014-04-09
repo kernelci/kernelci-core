@@ -73,7 +73,7 @@ class TestSubscriptionHandler(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
         self.assertEqual(response.body, expected_body)
 
-    @patch('handlers.defconf.DefConfHandler.collection')
+    @patch('handlers.subscription.SubscriptionHandler.collection')
     def test_get_by_id_not_found(self, mock_collection):
         mock_collection.find_one = MagicMock()
         mock_collection.find_one.return_value = None
@@ -102,5 +102,21 @@ class TestSubscriptionHandler(
         )
 
         self.assertEqual(response.code, 415)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    @patch('utils.subscription.find_one')
+    def test_post_valid(self, mock_find_one):
+        mock_find_one.return_value = dict(_id='sub', job_id='job', emails=[])
+
+        headers = {'X-XSRF-Header': 'foo', 'Content-Type': 'application/json'}
+
+        body = json.dumps(dict(job='job', email='email'))
+
+        response = self.fetch(
+            '/api/subscription', method='POST', body=body, headers=headers
+        )
+
+        self.assertEqual(response.code, 201)
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
