@@ -130,3 +130,24 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(response.code, 415)
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    @patch('handlers.job.send_emails')
+    @patch('handlers.job.import_job')
+    def test_post_correct(self, mock_import_job, mock_send_emails):
+
+        mock_import_job.apply_async = MagicMock()
+
+        headers = {
+            'X-XSRF-Header': 'foo',
+            'Content-Type': 'application/json',
+        }
+
+        body = json.dumps(dict(job='job', kernel='kernel'))
+
+        response = self.fetch(
+            '/api/job', method='POST', headers=headers, body=body
+        )
+
+        self.assertEqual(response.code, 200)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
