@@ -123,6 +123,8 @@ class TestDefconfHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         )
 
         self.assertEqual(response.code, 420)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
     def test_post_with_content(self):
         headers = {
@@ -137,3 +139,5 @@ class TestDefconfHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         )
 
         self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
