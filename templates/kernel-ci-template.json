@@ -1,0 +1,33 @@
+{
+    "actions": [
+        {
+            "command": "deploy_linaro_kernel",
+            "metadata": {
+                "image.type": "{image_type}",
+                "image.url": "{image_url}",
+                "kernel.tree": "{tree}",
+                "kernel.version": "{kernel_version}",
+                "kernel.defconfig": "{defconfig}"
+            },
+            "parameters": {
+                "dtb": "{dtb_url}",
+                "kernel": "{kernel_url}",
+                "ramdisk": "http://community.validation.linaro.org/images/common/linaro-image-minimal-initramfs-genericarmv7a.cpio.gz.u-boot"
+            }
+        },
+        {
+            "command": "boot_linaro_image"
+        },
+        {
+            "command": "submit_results",
+            "parameters": {
+                "server": "{lava_server}",
+                "stream": "{bundle_stream}"
+            }
+        }
+    ],
+    "device_type": "{device_type}",
+    "job_name": "{job_name}",
+    "logging_level": "DEBUG",
+    "timeout": 18000
+}
