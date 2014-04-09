@@ -40,7 +40,9 @@ def create_jobs(base_url, kernel, dtb_list):
     defconfig = build_info[4]
 
     for dtb in dtb_list:
-        job_name = tree + '-' + kernel_version + '-' + defconfig + '-' + dtb.split('/')[-1]
+        dtb_name = dtb.split('/')[-1]
+        device_type = dtb_map[dtb_name]
+        job_name = tree + '-' + kernel_version + '-' + defconfig + '-' + dtb_name
         job_json = cwd + '/jobs/' + job_name + '.json'
         template_file = cwd + '/templates/kernel-ci-template.json'
         with open(job_json, 'wt') as fout:
@@ -50,7 +52,7 @@ def create_jobs(base_url, kernel, dtb_list):
                     tmp = tmp.replace('{kernel_url}', kernel)
                     #tmp = tmp.replace('{lava_server}', lava_server)
                     #tmp = tmp.replace('{bundle_stream}', bundle_stream)
-                    #tmp = tmp.replace('{device_type}', device_type)
+                    tmp = tmp.replace('{device_type}', device_type)
                     tmp = tmp.replace('{job_name}', job_name)
                     tmp = tmp.replace('{image_type}', image_type)
                     tmp = tmp.replace('{image_url}', image_url)
