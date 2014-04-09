@@ -15,7 +15,6 @@
 
 """Test module for the DefConfHandler handler.."""
 
-import json
 import mongomock
 
 from concurrent.futures import ThreadPoolExecutor
@@ -90,54 +89,10 @@ class TestDefconfHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    def test_post_without_xsrf(self):
+    def test_post(self):
+        # POST is not implemented for the DefConfHandler.
+        response = self.fetch('/api/defconfig', method='POST', body='')
 
-        body = json.dumps(dict(job='job', kernel='kernel'))
-
-        response = self.fetch('/api/defconfig', method='POST', body=body)
-
-        self.assertEqual(response.code, 403)
-        self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
-
-    def test_post_not_json(self):
-        headers = {'X-XSRF-Header': 'foo'}
-
-        response = self.fetch(
-            '/api/defconfig', method='POST', body='', headers=headers
-        )
-
-        self.assertEqual(response.code, 415)
-        self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
-
-    def test_post_with_wrong_content(self):
-        # Send an empty string as JSON content.
-        headers = {
-            'X-XSRF-Header': 'foo',
-            'Content-Type': 'application/json',
-        }
-
-        response = self.fetch(
-            '/api/defconfig', method='POST', headers=headers, body=''
-        )
-
-        self.assertEqual(response.code, 420)
-        self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
-
-    def test_post_with_content(self):
-        headers = {
-            'X-XSRF-Header': 'foo',
-            'Content-Type': 'application/json',
-        }
-
-        body = json.dumps(dict(defconf='defconf'))
-
-        response = self.fetch(
-            '/api/defconfig', method='POST', headers=headers, body=body
-        )
-
-        self.assertEqual(response.code, 400)
+        self.assertEqual(response.code, 501)
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)

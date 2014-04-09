@@ -37,7 +37,7 @@ from utils.log import get_log
 log = get_log()
 
 
-def subscribe(json_obj, database):
+def subscribe(database, json_obj):
     """Subscribe an email to a job.
 
     It accepts a dict-like object that should contain at least the `job_id' and
@@ -45,8 +45,8 @@ def subscribe(json_obj, database):
 
     At the moment no validation is run on the email provided.
 
+    :param database: The database where to store the data.
     :param json_obj: A dict-like object with `job_id' and `email' fields.
-    :param database: The database connection where to store the data.
     :return This function return 201 when the subscription has been performed,
             404 if the job to subscribe to does not exist, or 500 in case of
             an internal database error.
@@ -79,10 +79,11 @@ def subscribe(json_obj, database):
     return ret_val
 
 
-def unsubscribe(job_id, email, collection):
+def unsubscribe(collection, doc_id, email):
     """Unsubscribe an email from a job.
 
-    :param job_id: The job ID from which the email should be unsubscribed.
+    :param collection: The collection where operation will be performed.
+    :param doc_id: The job ID from which the email should be unsubscribed.
     :type str
     :param email: The email to unsubscribe.
     :type str
@@ -91,23 +92,21 @@ def unsubscribe(job_id, email, collection):
     """
     ret_val = 400
 
-    subscription = find_one(
-        collection, job_id, 'job_id'
-    )
+    subscription = find_one(collection, doc_id)
 
     if subscription:
         emails = subscription['emails']
         try:
             emails.remove(email)
             ret_val = update(
-                collection, {'job_id': job_id}, {'emails': emails}
+                collection, {'_id': doc_id}, {'emails': emails}
             )
-        except ValueError:
+        except ValueError, ex:
             log.error(
                 "Error removing email address from subscription with "
-                "'job_id': %s" % (job_id)
+                "'_id': %s" % (doc_id)
             )
-            pass
+            log.exception(str(ex))
 
     return ret_val
 

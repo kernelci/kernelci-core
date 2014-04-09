@@ -84,7 +84,6 @@ class BaseHandler(RequestHandler):
                 a custom message.
         """
         status_messages = {
-            400: 'Provided JSON is not valid',
             404: 'Resource not found',
             405: 'Operation not allowed',
             415: (
@@ -146,27 +145,54 @@ class BaseHandler(RequestHandler):
         self.write(result)
         self.finish()
 
-    def _is_valid_request(self):
-        """Verify if a request is valid.
+    def _has_xsrf_header(self):
+        """Check if the request has the `X-Xsrf-Header` set.
 
-        :return 200 in case the request is valid, any other status code if not.
+        :return True or False.
+        """
+        # TODO need token mechanism to authorize requests.
+        has_header = False
+
+        if self.request.headers.get('X-Xsrf-Header', None):
+            has_header = True
+
+        return has_header
+
+    def _has_valid_content_type(self):
+        """Check if the request content type is the one expected.
+
+        By default, content must be `application/json`.
+
+        :return True or False.
+        """
+        valid_content = False
+
+        if 'Content-Type' in self.request.headers.keys():
+            if self.request.headers['Content-Type'] == \
+                    self.accepted_content_type:
+                valid_content = True
+
+        return valid_content
+
+    def _valid_post_request(self):
+        """Check that a POST request is valid.
+
+        :return 200 in case is valid, any other status code if not.
         """
         return_code = 200
 
-        if not self.request.headers.get('X-Xsrf-Header', None):
-            # TODO need token mechanism to authorize requests.
-            return_code = 403
-        else:
-            if self.request.headers['Content-Type'] != \
-                    self.accepted_content_type:
+        if self._has_xsrf_header():
+            if not self._has_valid_content_type():
                 return_code = 415
+        else:
+            return_code = 403
 
         return return_code
 
     @asynchronous
     def post(self, *args, **kwargs):
 
-        valid_request = self._is_valid_request()
+        valid_request = self._valid_post_request()
 
         if valid_request == 200:
             try:
@@ -194,27 +220,28 @@ class BaseHandler(RequestHandler):
         """
         self.write_error(status_code=501)
 
+    def _valid_del_request(self):
+        """Check if the DELETE request is valid."""
+        return_code = 200
+
+        if not self._has_xsrf_header():
+            return_code = 403
+
+        return return_code
+
     @asynchronous
     def delete(self, *args, **kwargs):
+        request_code = self._valid_del_request()
 
-        valid_request = self._is_valid_request()
-
-        if valid_request == 200:
-
-            try:
-                json_obj = json.loads(self.request.body.decode('utf8'))
-
-                if is_valid_json(json_obj, self._valid_keys('DELETE')):
-                    self._delete(json_obj)
-                else:
-                    self.send_error(status_code=400)
-            except ValueError:
-                self.log.error("No JSON data found in the DELETE request")
-                self.write_error(status_code=420)
+        if request_code == 200:
+            if kwargs and kwargs.get('id', None):
+                self._delete(kwargs['id'])
+            else:
+                self.write_error(status_code=400)
         else:
-            self.write_error(status_code=valid_request)
+            self.write_error(status_code=request_code)
 
-    def _delete(self, json_obj):
+    def _delete(self, doc_id):
         """Placeholder method - used internally.
 
         This is called by the actual method that implements DELETE request.
@@ -222,13 +249,13 @@ class BaseHandler(RequestHandler):
 
         This will return a status code of 501.
 
-        :param json_obj: A JSON object.
+        :param doc_id: The ID of the documento to delete.
         """
         self.send_error(status_code=501)
 
     @asynchronous
     def get(self, *args, **kwargs):
-        if kwargs and kwargs['id']:
+        if kwargs and kwargs.get('id', None):
             self.executor.submit(
                 partial(find_one, self.collection, kwargs['id'])
             ).add_done_callback(
@@ -253,7 +280,10 @@ class BaseHandler(RequestHandler):
             )
 
     def write_error(self, status_code, **kwargs):
-        status_message = self._get_status_message(status_code)
+        if kwargs.get('message', None):
+            status_message = kwargs['message']
+        else:
+            status_message = self._get_status_message(status_code)
 
         if status_message:
             self.set_status(status_code, status_message)

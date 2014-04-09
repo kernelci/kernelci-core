@@ -46,7 +46,6 @@ class JobHandler(BaseHandler):
     def _valid_keys(self, method):
         valid_keys = {
             'POST': ['job', 'kernel'],
-            'DELETE': ['job'],
         }
 
         return valid_keys.get(method, None)
@@ -55,13 +54,14 @@ class JobHandler(BaseHandler):
         import_job.apply_async([json_obj], link=send_emails.s())
         self._create_valid_response(200)
 
-    def _delete(self, json_obj):
+    def _delete(self, job_id):
         self.executor.submit(
-            partial(self._delete_job, json_obj['job'])).add_done_callback(
-                lambda future:
-                tornado.ioloop.IOLoop.instance().add_callback(
-                    partial(self._create_valid_response, future.result()))
-            )
+            partial(self._delete_job, job_id)
+        ).add_done_callback(
+            lambda future:
+            tornado.ioloop.IOLoop.instance().add_callback(
+                partial(self._create_valid_response, future.result()))
+        )
 
     def _delete_job(self, job_id):
         """Delete a job from the database.

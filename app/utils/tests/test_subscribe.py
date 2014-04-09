@@ -51,5 +51,5 @@ class TestSubscription(unittest.TestCase):
             email='email'
         )
 
-        result = subscribe(json_obj, self.database)
+        result = subscribe(self.database, json_obj)
         self.assertEqual(result, 201)

@@ -18,6 +18,7 @@
 import tornado
 
 from functools import partial
+from tornado.web import asynchronous
 
 from handlers.base import BaseHandler
 from models.defconfig import DEFCONFIG_COLLECTION
@@ -41,9 +42,13 @@ class DefConfHandler(BaseHandler):
 
         return valid_keys.get(method, None)
 
-    def _delete(self, json_obj):
+    @asynchronous
+    def post(self, *args, **kwargs):
+        self.write_error(status_code=501)
+
+    def _delete(self, defconf_id):
         self.executor.submit(
-            partial(delete, json_obj['defconf'])
+            partial(delete, defconf_id)
         ).add_done_callback(
             lambda future:
             tornado.ioloop.IOLoop.instance().add_callback(

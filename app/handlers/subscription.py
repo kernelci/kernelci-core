@@ -15,6 +15,7 @@
 
 """The RequetHandler for /subscription URLs."""
 
+import json
 import tornado
 
 from functools import partial
@@ -25,6 +26,8 @@ from utils.subscription import (
     subscribe,
     unsubscribe,
 )
+from utils.validator import is_valid_json
+from utils.db import delete
 
 
 class SubscriptionHandler(BaseHandler):
@@ -42,26 +45,44 @@ class SubscriptionHandler(BaseHandler):
     def _valid_keys(self, method):
         valid_keys = {
             'POST': ['job', 'email'],
-            'DELETE': ['job', 'email'],
+            'DELETE': ['email'],
         }
 
         return valid_keys.get(method, None)
 
     def _post(self, json_obj):
         self.executor.submit(
-            partial(subscribe, json_obj, self.db)).add_done_callback(
+            partial(subscribe, self.db, json_obj)).add_done_callback(
                 lambda future:
                 tornado.ioloop.IOLoop.instance().add_callback(
                     partial(self._create_valid_response, future.result()))
             )
 
-    def _delete(self, json_obj):
+    def _delete(self, doc_id):
+        if self.request.body:
+            try:
+                json_obj = json.loads(self.request.body.decode('utf8'))
+
+                if is_valid_json(json_obj, self._valid_keys('DELETE')):
+                    self._delete_email_or_doc(
+                        unsubscribe,
+                        self.collection,
+                        doc_id,
+                        json_obj['email']
+                    )
+                else:
+                    self.send_error(status_code=400)
+            except ValueError:
+                self.log.error("No JSON data found in the DELETE request")
+                self.write_error(status_code=420)
+        else:
+            self._delete_email_or_doc(delete, self.collection, doc_id)
+
+    def _delete_email_or_doc(self, func, *args):
         self.executor.submit(
             partial(
-                unsubscribe,
-                json_obj['job'],
-                json_obj['email'],
-                self.collection
+                func,
+                *args
             )
         ).add_done_callback(
             lambda future:
