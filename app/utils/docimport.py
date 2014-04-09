@@ -126,7 +126,6 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
                     job_id, kernel_dir, defconf_dir
                 ) for defconf_dir in os.listdir(kernel_dir)
             ]
-            # _traverse_defconf_dir(kernel_dir, job_id)
         )
     else:
         # Job has been triggered, but there is no directory structure on the
