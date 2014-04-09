@@ -61,7 +61,9 @@ class TestSubscriptionHandler(
         mock_count.return_value = 0
         mock_find.return_value = []
 
-        expected_body = '{"count": 0, "limit": 20, "result": "[]"}'
+        expected_body = (
+            '{"count": 0, "code": 200, "limit": 20, "result": "[]"}'
+        )
 
         response = self.fetch('/api/subscription')
 

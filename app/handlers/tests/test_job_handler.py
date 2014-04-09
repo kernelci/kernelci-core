@@ -60,7 +60,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         mock_count.return_value = 0
         mock_find.return_value = []
 
-        expected_body = '{"count": 0, "limit": 20, "result": "[]"}'
+        expected_body = '{"count": 0, "code": 200, "limit": 20, "result": "[]"}'
 
         response = self.fetch('/api/job')
 
@@ -75,7 +75,9 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         mock_count.return_value = 0
         mock_find.return_value = []
 
-        expected_body = '{"count": 0, "limit": 100, "result": "[]"}'
+        expected_body = (
+            '{"count": 0, "code": 200, "limit": 100, "result": "[]"}'
+        )
 
         response = self.fetch('/api/job?limit=1024')
 
@@ -100,7 +102,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         collection.find_one = MagicMock()
         collection.find_one.return_value = []
 
-        expected_body = '{"status": 200, "message": "[]"}'
+        expected_body = '{"message": "[]", "code": 200}'
 
         response = self.fetch('/api/job/job-kernel')
 

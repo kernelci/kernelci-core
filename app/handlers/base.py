@@ -139,7 +139,7 @@ class BaseHandler(RequestHandler):
             status, message = 200, self._get_status_message(200)
 
         self.set_status(status)
-        self.write(dict(status=status, message=message))
+        self.write(dict(code=status, message=message))
         self.finish()
 
     def _get_callback(self, result):
@@ -150,6 +150,7 @@ class BaseHandler(RequestHandler):
             at least the `result` key.
         """
         result['result'] = dumps(result['result'])
+        result['code'] = 200
 
         self.set_status(200)
         self.write(result)
@@ -257,7 +258,7 @@ class BaseHandler(RequestHandler):
 
         if status_message:
             self.set_status(status_code)
-            self.write(dict(status=status_code, message=status_message))
+            self.write(dict(code=status_code, message=status_message))
             self.finish()
         else:
             super(BaseHandler, self).write_error(status_code)
