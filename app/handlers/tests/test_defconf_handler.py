@@ -110,3 +110,30 @@ class TestDefconfHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(response.code, 415)
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    def test_post_with_wrong_content(self):
+        # Send an empty string as JSON content.
+        headers = {
+            'X-XSRF-Header': 'foo',
+            'Content-Type': 'application/json',
+        }
+
+        response = self.fetch(
+            '/api/defconfig', method='POST', headers=headers, body=''
+        )
+
+        self.assertEqual(response.code, 420)
+
+    def test_post_with_content(self):
+        headers = {
+            'X-XSRF-Header': 'foo',
+            'Content-Type': 'application/json',
+        }
+
+        body = json.dumps(dict(defconf='defconf'))
+
+        response = self.fetch(
+            '/api/defconfig', method='POST', headers=headers, body=body
+        )
+
+        self.assertEqual(response.code, 400)

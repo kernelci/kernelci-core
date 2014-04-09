@@ -84,15 +84,16 @@ class BaseHandler(RequestHandler):
                 a custom message.
         """
         status_messages = {
-            400: 'Provided JSON is not valid.',
-            404: 'Resource not found.',
-            405: 'Operation not allowed.',
+            400: 'Provided JSON is not valid',
+            404: 'Resource not found',
+            405: 'Operation not allowed',
             415: (
-                'Please use "%s" as the default media type.' %
+                'Please use "%s" as the default media type' %
                 self.accepted_content_type
             ),
-            500: 'Internal database error.',
-            501: 'Method not implemented.'
+            420: 'No JSON data found',
+            500: 'Internal database error',
+            501: 'Method not implemented'
         }
 
         message = status_messages.get(status_code, None)
@@ -100,7 +101,7 @@ class BaseHandler(RequestHandler):
             # If we do not have a custom message, try to see into
             # the Python lib for the default one or fail safely.
             message = httplib.responses.get(
-                status_code, "Unknown status code returned.")
+                status_code, "Unknown status code returned")
         return message
 
     @property
@@ -110,17 +111,6 @@ class BaseHandler(RequestHandler):
         Defaults to 'application/json'.
         """
         return self.ACCEPTED_CONTENT_TYPE
-
-    def _has_valid_keys(self, json_obj, keys):
-        """Validate the keys of sent JSON data.
-
-        Just make sure that the JSON data sent contains the required keys.
-
-        :param json_obj: The JSON data to validate.
-        :param keys: List of keys the JSON data should contain.
-        :return True or False.
-        """
-        return is_valid_json(json_obj, keys)
 
     def _create_valid_response(self, response):
         """Create a valid JSON response based on its type.
@@ -138,7 +128,7 @@ class BaseHandler(RequestHandler):
         else:
             status, message = 200, self._get_status_message(200)
 
-        self.set_status(status)
+        self.set_status(status_code=status, reason=message)
         self.write(dict(code=status, message=message))
         self.finish()
 
@@ -179,14 +169,18 @@ class BaseHandler(RequestHandler):
         valid_request = self._is_valid_request()
 
         if valid_request == 200:
-            json_obj = json.loads(self.request.body.decode('utf8'))
+            try:
+                json_obj = json.loads(self.request.body.decode('utf8'))
 
-            if self._has_valid_keys(json_obj, self._valid_keys('POST')):
-                self._post(json_obj)
-            else:
-                self.send_error(valid_request=400)
+                if is_valid_json(json_obj, self._valid_keys('POST')):
+                    self._post(json_obj)
+                else:
+                    self.send_error(status_code=400)
+            except ValueError:
+                self.log.error("No JSON data found in the POST request")
+                self.write_error(status_code=420)
         else:
-            self.send_error(status_code=valid_request)
+            self.write_error(status_code=valid_request)
 
     def _post(self, json_obj):
         """Placeholder method - used internally.
@@ -198,7 +192,7 @@ class BaseHandler(RequestHandler):
 
         :param json_obj: A JSON object.
         """
-        self.send_error(status_code=501)
+        self.write_error(status_code=501)
 
     @asynchronous
     def delete(self, *args, **kwargs):
@@ -206,14 +200,19 @@ class BaseHandler(RequestHandler):
         valid_request = self._is_valid_request()
 
         if valid_request == 200:
-            json_obj = json.loads(self.request.body.decode('utf8'))
 
-            if self._has_valid_keys(json_obj, self._valid_keys('DELETE')):
-                self._delete(json_obj)
-            else:
-                self.send_error(status_code=400)
+            try:
+                json_obj = json.loads(self.request.body.decode('utf8'))
+
+                if is_valid_json(json_obj, self._valid_keys('DELETE')):
+                    self._delete(json_obj)
+                else:
+                    self.send_error(status_code=400)
+            except ValueError:
+                self.log.error("No JSON data found in the DELETE request")
+                self.write_error(status_code=420)
         else:
-            self.send_error(status_code=valid_request)
+            self.write_error(status_code=valid_request)
 
     def _delete(self, json_obj):
         """Placeholder method - used internally.
@@ -257,8 +256,8 @@ class BaseHandler(RequestHandler):
         status_message = self._get_status_message(status_code)
 
         if status_message:
-            self.set_status(status_code)
+            self.set_status(status_code, status_message)
             self.write(dict(code=status_code, message=status_message))
             self.finish()
         else:
-            super(BaseHandler, self).write_error(status_code)
+            super(BaseHandler, self).write_error(status_code, kwargs)
