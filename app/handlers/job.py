@@ -72,7 +72,7 @@ class JobHandler(BaseHandler):
         other documents associated with the it: defconfig and subscription.
 
         :param job_id: The ID of the job to remove.
-        :return Whatever is returned by the `delete` function.
+        :return Whatever is returned by the `utils.db.delete` function.
         """
         # TODO: maybe look into two-phase commits in mongodb
         # http://docs.mongodb.org/manual/tutorial/perform-two-phase-commits/
