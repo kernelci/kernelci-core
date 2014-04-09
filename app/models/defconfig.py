@@ -55,11 +55,6 @@ class DefConfigDocument(BaseDocument):
         """The job ID this defconfig belogns to."""
         return self._job_id
 
-    @job_id.setter
-    def job_id(self, value):
-        """Set the job ID this defconfig belongs to."""
-        self._job_id = value
-
     @property
     def zimage(self):
         """The path to the zImage file produced by this defconfig.

@@ -54,11 +54,6 @@ class SubscriptionDocument(BaseDocument):
         """The job ID this subscriptions belong to."""
         return self._job_id
 
-    @job_id.setter
-    def job_id(self, value):
-        """Set the job ID."""
-        self._job_id = value
-
     @property
     def emails(self):
         """The list of emails subscribed."""
