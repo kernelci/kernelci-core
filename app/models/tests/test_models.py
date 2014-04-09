@@ -122,17 +122,17 @@ class TestSubscriptionModel(unittest.TestCase):
         self.assertItemsEqual([], sub_doc.emails)
 
     def test_subscription_document_emails_attribute_set(self):
-        sub_doc = SubscriptionDocument('sub', 'job', 'email')
+        sub_doc = SubscriptionDocument('sub', 'job')
 
         self.assertIsInstance(sub_doc.emails, types.ListType)
         self.assertNotIsInstance(sub_doc.emails, types.StringTypes)
 
     def test_subscription_document_emails_extended(self):
-        sub_doc = SubscriptionDocument('sub', 'job', 'email')
+        sub_doc = SubscriptionDocument('sub', 'job')
         sub_doc.emails = 'email2'
 
         self.assertIsInstance(sub_doc.emails, types.ListType)
-        self.assertEquals(['email2', 'email'], sub_doc.emails)
+        self.assertEquals(['email2'], sub_doc.emails)
 
     def test_subscription_document_emails_setter_str(self):
         sub_doc = SubscriptionDocument('sub', 'job')

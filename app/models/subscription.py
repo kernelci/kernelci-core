@@ -34,16 +34,10 @@ class SubscriptionDocument(BaseDocument):
 
     SUBSCRIPTION_ID_FORMAT = 'sub-%s'
 
-    def __init__(self, name, job_id, emails=None):
+    def __init__(self, name, job_id):
         super(SubscriptionDocument, self).__init__(name)
         self._job_id = job_id
-
-        if emails is None:
-            self._emails = []
-        elif isinstance(emails, types.ListType):
-            self._emails = list(emails)
-        else:
-            self._emails = [emails]
+        self._emails = []
 
     @property
     def collection(self):

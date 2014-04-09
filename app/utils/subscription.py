@@ -72,7 +72,8 @@ def subscribe(database, json_obj):
             sub_id = (
                 SubscriptionDocument.SUBSCRIPTION_ID_FORMAT % (job_id)
             )
-            sub_obj = SubscriptionDocument(sub_id, job_id, emails)
+            sub_obj = SubscriptionDocument(sub_id, job_id)
+            sub_obj.emails = emails
 
         ret_val = save(database, sub_obj)
 
