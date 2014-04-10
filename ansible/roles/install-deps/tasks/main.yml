@@ -7,7 +7,6 @@
     - build-essential
     - git
     - python-jinja2
-    - python-mock
     - python-paramiko
     - python-markupsafe
     - python-pip
