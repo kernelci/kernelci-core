@@ -77,6 +77,8 @@ class TestJobModel(unittest.TestCase):
         self.assertIsInstance(job_doc, JobDocument)
         self.assertIsInstance(job_doc, BaseDocument)
         self.assertEqual(job_doc.name, 'job-kernel')
+        self.assertEqual(job_doc.kernel, 'kernel')
+        self.assertEqual(job_doc.job, 'job')
         self.assertEqual(job_doc.created, now)
         self.assertEqual(job_doc.status, 'BUILDING')
 
@@ -107,15 +109,20 @@ class TestJobModel(unittest.TestCase):
 
         job_doc = JobDocument('job')
         job_doc.created = now
+        job_doc.updated = now
 
         self.assertIsInstance(job_doc.created, datetime)
+        self.assertIsInstance(job_doc.updated, datetime)
 
         new_job = JobDocument.from_json(json_util.loads(job_doc.to_json()))
 
         self.assertIsInstance(new_job.created, datetime)
+        self.assertIsInstance(new_job.updated, datetime)
         # During the deserialization process, some microseconds are lost.
         self.assertLessEqual(
             (new_job.created - job_doc.created).total_seconds(), 0)
+        self.assertLessEqual(
+            (new_job.updated - job_doc.updated).total_seconds(), 0)
 
 
 class TestDefconfModel(unittest.TestCase):

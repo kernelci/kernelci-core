@@ -55,7 +55,7 @@ class TestDefconfHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         return ioloop.IOLoop.instance()
 
     def test_get_wrong_url(self):
-        response = self.fetch('/api/defconf')
+        response = self.fetch('/api/foobardefconf')
 
         self.assertEqual(response.code, 404)
         self.assertEqual(

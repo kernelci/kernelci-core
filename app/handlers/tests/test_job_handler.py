@@ -151,3 +151,32 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(response.code, 200)
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    def test_delete_no_xsrf(self):
+        response = self.fetch('/api/job/job', method='DELETE')
+        self.assertEqual(response.code, 403)
+
+    def test_delete_with_xsfr_no_job(self):
+        headers = {'X-XSRF-Header': 'foo'}
+
+        response = self.fetch(
+            '/api/job/job', method='DELETE', headers=headers,
+        )
+
+        self.assertEqual(response.code, 404)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    def test_delete_with_xsfr_with_job(self):
+        db = self.mongodb_client['kernel-ci']
+        db['job'].insert(dict(_id='job', job='job', kernel='kernel'))
+
+        headers = {'X-XSRF-Header': 'foo'}
+
+        response = self.fetch(
+            '/api/job/job', method='DELETE', headers=headers,
+        )
+
+        self.assertEqual(response.code, 200)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
