@@ -30,7 +30,7 @@ class TestSubscription(unittest.TestCase):
     @patch("utils.subscription.find_one")
     def test_subscribe_email_no_job(self, mock_find_one):
 
-        mock_find_one.side_effect = [None]
+        mock_find_one.return_value = None
         json_obj = dict(
             job='job',
             email='email'
