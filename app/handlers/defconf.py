@@ -35,13 +35,6 @@ class DefConfHandler(BaseHandler):
     def collection(self):
         return self.db[DEFCONFIG_COLLECTION]
 
-    def _valid_keys(self, method):
-        valid_keys = {
-            'DELETE': ['defconf']
-        }
-
-        return valid_keys.get(method, None)
-
     @asynchronous
     def post(self, *args, **kwargs):
         self.write_error(status_code=501)
