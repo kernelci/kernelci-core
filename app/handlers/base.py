@@ -251,7 +251,7 @@ class BaseHandler(RequestHandler):
 
         :param doc_id: The ID of the documento to delete.
         """
-        self.send_error(status_code=501)
+        self.write_error(status_code=501)
 
     @asynchronous
     def get(self, *args, **kwargs):
