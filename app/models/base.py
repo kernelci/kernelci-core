@@ -17,6 +17,8 @@
 
 import json
 
+from bson import json_util
+
 from models import ID_KEY
 
 
@@ -59,4 +61,4 @@ class BaseDocument(object):
 
         :return A JSON string.
         """
-        return json.dumps(self.to_dict())
+        return json.dumps(self.to_dict(), default=json_util.default)

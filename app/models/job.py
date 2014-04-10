@@ -15,6 +15,9 @@
 
 """The model that represents a job document in the mongodb collection."""
 
+from bson import json_util
+from types import StringTypes
+
 from models import ID_KEY
 from models.base import BaseDocument
 
@@ -139,9 +142,12 @@ class JobDocument(BaseDocument):
     def from_json(json_obj):
         """Build a document from a JSON object.
 
-        :param json_obj: The JSON object to start from.
+        :param json_obj: The JSON object to start from, or a JSON string.
         :return An instance of `JobDocument`.
         """
+        if isinstance(json_obj, StringTypes):
+            json_obj = json_util.loads(json_obj)
+
         name = json_obj.pop(ID_KEY)
 
         job_doc = JobDocument(name)

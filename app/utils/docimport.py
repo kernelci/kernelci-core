@@ -18,6 +18,7 @@
 import os
 import pymongo
 
+from bson import tz_util
 from datetime import datetime
 
 from models import (
@@ -39,7 +40,6 @@ from utils.db import (
     save,
 )
 from utils.log import get_log
-from utils.utc import utc
 
 
 BASE_PATH = '/var/www/images/kernel-ci'
@@ -108,10 +108,10 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
     saved_doc = find_one(database[JOB_COLLECTION], [job_id])
     if saved_doc:
         doc = JobDocument.from_json(saved_doc)
-        doc.updated = datetime.now(tz=utc).isoformat()
+        doc.updated = datetime.now(tz=tz_util.utc).isoformat()
     else:
         doc = JobDocument(job_id, job=job, kernel=kernel)
-        doc.created = datetime.now(tz=utc).isoformat()
+        doc.created = datetime.now(tz=tz_util.utc).isoformat()
 
     docs.append(doc)
 
@@ -177,7 +177,7 @@ def _import_all(base_path=BASE_PATH):
         for kernel_dir in os.listdir(job_dir):
             doc_id = JobDocument.JOB_ID_FORMAT % (job_id, kernel_dir)
             job_doc = JobDocument(doc_id, job=job_id, kernel=kernel_dir)
-            job_doc.created = datetime.now(tz=utc).isoformat()
+            job_doc.created = datetime.now(tz=tz_util.utc)
             docs.append(job_doc)
 
             kernel_dir = os.path.join(job_dir, kernel_dir)

@@ -19,6 +19,8 @@ The model that represents a subscription document in the mongodb collection.
 
 import types
 
+from bson import json_util
+
 from models import ID_KEY
 from models.base import BaseDocument
 
@@ -79,6 +81,9 @@ class SubscriptionDocument(BaseDocument):
         :param json_obj: The JSON object to start from.
         :return An instance of `SubscriptionDocument`.
         """
+        if isinstance(json_obj, types.StringTypes):
+            json_obj = json_util.loads(json_obj)
+
         name = json_obj.pop(ID_KEY)
         job_id = json_obj.pop('job_id')
 
