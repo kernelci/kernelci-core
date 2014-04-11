@@ -23,7 +23,7 @@ from models.base import BaseDocument
 from utils.log import get_log
 
 
-log = get_log()
+LOG = get_log()
 
 
 def find_one(collection, values, field='_id', operator='$in'):
@@ -164,17 +164,17 @@ def save(database, documents):
         if isinstance(document, BaseDocument):
             to_save = document.to_dict()
         else:
-            log.warn(
-                "Cannot save document, it is not of type BaseDocument, got %s"
-                % (type(to_save))
+            LOG.warn(
+                "Cannot save document, it is not of type BaseDocument, got %s",
+                type(to_save)
             )
             continue
 
         try:
             database[document.collection].save(to_save, manipulate=False)
         except OperationFailure, ex:
-            log.error("Error saving the following document: %s" % to_save.name)
-            log.exception(str(ex))
+            LOG.error("Error saving the following document: %s", to_save.name)
+            LOG.exception(str(ex))
             ret_value = 500
             break
 
@@ -208,10 +208,10 @@ def update(collection, spec, document, operation='$set'):
             }
         )
     except OperationFailure, ex:
-        log.error(
-            "Error updating the following document: %s" % (str(document))
+        LOG.error(
+            "Error updating the following document: %s", str(document)
         )
-        log.exception(str(ex))
+        LOG.exception(str(ex))
         ret_val = 500
 
     return ret_val
@@ -232,10 +232,10 @@ def delete(collection, spec_or_id):
     try:
         collection.remove(spec_or_id)
     except OperationFailure, ex:
-        log.error(
-            "Error removing the following document: %s" % (str(spec_or_id))
+        LOG.error(
+            "Error removing the following document: %s", str(spec_or_id)
         )
-        log.exception(str(ex))
+        LOG.exception(str(ex))
         ret_val = 500
 
     return ret_val

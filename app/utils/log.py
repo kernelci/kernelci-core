@@ -17,7 +17,7 @@
 
 import logging
 
-log = None
+LOG = None
 
 
 def get_log(debug=False):
@@ -26,25 +26,25 @@ def get_log(debug=False):
     :param debug: If debug level should be turned on.
     :return: A logger instance.
     """
-    global log
+    global LOG
 
-    if log is None:
-        log = logging.getLogger()
-        ch = logging.StreamHandler()
+    if LOG is None:
+        LOG = logging.getLogger()
+        log_handler = logging.StreamHandler()
 
         formatter = logging.Formatter(
             '%(asctime)s %(levelname)-8s [%(threadName)-10s] %(message)s'
         )
 
         if debug:
-            ch.setLevel(logging.DEBUG)
-            ch.setFormatter(formatter)
-            log.setLevel(logging.DEBUG)
+            log_handler.setLevel(logging.DEBUG)
+            log_handler.setFormatter(formatter)
+            LOG.setLevel(logging.DEBUG)
         else:
-            ch.setLevel(logging.INFO)
-            ch.setFormatter(formatter)
-            log.setLevel(logging.INFO)
+            log_handler.setLevel(logging.INFO)
+            log_handler.setFormatter(formatter)
+            LOG.setLevel(logging.INFO)
 
-        log.addHandler(ch)
+        LOG.addHandler(log_handler)
 
-    return log
+    return LOG
