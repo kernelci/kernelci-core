@@ -23,9 +23,15 @@ from datetime import datetime
 
 from models import (
     BUILDING_STATUS,
+    BUILD_FAIL_FILE,
+    BUILD_META_FILE,
+    BUILD_PASS_FILE,
     DB_NAME,
+    DONE_FILE,
     DONE_STATUS,
+    FAILED_STATUS,
     SUCCESS_STATUS,
+    UNKNOWN_STATUS,
 )
 from models.defconfig import (
     DEFCONFIG_ACCEPTED_FILES,
@@ -43,10 +49,7 @@ from utils.log import get_log
 
 
 BASE_PATH = '/var/www/images/kernel-ci'
-# Filename that should be available when a job has finished.
-DONE_FILE = '.done'
-
-log = get_log()
+LOG = get_log()
 
 
 def import_and_save(json_obj, base_path=BASE_PATH):
@@ -60,8 +63,8 @@ def import_and_save(json_obj, base_path=BASE_PATH):
     database = pymongo.MongoClient()[DB_NAME]
     docs, job_id = import_job_from_json(json_obj, database, base_path)
 
-    log.info(
-        "Importing %d documents with job ID: %s" % (len(docs), job_id)
+    LOG.info(
+        "Importing %d documents with job ID: %s", len(docs), job_id
     )
 
     try:
@@ -76,12 +79,12 @@ def import_job_from_json(json_obj, database, base_path=BASE_PATH):
     """Import a job based on the provided JSON object.
 
     The provided JSON object, a dict-like object, should contain at least the
-    `job' and `kernel' keys. These keys will be used to traverse the directory
-    structure found at the `/job/kernel' path (starting from the default
+    `job` and `kernel` keys. These keys will be used to traverse the directory
+    structure found at the `/job/kernel` path (starting from the default
     location).
 
-    :param json_obj: A dict-like object, that should contain the keys `job' and
-                     `kernel'.
+    :param json_obj: A dict-like object, that should contain the keys `job` and
+                     `kernel`.
     :param base_path: The base path where to start constructing the traverse
                       directory. It defaults to: /var/www/images/kernel-ci.
     :return The documents to be saved, and the job document ID.
@@ -107,19 +110,17 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
 
     saved_doc = find_one(database[JOB_COLLECTION], [job_id])
     if saved_doc:
-        doc = JobDocument.from_json(saved_doc)
-        doc.updated = datetime.now(tz=tz_util.utc).isoformat()
+        job_doc = JobDocument.from_json(saved_doc)
+        job_doc.updated = datetime.now(tz=tz_util.utc)
     else:
-        doc = JobDocument(job_id, job=job, kernel=kernel)
-        doc.created = datetime.now(tz=tz_util.utc).isoformat()
+        job_doc = JobDocument(job_id, job=job, kernel=kernel)
+        job_doc.created = datetime.now(tz=tz_util.utc)
 
-    docs.append(doc)
+    docs.append(job_doc)
 
     if os.path.isdir(kernel_dir):
         if os.path.exists(os.path.join(kernel_dir, DONE_FILE)):
-            # TODO: need to check if this will still be the case going forward.
-            # TODO: what about failed jobs?
-            doc.status = DONE_STATUS
+            job_doc.status = DONE_STATUS
         docs.extend(
             [
                 _traverse_defconf_dir(
@@ -130,7 +131,31 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
     else:
         # Job has been triggered, but there is no directory structure on the
         # filesystem: the job is being built.
-        doc.status = BUILDING_STATUS
+        job_doc.status = BUILDING_STATUS
+
+    # Kind of a hack:
+    # We want to store some metadata at the job document level as well, like
+    # git tree, git commit...
+    # Since, at the moment, we do not have the build.meta file at the job level
+    # we need to pick one from the build documents, and extract some values.
+    if len(docs) > 1:
+        idx = 0
+        while True:
+            defconf_doc = docs[idx]
+            if defconf_doc == job_doc:
+                idx += 1
+                continue
+            else:
+                # Just check the first one, if it does not have the necessary
+                # keys, we move on, the job will not have any metadata.
+                if defconf_doc.metadata:
+                    for key in job_doc.METADATA_KEYS:
+                        if key in defconf_doc.metadata.keys():
+                            job_doc.metadata[key] = defconf_doc.metadata[key]
+                    break
+                else:
+                    idx += 1
+                    continue
 
     return (docs, job_id)
 
@@ -153,10 +178,50 @@ def _traverse_defconf_dir(job_id, kernel_dir, defconf_dir):
             if key in files:
                 setattr(defconf_doc, val, os.path.join(dirname, key))
 
-        if os.path.exists(os.path.join(dirname, 'build.PASS')):
+        if os.path.exists(os.path.join(dirname, BUILD_PASS_FILE)):
             defconf_doc.status = SUCCESS_STATUS
+        elif os.path.exists(os.path.join(dirname, BUILD_FAIL_FILE)):
+            defconf_doc.status = FAILED_STATUS
+        else:
+            defconf_doc.status = UNKNOWN_STATUS
+
+        if os.path.exists(os.path.join(dirname, BUILD_META_FILE)):
+            _parse_build_metadata(
+                os.path.join(dirname, BUILD_META_FILE), defconf_doc
+            )
 
     return defconf_doc
+
+
+def _parse_build_metadata(metadata_file, defconf_doc):
+    """Parse the metadata file contained in thie build directory.
+
+    :param metadata_file: The path to the metadata file.
+    :param defconf_doc: The `DefConfigDocument` whose metadata will be updated.
+    """
+    metadata = {}
+
+    LOG.info("Parsing metadata file %s", metadata_file)
+
+    with open(metadata_file, 'r') as r_file:
+        for line in r_file:
+            line = line.strip()
+            if line:
+                if line[0] == '#':
+                    # Accept a sane char for commented lines.
+                    continue
+
+                try:
+                    key, value = line.split(':', 1)
+                    value = value.strip()
+                    if value:
+                        # We store only real values, not empty ones.
+                        metadata[key] = value
+                except ValueError, ex:
+                    LOG.error("Error parsing metadata file line: %s", line)
+                    LOG.exception(str(ex))
+
+    defconf_doc.metadata = metadata
 
 
 def _import_all(base_path=BASE_PATH):
@@ -165,7 +230,7 @@ def _import_all(base_path=BASE_PATH):
     Do not use it elsewhere.
     :param base_path: Where to start traversing directories. Defaults to:
                       /var/www/images/kernel-ci.
-    :return The docs to save. All docs are subclasses of BaseDocument.
+    :return The docs to save. All docs are subclasses of `BaseDocument`.
     """
 
     docs = []

@@ -15,14 +15,21 @@
 
 import logging
 import mongomock
+import os
+import tempfile
 import unittest
 
-from mock import patch
+from types import DictionaryType
+from mock import (
+    MagicMock,
+    patch,
+)
 
 from utils.docimport import (
-    import_and_save,
     _import_all,
     _import_job,
+    _parse_build_metadata,
+    import_and_save,
 )
 
 
@@ -104,3 +111,38 @@ class TestParseJob(unittest.TestCase):
         docs, job_id = _import_job('job', 'kernel', database)
         self.assertEqual(len(docs), 1)
         self.assertEqual(docs[0].status, 'DONE')
+
+    def test_parse_and_update_build_metadata(self):
+        meta_content = (
+            '''
+# A comment.
+arch: arm
+git_url: git://git.example.org
+git_branch: test/branch
+git_describe: vfoo.bar
+git_commit: 1234567890
+defconfig: defoo_confbar
+kconfig_fragments:
+tree_name: foo_tree
+
+kernel_image: zImage
+kernel_config: kernel.config
+dtb_dir: dtbs
+modules_dir: foo/bar
+'''
+        )
+
+        defconf_doc = MagicMock()
+
+        try:
+            fake_meta = tempfile.NamedTemporaryFile(delete=False)
+            with open(fake_meta.name, 'w') as w_file:
+                w_file.write(meta_content)
+
+            _parse_build_metadata(fake_meta.name, defconf_doc)
+        finally:
+            os.unlink(fake_meta.name)
+
+        self.assertIsInstance(defconf_doc.metadata, DictionaryType)
+        self.assertNotIn('kconfig_fragments', defconf_doc.metadata.keys())
+        self.assertEqual('arm', defconf_doc.metadata['arch'])
