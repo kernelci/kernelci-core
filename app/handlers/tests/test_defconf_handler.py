@@ -96,3 +96,17 @@ class TestDefconfHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(response.code, 501)
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    def test_delete(self):
+        db = self.mongodb_client['kernel-ci']
+        db['defconfig'].insert(dict(_id='defconf', job_id='job'))
+
+        headers = {'X-XSRF-Header': 'foo'}
+
+        response = self.fetch(
+            '/api/defconfig/defconf', method='DELETE', headers=headers,
+        )
+
+        self.assertEqual(response.code, 200)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)

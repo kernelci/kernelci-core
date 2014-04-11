@@ -41,7 +41,7 @@ class DefConfHandler(BaseHandler):
 
     def _delete(self, defconf_id):
         self.executor.submit(
-            partial(delete, defconf_id)
+            partial(delete, self.collection, defconf_id)
         ).add_done_callback(
             lambda future:
             tornado.ioloop.IOLoop.instance().add_callback(
