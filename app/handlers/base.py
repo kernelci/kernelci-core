@@ -174,21 +174,6 @@ class BaseHandler(RequestHandler):
 
         return valid_content
 
-    def _valid_post_request(self):
-        """Check that a POST request is valid.
-
-        :return 200 in case is valid, any other status code if not.
-        """
-        return_code = 200
-
-        if self._has_xsrf_header():
-            if not self._has_valid_content_type():
-                return_code = 415
-        else:
-            return_code = 403
-
-        return return_code
-
     @asynchronous
     def post(self, *args, **kwargs):
 
@@ -208,6 +193,21 @@ class BaseHandler(RequestHandler):
         else:
             self.write_error(status_code=valid_request)
 
+    def _valid_post_request(self):
+        """Check that a POST request is valid.
+
+        :return 200 in case is valid, any other status code if not.
+        """
+        return_code = 200
+
+        if self._has_xsrf_header():
+            if not self._has_valid_content_type():
+                return_code = 415
+        else:
+            return_code = 403
+
+        return return_code
+
     def _post(self, json_obj):
         """Placeholder method - used internally.
 
@@ -220,15 +220,6 @@ class BaseHandler(RequestHandler):
         """
         self.write_error(status_code=501)
 
-    def _valid_del_request(self):
-        """Check if the DELETE request is valid."""
-        return_code = 200
-
-        if not self._has_xsrf_header():
-            return_code = 403
-
-        return return_code
-
     @asynchronous
     def delete(self, *args, **kwargs):
         request_code = self._valid_del_request()
@@ -240,6 +231,15 @@ class BaseHandler(RequestHandler):
                 self.write_error(status_code=400)
         else:
             self.write_error(status_code=request_code)
+
+    def _valid_del_request(self):
+        """Check if the DELETE request is valid."""
+        return_code = 200
+
+        if not self._has_xsrf_header():
+            return_code = 403
+
+        return return_code
 
     def _delete(self, doc_id):
         """Placeholder method - used internally.
