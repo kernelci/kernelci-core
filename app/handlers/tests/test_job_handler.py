@@ -120,14 +120,38 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    def test_post_not_json(self):
-        headers = {'X-XSRF-Header': 'foo'}
+    def test_post_not_json_content(self):
+        headers = {'X-XSRF-Header': 'foo', 'Content-Type': 'application/json'}
 
         response = self.fetch(
             '/api/job', method='POST', body='', headers=headers
         )
 
+        self.assertEqual(response.code, 420)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    def test_post_wrong_content_type(self):
+        headers = {'X-XSRF-Header': 'foo'}
+
+        response = self.fetch(
+            '/api/job/job', method='POST', body='', headers=headers
+        )
+
         self.assertEqual(response.code, 415)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    def test_post_wrong_json(self):
+        headers = {'X-XSRF-Header': 'foo', 'Content-Type': 'application/json'}
+
+        body = json.dumps(dict(foo='foo', bar='bar'))
+
+        response = self.fetch(
+            '/api/job/job', method='POST', body=body, headers=headers
+        )
+
+        self.assertEqual(response.code, 400)
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
