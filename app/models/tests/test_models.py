@@ -38,6 +38,7 @@ class TestJobModel(unittest.TestCase):
     def test_job_document_to_dict(self):
         expected = {
             'kernel': None,
+            'metadata': {},
             'job': None,
             '_id': 'job',
             'private': False,
@@ -55,7 +56,8 @@ class TestJobModel(unittest.TestCase):
     def test_job_document_to_json(self):
         expected_json = (
             '{"status": null, "kernel": null, "updated": null, '
-            '"created": null, "private": false, "job": null, "_id": "job"}'
+            '"created": null, "private": false, "job": null, "_id": "job", '
+            '"metadata": {}}'
         )
 
         job_doc = JobDocument('job')
@@ -135,6 +137,7 @@ class TestDefconfModel(unittest.TestCase):
         expected = {
             'job_id': 'job',
             'build_log': None,
+            'metadata': {},
             'image': None,
             'system_map': None,
             'zimage': None,
@@ -152,7 +155,7 @@ class TestDefconfModel(unittest.TestCase):
 
     def test_defconfig_document_to_json(self):
         expected_json = (
-            '{"status": null, "job_id": "job", "image": null, '
+            '{"status": null, "job_id": "job", "image": null, "metadata": {}, '
             '"system_map": null, "zimage": null, "_id": "job-defconfig", '
             '"build_log": null, "kernel_conf": null}'
         )

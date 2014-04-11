@@ -45,6 +45,7 @@ class DefConfigDocument(BaseDocument):
         self._kernel_conf = None
         self._status = None
         self._build_log = None
+        self._metadata = {}
 
     @property
     def collection(self):
@@ -120,6 +121,19 @@ class DefConfigDocument(BaseDocument):
         """Set the build.log path."""
         self._build_log = value
 
+    @property
+    def metadata(self):
+        """A dictionary with metadata about this defconfig."""
+        return self._metadata
+
+    @metadata.setter
+    def metadata(self, value):
+        """Set the metadata about this defconfig.
+
+        :param value: A dictionary with defconfig metadata.
+        """
+        self._metadata = value
+
     def to_dict(self):
         defconf_dict = super(DefConfigDocument, self).to_dict()
         defconf_dict['job_id'] = self._job_id
@@ -129,4 +143,5 @@ class DefConfigDocument(BaseDocument):
         defconf_dict['kernel_conf'] = self._kernel_conf
         defconf_dict['build_log'] = self._build_log
         defconf_dict['status'] = self._status
+        defconf_dict['metadata'] = self._metadata
         return defconf_dict

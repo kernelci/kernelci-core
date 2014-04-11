@@ -33,6 +33,7 @@ class JobDocument(BaseDocument):
     """
 
     JOB_ID_FORMAT = '%s-%s'
+    METADATA_KEYS = ('git_url', 'git_branch', 'git_describe', 'git_commit')
 
     def __init__(self, name, job=None, kernel=None):
         super(JobDocument, self).__init__(name)
@@ -43,6 +44,7 @@ class JobDocument(BaseDocument):
         self._status = None
         self._created = None
         self._updated = None
+        self._metadata = {}
 
     @property
     def collection(self):
@@ -128,6 +130,22 @@ class JobDocument(BaseDocument):
         """
         self._status = value
 
+    @property
+    def metadata(self):
+        """The metadata associated with this job.
+
+        A dictionary contaning information like commit ID, tree URL...
+        """
+        return self._metadata
+
+    @metadata.setter
+    def metadata(self, value):
+        """Set the metadata dictionary associated with this job.
+
+        :param value: A dictionary containing the metadata.
+        """
+        self._metadata = value
+
     def to_dict(self):
         job_dict = super(JobDocument, self).to_dict()
         job_dict['private'] = self._private
@@ -136,6 +154,7 @@ class JobDocument(BaseDocument):
         job_dict['created'] = self._created
         job_dict['updated'] = self._updated
         job_dict['status'] = self._status
+        job_dict['metadata'] = self._metadata
         return job_dict
 
     @staticmethod
