@@ -136,9 +136,11 @@ class TestDefconfModel(unittest.TestCase):
     def test_defconfig_document_to_dict(self):
         expected = {
             'job_id': 'job',
+            'kernel': 'kernel',
             'build_log': None,
             'metadata': {},
             'image': None,
+            'job': 'job',
             'system_map': None,
             'zimage': None,
             '_id': 'job-defconfig',
@@ -146,7 +148,7 @@ class TestDefconfModel(unittest.TestCase):
             'status': None,
         }
 
-        defconfig_doc = DefConfigDocument('defconfig', 'job')
+        defconfig_doc = DefConfigDocument('defconfig', 'job', 'job', 'kernel')
         self.assertEqual(defconfig_doc.to_dict(), expected)
 
     def test_defconfig_document_collection(self):
@@ -155,9 +157,10 @@ class TestDefconfModel(unittest.TestCase):
 
     def test_defconfig_document_to_json(self):
         expected_json = (
-            '{"status": null, "job_id": "job", "image": null, "metadata": {}, '
-            '"system_map": null, "zimage": null, "_id": "job-defconfig", '
-            '"build_log": null, "kernel_conf": null}'
+            '{"status": null, "kernel": null, "job_id": "job", '
+            '"image": null, "metadata": {}, "job": null, "system_map": null, '
+            '"zimage": null, "_id": "job-defconfig", "build_log": null, '
+            '"kernel_conf": null}'
         )
 
         defconfig_doc = DefConfigDocument('defconfig', 'job')

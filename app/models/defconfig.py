@@ -33,12 +33,14 @@ class DefConfigDocument(BaseDocument):
 
     DEFCONFIG_ID_FORMAT = '%s-%s'
 
-    def __init__(self, name, job_id):
+    def __init__(self, name, job_id, job=None, kernel=None):
         super(DefConfigDocument, self).__init__(
             self.DEFCONFIG_ID_FORMAT % (job_id, name)
         )
 
         self._job_id = job_id
+        self._job = job
+        self._kernel = kernel
         self._zimage = None
         self._image = None
         self._system_map = None
@@ -55,6 +57,26 @@ class DefConfigDocument(BaseDocument):
     def job_id(self):
         """The job ID this defconfig belogns to."""
         return self._job_id
+
+    @property
+    def job(self):
+        """The job this defconfig belongs too."""
+        return self._job
+
+    @job.setter
+    def job(self, value):
+        """Set the job name of this defconfig."""
+        self._job = value
+
+    @property
+    def kernel(self):
+        """The kernel this defconfig was built against."""
+        return self._kernel
+
+    @kernel.setter
+    def kernel(self, value):
+        """Set the kernel of this defconfig."""
+        self._kernel = value
 
     @property
     def zimage(self):
@@ -137,6 +159,8 @@ class DefConfigDocument(BaseDocument):
     def to_dict(self):
         defconf_dict = super(DefConfigDocument, self).to_dict()
         defconf_dict['job_id'] = self._job_id
+        defconf_dict['job'] = self._job
+        defconf_dict['kernel'] = self._kernel
         defconf_dict['zimage'] = self._zimage
         defconf_dict['image'] = self._image
         defconf_dict['system_map'] = self._system_map
