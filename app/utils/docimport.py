@@ -103,7 +103,8 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
     :param base_path: The base path where to strat the traversing.
     :return The documents to be saved, and the job document ID.
     """
-    kernel_dir = os.path.join(base_path, job, kernel)
+    job_dir = os.path.join(base_path, job)
+    kernel_dir = os.path.join(job_dir, kernel)
     job_id = JobDocument.JOB_ID_FORMAT % (job, kernel)
 
     docs = []
@@ -111,40 +112,42 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
     saved_doc = find_one(database[JOB_COLLECTION], [job_id])
     if saved_doc:
         job_doc = JobDocument.from_json(saved_doc)
-        job_doc.updated = datetime.now(tz=tz_util.utc)
+        job_doc.updated = job_doc.created = datetime.now(tz=tz_util.utc)
     else:
         job_doc = JobDocument(job_id, job=job, kernel=kernel)
         job_doc.created = datetime.now(tz=tz_util.utc)
 
     docs.append(job_doc)
 
+    if os.path.exists(os.path.join(job_dir, DONE_FILE)):
+        job_doc.status = DONE_STATUS
+    else:
+        job_doc.status = BUILDING_STATUS
+
     if os.path.isdir(kernel_dir):
         if os.path.exists(os.path.join(kernel_dir, DONE_FILE)):
             job_doc.status = DONE_STATUS
+
         docs.extend(
             [
                 _traverse_defconf_dir(
-                    job_id, kernel_dir, defconf_dir
+                    job_id, job, kernel, kernel_dir, defconf_dir
                 ) for defconf_dir in os.listdir(kernel_dir)
             ]
         )
-    else:
-        # Job has been triggered, but there is no directory structure on the
-        # filesystem: the job is being built.
-        job_doc.status = BUILDING_STATUS
 
     # Kind of a hack:
     # We want to store some metadata at the job document level as well, like
     # git tree, git commit...
     # Since, at the moment, we do not have the build.meta file at the job level
     # we need to pick one from the build documents, and extract some values.
-    if len(docs) > 1:
+    docs_len = len(docs)
+    if docs_len > 1:
         idx = 0
-        while True:
+        while idx < docs_len:
             defconf_doc = docs[idx]
-            if defconf_doc == job_doc:
+            if isinstance(defconf_doc, JobDocument):
                 idx += 1
-                continue
             else:
                 # Just check the first one, if it does not have the necessary
                 # keys, we move on, the job will not have any metadata.
@@ -152,15 +155,13 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
                     for key in job_doc.METADATA_KEYS:
                         if key in defconf_doc.metadata.keys():
                             job_doc.metadata[key] = defconf_doc.metadata[key]
-                    break
-                else:
-                    idx += 1
-                    continue
+
+                break
 
     return (docs, job_id)
 
 
-def _traverse_defconf_dir(job_id, kernel_dir, defconf_dir):
+def _traverse_defconf_dir(job_id, job, kernel, kernel_dir, defconf_dir):
     """Traverse the defconfig directory looking for files.
 
     :param job_id: The ID of the parent job.
@@ -168,7 +169,7 @@ def _traverse_defconf_dir(job_id, kernel_dir, defconf_dir):
     :param defconf_dir: The actual defconfig directory to parse.
     :return A `DefConfigDocument` instance.
     """
-    defconf_doc = DefConfigDocument(defconf_dir, job_id)
+    defconf_doc = DefConfigDocument(defconf_dir, job_id, job, kernel)
 
     for dirname, subdirs, files in os.walk(
             os.path.join(kernel_dir, defconf_dir)):
@@ -236,21 +237,22 @@ def _import_all(base_path=BASE_PATH):
     docs = []
 
     for job_dir in os.listdir(base_path):
-        job_id = job_dir
+        job = job_dir
         job_dir = os.path.join(base_path, job_dir)
 
         for kernel_dir in os.listdir(job_dir):
-            doc_id = JobDocument.JOB_ID_FORMAT % (job_id, kernel_dir)
-            job_doc = JobDocument(doc_id, job=job_id, kernel=kernel_dir)
+            doc_id = JobDocument.JOB_ID_FORMAT % (job, kernel_dir)
+            job_doc = JobDocument(doc_id, job=job, kernel=kernel_dir)
             job_doc.created = datetime.now(tz=tz_util.utc)
             docs.append(job_doc)
 
+            kernel = kernel_dir
             kernel_dir = os.path.join(job_dir, kernel_dir)
 
             docs.extend(
                 [
                     _traverse_defconf_dir(
-                        doc_id, kernel_dir, defconf_dir
+                        doc_id, job, kernel, kernel_dir, defconf_dir
                     ) for defconf_dir in os.listdir(kernel_dir)
                 ]
             )
