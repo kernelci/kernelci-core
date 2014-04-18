@@ -24,7 +24,10 @@ from models.job import JOB_COLLECTION
 from models.defconfig import DEFCONFIG_COLLECTION
 from models.subscription import SUBSCRIPTION_COLLECTION
 from utils.db import (
+    count_docs,
     delete,
+    find_and_count,
+    find_docs,
     find_one,
 )
 from taskqueue.tasks import (
@@ -46,9 +49,29 @@ class JobHandler(BaseHandler):
     def _valid_keys(self, method):
         valid_keys = {
             'POST': ['job', 'kernel'],
+            'GET': ['job', 'kernel', 'status', 'private'],
         }
 
         return valid_keys.get(method, None)
+
+    def _get(self, limit, skip):
+        spec = {
+            k: v for k, v in [
+                (key, val)
+                for key in self._valid_keys('GET')
+                for val in self.get_query_arguments(key)
+                if val is not None
+            ]
+        }
+
+        if spec:
+            return dict(
+                result=find_docs(self.collection, spec, limit, skip),
+                count=count_docs(self.collection, spec),
+                limit=limit,
+            )
+        else:
+            return find_and_count(self.collection, limit, skip)
 
     def _post(self, json_obj):
         import_job.apply_async([json_obj], link=send_emails.s())

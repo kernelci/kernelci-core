@@ -61,7 +61,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         mock_count.return_value = 0
         mock_find.return_value = []
 
-        expected_body = '{"count": 0, "code": 200, "limit": 20, "result": "[]"}'
+        expected_body = '{"count": 0, "code": 200, "limit": 0, "result": "[]"}'
 
         response = self.fetch('/api/job')
 
@@ -72,12 +72,12 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
     @patch('utils.db.find')
     @patch('utils.db.count')
-    def test_get_with_wrong_limit(self, mock_count, mock_find):
+    def test_get_with_limit(self, mock_count, mock_find):
         mock_count.return_value = 0
         mock_find.return_value = []
 
         expected_body = (
-            '{"count": 0, "code": 200, "limit": 100, "result": "[]"}'
+            '{"count": 0, "code": 200, "limit": 1024, "result": "[]"}'
         )
 
         response = self.fetch('/api/job?limit=1024')
