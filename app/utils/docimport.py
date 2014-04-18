@@ -112,11 +112,10 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
     saved_doc = find_one(database[JOB_COLLECTION], [job_id])
     if saved_doc:
         job_doc = JobDocument.from_json(saved_doc)
-        job_doc.updated = job_doc.created = datetime.now(tz=tz_util.utc)
     else:
         job_doc = JobDocument(job_id, job=job, kernel=kernel)
-        job_doc.created = datetime.now(tz=tz_util.utc)
 
+    job_doc.updated = datetime.now(tz=tz_util.utc)
     docs.append(job_doc)
 
     if os.path.exists(os.path.join(job_dir, DONE_FILE)):
@@ -128,6 +127,14 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
         if os.path.exists(os.path.join(kernel_dir, DONE_FILE)):
             job_doc.status = DONE_STATUS
 
+        # If the job dir exists, read the last modification time from the
+        # file system and use that as the creation date.
+        if not job_doc.created:
+            job_doc.created = datetime.fromtimestamp(
+                os.stat(kernel_dir).st_mtime, tz=tz_util.utc)
+
+        job_doc.updated = datetime.now(tz=tz_util.utc)
+
         docs.extend(
             [
                 _traverse_defconf_dir(
@@ -135,6 +142,8 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
                 ) for defconf_dir in os.listdir(kernel_dir)
             ]
         )
+    else:
+        job_doc.created = datetime.now(tz=tz_util.utc)
 
     # Kind of a hack:
     # We want to store some metadata at the job document level as well, like
