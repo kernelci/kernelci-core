@@ -35,9 +35,8 @@ from utils.db import (
 from utils.log import get_log
 from utils.validator import is_valid_json
 
-# Default and maximum limit for how many results to get back from the db.
-DEFAULT_LIMIT = 20
-MAX_LIMIT = 100
+# Default limit for how many results to get back: 0 means all.
+DEFAULT_LIMIT = 0
 
 
 class BaseHandler(RequestHandler):
@@ -268,16 +267,30 @@ class BaseHandler(RequestHandler):
             limit = int(
                 self.get_query_argument('limit', default=DEFAULT_LIMIT)
             )
-            if limit > MAX_LIMIT:
-                limit = MAX_LIMIT
 
             self.executor.submit(
-                partial(find_and_count, self.collection, limit, skip)
+                partial(self._get, limit, skip)
             ).add_done_callback(
                 lambda future:
                 tornado.ioloop.IOLoop.instance().add_callback(
                     partial(self._get_callback, future.result()))
             )
+
+    def _get(self, limit, skip):
+        """Method called by the real GET one.
+
+        For special uses, sublcasses should override this one and provide their
+        own implementation.
+
+        By default it executes a search on all the documents in a collection,
+        returnig at max `limit` documents.
+
+        It shoul return a dictionary with at least the following fields:
+        `result` - that will hold the actual operation result
+        `count` - the total number of results available
+        `limit` - how many results have been collected
+        """
+        return find_and_count(self.collection, limit, skip)
 
     def write_error(self, status_code, **kwargs):
         if kwargs.get('message', None):
