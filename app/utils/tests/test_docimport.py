@@ -19,6 +19,8 @@ import os
 import tempfile
 import unittest
 
+from bson import tz_util
+from datetime import datetime
 from types import DictionaryType
 from mock import (
     MagicMock,
@@ -37,22 +39,30 @@ class TestParseJob(unittest.TestCase):
 
     def setUp(self):
         logging.disable(logging.CRITICAL)
+        self.db = mongomock.Database(mongomock.Connection(), 'kernel-ci')
 
     def tearDown(self):
         logging.disable(logging.NOTSET)
 
+    @patch("os.stat")
+    @patch("os.path.isdir")
     @patch("os.listdir")
-    def test_import_all_simple(self, mock_os_listdir):
+    def test_import_all_simple(self, mock_os_listdir, mock_isdir, mock_stat):
         mock_os_listdir.side_effect = [
             ['job'], ['kernel'], ['defconf'],
         ]
+        mock_isdir.side_effect = [True, True, True, True]
+        mock_stat.st_mtime.return_value = datetime.now(tz=tz_util.utc)
 
-        docs = _import_all()
+        docs = _import_all(self.db)
         self.assertEqual(len(docs), 2)
 
+    @patch("os.stat")
+    @patch("os.path.isdir")
     @patch("os.walk")
     @patch("os.listdir")
-    def test_import_all_complex(self, mock_os_listdir, mock_os_walk):
+    def test_import_all_complex(
+            self, mock_os_listdir, mock_os_walk, mock_isdir, mock_stat):
         mock_os_listdir.side_effect = [
             ['job1', 'job2'],
             ['kernel1', 'kernel2'],
@@ -62,16 +72,25 @@ class TestParseJob(unittest.TestCase):
             ['defconf5']
         ]
 
-        docs = _import_all()
+        mock_isdir.side_effect = list((True,) * 13)
+        mock_stat.st_mtime.return_value = datetime.now(tz=tz_util.utc)
+
+        docs = _import_all(self.db)
         self.assertEqual(len(docs), 8)
 
+    @patch("os.stat")
+    @patch("os.path.isdir")
     @patch("os.listdir")
-    def test_import_all_documents_created(self, mock_os_listdir):
+    def test_import_all_documents_created(
+            self, mock_os_listdir, mock_isdir, mock_stat):
         mock_os_listdir.side_effect = [
             ['job'], ['kernel'], ['defconf'],
         ]
 
-        docs = _import_all()
+        mock_isdir.side_effect = list((True,) * 4)
+        mock_stat.st_mtime.return_value = datetime.now(tz=tz_util.utc)
+
+        docs = _import_all(self.db)
         self.assertEqual(len(docs), 2)
         self.assertEqual(docs[0].name, "job-kernel")
         self.assertEqual(docs[1].job_id, "job-kernel")
@@ -92,6 +111,7 @@ class TestParseJob(unittest.TestCase):
         self.assertEqual(len(docs), 1)
         self.assertEqual(docs[0].status, 'BUILDING')
 
+    @patch('os.stat')
     @patch('utils.docimport.find_one')
     @patch('utils.docimport._traverse_defconf_dir')
     @patch('os.listdir')
@@ -99,12 +119,13 @@ class TestParseJob(unittest.TestCase):
     @patch('os.path.isdir')
     def test_import_job_done(
             self, mock_isdir, mock_exists, mock_listdir, mock_traverse,
-            mock_find_one):
+            mock_find_one, mock_stat):
         mock_isdir.return_value = True
         mock_exists.return_value = True
         mock_listdir.return_value = []
         mock_traverse.return_value = []
         mock_find_one.return_value = []
+        mock_stat.st_mtime.return_value = datetime.now(tz=tz_util.utc)
 
         database = mongomock.Connection()
 

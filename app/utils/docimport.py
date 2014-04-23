@@ -140,6 +140,7 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
                 _traverse_defconf_dir(
                     job_id, job, kernel, kernel_dir, defconf_dir
                 ) for defconf_dir in os.listdir(kernel_dir)
+                if os.path.isdir(os.path.join(kernel_dir, defconf_dir))
             ]
         )
     else:
@@ -180,8 +181,14 @@ def _traverse_defconf_dir(job_id, job, kernel, kernel_dir, defconf_dir):
     """
     defconf_doc = DefConfigDocument(defconf_dir, job_id, job, kernel)
 
-    for dirname, subdirs, files in os.walk(
-            os.path.join(kernel_dir, defconf_dir)):
+    LOG.info("Traversing directory %s", defconf_dir)
+
+    real_dir = os.path.join(kernel_dir, defconf_dir)
+    defconf_doc.created = datetime.fromtimestamp(
+        os.stat(real_dir).st_mtime, tz=tz_util.utc
+    )
+
+    for dirname, subdirs, files in os.walk(real_dir):
         # Consider only the actual directory and its files.
         subdirs[:] = []
         for key, val in DEFCONFIG_ACCEPTED_FILES.iteritems():
@@ -234,7 +241,7 @@ def _parse_build_metadata(metadata_file, defconf_doc):
     defconf_doc.metadata = metadata
 
 
-def _import_all(base_path=BASE_PATH):
+def _import_all(database, base_path=BASE_PATH):
     """This function is used only to trigger the import from the command line.
 
     Do not use it elsewhere.
@@ -249,22 +256,13 @@ def _import_all(base_path=BASE_PATH):
         job = job_dir
         job_dir = os.path.join(base_path, job_dir)
 
-        for kernel_dir in os.listdir(job_dir):
-            doc_id = JobDocument.JOB_ID_FORMAT % (job, kernel_dir)
-            job_doc = JobDocument(doc_id, job=job, kernel=kernel_dir)
-            job_doc.created = datetime.now(tz=tz_util.utc)
-            docs.append(job_doc)
-
-            kernel = kernel_dir
-            kernel_dir = os.path.join(job_dir, kernel_dir)
-
-            docs.extend(
-                [
-                    _traverse_defconf_dir(
-                        doc_id, job, kernel, kernel_dir, defconf_dir
-                    ) for defconf_dir in os.listdir(kernel_dir)
-                ]
-            )
+        if os.path.isdir(job_dir):
+            for kernel_dir in os.listdir(job_dir):
+                if os.path.isdir(os.path.join(job_dir, kernel_dir)):
+                    all_docs, _ = _import_job(
+                        job, kernel_dir, database, base_path
+                    )
+                    docs.extend(all_docs)
 
     return docs
 
@@ -273,7 +271,7 @@ if __name__ == '__main__':
     connection = pymongo.MongoClient()
     database = connection[DB_NAME]
 
-    documents = _import_all()
+    documents = _import_all(database)
     save(database, documents)
 
     connection.disconnect()
