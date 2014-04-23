@@ -124,8 +124,8 @@ class BaseHandler(RequestHandler):
         else:
             status, message = 200, self._get_status_message(200)
 
-        self.set_status(status_code=status, reason=message)
-        self.write(dict(code=status, message=message))
+        self.set_status(status_code=status)
+        self.write(dict(code=status, result=message))
         self.finish()
 
     def _get_callback(self, result):
@@ -374,10 +374,10 @@ class BaseHandler(RequestHandler):
         n_fields = self.get_query_arguments('nfield')
 
         if y_fields and not n_fields:
-            fields = y_fields
+            fields = list(set(y_fields))
         elif n_fields:
-            fields = dict.fromkeys(y_fields, True)
-            fields.update(dict.fromkeys(n_fields, False))
+            fields = dict.fromkeys(list(set(y_fields)), True)
+            fields.update(dict.fromkeys(list(set(n_fields)), False))
 
         return fields
 
