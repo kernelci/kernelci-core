@@ -44,6 +44,7 @@ class SubscriptionHandler(BaseHandler):
 
     def _valid_keys(self, method):
         valid_keys = {
+            'GET': ['job'],
             'POST': ['job', 'email'],
             'DELETE': ['email'],
         }

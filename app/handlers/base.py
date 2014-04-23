@@ -30,9 +30,7 @@ from tornado.web import (
 
 from models import DB_NAME
 from utils.db import (
-    count_docs,
     find_and_count,
-    find_docs,
     find_one,
 )
 from utils.log import get_log
@@ -277,7 +275,8 @@ class BaseHandler(RequestHandler):
         :return The result from the database.
         """
         return find_one(
-            self.collection, doc_id, fields=self._get_query_fields())
+            self.collection, doc_id, fields=self._get_query_fields()
+        )
 
     def _get(self, **kwargs):
         """Method called by the real GET one.
@@ -298,23 +297,9 @@ class BaseHandler(RequestHandler):
 
         spec, sort, fields = self._get_query_args()
 
-        if spec:
-            return dict(
-                result=find_docs(
-                    self.collection,
-                    spec,
-                    limit,
-                    skip,
-                    fields=fields,
-                    sort=sort,
-                ),
-                count=count_docs(self.collection, spec),
-                limit=limit,
-            )
-        else:
-            return find_and_count(
-                self.collection, limit, skip, fields=fields, sort=sort
-            )
+        return find_and_count(
+            self.collection, limit, skip, spec=spec, fields=fields, sort=sort
+        )
 
     def _get_query_args(self):
         """Retrieve all the arguments from the query string.
