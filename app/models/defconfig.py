@@ -48,6 +48,7 @@ class DefConfigDocument(BaseDocument):
         self._status = None
         self._build_log = None
         self._metadata = {}
+        self._created = None
 
     @property
     def collection(self):
@@ -156,6 +157,32 @@ class DefConfigDocument(BaseDocument):
         """
         self._metadata = value
 
+    @property
+    def status(self):
+        """The status of this defconfig built."""
+        return self._status
+
+    @status.setter
+    def status(self, value):
+        """Set the status.
+
+        :param value: The status as string.
+        """
+        self._status = value
+
+    @property
+    def created(self):
+        """Creation date of this defconfing build."""
+        return self._created
+
+    @created.setter
+    def created(self, value):
+        """Set the creation date.
+
+        :param value: A datetime object.
+        """
+        self._created = value
+
     def to_dict(self):
         defconf_dict = super(DefConfigDocument, self).to_dict()
         defconf_dict['job_id'] = self._job_id
@@ -167,5 +194,6 @@ class DefConfigDocument(BaseDocument):
         defconf_dict['kernel_conf'] = self._kernel_conf
         defconf_dict['build_log'] = self._build_log
         defconf_dict['status'] = self._status
+        defconf_dict['created'] = self._created
         defconf_dict['metadata'] = self._metadata
         return defconf_dict
