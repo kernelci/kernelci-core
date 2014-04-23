@@ -26,7 +26,11 @@ from utils.log import get_log
 LOG = get_log()
 
 
-def find_one(collection, values, field='_id', operator='$in'):
+def find_one(collection,
+             values,
+             field='_id',
+             operator='$in',
+             fields=None):
     """Search for a specific document.
 
     The `field' value can be specified, and by default is `_id'.
@@ -37,9 +41,11 @@ def find_one(collection, values, field='_id', operator='$in'):
     :param collection: The collection where to search.
     :param values: The values to search. Can be a list of multiple values.
     :param field: The field where the value should be searched. Defaults to
-                  `_id`.
+        `_id`.
     :param oeprator: The operator used to perform the comparison. Defaults to
-                      `$in`.
+        `$in`.
+    :param fields: The fiels that should be available or excluded from the
+        result.
     :return None or the search result.
     """
 
@@ -53,85 +59,69 @@ def find_one(collection, values, field='_id', operator='$in'):
         {
             field: {operator: values}
         },
+        fields=fields,
     )
 
     return result
 
 
-def find(collection, limit, skip):
-    """Find all the documents in a collection.
-
-    :param collection: The collection where to search.
-    :param limit: How many documents to return.
-    :type int
-    :param skip: How many documents to skip from the result.
-    :type int
-    :return A list of documents.
-    """
-    return collection.find(limit=limit, skip=skip)
-
-
-def find_and_count(collection, limit, skip):
-    """Find all the documents in a collection, and return the total count.
-
-    This will execute two operations: a `find` that will retrieve the documents
-    with the specified `limit` and `skip` values, and then a `count` on the
-    collection. It returns the total number of documents in the collection.
-
-    :param collection: The collection where to search.
-    :param limit: How many documents to return.
-    :type int
-    :param skip: How many documents to skip from the result.
-    :type int
-    :return A dictionary with the result of the `find` operation, the total
-        number of documents in the collection, and the `limit` value.
-    """
-    result = dict(
-        result=find(collection, limit, skip),
-        count=count(collection),
-        limit=limit,
-    )
-
-    return result
-
-
-def find_docs(collection, spec, limit, skip, fields=None):
-    """Find documents with the specified values.
+def find(collection, limit, skip, spec=None, fields=None, sort=None):
+    """Find documents in a collection with optional specified values.
 
     The `spec` argument is a dictionary of fields and values that should be
     searched in the collection documents. Only the documents matching will be
-    returned.
+    returned. By default all documents in the collection will be returned.
 
     :param collection: The collection where to search.
-    :param spec: A dictionary object with key-value fields to be matched.
-    :type dict
     :param limit: How many documents to return.
     :type int
     :param skip: How many document to skip from the result.
     :type int
+    :param spec: A dictionary object with key-value fields to be matched.
+    :type dict
     :param fields: The fields that should be returned or excluded from the
-                   result.
+        result.
     :type str, list, dict
+    :param sort: Whose fields the result should be sorted on.
+    :type list
     :return A list of documents matching the specified values.
     """
     return collection.find(
-        spec=spec, limit=limit, skip=skip, fields=fields
+        limit=limit, skip=skip, fields=fields, sort=sort, spec=spec
     )
 
 
-def count_docs(collection, spec):
-    """Count all the documents matching the specified values.
+def find_and_count(collection, limit, skip, spec=None, fields=None, sort=None):
+    """Find all the documents in a collection, and return the total count.
 
-    The `spec` argument is a dictionary of fields and values that should be
-    searched in the collection documents. Only the documents matching will be
-    returned.
+    This will execute two operations: a `find` that will retrieve the documents
+    with the specified `limit` and `skip` values, and then a `count` on the
+    results found.
+
+    If just `limit` and `skip` are passed, the `count` will return the total
+    number of documents in the collection.
 
     :param collection: The collection where to search.
-    :param spec: A dictionary object with key-valu fields to be matched.
+    :param limit: How many documents to return.
+    :type int
+    :param skip: How many document to skip from the result.
+    :type int
+    :param spec: A dictionary object with key-value fields to be matched.
     :type dict
-    :return The number of documents matching the specified values.
+    :param fields: The fields that should be returned or excluded from the
+        result.
+    :type str, list, dict
+    :param sort: Whose fields the result should be sorted on.
+    :type list
+    :return A dictionary with the result of the `find` operation, the total
+        number of documents found, and the `limit` value.
     """
-    return collection.find(spec=spec, fields='_id').count()
+    db_result = collection.find(
+        limit=limit, skip=skip, spec=spec, fields=fields, sort=sort
+    )
+    count = db_result.count()
+
+    return dict(result=db_result, count=count, limit=limit)
 
 
 def count(collection):
@@ -148,8 +138,7 @@ def save(database, documents):
 
     :param database: The database where to save.
     :param documents: The document to save, can be a list or a single document:
-                      the type of each document must be: BaseDocument or a
-                      subclass.
+        the type of each document must be: BaseDocument or a subclass.
     :type list, BaseDocument
     :return 201 if the save has success, 500 in case of an error.
     """
@@ -224,7 +213,7 @@ def delete(collection, spec_or_id):
 
     :param collection: The collection where the documents should be removed.
     :param spec_or_id: The `_id` of the document to remove, or a dictionary
-                       with the ID to remove.
+        with the ID to remove.
     :return 200 if the deletion has success, 500 in case of an error.
     """
     ret_val = 200
