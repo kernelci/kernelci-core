@@ -22,6 +22,7 @@ import types
 
 from bson.json_util import dumps
 from functools import partial
+from pymongo import DESCENDING
 from tornado.web import (
     RequestHandler,
     asynchronous,
@@ -29,14 +30,13 @@ from tornado.web import (
 
 from models import DB_NAME
 from utils.db import (
+    count_docs,
     find_and_count,
+    find_docs,
     find_one,
 )
 from utils.log import get_log
 from utils.validator import is_valid_json
-
-# Default limit for how many results to get back: 0 means all.
-DEFAULT_LIMIT = 0
 
 
 class BaseHandler(RequestHandler):
@@ -256,41 +256,145 @@ class BaseHandler(RequestHandler):
     def get(self, *args, **kwargs):
         if kwargs and kwargs.get('id', None):
             self.executor.submit(
-                partial(find_one, self.collection, kwargs['id'])
+                partial(self._get_one, kwargs['id'])
             ).add_done_callback(
                 lambda future: tornado.ioloop.IOLoop.instance().add_callback(
                     partial(self._create_valid_response, future.result())
                 )
             )
         else:
-            skip = int(self.get_query_argument('skip', default=0))
-            limit = int(
-                self.get_query_argument('limit', default=DEFAULT_LIMIT)
-            )
-
             self.executor.submit(
-                partial(self._get, limit, skip)
+                partial(self._get, **kwargs)
             ).add_done_callback(
                 lambda future:
                 tornado.ioloop.IOLoop.instance().add_callback(
                     partial(self._get_callback, future.result()))
             )
 
-    def _get(self, limit, skip):
+    def _get_one(self, doc_id):
+        """Get just one single document from the collection.
+
+        :return The result from the database.
+        """
+        return find_one(
+            self.collection, doc_id, fields=self._get_query_fields())
+
+    def _get(self, **kwargs):
         """Method called by the real GET one.
 
-        For special uses, sublcasses should override this one and provide their
-        own implementation.
+        For special uses, sublcasses should override this one and provide
+        their own implementation.
 
         By default it executes a search on all the documents in a collection,
-        returnig at max `limit` documents.
+        returnig all the documents found.
 
         It shoul return a dictionary with at least the following fields:
         `result` - that will hold the actual operation result
         `count` - the total number of results available
         `limit` - how many results have been collected
         """
-        return find_and_count(self.collection, limit, skip)
+        skip = int(self.get_query_argument('skip', default=0))
+        limit = int(self.get_query_argument('limit', default=0))
+
+        spec, sort, fields = self._get_query_args()
+
+        if spec:
+            return dict(
+                result=find_docs(
+                    self.collection,
+                    spec,
+                    limit,
+                    skip,
+                    fields=fields,
+                    sort=sort,
+                ),
+                count=count_docs(self.collection, spec),
+                limit=limit,
+            )
+        else:
+            return find_and_count(
+                self.collection, limit, skip, fields=fields, sort=sort
+            )
+
+    def _get_query_args(self):
+        """Retrieve all the arguments from the query string.
+
+        This method will return the `spec`, `sort` and `fields` data structures
+        that can be used to perform MongoDB queries.
+
+        :return A tuple with `spec`, `sort` and `fields` data structures.
+        """
+        spec = self._get_query_spec()
+        sort = self._get_query_sort()
+        fields = self._get_query_fields()
+
+        return (spec, sort, fields)
+
+    def _get_query_spec(self):
+        """Get values from the query string to build a `spec` data structure.
+
+        A `spec` data structure is a dictionary whose keys are the keys
+        accepted by this handler GET method.
+
+        :return A `spec` data structure.
+        """
+        spec = {
+            k: v for k, v in [
+                (key, val)
+                for key in self._valid_keys('GET')
+                for val in self.get_query_arguments(key)
+                if val is not None
+            ]
+        }
+
+        return spec
+
+    def _get_query_sort(self):
+        """Get values from the query string to build a `sort` data structure.
+
+        A `sort` data structure is a list of tuples in a `key-value` fashion.
+        The keys are the values passed as the `sort` argument on the query,
+        they values are based on the `sort_order` argument and defaults to the
+        descending order.
+
+        :return A `spec` data structure.
+        """
+        sort_fields = self.get_query_arguments('sort')
+        sort_order = int(
+            self.get_query_argument('sort_order', default=DESCENDING)
+        )
+
+        # Wrong number for sort order? Force descending.
+        if sort_order != 1 and sort_order != -1:
+            self.log.warn("Wrong sort order used: %d", sort_order)
+            sort_order = DESCENDING
+
+        sort = None
+        if sort_fields:
+            sort = [
+                (field, sort_order)
+                for field in sort_fields
+            ]
+
+        return sort
+
+    def _get_query_fields(self):
+        """Get values from the query string to build a `fields` data structure.
+
+        :return A `fields` data structure.
+        """
+        fields = None
+
+        y_fields = self.get_query_arguments('field')
+        n_fields = self.get_query_arguments('nfield')
+
+        if y_fields and not n_fields:
+            fields = y_fields
+        elif n_fields:
+            fields = dict.fromkeys(y_fields, True)
+            fields.update(dict.fromkeys(n_fields, False))
+
+        return fields
 
     def write_error(self, status_code, **kwargs):
         if kwargs.get('message', None):
