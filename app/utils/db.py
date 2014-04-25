@@ -228,3 +228,76 @@ def delete(collection, spec_or_id):
         ret_val = 500
 
     return ret_val
+
+
+def aggregate(collection, unique, sort=None, fields=None):
+    """Perform an aggregate `group` action on the collection.
+
+    If the `sort` parameter is defined, the `sort` action on the aggregate will
+    be perfromed first.
+
+    If `fields` is not defined, the entire document will be returned. This will
+    return the last document found based on the sort criteria.
+
+    :param unique: The document attribute on which the `group` action should
+        be performed.
+    :param sort: On which attributes the result should be sorted.
+    :param fields: The fields to return.
+    :return A list with the results.
+    """
+
+    def _starts_with_dollar(val):
+        """Check if a value starts with the dollar sign.
+
+        This is necessary since the aggregate function on MongoDB accepts
+        values dollar-escaped.
+        """
+        if val[0] != '$':
+            val = '$' + val
+        return val
+
+    # Where the aggregate actions and values will be stored.
+    pipeline = []
+
+    if sort:
+        pipeline.append({
+            '$sort': {
+                k: v for k, v in sort
+            }
+        })
+
+    group_dict = {
+        '$group': {
+            '_id': _starts_with_dollar(unique)
+        }
+    }
+
+    if fields:
+        fields = [
+            (k, v) for k, v in [
+                (key, val)
+                for key in fields
+                for val in [{'$first': _starts_with_dollar(key)}]
+            ]
+        ]
+    else:
+        fields = [('result', {'$first': '$$CURRENT'})]
+
+    group_dict['$group'].update(fields)
+    pipeline.append(group_dict)
+
+    result = collection.aggregate(pipeline)
+
+    if result and isinstance(result, types.DictionaryType):
+        element = result.get('result', None)
+        if element and isinstance(element, types.ListType):
+            r_element = element[0]
+
+            if r_element.get('result', None):
+                result = [
+                    k['result'] for k in [v for v in element]
+                ]
+            else:
+                result = [k for k in element]
+
+    return dict(result=result)
