@@ -72,3 +72,10 @@ This command will tell the application to parse the directory located at
 
 The content of the `X-XSFR-Header` is not important at the moment. All requests
 without that header will be discarded though.
+
+Manul import of all data
+------------------------
+
+From the 'app/' directory run:
+
+  python -m utils.docimport
