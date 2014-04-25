@@ -27,7 +27,7 @@ From the 'app/' folder, run:
 
 
 The Celery worker
----------------------
+-----------------
 
 To run external tasks, Celery is used. It will start automatically at boot
 time. In the ansible playbook, there is the upstart configuration file to be
@@ -35,6 +35,16 @@ used.
 
 It is possible to pass an external configuration file (key=value) using an
 environment variable: CELERY_CONFIG_MODULE.
+
+To manually run it, from the 'app/' folder, run:
+
+  celery worker --autoscale=10,0 --app=taskqueue --loglevel=INFO
+
+At the moment the Celery worker is based on redis.io: it needs to be installed
+as well to make it work.
+
+There is support for MongoDB as well, but is still experimental and has not been
+tested yet with this application.
 
 
 Basic interactions
