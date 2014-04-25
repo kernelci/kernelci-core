@@ -46,7 +46,7 @@ class JobHandler(BaseHandler):
     def _valid_keys(self, method):
         valid_keys = {
             'POST': ['job', 'kernel'],
-            'GET': ['job', 'kernel', 'status', 'private'],
+            'GET': ['job', 'kernel', 'status', 'private', 'created'],
         }
 
         return valid_keys.get(method, None)

@@ -22,7 +22,10 @@ import types
 
 from bson.json_util import dumps
 from functools import partial
-from pymongo import DESCENDING
+from pymongo import (
+    ASCENDING,
+    DESCENDING,
+)
 from tornado.web import (
     RequestHandler,
     asynchronous,
@@ -30,6 +33,7 @@ from tornado.web import (
 
 from models import DB_NAME
 from utils.db import (
+    aggregate,
     find_and_count,
     find_one,
 )
@@ -287,7 +291,7 @@ class BaseHandler(RequestHandler):
         By default it executes a search on all the documents in a collection,
         returnig all the documents found.
 
-        It shoul return a dictionary with at least the following fields:
+        It should return a dictionary with at least the following fields:
         `result` - that will hold the actual operation result
         `count` - the total number of results available
         `limit` - how many results have been collected
@@ -297,9 +301,19 @@ class BaseHandler(RequestHandler):
 
         spec, sort, fields = self._get_query_args()
 
-        return find_and_count(
-            self.collection, limit, skip, spec=spec, fields=fields, sort=sort
-        )
+        unique = self.get_query_argument('aggregate', default=None)
+        if unique:
+            self.log.info("Performing aggregation on %s", unique)
+            return aggregate(self.collection, unique, sort=sort, fields=fields)
+        else:
+            return find_and_count(
+                self.collection,
+                limit,
+                skip,
+                spec=spec,
+                fields=fields,
+                sort=sort
+            )
 
     def _get_query_args(self):
         """Retrieve all the arguments from the query string.
@@ -350,7 +364,7 @@ class BaseHandler(RequestHandler):
         )
 
         # Wrong number for sort order? Force descending.
-        if sort_order != 1 and sort_order != -1:
+        if sort_order != ASCENDING and sort_order != DESCENDING:
             self.log.warn("Wrong sort order used: %d", sort_order)
             sort_order = DESCENDING
 

@@ -103,7 +103,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         collection.find_one = MagicMock()
         collection.find_one.return_value = []
 
-        expected_body = '{"message": "[]", "code": 200}'
+        expected_body = '{"code": 200, "result": "[]"}'
 
         response = self.fetch('/api/job/job-kernel')
 
