@@ -62,3 +62,8 @@ class BaseDocument(object):
         :return A JSON string.
         """
         return json.dumps(self.to_dict(), default=json_util.default)
+
+    @staticmethod
+    def from_json(json_obj):
+        """Build a document from a JSON object."""
+        raise NotImplementedError()
