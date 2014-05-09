@@ -51,6 +51,7 @@ class BaseHandler(RequestHandler):
 
     @property
     def executor(self):
+        """The executor where async function should be run."""
         return self.settings['executor']
 
     @property
@@ -65,6 +66,7 @@ class BaseHandler(RequestHandler):
 
     @property
     def log(self):
+        """The logger of this object."""
         return get_log()
 
     def _valid_keys(self, method):
@@ -81,8 +83,7 @@ class BaseHandler(RequestHandler):
 
         :param status_code: The status code to get the message of.
         :type int
-        :return The error message string, or None if the code does not have
-                a custom message.
+        :return The error message string.
         """
         status_messages = {
             404: 'Resource not found',
@@ -117,7 +118,7 @@ class BaseHandler(RequestHandler):
 
         :param response: The response we have from a query to the database.
         :return A (int, str) tuple composed of the status code, and the
-                message.
+            message.
         """
         if isinstance(response, (types.DictionaryType, types.ListType)):
             status, message = 200, dumps(response)
@@ -135,7 +136,6 @@ class BaseHandler(RequestHandler):
     def _get_callback(self, result):
         """Callback used for GET operations.
 
-        :param limit: The number of elements returned.
         :param result: The result from the future instance. A dictionary with
             at least the `result` key.
         """
