@@ -53,6 +53,7 @@ class BootDocument(BaseDocument):
 
     @property
     def job(self):
+        """The job this boot document belongs to."""
         return self._job
 
     @job.setter
@@ -61,6 +62,7 @@ class BootDocument(BaseDocument):
 
     @property
     def kernel(self):
+        """The kernel this boot document belongs to."""
         return self._kernel
 
     @kernel.setter
@@ -69,6 +71,7 @@ class BootDocument(BaseDocument):
 
     @property
     def defconfig(self):
+        """The defconfig of this boot document."""
         return self._defconfig
 
     @defconfig.setter
@@ -86,6 +89,15 @@ class BootDocument(BaseDocument):
 
     @property
     def boards(self):
+        """The list of boards that have been boot-tested.
+
+        Each board is a dictionary object with the following keys:
+         * board: the name of the board
+         * time: the time taken to boot the board, measured as the time elapsed
+            after the epoch time (1970-01-01 00:00:00)
+         * status: the status of the boot test
+         * warnings: the number of warnings
+        """
         return self._boards
 
     @boards.setter

@@ -24,6 +24,7 @@ def test_modules():
         'handlers.tests.test_job_handler',
         'handlers.tests.test_subscription_handler',
         'models.tests.test_models',
+        'models.tests.test_boot_model',
         'utils.tests.test_bootimport',
         'utils.tests.test_docimport',
         'utils.tests.test_subscribe',
