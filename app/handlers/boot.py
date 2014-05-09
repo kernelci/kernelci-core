@@ -17,6 +17,27 @@
 
 from handlers.base import BaseHandler
 
+from models.boot import BOOT_COLLECTION
+from taskqueue.tasks import import_boot
+
 
 class BootHandler(BaseHandler):
     """Handle the /boot URLs."""
+
+    def __init__(self, application, request, **kwargs):
+        super(BootHandler, self).__init__(application, request, **kwargs)
+
+    @property
+    def collection(self):
+        return self.db[BOOT_COLLECTION]
+
+    def _valid_keys(self, method):
+        valid_keys = {
+            'POST': ['job', 'kernel'],
+        }
+
+        return valid_keys.get(method, None)
+
+    def _post(self, json_obj):
+        import_boot.apply_async([json_obj])
+        self._create_valid_response(200)

@@ -18,9 +18,10 @@
 from tornado.web import url
 
 from handlers import (
+    BootHandler,
     DefConfHandler,
     JobHandler,
-    SubscriptionHandler
+    SubscriptionHandler,
 )
 
 _JOB_URL = url(r'/api/job(?P<sl>/)?(?P<id>.*)', JobHandler, name='job')
@@ -32,8 +33,10 @@ _SUBSCRIPTION_URL = url(
     SubscriptionHandler,
     name='subscription',
 )
+_BOOT_URL = url(r'/api/boot(?P<sl>/)?(?P<id>.*)', BootHandler, name='boot')
 
 APP_URLS = [
+    _BOOT_URL,
     _DEFCONF_URL,
     _JOB_URL,
     _SUBSCRIPTION_URL,

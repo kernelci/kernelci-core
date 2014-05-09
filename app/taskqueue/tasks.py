@@ -16,8 +16,9 @@
 """Tasks that should be run via Celery."""
 
 from taskqueue.celery import app
+from utils.bootimport import import_and_save_boot
+from utils.docimport import import_and_save_job
 from utils.subscription import send
-from utils.docimport import import_and_save
 
 
 @app.task(name='send-emails')
@@ -38,6 +39,18 @@ def import_job(json_obj):
     This is used to provide a Celery-task access to the import function.
 
     :param json_obj: The JSON object with the values necessary to import the
-                     job.
+        job.
     """
-    return import_and_save(json_obj)
+    return import_and_save_job(json_obj)
+
+
+@app.task(name='import-boot')
+def import_boot(json_obj):
+    """Just a wrapper around the real boot import function.
+
+    This is used to provide a Celery-task access to the import function.
+
+    :param json_obj: The JSON object with the values necessary to import the
+        boot report.
+    """
+    import_and_save_boot(json_obj)
