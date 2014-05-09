@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""Container for all the boot import related functions."""
+
 import glob
 import os
 import pymongo
@@ -32,8 +34,9 @@ from utils import (
 )
 from utils.db import save
 
+BOOT_REPORT_SUFFIX = '-boot-report.log'
 # Pattern used for glob matching files on the filesystem.
-BOOT_REPORT_PATTERN = '*-boot-report.log'
+BOOT_REPORT_PATTERN = '*' + BOOT_REPORT_SUFFIX
 
 RE_TREE_BRANCH = re.compile(r'^Tree/Branch')
 RE_GIT_DESCRIBE = re.compile(r'^Git\s{1}describe')
@@ -41,18 +44,74 @@ RE_REPORT_SECTION = re.compile(r'^Full\s{1}Report')
 RE_DECFONFIG_SECTION = re.compile(r'.*_defconfig$')
 
 
+def import_and_save_boot(json_obj, base_path=BASE_PATH):
+    """Wrapper function to be used as an external task.
+
+    This function should only be called by Celery or other task managers.
+    Import and save the boot report as found from the parameters in the
+    provided JSON object.
+
+    :param json_obj: The JSON object with the values that identify the boot
+        report log.
+    :param base_path: The base path where to start looking for the boot log
+        file. It defaults to: /var/www/images/kernel-ci.
+    """
+    database = pymongo.MongoClient()[DB_NAME]
+
+    docs = parse_boot_from_json(json_obj, base_path)
+
+    if docs:
+        try:
+            save(database, docs)
+        finally:
+            database.connection.disconnect()
+    else:
+        LOG.info("No boot log imported")
+
+
+def parse_boot_from_json(json_obj, base_path=BASE_PATH):
+    """Parse boot log file from a JSON object.
+
+    The provided JSON object, a dict-like object, should contain at least the
+    `job` and `kernel` keys.
+
+    :param json_obj: A dict-like object that should contain the keys `job` and
+    :param base_path: The base path where to start looking for the boot log
+        file. It defaults to: /var/www/images/kernel-ci.
+    :return A list with all the `BootDocument`s.
+    """
+    docs = []
+
+    job_dir = json_obj['job']
+    kernel_dir = json_obj['kernel']
+
+    boot_log_name = kernel_dir + BOOT_REPORT_SUFFIX
+    boot_log = os.path.join(base_path, job_dir, boot_log_name)
+
+    if os.path.isfile(boot_log):
+        LOG.info("Parsing boot log for %s - %s", job_dir, kernel_dir)
+        docs.extend(_parse_boot_log(boot_log))
+    else:
+        LOG.warn(
+            "Cannot parse boot log for %s - %s: boot report file does "
+            "not exists", job_dir, kernel_dir,
+        )
+
+    return docs
+
+
 def _parse_boot_log(boot_log):
     """Parse a boot log file.
 
     The structure of the file makes so that this function will return a list
     of documents, one for each defconfig found in the boot log file. Each
-    document will then contain a list of all the boards.
+    document will then contain a list with all the boards.
 
     :param boot_log: Path to the boot log file. No checks are performed on it.
     :return A list of boot documents.
     """
 
-    LOG.info("Importing boot log %s", boot_log)
+    LOG.info("Parsing boot log %s", boot_log)
 
     created = datetime.fromtimestamp(
         os.stat(boot_log).st_mtime, tz=tz_util.utc
@@ -79,8 +138,8 @@ def _parse_boot_log(boot_log):
                     kernel = line.split(':')[1].strip()
                 elif RE_REPORT_SECTION.match(line):
                     report_section = True
-            else:
-                if line and report_section and not defconf_section:
+            elif report_section:
+                if line and not defconf_section:
                     if RE_DECFONFIG_SECTION.match(line):
                         defconfig = line.strip()
                         defconf_section = True
@@ -94,7 +153,8 @@ def _parse_boot_log(boot_log):
                         )
                         boot_doc = BootDocument(doc_id, job, kernel, defconfig)
                         boot_doc.created = created
-                elif line and report_section and defconf_section:
+                        boot_docs.append(boot_doc)
+                elif line and defconf_section:
                     if line.startswith('-'):
                         continue
                     else:
@@ -105,9 +165,8 @@ def _parse_boot_log(boot_log):
                             status=status,
                             warnings=warnings
                         )
-                elif not line and report_section and defconf_section:
+                elif not line and defconf_section:
                     # Done parsing the report section for this defconfig.
-                    boot_docs.append(boot_doc)
                     defconf_section = False
 
     return boot_docs
@@ -131,6 +190,7 @@ def _parse_board_line(line):
     time_d = timedelta(
         minutes=float(values[0]), seconds=float(values[2]))
 
+    # Boot duration is calculated as time after 1970-1-1 00:00:00.
     time = datetime(
         1970, 1, 1,
         minute=time_d.seconds / 60,
@@ -147,7 +207,7 @@ def _parse_board_line(line):
     return (board, time, status, warnings)
 
 
-def _import_all(database, base_path=BASE_PATH):
+def _import_all(base_path=BASE_PATH):
     """Handy function to import all boot logs."""
     boot_docs = []
 
@@ -164,6 +224,7 @@ def _import_all(database, base_path=BASE_PATH):
             )
 
     return boot_docs
+
 
 if __name__ == '__main__':
     connection = pymongo.MongoClient()
