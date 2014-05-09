@@ -1,0 +1,9 @@
+Tree/Branch: next
+Git describe: next-20140505
+Full Report
+===========
+
+arm-davinci_all_defconfig
+-------------------------
+             legacy,dm365evm     0 min 17.7 sec:     PASS  (Warnings: 1)
+                   da850-evm     0 min 15.8 sec:     PASS
