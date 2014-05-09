@@ -41,18 +41,17 @@ from models.job import (
     JOB_COLLECTION,
     JobDocument,
 )
+from utils import (
+    BASE_PATH,
+    LOG,
+)
 from utils.db import (
     find_one,
     save,
 )
-from utils.log import get_log
 
 
-BASE_PATH = '/var/www/images/kernel-ci'
-LOG = get_log()
-
-
-def import_and_save(json_obj, base_path=BASE_PATH):
+def import_and_save_job(json_obj, base_path=BASE_PATH):
     """Wrapper function to be used as an external task.
 
     This function should only be called by Celery or other task managers.
@@ -63,14 +62,17 @@ def import_and_save(json_obj, base_path=BASE_PATH):
     database = pymongo.MongoClient()[DB_NAME]
     docs, job_id = import_job_from_json(json_obj, database, base_path)
 
-    LOG.info(
-        "Importing %d documents with job ID: %s", len(docs), job_id
-    )
+    if docs:
+        LOG.info(
+            "Importing %d documents with job ID: %s", len(docs), job_id
+        )
 
-    try:
-        save(database, docs)
-    finally:
-        database.connection.disconnect()
+        try:
+            save(database, docs)
+        finally:
+            database.connection.disconnect()
+    else:
+        LOG.info("No jobs to save")
 
     return job_id
 
@@ -84,9 +86,9 @@ def import_job_from_json(json_obj, database, base_path=BASE_PATH):
     location).
 
     :param json_obj: A dict-like object, that should contain the keys `job` and
-                     `kernel`.
+        `kernel`.
     :param base_path: The base path where to start constructing the traverse
-                      directory. It defaults to: /var/www/images/kernel-ci.
+        directory. It defaults to: /var/www/images/kernel-ci.
     :return The documents to be saved, and the job document ID.
     """
     job_dir = json_obj['job']
@@ -246,7 +248,7 @@ def _import_all(database, base_path=BASE_PATH):
 
     Do not use it elsewhere.
     :param base_path: Where to start traversing directories. Defaults to:
-                      /var/www/images/kernel-ci.
+        /var/www/images/kernel-ci.
     :return The docs to save. All docs are subclasses of `BaseDocument`.
     """
 
