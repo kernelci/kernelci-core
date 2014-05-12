@@ -42,6 +42,9 @@ RE_TREE_BRANCH = re.compile(r'^Tree/Branch')
 RE_GIT_DESCRIBE = re.compile(r'^Git\s{1}describe')
 RE_REPORT_SECTION = re.compile(r'^Full\s{1}Report')
 RE_DECFONFIG_SECTION = re.compile(r'.*_defconfig$')
+RE_FAILED_BOOT_SECTION = re.compile(r'^Failed\s{1}boot\s{1}tests')
+RE_CONSOLE_LOG_SECTION = re.compile(r'^Console\s{1}logs\s{1}for\s{1}failures')
+RE_FAILED_LOG_SECTION = re.compile(r'(.*):\s{1}FAIL:')
 
 
 def import_and_save_boot(json_obj, base_path=BASE_PATH):
@@ -117,57 +120,124 @@ def _parse_boot_log(boot_log):
         os.stat(boot_log).st_mtime, tz=tz_util.utc
     )
 
+    # Necessary to define a BootDocument.
     job = None
     kernel = None
     defconfig = None
 
+    # Sections inside the boot reporting file.
     report_section = False
     defconf_section = False
+    console_log_section = False
+    failed_log_section = False
 
+    # Where we store each boot_doc, the result of this function call.
     boot_docs = []
     boot_doc = None
+
+    # Store the log lines in a list.
+    failed_log_lines = []
+    # Data structure to holde the failed logs identified via defconfig and
+    # board name.
+    failed_logs = {}
+
+    # Need to scope these outside here to handle case when we reach EOF.
+    failed_board = None
+    failed_defconfig = None
+    log_lines = 0
 
     with open(boot_log) as read_boot:
         for line in read_boot:
             line = line.strip()
 
-            if line and not report_section:
+            if line:
                 if RE_TREE_BRANCH.match(line):
                     job = line.split(':')[1].strip()
                 elif RE_GIT_DESCRIBE.match(line):
                     kernel = line.split(':')[1].strip()
                 elif RE_REPORT_SECTION.match(line):
                     report_section = True
-            elif report_section:
-                if line and not defconf_section:
-                    if RE_DECFONFIG_SECTION.match(line):
-                        defconfig = line.strip()
-                        defconf_section = True
+                elif RE_CONSOLE_LOG_SECTION.match(line):
+                    LOG.info("Parsing failure log output section")
+                    console_log_section = True
+                    report_section = False
+                    defconf_section = False
 
-                        doc_id = BootDocument.ID_FORMAT % (
-                            {
-                                'job': job,
-                                'kernel': kernel,
-                                'defconfig': defconfig
-                            }
-                        )
-                        boot_doc = BootDocument(doc_id, job, kernel, defconfig)
-                        boot_doc.created = created
-                        boot_docs.append(boot_doc)
-                elif line and defconf_section:
-                    if line.startswith('-'):
-                        continue
-                    else:
+            if line.startswith('-') or line.startswith('='):
+                continue
+
+            if report_section:
+                if line:
+                    if not defconf_section:
+                        if RE_DECFONFIG_SECTION.match(line):
+                            defconfig = line.strip()
+                            defconf_section = True
+
+                            doc_id = BootDocument.ID_FORMAT % (
+                                {
+                                    'job': job,
+                                    'kernel': kernel,
+                                    'defconfig': defconfig
+                                }
+                            )
+                            boot_doc = BootDocument(
+                                doc_id, job, kernel, defconfig
+                            )
+                            boot_doc.created = created
+                            boot_docs.append(boot_doc)
+                    elif line and defconf_section:
                         board, time, status, warnings = _parse_board_line(line)
-                        boot_doc.boards = dict(
+                        board_d = dict(
                             board=board,
                             time=time,
                             status=status,
                             warnings=warnings
                         )
+                        boot_doc.boards = board_d
                 elif not line and defconf_section:
                     # Done parsing the report section for this defconfig.
                     defconf_section = False
+            elif console_log_section:
+                if line:
+                    if RE_DECFONFIG_SECTION.match(line):
+                        failed_defconfig = line.strip()
+                        failed_logs[failed_defconfig] = {}
+                    elif not failed_log_section:
+                        if RE_FAILED_LOG_SECTION.match(line):
+                            failed_board = line.split()[0].strip(':')
+
+                            failed_log_section = True
+                            failed_log_lines = []
+                            log_lines = 0
+                    elif failed_log_section:
+                        log_lines += 1
+                        failed_log_lines.append(line)
+                elif (not line and failed_log_section and log_lines > 0):
+                    # Hard reset everything once done parsing the failed boot
+                    # log section.
+                    failed_log_section = False
+                    failed_board = None
+                    failed_log_lines = []
+                    log_lines = 0
+
+                    failed_logs[failed_defconfig][failed_board] = \
+                        failed_log_lines
+        else:
+            # Failed logs are at the end of the file, if we get there and there
+            # are no more lines at the end of the file, the last parsed failed
+            # log needs to be stored or it's lost.
+            if console_log_section and failed_log_section and log_lines > 0:
+                failed_logs[failed_defconfig][failed_board] = failed_log_lines
+
+            for doc in boot_docs:
+                for failed_defconf in failed_logs.keys():
+                    if doc.defconfig == failed_defconf:
+                        for board in doc.boards:
+                            if (board['board'] in
+                                    failed_logs[failed_defconf].keys()):
+                                board['log'] = \
+                                    failed_logs[failed_defconf][board['board']]
+                        break
 
     return boot_docs
 

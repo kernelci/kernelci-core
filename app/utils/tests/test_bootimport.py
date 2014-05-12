@@ -42,6 +42,8 @@ class TestParseBoot(unittest.TestCase):
             self.sample_dir, 'sample_boot_simple.log')
         self.complex_boot_log = os.path.join(
             self.sample_dir, 'sample_boot_complex.log')
+        self.fail_boot_log = os.path.join(
+            self.sample_dir, 'sample_boot_with_fail.log')
 
     def tearDown(self):
         logging.disable(logging.NOTSET)
@@ -83,3 +85,18 @@ class TestParseBoot(unittest.TestCase):
         docs = _parse_boot_log(self.complex_boot_log)
 
         self.assertEqual(len(docs), 11)
+
+    def test_import_parse_failed(self):
+        docs = _parse_boot_log(self.fail_boot_log)
+
+        self.assertEqual(len(docs), 1)
+        self.assertEqual(len(docs[0].boards), 20)
+
+        # self.assertEqual(docs[0].boards[18]['status'], 'FAIL')
+        # self.assertEqual(len(docs[0].boards[18]['log']), 80)
+        # self.assertIsInstance(docs[0].boards[18]['log'], types.ListType)
+
+        # print docs[0].boards[16]['board']
+        self.assertEqual(docs[0].boards[16]['status'], 'FAIL')
+        self.assertEqual(len(docs[0].boards[16]['log']), 80)
+        self.assertIsInstance(docs[0].boards[16]['log'], types.ListType)
