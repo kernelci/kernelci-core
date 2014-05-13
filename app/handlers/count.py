@@ -82,3 +82,13 @@ class CountHandler(BaseHandler):
             )
 
         return result
+
+    @asynchronous
+    def post(self, *args, **kwargs):
+        """Not implemented."""
+        self.write_error(status_code=501)
+
+    @asynchronous
+    def delete(self, *args, **kwargs):
+        """Not implemented."""
+        self.write_error(status_code=501)
