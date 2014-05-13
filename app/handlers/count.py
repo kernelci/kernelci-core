@@ -26,7 +26,6 @@ from handlers.base import BaseHandler
 from models.boot import BOOT_COLLECTION
 from models.defconfig import DEFCONFIG_COLLECTION
 from models.job import JOB_COLLECTION
-from models.subscription import SUBSCRIPTION_COLLECTION
 from utils.db import count
 
 # All the available collections as key-value. The key is the same used for the
@@ -35,7 +34,6 @@ COLLECTIONS = {
     'boot': BOOT_COLLECTION,
     'defconfig': DEFCONFIG_COLLECTION,
     'job': JOB_COLLECTION,
-    'subscription': SUBSCRIPTION_COLLECTION,
 }
 
 
@@ -44,6 +42,17 @@ class CountHandler(BaseHandler):
 
     def __init__(self, application, request, **kwargs):
         super(CountHandler, self).__init__(application, request, **kwargs)
+
+    def _valid_keys(self, method):
+        valid_keys = {
+            # This is a set of all the valid fields in the available models.
+            'GET': [
+                'job', 'kernel', 'status', 'private', 'created',
+                'defconfig', 'board', 'time', 'warnings',
+            ],
+        }
+
+        return valid_keys.get(method, None)
 
     @asynchronous
     def get(self, *args, **kwargs):
