@@ -172,28 +172,17 @@ def _parse_boot_log(boot_log):
                         if RE_DECFONFIG_SECTION.match(line):
                             defconfig = line.strip()
                             defconf_section = True
-
-                            doc_id = BootDocument.ID_FORMAT % (
-                                {
-                                    'job': job,
-                                    'kernel': kernel,
-                                    'defconfig': defconfig
-                                }
-                            )
-                            boot_doc = BootDocument(
-                                doc_id, job, kernel, defconfig
-                            )
-                            boot_doc.created = created
-                            boot_docs.append(boot_doc)
                     elif line and defconf_section:
                         board, time, status, warnings = _parse_board_line(line)
-                        board_d = dict(
-                            board=board,
-                            time=time,
-                            status=status,
-                            warnings=warnings
+                        boot_doc = BootDocument(
+                            board, job, kernel, defconfig
                         )
-                        boot_doc.boards = board_d
+                        boot_doc.created = created
+                        boot_doc.time = time
+                        boot_doc.status = status
+                        boot_doc.warnings = warnings
+
+                        boot_docs.append(boot_doc)
                 elif not line and defconf_section:
                     # Done parsing the report section for this defconfig.
                     defconf_section = False
@@ -230,14 +219,10 @@ def _parse_boot_log(boot_log):
                 failed_logs[failed_defconfig][failed_board] = failed_log_lines
 
             for doc in boot_docs:
-                for failed_defconf in failed_logs.keys():
-                    if doc.defconfig == failed_defconf:
-                        for board in doc.boards:
-                            if (board['board'] in
-                                    failed_logs[failed_defconf].keys()):
-                                board['log'] = \
-                                    failed_logs[failed_defconf][board['board']]
-                        break
+                for failed_defconf, failed_board in failed_logs.iteritems():
+                    if (doc.defconfig == failed_defconf and
+                            doc.board in failed_board.keys()):
+                        doc.fail_log = failed_board[doc.board]
 
     return boot_docs
 
@@ -301,7 +286,6 @@ if __name__ == '__main__':
     database = connection[DB_NAME]
 
     all_docs = _import_all(database)
-    for docs in all_docs:
-        save(database, docs)
+    save(database, all_docs)
 
     connection.disconnect()

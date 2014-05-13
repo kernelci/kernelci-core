@@ -13,7 +13,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import types
 import unittest
 
 from models.base import BaseDocument
@@ -23,43 +22,36 @@ from models.boot import BootDocument
 class TestBootModel(unittest.TestCase):
 
     def test_boot_document_valid_instance(self):
-        boot_doc = BootDocument('boot')
+        boot_doc = BootDocument('board', 'job', 'kernel', 'defconfig')
         self.assertIsInstance(boot_doc, BaseDocument)
 
     def test_boot_document_to_dict(self):
-        boot_doc = BootDocument('boot')
+        boot_doc = BootDocument('board', 'job', 'kernel', 'defconfig')
 
         expected = {
-            'kernel': None,
-            'boards': [],
+            'status': None,
+            'time': None,
+            'warnings': None,
+            'kernel': 'kernel',
+            'job_id': 'job-kernel',
             'created': None,
-            'defconfig': None,
-            'job': None,
-            '_id': 'boot',
+            'fail_log': [],
+            'defconfig': 'defconfig',
+            'job': 'job',
+            '_id': 'board-job-kernel-defconfig',
+            'board': 'board',
         }
 
         self.assertEqual(expected, boot_doc.to_dict())
 
     def test_boot_document_to_json(self):
-        boot_doc = BootDocument('boot')
+        boot_doc = BootDocument('board', 'job', 'kernel', 'defconfig')
 
         expected = (
-            '{"kernel": null, "boards": [], "created": null, '
-            '"defconfig": null, "job": null, "_id": "boot"}'
+            '{"status": null, "kernel": "kernel", "job_id": "job-kernel", '
+            '"created": null, "fail_log": [], "defconfig": "defconfig", '
+            '"job": "job", "board": "board", "warnings": null, "time": null, '
+            '"_id": "board-job-kernel-defconfig"}'
         )
 
         self.assertEqual(expected, boot_doc.to_json())
-
-    def test_boot_document_boards(self):
-        boot_doc = BootDocument('boot')
-        boot_doc.boards = dict(board='board')
-
-        self.assertIsInstance(boot_doc.boards, types.ListType)
-
-    def test_boot_document_boards_with_list(self):
-        boot_doc = BootDocument('boot')
-        boot_doc.boards = dict(board='board')
-        boot_doc.boards = [dict(board='board1')]
-
-        self.assertIsInstance(boot_doc.boards, types.ListType)
-        self.assertEqual(len(boot_doc.boards), 2)

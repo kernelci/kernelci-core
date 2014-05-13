@@ -15,10 +15,8 @@
 
 """The model that represents a boot document in the mongodb collection."""
 
-import types
-
 from models.base import BaseDocument
-from utils import LOG
+from models.job import JobDocument
 
 BOOT_COLLECTION = 'boot'
 
@@ -37,47 +35,53 @@ class BootDocument(BaseDocument):
     log - optinal log for failed boot, stored as a list of strings
     """
 
-    ID_FORMAT = 'boot-%(job)s-%(kernel)s-%(defconfig)s'
+    ID_FORMAT = '%(board)s-%(job)s-%(kernel)s-%(defconfig)s'
 
-    def __init__(self, name, job=None, kernel=None, defconfig=None):
-        super(BootDocument, self).__init__(name)
+    def __init__(self, board, job, kernel, defconfig):
+        super(BootDocument, self).__init__(
+            self.ID_FORMAT % {
+                'board': board,
+                'job': job,
+                'kernel': kernel,
+                'defconfig': defconfig,
+            }
+        )
 
+        self._job_id = JobDocument.ID_FORMAT % {'job': job, 'kernel': kernel}
+
+        self._board = board
         self._job = job
         self._kernel = kernel
         self._defconfig = defconfig
         self._created = None
-        self._boards = []
+        self._time = None
+        self._status = None
+        self._warnings = None
+        self._fail_log = []
 
     @property
     def collection(self):
         return BOOT_COLLECTION
 
     @property
+    def board(self):
+        """The board of this document."""
+        return self._board
+
+    @property
     def job(self):
         """The job this boot document belongs to."""
         return self._job
-
-    @job.setter
-    def job(self, value):
-        self._job = value
 
     @property
     def kernel(self):
         """The kernel this boot document belongs to."""
         return self._kernel
 
-    @kernel.setter
-    def kernel(self, value):
-        self._kernel = value
-
     @property
     def defconfig(self):
         """The defconfig of this boot document."""
         return self._defconfig
-
-    @defconfig.setter
-    def defconfig(self, value):
-        self._defconfig = value
 
     @property
     def created(self):
@@ -89,36 +93,62 @@ class BootDocument(BaseDocument):
         self._created = value
 
     @property
-    def boards(self):
-        """The list of boards that have been boot-tested.
+    def status(self):
+        """The boot status of this document."""
+        return self._status
 
-        Each board is a dictionary object with the following keys:
-         * board: the name of the board
-         * time: the time taken to boot the board, measured as the time elapsed
-            after the epoch time (1970-01-01 00:00:00)
-         * status: the status of the boot test
-         * warnings: the number of warnings
+    @status.setter
+    def status(self, value):
+        self._status = value
+
+    @property
+    def fail_log(self):
+        """The log of this board in case it failed to boot.
+
+        It is stored as a list of strings.
         """
-        return self._boards
+        return self._fail_log
 
-    @boards.setter
-    def boards(self, value):
-        if not isinstance(value, types.ListType):
-            if isinstance(value, types.DictionaryType):
-                self._boards.append(value)
-            else:
-                LOG.error(
-                    "Stored boards need to be of type Dictionary, got %s",
-                    type(value)
-                )
-        elif isinstance(value, types.ListType):
-            self._boards.extend(value)
+    @fail_log.setter
+    def fail_log(self, value):
+        self._fail_log = value
+
+    @property
+    def time(self):
+        """The time it took this board to boot.
+
+        Represented as the time passed after the epoch time.
+        """
+        return self._time
+
+    @time.setter
+    def time(self, value):
+        self._time = value
+
+    @property
+    def warnings(self):
+        """The number of warnings associated with this board."""
+        return self._warnings
+
+    @warnings.setter
+    def warnings(self, value):
+        self._warnings = value
+
+    @property
+    def job_id(self):
+        """The ID of the Job document associated with this boot."""
+        return self._job_id
 
     def to_dict(self):
         boot_dict = super(BootDocument, self).to_dict()
+        boot_dict['board'] = self._board
         boot_dict['created'] = self._created
+        boot_dict['time'] = self._time
         boot_dict['job'] = self._job
         boot_dict['kernel'] = self._kernel
         boot_dict['defconfig'] = self._defconfig
-        boot_dict['boards'] = self._boards
+        boot_dict['status'] = self._status
+        boot_dict['fail_log'] = self._fail_log
+        boot_dict['warnings'] = self._warnings
+        boot_dict['job_id'] = self._job_id
         return boot_dict

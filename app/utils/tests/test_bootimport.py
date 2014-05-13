@@ -51,24 +51,21 @@ class TestParseBoot(unittest.TestCase):
     def test_import_parse_simple(self):
         docs = _parse_boot_log(self.simple_boot_log)
 
-        self.assertEqual(len(docs), 1)
+        self.assertEqual(len(docs), 2)
         self.assertIsInstance(docs[0], BootDocument)
 
         self.assertEqual(
-            docs[0].name, 'boot-next-next-20140505-arm-davinci_all_defconfig')
+            docs[0].name,
+            'legacy,dm365evm-next-next-20140505-arm-davinci_all_defconfig'
+        )
 
-        self.assertIsInstance(docs[0].boards, types.ListType)
-        self.assertEqual(len(docs[0].boards), 2)
-
+        self.assertEqual(docs[0].board, 'legacy,dm365evm')
         self.assertEqual(docs[0].job, 'next')
         self.assertEqual(docs[0].kernel, 'next-20140505')
         self.assertEqual(docs[0].defconfig, 'arm-davinci_all_defconfig')
+
         self.assertIsInstance(docs[0].created, datetime)
-
-        self.assertIsInstance(docs[0].boards[0], types.DictionaryType)
-        self.assertEqual(docs[0].boards[0]['board'], 'legacy,dm365evm')
-
-        self.assertIsInstance(docs[0].boards[0]['time'], datetime)
+        self.assertIsInstance(docs[0].time, datetime)
 
         time_d = timedelta(minutes=0, seconds=17.7)
         time = datetime(
@@ -78,24 +75,23 @@ class TestParseBoot(unittest.TestCase):
             microsecond=time_d.microseconds
         )
 
-        self.assertEqual(docs[0].boards[0]['time'], time)
-        self.assertEqual(docs[0].boards[0]['warnings'], '1')
+        self.assertEqual(docs[0].time, time)
+        self.assertEqual(docs[0].warnings, '1')
 
     def test_import_parse_complex(self):
         docs = _parse_boot_log(self.complex_boot_log)
 
-        self.assertEqual(len(docs), 11)
+        self.assertEqual(len(docs), 49)
 
     def test_import_parse_failed(self):
         docs = _parse_boot_log(self.fail_boot_log)
 
-        self.assertEqual(len(docs), 1)
-        self.assertEqual(len(docs[0].boards), 20)
+        self.assertEqual(len(docs), 20)
 
-        self.assertEqual(docs[0].boards[18]['status'], 'FAIL')
-        self.assertEqual(len(docs[0].boards[18]['log']), 80)
-        self.assertIsInstance(docs[0].boards[18]['log'], types.ListType)
+        self.assertEqual(docs[18].status, 'FAIL')
+        self.assertIsInstance(docs[18].fail_log, types.ListType)
+        self.assertEqual(len(docs[18].fail_log), 80)
 
-        self.assertEqual(docs[0].boards[16]['status'], 'FAIL')
-        self.assertEqual(len(docs[0].boards[16]['log']), 80)
-        self.assertIsInstance(docs[0].boards[16]['log'], types.ListType)
+        self.assertEqual(docs[16].status, 'FAIL')
+        self.assertIsInstance(docs[16].fail_log, types.ListType)
+        self.assertEqual(len(docs[16].fail_log), 80)
