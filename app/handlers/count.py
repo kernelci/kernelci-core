@@ -26,7 +26,10 @@ from handlers.base import BaseHandler
 from models.boot import BOOT_COLLECTION
 from models.defconfig import DEFCONFIG_COLLECTION
 from models.job import JOB_COLLECTION
-from utils.db import count
+from utils.db import (
+    count,
+    find_and_count,
+)
 
 # All the available collections as key-value. The key is the same used for the
 # URL configuration.
@@ -42,6 +45,11 @@ class CountHandler(BaseHandler):
 
     def __init__(self, application, request, **kwargs):
         super(CountHandler, self).__init__(application, request, **kwargs)
+
+        # Internally used only. It is used to retrieve just one field for
+        # the query results since we only need to count the results, we are
+        # not interested in the values.
+        self._fields = {'_id': True}
 
     def _valid_keys(self, method):
         valid_keys = {
@@ -64,7 +72,7 @@ class CountHandler(BaseHandler):
                     lambda future:
                     tornado.ioloop.IOLoop.instance().add_callback(
                         partial(
-                            self._create_valid_response, future.result()
+                            self._get_callback, future.result()
                         )
                     )
                 )
@@ -80,15 +88,55 @@ class CountHandler(BaseHandler):
             )
 
     def _count_one_collection(self, collection):
-        pass
+        """Count all the available documents in the provide collection.
+
+        :param collection: The collection whose elements should be counted.
+        :return A dictionary with the `result` field that contains a dictionary
+            with the fields `collection` and `count`.
+        """
+        result = {}
+        spec = self._get_query_spec()
+
+        if spec:
+            number = find_and_count(
+                self.db[COLLECTIONS[collection]], 0, 0, spec, self._fields
+            )
+            if number:
+                number = number['count']
+            else:
+                number = 0
+            result['result'] = dict(collection=collection, count=number)
+        else:
+            result['result'] = dict(
+                collection=collection,
+                count=count(self.db[COLLECTIONS[collection]])
+            )
+
+        return result
 
     def _count_all_collections(self):
+        """Count all the available documents in the database collections..
+
+        :return A dictionary with the `result` field that contains a list of
+            dictionaries with the fields `collection` and `count`.
+        """
         result = dict(result=[])
 
-        for key, val in COLLECTIONS.iteritems():
-            result['result'].append(
-                dict(collection=key, count=count(self.db[val]))
-            )
+        spec = self._get_query_spec()
+        if spec:
+            for key, val in COLLECTIONS.iteritems():
+                number = find_and_count(self.db[val], 0, 0, spec, self._fields)
+                if number:
+                    number = number['count']
+                else:
+                    number = 0
+                result['result'].append(
+                    dict(collection=key, count=number))
+        else:
+            for key, val in COLLECTIONS.iteritems():
+                result['result'].append(
+                    dict(collection=key, count=count(self.db[val]))
+                )
 
         return result
 
