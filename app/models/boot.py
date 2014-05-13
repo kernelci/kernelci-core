@@ -34,6 +34,7 @@ class BootDocument(BaseDocument):
         epoch time
     status - the status of the boot test
     warnings - the number of warnings
+    log - optinal log for failed boot, stored as a list of strings
     """
 
     ID_FORMAT = 'boot-%(job)s-%(kernel)s-%(defconfig)s'
