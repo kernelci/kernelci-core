@@ -115,7 +115,7 @@ class CountHandler(BaseHandler):
         return result
 
     def _count_all_collections(self):
-        """Count all the available documents in the database collections..
+        """Count all the available documents in the database collections.
 
         :return A dictionary with the `result` field that contains a list of
             dictionaries with the fields `collection` and `count`.
