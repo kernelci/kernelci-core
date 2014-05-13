@@ -37,7 +37,9 @@ class DefConfHandler(BaseHandler):
 
     def _valid_keys(self, method):
         valid_keys = {
-            'GET': ['job', 'kernel', 'status', 'job_id', 'created'],
+            'GET': [
+                'job', 'kernel', 'status', 'job_id', 'created', 'defconfig'
+            ],
         }
 
         return valid_keys.get(method, None)
