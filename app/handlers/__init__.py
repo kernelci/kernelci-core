@@ -14,7 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from boot import *
+from count import *
 from defconf import *
 from job import *
 from subscription import *
-from count import *
