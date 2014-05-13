@@ -31,11 +31,11 @@ DEFCONFIG_ACCEPTED_FILES = {
 class DefConfigDocument(BaseDocument):
     """This class represents a defconfig folder as seen on the file system."""
 
-    DEFCONFIG_ID_FORMAT = '%s-%s'
+    ID_FORMAT = '%(job_id)s-%(defconfig)s'
 
     def __init__(self, name, job_id, job=None, kernel=None):
         super(DefConfigDocument, self).__init__(
-            self.DEFCONFIG_ID_FORMAT % (job_id, name)
+            self.ID_FORMAT % {'job_id': job_id, 'defconfig': name}
         )
 
         self._job_id = job_id
