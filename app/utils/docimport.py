@@ -107,7 +107,7 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
     """
     job_dir = os.path.join(base_path, job)
     kernel_dir = os.path.join(job_dir, kernel)
-    job_id = JobDocument.JOB_ID_FORMAT % (job, kernel)
+    job_id = JobDocument.ID_FORMAT % {'job': job, 'kernel': kernel}
 
     docs = []
 

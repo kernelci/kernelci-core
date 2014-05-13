@@ -32,7 +32,7 @@ class JobDocument(BaseDocument):
     of the two, and its name is of the form `job-kernel`.
     """
 
-    JOB_ID_FORMAT = '%s-%s'
+    ID_FORMAT = '%(job)s-%(kernel)s'
     METADATA_KEYS = ('git_url', 'git_branch', 'git_describe', 'git_commit')
 
     def __init__(self, name, job=None, kernel=None):
