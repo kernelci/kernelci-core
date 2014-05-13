@@ -22,6 +22,7 @@ from handlers import (
     DefConfHandler,
     JobHandler,
     SubscriptionHandler,
+    CountHandler,
 )
 
 _JOB_URL = url(r'/api/job(?P<sl>/)?(?P<id>.*)', JobHandler, name='job')
@@ -34,9 +35,13 @@ _SUBSCRIPTION_URL = url(
     name='subscription',
 )
 _BOOT_URL = url(r'/api/boot(?P<sl>/)?(?P<id>.*)', BootHandler, name='boot')
+_COUNT_URL = url(
+    r'/api/count(?P<sl>/)?(?P<collection>.*)', CountHandler, name='count'
+)
 
 APP_URLS = [
     _BOOT_URL,
+    _COUNT_URL,
     _DEFCONF_URL,
     _JOB_URL,
     _SUBSCRIPTION_URL,
