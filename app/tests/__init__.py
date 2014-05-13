@@ -20,11 +20,12 @@ import unittest
 
 def test_modules():
     return [
+        'handlers.tests.test_count_handler',
         'handlers.tests.test_defconf_handler',
         'handlers.tests.test_job_handler',
         'handlers.tests.test_subscription_handler',
-        'models.tests.test_models',
         'models.tests.test_boot_model',
+        'models.tests.test_models',
         'utils.tests.test_bootimport',
         'utils.tests.test_docimport',
         'utils.tests.test_subscribe',
