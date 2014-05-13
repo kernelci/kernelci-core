@@ -44,6 +44,7 @@ class DefConfHandler(BaseHandler):
 
     @asynchronous
     def post(self, *args, **kwargs):
+        """Not implemented."""
         self.write_error(status_code=501)
 
     def _delete(self, defconf_id):
