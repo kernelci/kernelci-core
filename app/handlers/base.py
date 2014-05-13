@@ -296,9 +296,7 @@ class BaseHandler(RequestHandler):
         `count` - the total number of results available
         `limit` - how many results have been collected
         """
-        skip = int(self.get_query_argument('skip', default=0))
-        limit = int(self.get_query_argument('limit', default=0))
-
+        skip, limit = self._get_skip_and_limit()
         spec, sort, fields = self._get_query_args()
 
         unique = self.get_query_argument('aggregate', default=None)
@@ -314,6 +312,16 @@ class BaseHandler(RequestHandler):
                 fields=fields,
                 sort=sort
             )
+
+    def _get_skip_and_limit(self):
+        """Retrieve the `skip` and `limit` query arguments.
+
+        :return A tuple with the `skip` and `limit` arguments.
+        """
+        skip = int(self.get_query_argument('skip', default=0))
+        limit = int(self.get_query_argument('limit', default=0))
+
+        return skip, limit
 
     def _get_query_args(self):
         """Retrieve all the arguments from the query string.
