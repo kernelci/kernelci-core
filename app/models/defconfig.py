@@ -33,7 +33,7 @@ class DefConfigDocument(BaseDocument):
 
     ID_FORMAT = '%(job_id)s-%(defconfig)s'
 
-    def __init__(self, name, job_id, job=None, kernel=None):
+    def __init__(self, name, job_id, job=None, kernel=None, defconfig=None):
         super(DefConfigDocument, self).__init__(
             self.ID_FORMAT % {'job_id': job_id, 'defconfig': name}
         )
@@ -41,6 +41,7 @@ class DefConfigDocument(BaseDocument):
         self._job_id = job_id
         self._job = job
         self._kernel = kernel
+        self._defconfig = defconfig
         self._zimage = None
         self._image = None
         self._system_map = None
@@ -183,6 +184,15 @@ class DefConfigDocument(BaseDocument):
         """
         self._created = value
 
+    @property
+    def defconfig(self):
+        """The defconfig name of this document."""
+        return self._defconfig
+
+    @defconfig.setter
+    def defconfig(self, value):
+        self._defconfig = value
+
     def to_dict(self):
         defconf_dict = super(DefConfigDocument, self).to_dict()
         defconf_dict['job_id'] = self._job_id
@@ -196,4 +206,5 @@ class DefConfigDocument(BaseDocument):
         defconf_dict['status'] = self._status
         defconf_dict['created'] = self._created
         defconf_dict['metadata'] = self._metadata
+        defconf_dict['defconfig'] = self._defconfig
         return defconf_dict
