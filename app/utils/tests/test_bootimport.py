@@ -92,11 +92,10 @@ class TestParseBoot(unittest.TestCase):
         self.assertEqual(len(docs), 1)
         self.assertEqual(len(docs[0].boards), 20)
 
-        # self.assertEqual(docs[0].boards[18]['status'], 'FAIL')
-        # self.assertEqual(len(docs[0].boards[18]['log']), 80)
-        # self.assertIsInstance(docs[0].boards[18]['log'], types.ListType)
+        self.assertEqual(docs[0].boards[18]['status'], 'FAIL')
+        self.assertEqual(len(docs[0].boards[18]['log']), 80)
+        self.assertIsInstance(docs[0].boards[18]['log'], types.ListType)
 
-        # print docs[0].boards[16]['board']
         self.assertEqual(docs[0].boards[16]['status'], 'FAIL')
         self.assertEqual(len(docs[0].boards[16]['log']), 80)
         self.assertIsInstance(docs[0].boards[16]['log'], types.ListType)

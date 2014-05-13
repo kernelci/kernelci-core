@@ -213,15 +213,15 @@ def _parse_boot_log(boot_log):
                         log_lines += 1
                         failed_log_lines.append(line)
                 elif (not line and failed_log_section and log_lines > 0):
+                    failed_logs[failed_defconfig][failed_board] = \
+                        failed_log_lines
+
                     # Hard reset everything once done parsing the failed boot
                     # log section.
                     failed_log_section = False
                     failed_board = None
                     failed_log_lines = []
                     log_lines = 0
-
-                    failed_logs[failed_defconfig][failed_board] = \
-                        failed_log_lines
         else:
             # Failed logs are at the end of the file, if we get there and there
             # are no more lines at the end of the file, the last parsed failed
