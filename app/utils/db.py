@@ -230,7 +230,7 @@ def delete(collection, spec_or_id):
     return ret_val
 
 
-def aggregate(collection, unique, sort=None, fields=None):
+def aggregate(collection, unique, match=None, sort=None, fields=None):
     """Perform an aggregate `group` action on the collection.
 
     If the `sort` parameter is defined, the `sort` action on the aggregate will
@@ -241,8 +241,12 @@ def aggregate(collection, unique, sort=None, fields=None):
 
     :param unique: The document attribute on which the `group` action should
         be performed.
+    :param match: Which fields the documents should match.
+    :param match dict
     :param sort: On which attributes the result should be sorted.
+    :type sort list
     :param fields: The fields to return.
+    :type fields dict
     :return A list with the results.
     """
 
@@ -258,6 +262,11 @@ def aggregate(collection, unique, sort=None, fields=None):
 
     # Where the aggregate actions and values will be stored.
     pipeline = []
+
+    if match:
+        pipeline.append({
+            '$match': match
+        })
 
     if sort:
         pipeline.append({

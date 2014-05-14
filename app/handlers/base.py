@@ -313,7 +313,9 @@ class BaseHandler(RequestHandler):
         unique = self.get_query_argument('aggregate', default=None)
         if unique:
             self.log.info("Performing aggregation on %s", unique)
-            return aggregate(self.collection, unique, sort=sort, fields=fields)
+            return aggregate(
+                self.collection, unique, sort=sort, fields=fields, match=spec
+            )
         else:
             return find_and_count(
                 self.collection,
@@ -382,7 +384,7 @@ class BaseHandler(RequestHandler):
         they values are based on the `sort_order` argument and defaults to the
         descending order.
 
-        :return A `spec` data structure.
+        :return A `sort` data structure.
         """
         sort_fields = self.get_query_arguments('sort')
         sort_order = int(
