@@ -21,6 +21,13 @@ import tornado
 import types
 
 from bson.json_util import dumps
+from bson import tz_util
+from datetime import (
+    date,
+    datetime,
+    time,
+    timedelta,
+)
 from functools import partial
 from pymongo import (
     ASCENDING,
@@ -39,6 +46,10 @@ from utils.db import (
 )
 from utils.log import get_log
 from utils.validator import is_valid_json
+
+# Default value to calculate a date range in case the provided value is
+# out of range.
+DEFAULT_DATE_RANGE = 15
 
 
 class BaseHandler(RequestHandler):
@@ -354,6 +365,13 @@ class BaseHandler(RequestHandler):
             ]
         }
 
+        date_range = self.get_query_argument('date_range', default=None)
+        if date_range:
+            today = datetime.combine(date.today(), time(tzinfo=tz_util.utc))
+            previous = self._calculate_date_range(date_range)
+
+            spec['created'] = {'$gte': previous, '$lt': today}
+
         return spec
 
     def _get_query_sort(self):
@@ -415,3 +433,30 @@ class BaseHandler(RequestHandler):
             self.finish()
         else:
             super(BaseHandler, self).write_error(status_code, kwargs)
+
+    @staticmethod
+    def _calculate_date_range(date_range):
+        """Calculate the new date subtracting the passed number of days.
+
+        It removes the passed days from today date, calculated at midnight
+        UTC.
+
+        :param date_range: The number of days to remove from today.
+        :type date_range int, long, str
+        :return A new `datetime.date` object that is the result of the
+            subtraction of `datetime.date.today()` and
+            `datetime.timedelta(days=date_range)`.
+        """
+        if isinstance(date_range, types.StringTypes):
+            date_range = int(date_range)
+
+        date_range = abs(date_range)
+        if date_range > timedelta.max.days:
+            date_range = DEFAULT_DATE_RANGE
+
+        today = datetime.combine(
+            date.today(), time(tzinfo=tz_util.utc)
+        )
+        delta = timedelta(days=date_range)
+
+        return today - delta
