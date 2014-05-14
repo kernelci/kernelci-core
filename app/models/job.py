@@ -33,7 +33,10 @@ class JobDocument(BaseDocument):
     """
 
     ID_FORMAT = '%(job)s-%(kernel)s'
-    METADATA_KEYS = ('git_url', 'git_branch', 'git_describe', 'git_commit')
+    METADATA_KEYS = (
+        'git_url', 'git_branch', 'git_describe', 'git_commit',
+        'cross_compile', 'compiler_version',
+    )
 
     def __init__(self, name, job=None, kernel=None):
         super(JobDocument, self).__init__(name)
