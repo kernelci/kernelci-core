@@ -76,7 +76,7 @@ class BaseHandler(RequestHandler):
         :type str
         :return A list of keys that the method accepts.
         """
-        return None
+        return []
 
     def _get_status_message(self, status_code):
         """Get custom error message based on the status code.

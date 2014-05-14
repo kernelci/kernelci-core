@@ -34,6 +34,10 @@ class BootHandler(BaseHandler):
     def _valid_keys(self, method):
         valid_keys = {
             'POST': ['job', 'kernel'],
+            'GET': [
+                'job', 'kernel', 'defconfig', 'time', 'status', 'created',
+                'warnings', 'job_id', 'fail_log',
+            ]
         }
 
         return valid_keys.get(method, None)
