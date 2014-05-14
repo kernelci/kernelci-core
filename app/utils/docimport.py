@@ -160,15 +160,15 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
             defconf_doc = docs[idx]
             if isinstance(defconf_doc, JobDocument):
                 idx += 1
-            else:
-                # Just check the first one, if it does not have the necessary
-                # keys, we move on, the job will not have any metadata.
-                if defconf_doc.metadata:
-                    for key in job_doc.METADATA_KEYS:
-                        if key in defconf_doc.metadata.keys():
-                            job_doc.metadata[key] = defconf_doc.metadata[key]
-
+            elif (isinstance(defconf_doc, DefConfigDocument) and
+                    defconf_doc.metadata):
+                for key in job_doc.METADATA_KEYS:
+                    if key in defconf_doc.metadata.keys():
+                        job_doc.metadata[key] = \
+                            defconf_doc.metadata[key]
                 break
+            else:
+                idx += 1
 
     return (docs, job_id)
 
@@ -197,6 +197,8 @@ def _traverse_defconf_dir(job_id, job, kernel, kernel_dir, defconf_dir):
             if key in files:
                 setattr(defconf_doc, val, os.path.join(dirname, key))
 
+        # Legacy: status was retrieved via the presence of a file.
+        # Keep it for backward compatibility.
         if os.path.exists(os.path.join(dirname, BUILD_PASS_FILE)):
             defconf_doc.status = SUCCESS_STATUS
         elif os.path.exists(os.path.join(dirname, BUILD_FAIL_FILE)):
@@ -208,6 +210,9 @@ def _traverse_defconf_dir(job_id, job, kernel, kernel_dir, defconf_dir):
             _parse_build_metadata(
                 os.path.join(dirname, BUILD_META_FILE), defconf_doc
             )
+        else:
+            # If we do not have the metadata file, consider the build failed.
+            defconf_doc.status = FAILED_STATUS
 
     return defconf_doc
 
@@ -239,6 +244,13 @@ def _parse_build_metadata(metadata_file, defconf_doc):
                 except ValueError, ex:
                     LOG.error("Error parsing metadata file line: %s", line)
                     LOG.exception(str(ex))
+
+    if metadata.get('build_result', None):
+        status = metadata.get('build_result')
+        if status == 'PASS':
+            defconf_doc.status = SUCCESS_STATUS
+        elif status == 'FAIL':
+            defconf_doc.status = FAILED_STATUS
 
     defconf_doc.metadata = metadata
 
