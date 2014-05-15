@@ -202,6 +202,12 @@ def _parse_boot_log(boot_log):
                         log_lines += 1
                         failed_log_lines.append(line)
                 elif (not line and failed_log_section and log_lines > 0):
+                    if not failed_defconfig in failed_logs.keys():
+                        failed_logs[failed_defconfig] = {}
+
+                    if not failed_board in failed_logs[failed_defconfig].keys():
+                        failed_logs[failed_defconfig][failed_board] = None
+
                     failed_logs[failed_defconfig][failed_board] = \
                         failed_log_lines
 
@@ -285,7 +291,9 @@ if __name__ == '__main__':
     connection = pymongo.MongoClient()
     database = connection[DB_NAME]
 
-    all_docs = _import_all(database)
-    save(database, all_docs)
+    all_docs = _import_all()
+
+    for doc_set in all_docs:
+        save(database, doc_set)
 
     connection.disconnect()

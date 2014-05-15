@@ -149,7 +149,6 @@ def save(database, documents):
         documents = [documents]
 
     for document in documents:
-        to_save = None
         if isinstance(document, BaseDocument):
             to_save = document.to_dict()
         else:
