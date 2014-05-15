@@ -49,6 +49,7 @@ from utils.db import (
     find_one,
     save,
 )
+from utils.meta_parser import parse_metadata_file
 
 
 def import_and_save_job(json_obj, base_path=BASE_PATH):
@@ -182,6 +183,10 @@ def _traverse_defconf_dir(job_id, job, kernel, kernel_dir, defconf_dir):
     :return A `DefConfigDocument` instance.
     """
     defconf_doc = DefConfigDocument(defconf_dir, job_id, job, kernel)
+    # Default to the directory name and if we have the metadata file, get
+    # the value from there.
+    # Split on the + sign since some dirs are in the form 'defconfig+FRAGMENT'.
+    defconf_doc.defconfig = defconf_dir.split('+')[0]
 
     LOG.info("Traversing directory %s", defconf_dir)
 
@@ -223,34 +228,18 @@ def _parse_build_metadata(metadata_file, defconf_doc):
     :param metadata_file: The path to the metadata file.
     :param defconf_doc: The `DefConfigDocument` whose metadata will be updated.
     """
-    metadata = {}
+    metadata = parse_metadata_file(metadata_file)
 
-    LOG.info("Parsing metadata file %s", metadata_file)
+    if metadata:
+        if metadata.get('build_result', None):
+            status = metadata.get('build_result')
+            if status == 'PASS':
+                defconf_doc.status = SUCCESS_STATUS
+            elif status == 'FAIL':
+                defconf_doc.status = FAILED_STATUS
 
-    with open(metadata_file, 'r') as r_file:
-        for line in r_file:
-            line = line.strip()
-            if line:
-                if line[0] == '#':
-                    # Accept a sane char for commented lines.
-                    continue
-
-                try:
-                    key, value = line.split(':', 1)
-                    value = value.strip()
-                    if value:
-                        # We store only real values, not empty ones.
-                        metadata[key] = value
-                except ValueError, ex:
-                    LOG.error("Error parsing metadata file line: %s", line)
-                    LOG.exception(str(ex))
-
-    if metadata.get('build_result', None):
-        status = metadata.get('build_result')
-        if status == 'PASS':
-            defconf_doc.status = SUCCESS_STATUS
-        elif status == 'FAIL':
-            defconf_doc.status = FAILED_STATUS
+        if metadata.get('defconfig', None):
+            defconf_doc.defconfig = metadata.get('defconfig')
 
     defconf_doc.metadata = metadata
 

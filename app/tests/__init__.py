@@ -29,8 +29,9 @@ def test_modules():
         'models.tests.test_models',
         'utils.tests.test_bootimport',
         'utils.tests.test_docimport',
+        'utils.tests.test_meta_parser',
         'utils.tests.test_subscribe',
-        'utils.tests.test_validator'
+        'utils.tests.test_validator',
     ]
 
 
