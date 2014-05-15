@@ -33,7 +33,7 @@ class DefConfigDocument(BaseDocument):
 
     ID_FORMAT = '%(job_id)s-%(defconfig)s'
 
-    def __init__(self, name, job_id, job=None, kernel=None, defconfig=None):
+    def __init__(self, name, job_id, job=None, kernel=None):
         super(DefConfigDocument, self).__init__(
             self.ID_FORMAT % {'job_id': job_id, 'defconfig': name}
         )
@@ -41,7 +41,7 @@ class DefConfigDocument(BaseDocument):
         self._job_id = job_id
         self._job = job
         self._kernel = kernel
-        self._defconfig = defconfig
+        self._defconfig = None
         self._zimage = None
         self._image = None
         self._system_map = None
