@@ -109,7 +109,7 @@ class TestParseJob(unittest.TestCase):
         docs, job_id = _import_job('job', 'kernel', database)
 
         self.assertEqual(len(docs), 1)
-        self.assertEqual(docs[0].status, 'BUILDING')
+        self.assertEqual(docs[0].status, 'BUILD')
 
     @patch('os.stat')
     @patch('utils.docimport.find_one')
@@ -131,7 +131,7 @@ class TestParseJob(unittest.TestCase):
 
         docs, job_id = _import_job('job', 'kernel', database)
         self.assertEqual(len(docs), 1)
-        self.assertEqual(docs[0].status, 'DONE')
+        self.assertEqual(docs[0].status, 'PASS')
 
     def test_parse_and_update_build_metadata(self):
         meta_content = (

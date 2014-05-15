@@ -22,15 +22,14 @@ from bson import tz_util
 from datetime import datetime
 
 from models import (
-    BUILDING_STATUS,
     BUILD_FAIL_FILE,
     BUILD_META_FILE,
     BUILD_PASS_FILE,
+    BUILD_STATUS,
     DB_NAME,
     DONE_FILE,
-    DONE_STATUS,
-    FAILED_STATUS,
-    SUCCESS_STATUS,
+    FAIL_STATUS,
+    PASS_STATUS,
     UNKNOWN_STATUS,
 )
 from models.defconfig import (
@@ -122,13 +121,13 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
     docs.append(job_doc)
 
     if os.path.exists(os.path.join(job_dir, DONE_FILE)):
-        job_doc.status = DONE_STATUS
+        job_doc.status = PASS_STATUS
     else:
-        job_doc.status = BUILDING_STATUS
+        job_doc.status = BUILD_STATUS
 
     if os.path.isdir(kernel_dir):
         if os.path.exists(os.path.join(kernel_dir, DONE_FILE)):
-            job_doc.status = DONE_STATUS
+            job_doc.status = PASS_STATUS
 
         # If the job dir exists, read the last modification time from the
         # file system and use that as the creation date.
@@ -205,9 +204,9 @@ def _traverse_defconf_dir(job_id, job, kernel, kernel_dir, defconf_dir):
         # Legacy: status was retrieved via the presence of a file.
         # Keep it for backward compatibility.
         if os.path.exists(os.path.join(dirname, BUILD_PASS_FILE)):
-            defconf_doc.status = SUCCESS_STATUS
+            defconf_doc.status = PASS_STATUS
         elif os.path.exists(os.path.join(dirname, BUILD_FAIL_FILE)):
-            defconf_doc.status = FAILED_STATUS
+            defconf_doc.status = FAIL_STATUS
         else:
             defconf_doc.status = UNKNOWN_STATUS
 
@@ -217,7 +216,7 @@ def _traverse_defconf_dir(job_id, job, kernel, kernel_dir, defconf_dir):
             )
         else:
             # If we do not have the metadata file, consider the build failed.
-            defconf_doc.status = FAILED_STATUS
+            defconf_doc.status = FAIL_STATUS
 
     return defconf_doc
 
@@ -234,9 +233,9 @@ def _parse_build_metadata(metadata_file, defconf_doc):
         if metadata.get('build_result', None):
             status = metadata.get('build_result')
             if status == 'PASS':
-                defconf_doc.status = SUCCESS_STATUS
+                defconf_doc.status = PASS_STATUS
             elif status == 'FAIL':
-                defconf_doc.status = FAILED_STATUS
+                defconf_doc.status = FAIL_STATUS
 
         if metadata.get('defconfig', None):
             defconf_doc.defconfig = metadata.get('defconfig')
