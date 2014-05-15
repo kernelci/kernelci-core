@@ -42,7 +42,7 @@ class TestJobModel(unittest.TestCase):
             'job': None,
             '_id': 'job',
             'private': False,
-            'created': None,
+            'created_on': None,
             'status': None,
             'updated': None,
         }
@@ -55,8 +55,8 @@ class TestJobModel(unittest.TestCase):
 
     def test_job_document_to_json(self):
         expected_json = (
-            '{"status": null, "kernel": null, "updated": null, '
-            '"created": null, "private": false, "job": null, "_id": "job", '
+            '{"status": null, "kernel": null, "updated": null, "job": null, '
+            '"private": false, "created_on": null, "_id": "job", '
             '"metadata": {}}'
         )
 
@@ -70,7 +70,7 @@ class TestJobModel(unittest.TestCase):
             _id='job-kernel',
             job='job',
             kernel='kernel',
-            created=now,
+            created_on=now,
             status='BUILDING',
         )
 
@@ -81,7 +81,7 @@ class TestJobModel(unittest.TestCase):
         self.assertEqual(job_doc.name, 'job-kernel')
         self.assertEqual(job_doc.kernel, 'kernel')
         self.assertEqual(job_doc.job, 'job')
-        self.assertEqual(job_doc.created, now)
+        self.assertEqual(job_doc.created_on, now)
         self.assertEqual(job_doc.status, 'BUILDING')
 
     def test_job_document_from_json_string(self):
@@ -110,19 +110,19 @@ class TestJobModel(unittest.TestCase):
         now = datetime.now(tz=tz_util.utc)
 
         job_doc = JobDocument('job')
-        job_doc.created = now
+        job_doc.created_on = now
         job_doc.updated = now
 
-        self.assertIsInstance(job_doc.created, datetime)
+        self.assertIsInstance(job_doc.created_on, datetime)
         self.assertIsInstance(job_doc.updated, datetime)
 
         new_job = JobDocument.from_json(json_util.loads(job_doc.to_json()))
 
-        self.assertIsInstance(new_job.created, datetime)
+        self.assertIsInstance(new_job.created_on, datetime)
         self.assertIsInstance(new_job.updated, datetime)
         # During the deserialization process, some microseconds are lost.
         self.assertLessEqual(
-            (new_job.created - job_doc.created).total_seconds(), 0)
+            (new_job.created_on - job_doc.created_on).total_seconds(), 0)
         self.assertLessEqual(
             (new_job.updated - job_doc.updated).total_seconds(), 0)
 
@@ -137,7 +137,7 @@ class TestDefconfModel(unittest.TestCase):
         expected = {
             'job_id': 'job',
             'kernel': 'kernel',
-            'created': None,
+            'created_on': None,
             'metadata': {},
             'job': 'job',
             '_id': 'job-defconfig',
@@ -158,7 +158,7 @@ class TestDefconfModel(unittest.TestCase):
     def test_defconfig_document_to_json(self):
         expected_json = (
             '{"status": null, "kernel": null, "errors": null, '
-            '"job_id": "job", "created": null, "warnings": null, '
+            '"job_id": "job", "warnings": null, "created_on": null, '
             '"defconfig": null, "job": null, "_id": "job-defconfig", '
             '"arch": null, "metadata": {}}'
         )
@@ -202,14 +202,14 @@ class TestSubscriptionModel(unittest.TestCase):
         self.assertEqual(['an_email', 'another_email'], sub_doc.emails)
 
     def test_subscription_document_to_dict(self):
-        expected = dict(_id='sub', emails=[], job_id='job')
+        expected = dict(_id='sub', emails=[], job_id='job', created_on=None)
         sub_doc = SubscriptionDocument('sub', 'job')
 
         self.assertEqual(expected, sub_doc.to_dict())
 
     def test_subscription_document_to_json(self):
         expected = (
-            '{"_id": "sub", "emails": [], "job_id": "job"}'
+            '{"created_on": null, "_id": "sub", "emails": [], "job_id": "job"}'
         )
         sub_doc = SubscriptionDocument('sub', 'job')
         self.assertEqual(expected, sub_doc.to_json())
@@ -233,7 +233,8 @@ class TestSubscriptionModel(unittest.TestCase):
         json_obj = dict(
             _id='sub',
             job_id='job',
-            emails=['a@example.org', 'b@example.org']
+            emails=['a@example.org', 'b@example.org'],
+            created_on=None,
         )
 
         sub_doc = SubscriptionDocument.from_json(json_obj)
@@ -245,7 +246,8 @@ class TestSubscriptionModel(unittest.TestCase):
         json_obj = dict(
             _id='sub',
             job_id='job',
-            emails=['a@example.org', 'b@example.org']
+            emails=['a@example.org', 'b@example.org'],
+            created_on=None,
         )
 
         json_string = json_util.dumps(json_obj)

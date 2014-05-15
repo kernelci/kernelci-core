@@ -64,7 +64,7 @@ class TestParseBoot(unittest.TestCase):
         self.assertEqual(docs[0].kernel, 'next-20140505')
         self.assertEqual(docs[0].defconfig, 'arm-davinci_all_defconfig')
 
-        self.assertIsInstance(docs[0].created, datetime)
+        self.assertIsInstance(docs[0].created_on, datetime)
         self.assertIsInstance(docs[0].time, datetime)
 
         time_d = timedelta(minutes=0, seconds=17.7)

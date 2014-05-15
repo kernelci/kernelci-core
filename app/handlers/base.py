@@ -369,7 +369,10 @@ class BaseHandler(RequestHandler):
 
         date_range = self.get_query_argument('date_range', default=None)
         if date_range:
-            today = datetime.combine(date.today(), time(tzinfo=tz_util.utc))
+            # Today needs to be set at the end of the day!
+            today = datetime.combine(
+                date.today(), time(23, 59, 59, tzinfo=tz_util.utc)
+            )
             previous = self._calculate_date_range(date_range)
 
             spec['created'] = {'$gte': previous, '$lt': today}
@@ -456,6 +459,8 @@ class BaseHandler(RequestHandler):
         if date_range > timedelta.max.days:
             date_range = DEFAULT_DATE_RANGE
 
+        # Calcuate with midnight in mind though, so we get the starting of
+        # the day for the previous date.
         today = datetime.combine(
             date.today(), time(tzinfo=tz_util.utc)
         )

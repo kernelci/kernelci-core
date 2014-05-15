@@ -34,7 +34,7 @@ class TestBootModel(unittest.TestCase):
             'warnings': None,
             'kernel': 'kernel',
             'job_id': 'job-kernel',
-            'created': None,
+            'created_on': None,
             'fail_log': [],
             'defconfig': 'defconfig',
             'job': 'job',
@@ -49,9 +49,9 @@ class TestBootModel(unittest.TestCase):
 
         expected = (
             '{"status": null, "kernel": "kernel", "job_id": "job-kernel", '
-            '"created": null, "fail_log": [], "defconfig": "defconfig", '
-            '"job": "job", "board": "board", "warnings": null, "time": null, '
-            '"_id": "board-job-kernel-defconfig"}'
+            '"warnings": null, "fail_log": [], "created_on": null, '
+            '"defconfig": "defconfig", "job": "job", "board": "board", '
+            '"time": null, "_id": "board-job-kernel-defconfig"}'
         )
 
         self.assertEqual(expected, boot_doc.to_json())

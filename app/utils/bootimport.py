@@ -177,7 +177,7 @@ def _parse_boot_log(boot_log):
                         boot_doc = BootDocument(
                             board, job, kernel, defconfig
                         )
-                        boot_doc.created = created
+                        boot_doc.created_on = created
                         boot_doc.time = time
                         boot_doc.status = status
                         boot_doc.warnings = warnings

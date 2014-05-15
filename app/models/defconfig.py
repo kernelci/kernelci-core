@@ -36,7 +36,6 @@ class DefConfigDocument(BaseDocument):
         self._defconfig = None
         self._status = None
         self._metadata = {}
-        self._created = None
         self._errors = None
         self._warnings = None
         self._arch = None
@@ -97,19 +96,6 @@ class DefConfigDocument(BaseDocument):
         self._status = value
 
     @property
-    def created(self):
-        """Creation date of this defconfing build."""
-        return self._created
-
-    @created.setter
-    def created(self, value):
-        """Set the creation date.
-
-        :param value: A datetime object.
-        """
-        self._created = value
-
-    @property
     def defconfig(self):
         """The defconfig name of this document."""
         return self._defconfig
@@ -151,7 +137,6 @@ class DefConfigDocument(BaseDocument):
         defconf_dict['job'] = self._job
         defconf_dict['kernel'] = self._kernel
         defconf_dict['status'] = self._status
-        defconf_dict['created'] = self._created
         defconf_dict['metadata'] = self._metadata
         defconf_dict['defconfig'] = self._defconfig
         defconf_dict['warnings'] = self._warnings

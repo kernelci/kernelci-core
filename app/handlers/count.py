@@ -55,7 +55,7 @@ class CountHandler(BaseHandler):
         valid_keys = {
             # This is a set of all the valid fields in the available models.
             'GET': [
-                'job', 'kernel', 'status', 'private', 'created',
+                'job', 'kernel', 'status', 'private', 'created_on',
                 'defconfig', 'board', 'time', 'warnings',
             ],
         }

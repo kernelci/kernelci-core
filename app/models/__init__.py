@@ -16,8 +16,9 @@
 # The default mongodb database name.
 DB_NAME = 'kernel-ci'
 
-# The default ID key for mongodb documents.
+# The default ID key, and other keys, for mongodb documents.
 ID_KEY = '_id'
+CREATED_KEY = 'created_on'
 
 # Job and/or build status.
 BUILD_STATUS = 'BUILD'

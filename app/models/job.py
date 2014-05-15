@@ -45,7 +45,6 @@ class JobDocument(BaseDocument):
         self._job = job
         self._kernel = kernel
         self._status = None
-        self._created = None
         self._updated = None
         self._metadata = {}
 
@@ -85,23 +84,6 @@ class JobDocument(BaseDocument):
     def kernel(self, value):
         """Set the real kernel name as found on the file system."""
         self._kernel = value
-
-    @property
-    def created(self):
-        """Return the date this document was created.
-
-        :return A string representing a datetime object in ISO format,
-                UTC time zone.
-        """
-        return self._created
-
-    @created.setter
-    def created(self, value):
-        """Set the date this document was created.
-
-        :param value: A string representing a datetime object in ISO format.
-        """
-        self._created = value
 
     @property
     def updated(self):
@@ -154,7 +136,6 @@ class JobDocument(BaseDocument):
         job_dict['private'] = self._private
         job_dict['job'] = self._job
         job_dict['kernel'] = self._kernel
-        job_dict['created'] = self._created
         job_dict['updated'] = self._updated
         job_dict['status'] = self._status
         job_dict['metadata'] = self._metadata

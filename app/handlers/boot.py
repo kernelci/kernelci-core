@@ -35,7 +35,7 @@ class BootHandler(BaseHandler):
         valid_keys = {
             'POST': ['job', 'kernel'],
             'GET': [
-                'job', 'kernel', 'defconfig', 'time', 'status', 'created',
+                'job', 'kernel', 'defconfig', 'time', 'status', 'created_on',
                 'warnings', 'job_id', 'fail_log',
             ]
         }

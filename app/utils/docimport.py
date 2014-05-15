@@ -128,8 +128,8 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
 
         # If the job dir exists, read the last modification time from the
         # file system and use that as the creation date.
-        if not job_doc.created:
-            job_doc.created = datetime.fromtimestamp(
+        if not job_doc.created_on:
+            job_doc.created_on = datetime.fromtimestamp(
                 os.stat(kernel_dir).st_mtime, tz=tz_util.utc)
 
         job_doc.updated = datetime.now(tz=tz_util.utc)
@@ -143,7 +143,7 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
             ]
         )
     else:
-        job_doc.created = datetime.now(tz=tz_util.utc)
+        job_doc.created_on = datetime.now(tz=tz_util.utc)
 
     # Kind of a hack:
     # We want to store some metadata at the job document level as well, like
@@ -187,7 +187,7 @@ def _traverse_defconf_dir(job_id, job, kernel, kernel_dir, defconf_dir):
     LOG.info("Traversing directory %s", defconf_dir)
 
     real_dir = os.path.join(kernel_dir, defconf_dir)
-    defconf_doc.created = datetime.fromtimestamp(
+    defconf_doc.created_on = datetime.fromtimestamp(
         os.stat(real_dir).st_mtime, tz=tz_util.utc
     )
 

@@ -53,7 +53,6 @@ class BootDocument(BaseDocument):
         self._job = job
         self._kernel = kernel
         self._defconfig = defconfig
-        self._created = None
         self._time = None
         self._status = None
         self._warnings = None
@@ -82,15 +81,6 @@ class BootDocument(BaseDocument):
     def defconfig(self):
         """The defconfig of this boot document."""
         return self._defconfig
-
-    @property
-    def created(self):
-        """Date of last modification of the boot log file."""
-        return self._created
-
-    @created.setter
-    def created(self, value):
-        self._created = value
 
     @property
     def status(self):
@@ -142,7 +132,6 @@ class BootDocument(BaseDocument):
     def to_dict(self):
         boot_dict = super(BootDocument, self).to_dict()
         boot_dict['board'] = self._board
-        boot_dict['created'] = self._created
         boot_dict['time'] = self._time
         boot_dict['job'] = self._job
         boot_dict['kernel'] = self._kernel

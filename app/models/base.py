@@ -19,7 +19,7 @@ import json
 
 from bson import json_util
 
-from models import ID_KEY
+from models import ID_KEY, CREATED_KEY
 
 
 class BaseDocument(object):
@@ -27,6 +27,7 @@ class BaseDocument(object):
 
     def __init__(self, name):
         self._name = name
+        self._created_on = None
 
     @property
     def name(self):
@@ -44,6 +45,18 @@ class BaseDocument(object):
         """
         return None
 
+    @property
+    def created_on(self):
+        """The date this document was created.
+
+        :return A datetime object, with UTC time zone.
+        """
+        return self._created_on
+
+    @created_on.setter
+    def created_on(self, value):
+        self._created_on = value
+
     def to_dict(self):
         """Return a dictionary view of the document.
 
@@ -53,7 +66,8 @@ class BaseDocument(object):
         :return A dictionary.
         """
         return {
-            ID_KEY: self._name
+            ID_KEY: self._name,
+            CREATED_KEY: self._created_on,
         }
 
     def to_json(self):
