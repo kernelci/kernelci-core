@@ -39,6 +39,7 @@ class DefConfigDocument(BaseDocument):
         self._created = None
         self._errors = None
         self._warnings = None
+        self._arch = None
 
     @property
     def collection(self):
@@ -135,6 +136,15 @@ class DefConfigDocument(BaseDocument):
     def warnings(self, value):
         self._warnings = value
 
+    @property
+    def arch(self):
+        """The architecture of this defconfig."""
+        return self._arch
+
+    @arch.setter
+    def arch(self, value):
+        self._arch = value
+
     def to_dict(self):
         defconf_dict = super(DefConfigDocument, self).to_dict()
         defconf_dict['job_id'] = self._job_id
@@ -146,4 +156,5 @@ class DefConfigDocument(BaseDocument):
         defconf_dict['defconfig'] = self._defconfig
         defconf_dict['warnings'] = self._warnings
         defconf_dict['errors'] = self._errors
+        defconf_dict['arch'] = self._arch
         return defconf_dict

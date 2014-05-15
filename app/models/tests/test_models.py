@@ -145,6 +145,7 @@ class TestDefconfModel(unittest.TestCase):
             'defconfig': None,
             'errors': None,
             'warnings': None,
+            'arch': None,
         }
 
         defconfig_doc = DefConfigDocument('defconfig', 'job', 'job', 'kernel')
@@ -159,11 +160,11 @@ class TestDefconfModel(unittest.TestCase):
             '{"status": null, "kernel": null, "errors": null, '
             '"job_id": "job", "created": null, "warnings": null, '
             '"defconfig": null, "job": null, "_id": "job-defconfig", '
-            '"metadata": {}}'
+            '"arch": null, "metadata": {}}'
         )
 
         defconfig_doc = DefConfigDocument('defconfig', 'job')
-        self.assertEqual(defconfig_doc.to_json(), expected_json)
+        self.assertEqual(expected_json, defconfig_doc.to_json())
 
 
 class TestSubscriptionModel(unittest.TestCase):

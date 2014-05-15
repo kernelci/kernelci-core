@@ -230,6 +230,7 @@ def _parse_build_metadata(metadata_file, defconf_doc):
         defconf_doc.defconfig = metadata.get('defconfig', None)
         defconf_doc.warnings = metadata.get('warnings', None)
         defconf_doc.errros = metadata.get('errros', None)
+        defconf_doc.arch = metadata.get('arch', None)
 
     defconf_doc.metadata = metadata
 
