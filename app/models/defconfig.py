@@ -18,14 +18,6 @@
 from models.base import BaseDocument
 
 DEFCONFIG_COLLECTION = 'defconfig'
-# Mapping used during the import phase.
-DEFCONFIG_ACCEPTED_FILES = {
-    'zImage': 'zimage',
-    'Image': 'image',
-    'System.map': 'system_map',
-    'kernel.config': 'kernel_conf',
-    'build.log': 'build_log',
-}
 
 
 class DefConfigDocument(BaseDocument):
@@ -42,14 +34,11 @@ class DefConfigDocument(BaseDocument):
         self._job = job
         self._kernel = kernel
         self._defconfig = None
-        self._zimage = None
-        self._image = None
-        self._system_map = None
-        self._kernel_conf = None
         self._status = None
-        self._build_log = None
         self._metadata = {}
         self._created = None
+        self._errors = None
+        self._warnings = None
 
     @property
     def collection(self):
@@ -79,71 +68,6 @@ class DefConfigDocument(BaseDocument):
     def kernel(self, value):
         """Set the kernel of this defconfig."""
         self._kernel = value
-
-    @property
-    def zimage(self):
-        """The path to the zImage file produced by this defconfig.
-
-        :return None if there is no zImage file, or its path.
-        """
-        return self._zimage
-
-    @zimage.setter
-    def zimage(self, value):
-        """Set the zImage path."""
-        self._zimage = value
-
-    @property
-    def image(self):
-        """The path to the Image file produced by this defconfig.
-
-        :return None if there is no Image file, or its path.
-        """
-        return self._image
-
-    @image.setter
-    def image(self, value):
-        """Set the Image path."""
-        self._image = value
-
-    @property
-    def system_map(self):
-        """The path to the System.map file produced by this defconfig.
-
-        :return None if there is not System.map file, or its path.
-        """
-        return self._system_map
-
-    @system_map.setter
-    def system_map(self, value):
-        """Set the System.map path"""
-        self._system_map = value
-
-    @property
-    def kernel_conf(self):
-        """The path to kernel.config produced by this defconfig.
-
-        :return None if there is no kernel.config file, or its path.
-        """
-        return self._kernel_conf
-
-    @kernel_conf.setter
-    def kernel_conf(self, value):
-        """Set the kernel.config path."""
-        self._kernel_conf = value
-
-    @property
-    def build_log(self):
-        """The path to the `build.log` file.
-
-        :return None if there is no `build.log` file, or its path.
-        """
-        return self._build_log
-
-    @build_log.setter
-    def build_log(self, value):
-        """Set the build.log path."""
-        self._build_log = value
 
     @property
     def metadata(self):
@@ -193,18 +117,33 @@ class DefConfigDocument(BaseDocument):
     def defconfig(self, value):
         self._defconfig = value
 
+    @property
+    def errors(self):
+        """Number of errors associated with this defconfig."""
+        return self._errors
+
+    @errors.setter
+    def errors(self, value):
+        self._errors = value
+
+    @property
+    def warnings(self):
+        """Number of warnings associated with this defconfig."""
+        return self._warnings
+
+    @warnings.setter
+    def warnings(self, value):
+        self._warnings = value
+
     def to_dict(self):
         defconf_dict = super(DefConfigDocument, self).to_dict()
         defconf_dict['job_id'] = self._job_id
         defconf_dict['job'] = self._job
         defconf_dict['kernel'] = self._kernel
-        defconf_dict['zimage'] = self._zimage
-        defconf_dict['image'] = self._image
-        defconf_dict['system_map'] = self._system_map
-        defconf_dict['kernel_conf'] = self._kernel_conf
-        defconf_dict['build_log'] = self._build_log
         defconf_dict['status'] = self._status
         defconf_dict['created'] = self._created
         defconf_dict['metadata'] = self._metadata
         defconf_dict['defconfig'] = self._defconfig
+        defconf_dict['warnings'] = self._warnings
+        defconf_dict['errors'] = self._errors
         return defconf_dict

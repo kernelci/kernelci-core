@@ -137,17 +137,14 @@ class TestDefconfModel(unittest.TestCase):
         expected = {
             'job_id': 'job',
             'kernel': 'kernel',
-            'build_log': None,
             'created': None,
             'metadata': {},
-            'image': None,
             'job': 'job',
-            'system_map': None,
-            'zimage': None,
             '_id': 'job-defconfig',
-            'kernel_conf': None,
             'status': None,
             'defconfig': None,
+            'errors': None,
+            'warnings': None,
         }
 
         defconfig_doc = DefConfigDocument('defconfig', 'job', 'job', 'kernel')
@@ -159,11 +156,10 @@ class TestDefconfModel(unittest.TestCase):
 
     def test_defconfig_document_to_json(self):
         expected_json = (
-            '{"status": null, "kernel": null, "job_id": "job", '
-            '"created": null, "image": null, "metadata": {}, '
-            '"defconfig": null, "job": null, "system_map": null, '
-            '"zimage": null, "_id": "job-defconfig", "build_log": null, '
-            '"kernel_conf": null}'
+            '{"status": null, "kernel": null, "errors": null, '
+            '"job_id": "job", "created": null, "warnings": null, '
+            '"defconfig": null, "job": null, "_id": "job-defconfig", '
+            '"metadata": {}}'
         )
 
         defconfig_doc = DefConfigDocument('defconfig', 'job')

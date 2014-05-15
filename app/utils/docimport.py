@@ -32,10 +32,7 @@ from models import (
     PASS_STATUS,
     UNKNOWN_STATUS,
 )
-from models.defconfig import (
-    DEFCONFIG_ACCEPTED_FILES,
-    DefConfigDocument,
-)
+from models.defconfig import DefConfigDocument
 from models.job import (
     JOB_COLLECTION,
     JobDocument,
@@ -197,9 +194,6 @@ def _traverse_defconf_dir(job_id, job, kernel, kernel_dir, defconf_dir):
     for dirname, subdirs, files in os.walk(real_dir):
         # Consider only the actual directory and its files.
         subdirs[:] = []
-        for key, val in DEFCONFIG_ACCEPTED_FILES.iteritems():
-            if key in files:
-                setattr(defconf_doc, val, os.path.join(dirname, key))
 
         # Legacy: status was retrieved via the presence of a file.
         # Keep it for backward compatibility.
@@ -230,15 +224,12 @@ def _parse_build_metadata(metadata_file, defconf_doc):
     metadata = parse_metadata_file(metadata_file)
 
     if metadata:
-        if metadata.get('build_result', None):
-            status = metadata.get('build_result')
-            if status == 'PASS':
-                defconf_doc.status = PASS_STATUS
-            elif status == 'FAIL':
-                defconf_doc.status = FAIL_STATUS
-
-        if metadata.get('defconfig', None):
-            defconf_doc.defconfig = metadata.get('defconfig')
+        # Set some of the metadata values directly into the objet for easier
+        # search.
+        defconf_doc.status = metadata.get('build_result', None)
+        defconf_doc.defconfig = metadata.get('defconfig', None)
+        defconf_doc.warnings = metadata.get('warnings', None)
+        defconf_doc.errros = metadata.get('errros', None)
 
     defconf_doc.metadata = metadata
 
