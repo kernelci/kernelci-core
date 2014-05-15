@@ -38,7 +38,18 @@ from tornado.web import (
     asynchronous,
 )
 
-from models import DB_NAME
+from models import (
+    AGGREGATE_KEY,
+    CREATED_KEY,
+    DATE_RANGE_KEY,
+    DB_NAME,
+    FIELD_KEY,
+    LIMIT_KEY,
+    NOT_FIELD_KEY,
+    SKIP_KEY,
+    SORT_KEY,
+    SORT_ORDER_KEY,
+)
 from utils.db import (
     aggregate,
     find_and_count,
@@ -310,7 +321,7 @@ class BaseHandler(RequestHandler):
         skip, limit = self._get_skip_and_limit()
         spec, sort, fields = self._get_query_args()
 
-        unique = self.get_query_argument('aggregate', default=None)
+        unique = self.get_query_argument(AGGREGATE_KEY, default=None)
         if unique:
             self.log.info("Performing aggregation on %s", unique)
             return aggregate(
@@ -331,8 +342,8 @@ class BaseHandler(RequestHandler):
 
         :return A tuple with the `skip` and `limit` arguments.
         """
-        skip = int(self.get_query_argument('skip', default=0))
-        limit = int(self.get_query_argument('limit', default=0))
+        skip = int(self.get_query_argument(SKIP_KEY, default=0))
+        limit = int(self.get_query_argument(LIMIT_KEY, default=0))
 
         return skip, limit
 
@@ -367,7 +378,7 @@ class BaseHandler(RequestHandler):
             ]
         }
 
-        date_range = self.get_query_argument('date_range', default=None)
+        date_range = self.get_query_argument(DATE_RANGE_KEY, default=None)
         if date_range:
             # Today needs to be set at the end of the day!
             today = datetime.combine(
@@ -375,7 +386,7 @@ class BaseHandler(RequestHandler):
             )
             previous = self._calculate_date_range(date_range)
 
-            spec['created'] = {'$gte': previous, '$lt': today}
+            spec[CREATED_KEY] = {'$gte': previous, '$lt': today}
 
         return spec
 
@@ -389,9 +400,9 @@ class BaseHandler(RequestHandler):
 
         :return A `sort` data structure.
         """
-        sort_fields = self.get_query_arguments('sort')
+        sort_fields = self.get_query_arguments(SORT_KEY)
         sort_order = int(
-            self.get_query_argument('sort_order', default=DESCENDING)
+            self.get_query_argument(SORT_ORDER_KEY, default=DESCENDING)
         )
 
         # Wrong number for sort order? Force descending.
@@ -415,8 +426,8 @@ class BaseHandler(RequestHandler):
         """
         fields = None
 
-        y_fields = self.get_query_arguments('field')
-        n_fields = self.get_query_arguments('nfield')
+        y_fields = self.get_query_arguments(FIELD_KEY)
+        n_fields = self.get_query_arguments(NOT_FIELD_KEY)
 
         if y_fields and not n_fields:
             fields = list(set(y_fields))

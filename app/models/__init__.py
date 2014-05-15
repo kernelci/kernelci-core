@@ -19,6 +19,14 @@ DB_NAME = 'kernel-ci'
 # The default ID key, and other keys, for mongodb documents.
 ID_KEY = '_id'
 CREATED_KEY = 'created_on'
+DATE_RANGE_KEY = 'date_range'
+SKIP_KEY = 'skip'
+LIMIT_KEY = 'limit'
+SORT_ORDER_KEY = 'sort_order'
+SORT_KEY = 'sort'
+FIELD_KEY = 'field'
+NOT_FIELD_KEY = 'nfield'
+AGGREGATE_KEY = 'aggregate'
 
 # Job and/or build status.
 BUILD_STATUS = 'BUILD'
