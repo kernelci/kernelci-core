@@ -16,7 +16,7 @@
 # The default mongodb database name.
 DB_NAME = 'kernel-ci'
 
-# The default ID key, and other keys, for mongodb documents.
+# The default ID key, and other keys, for mongodb documents and queries.
 ID_KEY = '_id'
 CREATED_KEY = 'created_on'
 DATE_RANGE_KEY = 'date_range'
@@ -27,6 +27,13 @@ SORT_KEY = 'sort'
 FIELD_KEY = 'field'
 NOT_FIELD_KEY = 'nfield'
 AGGREGATE_KEY = 'aggregate'
+DEFCONFIG_KEY = 'defconfig'
+BUILD_RESULT_KEY = 'build_result'
+WARNINGS_KEY = 'warnings'
+ERRORS_KEY = 'errors'
+ARCHITECTURE_KEY = 'arch'
+JOB_KEY = 'job'
+KERNEL_KEY = 'kernel'
 
 # Job and/or build status.
 BUILD_STATUS = 'BUILD'

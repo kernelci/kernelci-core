@@ -34,6 +34,7 @@ class DefConfigDocument(BaseDocument):
         self._job = job
         self._kernel = kernel
         self._defconfig = None
+        self._dirname = None
         self._status = None
         self._metadata = {}
         self._errors = None
@@ -131,6 +132,14 @@ class DefConfigDocument(BaseDocument):
     def arch(self, value):
         self._arch = value
 
+    @property
+    def dirname(self):
+        return self._dirname
+
+    @dirname.setter
+    def dirname(self, value):
+        self._dirname = value
+
     def to_dict(self):
         defconf_dict = super(DefConfigDocument, self).to_dict()
         defconf_dict['job_id'] = self._job_id
@@ -142,4 +151,5 @@ class DefConfigDocument(BaseDocument):
         defconf_dict['warnings'] = self._warnings
         defconf_dict['errors'] = self._errors
         defconf_dict['arch'] = self._arch
+        defconf_dict['dirname'] = self._dirname
         return defconf_dict

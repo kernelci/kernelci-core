@@ -146,6 +146,7 @@ class TestDefconfModel(unittest.TestCase):
             'errors': None,
             'warnings': None,
             'arch': None,
+            'dirname': None,
         }
 
         defconfig_doc = DefConfigDocument('defconfig', 'job', 'job', 'kernel')
@@ -158,9 +159,9 @@ class TestDefconfModel(unittest.TestCase):
     def test_defconfig_document_to_json(self):
         expected_json = (
             '{"status": null, "kernel": null, "errors": null, '
-            '"job_id": "job", "warnings": null, "created_on": null, '
-            '"defconfig": null, "job": null, "_id": "job-defconfig", '
-            '"arch": null, "metadata": {}}'
+            '"dirname": null, "job_id": "job", "warnings": null, '
+            '"created_on": null, "defconfig": null, "job": null, '
+            '"_id": "job-defconfig", "arch": null, "metadata": {}}'
         )
 
         defconfig_doc = DefConfigDocument('defconfig', 'job')

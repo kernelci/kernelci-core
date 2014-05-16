@@ -22,15 +22,22 @@ from bson import tz_util
 from datetime import datetime
 
 from models import (
+    ARCHITECTURE_KEY,
     BUILD_FAIL_FILE,
     BUILD_META_FILE,
     BUILD_PASS_FILE,
+    BUILD_RESULT_KEY,
     BUILD_STATUS,
     DB_NAME,
+    DEFCONFIG_KEY,
     DONE_FILE,
+    ERRORS_KEY,
     FAIL_STATUS,
+    JOB_KEY,
+    KERNEL_KEY,
     PASS_STATUS,
     UNKNOWN_STATUS,
+    WARNINGS_KEY,
 )
 from models.defconfig import DefConfigDocument
 from models.job import (
@@ -88,8 +95,8 @@ def import_job_from_json(json_obj, database, base_path=BASE_PATH):
         directory. It defaults to: /var/www/images/kernel-ci.
     :return The documents to be saved, and the job document ID.
     """
-    job_dir = json_obj['job']
-    kernel_dir = json_obj['kernel']
+    job_dir = json_obj[JOB_KEY]
+    kernel_dir = json_obj[KERNEL_KEY]
 
     return _import_job(job_dir, kernel_dir, database, base_path)
 
@@ -104,7 +111,7 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
     """
     job_dir = os.path.join(base_path, job)
     kernel_dir = os.path.join(job_dir, kernel)
-    job_id = JobDocument.ID_FORMAT % {'job': job, 'kernel': kernel}
+    job_id = JobDocument.ID_FORMAT % {JOB_KEY: job, KERNEL_KEY: kernel}
 
     docs = []
 
@@ -183,6 +190,7 @@ def _traverse_defconf_dir(job_id, job, kernel, kernel_dir, defconf_dir):
     # the value from there.
     # Split on the + sign since some dirs are in the form 'defconfig+FRAGMENT'.
     defconf_doc.defconfig = defconf_dir.split('+')[0]
+    defconf_doc.dirname = defconf_dir
 
     LOG.info("Traversing directory %s", defconf_dir)
 
@@ -226,11 +234,11 @@ def _parse_build_metadata(metadata_file, defconf_doc):
     if metadata:
         # Set some of the metadata values directly into the objet for easier
         # search.
-        defconf_doc.status = metadata.get('build_result', None)
-        defconf_doc.defconfig = metadata.get('defconfig', None)
-        defconf_doc.warnings = metadata.get('warnings', None)
-        defconf_doc.errros = metadata.get('errros', None)
-        defconf_doc.arch = metadata.get('arch', None)
+        defconf_doc.status = metadata.get(BUILD_RESULT_KEY, None)
+        defconf_doc.defconfig = metadata.get(DEFCONFIG_KEY, None)
+        defconf_doc.warnings = metadata.get(WARNINGS_KEY, None)
+        defconf_doc.errros = metadata.get(ERRORS_KEY, None)
+        defconf_doc.arch = metadata.get(ARCHITECTURE_KEY, None)
 
     defconf_doc.metadata = metadata
 
