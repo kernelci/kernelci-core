@@ -24,13 +24,17 @@ from datetime import datetime
 from types import DictionaryType
 from mock import (
     MagicMock,
+    Mock,
     patch,
 )
+
+from models.defconfig import DefConfigDocument
 
 from utils.docimport import (
     _import_all,
     _import_job,
     _parse_build_metadata,
+    _traverse_defconf_dir,
     import_and_save_job,
 )
 
@@ -167,3 +171,41 @@ modules_dir: foo/bar
         self.assertIsInstance(defconf_doc.metadata, DictionaryType)
         self.assertEqual(None, defconf_doc.metadata['kconfig_fragments'])
         self.assertEqual('arm', defconf_doc.metadata['arch'])
+
+    @patch('utils.docimport._parse_build_metadata')
+    @patch('os.path.isfile')
+    @patch('os.walk', new=Mock(return_value=[('defconf-dir', [], [])]))
+    @patch('os.stat')
+    def test_traverse_defconf_dir_json(
+            self, mock_stat, mock_isfile, mock_parser):
+        mock_stat.st_mtime.return_value = datetime.now(tz=tz_util.utc)
+        mock_isfile.side_effect = [False, False, True]
+
+        defconf_doc = _traverse_defconf_dir(
+            'job-kernel', 'job', 'kernel', 'kernel-dir', 'defconf-dir'
+        )
+
+        self.assertIsInstance(defconf_doc, DefConfigDocument)
+        self.assertEqual(defconf_doc.status, 'UNKNOWN')
+        mock_parser.assert_called_once_with(
+            'defconf-dir/build.json', defconf_doc
+        )
+
+    @patch('utils.docimport._parse_build_metadata')
+    @patch('os.path.isfile')
+    @patch('os.walk', new=Mock(return_value=[('defconf-dir', [], [])]))
+    @patch('os.stat')
+    def test_traverse_defconf_dir_nornal(
+            self, mock_stat, mock_isfile, mock_parser):
+        mock_stat.st_mtime.return_value = datetime.now(tz=tz_util.utc)
+        mock_isfile.side_effect = [False, False, False, True]
+
+        defconf_doc = _traverse_defconf_dir(
+            'job-kernel', 'job', 'kernel', 'kernel-dir', 'defconf-dir'
+        )
+
+        self.assertIsInstance(defconf_doc, DefConfigDocument)
+        self.assertEqual(defconf_doc.status, 'UNKNOWN')
+        mock_parser.assert_called_once_with(
+            'defconf-dir/build.meta', defconf_doc
+        )

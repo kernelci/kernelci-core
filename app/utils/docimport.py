@@ -25,6 +25,7 @@ from models import (
     ARCHITECTURE_KEY,
     BUILD_FAIL_FILE,
     BUILD_META_FILE,
+    BUILD_META_JSON_FILE,
     BUILD_PASS_FILE,
     BUILD_RESULT_KEY,
     BUILD_STATUS,
@@ -124,22 +125,17 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
     job_doc.updated = datetime.now(tz=tz_util.utc)
     docs.append(job_doc)
 
-    if os.path.exists(os.path.join(job_dir, DONE_FILE)):
-        job_doc.status = PASS_STATUS
-    else:
-        job_doc.status = BUILD_STATUS
-
     if os.path.isdir(kernel_dir):
         if os.path.exists(os.path.join(kernel_dir, DONE_FILE)):
             job_doc.status = PASS_STATUS
+        else:
+            job_doc.status = UNKNOWN_STATUS
 
         # If the job dir exists, read the last modification time from the
         # file system and use that as the creation date.
         if not job_doc.created_on:
             job_doc.created_on = datetime.fromtimestamp(
                 os.stat(kernel_dir).st_mtime, tz=tz_util.utc)
-
-        job_doc.updated = datetime.now(tz=tz_util.utc)
 
         docs.extend(
             [
@@ -150,6 +146,7 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
             ]
         )
     else:
+        job_doc.status = BUILD_STATUS
         job_doc.created_on = datetime.now(tz=tz_util.utc)
 
     # Kind of a hack:
@@ -205,17 +202,20 @@ def _traverse_defconf_dir(job_id, job, kernel, kernel_dir, defconf_dir):
 
         # Legacy: status was retrieved via the presence of a file.
         # Keep it for backward compatibility.
-        if os.path.exists(os.path.join(dirname, BUILD_PASS_FILE)):
+        if os.path.isfile(os.path.join(dirname, BUILD_PASS_FILE)):
             defconf_doc.status = PASS_STATUS
-        elif os.path.exists(os.path.join(dirname, BUILD_FAIL_FILE)):
+        elif os.path.isfile(os.path.join(dirname, BUILD_FAIL_FILE)):
             defconf_doc.status = FAIL_STATUS
         else:
             defconf_doc.status = UNKNOWN_STATUS
 
-        if os.path.exists(os.path.join(dirname, BUILD_META_FILE)):
-            _parse_build_metadata(
-                os.path.join(dirname, BUILD_META_FILE), defconf_doc
-            )
+        json_meta_file = os.path.join(dirname, BUILD_META_JSON_FILE)
+        default_meta_file = os.path.join(dirname, BUILD_META_FILE)
+
+        if os.path.isfile(json_meta_file):
+            _parse_build_metadata(json_meta_file, defconf_doc)
+        elif os.path.isfile(default_meta_file):
+            _parse_build_metadata(default_meta_file, defconf_doc)
         else:
             # If we do not have the metadata file, consider the build failed.
             defconf_doc.status = FAIL_STATUS
