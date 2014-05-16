@@ -15,6 +15,17 @@
 
 """The model that represents a boot document in the mongodb collection."""
 
+from models import (
+    BOARD_KEY,
+    DEFCONFIG_KEY,
+    FAIL_LOG_KEY,
+    JOB_ID_KEY,
+    JOB_KEY,
+    KERNEL_KEY,
+    STATUS_KEY,
+    TIME_KEY,
+    WARNINGS_KEY,
+)
 from models.base import BaseDocument
 from models.job import JobDocument
 
@@ -24,15 +35,7 @@ BOOT_COLLECTION = 'boot'
 class BootDocument(BaseDocument):
     """Model for a boot document.
 
-    Each document holds a list of boards that have been tested. Each board
-    is a dictionary with at least the following values:
-
-    board - the board name
-    time - time taken to run the test, measured as seconds passed from the
-        epoch time
-    status - the status of the boot test
-    warnings - the number of warnings
-    log - optinal log for failed boot, stored as a list of strings
+    Each document is a single booted board.
     """
 
     ID_FORMAT = '%(board)s-%(job)s-%(kernel)s-%(defconfig)s'
@@ -40,14 +43,16 @@ class BootDocument(BaseDocument):
     def __init__(self, board, job, kernel, defconfig):
         super(BootDocument, self).__init__(
             self.ID_FORMAT % {
-                'board': board,
-                'job': job,
-                'kernel': kernel,
-                'defconfig': defconfig,
+                BOARD_KEY: board,
+                JOB_KEY: job,
+                KERNEL_KEY: kernel,
+                DEFCONFIG_KEY: defconfig,
             }
         )
 
-        self._job_id = JobDocument.ID_FORMAT % {'job': job, 'kernel': kernel}
+        self._job_id = JobDocument.ID_FORMAT % {
+            JOB_KEY: job, KERNEL_KEY: kernel
+        }
 
         self._board = board
         self._job = job
@@ -131,13 +136,13 @@ class BootDocument(BaseDocument):
 
     def to_dict(self):
         boot_dict = super(BootDocument, self).to_dict()
-        boot_dict['board'] = self._board
-        boot_dict['time'] = self._time
-        boot_dict['job'] = self._job
-        boot_dict['kernel'] = self._kernel
-        boot_dict['defconfig'] = self._defconfig
-        boot_dict['status'] = self._status
-        boot_dict['fail_log'] = self._fail_log
-        boot_dict['warnings'] = self._warnings
-        boot_dict['job_id'] = self._job_id
+        boot_dict[BOARD_KEY] = self._board
+        boot_dict[TIME_KEY] = self._time
+        boot_dict[JOB_KEY] = self._job
+        boot_dict[KERNEL_KEY] = self._kernel
+        boot_dict[DEFCONFIG_KEY] = self._defconfig
+        boot_dict[STATUS_KEY] = self._status
+        boot_dict[FAIL_LOG_KEY] = self._fail_log
+        boot_dict[WARNINGS_KEY] = self._warnings
+        boot_dict[JOB_ID_KEY] = self._job_id
         return boot_dict

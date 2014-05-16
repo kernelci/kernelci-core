@@ -15,6 +15,18 @@
 
 """The model that represents a defconfing document in the mongodb collection."""
 
+from models import (
+    ARCHITECTURE_KEY,
+    DEFCONFIG_KEY,
+    DIRNAME_KEY,
+    ERRORS_KEY,
+    JOB_ID_KEY,
+    JOB_KEY,
+    KERNEL_KEY,
+    METADATA_KEY,
+    STATUS_KEY,
+    WARNINGS_KEY,
+)
 from models.base import BaseDocument
 
 DEFCONFIG_COLLECTION = 'defconfig'
@@ -27,7 +39,7 @@ class DefConfigDocument(BaseDocument):
 
     def __init__(self, name, job_id, job=None, kernel=None):
         super(DefConfigDocument, self).__init__(
-            self.ID_FORMAT % {'job_id': job_id, 'defconfig': name}
+            self.ID_FORMAT % {JOB_ID_KEY: job_id, DEFCONFIG_KEY: name}
         )
 
         self._job_id = job_id
@@ -134,6 +146,7 @@ class DefConfigDocument(BaseDocument):
 
     @property
     def dirname(self):
+        """The name of the directory of this defconfig."""
         return self._dirname
 
     @dirname.setter
@@ -142,14 +155,14 @@ class DefConfigDocument(BaseDocument):
 
     def to_dict(self):
         defconf_dict = super(DefConfigDocument, self).to_dict()
-        defconf_dict['job_id'] = self._job_id
-        defconf_dict['job'] = self._job
-        defconf_dict['kernel'] = self._kernel
-        defconf_dict['status'] = self._status
-        defconf_dict['metadata'] = self._metadata
-        defconf_dict['defconfig'] = self._defconfig
-        defconf_dict['warnings'] = self._warnings
-        defconf_dict['errors'] = self._errors
-        defconf_dict['arch'] = self._arch
-        defconf_dict['dirname'] = self._dirname
+        defconf_dict[JOB_ID_KEY] = self._job_id
+        defconf_dict[JOB_KEY] = self._job
+        defconf_dict[KERNEL_KEY] = self._kernel
+        defconf_dict[STATUS_KEY] = self._status
+        defconf_dict[METADATA_KEY] = self._metadata
+        defconf_dict[DEFCONFIG_KEY] = self._defconfig
+        defconf_dict[WARNINGS_KEY] = self._warnings
+        defconf_dict[ERRORS_KEY] = self._errors
+        defconf_dict[ARCHITECTURE_KEY] = self._arch
+        defconf_dict[DIRNAME_KEY] = self._dirname
         return defconf_dict

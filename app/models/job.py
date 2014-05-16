@@ -18,7 +18,21 @@
 from bson import json_util
 from types import StringTypes
 
-from models import ID_KEY
+from models import (
+    COMPILER_VERSION_KEY,
+    CROSS_COMPILE_KEY,
+    GIT_BRANCH_KEY,
+    GIT_COMMIT_KEY,
+    GIT_DESCRIBE_KEY,
+    GIT_URL_KEY,
+    ID_KEY,
+    JOB_KEY,
+    KERNEL_KEY,
+    METADATA_KEY,
+    PRIVATE_KEY,
+    STATUS_KEY,
+    UPDATED_KEY,
+)
 from models.base import BaseDocument
 
 JOB_COLLECTION = 'job'
@@ -34,8 +48,8 @@ class JobDocument(BaseDocument):
 
     ID_FORMAT = '%(job)s-%(kernel)s'
     METADATA_KEYS = (
-        'git_url', 'git_branch', 'git_describe', 'git_commit',
-        'cross_compile', 'compiler_version',
+        CROSS_COMPILE_KEY, COMPILER_VERSION_KEY,
+        GIT_URL_KEY, GIT_BRANCH_KEY, GIT_DESCRIBE_KEY, GIT_COMMIT_KEY,
     )
 
     def __init__(self, name, job=None, kernel=None):
@@ -133,12 +147,12 @@ class JobDocument(BaseDocument):
 
     def to_dict(self):
         job_dict = super(JobDocument, self).to_dict()
-        job_dict['private'] = self._private
-        job_dict['job'] = self._job
-        job_dict['kernel'] = self._kernel
-        job_dict['updated'] = self._updated
-        job_dict['status'] = self._status
-        job_dict['metadata'] = self._metadata
+        job_dict[PRIVATE_KEY] = self._private
+        job_dict[JOB_KEY] = self._job
+        job_dict[KERNEL_KEY] = self._kernel
+        job_dict[UPDATED_KEY] = self._updated
+        job_dict[STATUS_KEY] = self._status
+        job_dict[METADATA_KEY] = self._metadata
         return job_dict
 
     @staticmethod

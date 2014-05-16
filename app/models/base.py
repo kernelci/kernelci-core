@@ -19,7 +19,10 @@ import json
 
 from bson import json_util
 
-from models import ID_KEY, CREATED_KEY
+from models import (
+    CREATED_KEY,
+    ID_KEY,
+)
 
 
 class BaseDocument(object):
