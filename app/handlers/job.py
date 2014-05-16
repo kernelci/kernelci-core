@@ -20,6 +20,14 @@ import tornado
 from functools import partial
 
 from handlers.base import BaseHandler
+from models import (
+    CREATED_KEY,
+    JOB_ID_KEY,
+    JOB_KEY,
+    KERNEL_KEY,
+    PRIVATE_KEY,
+    STATUS_KEY,
+)
 from models.job import JOB_COLLECTION
 from models.defconfig import DEFCONFIG_COLLECTION
 from models.subscription import SUBSCRIPTION_COLLECTION
@@ -45,8 +53,10 @@ class JobHandler(BaseHandler):
 
     def _valid_keys(self, method):
         valid_keys = {
-            'POST': ['job', 'kernel'],
-            'GET': ['job', 'kernel', 'status', 'private', 'created_on'],
+            'POST': [JOB_KEY, KERNEL_KEY],
+            'GET': [
+                JOB_KEY, KERNEL_KEY, STATUS_KEY, PRIVATE_KEY, CREATED_KEY,
+            ],
         }
 
         return valid_keys.get(method, None)
@@ -83,12 +93,12 @@ class JobHandler(BaseHandler):
         if find_one(self.collection, job_id):
             delete(
                 self.db[DEFCONFIG_COLLECTION],
-                {'job_id': {'$in': [job_id]}}
+                {JOB_ID_KEY: {'$in': [job_id]}}
             )
 
             delete(
                 self.db[SUBSCRIPTION_COLLECTION],
-                {'job_id': {'$in': [job_id]}}
+                {JOB_ID_KEY: {'$in': [job_id]}}
             )
 
             ret_val = delete(self.collection, job_id)

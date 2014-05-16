@@ -21,6 +21,17 @@ from functools import partial
 from tornado.web import asynchronous
 
 from handlers.base import BaseHandler
+from models import (
+    ARCHITECTURE_KEY,
+    CREATED_KEY,
+    DEFCONFIG_KEY,
+    ERRORS_KEY,
+    JOB_ID_KEY,
+    JOB_KEY,
+    KERNEL_KEY,
+    STATUS_KEY,
+    WARNINGS_KEY,
+)
 from models.defconfig import DEFCONFIG_COLLECTION
 from utils.db import delete
 
@@ -38,7 +49,8 @@ class DefConfHandler(BaseHandler):
     def _valid_keys(self, method):
         valid_keys = {
             'GET': [
-                'job', 'kernel', 'status', 'job_id', 'created_on', 'defconfig'
+                DEFCONFIG_KEY, WARNINGS_KEY, ERRORS_KEY, ARCHITECTURE_KEY,
+                JOB_KEY, KERNEL_KEY, STATUS_KEY, JOB_ID_KEY, CREATED_KEY,
             ],
         }
 

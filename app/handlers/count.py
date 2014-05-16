@@ -22,6 +22,21 @@ from tornado.web import (
     asynchronous,
 )
 
+from models import (
+    ARCHITECTURE_KEY,
+    BOARD_KEY,
+    CREATED_KEY,
+    DEFCONFIG_KEY,
+    ERRORS_KEY,
+    ID_KEY,
+    JOB_ID_KEY,
+    JOB_KEY,
+    KERNEL_KEY,
+    PRIVATE_KEY,
+    STATUS_KEY,
+    TIME_KEY,
+    WARNINGS_KEY,
+)
 from handlers.base import BaseHandler
 from models.boot import BOOT_COLLECTION
 from models.defconfig import DEFCONFIG_COLLECTION
@@ -49,14 +64,24 @@ class CountHandler(BaseHandler):
         # Internally used only. It is used to retrieve just one field for
         # the query results since we only need to count the results, we are
         # not interested in the values.
-        self._fields = {'_id': True}
+        self._fields = {ID_KEY: True}
 
     def _valid_keys(self, method):
         valid_keys = {
             # This is a set of all the valid fields in the available models.
             'GET': [
-                'job', 'kernel', 'status', 'private', 'created_on',
-                'defconfig', 'board', 'time', 'warnings',
+                ARCHITECTURE_KEY,
+                BOARD_KEY,
+                CREATED_KEY,
+                DEFCONFIG_KEY,
+                ERRORS_KEY,
+                JOB_ID_KEY,
+                JOB_KEY,
+                KERNEL_KEY,
+                PRIVATE_KEY,
+                STATUS_KEY,
+                TIME_KEY,
+                WARNINGS_KEY,
             ],
         }
 
