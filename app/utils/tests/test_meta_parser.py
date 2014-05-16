@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import json
 import logging
 import os
 import tempfile
@@ -59,3 +60,19 @@ class TestMetaParser(unittest.TestCase):
         metadata = parse_metadata_file(self.temp_metadata.name)
 
         self.assertEqual(expected, metadata)
+
+    def test_parse_json_file(self):
+        expected = dict(build_status='PASS', build_log='build.log')
+
+        try:
+            json_tmp = tempfile.NamedTemporaryFile(
+                suffix='.json', delete=False
+            )
+
+            with open(json_tmp.name, 'w') as w_file:
+                json.dump(expected, w_file)
+
+            metadata = parse_metadata_file(json_tmp.name)
+            self.assertEqual(expected, metadata)
+        finally:
+            os.unlink(json_tmp.name)

@@ -16,6 +16,8 @@
 """Functions to parse build metadata files."""
 
 import ConfigParser
+import json
+import os
 
 from utils import LOG
 
@@ -34,15 +36,36 @@ def parse_metadata_file(metadata_file):
     """
     metadata = None
 
-    with open(metadata_file, 'r') as r_file:
-        first_line = r_file.readline()
+    LOG.info("Parsing metadata file %s", metadata_file)
 
-        if first_line.strip().lower() == CONFIG_FILE_START:
-            r_file.seek(0)
-            metadata = _parse_config_metadata(r_file)
-        else:
-            r_file.seek(0)
-            metadata = _parse_build_metadata(r_file)
+    if os.path.basename(metadata_file).endswith('json'):
+        metadata = _parse_json_metadata(metadata_file)
+    else:
+        with open(metadata_file, 'r') as r_file:
+            first_line = r_file.readline()
+
+            if first_line.strip().lower() == CONFIG_FILE_START:
+                r_file.seek(0)
+                metadata = _parse_config_metadata(r_file)
+            else:
+                r_file.seek(0)
+                metadata = _parse_build_metadata(r_file)
+
+    return metadata
+
+
+def _parse_json_metadata(metadata_file):
+    """Parse a JSON based metadata file.
+
+    :param metadata_file: The path to the metadata file.
+    :return A dictionary containing the parsed metadata file.
+    """
+    LOG.info("Parsing JSON metadata file")
+
+    metadata = {}
+
+    with open(metadata_file, 'r') as r_file:
+        metadata = json.load(r_file)
 
     return metadata
 
@@ -55,7 +78,7 @@ def _parse_config_metadata(metadata_file):
     :param metadata_file: The open for reading metadata file.
     :return A dictionary containing the parsed lines in the file.
     """
-    LOG.info("Parsing metadata file %s", metadata_file)
+    LOG.info("Parsing INI-like metadata file")
 
     config = ConfigParser.ConfigParser(allow_no_value=True)
     config.readfp(metadata_file)
@@ -73,6 +96,8 @@ def _parse_build_metadata(metadata_file):
     :param metadata_file: The open for reading metadata file.
     :return A dictionary containing the parsed lines in the file.
     """
+    LOG.info("Parsing normal metadata file")
+
     metadata = {}
 
     LOG.info("Parsing metadata file %s", metadata_file)
@@ -88,8 +113,9 @@ def _parse_build_metadata(metadata_file):
                 key, value = line.split(':', 1)
                 value = value.strip()
                 if value:
-                    # We store only real values, not empty ones.
                     metadata[key] = value
+                else:
+                    metadata[key] = None
             except ValueError, ex:
                 LOG.error("Error parsing metadata file line: %s", line)
                 LOG.exception(str(ex))

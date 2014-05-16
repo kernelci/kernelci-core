@@ -155,7 +155,7 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
     # Kind of a hack:
     # We want to store some metadata at the job document level as well, like
     # git tree, git commit...
-    # Since, at the moment, we do not have the build.meta file at the job level
+    # Since, at the moment, we do not have the metadata file at the job level
     # we need to pick one from the build documents, and extract some values.
     docs_len = len(docs)
     if docs_len > 1:

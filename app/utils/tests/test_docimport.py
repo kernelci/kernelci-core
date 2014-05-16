@@ -165,5 +165,5 @@ modules_dir: foo/bar
             os.unlink(fake_meta.name)
 
         self.assertIsInstance(defconf_doc.metadata, DictionaryType)
-        self.assertNotIn('kconfig_fragments', defconf_doc.metadata.keys())
+        self.assertEqual(None, defconf_doc.metadata['kconfig_fragments'])
         self.assertEqual('arm', defconf_doc.metadata['arch'])
