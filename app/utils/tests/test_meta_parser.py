@@ -17,6 +17,7 @@ import json
 import logging
 import os
 import tempfile
+import types
 import unittest
 
 from utils.meta_parser import parse_metadata_file
@@ -73,6 +74,7 @@ class TestMetaParser(unittest.TestCase):
                 json.dump(expected, w_file)
 
             metadata = parse_metadata_file(json_tmp.name)
+            self.assertIsInstance(metadata, types.DictionaryType)
             self.assertEqual(expected, metadata)
         finally:
             os.unlink(json_tmp.name)
