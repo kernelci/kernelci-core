@@ -40,6 +40,7 @@ class KernelCiBackend(Application):
             'client': self.mongodb_client,
             'default_handler_class': AppHandler,
             'executor': ThreadPoolExecutor(max_workers=15),
+            'gzip': True,
         }
 
         super(KernelCiBackend, self).__init__(APP_URLS, **settings)
