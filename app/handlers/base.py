@@ -342,8 +342,12 @@ class BaseHandler(RequestHandler):
 
         :return A tuple with the `skip` and `limit` arguments.
         """
-        skip = int(self.get_query_argument(SKIP_KEY, default=0))
-        limit = int(self.get_query_argument(LIMIT_KEY, default=0))
+        skip = 0
+        limit = 0
+
+        if self.request.arguments:
+            skip = int(self.get_query_argument(SKIP_KEY, default=0))
+            limit = int(self.get_query_argument(LIMIT_KEY, default=0))
 
         return skip, limit
 
@@ -355,9 +359,14 @@ class BaseHandler(RequestHandler):
 
         :return A tuple with `spec`, `sort` and `fields` data structures.
         """
-        spec = self._get_query_spec()
-        sort = self._get_query_sort()
-        fields = self._get_query_fields()
+        spec = {}
+        sort = None
+        fields = None
+
+        if self.request.arguments:
+            spec = self._get_query_spec()
+            sort = self._get_query_sort()
+            fields = self._get_query_fields()
 
         return (spec, sort, fields)
 
