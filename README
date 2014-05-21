@@ -18,6 +18,10 @@ From the 'app/' folder, run:
 
   python -m unittest discover
 
+or
+
+  python -m unittest tests.test_suite
+
 Run the server
 ==============
 
@@ -43,7 +47,7 @@ To manually run it, from the 'app/' folder, run:
 At the moment the Celery worker is based on redis.io: it needs to be installed
 as well to make it work.
 
-There is support for MongoDB as well, but is still experimental and has not been
+There is support for MongoDB, but is still experimental and has not been
 tested yet with this application.
 
 
@@ -55,6 +59,8 @@ GET
 
   curl localhost:8888/api/job
   curl localhost:8888/api/defconfig
+  curl localhost:8888/api/boot
+  curl localhost:8888/api/count
 
   curl localhost:8888/api/job/$JOB_ID
   curl localhost:8888/api/defconfig/$DEFCONF_ID
@@ -64,6 +70,11 @@ GET
 
 POST
 ----
+
+POST requests work for:
+
+  /api/job
+  /api/boot
 
 This command will tell the application to parse the directory located at
 'stable/v3.12.14' and import everything there.
@@ -78,4 +89,9 @@ Manul import of all data
 
 From the 'app/' directory run:
 
-  python -m utils.docimport
+  python -m utils.docimport (it will import all builds)
+  python -m utils.bootimport (it will import all boot reports)
+
+The boot import feature might be broken for old boot reports: the file format
+changed, and only the latest one is supported. In the future, boot reports
+should be available in JSON format and only that will be supported.
