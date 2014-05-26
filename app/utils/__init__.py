@@ -17,3 +17,15 @@ from utils.log import get_log
 
 BASE_PATH = '/var/www/images/kernel-ci'
 LOG = get_log()
+
+
+def is_hidden(value):
+    """Verify if a file name or dir name is hidden (starts with .).
+
+    :param value: The value to verify.
+    :return True or False.
+    """
+    hidden = False
+    if value.startswith('.'):
+        hidden = True
+    return hidden
