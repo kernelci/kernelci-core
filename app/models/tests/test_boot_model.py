@@ -35,11 +35,16 @@ class TestBootModel(unittest.TestCase):
             'kernel': 'kernel',
             'job_id': 'job-kernel',
             'created_on': None,
-            'fail_log': [],
             'defconfig': 'defconfig',
             'job': 'job',
             '_id': 'board-job-kernel-defconfig',
             'board': 'board',
+            'load_addr': None,
+            'dtb': None,
+            'dtb_addr': None,
+            'initrd_addr': None,
+            'kernel_image': None,
+            'boot_log': None,
         }
 
         self.assertEqual(expected, boot_doc.to_dict())
@@ -48,10 +53,12 @@ class TestBootModel(unittest.TestCase):
         boot_doc = BootDocument('board', 'job', 'kernel', 'defconfig')
 
         expected = (
-            '{"status": null, "kernel": "kernel", "job_id": "job-kernel", '
-            '"warnings": null, "fail_log": [], "created_on": null, '
-            '"defconfig": "defconfig", "job": "job", "board": "board", '
-            '"time": null, "_id": "board-job-kernel-defconfig"}'
+            '{"status": null, "kernel": "kernel", "boot_log": null, '
+            '"job_id": "job-kernel", "warnings": null, "initrd_addr": null, '
+            '"dtb_addr": null, "created_on": null, "defconfig": "defconfig", '
+            '"kernel_image": null, "job": "job", "board": "board", '
+            '"time": null, "dtb": null, "_id": "board-job-kernel-defconfig", '
+            '"load_addr": null}'
         )
 
         self.assertEqual(expected, boot_doc.to_json())

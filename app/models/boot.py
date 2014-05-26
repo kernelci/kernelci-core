@@ -17,11 +17,16 @@
 
 from models import (
     BOARD_KEY,
+    BOOT_LOG_KEY,
     DEFCONFIG_KEY,
-    FAIL_LOG_KEY,
+    DTB_ADDR_KEY,
+    DTB_KEY,
+    INITRD_ADDR_KEY,
     JOB_ID_KEY,
     JOB_KEY,
+    KERNEL_IMAGE_KEY,
     KERNEL_KEY,
+    LOAD_ADDR_KEY,
     STATUS_KEY,
     TIME_KEY,
     WARNINGS_KEY,
@@ -61,7 +66,12 @@ class BootDocument(BaseDocument):
         self._time = None
         self._status = None
         self._warnings = None
-        self._fail_log = []
+        self._boot_log = None
+        self._initrd_addr = None
+        self._load_addr = None
+        self._kernel_image = None
+        self._dtb_addr = None
+        self._dtb = None
 
     @property
     def collection(self):
@@ -97,16 +107,13 @@ class BootDocument(BaseDocument):
         self._status = value
 
     @property
-    def fail_log(self):
-        """The log of this board in case it failed to boot.
+    def boot_log(self):
+        """The log of this board."""
+        return self._boot_log
 
-        It is stored as a list of strings.
-        """
-        return self._fail_log
-
-    @fail_log.setter
-    def fail_log(self, value):
-        self._fail_log = value
+    @boot_log.setter
+    def boot_log(self, value):
+        self._boot_log = value
 
     @property
     def time(self):
@@ -134,6 +141,49 @@ class BootDocument(BaseDocument):
         """The ID of the Job document associated with this boot."""
         return self._job_id
 
+    @property
+    def initrd_addr(self):
+        return self._initrd_addr
+
+    @initrd_addr.setter
+    def initrd_addr(self, value):
+        self._initrd_addr = value
+
+    @property
+    def load_addr(self):
+        """The load_addr."""
+        return self._load_addr
+
+    @load_addr.setter
+    def load_addr(self, value):
+        self._load_addr = value
+
+    @property
+    def dtb_addr(self):
+        return self._dtb_addr
+
+    @dtb_addr.setter
+    def dtb_addr(self, value):
+        self._dtb_addr = value
+
+    @property
+    def dtb(self):
+        """The dtb file of this boot document."""
+        return self._dtb
+
+    @dtb.setter
+    def dtb(self, value):
+        self._dtb = value
+
+    @property
+    def kernel_image(self):
+        """The kernel image used to boot."""
+        return self._kernel_image
+
+    @kernel_image.setter
+    def kernel_image(self, value):
+        self._kernel_image = value
+
     def to_dict(self):
         boot_dict = super(BootDocument, self).to_dict()
         boot_dict[BOARD_KEY] = self._board
@@ -142,7 +192,12 @@ class BootDocument(BaseDocument):
         boot_dict[KERNEL_KEY] = self._kernel
         boot_dict[DEFCONFIG_KEY] = self._defconfig
         boot_dict[STATUS_KEY] = self._status
-        boot_dict[FAIL_LOG_KEY] = self._fail_log
+        boot_dict[BOOT_LOG_KEY] = self._boot_log
         boot_dict[WARNINGS_KEY] = self._warnings
         boot_dict[JOB_ID_KEY] = self._job_id
+        boot_dict[KERNEL_IMAGE_KEY] = self._kernel_image
+        boot_dict[LOAD_ADDR_KEY] = self._load_addr
+        boot_dict[INITRD_ADDR_KEY] = self._initrd_addr
+        boot_dict[DTB_KEY] = self._dtb
+        boot_dict[DTB_ADDR_KEY] = self._dtb_addr
         return boot_dict
