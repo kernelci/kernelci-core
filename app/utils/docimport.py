@@ -48,6 +48,7 @@ from models.job import (
 from utils import (
     BASE_PATH,
     LOG,
+    is_hidden,
 )
 from utils.db import (
     find_one,
@@ -110,11 +111,14 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
     :param base_path: The base path where to strat the traversing.
     :return The documents to be saved, and the job document ID.
     """
+    docs = []
     job_dir = os.path.join(base_path, job)
     kernel_dir = os.path.join(job_dir, kernel)
-    job_id = JobDocument.ID_FORMAT % {JOB_KEY: job, KERNEL_KEY: kernel}
 
-    docs = []
+    if is_hidden(job) or is_hidden(kernel):
+        return docs
+
+    job_id = JobDocument.ID_FORMAT % {JOB_KEY: job, KERNEL_KEY: kernel}
 
     saved_doc = find_one(database[JOB_COLLECTION], [job_id])
     if saved_doc:
@@ -143,6 +147,7 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
                     job_id, job, kernel, kernel_dir, defconf_dir
                 ) for defconf_dir in os.listdir(kernel_dir)
                 if os.path.isdir(os.path.join(kernel_dir, defconf_dir))
+                if not is_hidden(defconf_dir)
             ]
         )
     else:
