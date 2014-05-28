@@ -1,5 +1,4 @@
 ---
-
 - name: Checkout kernel-ci-backend code
   git:  repo=http://git.linaro.org/git/infrastructure/kernel-ci-backend.git
         dest={{ install_base }}/{{ hostname }}
@@ -21,7 +20,18 @@
     - app
 
 - name: Install pip requirements
-  pip: requirements={{ install_base }}/{{ hostname }}/requirements.txt
+  pip:  requirements={{ install_base }}/{{ hostname }}/requirements.txt
+        virtualenv={{ install_base }}/.venv/{{ hostname }}
+  tags:
+    - install
+    - app
+
+- name: Fix virtualenv permissions
+  file: path={{ install_base }}/.venv/{{ hostname }}
+        state=directory
+        recurse=yes
+        owner={{ app_user }}
+        group={{ app_user }}
   tags:
     - install
     - app
@@ -29,6 +39,9 @@
 - name: Create celery log directory
   file: path=/var/log/celery
         state=directory
-        owner=www-data
-        group=www-data
+        owner={{ app_user }}
+        group={{ app_user }}
         mode=0755
+  tags:
+    - install
+    - app

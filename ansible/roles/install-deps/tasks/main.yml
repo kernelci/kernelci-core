@@ -6,13 +6,10 @@
   with_items:
     - build-essential
     - git
-    - python-jinja2
-    - python-paramiko
-    - python-markupsafe
+    - python-apt
     - python-pip
     - python-pycurl
-    - python-simplejson
-    - python-yaml
+    - python-virtualenv
     - python2.7-dev
   tags:
     - install
