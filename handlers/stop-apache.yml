@@ -1,3 +1,0 @@
----
-- name: stop-apache
-  service: name=apache2 state=stopped

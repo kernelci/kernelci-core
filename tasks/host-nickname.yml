@@ -8,17 +8,15 @@
 # their bashrc file accordingly.
 #
 # This role requires the variable 'nickname' to be set.
-#
 
-- name: host-nickname-var-file
+- name: Install host nickname shell definition
   template: src=host-nickname.sh
             dest=/etc/profile.d/host-nickname.sh
             owner=root
             group=root
             mode=0444
 
-# Install a default bashrc for new users.
-- name: host-nickname-bashrc-addition
+- name: Install a default bashrc for new users
   template: src=base-bashrc
             dest=/etc/skel/.bashrc
             owner=root
