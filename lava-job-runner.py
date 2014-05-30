@@ -167,15 +167,17 @@ def gather_device_types(connection):
     print "Gathering Device Types..."
     all_device_types = connection.scheduler.all_device_types()
     for device_type in all_device_types:
-        # Retired
-        if device_type['idle'] == 0 and device_type['busy'] == 0 and device_type['offline'] == 0:
-            offline_device_types[device_type['name']] = 0
-        # Running
-        elif device_type['idle'] > 0 or device_type['busy'] > 0:
-            online_device_types[device_type['name']] = device_type['idle'] + device_type['busy']
-        # Offline
-        else:
-            offline_device_types[device_type['name']] = device_type['offline']
+        # Only use dictionary data structures
+        if isinstance(device_type, dict):
+            # Retired
+            if device_type['idle'] == 0 and device_type['busy'] == 0 and device_type['offline'] == 0:
+                offline_device_types[device_type['name']] = 0
+            # Running
+            elif device_type['idle'] > 0 or device_type['busy'] > 0:
+                online_device_types[device_type['name']] = device_type['idle'] + device_type['busy']
+            # Offline
+            else:
+                offline_device_types[device_type['name']] = device_type['offline']
     print "Gathered Device Types Successfully!"
     return online_device_types, offline_device_types
 
