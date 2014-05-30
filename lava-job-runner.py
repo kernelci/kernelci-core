@@ -95,7 +95,9 @@ def submit_jobs(connection, lava_server, bundle_stream):
                 for groups in job_info['device_group']:
                     if groups['device_type'] in offline_device_types:
                         print "All device types: %s are OFFLINE, skipping..." % groups['device_type']
+                        server_has_required_devices = False
                         print os.path.basename(job) + ' : skip'
+                        break
                     elif groups['device_type'] in online_device_types:
                         if groups['count'] > multinode_online_device_types[groups['device_type']]:
                             print "Server does not have enough online devices to submit job!"
