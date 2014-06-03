@@ -45,11 +45,12 @@ class TestParseBoot(unittest.TestCase):
             boot_result='PASS',
             boot_time=28.07,
             boot_warnings=0,
-            dtb='dtb/dir',
+            dtb='dtb/board-name.dtb',
             dtb_addr='0x81f00000',
             initr_addr='0x81f00001',
             kernel_image='zImage',
             loadaddr='0x80200000',
+            endian='little',
         )
 
     def tearDown(self):
@@ -84,6 +85,7 @@ class TestParseBoot(unittest.TestCase):
             self.assertEqual(doc.boot_log, 'boot-board-name.log')
             self.assertEqual(doc.status, 'PASS')
             self.assertEqual(doc.load_addr, '0x80200000')
+            self.assertEqual(doc.endianness, 'little')
         finally:
             os.unlink(temp_json_f)
 

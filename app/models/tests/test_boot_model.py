@@ -45,6 +45,8 @@ class TestBootModel(unittest.TestCase):
             'initrd_addr': None,
             'kernel_image': None,
             'boot_log': None,
+            'endian': None,
+            'metadata': None,
         }
 
         self.assertEqual(expected, boot_doc.to_dict())
@@ -58,7 +60,7 @@ class TestBootModel(unittest.TestCase):
             '"dtb_addr": null, "created_on": null, "defconfig": "defconfig", '
             '"kernel_image": null, "job": "job", "board": "board", '
             '"time": null, "dtb": null, "_id": "board-job-kernel-defconfig", '
-            '"load_addr": null}'
+            '"load_addr": null, "endian": null, "metadata": null}'
         )
 
         self.assertEqual(expected, boot_doc.to_json())

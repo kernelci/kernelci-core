@@ -21,12 +21,14 @@ from models import (
     DEFCONFIG_KEY,
     DTB_ADDR_KEY,
     DTB_KEY,
+    ENDIANNESS_KEY,
     INITRD_ADDR_KEY,
     JOB_ID_KEY,
     JOB_KEY,
     KERNEL_IMAGE_KEY,
     KERNEL_KEY,
     LOAD_ADDR_KEY,
+    METADATA_KEY,
     STATUS_KEY,
     TIME_KEY,
     WARNINGS_KEY,
@@ -72,6 +74,8 @@ class BootDocument(BaseDocument):
         self._kernel_image = None
         self._dtb_addr = None
         self._dtb = None
+        self._endianness = None
+        self._metadata = None
 
     @property
     def collection(self):
@@ -184,6 +188,22 @@ class BootDocument(BaseDocument):
     def kernel_image(self, value):
         self._kernel_image = value
 
+    @property
+    def endianness(self):
+        return self._endianness
+
+    @endianness.setter
+    def endianness(self, value):
+        self._endianness = value
+
+    @property
+    def metadata(self):
+        return self._metadata
+
+    @metadata.setter
+    def metadata(self, value):
+        self._metadata = value
+
     def to_dict(self):
         boot_dict = super(BootDocument, self).to_dict()
         boot_dict[BOARD_KEY] = self._board
@@ -200,4 +220,6 @@ class BootDocument(BaseDocument):
         boot_dict[INITRD_ADDR_KEY] = self._initrd_addr
         boot_dict[DTB_KEY] = self._dtb
         boot_dict[DTB_ADDR_KEY] = self._dtb_addr
+        boot_dict[ENDIANNESS_KEY] = self._endianness
+        boot_dict[METADATA_KEY] = self._metadata
         return boot_dict

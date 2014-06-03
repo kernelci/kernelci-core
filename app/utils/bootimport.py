@@ -31,6 +31,7 @@ from models import (
     DB_NAME,
     DTB_ADDR_KEY,
     DTB_KEY,
+    ENDIANNESS_KEY,
     INITRD_ADDR_KEY,
     JOB_KEY,
     KERNEL_IMAGE_KEY,
@@ -147,17 +148,24 @@ def _parse_boot_log(boot_log, job, kernel, defconfig):
         os.stat(boot_log).st_mtime, tz=tz_util.utc
     )
 
-    board = os.path.basename(boot_log).\
-        replace('boot-', '').replace('.json', '')
-
     with open(boot_log) as read_f:
         boot_json = json.load(read_f)
 
     if boot_json:
+        dtb = boot_json.pop(DTB_KEY, None)
+
+        if dtb:
+            board = os.path.splitext(os.path.basename(dtb))[0]
+        else:
+            # If we do not have the dtb field we use the boot report file to
+            # extract some kind of value for board.
+            board = os.path.splitext(
+                os.path.basename(boot_log).replace('boot-', ''))[0]
+
         boot_doc = BootDocument(board, job, kernel, defconfig)
         boot_doc.created_on = created
 
-        time_d = timedelta(seconds=float(boot_json.get(BOOT_TIME_JSON, 0.0)))
+        time_d = timedelta(seconds=float(boot_json.pop(BOOT_TIME_JSON, 0.0)))
         boot_time = datetime(
             1970, 1, 1,
             minute=time_d.seconds / 60,
@@ -166,14 +174,17 @@ def _parse_boot_log(boot_log, job, kernel, defconfig):
         )
 
         boot_doc.time = boot_time
-        boot_doc.status = boot_json.get(BOOT_RESULT_JSON, UNKNOWN_STATUS)
-        boot_doc.warnings = boot_json.get(BOOT_WARNINGS_JSON, "0")
-        boot_doc.boot_log = boot_json.get(BOOT_LOG_KEY, None)
-        boot_doc.initrd_addr = boot_json.get(INITRD_ADDR_KEY, None)
-        boot_doc.load_addr = boot_json.get(LOAD_ADDR_JSON, None)
-        boot_doc.kernel_image = boot_json.get(KERNEL_IMAGE_KEY, None)
-        boot_doc.dtb_addr = boot_json.get(DTB_ADDR_KEY, None)
-        boot_doc.dtb = boot_json.get(DTB_KEY, None)
+        boot_doc.status = boot_json.pop(BOOT_RESULT_JSON, UNKNOWN_STATUS)
+        boot_doc.warnings = boot_json.pop(BOOT_WARNINGS_JSON, "0")
+        boot_doc.boot_log = boot_json.pop(BOOT_LOG_KEY, None)
+        boot_doc.initrd_addr = boot_json.pop(INITRD_ADDR_KEY, None)
+        boot_doc.load_addr = boot_json.pop(LOAD_ADDR_JSON, None)
+        boot_doc.kernel_image = boot_json.pop(KERNEL_IMAGE_KEY, None)
+        boot_doc.dtb_addr = boot_json.pop(DTB_ADDR_KEY, None)
+        boot_doc.endianness = boot_json.pop(ENDIANNESS_KEY, None)
+        boot_doc.dtb = dtb
+
+        boot_doc.metadata = boot_json
 
     return boot_doc
 
