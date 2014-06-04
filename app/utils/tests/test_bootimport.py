@@ -47,10 +47,12 @@ class TestParseBoot(unittest.TestCase):
             boot_warnings=0,
             dtb='dtb/board-name.dtb',
             dtb_addr='0x81f00000',
-            initr_addr='0x81f00001',
+            initrd_addr='0x81f00001',
             kernel_image='zImage',
             loadaddr='0x80200000',
             endian='little',
+            uImage=True,
+            uimage_addr='xip'
         )
 
     def tearDown(self):
@@ -85,7 +87,29 @@ class TestParseBoot(unittest.TestCase):
             self.assertEqual(doc.boot_log, 'boot-board-name.log')
             self.assertEqual(doc.status, 'PASS')
             self.assertEqual(doc.load_addr, '0x80200000')
+            self.assertEqual(doc.initrd_addr, '0x81f00001')
             self.assertEqual(doc.endianness, 'little')
+            self.assertDictEqual(
+                doc.metadata, {'uImage': True, 'uimage_addr': 'xip'}
+            )
+        finally:
+            os.unlink(temp_json_f)
+
+    def test_parse_boot_log_without_dtb(self):
+        temp_json_f = os.path.join(
+            tempfile.gettempdir(), 'boot-board-name.json'
+        )
+
+        try:
+            self.boot_report.pop('dtb')
+
+            with open(temp_json_f, 'w') as w_f:
+                w_f.write(json.dumps(self.boot_report))
+
+            doc = _parse_boot_log(temp_json_f, 'job', 'kernel', 'defconfig')
+
+            self.assertIsInstance(doc, BootDocument)
+            self.assertEqual(doc.board, 'board-name')
         finally:
             os.unlink(temp_json_f)
 
