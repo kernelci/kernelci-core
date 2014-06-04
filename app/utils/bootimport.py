@@ -19,6 +19,7 @@ import glob
 import json
 import os
 import pymongo
+import re
 
 from bson import tz_util
 from datetime import (
@@ -54,6 +55,10 @@ BOOT_TIME_JSON = 'boot_time'
 LOAD_ADDR_JSON = 'loadaddr'
 BOOT_RESULT_JSON = 'boot_result'
 BOOT_WARNINGS_JSON = 'boot_warnings'
+
+# Some dtb appears to be in a temp directory like 'tmp', and will results in
+# some weird names.
+TMP_RE = re.compile(r'tmp')
 
 
 def import_and_save_boot(json_obj, base_path=BASE_PATH):
@@ -139,14 +144,10 @@ def _parse_boot_log(boot_log, job, kernel, defconfig):
     :return A `BootDocument` object.
     """
 
-    LOG.info("Parsing boot log %s", boot_log)
+    LOG.info("Parsing boot log %s", os.path.basename(boot_log))
 
     boot_json = None
     boot_doc = None
-
-    created = datetime.fromtimestamp(
-        os.stat(boot_log).st_mtime, tz=tz_util.utc
-    )
 
     with open(boot_log) as read_f:
         boot_json = json.load(read_f)
@@ -154,16 +155,18 @@ def _parse_boot_log(boot_log, job, kernel, defconfig):
     if boot_json:
         dtb = boot_json.pop(DTB_KEY, None)
 
-        if dtb:
+        if dtb and not TMP_RE.findall(dtb):
             board = os.path.splitext(os.path.basename(dtb))[0]
         else:
+            LOG.info("Using boot report file name for board name")
             # If we do not have the dtb field we use the boot report file to
             # extract some kind of value for board.
             board = os.path.splitext(
                 os.path.basename(boot_log).replace('boot-', ''))[0]
 
         boot_doc = BootDocument(board, job, kernel, defconfig)
-        boot_doc.created_on = created
+        boot_doc.created_on = datetime.fromtimestamp(
+            os.stat(boot_log).st_mtime, tz=tz_util.utc)
 
         time_d = timedelta(seconds=float(boot_json.pop(BOOT_TIME_JSON, 0.0)))
         boot_time = datetime(

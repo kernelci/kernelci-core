@@ -113,6 +113,24 @@ class TestParseBoot(unittest.TestCase):
         finally:
             os.unlink(temp_json_f)
 
+    def test_parse_boot_log_with_tmp_dir(self):
+        temp_json_f = os.path.join(
+            tempfile.gettempdir(), 'boot-board-name.json'
+        )
+
+        try:
+            self.boot_report['dtb'] = '/tmp/tmpfoo-bar.dtb'
+
+            with open(temp_json_f, 'w') as w_f:
+                w_f.write(json.dumps(self.boot_report))
+
+            doc = _parse_boot_log(temp_json_f, 'job', 'kernel', 'defconfig')
+
+            self.assertIsInstance(doc, BootDocument)
+            self.assertEqual(doc.board, 'board-name')
+        finally:
+            os.unlink(temp_json_f)
+
     @patch('utils.bootimport._parse_boot_log')
     @patch('os.path.isfile')
     @patch('glob.iglob', new=Mock(return_value=['boot-board.json']))
