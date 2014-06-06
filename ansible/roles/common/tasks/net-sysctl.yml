@@ -1,6 +1,5 @@
 ---
-# Make sure some default and optimized values are used.
-- name: net-sysctl-conf
+- name: Tweak kernel network configuration for performance
   copy: src=sysctl.conf
         dest=/etc/sysctl.conf
         owner=root

@@ -1,0 +1,12 @@
+---
+- name: reload-apache
+  service: name=apache2 state=reloaded
+
+- name: restart-apache
+  service: name=apache2 state=restarted
+
+- name: started-apache
+  service: name=apache2 state=started
+
+- name: stop-apache
+  service: name=apache2 state=stopped

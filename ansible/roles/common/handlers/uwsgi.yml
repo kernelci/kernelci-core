@@ -1,0 +1,12 @@
+---
+- name: reload-uwsgi
+  service: name=uwsgi state=reloaded
+
+- name: restart-uwsgi
+  service: name=uwsgi state=restarted
+
+- name: started-uwsgi
+  service: name=uwsgi state=started
+
+- name: stop-uwsgi
+  service: name=uwsgi state=stopped
