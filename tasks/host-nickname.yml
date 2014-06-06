@@ -9,8 +9,10 @@
 #
 # This role requires the variable 'nickname' to be set.
 
-- shell: test -f /etc/profile.d/host-nickname.sh
+- name: Test if we can install nickname file
+  shell: test -f /etc/profile.d/host-nickname.sh
   register: host_nickname
+  ignore_errors: True
 
 - name: Install host nickname shell definition
   template: src=host-nickname.sh
@@ -18,7 +20,7 @@
             owner=root
             group=root
             mode=0444
-  when: host_nickname.stdout|int == 1
+  when: host_nickname.rc|int == 1
 
 - name: Install a default bashrc for new users
   template: src=base-bashrc
@@ -26,4 +28,4 @@
             owner=root
             group=root
             mode=0644
-  when: host_nickname.stdout|int == 1
+  when: host_nickname.rc|int == 1
