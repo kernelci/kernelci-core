@@ -4,7 +4,7 @@
   gather_facts: no
   roles:
     - common
+    - upstart-conf
     - install-deps
     - install-app
-    - upstart-conf
   

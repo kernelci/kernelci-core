@@ -1,9 +1,7 @@
-ansible_ssh_user: ubuntu
-checkout_dir: /home/ubuntu
 install_base: /srv
 nickname: kernel-ci-backend
 upstart_service: kernel-ci-backend
 hostname: backend.kernel-ci.linaro.org
-apache_user: www-data
+web_user: www-data
 app_user: www-data
 git_head: HEAD
