@@ -130,7 +130,9 @@ class CountHandler(BaseHandler):
                 number = number['count']
             else:
                 number = 0
-            result['result'] = dict(collection=collection, count=number)
+            result['result'] = dict(
+                collection=collection, count=number, fields=spec
+            )
         else:
             result['result'] = dict(
                 collection=collection,

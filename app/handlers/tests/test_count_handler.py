@@ -103,8 +103,8 @@ class TestCountHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
     def test_get_count_collection_with_query(self):
         expected_body = (
-            '{"code": 200, "result": "{\\"count\\": 0, '
-            '\\"collection\\": \\"boot\\"}"}'
+            '{"code": 200, "result": "{\\"count\\": 0, \\"fields\\": '
+            '{\\"board\\": \\"foo\\"}, \\"collection\\": \\"boot\\"}"}'
         )
 
         response = self.fetch('/api/count/boot?board=foo', method='GET')
