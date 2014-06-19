@@ -325,7 +325,8 @@ class BaseHandler(RequestHandler):
         if unique:
             self.log.info("Performing aggregation on %s", unique)
             return aggregate(
-                self.collection, unique, sort=sort, fields=fields, match=spec
+                self.collection, unique, sort=sort, fields=fields, match=spec,
+                limit=limit
             )
         else:
             return find_and_count(

@@ -229,11 +229,12 @@ def delete(collection, spec_or_id):
     return ret_val
 
 
-def aggregate(collection, unique, match=None, sort=None, fields=None):
+def aggregate(
+        collection, unique, match=None, sort=None, fields=None, limit=None):
     """Perform an aggregate `group` action on the collection.
 
     If the `sort` parameter is defined, the `sort` action on the aggregate will
-    be perfromed first.
+    be performed first.
 
     If `fields` is not defined, the entire document will be returned. This will
     return the last document found based on the sort criteria.
@@ -246,7 +247,9 @@ def aggregate(collection, unique, match=None, sort=None, fields=None):
     :type sort list
     :param fields: The fields to return.
     :type fields dict
-    :return A list with the results.
+    :param limit The number of results to return.
+    :type limit int, str
+    :return A dictionary with the results.
     """
 
     def _starts_with_dollar(val):
@@ -272,6 +275,11 @@ def aggregate(collection, unique, match=None, sort=None, fields=None):
             '$sort': {
                 k: v for k, v in sort
             }
+        })
+
+    if limit:
+        pipeline.append({
+            '$limit': limit
         })
 
     group_dict = {
@@ -308,4 +316,10 @@ def aggregate(collection, unique, match=None, sort=None, fields=None):
             else:
                 result = [k for k in element]
 
-    return dict(result=result)
+    ret_val = None
+    if limit:
+        ret_val = dict(limit=limit, result=result)
+    else:
+        ret_val = dict(result=result)
+
+    return ret_val
