@@ -297,7 +297,7 @@ def aggregate(
     group_dict['$group'].update(fields)
     pipeline.append(group_dict)
 
-    # Make sure we retun the exact number of elements after grouping them.
+    # Make sure we return the exact number of elements after grouping them.
     if limit:
         pipeline.append({
             '$limit': limit
