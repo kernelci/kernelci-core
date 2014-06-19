@@ -277,11 +277,6 @@ def aggregate(
             }
         })
 
-    if limit:
-        pipeline.append({
-            '$limit': limit
-        })
-
     group_dict = {
         '$group': {
             '_id': _starts_with_dollar(unique)
@@ -301,6 +296,12 @@ def aggregate(
 
     group_dict['$group'].update(fields)
     pipeline.append(group_dict)
+
+    # Make sure we retun the exact number of elements after grouping them.
+    if limit:
+        pipeline.append({
+            '$limit': limit
+        })
 
     result = collection.aggregate(pipeline)
 
