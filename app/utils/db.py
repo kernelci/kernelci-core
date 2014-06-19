@@ -270,13 +270,6 @@ def aggregate(
             '$match': match
         })
 
-    if sort:
-        pipeline.append({
-            '$sort': {
-                k: v for k, v in sort
-            }
-        })
-
     group_dict = {
         '$group': {
             '_id': _starts_with_dollar(unique)
@@ -296,6 +289,14 @@ def aggregate(
 
     group_dict['$group'].update(fields)
     pipeline.append(group_dict)
+
+    # Sort after grouping or we get weird results.
+    if sort:
+        pipeline.append({
+            '$sort': {
+                k: v for k, v in sort
+            }
+        })
 
     # Make sure we return the exact number of elements after grouping them.
     if limit:
