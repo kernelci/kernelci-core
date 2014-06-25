@@ -308,7 +308,10 @@ def aggregate(
 
     if result and isinstance(result, types.DictionaryType):
         element = result.get('result', None)
-        if element and isinstance(element, types.ListType):
+
+        if all([
+                element,
+                isinstance(element, types.ListType), len(element) > 0]):
             r_element = element[0]
 
             if r_element.get('result', None):
@@ -317,6 +320,8 @@ def aggregate(
                 ]
             else:
                 result = [k for k in element]
+        else:
+            result = []
 
     ret_val = None
     if limit:
