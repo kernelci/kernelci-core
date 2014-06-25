@@ -417,7 +417,10 @@ class BaseHandler(RequestHandler):
 
         # Wrong number for sort order? Force descending.
         if sort_order != ASCENDING and sort_order != DESCENDING:
-            self.log.warn("Wrong sort order used: %d", sort_order)
+            self.log.warn(
+                "Wrong sort order used (%d), default to %d",
+                sort_order, DESCENDING
+            )
             sort_order = DESCENDING
 
         sort = None

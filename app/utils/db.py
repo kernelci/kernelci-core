@@ -270,6 +270,15 @@ def aggregate(
             '$match': match
         })
 
+    # XXX: For strange reasons, sort needs to happen before, and also
+    # after grouping, or the resulsts are completely random
+    if sort:
+        pipeline.append({
+            '$sort': {
+                k: v for k, v in sort
+            }
+        })
+
     group_dict = {
         '$group': {
             '_id': _starts_with_dollar(unique)
@@ -290,7 +299,8 @@ def aggregate(
     group_dict['$group'].update(fields)
     pipeline.append(group_dict)
 
-    # Sort after grouping or we get weird results.
+    # XXX: For strange reasons, sort needs to happen before, and also
+    # after grouping, or the resulsts are completely random
     if sort:
         pipeline.append({
             '$sort': {
@@ -303,6 +313,8 @@ def aggregate(
         pipeline.append({
             '$limit': limit
         })
+
+    LOG.debug(pipeline)
 
     result = collection.aggregate(pipeline)
 
