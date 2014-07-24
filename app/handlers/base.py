@@ -38,6 +38,7 @@ from tornado.web import (
     asynchronous,
 )
 
+from handlers.decorators import protected
 from models import (
     AGGREGATE_KEY,
     CREATED_KEY,
@@ -276,6 +277,7 @@ class BaseHandler(RequestHandler):
         """
         self.write_error(status_code=501)
 
+    @protected
     @asynchronous
     def get(self, *args, **kwargs):
         if kwargs and kwargs.get('id', None):
