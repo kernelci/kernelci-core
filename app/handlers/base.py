@@ -169,19 +169,6 @@ class BaseHandler(RequestHandler):
         self.write(result)
         self.finish()
 
-    def _has_xsrf_header(self):
-        """Check if the request has the `X-Xsrf-Header` set.
-
-        :return True or False.
-        """
-        # TODO need token mechanism to authorize requests.
-        has_header = False
-
-        if self.request.headers.get('X-Xsrf-Header', None):
-            has_header = True
-
-        return has_header
-
     def _has_valid_content_type(self):
         """Check if the request content type is the one expected.
 
