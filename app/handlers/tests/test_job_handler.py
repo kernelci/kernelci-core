@@ -122,7 +122,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(response.code, 200)
         self.assertEqual(response.body, expected_body)
 
-    def test_post_without_xsrf(self):
+    def test_post_without_token(self):
 
         body = json.dumps(dict(job='job', kernel='kernel'))
 

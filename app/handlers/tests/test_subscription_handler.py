@@ -90,7 +90,7 @@ class TestSubscriptionHandler(
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    def test_post_without_xsrf(self):
+    def test_post_without_token(self):
 
         body = json.dumps(dict(job='job', kernel='kernel'))
 
