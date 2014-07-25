@@ -198,6 +198,7 @@ class BaseHandler(RequestHandler):
 
         return valid_content
 
+    @protected
     @asynchronous
     def post(self, *args, **kwargs):
 
@@ -224,11 +225,8 @@ class BaseHandler(RequestHandler):
         """
         return_code = 200
 
-        if self._has_xsrf_header():
-            if not self._has_valid_content_type():
-                return_code = 415
-        else:
-            return_code = 403
+        if not self._has_valid_content_type():
+            return_code = 415
 
         return return_code
 

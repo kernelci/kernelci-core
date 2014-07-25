@@ -132,8 +132,10 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    def test_post_not_json_content(self):
-        headers = {'X-XSRF-Header': 'foo', 'Content-Type': 'application/json'}
+    @patch('handlers.decorators._is_valid_token')
+    def test_post_not_json_content(self, mock_valid_token):
+        mock_valid_token.return_value = True
+        headers = {'X-Linaro-Token': 'foo', 'Content-Type': 'application/json'}
 
         response = self.fetch(
             '/api/job', method='POST', body='', headers=headers
@@ -143,8 +145,10 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    def test_post_wrong_content_type(self):
-        headers = {'X-XSRF-Header': 'foo'}
+    @patch('handlers.decorators._is_valid_token')
+    def test_post_wrong_content_type(self, mock_valid_token):
+        mock_valid_token.return_value = True
+        headers = {'X-Linaro-Token': 'foo'}
 
         response = self.fetch(
             '/api/job/job', method='POST', body='', headers=headers
@@ -154,8 +158,10 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    def test_post_wrong_json(self):
-        headers = {'X-XSRF-Header': 'foo', 'Content-Type': 'application/json'}
+    @patch('handlers.decorators._is_valid_token')
+    def test_post_wrong_json(self, mock_valid_content):
+        mock_valid_content.return_value = True
+        headers = {'X-Linaro-Token': 'foo', 'Content-Type': 'application/json'}
 
         body = json.dumps(dict(foo='foo', bar='bar'))
 
@@ -167,14 +173,17 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
+    @patch('handlers.decorators._is_valid_token')
     @patch('handlers.job.send_emails')
     @patch('handlers.job.import_job')
-    def test_post_correct(self, mock_import_job, mock_send_emails):
+    def test_post_correct(
+            self, mock_import_job, mock_send_emails, mock_valid_token):
 
         mock_import_job.apply_async = MagicMock()
+        mock_valid_token.return_value = True
 
         headers = {
-            'X-XSRF-Header': 'foo',
+            'X-Linaro-Token': 'foo',
             'Content-Type': 'application/json',
         }
 

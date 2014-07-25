@@ -100,8 +100,10 @@ class TestSubscriptionHandler(
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    def test_post_not_json(self):
-        headers = {'X-XSRF-Header': 'foo'}
+    @patch('handlers.decorators._is_valid_token')
+    def test_post_not_json(self, mock_valid_token):
+        mock_valid_token.return_value = True
+        headers = {'X-Linaro-Token': 'foo'}
 
         response = self.fetch(
             '/api/subscription', method='POST', body='', headers=headers
@@ -111,11 +113,13 @@ class TestSubscriptionHandler(
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
+    @patch('handlers.decorators._is_valid_token')
     @patch('utils.subscription.find_one')
-    def test_post_valid(self, mock_find_one):
+    def test_post_valid(self, mock_find_one, mock_valid_token):
         mock_find_one.return_value = dict(_id='sub', job_id='job', emails=[])
+        mock_valid_token.return_value = True
 
-        headers = {'X-XSRF-Header': 'foo', 'Content-Type': 'application/json'}
+        headers = {'X-Linaro-Token': 'foo', 'Content-Type': 'application/json'}
 
         body = json.dumps(dict(job='job', email='email'))
 
