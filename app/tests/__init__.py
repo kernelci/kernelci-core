@@ -27,6 +27,7 @@ def test_modules():
         'handlers.tests.test_subscription_handler',
         'models.tests.test_boot_model',
         'models.tests.test_models',
+        'models.tests.test_token_model',
         'utils.tests.test_bootimport',
         'utils.tests.test_docimport',
         'utils.tests.test_meta_parser',
