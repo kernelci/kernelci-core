@@ -244,26 +244,13 @@ class BaseHandler(RequestHandler):
         """
         self.write_error(status_code=501)
 
+    @protected
     @asynchronous
     def delete(self, *args, **kwargs):
-        request_code = self._valid_del_request()
-
-        if request_code == 200:
-            if kwargs and kwargs.get('id', None):
-                self._delete(kwargs['id'])
-            else:
-                self.write_error(status_code=400)
+        if kwargs and kwargs.get('id', None):
+            self._delete(kwargs['id'])
         else:
-            self.write_error(status_code=request_code)
-
-    def _valid_del_request(self):
-        """Check if the DELETE request is valid."""
-        return_code = 200
-
-        if not self._has_xsrf_header():
-            return_code = 403
-
-        return return_code
+            self.write_error(status_code=400)
 
     def _delete(self, doc_id):
         """Placeholder method - used internally.

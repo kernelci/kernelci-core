@@ -188,12 +188,15 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    def test_delete_no_xsrf(self):
+    def test_delete_no_token(self):
         response = self.fetch('/api/job/job', method='DELETE')
         self.assertEqual(response.code, 403)
 
-    def test_delete_with_xsfr_no_job(self):
-        headers = {'X-XSRF-Header': 'foo'}
+    @patch('handlers.decorators._is_valid_token')
+    def test_delete_with_token_no_job(self, mock_valid_token):
+        mock_valid_token.return_value = True
+
+        headers = {'X-Linaro-Token': 'foo'}
 
         response = self.fetch(
             '/api/job/job', method='DELETE', headers=headers,
@@ -203,11 +206,13 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    def test_delete_with_xsfr_with_job(self):
+    @patch('handlers.decorators._is_valid_token')
+    def test_delete_with_token_with_job(self, mock_valid_token):
         db = self.mongodb_client['kernel-ci']
         db['job'].insert(dict(_id='job', job='job', kernel='kernel'))
+        mock_valid_token.return_value = True
 
-        headers = {'X-XSRF-Header': 'foo'}
+        headers = {'X-Linaro-Token': 'foo'}
 
         response = self.fetch(
             '/api/job/job', method='DELETE', headers=headers,

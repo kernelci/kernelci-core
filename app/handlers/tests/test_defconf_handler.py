@@ -103,11 +103,14 @@ class TestDefconfHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    def test_delete(self):
+    @patch('handlers.decorators._is_valid_token')
+    def test_delete(self, mock_valid_token):
         db = self.mongodb_client['kernel-ci']
         db['defconfig'].insert(dict(_id='defconf', job_id='job'))
 
-        headers = {'X-XSRF-Header': 'foo'}
+        mock_valid_token.return_value = True
+
+        headers = {'X-Linaro-Token': 'foo'}
 
         response = self.fetch(
             '/api/defconfig/defconf', method='DELETE', headers=headers,
