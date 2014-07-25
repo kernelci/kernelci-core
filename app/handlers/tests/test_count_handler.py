@@ -25,6 +25,8 @@ from tornado import (
     web,
 )
 
+from mock import patch
+
 from handlers.app import AppHandler
 from urls import _COUNT_URL
 
@@ -67,47 +69,62 @@ class TestCountHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    def test_get_wrong_resource(self):
-        response = self.fetch('/api/count/foobar', method='GET')
+    @patch('handlers.decorators._is_valid_token')
+    def test_get_wrong_resource(self, mock_valid_token):
+        mock_valid_token.return_value = True
+        headers = {'X-Linaro-Token': 'foo'}
+
+        response = self.fetch('/api/count/foobar', headers=headers)
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    def test_get_count_all(self):
+    @patch('handlers.decorators._is_valid_token')
+    def test_get_count_all(self, mock_valid_content):
+        mock_valid_content.return_value = True
         expected_body = (
             '{"code": 200, "result": "[{\\"count\\": 0, \\"collection\\": '
             '\\"job\\"}, {\\"count\\": 0, \\"collection\\": \\"boot\\"}, '
             '{\\"count\\": 0, \\"collection\\": \\"defconfig\\"}]"}'
         )
 
-        response = self.fetch('/api/count', method='GET')
+        headers = {'X-Linaro-Token': 'foo'}
+        response = self.fetch('/api/count', headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
         self.assertEqual(response.body, expected_body)
 
-    def test_get_count_collection(self):
+    @patch('handlers.decorators._is_valid_token')
+    def test_get_count_collection(self, mock_valid_content):
+        mock_valid_content.return_value = True
+
         expected_body = (
             '{"code": 200, "result": "{\\"count\\": 0, '
             '\\"collection\\": \\"boot\\"}"}'
         )
 
-        response = self.fetch('/api/count/boot', method='GET')
+        headers = {'X-Linaro-Token': 'foo'}
+        response = self.fetch('/api/count/boot', headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
         self.assertEqual(response.body, expected_body)
 
-    def test_get_count_collection_with_query(self):
+    @patch('handlers.decorators._is_valid_token')
+    def test_get_count_collection_with_query(self, mock_valid_content):
+        mock_valid_content.return_value = True
+
         expected_body = (
             '{"code": 200, "result": "{\\"count\\": 0, \\"fields\\": '
             '{\\"board\\": \\"foo\\"}, \\"collection\\": \\"boot\\"}"}'
         )
 
-        response = self.fetch('/api/count/boot?board=foo', method='GET')
+        headers = {'X-Linaro-Token': 'foo'}
+        response = self.fetch('/api/count/boot?board=foo', headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(

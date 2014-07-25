@@ -38,6 +38,7 @@ from models import (
     WARNINGS_KEY,
 )
 from handlers.base import BaseHandler
+from handlers.decorators import protected
 from models.boot import BOOT_COLLECTION
 from models.defconfig import DEFCONFIG_COLLECTION
 from models.job import JOB_COLLECTION
@@ -87,6 +88,7 @@ class CountHandler(BaseHandler):
 
         return valid_keys.get(method, None)
 
+    @protected
     @asynchronous
     def get(self, *args, **kwargs):
         if kwargs and kwargs.get('collection', None):
