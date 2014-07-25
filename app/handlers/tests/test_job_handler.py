@@ -55,57 +55,69 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
     def get_new_ioloop(self):
         return ioloop.IOLoop.instance()
 
+    @patch('handlers.decorators._is_valid_token')
     @patch('utils.db.find')
     @patch('utils.db.count')
-    def test_get(self, mock_count, mock_find):
+    def test_get(self, mock_count, mock_find, mock_valid_token):
         mock_count.return_value = 0
         mock_find.return_value = []
+        mock_valid_token.return_value = True
 
         expected_body = '{"count": 0, "code": 200, "limit": 0, "result": "[]"}'
 
-        response = self.fetch('/api/job')
+        headers = {'X-Linaro-Token': 'foo'}
+        response = self.fetch('/api/job', headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
         self.assertEqual(response.body, expected_body)
 
+    @patch('handlers.decorators._is_valid_token')
     @patch('utils.db.find')
     @patch('utils.db.count')
-    def test_get_with_limit(self, mock_count, mock_find):
+    def test_get_with_limit(self, mock_count, mock_find, mock_valid_token):
         mock_count.return_value = 0
         mock_find.return_value = []
+        mock_valid_token.return_value = True
 
         expected_body = (
             '{"count": 0, "code": 200, "limit": 1024, "result": "[]"}'
         )
 
-        response = self.fetch('/api/job?limit=1024')
+        headers = {'X-Linaro-Token': 'foo'}
+        response = self.fetch('/api/job?limit=1024', headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
         self.assertEqual(response.body, expected_body)
 
+    @patch('handlers.decorators._is_valid_token')
     @patch('handlers.job.JobHandler.collection')
-    def test_get_by_id_not_found(self, collection):
+    def test_get_by_id_not_found(self, collection, mock_valid_token):
         collection.find_one = MagicMock()
         collection.find_one.return_value = None
+        mock_valid_token.return_value = True
 
-        response = self.fetch('/api/job/job-kernel')
+        headers = {'X-Linaro-Token': 'foo'}
+        response = self.fetch('/api/job/job-kernel', headers=headers)
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
+    @patch('handlers.decorators._is_valid_token')
     @patch('handlers.job.JobHandler.collection')
-    def test_get_by_id_found(self, collection):
+    def test_get_by_id_found(self, collection, mock_valid_token):
         collection.find_one = MagicMock()
         collection.find_one.return_value = []
+        mock_valid_token.return_value = True
 
         expected_body = '{"code": 200, "result": "[]"}'
 
-        response = self.fetch('/api/job/job-kernel')
+        headers = {'X-Linaro-Token': 'foo'}
+        response = self.fetch('/api/job/job-kernel', headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(response.body, expected_body)

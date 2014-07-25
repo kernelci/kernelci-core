@@ -61,29 +61,35 @@ class TestDefconfHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
+    @patch('handlers.decorators._is_valid_token')
     @patch('utils.db.find')
     @patch('utils.db.count')
-    def test_get(self, mock_count, mock_find):
+    def test_get(self, mock_count, mock_find, mock_valid_token):
         mock_count.return_value = 0
         mock_find.return_value = []
+        mock_valid_token.return_value = True
 
         expected_body = (
             '{"count": 0, "code": 200, "limit": 0, "result": "[]"}'
         )
 
-        response = self.fetch('/api/defconfig')
+        headers = {'X-Linaro-Token': 'foo'}
+        response = self.fetch('/api/defconfig', headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
         self.assertEqual(response.body, expected_body)
 
+    @patch('handlers.decorators._is_valid_token')
     @patch('handlers.defconf.DefConfHandler.collection')
-    def test_get_by_id_not_found(self, mock_collection):
+    def test_get_by_id_not_found(self, mock_collection, mock_valid_token):
         mock_collection.find_one = MagicMock()
         mock_collection.find_one.return_value = None
+        mock_valid_token.return_value = True
 
-        response = self.fetch('/api/defconfig/defconf')
+        headers = {'X-Linaro-Token': 'foo'}
+        response = self.fetch('/api/defconfig/defconf', headers=headers)
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
