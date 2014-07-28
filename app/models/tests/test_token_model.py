@@ -15,7 +15,7 @@
 
 import unittest
 
-from datetime import date
+from datetime import datetime
 
 from models.base import BaseDocument
 from models.token import Token
@@ -49,10 +49,7 @@ class TestTokenModel(unittest.TestCase):
 
     def test_token_creation_date(self):
         token_obj = Token()
-        today = date.today()
-
-        self.assertIsInstance(token_obj.created_on, date)
-        self.assertEqual(today, token_obj.created_on)
+        self.assertIsInstance(token_obj.created_on, datetime)
 
     def test_token_to_dict_is_dict(self):
         token_obj = Token()
@@ -103,3 +100,18 @@ class TestTokenModel(unittest.TestCase):
 
         self.assertTrue(token_obj.is_admin)
         self.assertEqual(token_obj.is_admin, 1)
+
+    def test_token_to_json(self):
+        token_obj = Token()
+
+        token_obj._created_on = None
+        token_obj._token = '1'
+
+        expected = (
+            '{"username": null, "created_on": null, "token": "1", '
+            '"ip_address": null, "expired": false, "email": null, '
+            '"expires_on": null, '
+            '"properties": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}'
+        )
+
+        self.assertEqual(expected, token_obj.to_json())

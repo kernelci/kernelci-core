@@ -17,7 +17,10 @@
 
 TOKEN_COLLECTION = 'api-token'
 
-from datetime import date
+import json
+
+from bson import json_util
+from datetime import datetime
 from types import (
     IntType,
     BooleanType,
@@ -64,7 +67,7 @@ class Token(object):
 
     def __init__(self):
         self._token = str(uuid4())
-        self._created_on = date.today()
+        self._created_on = datetime.now()
         self._expires_on = None
         self._expired = False
         self._username = None
@@ -75,10 +78,6 @@ class Token(object):
     @property
     def token(self):
         return self._token
-
-    @token.setter
-    def token(self, value):
-        self._token = value
 
     @property
     def properties(self):
@@ -199,17 +198,18 @@ class Token(object):
         """Make sure the value passed for the properties list is valid.
 
         A properties value must be an integer or a boolean, either 0 or 1.
+        Negative number will be converted into their absolute values.
 
         :param value: The value to check.
         :return The value converted into an int.
         :raise TypeError if the value is not IntType or BooleanType; ValueError
-            if it is > 1.
+            if it is not 0 or 1.
         """
         if not isinstance(value, (IntType, BooleanType)):
             raise TypeError("Wrong value passed, must be int or bool")
 
         value = abs(int(value))
-        if not (value == 0 or value == 1):
+        if 0 != value != 1:
             raise ValueError("Value must be 0 or 1")
 
         return value
@@ -229,3 +229,10 @@ class Token(object):
             TOKEN_KEY: self._token,
             USERNAME_KEY: self._username,
         }
+
+    def to_json(self):
+        """Return a JSON string for this object.
+
+        :return A JSON string.
+        """
+        return json.dumps(self.to_dict(), default=json_util.default)
