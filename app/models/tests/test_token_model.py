@@ -13,14 +13,19 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import json
 import unittest
 
+from bson import (
+    json_util,
+    tz_util,
+)
 from datetime import datetime
+from uuid import uuid4
+from types import DictionaryType
 
 from models.base import BaseDocument
 from models.token import Token
-
-from types import DictionaryType
 
 
 class TestTokenModel(unittest.TestCase):
@@ -115,3 +120,28 @@ class TestTokenModel(unittest.TestCase):
         )
 
         self.assertEqual(expected, token_obj.to_json())
+
+    def test_token_from_json(self):
+        token_string = str(uuid4())
+        now = datetime.now(tz=tz_util.utc)
+
+        token_dict = {
+            "username": "foo",
+            "token": token_string,
+            "created_on": now,
+            "ip_address": None,
+            "expired": True,
+            "email": "bar@foo",
+            "expires_on": None,
+            "properties": [1 for _ in range(0, 16)]
+        }
+
+        token = Token.from_json(
+            json.dumps(token_dict, default=json_util.default)
+        )
+
+        self.assertIsInstance(token, Token)
+        self.assertEqual(token.properties, [1 for _ in range(0, 16)])
+        self.assertEqual(token.token, token_string)
+        self.assertEqual(token.email, "bar@foo")
+        self.assertTrue(token.expired)

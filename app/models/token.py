@@ -19,11 +19,15 @@ TOKEN_COLLECTION = 'api-token'
 
 import json
 
-from bson import json_util
+from bson import (
+    json_util,
+    tz_util,
+)
 from datetime import datetime
 from types import (
-    IntType,
     BooleanType,
+    IntType,
+    StringTypes,
 )
 from uuid import uuid4
 
@@ -32,6 +36,7 @@ from models import (
     EMAIL_KEY,
     EXPIRED_KEY,
     EXPIRES_KEY,
+    ID_KEY,
     IP_ADDRESS_KEY,
     PROPERTIES_KEY,
     TOKEN_KEY,
@@ -66,8 +71,8 @@ class Token(object):
     """
 
     def __init__(self):
-        self._token = str(uuid4())
-        self._created_on = datetime.now()
+        self._token = None
+        self._created_on = datetime.now(tz=tz_util.utc)
         self._expires_on = None
         self._expired = False
         self._username = None
@@ -77,15 +82,30 @@ class Token(object):
 
     @property
     def token(self):
+        if self._token is None:
+            self._token = str(uuid4())
+
         return self._token
+
+    @token.setter
+    def token(self, value):
+        self._token = value
 
     @property
     def properties(self):
         return self._properties
 
+    @properties.setter
+    def properties(self, value):
+        self._properties = value
+
     @property
     def created_on(self):
         return self._created_on
+
+    @created_on.setter
+    def created_on(self, value):
+        self._created_on = value
 
     @property
     def expires_on(self):
@@ -112,6 +132,22 @@ class Token(object):
     @expired.setter
     def expired(self, value):
         self._expired = value
+
+    @property
+    def email(self):
+        return self._email
+
+    @email.setter
+    def email(self, value):
+        self._email = value
+
+    @property
+    def username(self):
+        return self._username
+
+    @username.setter
+    def username(self, value):
+        self._username = value
 
     @property
     def is_admin(self):
@@ -220,14 +256,14 @@ class Token(object):
         :return The object as a dictionary.
         """
         return {
-            CREATED_KEY: self._created_on,
-            EMAIL_KEY: self._email,
-            EXPIRED_KEY: self._expired,
-            EXPIRES_KEY: self._expires_on,
-            IP_ADDRESS_KEY: self._ip_address,
-            PROPERTIES_KEY: self._properties,
-            TOKEN_KEY: self._token,
-            USERNAME_KEY: self._username,
+            CREATED_KEY: self.created_on,
+            EMAIL_KEY: self.email,
+            EXPIRED_KEY: self.expired,
+            EXPIRES_KEY: self.expires_on,
+            IP_ADDRESS_KEY: self.ip_address,
+            PROPERTIES_KEY: self.properties,
+            TOKEN_KEY: self.token,
+            USERNAME_KEY: self.username,
         }
 
     def to_json(self):
@@ -236,3 +272,22 @@ class Token(object):
         :return A JSON string.
         """
         return json.dumps(self.to_dict(), default=json_util.default)
+
+    @staticmethod
+    def from_json(json_obj):
+        """Build a Token object from a JSON string.
+
+        :param json_obj: The JSON object to start from, or a JSON string.
+        :return An instance of `Token`.
+        """
+        if isinstance(json_obj, StringTypes):
+            json_obj = json_util.loads(json_obj)
+
+        if json_obj.get(ID_KEY, None):
+            json_obj.pop(ID_KEY)
+
+        token = Token()
+        for key, value in json_obj.iteritems():
+            setattr(token, key, value)
+
+        return token
