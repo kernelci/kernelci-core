@@ -90,7 +90,7 @@ class BaseHandler(RequestHandler):
     @property
     def log(self):
         """The logger of this object."""
-        return get_log()
+        return get_log(debug=self.settings['debug'])
 
     def _valid_keys(self, method):
         """The accepted keys for the valid sent content type.
@@ -188,7 +188,6 @@ class BaseHandler(RequestHandler):
     @protected("POST")
     @asynchronous
     def post(self, *args, **kwargs):
-
         valid_request = self._valid_post_request()
 
         if valid_request == 200:
@@ -198,7 +197,10 @@ class BaseHandler(RequestHandler):
                 if is_valid_json(json_obj, self._valid_keys('POST')):
                     self._post(json_obj)
                 else:
-                    self.send_error(status_code=400)
+                    self.write_error(
+                        status_code=400,
+                        message="Provided JSON is not valid"
+                    )
             except ValueError:
                 self.log.error("No JSON data found in the POST request")
                 self.write_error(status_code=420)
@@ -252,6 +254,14 @@ class BaseHandler(RequestHandler):
     @protected("GET")
     @asynchronous
     def get(self, *args, **kwargs):
+        self.execute_get(*args, **kwargs)
+
+    def execute_get(self, *args, **kwargs):
+        """This is the actual GET operation.
+
+        It is done in this way so that subclasses can implement a different
+        token authorization if necessary.
+        """
         if kwargs and kwargs.get('id', None):
             self.executor.submit(
                 partial(self._get_one, kwargs['id'])
