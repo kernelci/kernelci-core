@@ -113,7 +113,7 @@ class Token(object):
 
     @expires_on.setter
     def expires_on(self, value):
-        self._expires_on = value
+        self._expires_on = self.check_expires_date(value)
 
     @property
     def ip_address(self):
@@ -249,6 +249,25 @@ class Token(object):
             raise ValueError("Value must be 0 or 1")
 
         return value
+
+    @staticmethod
+    def check_expires_date(value):
+        """Check and convert the expiry date.
+
+        Expiry date must follow this format: %Y-%m-%d.
+
+        :param value: The date string.
+        :return The converted date, or None if the passed value is None.
+        :raise ValueError if the date string cannot be parsed accordingly to
+            the predefined format.
+        """
+        try:
+            if value:
+                value = datetime.strptime(value, "%Y-%m-%d")
+        except ValueError, ex:
+            raise ex
+        else:
+            return value
 
     def to_dict(self):
         """Return a dictionary view of the object.

@@ -120,6 +120,34 @@ class TestTokenModel(unittest.TestCase):
         self.assertTrue(token_obj.is_admin)
         self.assertEqual(token_obj.is_admin, 1)
 
+    def test_token_wrong_expiry(self):
+        token_obj = Token()
+
+        def _call_setter(value):
+            token_obj.expires_on = value
+
+        self.assertRaises(ValueError, _call_setter, "2014-06")
+
+    def test_token_expiry_correct_single_digit(self):
+        expire_str = "2014-7-1"
+
+        token_obj = Token()
+        token_obj.expires_on = expire_str
+
+        expected = datetime(2014, 7, 1, 0, 0)
+
+        self.assertEqual(expected, token_obj.expires_on)
+
+    def test_token_expiry_correct_double_digits(self):
+        expire_str = "2014-07-01"
+
+        token_obj = Token()
+        token_obj.expires_on = expire_str
+
+        expected = datetime(2014, 7, 1, 0, 0)
+
+        self.assertEqual(expected, token_obj.expires_on)
+
     def test_token_to_json(self):
         token_obj = Token()
 
