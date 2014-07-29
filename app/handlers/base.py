@@ -185,7 +185,7 @@ class BaseHandler(RequestHandler):
 
         return valid_content
 
-    @protected
+    @protected("POST")
     @asynchronous
     def post(self, *args, **kwargs):
 
@@ -229,7 +229,7 @@ class BaseHandler(RequestHandler):
         """
         self.write_error(status_code=501)
 
-    @protected
+    @protected("DELETE")
     @asynchronous
     def delete(self, *args, **kwargs):
         if kwargs and kwargs.get('id', None):
@@ -249,7 +249,7 @@ class BaseHandler(RequestHandler):
         """
         self.write_error(status_code=501)
 
-    @protected
+    @protected("GET")
     @asynchronous
     def get(self, *args, **kwargs):
         if kwargs and kwargs.get('id', None):

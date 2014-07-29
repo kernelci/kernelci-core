@@ -88,7 +88,7 @@ class CountHandler(BaseHandler):
 
         return valid_keys.get(method, None)
 
-    @protected
+    @protected("GET")
     @asynchronous
     def get(self, *args, **kwargs):
         if kwargs and kwargs.get('collection', None):
