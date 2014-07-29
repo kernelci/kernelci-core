@@ -68,7 +68,7 @@ def protected_th(method):
             token = obj.request.headers.get(API_TOKEN_HEADER, None)
 
             if token:
-                if _is_master_key(obj, token):
+                if _is_master_key(token, obj):
                     obj.log.info(
                         "Master key in use from IP address %s",
                         obj.request.remote_ip
