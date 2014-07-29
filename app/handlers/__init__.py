@@ -18,3 +18,4 @@ from count import *
 from defconf import *
 from job import *
 from subscription import *
+from token import *

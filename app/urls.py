@@ -19,10 +19,11 @@ from tornado.web import url
 
 from handlers import (
     BootHandler,
+    CountHandler,
     DefConfHandler,
     JobHandler,
     SubscriptionHandler,
-    CountHandler,
+    TokenHandler,
 )
 
 _JOB_URL = url(r'/api/job(?P<sl>/)?(?P<id>.*)', JobHandler, name='job')
@@ -38,6 +39,9 @@ _BOOT_URL = url(r'/api/boot(?P<sl>/)?(?P<id>.*)', BootHandler, name='boot')
 _COUNT_URL = url(
     r'/api/count(?P<sl>/)?(?P<collection>.*)', CountHandler, name='count'
 )
+_TOKEN_URL = url(
+    r'/api/token(?P<sl>/)?(?P<id>.*)', TokenHandler, name='token'
+)
 
 APP_URLS = [
     _BOOT_URL,
@@ -45,4 +49,5 @@ APP_URLS = [
     _DEFCONF_URL,
     _JOB_URL,
     _SUBSCRIPTION_URL,
+    _TOKEN_URL,
 ]

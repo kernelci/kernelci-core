@@ -30,8 +30,8 @@ def is_valid_json(json_obj, accepted_keys):
     json_keys = json_obj.keys()
 
     if accepted_keys:
-        for key in accepted_keys:
-            if key not in json_keys:
+        for key in json_keys:
+            if key not in accepted_keys:
                 is_valid &= False
                 break
     else:
