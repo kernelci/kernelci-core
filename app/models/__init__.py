@@ -63,6 +63,14 @@ UPDATED_KEY = 'updated'
 USERNAME_KEY = 'username'
 WARNINGS_KEY = 'warnings'
 
+# Token special fields.
+ADMIN_KEY = 'admin'
+DELETE_KEY = 'delete'
+GET_KEY = 'get'
+IP_RESTRICTED = 'ip_restricted'
+POST_KEY = 'post'
+SUPERUSER_KEY = 'superuser'
+
 # Job and/or build status.
 BUILD_STATUS = 'BUILD'
 FAIL_STATUS = 'FAIL'
