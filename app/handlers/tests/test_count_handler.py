@@ -57,6 +57,7 @@ class TestCountHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             'client': self.mongodb_client,
             'executor': ThreadPoolExecutor(max_workers=2),
             'default_handler_class': AppHandler,
+            'debug': False,
         }
 
         return web.Application([_COUNT_URL], **settings)

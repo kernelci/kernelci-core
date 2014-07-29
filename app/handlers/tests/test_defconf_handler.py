@@ -58,6 +58,7 @@ class TestDefconfHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             'client': self.mongodb_client,
             'executor': ThreadPoolExecutor(max_workers=2),
             'default_handler_class': AppHandler,
+            'debug': False,
         }
 
         return web.Application([_DEFCONF_URL], **settings)
