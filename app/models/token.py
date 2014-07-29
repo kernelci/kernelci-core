@@ -49,9 +49,9 @@ class Token(object):
 
     A token can be:
      - basic: All permissions have to be set (GET, POST, DELETE)
-     - superuser: All methods are permitted, but cannot be used to create new
-        tokens
-     - admin: All operations permitted, can create new tokens.
+     - superuser: All methods are permitted, but cannot be used to create nor
+        delete tokens.
+     - admin: All operations permitted, can query, create and delete tokens.
 
     A token can be restricted to be used based on an IP address.
 
