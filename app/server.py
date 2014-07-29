@@ -41,6 +41,7 @@ class KernelCiBackend(Application):
             'default_handler_class': AppHandler,
             'executor': ThreadPoolExecutor(max_workers=15),
             'gzip': True,
+            'debug': True,
         }
 
         super(KernelCiBackend, self).__init__(APP_URLS, **settings)
