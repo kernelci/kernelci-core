@@ -155,7 +155,7 @@ class Token(object):
 
     @is_admin.setter
     def is_admin(self, value):
-        value = self._check_properties_value(value)
+        value = self.check_attribute_value(value)
 
         self._properties[0] = value
         # Admin tokens can GET, POST and DELETE, are superuser and can create
@@ -172,7 +172,7 @@ class Token(object):
 
     @is_superuser.setter
     def is_superuser(self, value):
-        value = self._check_properties_value(value)
+        value = self.check_attribute_value(value)
 
         # Force admin to zero, and also if can create new tokens, regardless
         # of what is passed. A super user cannot create new tokens.
@@ -190,7 +190,7 @@ class Token(object):
 
     @is_get_token.setter
     def is_get_token(self, value):
-        value = self._check_properties_value(value)
+        value = self.check_attribute_value(value)
         self._properties[2] = value
 
     @property
@@ -199,7 +199,7 @@ class Token(object):
 
     @is_post_token.setter
     def is_post_token(self, value):
-        value = self._check_properties_value(value)
+        value = self.check_attribute_value(value)
         self._properties[3] = value
 
     @property
@@ -208,7 +208,7 @@ class Token(object):
 
     @is_delete_token.setter
     def is_delete_token(self, value):
-        value = self._check_properties_value(value)
+        value = self.check_attribute_value(value)
         self._properties[4] = value
 
     @property
@@ -217,7 +217,7 @@ class Token(object):
 
     @is_ip_restricted.setter
     def is_ip_restricted(self, value):
-        value = self._check_properties_value(value)
+        value = self.check_attribute_value(value)
         self._properties[5] = value
 
     @property
@@ -226,11 +226,11 @@ class Token(object):
 
     @can_create_token.setter
     def can_create_token(self, value):
-        value = self._check_properties_value(value)
+        value = self.check_attribute_value(value)
         self._properties[6] = value
 
     @staticmethod
-    def _check_properties_value(value):
+    def check_attribute_value(value):
         """Make sure the value passed for the properties list is valid.
 
         A properties value must be an integer or a boolean, either 0 or 1.

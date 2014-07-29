@@ -99,6 +99,20 @@ class TestTokenModel(unittest.TestCase):
 
         self.assertRaises(TypeError, _call_setter, "1")
 
+    def test_token_negative_number(self):
+        token_obj = Token()
+
+        def _call_setter(value):
+            token_obj.is_admin = value
+
+        self.assertRaises(ValueError, _call_setter, -22)
+
+    def test_token_valid_negative_number(self):
+        token_obj = Token()
+        token_obj.is_superuser = -1
+
+        self.assertTrue(token_obj.is_superuser)
+
     def test_token_with_boolean(self):
         token_obj = Token()
         token_obj.is_admin = True
