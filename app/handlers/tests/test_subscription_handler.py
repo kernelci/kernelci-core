@@ -44,6 +44,17 @@ class TestSubscriptionHandler(
 
         super(TestSubscriptionHandler, self).setUp()
 
+        patched_find_token = patch('handlers.decorators._find_token')
+        self.find_token = patched_find_token.start()
+        self.find_token.return_value = "token"
+
+        patched_validate_token = patch('handlers.decorators._validate_token')
+        self.validate_token = patched_validate_token.start()
+        self.validate_token.return_value = True
+
+        self.addCleanup(patched_find_token.stop)
+        self.addCleanup(patched_validate_token.stop)
+
     def get_app(self):
         settings = {
             'client': self.mongodb_client,
@@ -56,13 +67,11 @@ class TestSubscriptionHandler(
     def get_new_ioloop(self):
         return ioloop.IOLoop.instance()
 
-    @patch('handlers.decorators._is_valid_token')
     @patch('utils.db.find')
     @patch('utils.db.count')
-    def test_get(self, mock_count, mock_find, mock_valid_token):
+    def test_get(self, mock_count, mock_find):
         mock_count.return_value = 0
         mock_find.return_value = []
-        mock_valid_token.return_value = True
 
         expected_body = (
             '{"count": 0, "code": 200, "limit": 0, "result": "[]"}'
@@ -76,10 +85,8 @@ class TestSubscriptionHandler(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
         self.assertEqual(response.body, expected_body)
 
-    @patch('handlers.decorators._is_valid_token')
     @patch('handlers.subscription.SubscriptionHandler.collection')
-    def test_get_by_id_not_found(self, mock_collection, mock_valid_token):
-        mock_valid_token.return_value = True
+    def test_get_by_id_not_found(self, mock_collection):
         mock_collection.find_one = MagicMock()
         mock_collection.find_one.return_value = None
 
@@ -100,9 +107,7 @@ class TestSubscriptionHandler(
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    @patch('handlers.decorators._is_valid_token')
-    def test_post_not_json(self, mock_valid_token):
-        mock_valid_token.return_value = True
+    def test_post_not_json(self):
         headers = {'X-Linaro-Token': 'foo'}
 
         response = self.fetch(
@@ -113,11 +118,9 @@ class TestSubscriptionHandler(
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    @patch('handlers.decorators._is_valid_token')
     @patch('utils.subscription.find_one')
-    def test_post_valid(self, mock_find_one, mock_valid_token):
+    def test_post_valid(self, mock_find_one):
         mock_find_one.return_value = dict(_id='sub', job_id='job', emails=[])
-        mock_valid_token.return_value = True
 
         headers = {'X-Linaro-Token': 'foo', 'Content-Type': 'application/json'}
 
@@ -131,13 +134,11 @@ class TestSubscriptionHandler(
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    @patch('handlers.decorators._is_valid_token')
     @patch('utils.subscription.find_one')
-    def test_delete_valid_with_payload(self, mock_find_one, mock_valid_token):
+    def test_delete_valid_with_payload(self, mock_find_one):
         mock_find_one.return_value = dict(
             _id='sub', emails=['email'], job_id='job'
         )
-        mock_valid_token.return_value = True
 
         headers = {'X-Linaro-Token': 'foo', 'Content-Type': 'application/json'}
 
@@ -152,10 +153,8 @@ class TestSubscriptionHandler(
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    @patch('handlers.decorators._is_valid_token')
-    def test_delete_valid_without_payload(self, mock_valid_token):
+    def test_delete_valid_without_payload(self):
         headers = {'X-Linaro-Token': 'foo'}
-        mock_valid_token.return_value = True
 
         response = self.fetch(
             '/api/subscription/sub', method='DELETE', headers=headers,

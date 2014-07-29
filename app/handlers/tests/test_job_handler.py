@@ -43,6 +43,17 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
         super(TestJobHandler, self).setUp()
 
+        patched_find_token = patch('handlers.decorators._find_token')
+        self.find_token = patched_find_token.start()
+        self.find_token.return_value = "token"
+
+        patched_validate_token = patch('handlers.decorators._validate_token')
+        self.validate_token = patched_validate_token.start()
+        self.validate_token.return_value = True
+
+        self.addCleanup(patched_find_token.stop)
+        self.addCleanup(patched_validate_token.stop)
+
     def get_app(self):
         settings = {
             'client': self.mongodb_client,
@@ -55,13 +66,11 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
     def get_new_ioloop(self):
         return ioloop.IOLoop.instance()
 
-    @patch('handlers.decorators._is_valid_token')
     @patch('utils.db.find')
     @patch('utils.db.count')
-    def test_get(self, mock_count, mock_find, mock_valid_token):
+    def test_get(self, mock_count, mock_find):
         mock_count.return_value = 0
         mock_find.return_value = []
-        mock_valid_token.return_value = True
 
         expected_body = '{"count": 0, "code": 200, "limit": 0, "result": "[]"}'
 
@@ -73,13 +82,11 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
         self.assertEqual(response.body, expected_body)
 
-    @patch('handlers.decorators._is_valid_token')
     @patch('utils.db.find')
     @patch('utils.db.count')
-    def test_get_with_limit(self, mock_count, mock_find, mock_valid_token):
+    def test_get_with_limit(self, mock_count, mock_find):
         mock_count.return_value = 0
         mock_find.return_value = []
-        mock_valid_token.return_value = True
 
         expected_body = (
             '{"count": 0, "code": 200, "limit": 1024, "result": "[]"}'
@@ -93,12 +100,10 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
         self.assertEqual(response.body, expected_body)
 
-    @patch('handlers.decorators._is_valid_token')
     @patch('handlers.job.JobHandler.collection')
-    def test_get_by_id_not_found(self, collection, mock_valid_token):
+    def test_get_by_id_not_found(self, collection):
         collection.find_one = MagicMock()
         collection.find_one.return_value = None
-        mock_valid_token.return_value = True
 
         headers = {'X-Linaro-Token': 'foo'}
         response = self.fetch('/api/job/job-kernel', headers=headers)
@@ -107,12 +112,10 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    @patch('handlers.decorators._is_valid_token')
     @patch('handlers.job.JobHandler.collection')
-    def test_get_by_id_found(self, collection, mock_valid_token):
+    def test_get_by_id_found(self, collection):
         collection.find_one = MagicMock()
         collection.find_one.return_value = []
-        mock_valid_token.return_value = True
 
         expected_body = '{"code": 200, "result": "[]"}'
 
@@ -132,9 +135,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    @patch('handlers.decorators._is_valid_token')
-    def test_post_not_json_content(self, mock_valid_token):
-        mock_valid_token.return_value = True
+    def test_post_not_json_content(self):
         headers = {'X-Linaro-Token': 'foo', 'Content-Type': 'application/json'}
 
         response = self.fetch(
@@ -145,9 +146,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    @patch('handlers.decorators._is_valid_token')
-    def test_post_wrong_content_type(self, mock_valid_token):
-        mock_valid_token.return_value = True
+    def test_post_wrong_content_type(self):
         headers = {'X-Linaro-Token': 'foo'}
 
         response = self.fetch(
@@ -158,9 +157,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    @patch('handlers.decorators._is_valid_token')
-    def test_post_wrong_json(self, mock_valid_content):
-        mock_valid_content.return_value = True
+    def test_post_wrong_json(self):
         headers = {'X-Linaro-Token': 'foo', 'Content-Type': 'application/json'}
 
         body = json.dumps(dict(foo='foo', bar='bar'))
@@ -173,14 +170,10 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    @patch('handlers.decorators._is_valid_token')
     @patch('handlers.job.send_emails')
     @patch('handlers.job.import_job')
-    def test_post_correct(
-            self, mock_import_job, mock_send_emails, mock_valid_token):
-
+    def test_post_correct(self, mock_import_job, mock_send_emails):
         mock_import_job.apply_async = MagicMock()
-        mock_valid_token.return_value = True
 
         headers = {
             'X-Linaro-Token': 'foo',
@@ -201,10 +194,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         response = self.fetch('/api/job/job', method='DELETE')
         self.assertEqual(response.code, 403)
 
-    @patch('handlers.decorators._is_valid_token')
-    def test_delete_with_token_no_job(self, mock_valid_token):
-        mock_valid_token.return_value = True
-
+    def test_delete_with_token_no_job(self):
         headers = {'X-Linaro-Token': 'foo'}
 
         response = self.fetch(
@@ -215,11 +205,9 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    @patch('handlers.decorators._is_valid_token')
-    def test_delete_with_token_with_job(self, mock_valid_token):
+    def test_delete_with_token_with_job(self):
         db = self.mongodb_client['kernel-ci']
         db['job'].insert(dict(_id='job', job='job', kernel='kernel'))
-        mock_valid_token.return_value = True
 
         headers = {'X-Linaro-Token': 'foo'}
 

@@ -41,6 +41,17 @@ class TestCountHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
         super(TestCountHandler, self).setUp()
 
+        patched_find_token = patch('handlers.decorators._find_token')
+        self.find_token = patched_find_token.start()
+        self.find_token.return_value = "token"
+
+        patched_validate_token = patch('handlers.decorators._validate_token')
+        self.validate_token = patched_validate_token.start()
+        self.validate_token.return_value = True
+
+        self.addCleanup(patched_find_token.stop)
+        self.addCleanup(patched_validate_token.stop)
+
     def get_app(self):
         settings = {
             'client': self.mongodb_client,
@@ -69,9 +80,7 @@ class TestCountHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    @patch('handlers.decorators._is_valid_token')
-    def test_get_wrong_resource(self, mock_valid_token):
-        mock_valid_token.return_value = True
+    def test_get_wrong_resource(self):
         headers = {'X-Linaro-Token': 'foo'}
 
         response = self.fetch('/api/count/foobar', headers=headers)
@@ -80,9 +89,7 @@ class TestCountHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    @patch('handlers.decorators._is_valid_token')
-    def test_get_count_all(self, mock_valid_content):
-        mock_valid_content.return_value = True
+    def test_get_count_all(self):
         expected_body = (
             '{"code": 200, "result": "[{\\"count\\": 0, \\"collection\\": '
             '\\"job\\"}, {\\"count\\": 0, \\"collection\\": \\"boot\\"}, '
@@ -97,10 +104,7 @@ class TestCountHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
         self.assertEqual(response.body, expected_body)
 
-    @patch('handlers.decorators._is_valid_token')
-    def test_get_count_collection(self, mock_valid_content):
-        mock_valid_content.return_value = True
-
+    def test_get_count_collection(self):
         expected_body = (
             '{"code": 200, "result": "{\\"count\\": 0, '
             '\\"collection\\": \\"boot\\"}"}'
@@ -114,10 +118,7 @@ class TestCountHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
         self.assertEqual(response.body, expected_body)
 
-    @patch('handlers.decorators._is_valid_token')
-    def test_get_count_collection_with_query(self, mock_valid_content):
-        mock_valid_content.return_value = True
-
+    def test_get_count_collection_with_query(self):
         expected_body = (
             '{"code": 200, "result": "{\\"count\\": 0, \\"fields\\": '
             '{\\"board\\": \\"foo\\"}, \\"collection\\": \\"boot\\"}"}'
