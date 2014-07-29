@@ -25,6 +25,7 @@ def test_modules():
         'handlers.tests.test_handler_static',
         'handlers.tests.test_job_handler',
         'handlers.tests.test_subscription_handler',
+        'handlers.tests.test_token_handler',
         'models.tests.test_boot_model',
         'models.tests.test_models',
         'models.tests.test_token_model',
