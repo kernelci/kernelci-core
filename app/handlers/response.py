@@ -28,13 +28,13 @@ class HandlerResponse(object):
     This might be used to pass custom message or set custom headers after
     an action has been performed.
     """
-    def __init__(self, status_code, message=None, headers=None):
+    def __init__(self, status_code):
+        if not isinstance(status_code, IntType):
+            raise ValueError("Value must be an integer")
+
         self._status_code = status_code
-        self._message = message
-        if headers:
-            self._headers = headers
-        else:
-            self._headers = {}
+        self._message = None
+        self._headers = {}
 
     @property
     def status_code(self):
