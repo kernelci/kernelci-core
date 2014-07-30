@@ -308,6 +308,6 @@ class TokenHandler(BaseHandler):
         ret_val = 404
 
         if find_one(self.collection, doc_id, field='token'):
-            ret_val = delete(self.collection, {TOKEN_KEY: {'$in': doc_id}})
+            ret_val = delete(self.collection, {TOKEN_KEY: {'$in': [doc_id]}})
 
         return ret_val
