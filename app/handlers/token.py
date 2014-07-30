@@ -192,7 +192,6 @@ class TokenHandler(BaseHandler):
 
         if result:
             token = Token.from_json(result)
-            self.log.info(token.to_dict())
 
             try:
                 token = self._token_update_create(json_obj, token, fail=False)
