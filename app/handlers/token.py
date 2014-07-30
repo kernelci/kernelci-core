@@ -49,12 +49,13 @@ from models.token import (
 from utils.db import (
     find_one,
     save,
+    update,
 )
 from utils.validator import is_valid_json
 
 
 class TokenHandler(BaseHandler):
-    """Handle the /job URLs."""
+    """Handle the /token URLs."""
 
     def __init__(self, application, request, **kwargs):
         super(TokenHandler, self).__init__(application, request, **kwargs)
@@ -149,37 +150,15 @@ class TokenHandler(BaseHandler):
         return response
 
     def _new_data(self, json_obj):
-        new_token = Token()
+        """Create a new token in the DB.
+
+        :param json_obj: The JSON object with the paramters.
+        :return A `HandlerResponse` object.
+        """
         response = HandlerResponse(201)
 
         try:
-            new_token.email = json_obj[EMAIL_KEY]
-            new_token.username = json_obj.get(USERNAME_KEY, None)
-            new_token.expires_on = json_obj.get(EXPIRES_KEY, None)
-
-            if json_obj.get(GET_KEY, None):
-                new_token.is_get_token = json_obj.get(GET_KEY)
-
-            if json_obj.get(POST_KEY, None):
-                new_token.is_post_token = json_obj.get(POST_KEY)
-
-            if json_obj.get(DELETE_KEY, None):
-                new_token.is_delete_token = json_obj.get(DELETE_KEY)
-
-            if json_obj.get(SUPERUSER_KEY, None):
-                new_token.is_superuser = json_obj.get(SUPERUSER_KEY)
-
-            if json_obj.get(ADMIN_KEY, None):
-                new_token.is_admin = json_obj.get(ADMIN_KEY)
-
-            new_token.is_ip_restricted = json_obj.get(IP_RESTRICTED, 0)
-            if new_token.is_ip_restricted:
-                if json_obj.get(IP_ADDRESS_KEY, None):
-                    new_token.ip_address = json_obj.get(IP_ADDRESS_KEY, None)
-                else:
-                    raise Exception(
-                        "IP restricted token but no IP addresses given"
-                    )
+            new_token = self._token_update_create(json_obj)
 
             response.status_code = save(self.db, new_token)
             if response.status_code == 201:
@@ -191,17 +170,109 @@ class TokenHandler(BaseHandler):
             response.message = (
                 "New tokens require the email address field [email]"
             )
-        except (TypeError, ValueError), ex:
+        except (TypeError, ValueError):
             response.status_code = 400
             response.message = "Wrong field value or type in the JSON data"
         except Exception, ex:
             response.status_code = 400
             response.message = str(ex)
-        finally:
-            return response
+
+        return response
 
     def _update_data(self, identifier, json_obj):
-        return 202
+        """Update an existing `Token` in the DB.
+
+        :param identifier: The token string identifying the `Token` to update.
+        :param json_obj: The JSON object with the parameters.
+        :return A `HandlerResponse` objet.
+        """
+        response = HandlerResponse(200)
+        result = find_one(self.collection, identifier, field='token')
+
+        if result:
+            token = Token.from_json(result)
+            self.log.info(token.to_dict())
+
+            try:
+                token = self._token_update_create(json_obj, token, fail=False)
+                response.status_code = update(
+                    self.collection, {'token': identifier}, token.to_dict()
+                )
+                if response.status_code == 200:
+                    response.message = token.token
+            except KeyError:
+                response.status_code = 400
+                response.message = (
+                    "Mandatory field missing"
+                )
+            except (TypeError, ValueError):
+                response.status_code = 400
+                response.message = "Wrong field value or type in the JSON data"
+            except Exception, ex:
+                response.status_code = 400
+                response.message = str(ex)
+        else:
+            response.status_code = 404
+
+        return response
+
+    @staticmethod
+    def _token_update_create(json_obj, token=None, fail=True):
+        """Create or update a `Token` object.
+
+        If the `token` argument is null, a new one will be created.
+
+        :param json_obj: The JSON object with the values to update.
+        :param token: The `Token` to update. Default to None meaning a new
+            token will be created.
+        param fail: If when a mandatory Token field is missing we should fail.
+            By default True, and it fails when the `email` field is missing.
+        :return A `Token`.
+        :raise KeyError, ValueError, TypeError, Exception.
+        """
+        if not token:
+            token = Token()
+
+        if fail:
+            token.email = json_obj[EMAIL_KEY]
+        else:
+            if json_obj.get(EMAIL_KEY, None):
+                token.email = json_obj.get(EMAIL_KEY)
+
+        if json_obj.get(USERNAME_KEY, None):
+            token.username = json_obj.get(USERNAME_KEY)
+
+        if json_obj.get(EXPIRES_KEY, None):
+            token.expires_on = json_obj.get(EXPIRES_KEY)
+
+        if json_obj.get(GET_KEY, None):
+            token.is_get_token = json_obj.get(GET_KEY)
+
+        if json_obj.get(POST_KEY, None):
+            token.is_post_token = json_obj.get(POST_KEY)
+
+        if json_obj.get(DELETE_KEY, None):
+            token.is_delete_token = json_obj.get(DELETE_KEY)
+
+        if json_obj.get(SUPERUSER_KEY, None):
+            token.is_superuser = json_obj.get(SUPERUSER_KEY)
+
+        if json_obj.get(ADMIN_KEY, None):
+            token.is_admin = json_obj.get(ADMIN_KEY)
+
+        if json_obj.get(IP_RESTRICTED, None):
+            token.is_ip_restricted = json_obj.get(IP_RESTRICTED)
+
+        if token.is_ip_restricted and not json_obj.get(IP_ADDRESS_KEY, None):
+            raise Exception("IP restricted but no IP addresses given")
+        elif json_obj.get(IP_ADDRESS_KEY, None) and not token.is_ip_restricted:
+            raise Exception(
+                "IP addresses given, but token is not IP restricted"
+            )
+        elif token.is_ip_restricted and json_obj.get(IP_ADDRESS_KEY, None):
+            token.ip_address = json_obj.get(IP_ADDRESS_KEY)
+
+        return token
 
     @protected_th("DELETE")
     @asynchronous

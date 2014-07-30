@@ -110,3 +110,296 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
         self.assertEqual(response.body, expected_body)
         self.assertTrue(mock_master_key.called)
+
+    def test_post_without_token(self):
+        body = json.dumps(dict(email='foo'))
+
+        response = self.fetch('/api/token', method='POST', body=body)
+
+        self.assertEqual(response.code, 403)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    def test_post_wrong_content_type(self):
+        headers = {'X-Linaro-Token': 'foo'}
+
+        response = self.fetch(
+            '/api/token', method='POST', body='', headers=headers
+        )
+
+        self.assertEqual(response.code, 415)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    def test_post_not_json_content(self):
+        headers = {'X-Linaro-Token': 'foo', 'Content-Type': 'application/json'}
+
+        response = self.fetch(
+            '/api/token', method='POST', body='', headers=headers
+        )
+
+        self.assertEqual(response.code, 420)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    def test_post_wrong_json(self):
+        headers = {'X-Linaro-Token': 'foo', 'Content-Type': 'application/json'}
+
+        body = json.dumps(dict(foo='foo', bar='bar'))
+
+        response = self.fetch(
+            '/api/token', method='POST', body=body, headers=headers
+        )
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    def test_post_new_no_email(self):
+        headers = {
+            'X-Linaro-Token': 'foo',
+            'Content-Type': 'application/json',
+        }
+
+        body = json.dumps(dict(username='foo'))
+
+        response = self.fetch(
+            '/api/token', method='POST', headers=headers, body=body
+        )
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    def test_post_new_wrong_value(self):
+        headers = {
+            'X-Linaro-Token': 'foo',
+            'Content-Type': 'application/json',
+        }
+
+        body = json.dumps(dict(email="bar", username='foo', get="1"))
+
+        response = self.fetch(
+            '/api/token', method='POST', headers=headers, body=body
+        )
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    def test_post_new_ip_restricted_wrong_0(self):
+        headers = {
+            'X-Linaro-Token': 'foo',
+            'Content-Type': 'application/json',
+        }
+
+        body = json.dumps(dict(email="bar", username='foo', ip_restricted=1))
+
+        response = self.fetch(
+            '/api/token', method='POST', headers=headers, body=body
+        )
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    def test_post_new_ip_restricted_wrong_1(self):
+        headers = {
+            'X-Linaro-Token': 'foo',
+            'Content-Type': 'application/json',
+        }
+
+        body = json.dumps(dict(email="bar", username='foo', ip_address="127"))
+
+        response = self.fetch(
+            '/api/token', method='POST', headers=headers, body=body
+        )
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    def test_post_new_ip_restricted_wrong_2(self):
+        headers = {
+            'X-Linaro-Token': 'foo',
+            'Content-Type': 'application/json',
+        }
+
+        body = json.dumps(
+            dict(email="bar", username='foo', ip_restricted=0, ip_address="127")
+        )
+
+        response = self.fetch(
+            '/api/token', method='POST', headers=headers, body=body
+        )
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    def test_post_new_expires_wrong(self):
+        headers = {
+            'X-Linaro-Token': 'foo',
+            'Content-Type': 'application/json',
+        }
+
+        body = json.dumps(
+            dict(email="bar", expires_on="2014")
+        )
+
+        response = self.fetch(
+            '/api/token', method='POST', headers=headers, body=body
+        )
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    def test_post_new_correct(self):
+        headers = {
+            'X-Linaro-Token': 'foo',
+            'Content-Type': 'application/json',
+        }
+
+        body = json.dumps(
+            dict(
+                email="bar", username='foo', expires_on="2014-07-01",
+                admin=1, superuser=1, get=1, delete=1, post=1
+            )
+        )
+
+        response = self.fetch(
+            '/api/token', method='POST', headers=headers, body=body
+        )
+
+        self.assertEqual(response.code, 201)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+        self.assertIsNotNone(response.headers['Location'])
+
+    def test_post_update_no_token(self):
+        headers = {
+            'X-Linaro-Token': 'foo',
+            'Content-Type': 'application/json',
+        }
+
+        body = json.dumps(dict(admin=1))
+
+        response = self.fetch(
+            '/api/token/token', method='POST', headers=headers, body=body
+        )
+
+        self.assertEqual(response.code, 404)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    @patch('handlers.token.TokenHandler.collection')
+    def test_post_update_with_token(self, mock_collection):
+
+        mock_collection.find_one = MagicMock()
+        mock_collection.find_one.return_value = dict(token='token')
+
+        headers = {
+            'X-Linaro-Token': 'foo',
+            'Content-Type': 'application/json',
+        }
+
+        body = json.dumps(dict(admin=1))
+
+        response = self.fetch(
+            '/api/token/token', method='POST', headers=headers, body=body
+        )
+
+        self.assertEqual(response.code, 200)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    @patch('handlers.token.TokenHandler.collection')
+    def test_post_update_wrong_content_0(self, mock_collection):
+
+        mock_collection.find_one = MagicMock()
+        mock_collection.find_one.return_value = dict(token='token')
+
+        headers = {
+            'X-Linaro-Token': 'foo',
+            'Content-Type': 'application/json',
+        }
+
+        body = json.dumps(dict(admin="bar"))
+
+        response = self.fetch(
+            '/api/token/token', method='POST', headers=headers, body=body
+        )
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    @patch('handlers.token.TokenHandler.collection')
+    def test_post_update_wrong_content_1(self, mock_collection):
+
+        mock_collection.find_one = MagicMock()
+        mock_collection.find_one.return_value = dict(
+            token='token', email='email', properties=[0 for _ in range(0, 16)]
+        )
+
+        headers = {
+            'X-Linaro-Token': 'foo',
+            'Content-Type': 'application/json',
+        }
+
+        body = json.dumps(dict(ip_address="127"))
+
+        response = self.fetch(
+            '/api/token/token', method='POST', headers=headers, body=body
+        )
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    @patch('handlers.token.TokenHandler.collection')
+    def test_post_update_wrong_content_2(self, mock_collection):
+
+        mock_collection.find_one = MagicMock()
+        mock_collection.find_one.return_value = dict(
+            token='token', email='email', properties=[0 for _ in range(0, 16)]
+        )
+
+        headers = {
+            'X-Linaro-Token': 'foo',
+            'Content-Type': 'application/json',
+        }
+
+        body = json.dumps(dict(ip_restricted=1))
+
+        response = self.fetch(
+            '/api/token/token', method='POST', headers=headers, body=body
+        )
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    @patch('handlers.token.TokenHandler.collection')
+    def test_post_update_ip_restricted(self, mock_collection):
+
+        mock_collection.find_one = MagicMock()
+        mock_collection.find_one.return_value = dict(
+            token='token', email='email', properties=[0 for _ in range(0, 16)]
+        )
+
+        headers = {
+            'X-Linaro-Token': 'foo',
+            'Content-Type': 'application/json',
+        }
+
+        body = json.dumps(dict(email="foo", ip_restricted=1, ip_address="127"))
+
+        response = self.fetch(
+            '/api/token/token', method='POST', headers=headers, body=body
+        )
+
+        self.assertEqual(response.code, 200)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
