@@ -42,10 +42,11 @@ from models import (
     TOKEN_KEY,
     USERNAME_KEY,
 )
+from models.base import BaseDocument
 
 
-class Token(object):
-    """This is an API token as stored on the DB.
+class Token(BaseDocument):
+    """This is an API token as stored in the DB.
 
     A token can be:
      - basic: All permissions have to be set (GET, POST, DELETE)
@@ -71,14 +72,19 @@ class Token(object):
     """
 
     def __init__(self):
+        self._id = None
         self._token = None
-        self._created_on = datetime.now(tz=tz_util.utc)
+        self._created_on = None
         self._expires_on = None
         self._expired = False
         self._username = None
         self._email = None
         self._ip_address = None
         self._properties = [0 for _ in range(0, 16)]
+
+    @property
+    def collection(self):
+        return TOKEN_COLLECTION
 
     @property
     def token(self):
@@ -101,6 +107,8 @@ class Token(object):
 
     @property
     def created_on(self):
+        if not self._created_on:
+            self._created_on = datetime.now(tz=tz_util.utc)
         return self._created_on
 
     @created_on.setter

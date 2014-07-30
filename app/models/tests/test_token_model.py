@@ -30,9 +30,9 @@ from models.token import Token
 
 class TestTokenModel(unittest.TestCase):
 
-    def test_token_model_not_base_document(self):
+    def test_token_model_is_base_document(self):
         token_obj = Token()
-        self.assertNotIsInstance(token_obj, BaseDocument)
+        self.assertIsInstance(token_obj, BaseDocument)
 
     def test_properties_len(self):
         token_obj = Token()
@@ -151,11 +151,11 @@ class TestTokenModel(unittest.TestCase):
     def test_token_to_json(self):
         token_obj = Token()
 
-        token_obj._created_on = None
+        token_obj._created_on = '1'
         token_obj._token = '1'
 
         expected = (
-            '{"username": null, "created_on": null, "token": "1", '
+            '{"username": null, "created_on": "1", "token": "1", '
             '"ip_address": null, "expired": false, "email": null, '
             '"expires_on": null, '
             '"properties": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}'
