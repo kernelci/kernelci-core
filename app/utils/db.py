@@ -181,7 +181,7 @@ def update(collection, spec, document, operation='$set'):
     :type dict
     :param document: The key-value to update.
     :type dict
-    :param operation: The operation to perform. Be default is `$set`.
+    :param operation: The operation to perform. By default is `$set`.
     :type str
     :return 200 if the update has success, 500 in case of an error.
     """
