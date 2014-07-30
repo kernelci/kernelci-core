@@ -40,9 +40,8 @@ def protected(method):
             if token:
                 token_obj = _find_token(token, obj)
 
-                if all([token_obj,
-                        _validate_token(
-                            token_obj, obj, method, _valid_token_general)]):
+                if token_obj and _validate_token(
+                        token_obj, obj, method, _valid_token_general):
                     return function(obj, *args, **kwargs)
 
             obj.log.info(
@@ -77,10 +76,8 @@ def protected_th(method):
                 else:
                     token_obj = _find_token(token, obj)
 
-                    if all([
-                            token_obj,
-                            _validate_token(
-                                token, obj, method, _valid_token_th)]):
+                    if token_obj and _validate_token(
+                            token, obj, method, _valid_token_th):
                         return function(obj, *args, **kwargs)
 
             obj.log.info(
