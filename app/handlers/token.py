@@ -25,6 +25,7 @@ from tornado.web import (
 
 from handlers.base import BaseHandler
 from handlers.decorators import protected_th
+from handlers.response import HandlerResponse
 from models import (
     ADMIN_KEY,
     CREATED_KEY,
@@ -45,7 +46,10 @@ from models.token import (
     TOKEN_COLLECTION,
     Token,
 )
-from utils.db import find_one
+from utils.db import (
+    find_one,
+    save,
+)
 from utils.validator import is_valid_json
 
 
@@ -112,6 +116,7 @@ class TokenHandler(BaseHandler):
         )
 
     def _post(self, *args, **kwargs):
+        response = None
         valid_request = self._valid_post_request()
 
         if valid_request == 200:
@@ -121,29 +126,31 @@ class TokenHandler(BaseHandler):
                 if is_valid_json(json_obj, self._valid_keys('POST')):
                     if kwargs and kwargs.get('id', None):
                         self.log.info(
-                            "New token creation from IP address %s",
-                            self.request.remote_ip
-                        )
-                        return self._update_data(kwargs['id'], json_obj)
-                    else:
-                        self.log.info(
                             "Token update from IP address %s",
                             self.request.remote_ip
                         )
-                        return self._new_data(json_obj)
+                        response = self._update_data(kwargs['id'], json_obj)
+                    else:
+                        self.log.info(
+                            "New token creation from IP address %s",
+                            self.request.remote_ip
+                        )
+                        response = self._new_data(json_obj)
                 else:
-                    self.write_error(
-                        status_code=400,
-                        message="Provided JSON is not valid"
-                    )
+                    response = HandlerResponse(400)
+                    response.message = "Provided JSON is not valid"
             except ValueError:
                 self.log.error("No JSON data found in the POST request")
-                self.write_error(status_code=420)
+                response = HandlerResponse(420)
+                response.message = "No JSON data found in the POST request"
         else:
-            self.write_error(status_code=valid_request)
+            response = HandlerResponse(valid_request)
+
+        return response
 
     def _new_data(self, json_obj):
         new_token = Token()
+        response = HandlerResponse(201)
 
         try:
             new_token.email = json_obj[EMAIL_KEY]
@@ -173,22 +180,25 @@ class TokenHandler(BaseHandler):
                     raise Exception(
                         "IP restricted token but no IP addresses given"
                     )
+
+            response.status_code = save(self.db, new_token)
+            if response.status_code == 201:
+                response.message = new_token.token
+                location = self.request.uri + '/' + new_token.token
+                response.headers = {'Location': location}
         except KeyError:
-            self.write_error(
-                status_code=400,
-                message="New tokens require the email address field [email]"
+            response.status_code = 400
+            response.message = (
+                "New tokens require the email address field [email]"
             )
-        except (TypeError, ValueError):
-            self.write_error(
-                status_code=400,
-                message="Wrong field value or type in the JSON data")
+        except (TypeError, ValueError), ex:
+            response.status_code = 400
+            response.message = "Wrong field value or type in the JSON data"
         except Exception, ex:
-            self.write_error(
-                status_code=400,
-                message=str(ex)
-            )
-        else:
-            return 201
+            response.status_code = 400
+            response.message = str(ex)
+        finally:
+            return response
 
     def _update_data(self, identifier, json_obj):
         return 202
