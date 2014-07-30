@@ -145,7 +145,6 @@ def save(database, documents):
     ret_value = 201
 
     if not isinstance(documents, types.ListType):
-        # Using list() gives error.
         documents = [documents]
 
     for document in documents:
