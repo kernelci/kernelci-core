@@ -39,6 +39,7 @@ from tornado.web import (
 )
 
 from handlers.decorators import protected
+from handlers.response import HandlerResponse
 from models import (
     AGGREGATE_KEY,
     CREATED_KEY,
@@ -140,20 +141,28 @@ class BaseHandler(RequestHandler):
         """Create a valid JSON response based on its type.
 
         :param response: The response we have from a query to the database.
-        :return A (int, str) tuple composed of the status code, and the
-            message.
         """
-        if isinstance(response, (types.DictionaryType, types.ListType)):
-            status, message = 200, dumps(response)
-        elif isinstance(response, types.IntType):
-            status, message = response, self._get_status_message(response)
-        elif isinstance(response, types.NoneType):
-            status, message = 404, self._get_status_message(404)
-        else:
-            status, message = 200, self._get_status_message(200)
+        headers = {}
 
-        self.set_status(status_code=status)
-        self.write(dict(code=status, result=message))
+        if isinstance(response, (types.DictionaryType, types.ListType)):
+            status_code, message = 200, dumps(response)
+        elif isinstance(response, types.IntType):
+            status_code, message = response, self._get_status_message(response)
+        elif isinstance(response, types.NoneType):
+            status_code, message = 404, self._get_status_message(404)
+        elif isinstance(response, HandlerResponse):
+            status_code, message, headers = \
+                response.status_code, response.message, response.headers
+        else:
+            status_code, message = 200, self._get_status_message(200)
+
+        message = message or self._get_status_message(status_code)
+
+        self.set_status(status_code=status_code, reason=message)
+        self.write(dict(code=status_code, result=message))
+        if headers:
+            for key, val in headers.iteritems():
+                self.add_header(key, val)
         self.finish()
 
     def _get_callback(self, result):
