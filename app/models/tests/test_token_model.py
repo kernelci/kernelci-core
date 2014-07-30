@@ -155,10 +155,10 @@ class TestTokenModel(unittest.TestCase):
         token_obj._token = '1'
 
         expected = (
-            '{"username": null, "created_on": "1", "token": "1", '
-            '"ip_address": null, "expired": false, "email": null, '
-            '"expires_on": null, '
-            '"properties": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}'
+            '{"username": null, "expired": false, "token": "1", '
+            '"properties": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], '
+            '"created_on": "1", "ip_address": null, "email": null, '
+            '"expires_on": null}'
         )
 
         self.assertEqual(expected, token_obj.to_json())

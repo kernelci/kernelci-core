@@ -282,16 +282,19 @@ class Token(BaseDocument):
 
         :return The object as a dictionary.
         """
-        return {
-            CREATED_KEY: self.created_on,
-            EMAIL_KEY: self.email,
-            EXPIRED_KEY: self.expired,
-            EXPIRES_KEY: self.expires_on,
-            IP_ADDRESS_KEY: self.ip_address,
-            PROPERTIES_KEY: self.properties,
-            TOKEN_KEY: self.token,
-            USERNAME_KEY: self.username,
-        }
+        doc_dict = {}
+        doc_dict[CREATED_KEY] = self.created_on
+        doc_dict[EMAIL_KEY] = self.email
+        doc_dict[EXPIRED_KEY] = self.expired
+        doc_dict[EXPIRES_KEY] = self.expires_on
+        doc_dict[IP_ADDRESS_KEY] = self.ip_address
+        doc_dict[PROPERTIES_KEY] = self.properties
+        doc_dict[TOKEN_KEY] = self.token
+        doc_dict[USERNAME_KEY] = self.username
+        if self._id:
+            doc_dict[ID_KEY] = self._id
+
+        return doc_dict
 
     def to_json(self):
         """Return a JSON string for this object.
@@ -309,9 +312,6 @@ class Token(BaseDocument):
         """
         if isinstance(json_obj, StringTypes):
             json_obj = json_util.loads(json_obj)
-
-        if json_obj.get(ID_KEY, None):
-            json_obj.pop(ID_KEY)
 
         token = Token()
         for key, value in json_obj.iteritems():
