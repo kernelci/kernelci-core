@@ -403,3 +403,37 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(response.code, 200)
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    def test_delete_no_token(self):
+        response = self.fetch('/api/token/token', method='DELETE')
+        self.assertEqual(response.code, 403)
+
+    def test_delete_with_token_no_document(self):
+        headers = {'X-Linaro-Token': 'foo'}
+
+        response = self.fetch(
+            '/api/token/token', method='DELETE', headers=headers,
+        )
+
+        self.assertEqual(response.code, 404)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    def test_delete_with_token_with_document(self):
+        db = self.mongodb_client['kernel-ci']
+        db['api-token'].insert(dict(token='token', email='email'))
+
+        headers = {'X-Linaro-Token': 'foo'}
+
+        response = self.fetch(
+            '/api/token/token', method='DELETE', headers=headers,
+        )
+
+        self.assertEqual(response.code, 200)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+        response = self.fetch(
+            '/api/token/token', method="GET", headers=headers
+        )
+        self.assertEqual(response.code, 404)

@@ -47,6 +47,7 @@ from models.token import (
     Token,
 )
 from utils.db import (
+    delete,
     find_one,
     save,
     update,
@@ -179,15 +180,15 @@ class TokenHandler(BaseHandler):
 
         return response
 
-    def _update_data(self, identifier, json_obj):
+    def _update_data(self, doc_id, json_obj):
         """Update an existing `Token` in the DB.
 
-        :param identifier: The token string identifying the `Token` to update.
+        :param doc_id: The token string identifying the `Token` to update.
         :param json_obj: The JSON object with the parameters.
         :return A `HandlerResponse` objet.
         """
         response = HandlerResponse(200)
-        result = find_one(self.collection, identifier, field='token')
+        result = find_one(self.collection, doc_id, field='token')
 
         if result:
             token = Token.from_json(result)
@@ -196,7 +197,7 @@ class TokenHandler(BaseHandler):
             try:
                 token = self._token_update_create(json_obj, token, fail=False)
                 response.status_code = update(
-                    self.collection, {'token': identifier}, token.to_dict()
+                    self.collection, {'token': doc_id}, token.to_dict()
                 )
                 if response.status_code == 200:
                     response.message = token.token
@@ -277,7 +278,36 @@ class TokenHandler(BaseHandler):
     @protected_th("DELETE")
     @asynchronous
     def delete(self, *args, **kwargs):
-        super(TokenHandler, self).delete(*args, **kwargs)
+        self.executor.submit(
+            partial(self.execute_delete, *args, **kwargs)
+        ).add_done_callback(
+            lambda future:
+            tornado.ioloop.IOLoop.instance().add_callback(
+                partial(self._create_valid_response, future.result()))
+        )
+
+    def execute_delete(self, *args, **kwargs):
+        """Called by the actual DELETE method.
+
+        Make sure we have the correct value to execute a DELETE on the db,
+        and then call the method that does the real delete.
+
+        Subclasses should not override this unless there are special reasons
+        to.
+        """
+        response = HandlerResponse(400)
+
+        if kwargs and kwargs.get('id', None):
+            response.status_code = self._delete(kwargs['id'])
+            if response.status_code == 200:
+                response.message = "Resource deleted"
+
+        return response
 
     def _delete(self, doc_id):
-        pass
+        ret_val = 404
+
+        if find_one(self.collection, doc_id, field='token'):
+            ret_val = delete(self.collection, {TOKEN_KEY: {'$in': doc_id}})
+
+        return ret_val
