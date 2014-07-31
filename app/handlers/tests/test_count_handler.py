@@ -92,9 +92,9 @@ class TestCountHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
     def test_get_count_all(self):
         expected_body = (
-            '{"code": 200, "result": "[{\\"count\\": 0, \\"collection\\": '
-            '\\"job\\"}, {\\"count\\": 0, \\"collection\\": \\"boot\\"}, '
-            '{\\"count\\": 0, \\"collection\\": \\"defconfig\\"}]"}'
+            '{"code": 200, "result": [{"count": 0, "collection": "job"}, '
+            '{"count": 0, "collection": "boot"}, '
+            '{"count": 0, "collection": "defconfig"}]}'
         )
 
         headers = {'X-Linaro-Token': 'foo'}
@@ -107,8 +107,7 @@ class TestCountHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
     def test_get_count_collection(self):
         expected_body = (
-            '{"code": 200, "result": "{\\"count\\": 0, '
-            '\\"collection\\": \\"boot\\"}"}'
+            '{"code": 200, "result": [{"count": 0, "collection": "boot"}]}'
         )
 
         headers = {'X-Linaro-Token': 'foo'}
@@ -121,8 +120,8 @@ class TestCountHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
     def test_get_count_collection_with_query(self):
         expected_body = (
-            '{"code": 200, "result": "{\\"count\\": 0, \\"fields\\": '
-            '{\\"board\\": \\"foo\\"}, \\"collection\\": \\"boot\\"}"}'
+            '{"code": 200, "result": [{"count": 0, "fields": '
+            '{"board": "foo"}, "collection": "boot"}]}'
         )
 
         headers = {'X-Linaro-Token': 'foo'}

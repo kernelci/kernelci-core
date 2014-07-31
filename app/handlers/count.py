@@ -15,13 +15,12 @@
 
 """Handle the /count URLs used to count objects in the database."""
 
-import tornado
-
-from functools import partial
 from tornado.web import (
     asynchronous,
 )
 
+from handlers.base import BaseHandler
+from handlers.response import HandlerResponse
 from models import (
     ARCHITECTURE_KEY,
     BOARD_KEY,
@@ -37,8 +36,6 @@ from models import (
     TIME_KEY,
     WARNINGS_KEY,
 )
-from handlers.base import BaseHandler
-from handlers.decorators import protected
 from models.boot import BOOT_COLLECTION
 from models.defconfig import DEFCONFIG_COLLECTION
 from models.job import JOB_COLLECTION
@@ -56,16 +53,17 @@ COLLECTIONS = {
 }
 
 
+# Internally used only. It is used to retrieve just one field for
+# the query results since we only need to count the results, we are
+# not interested in the values.
+COUNT_FIELDS = {ID_KEY: True}
+
+
 class CountHandler(BaseHandler):
     """Handle the /count URLs."""
 
     def __init__(self, application, request, **kwargs):
         super(CountHandler, self).__init__(application, request, **kwargs)
-
-        # Internally used only. It is used to retrieve just one field for
-        # the query results since we only need to count the results, we are
-        # not interested in the values.
-        self._fields = {ID_KEY: True}
 
     def _valid_keys(self, method):
         valid_keys = {
@@ -88,31 +86,23 @@ class CountHandler(BaseHandler):
 
         return valid_keys.get(method, None)
 
-    @protected("GET")
-    @asynchronous
-    def get(self, *args, **kwargs):
-        if kwargs and kwargs.get('collection', None):
-            if kwargs['collection'] in COLLECTIONS.keys():
-                self.executor.submit(
-                    partial(self._count_one_collection, kwargs['collection'])
-                ).add_done_callback(
-                    lambda future:
-                    tornado.ioloop.IOLoop.instance().add_callback(
-                        partial(
-                            self._get_callback, future.result()
-                        )
-                    )
-                )
-            else:
-                self.write_error(404)
+    def _get_one(self, collection):
+        response = HandlerResponse()
+
+        if collection in COLLECTIONS.keys():
+            response.result = self._count_one_collection(collection)
         else:
-            self.executor.submit(
-                partial(self._count_all_collections)
-            ).add_done_callback(
-                lambda future: tornado.ioloop.IOLoop.instance().add_callback(
-                    partial(self._get_callback, future.result())
-                )
-            )
+            response.status_code = 404
+            response.reason = "Collection %s not found" % collection
+            response.result = None
+
+        return response
+
+    def _get(self, **kwargs):
+        response = HandlerResponse()
+        response.result = self._count_all_collections()
+
+        return response
 
     def _count_one_collection(self, collection):
         """Count all the available documents in the provide collection.
@@ -121,24 +111,25 @@ class CountHandler(BaseHandler):
         :return A dictionary with the `result` field that contains a dictionary
             with the fields `collection` and `count`.
         """
-        result = {}
+        result = []
         spec = self._get_query_spec()
 
         if spec:
-            number = find_and_count(
-                self.db[COLLECTIONS[collection]], 0, 0, spec, self._fields
+            _, number = find_and_count(
+                self.db[COLLECTIONS[collection]], 0, 0, spec, COUNT_FIELDS
             )
-            if number:
-                number = number['count']
-            else:
+            if not number:
                 number = 0
-            result['result'] = dict(
-                collection=collection, count=number, fields=spec
+
+            result.append(
+                dict(collection=collection, count=number, fields=spec)
             )
         else:
-            result['result'] = dict(
-                collection=collection,
-                count=count(self.db[COLLECTIONS[collection]])
+            result.append(
+                dict(
+                    collection=collection,
+                    count=count(self.db[COLLECTIONS[collection]])
+                )
             )
 
         return result
@@ -149,23 +140,20 @@ class CountHandler(BaseHandler):
         :return A dictionary with the `result` field that contains a list of
             dictionaries with the fields `collection` and `count`.
         """
-        result = dict(result=[])
+        result = []
 
         spec = self._get_query_spec()
         if spec:
             for key, val in COLLECTIONS.iteritems():
-                number = find_and_count(self.db[val], 0, 0, spec, self._fields)
-                if number:
-                    number = number['count']
-                else:
+                _, number = find_and_count(
+                    self.db[val], 0, 0, spec, COUNT_FIELDS
+                )
+                if not number:
                     number = 0
-                result['result'].append(
-                    dict(collection=key, count=number))
+                result.append(dict(collection=key, count=number))
         else:
             for key, val in COLLECTIONS.iteritems():
-                result['result'].append(
-                    dict(collection=key, count=count(self.db[val]))
-                )
+                result.append(dict(collection=key, count=count(self.db[val])))
 
         return result
 

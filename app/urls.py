@@ -37,7 +37,7 @@ _SUBSCRIPTION_URL = url(
 )
 _BOOT_URL = url(r'/api/boot(?P<sl>/)?(?P<id>.*)', BootHandler, name='boot')
 _COUNT_URL = url(
-    r'/api/count(?P<sl>/)?(?P<collection>.*)', CountHandler, name='count'
+    r'/api/count(?P<sl>/)?(?P<id>.*)', CountHandler, name='count'
 )
 _TOKEN_URL = url(
     r'/api/token(?P<sl>/)?(?P<id>.*)', TokenHandler, name='token'

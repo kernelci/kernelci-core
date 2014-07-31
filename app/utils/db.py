@@ -46,7 +46,7 @@ def find_one(collection,
         `$in`.
     :param fields: The fiels that should be available or excluded from the
         result.
-    :return None or the search result.
+    :return None or the search result as a dictionary.
     """
 
     if not isinstance(values, types.ListType):
@@ -113,15 +113,14 @@ def find_and_count(collection, limit, skip, spec=None, fields=None, sort=None):
     :type str, list, dict
     :param sort: Whose fields the result should be sorted on.
     :type list
-    :return A dictionary with the result of the `find` operation, the total
-        number of documents found, and the `limit` value.
+    :return The search result and the total count.
     """
     db_result = collection.find(
         limit=limit, skip=skip, spec=spec, fields=fields, sort=sort
     )
     count = db_result.count()
 
-    return dict(result=db_result, count=count, limit=limit)
+    return db_result, count
 
 
 def count(collection):
@@ -334,10 +333,4 @@ def aggregate(
         else:
             result = []
 
-    ret_val = None
-    if limit:
-        ret_val = dict(limit=limit, result=result)
-    else:
-        ret_val = dict(result=result)
-
-    return ret_val
+    return result

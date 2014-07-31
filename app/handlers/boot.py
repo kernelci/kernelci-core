@@ -16,6 +16,7 @@
 """The RequestHandler for /boot URLs."""
 
 from handlers.base import BaseHandler
+from handlers.response import HandlerResponse
 from models import (
     CREATED_KEY,
     DEFCONFIG_KEY,
@@ -52,5 +53,10 @@ class BootHandler(BaseHandler):
         return valid_keys.get(method, None)
 
     def _post(self, json_obj):
+        response = HandlerResponse(202)
+        response.reason = "Request accepted and being imported"
+        response.result = None
+
         import_boot.apply_async([json_obj])
-        self._create_valid_response(200)
+
+        return response

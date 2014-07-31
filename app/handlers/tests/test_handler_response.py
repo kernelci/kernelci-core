@@ -26,12 +26,15 @@ class TestHandlerResponse(unittest.TestCase):
         self.assertRaises(ValueError, HandlerResponse, "1")
 
     def test_response_setter_not_valid(self):
-        response = HandlerResponse(1)
+        response = HandlerResponse()
 
         def _setter_call(value):
             response.status_code = value
 
         self.assertRaises(ValueError, _setter_call, "1")
+        self.assertRaises(ValueError, _setter_call, [1])
+        self.assertRaises(ValueError, _setter_call, {})
+        self.assertRaises(ValueError, _setter_call, ())
 
     def test_response_setter_valid(self):
         response = HandlerResponse(1)
@@ -40,33 +43,39 @@ class TestHandlerResponse(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_reponse_creation_default_values(self):
-        response = HandlerResponse(0)
+        response = HandlerResponse()
 
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers, {})
-        self.assertIsNone(response.message)
+        self.assertEqual([], response.result)
+        self.assertIsNone(response.reason)
 
-    def test_response_message_setter_not_valid(self):
-        response = HandlerResponse(0)
+    def test_response_reason_setter_valid(self):
+        response = HandlerResponse()
 
-        def _setter_call(value):
-            response.message = value
+        response.reason = u'foo'
+        self.assertEqual('foo', response.reason)
 
-        self.assertRaises(ValueError, _setter_call, 1)
-        self.assertRaises(ValueError, _setter_call, True)
-        self.assertRaises(ValueError, _setter_call, [])
-        self.assertRaises(ValueError, _setter_call, {})
+        response.reason = r'bar'
+        self.assertEqual('bar', response.reason)
 
-    def test_response_message_setter_valid(self):
-        response = HandlerResponse(1)
+    def test_response_result_setter(self):
+        response = HandlerResponse()
 
-        response.message = u'foo'
-        self.assertEqual('foo', response.message)
+        response.result = {}
+        self.assertIsInstance(response.result, list)
+        self.assertEqual(response.result, [{}])
 
-        response.message = r'bar'
-        self.assertEqual('bar', response.message)
+        response.result = 1
+        self.assertIsInstance(response.result, list)
+        self.assertEqual(response.result, [1])
+
+        response.result = u'foo'
+        self.assertIsInstance(response.result, list)
+        self.assertEqual(response.result, ['foo'])
 
     def test_response_headers_setter_not_valid(self):
-        response = HandlerResponse(0)
+        response = HandlerResponse()
 
         def _setter_call(value):
             response.headers = value
@@ -78,7 +87,7 @@ class TestHandlerResponse(unittest.TestCase):
         self.assertRaises(ValueError, _setter_call, "1")
 
     def test_response_headers_setter_valid(self):
-        response = HandlerResponse(0)
+        response = HandlerResponse()
 
         response.headers = {'foo': 'bar'}
         self.assertEqual({'foo': 'bar'}, response.headers)

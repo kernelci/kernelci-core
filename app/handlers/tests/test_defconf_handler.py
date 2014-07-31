@@ -80,7 +80,7 @@ class TestDefconfHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         mock_find.return_value = []
 
         expected_body = (
-            '{"count": 0, "code": 200, "limit": 0, "result": "[]"}'
+            '{"count": 0, "code": 200, "limit": 0, "result": []}'
         )
 
         headers = {'X-Linaro-Token': 'foo'}

@@ -15,11 +15,8 @@
 
 """The RequestHandler for /job URLs."""
 
-import tornado
-
-from functools import partial
-
 from handlers.base import BaseHandler
+from handlers.response import HandlerResponse
 from models import (
     CREATED_KEY,
     JOB_ID_KEY,
@@ -61,20 +58,16 @@ class JobHandler(BaseHandler):
 
         return valid_keys.get(method, None)
 
-    def _post(self, json_obj):
-        import_job.apply_async([json_obj], link=send_emails.s())
-        self._create_valid_response(200)
+    def _post(self, *args, **kwargs):
+        response = HandlerResponse(202)
+        response.reason = "Request accepted and being imported"
+        response.result = None
+
+        import_job.apply_async([kwargs['json_obj']], link=send_emails.s())
+
+        return response
 
     def _delete(self, job_id):
-        self.executor.submit(
-            partial(self._delete_job, job_id)
-        ).add_done_callback(
-            lambda future:
-            tornado.ioloop.IOLoop.instance().add_callback(
-                partial(self._create_valid_response, future.result()))
-        )
-
-    def _delete_job(self, job_id):
         """Delete a job from the database.
 
         Use with care since documents cannot be retrieved after!
@@ -87,8 +80,8 @@ class JobHandler(BaseHandler):
         """
         # TODO: maybe look into two-phase commits in mongodb
         # http://docs.mongodb.org/manual/tutorial/perform-two-phase-commits/
-
-        ret_val = 200
+        response = HandlerResponse()
+        response.result = None
 
         if find_one(self.collection, job_id):
             delete(
@@ -101,8 +94,11 @@ class JobHandler(BaseHandler):
                 {JOB_ID_KEY: {'$in': [job_id]}}
             )
 
-            ret_val = delete(self.collection, job_id)
+            response.status_code = delete(self.collection, job_id)
+            if response.status_code == 200:
+                response.reason = "Resource %s deleted" % job_id
         else:
-            ret_val = 404
+            response.status_code = 404
+            response.reason = self._get_status_message(404)
 
-        return ret_val
+        return response

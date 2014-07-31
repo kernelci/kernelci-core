@@ -15,13 +15,13 @@
 
 """The RequestHandler for /token URLs."""
 
-import json
 import tornado
 
 from functools import partial
 from tornado.web import (
     asynchronous,
 )
+from urlparse import urlunparse
 
 from handlers.base import BaseHandler
 from handlers.decorators import protected_th
@@ -52,7 +52,6 @@ from utils.db import (
     save,
     update,
 )
-from utils.validator import is_valid_json
 
 
 class TokenHandler(BaseHandler):
@@ -96,21 +95,41 @@ class TokenHandler(BaseHandler):
     @protected_th("GET")
     @asynchronous
     def get(self, *args, **kwargs):
-        self.execute_get(*args, **kwargs)
+        self.executor.submit(
+            partial(self.execute_get, *args, **kwargs)
+        ).add_done_callback(
+            lambda future:
+            tornado.ioloop.IOLoop.instance().add_callback(
+                partial(self._create_valid_response, future.result())
+            )
+        )
 
     def _get_one(self, doc_id):
-        # Overridden _get_one: with the token we do not search by _id, but
+        # Overridden: with the token we do not search by _id, but
         # by token field.
-        return find_one(
-            self.collection, doc_id, field='token',
+        response = HandlerResponse()
+        response.result = None
+
+        result = find_one(
+            self.collection,
+            doc_id,
+            field=TOKEN_KEY,
             fields=self._get_query_fields()
         )
+
+        if result:
+            response.result = [result]
+        else:
+            response.status_code = 404
+            response.reason = "Resource '%s' not found" % doc_id
+
+        return response
 
     @protected_th("POST")
     @asynchronous
     def post(self, *args, **kwargs):
         self.executor.submit(
-            partial(self._post, *args, **kwargs)
+            partial(self.execute_post, *args, **kwargs)
         ).add_done_callback(
             lambda future: tornado.ioloop.IOLoop.instance().add_callback(
                 partial(self._create_valid_response, future.result())
@@ -119,34 +138,19 @@ class TokenHandler(BaseHandler):
 
     def _post(self, *args, **kwargs):
         response = None
-        valid_request = self._valid_post_request()
 
-        if valid_request == 200:
-            try:
-                json_obj = json.loads(self.request.body.decode('utf8'))
-
-                if is_valid_json(json_obj, self._valid_keys('POST')):
-                    if kwargs and kwargs.get('id', None):
-                        self.log.info(
-                            "Token update from IP address %s",
-                            self.request.remote_ip
-                        )
-                        response = self._update_data(kwargs['id'], json_obj)
-                    else:
-                        self.log.info(
-                            "New token creation from IP address %s",
-                            self.request.remote_ip
-                        )
-                        response = self._new_data(json_obj)
-                else:
-                    response = HandlerResponse(400)
-                    response.message = "Provided JSON is not valid"
-            except ValueError:
-                self.log.error("No JSON data found in the POST request")
-                response = HandlerResponse(420)
-                response.message = "No JSON data found in the POST request"
+        if kwargs and kwargs.get('id', None):
+            self.log.info(
+                "Token update from IP address %s",
+                self.request.remote_ip
+            )
+            response = self._update_data(kwargs['id'], kwargs['json_obj'])
         else:
-            response = HandlerResponse(valid_request)
+            self.log.info(
+                "New token creation from IP address %s",
+                self.request.remote_ip
+            )
+            response = self._new_data(kwargs['json_obj'])
 
         return response
 
@@ -157,26 +161,34 @@ class TokenHandler(BaseHandler):
         :return A `HandlerResponse` object.
         """
         response = HandlerResponse(201)
+        response.result = None
 
         try:
             new_token = self._token_update_create(json_obj)
 
             response.status_code = save(self.db, new_token)
             if response.status_code == 201:
-                response.message = new_token.token
-                location = self.request.uri + '/' + new_token.token
+                response.result = {TOKEN_KEY: new_token.token}
+                location = urlunparse(
+                    (
+                        'http',
+                        self.request.headers.get('Host'),
+                        self.request.uri + '/' + new_token.token,
+                        '', '', ''
+                    )
+                )
                 response.headers = {'Location': location}
         except KeyError:
             response.status_code = 400
-            response.message = (
+            response.reason = (
                 "New tokens require the email address field [email]"
             )
         except (TypeError, ValueError):
             response.status_code = 400
-            response.message = "Wrong field value or type in the JSON data"
+            response.reason = "Wrong field value or type in the JSON data"
         except Exception, ex:
             response.status_code = 400
-            response.message = str(ex)
+            response.reason = str(ex)
 
         return response
 
@@ -187,8 +199,10 @@ class TokenHandler(BaseHandler):
         :param json_obj: The JSON object with the parameters.
         :return A `HandlerResponse` objet.
         """
-        response = HandlerResponse(200)
-        result = find_one(self.collection, doc_id, field='token')
+        response = HandlerResponse()
+        response.result = None
+
+        result = find_one(self.collection, doc_id, field=TOKEN_KEY)
 
         if result:
             token = Token.from_json(result)
@@ -199,18 +213,18 @@ class TokenHandler(BaseHandler):
                     self.collection, {'token': doc_id}, token.to_dict()
                 )
                 if response.status_code == 200:
-                    response.message = token.token
+                    response.result = {TOKEN_KEY: token.token}
             except KeyError:
                 response.status_code = 400
-                response.message = (
+                response.reason = (
                     "Mandatory field missing"
                 )
             except (TypeError, ValueError):
                 response.status_code = 400
-                response.message = "Wrong field value or type in the JSON data"
+                response.reason = "Wrong field value or type in the JSON data"
             except Exception, ex:
                 response.status_code = 400
-                response.message = str(ex)
+                response.reason = str(ex)
         else:
             response.status_code = 404
 
@@ -299,14 +313,15 @@ class TokenHandler(BaseHandler):
         if kwargs and kwargs.get('id', None):
             response.status_code = self._delete(kwargs['id'])
             if response.status_code == 200:
-                response.message = "Resource deleted"
+                response.reason = "Resource deleted"
 
         return response
 
     def _delete(self, doc_id):
         ret_val = 404
 
-        if find_one(self.collection, doc_id, field='token'):
+        self.log.info("Tolen deletion by IP %s", self.request.remote_ip)
+        if find_one(self.collection, doc_id, field=TOKEN_KEY):
             ret_val = delete(self.collection, {TOKEN_KEY: {'$in': [doc_id]}})
 
         return ret_val

@@ -69,6 +69,7 @@ class BaseHandler(RequestHandler):
     """The base handler."""
 
     ACCEPTED_CONTENT_TYPE = 'application/json'
+    DEFAULT_RESPONSE_TYPE = 'application/json; charset=UTF-8'
 
     def __init__(self, application, request, **kwargs):
         super(BaseHandler, self).__init__(application, request, **kwargs)
@@ -118,7 +119,8 @@ class BaseHandler(RequestHandler):
             ),
             420: 'No JSON data found',
             500: 'Internal database error',
-            501: 'Method not implemented'
+            501: 'Method not implemented',
+            506: 'Wrong response type from database'
         }
 
         message = status_messages.get(status_code, None)
@@ -141,41 +143,30 @@ class BaseHandler(RequestHandler):
         """Create a valid JSON response based on its type.
 
         :param response: The response we have from a query to the database.
+        :type HandlerResponse
         """
+        status_code = 200
         headers = {}
+        result = {}
 
-        if isinstance(response, (types.DictionaryType, types.ListType)):
-            status_code, message = 200, dumps(response)
-        elif isinstance(response, types.IntType):
-            status_code, message = response, self._get_status_message(response)
-        elif isinstance(response, types.NoneType):
-            status_code, message = 404, self._get_status_message(404)
-        elif isinstance(response, HandlerResponse):
-            status_code, message, headers = \
-                response.status_code, response.message, response.headers
+        if isinstance(response, HandlerResponse):
+            status_code = response.status_code
+            reason = response.reason or self._get_status_message(status_code)
+            headers = response.headers
+            result = dumps(response.to_dict())
         else:
-            status_code, message = 200, self._get_status_message(200)
+            status_code = 506
+            reason = self._get_status_message(status_code)
+            result = dict(code=status_code, reason=reason)
 
-        message = message or self._get_status_message(status_code)
+        self.set_status(status_code=status_code, reason=reason)
+        self.write(result)
+        self.set_header('Content-Type', self.DEFAULT_RESPONSE_TYPE)
 
-        self.set_status(status_code=status_code, reason=message)
-        self.write(dict(code=status_code, result=message))
         if headers:
             for key, val in headers.iteritems():
                 self.add_header(key, val)
-        self.finish()
 
-    def _get_callback(self, result):
-        """Callback used for GET operations.
-
-        :param result: The result from the future instance. A dictionary with
-            at least the `result` key.
-        """
-        result['result'] = dumps(result['result'])
-        result['code'] = 200
-
-        self.set_status(200)
-        self.write(result)
         self.finish()
 
     def _has_valid_content_type(self):
@@ -197,6 +188,16 @@ class BaseHandler(RequestHandler):
     @protected("POST")
     @asynchronous
     def post(self, *args, **kwargs):
+        self.executor.submit(
+            partial(self.execute_post, *args, **kwargs)
+        ).add_done_callback(
+            lambda future: tornado.ioloop.IOLoop.instance().add_callback(
+                partial(self._create_valid_response, future.result())
+            )
+        )
+
+    def execute_post(self, *args, **kwargs):
+        response = None
         valid_request = self._valid_post_request()
 
         if valid_request == 200:
@@ -204,22 +205,29 @@ class BaseHandler(RequestHandler):
                 json_obj = json.loads(self.request.body.decode('utf8'))
 
                 if is_valid_json(json_obj, self._valid_keys('POST')):
-                    self._post(json_obj)
+                    kwargs['json_obj'] = json_obj
+                    response = self._post(*args, **kwargs)
                 else:
-                    self.write_error(
-                        status_code=400,
-                        message="Provided JSON is not valid"
-                    )
+                    response = HandlerResponse(400)
+                    response.reason = "Provided JSON is not valid"
+                    response.result = None
             except ValueError:
-                self.log.error("No JSON data found in the POST request")
-                self.write_error(status_code=420)
+                error = "No JSON data found in the POST request"
+                self.log.error(error)
+                response = HandlerResponse(420)
+                response.reason = error
+                response.result = None
         else:
-            self.write_error(status_code=valid_request)
+            response = HandlerResponse(valid_request)
+            response.reason = self._get_status_message(valid_request)
+            response.result = None
+
+        return response
 
     def _valid_post_request(self):
         """Check that a POST request is valid.
 
-        :return 200 in case is valid, any other status code if not.
+        :return 200 in case is valid, 415 if not.
         """
         return_code = 200
 
@@ -228,25 +236,45 @@ class BaseHandler(RequestHandler):
 
         return return_code
 
-    def _post(self, json_obj):
+    def _post(self, *args, **kwargs):
         """Placeholder method - used internally.
 
         This is called by the actual method that implements POST request.
         Subclasses should provide their own implementation.
 
-        This will return a status code of 501.
+        It must return a `HandlerResponse` object with the appropriate status
+        code and if necessary its custom message.
 
-        :param json_obj: A JSON object.
+        This method will receive a named argument containing the JSON object
+        with the POST request data. The argument is called `json_obj`.
+
+        :return A `HandlerResponse` object.
         """
-        self.write_error(status_code=501)
+        return HandlerResponse(501)
 
     @protected("DELETE")
     @asynchronous
     def delete(self, *args, **kwargs):
+        self.executor.submit(
+            partial(self.execute_delete, *args, **kwargs)
+        ).add_done_callback(
+            lambda future:
+            tornado.ioloop.IOLoop.instance().add_callback(
+                partial(self._create_valid_response, future.result())
+            )
+        )
+
+    def execute_delete(self, *args, **kwargs):
+        response = None
+
         if kwargs and kwargs.get('id', None):
-            self._delete(kwargs['id'])
+            response = self._delete(kwargs['id'])
         else:
-            self.write_error(status_code=400)
+            response = HandlerResponse(400)
+            response.reason = self._get_status_message(400)
+            response.result = None
+
+        return response
 
     def _delete(self, doc_id):
         """Placeholder method - used internally.
@@ -254,16 +282,25 @@ class BaseHandler(RequestHandler):
         This is called by the actual method that implements DELETE request.
         Subclasses should provide their own implementation.
 
-        This will return a status code of 501.
+        It must return a `HandlerResponse` object with the appropriate status
+        code and if necessary its custom message.
 
         :param doc_id: The ID of the documento to delete.
+        :return A `HandlerResponse` object.
         """
-        self.write_error(status_code=501)
+        return HandlerResponse(501)
 
     @protected("GET")
     @asynchronous
     def get(self, *args, **kwargs):
-        self.execute_get(*args, **kwargs)
+        self.executor.submit(
+            partial(self.execute_get, *args, **kwargs)
+        ).add_done_callback(
+            lambda future:
+            tornado.ioloop.IOLoop.instance().add_callback(
+                partial(self._create_valid_response, future.result())
+            )
+        )
 
     def execute_get(self, *args, **kwargs):
         """This is the actual GET operation.
@@ -271,58 +308,69 @@ class BaseHandler(RequestHandler):
         It is done in this way so that subclasses can implement a different
         token authorization if necessary.
         """
+        response = None
         if kwargs and kwargs.get('id', None):
-            self.executor.submit(
-                partial(self._get_one, kwargs['id'])
-            ).add_done_callback(
-                lambda future: tornado.ioloop.IOLoop.instance().add_callback(
-                    partial(self._create_valid_response, future.result())
-                )
-            )
+            response = self._get_one(kwargs['id'])
         else:
-            self.executor.submit(
-                partial(self._get, **kwargs)
-            ).add_done_callback(
-                lambda future:
-                tornado.ioloop.IOLoop.instance().add_callback(
-                    partial(self._get_callback, future.result()))
-            )
+            response = self._get(**kwargs)
+
+        return response
 
     def _get_one(self, doc_id):
         """Get just one single document from the collection.
 
-        :return The result from the database.
+        Sublcasses should override this method and implement their own
+        search functionalities. This is a general one.
+        It should return a `HandlerResponse` object, with the `result`
+        attribute set with the operation results.
+
+        :return A `HandlerResponse` object.
         """
-        return find_one(
+        response = HandlerResponse()
+        result = find_one(
             self.collection, doc_id, fields=self._get_query_fields()
         )
 
+        if result:
+            # result here is returned as a dictionary from mongodb
+            response.result = result
+        else:
+            response.status_code = 404
+            response.reason = "Resource '%s' not found" % doc_id
+            response.result = None
+
+        return response
+
     def _get(self, **kwargs):
-        """Method called by the real GET one.
+        """Get all the documents in the collection.
 
-        For special uses, sublcasses should override this one and provide
-        their own implementation.
+        The returned results can be tweaked with the supported query arguments.
 
-        By default it executes a search on all the documents in a collection,
-        returnig all the documents found.
+        Sublcasses should override this method and implement their own
+        search functionalities. This is a general one.
+        It should return a `HandlerResponse` object, with the `result`
+        attribute set with the operation results.
 
-        It should return a dictionary with at least the following fields:
-        `result` - that will hold the actual operation result
-        `count` - the total number of results available
-        `limit` - how many results have been collected
+        :return A `HandlerResponse` object.
         """
+        response = HandlerResponse()
+
         skip, limit = self._get_skip_and_limit()
         spec, sort, fields = self._get_query_args()
 
         unique = self.get_query_argument(AGGREGATE_KEY, default=None)
         if unique:
             self.log.info("Performing aggregation on %s", unique)
-            return aggregate(
-                self.collection, unique, sort=sort, fields=fields, match=spec,
+            response.result = aggregate(
+                self.collection,
+                unique,
+                sort=sort,
+                fields=fields,
+                match=spec,
                 limit=limit
             )
         else:
-            return find_and_count(
+            result, count = find_and_count(
                 self.collection,
                 limit,
                 skip,
@@ -330,6 +378,14 @@ class BaseHandler(RequestHandler):
                 fields=fields,
                 sort=sort
             )
+
+            if count > 0:
+                response.result = result
+
+            response.count = count
+
+        response.limit = limit
+        return response
 
     def _get_skip_and_limit(self):
         """Retrieve the `skip` and `limit` query arguments.

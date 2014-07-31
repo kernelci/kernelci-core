@@ -79,7 +79,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         mock_count.return_value = 0
         mock_find.return_value = []
 
-        expected_body = '{"count": 0, "code": 200, "limit": 0, "result": "[]"}'
+        expected_body = '{"count": 0, "code": 200, "limit": 0, "result": []}'
 
         headers = {'X-Linaro-Token': 'foo'}
         response = self.fetch('/api/token', headers=headers)
@@ -100,7 +100,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
         self.find_token.return_value = 'bar'
 
-        expected_body = '{"count": 0, "code": 200, "limit": 0, "result": "[]"}'
+        expected_body = '{"count": 0, "code": 200, "limit": 0, "result": []}'
 
         headers = {'X-Linaro-Token': 'bar'}
         response = self.fetch('/api/token', headers=headers)

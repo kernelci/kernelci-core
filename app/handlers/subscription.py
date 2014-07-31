@@ -16,11 +16,9 @@
 """The RequetHandler for /subscription URLs."""
 
 import json
-import tornado
-
-from functools import partial
 
 from handlers.base import BaseHandler
+from handlers.response import HandlerResponse
 from models.subscription import SUBSCRIPTION_COLLECTION
 from utils.subscription import (
     subscribe,
@@ -51,42 +49,41 @@ class SubscriptionHandler(BaseHandler):
 
         return valid_keys.get(method, None)
 
-    def _post(self, json_obj):
-        self.executor.submit(
-            partial(subscribe, self.db, json_obj)).add_done_callback(
-                lambda future:
-                tornado.ioloop.IOLoop.instance().add_callback(
-                    partial(self._create_valid_response, future.result()))
-            )
+    def _post(self, *args, **kwargs):
+        response = HandlerResponse()
+
+        response.status_code = subscribe(self.db, kwargs['json_obj'])
+        response.result = None
+        response.reason = self._get_status_message(response.status_code)
+
+        return response
 
     def _delete(self, doc_id):
+        response = HandlerResponse()
+        response.result = None
+
         if self.request.body:
             try:
                 json_obj = json.loads(self.request.body.decode('utf8'))
 
                 if is_valid_json(json_obj, self._valid_keys('DELETE')):
-                    self._delete_email_or_doc(
-                        unsubscribe,
-                        self.collection,
-                        doc_id,
-                        json_obj['email']
+                    response.status_code = unsubscribe(
+                        self.collection, doc_id, json_obj['email']
                     )
                 else:
-                    self.send_error(status_code=400)
-            except ValueError:
-                self.log.error("No JSON data found in the DELETE request")
-                self.write_error(status_code=420)
-        else:
-            self._delete_email_or_doc(delete, self.collection, doc_id)
+                    response.status_code = 400
 
-    def _delete_email_or_doc(self, func, *args):
-        self.executor.submit(
-            partial(
-                func,
-                *args
-            )
-        ).add_done_callback(
-            lambda future:
-            tornado.ioloop.IOLoop.instance().add_callback(
-                partial(self._create_valid_response, future.result()))
-        )
+                response.reason = self._get_status_message(
+                    response.status_code
+                )
+            except ValueError:
+                response.status_code = 420
+                response.reason = "No JSON data found in the DELETE request"
+        else:
+            response.status_code = delete(self.collection, doc_id)
+            if response.status_code == 200:
+                response.reason = (
+                    "Subscriptsions for resource %s deleted" % doc_id
+                )
+
+        return response

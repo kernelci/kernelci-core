@@ -15,12 +15,10 @@
 
 """The RequestHandler for /defconfig URLs."""
 
-import tornado
-
-from functools import partial
 from tornado.web import asynchronous
 
 from handlers.base import BaseHandler
+from handlers.response import HandlerResponse
 from models import (
     ARCHITECTURE_KEY,
     CREATED_KEY,
@@ -59,14 +57,14 @@ class DefConfHandler(BaseHandler):
     @asynchronous
     def post(self, *args, **kwargs):
         """Not implemented."""
-        self.write_error(status_code=501)
+        self.write_error(501)
 
     def _delete(self, defconf_id):
-        self.executor.submit(
-            partial(delete, self.collection, defconf_id)
-        ).add_done_callback(
-            lambda future:
-            tornado.ioloop.IOLoop.instance().add_callback(
-                partial(self._create_valid_response, future.result())
-            )
-        )
+        response = HandlerResponse()
+        response.result = None
+
+        response.status_code = delete(self.collection, defconf_id)
+        if response.status_code == 200:
+            response.reason = "Resource %s deleted" % defconf_id
+
+        return response
