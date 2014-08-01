@@ -66,3 +66,7 @@
             owner=root
             group=root
             mode=0644
+  tags:
+    - install
+    - app
+    - secrets
