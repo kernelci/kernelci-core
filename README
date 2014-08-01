@@ -54,6 +54,25 @@ tested yet with this application.
 Basic interactions
 ==================
 
+All operations now need a token or they will not be valid: the server will
+reply with a 403 error.
+
+In order to create the first token, use the master key set in the application
+and create an admin token. Admin tokens can perform all actions: GET, POST,
+DELETE and create new token as well.
+
+For other application usage, you should create a superuser token.
+
+Create Token
+------------
+
+To create a token at the beginning:
+
+  curl -X POST -H "Content-Type: application/json" -H "X-Linaro-Token: $MASTER_KEY" -d "{"email": "you@example.net", "admin": 1}" localhost:8888/api/token
+
+The command will return the token created. Use it to create new tokens.
+The master key should be used only the first time.
+
 GET
 ---
 
@@ -83,6 +102,11 @@ This command will tell the application to parse the directory located at
 
 The content of the `X-Linaro-Token` is not important at the moment. All requests
 without that header will be discarded though.
+
+DELETE
+------
+
+  curl -X DELETE -H "X-Linaro-Token: foo" localhost:8888/api/job/job-id
 
 Manul import of all data
 ------------------------
