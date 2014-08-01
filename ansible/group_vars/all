@@ -5,3 +5,4 @@ hostname: backend.kernel-ci.linaro.org
 web_user: www-data
 app_user: www-data
 git_head: HEAD
+role: production

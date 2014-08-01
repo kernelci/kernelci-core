@@ -50,3 +50,19 @@
   tags:
     - install
     - app
+
+- name: Does /etc/linaro exists?
+  file: path=/etc/linaro
+        state=directory
+        owner=root
+        group=root
+  tags:
+    - install
+    - app
+
+- name: Install configuration file
+  template: src=kernelci-backend.cfg
+            dest=/etc/linaro/kernelci-backend.cfg
+            owner=root
+            group=root
+            mode=0644
