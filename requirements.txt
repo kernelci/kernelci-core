@@ -1,6 +1,6 @@
 futures==2.1.6
 pycares==0.5.0
-tornado==3.2.1
+tornado==3.2.2
 pymongo
 mongomock==1.2.0
 mock>0.7.2
