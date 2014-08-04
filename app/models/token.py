@@ -24,9 +24,16 @@ from bson import (
     tz_util,
 )
 from datetime import datetime
+from netaddr import (
+    IPAddress,
+    IPNetwork,
+    IPSet,
+)
+from netaddr.core import AddrFormatError
 from types import (
     BooleanType,
     IntType,
+    ListType,
     StringTypes,
 )
 from uuid import uuid4
@@ -129,8 +136,11 @@ class Token(BaseDocument):
 
     @ip_address.setter
     def ip_address(self, value):
-        # TODO: need IP address checking logic
-        # use netaddr (0.7.2) for py 2.7, py >3.3 is part of the stdlib
+        if value is not None:
+            if not isinstance(value, ListType):
+                value = [value]
+            value = self.check_ip_address(value)
+
         self._ip_address = value
 
     @property
@@ -237,6 +247,59 @@ class Token(BaseDocument):
         value = self.check_attribute_value(value)
         self._properties[6] = value
 
+    def is_valid_ip(self, address):
+        """Check if an IP address is valid for a token.
+
+        :param address: The IP address to verify.
+        :return True or False.
+        """
+        return_value = False
+
+        if not self.is_ip_restricted:
+            return_value = True
+        else:
+            try:
+                address = self._convert_ip_address(address)
+                if address in IPSet(self.ip_address):
+                    return_value = True
+            except AddrFormatError:
+                # If we get an error converting the IP address, consider it
+                # not valid and force False.
+                return_value = False
+
+        return return_value
+
+    @classmethod
+    def check_ip_address(cls, addrlist):
+        """Perform sanity check and conversion on the IP address list.
+
+        :return The address list converted with `IPaddress` and/or `IPNetwork`
+            objects.
+        """
+        if not isinstance(addrlist, ListType):
+            raise TypeError("Value must be a list of addresses")
+
+        for idx, address in enumerate(addrlist):
+            try:
+                addrlist[idx] = cls._convert_ip_address(address)
+            except AddrFormatError:
+                raise ValueError(
+                    "Address %s is not a valid IP address or network", address
+                )
+        return addrlist
+
+    @staticmethod
+    def _convert_ip_address(address):
+        """Convert a string into an IPAddress or IPNetwork.
+
+        :return An `IPAddress` or `IPNetwork` object.
+        """
+        if '/' in address:
+            address = IPNetwork(address).ipv6(ipv4_compatible=True)
+        else:
+            address = IPAddress(address).ipv6(ipv4_compatible=True)
+        return address
+
     @staticmethod
     def check_attribute_value(value):
         """Make sure the value passed for the properties list is valid.
@@ -287,7 +350,10 @@ class Token(BaseDocument):
         doc_dict[EMAIL_KEY] = self.email
         doc_dict[EXPIRED_KEY] = self.expired
         doc_dict[EXPIRES_KEY] = self.expires_on
-        doc_dict[IP_ADDRESS_KEY] = self.ip_address
+        if self.ip_address is not None:
+            doc_dict[IP_ADDRESS_KEY] = [str(x) for x in self.ip_address if x]
+        else:
+            doc_dict[IP_ADDRESS_KEY] = None
         doc_dict[PROPERTIES_KEY] = self.properties
         doc_dict[TOKEN_KEY] = self.token
         doc_dict[USERNAME_KEY] = self.username

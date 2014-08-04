@@ -21,6 +21,10 @@ from bson import (
     tz_util,
 )
 from datetime import datetime
+from netaddr import (
+    IPAddress,
+    IPNetwork,
+)
 from uuid import uuid4
 from types import DictionaryType
 
@@ -163,6 +167,23 @@ class TestTokenModel(unittest.TestCase):
 
         self.assertEqual(expected, token_obj.to_json())
 
+    def test_token_to_json_with_ip(self):
+        token_obj = Token()
+
+        token_obj._created_on = '1'
+        token_obj._token = '1'
+        token_obj.ip_address = '127.0.0.1'
+        token_obj.is_ip_restricted = True
+
+        expected = (
+            '{"username": null, "expired": false, "token": "1", '
+            '"properties": [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], '
+            '"created_on": "1", "ip_address": ["::127.0.0.1"], '
+            '"email": null, "expires_on": null}'
+        )
+
+        self.assertEqual(expected, token_obj.to_json())
+
     def test_token_from_json(self):
         token_string = str(uuid4())
         now = datetime.now(tz=tz_util.utc)
@@ -187,3 +208,75 @@ class TestTokenModel(unittest.TestCase):
         self.assertEqual(token.token, token_string)
         self.assertEqual(token.email, "bar@foo")
         self.assertTrue(token.expired)
+
+    def test_ip_address_check_type_error(self):
+        self.assertRaises(TypeError, Token.check_ip_address, 'foo')
+
+    def test_ip_address_check_value_error(self):
+        addrlist = ['foo']
+        self.assertRaises(ValueError, Token.check_ip_address, addrlist)
+
+    def test_ip_address_check_with_ip_address(self):
+        addrlist = ['127.0.0.1']
+        token_obj = Token()
+        token_obj.ip_address = addrlist
+
+        expected = [IPAddress('127.0.0.1').ipv6(ipv4_compatible=True)]
+        self.assertEqual(expected, token_obj.ip_address)
+
+    def test_ip_address_check_with_ip_network(self):
+        addrlist = ['192.0.4.0/25']
+        token_obj = Token()
+        token_obj.ip_address = addrlist
+
+        expected = [IPNetwork('192.0.4.0/25').ipv6(ipv4_compatible=True)]
+        self.assertEqual(expected, token_obj.ip_address)
+
+    def test_ip_address_check_with_ip_network_and_address(self):
+        addrlist = ['192.0.4.0/25', '127.0.0.1']
+        token_obj = Token()
+        token_obj.ip_address = addrlist
+
+        expected = [
+            IPNetwork('192.0.4.0/25').ipv6(ipv4_compatible=True),
+            IPAddress('127.0.0.1').ipv6(ipv4_compatible=True)
+        ]
+        self.assertEqual(expected, token_obj.ip_address)
+
+    def test_valid_ip_no_restricted(self):
+        token_obj = Token()
+        self.assertTrue(token_obj.is_valid_ip("foo"))
+
+    def test_valid_ip_single_ip(self):
+        token_obj = Token()
+        token_obj.is_ip_restricted = True
+        token_obj.ip_address = '127.0.0.1'
+
+        self.assertTrue(token_obj.is_valid_ip('127.0.0.1'))
+        self.assertFalse(token_obj.is_valid_ip('127.0.0.3'))
+
+    def test_valid_ip_single_ip_wrong_address(self):
+        token_obj = Token()
+        token_obj.is_ip_restricted = True
+        token_obj.ip_address = '127.0.0.1'
+
+        self.assertFalse(token_obj.is_valid_ip("a.b.c"))
+
+    def test_valid_ip_network(self):
+        token_obj = Token()
+        token_obj.is_ip_restricted = True
+        token_obj.ip_address = '192.0.4.0/25'
+
+        self.assertTrue(token_obj.is_valid_ip('192.0.4.125'))
+        self.assertFalse(token_obj.is_valid_ip('192.0.5.1'))
+
+    def test_valid_ip_mix_valid(self):
+        token_obj = Token()
+        token_obj.is_ip_restricted = True
+        token_obj.ip_address = ['10.2.3.4', '192.0.4.0/25']
+
+        self.assertTrue(token_obj.is_valid_ip('192.0.4.1'))
+        self.assertTrue(token_obj.is_valid_ip('10.2.3.4'))
+        self.assertFalse(token_obj.is_valid_ip('192.1.4.0'))
+        self.assertFalse(token_obj.is_valid_ip('10.2.3.3'))
+        self.assertFalse(token_obj.is_valid_ip('127.0.0.1'))
