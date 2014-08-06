@@ -32,20 +32,39 @@ Not all the API resources might implement them.
 | DELETE | Used for deleting resources.        |
 +--------+-------------------------------------+
 
-Authentication
---------------
+.. _http_status_code:
 
-The only way to authenticate through the API is via an authentication token.
-Requests that require authentication will return ``403 Forbidden``.
+HTTP Response Status Code
+-------------------------
 
-Authentication is performed using the ``X-Linaro-Token`` header.
+All valid response in JSON format will have an HTTP status code of ``200``.
+This means that invalid requests may still return an HTTP status code of
+``200``.
 
-Basic Authentication
-********************
+Queries that do not produce any results, will return a status code of ``200``,
+but the JSON response will contain an empty list.
 
-::
-
-    curl -H 'X-Linaro-Token: token' https://api.backend.linaro.org
++-------------+--------------------------------------------------------+
+| Status Code | Description                                            |
++=============+========================================================+
+| 200         | Response is OK.                                        |
++-------------+--------------------------------------------------------+
+| 400         | Bad request, more detailed message might be available. |
++-------------+--------------------------------------------------------+
+| 403         | Request forbidden.                                     |
++-------------+--------------------------------------------------------+
+| 404         | Resource not found.                                    |
++-------------+--------------------------------------------------------+
+| 405         | Operation not allowed.                                 |
++-------------+--------------------------------------------------------+
+| 420         | JSON not valid or not found.                           |
++-------------+--------------------------------------------------------+
+| 500         | Internal error.                                        |
++-------------+--------------------------------------------------------+
+| 501         | Method not implemented.                                |
++-------------+--------------------------------------------------------+
+| 506         | Wrong response from the database.                      |
++-------------+--------------------------------------------------------+
 
 Schema
 ------
@@ -54,6 +73,15 @@ API access is exclusively over HTTPS and accessed via the
 ``api.backend.linaro.org`` URL.
 
 Data is sent and received **only** in JSON format.
+
+Results
+*******
+
+Query results will always include the ``code`` field reporting the
+:ref:`HTTP status code <http_status_code>`. Actual query results
+will be included in the ``result`` field and it will always be a list: ::
+
+    {"code": 200, "result": []}
 
 Time and Date
 *************
@@ -66,3 +94,25 @@ A timestamp will be encoded as follows: ::
     {"created_on": {"$date": 1406788988347}}
 
 Internally, timestamps are stored in `BSON <http://bsonspec.org/>`_ format.
+
+Authentication and Tokens
+-------------------------
+
+The only way to authenticate through the API is via an authentication token.
+Requests that require authentication will return ``403 Forbidden``.
+
+Authentication is performed using the ``X-Linaro-Token`` header.
+
+Tokens
+******
+
+Tokens should be considered secret data and not exposed to users. To ensure
+a higher security, we suggest to use your API token server-side whenever
+possible.
+
+Basic Authentication
+********************
+
+::
+
+    curl -H 'X-Linaro-Token: token' https://api.backend.linaro.org
