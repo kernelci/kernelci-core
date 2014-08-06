@@ -5,6 +5,7 @@ API Documentation
    :maxdepth: 2
 
    intro
+   collections
 
 
 Indices and tables
