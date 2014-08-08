@@ -11,7 +11,7 @@ GET
  :param collection: The collection name to get the count of. Can be one of
     ``job``, ``defconfig``, ``boot``.
 
- :reqheader X-Linaro-Token: The token necessary to authorize the request.
+ :reqheader Authorization: The token necessary to authorize the request.
 
  :query limit: Number of results to return. Default 0 (all results).
  :type limit: int
@@ -33,6 +33,8 @@ GET
  :type defconfig: string
  :query job: A job name.
  :type job: string
+ :query job_id: A job ID (usually in the form of ``job``-``kernel``).
+ :type job_id: string
  :query kernel: A kernel name.
  :type kernel: string
 
@@ -43,14 +45,14 @@ GET
     GET /count/ HTTP/1.1
     Host: api.backend.linaro.org
     Accept: */*
-    X-Linaro-Token: token
+    Authorization: token
 
  .. sourcecode:: http 
 
     GET /count/job/ HTTP/1.1
     Host: api.backend.linaro.org
     Accept: */*
-    X-Linaro-Token: token
+    Authorization: token
 
  **Example Responses**
 

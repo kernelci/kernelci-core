@@ -101,7 +101,7 @@ Authentication and Tokens
 The only way to authenticate through the API is via an authentication token.
 Requests that require authentication will return ``403 Forbidden``.
 
-Authentication is performed using the ``X-Linaro-Token`` header.
+Authentication is performed using the ``Authorization`` header.
 
 Tokens
 ******
@@ -115,4 +115,4 @@ Basic Authentication
 
 ::
 
-    curl -H 'X-Linaro-Token: token' https://api.backend.linaro.org
+    curl -H 'Authorization: token' https://api.backend.linaro.org
