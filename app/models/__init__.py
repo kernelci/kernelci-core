@@ -79,6 +79,7 @@ UNKNOWN_STATUS = 'UNKNOWN'
 
 # Build file names.
 DONE_FILE = '.done'
+DONE_FILE_PATTERN = '*.done'
 BUILD_META_FILE = 'build.meta'
 BUILD_META_JSON_FILE = 'build.json'
 BUILD_FAIL_FILE = 'build.FAIL'
