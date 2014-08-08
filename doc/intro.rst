@@ -99,18 +99,19 @@ A timestamp will be encoded as follows: ::
 
 Internally, timestamps are stored in `BSON <http://bsonspec.org/>`_ format.
 
-When using the ``created_on`` parameter in a query, it does not accept a date, but a range of days:
+When using the ``date_range`` parameter in a query:
 
 .. sourcecode:: http
 
     GET /job?date_range=5 HTTP/1.1
 
 The number indicates how many days of data to consider starting from today's
-date at ``00:00 UTC``. Internally it will be converted in a timedelta structure: ::
+date at ``23:59 UTC`` to ``00:00 UTC`` of the range date. Internally it will be converted in a timedelta structure using the ``created_on`` field: ::
 
-    {"created_on": {
-        "$lt": {"$date": 1407542399000},
-        "$gte": {"$date": 1407369600000}
+    {
+        "created_on": {
+            "$lt": {"$date": 1407542399000},
+            "$gte": {"$date": 1407369600000}
         }
     }
 
@@ -134,4 +135,4 @@ Basic Authentication
 
 ::
 
-    curl -H 'Authorization: token' https://api.backend.linaro.org
+    curl -H 'Authorization: token' https://api.backend.linaro.org/job

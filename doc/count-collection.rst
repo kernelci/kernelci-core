@@ -25,9 +25,9 @@ GET
     (ascending). This will be applied only to the first ``sort``
     parameter passed. Default -1.
  :type sort_order: int
- :query created_on: Number of days to consider, starting from today
+ :query date_range: Number of days to consider, starting from today
     (:ref:`more info <schema_time_date>`). By default consider all results.
- :type created_on: int
+ :type date_range: int
  :query arch: A type of computer architetcture (like ``arm``, ``arm64``).
  :type arch: string
  :query board: The name of a board.
