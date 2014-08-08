@@ -82,7 +82,7 @@ class TestCountHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
     def test_get_wrong_resource(self):
-        headers = {'X-Linaro-Token': 'foo'}
+        headers = {'Authorization': 'foo'}
 
         response = self.fetch('/api/count/foobar', headers=headers)
 
@@ -97,7 +97,7 @@ class TestCountHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             '{"count": 0, "collection": "defconfig"}]}'
         )
 
-        headers = {'X-Linaro-Token': 'foo'}
+        headers = {'Authorization': 'foo'}
         response = self.fetch('/api/count', headers=headers)
 
         self.assertEqual(response.code, 200)
@@ -110,7 +110,7 @@ class TestCountHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             '{"code": 200, "result": [{"count": 0, "collection": "boot"}]}'
         )
 
-        headers = {'X-Linaro-Token': 'foo'}
+        headers = {'Authorization': 'foo'}
         response = self.fetch('/api/count/boot', headers=headers)
 
         self.assertEqual(response.code, 200)
@@ -124,7 +124,7 @@ class TestCountHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             '{"board": "foo"}, "collection": "boot"}]}'
         )
 
-        headers = {'X-Linaro-Token': 'foo'}
+        headers = {'Authorization': 'foo'}
         response = self.fetch('/api/count/boot?board=foo', headers=headers)
 
         self.assertEqual(response.code, 200)

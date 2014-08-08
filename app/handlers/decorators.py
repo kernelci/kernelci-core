@@ -23,7 +23,7 @@ from models.token import (
 )
 from utils.db import find_one
 
-API_TOKEN_HEADER = 'X-Linaro-Token'
+API_TOKEN_HEADER = 'Authorization'
 
 
 def protected(method):

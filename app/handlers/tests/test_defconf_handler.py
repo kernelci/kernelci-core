@@ -83,7 +83,7 @@ class TestDefconfHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             '{"count": 0, "code": 200, "limit": 0, "result": []}'
         )
 
-        headers = {'X-Linaro-Token': 'foo'}
+        headers = {'Authorization': 'foo'}
         response = self.fetch('/api/defconfig', headers=headers)
 
         self.assertEqual(response.code, 200)
@@ -96,7 +96,7 @@ class TestDefconfHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         mock_collection.find_one = MagicMock()
         mock_collection.find_one.return_value = None
 
-        headers = {'X-Linaro-Token': 'foo'}
+        headers = {'Authorization': 'foo'}
         response = self.fetch('/api/defconfig/defconf', headers=headers)
 
         self.assertEqual(response.code, 404)
@@ -115,7 +115,7 @@ class TestDefconfHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         db = self.mongodb_client['kernel-ci']
         db['defconfig'].insert(dict(_id='defconf', job_id='job'))
 
-        headers = {'X-Linaro-Token': 'foo'}
+        headers = {'Authorization': 'foo'}
 
         response = self.fetch(
             '/api/defconfig/defconf', method='DELETE', headers=headers,

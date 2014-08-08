@@ -75,7 +75,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
         expected_body = '{"count": 0, "code": 200, "limit": 0, "result": []}'
 
-        headers = {'X-Linaro-Token': 'foo'}
+        headers = {'Authorization': 'foo'}
         response = self.fetch('/api/job', headers=headers)
 
         self.assertEqual(response.code, 200)
@@ -93,7 +93,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             '{"count": 0, "code": 200, "limit": 1024, "result": []}'
         )
 
-        headers = {'X-Linaro-Token': 'foo'}
+        headers = {'Authorization': 'foo'}
         response = self.fetch('/api/job?limit=1024', headers=headers)
 
         self.assertEqual(response.code, 200)
@@ -106,7 +106,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         collection.find_one = MagicMock()
         collection.find_one.return_value = None
 
-        headers = {'X-Linaro-Token': 'foo'}
+        headers = {'Authorization': 'foo'}
         response = self.fetch('/api/job/job-kernel', headers=headers)
 
         self.assertEqual(response.code, 404)
@@ -118,7 +118,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         collection.find_one = MagicMock()
         collection.find_one.return_value = []
 
-        headers = {'X-Linaro-Token': 'foo'}
+        headers = {'Authorization': 'foo'}
         response = self.fetch('/api/job/job-kernel', headers=headers)
 
         self.assertEqual(response.code, 404)
@@ -132,7 +132,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
         expected_body = '{"code": 200, "result": [{"_id": "foo"}]}'
 
-        headers = {'X-Linaro-Token': 'foo'}
+        headers = {'Authorization': 'foo'}
         response = self.fetch('/api/job/job-kernel', headers=headers)
 
         self.assertEqual(response.code, 200)
@@ -149,7 +149,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
     def test_post_not_json_content(self):
-        headers = {'X-Linaro-Token': 'foo', 'Content-Type': 'application/json'}
+        headers = {'Authorization': 'foo', 'Content-Type': 'application/json'}
 
         response = self.fetch(
             '/api/job', method='POST', body='', headers=headers
@@ -160,7 +160,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
     def test_post_wrong_content_type(self):
-        headers = {'X-Linaro-Token': 'foo'}
+        headers = {'Authorization': 'foo'}
 
         response = self.fetch(
             '/api/job/job', method='POST', body='', headers=headers
@@ -171,7 +171,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
     def test_post_wrong_json(self):
-        headers = {'X-Linaro-Token': 'foo', 'Content-Type': 'application/json'}
+        headers = {'Authorization': 'foo', 'Content-Type': 'application/json'}
 
         body = json.dumps(dict(foo='foo', bar='bar'))
 
@@ -189,7 +189,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         mock_import_job.apply_async = MagicMock()
 
         headers = {
-            'X-Linaro-Token': 'foo',
+            'Authorization': 'foo',
             'Content-Type': 'application/json',
         }
 
@@ -208,7 +208,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(response.code, 403)
 
     def test_delete_with_token_no_job(self):
-        headers = {'X-Linaro-Token': 'foo'}
+        headers = {'Authorization': 'foo'}
 
         response = self.fetch(
             '/api/job/job', method='DELETE', headers=headers,
@@ -222,7 +222,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         db = self.mongodb_client['kernel-ci']
         db['job'].insert(dict(_id='job', job='job', kernel='kernel'))
 
-        headers = {'X-Linaro-Token': 'foo'}
+        headers = {'Authorization': 'foo'}
 
         response = self.fetch(
             '/api/job/job', method='DELETE', headers=headers,
@@ -233,7 +233,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
     def test_delete_no_id(self):
-        headers = {'X-Linaro-Token': 'foo'}
+        headers = {'Authorization': 'foo'}
 
         response = self.fetch(
             '/api/job', method='DELETE', headers=headers,
@@ -247,7 +247,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
     def test_get_wrong_handler_response(self, mock_get_one):
         mock_get_one.return_value = ""
 
-        headers = {'X-Linaro-Token': 'foo'}
+        headers = {'Authorization': 'foo'}
         response = self.fetch('/api/job/job-kernel', headers=headers)
 
         self.assertEqual(response.code, 506)

@@ -81,7 +81,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
         expected_body = '{"count": 0, "code": 200, "limit": 0, "result": []}'
 
-        headers = {'X-Linaro-Token': 'foo'}
+        headers = {'Authorization': 'foo'}
         response = self.fetch('/api/token', headers=headers)
 
         self.assertEqual(response.code, 200)
@@ -102,7 +102,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
         expected_body = '{"count": 0, "code": 200, "limit": 0, "result": []}'
 
-        headers = {'X-Linaro-Token': 'bar'}
+        headers = {'Authorization': 'bar'}
         response = self.fetch('/api/token', headers=headers)
 
         self.assertEqual(response.code, 200)
@@ -121,7 +121,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
     def test_post_wrong_content_type(self):
-        headers = {'X-Linaro-Token': 'foo'}
+        headers = {'Authorization': 'foo'}
 
         response = self.fetch(
             '/api/token', method='POST', body='', headers=headers
@@ -132,7 +132,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
     def test_post_not_json_content(self):
-        headers = {'X-Linaro-Token': 'foo', 'Content-Type': 'application/json'}
+        headers = {'Authorization': 'foo', 'Content-Type': 'application/json'}
 
         response = self.fetch(
             '/api/token', method='POST', body='', headers=headers
@@ -143,7 +143,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
     def test_post_wrong_json(self):
-        headers = {'X-Linaro-Token': 'foo', 'Content-Type': 'application/json'}
+        headers = {'Authorization': 'foo', 'Content-Type': 'application/json'}
 
         body = json.dumps(dict(foo='foo', bar='bar'))
 
@@ -157,7 +157,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
     def test_post_new_no_email(self):
         headers = {
-            'X-Linaro-Token': 'foo',
+            'Authorization': 'foo',
             'Content-Type': 'application/json',
         }
 
@@ -173,7 +173,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
     def test_post_new_wrong_value(self):
         headers = {
-            'X-Linaro-Token': 'foo',
+            'Authorization': 'foo',
             'Content-Type': 'application/json',
         }
 
@@ -189,7 +189,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
     def test_post_new_ip_restricted_wrong_0(self):
         headers = {
-            'X-Linaro-Token': 'foo',
+            'Authorization': 'foo',
             'Content-Type': 'application/json',
         }
 
@@ -205,7 +205,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
     def test_post_new_ip_restricted_wrong_1(self):
         headers = {
-            'X-Linaro-Token': 'foo',
+            'Authorization': 'foo',
             'Content-Type': 'application/json',
         }
 
@@ -221,7 +221,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
     def test_post_new_ip_restricted_wrong_2(self):
         headers = {
-            'X-Linaro-Token': 'foo',
+            'Authorization': 'foo',
             'Content-Type': 'application/json',
         }
 
@@ -239,7 +239,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
     def test_post_new_expires_wrong(self):
         headers = {
-            'X-Linaro-Token': 'foo',
+            'Authorization': 'foo',
             'Content-Type': 'application/json',
         }
 
@@ -257,7 +257,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
     def test_post_new_correct(self):
         headers = {
-            'X-Linaro-Token': 'foo',
+            'Authorization': 'foo',
             'Content-Type': 'application/json',
         }
 
@@ -279,7 +279,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
     def test_post_update_no_token(self):
         headers = {
-            'X-Linaro-Token': 'foo',
+            'Authorization': 'foo',
             'Content-Type': 'application/json',
         }
 
@@ -300,7 +300,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         mock_collection.find_one.return_value = dict(token='token')
 
         headers = {
-            'X-Linaro-Token': 'foo',
+            'Authorization': 'foo',
             'Content-Type': 'application/json',
         }
 
@@ -321,7 +321,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         mock_collection.find_one.return_value = dict(token='token')
 
         headers = {
-            'X-Linaro-Token': 'foo',
+            'Authorization': 'foo',
             'Content-Type': 'application/json',
         }
 
@@ -344,7 +344,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         )
 
         headers = {
-            'X-Linaro-Token': 'foo',
+            'Authorization': 'foo',
             'Content-Type': 'application/json',
         }
 
@@ -367,7 +367,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         )
 
         headers = {
-            'X-Linaro-Token': 'foo',
+            'Authorization': 'foo',
             'Content-Type': 'application/json',
         }
 
@@ -390,7 +390,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         )
 
         headers = {
-            'X-Linaro-Token': 'foo',
+            'Authorization': 'foo',
             'Content-Type': 'application/json',
         }
 
@@ -409,7 +409,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(response.code, 403)
 
     def test_delete_with_token_no_document(self):
-        headers = {'X-Linaro-Token': 'foo'}
+        headers = {'Authorization': 'foo'}
 
         response = self.fetch(
             '/api/token/token', method='DELETE', headers=headers,
@@ -423,7 +423,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         db = self.mongodb_client['kernel-ci']
         db['api-token'].insert(dict(token='token', email='email'))
 
-        headers = {'X-Linaro-Token': 'foo'}
+        headers = {'Authorization': 'foo'}
 
         response = self.fetch(
             '/api/token/token', method='DELETE', headers=headers,

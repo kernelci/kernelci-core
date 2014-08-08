@@ -132,9 +132,8 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
     docs.append(job_doc)
 
     if os.path.isdir(kernel_dir):
-        if any([os.path.exists(os.path.join(kernel_dir, DONE_FILE)),
-                glob(os.path.join(kernel_dir, DONE_FILE_PATTERN)),
-                ]):
+        if (os.path.exists(os.path.join(kernel_dir, DONE_FILE)) or
+                glob(os.path.join(kernel_dir, DONE_FILE_PATTERN))):
             job_doc.status = PASS_STATUS
         else:
             job_doc.status = UNKNOWN_STATUS

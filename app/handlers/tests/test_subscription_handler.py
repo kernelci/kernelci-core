@@ -78,7 +78,7 @@ class TestSubscriptionHandler(
             '{"count": 0, "code": 200, "limit": 0, "result": []}'
         )
 
-        headers = {'X-Linaro-Token': 'foo'}
+        headers = {'Authorization': 'foo'}
         response = self.fetch('/api/subscription', headers=headers)
 
         self.assertEqual(response.code, 200)
@@ -91,7 +91,7 @@ class TestSubscriptionHandler(
         mock_collection.find_one = MagicMock()
         mock_collection.find_one.return_value = None
 
-        headers = {'X-Linaro-Token': 'foo'}
+        headers = {'Authorization': 'foo'}
         response = self.fetch('/api/subscription/sub', headers=headers)
 
         self.assertEqual(response.code, 404)
@@ -109,7 +109,7 @@ class TestSubscriptionHandler(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
     def test_post_not_json(self):
-        headers = {'X-Linaro-Token': 'foo'}
+        headers = {'Authorization': 'foo'}
 
         response = self.fetch(
             '/api/subscription', method='POST', body='', headers=headers
@@ -123,7 +123,7 @@ class TestSubscriptionHandler(
     def test_post_valid(self, mock_find_one):
         mock_find_one.return_value = dict(_id='sub', job_id='job', emails=[])
 
-        headers = {'X-Linaro-Token': 'foo', 'Content-Type': 'application/json'}
+        headers = {'Authorization': 'foo', 'Content-Type': 'application/json'}
 
         body = json.dumps(dict(job='job', email='email'))
 
@@ -141,7 +141,7 @@ class TestSubscriptionHandler(
             _id='sub', emails=['email'], job_id='job'
         )
 
-        headers = {'X-Linaro-Token': 'foo', 'Content-Type': 'application/json'}
+        headers = {'Authorization': 'foo', 'Content-Type': 'application/json'}
 
         body = json.dumps(dict(email='email'))
 
@@ -155,7 +155,7 @@ class TestSubscriptionHandler(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
     def test_delete_valid_without_payload(self):
-        headers = {'X-Linaro-Token': 'foo'}
+        headers = {'Authorization': 'foo'}
 
         response = self.fetch(
             '/api/subscription/sub', method='DELETE', headers=headers,
