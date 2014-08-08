@@ -8,8 +8,11 @@ GET
 
  Count the elements in all collections or in the provided ``collection``.
 
- :param collection: The collection name to get the count of. Can be one of
-    ``job``, ``defconfig``, ``boot``.
+ When using the query parameters, the results will include also the fields
+ specified.
+
+ :param collection: The name of the collection to get the count of.
+    Can be one of ``job``, ``defconfig``, ``boot``.
 
  :reqheader Authorization: The token necessary to authorize the request.
 
@@ -22,11 +25,11 @@ GET
     (ascending). This will be applied only to the first ``sort``
     parameter passed. Default -1.
  :type sort_order: int
- :query created_on: Number of days to consider, starting from today. By default
-  consider all results.
+ :query created_on: Number of days to consider, starting from today
+    (:ref:`more info <schema_time_date>`). By default consider all results.
  :type created_on: int
- :query architecture: The computer architetcture of the result.
- :type architecture: string
+ :query arch: A type of computer architetcture (like ``arm``, ``arm64``).
+ :type arch: string
  :query board: The name of a board.
  :type board: string
  :query defconfig: A defconfig name.
@@ -54,6 +57,13 @@ GET
     Accept: */*
     Authorization: token
 
+ .. sourcecode:: http
+
+    GET /count/job?job=next&date_range=1 HTTP/1.1
+    Host: api.backend.linaro.org
+    Accept: */*
+    Authorization: token
+
  **Example Responses**
 
  .. sourcecode:: http
@@ -65,7 +75,8 @@ GET
 
     {
         "code": 200,
-        "result": [
+        "result":
+        [
             {
                 "count": 260,
                 "collection": "job"
@@ -94,6 +105,34 @@ GET
             {
                 "count": 260,
                 "collection": "job"
+            }
+        ]
+    }
+
+ .. sourcecode:: http
+
+    HTTP/1.1 200 OK
+    Vary: Accept-Encoding
+    Date: Fri, 08 Aug 2014 14:15:40 GMT
+
+    {
+        "code": 200,
+        "result":
+        [
+            {
+                "count": 1,
+                "collection": "job",
+                "fields": {
+                    "job": "next",
+                    "created_on": {
+                        "$lt": {
+                            "$date": 1407542399000
+                        },
+                        "$gte": {
+                            "$date": 1407369600000
+                        }
+                    }
+                }
             }
         ]
     }

@@ -49,6 +49,8 @@ but the JSON response will contain an empty list.
 +=============+========================================================+
 | 200         | Response is OK.                                        |
 +-------------+--------------------------------------------------------+
+| 202         | Request accepted.                                      |
++-------------+--------------------------------------------------------+
 | 400         | Bad request, more detailed message might be available. |
 +-------------+--------------------------------------------------------+
 | 403         | Request forbidden.                                     |
@@ -83,6 +85,8 @@ will be included in the ``result`` field and it will always be a list: ::
 
     {"code": 200, "result": []}
 
+.. _schema_time_date:
+
 Time and Date
 *************
 
@@ -94,6 +98,21 @@ A timestamp will be encoded as follows: ::
     {"created_on": {"$date": 1406788988347}}
 
 Internally, timestamps are stored in `BSON <http://bsonspec.org/>`_ format.
+
+When using the ``created_on`` parameter in a query, it does not accept a date, but a range of days:
+
+.. sourcecode:: http
+
+    GET /job?date_range=5 HTTP/1.1
+
+The number indicates how many days of data to consider starting from today's
+date at ``00:00 UTC``. Internally it will be converted in a timedelta structure: ::
+
+    {"created_on": {
+        "$lt": {"$date": 1407542399000},
+        "$gte": {"$date": 1407369600000}
+        }
+    }
 
 Authentication and Tokens
 -------------------------
