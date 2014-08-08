@@ -19,6 +19,7 @@ import os
 import pymongo
 
 from bson import tz_util
+from glob import glob
 from datetime import datetime
 
 from models import (
@@ -32,6 +33,7 @@ from models import (
     DB_NAME,
     DEFCONFIG_KEY,
     DONE_FILE,
+    DONE_FILE_PATTERN,
     ERRORS_KEY,
     FAIL_STATUS,
     JOB_KEY,
@@ -130,7 +132,9 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
     docs.append(job_doc)
 
     if os.path.isdir(kernel_dir):
-        if os.path.exists(os.path.join(kernel_dir, DONE_FILE)):
+        if any([os.path.exists(os.path.join(kernel_dir, DONE_FILE)),
+                glob(os.path.join(kernel_dir, DONE_FILE_PATTERN)),
+                ]):
             job_doc.status = PASS_STATUS
         else:
             job_doc.status = UNKNOWN_STATUS
