@@ -9,12 +9,14 @@ GET
  Count the elements in all collections or in the provided ``collection``.
 
  When using the query parameters, the results will include also the fields
- specified.
+ specified and their values.
 
  :param collection: The name of the collection to get the count of.
     Can be one of ``job``, ``defconfig``, ``boot``.
+ :type collection: string
 
  :reqheader Authorization: The token necessary to authorize the request.
+ :reqheader Accept-Encoding: Accept the ``gzip`` coding.
 
  :query limit: Number of results to return. Default 0 (all results).
  :type limit: int
@@ -36,10 +38,16 @@ GET
  :type defconfig: string
  :query job: A job name.
  :type job: string
- :query job_id: A job ID (usually in the form of ``job``-``kernel``).
+ :query job_id: A job ID (in the form of ``job``-``kernel``).
  :type job_id: string
  :query kernel: A kernel name.
  :type kernel: string
+
+ .. note::
+
+    Not all the query parameters are valid for each collection. Please refer
+    to the GET method :ref:`documentation <collections>` of the collection to know which parameters
+    can be used.
 
  **Example Requests**
 

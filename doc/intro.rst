@@ -136,3 +136,17 @@ Basic Authentication
 ::
 
     curl -H 'Authorization: token' https://api.backend.linaro.org/job
+
+
+Accepted Encodings
+------------------
+
+The server accepts the ``gzip`` coding for the ``Accept-Encoding`` HTTP header.
+
+Responses will be compressed using **gzip**.
+
+.. note::
+
+    It is highly advised to require responses compression from the server, it
+    will save considerable amount of transfer time.
+
