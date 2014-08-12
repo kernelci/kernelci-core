@@ -48,7 +48,6 @@ class JobDocument(BaseDocument):
 
     ID_FORMAT = '%(job)s-%(kernel)s'
     METADATA_KEYS = (
-        CROSS_COMPILE_KEY, COMPILER_VERSION_KEY,
         GIT_URL_KEY, GIT_BRANCH_KEY, GIT_DESCRIBE_KEY, GIT_COMMIT_KEY,
     )
 
