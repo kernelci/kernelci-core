@@ -6,3 +6,4 @@ API Documentation
 
    intro
    collections
+   schema
