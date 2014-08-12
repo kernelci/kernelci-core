@@ -1,6 +1,8 @@
 job
 ---
 
+More info about the job schema can be found :ref:`here <schema_job>`.
+
 GET
 ***
 
@@ -23,7 +25,7 @@ GET
     (ascending). This will be applied only to the first ``sort``
     parameter passed. Default -1.
  :query int date_range: Number of days to consider, starting from today
-    (:ref:`more info <schema_time_date>`). By default consider all results.
+    (:ref:`more info <intro_schema_time_date>`). By default consider all results.
  :query string field: The field that should be returned in the response. Can be
     repeated multiple times.
  :query string job: A job name.

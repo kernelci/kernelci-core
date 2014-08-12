@@ -68,6 +68,8 @@ but the JSON response will contain an empty list.
 | 506         | Wrong response from the database.                      |
 +-------------+--------------------------------------------------------+
 
+.. _intro_schema:
+
 Schema
 ------
 
@@ -75,6 +77,10 @@ API access is exclusively over HTTPS and accessed via the
 ``api.backend.linaro.org`` URL.
 
 Data is sent and received **only** in JSON format.
+
+For more info about the collections schema, refer to their :ref:`schema declaration <schema>`.
+
+.. _intro_schema_results:
 
 Results
 *******
@@ -85,7 +91,7 @@ will be included in the ``result`` field and it will always be a list: ::
 
     {"code": 200, "result": []}
 
-.. _schema_time_date:
+.. _intro_schema_time_date:
 
 Time and Date
 *************

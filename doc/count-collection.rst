@@ -27,7 +27,7 @@ GET
     (ascending). This will be applied only to the first ``sort``
     parameter passed. Default -1.
  :query int date_range: Number of days to consider, starting from today
-    (:ref:`more info <schema_time_date>`). By default consider all results.
+    (:ref:`more info <intro_schema_time_date>`). By default consider all results.
  :query string arch: A type of computer architetcture (like ``arm``, ``arm64``).
  :query string board: The name of a board.
  :query string defconfig: A defconfig name.
