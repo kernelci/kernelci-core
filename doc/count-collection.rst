@@ -18,30 +18,27 @@ GET
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Accept-Encoding: Accept the ``gzip`` coding.
 
- :query limit: Number of results to return. Default 0 (all results).
- :type limit: int
- :query skip: Number of results to skip. Default 0 (none).
- :type skip: int
- :query sort: Field to sort the results on. Can be repeated multiple times.
- :query sort_order: The sort order of the results: -1 (descending), 1
+ :resheader Content-Type: Will be ``application/json; charset=UTF-8``.
+
+ :query int limit: Number of results to return. Default 0 (all results).
+ :query int skip: Number of results to skip. Default 0 (none).
+ :query string sort: Field to sort the results on. Can be repeated multiple times.
+ :query int sort_order: The sort order of the results: -1 (descending), 1
     (ascending). This will be applied only to the first ``sort``
     parameter passed. Default -1.
- :type sort_order: int
- :query date_range: Number of days to consider, starting from today
+ :query int date_range: Number of days to consider, starting from today
     (:ref:`more info <schema_time_date>`). By default consider all results.
- :type date_range: int
- :query arch: A type of computer architetcture (like ``arm``, ``arm64``).
- :type arch: string
- :query board: The name of a board.
- :type board: string
- :query defconfig: A defconfig name.
- :type defconfig: string
- :query job: A job name.
- :type job: string
- :query job_id: A job ID (in the form of ``job``-``kernel``).
- :type job_id: string
- :query kernel: A kernel name.
- :type kernel: string
+ :query string arch: A type of computer architetcture (like ``arm``, ``arm64``).
+ :query string board: The name of a board.
+ :query string defconfig: A defconfig name.
+ :query string job: A job name.
+ :query string job_id: A job ID (in the form of ``job``-``kernel``).
+ :query string kernel: A kernel name.
+
+ :status 200: Resuslts found.
+ :status 403: Not authorized to perform the operation.
+ :status 404: The provided resource has not been found.
+ :status 500: Internal database error.
 
  .. note::
 
