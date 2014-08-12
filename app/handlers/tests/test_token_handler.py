@@ -138,7 +138,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             '/api/token', method='POST', body='', headers=headers
         )
 
-        self.assertEqual(response.code, 420)
+        self.assertEqual(response.code, 422)
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 

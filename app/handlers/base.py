@@ -214,7 +214,7 @@ class BaseHandler(RequestHandler):
             except ValueError:
                 error = "No JSON data found in the POST request"
                 self.log.error(error)
-                response = HandlerResponse(420)
+                response = HandlerResponse(422)
                 response.reason = error
                 response.result = None
         else:
