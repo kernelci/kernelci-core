@@ -106,6 +106,8 @@ html_theme = 'bootstrap'
 # documentation.
 html_theme_options = {
     'bootstrap_version': "3",
+    'globaltoc_depth': 2,
+    'source_link_position': "",
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
