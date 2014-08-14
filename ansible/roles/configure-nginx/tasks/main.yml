@@ -1,0 +1,77 @@
+---
+- name: Add nginx stable PPA repository
+  apt_repository: repo='ppa:nginx/stable'
+
+- name: Install nginx from stable PPA repository
+  apt: pkg=nginx
+       state=latest
+
+- name: Install default nginx configuration
+  copy: src=nginx-default.conf
+        dest=/etc/nginx/nginx.conf
+        owner=root
+        group=root
+        mode=0644
+  notify:
+    - reload-nginx
+  tags:
+    - web-server
+
+- name: Disable default website
+  file: state=absent
+        dest=/etc/nginx/sites-enabled/default
+  notify:
+    - reload-nginx
+  tags:
+    - web-server
+
+- name: Create www root directory
+  file: state=directory
+        dest={{ web_root }}/{{ hostname }}
+        owner={{ web_user }}
+        group={{ web_user }}
+        mode=0755
+  tags:
+    - web-server
+
+- name: Install backend nginx configuration
+  template: src=kernelci-backend.conf
+            dest=/etc/nginx/sites-available/kernelci-backend
+            owner=root
+            group=root
+            mode=0644
+  notify:
+    - reload-nginx
+  tags:
+    - web-server
+
+- name: Enable backend website
+  file: state=link
+        src=/etc/nginx/sites-available/kernelci-backend
+        dest=/etc/nginx/sites-enabled/kernelci-backend
+        owner=root
+        group=root
+  tags:
+    - web-server
+
+- name: Install local nginx configuration
+  copy: src=nginx-local.conf
+        dest=/etc/nginx/conf.d/nginx-local.conf
+        owner=root
+        group=root
+        mode=0644
+  notify:
+    - reload-nginx
+  tags:
+    - web-server
+
+- name: Install nginx upstream definitions
+  copy: src=backend-upstreams.conf
+        dest=/etc/nginx/conf.d/backend-upstreams.conf
+        mode=0644
+        owner=root
+        group=root
+  notify:
+    - reload-nginx
+  tags:
+    - web-server
