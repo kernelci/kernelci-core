@@ -52,11 +52,11 @@ class BootHandler(BaseHandler):
 
         return valid_keys.get(method, None)
 
-    def _post(self, json_obj):
+    def _post(self, *args, **kwargs):
         response = HandlerResponse(202)
         response.reason = "Request accepted and being imported"
         response.result = None
 
-        import_boot.apply_async([json_obj])
+        import_boot.apply_async([kwargs['json_obj']])
 
         return response
