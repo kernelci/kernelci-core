@@ -17,11 +17,13 @@
 
 from models import (
     BOARD_KEY,
+    BOOT_LOG_HTML_KEY,
     BOOT_LOG_KEY,
     DEFCONFIG_KEY,
     DTB_ADDR_KEY,
     DTB_KEY,
     ENDIANNESS_KEY,
+    FASTBOOT_KEY,
     INITRD_ADDR_KEY,
     JOB_ID_KEY,
     JOB_KEY,
@@ -76,6 +78,8 @@ class BootDocument(BaseDocument):
         self._dtb = None
         self._endianness = None
         self._metadata = None
+        self._fastboot = None
+        self._boot_log_html = None
 
     @property
     def collection(self):
@@ -197,6 +201,22 @@ class BootDocument(BaseDocument):
         self._endianness = value
 
     @property
+    def fastboot(self):
+        return self._fastboot
+
+    @fastboot.setter
+    def fastboot(self, value):
+        self._fastboot = value
+
+    @property
+    def boot_log_html(self):
+        return self._boot_log_html
+
+    @boot_log_html.setter
+    def boot_log_html(self, value):
+        self._boot_log_html = value
+
+    @property
     def metadata(self):
         return self._metadata
 
@@ -222,4 +242,6 @@ class BootDocument(BaseDocument):
         boot_dict[DTB_ADDR_KEY] = self._dtb_addr
         boot_dict[ENDIANNESS_KEY] = self._endianness
         boot_dict[METADATA_KEY] = self._metadata
+        boot_dict[FASTBOOT_KEY] = self._fastboot
+        boot_dict[BOOT_LOG_HTML_KEY] = self._boot_log_html
         return boot_dict

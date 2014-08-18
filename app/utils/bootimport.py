@@ -28,11 +28,13 @@ from datetime import (
 )
 
 from models import (
+    BOOT_LOG_HTML_KEY,
     BOOT_LOG_KEY,
     DB_NAME,
     DTB_ADDR_KEY,
     DTB_KEY,
     ENDIANNESS_KEY,
+    FASTBOOT_KEY,
     INITRD_ADDR_KEY,
     JOB_KEY,
     KERNEL_IMAGE_KEY,
@@ -185,6 +187,8 @@ def _parse_boot_log(boot_log, job, kernel, defconfig):
         boot_doc.kernel_image = boot_json.pop(KERNEL_IMAGE_KEY, None)
         boot_doc.dtb_addr = boot_json.pop(DTB_ADDR_KEY, None)
         boot_doc.endianness = boot_json.pop(ENDIANNESS_KEY, None)
+        boot_doc.boot_log_html = boot_json.pop(BOOT_LOG_HTML_KEY, None)
+        boot_doc.fastboot = boot_json.pop(FASTBOOT_KEY, None)
         boot_doc.dtb = dtb
 
         boot_doc.metadata = boot_json

@@ -47,6 +47,8 @@ class TestBootModel(unittest.TestCase):
             'boot_log': None,
             'endian': None,
             'metadata': None,
+            'boot_log_html': None,
+            'fastboot': None,
         }
 
         self.assertEqual(expected, boot_doc.to_dict())
@@ -56,8 +58,9 @@ class TestBootModel(unittest.TestCase):
 
         expected = (
             '{"status": null, "kernel": "kernel", "boot_log": null, '
-            '"job_id": "job-kernel", "warnings": null, "initrd_addr": null, '
-            '"dtb_addr": null, "created_on": null, "defconfig": "defconfig", '
+            '"job_id": "job-kernel", "fastboot": null, "warnings": null, '
+            '"boot_log_html": null, "initrd_addr": null, "dtb_addr": null, '
+            '"created_on": null, "defconfig": "defconfig", '
             '"kernel_image": null, "job": "job", "board": "board", '
             '"time": null, "dtb": null, "_id": "board-job-kernel-defconfig", '
             '"load_addr": null, "endian": null, "metadata": null}'
