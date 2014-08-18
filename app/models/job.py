@@ -19,8 +19,6 @@ from bson import json_util
 from types import StringTypes
 
 from models import (
-    COMPILER_VERSION_KEY,
-    CROSS_COMPILE_KEY,
     GIT_BRANCH_KEY,
     GIT_COMMIT_KEY,
     GIT_DESCRIBE_KEY,
