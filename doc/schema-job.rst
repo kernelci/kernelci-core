@@ -18,7 +18,17 @@ build.
         "properties": {
             "_id": {
                 "type": "string",
-                "description": "The ID associated with this job"
+                "description": "The ID associated with this object"
+            },
+            "created_on": {
+                "type": "object",
+                "description": "Creation date of the object",
+                "properties": {
+                    "$date": {
+                        "type": "number",
+                        "description": "Milliseconds from epoch time"
+                    }
+                }
             },
             "private": {
                 "type": "boolean",
@@ -27,16 +37,6 @@ build.
             "kernel": {
                 "type": "string",
                 "description": "The name of the kernel"
-            },
-            "created_on": {
-                "type": "object",
-                "description": "Creation date of the job",
-                "properties": {
-                    "$date": {
-                        "type": "number",
-                        "description": "Milliseconds from epoch time"
-                    }
-                }
             },
             "updated": {
                 "type": "object",
@@ -51,6 +51,16 @@ build.
             "job": {
                 "type": "string",
                 "description": "The name of the job"
+            },
+            "status": {
+                "type": "string",
+                "description": "The status of the job",
+                "items": {
+                    "BUILD",
+                    "FAIL",
+                    "PASS",
+                    "UNKNOWN"
+                }
             },
             "metadata": {
                 "type": "object",

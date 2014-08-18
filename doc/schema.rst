@@ -7,3 +7,5 @@ Schema
     :maxdepth: 1
 
     schema-job
+    schema-defconfig
+    schema-boot
