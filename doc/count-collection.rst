@@ -8,8 +8,8 @@ GET
 
  Count the elements in all collections or in the provided ``collection``.
 
- When using the query parameters, the results will include also the fields
- specified and their values.
+ When using the query parameters with a provided ``collection``, the results
+ will include also the fields specified and their values.
 
  :param collection: The name of the collection to get the count of.
     Can be one of ``job``, ``defconfig``, ``boot``.
