@@ -77,7 +77,7 @@ def protected_th(method):
                     token_obj = _find_token(token, obj)
 
                     if token_obj and _validate_token(
-                            token, obj, method, _valid_token_th):
+                            token_obj, obj, method, _valid_token_th):
                         return function(obj, *args, **kwargs)
 
             obj.log.info(
@@ -103,7 +103,10 @@ def _validate_token(token, obj, method, validate_func):
     """
     valid_token = True
 
-    if token.is_ip_restricted and not _valid_token_ip(token, obj):
+    if not isinstance(token, Token):
+        obj.log.error("Retrieved token is not a Token object")
+        valid_token = False
+    elif token.is_ip_restricted and not _valid_token_ip(token, obj):
         valid_token = False
 
     valid_token &= validate_func(token, method)
