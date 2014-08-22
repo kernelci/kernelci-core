@@ -30,6 +30,7 @@ from uuid import uuid4
 
 from handlers.app import AppHandler
 from urls import APP_URLS
+from utils.dbindexes import ensure_indexes
 
 
 DEFAULT_CONFIG_FILE = '/etc/linaro/kernelci-backend.cfg'
@@ -63,6 +64,8 @@ class KernelCiBackend(Application):
             'master_key': options.master_key,
             'autoreload': options.autoreload,
         }
+
+        ensure_indexes(self.mongodb_client)
 
         super(KernelCiBackend, self).__init__(APP_URLS, **settings)
 
