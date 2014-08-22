@@ -9,3 +9,4 @@ Schema
     schema-job
     schema-defconfig
     schema-boot
+    schema-token
