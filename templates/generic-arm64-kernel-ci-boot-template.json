@@ -10,9 +10,12 @@
                 "kernel.defconfig": "{defconfig}"
             },
             "parameters": {
-                "dtb": "{dtb_url}",
                 "kernel": "{kernel_url}",
-                "ramdisk": "http://images.armcloud.us/lava/common/linaro-image-minimal-initramfs-genericarmv7a.cpio.gz.u-boot"
+                "login_prompt": "login:",
+                "password": "root",
+                "password_prompt": "Password:",
+                "rootfs": "http://images.armcloud.us/lava/aarch64/debian-unstable-arm64.qcow2",
+                "username": "root"
             }
         },
         {
@@ -21,8 +24,8 @@
         {
             "command": "submit_results",
             "parameters": {
-                "server": "{lava_server}",
-                "stream": "{bundle_stream}"
+                "server": "LAVA_SERVER",
+                "stream": "BUNDLE_STREAM"
             }
         }
     ],

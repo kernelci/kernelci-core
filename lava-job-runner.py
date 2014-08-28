@@ -1,10 +1,9 @@
 #!/usr/bin/python
 # <variable> = required
 # [variable] = optional
-# Usage ./lava-job-runner.py <username> <token> <lava_server_url> <job_repo> [bundle_stream]
+# Usage ./lava-job-runner.py <username> <token> <lava_server_url> [job_repo] [bundle_stream]
 
 import xmlrpclib
-import sys
 import subprocess
 import fnmatch
 import os
@@ -12,17 +11,20 @@ import json
 import time
 import re
 import urlparse
+import argparse
 
 job_map = {}
 
 
-def report():
-    pass
+def report(jobs):
+    for job in jobs:
+        print job + ' ' + jobs[job]
 
 
 def poll_jobs(connection):
     run = True
     submitted_jobs = {}
+    finished_jobs = {}
 
     for job in job_map:
         if job_map[job] is not None:
@@ -39,11 +41,13 @@ def poll_jobs(connection):
                 if status['job_status'] == 'Complete':
                     print 'job-id-' + str(job) + '-' + os.path.basename(submitted_jobs[job]) + ' : pass'
                     # Pop
+                    finished_jobs[job] = 'PASS'
                     submitted_jobs.pop(job, None)
                     break
                 elif status['job_status'] == 'Incomplete' or status['job_status'] == 'Canceled' or status['job_status'] == 'Canceling':
                     print 'job-id-' + str(job) + '-' + os.path.basename(submitted_jobs[job]) + ' : fail'
                     # Pop
+                    finished_jobs[job] = 'FAIL'
                     submitted_jobs.pop(job, None)
                     break
                 else:
@@ -54,8 +58,10 @@ def poll_jobs(connection):
                 print e
                 continue
 
+    return finished_jobs
 
-def submit_jobs(connection, lava_server, bundle_stream):
+
+def submit_jobs(connection, server, bundle_stream):
     online_devices, offline_devices = gather_devices(connection)
     online_device_types, offline_device_types = gather_device_types(connection)
     print "Submitting Jobs to Server..."
@@ -64,8 +70,9 @@ def submit_jobs(connection, lava_server, bundle_stream):
             with open(job, 'rb') as stream:
                 job_data = stream.read()
                 # Injection
-                job_data = re.sub('LAVA_SERVER', lava_server, job_data)
-                job_data = re.sub('BUNDLE_STREAM', bundle_stream, job_data)
+                if bundle_stream is not None:
+                    job_data = re.sub('LAVA_SERVER', server, job_data)
+                    job_data = re.sub('BUNDLE_STREAM', bundle_stream, job_data)
             job_info = json.loads(job_data)
             # Check if request device(s) are available
             if 'target' in job_info:
@@ -200,23 +207,39 @@ def connect(url):
         exit(1)
 
 
-def validate_input(username, token, lava_server):
-    url = urlparse.urlparse(lava_server)
+def validate_input(username, token, server):
+    url = urlparse.urlparse(server)
     if url.path.find('RPC2') == -1:
         print "LAVA Server URL must end with /RPC2"
         exit(1)
     return url.scheme + '://' + username + ':' + token + '@' + url.netloc + url.path
 
 
-def main(username, token, lava_server, job_repo, bundle_stream='/anonymous/lava-functional-tests/'):
-    url = validate_input(username, token, lava_server)
+def main(args):
+
+    url = validate_input(args.username, args.token, args.server)
     connection = connect(url)
-    retrieve_jobs(job_repo)
+    if args.repo:
+        retrieve_jobs(args.repo)
     load_jobs()
-    submit_jobs(connection, lava_server, bundle_stream)
-    poll_jobs(connection)
-    report()
+    if args.stream:
+        submit_jobs(connection, args.server, args.stream)
+    else:
+        submit_jobs(connection, args.server, bundle_stream=None)
+    if args.poll:
+        jobs = poll_jobs(connection)
+        if args.report:
+            report(jobs)
     exit(0)
 
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+    parser = argparse.ArgumentParser()
+    parser.add_argument("username", help="username for the LAVA server")
+    parser.add_argument("token", help="token for LAVA server api")
+    parser.add_argument("server", help="server url for LAVA server")
+    parser.add_argument("--stream", help="bundle stream for LAVA server")
+    parser.add_argument("--repo", help="git repo for LAVA jobs")
+    parser.add_argument("--poll", action='store_true', help="poll the submitted LAVA jobs")
+    parser.add_argument("--report", action='store_true', help="report on the submitted LAVA jobs")
+    args = parser.parse_args()
+    main(args)
