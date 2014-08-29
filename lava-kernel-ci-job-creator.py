@@ -135,7 +135,7 @@ def create_jobs(base_url, kernel, platform_list):
                 print 'JSON Job created: jobs/%s' % job_name
 
 
-def walk_url(url):
+def walk_url(url, arch=None):
     global base_url
     global kernel
     global device_list
@@ -152,19 +152,36 @@ def walk_url(url):
     for name, date, size in files:
         if name.endswith('/'):
             dirs += [name]
-        if 'bzImage' in name and 'x86' in url:
-            kernel = url + name
-            base_url = url
-            device_list.append(url + 'x86')
-        if 'zImage' in name and 'arm' in url:
-            kernel = url + name
-            base_url = url
-        if 'Image' in name and 'arm64' in url:
-            kernel = url + name
-            base_url = url
-            device_list.append(url + 'arm64')
-        if name.endswith('.dtb') and name in device_map:
-            device_list.append(url + name)
+        if arch is None:
+            if 'bzImage' in name and 'x86' in url:
+                kernel = url + name
+                base_url = url
+                device_list.append(url + 'x86')
+            if 'zImage' in name and 'arm' in url:
+                kernel = url + name
+                base_url = url
+            if 'Image' in name and 'arm64' in url:
+                kernel = url + name
+                base_url = url
+                device_list.append(url + 'arm64')
+            if name.endswith('.dtb') and name in device_map:
+                device_list.append(url + name)
+        elif arch == 'x86':
+            if 'bzImage' in name and 'x86' in url:
+                kernel = url + name
+                base_url = url
+                device_list.append(url + 'x86')
+        elif arch == 'arm':
+            if 'zImage' in name and 'arm' in url:
+                kernel = url + name
+                base_url = url
+            if name.endswith('.dtb') and name in device_map:
+                device_list.append(url + name)
+        elif arch == 'arm64':
+            if 'Image' in name and 'arm64' in url:
+                kernel = url + name
+                base_url = url
+                device_list.append(url + 'arm64')
 
     for dir in dirs:
         if kernel is not None and base_url is not None and device_list:
@@ -173,13 +190,13 @@ def walk_url(url):
             base_url = None
             kernel = None
             device_list = []
-        walk_url(url + dir)
+        walk_url(url + dir, arch)
 
 
 def main(args):
     setup_job_dir(os.getcwd() + '/jobs')
     print 'Scanning %s for boot information...' % args.url
-    walk_url(args.url)
+    walk_url(args.url, args.arch)
     print 'Done scanning for boot information'
     print 'Done creating JSON jobs'
     exit(0)
@@ -187,5 +204,6 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("url", help="url to build artifacts")
+    parser.add_argument("--arch", help="specific architecture to create jobs for")
     args = parser.parse_args()
     main(args)
