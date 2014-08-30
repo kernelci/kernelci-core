@@ -116,7 +116,7 @@ def create_jobs(base_url, kernel, platform_list):
             print '%s has been blacklisted. Skipping JSON creation' % defconfig
         else:
             for template in device_templates:
-                job_name = tree + '-' + kernel_version + '-' + defconfig + '-' + platform_name
+                job_name = tree + '-' + kernel_version + '-' + defconfig[:100] + '-' + platform_name
                 job_json = cwd + '/jobs/' + job_name + '.json'
                 template_file = cwd + '/templates/' + str(template)
                 with open(job_json, 'wt') as fout:
