@@ -183,13 +183,14 @@ def walk_url(url, arch=None):
                 base_url = url
                 device_list.append(url + 'arm64')
 
+    if kernel is not None and base_url is not None and device_list:
+        print 'Found boot artifacts at: %s' % base_url
+        create_jobs(base_url, kernel, device_list)
+        base_url = None
+        kernel = None
+        device_list = []
+
     for dir in dirs:
-        if kernel is not None and base_url is not None and device_list:
-            print 'Found boot artifacts at: %s' % base_url
-            create_jobs(base_url, kernel, device_list)
-            base_url = None
-            kernel = None
-            device_list = []
         walk_url(url + dir, arch)
 
 
