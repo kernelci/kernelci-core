@@ -78,7 +78,7 @@ device_map = {'exynos5250-arndale.dtb': arndale,
            'arm64': qemu_aarch64,
            'x86': x86}
 
-parse_re = re.compile('href="([^"]*)".*(..-...-.... ..:..).*?(\d+[^\s<]*|-)')
+parse_re = re.compile('href="([^./"?][^"?]*)"')
 
 def setup_job_dir(directory):
     print 'Setting up JSON output directory at: jobs/'
@@ -149,7 +149,7 @@ def walk_url(url, arch=None):
         url += '/'
     files = parse_re.findall(html)
     dirs = []
-    for name, date, size in files:
+    for name in files:
         if name.endswith('/'):
             dirs += [name]
         if arch is None:
