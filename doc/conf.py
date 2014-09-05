@@ -44,7 +44,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Kernel CI Dashboard API'
+project = u'Status Armcloud API '
 copyright = u'2014, Linaro Ltd.'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -201,7 +201,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'KernelCIDashboardAPI.tex', u'API Documentation',
+  ('index', 'StatusArmcloudAPI.tex', u'API Documentation',
    u'Linaro Ltd.', 'manual'),
 ]
 
@@ -231,7 +231,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'kernelcidashboardapi', u'API Documentation',
+    ('index', 'statusarmcloudapi', u'API Documentation',
      [u'Linaro Ltd.'], 1)
 ]
 
@@ -245,8 +245,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'KernelCIDashboardAPI', u'API Documentation',
-   u'Linaro Ltd.', 'KernelCIDashboardAPI', 'Kernel CI API',
+  ('index', 'StatusArmcloudAPI', u'API Documentation',
+   u'Linaro Ltd.', 'StatusArmcloudAPI', 'Kernel CI API',
    'Miscellaneous'),
 ]
 
@@ -266,7 +266,7 @@ texinfo_documents = [
 # -- Options for Epub output ----------------------------------------------
 
 # Bibliographic Dublin Core info.
-epub_title = u'Kernel CI Dashboard API'
+epub_title = u'Status Armcloud API'
 epub_author = u'Linaro Ltd.'
 epub_publisher = u'Linaro Ltd.'
 epub_copyright = u'2014, Linaro Ltd.'
