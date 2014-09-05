@@ -1,3 +1,2 @@
 [all]
-backend.kernel-ci.linaro.org
-images.armcloud.us
+api.armcloud.us

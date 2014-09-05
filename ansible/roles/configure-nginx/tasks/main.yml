@@ -35,8 +35,8 @@
     - web-server
 
 - name: Install backend nginx configuration
-  template: src=kernelci-backend.conf
-            dest=/etc/nginx/sites-available/kernelci-backend
+  template: src={{ hostname }}
+            dest=/etc/nginx/sites-available/{{ hostname }}
             owner=root
             group=root
             mode=0644
@@ -47,8 +47,8 @@
 
 - name: Enable backend website
   file: state=link
-        src=/etc/nginx/sites-available/kernelci-backend
-        dest=/etc/nginx/sites-enabled/kernelci-backend
+        src=/etc/nginx/sites-available/{{ hostname }}
+        dest=/etc/nginx/sites-enabled/{{ hostname }}
         owner=root
         group=root
   tags:
