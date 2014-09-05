@@ -7,3 +7,4 @@ API Documentation
    intro
    collections
    schema
+   examples
