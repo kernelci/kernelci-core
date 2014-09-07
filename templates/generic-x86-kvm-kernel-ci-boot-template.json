@@ -1,0 +1,36 @@
+{
+    "actions": [
+        {
+            "command": "deploy_linaro_kernel",
+            "metadata": {
+                "image.type": "{image_type}",
+                "image.url": "{image_url}",
+                "kernel.tree": "{tree}",
+                "kernel.version": "{kernel_version}",
+                "kernel.defconfig": "{defconfig}"
+            },
+            "parameters": {
+                "kernel": "{kernel_url}",
+                "rootfs": "http://images.armcloud.us/lava/kvm/kvm_sid_image.img.xz",
+                "login_prompt": "login:",
+                "password": "root",
+                "password_prompt": "Password",
+                "username": "root"
+            }
+        },
+        {
+            "command": "boot_linaro_image"
+        },
+        {
+            "command": "submit_results",
+            "parameters": {
+                "server": "LAVA_SERVER",
+                "stream": "BUNDLE_STREAM"
+            }
+        }
+    ],
+    "device_type": "{device_type}",
+    "job_name": "{job_name}",
+    "logging_level": "DEBUG",
+    "timeout": 18000
+}

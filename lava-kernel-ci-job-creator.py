@@ -68,15 +68,24 @@ x86 = {'device_type': 'x86',
        'lpae': False,
        'be': False}
 
+x86_kvm = {'device_type': 'kvm',
+           'templates': ['generic-x86-kvm-kernel-ci-boot-template.json'],
+           'defconfig_blacklist': ['x86-i386_defconfig',
+                                   'x86-allnoconfig',
+                                   'x86-allmodconfig'],
+            'lpae': False,
+            'be': False}
+
 device_map = {'exynos5250-arndale.dtb': arndale,
-           'exynos5420-arndale-octa.dtb': arndale_octa,
-           'am335x-boneblack.dtb': beaglebone_black,
-           'omap3-beagle-xm.dtb': beagle_xm,
-           'omap4-panda-es.dtb': panda_es,
-           'sun7i-a20-cubietruck.dtb': cubieboard3,
-           'imx6q-wandboard.dtb': imx6q_wandboard,
-           'arm64': qemu_aarch64,
-           'x86': x86}
+              'exynos5420-arndale-octa.dtb': arndale_octa,
+              'am335x-boneblack.dtb': beaglebone_black,
+              'omap3-beagle-xm.dtb': beagle_xm,
+              'omap4-panda-es.dtb': panda_es,
+              'sun7i-a20-cubietruck.dtb': cubieboard3,
+              'imx6q-wandboard.dtb': imx6q_wandboard,
+              'qemu-aarch64': qemu_aarch64,
+              'x86': x86,
+              'x86-kvm': x86_kvm}
 
 parse_re = re.compile('href="([^./"?][^"?]*)"')
 
@@ -157,13 +166,14 @@ def walk_url(url, arch=None):
                 kernel = url + name
                 base_url = url
                 device_list.append(url + 'x86')
+                device_list.append(url + 'x86-kvm')
             if 'zImage' in name and 'arm' in url:
                 kernel = url + name
                 base_url = url
             if 'Image' in name and 'arm64' in url:
                 kernel = url + name
                 base_url = url
-                device_list.append(url + 'arm64')
+                device_list.append(url + 'qemu-aarch64')
             if name.endswith('.dtb') and name in device_map:
                 device_list.append(url + name)
         elif arch == 'x86':
@@ -171,6 +181,7 @@ def walk_url(url, arch=None):
                 kernel = url + name
                 base_url = url
                 device_list.append(url + 'x86')
+                device_list.append(url + 'x86-kvm')
         elif arch == 'arm':
             if 'zImage' in name and 'arm' in url:
                 kernel = url + name
@@ -181,7 +192,7 @@ def walk_url(url, arch=None):
             if 'Image' in name and 'arm64' in url:
                 kernel = url + name
                 base_url = url
-                device_list.append(url + 'arm64')
+                device_list.append(url + 'qemu-aarch64')
 
     if kernel is not None and base_url is not None and device_list:
         print 'Found boot artifacts at: %s' % base_url
