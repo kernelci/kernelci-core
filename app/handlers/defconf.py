@@ -65,6 +65,6 @@ class DefConfHandler(BaseHandler):
 
         response.status_code = delete(self.collection, defconf_id)
         if response.status_code == 200:
-            response.reason = "Resource %s deleted" % defconf_id
+            response.reason = "Resource '%s' deleted" % defconf_id
 
         return response
