@@ -96,7 +96,7 @@ class JobHandler(BaseHandler):
 
             response.status_code = delete(self.collection, job_id)
             if response.status_code == 200:
-                response.reason = "Resource %s deleted" % job_id
+                response.reason = "Resource '%s' deleted" % job_id
         else:
             response.status_code = 404
             response.reason = self._get_status_message(404)

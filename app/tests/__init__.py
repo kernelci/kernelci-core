@@ -20,6 +20,7 @@ import unittest
 
 def test_modules():
     return [
+        'handlers.tests.test_boot_handler',
         'handlers.tests.test_count_handler',
         'handlers.tests.test_defconf_handler',
         'handlers.tests.test_handler_response',

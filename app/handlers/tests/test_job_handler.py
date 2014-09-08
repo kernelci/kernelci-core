@@ -76,7 +76,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         expected_body = '{"count": 0, "code": 200, "limit": 0, "result": []}'
 
         headers = {'Authorization': 'foo'}
-        response = self.fetch('/api/job', headers=headers)
+        response = self.fetch('/api/job?date_range=5&job=job', headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(

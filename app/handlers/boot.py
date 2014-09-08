@@ -18,6 +18,7 @@
 from handlers.base import BaseHandler
 from handlers.response import HandlerResponse
 from models import (
+    BOARD_KEY,
     CREATED_KEY,
     DEFCONFIG_KEY,
     JOB_ID_KEY,
@@ -29,6 +30,10 @@ from models import (
 )
 from models.boot import BOOT_COLLECTION
 from taskqueue.tasks import import_boot
+from utils.db import (
+    delete,
+    find_one,
+)
 
 
 class BootHandler(BaseHandler):
@@ -45,8 +50,11 @@ class BootHandler(BaseHandler):
         valid_keys = {
             'POST': [JOB_KEY, KERNEL_KEY],
             'GET': [
-                CREATED_KEY, WARNINGS_KEY, JOB_ID_KEY,
+                CREATED_KEY, WARNINGS_KEY, JOB_ID_KEY, BOARD_KEY,
                 JOB_KEY, KERNEL_KEY, DEFCONFIG_KEY, TIME_KEY, STATUS_KEY,
+            ],
+            'DELETE': [
+                JOB_KEY, KERNEL_KEY, DEFCONFIG_KEY, BOARD_KEY, JOB_ID_KEY
             ]
         }
 
@@ -58,5 +66,43 @@ class BootHandler(BaseHandler):
         response.result = None
 
         import_boot.apply_async([kwargs['json_obj']])
+
+        return response
+
+    def execute_delete(self, *args, **kwargs):
+        response = None
+
+        if kwargs and kwargs.get('id', None):
+            doc_id = kwargs['id']
+            if find_one(self.collection, doc_id):
+                response = self._delete(doc_id)
+                if response.status_code == 200:
+                    response.reason = "Resource '%s' deleted" % doc_id
+            else:
+                response = HandlerResponse(404)
+                response.reason = "Resource '%s' not found" % doc_id
+        else:
+            spec = self._get_query_spec('DELETE')
+            if spec:
+                response = self._delete(spec)
+                if response.status_code == 200:
+                    response.reason = (
+                        "Resources identified with '%s' deleted" % spec
+                    )
+            else:
+                response = HandlerResponse(400)
+                response.result = None
+                response.reason = (
+                    "No valid data provided to execute a DELETE"
+                )
+
+        return response
+
+    def _delete(self, spec_or_id):
+        response = HandlerResponse(200)
+        response.result = None
+
+        response.status_code = delete(self.collection, spec_or_id)
+        response.reason = self._get_status_message(response.status_code)
 
         return response

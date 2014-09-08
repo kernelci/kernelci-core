@@ -415,12 +415,13 @@ class BaseHandler(RequestHandler):
 
         if self.request.arguments:
             spec = self._get_query_spec()
+            spec = self._get_and_add_date_range(spec)
             sort = self._get_query_sort()
             fields = self._get_query_fields()
 
         return (spec, sort, fields)
 
-    def _get_query_spec(self):
+    def _get_query_spec(self, method='GET'):
         """Get values from the query string to build a `spec` data structure.
 
         A `spec` data structure is a dictionary whose keys are the keys
@@ -431,12 +432,20 @@ class BaseHandler(RequestHandler):
         spec = {
             k: v for k, v in [
                 (key, val)
-                for key in self._valid_keys('GET')
+                for key in self._valid_keys(method)
                 for val in self.get_query_arguments(key)
                 if val is not None
             ]
         }
 
+        return spec
+
+    def _get_and_add_date_range(self, spec):
+        """Retrieve the `date_range` query from the request.
+
+        :param spec: The dictionary where to store the key-value.
+        :return The passed spec.
+        """
         date_range = self.get_query_argument(DATE_RANGE_KEY, default=None)
         if date_range:
             # Today needs to be set at the end of the day!
@@ -446,7 +455,6 @@ class BaseHandler(RequestHandler):
             previous = self._calculate_date_range(date_range)
 
             spec[CREATED_KEY] = {'$gte': previous, '$lt': today}
-
         return spec
 
     def _get_query_sort(self):
