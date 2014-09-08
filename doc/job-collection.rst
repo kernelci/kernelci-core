@@ -28,6 +28,7 @@ GET
     (:ref:`more info <intro_schema_time_date>`). By default consider all results.
  :query string field: The field that should be returned in the response. Can be
     repeated multiple times.
+ :query string nfield: The field that should *not* be returned in the response. Can be repeated multiple times.
  :query string job: A job name.
  :query string kernel: A kernel name.
 
@@ -54,7 +55,7 @@ GET
 
  .. sourcecode:: http
 
-    GET /job?date_range=12&job=arm-soc&filed=status&field=kernel HTTP/1.1
+    GET /job?date_range=12&job=arm-soc&field=status&field=kernel HTTP/1.1
     Host: api.backend.linaro.org
     Accept: */*
     Authorization: token    
@@ -152,7 +153,7 @@ POST
 
  .. sourcecode:: http 
 
-    POST /api/job HTTP/1.1
+    POST /job HTTP/1.1
     Host: api.backend.linaro.org
     Content-Type: application/json
     Accept: */*
@@ -166,7 +167,7 @@ POST
 DELETE
 ******
 
-.. http:delete:: /job/job_id
+.. http:delete:: /job/(string:job_id)
 
  Delete the job identified by ``job_id``.
 
@@ -174,7 +175,6 @@ DELETE
  :type job_id: string
 
  :reqheader Authorization: The token necessary to authorize the request.
- :reqheader Content-Type: Content type of the transmitted data, must be ``application/json``.
  :reqheader Accept-Encoding: Accept the ``gzip`` coding.
 
  :resheader Content-Type: Will be ``application/json; charset=UTF-8``.
