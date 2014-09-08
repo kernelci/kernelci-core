@@ -21,15 +21,6 @@ server {
         rewrite ^(.*)$ /maintenance.html break;
     }
 
-    location /kernel-ci {
-        rewrite ^(.*)$ http://images.armcloud.us$1 permanent;
-        access_log off;
-    }
-
-    location ~ ^/(job|boot|defconfig|count|token) {
-        rewrite ^(.*)$ http://$host/api$1 permanent;
-    }
-
     location /api {
         proxy_pass_header Server;
         proxy_set_header Host $http_host;
@@ -37,6 +28,15 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Scheme $scheme;
         proxy_pass http://frontends;
+    }
+
+    location ~ ^/((job|boot|defconfig|count|token)(?!(.*html))) {
+        rewrite ^(.*)$ $scheme://$host/api$1 permanent;
+    }
+
+    location /kernel-ci {
+        rewrite ^(.*)$ http://images.armcloud.us$1 permanent;
+        access_log off;
     }
 
     location ~* \.(?:ico|css|js|gif|jpe?g|png)$ {
