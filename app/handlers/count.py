@@ -113,6 +113,7 @@ class CountHandler(BaseHandler):
         """
         result = []
         spec = self._get_query_spec()
+        spec = self._get_and_add_date_range(spec)
 
         if spec:
             _, number = find_and_count(
@@ -143,6 +144,7 @@ class CountHandler(BaseHandler):
         result = []
 
         spec = self._get_query_spec()
+        spec = self._get_and_add_date_range(spec)
         if spec:
             for key, val in COLLECTIONS.iteritems():
                 _, number = find_and_count(
