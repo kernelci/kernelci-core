@@ -1,3 +1,5 @@
+.. _collection_boot:
+
 boot
 ----
 
@@ -200,3 +202,11 @@ DELETE
     Accept: */*
     Content-Type: application/json
     Authorization: token
+
+
+More Info
+*********
+
+* :ref:`Boot schema <schema_boot>`
+* :ref:`API results <intro_schema_results>`
+* :ref:`Schema time and date <intro_schema_time_date>`

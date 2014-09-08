@@ -115,6 +115,7 @@ defconfig.
 More Info
 *********
 
+* :ref:`Boot collection <collection_boot>`
 * :ref:`Defconfig schema <schema_defconfig>`
 * :ref:`API results <intro_schema_results>`
 * :ref:`Schema time and date <intro_schema_time_date>`

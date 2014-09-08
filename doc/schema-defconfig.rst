@@ -77,5 +77,6 @@ using a defconfig.
 More Info
 *********
 
+* :ref:`Defconfig collection <collection_defconfig>`
 * :ref:`API results <intro_schema_results>`
 * :ref:`Schema time and date <intro_schema_time_date>`

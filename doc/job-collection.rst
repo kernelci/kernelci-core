@@ -1,3 +1,5 @@
+.. _collection_job:
+
 job
 ---
 
@@ -193,3 +195,10 @@ DELETE
     Accept: */*
     Content-Type: application/json
     Authorization: token
+
+More Info
+*********
+
+* :ref:`Job schema <schema_job>`
+* :ref:`API results <intro_schema_results>`
+* :ref:`Schema time and date <intro_schema_time_date>`
