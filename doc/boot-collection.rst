@@ -40,7 +40,7 @@ GET
  :status 404: The provided resource has not been found.
  :status 500: Internal database error.
 
-  **Example Requests**
+ **Example Requests**
 
  .. sourcecode:: http
 
