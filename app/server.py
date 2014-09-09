@@ -79,9 +79,6 @@ if __name__ == '__main__':
     # Settings that should be passed also to the HTTPServer.
     http_settings = {
         'xheaders': True,
-        'gzip': options.gzip,
-        'debug': options.debug,
-        'autoreload': options.autoreload,
     }
 
     KernelCiBackend().listen(8888, **http_settings)
