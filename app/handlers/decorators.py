@@ -23,6 +23,7 @@ from models.token import (
 )
 from utils.db import find_one
 
+# TODO: move this into __init__
 API_TOKEN_HEADER = 'Authorization'
 
 

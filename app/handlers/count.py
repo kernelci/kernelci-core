@@ -20,6 +20,10 @@ from tornado.web import (
 )
 
 from handlers.base import BaseHandler
+from handlers.common import (
+    get_and_add_date_range,
+    get_query_spec,
+)
 from handlers.response import HandlerResponse
 from models import (
     ARCHITECTURE_KEY,
@@ -112,8 +116,10 @@ class CountHandler(BaseHandler):
             with the fields `collection` and `count`.
         """
         result = []
-        spec = self._get_query_spec()
-        spec = self._get_and_add_date_range(spec)
+        query_args_func = self.get_query_arguments
+
+        spec = get_query_spec(query_args_func, self._valid_keys("GET"))
+        spec = get_and_add_date_range(spec, query_args_func)
 
         if spec:
             _, number = find_and_count(
@@ -142,9 +148,11 @@ class CountHandler(BaseHandler):
             dictionaries with the fields `collection` and `count`.
         """
         result = []
+        query_args_func = self.get_query_arguments
 
-        spec = self._get_query_spec()
-        spec = self._get_and_add_date_range(spec)
+        spec = get_query_spec(query_args_func, self._valid_keys("GET"))
+        spec = get_and_add_date_range(spec, query_args_func)
+
         if spec:
             for key, val in COLLECTIONS.iteritems():
                 _, number = find_and_count(

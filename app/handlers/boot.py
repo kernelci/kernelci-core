@@ -16,6 +16,7 @@
 """The RequestHandler for /boot URLs."""
 
 from handlers.base import BaseHandler
+from handlers.common import get_query_spec
 from handlers.response import HandlerResponse
 from models import (
     BOARD_KEY,
@@ -82,7 +83,9 @@ class BootHandler(BaseHandler):
                 response = HandlerResponse(404)
                 response.reason = "Resource '%s' not found" % doc_id
         else:
-            spec = self._get_query_spec('DELETE')
+            spec = get_query_spec(
+                self.get_query_arguments, self._valid_keys("DELETE")
+            )
             if spec:
                 response = self._delete(spec)
                 if response.status_code == 200:

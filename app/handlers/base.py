@@ -18,39 +18,26 @@
 import httplib
 import json
 import tornado
-import types
 
 from bson.json_util import dumps
-from bson import tz_util
-from datetime import (
-    date,
-    datetime,
-    time,
-    timedelta,
-)
 from functools import partial
-from pymongo import (
-    ASCENDING,
-    DESCENDING,
-)
 from tornado.web import (
     RequestHandler,
     asynchronous,
 )
 
+from handlers.common import (
+    get_aggregate_value,
+    get_query_fields,
+    get_query_sort,
+    get_query_spec,
+    get_and_add_date_range,
+    get_skip_and_limit,
+)
 from handlers.decorators import protected
 from handlers.response import HandlerResponse
 from models import (
-    AGGREGATE_KEY,
-    CREATED_KEY,
-    DATE_RANGE_KEY,
     DB_NAME,
-    FIELD_KEY,
-    LIMIT_KEY,
-    NOT_FIELD_KEY,
-    SKIP_KEY,
-    SORT_KEY,
-    SORT_ORDER_KEY,
 )
 from utils.db import (
     aggregate,
@@ -59,10 +46,6 @@ from utils.db import (
 )
 from utils.log import get_log
 from utils.validator import is_valid_json
-
-# Default value to calculate a date range in case the provided value is
-# out of range.
-DEFAULT_DATE_RANGE = 15
 
 
 class BaseHandler(RequestHandler):
@@ -328,7 +311,9 @@ class BaseHandler(RequestHandler):
         """
         response = HandlerResponse()
         result = find_one(
-            self.collection, doc_id, fields=self._get_query_fields()
+            self.collection,
+            doc_id,
+            fields=get_query_fields(self.get_query_arguments)
         )
 
         if result:
@@ -354,11 +339,8 @@ class BaseHandler(RequestHandler):
         :return A `HandlerResponse` object.
         """
         response = HandlerResponse()
+        spec, sort, fields, skip, limit, unique = self._get_query_args()
 
-        skip, limit = self._get_skip_and_limit()
-        spec, sort, fields = self._get_query_args()
-
-        unique = self.get_query_argument(AGGREGATE_KEY, default=None)
         if unique:
             self.log.info("Performing aggregation on %s", unique)
             response.result = aggregate(
@@ -387,125 +369,37 @@ class BaseHandler(RequestHandler):
         response.limit = limit
         return response
 
-    def _get_skip_and_limit(self):
-        """Retrieve the `skip` and `limit` query arguments.
-
-        :return A tuple with the `skip` and `limit` arguments.
-        """
-        skip = 0
-        limit = 0
-
-        if self.request.arguments:
-            skip = int(self.get_query_argument(SKIP_KEY, default=0))
-            limit = int(self.get_query_argument(LIMIT_KEY, default=0))
-
-        return skip, limit
-
-    def _get_query_args(self):
+    def _get_query_args(self, method="GET"):
         """Retrieve all the arguments from the query string.
 
         This method will return the `spec`, `sort` and `fields` data structures
-        that can be used to perform MongoDB queries.
+        that can be used to perform MongoDB queries, the aggregate value to
+        perform aggregation, and the `skip` and `limit` values.
 
-        :return A tuple with `spec`, `sort` and `fields` data structures.
+        :return A tuple with, in order: `spec`, `sort`, `fields`, `skip`,
+        `limit` and `aggregate` values.
         """
         spec = {}
         sort = None
         fields = None
+        skip = 0
+        limit = 0
+        aggregate = None
 
         if self.request.arguments:
-            spec = self._get_query_spec()
-            spec = self._get_and_add_date_range(spec)
-            sort = self._get_query_sort()
-            fields = self._get_query_fields()
+            query_args_func = self.get_query_arguments
 
-        return (spec, sort, fields)
-
-    def _get_query_spec(self, method='GET'):
-        """Get values from the query string to build a `spec` data structure.
-
-        A `spec` data structure is a dictionary whose keys are the keys
-        accepted by this handler GET method.
-
-        :return A `spec` data structure.
-        """
-        spec = {
-            k: v for k, v in [
-                (key, val)
-                for key in self._valid_keys(method)
-                for val in self.get_query_arguments(key)
-                if val is not None
-            ]
-        }
-
-        return spec
-
-    def _get_and_add_date_range(self, spec):
-        """Retrieve the `date_range` query from the request.
-
-        :param spec: The dictionary where to store the key-value.
-        :return The passed spec.
-        """
-        date_range = self.get_query_argument(DATE_RANGE_KEY, default=None)
-        if date_range:
-            # Today needs to be set at the end of the day!
-            today = datetime.combine(
-                date.today(), time(23, 59, 59, tzinfo=tz_util.utc)
+            spec = get_query_spec(
+                query_args_func,
+                valid_keys=self._valid_keys(method)
             )
-            previous = self._calculate_date_range(date_range)
+            spec = get_and_add_date_range(spec, query_args_func)
+            sort = get_query_sort(query_args_func)
+            fields = get_query_fields(query_args_func)
+            skip, limit = get_skip_and_limit(query_args_func)
+            aggregate = get_aggregate_value(query_args_func)
 
-            spec[CREATED_KEY] = {'$gte': previous, '$lt': today}
-        return spec
-
-    def _get_query_sort(self):
-        """Get values from the query string to build a `sort` data structure.
-
-        A `sort` data structure is a list of tuples in a `key-value` fashion.
-        The keys are the values passed as the `sort` argument on the query,
-        they values are based on the `sort_order` argument and defaults to the
-        descending order.
-
-        :return A `sort` data structure.
-        """
-        sort_fields = self.get_query_arguments(SORT_KEY)
-        sort_order = int(
-            self.get_query_argument(SORT_ORDER_KEY, default=DESCENDING)
-        )
-
-        # Wrong number for sort order? Force descending.
-        if sort_order != ASCENDING and sort_order != DESCENDING:
-            self.log.warn(
-                "Wrong sort order used (%d), default to %d",
-                sort_order, DESCENDING
-            )
-            sort_order = DESCENDING
-
-        sort = None
-        if sort_fields:
-            sort = [
-                (field, sort_order)
-                for field in sort_fields
-            ]
-
-        return sort
-
-    def _get_query_fields(self):
-        """Get values from the query string to build a `fields` data structure.
-
-        :return A `fields` data structure.
-        """
-        fields = None
-
-        y_fields = self.get_query_arguments(FIELD_KEY)
-        n_fields = self.get_query_arguments(NOT_FIELD_KEY)
-
-        if y_fields and not n_fields:
-            fields = list(set(y_fields))
-        elif n_fields:
-            fields = dict.fromkeys(list(set(y_fields)), True)
-            fields.update(dict.fromkeys(list(set(n_fields)), False))
-
-        return fields
+        return (spec, sort, fields, skip, limit, aggregate)
 
     def write_error(self, status_code, **kwargs):
         if kwargs.get('message', None):
@@ -519,32 +413,3 @@ class BaseHandler(RequestHandler):
             self.finish()
         else:
             super(BaseHandler, self).write_error(status_code, kwargs)
-
-    @staticmethod
-    def _calculate_date_range(date_range):
-        """Calculate the new date subtracting the passed number of days.
-
-        It removes the passed days from today date, calculated at midnight
-        UTC.
-
-        :param date_range: The number of days to remove from today.
-        :type date_range int, long, str
-        :return A new `datetime.date` object that is the result of the
-            subtraction of `datetime.date.today()` and
-            `datetime.timedelta(days=date_range)`.
-        """
-        if isinstance(date_range, types.StringTypes):
-            date_range = int(date_range)
-
-        date_range = abs(date_range)
-        if date_range > timedelta.max.days:
-            date_range = DEFAULT_DATE_RANGE
-
-        # Calcuate with midnight in mind though, so we get the starting of
-        # the day for the previous date.
-        today = datetime.combine(
-            date.today(), time(tzinfo=tz_util.utc)
-        )
-        delta = timedelta(days=date_range)
-
-        return today - delta

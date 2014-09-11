@@ -24,6 +24,7 @@ from tornado.web import (
 from urlparse import urlunparse
 
 from handlers.base import BaseHandler
+from handlers.common import get_query_fields
 from handlers.decorators import protected_th
 from handlers.response import HandlerResponse
 from models import (
@@ -114,7 +115,7 @@ class TokenHandler(BaseHandler):
             self.collection,
             doc_id,
             field=TOKEN_KEY,
-            fields=self._get_query_fields()
+            fields=get_query_fields(self.get_query_arguments)
         )
 
         if result:
