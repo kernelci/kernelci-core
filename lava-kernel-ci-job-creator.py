@@ -177,7 +177,8 @@ def walk_url(url, arch=None, target=None):
                 base_url = url
                 platform_list.append(url + 'qemu-aarch64')
             if name.endswith('.dtb') and name in device_map:
-                platform_list.append(url + name)
+                if base_url in url:
+                    platform_list.append(url + name)
         elif arch == 'x86':
             if 'bzImage' in name and 'x86' in url:
                 kernel = url + name
@@ -189,7 +190,8 @@ def walk_url(url, arch=None, target=None):
                 kernel = url + name
                 base_url = url
             if name.endswith('.dtb') and name in device_map:
-                platform_list.append(url + name)
+                if base_url in url:
+                    platform_list.append(url + name)
         elif arch == 'arm64':
             if 'Image' in name and 'arm64' in url:
                 kernel = url + name
