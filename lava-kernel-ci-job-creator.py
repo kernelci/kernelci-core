@@ -8,7 +8,7 @@ import argparse
 
 base_url = None
 kernel = None
-device_list = []
+platform_list = []
 
 arndale = {'device_type': 'arndale',
            'templates': ['generic-arm-kernel-ci-boot-template.json'],
@@ -99,7 +99,7 @@ def setup_job_dir(directory):
     print 'Done setting up JSON output directory'
 
 
-def create_jobs(base_url, kernel, platform_list):
+def create_jobs(base_url, kernel, platform_list, target):
     print 'Creating JSON Job Files...'
     cwd = os.getcwd()
     url = urlparse.urlparse(kernel)
@@ -123,6 +123,8 @@ def create_jobs(base_url, kernel, platform_list):
             print 'LPAE is not supported on %s. Skipping JSON creation' % device_type
         elif defconfig in device['defconfig_blacklist']:
             print '%s has been blacklisted. Skipping JSON creation' % defconfig
+        elif target is not None and target != device_type:
+            print '%s device type has been omitted. Skipping JSON creation.' % device_type
         else:
             for template in device_templates:
                 job_name = tree + '-' + kernel_version + '-' + defconfig[:100] + '-' + platform_name
@@ -144,10 +146,10 @@ def create_jobs(base_url, kernel, platform_list):
                 print 'JSON Job created: jobs/%s' % job_name
 
 
-def walk_url(url, arch=None):
+def walk_url(url, arch=None, target=None):
     global base_url
     global kernel
-    global device_list
+    global platform_list
 
     try:
         html = urllib2.urlopen(url).read()
@@ -165,50 +167,50 @@ def walk_url(url, arch=None):
             if 'bzImage' in name and 'x86' in url:
                 kernel = url + name
                 base_url = url
-                device_list.append(url + 'x86')
-                device_list.append(url + 'x86-kvm')
+                platform_list.append(url + 'x86')
+                platform_list.append(url + 'x86-kvm')
             if 'zImage' in name and 'arm' in url:
                 kernel = url + name
                 base_url = url
             if 'Image' in name and 'arm64' in url:
                 kernel = url + name
                 base_url = url
-                device_list.append(url + 'qemu-aarch64')
+                platform_list.append(url + 'qemu-aarch64')
             if name.endswith('.dtb') and name in device_map:
-                device_list.append(url + name)
+                platform_list.append(url + name)
         elif arch == 'x86':
             if 'bzImage' in name and 'x86' in url:
                 kernel = url + name
                 base_url = url
-                device_list.append(url + 'x86')
-                device_list.append(url + 'x86-kvm')
+                platform_list.append(url + 'x86')
+                platform_list.append(url + 'x86-kvm')
         elif arch == 'arm':
             if 'zImage' in name and 'arm' in url:
                 kernel = url + name
                 base_url = url
             if name.endswith('.dtb') and name in device_map:
-                device_list.append(url + name)
+                platform_list.append(url + name)
         elif arch == 'arm64':
             if 'Image' in name and 'arm64' in url:
                 kernel = url + name
                 base_url = url
-                device_list.append(url + 'qemu-aarch64')
+                platform_list.append(url + 'qemu-aarch64')
 
-    if kernel is not None and base_url is not None and device_list:
+    if kernel is not None and base_url is not None and platform_list:
         print 'Found boot artifacts at: %s' % base_url
-        create_jobs(base_url, kernel, device_list)
+        create_jobs(base_url, kernel, platform_list, target)
         base_url = None
         kernel = None
-        device_list = []
+        platform_list = []
 
     for dir in dirs:
-        walk_url(url + dir, arch)
+        walk_url(url + dir, arch, target)
 
 
 def main(args):
     setup_job_dir(os.getcwd() + '/jobs')
     print 'Scanning %s for boot information...' % args.url
-    walk_url(args.url, args.arch)
+    walk_url(args.url, args.arch, args.target)
     print 'Done scanning for boot information'
     print 'Done creating JSON jobs'
     exit(0)
@@ -217,5 +219,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("url", help="url to build artifacts")
     parser.add_argument("--arch", help="specific architecture to create jobs for")
+    parser.add_argument("--target", help="specific target to create jobs for")
     args = parser.parse_args()
     main(args)
