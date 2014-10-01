@@ -53,6 +53,12 @@ imx6q_wandboard = {'device_type': 'imx6q-wandboard',
                    'lpae': False,
                    'be': False}
 
+snowball = {'device_type': 'snowball',
+            'templates': ['generic-arm-kernel-ci-boot-template.json'],
+            'defconfig_blacklist': [],
+            'lpae': False,
+            'be': False}
+
 qemu_aarch64 = {'device_type': 'qemu-aarch64',
                 'templates': ['generic-arm64-kernel-ci-boot-template.json'],
                 'defconfig_blacklist': ['arm64-allnoconfig',
@@ -83,6 +89,7 @@ device_map = {'exynos5250-arndale.dtb': arndale,
               'omap4-panda-es.dtb': panda_es,
               'sun7i-a20-cubietruck.dtb': cubieboard3,
               'imx6q-wandboard.dtb': imx6q_wandboard,
+              'ste-snowball.dtb': snowball,
               'qemu-aarch64': qemu_aarch64,
               'x86': x86,
               'x86-kvm': x86_kvm}
