@@ -15,13 +15,21 @@
 
 """Tasks that should be run via Celery."""
 
+from __future__ import absolute_import
+
+from celery import group
+
 from taskqueue.celery import app
 from utils.bootimport import import_and_save_boot
 from utils.docimport import import_and_save_job
 from utils.subscription import send
+from utils.batch.common import (
+    execute_batch_operation,
+)
+from utils import LOG
 
 
-@app.task(name='send-emails')
+@app.task(name='send-emails', ignore_result=True)
 def send_emails(job_id):
     """Just a wrapper around the real `send` function.
 
@@ -33,7 +41,7 @@ def send_emails(job_id):
 
 
 @app.task(name='import-job')
-def import_job(json_obj):
+def import_job(json_obj, ignore_result=True):
     """Just a wrapper around the real import function.
 
     This is used to provide a Celery-task access to the import function.
@@ -41,10 +49,10 @@ def import_job(json_obj):
     :param json_obj: The JSON object with the values necessary to import the
         job.
     """
-    return import_and_save_job(json_obj)
+    import_and_save_job(json_obj)
 
 
-@app.task(name='import-boot')
+@app.task(name='import-boot', ignore_result=True)
 def import_boot(json_obj):
     """Just a wrapper around the real boot import function.
 
@@ -54,3 +62,33 @@ def import_boot(json_obj):
         boot report.
     """
     import_and_save_boot(json_obj)
+
+
+@app.task(name='batch-executor')
+def execute_batch(json_obj):
+    """Run batch operations based on the passed JSON object.
+
+    :param json_obj: The JSON object with the operations to perform.
+    :type json_obj: dict
+    :return The result of the batch operations.
+    """
+    return execute_batch_operation(json_obj)
+
+
+def run_batch_group(batch_op_list):
+    """Execute a list of batch operations.
+
+    :param batch_op_list: List of JSON object used to build the batch
+    operation.
+    :type batch_op_list: list
+    """
+    job = group(
+        [
+            execute_batch.s(batch_op)
+            for batch_op in batch_op_list
+        ]
+    )
+    result = job.apply_async()
+    while not result.ready():
+        pass
+    return result.get()

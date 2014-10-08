@@ -56,6 +56,23 @@ COLLECTIONS = {
     'job': JOB_COLLECTION,
 }
 
+# This is a list of all the valid fields in the available models.
+VALID_KEYS = {
+    'GET': [
+        ARCHITECTURE_KEY,
+        BOARD_KEY,
+        CREATED_KEY,
+        DEFCONFIG_KEY,
+        ERRORS_KEY,
+        JOB_ID_KEY,
+        JOB_KEY,
+        KERNEL_KEY,
+        PRIVATE_KEY,
+        STATUS_KEY,
+        TIME_KEY,
+        WARNINGS_KEY,
+    ],
+}
 
 # Internally used only. It is used to retrieve just one field for
 # the query results since we only need to count the results, we are
@@ -70,31 +87,18 @@ class CountHandler(BaseHandler):
         super(CountHandler, self).__init__(application, request, **kwargs)
 
     def _valid_keys(self, method):
-        valid_keys = {
-            # This is a set of all the valid fields in the available models.
-            'GET': [
-                ARCHITECTURE_KEY,
-                BOARD_KEY,
-                CREATED_KEY,
-                DEFCONFIG_KEY,
-                ERRORS_KEY,
-                JOB_ID_KEY,
-                JOB_KEY,
-                KERNEL_KEY,
-                PRIVATE_KEY,
-                STATUS_KEY,
-                TIME_KEY,
-                WARNINGS_KEY,
-            ],
-        }
-
-        return valid_keys.get(method, None)
+        return VALID_KEYS.get(method, None)
 
     def _get_one(self, collection):
         response = HandlerResponse()
 
         if collection in COLLECTIONS.keys():
-            response.result = self._count_one_collection(collection)
+            response.result = count_one_collection(
+                self.db[COLLECTIONS[collection]],
+                collection,
+                self.get_query_arguments,
+                self._valid_keys("GET")
+            )
         else:
             response.status_code = 404
             response.reason = "Collection %s not found" % collection
@@ -104,68 +108,13 @@ class CountHandler(BaseHandler):
 
     def _get(self, **kwargs):
         response = HandlerResponse()
-        response.result = self._count_all_collections()
+        response.result = count_all_collections(
+            self.db,
+            self.get_query_arguments,
+            self._valid_keys("GET")
+        )
 
         return response
-
-    def _count_one_collection(self, collection):
-        """Count all the available documents in the provide collection.
-
-        :param collection: The collection whose elements should be counted.
-        :return A dictionary with the `result` field that contains a dictionary
-            with the fields `collection` and `count`.
-        """
-        result = []
-        query_args_func = self.get_query_arguments
-
-        spec = get_query_spec(query_args_func, self._valid_keys("GET"))
-        spec = get_and_add_date_range(spec, query_args_func)
-
-        if spec:
-            _, number = find_and_count(
-                self.db[COLLECTIONS[collection]], 0, 0, spec, COUNT_FIELDS
-            )
-            if not number:
-                number = 0
-
-            result.append(
-                dict(collection=collection, count=number, fields=spec)
-            )
-        else:
-            result.append(
-                dict(
-                    collection=collection,
-                    count=count(self.db[COLLECTIONS[collection]])
-                )
-            )
-
-        return result
-
-    def _count_all_collections(self):
-        """Count all the available documents in the database collections.
-
-        :return A dictionary with the `result` field that contains a list of
-            dictionaries with the fields `collection` and `count`.
-        """
-        result = []
-        query_args_func = self.get_query_arguments
-
-        spec = get_query_spec(query_args_func, self._valid_keys("GET"))
-        spec = get_and_add_date_range(spec, query_args_func)
-
-        if spec:
-            for key, val in COLLECTIONS.iteritems():
-                _, number = find_and_count(
-                    self.db[val], 0, 0, spec, COUNT_FIELDS
-                )
-                if not number:
-                    number = 0
-                result.append(dict(collection=key, count=number))
-        else:
-            for key, val in COLLECTIONS.iteritems():
-                result.append(dict(collection=key, count=count(self.db[val])))
-
-        return result
 
     @asynchronous
     def post(self, *args, **kwargs):
@@ -176,3 +125,77 @@ class CountHandler(BaseHandler):
     def delete(self, *args, **kwargs):
         """Not implemented."""
         self.write_error(status_code=501)
+
+
+def count_one_collection(
+        collection, collection_name, query_args_func, valid_keys):
+    """Count all the available documents in the provide collection.
+
+    :param collection: The collection whose elements should be counted.
+    :param collection_name: The name of the collection to count.
+    :type collection_name: str
+    :param query_args_func: A function used to return a list of the query
+    arguments.
+    :type query_args_func: function
+    :param valid_keys: A list containing the valid keys that should be
+    retrieved.
+    :type valid_keys: list
+    :return A list containing a dictionary with the `collection`, `count` and
+    optionally the `fields` fields.
+    """
+    result = []
+    spec = get_query_spec(query_args_func, valid_keys)
+    spec = get_and_add_date_range(spec, query_args_func)
+
+    if spec:
+        _, number = find_and_count(
+            collection, 0, 0, spec, COUNT_FIELDS
+        )
+        if not number:
+            number = 0
+
+        result.append(
+            dict(collection=collection_name, count=number, fields=spec)
+        )
+    else:
+        result.append(
+            dict(
+                collection=collection_name,
+                count=count(collection)
+            )
+        )
+
+    return result
+
+
+def count_all_collections(database, query_args_func, valid_keys):
+    """Count all the available documents in the database collections.
+
+    :param database: The datase connection to use.
+    :param query_args_func: A function used to return a list of the query
+    arguments.
+    :type query_args_func: function
+    :param valid_keys: A list containing the valid keys that should be
+    retrieved.
+    :type valid_keys: list
+    :return A list containing a dictionary with the `collection` and `count`
+    fields.
+    """
+    result = []
+
+    spec = get_query_spec(query_args_func, valid_keys)
+    spec = get_and_add_date_range(spec, query_args_func)
+
+    if spec:
+        for key, val in COLLECTIONS.iteritems():
+            _, number = find_and_count(
+                database[val], 0, 0, spec, COUNT_FIELDS
+            )
+            if not number:
+                number = 0
+            result.append(dict(collection=key, count=number))
+    else:
+        for key, val in COLLECTIONS.iteritems():
+            result.append(dict(collection=key, count=count(database[val])))
+
+    return result

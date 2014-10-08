@@ -105,6 +105,23 @@ class TestCountHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
         self.assertEqual(response.body, expected_body)
 
+    def test_get_count_all_with_query(self):
+        expected_body = (
+            '{"code": 200, "result": [{"count": 0, "collection": "job"}, '
+            '{"count": 0, "collection": "boot"}, '
+            '{"count": 0, "collection": "defconfig"}]}'
+        )
+
+        headers = {'Authorization': 'foo'}
+        response = self.fetch(
+            '/api/count?board=foo&status=FAIL', headers=headers
+        )
+
+        self.assertEqual(response.code, 200)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+        self.assertEqual(response.body, expected_body)
+
     def test_get_count_collection(self):
         expected_body = (
             '{"code": 200, "result": [{"count": 0, "collection": "boot"}]}'

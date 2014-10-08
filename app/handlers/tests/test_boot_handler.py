@@ -11,16 +11,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Test module for the JobHandler handler."""
+"""Test module for the BootHandler handler."""
 
-import json
 import mongomock
 
 from concurrent.futures import ThreadPoolExecutor
-from mock import (
-    MagicMock,
-    patch,
-)
+from mock import patch
 from tornado import (
     ioloop,
     testing,

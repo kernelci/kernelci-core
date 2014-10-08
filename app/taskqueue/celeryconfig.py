@@ -16,8 +16,13 @@
 """Celery configuration values."""
 
 BROKER_URL = 'redis://localhost'
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
 CELERY_ACCEPT_CONTENT = ['json']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'
 CELERY_ENABLE_UTC = True
-CELERY_IGNORE_RESULT = True
+CELERY_DISABLE_RATE_LIMITS = True
+CELERY_RESULT_BACKEND = 'mongodb://localhost'
+CELERY_MONGODB_BACKEND_SETTINGS = {
+    'database': 'celery-kernelci',
+    'taskmeta_collection': 'celery-results'
+}

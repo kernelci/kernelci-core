@@ -47,6 +47,25 @@ DEFAULT_DATE_RANGE = 15
 LOG = get_log()
 
 
+def get_all_query_values(query_args_func, valid_keys):
+    """Handy function to get all query args in a batch.
+
+    :param query_args_func: A function used to return a list of the query
+    arguments.
+    :type query_args_func: function
+    :param valid_keys: A list containing the valid keys that should be
+    retrieved.
+    :type valid_keys: list
+    """
+    spec = get_query_spec(query_args_func, valid_keys)
+    sort = get_query_sort(query_args_func)
+    fields = get_query_fields(query_args_func)
+    skip, limit = get_skip_and_limit(query_args_func)
+    unique = get_aggregate_value(query_args_func)
+
+    return (spec, sort, fields, skip, limit, unique)
+
+
 def get_aggregate_value(query_args_func):
     """Get teh value of the aggregate key.
 
@@ -83,7 +102,7 @@ def get_query_spec(query_args_func, valid_keys):
             k: v for k, v in [
                 (key, val)
                 for key in valid_keys
-                for val in query_args_func(key)
+                for val in (query_args_func(key) or [])
                 if val is not None
             ]
         }
@@ -158,9 +177,7 @@ def get_query_fields(query_args_func):
     :return A `fields` data structure (list or dictionary).
     """
     fields = None
-
-    y_fields = query_args_func(FIELD_KEY)
-    n_fields = query_args_func(NOT_FIELD_KEY)
+    y_fields, n_fields = map(query_args_func, [FIELD_KEY, NOT_FIELD_KEY])
 
     if y_fields and not n_fields:
         fields = list(set(y_fields))
@@ -182,11 +199,10 @@ def get_query_sort(query_args_func):
     :param query_args_func: A function used to return a list of query
     arguments.
     :type query_args_func: function
-    :return A `sort` data structure.
+    :return A `sort` data structure, or None.
     """
     sort = None
-    sort_fields = query_args_func(SORT_KEY)
-    sort_order = query_args_func(SORT_ORDER_KEY)
+    sort_fields, sort_order = map(query_args_func, [SORT_KEY, SORT_ORDER_KEY])
 
     if sort_fields:
         if all([sort_order, isinstance(sort_order, types.ListType)]):
@@ -218,17 +234,14 @@ def get_skip_and_limit(query_args_func):
     :type query_args_func: function
     :return A tuple with the `skip` and `limit` arguments.
     """
-    skip = 0
-    limit = 0
+    skip, limit = map(query_args_func, [SKIP_KEY, LIMIT_KEY])
 
-    skip = query_args_func(SKIP_KEY)
     if all([skip, isinstance(skip, types.ListType)]):
         skip = int(skip[-1])
     else:
         skip = 0
 
-    limit = query_args_func(LIMIT_KEY)
-    if limit and isinstance(limit, types.ListType):
+    if all([limit, isinstance(limit, types.ListType)]):
         limit = int(limit[-1])
     else:
         limit = 0

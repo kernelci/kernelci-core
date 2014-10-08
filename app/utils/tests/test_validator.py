@@ -16,7 +16,10 @@
 import json
 import unittest
 
-from utils.validator import is_valid_json
+from utils.validator import (
+    is_valid_json,
+    is_valid_batch_json,
+)
 
 
 class TestValidator(unittest.TestCase):
@@ -51,4 +54,53 @@ class TestValidator(unittest.TestCase):
 
         self.assertFalse(
             is_valid_json(json.loads(json_string), accepted_keys)
+        )
+
+
+class TestBatchValidator(unittest.TestCase):
+
+    def test_is_valid_batch_json_empty(self):
+        json_string = '{}'
+        batch_key = 'batch'
+        accepted_keys = ()
+
+        self.assertFalse(
+            is_valid_batch_json(
+                json.loads(json_string), batch_key, accepted_keys
+            )
+        )
+
+    def test_valid_batch_simple_from_obj(self):
+        batch_key = 'batch'
+        accepted_keys = ("method", "operation_id", "collection", "query")
+
+        json_obj = {
+            "batch": [
+                {
+                    "method": "GET",
+                    "operation_id": "foo",
+                    "collection": "bar",
+                    "query": "fuz"
+                },
+                {
+                    "method": "GET",
+                    "collection": "baz",
+                }
+            ]
+        }
+
+        self.assertTrue(
+            is_valid_batch_json(json_obj, batch_key, accepted_keys)
+        )
+
+    def test_valid_batch_json_from_string(self):
+        batch_key = 'batch'
+        accepted_keys = ("method", "operation_id", "collection", "query")
+
+        json_str = (
+            '{"batch": [{"method": "GET"}, {"method": "GET"}]}'
+        )
+
+        self.assertTrue(
+            is_valid_batch_json(json.loads(json_str), batch_key, accepted_keys)
         )

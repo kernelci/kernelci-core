@@ -33,10 +33,12 @@ from mock import patch
 from handlers.common import (
     calculate_date_range,
     get_aggregate_value,
+    get_all_query_values,
     get_query_fields,
     get_query_sort,
     get_query_spec,
     get_skip_and_limit,
+    get_and_add_date_range,
 )
 
 
@@ -321,3 +323,40 @@ class TestHandlersCommon(unittest.TestCase):
             return args.get(key, [])
 
             self.assertEqual((2, 30), get_skip_and_limit(query_args_func))
+
+    def test_get_all_query_values(self):
+        def query_args_func(key):
+            args = {
+                "skip": [10, 20, 30],
+                "sort": ["job"],
+            }
+            return args.get(key, [])
+
+        valid_keys = []
+
+        return_value = get_all_query_values(query_args_func, valid_keys)
+        self.assertEqual(len(return_value), 6)
+
+    def test_get_and_add_date_range(self):
+        def query_args_func(key):
+            args = {
+                "date_range": 1,
+            }
+            return args.get(key, [])
+
+        spec = {}
+        self.mock_date.today.return_value = date(2013, 3, 14)
+
+        expected = {
+            'created_on': {
+                '$gte': datetime(
+                    2013, 3, 13, 0, 0, tzinfo=tz_util.utc
+                ),
+                '$lt': datetime(
+                    2013, 3, 14, 23, 59, 59, tzinfo=tz_util.utc
+                )
+            }
+        }
+
+        spec = get_and_add_date_range(spec, query_args_func)
+        self.assertEqual(expected, spec)

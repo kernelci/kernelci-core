@@ -20,6 +20,7 @@ import unittest
 
 def test_modules():
     return [
+        'handlers.tests.test_batch_handler',
         'handlers.tests.test_boot_handler',
         'handlers.tests.test_count_handler',
         'handlers.tests.test_defconf_handler',
@@ -31,6 +32,7 @@ def test_modules():
         'models.tests.test_boot_model',
         'models.tests.test_models',
         'models.tests.test_token_model',
+        'utils.batch.tests.test_batch_common',
         'utils.tests.test_bootimport',
         'utils.tests.test_docimport',
         'utils.tests.test_meta_parser',
