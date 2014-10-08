@@ -51,7 +51,9 @@ class KernelCiBackend(Application):
     Where everything starts.
     """
 
-    mongodb_client = pymongo.MongoClient()
+    # TODO: handle mongodb configuration.
+    # XXX: mongodb config needs to be passed also to other modules.
+    mongodb_client = pymongo.MongoClient(max_pool_size=250)
 
     def __init__(self):
 
