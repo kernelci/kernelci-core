@@ -55,6 +55,7 @@ METADATA_KEY = 'metadata'
 NOT_FIELD_KEY = 'nfield'
 PRIVATE_KEY = 'private'
 PROPERTIES_KEY = 'properties'
+RESULT_KEY = "result"
 SKIP_KEY = 'skip'
 SORT_KEY = 'sort'
 SORT_ORDER_KEY = 'sort_order'
@@ -86,3 +87,11 @@ BUILD_META_FILE = 'build.meta'
 BUILD_META_JSON_FILE = 'build.json'
 BUILD_FAIL_FILE = 'build.FAIL'
 BUILD_PASS_FILE = 'build.PASS'
+
+# Batch operation related keys.
+BATCH_KEY = "batch"
+METHOD_KEY = "method"
+COLLECTION_KEY = "collection"
+DOCUMENT_ID_KEY = "document_id"
+QUERY_KEY = "query"
+OP_ID_KEY = "operation_id"
