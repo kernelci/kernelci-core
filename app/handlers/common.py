@@ -125,8 +125,6 @@ def get_and_add_date_range(spec, query_args_func):
     """
     date_range = query_args_func(DATE_RANGE_KEY)
     if date_range:
-        if isinstance(date_range, types.ListType):
-            date_range = date_range[-1]
         # Today needs to be set at the end of the day!
         today = datetime.combine(
             date.today(), time(23, 59, 59, tzinfo=tz_util.utc)
@@ -149,6 +147,9 @@ def calculate_date_range(date_range):
     subtraction of `datetime.date.today()` and
     `datetime.timedelta(days=date_range)`.
     """
+    if isinstance(date_range, types.ListType):
+        date_range = date_range[-1]
+
     if isinstance(date_range, types.StringTypes):
         date_range = int(date_range)
 
