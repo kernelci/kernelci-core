@@ -165,6 +165,12 @@ class BaseHandler(RequestHandler):
             if self.request.headers['Content-Type'] == \
                     self.accepted_content_type:
                 valid_content = True
+            else:
+                self.log.error(
+                    "Received wrong content type ('%s') from IP '%s'",
+                    self.request.headers['Content-Type'],
+                    self.request.remote_ip
+                )
 
         return valid_content
 
