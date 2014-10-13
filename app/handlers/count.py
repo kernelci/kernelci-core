@@ -155,7 +155,7 @@ def count_one_collection(
             number = 0
 
         result.append(
-            dict(collection=collection_name, count=number, fields=spec)
+            dict(collection=collection_name, count=number)
         )
     else:
         result.append(
