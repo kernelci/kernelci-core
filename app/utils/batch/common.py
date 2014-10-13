@@ -94,7 +94,7 @@ def get_batch_query_args(query):
     :param query: The query string to analyze.
     :type query: string
     :return A dictionary with keys the keys from the query, and values the
-    values stored in a set.
+    values stored in a list.
     """
     args = {}
 
@@ -110,8 +110,9 @@ def get_batch_query_args(query):
                 # key=value.
                 if len(arg) > 1:
                     if args.get(arg[0], None):
-                        args[arg[0]].add(arg[1])
+                        args[arg[0]].append(arg[1])
                     else:
-                        args[arg[0]] = set([arg[1]])
+                        args[arg[0]] = list([arg[1]])
+                    args[arg[0]] = list(set(args[arg[0]]))
 
     return args

@@ -35,7 +35,7 @@ class TestBatch(unittest.TestCase):
 
     def test_get_batch_query_base_case(self):
         query = "?foo=bar"
-        expected = {"foo": set(["bar"])}
+        expected = {"foo": ["bar"]}
 
         self.assertEqual(expected, get_batch_query_args(query))
 
@@ -46,25 +46,25 @@ class TestBatch(unittest.TestCase):
 
     def test_get_batch_query_base_case_wrong_and_correct(self):
         query = "?foo&bar=foo"
-        expected = {"bar": set(["foo"])}
+        expected = {"bar": ["foo"]}
 
         self.assertEqual(expected, get_batch_query_args(query))
 
     def test_get_batch_query_simple_with_question(self):
         query = "?foo=bar&bar=foo"
-        expected = {"bar": set(["foo"]), "foo": set(["bar"])}
+        expected = {"bar": ["foo"], "foo": ["bar"]}
 
         self.assertEqual(expected, get_batch_query_args(query))
 
     def test_get_batch_query_simple_no_question(self):
         query = "foo=bar&bar=foo"
-        expected = {"bar": set(["foo"]), "foo": set(["bar"])}
+        expected = {"bar": ["foo"], "foo": ["bar"]}
 
         self.assertEqual(expected, get_batch_query_args(query))
 
     def test_get_batch_query_multiple_values(self):
         query = "bar=foo&foo=bar&bar=foo&foo=baz&bar=foo"
-        expected = {"bar": set(["foo"]), "foo": set(["bar", "baz"])}
+        expected = {"foo": ["baz", "bar"], "bar": ["foo"]}
 
         self.assertEqual(expected, get_batch_query_args(query))
 
