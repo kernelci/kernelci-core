@@ -96,14 +96,37 @@ def get_query_spec(query_args_func, valid_keys):
     :type valid_keys: list
     :return A `spec` data structure (dictionary).
     """
+    def _get_spec_values():
+        """Get the values for the spec data structure.
+
+        Internally used only, with some logic to differentiate between single
+        and multiple values. Makes sure also that the list of values if valid,
+        meaning that we do not have None or empty values.
+
+        :return A tuple with the key and its value.
+        """
+        for key in valid_keys:
+            val = query_args_func(key) or []
+            if val:
+                # Go through the values and make sure we have valid ones.
+                val = [v for v in val if v]
+                len_val = len(val)
+
+                if len_val == 1:
+                    val = val[0]
+                elif len_val > 1:
+                    # More than one value, make sure we look for all of them.
+                    val = {'$in': val}
+
+            yield key, val
+
     spec = {}
     if all([valid_keys and isinstance(valid_keys, types.ListType)]):
         spec = {
             k: v for k, v in [
                 (key, val)
-                for key in valid_keys
-                for val in (query_args_func(key) or [])
-                if val is not None
+                for key, val in _get_spec_values()
+                if val
             ]
         }
 

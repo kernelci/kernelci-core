@@ -151,7 +151,7 @@ class TestHandlersCommon(unittest.TestCase):
             }
             return args.get(key, [])
 
-        expected = {"a": 2, "b": 3}
+        expected = {"a": {"$in": [1, 2]}, "b": 3}
         self.assertEqual(expected, get_query_spec(query_args_func, valid_keys))
 
     def test_get_query_spec_raises(self):
