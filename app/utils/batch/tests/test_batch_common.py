@@ -17,7 +17,10 @@ import unittest
 from mock import patch
 
 from utils.batch.batch_op import (
+    BatchBootOperation,
     BatchCountOperation,
+    BatchDefconfigOperation,
+    BatchJobOperation,
     BatchOperation,
 )
 from utils.batch.common import (
@@ -107,3 +110,36 @@ class TestBatch(unittest.TestCase):
 
         op = create_batch_operation(json_obj)
         self.assertIsNone(op)
+
+    @patch('pymongo.MongoClient')
+    def test_create_batch_boot_op(self, mocked_mongocl):
+        json_obj = {
+            "collection": "boot",
+            "query": "status=PASS&job=foo",
+            "operation_id": "foo"
+        }
+
+        op = create_batch_operation(json_obj)
+        self.assertIsInstance(op, BatchBootOperation)
+
+    @patch('pymongo.MongoClient')
+    def test_create_batch_job_op(self, mocked_mongocl):
+        json_obj = {
+            "collection": "job",
+            "query": "status=PASS&job=foo",
+            "operation_id": "foo"
+        }
+
+        op = create_batch_operation(json_obj)
+        self.assertIsInstance(op, BatchJobOperation)
+
+    @patch('pymongo.MongoClient')
+    def test_create_batch_defconfig_op(self, mocked_mongocl):
+        json_obj = {
+            "collection": "defconfig",
+            "query": "status=PASS&job=foo",
+            "operation_id": "foo"
+        }
+
+        op = create_batch_operation(json_obj)
+        self.assertIsInstance(op, BatchDefconfigOperation)

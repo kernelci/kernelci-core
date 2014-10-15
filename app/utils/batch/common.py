@@ -17,14 +17,21 @@ from types import (
 )
 
 from models import (
+    BOOT_COLLECTION,
     COLLECTION_KEY,
+    COUNT_COLLECTION,
+    DEFCONFIG_COLLECTION,
     DOCUMENT_ID_KEY,
+    JOB_COLLECTION,
     METHOD_KEY,
     OP_ID_KEY,
     QUERY_KEY,
 )
 from utils.batch.batch_op import (
+    BatchBootOperation,
     BatchCountOperation,
+    BatchDefconfigOperation,
+    BatchJobOperation,
     BatchOperation,
 )
 
@@ -46,17 +53,24 @@ def create_batch_operation(json_obj):
         get_func = json_obj.get
         collection = get_func(COLLECTION_KEY, None)
         if collection:
-            if collection == "count":
-                batch_op = BatchCountOperation(collection)
+            operation_id = get_func(OP_ID_KEY, None)
+
+            if collection == COUNT_COLLECTION:
+                batch_op = BatchCountOperation(collection, operation_id)
+            elif collection == BOOT_COLLECTION:
+                batch_op = BatchBootOperation(collection, operation_id)
+            elif collection == JOB_COLLECTION:
+                batch_op = BatchJobOperation(collection, operation_id)
+            elif collection == DEFCONFIG_COLLECTION:
+                batch_op = BatchDefconfigOperation(collection, operation_id)
             else:
-                batch_op = BatchOperation(collection)
+                batch_op = BatchOperation(collection, operation_id)
 
             batch_op.query_args = get_batch_query_args(
                 get_func(QUERY_KEY, None)
             )
-            batch_op.query_args_func = batch_op.query_args.get
             batch_op.document_id = get_func(DOCUMENT_ID_KEY, None)
-            batch_op.operation_id = get_func(OP_ID_KEY, None)
+            batch_op.query_args_func = batch_op.query_args.get
             batch_op.method = get_func(METHOD_KEY, None)
 
     return batch_op

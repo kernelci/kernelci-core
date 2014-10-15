@@ -15,16 +15,34 @@
 
 import pymongo
 
+from bson.json_util import dumps
+
+from handlers.common import (
+    BOOT_VALID_KEYS,
+    COUNT_VALID_KEYS,
+    DEFCONFIG_VALID_KEYS,
+    JOB_VALID_KEYS,
+    get_all_query_values,
+    get_query_fields,
+)
 from handlers.count import (
-    VALID_KEYS as COUNT_VALID_KEYS,
     count_all_collections,
     count_one_collection,
 )
 from models import (
+    COUNT_KEY,
     DB_NAME,
     OP_ID_KEY,
     RESULT_KEY,
 )
+from utils import get_log
+from utils.db import (
+    aggregate,
+    find_and_count,
+    find_one,
+)
+
+LOG = get_log()
 
 
 class BatchOperation(object):
@@ -128,7 +146,48 @@ class BatchOperation(object):
 
     def _prepare_get_operation(self):
         """Prepare the necessary parameters for a GET operation."""
-        raise NotImplementedError
+        if self.document_id:
+            # Get only one document.
+            self.operation = find_one
+            self.args = [
+                self._database[self.collection],
+                self.document_id,
+            ]
+            self.kwargs = {
+                'fields': get_query_fields(self.query_args_func)
+            }
+        else:
+            # Get the spec and perform the query, can perform and aggregation
+            # as well.
+            spec, sort, fields, skip, limit, unique = get_all_query_values(
+                self.query_args_func, self.valid_keys.get(self.method)
+            )
+
+            if unique:
+                # Perform an aggregate
+                self.operation = aggregate
+                self.args = [
+                    self._database[self.collection],
+                    unique
+                ]
+                self.kwargs = {
+                    'sort': sort,
+                    'fields': fields,
+                    'match': spec,
+                    'limit': limit
+                }
+            else:
+                self.operation = find_and_count
+                self.args = [
+                    self._database[self.collection],
+                    limit,
+                    skip,
+                ]
+                self.kwargs = {
+                    'spec': spec,
+                    'fields': fields,
+                    'sort': sort
+                }
 
     def _prepare_post_operation(self):
         """Prepare the necessary parameters for a POST operation."""
@@ -147,7 +206,28 @@ class BatchOperation(object):
         response = {}
         if self._operation_id:
             response[OP_ID_KEY] = self._operation_id
-        response[RESULT_KEY] = result
+
+        # find_and_count returns 2 results: the mongodb cursor and the
+        # results count.
+        if isinstance(result, tuple):
+            # Doing like this otherwise the result returned will be a string
+            # and not a real JSON object (since we have to serialize it here).
+            count = result[1]
+            res = []
+
+            if count > 0:
+                res = [r for r in result[0]]
+
+            response[RESULT_KEY] = [
+                dumps(
+                    {
+                        RESULT_KEY: res,
+                        COUNT_KEY: count
+                    }
+                )
+            ]
+        else:
+            response[RESULT_KEY] = result
 
         return response
 
@@ -165,11 +245,32 @@ class BatchOperation(object):
         return self._prepare_response(result)
 
 
-class BatchCountOperation(BatchOperation):
-    """The batch operation to perform execute queries on the `count` collection.
+class BatchBootOperation(BatchOperation):
+    """A batch operation for the `boot` collection."""
 
-    This sublcass is used to execute special queries for the `count` collection.
-    """
+    def __init__(self, collection, operation_id=None):
+        super(BatchBootOperation, self).__init__(collection, operation_id)
+        self.valid_keys = BOOT_VALID_KEYS
+
+
+class BatchJobOperation(BatchOperation):
+    """A batch operation for the `job` collection."""
+
+    def __init__(self, collection, operation_id=None):
+        super(BatchJobOperation, self).__init__(collection, operation_id)
+        self.valid_keys = JOB_VALID_KEYS
+
+
+class BatchDefconfigOperation(BatchOperation):
+    """A batch operation for the `job` collection."""
+
+    def __init__(self, collection, operation_id=None):
+        super(BatchDefconfigOperation, self).__init__(collection, operation_id)
+        self.valid_keys = DEFCONFIG_VALID_KEYS
+
+
+class BatchCountOperation(BatchOperation):
+    """A batch operation for the `count` collection."""
 
     def __init__(self, collection, operation_id=None):
         super(BatchCountOperation, self).__init__(collection, operation_id)
