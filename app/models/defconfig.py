@@ -17,6 +17,7 @@
 
 from models import (
     ARCHITECTURE_KEY,
+    DEFCONFIG_COLLECTION,
     DEFCONFIG_KEY,
     DIRNAME_KEY,
     ERRORS_KEY,
@@ -28,8 +29,6 @@ from models import (
     WARNINGS_KEY,
 )
 from models.base import BaseDocument
-
-DEFCONFIG_COLLECTION = 'defconfig'
 
 
 class DefConfigDocument(BaseDocument):

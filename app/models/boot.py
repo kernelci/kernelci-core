@@ -17,6 +17,7 @@
 
 from models import (
     BOARD_KEY,
+    BOOT_COLLECTION,
     BOOT_LOG_HTML_KEY,
     BOOT_LOG_KEY,
     DEFCONFIG_KEY,
@@ -37,8 +38,6 @@ from models import (
 )
 from models.base import BaseDocument
 from models.job import JobDocument
-
-BOOT_COLLECTION = 'boot'
 
 
 class BootDocument(BaseDocument):

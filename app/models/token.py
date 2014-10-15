@@ -15,8 +15,6 @@
 
 """The API token model to store token in the DB."""
 
-TOKEN_COLLECTION = 'api-token'
-
 import json
 
 from bson import (
@@ -46,6 +44,7 @@ from models import (
     ID_KEY,
     IP_ADDRESS_KEY,
     PROPERTIES_KEY,
+    TOKEN_COLLECTION,
     TOKEN_KEY,
     USERNAME_KEY,
 )

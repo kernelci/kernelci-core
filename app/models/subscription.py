@@ -21,10 +21,11 @@ import types
 
 from bson import json_util
 
-from models import ID_KEY
+from models import (
+    ID_KEY,
+    SUBSCRIPTION_COLLECTION,
+)
 from models.base import BaseDocument
-
-SUBSCRIPTION_COLLECTION = 'subscription'
 
 
 class SubscriptionDocument(BaseDocument):

@@ -24,6 +24,7 @@ from models import (
     GIT_DESCRIBE_KEY,
     GIT_URL_KEY,
     ID_KEY,
+    JOB_COLLECTION,
     JOB_KEY,
     KERNEL_KEY,
     METADATA_KEY,
@@ -32,8 +33,6 @@ from models import (
     UPDATED_KEY,
 )
 from models.base import BaseDocument
-
-JOB_COLLECTION = 'job'
 
 
 class JobDocument(BaseDocument):
