@@ -19,7 +19,11 @@ import json
 
 from handlers.base import BaseHandler
 from handlers.response import HandlerResponse
-from models.subscription import SUBSCRIPTION_COLLECTION
+from handlers.common import SUBSCRIPTION_VALID_KEYS
+from models import (
+    EMAIL_KEY,
+    SUBSCRIPTION_COLLECTION,
+)
 from utils.subscription import (
     subscribe,
     unsubscribe,
@@ -41,13 +45,7 @@ class SubscriptionHandler(BaseHandler):
         return self.db[SUBSCRIPTION_COLLECTION]
 
     def _valid_keys(self, method):
-        valid_keys = {
-            'GET': ['job'],
-            'POST': ['job', 'email'],
-            'DELETE': ['email'],
-        }
-
-        return valid_keys.get(method, None)
+        return SUBSCRIPTION_VALID_KEYS.get(method, None)
 
     def _post(self, *args, **kwargs):
         response = HandlerResponse()
@@ -68,7 +66,7 @@ class SubscriptionHandler(BaseHandler):
 
                 if is_valid_json(json_obj, self._valid_keys('DELETE')):
                     response.status_code = unsubscribe(
-                        self.collection, doc_id, json_obj['email']
+                        self.collection, doc_id, json_obj[EMAIL_KEY]
                     )
                 else:
                     response.status_code = 400

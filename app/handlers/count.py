@@ -15,64 +15,21 @@
 
 """Handle the /count URLs used to count objects in the database."""
 
-from tornado.web import (
-    asynchronous,
-)
+from tornado.web import asynchronous
 
 from handlers.base import BaseHandler
 from handlers.common import (
+    COLLECTIONS,
+    COUNT_VALID_KEYS,
     get_and_add_date_range,
     get_query_spec,
 )
 from handlers.response import HandlerResponse
-from models import (
-    ARCHITECTURE_KEY,
-    BOARD_KEY,
-    CREATED_KEY,
-    DEFCONFIG_KEY,
-    ERRORS_KEY,
-    ID_KEY,
-    JOB_ID_KEY,
-    JOB_KEY,
-    KERNEL_KEY,
-    PRIVATE_KEY,
-    STATUS_KEY,
-    TIME_KEY,
-    WARNINGS_KEY,
-)
-from models.boot import BOOT_COLLECTION
-from models.defconfig import DEFCONFIG_COLLECTION
-from models.job import JOB_COLLECTION
+from models import ID_KEY
 from utils.db import (
     count,
     find_and_count,
 )
-
-# All the available collections as key-value. The key is the same used for the
-# URL configuration.
-COLLECTIONS = {
-    'boot': BOOT_COLLECTION,
-    'defconfig': DEFCONFIG_COLLECTION,
-    'job': JOB_COLLECTION,
-}
-
-# This is a list of all the valid fields in the available models.
-VALID_KEYS = {
-    'GET': [
-        ARCHITECTURE_KEY,
-        BOARD_KEY,
-        CREATED_KEY,
-        DEFCONFIG_KEY,
-        ERRORS_KEY,
-        JOB_ID_KEY,
-        JOB_KEY,
-        KERNEL_KEY,
-        PRIVATE_KEY,
-        STATUS_KEY,
-        TIME_KEY,
-        WARNINGS_KEY,
-    ],
-}
 
 # Internally used only. It is used to retrieve just one field for
 # the query results since we only need to count the results, we are
@@ -87,7 +44,7 @@ class CountHandler(BaseHandler):
         super(CountHandler, self).__init__(application, request, **kwargs)
 
     def _valid_keys(self, method):
-        return VALID_KEYS.get(method, None)
+        return COUNT_VALID_KEYS.get(method, None)
 
     def _get_one(self, collection):
         response = HandlerResponse()

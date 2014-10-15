@@ -18,19 +18,9 @@
 from tornado.web import asynchronous
 
 from handlers.base import BaseHandler
+from handlers.common import DEFCONFIG_VALID_KEYS
 from handlers.response import HandlerResponse
-from models import (
-    ARCHITECTURE_KEY,
-    CREATED_KEY,
-    DEFCONFIG_KEY,
-    ERRORS_KEY,
-    JOB_ID_KEY,
-    JOB_KEY,
-    KERNEL_KEY,
-    STATUS_KEY,
-    WARNINGS_KEY,
-)
-from models.defconfig import DEFCONFIG_COLLECTION
+from models import DEFCONFIG_COLLECTION
 from utils.db import delete
 
 
@@ -45,14 +35,7 @@ class DefConfHandler(BaseHandler):
         return self.db[DEFCONFIG_COLLECTION]
 
     def _valid_keys(self, method):
-        valid_keys = {
-            'GET': [
-                DEFCONFIG_KEY, WARNINGS_KEY, ERRORS_KEY, ARCHITECTURE_KEY,
-                JOB_KEY, KERNEL_KEY, STATUS_KEY, JOB_ID_KEY, CREATED_KEY,
-            ],
-        }
-
-        return valid_keys.get(method, None)
+        return DEFCONFIG_VALID_KEYS.get(method, None)
 
     @asynchronous
     def post(self, *args, **kwargs):

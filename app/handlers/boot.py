@@ -16,20 +16,12 @@
 """The RequestHandler for /boot URLs."""
 
 from handlers.base import BaseHandler
-from handlers.common import get_query_spec
-from handlers.response import HandlerResponse
-from models import (
-    BOARD_KEY,
-    CREATED_KEY,
-    DEFCONFIG_KEY,
-    JOB_ID_KEY,
-    JOB_KEY,
-    KERNEL_KEY,
-    STATUS_KEY,
-    TIME_KEY,
-    WARNINGS_KEY,
+from handlers.common import (
+    BOOT_VALID_KEYS,
+    get_query_spec,
 )
-from models.boot import BOOT_COLLECTION
+from handlers.response import HandlerResponse
+from models import BOOT_COLLECTION
 from taskqueue.tasks import import_boot
 from utils.db import (
     delete,
@@ -48,18 +40,7 @@ class BootHandler(BaseHandler):
         return self.db[BOOT_COLLECTION]
 
     def _valid_keys(self, method):
-        valid_keys = {
-            'POST': [JOB_KEY, KERNEL_KEY],
-            'GET': [
-                CREATED_KEY, WARNINGS_KEY, JOB_ID_KEY, BOARD_KEY,
-                JOB_KEY, KERNEL_KEY, DEFCONFIG_KEY, TIME_KEY, STATUS_KEY,
-            ],
-            'DELETE': [
-                JOB_KEY, KERNEL_KEY, DEFCONFIG_KEY, BOARD_KEY, JOB_ID_KEY
-            ]
-        }
-
-        return valid_keys.get(method, None)
+        return BOOT_VALID_KEYS.get(method, None)
 
     def _post(self, *args, **kwargs):
         response = HandlerResponse(202)

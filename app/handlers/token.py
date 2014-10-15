@@ -24,29 +24,27 @@ from tornado.web import (
 from urlparse import urlunparse
 
 from handlers.base import BaseHandler
-from handlers.common import get_query_fields
+from handlers.common import (
+    TOKEN_VALID_KEYS,
+    get_query_fields,
+)
 from handlers.decorators import protected_th
 from handlers.response import HandlerResponse
 from models import (
     ADMIN_KEY,
-    CREATED_KEY,
     DELETE_KEY,
     EMAIL_KEY,
-    EXPIRED_KEY,
     EXPIRES_KEY,
     GET_KEY,
     IP_ADDRESS_KEY,
     IP_RESTRICTED,
     POST_KEY,
-    PROPERTIES_KEY,
     SUPERUSER_KEY,
+    TOKEN_COLLECTION,
     TOKEN_KEY,
     USERNAME_KEY,
 )
-from models.token import (
-    TOKEN_COLLECTION,
-    Token,
-)
+from models.token import Token
 from utils.db import (
     delete,
     find_one,
@@ -66,32 +64,7 @@ class TokenHandler(BaseHandler):
         return self.db[TOKEN_COLLECTION]
 
     def _valid_keys(self, method):
-        valid_keys = {
-            'POST': [
-                ADMIN_KEY,
-                DELETE_KEY,
-                EMAIL_KEY,
-                EXPIRES_KEY,
-                GET_KEY,
-                IP_ADDRESS_KEY,
-                IP_RESTRICTED,
-                POST_KEY,
-                SUPERUSER_KEY,
-                USERNAME_KEY,
-            ],
-            'GET': [
-                CREATED_KEY,
-                EMAIL_KEY,
-                EXPIRED_KEY,
-                EXPIRES_KEY,
-                IP_ADDRESS_KEY,
-                PROPERTIES_KEY,
-                TOKEN_KEY,
-                USERNAME_KEY,
-            ],
-        }
-
-        return valid_keys.get(method, None)
+        return TOKEN_VALID_KEYS.get(method, None)
 
     @protected_th("GET")
     @asynchronous

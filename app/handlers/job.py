@@ -16,18 +16,14 @@
 """The RequestHandler for /job URLs."""
 
 from handlers.base import BaseHandler
+from handlers.common import JOB_VALID_KEYS
 from handlers.response import HandlerResponse
 from models import (
-    CREATED_KEY,
+    DEFCONFIG_COLLECTION,
+    JOB_COLLECTION,
     JOB_ID_KEY,
-    JOB_KEY,
-    KERNEL_KEY,
-    PRIVATE_KEY,
-    STATUS_KEY,
+    SUBSCRIPTION_COLLECTION,
 )
-from models.job import JOB_COLLECTION
-from models.defconfig import DEFCONFIG_COLLECTION
-from models.subscription import SUBSCRIPTION_COLLECTION
 from utils.db import (
     delete,
     find_one,
@@ -49,14 +45,7 @@ class JobHandler(BaseHandler):
         return self.db[JOB_COLLECTION]
 
     def _valid_keys(self, method):
-        valid_keys = {
-            'POST': [JOB_KEY, KERNEL_KEY],
-            'GET': [
-                JOB_KEY, KERNEL_KEY, STATUS_KEY, PRIVATE_KEY, CREATED_KEY,
-            ],
-        }
-
-        return valid_keys.get(method, None)
+        return JOB_VALID_KEYS.get(method, None)
 
     def _post(self, *args, **kwargs):
         response = HandlerResponse(202)
