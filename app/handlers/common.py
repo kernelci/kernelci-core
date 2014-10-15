@@ -29,14 +29,41 @@ from pymongo import (
 
 from models import (
     AGGREGATE_KEY,
+    ARCHITECTURE_KEY,
+    BOARD_KEY,
     CREATED_KEY,
     DATE_RANGE_KEY,
+    DEFCONFIG_KEY,
+    ERRORS_KEY,
     FIELD_KEY,
+    JOB_ID_KEY,
+    JOB_KEY,
+    KERNEL_KEY,
     LIMIT_KEY,
     NOT_FIELD_KEY,
+    PRIVATE_KEY,
     SKIP_KEY,
     SORT_KEY,
     SORT_ORDER_KEY,
+    STATUS_KEY,
+    TIME_KEY,
+    WARNINGS_KEY,
+    BOOT_COLLECTION,
+    DEFCONFIG_COLLECTION,
+    JOB_COLLECTION,
+    ADMIN_KEY,
+    DELETE_KEY,
+    EMAIL_KEY,
+    EXPIRES_KEY,
+    GET_KEY,
+    IP_ADDRESS_KEY,
+    IP_RESTRICTED,
+    POST_KEY,
+    SUPERUSER_KEY,
+    USERNAME_KEY,
+    PROPERTIES_KEY,
+    TOKEN_KEY,
+    EXPIRED_KEY,
 )
 from utils import get_log
 
@@ -45,6 +72,88 @@ from utils import get_log
 DEFAULT_DATE_RANGE = 15
 
 LOG = get_log()
+
+# All the available collections as key-value. The key is the same used for the
+# URL configuration.
+COLLECTIONS = {
+    'boot': BOOT_COLLECTION,
+    'defconfig': DEFCONFIG_COLLECTION,
+    'job': JOB_COLLECTION,
+}
+
+# Handlers valid keys.
+BOOT_VALID_KEYS = {
+    'POST': [JOB_KEY, KERNEL_KEY],
+    'GET': [
+        CREATED_KEY, WARNINGS_KEY, JOB_ID_KEY, BOARD_KEY,
+        JOB_KEY, KERNEL_KEY, DEFCONFIG_KEY, TIME_KEY, STATUS_KEY,
+    ],
+    'DELETE': [
+        JOB_KEY, KERNEL_KEY, DEFCONFIG_KEY, BOARD_KEY, JOB_ID_KEY
+    ]
+}
+
+COUNT_VALID_KEYS = {
+    'GET': [
+        ARCHITECTURE_KEY,
+        BOARD_KEY,
+        CREATED_KEY,
+        DEFCONFIG_KEY,
+        ERRORS_KEY,
+        JOB_ID_KEY,
+        JOB_KEY,
+        KERNEL_KEY,
+        PRIVATE_KEY,
+        STATUS_KEY,
+        TIME_KEY,
+        WARNINGS_KEY,
+    ],
+}
+
+DEFCONFIG_VALID_KEYS = {
+    'GET': [
+        DEFCONFIG_KEY, WARNINGS_KEY, ERRORS_KEY, ARCHITECTURE_KEY,
+        JOB_KEY, KERNEL_KEY, STATUS_KEY, JOB_ID_KEY, CREATED_KEY,
+    ],
+}
+
+TOKEN_VALID_KEYS = {
+    'POST': [
+        ADMIN_KEY,
+        DELETE_KEY,
+        EMAIL_KEY,
+        EXPIRES_KEY,
+        GET_KEY,
+        IP_ADDRESS_KEY,
+        IP_RESTRICTED,
+        POST_KEY,
+        SUPERUSER_KEY,
+        USERNAME_KEY,
+    ],
+    'GET': [
+        CREATED_KEY,
+        EMAIL_KEY,
+        EXPIRED_KEY,
+        EXPIRES_KEY,
+        IP_ADDRESS_KEY,
+        PROPERTIES_KEY,
+        TOKEN_KEY,
+        USERNAME_KEY,
+    ],
+}
+
+SUBSCRIPTION_VALID_KEYS = {
+    'GET': [JOB_KEY],
+    'POST': [JOB_KEY, EMAIL_KEY],
+    'DELETE': [EMAIL_KEY],
+}
+
+JOB_VALID_KEYS = {
+    'POST': [JOB_KEY, KERNEL_KEY],
+    'GET': [
+        JOB_KEY, KERNEL_KEY, STATUS_KEY, PRIVATE_KEY, CREATED_KEY,
+    ],
+}
 
 
 def get_all_query_values(query_args_func, valid_keys):
@@ -58,6 +167,8 @@ def get_all_query_values(query_args_func, valid_keys):
     :type valid_keys: list
     """
     spec = get_query_spec(query_args_func, valid_keys)
+    spec = get_and_add_date_range(spec, query_args_func)
+
     sort = get_query_sort(query_args_func)
     fields = get_query_fields(query_args_func)
     skip, limit = get_skip_and_limit(query_args_func)
