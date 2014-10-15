@@ -24,6 +24,7 @@ BOOT_LOG_HTML_KEY = 'boot_log_html'
 BOOT_LOG_KEY = 'boot_log'
 BUILD_RESULT_KEY = 'build_result'
 COMPILER_VERSION_KEY = 'compiler_version'
+COUNT_KEY = "count"
 CREATED_KEY = 'created_on'
 CROSS_COMPILE_KEY = 'cross_compile'
 DATE_RANGE_KEY = 'date_range'
@@ -95,3 +96,11 @@ COLLECTION_KEY = "collection"
 DOCUMENT_ID_KEY = "document_id"
 QUERY_KEY = "query"
 OP_ID_KEY = "operation_id"
+
+# Collection names.
+BOOT_COLLECTION = 'boot'
+COUNT_COLLECTION = "count"
+DEFCONFIG_COLLECTION = 'defconfig'
+JOB_COLLECTION = 'job'
+SUBSCRIPTION_COLLECTION = 'subscription'
+TOKEN_COLLECTION = 'api-token'
