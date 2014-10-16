@@ -74,7 +74,7 @@ from utils import get_log
 
 # Default value to calculate a date range in case the provided value is
 # out of range.
-DEFAULT_DATE_RANGE = 15
+DEFAULT_DATE_RANGE = 5
 
 LOG = get_log()
 
@@ -297,7 +297,11 @@ def calculate_date_range(date_range):
         date_range = date_range[-1]
 
     if isinstance(date_range, types.StringTypes):
-        date_range = int(date_range)
+        try:
+            date_range = int(date_range)
+        except ValueError:
+            LOG.error("Wrong value passed to date_range: %s", date_range)
+            date_range = DEFAULT_DATE_RANGE
 
     date_range = abs(date_range)
     if date_range > timedelta.max.days:

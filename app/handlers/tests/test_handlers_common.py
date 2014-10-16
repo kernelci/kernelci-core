@@ -104,10 +104,19 @@ class TestHandlersCommon(unittest.TestCase):
     def test_calculate_date_range_out_of_range(self):
         self.mock_date.today.return_value = date(2014, 1, 1)
 
-        expected = datetime.combine(date(2013, 12, 17), self.min_time)
+        expected = datetime.combine(date(2013, 12, 27), self.min_time)
         self.assertEqual(
             expected,
             calculate_date_range(timedelta.max.days + 10)
+        )
+
+    def test_calculate_date_range_wrong_type(self):
+        self.mock_date.today.return_value = date(2014, 1, 1)
+
+        expected = datetime.combine(date(2013, 12, 27), self.min_time)
+        self.assertEqual(
+            expected,
+            calculate_date_range("15foo$%^%&^%&")
         )
 
     def test_get_aggregate_value_empty(self):
