@@ -19,7 +19,7 @@ import httplib
 import json
 import tornado
 
-from bson.json_util import dumps
+from bson.json_util import default
 from functools import partial
 from tornado.web import (
     RequestHandler,
@@ -77,7 +77,8 @@ class BaseHandler(RequestHandler):
         """The logger of this object."""
         return get_log(debug=self.settings['debug'])
 
-    def _valid_keys(self, method):
+    @staticmethod
+    def _valid_keys(method):
         """The accepted keys for the valid sent content type.
 
         :param method: The HTTP method name that originated the request.
@@ -136,7 +137,7 @@ class BaseHandler(RequestHandler):
             status_code = response.status_code
             reason = response.reason or self._get_status_message(status_code)
             headers = response.headers
-            result = dumps(response.to_dict())
+            result = json.dumps(response.to_dict(), default=default)
         else:
             status_code = 506
             reason = self._get_status_message(status_code)
@@ -186,6 +187,10 @@ class BaseHandler(RequestHandler):
         )
 
     def execute_post(self, *args, **kwargs):
+        """Execute the POST pre-operations.
+
+        Checks that everything is OK to perform a POST.
+        """
         response = None
         valid_request = self._valid_post_request()
 
@@ -254,6 +259,10 @@ class BaseHandler(RequestHandler):
         )
 
     def execute_delete(self, *args, **kwargs):
+        """Perform DELETE pre-operations.
+
+        Check that the DELETE request is OK.
+        """
         response = None
 
         if kwargs and kwargs.get('id', None):
@@ -390,7 +399,7 @@ class BaseHandler(RequestHandler):
         fields = None
         skip = 0
         limit = 0
-        aggregate = None
+        unique = None
 
         if self.request.arguments:
             query_args_func = self.get_query_arguments
@@ -403,9 +412,9 @@ class BaseHandler(RequestHandler):
             sort = get_query_sort(query_args_func)
             fields = get_query_fields(query_args_func)
             skip, limit = get_skip_and_limit(query_args_func)
-            aggregate = get_aggregate_value(query_args_func)
+            unique = get_aggregate_value(query_args_func)
 
-        return (spec, sort, fields, skip, limit, aggregate)
+        return (spec, sort, fields, skip, limit, unique)
 
     def write_error(self, status_code, **kwargs):
         if kwargs.get('message', None):

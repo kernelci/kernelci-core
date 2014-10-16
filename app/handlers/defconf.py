@@ -34,7 +34,8 @@ class DefConfHandler(BaseHandler):
     def collection(self):
         return self.db[DEFCONFIG_COLLECTION]
 
-    def _valid_keys(self, method):
+    @staticmethod
+    def _valid_keys(method):
         return DEFCONFIG_VALID_KEYS.get(method, None)
 
     @asynchronous

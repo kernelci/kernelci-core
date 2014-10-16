@@ -39,7 +39,8 @@ class BootHandler(BaseHandler):
     def collection(self):
         return self.db[BOOT_COLLECTION]
 
-    def _valid_keys(self, method):
+    @staticmethod
+    def _valid_keys(method):
         return BOOT_VALID_KEYS.get(method, None)
 
     def _post(self, *args, **kwargs):

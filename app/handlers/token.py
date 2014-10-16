@@ -63,7 +63,8 @@ class TokenHandler(BaseHandler):
     def collection(self):
         return self.db[TOKEN_COLLECTION]
 
-    def _valid_keys(self, method):
+    @staticmethod
+    def _valid_keys(method):
         return TOKEN_VALID_KEYS.get(method, None)
 
     @protected_th("GET")

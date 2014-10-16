@@ -16,15 +16,9 @@
 from json import loads as j_load
 
 from handlers.base import BaseHandler
+from handlers.common import BATCH_VALID_KEYS
 from handlers.response import HandlerResponse
-from models import (
-    BATCH_KEY,
-    COLLECTION_KEY,
-    DOCUMENT_ID_KEY,
-    METHOD_KEY,
-    OP_ID_KEY,
-    QUERY_KEY,
-)
+from models import BATCH_KEY
 from taskqueue.tasks import run_batch_group
 from utils.validator import is_valid_batch_json
 
@@ -35,15 +29,9 @@ class BatchHandler(BaseHandler):
         super(BatchHandler, self).__init__(application, request, **kwargs)
         self._operations = []
 
-    def _valid_keys(self, method):
-        valid_keys = {
-            "POST": [
-                METHOD_KEY, COLLECTION_KEY, QUERY_KEY, OP_ID_KEY,
-                DOCUMENT_ID_KEY
-            ]
-        }
-
-        return valid_keys.get(method, None)
+    @staticmethod
+    def _valid_keys(method):
+        return BATCH_VALID_KEYS.get(method, None)
 
     def execute_get(self):
         return HandlerResponse(501)

@@ -43,7 +43,8 @@ class CountHandler(BaseHandler):
     def __init__(self, application, request, **kwargs):
         super(CountHandler, self).__init__(application, request, **kwargs)
 
-    def _valid_keys(self, method):
+    @staticmethod
+    def _valid_keys(method):
         return COUNT_VALID_KEYS.get(method, None)
 
     def _get_one(self, collection):

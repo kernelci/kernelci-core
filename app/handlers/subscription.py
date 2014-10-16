@@ -44,7 +44,8 @@ class SubscriptionHandler(BaseHandler):
     def collection(self):
         return self.db[SUBSCRIPTION_COLLECTION]
 
-    def _valid_keys(self, method):
+    @staticmethod
+    def _valid_keys(method):
         return SUBSCRIPTION_VALID_KEYS.get(method, None)
 
     def _post(self, *args, **kwargs):

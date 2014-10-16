@@ -44,7 +44,8 @@ class JobHandler(BaseHandler):
     def collection(self):
         return self.db[JOB_COLLECTION]
 
-    def _valid_keys(self, method):
+    @staticmethod
+    def _valid_keys(method):
         return JOB_VALID_KEYS.get(method, None)
 
     def _post(self, *args, **kwargs):
