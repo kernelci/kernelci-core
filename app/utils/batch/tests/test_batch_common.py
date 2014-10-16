@@ -143,3 +143,14 @@ class TestBatch(unittest.TestCase):
 
         op = create_batch_operation(json_obj)
         self.assertIsInstance(op, BatchDefconfigOperation)
+
+    @patch('pymongo.MongoClient')
+    def test_create_batch_fake_op(self, mocked_mongocl):
+        json_obj = {
+            "collection": "foo",
+            "query": "status=PASS&job=foo",
+            "operation_id": "foo"
+        }
+
+        op = create_batch_operation(json_obj)
+        self.assertIsInstance(op, BatchOperation)

@@ -13,8 +13,6 @@
 
 """Batch operation classes."""
 
-import pymongo
-
 from bson.json_util import dumps
 
 from handlers.common import (
@@ -31,7 +29,6 @@ from handlers.count import (
 )
 from models import (
     COUNT_KEY,
-    DB_NAME,
     OP_ID_KEY,
     RESULT_KEY,
 )
@@ -52,19 +49,17 @@ class BatchOperation(object):
     starting from this class.
     """
 
-    # TODO: need to pass database parameters.
-
-    def __init__(self, collection, operation_id=None):
+    def __init__(self, collection, database, operation_id=None):
         """Create a new `BatchOperation`.
 
         :param collection: The db collection where to perform the operation.
         :type collection: string
+        :param database: The mongodb database connection.
+        :type database: `pymongo.Database`
         :param operation_id: Optional name for this operation.
         :type operation_id: string
         """
-        # The database connection to perform operation on. Restrict the pool
-        # size since it is only used for one operation.
-        self._database = pymongo.MongoClient(max_pool_size=3)[DB_NAME]
+        self._database = database
         self._operation_id = operation_id
         self._collection = collection
         self._operation = None
@@ -75,20 +70,6 @@ class BatchOperation(object):
         self.document_id = None
         self.method = None
         self.query_args_func = None
-
-    @property
-    def collection(self):
-        """Get the name of the db collection."""
-        return self._collection
-
-    @collection.setter
-    def collection(self, value):
-        """Set the name of the db collection.
-
-        :param value: The name of the collection to set.
-        :type value: string
-        """
-        self._collection = value
 
     @property
     def operation(self):
@@ -150,7 +131,7 @@ class BatchOperation(object):
             # Get only one document.
             self.operation = find_one
             self.args = [
-                self._database[self.collection],
+                self._database[self._collection],
                 self.document_id,
             ]
             self.kwargs = {
@@ -167,7 +148,7 @@ class BatchOperation(object):
                 # Perform an aggregate
                 self.operation = aggregate
                 self.args = [
-                    self._database[self.collection],
+                    self._database[self._collection],
                     unique
                 ]
                 self.kwargs = {
@@ -179,7 +160,7 @@ class BatchOperation(object):
             else:
                 self.operation = find_and_count
                 self.args = [
-                    self._database[self.collection],
+                    self._database[self._collection],
                     limit,
                     skip,
                 ]
@@ -204,8 +185,8 @@ class BatchOperation(object):
         :return A dictionary
         """
         response = {}
-        if self._operation_id:
-            response[OP_ID_KEY] = self._operation_id
+        if self.operation_id:
+            response[OP_ID_KEY] = self.operation_id
 
         # find_and_count returns 2 results: the mongodb cursor and the
         # results count.
@@ -248,32 +229,40 @@ class BatchOperation(object):
 class BatchBootOperation(BatchOperation):
     """A batch operation for the `boot` collection."""
 
-    def __init__(self, collection, operation_id=None):
-        super(BatchBootOperation, self).__init__(collection, operation_id)
+    def __init__(self, collection, database, operation_id=None):
+        super(BatchBootOperation, self).__init__(
+            collection, database, operation_id
+        )
         self.valid_keys = BOOT_VALID_KEYS
 
 
 class BatchJobOperation(BatchOperation):
     """A batch operation for the `job` collection."""
 
-    def __init__(self, collection, operation_id=None):
-        super(BatchJobOperation, self).__init__(collection, operation_id)
+    def __init__(self, collection, database, operation_id=None):
+        super(BatchJobOperation, self).__init__(
+            collection, database, operation_id
+        )
         self.valid_keys = JOB_VALID_KEYS
 
 
 class BatchDefconfigOperation(BatchOperation):
     """A batch operation for the `job` collection."""
 
-    def __init__(self, collection, operation_id=None):
-        super(BatchDefconfigOperation, self).__init__(collection, operation_id)
+    def __init__(self, collection, database, operation_id=None):
+        super(BatchDefconfigOperation, self).__init__(
+            collection, database, operation_id
+        )
         self.valid_keys = DEFCONFIG_VALID_KEYS
 
 
 class BatchCountOperation(BatchOperation):
     """A batch operation for the `count` collection."""
 
-    def __init__(self, collection, operation_id=None):
-        super(BatchCountOperation, self).__init__(collection, operation_id)
+    def __init__(self, collection, database, operation_id=None):
+        super(BatchCountOperation, self).__init__(
+            collection, database, operation_id
+        )
         self.valid_keys = COUNT_VALID_KEYS
 
     def _prepare_get_operation(self):

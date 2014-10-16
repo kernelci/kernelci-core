@@ -11,6 +11,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import pymongo
+
 from types import (
     ListType,
     StringTypes,
@@ -20,6 +22,7 @@ from models import (
     BOOT_COLLECTION,
     COLLECTION_KEY,
     COUNT_COLLECTION,
+    DB_NAME,
     DEFCONFIG_COLLECTION,
     DOCUMENT_ID_KEY,
     JOB_COLLECTION,
@@ -27,6 +30,7 @@ from models import (
     OP_ID_KEY,
     QUERY_KEY,
 )
+from utils import get_log
 from utils.batch.batch_op import (
     BatchBootOperation,
     BatchCountOperation,
@@ -35,36 +39,59 @@ from utils.batch.batch_op import (
     BatchOperation,
 )
 
+LOG = get_log()
 
-def create_batch_operation(json_obj):
+# Global mongodb object.
+DATABASE = None
+
+
+# TODO: pass db configuration parameters.
+def create_batch_operation(json_obj, db_config=None):
     """Create a `BatchOperation` object from a JSON object.
 
     No validity checks are performed on the JSON object, it must be a valid
     batch operation JSON structure.
 
     :param json_obj: The JSON object with all the necessary paramters.
-    :type json_obj: dictionary
+    :type json_obj: dict
+    :param db_config: The mongodb configuration parameters.
+    :type db_config: dict
     :return A `BatchOperation` object, or None if the `BatchOperation` cannot
     be constructed.
     """
+    global DATABASE
+
     batch_op = None
 
     if json_obj:
         get_func = json_obj.get
         collection = get_func(COLLECTION_KEY, None)
+
         if collection:
+            if not DATABASE:
+                # TODO: handle db_config values.
+                DATABASE = pymongo.MongoClient()[DB_NAME]
+
             operation_id = get_func(OP_ID_KEY, None)
 
             if collection == COUNT_COLLECTION:
-                batch_op = BatchCountOperation(collection, operation_id)
+                batch_op = BatchCountOperation(
+                    collection, DATABASE, operation_id=operation_id
+                )
             elif collection == BOOT_COLLECTION:
-                batch_op = BatchBootOperation(collection, operation_id)
+                batch_op = BatchBootOperation(
+                    collection, DATABASE, operation_id=operation_id
+                )
             elif collection == JOB_COLLECTION:
-                batch_op = BatchJobOperation(collection, operation_id)
+                batch_op = BatchJobOperation(
+                    collection, DATABASE, operation_id=operation_id
+                )
             elif collection == DEFCONFIG_COLLECTION:
-                batch_op = BatchDefconfigOperation(collection, operation_id)
+                batch_op = BatchDefconfigOperation(
+                    collection, DATABASE, operation_id=operation_id)
             else:
-                batch_op = BatchOperation(collection, operation_id)
+                batch_op = BatchOperation(
+                    collection, DATABASE, operation_id=operation_id)
 
             batch_op.query_args = get_batch_query_args(
                 get_func(QUERY_KEY, None)
