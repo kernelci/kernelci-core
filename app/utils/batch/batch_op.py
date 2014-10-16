@@ -13,7 +13,11 @@
 
 """Batch operation classes."""
 
-from bson.json_util import dumps
+from bson.json_util import default
+from json import (
+    dumps as j_dump,
+    loads as j_load,
+)
 
 from handlers.common import (
     BOOT_VALID_KEYS,
@@ -29,6 +33,7 @@ from handlers.count import (
 )
 from models import (
     COUNT_KEY,
+    LIMIT_KEY,
     OP_ID_KEY,
     RESULT_KEY,
 )
@@ -70,6 +75,8 @@ class BatchOperation(object):
         self.document_id = None
         self.method = None
         self.query_args_func = None
+        self._limit = None
+        self._skip = None
 
     @property
     def operation(self):
@@ -140,9 +147,10 @@ class BatchOperation(object):
         else:
             # Get the spec and perform the query, can perform and aggregation
             # as well.
-            spec, sort, fields, skip, limit, unique = get_all_query_values(
-                self.query_args_func, self.valid_keys.get(self.method)
-            )
+            spec, sort, fields, self._skip, self._limit, unique = \
+                get_all_query_values(
+                    self.query_args_func, self.valid_keys.get(self.method)
+                )
 
             if unique:
                 # Perform an aggregate
@@ -155,14 +163,14 @@ class BatchOperation(object):
                     'sort': sort,
                     'fields': fields,
                     'match': spec,
-                    'limit': limit
+                    'limit': self._limit
                 }
             else:
                 self.operation = find_and_count
                 self.args = [
                     self._database[self._collection],
-                    limit,
-                    skip,
+                    self._limit,
+                    self._skip,
                 ]
                 self.kwargs = {
                     'spec': spec,
@@ -191,22 +199,32 @@ class BatchOperation(object):
         # find_and_count returns 2 results: the mongodb cursor and the
         # results count.
         if isinstance(result, tuple):
-            # Doing like this otherwise the result returned will be a string
-            # and not a real JSON object (since we have to serialize it here).
             count = result[1]
             res = []
-
             if count > 0:
                 res = [r for r in result[0]]
 
-            response[RESULT_KEY] = [
-                dumps(
-                    {
-                        RESULT_KEY: res,
-                        COUNT_KEY: count
-                    }
+            json_obj = {
+                RESULT_KEY: res,
+                COUNT_KEY: count
+            }
+
+            if self._limit is not None:
+                json_obj[LIMIT_KEY] = self._limit
+
+            try:
+                # Doing like this otherwise the result returned will be a
+                # string and not a real JSON object (since we have to serialize
+                # it here).
+                response[RESULT_KEY] = [
+                    j_load(j_dump(json_obj, default=default))
+                ]
+            except TypeError:
+                response[RESULT_KEY] = []
+                LOG.error(
+                    "Error serializing JSON object. Objects to serialize: "
+                    "%s, %s", type(res), type(count)
                 )
-            ]
         else:
             response[RESULT_KEY] = result
 
@@ -268,6 +286,8 @@ class BatchCountOperation(BatchOperation):
     def _prepare_get_operation(self):
         if self.document_id:
             self.operation = count_one_collection
+            # We use document_id here with the database since we need to count
+            # on a different collection.
             self.args = [
                 self._database[self.document_id],
                 self.document_id,

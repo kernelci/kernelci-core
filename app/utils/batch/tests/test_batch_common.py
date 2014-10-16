@@ -24,8 +24,8 @@ from utils.batch.batch_op import (
     BatchOperation,
 )
 from utils.batch.common import (
-    get_batch_query_args,
     create_batch_operation,
+    get_batch_query_args,
 )
 
 
