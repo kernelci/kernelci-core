@@ -141,7 +141,7 @@ class TestBatchHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             '/api/batch', method='POST', body=body, headers=headers
         )
 
-        self.assertEqual(response.code, 422)
+        self.assertEqual(response.code, 400)
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 

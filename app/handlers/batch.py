@@ -55,7 +55,7 @@ class BatchHandler(BaseHandler):
                             json_obj
                         )
                 else:
-                    response = HandlerResponse(422)
+                    response = HandlerResponse(400)
                     response.reason = "Provided JSON is not valid"
                     response.result = None
             except ValueError:
