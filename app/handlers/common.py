@@ -70,6 +70,7 @@ from models import (
     USERNAME_KEY,
     WARNINGS_KEY,
 )
+from models.token import Token
 from utils import get_log
 
 # Default value to calculate a date range in case the provided value is
@@ -166,6 +167,12 @@ BATCH_VALID_KEYS = {
         DOCUMENT_ID_KEY
     ]
 }
+
+MASTER_KEY = 'master_key'
+API_TOKEN_HEADER = 'Authorization'
+ACCEPTED_CONTENT_TYPE = 'application/json'
+DEFAULT_RESPONSE_TYPE = 'application/json; charset=UTF-8'
+NOT_VALID_TOKEN = "Operation not permitted: check the token permissions"
 
 
 def get_all_query_values(query_args_func, valid_keys):
@@ -398,3 +405,102 @@ def get_skip_and_limit(query_args_func):
         limit = 0
 
     return skip, limit
+
+
+def valid_token_general(token, method, **kwargs):
+    """Make sure the token can be used for an HTTP method.
+
+    :param token: The Token object to validate.
+    :param method: The HTTP verb this token is being validated for.
+    :return True or False.
+    """
+    valid_token = False
+
+    if method == "GET" and token.is_get_token:
+        valid_token = True
+    elif method == "POST" and token.is_post_token:
+        valid_token = True
+    elif method == "DELETE" and token.is_delete_token:
+        valid_token = True
+
+    return valid_token
+
+
+def valid_token_th(token, method, **kwargs):
+    """Make sure a token is a valid token for the `TokenHandler`.
+
+    A valid `TokenHandler` token is an admin token, or a superuser token
+    for GET operations.
+
+    :param token: The Token object to validate.
+    :param method: The HTTP verb this token is being validated for.
+    :return True or False.
+    """
+    valid_token = False
+
+    if kwargs:
+        master_key = kwargs.get(MASTER_KEY, None)
+
+        if master_key:
+            valid_token = master_key == token.token
+    else:
+        if token.is_admin:
+            valid_token = True
+        elif token.is_superuser and method == "GET":
+            valid_token = True
+
+    return valid_token
+
+
+def validate_token(token_obj, method, remote_ip, master_key, validate_func):
+    """Make sure the passed token is valid.
+
+    :param token_obj: The JSON object from the db that contains the token.
+    :param method: The HTTP verb this token is being validated for.
+    :param remote_ip: The remote IP address sending the token.
+    :param master_key: The master key of the application.
+    :param validate_func: Function called to validate the token, must accept
+        a Token object, the method string and kwargs.
+    :return True or False.
+    """
+    valid_token = True
+
+    if token_obj:
+        token = Token.from_json(token_obj)
+
+        if token:
+            if not isinstance(token, Token):
+                LOG.error("Retrieved token is not a Token object")
+                valid_token = False
+            elif token.is_ip_restricted and \
+                    not _valid_token_ip(token, remote_ip):
+                valid_token = False
+
+            if master_key:
+                valid_token &= validate_func(
+                    token, method, dict(master_key=master_key)
+                )
+            else:
+                valid_token &= validate_func(token, method)
+
+    return valid_token
+
+
+def _valid_token_ip(token, remote_ip):
+    """Make sure the token comes from the designated IP addresses.
+
+    :param token: The Token object to validate.
+    :param remote_ip: The remote IP address sending the token.
+    :return True or False.
+    """
+    valid_token = True
+
+    # TODO: what if we have a pool of IPs for the token?
+    if token.ip_address != remote_ip:
+        LOG.info(
+            "IP restricted token from wrong IP address: %s",
+            remote_ip
+        )
+        valid_token = False
+
+    return valid_token
