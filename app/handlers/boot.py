@@ -18,6 +18,7 @@
 from handlers.base import BaseHandler
 from handlers.common import (
     BOOT_VALID_KEYS,
+    NOT_VALID_TOKEN,
     get_query_spec,
 )
 from handlers.response import HandlerResponse
@@ -55,31 +56,35 @@ class BootHandler(BaseHandler):
     def execute_delete(self, *args, **kwargs):
         response = None
 
-        if kwargs and kwargs.get('id', None):
-            doc_id = kwargs['id']
-            if find_one(self.collection, doc_id):
-                response = self._delete(doc_id)
-                if response.status_code == 200:
-                    response.reason = "Resource '%s' deleted" % doc_id
+        if self._validate_req_token("DELETE"):
+            if kwargs and kwargs.get('id', None):
+                doc_id = kwargs['id']
+                if find_one(self.collection, doc_id):
+                    response = self._delete(doc_id)
+                    if response.status_code == 200:
+                        response.reason = "Resource '%s' deleted" % doc_id
+                else:
+                    response = HandlerResponse(404)
+                    response.reason = "Resource '%s' not found" % doc_id
             else:
-                response = HandlerResponse(404)
-                response.reason = "Resource '%s' not found" % doc_id
-        else:
-            spec = get_query_spec(
-                self.get_query_arguments, self._valid_keys("DELETE")
-            )
-            if spec:
-                response = self._delete(spec)
-                if response.status_code == 200:
-                    response.reason = (
-                        "Resources identified with '%s' deleted" % spec
-                    )
-            else:
-                response = HandlerResponse(400)
-                response.result = None
-                response.reason = (
-                    "No valid data provided to execute a DELETE"
+                spec = get_query_spec(
+                    self.get_query_arguments, self._valid_keys("DELETE")
                 )
+                if spec:
+                    response = self._delete(spec)
+                    if response.status_code == 200:
+                        response.reason = (
+                            "Resources identified with '%s' deleted" % spec
+                        )
+                else:
+                    response = HandlerResponse(400)
+                    response.result = None
+                    response.reason = (
+                        "No valid data provided to execute a DELETE"
+                    )
+        else:
+            response = HandlerResponse(403)
+            response.reason = NOT_VALID_TOKEN
 
         return response
 
