@@ -43,11 +43,11 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
         super(TestTokenHandler, self).setUp()
 
-        patched_find_token = patch('handlers.decorators._find_token')
+        patched_find_token = patch("handlers.base.BaseHandler._find_token")
         self.find_token = patched_find_token.start()
         self.find_token.return_value = "token"
 
-        patched_validate_token = patch('handlers.decorators._validate_token')
+        patched_validate_token = patch("handlers.base.validate_token")
         self.validate_token = patched_validate_token.start()
         self.validate_token.return_value = True
 
@@ -88,28 +88,6 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
         self.assertEqual(response.body, expected_body)
-
-    @patch('handlers.decorators._is_master_key')
-    @patch('utils.db.find')
-    @patch('utils.db.count')
-    def test_get_token_is_master_key(
-            self, mock_count, mock_find, mock_master_key):
-        mock_count.return_value = 0
-        mock_find.return_value = []
-        mock_master_key.return_value = True
-
-        self.find_token.return_value = 'bar'
-
-        expected_body = '{"count": 0, "code": 200, "limit": 0, "result": []}'
-
-        headers = {'Authorization': 'bar'}
-        response = self.fetch('/api/token', headers=headers)
-
-        self.assertEqual(response.code, 200)
-        self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
-        self.assertEqual(response.body, expected_body)
-        self.assertTrue(mock_master_key.called)
 
     def test_post_without_token(self):
         body = json.dumps(dict(email='foo'))

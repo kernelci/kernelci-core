@@ -35,14 +35,13 @@ class TestBatchHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
     def setUp(self):
         self.mongodb_client = mongomock.Connection()
-
         super(TestBatchHandler, self).setUp()
 
-        patched_find_token = patch('handlers.decorators._find_token')
+        patched_find_token = patch("handlers.base.BaseHandler._find_token")
         self.find_token = patched_find_token.start()
         self.find_token.return_value = "token"
 
-        patched_validate_token = patch('handlers.decorators._validate_token')
+        patched_validate_token = patch("handlers.base.validate_token")
         self.validate_token = patched_validate_token.start()
         self.validate_token.return_value = True
 
@@ -64,7 +63,7 @@ class TestBatchHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
     def test_delete_no_token(self):
         response = self.fetch('/api/batch', method='DELETE')
-        self.assertEqual(response.code, 403)
+        self.assertEqual(response.code, 501)
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
@@ -81,7 +80,7 @@ class TestBatchHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
     def test_get_no_token(self):
         response = self.fetch('/api/batch', method='GET')
-        self.assertEqual(response.code, 403)
+        self.assertEqual(response.code, 501)
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
@@ -97,6 +96,8 @@ class TestBatchHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
     def test_post_without_token(self):
+        self.find_token.return_value = None
+
         batch_dict = {
             "batch": [
                 {"method": "GET", "collection": "count", "operation_id": "foo"}
@@ -145,7 +146,7 @@ class TestBatchHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    @patch('handlers.batch.run_batch_group')
+    @patch("handlers.batch.run_batch_group")
     def test_post_correct(self, mocked_run_batch):
         headers = {'Authorization': 'foo', 'Content-Type': 'application/json'}
         batch_dict = {

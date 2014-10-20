@@ -46,8 +46,8 @@ class TestHandlerResponse(unittest.TestCase):
         response = HandlerResponse()
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.headers, {})
-        self.assertEqual([], response.result)
+        self.assertIsNone(response.headers)
+        self.assertIsNone(response.result)
         self.assertIsNone(response.reason)
 
     def test_response_reason_setter_valid(self):

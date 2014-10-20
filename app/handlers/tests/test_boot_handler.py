@@ -37,11 +37,11 @@ class TestBootHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
         super(TestBootHandler, self).setUp()
 
-        patched_find_token = patch('handlers.decorators._find_token')
+        patched_find_token = patch("handlers.base.BaseHandler._find_token")
         self.find_token = patched_find_token.start()
         self.find_token.return_value = "token"
 
-        patched_validate_token = patch('handlers.decorators._validate_token')
+        patched_validate_token = patch("handlers.base.validate_token")
         self.validate_token = patched_validate_token.start()
         self.validate_token.return_value = True
 
@@ -62,6 +62,8 @@ class TestBootHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         return ioloop.IOLoop.instance()
 
     def test_delete_no_token(self):
+        self.find_token.return_value = None
+
         response = self.fetch('/api/boot/board', method='DELETE')
         self.assertEqual(response.code, 403)
 
