@@ -10,3 +10,4 @@ Collections
     job-collection
     defconfig-collection
     boot-collection
+    batch-collection

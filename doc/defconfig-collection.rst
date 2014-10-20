@@ -34,7 +34,8 @@ GET
  :query string kernel: The name of a kernel.
  :query string defconfig: The name of a defconfig.
  :query string arch: The architecture on which the defconfig has been built.
- :query string status: The status of the defconfig built.
+ :query string status: The status of the defconfig report. Can be one of:
+    ``PASS`` or ``FAIL``.
  :query int warnings: The number of warnings in the defconfig built.
  :query int errors: The number of errors in the defconfig built.
 
@@ -149,8 +150,10 @@ DELETE
  :resheader Content-Type: Will be ``application/json; charset=UTF-8``.
 
  :status 200: Resource deleted.
+ :status 400: JSON data not valid.
  :status 403: Not authorized to perform the operation.
  :status 404: The provided resource has not been found.
+ :status 422: No real JSON data provided.
  :status 500: Internal database error.
 
  **Example Requests**

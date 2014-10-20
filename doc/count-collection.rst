@@ -8,11 +8,8 @@ GET
 
  Count the elements in all collections or in the provided ``collection``.
 
- When using the query parameters with a provided ``collection``, the results
- will include also the fields specified and their values.
-
  :param collection: The name of the collection to get the count of.
-    Can be one of ``job``, ``defconfig``, ``boot``.
+    Can be one of ``boot``, ``defconfig``, ``job``.
  :type collection: string
 
  :reqheader Authorization: The token necessary to authorize the request.
@@ -34,6 +31,8 @@ GET
  :query string job: A job name.
  :query string job_id: A job ID (in the form of ``job``-``kernel``).
  :query string kernel: A kernel name.
+ :query string status: The status of the elements to get the count of. Can be
+    one of: ``PASS`` or ``FAIL``.
 
  :status 200: Resuslts found.
  :status 403: Not authorized to perform the operation.

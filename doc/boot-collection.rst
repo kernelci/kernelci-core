@@ -34,7 +34,8 @@ GET
  :query string kernel: The name of a kernel.
  :query string defconfig: The name of a defconfig.
  :query string board: The name of a board.
- :query string status: The status of the boot report.
+ :query string status: The status of the boot report. Can be one of: ``PASS``
+    or ``FAIL``.
  :query int warnings: The number of warnings in the boot report.
 
  :status 200: Resuslts found.

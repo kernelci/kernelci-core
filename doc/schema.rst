@@ -10,3 +10,4 @@ Schema
     schema-defconfig
     schema-boot
     schema-token
+    schema-batch

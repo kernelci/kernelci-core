@@ -33,6 +33,8 @@ GET
  :query string nfield: The field that should *not* be returned in the response. Can be repeated multiple times.
  :query string job: A job name.
  :query string kernel: A kernel name.
+ :query string status: The status of the job report. Can be one of: ``PASS`` or
+    ``FAIL``.
 
  :status 200: Resuslts found.
  :status 403: Not authorized to perform the operation.
