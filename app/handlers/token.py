@@ -15,20 +15,15 @@
 
 """The RequestHandler for /token URLs."""
 
-import tornado
-
-from functools import partial
-from tornado.web import (
-    asynchronous,
-)
 from urlparse import urlunparse
 
 from handlers.base import BaseHandler
 from handlers.common import (
+    NOT_VALID_TOKEN,
     TOKEN_VALID_KEYS,
     get_query_fields,
+    valid_token_th,
 )
-from handlers.decorators import protected_th
 from handlers.response import HandlerResponse
 from models import (
     ADMIN_KEY,
@@ -67,17 +62,9 @@ class TokenHandler(BaseHandler):
     def _valid_keys(method):
         return TOKEN_VALID_KEYS.get(method, None)
 
-    @protected_th("GET")
-    @asynchronous
-    def get(self, *args, **kwargs):
-        self.executor.submit(
-            partial(self.execute_get, *args, **kwargs)
-        ).add_done_callback(
-            lambda future:
-            tornado.ioloop.IOLoop.instance().add_callback(
-                partial(self._create_valid_response, future.result())
-            )
-        )
+    @staticmethod
+    def _token_validation_func():
+        return valid_token_th
 
     def _get_one(self, doc_id):
         # Overridden: with the token we do not search by _id, but
@@ -99,17 +86,6 @@ class TokenHandler(BaseHandler):
             response.reason = "Resource '%s' not found" % doc_id
 
         return response
-
-    @protected_th("POST")
-    @asynchronous
-    def post(self, *args, **kwargs):
-        self.executor.submit(
-            partial(self.execute_post, *args, **kwargs)
-        ).add_done_callback(
-            lambda future: tornado.ioloop.IOLoop.instance().add_callback(
-                partial(self._create_valid_response, future.result())
-            )
-        )
 
     def _post(self, *args, **kwargs):
         response = None
@@ -263,17 +239,6 @@ class TokenHandler(BaseHandler):
 
         return token
 
-    @protected_th("DELETE")
-    @asynchronous
-    def delete(self, *args, **kwargs):
-        self.executor.submit(
-            partial(self.execute_delete, *args, **kwargs)
-        ).add_done_callback(
-            lambda future:
-            tornado.ioloop.IOLoop.instance().add_callback(
-                partial(self._create_valid_response, future.result()))
-        )
-
     def execute_delete(self, *args, **kwargs):
         """Called by the actual DELETE method.
 
@@ -285,10 +250,14 @@ class TokenHandler(BaseHandler):
         """
         response = HandlerResponse(400)
 
-        if kwargs and kwargs.get('id', None):
-            response.status_code = self._delete(kwargs['id'])
-            if response.status_code == 200:
-                response.reason = "Resource deleted"
+        if self._validate_req_token("DELETE"):
+            if kwargs and kwargs.get('id', None):
+                response.status_code = self._delete(kwargs['id'])
+                if response.status_code == 200:
+                    response.reason = "Resource deleted"
+        else:
+            response.status_code = 403
+            response.reason = NOT_VALID_TOKEN
 
         return response
 
