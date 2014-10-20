@@ -52,8 +52,8 @@ class HandlerResponse(object):
         self._reason = None
         self._count = None
         self._limit = None
-        self._result = []
-        self._headers = {}
+        self._result = None
+        self._headers = None
 
     @property
     def status_code(self):
