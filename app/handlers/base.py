@@ -27,17 +27,25 @@ from tornado.web import (
 )
 
 from handlers.common import (
+    ACCEPTED_CONTENT_TYPE,
+    API_TOKEN_HEADER,
+    DEFAULT_RESPONSE_TYPE,
+    MASTER_KEY,
+    NOT_VALID_TOKEN,
     get_aggregate_value,
+    get_and_add_date_range,
     get_query_fields,
     get_query_sort,
     get_query_spec,
-    get_and_add_date_range,
     get_skip_and_limit,
+    valid_token_general,
+    validate_token,
 )
-from handlers.decorators import protected
 from handlers.response import HandlerResponse
 from models import (
     DB_NAME,
+    TOKEN_COLLECTION,
+    TOKEN_KEY,
 )
 from utils.db import (
     aggregate,
@@ -50,9 +58,6 @@ from utils.validator import is_valid_json
 
 class BaseHandler(RequestHandler):
     """The base handler."""
-
-    ACCEPTED_CONTENT_TYPE = 'application/json'
-    DEFAULT_RESPONSE_TYPE = 'application/json; charset=UTF-8'
 
     def __init__(self, application, request, **kwargs):
         super(BaseHandler, self).__init__(application, request, **kwargs)
@@ -87,6 +92,10 @@ class BaseHandler(RequestHandler):
         """
         return []
 
+    @staticmethod
+    def _token_validation_func():
+        return valid_token_general
+
     def _get_status_message(self, status_code):
         """Get custom error message based on the status code.
 
@@ -99,7 +108,7 @@ class BaseHandler(RequestHandler):
             405: 'Operation not allowed',
             415: (
                 'Please use "%s" as the default media type' %
-                self.accepted_content_type
+                ACCEPTED_CONTENT_TYPE
             ),
             420: 'No JSON data found',
             500: 'Internal database error',
@@ -114,14 +123,6 @@ class BaseHandler(RequestHandler):
             message = httplib.responses.get(
                 status_code, "Unknown status code returned")
         return message
-
-    @property
-    def accepted_content_type(self):
-        """The accepted Content-Type for PUT requests.
-
-        Defaults to 'application/json'.
-        """
-        return self.ACCEPTED_CONTENT_TYPE
 
     def _create_valid_response(self, response):
         """Create a valid JSON response based on its type.
@@ -145,7 +146,7 @@ class BaseHandler(RequestHandler):
 
         self.set_status(status_code=status_code, reason=reason)
         self.write(result)
-        self.set_header('Content-Type', self.DEFAULT_RESPONSE_TYPE)
+        self.set_header('Content-Type', DEFAULT_RESPONSE_TYPE)
 
         if headers:
             for key, val in headers.iteritems():
@@ -164,7 +165,7 @@ class BaseHandler(RequestHandler):
 
         if 'Content-Type' in self.request.headers.keys():
             if self.request.headers['Content-Type'] == \
-                    self.accepted_content_type:
+                    ACCEPTED_CONTENT_TYPE:
                 valid_content = True
             else:
                 self.log.error(
@@ -175,7 +176,6 @@ class BaseHandler(RequestHandler):
 
         return valid_content
 
-    @protected("POST")
     @asynchronous
     def post(self, *args, **kwargs):
         self.executor.submit(
@@ -192,29 +192,34 @@ class BaseHandler(RequestHandler):
         Checks that everything is OK to perform a POST.
         """
         response = None
-        valid_request = self._valid_post_request()
 
-        if valid_request == 200:
-            try:
-                json_obj = json.loads(self.request.body.decode('utf8'))
+        if self._validate_req_token("POST"):
+            valid_request = self._valid_post_request()
 
-                if is_valid_json(json_obj, self._valid_keys('POST')):
-                    kwargs['json_obj'] = json_obj
-                    response = self._post(*args, **kwargs)
-                else:
-                    response = HandlerResponse(400)
-                    response.reason = "Provided JSON is not valid"
+            if valid_request == 200:
+                try:
+                    json_obj = json.loads(self.request.body.decode('utf8'))
+
+                    if is_valid_json(json_obj, self._valid_keys('POST')):
+                        kwargs['json_obj'] = json_obj
+                        response = self._post(*args, **kwargs)
+                    else:
+                        response = HandlerResponse(400)
+                        response.reason = "Provided JSON is not valid"
+                        response.result = None
+                except ValueError:
+                    error = "No JSON data found in the POST request"
+                    self.log.error(error)
+                    response = HandlerResponse(422)
+                    response.reason = error
                     response.result = None
-            except ValueError:
-                error = "No JSON data found in the POST request"
-                self.log.error(error)
-                response = HandlerResponse(422)
-                response.reason = error
+            else:
+                response = HandlerResponse(valid_request)
+                response.reason = self._get_status_message(valid_request)
                 response.result = None
         else:
-            response = HandlerResponse(valid_request)
-            response.reason = self._get_status_message(valid_request)
-            response.result = None
+            response = HandlerResponse(403)
+            response.reason = NOT_VALID_TOKEN
 
         return response
 
@@ -246,7 +251,6 @@ class BaseHandler(RequestHandler):
         """
         return HandlerResponse(501)
 
-    @protected("DELETE")
     @asynchronous
     def delete(self, *args, **kwargs):
         self.executor.submit(
@@ -265,12 +269,16 @@ class BaseHandler(RequestHandler):
         """
         response = None
 
-        if kwargs and kwargs.get('id', None):
-            response = self._delete(kwargs['id'])
+        if self._validate_req_token("DELETE"):
+            if kwargs and kwargs.get('id', None):
+                response = self._delete(kwargs['id'])
+            else:
+                response = HandlerResponse(400)
+                response.reason = self._get_status_message(400)
+                response.result = None
         else:
-            response = HandlerResponse(400)
-            response.reason = self._get_status_message(400)
-            response.result = None
+            response = HandlerResponse(403)
+            response.status = NOT_VALID_TOKEN
 
         return response
 
@@ -288,7 +296,6 @@ class BaseHandler(RequestHandler):
         """
         return HandlerResponse(501)
 
-    @protected("GET")
     @asynchronous
     def get(self, *args, **kwargs):
         self.executor.submit(
@@ -307,10 +314,15 @@ class BaseHandler(RequestHandler):
         token authorization if necessary.
         """
         response = None
-        if kwargs and kwargs.get('id', None):
-            response = self._get_one(kwargs['id'])
+
+        if self._validate_req_token("GET"):
+            if kwargs and kwargs.get("id", None):
+                response = self._get_one(kwargs["id"])
+            else:
+                response = self._get(**kwargs)
         else:
-            response = self._get(**kwargs)
+            response = HandlerResponse(403)
+            response.reason = NOT_VALID_TOKEN
 
         return response
 
@@ -357,7 +369,6 @@ class BaseHandler(RequestHandler):
         spec, sort, fields, skip, limit, unique = self._get_query_args()
 
         if unique:
-            self.log.info("Performing aggregation on %s", unique)
             response.result = aggregate(
                 self.collection,
                 unique,
@@ -378,6 +389,8 @@ class BaseHandler(RequestHandler):
 
             if count > 0:
                 response.result = result
+            else:
+                response.result = []
 
             response.count = count
 
@@ -428,3 +441,47 @@ class BaseHandler(RequestHandler):
             self.finish()
         else:
             super(BaseHandler, self).write_error(status_code, kwargs)
+
+    # TODO: cache the validated token.
+    def _validate_req_token(self, method):
+        """Validate the request token.
+
+        :param method: The HTTP verb we are validating.
+        :return True or False.
+        """
+        valid_token = False
+
+        req_token = self.request.headers.get(API_TOKEN_HEADER, None)
+        remote_ip = self.request.remote_ip
+        master_key = self.settings.get(MASTER_KEY, None)
+        token_obj = None
+
+        if req_token:
+            token_obj = self._find_token(req_token, self.db)
+
+            if token_obj:
+                valid_token = validate_token(
+                    token_obj,
+                    method,
+                    remote_ip,
+                    master_key,
+                    self._token_validation_func()
+                )
+
+        if not valid_token:
+            self.log.info(
+                "Token not authorized for IP address %s - Token: %s",
+                self.request.remote_ip, req_token
+            )
+
+        return valid_token
+
+    # TODO: cache the token from the DB.
+    @staticmethod
+    def _find_token(token, db_conn):
+        """Find a token in the database.
+
+        :param token: The token to find.
+        :return A json object, or nothing.
+        """
+        return find_one(db_conn[TOKEN_COLLECTION], [token], field=TOKEN_KEY)
