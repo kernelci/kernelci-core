@@ -16,7 +16,10 @@
 from json import loads as j_load
 
 from handlers.base import BaseHandler
-from handlers.common import BATCH_VALID_KEYS
+from handlers.common import (
+    BATCH_VALID_KEYS,
+    NOT_VALID_TOKEN,
+)
 from handlers.response import HandlerResponse
 from models import BATCH_KEY
 from taskqueue.tasks import run_batch_group
@@ -41,33 +44,38 @@ class BatchHandler(BaseHandler):
 
     def execute_post(self):
         response = None
-        valid_request = self._valid_post_request()
 
-        if valid_request == 200:
-            try:
-                json_obj = j_load(self.request.body.decode('utf8'))
+        if self._validate_req_token("POST"):
+            valid_request = self._valid_post_request()
 
-                if is_valid_batch_json(
-                        json_obj, BATCH_KEY, self._valid_keys('POST')):
-                    response = HandlerResponse(200)
-                    response.result = \
-                        self.prepare_and_perform_batch_operations(
-                            json_obj
-                        )
-                else:
-                    response = HandlerResponse(400)
-                    response.reason = "Provided JSON is not valid"
+            if valid_request == 200:
+                try:
+                    json_obj = j_load(self.request.body.decode('utf8'))
+
+                    if is_valid_batch_json(
+                            json_obj, BATCH_KEY, self._valid_keys('POST')):
+                        response = HandlerResponse(200)
+                        response.result = \
+                            self.prepare_and_perform_batch_operations(
+                                json_obj
+                            )
+                    else:
+                        response = HandlerResponse(400)
+                        response.reason = "Provided JSON is not valid"
+                        response.result = None
+                except ValueError:
+                    error = "No JSON data found in the POST request"
+                    self.log.error(error)
+                    response = HandlerResponse(422)
+                    response.reason = error
                     response.result = None
-            except ValueError:
-                error = "No JSON data found in the POST request"
-                self.log.error(error)
-                response = HandlerResponse(422)
-                response.reason = error
+            else:
+                response = HandlerResponse(valid_request)
+                response.reason = self._get_status_message(valid_request)
                 response.result = None
         else:
-            response = HandlerResponse(valid_request)
-            response.reason = self._get_status_message(valid_request)
-            response.result = None
+            response = HandlerResponse(403)
+            response.reason = NOT_VALID_TOKEN
 
         return response
 
