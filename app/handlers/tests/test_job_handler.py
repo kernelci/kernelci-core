@@ -183,9 +183,8 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    @patch('handlers.job.send_emails')
     @patch('handlers.job.import_job')
-    def test_post_correct(self, mock_import_job, mock_send_emails):
+    def test_post_correct(self, mock_import_job):
         mock_import_job.apply_async = MagicMock()
 
         headers = {

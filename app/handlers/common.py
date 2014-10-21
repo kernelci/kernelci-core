@@ -407,7 +407,7 @@ def get_skip_and_limit(query_args_func):
     return skip, limit
 
 
-def valid_token_general(token, method, **kwargs):
+def valid_token_general(token, method):
     """Make sure the token can be used for an HTTP method.
 
     :param token: The Token object to validate.
@@ -426,7 +426,7 @@ def valid_token_general(token, method, **kwargs):
     return valid_token
 
 
-def valid_token_th(token, method, **kwargs):
+def valid_token_th(token, method):
     """Make sure a token is a valid token for the `TokenHandler`.
 
     A valid `TokenHandler` token is an admin token, or a superuser token
@@ -438,27 +438,20 @@ def valid_token_th(token, method, **kwargs):
     """
     valid_token = False
 
-    if kwargs:
-        master_key = kwargs.get(MASTER_KEY, None)
-
-        if master_key:
-            valid_token = master_key == token.token
-    else:
-        if token.is_admin:
-            valid_token = True
-        elif token.is_superuser and method == "GET":
-            valid_token = True
+    if token.is_admin:
+        valid_token = True
+    elif token.is_superuser and method == "GET":
+        valid_token = True
 
     return valid_token
 
 
-def validate_token(token_obj, method, remote_ip, master_key, validate_func):
+def validate_token(token_obj, method, remote_ip, validate_func):
     """Make sure the passed token is valid.
 
     :param token_obj: The JSON object from the db that contains the token.
     :param method: The HTTP verb this token is being validated for.
     :param remote_ip: The remote IP address sending the token.
-    :param master_key: The master key of the application.
     :param validate_func: Function called to validate the token, must accept
         a Token object, the method string and kwargs.
     :return True or False.
@@ -468,19 +461,17 @@ def validate_token(token_obj, method, remote_ip, master_key, validate_func):
     if token_obj:
         token = Token.from_json(token_obj)
 
-        if token:
-            if not isinstance(token, Token):
-                LOG.error("Retrieved token is not a Token object")
-                valid_token = False
-            elif token.is_ip_restricted and \
+        if not isinstance(token, Token):
+            LOG.error("Retrieved token is not a Token object")
+            valid_token = False
+        else:
+            valid_token &= validate_func(token, method)
+
+            if token.is_ip_restricted and \
                     not _valid_token_ip(token, remote_ip):
                 valid_token = False
-
-            if master_key:
-                kwargs = dict(master_key=master_key)
-                valid_token &= validate_func(token, method, **kwargs)
-            else:
-                valid_token &= validate_func(token, method)
+    else:
+        valid_token = False
 
     return valid_token
 

@@ -28,18 +28,25 @@ from datetime import (
     time,
 )
 
-from mock import patch
+from mock import (
+    Mock,
+    patch,
+)
 
 from handlers.common import (
     calculate_date_range,
     get_aggregate_value,
     get_all_query_values,
+    get_and_add_date_range,
     get_query_fields,
     get_query_sort,
     get_query_spec,
     get_skip_and_limit,
-    get_and_add_date_range,
+    valid_token_general,
+    valid_token_th,
+    validate_token,
 )
+from models.token import Token
 
 
 class TestHandlersCommon(unittest.TestCase):
@@ -369,3 +376,131 @@ class TestHandlersCommon(unittest.TestCase):
 
         spec = get_and_add_date_range(spec, query_args_func)
         self.assertEqual(expected, spec)
+
+    @patch("models.token.Token", spec=True)
+    def test_valid_token_general_true(self, mock_class):
+        token = mock_class.return_value
+
+        self.assertIsInstance(token, Token)
+
+        token.is_get_token = True
+        token.is_post_token = True
+        token.is_delete_token = True
+
+        self.assertTrue(valid_token_general(token, "GET"))
+        self.assertTrue(valid_token_general(token, "POST"))
+        self.assertTrue(valid_token_general(token, "DELETE"))
+
+    @patch("models.token.Token", spec=True)
+    def test_valid_token_general_false(self, mock_class):
+        token = mock_class.return_value
+
+        self.assertIsInstance(token, Token)
+
+        token.is_get_token = False
+        token.is_post_token = False
+        token.is_delete_token = False
+
+        self.assertFalse(valid_token_general(token, "GET"))
+        self.assertFalse(valid_token_general(token, "POST"))
+        self.assertFalse(valid_token_general(token, "DELETE"))
+
+    @patch("models.token.Token", spec=True)
+    def test_valid_token_th_true(self, mock_class):
+        token = mock_class.return_value
+
+        self.assertIsInstance(token, Token)
+
+        token.is_admin = True
+        token.is_superuser = False
+
+        self.assertTrue(valid_token_th(token, "GET"))
+        self.assertTrue(valid_token_th(token, "POST"))
+        self.assertTrue(valid_token_th(token, "DELETE"))
+
+        token.is_admin = False
+        token.is_superuser = True
+
+        self.assertTrue(valid_token_th(token, "GET"))
+
+    @patch("models.token.Token", spec=True)
+    def test_valid_token_th_false(self, mock_class):
+        token = mock_class.return_value
+
+        self.assertIsInstance(token, Token)
+
+        token.is_admin = False
+        token.is_superuser = False
+
+        self.assertFalse(valid_token_th(token, "GET"))
+        self.assertFalse(valid_token_th(token, "POST"))
+        self.assertFalse(valid_token_th(token, "DELETE"))
+
+        token.is_admin = False
+        token.is_superuser = True
+
+        self.assertFalse(valid_token_th(token, "POST"))
+        self.assertFalse(valid_token_th(token, "DELETE"))
+
+    @patch("models.token.Token.from_json")
+    def test_validate_token_wrong_class(self, mock_from_json):
+        mock_from_json.return_value = Mock()
+
+        self.assertFalse(
+            validate_token("foo", "GET", None, None)
+        )
+        self.assertFalse(
+            validate_token(None, "GET", None, None)
+        )
+
+    @patch("models.token.Token", spec=True)
+    @patch("models.token.Token.from_json")
+    def test_validate_token_true(self, mock_from_json, mock_class):
+        token = mock_class.return_value
+        self.assertIsInstance(token, Token)
+
+        mock_from_json.return_value = token
+        validate_func = Mock()
+        validate_func.side_effect = [True, True]
+
+        token.is_ip_restricted = False
+
+        self.assertTrue(
+            validate_token(token, "GET", None, validate_func)
+        )
+
+        token.is_ip_restricted = True
+        token.ip_address = '127.0.0.1'
+
+        self.assertTrue(
+            validate_token(token, "GET", "127.0.0.1", validate_func)
+        )
+
+    @patch("models.token.Token", spec=True)
+    @patch("models.token.Token.from_json")
+    def test_validate_token_false(self, mock_from_json, mock_class):
+        token = mock_class.return_value
+        self.assertIsInstance(token, Token)
+
+        mock_from_json.return_value = token
+        validate_func = Mock()
+        validate_func.side_effect = [False, True, False]
+
+        token.is_ip_restricted = True
+
+        self.assertFalse(
+            validate_token(token, "GET", None, validate_func)
+        )
+
+        token.is_ip_restricted = True
+        token.ip_address = '127.1.1.1'
+
+        self.assertFalse(
+            validate_token(token, "GET", "127.0.0.1", validate_func)
+        )
+
+        token.is_ip_restricted = False
+
+        self.assertFalse(
+            validate_token(token, "GET", None, validate_func)
+        )

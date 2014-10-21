@@ -189,7 +189,7 @@ class BaseHandler(RequestHandler):
         """
         response = None
 
-        if self._validate_req_token("POST"):
+        if self.validate_req_token("POST"):
             valid_request = self._valid_post_request()
 
             if valid_request == 200:
@@ -265,7 +265,7 @@ class BaseHandler(RequestHandler):
         """
         response = None
 
-        if self._validate_req_token("DELETE"):
+        if self.validate_req_token("DELETE"):
             if kwargs and kwargs.get('id', None):
                 response = self._delete(kwargs['id'])
             else:
@@ -311,7 +311,7 @@ class BaseHandler(RequestHandler):
         """
         response = None
 
-        if self._validate_req_token("GET"):
+        if self.validate_req_token("GET"):
             if kwargs and kwargs.get("id", None):
                 response = self._get_one(kwargs["id"])
             else:
@@ -431,7 +431,7 @@ class BaseHandler(RequestHandler):
             super(BaseHandler, self).write_error(status_code, kwargs)
 
     # TODO: cache the validated token.
-    def _validate_req_token(self, method):
+    def validate_req_token(self, method):
         """Validate the request token.
 
         :param method: The HTTP verb we are validating.
@@ -442,19 +442,11 @@ class BaseHandler(RequestHandler):
         req_token = self.request.headers.get(API_TOKEN_HEADER, None)
         remote_ip = self.request.remote_ip
         master_key = self.settings.get(MASTER_KEY, None)
-        token_obj = None
 
         if req_token:
-            token_obj = self._find_token(req_token, self.db)
-
-            if token_obj:
-                valid_token = validate_token(
-                    token_obj,
-                    method,
-                    remote_ip,
-                    master_key,
-                    self._token_validation_func()
-                )
+            valid_token = self._token_validation(
+                req_token, method, remote_ip, master_key
+            )
 
         if not valid_token:
             self.log.info(
@@ -462,6 +454,19 @@ class BaseHandler(RequestHandler):
                 self.request.remote_ip, req_token
             )
 
+        return valid_token
+
+    def _token_validation(self, req_token, method, remote_ip, master_key):
+        valid_token = False
+        token_obj = self._find_token(req_token, self.db)
+
+        if token_obj:
+            valid_token = validate_token(
+                token_obj,
+                method,
+                remote_ip,
+                self._token_validation_func()
+            )
         return valid_token
 
     # TODO: cache the token from the DB.

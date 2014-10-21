@@ -45,7 +45,7 @@ class BatchHandler(BaseHandler):
     def execute_post(self):
         response = None
 
-        if self._validate_req_token("POST"):
+        if self.validate_req_token("POST"):
             valid_request = self._valid_post_request()
 
             if valid_request == 200:

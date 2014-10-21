@@ -56,7 +56,7 @@ class BootHandler(BaseHandler):
     def execute_delete(self, *args, **kwargs):
         response = None
 
-        if self._validate_req_token("DELETE"):
+        if self.validate_req_token("DELETE"):
             if kwargs and kwargs.get('id', None):
                 doc_id = kwargs['id']
                 if find_one(self.collection, doc_id):

@@ -23,6 +23,7 @@ from handlers.common import (
     TOKEN_VALID_KEYS,
     get_query_fields,
     valid_token_th,
+    validate_token,
 )
 from handlers.response import HandlerResponse
 from models import (
@@ -65,6 +66,24 @@ class TokenHandler(BaseHandler):
     @staticmethod
     def _token_validation_func():
         return valid_token_th
+
+    def _token_validation(self, req_token, method, remote_ip, master_key):
+        valid_token = False
+
+        if all([master_key, req_token == master_key]):
+            valid_token = True
+        else:
+            token_obj = self._find_token(req_token, self.db)
+
+            if token_obj:
+                valid_token = validate_token(
+                    token_obj,
+                    method,
+                    remote_ip,
+                    self._token_validation_func()
+                )
+
+        return valid_token
 
     def _get_one(self, doc_id):
         # Overridden: with the token we do not search by _id, but
@@ -250,7 +269,7 @@ class TokenHandler(BaseHandler):
         """
         response = HandlerResponse(400)
 
-        if self._validate_req_token("DELETE"):
+        if self.validate_req_token("DELETE"):
             if kwargs and kwargs.get('id', None):
                 response.status_code = self._delete(kwargs['id'])
                 if response.status_code == 200:
