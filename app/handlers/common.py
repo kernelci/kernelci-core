@@ -477,9 +477,8 @@ def validate_token(token_obj, method, remote_ip, master_key, validate_func):
                 valid_token = False
 
             if master_key:
-                valid_token &= validate_func(
-                    token, method, dict(master_key=master_key)
-                )
+                kwargs = dict(master_key=master_key)
+                valid_token &= validate_func(token, method, **kwargs)
             else:
                 valid_token &= validate_func(token, method)
 
