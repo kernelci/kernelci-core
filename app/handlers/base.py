@@ -32,12 +32,8 @@ from handlers.common import (
     DEFAULT_RESPONSE_TYPE,
     MASTER_KEY,
     NOT_VALID_TOKEN,
-    get_aggregate_value,
-    get_and_add_date_range,
+    get_all_query_values,
     get_query_fields,
-    get_query_sort,
-    get_query_spec,
-    get_skip_and_limit,
     valid_token_general,
     validate_token,
 )
@@ -415,17 +411,9 @@ class BaseHandler(RequestHandler):
         unique = None
 
         if self.request.arguments:
-            query_args_func = self.get_query_arguments
-
-            spec = get_query_spec(
-                query_args_func,
-                valid_keys=self._valid_keys(method)
+            spec, sort, fields, skip, limit, unique = get_all_query_values(
+                self.get_query_arguments, self._valid_keys(method)
             )
-            spec = get_and_add_date_range(spec, query_args_func)
-            sort = get_query_sort(query_args_func)
-            fields = get_query_fields(query_args_func)
-            skip, limit = get_skip_and_limit(query_args_func)
-            unique = get_aggregate_value(query_args_func)
 
         return (spec, sort, fields, skip, limit, unique)
 
