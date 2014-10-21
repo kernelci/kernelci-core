@@ -56,6 +56,14 @@ class TestValidator(unittest.TestCase):
             is_valid_json(json.loads(json_string), accepted_keys)
         )
 
+    def test_no_accepted_keys(self):
+        json_string = '{"kernel": "foo", "foo": "bar"}'
+        accepted_keys = None
+
+        self.assertFalse(
+            is_valid_json(json.loads(json_string), accepted_keys)
+        )
+
 
 class TestBatchValidator(unittest.TestCase):
 
@@ -103,4 +111,48 @@ class TestBatchValidator(unittest.TestCase):
 
         self.assertTrue(
             is_valid_batch_json(json.loads(json_str), batch_key, accepted_keys)
+        )
+
+    def test_non_valid_batch_json_from_dict(self):
+        batch_key = 'batch'
+        accepted_keys = ("method", "operation_id", "collection", "query")
+
+        json_obj = {
+            "batch": [
+                ["foo"], ["bar"]
+            ]
+        }
+
+        self.assertFalse(
+            is_valid_batch_json(json_obj, batch_key, accepted_keys)
+        )
+
+        json_obj = {
+            "batch": [
+                "foo", "bar"
+            ]
+        }
+
+        self.assertFalse(
+            is_valid_batch_json(json_obj, batch_key, accepted_keys)
+        )
+
+    def test_non_valid_batch_json_wrong_keys(self):
+        batch_key = 'batch'
+        accepted_keys = ("method", "operation_id", "collection", "query")
+
+        json_obj = {
+            "batch": [
+                {
+                    "foo_method": "GET",
+                },
+                {
+                    "method": "GET",
+                    "collection": "baz",
+                }
+            ]
+        }
+
+        self.assertFalse(
+            is_valid_batch_json(json_obj, batch_key, accepted_keys)
         )
