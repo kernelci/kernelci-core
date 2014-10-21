@@ -28,10 +28,7 @@ from utils.db import (
     delete,
     find_one,
 )
-from taskqueue.tasks import (
-    send_emails,
-    import_job,
-)
+from taskqueue.tasks import import_job
 
 
 class JobHandler(BaseHandler):
@@ -53,7 +50,7 @@ class JobHandler(BaseHandler):
         response.reason = "Request accepted and being imported"
         response.result = None
 
-        import_job.apply_async([kwargs['json_obj']], link=send_emails.s())
+        import_job.apply_async([kwargs['json_obj']])
 
         return response
 
