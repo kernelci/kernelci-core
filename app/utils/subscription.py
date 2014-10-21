@@ -34,7 +34,7 @@ from utils.db import (
 from utils.log import get_log
 
 
-log = get_log()
+LOG = get_log()
 
 
 def subscribe(database, json_obj):
@@ -103,11 +103,11 @@ def unsubscribe(collection, doc_id, email):
                 collection, {'_id': doc_id}, {'emails': emails}
             )
         except ValueError, ex:
-            log.error(
+            LOG.error(
                 "Error removing email address from subscription with "
                 "'_id': %s" % (doc_id)
             )
-            log.exception(str(ex))
+            LOG.exception(str(ex))
 
     return ret_val
 
@@ -127,4 +127,4 @@ def send(job_id):
 
     if subscription:
         emails = subscription['emails']
-        log.info("Sending emails to: %s" % (str(emails)))
+        LOG.info("Sending emails to: %s" % (str(emails)))
