@@ -54,7 +54,13 @@ class TestDefconfHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.addCleanup(patched_validate_token.stop)
 
     def get_app(self):
+        dboptions = {
+            'dbpassword': "",
+            'dbuser': ""
+        }
+
         settings = {
+            'dboptions': dboptions,
             'client': self.mongodb_client,
             'executor': ThreadPoolExecutor(max_workers=2),
             'default_handler_class': AppHandler,

@@ -57,6 +57,7 @@ class BaseHandler(RequestHandler):
 
     def __init__(self, application, request, **kwargs):
         super(BaseHandler, self).__init__(application, request, **kwargs)
+        self._db = None
 
     @property
     def executor(self):
@@ -71,7 +72,19 @@ class BaseHandler(RequestHandler):
     @property
     def db(self):
         """The database instance associated with the object."""
-        return self.settings['client'][DB_NAME]
+        if self._db is None:
+            db_options = self.settings['dboptions']
+            client = self.settings['client']
+
+            db_pwd = db_options['dbpassword']
+            db_user = db_options['dbuser']
+
+            self._db = client[DB_NAME]
+
+            if all([db_user, db_pwd]):
+                self._db.authenticate(db_user, password=db_pwd)
+
+        return self._db
 
     @property
     def log(self):
@@ -198,6 +211,7 @@ class BaseHandler(RequestHandler):
 
                     if is_valid_json(json_obj, self._valid_keys('POST')):
                         kwargs['json_obj'] = json_obj
+                        kwargs['db_options'] = self.settings['dboptions']
                         response = self._post(*args, **kwargs)
                     else:
                         response = HandlerResponse(400)
@@ -242,6 +256,8 @@ class BaseHandler(RequestHandler):
 
         This method will receive a named argument containing the JSON object
         with the POST request data. The argument is called `json_obj`.
+        It will also receive a named argument containing the mongodb database
+        connection parameters. The argument is called `db_options`.
 
         :return A `HandlerResponse` object.
         """
