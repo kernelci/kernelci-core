@@ -29,8 +29,8 @@ from tornado.web import Application
 from uuid import uuid4
 
 from handlers.app import AppHandler
+from handlers.dbindexes import ensure_indexes
 from urls import APP_URLS
-from utils.dbindexes import ensure_indexes
 
 
 DEFAULT_CONFIG_FILE = '/etc/linaro/kernelci-backend.cfg'
@@ -44,21 +44,49 @@ define('gzip', default=True)
 define('debug', default=True)
 define('autoreload', default=True)
 
+# mongodb connection parameters.
+define(
+    'dbhost', default='localhost', type=str, help="The DB host to connect to"
+)
+define("dbport", default=27017, type=int, help="The DB port to connect to")
+define(
+    "dbuser", default="", type=str,
+    help="The user name to use for the DB connection"
+)
+define(
+    "dbpassword", default="", type=str,
+    help="The password to use fopr the DB connection"
+)
+define("dbpool", default=250, type=int, help="The DB connections pool size")
+
 
 class KernelCiBackend(Application):
     """The Kernel CI backend application.
 
     Where everything starts.
     """
-
-    # TODO: handle mongodb configuration.
-    # XXX: mongodb config needs to be passed also to other modules.
-    mongodb_client = pymongo.MongoClient(max_pool_size=250)
+    mongodb_client = None
 
     def __init__(self):
 
+        db_options = {
+            'dbhost': options.dbhost,
+            'dbport': options.dbport,
+            'dbuser': options.dbuser,
+            'dbpassword': options.dbpassword,
+            'dbpool': options.dbpool
+        }
+
+        if self.mongodb_client is None:
+            self.mongodb_client = pymongo.MongoClient(
+                host=options.dbhost,
+                port=options.dbport,
+                max_pool_size=options.dbpool
+            )
+
         settings = {
             'client': self.mongodb_client,
+            'dboptions': db_options,
             'default_handler_class': AppHandler,
             'executor': ThreadPoolExecutor(max_workers=options.max_workers),
             'gzip': options.gzip,
@@ -67,7 +95,7 @@ class KernelCiBackend(Application):
             'autoreload': options.autoreload,
         }
 
-        ensure_indexes(self.mongodb_client)
+        ensure_indexes(self.mongodb_client, db_options)
 
         super(KernelCiBackend, self).__init__(APP_URLS, **settings)
 
@@ -79,9 +107,9 @@ if __name__ == '__main__':
     options.parse_command_line()
 
     # Settings that should be passed also to the HTTPServer.
-    http_settings = {
+    HTTP_SETTINGS = {
         'xheaders': True,
     }
 
-    KernelCiBackend().listen(8888, **http_settings)
+    KernelCiBackend().listen(8888, **HTTP_SETTINGS)
     tornado.ioloop.IOLoop.instance().start()
