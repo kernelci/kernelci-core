@@ -68,26 +68,30 @@ def import_boot(json_obj):
 
 
 @app.task(name='batch-executor')
-def execute_batch(json_obj):
+def execute_batch(json_obj, db_options):
     """Run batch operations based on the passed JSON object.
 
     :param json_obj: The JSON object with the operations to perform.
     :type json_obj: dict
+    :param db_options: The mongodb database connection parameters.
+    :type db_options: dict
     :return The result of the batch operations.
     """
-    return execute_batch_operation(json_obj)
+    return execute_batch_operation(json_obj, db_options)
 
 
-def run_batch_group(batch_op_list):
+def run_batch_group(batch_op_list, db_options):
     """Execute a list of batch operations.
 
     :param batch_op_list: List of JSON object used to build the batch
     operation.
     :type batch_op_list: list
+    :param db_options: The mongodb database connection parameters.
+    :type db_options: dict
     """
     job = group(
         [
-            execute_batch.s(batch_op)
+            execute_batch.s(batch_op, db_options)
             for batch_op in batch_op_list
         ]
     )

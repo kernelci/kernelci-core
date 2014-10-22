@@ -11,8 +11,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import pymongo
-
 from types import (
     ListType,
     StringTypes,
@@ -22,7 +20,6 @@ from models import (
     BOOT_COLLECTION,
     COLLECTION_KEY,
     COUNT_COLLECTION,
-    DB_NAME,
     DEFCONFIG_COLLECTION,
     DOCUMENT_ID_KEY,
     JOB_COLLECTION,
@@ -37,13 +34,10 @@ from utils.batch.batch_op import (
     BatchJobOperation,
     BatchOperation,
 )
-
-# Global mongodb object.
-DATABASE = None
+from utils.db import get_db_connection
 
 
-# TODO: pass db configuration parameters.
-def create_batch_operation(json_obj, db_config=None):
+def create_batch_operation(json_obj, db_options):
     """Create a `BatchOperation` object from a JSON object.
 
     No validity checks are performed on the JSON object, it must be a valid
@@ -51,13 +45,11 @@ def create_batch_operation(json_obj, db_config=None):
 
     :param json_obj: The JSON object with all the necessary paramters.
     :type json_obj: dict
-    :param db_config: The mongodb configuration parameters.
-    :type db_config: dict
+    :param db_options: The mongodb configuration parameters.
+    :type db_options: dict
     :return A `BatchOperation` object, or None if the `BatchOperation` cannot
     be constructed.
     """
-    global DATABASE
-
     batch_op = None
 
     if json_obj:
@@ -65,30 +57,27 @@ def create_batch_operation(json_obj, db_config=None):
         collection = get_func(COLLECTION_KEY, None)
 
         if collection:
-            if not DATABASE:
-                # TODO: handle db_config values.
-                DATABASE = pymongo.MongoClient()[DB_NAME]
-
+            database = get_db_connection(db_options)
             operation_id = get_func(OP_ID_KEY, None)
 
             if collection == COUNT_COLLECTION:
                 batch_op = BatchCountOperation(
-                    collection, DATABASE, operation_id=operation_id
+                    collection, database, operation_id=operation_id
                 )
             elif collection == BOOT_COLLECTION:
                 batch_op = BatchBootOperation(
-                    collection, DATABASE, operation_id=operation_id
+                    collection, database, operation_id=operation_id
                 )
             elif collection == JOB_COLLECTION:
                 batch_op = BatchJobOperation(
-                    collection, DATABASE, operation_id=operation_id
+                    collection, database, operation_id=operation_id
                 )
             elif collection == DEFCONFIG_COLLECTION:
                 batch_op = BatchDefconfigOperation(
-                    collection, DATABASE, operation_id=operation_id)
+                    collection, database, operation_id=operation_id)
             else:
                 batch_op = BatchOperation(
-                    collection, DATABASE, operation_id=operation_id)
+                    collection, database, operation_id=operation_id)
 
             batch_op.query_args = get_batch_query_args(
                 get_func(QUERY_KEY, None)
@@ -100,15 +89,17 @@ def create_batch_operation(json_obj, db_config=None):
     return batch_op
 
 
-def execute_batch_operation(json_obj):
+def execute_batch_operation(json_obj, db_options):
     """Create and execute the batch op as defined in the JSON object.
 
     :param json_obj: The JSON object that will be used to create the batch
     operation.
-    :type json_obj: dictionary
+    :type json_obj: dict
+    :param db_options: The mongodb database connection parameters.
+    :type db_options: dict
     :return The result of the operation execution, or None.
     """
-    batch_op = create_batch_operation(json_obj)
+    batch_op = create_batch_operation(json_obj, db_options)
 
     result = None
     if batch_op:

@@ -178,5 +178,9 @@ class TestBatchHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
                     'method': 'GET',
                     'collection': 'count'
                 }
-            ]
+            ],
+            {
+                'dbuser': '',
+                'dbpassword': ''
+            }
         )

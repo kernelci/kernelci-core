@@ -71,8 +71,7 @@ class TestBatch(unittest.TestCase):
 
         self.assertEqual(expected, get_batch_query_args(query))
 
-    @patch('pymongo.MongoClient')
-    def test_create_batch_op_generic(self, mocked_mongocl):
+    def test_create_batch_op_generic(self):
         json_obj = {
             "collection": "boot",
             "document_id": "doc-id",
@@ -80,11 +79,10 @@ class TestBatch(unittest.TestCase):
             "operation_id": "foo"
         }
 
-        op = create_batch_operation(json_obj)
+        op = create_batch_operation(json_obj, {})
         self.assertIsInstance(op, BatchOperation)
 
-    @patch('pymongo.MongoClient')
-    def test_create_batch_op_count(self, mocked_mongocl):
+    def test_create_batch_op_count(self):
         json_obj = {
             "collection": "count",
             "document_id": "defconfig",
@@ -92,23 +90,21 @@ class TestBatch(unittest.TestCase):
             "operation_id": "foo"
         }
 
-        op = create_batch_operation(json_obj)
+        op = create_batch_operation(json_obj, {})
         self.assertIsInstance(op, BatchCountOperation)
 
-    @patch('pymongo.MongoClient')
-    def test_create_batch_op_none(self, mocked_mongocl):
-        op = create_batch_operation(None)
+    def test_create_batch_op_none(self):
+        op = create_batch_operation(None, None)
         self.assertIsNone(op)
 
-    @patch('pymongo.MongoClient')
-    def test_create_batch_op_no_collection(self, mocked_mongocl):
+    def test_create_batch_op_no_collection(self):
         json_obj = {
             "document_id": "defconfig",
             "query": "status=FAIL&job=mainline",
             "operation_id": "foo"
         }
 
-        op = create_batch_operation(json_obj)
+        op = create_batch_operation(json_obj, {})
         self.assertIsNone(op)
 
     @patch('pymongo.MongoClient')
@@ -119,7 +115,7 @@ class TestBatch(unittest.TestCase):
             "operation_id": "foo"
         }
 
-        op = create_batch_operation(json_obj)
+        op = create_batch_operation(json_obj, {})
         self.assertIsInstance(op, BatchBootOperation)
 
     @patch('pymongo.MongoClient')
@@ -130,7 +126,7 @@ class TestBatch(unittest.TestCase):
             "operation_id": "foo"
         }
 
-        op = create_batch_operation(json_obj)
+        op = create_batch_operation(json_obj, {})
         self.assertIsInstance(op, BatchJobOperation)
 
     @patch('pymongo.MongoClient')
@@ -141,7 +137,7 @@ class TestBatch(unittest.TestCase):
             "operation_id": "foo"
         }
 
-        op = create_batch_operation(json_obj)
+        op = create_batch_operation(json_obj, {})
         self.assertIsInstance(op, BatchDefconfigOperation)
 
     @patch('pymongo.MongoClient')
@@ -152,5 +148,5 @@ class TestBatch(unittest.TestCase):
             "operation_id": "foo"
         }
 
-        op = create_batch_operation(json_obj)
+        op = create_batch_operation(json_obj, {})
         self.assertIsInstance(op, BatchOperation)

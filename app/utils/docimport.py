@@ -68,7 +68,7 @@ def import_and_save_job(json_obj, db_options, base_path=BASE_PATH):
     :param json_obj: The JSON object with the values to be parsed.
     :type json_obj: dict
     :param db_options: The mongodb database connection parameters.
-    :rtpe db_options: dict
+    :type db_options: dict
     :return The ID of the created document.
     """
     database = get_db_connection(db_options)

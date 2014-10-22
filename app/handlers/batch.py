@@ -27,6 +27,7 @@ from utils.validator import is_valid_batch_json
 
 
 class BatchHandler(BaseHandler):
+    """The batch URL handler class."""
 
     def __init__(self, application, request, **kwargs):
         super(BatchHandler, self).__init__(application, request, **kwargs)
@@ -50,14 +51,14 @@ class BatchHandler(BaseHandler):
 
             if valid_request == 200:
                 try:
-                    json_obj = j_load(self.request.body.decode('utf8'))
+                    json_obj = j_load(self.request.body.decode("utf8"))
 
                     if is_valid_batch_json(
-                            json_obj, BATCH_KEY, self._valid_keys('POST')):
+                            json_obj, BATCH_KEY, self._valid_keys("POST")):
                         response = HandlerResponse(200)
                         response.result = \
-                            self.prepare_and_perform_batch_operations(
-                                json_obj
+                            self.prepare_and_perform_batch_ops(
+                                json_obj, self.settings["dboptions"]
                             )
                     else:
                         response = HandlerResponse(400)
@@ -80,7 +81,7 @@ class BatchHandler(BaseHandler):
         return response
 
     @staticmethod
-    def prepare_and_perform_batch_operations(json_obj):
+    def prepare_and_perform_batch_ops(json_obj, db_options):
         """Perform the operation defined in the JSON object.
 
         The JSON oject must be a valid batch operations object.
@@ -88,5 +89,7 @@ class BatchHandler(BaseHandler):
         :param json_obj: The JSON object that defines all the bath operations
         to perform.
         :type json_obj: dict
+        :param db_options: The mongodb database connection parameters.
+        :type db_options: dict
         """
-        return run_batch_group(json_obj.get(BATCH_KEY))
+        return run_batch_group(json_obj.get(BATCH_KEY), db_options)
