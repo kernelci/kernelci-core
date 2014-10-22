@@ -16,14 +16,49 @@
 """Collection of mongodb database operations."""
 
 import types
+import pymongo
 
 from pymongo.errors import OperationFailure
 
+from models import DB_NAME
 from models.base import BaseDocument
-from utils.log import get_log
+from utils import (
+    DEFAULT_MONGODB_POOL,
+    DEFAULT_MONGODB_PORT,
+    DEFAULT_MONGODB_URL,
+    LOG,
+)
+
+DB_CONNECTION = None
 
 
-LOG = get_log()
+def get_db_connection(db_options):
+    """Retrieve a mongodb database connection.
+
+    :params db_options: The mongodb database connection parameters.
+    :type db_options: dict
+    :return A mongodb database instance.
+    """
+    global DB_CONNECTION
+
+    if DB_CONNECTION is None:
+        db_options_get = db_options.get
+
+        db_host = db_options_get("dbhost", DEFAULT_MONGODB_URL)
+        db_port = db_options_get("dbport", DEFAULT_MONGODB_PORT)
+        db_pool = db_options.get("dbpool", DEFAULT_MONGODB_POOL)
+
+        db_user = db_options_get("dbuser", "")
+        db_pwd = db_options.get("dbpassword", "")
+
+        DB_CONNECTION = pymongo.MongoClient(
+            host=db_host, port=db_port, max_pool_size=db_pool
+        )[DB_NAME]
+
+        if all([db_user, db_pwd]):
+            DB_CONNECTION.authenticate(db_user, password=db_pwd)
+
+    return DB_CONNECTION
 
 
 def find_one(collection,
@@ -118,9 +153,9 @@ def find_and_count(collection, limit, skip, spec=None, fields=None, sort=None):
     db_result = collection.find(
         limit=limit, skip=skip, spec=spec, fields=fields, sort=sort
     )
-    count = db_result.count()
+    res_count = db_result.count()
 
-    return db_result, count
+    return db_result, res_count
 
 
 def count(collection):

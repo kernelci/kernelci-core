@@ -26,15 +26,12 @@ from models.subscription import (
     SUBSCRIPTION_COLLECTION,
     SubscriptionDocument,
 )
+from utils import LOG
 from utils.db import (
     find_one,
     save,
     update,
 )
-from utils.log import get_log
-
-
-LOG = get_log()
 
 
 def subscribe(database, json_obj):

@@ -40,16 +40,19 @@ def send_emails(job_id):
     send(job_id)
 
 
-@app.task(name='import-job')
-def import_job(json_obj, ignore_result=True):
+@app.task(name='import-job', ignore_result=True)
+def import_job(json_obj, db_options):
     """Just a wrapper around the real import function.
 
     This is used to provide a Celery-task access to the import function.
 
     :param json_obj: The JSON object with the values necessary to import the
         job.
+    :type json_obj: dict
+    :param db_options: The mongodb database connection parameters.
+    :type db_options: dict
     """
-    import_and_save_job(json_obj)
+    import_and_save_job(json_obj, db_options)
 
 
 @app.task(name='import-boot', ignore_result=True)

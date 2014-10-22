@@ -16,6 +16,9 @@
 from utils.log import get_log
 
 BASE_PATH = '/var/www/images/kernel-ci'
+DEFAULT_MONGODB_URL = "localhost"
+DEFAULT_MONGODB_PORT = 27017
+DEFAULT_MONGODB_POOL = 250
 LOG = get_log()
 
 
@@ -26,6 +29,6 @@ def is_hidden(value):
     :return True or False.
     """
     hidden = False
-    if value.startswith('.'):
+    if value.startswith("."):
         hidden = True
     return hidden

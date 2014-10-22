@@ -103,7 +103,7 @@ class TestParseJob(unittest.TestCase):
     def test_import_and_save(self, mocked_client=mongomock.Connection()):
         json_obj = dict(job='job', kernel='kernel')
 
-        self.assertEqual(import_and_save_job(json_obj), 'job-kernel')
+        self.assertEqual(import_and_save_job(json_obj, {}), 'job-kernel')
 
     @patch('utils.docimport.find_one')
     def test_import_job_building(self, mock_find_one):

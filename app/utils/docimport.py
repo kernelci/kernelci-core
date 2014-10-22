@@ -54,20 +54,24 @@ from utils import (
 )
 from utils.db import (
     find_one,
+    get_db_connection,
     save,
 )
 from utils.meta_parser import parse_metadata_file
 
 
-def import_and_save_job(json_obj, base_path=BASE_PATH):
+def import_and_save_job(json_obj, db_options, base_path=BASE_PATH):
     """Wrapper function to be used as an external task.
 
     This function should only be called by Celery or other task managers.
 
     :param json_obj: The JSON object with the values to be parsed.
+    :type json_obj: dict
+    :param db_options: The mongodb database connection parameters.
+    :rtpe db_options: dict
     :return The ID of the created document.
     """
-    database = pymongo.MongoClient()[DB_NAME]
+    database = get_db_connection(db_options)
     docs, job_id = import_job_from_json(json_obj, database, base_path)
 
     if docs:

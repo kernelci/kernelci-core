@@ -50,7 +50,7 @@ class JobHandler(BaseHandler):
         response.reason = "Request accepted and being imported"
         response.result = None
 
-        import_job.apply_async([kwargs['json_obj']])
+        import_job.apply_async([kwargs['json_obj'], kwargs['db_options']])
 
         return response
 

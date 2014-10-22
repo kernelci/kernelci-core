@@ -30,7 +30,6 @@ from models import (
     OP_ID_KEY,
     QUERY_KEY,
 )
-from utils import get_log
 from utils.batch.batch_op import (
     BatchBootOperation,
     BatchCountOperation,
@@ -38,8 +37,6 @@ from utils.batch.batch_op import (
     BatchJobOperation,
     BatchOperation,
 )
-
-LOG = get_log()
 
 # Global mongodb object.
 DATABASE = None

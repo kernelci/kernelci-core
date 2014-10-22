@@ -37,14 +37,12 @@ from models import (
     OP_ID_KEY,
     RESULT_KEY,
 )
-from utils import get_log
+from utils import LOG
 from utils.db import (
     aggregate,
     find_and_count,
     find_one,
 )
-
-LOG = get_log()
 
 
 class BatchOperation(object):
