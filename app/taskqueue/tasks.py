@@ -56,15 +56,18 @@ def import_job(json_obj, db_options):
 
 
 @app.task(name='import-boot', ignore_result=True)
-def import_boot(json_obj):
+def import_boot(json_obj, db_options):
     """Just a wrapper around the real boot import function.
 
     This is used to provide a Celery-task access to the import function.
 
     :param json_obj: The JSON object with the values necessary to import the
-        boot report.
+    boot report.
+    :type json_obj: dict
+    :param db_options: The mongodb database connection parameters.
+    :type db_options: dict
     """
-    import_and_save_boot(json_obj)
+    import_and_save_boot(json_obj, db_options)
 
 
 @app.task(name='batch-executor')

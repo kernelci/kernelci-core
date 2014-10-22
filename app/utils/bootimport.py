@@ -47,7 +47,10 @@ from utils import (
     LOG,
     is_hidden,
 )
-from utils.db import save
+from utils.db import (
+    get_db_connection,
+    save,
+)
 
 # Pattern used for glob matching files on the filesystem.
 BOOT_REPORT_PATTERN = 'boot-*.json'
@@ -63,7 +66,7 @@ BOOT_WARNINGS_JSON = 'boot_warnings'
 TMP_RE = re.compile(r'tmp')
 
 
-def import_and_save_boot(json_obj, base_path=BASE_PATH):
+def import_and_save_boot(json_obj, db_options, base_path=BASE_PATH):
     """Wrapper function to be used as an external task.
 
     This function should only be called by Celery or other task managers.
@@ -71,12 +74,14 @@ def import_and_save_boot(json_obj, base_path=BASE_PATH):
     provided JSON object.
 
     :param json_obj: The JSON object with the values that identify the boot
-        report log.
+    report log.
+    :type json_obj: dict
+    :param db_options: The mongodb database connection parameters.
+    :type db_options: dict
     :param base_path: The base path where to start looking for the boot log
-        file. It defaults to: /var/www/images/kernel-ci.
+    file. It defaults to: /var/www/images/kernel-ci.
     """
-    database = pymongo.MongoClient()[DB_NAME]
-
+    database = get_db_connection(db_options)
     docs = parse_boot_from_json(json_obj, base_path)
 
     if docs:
