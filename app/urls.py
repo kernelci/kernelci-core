@@ -17,13 +17,14 @@
 
 from tornado.web import url
 
+from handlers.bisect import BisectHandler
+from handlers.batch import BatchHandler
 from handlers.boot import BootHandler
 from handlers.count import CountHandler
 from handlers.defconf import DefConfHandler
 from handlers.job import JobHandler
 from handlers.subscription import SubscriptionHandler
 from handlers.token import TokenHandler
-from handlers.batch import BatchHandler
 
 
 _JOB_URL = url(r'/api/job(?P<sl>/)?(?P<id>.*)', JobHandler, name='job')
@@ -45,13 +46,19 @@ _TOKEN_URL = url(
 _BATCH_URL = url(
     r'/api/batch', BatchHandler, name='batch'
 )
+_BISECT_URL = url(
+    r"/api/bisect/(?P<collection>.*)/(?P<id>.*)",
+    BisectHandler,
+    name="bisect"
+)
 
 APP_URLS = [
+    _BATCH_URL,
+    _BISECT_URL,
     _BOOT_URL,
     _COUNT_URL,
     _DEFCONF_URL,
     _JOB_URL,
     _SUBSCRIPTION_URL,
     _TOKEN_URL,
-    _BATCH_URL,
 ]
