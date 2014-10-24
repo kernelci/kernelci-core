@@ -18,7 +18,7 @@ job_map = {}
 
 def report(jobs):
     for job in jobs:
-        print job + ' ' + jobs[job]
+        print str(job) + ' ' + jobs[job]
 
 
 def poll_jobs(connection):
