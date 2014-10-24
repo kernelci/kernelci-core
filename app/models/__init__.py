@@ -104,3 +104,12 @@ DEFCONFIG_COLLECTION = 'defconfig'
 JOB_COLLECTION = 'job'
 SUBSCRIPTION_COLLECTION = 'subscription'
 TOKEN_COLLECTION = 'api-token'
+
+# Bisect values.
+BISECT_BOOT_STATUS_KEY = 'boot_status'
+BISECT_BOOT_CREATED_KEY = 'boot_created_on'
+BISECT_BOOT_METADATA_KEY = 'boot_metadata'
+BISECT_DEFCONFIG_STATUS_KEY = 'defconfig_status'
+BISECT_DEFCONFIG_CREATED_KEY = 'defconfig_created'
+BISECT_DEFCONFIG_METADATA_KEY = 'defconfig_metadata'
+BISECT_DEFCONFIG_ARCHITECTURE_KEY = 'defconfig_arch'

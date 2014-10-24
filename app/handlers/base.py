@@ -52,6 +52,20 @@ from utils.log import get_log
 from utils.validator import is_valid_json
 
 
+STATUS_MESSAGES = {
+    404: 'Resource not found',
+    405: 'Operation not allowed',
+    415: (
+        'Please use "%s" as the default media type' %
+        ACCEPTED_CONTENT_TYPE
+    ),
+    420: 'No JSON data found',
+    500: 'Internal database error',
+    501: 'Method not implemented',
+    506: 'Wrong response type from database'
+}
+
+
 class BaseHandler(RequestHandler):
     """The base handler."""
 
@@ -112,20 +126,7 @@ class BaseHandler(RequestHandler):
         :type int
         :return The error message string.
         """
-        status_messages = {
-            404: 'Resource not found',
-            405: 'Operation not allowed',
-            415: (
-                'Please use "%s" as the default media type' %
-                ACCEPTED_CONTENT_TYPE
-            ),
-            420: 'No JSON data found',
-            500: 'Internal database error',
-            501: 'Method not implemented',
-            506: 'Wrong response type from database'
-        }
-
-        message = status_messages.get(status_code, None)
+        message = STATUS_MESSAGES.get(status_code, None)
         if not message:
             # If we do not have a custom message, try to see into
             # the Python lib for the default one or fail safely.
