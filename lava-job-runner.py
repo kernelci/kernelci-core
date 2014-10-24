@@ -12,14 +12,76 @@ import time
 import re
 import urlparse
 import argparse
+import shutil
 
 job_map = {}
 
 
-def report(jobs):
-    for job in jobs:
-        print str(job) + ' ' + jobs[job]
+def kreport(connection, jobs, duration):
+    results_directory = os.getcwd() + '/results'
+    results = {}
+    mkdir(results_directory)
+    for job_id in jobs:
+        # Retrieve job details
+        job_details = connection.scheduler.job_details(job_id)
+        if job_details['requested_device_type_id']:
+            device_type = job_details['requested_device_type_id']
+        if job_details['description']:
+            job_name = job_details['description']
+        result = jobs[job_id]['result']
+        bundle = jobs[job_id]['bundle']
+        # Retrieve the log file
+        binary_job_file = connection.scheduler.job_output(job_id)
+        job_file = str(binary_job_file)
+        # Retrieve bundle
+        json_bundle = connection.dashboard.get(bundle)
+        bundle_data = json.loads(json_bundle['content'])
+        if bundle_data['test_runs'][0]['attributes']['kernel.defconfig']:
+            defconfig = bundle_data['test_runs'][0]['attributes']['kernel.defconfig']
+        if bundle_data['test_runs'][0]['attributes']['kernel.version']:
+            kernel_version = bundle_data['test_runs'][0]['attributes']['kernel.version']
+        if bundle_data['test_runs'][0]['attributes']['kernel-boot-time']:
+            kernel_boot_time = bundle_data['test_runs'][0]['attributes']['kernel-boot-time']
+        if bundle_data['test_runs'][0]['attributes']['kernel.tree']:
+            kernel_tree = bundle_data['test_runs'][0]['attributes']['kernel.tree']
+        # Record the results
+        # TODO: Will need to map device_types to dashboard device types
+        if defconfig and device_type and kernel_boot_time and result:
+            log = 'boot-%s.log' % device_type
+            directory = os.path.join(results_directory, defconfig)
+            mkdir(directory)
+            write_file(job_file, log, directory)
+            if results.has_key(defconfig):
+                results[defconfig].append({'device_type': device_type, 'kernel_boot_time': kernel_boot_time, 'result': result})
+            else:
+                results[defconfig] = [{'device_type': device_type, 'kernel_boot_time': kernel_boot_time, 'result': result}]
+    if results and kernel_tree and kernel_version:
+        log = '%s-boot-report.log' % kernel_version
+        with open(os.path.join(results_directory, log), 'a') as f:
+            f.write('Status Dashboard: http://status.armcloud.us/boot/all/job/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
+            f.write('\n')
+            f.write('Total duration: %.2f seconds\n' % duration)
+            f.write('Tree/Branch: %s\n' % kernel_tree)
+            f.write('Git describe: %s\n' % kernel_version)
+            f.write('\n')
+            f.write('Full Report:\n')
+            for defconfig, results_list in results.items():
+                f.write('\n')
+                f.write(defconfig)
+                f.write('\n')
+                for result in results_list:
+                    f.write('    %s   %ss   %s\n' % (result['device_type'], result['kernel_boot_time'], result['result']))
 
+def write_file(file, name, directory):
+    with open(os.path.join(directory, name), 'w') as f:
+        f.write(file)
+
+def mkdir(directory):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    else:
+        shutil.rmtree(directory)
+        os.makedirs(directory)
 
 def poll_jobs(connection):
     run = True
@@ -41,13 +103,19 @@ def poll_jobs(connection):
                 if status['job_status'] == 'Complete':
                     print 'job-id-' + str(job) + '-' + os.path.basename(submitted_jobs[job]) + ' : pass'
                     # Pop
-                    finished_jobs[job] = 'PASS'
+                    if status['bundle_sha1']:
+                        finished_jobs[job] = {'result': 'PASS', 'bundle': status['bundle_sha1']}
+                    else:
+                        finished_jobs[job] = {'result': 'PASS', 'bundle': None}
                     submitted_jobs.pop(job, None)
                     break
                 elif status['job_status'] == 'Incomplete' or status['job_status'] == 'Canceled' or status['job_status'] == 'Canceling':
                     print 'job-id-' + str(job) + '-' + os.path.basename(submitted_jobs[job]) + ' : fail'
                     # Pop
-                    finished_jobs[job] = 'FAIL'
+                    if status['bundle_sha1']:
+                        finished_jobs[job] = {'result': 'FAIL', 'bundle': status['bundle_sha1']}
+                    else:
+                        finished_jobs[job] = {'result': 'FAIL', 'bundle': None}
                     submitted_jobs.pop(job, None)
                     break
                 else:
@@ -222,14 +290,17 @@ def main(args):
     if args.repo:
         retrieve_jobs(args.repo)
     load_jobs()
+    start_time = time.time()
     if args.stream:
         submit_jobs(connection, args.server, args.stream)
     else:
         submit_jobs(connection, args.server, bundle_stream=None)
     if args.poll:
         jobs = poll_jobs(connection)
-        if args.report:
-            report(jobs)
+        end_time = time.time()
+        duration = end_time - start_time
+        if args.kreport:
+            kreport(connection, jobs, duration)
     exit(0)
 
 if __name__ == '__main__':
@@ -240,6 +311,6 @@ if __name__ == '__main__':
     parser.add_argument("--stream", help="bundle stream for LAVA server")
     parser.add_argument("--repo", help="git repo for LAVA jobs")
     parser.add_argument("--poll", action='store_true', help="poll the submitted LAVA jobs")
-    parser.add_argument("--report", action='store_true', help="report on the submitted LAVA jobs")
+    parser.add_argument("--kreport", action='store_true', help="kernel-ci report for the submitted LAVA jobs")
     args = parser.parse_args()
     main(args)
