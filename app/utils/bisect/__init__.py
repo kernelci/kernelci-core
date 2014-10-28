@@ -13,39 +13,49 @@
 
 """All the bisect operations that the app can perform."""
 
+from bson import tz_util
 from bson.json_util import default
+from datetime import datetime
 from json import (
     dumps as j_dump,
     loads as j_load,
 )
 from pymongo import DESCENDING
+from types import DictionaryType
 
 from models import (
-    BOOT_COLLECTION,
-    DEFCONFIG_COLLECTION,
-    BOARD_KEY,
-    CREATED_KEY,
-    DEFCONFIG_KEY,
-    JOB_KEY,
-    JOB_ID_KEY,
-    KERNEL_KEY,
-    METADATA_KEY,
-    STATUS_KEY,
     ARCHITECTURE_KEY,
-    DIRNAME_KEY,
-    PASS_STATUS,
     BISECT_BOOT_CREATED_KEY,
     BISECT_BOOT_METADATA_KEY,
     BISECT_BOOT_STATUS_KEY,
+    BISECT_COLLECTION,
+    BISECT_DEFCONFIG_ARCHITECTURE_KEY,
     BISECT_DEFCONFIG_CREATED_KEY,
     BISECT_DEFCONFIG_METADATA_KEY,
     BISECT_DEFCONFIG_STATUS_KEY,
-    BISECT_DEFCONFIG_ARCHITECTURE_KEY,
+    BOARD_KEY,
+    BOOT_COLLECTION,
+    CREATED_KEY,
+    DEFCONFIG_COLLECTION,
+    DEFCONFIG_KEY,
+    DIRNAME_KEY,
+    DOC_ID_KEY,
+    GIT_COMMIT_KEY,
+    GIT_URL_KEY,
+    JOB_ID_KEY,
+    JOB_KEY,
+    KERNEL_KEY,
+    METADATA_KEY,
+    PASS_STATUS,
+    STATUS_KEY,
 )
+from models.bisect import BootBisectDocument
+from utils import LOG
 from utils.db import (
     find,
     find_one,
     get_db_connection,
+    save,
 )
 
 
@@ -102,7 +112,7 @@ def _combine_defconfig_values(boot_doc, db_options):
         BISECT_DEFCONFIG_CREATED_KEY: "",
         BISECT_DEFCONFIG_ARCHITECTURE_KEY: "",
         BISECT_DEFCONFIG_STATUS_KEY: "",
-        BISECT_DEFCONFIG_METADATA_KEY: []
+        BISECT_DEFCONFIG_METADATA_KEY: {}
     }
 
     defconf_id = job + "-" + kernel + "-" + defconfig
@@ -145,51 +155,116 @@ def execute_boot_bisection(doc_id, db_options):
     :return A numeric value for the result status and a list dictionaries.
     """
     database = get_db_connection(db_options)
+    result = []
+    code = 200
 
     start_doc = find_one(
         database[BOOT_COLLECTION], doc_id, fields=BOOT_SEARCH_FIELDS
     )
 
-    result = []
-    code = 200
-
-    if start_doc:
+    if all([start_doc, isinstance(start_doc, DictionaryType)]):
         start_doc_get = start_doc.get
-        spec = {
-            BOARD_KEY: start_doc_get(BOARD_KEY),
-            DEFCONFIG_KEY: start_doc_get(DEFCONFIG_KEY),
-            JOB_KEY: start_doc_get(JOB_KEY),
-            CREATED_KEY: {
-                "$lt": start_doc_get(CREATED_KEY)
+
+        if start_doc_get(STATUS_KEY) == PASS_STATUS:
+            code = 400
+            result = None
+        else:
+            bisect_doc = BootBisectDocument(doc_id)
+            bisect_doc.job = start_doc_get(JOB_ID_KEY)
+            bisect_doc.created_on = datetime.now(tz=tz_util.utc)
+            bisect_doc.board = start_doc_get(BOARD_KEY)
+
+            spec = {
+                BOARD_KEY: start_doc_get(BOARD_KEY),
+                DEFCONFIG_KEY: start_doc_get(DEFCONFIG_KEY),
+                JOB_KEY: start_doc_get(JOB_KEY),
+                CREATED_KEY: {
+                    "$lt": start_doc_get(CREATED_KEY)
+                }
             }
-        }
 
-        all_valid_docs = [(start_doc, db_options)]
+            # The function to apply to each boot document to find its defconfig
+            # one and combine the values.
+            func = _combine_defconfig_values
 
-        all_prev_docs = find(
-            database[BOOT_COLLECTION],
-            0,
-            0,
-            spec=spec,
-            fields=BOOT_SEARCH_FIELDS,
-            sort=BOOT_SORT
-        )
+            bad_doc = func(start_doc, db_options)
+            bad_doc_meta = bad_doc[BISECT_DEFCONFIG_METADATA_KEY].get
 
-        if all_prev_docs:
-            for prev_doc in all_prev_docs:
-                if prev_doc[STATUS_KEY] == PASS_STATUS:
-                    all_valid_docs.append((prev_doc, db_options))
-                    break
-                all_valid_docs.append((prev_doc, db_options))
+            bisect_doc.bad_commit_date = bad_doc[BISECT_DEFCONFIG_CREATED_KEY]
+            bisect_doc.bad_commit = bad_doc_meta(GIT_COMMIT_KEY)
+            bisect_doc.bad_commit_url = bad_doc_meta(GIT_URL_KEY)
 
-        func = _combine_defconfig_values
-        # TODO: we have to save the result in a new collection.
-        result = [
-            j_load(j_dump(func(doc, opt), default=default))
-            for doc, opt in all_valid_docs
-        ]
+            all_valid_docs = [bad_doc]
+
+            # Search through all the previous boot reports, until one that
+            # passed is found, and combine them with their defconfig document.
+            all_prev_docs = find(
+                database[BOOT_COLLECTION],
+                0,
+                0,
+                spec=spec,
+                fields=BOOT_SEARCH_FIELDS,
+                sort=BOOT_SORT
+            )
+
+            if all_prev_docs:
+                all_valid_docs.extend(
+                    [
+                        func(doc, db_options)
+                        for doc in _get_docs_until_pass(all_prev_docs)
+                    ]
+                )
+                # The last doc should be the good one, in case it is, add the
+                # values to the bisect_doc.
+                good_doc = all_valid_docs[-1]
+                if good_doc[BISECT_BOOT_STATUS_KEY] == PASS_STATUS:
+                    good_doc_meta = good_doc[BISECT_DEFCONFIG_METADATA_KEY].get
+                    bisect_doc.good_commit = good_doc_meta(GIT_COMMIT_KEY)
+                    bisect_doc.good_commit_url = good_doc_meta(GIT_URL_KEY)
+                    bisect_doc.good_commit_date = \
+                        good_doc[BISECT_DEFCONFIG_CREATED_KEY]
+
+            # Store everything in the bisect_data list of the bisect_doc.
+            bisect_doc.bisect_data = all_valid_docs
+
+            return_code, saved_id = save(database, bisect_doc, manipulate=True)
+            if return_code == 201:
+                bisect_doc._id = saved_id
+            else:
+                LOG.error("Error savind bisect data %s", doc_id)
+            result = [j_load(j_dump(bisect_doc.to_dict(), default=default))]
     else:
         code = 404
         result = None
 
     return code, result
+
+
+def _get_docs_until_pass(doc_list):
+    """Iterate through the docs until one that passed is found.
+
+    Yield all documents until one that passed is found, returning it as well
+    and breaking the loop.
+
+    :param doc_list: A list of documents (`BaseDocument`) as dictionaries.
+    :type doc_list: list
+    """
+    for doc in doc_list:
+        if doc[STATUS_KEY] == PASS_STATUS:
+            yield doc
+            break
+        yield doc
+
+
+def _find_bisect(doc_id, database):
+    """Look for an already available bisect object in the database.
+
+    :param doc_id: The ID of the document to search.
+    :type doc_id: str
+    :param collection: The collection where to search the document.
+    :type collection: str
+    :param database: The connection to the database.
+    :type database: `pymongo.MongoClient`
+    :return The document found or None.
+    """
+    return find_one(database[BISECT_COLLECTION], doc_id, field=DOC_ID_KEY)

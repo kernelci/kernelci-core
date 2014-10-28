@@ -105,3 +105,20 @@ class TestBisectHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
         response = self.fetch('/api/bisect/boot/foo', headers=headers)
         self.assertEqual(response.code, 404)
+
+    def test_boot_bisect_no_faile(self):
+        headers = {'Authorization': 'foo'}
+
+        self.task_return_value.get.return_value = 400, None
+
+        response = self.fetch('/api/bisect/boot/foo', headers=headers)
+        self.assertEqual(response.code, 400)
+
+    @patch("handlers.bisect.find_one")
+    def test_boot_bisect_with_result(self, mocked_find):
+        headers = {'Authorization': 'foo'}
+
+        mocked_find.return_value = [{"foo": "bar"}]
+
+        response = self.fetch('/api/bisect/boot/foo', headers=headers)
+        self.assertEqual(response.code, 200)

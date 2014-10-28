@@ -23,8 +23,12 @@ from handlers.common import NOT_VALID_TOKEN
 from handlers.response import HandlerResponse
 from taskqueue.tasks import boot_bisect
 
+from utils.db import find_one
+
 from models import (
+    BISECT_COLLECTION,
     BOOT_COLLECTION,
+    DOC_ID_KEY,
 )
 
 BISECT_COLLECTIONS = [
@@ -49,6 +53,10 @@ class BisectHandler(BaseHandler):
             )
         )
 
+    @property
+    def collection(self):
+        return BISECT_COLLECTION
+
     def execute_get(self, *args, **kwargs):
         """This is the actual GET operation.
 
@@ -57,12 +65,20 @@ class BisectHandler(BaseHandler):
         """
         response = None
 
+        # TODO: handle fields data structure.
         if self.validate_req_token("GET"):
             if kwargs:
                 collection = kwargs.get("collection", None)
                 doc_id = kwargs.get("id", None)
                 if all([collection, doc_id]):
-                    response = self._get_bisect(collection, doc_id)
+                    bisect_result = find_one(
+                        self.db[self.collection], doc_id, field=DOC_ID_KEY
+                    )
+                    if bisect_result:
+                        response = HandlerResponse(200)
+                        response.result = bisect_result
+                    else:
+                        response = self._get_bisect(collection, doc_id)
                 else:
                     response = HandlerResponse(400)
             else:
@@ -85,10 +101,10 @@ class BisectHandler(BaseHandler):
         response = None
 
         if collection in BISECT_COLLECTIONS:
+            db_options = self.settings["dboptions"]
+
             if collection == BOOT_COLLECTION:
-                response = self.execute_boot_bisect(
-                    doc_id, self.settings["dboptions"]
-                )
+                response = self.execute_boot_bisect(doc_id, db_options)
         else:
             response = HandlerResponse(400)
             response.reason = (
@@ -116,4 +132,6 @@ class BisectHandler(BaseHandler):
         response.status_code, response.result = result.get()
         if response.status_code == 404:
             response.reason = "Boot report not found"
+        elif response.status_code == 400:
+            response.reason = "Boot report cannot be bisected: is it failed?"
         return response

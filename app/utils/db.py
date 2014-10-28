@@ -167,16 +167,21 @@ def count(collection):
     return collection.count()
 
 
-def save(database, documents):
+def save(database, documents, manipulate=False):
     """Save documents into the database.
 
     :param database: The database where to save.
     :param documents: The document to save, can be a list or a single document:
         the type of each document must be: BaseDocument or a subclass.
     :type list, BaseDocument
-    :return 201 if the save has success, 500 in case of an error.
+    :param manipulate: If the passed documents have to be manipulated by
+    mongodb. Default to False.
+    :type manipulate: bool
+    :return 201 if the save has success, 500 in case of an error. If manipulate
+    is True, return also the mongodb created ID.
     """
     ret_value = 201
+    doc_id = []
 
     if not isinstance(documents, types.ListType):
         documents = [documents]
@@ -192,12 +197,17 @@ def save(database, documents):
             continue
 
         try:
-            database[document.collection].save(to_save, manipulate=False)
+            doc_id = database[document.collection].save(
+                to_save, manipulate=manipulate
+            )
         except OperationFailure, ex:
             LOG.error("Error saving the following document: %s", to_save.name)
             LOG.exception(str(ex))
             ret_value = 500
             break
+
+    if manipulate:
+        ret_value = (ret_value, doc_id)
 
     return ret_value
 

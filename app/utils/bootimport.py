@@ -85,10 +85,7 @@ def import_and_save_boot(json_obj, db_options, base_path=BASE_PATH):
     docs = parse_boot_from_json(json_obj, base_path)
 
     if docs:
-        try:
-            save(database, docs)
-        finally:
-            database.connection.disconnect()
+        save(database, docs)
     else:
         LOG.info("No boot log imported")
 

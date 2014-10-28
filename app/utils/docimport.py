@@ -78,11 +78,7 @@ def import_and_save_job(json_obj, db_options, base_path=BASE_PATH):
         LOG.info(
             "Importing %d documents with job ID: %s", len(docs), job_id
         )
-
-        try:
-            save(database, docs)
-        finally:
-            database.connection.disconnect()
+        save(database, docs)
     else:
         LOG.info("No jobs to save")
 
