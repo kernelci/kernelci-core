@@ -13,7 +13,11 @@
 
 import unittest
 
-from utils.bisect import _get_docs_until_pass
+from models.bisect import BisectDocument
+from utils.bisect import (
+    _get_docs_until_pass,
+    _update_doc_fields,
+)
 
 
 class BisectUtilsTest(unittest.TestCase):
@@ -54,3 +58,55 @@ class BisectUtilsTest(unittest.TestCase):
         retrieved_list = [doc for doc in _get_docs_until_pass(doc_list)]
         self.assertEqual(len(retrieved_list), 3)
         self.assertListEqual(doc_list[:3], retrieved_list)
+
+    def test_update_doc_fields_list(self):
+        bisect_doc = BisectDocument("foo")
+        bisect_doc.id = "bar"
+        fields = ["bisect_data", "good_commit", "foo", "bar"]
+
+        expected = {
+            "_id": "bar",
+            "bisect_data": [],
+            "good_commit": None
+        }
+
+        self.assertDictEqual(expected, _update_doc_fields(bisect_doc, fields))
+
+    def test_update_doc_fields_dict(self):
+        bisect_doc = BisectDocument("foo")
+        bisect_doc.id = "bar"
+        fields = {
+            "bisect_data": True,
+            "bad_commit": True,
+            "_id": False,
+            "good_commit": False,
+            "foo": False,
+            "bar": True
+        }
+
+        expected = {
+            "bisect_data": [],
+            "bad_commit": None
+        }
+
+        self.assertDictEqual(expected, _update_doc_fields(bisect_doc, fields))
+
+    def test_update_doc_fields_no_fields(self):
+        bisect_doc = BisectDocument("foo")
+        bisect_doc.id = "bar"
+
+        self.assertDictEqual(
+            bisect_doc.to_dict(), _update_doc_fields(bisect_doc, None)
+        )
+
+    def test_update_doc_fields_no_fields_type(self):
+        bisect_doc = BisectDocument("foo")
+        bisect_doc.id = "bar"
+
+        self.assertDictEqual(
+            bisect_doc.to_dict(), _update_doc_fields(bisect_doc, "None")
+        )
+        self.assertDictEqual(
+            bisect_doc.to_dict(),
+            _update_doc_fields(bisect_doc, ("None", None))
+        )

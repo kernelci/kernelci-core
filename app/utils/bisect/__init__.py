@@ -28,7 +28,6 @@ from models import (
     BISECT_BOOT_CREATED_KEY,
     BISECT_BOOT_METADATA_KEY,
     BISECT_BOOT_STATUS_KEY,
-    BISECT_COLLECTION,
     BISECT_DEFCONFIG_ARCHITECTURE_KEY,
     BISECT_DEFCONFIG_CREATED_KEY,
     BISECT_DEFCONFIG_METADATA_KEY,
@@ -39,9 +38,9 @@ from models import (
     DEFCONFIG_COLLECTION,
     DEFCONFIG_KEY,
     DIRNAME_KEY,
-    DOC_ID_KEY,
     GIT_COMMIT_KEY,
     GIT_URL_KEY,
+    ID_KEY,
     JOB_ID_KEY,
     JOB_KEY,
     KERNEL_KEY,
@@ -141,7 +140,7 @@ def _combine_defconfig_values(boot_doc, db_options):
     return combined_values
 
 
-def execute_boot_bisection(doc_id, db_options):
+def execute_boot_bisection(doc_id, db_options, fields=None):
     """Perform a bisect-like on the provided boot report.
 
     It searches all the previous boot reports starting from the provided one
@@ -152,6 +151,9 @@ def execute_boot_bisection(doc_id, db_options):
     :type doc_id: str
     :param db_options: The mongodb database connection parameters.
     :type db_options: dict
+    :param fields: A `fields` data structure with the fields to return or
+    exclude. Default to None.
+    :type fields: list or dict
     :return A numeric value for the result status and a list dictionaries.
     """
     database = get_db_connection(db_options)
@@ -229,15 +231,57 @@ def execute_boot_bisection(doc_id, db_options):
 
             return_code, saved_id = save(database, bisect_doc, manipulate=True)
             if return_code == 201:
-                bisect_doc._id = saved_id
+                bisect_doc.id = saved_id
             else:
                 LOG.error("Error savind bisect data %s", doc_id)
-            result = [j_load(j_dump(bisect_doc.to_dict(), default=default))]
+
+            bisect_doc = _update_doc_fields(bisect_doc, fields)
+            result = [j_load(j_dump(bisect_doc, default=default))]
     else:
         code = 404
         result = None
 
     return code, result
+
+
+def _update_doc_fields(bisect_doc, fields):
+    """Update the bisect document based on the provided fields.
+
+    Return the dictionary view of the bisect document with the fields as
+    specified in the `fields` data structure passed.
+
+    A `fields` data structure can be a list or dictionary.
+
+    :param bisect_doc: The document to update.
+    :type bisect_doc: BisectDocument
+    :param fields: A `fields` data structure with the fields to return or
+    exclude. Default to None.
+    :type fields: list or dict
+    :return The BisectDocument as a dictionary.
+    """
+    if fields:
+        if isinstance(fields, list):
+            bisect_doc = bisect_doc.to_dict()
+            to_remove = list(bisect_doc.viewkeys() - set(fields))
+            for field in to_remove:
+                if field == ID_KEY:
+                    continue
+                else:
+                    bisect_doc.pop(field)
+        elif isinstance(fields, DictionaryType):
+            y_fields = [
+                field for field, val in fields.iteritems() if val
+            ]
+            n_fields = list(fields.viewkeys() - set(y_fields))
+
+            bisect_doc = _update_doc_fields(bisect_doc, y_fields)
+            for field in n_fields:
+                bisect_doc.pop(field, None)
+        else:
+            bisect_doc = bisect_doc.to_dict()
+    else:
+        bisect_doc = bisect_doc.to_dict()
+    return bisect_doc
 
 
 def _get_docs_until_pass(doc_list):
@@ -254,17 +298,3 @@ def _get_docs_until_pass(doc_list):
             yield doc
             break
         yield doc
-
-
-def _find_bisect(doc_id, database):
-    """Look for an already available bisect object in the database.
-
-    :param doc_id: The ID of the document to search.
-    :type doc_id: str
-    :param collection: The collection where to search the document.
-    :type collection: str
-    :param database: The connection to the database.
-    :type database: `pymongo.MongoClient`
-    :return The document found or None.
-    """
-    return find_one(database[BISECT_COLLECTION], doc_id, field=DOC_ID_KEY)

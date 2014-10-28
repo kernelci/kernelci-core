@@ -327,7 +327,7 @@ def calculate_date_range(date_range):
 def get_query_fields(query_args_func):
     """Get values from the query string to build a `fields` data structure.
 
-    A `field` data structure can be either a list or a dictionary.
+    A `fields` data structure can be either a list or a dictionary.
 
     :param query_args_func: A function used to return a list of query
     arguments.

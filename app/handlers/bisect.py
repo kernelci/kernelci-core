@@ -19,7 +19,10 @@ from functools import partial
 from tornado.web import asynchronous
 
 from handlers.base import BaseHandler
-from handlers.common import NOT_VALID_TOKEN
+from handlers.common import (
+    NOT_VALID_TOKEN,
+    get_query_fields,
+)
 from handlers.response import HandlerResponse
 from taskqueue.tasks import boot_bisect
 
@@ -65,20 +68,23 @@ class BisectHandler(BaseHandler):
         """
         response = None
 
-        # TODO: handle fields data structure.
         if self.validate_req_token("GET"):
             if kwargs:
                 collection = kwargs.get("collection", None)
                 doc_id = kwargs.get("id", None)
                 if all([collection, doc_id]):
+                    fields = None
+                    if self.request.arguments:
+                        fields = get_query_fields(self.get_query_arguments)
                     bisect_result = find_one(
-                        self.db[self.collection], doc_id, field=DOC_ID_KEY
+                        self.db[self.collection], doc_id, field=DOC_ID_KEY,
+                        fields=fields
                     )
                     if bisect_result:
                         response = HandlerResponse(200)
                         response.result = bisect_result
                     else:
-                        response = self._get_bisect(collection, doc_id)
+                        response = self._get_bisect(collection, doc_id, fields)
                 else:
                     response = HandlerResponse(400)
             else:
@@ -89,13 +95,16 @@ class BisectHandler(BaseHandler):
 
         return response
 
-    def _get_bisect(self, collection, doc_id):
+    def _get_bisect(self, collection, doc_id, fields=None):
         """Retrieve the bisect data.
 
         :param collection: The name of the collection to operate on.
         :type collection: str
         :param doc_id: The ID of the document to execute the bisect on.
         :type doc_id: str
+        :param fields: A `fields` data structure with the fields to return or
+        exclude. Default to None.
+        :type fields: list or dict
         :return A `HandlerResponse` object.
         """
         response = None
@@ -104,7 +113,7 @@ class BisectHandler(BaseHandler):
             db_options = self.settings["dboptions"]
 
             if collection == BOOT_COLLECTION:
-                response = self.execute_boot_bisect(doc_id, db_options)
+                response = self.execute_boot_bisect(doc_id, db_options, fields)
         else:
             response = HandlerResponse(400)
             response.reason = (
@@ -114,18 +123,21 @@ class BisectHandler(BaseHandler):
         return response
 
     @staticmethod
-    def execute_boot_bisect(doc_id, db_options):
+    def execute_boot_bisect(doc_id, db_options, fields=None):
         """Execute the boot bisect operation.
 
         :param doc_id: The ID of the document to execute the bisect on.
         :type doc_id: str
         :param db_options: The mongodb database connection parameters.
         :type db_options: dict
+        :param fields: A `fields` data structure with the fields to return or
+        exclude. Default to None.
+        :type fields: list or dict
         :return A `HandlerResponse` object.
         """
         response = HandlerResponse()
 
-        result = boot_bisect.apply_async([doc_id, db_options])
+        result = boot_bisect.apply_async([doc_id, db_options, fields])
         while not result.ready():
             pass
 
