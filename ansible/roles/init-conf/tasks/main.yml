@@ -1,0 +1,34 @@
+---
+
+- name: Install Upstart conf
+  template: src=kernel-ci-backend.conf
+            dest=/etc/init/{{ init_service }}.conf
+            mode=0644
+            owner=root
+            group=root
+  when: ansible_lsb.id == "Ubuntu"
+  tags:
+    - init
+    - upstart
+
+- name: Install systemd service
+  template: src=kernelci-backend.service
+            dest=/etc/systemd/system/{{ init_service }}.service
+            mode=0644
+            owner=root
+            group=root
+  when: ansible_lsb.id == "Debian"
+  tags:
+    - init
+    - systemd
+
+- name: Install celery upstart configuration
+  template: src=celery.conf
+            dest=/etc/init/celery.conf
+            owner=root
+            group=root
+            mode=0644
+  when: ansible_lsb.id == "Ubuntu"
+  tags:
+    - init
+    - upstart

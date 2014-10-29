@@ -1,0 +1,9 @@
+---
+- name: Install OS dependencies
+  apt:  pkg={{ item }}
+        state=latest
+        update_cache=yes
+  with_items:
+    - s3cmd
+  tags:
+    - backup

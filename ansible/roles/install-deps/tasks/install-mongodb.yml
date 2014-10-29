@@ -8,10 +8,20 @@
     - install
     - mongodb
 
-- name: Add MongoDB repository
+- name: Add MongoDB repository (Ubuntu)
   apt_repository: repo='deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen'
                   state=present
                   update_cache=yes
+  when: ansible_lsb.id == "Ubuntu"
+  tags:
+    - install
+    - mongodb
+
+- name: Add MongoDB repository (Debian)
+  apt_repository: repo='deb http://downloads-distro.mongodb.org/repo/debian-sysvinit dist 10gen'
+                  state=present
+                  update_cache=yes
+  when: ansible_lsb.id == "Debian"
   tags:
     - install
     - mongodb

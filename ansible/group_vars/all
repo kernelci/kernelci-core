@@ -1,6 +1,6 @@
 install_base: /srv
 nickname: kernel-ci-backend
-upstart_service: kernel-ci-backend
+init_service: kernelci-backend
 hostname: backend.kernel-ci.linaro.org
 web_user: www-data
 app_user: www-data

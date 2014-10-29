@@ -1,15 +1,15 @@
 ---
 
 - name: start-kernel-ci-backend
-  service:  name={{ upstart_service }}
+  service:  name={{ init_service }}
             state=started
 
 - name: restart-kernel-ci-backend
-  service:  name={{ upstart_service }}
+  service:  name={{ init_service }}
             state=restarted
 
 - name: stop-kernel-ci-backend
-  service:  name={{ upstart_service }}
+  service:  name={{ init_service }}
             state=stopped
 
 - name: stop-celery
