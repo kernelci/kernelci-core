@@ -13,15 +13,15 @@
             state=stopped
 
 - name: stop-celery
-  service:  name=celery
+  service:  name=kernelci-celery
             state=stopped
 
 - name: start-celery
-  service:  name=celery
+  service:  name=kernelci-celery
             state=started
 
 - name: restart-celery
-  service:  name=celery
+  service:  name=kernelci-celery
             state=restarted
 
 - name: reload-systemd
