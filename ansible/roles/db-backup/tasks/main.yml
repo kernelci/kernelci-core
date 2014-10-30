@@ -7,3 +7,12 @@
     - s3cmd
   tags:
     - backup
+
+- name: Copy backup script
+  copy: src=mongodb-backup.sh
+        dest=/root/mongodb-backup.sh
+        owner=root
+        group=root
+        mode=0554
+  tags:
+    - backup

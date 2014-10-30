@@ -8,3 +8,4 @@
     - install-app
     - init-conf
     - configure-nginx
+    - db-backup
