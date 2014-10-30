@@ -1,0 +1,22 @@
+[Unit]
+Description=Kernel CI Backend Celery
+
+[Service]
+Type=simple
+User={{ app_user }}
+Group={{ app_user }}
+ProtectHome=true
+NoNewPrivileges=true
+PrivateTmp=true
+SyslogIdentifier=kernelci-celery
+LimitNOFILE=65536
+RestartSec=5
+Restart=always
+PIDFile=/tmp/kernelci-celery.pid
+WorkingDirectory={{ install_base }}/{{ hostname }}/app
+ExecStart={{ install_base }}/.venv/{{ hostname }}/bin/celery worker \
+    --autoscale=4,1 --loglevel=INFO \
+    --pidfile=/tmp/kernelci-celery.pid --app=taskqueue
+
+[Install]
+WantedBy=multi-user.target

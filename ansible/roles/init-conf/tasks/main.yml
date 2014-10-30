@@ -11,12 +11,22 @@
     - init
     - upstart
 
-- name: Install systemd service
+- name: Install kernelci systemd service
   template: src=kernelci-backend.service
             dest=/etc/systemd/system/{{ init_service }}.service
             mode=0644
             owner=root
             group=root
+  when: ansible_lsb.id == "Debian"
+  notify:
+    - reload-systemd
+  tags:
+    - init
+    - systemd
+
+- name: Enable kernelci systemd service
+  command:  /bin/systemctl enable {{ init_service }}.service
+            creates=/etc/systemd/system/multi-user.target.wants/{{ init_service }}.service
   when: ansible_lsb.id == "Debian"
   tags:
     - init
@@ -32,3 +42,25 @@
   tags:
     - init
     - upstart
+
+- name: Install celery systemd service
+  template: src=kernelci-celery.service
+            dest=/etc/systemd/system/kernelci-celery.service
+            owner=root
+            group=root
+            mode=0644
+  when: ansible_lsb.id == "Debian"
+  tags:
+    - init
+    - systemd
+
+- name: Enable celery systemd service
+  command:  /bin/systemctl enable kernelci-celery.service
+            creates=/etc/systemd/system/multi-user.target.wants/kernelci-celery.service
+  when: ansible_lsb.id == "Debian"
+  notify:
+    - reload-systemd
+  tags:
+    - init
+    - systemd
+

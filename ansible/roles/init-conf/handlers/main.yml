@@ -23,3 +23,6 @@
 - name: restart-celery
   service:  name=celery
             state=restarted
+
+- name: reload-systemd
+  command: /bin/systemd daemon-reload
