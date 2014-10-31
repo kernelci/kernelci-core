@@ -49,21 +49,21 @@ GET
  .. sourcecode:: http
 
     GET /defconfig/ HTTP/1.1
-    Host: api.backend.linaro.org
+    Host: api.armcloud.us
     Accept: */*
     Authorization: token
 
  .. sourcecode:: http
 
     GET /defconfig/next-next-20140905-arm-omap2plus_defconfig HTTP/1.1
-    Host: api.backend.linaro.org
+    Host: api.armcloud.us
     Accept: */*
     Authorization: token
 
  .. sourcecode:: http
 
     GET /defconfig?job=next&kernel=next-20140905&field=status&field=arch&nfield=_id HTTP/1.1
-    Host: api.backend.linaro.org
+    Host: api.armcloud.us
     Accept: */*
     Authorization: token
 
@@ -161,7 +161,7 @@ DELETE
  .. sourcecode:: http
 
     DELETE /defconfig/next-next-20140905-arm-omap2plus_defconfig HTTP/1.1
-    Host: api.backend.linaro.org
+    Host: api.armcloud.us
     Accept: */*
     Content-Type: application/json
     Authorization: token

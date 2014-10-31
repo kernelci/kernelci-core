@@ -76,7 +76,7 @@ Schema
 ------
 
 API access is exclusively over HTTPS and accessed via the
-``api.backend.linaro.org`` URL.
+``api.armcloud.us`` URL.
 
 Data is sent and received **only** in JSON format.
 
@@ -143,7 +143,7 @@ Basic Authentication
 
 ::
 
-    curl -H 'Authorization: token' https://api.backend.linaro.org/job
+    curl -H 'Authorization: token' https://api.armcloud.us/job
 
 
 Accepted Encodings
