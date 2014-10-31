@@ -70,14 +70,14 @@ class TestBootHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
     def test_delete_no_token(self):
         self.find_token.return_value = None
 
-        response = self.fetch('/api/boot/board', method='DELETE')
+        response = self.fetch('/boot/board', method='DELETE')
         self.assertEqual(response.code, 403)
 
     def test_delete_with_token_no_job(self):
         headers = {'Authorization': 'foo'}
 
         response = self.fetch(
-            '/api/boot/boot', method='DELETE', headers=headers,
+            '/boot/boot', method='DELETE', headers=headers,
         )
 
         self.assertEqual(response.code, 404)
@@ -91,7 +91,7 @@ class TestBootHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         headers = {'Authorization': 'foo'}
 
         response = self.fetch(
-            '/api/boot/boot', method='DELETE', headers=headers,
+            '/boot/boot', method='DELETE', headers=headers,
         )
 
         self.assertEqual(response.code, 200)
@@ -102,7 +102,7 @@ class TestBootHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         headers = {'Authorization': 'foo'}
 
         response = self.fetch(
-            '/api/boot', method='DELETE', headers=headers,
+            '/boot', method='DELETE', headers=headers,
         )
 
         self.assertEqual(response.code, 400)
@@ -113,7 +113,7 @@ class TestBootHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         headers = {'Authorization': 'foo'}
 
         response = self.fetch(
-            '/api/boot?status=FAIL&date_range=5&created_on=20140607&time=2',
+            '/boot?status=FAIL&date_range=5&created_on=20140607&time=2',
             method='DELETE', headers=headers,
         )
 
