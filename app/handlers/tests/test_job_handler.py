@@ -82,7 +82,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         expected_body = '{"count": 0, "code": 200, "limit": 0, "result": []}'
 
         headers = {'Authorization': 'foo'}
-        response = self.fetch('/api/job?date_range=5&job=job', headers=headers)
+        response = self.fetch('/job?date_range=5&job=job', headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
@@ -100,7 +100,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         )
 
         headers = {'Authorization': 'foo'}
-        response = self.fetch('/api/job?limit=1024', headers=headers)
+        response = self.fetch('/job?limit=1024', headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
@@ -113,7 +113,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         collection.find_one.return_value = None
 
         headers = {'Authorization': 'foo'}
-        response = self.fetch('/api/job/job-kernel', headers=headers)
+        response = self.fetch('/job/job-kernel', headers=headers)
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
@@ -125,7 +125,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         collection.find_one.return_value = []
 
         headers = {'Authorization': 'foo'}
-        response = self.fetch('/api/job/job-kernel', headers=headers)
+        response = self.fetch('/job/job-kernel', headers=headers)
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
@@ -139,7 +139,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         expected_body = '{"code": 200, "result": [{"_id": "foo"}]}'
 
         headers = {'Authorization': 'foo'}
-        response = self.fetch('/api/job/job-kernel', headers=headers)
+        response = self.fetch('/job/job-kernel', headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(response.body, expected_body)
@@ -148,7 +148,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
         body = json.dumps(dict(job='job', kernel='kernel'))
 
-        response = self.fetch('/api/job', method='POST', body=body)
+        response = self.fetch('/job', method='POST', body=body)
 
         self.assertEqual(response.code, 403)
         self.assertEqual(
@@ -158,7 +158,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         headers = {'Authorization': 'foo', 'Content-Type': 'application/json'}
 
         response = self.fetch(
-            '/api/job', method='POST', body='', headers=headers
+            '/job', method='POST', body='', headers=headers
         )
 
         self.assertEqual(response.code, 422)
@@ -169,7 +169,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         headers = {'Authorization': 'foo'}
 
         response = self.fetch(
-            '/api/job/job', method='POST', body='', headers=headers
+            '/job/job', method='POST', body='', headers=headers
         )
 
         self.assertEqual(response.code, 415)
@@ -182,7 +182,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         body = json.dumps(dict(foo='foo', bar='bar'))
 
         response = self.fetch(
-            '/api/job/job', method='POST', body=body, headers=headers
+            '/job/job', method='POST', body=body, headers=headers
         )
 
         self.assertEqual(response.code, 400)
@@ -201,7 +201,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         body = json.dumps(dict(job='job', kernel='kernel'))
 
         response = self.fetch(
-            '/api/job', method='POST', headers=headers, body=body
+            '/job', method='POST', headers=headers, body=body
         )
 
         self.assertEqual(response.code, 202)
@@ -209,14 +209,14 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
     def test_delete_no_token(self):
-        response = self.fetch('/api/job/job', method='DELETE')
+        response = self.fetch('/job/job', method='DELETE')
         self.assertEqual(response.code, 403)
 
     def test_delete_with_token_no_job(self):
         headers = {'Authorization': 'foo'}
 
         response = self.fetch(
-            '/api/job/job', method='DELETE', headers=headers,
+            '/job/job', method='DELETE', headers=headers,
         )
 
         self.assertEqual(response.code, 404)
@@ -230,7 +230,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         headers = {'Authorization': 'foo'}
 
         response = self.fetch(
-            '/api/job/job', method='DELETE', headers=headers,
+            '/job/job', method='DELETE', headers=headers,
         )
 
         self.assertEqual(response.code, 200)
@@ -241,7 +241,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         headers = {'Authorization': 'foo'}
 
         response = self.fetch(
-            '/api/job', method='DELETE', headers=headers,
+            '/job', method='DELETE', headers=headers,
         )
 
         self.assertEqual(response.code, 400)
@@ -253,7 +253,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         mock_get_one.return_value = ""
 
         headers = {'Authorization': 'foo'}
-        response = self.fetch('/api/job/job-kernel', headers=headers)
+        response = self.fetch('/job/job-kernel', headers=headers)
 
         self.assertEqual(response.code, 506)
         self.assertEqual(
