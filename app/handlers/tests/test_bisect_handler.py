@@ -13,7 +13,6 @@
 
 """Test module for the BisectHandler handler."""
 
-import json
 import mongomock
 
 from concurrent.futures import ThreadPoolExecutor
@@ -83,19 +82,19 @@ class TestBisectHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
     def test_bisect_wrong_collection(self):
         headers = {'Authorization': 'foo'}
 
-        response = self.fetch('/api/bisect/foo/doc_id', headers=headers)
+        response = self.fetch('/bisect/foo/doc_id', headers=headers)
         self.assertEqual(response.code, 400)
 
     def test_boot_bisect_no_token(self):
         self.find_token.return_value = None
 
-        response = self.fetch('/api/bisect/boot/id')
+        response = self.fetch('/bisect/boot/id')
         self.assertEqual(response.code, 403)
 
     def test_boot_bisect_wrong_url(self):
         headers = {'Authorization': 'foo'}
 
-        response = self.fetch('/api/bisect/boot/', headers=headers)
+        response = self.fetch('/bisect/boot/', headers=headers)
         self.assertEqual(response.code, 400)
 
     def test_boot_bisect_no_id(self):
@@ -103,7 +102,7 @@ class TestBisectHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
         self.task_return_value.get.return_value = 404, []
 
-        response = self.fetch('/api/bisect/boot/foo', headers=headers)
+        response = self.fetch('/bisect/boot/foo', headers=headers)
         self.assertEqual(response.code, 404)
 
     def test_boot_bisect_no_faile(self):
@@ -111,7 +110,7 @@ class TestBisectHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
         self.task_return_value.get.return_value = 400, None
 
-        response = self.fetch('/api/bisect/boot/foo', headers=headers)
+        response = self.fetch('/bisect/boot/foo', headers=headers)
         self.assertEqual(response.code, 400)
 
     @patch("handlers.bisect.find_one")
@@ -120,5 +119,5 @@ class TestBisectHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
         mocked_find.return_value = [{"foo": "bar"}]
 
-        response = self.fetch('/api/bisect/boot/foo', headers=headers)
+        response = self.fetch('/bisect/boot/foo', headers=headers)
         self.assertEqual(response.code, 200)
