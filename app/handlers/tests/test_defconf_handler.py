@@ -73,7 +73,7 @@ class TestDefconfHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         return ioloop.IOLoop.instance()
 
     def test_get_wrong_url(self):
-        response = self.fetch('/api/foobardefconf')
+        response = self.fetch('/foobardefconf')
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
@@ -90,7 +90,7 @@ class TestDefconfHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         )
 
         headers = {'Authorization': 'foo'}
-        response = self.fetch('/api/defconfig', headers=headers)
+        response = self.fetch('/defconfig', headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
@@ -103,7 +103,7 @@ class TestDefconfHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         mock_collection.find_one.return_value = None
 
         headers = {'Authorization': 'foo'}
-        response = self.fetch('/api/defconfig/defconf', headers=headers)
+        response = self.fetch('/defconfig/defconf', headers=headers)
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
@@ -111,7 +111,7 @@ class TestDefconfHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
     def test_post(self):
         # POST is not implemented for the DefConfHandler.
-        response = self.fetch('/api/defconfig', method='POST', body='')
+        response = self.fetch('/defconfig', method='POST', body='')
 
         self.assertEqual(response.code, 501)
         self.assertEqual(
@@ -124,7 +124,7 @@ class TestDefconfHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         headers = {'Authorization': 'foo'}
 
         response = self.fetch(
-            '/api/defconfig/defconf', method='DELETE', headers=headers,
+            '/defconfig/defconf', method='DELETE', headers=headers,
         )
 
         self.assertEqual(response.code, 200)
