@@ -27,27 +27,27 @@ from handlers.subscription import SubscriptionHandler
 from handlers.token import TokenHandler
 
 
-_JOB_URL = url(r'/api/job(?P<sl>/)?(?P<id>.*)', JobHandler, name='job')
+_JOB_URL = url(r'/job(?P<sl>/)?(?P<id>.*)', JobHandler, name='job')
 _DEFCONF_URL = url(
-    r'/api/defconfig(?P<sl>/)?(?P<id>.*)', DefConfHandler, name='defconf'
+    r'/defconfig(?P<sl>/)?(?P<id>.*)', DefConfHandler, name='defconf'
 )
 _SUBSCRIPTION_URL = url(
-    r'/api/subscription(?P<sl>/)?(?P<id>.*)',
+    r'/subscription(?P<sl>/)?(?P<id>.*)',
     SubscriptionHandler,
     name='subscription',
 )
-_BOOT_URL = url(r'/api/boot(?P<sl>/)?(?P<id>.*)', BootHandler, name='boot')
+_BOOT_URL = url(r'/boot(?P<sl>/)?(?P<id>.*)', BootHandler, name='boot')
 _COUNT_URL = url(
-    r'/api/count(?P<sl>/)?(?P<id>.*)', CountHandler, name='count'
+    r'/count(?P<sl>/)?(?P<id>.*)', CountHandler, name='count'
 )
 _TOKEN_URL = url(
-    r'/api/token(?P<sl>/)?(?P<id>.*)', TokenHandler, name='token'
+    r'/token(?P<sl>/)?(?P<id>.*)', TokenHandler, name='token'
 )
 _BATCH_URL = url(
-    r'/api/batch', BatchHandler, name='batch'
+    r'/batch', BatchHandler, name='batch'
 )
 _BISECT_URL = url(
-    r"/api/bisect/(?P<collection>.*)/(?P<id>.*)",
+    r"/bisect/(?P<collection>.*)/(?P<id>.*)",
     BisectHandler,
     name="bisect"
 )
