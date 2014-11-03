@@ -21,7 +21,21 @@ server {
         rewrite ^(.*)$ /maintenance.html break;
     }
 
-    location /api {
+    location ~* \.(?:ico|css|js|gif|jpe?g|png)$ {
+        expires 150d;
+        add_header Pragma public;
+        add_header Cache-Control "public";
+    }
+
+    location ~* /(?:(count|job|defconfig|boot|token|batch|bisect)(.*)(?!(\.(html?|json|css|js))))$ {
+
+        # Proxy cache, disabled for now.
+        # proxy_cache BACKEND;
+        # proxy_cache_key $proxy_host$uri$is_args$args;
+        # proxy_cache_lock on;
+        # proxy_cache_lock_timeout 2s;
+        # proxy_cache_valid 3h;
+
         proxy_buffers 32 4k;
         proxy_buffer_size 8k;
         proxy_busy_buffers_size 64k;
@@ -31,27 +45,9 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Scheme $scheme;
-        proxy_connect_timeout 90;
-        proxy_send_timeout 90;
-        proxy_read_timeout 90;
+        proxy_connect_timeout 9s;
+        proxy_send_timeout 9s;
+        proxy_read_timeout 9s;
         proxy_pass http://backends;
-    }
-
-    location ~ ^/((job|boot|defconfig|count|token)(?!(.*html))) {
-        if ($request_method = POST) {
-            return 307 $scheme://$host/api$request_uri;
-        }
-        rewrite ^(.*)$ $scheme://$host/api$1 permanent;
-    }
-
-    location /kernel-ci {
-        rewrite ^(.*)$ http://images.armcloud.us$1 permanent;
-        access_log off;
-    }
-
-    location ~* \.(?:ico|css|js|gif|jpe?g|png)$ {
-        expires 150d;
-        add_header Pragma public;
-        add_header Cache-Control "public";
     }
 }

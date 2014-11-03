@@ -66,6 +66,17 @@
   tags:
     - web-server
 
+- name: Install backend special nginx configuration
+  copy: src=nginx-backend.conf
+        dest=/etc/nginx/conf.d/nginx-backend.conf
+        owner=root
+        group=root
+        mode=0644
+  notify:
+    - reload-nginx
+  tags:
+    - web-server
+
 - name: Install nginx upstream definitions
   copy: src=backend-upstreams.conf
         dest=/etc/nginx/conf.d/backend-upstreams.conf
