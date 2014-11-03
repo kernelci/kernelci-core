@@ -124,6 +124,8 @@ def boot_report(args):
         if args.jenkins:
             print 'Creating jenkins boot summary for %s' % kernel_version
             log = 'env.properties'
+            passed = 0
+            failed = 0
             with open(os.path.join(results_directory, log), 'a') as f:
                 f.write('SUMMARY=Status Dashboard: http://status.armcloud.us/boot/all/job/%s/kernel/%s/ \\\n' % (kernel_tree, kernel_version))
                 f.write('\\\n')
@@ -136,7 +138,14 @@ def boot_report(args):
                     f.write('\\\n')
                     f.write('%s \\\n' % defconfig)
                     for result in results_list:
+                        if result['result'] == 'PASS':
+                            passed += 1
+                        else:
+                            failed += 1
                         f.write('    %s   %ss   %s \\\n' % (result['device_type'], result['kernel_boot_time'], result['result']))
+                    f.write('\n')
+                f.write('PASSED=%i\n' % passed)
+                f.write('FAILED=%i\n' % failed)
 
 def main(args):
     if args.boot:
