@@ -136,14 +136,14 @@ def boot_report(args):
                 f.write('Full Report: \\\n')
                 for defconfig, results_list in results.items():
                     f.write('\\\n')
-                    f.write('%s \\\n' % defconfig)
+                    f.write('%s: \\\n' % defconfig)
                     for result in results_list:
                         if result['result'] == 'PASS':
                             passed += 1
                         else:
                             failed += 1
-                        f.write('    %s   %ss   %s \\\n' % (result['device_type'], result['kernel_boot_time'], result['result']))
-                    f.write('\n')
+                        f.write('\t%s   %ss   %s \\\n' % (result['device_type'], result['kernel_boot_time'], result['result']))
+                f.write('\n')
                 f.write('PASSED=%i\n' % passed)
                 f.write('FAILED=%i\n' % failed)
 
