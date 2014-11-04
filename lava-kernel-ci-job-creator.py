@@ -59,6 +59,12 @@ snowball = {'device_type': 'snowball',
             'lpae': False,
             'be': False}
 
+ifc6540 = {'device_type': 'ifc6540',
+            'templates': ['generic-arm-fastboot-kernel-ci-boot-template.json'],
+            'defconfig_blacklist': [],
+            'lpae': False,
+            'be': False}
+
 qemu_aarch64 = {'device_type': 'qemu-aarch64',
                 'templates': ['generic-arm64-kernel-ci-boot-template.json'],
                 'defconfig_blacklist': ['arm64-allnoconfig',
@@ -90,6 +96,7 @@ device_map = {'exynos5250-arndale.dtb': arndale,
               'sun7i-a20-cubietruck.dtb': cubieboard3,
               'imx6q-wandboard.dtb': imx6q_wandboard,
               'ste-snowball.dtb': snowball,
+              'qcom-apq8084-ifc6540.dtb': ifc6540,
               'qemu-aarch64': qemu_aarch64,
               'x86': x86,
               'x86-kvm': x86_kvm}
