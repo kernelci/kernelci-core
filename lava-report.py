@@ -142,7 +142,7 @@ def boot_report(args):
                             passed += 1
                         else:
                             failed += 1
-                        f.write('\t%s   %ss   %s \\\n' % (result['device_type'], result['kernel_boot_time'], result['result']))
+                        f.write('... %s   %ss   %s \\\n' % (result['device_type'], result['kernel_boot_time'], result['result']))
                 f.write('\n')
                 f.write('PASSED=%i\n' % passed)
                 f.write('FAILED=%i\n' % failed)
