@@ -43,6 +43,7 @@ def boot_report(args):
             boot_meta = {}
             kernel_defconfig = None
             kernel_version = None
+            kernel_endian = None
             kernel_boot_time = None
             kernel_tree = None
             kernel_image = None
@@ -50,10 +51,16 @@ def boot_report(args):
             initrd_addr = None
             dtb_addr = None
             dtb_append = None
+            fastboot = None
+            fastboot_cmd = None
             if in_bundle_attributes(bundle_attributes, 'kernel.defconfig'):
                 kernel_defconfig = bundle_attributes['kernel.defconfig']
             if in_bundle_attributes(bundle_attributes, 'kernel.version'):
                 kernel_version = bundle_attributes['kernel.version']
+            if in_bundle_attributes(bundle_attributes, 'kernel.endian'):
+                kernel_endian = bundle_attributes['kernel.endian']
+            if in_bundle_attributes(bundle_attributes, 'platform.fastboot'):
+                fastboot = bundle_attributes['platform.fastboot']
             if in_bundle_attributes(bundle_attributes, 'kernel-boot-time'):
                 kernel_boot_time = bundle_attributes['kernel-boot-time']
             if in_bundle_attributes(bundle_attributes, 'kernel.tree'):
@@ -68,14 +75,17 @@ def boot_report(args):
                 dtb_addr = bundle_attributes['dtb-addr']
             if in_bundle_attributes(bundle_attributes, 'dtb-append'):
                 dtb_append = bundle_attributes['dtb-append']
+
         # Record the boot log and result
         # TODO: Will need to map device_types to dashboard device types
-        if kernel_defconfig and device_type and kernel_boot_time and result:
+        if kernel_defconfig and device_type and result:
             print 'Creating boot log for %s' % device_type
             log = 'boot-%s.log' % device_type
             directory = os.path.join(results_directory, kernel_defconfig)
             mkdir(directory)
             write_file(job_file, log, directory)
+            if kernel_boot_time is None:
+                kernel_boot_time = '0.0'
             if results.has_key(kernel_defconfig):
                 results[kernel_defconfig].append({'device_type': device_type, 'kernel_boot_time': kernel_boot_time, 'result': result})
             else:
@@ -93,8 +103,9 @@ def boot_report(args):
             boot_meta['dtb'] = None
             boot_meta['dtb_addr'] = dtb_addr
             boot_meta['dtb_append'] = dtb_append
-            # TODO: Fix this
-            boot_meta['endian'] = None
+            boot_meta['endian'] = kernel_endian
+            boot_meta['fastboot'] = fastboot
+            boot_meta['fastboot_cmds'] = fastboot_cmd
             # TODO: Fix this
             boot_meta['initrd'] = None
             boot_meta['initrd_addr'] = initrd_addr
