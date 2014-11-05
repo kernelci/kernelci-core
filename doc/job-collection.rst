@@ -46,21 +46,21 @@ GET
  .. sourcecode:: http
 
     GET /job/ HTTP/1.1
-    Host: api.backend.linaro.org
+    Host: api.armcloud.us
     Accept: */*
     Authorization: token
 
  .. sourcecode:: http
 
     GET /job/next-next-20140731 HTTP/1.1
-    Host: api.backend.linaro.org
+    Host: api.armcloud.us
     Accept: */*
     Authorization: token
 
  .. sourcecode:: http
 
     GET /job?date_range=12&job=arm-soc&field=status&field=kernel HTTP/1.1
-    Host: api.backend.linaro.org
+    Host: api.armcloud.us
     Accept: */*
     Authorization: token    
 
@@ -158,7 +158,7 @@ POST
  .. sourcecode:: http 
 
     POST /job HTTP/1.1
-    Host: api.backend.linaro.org
+    Host: api.armcloud.us
     Content-Type: application/json
     Accept: */*
     Authorization: token
@@ -193,7 +193,7 @@ DELETE
  .. sourcecode:: http
 
     DELETE /job/next-next-20140612 HTTP/1.1
-    Host: api.backend.linaro.org
+    Host: api.armcloud.us
     Accept: */*
     Content-Type: application/json
     Authorization: token

@@ -64,7 +64,7 @@ POST
  .. sourcecode:: http 
 
     POST /batch HTTP/1.1
-    Host: api.backend.linaro.org
+    Host: api.armcloud.us
     Content-Type: application/json
     Accept: */*
     Authorization: token

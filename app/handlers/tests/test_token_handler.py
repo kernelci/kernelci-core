@@ -75,7 +75,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         return ioloop.IOLoop.instance()
 
     def test_get_no_token(self):
-        response = self.fetch('/api/token')
+        response = self.fetch('/token')
 
         self.assertEqual(response.code, 403)
 
@@ -88,7 +88,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         expected_body = '{"count": 0, "code": 200, "limit": 0, "result": []}'
 
         headers = {'Authorization': 'foo'}
-        response = self.fetch('/api/token', headers=headers)
+        response = self.fetch('/token', headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
@@ -98,7 +98,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
     def test_post_without_token(self):
         body = json.dumps(dict(email='foo'))
 
-        response = self.fetch('/api/token', method='POST', body=body)
+        response = self.fetch('/token', method='POST', body=body)
 
         self.assertEqual(response.code, 403)
         self.assertEqual(
@@ -108,7 +108,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         headers = {'Authorization': 'foo'}
 
         response = self.fetch(
-            '/api/token', method='POST', body='', headers=headers
+            '/token', method='POST', body='', headers=headers
         )
 
         self.assertEqual(response.code, 415)
@@ -119,7 +119,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         headers = {'Authorization': 'foo', 'Content-Type': 'application/json'}
 
         response = self.fetch(
-            '/api/token', method='POST', body='', headers=headers
+            '/token', method='POST', body='', headers=headers
         )
 
         self.assertEqual(response.code, 422)
@@ -132,7 +132,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         body = json.dumps(dict(foo='foo', bar='bar'))
 
         response = self.fetch(
-            '/api/token', method='POST', body=body, headers=headers
+            '/token', method='POST', body=body, headers=headers
         )
 
         self.assertEqual(response.code, 400)
@@ -148,7 +148,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         body = json.dumps(dict(username='foo'))
 
         response = self.fetch(
-            '/api/token', method='POST', headers=headers, body=body
+            '/token', method='POST', headers=headers, body=body
         )
 
         self.assertEqual(response.code, 400)
@@ -164,7 +164,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         body = json.dumps(dict(email="bar", username='foo', get="1"))
 
         response = self.fetch(
-            '/api/token', method='POST', headers=headers, body=body
+            '/token', method='POST', headers=headers, body=body
         )
 
         self.assertEqual(response.code, 400)
@@ -180,7 +180,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         body = json.dumps(dict(email="bar", username='foo', ip_restricted=1))
 
         response = self.fetch(
-            '/api/token', method='POST', headers=headers, body=body
+            '/token', method='POST', headers=headers, body=body
         )
 
         self.assertEqual(response.code, 400)
@@ -196,7 +196,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         body = json.dumps(dict(email="bar", username='foo', ip_address="127"))
 
         response = self.fetch(
-            '/api/token', method='POST', headers=headers, body=body
+            '/token', method='POST', headers=headers, body=body
         )
 
         self.assertEqual(response.code, 400)
@@ -214,7 +214,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         )
 
         response = self.fetch(
-            '/api/token', method='POST', headers=headers, body=body
+            '/token', method='POST', headers=headers, body=body
         )
 
         self.assertEqual(response.code, 400)
@@ -232,7 +232,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         )
 
         response = self.fetch(
-            '/api/token', method='POST', headers=headers, body=body
+            '/token', method='POST', headers=headers, body=body
         )
 
         self.assertEqual(response.code, 400)
@@ -253,7 +253,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         )
 
         response = self.fetch(
-            '/api/token', method='POST', headers=headers, body=body
+            '/token', method='POST', headers=headers, body=body
         )
 
         self.assertEqual(response.code, 201)
@@ -270,7 +270,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         body = json.dumps(dict(admin=1))
 
         response = self.fetch(
-            '/api/token/token', method='POST', headers=headers, body=body
+            '/token/token', method='POST', headers=headers, body=body
         )
 
         self.assertEqual(response.code, 404)
@@ -291,7 +291,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         body = json.dumps(dict(admin=1))
 
         response = self.fetch(
-            '/api/token/token', method='POST', headers=headers, body=body
+            '/token/token', method='POST', headers=headers, body=body
         )
 
         self.assertEqual(response.code, 200)
@@ -312,7 +312,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         body = json.dumps(dict(admin="bar"))
 
         response = self.fetch(
-            '/api/token/token', method='POST', headers=headers, body=body
+            '/token/token', method='POST', headers=headers, body=body
         )
 
         self.assertEqual(response.code, 400)
@@ -335,7 +335,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         body = json.dumps(dict(ip_address="127"))
 
         response = self.fetch(
-            '/api/token/token', method='POST', headers=headers, body=body
+            '/token/token', method='POST', headers=headers, body=body
         )
 
         self.assertEqual(response.code, 400)
@@ -358,7 +358,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         body = json.dumps(dict(ip_restricted=1))
 
         response = self.fetch(
-            '/api/token/token', method='POST', headers=headers, body=body
+            '/token/token', method='POST', headers=headers, body=body
         )
 
         self.assertEqual(response.code, 400)
@@ -381,7 +381,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         body = json.dumps(dict(email="foo", ip_restricted=1, ip_address="127"))
 
         response = self.fetch(
-            '/api/token/token', method='POST', headers=headers, body=body
+            '/token/token', method='POST', headers=headers, body=body
         )
 
         self.assertEqual(response.code, 200)
@@ -389,14 +389,14 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
     def test_delete_no_token(self):
-        response = self.fetch('/api/token/token', method='DELETE')
+        response = self.fetch('/token/token', method='DELETE')
         self.assertEqual(response.code, 403)
 
     def test_delete_with_token_no_document(self):
         headers = {'Authorization': 'foo'}
 
         response = self.fetch(
-            '/api/token/token', method='DELETE', headers=headers,
+            '/token/token', method='DELETE', headers=headers,
         )
 
         self.assertEqual(response.code, 404)
@@ -410,7 +410,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         headers = {'Authorization': 'foo'}
 
         response = self.fetch(
-            '/api/token/token', method='DELETE', headers=headers,
+            '/token/token', method='DELETE', headers=headers,
         )
 
         self.assertEqual(response.code, 200)
@@ -418,6 +418,6 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
         response = self.fetch(
-            '/api/token/token', method="GET", headers=headers
+            '/token/token', method="GET", headers=headers
         )
         self.assertEqual(response.code, 404)

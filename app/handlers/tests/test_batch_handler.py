@@ -68,7 +68,7 @@ class TestBatchHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         return ioloop.IOLoop.instance()
 
     def test_delete_no_token(self):
-        response = self.fetch('/api/batch', method='DELETE')
+        response = self.fetch('/batch', method='DELETE')
         self.assertEqual(response.code, 501)
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
@@ -77,7 +77,7 @@ class TestBatchHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         headers = {'Authorization': 'foo'}
 
         response = self.fetch(
-            '/api/batch', method='DELETE', headers=headers,
+            '/batch', method='DELETE', headers=headers,
         )
 
         self.assertEqual(response.code, 501)
@@ -85,7 +85,7 @@ class TestBatchHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
     def test_get_no_token(self):
-        response = self.fetch('/api/batch', method='GET')
+        response = self.fetch('/batch', method='GET')
         self.assertEqual(response.code, 501)
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
@@ -94,7 +94,7 @@ class TestBatchHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         headers = {'Authorization': 'foo'}
 
         response = self.fetch(
-            '/api/batch', method='GET', headers=headers,
+            '/batch', method='GET', headers=headers,
         )
 
         self.assertEqual(response.code, 501)
@@ -111,7 +111,7 @@ class TestBatchHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         }
         body = json.dumps(batch_dict)
 
-        response = self.fetch('/api/batch', method='POST', body=body)
+        response = self.fetch('/batch', method='POST', body=body)
 
         self.assertEqual(response.code, 403)
         self.assertEqual(
@@ -121,7 +121,7 @@ class TestBatchHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         headers = {'Authorization': 'foo', 'Content-Type': 'application/json'}
 
         response = self.fetch(
-            '/api/batch', method='POST', body='', headers=headers
+            '/batch', method='POST', body='', headers=headers
         )
 
         self.assertEqual(response.code, 422)
@@ -132,7 +132,7 @@ class TestBatchHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         headers = {'Authorization': 'foo'}
 
         response = self.fetch(
-            '/api/batch', method='POST', body='', headers=headers
+            '/batch', method='POST', body='', headers=headers
         )
 
         self.assertEqual(response.code, 415)
@@ -145,7 +145,7 @@ class TestBatchHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         body = json.dumps(dict(foo='foo', bar='bar'))
 
         response = self.fetch(
-            '/api/batch', method='POST', body=body, headers=headers
+            '/batch', method='POST', body=body, headers=headers
         )
 
         self.assertEqual(response.code, 400)
@@ -165,7 +165,7 @@ class TestBatchHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         mocked_run_batch.return_value = {}
 
         response = self.fetch(
-            '/api/batch', method='POST', body=body, headers=headers
+            '/batch', method='POST', body=body, headers=headers
         )
 
         self.assertEqual(response.code, 200)

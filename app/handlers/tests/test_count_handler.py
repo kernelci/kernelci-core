@@ -74,14 +74,14 @@ class TestCountHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
     def test_post(self):
         body = json.dumps(dict(job='job', kernel='kernel'))
 
-        response = self.fetch('/api/count', method='POST', body=body)
+        response = self.fetch('/count', method='POST', body=body)
 
         self.assertEqual(response.code, 501)
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
     def test_delete(self):
-        response = self.fetch('/api/count', method='DELETE')
+        response = self.fetch('/count', method='DELETE')
 
         self.assertEqual(response.code, 501)
         self.assertEqual(
@@ -90,7 +90,7 @@ class TestCountHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
     def test_get_wrong_resource(self):
         headers = {'Authorization': 'foo'}
 
-        response = self.fetch('/api/count/foobar', headers=headers)
+        response = self.fetch('/count/foobar', headers=headers)
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
@@ -104,7 +104,7 @@ class TestCountHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         )
 
         headers = {'Authorization': 'foo'}
-        response = self.fetch('/api/count', headers=headers)
+        response = self.fetch('/count', headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
@@ -120,7 +120,7 @@ class TestCountHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
         headers = {'Authorization': 'foo'}
         response = self.fetch(
-            '/api/count?board=foo&status=FAIL', headers=headers
+            '/count?board=foo&status=FAIL', headers=headers
         )
 
         self.assertEqual(response.code, 200)
@@ -134,7 +134,7 @@ class TestCountHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         )
 
         headers = {'Authorization': 'foo'}
-        response = self.fetch('/api/count/boot', headers=headers)
+        response = self.fetch('/count/boot', headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
@@ -147,7 +147,7 @@ class TestCountHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         )
 
         headers = {'Authorization': 'foo'}
-        response = self.fetch('/api/count/boot?board=foo', headers=headers)
+        response = self.fetch('/count/boot?board=foo', headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(

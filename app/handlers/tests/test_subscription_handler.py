@@ -85,7 +85,7 @@ class TestSubscriptionHandler(
         )
 
         headers = {'Authorization': 'foo'}
-        response = self.fetch('/api/subscription', headers=headers)
+        response = self.fetch('/subscription', headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
@@ -98,7 +98,7 @@ class TestSubscriptionHandler(
         mock_collection.find_one.return_value = None
 
         headers = {'Authorization': 'foo'}
-        response = self.fetch('/api/subscription/sub', headers=headers)
+        response = self.fetch('/subscription/sub', headers=headers)
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
@@ -108,7 +108,7 @@ class TestSubscriptionHandler(
 
         body = json.dumps(dict(job='job', kernel='kernel'))
 
-        response = self.fetch('/api/subscription', method='POST', body=body)
+        response = self.fetch('/subscription', method='POST', body=body)
 
         self.assertEqual(response.code, 403)
         self.assertEqual(
@@ -118,7 +118,7 @@ class TestSubscriptionHandler(
         headers = {'Authorization': 'foo'}
 
         response = self.fetch(
-            '/api/subscription', method='POST', body='', headers=headers
+            '/subscription', method='POST', body='', headers=headers
         )
 
         self.assertEqual(response.code, 415)
@@ -134,7 +134,7 @@ class TestSubscriptionHandler(
         body = json.dumps(dict(job='job', email='email'))
 
         response = self.fetch(
-            '/api/subscription', method='POST', body=body, headers=headers
+            '/subscription', method='POST', body=body, headers=headers
         )
 
         self.assertEqual(response.code, 201)
@@ -152,7 +152,7 @@ class TestSubscriptionHandler(
         body = json.dumps(dict(email='email'))
 
         response = self.fetch(
-            '/api/subscription/sub', method='DELETE', body=body,
+            '/subscription/sub', method='DELETE', body=body,
             headers=headers, allow_nonstandard_methods=True,
         )
 
@@ -164,7 +164,7 @@ class TestSubscriptionHandler(
         headers = {'Authorization': 'foo'}
 
         response = self.fetch(
-            '/api/subscription/sub', method='DELETE', headers=headers,
+            '/subscription/sub', method='DELETE', headers=headers,
         )
 
         self.assertEqual(response.code, 200)

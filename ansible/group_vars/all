@@ -7,3 +7,5 @@ app_user: www-data
 web_root: /usr/share/nginx/html
 git_head: HEAD
 role: production
+bucket_name: linaro-kernelci
+bucket_backup_dir: mongodb
