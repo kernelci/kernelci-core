@@ -257,7 +257,7 @@ def _update_doc_fields(bisect_doc, fields):
     :param fields: A `fields` data structure with the fields to return or
     exclude. Default to None.
     :type fields: list or dict
-    :return The BisectDocument as a dictionary.
+    :return The BisectDocument as a dict calling it `to_dict()` method.
     """
     if fields:
         if isinstance(fields, list):

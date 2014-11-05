@@ -13,30 +13,17 @@
 
 """Bisect mongodb document models."""
 
-from models import (
-    BISECT_BAD_COMMIT_DATE,
-    BISECT_BAD_COMMIT_KEY,
-    BISECT_BAD_COMMIT_URL,
-    BISECT_COLLECTION,
-    BISECT_DATA_KEY,
-    BISECT_GOOD_COMMIT_DATE,
-    BISECT_GOOD_COMMIT_KEY,
-    BISECT_GOOD_COMMIT_URL,
-    BOARD_KEY,
-    CREATED_KEY,
-    DOC_ID_KEY,
-    ID_KEY,
-    JOB_KEY,
-)
-from models.base import BaseDocument
+import models
+import models.base as modb
 
 
-class BisectDocument(BaseDocument):
+class BisectDocument(modb.BaseDocument):
     """The bisect document model class."""
 
+    # pylint: disable=too-many-instance-attributes
+    # pylint: disable=invalid-name
     def __init__(self, name):
-        super(BisectDocument, self).__init__(name)
-
+        self._name = name
         self._id = None
         self._job = None
         self._bisect_data = []
@@ -46,6 +33,7 @@ class BisectDocument(BaseDocument):
         self._good_commit_date = None
         self._bad_commit_url = None
         self._good_commit_url = None
+        self._created_on = None
 
     @property
     def collection(self):
@@ -53,24 +41,25 @@ class BisectDocument(BaseDocument):
 
         Where document of this kind will be stored.
         """
-        return BISECT_COLLECTION
+        return models.BISECT_COLLECTION
+
+    @property
+    def name(self):
+        """The name of the boot report."""
+        return self._name
 
     @property
     def id(self):
-        """The ID of this object in the database.
-
-        This value should be returned by mongodb.
-        """
+        """The ID of this object as returned by mongodb."""
         return self._id
-
-    @property
-    def doc_id(self):
-        """The interl doc ID."""
-        return self._name
 
     @id.setter
     def id(self, value):
-        """Set the ID of this object."""
+        """Set the ID of this object with the ObjectID from mongodb.
+
+        :param value: The ID of this object.
+        :type value: str
+        """
         self._id = value
 
     @property
@@ -153,24 +142,42 @@ class BisectDocument(BaseDocument):
         """Set the bisect data."""
         self._bisect_data = value
 
+    @property
+    def created_on(self):
+        """When this lab object was created."""
+        return self._created_on
+
+    @created_on.setter
+    def created_on(self, value):
+        """Set the creation date of this lab object.
+
+        :param value: The lab creation date, in UTC time zone.
+        :type value: datetime
+        """
+        self._created_on = value
+
     def to_dict(self):
         bisect_dict = {
-            CREATED_KEY: self._created_on,
-            JOB_KEY: self._job,
-            DOC_ID_KEY: self._name,
-            BISECT_DATA_KEY: self._bisect_data,
-            BISECT_GOOD_COMMIT_KEY: self._good_commit,
-            BISECT_GOOD_COMMIT_DATE: self._good_commit_date,
-            BISECT_GOOD_COMMIT_URL: self._good_commit_url,
-            BISECT_BAD_COMMIT_KEY: self._bad_commit,
-            BISECT_BAD_COMMIT_DATE: self._bad_commit_date,
-            BISECT_BAD_COMMIT_URL: self._bad_commit_url,
+            models.CREATED_KEY: self.created_on,
+            models.JOB_KEY: self.job,
+            models.NAME_KEY: self.name,
+            models.BISECT_DATA_KEY: self.bisect_data,
+            models.BISECT_GOOD_COMMIT_KEY: self.good_commit,
+            models.BISECT_GOOD_COMMIT_DATE: self.good_commit_date,
+            models.BISECT_GOOD_COMMIT_URL: self.good_commit_url,
+            models.BISECT_BAD_COMMIT_KEY: self.bad_commit,
+            models.BISECT_BAD_COMMIT_DATE: self.bad_commit_date,
+            models.BISECT_BAD_COMMIT_URL: self.bad_commit_url,
         }
 
-        if self._id:
-            bisect_dict[ID_KEY] = self._id
+        if self.id:
+            bisect_dict[models.ID_KEY] = self.id
 
         return bisect_dict
+
+    @staticmethod
+    def from_json(json_obj):
+        return None
 
 
 class BootBisectDocument(BisectDocument):
@@ -193,5 +200,5 @@ class BootBisectDocument(BisectDocument):
 
     def to_dict(self):
         boot_b_dict = super(BootBisectDocument, self).to_dict()
-        boot_b_dict[BOARD_KEY] = self._board
+        boot_b_dict[models.BOARD_KEY] = self.board
         return boot_b_dict
