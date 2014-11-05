@@ -148,7 +148,7 @@ def _parse_boot_log(boot_log, job, kernel, defconfig):
     :return A `BootDocument` object.
     """
 
-    LOG.info("Parsing boot log %s", os.path.basename(boot_log))
+    LOG.info("Parsing boot log '%s'", os.path.basename(boot_log))
 
     boot_json = None
     boot_doc = None
@@ -162,11 +162,11 @@ def _parse_boot_log(boot_log, job, kernel, defconfig):
         if dtb and not TMP_RE.findall(dtb):
             board = os.path.splitext(os.path.basename(dtb))[0]
         else:
-            LOG.info("Using boot report file name for board name")
             # If we do not have the dtb field we use the boot report file to
             # extract some kind of value for board.
             board = os.path.splitext(
                 os.path.basename(boot_log).replace('boot-', ''))[0]
+            LOG.info("Using boot report file name for board name: %s", board)
 
         boot_doc = BootDocument(board, job, kernel, defconfig)
         boot_doc.created_on = datetime.fromtimestamp(
@@ -194,6 +194,11 @@ def _parse_boot_log(boot_log, job, kernel, defconfig):
         boot_doc.dtb = dtb
 
         boot_doc.metadata = boot_json
+    else:
+        LOG.error(
+            "Boot log '%s' does not contain JSON data",
+            os.path.basename(boot_log)
+        )
 
     return boot_doc
 
