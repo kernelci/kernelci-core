@@ -14,63 +14,80 @@ arndale = {'device_type': 'arndale',
            'templates': ['generic-arm-kernel-ci-boot-template.json'],
            'defconfig_blacklist': [],
            'lpae': True,
-           'be': False}
+           'be': False,
+           'fastboot': False}
 
 arndale_octa = {'device_type': 'arndale-octa',
                 'templates': ['generic-arm-kernel-ci-boot-template.json'],
                 'defconfig_blacklist': [],
                 'lpae': True,
-                'be': False}
+                'be': False,
+                'fastboot': False}
 
 beaglebone_black = {'device_type': 'beaglebone-black',
                     'templates': ['generic-arm-kernel-ci-boot-template.json'],
                     'defconfig_blacklist': [],
                     'lpae': False,
-                    'be': False}
+                    'be': False,
+                    'fastboot': False}
 
 beagle_xm = {'device_type': 'beagle-xm',
              'templates': ['generic-arm-kernel-ci-boot-template.json'],
              'defconfig_blacklist': [],
              'lpae': False,
-             'be': False}
+             'be': False,
+             'fastboot': False}
 
 panda_es = {'device_type': 'panda-es',
             'templates': ['generic-arm-kernel-ci-boot-template.json'],
             'defconfig_blacklist': [],
             'lpae': False,
-            'be': False}
+            'be': False,
+            'fastboot': False}
 
 cubieboard3 = {'device_type': 'cubieboard3',
                'templates': ['generic-arm-kernel-ci-boot-template.json'],
                'defconfig_blacklist': [],
                'lpae': True,
-               'be': False}
+               'be': False,
+               'fastboot': False}
 
 imx6q_wandboard = {'device_type': 'imx6q-wandboard',
                    'templates': ['generic-arm-kernel-ci-boot-template.json'],
                    'defconfig_blacklist': ['arm-imx_v4_v5_defconfig',
                                            'arm-multi_v5_defconfig'],
                    'lpae': False,
-                   'be': False}
+                   'be': False,
+                   'fastboot': False}
 
 snowball = {'device_type': 'snowball',
             'templates': ['generic-arm-kernel-ci-boot-template.json'],
             'defconfig_blacklist': [],
             'lpae': False,
-            'be': False}
+            'be': False,
+            'fastboot': False}
 
 ifc6540 = {'device_type': 'ifc6540',
-            'templates': ['generic-arm-fastboot-kernel-ci-boot-template.json'],
-            'defconfig_blacklist': [],
-            'lpae': False,
-            'be': False}
+           'templates': ['generic-arm-ifc6540-kernel-ci-boot-template.json'],
+           'defconfig_blacklist': [],
+           'lpae': False,
+           'be': False,
+           'fastboot': True}
+
+ifc6410 = {'device_type': 'ifc6410',
+           'templates': ['generic-arm-ifc6410-kernel-ci-boot-template.json'],
+           'defconfig_blacklist': [],
+           'lpae': False,
+           'be': False,
+           'fastboot': True}
 
 qemu_aarch64 = {'device_type': 'qemu-aarch64',
                 'templates': ['generic-arm64-kernel-ci-boot-template.json'],
                 'defconfig_blacklist': ['arm64-allnoconfig',
                                         'arm64-allmodconfig'],
                 'lpae': False,
-                'be': False}
+                'be': False,
+                'fastboot': False}
 
 x86 = {'device_type': 'x86',
        'templates': ['generic-x86-kernel-ci-boot-template.json'],
@@ -78,15 +95,17 @@ x86 = {'device_type': 'x86',
                                'x86-allnoconfig',
                                'x86-allmodconfig'],
        'lpae': False,
-       'be': False}
+       'be': False,
+       'fastboot': False}
 
 x86_kvm = {'device_type': 'kvm',
            'templates': ['generic-x86-kvm-kernel-ci-boot-template.json'],
            'defconfig_blacklist': ['x86-i386_defconfig',
                                    'x86-allnoconfig',
                                    'x86-allmodconfig'],
-            'lpae': False,
-            'be': False}
+           'lpae': False,
+           'be': False,
+           'fastboot': False}
 
 device_map = {'exynos5250-arndale.dtb': arndale,
               'exynos5420-arndale-octa.dtb': arndale_octa,
@@ -97,6 +116,7 @@ device_map = {'exynos5250-arndale.dtb': arndale,
               'imx6q-wandboard.dtb': imx6q_wandboard,
               'ste-snowball.dtb': snowball,
               'qcom-apq8084-ifc6540.dtb': ifc6540,
+              'qcom-apq8064-ifc6410.dtb': ifc6410,
               'qemu-aarch64': qemu_aarch64,
               'x86': x86,
               'x86-kvm': x86_kvm}
@@ -131,8 +151,12 @@ def create_jobs(base_url, kernel, platform_list, target):
         device_templates = device['templates']
         lpae = device['lpae']
         be = device['be']
+        endian = 'little'
+        fastboot = device['fastboot']
         if 'BIG_ENDIAN' in defconfig and not be:
             print 'BIG_ENDIAN is not supported on %s. Skipping JSON creation' % device_type
+        if 'BIG_ENDIAN' in defconfig and be:
+            endian = 'big'
         elif 'LPAE' in defconfig and not lpae:
             print 'LPAE is not supported on %s. Skipping JSON creation' % device_type
         elif defconfig in device['defconfig_blacklist']:
@@ -155,7 +179,9 @@ def create_jobs(base_url, kernel, platform_list, target):
                             tmp = tmp.replace('{image_url}', image_url)
                             tmp = tmp.replace('{tree}', tree)
                             tmp = tmp.replace('{kernel_version}', kernel_version)
+                            tmp = tmp.replace('{endian}', endian)
                             tmp = tmp.replace('{defconfig}', defconfig)
+                            tmp = tmp.replace('{fastboot}', str(fastboot).lower())
                             fout.write(tmp)
                 print 'JSON Job created: jobs/%s' % job_name
 

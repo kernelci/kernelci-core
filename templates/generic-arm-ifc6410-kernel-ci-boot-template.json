@@ -12,16 +12,17 @@
                 "platform.fastboot": "{fastboot}"
             },
             "parameters": {
-                "kernel": "{kernel_url}",
-                "login_prompt": "login:",
-                "password": "root",
-                "password_prompt": "Password:",
-                "rootfs": "http://images.armcloud.us/lava/aarch64/debian-unstable-arm64.qcow2",
-                "username": "root"
+                "dtb": "{dtb_url}",
+                "kernel": "{kernel_url}"
             }
         },
         {
-            "command": "boot_linaro_image"
+            "command": "boot_linaro_image",
+            "parameters": {
+                "boot_cmds": [
+                    "console=ttyMSM0,115200,n8 root=/dev/mmcblk0p13 rootwait rw text androidboot.emmc=true androidboot.serialno=e080c363 androidboot.baseband=apq"
+                ]
+            }
         },
         {
             "command": "submit_results",
