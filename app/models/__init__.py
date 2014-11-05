@@ -17,13 +17,21 @@
 DB_NAME = 'kernel-ci'
 
 # The default ID key, and other keys, for mongodb documents and queries.
+ADDRESS_KEY = "address"
 AGGREGATE_KEY = 'aggregate'
 ARCHITECTURE_KEY = 'arch'
 BOARD_KEY = 'board'
+BOOT_LOAD_ADDR_KEY = 'loadaddr'
 BOOT_LOG_HTML_KEY = 'boot_log_html'
 BOOT_LOG_KEY = 'boot_log'
+BOOT_RESULT_DESC_KEY = "boot_result_description"
+BOOT_RESULT_KEY = 'boot_result'
+BOOT_RETRIES_KEY = 'boot_retries'
+BOOT_TIME_KEY = 'boot_time'
+BOOT_WARNINGS_KEY = 'boot_warnings'
 BUILD_RESULT_KEY = 'build_result'
 COMPILER_VERSION_KEY = 'compiler_version'
+CONTACT_KEY = "contact"
 COUNT_KEY = "count"
 CREATED_KEY = 'created_on'
 CROSS_COMPILE_KEY = 'cross_compile'
@@ -51,20 +59,23 @@ JOB_ID_KEY = 'job_id'
 JOB_KEY = 'job'
 KERNEL_IMAGE_KEY = 'kernel_image'
 KERNEL_KEY = 'kernel'
+LAB_ID_KEY = "lab_id"
 LIMIT_KEY = 'limit'
 LOAD_ADDR_KEY = 'load_addr'
 METADATA_KEY = 'metadata'
+NAME_KEY = "name"
 NOT_FIELD_KEY = 'nfield'
 PRIVATE_KEY = 'private'
 PROPERTIES_KEY = 'properties'
 RESULT_KEY = "result"
+RETRIES_KEY = 'retries'
 SKIP_KEY = 'skip'
 SORT_KEY = 'sort'
 SORT_ORDER_KEY = 'sort_order'
 STATUS_KEY = 'status'
 TIME_KEY = 'time'
 TOKEN_KEY = 'token'
-UPDATED_KEY = 'updated'
+UPDATED_KEY = 'updated_on'
 USERNAME_KEY = 'username'
 WARNINGS_KEY = 'warnings'
 
@@ -106,6 +117,7 @@ JOB_COLLECTION = 'job'
 SUBSCRIPTION_COLLECTION = 'subscription'
 TOKEN_COLLECTION = 'api-token'
 BISECT_COLLECTION = 'bisect'
+LAB_COLLECTION = 'lab'
 
 # Bisect values.
 BISECT_BOOT_STATUS_KEY = 'boot_status'
@@ -122,3 +134,7 @@ BISECT_GOOD_COMMIT_DATE = 'good_commit_date'
 BISECT_BAD_COMMIT_DATE = 'bad_commit_date'
 BISECT_GOOD_COMMIT_URL = 'good_commit_url'
 BISECT_BAD_COMMIT_URL = 'bad_commit_url'
+
+# Name formats.
+JOB_DOCUMENT_NAME = '%(job)s-%(kernel)s'
+BOOT_DOCUMENT_NAME = '%(board)s-%(job)s-%(kernel)s-%(defconfig)s'
