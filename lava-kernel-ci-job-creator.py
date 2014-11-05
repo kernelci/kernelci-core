@@ -151,12 +151,9 @@ def create_jobs(base_url, kernel, platform_list, target):
         device_templates = device['templates']
         lpae = device['lpae']
         be = device['be']
-        endian = 'little'
         fastboot = device['fastboot']
         if 'BIG_ENDIAN' in defconfig and not be:
             print 'BIG_ENDIAN is not supported on %s. Skipping JSON creation' % device_type
-        if 'BIG_ENDIAN' in defconfig and be:
-            endian = 'big'
         elif 'LPAE' in defconfig and not lpae:
             print 'LPAE is not supported on %s. Skipping JSON creation' % device_type
         elif defconfig in device['defconfig_blacklist']:
@@ -179,7 +176,10 @@ def create_jobs(base_url, kernel, platform_list, target):
                             tmp = tmp.replace('{image_url}', image_url)
                             tmp = tmp.replace('{tree}', tree)
                             tmp = tmp.replace('{kernel_version}', kernel_version)
-                            tmp = tmp.replace('{endian}', endian)
+                            if 'BIG_ENDIAN' in defconfig and be:
+                                tmp = tmp.replace('{endian}', 'big')
+                            else:
+                                tmp = tmp.replace('{endian}', 'little')
                             tmp = tmp.replace('{defconfig}', defconfig)
                             tmp = tmp.replace('{fastboot}', str(fastboot).lower())
                             fout.write(tmp)
