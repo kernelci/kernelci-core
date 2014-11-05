@@ -22,11 +22,17 @@ def load_json(json_file):
 
 
 def mkdir(directory):
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-    else:
+    if not ensure_dir(directory):
         shutil.rmtree(directory)
         os.makedirs(directory)
+
+
+def ensure_dir(directory):
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+        return True
+    else:
+        return False
 
 
 def in_bundle_attributes(bundle_atrributes, key):

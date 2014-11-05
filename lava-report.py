@@ -82,7 +82,7 @@ def boot_report(args):
             print 'Creating boot log for %s' % device_type
             log = 'boot-%s.log' % device_type
             directory = os.path.join(results_directory, kernel_defconfig)
-            mkdir(directory)
+            ensure_dir(directory)
             write_file(job_file, log, directory)
             if kernel_boot_time is None:
                 kernel_boot_time = '0.0'
