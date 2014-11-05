@@ -13,30 +13,39 @@
 
 import unittest
 
-from models.base import BaseDocument
-from models.boot import BootDocument
+import models.base as modb
+import models.boot as modbt
 
 
 class TestBootModel(unittest.TestCase):
 
     def test_boot_document_valid_instance(self):
-        boot_doc = BootDocument('board', 'job', 'kernel', 'defconfig')
-        self.assertIsInstance(boot_doc, BaseDocument)
+        boot_doc = modbt.BootDocument(
+            'board', 'job', 'kernel', 'defconfig', 'lab'
+        )
+        self.assertIsInstance(boot_doc, modb.BaseDocument)
 
     def test_boot_document_to_dict(self):
-        boot_doc = BootDocument('board', 'job', 'kernel', 'defconfig')
+        boot_doc = modbt.BootDocument(
+            'board', 'job', 'kernel', 'defconfig', 'lab'
+        )
+        boot_doc.id = 'id'
+        boot_doc.job_id = 'job-id'
+        boot_doc.created_on = 'now'
 
         expected = {
+            'name': 'board-job-kernel-defconfig',
+            'kernel': 'kernel',
+            'defconfig': 'defconfig',
+            'board': 'board',
+            'job_id': 'job-id',
+            'job': 'job',
+            '_id': 'id',
+            'lab_id': 'lab',
+            'created_on': 'now',
             'status': None,
             'time': None,
             'warnings': None,
-            'kernel': 'kernel',
-            'job_id': 'job-kernel',
-            'created_on': None,
-            'defconfig': 'defconfig',
-            'job': 'job',
-            '_id': 'board-job-kernel-defconfig',
-            'board': 'board',
             'load_addr': None,
             'dtb': None,
             'dtb_addr': None,
@@ -44,24 +53,11 @@ class TestBootModel(unittest.TestCase):
             'kernel_image': None,
             'boot_log': None,
             'endian': None,
-            'metadata': None,
+            'metadata': {},
             'boot_log_html': None,
             'fastboot': None,
+            'retries': None,
+            'boot_result_description': None,
         }
 
-        self.assertEqual(expected, boot_doc.to_dict())
-
-    def test_boot_document_to_json(self):
-        boot_doc = BootDocument('board', 'job', 'kernel', 'defconfig')
-
-        expected = (
-            '{"status": null, "kernel": "kernel", "boot_log": null, '
-            '"job_id": "job-kernel", "fastboot": null, "warnings": null, '
-            '"boot_log_html": null, "initrd_addr": null, "dtb_addr": null, '
-            '"created_on": null, "defconfig": "defconfig", '
-            '"kernel_image": null, "job": "job", "board": "board", '
-            '"time": null, "dtb": null, "_id": "board-job-kernel-defconfig", '
-            '"load_addr": null, "endian": null, "metadata": null}'
-        )
-
-        self.assertEqual(expected, boot_doc.to_json())
+        self.assertDictEqual(expected, boot_doc.to_dict())

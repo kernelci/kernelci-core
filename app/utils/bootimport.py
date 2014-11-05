@@ -28,8 +28,14 @@ from datetime import (
 )
 
 from models import (
+    BOOT_LOAD_ADDR_KEY,
     BOOT_LOG_HTML_KEY,
     BOOT_LOG_KEY,
+    BOOT_RESULT_DESC_KEY,
+    BOOT_RESULT_KEY,
+    BOOT_RETRIES_KEY,
+    BOOT_TIME_KEY,
+    BOOT_WARNINGS_KEY,
     DB_NAME,
     DTB_ADDR_KEY,
     DTB_KEY,
@@ -54,12 +60,6 @@ from utils.db import (
 
 # Pattern used for glob matching files on the filesystem.
 BOOT_REPORT_PATTERN = 'boot-*.json'
-
-# Keys defined only for the boot report JSON format. We store them differently.
-BOOT_TIME_JSON = 'boot_time'
-LOAD_ADDR_JSON = 'loadaddr'
-BOOT_RESULT_JSON = 'boot_result'
-BOOT_WARNINGS_JSON = 'boot_warnings'
 
 # Some dtb appears to be in a temp directory like 'tmp', and will results in
 # some weird names.
@@ -172,7 +172,7 @@ def _parse_boot_log(boot_log, job, kernel, defconfig):
         boot_doc.created_on = datetime.fromtimestamp(
             os.stat(boot_log).st_mtime, tz=tz_util.utc)
 
-        time_d = timedelta(seconds=float(boot_json.pop(BOOT_TIME_JSON, 0.0)))
+        time_d = timedelta(seconds=float(boot_json.pop(BOOT_TIME_KEY, 0.0)))
         boot_time = datetime(
             1970, 1, 1,
             minute=time_d.seconds / 60,
@@ -180,17 +180,20 @@ def _parse_boot_log(boot_log, job, kernel, defconfig):
             microsecond=time_d.microseconds
         )
 
+        json_pop = boot_json.pop
         boot_doc.time = boot_time
-        boot_doc.status = boot_json.pop(BOOT_RESULT_JSON, UNKNOWN_STATUS)
-        boot_doc.warnings = boot_json.pop(BOOT_WARNINGS_JSON, "0")
-        boot_doc.boot_log = boot_json.pop(BOOT_LOG_KEY, None)
-        boot_doc.initrd_addr = boot_json.pop(INITRD_ADDR_KEY, None)
-        boot_doc.load_addr = boot_json.pop(LOAD_ADDR_JSON, None)
-        boot_doc.kernel_image = boot_json.pop(KERNEL_IMAGE_KEY, None)
-        boot_doc.dtb_addr = boot_json.pop(DTB_ADDR_KEY, None)
-        boot_doc.endianness = boot_json.pop(ENDIANNESS_KEY, None)
-        boot_doc.boot_log_html = boot_json.pop(BOOT_LOG_HTML_KEY, None)
-        boot_doc.fastboot = boot_json.pop(FASTBOOT_KEY, None)
+        boot_doc.status = json_pop(BOOT_RESULT_KEY, UNKNOWN_STATUS)
+        boot_doc.warnings = json_pop(BOOT_WARNINGS_KEY, "0")
+        boot_doc.boot_log = json_pop(BOOT_LOG_KEY, None)
+        boot_doc.initrd_addr = json_pop(INITRD_ADDR_KEY, None)
+        boot_doc.load_addr = json_pop(BOOT_LOAD_ADDR_KEY, None)
+        boot_doc.kernel_image = json_pop(KERNEL_IMAGE_KEY, None)
+        boot_doc.dtb_addr = json_pop(DTB_ADDR_KEY, None)
+        boot_doc.endianness = json_pop(ENDIANNESS_KEY, None)
+        boot_doc.boot_log_html = json_pop(BOOT_LOG_HTML_KEY, None)
+        boot_doc.fastboot = json_pop(FASTBOOT_KEY, None)
+        boot_doc.boot_result_description = json_pop(BOOT_RESULT_DESC_KEY, None)
+        boot_doc.retries = json_pop(BOOT_RETRIES_KEY, None)
         boot_doc.dtb = dtb
 
         boot_doc.metadata = boot_json
