@@ -44,6 +44,7 @@ DOC_ID_KEY = 'doc_id'
 DTB_ADDR_KEY = 'dtb_addr'
 DTB_KEY = 'dtb'
 EMAIL_KEY = 'email'
+EMAIL_LIST_KEY = 'emails'
 ENDIANNESS_KEY = 'endian'
 ERRORS_KEY = 'errors'
 EXPIRED_KEY = 'expired'
@@ -142,6 +143,7 @@ BISECT_BAD_COMMIT_URL = 'bad_commit_url'
 JOB_DOCUMENT_NAME = '%(job)s-%(kernel)s'
 BOOT_DOCUMENT_NAME = '%(board)s-%(job)s-%(kernel)s-%(defconfig)s'
 DEFCONFIG_DOCUMENT_NAME = '%(job)s-%(kernel)s-%(defconfig)s'
+SUBSCRIPTION_DOCUMENT_NAME = 'sub-%(job)s-%(kernel)s'
 
 # Valid build status.
 VALID_BUILD_STATUS = [
