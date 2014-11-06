@@ -28,7 +28,7 @@ from mock import (
     patch,
 )
 
-from models.defconfig import DefConfigDocument
+from models.defconfig import DefconfigDocument
 
 from utils.docimport import (
     _import_all,
@@ -185,7 +185,7 @@ modules_dir: foo/bar
             'job-kernel', 'job', 'kernel', 'kernel-dir', 'defconf-dir'
         )
 
-        self.assertIsInstance(defconf_doc, DefConfigDocument)
+        self.assertIsInstance(defconf_doc, DefconfigDocument)
         self.assertEqual(defconf_doc.status, 'UNKNOWN')
         mock_parser.assert_called_once_with(
             'defconf-dir/build.json', defconf_doc
@@ -204,7 +204,7 @@ modules_dir: foo/bar
             'job-kernel', 'job', 'kernel', 'kernel-dir', 'defconf-dir'
         )
 
-        self.assertIsInstance(defconf_doc, DefConfigDocument)
+        self.assertIsInstance(defconf_doc, DefconfigDocument)
         self.assertEqual(defconf_doc.status, 'UNKNOWN')
         mock_parser.assert_called_once_with(
             'defconf-dir/build.meta', defconf_doc

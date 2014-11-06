@@ -29,7 +29,9 @@ BOOT_RESULT_KEY = 'boot_result'
 BOOT_RETRIES_KEY = 'boot_retries'
 BOOT_TIME_KEY = 'boot_time'
 BOOT_WARNINGS_KEY = 'boot_warnings'
+BUILD_PLATFORM_KEY = 'build_platform'
 BUILD_RESULT_KEY = 'build_result'
+BUILD_TIME_KEY = 'build_time'
 COMPILER_VERSION_KEY = 'compiler_version'
 CONTACT_KEY = "contact"
 COUNT_KEY = "count"
@@ -92,6 +94,7 @@ BUILD_STATUS = 'BUILD'
 FAIL_STATUS = 'FAIL'
 PASS_STATUS = 'PASS'
 UNKNOWN_STATUS = 'UNKNOWN'
+OFFLINE_STATUS = 'OFFLINE'
 
 # Build file names.
 DONE_FILE = '.done'
@@ -138,3 +141,19 @@ BISECT_BAD_COMMIT_URL = 'bad_commit_url'
 # Name formats.
 JOB_DOCUMENT_NAME = '%(job)s-%(kernel)s'
 BOOT_DOCUMENT_NAME = '%(board)s-%(job)s-%(kernel)s-%(defconfig)s'
+DEFCONFIG_DOCUMENT_NAME = '%(job)s-%(kernel)s-%(defconfig)s'
+
+# Valid build statuses
+VALID_BUILD_STATUS = [
+    BUILD_STATUS,
+    FAIL_STATUS,
+    PASS_STATUS,
+    UNKNOWN_STATUS
+]
+
+# Valid boot status
+VALID_BOOT_STATUS = [
+    FAIL_STATUS,
+    OFFLINE_STATUS,
+    PASS_STATUS,
+]

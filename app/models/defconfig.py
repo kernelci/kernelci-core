@@ -15,71 +15,108 @@
 
 """The model that represents a defconfing document in the mongodb collection."""
 
-from models import (
-    ARCHITECTURE_KEY,
-    DEFCONFIG_COLLECTION,
-    DEFCONFIG_KEY,
-    DIRNAME_KEY,
-    ERRORS_KEY,
-    JOB_ID_KEY,
-    JOB_KEY,
-    KERNEL_KEY,
-    METADATA_KEY,
-    STATUS_KEY,
-    WARNINGS_KEY,
-)
-from models.base import BaseDocument
+import types
+
+import models
+import models.base as modb
 
 
-class DefConfigDocument(BaseDocument):
+# pylint: disable=too-many-instance-attributes
+# pylint: disable=invalid-name
+class DefconfigDocument(modb.BaseDocument):
+
     """This class represents a defconfig folder as seen on the file system."""
 
-    ID_FORMAT = '%(job_id)s-%(defconfig)s'
+    def __init__(self, job, kernel, defconfig):
 
-    def __init__(self, name, job_id, job=None, kernel=None):
-        super(DefConfigDocument, self).__init__(
-            self.ID_FORMAT % {JOB_ID_KEY: job_id, DEFCONFIG_KEY: name}
-        )
+        doc_name = {
+            models.JOB_KEY: job,
+            models.KERNEL_KEY: kernel,
+            models.DEFCONFIG_KEY: defconfig
+        }
 
-        self._job_id = job_id
+        self._name = models.DEFCONFIG_DOCUMENT_NAME % doc_name
+        self._id = None
+        self._created_on = None
+
         self._job = job
         self._kernel = kernel
-        self._defconfig = None
+        self._defconfig = defconfig
+        self._job_id = None
         self._dirname = None
         self._status = None
         self._metadata = {}
-        self._errors = None
-        self._warnings = None
+        self._errors = 0
+        self._warnings = 0
         self._arch = None
+        self._build_time = None
+
+        self._git_url = None
+        self._git_commit = None
+        self._git_branch = None
+        self._git_describe = None
+        self._build_platform = []
 
     @property
     def collection(self):
-        return DEFCONFIG_COLLECTION
+        return models.DEFCONFIG_COLLECTION
+
+    @property
+    def created_on(self):
+        """When this lab object was created."""
+        return self._created_on
+
+    @created_on.setter
+    def created_on(self, value):
+        """Set the creation date of this lab object.
+
+        :param value: The lab creation date, in UTC time zone.
+        :type value: datetime
+        """
+        self._created_on = value
+
+    @property
+    def name(self):
+        """The name of the boot report."""
+        return self._name
+
+    @property
+    def id(self):
+        """The ID of this object as returned by mongodb."""
+        return self._id
+
+    @id.setter
+    def id(self, value):
+        """Set the ID of this object with the ObjectID from mongodb.
+
+        :param value: The ID of this object.
+        :type value: str
+        """
+        self._id = value
 
     @property
     def job_id(self):
         """The job ID this defconfig belogns to."""
         return self._job_id
 
+    @job_id.setter
+    def job_id(self, value):
+        """Set the job ID this defconfig belongs to.
+
+        :param value: The job ID.
+        :type value: str
+        """
+        self._job_id = value
+
     @property
     def job(self):
         """The job this defconfig belongs too."""
         return self._job
 
-    @job.setter
-    def job(self, value):
-        """Set the job name of this defconfig."""
-        self._job = value
-
     @property
     def kernel(self):
         """The kernel this defconfig was built against."""
         return self._kernel
-
-    @kernel.setter
-    def kernel(self, value):
-        """Set the kernel of this defconfig."""
-        self._kernel = value
 
     @property
     def metadata(self):
@@ -92,6 +129,10 @@ class DefConfigDocument(BaseDocument):
 
         :param value: A dictionary with defconfig metadata.
         """
+        if not isinstance(value, types.DictionaryType):
+            raise TypeError(
+                "Passed value is not a dictionary, got %s", type(value)
+            )
         self._metadata = value
 
     @property
@@ -105,16 +146,17 @@ class DefConfigDocument(BaseDocument):
 
         :param value: The status as string.
         """
+        if value not in models.VALID_BUILD_STATUS:
+            raise ValueError(
+                "Status value '%s' not valid, should be one of: %s",
+                value, str(models.VALID_BUILD_STATUS)
+            )
         self._status = value
 
     @property
     def defconfig(self):
         """The defconfig name of this document."""
         return self._defconfig
-
-    @defconfig.setter
-    def defconfig(self, value):
-        self._defconfig = value
 
     @property
     def errors(self):
@@ -123,6 +165,7 @@ class DefConfigDocument(BaseDocument):
 
     @errors.setter
     def errors(self, value):
+        """Set the number of errors."""
         self._errors = value
 
     @property
@@ -132,36 +175,118 @@ class DefConfigDocument(BaseDocument):
 
     @warnings.setter
     def warnings(self, value):
+        """Set the number of errors."""
         self._warnings = value
 
     @property
     def arch(self):
-        """The architecture of this defconfig."""
+        """The architecture this defconfig has been built with."""
         return self._arch
 
     @arch.setter
     def arch(self, value):
+        """Set the architecture this defconfig has been built with."""
         self._arch = value
 
     @property
     def dirname(self):
-        """The name of the directory of this defconfig."""
+        """The name of the directory this defconfig is stored in."""
         return self._dirname
 
     @dirname.setter
     def dirname(self, value):
+        """Set the name of the directory where this defconfig is stored."""
         self._dirname = value
 
+    @property
+    def git_url(self):
+        """The git URL where the code comes from."""
+        return self._git_url
+
+    @git_url.setter
+    def git_url(self, value):
+        """Set the git URL of this defconfig document."""
+        self._git_url = value
+
+    @property
+    def git_commit(self):
+        """The git commit SHA."""
+        return self._git_commit
+
+    @git_commit.setter
+    def git_commit(self, value):
+        """Set the git commit SHA."""
+        self._git_commit = value
+
+    @property
+    def git_branch(self):
+        """The branch name of the repository used."""
+        return self._git_branch
+
+    @git_branch.setter
+    def git_branch(self, value):
+        """Set the branch name of the repository used."""
+        self._git_branch = value
+
+    @property
+    def build_platform(self):
+        """Details about the platform used to build."""
+        return self._build_platform
+
+    @build_platform.setter
+    def build_platform(self, value):
+        """Set details about the build platform."""
+        if not isinstance(value, types.ListType):
+            raise TypeError("Value passed is not a list: %s", type(value))
+        self._build_platform = value
+
+    @property
+    def git_describe(self):
+        """The git describe value of the repository."""
+        return self._git_describe
+
+    @git_describe.setter
+    def git_describe(self, value):
+        """Set the git describe value of the repository."""
+        self._git_describe = value
+
+    @property
+    def build_time(self):
+        """How long it took to build this defconfig."""
+        return self._build_time
+
+    @build_time.setter
+    def build_time(self, value):
+        """Set the build time value."""
+        self._build_time = value
+
     def to_dict(self):
-        defconf_dict = super(DefConfigDocument, self).to_dict()
-        defconf_dict[JOB_ID_KEY] = self._job_id
-        defconf_dict[JOB_KEY] = self._job
-        defconf_dict[KERNEL_KEY] = self._kernel
-        defconf_dict[STATUS_KEY] = self._status
-        defconf_dict[METADATA_KEY] = self._metadata
-        defconf_dict[DEFCONFIG_KEY] = self._defconfig
-        defconf_dict[WARNINGS_KEY] = self._warnings
-        defconf_dict[ERRORS_KEY] = self._errors
-        defconf_dict[ARCHITECTURE_KEY] = self._arch
-        defconf_dict[DIRNAME_KEY] = self._dirname
+        defconf_dict = {
+            models.ARCHITECTURE_KEY: self.arch,
+            models.BUILD_PLATFORM_KEY: self.build_platform,
+            models.BUILD_TIME_KEY: self.build_time,
+            models.CREATED_KEY: self.created_on,
+            models.DEFCONFIG_KEY: self.defconfig,
+            models.DIRNAME_KEY: self.dirname,
+            models.ERRORS_KEY: self.errors,
+            models.GIT_BRANCH_KEY: self.git_branch,
+            models.GIT_COMMIT_KEY: self.git_commit,
+            models.GIT_DESCRIBE_KEY: self.git_describe,
+            models.GIT_URL_KEY: self.git_url,
+            models.JOB_ID_KEY: self.job_id,
+            models.JOB_KEY: self.job,
+            models.KERNEL_KEY: self.kernel,
+            models.METADATA_KEY: self.metadata,
+            models.NAME_KEY: self.name,
+            models.STATUS_KEY: self.status,
+            models.WARNINGS_KEY: self.warnings,
+        }
+
+        if self.id:
+            defconf_dict[models.ID_KEY] = self.id
+
         return defconf_dict
+
+    @staticmethod
+    def from_json(json_obj):
+        return None

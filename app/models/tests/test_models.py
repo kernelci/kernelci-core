@@ -24,7 +24,7 @@ from bson import (
 from datetime import datetime
 
 from models.base import BaseDocument
-from models.defconfig import DefConfigDocument
+from models.defconfig import DefconfigDocument
 from models.job import JobDocument
 from models.subscription import SubscriptionDocument
 
@@ -125,47 +125,6 @@ class TestJobModel(unittest.TestCase):
             (new_job.created_on - job_doc.created_on).total_seconds(), 0)
         self.assertLessEqual(
             (new_job.updated - job_doc.updated).total_seconds(), 0)
-
-
-class TestDefconfModel(unittest.TestCase):
-
-    def test_defconfig_document_valid_instance(self):
-        defconf_doc = DefConfigDocument('defconf', 'job')
-        self.assertIsInstance(defconf_doc, BaseDocument)
-
-    def test_defconfig_document_to_dict(self):
-        expected = {
-            'job_id': 'job',
-            'kernel': 'kernel',
-            'created_on': None,
-            'metadata': {},
-            'job': 'job',
-            '_id': 'job-defconfig',
-            'status': None,
-            'defconfig': None,
-            'errors': None,
-            'warnings': None,
-            'arch': None,
-            'dirname': None,
-        }
-
-        defconfig_doc = DefConfigDocument('defconfig', 'job', 'job', 'kernel')
-        self.assertEqual(defconfig_doc.to_dict(), expected)
-
-    def test_defconfig_document_collection(self):
-        defconfig_doc = DefConfigDocument('defconfig', 'job')
-        self.assertEqual(defconfig_doc.collection, 'defconfig')
-
-    def test_defconfig_document_to_json(self):
-        expected_json = (
-            '{"status": null, "kernel": null, "errors": null, '
-            '"dirname": null, "job_id": "job", "warnings": null, '
-            '"created_on": null, "defconfig": null, "job": null, '
-            '"_id": "job-defconfig", "arch": null, "metadata": {}}'
-        )
-
-        defconfig_doc = DefConfigDocument('defconfig', 'job')
-        self.assertEqual(expected_json, defconfig_doc.to_json())
 
 
 class TestSubscriptionModel(unittest.TestCase):

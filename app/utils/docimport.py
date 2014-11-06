@@ -42,7 +42,7 @@ from models import (
     UNKNOWN_STATUS,
     WARNINGS_KEY,
 )
-from models.defconfig import DefConfigDocument
+from models.defconfig import DefconfigDocument
 from models.job import (
     JOB_COLLECTION,
     JobDocument,
@@ -169,7 +169,7 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
             defconf_doc = docs[idx]
             if isinstance(defconf_doc, JobDocument):
                 idx += 1
-            elif (isinstance(defconf_doc, DefConfigDocument) and
+            elif (isinstance(defconf_doc, DefconfigDocument) and
                     defconf_doc.metadata):
                 for key in job_doc.METADATA_KEYS:
                     if key in defconf_doc.metadata.keys():
@@ -188,9 +188,9 @@ def _traverse_defconf_dir(job_id, job, kernel, kernel_dir, defconf_dir):
     :param job_id: The ID of the parent job.
     :param kernel_dir: The parent directory of this defconfig.
     :param defconf_dir: The actual defconfig directory to parse.
-    :return A `DefConfigDocument` instance.
+    :return A `DefconfigDocument` instance.
     """
-    defconf_doc = DefConfigDocument(defconf_dir, job_id, job, kernel)
+    defconf_doc = DefconfigDocument(defconf_dir, job_id, job, kernel)
     # Default to the directory name and if we have the metadata file, get
     # the value from there.
     # Split on the + sign since some dirs are in the form 'defconfig+FRAGMENT'.
@@ -235,7 +235,7 @@ def _parse_build_metadata(metadata_file, defconf_doc):
     """Parse the metadata file contained in thie build directory.
 
     :param metadata_file: The path to the metadata file.
-    :param defconf_doc: The `DefConfigDocument` whose metadata will be updated.
+    :param defconf_doc: The `DefconfigDocument` whose metadata will be updated.
     """
     metadata = parse_metadata_file(metadata_file)
 
