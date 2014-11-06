@@ -18,14 +18,15 @@ import models.base as modb
 
 
 # pylint: disable=too-many-public-methods
+# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-arguments
+# pylint: disable=invalid-name
 class BootDocument(modb.BaseDocument):
     """Model for a boot document.
 
     Each document is a single booted board.
     """
 
-    # pylint: disable=too-many-instance-attributes
-    # pylint: disable=too-many-arguments
     def __init__(self, board, job, kernel, defconfig, lab_id):
         """A new BootDocument.
 
@@ -329,29 +330,29 @@ class BootDocument(modb.BaseDocument):
 
     def to_dict(self):
         boot_dict = {
-            models.NAME_KEY: self.name,
             models.BOARD_KEY: self.board,
-            models.TIME_KEY: self.time,
-            models.JOB_KEY: self.job,
-            models.KERNEL_KEY: self.kernel,
-            models.DEFCONFIG_KEY: self.defconfig,
-            models.STATUS_KEY: self.status,
-            models.BOOT_LOG_KEY: self.boot_log,
-            models.WARNINGS_KEY: self.warnings,
-            models.JOB_ID_KEY: self.job_id,
-            models.KERNEL_IMAGE_KEY: self.kernel_image,
-            models.LOAD_ADDR_KEY: self.load_addr,
-            models.INITRD_ADDR_KEY: self.initrd_addr,
-            models.DTB_KEY: self.dtb,
-            models.DTB_ADDR_KEY: self.dtb_addr,
-            models.ENDIANNESS_KEY: self.endianness,
-            models.METADATA_KEY: self.metadata,
-            models.FASTBOOT_KEY: self.fastboot,
             models.BOOT_LOG_HTML_KEY: self.boot_log_html,
+            models.BOOT_LOG_KEY: self.boot_log,
             models.BOOT_RESULT_DESC_KEY: self.boot_result_description,
-            models.RETRIES_KEY: self.retries,
-            models.LAB_ID_KEY: self.lab_id,
             models.CREATED_KEY: self.created_on,
+            models.DEFCONFIG_KEY: self.defconfig,
+            models.DTB_ADDR_KEY: self.dtb_addr,
+            models.DTB_KEY: self.dtb,
+            models.ENDIANNESS_KEY: self.endianness,
+            models.FASTBOOT_KEY: self.fastboot,
+            models.INITRD_ADDR_KEY: self.initrd_addr,
+            models.JOB_ID_KEY: self.job_id,
+            models.JOB_KEY: self.job,
+            models.KERNEL_IMAGE_KEY: self.kernel_image,
+            models.KERNEL_KEY: self.kernel,
+            models.LAB_ID_KEY: self.lab_id,
+            models.LOAD_ADDR_KEY: self.load_addr,
+            models.METADATA_KEY: self.metadata,
+            models.NAME_KEY: self.name,
+            models.RETRIES_KEY: self.retries,
+            models.STATUS_KEY: self.status,
+            models.TIME_KEY: self.time,
+            models.WARNINGS_KEY: self.warnings,
         }
 
         if self.id:
