@@ -143,7 +143,7 @@ JOB_DOCUMENT_NAME = '%(job)s-%(kernel)s'
 BOOT_DOCUMENT_NAME = '%(board)s-%(job)s-%(kernel)s-%(defconfig)s'
 DEFCONFIG_DOCUMENT_NAME = '%(job)s-%(kernel)s-%(defconfig)s'
 
-# Valid build statuses
+# Valid build status.
 VALID_BUILD_STATUS = [
     BUILD_STATUS,
     FAIL_STATUS,
@@ -151,9 +151,16 @@ VALID_BUILD_STATUS = [
     UNKNOWN_STATUS
 ]
 
-# Valid boot status
+# Valid boot status.
 VALID_BOOT_STATUS = [
     FAIL_STATUS,
     OFFLINE_STATUS,
+    PASS_STATUS,
+]
+
+# Valid job status.
+VALID_JOB_STATUS = [
+    BUILD_STATUS,
+    FAIL_STATUS,
     PASS_STATUS,
 ]

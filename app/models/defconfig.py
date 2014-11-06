@@ -63,12 +63,12 @@ class DefconfigDocument(modb.BaseDocument):
 
     @property
     def created_on(self):
-        """When this lab object was created."""
+        """When this object was created."""
         return self._created_on
 
     @created_on.setter
     def created_on(self, value):
-        """Set the creation date of this lab object.
+        """Set the creation date of this object.
 
         :param value: The lab creation date, in UTC time zone.
         :type value: datetime

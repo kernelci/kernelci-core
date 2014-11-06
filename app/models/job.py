@@ -15,27 +15,15 @@
 
 """The model that represents a job document in the mongodb collection."""
 
-from bson import json_util
-from types import StringTypes
+import bson
+import types
 
-from models import (
-    GIT_BRANCH_KEY,
-    GIT_COMMIT_KEY,
-    GIT_DESCRIBE_KEY,
-    GIT_URL_KEY,
-    ID_KEY,
-    JOB_COLLECTION,
-    JOB_KEY,
-    KERNEL_KEY,
-    METADATA_KEY,
-    PRIVATE_KEY,
-    STATUS_KEY,
-    UPDATED_KEY,
-)
-from models.base import BaseDocument
+import models
+import models.base as modb
 
 
-class JobDocument(BaseDocument):
+# pylint: disable=invalid-name
+class JobDocument(modb.BaseDocument):
     """This class represents a job as seen on the file system.
 
     Each job on the file system is composed of a real job name (usually who
@@ -43,24 +31,58 @@ class JobDocument(BaseDocument):
     of the two, and its name is of the form `job-kernel`.
     """
 
-    ID_FORMAT = '%(job)s-%(kernel)s'
-    METADATA_KEYS = (
-        GIT_URL_KEY, GIT_BRANCH_KEY, GIT_DESCRIBE_KEY, GIT_COMMIT_KEY,
-    )
+    def __init__(self, job, kernel):
 
-    def __init__(self, name, job=None, kernel=None):
-        super(JobDocument, self).__init__(name)
-
-        self._private = False
+        doc_name = {
+            models.JOB_KEY: job,
+            models.KERNEL_KEY: kernel,
+        }
+        self._name = models.JOB_DOCUMENT_NAME % doc_name
         self._job = job
         self._kernel = kernel
+
+        self._id = None
+        self._created_on = None
+
+        self._private = False
         self._status = None
-        self._updated = None
-        self._metadata = {}
 
     @property
     def collection(self):
-        return JOB_COLLECTION
+        return models.JOB_COLLECTION
+
+    @property
+    def name(self):
+        """The name of the boot report."""
+        return self._name
+
+    @property
+    def id(self):
+        """The ID of this object as returned by mongodb."""
+        return self._id
+
+    @id.setter
+    def id(self, value):
+        """Set the ID of this object with the ObjectID from mongodb.
+
+        :param value: The ID of this object.
+        :type value: str
+        """
+        self._id = value
+
+    @property
+    def created_on(self):
+        """When this object was created."""
+        return self._created_on
+
+    @created_on.setter
+    def created_on(self, value):
+        """Set the creation date of this object.
+
+        :param value: The lab creation date, in UTC time zone.
+        :type value: datetime
+        """
+        self._created_on = value
 
     @property
     def private(self):
@@ -77,78 +99,45 @@ class JobDocument(BaseDocument):
 
     @property
     def job(self):
-        """Return the real job name as found on the file system."""
+        """The real job name as found on the file system."""
         return self._job
-
-    @job.setter
-    def job(self, value):
-        """Set the real job name as found on the file system."""
-        self._job = value
 
     @property
     def kernel(self):
-        """Return the real kernel name as found on the file system."""
+        """The real kernel name as found on the file system."""
         return self._kernel
-
-    @kernel.setter
-    def kernel(self, value):
-        """Set the real kernel name as found on the file system."""
-        self._kernel = value
-
-    @property
-    def updated(self):
-        """The date this document was last updated.
-
-        :return A string representing a datetime object in ISO format,
-                UTC time zone.
-        """
-        return self._updated
-
-    @updated.setter
-    def updated(self, value):
-        """Set the date this document was last updated.
-
-        :param value: A string representing a datetime object in ISO format.
-        """
-        self._updated = value
 
     @property
     def status(self):
-        """The build status of this job."""
+        """The status of the job."""
         return self._status
 
     @status.setter
     def status(self, value):
-        """Set the build status of the job.
+        """Set the status of the job.
 
         :param value: The status.
         """
+        if not value in models.VALID_JOB_STATUS:
+            raise ValueError(
+                "Status value '%s' not valid, should be one of: %s",
+                value, str(models.VALID_JOB_STATUS)
+            )
         self._status = value
 
-    @property
-    def metadata(self):
-        """The metadata associated with this job.
-
-        A dictionary contaning information like commit ID, tree URL...
-        """
-        return self._metadata
-
-    @metadata.setter
-    def metadata(self, value):
-        """Set the metadata dictionary associated with this job.
-
-        :param value: A dictionary containing the metadata.
-        """
-        self._metadata = value
-
     def to_dict(self):
-        job_dict = super(JobDocument, self).to_dict()
-        job_dict[PRIVATE_KEY] = self._private
-        job_dict[JOB_KEY] = self._job
-        job_dict[KERNEL_KEY] = self._kernel
-        job_dict[UPDATED_KEY] = self._updated
-        job_dict[STATUS_KEY] = self._status
-        job_dict[METADATA_KEY] = self._metadata
+        job_dict = {
+            models.CREATED_KEY: self.created_on,
+            models.JOB_KEY: self.job,
+            models.KERNEL_KEY: self.kernel,
+            models.NAME_KEY: self.name,
+            models.PRIVATE_KEY: self.private,
+            models.STATUS_KEY: self.status,
+        }
+
+        if self.id:
+            job_dict[models.ID_KEY] = self.id
+
         return job_dict
 
     @staticmethod
@@ -156,15 +145,26 @@ class JobDocument(BaseDocument):
         """Build a document from a JSON object.
 
         :param json_obj: The JSON object to start from, or a JSON string.
-        :return An instance of `JobDocument`.
+        :return An instance of `JobDocument` or None
         """
-        if isinstance(json_obj, StringTypes):
-            json_obj = json_util.loads(json_obj)
+        job_doc = None
 
-        name = json_obj.pop(ID_KEY)
+        if isinstance(json_obj, types.StringTypes):
+            json_obj = bson.json_util.loads(json_obj)
 
-        job_doc = JobDocument(name)
-        for key, value in json_obj.iteritems():
-            setattr(job_doc, key, value)
+        # pylint: disable=maybe-no-member
+        if isinstance(json_obj, types.DictionaryType):
+            job_pop = json_obj.pop
+            job = job_pop(models.JOB_KEY)
+            kernel = job_pop(models.KERNEL_KEY)
+            doc_id = job_pop(models.ID_KEY)
+            # Remove the name key.
+            job_pop(models.NAME_KEY)
+
+            job_doc = JobDocument(job, kernel)
+            job_doc.id = doc_id
+
+            for key, value in json_obj.iteritems():
+                setattr(job_doc, key, value)
 
         return job_doc
