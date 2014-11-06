@@ -130,8 +130,12 @@ POST
  If the request has been accepted, it will always return ``202`` as the status code, even when not boot reports for the ``job`` and ``kernel`` combination
  have been found.
 
+ For more info on all the required JSON request fields, see the :ref:`boot schema for POST requests <schema_boot_post>`.
+
+ :reqjson string lab_id: The ID of the boot tests lab.
  :reqjson string job: The name of the job.
  :reqjson string kernel: The name of the kernel.
+ :reqjson string defconfig: The name of the defconfig.
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Content-Type: Content type of the transmitted data, must be ``application/json``.
