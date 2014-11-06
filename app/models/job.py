@@ -53,7 +53,7 @@ class JobDocument(modb.BaseDocument):
 
     @property
     def name(self):
-        """The name of the boot report."""
+        """The name of the object."""
         return self._name
 
     @property
