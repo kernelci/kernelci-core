@@ -15,48 +15,18 @@
 
 """Container for all the boot import related functions."""
 
+import bson
+import datetime
 import glob
 import json
 import os
 import pymongo
 import re
 
-from bson import tz_util
-from datetime import (
-    datetime,
-    timedelta
-)
-
-from models import (
-    BOOT_LOAD_ADDR_KEY,
-    BOOT_LOG_HTML_KEY,
-    BOOT_LOG_KEY,
-    BOOT_RESULT_DESC_KEY,
-    BOOT_RESULT_KEY,
-    BOOT_RETRIES_KEY,
-    BOOT_TIME_KEY,
-    BOOT_WARNINGS_KEY,
-    DB_NAME,
-    DTB_ADDR_KEY,
-    DTB_KEY,
-    ENDIANNESS_KEY,
-    FASTBOOT_KEY,
-    INITRD_ADDR_KEY,
-    JOB_KEY,
-    KERNEL_IMAGE_KEY,
-    KERNEL_KEY,
-    UNKNOWN_STATUS,
-)
-from models.boot import BootDocument
-from utils import (
-    BASE_PATH,
-    LOG,
-    is_hidden,
-)
-from utils.db import (
-    get_db_connection,
-    save,
-)
+import models
+import models.boot as modbt
+import utils
+import utils.db as db
 
 # Pattern used for glob matching files on the filesystem.
 BOOT_REPORT_PATTERN = 'boot-*.json'
@@ -66,7 +36,7 @@ BOOT_REPORT_PATTERN = 'boot-*.json'
 TMP_RE = re.compile(r'tmp')
 
 
-def import_and_save_boot(json_obj, db_options, base_path=BASE_PATH):
+def import_and_save_boot(json_obj, db_options, base_path=utils.BASE_PATH):
     """Wrapper function to be used as an external task.
 
     This function should only be called by Celery or other task managers.
@@ -81,16 +51,16 @@ def import_and_save_boot(json_obj, db_options, base_path=BASE_PATH):
     :param base_path: The base path where to start looking for the boot log
     file. It defaults to: /var/www/images/kernel-ci.
     """
-    database = get_db_connection(db_options)
+    database = db.get_db_connection(db_options)
     docs = parse_boot_from_json(json_obj, base_path)
 
     if docs:
-        save(database, docs)
+        db.save(database, docs)
     else:
-        LOG.info("No boot log imported")
+        utils.LOG.info("No boot log imported")
 
 
-def parse_boot_from_json(json_obj, base_path=BASE_PATH):
+def parse_boot_from_json(json_obj, base_path=utils.BASE_PATH):
     """Parse boot log file from a JSON object.
 
     The provided JSON object, a dict-like object, should contain at least the
@@ -101,13 +71,14 @@ def parse_boot_from_json(json_obj, base_path=BASE_PATH):
         file. It defaults to: /var/www/images/kernel-ci.
     :return A list with all the `BootDocument`s.
     """
-    job = json_obj[JOB_KEY]
-    kernel = json_obj[KERNEL_KEY]
+    # FIXME: need to add lab_id.
+    job = json_obj[models.JOB_KEY]
+    kernel = json_obj[models.KERNEL_KEY]
 
     return _parse_boot(job, kernel, base_path)
 
 
-def _parse_boot(job, kernel, base_path=BASE_PATH):
+def _parse_boot(job, kernel, base_path=utils.BASE_PATH):
     """Traverse the kernel directory and look for boot report logs.
 
     :param job: The name of the job.
@@ -119,14 +90,15 @@ def _parse_boot(job, kernel, base_path=BASE_PATH):
 
     job_dir = os.path.join(base_path, job)
 
-    if not is_hidden(job) and os.path.isdir(job_dir):
+    if not utils.is_hidden(job) and os.path.isdir(job_dir):
         kernel_dir = os.path.join(job_dir, kernel)
 
-        if not is_hidden(kernel) and os.path.isdir(kernel_dir):
+        if not utils.is_hidden(kernel) and os.path.isdir(kernel_dir):
             for defconfig in os.listdir(kernel_dir):
                 defconfig_dir = os.path.join(kernel_dir, defconfig)
 
-                if not is_hidden(defconfig) and os.path.isdir(defconfig_dir):
+                if not utils.is_hidden(defconfig) and \
+                        os.path.isdir(defconfig_dir):
                     docs.extend([
                         _parse_boot_log(boot_log, job, kernel, defconfig)
                         for boot_log in glob.iglob(
@@ -148,7 +120,7 @@ def _parse_boot_log(boot_log, job, kernel, defconfig):
     :return A `BootDocument` object.
     """
 
-    LOG.info("Parsing boot log '%s'", os.path.basename(boot_log))
+    utils.LOG.info("Parsing boot log '%s'", os.path.basename(boot_log))
 
     boot_json = None
     boot_doc = None
@@ -157,7 +129,7 @@ def _parse_boot_log(boot_log, job, kernel, defconfig):
         boot_json = json.load(read_f)
 
     if boot_json:
-        dtb = boot_json.pop(DTB_KEY, None)
+        dtb = boot_json.pop(models.DTB_KEY, None)
 
         if dtb and not TMP_RE.findall(dtb):
             board = os.path.splitext(os.path.basename(dtb))[0]
@@ -166,14 +138,19 @@ def _parse_boot_log(boot_log, job, kernel, defconfig):
             # extract some kind of value for board.
             board = os.path.splitext(
                 os.path.basename(boot_log).replace('boot-', ''))[0]
-            LOG.info("Using boot report file name for board name: %s", board)
+            utils.LOG.info(
+                "Using boot report file name for board name: %s", board
+            )
 
-        boot_doc = BootDocument(board, job, kernel, defconfig)
-        boot_doc.created_on = datetime.fromtimestamp(
-            os.stat(boot_log).st_mtime, tz=tz_util.utc)
+        # FIXME: need to pass the lab_id.
+        boot_doc = modbt.BootDocument(board, job, kernel, defconfig)
+        boot_doc.created_on = datetime.datetime.fromtimestamp(
+            os.stat(boot_log).st_mtime, tz=bson.tz_util.utc)
 
-        time_d = timedelta(seconds=float(boot_json.pop(BOOT_TIME_KEY, 0.0)))
-        boot_time = datetime(
+        time_d = datetime.timedelta(
+            seconds=float(boot_json.pop(models.BOOT_TIME_KEY, 0.0))
+        )
+        boot_time = datetime.datetime(
             1970, 1, 1,
             minute=time_d.seconds / 60,
             second=time_d.seconds % 60,
@@ -182,23 +159,27 @@ def _parse_boot_log(boot_log, job, kernel, defconfig):
 
         json_pop = boot_json.pop
         boot_doc.time = boot_time
-        boot_doc.status = json_pop(BOOT_RESULT_KEY, UNKNOWN_STATUS)
-        boot_doc.warnings = json_pop(BOOT_WARNINGS_KEY, "0")
-        boot_doc.boot_log = json_pop(BOOT_LOG_KEY, None)
-        boot_doc.initrd_addr = json_pop(INITRD_ADDR_KEY, None)
-        boot_doc.load_addr = json_pop(BOOT_LOAD_ADDR_KEY, None)
-        boot_doc.kernel_image = json_pop(KERNEL_IMAGE_KEY, None)
-        boot_doc.dtb_addr = json_pop(DTB_ADDR_KEY, None)
-        boot_doc.endianness = json_pop(ENDIANNESS_KEY, None)
-        boot_doc.boot_log_html = json_pop(BOOT_LOG_HTML_KEY, None)
-        boot_doc.fastboot = json_pop(FASTBOOT_KEY, None)
-        boot_doc.boot_result_description = json_pop(BOOT_RESULT_DESC_KEY, None)
-        boot_doc.retries = json_pop(BOOT_RETRIES_KEY, None)
+        boot_doc.status = json_pop(
+            models.BOOT_RESULT_KEY, models.UNKNOWN_STATUS
+        )
+        boot_doc.warnings = json_pop(models.BOOT_WARNINGS_KEY, "0")
+        boot_doc.boot_log = json_pop(models.BOOT_LOG_KEY, None)
+        boot_doc.initrd_addr = json_pop(models.INITRD_ADDR_KEY, None)
+        boot_doc.load_addr = json_pop(models.BOOT_LOAD_ADDR_KEY, None)
+        boot_doc.kernel_image = json_pop(models.KERNEL_IMAGE_KEY, None)
+        boot_doc.dtb_addr = json_pop(models.DTB_ADDR_KEY, None)
+        boot_doc.endianness = json_pop(models.ENDIANNESS_KEY, None)
+        boot_doc.boot_log_html = json_pop(models.BOOT_LOG_HTML_KEY, None)
+        boot_doc.fastboot = json_pop(models.FASTBOOT_KEY, None)
+        boot_doc.boot_result_description = json_pop(
+            models.BOOT_RESULT_DESC_KEY, None
+        )
+        boot_doc.retries = json_pop(models.BOOT_RETRIES_KEY, None)
         boot_doc.dtb = dtb
 
         boot_doc.metadata = boot_json
     else:
-        LOG.error(
+        utils.LOG.error(
             "Boot log '%s' does not contain JSON data",
             os.path.basename(boot_log)
         )
@@ -206,7 +187,7 @@ def _parse_boot_log(boot_log, job, kernel, defconfig):
     return boot_doc
 
 
-def _import_all(base_path=BASE_PATH):
+def _import_all(base_path=utils.BASE_PATH):
     """Handy function to import all boot logs."""
     boot_docs = []
 
@@ -219,11 +200,12 @@ def _import_all(base_path=BASE_PATH):
     return boot_docs
 
 
+# pylint: disable=invalid-name
 if __name__ == '__main__':
     connection = pymongo.MongoClient()
-    database = connection[DB_NAME]
+    loc_db = connection[models.DB_NAME]
 
     all_docs = _import_all()
-    save(database, all_docs)
+    db.save(loc_db, all_docs)
 
     connection.disconnect()
