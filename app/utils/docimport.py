@@ -15,32 +15,22 @@
 
 """Container for all the import related functions."""
 
+import glob
 import os
 import pymongo
 
 from bson import tz_util
-from glob import glob
 from datetime import datetime
 
 import models
-
-from models.defconfig import DefconfigDocument
+import models.defconfig as moddf
 import models.job as modj
-
-from utils import (
-    BASE_PATH,
-    LOG,
-    is_hidden,
-)
-from utils.db import (
-    find_one,
-    get_db_connection,
-    save,
-)
-from utils.meta_parser import parse_metadata_file
+import utils
+import utils.db
+import utils.meta_parser
 
 
-def import_and_save_job(json_obj, db_options, base_path=BASE_PATH):
+def import_and_save_job(json_obj, db_options, base_path=utils.BASE_PATH):
     """Wrapper function to be used as an external task.
 
     This function should only be called by Celery or other task managers.
@@ -51,21 +41,21 @@ def import_and_save_job(json_obj, db_options, base_path=BASE_PATH):
     :type db_options: dict
     :return The ID of the created document.
     """
-    database = get_db_connection(db_options)
+    database = utils.db.get_db_connection(db_options)
     docs, job_id = import_job_from_json(json_obj, database, base_path)
 
     if docs:
-        LOG.info(
+        utils.LOG.info(
             "Importing %d documents with job ID: %s", len(docs), job_id
         )
-        save(database, docs)
+        utils.db.save(database, docs)
     else:
-        LOG.info("No jobs to save")
+        utils.LOG.info("No jobs to save")
 
     return job_id
 
 
-def import_job_from_json(json_obj, database, base_path=BASE_PATH):
+def import_job_from_json(json_obj, database, base_path=utils.BASE_PATH):
     """Import a job based on the provided JSON object.
 
     The provided JSON object, a dict-like object, should contain at least the
@@ -85,7 +75,7 @@ def import_job_from_json(json_obj, database, base_path=BASE_PATH):
     return _import_job(job_dir, kernel_dir, database, base_path)
 
 
-def _import_job(job, kernel, database, base_path=BASE_PATH):
+def _import_job(job, kernel, database, base_path=utils.BASE_PATH):
     """Traverse the job dir and create the documenst to save.
 
     :param job: The name of the job.
@@ -97,7 +87,7 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
     job_dir = os.path.join(base_path, job)
     kernel_dir = os.path.join(job_dir, kernel)
 
-    if is_hidden(job) or is_hidden(kernel):
+    if utils.is_hidden(job) or utils.is_hidden(kernel):
         return docs
 
     job_name = (
@@ -105,7 +95,7 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
         {models.JOB_KEY: job, models.KERNEL_KEY: kernel}
     )
 
-    saved_doc = find_one(
+    saved_doc = utils.db.find_one(
         database[models.JOB_COLLECTION], [job_name], field="name"
     )
     if saved_doc:
@@ -113,12 +103,11 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
     else:
         job_doc = modj.JobDocument(job, kernel)
 
-    job_doc.updated = datetime.now(tz=tz_util.utc)
     docs.append(job_doc)
 
     if os.path.isdir(kernel_dir):
         if (os.path.exists(os.path.join(kernel_dir, models.DONE_FILE)) or
-                glob(os.path.join(kernel_dir, models.DONE_FILE_PATTERN))):
+                glob.glob(os.path.join(kernel_dir, models.DONE_FILE_PATTERN))):
             job_doc.status = models.PASS_STATUS
         else:
             job_doc.status = models.UNKNOWN_STATUS
@@ -135,7 +124,7 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
                     job, kernel, kernel_dir, defconf_dir
                 ) for defconf_dir in os.listdir(kernel_dir)
                 if os.path.isdir(os.path.join(kernel_dir, defconf_dir))
-                if not is_hidden(defconf_dir)
+                if not utils.is_hidden(defconf_dir)
             ]
         )
     else:
@@ -154,7 +143,7 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
             defconf_doc = docs[idx]
             if isinstance(defconf_doc, modj.JobDocument):
                 idx += 1
-            elif (isinstance(defconf_doc, DefconfigDocument) and
+            elif (isinstance(defconf_doc, moddf.DefconfigDocument) and
                     defconf_doc.metadata):
                 for key in job_doc.METADATA_KEYS:
                     if key in defconf_doc.metadata.keys():
@@ -180,10 +169,10 @@ def _traverse_defconf_dir(job, kernel, kernel_dir, defconfig_dir):
     defconfig = defconfig_dir.split('+')[0]
     dirname = defconfig_dir
 
-    defconf_doc = DefconfigDocument(job, kernel, defconfig)
+    defconf_doc = moddf.DefconfigDocument(job, kernel, defconfig)
     defconf_doc.dirname = dirname
 
-    LOG.info("Traversing directory %s", dirname)
+    utils.LOG.info("Traversing directory %s", dirname)
 
     real_dir = os.path.join(kernel_dir, dirname)
     defconf_doc.created_on = datetime.fromtimestamp(
@@ -223,7 +212,7 @@ def _parse_build_metadata(metadata_file, defconf_doc):
     :param metadata_file: The path to the metadata file.
     :param defconf_doc: The `DefconfigDocument` whose metadata will be updated.
     """
-    metadata = parse_metadata_file(metadata_file)
+    metadata = utils.meta_parser.parse_metadata_file(metadata_file)
 
     if metadata:
         # Set some of the metadata values directly into the objet for easier
@@ -237,7 +226,7 @@ def _parse_build_metadata(metadata_file, defconf_doc):
     defconf_doc.metadata = metadata
 
 
-def _import_all(database, base_path=BASE_PATH):
+def _import_all(database, base_path=utils.BASE_PATH):
     """This function is used only to trigger the import from the command line.
 
     Do not use it elsewhere.
@@ -268,6 +257,6 @@ if __name__ == '__main__':
     database = connection[models.DB_NAME]
 
     documents = _import_all(database)
-    save(database, documents)
+    utils.db.save(database, documents)
 
     connection.disconnect()

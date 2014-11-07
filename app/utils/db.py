@@ -200,9 +200,9 @@ def save(database, documents, manipulate=False):
             doc_id = database[document.collection].save(
                 to_save, manipulate=manipulate
             )
-            LOG.info("Saved document with ID %s", to_save.name)
+            LOG.info("Saved document with ID %s", document.name)
         except OperationFailure, ex:
-            LOG.error("Error saving the following document: %s", to_save.name)
+            LOG.error("Error saving the following document: %s", document.name)
             LOG.exception(str(ex))
             ret_value = 500
             break
