@@ -14,7 +14,7 @@
             "parameters": {
                 "dtb": "{dtb_url}",
                 "kernel": "{kernel_url}",
-                "ramdisk": "http://images.armcloud.us/lava/common/linaro-image-minimal-initramfs-genericarmv7a.cpio.gz.u-boot"
+                "ramdisk": "http://images.armcloud.us/lava/common/buildroot.cpio.gz.uboot"
             }
         },
         {

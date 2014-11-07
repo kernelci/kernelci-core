@@ -81,6 +81,15 @@ ifc6410 = {'device_type': 'ifc6410',
            'be': False,
            'fastboot': True}
 
+sama53d = {'device_type': 'sama53d',
+           'templates': ['generic-arm-kernel-ci-boot-template.json'],
+           'defconfig_blacklist': ['arm-at91_dt_defconfig',
+                                   'arm-at91sam9260_9g20_defconfig',
+                                   'arm-at91sam9g45_defconfig'],
+           'lpae': False,
+           'be': False,
+           'fastboot': False}
+
 qemu_aarch64 = {'device_type': 'qemu-aarch64',
                 'templates': ['generic-arm64-kernel-ci-boot-template.json'],
                 'defconfig_blacklist': ['arm64-allnoconfig',
@@ -117,6 +126,7 @@ device_map = {'exynos5250-arndale.dtb': arndale,
               'ste-snowball.dtb': snowball,
               'qcom-apq8084-ifc6540.dtb': ifc6540,
               'qcom-apq8064-ifc6410.dtb': ifc6410,
+              'at91-sama5d3_xplained.dtb': sama53d,
               'qemu-aarch64': qemu_aarch64,
               'x86': x86,
               'x86-kvm': x86_kvm}
