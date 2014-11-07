@@ -17,6 +17,7 @@
 DB_NAME = 'kernel-ci'
 
 # The default ID key, and other keys, for mongodb documents and queries.
+ACCEPTED_KEYS = 'accepted'
 ADDRESS_KEY = "address"
 AGGREGATE_KEY = 'aggregate'
 ARCHITECTURE_KEY = 'arch'
@@ -65,6 +66,7 @@ KERNEL_KEY = 'kernel'
 LAB_ID_KEY = "lab_id"
 LIMIT_KEY = 'limit'
 LOAD_ADDR_KEY = 'load_addr'
+MANDATORY_KEYS = 'mandatory'
 METADATA_KEY = 'metadata'
 NAME_KEY = "name"
 NOT_FIELD_KEY = 'nfield'
@@ -80,6 +82,7 @@ TIME_KEY = 'time'
 TOKEN_KEY = 'token'
 UPDATED_KEY = 'updated_on'
 USERNAME_KEY = 'username'
+VERSION_KEY = 'version'
 WARNINGS_KEY = 'warnings'
 
 # Token special fields.
