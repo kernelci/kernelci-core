@@ -15,41 +15,21 @@
 
 """The base RequestHandler that all subclasses should inherit from."""
 
+import functools
 import httplib
 import json
 import tornado
+import tornado.web
 
 from bson.json_util import default
-from functools import partial
-from tornado.web import (
-    RequestHandler,
-    asynchronous,
-)
 
-from handlers.common import (
-    ACCEPTED_CONTENT_TYPE,
-    API_TOKEN_HEADER,
-    DEFAULT_RESPONSE_TYPE,
-    MASTER_KEY,
-    NOT_VALID_TOKEN,
-    get_all_query_values,
-    get_query_fields,
-    valid_token_general,
-    validate_token,
-)
-from handlers.response import HandlerResponse
-from models import (
-    DB_NAME,
-    TOKEN_COLLECTION,
-    TOKEN_KEY,
-)
-from utils.db import (
-    aggregate,
-    find_and_count,
-    find_one,
-)
-from utils.log import get_log
-from utils.validator import is_valid_json
+import handlers.common as handc
+import handlers.response as handr
+import models
+import utils
+import utils.db
+import utils.log
+import utils.validator as utilsv
 
 
 STATUS_MESSAGES = {
@@ -57,7 +37,7 @@ STATUS_MESSAGES = {
     405: 'Operation not allowed',
     415: (
         'Please use "%s" as the default media type' %
-        ACCEPTED_CONTENT_TYPE
+        handc.ACCEPTED_CONTENT_TYPE
     ),
     420: 'No JSON data found',
     500: 'Internal database error',
@@ -66,7 +46,7 @@ STATUS_MESSAGES = {
 }
 
 
-class BaseHandler(RequestHandler):
+class BaseHandler(tornado.web.RequestHandler):
     """The base handler."""
 
     def __init__(self, application, request, **kwargs):
@@ -93,7 +73,7 @@ class BaseHandler(RequestHandler):
             db_pwd = db_options['dbpassword']
             db_user = db_options['dbuser']
 
-            self._db = client[DB_NAME]
+            self._db = client[models.DB_NAME]
 
             if all([db_user, db_pwd]):
                 self._db.authenticate(db_user, password=db_pwd)
@@ -103,7 +83,7 @@ class BaseHandler(RequestHandler):
     @property
     def log(self):
         """The logger of this object."""
-        return get_log(debug=self.settings['debug'])
+        return utils.log.get_log(debug=self.settings['debug'])
 
     @staticmethod
     def _valid_keys(method):
@@ -117,7 +97,7 @@ class BaseHandler(RequestHandler):
 
     @staticmethod
     def _token_validation_func():
-        return valid_token_general
+        return handc.valid_token_general
 
     def _get_status_message(self, status_code):
         """Get custom error message based on the status code.
@@ -144,7 +124,7 @@ class BaseHandler(RequestHandler):
         headers = {}
         result = {}
 
-        if isinstance(response, HandlerResponse):
+        if isinstance(response, handr.HandlerResponse):
             status_code = response.status_code
             reason = response.reason or self._get_status_message(status_code)
             headers = response.headers
@@ -156,7 +136,7 @@ class BaseHandler(RequestHandler):
 
         self.set_status(status_code=status_code, reason=reason)
         self.write(result)
-        self.set_header('Content-Type', DEFAULT_RESPONSE_TYPE)
+        self.set_header('Content-Type', handc.DEFAULT_RESPONSE_TYPE)
 
         if headers:
             for key, val in headers.iteritems():
@@ -175,7 +155,7 @@ class BaseHandler(RequestHandler):
 
         if 'Content-Type' in self.request.headers.keys():
             if self.request.headers['Content-Type'] == \
-                    ACCEPTED_CONTENT_TYPE:
+                    handc.ACCEPTED_CONTENT_TYPE:
                 valid_content = True
             else:
                 self.log.error(
@@ -186,13 +166,13 @@ class BaseHandler(RequestHandler):
 
         return valid_content
 
-    @asynchronous
+    @tornado.web.asynchronous
     def post(self, *args, **kwargs):
         self.executor.submit(
-            partial(self.execute_post, *args, **kwargs)
+            functools.partial(self.execute_post, *args, **kwargs)
         ).add_done_callback(
             lambda future: tornado.ioloop.IOLoop.instance().add_callback(
-                partial(self._create_valid_response, future.result())
+                functools.partial(self._create_valid_response, future.result())
             )
         )
 
@@ -210,27 +190,36 @@ class BaseHandler(RequestHandler):
                 try:
                     json_obj = json.loads(self.request.body.decode('utf8'))
 
-                    if is_valid_json(json_obj, self._valid_keys('POST')):
+                    valid_json, j_reason = utilsv.is_valid_json(
+                        json_obj, self._valid_keys("POST")
+                    )
+                    if valid_json:
                         kwargs['json_obj'] = json_obj
                         kwargs['db_options'] = self.settings['dboptions']
+                        kwargs['reason'] = j_reason
                         response = self._post(*args, **kwargs)
                     else:
-                        response = HandlerResponse(400)
-                        response.reason = "Provided JSON is not valid"
+                        response = handr.HandlerResponse(400)
+                        if j_reason:
+                            response.reason = (
+                                "Provided JSON is not valid: %s" % j_reason
+                            )
+                        else:
+                            response.reason = "Provided JSON is not valid"
                         response.result = None
                 except ValueError:
                     error = "No JSON data found in the POST request"
                     self.log.error(error)
-                    response = HandlerResponse(422)
+                    response = handr.HandlerResponse(422)
                     response.reason = error
                     response.result = None
             else:
-                response = HandlerResponse(valid_request)
+                response = handr.HandlerResponse(valid_request)
                 response.reason = self._get_status_message(valid_request)
                 response.result = None
         else:
-            response = HandlerResponse(403)
-            response.reason = NOT_VALID_TOKEN
+            response = handr.HandlerResponse(403)
+            response.reason = handc.NOT_VALID_TOKEN
 
         return response
 
@@ -262,16 +251,16 @@ class BaseHandler(RequestHandler):
 
         :return A `HandlerResponse` object.
         """
-        return HandlerResponse(501)
+        return handr.HandlerResponse(501)
 
-    @asynchronous
+    @tornado.web.asynchronous
     def delete(self, *args, **kwargs):
         self.executor.submit(
-            partial(self.execute_delete, *args, **kwargs)
+            functools.partial(self.execute_delete, *args, **kwargs)
         ).add_done_callback(
             lambda future:
             tornado.ioloop.IOLoop.instance().add_callback(
-                partial(self._create_valid_response, future.result())
+                functools.partial(self._create_valid_response, future.result())
             )
         )
 
@@ -286,12 +275,12 @@ class BaseHandler(RequestHandler):
             if kwargs and kwargs.get('id', None):
                 response = self._delete(kwargs['id'])
             else:
-                response = HandlerResponse(400)
+                response = handr.HandlerResponse(400)
                 response.reason = self._get_status_message(400)
                 response.result = None
         else:
-            response = HandlerResponse(403)
-            response.status = NOT_VALID_TOKEN
+            response = handr.HandlerResponse(403)
+            response.status = handc.NOT_VALID_TOKEN
 
         return response
 
@@ -307,16 +296,16 @@ class BaseHandler(RequestHandler):
         :param doc_id: The ID of the documento to delete.
         :return A `HandlerResponse` object.
         """
-        return HandlerResponse(501)
+        return handr.HandlerResponse(501)
 
-    @asynchronous
+    @tornado.web.asynchronous
     def get(self, *args, **kwargs):
         self.executor.submit(
-            partial(self.execute_get, *args, **kwargs)
+            functools.partial(self.execute_get, *args, **kwargs)
         ).add_done_callback(
             lambda future:
             tornado.ioloop.IOLoop.instance().add_callback(
-                partial(self._create_valid_response, future.result())
+                functools.partial(self._create_valid_response, future.result())
             )
         )
 
@@ -334,8 +323,8 @@ class BaseHandler(RequestHandler):
             else:
                 response = self._get(**kwargs)
         else:
-            response = HandlerResponse(403)
-            response.reason = NOT_VALID_TOKEN
+            response = handr.HandlerResponse(403)
+            response.reason = handc.NOT_VALID_TOKEN
 
         return response
 
@@ -349,11 +338,11 @@ class BaseHandler(RequestHandler):
 
         :return A `HandlerResponse` object.
         """
-        response = HandlerResponse()
-        result = find_one(
+        response = handr.HandlerResponse()
+        result = utils.db.find_one(
             self.collection,
             doc_id,
-            fields=get_query_fields(self.get_query_arguments)
+            fields=handc.get_query_fields(self.get_query_arguments)
         )
 
         if result:
@@ -378,11 +367,11 @@ class BaseHandler(RequestHandler):
 
         :return A `HandlerResponse` object.
         """
-        response = HandlerResponse()
+        response = handr.HandlerResponse()
         spec, sort, fields, skip, limit, unique = self._get_query_args()
 
         if unique:
-            response.result = aggregate(
+            response.result = utils.db.aggregate(
                 self.collection,
                 unique,
                 sort=sort,
@@ -391,7 +380,7 @@ class BaseHandler(RequestHandler):
                 limit=limit
             )
         else:
-            result, count = find_and_count(
+            result, count = utils.db.find_and_count(
                 self.collection,
                 limit,
                 skip,
@@ -428,9 +417,10 @@ class BaseHandler(RequestHandler):
         unique = None
 
         if self.request.arguments:
-            spec, sort, fields, skip, limit, unique = get_all_query_values(
-                self.get_query_arguments, self._valid_keys(method)
-            )
+            spec, sort, fields, skip, limit, unique = \
+                handc.get_all_query_values(
+                    self.get_query_arguments, self._valid_keys(method)
+                )
 
         return (spec, sort, fields, skip, limit, unique)
 
@@ -456,9 +446,9 @@ class BaseHandler(RequestHandler):
         """
         valid_token = False
 
-        req_token = self.request.headers.get(API_TOKEN_HEADER, None)
+        req_token = self.request.headers.get(handc.API_TOKEN_HEADER, None)
         remote_ip = self.request.remote_ip
-        master_key = self.settings.get(MASTER_KEY, None)
+        master_key = self.settings.get(handc.MASTER_KEY, None)
 
         if req_token:
             valid_token = self._token_validation(
@@ -478,7 +468,7 @@ class BaseHandler(RequestHandler):
         token_obj = self._find_token(req_token, self.db)
 
         if token_obj:
-            valid_token = validate_token(
+            valid_token = handc.validate_token(
                 token_obj,
                 method,
                 remote_ip,
@@ -494,4 +484,6 @@ class BaseHandler(RequestHandler):
         :param token: The token to find.
         :return A json object, or nothing.
         """
-        return find_one(db_conn[TOKEN_COLLECTION], [token], field=TOKEN_KEY)
+        return utils.db.find_one(
+            db_conn[models.TOKEN_COLLECTION], [token], field=models.TOKEN_KEY
+        )
