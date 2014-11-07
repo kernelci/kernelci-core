@@ -65,16 +65,20 @@ class SubscriptionHandler(BaseHandler):
             try:
                 json_obj = json.loads(self.request.body.decode('utf8'))
 
-                if is_valid_json(json_obj, self._valid_keys('DELETE')):
+                valid, reason = is_valid_json(
+                    json_obj, self._valid_keys('DELETE')
+                )
+
+                if valid:
                     response.status_code = unsubscribe(
                         self.collection, doc_id, json_obj[EMAIL_KEY]
                     )
+                    response.reason = self._get_status_message(
+                        response.status_code
+                    )
                 else:
                     response.status_code = 400
-
-                response.reason = self._get_status_message(
-                    response.status_code
-                )
+                    response.reason = reason
             except ValueError:
                 response.status_code = 420
                 response.reason = "No JSON data found in the DELETE request"
