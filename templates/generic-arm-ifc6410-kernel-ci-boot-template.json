@@ -13,14 +13,15 @@
             },
             "parameters": {
                 "dtb": "{dtb_url}",
-                "kernel": "{kernel_url}"
+                "kernel": "{kernel_url}",
+                "ramdisk": "http://images.armcloud.us/lava/common/buildroot.cpio.gz"
             }
         },
         {
             "command": "boot_linaro_image",
             "parameters": {
                 "boot_cmds": [
-                    "console=ttyMSM0,115200,n8 root=/dev/mmcblk0p13 rootwait rw text androidboot.emmc=true androidboot.serialno=e080c363 androidboot.baseband=apq"
+                    "console=ttyMSM0,115200,n8 root=/dev/ram0 rootwait rw text androidboot.emmc=true androidboot.serialno=e080c363 androidboot.baseband=apq"
                 ]
             }
         },
