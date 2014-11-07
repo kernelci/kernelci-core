@@ -151,6 +151,7 @@ def boot_report(args):
                 for result in results_list:
                     f.write('    %s   %ss   %s\n' % (result['device_type'], result['kernel_boot_time'], result['result']))
         # sendmail
+        print 'Sending e-mail summary to %s' % args.email
         cmd = 'cat %s | sendmail -t' % os.path.join(results_directory, log)
         subprocess.check_output(cmd, shell=True)
 
