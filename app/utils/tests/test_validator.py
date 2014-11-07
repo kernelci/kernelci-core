@@ -16,53 +16,145 @@
 import json
 import unittest
 
-from utils.validator import (
-    is_valid_json,
-    is_valid_batch_json,
-)
+import utils.validator as utilsv
 
 
 class TestValidator(unittest.TestCase):
 
     def test_valid_json_valid(self):
         json_string = '{"job": "job", "kernel": "kernel"}'
-        accepted_keys = ('job', 'kernel')
+        accepted_keys = ['job', 'kernel']
 
-        self.assertTrue(
-            is_valid_json(json.loads(json_string), accepted_keys)
+        valid, reason = utilsv.is_valid_json(
+            json.loads(json_string), accepted_keys
         )
+        self.assertTrue(valid)
+        self.assertIsNone(reason)
 
-    def test_valid_json_valid_job(self):
-        json_string = '{"job": "job"}'
-        accepted_keys = ('job', 'kernel')
-
-        self.assertTrue(
-            is_valid_json(json.loads(json_string), accepted_keys)
-        )
-
-    def test_valid_json_only_kernel(self):
+    def test_valid_json_with_more_valid_keys(self):
         json_string = '{"kernel": "kernel"}'
-        accepted_keys = ('job', 'kernel')
+        accepted_keys = ['job', 'kernel', "defconfig", "foo"]
 
-        self.assertTrue(
-            is_valid_json(json.loads(json_string), accepted_keys)
+        valid, reason = utilsv.is_valid_json(
+            json.loads(json_string), accepted_keys
         )
+        self.assertTrue(valid)
+        self.assertIsNone(reason)
 
-    def test_not_valid_json(self):
-        json_string = '{"kernel": "foo", "foo": "bar"}'
-        accepted_keys = ('job', 'kernel')
+    def test_valid_json_with_strange_keys(self):
+        json_obj = {
+            "kernel": "foo",
+            "foo": "bar",
+            "baz": "foo",
+            "job": "job",
+        }
+        expected = {
+            "kernel": "foo",
+            "job": "job",
+        }
+        accepted_keys = ['job', 'kernel']
 
-        self.assertFalse(
-            is_valid_json(json.loads(json_string), accepted_keys)
-        )
+        valid, reason = utilsv.is_valid_json(json_obj, accepted_keys)
+
+        self.assertTrue(valid)
+        self.assertIsNotNone(reason)
+        self.assertDictEqual(expected, json_obj)
 
     def test_no_accepted_keys(self):
-        json_string = '{"kernel": "foo", "foo": "bar"}'
+        json_obj = {
+            "kernel": "foo",
+            "job": "job",
+            "foo": "bar"
+        }
         accepted_keys = None
 
-        self.assertFalse(
-            is_valid_json(json.loads(json_string), accepted_keys)
-        )
+        valid, reason = utilsv.is_valid_json(json_obj, accepted_keys)
+        self.assertFalse(valid)
+        self.assertIsNotNone(reason)
+
+    def test_remove_all_keys(self):
+        json_obj = {
+            "job": "job",
+            "kernel": "kernel",
+        }
+
+        accepted_keys = ["foo", "bar"]
+        valid, reason = utilsv.is_valid_json(json_obj, accepted_keys)
+
+        self.assertFalse(valid)
+        self.assertIsNotNone(reason)
+
+    def test_validation_complex_valid_no_reason(self):
+        accepted_keys = {
+            "mandatory": [
+                "job",
+                "kernel"
+            ],
+            "accepted": [
+                "foo",
+                "bar",
+                "baz",
+                "job",
+                "kernel",
+            ]
+        }
+
+        json_obj = {
+            "job": "job",
+            "kernel": "kernel",
+            "foo": "foo"
+        }
+
+        valid, reason = utilsv.is_valid_json(json_obj, accepted_keys)
+
+        self.assertTrue(valid)
+        self.assertIsNone(reason)
+
+    def test_validation_complex_valid_with_reason(self):
+        accepted_keys = {
+            "mandatory": [
+                "job",
+                "kernel"
+            ],
+            "accepted": [
+                "baz",
+                "job",
+                "kernel",
+            ]
+        }
+
+        json_obj = {
+            "job": "job",
+            "kernel": "kernel",
+            "foo": "foo"
+        }
+
+        valid, reason = utilsv.is_valid_json(json_obj, accepted_keys)
+
+        self.assertTrue(valid)
+        self.assertIsNotNone(reason)
+
+    def test_validation_complex_no_mandatory(self):
+        accepted_keys = {
+            "mandatory": [
+                "job",
+                "kernel"
+            ],
+            "accepted": [
+                "baz",
+                "job",
+                "kernel",
+            ]
+        }
+
+        json_obj = {
+            "foo": "foo"
+        }
+
+        valid, reason = utilsv.is_valid_json(json_obj, accepted_keys)
+
+        self.assertFalse(valid)
+        self.assertIsNotNone(reason)
 
 
 class TestBatchValidator(unittest.TestCase):
@@ -73,7 +165,7 @@ class TestBatchValidator(unittest.TestCase):
         accepted_keys = ()
 
         self.assertFalse(
-            is_valid_batch_json(
+            utilsv.is_valid_batch_json(
                 json.loads(json_string), batch_key, accepted_keys
             )
         )
@@ -98,7 +190,7 @@ class TestBatchValidator(unittest.TestCase):
         }
 
         self.assertTrue(
-            is_valid_batch_json(json_obj, batch_key, accepted_keys)
+            utilsv.is_valid_batch_json(json_obj, batch_key, accepted_keys)
         )
 
     def test_valid_batch_json_from_string(self):
@@ -110,7 +202,9 @@ class TestBatchValidator(unittest.TestCase):
         )
 
         self.assertTrue(
-            is_valid_batch_json(json.loads(json_str), batch_key, accepted_keys)
+            utilsv.is_valid_batch_json(
+                json.loads(json_str), batch_key, accepted_keys
+            )
         )
 
     def test_non_valid_batch_json_from_dict(self):
@@ -124,7 +218,7 @@ class TestBatchValidator(unittest.TestCase):
         }
 
         self.assertFalse(
-            is_valid_batch_json(json_obj, batch_key, accepted_keys)
+            utilsv.is_valid_batch_json(json_obj, batch_key, accepted_keys)
         )
 
         json_obj = {
@@ -134,7 +228,7 @@ class TestBatchValidator(unittest.TestCase):
         }
 
         self.assertFalse(
-            is_valid_batch_json(json_obj, batch_key, accepted_keys)
+            utilsv.is_valid_batch_json(json_obj, batch_key, accepted_keys)
         )
 
     def test_non_valid_batch_json_wrong_keys(self):
@@ -154,5 +248,5 @@ class TestBatchValidator(unittest.TestCase):
         }
 
         self.assertFalse(
-            is_valid_batch_json(json_obj, batch_key, accepted_keys)
+            utilsv.is_valid_batch_json(json_obj, batch_key, accepted_keys)
         )
