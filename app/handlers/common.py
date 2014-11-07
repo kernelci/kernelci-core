@@ -13,158 +13,173 @@
 
 """Set of common functions for all handlers."""
 
+import datetime as dt
+import pymongo
 import types
 
 from bson import tz_util
-from datetime import (
-    date,
-    datetime,
-    time,
-    timedelta,
-)
-from pymongo import (
-    ASCENDING,
-    DESCENDING,
-)
 
-from models import (
-    ADMIN_KEY,
-    AGGREGATE_KEY,
-    ARCHITECTURE_KEY,
-    BOARD_KEY,
-    BOOT_COLLECTION,
-    COLLECTION_KEY,
-    CREATED_KEY,
-    DATE_RANGE_KEY,
-    DEFCONFIG_COLLECTION,
-    DEFCONFIG_KEY,
-    DELETE_KEY,
-    DOCUMENT_ID_KEY,
-    EMAIL_KEY,
-    ERRORS_KEY,
-    EXPIRED_KEY,
-    EXPIRES_KEY,
-    FIELD_KEY,
-    GET_KEY,
-    IP_ADDRESS_KEY,
-    IP_RESTRICTED,
-    JOB_COLLECTION,
-    JOB_ID_KEY,
-    JOB_KEY,
-    KERNEL_KEY,
-    LIMIT_KEY,
-    METHOD_KEY,
-    NOT_FIELD_KEY,
-    OP_ID_KEY,
-    POST_KEY,
-    PRIVATE_KEY,
-    PROPERTIES_KEY,
-    QUERY_KEY,
-    SKIP_KEY,
-    SORT_KEY,
-    SORT_ORDER_KEY,
-    STATUS_KEY,
-    SUPERUSER_KEY,
-    TIME_KEY,
-    TOKEN_KEY,
-    USERNAME_KEY,
-    WARNINGS_KEY,
-)
-from models.token import Token
-from utils import get_log
+import models
+import models.token as modt
+import utils
 
 # Default value to calculate a date range in case the provided value is
 # out of range.
 DEFAULT_DATE_RANGE = 5
 
-LOG = get_log()
-
 # All the available collections as key-value. The key is the same used for the
 # URL configuration.
 COLLECTIONS = {
-    'boot': BOOT_COLLECTION,
-    'defconfig': DEFCONFIG_COLLECTION,
-    'job': JOB_COLLECTION,
+    'boot': models.BOOT_COLLECTION,
+    'defconfig': models.DEFCONFIG_COLLECTION,
+    'job': models.JOB_COLLECTION,
 }
 
 # Handlers valid keys.
 BOOT_VALID_KEYS = {
-    'POST': [JOB_KEY, KERNEL_KEY],
+    'POST': {
+        models.MANDATORY_KEYS: [
+            models.BOARD_KEY,
+            models.DEFCONFIG_KEY,
+            models.JOB_KEY,
+            models.KERNEL_KEY,
+            models.LAB_ID_KEY,
+        ],
+        models.ACCEPTED_KEYS: [
+            models.ARCHITECTURE_KEY,
+            models.BOARD_KEY,
+            models.BOOT_LOG_KEY,
+            models.BOOT_RESULT_DESC_KEY,
+            models.BOOT_RESULT_KEY,
+            models.BOOT_RETRIES_KEY,
+            models.BOOT_TIME_KEY,
+            models.BOOT_WARNINGS_KEY,
+            models.DTB_ADDR_KEY,
+            models.DTB_KEY,
+            models.ENDIANNESS_KEY,
+            models.FASTBOOT_KEY,
+            models.GIT_COMMIT_KEY,
+            models.GIT_DESCRIBE_KEY,
+            models.INITRD_ADDR_KEY,
+            models.JOB_KEY,
+            models.KERNEL_IMAGE_KEY,
+            models.KERNEL_KEY,
+            models.LAB_ID_KEY,
+            models.NAME_KEY,
+            models.STATUS_KEY,
+            models.VERSION_KEY,
+        ]
+    },
     'GET': [
-        CREATED_KEY, WARNINGS_KEY, JOB_ID_KEY, BOARD_KEY,
-        JOB_KEY, KERNEL_KEY, DEFCONFIG_KEY, TIME_KEY, STATUS_KEY,
+        models.BOARD_KEY,
+        models.CREATED_KEY,
+        models.DEFCONFIG_KEY,
+        models.JOB_ID_KEY,
+        models.JOB_KEY,
+        models.KERNEL_KEY,
+        models.STATUS_KEY,
+        models.TIME_KEY,
+        models.WARNINGS_KEY,
     ],
     'DELETE': [
-        JOB_KEY, KERNEL_KEY, DEFCONFIG_KEY, BOARD_KEY, JOB_ID_KEY
+        models.BOARD_KEY,
+        models.DEFCONFIG_KEY,
+        models.JOB_ID_KEY,
+        models.JOB_KEY,
+        models.KERNEL_KEY,
     ]
 }
 
 COUNT_VALID_KEYS = {
     'GET': [
-        ARCHITECTURE_KEY,
-        BOARD_KEY,
-        CREATED_KEY,
-        DEFCONFIG_KEY,
-        ERRORS_KEY,
-        JOB_ID_KEY,
-        JOB_KEY,
-        KERNEL_KEY,
-        PRIVATE_KEY,
-        STATUS_KEY,
-        TIME_KEY,
-        WARNINGS_KEY,
+        models.ARCHITECTURE_KEY,
+        models.BOARD_KEY,
+        models.CREATED_KEY,
+        models.DEFCONFIG_KEY,
+        models.ERRORS_KEY,
+        models.JOB_ID_KEY,
+        models.JOB_KEY,
+        models.KERNEL_KEY,
+        models.PRIVATE_KEY,
+        models.STATUS_KEY,
+        models.TIME_KEY,
+        models.WARNINGS_KEY,
     ],
 }
 
 DEFCONFIG_VALID_KEYS = {
     'GET': [
-        DEFCONFIG_KEY, WARNINGS_KEY, ERRORS_KEY, ARCHITECTURE_KEY,
-        JOB_KEY, KERNEL_KEY, STATUS_KEY, JOB_ID_KEY, CREATED_KEY,
+        models.ARCHITECTURE_KEY,
+        models.CREATED_KEY,
+        models.DEFCONFIG_KEY,
+        models.ERRORS_KEY,
+        models.JOB_ID_KEY,
+        models.JOB_KEY,
+        models.KERNEL_KEY,
+        models.STATUS_KEY,
+        models.WARNINGS_KEY,
     ],
 }
 
 TOKEN_VALID_KEYS = {
     'POST': [
-        ADMIN_KEY,
-        DELETE_KEY,
-        EMAIL_KEY,
-        EXPIRES_KEY,
-        GET_KEY,
-        IP_ADDRESS_KEY,
-        IP_RESTRICTED,
-        POST_KEY,
-        SUPERUSER_KEY,
-        USERNAME_KEY,
+        models.ADMIN_KEY,
+        models.DELETE_KEY,
+        models.EMAIL_KEY,
+        models.EXPIRES_KEY,
+        models.GET_KEY,
+        models.IP_ADDRESS_KEY,
+        models.IP_RESTRICTED,
+        models.POST_KEY,
+        models.SUPERUSER_KEY,
+        models.USERNAME_KEY,
     ],
     'GET': [
-        CREATED_KEY,
-        EMAIL_KEY,
-        EXPIRED_KEY,
-        EXPIRES_KEY,
-        IP_ADDRESS_KEY,
-        PROPERTIES_KEY,
-        TOKEN_KEY,
-        USERNAME_KEY,
+        models.CREATED_KEY,
+        models.EMAIL_KEY,
+        models.EXPIRED_KEY,
+        models.EXPIRES_KEY,
+        models.IP_ADDRESS_KEY,
+        models.PROPERTIES_KEY,
+        models.TOKEN_KEY,
+        models.USERNAME_KEY,
     ],
 }
 
 SUBSCRIPTION_VALID_KEYS = {
-    'GET': [JOB_KEY],
-    'POST': [JOB_KEY, EMAIL_KEY],
-    'DELETE': [EMAIL_KEY],
+    'GET': [
+        models.JOB_KEY
+    ],
+    'POST': [
+        models.EMAIL_KEY,
+        models.JOB_KEY,
+    ],
+    'DELETE': [
+        models.EMAIL_KEY
+    ],
 }
 
 JOB_VALID_KEYS = {
-    'POST': [JOB_KEY, KERNEL_KEY],
+    'POST': [
+        models.JOB_KEY,
+        models.KERNEL_KEY
+    ],
     'GET': [
-        JOB_KEY, KERNEL_KEY, STATUS_KEY, PRIVATE_KEY, CREATED_KEY,
+        models.CREATED_KEY,
+        models.JOB_KEY,
+        models.KERNEL_KEY,
+        models.PRIVATE_KEY,
+        models.STATUS_KEY,
     ],
 }
 
 BATCH_VALID_KEYS = {
     "POST": [
-        METHOD_KEY, COLLECTION_KEY, QUERY_KEY, OP_ID_KEY,
-        DOCUMENT_ID_KEY
+        models.COLLECTION_KEY,
+        models.DOCUMENT_ID_KEY,
+        models.METHOD_KEY,
+        models.OP_ID_KEY,
+        models.QUERY_KEY,
     ]
 }
 
@@ -204,7 +219,7 @@ def get_aggregate_value(query_args_func):
     :type query_args_func: function
     :return The aggregate value as string.
     """
-    aggregate = query_args_func(AGGREGATE_KEY)
+    aggregate = query_args_func(models.AGGREGATE_KEY)
     if all([aggregate and isinstance(aggregate, types.ListType)]):
         aggregate = aggregate[-1]
     else:
@@ -276,15 +291,15 @@ def get_and_add_date_range(spec, query_args_func):
     :type query_args_func: function
     :return The passed `spec` updated.
     """
-    date_range = query_args_func(DATE_RANGE_KEY)
+    date_range = query_args_func(models.DATE_RANGE_KEY)
     if date_range:
         # Today needs to be set at the end of the day!
-        today = datetime.combine(
-            date.today(), time(23, 59, 59, tzinfo=tz_util.utc)
+        today = dt.datetime.datetime.combine(
+            dt.date.today(), dt.time(23, 59, 59, tzinfo=tz_util.utc)
         )
         previous = calculate_date_range(date_range)
 
-        spec[CREATED_KEY] = {'$gte': previous, '$lt': today}
+        spec[models.CREATED_KEY] = {'$gte': previous, '$lt': today}
     return spec
 
 
@@ -307,19 +322,21 @@ def calculate_date_range(date_range):
         try:
             date_range = int(date_range)
         except ValueError:
-            LOG.error("Wrong value passed to date_range: %s", date_range)
+            utils.LOG.error(
+                "Wrong value passed to date_range: %s", date_range
+            )
             date_range = DEFAULT_DATE_RANGE
 
     date_range = abs(date_range)
-    if date_range > timedelta.max.days:
+    if date_range > dt.timedelta.max.days:
         date_range = DEFAULT_DATE_RANGE
 
     # Calcuate with midnight in mind though, so we get the starting of
     # the day for the previous date.
-    today = datetime.combine(
-        date.today(), time(tzinfo=tz_util.utc)
+    today = dt.datetime.combine(
+        dt.date.today(), dt.time(tzinfo=tz_util.utc)
     )
-    delta = timedelta(days=date_range)
+    delta = dt.timedelta(days=date_range)
 
     return today - delta
 
@@ -335,7 +352,9 @@ def get_query_fields(query_args_func):
     :return A `fields` data structure (list or dictionary).
     """
     fields = None
-    y_fields, n_fields = map(query_args_func, [FIELD_KEY, NOT_FIELD_KEY])
+    y_fields, n_fields = map(
+        query_args_func, [models.FIELD_KEY, models.NOT_FIELD_KEY]
+    )
 
     if y_fields and not n_fields:
         fields = list(set(y_fields))
@@ -360,21 +379,24 @@ def get_query_sort(query_args_func):
     :return A `sort` data structure, or None.
     """
     sort = None
-    sort_fields, sort_order = map(query_args_func, [SORT_KEY, SORT_ORDER_KEY])
+    sort_fields, sort_order = map(
+        query_args_func, [models.SORT_KEY, models.SORT_ORDER_KEY]
+    )
 
     if sort_fields:
         if all([sort_order, isinstance(sort_order, types.ListType)]):
             sort_order = int(sort_order[-1])
         else:
-            sort_order = DESCENDING
+            sort_order = pymongo.DESCENDING
 
         # Wrong number for sort order? Force descending.
-        if all([sort_order != ASCENDING, sort_order != DESCENDING]):
-            LOG.warn(
+        if all([sort_order != pymongo.ASCENDING,
+                sort_order != pymongo.DESCENDING]):
+            utils.LOG.warn(
                 "Wrong sort order used (%d), default to %d",
-                sort_order, DESCENDING
+                sort_order, pymongo.DESCENDING
             )
-            sort_order = DESCENDING
+            sort_order = pymongo.DESCENDING
 
         sort = [
             (field, sort_order)
@@ -392,7 +414,7 @@ def get_skip_and_limit(query_args_func):
     :type query_args_func: function
     :return A tuple with the `skip` and `limit` arguments.
     """
-    skip, limit = map(query_args_func, [SKIP_KEY, LIMIT_KEY])
+    skip, limit = map(query_args_func, [models.SKIP_KEY, models.LIMIT_KEY])
 
     if all([skip, isinstance(skip, types.ListType)]):
         skip = int(skip[-1])
@@ -459,10 +481,10 @@ def validate_token(token_obj, method, remote_ip, validate_func):
     valid_token = True
 
     if token_obj:
-        token = Token.from_json(token_obj)
+        token = modt.Token.from_json(token_obj)
 
-        if not isinstance(token, Token):
-            LOG.error("Retrieved token is not a Token object")
+        if not isinstance(token, modt.Token):
+            utils.LOG.error("Retrieved token is not a Token object")
             valid_token = False
         else:
             valid_token &= validate_func(token, method)
@@ -487,7 +509,7 @@ def _valid_token_ip(token, remote_ip):
 
     # TODO: what if we have a pool of IPs for the token?
     if token.ip_address != remote_ip:
-        LOG.info(
+        utils.LOG.info(
             "IP restricted token from wrong IP address: %s",
             remote_ip
         )

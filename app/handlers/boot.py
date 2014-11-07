@@ -15,22 +15,15 @@
 
 """The RequestHandler for /boot URLs."""
 
-from handlers.base import BaseHandler
-from handlers.common import (
-    BOOT_VALID_KEYS,
-    NOT_VALID_TOKEN,
-    get_query_spec,
-)
-from handlers.response import HandlerResponse
-from models import BOOT_COLLECTION
-from taskqueue.tasks import import_boot
-from utils.db import (
-    delete,
-    find_one,
-)
+import handlers.base as handb
+import handlers.common as handc
+import handlers.response as handr
+import models
+import taskqueue.tasks as taskq
+import utils.db as db
 
 
-class BootHandler(BaseHandler):
+class BootHandler(handb.BaseHandler):
     """Handle the /boot URLs."""
 
     def __init__(self, application, request, **kwargs):
@@ -38,18 +31,26 @@ class BootHandler(BaseHandler):
 
     @property
     def collection(self):
-        return self.db[BOOT_COLLECTION]
+        return self.db[models.BOOT_COLLECTION]
 
     @staticmethod
     def _valid_keys(method):
-        return BOOT_VALID_KEYS.get(method, None)
+        return handc.BOOT_VALID_KEYS.get(method, None)
 
     def _post(self, *args, **kwargs):
-        response = HandlerResponse(202)
-        response.reason = "Request accepted and being imported"
+        response = handr.HandlerResponse(202)
+        if kwargs.get("reason", None):
+            response.reason = (
+                "Request accepted and being imported. WARNING: %s" %
+                kwargs["reason"]
+            )
+        else:
+            response.reason = "Request accepted and being imported"
         response.result = None
 
-        import_boot.apply_async([kwargs['json_obj'], kwargs['db_options']])
+        taskq.import_boot.apply_async(
+            [kwargs['json_obj'], kwargs['db_options']]
+        )
 
         return response
 
@@ -59,15 +60,15 @@ class BootHandler(BaseHandler):
         if self.validate_req_token("DELETE"):
             if kwargs and kwargs.get('id', None):
                 doc_id = kwargs['id']
-                if find_one(self.collection, doc_id):
+                if db.find_one(self.collection, doc_id):
                     response = self._delete(doc_id)
                     if response.status_code == 200:
                         response.reason = "Resource '%s' deleted" % doc_id
                 else:
-                    response = HandlerResponse(404)
+                    response = handr.HandlerResponse(404)
                     response.reason = "Resource '%s' not found" % doc_id
             else:
-                spec = get_query_spec(
+                spec = handc.get_query_spec(
                     self.get_query_arguments, self._valid_keys("DELETE")
                 )
                 if spec:
@@ -77,22 +78,22 @@ class BootHandler(BaseHandler):
                             "Resources identified with '%s' deleted" % spec
                         )
                 else:
-                    response = HandlerResponse(400)
+                    response = handr.HandlerResponse(400)
                     response.result = None
                     response.reason = (
                         "No valid data provided to execute a DELETE"
                     )
         else:
-            response = HandlerResponse(403)
-            response.reason = NOT_VALID_TOKEN
+            response = handr.HandlerResponse(403)
+            response.reason = handc.NOT_VALID_TOKEN
 
         return response
 
     def _delete(self, spec_or_id):
-        response = HandlerResponse(200)
+        response = handr.HandlerResponse(200)
         response.result = None
 
-        response.status_code = delete(self.collection, spec_or_id)
+        response.status_code = db.delete(self.collection, spec_or_id)
         response.reason = self._get_status_message(response.status_code)
 
         return response
