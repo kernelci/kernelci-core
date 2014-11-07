@@ -22,31 +22,11 @@ from bson import tz_util
 from glob import glob
 from datetime import datetime
 
-from models import (
-    ARCHITECTURE_KEY,
-    BUILD_FAIL_FILE,
-    BUILD_META_FILE,
-    BUILD_META_JSON_FILE,
-    BUILD_PASS_FILE,
-    BUILD_RESULT_KEY,
-    BUILD_STATUS,
-    DB_NAME,
-    DEFCONFIG_KEY,
-    DONE_FILE,
-    DONE_FILE_PATTERN,
-    ERRORS_KEY,
-    FAIL_STATUS,
-    JOB_KEY,
-    KERNEL_KEY,
-    PASS_STATUS,
-    UNKNOWN_STATUS,
-    WARNINGS_KEY,
-)
+import models
+
 from models.defconfig import DefconfigDocument
-from models.job import (
-    JOB_COLLECTION,
-    JobDocument,
-)
+import models.job as modj
+
 from utils import (
     BASE_PATH,
     LOG,
@@ -99,8 +79,8 @@ def import_job_from_json(json_obj, database, base_path=BASE_PATH):
         directory. It defaults to: /var/www/images/kernel-ci.
     :return The documents to be saved, and the job document ID.
     """
-    job_dir = json_obj[JOB_KEY]
-    kernel_dir = json_obj[KERNEL_KEY]
+    job_dir = json_obj[models.JOB_KEY]
+    kernel_dir = json_obj[models.KERNEL_KEY]
 
     return _import_job(job_dir, kernel_dir, database, base_path)
 
@@ -120,23 +100,28 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
     if is_hidden(job) or is_hidden(kernel):
         return docs
 
-    job_id = JobDocument.ID_FORMAT % {JOB_KEY: job, KERNEL_KEY: kernel}
+    job_name = (
+        models.JOB_DOCUMENT_NAME %
+        {models.JOB_KEY: job, models.KERNEL_KEY: kernel}
+    )
 
-    saved_doc = find_one(database[JOB_COLLECTION], [job_id])
+    saved_doc = find_one(
+        database[models.JOB_COLLECTION], [job_name], field="name"
+    )
     if saved_doc:
-        job_doc = JobDocument.from_json(saved_doc)
+        job_doc = modj.JobDocument.from_json(saved_doc)
     else:
-        job_doc = JobDocument(job_id, job=job, kernel=kernel)
+        job_doc = modj.JobDocument(job, kernel)
 
     job_doc.updated = datetime.now(tz=tz_util.utc)
     docs.append(job_doc)
 
     if os.path.isdir(kernel_dir):
-        if (os.path.exists(os.path.join(kernel_dir, DONE_FILE)) or
-                glob(os.path.join(kernel_dir, DONE_FILE_PATTERN))):
-            job_doc.status = PASS_STATUS
+        if (os.path.exists(os.path.join(kernel_dir, models.DONE_FILE)) or
+                glob(os.path.join(kernel_dir, models.DONE_FILE_PATTERN))):
+            job_doc.status = models.PASS_STATUS
         else:
-            job_doc.status = UNKNOWN_STATUS
+            job_doc.status = models.UNKNOWN_STATUS
 
         # If the job dir exists, read the last modification time from the
         # file system and use that as the creation date.
@@ -147,14 +132,14 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
         docs.extend(
             [
                 _traverse_defconf_dir(
-                    job_id, job, kernel, kernel_dir, defconf_dir
+                    job, kernel, kernel_dir, defconf_dir
                 ) for defconf_dir in os.listdir(kernel_dir)
                 if os.path.isdir(os.path.join(kernel_dir, defconf_dir))
                 if not is_hidden(defconf_dir)
             ]
         )
     else:
-        job_doc.status = BUILD_STATUS
+        job_doc.status = models.BUILD_STATUS
         job_doc.created_on = datetime.now(tz=tz_util.utc)
 
     # Kind of a hack:
@@ -167,7 +152,7 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
         idx = 0
         while idx < docs_len:
             defconf_doc = docs[idx]
-            if isinstance(defconf_doc, JobDocument):
+            if isinstance(defconf_doc, modj.JobDocument):
                 idx += 1
             elif (isinstance(defconf_doc, DefconfigDocument) and
                     defconf_doc.metadata):
@@ -179,27 +164,28 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
             else:
                 idx += 1
 
-    return (docs, job_id)
+    return (docs, job_name)
 
 
-def _traverse_defconf_dir(job_id, job, kernel, kernel_dir, defconf_dir):
+def _traverse_defconf_dir(job, kernel, kernel_dir, defconfig_dir):
     """Traverse the defconfig directory looking for files.
 
-    :param job_id: The ID of the parent job.
     :param kernel_dir: The parent directory of this defconfig.
-    :param defconf_dir: The actual defconfig directory to parse.
+    :param defconfig_dir: The actual defconfig directory to parse.
     :return A `DefconfigDocument` instance.
     """
-    defconf_doc = DefconfigDocument(defconf_dir, job_id, job, kernel)
     # Default to the directory name and if we have the metadata file, get
     # the value from there.
     # Split on the + sign since some dirs are in the form 'defconfig+FRAGMENT'.
-    defconf_doc.defconfig = defconf_dir.split('+')[0]
-    defconf_doc.dirname = defconf_dir
+    defconfig = defconfig_dir.split('+')[0]
+    dirname = defconfig_dir
 
-    LOG.info("Traversing directory %s", defconf_dir)
+    defconf_doc = DefconfigDocument(job, kernel, defconfig)
+    defconf_doc.dirname = dirname
 
-    real_dir = os.path.join(kernel_dir, defconf_dir)
+    LOG.info("Traversing directory %s", dirname)
+
+    real_dir = os.path.join(kernel_dir, dirname)
     defconf_doc.created_on = datetime.fromtimestamp(
         os.stat(real_dir).st_mtime, tz=tz_util.utc
     )
@@ -210,15 +196,15 @@ def _traverse_defconf_dir(job_id, job, kernel, kernel_dir, defconf_dir):
 
         # Legacy: status was retrieved via the presence of a file.
         # Keep it for backward compatibility.
-        if os.path.isfile(os.path.join(dirname, BUILD_PASS_FILE)):
-            defconf_doc.status = PASS_STATUS
-        elif os.path.isfile(os.path.join(dirname, BUILD_FAIL_FILE)):
-            defconf_doc.status = FAIL_STATUS
+        if os.path.isfile(os.path.join(dirname, models.BUILD_PASS_FILE)):
+            defconf_doc.status = models.PASS_STATUS
+        elif os.path.isfile(os.path.join(dirname, models.BUILD_FAIL_FILE)):
+            defconf_doc.status = models.FAIL_STATUS
         else:
-            defconf_doc.status = UNKNOWN_STATUS
+            defconf_doc.status = models.UNKNOWN_STATUS
 
-        json_meta_file = os.path.join(dirname, BUILD_META_JSON_FILE)
-        default_meta_file = os.path.join(dirname, BUILD_META_FILE)
+        json_meta_file = os.path.join(dirname, models.BUILD_META_JSON_FILE)
+        default_meta_file = os.path.join(dirname, models.BUILD_META_FILE)
 
         if os.path.isfile(json_meta_file):
             _parse_build_metadata(json_meta_file, defconf_doc)
@@ -226,7 +212,7 @@ def _traverse_defconf_dir(job_id, job, kernel, kernel_dir, defconf_dir):
             _parse_build_metadata(default_meta_file, defconf_doc)
         else:
             # If we do not have the metadata file, consider the build failed.
-            defconf_doc.status = FAIL_STATUS
+            defconf_doc.status = models.FAIL_STATUS
 
     return defconf_doc
 
@@ -242,11 +228,11 @@ def _parse_build_metadata(metadata_file, defconf_doc):
     if metadata:
         # Set some of the metadata values directly into the objet for easier
         # search.
-        defconf_doc.status = metadata.get(BUILD_RESULT_KEY, None)
-        defconf_doc.defconfig = metadata.get(DEFCONFIG_KEY, None)
-        defconf_doc.warnings = metadata.get(WARNINGS_KEY, None)
-        defconf_doc.errros = metadata.get(ERRORS_KEY, None)
-        defconf_doc.arch = metadata.get(ARCHITECTURE_KEY, None)
+        defconf_doc.status = metadata.get(models.BUILD_RESULT_KEY, None)
+        defconf_doc.defconfig = metadata.get(models.DEFCONFIG_KEY, None)
+        defconf_doc.warnings = metadata.get(models.WARNINGS_KEY, None)
+        defconf_doc.errros = metadata.get(models.ERRORS_KEY, None)
+        defconf_doc.arch = metadata.get(models.ARCHITECTURE_KEY, None)
 
     defconf_doc.metadata = metadata
 
@@ -279,7 +265,7 @@ def _import_all(database, base_path=BASE_PATH):
 
 if __name__ == '__main__':
     connection = pymongo.MongoClient()
-    database = connection[DB_NAME]
+    database = connection[models.DB_NAME]
 
     documents = _import_all(database)
     save(database, documents)
