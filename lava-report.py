@@ -2,6 +2,7 @@
 # <variable> = required
 # Usage ./lava-report.py <option> [json]
 import argparse
+import subprocess
 from utils import *
 
 
@@ -117,8 +118,25 @@ def boot_report(args):
 
     if results and kernel_tree and kernel_version:
         print 'Creating boot summary for %s' % kernel_version
-        log = '%s-boot-report.log' % kernel_version
+        log = '%s-boot-report.txt' % kernel_version
+        passed = 0
+        failed = 0
+        for defconfig, results_list in results.items():
+            for result in results_list:
+                if result['result'] == 'PASS':
+                    passed += 1
+                else:
+                    failed += 1
+        total = passed + failed
         with open(os.path.join(results_directory, log), 'a') as f:
+            f.write('to : %s\n' % args.email)
+            f.write('from : lava@armcloud.us\n')
+            f.write('subject : %s boot: %s boots: %s passed, %s failed (%s)\n' % (kernel_tree,
+                                                                                str(total),
+                                                                                str(passed),
+                                                                                str(failed),
+                                                                                kernel_version))
+            f.write('\n')
             f.write('Status Dashboard: http://status.armcloud.us/boot/all/job/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
             f.write('\n')
             f.write('Total duration: %.2f seconds\n' % duration)
@@ -132,31 +150,9 @@ def boot_report(args):
                 f.write('\n')
                 for result in results_list:
                     f.write('    %s   %ss   %s\n' % (result['device_type'], result['kernel_boot_time'], result['result']))
-        if args.jenkins:
-            print 'Creating jenkins boot summary for %s' % kernel_version
-            log = 'env.properties'
-            passed = 0
-            failed = 0
-            with open(os.path.join(results_directory, log), 'a') as f:
-                f.write('SUMMARY=Status Dashboard: http://status.armcloud.us/boot/all/job/%s/kernel/%s/ \\\n' % (kernel_tree, kernel_version))
-                f.write('\\\n')
-                f.write('Total duration: %.2f seconds \\\n' % duration)
-                f.write('Tree/Branch: %s \\\n' % kernel_tree)
-                f.write('Git describe: %s \\\n' % kernel_version)
-                f.write('\\\n')
-                f.write('Full Report: \\\n')
-                for defconfig, results_list in results.items():
-                    f.write('\\\n')
-                    f.write('%s: \\\n' % defconfig)
-                    for result in results_list:
-                        if result['result'] == 'PASS':
-                            passed += 1
-                        else:
-                            failed += 1
-                        f.write('... %s   %ss   %s \\\n' % (result['device_type'], result['kernel_boot_time'], result['result']))
-                f.write('\n')
-                f.write('PASSED=%i\n' % passed)
-                f.write('FAILED=%i\n' % failed)
+        # sendmail
+        cmd = 'cat %s | sendmail -t' % os.path.join(results_directory, log)
+        subprocess.check_output(cmd, shell=True)
 
 def main(args):
     if args.boot:
@@ -166,6 +162,6 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--boot", help="creates a kernel-ci boot report from a given json file")
-    parser.add_argument("--jenkins", action='store_true', help="create jenkins style env.properties summary")
+    parser.add_argument("--email", help="email address to send report to")
     args = parser.parse_args()
     main(args)
