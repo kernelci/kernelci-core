@@ -18,10 +18,10 @@ A very simple RequestHandler used as the default one for the Tornado
 application.
 """
 
-from tornado.web import RequestHandler
+import tornado.web
 
 
-class AppHandler(RequestHandler):
+class AppHandler(tornado.web.RequestHandler):
     """This handler is used to provide custom error messages.
 
     It is used to provide JSON response on errors, and the only implemented
