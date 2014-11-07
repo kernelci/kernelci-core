@@ -13,52 +13,38 @@
 
 """The request handler for bisect URLs."""
 
+import functools
 import tornado
+import tornado.web
 
-from functools import partial
-from tornado.web import asynchronous
-
-from handlers.base import BaseHandler
-from handlers.common import (
-    NOT_VALID_TOKEN,
-    get_query_fields,
-)
-from handlers.response import HandlerResponse
-from taskqueue.tasks import boot_bisect
-
-from utils.db import find_one
-
-from models import (
-    BISECT_COLLECTION,
-    BOOT_COLLECTION,
-    DOC_ID_KEY,
-)
-
-BISECT_COLLECTIONS = [
-    BOOT_COLLECTION,
-]
+import handlers.base as handb
+import handlers.comon as handc
+import handlers.response as handr
+import models
+import taskqueue.tasks as taskt
+import utils.db
 
 
-class BisectHandler(BaseHandler):
+class BisectHandler(handb.BaseHandler):
     """Handler used to trigger bisect operations on the data."""
 
     def __init__(self, application, request, **kwargs):
         super(BisectHandler, self).__init__(application, request, **kwargs)
 
-    @asynchronous
+    @tornado.web.asynchronous
     def get(self, *args, **kwargs):
         self.executor.submit(
-            partial(self.execute_get, *args, **kwargs)
+            functools.partial(self.execute_get, *args, **kwargs)
         ).add_done_callback(
             lambda future:
             tornado.ioloop.IOLoop.instance().add_callback(
-                partial(self._create_valid_response, future.result())
+                functools.partial(self._create_valid_response, future.result())
             )
         )
 
     @property
     def collection(self):
-        return BISECT_COLLECTION
+        return models.BISECT_COLLECTION
 
     def execute_get(self, *args, **kwargs):
         """This is the actual GET operation.
@@ -75,23 +61,27 @@ class BisectHandler(BaseHandler):
                 if all([collection, doc_id]):
                     fields = None
                     if self.request.arguments:
-                        fields = get_query_fields(self.get_query_arguments)
-                    bisect_result = find_one(
-                        self.db[self.collection], doc_id, field=DOC_ID_KEY,
+                        fields = handc.get_query_fields(
+                            self.get_query_arguments
+                        )
+                    bisect_result = utils.db.find_one(
+                        self.db[self.collection],
+                        doc_id,
+                        field=models.DOC_ID_KEY,
                         fields=fields
                     )
                     if bisect_result:
-                        response = HandlerResponse(200)
+                        response = handr.HandlerResponse(200)
                         response.result = bisect_result
                     else:
                         response = self._get_bisect(collection, doc_id, fields)
                 else:
-                    response = HandlerResponse(400)
+                    response = handr.HandlerResponse(400)
             else:
-                response = HandlerResponse(400)
+                response = handr.HandlerResponse(400)
         else:
-            response = HandlerResponse(403)
-            response.reason = NOT_VALID_TOKEN
+            response = handr.HandlerResponse(403)
+            response.reason = handc.NOT_VALID_TOKEN
 
         return response
 
@@ -109,13 +99,13 @@ class BisectHandler(BaseHandler):
         """
         response = None
 
-        if collection in BISECT_COLLECTIONS:
+        if collection in models.BISECT_VALID_COLLECTIONS:
             db_options = self.settings["dboptions"]
 
-            if collection == BOOT_COLLECTION:
+            if collection == models.BOOT_COLLECTION:
                 response = self.execute_boot_bisect(doc_id, db_options, fields)
         else:
-            response = HandlerResponse(400)
+            response = handr.HandlerResponse(400)
             response.reason = (
                 "Provided bisect collection '%s' is not valid" % collection
             )
@@ -135,9 +125,9 @@ class BisectHandler(BaseHandler):
         :type fields: list or dict
         :return A `HandlerResponse` object.
         """
-        response = HandlerResponse()
+        response = handr.HandlerResponse()
 
-        result = boot_bisect.apply_async([doc_id, db_options, fields])
+        result = taskt.boot_bisect.apply_async([doc_id, db_options, fields])
         while not result.ready():
             pass
 

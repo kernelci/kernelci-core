@@ -169,3 +169,8 @@ VALID_JOB_STATUS = [
     FAIL_STATUS,
     PASS_STATUS,
 ]
+
+# The valid collections for the bisect handler.
+BISECT_VALID_COLLECTIONS = [
+    BOOT_COLLECTION
+]
