@@ -28,7 +28,6 @@ def test_modules():
         'handlers.tests.test_handler_response',
         'handlers.tests.test_handlers_common',
         'handlers.tests.test_job_handler',
-        'handlers.tests.test_subscription_handler',
         'handlers.tests.test_token_handler',
         'models.tests.test_bisect_model',
         'models.tests.test_boot_model',
