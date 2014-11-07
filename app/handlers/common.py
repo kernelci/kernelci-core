@@ -294,7 +294,7 @@ def get_and_add_date_range(spec, query_args_func):
     date_range = query_args_func(models.DATE_RANGE_KEY)
     if date_range:
         # Today needs to be set at the end of the day!
-        today = dt.datetime.datetime.combine(
+        today = dt.datetime.combine(
             dt.date.today(), dt.time(23, 59, 59, tzinfo=tz_util.utc)
         )
         previous = calculate_date_range(date_range)

@@ -17,16 +17,16 @@
 
 import unittest
 
-from handlers.response import HandlerResponse
+import handlers.response as handres
 
 
 class TestHandlerResponse(unittest.TestCase):
 
     def test_response_constructor_not_valid_input(self):
-        self.assertRaises(ValueError, HandlerResponse, "1")
+        self.assertRaises(ValueError, handres.HandlerResponse, "1")
 
     def test_response_setter_not_valid(self):
-        response = HandlerResponse()
+        response = handres.HandlerResponse()
 
         def _setter_call(value):
             response.status_code = value
@@ -37,13 +37,13 @@ class TestHandlerResponse(unittest.TestCase):
         self.assertRaises(ValueError, _setter_call, ())
 
     def test_response_setter_valid(self):
-        response = HandlerResponse(1)
+        response = handres.HandlerResponse(1)
         response.status_code = 200
 
         self.assertEqual(response.status_code, 200)
 
     def test_reponse_creation_default_values(self):
-        response = HandlerResponse()
+        response = handres.HandlerResponse()
 
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(response.headers)
@@ -51,7 +51,7 @@ class TestHandlerResponse(unittest.TestCase):
         self.assertIsNone(response.reason)
 
     def test_response_reason_setter_valid(self):
-        response = HandlerResponse()
+        response = handres.HandlerResponse()
 
         response.reason = u'foo'
         self.assertEqual('foo', response.reason)
@@ -60,7 +60,7 @@ class TestHandlerResponse(unittest.TestCase):
         self.assertEqual('bar', response.reason)
 
     def test_response_result_setter(self):
-        response = HandlerResponse()
+        response = handres.HandlerResponse()
 
         response.result = {}
         self.assertIsInstance(response.result, list)
@@ -75,7 +75,7 @@ class TestHandlerResponse(unittest.TestCase):
         self.assertEqual(response.result, ['foo'])
 
     def test_response_headers_setter_not_valid(self):
-        response = HandlerResponse()
+        response = handres.HandlerResponse()
 
         def _setter_call(value):
             response.headers = value
@@ -87,7 +87,7 @@ class TestHandlerResponse(unittest.TestCase):
         self.assertRaises(ValueError, _setter_call, "1")
 
     def test_response_headers_setter_valid(self):
-        response = HandlerResponse()
+        response = handres.HandlerResponse()
 
         response.headers = {'foo': 'bar'}
         self.assertEqual({'foo': 'bar'}, response.headers)

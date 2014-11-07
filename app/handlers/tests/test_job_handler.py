@@ -15,39 +15,33 @@
 
 """Test module for the JobHandler handler."""
 
+import concurrent.futures
 import json
+import mock
 import mongomock
+import tornado
+import tornado.testing
 
-from concurrent.futures import ThreadPoolExecutor
-from mock import (
-    MagicMock,
-    patch,
-)
-from tornado import (
-    ioloop,
-    testing,
-    web,
-)
-
-from handlers.app import AppHandler
-from urls import _JOB_URL
+import handlers.app
+import urls
 
 # Default Content-Type header returned by Tornado.
 DEFAULT_CONTENT_TYPE = 'application/json; charset=UTF-8'
 
 
-class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
+class TestJobHandler(
+        tornado.testing.AsyncHTTPTestCase, tornado.testing.LogTrapTestCase):
 
     def setUp(self):
         self.mongodb_client = mongomock.Connection()
 
         super(TestJobHandler, self).setUp()
 
-        patched_find_token = patch("handlers.base.BaseHandler._find_token")
+        patched_find_token = mock.patch("handlers.base.BaseHandler._find_token")
         self.find_token = patched_find_token.start()
         self.find_token.return_value = "token"
 
-        patched_validate_token = patch("handlers.base.validate_token")
+        patched_validate_token = mock.patch("handlers.common.validate_token")
         self.validate_token = patched_validate_token.start()
         self.validate_token.return_value = True
 
@@ -63,18 +57,18 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         settings = {
             'dboptions': dboptions,
             'client': self.mongodb_client,
-            'executor': ThreadPoolExecutor(max_workers=2),
-            'default_handler_class': AppHandler,
+            'executor': concurrent.futures.ThreadPoolExecutor(max_workers=2),
+            'default_handler_class': handlers.app.AppHandler,
             'debug': False
         }
 
-        return web.Application([_JOB_URL], **settings)
+        return tornado.web.Application([urls._JOB_URL], **settings)
 
     def get_new_ioloop(self):
-        return ioloop.IOLoop.instance()
+        return tornado.ioloop.IOLoop.instance()
 
-    @patch('utils.db.find')
-    @patch('utils.db.count')
+    @mock.patch('utils.db.find')
+    @mock.patch('utils.db.count')
     def test_get(self, mock_count, mock_find):
         mock_count.return_value = 0
         mock_find.return_value = []
@@ -89,8 +83,8 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
         self.assertEqual(response.body, expected_body)
 
-    @patch('utils.db.find')
-    @patch('utils.db.count')
+    @mock.patch('utils.db.find')
+    @mock.patch('utils.db.count')
     def test_get_with_limit(self, mock_count, mock_find):
         mock_count.return_value = 0
         mock_find.return_value = []
@@ -107,9 +101,9 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
         self.assertEqual(response.body, expected_body)
 
-    @patch('handlers.job.JobHandler.collection')
+    @mock.patch('handlers.job.JobHandler.collection')
     def test_get_by_id_not_found(self, collection):
-        collection.find_one = MagicMock()
+        collection.find_one = mock.MagicMock()
         collection.find_one.return_value = None
 
         headers = {'Authorization': 'foo'}
@@ -119,9 +113,9 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    @patch('handlers.job.JobHandler.collection')
+    @mock.patch('handlers.job.JobHandler.collection')
     def test_get_by_id_not_found_empty_list(self, collection):
-        collection.find_one = MagicMock()
+        collection.find_one = mock.MagicMock()
         collection.find_one.return_value = []
 
         headers = {'Authorization': 'foo'}
@@ -131,9 +125,9 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    @patch('handlers.job.JobHandler.collection')
+    @mock.patch('handlers.job.JobHandler.collection')
     def test_get_by_id_found(self, collection):
-        collection.find_one = MagicMock()
+        collection.find_one = mock.MagicMock()
         collection.find_one.return_value = {'_id': 'foo'}
 
         expected_body = '{"code": 200, "result": [{"_id": "foo"}]}'
@@ -189,9 +183,9 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    @patch('handlers.job.import_job')
+    @mock.patch('handlers.job.import_job')
     def test_post_correct(self, mock_import_job):
-        mock_import_job.apply_async = MagicMock()
+        mock_import_job.apply_async = mock.MagicMock()
 
         headers = {
             'Authorization': 'foo',
@@ -248,7 +242,7 @@ class TestJobHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    @patch('handlers.job.JobHandler._get_one')
+    @mock.patch('handlers.job.JobHandler._get_one')
     def test_get_wrong_handler_response(self, mock_get_one):
         mock_get_one.return_value = ""
 

@@ -13,35 +13,32 @@
 
 """Test module for the BatchHandler handler."""
 
+import concurrent.futures
 import json
+import mock
 import mongomock
+import tornado
+import tornado.testing
 
-from concurrent.futures import ThreadPoolExecutor
-from mock import patch
-from tornado import (
-    ioloop,
-    testing,
-    web,
-)
-
-from handlers.app import AppHandler
-from urls import _BATCH_URL
+import handlers.app
+import urls
 
 # Default Content-Type header returned by Tornado.
 DEFAULT_CONTENT_TYPE = 'application/json; charset=UTF-8'
 
 
-class TestBatchHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
+class TestBatchHandler(
+        tornado.testing.AsyncHTTPTestCase, tornado.testing.LogTrapTestCase):
 
     def setUp(self):
         self.mongodb_client = mongomock.Connection()
         super(TestBatchHandler, self).setUp()
 
-        patched_find_token = patch("handlers.base.BaseHandler._find_token")
+        patched_find_token = mock.patch("handlers.base.BaseHandler._find_token")
         self.find_token = patched_find_token.start()
         self.find_token.return_value = "token"
 
-        patched_validate_token = patch("handlers.base.validate_token")
+        patched_validate_token = mock.patch("handlers.common.validate_token")
         self.validate_token = patched_validate_token.start()
         self.validate_token.return_value = True
 
@@ -57,15 +54,15 @@ class TestBatchHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         settings = {
             'dboptions': dboptions,
             'client': self.mongodb_client,
-            'executor': ThreadPoolExecutor(max_workers=2),
-            'default_handler_class': AppHandler,
+            'executor': concurrent.futures.ThreadPoolExecutor(max_workers=2),
+            'default_handler_class': handlers.app.AppHandler,
             'debug': False
         }
 
-        return web.Application([_BATCH_URL], **settings)
+        return tornado.web.Application([urls._BATCH_URL], **settings)
 
     def get_new_ioloop(self):
-        return ioloop.IOLoop.instance()
+        return tornado.ioloop.IOLoop.instance()
 
     def test_delete_no_token(self):
         response = self.fetch('/batch', method='DELETE')
@@ -152,7 +149,7 @@ class TestBatchHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    @patch("handlers.batch.run_batch_group")
+    @mock.patch("handlers.batch.run_batch_group")
     def test_post_correct(self, mocked_run_batch):
         headers = {'Authorization': 'foo', 'Content-Type': 'application/json'}
         batch_dict = {
