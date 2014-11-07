@@ -15,43 +15,23 @@
 
 """The API token model to store token in the DB."""
 
-import json
+import bson
+import datetime
+import netaddr
+import netaddr.core
+import types
+import uuid
 
-from bson import (
-    json_util,
-    tz_util,
-)
-from datetime import datetime
-from netaddr import (
-    IPAddress,
-    IPNetwork,
-    IPSet,
-)
-from netaddr.core import AddrFormatError
-from types import (
-    BooleanType,
-    IntType,
-    ListType,
-    StringTypes,
-)
-from uuid import uuid4
+import models
+import models.base as modb
 
-from models import (
-    CREATED_KEY,
-    EMAIL_KEY,
-    EXPIRED_KEY,
-    EXPIRES_KEY,
-    ID_KEY,
-    IP_ADDRESS_KEY,
-    PROPERTIES_KEY,
-    TOKEN_COLLECTION,
-    TOKEN_KEY,
-    USERNAME_KEY,
-)
-from models.base import BaseDocument
+PROPERTIES_SIZE = 16
 
 
-class Token(BaseDocument):
+# pylint: disable=too-many-instance-attributes
+# pylint: disable=invalid-name
+# pylint: disable=too-many-public-methods
+class Token(modb.BaseDocument):
     """This is an API token as stored in the DB.
 
     A token can be:
@@ -79,6 +59,7 @@ class Token(BaseDocument):
 
     def __init__(self):
         self._id = None
+        self._name = None
         self._token = None
         self._created_on = None
         self._expires_on = None
@@ -86,57 +67,115 @@ class Token(BaseDocument):
         self._username = None
         self._email = None
         self._ip_address = None
-        self._properties = [0 for _ in range(0, 16)]
+        self._properties = [0 for _ in range(0, PROPERTIES_SIZE)]
 
     @property
     def collection(self):
-        return TOKEN_COLLECTION
+        return models.TOKEN_COLLECTION
+
+    @property
+    def name(self):
+        """The name of the object."""
+        if not self._name:
+            self._name = self.email
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        """Set the name of the object."""
+        self._name = value
+
+    @property
+    def id(self):
+        """The ID of this object as returned by mongodb."""
+        return self._id
+
+    @id.setter
+    def id(self, value):
+        """Set the ID of this object with the ObjectID from mongodb.
+
+        :param value: The ID of this object.
+        :type value: str
+        """
+        self._id = value
 
     @property
     def token(self):
+        """The real token value. A UUID4 string."""
         if self._token is None:
-            self._token = str(uuid4())
+            self._token = str(uuid.uuid4())
 
         return self._token
 
     @token.setter
     def token(self, value):
+        """Set the value of the token."""
         self._token = value
 
     @property
     def properties(self):
+        """The properties array."""
         return self._properties
 
     @properties.setter
     def properties(self, value):
+        """Set the properties array.
+
+        :param value: The array.
+        :type value: list
+        """
+        if not isinstance(value, types.ListType):
+            raise TypeError(
+                "Properties field must be a list, got: %s", type(value)
+            )
+        if len(value) != 16:
+            raise ValueError(
+                "Properties list size must be %s", PROPERTIES_SIZE
+            )
         self._properties = value
 
     @property
     def created_on(self):
+        """When this object was created.
+
+        A datetime object in UTC timezone.
+        """
         if not self._created_on:
-            self._created_on = datetime.now(tz=tz_util.utc)
+            self._created_on = datetime.datetime.now(tz=bson.tz_util.utc)
         return self._created_on
 
     @created_on.setter
     def created_on(self, value):
+        """Set the creation date of the object."""
         self._created_on = value
 
     @property
     def expires_on(self):
+        """When this token is supposed to expire."""
         return self._expires_on
 
     @expires_on.setter
     def expires_on(self, value):
+        """Set the expiry date of the token.
+
+        A datetime object with the following format: %Y-%M-%d
+        """
         self._expires_on = self.check_expires_date(value)
 
     @property
     def ip_address(self):
+        """The list of IP addresses associated with this token."""
         return self._ip_address
 
     @ip_address.setter
     def ip_address(self, value):
+        """Set the IP address for this token.
+
+        :param value: The IP address or a list of.
+        :type value: str or list
+        """
         if value is not None:
-            if not isinstance(value, ListType):
+            if not isinstance(value, types.ListType):
                 value = [value]
             value = self.check_ip_address(value)
 
@@ -144,34 +183,47 @@ class Token(BaseDocument):
 
     @property
     def expired(self):
+        """If the token is expired or not."""
         return self._expired
 
     @expired.setter
     def expired(self, value):
+        """Set if the tokne is expired or not."""
         self._expired = value
 
     @property
     def email(self):
+        """The email associated with this token."""
         return self._email
 
     @email.setter
     def email(self, value):
+        """Set the email address associated with this token."""
         self._email = value
 
     @property
     def username(self):
+        """The user name associated with this token."""
         return self._username
 
     @username.setter
     def username(self, value):
+        """Set the user name associated with this token."""
         self._username = value
 
     @property
     def is_admin(self):
+        """If the token is an admin one."""
         return self._properties[0]
 
     @is_admin.setter
     def is_admin(self, value):
+        """Make this token an admin one.
+
+        This will update also other fields, turning it into a real admin token.
+        An admin token can perform GET, POST and DELETE and can create new
+        tokens.
+        """
         value = self.check_attribute_value(value)
 
         self._properties[0] = value
@@ -185,10 +237,16 @@ class Token(BaseDocument):
 
     @property
     def is_superuser(self):
+        """If the token is a super user one."""
         return self._properties[1]
 
     @is_superuser.setter
     def is_superuser(self, value):
+        """Make this token a superuser one.
+
+        This will update also other fields. A superuser token cannot create
+        new tokens.
+        """
         value = self.check_attribute_value(value)
 
         # Force admin to zero, and also if can create new tokens, regardless
@@ -203,46 +261,56 @@ class Token(BaseDocument):
 
     @property
     def is_get_token(self):
+        """If the token can perform GET requests."""
         return self._properties[2]
 
     @is_get_token.setter
     def is_get_token(self, value):
+        """Set whether the token can perform GET requests."""
         value = self.check_attribute_value(value)
         self._properties[2] = value
 
     @property
     def is_post_token(self):
+        """If the token can perform POST requests."""
         return self._properties[3]
 
     @is_post_token.setter
     def is_post_token(self, value):
+        """Sets whether the token can perform POST requests."""
         value = self.check_attribute_value(value)
         self._properties[3] = value
 
     @property
     def is_delete_token(self):
+        """If the token can perform DELETE requests."""
         return self._properties[4]
 
     @is_delete_token.setter
     def is_delete_token(self, value):
+        """Set whether the token can perform DELETE requests."""
         value = self.check_attribute_value(value)
         self._properties[4] = value
 
     @property
     def is_ip_restricted(self):
+        """If the token is IP restricted."""
         return self._properties[5]
 
     @is_ip_restricted.setter
     def is_ip_restricted(self, value):
+        """Set whether the token is IP restricted."""
         value = self.check_attribute_value(value)
         self._properties[5] = value
 
     @property
     def can_create_token(self):
+        """If with this token it is possible to create new tokens."""
         return self._properties[6]
 
     @can_create_token.setter
     def can_create_token(self, value):
+        """Sets whether this token can create new tokens."""
         value = self.check_attribute_value(value)
         self._properties[6] = value
 
@@ -259,9 +327,9 @@ class Token(BaseDocument):
         else:
             try:
                 address = self._convert_ip_address(address)
-                if address in IPSet(self.ip_address):
+                if address in netaddr.IPSet(self.ip_address):
                     return_value = True
-            except AddrFormatError:
+            except netaddr.core.AddrFormatError:
                 # If we get an error converting the IP address, consider it
                 # not valid and force False.
                 return_value = False
@@ -275,13 +343,13 @@ class Token(BaseDocument):
         :return The address list converted with `IPaddress` and/or `IPNetwork`
             objects.
         """
-        if not isinstance(addrlist, ListType):
+        if not isinstance(addrlist, types.ListType):
             raise TypeError("Value must be a list of addresses")
 
         for idx, address in enumerate(addrlist):
             try:
                 addrlist[idx] = cls._convert_ip_address(address)
-            except AddrFormatError:
+            except netaddr.core.AddrFormatError:
                 raise ValueError(
                     "Address %s is not a valid IP address or network", address
                 )
@@ -294,9 +362,9 @@ class Token(BaseDocument):
         :return An `IPAddress` or `IPNetwork` object.
         """
         if '/' in address:
-            address = IPNetwork(address).ipv6(ipv4_compatible=True)
+            address = netaddr.IPNetwork(address).ipv6(ipv4_compatible=True)
         else:
-            address = IPAddress(address).ipv6(ipv4_compatible=True)
+            address = netaddr.IPAddress(address).ipv6(ipv4_compatible=True)
         return address
 
     @staticmethod
@@ -311,7 +379,7 @@ class Token(BaseDocument):
         :raise TypeError if the value is not IntType or BooleanType; ValueError
             if it is not 0 or 1.
         """
-        if not isinstance(value, (IntType, BooleanType)):
+        if not isinstance(value, (types.IntType, types.BooleanType)):
             raise TypeError("Wrong value passed, must be int or bool")
 
         value = abs(int(value))
@@ -333,7 +401,7 @@ class Token(BaseDocument):
         """
         try:
             if value:
-                value = datetime.strptime(value, "%Y-%m-%d")
+                value = datetime.datetime.strptime(value, "%Y-%m-%d")
         except ValueError, ex:
             raise ex
         else:
@@ -344,30 +412,27 @@ class Token(BaseDocument):
 
         :return The object as a dictionary.
         """
-        doc_dict = {}
-        doc_dict[CREATED_KEY] = self.created_on
-        doc_dict[EMAIL_KEY] = self.email
-        doc_dict[EXPIRED_KEY] = self.expired
-        doc_dict[EXPIRES_KEY] = self.expires_on
+        doc_dict = {
+            models.CREATED_KEY: self.created_on,
+            models.EMAIL_KEY: self.email,
+            models.EXPIRED_KEY: self.expired,
+            models.EXPIRES_KEY: self.expires_on,
+            models.NAME_KEY: self.name,
+        }
         if self.ip_address is not None:
-            doc_dict[IP_ADDRESS_KEY] = [str(x) for x in self.ip_address if x]
+            doc_dict[models.IP_ADDRESS_KEY] = \
+                [str(x) for x in self.ip_address if x]
         else:
-            doc_dict[IP_ADDRESS_KEY] = None
-        doc_dict[PROPERTIES_KEY] = self.properties
-        doc_dict[TOKEN_KEY] = self.token
-        doc_dict[USERNAME_KEY] = self.username
-        if self._id:
-            doc_dict[ID_KEY] = self._id
+            doc_dict[models.IP_ADDRESS_KEY] = None
+        doc_dict[models.PROPERTIES_KEY] = self.properties
+        doc_dict[models.TOKEN_KEY] = self.token
+        doc_dict[models.USERNAME_KEY] = self.username
+        if self.id:
+            doc_dict[models.ID_KEY] = self.id
 
         return doc_dict
 
-    def to_json(self):
-        """Return a JSON string for this object.
-
-        :return A JSON string.
-        """
-        return json.dumps(self.to_dict(), default=json_util.default)
-
+    # pylint: disable=maybe-no-member
     @staticmethod
     def from_json(json_obj):
         """Build a Token object from a JSON string.
@@ -375,8 +440,8 @@ class Token(BaseDocument):
         :param json_obj: The JSON object to start from, or a JSON string.
         :return An instance of `Token`.
         """
-        if isinstance(json_obj, StringTypes):
-            json_obj = json_util.loads(json_obj)
+        if isinstance(json_obj, types.StringTypes):
+            json_obj = bson.json_util.loads(json_obj)
 
         token = Token()
         for key, value in json_obj.iteritems():
