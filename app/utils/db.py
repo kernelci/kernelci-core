@@ -167,8 +167,8 @@ def count(collection):
     return collection.count()
 
 
-def save(database, documents, manipulate=False):
-    """Save documents into the database.
+def save(database, document, manipulate=False):
+    """Save one document into the database.
 
     :param database: The database where to save.
     :param documents: The document to save, can be a list or a single document:
@@ -177,8 +177,50 @@ def save(database, documents, manipulate=False):
     :param manipulate: If the passed documents have to be manipulated by
     mongodb. Default to False.
     :type manipulate: bool
-    :return 201 if the save has success, 500 in case of an error. If manipulate
-    is True, return also the mongodb created ID.
+    :return A tuple: first element is the operation code (201 if the save has
+    success, 500 in case of an error), second element is the mongodb created
+    `_id` value if manipulate is True or None.
+    """
+    ret_value = 201
+    doc_id = None
+
+    if isinstance(document, BaseDocument):
+        to_save = document.to_dict()
+    else:
+        LOG.warn(
+            "Cannot save document, it is not of type BaseDocument, got %s",
+            type(document)
+        )
+
+    try:
+        doc_id = database[document.collection].save(
+            to_save, manipulate=manipulate
+        )
+        LOG.info("Document '%s' saved with ID '%s'", document.name, doc_id)
+    except OperationFailure, ex:
+        LOG.error("Error saving the following document: %s", document.name)
+        LOG.exception(ex)
+        ret_value = 500
+
+    return ret_value, doc_id
+
+
+def save_all(database, documents, manipulate=False, fail_on_err=False):
+    """Save a list of documents.
+
+    :param database: The database where to save.
+    :param documents: The list of `BaseDocument` documents.
+    :type documents: list
+    :param manipulate: If the database has to create an _id attribute for each
+    document. Default False.
+    :type manipulate: bool
+    :param fail_on_err: If in case of an error the save operation should stop
+    immediatly. Default False.
+    :type fail_on_err: bool
+    :return A tuple: first element is the operation code (201 if the save has
+    success, 500 in case of an error), second element is the list of the
+    mongodb created `_id` values for each document if manipulate is True, or a
+    list of None values.
     """
     ret_value = 201
     doc_id = []
@@ -188,29 +230,25 @@ def save(database, documents, manipulate=False):
 
     for document in documents:
         if isinstance(document, BaseDocument):
-            to_save = document.to_dict()
+            ret_value, save_id = save(
+                database, document, manipulate=manipulate
+            )
+            doc_id.append(save_id)
+
+            if fail_on_err and ret_value == 500:
+                break
         else:
-            LOG.warn(
+            LOG.error(
                 "Cannot save document, it is not of type BaseDocument, got %s",
-                type(to_save)
+                type(document)
             )
-            continue
+            doc_id.append(None)
 
-        try:
-            doc_id = database[document.collection].save(
-                to_save, manipulate=manipulate
-            )
-            LOG.info("Saved document with ID %s", document.name)
-        except OperationFailure, ex:
-            LOG.error("Error saving the following document: %s", document.name)
-            LOG.exception(str(ex))
-            ret_value = 500
-            break
+            if fail_on_err:
+                ret_value = 500
+                break
 
-    if manipulate:
-        ret_value = (ret_value, doc_id)
-
-    return ret_value
+    return ret_value, doc_id
 
 
 def update(collection, spec, document, operation='$set'):
