@@ -48,7 +48,7 @@ def import_and_save_job(json_obj, db_options, base_path=utils.BASE_PATH):
         utils.LOG.info(
             "Importing %d documents with job ID: %s", len(docs), job_id
         )
-        utils.db.save(database, docs)
+        utils.db.save_all(database, docs)
     else:
         utils.LOG.info("No jobs to save")
 

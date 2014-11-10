@@ -167,7 +167,8 @@ modules_dir: foo/bar
 
     @mock.patch('utils.docimport._parse_build_metadata')
     @mock.patch('os.path.isfile')
-    @mock.patch('os.walk', new=mock.Mock(return_value=[('defconf-dir', [], [])]))
+    @mock.patch(
+        'os.walk', new=mock.Mock(return_value=[('defconf-dir', [], [])]))
     @mock.patch('os.stat')
     def test_traverse_defconf_dir_json(
             self, mock_stat, mock_isfile, mock_parser):
@@ -186,7 +187,8 @@ modules_dir: foo/bar
 
     @mock.patch('utils.docimport._parse_build_metadata')
     @mock.patch('os.path.isfile')
-    @mock.patch('os.walk', new=mock.Mock(return_value=[('defconf-dir', [], [])]))
+    @mock.patch(
+        'os.walk', new=mock.Mock(return_value=[('defconf-dir', [], [])]))
     @mock.patch('os.stat')
     def test_traverse_defconf_dir_nornal(
             self, mock_stat, mock_isfile, mock_parser):
