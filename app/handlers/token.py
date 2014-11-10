@@ -136,7 +136,7 @@ class TokenHandler(BaseHandler):
         try:
             new_token = self._token_update_create(json_obj)
 
-            response.status_code = save(self.db, new_token)
+            response.status_code, _ = save(self.db, new_token)
             if response.status_code == 201:
                 response.result = {TOKEN_KEY: new_token.token}
                 location = urlunparse(
