@@ -73,6 +73,7 @@ class BootDocument(modb.BaseDocument):
         self._boot_log_html = None
         self._boot_result_description = None
         self._retries = None
+        self._version = None
 
     @property
     def collection(self):
@@ -328,6 +329,20 @@ class BootDocument(modb.BaseDocument):
         """
         self._created_on = value
 
+    @property
+    def version(self):
+        """The schema version of this object."""
+        return self._version
+
+    @version.setter
+    def version(self, value):
+        """Set the schema version of this object.
+
+        :param value: The schema string.
+        :type param: str
+        """
+        self._version = value
+
     def to_dict(self):
         boot_dict = {
             models.BOARD_KEY: self.board,
@@ -352,6 +367,7 @@ class BootDocument(modb.BaseDocument):
             models.RETRIES_KEY: self.retries,
             models.STATUS_KEY: self.status,
             models.TIME_KEY: self.time,
+            models.VERSION_KEY: self.version,
             models.WARNINGS_KEY: self.warnings,
         }
 

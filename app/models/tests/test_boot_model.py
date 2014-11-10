@@ -58,6 +58,7 @@ class TestBootModel(unittest.TestCase):
             'fastboot': None,
             'retries': None,
             'boot_result_description': None,
+            'version': None,
         }
 
         self.assertDictEqual(expected, boot_doc.to_dict())
