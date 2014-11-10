@@ -13,11 +13,16 @@
 
 """Set of common functions for all handlers."""
 
-import datetime as dt
 import pymongo
 import types
 
 from bson import tz_util
+from datetime import (
+    date,
+    datetime,
+    time,
+    timedelta,
+)
 
 import models
 import models.token as modt
@@ -294,8 +299,8 @@ def get_and_add_date_range(spec, query_args_func):
     date_range = query_args_func(models.DATE_RANGE_KEY)
     if date_range:
         # Today needs to be set at the end of the day!
-        today = dt.datetime.combine(
-            dt.date.today(), dt.time(23, 59, 59, tzinfo=tz_util.utc)
+        today = datetime.combine(
+            date.today(), time(23, 59, 59, tzinfo=tz_util.utc)
         )
         previous = calculate_date_range(date_range)
 
@@ -328,15 +333,15 @@ def calculate_date_range(date_range):
             date_range = DEFAULT_DATE_RANGE
 
     date_range = abs(date_range)
-    if date_range > dt.timedelta.max.days:
+    if date_range > timedelta.max.days:
         date_range = DEFAULT_DATE_RANGE
 
     # Calcuate with midnight in mind though, so we get the starting of
     # the day for the previous date.
-    today = dt.datetime.combine(
-        dt.date.today(), dt.time(tzinfo=tz_util.utc)
+    today = datetime.combine(
+        date.today(), time(tzinfo=tz_util.utc)
     )
-    delta = dt.timedelta(days=date_range)
+    delta = timedelta(days=date_range)
 
     return today - delta
 
@@ -505,14 +510,19 @@ def _valid_token_ip(token, remote_ip):
     :param remote_ip: The remote IP address sending the token.
     :return True or False.
     """
-    valid_token = True
+    valid_token = False
 
-    # TODO: what if we have a pool of IPs for the token?
-    if token.ip_address != remote_ip:
-        utils.LOG.info(
-            "IP restricted token from wrong IP address: %s",
-            remote_ip
-        )
-        valid_token = False
+    if remote_ip:
+        remote_ip = modt.convert_ip_address(remote_ip)
+
+        if remote_ip in token.ip_address:
+            valid_token = True
+        else:
+            utils.LOG.warn(
+                "IP restricted token from wrong IP address: %s",
+                remote_ip
+            )
+    else:
+        utils.LOG.info("No remote IP address provided, cannot validate token")
 
     return valid_token

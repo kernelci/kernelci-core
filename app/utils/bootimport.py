@@ -36,7 +36,7 @@ BOOT_REPORT_PATTERN = 'boot-*.json'
 TMP_RE = re.compile(r'tmp')
 
 
-def import_and_save_boot(json_obj, db_options, base_path=utils.BASE_PATH):
+def import_and_save_boot(json_obj, db_options):
     """Wrapper function to be used as an external task.
 
     This function should only be called by Celery or other task managers.
@@ -48,13 +48,11 @@ def import_and_save_boot(json_obj, db_options, base_path=utils.BASE_PATH):
     :type json_obj: dict
     :param db_options: The mongodb database connection parameters.
     :type db_options: dict
-    :param base_path: The base path where to start looking for the boot log
-    file. It defaults to: /var/www/images/kernel-ci.
     """
-    database = db.get_db_connection(db_options)
-    docs = parse_boot_from_json(json_obj, base_path)
+    docs = parse_boot_from_json(json_obj, utils.BASE_PATH)
 
     if docs:
+        database = db.get_db_connection(db_options)
         db.save(database, docs)
     else:
         utils.LOG.info("No boot log imported")
@@ -71,14 +69,19 @@ def parse_boot_from_json(json_obj, base_path=utils.BASE_PATH):
         file. It defaults to: /var/www/images/kernel-ci.
     :return A list with all the `BootDocument`s.
     """
-    # FIXME: need to add lab_id.
-    job = json_obj[models.JOB_KEY]
-    kernel = json_obj[models.KERNEL_KEY]
+    json_get = json_obj.get
+    job = json_get(models.JOB_KEY)
+    kernel = json_get(models.KERNEL_KEY)
+    defconfig = json_get(models.DEFCONFIG_KEY)
+    lab_id = json_get(models.LAB_ID_KEY)
 
-    return _parse_boot(job, kernel, base_path)
+    return _parse_boot_from_disk(
+        job, kernel, defconfig, lab_id, base_path
+    )
 
 
-def _parse_boot(job, kernel, base_path=utils.BASE_PATH):
+def _parse_boot_from_disk(
+        job, kernel, defconfig, lab_id, base_path=utils.BASE_PATH):
     """Traverse the kernel directory and look for boot report logs.
 
     :param job: The name of the job.
@@ -129,7 +132,9 @@ def _parse_boot_log(boot_log, job, kernel, defconfig):
         boot_json = json.load(read_f)
 
     if boot_json:
-        dtb = boot_json.pop(models.DTB_KEY, None)
+        json_pop = boot_json.pop
+        lab_id = json_pop(models.LAB_ID_KEY, "")
+        dtb = json_pop(models.DTB_KEY, None)
 
         if dtb and not TMP_RE.findall(dtb):
             board = os.path.splitext(os.path.basename(dtb))[0]
@@ -143,22 +148,20 @@ def _parse_boot_log(boot_log, job, kernel, defconfig):
             )
 
         # FIXME: need to pass the lab_id.
-        boot_doc = modbt.BootDocument(board, job, kernel, defconfig)
+        boot_doc = modbt.BootDocument(board, job, kernel, defconfig, lab_id)
         boot_doc.created_on = datetime.datetime.fromtimestamp(
             os.stat(boot_log).st_mtime, tz=bson.tz_util.utc)
 
         time_d = datetime.timedelta(
-            seconds=float(boot_json.pop(models.BOOT_TIME_KEY, 0.0))
+            seconds=float(json_pop(models.BOOT_TIME_KEY, 0.0))
         )
-        boot_time = datetime.datetime(
+        boot_doc.time = datetime.datetime(
             1970, 1, 1,
             minute=time_d.seconds / 60,
             second=time_d.seconds % 60,
             microsecond=time_d.microseconds
         )
 
-        json_pop = boot_json.pop
-        boot_doc.time = boot_time
         boot_doc.status = json_pop(
             models.BOOT_RESULT_KEY, models.UNKNOWN_STATUS
         )

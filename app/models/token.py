@@ -160,7 +160,7 @@ class Token(modb.BaseDocument):
 
         A datetime object with the following format: %Y-%M-%d
         """
-        self._expires_on = self.check_expires_date(value)
+        self._expires_on = check_expires_date(value)
 
     @property
     def ip_address(self):
@@ -177,7 +177,7 @@ class Token(modb.BaseDocument):
         if value is not None:
             if not isinstance(value, types.ListType):
                 value = [value]
-            value = self.check_ip_address(value)
+            value = check_ip_address(value)
 
         self._ip_address = value
 
@@ -224,7 +224,7 @@ class Token(modb.BaseDocument):
         An admin token can perform GET, POST and DELETE and can create new
         tokens.
         """
-        value = self.check_attribute_value(value)
+        value = check_attribute_value(value)
 
         self._properties[0] = value
         # Admin tokens can GET, POST and DELETE, are superuser and can create
@@ -247,7 +247,7 @@ class Token(modb.BaseDocument):
         This will update also other fields. A superuser token cannot create
         new tokens.
         """
-        value = self.check_attribute_value(value)
+        value = check_attribute_value(value)
 
         # Force admin to zero, and also if can create new tokens, regardless
         # of what is passed. A super user cannot create new tokens.
@@ -267,7 +267,7 @@ class Token(modb.BaseDocument):
     @is_get_token.setter
     def is_get_token(self, value):
         """Set whether the token can perform GET requests."""
-        value = self.check_attribute_value(value)
+        value = check_attribute_value(value)
         self._properties[2] = value
 
     @property
@@ -278,7 +278,7 @@ class Token(modb.BaseDocument):
     @is_post_token.setter
     def is_post_token(self, value):
         """Sets whether the token can perform POST requests."""
-        value = self.check_attribute_value(value)
+        value = check_attribute_value(value)
         self._properties[3] = value
 
     @property
@@ -289,7 +289,7 @@ class Token(modb.BaseDocument):
     @is_delete_token.setter
     def is_delete_token(self, value):
         """Set whether the token can perform DELETE requests."""
-        value = self.check_attribute_value(value)
+        value = check_attribute_value(value)
         self._properties[4] = value
 
     @property
@@ -300,7 +300,7 @@ class Token(modb.BaseDocument):
     @is_ip_restricted.setter
     def is_ip_restricted(self, value):
         """Set whether the token is IP restricted."""
-        value = self.check_attribute_value(value)
+        value = check_attribute_value(value)
         self._properties[5] = value
 
     @property
@@ -311,7 +311,7 @@ class Token(modb.BaseDocument):
     @can_create_token.setter
     def can_create_token(self, value):
         """Sets whether this token can create new tokens."""
-        value = self.check_attribute_value(value)
+        value = check_attribute_value(value)
         self._properties[6] = value
 
     def is_valid_ip(self, address):
@@ -326,7 +326,7 @@ class Token(modb.BaseDocument):
             return_value = True
         else:
             try:
-                address = self._convert_ip_address(address)
+                address = convert_ip_address(address)
                 if address in netaddr.IPSet(self.ip_address):
                     return_value = True
             except netaddr.core.AddrFormatError:
@@ -335,77 +335,6 @@ class Token(modb.BaseDocument):
                 return_value = False
 
         return return_value
-
-    @classmethod
-    def check_ip_address(cls, addrlist):
-        """Perform sanity check and conversion on the IP address list.
-
-        :return The address list converted with `IPaddress` and/or `IPNetwork`
-            objects.
-        """
-        if not isinstance(addrlist, types.ListType):
-            raise TypeError("Value must be a list of addresses")
-
-        for idx, address in enumerate(addrlist):
-            try:
-                addrlist[idx] = cls._convert_ip_address(address)
-            except netaddr.core.AddrFormatError:
-                raise ValueError(
-                    "Address %s is not a valid IP address or network", address
-                )
-        return addrlist
-
-    @staticmethod
-    def _convert_ip_address(address):
-        """Convert a string into an IPAddress or IPNetwork.
-
-        :return An `IPAddress` or `IPNetwork` object.
-        """
-        if '/' in address:
-            address = netaddr.IPNetwork(address).ipv6(ipv4_compatible=True)
-        else:
-            address = netaddr.IPAddress(address).ipv6(ipv4_compatible=True)
-        return address
-
-    @staticmethod
-    def check_attribute_value(value):
-        """Make sure the value passed for the properties list is valid.
-
-        A properties value must be an integer or a boolean, either 0 or 1.
-        Negative number will be converted into their absolute values.
-
-        :param value: The value to check.
-        :return The value converted into an int.
-        :raise TypeError if the value is not IntType or BooleanType; ValueError
-            if it is not 0 or 1.
-        """
-        if not isinstance(value, (types.IntType, types.BooleanType)):
-            raise TypeError("Wrong value passed, must be int or bool")
-
-        value = abs(int(value))
-        if 0 != value != 1:
-            raise ValueError("Value must be 0 or 1")
-
-        return value
-
-    @staticmethod
-    def check_expires_date(value):
-        """Check and convert the expiry date.
-
-        Expiry date must follow this format: %Y-%m-%d.
-
-        :param value: The date string.
-        :return The converted date, or None if the passed value is None.
-        :raise ValueError if the date string cannot be parsed accordingly to
-            the predefined format.
-        """
-        try:
-            if value:
-                value = datetime.datetime.strptime(value, "%Y-%m-%d")
-        except ValueError, ex:
-            raise ex
-        else:
-            return value
 
     def to_dict(self):
         """Return a dictionary view of the object.
@@ -448,3 +377,74 @@ class Token(modb.BaseDocument):
             setattr(token, key, value)
 
         return token
+
+
+def check_attribute_value(value):
+    """Make sure the value passed for the properties list is valid.
+
+    A properties value must be an integer or a boolean, either 0 or 1.
+    Negative number will be converted into their absolute values.
+
+    :param value: The value to check.
+    :return The value converted into an int.
+    :raise TypeError if the value is not IntType or BooleanType; ValueError
+        if it is not 0 or 1.
+    """
+    if not isinstance(value, (types.IntType, types.BooleanType)):
+        raise TypeError("Wrong value passed, must be int or bool")
+
+    value = abs(int(value))
+    if 0 != value != 1:
+        raise ValueError("Value must be 0 or 1")
+
+    return value
+
+
+def check_expires_date(value):
+    """Check and convert the expiry date.
+
+    Expiry date must follow this format: %Y-%m-%d.
+
+    :param value: The date string.
+    :return The converted date, or None if the passed value is None.
+    :raise ValueError if the date string cannot be parsed accordingly to
+        the predefined format.
+    """
+    try:
+        if value:
+            value = datetime.datetime.strptime(value, "%Y-%m-%d")
+    except ValueError, ex:
+        raise ex
+    else:
+        return value
+
+
+def convert_ip_address(address):
+    """Convert a string into an IPAddress or IPNetwork.
+
+    :return An `IPAddress` or `IPNetwork` object.
+    """
+    if '/' in address:
+        address = netaddr.IPNetwork(address).ipv6(ipv4_compatible=True)
+    else:
+        address = netaddr.IPAddress(address).ipv6(ipv4_compatible=True)
+    return address
+
+
+def check_ip_address(addrlist):
+    """Perform sanity check and conversion on the IP address list.
+
+    :return The address list converted with `IPaddress` and/or `IPNetwork`
+        objects.
+    """
+    if not isinstance(addrlist, types.ListType):
+        raise TypeError("Value must be a list of addresses")
+
+    for idx, address in enumerate(addrlist):
+        try:
+            addrlist[idx] = convert_ip_address(address)
+        except netaddr.core.AddrFormatError:
+            raise ValueError(
+                "Address %s is not a valid IP address or network", address
+            )
+    return addrlist

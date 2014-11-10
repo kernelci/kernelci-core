@@ -210,11 +210,11 @@ class TestTokenModel(unittest.TestCase):
         self.assertTrue(token.expired)
 
     def test_ip_address_check_type_error(self):
-        self.assertRaises(TypeError, modt.Token.check_ip_address, 'foo')
+        self.assertRaises(TypeError, modt.check_ip_address, 'foo')
 
     def test_ip_address_check_value_error(self):
         addrlist = ['foo']
-        self.assertRaises(ValueError, modt.Token.check_ip_address, addrlist)
+        self.assertRaises(ValueError, modt.check_ip_address, addrlist)
 
     def test_ip_address_check_with_ip_address(self):
         addrlist = ['127.0.0.1']

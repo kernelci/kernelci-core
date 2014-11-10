@@ -453,11 +453,9 @@ class TestHandlersCommon(unittest.TestCase):
             validate_token(None, "GET", None, None)
         )
 
-    @patch("models.token.Token", spec=True)
     @patch("models.token.Token.from_json")
-    def test_validate_token_true(self, mock_from_json, mock_class):
-        token = mock_class.return_value
-        self.assertIsInstance(token, Token)
+    def test_validate_token_true(self, mock_from_json):
+        token = Token()
 
         mock_from_json.return_value = token
         validate_func = Mock()
@@ -476,11 +474,9 @@ class TestHandlersCommon(unittest.TestCase):
             validate_token(token, "GET", "127.0.0.1", validate_func)
         )
 
-    @patch("models.token.Token", spec=True)
     @patch("models.token.Token.from_json")
-    def test_validate_token_false(self, mock_from_json, mock_class):
-        token = mock_class.return_value
-        self.assertIsInstance(token, Token)
+    def test_validate_token_false(self, mock_from_json):
+        token = Token()
 
         mock_from_json.return_value = token
         validate_func = Mock()
