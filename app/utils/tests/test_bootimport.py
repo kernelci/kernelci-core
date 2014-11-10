@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import json
 import logging
 import mongomock
 import os
@@ -105,3 +106,111 @@ class TestParseBoot(unittest.TestCase):
         code, doc_id = utils.bootimport.import_and_save_boot({}, {})
         self.assertIsNone(code)
         self.assertIsNone(doc_id)
+
+    def test_parse_from_file_no_file(self):
+        doc = utils.bootimport._parse_boot_from_file(None)
+        self.assertIsNone(doc)
+
+    def test_parse_from_file_wrong_file(self):
+        doc = utils.bootimport._parse_boot_from_file('foobar.json')
+        self.assertIsNone(doc)
+
+    def test_parse_from_file_no_key(self):
+        boot_log = tempfile.NamedTemporaryFile(
+            mode='w+b', bufsize=-1, suffix="json", delete=False
+        )
+        boot_obj = {
+            "foo": "bar"
+        }
+
+        try:
+            with open(boot_log.name, mode="w") as boot_write:
+                boot_write.write(json.dumps(boot_obj))
+
+            doc = utils.bootimport._parse_boot_from_file(boot_log.name)
+
+            self.assertIsNone(doc)
+        finally:
+            os.remove(boot_log.name)
+
+    def test_parse_from_file_valid(self):
+        boot_log = tempfile.NamedTemporaryFile(
+            mode='w+b', bufsize=-1, suffix="json", delete=False
+        )
+        boot_obj = {
+            "job": "job",
+            "kernel": "kernel",
+            "defconfig": "defconfig",
+            "board": "board",
+            "dtb": "dtb",
+            "lab_id": "lab_id",
+            "boot_time": 0,
+        }
+
+        try:
+            with open(boot_log.name, mode="w") as boot_write:
+                boot_write.write(json.dumps(boot_obj))
+
+            doc = utils.bootimport._parse_boot_from_file(boot_log.name)
+
+            self.assertEqual(doc.board, "board")
+            self.assertEqual(doc.job, "job")
+            self.assertEqual(doc.kernel, "kernel")
+            self.assertEqual(doc.defconfig, "defconfig")
+            self.assertEqual(doc.dtb, "dtb")
+        finally:
+            os.remove(boot_log.name)
+
+    def test_parse_from_file_no_board(self):
+        boot_log = tempfile.NamedTemporaryFile(
+            mode='w+b', bufsize=-1, prefix="boot-", suffix=".json", delete=False
+        )
+        boot_obj = {
+            "job": "job",
+            "kernel": "kernel",
+            "defconfig": "defconfig",
+            "dtb": "dtbs/board.dtb",
+            "lab_id": "lab_id",
+            "boot_time": 0,
+        }
+
+        try:
+            with open(boot_log.name, mode="w") as boot_write:
+                boot_write.write(json.dumps(boot_obj))
+
+            doc = utils.bootimport._parse_boot_from_file(boot_log.name)
+
+            self.assertEqual(doc.board, "board")
+            self.assertEqual(doc.job, "job")
+            self.assertEqual(doc.kernel, "kernel")
+            self.assertEqual(doc.defconfig, "defconfig")
+            self.assertEqual(doc.dtb, "dtbs/board.dtb")
+        finally:
+            os.remove(boot_log.name)
+
+    def test_parse_from_file_no_board_tmp_dtb(self):
+        boot_log = tempfile.NamedTemporaryFile(
+            mode='w+b', bufsize=-1, prefix="boot-", suffix=".json", delete=False
+        )
+        boot_obj = {
+            "job": "job",
+            "kernel": "kernel",
+            "defconfig": "defconfig",
+            "dtb": "tmp/board.dtb",
+            "lab_id": "lab_id",
+            "boot_time": 0,
+        }
+
+        board = os.path.splitext(
+            os.path.basename(boot_log.name).replace('boot-', ''))[0]
+
+        try:
+            with open(boot_log.name, mode="w") as boot_write:
+                boot_write.write(json.dumps(boot_obj))
+
+            doc = utils.bootimport._parse_boot_from_file(boot_log.name)
+
+            self.assertEqual(doc.board, board)
+            self.assertEqual(doc.dtb, "tmp/board.dtb")
+        finally:
+            os.remove(boot_log.name)

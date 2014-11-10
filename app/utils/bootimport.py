@@ -96,48 +96,54 @@ def save_to_disk(boot_doc, json_obj, base_path):
         utils.LOG.exception(ex)
 
 
-def _parse_boot_from_file(boot_log, job, kernel, defconfig, lab_id):
+def _parse_boot_from_file(boot_log):
     """Read and parse the actual boot report.
 
     :param boot_log: The path to the boot report.
-    :param job: The name of the job.
-    :param kernel: The name of the kernel.
-    :param defconfig: The name of the defconfig.
     :return A `BootDocument` object.
     """
 
-    utils.LOG.info("Parsing boot log '%s'", os.path.basename(boot_log))
+    utils.LOG.info("Parsing boot log file '%s'", boot_log)
 
     boot_json = None
     boot_doc = None
 
-    with open(boot_log) as read_f:
-        boot_json = json.load(read_f)
+    try:
+        with open(boot_log) as read_f:
+            boot_json = json.load(read_f)
 
-    json_pop_f = boot_json.pop
+        json_pop_f = boot_json.pop
 
-    job = json_pop_f(models.JOB_KEY)
-    kernel = json_pop_f(models.KERNEL_KEY)
-    defconfig = json_pop_f(models.DEFCONFIG_KEY)
-    lab_id = json_pop_f(models.LAB_ID_KEY)
-    dtb = boot_json.get(models.DTB_KEY, None)
+        # Mandatory fields.
+        job = json_pop_f(models.JOB_KEY)
+        kernel = json_pop_f(models.KERNEL_KEY)
+        defconfig = json_pop_f(models.DEFCONFIG_KEY)
+        lab_id = json_pop_f(models.LAB_ID_KEY)
+        # Even if board is mandatory, for old cases this used not to be true.
+        board = json_pop_f(models.BOARD_KEY, None)
+        dtb = boot_json.get(models.DTB_KEY, None)
 
-    board = json_pop_f(models.BOARD_KEY, None)
-    if not board:
-        utils.LOG.info("No board value specified in the boot report")
-        if dtb and not TMP_RE.findall(dtb):
-            board = os.path.splitext(os.path.basename(dtb))[0]
-        else:
-            # If we do not have the dtb field we use the boot report file to
-            # extract some kind of value for board.
-            board = os.path.splitext(
-                os.path.basename(boot_log).replace('boot-', ''))[0]
-            utils.LOG.info(
-                "Using boot report file name for board name: %s", board
-            )
+        if not board:
+            utils.LOG.info("No board value specified in the boot report")
+            if dtb and not TMP_RE.findall(dtb):
+                board = os.path.splitext(os.path.basename(dtb))[0]
+            else:
+                # If we do not have the dtb field we use the boot report file to
+                # extract some kind of value for board.
+                board = os.path.splitext(
+                    os.path.basename(boot_log).replace('boot-', ''))[0]
+                utils.LOG.info(
+                    "Using boot report file name for board name: %s", board
+                )
 
-    boot_doc = modbt.BootDocument(board, job, kernel, defconfig, lab_id)
-    _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f)
+        boot_doc = modbt.BootDocument(board, job, kernel, defconfig, lab_id)
+        _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f)
+    except (OSError, TypeError, IOError), ex:
+        utils.LOG.error("Error opening the file '%s'", boot_log)
+        utils.LOG.exception(ex)
+    except KeyError, ex:
+        utils.LOG.error("Missing key in boot report: import failed")
+        utils.LOG.exception(ex)
 
     return boot_doc
 
@@ -264,9 +270,7 @@ def parse_boot_from_disk(job, kernel, lab_id, base_path=utils.BASE_PATH):
                     lab_dir = os.path.join(defconfig_dir, lab_id)
                     if os.path.isdir(lab_dir):
                         docs.extend([
-                            _parse_boot_from_file(
-                                boot_log, job, kernel, defconfig
-                            )
+                            _parse_boot_from_file(boot_log)
                             for boot_log in glob.iglob(
                                 os.path.join(lab_dir, BOOT_REPORT_PATTERN)
                             )
