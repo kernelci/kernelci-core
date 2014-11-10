@@ -8,11 +8,8 @@ boot
 GET
 ***
 
-A boot ID is composed from the name of the board, the job, kernel and
-defconfig: ``board``-``job``-``kernel``-``defconfig``.
-
-The value of ``defconfig``, in this case, is the directory name containing the
-defconfig.
+A boot name is composed from the name of the board, the job, kernel,
+defconfig and its lab ID: ``board``-``job``-``kernel``-``defconfig``-``lab_id``.
 
 ::
 
@@ -21,9 +18,13 @@ defconfig.
         "description": "A boot report object",
         "type": "object",
         "properties": {
+            "name": {
+                "type": "string",
+                "description": "The name of this boot report: internally created from the board, job, kernel, defconfig and lab_id values"
+            },
             "_id": {
                 "type": "string",
-                "description": "The ID associated with the object"
+                "description": "The ID associated with the object as provided by mongodb"
             },
             "created_on": {
                 "type": "object",
@@ -52,13 +53,18 @@ defconfig.
                 "type": "string",
                 "description": "The name of the defconfig as reported by the CI loop"
             },
+            "lab_id": {
+                "type": "string",
+                "description": "The ID of the lab that is doing the boot tests"
+            },
             "time": {
                 "type": "object",
-                "description": "Time take to boot the board as milliseconds from epoch",
+                "description": "Time taken to boot the board",
                 "properties": {
                     "$date": {
                         "type": "number",
-                        "description": "Milliseconds from epoch time"
+                        "description": "Milliseconds from epoch time",
+                        "format": "utc-millisec"
                     }
                 }
             },
@@ -69,7 +75,7 @@ defconfig.
             },
             "warnings": {
                 "type": "number",
-                "description": "Numbere of warnings in the boot phase"
+                "description": "Number of warnings in the boot phase"
             },
             "boot_log": {
                 "type": "string",
@@ -107,6 +113,19 @@ defconfig.
                 "type": "boolean",
                 "description": "If it was a fastboot"
             },
+            "boot_result_description": {
+                "type": "string",
+                "description": "The description of the boot result, useful to provide a cause of a failure"
+            },
+            "retries": {
+                "type": integer,
+                "description": "The number of boot retries that have been performed",
+                "default": 0
+            },
+            "version": {
+                "type": "string",
+                "description": "The version of this JSON schema: depends on the POST request"
+            },
             "metadata": {
                 "type": "object",
                 "description": "A free form object that can contain different properties"
@@ -127,8 +146,14 @@ have when sent to the server.
     {
         "title": "boot",
         "description": "A boot POST request object",
+        "version": "1.0",
         "type": "object",
         "properties": {
+            "version": {
+                "type": "string",
+                "description": "The version number of this JSON schema",
+                "enum": ["1.0"]
+            },
             "lab_id": {
                 "type": "string",
                 "description": "The ID of the lab that is doing the boot tests"
@@ -217,7 +242,7 @@ have when sent to the server.
                 "description": "Load address used"
             }
         },
-        "required": ["lab_id", "job", "kernel", "defconfig"]
+        "required": ["lab_id", "job", "kernel", "defconfig", "board"]
     }
 
 
