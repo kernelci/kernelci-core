@@ -90,6 +90,14 @@ sama53d = {'device_type': 'sama53d',
            'be': False,
            'fastboot': False}
 
+
+jetson_tk1 = {'device_type': 'jetson-tk1',
+              'templates': ['generic-arm-kernel-ci-boot-template.json'],
+              'defconfig_blacklist': [],
+              'lpae': True,
+              'be': False,
+              'fastboot': False}
+
 qemu_aarch64 = {'device_type': 'qemu-aarch64',
                 'templates': ['generic-arm64-kernel-ci-boot-template.json'],
                 'defconfig_blacklist': ['arm64-allnoconfig',
@@ -127,6 +135,7 @@ device_map = {'exynos5250-arndale.dtb': arndale,
               'qcom-apq8084-ifc6540.dtb': ifc6540,
               'qcom-apq8064-ifc6410.dtb': ifc6410,
               'at91-sama5d3_xplained.dtb': sama53d,
+              'tegra124-jetson-tk1.dtb': jetson_tk1,
               'qemu-aarch64': qemu_aarch64,
               'x86': x86,
               'x86-kvm': x86_kvm}
