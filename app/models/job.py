@@ -15,7 +15,6 @@
 
 """The model that represents a job document in the mongodb collection."""
 
-import bson
 import types
 
 import models
@@ -118,7 +117,7 @@ class JobDocument(modb.BaseDocument):
 
         :param value: The status.
         """
-        if not value in models.VALID_JOB_STATUS:
+        if value is not None and value not in models.VALID_JOB_STATUS:
             raise ValueError(
                 "Status value '%s' not valid, should be one of: %s",
                 value, str(models.VALID_JOB_STATUS)
@@ -144,27 +143,20 @@ class JobDocument(modb.BaseDocument):
     def from_json(json_obj):
         """Build a document from a JSON object.
 
-        :param json_obj: The JSON object to start from, or a JSON string.
+        :param json_obj: The JSON object to start from.
         :return An instance of `JobDocument` or None
         """
         job_doc = None
 
-        if isinstance(json_obj, types.StringTypes):
-            json_obj = bson.json_util.loads(json_obj)
-
         # pylint: disable=maybe-no-member
-        if isinstance(json_obj, types.DictionaryType):
-            job_pop = json_obj.pop
-            job = job_pop(models.JOB_KEY)
-            kernel = job_pop(models.KERNEL_KEY)
-            doc_id = job_pop(models.ID_KEY)
-            # Remove the name key.
-            job_pop(models.NAME_KEY)
+        if json_obj and isinstance(json_obj, types.DictionaryType):
+            json_get = json_obj.get
+            job = json_get(models.JOB_KEY)
+            kernel = json_get(models.KERNEL_KEY)
 
             job_doc = JobDocument(job, kernel)
-            job_doc.id = doc_id
-
-            for key, value in json_obj.iteritems():
-                setattr(job_doc, key, value)
+            job_doc.id = json_get(models.ID_KEY, None)
+            job_doc.created_on = json_get(models.CREATED_KEY, None)
+            job_doc.status = json_get(models.STATUS_KEY, None)
 
         return job_doc

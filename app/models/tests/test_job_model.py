@@ -93,20 +93,6 @@ class TestJobModel(unittest.TestCase):
         self.assertEqual(job_doc.created_on, now)
         self.assertEqual(job_doc.status, 'BUILD')
 
-    def test_job_document_from_json_string(self):
-        json_obj = dict(
-            _id="job-kernel",
-            job="job",
-            kernel="kernel",
-            name="job-kernel"
-        )
-
-        json_string = json.dumps(json_obj, default=json_util.default)
-        # json_string = bson.json_util.dumps(json_obj)
-        job_doc = modj.JobDocument.from_json(json_string)
-
-        self.assertIsInstance(job_doc, modj.JobDocument)
-
     def test_job_document_private(self):
         # By default, jobs are public.
         job_doc = modj.JobDocument("job", "kernel")
@@ -133,11 +119,17 @@ class TestJobModel(unittest.TestCase):
             "created_on": now,
         }
 
-        json_string = json_util.dumps(json_obj)
-
-        new_job = modj.JobDocument.from_json(json_string)
+        json_deserialized = json_util.loads(json_util.dumps(json_obj))
+        new_job = modj.JobDocument.from_json(json_deserialized)
 
         self.assertIsInstance(new_job.created_on, datetime.datetime)
         # During the deserialization process, some microseconds are lost.
         self.assertLessEqual(
             (new_job.created_on - job_doc.created_on).total_seconds(), 0)
+
+    def test_job_document_from_wrong_json(self):
+        self.assertIsNone(modj.JobDocument.from_json(None))
+        self.assertIsNone(modj.JobDocument.from_json({}))
+        self.assertIsNone(modj.JobDocument.from_json([]))
+        self.assertIsNone(modj.JobDocument.from_json(""))
+        self.assertIsNone(modj.JobDocument.from_json(()))
