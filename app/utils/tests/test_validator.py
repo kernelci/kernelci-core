@@ -250,3 +250,86 @@ class TestBatchValidator(unittest.TestCase):
         self.assertFalse(
             utilsv.is_valid_batch_json(json_obj, batch_key, accepted_keys)
         )
+
+    def test_validate_contact_object_wrong(self):
+        json_obj = {
+            "contact": {}
+        }
+        self.assertFalse(utilsv.is_valid_lab_contact_data(json_obj)[0])
+
+        json_obj = {
+            "contact": ["a"]
+        }
+        self.assertFalse(utilsv.is_valid_lab_contact_data(json_obj)[0])
+
+        json_obj = {
+            "contact": "a"
+        }
+        self.assertFalse(utilsv.is_valid_lab_contact_data(json_obj)[0])
+
+        json_obj = {
+            "contact": {
+                "foo": "bar",
+                "baz": "foo"
+            }
+        }
+        self.assertFalse(utilsv.is_valid_lab_contact_data(json_obj)[0])
+
+        json_obj = {
+            "contact": {
+                "name": "bar",
+                "surname": "foo"
+            }
+        }
+        self.assertFalse(utilsv.is_valid_lab_contact_data(json_obj)[0])
+
+        json_obj = {
+            "contact": {
+                "surname": "foo"
+            }
+        }
+        self.assertFalse(utilsv.is_valid_lab_contact_data(json_obj)[0])
+
+        json_obj = {
+            "contact": {
+                "name": "foo"
+            }
+        }
+        self.assertFalse(utilsv.is_valid_lab_contact_data(json_obj)[0])
+
+        json_obj = {
+            "contact": {
+                "email": "foo"
+            }
+        }
+        self.assertFalse(utilsv.is_valid_lab_contact_data(json_obj)[0])
+
+        json_obj = {
+            "contact": {
+                "name": "foo",
+                "email": "foo"
+            }
+        }
+        self.assertFalse(utilsv.is_valid_lab_contact_data(json_obj)[0])
+
+        json_obj = {
+            "contact": {
+                "surname": "foo",
+                "email": "foo"
+            }
+        }
+        self.assertFalse(utilsv.is_valid_lab_contact_data(json_obj)[0])
+
+    def test_validate_contact_object_correct(self):
+
+        json_obj = {
+            "contact": {
+                "name": "foo",
+                "surname": "foo",
+                "email": "foo",
+            }
+        }
+
+        validated = utilsv.is_valid_lab_contact_data(json_obj)
+        self.assertTrue(validated[0])
+        self.assertIsNone(validated[1])

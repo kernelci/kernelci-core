@@ -108,14 +108,14 @@ def _complex_json_validation(json_obj, accepted_keys):
     mandatory_keys = set(accepted_keys.get(models.MANDATORY_KEYS))
     valid_keys = set(accepted_keys.get(models.ACCEPTED_KEYS))
 
-    missing_keys = mandatory_keys - json_keys
+    missing_keys = list(mandatory_keys - json_keys)
     if missing_keys:
         is_valid = False
         error_message = (
             "One or more mandatory keys are missing: %s" % str(missing_keys)
         )
     else:
-        strange_keys = json_keys - valid_keys
+        strange_keys = list(json_keys - valid_keys)
         if strange_keys:
             error_message = (
                 "Found non recognizable keys, they will not be considered: %s" %
@@ -165,3 +165,37 @@ def is_valid_batch_json(json_obj, batch_key, accepted_keys):
         is_valid = False
 
     return is_valid
+
+
+def is_valid_lab_contact_data(json_obj):
+    """Validate a `contact` data structure for the Lab model.
+
+    :param json_obj: The JSON object containing the `contact` data.
+    :type json_obj: dict
+    :return A tuple: True or False, and an error message if False or None.
+    """
+    is_valid = True
+    reason = None
+
+    contact = json_obj.get(models.CONTACT_KEY)
+    if all([contact, isinstance(contact, types.DictionaryType)]):
+        mandatory_keys = set(
+            [models.NAME_KEY, models.SURNAME_KEY, models.EMAIL_KEY]
+        )
+        provided_keys = set(contact.keys())
+        # Does the provided dict contain all the mandatory keys?
+        if not (provided_keys >= mandatory_keys):
+            missing_keys = list(mandatory_keys - provided_keys)
+            is_valid = False
+            reason = (
+                "Missing mandatory keys for '%s' JSON object: %s" %
+                (models.CONTACT_KEY, str(missing_keys))
+            )
+    else:
+        is_valid = False
+        reason = (
+            "Provided '%s' data structure is not a JSON object or "
+            "is empty" % models.CONTACT_KEY
+        )
+
+    return is_valid, reason

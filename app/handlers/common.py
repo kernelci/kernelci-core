@@ -188,6 +188,32 @@ BATCH_VALID_KEYS = {
     ]
 }
 
+LAB_VALID_KEYS = {
+    "POST": {
+        models.MANDATORY_KEYS: [
+            models.CONTACT_KEY,
+            models.NAME_KEY,
+        ],
+        models.ACCEPTED_KEYS: [
+            models.ADDRESS_KEY,
+            models.CONTACT_KEY,
+            models.NAME_KEY,
+            models.PRIVATE_KEY,
+            models.TOKEN_KEY,
+        ]
+    },
+    "GET": [
+        models.ADDRESS_KEY,
+        models.CONTACT_KEY,
+        models.CREATED_KEY,
+        models.ID_KEY,
+        models.NAME_KEY,
+        models.PRIVATE_KEY,
+        models.TOKEN_KEY,
+        models.UPDATED_KEY,
+    ]
+}
+
 MASTER_KEY = 'master_key'
 API_TOKEN_HEADER = 'Authorization'
 ACCEPTED_CONTENT_TYPE = 'application/json'

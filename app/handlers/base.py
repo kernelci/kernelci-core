@@ -1,5 +1,3 @@
-# Copyright (C) 2014 Linaro Ltd.
-#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
@@ -29,7 +27,7 @@ import models
 import utils
 import utils.db
 import utils.log
-import utils.validator as utilsv
+import utils.validator as validator
 
 
 STATUS_MESSAGES = {
@@ -190,7 +188,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 try:
                     json_obj = json.loads(self.request.body.decode('utf8'))
 
-                    valid_json, j_reason = utilsv.is_valid_json(
+                    valid_json, j_reason = validator.is_valid_json(
                         json_obj, self._valid_keys("POST")
                     )
                     if valid_json:
@@ -207,7 +205,8 @@ class BaseHandler(tornado.web.RequestHandler):
                         else:
                             response.reason = "Provided JSON is not valid"
                         response.result = None
-                except ValueError:
+                except ValueError, ex:
+                    self.log.exception(ex)
                     error = "No JSON data found in the POST request"
                     self.log.error(error)
                     response = handr.HandlerResponse(422)

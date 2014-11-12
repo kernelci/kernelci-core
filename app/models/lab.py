@@ -50,12 +50,12 @@ class LabDocument(modb.BaseDocument):
             json_get = json_obj.get
             lab_doc = LabDocument(json_get(models.NAME_KEY))
             lab_doc.id = json_get(models.ID_KEY, None)
-            lab_doc.created_on = json_get(models.CREATED_KEY)
-            lab_doc.private = json_get(models.PRIVATE_KEY)
-            lab_doc.address = json_get(models.ADDRESS_KEY)
-            lab_doc.contact = json_get(models.CONTACT_KEY)
-            lab_doc.token = json_get(models.TOKEN_KEY)
-            lab_doc.updated_on = json_get(models.UPDATED_KEY)
+            lab_doc.created_on = json_get(models.CREATED_KEY, None)
+            lab_doc.private = json_get(models.PRIVATE_KEY, False)
+            lab_doc.address = json_get(models.ADDRESS_KEY, {})
+            lab_doc.contact = json_get(models.CONTACT_KEY, {})
+            lab_doc.token = json_get(models.TOKEN_KEY, None)
+            lab_doc.updated_on = json_get(models.UPDATED_KEY, None)
         return lab_doc
 
     @property
@@ -156,7 +156,7 @@ class LabDocument(modb.BaseDocument):
             [value.get("name"), value.get("surname"), value.get("email")]
         ):
             raise ValueError(
-                "Missing mandatory field (one of): name, surname or email"
+                "Missing mandatory field (one of): name, surname and email"
             )
         self._contact = value
 
