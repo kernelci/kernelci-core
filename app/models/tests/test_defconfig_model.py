@@ -97,9 +97,21 @@ class TestDefconfModel(unittest.TestCase):
         self.assertRaises(TypeError, setattr, defconf_doc, "build_platform", {})
         self.assertRaises(TypeError, setattr, defconf_doc, "build_platform", "")
 
+    def test_defconfig_set_build_platform(self):
+        defconf_doc = moddf.DefconfigDocument("job", "kernel", "defconfig")
+        defconf_doc.build_platform = ["a", "b"]
+
+        self.assertListEqual(defconf_doc.build_platform, ["a", "b"])
+
     def test_defconfig_set_metadata_wrong(self):
         defconf_doc = moddf.DefconfigDocument("job", "kernel", "defconfig")
 
         self.assertRaises(TypeError, setattr, defconf_doc, "metadata", ())
         self.assertRaises(TypeError, setattr, defconf_doc, "metadata", [])
         self.assertRaises(TypeError, setattr, defconf_doc, "metadata", "")
+
+    def test_defconfig_from_json_is_none(self):
+        self.assertIsNone(moddf.DefconfigDocument.from_json({}))
+        self.assertIsNone(moddf.DefconfigDocument.from_json(""))
+        self.assertIsNone(moddf.DefconfigDocument.from_json([]))
+        self.assertIsNone(moddf.DefconfigDocument.from_json(()))
