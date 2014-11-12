@@ -22,6 +22,10 @@ class TestLabModel(unittest.TestCase):
     def test_is_valid_base_class(self):
         self.assertIsInstance(modl.LabDocument(""), modb.BaseDocument)
 
+    def test_model_collection(self):
+        lab_doc = modl.LabDocument("")
+        self.assertEqual(lab_doc.collection, "lab")
+
     def test_set_address_wrong_type(self):
         lab_doc = modl.LabDocument("foo")
 
@@ -154,7 +158,6 @@ class TestLabModel(unittest.TestCase):
             "name": "foo",
             "created_on": "now",
             "updated_on": "now",
-            "_id": "bar",
             "address": {
                 "street_1": "a",
                 "street_2": "b",
@@ -179,3 +182,8 @@ class TestLabModel(unittest.TestCase):
 
         self.assertIsInstance(lab_doc, modb.BaseDocument)
         self.assertIsInstance(lab_doc, modl.LabDocument)
+        self.assertDictEqual(lab_doc.to_dict(), json_obj)
+
+    def test_lab_from_json_none(self):
+        self.assertIsNone(modl.LabDocument.from_json(None))
+        self.assertIsNone(modl.LabDocument.from_json({}))
