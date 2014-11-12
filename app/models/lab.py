@@ -49,7 +49,7 @@ class LabDocument(modb.BaseDocument):
         if json_obj:
             json_get = json_obj.get
             lab_doc = LabDocument(json_get(models.NAME_KEY))
-            lab_doc.id = json_get(models.ID_KEY)
+            lab_doc.id = json_get(models.ID_KEY, None)
             lab_doc.created_on = json_get(models.CREATED_KEY)
             lab_doc.private = json_get(models.PRIVATE_KEY)
             lab_doc.address = json_get(models.ADDRESS_KEY)
@@ -62,15 +62,6 @@ class LabDocument(modb.BaseDocument):
     def name(self):
         """The name of the lab."""
         return self._name
-
-    @name.setter
-    def name(self, value):
-        """Set the name of the lab.
-
-        :param value: The name of the lab to set.
-        :type value: str
-        """
-        self._name = value
 
     @property
     def id(self):
