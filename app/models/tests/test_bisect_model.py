@@ -50,6 +50,7 @@ class TestBisectModel(unittest.TestCase):
             "bad_commit": None,
             "bad_commit_date": None,
             "bad_commit_url": None,
+            "version": None,
         }
         self.assertDictEqual(expected, bisect_doc.to_dict())
 
@@ -69,6 +70,7 @@ class TestBisectModel(unittest.TestCase):
             "bad_commit": None,
             "bad_commit_date": None,
             "bad_commit_url": None,
+            "version": None,
         }
         self.assertDictEqual(expected, bisect_doc.to_dict())
 
@@ -76,6 +78,7 @@ class TestBisectModel(unittest.TestCase):
         bisect_doc = modbs.BootBisectDocument("foo")
         bisect_doc.id = "bar"
         bisect_doc.board = "baz"
+        bisect_doc.version = "1.0"
 
         expected = {
             "_id": "bar",
@@ -90,6 +93,7 @@ class TestBisectModel(unittest.TestCase):
             "bad_commit": None,
             "bad_commit_date": None,
             "bad_commit_url": None,
+            "version": "1.0"
         }
         self.assertDictEqual(expected, bisect_doc.to_dict())
 

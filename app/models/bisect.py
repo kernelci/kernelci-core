@@ -34,6 +34,7 @@ class BisectDocument(modb.BaseDocument):
         self._bad_commit_url = None
         self._good_commit_url = None
         self._created_on = None
+        self._version = None
 
     @property
     def collection(self):
@@ -156,18 +157,33 @@ class BisectDocument(modb.BaseDocument):
         """
         self._created_on = value
 
+    @property
+    def version(self):
+        """The schema version of this object."""
+        return self._version
+
+    @version.setter
+    def version(self, value):
+        """Set the schema version of this object.
+
+        :param value: The schema string.
+        :type param: str
+        """
+        self._version = value
+
     def to_dict(self):
         bisect_dict = {
+            models.BISECT_BAD_COMMIT_DATE: self.bad_commit_date,
+            models.BISECT_BAD_COMMIT_KEY: self.bad_commit,
+            models.BISECT_BAD_COMMIT_URL: self.bad_commit_url,
+            models.BISECT_DATA_KEY: self.bisect_data,
+            models.BISECT_GOOD_COMMIT_DATE: self.good_commit_date,
+            models.BISECT_GOOD_COMMIT_KEY: self.good_commit,
+            models.BISECT_GOOD_COMMIT_URL: self.good_commit_url,
             models.CREATED_KEY: self.created_on,
             models.JOB_KEY: self.job,
             models.NAME_KEY: self.name,
-            models.BISECT_DATA_KEY: self.bisect_data,
-            models.BISECT_GOOD_COMMIT_KEY: self.good_commit,
-            models.BISECT_GOOD_COMMIT_DATE: self.good_commit_date,
-            models.BISECT_GOOD_COMMIT_URL: self.good_commit_url,
-            models.BISECT_BAD_COMMIT_KEY: self.bad_commit,
-            models.BISECT_BAD_COMMIT_DATE: self.bad_commit_date,
-            models.BISECT_BAD_COMMIT_URL: self.bad_commit_url,
+            models.VERSION_KEY: self.version,
         }
 
         if self.id:
