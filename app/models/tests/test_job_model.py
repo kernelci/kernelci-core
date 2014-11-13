@@ -11,7 +11,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import json
 import datetime
 import unittest
 
@@ -54,6 +53,7 @@ class TestJobModel(unittest.TestCase):
         job_doc.id = "job"
         job_doc.created_on = "now"
         job_doc.status = "PASS"
+        job_doc.version = "1.0"
 
         expected = {
             "_id": "job",
@@ -63,6 +63,7 @@ class TestJobModel(unittest.TestCase):
             "private": False,
             "created_on": "now",
             "status": "PASS",
+            "version": "1.0",
         }
 
         self.assertEqual(job_doc.to_dict(), expected)

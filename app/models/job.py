@@ -45,6 +45,7 @@ class JobDocument(modb.BaseDocument):
 
         self._private = False
         self._status = None
+        self._version = None
 
     @property
     def collection(self):
@@ -124,6 +125,20 @@ class JobDocument(modb.BaseDocument):
             )
         self._status = value
 
+    @property
+    def version(self):
+        """The schema version of this object."""
+        return self._version
+
+    @version.setter
+    def version(self, value):
+        """Set the schema version of this object.
+
+        :param value: The schema string.
+        :type param: str
+        """
+        self._version = value
+
     def to_dict(self):
         job_dict = {
             models.CREATED_KEY: self.created_on,
@@ -132,6 +147,7 @@ class JobDocument(modb.BaseDocument):
             models.NAME_KEY: self.name,
             models.PRIVATE_KEY: self.private,
             models.STATUS_KEY: self.status,
+            models.VERSION_KEY: self.version,
         }
 
         if self.id:
@@ -158,5 +174,6 @@ class JobDocument(modb.BaseDocument):
             job_doc.id = json_get(models.ID_KEY, None)
             job_doc.created_on = json_get(models.CREATED_KEY, None)
             job_doc.status = json_get(models.STATUS_KEY, None)
+            job_doc.version = json_get(models.VERSION_KEY, "1.0")
 
         return job_doc
