@@ -14,17 +14,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import datetime
-import json
 import netaddr
 import random
 import types
 import unittest
 import uuid
 
-from bson import (
-    json_util,
-    tz_util,
-)
+from bson import tz_util
 
 import models.base as modb
 import models.token as modt
@@ -77,6 +73,7 @@ class TestTokenModel(unittest.TestCase):
             "properties": [0 for _ in range(0, 16)],
             "token": "token",
             "username": "user",
+            "version": None,
         }
 
         obtained = token_obj.to_dict()
@@ -209,9 +206,7 @@ class TestTokenModel(unittest.TestCase):
             "_id": "token-id",
         }
 
-        token = modt.Token.from_json(
-            json.dumps(token_dict, default=json_util.default)
-        )
+        token = modt.Token.from_json(token_dict)
 
         self.assertIsInstance(token, modt.Token)
         self.assertEqual(token.properties, [1 for _ in range(0, 16)])

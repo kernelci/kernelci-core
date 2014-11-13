@@ -68,6 +68,7 @@ class Token(modb.BaseDocument):
         self._email = None
         self._ip_address = None
         self._properties = [0 for _ in range(0, PROPERTIES_SIZE)]
+        self._version = None
 
     @property
     def collection(self):
@@ -336,6 +337,20 @@ class Token(modb.BaseDocument):
 
         return return_value
 
+    @property
+    def version(self):
+        """The schema version of this object."""
+        return self._version
+
+    @version.setter
+    def version(self, value):
+        """Set the schema version of this object.
+
+        :param value: The schema string.
+        :type param: str
+        """
+        self._version = value
+
     def to_dict(self):
         """Return a dictionary view of the object.
 
@@ -347,6 +362,7 @@ class Token(modb.BaseDocument):
             models.EXPIRED_KEY: self.expired,
             models.EXPIRES_KEY: self.expires_on,
             models.NAME_KEY: self.name,
+            models.VERSION_KEY: self.version,
         }
         if self.ip_address is not None:
             doc_dict[models.IP_ADDRESS_KEY] = \
@@ -366,17 +382,26 @@ class Token(modb.BaseDocument):
     def from_json(json_obj):
         """Build a Token object from a JSON string.
 
-        :param json_obj: The JSON object to start from, or a JSON string.
+        :param json_obj: The JSON object to start from.
         :return An instance of `Token`.
         """
-        if isinstance(json_obj, types.StringTypes):
-            json_obj = bson.json_util.loads(json_obj)
-
-        token = Token()
-        for key, value in json_obj.iteritems():
-            setattr(token, key, value)
-
-        return token
+        token_doc = None
+        if json_obj:
+            token_doc = Token()
+            json_get = json_obj.get
+            token_doc.id = json_get(models.ID_KEY)
+            token_doc.name = json_get(models.NAME_KEY)
+            token_doc.email = json_get(models.EMAIL_KEY)
+            token_doc.username = json_get(models.USERNAME_KEY, None)
+            token_doc.token = json_get(models.TOKEN_KEY, None)
+            token_doc.created_on = json_get(models.CREATED_KEY, None)
+            token_doc.expired = json_get(models.EXPIRED_KEY, False)
+            token_doc.expires_on = json_get(models.EXPIRES_KEY, None)
+            token_doc.properties = json_get(
+                models.PROPERTIES_KEY, [0 for _ in range(0, PROPERTIES_SIZE)])
+            token_doc.ip_address = json_get(models.IP_ADDRESS_KEY, None)
+            token_doc.version = json_get(models.VERSION_KEY, "10.0")
+        return token_doc
 
 
 def check_attribute_value(value):
