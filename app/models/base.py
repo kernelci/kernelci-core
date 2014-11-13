@@ -64,6 +64,14 @@ class BaseDocument(object):
 
     created_on = abc.abstractproperty(None, None, doc=created_on_doc)
 
+    version_doc = (
+        """
+        The schema version number of this object.
+        """
+    )
+
+    version = abc.abstractproperty(None, None, doc=version_doc)
+
     @abc.abstractmethod
     def to_dict(self):
         """Return a dictionary view of the document that can be serialized."""
