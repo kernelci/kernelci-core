@@ -48,8 +48,8 @@ class DefconfigDocument(modb.BaseDocument):
         self._metadata = {}
         self._errors = 0
         self._warnings = 0
+        self._build_time = 0
         self._arch = None
-        self._build_time = None
 
         self._git_url = None
         self._git_commit = None
