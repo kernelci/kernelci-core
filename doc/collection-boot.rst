@@ -38,8 +38,7 @@ GET
  :query string board: The name of a board.
  :query string lab_name: The name of the lab that created the boot report.
  :query string name: The name of the boot report.
- :query string status: The status of the boot report. Can be one of: ``PASS``
-    or ``FAIL``.
+ :query string status: The status of the boot report.
  :query int warnings: The number of warnings in the boot report.
 
  :status 200: Resuslts found.
@@ -86,7 +85,7 @@ GET
                 "status": "PASS",
                 "kernel": "next-20140905",
                 "job": "next",
-                "_id": "next-next-20140905",
+                "_id": "boot-id",
                 "fastboot": false,
                 "warnings": 0,
                 "defconfig": "arm-omap2plus_defconfig"
@@ -137,10 +136,11 @@ POST
 
  For more info on all the required JSON request fields, see the :ref:`boot schema for POST requests <schema_boot_post>`.
 
- :reqjson string lab_id: The ID of the boot tests lab.
+ :reqjson string lab_name: The name of the boot tests lab.
  :reqjson string job: The name of the job.
  :reqjson string kernel: The name of the kernel.
  :reqjson string defconfig: The name of the defconfig.
+ :erqjson string board: The name of the board.
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Content-Type: Content type of the transmitted data, must be ``application/json``.
@@ -166,7 +166,10 @@ POST
 
     {
         "job": "next",
-        "kernel": "next-20140801"
+        "kernel": "next-20140801",
+        "defconfig": "all-noconfig",
+        "lab_name": "lab-01",
+        "board": "beagleboneblack"
     }
 
 DELETE

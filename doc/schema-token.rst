@@ -16,6 +16,10 @@ A token object as stored in the database.
                 "type": "string",
                 "description": "The ID associated with this object"
             },
+            "name": {
+                "type": "string",
+                "description": "The name associated with this token"
+            },
             "created_on": {
                 "type": "object",
                 "description": "Creation date of the object",

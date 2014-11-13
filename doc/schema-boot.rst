@@ -227,13 +227,18 @@ have when sent to the server.
                 "type": "string",
                 "description": "The DTB address used"
             },
+            "dtb_append": {
+                "type": "boolean",
+                "default": "false"
+            },
             "endian": {
                 "type": "string",
                 "description": "Endianness of the board"
             },
             "fastboot": {
                 "type": "boolean",
-                "description": "If it was a fastboot"
+                "description": "If it was a fastboot",
+                "default": "false"
             },
             "initrd_addr": {
                 "type": "string",

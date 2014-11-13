@@ -3,8 +3,7 @@
 job
 ---
 
-A job is composed of an actual job name and a kernel name. The ID is formed
-by concatenating these two values: ``job``-``kernel``.
+A job ``name`` composed of an actual job name and a kernel name: ``job``-``kernel``.
 
 At a lower level, a job is the top level directory of the results from a CI
 build.
@@ -20,6 +19,10 @@ build.
                 "type": "string",
                 "description": "The ID associated with this object"
             },
+            "name": {
+                "type": "string",
+                "description": "The name of the object"
+            },
             "created_on": {
                 "type": "object",
                 "description": "Creation date of the object",
@@ -32,21 +35,12 @@ build.
             },
             "private": {
                 "type": "boolean",
-                "description": "If the job is private or not, default false"
+                "description": "If the job is private or not",
+                "default": false
             },
             "kernel": {
                 "type": "string",
                 "description": "The name of the kernel"
-            },
-            "updated": {
-                "type": "object",
-                "description": "Date the job was updated",
-                "properties": {
-                    "$date": {
-                        "type": "number",
-                        "description": "Milliseconds from epoch time"
-                    }
-                }
             },
             "job": {
                 "type": "string",
@@ -55,34 +49,7 @@ build.
             "status": {
                 "type": "string",
                 "description": "The status of the job",
-                "items": {
-                    "BUILD",
-                    "FAIL",
-                    "PASS",
-                    "UNKNOWN"
-                }
-            },
-            "metadata": {
-                "type": "object",
-                "description": "A free form object that can contain different properties",
-                "properties": {
-                    "git_branch": {
-                        "type": "string",
-                        "description": "The kernel branch name"
-                    },
-                    "git_commit": {
-                        "type": "string",
-                        "description": "The commit SHA"
-                    },
-                    "git_url": {
-                        "type": "string",
-                        "description": "URL of the git repository"
-                    },
-                    "git_describe": {
-                        "type": "string",
-                        "description": "Name of the repository"
-                    }
-                }
+                "enum": ["BUILD", "FAIL", "PASS", "UNKNOWN"]
             }
         }
     }

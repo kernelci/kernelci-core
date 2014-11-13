@@ -12,7 +12,7 @@ GET
 
  Get all the available jobs or a single one if ``job_id`` is provided.
 
- :param job_id: The ID of the job to retrieve in the form of ``job``-``kernel``.
+ :param job_id: The ID of the job to retrieve.
  :type job_id: string
 
  :reqheader Authorization: The token necessary to authorize the request.
@@ -31,10 +31,11 @@ GET
  :query string field: The field that should be returned in the response. Can be
     repeated multiple times.
  :query string nfield: The field that should *not* be returned in the response. Can be repeated multiple times.
+ :query string _id: The internal ID of hte job report.
  :query string job: A job name.
  :query string kernel: A kernel name.
- :query string status: The status of the job report. Can be one of: ``PASS`` or
-    ``FAIL``.
+ :query string name: The name of the job report.
+ :query string status: The status of the job report.
 
  :status 200: Resuslts found.
  :status 403: Not authorized to perform the operation.
