@@ -53,9 +53,9 @@ class LabHandler(handlers.base.BaseHandler):
 
         valid_contact, reason = validator.is_valid_lab_contact_data(json_obj)
         if valid_contact:
-            lab_name = kwargs.get("id", None)
+            lab_id = kwargs.get("id", None)
             status_code, reason, result, headers = self._create_or_update(
-                json_obj, lab_name)
+                json_obj, lab_id)
 
             response.status_code = status_code
             response.result = result
@@ -74,7 +74,7 @@ class LabHandler(handlers.base.BaseHandler):
 
         return response
 
-    def _create_or_update(self, json_obj, lab_name):
+    def _create_or_update(self, json_obj, lab_id):
         """Create or update a new lab object.
 
         If the request comes in with a specified lab name, it will be treated
@@ -82,24 +82,24 @@ class LabHandler(handlers.base.BaseHandler):
 
         :param json_obj: The JSON data as sent in the request.
         :type json_obj: dict
-        :param lab_name: The ID part of the request.
-        :type lab_name: str
+        :param lab_id: The ID part of the request.
+        :type lab_id: str
         :return A tuple with: status code, reason, result and headers.
         """
         status_code = None
         reason = None
         result = None
         headers = None
+        name = json_obj.get(models.NAME_KEY)
 
-        if lab_name:
-            old_lab = utils.db.find_one(
-                self.collection, [lab_name], field='name'
-            )
+        if lab_id:
+            old_lab = utils.db.find_one(self.collection, [lab_id])
         else:
-            name = json_obj.get(models.NAME_KEY)
-            old_lab = utils.db.find_one(self.collection, [name], field='name')
+            old_lab = utils.db.find_one(
+                self.collection, [name], field=models.NAME_KEY
+            )
 
-        if all([lab_name, old_lab]):
+        if all([lab_id, old_lab]):
             self.log.info(
                 "Updating lab with ID '%s' from IP address %s",
                 old_lab.get(models.ID_KEY), self.request.remote_ip
@@ -107,16 +107,19 @@ class LabHandler(handlers.base.BaseHandler):
             status_code, reason, result, headers = self._update_lab(
                 json_obj, old_lab
             )
-        elif all([lab_name, not old_lab]):
+        elif all([lab_id, not old_lab]):
             status_code = 404
-            reason = "Lab with name '%s' not found" % lab_name
-        elif all([not old_lab, not lab_name]):
+            reason = "Lab with name '%s' not found" % lab_id
+        elif all([not old_lab, not lab_id]):
             self.log.info("Creating new lab object")
             status_code, reason, result, headers = self._create_new_lab(
                 json_obj)
         else:
             status_code = 400
-            reason = "Lab with name '%s' already exists" % lab_name
+            reason = (
+                "Lab with name '%s' already exists: did you mean to "
+                "update it?" % name
+            )
 
         return status_code, reason, result, headers
 
@@ -237,7 +240,9 @@ class LabHandler(handlers.base.BaseHandler):
 
         if lab_doc.token:
             token_json = utils.db.find_one(
-                self.db[models.TOKEN_COLLECTION], lab_doc.token, field="token"
+                self.db[models.TOKEN_COLLECTION],
+                [lab_doc.token],
+                field=models.TOKEN_KEY
             )
             if token_json:
                 token = mtoken.Token.from_json(token_json)
@@ -289,14 +294,14 @@ class LabHandler(handlers.base.BaseHandler):
 
         if self.validate_req_token("DELETE"):
             if kwargs and kwargs.get('id', None):
-                doc_id = kwargs['id']
-                if utils.db.find_one(self.collection, doc_id, field="name"):
-                    response = self._delete(doc_id)
+                lab_id = kwargs['id']
+                if utils.db.find_one(self.collection, lab_id):
+                    response = self._delete(lab_id)
                     if response.status_code == 200:
-                        response.reason = "Resource '%s' deleted" % doc_id
+                        response.reason = "Resource '%s' deleted" % lab_id
                 else:
                     response = hresponse.HandlerResponse(404)
-                    response.reason = "Resource '%s' not found" % doc_id
+                    response.reason = "Resource '%s' not found" % lab_id
             else:
                 spec = handlers.common.get_query_spec(
                     self.get_query_arguments, self._valid_keys("DELETE")

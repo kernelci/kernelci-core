@@ -16,6 +16,8 @@
 # The default mongodb database name.
 DB_NAME = 'kernel-ci'
 
+DEFAULT_SCHEMA_VERSION = "1.0"
+
 # The default ID key, and other keys, for mongodb documents and queries.
 ACCEPTED_KEYS = 'accepted'
 ADDRESS_KEY = "address"

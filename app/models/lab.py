@@ -31,6 +31,7 @@ class LabDocument(modb.BaseDocument):
         self._name = name
         self._id = None
         self._created_on = None
+        self._version = None
 
         self._private = False
         self._address = {}
@@ -56,6 +57,8 @@ class LabDocument(modb.BaseDocument):
             lab_doc.contact = json_get(models.CONTACT_KEY, {})
             lab_doc.token = json_get(models.TOKEN_KEY, None)
             lab_doc.updated_on = json_get(models.UPDATED_KEY, None)
+            lab_doc.version = json_get(
+                models.VERSION_KEY, models.DEFAULT_SCHEMA_VERSION)
         return lab_doc
 
     @property
@@ -204,19 +207,34 @@ class LabDocument(modb.BaseDocument):
         """
         self._updated_on = value
 
+    @property
+    def version(self):
+        """The schema version of this object."""
+        return self._version
+
+    @version.setter
+    def version(self, value):
+        """Set the schema version of this object.
+
+        :param value: The schema string.
+        :type param: str
+        """
+        self._version = value
+
     def to_dict(self):
         """Create a serializable view of this document.
 
         :return A dictionary representation of the object.
         """
         lab_dict = {
-            models.CREATED_KEY: self.created_on,
-            models.UPDATED_KEY: self.updated_on,
-            models.TOKEN_KEY: self.token,
-            models.NAME_KEY: self.name,
             models.ADDRESS_KEY: self.address,
             models.CONTACT_KEY: self.contact,
+            models.CREATED_KEY: self.created_on,
+            models.NAME_KEY: self.name,
             models.PRIVATE_KEY: self.private,
+            models.TOKEN_KEY: self.token,
+            models.UPDATED_KEY: self.updated_on,
+            models.VERSION_KEY: self.version,
         }
 
         if self.id:

@@ -148,7 +148,8 @@ class TestLabModel(unittest.TestCase):
                 "telephone": "1234",
                 "mobile": "1234",
                 "email": "user@example.net"
-            }
+            },
+            "version": None,
         }
 
         self.assertDictEqual(expected, lab_doc.to_dict())
@@ -175,7 +176,8 @@ class TestLabModel(unittest.TestCase):
                 "telephone": "1234",
                 "mobile": "1234",
                 "email": "user@example.net"
-            }
+            },
+            "version": "1.0",
         }
 
         lab_doc = modl.LabDocument.from_json(json_obj)

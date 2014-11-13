@@ -418,7 +418,7 @@ class TestLabHandler(
         headers = {'Authorization': 'foo'}
 
         response = self.fetch(
-            '/lab/lab-01', method='DELETE', headers=headers,
+            '/lab/lab', method='DELETE', headers=headers,
         )
 
         self.assertEqual(response.code, 200)
