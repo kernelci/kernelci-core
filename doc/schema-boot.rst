@@ -48,6 +48,10 @@ necessary to use its ``_id`` value.
                 "type": "string",
                 "description": "The job associated with this object"
             },
+            "job_id": {
+                "type": "string",
+                "description": "The ID of the associated job"
+            },
             "kernel": {
                 "type": "string",
                 "description": "The kernel associated with this object"
