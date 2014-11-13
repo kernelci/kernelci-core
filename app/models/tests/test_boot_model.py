@@ -41,7 +41,7 @@ class TestBootModel(unittest.TestCase):
             'job_id': 'job-id',
             'job': 'job',
             '_id': 'id',
-            'lab_id': 'lab',
+            'lab_name': 'lab',
             'created_on': 'now',
             'status': None,
             'time': None,

@@ -77,10 +77,10 @@ def save_to_disk(boot_doc, json_obj, base_path):
     job = boot_doc.job
     kernel = boot_doc.kernel
     defconfig = boot_doc.defconfig
-    lab_id = boot_doc.lab_id
+    lab_name = boot_doc.lab_name
     board = boot_doc.board
 
-    dir_path = os.path.join(base_path, job, kernel, defconfig, lab_id)
+    dir_path = os.path.join(base_path, job, kernel, defconfig, lab_name)
     file_path = os.path.join(dir_path, 'boot-%s.json' % board)
 
     try:
@@ -118,7 +118,7 @@ def _parse_boot_from_file(boot_log):
         job = json_pop_f(models.JOB_KEY)
         kernel = json_pop_f(models.KERNEL_KEY)
         defconfig = json_pop_f(models.DEFCONFIG_KEY)
-        lab_id = json_pop_f(models.LAB_ID_KEY)
+        lab_name = json_pop_f(models.LAB_NAME_KEY)
         # Even if board is mandatory, for old cases this used not to be true.
         board = json_pop_f(models.BOARD_KEY, None)
         dtb = boot_json.get(models.DTB_KEY, None)
@@ -136,7 +136,7 @@ def _parse_boot_from_file(boot_log):
                     "Using boot report file name for board name: %s", board
                 )
 
-        boot_doc = modbt.BootDocument(board, job, kernel, defconfig, lab_id)
+        boot_doc = modbt.BootDocument(board, job, kernel, defconfig, lab_name)
         _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f)
     except (OSError, TypeError, IOError), ex:
         utils.LOG.error("Error opening the file '%s'", boot_log)
@@ -164,9 +164,9 @@ def _parse_boot_from_json(boot_json):
         job = json_pop_f(models.JOB_KEY)
         kernel = json_pop_f(models.KERNEL_KEY)
         defconfig = json_pop_f(models.DEFCONFIG_KEY)
-        lab_id = json_pop_f(models.LAB_ID_KEY)
+        lab_name = json_pop_f(models.LAB_NAME_KEY)
 
-        boot_doc = modbt.BootDocument(board, job, kernel, defconfig, lab_id)
+        boot_doc = modbt.BootDocument(board, job, kernel, defconfig, lab_name)
         boot_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
         _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f)
     except KeyError, ex:
@@ -223,11 +223,11 @@ def _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f):
     boot_doc.metadata = boot_json
 
 
-def import_all_for_lab(lab_id, base_path=utils.BASE_PATH):
+def import_all_for_lab(lab_name, base_path=utils.BASE_PATH):
     """Handy function to import all boot logs.
 
-    :param lab_id: The lab ID whose boot reports should be imported.
-    :type lab_id: str
+    :param lab_name: The lab name whose boot reports should be imported.
+    :type lab_name: str
     :param base_path: Where to start the scan on the hard disk.
     :type base_path: str
     :return A list of BootDocument documents.
@@ -239,17 +239,18 @@ def import_all_for_lab(lab_id, base_path=utils.BASE_PATH):
 
         for kernel in os.listdir(job_dir):
             boot_docs.extend(
-                parse_boot_from_disk(job, kernel, lab_id, base_path)
+                parse_boot_from_disk(job, kernel, lab_name, base_path)
             )
 
     return boot_docs
 
 
-def parse_boot_from_disk(job, kernel, lab_id, base_path=utils.BASE_PATH):
+def parse_boot_from_disk(job, kernel, lab_name, base_path=utils.BASE_PATH):
     """Traverse the kernel directory and look for boot report logs.
 
     :param job: The name of the job.
     :param kernel: The name of the kernel.
+    :param lab_name: The name of the lab.
     :param base_path: The base path where to start traversing.
     :return A list of documents to be saved, or an empty list.
     """
@@ -267,7 +268,7 @@ def parse_boot_from_disk(job, kernel, lab_id, base_path=utils.BASE_PATH):
                 if not utils.is_hidden(defconfig) and \
                         os.path.isdir(defconfig_dir):
 
-                    lab_dir = os.path.join(defconfig_dir, lab_id)
+                    lab_dir = os.path.join(defconfig_dir, lab_name)
                     if os.path.isdir(lab_dir):
                         docs.extend([
                             _parse_boot_from_file(boot_log)

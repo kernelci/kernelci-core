@@ -37,7 +37,7 @@ class TestParseBoot(unittest.TestCase):
         self.boot_report = dict(
             version="1.0",
             board="board",
-            lab_id="lab_id",
+            lab_name="lab_name",
             kernel="kernel",
             job="job",
             defconfig="defconfig",
@@ -77,7 +77,7 @@ class TestParseBoot(unittest.TestCase):
             self.boot_report, {}, base_path=self.base_path
         )
         lab_dir = os.path.join(
-            self.base_path, "job", "kernel", "defconfig", "lab_id"
+            self.base_path, "job", "kernel", "defconfig", "lab_name"
         )
         boot_file = os.path.join(lab_dir, "boot-board.json")
 
@@ -143,7 +143,7 @@ class TestParseBoot(unittest.TestCase):
             "defconfig": "defconfig",
             "board": "board",
             "dtb": "dtb",
-            "lab_id": "lab_id",
+            "lab_name": "lab_name",
             "boot_time": 0,
         }
 
@@ -170,7 +170,7 @@ class TestParseBoot(unittest.TestCase):
             "kernel": "kernel",
             "defconfig": "defconfig",
             "dtb": "dtbs/board.dtb",
-            "lab_id": "lab_id",
+            "lab_name": "lab_name",
             "boot_time": 0,
         }
 
@@ -197,7 +197,7 @@ class TestParseBoot(unittest.TestCase):
             "kernel": "kernel",
             "defconfig": "defconfig",
             "dtb": "tmp/board.dtb",
-            "lab_id": "lab_id",
+            "lab_name": "lab_name",
             "boot_time": 0,
         }
 

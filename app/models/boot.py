@@ -27,7 +27,7 @@ class BootDocument(modb.BaseDocument):
     Each document is a single booted board.
     """
 
-    def __init__(self, board, job, kernel, defconfig, lab_id):
+    def __init__(self, board, job, kernel, defconfig, lab_name):
         """A new BootDocument.
 
         :param board: The name of the board.
@@ -38,8 +38,8 @@ class BootDocument(modb.BaseDocument):
         :type kernel: str
         :param defconfig: The name of the defconfig.
         :type defconfig: str
-        :param lab_id: The user readable ID of the lab.
-        :type lab_id: str
+        :param lab_name: The user readable ID of the lab.
+        :type lab_name: str
         """
         self._board = board
         self._name = models.BOOT_DOCUMENT_NAME % {
@@ -48,7 +48,7 @@ class BootDocument(modb.BaseDocument):
             models.KERNEL_KEY: kernel,
             models.DEFCONFIG_KEY: defconfig,
         }
-        self._lab_id = lab_id
+        self._lab_name = lab_name
         self._job = job
 
         self._id = None
@@ -292,14 +292,14 @@ class BootDocument(modb.BaseDocument):
         self._metadata = value
 
     @property
-    def lab_id(self):
+    def lab_name(self):
         """Get the lab ID value of this boot report."""
-        return self._lab_id
+        return self._lab_name
 
-    @lab_id.setter
-    def lab_id(self, value):
+    @lab_name.setter
+    def lab_name(self, value):
         """Set the lab ID value."""
-        self._lab_id = value
+        self._lab_name = value
 
     @property
     def boot_result_description(self):
@@ -360,7 +360,7 @@ class BootDocument(modb.BaseDocument):
             models.JOB_KEY: self.job,
             models.KERNEL_IMAGE_KEY: self.kernel_image,
             models.KERNEL_KEY: self.kernel,
-            models.LAB_ID_KEY: self.lab_id,
+            models.LAB_NAME_KEY: self.lab_name,
             models.LOAD_ADDR_KEY: self.load_addr,
             models.METADATA_KEY: self.metadata,
             models.NAME_KEY: self.name,

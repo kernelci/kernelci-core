@@ -64,6 +64,7 @@ JOB_KEY = 'job'
 KERNEL_IMAGE_KEY = 'kernel_image'
 KERNEL_KEY = 'kernel'
 LAB_ID_KEY = "lab_id"
+LAB_NAME_KEY = 'lab_name'
 LIMIT_KEY = 'limit'
 LOAD_ADDR_KEY = 'load_addr'
 MANDATORY_KEYS = 'mandatory'
