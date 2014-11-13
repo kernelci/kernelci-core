@@ -47,6 +47,7 @@ class TestDefconfModel(unittest.TestCase):
         defconf_doc.git_commit = "git_commit"
         defconf_doc.git_branch = "git_branch"
         defconf_doc.git_describe = "git_describe"
+        defconf_doc.version = "1.0"
 
         expected = {
             "name": "job-kernel-defconfig",
@@ -69,6 +70,7 @@ class TestDefconfModel(unittest.TestCase):
             "git_branch": "git_branch",
             "git_commit": "git_commit",
             "build_platform": [],
+            "version": "1.0",
         }
 
         self.assertDictEqual(expected, defconf_doc.to_dict())

@@ -57,6 +57,8 @@ class DefconfigDocument(modb.BaseDocument):
         self._git_describe = None
         self._build_platform = []
 
+        self._version = None
+
     @property
     def collection(self):
         return models.DEFCONFIG_COLLECTION
@@ -260,6 +262,20 @@ class DefconfigDocument(modb.BaseDocument):
         """Set the build time value."""
         self._build_time = value
 
+    @property
+    def version(self):
+        """The schema version of this object."""
+        return self._version
+
+    @version.setter
+    def version(self, value):
+        """Set the schema version of this object.
+
+        :param value: The schema string.
+        :type param: str
+        """
+        self._version = value
+
     def to_dict(self):
         defconf_dict = {
             models.ARCHITECTURE_KEY: self.arch,
@@ -279,6 +295,7 @@ class DefconfigDocument(modb.BaseDocument):
             models.METADATA_KEY: self.metadata,
             models.NAME_KEY: self.name,
             models.STATUS_KEY: self.status,
+            models.VERSION_KEY: self.version,
             models.WARNINGS_KEY: self.warnings,
         }
 
