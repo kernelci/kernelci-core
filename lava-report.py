@@ -137,11 +137,32 @@ def boot_report(args):
                                                                                 str(failed),
                                                                                 kernel_version))
             f.write('\n')
-            f.write('Status Dashboard: http://status.armcloud.us/boot/all/job/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
+            f.write('Full Build Report: http://status.armcloud.us/build/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
+            f.write('Full Boot Report: http://status.armcloud.us/boot/all/job/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
             f.write('\n')
-            f.write('Total duration: %.2f seconds\n' % duration)
+            f.write('Total Duration: %.2f minutes\n' % (duration / 60))
             f.write('Tree/Branch: %s\n' % kernel_tree)
-            f.write('Git describe: %s\n' % kernel_version)
+            f.write('Git Describe: %s\n' % kernel_version)
+            first = True
+            for defconfig, results_list in results.items():
+                for result in results_list:
+                    if result['result'] != 'PASS':
+                        if first:
+                            f.write('\n')
+                            f.write('Failed Boot Testst:\n')
+                            first = False
+                        f.write('\n')
+                        f.write(defconfig)
+                        f.write('\n')
+                        break
+                for result in results_list:
+                    if result['result'] != 'PASS':
+                        f.write('    %s   %ss   %s\n' % (result['device_type'], result['kernel_boot_time'], result['result']))
+                        f.write('    http://storage.armcloud.us/kernel-ci/%s/%s/%s/boot-%s.html' % (kernel_tree,
+                                                                                                    kernel_version,
+                                                                                                    kernel_defconfig,
+                                                                                                    result['device_type']))
+
             f.write('\n')
             f.write('Full Report:\n')
             for defconfig, results_list in results.items():
