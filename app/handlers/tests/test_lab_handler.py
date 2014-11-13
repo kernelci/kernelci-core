@@ -21,7 +21,6 @@ import tornado
 import tornado.testing
 
 import handlers.app
-import handlers.lab as hlab
 import urls
 
 # Default Content-Type header returned by Tornado.
