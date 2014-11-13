@@ -11,3 +11,4 @@ Collections
     collection-defconfig
     collection-boot
     collection-batch
+    collection-lab

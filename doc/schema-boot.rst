@@ -8,8 +8,11 @@ boot
 GET
 ***
 
-A boot name is composed from the name of the board, the job, kernel,
-defconfig and its lab ID: ``board``-``job``-``kernel``-``defconfig``-``lab_id``.
+A boot ``name`` is composed from the name of the board, the job, kernel and
+defconfig values: ``board``-``job``-``kernel``-``defconfig``.
+
+Boot report ``name``-s are not unique. To uniquely identify a boot report it is
+necessary to use its ``_id`` value.
 
 ::
 
@@ -20,7 +23,7 @@ defconfig and its lab ID: ``board``-``job``-``kernel``-``defconfig``-``lab_id``.
         "properties": {
             "name": {
                 "type": "string",
-                "description": "The name of this boot report: internally created from the board, job, kernel, defconfig and lab_id values"
+                "description": "The name of this boot report (internally created)"
             },
             "_id": {
                 "type": "string",
@@ -53,9 +56,9 @@ defconfig and its lab ID: ``board``-``job``-``kernel``-``defconfig``-``lab_id``.
                 "type": "string",
                 "description": "The name of the defconfig as reported by the CI loop"
             },
-            "lab_id": {
+            "lab_name": {
                 "type": "string",
-                "description": "The ID of the lab that is doing the boot tests"
+                "description": "The name of the lab that is doing the boot tests"
             },
             "time": {
                 "type": "object",
@@ -71,7 +74,7 @@ defconfig and its lab ID: ``board``-``job``-``kernel``-``defconfig``-``lab_id``.
             "status": {
                 "type": "string",
                 "description": "The status of the boot report",
-                "enum": ["FAIL", "OFFLINE", "PASS"]
+                "enum": ["FAIL", "OFFLINE", "PASS", "UNTRIED"]
             },
             "warnings": {
                 "type": "number",
@@ -118,7 +121,7 @@ defconfig and its lab ID: ``board``-``job``-``kernel``-``defconfig``-``lab_id``.
                 "description": "The description of the boot result, useful to provide a cause of a failure"
             },
             "retries": {
-                "type": integer,
+                "type": "integer",
                 "description": "The number of boot retries that have been performed",
                 "default": 0
             },
@@ -146,7 +149,6 @@ have when sent to the server.
     {
         "title": "boot",
         "description": "A boot POST request object",
-        "version": "1.0",
         "type": "object",
         "properties": {
             "version": {
@@ -154,9 +156,9 @@ have when sent to the server.
                 "description": "The version number of this JSON schema",
                 "enum": ["1.0"]
             },
-            "lab_id": {
+            "lab_name": {
                 "type": "string",
-                "description": "The ID of the lab that is doing the boot tests"
+                "description": "The name of the lab that is doing the boot tests"
             },
             "job": {
                 "type": "string",
@@ -183,14 +185,14 @@ have when sent to the server.
                 "description": "The git SHA of the commit used for boot testing"
             },
             "boot_retries": {
-                "type": integer,
+                "type": "integer",
                 "description": "The number of boot retries that have been performed",
                 "default": 0
             },
             "boot_result": {
                 "type": "string",
                 "description": "The final status of the boot test",
-                "enum": ["FAIL", "OFFLINE", "PASS"]
+                "enum": ["FAIL", "OFFLINE", "PASS", "UNTRIED"]
             },
             "boot_result_description": {
                 "type": "string",
@@ -240,9 +242,13 @@ have when sent to the server.
             "loadaddr": {
                 "type": "string",
                 "description": "Load address used"
+            },
+            "email": {
+                "type": "string",
+                "description": "Optional email address to be notified if the boot report import fails"
             }
         },
-        "required": ["lab_id", "job", "kernel", "defconfig", "board"]
+        "required": ["version", "lab_name", "job", "kernel", "defconfig", "board"]
     }
 
 

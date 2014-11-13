@@ -10,7 +10,7 @@ GET
 
  Get all the available boot reports or a single one if ``boot_id`` is provided.
 
- :param boot_id: The ID of the boot report to retrieve. Usually in the form of: ``board``-``job``-``kernel``-``defconfig``.
+ :param boot_id: The ID of the boot report to retrieve.
  :type boot_id: string
 
  :reqheader Authorization: The token necessary to authorize the request.
@@ -29,11 +29,15 @@ GET
  :query string field: The field that should be returned in the response. Can be
     repeated multiple times.
  :query string nfield: The field that should *not* be returned in the response. Can be repeated multiple times.
+ :query string _id: The internal ID of the boot report.
  :query string job: The name of a job.
  :query string job_id: The ID of a job.
  :query string kernel: The name of a kernel.
  :query string defconfig: The name of a defconfig.
+ :query string endianness: The endianness of the board.
  :query string board: The name of a board.
+ :query string lab_name: The name of the lab that created the boot report.
+ :query string name: The name of the boot report.
  :query string status: The status of the boot report. Can be one of: ``PASS``
     or ``FAIL``.
  :query int warnings: The number of warnings in the boot report.
@@ -120,6 +124,8 @@ GET
  .. note::
     Results shown here do not include the full JSON response.
 
+.. _collection_boot_post:
+
 POST
 ****
 
@@ -127,8 +133,7 @@ POST
 
  Create or update a boot report as defined in the JSON data. The request will be accepted and it will begin to parse the available data.
 
- If the request has been accepted, it will always return ``202`` as the status code, even when not boot reports for the ``job`` and ``kernel`` combination
- have been found.
+ If the request has been accepted, it will always return ``202`` as the status code.
 
  For more info on all the required JSON request fields, see the :ref:`boot schema for POST requests <schema_boot_post>`.
 
@@ -184,6 +189,8 @@ DELETE
  :query string kernel: The name of a kernel.
  :query string defconfig: The name of a defconfig.
  :query string board: The name of a board.
+ :query string name: The name of a boot report.
+ :query string _id: The ID of a boot report.
 
  :status 200: Resource deleted.
  :status 403: Not authorized to perform the operation.

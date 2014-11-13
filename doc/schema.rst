@@ -11,3 +11,4 @@ Schema
     schema-boot
     schema-token
     schema-batch
+    schema-lab
