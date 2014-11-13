@@ -282,3 +282,48 @@ class LabHandler(handlers.base.BaseHandler):
             )
 
         return (ret_val, reason, result, headers)
+
+    def execute_delete(self, *args, **kwargs):
+        # TODO: need to expire or delete token as well.
+        response = None
+
+        if self.validate_req_token("DELETE"):
+            if kwargs and kwargs.get('id', None):
+                doc_id = kwargs['id']
+                if utils.db.find_one(self.collection, doc_id, field="name"):
+                    response = self._delete(doc_id)
+                    if response.status_code == 200:
+                        response.reason = "Resource '%s' deleted" % doc_id
+                else:
+                    response = hresponse.HandlerResponse(404)
+                    response.reason = "Resource '%s' not found" % doc_id
+            else:
+                spec = handlers.common.get_query_spec(
+                    self.get_query_arguments, self._valid_keys("DELETE")
+                )
+                if spec:
+                    response = self._delete(spec)
+                    if response.status_code == 200:
+                        response.reason = (
+                            "Resources identified with '%s' deleted" % spec
+                        )
+                else:
+                    response = hresponse.HandlerResponse(400)
+                    response.result = None
+                    response.reason = (
+                        "No valid data provided to execute a DELETE"
+                    )
+        else:
+            response = hresponse.HandlerResponse(403)
+            response.reason = handlers.common.NOT_VALID_TOKEN
+
+        return response
+
+    def _delete(self, spec_or_id):
+        response = hresponse.HandlerResponse(200)
+        response.result = None
+
+        response.status_code = utils.db.delete(self.collection, spec_or_id)
+        response.reason = self._get_status_message(response.status_code)
+
+        return response

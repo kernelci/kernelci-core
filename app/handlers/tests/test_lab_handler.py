@@ -393,3 +393,45 @@ class TestLabHandler(
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
         self.assertEqual(response.body, expected_body)
+
+    def test_delete_no_token(self):
+        self.find_token.return_value = None
+
+        response = self.fetch('/lab/lab', method='DELETE')
+        self.assertEqual(response.code, 403)
+
+    def test_delete_with_token_no_lab(self):
+        headers = {'Authorization': 'foo'}
+
+        response = self.fetch(
+            '/lab/foolab', method='DELETE', headers=headers,
+        )
+
+        self.assertEqual(response.code, 404)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    def test_delete_with_token_with_lab(self):
+        db = self.mongodb_client['kernel-ci']
+        db['lab'].insert(dict(_id='lab', name='lab-01', contact={}, address={}))
+
+        headers = {'Authorization': 'foo'}
+
+        response = self.fetch(
+            '/lab/lab-01', method='DELETE', headers=headers,
+        )
+
+        self.assertEqual(response.code, 200)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    def test_delete_no_id_no_spec(self):
+        headers = {'Authorization': 'foo'}
+
+        response = self.fetch(
+            '/lab', method='DELETE', headers=headers,
+        )
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)

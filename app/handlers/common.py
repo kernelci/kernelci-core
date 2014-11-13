@@ -212,6 +212,13 @@ LAB_VALID_KEYS = {
         models.PRIVATE_KEY,
         models.TOKEN_KEY,
         models.UPDATED_KEY,
+    ],
+    "DELETE": [
+        models.ADDRESS_KEY,
+        models.CONTACT_KEY,
+        models.ID_KEY,
+        models.NAME_KEY,
+        models.TOKEN_KEY,
     ]
 }
 
