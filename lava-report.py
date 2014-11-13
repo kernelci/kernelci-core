@@ -35,7 +35,13 @@ def boot_report(args):
         bundle = jobs[job_id]['bundle']
         # Retrieve the log file
         binary_job_file = connection.scheduler.job_output(job_id)
-        job_file = str(binary_job_file)
+        # Parse LAVA messages out of log
+        raw_job_file = str(binary_job_file)
+        job_file = ''
+        for line in raw_job_file.splitlines():
+            if '<LAVA_DISPATCHER>' not in line:
+                if len(line) != 0:
+                    job_file += line + '\n'
         # Retrieve bundle
         if bundle is not None:
             json_bundle = connection.dashboard.get(bundle)
