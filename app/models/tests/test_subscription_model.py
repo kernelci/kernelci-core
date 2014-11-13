@@ -61,7 +61,8 @@ class TestSubscriptionModel(unittest.TestCase):
             "name": "sub-job-kernel",
             "emails": [],
             "job_id": None,
-            "created_on": None
+            "created_on": None,
+            "version": None,
         }
         sub_doc = mods.SubscriptionDocument("job", "kernel")
 
@@ -104,20 +105,3 @@ class TestSubscriptionModel(unittest.TestCase):
 
         self.assertIsInstance(sub_doc.emails, types.ListType)
         self.assertEqual(len(sub_doc.emails), 2)
-
-    def test_subscription_doc_from_json_string(self):
-        json_obj = dict(
-            _id='id',
-            job="job",
-            kernel="kernel",
-            name="sub-job-kernel",
-            job_id='job-id',
-            emails=['a@example.org', 'b@example.org'],
-            created_on=None,
-        )
-
-        json_string = json_util.dumps(json_obj)
-        sub_doc = mods.SubscriptionDocument.from_json(json_string)
-
-        self.assertIsInstance(sub_doc, mods.SubscriptionDocument)
-        self.assertIsInstance(sub_doc.emails, types.ListType)

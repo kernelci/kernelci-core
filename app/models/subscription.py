@@ -17,8 +17,6 @@ The model that represents a subscription document in the mongodb collection.
 
 import types
 
-from bson import json_util
-
 import models
 import models.base as modb
 
@@ -42,6 +40,7 @@ class SubscriptionDocument(modb.BaseDocument):
         self._job = job
         self._kernel = kernel
         self._emails = []
+        self._version = None
 
     @property
     def collection(self):
@@ -123,6 +122,20 @@ class SubscriptionDocument(modb.BaseDocument):
         # Make sure the list is unique.
         self._emails = list(set(self._emails))
 
+    @property
+    def version(self):
+        """The schema version of this object."""
+        return self._version
+
+    @version.setter
+    def version(self, value):
+        """Set the schema version of this object.
+
+        :param value: The schema string.
+        :type param: str
+        """
+        self._version = value
+
     def to_dict(self):
         sub_dict = {
             models.CREATED_KEY: self.created_on,
@@ -131,6 +144,7 @@ class SubscriptionDocument(modb.BaseDocument):
             models.JOB_KEY: self.job,
             models.KERNEL_KEY: self.kernel,
             models.NAME_KEY: self.name,
+            models.VERSION_KEY: self.version,
         }
 
         if self.id:
@@ -146,10 +160,6 @@ class SubscriptionDocument(modb.BaseDocument):
         :return An instance of `SubscriptionDocument`.
         """
         sub_doc = None
-
-        if isinstance(json_obj, types.StringTypes):
-            json_obj = json_util.loads(json_obj)
-
         if isinstance(json_obj, types.DictionaryType):
             json_pop = json_obj.pop
             job = json_pop(models.JOB_KEY)
@@ -160,6 +170,7 @@ class SubscriptionDocument(modb.BaseDocument):
 
             sub_doc = SubscriptionDocument(job, kernel)
             sub_doc.id = doc_id
+            sub_doc.version = json_pop(models.VERSION_KEY, "1.0")
 
             for key, value in json_obj.iteritems():
                 try:
