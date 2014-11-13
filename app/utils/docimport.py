@@ -200,6 +200,10 @@ def _traverse_defconf_dir(job, kernel, kernel_dir, defconfig_dir):
         elif os.path.isfile(default_meta_file):
             _parse_build_metadata(default_meta_file, defconf_doc)
         else:
+            utils.LOG.warn(
+                "No metadata file found for build %s-%s-%s",
+                job, kernel, defconfig
+            )
             # If we do not have the metadata file, consider the build failed.
             defconf_doc.status = models.FAIL_STATUS
 
@@ -217,11 +221,22 @@ def _parse_build_metadata(metadata_file, defconf_doc):
     if metadata:
         # Set some of the metadata values directly into the objet for easier
         # search.
-        defconf_doc.status = metadata.get(models.BUILD_RESULT_KEY, None)
-        defconf_doc.defconfig = metadata.get(models.DEFCONFIG_KEY, None)
-        defconf_doc.warnings = metadata.get(models.WARNINGS_KEY, None)
-        defconf_doc.errros = metadata.get(models.ERRORS_KEY, None)
-        defconf_doc.arch = metadata.get(models.ARCHITECTURE_KEY, None)
+        metadata_pop = metadata.pop
+        defconf_doc.status = metadata_pop(
+            models.BUILD_RESULT_KEY, models.UNKNOWN_STATUS
+        )
+        defconf_doc.defconfig = metadata_pop(models.DEFCONFIG_KEY, None)
+        defconf_doc.warnings = metadata_pop(models.BUILD_WARNINGS_KEY, 0)
+        defconf_doc.errros = metadata_pop(models.BUILD_ERRORS_KEY, 0)
+        defconf_doc.arch = metadata_pop(models.ARCHITECTURE_KEY, None)
+        defconf_doc.build_platform = metadata_pop(
+            models.BUILD_PLATFORM_KEY, [])
+        defconf_doc.version = metadata_pop(models.VERSION_KEY, "1.0")
+        defconf_doc.git_describe = metadata_pop(models.GIT_DESCRIBE_KEY, None)
+        defconf_doc.git_url = metadata_pop(models.GIT_URL_KEY, None)
+        defconf_doc.git_commit = metadata_pop(models.GIT_COMMIT_KEY, None)
+        defconf_doc.git_branch = metadata_pop(models.GIT_BRANCH_KEY, None)
+        defconf_doc.build_time = metadata_pop(models.BUILD_TIME_KEY, 0)
 
     defconf_doc.metadata = metadata
 

@@ -147,6 +147,7 @@ kernel_image: zImage
 kernel_config: kernel.config
 dtb_dir: dtbs
 modules_dir: foo/bar
+build_log: file.log
 '''
         )
 
@@ -163,7 +164,9 @@ modules_dir: foo/bar
 
         self.assertIsInstance(defconf_doc.metadata, types.DictionaryType)
         self.assertEqual(None, defconf_doc.metadata['kconfig_fragments'])
-        self.assertEqual('arm', defconf_doc.metadata['arch'])
+        self.assertEqual(defconf_doc.arch, "arm")
+        self.assertEqual(defconf_doc.git_commit, "1234567890")
+        self.assertEqual(defconf_doc.git_branch, "test/branch")
 
     @mock.patch('utils.docimport._parse_build_metadata')
     @mock.patch('os.path.isfile')
