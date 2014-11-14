@@ -168,6 +168,7 @@ def boot_report(args):
                                                                                                     kernel_version,
                                                                                                     kernel_defconfig,
                                                                                                     result['device_type']))
+                        f.write('\n')
 
             f.write('\n')
             f.write('Full Report:\n')
