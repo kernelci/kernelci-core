@@ -155,7 +155,7 @@ def boot_report(args):
                     if result['result'] != 'PASS':
                         if first:
                             f.write('\n')
-                            f.write('Failed Boot Testst:\n')
+                            f.write('Failed Boot Tests:\n')
                             first = False
                         f.write('\n')
                         f.write(defconfig)
