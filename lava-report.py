@@ -166,7 +166,7 @@ def boot_report(args):
                         f.write('    %s   %ss   %s\n' % (result['device_type'], result['kernel_boot_time'], result['result']))
                         f.write('    http://storage.armcloud.us/kernel-ci/%s/%s/%s/boot-%s.html' % (kernel_tree,
                                                                                                     kernel_version,
-                                                                                                    kernel_defconfig,
+                                                                                                    defconfig,
                                                                                                     result['device_type']))
                         f.write('\n')
 
@@ -179,9 +179,10 @@ def boot_report(args):
                 for result in results_list:
                     f.write('    %s   %ss   %s\n' % (result['device_type'], result['kernel_boot_time'], result['result']))
         # sendmail
-        print 'Sending e-mail summary to %s' % args.email
-        cmd = 'cat %s | sendmail -t' % os.path.join(results_directory, log)
-        subprocess.check_output(cmd, shell=True)
+        if args.email:
+            print 'Sending e-mail summary to %s' % args.email
+            cmd = 'cat %s | sendmail -t' % os.path.join(results_directory, log)
+            subprocess.check_output(cmd, shell=True)
 
 def main(args):
     if args.boot:
