@@ -13,9 +13,13 @@
 
 """The base RequestHandler that all subclasses should inherit from."""
 
+try:
+    import simplejson as json
+except ImportError:
+    import json
+
 import functools
 import httplib
-import json
 import tornado
 import tornado.web
 
@@ -126,7 +130,9 @@ class BaseHandler(tornado.web.RequestHandler):
             status_code = response.status_code
             reason = response.reason or self._get_status_message(status_code)
             headers = response.headers
-            result = json.dumps(response.to_dict(), default=default)
+            result = json.dumps(
+                response.to_dict(), default=default, ensure_ascii=False
+            )
         else:
             status_code = 506
             reason = self._get_status_message(status_code)

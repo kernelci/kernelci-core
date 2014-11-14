@@ -15,11 +15,15 @@
 
 """Container for all the boot import related functions."""
 
+try:
+    import simplejson as json
+except ImportError:
+    import json
+
 import bson
 import copy
 import datetime
 import glob
-import json
 import os
 import re
 
@@ -88,7 +92,9 @@ def save_to_disk(boot_doc, json_obj, base_path):
             os.makedirs(dir_path)
 
         with open(file_path, mode="w") as write_json:
-            write_json.write(json.dumps(json_obj, encoding="utf_8"))
+            write_json.write(
+                json.dumps(json_obj, encoding="utf_8", ensure_ascii=False)
+            )
     except OSError, ex:
         utils.LOG.error(
             "Error saving document '%s' into '%s'", boot_doc.name, dir_path

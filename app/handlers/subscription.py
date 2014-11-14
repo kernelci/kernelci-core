@@ -15,7 +15,10 @@
 
 """The RequetHandler for /subscription URLs."""
 
-import json
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 from handlers.base import BaseHandler
 from handlers.response import HandlerResponse

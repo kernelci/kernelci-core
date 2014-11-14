@@ -57,6 +57,13 @@ class DefconfigDocument(modb.BaseDocument):
         self._git_describe = None
         self._build_platform = []
 
+        self._kernel_image = None
+        self._kernel_config = None
+        self._system_map = None
+        self._text_offset = None
+        self._modules = None
+        self._dtb_dir = None
+
         self._version = None
 
     @property
@@ -276,6 +283,66 @@ class DefconfigDocument(modb.BaseDocument):
         """
         self._version = value
 
+    @property
+    def kernel_config(self):
+        """The kernel config file name."""
+        return self._kernel_config
+
+    @kernel_config.setter
+    def kernel_config(self, value):
+        """Set the kernel config file name."""
+        self._kernel_config = value
+
+    @property
+    def system_map(self):
+        """The system map file name."""
+        return self._system_map
+
+    @system_map.setter
+    def system_map(self, value):
+        """Set the system map file name."""
+        self._system_map = value
+
+    @property
+    def text_offset(self):
+        """The text offset value."""
+        return self._text_offset
+
+    @text_offset.setter
+    def text_offset(self, value):
+        """Set the text offset value."""
+        self._text_offset = value
+
+    @property
+    def modules(self):
+        """The modules file name."""
+        return self._modules
+
+    @modules.setter
+    def modules(self, value):
+        """Set the modules file name."""
+        self._modules = value
+
+    @property
+    def dtb_dir(self):
+        """The dtb directory name."""
+        return self._dtb_dir
+
+    @dtb_dir.setter
+    def dtb_dir(self, value):
+        """Set the dtb directory name."""
+        self._dtb_dir = value
+
+    @property
+    def kernel_image(self):
+        """The kernel image file name."""
+        return self._kernel_image
+
+    @kernel_image.setter
+    def kernel_image(self, value):
+        """Se the kernel image file name."""
+        self._kernel_image = value
+
     def to_dict(self):
         defconf_dict = {
             models.ARCHITECTURE_KEY: self.arch,
@@ -284,6 +351,7 @@ class DefconfigDocument(modb.BaseDocument):
             models.CREATED_KEY: self.created_on,
             models.DEFCONFIG_KEY: self.defconfig,
             models.DIRNAME_KEY: self.dirname,
+            models.DTB_DIR_KEY: self.dtb_dir,
             models.ERRORS_KEY: self.errors,
             models.GIT_BRANCH_KEY: self.git_branch,
             models.GIT_COMMIT_KEY: self.git_commit,
@@ -291,10 +359,15 @@ class DefconfigDocument(modb.BaseDocument):
             models.GIT_URL_KEY: self.git_url,
             models.JOB_ID_KEY: self.job_id,
             models.JOB_KEY: self.job,
+            models.KERNEL_CONFIG_KEY: self.kernel_config,
+            models.KERNEL_IMAGE_KEY: self.kernel_image,
             models.KERNEL_KEY: self.kernel,
             models.METADATA_KEY: self.metadata,
+            models.MODULES_KEY: self.modules,
             models.NAME_KEY: self.name,
             models.STATUS_KEY: self.status,
+            models.SYSTEM_MAP_KEY: self.system_map,
+            models.TEXT_OFFSET_KEY: self.text_offset,
             models.VERSION_KEY: self.version,
             models.WARNINGS_KEY: self.warnings,
         }

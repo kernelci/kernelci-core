@@ -13,13 +13,14 @@
 
 """All the bisect operations that the app can perform."""
 
+try:
+    import simplejson as json
+except ImportError:
+    import json
+
 from bson import tz_util
 from bson.json_util import default
 from datetime import datetime
-from json import (
-    dumps as j_dump,
-    loads as j_load,
-)
 from pymongo import DESCENDING
 from types import DictionaryType
 
@@ -236,7 +237,11 @@ def execute_boot_bisection(doc_id, db_options, fields=None):
                 LOG.error("Error savind bisect data %s", doc_id)
 
             bisect_doc = _update_doc_fields(bisect_doc, fields)
-            result = [j_load(j_dump(bisect_doc, default=default))]
+            result = [
+                json.loads(
+                    json.dumps(bisect_doc, default=default, ensure_ascii=False)
+                )
+            ]
     else:
         code = 404
         result = None

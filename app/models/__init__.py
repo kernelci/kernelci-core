@@ -43,6 +43,7 @@ COUNT_KEY = "count"
 CREATED_KEY = 'created_on'
 CROSS_COMPILE_KEY = 'cross_compile'
 DATE_RANGE_KEY = 'date_range'
+DEFCONFIG_ID_KEY = 'defconfig_id'
 DEFCONFIG_KEY = 'defconfig'
 DIRNAME_KEY = 'dirname'
 DOC_ID_KEY = 'doc_id'
@@ -90,6 +91,11 @@ UPDATED_KEY = 'updated_on'
 USERNAME_KEY = 'username'
 VERSION_KEY = 'version'
 WARNINGS_KEY = 'warnings'
+KERNEL_CONFIG_KEY = 'kernel_config'
+SYSTEM_MAP_KEY = 'system_map'
+TEXT_OFFSET_KEY = 'text_offset'
+MODULES_KEY = 'modules'
+DTB_DIR_KEY = 'dtb_dir'
 
 # Token special fields.
 ADMIN_KEY = 'admin'
@@ -176,6 +182,7 @@ VALID_JOB_STATUS = [
     BUILD_STATUS,
     FAIL_STATUS,
     PASS_STATUS,
+    UNKNOWN_STATUS,
 ]
 
 # The valid collections for the bisect handler.

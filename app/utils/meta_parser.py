@@ -15,8 +15,12 @@
 
 """Functions to parse build metadata files."""
 
+try:
+    import simplejson as json
+except ImportError:
+    import json
+
 import ConfigParser
-import json
 import os
 
 from utils import LOG

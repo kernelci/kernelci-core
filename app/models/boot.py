@@ -59,6 +59,7 @@ class BootDocument(modb.BaseDocument):
 
         self._metadata = {}
         self._job_id = None
+        self._defconfig_id = None
         self._time = None
         self._status = None
         self._warnings = None
@@ -72,7 +73,7 @@ class BootDocument(modb.BaseDocument):
         self._fastboot = None
         self._boot_log_html = None
         self._boot_result_description = None
-        self._retries = None
+        self._retries = 0
         self._version = None
 
     @property
@@ -330,6 +331,19 @@ class BootDocument(modb.BaseDocument):
         self._created_on = value
 
     @property
+    def defconfig_id(self):
+        """The defconfig ID associated with this boot report."""
+        return self._defconfig_id
+
+    @defconfig_id.setter
+    def defconfig_id(self, value):
+        """Set the defconfig ID associated with this boot report.
+
+        :param value: The defconfig ID.
+        """
+        self._defconfig_id = value
+
+    @property
     def version(self):
         """The schema version of this object."""
         return self._version
@@ -350,6 +364,7 @@ class BootDocument(modb.BaseDocument):
             models.BOOT_LOG_KEY: self.boot_log,
             models.BOOT_RESULT_DESC_KEY: self.boot_result_description,
             models.CREATED_KEY: self.created_on,
+            models.DEFCONFIG_ID_KEY: self.defconfig_id,
             models.DEFCONFIG_KEY: self.defconfig,
             models.DTB_ADDR_KEY: self.dtb_addr,
             models.DTB_KEY: self.dtb,
