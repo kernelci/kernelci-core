@@ -54,6 +54,14 @@ def convert_job_collection(db, limit=0):
             job_doc.created_on = doc_get("created_on")
             job_doc.private = doc_get("private", False)
 
+            metadata = doc_get("metadata", None)
+            if metadata:
+                meta_get = metadata.get
+                job_doc.git_url = meta_get("git_url", None)
+                job_doc.git_commit = meta_get("git_commit", None)
+                job_doc.git_branch = meta_get("git_branch", None)
+                job_doc.git_describe = meta_get("git_describe", None)
+
             # Delete and save the old doc.
             ret_val = utils.db.delete(db[models.JOB_COLLECTION], doc_get("_id"))
             if ret_val != 200:
@@ -267,6 +275,16 @@ def convert_boot_collection(db, lab_name, limit=0):
     time.sleep(2)
 
 
+def _check_func(db):
+    """Check some documents if they are ok."""
+    for document in db[models.JOB_COLLECTION].find(limit=3):
+        print document
+    for document in db[models.DEFCONFIG_COLLECTION].find(limit=3):
+        print document
+    for document in db[models.BOOT_COLLECTION].find(limit=3):
+        print document
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Convert mongodb data into new model",
@@ -295,6 +313,7 @@ def main():
     convert_job_collection(db, limit)
     convert_defconfig_collection(db, limit)
     convert_boot_collection(db, lab_name, limit)
+    _check_func(db)
 
 
 if __name__ == '__main__':

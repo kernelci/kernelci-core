@@ -23,8 +23,8 @@ from bson import tz_util
 from datetime import datetime
 
 import models
-import models.defconfig as moddf
-import models.job as modj
+import models.defconfig as mdefconfig
+import models.job as mjob
 import utils
 import utils.db
 import utils.meta_parser
@@ -99,9 +99,9 @@ def _import_job(job, kernel, database, base_path=utils.BASE_PATH):
         database[models.JOB_COLLECTION], [job_name], field="name"
     )
     if saved_doc:
-        job_doc = modj.JobDocument.from_json(saved_doc)
+        job_doc = mjob.JobDocument.from_json(saved_doc)
     else:
-        job_doc = modj.JobDocument(job, kernel)
+        job_doc = mjob.JobDocument(job, kernel)
 
     docs.append(job_doc)
 
@@ -141,15 +141,16 @@ def _import_job(job, kernel, database, base_path=utils.BASE_PATH):
         idx = 0
         while idx < docs_len:
             defconf_doc = docs[idx]
-            if isinstance(defconf_doc, modj.JobDocument):
+            if isinstance(defconf_doc, mjob.JobDocument):
                 idx += 1
-            elif (isinstance(defconf_doc, moddf.DefconfigDocument) and
-                    defconf_doc.metadata):
-                for key in job_doc.METADATA_KEYS:
-                    if key in defconf_doc.metadata.keys():
-                        job_doc.metadata[key] = \
-                            defconf_doc.metadata[key]
-                break
+            elif isinstance(defconf_doc, mdefconfig.DefconfigDocument):
+                if (defconf_doc.job == job_doc.job and
+                        defconf_doc.kernel == job_doc.kernel):
+                    job_doc.git_commit = defconf_doc.git_commit
+                    job_doc.git_describe = defconf_doc.git_describe
+                    job_doc.git_url = defconf_doc.git_url
+                    job_doc.git_branch = defconf_doc.git_branch
+                    break
             else:
                 idx += 1
 
@@ -169,7 +170,7 @@ def _traverse_defconf_dir(job, kernel, kernel_dir, defconfig_dir):
     defconfig = defconfig_dir.split('+')[0]
     dirname = defconfig_dir
 
-    defconf_doc = moddf.DefconfigDocument(job, kernel, defconfig)
+    defconf_doc = mdefconfig.DefconfigDocument(job, kernel, defconfig)
     defconf_doc.dirname = dirname
 
     utils.LOG.info("Traversing directory %s", dirname)
