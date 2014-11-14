@@ -54,6 +54,10 @@ class TestJobModel(unittest.TestCase):
         job_doc.created_on = "now"
         job_doc.status = "PASS"
         job_doc.version = "1.0"
+        job_doc.git_commit = "1234"
+        job_doc.git_url = "git-url"
+        job_doc.git_branch = "git-branch"
+        job_doc.git_describe = "git-describe"
 
         expected = {
             "_id": "job",
@@ -64,6 +68,10 @@ class TestJobModel(unittest.TestCase):
             "created_on": "now",
             "status": "PASS",
             "version": "1.0",
+            "git_commit": "1234",
+            "git_url": "git-url",
+            "git_branch": "git-branch",
+            "git_describe": "git-describe"
         }
 
         self.assertEqual(job_doc.to_dict(), expected)

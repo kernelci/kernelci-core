@@ -47,6 +47,11 @@ class JobDocument(modb.BaseDocument):
         self._status = None
         self._version = None
 
+        self._git_commit = None
+        self._git_branch = None
+        self._git_url = None
+        self._git_describe = None
+
     @property
     def collection(self):
         return models.JOB_COLLECTION
@@ -139,9 +144,53 @@ class JobDocument(modb.BaseDocument):
         """
         self._version = value
 
+    @property
+    def git_url(self):
+        """The git URL where the code comes from."""
+        return self._git_url
+
+    @git_url.setter
+    def git_url(self, value):
+        """Set the git URL of this defconfig document."""
+        self._git_url = value
+
+    @property
+    def git_commit(self):
+        """The git commit SHA."""
+        return self._git_commit
+
+    @git_commit.setter
+    def git_commit(self, value):
+        """Set the git commit SHA."""
+        self._git_commit = value
+
+    @property
+    def git_branch(self):
+        """The branch name of the repository used."""
+        return self._git_branch
+
+    @git_branch.setter
+    def git_branch(self, value):
+        """Set the branch name of the repository used."""
+        self._git_branch = value
+
+    @property
+    def git_describe(self):
+        """The git describe value of the repository."""
+        return self._git_describe
+
+    @git_describe.setter
+    def git_describe(self, value):
+        """Set the git describe value of the repository."""
+        self._git_describe = value
+
     def to_dict(self):
         job_dict = {
             models.CREATED_KEY: self.created_on,
+            models.GIT_BRANCH_KEY: self.git_branch,
+            models.GIT_COMMIT_KEY: self.git_commit,
+            models.GIT_DESCRIBE_KEY: self.git_describe,
+            models.GIT_URL_KEY: self.git_url,
             models.JOB_KEY: self.job,
             models.KERNEL_KEY: self.kernel,
             models.NAME_KEY: self.name,
@@ -171,8 +220,13 @@ class JobDocument(modb.BaseDocument):
             kernel = json_get(models.KERNEL_KEY)
 
             job_doc = JobDocument(job, kernel)
-            job_doc.id = json_get(models.ID_KEY, None)
+
             job_doc.created_on = json_get(models.CREATED_KEY, None)
+            job_doc.git_branch = json_get(models.GIT_BRANCH_KEY, None)
+            job_doc.git_commit = json_get(models.GIT_COMMIT_KEY, None)
+            job_doc.git_describe = json_get(models.GIT_DESCRIBE_KEY, None)
+            job_doc.git_url = json_get(models.GIT_URL_KEY, None)
+            job_doc.id = json_get(models.ID_KEY, None)
             job_doc.status = json_get(models.STATUS_KEY, None)
             job_doc.version = json_get(models.VERSION_KEY, "1.0")
 
