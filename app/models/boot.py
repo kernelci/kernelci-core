@@ -69,6 +69,7 @@ class BootDocument(modb.BaseDocument):
         self._kernel_image = None
         self._dtb_addr = None
         self._dtb = None
+        self._dtb_append = None
         self._endianness = None
         self._fastboot = None
         self._boot_log_html = None
@@ -357,6 +358,16 @@ class BootDocument(modb.BaseDocument):
         """
         self._version = value
 
+    @property
+    def dtb_append(self):
+        """The dtb_append value."""
+        return self._dtb_append
+
+    @dtb_append.setter
+    def dtb_append(self, value):
+        """Set the dtb_append value."""
+        self._dtb_append = value
+
     def to_dict(self):
         boot_dict = {
             models.BOARD_KEY: self.board,
@@ -367,6 +378,7 @@ class BootDocument(modb.BaseDocument):
             models.DEFCONFIG_ID_KEY: self.defconfig_id,
             models.DEFCONFIG_KEY: self.defconfig,
             models.DTB_ADDR_KEY: self.dtb_addr,
+            models.DTB_APPEND_KEY: self.dtb_append,
             models.DTB_KEY: self.dtb,
             models.ENDIANNESS_KEY: self.endianness,
             models.FASTBOOT_KEY: self.fastboot,

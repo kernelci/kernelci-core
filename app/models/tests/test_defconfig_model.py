@@ -48,6 +48,12 @@ class TestDefconfModel(unittest.TestCase):
         defconf_doc.git_branch = "git_branch"
         defconf_doc.git_describe = "git_describe"
         defconf_doc.version = "1.0"
+        defconf_doc.modules = "modules-file"
+        defconf_doc.dtb_dir = "dtb-dir"
+        defconf_doc.kernel_config = "kernel-config"
+        defconf_doc.system_map = "system-map"
+        defconf_doc.text_offset = "offset"
+        defconf_doc.kernel_image = "kernel-image"
 
         expected = {
             "name": "job-kernel-defconfig",
@@ -71,6 +77,12 @@ class TestDefconfModel(unittest.TestCase):
             "git_commit": "git_commit",
             "build_platform": [],
             "version": "1.0",
+            "dtb_dir": "dtb-dir",
+            "kernel_config": "kernel-config",
+            "kernel_image": "kernel-image",
+            "system_map": "system-map",
+            "text_offset": "offset",
+            "modules": "modules-file",
         }
 
         self.assertDictEqual(expected, defconf_doc.to_dict())

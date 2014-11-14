@@ -144,6 +144,7 @@ def _parse_boot_from_file(boot_log):
 
         boot_doc = modbt.BootDocument(board, job, kernel, defconfig, lab_name)
         _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f)
+        # TODO: Find and add job_id and defconfig_id
     except (OSError, TypeError, IOError), ex:
         utils.LOG.error("Error opening the file '%s'", boot_log)
         utils.LOG.exception(ex)
@@ -175,6 +176,7 @@ def _parse_boot_from_json(boot_json):
         boot_doc = modbt.BootDocument(board, job, kernel, defconfig, lab_name)
         boot_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
         _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f)
+        # TODO: add doc_id and defconfig_id
     except KeyError, ex:
         utils.LOG.error(
             "Missing key in boot report: import failed"
@@ -224,6 +226,7 @@ def _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f):
     )
     boot_doc.retries = json_pop_f(models.BOOT_RETRIES_KEY, 0)
     boot_doc.dtb = json_pop_f(models.DTB_KEY, None)
+    boot_doc.dtb_append = json_pop_f(models.DTB_APPEND_KEY, None)
     boot_doc.version = json_pop_f(models.VERSION_KEY, "1.0")
 
     boot_doc.metadata = boot_json

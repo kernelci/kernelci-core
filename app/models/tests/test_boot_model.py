@@ -26,39 +26,48 @@ class TestBootModel(unittest.TestCase):
         self.assertIsInstance(boot_doc, modb.BaseDocument)
 
     def test_boot_document_to_dict(self):
+        self.maxDiff = None
         boot_doc = modbt.BootDocument(
             'board', 'job', 'kernel', 'defconfig', 'lab'
         )
         boot_doc.id = 'id'
         boot_doc.job_id = 'job-id'
         boot_doc.created_on = 'now'
+        boot_doc.defconfig_id = "defconfig_id"
+        boot_doc.retries = 10
+        boot_doc.version = "1.0"
+        boot_doc.dtb_append = False
+        boot_doc.boot_log = "boot-log"
+        boot_doc.boot_log_html = "boot-log-html"
 
         expected = {
-            'name': 'board-job-kernel-defconfig',
-            'kernel': 'kernel',
-            'defconfig': 'defconfig',
-            'board': 'board',
-            'job_id': 'job-id',
-            'job': 'job',
             '_id': 'id',
-            'lab_name': 'lab',
+            'board': 'board',
+            'boot_log': "boot-log",
+            'boot_log_html': "boot-log-html",
+            'boot_result_description': None,
             'created_on': 'now',
-            'status': None,
-            'time': None,
-            'warnings': None,
-            'load_addr': None,
+            'defconfig': 'defconfig',
+            'defconfig_id': "defconfig_id",
             'dtb': None,
             'dtb_addr': None,
-            'initrd_addr': None,
-            'kernel_image': None,
-            'boot_log': None,
+            'dtb_append': False,
             'endian': None,
-            'metadata': {},
-            'boot_log_html': None,
             'fastboot': None,
-            'retries': None,
-            'boot_result_description': None,
-            'version': None,
+            'initrd_addr': None,
+            'job': 'job',
+            'job_id': 'job-id',
+            'kernel': 'kernel',
+            'kernel_image': None,
+            'lab_name': 'lab',
+            'load_addr': None,
+            'metadata': {},
+            'name': 'board-job-kernel-defconfig',
+            'retries': 10,
+            'status': None,
+            'time': None,
+            'version': "1.0",
+            'warnings': None,
         }
 
         self.assertDictEqual(expected, boot_doc.to_dict())
