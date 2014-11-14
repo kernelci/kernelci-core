@@ -30,7 +30,7 @@ import re
 import models
 import models.boot as modbt
 import utils
-import utils.db as db
+import utils.db
 
 # Pattern used for glob matching files on the filesystem.
 BOOT_REPORT_PATTERN = 'boot-*.json'
@@ -53,14 +53,15 @@ def import_and_save_boot(json_obj, db_options, base_path=utils.BASE_PATH):
     :param db_options: The mongodb database connection parameters.
     :type db_options: dict
     """
+    database = utils.db.get_db_connection(db_options)
     json_copy = copy.deepcopy(json_obj)
-    doc = _parse_boot_from_json(json_copy)
+
+    doc = _parse_boot_from_json(json_copy, database)
     doc_id = None
     ret_code = None
 
     if doc:
-        database = db.get_db_connection(db_options)
-        ret_code, doc_id = db.save(database, doc, manipulate=True)
+        ret_code, doc_id = utils.db.save(database, doc, manipulate=True)
         save_to_disk(doc, json_obj, base_path)
     else:
         utils.LOG.info("Boot report not imported nor saved")
@@ -155,7 +156,7 @@ def _parse_boot_from_file(boot_log):
     return boot_doc
 
 
-def _parse_boot_from_json(boot_json):
+def _parse_boot_from_json(boot_json, database):
     """Parse the boot report from a JSON object.
 
     :param boot_json: The JSON object.
@@ -176,7 +177,7 @@ def _parse_boot_from_json(boot_json):
         boot_doc = modbt.BootDocument(board, job, kernel, defconfig, lab_name)
         boot_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
         _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f)
-        # TODO: add doc_id and defconfig_id
+        _update_boot_doc_ids(boot_doc, database)
     except KeyError, ex:
         utils.LOG.error(
             "Missing key in boot report: import failed"
@@ -184,6 +185,43 @@ def _parse_boot_from_json(boot_json):
         utils.LOG.exception(ex)
 
     return boot_doc
+
+
+def _update_boot_doc_ids(boot_doc, database):
+    """Update boot document job and defconfig IDs references.
+
+    :param boot_doc: The boot document to update.
+    :type boot_doc: BootDocument
+    :param database: The database connection to use.
+    """
+    job = boot_doc.job
+    kernel = boot_doc.kernel
+    defconfig = boot_doc.defconfig
+
+    job_name = models.JOB_DOCUMENT_NAME % {
+        models.JOB_KEY: job,
+        models.KERNEL_KEY: kernel
+    }
+    defconfig_name = models.DEFCONFIG_DOCUMENT_NAME % {
+        models.JOB_KEY: job,
+        models.KERNEL_KEY: kernel,
+        models.DEFCONFIG_KEY: defconfig
+    }
+
+    job_doc = utils.db.find_one(
+        database[models.JOB_COLLECTION], job_name, field="name",
+        fields=[models.ID_KEY]
+    )
+
+    defconfig_doc = utils.db.find_one(
+        database[models.DEFCONFIG_COLLECTION], defconfig_name, field="name",
+        fields=[models.ID_KEY]
+    )
+
+    if job_doc:
+        boot_doc.job_id = job_doc.get(models.ID_KEY, None)
+    if defconfig_doc:
+        boot_doc.defconfig_id = defconfig_doc.get(models.ID_KEY, None)
 
 
 def _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f):

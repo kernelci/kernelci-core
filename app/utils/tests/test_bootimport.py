@@ -60,7 +60,7 @@ class TestParseBoot(unittest.TestCase):
         logging.disable(logging.NOTSET)
 
     def test_parse_from_json_simple(self):
-        doc = utils.bootimport._parse_boot_from_json(self.boot_report)
+        doc = utils.bootimport._parse_boot_from_json(self.boot_report, self.db)
 
         self.assertIsInstance(doc, modb.BootDocument)
         self.assertEqual(doc.name, "board-job-kernel-defconfig")
@@ -96,7 +96,7 @@ class TestParseBoot(unittest.TestCase):
             "foo": "bar"
         }
         self.assertRaises(
-            KeyError, utils.bootimport._parse_boot_from_json(boot_json)
+            KeyError, utils.bootimport._parse_boot_from_json(boot_json, self.db)
         )
 
     @patch("utils.bootimport._parse_boot_from_json")
