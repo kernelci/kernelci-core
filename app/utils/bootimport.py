@@ -266,6 +266,8 @@ def _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f):
     boot_doc.dtb = json_pop_f(models.DTB_KEY, None)
     boot_doc.dtb_append = json_pop_f(models.DTB_APPEND_KEY, None)
     boot_doc.version = json_pop_f(models.VERSION_KEY, "1.0")
+    boot_doc.git_commit = json_pop_f(models.GIT_COMMIT_KEY, None)
+    boot_doc.git_branch = json_pop_f(models.GIT_BRANCH_KEY, None)
 
     boot_doc.metadata = boot_json
 

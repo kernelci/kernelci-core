@@ -77,6 +77,9 @@ class BootDocument(modb.BaseDocument):
         self._retries = 0
         self._version = None
 
+        self._git_commit = None
+        self._git_branch = None
+
     @property
     def collection(self):
         return models.BOOT_COLLECTION
@@ -368,6 +371,26 @@ class BootDocument(modb.BaseDocument):
         """Set the dtb_append value."""
         self._dtb_append = value
 
+    @property
+    def git_commit(self):
+        """The git commit SHA."""
+        return self._git_commit
+
+    @git_commit.setter
+    def git_commit(self, value):
+        """Set the git commit SHA."""
+        self._git_commit = value
+
+    @property
+    def git_branch(self):
+        """The branch name of the repository used."""
+        return self._git_branch
+
+    @git_branch.setter
+    def git_branch(self, value):
+        """Set the branch name of the repository used."""
+        self._git_branch = value
+
     def to_dict(self):
         boot_dict = {
             models.BOARD_KEY: self.board,
@@ -382,6 +405,8 @@ class BootDocument(modb.BaseDocument):
             models.DTB_KEY: self.dtb,
             models.ENDIANNESS_KEY: self.endianness,
             models.FASTBOOT_KEY: self.fastboot,
+            models.GIT_BRANCH_KEY: self.git_branch,
+            models.GIT_COMMIT_KEY: self.git_commit,
             models.INITRD_ADDR_KEY: self.initrd_addr,
             models.JOB_ID_KEY: self.job_id,
             models.JOB_KEY: self.job,

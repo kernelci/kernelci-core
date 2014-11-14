@@ -39,6 +39,9 @@ class TestBootModel(unittest.TestCase):
         boot_doc.dtb_append = False
         boot_doc.boot_log = "boot-log"
         boot_doc.boot_log_html = "boot-log-html"
+        boot_doc.warnings = 2
+        boot_doc.git_branch = "git-branch"
+        boot_doc.git_commit = "git-commit"
 
         expected = {
             '_id': 'id',
@@ -67,7 +70,9 @@ class TestBootModel(unittest.TestCase):
             'status': None,
             'time': None,
             'version': "1.0",
-            'warnings': None,
+            'warnings': 2,
+            "git_commit": "git-commit",
+            "git_branch": "git-branch"
         }
 
         self.assertDictEqual(expected, boot_doc.to_dict())
