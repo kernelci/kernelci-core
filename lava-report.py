@@ -3,6 +3,7 @@
 # Usage ./lava-report.py <option> [json]
 import argparse
 import subprocess
+import re
 from utils import *
 
 
@@ -23,6 +24,7 @@ def boot_report(args):
     connection, jobs, duration =  parse_json(args.boot)
     results_directory = os.getcwd() + '/results'
     results = {}
+    dt_tests = False
     mkdir(results_directory)
     for job_id in jobs:
         # Retrieve job details
@@ -38,10 +40,19 @@ def boot_report(args):
         # Parse LAVA messages out of log
         raw_job_file = str(binary_job_file)
         job_file = ''
+        dt_test = None
         for line in raw_job_file.splitlines():
             if '<LAVA_DISPATCHER>' not in line:
                 if len(line) != 0:
                     job_file += line + '\n'
+            if '### dt-test ### end of selftest' in line:
+                dt_tests = True
+                regex = re.compile("(?P<test>\d+\*?)")
+                dt_test_results = regex.findall(line)
+                if int(dt_test_results[3]) > 0:
+                    dt_test = 'FAIL'
+                else:
+                    dt_test = 'PASS'
         # Retrieve bundle
         if bundle is not None:
             json_bundle = connection.dashboard.get(bundle)
@@ -94,9 +105,9 @@ def boot_report(args):
             if kernel_boot_time is None:
                 kernel_boot_time = '0.0'
             if results.has_key(kernel_defconfig):
-                results[kernel_defconfig].append({'device_type': device_type, 'kernel_boot_time': kernel_boot_time, 'result': result})
+                results[kernel_defconfig].append({'device_type': device_type, 'dt_test': dt_test, 'kernel_boot_time': kernel_boot_time, 'result': result})
             else:
-                results[kernel_defconfig] = [{'device_type': device_type, 'kernel_boot_time': kernel_boot_time, 'result': result}]
+                results[kernel_defconfig] = [{'device_type': device_type, 'dt_test': dt_test, 'kernel_boot_time': kernel_boot_time, 'result': result}]
             # Create JSON format boot metadata
             print 'Creating JSON format boot metadata'
             boot_meta['boot_log'] = log
@@ -110,6 +121,7 @@ def boot_report(args):
             boot_meta['dtb'] = None
             boot_meta['dtb_addr'] = dtb_addr
             boot_meta['dtb_append'] = dtb_append
+            boot_meta['dt_test'] = dt_test
             boot_meta['endian'] = kernel_endian
             boot_meta['fastboot'] = fastboot
             boot_meta['fastboot_cmds'] = fastboot_cmd
@@ -163,7 +175,31 @@ def boot_report(args):
                         break
                 for result in results_list:
                     if result['result'] != 'PASS':
-                        f.write('    %s   %ss   %s\n' % (result['device_type'], result['kernel_boot_time'], result['result']))
+                        f.write('    %s   %ss   boot-test: %s\n' % (result['device_type'],
+                                                                    result['kernel_boot_time'],
+                                                                    result['result']))
+                        f.write('    http://storage.armcloud.us/kernel-ci/%s/%s/%s/boot-%s.html' % (kernel_tree,
+                                                                                                    kernel_version,
+                                                                                                    defconfig,
+                                                                                                    result['device_type']))
+                        f.write('\n')
+            first = True
+            for defconfig, results_list in results.items():
+                for result in results_list:
+                    if result['dt_test'] == 'FAIL':
+                        if first:
+                            f.write('\n')
+                            f.write('Failed Device Tree Tests:\n')
+                            first = False
+                        f.write('\n')
+                        f.write(defconfig)
+                        f.write('\n')
+                        break
+                for result in results_list:
+                    if result['dt_test'] == "FAIL":
+                        f.write('    %s   %ss   dt-test: %s\n' % (result['device_type'],
+                                                                  result['kernel_boot_time'],
+                                                                  result['dt_test']))
                         f.write('    http://storage.armcloud.us/kernel-ci/%s/%s/%s/boot-%s.html' % (kernel_tree,
                                                                                                     kernel_version,
                                                                                                     defconfig,
@@ -171,13 +207,26 @@ def boot_report(args):
                         f.write('\n')
 
             f.write('\n')
-            f.write('Full Report:\n')
+            f.write('Full Boot Report:\n')
             for defconfig, results_list in results.items():
                 f.write('\n')
                 f.write(defconfig)
                 f.write('\n')
                 for result in results_list:
-                    f.write('    %s   %ss   %s\n' % (result['device_type'], result['kernel_boot_time'], result['result']))
+                    f.write('    %s   %ss   boot-test: %s\n' % (result['device_type'], result['kernel_boot_time'], result['result']))
+            if dt_tests:
+                f.write('\n')
+                f.write('Full Device Tree Test Report:\n')
+                for defconfig, results_list in results.items():
+                    first = True
+                    for result in results_list:
+                        if result['dt_test']:
+                            if first:
+                                f.write('\n')
+                                f.write(defconfig)
+                                f.write('\n')
+                                first = False
+                            f.write('    %s   %ss   dt-test: %s\n' % (result['device_type'], result['kernel_boot_time'], result['dt_test']))
         # sendmail
         if args.email:
             print 'Sending e-mail summary to %s' % args.email
