@@ -213,11 +213,11 @@ def boot_report(args):
         with open(os.path.join(results_directory, dt_self_test), 'a') as f:
             f.write('to : %s\n' % args.email)
             f.write('from : lava@armcloud.us\n')
-            f.write('subject : %s dt-runtime-self-test: %s boards tested: %s passed, %s failed (%s)\n' % (kernel_tree,
-                                                                                                          str(total),
-                                                                                                          str(passed),
-                                                                                                          str(failed),
-                                                                                                          kernel_version))
+            f.write('subject : %s dt-runtime-unit-tests: %s boards tested: %s passed, %s failed (%s)\n' % (kernel_tree,
+                                                                                                           str(total),
+                                                                                                           str(passed),
+                                                                                                           str(failed),
+                                                                                                           kernel_version))
             f.write('\n')
             f.write('Full Build Report: http://status.armcloud.us/build/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
             f.write('Full Boot Report: http://status.armcloud.us/boot/all/job/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
@@ -239,10 +239,10 @@ def boot_report(args):
                         break
                 for result in results_list:
                     if result['dt_test_result'] == "FAIL":
-                        f.write('    %s   passed: %s / failed: %s   dt-runtime-self-test: %s\n' % (result['device_type'],
-                                                                                                   result['dt_tests_passed'],
-                                                                                                   result['dt_tests_failed'],
-                                                                                                   result['dt_test_result']))
+                        f.write('    %s   passed: %s / failed: %s   dt-runtime-unit-tests: %s\n' % (result['device_type'],
+                                                                                                    result['dt_tests_passed'],
+                                                                                                    result['dt_tests_failed'],
+                                                                                                    result['dt_test_result']))
                         f.write('    http://storage.armcloud.us/kernel-ci/%s/%s/%s/boot-%s.html' % (kernel_tree,
                                                                                                     kernel_version,
                                                                                                     defconfig,
@@ -259,10 +259,10 @@ def boot_report(args):
                             f.write(defconfig)
                             f.write('\n')
                             first = False
-                        f.write('    %s   passed: %s / failed: %s   dt-runtime-self-test: %s\n' % (result['device_type'],
-                                                                                                   result['dt_tests_passed'],
-                                                                                                   result['dt_tests_failed'],
-                                                                                                   result['dt_test_result']))
+                        f.write('    %s   passed: %s / failed: %s   dt-runtime-unit-tests: %s\n' % (result['device_type'],
+                                                                                                    result['dt_tests_passed'],
+                                                                                                    result['dt_tests_failed'],
+                                                                                                    result['dt_test_result']))
 
     # sendmail
     if args.email:
