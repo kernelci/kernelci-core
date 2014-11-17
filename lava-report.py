@@ -141,7 +141,7 @@ def boot_report(args):
 
     if results and kernel_tree and kernel_version:
         print 'Creating boot summary for %s' % kernel_version
-        log = '%s-boot-report.txt' % kernel_version
+        boot = '%s-boot-report.txt' % kernel_version
         passed = 0
         failed = 0
         for defconfig, results_list in results.items():
@@ -151,7 +151,7 @@ def boot_report(args):
                 else:
                     failed += 1
         total = passed + failed
-        with open(os.path.join(results_directory, log), 'a') as f:
+        with open(os.path.join(results_directory, boot), 'a') as f:
             f.write('to : %s\n' % args.email)
             f.write('from : lava@armcloud.us\n')
             f.write('subject : %s boot: %s boots: %s passed, %s failed (%s)\n' % (kernel_tree,
@@ -188,30 +188,6 @@ def boot_report(args):
                                                                                                     defconfig,
                                                                                                     result['device_type']))
                         f.write('\n')
-            first = True
-            for defconfig, results_list in results.items():
-                for result in results_list:
-                    if result['dt_test_result'] == 'FAIL':
-                        if first:
-                            f.write('\n')
-                            f.write('Failed Device Tree Tests:\n')
-                            first = False
-                        f.write('\n')
-                        f.write(defconfig)
-                        f.write('\n')
-                        break
-                for result in results_list:
-                    if result['dt_test_result'] == "FAIL":
-                        f.write('    %s   %s/%s   dt-test: %s\n' % (result['device_type'],
-                                                                    result['dt_tests_passed'],
-                                                                    result['dt_tests_failed'],
-                                                                    result['dt_test_result']))
-                        f.write('    http://storage.armcloud.us/kernel-ci/%s/%s/%s/boot-%s.html' % (kernel_tree,
-                                                                                                    kernel_version,
-                                                                                                    defconfig,
-                                                                                                    result['device_type']))
-                        f.write('\n')
-
             f.write('\n')
             f.write('Full Boot Report:\n')
             for defconfig, results_list in results.items():
@@ -220,26 +196,81 @@ def boot_report(args):
                 f.write('\n')
                 for result in results_list:
                     f.write('    %s   %ss   boot-test: %s\n' % (result['device_type'], result['kernel_boot_time'], result['result']))
-            if dt_tests:
-                f.write('\n')
-                f.write('Full Device Tree Test Report:\n')
-                for defconfig, results_list in results.items():
-                    first = True
-                    for result in results_list:
-                        if result['dt_test_result']:
-                            if first:
-                                f.write('\n')
-                                f.write(defconfig)
-                                f.write('\n')
-                                first = False
-                            f.write('    %s   %s / %s   dt-test: %s\n' % (result['device_type'],
-                                                                        result['dt_tests_passed'],
-                                                                        result['dt_tests_failed'],
-                                                                        result['dt_test_result']))
-        # sendmail
-        if args.email:
-            print 'Sending e-mail summary to %s' % args.email
-            cmd = 'cat %s | sendmail -t' % os.path.join(results_directory, log)
+
+    # dt-self-test
+    if results and kernel_tree and kernel_version and dt_tests:
+        print 'Creating device tree self test summary for %s' % kernel_version
+        dt_self_test = '%s-dt-self-test-report.txt' % kernel_version
+        passed = 0
+        failed = 0
+        for defconfig, results_list in results.items():
+            for result in results_list:
+                if result['dt_test_result'] == 'PASS':
+                    passed += 1
+                elif result['dt_test_result'] == 'FAIL':
+                    failed += 1
+        total = passed + failed
+        with open(os.path.join(results_directory, dt_self_test), 'a') as f:
+            f.write('to : %s\n' % args.email)
+            f.write('from : lava@armcloud.us\n')
+            f.write('subject : %s dt-self-test: %s tests: %s passed, %s failed (%s)\n' % (kernel_tree,
+                                                                                str(total),
+                                                                                str(passed),
+                                                                                str(failed),
+                                                                                kernel_version))
+            f.write('\n')
+            f.write('Full Test Report: http://status.armcloud.us/test/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
+            f.write('Full Build Report: http://status.armcloud.us/build/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
+            f.write('Full Boot Report: http://status.armcloud.us/boot/all/job/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
+            f.write('\n')
+            f.write('Tree/Branch: %s\n' % kernel_tree)
+            f.write('Git Describe: %s\n' % kernel_version)
+            first = True
+            for defconfig, results_list in results.items():
+                for result in results_list:
+                    if result['dt_test_result'] == 'FAIL':
+                        if first:
+                            f.write('\n')
+                            f.write('Failed Device Tree Self Tests:\n')
+                            first = False
+                        f.write('\n')
+                        f.write(defconfig)
+                        f.write('\n')
+                        break
+                for result in results_list:
+                    if result['dt_test_result'] == "FAIL":
+                        f.write('    %s   %s/%s   dt-self-test: %s\n' % (result['device_type'],
+                                                                         result['dt_tests_passed'],
+                                                                         result['dt_tests_failed'],
+                                                                         result['dt_test_result']))
+                        f.write('    http://storage.armcloud.us/kernel-ci/%s/%s/%s/boot-%s.html' % (kernel_tree,
+                                                                                                    kernel_version,
+                                                                                                    defconfig,
+                                                                                                    result['device_type']))
+                        f.write('\n')
+            f.write('\n')
+            f.write('Full Device Tree Test Report:\n')
+            for defconfig, results_list in results.items():
+                first = True
+                for result in results_list:
+                    if result['dt_test_result']:
+                        if first:
+                            f.write('\n')
+                            f.write(defconfig)
+                            f.write('\n')
+                            first = False
+                        f.write('    %s   %s / %s   dt-self-test: %s\n' % (result['device_type'],
+                                                                    result['dt_tests_passed'],
+                                                                    result['dt_tests_failed'],
+                                                                    result['dt_test_result']))
+
+    # sendmail
+    if args.email:
+        print 'Sending e-mail summary to %s' % args.email
+        cmd = 'cat %s | sendmail -t' % os.path.join(results_directory, boot)
+        subprocess.check_output(cmd, shell=True)
+        if dt_tests:
+            cmd = 'cat %s | sendmail -t' % os.path.join(results_directory, dt_self_test)
             subprocess.check_output(cmd, shell=True)
 
 def main(args):
