@@ -219,9 +219,9 @@ def boot_report(args):
                                                                                                           str(failed),
                                                                                                           kernel_version))
             f.write('\n')
-            f.write('Full Test Report: http://status.armcloud.us/test/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
             f.write('Full Build Report: http://status.armcloud.us/build/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
             f.write('Full Boot Report: http://status.armcloud.us/boot/all/job/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
+            f.write('Full Test Report: http://status.armcloud.us/test/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
             f.write('\n')
             f.write('Tree/Branch: %s\n' % kernel_tree)
             f.write('Git Describe: %s\n' % kernel_version)
