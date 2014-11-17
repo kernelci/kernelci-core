@@ -24,6 +24,7 @@ ADDRESS_KEY = "address"
 AGGREGATE_KEY = 'aggregate'
 ARCHITECTURE_KEY = 'arch'
 BOARD_KEY = 'board'
+BOOT_ID_KEY = 'boot_id'
 BOOT_LOAD_ADDR_KEY = 'loadaddr'
 BOOT_LOG_HTML_KEY = 'boot_log_html'
 BOOT_LOG_KEY = 'boot_log'

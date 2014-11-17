@@ -374,7 +374,7 @@ class TestHandlersCommon(unittest.TestCase):
             }
         }
 
-        spec = get_and_add_date_range(spec, query_args_func)
+        get_and_add_date_range(spec, query_args_func)
         self.assertEqual(expected, spec)
 
     @patch("models.token.Token", spec=True)

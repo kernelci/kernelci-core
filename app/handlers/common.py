@@ -16,7 +16,10 @@
 import pymongo
 import types
 
-from bson import tz_util
+from bson import (
+    objectid,
+    tz_util,
+)
 from datetime import (
     date,
     datetime,
@@ -25,7 +28,7 @@ from datetime import (
 )
 
 import models
-import models.token as modt
+import models.token as mtoken
 import utils
 
 # Default value to calculate a date range in case the provided value is
@@ -242,6 +245,14 @@ LAB_VALID_KEYS = {
     ]
 }
 
+ID_KEYS = [
+    models.BOOT_ID_KEY,
+    models.DEFCONFIG_ID_KEY,
+    models.ID_KEY,
+    models.JOB_ID_KEY,
+    models.LAB_ID_KEY,
+]
+
 MASTER_KEY = 'master_key'
 API_TOKEN_HEADER = 'Authorization'
 ACCEPTED_CONTENT_TYPE = 'application/json'
@@ -260,7 +271,9 @@ def get_all_query_values(query_args_func, valid_keys):
     :type valid_keys: list
     """
     spec = get_query_spec(query_args_func, valid_keys)
-    spec = get_and_add_date_range(spec, query_args_func)
+
+    get_and_add_date_range(spec, query_args_func)
+    update_id_fields(spec)
 
     sort = get_query_sort(query_args_func)
     fields = get_query_fields(query_args_func)
@@ -268,6 +281,21 @@ def get_all_query_values(query_args_func, valid_keys):
     unique = get_aggregate_value(query_args_func)
 
     return (spec, sort, fields, skip, limit, unique)
+
+
+def update_id_fields(spec):
+    """Make sure ID fields are treated correctly.
+
+    If we search for an ID field, either _id or like job_id, that references
+    a real _id in mongodb, we need to make sure they are treated as such.
+    mongodb stores them as ObjectId elements.
+
+    :param spec: The spec data structure with the parameters to check.
+    """
+    if spec:
+        common_keys = list(set(ID_KEYS) & set(spec.viewkeys()))
+        for key in common_keys:
+            spec[key] = objectid.ObjectId(spec[key])
 
 
 def get_aggregate_value(query_args_func):
@@ -540,9 +568,9 @@ def validate_token(token_obj, method, remote_ip, validate_func):
     valid_token = True
 
     if token_obj:
-        token = modt.Token.from_json(token_obj)
+        token = mtoken.Token.from_json(token_obj)
 
-        if not isinstance(token, modt.Token):
+        if not isinstance(token, mtoken.Token):
             utils.LOG.error("Retrieved token is not a Token object")
             valid_token = False
         else:
@@ -567,7 +595,7 @@ def _valid_token_ip(token, remote_ip):
     valid_token = False
 
     if remote_ip:
-        remote_ip = modt.convert_ip_address(remote_ip)
+        remote_ip = mtoken.convert_ip_address(remote_ip)
 
         if remote_ip in token.ip_address:
             valid_token = True
