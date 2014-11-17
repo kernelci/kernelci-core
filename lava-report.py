@@ -231,7 +231,7 @@ def boot_report(args):
                     if result['dt_test_result'] == 'FAIL':
                         if first:
                             f.write('\n')
-                            f.write('Failed Device Tree Self Tests:\n')
+                            f.write('Failed Device Tree Unit Tests:\n')
                             first = False
                         f.write('\n')
                         f.write(defconfig)
@@ -249,7 +249,7 @@ def boot_report(args):
                                                                                                     result['device_type']))
                         f.write('\n')
             f.write('\n')
-            f.write('Full Test Report:\n')
+            f.write('Full Unit Test Report:\n')
             for defconfig, results_list in results.items():
                 first = True
                 for result in results_list:
