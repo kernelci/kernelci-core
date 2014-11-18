@@ -18,15 +18,14 @@ try:
 except ImportError:
     import json
 
+import bson
 import functools
 import httplib
 import tornado
 import tornado.web
 
-from bson.json_util import default
-
-import handlers.common as handc
-import handlers.response as handr
+import handlers.common as hcommon
+import handlers.response as hresponse
 import models
 import utils
 import utils.db
@@ -39,7 +38,7 @@ STATUS_MESSAGES = {
     405: 'Operation not allowed',
     415: (
         'Please use "%s" as the default media type' %
-        handc.ACCEPTED_CONTENT_TYPE
+        hcommon.ACCEPTED_CONTENT_TYPE
     ),
     420: 'No JSON data found',
     500: 'Internal database error',
@@ -99,7 +98,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
     @staticmethod
     def _token_validation_func():
-        return handc.valid_token_general
+        return hcommon.valid_token_general
 
     def _get_status_message(self, status_code):
         """Get custom error message based on the status code.
@@ -126,12 +125,13 @@ class BaseHandler(tornado.web.RequestHandler):
         headers = {}
         result = {}
 
-        if isinstance(response, handr.HandlerResponse):
+        if isinstance(response, hresponse.HandlerResponse):
             status_code = response.status_code
             reason = response.reason or self._get_status_message(status_code)
             headers = response.headers
             result = json.dumps(
-                response.to_dict(), default=default, ensure_ascii=False
+                response.to_dict(),
+                default=bson.json_util.default, ensure_ascii=False
             )
         else:
             status_code = 506
@@ -140,7 +140,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
         self.set_status(status_code=status_code, reason=reason)
         self.write(result)
-        self.set_header('Content-Type', handc.DEFAULT_RESPONSE_TYPE)
+        self.set_header('Content-Type', hcommon.DEFAULT_RESPONSE_TYPE)
 
         if headers:
             for key, val in headers.iteritems():
@@ -159,7 +159,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
         if 'Content-Type' in self.request.headers.keys():
             if self.request.headers['Content-Type'] == \
-                    handc.ACCEPTED_CONTENT_TYPE:
+                    hcommon.ACCEPTED_CONTENT_TYPE:
                 valid_content = True
             else:
                 self.log.error(
@@ -203,7 +203,7 @@ class BaseHandler(tornado.web.RequestHandler):
                         kwargs['reason'] = j_reason
                         response = self._post(*args, **kwargs)
                     else:
-                        response = handr.HandlerResponse(400)
+                        response = hresponse.HandlerResponse(400)
                         if j_reason:
                             response.reason = (
                                 "Provided JSON is not valid: %s" % j_reason
@@ -215,16 +215,16 @@ class BaseHandler(tornado.web.RequestHandler):
                     self.log.exception(ex)
                     error = "No JSON data found in the POST request"
                     self.log.error(error)
-                    response = handr.HandlerResponse(422)
+                    response = hresponse.HandlerResponse(422)
                     response.reason = error
                     response.result = None
             else:
-                response = handr.HandlerResponse(valid_request)
+                response = hresponse.HandlerResponse(valid_request)
                 response.reason = self._get_status_message(valid_request)
                 response.result = None
         else:
-            response = handr.HandlerResponse(403)
-            response.reason = handc.NOT_VALID_TOKEN
+            response = hresponse.HandlerResponse(403)
+            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 
@@ -256,7 +256,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
         :return A `HandlerResponse` object.
         """
-        return handr.HandlerResponse(501)
+        return hresponse.HandlerResponse(501)
 
     @tornado.web.asynchronous
     def delete(self, *args, **kwargs):
@@ -280,12 +280,12 @@ class BaseHandler(tornado.web.RequestHandler):
             if kwargs and kwargs.get('id', None):
                 response = self._delete(kwargs['id'])
             else:
-                response = handr.HandlerResponse(400)
+                response = hresponse.HandlerResponse(400)
                 response.reason = self._get_status_message(400)
                 response.result = None
         else:
-            response = handr.HandlerResponse(403)
-            response.status = handc.NOT_VALID_TOKEN
+            response = hresponse.HandlerResponse(403)
+            response.status = hcommon.NOT_VALID_TOKEN
 
         return response
 
@@ -301,7 +301,7 @@ class BaseHandler(tornado.web.RequestHandler):
         :param doc_id: The ID of the documento to delete.
         :return A `HandlerResponse` object.
         """
-        return handr.HandlerResponse(501)
+        return hresponse.HandlerResponse(501)
 
     @tornado.web.asynchronous
     def get(self, *args, **kwargs):
@@ -328,8 +328,8 @@ class BaseHandler(tornado.web.RequestHandler):
             else:
                 response = self._get(**kwargs)
         else:
-            response = handr.HandlerResponse(403)
-            response.reason = handc.NOT_VALID_TOKEN
+            response = hresponse.HandlerResponse(403)
+            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 
@@ -343,20 +343,29 @@ class BaseHandler(tornado.web.RequestHandler):
 
         :return A `HandlerResponse` object.
         """
-        response = handr.HandlerResponse()
-        result = utils.db.find_one(
-            self.collection,
-            doc_id,
-            fields=handc.get_query_fields(self.get_query_arguments)
-        )
+        response = hresponse.HandlerResponse()
+        result = None
 
-        if result:
-            # result here is returned as a dictionary from mongodb
-            response.result = result
-        else:
-            response.status_code = 404
-            response.reason = "Resource '%s' not found" % doc_id
-            response.result = None
+        try:
+            obj_id = bson.objectid.ObjectId(doc_id)
+            result = utils.db.find_one(
+                self.collection,
+                [obj_id],
+                fields=hcommon.get_query_fields(self.get_query_arguments)
+            )
+
+            if result:
+                # result here is returned as a dictionary from mongodb
+                response.result = result
+            else:
+                response.status_code = 404
+                response.reason = "Resource '%s' not found" % doc_id
+                response.result = None
+        except bson.errors.InvalidId, ex:
+            self.log.exception(ex)
+            self.log.error("Provided doc ID '%s' is not valid", doc_id)
+            response.status_code = 400
+            response.status = "Wrong ID value provided"
 
         return response
 
@@ -372,7 +381,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
         :return A `HandlerResponse` object.
         """
-        response = handr.HandlerResponse()
+        response = hresponse.HandlerResponse()
         spec, sort, fields, skip, limit, unique = self._get_query_args()
 
         if unique:
@@ -423,7 +432,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
         if self.request.arguments:
             spec, sort, fields, skip, limit, unique = \
-                handc.get_all_query_values(
+                hcommon.get_all_query_values(
                     self.get_query_arguments, self._valid_keys(method)
                 )
 
@@ -451,9 +460,9 @@ class BaseHandler(tornado.web.RequestHandler):
         """
         valid_token = False
 
-        req_token = self.request.headers.get(handc.API_TOKEN_HEADER, None)
+        req_token = self.request.headers.get(hcommon.API_TOKEN_HEADER, None)
         remote_ip = self.request.remote_ip
-        master_key = self.settings.get(handc.MASTER_KEY, None)
+        master_key = self.settings.get(hcommon.MASTER_KEY, None)
 
         if req_token:
             valid_token = self._token_validation(
@@ -473,7 +482,7 @@ class BaseHandler(tornado.web.RequestHandler):
         token_obj = self._find_token(req_token, self.db)
 
         if token_obj:
-            valid_token = handc.validate_token(
+            valid_token = hcommon.validate_token(
                 token_obj,
                 method,
                 remote_ip,
