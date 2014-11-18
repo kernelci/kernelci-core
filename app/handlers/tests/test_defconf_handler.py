@@ -91,8 +91,10 @@ class TestDefconfHandler(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
         self.assertEqual(response.body, expected_body)
 
+    @mock.patch('bson.objectid.ObjectId')
     @mock.patch('handlers.defconf.DefConfHandler.collection')
-    def test_get_by_id_not_found(self, mock_collection):
+    def test_get_by_id_not_found(self, mock_collection, mock_id):
+        mock_id.return_value = "defconf"
         mock_collection.find_one = mock.MagicMock()
         mock_collection.find_one.return_value = None
 

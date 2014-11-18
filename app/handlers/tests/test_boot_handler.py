@@ -70,7 +70,9 @@ class TestBootHandler(
         response = self.fetch('/boot/board', method='DELETE')
         self.assertEqual(response.code, 403)
 
-    def test_delete_with_token_no_job(self):
+    @mock.patch("bson.objectid.ObjectId")
+    def test_delete_with_token_no_job(self, mock_id):
+        mock_id.return_value = "boot"
         headers = {'Authorization': 'foo'}
 
         response = self.fetch(
@@ -81,7 +83,9 @@ class TestBootHandler(
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    def test_delete_with_token_with_boot(self):
+    @mock.patch("bson.objectid.ObjectId")
+    def test_delete_with_token_with_boot(self, mock_id):
+        mock_id.return_value = "boot"
         db = self.mongodb_client['kernel-ci']
         db['boot'].insert(dict(_id='boot', job='job', kernel='kernel'))
 

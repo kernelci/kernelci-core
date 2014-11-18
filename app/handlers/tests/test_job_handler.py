@@ -101,8 +101,10 @@ class TestJobHandler(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
         self.assertEqual(response.body, expected_body)
 
+    @mock.patch('bson.objectid.ObjectId')
     @mock.patch('handlers.job.JobHandler.collection')
-    def test_get_by_id_not_found(self, collection):
+    def test_get_by_id_not_found(self, collection, mock_id):
+        mock_id.return_value = "job-kernel"
         collection.find_one = mock.MagicMock()
         collection.find_one.return_value = None
 
@@ -113,8 +115,10 @@ class TestJobHandler(
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
+    @mock.patch('bson.objectid.ObjectId')
     @mock.patch('handlers.job.JobHandler.collection')
-    def test_get_by_id_not_found_empty_list(self, collection):
+    def test_get_by_id_not_found_empty_list(self, collection, mock_id):
+        mock_id.return_value = "job-kernel"
         collection.find_one = mock.MagicMock()
         collection.find_one.return_value = []
 
@@ -125,8 +129,10 @@ class TestJobHandler(
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
+    @mock.patch('bson.objectid.ObjectId')
     @mock.patch('handlers.job.JobHandler.collection')
-    def test_get_by_id_found(self, collection):
+    def test_get_by_id_found(self, collection, mock_id):
+        mock_id.return_value = "job-kernel"
         collection.find_one = mock.MagicMock()
         collection.find_one.return_value = {'_id': 'foo'}
 
@@ -206,7 +212,9 @@ class TestJobHandler(
         response = self.fetch('/job/job', method='DELETE')
         self.assertEqual(response.code, 403)
 
-    def test_delete_with_token_no_job(self):
+    @mock.patch('bson.objectid.ObjectId')
+    def test_delete_with_token_no_job(self, mock_id):
+        mock_id.return_value = "job"
         headers = {'Authorization': 'foo'}
 
         response = self.fetch(
@@ -217,7 +225,9 @@ class TestJobHandler(
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    def test_delete_with_token_with_job(self):
+    @mock.patch("bson.objectid.ObjectId")
+    def test_delete_with_token_with_job(self, mock_id):
+        mock_id.return_value = "job"
         db = self.mongodb_client['kernel-ci']
         db['job'].insert(dict(_id='job', job='job', kernel='kernel'))
 

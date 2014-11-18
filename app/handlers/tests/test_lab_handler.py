@@ -180,8 +180,10 @@ class TestLabHandler(
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
+    @mock.patch("bson.objectid.ObjectId")
     @mock.patch("utils.db.find_one")
-    def test_post_correct_with_id_lab_id_not_found(self, find_one):
+    def test_post_correct_with_id_lab_id_not_found(self, find_one, mock_id):
+        mock_id.return_value = "lab-01"
         find_one.side_effect = [None]
 
         headers = {'Authorization': 'foo', 'Content-Type': 'application/json'}
@@ -252,8 +254,9 @@ class TestLabHandler(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
         self.assertIsNotNone(response.headers["Location"])
 
+    @mock.patch("bson.objectid.ObjectId")
     @mock.patch("utils.db.find_one")
-    def test_post_correct_with_id_lab_id_found(self, find_one):
+    def test_post_correct_with_id_lab_id_found(self, find_one, mock_id):
         lab_json = {
             "name": "foo",
             "token": "token-id",
@@ -263,6 +266,8 @@ class TestLabHandler(
                 "email": "foo"
             }
         }
+
+        mock_id.return_value = "foo"
         find_one.side_effect = [lab_json]
 
         headers = {'Authorization': 'foo', 'Content-Type': 'application/json'}
@@ -284,10 +289,12 @@ class TestLabHandler(
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
+    @mock.patch("bson.objectid.ObjectId")
     @mock.patch("utils.db.save")
     @mock.patch("utils.db.find_one")
     def test_post_correct_with_id_lab_id_found_err_on_save(
-            self, find_one, save):
+            self, find_one, save, mock_id):
+        mock_id.return_value = "foo"
         lab_json = {
             "name": "foo",
             "token": "token-id",
@@ -321,8 +328,10 @@ class TestLabHandler(
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
+    @mock.patch("bson.objectid.ObjectId")
     @mock.patch("utils.db.find_one")
-    def test_post_correct_with_id_lab_id_found_and_token(self, find_one):
+    def test_post_correct_with_id_lab_id_found_and_token(
+            self, find_one, mock_id):
         old_lab_json = {
             "name": "foo",
             "token": "token-id",
@@ -347,6 +356,8 @@ class TestLabHandler(
             "email": "foo",
             "username": "bar"
         }
+
+        mock_id.return_value = "foo"
         find_one.side_effect = [old_lab_json, old_token_json, new_token_json]
 
         headers = {'Authorization': 'foo', 'Content-Type': 'application/json'}
@@ -367,8 +378,10 @@ class TestLabHandler(
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
+    @mock.patch("bson.objectid.ObjectId")
     @mock.patch("utils.db.find_one")
-    def test_get_by_id_not_found(self, find_one):
+    def test_get_by_id_not_found(self, find_one, mock_id):
+        mock_id.return_value = "lab-01"
         find_one.side_effect = [None]
 
         headers = {'Authorization': 'foo'}
@@ -378,9 +391,11 @@ class TestLabHandler(
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    @mock.patch('utils.db.find_one')
-    def test_get_by_id_found(self, find_one):
+    @mock.patch("bson.objectid.ObjectId")
+    @mock.patch("utils.db.find_one")
+    def test_get_by_id_found(self, find_one, mock_id):
         find_one.side_effect = [{"_id": "foo", "name": "lab-01"}]
+        mock_id.return_value = "lab-01"
 
         expected_body = (
             '{"code": 200, "result": [{"_id": "foo", "name": "lab-01"}]}'
@@ -400,7 +415,9 @@ class TestLabHandler(
         response = self.fetch('/lab/lab', method='DELETE')
         self.assertEqual(response.code, 403)
 
-    def test_delete_with_token_no_lab(self):
+    @mock.patch("bson.objectid.ObjectId")
+    def test_delete_with_token_no_lab(self, mock_id):
+        mock_id.return_value = "foolab"
         headers = {'Authorization': 'foo'}
 
         response = self.fetch(
@@ -411,7 +428,9 @@ class TestLabHandler(
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    def test_delete_with_token_with_lab(self):
+    @mock.patch("bson.objectid.ObjectId")
+    def test_delete_with_token_with_lab(self, mock_id):
+        mock_id.return_value = "lab"
         db = self.mongodb_client['kernel-ci']
         db['lab'].insert(dict(_id='lab', name='lab-01', contact={}, address={}))
 
