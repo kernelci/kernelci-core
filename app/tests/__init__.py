@@ -41,7 +41,6 @@ def test_modules():
         'utils.bisect.tests.test_bisect',
         'utils.tests.test_bootimport',
         'utils.tests.test_docimport',
-        'utils.tests.test_meta_parser',
         'utils.tests.test_validator',
     ]
 
