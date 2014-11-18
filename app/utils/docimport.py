@@ -15,9 +15,15 @@
 
 """Container for all the import related functions."""
 
+try:
+    import simplejson as json
+except ImportError:
+    import json
+
 import glob
 import os
 import pymongo
+import types
 
 from bson import tz_util
 from datetime import datetime
@@ -96,7 +102,7 @@ def _import_job(job, kernel, database, base_path=utils.BASE_PATH):
     )
 
     saved_doc = utils.db.find_one(
-        database[models.JOB_COLLECTION], [job_name], field="name"
+        database[models.JOB_COLLECTION], [job_name], field=models.NAME_KEY
     )
     if saved_doc:
         job_doc = mjob.JobDocument.from_json(saved_doc)
@@ -125,6 +131,7 @@ def _import_job(job, kernel, database, base_path=utils.BASE_PATH):
                 ) for defconf_dir in os.listdir(kernel_dir)
                 if os.path.isdir(os.path.join(kernel_dir, defconf_dir))
                 if not utils.is_hidden(defconf_dir)
+                if not None
             ]
         )
     else:
@@ -164,82 +171,84 @@ def _traverse_defconf_dir(job, kernel, kernel_dir, defconfig_dir):
     :param defconfig_dir: The actual defconfig directory to parse.
     :return A `DefconfigDocument` instance.
     """
-    # Default to the directory name and if we have the metadata file, get
-    # the value from there.
-    # Split on the + sign since some dirs are in the form 'defconfig+FRAGMENT'.
-    defconfig = defconfig_dir.split('+')[0]
-    dirname = defconfig_dir
+    real_dir = os.path.join(kernel_dir, defconfig_dir)
+    utils.LOG.info("Traversing directory '%s'", real_dir)
 
-    defconf_doc = mdefconfig.DefconfigDocument(job, kernel, defconfig)
-    defconf_doc.dirname = dirname
-
-    utils.LOG.info("Traversing directory %s", dirname)
-
-    real_dir = os.path.join(kernel_dir, dirname)
-    defconf_doc.created_on = datetime.fromtimestamp(
-        os.stat(real_dir).st_mtime, tz=tz_util.utc
-    )
-
+    defconfig_doc = None
     for dirname, subdirs, files in os.walk(real_dir):
         # Consider only the actual directory and its files.
         subdirs[:] = []
 
-        # Legacy: status was retrieved via the presence of a file.
-        # Keep it for backward compatibility.
-        if os.path.isfile(os.path.join(dirname, models.BUILD_PASS_FILE)):
-            defconf_doc.status = models.PASS_STATUS
-        elif os.path.isfile(os.path.join(dirname, models.BUILD_FAIL_FILE)):
-            defconf_doc.status = models.FAIL_STATUS
+        data_file = os.path.join(dirname, models.BUILD_META_JSON_FILE)
+
+        if os.path.isfile(data_file):
+            defconfig_doc = _parse_build_data(data_file, job, kernel)
+            defconfig_doc.dirname = defconfig_dir
         else:
-            defconf_doc.status = models.UNKNOWN_STATUS
+            utils.LOG.warn("No build data file found in '%s'", real_dir)
 
-        json_meta_file = os.path.join(dirname, models.BUILD_META_JSON_FILE)
-        default_meta_file = os.path.join(dirname, models.BUILD_META_FILE)
-
-        if os.path.isfile(json_meta_file):
-            _parse_build_metadata(json_meta_file, defconf_doc)
-        elif os.path.isfile(default_meta_file):
-            _parse_build_metadata(default_meta_file, defconf_doc)
-        else:
-            utils.LOG.warn(
-                "No metadata file found for build %s-%s-%s",
-                job, kernel, defconfig
-            )
-            # If we do not have the metadata file, consider the build failed.
-            defconf_doc.status = models.FAIL_STATUS
-
-    return defconf_doc
+    return defconfig_doc
 
 
-def _parse_build_metadata(metadata_file, defconf_doc):
+def _parse_build_data(data_file, job, kernel):
     """Parse the metadata file contained in thie build directory.
 
-    :param metadata_file: The path to the metadata file.
+    :param data_file: The path to the metadata file.
     :param defconf_doc: The `DefconfigDocument` whose metadata will be updated.
     """
-    metadata = utils.meta_parser.parse_metadata_file(metadata_file)
+    build_data = None
+    with open(data_file) as data_file:
+        build_data = json.load(data_file)
 
-    if metadata:
-        # Set some of the metadata values directly into the objet for easier
-        # search.
-        metadata_pop = metadata.pop
-        defconf_doc.status = metadata_pop(
-            models.BUILD_RESULT_KEY, models.UNKNOWN_STATUS
-        )
-        defconf_doc.defconfig = metadata_pop(models.DEFCONFIG_KEY, None)
-        defconf_doc.warnings = metadata_pop(models.BUILD_WARNINGS_KEY, 0)
-        defconf_doc.errros = metadata_pop(models.BUILD_ERRORS_KEY, 0)
-        defconf_doc.arch = metadata_pop(models.ARCHITECTURE_KEY, None)
-        defconf_doc.build_platform = metadata_pop(
-            models.BUILD_PLATFORM_KEY, [])
-        defconf_doc.version = metadata_pop(models.VERSION_KEY, "1.0")
-        defconf_doc.git_describe = metadata_pop(models.GIT_DESCRIBE_KEY, None)
-        defconf_doc.git_url = metadata_pop(models.GIT_URL_KEY, None)
-        defconf_doc.git_commit = metadata_pop(models.GIT_COMMIT_KEY, None)
-        defconf_doc.git_branch = metadata_pop(models.GIT_BRANCH_KEY, None)
-        defconf_doc.build_time = metadata_pop(models.BUILD_TIME_KEY, 0)
+    defconfig_doc = None
 
-    defconf_doc.metadata = metadata
+    if all([build_data, isinstance(build_data, types.DictionaryType)]):
+        data_pop = build_data.pop
+
+        try:
+            defconfig = data_pop(models.DEFCONFIG_KEY)
+            job = data_pop(models.JOB_KEY, None) or job
+            kernel = data_pop(models.KERNEL_KEY, None) or kernel
+
+            defconfig_doc = mdefconfig.DefconfigDocument(
+                job, kernel, defconfig
+            )
+
+            defconfig_doc.created_on = datetime.fromtimestamp(
+                os.stat(data_file).st_mtime, tz=tz_util.utc
+            )
+
+            defconfig_doc.version = data_pop(models.VERSION_KEY, "1.0")
+            defconfig_doc.status = data_pop(
+                models.BUILD_RESULT_KEY, models.UNKNOWN_STATUS
+            )
+            defconfig_doc.warnings = data_pop(models.BUILD_WARNINGS_KEY, 0)
+            defconfig_doc.errros = data_pop(models.BUILD_ERRORS_KEY, 0)
+            defconfig_doc.arch = data_pop(models.ARCHITECTURE_KEY, None)
+            defconfig_doc.build_platform = data_pop(
+                models.BUILD_PLATFORM_KEY, [])
+            defconfig_doc.git_describe = data_pop(models.GIT_DESCRIBE_KEY, None)
+            defconfig_doc.git_url = data_pop(models.GIT_URL_KEY, None)
+            defconfig_doc.git_commit = data_pop(models.GIT_COMMIT_KEY, None)
+            defconfig_doc.git_branch = data_pop(models.GIT_BRANCH_KEY, None)
+            defconfig_doc.build_time = data_pop(models.BUILD_TIME_KEY, 0)
+            defconfig_doc.dtb_dir = data_pop(models.DTB_DIR_KEY, None)
+            defconfig_doc.kernel_config = data_pop(
+                models.KERNEL_CONFIG_KEY, None)
+            defconfig_doc.kernel_image = data_pop(
+                models.KERNEL_IMAGE_KEY, None)
+            defconfig_doc.modules_dir = data_pop(models.MODULES_DIR_KEY, None)
+            defconfig_doc.build_log = data_pop(models.BUILD_LOG_KEY, None)
+
+            defconfig_doc.metadata = build_data
+        except KeyError, ex:
+            utils.LOG.exception(ex)
+            utils.LOG.error(
+                "Missing mandatory key in build data file '%s'",
+                data_file
+            )
+
+    return defconfig_doc
 
 
 def _import_all(database, base_path=utils.BASE_PATH):
