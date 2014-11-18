@@ -15,15 +15,17 @@
 
 """The RequestHandler for /boot URLs."""
 
-import handlers.base as handb
-import handlers.common as handc
-import handlers.response as handr
+import bson
+
+import handlers.base as hbase
+import handlers.common as hcommon
+import handlers.response as hresponse
 import models
 import taskqueue.tasks as taskq
-import utils.db as db
+import utils.db
 
 
-class BootHandler(handb.BaseHandler):
+class BootHandler(hbase.BaseHandler):
     """Handle the /boot URLs."""
 
     def __init__(self, application, request, **kwargs):
@@ -35,10 +37,10 @@ class BootHandler(handb.BaseHandler):
 
     @staticmethod
     def _valid_keys(method):
-        return handc.BOOT_VALID_KEYS.get(method, None)
+        return hcommon.BOOT_VALID_KEYS.get(method, None)
 
     def _post(self, *args, **kwargs):
-        response = handr.HandlerResponse(202)
+        response = hresponse.HandlerResponse(202)
         if kwargs.get("reason", None):
             response.reason = (
                 "Request accepted and being imported. WARNING: %s" %
@@ -59,16 +61,25 @@ class BootHandler(handb.BaseHandler):
 
         if self.validate_req_token("DELETE"):
             if kwargs and kwargs.get('id', None):
-                doc_id = kwargs['id']
-                if db.find_one(self.collection, doc_id):
-                    response = self._delete(doc_id)
-                    if response.status_code == 200:
-                        response.reason = "Resource '%s' deleted" % doc_id
-                else:
-                    response = handr.HandlerResponse(404)
-                    response.reason = "Resource '%s' not found" % doc_id
+                try:
+                    doc_id = kwargs['id']
+                    obj_id = bson.objectid.ObjectId(doc_id)
+                    if utils.db.find_one(self.collection, [obj_id]):
+                        response = self._delete(obj_id)
+                        if response.status_code == 200:
+                            response.reason = "Resource '%s' deleted" % doc_id
+                    else:
+                        response = hresponse.HandlerResponse(404)
+                        response.reason = "Resource '%s' not found" % doc_id
+                except bson.errors.InvalidId, ex:
+                    self.log.exception(ex)
+                    self.log.error(
+                        "Wrong ID '%s' value passed as object ID", doc_id
+                    )
+                    response = hresponse.HandlerResponse(400)
+                    response.reason = "Wrong ID value passed as object ID"
             else:
-                spec = handc.get_query_spec(
+                spec = hcommon.get_query_spec(
                     self.get_query_arguments, self._valid_keys("DELETE")
                 )
                 if spec:
@@ -78,22 +89,22 @@ class BootHandler(handb.BaseHandler):
                             "Resources identified with '%s' deleted" % spec
                         )
                 else:
-                    response = handr.HandlerResponse(400)
+                    response = hresponse.HandlerResponse(400)
                     response.result = None
                     response.reason = (
                         "No valid data provided to execute a DELETE"
                     )
         else:
-            response = handr.HandlerResponse(403)
-            response.reason = handc.NOT_VALID_TOKEN
+            response = hresponse.HandlerResponse(403)
+            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 
     def _delete(self, spec_or_id):
-        response = handr.HandlerResponse(200)
+        response = hresponse.HandlerResponse(200)
         response.result = None
 
-        response.status_code = db.delete(self.collection, spec_or_id)
+        response.status_code = utils.db.delete(self.collection, spec_or_id)
         response.reason = self._get_status_message(response.status_code)
 
         return response
