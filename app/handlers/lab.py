@@ -17,6 +17,7 @@ from urlparse import urlunparse
 
 import datetime
 import bson
+
 import handlers.base
 import handlers.common
 import handlers.response as hresponse
@@ -90,10 +91,19 @@ class LabHandler(handlers.base.BaseHandler):
         reason = None
         result = None
         headers = None
+        old_lab = None
         name = json_obj.get(models.NAME_KEY)
 
         if lab_id:
-            old_lab = utils.db.find_one(self.collection, [lab_id])
+            try:
+                old_lab = utils.db.find_one(
+                    self.collection,
+                    [bson.objectid.ObjectId(lab_id)]
+                )
+            except bson.errors.InvalidId, ex:
+                self.log.exception(ex)
+                self.log.error("Wrong ID value '%s' passed as doc ID", lab_id)
+                reason = "Wrong ID value provided"
         else:
             old_lab = utils.db.find_one(
                 self.collection, [name], field=models.NAME_KEY
@@ -116,10 +126,11 @@ class LabHandler(handlers.base.BaseHandler):
                 json_obj)
         else:
             status_code = 400
-            reason = (
-                "Lab with name '%s' already exists: did you mean to "
-                "update it?" % name
-            )
+            if not reason:
+                reason = (
+                    "Lab with name '%s' already exists: did you mean to "
+                    "update it?" % name
+                )
 
         return status_code, reason, result, headers
 
@@ -295,13 +306,22 @@ class LabHandler(handlers.base.BaseHandler):
         if self.validate_req_token("DELETE"):
             if kwargs and kwargs.get('id', None):
                 lab_id = kwargs['id']
-                if utils.db.find_one(self.collection, lab_id):
-                    response = self._delete(lab_id)
-                    if response.status_code == 200:
-                        response.reason = "Resource '%s' deleted" % lab_id
-                else:
-                    response = hresponse.HandlerResponse(404)
-                    response.reason = "Resource '%s' not found" % lab_id
+                try:
+                    lab_id = bson.objectid.ObjectId(lab_id)
+                    if utils.db.find_one(self.collection, [lab_id]):
+                        response = self._delete(lab_id)
+                        if response.status_code == 200:
+                            response.reason = "Resource '%s' deleted" % lab_id
+                    else:
+                        response = hresponse.HandlerResponse(404)
+                        response.reason = "Resource '%s' not found" % lab_id
+                except bson.errors.InvalidId, ex:
+                    self.log.exception(ex)
+                    self.log.error(
+                        "Wrong ID value '%s' passed as doc ID", lab_id
+                    )
+                    response = hresponse.HandlerResponse(400)
+                    response.reason = "Wrong ID value provided"
             else:
                 spec = handlers.common.get_query_spec(
                     self.get_query_arguments, self._valid_keys("DELETE")
