@@ -62,6 +62,8 @@ class DefconfigDocument(modb.BaseDocument):
         self._system_map = None
         self._text_offset = None
         self._modules = None
+        self._modules_dir = None
+        self._build_log = None
         self._dtb_dir = None
 
         self._version = None
@@ -343,9 +345,30 @@ class DefconfigDocument(modb.BaseDocument):
         """Se the kernel image file name."""
         self._kernel_image = value
 
+    @property
+    def build_log(self):
+        """The build log file name."""
+        return self._build_log
+
+    @build_log.setter
+    def build_log(self, value):
+        """Set the build log file name."""
+        self._build_log = value
+
+    @property
+    def modules_dir(self):
+        """The directory containing the modules."""
+        return self._modules_dir
+
+    @modules_dir.setter
+    def modules_dir(self, value):
+        """Set the modules directory."""
+        self._modules_dir = value
+
     def to_dict(self):
         defconf_dict = {
             models.ARCHITECTURE_KEY: self.arch,
+            models.BUILD_LOG_KEY: self.build_log,
             models.BUILD_PLATFORM_KEY: self.build_platform,
             models.BUILD_TIME_KEY: self.build_time,
             models.CREATED_KEY: self.created_on,
@@ -363,6 +386,7 @@ class DefconfigDocument(modb.BaseDocument):
             models.KERNEL_IMAGE_KEY: self.kernel_image,
             models.KERNEL_KEY: self.kernel,
             models.METADATA_KEY: self.metadata,
+            models.MODULES_DIR_KEY: self.modules_dir,
             models.MODULES_KEY: self.modules,
             models.NAME_KEY: self.name,
             models.STATUS_KEY: self.status,

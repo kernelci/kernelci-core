@@ -54,6 +54,8 @@ class TestDefconfModel(unittest.TestCase):
         defconf_doc.system_map = "system-map"
         defconf_doc.text_offset = "offset"
         defconf_doc.kernel_image = "kernel-image"
+        defconf_doc.modules_dir = "modules-dir"
+        defconf_doc.build_log = "build.log"
 
         expected = {
             "name": "job-kernel-defconfig",
@@ -83,6 +85,8 @@ class TestDefconfModel(unittest.TestCase):
             "system_map": "system-map",
             "text_offset": "offset",
             "modules": "modules-file",
+            "modules_dir": "modules-dir",
+            "build_log": "build.log"
         }
 
         self.assertDictEqual(expected, defconf_doc.to_dict())
