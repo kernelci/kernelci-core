@@ -15,19 +15,14 @@
 
 """Collection of mongodb database operations."""
 
-import types
 import pymongo
+import types
 
 from pymongo.errors import OperationFailure
 
-from models import DB_NAME
-from models.base import BaseDocument
-from utils import (
-    DEFAULT_MONGODB_POOL,
-    DEFAULT_MONGODB_PORT,
-    DEFAULT_MONGODB_URL,
-    LOG,
-)
+import models
+import models.base as mbase
+import utils
 
 DB_CONNECTION = None
 
@@ -44,16 +39,16 @@ def get_db_connection(db_options):
     if DB_CONNECTION is None:
         db_options_get = db_options.get
 
-        db_host = db_options_get("dbhost", DEFAULT_MONGODB_URL)
-        db_port = db_options_get("dbport", DEFAULT_MONGODB_PORT)
-        db_pool = db_options.get("dbpool", DEFAULT_MONGODB_POOL)
+        db_host = db_options_get("dbhost", utils.DEFAULT_MONGODB_URL)
+        db_port = db_options_get("dbport", utils.DEFAULT_MONGODB_PORT)
+        db_pool = db_options.get("dbpool", utils.DEFAULT_MONGODB_POOL)
 
         db_user = db_options_get("dbuser", "")
         db_pwd = db_options.get("dbpassword", "")
 
         DB_CONNECTION = pymongo.MongoClient(
             host=db_host, port=db_port, max_pool_size=db_pool
-        )[DB_NAME]
+        )[models.DB_NAME]
 
         if all([db_user, db_pwd]):
             DB_CONNECTION.authenticate(db_user, password=db_pwd)
@@ -62,7 +57,7 @@ def get_db_connection(db_options):
 
 
 def find_one(collection,
-             values,
+             value,
              field='_id',
              operator='$in',
              fields=None):
@@ -71,10 +66,11 @@ def find_one(collection,
     The `field' value can be specified, and by default is `_id'.
     The search executed is like:
 
-      collection.find_one({"_id": {"$in": values}})
+      collection.find_one({"_id": {"$in": value}})
 
     :param collection: The collection where to search.
-    :param values: The values to search. Can be a list of multiple values.
+    :param value: The value to search. It has to be of the appropriate type for
+    the operator in use. If using the default operator `$in`, it must be a list.
     :param field: The field where the value should be searched. Defaults to
         `_id`.
     :param oeprator: The operator used to perform the comparison. Defaults to
@@ -83,19 +79,18 @@ def find_one(collection,
         result.
     :return None or the search result as a dictionary.
     """
-
-    if not isinstance(values, types.ListType):
-        if isinstance(values, types.StringTypes):
-            values = [values]
-        else:
-            values = list(values)
-
-    result = collection.find_one(
-        {
-            field: {operator: values}
-        },
-        fields=fields,
-    )
+    result = None
+    if all([operator == '$in', not isinstance(value, types.ListType)]):
+        utils.LOG.error(
+            "Provided value is not of type list, got: %s", type(value)
+        )
+    else:
+        result = collection.find_one(
+            {
+                field: {operator: value}
+            },
+            fields=fields,
+        )
 
     return result
 
@@ -184,10 +179,10 @@ def save(database, document, manipulate=False):
     ret_value = 201
     doc_id = None
 
-    if isinstance(document, BaseDocument):
+    if isinstance(document, mbase.BaseDocument):
         to_save = document.to_dict()
     else:
-        LOG.warn(
+        utils.LOG.warn(
             "Cannot save document, it is not of type BaseDocument, got %s",
             type(document)
         )
@@ -196,16 +191,15 @@ def save(database, document, manipulate=False):
         doc_id = database[document.collection].save(
             to_save, manipulate=manipulate
         )
-        LOG.info(
-            "Document '%s' saved with ID '%s' (%s)",
-            document.name, doc_id, document.collection
+        utils.LOG.info(
+            "Document '%s' saved (%s)", document.name, document.collection
         )
     except OperationFailure, ex:
-        LOG.error(
+        utils.LOG.error(
             "Error saving the following document: %s (%s)",
             document.name, document.collection
         )
-        LOG.exception(ex)
+        utils.LOG.exception(ex)
         ret_value = 500
 
     return ret_value, doc_id
@@ -235,7 +229,7 @@ def save_all(database, documents, manipulate=False, fail_on_err=False):
         documents = [documents]
 
     for document in documents:
-        if isinstance(document, BaseDocument):
+        if isinstance(document, mbase.BaseDocument):
             ret_value, save_id = save(
                 database, document, manipulate=manipulate
             )
@@ -244,7 +238,7 @@ def save_all(database, documents, manipulate=False, fail_on_err=False):
             if fail_on_err and ret_value == 500:
                 break
         else:
-            LOG.error(
+            utils.LOG.error(
                 "Cannot save document, it is not of type BaseDocument, got %s",
                 type(document)
             )
@@ -284,10 +278,10 @@ def update(collection, spec, document, operation='$set'):
             }
         )
     except OperationFailure, ex:
-        LOG.error(
+        utils.LOG.error(
             "Error updating the following document: %s", str(document)
         )
-        LOG.exception(str(ex))
+        utils.LOG.exception(str(ex))
         ret_val = 500
 
     return ret_val
@@ -308,10 +302,10 @@ def delete(collection, spec_or_id):
     try:
         collection.remove(spec_or_id)
     except OperationFailure, ex:
-        LOG.error(
+        utils.LOG.error(
             "Error removing the following document: %s", str(spec_or_id)
         )
-        LOG.exception(str(ex))
+        utils.LOG.exception(str(ex))
         ret_val = 500
 
     return ret_val
@@ -402,7 +396,7 @@ def aggregate(
             '$limit': limit
         })
 
-    LOG.debug(pipeline)
+    utils.LOG.debug(pipeline)
 
     result = collection.aggregate(pipeline)
 
