@@ -15,6 +15,8 @@
 
 """The RequestHandler for /token URLs."""
 
+import bson
+
 from urlparse import urlunparse
 
 from handlers.base import BaseHandler
@@ -172,31 +174,38 @@ class TokenHandler(BaseHandler):
         response = HandlerResponse()
         response.result = None
 
-        result = find_one(self.collection, doc_id, field=TOKEN_KEY)
+        try:
+            obj_id = bson.objectid.ObjectId(doc_id)
+            result = find_one(self.collection, [obj_id])
 
-        if result:
-            token = Token.from_json(result)
+            if result:
+                token = Token.from_json(result)
 
-            try:
                 token = self._token_update_create(json_obj, token, fail=False)
                 response.status_code = update(
-                    self.collection, {'token': doc_id}, token.to_dict()
+                    self.collection, {'_id': obj_id}, token.to_dict()
                 )
                 if response.status_code == 200:
                     response.result = {TOKEN_KEY: token.token}
-            except KeyError:
-                response.status_code = 400
-                response.reason = (
-                    "Mandatory field missing"
-                )
-            except (TypeError, ValueError):
-                response.status_code = 400
-                response.reason = "Wrong field value or type in the JSON data"
-            except Exception, ex:
-                response.status_code = 400
-                response.reason = str(ex)
-        else:
-            response.status_code = 404
+            else:
+                response.status_code = 404
+        except bson.errors.InvalidId, ex:
+            self.log.exception(ex)
+            self.log.error("Wrong ID '%s' value passed for object ID", doc_id)
+            response.status_code = 400
+            response.reason = "Wrong ID value provided"
+        except KeyError, ex:
+            self.log.exception(ex)
+            response.status_code = 400
+            response.reason = "Mandatory field missing"
+        except (TypeError, ValueError), ex:
+            self.log.exception(ex)
+            response.status_code = 400
+            response.reason = "Wrong field value or type in the JSON data"
+        except Exception, ex:
+            self.log.exception(ex)
+            response.status_code = 400
+            response.reason = str(ex)
 
         return response
 
@@ -283,8 +292,14 @@ class TokenHandler(BaseHandler):
     def _delete(self, doc_id):
         ret_val = 404
 
-        self.log.info("Tolen deletion by IP %s", self.request.remote_ip)
-        if find_one(self.collection, doc_id, field=TOKEN_KEY):
-            ret_val = delete(self.collection, {TOKEN_KEY: {'$in': [doc_id]}})
+        self.log.info("Token deletion from IP %s", self.request.remote_ip)
+        try:
+            doc_obj = bson.objectid.ObjectId(doc_id)
+            if find_one(self.collection, [doc_obj]):
+                ret_val = delete(self.collection, {"_id": {"$in": [doc_obj]}})
+        except bson.errors.InvalidId, ex:
+            self.log.exception(ex)
+            self.log.error("Wrong ID '%s' value passed as object ID", doc_id)
+            ret_val = 400
 
         return ret_val
