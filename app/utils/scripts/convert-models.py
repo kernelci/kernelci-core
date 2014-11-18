@@ -101,7 +101,7 @@ def convert_defconfig_collection(db, limit=0):
             doc_count += 1
             job = doc_get("job")
             kernel = doc_get("kernel")
-            defconfig = doc_get("defconfig")
+            defconfig = doc_get("dirname", None) or doc_get("defconfig")
 
             def_doc = mdefconfig.DefconfigDocument(job, kernel, defconfig)
 
@@ -115,10 +115,16 @@ def convert_defconfig_collection(db, limit=0):
             def_doc.errors = doc_get("errors", 0)
             if def_doc.errors is None:
                 def_doc.errors = 0
+            else:
+                def_doc.errors = int(def_doc.errors)
             def_doc.warnings = doc_get("warnings", 0)
             if def_doc.warnings is None:
                 def_doc.warnings = 0
+            else:
+                def_doc.warnings = int(def_doc.warnings)
             def_doc.build_time = doc_get("build_time", 0)
+            def_doc.modules_dir = doc_get("modules_dir", None)
+            def_doc.build_log = doc_get("build_log", None)
 
             metadata = doc_get("metadata", None)
             if metadata:
@@ -127,12 +133,12 @@ def convert_defconfig_collection(db, limit=0):
 
                 if (str(def_doc.errors) != str(meta_get("build_errors")) and
                         meta_get("build_errors") is not None):
-                    def_doc.errors = meta_pop("build_errors", 0)
+                    def_doc.errors = int(meta_pop("build_errors", 0))
                 meta_pop("build_errors", 0)
 
                 if (str(def_doc.warnings) != str(meta_get("build_warnings")) and
                         meta_get("build_warnings") is not None):
-                    def_doc.warnings = meta_pop("build_warnings", 0)
+                    def_doc.warnings = int(meta_pop("build_warnings", 0))
                 meta_pop("build_warnings", 0)
 
                 if not def_doc.arch:
@@ -144,7 +150,10 @@ def convert_defconfig_collection(db, limit=0):
                 def_doc.git_describe = meta_pop("git_describe", None)
                 def_doc.git_commit = meta_pop("git_commit", None)
                 def_doc.build_platform = meta_pop("build_platform", [])
-                def_doc.build_log = meta_pop("build_log", None)
+
+                if meta_get("build_log", None):
+                    def_doc.build_log = meta_get("build_log", None)
+                meta_pop("build_log", None)
 
                 if meta_get("build_result", None):
                     result = meta_get("build_result")
@@ -153,8 +162,9 @@ def convert_defconfig_collection(db, limit=0):
                     else:
                         meta_pop("build_result")
 
-                if meta_get("build_time"):
+                if str(meta_get("build_time")):
                     def_doc.build_time = meta_pop("build_time", 0)
+                meta_pop("build_time", None)
 
                 def_doc.dtb_dir = meta_pop("dtb_dir", None)
                 def_doc.kernel_config = meta_pop("kernel_config", None)
@@ -162,6 +172,10 @@ def convert_defconfig_collection(db, limit=0):
                 def_doc.modules = meta_pop("modules", None)
                 def_doc.system_map = meta_pop("system_map", None)
                 def_doc.text_offset = meta_pop("text_offset", None)
+
+                if meta_get("modules_dir", None):
+                    def_doc.modules_dir = meta_pop("modules_dir")
+                meta_pop("modules_dir", None)
 
                 meta_pop("defconfig", None)
                 def_doc.metadata = metadata
