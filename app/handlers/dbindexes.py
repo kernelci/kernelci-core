@@ -15,21 +15,9 @@
 
 """Make sure indexes are created at startup."""
 
-from pymongo import (
-    ASCENDING,
-    DESCENDING,
-)
+import pymongo
 
-from models import (
-    CREATED_KEY,
-    DB_NAME,
-    STATUS_KEY
-)
-from models import (
-    BOOT_COLLECTION,
-    DEFCONFIG_COLLECTION,
-    JOB_COLLECTION,
-)
+import models
 
 
 def ensure_indexes(client, db_options):
@@ -44,7 +32,7 @@ def ensure_indexes(client, db_options):
     db_user = db_options["dbuser"]
     db_pwd = db_options["dbpassword"]
 
-    database = client[DB_NAME]
+    database = client[models.DB_NAME]
     if all([db_user, db_pwd]):
         database.authenticate(db_user, password=db_pwd)
 
@@ -58,8 +46,8 @@ def _ensure_job_indexes(database):
 
     :param database: The database connection.
     """
-    database[JOB_COLLECTION].ensure_index(
-        [(CREATED_KEY, DESCENDING)], background=True
+    database[models.JOB_COLLECTION].ensure_index(
+        [(models.CREATED_KEY, pymongo.DESCENDING)], background=True
     )
 
 
@@ -68,8 +56,8 @@ def _ensure_boot_indexes(database):
 
     :param database: The database connection.
     """
-    database[BOOT_COLLECTION].ensure_index(
-        [(CREATED_KEY, DESCENDING)], background=True
+    database[models.BOOT_COLLECTION].ensure_index(
+        [(models.CREATED_KEY, pymongo.DESCENDING)], background=True
     )
 
 
@@ -78,7 +66,21 @@ def _ensure_defconfig_indexes(database):
 
     :param database: The database connection.
     """
-    collection = database[DEFCONFIG_COLLECTION]
+    collection = database[models.DEFCONFIG_COLLECTION]
 
-    collection.ensure_index([(CREATED_KEY, DESCENDING)], background=True)
-    collection.ensure_index([(STATUS_KEY, ASCENDING)], background=True)
+    collection.ensure_index(
+        [(models.CREATED_KEY, pymongo.DESCENDING)], background=True)
+    collection.ensure_index(
+        [(models.STATUS_KEY, pymongo.ASCENDING)], background=True)
+
+
+def _ensure_token_indexes(database):
+    """Ensure indexes exists for the 'token' collection.
+
+    :param database: The database connection.
+    """
+    collection = database[models.TOKEN_COLLECTION]
+
+    collection.ensure_index(
+        [(models.TOKEN_KEY, pymongo.DESCENDING)], background=True
+    )
