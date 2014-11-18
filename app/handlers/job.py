@@ -15,23 +15,18 @@
 
 """The RequestHandler for /job URLs."""
 
-from handlers.base import BaseHandler
-from handlers.common import JOB_VALID_KEYS
-from handlers.response import HandlerResponse
-from models import (
-    DEFCONFIG_COLLECTION,
-    JOB_COLLECTION,
-    JOB_ID_KEY,
-    SUBSCRIPTION_COLLECTION,
-)
-from utils.db import (
-    delete,
-    find_one,
-)
+import bson
+
+import handlers.base as hbase
+import handlers.common as hcommon
+import handlers.response as hresponse
+import models
+import utils.db
+
 from taskqueue.tasks import import_job
 
 
-class JobHandler(BaseHandler):
+class JobHandler(hbase.BaseHandler):
     """Handle the /job URLs."""
 
     def __init__(self, application, request, **kwargs):
@@ -39,14 +34,14 @@ class JobHandler(BaseHandler):
 
     @property
     def collection(self):
-        return self.db[JOB_COLLECTION]
+        return self.db[models.JOB_COLLECTION]
 
     @staticmethod
     def _valid_keys(method):
-        return JOB_VALID_KEYS.get(method, None)
+        return hcommon.JOB_VALID_KEYS.get(method, None)
 
     def _post(self, *args, **kwargs):
-        response = HandlerResponse(202)
+        response = hresponse.HandlerResponse(202)
         response.reason = "Request accepted and being imported"
         response.result = None
 
@@ -67,25 +62,24 @@ class JobHandler(BaseHandler):
         """
         # TODO: maybe look into two-phase commits in mongodb
         # http://docs.mongodb.org/manual/tutorial/perform-two-phase-commits/
-        response = HandlerResponse()
+        response = hresponse.HandlerResponse()
         response.result = None
 
-        if find_one(self.collection, job_id):
-            delete(
-                self.db[DEFCONFIG_COLLECTION],
-                {JOB_ID_KEY: {'$in': [job_id]}}
-            )
+        try:
+            job_obj = bson.objectid.ObjectId(job_id)
+            if utils.db.find_one(self.collection, [job_obj]):
+                utils.db.delete(
+                    self.db[models.DEFCONFIG_COLLECTION],
+                    {models.JOB_ID_KEY: {'$in': [job_obj]}}
+                )
 
-            delete(
-                self.db[SUBSCRIPTION_COLLECTION],
-                {JOB_ID_KEY: {'$in': [job_id]}}
-            )
-
-            response.status_code = delete(self.collection, job_id)
-            if response.status_code == 200:
-                response.reason = "Resource '%s' deleted" % job_id
-        else:
-            response.status_code = 404
-            response.reason = self._get_status_message(404)
+                response.status_code = utils.db.delete(self.collection, job_obj)
+                if response.status_code == 200:
+                    response.reason = "Resource '%s' deleted" % job_id
+            else:
+                response.status_code = 404
+                response.reason = self._get_status_message(404)
+        except bson.errors.InvalidId, ex:
+            raise ex
 
         return response
