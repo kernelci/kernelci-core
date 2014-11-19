@@ -20,20 +20,18 @@ try:
 except ImportError:
     import json
 
+import bson
+import datetime
 import glob
 import os
 import pymongo
 import types
-
-from bson import tz_util
-from datetime import datetime
 
 import models
 import models.defconfig as mdefconfig
 import models.job as mjob
 import utils
 import utils.db
-import utils.meta_parser
 
 
 def import_and_save_job(json_obj, db_options, base_path=utils.BASE_PATH):
@@ -121,8 +119,8 @@ def _import_job(job, kernel, database, base_path=utils.BASE_PATH):
         # If the job dir exists, read the last modification time from the
         # file system and use that as the creation date.
         if not job_doc.created_on:
-            job_doc.created_on = datetime.fromtimestamp(
-                os.stat(kernel_dir).st_mtime, tz=tz_util.utc)
+            job_doc.created_on = datetime.datetime.fromtimestamp(
+                os.stat(kernel_dir).st_mtime, tz=bson.tz_util.utc)
 
         docs.extend(
             [
@@ -136,7 +134,7 @@ def _import_job(job, kernel, database, base_path=utils.BASE_PATH):
         )
     else:
         job_doc.status = models.BUILD_STATUS
-        job_doc.created_on = datetime.now(tz=tz_util.utc)
+        job_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
 
     # Kind of a hack:
     # We want to store some metadata at the job document level as well, like
@@ -214,8 +212,8 @@ def _parse_build_data(data_file, job, kernel):
                 job, kernel, defconfig
             )
 
-            defconfig_doc.created_on = datetime.fromtimestamp(
-                os.stat(data_file).st_mtime, tz=tz_util.utc
+            defconfig_doc.created_on = datetime.datetime.fromtimestamp(
+                os.stat(data_file).st_mtime, tz=bson.tz_util.utc
             )
 
             defconfig_doc.version = data_pop(models.VERSION_KEY, "1.0")
