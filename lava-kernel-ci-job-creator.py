@@ -98,6 +98,27 @@ jetson_tk1 = {'device_type': 'jetson-tk1',
               'be': False,
               'fastboot': False}
 
+qemu_arm_cortex_a9 = {'device_type': 'qemu-arm-cortex-a9',
+                      'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                      'defconfig_blacklist': [],
+                      'lpae': False,
+                      'be': False,
+                      'fastboot': False}
+
+qemu_arm_cortex_a15_a7 = {'device_type': 'qemu-arm-cortex-a15',
+                          'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                          'defconfig_blacklist': [],
+                          'lpae': True,
+                          'be': False,
+                          'fastboot': False}
+
+qemu_arm_cortex_a15 = {'device_type': 'qemu-arm-cortex-a15',
+                       'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                       'defconfig_blacklist': [],
+                       'lpae': True,
+                       'be': False,
+                       'fastboot': False}
+
 qemu_arm = {'device_type': 'qemu-arm',
             'templates': ['generic-arm-kernel-ci-boot-template.json'],
             'defconfig_blacklist': [],
@@ -143,6 +164,9 @@ device_map = {'exynos5250-arndale.dtb': arndale,
               'qcom-apq8064-ifc6410.dtb': ifc6410,
               'at91-sama5d3_xplained.dtb': sama53d,
               'tegra124-jetson-tk1.dtb': jetson_tk1,
+              'vexpress-v2p-ca15-tc1.dtb': qemu_arm_cortex_a15,
+              'vexpress-v2p-ca15_a7.dtb': qemu_arm_cortex_a15_a7,
+              'vexpress-v2p-ca9.dtb': qemu_arm_cortex_a9,
               'qemu-arm': qemu_arm,
               'qemu-aarch64': qemu_aarch64,
               'x86': x86,
