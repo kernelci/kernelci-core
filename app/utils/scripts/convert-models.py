@@ -130,6 +130,7 @@ def convert_defconfig_collection(db, limit=0):
                 def_doc.warnings = int(def_doc.warnings)
             def_doc.build_time = doc_get("build_time", 0)
             def_doc.modules_dir = doc_get("modules_dir", None)
+            def_doc.modules = doc_get("modules", None)
             def_doc.build_log = doc_get("build_log", None)
 
             metadata = doc_get("metadata", None)

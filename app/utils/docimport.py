@@ -236,6 +236,7 @@ def _parse_build_data(data_file, job, kernel):
             defconfig_doc.kernel_image = data_pop(
                 models.KERNEL_IMAGE_KEY, None)
             defconfig_doc.modules_dir = data_pop(models.MODULES_DIR_KEY, None)
+            defconfig_doc.modules = data_pop(models.MODULES_KEY, None)
             defconfig_doc.build_log = data_pop(models.BUILD_LOG_KEY, None)
 
             defconfig_doc.metadata = build_data
