@@ -60,6 +60,14 @@ imx6q_wandboard = {'device_type': 'imx6q-wandboard',
                    'be': False,
                    'fastboot': False}
 
+utilite_pro = {'device_type': 'utilite-pro',
+               'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+               'defconfig_blacklist': ['arm-imx_v4_v5_defconfig',
+                                       'arm-multi_v5_defconfig'],
+               'lpae': False,
+               'be': False,
+               'fastboot': False}
+
 snowball = {'device_type': 'snowball',
             'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
             'defconfig_blacklist': [],
@@ -89,7 +97,6 @@ sama53d = {'device_type': 'sama53d',
            'lpae': False,
            'be': False,
            'fastboot': False}
-
 
 jetson_tk1 = {'device_type': 'jetson-tk1',
               'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
@@ -159,6 +166,7 @@ device_map = {'exynos5250-arndale.dtb': arndale,
               'omap4-panda-es.dtb': panda_es,
               'sun7i-a20-cubietruck.dtb': cubieboard3,
               'imx6q-wandboard.dtb': imx6q_wandboard,
+              'imx6q-cm-fx6.dtb': utilite_pro,
               'ste-snowball.dtb': snowball,
               'qcom-apq8084-ifc6540.dtb': ifc6540,
               'qcom-apq8064-ifc6410.dtb': ifc6410,
