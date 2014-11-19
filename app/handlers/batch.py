@@ -13,20 +13,20 @@
 
 """The /batch RequestHandler to perform batch operations."""
 
-from json import loads as j_load
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
-from handlers.base import BaseHandler
-from handlers.common import (
-    BATCH_VALID_KEYS,
-    NOT_VALID_TOKEN,
-)
-from handlers.response import HandlerResponse
-from models import BATCH_KEY
-from taskqueue.tasks import run_batch_group
-from utils.validator import is_valid_batch_json
+import handlers.base as hbase
+import handlers.common as hcommon
+import handlers.response as hresponse
+import models
+import taskqueue.tasks as taskq
+import utils.validator as validator
 
 
-class BatchHandler(BaseHandler):
+class BatchHandler(hbase.BaseHandler):
     """The batch URL handler class."""
 
     def __init__(self, application, request, **kwargs):
@@ -35,13 +35,13 @@ class BatchHandler(BaseHandler):
 
     @staticmethod
     def _valid_keys(method):
-        return BATCH_VALID_KEYS.get(method, None)
+        return hcommon.BATCH_VALID_KEYS.get(method, None)
 
     def execute_get(self):
-        return HandlerResponse(501)
+        return hresponse.HandlerResponse(501)
 
     def execute_delete(self):
-        return HandlerResponse(501)
+        return hresponse.HandlerResponse(501)
 
     def execute_post(self):
         response = None
@@ -51,32 +51,34 @@ class BatchHandler(BaseHandler):
 
             if valid_request == 200:
                 try:
-                    json_obj = j_load(self.request.body.decode("utf8"))
+                    json_obj = json.loads(self.request.body.decode("utf8"))
 
-                    if is_valid_batch_json(
-                            json_obj, BATCH_KEY, self._valid_keys("POST")):
-                        response = HandlerResponse(200)
+                    if validator.is_valid_batch_json(
+                            json_obj,
+                            models.BATCH_KEY,
+                            self._valid_keys("POST")):
+                        response = hresponse.HandlerResponse(200)
                         response.result = \
                             self.prepare_and_perform_batch_ops(
                                 json_obj, self.settings["dboptions"]
                             )
                     else:
-                        response = HandlerResponse(400)
+                        response = hresponse.HandlerResponse(400)
                         response.reason = "Provided JSON is not valid"
                         response.result = None
                 except ValueError:
                     error = "No JSON data found in the POST request"
                     self.log.error(error)
-                    response = HandlerResponse(422)
+                    response = hresponse.HandlerResponse(422)
                     response.reason = error
                     response.result = None
             else:
-                response = HandlerResponse(valid_request)
+                response = hresponse.HandlerResponse(valid_request)
                 response.reason = self._get_status_message(valid_request)
                 response.result = None
         else:
-            response = HandlerResponse(403)
-            response.reason = NOT_VALID_TOKEN
+            response = hresponse.HandlerResponse(403)
+            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 
@@ -92,4 +94,6 @@ class BatchHandler(BaseHandler):
         :param db_options: The mongodb database connection parameters.
         :type db_options: dict
         """
-        return run_batch_group(json_obj.get(BATCH_KEY), db_options)
+        return taskq.run_batch_group(
+            json_obj.get(models.BATCH_KEY), db_options
+        )
