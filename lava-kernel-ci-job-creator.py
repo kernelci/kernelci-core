@@ -11,49 +11,49 @@ kernel = None
 platform_list = []
 
 arndale = {'device_type': 'arndale',
-           'templates': ['generic-arm-kernel-ci-boot-template.json'],
+           'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
            'defconfig_blacklist': [],
            'lpae': True,
            'be': False,
            'fastboot': False}
 
 arndale_octa = {'device_type': 'arndale-octa',
-                'templates': ['generic-arm-kernel-ci-boot-template.json'],
+                'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
                 'defconfig_blacklist': [],
                 'lpae': True,
                 'be': False,
                 'fastboot': False}
 
 beaglebone_black = {'device_type': 'beaglebone-black',
-                    'templates': ['generic-arm-kernel-ci-boot-template.json'],
+                    'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
                     'defconfig_blacklist': [],
                     'lpae': False,
                     'be': False,
                     'fastboot': False}
 
 beagle_xm = {'device_type': 'beagle-xm',
-             'templates': ['generic-arm-kernel-ci-boot-template.json'],
+             'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
              'defconfig_blacklist': [],
              'lpae': False,
              'be': False,
              'fastboot': False}
 
 panda_es = {'device_type': 'panda-es',
-            'templates': ['generic-arm-kernel-ci-boot-template.json'],
+            'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
             'defconfig_blacklist': [],
             'lpae': False,
             'be': False,
             'fastboot': False}
 
 cubieboard3 = {'device_type': 'cubieboard3',
-               'templates': ['generic-arm-kernel-ci-boot-template.json'],
+               'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
                'defconfig_blacklist': [],
                'lpae': True,
                'be': False,
                'fastboot': False}
 
 imx6q_wandboard = {'device_type': 'imx6q-wandboard',
-                   'templates': ['generic-arm-kernel-ci-boot-template.json'],
+                   'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
                    'defconfig_blacklist': ['arm-imx_v4_v5_defconfig',
                                            'arm-multi_v5_defconfig'],
                    'lpae': False,
@@ -61,7 +61,7 @@ imx6q_wandboard = {'device_type': 'imx6q-wandboard',
                    'fastboot': False}
 
 snowball = {'device_type': 'snowball',
-            'templates': ['generic-arm-kernel-ci-boot-template.json'],
+            'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
             'defconfig_blacklist': [],
             'lpae': False,
             'be': False,
@@ -82,7 +82,7 @@ ifc6410 = {'device_type': 'ifc6410',
            'fastboot': True}
 
 sama53d = {'device_type': 'sama53d',
-           'templates': ['generic-arm-kernel-ci-boot-template.json'],
+           'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
            'defconfig_blacklist': ['arm-at91_dt_defconfig',
                                    'arm-at91sam9260_9g20_defconfig',
                                    'arm-at91sam9g45_defconfig'],
@@ -92,11 +92,18 @@ sama53d = {'device_type': 'sama53d',
 
 
 jetson_tk1 = {'device_type': 'jetson-tk1',
-              'templates': ['generic-arm-kernel-ci-boot-template.json'],
+              'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
               'defconfig_blacklist': [],
               'lpae': True,
               'be': False,
               'fastboot': False}
+
+qemu_arm = {'device_type': 'qemu-arm',
+            'templates': ['generic-arm-kernel-ci-boot-template.json'],
+            'defconfig_blacklist': [],
+            'lpae': False,
+            'be': False,
+            'fastboot': False}
 
 qemu_aarch64 = {'device_type': 'qemu-aarch64',
                 'templates': ['generic-arm64-kernel-ci-boot-template.json'],
@@ -116,7 +123,7 @@ x86 = {'device_type': 'x86',
        'fastboot': False}
 
 x86_kvm = {'device_type': 'kvm',
-           'templates': ['generic-x86-kvm-kernel-ci-boot-template.json'],
+           'templates': ['generic-x86-kernel-ci-boot-template.json'],
            'defconfig_blacklist': ['x86-i386_defconfig',
                                    'x86-allnoconfig',
                                    'x86-allmodconfig'],
@@ -136,6 +143,7 @@ device_map = {'exynos5250-arndale.dtb': arndale,
               'qcom-apq8064-ifc6410.dtb': ifc6410,
               'at91-sama5d3_xplained.dtb': sama53d,
               'tegra124-jetson-tk1.dtb': jetson_tk1,
+              'qemu-arm': qemu_arm,
               'qemu-aarch64': qemu_aarch64,
               'x86': x86,
               'x86-kvm': x86_kvm}
@@ -231,9 +239,13 @@ def walk_url(url, arch=None, target=None):
             if 'zImage' in name and 'arm' in url:
                 kernel = url + name
                 base_url = url
+                # qemu-arm
+                if 'arm-versatile_defconfig' in url:
+                    platform_list.append(url + 'qemu-arm')
             if 'Image' in name and 'arm64' in url:
                 kernel = url + name
                 base_url = url
+                # qemu-aarch64
                 platform_list.append(url + 'qemu-aarch64')
             if name.endswith('.dtb') and name in device_map:
                 if base_url and base_url in url:

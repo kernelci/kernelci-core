@@ -13,11 +13,7 @@
             },
             "parameters": {
                 "kernel": "{kernel_url}",
-                "login_prompt": "login:",
-                "password": "root",
-                "password_prompt": "Password:",
-                "rootfs": "http://images.armcloud.us/lava/aarch64/debian-unstable-arm64.qcow2",
-                "username": "root"
+                "ramdisk": "http://images.armcloud.us/lava/common/linaro-image-minimal-initramfs-genericarmv8-20140605-682.rootfs.cpio.gz"
             }
         },
         {

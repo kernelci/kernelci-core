@@ -12,9 +12,8 @@
                 "platform.fastboot": "{fastboot}"
             },
             "parameters": {
-                "dtb": "{dtb_url}",
                 "kernel": "{kernel_url}",
-                "ramdisk": "http://images.armcloud.us/lava/common/buildroot.cpio.gz.uboot"
+                "ramdisk": "http://images.armcloud.us/lava/common/buildroot.cpio.gz"
             }
         },
         {
