@@ -30,11 +30,13 @@ GET
     repeated multiple times.
  :query string nfield: The field that should *not* be returned in the response. Can be repeated multiple times.
  :query string _id: The internal ID of the boot report.
+ :query string board: The name of a board.
  :query string job: The name of a job.
  :query string job_id: The ID of a job.
  :query string kernel: The name of a kernel.
  :query string defconfig: The name of a defconfig.
- :query string endianness: The endianness of the board.
+ :query string defconfig_id: The ID of a defconfig.
+ :query string endian: The endianness of the board.
  :query string board: The name of a board.
  :query string lab_name: The name of the lab that created the boot report.
  :query string name: The name of the boot report.
@@ -140,7 +142,8 @@ POST
  :reqjson string job: The name of the job.
  :reqjson string kernel: The name of the kernel.
  :reqjson string defconfig: The name of the defconfig.
- :erqjson string board: The name of the board.
+ :reqjson string board: The name of the board.
+ :reqjson string version: The version number of the schema.
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Content-Type: Content type of the transmitted data, must be ``application/json``.
@@ -187,13 +190,14 @@ DELETE
 
  :resheader Content-Type: Will be ``application/json; charset=UTF-8``.
 
- :query string job: The name of a job.
+ :query string _id: The ID of a boot report.
  :query string job_id: The ID of a job.
+ :query string job: The name of a job.
  :query string kernel: The name of a kernel.
+ :query string defconfig_id: The ID of a defconfig.
  :query string defconfig: The name of a defconfig.
  :query string board: The name of a board.
  :query string name: The name of a boot report.
- :query string _id: The ID of a boot report.
 
  :status 200: Resource deleted.
  :status 403: Not authorized to perform the operation.

@@ -41,6 +41,7 @@ GET
  :query int errors: The number of errors in the defconfig built.
  :query string git_branch: The name of the git branch.
  :query string git_commit: The git commit SHA.
+ :query string git_describe: The git describe value.
 
  :status 200: Resuslts found.
  :status 403: Not authorized to perform the operation.

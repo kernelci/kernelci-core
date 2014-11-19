@@ -49,8 +49,14 @@ necessary to use its ``_id`` value.
                 "description": "The job associated with this object"
             },
             "job_id": {
-                "type": "string",
-                "description": "The ID of the associated job"
+                "type": "object",
+                "description": "The ID of the associated job",
+                "properties": {
+                    "$oid": {
+                        "type": "string",
+                        "description": "The actual ID value"
+                    }
+                }
             },
             "kernel": {
                 "type": "string",
@@ -59,6 +65,24 @@ necessary to use its ``_id`` value.
             "defconfig": {
                 "type": "string",
                 "description": "The name of the defconfig as reported by the CI loop"
+            },
+            "defconfig_id": {
+                "type": "object",
+                "description": "The ID of the associated build report",
+                "properties": {
+                    "$oid": {
+                        "type": "string",
+                        "description": "The actual ID value"
+                    }
+                }
+            },
+            "git_branch": {
+                "type": "string",
+                "description": "The branch used for boot testing"
+            },
+            "git_commit": {
+                "type": "string",
+                "description": "The git SHA of the commit used for boot testing"
             },
             "lab_name": {
                 "type": "string",

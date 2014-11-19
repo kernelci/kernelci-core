@@ -50,8 +50,14 @@ The following schema covers the data that is available with a GET request.
                 "description": "The job associated with this object"
             },
             "job_id": {
-                "type": "string",
-                "description": "The ID of the associated job"
+                "type": "object",
+                "description": "The ID of the associated job",
+                "properties": {
+                    "$oid": {
+                        "type": "string",
+                        "description": "The actual ID value"
+                    }
+                }
             },
             "kernel": {
                 "type": "string",
@@ -108,6 +114,37 @@ The following schema covers the data that is available with a GET request.
                 "type": "array",
                 "description": "An array with info about the build platform"
             },
+            "modules": {
+                "type": "string",
+                "description": "Name of the modules file"
+            },
+            "modules_dir" {
+                "type": "string",
+                "description": "Name of the modules directory"
+            },
+            "dtb_dir": {
+                "type": "string",
+                "description": "Name of the dtb directory"
+            },
+            "build_log": {
+                "type": "string",
+                "description": "Name of the build log file in txt format"
+            },
+            "text_offset": {
+                "type": "string"
+            },
+            "system_map": {
+                "type": "string",
+                "description": "Name of the system map file"
+            },
+            "kernel_config": {
+                "type": "string",
+                "description": "Name of the kernel config file used"
+            },
+            "kernel_image": {
+                "type": "string",
+                "description": "Name of the kernel image created"
+            },
             "metadata": {
                 "type": "object",
                 "description": "A free form object that can contain different properties"
@@ -123,8 +160,9 @@ POST
 The following schema covers the data that should be available in a build JSON
 data file sent to the server.
 
-The ``defconfig`` collection does not support POST requests, it is placed here
-only to be included among the ``defconfig`` schema.
+The ``defconfig`` collection does not support POST requests. This schema is
+placed here as a reference document in order to provide correct data to the
+server.
 
 ::
 
@@ -150,7 +188,7 @@ only to be included among the ``defconfig`` schema.
                 "type": "string",
                 "description": "The name of the defconfig as reported by the CI loop"
             },
-            "build_status": {
+            "build_result": {
                 "type": "string",
                 "description": "The status of the defconfig",
                 "enum": ["FAIL", "PASS", "UNKNOWN"]
@@ -226,6 +264,10 @@ only to be included among the ``defconfig`` schema.
                 "type": "string",
                 "description": "Name of the modules file"
             },
+            "modules_dir" {
+                "type": "string",
+                "description": "Name of the modules directory"
+            },
             "system_map": {
                 "type": "string",
                 "description": "Name of the system map file"
@@ -233,7 +275,8 @@ only to be included among the ``defconfig`` schema.
             "text_offset": {
                 "type": "string"
             }
-        }
+        },
+        "required": ["version", "job", "kernel", "defconfig"]
     }
 
 
