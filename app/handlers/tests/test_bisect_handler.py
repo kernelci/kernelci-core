@@ -94,7 +94,9 @@ class TestBisectHandler(
         response = self.fetch('/bisect/boot/', headers=headers)
         self.assertEqual(response.code, 400)
 
-    def test_boot_bisect_no_id(self):
+    @mock.patch("bson.objectid.ObjectId")
+    def test_boot_bisect_no_id(self, mock_id):
+        mock_id.return_value = "foo"
         headers = {'Authorization': 'foo'}
 
         self.task_return_value.get.return_value = 404, []
@@ -110,8 +112,10 @@ class TestBisectHandler(
         response = self.fetch('/bisect/boot/foo', headers=headers)
         self.assertEqual(response.code, 400)
 
+    @mock.patch("bson.objectid.ObjectId")
     @mock.patch("utils.db.find_one")
-    def test_boot_bisect_with_result(self, mocked_find):
+    def test_boot_bisect_with_result(self, mocked_find, mock_id):
+        mock_id.return_value = "foo"
         headers = {'Authorization': 'foo'}
 
         mocked_find.return_value = [{"foo": "bar"}]

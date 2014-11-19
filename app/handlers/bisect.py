@@ -13,19 +13,20 @@
 
 """The request handler for bisect URLs."""
 
+import bson
 import functools
 import tornado
 import tornado.web
 
-import handlers.base as handb
-import handlers.common as handc
-import handlers.response as handr
+import handlers.base as hbase
+import handlers.common as hcommon
+import handlers.response as hresponse
 import models
 import taskqueue.tasks as taskt
 import utils.db
 
 
-class BisectHandler(handb.BaseHandler):
+class BisectHandler(hbase.BaseHandler):
     """Handler used to trigger bisect operations on the data."""
 
     def __init__(self, application, request, **kwargs):
@@ -61,27 +62,37 @@ class BisectHandler(handb.BaseHandler):
                 if all([collection, doc_id]):
                     fields = None
                     if self.request.arguments:
-                        fields = handc.get_query_fields(
+                        fields = hcommon.get_query_fields(
                             self.get_query_arguments
                         )
-                    bisect_result = utils.db.find_one(
-                        self.db[self.collection],
-                        doc_id,
-                        field=models.DOC_ID_KEY,
-                        fields=fields
-                    )
-                    if bisect_result:
-                        response = handr.HandlerResponse(200)
-                        response.result = bisect_result
-                    else:
-                        response = self._get_bisect(collection, doc_id, fields)
+                    try:
+                        obj_id = bson.objectid.ObjectId(doc_id)
+                        bisect_result = utils.db.find_one(
+                            self.db[self.collection],
+                            [obj_id],
+                            field=models.NAME_KEY,
+                            fields=fields
+                        )
+                        if bisect_result:
+                            response = hresponse.HandlerResponse(200)
+                            response.result = bisect_result
+                        else:
+                            response = self._get_bisect(
+                                collection, doc_id, fields
+                            )
+                    except bson.errors.InvalidId, ex:
+                        self.log.exception(ex)
+                        self.log.error(
+                            "Wrong ID '%s' value passed as object ID", doc_id)
+                        response = hresponse.HandlerResponse(400)
+                        response.reason = "Wrong ID value passed as object ID"
                 else:
-                    response = handr.HandlerResponse(400)
+                    response = hresponse.HandlerResponse(400)
             else:
-                response = handr.HandlerResponse(400)
+                response = hresponse.HandlerResponse(400)
         else:
-            response = handr.HandlerResponse(403)
-            response.reason = handc.NOT_VALID_TOKEN
+            response = hresponse.HandlerResponse(403)
+            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 
@@ -105,7 +116,7 @@ class BisectHandler(handb.BaseHandler):
             if collection == models.BOOT_COLLECTION:
                 response = self.execute_boot_bisect(doc_id, db_options, fields)
         else:
-            response = handr.HandlerResponse(400)
+            response = hresponse.HandlerResponse(400)
             response.reason = (
                 "Provided bisect collection '%s' is not valid" % collection
             )
@@ -125,7 +136,7 @@ class BisectHandler(handb.BaseHandler):
         :type fields: list or dict
         :return A `HandlerResponse` object.
         """
-        response = handr.HandlerResponse()
+        response = hresponse.HandlerResponse()
 
         result = taskt.boot_bisect.apply_async([doc_id, db_options, fields])
         while not result.ready():
