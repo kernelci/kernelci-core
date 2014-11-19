@@ -45,6 +45,8 @@ def convert_job_collection(db, limit=0):
             continue
         else:
             doc_count += 1
+            utils.LOG.info("Processing document #%s", doc_count)
+
             job = doc_get("job")
             kernel = doc_get("kernel")
 
@@ -73,7 +75,7 @@ def convert_job_collection(db, limit=0):
 
             ret_val, doc_id = utils.db.save(db, job_doc, manipulate=True)
             if ret_val == 201:
-                NEW_JOB_IDS[doc_get("_id")] = doc_id
+                NEW_JOB_IDS[job + "-" + kernel] = doc_id
             else:
                 utils.LOG.error(
                     "Error saving new job document for %s", doc_get("_id"))
@@ -99,6 +101,8 @@ def convert_defconfig_collection(db, limit=0):
             continue
         else:
             doc_count += 1
+            utils.LOG.info("Processing document #%s", doc_count)
+
             job = doc_get("job")
             kernel = doc_get("kernel")
             defconfig = doc_get("dirname", None) or doc_get("defconfig")
@@ -107,6 +111,8 @@ def convert_defconfig_collection(db, limit=0):
 
             def_doc.version = "1.0"
             def_doc.status = doc_get("status", models.UNKNOWN_STATUS)
+            if not NEW_JOB_IDS.get(job + "-" + kernel, None):
+                utils.LOG.info("No job ID for %s-%s", job, kernel)
             def_doc.job_id = NEW_JOB_IDS.get(job + "-" + kernel, None)
             def_doc.dirname = doc_get("dirname", None)
             def_doc.arch = doc_get("arch", None)
@@ -221,6 +227,7 @@ def convert_boot_collection(db, lab_name, limit=0):
             continue
         else:
             doc_count += 1
+            utils.LOG.info("Processing document #%s", doc_count)
 
             board = doc_get("board")
             job = doc_get("job")
@@ -232,6 +239,9 @@ def convert_boot_collection(db, lab_name, limit=0):
                 board, job, kernel, defconfig, lab_name)
 
             boot_doc.version = "1.0"
+            if not NEW_JOB_IDS.get(job + "-" + kernel, None):
+                utils.LOG.info("No job ID found for %s-%s", job, kernel)
+
             boot_doc.job_id = NEW_JOB_IDS.get(job + "-" + kernel, None)
             boot_doc.defconfig_id = NEW_DEFCONFIG_IDS.get(
                 job + "-" + kernel + "-" + defconfig, None
