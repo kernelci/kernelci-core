@@ -26,6 +26,7 @@ class BisectDocument(modb.BaseDocument):
         self._name = name
         self._id = None
         self._job = None
+        self._job_id = None
         self._bisect_data = []
         self._bad_commit = None
         self._good_commit = None
@@ -171,6 +172,16 @@ class BisectDocument(modb.BaseDocument):
         """
         self._version = value
 
+    @property
+    def job_id(self):
+        """The ID of the job associated with this bisect."""
+        return self._job_id
+
+    @job_id.setter
+    def job_id(self, value):
+        """Set the job ID of this bisect."""
+        self._job_id = value
+
     def to_dict(self):
         bisect_dict = {
             models.BISECT_BAD_COMMIT_DATE: self.bad_commit_date,
@@ -181,6 +192,7 @@ class BisectDocument(modb.BaseDocument):
             models.BISECT_GOOD_COMMIT_KEY: self.good_commit,
             models.BISECT_GOOD_COMMIT_URL: self.good_commit_url,
             models.CREATED_KEY: self.created_on,
+            models.JOB_ID_KEY: self.job_id,
             models.JOB_KEY: self.job,
             models.NAME_KEY: self.name,
             models.VERSION_KEY: self.version,
@@ -203,6 +215,8 @@ class BootBisectDocument(BisectDocument):
         super(BootBisectDocument, self).__init__(name)
 
         self._board = None
+        self._defconfig_id = None
+        self._boot_id = None
 
     @property
     def board(self):
@@ -214,7 +228,29 @@ class BootBisectDocument(BisectDocument):
         """Set the board name this document belongs to."""
         self._board = value
 
+    @property
+    def defconfig_id(self):
+        """The ID of the defconfig associated with this bisect object."""
+        return self._defconfig_id
+
+    @defconfig_id.setter
+    def defconfig_id(self, value):
+        """Set the defconfig ID."""
+        self._defconfig_id = value
+
+    @property
+    def boot_id(self):
+        """The ID of the boot report associated with this bisect object."""
+        return self._boot_id
+
+    @boot_id.setter
+    def boot_id(self, value):
+        """Set the boot ID."""
+        self._boot_id = value
+
     def to_dict(self):
         boot_b_dict = super(BootBisectDocument, self).to_dict()
         boot_b_dict[models.BOARD_KEY] = self.board
+        boot_b_dict[models.DEFCONFIG_ID_KEY] = self.defconfig_id
+        boot_b_dict[models.BOOT_ID_KEY] = self.boot_id
         return boot_b_dict
