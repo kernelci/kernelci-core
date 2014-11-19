@@ -14,14 +14,11 @@
             "parameters": {
                 "bootloadertype": "ipxe",
                 "kernel": "{kernel_url}",
-                "ramdisk": "http://images.armcloud.us/lava/x86/linaro-image-lng-qemux86-20141023-88.rootfs.cpio.gz"
+                "ramdisk": "http://images.armcloud.us/lava/common/ramdisk-x86.gz"
             }
         },
         {
-            "command": "boot_linaro_image",
-            "parameters": {
-                "test_image_prompt": "root@qemux86:~#"
-            }
+            "command": "boot_linaro_image"
         },
         {
             "command": "submit_results",
