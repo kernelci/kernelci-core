@@ -114,13 +114,13 @@ The following schema covers the data that is available with a GET request.
                 "type": "array",
                 "description": "An array with info about the build platform"
             },
+            "modules_dir": {
+                "type": "string",
+                "description": "Name of the modules directory"
+            },
             "modules": {
                 "type": "string",
                 "description": "Name of the modules file"
-            },
-            "modules_dir" {
-                "type": "string",
-                "description": "Name of the modules directory"
             },
             "dtb_dir": {
                 "type": "string",
@@ -264,7 +264,7 @@ server.
                 "type": "string",
                 "description": "Name of the modules file"
             },
-            "modules_dir" {
+            "modules_dir": {
                 "type": "string",
                 "description": "Name of the modules directory"
             },
