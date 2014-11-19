@@ -52,6 +52,7 @@ BOOT_VALID_KEYS = {
             models.JOB_KEY,
             models.KERNEL_KEY,
             models.LAB_NAME_KEY,
+            models.VERSION_KEY,
         ],
         models.ACCEPTED_KEYS: [
             models.ARCHITECTURE_KEY,
@@ -97,6 +98,7 @@ BOOT_VALID_KEYS = {
     ],
     'DELETE': [
         models.BOARD_KEY,
+        models.DEFCONFIG_ID_KEY,
         models.DEFCONFIG_KEY,
         models.ID_KEY,
         models.JOB_ID_KEY,
