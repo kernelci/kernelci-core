@@ -18,125 +18,117 @@ try:
 except ImportError:
     import json
 
-from bson import tz_util
-from bson.json_util import default
-from datetime import datetime
-from pymongo import DESCENDING
-from types import DictionaryType
+import bson
+import bson.json_util
+import datetime
+import pymongo
+import types
 
-from models import (
-    ARCHITECTURE_KEY,
-    BISECT_BOOT_CREATED_KEY,
-    BISECT_BOOT_METADATA_KEY,
-    BISECT_BOOT_STATUS_KEY,
-    BISECT_DEFCONFIG_ARCHITECTURE_KEY,
-    BISECT_DEFCONFIG_CREATED_KEY,
-    BISECT_DEFCONFIG_METADATA_KEY,
-    BISECT_DEFCONFIG_STATUS_KEY,
-    BOARD_KEY,
-    BOOT_COLLECTION,
-    CREATED_KEY,
-    DEFCONFIG_COLLECTION,
-    DEFCONFIG_KEY,
-    DIRNAME_KEY,
-    GIT_COMMIT_KEY,
-    GIT_URL_KEY,
-    ID_KEY,
-    JOB_ID_KEY,
-    JOB_KEY,
-    KERNEL_KEY,
-    METADATA_KEY,
-    PASS_STATUS,
-    STATUS_KEY,
-)
-from models.bisect import BootBisectDocument
-from utils import LOG
-from utils.db import (
-    find,
-    find_one,
-    get_db_connection,
-    save,
-)
-
+import models
+import models.bisect as mbisect
+import utils
+import utils.db
 
 BOOT_SEARCH_FIELDS = [
-    BOARD_KEY,
-    CREATED_KEY,
-    DEFCONFIG_KEY,
-    JOB_ID_KEY,
-    JOB_KEY,
-    KERNEL_KEY,
-    METADATA_KEY,
-    STATUS_KEY,
+    models.BOARD_KEY,
+    models.CREATED_KEY,
+    models.DEFCONFIG_ID_KEY,
+    models.DEFCONFIG_KEY,
+    models.ID_KEY,
+    models.JOB_ID_KEY,
+    models.JOB_KEY,
+    models.KERNEL_KEY,
+    models.STATUS_KEY,
 ]
 
 BOOT_DEFCONFIG_SEARCH_FIELDS = [
-    ARCHITECTURE_KEY,
-    CREATED_KEY,
-    DIRNAME_KEY,
-    METADATA_KEY,
-    STATUS_KEY,
+    models.ARCHITECTURE_KEY,
+    models.CREATED_KEY,
+    models.DEFCONFIG_KEY,
+    models.GIT_BRANCH_KEY,
+    models.GIT_COMMIT_KEY,
+    models.GIT_DESCRIBE_KEY,
+    models.GIT_URL_KEY,
+    models.STATUS_KEY,
 ]
 
-BOOT_SORT = [(CREATED_KEY, DESCENDING)]
+BOOT_SORT = [(models.CREATED_KEY, pymongo.DESCENDING)]
 
 
 def _combine_defconfig_values(boot_doc, db_options):
     """Combine the boot document values with their own defconfing.
 
-    It returns a list of dictionaries whose structure is a combination
+    It returns a dictionary whose structure is a combination
     of the values from the boot document and its associated defconfing.
 
     :param boot_doc: The boot document to retrieve the defconfig of.
     :type boot_doc: dict
     :param db_options: The mongodb database connection parameters.
     :type db_options: dict
-    :return A list of dictionaries.
+    :return A dictionary.
     """
-    database = get_db_connection(db_options)
+    database = utils.db.get_db_connection(db_options)
 
     boot_doc_get = boot_doc.get
 
-    job = boot_doc_get(JOB_KEY)
-    kernel = boot_doc_get(KERNEL_KEY)
-    defconfig = boot_doc_get(DEFCONFIG_KEY)
+    job = boot_doc_get(models.JOB_KEY)
+    kernel = boot_doc_get(models.KERNEL_KEY)
+    defconfig = boot_doc_get(models.DEFCONFIG_KEY)
+    defconfig_id = boot_doc_get(models.DEFCONFIG_ID_KEY, None)
+    job_id = boot_doc_get(models.JOB_ID_KEY, None)
 
     combined_values = {
-        JOB_KEY: job,
-        KERNEL_KEY: kernel,
-        DEFCONFIG_KEY: defconfig,
-        BISECT_BOOT_STATUS_KEY: boot_doc_get(STATUS_KEY),
-        BISECT_BOOT_CREATED_KEY: boot_doc_get(CREATED_KEY),
-        BISECT_BOOT_METADATA_KEY: boot_doc_get(METADATA_KEY),
-        DIRNAME_KEY: "",
-        BISECT_DEFCONFIG_CREATED_KEY: "",
-        BISECT_DEFCONFIG_ARCHITECTURE_KEY: "",
-        BISECT_DEFCONFIG_STATUS_KEY: "",
-        BISECT_DEFCONFIG_METADATA_KEY: {}
+        models.BISECT_BOOT_CREATED_KEY: boot_doc_get(models.CREATED_KEY),
+        models.BISECT_BOOT_METADATA_KEY: boot_doc_get(models.METADATA_KEY),
+        models.BISECT_BOOT_STATUS_KEY: boot_doc_get(models.STATUS_KEY),
+        models.BISECT_DEFCONFIG_ARCHITECTURE_KEY: "",
+        models.BISECT_DEFCONFIG_CREATED_KEY: "",
+        models.BISECT_DEFCONFIG_STATUS_KEY: "",
+        models.DEFCONFIG_ID_KEY: defconfig_id,
+        models.DEFCONFIG_KEY: defconfig,
+        models.DIRNAME_KEY: "",
+        models.GIT_BRANCH_KEY: "",
+        models.GIT_COMMIT_KEY: "",
+        models.GIT_DESCRIBE_KEY: "",
+        models.GIT_URL_KEY: "",
+        models.JOB_ID_KEY: job_id,
+        models.JOB_KEY: job,
+        models.KERNEL_KEY: kernel,
     }
 
-    defconf_id = job + "-" + kernel + "-" + defconfig
-    defconf_doc = find_one(
-        database[DEFCONFIG_COLLECTION],
-        defconf_id,
-        fields=BOOT_DEFCONFIG_SEARCH_FIELDS
-    )
+    if defconfig_id:
+        defconf_doc = utils.db.find_one(
+            database[models.DEFCONFIG_COLLECTION],
+            [defconfig_id],
+            fields=BOOT_DEFCONFIG_SEARCH_FIELDS
+        )
+    else:
+        defconfig_name = job + "-" + kernel + "-" + defconfig
+        defconf_doc = utils.db.find_one(
+            database[models.DEFCONFIG_COLLECTION],
+            [defconfig_name],
+            field=models.NAME_KEY,
+            fields=BOOT_DEFCONFIG_SEARCH_FIELDS
+        )
 
     if defconf_doc:
         defconf_doc_get = defconf_doc.get
-        combined_values[DIRNAME_KEY] = defconf_doc_get(DIRNAME_KEY)
-        combined_values[BISECT_DEFCONFIG_CREATED_KEY] = defconf_doc_get(
-            CREATED_KEY
-        )
-        combined_values[BISECT_DEFCONFIG_ARCHITECTURE_KEY] = defconf_doc_get(
-            ARCHITECTURE_KEY
-        )
-        combined_values[BISECT_DEFCONFIG_STATUS_KEY] = defconf_doc_get(
-            STATUS_KEY
-        )
-        combined_values[BISECT_DEFCONFIG_METADATA_KEY] = defconf_doc_get(
-            METADATA_KEY
-        )
+        combined_values[models.DIRNAME_KEY] = defconf_doc_get(
+            models.DIRNAME_KEY)
+        combined_values[models.BISECT_DEFCONFIG_CREATED_KEY] = \
+            defconf_doc_get(models.CREATED_KEY)
+        combined_values[models.BISECT_DEFCONFIG_ARCHITECTURE_KEY] = \
+            defconf_doc_get(models.ARCHITECTURE_KEY)
+        combined_values[models.BISECT_DEFCONFIG_STATUS_KEY] = \
+            defconf_doc_get(models.STATUS_KEY)
+        combined_values[models.GIT_URL_KEY] = defconf_doc_get(
+            models.GIT_URL_KEY, None)
+        combined_values[models.GIT_BRANCH_KEY] = defconf_doc_get(
+            models.GIT_BRANCH_KEY, None)
+        combined_values[models.GIT_COMMIT_KEY] = defconf_doc_get(
+            models.GIT_COMMIT_KEY, None)
+        combined_values[models.GIT_DESCRIBE_KEY] = defconf_doc_get(
+            models.GIT_DESCRIBE_KEY, None)
 
     return combined_values
 
@@ -157,32 +149,36 @@ def execute_boot_bisection(doc_id, db_options, fields=None):
     :type fields: list or dict
     :return A numeric value for the result status and a list dictionaries.
     """
-    database = get_db_connection(db_options)
+    database = utils.db.get_db_connection(db_options)
     result = []
     code = 200
 
-    start_doc = find_one(
-        database[BOOT_COLLECTION], doc_id, fields=BOOT_SEARCH_FIELDS
+    obj_id = bson.objectid.ObjectId(doc_id)
+    start_doc = utils.db.find_one(
+        database[models.BOOT_COLLECTION], [obj_id], fields=BOOT_SEARCH_FIELDS
     )
 
-    if all([start_doc, isinstance(start_doc, DictionaryType)]):
+    if all([start_doc, isinstance(start_doc, types.DictionaryType)]):
         start_doc_get = start_doc.get
 
-        if start_doc_get(STATUS_KEY) == PASS_STATUS:
+        if start_doc_get(models.STATUS_KEY) == models.PASS_STATUS:
             code = 400
             result = None
         else:
-            bisect_doc = BootBisectDocument(doc_id)
-            bisect_doc.job = start_doc_get(JOB_ID_KEY)
-            bisect_doc.created_on = datetime.now(tz=tz_util.utc)
-            bisect_doc.board = start_doc_get(BOARD_KEY)
+            bisect_doc = mbisect.BootBisectDocument(obj_id)
+            bisect_doc.job = start_doc_get(models.JOB_ID_KEY)
+            bisect_doc.job_id = start_doc_get(models.JOB_ID_KEY, None)
+            bisect_doc.defconfig_id = start_doc_get(
+                models.DEFCONFIG_ID_KEY, None)
+            bisect_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
+            bisect_doc.board = start_doc_get(models.BOARD_KEY)
 
             spec = {
-                BOARD_KEY: start_doc_get(BOARD_KEY),
-                DEFCONFIG_KEY: start_doc_get(DEFCONFIG_KEY),
-                JOB_KEY: start_doc_get(JOB_KEY),
-                CREATED_KEY: {
-                    "$lt": start_doc_get(CREATED_KEY)
+                models.BOARD_KEY: start_doc_get(models.BOARD_KEY),
+                models.DEFCONFIG_KEY: start_doc_get(models.DEFCONFIG_KEY),
+                models.JOB_KEY: start_doc_get(models.JOB_KEY),
+                models.CREATED_KEY: {
+                    "$lt": start_doc_get(models.CREATED_KEY)
                 }
             }
 
@@ -191,18 +187,19 @@ def execute_boot_bisection(doc_id, db_options, fields=None):
             func = _combine_defconfig_values
 
             bad_doc = func(start_doc, db_options)
-            bad_doc_meta = bad_doc[BISECT_DEFCONFIG_METADATA_KEY].get
+            bad_doc_get = bad_doc.get
 
-            bisect_doc.bad_commit_date = bad_doc[BISECT_DEFCONFIG_CREATED_KEY]
-            bisect_doc.bad_commit = bad_doc_meta(GIT_COMMIT_KEY)
-            bisect_doc.bad_commit_url = bad_doc_meta(GIT_URL_KEY)
+            bisect_doc.bad_commit_date = bad_doc_get(
+                models.BISECT_DEFCONFIG_CREATED_KEY)
+            bisect_doc.bad_commit = bad_doc_get(models.GIT_COMMIT_KEY)
+            bisect_doc.bad_commit_url = bad_doc_get(models.GIT_URL_KEY)
 
             all_valid_docs = [bad_doc]
 
             # Search through all the previous boot reports, until one that
             # passed is found, and combine them with their defconfig document.
-            all_prev_docs = find(
-                database[BOOT_COLLECTION],
+            all_prev_docs = utils.db.find(
+                database[models.BOOT_COLLECTION],
                 0,
                 0,
                 spec=spec,
@@ -220,26 +217,34 @@ def execute_boot_bisection(doc_id, db_options, fields=None):
                 # The last doc should be the good one, in case it is, add the
                 # values to the bisect_doc.
                 good_doc = all_valid_docs[-1]
-                if good_doc[BISECT_BOOT_STATUS_KEY] == PASS_STATUS:
-                    good_doc_meta = good_doc[BISECT_DEFCONFIG_METADATA_KEY].get
-                    bisect_doc.good_commit = good_doc_meta(GIT_COMMIT_KEY)
-                    bisect_doc.good_commit_url = good_doc_meta(GIT_URL_KEY)
-                    bisect_doc.good_commit_date = \
-                        good_doc[BISECT_DEFCONFIG_CREATED_KEY]
+                if (good_doc[models.BISECT_BOOT_STATUS_KEY] ==
+                        models.PASS_STATUS):
+                    good_doc_get = good_doc.get
+                    bisect_doc.good_commit = good_doc_get(
+                        models.GIT_COMMIT_KEY)
+                    bisect_doc.good_commit_url = good_doc_get(
+                        models.GIT_URL_KEY)
+                    bisect_doc.good_commit_date = good_doc_get(
+                        models.BISECT_DEFCONFIG_CREATED_KEY)
 
             # Store everything in the bisect_data list of the bisect_doc.
             bisect_doc.bisect_data = all_valid_docs
 
-            return_code, saved_id = save(database, bisect_doc, manipulate=True)
+            return_code, saved_id = utils.db.save(
+                database, bisect_doc, manipulate=True)
             if return_code == 201:
                 bisect_doc.id = saved_id
             else:
-                LOG.error("Error savind bisect data %s", doc_id)
+                utils.LOG.error("Error savind bisect data %s", doc_id)
 
             bisect_doc = _update_doc_fields(bisect_doc, fields)
             result = [
                 json.loads(
-                    json.dumps(bisect_doc, default=default, ensure_ascii=False)
+                    json.dumps(
+                        bisect_doc,
+                        default=bson.json_util.default,
+                        ensure_ascii=False
+                    )
                 )
             ]
     else:
@@ -269,11 +274,11 @@ def _update_doc_fields(bisect_doc, fields):
             bisect_doc = bisect_doc.to_dict()
             to_remove = list(bisect_doc.viewkeys() - set(fields))
             for field in to_remove:
-                if field == ID_KEY:
+                if field == models.ID_KEY:
                     continue
                 else:
                     bisect_doc.pop(field)
-        elif isinstance(fields, DictionaryType):
+        elif isinstance(fields, types.DictionaryType):
             y_fields = [
                 field for field, val in fields.iteritems() if val
             ]
@@ -299,7 +304,7 @@ def _get_docs_until_pass(doc_list):
     :type doc_list: list
     """
     for doc in doc_list:
-        if doc[STATUS_KEY] == PASS_STATUS:
+        if doc[models.STATUS_KEY] == models.PASS_STATUS:
             yield doc
             break
         yield doc
