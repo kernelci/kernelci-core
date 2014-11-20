@@ -63,11 +63,13 @@ BOOT_VALID_KEYS = {
             models.BOOT_RETRIES_KEY,
             models.BOOT_TIME_KEY,
             models.BOOT_WARNINGS_KEY,
+            models.DEFCONFIG_KEY,
             models.DTB_ADDR_KEY,
             models.DTB_KEY,
             models.EMAIL_KEY,
             models.ENDIANNESS_KEY,
             models.FASTBOOT_KEY,
+            models.GIT_BRANCH_KEY,
             models.GIT_COMMIT_KEY,
             models.GIT_DESCRIBE_KEY,
             models.ID_KEY,
@@ -243,6 +245,7 @@ LAB_VALID_KEYS = {
             models.NAME_KEY,
             models.PRIVATE_KEY,
             models.TOKEN_KEY,
+            models.VERSION_KEY,
         ]
     },
     "GET": [
