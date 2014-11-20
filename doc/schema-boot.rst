@@ -84,6 +84,10 @@ necessary to use its ``_id`` value.
                 "type": "string",
                 "description": "The git SHA of the commit used for boot testing"
             },
+            "git_describe": {
+                "type": "string",
+                "description": "The name of the git describe command"
+            },
             "lab_name": {
                 "type": "string",
                 "description": "The name of the lab that is doing the boot tests"
@@ -211,6 +215,10 @@ have when sent to the server.
             "git_commit": {
                 "type": "string",
                 "description": "The git SHA of the commit used for boot testing"
+            },
+            "git_describe": {
+                "type": "string",
+                "description": "The name of the git describe command"
             },
             "boot_retries": {
                 "type": "integer",
