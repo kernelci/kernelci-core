@@ -79,6 +79,7 @@ class BootDocument(modb.BaseDocument):
 
         self._git_commit = None
         self._git_branch = None
+        self._git_describe = None
 
     @property
     def collection(self):
@@ -391,6 +392,16 @@ class BootDocument(modb.BaseDocument):
         """Set the branch name of the repository used."""
         self._git_branch = value
 
+    @property
+    def git_describe(self):
+        """The git describe value."""
+        return self._git_describe
+
+    @git_describe.setter
+    def git_describe(self, value):
+        """Set the git describe value."""
+        self._git_describe = value
+
     def to_dict(self):
         boot_dict = {
             models.BOARD_KEY: self.board,
@@ -407,6 +418,7 @@ class BootDocument(modb.BaseDocument):
             models.FASTBOOT_KEY: self.fastboot,
             models.GIT_BRANCH_KEY: self.git_branch,
             models.GIT_COMMIT_KEY: self.git_commit,
+            models.GIT_DESCRIBE_KEY: self.git_describe,
             models.INITRD_ADDR_KEY: self.initrd_addr,
             models.JOB_ID_KEY: self.job_id,
             models.JOB_KEY: self.job,

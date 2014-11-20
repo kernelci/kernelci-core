@@ -42,6 +42,7 @@ class TestBootModel(unittest.TestCase):
         boot_doc.warnings = 2
         boot_doc.git_branch = "git-branch"
         boot_doc.git_commit = "git-commit"
+        boot_doc.git_describe = "git-describe"
 
         expected = {
             '_id': 'id',
@@ -72,7 +73,8 @@ class TestBootModel(unittest.TestCase):
             'version': "1.0",
             'warnings': 2,
             "git_commit": "git-commit",
-            "git_branch": "git-branch"
+            "git_branch": "git-branch",
+            "git_describe": "git-describe"
         }
 
         self.assertDictEqual(expected, boot_doc.to_dict())
