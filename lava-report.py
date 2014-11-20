@@ -72,9 +72,13 @@ def boot_report(args):
                 dt_tests = True
                 regex = re.compile("(?P<test>\d+\*?)")
                 dt_test_results = regex.findall(line)
-                dt_tests_passed = dt_test_results[2]
-                dt_tests_failed = dt_test_results[3]
-                if int(dt_test_results[3]) > 0:
+                if len(dt_test_results) > 2:
+                    dt_tests_passed = dt_test_results[2]
+                    dt_tests_failed = dt_test_results[3]
+                else:
+                    dt_tests_passed = dt_test_results[0]
+                    dt_tests_failed = dt_test_results[1]
+                if int(dt_tests_failed) > 0:
                     dt_test_result = 'FAIL'
                 else:
                     dt_test_result = 'PASS'
