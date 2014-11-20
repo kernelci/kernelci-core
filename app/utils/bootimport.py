@@ -209,12 +209,12 @@ def _update_boot_doc_ids(boot_doc, database):
     }
 
     job_doc = utils.db.find_one(
-        database[models.JOB_COLLECTION], job_name, field="name",
+        database[models.JOB_COLLECTION], [job_name], field="name",
         fields=[models.ID_KEY]
     )
 
     defconfig_doc = utils.db.find_one(
-        database[models.DEFCONFIG_COLLECTION], defconfig_name, field="name",
+        database[models.DEFCONFIG_COLLECTION], [defconfig_name], field="name",
         fields=[models.ID_KEY]
     )
 
@@ -268,6 +268,7 @@ def _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f):
     boot_doc.version = json_pop_f(models.VERSION_KEY, "1.0")
     boot_doc.git_commit = json_pop_f(models.GIT_COMMIT_KEY, None)
     boot_doc.git_branch = json_pop_f(models.GIT_BRANCH_KEY, None)
+    boot_doc.git_describe = json_pop_f(models.GIT_DESCRIBE_KEY, None)
 
     boot_doc.metadata = boot_json
 
