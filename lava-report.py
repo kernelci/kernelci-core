@@ -6,6 +6,26 @@ import subprocess
 import re
 from utils import *
 
+device_map = {'arndale': 'exynos5250-arndale',
+              'arndale-octa': 'exynos5420-arndale-octa',
+              'beaglebone-black': 'am335x-boneblack',
+              'beagle-xm': 'omap3-beagle-xm',
+              'panda-es': 'omap4-panda-es',
+              'cubieboard3': 'sun7i-a20-cubietruck',
+              'imx6q-wandboard': 'imx6q-wandboard',
+              'utilite-pro': 'imx6q-cm-fx6',
+              'snowball': 'ste-snowball',
+              'ifc6540': 'qcom-apq8084-ifc6540',
+              'ifc6410': 'qcom-apq8064-ifc6410',
+              'sama53d': 'at91-sama5d3_xplained',
+              'jetson-tk1': 'tegra124-jetson-tk1',
+              'qemu-arm-cortex-a15': 'vexpress-v2p-ca15-tc1',
+              'qemu-arm-cortex-a15-a7': 'vexpress-v2p-ca15_a7',
+              'qemu-arm-cortex-a9': 'vexpress-v2p-ca9',
+              'qemu-arm': 'versatilepb,legacy',
+              'qemu-aarch64': 'qemu-aarch64,legacy',
+              'x86': 'x86',
+              'kvm': 'x86-kvm'}
 
 def parse_json(json):
     jobs = load_json(json)
@@ -103,7 +123,7 @@ def boot_report(args):
         # TODO: Will need to map device_types to dashboard device types
         if kernel_defconfig and device_type and result:
             print 'Creating boot log for %s' % device_type
-            log = 'boot-%s.log' % device_type
+            log = 'boot-%s.log' % device_map[device_type]
             directory = os.path.join(results_directory, kernel_defconfig)
             ensure_dir(directory)
             write_file(job_file, log, directory)
@@ -135,7 +155,7 @@ def boot_report(args):
             boot_meta['initrd_addr'] = initrd_addr
             boot_meta['kernel_image'] = kernel_image
             boot_meta['loadaddr'] = kernel_addr
-            json_file = 'boot-%s.json' % device_type
+            json_file = 'boot-%s.json' % device_map[device_type]
             write_json(json_file, directory, boot_meta)
 
 
@@ -180,7 +200,7 @@ def boot_report(args):
                         break
                 for result in results_list:
                     if result['result'] != 'PASS':
-                        f.write('    %s   %ss   boot-test: %s\n' % (result['device_type'],
+                        f.write('    %s   %ss   boot-test: %s\n' % (device_map[result['device_type']],
                                                                     result['kernel_boot_time'],
                                                                     result['result']))
                         f.write('    http://storage.armcloud.us/kernel-ci/%s/%s/%s/boot-%s.html' % (kernel_tree,
@@ -195,7 +215,7 @@ def boot_report(args):
                 f.write(defconfig)
                 f.write('\n')
                 for result in results_list:
-                    f.write('    %s   %ss   boot-test: %s\n' % (result['device_type'], result['kernel_boot_time'], result['result']))
+                    f.write('    %s   %ss   boot-test: %s\n' % (device_map[result['device_type']], result['kernel_boot_time'], result['result']))
 
     # dt-self-test
     if results and kernel_tree and kernel_version and dt_tests:
@@ -239,14 +259,14 @@ def boot_report(args):
                         break
                 for result in results_list:
                     if result['dt_test_result'] == "FAIL":
-                        f.write('    %s   passed: %s / failed: %s   dt-runtime-unit-tests: %s\n' % (result['device_type'],
+                        f.write('    %s   passed: %s / failed: %s   dt-runtime-unit-tests: %s\n' % (device_map[result['device_type']],
                                                                                                     result['dt_tests_passed'],
                                                                                                     result['dt_tests_failed'],
                                                                                                     result['dt_test_result']))
                         f.write('    http://storage.armcloud.us/kernel-ci/%s/%s/%s/boot-%s.html' % (kernel_tree,
                                                                                                     kernel_version,
                                                                                                     defconfig,
-                                                                                                    result['device_type']))
+                                                                                                    device_map[result['device_type']]))
                         f.write('\n')
             f.write('\n')
             f.write('Full Unit Test Report:\n')
@@ -259,7 +279,7 @@ def boot_report(args):
                             f.write(defconfig)
                             f.write('\n')
                             first = False
-                        f.write('    %s   passed: %s / failed: %s   dt-runtime-unit-tests: %s\n' % (result['device_type'],
+                        f.write('    %s   passed: %s / failed: %s   dt-runtime-unit-tests: %s\n' % (device_map[result['device_type']],
                                                                                                     result['dt_tests_passed'],
                                                                                                     result['dt_tests_failed'],
                                                                                                     result['dt_test_result']))
