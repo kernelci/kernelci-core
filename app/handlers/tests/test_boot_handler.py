@@ -13,6 +13,11 @@
 
 """Test module for the BootHandler handler."""
 
+try:
+    import simplejson as json
+except ImportError:
+    import json
+
 import concurrent.futures
 import mock
 import mongomock
@@ -121,3 +126,101 @@ class TestBootHandler(
         self.assertEqual(response.code, 400)
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    def test_post_wrong_content(self):
+        body = {
+            "foo": "bar"
+        }
+
+        headers = {
+            'Authorization': 'foo',
+            'Content-Type': 'application/json',
+        }
+
+        response = self.fetch(
+            "/boot", method="POST", body=json.dumps(body), headers=headers
+        )
+
+        self.assertEqual(response.code, 400)
+
+    @mock.patch("taskqueue.tasks.import_boot")
+    @mock.patch("utils.db.find_one")
+    def test_post_valid_content_same_token(self, find_one, import_boot):
+        find_one.side_effect = [
+            {"token": "foo"}, {"token": "foo", "expired": False}
+        ]
+        body = {
+            "version": "1.0",
+            "board": "board",
+            "job": "job",
+            "kernel": "kernel",
+            "defconfig": "defconfig",
+            "lab_name": "lab-name"
+        }
+
+        headers = {
+            'Authorization': 'foo',
+            'Content-Type': 'application/json',
+        }
+
+        response = self.fetch(
+            "/boot", method="POST", body=json.dumps(body), headers=headers
+        )
+
+        self.assertEqual(response.code, 202)
+
+    @mock.patch("utils.db.find_one")
+    def test_post_valid_content_different_token(self, find_one):
+        find_one.side_effect = [
+            {"token": "bar"}, {"token": "bar", "expired": False}
+        ]
+        body = {
+            "version": "1.0",
+            "board": "board",
+            "job": "job",
+            "kernel": "kernel",
+            "defconfig": "defconfig",
+            "lab_name": "lab-name"
+        }
+
+        headers = {
+            "Authorization": "foo",
+            "Content-Type": "application/json",
+        }
+
+        response = self.fetch(
+            "/boot", method="POST", body=json.dumps(body), headers=headers
+        )
+
+        self.assertEqual(response.code, 403)
+
+    @mock.patch("taskqueue.tasks.import_boot")
+    @mock.patch("utils.db.find_one")
+    def test_post_valid_content_different_token_admin(
+            self, find_one, import_boot):
+        token_prop = [0 for _ in range(0, 16)]
+        token_prop[0] = [1]
+
+        find_one.side_effect = [
+            {"token": "bar"},
+            {"token": "bar", "expired": False, "properties": token_prop}
+        ]
+        body = {
+            "version": "1.0",
+            "board": "board",
+            "job": "job",
+            "kernel": "kernel",
+            "defconfig": "defconfig",
+            "lab_name": "lab-name"
+        }
+
+        headers = {
+            "Authorization": "foo",
+            "Content-Type": "application/json",
+        }
+
+        response = self.fetch(
+            "/boot", method="POST", body=json.dumps(body), headers=headers
+        )
+
+        self.assertEqual(response.code, 202)

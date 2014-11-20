@@ -460,7 +460,7 @@ class BaseHandler(tornado.web.RequestHandler):
         """
         valid_token = False
 
-        req_token = self.request.headers.get(hcommon.API_TOKEN_HEADER, None)
+        req_token = self.get_request_token()
         remote_ip = self.request.remote_ip
         master_key = self.settings.get(hcommon.MASTER_KEY, None)
 
@@ -476,6 +476,13 @@ class BaseHandler(tornado.web.RequestHandler):
             )
 
         return valid_token
+
+    def get_request_token(self):
+        """Retrieve the Authorization token of this request.
+
+        :return The authorization token as string.
+        """
+        return self.request.headers.get(hcommon.API_TOKEN_HEADER, None)
 
     def _token_validation(self, req_token, method, remote_ip, master_key):
         valid_token = False

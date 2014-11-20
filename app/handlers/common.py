@@ -584,7 +584,7 @@ def validate_token(token_obj, method, remote_ip, validate_func):
     :param method: The HTTP verb this token is being validated for.
     :param remote_ip: The remote IP address sending the token.
     :param validate_func: Function called to validate the token, must accept
-        a Token object, the method string and kwargs.
+        a Token object and the method string.
     :return True or False.
     """
     valid_token = True

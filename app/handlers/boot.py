@@ -21,6 +21,7 @@ import handlers.base as hbase
 import handlers.common as hcommon
 import handlers.response as hresponse
 import models
+import models.token as mtoken
 import taskqueue.tasks as taskq
 import utils.db
 
@@ -40,29 +41,80 @@ class BootHandler(hbase.BaseHandler):
         return hcommon.BOOT_VALID_KEYS.get(method, None)
 
     def _post(self, *args, **kwargs):
-        response = hresponse.HandlerResponse(202)
-        if kwargs.get("reason", None):
-            response.reason = (
-                "Request accepted and being imported. WARNING: %s" %
-                kwargs["reason"]
+        req_token = self.get_request_token()
+        lab_name = kwargs["json_obj"].get(models.LAB_NAME_KEY, None)
+
+        if self._is_valid_token(req_token, lab_name):
+            response = hresponse.HandlerResponse(202)
+            if kwargs.get("reason", None):
+                response.reason = (
+                    "Request accepted and being imported. WARNING: %s" %
+                    kwargs["reason"]
+                )
+            else:
+                response.reason = "Request accepted and being imported"
+            response.result = None
+
+            taskq.import_boot.apply_async(
+                [kwargs["json_obj"], kwargs["db_options"]]
             )
         else:
-            response.reason = "Request accepted and being imported"
-        response.result = None
-
-        taskq.import_boot.apply_async(
-            [kwargs['json_obj'], kwargs['db_options']]
-        )
+            response = hresponse.HandlerResponse(403)
+            response.reason = (
+                "Provided authentication token is not associated with "
+                "lab '%s'" % lab_name
+            )
 
         return response
+
+    def _is_valid_token(self, req_token, lab_name):
+        """Make sure the token used to perform the POST is valid.
+
+        We are being paranoid here. We need to make sure the token used to
+        post is really associated with the provided lab name.
+
+        To be valid to post boot report, the token must either be an admin
+        token or a valid token associated with the lab.
+
+        :param req_token: The token string from the request.
+        :type req_token: str
+        :param lab_name: The name of the lab to check.
+        :type lab_name: str
+        :return True if the token is valid, False otherwise.
+        """
+        valid_lab = False
+
+        lab_doc = utils.db.find_one(
+            self.db[models.LAB_COLLECTION], [lab_name], field=models.NAME_KEY
+        )
+
+        lab_token_doc = utils.db.find_one(
+            self.db[models.TOKEN_COLLECTION], [lab_doc[models.TOKEN_KEY]]
+        )
+
+        if all([lab_doc, lab_token_doc]):
+            lab_token = mtoken.Token.from_json(lab_token_doc)
+            if all([req_token == lab_token.token, not lab_token.expired]):
+                valid_lab = True
+            elif all([lab_token.is_admin, not lab_token.expired]):
+                valid_lab = True
+                utils.LOG.warn(
+                    "Received boot POST request from an admin token")
+            else:
+                utils.LOG.warn(
+                    "Received token (%s) is not associated with lab '%s'",
+                    req_token, lab_name
+                )
+
+        return valid_lab
 
     def execute_delete(self, *args, **kwargs):
         response = None
 
         if self.validate_req_token("DELETE"):
-            if kwargs and kwargs.get('id', None):
+            if kwargs and kwargs.get("id", None):
                 try:
-                    doc_id = kwargs['id']
+                    doc_id = kwargs["id"]
                     obj_id = bson.objectid.ObjectId(doc_id)
                     if utils.db.find_one(self.collection, [obj_id]):
                         response = self._delete(obj_id)
