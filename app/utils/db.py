@@ -82,7 +82,9 @@ def find_one(collection,
     result = None
     if all([operator == '$in', not isinstance(value, types.ListType)]):
         utils.LOG.error(
-            "Provided value is not of type list, got: %s", type(value)
+            "Provided value (%s) is not of type list, got: %s",
+            value,
+            type(value)
         )
     else:
         result = collection.find_one(
