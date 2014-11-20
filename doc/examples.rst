@@ -264,7 +264,7 @@ Sending a boot report
             'lab_name': 'lab-name-00',
             'kernel': 'next-20141118',
             'job': 'next',
-            'defconfig': 'arm-omap2plus_defconfig2',
+            'defconfig': 'arm-omap2plus_defconfig',
             'board': 'omap4-panda',
             'boot_result': 'PASS',
             'boot_time': 10.4,
