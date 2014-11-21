@@ -158,9 +158,11 @@ def boot_report(args):
             if args.lab:
                 boot_meta['boot_log'] = args.lab + '/' + log
                 boot_meta['boot_log_html'] = args.lab + '/' + html
+                boot_meta['lab_name'] = args.lab
             else:
                 boot_meta['boot_log'] = log
                 boot_meta['boot_log_html'] = html
+                boot_meta['lab_name'] = None
             boot_meta['boot_result'] = result
             boot_meta['boot_time'] = kernel_boot_time
             # TODO: Fix this
