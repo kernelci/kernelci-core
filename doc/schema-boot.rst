@@ -76,6 +76,10 @@ necessary to use its ``_id`` value.
                     }
                 }
             },
+            "arch" : {
+                "type": "string",
+                "description": "The architecture type of this board"
+            },
             "git_branch": {
                 "type": "string",
                 "description": "The branch used for boot testing"
@@ -207,6 +211,10 @@ have when sent to the server.
             "board": {
                 "type": "string",
                 "description": "The name of the board: it must be a valid and recognized name"
+            },
+            "arch" : {
+                "type": "string",
+                "description": "The architecture type of this board"
             },
             "git_branch": {
                 "type": "string",

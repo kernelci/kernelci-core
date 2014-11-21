@@ -76,10 +76,14 @@ class BootDocument(modb.BaseDocument):
         self._boot_result_description = None
         self._retries = 0
         self._version = None
+        self._fastboot_cmd = None
 
         self._git_commit = None
         self._git_branch = None
         self._git_describe = None
+        self._git_url = None
+
+        self._arch = None
 
     @property
     def collection(self):
@@ -402,8 +406,39 @@ class BootDocument(modb.BaseDocument):
         """Set the git describe value."""
         self._git_describe = value
 
+    @property
+    def git_url(self):
+        """The URL of the git repository."""
+        return self._git_url
+
+    @git_url.setter
+    def git_url(self, value):
+        """Set the URL of the git repository."""
+        self._git_url = value
+
+    @property
+    def fastboot_cmd(self):
+        """The fastboot command used."""
+        return self._fastboot_cmd
+
+    @fastboot_cmd.setter
+    def fastboot_cmd(self, value):
+        """Set the fastboot command used."""
+        self._fastboot_cmd = value
+
+    @property
+    def arch(self):
+        """The architecture of this board."""
+        return self._arch
+
+    @arch.setter
+    def arch(self, value):
+        """Set the board architecture."""
+        self._arch = value
+
     def to_dict(self):
         boot_dict = {
+            models.ARCHITECTURE_KEY: self.arch,
             models.BOARD_KEY: self.board,
             models.BOOT_LOG_HTML_KEY: self.boot_log_html,
             models.BOOT_LOG_KEY: self.boot_log,
@@ -415,10 +450,12 @@ class BootDocument(modb.BaseDocument):
             models.DTB_APPEND_KEY: self.dtb_append,
             models.DTB_KEY: self.dtb,
             models.ENDIANNESS_KEY: self.endianness,
+            models.FASTBOOT_CMD_KEY: self.fastboot_cmd,
             models.FASTBOOT_KEY: self.fastboot,
             models.GIT_BRANCH_KEY: self.git_branch,
             models.GIT_COMMIT_KEY: self.git_commit,
             models.GIT_DESCRIBE_KEY: self.git_describe,
+            models.GIT_URL_KEY: self.git_url,
             models.INITRD_ADDR_KEY: self.initrd_addr,
             models.JOB_ID_KEY: self.job_id,
             models.JOB_KEY: self.job,

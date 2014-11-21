@@ -43,6 +43,9 @@ class TestBootModel(unittest.TestCase):
         boot_doc.git_branch = "git-branch"
         boot_doc.git_commit = "git-commit"
         boot_doc.git_describe = "git-describe"
+        boot_doc.git_url = "git-url"
+        boot_doc.arch = "arm"
+        boot_doc.fastboot_cmd = "fastboot"
 
         expected = {
             '_id': 'id',
@@ -74,7 +77,10 @@ class TestBootModel(unittest.TestCase):
             'warnings': 2,
             "git_commit": "git-commit",
             "git_branch": "git-branch",
-            "git_describe": "git-describe"
+            "git_describe": "git-describe",
+            "git_url": "git-url",
+            "arch": "arm",
+            "fastboot_cmd": "fastboot"
         }
 
         self.assertDictEqual(expected, boot_doc.to_dict())
