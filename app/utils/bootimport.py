@@ -250,25 +250,28 @@ def _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f):
     boot_doc.status = json_pop_f(
         models.BOOT_RESULT_KEY, models.UNKNOWN_STATUS
     )
-    boot_doc.warnings = json_pop_f(models.BOOT_WARNINGS_KEY, 0)
+    boot_doc.arch = json_pop_f(models.ARCHITECTURE_KEY, None)
     boot_doc.boot_log = json_pop_f(models.BOOT_LOG_KEY, None)
-    boot_doc.initrd_addr = json_pop_f(models.INITRD_ADDR_KEY, None)
-    boot_doc.load_addr = json_pop_f(models.BOOT_LOAD_ADDR_KEY, None)
-    boot_doc.kernel_image = json_pop_f(models.KERNEL_IMAGE_KEY, None)
-    boot_doc.dtb_addr = json_pop_f(models.DTB_ADDR_KEY, None)
-    boot_doc.endianness = json_pop_f(models.ENDIANNESS_KEY, None)
     boot_doc.boot_log_html = json_pop_f(models.BOOT_LOG_HTML_KEY, None)
-    boot_doc.fastboot = json_pop_f(models.FASTBOOT_KEY, None)
     boot_doc.boot_result_description = json_pop_f(
         models.BOOT_RESULT_DESC_KEY, None
     )
-    boot_doc.retries = json_pop_f(models.BOOT_RETRIES_KEY, 0)
     boot_doc.dtb = json_pop_f(models.DTB_KEY, None)
+    boot_doc.dtb_addr = json_pop_f(models.DTB_ADDR_KEY, None)
     boot_doc.dtb_append = json_pop_f(models.DTB_APPEND_KEY, None)
-    boot_doc.version = json_pop_f(models.VERSION_KEY, "1.0")
-    boot_doc.git_commit = json_pop_f(models.GIT_COMMIT_KEY, None)
+    boot_doc.endianness = json_pop_f(models.ENDIANNESS_KEY, None)
+    boot_doc.fastboot = json_pop_f(models.FASTBOOT_KEY, None)
+    boot_doc.fastboot_cmd = json_pop_f(models.FASTBOOT_CMD_KEY, None)
     boot_doc.git_branch = json_pop_f(models.GIT_BRANCH_KEY, None)
+    boot_doc.git_commit = json_pop_f(models.GIT_COMMIT_KEY, None)
     boot_doc.git_describe = json_pop_f(models.GIT_DESCRIBE_KEY, None)
+    boot_doc.git_url = json_pop_f(models.GIT_URL_KEY, None)
+    boot_doc.initrd_addr = json_pop_f(models.INITRD_ADDR_KEY, None)
+    boot_doc.kernel_image = json_pop_f(models.KERNEL_IMAGE_KEY, None)
+    boot_doc.load_addr = json_pop_f(models.BOOT_LOAD_ADDR_KEY, None)
+    boot_doc.retries = json_pop_f(models.BOOT_RETRIES_KEY, 0)
+    boot_doc.version = json_pop_f(models.VERSION_KEY, "1.0")
+    boot_doc.warnings = json_pop_f(models.BOOT_WARNINGS_KEY, 0)
 
     boot_doc.metadata = boot_json
 

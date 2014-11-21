@@ -144,6 +144,7 @@ def convert_defconfig_collection(db, limit=0):
             def_doc.modules_dir = doc_get("modules_dir", None)
             def_doc.modules = doc_get("modules", None)
             def_doc.build_log = doc_get("build_log", None)
+            def_doc.kconfig_fragments = doc_get("kconfig_fragments", None)
 
             metadata = doc_get("metadata", None)
             if metadata:
@@ -196,7 +197,12 @@ def convert_defconfig_collection(db, limit=0):
                     def_doc.modules_dir = meta_pop("modules_dir")
                 meta_pop("modules_dir", None)
 
+                if meta_get("kconfig_fragments", None):
+                    def_doc.kconfig_fragments = meta_pop("kconfig_fragments")
+                meta_pop("kconfig_fragments", None)
+
                 meta_pop("defconfig", None)
+                meta_pop("job", None)
                 def_doc.metadata = metadata
 
             ret_val = utils.db.delete(
@@ -299,6 +305,7 @@ def convert_boot_collection(db, lab_name, limit=0):
                 meta_pop = metadata.pop
                 meta_get = metadata.get
                 boot_doc.fastboot = meta_pop("fastboot", False)
+                boot_doc.fastboot_cmd = meta_pop("fastboot_cmd", None)
                 boot_doc.boot_result_description = meta_pop(
                     "boot_result_description", None)
                 if not boot_doc.boot_log_html:
@@ -310,7 +317,6 @@ def convert_boot_collection(db, lab_name, limit=0):
                 boot_doc.git_branch = meta_pop("git_branc", None)
                 boot_doc.git_describe = meta_pop("git_describe", None)
                 boot_doc.git_url = meta_pop("git_url", None)
-                boot_doc.fastboot_cmd = meta_pop("fastboot_cmd", None)
                 meta_pop("version", None)
 
                 if meta_get("arch", None) and not boot_doc.arch:
