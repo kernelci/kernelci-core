@@ -146,7 +146,8 @@ class TestParseJob(unittest.TestCase):
             "kernel_config": "kernel.config",
             "dtb_dir": "dtbs",
             "modules_dir": "foo/bar",
-            "build_log": "file.log"
+            "build_log": "file.log",
+            "kconfig_fragments": "fragment"
         }
 
         try:
@@ -161,7 +162,7 @@ class TestParseJob(unittest.TestCase):
             os.unlink(fake_meta.name)
 
         self.assertIsInstance(defconf_doc.metadata, types.DictionaryType)
-        self.assertEqual(None, defconf_doc.metadata['kconfig_fragments'])
+        self.assertEqual("fragment", defconf_doc.kconfig_fragments)
         self.assertEqual(defconf_doc.arch, "arm")
         self.assertEqual(defconf_doc.git_commit, "1234567890")
         self.assertEqual(defconf_doc.git_branch, "test/branch")

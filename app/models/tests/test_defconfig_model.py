@@ -56,6 +56,7 @@ class TestDefconfModel(unittest.TestCase):
         defconf_doc.kernel_image = "kernel-image"
         defconf_doc.modules_dir = "modules-dir"
         defconf_doc.build_log = "build.log"
+        defconf_doc.kconfig_fragments = "config-frag"
 
         expected = {
             "name": "job-kernel-defconfig",
@@ -86,7 +87,8 @@ class TestDefconfModel(unittest.TestCase):
             "text_offset": "offset",
             "modules": "modules-file",
             "modules_dir": "modules-dir",
-            "build_log": "build.log"
+            "build_log": "build.log",
+            "kconfig_fragments": "config-frag"
         }
 
         self.assertDictEqual(expected, defconf_doc.to_dict())

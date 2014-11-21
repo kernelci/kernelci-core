@@ -216,28 +216,30 @@ def _parse_build_data(data_file, job, kernel):
                 os.stat(data_file).st_mtime, tz=bson.tz_util.utc
             )
 
-            defconfig_doc.version = data_pop(models.VERSION_KEY, "1.0")
-            defconfig_doc.status = data_pop(
-                models.BUILD_RESULT_KEY, models.UNKNOWN_STATUS
-            )
-            defconfig_doc.warnings = data_pop(models.BUILD_WARNINGS_KEY, 0)
-            defconfig_doc.errros = data_pop(models.BUILD_ERRORS_KEY, 0)
             defconfig_doc.arch = data_pop(models.ARCHITECTURE_KEY, None)
+            defconfig_doc.build_log = data_pop(models.BUILD_LOG_KEY, None)
             defconfig_doc.build_platform = data_pop(
                 models.BUILD_PLATFORM_KEY, [])
-            defconfig_doc.git_describe = data_pop(models.GIT_DESCRIBE_KEY, None)
-            defconfig_doc.git_url = data_pop(models.GIT_URL_KEY, None)
-            defconfig_doc.git_commit = data_pop(models.GIT_COMMIT_KEY, None)
-            defconfig_doc.git_branch = data_pop(models.GIT_BRANCH_KEY, None)
             defconfig_doc.build_time = data_pop(models.BUILD_TIME_KEY, 0)
             defconfig_doc.dtb_dir = data_pop(models.DTB_DIR_KEY, None)
+            defconfig_doc.errros = data_pop(models.BUILD_ERRORS_KEY, 0)
+            defconfig_doc.git_branch = data_pop(models.GIT_BRANCH_KEY, None)
+            defconfig_doc.git_commit = data_pop(models.GIT_COMMIT_KEY, None)
+            defconfig_doc.git_describe = data_pop(models.GIT_DESCRIBE_KEY, None)
+            defconfig_doc.git_url = data_pop(models.GIT_URL_KEY, None)
+            defconfig_doc.kconfig_fragments = data_pop(
+                models.KCONFIG_FRAGMENTS_KEY, None)
             defconfig_doc.kernel_config = data_pop(
                 models.KERNEL_CONFIG_KEY, None)
-            defconfig_doc.kernel_image = data_pop(
-                models.KERNEL_IMAGE_KEY, None)
-            defconfig_doc.modules_dir = data_pop(models.MODULES_DIR_KEY, None)
+            defconfig_doc.kernel_image = data_pop(models.KERNEL_IMAGE_KEY, None)
             defconfig_doc.modules = data_pop(models.MODULES_KEY, None)
-            defconfig_doc.build_log = data_pop(models.BUILD_LOG_KEY, None)
+            defconfig_doc.modules_dir = data_pop(models.MODULES_DIR_KEY, None)
+            defconfig_doc.status = data_pop(
+                models.BUILD_RESULT_KEY, models.UNKNOWN_STATUS)
+            defconfig_doc.system_map = data_pop(models.SYSTEM_MAP_KEY, None)
+            defconfig_doc.text_offset = data_pop(models.TEXT_OFFSET_KEY, None)
+            defconfig_doc.version = data_pop(models.VERSION_KEY, "1.0")
+            defconfig_doc.warnings = data_pop(models.BUILD_WARNINGS_KEY, 0)
 
             defconfig_doc.metadata = build_data
         except KeyError, ex:

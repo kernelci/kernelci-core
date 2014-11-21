@@ -65,6 +65,7 @@ class DefconfigDocument(modb.BaseDocument):
         self._modules_dir = None
         self._build_log = None
         self._dtb_dir = None
+        self._kconfig_fragments = None
 
         self._version = None
 
@@ -365,6 +366,16 @@ class DefconfigDocument(modb.BaseDocument):
         """Set the modules directory."""
         self._modules_dir = value
 
+    @property
+    def kconfig_fragments(self):
+        """The config fragment used."""
+        return self._kconfig_fragments
+
+    @kconfig_fragments.setter
+    def kconfig_fragments(self, value):
+        """Set the config fragment used."""
+        self._kconfig_fragments = value
+
     def to_dict(self):
         defconf_dict = {
             models.ARCHITECTURE_KEY: self.arch,
@@ -382,6 +393,7 @@ class DefconfigDocument(modb.BaseDocument):
             models.GIT_URL_KEY: self.git_url,
             models.JOB_ID_KEY: self.job_id,
             models.JOB_KEY: self.job,
+            models.KCONFIG_FRAGMENTS_KEY: self.kconfig_fragments,
             models.KERNEL_CONFIG_KEY: self.kernel_config,
             models.KERNEL_IMAGE_KEY: self.kernel_image,
             models.KERNEL_KEY: self.kernel,

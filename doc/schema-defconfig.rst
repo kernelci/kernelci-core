@@ -145,6 +145,10 @@ The following schema covers the data that is available with a GET request.
                 "type": "string",
                 "description": "Name of the kernel image created"
             },
+            "kconfig_fragments": {
+                "type": "string",
+                "description": "The config fragment used"
+            },
             "metadata": {
                 "type": "object",
                 "description": "A free form object that can contain different properties"
@@ -274,6 +278,10 @@ server.
             },
             "text_offset": {
                 "type": "string"
+            },
+            "kconfig_fragments": {
+                "type": "string",
+                "description": "The config fragment used"
             }
         },
         "required": ["version", "job", "kernel", "defconfig"]
