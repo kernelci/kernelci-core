@@ -105,7 +105,19 @@ def convert_defconfig_collection(db, limit=0):
 
             job = doc_get("job")
             kernel = doc_get("kernel")
-            defconfig = doc_get("dirname", None) or doc_get("defconfig")
+            defconfig = doc_get("defconfig")
+
+            arch = None
+
+            if defconfig.startswith("arm-"):
+                defconfig = defconfig.replace("arm-", "", 1)
+                arch = "arm"
+            elif defconfig.startswith("arm64-"):
+                defconfig = defconfig.replace("arm64-", "", 1)
+                arch = "arm64"
+            elif defconfig.startswith("x86-"):
+                defconfig = defconfig.replace("x86-", "", 1)
+                arch = "x86"
 
             def_doc = mdefconfig.DefconfigDocument(job, kernel, defconfig)
 
@@ -149,7 +161,7 @@ def convert_defconfig_collection(db, limit=0):
                 meta_pop("build_warnings", 0)
 
                 if not def_doc.arch:
-                    def_doc.arch = meta_pop("arch", None)
+                    def_doc.arch = meta_pop("arch", arch)
                 meta_pop("arch", None)
 
                 def_doc.git_url = meta_pop("git_url", None)
@@ -199,7 +211,8 @@ def convert_defconfig_collection(db, limit=0):
 
             ret_val, doc_id = utils.db.save(db, def_doc, manipulate=True)
             if ret_val == 201:
-                NEW_DEFCONFIG_IDS[doc_get("_id")] = doc_id
+                NEW_DEFCONFIG_IDS[job + "-" + kernel + "-" + defconfig] = \
+                    doc_id
             else:
                 utils.LOG.error(
                     "Error saving new defconfig document for %s",
@@ -235,18 +248,36 @@ def convert_boot_collection(db, lab_name, limit=0):
             kernel = doc_get("kernel")
             defconfig = doc_get("defconfig")
             metadata = document.get("metadata", None)
+            arch = None
+
+            if defconfig.startswith("arm-"):
+                defconfig = defconfig.replace("arm-", "", 1)
+                arch = "arm"
+            elif defconfig.startswith("arm64-"):
+                defconfig = defconfig.replace("arm64-", "", 1)
+                arch = "arm64"
+            elif defconfig.startswith("x86-"):
+                defconfig = defconfig.replace("x86-", "", 1)
+                arch = "x86"
 
             boot_doc = mboot.BootDocument(
                 board, job, kernel, defconfig, lab_name)
 
+            boot_doc.arch = arch
             boot_doc.version = "1.0"
-            if not NEW_JOB_IDS.get(job + "-" + kernel, None):
-                utils.LOG.info("No job ID found for %s-%s", job, kernel)
 
             boot_doc.job_id = NEW_JOB_IDS.get(job + "-" + kernel, None)
+            if not boot_doc.job_id:
+                utils.LOG.warn("No job ID found for %s-%s", job, kernel)
+
             boot_doc.defconfig_id = NEW_DEFCONFIG_IDS.get(
                 job + "-" + kernel + "-" + defconfig, None
             )
+            if not boot_doc.job_id:
+                utils.LOG.warn(
+                    "No defconfig ID found for %s-%s-%s",
+                    job, kernel, defconfig
+                )
             boot_doc.created_on = doc_get("created_on", None)
             boot_doc.tine = doc_get("time", 0)
             boot_doc.warnings = doc_get("warnings", 0)
@@ -266,6 +297,7 @@ def convert_boot_collection(db, lab_name, limit=0):
 
             if metadata:
                 meta_pop = metadata.pop
+                meta_get = metadata.get
                 boot_doc.fastboot = meta_pop("fastboot", False)
                 boot_doc.boot_result_description = meta_pop(
                     "boot_result_description", None)
@@ -274,6 +306,15 @@ def convert_boot_collection(db, lab_name, limit=0):
                 if not boot_doc.boot_log:
                     boot_doc.boot_log = meta_pop("boot_log", None)
                 boot_doc.dtb_append = meta_pop("dtb_append", None)
+                boot_doc.git_commit = meta_pop("git_commit", None)
+                boot_doc.git_branch = meta_pop("git_branc", None)
+                boot_doc.git_describe = meta_pop("git_describe", None)
+                boot_doc.git_url = meta_pop("git_url", None)
+                boot_doc.fastboot_cmd = meta_pop("fastboot_cmd", None)
+                meta_pop("version", None)
+
+                if meta_get("arch", None) and not boot_doc.arch:
+                    boot_doc.arch = meta_pop("arch")
 
                 boot_doc.metadata = metadata
 
@@ -334,11 +375,14 @@ def main():
     lab_name = args.lab_name
     limit = args.limit
 
-    db = utils.db.get_db_connection({})
-    convert_job_collection(db, limit)
-    convert_defconfig_collection(db, limit)
-    convert_boot_collection(db, lab_name, limit)
-    _check_func(db)
+    try:
+        db = utils.db.get_db_connection({})
+        convert_job_collection(db, limit)
+        convert_defconfig_collection(db, limit)
+        convert_boot_collection(db, lab_name, limit)
+        _check_func(db)
+    except KeyboardInterrupt:
+        utils.LOG.info("User interrupted.")
 
 
 if __name__ == '__main__':
