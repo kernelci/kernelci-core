@@ -126,9 +126,12 @@ def boot_report(args):
         # Record the boot log and result
         # TODO: Will need to map device_types to dashboard device types
         if kernel_defconfig and device_type and result:
-            print 'Creating boot log for %s' % device_type
+            print 'Creating boot log for %s' % device_map[device_type]
             log = 'boot-%s.log' % device_map[device_type]
-            directory = os.path.join(results_directory, kernel_defconfig)
+            if args.lab:
+                directory = os.path.join(results_directory, kernel_defconfig + '/' + args.lab)
+            else:
+                directory = os.path.join(results_directory, kernel_defconfig)
             ensure_dir(directory)
             write_file(job_file, log, directory)
             if kernel_boot_time is None:
@@ -176,9 +179,9 @@ def boot_report(args):
                     failed += 1
         total = passed + failed
         with open(os.path.join(results_directory, boot), 'a') as f:
-            f.write('to : %s\n' % args.email)
-            f.write('from : lava@armcloud.us\n')
-            f.write('subject : %s boot: %s boots: %s passed, %s failed (%s)\n' % (kernel_tree,
+            f.write('To : %s\n' % args.email)
+            f.write('From : lava@armcloud.us\n')
+            f.write('Subject : %s boot: %s boots: %s passed, %s failed (%s)\n' % (kernel_tree,
                                                                                 str(total),
                                                                                 str(passed),
                                                                                 str(failed),
@@ -207,10 +210,17 @@ def boot_report(args):
                         f.write('    %s   %ss   boot-test: %s\n' % (device_map[result['device_type']],
                                                                     result['kernel_boot_time'],
                                                                     result['result']))
-                        f.write('    http://storage.armcloud.us/kernel-ci/%s/%s/%s/boot-%s.html' % (kernel_tree,
-                                                                                                    kernel_version,
-                                                                                                    defconfig,
-                                                                                                    result['device_type']))
+                        if args.lab:
+                            f.write('    http://storage.armcloud.us/kernel-ci/%s/%s/%s/%s/boot-%s.html' % (kernel_tree,
+                                                                                                        kernel_version,
+                                                                                                        defconfig,
+                                                                                                        args.lab,
+                                                                                                        device_map[result['device_type']]))
+                        else:
+                            f.write('    http://storage.armcloud.us/kernel-ci/%s/%s/%s/boot-%s.html' % (kernel_tree,
+                                                                                                        kernel_version,
+                                                                                                        defconfig,
+                                                                                                        device_map[result['device_type']]))
                         f.write('\n')
             f.write('\n')
             f.write('Full Boot Report:\n')
@@ -235,9 +245,9 @@ def boot_report(args):
                     failed += 1
         total = passed + failed
         with open(os.path.join(results_directory, dt_self_test), 'a') as f:
-            f.write('to : %s\n' % args.email)
-            f.write('from : lava@armcloud.us\n')
-            f.write('subject : %s dt-runtime-unit-tests: %s boards tested: %s passed, %s failed (%s)\n' % (kernel_tree,
+            f.write('To : %s\n' % args.email)
+            f.write('From : lava@armcloud.us\n')
+            f.write('Subject : %s dt-runtime-unit-tests: %s boards tested: %s passed, %s failed (%s)\n' % (kernel_tree,
                                                                                                            str(total),
                                                                                                            str(passed),
                                                                                                            str(failed),
@@ -267,10 +277,17 @@ def boot_report(args):
                                                                                                     result['dt_tests_passed'],
                                                                                                     result['dt_tests_failed'],
                                                                                                     result['dt_test_result']))
-                        f.write('    http://storage.armcloud.us/kernel-ci/%s/%s/%s/boot-%s.html' % (kernel_tree,
-                                                                                                    kernel_version,
-                                                                                                    defconfig,
-                                                                                                    device_map[result['device_type']]))
+                        if args.lab:
+                            f.write('    http://storage.armcloud.us/kernel-ci/%s/%s/%s/%s/boot-%s.html' % (kernel_tree,
+                                                                                                        kernel_version,
+                                                                                                        defconfig,
+                                                                                                        args.lab,
+                                                                                                        device_map[result['device_type']]))
+                        else:
+                            f.write('    http://storage.armcloud.us/kernel-ci/%s/%s/%s/boot-%s.html' % (kernel_tree,
+                                                                                                        kernel_version,
+                                                                                                        defconfig,
+                                                                                                        device_map[result['device_type']]))
                         f.write('\n')
             f.write('\n')
             f.write('Full Unit Test Report:\n')
@@ -305,6 +322,7 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--boot", help="creates a kernel-ci boot report from a given json file")
+    parser.add_argument("--lab", help="lab id")
     parser.add_argument("--email", help="email address to send report to")
     args = parser.parse_args()
     main(args)
