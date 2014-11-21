@@ -1,5 +1,3 @@
-# Copyright (C) 2014 Linaro Ltd.
-#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
@@ -59,6 +57,7 @@ ENDIANNESS_KEY = 'endian'
 ERRORS_KEY = 'errors'
 EXPIRED_KEY = 'expired'
 EXPIRES_KEY = 'expires_on'
+FASTBOOT_CMD_KEY = 'fastboot_cmd'
 FASTBOOT_KEY = 'fastboot'
 FIELD_KEY = 'field'
 GIT_BRANCH_KEY = 'git_branch'
