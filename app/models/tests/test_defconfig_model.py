@@ -29,8 +29,9 @@ class TestDefconfModel(unittest.TestCase):
         self.assertEqual(defconfig_doc.collection, 'defconfig')
 
     def test_defconfig_document_to_dict(self):
+        self.maxDiff = None
         defconf_doc = moddf.DefconfigDocument(
-            'job', 'kernel', 'defconfig'
+            'job', 'kernel', 'defconfig', 'defconfig_full'
         )
         defconf_doc.id = "defconfig_id"
         defconf_doc.job_id = "job_id"
@@ -59,7 +60,7 @@ class TestDefconfModel(unittest.TestCase):
         defconf_doc.kconfig_fragments = "config-frag"
 
         expected = {
-            "name": "job-kernel-defconfig",
+            "name": "job-kernel-defconfig_full",
             "_id": "defconfig_id",
             "job": "job",
             "kernel": "kernel",
@@ -88,7 +89,8 @@ class TestDefconfModel(unittest.TestCase):
             "modules": "modules-file",
             "modules_dir": "modules-dir",
             "build_log": "build.log",
-            "kconfig_fragments": "config-frag"
+            "kconfig_fragments": "config-frag",
+            "defconfig_full": "defconfig_full"
         }
 
         self.assertDictEqual(expected, defconf_doc.to_dict())

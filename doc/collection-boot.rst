@@ -35,6 +35,7 @@ GET
  :query string job_id: The ID of a job.
  :query string kernel: The name of a kernel.
  :query string defconfig: The name of a defconfig.
+ :query string defconfig_full: The full name of a defconfig (with config fragments).
  :query string defconfig_id: The ID of a defconfig.
  :query string endian: The endianness of the board.
  :query string board: The name of a board.
@@ -196,6 +197,7 @@ DELETE
  :query string kernel: The name of a kernel.
  :query string defconfig_id: The ID of a defconfig.
  :query string defconfig: The name of a defconfig.
+ :query string defconfig_full: The full name of a defconfig (with config fragments).
  :query string board: The name of a board.
  :query string name: The name of a boot report.
 

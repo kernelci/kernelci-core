@@ -43,6 +43,7 @@ COUNT_KEY = "count"
 CREATED_KEY = 'created_on'
 CROSS_COMPILE_KEY = 'cross_compile'
 DATE_RANGE_KEY = 'date_range'
+DEFCONFIG_FULL_KEY = 'defconfig_full'
 DEFCONFIG_ID_KEY = 'defconfig_id'
 DEFCONFIG_KEY = 'defconfig'
 DIRNAME_KEY = 'dirname'

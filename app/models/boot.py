@@ -27,7 +27,9 @@ class BootDocument(modb.BaseDocument):
     Each document is a single booted board.
     """
 
-    def __init__(self, board, job, kernel, defconfig, lab_name):
+    def __init__(
+            self, board, job, kernel, defconfig, lab_name,
+            defconfig_full=None):
         """A new BootDocument.
 
         :param board: The name of the board.
@@ -44,9 +46,9 @@ class BootDocument(modb.BaseDocument):
         self._board = board
         self._name = models.BOOT_DOCUMENT_NAME % {
             models.BOARD_KEY: board,
+            models.DEFCONFIG_KEY: defconfig_full or defconfig,
             models.JOB_KEY: job,
             models.KERNEL_KEY: kernel,
-            models.DEFCONFIG_KEY: defconfig,
         }
         self._lab_name = lab_name
         self._job = job
@@ -56,6 +58,7 @@ class BootDocument(modb.BaseDocument):
 
         self._kernel = kernel
         self._defconfig = defconfig
+        self._defconfig_full = defconfig_full
 
         self._metadata = {}
         self._job_id = None
@@ -436,6 +439,19 @@ class BootDocument(modb.BaseDocument):
         """Set the board architecture."""
         self._arch = value
 
+    @property
+    def defconfig_full(self):
+        """The full defconfig name.
+
+        This parameter contains also the config fragments information.
+        """
+        return self._defconfig_full
+
+    @defconfig_full.setter
+    def defconfig_full(self, value):
+        """Set the full defconfig name."""
+        self._defconfig_full = value
+
     def to_dict(self):
         boot_dict = {
             models.ARCHITECTURE_KEY: self.arch,
@@ -444,6 +460,7 @@ class BootDocument(modb.BaseDocument):
             models.BOOT_LOG_KEY: self.boot_log,
             models.BOOT_RESULT_DESC_KEY: self.boot_result_description,
             models.CREATED_KEY: self.created_on,
+            models.DEFCONFIG_FULL_KEY: self.defconfig_full,
             models.DEFCONFIG_ID_KEY: self.defconfig_id,
             models.DEFCONFIG_KEY: self.defconfig,
             models.DTB_ADDR_KEY: self.dtb_addr,

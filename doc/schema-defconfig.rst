@@ -67,6 +67,11 @@ The following schema covers the data that is available with a GET request.
                 "type": "string",
                 "description": "The name of the defconfig as reported by the CI loop"
             },
+            "defconfig_full": {
+                "type": "string",
+                "description": "The full name of the defconfig, can contain also config fragments information",
+                "default": "The defconfig value"
+            },
             "dirname": {
                 "type": "string",
                 "description": "The name of the directory of the defconfig built; it can be different from the actual defconfig name"
@@ -191,6 +196,11 @@ server.
             "defconfig": {
                 "type": "string",
                 "description": "The name of the defconfig as reported by the CI loop"
+            },
+            "defconfig_full": {
+                "type": "string",
+                "description": "The full name of the defconfig with config fragments information",
+                "default": "The defconfig value"
             },
             "build_result": {
                 "type": "string",

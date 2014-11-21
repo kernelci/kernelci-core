@@ -66,6 +66,11 @@ necessary to use its ``_id`` value.
                 "type": "string",
                 "description": "The name of the defconfig as reported by the CI loop"
             },
+            "defconfig_full": {
+                "type": "string",
+                "description": "The full name of the defconfig, can contain also config fragments information",
+                "default": "The defconfig value"
+            },
             "defconfig_id": {
                 "type": "object",
                 "description": "The ID of the associated build report",
@@ -207,6 +212,11 @@ have when sent to the server.
             "defconfig": {
                 "type": "string",
                 "description": "The name of the defconfig as reported by the CI loop"
+            },
+            "defconfig_full": {
+                "type": "string",
+                "description": "The full name of the defconfig with config fragments information",
+                "default": "The defconfig value"
             },
             "board": {
                 "type": "string",

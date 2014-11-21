@@ -27,12 +27,12 @@ class DefconfigDocument(modb.BaseDocument):
 
     """This class represents a defconfig folder as seen on the file system."""
 
-    def __init__(self, job, kernel, defconfig):
+    def __init__(self, job, kernel, defconfig, defconfig_full=None):
 
         doc_name = {
             models.JOB_KEY: job,
             models.KERNEL_KEY: kernel,
-            models.DEFCONFIG_KEY: defconfig
+            models.DEFCONFIG_KEY: defconfig_full or defconfig
         }
 
         self._name = models.DEFCONFIG_DOCUMENT_NAME % doc_name
@@ -42,6 +42,7 @@ class DefconfigDocument(modb.BaseDocument):
         self._job = job
         self._kernel = kernel
         self._defconfig = defconfig
+        self._defconfig_full = defconfig_full
         self._job_id = None
         self._dirname = None
         self._status = None
@@ -376,6 +377,19 @@ class DefconfigDocument(modb.BaseDocument):
         """Set the config fragment used."""
         self._kconfig_fragments = value
 
+    @property
+    def defconfig_full(self):
+        """The full defconfig name.
+
+        This parameter contains also the config fragments information.
+        """
+        return self._defconfig_full
+
+    @defconfig_full.setter
+    def defconfig_full(self, value):
+        """Set the full defconfig name."""
+        self._defconfig_full = value
+
     def to_dict(self):
         defconf_dict = {
             models.ARCHITECTURE_KEY: self.arch,
@@ -383,6 +397,7 @@ class DefconfigDocument(modb.BaseDocument):
             models.BUILD_PLATFORM_KEY: self.build_platform,
             models.BUILD_TIME_KEY: self.build_time,
             models.CREATED_KEY: self.created_on,
+            models.DEFCONFIG_FULL_KEY: self.defconfig_full,
             models.DEFCONFIG_KEY: self.defconfig,
             models.DIRNAME_KEY: self.dirname,
             models.DTB_DIR_KEY: self.dtb_dir,

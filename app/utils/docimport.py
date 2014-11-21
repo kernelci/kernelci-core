@@ -205,11 +205,12 @@ def _parse_build_data(data_file, job, kernel):
 
         try:
             defconfig = data_pop(models.DEFCONFIG_KEY)
+            defconfig_full = data_pop(models.DEFCONFIG_FULL_KEY, defconfig)
             job = data_pop(models.JOB_KEY, None) or job
             kernel = data_pop(models.KERNEL_KEY, None) or kernel
 
             defconfig_doc = mdefconfig.DefconfigDocument(
-                job, kernel, defconfig
+                job, kernel, defconfig, defconfig_full
             )
 
             defconfig_doc.created_on = datetime.datetime.fromtimestamp(

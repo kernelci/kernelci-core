@@ -33,6 +33,7 @@ GET
  :query string job: The name of a job.
  :query string job_id: The ID of a job.
  :query string kernel: The name of a kernel.
+ :query string defconfig_full: The full name of a defconfig (with config fragments).
  :query string defconfig: The name of a defconfig.
  :query string name: The name of the defconfig report.
  :query string arch: The architecture on which the defconfig has been built.

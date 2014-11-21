@@ -172,9 +172,11 @@ def _parse_boot_from_json(boot_json, database):
         job = json_pop_f(models.JOB_KEY)
         kernel = json_pop_f(models.KERNEL_KEY)
         defconfig = json_pop_f(models.DEFCONFIG_KEY)
+        defconfig_full = json_pop_f(models.DEFCONFIG_FULL_KEY, defconfig)
         lab_name = json_pop_f(models.LAB_NAME_KEY)
 
-        boot_doc = modbt.BootDocument(board, job, kernel, defconfig, lab_name)
+        boot_doc = modbt.BootDocument(
+            board, job, kernel, defconfig, lab_name, defconfig_full)
         boot_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
         _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f)
         _update_boot_doc_ids(boot_doc, database)

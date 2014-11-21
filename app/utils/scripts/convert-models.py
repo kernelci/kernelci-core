@@ -103,11 +103,17 @@ def convert_defconfig_collection(db, limit=0):
             doc_count += 1
             utils.LOG.info("Processing document #%s", doc_count)
 
+            metadata = doc_get("metadata", {})
+            meta_get = metadata.get
+            meta_pop = metadata.pop
+
+            arch = None
+            defconfig_full = None
+            kconfig_fragments = None
+
             job = doc_get("job")
             kernel = doc_get("kernel")
             defconfig = doc_get("defconfig")
-
-            arch = None
 
             if defconfig.startswith("arm-"):
                 defconfig = defconfig.replace("arm-", "", 1)
@@ -119,13 +125,29 @@ def convert_defconfig_collection(db, limit=0):
                 defconfig = defconfig.replace("x86-", "", 1)
                 arch = "x86"
 
-            def_doc = mdefconfig.DefconfigDocument(job, kernel, defconfig)
+            if meta_get("kconfig_fragments", None):
+                kconfig_fragments = meta_pop("kconfig_fragments")
+                fragment = \
+                    kconfig_fragments.replace(
+                        "frag-", "").replace(".config", "")
+                if fragment not in defconfig:
+                    defconfig_full = "+".join([defconfig, fragment])
+
+            if not defconfig_full:
+                defconfig_full = defconfig
+
+            def_doc = mdefconfig.DefconfigDocument(
+                job, kernel, defconfig, defconfig_full)
 
             def_doc.version = "1.0"
+            def_doc.kconfig_fragments = kconfig_fragments
+            def_doc.defconfig_full = defconfig_full
             def_doc.status = doc_get("status", models.UNKNOWN_STATUS)
+
             if not NEW_JOB_IDS.get(job + "-" + kernel, None):
-                utils.LOG.info("No job ID for %s-%s", job, kernel)
+                utils.LOG.error("No job ID for '%s-%s'", job, kernel)
             def_doc.job_id = NEW_JOB_IDS.get(job + "-" + kernel, None)
+
             def_doc.dirname = doc_get("dirname", None)
             def_doc.arch = doc_get("arch", None)
             def_doc.created_on = doc_get("created_on")
@@ -144,13 +166,8 @@ def convert_defconfig_collection(db, limit=0):
             def_doc.modules_dir = doc_get("modules_dir", None)
             def_doc.modules = doc_get("modules", None)
             def_doc.build_log = doc_get("build_log", None)
-            def_doc.kconfig_fragments = doc_get("kconfig_fragments", None)
 
-            metadata = doc_get("metadata", None)
             if metadata:
-                meta_pop = metadata.pop
-                meta_get = metadata.get
-
                 if (str(def_doc.errors) != str(meta_get("build_errors")) and
                         meta_get("build_errors") is not None):
                     def_doc.errors = int(meta_pop("build_errors", 0))
@@ -217,8 +234,8 @@ def convert_defconfig_collection(db, limit=0):
 
             ret_val, doc_id = utils.db.save(db, def_doc, manipulate=True)
             if ret_val == 201:
-                NEW_DEFCONFIG_IDS[job + "-" + kernel + "-" + defconfig] = \
-                    doc_id
+                NEW_DEFCONFIG_IDS[job + "-" + kernel + "-" + defconfig_full] = \
+                    (doc_id, defconfig, defconfig_full)
             else:
                 utils.LOG.error(
                     "Error saving new defconfig document for %s",
@@ -266,24 +283,37 @@ def convert_boot_collection(db, lab_name, limit=0):
                 defconfig = defconfig.replace("x86-", "", 1)
                 arch = "x86"
 
+            job_id = NEW_JOB_IDS.get(job + "-" + kernel, None)
+            if not job_id:
+                utils.LOG.error("No job ID found for %s-%s", job, kernel)
+
+            defconfig_id, build_defconfig, defconfig_full = \
+                NEW_DEFCONFIG_IDS.get(
+                    job + "-" + kernel + "-" + defconfig,
+                    [None, None, None]
+                )
+
+            if build_defconfig:
+                defconfig = build_defconfig
+            if not defconfig_full:
+                defconfig_full = defconfig
+
+            if not defconfig_id:
+                utils.LOG.error(
+                    "No defconfig ID found for %s-%s-%s (%s)",
+                    job, kernel, defconfig, defconfig_full
+                )
+
             boot_doc = mboot.BootDocument(
-                board, job, kernel, defconfig, lab_name)
+                board, job, kernel, defconfig, lab_name, defconfig_full
+            )
+
+            boot_doc.job_id = job_id
+            boot_doc.defconfig_id = defconfig_id
 
             boot_doc.arch = arch
             boot_doc.version = "1.0"
 
-            boot_doc.job_id = NEW_JOB_IDS.get(job + "-" + kernel, None)
-            if not boot_doc.job_id:
-                utils.LOG.warn("No job ID found for %s-%s", job, kernel)
-
-            boot_doc.defconfig_id = NEW_DEFCONFIG_IDS.get(
-                job + "-" + kernel + "-" + defconfig, None
-            )
-            if not boot_doc.job_id:
-                utils.LOG.warn(
-                    "No defconfig ID found for %s-%s-%s",
-                    job, kernel, defconfig
-                )
             boot_doc.created_on = doc_get("created_on", None)
             boot_doc.tine = doc_get("time", 0)
             boot_doc.warnings = doc_get("warnings", 0)
