@@ -161,6 +161,7 @@ DEFCONFIG_VALID_KEYS = {
         models.ID_KEY,
         models.JOB_ID_KEY,
         models.JOB_KEY,
+        models.KCONFIG_FRAGMENTS_KEY,
         models.KERNEL_CONFIG_KEY,
         models.KERNEL_IMAGE_KEY,
         models.KERNEL_KEY,
