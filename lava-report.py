@@ -4,7 +4,10 @@
 import argparse
 import subprocess
 import re
+import urllib2
 from utils import *
+
+log2html = 'https://git.linaro.org/people/kevin.hilman/build-scripts.git/blob_plain/HEAD:/log2html.py'
 
 device_map = {'arndale': 'exynos5250-arndale',
               'arndale-octa': 'exynos5420-arndale-octa',
@@ -27,6 +30,13 @@ device_map = {'arndale': 'exynos5250-arndale',
               'x86': 'x86',
               'kvm': 'x86-kvm'}
 
+
+def download_log2html(url):
+    print 'Fetching latest log2html script'
+    response = urllib2.urlopen(url)
+    script = response.read()
+    write_file(script, 'log2html.py', os.getcwd())
+
 def parse_json(json):
     jobs = load_json(json)
     url = validate_input(jobs['username'], jobs['token'], jobs['server'])
@@ -42,6 +52,8 @@ def parse_json(json):
 
 def boot_report(args):
     connection, jobs, duration =  parse_json(args.boot)
+    # TODO: Fix this when multi-lab sync is working
+    #download_log2html(log2html)
     results_directory = os.getcwd() + '/results'
     results = {}
     dt_tests = False
@@ -128,6 +140,7 @@ def boot_report(args):
         if kernel_defconfig and device_type and result:
             print 'Creating boot log for %s' % device_map[device_type]
             log = 'boot-%s.log' % device_map[device_type]
+            html = 'boot-%s.html' % device_map[device_type]
             if args.lab:
                 directory = os.path.join(results_directory, kernel_defconfig + '/' + args.lab)
             else:
@@ -142,9 +155,12 @@ def boot_report(args):
                 results[kernel_defconfig] = [{'device_type': device_type, 'dt_test_result': dt_test_result, 'dt_tests_passed': dt_tests_passed, 'dt_tests_failed': dt_tests_failed, 'kernel_boot_time': kernel_boot_time, 'result': result}]
             # Create JSON format boot metadata
             print 'Creating JSON format boot metadata'
-            boot_meta['boot_log'] = log
-            # TODO: Fix this
-            boot_meta['boot_log_html'] = None
+            if args.lab:
+                boot_meta['boot_log'] = args.lab + '/' + log
+                boot_meta['boot_log_html'] = args.lab + '/' + html
+            else:
+                boot_meta['boot_log'] = log
+                boot_meta['boot_log_html'] = html
             boot_meta['boot_result'] = result
             boot_meta['boot_time'] = kernel_boot_time
             # TODO: Fix this
@@ -164,6 +180,9 @@ def boot_report(args):
             boot_meta['loadaddr'] = kernel_addr
             json_file = 'boot-%s.json' % device_map[device_type]
             write_json(json_file, directory, boot_meta)
+            print 'Creating html version of boot log for %s' % device_map[device_type]
+            cmd = 'python log2html.py %s' % os.path.join(directory, log)
+            subprocess.check_output(cmd, shell=True)
 
 
     if results and kernel_tree and kernel_version:
