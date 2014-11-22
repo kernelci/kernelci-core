@@ -11,6 +11,7 @@ log2html = 'https://git.linaro.org/people/kevin.hilman/build-scripts.git/blob_pl
 
 device_map = {'arndale': 'exynos5250-arndale',
               'arndale-octa': 'exynos5420-arndale-octa',
+              'odroid-xu3': 'exynos5420-smdk5420',
               'beaglebone-black': 'am335x-boneblack',
               'beagle-xm': 'omap3-beagle-xm',
               'panda-es': 'omap4-panda-es',
