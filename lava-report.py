@@ -205,9 +205,9 @@ def boot_report(args):
         else:
             report_directory = results_directory
         with open(os.path.join(report_directory, boot), 'a') as f:
-            f.write('To : %s\n' % args.email)
-            f.write('From : lava@armcloud.us\n')
-            f.write('Subject : %s boot: %s boots: %s passed, %s failed (%s)\n' % (kernel_tree,
+            f.write('To: %s\n' % args.email)
+            f.write('From: lava@armcloud.us\n')
+            f.write('Subject: %s boot: %s boots: %s passed, %s failed (%s)\n' % (kernel_tree,
                                                                                 str(total),
                                                                                 str(passed),
                                                                                 str(failed),
@@ -271,9 +271,9 @@ def boot_report(args):
                     failed += 1
         total = passed + failed
         with open(os.path.join(report_directory, dt_self_test), 'a') as f:
-            f.write('To : %s\n' % args.email)
-            f.write('From : lava@armcloud.us\n')
-            f.write('Subject : %s dt-runtime-unit-tests: %s boards tested: %s passed, %s failed (%s)\n' % (kernel_tree,
+            f.write('To: %s\n' % args.email)
+            f.write('From: lava@armcloud.us\n')
+            f.write('Subject: %s dt-runtime-unit-tests: %s boards tested: %s passed, %s failed (%s)\n' % (kernel_tree,
                                                                                                            str(total),
                                                                                                            str(passed),
                                                                                                            str(failed),
