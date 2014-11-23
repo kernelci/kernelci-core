@@ -31,6 +31,13 @@ odroid_xu3 = {'device_type': 'odroid-xu3',
               'be': False,
               'fastboot': False}
 
+odroid_u2 = {'device_type': 'odroid-u2',
+             'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+             'defconfig_blacklist': [],
+             'lpae': False,
+             'be': False,
+             'fastboot': False}
+
 beaglebone_black = {'device_type': 'beaglebone-black',
                     'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
                     'defconfig_blacklist': [],
@@ -169,6 +176,7 @@ x86_kvm = {'device_type': 'kvm',
 device_map = {'exynos5250-arndale.dtb': arndale,
               'exynos5420-arndale-octa.dtb': arndale_octa,
               'exynos5420-smdk5420.dtb': odroid_xu3,
+              'exynos4412-odroidu3.dtb': odroid_u2,
               'am335x-boneblack.dtb': beaglebone_black,
               'omap3-beagle-xm.dtb': beagle_xm,
               'omap4-panda-es.dtb': panda_es,
