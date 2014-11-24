@@ -101,6 +101,9 @@ UPDATED_KEY = 'updated_on'
 USERNAME_KEY = 'username'
 VERSION_KEY = 'version'
 WARNINGS_KEY = 'warnings'
+ARM_ARCHITECTURE_KEY = 'arm'
+ARM64_ARCHITECTURE_KEY = 'arm64'
+x86_ARCHITECTURE_KEY = 'x86'
 
 # Token special fields.
 ADMIN_KEY = 'admin'
@@ -162,7 +165,7 @@ BISECT_BAD_COMMIT_URL = 'bad_commit_url'
 
 # Name formats.
 JOB_DOCUMENT_NAME = '%(job)s-%(kernel)s'
-BOOT_DOCUMENT_NAME = '%(board)s-%(job)s-%(kernel)s-%(defconfig)s'
+BOOT_DOCUMENT_NAME = '%(board)s-%(job)s-%(kernel)s-%(defconfig)s-%(arch)s'
 DEFCONFIG_DOCUMENT_NAME = '%(job)s-%(kernel)s-%(defconfig)s'
 SUBSCRIPTION_DOCUMENT_NAME = 'sub-%(job)s-%(kernel)s'
 
