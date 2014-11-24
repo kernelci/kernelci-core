@@ -317,7 +317,7 @@ have when sent to the server.
 Notes
 +++++
 
-* ``defconfig_full``: This field should be used to specify the entire defconfig used if config fragments have been used. It should not contain the architecture (``arch``) value. If not defined, the ``defconfig`` value will be used. Its value should conform to: ``defconfig[+fragment[+fragment ... ]]``.
+* ``defconfig_full``: This field should be used to specify the full defconfig name if config fragments have been used. It should not contain the architecture (``arch``) value. If not defined, the ``defconfig`` value will be used. Its value should conform to: ``defconfig[+fragment[+fragment ... ]]``.
 
 More Info
 *********
