@@ -43,25 +43,27 @@ class BootDocument(modb.BaseDocument):
         :param lab_name: The user readable ID of the lab.
         :type lab_name: str
         """
-        self._board = board
-        self._job = job
-        self._kernel = kernel
-        self._defconfig = defconfig
-        self._lab_name = lab_name
-        self._defconfig_full = defconfig_full or defconfig
-        self._arch = arch
 
-        self._name = models.BOOT_DOCUMENT_NAME % {
+        doc_name = models.BOOT_DOCUMENT_NAME % {
             models.BOARD_KEY: board,
             models.DEFCONFIG_KEY: defconfig_full or defconfig,
             models.JOB_KEY: job,
             models.KERNEL_KEY: kernel,
             models.ARCHITECTURE_KEY: arch
         }
-        self._id = None
+
         self._created_on = None
+        self._id = None
+        self._name = doc_name
         self._version = None
 
+        self._arch = arch
+        self._board = board
+        self._defconfig = defconfig
+        self._defconfig_full = defconfig_full or defconfig
+        self._job = job
+        self._kernel = kernel
+        self._lab_name = lab_name
         self.boot_log = None
         self.boot_log_html = None
         self.boot_result_description = None
