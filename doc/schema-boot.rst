@@ -8,8 +8,8 @@ boot
 GET
 ***
 
-A boot ``name`` is composed from the name of the board, the job, kernel and
-defconfig values: ``board``-``job``-``kernel``-``defconfig``.
+A boot ``name`` is composed from the name of the board, job, kernel, defconfig
+and architecture values: ``board``-``job``-``kernel``-``defconfig``-``arch``.
 
 Boot report ``name``-s are not unique. To uniquely identify a boot report it is
 necessary to use its ``_id`` value.
