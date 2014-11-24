@@ -58,17 +58,18 @@ class Token(modb.BaseDocument):
     """
 
     def __init__(self):
+        self._created_on = None
         self._id = None
         self._name = None
-        self._token = None
-        self._created_on = None
+        self._version = None
+
         self._expires_on = None
-        self._expired = False
-        self._username = None
-        self._email = None
         self._ip_address = None
         self._properties = [0 for _ in range(0, PROPERTIES_SIZE)]
-        self._version = None
+        self._token = None
+        self.email = None
+        self.expired = False
+        self.username = None
 
     @property
     def collection(self):
@@ -181,36 +182,6 @@ class Token(modb.BaseDocument):
             value = check_ip_address(value)
 
         self._ip_address = value
-
-    @property
-    def expired(self):
-        """If the token is expired or not."""
-        return self._expired
-
-    @expired.setter
-    def expired(self, value):
-        """Set if the tokne is expired or not."""
-        self._expired = value
-
-    @property
-    def email(self):
-        """The email associated with this token."""
-        return self._email
-
-    @email.setter
-    def email(self, value):
-        """Set the email address associated with this token."""
-        self._email = value
-
-    @property
-    def username(self):
-        """The user name associated with this token."""
-        return self._username
-
-    @username.setter
-    def username(self, value):
-        """Set the user name associated with this token."""
-        self._username = value
 
     @property
     def is_admin(self):
