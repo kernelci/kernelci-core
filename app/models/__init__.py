@@ -104,6 +104,7 @@ WARNINGS_KEY = 'warnings'
 ARM_ARCHITECTURE_KEY = 'arm'
 ARM64_ARCHITECTURE_KEY = 'arm64'
 x86_ARCHITECTURE_KEY = 'x86'
+VERSION_FULL_KEY = 'full_version'
 
 # Token special fields.
 ADMIN_KEY = 'admin'

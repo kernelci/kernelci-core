@@ -26,6 +26,7 @@ import handlers.job
 import handlers.lab
 import handlers.subscription
 import handlers.token
+import handlers.version
 
 
 _JOB_URL = url(
@@ -61,6 +62,9 @@ _BISECT_URL = url(
 _LAB_URL = url(
     r"/lab(?P<sl>/)?(?P<id>.*)", handlers.lab.LabHandler, name="lab"
 )
+_VERSION_URL = url(
+    r"/version", handlers.version.VersionHandler, name="version"
+)
 
 APP_URLS = [
     _BATCH_URL,
@@ -72,4 +76,5 @@ APP_URLS = [
     _LAB_URL,
     _SUBSCRIPTION_URL,
     _TOKEN_URL,
+    _VERSION_URL,
 ]
