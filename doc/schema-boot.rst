@@ -83,7 +83,9 @@ necessary to use its ``_id`` value.
             },
             "arch" : {
                 "type": "string",
-                "description": "The architecture type of this board"
+                "description": "The architecture type of this board",
+                "enum": ["arm", "arm64", "x86"],
+                "default": "arm"
             },
             "git_branch": {
                 "type": "string",
@@ -224,7 +226,9 @@ have when sent to the server.
             },
             "arch" : {
                 "type": "string",
-                "description": "The architecture type of this board"
+                "description": "The architecture type of this board",
+                "enum": ["arm", "arm64", "x86"],
+                "default": "arm"
             },
             "git_branch": {
                 "type": "string",
@@ -307,7 +311,7 @@ have when sent to the server.
                 "description": "Optional email address to be notified if the boot report import fails"
             }
         },
-        "required": ["version", "lab_name", "job", "kernel", "defconfig", "board"]
+        "required": ["version", "lab_name", "job", "kernel", "defconfig", "board", "arch"]
     }
 
 
