@@ -28,16 +28,16 @@ class LabDocument(modb.BaseDocument):
 
     # pylint: disable=too-many-instance-attributes
     def __init__(self, name):
-        self._name = name
-        self._id = None
         self._created_on = None
+        self._id = None
+        self._name = name
         self._version = None
 
-        self._private = False
         self._address = {}
         self._contact = {}
-        self._token = None
-        self._updated_on = None
+        self.private = False
+        self.token = None
+        self.updated_on = None
 
     @property
     def collection(self):
@@ -79,20 +79,6 @@ class LabDocument(modb.BaseDocument):
         :type value: str
         """
         self._id = value
-
-    @property
-    def private(self):
-        """If this lab is private or not."""
-        return self._private
-
-    @private.setter
-    def private(self, value):
-        """Set whether this lab is private or not.
-
-        :param value: If the lab is private or not.
-        :type value: bool
-        """
-        self._private = value
 
     @property
     def address(self):
@@ -164,22 +150,6 @@ class LabDocument(modb.BaseDocument):
         self._contact = value
 
     @property
-    def token(self):
-        """The token ID associated with this lab."""
-        return self._token
-
-    @token.setter
-    def token(self, value):
-        """Set the token ID associated with this lab.
-
-        This is not the real token value, just its ID as returned by mongodb.
-
-        :param value: The ID of the token associated with the lab.
-        :type value: str
-        """
-        self._token = value
-
-    @property
     def created_on(self):
         """When this lab object was created."""
         return self._created_on
@@ -192,20 +162,6 @@ class LabDocument(modb.BaseDocument):
         :type value: datetime
         """
         self._created_on = value
-
-    @property
-    def updated_on(self):
-        """When this lab object has been last updated."""
-        return self._updated_on
-
-    @updated_on.setter
-    def updated_on(self, value):
-        """Set the update date of this lab object.
-
-        :param value: When this lab object has been update, in UTC time zone.
-        :type value: datetime
-        """
-        self._updated_on = value
 
     @property
     def version(self):
