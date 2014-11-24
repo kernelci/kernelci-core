@@ -61,12 +61,43 @@ def import_and_save_boot(json_obj, db_options, base_path=utils.BASE_PATH):
     ret_code = None
 
     if doc:
-        ret_code, doc_id = utils.db.save(database, doc, manipulate=True)
+        ret_code, doc_id = save_or_update(doc, database)
         save_to_disk(doc, json_obj, base_path)
     else:
         utils.LOG.info("Boot report not imported nor saved")
 
     return ret_code, doc_id
+
+
+def save_or_update(boot_doc, database):
+    """Save or update the document in the database.
+
+    Check if we have a document available in the db, and in case perform an
+    update on it.
+
+    :param boot_doc: The boot document to save.
+    :type boot_doc: BaseDocument
+    :param database: The database connection.
+    :return The save action return code and the doc ID.
+    """
+    prev_doc = utils.db.find_one(
+        database[models.BOOT_COLLECTION],
+        [boot_doc.name],
+        field=models.NAME_KEY,
+        fields=[models.ID_KEY, models.CREATED_KEY]
+    )
+
+    if prev_doc:
+        doc_id = prev_doc.id
+        boot_doc.id = doc_id
+        boot_doc.created_on = prev_doc.created_on
+
+        utils.LOG.info("Updating boot document with id '%s'", doc_id)
+        ret_val, _ = utils.db.save(database, boot_doc)
+    else:
+        ret_val, doc_id = utils.db.save(database, boot_doc, manipulate=True)
+
+    return ret_val, doc_id
 
 
 def save_to_disk(boot_doc, json_obj, base_path):
@@ -128,7 +159,9 @@ def _parse_boot_from_file(boot_log):
         job = json_pop_f(models.JOB_KEY)
         kernel = json_pop_f(models.KERNEL_KEY)
         defconfig = json_pop_f(models.DEFCONFIG_KEY)
+        defconfig_full = json_pop_f(models.DEFCONFIG_FULL_KEY, defconfig)
         lab_name = json_pop_f(models.LAB_NAME_KEY)
+        arch = json_pop_f(models.ARCHITECTURE_KEY, models.ARM_ARCHITECTURE_KEY)
         # Even if board is mandatory, for old cases this used not to be true.
         board = json_pop_f(models.BOARD_KEY, None)
         dtb = boot_json.get(models.DTB_KEY, None)
@@ -146,7 +179,8 @@ def _parse_boot_from_file(boot_log):
                     "Using boot report file name for board name: %s", board
                 )
 
-        boot_doc = modbt.BootDocument(board, job, kernel, defconfig, lab_name)
+        boot_doc = modbt.BootDocument(
+            board, job, kernel, defconfig, lab_name, defconfig_full, arch)
         _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f)
         # TODO: Find and add job_id and defconfig_id
     except (OSError, TypeError, IOError), ex:
