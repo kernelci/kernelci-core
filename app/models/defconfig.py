@@ -42,7 +42,7 @@ class DefconfigDocument(modb.BaseDocument):
         self._job = job
         self._kernel = kernel
         self._defconfig = defconfig
-        self._defconfig_full = defconfig_full
+        self._defconfig_full = defconfig_full or defconfig
         self._job_id = None
         self._dirname = None
         self._status = None
