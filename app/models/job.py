@@ -36,21 +36,20 @@ class JobDocument(modb.BaseDocument):
             models.JOB_KEY: job,
             models.KERNEL_KEY: kernel,
         }
-        self._name = models.JOB_DOCUMENT_NAME % doc_name
-        self._job = job
-        self._kernel = kernel
 
-        self._id = None
         self._created_on = None
-
-        self._private = False
-        self._status = None
+        self._id = None
+        self._name = models.JOB_DOCUMENT_NAME % doc_name
         self._version = None
 
-        self._git_commit = None
-        self._git_branch = None
-        self._git_url = None
-        self._git_describe = None
+        self._job = job
+        self._kernel = kernel
+        self.git_branch = None
+        self.git_commit = None
+        self.git_describe = None
+        self.git_url = None
+        self.private = False
+        self.status = None
 
     @property
     def collection(self):
