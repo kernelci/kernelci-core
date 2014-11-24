@@ -23,19 +23,20 @@ class BisectDocument(modb.BaseDocument):
     # pylint: disable=too-many-instance-attributes
     # pylint: disable=invalid-name
     def __init__(self, name):
-        self._name = name
-        self._id = None
-        self._job = None
-        self._job_id = None
-        self._bisect_data = []
-        self._bad_commit = None
-        self._good_commit = None
-        self._bad_commit_date = None
-        self._good_commit_date = None
-        self._bad_commit_url = None
-        self._good_commit_url = None
         self._created_on = None
+        self._id = None
+        self._name = name
         self._version = None
+
+        self.bad_commit = None
+        self.bad_commit_date = None
+        self.bad_commit_url = None
+        self.bisect_data = []
+        self.good_commit = None
+        self.good_commit_date = None
+        self.good_commit_url = None
+        self.job = None
+        self.job_id = None
 
     @property
     def collection(self):
@@ -65,86 +66,6 @@ class BisectDocument(modb.BaseDocument):
         self._id = value
 
     @property
-    def job(self):
-        """The job this document is part of."""
-        return self._job
-
-    @job.setter
-    def job(self, value):
-        """Set the job this document is part of."""
-        self._job = value
-
-    @property
-    def bad_commit_date(self):
-        """The date of the bad commit."""
-        return self._bad_commit_date
-
-    @bad_commit_date.setter
-    def bad_commit_date(self, value):
-        """Set the date of the bad commit."""
-        self._bad_commit_date = value
-
-    @property
-    def bad_commit(self):
-        """The bad commit hash value."""
-        return self._bad_commit
-
-    @bad_commit.setter
-    def bad_commit(self, value):
-        """Set the bad commit hash value."""
-        self._bad_commit = value
-
-    @property
-    def bad_commit_url(self):
-        """The URL of the bad commit."""
-        return self._bad_commit_url
-
-    @bad_commit_url.setter
-    def bad_commit_url(self, value):
-        """Set the URL of the bad commit."""
-        self._bad_commit_url = value
-
-    @property
-    def good_commit(self):
-        """The good commit hash value."""
-        return self._good_commit
-
-    @good_commit.setter
-    def good_commit(self, value):
-        """Set the good commit hash value."""
-        self._good_commit = value
-
-    @property
-    def good_commit_date(self):
-        """The date of the good commit."""
-        return self._good_commit_date
-
-    @good_commit_date.setter
-    def good_commit_date(self, value):
-        """Set the date of the good commit."""
-        self._good_commit_date = value
-
-    @property
-    def good_commit_url(self):
-        """The URL of the good commit."""
-        return self._good_commit_url
-
-    @good_commit_url.setter
-    def good_commit_url(self, value):
-        """Set the URL of the good commit."""
-        self._good_commit_url = value
-
-    @property
-    def bisect_data(self):
-        """Get all the bisect data, ranging from the bad to the good commit."""
-        return self._bisect_data
-
-    @bisect_data.setter
-    def bisect_data(self, value):
-        """Set the bisect data."""
-        self._bisect_data = value
-
-    @property
     def created_on(self):
         """When this lab object was created."""
         return self._created_on
@@ -171,16 +92,6 @@ class BisectDocument(modb.BaseDocument):
         :type param: str
         """
         self._version = value
-
-    @property
-    def job_id(self):
-        """The ID of the job associated with this bisect."""
-        return self._job_id
-
-    @job_id.setter
-    def job_id(self, value):
-        """Set the job ID of this bisect."""
-        self._job_id = value
 
     def to_dict(self):
         bisect_dict = {
@@ -214,39 +125,9 @@ class BootBisectDocument(BisectDocument):
     def __init__(self, name):
         super(BootBisectDocument, self).__init__(name)
 
-        self._board = None
-        self._defconfig_id = None
-        self._boot_id = None
-
-    @property
-    def board(self):
-        """The board this document belongs to."""
-        return self._board
-
-    @board.setter
-    def board(self, value):
-        """Set the board name this document belongs to."""
-        self._board = value
-
-    @property
-    def defconfig_id(self):
-        """The ID of the defconfig associated with this bisect object."""
-        return self._defconfig_id
-
-    @defconfig_id.setter
-    def defconfig_id(self, value):
-        """Set the defconfig ID."""
-        self._defconfig_id = value
-
-    @property
-    def boot_id(self):
-        """The ID of the boot report associated with this bisect object."""
-        return self._boot_id
-
-    @boot_id.setter
-    def boot_id(self, value):
-        """Set the boot ID."""
-        self._boot_id = value
+        self.board = None
+        self.defconfig_id = None
+        self.boot_id = None
 
     def to_dict(self):
         boot_b_dict = super(BootBisectDocument, self).to_dict()
