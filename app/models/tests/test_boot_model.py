@@ -28,7 +28,7 @@ class TestBootModel(unittest.TestCase):
     def test_boot_document_to_dict(self):
         self.maxDiff = None
         boot_doc = modbt.BootDocument(
-            'board', 'job', 'kernel', 'defconfig', 'lab'
+            'board', 'job', 'kernel', 'defconfig', 'lab', arch='arm'
         )
         boot_doc.id = 'id'
         boot_doc.job_id = 'job-id'
@@ -44,7 +44,6 @@ class TestBootModel(unittest.TestCase):
         boot_doc.git_commit = "git-commit"
         boot_doc.git_describe = "git-describe"
         boot_doc.git_url = "git-url"
-        boot_doc.arch = "arm"
         boot_doc.fastboot_cmd = "fastboot"
         boot_doc.defconfig_full = "defconfig"
 
@@ -61,7 +60,7 @@ class TestBootModel(unittest.TestCase):
             'dtb_addr': None,
             'dtb_append': False,
             'endian': None,
-            'fastboot': None,
+            'fastboot': False,
             'initrd_addr': None,
             'job': 'job',
             'job_id': 'job-id',
@@ -70,10 +69,10 @@ class TestBootModel(unittest.TestCase):
             'lab_name': 'lab',
             'load_addr': None,
             'metadata': {},
-            'name': 'board-job-kernel-defconfig',
+            'name': 'board-job-kernel-defconfig-arm',
             'retries': 10,
             'status': None,
-            'time': None,
+            'time': 0,
             'version': "1.0",
             'warnings': 2,
             "git_commit": "git-commit",
