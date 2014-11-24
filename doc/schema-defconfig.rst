@@ -4,9 +4,7 @@ defconfig
 ---------
 
 A defconfig ``name`` is composed of the job, kernel and defconfig values:
-``job``-``kernel``-``defconfig``.
-
-At a lower level the ``defconfig`` is the directory resulting from a kernel build using a defconfig.
+``job``-``kernel``-``defconfig_full``.
 
 .. _schema_defconfig_get:
 
@@ -300,7 +298,7 @@ server.
 Notes
 +++++
 
-* ``defconfig_full``: This field should be used to specify the entire defconfig used if config fragments have been used and it should not contain the architecture (``arch``) value. Its value should conform to: ``defconfig[+fragment[+fragment ... ]]``
+* ``defconfig_full``: This field should be used to specify the entire defconfig used if config fragments have been used. It should not contain the architecture (``arch``) value. If not defined, the ``defconfig`` value will be used. Its value should conform to: ``defconfig[+fragment[+fragment ... ]]``.
 
 More Info
 *********
