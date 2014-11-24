@@ -314,6 +314,10 @@ have when sent to the server.
         "required": ["version", "lab_name", "job", "kernel", "defconfig", "board", "arch"]
     }
 
+Notes
++++++
+
+* ``defconfig_full``: This field should be used to specify the entire defconfig used if config fragments have been used and it should not contain the architecture (``arch``) value. Its value should conform to: ``defconfig[+fragment[+fragment ... ]]``
 
 More Info
 *********
