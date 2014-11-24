@@ -47,6 +47,7 @@ COLLECTIONS = {
 BOOT_VALID_KEYS = {
     'POST': {
         models.MANDATORY_KEYS: [
+            models.ARCHITECTURE_KEY,
             models.BOARD_KEY,
             models.DEFCONFIG_KEY,
             models.JOB_KEY,
