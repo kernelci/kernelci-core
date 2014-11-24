@@ -155,7 +155,8 @@ class TestBootHandler(
             "job": "job",
             "kernel": "kernel",
             "defconfig": "defconfig",
-            "lab_name": "lab-name"
+            "lab_name": "lab-name",
+            "arch": "arm"
         }
 
         headers = {
@@ -180,7 +181,8 @@ class TestBootHandler(
             "job": "job",
             "kernel": "kernel",
             "defconfig": "defconfig",
-            "lab_name": "lab-name"
+            "lab_name": "lab-name",
+            "arch": "arm"
         }
 
         headers = {
@@ -211,7 +213,8 @@ class TestBootHandler(
             "job": "job",
             "kernel": "kernel",
             "defconfig": "defconfig",
-            "lab_name": "lab-name"
+            "lab_name": "lab-name",
+            "arch": "arm"
         }
 
         headers = {

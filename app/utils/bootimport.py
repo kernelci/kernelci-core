@@ -81,11 +81,14 @@ def save_to_disk(boot_doc, json_obj, base_path):
     """
     job = boot_doc.job
     kernel = boot_doc.kernel
-    defconfig = boot_doc.defconfig
+    defconfig = boot_doc.defconfig_full
     lab_name = boot_doc.lab_name
     board = boot_doc.board
+    arch = boot_doc.arch
 
-    dir_path = os.path.join(base_path, job, kernel, defconfig, lab_name)
+    r_defconfig = "-".join([arch, defconfig])
+
+    dir_path = os.path.join(base_path, job, kernel, r_defconfig, lab_name)
     file_path = os.path.join(dir_path, 'boot-%s.json' % board)
 
     try:
@@ -174,9 +177,10 @@ def _parse_boot_from_json(boot_json, database):
         defconfig = json_pop_f(models.DEFCONFIG_KEY)
         defconfig_full = json_pop_f(models.DEFCONFIG_FULL_KEY, defconfig)
         lab_name = json_pop_f(models.LAB_NAME_KEY)
+        arch = json_pop_f(models.ARCHITECTURE_KEY, models.ARM_ARCHITECTURE_KEY)
 
         boot_doc = modbt.BootDocument(
-            board, job, kernel, defconfig, lab_name, defconfig_full)
+            board, job, kernel, defconfig, lab_name, defconfig_full, arch)
         boot_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
         _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f)
         _update_boot_doc_ids(boot_doc, database)
@@ -252,7 +256,6 @@ def _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f):
     boot_doc.status = json_pop_f(
         models.BOOT_RESULT_KEY, models.UNKNOWN_STATUS
     )
-    boot_doc.arch = json_pop_f(models.ARCHITECTURE_KEY, None)
     boot_doc.boot_log = json_pop_f(models.BOOT_LOG_KEY, None)
     boot_doc.boot_log_html = json_pop_f(models.BOOT_LOG_HTML_KEY, None)
     boot_doc.boot_result_description = json_pop_f(
