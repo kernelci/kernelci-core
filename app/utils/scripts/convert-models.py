@@ -30,6 +30,7 @@ ZERO_TIME = datetime.datetime(1970, 1, 1, 0, 0, 0, 0)
 # Data structures with old ID as the key, and new ID the value.
 NEW_JOB_IDS = {}
 NEW_DEFCONFIG_IDS = {}
+DEFCONFIG_GIT_VAL = {}
 
 
 def convert_job_collection(db, limit=0):
@@ -141,6 +142,11 @@ def convert_defconfig_collection(db, limit=0):
                 if arch != meta_get("arch"):
                     arch = meta_pop("arch")
             meta_pop("arch", None)
+            if arch is None:
+                utils.LOG.warn(
+                    "arch is still None for %s-%s-%s", job, kernel, defconfig
+                )
+                arch = "arm"
 
             if meta_get("kconfig_fragments", None):
                 kconfig_fragments = meta_pop("kconfig_fragments")
@@ -245,17 +251,25 @@ def convert_defconfig_collection(db, limit=0):
                 time.sleep(3)
                 sys.exit(1)
 
-            ret_val, doc_id = utils.db.save(db, def_doc, manipulate=True)
-            if ret_val == 201:
-                NEW_DEFCONFIG_IDS[job + "-" + kernel + "-" + defconfig_full] = \
-                    (doc_id, defconfig, defconfig_full, arch)
+            if defconfig == "lab-tbaker-00":
+                pass
             else:
-                utils.LOG.error(
-                    "Error saving new defconfig document for %s",
-                    doc_get("_id")
-                )
-                time.sleep(3)
-                sys.exit(1)
+                ret_val, doc_id = utils.db.save(db, def_doc, manipulate=True)
+                if ret_val == 201:
+                    key = job + "-" + kernel + "-" + defconfig_full + "-" + arch
+                    NEW_DEFCONFIG_IDS[key] = \
+                        (doc_id, defconfig, defconfig_full, arch)
+                    DEFCONFIG_GIT_VAL[doc_id] = (
+                        def_doc.git_branch, def_doc.git_url, def_doc.git_commit,
+                        def_doc.git_describe
+                    )
+                else:
+                    utils.LOG.error(
+                        "Error saving new defconfig document for %s",
+                        doc_get("_id")
+                    )
+                    time.sleep(3)
+                    sys.exit(1)
 
     count = db[models.DEFCONFIG_COLLECTION].find().count()
     utils.LOG.info("Defconfig documents at the end: %s (%s)", count, doc_count)
@@ -283,7 +297,9 @@ def convert_boot_collection(db, lab_name, limit=0):
             job = doc_get("job")
             kernel = doc_get("kernel")
             defconfig = doc_get("defconfig")
-            metadata = document.get("metadata", None)
+            metadata = doc_get("metadata", {})
+            meta_get = metadata.get
+            meta_pop = metadata.pop
             arch = None
 
             if defconfig.startswith("arm-"):
@@ -295,10 +311,12 @@ def convert_boot_collection(db, lab_name, limit=0):
             elif defconfig.startswith("x86-"):
                 defconfig = defconfig.replace("x86-", "", 1)
                 arch = "x86"
+            else:
+                arch = "arm"
 
-            if not arch:
-                utils.LOG.warn(
-                    "No architecture found, trying to use the build one")
+            pre_lab = meta_pop("lab_name", None)
+            if pre_lab:
+                lab_name = pre_lab
 
             job_id = NEW_JOB_IDS.get(job + "-" + kernel, None)
             if not job_id:
@@ -306,9 +324,14 @@ def convert_boot_collection(db, lab_name, limit=0):
 
             defconfig_id, build_defconfig, defconfig_full, build_arch = \
                 NEW_DEFCONFIG_IDS.get(
-                    job + "-" + kernel + "-" + defconfig,
+                    job + "-" + kernel + "-" + defconfig + "-" + arch,
                     [None, None, None, None]
                 )
+
+            def_full = meta_pop("defconfig_full", None)
+            if def_full:
+                utils.LOG.warn("Found defconfig_full")
+                defconfig_full = def_full
 
             if build_arch is not None and arch != build_arch:
                 utils.LOG.warn("Using build architecture")
@@ -333,6 +356,15 @@ def convert_boot_collection(db, lab_name, limit=0):
             boot_doc.defconfig_id = defconfig_id
             boot_doc.version = "1.0"
 
+            if defconfig_id:
+                git_branch, git_url, git_commit, git_describe = \
+                    DEFCONFIG_GIT_VAL.get(
+                        defconfig_id, [None, None, None, None])
+                boot_doc.git_branch = git_branch
+                boot_doc.git_commit = git_commit
+                boot_doc.git_describe = git_describe
+                boot_doc.git_url = git_url
+
             boot_doc.created_on = doc_get("created_on", None)
             boot_doc.tine = doc_get("time", 0)
             if doc_get("warnings", None) is not None:
@@ -352,33 +384,31 @@ def convert_boot_collection(db, lab_name, limit=0):
             boot_doc.time = doc_get("time", ZERO_TIME)
             boot_doc.dtb_append = doc_get("dtb_append", None)
 
-            if metadata:
-                meta_pop = metadata.pop
-                meta_get = metadata.get
-                if meta_get("fastboot", None) is not None:
-                    boot_doc.fastboot = meta_pop("fastboot")
-                meta_pop("fastboot", None)
-                boot_doc.fastboot_cmd = meta_pop("fastboot_cmd", None)
-                boot_doc.boot_result_description = meta_pop(
-                    "boot_result_description", None)
-                if not boot_doc.boot_log_html:
-                    boot_doc.boot_log_html = meta_pop("boot_log_html", None)
-                if not boot_doc.boot_log:
-                    boot_doc.boot_log = meta_pop("boot_log", None)
-                boot_doc.dtb_append = meta_pop("dtb_append", None)
-                boot_doc.git_commit = meta_pop("git_commit", None)
-                boot_doc.git_branch = meta_pop("git_branc", None)
-                boot_doc.git_describe = meta_pop("git_describe", None)
-                boot_doc.git_url = meta_pop("git_url", None)
-                if meta_get("retries", None) is not None:
-                    boot_doc.retries = int(meta_pop("retries"))
-                meta_pop("retries", None)
-                meta_pop("version", None)
+            if meta_get("fastboot", None) is not None:
+                boot_doc.fastboot = meta_pop("fastboot")
+            meta_pop("fastboot", None)
 
-                if meta_get("arch", None) and not boot_doc.arch:
-                    boot_doc.arch = meta_pop("arch")
+            boot_doc.fastboot_cmd = meta_pop("fastboot_cmd", None)
+            boot_doc.boot_result_description = meta_pop(
+                "boot_result_description", None)
+            if not boot_doc.boot_log_html:
+                boot_doc.boot_log_html = meta_pop("boot_log_html", None)
+            if not boot_doc.boot_log:
+                boot_doc.boot_log = meta_pop("boot_log", None)
+            boot_doc.dtb_append = meta_pop("dtb_append", None)
+            boot_doc.git_commit = meta_pop("git_commit", None)
+            boot_doc.git_branch = meta_pop("git_branc", None)
+            boot_doc.git_describe = meta_pop("git_describe", None)
+            boot_doc.git_url = meta_pop("git_url", None)
+            if meta_get("retries", None) is not None:
+                boot_doc.retries = int(meta_pop("retries"))
+            meta_pop("retries", None)
+            meta_pop("version", None)
 
-                boot_doc.metadata = metadata
+            if meta_get("arch", None) and not boot_doc.arch:
+                boot_doc.arch = meta_pop("arch")
+
+            boot_doc.metadata = metadata
 
             ret_val = utils.db.delete(
                 db[models.BOOT_COLLECTION], doc_get("_id"))
