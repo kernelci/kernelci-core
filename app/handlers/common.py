@@ -75,6 +75,8 @@ BOOT_VALID_KEYS = {
             models.ENDIANNESS_KEY,
             models.FASTBOOT_CMD_KEY,
             models.FASTBOOT_KEY,
+            models.FILE_SERVER_RESOURCE_KEY,
+            models.FILE_SERVER_URL_KEY,
             models.GIT_BRANCH_KEY,
             models.GIT_COMMIT_KEY,
             models.GIT_DESCRIBE_KEY,

@@ -172,6 +172,14 @@ necessary to use its ``_id`` value.
                 "type": "string",
                 "description": "The version of this JSON schema: depends on the POST request"
             },
+            "file_server_url": {
+                "type": "string",
+                "description": "The URL where boot log files, or other related files, are stored"
+            },
+            "file_server_resource": {
+                "type": "string",
+                "description": "The server path where the boot related files are stored"
+            },
             "metadata": {
                 "type": "object",
                 "description": "A free form object that can contain different properties"
@@ -309,6 +317,14 @@ have when sent to the server.
             "email": {
                 "type": "string",
                 "description": "Optional email address to be notified if the boot report import fails"
+            },
+            "file_server_url": {
+                "type": "string",
+                "description": "The URL where boot log files, or other related files, are stored"
+            },
+            "file_server_resource": {
+                "type": "string",
+                "description": "The server path where the boot related files are stored"
             }
         },
         "required": ["version", "lab_name", "job", "kernel", "defconfig", "board", "arch"]
@@ -318,6 +334,8 @@ Notes
 +++++
 
 * ``defconfig_full``: This field should be used to specify the full defconfig name if config fragments have been used. It should not contain the architecture (``arch``) value. If not defined, the ``defconfig`` value will be used. Its value should conform to: ``defconfig[+fragment[+fragment ... ]]``.
+
+* ``file_server_url``, ``file_server_resource``: These field should be used to provide the base URL and the actual path where boot related files (i.e. boot logs) are stored. ``file_server_url`` defines the base path, like ``http://storage.armcloud.us/``, ``file_server_resource`` defines the path on the server, like ``kernel-ci/next/``. When both resources are available, they should be joined together with the file names to form the actual URL. Implementation and default values are left to the user or the visualization tool using the data.
 
 More Info
 *********

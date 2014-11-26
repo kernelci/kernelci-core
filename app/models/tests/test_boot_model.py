@@ -46,6 +46,8 @@ class TestBootModel(unittest.TestCase):
         boot_doc.git_url = "git-url"
         boot_doc.fastboot_cmd = "fastboot"
         boot_doc.defconfig_full = "defconfig"
+        boot_doc.file_server_url = "file-server"
+        boot_doc.file_server_resource = "file-resource"
 
         expected = {
             '_id': 'id',
@@ -81,7 +83,9 @@ class TestBootModel(unittest.TestCase):
             "git_url": "git-url",
             "arch": "arm",
             "fastboot_cmd": "fastboot",
-            "defconfig_full": 'defconfig'
+            "defconfig_full": "defconfig",
+            "file_server_url": "file-server",
+            "file_server_resource": "file-resource"
         }
 
         self.assertDictEqual(expected, boot_doc.to_dict())

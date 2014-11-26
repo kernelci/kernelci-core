@@ -313,6 +313,9 @@ def _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f):
     boot_doc.endianness = json_pop_f(models.ENDIANNESS_KEY, None)
     boot_doc.fastboot = json_pop_f(models.FASTBOOT_KEY, None)
     boot_doc.fastboot_cmd = json_pop_f(models.FASTBOOT_CMD_KEY, None)
+    boot_doc.file_server_resource = json_pop_f(
+        models.FILE_SERVER_RESOURCE_KEY, None)
+    boot_doc.file_server_url = json_pop_f(models.FILE_SERVER_URL_KEY, None)
     boot_doc.git_branch = json_pop_f(models.GIT_BRANCH_KEY, None)
     boot_doc.git_commit = json_pop_f(models.GIT_COMMIT_KEY, None)
     boot_doc.git_describe = json_pop_f(models.GIT_DESCRIBE_KEY, None)
