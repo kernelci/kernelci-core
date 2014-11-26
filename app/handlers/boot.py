@@ -88,23 +88,24 @@ class BootHandler(hbase.BaseHandler):
             self.db[models.LAB_COLLECTION], [lab_name], field=models.NAME_KEY
         )
 
-        lab_token_doc = utils.db.find_one(
-            self.db[models.TOKEN_COLLECTION], [lab_doc[models.TOKEN_KEY]]
-        )
+        if lab_doc:
+            lab_token_doc = utils.db.find_one(
+                self.db[models.TOKEN_COLLECTION], [lab_doc[models.TOKEN_KEY]]
+            )
 
-        if all([lab_doc, lab_token_doc]):
-            lab_token = mtoken.Token.from_json(lab_token_doc)
-            if all([req_token == lab_token.token, not lab_token.expired]):
-                valid_lab = True
-            elif all([lab_token.is_admin, not lab_token.expired]):
-                valid_lab = True
-                utils.LOG.warn(
-                    "Received boot POST request from an admin token")
-            else:
-                utils.LOG.warn(
-                    "Received token (%s) is not associated with lab '%s'",
-                    req_token, lab_name
-                )
+            if lab_token_doc:
+                lab_token = mtoken.Token.from_json(lab_token_doc)
+                if all([req_token == lab_token.token, not lab_token.expired]):
+                    valid_lab = True
+                elif all([lab_token.is_admin, not lab_token.expired]):
+                    valid_lab = True
+                    utils.LOG.warn(
+                        "Received boot POST request from an admin token")
+                else:
+                    utils.LOG.warn(
+                        "Received token (%s) is not associated with lab '%s'",
+                        req_token, lab_name
+                    )
 
         return valid_lab
 

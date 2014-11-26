@@ -80,17 +80,29 @@ def save_or_update(boot_doc, database):
     :param database: The database connection.
     :return The save action return code and the doc ID.
     """
-    prev_doc = utils.db.find_one(
-        database[models.BOOT_COLLECTION],
-        [boot_doc.name],
-        field=models.NAME_KEY,
-        fields=[models.ID_KEY, models.CREATED_KEY]
-    )
+    spec = {
+        models.LAB_NAME_KEY: boot_doc.lab_name,
+        models.NAME_KEY: boot_doc.name,
+    }
+
+    fields = [
+        models.CREATED_KEY,
+        models.ID_KEY,
+    ]
+
+    found_doc = utils.db.find(
+        database[models.BOOT_COLLECTION], 1, 0, spec=spec, fields=fields)
+
+    prev_doc = None
+    doc_len = found_doc.count()
+    if doc_len == 1:
+        prev_doc = found_doc[0]
 
     if prev_doc:
-        doc_id = prev_doc.id
+        doc_get = prev_doc.get
+        doc_id = doc_get(models.ID_KEY)
         boot_doc.id = doc_id
-        boot_doc.created_on = prev_doc.created_on
+        boot_doc.created_on = doc_get(models.CREATED_KEY)
 
         utils.LOG.info("Updating boot document with id '%s'", doc_id)
         ret_val, _ = utils.db.save(database, boot_doc)
