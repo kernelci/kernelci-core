@@ -224,6 +224,10 @@ def _parse_build_data(data_file, job, kernel):
             defconfig_doc.build_time = data_pop(models.BUILD_TIME_KEY, 0)
             defconfig_doc.dtb_dir = data_pop(models.DTB_DIR_KEY, None)
             defconfig_doc.errros = data_pop(models.BUILD_ERRORS_KEY, 0)
+            defconfig_doc.file_server_resource = data_pop(
+                models.FILE_SERVER_RESOURCE_KEY, None)
+            defconfig_doc.file_server_url = data_pop(
+                models.FILE_SERVER_URL_KEY, None)
             defconfig_doc.git_branch = data_pop(models.GIT_BRANCH_KEY, None)
             defconfig_doc.git_commit = data_pop(models.GIT_COMMIT_KEY, None)
             defconfig_doc.git_describe = data_pop(models.GIT_DESCRIBE_KEY, None)

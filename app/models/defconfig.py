@@ -53,6 +53,8 @@ class DefconfigDocument(modb.BaseDocument):
         self.dirname = None
         self.dtb_dir = None
         self.errors = 0
+        self.file_server_resource = None
+        self.file_server_url = None
         self.git_branch = None
         self.git_commit = None
         self.git_describe = None
@@ -205,6 +207,8 @@ class DefconfigDocument(modb.BaseDocument):
             models.DIRNAME_KEY: self.dirname,
             models.DTB_DIR_KEY: self.dtb_dir,
             models.ERRORS_KEY: self.errors,
+            models.FILE_SERVER_RESOURCE_KEY: self.file_server_resource,
+            models.FILE_SERVER_URL_KEY: self.file_server_url,
             models.GIT_BRANCH_KEY: self.git_branch,
             models.GIT_COMMIT_KEY: self.git_commit,
             models.GIT_DESCRIBE_KEY: self.git_describe,

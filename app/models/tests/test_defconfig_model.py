@@ -58,6 +58,8 @@ class TestDefconfModel(unittest.TestCase):
         defconf_doc.modules_dir = "modules-dir"
         defconf_doc.build_log = "build.log"
         defconf_doc.kconfig_fragments = "config-frag"
+        defconf_doc.file_server_resource = "file-resource"
+        defconf_doc.file_server_url = "server-url"
 
         expected = {
             "name": "job-kernel-defconfig_full",
@@ -90,7 +92,9 @@ class TestDefconfModel(unittest.TestCase):
             "modules_dir": "modules-dir",
             "build_log": "build.log",
             "kconfig_fragments": "config-frag",
-            "defconfig_full": "defconfig_full"
+            "defconfig_full": "defconfig_full",
+            "file_server_resource": "file-resource",
+            "file_server_url": "server-url",
         }
 
         self.assertDictEqual(expected, defconf_doc.to_dict())
