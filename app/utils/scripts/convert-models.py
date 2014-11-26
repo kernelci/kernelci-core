@@ -239,6 +239,11 @@ def convert_defconfig_collection(db, limit=0):
 
                 meta_pop("defconfig", None)
                 meta_pop("job", None)
+
+                def_doc.file_server_url = meta_pop("file_server_url", None)
+                def_doc.file_server_resource = meta_pop(
+                    "file_server_resource", None)
+
                 def_doc.metadata = metadata
 
             ret_val = utils.db.delete(
@@ -407,6 +412,10 @@ def convert_boot_collection(db, lab_name, limit=0):
 
             if meta_get("arch", None) and not boot_doc.arch:
                 boot_doc.arch = meta_pop("arch")
+
+            boot_doc.file_server_resource = meta_pop(
+                "file_server_resource", None)
+            boot_doc.file_server_url = meta_pop("file_server_url", None)
 
             boot_doc.metadata = metadata
 
