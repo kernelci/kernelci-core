@@ -244,6 +244,12 @@ def convert_defconfig_collection(db, limit=0):
                 def_doc.file_server_resource = meta_pop(
                     "file_server_resource", None)
 
+                if def_doc.file_server_resource is None:
+                    def_doc.file_server_resource = (
+                        "/" + job + "/" + kernel + "/" +
+                        arch + "-" + defconfig_full
+                    )
+
                 def_doc.metadata = metadata
 
             ret_val = utils.db.delete(
@@ -415,6 +421,12 @@ def convert_boot_collection(db, lab_name, limit=0):
 
             boot_doc.file_server_resource = meta_pop(
                 "file_server_resource", None)
+            if not pre_lab and boot_doc.file_server_resource is None:
+                boot_doc.file_server_resource = (
+                    "/" + job + "/" + kernel + "/" +
+                    arch + "-" + defconfig_full + "/"
+                )
+
             boot_doc.file_server_url = meta_pop("file_server_url", None)
 
             boot_doc.metadata = metadata
@@ -486,5 +498,5 @@ def main():
         utils.LOG.info("User interrupted.")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
