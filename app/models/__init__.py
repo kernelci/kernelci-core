@@ -196,5 +196,6 @@ VALID_JOB_STATUS = [
 
 # The valid collections for the bisect handler.
 BISECT_VALID_COLLECTIONS = [
-    BOOT_COLLECTION
+    BOOT_COLLECTION,
+    DEFCONFIG_COLLECTION,
 ]

@@ -135,3 +135,36 @@ class TestBisectModel(unittest.TestCase):
         bisect_doc.board = "bar"
 
         self.assertEqual(bisect_doc.board, "bar")
+
+    def test_bisect_defconfig_to_dict(self):
+        bisect_doc = modbs.DefconfigBisectDocument("foo")
+        bisect_doc.id = "bar"
+        bisect_doc.defconfig_id = "defconfig-id"
+        bisect_doc.defconfig = "defconfig-name"
+        bisect_doc.version = "1.0"
+        bisect_doc.job = "job"
+        bisect_doc.job_id = "job-id"
+        bisect_doc.defconfig_full = "defconfig-full"
+        bisect_doc.arch = "arm"
+
+        expected = {
+            "_id": "bar",
+            "created_on": None,
+            "job": "job",
+            "name": "foo",
+            "bisect_data": [],
+            "good_commit": None,
+            "good_commit_date": None,
+            "good_commit_url": None,
+            "bad_commit": None,
+            "bad_commit_date": None,
+            "bad_commit_url": None,
+            "version": "1.0",
+            "defconfig_id": "defconfig-id",
+            "defconfig": "defconfig-name",
+            "job_id": "job-id",
+            "defconfig_full": "defconfig-full",
+            "arch": "arm"
+        }
+
+        self.assertDictEqual(expected, bisect_doc.to_dict())
