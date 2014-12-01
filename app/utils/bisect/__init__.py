@@ -54,6 +54,23 @@ BOOT_DEFCONFIG_SEARCH_FIELDS = [
 
 BOOT_SORT = [(models.CREATED_KEY, pymongo.DESCENDING)]
 
+DEFCONFIG_SEARCH_FIELDS = [
+    models.ARCHITECTURE_KEY,
+    models.CREATED_KEY,
+    models.DEFCONFIG_FULL_KEY,
+    models.DEFCONFIG_KEY,
+    models.GIT_COMMIT_KEY,
+    models.GIT_DESCRIBE_KEY,
+    models.GIT_URL_KEY,
+    models.ID_KEY,
+    models.JOB_ID_KEY,
+    models.JOB_KEY,
+    models.KERNEL_KEY,
+    models.STATUS_KEY,
+]
+
+DEFCONFIG_SORT = [(models.CREATED_KEY, pymongo.DESCENDING)]
+
 
 def _combine_defconfig_values(boot_doc, db_options):
     """Combine the boot document values with their own defconfing.
@@ -166,7 +183,8 @@ def execute_boot_bisection(doc_id, db_options, fields=None):
             result = None
         else:
             bisect_doc = mbisect.BootBisectDocument(obj_id)
-            bisect_doc.job = start_doc_get(models.JOB_ID_KEY)
+            bisect_doc.version = "1.0"
+            bisect_doc.job = start_doc_get(models.JOB_KEY, None)
             bisect_doc.job_id = start_doc_get(models.JOB_ID_KEY, None)
             bisect_doc.defconfig_id = start_doc_get(
                 models.DEFCONFIG_ID_KEY, None)
@@ -235,7 +253,123 @@ def execute_boot_bisection(doc_id, db_options, fields=None):
             if return_code == 201:
                 bisect_doc.id = saved_id
             else:
-                utils.LOG.error("Error savind bisect data %s", doc_id)
+                utils.LOG.error("Error saving bisect data %s", doc_id)
+
+            bisect_doc = _update_doc_fields(bisect_doc, fields)
+            result = [
+                json.loads(
+                    json.dumps(
+                        bisect_doc,
+                        default=bson.json_util.default,
+                        ensure_ascii=False
+                    )
+                )
+            ]
+    else:
+        code = 404
+        result = None
+
+    return code, result
+
+
+def execute_defconfig_bisection(doc_id, db_options, fields=None):
+    """Calculate bisect data for the provided defconfig report.
+
+    It searches all the previous defconfig built starting from the provided one
+    until it finds one that passed. After that, it combines the value into a
+    single data structure.
+
+    :param doc_id: The boot document ID.
+    :type doc_id: str
+    :param db_options: The mongodb database connection parameters.
+    :type db_options: dict
+    :param fields: A `fields` data structure with the fields to return or
+    exclude. Default to None.
+    :type fields: list or dict
+    :return A numeric value for the result status and a list of dictionaries.
+    """
+    database = utils.db.get_db_connection(db_options)
+    result = []
+    code = 200
+
+    obj_id = bson.objectid.ObjectId(doc_id)
+    start_doc = utils.db.find_one(
+        database[models.DEFCONFIG_COLLECTION],
+        [obj_id], fields=DEFCONFIG_SEARCH_FIELDS
+    )
+
+    if all([start_doc, isinstance(start_doc, types.DictionaryType)]):
+        start_doc_get = start_doc.get
+
+        if start_doc_get(models.STATUS_KEY) == models.PASS_STATUS:
+            code = 400
+            result = None
+        else:
+            bisect_doc = mbisect.DefconfigBisectDocument(obj_id)
+            bisect_doc.version = "1.0"
+            bisect_doc.arch = start_doc_get(models.ARCHITECTURE_KEY, None)
+            bisect_doc.job = start_doc_get(models.JOB_KEY, None)
+            bisect_doc.job_id = start_doc_get(models.JOB_ID_KEY, None)
+            bisect_doc.defconfig_id = start_doc_get(models.ID_KEY)
+            bisect_doc.defconfig = start_doc_get(models.DEFCONFIG_KEY, None)
+            bisect_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
+            bisect_doc.bad_commit_date = start_doc_get(models.CREATED_KEY)
+            bisect_doc.bad_commit = start_doc_get(models.GIT_COMMIT_KEY)
+            bisect_doc.bad_commit_url = start_doc_get(models.GIT_URL_KEY)
+
+            spec = {
+                models.ARCHITECTURE_KEY: start_doc_get(
+                    models.ARCHITECTURE_KEY),
+                models.CREATED_KEY: {
+                    "$lt": start_doc_get(models.CREATED_KEY)
+                },
+                models.DEFCONFIG_FULL_KEY: start_doc_get(
+                    models.DEFCONFIG_FULL_KEY),
+                models.DEFCONFIG_KEY: start_doc_get(models.DEFCONFIG_KEY),
+                models.JOB_KEY: start_doc_get(models.JOB_KEY),
+            }
+
+            all_valid_docs = [start_doc]
+
+            # Search through all the previous defconfigs, until one that
+            # passed is found.
+            all_prev_docs = utils.db.find(
+                database[models.BOOT_COLLECTION],
+                0,
+                0,
+                spec=spec,
+                fields=DEFCONFIG_SEARCH_FIELDS,
+                sort=DEFCONFIG_SORT
+            )
+
+            if all_prev_docs:
+                all_valid_docs.extend(
+                    [
+                        doc for doc in _get_docs_until_pass(all_prev_docs)
+                    ]
+                )
+
+                # The last doc should be the good one, in case it is, add the
+                # values to the bisect_doc.
+                good_doc = all_valid_docs[-1]
+                if (good_doc[models.STATUS_KEY] == models.PASS_STATUS):
+                    good_doc_get = good_doc.get
+                    bisect_doc.good_commit = good_doc_get(
+                        models.GIT_COMMIT_KEY)
+                    bisect_doc.good_commit_url = good_doc_get(
+                        models.GIT_URL_KEY)
+                    bisect_doc.good_commit_date = good_doc_get(
+                        models.CREATED_KEY)
+
+            # Store everything in the bisect data.
+            bisect_doc.bisect_data = all_valid_docs
+
+            return_code, saved_id = utils.db.save(
+                database, bisect_doc, manipulate=True)
+            if return_code == 201:
+                bisect_doc.id = saved_id
+            else:
+                utils.LOG.error("Error saving bisect data %s", doc_id)
 
             bisect_doc = _update_doc_fields(bisect_doc, fields)
             result = [
