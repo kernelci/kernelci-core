@@ -135,3 +135,24 @@ class BootBisectDocument(BisectDocument):
         boot_b_dict[models.DEFCONFIG_ID_KEY] = self.defconfig_id
         boot_b_dict[models.BOOT_ID_KEY] = self.boot_id
         return boot_b_dict
+
+
+class DefconfigBisectDocument(BisectDocument):
+    """The bisect document class for defconfig/build bisection."""
+
+    def __init__(self, name):
+        super(DefconfigBisectDocument, self).__init__(name)
+
+        self.defconfig = None
+        self.defconfig_id = None
+        self.defconfig_full = None
+        self.arch = None
+
+    def to_dict(self):
+        def_b_dict = super(DefconfigBisectDocument, self).to_dict()
+        def_b_dict[models.DEFCONFIG_ID_KEY] = self.defconfig_id
+        def_b_dict[models.DEFCONFIG_KEY] = self.defconfig
+        def_b_dict[models.DEFCONFIG_FULL_KEY] = self.defconfig_full
+        def_b_dict[models.ARCHITECTURE_KEY] = self.arch
+
+        return def_b_dict

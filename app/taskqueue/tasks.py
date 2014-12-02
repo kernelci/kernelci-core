@@ -99,6 +99,22 @@ def boot_bisect(doc_id, db_options, fields=None):
     return utils.bisect.execute_boot_bisection(doc_id, db_options, fields)
 
 
+@taskc.app.task(name="defconfig-bisect")
+def defconfig_bisect(doc_id, db_options, fields=None):
+    """Run a defconfig bisect operation on the passed defconfig document id.
+
+    :param doc_id: The boot document ID.
+    :type doc_id: str
+    :param db_options: The mongodb database connection parameters.
+    :type db_options: dict
+    :param fields: A `fields` data structure with the fields to return or
+    exclude. Default to None.
+    :type fields: list or dict
+    :return The result of the boot bisect operation.
+    """
+    return utils.bisect.execute_defconfig_bisection(doc_id, db_options, fields)
+
+
 def run_batch_group(batch_op_list, db_options):
     """Execute a list of batch operations.
 

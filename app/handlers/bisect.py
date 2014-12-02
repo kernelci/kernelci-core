@@ -115,6 +115,9 @@ class BisectHandler(hbase.BaseHandler):
 
             if collection == models.BOOT_COLLECTION:
                 response = self.execute_boot_bisect(doc_id, db_options, fields)
+            elif collection == models.DEFCONFIG_COLLECTION:
+                response = self.execute_defconfig_bisect(
+                    doc_id, db_options, fields)
         else:
             response = hresponse.HandlerResponse(400)
             response.reason = (
@@ -147,4 +150,33 @@ class BisectHandler(hbase.BaseHandler):
             response.reason = "Boot report not found"
         elif response.status_code == 400:
             response.reason = "Boot report cannot be bisected: is it failed?"
+        return response
+
+    @staticmethod
+    def execute_defconfig_bisect(doc_id, db_options, fields=None):
+        """Execute the defconfig bisect operation.
+
+        :param doc_id: The ID of the document to execute the bisect on.
+        :type doc_id: str
+        :param db_options: The mongodb database connection parameters.
+        :type db_options: dict
+        :param fields: A `fields` data structure with the fields to return or
+        exclude. Default to None.
+        :type fields: list or dict
+        :return A `HandlerResponse` object.
+        """
+        response = hresponse.HandlerResponse()
+
+        result = taskt.defconfig_bisect.apply_async(
+            [doc_id, db_options, fields]
+        )
+        while not result.ready():
+            pass
+
+        response.status_code, response.result = result.get()
+        if response.status_code == 404:
+            response.reason = "Defconfig not found"
+        elif response.status_code == 400:
+            response.reason = "Defconfig cannot be bisected: is it failed?"
+
         return response
