@@ -5,6 +5,7 @@ import argparse
 import subprocess
 import re
 import urllib2
+import requests
 from utils import *
 
 log2html = 'https://git.linaro.org/people/kevin.hilman/build-scripts.git/blob_plain/HEAD:/log2html.py'
@@ -103,6 +104,9 @@ def boot_report(args):
             bundle_data = json.loads(json_bundle['content'])
             bundle_attributes =  bundle_data['test_runs'][0]['attributes']
             boot_meta = {}
+            api_url = None
+            arch = None
+            kernel_defconfig_real = None
             kernel_defconfig = None
             kernel_version = None
             kernel_endian = None
@@ -117,6 +121,7 @@ def boot_report(args):
             fastboot_cmd = None
             if in_bundle_attributes(bundle_attributes, 'kernel.defconfig'):
                 kernel_defconfig = bundle_attributes['kernel.defconfig']
+                arch, kernel_defconfig_real = kernel_defconfig.split('-')
             if in_bundle_attributes(bundle_attributes, 'kernel.version'):
                 kernel_version = bundle_attributes['kernel.version']
             if in_bundle_attributes(bundle_attributes, 'kernel.endian'):
@@ -159,13 +164,18 @@ def boot_report(args):
             # Create JSON format boot metadata
             print 'Creating JSON format boot metadata'
             if args.lab:
-                boot_meta['boot_log'] = args.lab + '/' + log
-                boot_meta['boot_log_html'] = args.lab + '/' + html
                 boot_meta['lab_name'] = args.lab
             else:
-                boot_meta['boot_log'] = log
-                boot_meta['boot_log_html'] = html
                 boot_meta['lab_name'] = None
+            boot_meta['boot_log'] = log
+            boot_meta['boot_log_html'] = html
+            # TODO: Fix this
+            boot_meta['version'] = '1.0'
+            boot_meta['arch'] = arch
+            boot_meta['defconfig'] = kernel_defconfig_real
+            boot_meta['kernel'] = kernel_version
+            boot_meta['job'] = kernel_tree
+            boot_meta['board'] = device_map[device_type]
             boot_meta['boot_result'] = result
             boot_meta['boot_time'] = kernel_boot_time
             # TODO: Fix this
@@ -184,6 +194,15 @@ def boot_report(args):
             boot_meta['kernel_image'] = kernel_image
             boot_meta['loadaddr'] = kernel_addr
             json_file = 'boot-%s.json' % device_map[device_type]
+            if args.lab and args.api and args.token:
+                print 'Sending boot result to %s for %s' % (args.api, device_map[device_type])
+                headers = {
+                    'Authorization': args.token,
+                    'Content-Type': 'application/json'
+                }
+                api_url = urlparse.urljoin(args.api, '/boot')
+                response = requests.post(api_url, data=json.dumps(boot_meta), headers=headers)
+                print response.content
             write_json(json_file, directory, boot_meta)
             print 'Creating html version of boot log for %s' % device_map[device_type]
             cmd = 'python log2html.py %s' % os.path.join(directory, log)
@@ -216,8 +235,12 @@ def boot_report(args):
                                                                                 str(failed),
                                                                                 kernel_version))
             f.write('\n')
-            f.write('Full Build Report: http://status.armcloud.us/build/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
-            f.write('Full Boot Report: http://status.armcloud.us/boot/all/job/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
+            if api_url:
+                f.write('Full Build Report: %s/build/%s/kernel/%s/\n' % (api_url.replace('api', 'status'), kernel_tree, kernel_version))
+                f.write('Full Boot Report: %s/boot/all/job/%s/kernel/%s/\n' % (api_url.replace('api', 'status'), kernel_tree, kernel_version))
+            else:
+                f.write('Full Build Report: http://status.armcloud.us/build/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
+                f.write('Full Boot Report: http://status.armcloud.us/boot/all/job/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
             f.write('\n')
             f.write('Total Duration: %.2f minutes\n' % (duration / 60))
             f.write('Tree/Branch: %s\n' % kernel_tree)
@@ -350,6 +373,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--boot", help="creates a kernel-ci boot report from a given json file")
     parser.add_argument("--lab", help="lab id")
+    parser.add_argument("--api", help="api url")
+    parser.add_argument("--token", help="authentication token")
     parser.add_argument("--email", help="email address to send report to")
     args = parser.parse_args()
     main(args)
