@@ -103,10 +103,10 @@ TIME_KEY = 'time'
 TOKEN_KEY = 'token'
 UPDATED_KEY = 'updated_on'
 USERNAME_KEY = 'username'
+VERSION_FULL_KEY = 'full_version'
 VERSION_KEY = 'version'
 WARNINGS_KEY = 'warnings'
 x86_ARCHITECTURE_KEY = 'x86'
-VERSION_FULL_KEY = 'full_version'
 
 # Token special fields.
 ADMIN_KEY = 'admin'
