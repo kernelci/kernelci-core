@@ -20,6 +20,7 @@ except ImportError:
 
 import bson
 import bson.json_util
+import copy
 import datetime
 import pymongo
 import types
@@ -320,9 +321,6 @@ def execute_defconfig_bisection(doc_id, db_options, fields=None):
             spec = {
                 models.ARCHITECTURE_KEY: start_doc_get(
                     models.ARCHITECTURE_KEY),
-                models.CREATED_KEY: {
-                    "$lt": start_doc_get(models.CREATED_KEY)
-                },
                 models.DEFCONFIG_FULL_KEY: start_doc_get(
                     models.DEFCONFIG_FULL_KEY),
                 models.DEFCONFIG_KEY: start_doc_get(models.DEFCONFIG_KEY),
@@ -337,25 +335,45 @@ def execute_defconfig_bisection(doc_id, db_options, fields=None):
             # for and the mongodb Cursor can get quite big.
             # Tweak the spec to search for PASS status and limit also the
             # result found: we are only interested in the first found one.
-            spec[models.STATUS_KEY] = models.PASS_STATUS
+            # Need to use copy.deepcoy here since for some strange reasons,
+            # just adding and removing the keys from the spec is not working
+            # as expected.
+            pass_spec = copy.deepcopy(spec)
+            pass_spec[models.STATUS_KEY] = models.PASS_STATUS
+
             passed_builds = utils.db.find(
                 database[models.DEFCONFIG_COLLECTION],
-                3,
+                10,
                 0,
-                spec=spec,
+                spec=pass_spec,
                 fields=DEFCONFIG_SEARCH_FIELDS,
                 sort=DEFCONFIG_SORT
             )
 
-            # Remove the status key from the spec, since we do not need it
-            # anymore. In case we have a passed doc, tweak the spec again
-            # to search between tha valid dates.
-            spec.pop(models.STATUS_KEY, None)
+            # In case we have a passed doc, tweak the spec to search between
+            # the valid dates.
             if passed_builds.count() > 0:
+                passed_build = passed_builds[0]
+
+                if passed_build.get(models.STATUS_KEY) != models.PASS_STATUS:
+                    utils.LOG.warn(
+                        "First result found is not a passed build for '%s'",
+                        obj_id
+                    )
+                    for doc in passed_builds:
+                        if doc.get(models.STATUS_KEY) == models.PASS_STATUS:
+                            passed_build = doc
+                            break
+
                 spec[models.CREATED_KEY] = {
-                    "$gte": passed_builds[0].get(models.CREATED_KEY),
+                    "$gte": passed_build.get(models.CREATED_KEY),
                     "$lt": start_doc_get(models.CREATED_KEY)
                 }
+            else:
+                spec[models.CREATED_KEY] = {
+                    "$lt": start_doc_get(models.CREATED_KEY)
+                }
+                utils.LOG.warn("No passed build found for '%s'", obj_id)
 
             all_prev_docs = utils.db.find(
                 database[models.DEFCONFIG_COLLECTION],
