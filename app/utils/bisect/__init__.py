@@ -331,10 +331,34 @@ def execute_defconfig_bisection(doc_id, db_options, fields=None):
 
             all_valid_docs = [start_doc]
 
-            # Search through all the previous defconfigs, until one that
-            # passed is found.
+            # Search for the first passed defconfig so that we can limit the
+            # next search. Doing this to cut down search and load time on
+            # mongodb side: there are a lot of defconfig documents to search
+            # for and the mongodb Cursor can get quite big.
+            # Tweak the spec to search for PASS status and limit also the
+            # result found: we are only interested in the first found one.
+            spec[models.STATUS_KEY] = models.PASS_STATUS
+            passed_builds = utils.db.find(
+                database[models.DEFCONFIG_COLLECTION],
+                3,
+                0,
+                spec=spec,
+                fields=DEFCONFIG_SEARCH_FIELDS,
+                sort=DEFCONFIG_SORT
+            )
+
+            # Remove the status key from the spec, since we do not need it
+            # anymore. In case we have a passed doc, tweak the spec again
+            # to search between tha valid dates.
+            spec.pop(models.STATUS_KEY, None)
+            if passed_builds.count() > 0:
+                spec[models.CREATED_KEY] = {
+                    "$gte": passed_builds[0].get(models.CREATED_KEY),
+                    "$lt": start_doc_get(models.CREATED_KEY)
+                }
+
             all_prev_docs = utils.db.find(
-                database[models.BOOT_COLLECTION],
+                database[models.DEFCONFIG_COLLECTION],
                 0,
                 0,
                 spec=spec,
