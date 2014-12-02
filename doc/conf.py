@@ -24,7 +24,7 @@ sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 )
 
-from app import __version__, __versionfull__
+from app.handlers import __version__, __versionfull__
 
 # -- General configuration ------------------------------------------------
 

@@ -12,3 +12,4 @@ Collections
     collection-boot
     collection-batch
     collection-lab
+    collection-version
