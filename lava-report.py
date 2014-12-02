@@ -102,13 +102,14 @@ def boot_report(args):
         if bundle is not None:
             json_bundle = connection.dashboard.get(bundle)
             bundle_data = json.loads(json_bundle['content'])
-            bundle_attributes =  bundle_data['test_runs'][0]['attributes']
+            bundle_attributes = bundle_data['test_runs'][0]['attributes']
             boot_meta = {}
             api_url = None
             arch = None
             kernel_defconfig_real = None
             kernel_defconfig = None
             kernel_version = None
+            device_tree = None
             kernel_endian = None
             kernel_boot_time = None
             kernel_tree = None
@@ -124,6 +125,8 @@ def boot_report(args):
                 arch, kernel_defconfig_real = kernel_defconfig.split('-')
             if in_bundle_attributes(bundle_attributes, 'kernel.version'):
                 kernel_version = bundle_attributes['kernel.version']
+            if in_bundle_attributes(bundle_attributes, 'device.tree'):
+                device_tree = bundle_attributes['device.tree']
             if in_bundle_attributes(bundle_attributes, 'kernel.endian'):
                 kernel_endian = bundle_attributes['kernel.endian']
             if in_bundle_attributes(bundle_attributes, 'platform.fastboot'):
@@ -180,14 +183,15 @@ def boot_report(args):
             boot_meta['boot_time'] = kernel_boot_time
             # TODO: Fix this
             boot_meta['boot_warnings'] = None
-            # TODO: Fix this
-            boot_meta['dtb'] = None
+            if device_tree:
+                boot_meta['dtb'] = 'dtbs/' + device_tree
+            else:
+                boot_meta['dtb'] = device_tree
             boot_meta['dtb_addr'] = dtb_addr
             boot_meta['dtb_append'] = dtb_append
             boot_meta['dt_test'] = dt_test
             boot_meta['endian'] = kernel_endian
             boot_meta['fastboot'] = fastboot
-            boot_meta['fastboot_cmds'] = fastboot_cmd
             # TODO: Fix this
             boot_meta['initrd'] = None
             boot_meta['initrd_addr'] = initrd_addr

@@ -52,6 +52,13 @@ beagle_xm = {'device_type': 'beagle-xm',
              'be': False,
              'fastboot': False}
 
+beagle_xm_legacy = {'device_type': 'beagle-xm',
+                    'templates': ['generic-arm-uboot-kernel-ci-boot-template.json'],
+                    'defconfig_blacklist': [],
+                    'lpae': False,
+                    'be': False,
+                    'fastboot': False}
+
 panda_es = {'device_type': 'panda-es',
             'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
             'defconfig_blacklist': [],
@@ -186,6 +193,7 @@ device_map = {'exynos5250-arndale.dtb': arndale,
               'exynos4412-odroidu3.dtb': odroid_u2,
               'am335x-boneblack.dtb': beaglebone_black,
               'omap3-beagle-xm.dtb': beagle_xm,
+              'omap3-beagle-xm-legacy': beagle_xm_legacy,
               'omap4-panda-es.dtb': panda_es,
               'sun7i-a20-cubietruck.dtb': cubieboard3,
               'imx6q-wandboard.dtb': imx6q_wandboard,
@@ -226,6 +234,7 @@ def create_jobs(base_url, kernel, platform_list, target):
     tree = build_info[2]
     kernel_version = build_info[3]
     defconfig = build_info[4]
+    print platform_list
 
     for platform in platform_list:
         platform_name = platform.split('/')[-1]
@@ -258,6 +267,8 @@ def create_jobs(base_url, kernel, platform_list, target):
                             tmp = tmp.replace('{image_type}', image_type)
                             tmp = tmp.replace('{image_url}', image_url)
                             tmp = tmp.replace('{tree}', tree)
+                            if platform_name.endswith('.dtb'):
+                                tmp = tmp.replace('{device_tree}', platform_name)
                             tmp = tmp.replace('{kernel_version}', kernel_version)
                             if 'BIG_ENDIAN' in defconfig and be:
                                 tmp = tmp.replace('{endian}', 'big')
@@ -304,7 +315,9 @@ def walk_url(url, arch=None, target=None):
                 # qemu-aarch64
                 platform_list.append(url + 'qemu-aarch64')
             if name.endswith('.dtb') and name in device_map:
+                print name
                 if base_url and base_url in url:
+                    print url + name
                     platform_list.append(url + name)
         elif arch == 'x86':
             if 'bzImage' in name and 'x86' in url:
@@ -327,6 +340,9 @@ def walk_url(url, arch=None, target=None):
 
     if kernel is not None and base_url is not None and platform_list:
         print 'Found boot artifacts at: %s' % base_url
+        # beagle-xm-legacy
+        if 'arm-omap2plus_defconfig' in base_url:
+            platform_list.append(url + 'omap3-beagle-xm-legacy')
         create_jobs(base_url, kernel, platform_list, target)
         base_url = None
         kernel = None

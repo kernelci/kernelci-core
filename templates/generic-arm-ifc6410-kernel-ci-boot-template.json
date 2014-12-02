@@ -7,6 +7,7 @@
                 "image.url": "{image_url}",
                 "kernel.tree": "{tree}",
                 "kernel.version": "{kernel_version}",
+                "device.tree": "{device_tree}",
                 "kernel.endian": "{endian}",
                 "kernel.defconfig": "{defconfig}",
                 "platform.fastboot": "{fastboot}"
