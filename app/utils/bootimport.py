@@ -142,9 +142,10 @@ def save_to_disk(boot_doc, json_obj, base_path):
             write_json.write(
                 json.dumps(json_obj, encoding="utf_8", ensure_ascii=False)
             )
-    except OSError, ex:
+    except (OSError, IOError), ex:
         utils.LOG.error(
-            "Error saving document '%s' into '%s'", boot_doc.name, dir_path
+            "Error saving document '%s' into '%s'",
+            boot_doc.name, dir_path
         )
         utils.LOG.exception(ex)
 
