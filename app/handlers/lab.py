@@ -154,6 +154,10 @@ class LabHandler(handlers.base.BaseHandler):
         old_lab = mlab.LabDocument.from_json(old_lab)
         new_lab = mlab.LabDocument.from_json(json_obj)
 
+        if new_lab.name:
+            if old_lab.name != new_lab.name:
+                old_lab.name = new_lab.name
+
         if new_lab.contact:
             if old_lab.contact != new_lab.contact:
                 old_lab.contact = new_lab.contact
