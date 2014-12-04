@@ -156,7 +156,7 @@ class LabHandler(handlers.base.BaseHandler):
 
         if new_lab.name:
             if old_lab.name != new_lab.name:
-                old_lab.name = new_lab.name
+                old_lab._name = new_lab.name
 
         if new_lab.contact:
             if old_lab.contact != new_lab.contact:
