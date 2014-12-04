@@ -83,6 +83,7 @@ BOOT_VALID_KEYS = {
             models.GIT_URL_KEY,
             models.ID_KEY,
             models.INITRD_ADDR_KEY,
+            models.INITRD_KEY,
             models.JOB_KEY,
             models.KERNEL_IMAGE_KEY,
             models.KERNEL_KEY,

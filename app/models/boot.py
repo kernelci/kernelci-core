@@ -80,6 +80,7 @@ class BootDocument(modb.BaseDocument):
         self.git_commit = None
         self.git_describe = None
         self.git_url = None
+        self.initrd = None
         self.initrd_addr = None
         self.job_id = None
         self.kernel_image = None
@@ -206,6 +207,7 @@ class BootDocument(modb.BaseDocument):
             models.GIT_DESCRIBE_KEY: self.git_describe,
             models.GIT_URL_KEY: self.git_url,
             models.INITRD_ADDR_KEY: self.initrd_addr,
+            models.INITRD_KEY: self.initrd,
             models.JOB_ID_KEY: self.job_id,
             models.JOB_KEY: self.job,
             models.KERNEL_IMAGE_KEY: self.kernel_image,
@@ -218,7 +220,7 @@ class BootDocument(modb.BaseDocument):
             models.STATUS_KEY: self.status,
             models.TIME_KEY: self.time,
             models.VERSION_KEY: self.version,
-            models.WARNINGS_KEY: self.warnings,
+            models.WARNINGS_KEY: self.warnings
         }
 
         if self.id:

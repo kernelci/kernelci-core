@@ -427,6 +427,8 @@ def convert_boot_collection(db, lab_name, limit=0):
                     arch + "-" + defconfig_full + "/"
                 )
 
+            boot_doc.initrd = meta_pop("initrd", None)
+
             boot_doc.file_server_url = meta_pop("file_server_url", None)
 
             boot_doc.metadata = metadata

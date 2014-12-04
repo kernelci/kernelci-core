@@ -48,6 +48,7 @@ class TestBootModel(unittest.TestCase):
         boot_doc.defconfig_full = "defconfig"
         boot_doc.file_server_url = "file-server"
         boot_doc.file_server_resource = "file-resource"
+        boot_doc.initrd = "initrd"
 
         expected = {
             '_id': 'id',
@@ -85,7 +86,8 @@ class TestBootModel(unittest.TestCase):
             "fastboot_cmd": "fastboot",
             "defconfig_full": "defconfig",
             "file_server_url": "file-server",
-            "file_server_resource": "file-resource"
+            "file_server_resource": "file-resource",
+            "initrd": "initrd"
         }
 
         self.assertDictEqual(expected, boot_doc.to_dict())

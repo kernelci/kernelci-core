@@ -135,6 +135,10 @@ necessary to use its ``_id`` value.
                 "type": "string",
                 "description": "Initrd address used"
             },
+            "initrd": {
+                "type": "string",
+                "description": "Initrd path"
+            },
             "load_addr": {
                 "type": "string",
                 "description": "Load address used"
@@ -305,6 +309,10 @@ have when sent to the server.
             "initrd_addr": {
                 "type": "string",
                 "description": "Initrd address used"
+            },
+            "initrd": {
+                "type": "string",
+                "description": "Initrd path"
             },
             "kernel_image": {
                 "type": "string",
