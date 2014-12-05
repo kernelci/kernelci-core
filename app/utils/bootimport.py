@@ -303,6 +303,7 @@ def _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f):
     boot_doc.status = json_pop_f(
         models.BOOT_RESULT_KEY, models.UNKNOWN_STATUS
     )
+    boot_doc.board_instance = json_pop_f(models.BOARD_INSTANCE_KEY, None)
     boot_doc.boot_log = json_pop_f(models.BOOT_LOG_KEY, None)
     boot_doc.boot_log_html = json_pop_f(models.BOOT_LOG_HTML_KEY, None)
     boot_doc.boot_result_description = json_pop_f(

@@ -57,6 +57,7 @@ BOOT_VALID_KEYS = {
         ],
         models.ACCEPTED_KEYS: [
             models.ARCHITECTURE_KEY,
+            models.BOARD_INSTANCE_KEY,
             models.BOARD_KEY,
             models.BOOT_LOAD_ADDR_KEY,
             models.BOOT_LOG_HTML_KEY,
@@ -90,7 +91,7 @@ BOOT_VALID_KEYS = {
             models.LAB_NAME_KEY,
             models.NAME_KEY,
             models.STATUS_KEY,
-            models.VERSION_KEY,
+            models.VERSION_KEY
         ]
     },
     'GET': [

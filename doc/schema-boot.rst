@@ -44,6 +44,10 @@ necessary to use its ``_id`` value.
                 "type": "string",
                 "description": "The name of the board"
             },
+            "board_instance": {
+                "type": "string",
+                "description": "The instance identifier for the board"
+            },
             "job": {
                 "type": "string",
                 "description": "The job associated with this object"
@@ -235,6 +239,10 @@ have when sent to the server.
             "board": {
                 "type": "string",
                 "description": "The name of the board: it must be a valid and recognized name"
+            },
+            "board_instance": {
+                "type": "string",
+                "description": "The instance identifier for the board"
             },
             "arch" : {
                 "type": "string",

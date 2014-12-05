@@ -49,6 +49,7 @@ class TestBootModel(unittest.TestCase):
         boot_doc.file_server_url = "file-server"
         boot_doc.file_server_resource = "file-resource"
         boot_doc.initrd = "initrd"
+        boot_doc.board_instance = "instance"
 
         expected = {
             '_id': 'id',
@@ -87,7 +88,8 @@ class TestBootModel(unittest.TestCase):
             "defconfig_full": "defconfig",
             "file_server_url": "file-server",
             "file_server_resource": "file-resource",
-            "initrd": "initrd"
+            "initrd": "initrd",
+            "board_instance": "instance"
         }
 
         self.assertDictEqual(expected, boot_doc.to_dict())

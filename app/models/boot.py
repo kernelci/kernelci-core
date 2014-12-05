@@ -64,6 +64,7 @@ class BootDocument(modb.BaseDocument):
         self._job = job
         self._kernel = kernel
         self._lab_name = lab_name
+        self.board_instance = None
         self.boot_log = None
         self.boot_log_html = None
         self.boot_result_description = None
@@ -186,6 +187,7 @@ class BootDocument(modb.BaseDocument):
     def to_dict(self):
         boot_dict = {
             models.ARCHITECTURE_KEY: self.arch,
+            models.BOARD_INSTANCE_KEY: self.board_instance,
             models.BOARD_KEY: self.board,
             models.BOOT_LOG_HTML_KEY: self.boot_log_html,
             models.BOOT_LOG_KEY: self.boot_log,
