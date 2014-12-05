@@ -247,8 +247,8 @@ def boot_report(args):
                                                                                 kernel_version))
             f.write('\n')
             if api_url:
-                f.write('Full Build Report: %s/build/%s/kernel/%s/\n' % (api_url.replace('api', 'status'), kernel_tree, kernel_version))
-                f.write('Full Boot Report: %s/boot/all/job/%s/kernel/%s/\n' % (api_url.replace('api', 'status'), kernel_tree, kernel_version))
+                f.write('Full Build Report: %s/build/%s/kernel/%s/\n' % (api_url.replace('api', 'status').replace('/boot', ''), kernel_tree, kernel_version))
+                f.write('Full Boot Report: %s/boot/all/job/%s/kernel/%s/\n' % (api_url.replace('api', 'status').replace('/boot', ''), kernel_tree, kernel_version))
             else:
                 f.write('Full Build Report: http://status.armcloud.us/build/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
                 f.write('Full Boot Report: http://status.armcloud.us/boot/all/job/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
