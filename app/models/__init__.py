@@ -117,6 +117,7 @@ GET_KEY = 'get'
 IP_RESTRICTED = 'ip_restricted'
 POST_KEY = 'post'
 SUPERUSER_KEY = 'superuser'
+LAB_KEY = "lab"
 
 # Job and/or build status.
 BUILD_STATUS = 'BUILD'

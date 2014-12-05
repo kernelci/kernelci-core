@@ -194,10 +194,11 @@ TOKEN_VALID_KEYS = {
         models.GET_KEY,
         models.IP_ADDRESS_KEY,
         models.IP_RESTRICTED,
+        models.LAB_KEY,
         models.NAME_KEY,
         models.POST_KEY,
         models.SUPERUSER_KEY,
-        models.USERNAME_KEY,
+        models.USERNAME_KEY
     ],
     'GET': [
         models.CREATED_KEY,
@@ -209,7 +210,7 @@ TOKEN_VALID_KEYS = {
         models.NAME_KEY,
         models.PROPERTIES_KEY,
         models.TOKEN_KEY,
-        models.USERNAME_KEY,
+        models.USERNAME_KEY
     ],
 }
 
