@@ -1,5 +1,3 @@
-# Copyright (C) 2014 Linaro Ltd.
-#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
@@ -15,74 +13,112 @@
 
 """The model that represents a boot document in the mongodb collection."""
 
-from models import (
-    BOARD_KEY,
-    BOOT_COLLECTION,
-    BOOT_LOG_HTML_KEY,
-    BOOT_LOG_KEY,
-    DEFCONFIG_KEY,
-    DTB_ADDR_KEY,
-    DTB_KEY,
-    ENDIANNESS_KEY,
-    FASTBOOT_KEY,
-    INITRD_ADDR_KEY,
-    JOB_ID_KEY,
-    JOB_KEY,
-    KERNEL_IMAGE_KEY,
-    KERNEL_KEY,
-    LOAD_ADDR_KEY,
-    METADATA_KEY,
-    STATUS_KEY,
-    TIME_KEY,
-    WARNINGS_KEY,
-)
-from models.base import BaseDocument
-from models.job import JobDocument
+import models
+import models.base as modb
 
 
-class BootDocument(BaseDocument):
+# pylint: disable=too-many-public-methods
+# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-arguments
+# pylint: disable=invalid-name
+class BootDocument(modb.BaseDocument):
     """Model for a boot document.
 
     Each document is a single booted board.
     """
 
-    ID_FORMAT = '%(board)s-%(job)s-%(kernel)s-%(defconfig)s'
+    def __init__(
+            self, board, job, kernel, defconfig, lab_name,
+            defconfig_full=None, arch=models.ARM_ARCHITECTURE_KEY):
+        """A new BootDocument.
 
-    def __init__(self, board, job, kernel, defconfig):
-        super(BootDocument, self).__init__(
-            self.ID_FORMAT % {
-                BOARD_KEY: board,
-                JOB_KEY: job,
-                KERNEL_KEY: kernel,
-                DEFCONFIG_KEY: defconfig,
-            }
-        )
+        :param board: The name of the board.
+        :type board: str
+        :param job: The name of the job.
+        :type job: str
+        :param kernel: The name of the kernel.
+        :type kernel: str
+        :param defconfig: The name of the defconfig.
+        :type defconfig: str
+        :param lab_name: The user readable ID of the lab.
+        :type lab_name: str
+        """
 
-        self._job_id = JobDocument.ID_FORMAT % {
-            JOB_KEY: job, KERNEL_KEY: kernel
+        doc_name = models.BOOT_DOCUMENT_NAME % {
+            models.BOARD_KEY: board,
+            models.DEFCONFIG_KEY: defconfig_full or defconfig,
+            models.JOB_KEY: job,
+            models.KERNEL_KEY: kernel,
+            models.ARCHITECTURE_KEY: arch
         }
 
+        self._created_on = None
+        self._id = None
+        self._name = doc_name
+        self._version = None
+
+        self._arch = arch
         self._board = board
+        self._defconfig = defconfig
+        self._defconfig_full = defconfig_full or defconfig
         self._job = job
         self._kernel = kernel
-        self._defconfig = defconfig
-        self._time = None
-        self._status = None
-        self._warnings = None
-        self._boot_log = None
-        self._initrd_addr = None
-        self._load_addr = None
-        self._kernel_image = None
-        self._dtb_addr = None
-        self._dtb = None
-        self._endianness = None
-        self._metadata = None
-        self._fastboot = None
-        self._boot_log_html = None
+        self._lab_name = lab_name
+        self.board_instance = None
+        self.boot_log = None
+        self.boot_log_html = None
+        self.boot_result_description = None
+        self.defconfig_id = None
+        self.dtb = None
+        self.dtb_addr = None
+        self.dtb_append = None
+        self.endianness = None
+        self.fastboot = False
+        self.fastboot_cmd = None
+        self.file_server_resource = None
+        self.file_server_url = None
+        self.git_branch = None
+        self.git_commit = None
+        self.git_describe = None
+        self.git_url = None
+        self.initrd = None
+        self.initrd_addr = None
+        self.job_id = None
+        self.kernel_image = None
+        self.load_addr = None
+        self.metadata = {}
+        self.retries = 0
+        self.status = None
+        self.time = 0
+        self.warnings = 0
 
     @property
     def collection(self):
-        return BOOT_COLLECTION
+        return models.BOOT_COLLECTION
+
+    @property
+    def name(self):
+        """The name of the boot report."""
+        return self._name
+
+    @property
+    def id(self):
+        """The ID of this object as returned by mongodb."""
+        return self._id
+
+    @id.setter
+    def id(self, value):
+        """Set the ID of this object with the ObjectID from mongodb.
+
+        :param value: The ID of this object.
+        :type value: str
+        """
+        self._id = value
+
+    @property
+    def arch(self):
+        """The architecture of the board."""
+        return self._arch
 
     @property
     def board(self):
@@ -105,142 +141,95 @@ class BootDocument(BaseDocument):
         return self._defconfig
 
     @property
-    def status(self):
-        """The boot status of this document."""
-        return self._status
+    def defconfig_full(self):
+        """The full value of the defconfig, with fragments."""
+        return self._defconfig_full
 
-    @status.setter
-    def status(self, value):
-        self._status = value
-
-    @property
-    def boot_log(self):
-        """The log of this board."""
-        return self._boot_log
-
-    @boot_log.setter
-    def boot_log(self, value):
-        self._boot_log = value
+    @defconfig_full.setter
+    def defconfig_full(self, value):
+        """Set the defconfig full name."""
+        self._defconfig_full = value
 
     @property
-    def time(self):
-        """The time it took this board to boot.
+    def lab_name(self):
+        """Get the lab ID value of this boot report."""
+        return self._lab_name
 
-        Represented as the time passed after the epoch time.
+    @lab_name.setter
+    def lab_name(self, value):
+        """Set the lab ID value."""
+        self._lab_name = value
+
+    @property
+    def created_on(self):
+        """When this lab object was created."""
+        return self._created_on
+
+    @created_on.setter
+    def created_on(self, value):
+        """Set the creation date of this lab object.
+
+        :param value: The lab creation date, in UTC time zone.
+        :type value: datetime
         """
-        return self._time
-
-    @time.setter
-    def time(self, value):
-        self._time = value
+        self._created_on = value
 
     @property
-    def warnings(self):
-        """The number of warnings associated with this board."""
-        return self._warnings
+    def version(self):
+        """The version of this document schema."""
+        return self._version
 
-    @warnings.setter
-    def warnings(self, value):
-        self._warnings = value
-
-    @property
-    def job_id(self):
-        """The ID of the Job document associated with this boot."""
-        return self._job_id
-
-    @property
-    def initrd_addr(self):
-        return self._initrd_addr
-
-    @initrd_addr.setter
-    def initrd_addr(self, value):
-        self._initrd_addr = value
-
-    @property
-    def load_addr(self):
-        """The load_addr."""
-        return self._load_addr
-
-    @load_addr.setter
-    def load_addr(self, value):
-        self._load_addr = value
-
-    @property
-    def dtb_addr(self):
-        return self._dtb_addr
-
-    @dtb_addr.setter
-    def dtb_addr(self, value):
-        self._dtb_addr = value
-
-    @property
-    def dtb(self):
-        """The dtb file of this boot document."""
-        return self._dtb
-
-    @dtb.setter
-    def dtb(self, value):
-        self._dtb = value
-
-    @property
-    def kernel_image(self):
-        """The kernel image used to boot."""
-        return self._kernel_image
-
-    @kernel_image.setter
-    def kernel_image(self, value):
-        self._kernel_image = value
-
-    @property
-    def endianness(self):
-        return self._endianness
-
-    @endianness.setter
-    def endianness(self, value):
-        self._endianness = value
-
-    @property
-    def fastboot(self):
-        return self._fastboot
-
-    @fastboot.setter
-    def fastboot(self, value):
-        self._fastboot = value
-
-    @property
-    def boot_log_html(self):
-        return self._boot_log_html
-
-    @boot_log_html.setter
-    def boot_log_html(self, value):
-        self._boot_log_html = value
-
-    @property
-    def metadata(self):
-        return self._metadata
-
-    @metadata.setter
-    def metadata(self, value):
-        self._metadata = value
+    @version.setter
+    def version(self, value):
+        """The version of this document schema."""
+        self._version = value
 
     def to_dict(self):
-        boot_dict = super(BootDocument, self).to_dict()
-        boot_dict[BOARD_KEY] = self._board
-        boot_dict[TIME_KEY] = self._time
-        boot_dict[JOB_KEY] = self._job
-        boot_dict[KERNEL_KEY] = self._kernel
-        boot_dict[DEFCONFIG_KEY] = self._defconfig
-        boot_dict[STATUS_KEY] = self._status
-        boot_dict[BOOT_LOG_KEY] = self._boot_log
-        boot_dict[WARNINGS_KEY] = self._warnings
-        boot_dict[JOB_ID_KEY] = self._job_id
-        boot_dict[KERNEL_IMAGE_KEY] = self._kernel_image
-        boot_dict[LOAD_ADDR_KEY] = self._load_addr
-        boot_dict[INITRD_ADDR_KEY] = self._initrd_addr
-        boot_dict[DTB_KEY] = self._dtb
-        boot_dict[DTB_ADDR_KEY] = self._dtb_addr
-        boot_dict[ENDIANNESS_KEY] = self._endianness
-        boot_dict[METADATA_KEY] = self._metadata
-        boot_dict[FASTBOOT_KEY] = self._fastboot
-        boot_dict[BOOT_LOG_HTML_KEY] = self._boot_log_html
+        boot_dict = {
+            models.ARCHITECTURE_KEY: self.arch,
+            models.BOARD_INSTANCE_KEY: self.board_instance,
+            models.BOARD_KEY: self.board,
+            models.BOOT_LOG_HTML_KEY: self.boot_log_html,
+            models.BOOT_LOG_KEY: self.boot_log,
+            models.BOOT_RESULT_DESC_KEY: self.boot_result_description,
+            models.CREATED_KEY: self.created_on,
+            models.DEFCONFIG_FULL_KEY: self.defconfig_full,
+            models.DEFCONFIG_ID_KEY: self.defconfig_id,
+            models.DEFCONFIG_KEY: self.defconfig,
+            models.DTB_ADDR_KEY: self.dtb_addr,
+            models.DTB_APPEND_KEY: self.dtb_append,
+            models.DTB_KEY: self.dtb,
+            models.ENDIANNESS_KEY: self.endianness,
+            models.FASTBOOT_CMD_KEY: self.fastboot_cmd,
+            models.FASTBOOT_KEY: self.fastboot,
+            models.FILE_SERVER_RESOURCE_KEY: self.file_server_resource,
+            models.FILE_SERVER_URL_KEY: self.file_server_url,
+            models.GIT_BRANCH_KEY: self.git_branch,
+            models.GIT_COMMIT_KEY: self.git_commit,
+            models.GIT_DESCRIBE_KEY: self.git_describe,
+            models.GIT_URL_KEY: self.git_url,
+            models.INITRD_ADDR_KEY: self.initrd_addr,
+            models.INITRD_KEY: self.initrd,
+            models.JOB_ID_KEY: self.job_id,
+            models.JOB_KEY: self.job,
+            models.KERNEL_IMAGE_KEY: self.kernel_image,
+            models.KERNEL_KEY: self.kernel,
+            models.LAB_NAME_KEY: self.lab_name,
+            models.LOAD_ADDR_KEY: self.load_addr,
+            models.METADATA_KEY: self.metadata,
+            models.NAME_KEY: self.name,
+            models.RETRIES_KEY: self.retries,
+            models.STATUS_KEY: self.status,
+            models.TIME_KEY: self.time,
+            models.VERSION_KEY: self.version,
+            models.WARNINGS_KEY: self.warnings
+        }
+
+        if self.id:
+            boot_dict[models.ID_KEY] = self.id
+
         return boot_dict
+
+    @staticmethod
+    def from_json(json_obj):
+        return None

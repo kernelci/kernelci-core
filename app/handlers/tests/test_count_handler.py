@@ -15,37 +15,33 @@
 
 """Test module for the CountHandler handler."""
 
+import concurrent.futures
 import json
+import mock
 import mongomock
+import tornado
+import tornado.testing
 
-from concurrent.futures import ThreadPoolExecutor
-from tornado import (
-    ioloop,
-    testing,
-    web,
-)
-
-from mock import patch
-
-from handlers.app import AppHandler
-from urls import _COUNT_URL
+import handlers.app
+import urls
 
 # Default Content-Type header returned by Tornado.
 DEFAULT_CONTENT_TYPE = 'application/json; charset=UTF-8'
 
 
-class TestCountHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
+class TestCountHandler(
+        tornado.testing.AsyncHTTPTestCase, tornado.testing.LogTrapTestCase):
 
     def setUp(self):
         self.mongodb_client = mongomock.Connection()
 
         super(TestCountHandler, self).setUp()
 
-        patched_find_token = patch("handlers.base.BaseHandler._find_token")
+        patched_find_token = mock.patch("handlers.base.BaseHandler._find_token")
         self.find_token = patched_find_token.start()
         self.find_token.return_value = "token"
 
-        patched_validate_token = patch("handlers.base.validate_token")
+        patched_validate_token = mock.patch("handlers.common.validate_token")
         self.validate_token = patched_validate_token.start()
         self.validate_token.return_value = True
 
@@ -61,15 +57,15 @@ class TestCountHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         settings = {
             'dboptions': dboptions,
             'client': self.mongodb_client,
-            'executor': ThreadPoolExecutor(max_workers=2),
-            'default_handler_class': AppHandler,
+            'executor': concurrent.futures.ThreadPoolExecutor(max_workers=2),
+            'default_handler_class': handlers.app.AppHandler,
             'debug': False,
         }
 
-        return web.Application([_COUNT_URL], **settings)
+        return tornado.web.Application([urls._COUNT_URL], **settings)
 
     def get_new_ioloop(self):
-        return ioloop.IOLoop.instance()
+        return tornado.ioloop.IOLoop.instance()
 
     def test_post(self):
         body = json.dumps(dict(job='job', kernel='kernel'))

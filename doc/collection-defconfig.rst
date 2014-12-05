@@ -10,7 +10,7 @@ GET
 
  Get all the available defconfigs built or a single one if ``defconfig_id`` is provided.
 
- :param defconfig_id: The ID of the defconfig to retrieve. Usually in the form of: ``job``-``kernel``-``defconfig``.
+ :param defconfig_id: The ID of the defconfig to retrieve.
  :type defconfig_id: string
 
  :reqheader Authorization: The token necessary to authorize the request.
@@ -29,15 +29,20 @@ GET
  :query string field: The field that should be returned in the response. Can be
     repeated multiple times.
  :query string nfield: The field that should *not* be returned in the response. Can be repeated multiple times.
+ :query string _id: The internal ID of the defconfig report.
  :query string job: The name of a job.
  :query string job_id: The ID of a job.
  :query string kernel: The name of a kernel.
+ :query string defconfig_full: The full name of a defconfig (with config fragments).
  :query string defconfig: The name of a defconfig.
+ :query string name: The name of the defconfig report.
  :query string arch: The architecture on which the defconfig has been built.
- :query string status: The status of the defconfig report. Can be one of:
-    ``PASS`` or ``FAIL``.
+ :query string status: The status of the defconfig report.
  :query int warnings: The number of warnings in the defconfig built.
  :query int errors: The number of errors in the defconfig built.
+ :query string git_branch: The name of the git branch.
+ :query string git_commit: The git commit SHA.
+ :query string git_describe: The git describe value.
 
  :status 200: Resuslts found.
  :status 403: Not authorized to perform the operation.

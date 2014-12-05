@@ -15,52 +15,26 @@
 
 """Container for all the import related functions."""
 
+try:
+    import simplejson as json
+except ImportError:
+    import json
+
+import bson
+import datetime
+import glob
 import os
 import pymongo
+import types
 
-from bson import tz_util
-from glob import glob
-from datetime import datetime
-
-from models import (
-    ARCHITECTURE_KEY,
-    BUILD_FAIL_FILE,
-    BUILD_META_FILE,
-    BUILD_META_JSON_FILE,
-    BUILD_PASS_FILE,
-    BUILD_RESULT_KEY,
-    BUILD_STATUS,
-    DB_NAME,
-    DEFCONFIG_KEY,
-    DONE_FILE,
-    DONE_FILE_PATTERN,
-    ERRORS_KEY,
-    FAIL_STATUS,
-    JOB_KEY,
-    KERNEL_KEY,
-    PASS_STATUS,
-    UNKNOWN_STATUS,
-    WARNINGS_KEY,
-)
-from models.defconfig import DefConfigDocument
-from models.job import (
-    JOB_COLLECTION,
-    JobDocument,
-)
-from utils import (
-    BASE_PATH,
-    LOG,
-    is_hidden,
-)
-from utils.db import (
-    find_one,
-    get_db_connection,
-    save,
-)
-from utils.meta_parser import parse_metadata_file
+import models
+import models.defconfig as mdefconfig
+import models.job as mjob
+import utils
+import utils.db
 
 
-def import_and_save_job(json_obj, db_options, base_path=BASE_PATH):
+def import_and_save_job(json_obj, db_options, base_path=utils.BASE_PATH):
     """Wrapper function to be used as an external task.
 
     This function should only be called by Celery or other task managers.
@@ -71,21 +45,21 @@ def import_and_save_job(json_obj, db_options, base_path=BASE_PATH):
     :type db_options: dict
     :return The ID of the created document.
     """
-    database = get_db_connection(db_options)
+    database = utils.db.get_db_connection(db_options)
     docs, job_id = import_job_from_json(json_obj, database, base_path)
 
     if docs:
-        LOG.info(
+        utils.LOG.info(
             "Importing %d documents with job ID: %s", len(docs), job_id
         )
-        save(database, docs)
+        utils.db.save_all(database, docs)
     else:
-        LOG.info("No jobs to save")
+        utils.LOG.info("No jobs to save")
 
     return job_id
 
 
-def import_job_from_json(json_obj, database, base_path=BASE_PATH):
+def import_job_from_json(json_obj, database, base_path=utils.BASE_PATH):
     """Import a job based on the provided JSON object.
 
     The provided JSON object, a dict-like object, should contain at least the
@@ -99,13 +73,13 @@ def import_job_from_json(json_obj, database, base_path=BASE_PATH):
         directory. It defaults to: /var/www/images/kernel-ci.
     :return The documents to be saved, and the job document ID.
     """
-    job_dir = json_obj[JOB_KEY]
-    kernel_dir = json_obj[KERNEL_KEY]
+    job_dir = json_obj[models.JOB_KEY]
+    kernel_dir = json_obj[models.KERNEL_KEY]
 
     return _import_job(job_dir, kernel_dir, database, base_path)
 
 
-def _import_job(job, kernel, database, base_path=BASE_PATH):
+def _import_job(job, kernel, database, base_path=utils.BASE_PATH):
     """Traverse the job dir and create the documenst to save.
 
     :param job: The name of the job.
@@ -117,45 +91,50 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
     job_dir = os.path.join(base_path, job)
     kernel_dir = os.path.join(job_dir, kernel)
 
-    if is_hidden(job) or is_hidden(kernel):
+    if utils.is_hidden(job) or utils.is_hidden(kernel):
         return docs
 
-    job_id = JobDocument.ID_FORMAT % {JOB_KEY: job, KERNEL_KEY: kernel}
+    job_name = (
+        models.JOB_DOCUMENT_NAME %
+        {models.JOB_KEY: job, models.KERNEL_KEY: kernel}
+    )
 
-    saved_doc = find_one(database[JOB_COLLECTION], [job_id])
+    saved_doc = utils.db.find_one(
+        database[models.JOB_COLLECTION], [job_name], field=models.NAME_KEY
+    )
     if saved_doc:
-        job_doc = JobDocument.from_json(saved_doc)
+        job_doc = mjob.JobDocument.from_json(saved_doc)
     else:
-        job_doc = JobDocument(job_id, job=job, kernel=kernel)
+        job_doc = mjob.JobDocument(job, kernel)
 
-    job_doc.updated = datetime.now(tz=tz_util.utc)
     docs.append(job_doc)
 
     if os.path.isdir(kernel_dir):
-        if (os.path.exists(os.path.join(kernel_dir, DONE_FILE)) or
-                glob(os.path.join(kernel_dir, DONE_FILE_PATTERN))):
-            job_doc.status = PASS_STATUS
+        if (os.path.exists(os.path.join(kernel_dir, models.DONE_FILE)) or
+                glob.glob(os.path.join(kernel_dir, models.DONE_FILE_PATTERN))):
+            job_doc.status = models.PASS_STATUS
         else:
-            job_doc.status = UNKNOWN_STATUS
+            job_doc.status = models.UNKNOWN_STATUS
 
         # If the job dir exists, read the last modification time from the
         # file system and use that as the creation date.
         if not job_doc.created_on:
-            job_doc.created_on = datetime.fromtimestamp(
-                os.stat(kernel_dir).st_mtime, tz=tz_util.utc)
+            job_doc.created_on = datetime.datetime.fromtimestamp(
+                os.stat(kernel_dir).st_mtime, tz=bson.tz_util.utc)
 
         docs.extend(
             [
                 _traverse_defconf_dir(
-                    job_id, job, kernel, kernel_dir, defconf_dir
+                    job, kernel, kernel_dir, defconf_dir
                 ) for defconf_dir in os.listdir(kernel_dir)
                 if os.path.isdir(os.path.join(kernel_dir, defconf_dir))
-                if not is_hidden(defconf_dir)
+                if not utils.is_hidden(defconf_dir)
+                if not None
             ]
         )
     else:
-        job_doc.status = BUILD_STATUS
-        job_doc.created_on = datetime.now(tz=tz_util.utc)
+        job_doc.status = models.BUILD_STATUS
+        job_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
 
     # Kind of a hack:
     # We want to store some metadata at the job document level as well, like
@@ -167,91 +146,118 @@ def _import_job(job, kernel, database, base_path=BASE_PATH):
         idx = 0
         while idx < docs_len:
             defconf_doc = docs[idx]
-            if isinstance(defconf_doc, JobDocument):
+            if isinstance(defconf_doc, mjob.JobDocument):
                 idx += 1
-            elif (isinstance(defconf_doc, DefConfigDocument) and
-                    defconf_doc.metadata):
-                for key in job_doc.METADATA_KEYS:
-                    if key in defconf_doc.metadata.keys():
-                        job_doc.metadata[key] = \
-                            defconf_doc.metadata[key]
-                break
+            elif isinstance(defconf_doc, mdefconfig.DefconfigDocument):
+                if (defconf_doc.job == job_doc.job and
+                        defconf_doc.kernel == job_doc.kernel):
+                    job_doc.git_commit = defconf_doc.git_commit
+                    job_doc.git_describe = defconf_doc.git_describe
+                    job_doc.git_url = defconf_doc.git_url
+                    job_doc.git_branch = defconf_doc.git_branch
+                    break
             else:
                 idx += 1
 
-    return (docs, job_id)
+    return (docs, job_name)
 
 
-def _traverse_defconf_dir(job_id, job, kernel, kernel_dir, defconf_dir):
+def _traverse_defconf_dir(job, kernel, kernel_dir, defconfig_dir):
     """Traverse the defconfig directory looking for files.
 
-    :param job_id: The ID of the parent job.
     :param kernel_dir: The parent directory of this defconfig.
-    :param defconf_dir: The actual defconfig directory to parse.
-    :return A `DefConfigDocument` instance.
+    :param defconfig_dir: The actual defconfig directory to parse.
+    :return A `DefconfigDocument` instance.
     """
-    defconf_doc = DefConfigDocument(defconf_dir, job_id, job, kernel)
-    # Default to the directory name and if we have the metadata file, get
-    # the value from there.
-    # Split on the + sign since some dirs are in the form 'defconfig+FRAGMENT'.
-    defconf_doc.defconfig = defconf_dir.split('+')[0]
-    defconf_doc.dirname = defconf_dir
+    real_dir = os.path.join(kernel_dir, defconfig_dir)
+    utils.LOG.info("Traversing directory '%s'", real_dir)
 
-    LOG.info("Traversing directory %s", defconf_dir)
-
-    real_dir = os.path.join(kernel_dir, defconf_dir)
-    defconf_doc.created_on = datetime.fromtimestamp(
-        os.stat(real_dir).st_mtime, tz=tz_util.utc
-    )
-
+    defconfig_doc = None
     for dirname, subdirs, files in os.walk(real_dir):
         # Consider only the actual directory and its files.
         subdirs[:] = []
 
-        # Legacy: status was retrieved via the presence of a file.
-        # Keep it for backward compatibility.
-        if os.path.isfile(os.path.join(dirname, BUILD_PASS_FILE)):
-            defconf_doc.status = PASS_STATUS
-        elif os.path.isfile(os.path.join(dirname, BUILD_FAIL_FILE)):
-            defconf_doc.status = FAIL_STATUS
+        data_file = os.path.join(dirname, models.BUILD_META_JSON_FILE)
+
+        if os.path.isfile(data_file):
+            defconfig_doc = _parse_build_data(data_file, job, kernel)
+            defconfig_doc.dirname = defconfig_dir
         else:
-            defconf_doc.status = UNKNOWN_STATUS
+            utils.LOG.warn("No build data file found in '%s'", real_dir)
 
-        json_meta_file = os.path.join(dirname, BUILD_META_JSON_FILE)
-        default_meta_file = os.path.join(dirname, BUILD_META_FILE)
-
-        if os.path.isfile(json_meta_file):
-            _parse_build_metadata(json_meta_file, defconf_doc)
-        elif os.path.isfile(default_meta_file):
-            _parse_build_metadata(default_meta_file, defconf_doc)
-        else:
-            # If we do not have the metadata file, consider the build failed.
-            defconf_doc.status = FAIL_STATUS
-
-    return defconf_doc
+    return defconfig_doc
 
 
-def _parse_build_metadata(metadata_file, defconf_doc):
+def _parse_build_data(data_file, job, kernel):
     """Parse the metadata file contained in thie build directory.
 
-    :param metadata_file: The path to the metadata file.
-    :param defconf_doc: The `DefConfigDocument` whose metadata will be updated.
+    :param data_file: The path to the metadata file.
+    :param defconf_doc: The `DefconfigDocument` whose metadata will be updated.
     """
-    metadata = parse_metadata_file(metadata_file)
+    build_data = None
+    with open(data_file) as data_file:
+        build_data = json.load(data_file)
 
-    if metadata:
-        # Set some of the metadata values directly into the objet for easier
-        # search.
-        defconf_doc.status = metadata.get(BUILD_RESULT_KEY, None)
-        defconf_doc.defconfig = metadata.get(DEFCONFIG_KEY, None)
-        defconf_doc.warnings = metadata.get(WARNINGS_KEY, None)
-        defconf_doc.errros = metadata.get(ERRORS_KEY, None)
-        defconf_doc.arch = metadata.get(ARCHITECTURE_KEY, None)
+    defconfig_doc = None
 
-    defconf_doc.metadata = metadata
+    if all([build_data, isinstance(build_data, types.DictionaryType)]):
+        data_pop = build_data.pop
+
+        try:
+            defconfig = data_pop(models.DEFCONFIG_KEY)
+            defconfig_full = data_pop(models.DEFCONFIG_FULL_KEY, defconfig)
+            job = data_pop(models.JOB_KEY, None) or job
+            kernel = data_pop(models.KERNEL_KEY, None) or kernel
+
+            defconfig_doc = mdefconfig.DefconfigDocument(
+                job, kernel, defconfig, defconfig_full
+            )
+
+            defconfig_doc.created_on = datetime.datetime.fromtimestamp(
+                os.stat(data_file).st_mtime, tz=bson.tz_util.utc
+            )
+
+            defconfig_doc.arch = data_pop(models.ARCHITECTURE_KEY, None)
+            defconfig_doc.build_log = data_pop(models.BUILD_LOG_KEY, None)
+            defconfig_doc.build_platform = data_pop(
+                models.BUILD_PLATFORM_KEY, [])
+            defconfig_doc.build_time = data_pop(models.BUILD_TIME_KEY, 0)
+            defconfig_doc.dtb_dir = data_pop(models.DTB_DIR_KEY, None)
+            defconfig_doc.errros = data_pop(models.BUILD_ERRORS_KEY, 0)
+            defconfig_doc.file_server_resource = data_pop(
+                models.FILE_SERVER_RESOURCE_KEY, None)
+            defconfig_doc.file_server_url = data_pop(
+                models.FILE_SERVER_URL_KEY, None)
+            defconfig_doc.git_branch = data_pop(models.GIT_BRANCH_KEY, None)
+            defconfig_doc.git_commit = data_pop(models.GIT_COMMIT_KEY, None)
+            defconfig_doc.git_describe = data_pop(models.GIT_DESCRIBE_KEY, None)
+            defconfig_doc.git_url = data_pop(models.GIT_URL_KEY, None)
+            defconfig_doc.kconfig_fragments = data_pop(
+                models.KCONFIG_FRAGMENTS_KEY, None)
+            defconfig_doc.kernel_config = data_pop(
+                models.KERNEL_CONFIG_KEY, None)
+            defconfig_doc.kernel_image = data_pop(models.KERNEL_IMAGE_KEY, None)
+            defconfig_doc.modules = data_pop(models.MODULES_KEY, None)
+            defconfig_doc.modules_dir = data_pop(models.MODULES_DIR_KEY, None)
+            defconfig_doc.status = data_pop(
+                models.BUILD_RESULT_KEY, models.UNKNOWN_STATUS)
+            defconfig_doc.system_map = data_pop(models.SYSTEM_MAP_KEY, None)
+            defconfig_doc.text_offset = data_pop(models.TEXT_OFFSET_KEY, None)
+            defconfig_doc.version = data_pop(models.VERSION_KEY, "1.0")
+            defconfig_doc.warnings = data_pop(models.BUILD_WARNINGS_KEY, 0)
+
+            defconfig_doc.metadata = build_data
+        except KeyError, ex:
+            utils.LOG.exception(ex)
+            utils.LOG.error(
+                "Missing mandatory key in build data file '%s'",
+                data_file
+            )
+
+    return defconfig_doc
 
 
-def _import_all(database, base_path=BASE_PATH):
+def _import_all(database, base_path=utils.BASE_PATH):
     """This function is used only to trigger the import from the command line.
 
     Do not use it elsewhere.
@@ -279,9 +285,9 @@ def _import_all(database, base_path=BASE_PATH):
 
 if __name__ == '__main__':
     connection = pymongo.MongoClient()
-    database = connection[DB_NAME]
+    database = connection[models.DB_NAME]
 
     documents = _import_all(database)
-    save(database, documents)
+    utils.db.save(database, documents)
 
     connection.disconnect()

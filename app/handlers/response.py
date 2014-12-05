@@ -149,7 +149,7 @@ class HandlerResponse(object):
             # The pymongo cursor is an iterable.
             if not isinstance(value, (ListType, Cursor)):
                 value = [value]
-            if isinstance(value, Cursor):
+            elif isinstance(value, Cursor):
                 value = [r for r in value]
             self._result = value
 

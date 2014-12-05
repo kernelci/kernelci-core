@@ -11,74 +11,83 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""The base document model that represents a mongodb document."""
+"""The base document abstract model that represents a mongodb document."""
 
-import json
-
-from bson import json_util
-
-from models import (
-    CREATED_KEY,
-    ID_KEY,
-)
+import abc
 
 
+# pylint: disable=abstract-class-not-used
 class BaseDocument(object):
-    """The base document model for all other documents."""
+    """The base document abstract model for all other documents.
 
-    def __init__(self, name):
-        self._name = name
-        self._created_on = None
+    It defines the necessary methods and properties that all documents must
+    implement.
+    """
 
-    @property
-    def name(self):
-        """The name of this document.
+    __metaclass__ = abc.ABCMeta
 
-        It should be used as the `_id' field in a mongodb document.
+    id_doc = (
         """
-        return self._name
+        The ID of this document as returned by mongodb.
 
-    @property
+        This should only be set with values returned by mongodb since it is
+        an internal used field.
+        """
+    )
+
+    # pylint: disable=invalid-name
+    id = abc.abstractproperty(None, None, doc=id_doc)
+
+    name_doc = (
+        """
+        The name of this document.
+
+        This is a user defined property usually built with values from the
+        document itself. It is not necessary to be unique among all documents.
+        """
+    )
+
+    name = abc.abstractproperty(None, None, doc=name_doc)
+
+    @abc.abstractproperty
     def collection(self):
-        """The collection this document should belong to.
-
-        :return None, subclasses should implement it.
-        """
+        """The collection this document belongs to."""
         return None
 
-    @property
-    def created_on(self):
-        """The date this document was created.
-
-        :return A datetime object, with UTC time zone.
+    created_on_doc = (
         """
-        return self._created_on
+        The date this document was created.
 
-    @created_on.setter
-    def created_on(self, value):
-        self._created_on = value
+        A datetime object with UTC time zone.
+        """
+    )
 
+    created_on = abc.abstractproperty(None, None, doc=created_on_doc)
+
+    version_doc = (
+        """
+        The schema version number of this object.
+        """
+    )
+
+    version = abc.abstractproperty(None, None, doc=version_doc)
+
+    @abc.abstractmethod
     def to_dict(self):
-        """Return a dictionary view of the document.
-
-        The name attribute will be available as the `_id' key, useful for
-        mongodb document.
-
-        :return A dictionary.
-        """
-        return {
-            ID_KEY: self._name,
-            CREATED_KEY: self._created_on,
-        }
-
-    def to_json(self):
-        """Return a JSON string for this object.
-
-        :return A JSON string.
-        """
-        return json.dumps(self.to_dict(), default=json_util.default)
+        """Return a dictionary view of the document that can be serialized."""
+        raise NotImplementedError(
+            "Class '%s' doesn't implement to_dict()" % self.__class__.__name__
+        )
 
     @staticmethod
+    @abc.abstractmethod
     def from_json(json_obj):
-        """Build a document from a JSON object."""
-        raise NotImplementedError()
+        """Build a document from a JSON object.
+
+        The passed `json_obj` must be a valid Python dictionary. No checks are
+        performed on its type.
+
+        :param json_obj: The JSON object from which to build this object.
+        :type json_obj: dict
+        """
+        raise NotImplementedError("This class doesn't implement from_json()")

@@ -15,38 +15,32 @@
 
 """Test module for the DefConfHandler handler.."""
 
+import concurrent.futures
+import mock
 import mongomock
+import tornado
+import tornado.testing
 
-from concurrent.futures import ThreadPoolExecutor
-from mock import (
-    MagicMock,
-    patch,
-)
-from tornado import (
-    ioloop,
-    testing,
-    web,
-)
-
-from handlers.app import AppHandler
-from urls import _DEFCONF_URL
+import handlers.app
+import urls
 
 # Default Content-Type header returned by Tornado.
 DEFAULT_CONTENT_TYPE = 'application/json; charset=UTF-8'
 
 
-class TestDefconfHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
+class TestDefconfHandler(
+        tornado.testing.AsyncHTTPTestCase, tornado.testing.LogTrapTestCase):
 
     def setUp(self):
         self.mongodb_client = mongomock.Connection()
 
         super(TestDefconfHandler, self).setUp()
 
-        patched_find_token = patch("handlers.base.BaseHandler._find_token")
+        patched_find_token = mock.patch("handlers.base.BaseHandler._find_token")
         self.find_token = patched_find_token.start()
         self.find_token.return_value = "token"
 
-        patched_validate_token = patch("handlers.base.validate_token")
+        patched_validate_token = mock.patch("handlers.common.validate_token")
         self.validate_token = patched_validate_token.start()
         self.validate_token.return_value = True
 
@@ -62,15 +56,15 @@ class TestDefconfHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         settings = {
             'dboptions': dboptions,
             'client': self.mongodb_client,
-            'executor': ThreadPoolExecutor(max_workers=2),
-            'default_handler_class': AppHandler,
+            'executor': concurrent.futures.ThreadPoolExecutor(max_workers=2),
+            'default_handler_class': handlers.app.AppHandler,
             'debug': False,
         }
 
-        return web.Application([_DEFCONF_URL], **settings)
+        return tornado.web.Application([urls._DEFCONF_URL], **settings)
 
     def get_new_ioloop(self):
-        return ioloop.IOLoop.instance()
+        return tornado.ioloop.IOLoop.instance()
 
     def test_get_wrong_url(self):
         response = self.fetch('/foobardefconf')
@@ -79,8 +73,8 @@ class TestDefconfHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    @patch('utils.db.find')
-    @patch('utils.db.count')
+    @mock.patch('utils.db.find')
+    @mock.patch('utils.db.count')
     def test_get(self, mock_count, mock_find):
         mock_count.return_value = 0
         mock_find.return_value = []
@@ -97,9 +91,11 @@ class TestDefconfHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
         self.assertEqual(response.body, expected_body)
 
-    @patch('handlers.defconf.DefConfHandler.collection')
-    def test_get_by_id_not_found(self, mock_collection):
-        mock_collection.find_one = MagicMock()
+    @mock.patch('bson.objectid.ObjectId')
+    @mock.patch('handlers.defconf.DefConfHandler.collection')
+    def test_get_by_id_not_found(self, mock_collection, mock_id):
+        mock_id.return_value = "defconf"
+        mock_collection.find_one = mock.MagicMock()
         mock_collection.find_one.return_value = None
 
         headers = {'Authorization': 'foo'}

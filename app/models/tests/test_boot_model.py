@@ -13,55 +13,83 @@
 
 import unittest
 
-from models.base import BaseDocument
-from models.boot import BootDocument
+import models.base as modb
+import models.boot as modbt
 
 
 class TestBootModel(unittest.TestCase):
 
     def test_boot_document_valid_instance(self):
-        boot_doc = BootDocument('board', 'job', 'kernel', 'defconfig')
-        self.assertIsInstance(boot_doc, BaseDocument)
+        boot_doc = modbt.BootDocument(
+            'board', 'job', 'kernel', 'defconfig', 'lab'
+        )
+        self.assertIsInstance(boot_doc, modb.BaseDocument)
 
     def test_boot_document_to_dict(self):
-        boot_doc = BootDocument('board', 'job', 'kernel', 'defconfig')
+        self.maxDiff = None
+        boot_doc = modbt.BootDocument(
+            'board', 'job', 'kernel', 'defconfig', 'lab', arch='arm'
+        )
+        boot_doc.id = 'id'
+        boot_doc.job_id = 'job-id'
+        boot_doc.created_on = 'now'
+        boot_doc.defconfig_id = "defconfig_id"
+        boot_doc.retries = 10
+        boot_doc.version = "1.0"
+        boot_doc.dtb_append = False
+        boot_doc.boot_log = "boot-log"
+        boot_doc.boot_log_html = "boot-log-html"
+        boot_doc.warnings = 2
+        boot_doc.git_branch = "git-branch"
+        boot_doc.git_commit = "git-commit"
+        boot_doc.git_describe = "git-describe"
+        boot_doc.git_url = "git-url"
+        boot_doc.fastboot_cmd = "fastboot"
+        boot_doc.defconfig_full = "defconfig"
+        boot_doc.file_server_url = "file-server"
+        boot_doc.file_server_resource = "file-resource"
+        boot_doc.initrd = "initrd"
+        boot_doc.board_instance = "instance"
 
         expected = {
-            'status': None,
-            'time': None,
-            'warnings': None,
-            'kernel': 'kernel',
-            'job_id': 'job-kernel',
-            'created_on': None,
-            'defconfig': 'defconfig',
-            'job': 'job',
-            '_id': 'board-job-kernel-defconfig',
+            '_id': 'id',
             'board': 'board',
-            'load_addr': None,
+            'boot_log': "boot-log",
+            'boot_log_html': "boot-log-html",
+            'boot_result_description': None,
+            'created_on': 'now',
+            'defconfig': 'defconfig',
+            'defconfig_id': "defconfig_id",
             'dtb': None,
             'dtb_addr': None,
-            'initrd_addr': None,
-            'kernel_image': None,
-            'boot_log': None,
+            'dtb_append': False,
             'endian': None,
-            'metadata': None,
-            'boot_log_html': None,
-            'fastboot': None,
+            'fastboot': False,
+            'initrd_addr': None,
+            'job': 'job',
+            'job_id': 'job-id',
+            'kernel': 'kernel',
+            'kernel_image': None,
+            'lab_name': 'lab',
+            'load_addr': None,
+            'metadata': {},
+            'name': 'board-job-kernel-defconfig-arm',
+            'retries': 10,
+            'status': None,
+            'time': 0,
+            'version': "1.0",
+            'warnings': 2,
+            "git_commit": "git-commit",
+            "git_branch": "git-branch",
+            "git_describe": "git-describe",
+            "git_url": "git-url",
+            "arch": "arm",
+            "fastboot_cmd": "fastboot",
+            "defconfig_full": "defconfig",
+            "file_server_url": "file-server",
+            "file_server_resource": "file-resource",
+            "initrd": "initrd",
+            "board_instance": "instance"
         }
 
-        self.assertEqual(expected, boot_doc.to_dict())
-
-    def test_boot_document_to_json(self):
-        boot_doc = BootDocument('board', 'job', 'kernel', 'defconfig')
-
-        expected = (
-            '{"status": null, "kernel": "kernel", "boot_log": null, '
-            '"job_id": "job-kernel", "fastboot": null, "warnings": null, '
-            '"boot_log_html": null, "initrd_addr": null, "dtb_addr": null, '
-            '"created_on": null, "defconfig": "defconfig", '
-            '"kernel_image": null, "job": "job", "board": "board", '
-            '"time": null, "dtb": null, "_id": "board-job-kernel-defconfig", '
-            '"load_addr": null, "endian": null, "metadata": null}'
-        )
-
-        self.assertEqual(expected, boot_doc.to_json())
+        self.assertDictEqual(expected, boot_doc.to_dict())

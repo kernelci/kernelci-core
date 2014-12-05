@@ -28,11 +28,15 @@ GET
  :query string arch: A type of computer architetcture (like ``arm``, ``arm64``).
  :query string board: The name of a board.
  :query string defconfig: A defconfig name.
+ :query int errors: The number of errors.
  :query string job: A job name.
- :query string job_id: A job ID (in the form of ``job``-``kernel``).
+ :query string job_id: A job ID.
  :query string kernel: A kernel name.
+ :query string name: The name of an object.
+ :query boolean private: The private status.
  :query string status: The status of the elements to get the count of. Can be
     one of: ``PASS`` or ``FAIL``.
+ :query int warnings: The number of warnings.
 
  :status 200: Resuslts found.
  :status 403: Not authorized to perform the operation.

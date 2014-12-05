@@ -15,41 +15,19 @@
 
 """The RequestHandler for /token URLs."""
 
+import bson
+
 from urlparse import urlunparse
 
-from handlers.base import BaseHandler
-from handlers.common import (
-    NOT_VALID_TOKEN,
-    TOKEN_VALID_KEYS,
-    get_query_fields,
-    valid_token_th,
-    validate_token,
-)
-from handlers.response import HandlerResponse
-from models import (
-    ADMIN_KEY,
-    DELETE_KEY,
-    EMAIL_KEY,
-    EXPIRES_KEY,
-    GET_KEY,
-    IP_ADDRESS_KEY,
-    IP_RESTRICTED,
-    POST_KEY,
-    SUPERUSER_KEY,
-    TOKEN_COLLECTION,
-    TOKEN_KEY,
-    USERNAME_KEY,
-)
-from models.token import Token
-from utils.db import (
-    delete,
-    find_one,
-    save,
-    update,
-)
+import handlers.base as hbase
+import handlers.common as hcommon
+import handlers.response as hresponse
+import models
+import models.token as mtoken
+import utils.db
 
 
-class TokenHandler(BaseHandler):
+class TokenHandler(hbase.BaseHandler):
     """Handle the /token URLs."""
 
     def __init__(self, application, request, **kwargs):
@@ -57,15 +35,15 @@ class TokenHandler(BaseHandler):
 
     @property
     def collection(self):
-        return self.db[TOKEN_COLLECTION]
+        return self.db[models.TOKEN_COLLECTION]
 
     @staticmethod
     def _valid_keys(method):
-        return TOKEN_VALID_KEYS.get(method, None)
+        return hcommon.TOKEN_VALID_KEYS.get(method, None)
 
     @staticmethod
     def _token_validation_func():
-        return valid_token_th
+        return hcommon.valid_token_th
 
     def _token_validation(self, req_token, method, remote_ip, master_key):
         valid_token = False
@@ -76,7 +54,7 @@ class TokenHandler(BaseHandler):
             token_obj = self._find_token(req_token, self.db)
 
             if token_obj:
-                valid_token = validate_token(
+                valid_token = hcommon.validate_token(
                     token_obj,
                     method,
                     remote_ip,
@@ -88,14 +66,14 @@ class TokenHandler(BaseHandler):
     def _get_one(self, doc_id):
         # Overridden: with the token we do not search by _id, but
         # by token field.
-        response = HandlerResponse()
+        response = hresponse.HandlerResponse()
         response.result = None
 
-        result = find_one(
+        result = utils.db.find_one(
             self.collection,
             doc_id,
-            field=TOKEN_KEY,
-            fields=get_query_fields(self.get_query_arguments)
+            field=models.TOKEN_KEY,
+            fields=hcommon.get_query_fields(self.get_query_arguments)
         )
 
         if result:
@@ -130,15 +108,15 @@ class TokenHandler(BaseHandler):
         :param json_obj: The JSON object with the paramters.
         :return A `HandlerResponse` object.
         """
-        response = HandlerResponse(201)
+        response = hresponse.HandlerResponse(201)
         response.result = None
 
         try:
             new_token = self._token_update_create(json_obj)
 
-            response.status_code = save(self.db, new_token)
+            response.status_code, _ = utils.db.save(self.db, new_token)
             if response.status_code == 201:
-                response.result = {TOKEN_KEY: new_token.token}
+                response.result = {models.TOKEN_KEY: new_token.token}
                 location = urlunparse(
                     (
                         'http',
@@ -169,34 +147,43 @@ class TokenHandler(BaseHandler):
         :param json_obj: The JSON object with the parameters.
         :return A `HandlerResponse` objet.
         """
-        response = HandlerResponse()
+        response = hresponse.HandlerResponse()
         response.result = None
 
-        result = find_one(self.collection, doc_id, field=TOKEN_KEY)
+        try:
+            obj_id = bson.objectid.ObjectId(doc_id)
+            result = utils.db.find_one(self.collection, [obj_id])
 
-        if result:
-            token = Token.from_json(result)
+            if result:
+                token = mtoken.Token.from_json(result)
 
-            try:
                 token = self._token_update_create(json_obj, token, fail=False)
-                response.status_code = update(
-                    self.collection, {'token': doc_id}, token.to_dict()
+                response.status_code = utils.db.update(
+                    self.collection,
+                    {models.ID_KEY: obj_id},
+                    token.to_dict()
                 )
                 if response.status_code == 200:
-                    response.result = {TOKEN_KEY: token.token}
-            except KeyError:
-                response.status_code = 400
-                response.reason = (
-                    "Mandatory field missing"
-                )
-            except (TypeError, ValueError):
-                response.status_code = 400
-                response.reason = "Wrong field value or type in the JSON data"
-            except Exception, ex:
-                response.status_code = 400
-                response.reason = str(ex)
-        else:
-            response.status_code = 404
+                    response.result = {models.TOKEN_KEY: token.token}
+            else:
+                response.status_code = 404
+        except bson.errors.InvalidId, ex:
+            self.log.exception(ex)
+            self.log.error("Wrong ID '%s' value passed for object ID", doc_id)
+            response.status_code = 400
+            response.reason = "Wrong ID value provided"
+        except KeyError, ex:
+            self.log.exception(ex)
+            response.status_code = 400
+            response.reason = "Mandatory field missing"
+        except (TypeError, ValueError), ex:
+            self.log.exception(ex)
+            response.status_code = 400
+            response.reason = "Wrong field value or type in the JSON data"
+        except Exception, ex:
+            self.log.exception(ex)
+            response.status_code = 400
+            response.reason = str(ex)
 
         return response
 
@@ -215,46 +202,52 @@ class TokenHandler(BaseHandler):
         :raise KeyError, ValueError, TypeError, Exception.
         """
         if not token:
-            token = Token()
+            token = mtoken.Token()
+
+        json_get = json_obj.get
 
         if fail:
-            token.email = json_obj[EMAIL_KEY]
+            token.email = json_obj[models.EMAIL_KEY]
         else:
-            if json_obj.get(EMAIL_KEY, None):
-                token.email = json_obj.get(EMAIL_KEY)
+            if json_get(models.EMAIL_KEY, None):
+                token.email = json_get(models.EMAIL_KEY)
 
-        if json_obj.get(USERNAME_KEY, None):
-            token.username = json_obj.get(USERNAME_KEY)
+        if json_get(models.USERNAME_KEY, None):
+            token.username = json_get(models.USERNAME_KEY)
 
-        if json_obj.get(EXPIRES_KEY, None):
-            token.expires_on = json_obj.get(EXPIRES_KEY)
+        if json_get(models.EXPIRES_KEY, None):
+            token.expires_on = json_get(models.EXPIRES_KEY)
 
-        if json_obj.get(GET_KEY, None):
-            token.is_get_token = json_obj.get(GET_KEY)
+        if json_get(models.GET_KEY, None):
+            token.is_get_token = json_get(models.GET_KEY)
 
-        if json_obj.get(POST_KEY, None):
-            token.is_post_token = json_obj.get(POST_KEY)
+        if json_get(models.POST_KEY, None):
+            token.is_post_token = json_get(models.POST_KEY)
 
-        if json_obj.get(DELETE_KEY, None):
-            token.is_delete_token = json_obj.get(DELETE_KEY)
+        if json_get(models.DELETE_KEY, None):
+            token.is_delete_token = json_get(models.DELETE_KEY)
 
-        if json_obj.get(SUPERUSER_KEY, None):
-            token.is_superuser = json_obj.get(SUPERUSER_KEY)
+        if json_get(models.SUPERUSER_KEY, None):
+            token.is_superuser = json_get(models.SUPERUSER_KEY)
 
-        if json_obj.get(ADMIN_KEY, None):
-            token.is_admin = json_obj.get(ADMIN_KEY)
+        if json_get(models.ADMIN_KEY, None):
+            token.is_admin = json_get(models.ADMIN_KEY)
 
-        if json_obj.get(IP_RESTRICTED, None):
-            token.is_ip_restricted = json_obj.get(IP_RESTRICTED)
+        if json_get(models.IP_RESTRICTED, None):
+            token.is_ip_restricted = json_get(models.IP_RESTRICTED)
 
-        if token.is_ip_restricted and not json_obj.get(IP_ADDRESS_KEY, None):
+        if json_get(models.LAB_KEY, None):
+            token.is_lab_token = json_get(models.LAB_KEY)
+
+        if token.is_ip_restricted and not json_get(models.IP_ADDRESS_KEY, None):
             raise Exception("IP restricted but no IP addresses given")
-        elif json_obj.get(IP_ADDRESS_KEY, None) and not token.is_ip_restricted:
+        elif (json_get(models.IP_ADDRESS_KEY, None) and
+                not token.is_ip_restricted):
             raise Exception(
                 "IP addresses given, but token is not IP restricted"
             )
-        elif token.is_ip_restricted and json_obj.get(IP_ADDRESS_KEY, None):
-            token.ip_address = json_obj.get(IP_ADDRESS_KEY)
+        elif token.is_ip_restricted and json_get(models.IP_ADDRESS_KEY, None):
+            token.ip_address = json_get(models.IP_ADDRESS_KEY)
 
         return token
 
@@ -267,7 +260,7 @@ class TokenHandler(BaseHandler):
         Subclasses should not override this unless there are special reasons
         to.
         """
-        response = HandlerResponse(400)
+        response = hresponse.HandlerResponse(400)
 
         if self.validate_req_token("DELETE"):
             if kwargs and kwargs.get('id', None):
@@ -276,15 +269,23 @@ class TokenHandler(BaseHandler):
                     response.reason = "Resource deleted"
         else:
             response.status_code = 403
-            response.reason = NOT_VALID_TOKEN
+            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 
     def _delete(self, doc_id):
         ret_val = 404
 
-        self.log.info("Tolen deletion by IP %s", self.request.remote_ip)
-        if find_one(self.collection, doc_id, field=TOKEN_KEY):
-            ret_val = delete(self.collection, {TOKEN_KEY: {'$in': [doc_id]}})
+        self.log.info("Token deletion from IP %s", self.request.remote_ip)
+        try:
+            doc_obj = bson.objectid.ObjectId(doc_id)
+            if utils.db.find_one(self.collection, [doc_obj]):
+                ret_val = utils.db.delete(
+                    self.collection, {models.ID_KEY: {"$in": [doc_obj]}}
+                )
+        except bson.errors.InvalidId, ex:
+            self.log.exception(ex)
+            self.log.error("Wrong ID '%s' value passed as object ID", doc_id)
+            ret_val = 400
 
         return ret_val

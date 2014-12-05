@@ -1,19 +1,17 @@
-.. _collection_job:
+.. _collection_boot:
 
-job
----
-
-More info about the job schema can be found :ref:`here <schema_job>`.
+boot
+----
 
 GET
 ***
 
-.. http:get:: /job/(string:job_id)
+.. http:get:: /boot/(string:boot_id)
 
- Get all the available jobs or a single one if ``job_id`` is provided.
+ Get all the available boot reports or a single one if ``boot_id`` is provided.
 
- :param job_id: The ID of the job to retrieve in the form of ``job``-``kernel``.
- :type job_id: string
+ :param boot_id: The ID of the boot report to retrieve.
+ :type boot_id: string
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Accept-Encoding: Accept the ``gzip`` coding.
@@ -31,10 +29,20 @@ GET
  :query string field: The field that should be returned in the response. Can be
     repeated multiple times.
  :query string nfield: The field that should *not* be returned in the response. Can be repeated multiple times.
- :query string job: A job name.
- :query string kernel: A kernel name.
- :query string status: The status of the job report. Can be one of: ``PASS`` or
-    ``FAIL``.
+ :query string _id: The internal ID of the boot report.
+ :query string board: The name of a board.
+ :query string job: The name of a job.
+ :query string job_id: The ID of a job.
+ :query string kernel: The name of a kernel.
+ :query string defconfig: The name of a defconfig.
+ :query string defconfig_full: The full name of a defconfig (with config fragments).
+ :query string defconfig_id: The ID of a defconfig.
+ :query string endian: The endianness of the board.
+ :query string board: The name of a board.
+ :query string lab_name: The name of the lab that created the boot report.
+ :query string name: The name of the boot report.
+ :query string status: The status of the boot report.
+ :query int warnings: The number of warnings in the boot report.
 
  :status 200: Resuslts found.
  :status 403: Not authorized to perform the operation.
@@ -45,24 +53,24 @@ GET
 
  .. sourcecode:: http
 
-    GET /job/ HTTP/1.1
+    GET /boot/ HTTP/1.1
     Host: api.armcloud.us
     Accept: */*
     Authorization: token
 
  .. sourcecode:: http
 
-    GET /job/next-next-20140731 HTTP/1.1
+    GET /boot/omap4-panda-next-next-20140905-arm-omap2plus_defconfig HTTP/1.1
     Host: api.armcloud.us
     Accept: */*
     Authorization: token
 
  .. sourcecode:: http
 
-    GET /job?date_range=12&job=arm-soc&field=status&field=kernel HTTP/1.1
+    GET /boot?job=next&kernel=next-20140905&field=status&field=defconfig&nfield=_id HTTP/1.1
     Host: api.armcloud.us
     Accept: */*
-    Authorization: token    
+    Authorization: token
 
  **Example Responses**
 
@@ -70,18 +78,20 @@ GET
 
     HTTP/1.1 200 OK
     Vary: Accept-Encoding
-    Date: Mon, 11 Aug 2014 15:12:50 GMT
+    Date: Mon, 08 Sep 2014 12:28:50 GMT
     Content-Type: application/json; charset=UTF-8
 
     {
         "code": 200,
-        "count:" 261,
-        "limit": 0,
         "result": [
             {
                 "status": "PASS",
-                "job": "arm-soc",
-                "_id": "arm-soc-v3.15-8898-gf79922c",
+                "kernel": "next-20140905",
+                "job": "next",
+                "_id": "boot-id",
+                "fastboot": false,
+                "warnings": 0,
+                "defconfig": "arm-omap2plus_defconfig"
             },
         ],
     }
@@ -90,56 +100,51 @@ GET
 
     HTTP/1.1 200 OK
     Vary: Accept-Encoding
-    Date: Mon, 11 Aug 2014 15:23:00 GMT
-    Content-Type: application/json; charset=UTF-8
-
-    {
-        "code": "200",
-        "result": [
-            {
-                "status": "PASS",
-                "job": "next",
-                "_id": "next-next-20140731",
-                "kernel": "next-20140731"
-            }
-        ]
-    }
-
- .. sourcecode:: http
-
-    HTTP/1.1 200 OK
-    Vary: Accept-Encoding
-    Date: Mon, 11 Aug 2014 15:23:00 GMT
+    Date: Mon, 08 Sep 2014 12:32:50 GMT
     Content-Type: application/json; charset=UTF-8
 
     {
         "code": 200,
-        "count": 4,
+        "count": 78,
         "limit": 0,
         "result": [
             {
                 "status": "PASS",
-                "kernel": "v3.16-rc6-1009-g709032a"
-            }, 
+                "defconfig": "arm-multi_v7_defconfig"
+            },
             {
                 "status": "PASS",
-                "kernel": "v3.16-rc6-1014-g716519f"
+                "defconfig": "arm-multi_v7_defconfig"
+            },
+            {
+                "status": "PASS",
+                "defconfig": "arm-multi_v7_defconfig+CONFIG_ARM_LPAE=y"
             }
-        ]
+        ],
     }
 
  .. note::
     Results shown here do not include the full JSON response.
 
+.. _collection_boot_post:
+
 POST
 ****
 
-.. http:post:: /job
+.. http:post:: /boot
 
- Create or update a job as defined in the JSON data. The request will be accepted and it will begin to parse the data.
+ Create or update a boot report as defined in the JSON data. The request will be accepted and it will begin to parse the available data.
 
+ If the request has been accepted, it will always return ``202`` as the status code.
+
+ For more info on all the required JSON request fields, see the :ref:`boot schema for POST requests <schema_boot_post>`.
+
+ :reqjson string lab_name: The name of the boot tests lab.
  :reqjson string job: The name of the job.
  :reqjson string kernel: The name of the kernel.
+ :reqjson string defconfig: The name of the defconfig.
+ :reqjson string board: The name of the board.
+ :reqjson string version: The version number of the schema.
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Content-Type: Content type of the transmitted data, must be ``application/json``.
@@ -157,7 +162,7 @@ POST
 
  .. sourcecode:: http 
 
-    POST /job HTTP/1.1
+    POST /boot HTTP/1.1
     Host: api.armcloud.us
     Content-Type: application/json
     Accept: */*
@@ -165,23 +170,36 @@ POST
 
     {
         "job": "next",
-        "kernel": "next-20140801"
+        "kernel": "next-20140801",
+        "defconfig": "all-noconfig",
+        "lab_name": "lab-01",
+        "board": "beagleboneblack"
     }
 
 DELETE
 ******
 
-.. http:delete:: /job/(string:job_id)
+.. http:delete:: /boot/(string:boot_id)
 
- Delete the job identified by ``job_id``.
+ Delete the boot report identified by ``boot_id``.
 
- :param job_id: The job ID in the form of ``job``-``kernel``.
- :type job_id: string
+ :param boot_id: The ID of the boot report to delete. Usually in the form of: ``board``-``job``-``kernel``-``defconfig``.
+ :type boot_id: string
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Accept-Encoding: Accept the ``gzip`` coding.
 
  :resheader Content-Type: Will be ``application/json; charset=UTF-8``.
+
+ :query string _id: The ID of a boot report.
+ :query string job_id: The ID of a job.
+ :query string job: The name of a job.
+ :query string kernel: The name of a kernel.
+ :query string defconfig_id: The ID of a defconfig.
+ :query string defconfig: The name of a defconfig.
+ :query string defconfig_full: The full name of a defconfig (with config fragments).
+ :query string board: The name of a board.
+ :query string name: The name of a boot report.
 
  :status 200: Resource deleted.
  :status 403: Not authorized to perform the operation.
@@ -192,15 +210,24 @@ DELETE
 
  .. sourcecode:: http
 
-    DELETE /job/next-next-20140612 HTTP/1.1
+    DELETE /boot/tegra30-beaver-next-next-20140612-arm-tegra_defconfig HTTP/1.1
     Host: api.armcloud.us
     Accept: */*
     Content-Type: application/json
     Authorization: token
 
+ .. sourcecode:: http
+
+    DELETE /boot?job=mainline&board=legacy,omap3-n900 HTTP/1.1
+    Host: api.armcloud.us
+    Accept: */*
+    Content-Type: application/json
+    Authorization: token
+
+
 More Info
 *********
 
-* :ref:`Job schema <schema_job>`
+* :ref:`Boot schema <schema_boot>`
 * :ref:`API results <intro_schema_results>`
 * :ref:`Schema time and date <intro_schema_time_date>`

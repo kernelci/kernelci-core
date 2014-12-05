@@ -1,5 +1,3 @@
-# Copyright (C) 2014 Linaro Ltd.
-#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
@@ -15,41 +13,24 @@
 
 """The base RequestHandler that all subclasses should inherit from."""
 
+try:
+    import simplejson as json
+except ImportError:
+    import json
+
+import bson
+import functools
 import httplib
-import json
 import tornado
+import tornado.web
 
-from bson.json_util import default
-from functools import partial
-from tornado.web import (
-    RequestHandler,
-    asynchronous,
-)
-
-from handlers.common import (
-    ACCEPTED_CONTENT_TYPE,
-    API_TOKEN_HEADER,
-    DEFAULT_RESPONSE_TYPE,
-    MASTER_KEY,
-    NOT_VALID_TOKEN,
-    get_all_query_values,
-    get_query_fields,
-    valid_token_general,
-    validate_token,
-)
-from handlers.response import HandlerResponse
-from models import (
-    DB_NAME,
-    TOKEN_COLLECTION,
-    TOKEN_KEY,
-)
-from utils.db import (
-    aggregate,
-    find_and_count,
-    find_one,
-)
-from utils.log import get_log
-from utils.validator import is_valid_json
+import handlers.common as hcommon
+import handlers.response as hresponse
+import models
+import utils
+import utils.db
+import utils.log
+import utils.validator as validator
 
 
 STATUS_MESSAGES = {
@@ -57,7 +38,7 @@ STATUS_MESSAGES = {
     405: 'Operation not allowed',
     415: (
         'Please use "%s" as the default media type' %
-        ACCEPTED_CONTENT_TYPE
+        hcommon.ACCEPTED_CONTENT_TYPE
     ),
     420: 'No JSON data found',
     500: 'Internal database error',
@@ -66,7 +47,7 @@ STATUS_MESSAGES = {
 }
 
 
-class BaseHandler(RequestHandler):
+class BaseHandler(tornado.web.RequestHandler):
     """The base handler."""
 
     def __init__(self, application, request, **kwargs):
@@ -93,7 +74,7 @@ class BaseHandler(RequestHandler):
             db_pwd = db_options['dbpassword']
             db_user = db_options['dbuser']
 
-            self._db = client[DB_NAME]
+            self._db = client[models.DB_NAME]
 
             if all([db_user, db_pwd]):
                 self._db.authenticate(db_user, password=db_pwd)
@@ -103,7 +84,7 @@ class BaseHandler(RequestHandler):
     @property
     def log(self):
         """The logger of this object."""
-        return get_log(debug=self.settings['debug'])
+        return utils.log.get_log(debug=self.settings['debug'])
 
     @staticmethod
     def _valid_keys(method):
@@ -117,7 +98,7 @@ class BaseHandler(RequestHandler):
 
     @staticmethod
     def _token_validation_func():
-        return valid_token_general
+        return hcommon.valid_token_general
 
     def _get_status_message(self, status_code):
         """Get custom error message based on the status code.
@@ -144,11 +125,14 @@ class BaseHandler(RequestHandler):
         headers = {}
         result = {}
 
-        if isinstance(response, HandlerResponse):
+        if isinstance(response, hresponse.HandlerResponse):
             status_code = response.status_code
             reason = response.reason or self._get_status_message(status_code)
             headers = response.headers
-            result = json.dumps(response.to_dict(), default=default)
+            result = json.dumps(
+                response.to_dict(),
+                default=bson.json_util.default, ensure_ascii=False
+            )
         else:
             status_code = 506
             reason = self._get_status_message(status_code)
@@ -156,7 +140,7 @@ class BaseHandler(RequestHandler):
 
         self.set_status(status_code=status_code, reason=reason)
         self.write(result)
-        self.set_header('Content-Type', DEFAULT_RESPONSE_TYPE)
+        self.set_header('Content-Type', hcommon.DEFAULT_RESPONSE_TYPE)
 
         if headers:
             for key, val in headers.iteritems():
@@ -175,7 +159,7 @@ class BaseHandler(RequestHandler):
 
         if 'Content-Type' in self.request.headers.keys():
             if self.request.headers['Content-Type'] == \
-                    ACCEPTED_CONTENT_TYPE:
+                    hcommon.ACCEPTED_CONTENT_TYPE:
                 valid_content = True
             else:
                 self.log.error(
@@ -186,13 +170,13 @@ class BaseHandler(RequestHandler):
 
         return valid_content
 
-    @asynchronous
+    @tornado.web.asynchronous
     def post(self, *args, **kwargs):
         self.executor.submit(
-            partial(self.execute_post, *args, **kwargs)
+            functools.partial(self.execute_post, *args, **kwargs)
         ).add_done_callback(
             lambda future: tornado.ioloop.IOLoop.instance().add_callback(
-                partial(self._create_valid_response, future.result())
+                functools.partial(self._create_valid_response, future.result())
             )
         )
 
@@ -210,27 +194,37 @@ class BaseHandler(RequestHandler):
                 try:
                     json_obj = json.loads(self.request.body.decode('utf8'))
 
-                    if is_valid_json(json_obj, self._valid_keys('POST')):
+                    valid_json, j_reason = validator.is_valid_json(
+                        json_obj, self._valid_keys("POST")
+                    )
+                    if valid_json:
                         kwargs['json_obj'] = json_obj
                         kwargs['db_options'] = self.settings['dboptions']
+                        kwargs['reason'] = j_reason
                         response = self._post(*args, **kwargs)
                     else:
-                        response = HandlerResponse(400)
-                        response.reason = "Provided JSON is not valid"
+                        response = hresponse.HandlerResponse(400)
+                        if j_reason:
+                            response.reason = (
+                                "Provided JSON is not valid: %s" % j_reason
+                            )
+                        else:
+                            response.reason = "Provided JSON is not valid"
                         response.result = None
-                except ValueError:
+                except ValueError, ex:
+                    self.log.exception(ex)
                     error = "No JSON data found in the POST request"
                     self.log.error(error)
-                    response = HandlerResponse(422)
+                    response = hresponse.HandlerResponse(422)
                     response.reason = error
                     response.result = None
             else:
-                response = HandlerResponse(valid_request)
+                response = hresponse.HandlerResponse(valid_request)
                 response.reason = self._get_status_message(valid_request)
                 response.result = None
         else:
-            response = HandlerResponse(403)
-            response.reason = NOT_VALID_TOKEN
+            response = hresponse.HandlerResponse(403)
+            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 
@@ -262,16 +256,16 @@ class BaseHandler(RequestHandler):
 
         :return A `HandlerResponse` object.
         """
-        return HandlerResponse(501)
+        return hresponse.HandlerResponse(501)
 
-    @asynchronous
+    @tornado.web.asynchronous
     def delete(self, *args, **kwargs):
         self.executor.submit(
-            partial(self.execute_delete, *args, **kwargs)
+            functools.partial(self.execute_delete, *args, **kwargs)
         ).add_done_callback(
             lambda future:
             tornado.ioloop.IOLoop.instance().add_callback(
-                partial(self._create_valid_response, future.result())
+                functools.partial(self._create_valid_response, future.result())
             )
         )
 
@@ -286,12 +280,12 @@ class BaseHandler(RequestHandler):
             if kwargs and kwargs.get('id', None):
                 response = self._delete(kwargs['id'])
             else:
-                response = HandlerResponse(400)
+                response = hresponse.HandlerResponse(400)
                 response.reason = self._get_status_message(400)
                 response.result = None
         else:
-            response = HandlerResponse(403)
-            response.status = NOT_VALID_TOKEN
+            response = hresponse.HandlerResponse(403)
+            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 
@@ -307,16 +301,16 @@ class BaseHandler(RequestHandler):
         :param doc_id: The ID of the documento to delete.
         :return A `HandlerResponse` object.
         """
-        return HandlerResponse(501)
+        return hresponse.HandlerResponse(501)
 
-    @asynchronous
+    @tornado.web.asynchronous
     def get(self, *args, **kwargs):
         self.executor.submit(
-            partial(self.execute_get, *args, **kwargs)
+            functools.partial(self.execute_get, *args, **kwargs)
         ).add_done_callback(
             lambda future:
             tornado.ioloop.IOLoop.instance().add_callback(
-                partial(self._create_valid_response, future.result())
+                functools.partial(self._create_valid_response, future.result())
             )
         )
 
@@ -334,8 +328,8 @@ class BaseHandler(RequestHandler):
             else:
                 response = self._get(**kwargs)
         else:
-            response = HandlerResponse(403)
-            response.reason = NOT_VALID_TOKEN
+            response = hresponse.HandlerResponse(403)
+            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 
@@ -349,20 +343,29 @@ class BaseHandler(RequestHandler):
 
         :return A `HandlerResponse` object.
         """
-        response = HandlerResponse()
-        result = find_one(
-            self.collection,
-            doc_id,
-            fields=get_query_fields(self.get_query_arguments)
-        )
+        response = hresponse.HandlerResponse()
+        result = None
 
-        if result:
-            # result here is returned as a dictionary from mongodb
-            response.result = result
-        else:
-            response.status_code = 404
-            response.reason = "Resource '%s' not found" % doc_id
-            response.result = None
+        try:
+            obj_id = bson.objectid.ObjectId(doc_id)
+            result = utils.db.find_one(
+                self.collection,
+                [obj_id],
+                fields=hcommon.get_query_fields(self.get_query_arguments)
+            )
+
+            if result:
+                # result here is returned as a dictionary from mongodb
+                response.result = result
+            else:
+                response.status_code = 404
+                response.reason = "Resource '%s' not found" % doc_id
+                response.result = None
+        except bson.errors.InvalidId, ex:
+            self.log.exception(ex)
+            self.log.error("Provided doc ID '%s' is not valid", doc_id)
+            response.status_code = 400
+            response.status = "Wrong ID value provided"
 
         return response
 
@@ -378,11 +381,11 @@ class BaseHandler(RequestHandler):
 
         :return A `HandlerResponse` object.
         """
-        response = HandlerResponse()
+        response = hresponse.HandlerResponse()
         spec, sort, fields, skip, limit, unique = self._get_query_args()
 
         if unique:
-            response.result = aggregate(
+            response.result = utils.db.aggregate(
                 self.collection,
                 unique,
                 sort=sort,
@@ -391,7 +394,7 @@ class BaseHandler(RequestHandler):
                 limit=limit
             )
         else:
-            result, count = find_and_count(
+            result, count = utils.db.find_and_count(
                 self.collection,
                 limit,
                 skip,
@@ -428,9 +431,10 @@ class BaseHandler(RequestHandler):
         unique = None
 
         if self.request.arguments:
-            spec, sort, fields, skip, limit, unique = get_all_query_values(
-                self.get_query_arguments, self._valid_keys(method)
-            )
+            spec, sort, fields, skip, limit, unique = \
+                hcommon.get_all_query_values(
+                    self.get_query_arguments, self._valid_keys(method)
+                )
 
         return (spec, sort, fields, skip, limit, unique)
 
@@ -456,9 +460,9 @@ class BaseHandler(RequestHandler):
         """
         valid_token = False
 
-        req_token = self.request.headers.get(API_TOKEN_HEADER, None)
+        req_token = self.get_request_token()
         remote_ip = self.request.remote_ip
-        master_key = self.settings.get(MASTER_KEY, None)
+        master_key = self.settings.get(hcommon.MASTER_KEY, None)
 
         if req_token:
             valid_token = self._token_validation(
@@ -473,12 +477,19 @@ class BaseHandler(RequestHandler):
 
         return valid_token
 
+    def get_request_token(self):
+        """Retrieve the Authorization token of this request.
+
+        :return The authorization token as string.
+        """
+        return self.request.headers.get(hcommon.API_TOKEN_HEADER, None)
+
     def _token_validation(self, req_token, method, remote_ip, master_key):
         valid_token = False
         token_obj = self._find_token(req_token, self.db)
 
         if token_obj:
-            valid_token = validate_token(
+            valid_token = hcommon.validate_token(
                 token_obj,
                 method,
                 remote_ip,
@@ -494,4 +505,6 @@ class BaseHandler(RequestHandler):
         :param token: The token to find.
         :return A json object, or nothing.
         """
-        return find_one(db_conn[TOKEN_COLLECTION], [token], field=TOKEN_KEY)
+        return utils.db.find_one(
+            db_conn[models.TOKEN_COLLECTION], [token], field=models.TOKEN_KEY
+        )

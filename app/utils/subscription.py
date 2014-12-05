@@ -17,15 +17,8 @@
 
 import pymongo
 
-from models import (
-    DB_NAME,
-    ID_KEY,
-)
-from models.job import JOB_COLLECTION
-from models.subscription import (
-    SUBSCRIPTION_COLLECTION,
-    SubscriptionDocument,
-)
+import models
+import models.subscription as mods
 from utils import LOG
 from utils.db import (
     find_one,
@@ -53,23 +46,23 @@ def subscribe(database, json_obj):
     job = json_obj['job']
     emails = json_obj['email']
 
-    job_doc = find_one(database[JOB_COLLECTION], job)
+    job_doc = find_one(database[models.JOB_COLLECTION], job)
     if job_doc:
-        job_id = job_doc[ID_KEY]
+        job_id = job_doc[models.ID_KEY]
         subscription = find_one(
-            database[SUBSCRIPTION_COLLECTION],
+            database[models.SUBSCRIPTION_COLLECTION],
             job_id,
             'job_id'
         )
 
         if subscription:
-            sub_obj = SubscriptionDocument.from_json(subscription)
+            sub_obj = mods.SubscriptionDocument.from_json(subscription)
             sub_obj.emails = emails
         else:
             sub_id = (
-                SubscriptionDocument.SUBSCRIPTION_ID_FORMAT % (job_id)
+                models.SUBSCRIPTION_DOCUMENT_NAME % job_id
             )
-            sub_obj = SubscriptionDocument(sub_id, job_id)
+            sub_obj = mods.SubscriptionDocument(sub_id, job_id)
             sub_obj.emails = emails
 
         ret_val = save(database, sub_obj)
@@ -116,10 +109,10 @@ def send(job_id):
     """
     # TODO: add logic to make sure we can send the notifications.
     # We should store the job status.
-    database = pymongo.MongoClient()[DB_NAME]
+    database = pymongo.MongoClient()[models.DB_NAME]
 
     subscription = find_one(
-        database[SUBSCRIPTION_COLLECTION], job_id, 'job_id'
+        database[models.SUBSCRIPTION_COLLECTION], job_id, 'job_id'
     )
 
     if subscription:

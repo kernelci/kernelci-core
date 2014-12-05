@@ -13,52 +13,39 @@
 
 """The request handler for bisect URLs."""
 
+import bson
+import functools
 import tornado
+import tornado.web
 
-from functools import partial
-from tornado.web import asynchronous
-
-from handlers.base import BaseHandler
-from handlers.common import (
-    NOT_VALID_TOKEN,
-    get_query_fields,
-)
-from handlers.response import HandlerResponse
-from taskqueue.tasks import boot_bisect
-
-from utils.db import find_one
-
-from models import (
-    BISECT_COLLECTION,
-    BOOT_COLLECTION,
-    DOC_ID_KEY,
-)
-
-BISECT_COLLECTIONS = [
-    BOOT_COLLECTION,
-]
+import handlers.base as hbase
+import handlers.common as hcommon
+import handlers.response as hresponse
+import models
+import taskqueue.tasks as taskt
+import utils.db
 
 
-class BisectHandler(BaseHandler):
+class BisectHandler(hbase.BaseHandler):
     """Handler used to trigger bisect operations on the data."""
 
     def __init__(self, application, request, **kwargs):
         super(BisectHandler, self).__init__(application, request, **kwargs)
 
-    @asynchronous
+    @tornado.web.asynchronous
     def get(self, *args, **kwargs):
         self.executor.submit(
-            partial(self.execute_get, *args, **kwargs)
+            functools.partial(self.execute_get, *args, **kwargs)
         ).add_done_callback(
             lambda future:
             tornado.ioloop.IOLoop.instance().add_callback(
-                partial(self._create_valid_response, future.result())
+                functools.partial(self._create_valid_response, future.result())
             )
         )
 
     @property
     def collection(self):
-        return BISECT_COLLECTION
+        return models.BISECT_COLLECTION
 
     def execute_get(self, *args, **kwargs):
         """This is the actual GET operation.
@@ -75,23 +62,37 @@ class BisectHandler(BaseHandler):
                 if all([collection, doc_id]):
                     fields = None
                     if self.request.arguments:
-                        fields = get_query_fields(self.get_query_arguments)
-                    bisect_result = find_one(
-                        self.db[self.collection], doc_id, field=DOC_ID_KEY,
-                        fields=fields
-                    )
-                    if bisect_result:
-                        response = HandlerResponse(200)
-                        response.result = bisect_result
-                    else:
-                        response = self._get_bisect(collection, doc_id, fields)
+                        fields = hcommon.get_query_fields(
+                            self.get_query_arguments
+                        )
+                    try:
+                        obj_id = bson.objectid.ObjectId(doc_id)
+                        bisect_result = utils.db.find_one(
+                            self.db[self.collection],
+                            [obj_id],
+                            field=models.NAME_KEY,
+                            fields=fields
+                        )
+                        if bisect_result:
+                            response = hresponse.HandlerResponse(200)
+                            response.result = bisect_result
+                        else:
+                            response = self._get_bisect(
+                                collection, doc_id, fields
+                            )
+                    except bson.errors.InvalidId, ex:
+                        self.log.exception(ex)
+                        self.log.error(
+                            "Wrong ID '%s' value passed as object ID", doc_id)
+                        response = hresponse.HandlerResponse(400)
+                        response.reason = "Wrong ID value passed as object ID"
                 else:
-                    response = HandlerResponse(400)
+                    response = hresponse.HandlerResponse(400)
             else:
-                response = HandlerResponse(400)
+                response = hresponse.HandlerResponse(400)
         else:
-            response = HandlerResponse(403)
-            response.reason = NOT_VALID_TOKEN
+            response = hresponse.HandlerResponse(403)
+            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 
@@ -109,13 +110,16 @@ class BisectHandler(BaseHandler):
         """
         response = None
 
-        if collection in BISECT_COLLECTIONS:
+        if collection in models.BISECT_VALID_COLLECTIONS:
             db_options = self.settings["dboptions"]
 
-            if collection == BOOT_COLLECTION:
+            if collection == models.BOOT_COLLECTION:
                 response = self.execute_boot_bisect(doc_id, db_options, fields)
+            elif collection == models.DEFCONFIG_COLLECTION:
+                response = self.execute_defconfig_bisect(
+                    doc_id, db_options, fields)
         else:
-            response = HandlerResponse(400)
+            response = hresponse.HandlerResponse(400)
             response.reason = (
                 "Provided bisect collection '%s' is not valid" % collection
             )
@@ -135,9 +139,9 @@ class BisectHandler(BaseHandler):
         :type fields: list or dict
         :return A `HandlerResponse` object.
         """
-        response = HandlerResponse()
+        response = hresponse.HandlerResponse()
 
-        result = boot_bisect.apply_async([doc_id, db_options, fields])
+        result = taskt.boot_bisect.apply_async([doc_id, db_options, fields])
         while not result.ready():
             pass
 
@@ -146,4 +150,33 @@ class BisectHandler(BaseHandler):
             response.reason = "Boot report not found"
         elif response.status_code == 400:
             response.reason = "Boot report cannot be bisected: is it failed?"
+        return response
+
+    @staticmethod
+    def execute_defconfig_bisect(doc_id, db_options, fields=None):
+        """Execute the defconfig bisect operation.
+
+        :param doc_id: The ID of the document to execute the bisect on.
+        :type doc_id: str
+        :param db_options: The mongodb database connection parameters.
+        :type db_options: dict
+        :param fields: A `fields` data structure with the fields to return or
+        exclude. Default to None.
+        :type fields: list or dict
+        :return A `HandlerResponse` object.
+        """
+        response = hresponse.HandlerResponse()
+
+        result = taskt.defconfig_bisect.apply_async(
+            [doc_id, db_options, fields]
+        )
+        while not result.ready():
+            pass
+
+        response.status_code, response.result = result.get()
+        if response.status_code == 404:
+            response.reason = "Defconfig not found"
+        elif response.status_code == 400:
+            response.reason = "Defconfig cannot be bisected: is it failed?"
+
         return response

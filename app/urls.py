@@ -17,39 +17,53 @@
 
 from tornado.web import url
 
-from handlers.bisect import BisectHandler
-from handlers.batch import BatchHandler
-from handlers.boot import BootHandler
-from handlers.count import CountHandler
-from handlers.defconf import DefConfHandler
-from handlers.job import JobHandler
-from handlers.subscription import SubscriptionHandler
-from handlers.token import TokenHandler
+import handlers.batch
+import handlers.bisect
+import handlers.boot
+import handlers.count
+import handlers.defconf
+import handlers.job
+import handlers.lab
+import handlers.subscription
+import handlers.token
+import handlers.version
 
 
-_JOB_URL = url(r'/job(?P<sl>/)?(?P<id>.*)', JobHandler, name='job')
+_JOB_URL = url(
+    r'/job(?P<sl>/)?(?P<id>.*)', handlers.job.JobHandler, name='job'
+)
 _DEFCONF_URL = url(
-    r'/defconfig(?P<sl>/)?(?P<id>.*)', DefConfHandler, name='defconf'
+    r'/defconfig(?P<sl>/)?(?P<id>.*)',
+    handlers.defconf.DefConfHandler,
+    name='defconf'
 )
 _SUBSCRIPTION_URL = url(
     r'/subscription(?P<sl>/)?(?P<id>.*)',
-    SubscriptionHandler,
+    handlers.subscription.SubscriptionHandler,
     name='subscription',
 )
-_BOOT_URL = url(r'/boot(?P<sl>/)?(?P<id>.*)', BootHandler, name='boot')
+_BOOT_URL = url(
+    r'/boot(?P<sl>/)?(?P<id>.*)', handlers.boot.BootHandler, name='boot'
+)
 _COUNT_URL = url(
-    r'/count(?P<sl>/)?(?P<id>.*)', CountHandler, name='count'
+    r'/count(?P<sl>/)?(?P<id>.*)', handlers.count.CountHandler, name='count'
 )
 _TOKEN_URL = url(
-    r'/token(?P<sl>/)?(?P<id>.*)', TokenHandler, name='token'
+    r'/token(?P<sl>/)?(?P<id>.*)', handlers.token.TokenHandler, name='token'
 )
 _BATCH_URL = url(
-    r'/batch', BatchHandler, name='batch'
+    r'/batch', handlers.batch.BatchHandler, name='batch'
 )
 _BISECT_URL = url(
     r"/bisect/(?P<collection>.*)/(?P<id>.*)",
-    BisectHandler,
+    handlers.bisect.BisectHandler,
     name="bisect"
+)
+_LAB_URL = url(
+    r"/lab(?P<sl>/)?(?P<id>.*)", handlers.lab.LabHandler, name="lab"
+)
+_VERSION_URL = url(
+    r"/version", handlers.version.VersionHandler, name="version"
 )
 
 APP_URLS = [
@@ -59,6 +73,8 @@ APP_URLS = [
     _COUNT_URL,
     _DEFCONF_URL,
     _JOB_URL,
+    _LAB_URL,
     _SUBSCRIPTION_URL,
     _TOKEN_URL,
+    _VERSION_URL,
 ]

@@ -21,6 +21,7 @@ from handlers.base import BaseHandler
 from handlers.common import (
     COLLECTIONS,
     COUNT_VALID_KEYS,
+    update_id_fields,
     get_and_add_date_range,
     get_query_spec,
 )
@@ -103,7 +104,8 @@ def count_one_collection(
     """
     result = []
     spec = get_query_spec(query_args_func, valid_keys)
-    spec = get_and_add_date_range(spec, query_args_func)
+    get_and_add_date_range(spec, query_args_func)
+    update_id_fields(spec)
 
     if spec:
         _, number = find_and_count(
@@ -142,7 +144,8 @@ def count_all_collections(database, query_args_func, valid_keys):
     result = []
 
     spec = get_query_spec(query_args_func, valid_keys)
-    spec = get_and_add_date_range(spec, query_args_func)
+    get_and_add_date_range(spec, query_args_func)
+    update_id_fields(spec)
 
     if spec:
         for key, val in COLLECTIONS.iteritems():

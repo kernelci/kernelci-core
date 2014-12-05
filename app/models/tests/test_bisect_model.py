@@ -13,36 +13,36 @@
 
 import unittest
 
-from models.base import BaseDocument
-from models.bisect import BisectDocument, BootBisectDocument
+import models.base as modb
+import models.bisect as modbs
 
 
 class TestBisectModel(unittest.TestCase):
 
     def test_bisect_base_document(self):
-        bisect_doc = BisectDocument("foo")
-        self.assertIsInstance(bisect_doc, BaseDocument)
+        bisect_doc = modbs.BisectDocument("foo")
+        self.assertIsInstance(bisect_doc, modb.BaseDocument)
 
     def test_boot_bisect_document(self):
-        bisect_doc = BootBisectDocument("bar")
-        self.assertIsInstance(bisect_doc, BisectDocument)
-        self.assertIsInstance(bisect_doc, BaseDocument)
+        bisect_doc = modbs.BootBisectDocument("bar")
+        self.assertIsInstance(bisect_doc, modbs.BisectDocument)
+        self.assertIsInstance(bisect_doc, modb.BaseDocument)
 
     def test_bisect_base_document_collection(self):
-        bisect_doc = BisectDocument("foo")
+        bisect_doc = modbs.BisectDocument("foo")
         self.assertEqual(bisect_doc.collection, "bisect")
 
     def test_bisect_boot_document_collection(self):
-        bisect_doc = BootBisectDocument("foo")
+        bisect_doc = modbs.BootBisectDocument("foo")
         self.assertEqual(bisect_doc.collection, "bisect")
 
     def test_bisect_base_to_dict(self):
-        bisect_doc = BisectDocument("foo")
+        bisect_doc = modbs.BisectDocument("foo")
 
         expected = {
             "created_on": None,
             "job": None,
-            "doc_id": "foo",
+            "name": "foo",
             "bisect_data": [],
             "good_commit": None,
             "good_commit_date": None,
@@ -50,18 +50,20 @@ class TestBisectModel(unittest.TestCase):
             "bad_commit": None,
             "bad_commit_date": None,
             "bad_commit_url": None,
+            "version": None,
+            "job_id": None
         }
         self.assertDictEqual(expected, bisect_doc.to_dict())
 
     def test_bisect_base_to_dict_with_id(self):
-        bisect_doc = BisectDocument("foo")
+        bisect_doc = modbs.BisectDocument("foo")
         bisect_doc.id = "bar"
 
         expected = {
             "_id": "bar",
             "created_on": None,
             "job": None,
-            "doc_id": "foo",
+            "name": "foo",
             "bisect_data": [],
             "good_commit": None,
             "good_commit_date": None,
@@ -69,20 +71,26 @@ class TestBisectModel(unittest.TestCase):
             "bad_commit": None,
             "bad_commit_date": None,
             "bad_commit_url": None,
+            "version": None,
+            "job_id": None
         }
         self.assertDictEqual(expected, bisect_doc.to_dict())
 
     def test_bisect_boot_to_dict(self):
-        bisect_doc = BootBisectDocument("foo")
+        bisect_doc = modbs.BootBisectDocument("foo")
         bisect_doc.id = "bar"
         bisect_doc.board = "baz"
+        bisect_doc.version = "1.0"
+        bisect_doc.boot_id = "boot-id"
+        bisect_doc.defconfig_id = "defconfig-id"
+        bisect_doc.job_id = "job-id"
 
         expected = {
             "_id": "bar",
             "board": "baz",
             "created_on": None,
             "job": None,
-            "doc_id": "foo",
+            "name": "foo",
             "bisect_data": [],
             "good_commit": None,
             "good_commit_date": None,
@@ -90,11 +98,15 @@ class TestBisectModel(unittest.TestCase):
             "bad_commit": None,
             "bad_commit_date": None,
             "bad_commit_url": None,
+            "version": "1.0",
+            "boot_id": "boot-id",
+            "defconfig_id": "defconfig-id",
+            "job_id": "job-id"
         }
         self.assertDictEqual(expected, bisect_doc.to_dict())
 
     def test_bisect_base_properties(self):
-        bisect_doc = BootBisectDocument("foo")
+        bisect_doc = modbs.BootBisectDocument("foo")
         bisect_doc.id = "bar"
         bisect_doc.created_on = "now"
         bisect_doc.job = "fooz"
@@ -107,7 +119,7 @@ class TestBisectModel(unittest.TestCase):
         bisect_doc.bad_commit_url = "url"
 
         self.assertEqual(bisect_doc.id, "bar")
-        self.assertEqual(bisect_doc.doc_id, "foo")
+        self.assertEqual(bisect_doc.name, "foo")
         self.assertEqual(bisect_doc.created_on, "now")
         self.assertEqual(bisect_doc.job, "fooz")
         self.assertEqual(bisect_doc.bisect_data, [1, 2, 3])
@@ -119,7 +131,40 @@ class TestBisectModel(unittest.TestCase):
         self.assertEqual(bisect_doc.bad_commit_url, "url")
 
     def test_bisect_boot_properties(self):
-        bisect_doc = BootBisectDocument("foo")
+        bisect_doc = modbs.BootBisectDocument("foo")
         bisect_doc.board = "bar"
 
         self.assertEqual(bisect_doc.board, "bar")
+
+    def test_bisect_defconfig_to_dict(self):
+        bisect_doc = modbs.DefconfigBisectDocument("foo")
+        bisect_doc.id = "bar"
+        bisect_doc.defconfig_id = "defconfig-id"
+        bisect_doc.defconfig = "defconfig-name"
+        bisect_doc.version = "1.0"
+        bisect_doc.job = "job"
+        bisect_doc.job_id = "job-id"
+        bisect_doc.defconfig_full = "defconfig-full"
+        bisect_doc.arch = "arm"
+
+        expected = {
+            "_id": "bar",
+            "created_on": None,
+            "job": "job",
+            "name": "foo",
+            "bisect_data": [],
+            "good_commit": None,
+            "good_commit_date": None,
+            "good_commit_url": None,
+            "bad_commit": None,
+            "bad_commit_date": None,
+            "bad_commit_url": None,
+            "version": "1.0",
+            "defconfig_id": "defconfig-id",
+            "defconfig": "defconfig-name",
+            "job_id": "job-id",
+            "defconfig_full": "defconfig-full",
+            "arch": "arm"
+        }
+
+        self.assertDictEqual(expected, bisect_doc.to_dict())

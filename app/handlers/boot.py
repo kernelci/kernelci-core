@@ -15,22 +15,19 @@
 
 """The RequestHandler for /boot URLs."""
 
-from handlers.base import BaseHandler
-from handlers.common import (
-    BOOT_VALID_KEYS,
-    NOT_VALID_TOKEN,
-    get_query_spec,
-)
-from handlers.response import HandlerResponse
-from models import BOOT_COLLECTION
-from taskqueue.tasks import import_boot
-from utils.db import (
-    delete,
-    find_one,
-)
+import bson
+
+import handlers.base as hbase
+import handlers.common as hcommon
+import handlers.response as hresponse
+import models
+import models.lab as mlab
+import models.token as mtoken
+import taskqueue.tasks as taskq
+import utils.db
 
 
-class BootHandler(BaseHandler):
+class BootHandler(hbase.BaseHandler):
     """Handle the /boot URLs."""
 
     def __init__(self, application, request, **kwargs):
@@ -38,36 +35,116 @@ class BootHandler(BaseHandler):
 
     @property
     def collection(self):
-        return self.db[BOOT_COLLECTION]
+        return self.db[models.BOOT_COLLECTION]
 
     @staticmethod
     def _valid_keys(method):
-        return BOOT_VALID_KEYS.get(method, None)
+        return hcommon.BOOT_VALID_KEYS.get(method, None)
+
+    @staticmethod
+    def _token_validation_func():
+        return hcommon.valid_token_bh
 
     def _post(self, *args, **kwargs):
-        response = HandlerResponse(202)
-        response.reason = "Request accepted and being imported"
-        response.result = None
+        req_token = self.get_request_token()
+        lab_name = kwargs["json_obj"].get(models.LAB_NAME_KEY, None)
 
-        import_boot.apply_async([kwargs['json_obj'], kwargs['db_options']])
+        if self._is_valid_token(req_token, lab_name):
+            response = hresponse.HandlerResponse(202)
+            if kwargs.get("reason", None):
+                response.reason = (
+                    "Request accepted and being imported. WARNING: %s" %
+                    kwargs["reason"]
+                )
+            else:
+                response.reason = "Request accepted and being imported"
+            response.result = None
+
+            taskq.import_boot.apply_async(
+                [kwargs["json_obj"], kwargs["db_options"]]
+            )
+        else:
+            response = hresponse.HandlerResponse(403)
+            response.reason = (
+                "Provided authentication token is not associated with "
+                "lab '%s'" % lab_name
+            )
 
         return response
+
+    def _is_valid_token(self, req_token, lab_name):
+        """Make sure the token used to perform the POST is valid.
+
+        We are being paranoid here. We need to make sure the token used to
+        post is really associated with the provided lab name.
+
+        To be valid to post boot report, the token must either be an admin
+        token or a valid token associated with the lab.
+
+        :param req_token: The token string from the request.
+        :type req_token: str
+        :param lab_name: The name of the lab to check.
+        :type lab_name: str
+        :return True if the token is valid, False otherwise.
+        """
+        valid_lab = False
+
+        lab_doc = utils.db.find_one(
+            self.db[models.LAB_COLLECTION], [lab_name], field=models.NAME_KEY
+        )
+
+        if lab_doc:
+            lab_token_doc = utils.db.find_one(
+                self.db[models.TOKEN_COLLECTION], [lab_doc[models.TOKEN_KEY]]
+            )
+
+            if lab_token_doc:
+                lab_token = mtoken.Token.from_json(lab_token_doc)
+                if all([req_token == lab_token.token, not lab_token.expired]):
+                    valid_lab = True
+                elif all([lab_token.is_admin, not lab_token.expired]):
+                    valid_lab = True
+                    utils.LOG.warn(
+                        "Received boot POST request from an admin token")
+                else:
+                    utils.LOG.warn(
+                        "Received token (%s) is not associated with lab '%s'",
+                        req_token, lab_name
+                    )
+
+        return valid_lab
 
     def execute_delete(self, *args, **kwargs):
         response = None
 
         if self.validate_req_token("DELETE"):
-            if kwargs and kwargs.get('id', None):
-                doc_id = kwargs['id']
-                if find_one(self.collection, doc_id):
-                    response = self._delete(doc_id)
-                    if response.status_code == 200:
-                        response.reason = "Resource '%s' deleted" % doc_id
-                else:
-                    response = HandlerResponse(404)
-                    response.reason = "Resource '%s' not found" % doc_id
+            if kwargs and kwargs.get("id", None):
+                try:
+                    doc_id = kwargs["id"]
+                    obj_id = bson.objectid.ObjectId(doc_id)
+
+                    boot_doc = utils.db.find_one(self.collection, [obj_id])
+                    if boot_doc:
+                        if self._valid_boot_delete_token(boot_doc):
+                            response = self._delete(obj_id)
+                            if response.status_code == 200:
+                                response.reason = (
+                                    "Resource '%s' deleted" % doc_id)
+                        else:
+                            response = hresponse.HandlerResponse(403)
+                            response.reason = hcommon.NOT_VALID_TOKEN
+                    else:
+                        response = hresponse.HandlerResponse(404)
+                        response.reason = "Resource '%s' not found" % doc_id
+                except bson.errors.InvalidId, ex:
+                    self.log.exception(ex)
+                    self.log.error(
+                        "Wrong ID '%s' value passed as object ID", doc_id
+                    )
+                    response = hresponse.HandlerResponse(400)
+                    response.reason = "Wrong ID value passed as object ID"
             else:
-                spec = get_query_spec(
+                spec = hcommon.get_query_spec(
                     self.get_query_arguments, self._valid_keys("DELETE")
                 )
                 if spec:
@@ -77,22 +154,60 @@ class BootHandler(BaseHandler):
                             "Resources identified with '%s' deleted" % spec
                         )
                 else:
-                    response = HandlerResponse(400)
+                    response = hresponse.HandlerResponse(400)
                     response.result = None
                     response.reason = (
                         "No valid data provided to execute a DELETE"
                     )
         else:
-            response = HandlerResponse(403)
-            response.reason = NOT_VALID_TOKEN
+            response = hresponse.HandlerResponse(403)
+            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 
+    def _valid_boot_delete_token(self, boot_doc):
+        """Make sure the token is an actual delete token.
+
+        This is an extra step in making sure the token is valid. A lab
+        token, token used to send boot reports, can be used to delete boot
+        reports only belonging to its lab.
+
+        :param boot_doc: The document to delete.
+        :type boot_doc: dict
+        :return True or False.
+        """
+        valid_token = True
+        req_token = self.get_request_token()
+        token = self._find_token(req_token, self.db)
+
+        if token:
+            token = mtoken.Token.from_json(token)
+
+            # Just need to check if it is a lab token. A validation has already
+            # occurred makig sure is a valid DELETE one. This is the extra step.
+            if token.is_lab_token:
+                # This is only valid if the lab matches.
+                valid_token = False
+
+                lab_doc = utils.db.find_one(
+                    self.db[models.LAB_COLLECTION],
+                    [boot_doc[models.LAB_NAME_KEY]],
+                    field=models.NAME_KEY
+                )
+
+                if lab_doc:
+                    lab_doc = mlab.LabDocument.from_json(lab_doc)
+
+                    if lab_doc.token == token.id:
+                        valid_token = True
+
+        return valid_token
+
     def _delete(self, spec_or_id):
-        response = HandlerResponse(200)
+        response = hresponse.HandlerResponse(200)
         response.result = None
 
-        response.status_code = delete(self.collection, spec_or_id)
+        response.status_code = utils.db.delete(self.collection, spec_or_id)
         response.reason = self._get_status_message(response.status_code)
 
         return response

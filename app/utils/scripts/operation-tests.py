@@ -1,4 +1,4 @@
-# Copyright (C) 2014 Linaro Ltd.
+#!/usr/bin/python
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -13,29 +13,26 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""All email related utilities."""
-
-import smtplib
-
-from email.mime.text import MIMEText
-
-FROM = 'noreply@linaro.org'
+import models.boot as mboot
+import utils.bootimport
+import utils.db
 
 
-def _create_email(job_id):
-    msg = MIMEText('')
+def main():
+    database = utils.db.get_db_connection({})
 
-    msg['Subject'] = 'Results for job: %s' % (job_id)
-    msg['From'] = FROM
+    board = "fake-board"
+    job = "next"
+    kernel = "next-20141113"
+    defconfig = "u8500_defconfig"
+    lab_name = "lab-01"
 
-    return msg
+    boot_doc = mboot.BootDocument(board, job, kernel, defconfig, lab_name)
+    utils.bootimport._update_boot_doc_ids(boot_doc, database)
 
+    print boot_doc.defconfig_id
+    print boot_doc.job_id
+    print boot_doc.to_dict()
 
-def send(job_id, recipients):
-
-    msg = _create_email(job_id)
-    server = smtplib.SMTP('localhost')
-
-    for recipient in recipients:
-        msg['To'] = recipient
-        server.sendmail(FROM, [recipient], msg.as_string(unixfrom=True))
+if __name__ == '__main__':
+    main()

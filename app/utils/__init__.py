@@ -13,13 +13,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from utils.log import get_log
+import utils.log
 
 BASE_PATH = '/var/www/images/kernel-ci'
 DEFAULT_MONGODB_URL = "localhost"
 DEFAULT_MONGODB_PORT = 27017
 DEFAULT_MONGODB_POOL = 250
-LOG = get_log()
+LOG = utils.log.get_log()
 
 
 def is_hidden(value):

@@ -374,7 +374,7 @@ class TestHandlersCommon(unittest.TestCase):
             }
         }
 
-        spec = get_and_add_date_range(spec, query_args_func)
+        get_and_add_date_range(spec, query_args_func)
         self.assertEqual(expected, spec)
 
     @patch("models.token.Token", spec=True)
@@ -386,10 +386,28 @@ class TestHandlersCommon(unittest.TestCase):
         token.is_get_token = True
         token.is_post_token = True
         token.is_delete_token = True
+        token.is_lab_token = False
 
+        self.assertFalse(token.is_lab_token)
         self.assertTrue(valid_token_general(token, "GET"))
         self.assertTrue(valid_token_general(token, "POST"))
         self.assertTrue(valid_token_general(token, "DELETE"))
+
+    @patch("models.token.Token", spec=True)
+    def test_valid_token_general_lab_token(self, mock_class):
+        token = mock_class.return_value
+
+        self.assertIsInstance(token, Token)
+
+        token.is_get_token = False
+        token.is_post_token = True
+        token.is_delete_token = True
+        token.is_lab_token = True
+
+        self.assertTrue(token.is_lab_token)
+        self.assertFalse(valid_token_general(token, "GET"))
+        self.assertTrue(valid_token_general(token, "POST"))
+        self.assertFalse(valid_token_general(token, "DELETE"))
 
     @patch("models.token.Token", spec=True)
     def test_valid_token_general_false(self, mock_class):
@@ -453,11 +471,9 @@ class TestHandlersCommon(unittest.TestCase):
             validate_token(None, "GET", None, None)
         )
 
-    @patch("models.token.Token", spec=True)
     @patch("models.token.Token.from_json")
-    def test_validate_token_true(self, mock_from_json, mock_class):
-        token = mock_class.return_value
-        self.assertIsInstance(token, Token)
+    def test_validate_token_true(self, mock_from_json):
+        token = Token()
 
         mock_from_json.return_value = token
         validate_func = Mock()
@@ -476,11 +492,9 @@ class TestHandlersCommon(unittest.TestCase):
             validate_token(token, "GET", "127.0.0.1", validate_func)
         )
 
-    @patch("models.token.Token", spec=True)
     @patch("models.token.Token.from_json")
-    def test_validate_token_false(self, mock_from_json, mock_class):
-        token = mock_class.return_value
-        self.assertIsInstance(token, Token)
+    def test_validate_token_false(self, mock_from_json):
+        token = Token()
 
         mock_from_json.return_value = token
         validate_func = Mock()

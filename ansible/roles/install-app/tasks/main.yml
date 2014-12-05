@@ -34,6 +34,7 @@
 - name: Install pip requirements
   pip:  requirements={{ install_base }}/{{ hostname }}/requirements.txt
         virtualenv={{ install_base }}/.venv/{{ hostname }}
+        extra_args="--upgrade"
   notify:
     - restart-kernel-ci-backend
     - restart-celery

@@ -12,9 +12,18 @@ A token object as stored in the database.
         "description": "A token used to interact with the API",
         "type": "object",
         "properties": {
+            "version": {
+                "type": "string",
+                "description": "The version number of this JSON schema",
+                "enum": ["1.0"]
+            },
             "_id": {
                 "type": "string",
                 "description": "The ID associated with this object"
+            },
+            "name": {
+                "type": "string",
+                "description": "The name associated with this token"
             },
             "created_on": {
                 "type": "object",

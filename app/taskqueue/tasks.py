@@ -17,20 +17,16 @@
 
 from __future__ import absolute_import
 
-from celery import group
+import celery
 
-from taskqueue.celery import app
-from utils.bootimport import import_and_save_boot
-from utils.docimport import import_and_save_job
-from utils.subscription import send
-from utils.batch.common import (
-    execute_batch_operation,
-)
-from utils.bisect import execute_boot_bisection
-from utils import LOG
+import taskqueue.celery as taskc
+import utils.batch.common
+import utils.bisect
+import utils.bootimport
+import utils.docimport
 
 
-@app.task(name='send-emails', ignore_result=True)
+@taskc.app.task(name='send-emails', ignore_result=True)
 def send_emails(job_id):
     """Just a wrapper around the real `send` function.
 
@@ -38,10 +34,13 @@ def send_emails(job_id):
 
     :param job_id: The job ID to trigger notifications for.
     """
-    send(job_id)
+    # send(job_id)
+    # XXX: This has been removed since the subscription handler is not used
+    # right now and will be completely reworked in the future.
+    pass
 
 
-@app.task(name='import-job', ignore_result=True)
+@taskc.app.task(name='import-job', ignore_result=True)
 def import_job(json_obj, db_options):
     """Just a wrapper around the real import function.
 
@@ -53,10 +52,10 @@ def import_job(json_obj, db_options):
     :param db_options: The mongodb database connection parameters.
     :type db_options: dict
     """
-    import_and_save_job(json_obj, db_options)
+    utils.docimport.import_and_save_job(json_obj, db_options)
 
 
-@app.task(name='import-boot', ignore_result=True)
+@taskc.app.task(name='import-boot', ignore_result=True)
 def import_boot(json_obj, db_options):
     """Just a wrapper around the real boot import function.
 
@@ -68,10 +67,10 @@ def import_boot(json_obj, db_options):
     :param db_options: The mongodb database connection parameters.
     :type db_options: dict
     """
-    import_and_save_boot(json_obj, db_options)
+    utils.bootimport.import_and_save_boot(json_obj, db_options)
 
 
-@app.task(name='batch-executor')
+@taskc.app.task(name='batch-executor')
 def execute_batch(json_obj, db_options):
     """Run batch operations based on the passed JSON object.
 
@@ -81,10 +80,10 @@ def execute_batch(json_obj, db_options):
     :type db_options: dict
     :return The result of the batch operations.
     """
-    return execute_batch_operation(json_obj, db_options)
+    return utils.batch.common.execute_batch_operation(json_obj, db_options)
 
 
-@app.task(name="boot-bisect")
+@taskc.app.task(name="boot-bisect")
 def boot_bisect(doc_id, db_options, fields=None):
     """Run a boot bisect operation on the passed boot document id.
 
@@ -97,7 +96,23 @@ def boot_bisect(doc_id, db_options, fields=None):
     :type fields: list or dict
     :return The result of the boot bisect operation.
     """
-    return execute_boot_bisection(doc_id, db_options, fields)
+    return utils.bisect.execute_boot_bisection(doc_id, db_options, fields)
+
+
+@taskc.app.task(name="defconfig-bisect")
+def defconfig_bisect(doc_id, db_options, fields=None):
+    """Run a defconfig bisect operation on the passed defconfig document id.
+
+    :param doc_id: The boot document ID.
+    :type doc_id: str
+    :param db_options: The mongodb database connection parameters.
+    :type db_options: dict
+    :param fields: A `fields` data structure with the fields to return or
+    exclude. Default to None.
+    :type fields: list or dict
+    :return The result of the boot bisect operation.
+    """
+    return utils.bisect.execute_defconfig_bisection(doc_id, db_options, fields)
 
 
 def run_batch_group(batch_op_list, db_options):
@@ -109,7 +124,7 @@ def run_batch_group(batch_op_list, db_options):
     :param db_options: The mongodb database connection parameters.
     :type db_options: dict
     """
-    job = group(
+    job = celery.group(
         [
             execute_batch.s(batch_op, db_options)
             for batch_op in batch_op_list

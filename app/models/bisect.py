@@ -13,39 +13,30 @@
 
 """Bisect mongodb document models."""
 
-from models import (
-    BISECT_BAD_COMMIT_DATE,
-    BISECT_BAD_COMMIT_KEY,
-    BISECT_BAD_COMMIT_URL,
-    BISECT_COLLECTION,
-    BISECT_DATA_KEY,
-    BISECT_GOOD_COMMIT_DATE,
-    BISECT_GOOD_COMMIT_KEY,
-    BISECT_GOOD_COMMIT_URL,
-    BOARD_KEY,
-    CREATED_KEY,
-    DOC_ID_KEY,
-    ID_KEY,
-    JOB_KEY,
-)
-from models.base import BaseDocument
+import models
+import models.base as modb
 
 
-class BisectDocument(BaseDocument):
+class BisectDocument(modb.BaseDocument):
     """The bisect document model class."""
 
+    # pylint: disable=too-many-instance-attributes
+    # pylint: disable=invalid-name
     def __init__(self, name):
-        super(BisectDocument, self).__init__(name)
-
+        self._created_on = None
         self._id = None
-        self._job = None
-        self._bisect_data = []
-        self._bad_commit = None
-        self._good_commit = None
-        self._bad_commit_date = None
-        self._good_commit_date = None
-        self._bad_commit_url = None
-        self._good_commit_url = None
+        self._name = name
+        self._version = None
+
+        self.bad_commit = None
+        self.bad_commit_date = None
+        self.bad_commit_url = None
+        self.bisect_data = []
+        self.good_commit = None
+        self.good_commit_date = None
+        self.good_commit_url = None
+        self.job = None
+        self.job_id = None
 
     @property
     def collection(self):
@@ -53,124 +44,79 @@ class BisectDocument(BaseDocument):
 
         Where document of this kind will be stored.
         """
-        return BISECT_COLLECTION
+        return models.BISECT_COLLECTION
+
+    @property
+    def name(self):
+        """The name of the boot report."""
+        return self._name
 
     @property
     def id(self):
-        """The ID of this object in the database.
-
-        This value should be returned by mongodb.
-        """
+        """The ID of this object as returned by mongodb."""
         return self._id
-
-    @property
-    def doc_id(self):
-        """The interl doc ID."""
-        return self._name
 
     @id.setter
     def id(self, value):
-        """Set the ID of this object."""
+        """Set the ID of this object with the ObjectID from mongodb.
+
+        :param value: The ID of this object.
+        :type value: str
+        """
         self._id = value
 
     @property
-    def job(self):
-        """The job this document is part of."""
-        return self._job
+    def created_on(self):
+        """When this lab object was created."""
+        return self._created_on
 
-    @job.setter
-    def job(self, value):
-        """Set the job this document is part of."""
-        self._job = value
+    @created_on.setter
+    def created_on(self, value):
+        """Set the creation date of this lab object.
 
-    @property
-    def bad_commit_date(self):
-        """The date of the bad commit."""
-        return self._bad_commit_date
-
-    @bad_commit_date.setter
-    def bad_commit_date(self, value):
-        """Set the date of the bad commit."""
-        self._bad_commit_date = value
+        :param value: The lab creation date, in UTC time zone.
+        :type value: datetime
+        """
+        self._created_on = value
 
     @property
-    def bad_commit(self):
-        """The bad commit hash value."""
-        return self._bad_commit
+    def version(self):
+        """The schema version of this object."""
+        return self._version
 
-    @bad_commit.setter
-    def bad_commit(self, value):
-        """Set the bad commit hash value."""
-        self._bad_commit = value
+    @version.setter
+    def version(self, value):
+        """Set the schema version of this object.
 
-    @property
-    def bad_commit_url(self):
-        """The URL of the bad commit."""
-        return self._bad_commit_url
-
-    @bad_commit_url.setter
-    def bad_commit_url(self, value):
-        """Set the URL of the bad commit."""
-        self._bad_commit_url = value
-
-    @property
-    def good_commit(self):
-        """The good commit hash value."""
-        return self._good_commit
-
-    @good_commit.setter
-    def good_commit(self, value):
-        """Set the good commit hash value."""
-        self._good_commit = value
-
-    @property
-    def good_commit_date(self):
-        """The date of the good commit."""
-        return self._good_commit_date
-
-    @good_commit_date.setter
-    def good_commit_date(self, value):
-        """Set the date of the good commit."""
-        self._good_commit_date = value
-
-    @property
-    def good_commit_url(self):
-        """The URL of the good commit."""
-        return self._good_commit_url
-
-    @good_commit_url.setter
-    def good_commit_url(self, value):
-        """Set the URL of the good commit."""
-        self._good_commit_url = value
-
-    @property
-    def bisect_data(self):
-        """Get all the bisect data, ranging from the bad to the good commit."""
-        return self._bisect_data
-
-    @bisect_data.setter
-    def bisect_data(self, value):
-        """Set the bisect data."""
-        self._bisect_data = value
+        :param value: The schema string.
+        :type param: str
+        """
+        self._version = value
 
     def to_dict(self):
         bisect_dict = {
-            CREATED_KEY: self._created_on,
-            JOB_KEY: self._job,
-            DOC_ID_KEY: self._name,
-            BISECT_DATA_KEY: self._bisect_data,
-            BISECT_GOOD_COMMIT_KEY: self._good_commit,
-            BISECT_GOOD_COMMIT_DATE: self._good_commit_date,
-            BISECT_GOOD_COMMIT_URL: self._good_commit_url,
-            BISECT_BAD_COMMIT_KEY: self._bad_commit,
-            BISECT_BAD_COMMIT_DATE: self._bad_commit_date,
-            BISECT_BAD_COMMIT_URL: self._bad_commit_url,
+            models.BISECT_BAD_COMMIT_DATE: self.bad_commit_date,
+            models.BISECT_BAD_COMMIT_KEY: self.bad_commit,
+            models.BISECT_BAD_COMMIT_URL: self.bad_commit_url,
+            models.BISECT_DATA_KEY: self.bisect_data,
+            models.BISECT_GOOD_COMMIT_DATE: self.good_commit_date,
+            models.BISECT_GOOD_COMMIT_KEY: self.good_commit,
+            models.BISECT_GOOD_COMMIT_URL: self.good_commit_url,
+            models.CREATED_KEY: self.created_on,
+            models.JOB_ID_KEY: self.job_id,
+            models.JOB_KEY: self.job,
+            models.NAME_KEY: self.name,
+            models.VERSION_KEY: self.version,
         }
 
-        if self._id:
-            bisect_dict[ID_KEY] = self._id
+        if self.id:
+            bisect_dict[models.ID_KEY] = self.id
 
         return bisect_dict
+
+    @staticmethod
+    def from_json(json_obj):
+        return None
 
 
 class BootBisectDocument(BisectDocument):
@@ -179,19 +125,34 @@ class BootBisectDocument(BisectDocument):
     def __init__(self, name):
         super(BootBisectDocument, self).__init__(name)
 
-        self._board = None
-
-    @property
-    def board(self):
-        """The board this document belongs to."""
-        return self._board
-
-    @board.setter
-    def board(self, value):
-        """Set the board name this document belongs to."""
-        self._board = value
+        self.board = None
+        self.defconfig_id = None
+        self.boot_id = None
 
     def to_dict(self):
         boot_b_dict = super(BootBisectDocument, self).to_dict()
-        boot_b_dict[BOARD_KEY] = self._board
+        boot_b_dict[models.BOARD_KEY] = self.board
+        boot_b_dict[models.DEFCONFIG_ID_KEY] = self.defconfig_id
+        boot_b_dict[models.BOOT_ID_KEY] = self.boot_id
         return boot_b_dict
+
+
+class DefconfigBisectDocument(BisectDocument):
+    """The bisect document class for defconfig/build bisection."""
+
+    def __init__(self, name):
+        super(DefconfigBisectDocument, self).__init__(name)
+
+        self.defconfig = None
+        self.defconfig_id = None
+        self.defconfig_full = None
+        self.arch = None
+
+    def to_dict(self):
+        def_b_dict = super(DefconfigBisectDocument, self).to_dict()
+        def_b_dict[models.DEFCONFIG_ID_KEY] = self.defconfig_id
+        def_b_dict[models.DEFCONFIG_KEY] = self.defconfig
+        def_b_dict[models.DEFCONFIG_FULL_KEY] = self.defconfig_full
+        def_b_dict[models.ARCHITECTURE_KEY] = self.arch
+
+        return def_b_dict

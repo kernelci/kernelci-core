@@ -13,160 +13,287 @@
 
 """Set of common functions for all handlers."""
 
+import pymongo
 import types
 
-from bson import tz_util
+from bson import (
+    objectid,
+    tz_util,
+)
 from datetime import (
     date,
     datetime,
     time,
     timedelta,
 )
-from pymongo import (
-    ASCENDING,
-    DESCENDING,
-)
 
-from models import (
-    ADMIN_KEY,
-    AGGREGATE_KEY,
-    ARCHITECTURE_KEY,
-    BOARD_KEY,
-    BOOT_COLLECTION,
-    COLLECTION_KEY,
-    CREATED_KEY,
-    DATE_RANGE_KEY,
-    DEFCONFIG_COLLECTION,
-    DEFCONFIG_KEY,
-    DELETE_KEY,
-    DOCUMENT_ID_KEY,
-    EMAIL_KEY,
-    ERRORS_KEY,
-    EXPIRED_KEY,
-    EXPIRES_KEY,
-    FIELD_KEY,
-    GET_KEY,
-    IP_ADDRESS_KEY,
-    IP_RESTRICTED,
-    JOB_COLLECTION,
-    JOB_ID_KEY,
-    JOB_KEY,
-    KERNEL_KEY,
-    LIMIT_KEY,
-    METHOD_KEY,
-    NOT_FIELD_KEY,
-    OP_ID_KEY,
-    POST_KEY,
-    PRIVATE_KEY,
-    PROPERTIES_KEY,
-    QUERY_KEY,
-    SKIP_KEY,
-    SORT_KEY,
-    SORT_ORDER_KEY,
-    STATUS_KEY,
-    SUPERUSER_KEY,
-    TIME_KEY,
-    TOKEN_KEY,
-    USERNAME_KEY,
-    WARNINGS_KEY,
-)
-from models.token import Token
-from utils import get_log
+import models
+import models.token as mtoken
+import utils
 
 # Default value to calculate a date range in case the provided value is
 # out of range.
 DEFAULT_DATE_RANGE = 5
 
-LOG = get_log()
-
 # All the available collections as key-value. The key is the same used for the
 # URL configuration.
 COLLECTIONS = {
-    'boot': BOOT_COLLECTION,
-    'defconfig': DEFCONFIG_COLLECTION,
-    'job': JOB_COLLECTION,
+    'boot': models.BOOT_COLLECTION,
+    'defconfig': models.DEFCONFIG_COLLECTION,
+    'job': models.JOB_COLLECTION,
 }
 
 # Handlers valid keys.
 BOOT_VALID_KEYS = {
-    'POST': [JOB_KEY, KERNEL_KEY],
+    'POST': {
+        models.MANDATORY_KEYS: [
+            models.ARCHITECTURE_KEY,
+            models.BOARD_KEY,
+            models.DEFCONFIG_KEY,
+            models.JOB_KEY,
+            models.KERNEL_KEY,
+            models.LAB_NAME_KEY,
+            models.VERSION_KEY,
+        ],
+        models.ACCEPTED_KEYS: [
+            models.ARCHITECTURE_KEY,
+            models.BOARD_INSTANCE_KEY,
+            models.BOARD_KEY,
+            models.BOOT_LOAD_ADDR_KEY,
+            models.BOOT_LOG_HTML_KEY,
+            models.BOOT_LOG_KEY,
+            models.BOOT_RESULT_DESC_KEY,
+            models.BOOT_RESULT_KEY,
+            models.BOOT_RETRIES_KEY,
+            models.BOOT_TIME_KEY,
+            models.BOOT_WARNINGS_KEY,
+            models.DEFCONFIG_FULL_KEY,
+            models.DEFCONFIG_KEY,
+            models.DTB_ADDR_KEY,
+            models.DTB_APPEND_KEY,
+            models.DTB_KEY,
+            models.EMAIL_KEY,
+            models.ENDIANNESS_KEY,
+            models.FASTBOOT_CMD_KEY,
+            models.FASTBOOT_KEY,
+            models.FILE_SERVER_RESOURCE_KEY,
+            models.FILE_SERVER_URL_KEY,
+            models.GIT_BRANCH_KEY,
+            models.GIT_COMMIT_KEY,
+            models.GIT_DESCRIBE_KEY,
+            models.GIT_URL_KEY,
+            models.ID_KEY,
+            models.INITRD_ADDR_KEY,
+            models.INITRD_KEY,
+            models.JOB_KEY,
+            models.KERNEL_IMAGE_KEY,
+            models.KERNEL_KEY,
+            models.LAB_NAME_KEY,
+            models.NAME_KEY,
+            models.STATUS_KEY,
+            models.VERSION_KEY
+        ]
+    },
     'GET': [
-        CREATED_KEY, WARNINGS_KEY, JOB_ID_KEY, BOARD_KEY,
-        JOB_KEY, KERNEL_KEY, DEFCONFIG_KEY, TIME_KEY, STATUS_KEY,
+        models.ARCHITECTURE_KEY,
+        models.BOARD_KEY,
+        models.CREATED_KEY,
+        models.DEFCONFIG_FULL_KEY,
+        models.DEFCONFIG_ID_KEY,
+        models.DEFCONFIG_KEY,
+        models.ENDIANNESS_KEY,
+        models.GIT_BRANCH_KEY,
+        models.GIT_COMMIT_KEY,
+        models.ID_KEY,
+        models.JOB_ID_KEY,
+        models.JOB_KEY,
+        models.KERNEL_KEY,
+        models.LAB_NAME_KEY,
+        models.NAME_KEY,
+        models.STATUS_KEY,
+        models.WARNINGS_KEY,
     ],
     'DELETE': [
-        JOB_KEY, KERNEL_KEY, DEFCONFIG_KEY, BOARD_KEY, JOB_ID_KEY
+        models.BOARD_KEY,
+        models.DEFCONFIG_FULL_KEY,
+        models.DEFCONFIG_ID_KEY,
+        models.DEFCONFIG_KEY,
+        models.ID_KEY,
+        models.JOB_ID_KEY,
+        models.JOB_KEY,
+        models.KERNEL_KEY,
+        models.NAME_KEY,
     ]
 }
 
 COUNT_VALID_KEYS = {
     'GET': [
-        ARCHITECTURE_KEY,
-        BOARD_KEY,
-        CREATED_KEY,
-        DEFCONFIG_KEY,
-        ERRORS_KEY,
-        JOB_ID_KEY,
-        JOB_KEY,
-        KERNEL_KEY,
-        PRIVATE_KEY,
-        STATUS_KEY,
-        TIME_KEY,
-        WARNINGS_KEY,
+        models.ARCHITECTURE_KEY,
+        models.BOARD_KEY,
+        models.CREATED_KEY,
+        models.DEFCONFIG_FULL_KEY,
+        models.DEFCONFIG_ID_KEY,
+        models.DEFCONFIG_KEY,
+        models.ERRORS_KEY,
+        models.GIT_BRANCH_KEY,
+        models.GIT_COMMIT_KEY,
+        models.GIT_DESCRIBE_KEY,
+        models.ID_KEY,
+        models.JOB_ID_KEY,
+        models.JOB_KEY,
+        models.KERNEL_CONFIG_KEY,
+        models.KERNEL_IMAGE_KEY,
+        models.KERNEL_KEY,
+        models.MODULES_DIR_KEY,
+        models.MODULES_KEY,
+        models.NAME_KEY,
+        models.PRIVATE_KEY,
+        models.STATUS_KEY,
+        models.SYSTEM_MAP_KEY,
+        models.TEXT_OFFSET_KEY,
+        models.TIME_KEY,
+        models.WARNINGS_KEY,
     ],
 }
 
 DEFCONFIG_VALID_KEYS = {
     'GET': [
-        DEFCONFIG_KEY, WARNINGS_KEY, ERRORS_KEY, ARCHITECTURE_KEY,
-        JOB_KEY, KERNEL_KEY, STATUS_KEY, JOB_ID_KEY, CREATED_KEY,
+        models.ARCHITECTURE_KEY,
+        models.BUILD_LOG_KEY,
+        models.CREATED_KEY,
+        models.DEFCONFIG_FULL_KEY,
+        models.DEFCONFIG_KEY,
+        models.DIRNAME_KEY,
+        models.ERRORS_KEY,
+        models.GIT_BRANCH_KEY,
+        models.GIT_COMMIT_KEY,
+        models.GIT_DESCRIBE_KEY,
+        models.ID_KEY,
+        models.JOB_ID_KEY,
+        models.JOB_KEY,
+        models.KCONFIG_FRAGMENTS_KEY,
+        models.KERNEL_CONFIG_KEY,
+        models.KERNEL_IMAGE_KEY,
+        models.KERNEL_KEY,
+        models.MODULES_DIR_KEY,
+        models.MODULES_KEY,
+        models.NAME_KEY,
+        models.STATUS_KEY,
+        models.SYSTEM_MAP_KEY,
+        models.TEXT_OFFSET_KEY,
+        models.WARNINGS_KEY,
     ],
 }
 
 TOKEN_VALID_KEYS = {
     'POST': [
-        ADMIN_KEY,
-        DELETE_KEY,
-        EMAIL_KEY,
-        EXPIRES_KEY,
-        GET_KEY,
-        IP_ADDRESS_KEY,
-        IP_RESTRICTED,
-        POST_KEY,
-        SUPERUSER_KEY,
-        USERNAME_KEY,
+        models.ADMIN_KEY,
+        models.DELETE_KEY,
+        models.EMAIL_KEY,
+        models.EXPIRES_KEY,
+        models.GET_KEY,
+        models.IP_ADDRESS_KEY,
+        models.IP_RESTRICTED,
+        models.LAB_KEY,
+        models.NAME_KEY,
+        models.POST_KEY,
+        models.SUPERUSER_KEY,
+        models.USERNAME_KEY
     ],
     'GET': [
-        CREATED_KEY,
-        EMAIL_KEY,
-        EXPIRED_KEY,
-        EXPIRES_KEY,
-        IP_ADDRESS_KEY,
-        PROPERTIES_KEY,
-        TOKEN_KEY,
-        USERNAME_KEY,
+        models.CREATED_KEY,
+        models.EMAIL_KEY,
+        models.EXPIRED_KEY,
+        models.EXPIRES_KEY,
+        models.ID_KEY,
+        models.IP_ADDRESS_KEY,
+        models.NAME_KEY,
+        models.PROPERTIES_KEY,
+        models.TOKEN_KEY,
+        models.USERNAME_KEY
     ],
 }
 
 SUBSCRIPTION_VALID_KEYS = {
-    'GET': [JOB_KEY],
-    'POST': [JOB_KEY, EMAIL_KEY],
-    'DELETE': [EMAIL_KEY],
+    'GET': [
+        models.JOB_KEY
+    ],
+    'POST': [
+        models.EMAIL_KEY,
+        models.JOB_KEY,
+    ],
+    'DELETE': [
+        models.EMAIL_KEY
+    ],
 }
 
 JOB_VALID_KEYS = {
-    'POST': [JOB_KEY, KERNEL_KEY],
+    'POST': [
+        models.JOB_KEY,
+        models.KERNEL_KEY
+    ],
     'GET': [
-        JOB_KEY, KERNEL_KEY, STATUS_KEY, PRIVATE_KEY, CREATED_KEY,
+        models.CREATED_KEY,
+        models.ID_KEY,
+        models.JOB_KEY,
+        models.KERNEL_KEY,
+        models.NAME_KEY,
+        models.PRIVATE_KEY,
+        models.STATUS_KEY,
     ],
 }
 
 BATCH_VALID_KEYS = {
     "POST": [
-        METHOD_KEY, COLLECTION_KEY, QUERY_KEY, OP_ID_KEY,
-        DOCUMENT_ID_KEY
+        models.COLLECTION_KEY,
+        models.DOCUMENT_ID_KEY,
+        models.METHOD_KEY,
+        models.OP_ID_KEY,
+        models.QUERY_KEY,
     ]
 }
+
+LAB_VALID_KEYS = {
+    "POST": {
+        models.MANDATORY_KEYS: [
+            models.CONTACT_KEY,
+            models.NAME_KEY,
+        ],
+        models.ACCEPTED_KEYS: [
+            models.ADDRESS_KEY,
+            models.CONTACT_KEY,
+            models.NAME_KEY,
+            models.PRIVATE_KEY,
+            models.TOKEN_KEY,
+            models.VERSION_KEY,
+        ]
+    },
+    "GET": [
+        models.ADDRESS_KEY,
+        models.CONTACT_KEY,
+        models.CREATED_KEY,
+        models.ID_KEY,
+        models.NAME_KEY,
+        models.PRIVATE_KEY,
+        models.TOKEN_KEY,
+        models.UPDATED_KEY,
+    ],
+    "DELETE": [
+        models.ADDRESS_KEY,
+        models.CONTACT_KEY,
+        models.ID_KEY,
+        models.NAME_KEY,
+        models.TOKEN_KEY,
+    ]
+}
+
+ID_KEYS = [
+    models.BOOT_ID_KEY,
+    models.DEFCONFIG_ID_KEY,
+    models.ID_KEY,
+    models.JOB_ID_KEY,
+    models.LAB_ID_KEY,
+]
 
 MASTER_KEY = 'master_key'
 API_TOKEN_HEADER = 'Authorization'
@@ -186,7 +313,9 @@ def get_all_query_values(query_args_func, valid_keys):
     :type valid_keys: list
     """
     spec = get_query_spec(query_args_func, valid_keys)
-    spec = get_and_add_date_range(spec, query_args_func)
+
+    get_and_add_date_range(spec, query_args_func)
+    update_id_fields(spec)
 
     sort = get_query_sort(query_args_func)
     fields = get_query_fields(query_args_func)
@@ -194,6 +323,21 @@ def get_all_query_values(query_args_func, valid_keys):
     unique = get_aggregate_value(query_args_func)
 
     return (spec, sort, fields, skip, limit, unique)
+
+
+def update_id_fields(spec):
+    """Make sure ID fields are treated correctly.
+
+    If we search for an ID field, either _id or like job_id, that references
+    a real _id in mongodb, we need to make sure they are treated as such.
+    mongodb stores them as ObjectId elements.
+
+    :param spec: The spec data structure with the parameters to check.
+    """
+    if spec:
+        common_keys = list(set(ID_KEYS) & set(spec.viewkeys()))
+        for key in common_keys:
+            spec[key] = objectid.ObjectId(spec[key])
 
 
 def get_aggregate_value(query_args_func):
@@ -204,7 +348,7 @@ def get_aggregate_value(query_args_func):
     :type query_args_func: function
     :return The aggregate value as string.
     """
-    aggregate = query_args_func(AGGREGATE_KEY)
+    aggregate = query_args_func(models.AGGREGATE_KEY)
     if all([aggregate and isinstance(aggregate, types.ListType)]):
         aggregate = aggregate[-1]
     else:
@@ -276,7 +420,7 @@ def get_and_add_date_range(spec, query_args_func):
     :type query_args_func: function
     :return The passed `spec` updated.
     """
-    date_range = query_args_func(DATE_RANGE_KEY)
+    date_range = query_args_func(models.DATE_RANGE_KEY)
     if date_range:
         # Today needs to be set at the end of the day!
         today = datetime.combine(
@@ -284,7 +428,7 @@ def get_and_add_date_range(spec, query_args_func):
         )
         previous = calculate_date_range(date_range)
 
-        spec[CREATED_KEY] = {'$gte': previous, '$lt': today}
+        spec[models.CREATED_KEY] = {'$gte': previous, '$lt': today}
     return spec
 
 
@@ -307,7 +451,9 @@ def calculate_date_range(date_range):
         try:
             date_range = int(date_range)
         except ValueError:
-            LOG.error("Wrong value passed to date_range: %s", date_range)
+            utils.LOG.error(
+                "Wrong value passed to date_range: %s", date_range
+            )
             date_range = DEFAULT_DATE_RANGE
 
     date_range = abs(date_range)
@@ -335,7 +481,9 @@ def get_query_fields(query_args_func):
     :return A `fields` data structure (list or dictionary).
     """
     fields = None
-    y_fields, n_fields = map(query_args_func, [FIELD_KEY, NOT_FIELD_KEY])
+    y_fields, n_fields = map(
+        query_args_func, [models.FIELD_KEY, models.NOT_FIELD_KEY]
+    )
 
     if y_fields and not n_fields:
         fields = list(set(y_fields))
@@ -360,21 +508,24 @@ def get_query_sort(query_args_func):
     :return A `sort` data structure, or None.
     """
     sort = None
-    sort_fields, sort_order = map(query_args_func, [SORT_KEY, SORT_ORDER_KEY])
+    sort_fields, sort_order = map(
+        query_args_func, [models.SORT_KEY, models.SORT_ORDER_KEY]
+    )
 
     if sort_fields:
         if all([sort_order, isinstance(sort_order, types.ListType)]):
             sort_order = int(sort_order[-1])
         else:
-            sort_order = DESCENDING
+            sort_order = pymongo.DESCENDING
 
         # Wrong number for sort order? Force descending.
-        if all([sort_order != ASCENDING, sort_order != DESCENDING]):
-            LOG.warn(
+        if all([sort_order != pymongo.ASCENDING,
+                sort_order != pymongo.DESCENDING]):
+            utils.LOG.warn(
                 "Wrong sort order used (%d), default to %d",
-                sort_order, DESCENDING
+                sort_order, pymongo.DESCENDING
             )
-            sort_order = DESCENDING
+            sort_order = pymongo.DESCENDING
 
         sort = [
             (field, sort_order)
@@ -392,7 +543,7 @@ def get_skip_and_limit(query_args_func):
     :type query_args_func: function
     :return A tuple with the `skip` and `limit` arguments.
     """
-    skip, limit = map(query_args_func, [SKIP_KEY, LIMIT_KEY])
+    skip, limit = map(query_args_func, [models.SKIP_KEY, models.LIMIT_KEY])
 
     if all([skip, isinstance(skip, types.ListType)]):
         skip = int(skip[-1])
@@ -410,6 +561,9 @@ def get_skip_and_limit(query_args_func):
 def valid_token_general(token, method):
     """Make sure the token can be used for an HTTP method.
 
+    For DELETE requests, if the token is a lab token, the request will be
+    refused. The lab token can be used only to delete boot reports.
+
     :param token: The Token object to validate.
     :param method: The HTTP verb this token is being validated for.
     :return True or False.
@@ -420,7 +574,29 @@ def valid_token_general(token, method):
         valid_token = True
     elif method == "POST" and token.is_post_token:
         valid_token = True
-    elif method == "DELETE" and token.is_delete_token:
+    elif all([method == "DELETE", token.is_delete_token]):
+        if not token.is_lab_token:
+            valid_token = True
+
+    return valid_token
+
+
+def valid_token_bh(token, method):
+    """Make sure the token is a valid token for the `BootHandler`.
+
+    This is a special case to handle a lab token (token associeated with a lab)
+
+    :param token: The Token object to validate.
+    :param method: The HTTP verb this token is being validated for.
+    :return True or False.
+    """
+    valid_token = False
+
+    if all([method == "GET", token.is_get_token]):
+        valid_token = True
+    elif all([method == "POST", token.is_post_token]):
+        valid_token = True
+    elif all([method == "DELETE", token.is_delete_token]):
         valid_token = True
 
     return valid_token
@@ -440,7 +616,7 @@ def valid_token_th(token, method):
 
     if token.is_admin:
         valid_token = True
-    elif token.is_superuser and method == "GET":
+    elif all([token.is_superuser, method == "GET"]):
         valid_token = True
 
     return valid_token
@@ -453,16 +629,16 @@ def validate_token(token_obj, method, remote_ip, validate_func):
     :param method: The HTTP verb this token is being validated for.
     :param remote_ip: The remote IP address sending the token.
     :param validate_func: Function called to validate the token, must accept
-        a Token object, the method string and kwargs.
+        a Token object and the method string.
     :return True or False.
     """
     valid_token = True
 
     if token_obj:
-        token = Token.from_json(token_obj)
+        token = mtoken.Token.from_json(token_obj)
 
-        if not isinstance(token, Token):
-            LOG.error("Retrieved token is not a Token object")
+        if not isinstance(token, mtoken.Token):
+            utils.LOG.error("Retrieved token is not a Token object")
             valid_token = False
         else:
             valid_token &= validate_func(token, method)
@@ -483,14 +659,19 @@ def _valid_token_ip(token, remote_ip):
     :param remote_ip: The remote IP address sending the token.
     :return True or False.
     """
-    valid_token = True
+    valid_token = False
 
-    # TODO: what if we have a pool of IPs for the token?
-    if token.ip_address != remote_ip:
-        LOG.info(
-            "IP restricted token from wrong IP address: %s",
-            remote_ip
-        )
-        valid_token = False
+    if remote_ip:
+        remote_ip = mtoken.convert_ip_address(remote_ip)
+
+        if remote_ip in token.ip_address:
+            valid_token = True
+        else:
+            utils.LOG.warn(
+                "IP restricted token from wrong IP address: %s",
+                remote_ip
+            )
+    else:
+        utils.LOG.info("No remote IP address provided, cannot validate token")
 
     return valid_token
