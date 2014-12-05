@@ -285,7 +285,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 response.result = None
         else:
             response = hresponse.HandlerResponse(403)
-            response.status = hcommon.NOT_VALID_TOKEN
+            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 
