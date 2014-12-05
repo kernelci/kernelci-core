@@ -285,6 +285,7 @@ def boot_report(args):
                                                                                                         defconfig,
                                                                                                         result['device_type']))
             f.write('\n')
+            f.write('\n')
             f.write('Full Boot Report:\n')
             for defconfig, results_list in results.items():
                 f.write('\n')
@@ -340,16 +341,17 @@ def boot_report(args):
                                                                                                     result['dt_tests_failed'],
                                                                                                     result['dt_test_result']))
                         if args.lab:
-                            f.write('    http://storage.armcloud.us/kernel-ci/%s/%s/%s/%s/boot-%s.html\n' % (kernel_tree,
+                            f.write('    http://storage.armcloud.us/kernel-ci/%s/%s/%s/%s/boot-%s.html' % (kernel_tree,
                                                                                                         kernel_version,
                                                                                                         defconfig,
                                                                                                         args.lab,
                                                                                                         result['device_type']))
                         else:
-                            f.write('    http://storage.armcloud.us/kernel-ci/%s/%s/%s/boot-%s.html\n' % (kernel_tree,
+                            f.write('    http://storage.armcloud.us/kernel-ci/%s/%s/%s/boot-%s.html' % (kernel_tree,
                                                                                                         kernel_version,
                                                                                                         defconfig,
                                                                                                         result['device_type']))
+            f.write('\n')
             f.write('\n')
             f.write('Full Unit Test Report:\n')
             for defconfig, results_list in results.items():
