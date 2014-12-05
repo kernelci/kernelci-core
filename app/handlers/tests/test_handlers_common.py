@@ -386,10 +386,28 @@ class TestHandlersCommon(unittest.TestCase):
         token.is_get_token = True
         token.is_post_token = True
         token.is_delete_token = True
+        token.is_lab_token = False
 
+        self.assertFalse(token.is_lab_token)
         self.assertTrue(valid_token_general(token, "GET"))
         self.assertTrue(valid_token_general(token, "POST"))
         self.assertTrue(valid_token_general(token, "DELETE"))
+
+    @patch("models.token.Token", spec=True)
+    def test_valid_token_general_lab_token(self, mock_class):
+        token = mock_class.return_value
+
+        self.assertIsInstance(token, Token)
+
+        token.is_get_token = False
+        token.is_post_token = True
+        token.is_delete_token = True
+        token.is_lab_token = True
+
+        self.assertTrue(token.is_lab_token)
+        self.assertFalse(valid_token_general(token, "GET"))
+        self.assertTrue(valid_token_general(token, "POST"))
+        self.assertFalse(valid_token_general(token, "DELETE"))
 
     @patch("models.token.Token", spec=True)
     def test_valid_token_general_false(self, mock_class):

@@ -561,6 +561,9 @@ def get_skip_and_limit(query_args_func):
 def valid_token_general(token, method):
     """Make sure the token can be used for an HTTP method.
 
+    For DELETE requests, if the token is a lab token, the request will be
+    refused. The lab token can be used only to delete boot reports.
+
     :param token: The Token object to validate.
     :param method: The HTTP verb this token is being validated for.
     :return True or False.
@@ -571,7 +574,29 @@ def valid_token_general(token, method):
         valid_token = True
     elif method == "POST" and token.is_post_token:
         valid_token = True
-    elif method == "DELETE" and token.is_delete_token:
+    elif all([method == "DELETE", token.is_delete_token]):
+        if not token.is_lab_token:
+            valid_token = True
+
+    return valid_token
+
+
+def valid_token_bh(token, method):
+    """Make sure the token is a valid token for the `BootHandler`.
+
+    This is a special case to handle a lab token (token associeated with a lab)
+
+    :param token: The Token object to validate.
+    :param method: The HTTP verb this token is being validated for.
+    :return True or False.
+    """
+    valid_token = False
+
+    if all([method == "GET", token.is_get_token]):
+        valid_token = True
+    elif all([method == "POST", token.is_post_token]):
+        valid_token = True
+    elif all([method == "DELETE", token.is_delete_token]):
         valid_token = True
 
     return valid_token
@@ -591,7 +616,7 @@ def valid_token_th(token, method):
 
     if token.is_admin:
         valid_token = True
-    elif token.is_superuser and method == "GET":
+    elif all([token.is_superuser, method == "GET"]):
         valid_token = True
 
     return valid_token
