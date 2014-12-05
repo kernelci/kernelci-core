@@ -41,6 +41,10 @@ class BootHandler(hbase.BaseHandler):
     def _valid_keys(method):
         return hcommon.BOOT_VALID_KEYS.get(method, None)
 
+    @staticmethod
+    def _token_validation_func():
+        return hcommon.valid_token_bh
+
     def _post(self, *args, **kwargs):
         req_token = self.get_request_token()
         lab_name = kwargs["json_obj"].get(models.LAB_NAME_KEY, None)
