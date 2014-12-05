@@ -140,6 +140,13 @@ qemu_arm_cortex_a9 = {'device_type': 'qemu-arm-cortex-a9',
                       'be': False,
                       'fastboot': False}
 
+qemu_arm_cortex_a9_legacy = {'device_type': 'qemu-arm-cortex-a9',
+                             'templates': ['generic-arm-kernel-ci-boot-template.json'],
+                             'defconfig_blacklist': [],
+                             'lpae': False,
+                             'be': False,
+                             'fastboot': False}
+
 qemu_arm_cortex_a15_a7 = {'device_type': 'qemu-arm-cortex-a15',
                           'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
                           'defconfig_blacklist': [],
@@ -153,6 +160,13 @@ qemu_arm_cortex_a15 = {'device_type': 'qemu-arm-cortex-a15',
                        'lpae': True,
                        'be': False,
                        'fastboot': False}
+
+qemu_arm_cortex_a15_legacy = {'device_type': 'qemu-arm-cortex-a15',
+                              'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                              'defconfig_blacklist': [],
+                              'lpae': True,
+                              'be': False,
+                              'fastboot': False}
 
 qemu_arm = {'device_type': 'qemu-arm',
             'templates': ['generic-arm-kernel-ci-boot-template.json'],
@@ -205,8 +219,10 @@ device_map = {'exynos5250-arndale.dtb': arndale,
               'tegra124-jetson-tk1.dtb': jetson_tk1,
               'zynq-parallella.dtb': parallella,
               'vexpress-v2p-ca15-tc1.dtb': qemu_arm_cortex_a15,
+              'vexpress-v2p-ca15-tc1-legacy': qemu_arm_cortex_a15_legacy,
               'vexpress-v2p-ca15_a7.dtb': qemu_arm_cortex_a15_a7,
               'vexpress-v2p-ca9.dtb': qemu_arm_cortex_a9,
+              'vexpress-v2p-ca9-legacy': qemu_arm_cortex_a9_legacy,
               'qemu-arm': qemu_arm,
               'qemu-aarch64': qemu_aarch64,
               'x86': x86,
@@ -234,7 +250,6 @@ def create_jobs(base_url, kernel, platform_list, target):
     tree = build_info[2]
     kernel_version = build_info[3]
     defconfig = build_info[4]
-    print platform_list
 
     for platform in platform_list:
         platform_name = platform.split('/')[-1]
@@ -329,6 +344,9 @@ def walk_url(url, arch=None, target=None):
             if 'zImage' in name and 'arm' in url:
                 kernel = url + name
                 base_url = url
+            # qemu-arm
+            if 'arm-versatile_defconfig' in url:
+                platform_list.append(url + 'qemu-arm')
             if name.endswith('.dtb') and name in device_map:
                 if base_url and base_url in url:
                     platform_list.append(url + name)
@@ -343,6 +361,9 @@ def walk_url(url, arch=None, target=None):
         # beagle-xm-legacy
         if 'arm-omap2plus_defconfig' in base_url:
             platform_list.append(url + 'omap3-beagle-xm-legacy')
+        # vexpress-v2p-ca9,legacy
+        if 'arm-vexpress_defconfig' in url:
+            platform_list.append(url + 'vexpress-v2p-ca9-legacy')
         create_jobs(base_url, kernel, platform_list, target)
         base_url = None
         kernel = None
