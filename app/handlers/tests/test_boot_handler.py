@@ -135,6 +135,17 @@ class TestBootHandler(
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
+    def test_delete_with_bogus_objectid(self):
+        headers = {'Authorization': 'foo'}
+
+        response = self.fetch(
+            '/boot/!@#$!#$foo', method='DELETE', headers=headers,
+        )
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
     def test_delete_wrong_spec(self):
         headers = {'Authorization': 'foo'}
 
