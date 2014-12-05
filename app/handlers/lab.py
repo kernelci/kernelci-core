@@ -275,6 +275,8 @@ class LabHandler(handlers.base.BaseHandler):
                 lab_doc.contact[models.SURNAME_KEY]
             )
             token.is_post_token = True
+            token.is_delete_token = True
+            token.is_lab_token = True
             ret_val, token_id = utils.db.save(self.db, token, manipulate=True)
 
         if ret_val == 201 or ret_val == 200:
