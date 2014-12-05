@@ -27,7 +27,7 @@ server {
         add_header Cache-Control "public";
     }
 
-    location ~* /(?:(count|job|defconfig|boot|token|batch|bisect|lab)(.*)(?!(\.(html?|json|css|js))))$ {
+    location ~* /(?:(count|job|defconfig|boot|token|batch|bisect|lab|version)(.*)(?!(\.(html?|json|css|js))))$ {
 
         # Proxy cache, disabled for now.
         # proxy_cache BACKEND;
