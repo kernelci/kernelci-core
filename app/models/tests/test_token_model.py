@@ -115,6 +115,12 @@ class TestTokenModel(unittest.TestCase):
         self.assertEqual(token_obj.is_delete_token, 1)
         self.assertEqual(token_obj.is_post_token, 1)
 
+    def test_token_is_lab_token(self):
+        token_obj = modt.Token()
+        token_obj.is_lab_token = 1
+
+        self.assertEqual(token_obj.is_lab_token, 1)
+
     def test_token_wrong_numeric_value(self):
         token_obj = modt.Token()
         self.assertRaises(ValueError, setattr, token_obj, "is_admin", 2)

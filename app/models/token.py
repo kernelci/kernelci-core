@@ -55,6 +55,7 @@ class Token(modb.BaseDocument):
     - 4: if the token can perform DELETE
     - 5: if the token is IP restricted
     - 6: if the token can create new tokens
+    - 7: if the token is a boot lab token
     """
 
     def __init__(self):
@@ -285,6 +286,15 @@ class Token(modb.BaseDocument):
         """Sets whether this token can create new tokens."""
         value = check_attribute_value(value)
         self._properties[6] = value
+
+    @property
+    def is_lab_token(self):
+        return self._properties[7]
+
+    @is_lab_token.setter
+    def is_lab_token(self, value):
+        value = check_attribute_value(value)
+        self._properties[7] = value
 
     def is_valid_ip(self, address):
         """Check if an IP address is valid for a token.
