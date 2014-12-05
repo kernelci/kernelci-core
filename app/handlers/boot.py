@@ -21,6 +21,7 @@ import handlers.base as hbase
 import handlers.common as hcommon
 import handlers.response as hresponse
 import models
+import models.lab as mlab
 import models.token as mtoken
 import taskqueue.tasks as taskq
 import utils.db
@@ -117,10 +118,17 @@ class BootHandler(hbase.BaseHandler):
                 try:
                     doc_id = kwargs["id"]
                     obj_id = bson.objectid.ObjectId(doc_id)
-                    if utils.db.find_one(self.collection, [obj_id]):
-                        response = self._delete(obj_id)
-                        if response.status_code == 200:
-                            response.reason = "Resource '%s' deleted" % doc_id
+
+                    boot_doc = utils.db.find_one(self.collection, [obj_id])
+                    if boot_doc:
+                        if self._valid_boot_delete_token(boot_doc):
+                            response = self._delete(obj_id)
+                            if response.status_code == 200:
+                                response.reason = (
+                                    "Resource '%s' deleted" % doc_id)
+                        else:
+                            response = hresponse.HandlerResponse(403)
+                            response.reason = hcommon.NOT_VALID_TOKEN
                     else:
                         response = hresponse.HandlerResponse(404)
                         response.reason = "Resource '%s' not found" % doc_id
@@ -152,6 +160,44 @@ class BootHandler(hbase.BaseHandler):
             response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
+
+    def _valid_boot_delete_token(self, boot_doc):
+        """Make sure the token is an actual delete token.
+
+        This is an extra step in making sure the token is valid. A lab
+        token, token used to send boot reports, can be used to delete boot
+        reports only belonging to its lab.
+
+        :param boot_doc: The document to delete.
+        :type boot_doc: dict
+        :return True or False.
+        """
+        valid_token = True
+        req_token = self.get_request_token()
+        token = self._find_token(req_token, self.db)
+
+        if token:
+            token = mtoken.Token.from_json(token)
+
+            # Just need to check if it is a lab token. A validation has already
+            # occurred makig sure is a valid DELETE one. This is the extra step.
+            if token.is_lab_token:
+                # This is only valid if the lab matches.
+                valid_token = False
+
+                lab_doc = utils.db.find_one(
+                    self.db[models.LAB_COLLECTION],
+                    [boot_doc[models.LAB_NAME_KEY]],
+                    field=models.NAME_KEY
+                )
+
+                if lab_doc:
+                    lab_doc = mlab.LabDocument.from_json(lab_doc)
+
+                    if lab_doc.token == token.id:
+                        valid_token = True
+
+        return valid_token
 
     def _delete(self, spec_or_id):
         response = hresponse.HandlerResponse(200)
