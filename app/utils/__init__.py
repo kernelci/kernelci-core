@@ -32,3 +32,17 @@ def is_hidden(value):
     if value.startswith("."):
         hidden = True
     return hidden
+
+
+def is_lab_dir(value):
+    """Verify if a file name or dir name is a lab one.
+
+    A lab dir name starts with 'lab-'.
+
+    :param value: The value to verify.
+    :return True or False.
+    """
+    is_lab = False
+    if value.startswith("lab-"):
+        is_lab = True
+    return is_lab
