@@ -195,8 +195,8 @@ def _parse_build_data(data_file, job, kernel):
     :param defconf_doc: The `DefconfigDocument` whose metadata will be updated.
     """
     build_data = None
-    with open(data_file) as data_file:
-        build_data = json.load(data_file)
+    with open(data_file) as data:
+        build_data = json.load(data)
 
     defconfig_doc = None
 
