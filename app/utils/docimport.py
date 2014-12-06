@@ -43,14 +43,15 @@ def import_and_save_job(json_obj, db_options, base_path=utils.BASE_PATH):
     :type json_obj: dict
     :param db_options: The mongodb database connection parameters.
     :type db_options: dict
-    :return The ID of the created document.
+    :return The ID of the job document created.
     """
     database = utils.db.get_db_connection(db_options)
     docs, job_id = import_job_from_json(json_obj, database, base_path)
 
     if docs:
         utils.LOG.info(
-            "Importing %d documents with job ID: %s", len(docs), job_id
+            "Importing %d documents with job ID: %s",
+            len(docs), job_id
         )
         utils.db.save_all(database, docs)
     else:
@@ -88,6 +89,9 @@ def _import_job(job, kernel, database, base_path=utils.BASE_PATH):
     :return The documents to be saved, and the job document ID.
     """
     docs = []
+    ret_val = 201
+    job_id = None
+
     job_dir = os.path.join(base_path, job)
     kernel_dir = os.path.join(job_dir, kernel)
 
@@ -104,10 +108,30 @@ def _import_job(job, kernel, database, base_path=utils.BASE_PATH):
     )
     if saved_doc:
         job_doc = mjob.JobDocument.from_json(saved_doc)
+        job_id = job_doc.id
     else:
         job_doc = mjob.JobDocument(job, kernel)
+        ret_val, job_id = utils.db.save(
+            database, job_doc, manipulate=True)
 
-    docs.append(job_doc)
+    if all([ret_val == 201, job_id is not None]):
+        job_doc.id = job_id
+        docs = _traverse_kernel_dir(job_doc, kernel_dir, database)
+    else:
+        utils.LOG.error("Unable to save job document %s", job_name)
+        job_id = None
+
+    return docs, job_id
+
+
+def _traverse_kernel_dir(job_doc, kernel_dir, database):
+    """Traverse the kernel directory looking for defconfig dirs.
+
+    :param job_doc: The created `JobDocument`.
+    :param kernel_dir: The kernel directory to traverse.
+    :param database: The database connection.
+    """
+    docs = []
 
     if os.path.isdir(kernel_dir):
         if (os.path.exists(os.path.join(kernel_dir, models.DONE_FILE)) or
@@ -125,7 +149,7 @@ def _import_job(job, kernel, database, base_path=utils.BASE_PATH):
         docs.extend(
             [
                 _traverse_defconf_dir(
-                    job, kernel, kernel_dir, defconf_dir
+                    job_doc, kernel_dir, defconf_dir, database
                 ) for defconf_dir in os.listdir(kernel_dir)
                 if os.path.isdir(os.path.join(kernel_dir, defconf_dir))
                 if not utils.is_hidden(defconf_dir)
@@ -159,17 +183,23 @@ def _import_job(job, kernel, database, base_path=utils.BASE_PATH):
             else:
                 idx += 1
 
-    return (docs, job_name)
+    return docs
 
 
-def _traverse_defconf_dir(job, kernel, kernel_dir, defconfig_dir):
+def _traverse_defconf_dir(
+        job_doc, kernel_dir, defconfig_dir, database=None):
     """Traverse the defconfig directory looking for files.
 
+    :param job_doc: The created `JobDocument`.
     :param kernel_dir: The parent directory of this defconfig.
     :param defconfig_dir: The actual defconfig directory to parse.
+    :param database: The database connection.
     :return A `DefconfigDocument` instance.
     """
+    job = job_doc.job
+    kernel = job_doc.kernel
     real_dir = os.path.join(kernel_dir, defconfig_dir)
+
     utils.LOG.info("Traversing directory '%s'", real_dir)
 
     defconfig_doc = None
@@ -181,7 +211,16 @@ def _traverse_defconf_dir(job, kernel, kernel_dir, defconfig_dir):
 
         if os.path.isfile(data_file):
             defconfig_doc = _parse_build_data(data_file, job, kernel)
+            defconfig_doc.job_id = job_doc.id
             defconfig_doc.dirname = defconfig_dir
+
+            if all([defconfig_doc, database]):
+                prev_doc = utils.db.find_one(
+                    database[models.DEFCONFIG_COLLECTION],
+                    [defconfig_doc.name],
+                    field=models.NAME_KEY)
+                if prev_doc:
+                    defconfig_doc.id = prev_doc[models.ID_KEY]
         else:
             utils.LOG.warn("No build data file found in '%s'", real_dir)
 
