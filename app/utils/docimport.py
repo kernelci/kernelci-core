@@ -153,6 +153,7 @@ def _traverse_kernel_dir(job_doc, kernel_dir, database):
                 ) for defconf_dir in os.listdir(kernel_dir)
                 if os.path.isdir(os.path.join(kernel_dir, defconf_dir))
                 if not utils.is_hidden(defconf_dir)
+                if not utils.is_lab_dir(defconf_dir)
                 if not None
             ]
         )
