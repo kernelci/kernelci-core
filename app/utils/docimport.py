@@ -216,12 +216,29 @@ def _traverse_defconf_dir(
             defconfig_doc.dirname = defconfig_dir
 
             if all([defconfig_doc, database]):
-                prev_doc = utils.db.find_one(
+                spec = {
+                    models.JOB_KEY: defconfig_doc.job,
+                    models.KERNEL_KEY: defconfig_doc.kernel,
+                    models.DEFCONFIG_KEY: defconfig_doc.defconfig,
+                    models.DEFCONFIG_FULL_KEY: defconfig_doc.defconfig_full,
+                    models.ARCHITECTURE_KEY: defconfig_doc.arch
+                }
+                prev_doc = utils.db.find(
                     database[models.DEFCONFIG_COLLECTION],
-                    [defconfig_doc.name],
-                    field=models.NAME_KEY)
-                if prev_doc:
-                    defconfig_doc.id = prev_doc[models.ID_KEY]
+                    0,
+                    0,
+                    spec=spec
+                )
+
+                prev_doc_count = prev_doc.count()
+                if prev_doc_count > 0:
+                    if prev_doc_count == 1:
+                        defconfig_doc.id = prev_doc[0].get(models.ID_KEY, None)
+                    else:
+                        utils.LOG.warn(
+                            "Found multiple defconfig docs matching: %s",
+                            spec)
+                        utils.LOG.error("Cannot save keeping old document id")
         else:
             utils.LOG.warn("No build data file found in '%s'", real_dir)
 
