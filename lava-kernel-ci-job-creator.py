@@ -190,6 +190,14 @@ qemu_aarch64 = {'device_type': 'qemu-aarch64',
                 'be': False,
                 'fastboot': False}
 
+apm_mustang = {'device_type': 'mustang',
+                'templates': ['generic-arm64-uboot-dtb-kernel-ci-boot-template.json'],
+                'defconfig_blacklist': ['arm64-allnoconfig',
+                                        'arm64-allmodconfig'],
+                'lpae': False,
+                'be': False,
+                'fastboot': False}
+
 x86 = {'device_type': 'x86',
        'templates': ['generic-x86-kernel-ci-boot-template.json'],
        'defconfig_blacklist': ['x86-i386_defconfig',
@@ -233,6 +241,7 @@ device_map = {'exynos5250-arndale.dtb': arndale,
               'vexpress-v2p-ca9-legacy': qemu_arm_cortex_a9_legacy,
               'qemu-arm': qemu_arm,
               'qemu-aarch64': qemu_aarch64,
+              'apm-mustang.dtb': apm_mustang,
               'x86': x86,
               'x86-kvm': x86_kvm}
 
@@ -335,12 +344,8 @@ def walk_url(url, arch=None, target=None):
             if 'Image' in name and 'arm64' in url:
                 kernel = url + name
                 base_url = url
-                # qemu-aarch64
-                platform_list.append(url + 'qemu-aarch64')
             if name.endswith('.dtb') and name in device_map:
-                print name
                 if base_url and base_url in url:
-                    print url + name
                     platform_list.append(url + name)
         elif arch == 'x86':
             if 'bzImage' in name and 'x86' in url:
@@ -362,16 +367,21 @@ def walk_url(url, arch=None, target=None):
             if 'Image' in name and 'arm64' in url:
                 kernel = url + name
                 base_url = url
-                platform_list.append(url + 'qemu-aarch64')
+            if name.endswith('.dtb') and name in device_map:
+                if base_url and base_url in url:
+                    platform_list.append(url + name)
 
     if kernel is not None and base_url is not None and platform_list:
         print 'Found boot artifacts at: %s' % base_url
-        # beagle-xm-legacy
+        # omap3-beagle-xm,legacy
         if 'arm-omap2plus_defconfig' in base_url:
             platform_list.append(url + 'omap3-beagle-xm-legacy')
         # vexpress-v2p-ca9,legacy
         if 'arm-vexpress_defconfig' in url:
             platform_list.append(url + 'vexpress-v2p-ca9-legacy')
+        # qemu-aarch64,legacy
+        if 'arm64-defconfig' in url:
+            platform_list.append(url + 'qemu-aarch64')
         create_jobs(base_url, kernel, platform_list, target)
         base_url = None
         kernel = None
