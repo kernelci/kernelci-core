@@ -40,6 +40,7 @@ def ensure_indexes(client, db_options):
     _ensure_boot_indexes(database)
     _ensure_defconfig_indexes(database)
     _ensure_token_indexes(database)
+    _ensure_lab_indexes(database)
 
 
 def _ensure_job_indexes(database):
@@ -95,10 +96,6 @@ def _ensure_defconfig_indexes(database):
     collection = database[models.DEFCONFIG_COLLECTION]
 
     collection.ensure_index(
-        [(models.CREATED_KEY, pymongo.DESCENDING)], background=True)
-    collection.ensure_index(
-        [(models.STATUS_KEY, pymongo.ASCENDING)], background=True)
-    collection.ensure_index(
         [
             (models.CREATED_KEY, pymongo.DESCENDING),
             (models.ID_KEY, pymongo.DESCENDING),
@@ -133,4 +130,28 @@ def _ensure_token_indexes(database):
 
     collection.ensure_index(
         [(models.TOKEN_KEY, pymongo.DESCENDING)], background=True
+    )
+    collection.ensure_index(
+        [
+            (models.ID_KEY, pymongo.DESCENDING),
+            (models.TOKEN_KEY, pymongo.ASCENDING)
+        ],
+        background=True
+    )
+
+
+def _ensure_lab_indexes(database):
+    """Ensure indexes exists for the 'lab' collection.
+
+    :param database: The database connection.
+    """
+    collection = database[models.LAB_COLLECTION]
+
+    collection.ensure_index(
+        [
+            (models.ID_KEY, pymongo.DESCENDING),
+            (models.NAME_KEY, pymongo.ASCENDING),
+            (models.TOKEN_KEY, pymongo.ASCENDING)
+        ],
+        background=True
     )
