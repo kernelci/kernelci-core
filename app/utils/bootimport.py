@@ -23,18 +23,13 @@ except ImportError:
 import bson
 import copy
 import datetime
-import glob
 import os
-import pymongo
 import re
 
 import models
 import models.boot as modbt
 import utils
 import utils.db
-
-# Pattern used for glob matching files on the filesystem.
-BOOT_REPORT_PATTERN = 'boot-*.json'
 
 # Some dtb appears to be in a temp directory like 'tmp', and will results in
 # some weird names.

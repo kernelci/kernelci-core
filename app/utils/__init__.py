@@ -21,6 +21,9 @@ DEFAULT_MONGODB_PORT = 27017
 DEFAULT_MONGODB_POOL = 250
 LOG = utils.log.get_log()
 
+# Pattern used for glob matching files on the filesystem.
+BOOT_REPORT_PATTERN = 'boot-*.json'
+
 
 def is_hidden(value):
     """Verify if a file name or dir name is hidden (starts with .).
