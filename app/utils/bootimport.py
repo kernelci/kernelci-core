@@ -190,6 +190,10 @@ def _parse_boot_from_file(boot_log, database):
 
         boot_doc = modbt.BootDocument(
             board, job, kernel, defconfig, lab_name, defconfig_full, arch)
+        boot_doc.created_on = datetime.datetime.fromtimestamp(
+            os.stat(boot_log).st_mtime, tz=bson.tz_util.utc
+        )
+
         _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f)
         _update_boot_doc_ids(boot_doc, database)
     except (OSError, TypeError, IOError), ex:
