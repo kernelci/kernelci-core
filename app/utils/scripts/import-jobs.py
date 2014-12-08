@@ -70,7 +70,7 @@ def import_with_job_and_kernel(
         job, kernel, database, base_path=utils.BASE_PATH):
 
     job_dir = os.path.join(base_path, job)
-    kernel_dir = os.path.join(base_path, kernel)
+    kernel_dir = os.path.join(job_dir, kernel)
 
     if all([_is_dir(job_dir), _is_dir(kernel_dir)]):
         docs, job_id = docimport._import_job(
