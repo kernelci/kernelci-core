@@ -22,6 +22,7 @@ import sys
 
 import utils
 import utils.bootimport as bootimport
+import utils.db
 
 
 def _is_dir(path):

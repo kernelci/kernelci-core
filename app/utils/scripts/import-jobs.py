@@ -20,6 +20,7 @@ import os
 import sys
 
 import utils
+import utils.db
 import utils.docimport as docimport
 
 
