@@ -169,6 +169,12 @@ BISECT_BAD_COMMIT_DATE = 'bad_commit_date'
 BISECT_GOOD_COMMIT_URL = 'good_commit_url'
 BISECT_BAD_COMMIT_URL = 'bad_commit_url'
 
+VALID_ARCHITECTURES = [
+    ARM64_ARCHITECTURE_KEY,
+    ARM_ARCHITECTURE_KEY,
+    x86_ARCHITECTURE_KEY
+]
+
 # Name formats.
 JOB_DOCUMENT_NAME = '%(job)s-%(kernel)s'
 BOOT_DOCUMENT_NAME = '%(board)s-%(job)s-%(kernel)s-%(defconfig)s-%(arch)s'
