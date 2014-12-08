@@ -13,6 +13,9 @@
 
 """The model that represents a boot document in the mongodb collection."""
 
+import copy
+import types
+
 import models
 import models.base as modb
 
@@ -72,7 +75,7 @@ class BootDocument(modb.BaseDocument):
         self.dtb = None
         self.dtb_addr = None
         self.dtb_append = None
-        self.endianness = None
+        self.endian = None
         self.fastboot = False
         self.fastboot_cmd = None
         self.file_server_resource = None
@@ -199,7 +202,7 @@ class BootDocument(modb.BaseDocument):
             models.DTB_ADDR_KEY: self.dtb_addr,
             models.DTB_APPEND_KEY: self.dtb_append,
             models.DTB_KEY: self.dtb,
-            models.ENDIANNESS_KEY: self.endianness,
+            models.ENDIANNESS_KEY: self.endian,
             models.FASTBOOT_CMD_KEY: self.fastboot_cmd,
             models.FASTBOOT_KEY: self.fastboot,
             models.FILE_SERVER_RESOURCE_KEY: self.file_server_resource,
@@ -232,4 +235,35 @@ class BootDocument(modb.BaseDocument):
 
     @staticmethod
     def from_json(json_obj):
-        return None
+        boot_doc = None
+        if isinstance(json_obj, types.DictionaryType):
+            local_obj = copy.deepcopy(json_obj)
+            doc_pop = local_obj.pop
+
+            boot_id = doc_pop(models.ID_KEY, None)
+            doc_pop(models.NAME_KEY, None)
+
+            try:
+                board = doc_pop(models.BOARD_KEY)
+                job = doc_pop(models.JOB_KEY)
+                kernel = doc_pop(models.KERNEL_KEY)
+                defconfig = doc_pop(models.DEFCONFIG_KEY)
+                lab_name = doc_pop(models.LAB_NAME_KEY)
+                defconfig_full = doc_pop(models.DEFCONFIG_FULL_KEY, None)
+                arch = doc_pop(
+                    models.ARCHITECTURE_KEY, models.ARM_ARCHITECTURE_KEY)
+
+                boot_doc = BootDocument(
+                    board, job, kernel, defconfig, lab_name,
+                    defconfig_full=defconfig_full,
+                    arch=arch)
+
+                boot_doc.id = boot_id
+
+                for key, val in local_obj.iteritems():
+                    setattr(boot_doc, key, val)
+            except KeyError:
+                # If a mandatory key is missing, just return None.
+                boot_doc = None
+
+        return boot_doc
