@@ -25,6 +25,7 @@ import copy
 import datetime
 import glob
 import os
+import pymongo
 import re
 
 import models
@@ -150,7 +151,7 @@ def save_to_disk(boot_doc, json_obj, base_path):
         utils.LOG.exception(ex)
 
 
-def _parse_boot_from_file(boot_log):
+def _parse_boot_from_file(boot_log, database):
     """Read and parse the actual boot report.
 
     :param boot_log: The path to the boot report.
@@ -180,7 +181,7 @@ def _parse_boot_from_file(boot_log):
         dtb = boot_json.get(models.DTB_KEY, None)
 
         if not board:
-            utils.LOG.info("No board value specified in the boot report")
+            utils.LOG.warn("No board value specified in the boot report")
             if dtb and not TMP_RE.findall(dtb):
                 board = os.path.splitext(os.path.basename(dtb))[0]
             else:
@@ -195,7 +196,7 @@ def _parse_boot_from_file(boot_log):
         boot_doc = modbt.BootDocument(
             board, job, kernel, defconfig, lab_name, defconfig_full, arch)
         _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f)
-        # TODO: Find and add job_id and defconfig_id
+        _update_boot_doc_ids(boot_doc, database)
     except (OSError, TypeError, IOError), ex:
         utils.LOG.error("Error opening the file '%s'", boot_log)
         utils.LOG.exception(ex)
@@ -262,19 +263,39 @@ def _update_boot_doc_ids(boot_doc, database):
     }
 
     job_doc = utils.db.find_one(
-        database[models.JOB_COLLECTION], [job_name], field="name",
+        database[models.JOB_COLLECTION],
+        [job_name],
+        field=models.NAME_KEY,
         fields=[models.ID_KEY]
     )
 
     defconfig_doc = utils.db.find_one(
-        database[models.DEFCONFIG_COLLECTION], [defconfig_name], field="name",
-        fields=[models.ID_KEY]
+        database[models.DEFCONFIG_COLLECTION],
+        [defconfig_name],
+        field=models.NAME_KEY,
+        fields=[
+            models.GIT_BRANCH_KEY,
+            models.GIT_COMMIT_KEY,
+            models.GIT_DESCRIBE_KEY,
+            models.GIT_URL_KEY,
+            models.ID_KEY
+        ]
     )
 
     if job_doc:
         boot_doc.job_id = job_doc.get(models.ID_KEY, None)
     if defconfig_doc:
-        boot_doc.defconfig_id = defconfig_doc.get(models.ID_KEY, None)
+        doc_get = defconfig_doc.get
+        boot_doc.defconfig_id = doc_get(models.ID_KEY, None)
+        # Get also git information if we do not have them already,
+        if boot_doc.git_branch is None:
+            boot_doc.git_branch = doc_get(models.GIT_BRANCH_KEY, None)
+        if boot_doc.git_commit is None:
+            boot_doc.git_commit = doc_get(models.GIT_COMMIT_KEY, None)
+        if boot_doc.git_describe is None:
+            boot_doc.git_describe = doc_get(models.GIT_DESCRIBE_KEY, None)
+        if boot_doc.git_url is None:
+            boot_doc.git_url = doc_get(models.GIT_URL_KEY, None)
 
 
 def _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f):
@@ -330,61 +351,3 @@ def _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f):
     boot_doc.warnings = json_pop_f(models.BOOT_WARNINGS_KEY, 0)
 
     boot_doc.metadata = boot_json
-
-
-def import_all_for_lab(lab_name, base_path=utils.BASE_PATH):
-    """Handy function to import all boot logs.
-
-    :param lab_name: The lab name whose boot reports should be imported.
-    :type lab_name: str
-    :param base_path: Where to start the scan on the hard disk.
-    :type base_path: str
-    :return A list of BootDocument documents.
-    """
-    boot_docs = []
-
-    for job in os.listdir(base_path):
-        job_dir = os.path.join(base_path, job)
-
-        for kernel in os.listdir(job_dir):
-            boot_docs.extend(
-                parse_boot_from_disk(job, kernel, lab_name, base_path)
-            )
-
-    return boot_docs
-
-
-def parse_boot_from_disk(job, kernel, lab_name, base_path=utils.BASE_PATH):
-    """Traverse the kernel directory and look for boot report logs.
-
-    :param job: The name of the job.
-    :param kernel: The name of the kernel.
-    :param lab_name: The name of the lab.
-    :param base_path: The base path where to start traversing.
-    :return A list of documents to be saved, or an empty list.
-    """
-    docs = []
-
-    job_dir = os.path.join(base_path, job)
-
-    if not utils.is_hidden(job) and os.path.isdir(job_dir):
-        kernel_dir = os.path.join(job_dir, kernel)
-
-        if not utils.is_hidden(kernel) and os.path.isdir(kernel_dir):
-            for defconfig in os.listdir(kernel_dir):
-                defconfig_dir = os.path.join(kernel_dir, defconfig)
-
-                if not utils.is_hidden(defconfig) and \
-                        os.path.isdir(defconfig_dir):
-
-                    lab_dir = os.path.join(defconfig_dir, lab_name)
-                    if os.path.isdir(lab_dir):
-                        docs.extend([
-                            _parse_boot_from_file(boot_log)
-                            for boot_log in glob.iglob(
-                                os.path.join(lab_dir, BOOT_REPORT_PATTERN)
-                            )
-                            if os.path.isfile(boot_log)
-                        ])
-
-    return docs

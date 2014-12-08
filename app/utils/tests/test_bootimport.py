@@ -109,11 +109,11 @@ class TestParseBoot(unittest.TestCase):
         self.assertIsNone(doc_id)
 
     def test_parse_from_file_no_file(self):
-        doc = utils.bootimport._parse_boot_from_file(None)
+        doc = utils.bootimport._parse_boot_from_file(None, self.db)
         self.assertIsNone(doc)
 
     def test_parse_from_file_wrong_file(self):
-        doc = utils.bootimport._parse_boot_from_file('foobar.json')
+        doc = utils.bootimport._parse_boot_from_file('foobar.json', self.db)
         self.assertIsNone(doc)
 
     def test_parse_from_file_no_key(self):
@@ -128,7 +128,8 @@ class TestParseBoot(unittest.TestCase):
             with open(boot_log.name, mode="w") as boot_write:
                 boot_write.write(json.dumps(boot_obj))
 
-            doc = utils.bootimport._parse_boot_from_file(boot_log.name)
+            doc = utils.bootimport._parse_boot_from_file(
+                boot_log.name, self.db)
 
             self.assertIsNone(doc)
         finally:
@@ -152,7 +153,8 @@ class TestParseBoot(unittest.TestCase):
             with open(boot_log.name, mode="w") as boot_write:
                 boot_write.write(json.dumps(boot_obj))
 
-            doc = utils.bootimport._parse_boot_from_file(boot_log.name)
+            doc = utils.bootimport._parse_boot_from_file(
+                boot_log.name, self.db)
 
             self.assertEqual(doc.board, "board")
             self.assertEqual(doc.job, "job")
@@ -179,7 +181,8 @@ class TestParseBoot(unittest.TestCase):
             with open(boot_log.name, mode="w") as boot_write:
                 boot_write.write(json.dumps(boot_obj))
 
-            doc = utils.bootimport._parse_boot_from_file(boot_log.name)
+            doc = utils.bootimport._parse_boot_from_file(
+                boot_log.name, self.db)
 
             self.assertEqual(doc.board, "board")
             self.assertEqual(doc.job, "job")
@@ -210,7 +213,8 @@ class TestParseBoot(unittest.TestCase):
             with open(boot_log.name, mode="w") as boot_write:
                 boot_write.write(json.dumps(boot_obj))
 
-            doc = utils.bootimport._parse_boot_from_file(boot_log.name)
+            doc = utils.bootimport._parse_boot_from_file(
+                boot_log.name, self.db)
 
             self.assertEqual(doc.board, board)
             self.assertEqual(doc.dtb, "tmp/board.dtb")
