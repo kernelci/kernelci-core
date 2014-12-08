@@ -214,22 +214,32 @@ def _traverse_defconf_dir(
             defconfig_doc.job_id = job_doc.id
             # Search for previous defconfig doc. This is only useful when
             # re-importing data and we want to have the same ID as before.
-            defconfig_doc.id = _search_prev_defconfig_doc_id(
+            doc_id, c_date = _search_prev_defconfig_doc(
                 defconfig_doc, database)
+            defconfig_doc.id = doc_id
+            if c_date:
+                defconfig_doc.created_on = c_date
         else:
             utils.LOG.warn("No build data file found in '%s'", real_dir)
 
     return defconfig_doc
 
 
-def _search_prev_defconfig_doc_id(defconfig_doc, database):
+def _search_prev_defconfig_doc(defconfig_doc, database):
     """Search for a similar defconfig document in the database.
 
-    Search for an already imported defconfig/build document in the database and
-    return its object ID. This is done to make sure we do not create double
-    documents when re-importing the same data or updating it.
+    Search for an already imported defconfig/build document in the database
+    and return its object ID and creation date. This is done to make sure
+    we do not create double documents when re-importing the same data or
+    updating it.
+
+    :param defconfig_doc: The new defconfig document.
+    :param database: The db connection.
+    :return The previous doc ID and its creation date, or None.
     """
     doc_id = None
+    c_date = None
+
     if all([defconfig_doc, database]):
         spec = {
             models.JOB_KEY: defconfig_doc.job,
@@ -243,13 +253,14 @@ def _search_prev_defconfig_doc_id(defconfig_doc, database):
             10,
             0,
             spec=spec,
-            fields=[models.ID_KEY]
+            fields=[models.ID_KEY, models.CREATED_KEY]
         )
 
         prev_doc_count = prev_doc.count()
         if prev_doc_count > 0:
             if prev_doc_count == 1:
                 doc_id = prev_doc[0].get(models.ID_KEY, None)
+                c_date = prev_doc[0].get(models.CREATED_KEY, None)
             else:
                 utils.LOG.warn(
                     "Found multiple defconfig docs matching: %s",
@@ -257,7 +268,7 @@ def _search_prev_defconfig_doc_id(defconfig_doc, database):
                 utils.LOG.error(
                     "Cannot keep old document ID, don't know which one to use!")
 
-    return doc_id
+    return doc_id, c_date
 
 
 def _parse_build_data(data_file, job, kernel, defconfig_dir):
