@@ -14,7 +14,8 @@ RestartSec=5
 Restart=always
 PIDFile=/tmp/kernelci-celery.pid
 WorkingDirectory={{ install_base }}/{{ hostname }}/app
-ExecStart={{ install_base }}/.venv/{{ hostname }}/bin/celery worker \
+ExecStart={{ install_base }}/.venv/{{ hostname }}/bin/python -OO -R \
+    {{ install_base }}/.venv/{{ hostname }}/bin/celery worker \
     --autoscale=4,1 --loglevel=INFO \
     --pidfile=/tmp/kernelci-celery.pid --app=taskqueue
 
