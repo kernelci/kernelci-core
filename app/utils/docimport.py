@@ -1,5 +1,3 @@
-# Copyright (C) 2014 Linaro Ltd.
-#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
@@ -53,7 +51,7 @@ def import_and_save_job(json_obj, db_options, base_path=utils.BASE_PATH):
             "Importing %d documents with job ID: %s",
             len(docs), job_id
         )
-        utils.db.save_all(database, docs)
+        utils.db.save_all(database, docs, manipulate=True)
     else:
         utils.LOG.info("No jobs to save")
 
@@ -188,7 +186,7 @@ def _traverse_kernel_dir(job_doc, kernel_dir, database):
 
 
 def _traverse_defconf_dir(
-        job_doc, kernel_dir, defconfig_dir, database=None):
+        job_doc, kernel_dir, defconfig_dir, database):
     """Traverse the defconfig directory looking for files.
 
     :param job_doc: The created `JobDocument`.
@@ -211,41 +209,58 @@ def _traverse_defconf_dir(
         data_file = os.path.join(dirname, models.BUILD_META_JSON_FILE)
 
         if os.path.isfile(data_file):
-            defconfig_doc = _parse_build_data(data_file, job, kernel)
+            defconfig_doc = _parse_build_data(
+                data_file, job, kernel, dirname)
             defconfig_doc.job_id = job_doc.id
-            defconfig_doc.dirname = defconfig_dir
-
-            if all([defconfig_doc, database]):
-                spec = {
-                    models.JOB_KEY: defconfig_doc.job,
-                    models.KERNEL_KEY: defconfig_doc.kernel,
-                    models.DEFCONFIG_KEY: defconfig_doc.defconfig,
-                    models.DEFCONFIG_FULL_KEY: defconfig_doc.defconfig_full,
-                    models.ARCHITECTURE_KEY: defconfig_doc.arch
-                }
-                prev_doc = utils.db.find(
-                    database[models.DEFCONFIG_COLLECTION],
-                    0,
-                    0,
-                    spec=spec
-                )
-
-                prev_doc_count = prev_doc.count()
-                if prev_doc_count > 0:
-                    if prev_doc_count == 1:
-                        defconfig_doc.id = prev_doc[0].get(models.ID_KEY, None)
-                    else:
-                        utils.LOG.warn(
-                            "Found multiple defconfig docs matching: %s",
-                            spec)
-                        utils.LOG.error("Cannot save keeping old document id")
+            # Search for previous defconfig doc. This is only useful when
+            # re-importing data and we want to have the same ID as before.
+            defconfig_doc.id = _search_prev_defconfig_doc_id(
+                defconfig_doc, database)
         else:
             utils.LOG.warn("No build data file found in '%s'", real_dir)
 
     return defconfig_doc
 
 
-def _parse_build_data(data_file, job, kernel):
+def _search_prev_defconfig_doc_id(defconfig_doc, database):
+    """Search for a similar defconfig document in the database.
+
+    Search for an already imported defconfig/build document in the database and
+    return its object ID. This is done to make sure we do not create double
+    documents when re-importing the same data or updating it.
+    """
+    doc_id = None
+    if all([defconfig_doc, database]):
+        spec = {
+            models.JOB_KEY: defconfig_doc.job,
+            models.KERNEL_KEY: defconfig_doc.kernel,
+            models.DEFCONFIG_KEY: defconfig_doc.defconfig,
+            models.DEFCONFIG_FULL_KEY: defconfig_doc.defconfig_full,
+            models.ARCHITECTURE_KEY: defconfig_doc.arch
+        }
+        prev_doc = utils.db.find(
+            database[models.DEFCONFIG_COLLECTION],
+            10,
+            0,
+            spec=spec,
+            fields=[models.ID_KEY]
+        )
+
+        prev_doc_count = prev_doc.count()
+        if prev_doc_count > 0:
+            if prev_doc_count == 1:
+                doc_id = prev_doc[0].get(models.ID_KEY, None)
+            else:
+                utils.LOG.warn(
+                    "Found multiple defconfig docs matching: %s",
+                    spec)
+                utils.LOG.error(
+                    "Cannot keep old document ID, don't know which one to use!")
+
+    return doc_id
+
+
+def _parse_build_data(data_file, job, kernel, defconfig_dir):
     """Parse the metadata file contained in thie build directory.
 
     :param data_file: The path to the metadata file.
@@ -262,7 +277,33 @@ def _parse_build_data(data_file, job, kernel):
 
         try:
             defconfig = data_pop(models.DEFCONFIG_KEY)
-            defconfig_full = data_pop(models.DEFCONFIG_FULL_KEY, defconfig)
+            defconfig_full = data_pop(models.DEFCONFIG_FULL_KEY, None)
+            kconfig_fragments = data_pop(models.KCONFIG_FRAGMENTS_KEY, None)
+
+            if all([defconfig_full is None, kconfig_fragments is None]):
+                defconfig_full = defconfig
+            elif all([defconfig_full is None, kconfig_fragments is not None]):
+                # Infer the real defconfig used from the values we have.
+                # Try first from the kconfig_fragments and then from the
+                # directory we are traversing.
+                defconfig_full_k = \
+                    _extrapolate_defconfig_full_from_kconfig(
+                        kconfig_fragments, defconfig)
+                defconfig_full_d = \
+                    _extrapolate_defconfig_full_from_dirname(defconfig_dir)
+
+                # Default to use the one from kconfig_fragments.
+                defconfig_full = defconfig_full_k
+                # Use the one from the directory only if it is different from
+                # the one obtained via the kconfig_fragments and if it is
+                # different from the default defconfig value.
+                if all([
+                        defconfig_full_d is not None,
+                        defconfig_full_d != defconfig_full_k,
+                        defconfig_full_d != defconfig]):
+                    defconfig_full = defconfig_full_k
+
+            # Err on the safe side.
             job = data_pop(models.JOB_KEY, None) or job
             kernel = data_pop(models.KERNEL_KEY, None) or kernel
 
@@ -270,6 +311,7 @@ def _parse_build_data(data_file, job, kernel):
                 job, kernel, defconfig, defconfig_full
             )
 
+            defconfig_doc.dirname = defconfig_dir
             defconfig_doc.created_on = datetime.datetime.fromtimestamp(
                 os.stat(data_file).st_mtime, tz=bson.tz_util.utc
             )
@@ -289,8 +331,7 @@ def _parse_build_data(data_file, job, kernel):
             defconfig_doc.git_commit = data_pop(models.GIT_COMMIT_KEY, None)
             defconfig_doc.git_describe = data_pop(models.GIT_DESCRIBE_KEY, None)
             defconfig_doc.git_url = data_pop(models.GIT_URL_KEY, None)
-            defconfig_doc.kconfig_fragments = data_pop(
-                models.KCONFIG_FRAGMENTS_KEY, None)
+            defconfig_doc.kconfig_fragments = kconfig_fragments
             defconfig_doc.kernel_config = data_pop(
                 models.KERNEL_CONFIG_KEY, None)
             defconfig_doc.kernel_image = data_pop(models.KERNEL_IMAGE_KEY, None)
@@ -314,37 +355,60 @@ def _parse_build_data(data_file, job, kernel):
     return defconfig_doc
 
 
-def _import_all(database, base_path=utils.BASE_PATH):
-    """This function is used only to trigger the import from the command line.
+def _extrapolate_defconfig_full_from_kconfig(kconfig_fragments, defconfig):
+    """Try to extrapolate a valid value for the defconfig_full argument.
 
-    Do not use it elsewhere.
-    :param base_path: Where to start traversing directories. Defaults to:
-        /var/www/images/kernel-ci.
-    :return The docs to save. All docs are subclasses of `BaseDocument`.
+    When the kconfig_fragments filed is defined, it should have a default
+    structure.
+
+    :param kconfig_fragments: The config fragments value where to start.
+    :type kconfig_fragments: str
+    :param defconfig: The defconfig value to use. Will be returned if
+    `kconfig_fragments` does not match the known ones.
+    :type defconfig: str
+    :return A string with the `defconfig_full` value or the provided
+    `defconfig`.
     """
+    defconfig_full = defconfig
+    if all([kconfig_fragments.startswith("frag-"),
+            kconfig_fragments.endswith(".config")]):
 
-    docs = []
-
-    for job_dir in os.listdir(base_path):
-        job = job_dir
-        job_dir = os.path.join(base_path, job_dir)
-
-        if os.path.isdir(job_dir):
-            for kernel_dir in os.listdir(job_dir):
-                if os.path.isdir(os.path.join(job_dir, kernel_dir)):
-                    all_docs, _ = _import_job(
-                        job, kernel_dir, database, base_path
-                    )
-                    docs.extend(all_docs)
-
-    return docs
+        defconfig_full = "%s+%s" % (
+            defconfig,
+            kconfig_fragments.replace("frag-", "").replace(".config", "")
+        )
+    return defconfig_full
 
 
-if __name__ == '__main__':
-    connection = pymongo.MongoClient()
-    database = connection[models.DB_NAME]
+def _extrapolate_defconfig_full_from_dirname(dirname):
+    """Try to extrapolate a valid defconfig_full value from the directory name.
 
-    documents = _import_all(database)
-    utils.db.save(database, documents)
+    The directory we are traversing are built with the following pattern:
 
-    connection.disconnect()
+        ARCH-DEFCONFIG[+FRAGMENTS]
+
+    We strip the ARCH part and keep only the rest.
+
+    :param dirname: The name of the directory we are traversing.
+    :type dirname: str
+    :return None if the directory name does not match a valid pattern, or
+    the value extrapolated from it.
+    """
+    def _replace_arch_value(arch, dirname):
+        """Local function to replace the found arch value.
+
+        :param arch: The name of the architecture.
+        :type arch: str
+        :param dirname: The name of the directory.
+        :param dirname: str
+        :return The directory name without the architecture value.
+        """
+        return dirname.replace("%s-" % arch, "", 1)
+
+    defconfig_full = None
+    for arch in models.VALID_ARCHITECTURES:
+        if arch in dirname:
+            defconfig_full = _replace_arch_value(arch, dirname)
+            break
+
+    return defconfig_full

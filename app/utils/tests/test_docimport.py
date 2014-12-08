@@ -1,5 +1,3 @@
-# Copyright (C) 2014 Linaro Ltd.
-#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
@@ -25,10 +23,11 @@ import unittest
 
 from bson import tz_util
 
+import models.defconfig as mdefconfig
 import utils.docimport as docimport
 
 
-class TestParseJob(unittest.TestCase):
+class TestDocImport(unittest.TestCase):
 
     def setUp(self):
         logging.disable(logging.CRITICAL)
@@ -38,110 +37,63 @@ class TestParseJob(unittest.TestCase):
         logging.disable(logging.NOTSET)
 
     @mock.patch("os.stat")
-    @mock.patch("os.path.isdir")
-    @mock.patch("os.listdir")
-    def test_import_all_simple(self, mock_os_listdir, mock_isdir, mock_stat):
-        mock_os_listdir.side_effect = [
-            ['job'], ['kernel'], ['defconf'],
-        ]
-        mock_isdir.side_effect = [True, True, True, True]
+    def test_parse_build_data_missing_key(self, mock_stat):
         mock_stat.st_mtime.return_value = datetime.datetime.now(tz=tz_util.utc)
+        meta_content = {
+            "arch": "arm",
+            "job": "job",
+            "kernel": "kernel"
+        }
 
-        docs = docimport._import_all(self.db)
-        self.assertEqual(len(docs), 2)
+        try:
+            fake_meta = tempfile.NamedTemporaryFile(delete=False)
+            with open(fake_meta.name, 'w') as w_file:
+                w_file.write(json.dumps(meta_content))
+
+            defconf_doc = docimport._parse_build_data(
+                fake_meta.name, "job", "kernel", "dirname"
+            )
+        finally:
+            os.unlink(fake_meta.name)
+
+        self.assertIsNone(defconf_doc)
 
     @mock.patch("os.stat")
-    @mock.patch("os.path.isdir")
-    @mock.patch("os.walk")
-    @mock.patch("os.listdir")
-    def test_import_all_complex(
-            self, mock_os_listdir, mock_os_walk, mock_isdir, mock_stat):
-        mock_os_listdir.side_effect = [
-            ['job1', 'job2'],
-            ['kernel1', 'kernel2'],
-            ['defconf1', 'defconf2'],
-            ['defconf3', 'defconf4'],
-            ['kernel3'],
-            ['defconf5']
-        ]
-
-        mock_isdir.side_effect = list((True,) * 13)
+    def test_parse_build_data_no_fragments_no_full(self, mock_stat):
         mock_stat.st_mtime.return_value = datetime.datetime.now(tz=tz_util.utc)
+        meta_content = {
+            "arch": "arm",
+            "job": "job",
+            "kernel": "kernel",
+            "defconfig": "defconfig"
+        }
 
-        docs = docimport._import_all(self.db)
-        self.assertEqual(len(docs), 8)
+        try:
+            fake_meta = tempfile.NamedTemporaryFile(delete=False)
+            with open(fake_meta.name, 'w') as w_file:
+                w_file.write(json.dumps(meta_content))
 
-    @mock.patch("os.stat")
-    @mock.patch("os.path.isdir")
-    @mock.patch("os.listdir")
-    def test_import_all_documents_created(
-            self, mock_os_listdir, mock_isdir, mock_stat):
-        mock_os_listdir.side_effect = [
-            ['job'], ['kernel'], ['defconf'],
-        ]
+            defconf_doc = docimport._parse_build_data(
+                fake_meta.name, "job", "kernel", "dirname"
+            )
+        finally:
+            os.unlink(fake_meta.name)
 
-        mock_isdir.side_effect = list((True,) * 4)
-        mock_stat.st_mtime.return_value = datetime.datetime.now(tz=tz_util.utc)
-
-        docs = docimport._import_all(self.db)
-        self.assertEqual(len(docs), 2)
-        self.assertEqual(docs[0].name, "job-kernel")
-
-    @mock.patch('pymongo.MongoClient')
-    @mock.patch("utils.db.find_one")
-    def test_import_and_save(
-            self, mock_find, mocked_client=mongomock.Connection()):
-        json_obj = dict(job='job', kernel='kernel')
-        mock_find.return_value = None
-
-        self.assertEqual(
-            docimport.import_and_save_job(json_obj, {}), 'job-kernel'
-        )
-
-    @mock.patch('utils.db.find_one')
-    def test_import_job_building(self, mock_find_one):
-        mock_find_one.return_value = []
-        database = mongomock.Connection()
-
-        docs, job_id = docimport._import_job('job', 'kernel', database)
-
-        self.assertEqual(len(docs), 1)
-        self.assertEqual(docs[0].status, 'BUILD')
-
-    @mock.patch('os.stat')
-    @mock.patch('utils.db.find_one')
-    @mock.patch('utils.docimport._traverse_defconf_dir')
-    @mock.patch('os.listdir')
-    @mock.patch('os.path.exists')
-    @mock.patch('os.path.isdir')
-    def test_import_job_done(
-            self, mock_isdir, mock_exists, mock_listdir, mock_traverse,
-            mock_find_one, mock_stat):
-        mock_isdir.return_value = True
-        mock_exists.return_value = True
-        mock_listdir.return_value = []
-        mock_traverse.return_value = []
-        mock_find_one.return_value = []
-        mock_stat.st_mtime.return_value = datetime.datetime.now(tz=tz_util.utc)
-
-        database = mongomock.Connection()
-
-        docs, job_id = docimport._import_job('job', 'kernel', database)
-        self.assertEqual(len(docs), 1)
-        self.assertEqual(docs[0].status, 'PASS')
+        self.assertIsInstance(defconf_doc, mdefconfig.DefconfigDocument)
+        self.assertIsNone(defconf_doc.kconfig_fragments)
+        self.assertEqual(defconf_doc.defconfig_full, "defconfig")
+        self.assertEqual(defconf_doc.defconfig, "defconfig")
 
     @mock.patch("os.stat")
     def test_parse_and_update_build_metadata(self, mock_stat):
         mock_stat.st_mtime.return_value = datetime.datetime.now(tz=tz_util.utc)
         meta_content = {
             "arch": "arm",
-            "defconfig": "defconfig",
             "git_url": "git://git.example.org",
             "git_branch": "test/branch",
             "git_describe": "vfoo.bar",
             "git_commit": "1234567890",
             "defconfig": "defoo_confbar",
-            "kconfig_fragments": None,
             "kernel_image": "zImage",
             "kernel_config": "kernel.config",
             "dtb_dir": "dtbs",
@@ -156,13 +108,125 @@ class TestParseJob(unittest.TestCase):
                 w_file.write(json.dumps(meta_content))
 
             defconf_doc = docimport._parse_build_data(
-                fake_meta.name, "job", "kernel"
+                fake_meta.name, "job", "kernel", "dirname"
             )
         finally:
             os.unlink(fake_meta.name)
 
+        self.assertIsInstance(defconf_doc, mdefconfig.DefconfigDocument)
         self.assertIsInstance(defconf_doc.metadata, types.DictionaryType)
-        self.assertEqual("fragment", defconf_doc.kconfig_fragments)
+        self.assertEqual(defconf_doc.kconfig_fragments, "fragment")
         self.assertEqual(defconf_doc.arch, "arm")
         self.assertEqual(defconf_doc.git_commit, "1234567890")
         self.assertEqual(defconf_doc.git_branch, "test/branch")
+        self.assertEqual(defconf_doc.defconfig_full, "defoo_confbar")
+        self.assertEqual(defconf_doc.defconfig, "defoo_confbar")
+
+    @mock.patch("os.stat")
+    def test_parse_and_update_build_metadata_with_fragments(self, mock_stat):
+        mock_stat.st_mtime.return_value = datetime.datetime.now(tz=tz_util.utc)
+        meta_content = {
+            "arch": "arm",
+            "git_url": "git://git.example.org",
+            "git_branch": "test/branch",
+            "git_describe": "vfoo.bar",
+            "git_commit": "1234567890",
+            "defconfig": "defoo_confbar",
+            "kernel_image": "zImage",
+            "kernel_config": "kernel.config",
+            "dtb_dir": "dtbs",
+            "modules_dir": "foo/bar",
+            "build_log": "file.log",
+            "kconfig_fragments": "frag-CONFIG_TEST=y.config"
+        }
+
+        try:
+            fake_meta = tempfile.NamedTemporaryFile(delete=False)
+            with open(fake_meta.name, 'w') as w_file:
+                w_file.write(json.dumps(meta_content))
+
+            defconf_doc = docimport._parse_build_data(
+                fake_meta.name,
+                "job",
+                "kernel",
+                "arm-defoo_confbar+CONFIG_TEST=y"
+            )
+        finally:
+            os.unlink(fake_meta.name)
+
+        self.assertIsInstance(defconf_doc, mdefconfig.DefconfigDocument)
+        self.assertEqual(
+            defconf_doc.defconfig_full, "defoo_confbar+CONFIG_TEST=y")
+        self.assertEqual(defconf_doc.defconfig, "defoo_confbar")
+
+    @mock.patch("os.stat")
+    def test_parse_and_update_build_metadata_diff_fragments(self, mock_stat):
+        mock_stat.st_mtime.return_value = datetime.datetime.now(tz=tz_util.utc)
+        meta_content = {
+            "arch": "arm",
+            "defconfig": "defoo_confbar",
+            "job": "job",
+            "kernel": "kernel",
+            "kconfig_fragments": "frag-CONFIG_TEST=y.config"
+        }
+
+        try:
+            fake_meta = tempfile.NamedTemporaryFile(delete=False)
+            with open(fake_meta.name, 'w') as w_file:
+                w_file.write(json.dumps(meta_content))
+
+            defconf_doc = docimport._parse_build_data(
+                fake_meta.name,
+                "job",
+                "kernel",
+                "arm-defoo_confbar"
+            )
+        finally:
+            os.unlink(fake_meta.name)
+
+        self.assertIsInstance(defconf_doc, mdefconfig.DefconfigDocument)
+        self.assertEqual(
+            defconf_doc.defconfig_full, "defoo_confbar+CONFIG_TEST=y")
+        self.assertEqual(defconf_doc.defconfig, "defoo_confbar")
+
+    def test_extrapolate_defconfig_full_non_valid(self):
+        kconfig_fragments = "foo-CONFIG.bar"
+        defconfig = "defconfig"
+
+        self.assertEqual(
+            defconfig,
+            docimport._extrapolate_defconfig_full_from_kconfig(
+                kconfig_fragments, defconfig)
+        )
+
+    def test_extrapolate_defconfig_full_valid(self):
+        kconfig_fragments = "frag-CONFIG=y.config"
+        defconfig = "defconfig"
+
+        expected = "defconfig+CONFIG=y"
+        self.assertEqual(
+            expected,
+            docimport._extrapolate_defconfig_full_from_kconfig(
+                kconfig_fragments, defconfig)
+        )
+
+    def test_extrapolate_defconfig_full_from_dir_non_valid(self):
+        dirname = "foo-defconfig+FRAGMENTS"
+        self.assertIsNone(
+            docimport._extrapolate_defconfig_full_from_dirname(dirname))
+
+    def test_extrapolate_defconfig_full_from_dir_valid(self):
+        dirname = "arm-defconfig+FRAGMENTS"
+        self.assertEqual(
+            "defconfig+FRAGMENTS",
+            docimport._extrapolate_defconfig_full_from_dirname(dirname))
+
+        dirname = "arm64-defconfig+FRAGMENTS"
+        self.assertEqual(
+            "defconfig+FRAGMENTS",
+            docimport._extrapolate_defconfig_full_from_dirname(dirname))
+
+        dirname = "x86-defconfig+FRAGMENTS"
+        self.assertEqual(
+            "defconfig+FRAGMENTS",
+            docimport._extrapolate_defconfig_full_from_dirname(dirname))
