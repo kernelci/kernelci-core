@@ -39,6 +39,7 @@ def ensure_indexes(client, db_options):
     _ensure_job_indexes(database)
     _ensure_boot_indexes(database)
     _ensure_defconfig_indexes(database)
+    _ensure_token_indexes(database)
 
 
 def _ensure_job_indexes(database):
@@ -47,7 +48,12 @@ def _ensure_job_indexes(database):
     :param database: The database connection.
     """
     database[models.JOB_COLLECTION].ensure_index(
-        [(models.CREATED_KEY, pymongo.DESCENDING)], background=True
+        [
+            (models.CREATED_KEY, pymongo.DESCENDING),
+            (models.ID_KEY, pymongo.DESCENDING),
+            (models.JOB_KEY, pymongo.ASCENDING),
+            (models.KERNEL_KEY, pymongo.ASCENDING)
+        ], background=True
     )
 
 
@@ -57,7 +63,16 @@ def _ensure_boot_indexes(database):
     :param database: The database connection.
     """
     database[models.BOOT_COLLECTION].ensure_index(
-        [(models.CREATED_KEY, pymongo.DESCENDING)], background=True
+        [
+            (models.CREATED_KEY, pymongo.DESCENDING),
+            (models.ID_KEY, pymongo.DESCENDING),
+            (models.BOARD_KEY, pymongo.ASCENDING),
+            (models.JOB_KEY, pymongo.ASCENDING),
+            (models.KERNEL_KEY, pymongo.ASCENDING),
+            (models.DEFCONFIG_KEY, pymongo.ASCENDING),
+            (models.DEFCONFIG_FULL_KEY, pymongo.ASCENDING),
+            (models.ARCHITECTURE_KEY, pymongo.ASCENDING)
+        ], background=True
     )
 
 
@@ -72,6 +87,19 @@ def _ensure_defconfig_indexes(database):
         [(models.CREATED_KEY, pymongo.DESCENDING)], background=True)
     collection.ensure_index(
         [(models.STATUS_KEY, pymongo.ASCENDING)], background=True)
+    collection.ensure_index(
+        [
+            (models.CREATED_KEY, pymongo.DESCENDING),
+            (models.ID_KEY, pymongo.DESCENDING),
+            (models.STATUS_KEY, pymongo.ASCENDING),
+            (models.JOB_KEY, pymongo.ASCENDING),
+            (models.KERNEL_KEY, pymongo.ASCENDING),
+            (models.DEFCONFIG_KEY, pymongo.ASCENDING),
+            (models.DEFCONFIG_FULL_KEY, pymongo.ASCENDING),
+            (models.ARCHITECTURE_KEY, pymongo.ASCENDING)
+        ],
+        background=True
+    )
 
 
 def _ensure_token_indexes(database):
