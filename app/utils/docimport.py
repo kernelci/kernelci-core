@@ -181,6 +181,8 @@ def _traverse_kernel_dir(job_doc, kernel_dir, database):
                     break
             else:
                 idx += 1
+        # Save, again, the job-doc or we end up without the git data.
+        utils.db.save(database, job_doc)
 
     return docs
 
