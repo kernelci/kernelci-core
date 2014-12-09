@@ -287,7 +287,7 @@ def boot_report(args):
                                                                                                         kernel_version,
                                                                                                         defconfig,
                                                                                                         result['device_type']))
-            f.write('\n')
+                        f.write('\n')
             f.write('\n')
             f.write('Full Boot Report:\n')
             for defconfig, results_list in results.items():
