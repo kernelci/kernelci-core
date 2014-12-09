@@ -332,7 +332,7 @@ def _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f):
     boot_doc.dtb = json_pop_f(models.DTB_KEY, None)
     boot_doc.dtb_addr = json_pop_f(models.DTB_ADDR_KEY, None)
     boot_doc.dtb_append = json_pop_f(models.DTB_APPEND_KEY, None)
-    boot_doc.endianness = json_pop_f(models.ENDIANNESS_KEY, None)
+    boot_doc.endian = json_pop_f(models.ENDIANNESS_KEY, None)
     boot_doc.fastboot = json_pop_f(models.FASTBOOT_KEY, None)
     boot_doc.fastboot_cmd = json_pop_f(models.FASTBOOT_CMD_KEY, None)
     boot_doc.file_server_resource = json_pop_f(

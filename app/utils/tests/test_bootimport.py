@@ -66,7 +66,7 @@ class TestParseBoot(unittest.TestCase):
         self.assertIsInstance(doc, modb.BootDocument)
         self.assertEqual(doc.name, "board-job-kernel-defconfig-arm")
         self.assertEqual(doc.load_addr, "0x80200000")
-        self.assertEqual(doc.endianness, "little")
+        self.assertEqual(doc.endian, "little")
         self.assertEqual(doc.version, "1.0")
         self.assertIsInstance(doc.metadata, types.DictionaryType)
 
