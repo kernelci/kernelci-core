@@ -40,9 +40,10 @@ def test_modules():
         'models.tests.test_token_model',
         'utils.batch.tests.test_batch_common',
         'utils.bisect.tests.test_bisect',
+        'utils.tests.test_base',
         'utils.tests.test_bootimport',
         'utils.tests.test_docimport',
-        'utils.tests.test_validator',
+        'utils.tests.test_validator'
     ]
 
 
