@@ -41,6 +41,7 @@ def ensure_indexes(client, db_options):
     _ensure_defconfig_indexes(database)
     _ensure_token_indexes(database)
     _ensure_lab_indexes(database)
+    _ensure_bisect_indexes(database)
 
 
 def _ensure_job_indexes(database):
@@ -175,5 +176,18 @@ def _ensure_lab_indexes(database):
             (models.NAME_KEY, pymongo.ASCENDING),
             (models.TOKEN_KEY, pymongo.ASCENDING)
         ],
+        background=True
+    )
+
+
+def _ensure_bisect_indexes(database):
+    """Ensure indexes exists for the 'bisect' collection.
+
+    :param database: The database connection.
+    """
+    collection = database[models.BISECT_COLLECTION]
+
+    collection.ensure_index(
+        [(models.NAME_KEY, pymongo.DESCENDING)],
         background=True
     )
