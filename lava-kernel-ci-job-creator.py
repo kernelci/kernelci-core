@@ -9,6 +9,7 @@ import argparse
 base_url = None
 kernel = None
 platform_list = []
+legacy_platform_list = []
 
 arndale = {'device_type': 'arndale',
            'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
@@ -247,8 +248,8 @@ device_map = {'exynos5250-arndale.dtb': arndale,
               'vexpress-v2p-ca15_a7.dtb': qemu_arm_cortex_a15_a7,
               'vexpress-v2p-ca9.dtb': qemu_arm_cortex_a9,
               'vexpress-v2p-ca9-legacy': qemu_arm_cortex_a9_legacy,
-              'qemu-arm': qemu_arm,
-              'qemu-aarch64': qemu_aarch64,
+              'qemu-arm-legacy': qemu_arm,
+              'qemu-aarch64-legacy': qemu_aarch64,
               'apm-mustang.dtb': apm_mustang,
               'x86': x86,
               'x86-kvm': x86_kvm}
@@ -265,7 +266,7 @@ def setup_job_dir(directory):
     print 'Done setting up JSON output directory'
 
 
-def create_jobs(base_url, kernel, platform_list, target):
+def create_jobs(base_url, kernel, platform_list, target, targets):
     print 'Creating JSON Job Files...'
     cwd = os.getcwd()
     url = urlparse.urlparse(kernel)
@@ -291,6 +292,8 @@ def create_jobs(base_url, kernel, platform_list, target):
         elif defconfig in device['defconfig_blacklist']:
             print '%s has been blacklisted. Skipping JSON creation' % defconfig
         elif target is not None and target != device_type:
+            print '%s device type has been omitted. Skipping JSON creation.' % device_type
+        elif targets is not None and device_type not in targets:
             print '%s device type has been omitted. Skipping JSON creation.' % device_type
         else:
             for template in device_templates:
@@ -320,10 +323,11 @@ def create_jobs(base_url, kernel, platform_list, target):
                 print 'JSON Job created: jobs/%s' % job_name
 
 
-def walk_url(url, arch=None, target=None):
+def walk_url(url, arch=None, target=None, targets=None):
     global base_url
     global kernel
     global platform_list
+    global legacy_platform_list
 
     try:
         html = urllib2.urlopen(url).read()
@@ -346,12 +350,21 @@ def walk_url(url, arch=None, target=None):
             if 'zImage' in name and 'arm' in url:
                 kernel = url + name
                 base_url = url
-                # qemu-arm
+                # qemu-arm,legacy
                 if 'arm-versatile_defconfig' in url:
-                    platform_list.append(url + 'qemu-arm')
+                    legacy_platform_list.append(url + 'qemu-arm-legacy')
+                # omap3-beagle-xm,legacy
+                if 'arm-omap2plus_defconfig' in base_url:
+                    legacy_platform_list.append(url + 'omap3-beagle-xm-legacy')
+                # vexpress-v2p-ca9,legacy
+                if 'arm-vexpress_defconfig' in url:
+                    legacy_platform_list.append(url + 'vexpress-v2p-ca9-legacy')
             if 'Image' in name and 'arm64' in url:
                 kernel = url + name
                 base_url = url
+                # qemu-aarch64,legacy
+                if 'arm64-defconfig' in url:
+                    legacy_platform_list.append(url + 'qemu-aarch64-legacy')
             if name.endswith('.dtb') and name in device_map:
                 if base_url and base_url in url:
                     platform_list.append(url + name)
@@ -365,44 +378,49 @@ def walk_url(url, arch=None, target=None):
             if 'zImage' in name and 'arm' in url:
                 kernel = url + name
                 base_url = url
-            # qemu-arm
-            if 'arm-versatile_defconfig' in url:
-                platform_list.append(url + 'qemu-arm')
+                # qemu-arm,legacy
+                if 'arm-versatile_defconfig' in url:
+                    legacy_platform_list.append(url + 'qemu-arm-legacy')
+                # omap3-beagle-xm,legacy
+                if 'arm-omap2plus_defconfig' in base_url:
+                    legacy_platform_list.append(url + 'omap3-beagle-xm-legacy')
+                # vexpress-v2p-ca9,legacy
+                if 'arm-vexpress_defconfig' in url:
+                    legacy_platform_list.append(url + 'vexpress-v2p-ca9-legacy')
             if name.endswith('.dtb') and name in device_map:
                 if base_url and base_url in url:
-                    platform_list.append(url + name)
+                    legacy_platform_list.append(url + name)
         elif arch == 'arm64':
             if 'Image' in name and 'arm64' in url:
                 kernel = url + name
                 base_url = url
+                # qemu-aarch64,legacy
+                if 'arm64-defconfig' in url:
+                    legacy_platform_list.append(url + 'qemu-aarch64-legacy')
             if name.endswith('.dtb') and name in device_map:
                 if base_url and base_url in url:
                     platform_list.append(url + name)
 
-    if kernel is not None and base_url is not None and platform_list:
-        print 'Found boot artifacts at: %s' % base_url
-        # omap3-beagle-xm,legacy
-        if 'arm-omap2plus_defconfig' in base_url:
-            platform_list.append(url + 'omap3-beagle-xm-legacy')
-        # vexpress-v2p-ca9,legacy
-        if 'arm-vexpress_defconfig' in url:
-            platform_list.append(url + 'vexpress-v2p-ca9-legacy')
-        # qemu-aarch64,legacy
-        if 'arm64-defconfig' in url:
-            platform_list.append(url + 'qemu-aarch64')
-        create_jobs(base_url, kernel, platform_list, target)
-        base_url = None
-        kernel = None
-        platform_list = []
+    if kernel is not None and base_url is not None:
+        if platform_list:
+            print 'Found boot artifacts at: %s' % base_url
+            create_jobs(base_url, kernel, platform_list, target, targets)
+            base_url = None
+            kernel = None
+            platform_list = []
+        elif legacy_platform_list:
+            print 'Found boot artifacts at: %s' % base_url
+            create_jobs(base_url, kernel, legacy_platform_list, target, targets)
+            legacy_platform_list = []
 
     for dir in dirs:
-        walk_url(url + dir, arch, target)
+        walk_url(url + dir, arch, target, targets)
 
 
 def main(args):
     setup_job_dir(os.getcwd() + '/jobs')
     print 'Scanning %s for boot information...' % args.url
-    walk_url(args.url, args.arch, args.target)
+    walk_url(args.url, args.arch, args.target, args.targets)
     print 'Done scanning for boot information'
     print 'Done creating JSON jobs'
     exit(0)
@@ -412,5 +430,6 @@ if __name__ == '__main__':
     parser.add_argument("url", help="url to build artifacts")
     parser.add_argument("--arch", help="specific architecture to create jobs for")
     parser.add_argument("--target", help="specific target to create jobs for")
+    parser.add_argument("--targets", nargs='+', help="specific targets to create jobs for")
     args = parser.parse_args()
     main(args)
