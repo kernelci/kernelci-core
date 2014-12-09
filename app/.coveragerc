@@ -6,6 +6,7 @@ omit =
     setup*
     */tests/*
     utils/scripts/*
+    handlers/dbindexes.py
 
 [report]
 precision = 2
