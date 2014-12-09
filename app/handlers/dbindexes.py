@@ -48,13 +48,25 @@ def _ensure_job_indexes(database):
 
     :param database: The database connection.
     """
-    database[models.JOB_COLLECTION].ensure_index(
+    collection = database[models.JOB_COLLECTION]
+    collection.ensure_index(
         [
             (models.CREATED_KEY, pymongo.DESCENDING),
-            (models.ID_KEY, pymongo.DESCENDING),
             (models.JOB_KEY, pymongo.ASCENDING),
-            (models.KERNEL_KEY, pymongo.ASCENDING)
-        ], background=True
+            (models.KERNEL_KEY, pymongo.ASCENDING),
+            (models.STATUS_KEY, pymongo.ASCENDING),
+            (models.NAME_KEY, pymongo.ASCENDING)
+        ],
+        background=True
+    )
+    collection.ensure_index(
+        [
+            (models.JOB_KEY, pymongo.ASCENDING),
+            (models.KERNEL_KEY, pymongo.ASCENDING),
+            (models.STATUS_KEY, pymongo.ASCENDING),
+            (models.NAME_KEY, pymongo.ASCENDING)
+        ],
+        background=True
     )
 
 
@@ -63,28 +75,42 @@ def _ensure_boot_indexes(database):
 
     :param database: The database connection.
     """
-    database[models.BOOT_COLLECTION].ensure_index(
+    collection = database[models.BOOT_COLLECTION]
+
+    collection.ensure_index(
         [
             (models.CREATED_KEY, pymongo.DESCENDING),
-            (models.ID_KEY, pymongo.DESCENDING),
             (models.BOARD_KEY, pymongo.ASCENDING),
             (models.JOB_KEY, pymongo.ASCENDING),
             (models.KERNEL_KEY, pymongo.ASCENDING),
             (models.DEFCONFIG_KEY, pymongo.ASCENDING),
             (models.DEFCONFIG_FULL_KEY, pymongo.ASCENDING),
-            (models.ARCHITECTURE_KEY, pymongo.ASCENDING)
-        ], background=True
+            (models.ARCHITECTURE_KEY, pymongo.ASCENDING),
+            (models.STATUS_KEY, pymongo.ASCENDING),
+            (models.NAME_KEY, pymongo.ASCENDING)
+        ],
+        background=True
     )
-    database[models.BOOT_COLLECTION].ensure_index(
+    collection.ensure_index(
         [
-            (models.ID_KEY, pymongo.DESCENDING),
             (models.BOARD_KEY, pymongo.ASCENDING),
             (models.JOB_KEY, pymongo.ASCENDING),
             (models.KERNEL_KEY, pymongo.ASCENDING),
             (models.DEFCONFIG_KEY, pymongo.ASCENDING),
             (models.DEFCONFIG_FULL_KEY, pymongo.ASCENDING),
-            (models.ARCHITECTURE_KEY, pymongo.ASCENDING)
-        ], background=True
+            (models.ARCHITECTURE_KEY, pymongo.ASCENDING),
+            (models.STATUS_KEY, pymongo.ASCENDING),
+            (models.NAME_KEY, pymongo.ASCENDING)
+        ],
+        background=True
+    )
+    collection.ensure_index(
+        [
+            (models.JOB_KEY, pymongo.ASCENDING),
+            (models.KERNEL_KEY, pymongo.ASCENDING),
+            (models.NAME_KEY, pymongo.ASCENDING)
+        ],
+        background=True
     )
 
 
@@ -98,24 +124,25 @@ def _ensure_defconfig_indexes(database):
     collection.ensure_index(
         [
             (models.CREATED_KEY, pymongo.DESCENDING),
-            (models.ID_KEY, pymongo.DESCENDING),
             (models.STATUS_KEY, pymongo.ASCENDING),
             (models.JOB_KEY, pymongo.ASCENDING),
             (models.KERNEL_KEY, pymongo.ASCENDING),
             (models.DEFCONFIG_KEY, pymongo.ASCENDING),
             (models.DEFCONFIG_FULL_KEY, pymongo.ASCENDING),
-            (models.ARCHITECTURE_KEY, pymongo.ASCENDING)
+            (models.ARCHITECTURE_KEY, pymongo.ASCENDING),
+            (models.NAME_KEY, pymongo.ASCENDING)
         ],
         background=True
     )
     collection.ensure_index(
         [
-            (models.ID_KEY, pymongo.DESCENDING),
             (models.JOB_KEY, pymongo.ASCENDING),
             (models.KERNEL_KEY, pymongo.ASCENDING),
             (models.DEFCONFIG_KEY, pymongo.ASCENDING),
             (models.DEFCONFIG_FULL_KEY, pymongo.ASCENDING),
-            (models.ARCHITECTURE_KEY, pymongo.ASCENDING)
+            (models.ARCHITECTURE_KEY, pymongo.ASCENDING),
+            (models.STATUS_KEY, pymongo.ASCENDING),
+            (models.NAME_KEY, pymongo.ASCENDING)
         ],
         background=True
     )
@@ -131,13 +158,6 @@ def _ensure_token_indexes(database):
     collection.ensure_index(
         [(models.TOKEN_KEY, pymongo.DESCENDING)], background=True
     )
-    collection.ensure_index(
-        [
-            (models.ID_KEY, pymongo.DESCENDING),
-            (models.TOKEN_KEY, pymongo.ASCENDING)
-        ],
-        background=True
-    )
 
 
 def _ensure_lab_indexes(database):
@@ -149,7 +169,6 @@ def _ensure_lab_indexes(database):
 
     collection.ensure_index(
         [
-            (models.ID_KEY, pymongo.DESCENDING),
             (models.NAME_KEY, pymongo.ASCENDING),
             (models.TOKEN_KEY, pymongo.ASCENDING)
         ],
