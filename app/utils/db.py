@@ -58,8 +58,8 @@ def get_db_connection(db_options):
 
 def find_one(collection,
              value,
-             field='_id',
-             operator='$in',
+             field="_id",
+             operator="$in",
              fields=None):
     """Search for a specific document.
 
@@ -253,7 +253,7 @@ def save_all(database, documents, manipulate=False, fail_on_err=False):
     return ret_value, doc_id
 
 
-def update(collection, spec, document, operation='$set'):
+def update(collection, spec, document, operation="$set"):
     """Update a document with the provided values.
 
     The operation is performed on the collection based on the `spec` provided.
@@ -342,8 +342,8 @@ def aggregate(
         This is necessary since the aggregate function on MongoDB accepts
         values dollar-escaped.
         """
-        if val[0] != '$':
-            val = '$' + val
+        if val[0] != "$":
+            val = "$" + val
         return val
 
     # Where the aggregate actions and values will be stored.
@@ -351,21 +351,21 @@ def aggregate(
 
     if match:
         pipeline.append({
-            '$match': match
+            "$match": match
         })
 
     # XXX: For strange reasons, sort needs to happen before, and also
     # after grouping, or the resulsts are completely random
     if sort:
         pipeline.append({
-            '$sort': {
+            "$sort": {
                 k: v for k, v in sort
             }
         })
 
     group_dict = {
-        '$group': {
-            '_id': _starts_with_dollar(unique)
+        "$group": {
+            "_id": _starts_with_dollar(unique)
         }
     }
 
@@ -374,20 +374,20 @@ def aggregate(
             (k, v) for k, v in [
                 (key, val)
                 for key in fields
-                for val in [{'$first': _starts_with_dollar(key)}]
+                for val in [{"$first": _starts_with_dollar(key)}]
             ]
         ]
     else:
-        fields = [('result', {'$first': '$$CURRENT'})]
+        fields = [("result", {"$first": "$$CURRENT"})]
 
-    group_dict['$group'].update(fields)
+    group_dict["$group"].update(fields)
     pipeline.append(group_dict)
 
     # XXX: For strange reasons, sort needs to happen before, and also
     # after grouping, or the resulsts are completely random
     if sort:
         pipeline.append({
-            '$sort': {
+            "$sort": {
                 k: v for k, v in sort
             }
         })
@@ -395,7 +395,7 @@ def aggregate(
     # Make sure we return the exact number of elements after grouping them.
     if limit:
         pipeline.append({
-            '$limit': limit
+            "$limit": limit
         })
 
     utils.LOG.debug(pipeline)
@@ -403,16 +403,16 @@ def aggregate(
     result = collection.aggregate(pipeline)
 
     if result and isinstance(result, types.DictionaryType):
-        element = result.get('result', None)
+        element = result.get("result", None)
 
         if all([
                 element,
                 isinstance(element, types.ListType), len(element) > 0]):
             r_element = element[0]
 
-            if r_element.get('result', None):
+            if r_element.get("result", None):
                 result = [
-                    k['result'] for k in [v for v in element]
+                    k["result"] for k in [v for v in element]
                 ]
             else:
                 result = [k for k in element]
