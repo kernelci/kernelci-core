@@ -52,6 +52,7 @@ def _ensure_job_indexes(database):
     collection.ensure_index(
         [
             (models.CREATED_KEY, pymongo.DESCENDING),
+            (models.ID_KEY, pymongo.DESCENDING),
             (models.JOB_KEY, pymongo.ASCENDING),
             (models.KERNEL_KEY, pymongo.ASCENDING),
             (models.STATUS_KEY, pymongo.ASCENDING),
@@ -80,6 +81,7 @@ def _ensure_boot_indexes(database):
     collection.ensure_index(
         [
             (models.CREATED_KEY, pymongo.DESCENDING),
+            (models.ID_KEY, pymongo.DESCENDING),
             (models.BOARD_KEY, pymongo.ASCENDING),
             (models.JOB_KEY, pymongo.ASCENDING),
             (models.KERNEL_KEY, pymongo.ASCENDING),
@@ -124,6 +126,7 @@ def _ensure_defconfig_indexes(database):
     collection.ensure_index(
         [
             (models.CREATED_KEY, pymongo.DESCENDING),
+            (models.ID_KEY, pymongo.DESCENDING),
             (models.STATUS_KEY, pymongo.ASCENDING),
             (models.JOB_KEY, pymongo.ASCENDING),
             (models.KERNEL_KEY, pymongo.ASCENDING),
