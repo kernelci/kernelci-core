@@ -31,26 +31,30 @@ import utils
 import utils.db
 
 BOOT_SEARCH_FIELDS = [
+    models.ARCHITECTURE_KEY,
     models.BOARD_KEY,
     models.CREATED_KEY,
+    models.DEFCONFIG_FULL_KEY,
     models.DEFCONFIG_ID_KEY,
     models.DEFCONFIG_KEY,
     models.ID_KEY,
     models.JOB_ID_KEY,
     models.JOB_KEY,
     models.KERNEL_KEY,
-    models.STATUS_KEY,
+    models.LAB_NAME_KEY,
+    models.STATUS_KEY
 ]
 
 BOOT_DEFCONFIG_SEARCH_FIELDS = [
     models.ARCHITECTURE_KEY,
     models.CREATED_KEY,
+    models.DEFCONFIG_FULL_KEY,
     models.DEFCONFIG_KEY,
     models.GIT_BRANCH_KEY,
     models.GIT_COMMIT_KEY,
     models.GIT_DESCRIBE_KEY,
     models.GIT_URL_KEY,
-    models.STATUS_KEY,
+    models.STATUS_KEY
 ]
 
 BOOT_SORT = [(models.CREATED_KEY, pymongo.DESCENDING)]
@@ -67,7 +71,7 @@ DEFCONFIG_SEARCH_FIELDS = [
     models.JOB_ID_KEY,
     models.JOB_KEY,
     models.KERNEL_KEY,
-    models.STATUS_KEY,
+    models.STATUS_KEY
 ]
 
 DEFCONFIG_SORT = [(models.CREATED_KEY, pymongo.DESCENDING)]
@@ -92,6 +96,7 @@ def _combine_defconfig_values(boot_doc, db_options):
     job = boot_doc_get(models.JOB_KEY)
     kernel = boot_doc_get(models.KERNEL_KEY)
     defconfig = boot_doc_get(models.DEFCONFIG_KEY)
+    defconfig_full = boot_doc_get(models.DEFCONFIG_FULL_KEY)
     defconfig_id = boot_doc_get(models.DEFCONFIG_ID_KEY, None)
     job_id = boot_doc_get(models.JOB_ID_KEY, None)
 
@@ -102,6 +107,7 @@ def _combine_defconfig_values(boot_doc, db_options):
         models.BISECT_DEFCONFIG_ARCHITECTURE_KEY: "",
         models.BISECT_DEFCONFIG_CREATED_KEY: "",
         models.BISECT_DEFCONFIG_STATUS_KEY: "",
+        models.DEFCONFIG_FULL_KEY: defconfig_full,
         models.DEFCONFIG_ID_KEY: defconfig_id,
         models.DEFCONFIG_KEY: defconfig,
         models.DIRNAME_KEY: "",
@@ -111,7 +117,7 @@ def _combine_defconfig_values(boot_doc, db_options):
         models.GIT_URL_KEY: "",
         models.JOB_ID_KEY: job_id,
         models.JOB_KEY: job,
-        models.KERNEL_KEY: kernel,
+        models.KERNEL_KEY: kernel
     }
 
     if defconfig_id:
@@ -183,22 +189,33 @@ def execute_boot_bisection(doc_id, db_options, fields=None):
             code = 400
             result = None
         else:
+            board = start_doc_get(models.BOARD_KEY)
+            job = start_doc_get(models.JOB_KEY)
+            defconfig = start_doc_get(models.DEFCONFIG_KEY)
+            defconfig_full = start_doc_get(
+                models.DEFCONFIG_FULL_KEY) or defconfig
+            created_on = start_doc_get(models.CREATED_KEY)
+            arch = start_doc_get(
+                models.ARCHITECTURE_KEY) or models.ARM_ARCHITECTURE_KEY
+            lab_name = start_doc_get(models.LAB_NAME_KEY)
+
             bisect_doc = mbisect.BootBisectDocument(obj_id)
             bisect_doc.version = "1.0"
-            bisect_doc.job = start_doc_get(models.JOB_KEY, None)
+            bisect_doc.job = job
             bisect_doc.job_id = start_doc_get(models.JOB_ID_KEY, None)
             bisect_doc.defconfig_id = start_doc_get(
                 models.DEFCONFIG_ID_KEY, None)
             bisect_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
-            bisect_doc.board = start_doc_get(models.BOARD_KEY)
+            bisect_doc.board = board
 
             spec = {
-                models.BOARD_KEY: start_doc_get(models.BOARD_KEY),
-                models.DEFCONFIG_KEY: start_doc_get(models.DEFCONFIG_KEY),
+                models.LAB_NAME_KEY: lab_name,
+                models.BOARD_KEY: board,
+                models.DEFCONFIG_KEY: defconfig,
+                models.DEFCONFIG_FULL_KEY: defconfig_full,
                 models.JOB_KEY: start_doc_get(models.JOB_KEY),
-                models.CREATED_KEY: {
-                    "$lt": start_doc_get(models.CREATED_KEY)
-                }
+                models.ARCHITECTURE_KEY: arch,
+                models.CREATED_KEY: {"$lt": created_on}
             }
 
             # The function to apply to each boot document to find its defconfig
@@ -340,6 +357,9 @@ def execute_defconfig_bisection(doc_id, db_options, fields=None):
             # as expected.
             pass_spec = copy.deepcopy(spec)
             pass_spec[models.STATUS_KEY] = models.PASS_STATUS
+            # Only interested in older builds.
+            pass_spec[models.CREATED_KEY] = \
+                {"$lt": start_doc_get(models.CREATED_KEY)}
 
             passed_builds = utils.db.find(
                 database[models.DEFCONFIG_COLLECTION],
@@ -352,6 +372,7 @@ def execute_defconfig_bisection(doc_id, db_options, fields=None):
 
             # In case we have a passed doc, tweak the spec to search between
             # the valid dates.
+            passed_build = None
             if passed_builds.count() > 0:
                 passed_build = passed_builds[0]
 
@@ -370,10 +391,10 @@ def execute_defconfig_bisection(doc_id, db_options, fields=None):
                     "$lt": start_doc_get(models.CREATED_KEY)
                 }
             else:
+                utils.LOG.warn("No passed build found for '%s'", obj_id)
                 spec[models.CREATED_KEY] = {
                     "$lt": start_doc_get(models.CREATED_KEY)
                 }
-                utils.LOG.warn("No passed build found for '%s'", obj_id)
 
             all_prev_docs = utils.db.find(
                 database[models.DEFCONFIG_COLLECTION],
@@ -390,6 +411,9 @@ def execute_defconfig_bisection(doc_id, db_options, fields=None):
                         doc for doc in _get_docs_until_pass(all_prev_docs)
                     ]
                 )
+
+                if all([passed_build, all_valid_docs[-1] != passed_build]):
+                    all_valid_docs.append(passed_build)
 
                 # The last doc should be the good one, in case it is, add the
                 # values to the bisect_doc.
