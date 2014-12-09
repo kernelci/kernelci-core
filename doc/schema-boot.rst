@@ -159,7 +159,7 @@ necessary to use its ``_id`` value.
                 "type": "string",
                 "description": "The DTB file or directory used"
             },
-            "endianness": {
+            "endian": {
                 "type": "string",
                 "description": "Endianness of the board"
             },
