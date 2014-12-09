@@ -96,7 +96,7 @@ def _combine_defconfig_values(boot_doc, db_options):
     job = boot_doc_get(models.JOB_KEY)
     kernel = boot_doc_get(models.KERNEL_KEY)
     defconfig = boot_doc_get(models.DEFCONFIG_KEY)
-    defconfig_full = boot_doc_get(models.DEFCONFIG_FULL_KEY)
+    defconfig_full = boot_doc_get(models.DEFCONFIG_FULL_KEY) or defconfig
     defconfig_id = boot_doc_get(models.DEFCONFIG_ID_KEY, None)
     job_id = boot_doc_get(models.JOB_ID_KEY, None)
 
@@ -127,7 +127,7 @@ def _combine_defconfig_values(boot_doc, db_options):
             fields=BOOT_DEFCONFIG_SEARCH_FIELDS
         )
     else:
-        defconfig_name = job + "-" + kernel + "-" + defconfig
+        defconfig_name = job + "-" + kernel + "-" + defconfig_full
         defconf_doc = utils.db.find_one(
             database[models.DEFCONFIG_COLLECTION],
             [defconfig_name],
