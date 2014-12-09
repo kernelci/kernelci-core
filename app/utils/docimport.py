@@ -22,7 +22,6 @@ import bson
 import datetime
 import glob
 import os
-import pymongo
 import types
 
 import models
