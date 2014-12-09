@@ -73,6 +73,13 @@ cubieboard3 = {'device_type': 'cubieboard3',
                'be': False,
                'fastboot': False}
 
+hisi_x5hd2_dkb = {'device_type': 'hi3716cv200',
+                  'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+                  'defconfig_blacklist': [],
+                  'lpae': False,
+                  'be': False,
+                  'fastboot': False}
+
 imx6q_wandboard = {'device_type': 'imx6q-wandboard',
                    'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
                    'defconfig_blacklist': ['arm-imx_v4_v5_defconfig',
@@ -191,12 +198,12 @@ qemu_aarch64 = {'device_type': 'qemu-aarch64',
                 'fastboot': False}
 
 apm_mustang = {'device_type': 'mustang',
-                'templates': ['generic-arm64-uboot-dtb-kernel-ci-boot-template.json'],
-                'defconfig_blacklist': ['arm64-allnoconfig',
-                                        'arm64-allmodconfig'],
-                'lpae': False,
-                'be': False,
-                'fastboot': False}
+               'templates': ['generic-arm64-uboot-dtb-kernel-ci-boot-template.json'],
+               'defconfig_blacklist': ['arm64-allnoconfig',
+                                       'arm64-allmodconfig'],
+               'lpae': False,
+               'be': False,
+               'fastboot': False}
 
 x86 = {'device_type': 'x86',
        'templates': ['generic-x86-kernel-ci-boot-template.json'],
@@ -225,6 +232,7 @@ device_map = {'exynos5250-arndale.dtb': arndale,
               'omap3-beagle-xm-legacy': beagle_xm_legacy,
               'omap4-panda-es.dtb': panda_es,
               'sun7i-a20-cubietruck.dtb': cubieboard3,
+              'hisi-x5hd2-dkb.dtb': hisi_x5hd2_dkb,
               'imx6q-wandboard.dtb': imx6q_wandboard,
               'imx6q-cm-fx6.dtb': utilite_pro,
               'ste-snowball.dtb': snowball,
