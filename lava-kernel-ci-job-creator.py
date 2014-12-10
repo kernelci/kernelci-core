@@ -356,9 +356,6 @@ def walk_url(url, arch=None, target=None, targets=None):
                 # omap3-beagle-xm,legacy
                 if 'arm-omap2plus_defconfig' in base_url:
                     legacy_platform_list.append(url + 'omap3-beagle-xm-legacy')
-                # vexpress-v2p-ca9,legacy
-                if 'arm-vexpress_defconfig' in url:
-                    legacy_platform_list.append(url + 'vexpress-v2p-ca9-legacy')
             if 'Image' in name and 'arm64' in url:
                 kernel = url + name
                 base_url = url
@@ -384,9 +381,6 @@ def walk_url(url, arch=None, target=None, targets=None):
                 # omap3-beagle-xm,legacy
                 if 'arm-omap2plus_defconfig' in base_url:
                     legacy_platform_list.append(url + 'omap3-beagle-xm-legacy')
-                # vexpress-v2p-ca9,legacy
-                if 'arm-vexpress_defconfig' in url:
-                    legacy_platform_list.append(url + 'vexpress-v2p-ca9-legacy')
             if name.endswith('.dtb') and name in device_map:
                 if base_url and base_url in url:
                     legacy_platform_list.append(url + name)
