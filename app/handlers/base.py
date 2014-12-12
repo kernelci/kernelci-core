@@ -34,16 +34,16 @@ import utils.validator as validator
 
 
 STATUS_MESSAGES = {
-    404: 'Resource not found',
-    405: 'Operation not allowed',
+    404: "Resource not found",
+    405: "Operation not allowed",
     415: (
-        'Please use "%s" as the default media type' %
+        "Please use '%s' as the default media type" %
         hcommon.ACCEPTED_CONTENT_TYPE
     ),
-    420: 'No JSON data found',
-    500: 'Internal database error',
-    501: 'Method not implemented',
-    506: 'Wrong response type from database'
+    420: "No JSON data found",
+    500: "Internal database error",
+    501: "Method not implemented",
+    506: "Wrong response type from database"
 }
 
 
@@ -57,7 +57,7 @@ class BaseHandler(tornado.web.RequestHandler):
     @property
     def executor(self):
         """The executor where async function should be run."""
-        return self.settings['executor']
+        return self.settings["executor"]
 
     @property
     def collection(self):
@@ -68,11 +68,11 @@ class BaseHandler(tornado.web.RequestHandler):
     def db(self):
         """The database instance associated with the object."""
         if self._db is None:
-            db_options = self.settings['dboptions']
-            client = self.settings['client']
+            db_options = self.settings["dboptions"]
+            client = self.settings["client"]
 
-            db_pwd = db_options['dbpassword']
-            db_user = db_options['dbuser']
+            db_pwd = db_options["dbpassword"]
+            db_user = db_options["dbuser"]
 
             self._db = client[models.DB_NAME]
 
@@ -84,7 +84,7 @@ class BaseHandler(tornado.web.RequestHandler):
     @property
     def log(self):
         """The logger of this object."""
-        return utils.log.get_log(debug=self.settings['debug'])
+        return utils.log.get_log(debug=self.settings["debug"])
 
     @staticmethod
     def _valid_keys(method):
@@ -140,7 +140,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
         self.set_status(status_code=status_code, reason=reason)
         self.write(result)
-        self.set_header('Content-Type', hcommon.DEFAULT_RESPONSE_TYPE)
+        self.set_header("Content-Type", hcommon.DEFAULT_RESPONSE_TYPE)
 
         if headers:
             for key, val in headers.iteritems():
@@ -158,7 +158,7 @@ class BaseHandler(tornado.web.RequestHandler):
         valid_content = False
 
         if 'Content-Type' in self.request.headers.keys():
-            if self.request.headers['Content-Type'] == \
+            if self.request.headers["Content-Type"] == \
                     hcommon.ACCEPTED_CONTENT_TYPE:
                 valid_content = True
             else:
@@ -198,9 +198,9 @@ class BaseHandler(tornado.web.RequestHandler):
                         json_obj, self._valid_keys("POST")
                     )
                     if valid_json:
-                        kwargs['json_obj'] = json_obj
-                        kwargs['db_options'] = self.settings['dboptions']
-                        kwargs['reason'] = j_reason
+                        kwargs["json_obj"] = json_obj
+                        kwargs["db_options"] = self.settings["dboptions"]
+                        kwargs["reason"] = j_reason
                         response = self._post(*args, **kwargs)
                     else:
                         response = hresponse.HandlerResponse(400)
@@ -277,8 +277,8 @@ class BaseHandler(tornado.web.RequestHandler):
         response = None
 
         if self.validate_req_token("DELETE"):
-            if kwargs and kwargs.get('id', None):
-                response = self._delete(kwargs['id'])
+            if kwargs and kwargs.get("id", None):
+                response = self._delete(kwargs["id"])
             else:
                 response = hresponse.HandlerResponse(400)
                 response.reason = self._get_status_message(400)
