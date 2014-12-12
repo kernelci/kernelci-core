@@ -89,8 +89,13 @@ BOOT_VALID_KEYS = {
             models.KERNEL_IMAGE_KEY,
             models.KERNEL_KEY,
             models.LAB_NAME_KEY,
+            models.METADATA_KEY,
             models.NAME_KEY,
+            models.QEMU_COMMAND_KEY,
+            models.QEMU_KEY,
             models.STATUS_KEY,
+            models.UIMAGE_ADDR_KEY,
+            models.UIMAGE_KEY,
             models.VERSION_KEY
         ]
     },

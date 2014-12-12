@@ -191,6 +191,22 @@ necessary to use its ``_id`` value.
             "metadata": {
                 "type": "object",
                 "description": "A free form object that can contain different properties"
+            },
+            "uimage": {
+                "type": "string",
+                "description": "Path to the uImage used"
+            },
+            "uimage_addr": {
+                "type": "string",
+                "description": "uImage load address"
+            },
+            "qemu": {
+                "type": "string",
+                "description": "qemu binary used"
+            },
+            "qemu_command": {
+                "type": "string",
+                "description": "Full command line used to start qemu"
             }
         }
     }
@@ -341,6 +357,26 @@ have when sent to the server.
             "file_server_resource": {
                 "type": "string",
                 "description": "The server path where the boot related files are stored"
+            },
+            "metadata": {
+                "type": "object",
+                "description": "A free form object that can contain different properties"
+            },
+            "uimage": {
+                "type": "string",
+                "description": "Path to the uImage used"
+            },
+            "uimage_addr": {
+                "type": "string",
+                "description": "uImage load address"
+            },
+            "qemu": {
+                "type": "string",
+                "description": "qemu binary used"
+            },
+            "qemu_command": {
+                "type": "string",
+                "description": "Full command line used to start qemu"
             }
         },
         "required": ["version", "lab_name", "job", "kernel", "defconfig", "board", "arch"]

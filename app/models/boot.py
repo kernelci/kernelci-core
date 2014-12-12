@@ -90,9 +90,13 @@ class BootDocument(modb.BaseDocument):
         self.kernel_image = None
         self.load_addr = None
         self.metadata = {}
+        self.qemu = None
+        self.qemu_command = None
         self.retries = 0
         self.status = None
         self.time = 0
+        self.uimage = None
+        self.uimage_addr = None
         self.warnings = 0
 
     @property
@@ -221,9 +225,13 @@ class BootDocument(modb.BaseDocument):
             models.LOAD_ADDR_KEY: self.load_addr,
             models.METADATA_KEY: self.metadata,
             models.NAME_KEY: self.name,
+            models.QEMU_COMMAND_KEY: self.qemu_command,
+            models.QEMU_KEY: self.qemu,
             models.RETRIES_KEY: self.retries,
             models.STATUS_KEY: self.status,
             models.TIME_KEY: self.time,
+            models.UIMAGE_ADDR_KEY: self.uimage_addr,
+            models.UIMAGE_KEY: self.uimage,
             models.VERSION_KEY: self.version,
             models.WARNINGS_KEY: self.warnings
         }

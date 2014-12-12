@@ -50,6 +50,11 @@ class TestBootModel(unittest.TestCase):
         boot_doc.file_server_resource = "file-resource"
         boot_doc.initrd = "initrd"
         boot_doc.board_instance = "instance"
+        boot_doc.uimage = "path/to/uImage"
+        boot_doc.uimage_addr = "uimage_addr"
+        boot_doc.qemu = "qemu_binary"
+        boot_doc.qemu_command = "qemu_command"
+        boot_doc.metadata = {"foo": "bar"}
 
         expected = {
             "_id": "id",
@@ -72,7 +77,7 @@ class TestBootModel(unittest.TestCase):
             "kernel_image": None,
             "lab_name": "lab",
             "load_addr": None,
-            "metadata": {},
+            "metadata": {"foo": "bar"},
             "name": "board-job-kernel-defconfig-arm",
             "retries": 10,
             "status": None,
@@ -89,7 +94,11 @@ class TestBootModel(unittest.TestCase):
             "file_server_url": "file-server",
             "file_server_resource": "file-resource",
             "initrd": "initrd",
-            "board_instance": "instance"
+            "board_instance": "instance",
+            "uimage": "path/to/uImage",
+            "uimage_addr": "uimage_addr",
+            "qemu": "qemu_binary",
+            "qemu_command": "qemu_command"
         }
 
         self.assertDictEqual(expected, boot_doc.to_dict())
@@ -145,11 +154,15 @@ class TestBootModel(unittest.TestCase):
             "load_addr": "12345",
             "metadata": {"foo": "bar"},
             "name": "board-job-kernel-defconfig_full-arm",
+            "qemu": "qemu_binary",
+            "qemu_command": "qemu_command",
             "retries": 10,
             "status": "PASS",
             "time": 0,
+            "uimage": "path/to/uImage",
+            "uimage_addr": "uimage_addr",
             "version": "1.0",
-            "warnings": 2
+            "warnings": 2,
         }
 
         boot_doc = mboot.BootDocument.from_json(boot_json)
