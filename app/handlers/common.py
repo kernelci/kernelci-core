@@ -13,19 +13,10 @@
 
 """Set of common functions for all handlers."""
 
+import bson
+import datetime
 import pymongo
 import types
-
-from bson import (
-    objectid,
-    tz_util,
-)
-from datetime import (
-    date,
-    datetime,
-    time,
-    timedelta,
-)
 
 import models
 import models.token as mtoken
@@ -306,6 +297,9 @@ ACCEPTED_CONTENT_TYPE = 'application/json'
 DEFAULT_RESPONSE_TYPE = 'application/json; charset=UTF-8'
 NOT_VALID_TOKEN = "Operation not permitted: check the token permissions"
 
+MIDNIGHT = datetime.time(tzinfo=bson.tz_util.utc)
+ALMOST_MIDNIGHT = datetime.time(23, 59, 59, tzinfo=bson.tz_util.utc)
+
 
 def get_all_query_values(query_args_func, valid_keys):
     """Handy function to get all query args in a batch.
@@ -319,7 +313,10 @@ def get_all_query_values(query_args_func, valid_keys):
     """
     spec = get_query_spec(query_args_func, valid_keys)
 
-    get_and_add_date_range(spec, query_args_func)
+    created_on = get_created_on_date(query_args_func)
+    add_created_on_date(spec, created_on)
+
+    get_and_add_date_range(spec, query_args_func, created_on)
     update_id_fields(spec)
 
     sort = get_query_sort(query_args_func)
@@ -342,7 +339,15 @@ def update_id_fields(spec):
     if spec:
         common_keys = list(set(ID_KEYS) & set(spec.viewkeys()))
         for key in common_keys:
-            spec[key] = objectid.ObjectId(spec[key])
+            try:
+                spec[key] = bson.objectid.ObjectId(spec[key])
+            except bson.errors.InvalidId, ex:
+                # We remove the key since it won't serve anything good.
+                utils.LOG.error(
+                    "Wrong ObjectId value for key '%s', got '%s': ignoring",
+                    key, spec[key])
+                utils.LOG.exception(ex)
+                spec.pop(key, None)
 
 
 def get_aggregate_value(query_args_func):
@@ -354,7 +359,7 @@ def get_aggregate_value(query_args_func):
     :return The aggregate value as string.
     """
     aggregate = query_args_func(models.AGGREGATE_KEY)
-    if all([aggregate and isinstance(aggregate, types.ListType)]):
+    if aggregate and isinstance(aggregate, types.ListType):
         aggregate = aggregate[-1]
     else:
         aggregate = None
@@ -379,7 +384,7 @@ def get_query_spec(query_args_func, valid_keys):
         """Get the values for the spec data structure.
 
         Internally used only, with some logic to differentiate between single
-        and multiple values. Makes sure also that the list of values if valid,
+        and multiple values. Makes sure also that the list of values is valid,
         meaning that we do not have None or empty values.
 
         :return A tuple with the key and its value.
@@ -395,12 +400,12 @@ def get_query_spec(query_args_func, valid_keys):
                     val = val[0]
                 elif len_val > 1:
                     # More than one value, make sure we look for all of them.
-                    val = {'$in': val}
+                    val = {"$in": val}
 
             yield key, val
 
     spec = {}
-    if all([valid_keys and isinstance(valid_keys, types.ListType)]):
+    if valid_keys and isinstance(valid_keys, types.ListType):
         spec = {
             k: v for k, v in [
                 (key, val)
@@ -412,7 +417,66 @@ def get_query_spec(query_args_func, valid_keys):
     return spec
 
 
-def get_and_add_date_range(spec, query_args_func):
+def get_created_on_date(query_args_func):
+    """Retrieve the `created_on` key from the query args.
+
+    :param query_args_func: A function used to return a list of query
+    arguments.
+    :type query_args_func: function
+    :return A `datetime.date` object or None.
+    """
+    created_on = query_args_func(models.CREATED_KEY)
+    valid_date = None
+    strptime_func = datetime.datetime.strptime
+
+    if created_on:
+        if isinstance(created_on, types.ListType):
+            created_on = created_on[-1]
+
+        if isinstance(created_on, types.StringTypes):
+            try:
+                valid_date = strptime_func(created_on, "%Y-%m-%d")
+            except ValueError:
+                try:
+                    valid_date = strptime_func(created_on, "%Y%m%d")
+                except ValueError:
+                    utils.LOG.error(
+                        "No valid value provided for '%s' key, got '%s'",
+                        models.CREATED_KEY, created_on)
+            if valid_date:
+                valid_date = datetime.date(
+                    valid_date.year, valid_date.month, valid_date.day)
+
+    return valid_date
+
+
+def add_created_on_date(spec, created_on):
+    """Add the `created_on` key to the search spec data structure.
+
+    :param spec: The dictionary where to store the key-value.
+    :type spec: dictionary
+    :param created_on: The `date` as passed in the query args.
+    :type created_on: `datetime.date`
+    :return The passed `spec` updated.
+    """
+    if all([created_on, isinstance(created_on, datetime.date)]):
+        date_combine = datetime.datetime.combine
+
+        start_date = date_combine(created_on, MIDNIGHT)
+        end_date = date_combine(created_on, ALMOST_MIDNIGHT)
+
+        spec[models.CREATED_KEY] = {
+            "$gte": start_date, "$lt": end_date}
+    else:
+        # Remove the key if, by chance, it got into the spec with
+        # previous iterations on the query args.
+        if models.CREATED_KEY in spec:
+            spec.pop(models.CREATED_KEY, None)
+
+    return spec
+
+
+def get_and_add_date_range(spec, query_args_func, created_on=None):
     """Retrieve the `date_range` query from the request.
 
     Add the retrieved `date_range` value into the provided `spec` data
@@ -423,21 +487,30 @@ def get_and_add_date_range(spec, query_args_func):
     :param query_args_func: A function used to return a list of query
     arguments.
     :type query_args_func: function
+    :param created_on: The `date` as passed in the query args.
+    :type created_on: `datetime.date`
     :return The passed `spec` updated.
     """
+    date_combine = datetime.datetime.combine
     date_range = query_args_func(models.DATE_RANGE_KEY)
-    if date_range:
-        # Today needs to be set at the end of the day!
-        today = datetime.combine(
-            date.today(), time(23, 59, 59, tzinfo=tz_util.utc)
-        )
-        previous = calculate_date_range(date_range)
 
-        spec[models.CREATED_KEY] = {'$gte': previous, '$lt': today}
+    if date_range:
+        # Start date needs to be set at the end of the day!
+        if created_on and isinstance(created_on, datetime.date):
+            # If the created_on key is defined, along with the date_range one
+            # we combine the both and calculate a date_range from the provided
+            # values. created_on must be a `date` object.
+            today = date_combine(created_on, ALMOST_MIDNIGHT)
+        else:
+            today = date_combine(datetime.date.today(), ALMOST_MIDNIGHT)
+
+        previous = calculate_date_range(date_range, created_on)
+
+        spec[models.CREATED_KEY] = {"$gte": previous, "$lt": today}
     return spec
 
 
-def calculate_date_range(date_range):
+def calculate_date_range(date_range, created_on=None):
     """Calculate the new date subtracting the passed number of days.
 
     It removes the passed days from today date, calculated at midnight
@@ -449,6 +522,9 @@ def calculate_date_range(date_range):
     subtraction of `datetime.date.today()` and
     `datetime.timedelta(days=date_range)`.
     """
+    date_timedelta = datetime.timedelta
+    date_combine = datetime.datetime.combine
+
     if isinstance(date_range, types.ListType):
         date_range = date_range[-1]
 
@@ -462,15 +538,16 @@ def calculate_date_range(date_range):
             date_range = DEFAULT_DATE_RANGE
 
     date_range = abs(date_range)
-    if date_range > timedelta.max.days:
+    if date_range > date_timedelta.max.days:
         date_range = DEFAULT_DATE_RANGE
 
     # Calcuate with midnight in mind though, so we get the starting of
     # the day for the previous date.
-    today = datetime.combine(
-        date.today(), time(tzinfo=tz_util.utc)
-    )
-    delta = timedelta(days=date_range)
+    if created_on and isinstance(created_on, datetime.date):
+        today = date_combine(created_on, MIDNIGHT)
+    else:
+        today = date_combine(datetime.date.today(), MIDNIGHT)
+    delta = date_timedelta(days=date_range)
 
     return today - delta
 

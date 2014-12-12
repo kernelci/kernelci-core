@@ -15,36 +15,33 @@
 
 """Test common functions for all methods."""
 
+import datetime
 import logging
+import mock
 import types
 import unittest
 
-from bson import tz_util
-
-from datetime import (
-    date,
-    datetime,
-    timedelta,
-    time,
-)
-
-from mock import (
-    Mock,
-    patch,
+from bson import (
+    objectid,
+    tz_util
 )
 
 from handlers.common import (
+    add_created_on_date,
     calculate_date_range,
     get_aggregate_value,
     get_all_query_values,
     get_and_add_date_range,
+    get_created_on_date,
     get_query_fields,
     get_query_sort,
     get_query_spec,
     get_skip_and_limit,
+    update_id_fields,
+    valid_token_bh,
     valid_token_general,
     valid_token_th,
-    validate_token,
+    validate_token
 )
 from models.token import Token
 
@@ -56,71 +53,137 @@ class TestHandlersCommon(unittest.TestCase):
 
         logging.disable(logging.CRITICAL)
 
-        self.min_time = time(tzinfo=tz_util.utc)
-        patched_date = patch('handlers.common.date')
-        self.mock_date = patched_date.start()
-
-        self.addCleanup(patched_date.stop,)
+        self.min_time = datetime.time(tzinfo=tz_util.utc)
 
     def tearDown(self):
         super(TestHandlersCommon, self).tearDown()
         logging.disable(logging.NOTSET)
 
-    def test_calculate_date_range_valid(self):
-        self.mock_date.today.return_value = date(2014, 1, 1)
+    def test_update_id_fields(self):
+        spec = {
+            "job_id": "123344567",
+            "_id": "0123456789ab0123456789ab",
+            "foo": 1234,
+            "defconfig_id": "0123456789ab0123456789ab"
+        }
+        update_id_fields(spec)
+        expected = {
+            "_id": objectid.ObjectId("0123456789ab0123456789ab"),
+            "foo": 1234,
+            "defconfig_id": objectid.ObjectId("0123456789ab0123456789ab")
+        }
 
-        expected = datetime.combine(date(2013, 12, 17), self.min_time)
+        self.assertDictEqual(expected, spec)
+
+    def test_calculate_date_range_valid(self):
+        expected = datetime.datetime.combine(
+            datetime.date(2013, 12, 17), self.min_time)
+        start_value = datetime.date(2014, 1, 1)
+
+        patcher = mock.patch("datetime.date", spec=True)
+        patched_date = patcher.start()
+        patched_date.today.return_value = start_value
+        self.addCleanup(patcher.stop)
+
         self.assertEqual(expected, calculate_date_range(15))
 
     def test_calculate_date_range_zero(self):
-        self.mock_date.today.return_value = date(2014, 1, 1)
+        expected = datetime.datetime.combine(
+            datetime.date(2014, 1, 1), self.min_time)
+        start_value = datetime.date(2014, 1, 1)
 
-        expected = datetime.combine(date(2014, 1, 1), self.min_time)
+        patcher = mock.patch("datetime.date", spec=True)
+        patched_date = patcher.start()
+        patched_date.today.return_value = start_value
+        self.addCleanup(patcher.stop)
+
         self.assertEqual(expected, calculate_date_range(0))
 
     def test_calculate_date_range_leap(self):
-        self.mock_date.today.return_value = date(2012, 3, 14)
+        expected = datetime.datetime.combine(
+            datetime.date(2012, 2, 28), self.min_time)
+        start_value = datetime.date(2012, 3, 14)
 
-        expected = datetime.combine(date(2012, 2, 28), self.min_time)
+        patcher = mock.patch("datetime.date", spec=True)
+        patched_date = patcher.start()
+        patched_date.today.return_value = start_value
+        self.addCleanup(patcher.stop)
+
         self.assertEqual(expected, calculate_date_range(15))
 
     def test_calculate_date_range_non_leap(self):
-        self.mock_date.today.return_value = date(2013, 3, 14)
+        expected = datetime.datetime.combine(
+            datetime.date(2013, 2, 27), self.min_time)
+        start_value = datetime.date(2013, 3, 14)
 
-        expected = datetime.combine(date(2013, 2, 27), self.min_time)
+        patcher = mock.patch("datetime.date", spec=True)
+        patched_date = patcher.start()
+        patched_date.today.return_value = start_value
+        self.addCleanup(patcher.stop)
+
         self.assertEqual(expected, calculate_date_range(15))
 
     def test_calculate_date_range_with_string(self):
-        self.mock_date.today.return_value = date(2014, 1, 1)
+        expected = datetime.datetime.combine(
+            datetime.date(2013, 12, 31), self.min_time)
+        start_value = datetime.date(2014, 1, 1)
 
-        expected = datetime.combine(date(2013, 12, 31), self.min_time)
-        self.assertEqual(expected, calculate_date_range('1'))
+        patcher = mock.patch("datetime.date", spec=True)
+        patched_date = patcher.start()
+        patched_date.today.return_value = start_value
+        self.addCleanup(patcher.stop)
+
+        self.assertEqual(expected, calculate_date_range("1"))
 
     def test_calculate_date_range_negative(self):
-        self.mock_date.today.return_value = date(2014, 1, 1)
+        expected = datetime.datetime.combine(
+            datetime.date(2013, 12, 31), self.min_time)
+        start_value = datetime.date(2014, 1, 1)
 
-        expected = datetime.combine(date(2013, 12, 31), self.min_time)
+        patcher = mock.patch("datetime.date", spec=True)
+        patched_date = patcher.start()
+        patched_date.today.return_value = start_value
+        self.addCleanup(patcher.stop)
+
         self.assertEqual(expected, calculate_date_range(-1))
 
     def test_calculate_date_range_negative_string(self):
-        self.mock_date.today.return_value = date(2014, 1, 1)
+        expected = datetime.datetime.combine(
+            datetime.date(2013, 12, 31), self.min_time)
+        start_value = datetime.date(2014, 1, 1)
 
-        expected = datetime.combine(date(2013, 12, 31), self.min_time)
-        self.assertEqual(expected, calculate_date_range('-1'))
+        patcher = mock.patch("datetime.date", spec=True)
+        patched_date = patcher.start()
+        patched_date.today.return_value = start_value
+        self.addCleanup(patcher.stop)
+
+        self.assertEqual(expected, calculate_date_range("-1"))
 
     def test_calculate_date_range_out_of_range(self):
-        self.mock_date.today.return_value = date(2014, 1, 1)
+        expected = datetime.datetime.combine(
+            datetime.date(2013, 12, 27), self.min_time)
+        start_value = datetime.date(2014, 1, 1)
 
-        expected = datetime.combine(date(2013, 12, 27), self.min_time)
+        patcher = mock.patch("datetime.date", spec=True)
+        patched_date = patcher.start()
+        patched_date.today.return_value = start_value
+        self.addCleanup(patcher.stop)
+
         self.assertEqual(
             expected,
-            calculate_date_range(timedelta.max.days + 10)
+            calculate_date_range(datetime.timedelta.max.days + 10)
         )
 
     def test_calculate_date_range_wrong_type(self):
-        self.mock_date.today.return_value = date(2014, 1, 1)
+        expected = datetime.datetime.combine(
+            datetime.date(2013, 12, 27), self.min_time)
+        start_value = datetime.date(2014, 1, 1)
 
-        expected = datetime.combine(date(2013, 12, 27), self.min_time)
+        patcher = mock.patch("datetime.date", spec=True)
+        patched_date = patcher.start()
+        patched_date.today.return_value = start_value
+        self.addCleanup(patcher.stop)
+
         self.assertEqual(
             expected,
             calculate_date_range("15foo$%^%&^%&")
@@ -360,24 +423,143 @@ class TestHandlersCommon(unittest.TestCase):
             }
             return args.get(key, [])
 
-        spec = {}
-        self.mock_date.today.return_value = date(2013, 3, 14)
-
         expected = {
-            'created_on': {
-                '$gte': datetime(
+            "created_on": {
+                "$gte": datetime.datetime(
                     2013, 3, 13, 0, 0, tzinfo=tz_util.utc
                 ),
-                '$lt': datetime(
+                "$lt": datetime.datetime(
                     2013, 3, 14, 23, 59, 59, tzinfo=tz_util.utc
                 )
             }
         }
 
+        start_value = datetime.date(2013, 3, 14)
+
+        patcher = mock.patch("datetime.date", spec=True)
+        patched_date = patcher.start()
+        patched_date.today.return_value = start_value
+        self.addCleanup(patcher.stop)
+
+        spec = {}
+
         get_and_add_date_range(spec, query_args_func)
         self.assertEqual(expected, spec)
 
-    @patch("models.token.Token", spec=True)
+    def test_get_and_add_date_range_with_created_on(self):
+        def query_args_func(key):
+            args = {
+                "date_range": 1,
+            }
+            return args.get(key, [])
+
+        expected = {
+            "created_on": {
+                "$gte": datetime.datetime(
+                    2014, 12, 7, 0, 0, tzinfo=tz_util.utc
+                ),
+                "$lt": datetime.datetime(
+                    2014, 12, 8, 23, 59, 59, tzinfo=tz_util.utc
+                )
+            }
+        }
+
+        created_on = datetime.date(2014, 12, 8)
+
+        spec = {}
+
+        get_and_add_date_range(spec, query_args_func, created_on)
+        self.assertEqual(expected, spec)
+
+    def test_get_created_on_date_missing(self):
+        def query_args_func(key):
+            args = {}
+            return args.get(key, [])
+
+        self.assertIsNone(get_created_on_date(query_args_func))
+
+    def test_get_created_on_date_wrong_type(self):
+        def query_args_func(key):
+            args = {
+                "created_on": 2014
+            }
+            return args.get(key, [])
+
+        self.assertIsNone(get_created_on_date(query_args_func))
+
+    def test_get_created_on_date_valid_format_1(self):
+        def query_args_func(key):
+            args = {
+                "created_on": "2014-12-12"
+            }
+            return args.get(key, [])
+
+        expected = datetime.date(2014, 12, 12)
+        self.assertEqual(expected, get_created_on_date(query_args_func))
+
+    def test_get_created_on_date_valid_format_2(self):
+        def query_args_func(key):
+            args = {
+                "created_on": "20141212"
+            }
+            return args.get(key, [])
+
+        expected = datetime.date(2014, 12, 12)
+        self.assertEqual(expected, get_created_on_date(query_args_func))
+
+    def test_get_created_on_date_wrong_format(self):
+        def query_args_func(key):
+            args = {
+                "created_on": "201412121243"
+            }
+            return args.get(key, [])
+
+        self.assertIsNone(get_created_on_date(query_args_func))
+
+    def test_get_created_on_date_multiple(self):
+        def query_args_func(key):
+            args = {
+                "created_on": ["20141211", "20141110"]
+            }
+            return args.get(key, [])
+
+        expected = datetime.date(2014, 11, 10)
+        self.assertEqual(expected, get_created_on_date(query_args_func))
+
+    def test_add_created_on_date_valid(self):
+        created_on = datetime.date(2014, 12, 11)
+        spec = {"foo": "bar"}
+
+        expected = {
+            "foo": "bar",
+            "created_on": {
+                "$gte": datetime.datetime(
+                    2014, 12, 11, 0, 0, tzinfo=tz_util.utc),
+                "$lt": datetime.datetime(
+                    2014, 12, 11, 23, 59, 59, tzinfo=tz_util.utc)
+            }
+        }
+
+        add_created_on_date(spec, created_on)
+        self.assertDictEqual(expected, spec)
+
+    def test_add_created_on_date_wrong(self):
+        spec = {"foo": "bar", "created_on": "foo"}
+        expected = {"foo": "bar"}
+
+        add_created_on_date(spec, None)
+        self.assertDictEqual(expected, spec)
+
+        add_created_on_date(spec, 12345)
+        self.assertDictEqual(expected, spec)
+
+        add_created_on_date(spec, {})
+        self.assertDictEqual(expected, spec)
+
+        add_created_on_date(spec, [1234])
+        self.assertDictEqual(expected, spec)
+
+    @mock.patch("models.token.Token", spec=True)
     def test_valid_token_general_true(self, mock_class):
         token = mock_class.return_value
 
@@ -393,7 +575,7 @@ class TestHandlersCommon(unittest.TestCase):
         self.assertTrue(valid_token_general(token, "POST"))
         self.assertTrue(valid_token_general(token, "DELETE"))
 
-    @patch("models.token.Token", spec=True)
+    @mock.patch("models.token.Token", spec=True)
     def test_valid_token_general_lab_token(self, mock_class):
         token = mock_class.return_value
 
@@ -409,7 +591,7 @@ class TestHandlersCommon(unittest.TestCase):
         self.assertTrue(valid_token_general(token, "POST"))
         self.assertFalse(valid_token_general(token, "DELETE"))
 
-    @patch("models.token.Token", spec=True)
+    @mock.patch("models.token.Token", spec=True)
     def test_valid_token_general_false(self, mock_class):
         token = mock_class.return_value
 
@@ -423,7 +605,7 @@ class TestHandlersCommon(unittest.TestCase):
         self.assertFalse(valid_token_general(token, "POST"))
         self.assertFalse(valid_token_general(token, "DELETE"))
 
-    @patch("models.token.Token", spec=True)
+    @mock.patch("models.token.Token", spec=True)
     def test_valid_token_th_true(self, mock_class):
         token = mock_class.return_value
 
@@ -441,7 +623,7 @@ class TestHandlersCommon(unittest.TestCase):
 
         self.assertTrue(valid_token_th(token, "GET"))
 
-    @patch("models.token.Token", spec=True)
+    @mock.patch("models.token.Token", spec=True)
     def test_valid_token_th_false(self, mock_class):
         token = mock_class.return_value
 
@@ -460,9 +642,9 @@ class TestHandlersCommon(unittest.TestCase):
         self.assertFalse(valid_token_th(token, "POST"))
         self.assertFalse(valid_token_th(token, "DELETE"))
 
-    @patch("models.token.Token.from_json")
+    @mock.patch("models.token.Token.from_json")
     def test_validate_token_wrong_class(self, mock_from_json):
-        mock_from_json.return_value = Mock()
+        mock_from_json.return_value = mock.Mock()
 
         self.assertFalse(
             validate_token("foo", "GET", None, None)
@@ -471,12 +653,12 @@ class TestHandlersCommon(unittest.TestCase):
             validate_token(None, "GET", None, None)
         )
 
-    @patch("models.token.Token.from_json")
+    @mock.patch("models.token.Token.from_json")
     def test_validate_token_true(self, mock_from_json):
         token = Token()
 
         mock_from_json.return_value = token
-        validate_func = Mock()
+        validate_func = mock.Mock()
         validate_func.side_effect = [True, True]
 
         token.is_ip_restricted = False
@@ -486,18 +668,18 @@ class TestHandlersCommon(unittest.TestCase):
         )
 
         token.is_ip_restricted = True
-        token.ip_address = '127.0.0.1'
+        token.ip_address = "127.0.0.1"
 
         self.assertTrue(
             validate_token(token, "GET", "127.0.0.1", validate_func)
         )
 
-    @patch("models.token.Token.from_json")
+    @mock.patch("models.token.Token.from_json")
     def test_validate_token_false(self, mock_from_json):
         token = Token()
 
         mock_from_json.return_value = token
-        validate_func = Mock()
+        validate_func = mock.Mock()
         validate_func.side_effect = [False, True, False]
 
         token.is_ip_restricted = True
@@ -507,7 +689,7 @@ class TestHandlersCommon(unittest.TestCase):
         )
 
         token.is_ip_restricted = True
-        token.ip_address = '127.1.1.1'
+        token.ip_address = "127.1.1.1"
 
         self.assertFalse(
             validate_token(token, "GET", "127.0.0.1", validate_func)
@@ -518,3 +700,25 @@ class TestHandlersCommon(unittest.TestCase):
         self.assertFalse(
             validate_token(token, "GET", None, validate_func)
         )
+
+    @mock.patch("models.token.Token", spec=True)
+    def test_valid_token_bh(self, mock_class):
+        token = mock_class.return_value
+
+        self.assertIsInstance(token, Token)
+
+        token.is_get_token = True
+        token.is_post_token = True
+        token.is_delete_token = True
+
+        self.assertTrue(valid_token_bh(token, "GET"))
+        self.assertTrue(valid_token_bh(token, "POST"))
+        self.assertTrue(valid_token_bh(token, "DELETE"))
+
+        token.is_get_token = False
+        token.is_post_token = False
+        token.is_delete_token = False
+
+        self.assertFalse(valid_token_bh(token, "GET"))
+        self.assertFalse(valid_token_bh(token, "POST"))
+        self.assertFalse(valid_token_bh(token, "DELETE"))
