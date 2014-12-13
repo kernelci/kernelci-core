@@ -190,6 +190,10 @@ def boot_report(args):
             boot_meta['job'] = kernel_tree
             boot_meta['board'] = platform_name
             boot_meta['boot_result'] = result
+            if result == 'FAIL':
+                boot_meta['boot_result_description'] = 'platform failed to boot'
+            else:
+                boot_meta['boot_result_description'] = 'platform booted successfully'
             boot_meta['boot_time'] = kernel_boot_time
             # TODO: Fix this
             boot_meta['boot_warnings'] = None
