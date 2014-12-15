@@ -29,6 +29,11 @@ server {
 
     location ~* /(?:(count|job|defconfig|boot|token|batch|bisect|lab|version)(.*)(?!(\.(html?|json|css|js))))$ {
 
+        if (-f $document_root/maintenance.html) {
+            more_set_headers "Content-Type: application/json; charset=UTF-8";
+            return 503 '{"code": 503, "reason": "Service manintenance."}';
+        }
+
         # Proxy cache, disabled for now.
         # proxy_cache BACKEND;
         # proxy_cache_key $proxy_host$uri$is_args$args;
