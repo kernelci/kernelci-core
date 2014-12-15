@@ -31,6 +31,7 @@ GET
     repeated multiple times.
  :query string nfield: The field that should *not* be returned in the response. Can be repeated multiple times.
  :query string _id: The internal ID of the registered lab.
+ :query string created_on: The creation date: accepted formats are ``YYYY-MM-DD`` and ``YYYYMMDD``.
  :query string name: The name of the lab.
  :query boolean private: If the lab is private or not.
  :query string token: The token ID associated with the lab.

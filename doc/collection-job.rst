@@ -32,6 +32,7 @@ GET
     repeated multiple times.
  :query string nfield: The field that should *not* be returned in the response. Can be repeated multiple times.
  :query string _id: The internal ID of hte job report.
+ :query string created_on: The creation date: accepted formats are ``YYYY-MM-DD`` and ``YYYYMMDD``.
  :query string job: A job name.
  :query string kernel: A kernel name.
  :query string name: The name of the job report.

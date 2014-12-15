@@ -31,6 +31,7 @@ GET
  :query string nfield: The field that should *not* be returned in the response. Can be repeated multiple times.
  :query string _id: The internal ID of the boot report.
  :query string board: The name of a board.
+ :query string created_on: The creation date: accepted formats are ``YYYY-MM-DD`` and ``YYYYMMDD``.
  :query string job: The name of a job.
  :query string job_id: The ID of a job.
  :query string kernel: The name of a kernel.

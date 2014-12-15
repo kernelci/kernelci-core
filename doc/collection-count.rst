@@ -27,6 +27,7 @@ GET
     (:ref:`more info <intro_schema_time_date>`). By default consider all results.
  :query string arch: A type of computer architetcture (like ``arm``, ``arm64``).
  :query string board: The name of a board.
+ :query string created_on: The creation date: accepted formats are ``YYYY-MM-DD`` and ``YYYYMMDD``.
  :query string defconfig: A defconfig name.
  :query int errors: The number of errors.
  :query string job: A job name.
