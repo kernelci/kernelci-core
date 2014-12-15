@@ -31,7 +31,7 @@ server {
 
         if (-f $document_root/maintenance.html) {
             more_set_headers "Content-Type: application/json; charset=UTF-8";
-            return 503 '{"code": 503, "reason": "Service manintenance."}';
+            return 503 '{"code": 503, "reason": "Service maintenance."}';
         }
 
         # Proxy cache, disabled for now.
