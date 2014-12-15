@@ -11,8 +11,7 @@
     - nginx
     - nginx-extras
   tags:
-    - install
-    - deps
+    - web-server
 
 - name: Install default nginx configuration
   copy: src=nginx-default.conf
