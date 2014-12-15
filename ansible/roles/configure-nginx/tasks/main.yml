@@ -3,9 +3,16 @@
   apt_repository: repo='ppa:nginx/stable'
   when: ansible_lsb.id == "Ubuntu"
 
-- name: Install nginx from stable PPA repository
-  apt: pkg=nginx
-       state=latest
+- name: Install nginx
+  apt:  pkg={{ item }}
+        state=latest
+        update_cache=yes
+  with_items:
+    - nginx
+    - nginx-extras
+  tags:
+    - install
+    - deps
 
 - name: Install default nginx configuration
   copy: src=nginx-default.conf
