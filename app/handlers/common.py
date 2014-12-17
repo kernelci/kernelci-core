@@ -106,8 +106,9 @@ BOOT_VALID_KEYS = {
         models.KERNEL_KEY,
         models.LAB_NAME_KEY,
         models.NAME_KEY,
+        models.RETRIES_KEY,
         models.STATUS_KEY,
-        models.WARNINGS_KEY,
+        models.WARNINGS_KEY
     ],
     'DELETE': [
         models.BOARD_KEY,
