@@ -18,6 +18,7 @@
 import argparse
 import sys
 
+import handlers.common
 import models
 import utils
 import utils.db
@@ -95,6 +96,7 @@ if __name__ == "__main__":
     spec = {
         k: v for k, v in parse_fields(fields)
     }
+    handlers.common.update_id_fields(spec)
 
     if spec:
         database = utils.db.get_db_connection({})
