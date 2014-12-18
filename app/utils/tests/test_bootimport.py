@@ -68,6 +68,48 @@ class TestParseBoot(unittest.TestCase):
         self.assertEqual(doc.version, "1.0")
         self.assertIsInstance(doc.metadata, types.DictionaryType)
 
+    def test_check_for_null_with_none(self):
+        boot_report = (
+            '{"job": null, "board": "board", '
+            '"kernel": "kernel", "defconfig": "defconfig", "lab_name": "lab"}'
+        )
+
+        self.assertRaises(
+            utils.bootimport.BootImportError,
+            utils.bootimport._check_for_null, json.loads(boot_report))
+
+    def test_check_for_null_with_null(self):
+        boot_report = (
+            '{"job": "job", "board": "null", '
+            '"kernel": "kernel", "defconfig": "defconfig", "lab_name": "lab"}'
+        )
+
+        self.assertRaises(
+            utils.bootimport.BootImportError,
+            utils.bootimport._check_for_null, json.loads(boot_report))
+
+    def test_check_for_null_with_none_string(self):
+        boot_report = (
+            '{"job": "job", "board": "board", '
+            '"kernel": "None", "defconfig": "defconfig", "lab_name": "lab"}'
+        )
+        boot_json = json.loads(boot_report)
+
+        self.assertRaises(
+            utils.bootimport.BootImportError,
+            utils.bootimport._check_for_null, boot_json, boot_json.get)
+
+    def test_check_for_null_with_none_string_lower(self):
+        boot_report = (
+            '{"job": "job", "board": "board", '
+            '"kernel": "kernel", "defconfig": "none", "lab_name": "lab"}'
+        )
+        boot_json = json.loads(boot_report)
+
+        self.assertRaises(
+            utils.bootimport.BootImportError,
+            utils.bootimport._check_for_null, boot_json, boot_json.get)
+
     @patch("utils.db.get_db_connection")
     def test_import_and_save_boot(self, mock_db):
         mock_db = self.db
@@ -90,13 +132,22 @@ class TestParseBoot(unittest.TestCase):
         except OSError:
             pass
 
-    def test_parse_from_json_wrong_json(self):
+    @patch("utils.bootimport._check_for_null")
+    def test_parse_from_json_wrong_json(self, mock_null):
         boot_json = {
             "foo": "bar"
         }
         self.assertRaises(
             KeyError, utils.bootimport._parse_boot_from_json(boot_json, self.db)
         )
+
+    def test_parse_from_json_with_null(self):
+        boot_json = {
+            "board": "null"
+        }
+
+        doc = utils.bootimport._parse_boot_from_json(boot_json, self.db)
+        self.assertIsNone(doc)
 
     @patch("utils.bootimport._parse_boot_from_json")
     def test_import_and_save_no_doc(self, mock_parse):
@@ -114,7 +165,8 @@ class TestParseBoot(unittest.TestCase):
         doc = utils.bootimport._parse_boot_from_file('foobar.json', self.db)
         self.assertIsNone(doc)
 
-    def test_parse_from_file_no_key(self):
+    @patch("utils.bootimport._check_for_null")
+    def test_parse_from_file_no_key(self, mock_null):
         boot_log = tempfile.NamedTemporaryFile(
             mode='w+b', bufsize=-1, suffix="json", delete=False
         )

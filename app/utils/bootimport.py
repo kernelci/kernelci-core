@@ -35,6 +35,18 @@ import utils.db
 # some weird names.
 TMP_RE = re.compile(r'tmp')
 
+# Keys that need to be checked for None or null value.
+NON_NULL_KEYS = [
+    models.BOARD_KEY,
+    models.DEFCONFIG_KEY,
+    models.JOB_KEY,
+    models.KERNEL_KEY
+]
+
+
+class BootImportError(Exception):
+    """General boot import exceptions class."""
+
 
 def import_and_save_boot(json_obj, db_options, base_path=utils.BASE_PATH):
     """Wrapper function to be used as an external task.
@@ -218,6 +230,10 @@ def _parse_boot_from_json(boot_json, database):
 
     try:
         json_pop_f = boot_json.pop
+        json_get_f = boot_json.get
+
+        _check_for_null(boot_json, json_get_f)
+
         board = json_pop_f(models.BOARD_KEY)
         job = json_pop_f(models.JOB_KEY)
         kernel = json_pop_f(models.KERNEL_KEY)
@@ -236,8 +252,29 @@ def _parse_boot_from_json(boot_json, database):
             "Missing key in boot report: import failed"
         )
         utils.LOG.exception(ex)
+    except BootImportError, ex:
+        utils.LOG.error("Boot JSON object is not valid")
+        utils.LOG.exception(ex)
 
     return boot_doc
+
+
+def _check_for_null(boot_json, get_func=None):
+    """Check if the json object has invalid values in its mandatory keys.
+
+    An invalid value is either None or the "null" string.
+
+    :raise BootImportError in case of errors.
+    """
+    if get_func is None:
+        get_func = boot_json.get
+
+    for key in NON_NULL_KEYS:
+        val = get_func(key)
+        if any([val is None, val == "null", val == "None", val == "none"]):
+            raise BootImportError(
+                "Invalid value for mandatory key '%s', got: %s (%s)",
+                key, str(val), type(val))
 
 
 def _update_boot_doc_ids(boot_doc, database):
