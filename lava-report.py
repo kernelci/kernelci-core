@@ -109,8 +109,9 @@ def boot_report(args):
             boot_meta = {}
             api_url = None
             arch = None
-            kernel_defconfig_real = None
+            kernel_defconfig_full = None
             kernel_defconfig = None
+            kernel_defconfig_base = None
             kernel_version = None
             device_tree = None
             kernel_endian = None
@@ -125,7 +126,10 @@ def boot_report(args):
             fastboot_cmd = None
             if in_bundle_attributes(bundle_attributes, 'kernel.defconfig'):
                 kernel_defconfig = bundle_attributes['kernel.defconfig']
-                arch, kernel_defconfig_real = kernel_defconfig.split('-')
+                arch, kernel_defconfig_full = kernel_defconfig.split('-')
+                kernel_defconfig_base = ''.join(kernel_defconfig_full.split('+')[:1])
+                if kernel_defconfig_full == kernel_defconfig_base:
+                    kernel_defconfig_full = None
             if in_bundle_attributes(bundle_attributes, 'kernel.version'):
                 kernel_version = bundle_attributes['kernel.version']
             if in_bundle_attributes(bundle_attributes, 'device.tree'):
@@ -185,7 +189,9 @@ def boot_report(args):
             # TODO: Fix this
             boot_meta['version'] = '1.0'
             boot_meta['arch'] = arch
-            boot_meta['defconfig'] = kernel_defconfig_real
+            boot_meta['defconfig'] = kernel_defconfig_base
+            if kernel_defconfig_full is not None:
+                boot_meta['defconfig_full'] = kernel_defconfig_full
             boot_meta['kernel'] = kernel_version
             boot_meta['job'] = kernel_tree
             boot_meta['board'] = platform_name
