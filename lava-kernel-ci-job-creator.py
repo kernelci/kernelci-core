@@ -18,12 +18,26 @@ arndale = {'device_type': 'arndale',
            'be': False,
            'fastboot': False}
 
+snow = {'device_type': 'snow',
+        'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+        'defconfig_blacklist': [],
+        'lpae': True,
+        'be': False,
+        'fastboot': False}
+
 arndale_octa = {'device_type': 'arndale-octa',
                 'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
                 'defconfig_blacklist': [],
                 'lpae': True,
                 'be': False,
                 'fastboot': False}
+
+peach_pi = {'device_type': 'peach-pi',
+            'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+            'defconfig_blacklist': [],
+            'lpae': True,
+            'be': False,
+            'fastboot': False}
 
 odroid_xu3 = {'device_type': 'odroid-xu3',
               'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
@@ -225,7 +239,9 @@ x86_kvm = {'device_type': 'kvm',
            'fastboot': False}
 
 device_map = {'exynos5250-arndale.dtb': arndale,
+              'exynos5250-snow.dtb': snow,
               'exynos5420-arndale-octa.dtb': arndale_octa,
+              'exynos5800-peach-pi.dtb': peach_pi,
               'exynos5420-smdk5420.dtb': odroid_xu3,
               'exynos4412-odroidu3.dtb': odroid_u2,
               'am335x-boneblack.dtb': beaglebone_black,
