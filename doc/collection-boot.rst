@@ -40,6 +40,7 @@ GET
  :query string job_id: The ID of a job.
  :query string kernel: The name of a kernel.
  :query string lab_name: The name of the lab that created the boot report.
+ :query string mach: The machine type.
  :query string name: The name of the boot report.
  :query string status: The status of the boot report.
  :query int retries: The number of boot retries performed.
@@ -140,11 +141,11 @@ POST
 
  For more info on all the required JSON request fields, see the :ref:`boot schema for POST requests <schema_boot_post>`.
 
- :reqjson string lab_name: The name of the boot tests lab.
+ :reqjson string board: The name of the board.
+ :reqjson string defconfig: The name of the defconfig.
  :reqjson string job: The name of the job.
  :reqjson string kernel: The name of the kernel.
- :reqjson string defconfig: The name of the defconfig.
- :reqjson string board: The name of the board.
+ :reqjson string lab_name: The name of the boot tests lab.
  :reqjson string version: The version number of the schema.
 
  :reqheader Authorization: The token necessary to authorize the request.
@@ -193,13 +194,13 @@ DELETE
  :resheader Content-Type: Will be ``application/json; charset=UTF-8``.
 
  :query string _id: The ID of a boot report.
- :query string job_id: The ID of a job.
- :query string job: The name of a job.
- :query string kernel: The name of a kernel.
- :query string defconfig_id: The ID of a defconfig.
+ :query string board: The name of a board.
  :query string defconfig: The name of a defconfig.
  :query string defconfig_full: The full name of a defconfig (with config fragments).
- :query string board: The name of a board.
+ :query string defconfig_id: The ID of a defconfig.
+ :query string job: The name of a job.
+ :query string job_id: The ID of a job.
+ :query string kernel: The name of a kernel.
  :query string name: The name of a boot report.
 
  :status 200: Resource deleted.

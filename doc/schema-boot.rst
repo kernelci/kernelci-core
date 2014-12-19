@@ -188,6 +188,10 @@ necessary to use its ``_id`` value.
                 "type": "string",
                 "description": "The server path where the boot related files are stored"
             },
+            "mach": {
+                "type": "string",
+                "description": "The machine (SoC) family"
+            },
             "metadata": {
                 "type": "object",
                 "description": "A free form object that can contain different properties"
@@ -357,6 +361,10 @@ have when sent to the server.
             "file_server_resource": {
                 "type": "string",
                 "description": "The server path where the boot related files are stored"
+            },
+            "mach": {
+                "type": "string",
+                "description": "The machine (SoC) family"
             },
             "metadata": {
                 "type": "object",
