@@ -318,6 +318,7 @@ def get_all_query_values(query_args_func, valid_keys):
     add_created_on_date(spec, created_on)
 
     get_and_add_date_range(spec, query_args_func, created_on)
+    get_and_add_gte_lt_keys(spec, query_args_func, valid_keys)
     update_id_fields(spec)
 
     sort = get_query_sort(query_args_func)
@@ -326,6 +327,103 @@ def get_all_query_values(query_args_func, valid_keys):
     unique = get_aggregate_value(query_args_func)
 
     return (spec, sort, fields, skip, limit, unique)
+
+
+def get_and_add_gte_lt_keys(spec, query_args_func, valid_keys):
+    """Get the gte and lt query args values and add them to the spec.
+
+    This is necessary to perform searches like 'greater than-equal' and
+    'less-than'.
+
+    :param spec: The spec data structure where to add the elements.
+    :type spec: dict
+    :param query_args_func: A function used to return a list of the query
+    arguments.
+    :type query_args_func: function
+    :param valid_keys: The valid keys for this request.
+    :type valid_keys: list
+    """
+    gte = query_args_func(models.GTE_KEY)
+    lt = query_args_func(models.LT_KEY)
+    spec_get = spec.get
+
+    if all([gte, isinstance(gte, types.ListType)]):
+        for arg in gte:
+            _parse_and_add_gte_lt_value(arg, "$gte", valid_keys, spec, spec_get)
+    elif gte and isinstance(gte, types.StringTypes):
+        _parse_and_add_gte_lt_value(gte, "$gte", valid_keys, spec, spec_get)
+
+    if all([lt, isinstance(lt, types.ListType)]):
+        for arg in lt:
+            _parse_and_add_gte_lt_value(arg, "$lt", valid_keys, spec, spec_get)
+    elif all([lt, isinstance(lt, types.StringTypes)]):
+        _parse_and_add_gte_lt_value(lt, "$lt", valid_keys, spec, spec_get)
+
+
+def _parse_and_add_gte_lt_value(
+        arg, operator, valid_keys, spec, spec_get_func=None):
+    """Parse and add the provided query argument.
+
+    Parse the argument looking for its value, and in case we have a valid value
+    add it to the `spec` data structure.
+
+    :param arg: The argument as retrieved from the request.
+    :type arg: str
+    :param operator: The operator to use, either '$gte' or '$lt'.
+    :type operator: str
+    :param valid_keys: The valid keys that this request can accept.
+    :type valid_keys: list
+    :param spec: The `spec` data structure where to store field-value.
+    :type spec: dict
+    :param spec_get_func: Optional get function of the spec data structure used
+    to retrieve values from it.
+    :type spec_get_func: function
+    """
+    arg_field = arg_value = None
+    try:
+        arg_field, arg_value = arg.split(",")
+        if arg_field not in valid_keys:
+            arg_field = None
+            utils.LOG.warn(
+                "Wrong field specified for '%s', got '%s'",
+                operator, arg_field)
+        if all([arg_field is not None, arg_value]):
+            _add_gte_lt_value(
+                arg_field, arg_value, operator, spec, spec_get_func)
+    except ValueError, ex:
+        error_msg = (
+            "Wrong value specified for '%s' query argument: %s" %
+            (operator, arg)
+        )
+        utils.LOG.error(error_msg)
+        utils.LOG.exception(ex)
+
+
+def _add_gte_lt_value(field, value, operator, spec, spec_get_func=None):
+    """Add the field-value pair to the spec data structure.
+
+    :param field: The field name.
+    :type field: str
+    :param value: The value of the field.
+    :type value: str
+    :param operator: The operator to use, either '$gte' or '$lt'.
+    :type operator: str
+    :param spec: The `spec` data structure where to store field-value.
+    :type spec: dict
+    :param spec_get_func: Optional get function of the spec data structure used
+    to retrieve values from it.
+    :type spec_get_func: function
+    """
+    if not spec_get_func:
+        spec_get_func = spec.get
+
+    prev_val = spec_get_func(field, None)
+    new_key_val = {operator: value}
+
+    if prev_val:
+        prev_val.update(new_key_val)
+    else:
+        spec[field] = new_key_val
 
 
 def update_id_fields(spec):

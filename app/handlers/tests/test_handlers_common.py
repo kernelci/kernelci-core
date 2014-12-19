@@ -32,6 +32,7 @@ from handlers.common import (
     get_aggregate_value,
     get_all_query_values,
     get_and_add_date_range,
+    get_and_add_gte_lt_keys,
     get_created_on_date,
     get_query_fields,
     get_query_sort,
@@ -557,6 +558,117 @@ class TestHandlersCommon(unittest.TestCase):
         self.assertDictEqual(expected, spec)
 
         add_created_on_date(spec, [1234])
+        self.assertDictEqual(expected, spec)
+
+    def test_get_gte_lt_simple(self):
+        def query_args_func(key):
+            args = {
+                "gte": "a,1",
+                "lt": "a,2"
+            }
+            return args.get(key, [])
+
+        spec = {}
+        valid_keys = ["a", "b"]
+        expected = {
+            "a": {
+                "$gte": "1", "$lt": "2"
+            }
+        }
+
+        get_and_add_gte_lt_keys(spec, query_args_func, valid_keys)
+        self.assertDictEqual(expected, spec)
+
+    def test_get_gte_lt_simple_different(self):
+        def query_args_func(key):
+            args = {
+                "gte": "a,1",
+                "lt": "b,2"
+            }
+            return args.get(key, [])
+
+        spec = {}
+        valid_keys = ["a", "b"]
+        expected = {
+            "a": {"$gte": "1"},
+            "b": {"$lt": "2"}
+        }
+
+        get_and_add_gte_lt_keys(spec, query_args_func, valid_keys)
+        self.assertDictEqual(expected, spec)
+
+    def test_get_gte_lt_simple_with_null_and_exc(self):
+        def query_args_func(key):
+            args = {
+                "gte": "a,",
+                "lt": "b"
+            }
+            return args.get(key, [])
+
+        spec = {}
+        valid_keys = ["a", "b"]
+
+        get_and_add_gte_lt_keys(spec, query_args_func, valid_keys)
+        self.assertDictEqual({}, spec)
+
+    def test_get_gte_lt_simple_without_gte(self):
+        def query_args_func(key):
+            args = {
+                "lt": "b,3"
+            }
+            return args.get(key, [])
+
+        spec = {}
+        valid_keys = ["a", "b"]
+        expected = {"b": {"$lt": "3"}}
+
+        get_and_add_gte_lt_keys(spec, query_args_func, valid_keys)
+        self.assertDictEqual(expected, spec)
+
+    def test_get_gte_lt_simple_without_lt(self):
+        def query_args_func(key):
+            args = {
+                "gte": "b,3"
+            }
+            return args.get(key, [])
+
+        spec = {}
+        valid_keys = ["a", "b"]
+        expected = {"b": {"$gte": "3"}}
+
+        get_and_add_gte_lt_keys(spec, query_args_func, valid_keys)
+        self.assertDictEqual(expected, spec)
+
+    def test_get_gte_lt_list(self):
+        def query_args_func(key):
+            args = {
+                "gte": ["b,3", "a,4"],
+                "lt": ["b,6", "a,10", "c,9"]
+            }
+            return args.get(key, [])
+
+        spec = {}
+        valid_keys = ["a", "b"]
+        expected = {
+            "b": {"$gte": "3", "$lt": "6"},
+            "a": {"$gte": "4", "$lt": "10"}
+        }
+
+        get_and_add_gte_lt_keys(spec, query_args_func, valid_keys)
+        self.assertDictEqual(expected, spec)
+
+    def test_get_gte_lt_list_without_lt(self):
+        def query_args_func(key):
+            args = {
+                "gte": ["b,3", "a,4"]
+            }
+            return args.get(key, [])
+
+        spec = {}
+        valid_keys = ["a", "b"]
+        expected = {"b": {"$gte": "3"}, "a": {"$gte": "4"}}
+
+        get_and_add_gte_lt_keys(spec, query_args_func, valid_keys)
         self.assertDictEqual(expected, spec)
 
     @mock.patch("models.token.Token", spec=True)
