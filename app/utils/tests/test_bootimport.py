@@ -51,8 +51,9 @@ class TestParseBoot(unittest.TestCase):
             kernel_image="zImage",
             loadaddr="0x80200000",
             endian="little",
-            uImage=True,
-            uimage_addr="xip"
+            uimage="uimage",
+            uimage_addr="xip",
+            mach="soc"
         )
 
     def tearDown(self):
@@ -66,6 +67,8 @@ class TestParseBoot(unittest.TestCase):
         self.assertEqual(doc.load_addr, "0x80200000")
         self.assertEqual(doc.endian, "little")
         self.assertEqual(doc.version, "1.0")
+        self.assertEqual(doc.mach, "soc")
+        self.assertEqual(doc.uimage, "uimage")
         self.assertIsInstance(doc.metadata, types.DictionaryType)
 
     def test_check_for_null_with_none(self):

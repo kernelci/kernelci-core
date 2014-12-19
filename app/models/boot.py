@@ -89,6 +89,7 @@ class BootDocument(modb.BaseDocument):
         self.job_id = None
         self.kernel_image = None
         self.load_addr = None
+        self.mach = None
         self.metadata = {}
         self.qemu = None
         self.qemu_command = None
@@ -223,6 +224,7 @@ class BootDocument(modb.BaseDocument):
             models.KERNEL_KEY: self.kernel,
             models.LAB_NAME_KEY: self.lab_name,
             models.LOAD_ADDR_KEY: self.load_addr,
+            models.MACH_KEY: self.mach,
             models.METADATA_KEY: self.metadata,
             models.NAME_KEY: self.name,
             models.QEMU_COMMAND_KEY: self.qemu_command,

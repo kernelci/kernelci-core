@@ -55,21 +55,33 @@ class TestBootModel(unittest.TestCase):
         boot_doc.qemu = "qemu_binary"
         boot_doc.qemu_command = "qemu_command"
         boot_doc.metadata = {"foo": "bar"}
+        boot_doc.mach = "soc"
 
         expected = {
             "_id": "id",
+            "arch": "arm",
             "board": "board",
+            "board_instance": "instance",
             "boot_log": "boot-log",
             "boot_log_html": "boot-log-html",
             "boot_result_description": None,
             "created_on": "now",
             "defconfig": "defconfig",
+            "defconfig_full": "defconfig",
             "defconfig_id": "defconfig_id",
             "dtb": None,
             "dtb_addr": None,
             "dtb_append": False,
             "endian": None,
             "fastboot": False,
+            "fastboot_cmd": "fastboot",
+            "file_server_resource": "file-resource",
+            "file_server_url": "file-server",
+            "git_branch": "git-branch",
+            "git_commit": "git-commit",
+            "git_describe": "git-describe",
+            "git_url": "git-url",
+            "initrd": "initrd",
             "initrd_addr": None,
             "job": "job",
             "job_id": "job-id",
@@ -77,28 +89,18 @@ class TestBootModel(unittest.TestCase):
             "kernel_image": None,
             "lab_name": "lab",
             "load_addr": None,
+            "mach": "soc",
             "metadata": {"foo": "bar"},
             "name": "board-job-kernel-defconfig-arm",
+            "qemu": "qemu_binary",
+            "qemu_command": "qemu_command",
             "retries": 10,
             "status": None,
             "time": 0,
-            "version": "1.0",
-            "warnings": 2,
-            "git_commit": "git-commit",
-            "git_branch": "git-branch",
-            "git_describe": "git-describe",
-            "git_url": "git-url",
-            "arch": "arm",
-            "fastboot_cmd": "fastboot",
-            "defconfig_full": "defconfig",
-            "file_server_url": "file-server",
-            "file_server_resource": "file-resource",
-            "initrd": "initrd",
-            "board_instance": "instance",
             "uimage": "path/to/uImage",
             "uimage_addr": "uimage_addr",
-            "qemu": "qemu_binary",
-            "qemu_command": "qemu_command"
+            "version": "1.0",
+            "warnings": 2
         }
 
         self.assertDictEqual(expected, boot_doc.to_dict())
@@ -152,6 +154,7 @@ class TestBootModel(unittest.TestCase):
             "kernel_image": "kernel_image",
             "lab_name": "lab",
             "load_addr": "12345",
+            "mach": "soc",
             "metadata": {"foo": "bar"},
             "name": "board-job-kernel-defconfig_full-arm",
             "qemu": "qemu_binary",
@@ -162,7 +165,7 @@ class TestBootModel(unittest.TestCase):
             "uimage": "path/to/uImage",
             "uimage_addr": "uimage_addr",
             "version": "1.0",
-            "warnings": 2,
+            "warnings": 2
         }
 
         boot_doc = mboot.BootDocument.from_json(boot_json)

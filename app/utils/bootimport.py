@@ -382,6 +382,7 @@ def _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f):
     boot_doc.initrd_addr = json_pop_f(models.INITRD_ADDR_KEY, None)
     boot_doc.kernel_image = json_pop_f(models.KERNEL_IMAGE_KEY, None)
     boot_doc.load_addr = json_pop_f(models.BOOT_LOAD_ADDR_KEY, None)
+    boot_doc.mach = json_pop_f(models.MACH_KEY, None)
     boot_doc.metadata = json_pop_f(models.METADATA_KEY, {})
     boot_doc.qemu = json_pop_f(models.QEMU_KEY, None)
     boot_doc.qemu_command = json_pop_f(models.QEMU_COMMAND_KEY, None)
