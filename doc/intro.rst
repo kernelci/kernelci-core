@@ -125,6 +125,41 @@ date at ``23:59 UTC`` to ``00:00 UTC`` of the range date. Internally it will be 
         }
     }
 
+Ranged Searches
+***************
+
+With fields of type ``int`` and with date type ones, it is possible to perform ranged
+search using the ``gte`` (greater-than-equal) and ``lt`` (less-than) operators.
+
+The syntax to define a ranged search is as follows:
+
+::
+
+    [gte|lt]=field,value
+
+``field`` and ``value`` are separated by a comma (``,``).
+
+The following example will search the ``boot`` collection for boot reports whose
+``retries`` value is between ``2`` and ``4``:
+
+.. sourcecode:: http
+
+    GET /boot?gte=retries,2&lt=retries,5 HTTP/1.1
+
+It will be converted as follows: ::
+
+    {
+        "retries": {
+            "$gte": 2,
+            "$lt": 5,
+        }
+    }
+
+The operators can be repeated multiple times. If repeated more than once for
+the same field, the last parsed one will be considerd.
+
+The order in which the arguments are parsed might not be guaranteed.
+
 Authentication and Tokens
 -------------------------
 
