@@ -713,13 +713,13 @@ class TestHandlersCommon(unittest.TestCase):
 
         def query_args_func(key):
             args = {
-                "gte": ["b,3", "a,4"],
+                "gte": ["b,0", "a,4"],
                 "lt": ["b,6", "a,10", "c,foo"]
             }
             return args.get(key, [])
 
         expected = {
-            "b": {"$gte": 3, "$lt": 6},
+            "b": {"$gte": 0, "$lt": 6},
             "a": {"$gte": 4, "$lt": 10}
         }
 

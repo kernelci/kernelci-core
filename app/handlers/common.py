@@ -335,6 +335,26 @@ def get_all_query_values(query_args_func, valid_keys):
     return (spec, sort, fields, skip, limit, unique)
 
 
+def _valid_value(value):
+    """Make sure the passed value is valid for its type.
+
+    This is necessary when value passed are like 0, False or similar and
+    are actually valid values.
+
+    :return True or False.
+    """
+    valid_value = True
+    if isinstance(value, types.StringTypes):
+        if value == "":
+            valid_value = False
+    elif isinstance(value, (types.ListType, types.TupleType)):
+        if not value:
+            valid_value = False
+    elif value is None:
+        valid_value = False
+    return valid_value
+
+
 def get_and_add_gte_lt_keys(spec, query_args_func, valid_keys):
     """Get the gte and lt query args values and add them to the spec.
 
@@ -405,7 +425,7 @@ def _parse_and_add_gte_lt_value(
                 utils.LOG.exception(ex)
                 value = None
 
-        if all([field is not None, value]):
+        if all([field is not None, _valid_value(value)]):
             _add_gte_lt_value(
                 field, value, operator, spec, spec_get_func)
     except ValueError, ex:
@@ -497,27 +517,6 @@ def get_query_spec(query_args_func, valid_keys):
     :type valid_keys: list
     :return A `spec` data structure (dictionary).
     """
-    def _valid_value(value):
-        """Make sure the passed value is valid for its type.
-
-        Itnernally used only.
-
-        This is necessary when value passed are like 0, False or similar and
-        are actually valid values.
-
-        :return True or False.
-        """
-        valid_value = True
-        if isinstance(value, types.StringTypes):
-            if value == "":
-                valid_value = False
-        elif isinstance(value, (types.ListType, types.TupleType)):
-            if not value:
-                valid_value = False
-        elif value is None:
-            valid_value = False
-        return valid_value
-
     def _get_spec_values():
         """Get the values for the spec data structure.
 
