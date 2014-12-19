@@ -42,7 +42,7 @@
     - web-server
 
 - name: Install backend nginx configuration
-  template: src={{ hostname }}
+  template: src=backend-nginx.conf
             dest=/etc/nginx/sites-available/{{ hostname }}
             owner=root
             group=root
