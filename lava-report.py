@@ -10,34 +10,34 @@ from utils import *
 
 log2html = 'https://git.linaro.org/people/kevin.hilman/build-scripts.git/blob_plain/HEAD:/log2html.py'
 
-device_map = {'arndale': 'exynos5250-arndale',
-              'snow': 'exynos5250-snow',
-              'arndale-octa': 'exynos5420-arndale-octa',
-              'peach-pi': 'exynos5800-peach-pi',
-              'odroid-xu3': 'exynos5420-smdk5420',
-              'odroid-u2': 'exynos4412-odroidu3',
-              'beaglebone-black': 'am335x-boneblack',
-              'beagle-xm': 'omap3-beagle-xm',
-              'panda-es': 'omap4-panda-es',
-              'cubieboard3': 'sun7i-a20-cubietruck',
-              'hi3716cv200': 'hisi-x5hd2-dkb',
-              'imx6q-wandboard': 'imx6q-wandboard',
-              'utilite-pro': 'imx6q-cm-fx6',
-              'snowball': 'ste-snowball',
-              'ifc6540': 'qcom-apq8084-ifc6540',
-              'ifc6410': 'qcom-apq8064-ifc6410',
-              'sama53d': 'at91-sama5d3_xplained',
-              'jetson-tk1': 'tegra124-jetson-tk1',
-              'parallella': 'zynq-parallella',
-              'optimus-a80': 'sun9i-a80-optimus',
-              'qemu-arm-cortex-a15': 'vexpress-v2p-ca15-tc1',
-              'qemu-arm-cortex-a15-a7': 'vexpress-v2p-ca15_a7',
-              'qemu-arm-cortex-a9': 'vexpress-v2p-ca9',
-              'qemu-arm': 'versatilepb',
-              'qemu-aarch64': 'qemu-aarch64',
-              'mustang': 'apm-mustang',
-              'x86': 'x86',
-              'kvm': 'x86-kvm'}
+device_map = {'arndale': ['exynos5250-arndale', 'exynos'],
+              'snow': ['exynos5250-snow', 'exynos'],
+              'arndale-octa': ['exynos5420-arndale-octa','exynos'],
+              'peach-pi': ['exynos5800-peach-pi', 'exynos'],
+              'odroid-xu3': ['exynos5420-smdk5420', 'exynos'],
+              'odroid-u2': ['exynos4412-odroidu3', 'exynos'],
+              'beaglebone-black': ['am335x-boneblack', 'omap2'],
+              'beagle-xm': ['omap3-beagle-xm', 'omap2'],
+              'panda-es': ['omap4-panda-es', 'omap2'],
+              'cubieboard3': ['sun7i-a20-cubietruck', 'sunxi'],
+              'optimus-a80': ['sun9i-a80-optimus', 'sunxi'],
+              'hi3716cv200': ['hisi-x5hd2-dkb', 'hisi'],
+              'imx6q-wandboard': ['imx6q-wandboard', 'imx'],
+              'utilite-pro': ['imx6q-cm-fx6', 'imx'],
+              'snowball': ['ste-snowball', 'u8500'],
+              'ifc6540': ['qcom-apq8084-ifc6540', 'qcom'],
+              'ifc6410': ['qcom-apq8064-ifc6410','qcom'],
+              'sama53d': ['at91-sama5d3_xplained', 'at91'],
+              'jetson-tk1': ['tegra124-jetson-tk1', 'tegra'],
+              'parallella': ['zynq-parallella', 'zynq'],
+              'qemu-arm-cortex-a15': ['vexpress-v2p-ca15-tc1', 'vexpress'],
+              'qemu-arm-cortex-a15-a7': ['vexpress-v2p-ca15_a7', 'vexpress'],
+              'qemu-arm-cortex-a9': ['vexpress-v2p-ca9', 'vexpress'],
+              'qemu-arm': ['versatilepb', 'versatile'],
+              'qemu-aarch64': ['qemu-aarch64', None],
+              'mustang': ['apm-mustang', None],
+              'x86': ['x86', None],
+              'kvm': ['x86-kvm', None]}
 
 
 def download_log2html(url):
@@ -159,12 +159,12 @@ def boot_report(args):
         # TODO: Will need to map device_types to dashboard device types
         if kernel_defconfig and device_type and result:
             if (arch == 'arm' or arch =='arm64') and device_tree is None:
-                platform_name = device_map[device_type] + ',legacy'
+                platform_name = device_map[device_type][0] + ',legacy'
             else:
                 if device_tree == 'vexpress-v2p-ca15_a7.dtb':
                     platform_name = 'vexpress-v2p-ca15_a7'
                 else:
-                    platform_name = device_map[device_type]
+                    platform_name = device_map[device_type][0]
             print 'Creating boot log for %s' % platform_name
             log = 'boot-%s.txt' % platform_name
             html = 'boot-%s.html' % platform_name
@@ -194,6 +194,8 @@ def boot_report(args):
             boot_meta['defconfig'] = kernel_defconfig_base
             if kernel_defconfig_full is not None:
                 boot_meta['defconfig_full'] = kernel_defconfig_full
+            if device_map[device_type][1]:
+                boot_meta['mach'] = device_map[device_type][1]
             boot_meta['kernel'] = kernel_version
             boot_meta['job'] = kernel_tree
             boot_meta['board'] = platform_name
