@@ -34,6 +34,12 @@ COLLECTIONS = {
     'job': models.JOB_COLLECTION,
 }
 
+# Some key values must be treated in a different way, not as string.
+KEY_TYPES = {
+    models.RETRIES_KEY: "int",
+    models.WARNINGS_KEY: "int"
+}
+
 # Handlers valid keys.
 BOOT_VALID_KEYS = {
     'POST': {
@@ -318,6 +324,7 @@ def get_all_query_values(query_args_func, valid_keys):
     add_created_on_date(spec, created_on)
 
     get_and_add_date_range(spec, query_args_func, created_on)
+    get_and_add_gte_lt_keys(spec, query_args_func, valid_keys)
     update_id_fields(spec)
 
     sort = get_query_sort(query_args_func)
@@ -326,6 +333,115 @@ def get_all_query_values(query_args_func, valid_keys):
     unique = get_aggregate_value(query_args_func)
 
     return (spec, sort, fields, skip, limit, unique)
+
+
+def get_and_add_gte_lt_keys(spec, query_args_func, valid_keys):
+    """Get the gte and lt query args values and add them to the spec.
+
+    This is necessary to perform searches like 'greater than-equal' and
+    'less-than'.
+
+    :param spec: The spec data structure where to add the elements.
+    :type spec: dict
+    :param query_args_func: A function used to return a list of the query
+    arguments.
+    :type query_args_func: function
+    :param valid_keys: The valid keys for this request.
+    :type valid_keys: list
+    """
+    gte = query_args_func(models.GTE_KEY)
+    lt = query_args_func(models.LT_KEY)
+    spec_get = spec.get
+
+    if all([gte, isinstance(gte, types.ListType)]):
+        for arg in gte:
+            _parse_and_add_gte_lt_value(arg, "$gte", valid_keys, spec, spec_get)
+    elif gte and isinstance(gte, types.StringTypes):
+        _parse_and_add_gte_lt_value(gte, "$gte", valid_keys, spec, spec_get)
+
+    if all([lt, isinstance(lt, types.ListType)]):
+        for arg in lt:
+            _parse_and_add_gte_lt_value(arg, "$lt", valid_keys, spec, spec_get)
+    elif all([lt, isinstance(lt, types.StringTypes)]):
+        _parse_and_add_gte_lt_value(lt, "$lt", valid_keys, spec, spec_get)
+
+
+def _parse_and_add_gte_lt_value(
+        arg, operator, valid_keys, spec, spec_get_func=None):
+    """Parse and add the provided query argument.
+
+    Parse the argument looking for its value, and in case we have a valid value
+    add it to the `spec` data structure.
+
+    :param arg: The argument as retrieved from the request.
+    :type arg: str
+    :param operator: The operator to use, either '$gte' or '$lt'.
+    :type operator: str
+    :param valid_keys: The valid keys that this request can accept.
+    :type valid_keys: list
+    :param spec: The `spec` data structure where to store field-value.
+    :type spec: dict
+    :param spec_get_func: Optional get function of the spec data structure used
+    to retrieve values from it.
+    :type spec_get_func: function
+    """
+    field = value = None
+    try:
+        field, value = arg.split(",")
+        if field not in valid_keys:
+            field = None
+            utils.LOG.warn(
+                "Wrong field specified for '%s', got '%s'",
+                operator, field)
+
+        val_type = KEY_TYPES.get(field, None)
+        if val_type and val_type == "int":
+            try:
+                value = int(value)
+            except ValueError, ex:
+                utils.LOG.error(
+                    "Error converting value to %s: %s",
+                    val_type, value)
+                utils.LOG.exception(ex)
+                value = None
+
+        if all([field is not None, value]):
+            _add_gte_lt_value(
+                field, value, operator, spec, spec_get_func)
+    except ValueError, ex:
+        error_msg = (
+            "Wrong value specified for '%s' query argument: %s" %
+            (operator, arg)
+        )
+        utils.LOG.error(error_msg)
+        utils.LOG.exception(ex)
+
+
+def _add_gte_lt_value(field, value, operator, spec, spec_get_func=None):
+    """Add the field-value pair to the spec data structure.
+
+    :param field: The field name.
+    :type field: str
+    :param value: The value of the field.
+    :type value: str
+    :param operator: The operator to use, either '$gte' or '$lt'.
+    :type operator: str
+    :param spec: The `spec` data structure where to store field-value.
+    :type spec: dict
+    :param spec_get_func: Optional get function of the spec data structure used
+    to retrieve values from it.
+    :type spec_get_func: function
+    """
+    if not spec_get_func:
+        spec_get_func = spec.get
+
+    prev_val = spec_get_func(field, None)
+    new_key_val = {operator: value}
+
+    if prev_val:
+        prev_val.update(new_key_val)
+    else:
+        spec[field] = new_key_val
 
 
 def update_id_fields(spec):
@@ -381,6 +497,27 @@ def get_query_spec(query_args_func, valid_keys):
     :type valid_keys: list
     :return A `spec` data structure (dictionary).
     """
+    def _valid_value(value):
+        """Make sure the passed value is valid for its type.
+
+        Itnernally used only.
+
+        This is necessary when value passed are like 0, False or similar and
+        are actually valid values.
+
+        :return True or False.
+        """
+        valid_value = True
+        if isinstance(value, types.StringTypes):
+            if value == "":
+                valid_value = False
+        elif isinstance(value, (types.ListType, types.TupleType)):
+            if not value:
+                valid_value = False
+        elif value is None:
+            valid_value = False
+        return valid_value
+
     def _get_spec_values():
         """Get the values for the spec data structure.
 
@@ -390,18 +527,41 @@ def get_query_spec(query_args_func, valid_keys):
 
         :return A tuple with the key and its value.
         """
+        val_type = None
+
         for key in valid_keys:
+            val_type = KEY_TYPES.get(key, None)
             val = query_args_func(key) or []
             if val:
                 # Go through the values and make sure we have valid ones.
-                val = [v for v in val if v]
+                val = [v for v in val if _valid_value(v)]
                 len_val = len(val)
 
                 if len_val == 1:
-                    val = val[0]
+                    if val_type and val_type == "int":
+                        try:
+                            val = int(val[0])
+                        except ValueError, ex:
+                            utils.LOG.error(
+                                "Error converting value to %s: %s",
+                                val_type, val[0])
+                            utils.LOG.exception(ex)
+                            val = []
+                    else:
+                        val = val[0]
                 elif len_val > 1:
                     # More than one value, make sure we look for all of them.
-                    val = {"$in": val}
+                    if val_type and val_type == "int":
+                        try:
+                            val = {"$in": [int(v) for v in val]}
+                        except ValueError, ex:
+                            utils.LOG.error(
+                                "Error converting list of values to %s: %s",
+                                val_type, val)
+                            utils.LOG.exception(ex)
+                            val = []
+                    else:
+                        val = {"$in": val}
 
             yield key, val
 
@@ -411,7 +571,7 @@ def get_query_spec(query_args_func, valid_keys):
             k: v for k, v in [
                 (key, val)
                 for key, val in _get_spec_values()
-                if val
+                if _valid_value(val)
             ]
         }
 
