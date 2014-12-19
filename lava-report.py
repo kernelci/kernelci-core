@@ -254,19 +254,15 @@ def boot_report(args):
             report_directory = results_directory
         with open(os.path.join(report_directory, boot), 'a') as f:
             f.write('To: %s\n' % args.email)
-            f.write('From: lava@armcloud.us\n')
+            f.write('From: bot@kernelci.org\n')
             f.write('Subject: %s boot: %s boots: %s passed, %s failed (%s)\n' % (kernel_tree,
                                                                                 str(total),
                                                                                 str(passed),
                                                                                 str(failed),
                                                                                 kernel_version))
             f.write('\n')
-            if api_url:
-                f.write('Full Build Report: %s/build/%s/kernel/%s/\n' % (api_url.replace('api', 'status').replace('/boot', ''), kernel_tree, kernel_version))
-                f.write('Full Boot Report: %s/boot/all/job/%s/kernel/%s/\n' % (api_url.replace('api', 'status').replace('/boot', ''), kernel_tree, kernel_version))
-            else:
-                f.write('Full Build Report: http://status.armcloud.us/build/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
-                f.write('Full Boot Report: http://status.armcloud.us/boot/all/job/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
+            f.write('Full Build Report: http://kernelci.org/build/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
+            f.write('Full Boot Report: http://kernelci.org/boot/all/job/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
             f.write('\n')
             f.write('Total Duration: %.2f minutes\n' % (duration / 60))
             f.write('Tree/Branch: %s\n' % kernel_tree)
@@ -289,16 +285,16 @@ def boot_report(args):
                                                                     result['kernel_boot_time'],
                                                                     result['result']))
                         if args.lab:
-                            f.write('    http://storage.armcloud.us/kernel-ci/%s/%s/%s/%s/boot-%s.html' % (kernel_tree,
-                                                                                                           kernel_version,
-                                                                                                           defconfig,
-                                                                                                           args.lab,
-                                                                                                           result['device_type']))
+                            f.write('    http://storage.kernelci.org/kernel-ci/%s/%s/%s/%s/boot-%s.html' % (kernel_tree,
+                                                                                                            kernel_version,
+                                                                                                            defconfig,
+                                                                                                            args.lab,
+                                                                                                            result['device_type']))
                         else:
-                            f.write('    http://storage.armcloud.us/kernel-ci/%s/%s/%s/boot-%s.html' % (kernel_tree,
-                                                                                                        kernel_version,
-                                                                                                        defconfig,
-                                                                                                        result['device_type']))
+                            f.write('    http://storage.kernelci.org/kernel-ci/%s/%s/%s/boot-%s.html' % (kernel_tree,
+                                                                                                         kernel_version,
+                                                                                                         defconfig,
+                                                                                                         result['device_type']))
                         f.write('\n')
             f.write('\n')
             f.write('Full Boot Report:\n')
@@ -324,16 +320,16 @@ def boot_report(args):
         total = passed + failed
         with open(os.path.join(report_directory, dt_self_test), 'a') as f:
             f.write('To: %s\n' % args.email)
-            f.write('From: lava@armcloud.us\n')
+            f.write('From: bot@kernelci.org\n')
             f.write('Subject: %s dt-runtime-unit-tests: %s boards tested: %s passed, %s failed (%s)\n' % (kernel_tree,
                                                                                                            str(total),
                                                                                                            str(passed),
                                                                                                            str(failed),
                                                                                                            kernel_version))
             f.write('\n')
-            f.write('Full Build Report: http://status.armcloud.us/build/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
-            f.write('Full Boot Report: http://status.armcloud.us/boot/all/job/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
-            f.write('Full Test Report: http://status.armcloud.us/test/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
+            f.write('Full Build Report: http://kernelci.org/build/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
+            f.write('Full Boot Report: http://kernelci.org/boot/all/job/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
+            f.write('Full Test Report: http://kernelci.org/test/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
             f.write('\n')
             f.write('Tree/Branch: %s\n' % kernel_tree)
             f.write('Git Describe: %s\n' % kernel_version)
@@ -356,16 +352,16 @@ def boot_report(args):
                                                                                                     result['dt_tests_failed'],
                                                                                                     result['dt_test_result']))
                         if args.lab:
-                            f.write('    http://storage.armcloud.us/kernel-ci/%s/%s/%s/%s/boot-%s.html' % (kernel_tree,
+                            f.write('    http://storage.kernelci.org/kernel-ci/%s/%s/%s/%s/boot-%s.html' % (kernel_tree,
                                                                                                         kernel_version,
                                                                                                         defconfig,
                                                                                                         args.lab,
                                                                                                         result['device_type']))
                         else:
-                            f.write('    http://storage.armcloud.us/kernel-ci/%s/%s/%s/boot-%s.html' % (kernel_tree,
-                                                                                                        kernel_version,
-                                                                                                        defconfig,
-                                                                                                        result['device_type']))
+                            f.write('    http://storage.kernelci.org/kernel-ci/%s/%s/%s/boot-%s.html' % (kernel_tree,
+                                                                                                         kernel_version,
+                                                                                                         defconfig,
+                                                                                                         result['device_type']))
             f.write('\n')
             f.write('\n')
             f.write('Full Unit Test Report:\n')
