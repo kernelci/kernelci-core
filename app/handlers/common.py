@@ -34,6 +34,12 @@ COLLECTIONS = {
     'job': models.JOB_COLLECTION,
 }
 
+# Some key values must be treated in a different way, not as string.
+KEY_TYPES = {
+    models.RETRIES_KEY: "int",
+    models.WARNINGS_KEY: "int"
+}
+
 # Handlers valid keys.
 BOOT_VALID_KEYS = {
     'POST': {
@@ -379,17 +385,29 @@ def _parse_and_add_gte_lt_value(
     to retrieve values from it.
     :type spec_get_func: function
     """
-    arg_field = arg_value = None
+    field = value = None
     try:
-        arg_field, arg_value = arg.split(",")
-        if arg_field not in valid_keys:
-            arg_field = None
+        field, value = arg.split(",")
+        if field not in valid_keys:
+            field = None
             utils.LOG.warn(
                 "Wrong field specified for '%s', got '%s'",
-                operator, arg_field)
-        if all([arg_field is not None, arg_value]):
+                operator, field)
+
+        val_type = KEY_TYPES.get(field, None)
+        if val_type and val_type == "int":
+            try:
+                value = int(value)
+            except ValueError, ex:
+                utils.LOG.error(
+                    "Error converting value to %s: %s",
+                    val_type, value)
+                utils.LOG.exception(ex)
+                value = None
+
+        if all([field is not None, value]):
             _add_gte_lt_value(
-                arg_field, arg_value, operator, spec, spec_get_func)
+                field, value, operator, spec, spec_get_func)
     except ValueError, ex:
         error_msg = (
             "Wrong value specified for '%s' query argument: %s" %
@@ -479,6 +497,27 @@ def get_query_spec(query_args_func, valid_keys):
     :type valid_keys: list
     :return A `spec` data structure (dictionary).
     """
+    def _valid_value(value):
+        """Make sure the passed value is valid for its type.
+
+        Itnernally used only.
+
+        This is necessary when value passed are like 0, False or similar and
+        are actually valid values.
+
+        :return True or False.
+        """
+        valid_value = True
+        if isinstance(value, types.StringTypes):
+            if value == "":
+                valid_value = False
+        elif isinstance(value, (types.ListType, types.TupleType)):
+            if not value:
+                valid_value = False
+        elif value is None:
+            valid_value = False
+        return valid_value
+
     def _get_spec_values():
         """Get the values for the spec data structure.
 
@@ -488,18 +527,41 @@ def get_query_spec(query_args_func, valid_keys):
 
         :return A tuple with the key and its value.
         """
+        val_type = None
+
         for key in valid_keys:
+            val_type = KEY_TYPES.get(key, None)
             val = query_args_func(key) or []
             if val:
                 # Go through the values and make sure we have valid ones.
-                val = [v for v in val if v]
+                val = [v for v in val if _valid_value(v)]
                 len_val = len(val)
 
                 if len_val == 1:
-                    val = val[0]
+                    if val_type and val_type == "int":
+                        try:
+                            val = int(val[0])
+                        except ValueError, ex:
+                            utils.LOG.error(
+                                "Error converting value to %s: %s",
+                                val_type, val[0])
+                            utils.LOG.exception(ex)
+                            val = []
+                    else:
+                        val = val[0]
                 elif len_val > 1:
                     # More than one value, make sure we look for all of them.
-                    val = {"$in": val}
+                    if val_type and val_type == "int":
+                        try:
+                            val = {"$in": [int(v) for v in val]}
+                        except ValueError, ex:
+                            utils.LOG.error(
+                                "Error converting list of values to %s: %s",
+                                val_type, val)
+                            utils.LOG.exception(ex)
+                            val = []
+                    else:
+                        val = {"$in": val}
 
             yield key, val
 
@@ -509,7 +571,7 @@ def get_query_spec(query_args_func, valid_keys):
             k: v for k, v in [
                 (key, val)
                 for key, val in _get_spec_values()
-                if val
+                if _valid_value(val)
             ]
         }
 
