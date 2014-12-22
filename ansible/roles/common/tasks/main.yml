@@ -1,2 +1,2 @@
 ---
-- include: net-sysctl.yml
+- include: sysctl.yml
