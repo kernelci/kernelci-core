@@ -84,11 +84,11 @@
     - web-server
 
 - name: Install nginx upstream definitions
-  copy: src=backend-upstreams.conf
-        dest=/etc/nginx/conf.d/backend-upstreams.conf
-        mode=0644
-        owner=root
-        group=root
+  template: src=backend-upstreams.conf
+            dest=/etc/nginx/conf.d/backend-upstreams.conf
+            mode=0644
+            owner=root
+            group=root
   notify:
     - reload-nginx
   tags:
