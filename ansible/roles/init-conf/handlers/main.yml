@@ -25,4 +25,4 @@
             state=restarted
 
 - name: reload-systemd
-  command: /bin/systemd daemon-reload
+  command: /bin/systemctl daemon-reload
