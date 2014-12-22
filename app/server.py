@@ -21,6 +21,8 @@ import pymongo
 import tornado
 
 from concurrent.futures import ThreadPoolExecutor
+from tornado.httpserver import HTTPServer
+from tornado.netutil import bind_unix_socket
 from tornado.options import (
     define,
     options,
@@ -55,9 +57,13 @@ define(
 )
 define(
     "dbpassword", default="", type=str,
-    help="The password to use fopr the DB connection"
+    help="The password to use for the DB connection"
 )
 define("dbpool", default=250, type=int, help="The DB connections pool size")
+define(
+    "unixsocket", default=False, type=bool,
+    help="If unix socket should be used"
+)
 
 
 class KernelCiBackend(Application):
@@ -111,5 +117,13 @@ if __name__ == '__main__':
         'xheaders': True,
     }
 
-    KernelCiBackend().listen(8888, **HTTP_SETTINGS)
+    if options.unixsocket:
+        application = KernelCiBackend()
+
+        server = HTTPServer(application, **HTTP_SETTINGS)
+        unix_socket = bind_unix_socket("/tmp/kernelci-backend.socket")
+        server.bind_unix_socket(unix_socket)
+    else:
+        KernelCiBackend().listen(8888, **HTTP_SETTINGS)
+
     tornado.ioloop.IOLoop.instance().start()
