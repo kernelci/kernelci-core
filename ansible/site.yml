@@ -9,3 +9,4 @@
     - init-conf
     - configure-nginx
     - db-backup
+    - firewall
