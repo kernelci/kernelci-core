@@ -122,7 +122,7 @@ if __name__ == '__main__':
 
         server = HTTPServer(application, **HTTP_SETTINGS)
         unix_socket = bind_unix_socket("/tmp/kernelci-backend.socket")
-        server.bind_unix_socket(unix_socket)
+        server.add_socket(unix_socket)
     else:
         KernelCiBackend().listen(8888, **HTTP_SETTINGS)
 
