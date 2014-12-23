@@ -27,21 +27,21 @@
     - firewall
 
 - name: Accept connections on port 80
-  uwf:  rule=allow
+  ufw:  rule=allow
         port=80
         proto=tcp
   tags:
     - firewall
 
 - name: Deny traffic and log it
-  uwf:  rule=reject
+  ufw:  rule=reject
         port=auth
         log=yes
   tags:
     - firewall
 
 - name: Accept Zabbix traffic
-  uwf:  rule=accept
+  ufw:  rule=accept
         direction=in
         from={{ zabbix_ip }}
         port=10050
