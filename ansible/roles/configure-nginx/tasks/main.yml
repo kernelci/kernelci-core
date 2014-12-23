@@ -14,11 +14,11 @@
     - web-server
 
 - name: Install default nginx configuration
-  copy: src=nginx-default.conf
-        dest=/etc/nginx/nginx.conf
-        owner=root
-        group=root
-        mode=0644
+  template: src=nginx-default.conf
+            dest=/etc/nginx/nginx.conf
+            owner=root
+            group=root
+            mode=0644
   notify:
     - reload-nginx
   tags:
