@@ -288,10 +288,11 @@ def create_jobs(base_url, kernel, platform_list, target, targets):
     url = urlparse.urlparse(kernel)
     build_info = url.path.split('/')
     image_url = base_url
-    image_type = build_info[1]
-    tree = build_info[2]
-    kernel_version = build_info[3]
-    defconfig = build_info[4]
+    # TODO: define image_type dynamically
+    image_type = 'kernel-ci'
+    tree = build_info[1]
+    kernel_version = build_info[2]
+    defconfig = build_info[3]
 
     for platform in platform_list:
         platform_name = platform.split('/')[-1]
