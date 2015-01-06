@@ -53,6 +53,13 @@ odroid_u2 = {'device_type': 'odroid-u2',
              'be': False,
              'fastboot': False}
 
+odroid_x2 = {'device_type': 'odroid-x2',
+             'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+             'defconfig_blacklist': [],
+             'lpae': False,
+             'be': False,
+             'fastboot': False}
+
 beaglebone_black = {'device_type': 'beaglebone-black',
                     'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
                     'defconfig_blacklist': [],
@@ -244,6 +251,7 @@ device_map = {'exynos5250-arndale.dtb': arndale,
               'exynos5800-peach-pi.dtb': peach_pi,
               'exynos5420-smdk5420.dtb': odroid_xu3,
               'exynos4412-odroidu3.dtb': odroid_u2,
+              'exynos4412-odroidx2.dtb': odroid_x2,
               'am335x-boneblack.dtb': beaglebone_black,
               'omap3-beagle-xm.dtb': beagle_xm,
               'omap3-beagle-xm-legacy': beagle_xm_legacy,
