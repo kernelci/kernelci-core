@@ -117,6 +117,13 @@ VERSION_KEY = 'version'
 WARNINGS_KEY = 'warnings'
 x86_ARCHITECTURE_KEY = 'x86'
 
+# Email reporting control fields.
+SEND_BOOT_REPORT_KEY = 'boot_report'
+SEND_BUILD_REPORT_KEY = 'build_report'
+BOOT_REPORT_SEND_TO_KEY = 'boot_send_to'
+BUILD_REPORT_SEND_TO_KEY = 'build_send_to'
+REPORT_SEND_TO_KEY = 'send_to'
+
 # Token special fields.
 ADMIN_KEY = 'admin'
 DELETE_KEY = 'delete'
