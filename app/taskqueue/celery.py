@@ -21,21 +21,21 @@ import os
 
 from celery import Celery
 
+import taskqueue.celeryconfig as celeryconfig
 
-TASKS_LIST = ['taskqueue.tasks']
 
+TASKS_LIST = ["taskqueue.tasks"]
 
 app = Celery(
-    'tasks',
+    "tasks",
     include=TASKS_LIST
 )
 
-if os.environ.get('CELERY_CONFIG_MODULE', None):
-    app.config_from_envar('CELERY_CONFIG_MODULE')
-else:
-    import taskqueue.celeryconfig as celeryconfig
-    app.config_from_object(celeryconfig)
+app.config_from_object(celeryconfig)
+
+if os.environ.get("CELERY_CONFIG_MODULE", None):
+    app.config_from_envar("CELERY_CONFIG_MODULE")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.start()
