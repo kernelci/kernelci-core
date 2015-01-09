@@ -123,32 +123,33 @@ def schedule_boot_report(json_obj, db_options, mail_options, countdown):
     j_get = json_obj.get
     to_addrs = []
 
-    job = j_get(models.JOB_KEY)
-    kernel = j_get(models.KERNEL_KEY)
+    if bool(j_get(models.SEND_BOOT_REPORT_KEY, False)):
+        job = j_get(models.JOB_KEY)
+        kernel = j_get(models.KERNEL_KEY)
 
-    boot_emails = j_get(models.BOOT_REPORT_SEND_TO_KEY, None)
-    generic_emails = j_get(models.REPORT_SEND_TO_KEY, None)
+        boot_emails = j_get(models.BOOT_REPORT_SEND_TO_KEY, None)
+        generic_emails = j_get(models.REPORT_SEND_TO_KEY, None)
 
-    if boot_emails is not None:
-        if isinstance(boot_emails, types.ListType):
-            to_addrs.extend(boot_emails)
-        elif isinstance(boot_emails, types.StringTypes):
-            to_addrs.append(boot_emails)
+        if boot_emails is not None:
+            if isinstance(boot_emails, types.ListType):
+                to_addrs.extend(boot_emails)
+            elif isinstance(boot_emails, types.StringTypes):
+                to_addrs.append(boot_emails)
 
-    if generic_emails is not None:
-        if isinstance(generic_emails, types.ListType):
-            to_addrs.extend(generic_emails)
-        elif isinstance(generic_emails, types.StringTypes):
-            to_addrs.append(generic_emails)
+        if generic_emails is not None:
+            if isinstance(generic_emails, types.ListType):
+                to_addrs.extend(generic_emails)
+            elif isinstance(generic_emails, types.StringTypes):
+                to_addrs.append(generic_emails)
 
-    if to_addrs:
-        send_boot_report.apply_async(
-            [job, kernel, to_addrs, db_options, mail_options],
-            countdown=countdown)
-    else:
-        utils.LOG.warn(
-            "No email addresses specified for '%s-%s': boot report "
-            "cannot be sent", job, kernel)
+        if to_addrs:
+            send_boot_report.apply_async(
+                [job, kernel, to_addrs, db_options, mail_options],
+                countdown=countdown)
+        else:
+            utils.LOG.warn(
+                "No send email addresses specified for '%s-%s': boot report "
+                "cannot be sent", job, kernel)
 
 
 @taskc.app.task(name="send-boot-report")
