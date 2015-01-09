@@ -365,7 +365,7 @@ class BaseHandler(tornado.web.RequestHandler):
             self.log.exception(ex)
             self.log.error("Provided doc ID '%s' is not valid", doc_id)
             response.status_code = 400
-            response.status = "Wrong ID value provided"
+            response.reason = "Wrong ID value provided"
 
         return response
 
