@@ -108,6 +108,7 @@ SYSTEM_MAP_KEY = 'system_map'
 TEXT_OFFSET_KEY = 'text_offset'
 TIME_KEY = 'time'
 TOKEN_KEY = 'token'
+TYPE_KEY = 'type'
 UIMAGE_ADDR_KEY = 'uimage_addr'
 UIMAGE_KEY = 'uimage'
 UPDATED_KEY = 'updated_on'
@@ -135,10 +136,12 @@ LAB_KEY = "lab"
 
 # Job and/or build status.
 BUILD_STATUS = 'BUILD'
+ERROR_STATUS = 'ERROR'
 FAIL_STATUS = 'FAIL'
-PASS_STATUS = 'PASS'
-UNKNOWN_STATUS = 'UNKNOWN'
 OFFLINE_STATUS = 'OFFLINE'
+PASS_STATUS = 'PASS'
+SENT_STATUS = 'SENT'
+UNKNOWN_STATUS = 'UNKNOWN'
 UNTRIED_STATUS = 'UNTRIED'
 
 # Build file names.
@@ -166,6 +169,11 @@ SUBSCRIPTION_COLLECTION = 'subscription'
 TOKEN_COLLECTION = 'api-token'
 BISECT_COLLECTION = 'bisect'
 LAB_COLLECTION = 'lab'
+REPORT_COLLECTION = 'report'
+
+# Report types.
+BUILD_REPORT = 'build'
+BOOT_REPORT = 'boot'
 
 # Bisect values.
 BISECT_BOOT_STATUS_KEY = 'boot_status'
