@@ -46,14 +46,14 @@ GET
  .. sourcecode:: http
 
     GET /lab/ HTTP/1.1
-    Host: api.armcloud.us
+    Host: api.kernelci.org
     Accept: */*
     Authorization: token
 
  .. sourcecode:: http
 
     GET /boot/lab-01 HTTP/1.1
-    Host: api.armcloud.us
+    Host: api.kernelci.org
     Accept: */*
     Authorization: token
 
@@ -120,7 +120,7 @@ POST
  .. sourcecode:: http 
 
     POST /lab HTTP/1.1
-    Host: api.armcloud.us
+    Host: api.kernelci.org
     Content-Type: application/json
     Accept: */*
     Authorization: token
@@ -163,7 +163,7 @@ DELETE
  .. sourcecode:: http
 
     DELETE /lab/lab-01 HTTP/1.1
-    Host: api.armcloud.us
+    Host: api.kernelci.org
     Accept: */*
     Content-Type: application/json
     Authorization: token
@@ -171,7 +171,7 @@ DELETE
  .. sourcecode:: http
 
     DELETE /lab?private=true HTTP/1.1
-    Host: api.armcloud.us
+    Host: api.kernelci.org
     Accept: */*
     Content-Type: application/json
     Authorization: token

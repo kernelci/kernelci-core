@@ -78,7 +78,7 @@ Schema
 ------
 
 API access is exclusively over HTTPS and accessed via the
-``api.armcloud.us`` URL.
+``api.kernelci.org`` URL.
 
 Data is sent and received **only** in JSON format.
 
@@ -180,7 +180,7 @@ Basic Authentication
 
 ::
 
-    curl -H 'Authorization: token' https://api.armcloud.us/job
+    curl -H 'Authorization: token' https://api.kernelci.org/job
 
 
 Accepted Encodings

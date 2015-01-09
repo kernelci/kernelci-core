@@ -56,21 +56,21 @@ GET
  .. sourcecode:: http
 
     GET /boot/ HTTP/1.1
-    Host: api.armcloud.us
+    Host: api.kernelci.org
     Accept: */*
     Authorization: token
 
  .. sourcecode:: http
 
     GET /boot/omap4-panda-next-next-20140905-arm-omap2plus_defconfig HTTP/1.1
-    Host: api.armcloud.us
+    Host: api.kernelci.org
     Accept: */*
     Authorization: token
 
  .. sourcecode:: http
 
     GET /boot?job=next&kernel=next-20140905&field=status&field=defconfig&nfield=_id HTTP/1.1
-    Host: api.armcloud.us
+    Host: api.kernelci.org
     Accept: */*
     Authorization: token
 
@@ -165,7 +165,7 @@ POST
  .. sourcecode:: http 
 
     POST /boot HTTP/1.1
-    Host: api.armcloud.us
+    Host: api.kernelci.org
     Content-Type: application/json
     Accept: */*
     Authorization: token
@@ -213,7 +213,7 @@ DELETE
  .. sourcecode:: http
 
     DELETE /boot/tegra30-beaver-next-next-20140612-arm-tegra_defconfig HTTP/1.1
-    Host: api.armcloud.us
+    Host: api.kernelci.org
     Accept: */*
     Content-Type: application/json
     Authorization: token
@@ -221,7 +221,7 @@ DELETE
  .. sourcecode:: http
 
     DELETE /boot?job=mainline&board=legacy,omap3-n900 HTTP/1.1
-    Host: api.armcloud.us
+    Host: api.kernelci.org
     Accept: */*
     Content-Type: application/json
     Authorization: token

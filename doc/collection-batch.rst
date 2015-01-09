@@ -64,7 +64,7 @@ POST
  .. sourcecode:: http 
 
     POST /batch HTTP/1.1
-    Host: api.armcloud.us
+    Host: api.kernelci.org
     Content-Type: application/json
     Accept: */*
     Authorization: token

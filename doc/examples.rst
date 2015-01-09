@@ -19,7 +19,7 @@ Boot reports examples
 
     from urlparse import urljoin
 
-    BACKEND_URL = 'http://api.armcloud.us'
+    BACKEND_URL = 'http://api.kernelci.org'
     AUTHORIZATION_TOKEN = 'foo'
     JOB = 'job'
     KERNEL = 'kernel'
@@ -58,7 +58,7 @@ Boot reports examples
     from urlparse import urljoin
 
     AUTHORIZATION_TOKEN = 'foo'
-    BACKEND_URL = 'http://api.armcloud.us'
+    BACKEND_URL = 'http://api.kernelci.org'
     JOB = 'job'
 
 
@@ -96,7 +96,7 @@ Boot reports examples
     from urlparse import urljoin
 
     AUTHORIZATION_TOKEN = 'foo'
-    BACKEND_URL = 'http://api.armcloud.us'
+    BACKEND_URL = 'http://api.kernelci.org'
     JOB = 'job'
     KERNEL = 'kernel'
 
@@ -146,7 +146,7 @@ module automatically handles ``gzip`` and ``deflate`` compressions.
     from urlparse import urljoin
 
     AUTHORIZATION_TOKEN = 'foo'
-    BACKEND_URL = 'http://api.armcloud.us'
+    BACKEND_URL = 'http://api.kernelci.org'
     JOB = 'job'
     KERNEL = 'kernel'
 
@@ -206,7 +206,7 @@ The response object will contain:
     import urlparse
 
     AUTHORIZATION_TOKEN = 'foo'
-    BACKEND_URL = 'http://api.armcloud.us'
+    BACKEND_URL = 'http://api.kernelci.org'
 
 
     def main():
@@ -250,7 +250,7 @@ Sending a boot report
     import urlparse
 
     AUTHORIZATION_TOKEN = 'foo'
-    BACKEND_URL = 'http://api.armcloud.us'
+    BACKEND_URL = 'http://api.kernelci.org'
 
 
     def main():

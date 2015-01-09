@@ -55,21 +55,21 @@ GET
  .. sourcecode:: http
 
     GET /count/ HTTP/1.1
-    Host: api.armcloud.us
+    Host: api.kernelci.org
     Accept: */*
     Authorization: token
 
  .. sourcecode:: http 
 
     GET /count/job/ HTTP/1.1
-    Host: api.armcloud.us
+    Host: api.kernelci.org
     Accept: */*
     Authorization: token
 
  .. sourcecode:: http
 
     GET /count/job?job=next&date_range=1 HTTP/1.1
-    Host: api.armcloud.us
+    Host: api.kernelci.org
     Accept: */*
     Authorization: token
 
