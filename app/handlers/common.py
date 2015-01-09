@@ -297,6 +297,19 @@ LAB_VALID_KEYS = {
     ]
 }
 
+REPORT_VALID_KEYS = {
+    "GET": [
+        models.CREATED_KEY,
+        models.ID_KEY,
+        models.JOB_KEY,
+        models.KERNEL_KEY,
+        models.NAME_KEY,
+        models.STATUS_KEY,
+        models.TYPE_KEY,
+        models.UPDATED_KEY
+    ]
+}
+
 ID_KEYS = [
     models.BOOT_ID_KEY,
     models.DEFCONFIG_ID_KEY,

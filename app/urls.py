@@ -24,6 +24,7 @@ import handlers.count
 import handlers.defconf
 import handlers.job
 import handlers.lab
+import handlers.report
 import handlers.subscription
 import handlers.token
 import handlers.version
@@ -65,6 +66,11 @@ _LAB_URL = url(
 _VERSION_URL = url(
     r"/version", handlers.version.VersionHandler, name="version"
 )
+_REPORT_URL = url(
+    r"/report[s]?(?P<sl>/)?(?P<id>.*)",
+    handlers.report.ReportHandler,
+    name="response"
+)
 
 APP_URLS = [
     _BATCH_URL,
@@ -77,4 +83,5 @@ APP_URLS = [
     _SUBSCRIPTION_URL,
     _TOKEN_URL,
     _VERSION_URL,
+    _REPORT_URL,
 ]
