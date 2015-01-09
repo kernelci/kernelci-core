@@ -1,0 +1,80 @@
+.. _schema_report:
+
+report
+------
+
+GET
+***
+
+::
+
+    {
+        "title": "report",
+        "description": "A report object",
+        "type": "object",
+        "properties": {
+            "version": {
+                "type": "string",
+                "description": "The version of this JSON schema",
+                "enum": ["1.0"]
+            },
+            "name": {
+                "type": "string",
+                "description": "The name associated with the object"
+            },
+            "_id": {
+                "type": "string",
+                "description": "The ID associated with the object as provided by the database"
+            },
+            "created_on": {
+                "type": "object",
+                "description": "Creation date of the object",
+                "properties": {
+                    "$date": {
+                        "type": "number",
+                        "description": "Milliseconds from epoch time",
+                        "format": "utc-millisec"
+                    }
+                }
+            },
+            "updated_on": {
+                "type": "object",
+                "description": "Update date of the object",
+                "properties": {
+                    "$date": {
+                        "type": "number",
+                        "description": "Milliseconds from epoch time",
+                        "format": "utc-millisec"
+                    }
+                }
+            },
+            "errors": {
+                "type": "array",
+                "description": "An array of arrays containing error codes and descriptions from the SMTP server"
+            },
+            "job": {
+                "type": "string",
+                "description": "The job name associated with the object"
+            },
+            "kernel": {
+                "type": "string",
+                "decsription": "The kernel name associated with the object"
+            },
+            "type": {
+                "type": "string",
+                "description": "The type of the report",
+                "enum": ["boot", "build"]
+            },
+            "status": {
+                "type": "string",
+                "description": "The status of the report",
+                "enum": ["SENT", "ERROR"]
+            }
+        }
+    }
+
+More Info
+*********
+
+* :ref:`API results <intro_schema_results>`
+* :ref:`Schema time and date <intro_schema_time_date>`

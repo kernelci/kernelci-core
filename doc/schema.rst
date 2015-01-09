@@ -12,3 +12,4 @@ Schema
     schema-token
     schema-batch
     schema-lab
+    schema-report
