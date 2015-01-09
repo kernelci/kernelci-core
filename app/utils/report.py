@@ -51,10 +51,13 @@ def create_boot_report(job, kernel, db_options=None):
     :type kernel: str
     :param db_options: The mongodb database connection parameters.
     :type db_options: dict
-    :return A tuple with the email body and subject as strings.
+    :return A tuple with the email body and subject as strings or None.
     """
     if db_options is None or not isinstance(db_options, types.DictionaryType):
         db_options = {}
+
+    email_body = None
+    subject = None
 
     database = utils.db.get_db_connection(db_options)
 
