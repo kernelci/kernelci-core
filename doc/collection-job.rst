@@ -38,7 +38,7 @@ GET
  :query string name: The name of the job report.
  :query string status: The status of the job report.
 
- :status 200: Resuslts found.
+ :status 200: Results found.
  :status 403: Not authorized to perform the operation.
  :status 404: The provided resource has not been found.
  :status 500: Internal database error.
@@ -140,8 +140,15 @@ POST
 
  Create or update a job as defined in the JSON data. The request will be accepted and it will begin to parse the data.
 
+ For more info on all the required JSON request fields, see the :ref:`job schema for POST requests <schema_job_post>`.
+
  :reqjson string job: The name of the job.
  :reqjson string kernel: The name of the kernel.
+ :reqjson boolean boot_report: If the boot report should be created and sent. Default to 0 (false).
+ :reqjson boolean build_report: If the build report should be created and sent. Default to 0 (false).
+ :reqjson send_to: A string or an array of strings of email addresses where to send the reports.
+ :reqjson boot_send_to: A string or an array of strings of email addresses where to send only the boot report.
+ :reqjson build_send_to: A string or an array of strings of email addresses where to send only the build report.
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Content-Type: Content type of the transmitted data, must be ``application/json``.
@@ -167,7 +174,9 @@ POST
 
     {
         "job": "next",
-        "kernel": "next-20140801"
+        "kernel": "next-20140801",
+        "boot_report": 1,
+        "send_to": ["list@example.net"]
     }
 
 DELETE
