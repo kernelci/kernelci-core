@@ -97,6 +97,21 @@ def find_one(collection,
     return result
 
 
+def find_one2(collection, spec_or_id, fields=None):
+    """Search for a single document.
+
+    This is different from `find_one` in that it accepts a more generic `spec`
+    data structure instead of creating one on the fly.
+
+    :param collection: The collection where to search.
+    :param spec_or_id: A `spec` data structure or the document id.
+    :param fields: The fiels that should be available or excluded from the
+    result.
+    :return None or the search result as a dictionary.
+    """
+    return collection.find_one(spec_or_id, fields=fields)
+
+
 def find(collection, limit, skip, spec=None, fields=None, sort=None):
     """Find documents in a collection with optional specified values.
 
