@@ -72,7 +72,7 @@ def save_report(job, kernel, r_type, status, errors, db_options):
     database = utils.db.get_db_connection(db_options)
 
     prev_doc = utils.db.find_one2(
-        database[models.REPORT_COLLECTION], spec=spec)
+        database[models.REPORT_COLLECTION], spec_or_id=spec)
 
     if prev_doc:
         report = mreport.ReportDocument.from_json(prev_doc)
