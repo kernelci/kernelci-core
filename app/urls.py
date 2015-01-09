@@ -31,37 +31,37 @@ import handlers.version
 
 
 _JOB_URL = url(
-    r'/job(?P<sl>/)?(?P<id>.*)', handlers.job.JobHandler, name='job'
+    r'/job[s]?(?P<sl>/)?(?P<id>.*)', handlers.job.JobHandler, name='job'
 )
 _DEFCONF_URL = url(
-    r'/defconfig(?P<sl>/)?(?P<id>.*)',
+    r'/defconfig[s]?(?P<sl>/)?(?P<id>.*)',
     handlers.defconf.DefConfHandler,
     name='defconf'
 )
 _SUBSCRIPTION_URL = url(
-    r'/subscription(?P<sl>/)?(?P<id>.*)',
+    r'/subscription[s]?(?P<sl>/)?(?P<id>.*)',
     handlers.subscription.SubscriptionHandler,
     name='subscription',
 )
 _BOOT_URL = url(
-    r'/boot(?P<sl>/)?(?P<id>.*)', handlers.boot.BootHandler, name='boot'
+    r'/boot[s]?(?P<sl>/)?(?P<id>.*)', handlers.boot.BootHandler, name='boot'
 )
 _COUNT_URL = url(
-    r'/count(?P<sl>/)?(?P<id>.*)', handlers.count.CountHandler, name='count'
+    r'/count[s]?(?P<sl>/)?(?P<id>.*)', handlers.count.CountHandler, name='count'
 )
 _TOKEN_URL = url(
-    r'/token(?P<sl>/)?(?P<id>.*)', handlers.token.TokenHandler, name='token'
+    r'/token[s]?(?P<sl>/)?(?P<id>.*)', handlers.token.TokenHandler, name='token'
 )
 _BATCH_URL = url(
     r'/batch', handlers.batch.BatchHandler, name='batch'
 )
 _BISECT_URL = url(
-    r"/bisect/(?P<collection>.*)/(?P<id>.*)",
+    r"/bisect[s]?/(?P<collection>.*)/(?P<id>.*)",
     handlers.bisect.BisectHandler,
     name="bisect"
 )
 _LAB_URL = url(
-    r"/lab(?P<sl>/)?(?P<id>.*)", handlers.lab.LabHandler, name="lab"
+    r"/lab[s]?(?P<sl>/)?(?P<id>.*)", handlers.lab.LabHandler, name="lab"
 )
 _VERSION_URL = url(
     r"/version", handlers.version.VersionHandler, name="version"
