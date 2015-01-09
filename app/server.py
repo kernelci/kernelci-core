@@ -64,6 +64,19 @@ define(
     "unixsocket", default=False, type=bool,
     help="If unix socket should be used"
 )
+define(
+    "smtp_host", default='', type=str, help="The SMTP host to connect to")
+define("smtp_user", default='', type=str, help="SMTP connection user")
+define("smtp_password", default='', type=str, help="SMTP connection password")
+define(
+    "smtp_port", default=587, type=int,
+    help="The SMTP connection port, default to 587")
+define("smtp_sender", default='', type=str, help="The sender email address")
+define(
+    "send_delay", default=60*60+5, type=int,
+    help="The delay in sending the report emails, "
+         "default to 1 hour and 5 seconds"
+)
 
 
 class KernelCiBackend(Application):
@@ -83,6 +96,14 @@ class KernelCiBackend(Application):
             'dbpool': options.dbpool
         }
 
+        mail_options = {
+            "host": options.smtp_host,
+            "user": options.smtp_user,
+            "password": options.smtp_password,
+            "port": options.smtp_port,
+            "sender": options.smtp_sender
+        }
+
         if self.mongodb_client is None:
             self.mongodb_client = pymongo.MongoClient(
                 host=options.dbhost,
@@ -93,12 +114,14 @@ class KernelCiBackend(Application):
         settings = {
             'client': self.mongodb_client,
             'dboptions': db_options,
+            "mailoptions": mail_options,
             'default_handler_class': AppHandler,
             'executor': ThreadPoolExecutor(max_workers=options.max_workers),
             'gzip': options.gzip,
             'debug': options.debug,
             'master_key': options.master_key,
             'autoreload': options.autoreload,
+            "senddelay": options.send_delay
         }
 
         ensure_indexes(self.mongodb_client, db_options)
