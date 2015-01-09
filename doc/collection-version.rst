@@ -16,7 +16,7 @@ GET
 
  .. note::
 
-    This collection does not require authentication.
+    This resource does not require authentication.
 
  **Example Requests**
 

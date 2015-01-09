@@ -24,7 +24,7 @@ A batch request object.
                 },
                 "collection": {
                     "type": "string",
-                    "description": "The collection where to perform the operation"
+                    "description": "The resource where to perform the operation"
                 },
                 "document_id": {
                     "type": "string",
@@ -32,7 +32,7 @@ A batch request object.
                 },
                 "query": {
                     "type": "string",
-                    "description": "A key=value pairs, separated by the ampersand character, that define the query to perform on the collection"
+                    "description": "A key=value pairs, separated by the ampersand character, that define the query to perform on the resource"
                 }
             }
         }

@@ -1,7 +1,11 @@
 .. _collections:
 
-Collections
-===========
+Resources
+=========
+
+.. note::
+
+    Some of the follwing resources can be accessed also using their pluarl form. For more info refer to each resource documentation.
 
 .. toctree::
     :maxdepth: 2

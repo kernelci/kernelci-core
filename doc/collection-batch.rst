@@ -3,7 +3,7 @@
 batch
 -----
 
-This is not a real collection. It is instead used to perform a series of operations in batch: if you have more than one request to perform, instead of
+This is not a real resource. It is instead used to perform a series of operations in batch: if you have more than one request to perform, instead of
 sending each request on its own, send a single batch operation request
 specifying all your requests.
 
@@ -12,7 +12,7 @@ It works by receiving a ``POST`` request with the operations to perform.
 .. note::
 
     At the moment the batch operator can perform only GET operations on
-    the available collections.
+    the available resources.
 
 GET
 ***
@@ -33,14 +33,14 @@ POST
  :reqjsonarr string method: The method of the request. Only ``GET`` is
     supported.
  :reqjsonarr string operation_id: An identification for this request opearation.
- :reqjsonarr string collection: On which collection the request should be
+ :reqjsonarr string resource: On which resource the request should be
     performed.
- :reqjsonarr string document_id: The ID of a document in the collection. For
-    the ``count`` collection, this is used to identify on which collection to
+ :reqjsonarr string document_id: The ID of a document in the resource. For
+    the ``count`` resource, this is used to identify on which resource to
     perform the count.
  :reqjsonarr string query: The query to perform as a series of ``key=value``
     pairs separated by the ampersand ("&") character. The keys must be
-    the same specified in each collections query parameters.
+    the same specified in each resources query parameters.
  :resjsonarr int code: The HTTP code of the response.
  :resjsonarr array result: The list of result objects for each operation in the
     batch. If the ``operation_id`` parameter was specified, it will be included
@@ -104,7 +104,7 @@ POST
                 "result": [
                     {
                         "count": 5,
-                        "collection": "boot"
+                        "resource": "boot"
                     }
                 ]
             },

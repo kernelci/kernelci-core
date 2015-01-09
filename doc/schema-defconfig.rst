@@ -175,7 +175,7 @@ POST
 The following schema covers the data that should be available in a build JSON
 data file sent to the server.
 
-The ``defconfig`` collection does not support POST requests. This schema is
+The ``defconfig`` resource does not support POST requests. This schema is
 placed here as a reference document in order to provide correct data to the
 server.
 
@@ -321,6 +321,6 @@ Notes
 More Info
 *********
 
-* :ref:`Defconfig collection <collection_defconfig>`
+* :ref:`Defconfig resource <collection_defconfig>`
 * :ref:`API results <intro_schema_results>`
 * :ref:`Schema time and date <intro_schema_time_date>`

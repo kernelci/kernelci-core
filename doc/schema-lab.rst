@@ -5,7 +5,7 @@ lab
 
 The ``name`` of the lab mut be a unique value among all the registered labs. Use
 a short but descriptive name to identify the lab, since this value will be used
-to perform POST request :ref:`on the boot collection <collection_boot_post>`.
+to perform POST request :ref:`on the boot resource <collection_boot_post>`.
 
 As a rule of thumbs for creating a lab ``name``:
 
@@ -240,7 +240,7 @@ POST
 More Info
 *********
 
-* :ref:`Lab collection <collection_lab>`
+* :ref:`Lab resource <collection_lab>`
 * :ref:`Defconfig schema <schema_defconfig>`
 * :ref:`API results <intro_schema_results>`
 * :ref:`Schema time and date <intro_schema_time_date>`

@@ -145,6 +145,6 @@ Notes
 More Info
 *********
 
-* :ref:`Job collection <collection_job>`
+* :ref:`Job resource <collection_job>`
 * :ref:`API results <intro_schema_results>`
 * :ref:`Schema time and date <intro_schema_time_date>`

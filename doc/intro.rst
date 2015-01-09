@@ -82,7 +82,7 @@ API access is exclusively over HTTPS and accessed via the
 
 Data is sent and received **only** in JSON format.
 
-For more info about the collections schema, refer to their :ref:`schema declaration <schema>`.
+For more info about the resources schema, refer to their :ref:`schema declaration <schema>`.
 
 .. _intro_schema_results:
 
@@ -139,7 +139,7 @@ The syntax to define a ranged search is as follows:
 
 ``field`` and ``value`` are separated by a comma (``,``).
 
-The following example will search the ``boot`` collection for boot reports whose
+The following example will search the ``boot`` resource for boot reports whose
 ``retries`` value is between ``2`` and ``4``:
 
 .. sourcecode:: http

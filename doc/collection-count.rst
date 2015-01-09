@@ -4,13 +4,13 @@ count
 GET
 ***
 
-.. http:get:: /count/(string:collection)
+.. http:get:: /count/(string:resource)
 
- Count the elements in all collections or in the provided ``collection``.
+ Count the elements in all resources or in the provided ``resource``.
 
- :param collection: The name of the collection to get the count of.
+ :param resource: The name of the resource to get the count of.
     Can be one of ``boot``, ``defconfig``, ``job``.
- :type collection: string
+ :type resource: string
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Accept-Encoding: Accept the ``gzip`` coding.
@@ -46,9 +46,9 @@ GET
 
  .. note::
 
-    Not all the query parameters are valid for each collection. Please refer
-    to the GET method :ref:`documentation <collections>` of the collection to know which parameters
-    can be used.
+    Not all the query parameters are valid for each resource. Please refer
+    to the GET method :ref:`documentation <collections>` of the resource to
+    know which parameters can be used.
 
  **Example Requests**
 
