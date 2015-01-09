@@ -17,3 +17,4 @@ Resources
     collection-batch
     collection-lab
     collection-version
+    collection-report
