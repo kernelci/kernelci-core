@@ -126,6 +126,8 @@ class ReportDocument(modb.BaseDocument):
             report_doc = ReportDocument(
                 j_pop(models.NAME_KEY), version=j_pop(models.VERSION_KEY))
 
+            report_doc.r_type = j_pop(models.TYPE_KEY)
+
             for key, val in local_obj.iteritems():
                 setattr(report_doc, key, val)
 
