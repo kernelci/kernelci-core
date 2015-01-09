@@ -13,12 +13,12 @@
 
 """Create and send email reports."""
 
-import pymongo
-import types
 import io
 import itertools
+import pymongo
 
 import models
+import models.report as mreport
 import utils
 import utils.db
 
@@ -41,8 +41,58 @@ BOOT_SEARCH_SORT = [
 ]
 
 
+# pylint: disable=too-many-arguments
+def save_report(job, kernel, r_type, status, errors, db_options):
+    """Save the report in the database.
+
+    :param job: The job name.
+    :type job: str
+    :param kernel: The kernel name.
+    :type kernel: str
+    :param r_type: The type of report to save.
+    :type r_type: str
+    :param status: The status of the send action.
+    :type status: str
+    :param errors: A list of errors from the send action.
+    :type errors: list
+    :param db_options: The mongodb database connection parameters.
+    :type db_options: dict
+    """
+    utils.LOG.info("Saving '%s' report for '%s-%s'", r_type, job, kernel)
+
+    name = "%s-%s" % (job, kernel)
+
+    spec = {
+        models.JOB_KEY: job,
+        models.KERNEL_KEY: kernel,
+        models.NAME_KEY: name,
+        models.TYPE_KEY: r_type
+    }
+
+    database = utils.db.get_db_connection(db_options)
+
+    prev_doc = utils.db.find_one2(
+        database[models.REPORT_COLLECTION], spec=spec)
+
+    if prev_doc:
+        report = mreport.ReportDocument.from_json(prev_doc)
+        report.status = status
+        report.errors = errors
+
+        utils.db.save(database, report)
+    else:
+        report = mreport.ReportDocument(name)
+        report.job = job
+        report.kernel = kernel
+        report.r_type = r_type
+        report.status = status
+        report.errors = errors
+
+        utils.db.save(database, report, manipulate=True)
+
+
 # pylint: disable=too-many-locals
-def create_boot_report(job, kernel, db_options=None):
+def create_boot_report(job, kernel, db_options):
     """Create the boot report email to be sent.
 
     :param job: The name of the job.
@@ -53,9 +103,6 @@ def create_boot_report(job, kernel, db_options=None):
     :type db_options: dict
     :return A tuple with the email body and subject as strings or None.
     """
-    if db_options is None or not isinstance(db_options, types.DictionaryType):
-        db_options = {}
-
     email_body = None
     subject = None
 
