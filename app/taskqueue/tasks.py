@@ -1,5 +1,3 @@
-# Copyright (C) 2014 Linaro Ltd.
-#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
@@ -18,12 +16,17 @@
 from __future__ import absolute_import
 
 import celery
+import types
 
+import models
 import taskqueue.celery as taskc
+import utils
 import utils.batch.common
 import utils.bisect
 import utils.bootimport
 import utils.docimport
+import utils.emails
+import utils.report
 
 
 @taskc.app.task(name='send-emails', ignore_result=True)
@@ -113,6 +116,54 @@ def defconfig_bisect(doc_id, db_options, fields=None):
     :return The result of the boot bisect operation.
     """
     return utils.bisect.execute_defconfig_bisection(doc_id, db_options, fields)
+
+
+@taskc.app.task(name="schedule-boot-report")
+def schedule_boot_report(json_obj, db_options, mail_options, countdown):
+    j_get = json_obj.get
+    to_addrs = []
+
+    job = j_get(models.JOB_KEY)
+    kernel = j_get(models.KERNEL_KEY)
+
+    boot_emails = j_get(models.BOOT_REPORT_SEND_TO_KEY, None)
+    generic_emails = j_get(models.REPORT_SEND_TO_KEY, None)
+
+    if boot_emails is not None:
+        if isinstance(boot_emails, types.ListType):
+            to_addrs.extend(boot_emails)
+        elif isinstance(boot_emails, types.StringTypes):
+            to_addrs.append(boot_emails)
+
+    if generic_emails is not None:
+        if isinstance(generic_emails, types.ListType):
+            to_addrs.extend(generic_emails)
+        elif isinstance(generic_emails, types.StringTypes):
+            to_addrs.append(generic_emails)
+
+    if to_addrs:
+        send_boot_report.apply_async(
+            [job, kernel, to_addrs, db_options, mail_options],
+            countdown=countdown)
+    else:
+        utils.LOG.warn(
+            "No email addresses specified for '%s-%s': boot report "
+            "cannot be sent", job, kernel)
+
+
+@taskc.app.task(name="send-boot-report")
+def send_boot_report(job, kernel, to_addrs, db_options, mail_options):
+    utils.LOG.info("Preparing boot report email for '%s-%s'", job, kernel)
+
+    body, subject = utils.report.create_boot_report(
+        job, kernel, db_options=db_options)
+
+    if all([body is not None, subject is not None]):
+        utils.LOG.info("Sending boot report email for '%s-%s'", job, kernel)
+        status, errors = utils.emails.send_email(
+            to_addrs, subject, body, mail_options)
+        utils.report.save_report(
+            job, kernel, models.BOOT_REPORT, status, errors, db_options)
 
 
 def run_batch_group(batch_op_list, db_options):
