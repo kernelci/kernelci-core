@@ -54,8 +54,12 @@ class TestJobHandler(
             'dbuser': ""
         }
 
+        mailoptions = {}
+
         settings = {
             'dboptions': dboptions,
+            'mailoptions': mailoptions,
+            'senddelay': 5,
             'client': self.mongodb_client,
             'executor': concurrent.futures.ThreadPoolExecutor(max_workers=2),
             'default_handler_class': handlers.app.AppHandler,
@@ -190,8 +194,10 @@ class TestJobHandler(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
     @mock.patch('handlers.job.import_job')
-    def test_post_correct(self, mock_import_job):
+    @mock.patch('handlers.job.schedule_boot_report')
+    def test_post_correct(self, mock_import_job, mock_schedule):
         mock_import_job.apply_async = mock.MagicMock()
+        mock_schedule.apply_async = mock.MagicMock()
 
         headers = {
             'Authorization': 'foo',
