@@ -23,7 +23,10 @@ import handlers.response as hresponse
 import models
 import utils.db
 
-from taskqueue.tasks import import_job
+from taskqueue.tasks import (
+    import_job,
+    schedule_boot_report
+)
 
 
 class JobHandler(hbase.BaseHandler):
@@ -45,7 +48,14 @@ class JobHandler(hbase.BaseHandler):
         response.reason = "Request accepted and being imported"
         response.result = None
 
-        import_job.apply_async([kwargs['json_obj'], kwargs['db_options']])
+        json_obj = kwargs["json_obj"]
+        db_options = kwargs["db_options"]
+        mail_options = self.settings["mailoptions"]
+        countdown = self.settings["senddelay"]
+
+        import_job.apply_async([json_obj, db_options])
+        schedule_boot_report.apply_async(
+            [json_obj, db_options, mail_options, countdown])
 
         return response
 
