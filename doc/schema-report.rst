@@ -58,7 +58,7 @@ GET
             },
             "kernel": {
                 "type": "string",
-                "decsription": "The kernel name associated with the object"
+                "description": "The kernel name associated with the object"
             },
             "type": {
                 "type": "string",

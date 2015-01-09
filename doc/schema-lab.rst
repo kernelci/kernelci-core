@@ -79,7 +79,7 @@ GET
                     },
                     "telephone": {
                         "type": "string",
-                        "description": "The landline phone number"   
+                        "description": "The land-line phone number"
                     },
                     "mobile": {
                         "type": "string",
@@ -177,7 +177,7 @@ POST
                     },
                     "telephone": {
                         "type": "string",
-                        "description": "The landline phone number"   
+                        "description": "The land-line phone number"
                     },
                     "mobile": {
                         "type": "string",

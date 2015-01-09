@@ -298,11 +298,11 @@ have when sent to the server.
             },
             "boot_log": {
                 "type": "string",
-                "description": "The name of the boot log file in txt format"
+                "description": "The name of the boot log file in text format"
             },
             "boot_log_html": {
                 "type": "string",
-                "description": "The name of the boot log file in html format"
+                "description": "The name of the boot log file in HTML format"
             },
             "boot_time": {
                 "type": "number",

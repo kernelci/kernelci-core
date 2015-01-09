@@ -131,7 +131,7 @@ The following schema covers the data that is available with a GET request.
             },
             "build_log": {
                 "type": "string",
-                "description": "Name of the build log file in txt format"
+                "description": "Name of the build log file in text format"
             },
             "text_offset": {
                 "type": "string"
@@ -250,7 +250,7 @@ server.
             },
             "build_log": {
                 "type": "string",
-                "description": "Name of the build log file in txt format"
+                "description": "Name of the build log file in text format"
             },
             "build_platform": {
                 "type": "array",

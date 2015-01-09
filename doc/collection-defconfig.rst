@@ -45,7 +45,7 @@ GET
  :query string git_commit: The git commit SHA.
  :query string git_describe: The git describe value.
 
- :status 200: Resuslts found.
+ :status 200: Results found.
  :status 403: Not authorized to perform the operation.
  :status 404: The provided resource has not been found.
  :status 500: Internal database error.

@@ -25,7 +25,7 @@ GET
     parameter passed. Default -1.
  :query int date_range: Number of days to consider, starting from today
     (:ref:`more info <intro_schema_time_date>`). By default consider all results.
- :query string arch: A type of computer architetcture (like ``arm``, ``arm64``).
+ :query string arch: A type of computer architecture (like ``arm``, ``arm64``).
  :query string board: The name of a board.
  :query string created_on: The creation date: accepted formats are ``YYYY-MM-DD`` and ``YYYYMMDD``.
  :query string defconfig: A defconfig name.
@@ -39,7 +39,7 @@ GET
     one of: ``PASS`` or ``FAIL``.
  :query int warnings: The number of warnings.
 
- :status 200: Resuslts found.
+ :status 200: Results found.
  :status 403: Not authorized to perform the operation.
  :status 404: The provided resource has not been found.
  :status 500: Internal database error.

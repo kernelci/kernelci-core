@@ -36,7 +36,7 @@ GET
  :query boolean private: If the lab is private or not.
  :query string token: The token ID associated with the lab.
 
- :status 200: Resuslts found.
+ :status 200: Results found.
  :status 403: Not authorized to perform the operation.
  :status 404: The provided resource has not been found.
  :status 500: Internal database error.
