@@ -196,7 +196,7 @@ def _parse_results(results, get_unique=False):
     `defconfig_full` keys.
 
     :param results: The results to parse.
-    :type results: list
+    :type results: `pymongo.cursor.Cursor` or a list of dict
     :param get_unique: Return the unique values in the data structure. Default
     to False.
     :type get_unique: bool
