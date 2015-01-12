@@ -3,6 +3,12 @@
 boot
 ----
 
+More info about the boot schema can be found :ref:`here <schema_boot>`.
+
+.. note::
+
+    This resource can also be accessed using the plural form ``boots``.
+
 GET
 ***
 

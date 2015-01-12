@@ -3,6 +3,12 @@
 defconfig
 ---------
 
+More info about the defconfig schema can be found :ref:`here <schema_defconfig>`.
+
+.. note::
+
+    This resource can also be accessed using the plural form ``defconfigs``.
+
 GET
 ***
 

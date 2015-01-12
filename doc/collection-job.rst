@@ -5,6 +5,10 @@ job
 
 More info about the job schema can be found :ref:`here <schema_job>`.
 
+.. note::
+
+    This resource can also be accessed using the plural form ``jobs``.
+
 GET
 ***
 

@@ -3,6 +3,12 @@
 lab
 ---
 
+More info about the lab schema can be found :ref:`here <schema_lab>`.
+
+.. note::
+
+    This resource can also be accessed using the plural form ``labs``.
+
 GET
 ***
 
