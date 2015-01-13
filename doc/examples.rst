@@ -49,7 +49,7 @@ Boot reports examples
 
     """Get all failed boot reports of a job.
 
-    The results will include the'job', 'kernel' and 'board' fields. By default
+    The results will include the 'job', 'kernel' and 'board' fields. By default
     they will contain also the '_id' field.
     """
 
@@ -281,4 +281,53 @@ Sending a boot report
         print response.content
 
     if __name__ == '__main__':
+        main()
+
+
+Triggering boot email report
+----------------------------
+
+.. note::
+
+    At this stage, the boot report email can only be triggered when the job/build
+    is being imported. By default, the report will be sent 1 hour after the job/build
+    has been imported.
+
+::
+
+    #!/usr/bin/env python
+
+    """Trigger job/build import and boot email report."""
+
+    try:
+        import simplejson as json
+    except ImportError:
+        import json
+
+    import requests
+
+    from urlparse import urljoin
+
+    BACKEND_URL = 'http://api.kernelci.org'
+    AUTHORIZATION_TOKEN = 'foo'
+
+
+    def main():
+        headers = {
+            'Authorization': AUTHORIZATION_TOKEN
+        }
+
+        payload = {
+            'job': 'next',
+            'kernel': 'next-20150105',
+            'boot_report': 1,
+            'boot_send_to': ["email1@example.org", "email2@example.org"]
+        }
+
+        url = urljoin(BACKEND_URL, '/job')
+        response = requests.post(url, data=json.dumps(payload), headers=headers)
+
+        print response.content
+
+    if __name__ == "__main__":
         main()
