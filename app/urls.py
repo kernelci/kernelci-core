@@ -27,6 +27,7 @@ import handlers.lab
 import handlers.report
 import handlers.subscription
 import handlers.token
+import handlers.upload
 import handlers.version
 
 
@@ -71,6 +72,11 @@ _REPORT_URL = url(
     handlers.report.ReportHandler,
     name="response"
 )
+_UPLOAD_URL = url(
+    r"/upload(?P<sl>/)?(?P<path>.*)",
+    handlers.upload.UploadHandler,
+    name="upload"
+)
 
 APP_URLS = [
     _BATCH_URL,
@@ -84,4 +90,5 @@ APP_URLS = [
     _TOKEN_URL,
     _VERSION_URL,
     _REPORT_URL,
+    _UPLOAD_URL
 ]

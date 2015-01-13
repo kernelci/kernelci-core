@@ -170,6 +170,7 @@ TOKEN_COLLECTION = "api-token"
 BISECT_COLLECTION = "bisect"
 LAB_COLLECTION = "lab"
 REPORT_COLLECTION = "report"
+UPLOAD_COLLECTION = "upload"
 
 # Report types.
 BUILD_REPORT = "build"
