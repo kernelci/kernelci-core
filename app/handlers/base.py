@@ -174,6 +174,41 @@ class BaseHandler(tornado.web.RequestHandler):
         return valid_content
 
     @tornado.web.asynchronous
+    def put(self, *args, **kwargs):
+        self.executor.submit(
+            functools.partial(self.execute_post, *args, **kwargs)
+        ).add_done_callback(
+            lambda future: tornado.ioloop.IOLoop.instance().add_callback(
+                functools.partial(self._create_valid_response, future.result())
+            )
+        )
+
+    def execute_put(self, *args, **kwargs):
+        """Execute the PUT pre-operations."""
+        response = None
+
+        if self.validate_req_token("PUT"):
+            self._put(*args, **kwargs)
+        else:
+            response = hresponse.HandlerResponse(403)
+            response.reason = hcommon.NOT_VALID_TOKEN
+
+        return response
+
+    def _put(self, *args, **kwargs):
+        """Placeholder method - used internally.
+
+        This is called by the actual method that implements PUT request.
+        Subclasses should provide their own implementation.
+
+        It must return a `HandlerResponse` object with the appropriate status
+        code and if necessary its custom message.
+
+        :return A `HandlerResponse` object.
+        """
+        return hresponse.HandlerResponse(501)
+
+    @tornado.web.asynchronous
     def post(self, *args, **kwargs):
         self.executor.submit(
             functools.partial(self.execute_post, *args, **kwargs)
