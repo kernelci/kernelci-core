@@ -227,7 +227,7 @@ class BaseHandler(tornado.web.RequestHandler):
                     "%s: %s" %
                     (
                         self._get_status_message(valid_request),
-                        "Use %s as content type" % self.content_type
+                        "Use %s as the content type" % self.content_type
                     )
                 )
                 response.result = None
@@ -307,7 +307,7 @@ class BaseHandler(tornado.web.RequestHandler):
         It must return a `HandlerResponse` object with the appropriate status
         code and if necessary its custom message.
 
-        :param doc_id: The ID of the documento to delete.
+        :param doc_id: The ID of the document to delete.
         :return A `HandlerResponse` object.
         """
         return hresponse.HandlerResponse(501)
@@ -345,7 +345,7 @@ class BaseHandler(tornado.web.RequestHandler):
     def _get_one(self, doc_id):
         """Get just one single document from the collection.
 
-        Sublcasses should override this method and implement their own
+        Subclasses should override this method and implement their own
         search functionalities. This is a general one.
         It should return a `HandlerResponse` object, with the `result`
         attribute set with the operation results.
@@ -383,7 +383,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
         The returned results can be tweaked with the supported query arguments.
 
-        Sublcasses should override this method and implement their own
+        Subclasses should override this method and implement their own
         search functionalities. This is a general one.
         It should return a `HandlerResponse` object, with the `result`
         attribute set with the operation results.
