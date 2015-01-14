@@ -17,16 +17,15 @@
 
 from __future__ import absolute_import
 
+import celery
 import os
-
-from celery import Celery
 
 import taskqueue.celeryconfig as celeryconfig
 
 
 TASKS_LIST = ["taskqueue.tasks"]
 
-app = Celery(
+app = celery.Celery(
     "tasks",
     include=TASKS_LIST
 )
