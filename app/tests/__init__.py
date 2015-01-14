@@ -30,6 +30,7 @@ def test_modules():
         'handlers.tests.test_job_handler',
         'handlers.tests.test_lab_handler',
         'handlers.tests.test_report_handler',
+        'handlers.tests.test_send_handler',
         'handlers.tests.test_token_handler',
         'handlers.tests.test_version_handler',
         'models.tests.test_bisect_model',
