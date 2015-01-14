@@ -13,10 +13,9 @@
 
 """Handler for the /lab URLs."""
 
-from urlparse import urlunparse
-
-import datetime
 import bson
+import datetime
+import urlparse
 
 import handlers.base
 import handlers.common
@@ -288,7 +287,7 @@ class LabHandler(handlers.base.BaseHandler):
                     models.NAME_KEY: lab_doc.name,
                     models.TOKEN_KEY: token.token
                 }
-                location = urlunparse(
+                location = urlparse.urlunparse(
                     (
                         'http',
                         self.request.headers.get('Host'),
