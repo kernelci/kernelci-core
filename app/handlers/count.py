@@ -15,30 +15,21 @@
 
 """Handle the /count URLs used to count objects in the database."""
 
-from tornado.web import asynchronous
+import tornado.web
 
-from handlers.base import BaseHandler
-from handlers.common import (
-    COLLECTIONS,
-    COUNT_VALID_KEYS,
-    update_id_fields,
-    get_and_add_date_range,
-    get_query_spec,
-)
-from handlers.response import HandlerResponse
-from models import ID_KEY
-from utils.db import (
-    count,
-    find_and_count,
-)
+import handlers.base as hbase
+import handlers.common as hcommon
+import handlers.response as hresponse
+import models
+import utils.db
 
 # Internally used only. It is used to retrieve just one field for
 # the query results since we only need to count the results, we are
 # not interested in the values.
-COUNT_FIELDS = {ID_KEY: True}
+COUNT_FIELDS = {models.ID_KEY: True}
 
 
-class CountHandler(BaseHandler):
+class CountHandler(hbase.BaseHandler):
     """Handle the /count URLs."""
 
     def __init__(self, application, request, **kwargs):
@@ -46,14 +37,14 @@ class CountHandler(BaseHandler):
 
     @staticmethod
     def _valid_keys(method):
-        return COUNT_VALID_KEYS.get(method, None)
+        return hcommon.COUNT_VALID_KEYS.get(method, None)
 
     def _get_one(self, collection):
-        response = HandlerResponse()
+        response = hresponse.HandlerResponse()
 
-        if collection in COLLECTIONS.keys():
+        if collection in hcommon.COLLECTIONS.keys():
             response.result = count_one_collection(
-                self.db[COLLECTIONS[collection]],
+                self.db[hcommon.COLLECTIONS[collection]],
                 collection,
                 self.get_query_arguments,
                 self._valid_keys("GET")
@@ -66,7 +57,7 @@ class CountHandler(BaseHandler):
         return response
 
     def _get(self, **kwargs):
-        response = HandlerResponse()
+        response = hresponse.HandlerResponse()
         response.result = count_all_collections(
             self.db,
             self.get_query_arguments,
@@ -75,12 +66,12 @@ class CountHandler(BaseHandler):
 
         return response
 
-    @asynchronous
+    @tornado.web.asynchronous
     def post(self, *args, **kwargs):
         """Not implemented."""
         self.write_error(status_code=501)
 
-    @asynchronous
+    @tornado.web.asynchronous
     def delete(self, *args, **kwargs):
         """Not implemented."""
         self.write_error(status_code=501)
@@ -103,12 +94,12 @@ def count_one_collection(
     optionally the `fields` fields.
     """
     result = []
-    spec = get_query_spec(query_args_func, valid_keys)
-    get_and_add_date_range(spec, query_args_func)
-    update_id_fields(spec)
+    spec = hcommon.get_query_spec(query_args_func, valid_keys)
+    hcommon.get_and_add_date_range(spec, query_args_func)
+    hcommon.update_id_fields(spec)
 
     if spec:
-        _, number = find_and_count(
+        _, number = utils.db.find_and_count(
             collection, 0, 0, spec, COUNT_FIELDS
         )
         if not number:
@@ -121,7 +112,7 @@ def count_one_collection(
         result.append(
             dict(
                 collection=collection_name,
-                count=count(collection)
+                count=utils.db.count(collection)
             )
         )
 
@@ -143,20 +134,25 @@ def count_all_collections(database, query_args_func, valid_keys):
     """
     result = []
 
-    spec = get_query_spec(query_args_func, valid_keys)
-    get_and_add_date_range(spec, query_args_func)
-    update_id_fields(spec)
+    spec = hcommon.get_query_spec(query_args_func, valid_keys)
+    hcommon.get_and_add_date_range(spec, query_args_func)
+    hcommon.update_id_fields(spec)
 
     if spec:
-        for key, val in COLLECTIONS.iteritems():
-            _, number = find_and_count(
+        for key, val in hcommon.COLLECTIONS.iteritems():
+            _, number = utils.db.find_and_count(
                 database[val], 0, 0, spec, COUNT_FIELDS
             )
             if not number:
                 number = 0
             result.append(dict(collection=key, count=number))
     else:
-        for key, val in COLLECTIONS.iteritems():
-            result.append(dict(collection=key, count=count(database[val])))
+        for key, val in hcommon.COLLECTIONS.iteritems():
+            result.append(
+                dict(
+                    collection=key,
+                    count=utils.db.count(database[val])
+                )
+            )
 
     return result
