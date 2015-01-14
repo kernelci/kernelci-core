@@ -85,6 +85,9 @@ class JobHandler(hbase.BaseHandler):
                 response.status_code = 404
                 response.reason = self._get_status_message(404)
         except bson.errors.InvalidId, ex:
-            raise ex
+            self.log.exception(ex)
+            self.log.error("Invalid ID specified: %s", job_id)
+            response.status_code = 400
+            response.reason = "Wrong ID specified"
 
         return response
