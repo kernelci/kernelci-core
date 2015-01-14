@@ -15,16 +15,14 @@
 
 """The RequestHandler for /defconfig URLs."""
 
-from tornado.web import asynchronous
-
-from handlers.base import BaseHandler
-from handlers.common import DEFCONFIG_VALID_KEYS
-from handlers.response import HandlerResponse
-from models import DEFCONFIG_COLLECTION
-from utils.db import delete
+import handlers.base as hbase
+import handlers.common as hcommon
+import handlers.response as hresponse
+import models
+import utils.db
 
 
-class DefConfHandler(BaseHandler):
+class DefConfHandler(hbase.BaseHandler):
     """Handle the /defconfig URLs."""
 
     def __init__(self, application, request, **kwargs):
@@ -32,22 +30,32 @@ class DefConfHandler(BaseHandler):
 
     @property
     def collection(self):
-        return self.db[DEFCONFIG_COLLECTION]
+        return self.db[models.DEFCONFIG_COLLECTION]
 
     @staticmethod
     def _valid_keys(method):
-        return DEFCONFIG_VALID_KEYS.get(method, None)
+        return hcommon.DEFCONFIG_VALID_KEYS.get(method, None)
 
-    @asynchronous
-    def post(self, *args, **kwargs):
-        """Not implemented."""
-        self.write_error(501)
+    def execute_post(self, *args, **kwargs):
+        """Execute the POST pre-operations.
+
+        Checks that everything is OK to perform a POST.
+        """
+        response = None
+
+        if self.validate_req_token("POST"):
+            response = hresponse.HandlerResponse(501)
+        else:
+            response = hresponse.HandlerResponse(403)
+            response.reason = hcommon.NOT_VALID_TOKEN
+
+        return response
 
     def _delete(self, defconf_id):
-        response = HandlerResponse()
+        response = hresponse.HandlerResponse()
         response.result = None
 
-        response.status_code = delete(self.collection, defconf_id)
+        response.status_code = utils.db.delete(self.collection, defconf_id)
         if response.status_code == 200:
             response.reason = "Resource '%s' deleted" % defconf_id
 
