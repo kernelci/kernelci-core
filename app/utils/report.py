@@ -177,8 +177,14 @@ def create_boot_report(job, kernel, db_options):
                     conflicting_tuples[0], conflicting_tuples[1])
                 conflict_data, _ = _parse_results(conflicts)
 
-    email_body, subject = _create_boot_email(
-        job, kernel, failed_data, fail_count, total_count, conflict_data)
+        email_body, subject = _create_boot_email(
+            job, kernel, failed_data, fail_count, total_count, conflict_data)
+    elif fail_count == 0 and total_count > 0:
+        email_body, subject = _create_boot_email(
+            job, kernel, failed_data, fail_count, total_count, conflict_data)
+    elif fail_count == 0 and total_count == 0:
+        utils.LOG.warn(
+            "Nothing found for '%s-%s': no email report sent", job, kernel)
 
     return email_body, subject
 
