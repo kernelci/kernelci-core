@@ -105,7 +105,8 @@ class UploadHandler(hbase.BaseHandler):
                         response.reason = ex.log_message
 
                 if path and utils.upload.is_valid_dir_path(path):
-                    ret_val, reason = utils.upload.create_upload_dir(path)
+                    ret_val, reason = \
+                        utils.upload.check_or_create_upload_dir(path)
                     if ret_val == 200:
                         response = self._save_files(path)
                     else:
@@ -120,7 +121,7 @@ class UploadHandler(hbase.BaseHandler):
                     "%s: %s" %
                     (
                         self._get_status_message(valid_request),
-                        "Use %s as content type" % self.content_type
+                        "Use %s the content type" % self.content_type
                     )
                 )
         else:
@@ -134,7 +135,7 @@ class UploadHandler(hbase.BaseHandler):
 
         if self.request.files:
             response.result = [
-                utils.upload.create_or_update_path(
+                utils.upload.create_or_update_file(
                     path,
                     u_file[0]["filename"],
                     u_file[0]["content_type"],

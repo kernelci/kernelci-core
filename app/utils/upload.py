@@ -20,7 +20,7 @@ import utils
 
 
 def is_valid_dir_path(path):
-    """Verify if the provided path is valid as a directory.
+    """Verify if the provided path is a valid directory.
 
     A valid path must be a directory or it does not have to exists.
 
@@ -36,23 +36,45 @@ def is_valid_dir_path(path):
     return is_valid
 
 
-def create_upload_dir(path):
+def check_or_create_upload_dir(path):
+    """Check if the path exists and it can be accessed, or create it.
+
+    :param path: The path to verify.
+    :type path: str
+    :return A tuple with status code and error. Status code will be 200 in case
+    it is OK, 500 in case of error.
+    """
     ret_val = 200
     error = None
     real_path = os.path.join(utils.BASE_PATH, path)
 
-    if not os.path.exists(real_path):
+    if os.path.exists(real_path):
+        os.access(real_path, os.R_OK | os.W_OK | os.X_OK)
+    else:
         try:
-            os.makedirs(real_path)
+            os.makedirs(real_path, mode=0775)
         except OSError, ex:
             utils.LOG.exception(ex)
             ret_val = 500
-            error = "Unable to access destination directory '%s'" % path
+            error = "Unable to create destination directory '%s'" % path
 
     return ret_val, error
 
 
-def create_or_update_path(path, filename, content_type, content):
+def create_or_update_file(path, filename, content_type, content):
+    """Create or replace a file.
+
+    :param path: The path where the file should be saved.
+    :type path: str
+    :param filename: The name of the file to save.
+    :type filename: str
+    :param content_type: The media type of the file.
+    :type content_type: str
+    :param content: The content of the file.
+    :type content: str
+    :return A dictionary that contains the status code of the operation, an
+    error string if it occurred, the bytes written and the file name.
+    """
     ret_dict = {
         "status": 200,
         "error": None,
