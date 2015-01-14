@@ -16,8 +16,7 @@
 """The RequestHandler for /token URLs."""
 
 import bson
-
-from urlparse import urlunparse
+import urlparse
 
 import handlers.base as hbase
 import handlers.common as hcommon
@@ -87,18 +86,18 @@ class TokenHandler(hbase.BaseHandler):
     def _post(self, *args, **kwargs):
         response = None
 
-        if kwargs and kwargs.get('id', None):
+        if kwargs and kwargs.get("id", None):
             self.log.info(
                 "Token update from IP address %s",
                 self.request.remote_ip
             )
-            response = self._update_data(kwargs['id'], kwargs['json_obj'])
+            response = self._update_data(kwargs["id"], kwargs["json_obj"])
         else:
             self.log.info(
                 "New token creation from IP address %s",
                 self.request.remote_ip
             )
-            response = self._new_data(kwargs['json_obj'])
+            response = self._new_data(kwargs["json_obj"])
 
         return response
 
@@ -117,15 +116,15 @@ class TokenHandler(hbase.BaseHandler):
             response.status_code, _ = utils.db.save(self.db, new_token)
             if response.status_code == 201:
                 response.result = {models.TOKEN_KEY: new_token.token}
-                location = urlunparse(
+                location = urlparse.urlunparse(
                     (
-                        'http',
-                        self.request.headers.get('Host'),
-                        self.request.uri + '/' + new_token.token,
-                        '', '', ''
+                        "http",
+                        self.request.headers.get("Host"),
+                        self.request.uri + "/" + new_token.token,
+                        "", "", ""
                     )
                 )
-                response.headers = {'Location': location}
+                response.headers = {"Location": location}
         except KeyError:
             response.status_code = 400
             response.reason = (
@@ -263,8 +262,8 @@ class TokenHandler(hbase.BaseHandler):
         response = hresponse.HandlerResponse(400)
 
         if self.validate_req_token("DELETE"):
-            if kwargs and kwargs.get('id', None):
-                response.status_code = self._delete(kwargs['id'])
+            if kwargs and kwargs.get("id", None):
+                response.status_code = self._delete(kwargs["id"])
                 if response.status_code == 200:
                     response.reason = "Resource deleted"
         else:
