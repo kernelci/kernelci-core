@@ -81,13 +81,13 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
         self.assertEqual(response.code, 501)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     def test_get_no_token(self):
         response = self.fetch("/send", method="GET")
         self.assertEqual(response.code, 403)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     def test_delete(self):
         headers = {"Authorization": "foo"}
@@ -96,19 +96,19 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
         self.assertEqual(response.code, 501)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     def test_delete_no_token(self):
         response = self.fetch("/send", method="DELETE")
         self.assertEqual(response.code, 403)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     def test_post_no_token(self):
         response = self.fetch("/send", method="POST", body="")
         self.assertEqual(response.code, 403)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     def test_post_missing_job_key(self):
         headers = {
@@ -120,7 +120,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             "/send", method="POST", headers=headers, body=body)
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     def test_post_missing_kernel_key(self):
         headers = {
@@ -132,7 +132,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             "/send", method="POST", headers=headers, body=body)
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     @mock.patch("taskqueue.tasks.schedule_boot_report")
     def test_post_correct(self, mock_schedule):
@@ -146,4 +146,4 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             "/send", method="POST", headers=headers, body=body)
         self.assertEqual(response.code, 202)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
