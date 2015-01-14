@@ -258,6 +258,35 @@ class TestJobHandler(
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
+    def test_delete_wrong_id(self):
+        headers = {"Authorization": "foo"}
+
+        response = self.fetch(
+            "/job/foo", method="DELETE", headers=headers,
+        )
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    @mock.patch("utils.db.delete")
+    @mock.patch("utils.db.find_one")
+    @mock.patch("bson.objectid.ObjectId")
+    def test_delete_db_error(self, mock_id, mock_find, mock_delete):
+        mock_id.return_value = "job"
+        mock_find.return_value = "job"
+        mock_delete.return_value = 500
+
+        headers = {"Authorization": "foo"}
+
+        response = self.fetch(
+            "/job/foo", method="DELETE", headers=headers,
+        )
+
+        self.assertEqual(response.code, 500)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
     @mock.patch('handlers.job.JobHandler._get_one')
     def test_get_wrong_handler_response(self, mock_get_one):
         mock_get_one.return_value = ""
