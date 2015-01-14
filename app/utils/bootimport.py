@@ -148,7 +148,7 @@ def save_to_disk(boot_doc, json_obj, base_path):
 
         with open(file_path, mode="w") as write_json:
             write_json.write(
-                json.dumps(json_obj, encoding="utf_8", ensure_ascii=False)
+                json.dumps(json_obj, ensure_ascii=False, indent="  ")
             )
     except (OSError, IOError), ex:
         utils.LOG.error(

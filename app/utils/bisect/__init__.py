@@ -279,7 +279,8 @@ def execute_boot_bisection(doc_id, db_options, fields=None):
                     json.dumps(
                         bisect_doc,
                         default=bson.json_util.default,
-                        ensure_ascii=False
+                        ensure_ascii=False,
+                        separators=(",", ":")
                     )
                 )
             ]
@@ -443,7 +444,8 @@ def execute_defconfig_bisection(doc_id, db_options, fields=None):
                     json.dumps(
                         bisect_doc,
                         default=bson.json_util.default,
-                        ensure_ascii=False
+                        ensure_ascii=False,
+                        separators=(",", ":")
                     )
                 )
             ]
