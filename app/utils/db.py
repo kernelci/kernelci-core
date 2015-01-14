@@ -16,9 +16,8 @@
 """Collection of mongodb database operations."""
 
 import pymongo
+import pymongo.errors
 import types
-
-from pymongo.errors import OperationFailure
 
 import models
 import models.base as mbase
@@ -211,7 +210,7 @@ def save(database, document, manipulate=False):
         utils.LOG.info(
             "Document '%s' saved (%s)", document.name, document.collection
         )
-    except OperationFailure, ex:
+    except pymongo.errors.OperationFailure, ex:
         utils.LOG.error(
             "Error saving the following document: %s (%s)",
             document.name, document.collection
@@ -294,7 +293,7 @@ def update(collection, spec, document, operation="$set"):
                 operation: document,
             }
         )
-    except OperationFailure, ex:
+    except pymongo.errors.OperationFailure, ex:
         utils.LOG.error(
             "Error updating the following document: %s", str(document)
         )
@@ -318,7 +317,7 @@ def delete(collection, spec_or_id):
 
     try:
         collection.remove(spec_or_id)
-    except OperationFailure, ex:
+    except pymongo.errors.OperationFailure, ex:
         utils.LOG.error(
             "Error removing the following document: %s", str(spec_or_id)
         )
