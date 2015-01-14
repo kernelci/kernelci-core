@@ -129,6 +129,9 @@ def create_boot_report(job, kernel, db_options):
         fields=BOOT_SEARCH_FIELDS,
         sort=BOOT_SEARCH_SORT)
 
+    failed_data = None
+    conflict_data = None
+
     if fail_count > 0:
         failed_data, unique_data = _parse_results(
             fail_results.clone(), get_unique=True)
@@ -174,13 +177,8 @@ def create_boot_report(job, kernel, db_options):
                     conflicting_tuples[0], conflicting_tuples[1])
                 conflict_data, _ = _parse_results(conflicts)
 
-        email_body, subject = _create_boot_email(
-            job, kernel, failed_data, fail_count, total_count, conflict_data)
-    else:
-        utils.LOG.warn(
-            "No results found for job '%s' and kernel '%s': "
-            "email report not created",
-            job, kernel)
+    email_body, subject = _create_boot_email(
+        job, kernel, failed_data, fail_count, total_count, conflict_data)
 
     return email_body, subject
 
@@ -398,7 +396,8 @@ def _parse_and_write_results(failed_data, conflict_data, args, m_string):
 
     if failed_data:
         m_string.write(
-            u"\nFailed Boot Results: %(boot_url)s/?%(kernel)s&fail\n" % args
+            u"\nFailed Boot Results: %(base_url)s/boot/?%(kernel)s&fail\n" %
+            args
         )
         _traverse_data_struct(failed_data, m_string)
 
