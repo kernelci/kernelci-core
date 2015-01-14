@@ -398,7 +398,7 @@ class TestLabHandler(
         mock_id.return_value = "lab-01"
 
         expected_body = (
-            '{"code": 200, "result": [{"_id": "foo", "name": "lab-01"}]}'
+            '{"code":200,"result":[{"_id":"foo","name":"lab-01"}]}'
         )
 
         headers = {'Authorization': 'foo'}

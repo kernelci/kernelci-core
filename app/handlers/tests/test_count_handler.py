@@ -94,9 +94,9 @@ class TestCountHandler(
 
     def test_get_count_all(self):
         expected_body = (
-            '{"code": 200, "result": [{"count": 0, "collection": "job"}, '
-            '{"count": 0, "collection": "boot"}, '
-            '{"count": 0, "collection": "defconfig"}]}'
+            '{"code":200,"result":[{"count":0,"collection":"job"},'
+            '{"count":0,"collection":"boot"},'
+            '{"count":0,"collection":"defconfig"}]}'
         )
 
         headers = {'Authorization': 'foo'}
@@ -109,9 +109,9 @@ class TestCountHandler(
 
     def test_get_count_all_with_query(self):
         expected_body = (
-            '{"code": 200, "result": [{"count": 0, "collection": "job"}, '
-            '{"count": 0, "collection": "boot"}, '
-            '{"count": 0, "collection": "defconfig"}]}'
+            '{"code":200,"result":[{"count":0,"collection":"job"},'
+            '{"count":0,"collection":"boot"},'
+            '{"count":0,"collection":"defconfig"}]}'
         )
 
         headers = {'Authorization': 'foo'}
@@ -126,7 +126,7 @@ class TestCountHandler(
 
     def test_get_count_collection(self):
         expected_body = (
-            '{"code": 200, "result": [{"count": 0, "collection": "boot"}]}'
+            '{"code":200,"result":[{"count":0,"collection":"boot"}]}'
         )
 
         headers = {'Authorization': 'foo'}
@@ -139,7 +139,7 @@ class TestCountHandler(
 
     def test_get_count_collection_with_query(self):
         expected_body = (
-            '{"code": 200, "result": [{"count": 0, "collection": "boot"}]}'
+            '{"code":200,"result":[{"count":0,"collection":"boot"}]}'
         )
 
         headers = {'Authorization': 'foo'}

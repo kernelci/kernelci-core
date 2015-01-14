@@ -77,7 +77,7 @@ class TestJobHandler(
         mock_count.return_value = 0
         mock_find.return_value = []
 
-        expected_body = '{"count": 0, "code": 200, "limit": 0, "result": []}'
+        expected_body = '{"count":0,"code":200,"limit":0,"result":[]}'
 
         headers = {'Authorization': 'foo'}
         response = self.fetch('/job?date_range=5&job=job', headers=headers)
@@ -93,9 +93,7 @@ class TestJobHandler(
         mock_count.return_value = 0
         mock_find.return_value = []
 
-        expected_body = (
-            '{"count": 0, "code": 200, "limit": 1024, "result": []}'
-        )
+        expected_body = '{"count":0,"code":200,"limit":1024,"result":[]}'
 
         headers = {'Authorization': 'foo'}
         response = self.fetch('/job?limit=1024', headers=headers)
@@ -140,7 +138,7 @@ class TestJobHandler(
         collection.find_one = mock.MagicMock()
         collection.find_one.return_value = {'_id': 'foo'}
 
-        expected_body = '{"code": 200, "result": [{"_id": "foo"}]}'
+        expected_body = '{"code":200,"result":[{"_id":"foo"}]}'
 
         headers = {'Authorization': 'foo'}
         response = self.fetch('/job/job-kernel', headers=headers)
