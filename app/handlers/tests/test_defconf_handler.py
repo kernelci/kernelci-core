@@ -105,9 +105,21 @@ class TestDefconfHandler(
         self.assertEqual(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
-    def test_post(self):
-        # POST is not implemented for the DefConfHandler.
+    def test_post_no_token(self):
         response = self.fetch('/defconfig', method='POST', body='')
+
+        self.assertEqual(response.code, 403)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
+    def test_post_token(self):
+        # POST is not implemented for the DefConfHandler.
+        headers = {
+            'Authorization': 'foo',
+            'Content-Type': 'application/json'
+        }
+        response = self.fetch(
+            '/defconfig', method='POST', body="{}", headers=headers)
 
         self.assertEqual(response.code, 501)
         self.assertEqual(

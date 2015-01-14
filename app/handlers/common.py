@@ -310,6 +310,25 @@ REPORT_VALID_KEYS = {
     ]
 }
 
+SEND_VALID_KEYS = {
+    "POST": {
+        models.MANDATORY_KEYS: [
+            models.JOB_KEY,
+            models.KERNEL_KEY
+        ],
+        models.ACCEPTED_KEYS: [
+            models.BOOT_REPORT_SEND_TO_KEY,
+            models.BUILD_REPORT_SEND_TO_KEY,
+            models.DELAY_KEY,
+            models.JOB_KEY,
+            models.KERNEL_KEY,
+            models.REPORT_SEND_TO_KEY,
+            models.SEND_BOOT_REPORT_KEY,
+            models.SEND_BUILD_REPORT_KEY
+        ]
+    }
+}
+
 ID_KEYS = [
     models.BOOT_ID_KEY,
     models.DEFCONFIG_ID_KEY,

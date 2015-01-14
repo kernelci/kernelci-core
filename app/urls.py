@@ -1,5 +1,3 @@
-# Copyright (C) 2014 Linaro Ltd.
-#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
@@ -15,7 +13,7 @@
 
 """Define URLs and handlers to server them."""
 
-from tornado.web import url
+import tornado.web
 
 import handlers.batch
 import handlers.bisect
@@ -25,57 +23,63 @@ import handlers.defconf
 import handlers.job
 import handlers.lab
 import handlers.report
+import handlers.send
 import handlers.subscription
 import handlers.token
 import handlers.upload
 import handlers.version
 
 
-_JOB_URL = url(
+_JOB_URL = tornado.web.url(
     r'/job[s]?(?P<sl>/)?(?P<id>.*)', handlers.job.JobHandler, name='job'
 )
-_DEFCONF_URL = url(
+_DEFCONF_URL = tornado.web.url(
     r'/defconfig[s]?(?P<sl>/)?(?P<id>.*)',
     handlers.defconf.DefConfHandler,
     name='defconf'
 )
-_SUBSCRIPTION_URL = url(
+_SUBSCRIPTION_URL = tornado.web.url(
     r'/subscription[s]?(?P<sl>/)?(?P<id>.*)',
     handlers.subscription.SubscriptionHandler,
     name='subscription',
 )
-_BOOT_URL = url(
+_BOOT_URL = tornado.web.url(
     r'/boot[s]?(?P<sl>/)?(?P<id>.*)', handlers.boot.BootHandler, name='boot'
 )
-_COUNT_URL = url(
+_COUNT_URL = tornado.web.url(
     r'/count[s]?(?P<sl>/)?(?P<id>.*)', handlers.count.CountHandler, name='count'
 )
-_TOKEN_URL = url(
+_TOKEN_URL = tornado.web.url(
     r'/token[s]?(?P<sl>/)?(?P<id>.*)', handlers.token.TokenHandler, name='token'
 )
-_BATCH_URL = url(
+_BATCH_URL = tornado.web.url(
     r'/batch', handlers.batch.BatchHandler, name='batch'
 )
-_BISECT_URL = url(
+_BISECT_URL = tornado.web.url(
     r"/bisect[s]?/(?P<collection>.*)/(?P<id>.*)",
     handlers.bisect.BisectHandler,
     name="bisect"
 )
-_LAB_URL = url(
+_LAB_URL = tornado.web.url(
     r"/lab[s]?(?P<sl>/)?(?P<id>.*)", handlers.lab.LabHandler, name="lab"
 )
-_VERSION_URL = url(
+_VERSION_URL = tornado.web.url(
     r"/version", handlers.version.VersionHandler, name="version"
 )
-_REPORT_URL = url(
+_REPORT_URL = tornado.web.url(
     r"/report[s]?(?P<sl>/)?(?P<id>.*)",
     handlers.report.ReportHandler,
     name="response"
 )
-_UPLOAD_URL = url(
+_UPLOAD_URL = tornado.web.url(
     r"/upload(?P<sl>/)?(?P<path>.*)",
     handlers.upload.UploadHandler,
     name="upload"
+)
+_SEND_URL = tornado.web.url(
+    r"/send(?P<sl>/)?",
+    handlers.send.SendHandler,
+    name="send"
 )
 
 APP_URLS = [
@@ -90,5 +94,6 @@ APP_URLS = [
     _TOKEN_URL,
     _VERSION_URL,
     _REPORT_URL,
-    _UPLOAD_URL
+    _UPLOAD_URL,
+    _SEND_URL
 ]

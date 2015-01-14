@@ -13,3 +13,4 @@ Schema
     schema-batch
     schema-lab
     schema-report
+    schema-send

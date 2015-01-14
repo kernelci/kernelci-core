@@ -124,6 +124,7 @@ SEND_BUILD_REPORT_KEY = "build_report"
 BOOT_REPORT_SEND_TO_KEY = "boot_send_to"
 BUILD_REPORT_SEND_TO_KEY = "build_send_to"
 REPORT_SEND_TO_KEY = "send_to"
+DELAY_KEY = "delay"
 
 # Token special fields.
 ADMIN_KEY = "admin"

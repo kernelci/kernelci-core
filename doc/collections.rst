@@ -18,3 +18,4 @@ Resources
     collection-lab
     collection-version
     collection-report
+    collection-send

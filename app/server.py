@@ -16,70 +16,70 @@
 
 """The Tornado application base module."""
 
+import concurrent.futures
 import os
 import pymongo
 import tornado
+import tornado.httpserver
+import tornado.netutil
+import tornado.options as topt
+import tornado.web
+import uuid
 
-from concurrent.futures import ThreadPoolExecutor
-from tornado.httpserver import HTTPServer
-from tornado.netutil import bind_unix_socket
-from tornado.options import (
-    define,
-    options,
-)
-from tornado.web import Application
-from uuid import uuid4
-
-from handlers.app import AppHandler
-from handlers.dbindexes import ensure_indexes
-from urls import APP_URLS
+import handlers.app as happ
+import handlers.dbindexes as hdbindexes
+import urls
 
 
-DEFAULT_CONFIG_FILE = '/etc/linaro/kernelci-backend.cfg'
+DEFAULT_CONFIG_FILE = "/etc/linaro/kernelci-backend.cfg"
 
-define('master_key', default=str(uuid4()), type=str, help="The master key")
-define(
-    'max_workers', default=20, type=int,
+topt.define(
+    "master_key", default=str(uuid.uuid4()), type=str, help="The master key")
+topt.define(
+    "max_workers", default=20, type=int,
     help="The number of workers for the thread pool executor"
 )
-define('gzip', default=True)
-define('debug', default=True)
-define('autoreload', default=True)
+topt.define("gzip", default=True)
+topt.define("debug", default=True)
+topt.define("autoreload", default=True)
 
 # mongodb connection parameters.
-define(
-    'dbhost', default='localhost', type=str, help="The DB host to connect to"
+topt.define(
+    "dbhost", default="localhost", type=str, help="The DB host to connect to"
 )
-define("dbport", default=27017, type=int, help="The DB port to connect to")
-define(
+topt.define("dbport", default=27017, type=int, help="The DB port to connect to")
+topt.define(
     "dbuser", default="", type=str,
     help="The user name to use for the DB connection"
 )
-define(
+topt.define(
     "dbpassword", default="", type=str,
     help="The password to use for the DB connection"
 )
-define("dbpool", default=250, type=int, help="The DB connections pool size")
-define(
+topt.define(
+    "dbpool", default=250, type=int, help="The DB connections pool size")
+topt.define(
     "unixsocket", default=False, type=bool,
     help="If unix socket should be used"
 )
-define(
-    "smtp_host", default='', type=str, help="The SMTP host to connect to")
-define("smtp_user", default='', type=str, help="SMTP connection user")
-define("smtp_password", default='', type=str, help="SMTP connection password")
-define(
+topt.define(
+    "smtp_host", default="", type=str, help="The SMTP host to connect to")
+topt.define("smtp_user", default="", type=str, help="SMTP connection user")
+topt.define(
+    "smtp_password", default="", type=str, help="SMTP connection password")
+topt.define(
     "smtp_port", default=587, type=int,
     help="The SMTP connection port, default to 587")
-define("smtp_sender", default='', type=str, help="The sender email address")
-define(
+topt.define(
+    "smtp_sender", default="", type=str, help="The sender email address")
+topt.define(
     "send_delay", default=60*60+5, type=int,
     help="The delay in sending the report emails, "
          "default to 1 hour and 5 seconds"
 )
 
 
-class KernelCiBackend(Application):
+class KernelCiBackend(tornado.web.Application):
     """The Kernel CI backend application.
 
     Where everything starts.
@@ -89,62 +89,64 @@ class KernelCiBackend(Application):
     def __init__(self):
 
         db_options = {
-            'dbhost': options.dbhost,
-            'dbport': options.dbport,
-            'dbuser': options.dbuser,
-            'dbpassword': options.dbpassword,
-            'dbpool': options.dbpool
+            "dbhost": topt.options.dbhost,
+            "dbport": topt.options.dbport,
+            "dbuser": topt.options.dbuser,
+            "dbpassword": topt.options.dbpassword,
+            "dbpool": topt.options.dbpool
         }
 
         mail_options = {
-            "host": options.smtp_host,
-            "user": options.smtp_user,
-            "password": options.smtp_password,
-            "port": options.smtp_port,
-            "sender": options.smtp_sender
+            "host": topt.options.smtp_host,
+            "user": topt.options.smtp_user,
+            "password": topt.options.smtp_password,
+            "port": topt.options.smtp_port,
+            "sender": topt.options.smtp_sender
         }
 
         if self.mongodb_client is None:
             self.mongodb_client = pymongo.MongoClient(
-                host=options.dbhost,
-                port=options.dbport,
-                max_pool_size=options.dbpool
+                host=topt.options.dbhost,
+                port=topt.options.dbport,
+                max_pool_size=topt.options.dbpool
             )
 
         settings = {
-            'client': self.mongodb_client,
-            'dboptions': db_options,
+            "client": self.mongodb_client,
+            "dboptions": db_options,
             "mailoptions": mail_options,
-            'default_handler_class': AppHandler,
-            'executor': ThreadPoolExecutor(max_workers=options.max_workers),
-            'gzip': options.gzip,
-            'debug': options.debug,
-            'master_key': options.master_key,
-            'autoreload': options.autoreload,
-            "senddelay": options.send_delay
+            "default_handler_class": happ.AppHandler,
+            "executor": concurrent.futures.ThreadPoolExecutor(
+                max_workers=topt.options.max_workers),
+            "gzip": topt.options.gzip,
+            "debug": topt.options.debug,
+            "master_key": topt.options.master_key,
+            "autoreload": topt.options.autoreload,
+            "senddelay": topt.options.send_delay
         }
 
-        ensure_indexes(self.mongodb_client, db_options)
+        hdbindexes.ensure_indexes(self.mongodb_client, db_options)
 
-        super(KernelCiBackend, self).__init__(APP_URLS, **settings)
+        super(KernelCiBackend, self).__init__(urls.APP_URLS, **settings)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     if os.path.isfile(DEFAULT_CONFIG_FILE):
-        options.parse_config_file(DEFAULT_CONFIG_FILE, final=False)
+        topt.options.parse_config_file(DEFAULT_CONFIG_FILE, final=False)
 
-    options.parse_command_line()
+    topt.options.parse_command_line()
 
     # Settings that should be passed also to the HTTPServer.
     HTTP_SETTINGS = {
-        'xheaders': True,
+        "xheaders": True,
     }
 
-    if options.unixsocket:
+    if topt.options.unixsocket:
         application = KernelCiBackend()
 
-        server = HTTPServer(application, **HTTP_SETTINGS)
-        unix_socket = bind_unix_socket("/tmp/kernelci-backend.socket")
+        server = tornado.httpserver.HTTPServer(application, **HTTP_SETTINGS)
+        unix_socket = tornado.netutil.bind_unix_socket(
+            "/tmp/kernelci-backend.socket")
         server.add_socket(unix_socket)
     else:
         KernelCiBackend().listen(8888, **HTTP_SETTINGS)

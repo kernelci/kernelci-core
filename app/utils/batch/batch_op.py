@@ -13,36 +13,18 @@
 
 """Batch operation classes."""
 
-from bson.json_util import default
-from json import (
-    dumps as j_dump,
-    loads as j_load,
-)
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
-from handlers.common import (
-    BOOT_VALID_KEYS,
-    COUNT_VALID_KEYS,
-    DEFCONFIG_VALID_KEYS,
-    JOB_VALID_KEYS,
-    get_all_query_values,
-    get_query_fields,
-)
-from handlers.count import (
-    count_all_collections,
-    count_one_collection,
-)
-from models import (
-    COUNT_KEY,
-    LIMIT_KEY,
-    OP_ID_KEY,
-    RESULT_KEY,
-)
-from utils import LOG
-from utils.db import (
-    aggregate,
-    find_and_count,
-    find_one,
-)
+import bson
+
+import handlers.common as hcommon
+import handlers.count as hcount
+import models
+import utils
+import utils.db
 
 
 class BatchOperation(object):
@@ -134,25 +116,25 @@ class BatchOperation(object):
         """Prepare the necessary parameters for a GET operation."""
         if self.document_id:
             # Get only one document.
-            self.operation = find_one
+            self.operation = utils.db.find_one
             self.args = [
                 self._database[self._collection],
                 self.document_id,
             ]
             self.kwargs = {
-                'fields': get_query_fields(self.query_args_func)
+                'fields': hcommon.get_query_fields(self.query_args_func)
             }
         else:
             # Get the spec and perform the query, can perform and aggregation
             # as well.
             spec, sort, fields, self._skip, self._limit, unique = \
-                get_all_query_values(
+                hcommon.get_all_query_values(
                     self.query_args_func, self.valid_keys.get(self.method)
                 )
 
             if unique:
                 # Perform an aggregate
-                self.operation = aggregate
+                self.operation = utils.db.aggregate
                 self.args = [
                     self._database[self._collection],
                     unique
@@ -164,7 +146,7 @@ class BatchOperation(object):
                     'limit': self._limit
                 }
             else:
-                self.operation = find_and_count
+                self.operation = utils.db.find_and_count
                 self.args = [
                     self._database[self._collection],
                     self._limit,
@@ -192,7 +174,7 @@ class BatchOperation(object):
         """
         response = {}
         if self.operation_id:
-            response[OP_ID_KEY] = self.operation_id
+            response[models.OP_ID_KEY] = self.operation_id
 
         # find_and_count returns 2 results: the mongodb cursor and the
         # results count.
@@ -203,28 +185,34 @@ class BatchOperation(object):
                 res = [r for r in result[0]]
 
             json_obj = {
-                RESULT_KEY: res,
-                COUNT_KEY: count
+                models.RESULT_KEY: res,
+                models.COUNT_KEY: count
             }
 
             if self._limit is not None:
-                json_obj[LIMIT_KEY] = self._limit
+                json_obj[models.LIMIT_KEY] = self._limit
 
             try:
                 # Doing like this otherwise the result returned will be a
                 # string and not a real JSON object (since we have to serialize
                 # it here).
-                response[RESULT_KEY] = [
-                    j_load(j_dump(json_obj, default=default))
+                response[models.RESULT_KEY] = [
+                    json.loads(
+                        json.dumps(
+                            json_obj,
+                            default=bson.json_util.default,
+                            separators=(",", ":")
+                        )
+                    )
                 ]
             except TypeError:
-                response[RESULT_KEY] = []
-                LOG.error(
+                response[models.RESULT_KEY] = []
+                utils.LOG.error(
                     "Error serializing JSON object. Objects to serialize: "
                     "%s, %s", type(res), type(count)
                 )
         else:
-            response[RESULT_KEY] = result
+            response[models.RESULT_KEY] = result
 
         return response
 
@@ -249,7 +237,7 @@ class BatchBootOperation(BatchOperation):
         super(BatchBootOperation, self).__init__(
             collection, database, operation_id
         )
-        self.valid_keys = BOOT_VALID_KEYS
+        self.valid_keys = hcommon.BOOT_VALID_KEYS
 
 
 class BatchJobOperation(BatchOperation):
@@ -259,7 +247,7 @@ class BatchJobOperation(BatchOperation):
         super(BatchJobOperation, self).__init__(
             collection, database, operation_id
         )
-        self.valid_keys = JOB_VALID_KEYS
+        self.valid_keys = hcommon.JOB_VALID_KEYS
 
 
 class BatchDefconfigOperation(BatchOperation):
@@ -269,7 +257,7 @@ class BatchDefconfigOperation(BatchOperation):
         super(BatchDefconfigOperation, self).__init__(
             collection, database, operation_id
         )
-        self.valid_keys = DEFCONFIG_VALID_KEYS
+        self.valid_keys = hcommon.DEFCONFIG_VALID_KEYS
 
 
 class BatchCountOperation(BatchOperation):
@@ -279,11 +267,11 @@ class BatchCountOperation(BatchOperation):
         super(BatchCountOperation, self).__init__(
             collection, database, operation_id
         )
-        self.valid_keys = COUNT_VALID_KEYS
+        self.valid_keys = hcommon.COUNT_VALID_KEYS
 
     def _prepare_get_operation(self):
         if self.document_id:
-            self.operation = count_one_collection
+            self.operation = hcount.count_one_collection
             # We use document_id here with the database since we need to count
             # on a different collection.
             self.args = [
@@ -293,7 +281,7 @@ class BatchCountOperation(BatchOperation):
                 self.valid_keys.get(self.method)
             ]
         else:
-            self.operation = count_all_collections
+            self.operation = hcount.count_all_collections
             self.args = [
                 self._database,
                 self.query_args_func,

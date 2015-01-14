@@ -1,5 +1,3 @@
-# Copyright (C) 2014 Linaro Ltd.
-#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
@@ -21,12 +19,8 @@ import handlers.base as hbase
 import handlers.common as hcommon
 import handlers.response as hresponse
 import models
+import taskqueue.tasks as taskq
 import utils.db
-
-from taskqueue.tasks import (
-    import_job,
-    schedule_boot_report
-)
 
 
 class JobHandler(hbase.BaseHandler):
@@ -53,8 +47,9 @@ class JobHandler(hbase.BaseHandler):
         mail_options = self.settings["mailoptions"]
         countdown = self.settings["senddelay"]
 
-        import_job.apply_async([json_obj, db_options])
-        schedule_boot_report.apply_async(
+        taskq.import_job.apply_async([json_obj, db_options])
+        # TODO: remove email scheduling once deployed and job updated.
+        taskq.schedule_boot_report.apply_async(
             [json_obj, db_options, mail_options, countdown])
 
         return response
@@ -90,6 +85,9 @@ class JobHandler(hbase.BaseHandler):
                 response.status_code = 404
                 response.reason = self._get_status_message(404)
         except bson.errors.InvalidId, ex:
-            raise ex
+            self.log.exception(ex)
+            self.log.error("Invalid ID specified: %s", job_id)
+            response.status_code = 400
+            response.reason = "Wrong ID specified"
 
         return response

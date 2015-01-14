@@ -11,30 +11,11 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from types import (
-    ListType,
-    StringTypes,
-)
+import models
+import types
 
-from models import (
-    BOOT_COLLECTION,
-    COLLECTION_KEY,
-    COUNT_COLLECTION,
-    DEFCONFIG_COLLECTION,
-    DOCUMENT_ID_KEY,
-    JOB_COLLECTION,
-    METHOD_KEY,
-    OP_ID_KEY,
-    QUERY_KEY,
-)
-from utils.batch.batch_op import (
-    BatchBootOperation,
-    BatchCountOperation,
-    BatchDefconfigOperation,
-    BatchJobOperation,
-    BatchOperation,
-)
-from utils.db import get_db_connection
+import utils.batch.batch_op as batchop
+import utils.db
 
 
 def create_batch_operation(json_obj, db_options):
@@ -54,37 +35,37 @@ def create_batch_operation(json_obj, db_options):
 
     if json_obj:
         get_func = json_obj.get
-        collection = get_func(COLLECTION_KEY, None)
+        collection = get_func(models.COLLECTION_KEY, None)
 
         if collection:
-            database = get_db_connection(db_options)
-            operation_id = get_func(OP_ID_KEY, None)
+            database = utils.db.get_db_connection(db_options)
+            operation_id = get_func(models.OP_ID_KEY, None)
 
-            if collection == COUNT_COLLECTION:
-                batch_op = BatchCountOperation(
+            if collection == models.COUNT_COLLECTION:
+                batch_op = batchop.BatchCountOperation(
                     collection, database, operation_id=operation_id
                 )
-            elif collection == BOOT_COLLECTION:
-                batch_op = BatchBootOperation(
+            elif collection == models.BOOT_COLLECTION:
+                batch_op = batchop.BatchBootOperation(
                     collection, database, operation_id=operation_id
                 )
-            elif collection == JOB_COLLECTION:
-                batch_op = BatchJobOperation(
+            elif collection == models.JOB_COLLECTION:
+                batch_op = batchop.BatchJobOperation(
                     collection, database, operation_id=operation_id
                 )
-            elif collection == DEFCONFIG_COLLECTION:
-                batch_op = BatchDefconfigOperation(
+            elif collection == models.DEFCONFIG_COLLECTION:
+                batch_op = batchop.BatchDefconfigOperation(
                     collection, database, operation_id=operation_id)
             else:
-                batch_op = BatchOperation(
+                batch_op = batchop.BatchOperation(
                     collection, database, operation_id=operation_id)
 
             batch_op.query_args = get_batch_query_args(
-                get_func(QUERY_KEY, None)
+                get_func(models.QUERY_KEY, None)
             )
-            batch_op.document_id = get_func(DOCUMENT_ID_KEY, None)
+            batch_op.document_id = get_func(models.DOCUMENT_ID_KEY, None)
             batch_op.query_args_func = batch_op.query_args.get
-            batch_op.method = get_func(METHOD_KEY, None)
+            batch_op.method = get_func(models.METHOD_KEY, None)
 
     return batch_op
 
@@ -127,12 +108,12 @@ def get_batch_query_args(query):
     """
     args = {}
 
-    if all([query, isinstance(query, StringTypes)]):
+    if all([query, isinstance(query, types.StringTypes)]):
         if query.startswith("?"):
             query = query[1:]
 
         query = query.split("&")
-        if isinstance(query, ListType):
+        if isinstance(query, types.ListType):
             for arg in query:
                 arg = arg.split("=")
                 # Can't have query with just one element, they have to be
