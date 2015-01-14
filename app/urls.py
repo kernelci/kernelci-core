@@ -1,5 +1,3 @@
-# Copyright (C) 2014 Linaro Ltd.
-#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
@@ -25,6 +23,7 @@ import handlers.defconf
 import handlers.job
 import handlers.lab
 import handlers.report
+import handlers.send
 import handlers.subscription
 import handlers.token
 import handlers.version
@@ -71,6 +70,7 @@ _REPORT_URL = url(
     handlers.report.ReportHandler,
     name="response"
 )
+_SEND_URL = url(r"/send(?P<sl>/)?", handlers.send.SendHandler, name="send")
 
 APP_URLS = [
     _BATCH_URL,
@@ -84,4 +84,5 @@ APP_URLS = [
     _TOKEN_URL,
     _VERSION_URL,
     _REPORT_URL,
+    _SEND_URL
 ]
