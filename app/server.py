@@ -31,21 +31,21 @@ import handlers.dbindexes as hdbindexes
 import urls
 
 
-DEFAULT_CONFIG_FILE = '/etc/linaro/kernelci-backend.cfg'
+DEFAULT_CONFIG_FILE = "/etc/linaro/kernelci-backend.cfg"
 
 topt.define(
-    'master_key', default=str(uuid.uuid4()), type=str, help="The master key")
+    "master_key", default=str(uuid.uuid4()), type=str, help="The master key")
 topt.define(
-    'max_workers', default=20, type=int,
+    "max_workers", default=20, type=int,
     help="The number of workers for the thread pool executor"
 )
-topt.define('gzip', default=True)
-topt.define('debug', default=True)
-topt.define('autoreload', default=True)
+topt.define("gzip", default=True)
+topt.define("debug", default=True)
+topt.define("autoreload", default=True)
 
 # mongodb connection parameters.
 topt.define(
-    'dbhost', default='localhost', type=str, help="The DB host to connect to"
+    "dbhost", default="localhost", type=str, help="The DB host to connect to"
 )
 topt.define("dbport", default=27017, type=int, help="The DB port to connect to")
 topt.define(
@@ -63,15 +63,15 @@ topt.define(
     help="If unix socket should be used"
 )
 topt.define(
-    "smtp_host", default='', type=str, help="The SMTP host to connect to")
-topt.define("smtp_user", default='', type=str, help="SMTP connection user")
+    "smtp_host", default="", type=str, help="The SMTP host to connect to")
+topt.define("smtp_user", default="", type=str, help="SMTP connection user")
 topt.define(
-    "smtp_password", default='', type=str, help="SMTP connection password")
+    "smtp_password", default="", type=str, help="SMTP connection password")
 topt.define(
     "smtp_port", default=587, type=int,
     help="The SMTP connection port, default to 587")
 topt.define(
-    "smtp_sender", default='', type=str, help="The sender email address")
+    "smtp_sender", default="", type=str, help="The sender email address")
 topt.define(
     "send_delay", default=60*60+5, type=int,
     help="The delay in sending the report emails, "
@@ -89,11 +89,11 @@ class KernelCiBackend(tornado.web.Application):
     def __init__(self):
 
         db_options = {
-            'dbhost': topt.options.dbhost,
-            'dbport': topt.options.dbport,
-            'dbuser': topt.options.dbuser,
-            'dbpassword': topt.options.dbpassword,
-            'dbpool': topt.options.dbpool
+            "dbhost": topt.options.dbhost,
+            "dbport": topt.options.dbport,
+            "dbuser": topt.options.dbuser,
+            "dbpassword": topt.options.dbpassword,
+            "dbpool": topt.options.dbpool
         }
 
         mail_options = {
@@ -112,16 +112,16 @@ class KernelCiBackend(tornado.web.Application):
             )
 
         settings = {
-            'client': self.mongodb_client,
-            'dboptions': db_options,
+            "client": self.mongodb_client,
+            "dboptions": db_options,
             "mailoptions": mail_options,
-            'default_handler_class': happ.AppHandler,
-            'executor': concurrent.futures.ThreadPoolExecutor(
+            "default_handler_class": happ.AppHandler,
+            "executor": concurrent.futures.ThreadPoolExecutor(
                 max_workers=topt.options.max_workers),
-            'gzip': topt.options.gzip,
-            'debug': topt.options.debug,
-            'master_key': topt.options.master_key,
-            'autoreload': topt.options.autoreload,
+            "gzip": topt.options.gzip,
+            "debug": topt.options.debug,
+            "master_key": topt.options.master_key,
+            "autoreload": topt.options.autoreload,
             "senddelay": topt.options.send_delay
         }
 
@@ -130,7 +130,7 @@ class KernelCiBackend(tornado.web.Application):
         super(KernelCiBackend, self).__init__(urls.APP_URLS, **settings)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     if os.path.isfile(DEFAULT_CONFIG_FILE):
         topt.options.parse_config_file(DEFAULT_CONFIG_FILE, final=False)
 
@@ -138,7 +138,7 @@ if __name__ == '__main__':
 
     # Settings that should be passed also to the HTTPServer.
     HTTP_SETTINGS = {
-        'xheaders': True,
+        "xheaders": True,
     }
 
     if topt.options.unixsocket:
