@@ -166,6 +166,10 @@ POST
  :status 415: Wrong content type.
  :status 422: No real JSON data provided.
 
+ .. warning::
+
+    Triggering email report through the job resources will be depracated.
+
  **Example Requests**
 
  .. sourcecode:: http 

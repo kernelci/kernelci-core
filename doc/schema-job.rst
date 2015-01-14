@@ -85,7 +85,7 @@ GET
 POST
 ****
 
-The following schema covers the data that should be available in the job JSON
+The following schema covers the data that should be available in the JSON
 data sent to the server.
 
 ::
