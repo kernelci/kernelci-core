@@ -230,7 +230,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
             if valid_request == 200:
                 try:
-                    json_obj = json.loads(self.request.body.decode('utf8'))
+                    json_obj = json.loads(self.request.body.decode("utf8"))
 
                     valid_json, j_reason = validator.is_valid_json(
                         json_obj, self._valid_keys("POST")
@@ -483,8 +483,8 @@ class BaseHandler(tornado.web.RequestHandler):
         return (spec, sort, fields, skip, limit, unique)
 
     def write_error(self, status_code, **kwargs):
-        if kwargs.get('message', None):
-            status_message = kwargs['message']
+        if kwargs.get("message", None):
+            status_message = kwargs["message"]
         else:
             status_message = self._get_status_message(status_code)
 
