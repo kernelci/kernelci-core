@@ -11,7 +11,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Test module for the TokenHandler handler."""
+"""Test module for the SendHandler."""
 
 import json
 import mock
