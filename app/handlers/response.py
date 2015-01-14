@@ -15,13 +15,8 @@
 
 """A generic response object that handlers can pass along."""
 
-from pymongo.cursor import Cursor
-from types import (
-    DictionaryType,
-    IntType,
-    ListType,
-    StringTypes,
-)
+import pymongo.cursor
+import types
 
 
 class HandlerResponse(object):
@@ -45,7 +40,7 @@ class HandlerResponse(object):
 
         By default the status code is set to 200.
         """
-        if not isinstance(status_code, IntType):
+        if not isinstance(status_code, types.IntType):
             raise ValueError("Value must be an integer")
 
         self._status_code = status_code
@@ -66,7 +61,7 @@ class HandlerResponse(object):
 
         :param value: The status code, must be an int.
         """
-        if not isinstance(value, IntType):
+        if not isinstance(value, types.IntType):
             raise ValueError("Value must be an integer")
 
         self._status_code = value
@@ -82,7 +77,7 @@ class HandlerResponse(object):
 
         :param value: The reason as string.
         """
-        if not isinstance(value, StringTypes):
+        if not isinstance(value, types.StringTypes):
             raise ValueError("Value must be a string")
 
         self._reason = value
@@ -98,7 +93,7 @@ class HandlerResponse(object):
 
         :param value: A dictionary with the headers to set.
         """
-        if not isinstance(value, DictionaryType):
+        if not isinstance(value, types.DictionaryType):
             raise ValueError("Value must be a dictionary")
 
         self._headers = value
@@ -110,7 +105,7 @@ class HandlerResponse(object):
 
     @count.setter
     def count(self, value):
-        if not isinstance(value, IntType):
+        if not isinstance(value, types.IntType):
             raise ValueError("Value must be a integer")
         self._count = value
 
@@ -121,7 +116,7 @@ class HandlerResponse(object):
 
     @limit.setter
     def limit(self, value):
-        if not isinstance(value, IntType):
+        if not isinstance(value, types.IntType):
             raise ValueError("Value must be an integer")
         self._limit = value
 
@@ -147,9 +142,9 @@ class HandlerResponse(object):
             self._result = value
         else:
             # The pymongo cursor is an iterable.
-            if not isinstance(value, (ListType, Cursor)):
+            if not isinstance(value, (types.ListType, pymongo.cursor.Cursor)):
                 value = [value]
-            elif isinstance(value, Cursor):
+            elif isinstance(value, pymongo.cursor.Cursor):
                 value = [r for r in value]
             self._result = value
 
