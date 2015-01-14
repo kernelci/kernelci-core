@@ -116,8 +116,13 @@ class UploadHandler(hbase.BaseHandler):
                     response.reason = "Provided path is not a directory"
             else:
                 response = hresponse.HandlerResponse(valid_request)
-                response.reason = \
-                    self._get_status_message(valid_request) % self.content_type
+                response.reason = (
+                    "%s: %s" %
+                    (
+                        self._get_status_message(valid_request),
+                        "Use %s as content type" % self.content_type
+                    )
+                )
         else:
             response = hresponse.HandlerResponse(403)
             response.reason = hcommon.NOT_VALID_TOKEN
