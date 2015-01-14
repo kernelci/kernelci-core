@@ -36,10 +36,7 @@ import utils.validator as validator
 STATUS_MESSAGES = {
     404: "Resource not found",
     405: "Operation not allowed",
-    415: (
-        "Please use '%s' as the default media type" %
-        hcommon.ACCEPTED_CONTENT_TYPE
-    ),
+    415: "Wrong content type defined",
     420: "No JSON data found",
     500: "Internal database error",
     501: "Method not implemented",
@@ -63,6 +60,10 @@ class BaseHandler(tornado.web.RequestHandler):
     def collection(self):
         """The name of the database collection for this object."""
         return None
+
+    @property
+    def content_type(self):
+        return hcommon.ACCEPTED_CONTENT_TYPE
 
     @property
     def db(self):
@@ -131,7 +132,9 @@ class BaseHandler(tornado.web.RequestHandler):
             headers = response.headers
             result = json.dumps(
                 response.to_dict(),
-                default=bson.json_util.default, ensure_ascii=False
+                default=bson.json_util.default,
+                ensure_ascii=False,
+                separators=(",", ":")
             )
         else:
             status_code = 506
@@ -157,14 +160,14 @@ class BaseHandler(tornado.web.RequestHandler):
         """
         valid_content = False
 
-        if 'Content-Type' in self.request.headers.keys():
-            if self.request.headers["Content-Type"] == \
-                    hcommon.ACCEPTED_CONTENT_TYPE:
+        if "Content-Type" in self.request.headers.keys():
+            if self.request.headers["Content-Type"].startswith(
+                    self.content_type):
                 valid_content = True
             else:
                 self.log.error(
                     "Received wrong content type ('%s') from IP '%s'",
-                    self.request.headers['Content-Type'],
+                    self.request.headers["Content-Type"],
                     self.request.remote_ip
                 )
 
@@ -220,7 +223,13 @@ class BaseHandler(tornado.web.RequestHandler):
                     response.result = None
             else:
                 response = hresponse.HandlerResponse(valid_request)
-                response.reason = self._get_status_message(valid_request)
+                response.reason = (
+                    "%s: %s" %
+                    (
+                        self._get_status_message(valid_request),
+                        "Use %s as content type" % self.content_type
+                    )
+                )
                 response.result = None
         else:
             response = hresponse.HandlerResponse(403)
