@@ -176,7 +176,7 @@ class BaseHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     def put(self, *args, **kwargs):
         self.executor.submit(
-            functools.partial(self.execute_post, *args, **kwargs)
+            functools.partial(self.execute_put, *args, **kwargs)
         ).add_done_callback(
             lambda future: tornado.ioloop.IOLoop.instance().add_callback(
                 functools.partial(self._create_valid_response, future.result())
@@ -188,7 +188,7 @@ class BaseHandler(tornado.web.RequestHandler):
         response = None
 
         if self.validate_req_token("PUT"):
-            self._put(*args, **kwargs)
+            response = self._put(*args, **kwargs)
         else:
             response = hresponse.HandlerResponse(403)
             response.reason = hcommon.NOT_VALID_TOKEN
