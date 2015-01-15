@@ -19,3 +19,4 @@ Resources
     collection-version
     collection-report
     collection-send
+    collection-upload
