@@ -29,11 +29,39 @@ def is_valid_dir_path(path):
     :return True or False.
     """
     is_valid = True
-    real_path = os.path.join(utils.BASE_PATH, path)
+    real_path = os.path.join(utils.BASE_PATH, os.path.dirname(path))
     if os.path.exists(real_path):
         if not os.path.isdir(real_path):
             is_valid = False
     return is_valid
+
+
+def file_exists(path):
+    """Verify if the path exists and is a file.
+
+    :param path: The file path to check.
+    :type path: str
+    :return True or False.
+    """
+    it_exists = False
+    real_path = os.path.join(utils.BASE_PATH, path)
+    if os.path.isfile(real_path):
+        it_exists = True
+    return it_exists
+
+
+def check_or_create_file_upload_dir(path):
+    """Check if the path exists and it can be accessed, or create it.
+
+    This accepts the path with the filename in it and checks if the destination
+    directory exists.
+
+    :param path: The full path to the file to check.
+    :type path: str
+    :return A tuple with status code and error. Status code will be 200 in case
+    it is OK, 500 in case of error.
+    """
+    return check_or_create_upload_dir(os.path.dirname(path))
 
 
 def check_or_create_upload_dir(path):

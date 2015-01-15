@@ -15,6 +15,7 @@
 
 import os
 import tornado.web
+import urlparse
 
 import handlers.base as hbase
 import handlers.common as hcommon
@@ -78,11 +79,8 @@ class UploadHandler(hbase.BaseHandler):
             valid_request = self._valid_post_request()
 
             if valid_request == 200:
-                path = None
-                # path here is considered to be a directory.
-                if kwargs.get("path", None):
-                    path = kwargs.get("path")
-                else:
+                path = self.get_argument("path", None)
+                if path is None:
                     try:
                         job = self.get_argument(models.JOB_KEY)
                         kernel = self.get_argument(models.KERNEL_KEY)
@@ -101,8 +99,13 @@ class UploadHandler(hbase.BaseHandler):
                             path = os.path.join(path, lab)
                     except tornado.web.MissingArgumentError, ex:
                         self.log.exception(ex)
-                        response = hresponse.HandlerResponse(ex.status_code)
+                        response = hresponse.HandlerResponse(
+                            ex.status_code)
                         response.reason = ex.log_message
+
+                # path is a dir, treat it like that.
+                if path and not path.endswith("/"):
+                    path += "/"
 
                 if path and utils.upload.is_valid_dir_path(path):
                     ret_val, reason = \
@@ -121,7 +124,7 @@ class UploadHandler(hbase.BaseHandler):
                     "%s: %s" %
                     (
                         self._get_status_message(valid_request),
-                        "Use %s the content type" % self.content_type
+                        "Use %s as the content type" % self.content_type
                     )
                 )
         else:
@@ -130,7 +133,85 @@ class UploadHandler(hbase.BaseHandler):
 
         return response
 
+    def _put(self, *args, **kwargs):
+        response = hresponse.HandlerResponse(201)
+
+        if kwargs and kwargs.get("path", None):
+            path = kwargs["path"]
+            # Path points to a file, treat it like that.
+            if path.endswith("/"):
+                path = path[:-1]
+
+            filename = os.path.basename(path)
+            dir_path = os.path.dirname(path)
+
+            if utils.upload.is_valid_dir_path(dir_path):
+                ret_val, error = \
+                    utils.upload.check_or_create_file_upload_dir(dir_path)
+
+                if ret_val == 200:
+                    prev_file = utils.upload.file_exists(path)
+
+                    ret_dict = utils.upload.create_or_update_file(
+                        dir_path, filename, None, self.request.body)
+
+                    if ret_dict["status"] == 200:
+                        if prev_file:
+                            response.status_code = 200
+                            response.reason = (
+                                "File '%s' replaced with new content" %
+                                filename
+                            )
+                        else:
+                            response.reason = "File '%s' saved" % filename
+                            location = self._create_storage_url(path)
+                            response.headers = {"Location": location}
+                    else:
+                        response.status_code = ret_dict["status"]
+                        response.reason = "Unable to save file"
+
+                    response.result = [ret_dict]
+                else:
+                    response.status_code = ret_val
+                    response.reason = error
+            else:
+                response.status_code = 500
+                response.reason = (
+                    "Cannot save file at the provided '%s' destination" % path)
+        else:
+            response.status_code = 400
+            response.reason = "Missing destination path"
+
+        return response
+
+    def _create_storage_url(self, path):
+        """Create the new storage location for the uploaded file.
+
+        :param path: The path of the file.
+        :type path: str
+        :return The new storage URL.
+        """
+        storage_url = self.settings["storage_url"]
+        new_storage_url = None
+
+        if storage_url:
+            split_url = urlparse.urlsplit(self.settings["storage_url"])
+            new_storage_url = urlparse.urlunsplit(
+                (
+                    split_url.scheme, split_url.netloc, path, split_url.query,
+                    split_url.fragment
+                )
+            )
+
+        return new_storage_url
+
     def _save_files(self, path):
+        """Parse the request and for each file, save it.
+
+        :param path: The directory path where to save the files.
+        :type str
+        :return A `HandlerResponse` object.
+        """
         response = hresponse.HandlerResponse()
 
         if self.request.files:
