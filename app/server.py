@@ -77,6 +77,8 @@ topt.define(
     help="The delay in sending the report emails, "
          "default to 1 hour and 5 seconds"
 )
+topt.define(
+    "storage_url", default=None, type=str, help="The URL of the storage system")
 
 
 class KernelCiBackend(tornado.web.Application):
@@ -122,7 +124,8 @@ class KernelCiBackend(tornado.web.Application):
             "debug": topt.options.debug,
             "master_key": topt.options.master_key,
             "autoreload": topt.options.autoreload,
-            "senddelay": topt.options.send_delay
+            "senddelay": topt.options.send_delay,
+            "storage_url": topt.options.storage_url
         }
 
         hdbindexes.ensure_indexes(self.mongodb_client, db_options)
