@@ -151,7 +151,7 @@ class UploadHandler(hbase.BaseHandler):
 
             if utils.upload.is_valid_dir_path(dir_path):
                 ret_val, error = \
-                    utils.upload.check_or_create_file_upload_dir(dir_path)
+                    utils.upload.check_or_create_upload_dir(dir_path)
 
                 if ret_val == 200:
                     prev_file = utils.upload.file_exists(path)
