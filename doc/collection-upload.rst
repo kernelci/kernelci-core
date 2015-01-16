@@ -55,7 +55,7 @@ POST
 
  :resjson int code: The status code of the request.
  :resjson array result: An array with the results of each file saved.
- :resjsonarr int status: The status of the file saving operation.
+ :resjsonarr int status: The status of the file saving operation (can be 200, 201, 500).
  :resjsonarr int bytes: The bytes written to disk.
  :resjsonarr string error: A string with the error reason, in case of errors.
  :resjsonarr string filename: The name of the file as saved.
@@ -154,7 +154,7 @@ PUT
 
  :resjson int code: The status code of the request.
  :resjson array result: An array with the results of each file saved.
- :resjsonarr int status: The status of the file saving operation.
+ :resjsonarr int status: The status of the file saving operation (can be 200, 201, 500).
  :resjsonarr int bytes: The bytes written to disk.
  :resjsonarr string error: A string with the error reason, in case of errors.
  :resjsonarr string filename: The name of the file as saved.
@@ -165,7 +165,8 @@ PUT
 
  :resheader Content-Type: Will be ``application/json; charset=UTF-8``.
 
- :status 200: The request has been processed.
+ :status 200: The file has been saved and the old one overwritten.
+ :status 201: The file has been saved.
  :status 400: Provided request is not valid.
  :status 403: Not authorized to perform the operation.
  :status 415: Wrong content type.
