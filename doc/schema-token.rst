@@ -86,7 +86,7 @@ The following table describes the ``properties`` array of a token:
 +----------+-------------------------------------+
 | 2        | If the token can perform GET.       |
 +----------+-------------------------------------+
-| 3        | If the token can perform POST.      | 
+| 3        | If the token can perform POST/PUT.  |
 +----------+-------------------------------------+
 | 4        | If the token can perform DELETE.    |
 +----------+-------------------------------------+
@@ -94,7 +94,11 @@ The following table describes the ``properties`` array of a token:
 +----------+-------------------------------------+
 | 6        | If the token can create new tokens. |
 +----------+-------------------------------------+
-| 7 - 15   | Not used.                           |
+| 7        | If the token is a lab token.        |
++----------+-------------------------------------+
+| 8        | If the token can upload files.      |
++----------+-------------------------------------+
+| 9 - 15   | Not used.                           |
 +----------+-------------------------------------+
 
 More Info
