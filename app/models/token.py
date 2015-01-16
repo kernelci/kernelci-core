@@ -56,6 +56,7 @@ class Token(modb.BaseDocument):
     - 5: if the token is IP restricted
     - 6: if the token can create new tokens
     - 7: if the token is a boot lab token
+    - 8: if the token can upload (POST/PUT) files
     """
 
     def __init__(self):
@@ -207,6 +208,7 @@ class Token(modb.BaseDocument):
         self._properties[3] = value
         self._properties[4] = value
         self._properties[6] = value
+        self._properties[8] = value
 
     @property
     def is_superuser(self):
@@ -231,6 +233,7 @@ class Token(modb.BaseDocument):
         self._properties[2] = value
         self._properties[3] = value
         self._properties[4] = value
+        self._properties[8] = value
 
     @property
     def is_get_token(self):
@@ -295,6 +298,15 @@ class Token(modb.BaseDocument):
     def is_lab_token(self, value):
         value = check_attribute_value(value)
         self._properties[7] = value
+
+    @property
+    def is_upload_token(self):
+        return self._properties[8]
+
+    @is_upload_token.setter
+    def is_upload_token(self, value):
+        value = check_attribute_value(value)
+        self._properties[8] = value
 
     def is_valid_ip(self, address):
         """Check if an IP address is valid for a token.
