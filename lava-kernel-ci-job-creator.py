@@ -117,6 +117,14 @@ imx6q_wandboard = {'device_type': 'imx6q-wandboard',
                    'be': False,
                    'fastboot': False}
 
+imx6q_sabrelite = {'device_type': 'imx6q-sabrelite',
+                   'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+                   'defconfig_blacklist': ['arm-imx_v4_v5_defconfig',
+                                           'arm-multi_v5_defconfig'],
+                   'lpae': False,
+                   'be': False,
+                   'fastboot': False}
+
 utilite_pro = {'device_type': 'utilite-pro',
                'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
                'defconfig_blacklist': ['arm-imx_v4_v5_defconfig',
@@ -267,6 +275,7 @@ device_map = {'exynos5250-arndale.dtb': arndale,
               'hip04-d01.dtb': d01,
               'hisi-x5hd2-dkb.dtb': hisi_x5hd2_dkb,
               'imx6q-wandboard.dtb': imx6q_wandboard,
+              'imx6q-sabrelite.dtb': imx6q_sabrelite,
               'imx6q-cm-fx6.dtb': utilite_pro,
               'ste-snowball.dtb': snowball,
               'qcom-apq8084-ifc6540.dtb': ifc6540,
