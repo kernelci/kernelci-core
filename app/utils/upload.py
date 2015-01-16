@@ -104,7 +104,7 @@ def create_or_update_file(path, filename, content_type, content):
     error string if it occurred, the bytes written and the file name.
     """
     ret_dict = {
-        "status": 200,
+        "status": 201,
         "error": None,
         "bytes": 0,
         "filename": filename
@@ -112,6 +112,9 @@ def create_or_update_file(path, filename, content_type, content):
 
     file_path = os.path.join(path, filename)
     real_path = os.path.join(utils.BASE_PATH, file_path)
+
+    if os.path.exists(real_path):
+        ret_dict["status"] = 200
 
     utils.LOG.info("Writing file '%s'", real_path)
 
