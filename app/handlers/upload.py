@@ -34,6 +34,10 @@ class UploadHandler(hbase.BaseHandler):
     def collection(self):
         return self.db[models.UPLOAD_COLLECTION]
 
+    @staticmethod
+    def _token_validation_func():
+        return hcommon.valid_token_upload
+
     @property
     def content_type(self):
         return "multipart/form-data"
