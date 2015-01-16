@@ -195,6 +195,7 @@ TOKEN_VALID_KEYS = {
         models.ADMIN_KEY,
         models.DELETE_KEY,
         models.EMAIL_KEY,
+        models.EXPIRED_KEY,
         models.EXPIRES_KEY,
         models.GET_KEY,
         models.IP_ADDRESS_KEY,
@@ -203,6 +204,7 @@ TOKEN_VALID_KEYS = {
         models.NAME_KEY,
         models.POST_KEY,
         models.SUPERUSER_KEY,
+        models.UPLOAD_KEY,
         models.USERNAME_KEY
     ],
     'GET': [
@@ -898,6 +900,23 @@ def valid_token_th(token, method):
     if token.is_admin:
         valid_token = True
     elif all([token.is_superuser, method == "GET"]):
+        valid_token = True
+
+    return valid_token
+
+
+def valid_token_upload(token, method):
+    """Make sure a token is enabled to upload files.
+
+    :param token: The token object to validate.
+    :param method: The HTTP method this token is being validated for.
+    :return True or False.
+    """
+    valid_token = False
+
+    if any([token.is_admin, token.is_superuser]):
+        valid_token = True
+    if all([(method == "PUT" or method == "POST"), token.is_upload_token]):
         valid_token = True
 
     return valid_token

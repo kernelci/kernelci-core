@@ -135,6 +135,7 @@ POST_KEY = "post"
 SUPERUSER_KEY = "superuser"
 LAB_KEY = "lab"
 PUT_KEY = "put"
+UPLOAD_KEY = "upload"
 
 # Job and/or build status.
 BUILD_STATUS = "BUILD"
