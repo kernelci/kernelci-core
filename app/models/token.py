@@ -51,7 +51,7 @@ class Token(modb.BaseDocument):
     - 0: if the token is an admin token
     - 1: if the token is a superuser token
     - 2: if the token can perform GET
-    - 3: if the token can perfrom POST
+    - 3: if the token can perfrom POST and PUT
     - 4: if the token can perform DELETE
     - 5: if the token is IP restricted
     - 6: if the token can create new tokens
@@ -222,7 +222,7 @@ class Token(modb.BaseDocument):
         """
         value = check_attribute_value(value)
 
-        # Force admin to zero, and also if can create new tokens, regardless
+        # Force admin to zero, and also if it can create new tokens, regardless
         # of what is passed. A super user cannot create new tokens.
         self._properties[0] = 0
         self._properties[6] = 0
