@@ -22,15 +22,15 @@ Where possible, the API strives to use appropriate HTTP verbs for each action.
 
 Not all the API resources might implement them.
 
-+--------+-------------------------------------+
-| Verb   | Description                         |
-+========+=====================================+
-| GET    | Used to retrieve resources.         |
-+--------+-------------------------------------+
-| POST   | Used to create or update resources. |
-+--------+-------------------------------------+
-| DELETE | Used for deleting resources.        |
-+--------+-------------------------------------+
++------------+-------------------------------------+
+| Verb       | Description                         |
++============+=====================================+
+| GET        | Used to retrieve resources.         |
++------------+-------------------------------------+
+| POST/PUT   | Used to create or update resources. |
++------------+-------------------------------------+
+| DELETE     | Used for deleting resources.        |
++------------+-------------------------------------+
 
 .. _http_status_code:
 
