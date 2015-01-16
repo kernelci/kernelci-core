@@ -217,26 +217,32 @@ class TokenHandler(hbase.BaseHandler):
         if json_get(models.EXPIRES_KEY, None):
             token.expires_on = json_get(models.EXPIRES_KEY)
 
-        if json_get(models.GET_KEY, None):
+        if str(json_get(models.EXPIRED_KEY, None)) != "None":
+            token.expired = json_get(models.EXPIRED_KEY)
+
+        if str(json_get(models.GET_KEY, None)) != "None":
             token.is_get_token = json_get(models.GET_KEY)
 
-        if json_get(models.POST_KEY, None):
+        if str(json_get(models.POST_KEY, None)) != "None":
             token.is_post_token = json_get(models.POST_KEY)
 
-        if json_get(models.DELETE_KEY, None):
+        if str(json_get(models.DELETE_KEY, None)) != "None":
             token.is_delete_token = json_get(models.DELETE_KEY)
 
-        if json_get(models.SUPERUSER_KEY, None):
+        if str(json_get(models.SUPERUSER_KEY, None)) != "None":
             token.is_superuser = json_get(models.SUPERUSER_KEY)
 
-        if json_get(models.ADMIN_KEY, None):
+        if str(json_get(models.ADMIN_KEY, None)) != "None":
             token.is_admin = json_get(models.ADMIN_KEY)
 
-        if json_get(models.IP_RESTRICTED, None):
+        if str(json_get(models.IP_RESTRICTED, None)) != "None":
             token.is_ip_restricted = json_get(models.IP_RESTRICTED)
 
-        if json_get(models.LAB_KEY, None):
+        if str(json_get(models.LAB_KEY, None)) != "None":
             token.is_lab_token = json_get(models.LAB_KEY)
+
+        if str(json_get(models.UPLOAD_KEY, None)) != "None":
+            token.is_upload_token = json_get(models.UPLOAD_KEY)
 
         if token.is_ip_restricted and not json_get(models.IP_ADDRESS_KEY, None):
             raise Exception("IP restricted but no IP addresses given")
