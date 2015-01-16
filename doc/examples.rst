@@ -331,3 +331,132 @@ Triggering boot email report
 
     if __name__ == "__main__":
         main()
+
+
+Upload multiple files
+---------------------
+
+The following example, before sending the files, will load them in memory.
+With big files this might not be convenient.
+
+::
+
+    #!/usr/bin/env python
+
+    """Send multiple files as part of the build process."""
+
+    import requests
+
+    from urlparse import urljoin
+
+    BACKEND_URL = 'http://api.kernelci.org'
+    AUTHORIZATION_TOKEN = 'foo'
+
+
+    def main():
+        headers = {
+            'Authorization': AUTHORIZATION_TOKEN
+        }
+
+        data = {
+            'path': 'next/next-20150116/arm64-allnoconfig/'
+        }
+
+        files = [
+            ('file1', ('Image', open('/path/to/Image', 'rb'))),
+            ('file2', ('kernel.config', open('/path/to/kernel.config', 'rb'))),
+            ('file3', ('build.json', open('/path/to/build.json', 'rb'))),
+            ('file4', ('build.log', open('/path/to/build.log', 'rb'))),
+            ('file5', ('System.map', open('/path/to/System.map', 'rb'))),
+        ]
+
+        url = urljoin(BACKEND_URL, '/upload')
+        response = requests.post(url, data=data, headers=headers, files=files)
+
+        print response.content
+
+    if __name__ == "__main__":
+        main()
+
+
+Upload multiple files - 2
+-------------------------
+
+The following example does not load the files in memory, but it relies on an
+external library: `requests-toolbelt <https://pypi.python.org/pypi/requests-toolbelt/>`_.
+
+::
+
+    #!/usr/bin/env python
+
+    """Send a single file to the storage backend."""
+
+    import requests
+
+    from requests_toolbelt import MultipartEncoder
+    from urlparse import urljoin
+
+    BACKEND_URL = 'http://api.kernelci.org'
+    AUTHORIZATION_TOKEN = 'foo'
+
+
+    def main():
+        data = MultipartEncoder(
+            fields={
+                'path': 'next/next-20150116/arm64-allnoconfig/',
+                'file1': ('Image', open('/path/to/Image', 'rb')),
+                'file2': ('kernel.config', open('/path/to/kernel.config', 'rb')),
+                'file3': ('build.json', open('/path/to/build.json', 'rb')),
+                'file4': ('build.log', open('/path/to/build.log', 'rb')),
+                'file5': ('System.map', open('/path/to/System.map', 'rb')),
+            }
+        )
+
+        headers = {
+            'Authorization': AUTHORIZATION_TOKEN,
+            'Content-Type': data.content_type
+        }
+
+        url = urljoin(BACKEND_URL, '/upload')
+        response = requests.post(url, headers=headers, data=data)
+
+        print response.content
+
+    if __name__ == "__main__":
+        main()
+
+
+
+Upload a single file
+--------------------
+
+::
+
+    #!/usr/bin/env python
+
+    """Send a single file to the storage backend."""
+
+    import requests
+
+    from urlparse import urljoin
+
+    BACKEND_URL = 'http://api.kernelci.org'
+    AUTHORIZATION_TOKEN = 'foo'
+
+
+    def main():
+        headers = {
+            'Authorization': AUTHORIZATION_TOKEN
+        }
+
+        files = {
+            'file': (open('/path/to/boot-arch.json', 'rb'))
+        }
+
+        url = urljoin(BACKEND_URL, '/upload/next/next-20150116/arm64-allnoconfig/lab-name/boot-arch.json')
+        response = requests.put(url, headers=headers, files=files)
+
+        print response.content
+
+    if __name__ == "__main__":
+        main()
