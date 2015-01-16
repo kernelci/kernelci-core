@@ -7,9 +7,9 @@ Upload files to the storage system.
 
 There are two ways to upload files:
 
-1. Via :http:method:`post` (:ref:`more info <collection_upload_post>`).
+1. Through a :http:method:`post` request (:ref:`more info <collection_upload_post>`).
 
-2. Via :http:method:`put` (:ref:`more info <collection_upload_put>`).
+2. Through a :http:method:`put` request (:ref:`more info <collection_upload_put>`).
 
 Using a :http:method:`post` request it is possible to send multiple files at once,
 but the request must be encapsulated as ``multipart/form-data``
@@ -74,7 +74,7 @@ POST
 
  **Example Requests**
 
- .. sourcecode:: http 
+ .. sourcecode:: http
 
     POST /upload/ HTTP/1.1
     Host: api.kernelci.org
@@ -85,12 +85,12 @@ POST
     ------------------------------80aa05d1f94c
     Content-Disposition: form-data; name="path"
 
-    next/next-20150114/arm-allnoconfig/
+    next/next-20150116/arm-allnoconfig/
     ------------------------------80aa05d1f94c
     Content-Disposition: form-data; name="file01"; filename="zImage"
     Content-Type: application/octet-stream
 
- .. sourcecode:: http 
+ .. sourcecode:: http
 
     POST /upload/ HTTP/1.1
     Host: api.kernelci.org
@@ -105,7 +105,7 @@ POST
     ------------------------------80aa05d1f94c
     Content-Disposition: form-data; name="kernel"
 
-    next-20150114
+    next-20150116
     ------------------------------80aa05d1f94c
     Content-Disposition: form-data; name="arch"
 
@@ -124,7 +124,7 @@ POST
 
     HTTP/1.1 200 OK
     Vary: Accept-Encoding
-    Date: Mon, 11 Aug 2014 15:12:50 GMT
+    Date: Fri, 16 Jan 2015 15:12:50 GMT
     Content-Type: application/json; charset=UTF-8
 
     {
@@ -141,10 +141,70 @@ POST
 
 .. _collection_upload_put:
 
-.. http:put:: /upload/(string:path)
-
 PUT
 ***
+
+.. http:put:: /upload/(string:path)
+
+ Upload a single file at the specified ``path`` location. ``path`` is the filename
+ path where it should be stored. It will be treated like a file path. The file
+ content should be sent in the request body.
+
+ :param path: The destination path where the file should be saved.
+
+ :resjson int code: The status code of the request.
+ :resjson array result: An array with the results of each file saved.
+ :resjsonarr int status: The status of the file saving operation.
+ :resjsonarr int bytes: The bytes written to disk.
+ :resjsonarr string error: A string with the error reason, in case of errors.
+ :resjsonarr string filename: The name of the file as saved.
+
+ :reqheader Authorization: The token necessary to authorize the request.
+ :reqheader Content-Type: Content type of the transmitted data, must be ``multipart/form-data``.
+ :reqheader Accept-Encoding: Accept the ``gzip`` coding.
+
+ :resheader Content-Type: Will be ``application/json; charset=UTF-8``.
+
+ :status 200: The request has been processed.
+ :status 400: Provided request is not valid.
+ :status 403: Not authorized to perform the operation.
+ :status 415: Wrong content type.
+ :status 500: Internal error: cannot write directory, files, ...
+
+ **Example Requests**
+
+ .. sourcecode:: http
+
+    PUT /upload/next/next-20150116/arm-allnoconfig/zImage HTTP/1.1
+    Host: api.kernelci.org
+    Authorization: token
+    Accept: */*
+    Content-Length: 6166840
+    Content-Type: application/x-www-form-urlencoded
+
+    .7zXZ......F..!.....GX:C..,..].....1.PX.3{...V...!...[.4....3..~
+    ...
+
+ **Example Responses**
+
+ .. sourcecode:: http
+
+    HTTP/1.1 200 OK
+    Vary: Accept-Encoding
+    Date: Fri, 16 Jan 2015 15:12:50 GMT
+    Content-Type: application/json; charset=UTF-8
+
+    {
+        "code": 200,
+        "result": [
+            {
+                "status": 200,
+                "filename": "zImage",
+                "error": null,
+                "bytes": 6166840,
+            }
+        ]
+    }
 
 DELETE
 ******
