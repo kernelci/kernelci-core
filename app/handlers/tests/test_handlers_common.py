@@ -27,6 +27,7 @@ from bson import (
 )
 
 from handlers.common import (
+    _is_expired_token,
     add_created_on_date,
     calculate_date_range,
     get_aggregate_value,
@@ -42,8 +43,8 @@ from handlers.common import (
     valid_token_bh,
     valid_token_general,
     valid_token_th,
-    validate_token,
-    _is_expired_token
+    valid_token_upload,
+    validate_token
 )
 from models.token import Token
 
@@ -829,6 +830,34 @@ class TestHandlersCommon(unittest.TestCase):
         self.assertFalse(valid_token_th(token, "POST"))
         self.assertFalse(valid_token_th(token, "PUT"))
         self.assertFalse(valid_token_th(token, "DELETE"))
+
+    def test_valid_token_upload_nornal_token(self):
+        token = Token()
+        token.is_upload_token = True
+
+        self.assertTrue(valid_token_upload(token, "PUT"))
+        self.assertTrue(valid_token_upload(token, "POST"))
+
+        self.assertFalse(valid_token_upload(token, "GET"))
+        self.assertFalse(valid_token_upload(token, "DELETE"))
+
+    def test_valid_token_upload_admin(self):
+        token = Token()
+        token.is_admin = True
+
+        self.assertTrue(valid_token_upload(token, "POST"))
+        self.assertTrue(valid_token_upload(token, "PUT"))
+        self.assertTrue(valid_token_upload(token, "GET"))
+        self.assertTrue(valid_token_upload(token, "DELETE"))
+
+    def test_valid_token_upload_superuser(self):
+        token = Token()
+        token.is_superuser = True
+
+        self.assertTrue(valid_token_upload(token, "POST"))
+        self.assertTrue(valid_token_upload(token, "PUT"))
+        self.assertTrue(valid_token_upload(token, "GET"))
+        self.assertTrue(valid_token_upload(token, "DELETE"))
 
     def test_token_expires_expired(self):
         token = Token()
