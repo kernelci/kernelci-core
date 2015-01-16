@@ -851,9 +851,9 @@ def valid_token_general(token, method):
     """
     valid_token = False
 
-    if method == "GET" and token.is_get_token:
+    if all([method == "GET", token.is_get_token]):
         valid_token = True
-    elif method == "POST" and token.is_post_token:
+    elif all([(method == "POST" or method == "PUT"), token.is_post_token]):
         valid_token = True
     elif all([method == "DELETE", token.is_delete_token]):
         if not token.is_lab_token:
@@ -875,7 +875,7 @@ def valid_token_bh(token, method):
 
     if all([method == "GET", token.is_get_token]):
         valid_token = True
-    elif all([method == "POST", token.is_post_token]):
+    elif all([(method == "POST" or method == "PUT"), token.is_post_token]):
         valid_token = True
     elif all([method == "DELETE", token.is_delete_token]):
         valid_token = True
@@ -922,15 +922,38 @@ def validate_token(token_obj, method, remote_ip, validate_func):
             utils.LOG.error("Retrieved token is not a Token object")
             valid_token = False
         else:
-            valid_token &= validate_func(token, method)
-
-            if token.is_ip_restricted and \
-                    not _valid_token_ip(token, remote_ip):
+            if _is_expired_token(token):
                 valid_token = False
+            else:
+                valid_token &= validate_func(token, method)
+
+                if all([valid_token,
+                        token.is_ip_restricted,
+                        not _valid_token_ip(token, remote_ip)]):
+                    valid_token = False
     else:
         valid_token = False
 
     return valid_token
+
+
+def _is_expired_token(token):
+    """Verify whther a token is expired or not.
+
+    :param token: The token to verify.
+    :type token: `models.Token`.
+    :return True or False.
+    """
+    is_expired = False
+    if token.expired:
+        is_expired = True
+    else:
+        expires_on = token.expires_on
+        if expires_on is not None and isinstance(expires_on, datetime.datetime):
+            if expires_on < datetime.datetime.now():
+                is_expired = True
+
+    return is_expired
 
 
 def _valid_token_ip(token, remote_ip):
@@ -942,17 +965,21 @@ def _valid_token_ip(token, remote_ip):
     """
     valid_token = False
 
-    if remote_ip:
-        remote_ip = mtoken.convert_ip_address(remote_ip)
+    if token.ip_address is not None:
+        if remote_ip:
+            remote_ip = mtoken.convert_ip_address(remote_ip)
 
-        if remote_ip in token.ip_address:
-            valid_token = True
+            if remote_ip in token.ip_address:
+                valid_token = True
+            else:
+                utils.LOG.warn(
+                    "IP restricted token from wrong IP address: %s",
+                    remote_ip
+                )
         else:
-            utils.LOG.warn(
-                "IP restricted token from wrong IP address: %s",
-                remote_ip
-            )
+            utils.LOG.info(
+                "No remote IP address provided, cannot validate token")
     else:
-        utils.LOG.info("No remote IP address provided, cannot validate token")
+        valid_token = True
 
     return valid_token
