@@ -103,21 +103,23 @@ class UploadHandler(hbase.BaseHandler):
                             ex.status_code)
                         response.reason = ex.log_message
 
-                # path is a dir, treat it like that.
-                if path and not path.endswith("/"):
-                    path += "/"
+                if path:
+                    if not path.endswith("/"):
+                        path += "/"
+                    if path.startswith("/"):
+                        path = path[1:]
 
-                if path and utils.upload.is_valid_dir_path(path):
-                    ret_val, reason = \
-                        utils.upload.check_or_create_upload_dir(path)
-                    if ret_val == 200:
-                        response = self._save_files(path)
+                    if utils.upload.is_valid_dir_path(path):
+                        ret_val, reason = \
+                            utils.upload.check_or_create_upload_dir(path)
+                        if ret_val == 200:
+                            response = self._save_files(path)
+                        else:
+                            response = hresponse.HandlerResponse(ret_val)
+                            response.reason = reason
                     else:
-                        response = hresponse.HandlerResponse(ret_val)
-                        response.reason = reason
-                else:
-                    response = hresponse.HandlerResponse(400)
-                    response.reason = "Provided path is not a directory"
+                        response = hresponse.HandlerResponse(400)
+                        response.reason = "Provided path is not a directory"
             else:
                 response = hresponse.HandlerResponse(valid_request)
                 response.reason = (
@@ -141,6 +143,8 @@ class UploadHandler(hbase.BaseHandler):
             # Path points to a file, treat it like that.
             if path.endswith("/"):
                 path = path[:-1]
+            if path.startswith("/"):
+                path = path[1:]
 
             filename = os.path.basename(path)
             dir_path = os.path.dirname(path)
