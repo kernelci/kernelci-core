@@ -42,7 +42,8 @@ from handlers.common import (
     valid_token_bh,
     valid_token_general,
     valid_token_th,
-    validate_token
+    validate_token,
+    _is_expired_token
 )
 from models.token import Token
 
@@ -755,6 +756,7 @@ class TestHandlersCommon(unittest.TestCase):
         self.assertTrue(valid_token_general(token, "GET"))
         self.assertTrue(valid_token_general(token, "POST"))
         self.assertTrue(valid_token_general(token, "DELETE"))
+        self.assertTrue(valid_token_general(token, "PUT"))
 
     @mock.patch("models.token.Token", spec=True)
     def test_valid_token_general_lab_token(self, mock_class):
@@ -771,6 +773,7 @@ class TestHandlersCommon(unittest.TestCase):
         self.assertFalse(valid_token_general(token, "GET"))
         self.assertTrue(valid_token_general(token, "POST"))
         self.assertFalse(valid_token_general(token, "DELETE"))
+        self.assertTrue(valid_token_general(token, "PUT"))
 
     @mock.patch("models.token.Token", spec=True)
     def test_valid_token_general_false(self, mock_class):
@@ -785,6 +788,7 @@ class TestHandlersCommon(unittest.TestCase):
         self.assertFalse(valid_token_general(token, "GET"))
         self.assertFalse(valid_token_general(token, "POST"))
         self.assertFalse(valid_token_general(token, "DELETE"))
+        self.assertFalse(valid_token_general(token, "PUT"))
 
     @mock.patch("models.token.Token", spec=True)
     def test_valid_token_th_true(self, mock_class):
@@ -798,6 +802,7 @@ class TestHandlersCommon(unittest.TestCase):
         self.assertTrue(valid_token_th(token, "GET"))
         self.assertTrue(valid_token_th(token, "POST"))
         self.assertTrue(valid_token_th(token, "DELETE"))
+        self.assertTrue(valid_token_th(token, "PUT}"))
 
         token.is_admin = False
         token.is_superuser = True
@@ -816,12 +821,40 @@ class TestHandlersCommon(unittest.TestCase):
         self.assertFalse(valid_token_th(token, "GET"))
         self.assertFalse(valid_token_th(token, "POST"))
         self.assertFalse(valid_token_th(token, "DELETE"))
+        self.assertFalse(valid_token_th(token, "PUT"))
 
         token.is_admin = False
         token.is_superuser = True
 
         self.assertFalse(valid_token_th(token, "POST"))
+        self.assertFalse(valid_token_th(token, "PUT"))
         self.assertFalse(valid_token_th(token, "DELETE"))
+
+    def test_token_expires_expired(self):
+        token = Token()
+        token.expires_on = "1970-01-01"
+
+        self.assertIsInstance(token.expires_on, datetime.datetime)
+        self.assertTrue(_is_expired_token(token))
+
+    def test_token_expires_not_expired(self):
+        token = Token()
+        token.expires_on = "2300-01-01"
+
+        self.assertIsInstance(token.expires_on, datetime.datetime)
+        self.assertFalse(_is_expired_token(token))
+
+    def test_token_expires_is_expired(self):
+        token = Token()
+        token.expired = True
+
+        self.assertTrue(_is_expired_token(token))
+
+    def test_token_expires_is_not_expired(self):
+        token = Token()
+        token.expired = False
+
+        self.assertFalse(_is_expired_token(token))
 
     @mock.patch("models.token.Token.from_json")
     def test_validate_token_wrong_class(self, mock_from_json):
@@ -881,6 +914,16 @@ class TestHandlersCommon(unittest.TestCase):
         self.assertFalse(
             validate_token(token, "GET", None, validate_func)
         )
+
+    @mock.patch("models.token.Token.from_json")
+    def test_validate_token_expired(self, mock_from_json):
+        token = Token()
+        token.expired = True
+
+        mock_from_json.return_value = token
+        validate_func = mock.Mock()
+
+        self.assertFalse(validate_token(token, "GET", None, validate_func))
 
     @mock.patch("models.token.Token", spec=True)
     def test_valid_token_bh(self, mock_class):
