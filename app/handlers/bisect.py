@@ -14,8 +14,8 @@
 """The request handler for bisect URLs."""
 
 import bson
-import functools
 import tornado
+import tornado.gen
 import tornado.web
 
 import handlers.base as hbase
@@ -32,16 +32,10 @@ class BisectHandler(hbase.BaseHandler):
     def __init__(self, application, request, **kwargs):
         super(BisectHandler, self).__init__(application, request, **kwargs)
 
-    @tornado.web.asynchronous
+    @tornado.gen.coroutine
     def get(self, *args, **kwargs):
-        self.executor.submit(
-            functools.partial(self.execute_get, *args, **kwargs)
-        ).add_done_callback(
-            lambda future:
-            tornado.ioloop.IOLoop.instance().add_callback(
-                functools.partial(self._create_valid_response, future.result())
-            )
-        )
+        future = yield self.executor.submit(self.execute_get, *args, **kwargs)
+        self.write(future)
 
     @property
     def collection(self):

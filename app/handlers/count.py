@@ -15,7 +15,7 @@
 
 """Handle the /count URLs used to count objects in the database."""
 
-import tornado.web
+import tornado.gen
 
 import handlers.base as hbase
 import handlers.common as hcommon
@@ -66,12 +66,12 @@ class CountHandler(hbase.BaseHandler):
 
         return response
 
-    @tornado.web.asynchronous
+    @tornado.gen.coroutine
     def post(self, *args, **kwargs):
         """Not implemented."""
         self.write_error(status_code=501)
 
-    @tornado.web.asynchronous
+    @tornado.gen.coroutine
     def delete(self, *args, **kwargs):
         """Not implemented."""
         self.write_error(status_code=501)

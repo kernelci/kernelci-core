@@ -285,7 +285,7 @@ class TestJobHandler(
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
-    @mock.patch('handlers.job.JobHandler._get_one')
+    @mock.patch('handlers.base.BaseHandler._get_one')
     def test_get_wrong_handler_response(self, mock_get_one):
         mock_get_one.return_value = ""
 

@@ -19,10 +19,12 @@ except ImportError:
     import json
 
 import bson
-import functools
 import httplib
 import tornado
+import tornado.escape
+import tornado.gen
 import tornado.web
+import types
 
 import handlers.common as hcommon
 import handlers.response as hresponse
@@ -44,6 +46,9 @@ STATUS_MESSAGES = {
 }
 
 
+# pylint: disable=unused-argument
+# pylint: disable=too-many-public-methods
+# pylint: disable=no-self-use
 class BaseHandler(tornado.web.RequestHandler):
     """The base handler."""
 
@@ -63,6 +68,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
     @property
     def content_type(self):
+        """The accepted content-type header."""
         return hcommon.ACCEPTED_CONTENT_TYPE
 
     @property
@@ -99,6 +105,10 @@ class BaseHandler(tornado.web.RequestHandler):
 
     @staticmethod
     def _token_validation_func():
+        """The function that should be used to validate the token.
+
+        :return A function.
+        """
         return hcommon.valid_token_general
 
     def _get_status_message(self, status_code):
@@ -116,33 +126,36 @@ class BaseHandler(tornado.web.RequestHandler):
                 status_code, "Unknown status code returned")
         return message
 
-    def _create_valid_response(self, response):
-        """Create a valid JSON response based on its type.
-
-        :param response: The response we have from a query to the database.
-        :type HandlerResponse
-        """
+    def write(self, future):
+        """Write the response back to the requestor."""
         status_code = 200
         headers = {}
         result = {}
 
-        if isinstance(response, hresponse.HandlerResponse):
-            status_code = response.status_code
-            reason = response.reason or self._get_status_message(status_code)
-            headers = response.headers
-            result = json.dumps(
-                response.to_dict(),
-                default=bson.json_util.default,
-                ensure_ascii=False,
-                separators=(",", ":")
-            )
+        if isinstance(future, hresponse.HandlerResponse):
+            status_code = future.status_code
+            reason = future.reason or self._get_status_message(status_code)
+            headers = future.headers
+            to_dump = future.to_dict()
+        elif isinstance(future, types.DictionaryType):
+            status_code = future.get("code", 200)
+            reason = future.get(
+                "reason", self._get_status_message(status_code))
+            to_dump = future
         else:
             status_code = 506
             reason = self._get_status_message(status_code)
-            result = dict(code=status_code, reason=reason)
+            to_dump = dict(code=status_code, reason=reason)
+
+        result = json.dumps(
+            to_dump,
+            default=bson.json_util.default,
+            ensure_ascii=False,
+            separators=(",", ":")
+        )
 
         self.set_status(status_code=status_code, reason=reason)
-        self.write(result)
+        self._write_buffer.append(tornado.escape.utf8(result))
         self.set_header("Content-Type", hcommon.DEFAULT_RESPONSE_TYPE)
 
         if headers:
@@ -150,6 +163,17 @@ class BaseHandler(tornado.web.RequestHandler):
                 self.add_header(key, val)
 
         self.finish()
+
+    def write_error(self, status_code, **kwargs):
+        if kwargs.get("message", None):
+            status_message = kwargs["message"]
+        else:
+            status_message = self._get_status_message(status_code)
+
+        if status_message:
+            self.write(dict(code=status_code, reason=status_message))
+        else:
+            super(BaseHandler, self).write_error(status_code, kwargs)
 
     def _has_valid_content_type(self):
         """Check if the request content type is the one expected.
@@ -173,15 +197,10 @@ class BaseHandler(tornado.web.RequestHandler):
 
         return valid_content
 
-    @tornado.web.asynchronous
+    @tornado.gen.coroutine
     def put(self, *args, **kwargs):
-        self.executor.submit(
-            functools.partial(self.execute_put, *args, **kwargs)
-        ).add_done_callback(
-            lambda future: tornado.ioloop.IOLoop.instance().add_callback(
-                functools.partial(self._create_valid_response, future.result())
-            )
-        )
+        future = yield self.executor.submit(self.execute_put, *args, **kwargs)
+        self.write(future)
 
     def execute_put(self, *args, **kwargs):
         """Execute the PUT pre-operations."""
@@ -208,15 +227,10 @@ class BaseHandler(tornado.web.RequestHandler):
         """
         return hresponse.HandlerResponse(501)
 
-    @tornado.web.asynchronous
+    @tornado.gen.coroutine
     def post(self, *args, **kwargs):
-        self.executor.submit(
-            functools.partial(self.execute_post, *args, **kwargs)
-        ).add_done_callback(
-            lambda future: tornado.ioloop.IOLoop.instance().add_callback(
-                functools.partial(self._create_valid_response, future.result())
-            )
-        )
+        future = yield self.executor.submit(self.execute_post, *args, **kwargs)
+        self.write(future)
 
     def execute_post(self, *args, **kwargs):
         """Execute the POST pre-operations.
@@ -302,16 +316,11 @@ class BaseHandler(tornado.web.RequestHandler):
         """
         return hresponse.HandlerResponse(501)
 
-    @tornado.web.asynchronous
+    @tornado.gen.coroutine
     def delete(self, *args, **kwargs):
-        self.executor.submit(
-            functools.partial(self.execute_delete, *args, **kwargs)
-        ).add_done_callback(
-            lambda future:
-            tornado.ioloop.IOLoop.instance().add_callback(
-                functools.partial(self._create_valid_response, future.result())
-            )
-        )
+        future = yield self.executor.submit(
+            self.execute_delete, *args, **kwargs)
+        self.write(future)
 
     def execute_delete(self, *args, **kwargs):
         """Perform DELETE pre-operations.
@@ -347,16 +356,10 @@ class BaseHandler(tornado.web.RequestHandler):
         """
         return hresponse.HandlerResponse(501)
 
-    @tornado.web.asynchronous
+    @tornado.gen.coroutine
     def get(self, *args, **kwargs):
-        self.executor.submit(
-            functools.partial(self.execute_get, *args, **kwargs)
-        ).add_done_callback(
-            lambda future:
-            tornado.ioloop.IOLoop.instance().add_callback(
-                functools.partial(self._create_valid_response, future.result())
-            )
-        )
+        future = yield self.executor.submit(self.execute_get, *args, **kwargs)
+        self.write(future)
 
     def execute_get(self, *args, **kwargs):
         """This is the actual GET operation.
@@ -482,19 +485,6 @@ class BaseHandler(tornado.web.RequestHandler):
 
         return (spec, sort, fields, skip, limit, unique)
 
-    def write_error(self, status_code, **kwargs):
-        if kwargs.get("message", None):
-            status_message = kwargs["message"]
-        else:
-            status_message = self._get_status_message(status_code)
-
-        if status_message:
-            self.set_status(status_code, status_message)
-            self.write(dict(code=status_code, message=status_message))
-            self.finish()
-        else:
-            super(BaseHandler, self).write_error(status_code, kwargs)
-
     # TODO: cache the validated token.
     def validate_req_token(self, method):
         """Validate the request token.
@@ -504,7 +494,7 @@ class BaseHandler(tornado.web.RequestHandler):
         """
         valid_token = False
 
-        req_token = self.get_request_token()
+        req_token = self.request.headers.get(hcommon.API_TOKEN_HEADER, None)
         remote_ip = self.request.remote_ip
         master_key = self.settings.get(hcommon.MASTER_KEY, None)
 
@@ -521,14 +511,17 @@ class BaseHandler(tornado.web.RequestHandler):
 
         return valid_token
 
-    def get_request_token(self):
-        """Retrieve the Authorization token of this request.
-
-        :return The authorization token as string.
-        """
-        return self.request.headers.get(hcommon.API_TOKEN_HEADER, None)
-
     def _token_validation(self, req_token, method, remote_ip, master_key):
+        """Perform the real token validation.
+
+        :param req_token: The token as taken from the request.
+        :type req_token: string
+        :param method: The HTTP verb to validate.
+        :type method: string
+        :param remote_ip: The IP address originating the request.
+        :param master_key: The default master key.
+        :return True or False.
+        """
         valid_token = False
         token_obj = self._find_token(req_token, self.db)
 

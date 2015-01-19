@@ -46,7 +46,7 @@ class BootHandler(hbase.BaseHandler):
         return hcommon.valid_token_bh
 
     def _post(self, *args, **kwargs):
-        req_token = self.get_request_token()
+        req_token = self.request.headers.get(hcommon.API_TOKEN_HEADER, None)
         lab_name = kwargs["json_obj"].get(models.LAB_NAME_KEY, None)
 
         if self._is_valid_token(req_token, lab_name):
@@ -177,7 +177,7 @@ class BootHandler(hbase.BaseHandler):
         :return True or False.
         """
         valid_token = True
-        req_token = self.get_request_token()
+        req_token = self.request.headers.get(hcommon.API_TOKEN_HEADER, None)
         token = self._find_token(req_token, self.db)
 
         if token:
