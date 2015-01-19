@@ -26,6 +26,10 @@ data sent to the server.
                 "type": "string",
                 "description": "The kernel name associated with the object"
             },
+            "lab_name": {
+                "type": "string",
+                "description": "The name of the lab to trigger the report for"
+            },
             "boot_report": {
                 "type": "boolean",
                 "description": "Whether the boot report should be created and sent",

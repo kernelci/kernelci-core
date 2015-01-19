@@ -29,6 +29,7 @@ POST
 
  :reqjson string job: The name of the job.
  :reqjson string kernel: The name of the kernel.
+ :reqjson string lab_name: The name of the lab.
  :reqjson boolean boot_report: If the boot report should be created and sent. Default to 0 (false).
  :reqjson boolean build_report: If the build report should be created and sent. Default to 0 (false).
  :reqjson send_to: A string or an array of strings of email addresses where to send the reports.
@@ -64,6 +65,23 @@ POST
         "boot_report": 1,
         "send_to": ["email@example.net"],
         "delay": 14400
+    }
+
+ .. sourcecode:: http 
+
+    POST /send HTTP/1.1
+    Host: api.kernelci.org
+    Content-Type: application/json
+    Accept: */*
+    Authorization: token
+
+    {
+        "job": "next",
+        "kernel": "next-20150113",
+        "lab_name": "lab",
+        "boot_report": 1,
+        "send_to": ["email@example.net"],
+        "delay": 30
     }
 
 DELETE

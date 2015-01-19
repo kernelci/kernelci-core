@@ -92,13 +92,18 @@ def save_report(job, kernel, r_type, status, errors, db_options):
 
 
 # pylint: disable=too-many-locals
-def create_boot_report(job, kernel, db_options):
+def create_boot_report(job, kernel, lab_name, db_options):
     """Create the boot report email to be sent.
+
+    If lab_name is not None, it will trigger a boot report only for that
+    specified lab.
 
     :param job: The name of the job.
     :type job: str
     :param  kernel: The name of the kernel.
     :type kernel: str
+    :param lab_name: The name of the lab.
+    :type lab_name: str
     :param db_options: The mongodb database connection parameters.
     :type db_options: dict
     :return A tuple with the email body and subject as strings or None.
@@ -112,6 +117,8 @@ def create_boot_report(job, kernel, db_options):
         models.JOB_KEY: job,
         models.KERNEL_KEY: kernel,
     }
+    if lab_name is not None:
+        spec[models.LAB_NAME_KEY] = lab_name
 
     _, total_count = utils.db.find_and_count(
         database[models.BOOT_COLLECTION],
@@ -141,7 +148,7 @@ def create_boot_report(job, kernel, db_options):
         fail_results = [x for x in fail_results.clone()]
 
         conflict_data = None
-        if fail_count != total_count:
+        if all([fail_count != total_count, lab_name is None]):
             spec[models.STATUS_KEY] = models.PASS_STATUS
             for key, val in unique_data.iteritems():
                 spec[key] = {"$in": val}
@@ -178,10 +185,12 @@ def create_boot_report(job, kernel, db_options):
                 conflict_data, _ = _parse_results(conflicts)
 
         email_body, subject = _create_boot_email(
-            job, kernel, failed_data, fail_count, total_count, conflict_data)
+            job, kernel, lab_name, failed_data, fail_count, total_count,
+            conflict_data)
     elif fail_count == 0 and total_count > 0:
         email_body, subject = _create_boot_email(
-            job, kernel, failed_data, fail_count, total_count, conflict_data)
+            job, kernel, lab_name, failed_data, fail_count, total_count,
+            conflict_data)
     elif fail_count == 0 and total_count == 0:
         utils.LOG.warn(
             "Nothing found for '%s-%s': no email report sent", job, kernel)
@@ -303,13 +312,16 @@ def _search_conflicts(failed, passed):
 
 # pylint: disable=too-many-arguments
 def _create_boot_email(
-        job, kernel, failed_data, fail_count, total_count, conflict_data):
+        job, kernel, lab_name, failed_data, fail_count, total_count,
+        conflict_data):
     """Parse the results and create the email text body to send.
 
     :param job: The name of the job.
     :type job: str
     :param  kernel: The name of the kernel.
     :type kernel: str
+    :param lab_name: The name of the lab.
+    :type lab_name: str
     :param failed_data: The parsed failed results.
     :type reduce: dict
     :param fail_count: The total number of failed results.
@@ -326,16 +338,21 @@ def _create_boot_email(
         "passed": total_count - fail_count,
         "failed": fail_count,
         "kernel": kernel,
+        "lab_name": lab_name,
         "base_url": DEFAULT_BASE_URL,
         "build_url": DEFAULT_BUILD_URL,
         "boot_url": DEFAULT_BOOT_URL
     }
 
+    # We use io and strings must be unicode.
     email_body = u""
     subject = (
         u"%(job)s boot: %(total_results)d boots: "
-        "%(passed)d passed, %(failed)d failed (%(kernel)s)" % args
+        "%(passed)d passed, %(failed)d failed (%(kernel)s)"
     )
+    if lab_name is not None:
+        subject = " ".join([subject, u"- %(lab_name)s"])
+    subject = subject % args
 
     with io.StringIO() as m_string:
         m_string.write(

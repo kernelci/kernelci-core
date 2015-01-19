@@ -120,12 +120,24 @@ def defconfig_bisect(doc_id, db_options, fields=None):
 
 @taskc.app.task(name="schedule-boot-report")
 def schedule_boot_report(json_obj, db_options, mail_options, countdown):
+    """Schedule a second task to send the boot report.
+
+    :param json_obj: The json data as sent in the request.
+    :type json_obj: dict
+    :param db_options: The options necessary to connect to the database.
+    :type db_options: dict
+    :param mail_options: The options necessary to connect to the SMTP server.
+    :type mail_options: dict
+    :param countdown: The delay in seconds to send the email.
+    :type countdown: int
+    """
     j_get = json_obj.get
     to_addrs = []
 
     if bool(j_get(models.SEND_BOOT_REPORT_KEY, False)):
         job = j_get(models.JOB_KEY)
         kernel = j_get(models.KERNEL_KEY)
+        lab_name = j_get(models.LAB_NAME_KEY, None)
 
         boot_emails = j_get(models.BOOT_REPORT_SEND_TO_KEY, None)
         generic_emails = j_get(models.REPORT_SEND_TO_KEY, None)
@@ -144,7 +156,7 @@ def schedule_boot_report(json_obj, db_options, mail_options, countdown):
 
         if to_addrs:
             send_boot_report.apply_async(
-                [job, kernel, to_addrs, db_options, mail_options],
+                [job, kernel, lab_name, to_addrs, db_options, mail_options],
                 countdown=countdown)
         else:
             utils.LOG.warn(
@@ -153,11 +165,26 @@ def schedule_boot_report(json_obj, db_options, mail_options, countdown):
 
 
 @taskc.app.task(name="send-boot-report")
-def send_boot_report(job, kernel, to_addrs, db_options, mail_options):
+def send_boot_report(job, kernel, lab_name, to_addrs, db_options, mail_options):
+    """Create the boot report email and send it.
+
+    :param job: The job name.
+    :type job: str
+    :param kernel: The kernel name.
+    :type kernel: str
+    :param lab_name: The name of the lab.
+    :type lab_name: str
+    :param to_addrs: List of recipients.
+    :type to_addrs: list
+    :param db_options: The options necessary to connect to the database.
+    :type db_options: dict
+    :param mail_options: The options necessary to connect to the SMTP server.
+    :type mail_options: dict
+    """
     utils.LOG.info("Preparing boot report email for '%s-%s'", job, kernel)
 
     body, subject = utils.report.create_boot_report(
-        job, kernel, db_options=db_options)
+        job, kernel, lab_name, db_options=db_options)
 
     if all([body is not None, subject is not None]):
         utils.LOG.info("Sending boot report email for '%s-%s'", job, kernel)
