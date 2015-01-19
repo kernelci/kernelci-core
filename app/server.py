@@ -36,7 +36,7 @@ DEFAULT_CONFIG_FILE = "/etc/linaro/kernelci-backend.cfg"
 topt.define(
     "master_key", default=str(uuid.uuid4()), type=str, help="The master key")
 topt.define(
-    "max_workers", default=20, type=int,
+    "max_workers", default=None, type=int,
     help="The number of workers for the thread pool executor"
 )
 topt.define("gzip", default=True)
