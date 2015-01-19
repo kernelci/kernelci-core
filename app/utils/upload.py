@@ -119,12 +119,15 @@ def create_or_update_file(path, filename, content_type, content):
     utils.LOG.info("Writing file '%s'", real_path)
 
     try:
-        with io.open(real_path, mode="bw") as w_file:
-            ret_dict["bytes"] = w_file.write(content)
+        w_stream = io.open(real_path, mode="bw")
+        ret_dict["bytes"] = w_stream.write(content)
+        w_stream.flush()
     except IOError, ex:
         utils.LOG.exception(ex)
         utils.LOG.error("Unable to open file '%s'", file_path)
         ret_dict["status"] = 500
         ret_dict["error"] = "Error writing file '%s'" % filename
+    finally:
+        w_stream.close()
 
     return ret_dict
