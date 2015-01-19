@@ -107,28 +107,6 @@ data sent to the server.
             "kernel": {
                 "type": "string",
                 "description": "The kernel associated with this object"
-            },
-            "boot_report": {
-                "type": "boolean",
-                "description": "If the boot report should be created and sent",
-                "default": 0
-            },
-            "build_report": {
-                "type": "boolean",
-                "description": "If the build report should be created and sent",
-                "default": 0
-            },
-            "boot_send_to": {
-                "type": ["array", "string"],
-                "description": "A single email address or a list of addresses where to send the boot report"
-            },
-            "build_send_to": {
-                "type": ["array", "string"],
-                "description": "A single email address or a list of addresses where to send the build report"
-            },
-            "send_to": {
-                "type": ["array", "string"],
-                "description": "A single email address or a list of addresses where to send the reports"
             }
         },
         "required": ["job", "kernel"]

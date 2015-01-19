@@ -42,15 +42,8 @@ class JobHandler(hbase.BaseHandler):
         response.reason = "Request accepted and being imported"
         response.result = None
 
-        json_obj = kwargs["json_obj"]
-        db_options = kwargs["db_options"]
-        mail_options = self.settings["mailoptions"]
-        countdown = self.settings["senddelay"]
-
-        taskq.import_job.apply_async([json_obj, db_options])
-        # TODO: remove email scheduling once deployed and job updated.
-        taskq.schedule_boot_report.apply_async(
-            [json_obj, db_options, mail_options, countdown])
+        taskq.import_job.apply_async(
+            [kwargs["json_obj"], kwargs["db_options"]])
 
         return response
 

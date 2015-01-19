@@ -148,11 +148,6 @@ POST
 
  :reqjson string job: The name of the job.
  :reqjson string kernel: The name of the kernel.
- :reqjson boolean boot_report: If the boot report should be created and sent. Default to 0 (false).
- :reqjson boolean build_report: If the build report should be created and sent. Default to 0 (false).
- :reqjson send_to: A string or an array of strings of email addresses where to send the reports.
- :reqjson boot_send_to: A string or an array of strings of email addresses where to send only the boot report.
- :reqjson build_send_to: A string or an array of strings of email addresses where to send only the build report.
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Content-Type: Content type of the transmitted data, must be ``application/json``.
@@ -166,10 +161,6 @@ POST
  :status 415: Wrong content type.
  :status 422: No real JSON data provided.
 
- .. warning::
-
-    Triggering email report through the job resources will be depracated.
-
  **Example Requests**
 
  .. sourcecode:: http 
@@ -182,9 +173,7 @@ POST
 
     {
         "job": "next",
-        "kernel": "next-20140801",
-        "boot_report": 1,
-        "send_to": ["list@example.net"]
+        "kernel": "next-20140801"
     }
 
 DELETE
