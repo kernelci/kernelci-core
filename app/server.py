@@ -36,7 +36,7 @@ DEFAULT_CONFIG_FILE = "/etc/linaro/kernelci-backend.cfg"
 topt.define(
     "master_key", default=str(uuid.uuid4()), type=str, help="The master key")
 topt.define(
-    "max_workers", default=None, type=int,
+    "max_workers", default=5, type=int,
     help="The number of workers for the thread pool executor"
 )
 topt.define("gzip", default=True)
@@ -119,7 +119,7 @@ class KernelCiBackend(tornado.web.Application):
             "mailoptions": mail_options,
             "default_handler_class": happ.AppHandler,
             "executor": concurrent.futures.ThreadPoolExecutor(
-                max_workers=topt.options.max_workers),
+                topt.options.max_workers),
             "gzip": topt.options.gzip,
             "debug": topt.options.debug,
             "master_key": topt.options.master_key,
