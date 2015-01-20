@@ -45,17 +45,24 @@ class SendHandler(hbase.BaseHandler):
         if countdown is None:
             countdown = self.settings["senddelay"]
 
-        when = (
-            datetime.datetime.now(tz=bson.tz_util.utc) +
-            datetime.timedelta(seconds=countdown)
-        )
-        response.reason = (
-            "Email report scheduled to be sent at '%s' UTC" %
-            when.isoformat()
-        )
+        try:
+            countdown = abs(int(countdown))
+            when = (
+                datetime.datetime.now(tz=bson.tz_util.utc) +
+                datetime.timedelta(seconds=countdown)
+            )
+            response.reason = (
+                "Email report scheduled to be sent at '%s' UTC" %
+                when.isoformat()
+            )
 
-        taskq.schedule_boot_report.apply_async(
-            [json_obj, db_options, mail_options, countdown])
+            taskq.schedule_boot_report.apply_async(
+                [json_obj, db_options, mail_options, countdown])
+        except (TypeError, ValueError):
+            response.status_code = 400
+            response.reason = (
+                "Wrong value specified for 'delay': %s" % countdown
+            )
 
         return response
 

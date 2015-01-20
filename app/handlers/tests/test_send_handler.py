@@ -35,6 +35,11 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
     def setUp(self):
         self.mongodb_client = mongomock.Connection()
+        self.dboptions = {
+            "dbpassword": "",
+            "dbuser": ""
+        }
+        self.mailoptions = {}
 
         super(TestSendHandler, self).setUp()
 
@@ -51,21 +56,15 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.addCleanup(patched_validate_token.stop)
 
     def get_app(self):
-        dboptions = {
-            "dbpassword": "",
-            "dbuser": ""
-        }
-
-        mailoptions = {}
 
         settings = {
-            "dboptions": dboptions,
+            "dboptions": self.dboptions,
             "client": self.mongodb_client,
             "executor": ThreadPoolExecutor(max_workers=2),
             "default_handler_class": AppHandler,
             "master_key": "bar",
             "debug": False,
-            "mailoptions": mailoptions,
+            "mailoptions": self.mailoptions,
             "senddelay": 60*60
         }
 
@@ -141,9 +140,45 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             "Authorization": "foo",
             "Content-Type": "application/json",
         }
-        body = json.dumps(dict(job="job", kernel="kernel", delay=None))
+        data = dict(job="job", kernel="kernel", delay=None)
+        body = json.dumps(data)
         response = self.fetch(
             "/send", method="POST", headers=headers, body=body)
         self.assertEqual(response.code, 202)
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+        mock_schedule.apply_async.assert_called_with(
+            [data, self.dboptions, self.mailoptions, 60*60]
+        )
+
+    @mock.patch("taskqueue.tasks.schedule_boot_report")
+    def test_post_wrong_delay(self, mock_schedule):
+        mock_schedule.apply_async = mock.MagicMock()
+        headers = {
+            "Authorization": "foo",
+            "Content-Type": "application/json",
+        }
+        body = json.dumps(dict(job="job", kernel="kernel", delay="foo"))
+        response = self.fetch(
+            "/send", method="POST", headers=headers, body=body)
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    @mock.patch("taskqueue.tasks.schedule_boot_report")
+    def test_post_negative_delay(self, mock_schedule):
+        mock_schedule.apply_async = mock.MagicMock()
+        headers = {
+            "Authorization": "foo",
+            "Content-Type": "application/json",
+        }
+        data = dict(job="job", kernel="kernel", delay=-100)
+        body = json.dumps(data)
+        response = self.fetch(
+            "/send", method="POST", headers=headers, body=body)
+        self.assertEqual(response.code, 202)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+        mock_schedule.apply_async.assert_called_with(
+            [data, self.dboptions, self.mailoptions, 100]
+        )
