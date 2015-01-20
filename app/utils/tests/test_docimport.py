@@ -58,9 +58,7 @@ class TestDocImport(unittest.TestCase):
 
         self.assertIsNone(defconf_doc)
 
-    @mock.patch("os.stat")
-    def test_parse_build_data_no_fragments_no_full(self, mock_stat):
-        mock_stat.st_mtime.return_value = datetime.datetime.now(tz=tz_util.utc)
+    def test_parse_build_data_no_fragments_no_full(self):
         meta_content = {
             "arch": "arm",
             "job": "job",
@@ -84,9 +82,7 @@ class TestDocImport(unittest.TestCase):
         self.assertEqual(defconf_doc.defconfig_full, "defconfig")
         self.assertEqual(defconf_doc.defconfig, "defconfig")
 
-    @mock.patch("os.stat")
-    def test_parse_and_update_build_metadata(self, mock_stat):
-        mock_stat.st_mtime.return_value = datetime.datetime.now(tz=tz_util.utc)
+    def test_parse_and_update_build_metadata(self):
         meta_content = {
             "arch": "arm",
             "git_url": "git://git.example.org",
@@ -122,9 +118,7 @@ class TestDocImport(unittest.TestCase):
         self.assertEqual(defconf_doc.defconfig_full, "defoo_confbar")
         self.assertEqual(defconf_doc.defconfig, "defoo_confbar")
 
-    @mock.patch("os.stat")
-    def test_parse_and_update_build_metadata_with_fragments(self, mock_stat):
-        mock_stat.st_mtime.return_value = datetime.datetime.now(tz=tz_util.utc)
+    def test_parse_and_update_build_metadata_with_fragments(self):
         meta_content = {
             "arch": "arm",
             "git_url": "git://git.example.org",
@@ -159,9 +153,7 @@ class TestDocImport(unittest.TestCase):
             defconf_doc.defconfig_full, "defoo_confbar+CONFIG_TEST=y")
         self.assertEqual(defconf_doc.defconfig, "defoo_confbar")
 
-    @mock.patch("os.stat")
-    def test_parse_and_update_build_metadata_diff_fragments(self, mock_stat):
-        mock_stat.st_mtime.return_value = datetime.datetime.now(tz=tz_util.utc)
+    def test_parse_and_update_build_metadata_diff_fragments(self):
         meta_content = {
             "arch": "arm",
             "defconfig": "defoo_confbar",

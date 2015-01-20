@@ -137,11 +137,8 @@ def _traverse_kernel_dir(job_doc, kernel_dir, database):
         else:
             job_doc.status = models.UNKNOWN_STATUS
 
-        # If the job dir exists, read the last modification time from the
-        # file system and use that as the creation date.
         if not job_doc.created_on:
-            job_doc.created_on = datetime.datetime.fromtimestamp(
-                os.stat(kernel_dir).st_mtime, tz=bson.tz_util.utc)
+            job_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
 
         docs.extend(
             [
