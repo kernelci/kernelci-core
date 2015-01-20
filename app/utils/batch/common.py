@@ -119,10 +119,11 @@ def get_batch_query_args(query):
                 # Can't have query with just one element, they have to be
                 # key=value.
                 if len(arg) > 1:
-                    if args.get(arg[0], None):
+                    try:
                         args[arg[0]].append(arg[1])
-                    else:
-                        args[arg[0]] = list([arg[1]])
-                    args[arg[0]] = list(set(args[arg[0]]))
+                        args[arg[0]] = list(set(args[arg[0]]))
+                    except KeyError:
+                        args[arg[0]] = []
+                        args[arg[0]].append(arg[1])
 
     return args

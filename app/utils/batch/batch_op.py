@@ -44,19 +44,19 @@ class BatchOperation(object):
         :param operation_id: Optional name for this operation.
         :type operation_id: string
         """
-        self._database = database
-        self._operation_id = operation_id
         self._collection = collection
-        self._operation = None
-        self.args = []
-        self.kwargs = {}
-        self.query_args = {}
-        self.valid_keys = None
-        self.document_id = None
-        self.method = None
-        self.query_args_func = None
+        self._database = database
         self._limit = None
+        self._operation = None
+        self._operation_id = operation_id
         self._skip = None
+        self.args = []
+        self.document_id = None
+        self.kwargs = {}
+        self.method = None
+        self.query_args = {}
+        self.query_args_func = None
+        self.valid_keys = None
 
     @property
     def operation(self):
@@ -125,7 +125,7 @@ class BatchOperation(object):
                 'fields': hcommon.get_query_fields(self.query_args_func)
             }
         else:
-            # Get the spec and perform the query, can perform and aggregation
+            # Get the spec and perform the query, can perform an aggregation
             # as well.
             spec, sort, fields, self._skip, self._limit, unique = \
                 hcommon.get_all_query_values(
