@@ -435,9 +435,9 @@ class BaseHandler(tornado.web.RequestHandler):
             response.result = utils.db.aggregate(
                 self.collection,
                 unique,
+                match=spec,
                 sort=sort,
                 fields=fields,
-                match=spec,
                 limit=limit
             )
         else:

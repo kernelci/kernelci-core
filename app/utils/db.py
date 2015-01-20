@@ -363,14 +363,14 @@ def aggregate(
     # Where the aggregate actions and values will be stored.
     pipeline = []
 
-    if match:
+    if match is not None:
         pipeline.append({
             "$match": match
         })
 
     # XXX: For strange reasons, sort needs to happen before, and also
     # after grouping, or the resulsts are completely random
-    if sort:
+    if sort is not None:
         pipeline.append({
             "$sort": {
                 k: v for k, v in sort
@@ -383,7 +383,7 @@ def aggregate(
         }
     }
 
-    if fields:
+    if fields is not None:
         fields = [
             (k, v) for k, v in [
                 (key, val)
@@ -399,7 +399,7 @@ def aggregate(
 
     # XXX: For strange reasons, sort needs to happen before, and also
     # after grouping, or the resulsts are completely random
-    if sort:
+    if sort is not None:
         pipeline.append({
             "$sort": {
                 k: v for k, v in sort
@@ -407,7 +407,7 @@ def aggregate(
         })
 
     # Make sure we return the exact number of elements after grouping them.
-    if limit:
+    if all([limit is not None, limit > 0]):
         pipeline.append({
             "$limit": limit
         })
