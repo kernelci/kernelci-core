@@ -103,10 +103,9 @@ hisi_x5hd2_dkb = {'device_type': 'hi3716cv200',
                   'fastboot': False}
 
 d01 = {'device_type': 'd01',
-       'templates': ['generic-arm-d01-kernel-ci-sata-boot-template.json'],
-       'defconfig_blacklist': ['arm-multi_v7_defconfig',
-                               'arm-multi_v7_defconfig+CONFIG_PROVE_LOCKING=y'],
-       'lpae': False,
+       'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+       'defconfig_blacklist': [],
+       'lpae': True,
        'be': False,
        'fastboot': False}
 
