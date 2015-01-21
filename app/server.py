@@ -42,6 +42,10 @@ topt.define(
 topt.define("gzip", default=True)
 topt.define("debug", default=True)
 topt.define("autoreload", default=True)
+topt.define(
+    "port", default=8888, type=int,
+    help="The port number where the server should listen"
+)
 
 # mongodb connection parameters.
 topt.define(
@@ -152,6 +156,6 @@ if __name__ == "__main__":
             "/tmp/kernelci-backend.socket")
         server.add_socket(unix_socket)
     else:
-        KernelCiBackend().listen(8888, **HTTP_SETTINGS)
+        KernelCiBackend().listen(topt.options.port, **HTTP_SETTINGS)
 
     tornado.ioloop.IOLoop.instance().start()
