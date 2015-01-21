@@ -163,7 +163,7 @@ class UploadHandler(hbase.BaseHandler):
                     ret_dict = utils.upload.create_or_update_file(
                         dir_path, filename, None, self.request.body)
 
-                    if ret_dict["status"] == 200:
+                    if ret_dict["status"] == 200 or ret_dict["status"] == 201:
                         if prev_file:
                             response.status_code = 200
                             response.reason = (
