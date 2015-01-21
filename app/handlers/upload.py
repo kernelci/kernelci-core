@@ -173,7 +173,8 @@ class UploadHandler(hbase.BaseHandler):
                         else:
                             response.reason = "File '%s' saved" % filename
                             location = self._create_storage_url(path)
-                            response.headers = {"Location": location}
+                            if location is not None:
+                                response.headers = {"Location": location}
                     else:
                         response.status_code = ret_dict["status"]
                         response.reason = "Unable to save file"
