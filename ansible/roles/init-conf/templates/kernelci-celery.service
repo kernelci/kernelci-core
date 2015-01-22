@@ -17,7 +17,7 @@ WorkingDirectory={{ install_base }}/{{ hostname }}/app
 {% if role == "production" %}
 ExecStart={{ install_base }}/.venv/{{ hostname }}/bin/python -OO -R \
     {{ install_base }}/.venv/{{ hostname }}/bin/celery worker \
-    --autoscale=10,3 --loglevel=INFO \
+    --autoscale=16,4 --loglevel=INFO \
     --pidfile=/tmp/kernelci-celery.pid --app=taskqueue
 {% else %}
 ExecStart={{ install_base }}/.venv/{{ hostname }}/bin/python -OO -R \
