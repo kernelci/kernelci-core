@@ -284,7 +284,7 @@ def _update_boot_doc_ids(boot_doc, database):
     """
     job = boot_doc.job
     kernel = boot_doc.kernel
-    defconfig = boot_doc.defconfig
+    defconfig = boot_doc.defconfig_full or boot_doc.defconfig
 
     job_name = models.JOB_DOCUMENT_NAME % {
         models.JOB_KEY: job,
