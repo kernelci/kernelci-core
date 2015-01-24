@@ -226,7 +226,7 @@ def boot_report(args):
                 if boot_failure_reason:
                     boot_meta['boot_result_description'] = boot_failure_reason
                 else:
-                    boot_meta['boot_result_description'] = 'platform failed to boot'
+                    boot_meta['boot_result_description'] = 'Unknown Error: platform failed to boot'
             boot_meta['boot_time'] = kernel_boot_time
             # TODO: Fix this
             boot_meta['boot_warnings'] = None
