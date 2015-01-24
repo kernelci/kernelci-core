@@ -92,17 +92,21 @@ def boot_report(args):
         boot_failure_reason = None
         for line in raw_job_file.splitlines():
             if 'Infrastructure Error:' in line:
+                print 'Infrastructure Error detected!'
                 index = line.find('Infrastructure Error:')
                 boot_failure_reason = line[index:]
                 board_offline = True
             if 'Bootloader Error:' in line:
+                print 'Bootloader Error detected!'
                 index = line.find('Bootloader Error:')
                 boot_failure_reason = line[index:]
                 board_offline = True
             if 'Kernel Error:' in line:
+                print 'Kernel Error detected!'
                 index = line.find('Kernel Error:')
                 boot_failure_reason = line[index:]
             if 'Userspace Error:' in line:
+                print 'Userspace Error detected!'
                 index = line.find('Userspace Error:')
                 boot_failure_reason = line[index:]
             if '<LAVA_DISPATCHER>' not in line:
@@ -218,11 +222,11 @@ def boot_report(args):
             boot_meta['kernel'] = kernel_version
             boot_meta['job'] = kernel_tree
             boot_meta['board'] = platform_name
-            if board_offline:
+            if board_offline and result == 'FAIL':
                 boot_meta['boot_result'] = 'OFFLINE'
             else:
                 boot_meta['boot_result'] = result
-            if result == 'FAIL':
+            if result == 'FAIL' or result == 'OFFLINE':
                 if boot_failure_reason:
                     boot_meta['boot_result_description'] = boot_failure_reason
                 else:
