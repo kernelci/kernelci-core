@@ -88,7 +88,23 @@ def boot_report(args):
         dt_test_result = None
         dt_tests_passed = None
         dt_tests_failed = None
+        board_offline = False
+        boot_failure_reason = None
         for line in raw_job_file.splitlines():
+            if 'Infrastructure Error:' in line:
+                index = line.find('Infrastructure Error:')
+                boot_failure_reason = line[index:]
+                board_offline = True
+            if 'Bootloader Error:' in line:
+                index = line.find('Bootloader Error:')
+                boot_failure_reason = line[index:]
+                board_offline = True
+            if 'Kernel Error:' in line:
+                index = line.find('Kernel Error:')
+                boot_failure_reason = line[index:]
+            if 'Userspace Error:' in line:
+                index = line.find('Userspace Error:')
+                boot_failure_reason = line[index:]
             if '<LAVA_DISPATCHER>' not in line:
                 if len(line) != 0:
                     job_file += line + '\n'
@@ -202,9 +218,15 @@ def boot_report(args):
             boot_meta['kernel'] = kernel_version
             boot_meta['job'] = kernel_tree
             boot_meta['board'] = platform_name
-            boot_meta['boot_result'] = result
+            if board_offline:
+                boot_meta['boot_result'] = 'OFFLINE'
+            else:
+                boot_meta['boot_result'] = result
             if result == 'FAIL':
-                boot_meta['boot_result_description'] = 'platform failed to boot'
+                if boot_failure_reason:
+                    boot_meta['boot_result_description'] = boot_failure_reason
+                else:
+                    boot_meta['boot_result_description'] = 'platform failed to boot'
             boot_meta['boot_time'] = kernel_boot_time
             # TODO: Fix this
             boot_meta['boot_warnings'] = None
