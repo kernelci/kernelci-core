@@ -31,53 +31,53 @@ import handlers.version
 
 
 _JOB_URL = tornado.web.url(
-    r'/job[s]?(?P<sl>/)?(?P<id>.*)', handlers.job.JobHandler, name='job'
+    r"/job[s]?/?(?P<id>.*)", handlers.job.JobHandler, name="job"
 )
 _DEFCONF_URL = tornado.web.url(
-    r'/defconfig[s]?(?P<sl>/)?(?P<id>.*)',
+    r"/defconfig[s]?/?(?P<id>.*)",
     handlers.defconf.DefConfHandler,
-    name='defconf'
+    name="defconf"
 )
 _SUBSCRIPTION_URL = tornado.web.url(
-    r'/subscription[s]?(?P<sl>/)?(?P<id>.*)',
+    r"/subscription[s]?/?(?P<id>.*)",
     handlers.subscription.SubscriptionHandler,
-    name='subscription',
+    name="subscription",
 )
 _BOOT_URL = tornado.web.url(
-    r'/boot[s]?(?P<sl>/)?(?P<id>.*)', handlers.boot.BootHandler, name='boot'
+    r"/boot[s]?/?(?P<id>.*)", handlers.boot.BootHandler, name="boot"
 )
 _COUNT_URL = tornado.web.url(
-    r'/count[s]?(?P<sl>/)?(?P<id>.*)', handlers.count.CountHandler, name='count'
+    r"/count[s]?/?(?P<id>.*)", handlers.count.CountHandler, name="count"
 )
 _TOKEN_URL = tornado.web.url(
-    r'/token[s]?(?P<sl>/)?(?P<id>.*)', handlers.token.TokenHandler, name='token'
+    r"/token[s]?/?(?P<id>.*)", handlers.token.TokenHandler, name="token"
 )
 _BATCH_URL = tornado.web.url(
-    r'/batch', handlers.batch.BatchHandler, name='batch'
+    r"/batch", handlers.batch.BatchHandler, name="batch"
 )
 _BISECT_URL = tornado.web.url(
-    r"/bisect[s]?/(?P<collection>.*)/(?P<id>.*)",
+    r"/bisect[s]?/?(?P<id>.*)",
     handlers.bisect.BisectHandler,
     name="bisect"
 )
 _LAB_URL = tornado.web.url(
-    r"/lab[s]?(?P<sl>/)?(?P<id>.*)", handlers.lab.LabHandler, name="lab"
+    r"/lab[s]?/?(?P<id>.*)", handlers.lab.LabHandler, name="lab"
 )
 _VERSION_URL = tornado.web.url(
     r"/version", handlers.version.VersionHandler, name="version"
 )
 _REPORT_URL = tornado.web.url(
-    r"/report[s]?(?P<sl>/)?(?P<id>.*)",
+    r"/report[s]?/?(?P<id>.*)",
     handlers.report.ReportHandler,
     name="response"
 )
 _UPLOAD_URL = tornado.web.url(
-    r"/upload(?P<sl>/)?(?P<path>.*)",
+    r"/upload/?(?P<path>.*)",
     handlers.upload.UploadHandler,
     name="upload"
 )
 _SEND_URL = tornado.web.url(
-    r"/send(?P<sl>/)?",
+    r"/send/?",
     handlers.send.SendHandler,
     name="send"
 )

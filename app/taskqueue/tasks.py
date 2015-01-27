@@ -22,7 +22,8 @@ import models
 import taskqueue.celery as taskc
 import utils
 import utils.batch.common
-import utils.bisect
+import utils.bisect.boot as bootb
+import utils.bisect.defconfig as defconfigb
 import utils.bootimport
 import utils.docimport
 import utils.emails
@@ -99,7 +100,26 @@ def boot_bisect(doc_id, db_options, fields=None):
     :type fields: list or dict
     :return The result of the boot bisect operation.
     """
-    return utils.bisect.execute_boot_bisection(doc_id, db_options, fields)
+    return bootb.execute_boot_bisection(doc_id, db_options, fields)
+
+
+@taskc.app.task(name="boot-bisect-compare-to")
+def boot_bisect_compared_to(doc_id, compare_to, db_options, fields=None):
+    """Run a boot bisect operation compared to the provided tree name.
+
+    :param doc_id: The boot document ID.
+    :type doc_id: string
+    :param compare_to: The name of the tree to compare to.
+    :type compare_to: string
+    :param db_options: The mongodb database connection parameters.
+    :type db_options: dictionary
+    :param fields: A `fields` data structure with the fields to return or
+    exclude. Default to None.
+    :type fields: list or dict
+    :return The result of the boot bisect operation.
+    """
+    return bootb.execute_boot_bisection_compared_to(
+        doc_id, compare_to, db_options, fields)
 
 
 @taskc.app.task(name="defconfig-bisect")
@@ -115,7 +135,7 @@ def defconfig_bisect(doc_id, db_options, fields=None):
     :type fields: list or dict
     :return The result of the boot bisect operation.
     """
-    return utils.bisect.execute_defconfig_bisection(doc_id, db_options, fields)
+    return defconfigb.execute_defconfig_bisection(doc_id, db_options, fields)
 
 
 @taskc.app.task(name="schedule-boot-report")

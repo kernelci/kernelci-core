@@ -14,9 +14,7 @@
 """The request handler for bisect URLs."""
 
 import bson
-import tornado
 import tornado.gen
-import tornado.web
 
 import handlers.base as hbase
 import handlers.common as hcommon
@@ -41,6 +39,16 @@ class BisectHandler(hbase.BaseHandler):
     def collection(self):
         return models.BISECT_COLLECTION
 
+    @staticmethod
+    def _valid_keys(method):
+        """The accepted keys for the valid sent content type.
+
+        :param method: The HTTP method name that originated the request.
+        :type str
+        :return A list of keys that the method accepts.
+        """
+        return hcommon.BISECT_VALID_KEYS.get(method, None)
+
     def execute_get(self, *args, **kwargs):
         """This is the actual GET operation.
 
@@ -50,47 +58,46 @@ class BisectHandler(hbase.BaseHandler):
         response = None
 
         if self.validate_req_token("GET"):
-            if kwargs:
-                collection = kwargs.get("collection", None)
-                doc_id = kwargs.get("id", None)
-                if all([collection, doc_id]):
-                    fields = None
-                    if self.request.arguments:
-                        fields = hcommon.get_query_fields(
-                            self.get_query_arguments
-                        )
-                    try:
-                        obj_id = bson.objectid.ObjectId(doc_id)
-                        bisect_result = utils.db.find_one(
-                            self.db[self.collection],
-                            [obj_id],
-                            field=models.NAME_KEY,
-                            fields=fields
-                        )
-                        if bisect_result:
-                            response = hresponse.HandlerResponse(200)
-                            response.result = bisect_result
-                        else:
-                            response = self._get_bisect(
-                                collection, doc_id, fields
-                            )
-                    except bson.errors.InvalidId, ex:
-                        self.log.exception(ex)
-                        self.log.error(
-                            "Wrong ID '%s' value passed as object ID", doc_id)
-                        response = hresponse.HandlerResponse(400)
-                        response.reason = "Wrong ID value passed as object ID"
+            doc_id = kwargs.get("id", None)
+            fields = hcommon.get_query_fields(self.get_query_arguments)
+
+            if doc_id:
+                try:
+                    obj_id = bson.objectid.ObjectId(doc_id)
+                    bisect_result = utils.db.find_one2(
+                        self.db[self.collection], obj_id, fields=fields)
+
+                    if bisect_result:
+                        response = hresponse.HandlerResponse()
+                        response.result = bisect_result
+                    else:
+                        response = hresponse.HandlerResponse(404)
+                        response.reason = "Resource not found"
+                except bson.errors.InvalidId, ex:
+                    self.log.exception(ex)
+                    self.log.error(
+                        "Wrong ID '%s' value passed as object ID", doc_id)
+                    response = hresponse.HandlerResponse(400)
+                    response.reason = "Wrong ID value passed as object ID"
+            else:
+                # No ID specified, use the query args.
+                spec = hcommon.get_query_spec(
+                    self.get_query_arguments, self._valid_keys("GET"))
+                collection = spec.pop(models.COLLECTION_KEY, None)
+
+                if collection:
+                    response = self._get_bisect(collection, spec, fields)
                 else:
                     response = hresponse.HandlerResponse(400)
-            else:
-                response = hresponse.HandlerResponse(400)
+                    response.reason = (
+                        "Missing 'collection' key, cannot process the request")
         else:
             response = hresponse.HandlerResponse(403)
             response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 
-    def _get_bisect(self, collection, doc_id, fields=None):
+    def _get_bisect(self, collection, spec, fields=None):
         """Retrieve the bisect data.
 
         :param collection: The name of the collection to operate on.
@@ -105,13 +112,30 @@ class BisectHandler(hbase.BaseHandler):
         response = None
 
         if collection in models.BISECT_VALID_COLLECTIONS:
-            db_options = self.settings["dboptions"]
-
             if collection == models.BOOT_COLLECTION:
-                response = self.execute_boot_bisect(doc_id, db_options, fields)
+                bisect_func = self.execute_boot_bisect
+                if spec.get(models.COMPARE_TO_KEY, None):
+                    bisect_func = self.execute_boot_bisect_compared_to
+                else:
+                    # Force the compare_to field to None (null in mongodb)
+                    # so that we can search correctly otherwise we can get
+                    # multiple results out. This is due to how we store the
+                    # bisect calculations in the db.
+                    spec[models.COMPARE_TO_KEY] = None
+
+                response = self._bisect(
+                    collection,
+                    models.BOOT_ID_KEY,
+                    spec,
+                    bisect_func,
+                    fields=fields)
             elif collection == models.DEFCONFIG_COLLECTION:
-                response = self.execute_defconfig_bisect(
-                    doc_id, db_options, fields)
+                response = self._bisect(
+                    collection,
+                    models.DEFCONFIG_ID_KEY,
+                    spec,
+                    self.execute_defconfig_bisect,
+                    fields=fields)
         else:
             response = hresponse.HandlerResponse(400)
             response.reason = (
@@ -120,8 +144,67 @@ class BisectHandler(hbase.BaseHandler):
 
         return response
 
+    def _bisect(self, collection, id_key, spec, bisect_func, fields=None):
+        """Perform the bisect operation.
+
+        :param collection: The name of the collection where the bisect function
+        should be applied.
+        :type collection: string
+        :param id_key: The name of the key that contains the ID value of the
+        document we want to bisect.
+        :type id_key: string
+        :param spec: The spec data structure as retrieved with the request query
+        args.
+        :type spec: dictionary
+        :param bisect_func: The bisect function that should be called. It should
+        accept the `doc_id` as string, the database options as dictionary and
+        `**kwargs`.
+        :type bisect_func: function
+        :param fields: A `fields` data structure with the fields to return or
+        exclude. Default to None.
+        :type fields: list or dict
+        :return A HandlerResponse instance.
+        """
+        response = None
+        s_get = spec.get
+        doc_id = s_get(id_key, None)
+
+        if doc_id:
+            try:
+                obj_id = bson.objectid.ObjectId(doc_id)
+                spec[id_key] = obj_id
+                self.log.info(spec)
+
+                bisect_result = utils.db.find_one2(
+                    self.db[self.collection],
+                    spec,
+                    fields=fields
+                )
+
+                if bisect_result:
+                    response = hresponse.HandlerResponse()
+                    response.result = bisect_result
+                else:
+                    kwargs = {
+                        "fields": fields,
+                        "compare_to": s_get(models.COMPARE_TO_KEY, None)
+                    }
+                    response = bisect_func(
+                        doc_id, self.settings["dboptions"], **kwargs)
+            except bson.errors.InvalidId, ex:
+                self.log.exception(ex)
+                self.log.error(
+                    "Wrong ID '%s' value passed as object ID", doc_id)
+                response = hresponse.HandlerResponse(400)
+                response.reason = "Wrong ID value passed as object ID"
+        else:
+            response = hresponse.HandlerResponse(400)
+            response.reason = "Missing boot ID value to look for"
+
+        return response
+
     @staticmethod
-    def execute_boot_bisect(doc_id, db_options, fields=None):
+    def execute_boot_bisect(doc_id, db_options, **kwargs):
         """Execute the boot bisect operation.
 
         :param doc_id: The ID of the document to execute the bisect on.
@@ -135,7 +218,8 @@ class BisectHandler(hbase.BaseHandler):
         """
         response = hresponse.HandlerResponse()
 
-        result = taskt.boot_bisect.apply_async([doc_id, db_options, fields])
+        result = taskt.boot_bisect.apply_async(
+            [doc_id, db_options, kwargs.get("fields", None)])
         while not result.ready():
             pass
 
@@ -147,7 +231,29 @@ class BisectHandler(hbase.BaseHandler):
         return response
 
     @staticmethod
-    def execute_defconfig_bisect(doc_id, db_options, fields=None):
+    def execute_boot_bisect_compared_to(doc_id, db_options, **kwargs):
+        response = hresponse.HandlerResponse()
+        compare_to = kwargs.get("compare_to", None)
+        fields = kwargs.get("fields", None)
+
+        result = taskt.boot_bisect_compared_to.apply_async(
+            [doc_id, compare_to, db_options, fields])
+        while not result.ready():
+            pass
+
+        response.status_code, response.result = result.get()
+        if response.status_code == 404:
+            response.reason = (
+                "Boot bisection compared to '%s' not found" % compare_to)
+        elif response.status_code == 400:
+            response.reason = "Boot report cannot be bisected: is it failed?"
+
+        return response
+
+        return response
+
+    @staticmethod
+    def execute_defconfig_bisect(doc_id, db_options, **kwargs):
         """Execute the defconfig bisect operation.
 
         :param doc_id: The ID of the document to execute the bisect on.
@@ -162,7 +268,7 @@ class BisectHandler(hbase.BaseHandler):
         response = hresponse.HandlerResponse()
 
         result = taskt.defconfig_bisect.apply_async(
-            [doc_id, db_options, fields]
+            [doc_id, db_options, kwargs.get("fields", None)]
         )
         while not result.ready():
             pass

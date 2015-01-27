@@ -327,6 +327,15 @@ SEND_VALID_KEYS = {
     }
 }
 
+BISECT_VALID_KEYS = {
+    "GET": [
+        models.BOOT_ID_KEY,
+        models.COLLECTION_KEY,
+        models.COMPARE_TO_KEY,
+        models.DEFCONFIG_ID_KEY
+    ]
+}
+
 ID_KEYS = [
     models.BOOT_ID_KEY,
     models.DEFCONFIG_ID_KEY,
