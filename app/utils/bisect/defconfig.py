@@ -49,6 +49,7 @@ DEFCONFIG_SEARCH_FIELDS = [
 DEFCONFIG_SORT = [(models.CREATED_KEY, pymongo.DESCENDING)]
 
 
+# pylint: disable=too-many-locals
 def execute_defconfig_bisection(doc_id, db_options, fields=None):
     """Calculate bisect data for the provided defconfig report.
 
@@ -179,7 +180,7 @@ def execute_defconfig_bisection(doc_id, db_options, fields=None):
                 # The last doc should be the good one, in case it is, add the
                 # values to the bisect_doc.
                 good_doc = all_valid_docs[-1]
-                if (good_doc[models.STATUS_KEY] == models.PASS_STATUS):
+                if good_doc[models.STATUS_KEY] == models.PASS_STATUS:
                     good_doc_get = good_doc.get
                     bisect_doc.good_commit = good_doc_get(
                         models.GIT_COMMIT_KEY)
