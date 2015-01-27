@@ -34,6 +34,12 @@ BOOT_SEARCH_FIELDS = [
     models.STATUS_KEY
 ]
 
+BUILD_SEARCH_FIELDS = [
+    models.GIT_COMMIT_KEY,
+    models.GIT_URL_KEY,
+    models.GIT_BRANCH_KEY
+]
+
 BOOT_SEARCH_SORT = [
     (models.ARCHITECTURE_KEY, pymongo.ASCENDING),
     (models.DEFCONFIG_FULL_KEY, pymongo.ASCENDING),
@@ -117,6 +123,7 @@ def create_boot_report(job, kernel, lab_name, db_options):
         models.JOB_KEY: job,
         models.KERNEL_KEY: kernel,
     }
+
     if lab_name is not None:
         spec[models.LAB_NAME_KEY] = lab_name
 
@@ -127,7 +134,37 @@ def create_boot_report(job, kernel, lab_name, db_options):
         spec=spec,
         fields=[models.ID_KEY])
 
-    spec[models.STATUS_KEY] = {"$ne": models.PASS_STATUS}
+    git_results = utils.db.find(
+        database[models.JOB_COLLECTION],
+        0,
+        0,
+        spec=spec,
+        fields=BUILD_SEARCH_FIELDS)
+
+    git_data = _parse_job_results(git_results)
+    git_commit = git_data[models.GIT_COMMIT_KEY]
+    git_url = git_data[models.GIT_URL_KEY]
+    git_branch = git_data[models.GIT_BRANCH_KEY]
+
+    spec[models.STATUS_KEY] = models.OFFLINE_STATUS
+
+    offline_results, offline_count = utils.db.find_and_count(
+        database[models.BOOT_COLLECTION],
+        0,
+        0,
+        spec=spec,
+        fields=BOOT_SEARCH_FIELDS,
+        sort=BOOT_SEARCH_SORT)
+
+    # MongoDB cursor gets overwritten somehow by the next query. Extract the
+    # data before this happens.
+    if offline_count > 0:
+        offline_data, _, _, _ = _parse_boot_results(offline_results.clone())
+    else:
+        offline_data = None
+
+    spec[models.STATUS_KEY] = models.FAIL_STATUS
+
     fail_results, fail_count = utils.db.find_and_count(
         database[models.BOOT_COLLECTION],
         0,
@@ -138,10 +175,11 @@ def create_boot_report(job, kernel, lab_name, db_options):
 
     failed_data = None
     conflict_data = None
+    conflict_count = 0
 
     if fail_count > 0:
-        failed_data, unique_data = _parse_results(
-            fail_results.clone(), get_unique=True)
+        failed_data, _, _, unique_data = \
+            _parse_boot_results(fail_results.clone(), get_unique=True)
 
         # Copy the failed results here. The mongodb Cursor, for some
         # reasons gets overwritten.
@@ -182,24 +220,56 @@ def create_boot_report(job, kernel, lab_name, db_options):
                 ))
                 conflicts = itertools.chain(
                     conflicting_tuples[0], conflicting_tuples[1])
-                conflict_data, _ = _parse_results(conflicts)
+                conflict_data, failed_data, conflict_count, _ = \
+                    _parse_boot_results(conflicts,
+                                        intersect_results=failed_data)
 
         email_body, subject = _create_boot_email(
-            job, kernel, lab_name, failed_data, fail_count, total_count,
-            conflict_data)
+            job, kernel, git_commit, git_url, git_branch, lab_name,
+            failed_data, fail_count, offline_data, offline_count, total_count,
+            conflict_data, conflict_count)
     elif fail_count == 0 and total_count > 0:
         email_body, subject = _create_boot_email(
-            job, kernel, lab_name, failed_data, fail_count, total_count,
-            conflict_data)
+            job, kernel, git_commit, git_url, git_branch, lab_name,
+            failed_data, fail_count, offline_data, offline_count, total_count,
+            conflict_data, conflict_count)
     elif fail_count == 0 and total_count == 0:
         utils.LOG.warn(
             "Nothing found for '%s-%s': no email report sent", job, kernel)
 
     return email_body, subject
 
+def _parse_job_results(results):
+    """Parse the job results from the database creating a new data structure.
 
-def _parse_results(results, get_unique=False):
-    """Parse the results from the database creating a new data structure.
+    This is done to provide a simpler data structure to create the email
+    body.
+
+
+    :param results: The job results to parse.
+    :type results: `pymongo.cursor.Cursor` or a list of dict
+    :return A tuple with the parsed data as dictionary.
+    """
+    parsed_data = None
+
+    for result in results:
+        res_get = result.get
+
+        git_commit = res_get(models.GIT_COMMIT_KEY)
+        git_url = res_get(models.GIT_URL_KEY)
+        git_branch = res_get(models.GIT_BRANCH_KEY)
+
+        parsed_data = {
+            models.GIT_COMMIT_KEY: git_commit,
+            models.GIT_URL_KEY: git_url,
+            models.GIT_BRANCH_KEY: git_branch
+        }
+
+    return parsed_data
+
+
+def _parse_boot_results(results, intersect_results=None, get_unique=False):
+    """Parse the boot results from the database creating a new data structure.
 
     This is done to provide a simpler data structure to create the email
     body.
@@ -208,18 +278,22 @@ def _parse_results(results, get_unique=False):
     values found in the passed `results` for `arch`, `board` and
     `defconfig_full` keys.
 
-    :param results: The results to parse.
+    :param results: The boot results to parse.
     :type results: `pymongo.cursor.Cursor` or a list of dict
     :param get_unique: Return the unique values in the data structure. Default
     to False.
     :type get_unique: bool
-    :return A tuple with the parsed data as dictionary, and the unique data or
-    None.
+    :param intersect_results: The boot results to remove intersecting items.
+    :type intersect_results: dict
+    :return A tuple with the parsed data as dictionary, a tuple of data as
+    a dictionary that has had intersecting entries removed or None, the number
+    of intersections found or 0, and the unique data or None.
     """
     parsed_data = {}
     parsed_get = parsed_data.get
     result_struct = None
     unique_data = None
+    intersections = 0
 
     if get_unique:
         unique_data = {
@@ -248,6 +322,13 @@ def _parse_results(results, get_unique=False):
             }
         }
 
+        # Check if the current result intersects the other
+        # interect_results
+        if intersect_results:
+            if board in intersect_results[arch][defconfig]:
+                intersections += 1
+                del intersect_results[arch][defconfig][board]
+
         if arch in parsed_data.viewkeys():
             if defconfig in parsed_get(arch).viewkeys():
                 if board in parsed_get(arch)[defconfig].viewkeys():
@@ -261,7 +342,7 @@ def _parse_results(results, get_unique=False):
         else:
             parsed_data[arch] = result_struct[arch]
 
-    return parsed_data, unique_data
+    return parsed_data, intersect_results, intersections, unique_data
 
 
 def _search_conflicts(failed, passed):
@@ -312,20 +393,30 @@ def _search_conflicts(failed, passed):
 
 # pylint: disable=too-many-arguments
 def _create_boot_email(
-        job, kernel, lab_name, failed_data, fail_count, total_count,
-        conflict_data):
+        job, kernel, git_commit, git_url, git_branch, lab_name, failed_data, fail_count,
+        offline_data, offline_count, total_count, conflict_data, conflict_count):
     """Parse the results and create the email text body to send.
 
     :param job: The name of the job.
     :type job: str
     :param  kernel: The name of the kernel.
     :type kernel: str
+    :param git_commit: The git commit.
+    :type git_commit: str
+    :param git_url: The git url.
+    :type git_url: str
+    :param git_branch: The git branch.
+    :type git_branch: str
     :param lab_name: The name of the lab.
     :type lab_name: str
     :param failed_data: The parsed failed results.
-    :type reduce: dict
+    :type failed_data: dict
     :param fail_count: The total number of failed results.
     :type fail_count: int
+    :param offline_data: The parsed offline results.
+    :type offline_data: dict
+    :param offline_count: The total number of offline results.
+    :type offline_count: int
     :param total_count: The total number of results.
     :type total_count: int
     :param conflict_data: The parsed conflicting results.
@@ -336,8 +427,13 @@ def _create_boot_email(
         "job": job,
         "total_results": total_count,
         "passed": total_count - fail_count,
-        "failed": fail_count,
+        "failed": fail_count - conflict_count,
+        "conflicts": conflict_count,
+        "offline": offline_count,
         "kernel": kernel,
+        "git_commit": git_commit,
+        "git_url": git_url,
+        "git_branch": git_branch,
         "lab_name": lab_name,
         "base_url": DEFAULT_BASE_URL,
         "build_url": DEFAULT_BUILD_URL,
@@ -348,41 +444,51 @@ def _create_boot_email(
     email_body = u""
     subject = (
         u"%(job)s boot: %(total_results)d boots: "
-        "%(passed)d passed, %(failed)d failed (%(kernel)s)"
+        "%(passed)d passed, %(failed)d failed with "
+        "%(conflicts)d conflict(s), "
+        "%(offline)d offline (%(kernel)s)"
     )
     if lab_name is not None:
         subject = " ".join([subject, u"- %(lab_name)s"])
     subject = subject % args
 
     with io.StringIO() as m_string:
-        m_string.write(
-            u"Full Build Summary: %(build_url)s/%(job)s/kernel/%(kernel)s/\n" %
-            args
-        )
+        m_string.write(subject)
+        m_string.write(u"\n")
+        m_string.write(u"\n")
         m_string.write(
             u"Full Boot Summary: %(boot_url)s/%(job)s/kernel/%(kernel)s/\n" %
             args
         )
+        m_string.write(
+            u"Full Build Summary: %(build_url)s/%(job)s/kernel/%(kernel)s/\n" %
+            args
+        )
         m_string.write(u"\n")
         m_string.write(
-            u"Tree/Branch: %(job)s\nGit Describe: %(kernel)s\n" % args
+            u"Tree: %(job)s\nBranch: %(git_branch)s\nGit Describe: %(kernel)s\n"
+            u"Git Commit: %(git_commit)s\nGit URL: %(git_url)s\n" % args
         )
-        _parse_and_write_results(failed_data, conflict_data, args, m_string)
+        _parse_and_write_results(failed_data, offline_data, conflict_data,
+                                 args, m_string)
         email_body = m_string.getvalue()
 
     return email_body, subject
 
 
-def _parse_and_write_results(failed_data, conflict_data, args, m_string):
+def _parse_and_write_results(failed_data, offline_data, conflict_data,
+                             args, m_string):
     """Parse failed and conflicting results and create the email body.
 
     :param failed_data: The parsed failed results.
     :type failed_data: dict
+    :param offline_data: The parsed offline results.
+    :type offline_data: dict
     :param conflict_data: The parsed conflicting results.
     :type conflict_data: dict
     :param args: A dictionary with values for string formatting.
     :type args: dict
-    :param m_string: The StriongIO object where to write.
+    :param m_string: The StringIO object where to write.
     """
 
     def _traverse_data_struct(data, m_string):
@@ -417,13 +523,18 @@ def _parse_and_write_results(failed_data, conflict_data, args, m_string):
                             (lab, def_get(board)[lab])
                         )
 
+    if offline_data:
+        m_string.write(u"\nOffline Platforms:\n")
+        _traverse_data_struct(offline_data, m_string)
     if failed_data:
         m_string.write(
-            u"\nFailed Boot Results: %(base_url)s/boot/?%(kernel)s&fail\n" %
+            u"\nBoot Failure(s) Detected: \
+            %(base_url)s/boot/?%(kernel)s&fail\n" %
             args
         )
         _traverse_data_struct(failed_data, m_string)
 
     if conflict_data:
-        m_string.write(u"\nConflicting Boot Results: (Review needed)\n")
+        m_string.write(u"\nConflicting Boot Failure(s) Detected: (These likely \
+        are not failures as other labs are reporting PASS. Please review.)\n")
         _traverse_data_struct(conflict_data, m_string)
