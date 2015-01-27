@@ -32,6 +32,7 @@ class BisectDocument(modb.BaseDocument):
         self.bad_commit_date = None
         self.bad_commit_url = None
         self.bisect_data = []
+        self.compare_to = None
         self.good_commit = None
         self.good_commit_date = None
         self.good_commit_url = None
@@ -103,10 +104,11 @@ class BisectDocument(modb.BaseDocument):
             models.BISECT_GOOD_COMMIT_KEY: self.good_commit,
             models.BISECT_GOOD_COMMIT_URL: self.good_commit_url,
             models.CREATED_KEY: self.created_on,
+            models.COMPARE_TO_KEY: self.compare_to,
             models.JOB_ID_KEY: self.job_id,
             models.JOB_KEY: self.job,
             models.NAME_KEY: self.name,
-            models.VERSION_KEY: self.version,
+            models.VERSION_KEY: self.version
         }
 
         if self.id:
