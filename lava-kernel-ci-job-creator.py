@@ -88,6 +88,13 @@ panda_es = {'device_type': 'panda-es',
             'be': False,
             'fastboot': False}
 
+panda = {'device_type': 'panda',
+         'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+         'defconfig_blacklist': [],
+         'lpae': False,
+         'be': False,
+         'fastboot': False}
+
 cubieboard3 = {'device_type': 'cubieboard3',
                'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
                'defconfig_blacklist': [],
@@ -271,6 +278,7 @@ device_map = {'exynos5250-arndale.dtb': arndale,
               'omap3-beagle-xm.dtb': beagle_xm,
               'omap3-beagle-xm-legacy': beagle_xm_legacy,
               'omap4-panda-es.dtb': panda_es,
+              'omap4-panda.dtb': panda,
               'sun7i-a20-cubietruck.dtb': cubieboard3,
               'hip04-d01.dtb': d01,
               'hisi-x5hd2-dkb.dtb': hisi_x5hd2_dkb,
