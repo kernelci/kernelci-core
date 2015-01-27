@@ -24,6 +24,7 @@ import taskqueue.tasks as taskt
 import utils.db
 
 
+# pylint: disable=too-many-public-methods
 class BisectHandler(hbase.BaseHandler):
     """Handler used to trigger bisect operations on the data."""
 
@@ -124,14 +125,12 @@ class BisectHandler(hbase.BaseHandler):
                     spec[models.COMPARE_TO_KEY] = None
 
                 response = self._bisect(
-                    collection,
                     models.BOOT_ID_KEY,
                     spec,
                     bisect_func,
                     fields=fields)
             elif collection == models.DEFCONFIG_COLLECTION:
                 response = self._bisect(
-                    collection,
                     models.DEFCONFIG_ID_KEY,
                     spec,
                     self.execute_defconfig_bisect,
@@ -144,12 +143,9 @@ class BisectHandler(hbase.BaseHandler):
 
         return response
 
-    def _bisect(self, collection, id_key, spec, bisect_func, fields=None):
+    def _bisect(self, id_key, spec, bisect_func, fields=None):
         """Perform the bisect operation.
 
-        :param collection: The name of the collection where the bisect function
-        should be applied.
-        :type collection: string
         :param id_key: The name of the key that contains the ID value of the
         document we want to bisect.
         :type id_key: string
@@ -232,6 +228,19 @@ class BisectHandler(hbase.BaseHandler):
 
     @staticmethod
     def execute_boot_bisect_compared_to(doc_id, db_options, **kwargs):
+        """Execute the boot bisection compared to another tree.
+
+        :param doc_id: The ID of the document to execute the bisect on.
+        :type doc_id: string
+        :param db_options: The mongodb database connection parameters.
+        :type db_options: dictionary
+        :param compare_to: The name of the tree to compare against.
+        :type compare_to: dictionary
+        :param fields: A `fields` data structure with the fields to return or
+        exclude. Default to None.
+        :type fields: list or dict
+        :return A `HandlerResponse` object.
+        """
         response = hresponse.HandlerResponse()
         compare_to = kwargs.get("compare_to", None)
         fields = kwargs.get("fields", None)
@@ -247,8 +256,6 @@ class BisectHandler(hbase.BaseHandler):
                 "Boot bisection compared to '%s' not found" % compare_to)
         elif response.status_code == 400:
             response.reason = "Boot report cannot be bisected: is it failed?"
-
-        return response
 
         return response
 
