@@ -38,6 +38,7 @@ class BisectDocument(modb.BaseDocument):
         self.good_commit_url = None
         self.job = None
         self.job_id = None
+        self.type = None
 
     @property
     def collection(self):
@@ -103,11 +104,12 @@ class BisectDocument(modb.BaseDocument):
             models.BISECT_GOOD_COMMIT_DATE: self.good_commit_date,
             models.BISECT_GOOD_COMMIT_KEY: self.good_commit,
             models.BISECT_GOOD_COMMIT_URL: self.good_commit_url,
-            models.CREATED_KEY: self.created_on,
             models.COMPARE_TO_KEY: self.compare_to,
+            models.CREATED_KEY: self.created_on,
             models.JOB_ID_KEY: self.job_id,
             models.JOB_KEY: self.job,
             models.NAME_KEY: self.name,
+            models.TYPE_KEY: self.type,
             models.VERSION_KEY: self.version
         }
 
@@ -130,6 +132,7 @@ class BootBisectDocument(BisectDocument):
         self.board = None
         self.defconfig_id = None
         self.boot_id = None
+        self.type = "boot"
 
     def to_dict(self):
         boot_b_dict = super(BootBisectDocument, self).to_dict()
@@ -149,6 +152,7 @@ class DefconfigBisectDocument(BisectDocument):
         self.defconfig_id = None
         self.defconfig_full = None
         self.arch = None
+        self.type = "build"
 
     def to_dict(self):
         def_b_dict = super(DefconfigBisectDocument, self).to_dict()

@@ -52,7 +52,8 @@ class TestBisectModel(unittest.TestCase):
             "bad_commit_date": None,
             "bad_commit_url": None,
             "version": None,
-            "job_id": None
+            "job_id": None,
+            "type": None
         }
         self.assertDictEqual(expected, bisect_doc.to_dict())
 
@@ -74,7 +75,8 @@ class TestBisectModel(unittest.TestCase):
             "bad_commit_date": None,
             "bad_commit_url": None,
             "version": None,
-            "job_id": None
+            "job_id": None,
+            "type": None
         }
         self.assertDictEqual(expected, bisect_doc.to_dict())
 
@@ -104,7 +106,8 @@ class TestBisectModel(unittest.TestCase):
             "version": "1.0",
             "boot_id": "boot-id",
             "defconfig_id": "defconfig-id",
-            "job_id": "job-id"
+            "job_id": "job-id",
+            "type": "boot"
         }
         self.assertDictEqual(expected, bisect_doc.to_dict())
 
@@ -168,7 +171,8 @@ class TestBisectModel(unittest.TestCase):
             "defconfig": "defconfig-name",
             "job_id": "job-id",
             "defconfig_full": "defconfig-full",
-            "arch": "arm"
+            "arch": "arm",
+            "type": "build"
         }
 
         self.assertDictEqual(expected, bisect_doc.to_dict())
