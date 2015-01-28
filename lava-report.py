@@ -135,12 +135,11 @@ def boot_report(args):
             # Get the boot data from LAVA
             for test_results in bundle_data['test_runs']:
                 # Check for the LAVA self boot test
-                if test_results['test_id'] == 'boot':
+                if test_results['test_id'] == 'lava':
                     for test in test_results['test_results']:
                         if test['test_case_id'] == 'kernel_boot_time':
                             kernel_boot_time = test['measurement']
                             print test['measurement']
-                if test_results['test_id'] == 'lava':
                     bundle_attributes = bundle_data['test_runs'][0]['attributes']
             boot_meta = {}
             api_url = None
