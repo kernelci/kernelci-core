@@ -90,6 +90,7 @@ def boot_report(args):
         dt_tests_passed = None
         dt_tests_failed = None
         board_offline = False
+        kernel_boot_time = None
         boot_failure_reason = None
         for line in raw_job_file.splitlines():
             if 'Infrastructure Error:' in line:
@@ -131,7 +132,16 @@ def boot_report(args):
         if bundle is not None:
             json_bundle = connection.dashboard.get(bundle)
             bundle_data = json.loads(json_bundle['content'])
-            bundle_attributes = bundle_data['test_runs'][0]['attributes']
+            # Get the boot data from LAVA
+            for test_results in bundle_data['test_runs']:
+                # Check for the LAVA self boot test
+                if test_results['test_id'] == 'boot':
+                    for test in test_results['test_results']:
+                        if test['test_case_id'] == 'kernel_boot_time':
+                            kernel_boot_time = test['measurement']
+                            print test['measurement']
+                if test_results['test_id'] == 'lava':
+                    bundle_attributes = bundle_data['test_runs'][0]['attributes']
             boot_meta = {}
             api_url = None
             arch = None
@@ -141,7 +151,6 @@ def boot_report(args):
             kernel_version = None
             device_tree = None
             kernel_endian = None
-            kernel_boot_time = None
             kernel_tree = None
             kernel_image = None
             kernel_addr = None
@@ -164,8 +173,9 @@ def boot_report(args):
                 kernel_endian = bundle_attributes['kernel.endian']
             if in_bundle_attributes(bundle_attributes, 'platform.fastboot'):
                 fastboot = bundle_attributes['platform.fastboot']
-            if in_bundle_attributes(bundle_attributes, 'kernel-boot-time'):
-                kernel_boot_time = bundle_attributes['kernel-boot-time']
+            if kernel_boot_time is None:
+                if in_bundle_attributes(bundle_attributes, 'kernel-boot-time'):
+                    kernel_boot_time = bundle_attributes['kernel-boot-time']
             if in_bundle_attributes(bundle_attributes, 'kernel.tree'):
                 kernel_tree = bundle_attributes['kernel.tree']
             if in_bundle_attributes(bundle_attributes, 'kernel-image'):
