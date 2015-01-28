@@ -41,6 +41,14 @@ class SendHandler(hbase.BaseHandler):
         db_options = kwargs["db_options"]
         mail_options = self.settings["mailoptions"]
 
+        self.log.info(
+            "Email trigger received from IP '%s' for '%s-%s' at %s",
+            self.request.remote_ip,
+            json_obj.get("job", None),
+            json_obj.get("kernel", None),
+            datetime.datetime.utcnow()
+        )
+
         countdown = json_obj.get(models.DELAY_KEY, self.settings["senddelay"])
         if countdown is None:
             countdown = self.settings["senddelay"]
