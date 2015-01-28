@@ -234,6 +234,7 @@ def boot_report(args):
             boot_meta['board'] = platform_name
             if board_offline and result == 'FAIL':
                 boot_meta['boot_result'] = 'OFFLINE'
+                results[kernel_defconfig]['result'] = 'OFFLINE'
             else:
                 boot_meta['boot_result'] = result
             if result == 'FAIL' or result == 'OFFLINE':
@@ -259,6 +260,10 @@ def boot_report(args):
             boot_meta['kernel_image'] = kernel_image
             boot_meta['loadaddr'] = kernel_addr
             json_file = 'boot-%s.json' % platform_name
+            write_json(json_file, directory, boot_meta)
+            print 'Creating html version of boot log for %s' % platform_name
+            cmd = 'python log2html.py %s' % os.path.join(directory, log)
+            subprocess.check_output(cmd, shell=True)
             if args.lab and args.api and args.token:
                 print 'Sending boot result to %s for %s' % (args.api, platform_name)
                 headers = {
@@ -268,11 +273,21 @@ def boot_report(args):
                 api_url = urlparse.urljoin(args.api, '/boot')
                 response = requests.post(api_url, data=json.dumps(boot_meta), headers=headers)
                 print response.content
-            write_json(json_file, directory, boot_meta)
-            print 'Creating html version of boot log for %s' % platform_name
-            cmd = 'python log2html.py %s' % os.path.join(directory, log)
-            subprocess.check_output(cmd, shell=True)
-
+                headers = {
+                    'Authorization': args.token,
+                }
+                print 'Uploading text version of boot log'
+                with open(os.path.join(directory, log)) as lh:
+                    data = lh.read()
+                api_url = urlparse.urljoin(args.api, '/upload/%s/%s/%s/%s/%s' % (kernel_tree, kernel_version, kernel_defconfig, args.lab, log))
+                response = requests.put(api_url, headers=headers, data=data)
+                print response.content
+                print 'Uploading text version of boot log'
+                with open(os.path.join(directory, html)) as lh:
+                    data = lh.read()
+                api_url = urlparse.urljoin(args.api, '/upload/%s/%s/%s/%s/%s' % (kernel_tree, kernel_version, kernel_defconfig, args.lab, html))
+                response = requests.put(api_url, headers=headers, data=data)
+                print response.content
 
     if results and kernel_tree and kernel_version:
         print 'Creating boot summary for %s' % kernel_version
@@ -309,7 +324,25 @@ def boot_report(args):
             first = True
             for defconfig, results_list in results.items():
                 for result in results_list:
-                    if result['result'] != 'PASS':
+                    if result['result'] == 'OFFLINE':
+                        if first:
+                            f.write('\n')
+                            f.write('Boards Offline:\n')
+                            first = False
+                        f.write('\n')
+                        f.write(defconfig)
+                        f.write('\n')
+                        break
+                for result in results_list:
+                    if result['result'] == 'OFFLINE':
+                        f.write('    %s   %ss   boot-test: %s\n' % (result['device_type'],
+                                                                    result['kernel_boot_time'],
+                                                                    result['result']))
+                        f.write('\n')
+            first = True
+            for defconfig, results_list in results.items():
+                for result in results_list:
+                    if result['result'] == 'FAIL':
                         if first:
                             f.write('\n')
                             f.write('Failed Boot Tests:\n')
@@ -319,7 +352,7 @@ def boot_report(args):
                         f.write('\n')
                         break
                 for result in results_list:
-                    if result['result'] != 'PASS':
+                    if result['result'] == 'FAIL':
                         f.write('    %s   %ss   boot-test: %s\n' % (result['device_type'],
                                                                     result['kernel_boot_time'],
                                                                     result['result']))
