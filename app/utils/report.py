@@ -142,9 +142,12 @@ def create_boot_report(job, kernel, lab_name, db_options):
         fields=BUILD_SEARCH_FIELDS)
 
     git_data = _parse_job_results(git_results)
-    git_commit = git_data[models.GIT_COMMIT_KEY]
-    git_url = git_data[models.GIT_URL_KEY]
-    git_branch = git_data[models.GIT_BRANCH_KEY]
+    if git_data:
+        git_commit = git_data[models.GIT_COMMIT_KEY]
+        git_url = git_data[models.GIT_URL_KEY]
+        git_branch = git_data[models.GIT_BRANCH_KEY]
+    else:
+        git_commit = git_url = git_branch = "Unknown"
 
     spec[models.STATUS_KEY] = models.OFFLINE_STATUS
 
@@ -238,6 +241,7 @@ def create_boot_report(job, kernel, lab_name, db_options):
             "Nothing found for '%s-%s': no email report sent", job, kernel)
 
     return email_body, subject
+
 
 def _parse_job_results(results):
     """Parse the job results from the database creating a new data structure.

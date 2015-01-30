@@ -44,7 +44,7 @@ def send_emails(job_id):
     pass
 
 
-@taskc.app.task(name='import-job', ignore_result=True)
+@taskc.app.task(name="import-job")
 def import_job(json_obj, db_options):
     """Just a wrapper around the real import function.
 
@@ -59,7 +59,7 @@ def import_job(json_obj, db_options):
     utils.docimport.import_and_save_job(json_obj, db_options)
 
 
-@taskc.app.task(name='import-boot', ignore_result=True)
+@taskc.app.task(name="import-boot")
 def import_boot(json_obj, db_options):
     """Just a wrapper around the real boot import function.
 
@@ -74,7 +74,7 @@ def import_boot(json_obj, db_options):
     utils.bootimport.import_and_save_boot(json_obj, db_options)
 
 
-@taskc.app.task(name='batch-executor')
+@taskc.app.task(name="batch-executor")
 def execute_batch(json_obj, db_options):
     """Run batch operations based on the passed JSON object.
 
@@ -138,7 +138,7 @@ def defconfig_bisect(doc_id, db_options, fields=None):
     return defconfigb.execute_defconfig_bisection(doc_id, db_options, fields)
 
 
-@taskc.app.task(name="schedule-boot-report")
+@taskc.app.task(name="schedule-boot-report", acks_late=True, track_started=True)
 def schedule_boot_report(json_obj, db_options, mail_options, countdown):
     """Schedule a second task to send the boot report.
 
@@ -184,7 +184,7 @@ def schedule_boot_report(json_obj, db_options, mail_options, countdown):
                 "cannot be sent", job, kernel)
 
 
-@taskc.app.task(name="send-boot-report")
+@taskc.app.task(name="send-boot-report", acks_late=True, track_started=True)
 def send_boot_report(job, kernel, lab_name, to_addrs, db_options, mail_options):
     """Create the boot report email and send it.
 
