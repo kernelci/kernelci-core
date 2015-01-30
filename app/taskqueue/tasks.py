@@ -74,7 +74,7 @@ def import_boot(json_obj, db_options):
     utils.bootimport.import_and_save_boot(json_obj, db_options)
 
 
-@taskc.app.task(name="batch-executor")
+@taskc.app.task(name="batch-executor", ignore_result=False)
 def execute_batch(json_obj, db_options):
     """Run batch operations based on the passed JSON object.
 
@@ -87,7 +87,7 @@ def execute_batch(json_obj, db_options):
     return utils.batch.common.execute_batch_operation(json_obj, db_options)
 
 
-@taskc.app.task(name="boot-bisect")
+@taskc.app.task(name="boot-bisect", ignore_result=False)
 def boot_bisect(doc_id, db_options, fields=None):
     """Run a boot bisect operation on the passed boot document id.
 
@@ -103,7 +103,7 @@ def boot_bisect(doc_id, db_options, fields=None):
     return bootb.execute_boot_bisection(doc_id, db_options, fields)
 
 
-@taskc.app.task(name="boot-bisect-compare-to")
+@taskc.app.task(name="boot-bisect-compare-to", ignore_result=False)
 def boot_bisect_compared_to(doc_id, compare_to, db_options, fields=None):
     """Run a boot bisect operation compared to the provided tree name.
 
@@ -122,7 +122,7 @@ def boot_bisect_compared_to(doc_id, compare_to, db_options, fields=None):
         doc_id, compare_to, db_options, fields)
 
 
-@taskc.app.task(name="defconfig-bisect")
+@taskc.app.task(name="defconfig-bisect", ignore_result=False)
 def defconfig_bisect(doc_id, db_options, fields=None):
     """Run a defconfig bisect operation on the passed defconfig document id.
 
@@ -138,7 +138,10 @@ def defconfig_bisect(doc_id, db_options, fields=None):
     return defconfigb.execute_defconfig_bisection(doc_id, db_options, fields)
 
 
-@taskc.app.task(name="schedule-boot-report", acks_late=True, track_started=True)
+@taskc.app.task(
+    name="schedule-boot-report",
+    acks_late=True,
+    track_started=True)
 def schedule_boot_report(json_obj, db_options, mail_options, countdown):
     """Schedule a second task to send the boot report.
 
@@ -184,7 +187,11 @@ def schedule_boot_report(json_obj, db_options, mail_options, countdown):
                 "cannot be sent", job, kernel)
 
 
-@taskc.app.task(name="send-boot-report", acks_late=True, track_started=True)
+@taskc.app.task(
+    name="send-boot-report",
+    acks_late=True,
+    track_started=True,
+    ignore_result=False)
 def send_boot_report(job, kernel, lab_name, to_addrs, db_options, mail_options):
     """Create the boot report email and send it.
 
@@ -202,6 +209,7 @@ def send_boot_report(job, kernel, lab_name, to_addrs, db_options, mail_options):
     :type mail_options: dict
     """
     utils.LOG.info("Preparing boot report email for '%s-%s'", job, kernel)
+    status = 400
 
     body, subject = utils.report.create_boot_report(
         job, kernel, lab_name, db_options=db_options)
@@ -212,6 +220,7 @@ def send_boot_report(job, kernel, lab_name, to_addrs, db_options, mail_options):
             to_addrs, subject, body, mail_options)
         utils.report.save_report(
             job, kernel, models.BOOT_REPORT, status, errors, db_options)
+    return status
 
 
 def run_batch_group(batch_op_list, db_options):

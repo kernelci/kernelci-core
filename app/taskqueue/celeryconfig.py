@@ -29,8 +29,5 @@ CELERY_TIMEZONE = "UTC"
 CELERY_ENABLE_UTC = True
 CELERY_IGNORE_RESULT = True
 CELERY_DISABLE_RATE_LIMITS = True
-CELERY_RESULT_BACKEND = "mongodb://localhost"
-CELERY_MONGODB_BACKEND_SETTINGS = {
-    "database": "celery-kernelci",
-    "taskmeta_collection": "celery-results"
-}
+# Use a different DB than the redis default one.
+CELERY_RESULT_BACKEND = "redis://localhost/1"
