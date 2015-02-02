@@ -82,13 +82,7 @@ def execute_boot_bisection(doc_id, db_options, fields=None):
         else:
             bisect_doc = _find_boot_bisect_data(
                 obj_id, start_doc, database, db_options)
-
-            return_code, saved_id = utils.db.save(
-                database, bisect_doc, manipulate=True)
-            if return_code == 201:
-                bisect_doc.id = saved_id
-            else:
-                utils.LOG.error("Error saving bisect data %s", doc_id)
+            bcommon.save_bisect_doc(database, bisect_doc, doc_id)
 
             bisect_doc = bcommon.update_doc_fields(bisect_doc, fields)
             result = [
@@ -310,12 +304,7 @@ def execute_boot_bisection_compared_to(
                 )
 
             bisect_doc.bisect_data = all_valid_docs
-            return_code, saved_id = utils.db.save(
-                database, bisect_doc, manipulate=True)
-            if return_code == 201:
-                bisect_doc.id = saved_id
-            else:
-                utils.LOG.error("Error saving compared-bisect data %s", doc_id)
+            bcommon.save_bisect_doc(database, bisect_doc, doc_id)
 
             bisect_doc = bcommon.update_doc_fields(bisect_doc, fields)
             result = [
