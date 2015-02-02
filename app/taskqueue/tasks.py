@@ -100,7 +100,7 @@ def boot_bisect(doc_id, db_options, fields=None):
     :type fields: list or dict
     :return The result of the boot bisect operation.
     """
-    return bootb.execute_boot_bisection(doc_id, db_options, fields)
+    return bootb.execute_boot_bisection(doc_id, db_options, fields=fields)
 
 
 @taskc.app.task(name="boot-bisect-compare-to", ignore_result=False)
@@ -119,7 +119,7 @@ def boot_bisect_compared_to(doc_id, compare_to, db_options, fields=None):
     :return The result of the boot bisect operation.
     """
     return bootb.execute_boot_bisection_compared_to(
-        doc_id, compare_to, db_options, fields)
+        doc_id, compare_to, db_options, fields=fields)
 
 
 @taskc.app.task(name="defconfig-bisect", ignore_result=False)
@@ -135,7 +135,28 @@ def defconfig_bisect(doc_id, db_options, fields=None):
     :type fields: list or dict
     :return The result of the boot bisect operation.
     """
-    return defconfigb.execute_defconfig_bisection(doc_id, db_options, fields)
+    return defconfigb.execute_defconfig_bisection(
+        doc_id, db_options, fields=fields)
+
+
+@taskc.app.task(name="defconfig-bisect-compared-to", ignore_result=False)
+def defconfig_bisect_compared_to(doc_id, compare_to, db_options, fields=None):
+    """Run a defconfig bisect operation compared to the provided tree name.
+
+    :param doc_id: The defconfig document ID.
+    :type doc_id: string
+    :param compare_to: The name of the tree to compare to.
+    :type compare_to: string
+    :param db_options: The mongodb database connection parameters.
+    :type db_options: dictionary
+    :param fields: A `fields` data structure with the fields to return or
+    exclude. Default to None.
+    :type fields: list or dict
+    :return The result of the defconfig bisect operation.
+    """
+    return defconfigb.execute_defconfig_bisection_compared_to(
+        doc_id, compare_to, db_options, fields=fields
+    )
 
 
 @taskc.app.task(
