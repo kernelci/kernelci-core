@@ -114,9 +114,9 @@ class BisectHandler(hbase.BaseHandler):
 
         if collection in models.BISECT_VALID_COLLECTIONS:
             if collection == models.BOOT_COLLECTION:
-                bisect_func = self.execute_boot_bisect
+                bisect_func = execute_boot_bisect
                 if spec.get(models.COMPARE_TO_KEY, None):
-                    bisect_func = self.execute_boot_bisect_compared_to
+                    bisect_func = execute_boot_bisect_compared_to
                 else:
                     # Force the compare_to field to None (null in mongodb)
                     # so that we can search correctly otherwise we can get
@@ -130,10 +130,20 @@ class BisectHandler(hbase.BaseHandler):
                     bisect_func,
                     fields=fields)
             elif collection == models.DEFCONFIG_COLLECTION:
+                bisect_func = execute_defconfig_bisect
+                if spec.get(models.COMPARE_TO_KEY, None):
+                    bisect_func = execute_defconfig_bisect_compared_to
+                else:
+                    # Force the compare_to field to None (null in mongodb)
+                    # so that we can search correctly otherwise we can get
+                    # multiple results out. This is due to how we store the
+                    # bisect calculations in the db.
+                    spec[models.COMPARE_TO_KEY] = None
+
                 response = self._bisect(
                     models.DEFCONFIG_ID_KEY,
                     spec,
-                    self.execute_defconfig_bisect,
+                    bisect_func,
                     fields=fields)
         else:
             response = hresponse.HandlerResponse(400)
@@ -199,91 +209,111 @@ class BisectHandler(hbase.BaseHandler):
 
         return response
 
-    @staticmethod
-    def execute_boot_bisect(doc_id, db_options, **kwargs):
-        """Execute the boot bisect operation.
 
-        :param doc_id: The ID of the document to execute the bisect on.
-        :type doc_id: str
-        :param db_options: The mongodb database connection parameters.
-        :type db_options: dict
-        :param fields: A `fields` data structure with the fields to return or
-        exclude. Default to None.
-        :type fields: list or dict
-        :return A `HandlerResponse` object.
-        """
-        response = hresponse.HandlerResponse()
+def execute_boot_bisect(doc_id, db_options, **kwargs):
+    """Execute the boot bisect operation.
 
-        result = taskt.boot_bisect.apply_async(
-            [doc_id, db_options, kwargs.get("fields", None)])
-        while not result.ready():
-            pass
+    :param doc_id: The ID of the document to execute the bisect on.
+    :type doc_id: str
+    :param db_options: The mongodb database connection parameters.
+    :type db_options: dict
+    :param fields: A `fields` data structure with the fields to return or
+    exclude. Default to None.
+    :type fields: list or dict
+    :return A `HandlerResponse` object.
+    """
+    response = hresponse.HandlerResponse()
 
-        response.status_code, response.result = result.get()
-        if response.status_code == 404:
-            response.reason = "Boot report not found"
-        elif response.status_code == 400:
-            response.reason = "Boot report cannot be bisected: is it failed?"
-        return response
+    result = taskt.boot_bisect.apply_async(
+        [doc_id, db_options, kwargs.get("fields", None)])
+    while not result.ready():
+        pass
 
-    @staticmethod
-    def execute_boot_bisect_compared_to(doc_id, db_options, **kwargs):
-        """Execute the boot bisection compared to another tree.
+    response.status_code, response.result = result.get()
+    if response.status_code == 404:
+        response.reason = "Boot report not found"
+    elif response.status_code == 400:
+        response.reason = "Boot report cannot be bisected: is it failed?"
+    return response
 
-        :param doc_id: The ID of the document to execute the bisect on.
-        :type doc_id: string
-        :param db_options: The mongodb database connection parameters.
-        :type db_options: dictionary
-        :param compare_to: The name of the tree to compare against.
-        :type compare_to: dictionary
-        :param fields: A `fields` data structure with the fields to return or
-        exclude. Default to None.
-        :type fields: list or dict
-        :return A `HandlerResponse` object.
-        """
-        response = hresponse.HandlerResponse()
-        compare_to = kwargs.get("compare_to", None)
-        fields = kwargs.get("fields", None)
 
-        result = taskt.boot_bisect_compared_to.apply_async(
-            [doc_id, compare_to, db_options, fields])
-        while not result.ready():
-            pass
+def execute_boot_bisect_compared_to(doc_id, db_options, **kwargs):
+    """Execute the boot bisection compared to another tree.
 
-        response.status_code, response.result = result.get()
-        if response.status_code == 404:
-            response.reason = (
-                "Boot bisection compared to '%s' not found" % compare_to)
-        elif response.status_code == 400:
-            response.reason = "Boot report cannot be bisected: is it failed?"
+    :param doc_id: The ID of the document to execute the bisect on.
+    :type doc_id: string
+    :param db_options: The mongodb database connection parameters.
+    :type db_options: dictionary
+    :param compare_to: The name of the tree to compare against.
+    :type compare_to: dictionary
+    :param fields: A `fields` data structure with the fields to return or
+    exclude. Default to None.
+    :type fields: list or dict
+    :return A `HandlerResponse` object.
+    """
+    response = hresponse.HandlerResponse()
+    compare_to = kwargs.get("compare_to", None)
+    fields = kwargs.get("fields", None)
 
-        return response
+    result = taskt.boot_bisect_compared_to.apply_async(
+        [doc_id, compare_to, db_options, fields])
+    while not result.ready():
+        pass
 
-    @staticmethod
-    def execute_defconfig_bisect(doc_id, db_options, **kwargs):
-        """Execute the defconfig bisect operation.
+    response.status_code, response.result = result.get()
+    if response.status_code == 404:
+        response.reason = (
+            "Boot bisection compared to '%s' not found" % compare_to)
+    elif response.status_code == 400:
+        response.reason = "Boot report cannot be bisected: is it failed?"
 
-        :param doc_id: The ID of the document to execute the bisect on.
-        :type doc_id: str
-        :param db_options: The mongodb database connection parameters.
-        :type db_options: dict
-        :param fields: A `fields` data structure with the fields to return or
-        exclude. Default to None.
-        :type fields: list or dict
-        :return A `HandlerResponse` object.
-        """
-        response = hresponse.HandlerResponse()
+    return response
 
-        result = taskt.defconfig_bisect.apply_async(
-            [doc_id, db_options, kwargs.get("fields", None)]
-        )
-        while not result.ready():
-            pass
 
-        response.status_code, response.result = result.get()
-        if response.status_code == 404:
-            response.reason = "Defconfig not found"
-        elif response.status_code == 400:
-            response.reason = "Defconfig cannot be bisected: is it failed?"
+def execute_defconfig_bisect(doc_id, db_options, **kwargs):
+    """Execute the defconfig bisect operation.
 
-        return response
+    :param doc_id: The ID of the document to execute the bisect on.
+    :type doc_id: str
+    :param db_options: The mongodb database connection parameters.
+    :type db_options: dict
+    :param fields: A `fields` data structure with the fields to return or
+    exclude. Default to None.
+    :type fields: list or dict
+    :return A `HandlerResponse` object.
+    """
+    response = hresponse.HandlerResponse()
+
+    result = taskt.defconfig_bisect.apply_async(
+        [doc_id, db_options, kwargs.get("fields", None)]
+    )
+    while not result.ready():
+        pass
+
+    response.status_code, response.result = result.get()
+    if response.status_code == 404:
+        response.reason = "Defconfig not found"
+    elif response.status_code == 400:
+        response.reason = "Defconfig cannot be bisected: is it failed?"
+
+    return response
+
+
+def execute_defconfig_bisect_compared_to(doc_id, db_options, **kwargs):
+    response = hresponse.HandlerResponse()
+    compare_to = kwargs.get("compare_to", None)
+    fields = kwargs.get("fields", None)
+
+    result = taskt.defconfig_bisect_compared_to.apply_async(
+        [doc_id, compare_to, db_options, fields])
+    while not result.ready():
+        pass
+
+    response.status_code, response.result = result.get()
+    if response.status_code == 404:
+        response.reason = (
+            "Defconfig bisection compared to '%s' not found" % compare_to)
+    elif response.status_code == 400:
+        response.reason = "Defconfig cannot be bisected: is it failed?"
+
+    return response
