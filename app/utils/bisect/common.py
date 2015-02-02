@@ -33,6 +33,21 @@ BOOT_DEFCONFIG_SEARCH_FIELDS = [
 ]
 
 
+def save_bisect_doc(database, bisect_doc, doc_id):
+    """Save the provided bisect document.
+
+    :param database: The database connection.
+    :param bisect_doc: The document to save.
+    :param doc_id: The ID of the document.
+    """
+    return_code, saved_id = utils.db.save(
+        database, bisect_doc, manipulate=True)
+    if return_code == 201:
+        bisect_doc.id = saved_id
+    else:
+        utils.LOG.error("Error saving bisect data %s", doc_id)
+
+
 def combine_defconfig_values(boot_doc, db_options):
     """Combine the boot document values with their own defconfing.
 
