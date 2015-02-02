@@ -69,8 +69,8 @@ def execute_boot_bisection(doc_id, db_options, fields=None):
     code = 200
 
     obj_id = bson.objectid.ObjectId(doc_id)
-    start_doc = utils.db.find_one(
-        database[models.BOOT_COLLECTION], [obj_id], fields=BOOT_SEARCH_FIELDS
+    start_doc = utils.db.find_one2(
+        database[models.BOOT_COLLECTION], obj_id, fields=BOOT_SEARCH_FIELDS
     )
 
     if all([start_doc, isinstance(start_doc, types.DictionaryType)]):
@@ -144,6 +144,9 @@ def _find_boot_bisect_data(obj_id, start_doc, database, db_options):
         models.DEFCONFIG_ID_KEY, None)
     bisect_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
     bisect_doc.board = board
+    bisect_doc.arch = arch
+    bisect_doc.defconfig = defconfig
+    bisect_doc.defconfig_full = defconfig_full
 
     spec = {
         models.LAB_NAME_KEY: lab_name,
@@ -239,35 +242,11 @@ def execute_boot_bisection_compared_to(
         else:
             # TODO: we need to know the baseline tree commit in order not to
             # search too much in the past.
-
-            # Search for a previous normal bisect. If we find it, use the good
-            # commit date as the maximum date to search in the comparison tree
-            # and retrieve at max the number of commit available in the bisect
-            # data list. If we do not have the previous bisect, return max 10
-            # documents since we do not know which is the last valid commit
-            # we are based on.
-            end_date = None
-            limit = 10
-
-            prev_bisect = utils.db.find_one2(
-                database[models.BISECT_COLLECTION],
-                {models.BOOT_ID_KEY: obj_id})
-
-            if prev_bisect:
-                b_get = prev_bisect.get
-                good_comit_date = b_get(models.BISECT_GOOD_COMMIT_DATE, None)
-                bisect_data = b_get(models.BISECT_DATA_KEY, None)
-
-                if good_comit_date:
-                    end_date = good_comit_date
-                if bisect_data:
-                    limit = len(bisect_data)
-                # If we don't have the good commit, but we have a list of
-                # failed commit, pick the last one - since they are ordered by
-                # creation date - and use its boot creation date.
-                if not end_date and bisect_data:
-                    last = bisect_data[-1]
-                    end_date = last.get(models.BISECT_BOOT_CREATED_KEY, None)
+            end_date, limit = bcommon.search_previous_bisect(
+                database,
+                {models.BOOT_ID_KEY: obj_id},
+                models.BISECT_BOOT_CREATED_KEY
+            )
 
             board = start_doc_get(models.BOARD_KEY)
             job = start_doc_get(models.JOB_KEY)
@@ -289,6 +268,9 @@ def execute_boot_bisection_compared_to(
             bisect_doc.boot_id = obj_id
             bisect_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
             bisect_doc.board = board
+            bisect_doc.defconfig_full = defconfig_full
+            bisect_doc.defconfig = defconfig
+            bisect_doc.arch = arch
 
             if end_date:
                 date_range = {
