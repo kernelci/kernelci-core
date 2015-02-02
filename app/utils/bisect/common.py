@@ -113,6 +113,49 @@ def combine_defconfig_values(boot_doc, db_options):
     return combined_values
 
 
+def search_previous_bisect(database, spec_or_id, date_field):
+    """Search for a previous saved bisect saved.
+
+    :param database: The connection to the database.
+    :param spec_or_id: The spec data structure or the ID to search for.
+    :type spec_or_id: dictionary or string
+    :param date_field: The name of the date field to look for in the
+    `bisect_data` array as found in the database. This field is different
+    between `boot` and `defconfig` bisects.
+    :type date_field: string
+    :return The date of the last good commit and the number of documents.
+    """
+    # Search for a previous normal bisect. If we find it, use the good
+    # commit date as the maximum date to search in the comparison tree
+    # and retrieve at max the number of commit available in the bisect
+    # data list. If we do not have the previous bisect, return max 10
+    # documents since we do not know which is the last valid commit
+    # we are based on.
+    end_date = None
+    limit = 10
+
+    prev_bisect = utils.db.find_one2(
+        database[models.BISECT_COLLECTION], spec_or_id)
+
+    if prev_bisect:
+        b_get = prev_bisect.get
+        good_comit_date = b_get(models.BISECT_GOOD_COMMIT_DATE, None)
+        bisect_data = b_get(models.BISECT_DATA_KEY, None)
+
+        if good_comit_date:
+            end_date = good_comit_date
+        if bisect_data:
+            limit = len(bisect_data)
+        # If we don't have the good commit, but we have a list of
+        # failed commit, pick the last one - since they are ordered by
+        # creation date - and use its boot creation date.
+        if not end_date and bisect_data:
+            last = bisect_data[-1]
+            end_date = last.get(date_field, None)
+
+    return end_date, limit
+
+
 def update_doc_fields(bisect_doc, fields):
     """Update the bisect document based on the provided fields.
 
