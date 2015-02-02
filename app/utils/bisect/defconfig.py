@@ -50,6 +50,8 @@ DEFCONFIG_SORT = [(models.CREATED_KEY, pymongo.DESCENDING)]
 
 
 # pylint: disable=too-many-locals
+# pylint: disable=too-many-branches
+# pylint: disable=too-many-statements
 def execute_defconfig_bisection(doc_id, db_options, fields=None):
     """Calculate bisect data for the provided defconfig report.
 
@@ -91,6 +93,8 @@ def execute_defconfig_bisection(doc_id, db_options, fields=None):
             bisect_doc.job_id = start_doc_get(models.JOB_ID_KEY, None)
             bisect_doc.defconfig_id = start_doc_get(models.ID_KEY)
             bisect_doc.defconfig = start_doc_get(models.DEFCONFIG_KEY, None)
+            bisect_doc.defconfig_full = start_doc_get(
+                models.DEFCONFIG_FULL_KEY, None)
             bisect_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
             bisect_doc.bad_commit_date = start_doc_get(models.CREATED_KEY)
             bisect_doc.bad_commit = start_doc_get(models.GIT_COMMIT_KEY)
@@ -135,18 +139,9 @@ def execute_defconfig_bisection(doc_id, db_options, fields=None):
             # the valid dates.
             passed_build = None
             if passed_builds.count() > 0:
-                passed_build = passed_builds[0]
+                passed_build = _search_passed_doc(passed_builds)
 
-                if passed_build.get(models.STATUS_KEY) != models.PASS_STATUS:
-                    utils.LOG.warn(
-                        "First result found is not a passed build for '%s'",
-                        obj_id
-                    )
-                    for doc in passed_builds:
-                        if doc.get(models.STATUS_KEY) == models.PASS_STATUS:
-                            passed_build = doc
-                            break
-
+            if passed_build is not None:
                 spec[models.CREATED_KEY] = {
                     "$gte": passed_build.get(models.CREATED_KEY),
                     "$lt": start_doc_get(models.CREATED_KEY)
@@ -191,13 +186,138 @@ def execute_defconfig_bisection(doc_id, db_options, fields=None):
 
             # Store everything in the bisect data.
             bisect_doc.bisect_data = all_valid_docs
+            bcommon.save_bisect_doc(database, bisect_doc, doc_id)
 
-            return_code, saved_id = utils.db.save(
-                database, bisect_doc, manipulate=True)
-            if return_code == 201:
-                bisect_doc.id = saved_id
+            bisect_doc = bcommon.update_doc_fields(bisect_doc, fields)
+            result = [
+                json.loads(
+                    json.dumps(
+                        bisect_doc,
+                        default=bson.json_util.default,
+                        ensure_ascii=False,
+                        separators=(",", ":")
+                    )
+                )
+            ]
+    else:
+        code = 404
+        result = None
+
+    return code, result
+
+
+def _search_passed_doc(passed_builds):
+    """Search for a document with PASS status.
+
+    :param passed_builds: The list or an iterator of docs to parse.
+    :return A doc with PASS status or None.
+    """
+    passed_build = passed_builds[0]
+
+    if passed_build.get(models.STATUS_KEY) != models.PASS_STATUS:
+        passed_build = None
+        for doc in passed_builds:
+            if doc.get(models.STATUS_KEY) == models.PASS_STATUS:
+                passed_build = doc
+                break
+
+    return passed_build
+
+
+# pylint: disable=invalid-name
+def execute_defconfig_bisection_compared_to(
+        doc_id, compare_to, db_options, fields=None):
+    """Execute a bisect for one tree compared to another one.
+
+    :param doc_id: The ID of the defconfig report we want compared.
+    :type doc_id: string
+    :param compare_to: The tree name to compare against.
+    :type compare_to: string
+    :param db_options: The options for the database connection.
+    :type db_options: dictionary
+    :param fields: A `fields` data structure with the fields to return or
+    exclude. Default to None.
+    :type fields: list or dict
+    :return A numeric value for the result status and a list dictionaries.
+    """
+    database = utils.db.get_db_connection(db_options)
+    result = []
+    code = 200
+
+    obj_id = bson.objectid.ObjectId(doc_id)
+    start_doc = utils.db.find_one2(
+        database[models.DEFCONFIG_COLLECTION],
+        obj_id,
+        fields=DEFCONFIG_SEARCH_FIELDS
+    )
+
+    if all([start_doc, isinstance(start_doc, types.DictionaryType)]):
+        start_doc_get = start_doc.get
+
+        if start_doc_get(models.STATUS_KEY) == models.PASS_STATUS:
+            code = 400
+            result = None
+        else:
+            # TODO: we need to know the baseline tree commit in order not to
+            # search too much in the past.
+            end_date, limit = bcommon.search_previous_bisect(
+                database,
+                {models.DEFCONFIG_ID_KEY: obj_id},
+                models.CREATED_KEY
+            )
+
+            job = start_doc_get(models.JOB_KEY)
+            defconfig = start_doc_get(models.DEFCONFIG_KEY)
+            defconfig_full = start_doc_get(
+                models.DEFCONFIG_FULL_KEY) or defconfig
+            created_on = start_doc_get(models.CREATED_KEY)
+            arch = start_doc_get(
+                models.ARCHITECTURE_KEY) or models.ARM_ARCHITECTURE_KEY
+
+            bisect_doc = mbisect.DefconfigBisectDocument(obj_id)
+            bisect_doc.compare_to = compare_to
+            bisect_doc.version = "1.0"
+            bisect_doc.defconfig = defconfig
+            bisect_doc.defconfig_full = defconfig_full
+            bisect_doc.job = job
+            bisect_doc.job_id = start_doc_get(models.JOB_ID_KEY, None)
+            bisect_doc.defconfig_id = start_doc_get(
+                models.DEFCONFIG_ID_KEY, None)
+            bisect_doc.boot_id = obj_id
+            bisect_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
+            bisect_doc.arch = arch
+
+            if end_date:
+                date_range = {
+                    "$lt": created_on,
+                    "$gte": end_date
+                }
             else:
-                utils.LOG.error("Error saving bisect data %s", doc_id)
+                date_range = {"$lt": created_on}
+
+            spec = {
+                models.DEFCONFIG_KEY: defconfig,
+                models.DEFCONFIG_FULL_KEY: defconfig_full,
+                models.JOB_KEY: compare_to,
+                models.ARCHITECTURE_KEY: arch,
+                models.CREATED_KEY: date_range
+            }
+
+            prev_docs = utils.db.find(
+                database[models.DEFCONFIG_COLLECTION],
+                limit,
+                0,
+                spec=spec,
+                fields=DEFCONFIG_SEARCH_FIELDS,
+                sort=DEFCONFIG_SORT)
+
+            all_valid_docs = []
+            if prev_docs:
+                all_valid_docs.extend(prev_docs)
+
+            # Store everything in the bisect data.
+            bisect_doc.bisect_data = all_valid_docs
+            bcommon.save_bisect_doc(database, bisect_doc, doc_id)
 
             bisect_doc = bcommon.update_doc_fields(bisect_doc, fields)
             result = [
