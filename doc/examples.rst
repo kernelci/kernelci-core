@@ -449,12 +449,9 @@ Upload a single file
             'Authorization': AUTHORIZATION_TOKEN
         }
 
-        files = {
-            'file': (open('/path/to/boot-arch.json', 'rb'))
-        }
-
         url = urljoin(BACKEND_URL, '/upload/next/next-20150116/arm64-allnoconfig/lab-name/boot-arch.json')
-        response = requests.put(url, headers=headers, files=files)
+        with open('/path/to/boot-arch.json', 'rb') as upload_file:
+            response = requests.put(url, headers=headers, data=upload_file)
 
         print response.content
 
