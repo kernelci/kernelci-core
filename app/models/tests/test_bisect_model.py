@@ -107,7 +107,10 @@ class TestBisectModel(unittest.TestCase):
             "boot_id": "boot-id",
             "defconfig_id": "defconfig-id",
             "job_id": "job-id",
-            "type": "boot"
+            "type": "boot",
+            "arch": None,
+            "defconfig": None,
+            "defconfig_full": None
         }
         self.assertDictEqual(expected, bisect_doc.to_dict())
 
