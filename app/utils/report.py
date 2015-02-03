@@ -532,13 +532,15 @@ def _parse_and_write_results(failed_data, offline_data, conflict_data,
         _traverse_data_struct(offline_data, m_string)
     if failed_data:
         m_string.write(
-            u"\nBoot Failure(s) Detected: \
-            %(base_url)s/boot/?%(kernel)s&fail\n" %
+            u"\nBoot Failure(s) Detected: "
+            "%(base_url)s/boot/?%(kernel)s&fail\n" %
             args
         )
         _traverse_data_struct(failed_data, m_string)
 
     if conflict_data:
-        m_string.write(u"\nConflicting Boot Failure(s) Detected: (These likely \
-        are not failures as other labs are reporting PASS. Please review.)\n")
+        m_string.write(
+            u"\nConflicting Boot Failure(s) Detected: (These likely "
+            "are not failures as other labs are reporting PASS. "
+            "Please review.)\n")
         _traverse_data_struct(conflict_data, m_string)
