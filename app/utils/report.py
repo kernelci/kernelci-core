@@ -31,6 +31,7 @@ BOOT_SEARCH_FIELDS = [
     models.BOARD_KEY,
     models.DEFCONFIG_FULL_KEY,
     models.LAB_NAME_KEY,
+    models.MACH_KEY,
     models.STATUS_KEY
 ]
 
@@ -48,6 +49,7 @@ BOOT_SEARCH_SORT = [
 
 
 # pylint: disable=too-many-arguments
+# pylint: disable=star-args
 def save_report(job, kernel, r_type, status, errors, db_options):
     """Save the report in the database.
 
@@ -114,6 +116,7 @@ def create_boot_report(job, kernel, lab_name, db_options):
     :type db_options: dict
     :return A tuple with the email body and subject as strings or None.
     """
+    kwargs = {}
     email_body = None
     subject = None
 
@@ -127,12 +130,15 @@ def create_boot_report(job, kernel, lab_name, db_options):
     if lab_name is not None:
         spec[models.LAB_NAME_KEY] = lab_name
 
-    _, total_count = utils.db.find_and_count(
+    total_results, total_count = utils.db.find_and_count(
         database[models.BOOT_COLLECTION],
         0,
         0,
         spec=spec,
         fields=[models.ID_KEY])
+
+    total_unique_data = _get_unique_data(total_results.clone())
+    utils.LOG.info(total_unique_data)
 
     git_results = utils.db.find(
         database[models.JOB_COLLECTION],
@@ -179,6 +185,28 @@ def create_boot_report(job, kernel, lab_name, db_options):
     failed_data = None
     conflict_data = None
     conflict_count = 0
+
+    # Fill the data structure for the email report creation.
+    kwargs = {
+        "base_url": DEFAULT_BASE_URL,
+        "boot_url": DEFAULT_BOOT_URL,
+        "build_url": DEFAULT_BUILD_URL,
+        "conflict_count": conflict_count,
+        "conflict_data": conflict_data,
+        "fail_count": fail_count - conflict_count,
+        "failed_data": failed_data,
+        "git_branch": git_branch,
+        "git_commit": git_commit,
+        "git_url": git_url,
+        "offline_count": offline_count,
+        "offline_data": offline_data,
+        "pass_count": total_count - fail_count - offline_count,
+        "total_count": total_count,
+        "total_unique_data": total_unique_data,
+        models.JOB_KEY: job,
+        models.KERNEL_KEY: kernel,
+        models.LAB_NAME_KEY: lab_name
+    }
 
     if fail_count > 0:
         failed_data, _, _, unique_data = \
@@ -227,15 +255,16 @@ def create_boot_report(job, kernel, lab_name, db_options):
                     _parse_boot_results(conflicts,
                                         intersect_results=failed_data)
 
-        email_body, subject = _create_boot_email(
-            job, kernel, git_commit, git_url, git_branch, lab_name,
-            failed_data, fail_count, offline_data, offline_count, total_count,
-            conflict_data, conflict_count)
+                # Update the data necessary to create the email report.
+                kwargs["failed_data"] = failed_data
+                kwargs["conflict_count"] = conflict_count
+                kwargs["conflict_data"] = conflict_data
+                kwargs["fail_count"] = fail_count - conflict_count
+                kwargs["pass_count"] = total_count - fail_count - offline_count
+
+        email_body, subject = _create_boot_email(**kwargs)
     elif fail_count == 0 and total_count > 0:
-        email_body, subject = _create_boot_email(
-            job, kernel, git_commit, git_url, git_branch, lab_name,
-            failed_data, fail_count, offline_data, offline_count, total_count,
-            conflict_data, conflict_count)
+        email_body, subject = _create_boot_email(**kwargs)
     elif fail_count == 0 and total_count == 0:
         utils.LOG.warn(
             "Nothing found for '%s-%s': no email report sent", job, kernel)
@@ -272,6 +301,26 @@ def _parse_job_results(results):
     return parsed_data
 
 
+def _get_unique_data(results):
+    """Get a dictionary with the unique values in the results.
+
+    :param results: The `Cursor` to analyze.
+    :type results: pymongo.cursor.Cursor
+    :return A dictionary with the unique data found in the results.
+    """
+    unique_data = {}
+
+    if isinstance(results, pymongo.cursor.Cursor):
+        unique_data = {
+            models.ARCHITECTURE_KEY: results.distinct(models.ARCHITECTURE_KEY),
+            models.BOARD_KEY: results.distinct(models.BOARD_KEY),
+            models.DEFCONFIG_FULL_KEY: results.distinct(
+                models.DEFCONFIG_FULL_KEY),
+            models.MACH_KEY: results.distinct(models.MACH_KEY)
+        }
+    return unique_data
+
+
 def _parse_boot_results(results, intersect_results=None, get_unique=False):
     """Parse the boot results from the database creating a new data structure.
 
@@ -300,12 +349,7 @@ def _parse_boot_results(results, intersect_results=None, get_unique=False):
     intersections = 0
 
     if get_unique:
-        unique_data = {
-            models.ARCHITECTURE_KEY: results.distinct(models.ARCHITECTURE_KEY),
-            models.BOARD_KEY: results.distinct(models.BOARD_KEY),
-            models.DEFCONFIG_FULL_KEY: results.distinct(
-                models.DEFCONFIG_FULL_KEY)
-        }
+        unique_data = _get_unique_data(results)
 
     for result in results:
         res_get = result.get
@@ -396,9 +440,7 @@ def _search_conflicts(failed, passed):
 
 
 # pylint: disable=too-many-arguments
-def _create_boot_email(
-        job, kernel, git_commit, git_url, git_branch, lab_name, failed_data, fail_count,
-        offline_data, offline_count, total_count, conflict_data, conflict_count):
+def _create_boot_email(**kwargs):
     """Parse the results and create the email text body to send.
 
     :param job: The name of the job.
@@ -423,38 +465,42 @@ def _create_boot_email(
     :type offline_count: int
     :param total_count: The total number of results.
     :type total_count: int
+    :param total_unique_data: The unique values data structure.
+    :type total_unique_data: dictionary
+    :param pass_count: The total number of passed results.
+    :type pass_count: int
     :param conflict_data: The parsed conflicting results.
     :type conflict_data: dict
+    :param conflict_count: The number of conflicting results.
+    :type conflict_count: int
+    :param base_url: The base URL to build the dashboard links.
+    :type base_url: string
+    :param boot_url: The base URL for the boot section of the dashboard.
+    :type boot_url: string
+    :param build_url: The base URL for the build section of the dashboard.
+    :type build_url: string
+    :param git_branch: The name of the branch.
+    :type git_branch: string
+    :param git_commit: The git commit SHA.
+    :type git_commit: string
+    :param git_url: The URL to the git repository
+    :type git_url: string
     :return A tuple with the email body and subject as strings.
     """
-    args = {
-        "job": job,
-        "total_results": total_count,
-        "passed": total_count - fail_count,
-        "failed": fail_count - conflict_count,
-        "conflicts": conflict_count,
-        "offline": offline_count,
-        "kernel": kernel,
-        "git_commit": git_commit,
-        "git_url": git_url,
-        "git_branch": git_branch,
-        "lab_name": lab_name,
-        "base_url": DEFAULT_BASE_URL,
-        "build_url": DEFAULT_BUILD_URL,
-        "boot_url": DEFAULT_BOOT_URL
-    }
+    k_get = kwargs.get
+    lab_name = k_get("lab_name", None)
 
     # We use io and strings must be unicode.
     email_body = u""
     subject = (
-        u"%(job)s boot: %(total_results)d boots: "
-        "%(passed)d passed, %(failed)d failed with "
-        "%(conflicts)d conflict(s), "
-        "%(offline)d offline (%(kernel)s)"
+        u"%(job)s boot: %(total_count)d boots: "
+        "%(pass_count)d passed, %(fail_count)d failed with "
+        "%(conflict_count)d conflict(s), "
+        "%(offline_count)d offline (%(kernel)s)"
     )
     if lab_name is not None:
         subject = " ".join([subject, u"- %(lab_name)s"])
-    subject = subject % args
+    subject = subject % kwargs
 
     with io.StringIO() as m_string:
         m_string.write(subject)
@@ -462,28 +508,27 @@ def _create_boot_email(
         m_string.write(u"\n")
         m_string.write(
             u"Full Boot Summary: %(boot_url)s/%(job)s/kernel/%(kernel)s/\n" %
-            args
+            kwargs
         )
         m_string.write(
             u"Full Build Summary: %(build_url)s/%(job)s/kernel/%(kernel)s/\n" %
-            args
+            kwargs
         )
         m_string.write(u"\n")
         m_string.write(
             u"Tree: %(job)s\nBranch: %(git_branch)s\nGit Describe: %(kernel)s\n"
-            u"Git Commit: %(git_commit)s\nGit URL: %(git_url)s\n" % args
+            u"Git Commit: %(git_commit)s\nGit URL: %(git_url)s\n" % kwargs
         )
-        _parse_and_write_results(failed_data, offline_data, conflict_data,
-                                 args, m_string)
+        _parse_and_write_results(m_string, **kwargs)
         email_body = m_string.getvalue()
 
     return email_body, subject
 
 
-def _parse_and_write_results(failed_data, offline_data, conflict_data,
-                             args, m_string):
+def _parse_and_write_results(m_string, **kwargs):
     """Parse failed and conflicting results and create the email body.
 
+    :param m_string: The StringIO object where to write.
     :param failed_data: The parsed failed results.
     :type failed_data: dict
     :param offline_data: The parsed offline results.
@@ -492,8 +537,12 @@ def _parse_and_write_results(failed_data, offline_data, conflict_data,
     :type conflict_data: dict
     :param args: A dictionary with values for string formatting.
     :type args: dict
-    :param m_string: The StringIO object where to write.
     """
+    k_get = kwargs.get
+
+    offline_data = k_get("offline_data", None)
+    failed_data = k_get("failed_data", None)
+    conflict_data = k_get("conflict_data", None)
 
     def _traverse_data_struct(data, m_string):
         """Traverse the data structure and write it to file.
@@ -534,7 +583,7 @@ def _parse_and_write_results(failed_data, offline_data, conflict_data,
         m_string.write(
             u"\nBoot Failure(s) Detected: "
             "%(base_url)s/boot/?%(kernel)s&fail\n" %
-            args
+            kwargs
         )
         _traverse_data_struct(failed_data, m_string)
 
