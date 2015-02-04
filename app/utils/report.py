@@ -16,6 +16,7 @@
 import io
 import itertools
 import pymongo
+import types
 
 import models
 import models.report as mreport
@@ -439,6 +440,23 @@ def _search_conflicts(failed, passed):
     return conflict
 
 
+def _count_unique(to_count):
+    """Count the number of values in a list.
+
+    Traverse the list and consider only the valid values (non-None).
+
+    :param to_count: The list to count.
+    :type to_count: list
+    :return The number of element in the list.
+    """
+    total = 0
+    if isinstance(to_count, (types.ListType, types.TupleType)):
+        filtered_list = None
+        filtered_list = [x for x in to_count if x is not None]
+        total = len(filtered_list)
+    return total
+
+
 # pylint: disable=too-many-arguments
 def _create_boot_email(**kwargs):
     """Parse the results and create the email text body to send.
@@ -489,6 +507,13 @@ def _create_boot_email(**kwargs):
     """
     k_get = kwargs.get
     lab_name = k_get("lab_name", None)
+    total_unique_data = k_get("total_unique_data", None)
+
+    unique_boards_tested_str = u"%d unique board(s)"
+    unique_socs_tested_str = u"%d SoC families"
+    tested_string_two = u"Tested: %s, %s\n"
+    tested_string_one = u"Tested: %s\n"
+    tested_string = None
 
     # We use io and strings must be unicode.
     email_body = u""
@@ -501,6 +526,28 @@ def _create_boot_email(**kwargs):
     if lab_name is not None:
         subject = " ".join([subject, u"- %(lab_name)s"])
     subject = subject % kwargs
+
+    if total_unique_data:
+        unique_boards = _count_unique(
+            total_unique_data.get(models.BOARD_KEY, None))
+        unique_socs = _count_unique(
+            total_unique_data.get(models.MACH_KEY, None))
+
+        if all([unique_boards > 0, unique_socs > 0]):
+            unique_boards_tested_str = unique_boards_tested_str % unique_boards
+            unique_socs_tested_str = unique_socs_tested_str % unique_socs
+
+            tested_string = tested_string_two % (
+                unique_boards_tested_str, unique_socs_tested_str)
+        else:
+            tested = None
+            if unique_boards > 0:
+                tested = unique_boards_tested_str % unique_boards
+            elif unique_socs > 0:
+                tested = unique_socs_tested_str % unique_socs
+
+            if tested:
+                tested_string = tested_string_one % tested
 
     with io.StringIO() as m_string:
         m_string.write(subject)
@@ -519,6 +566,8 @@ def _create_boot_email(**kwargs):
             u"Tree: %(job)s\nBranch: %(git_branch)s\nGit Describe: %(kernel)s\n"
             u"Git Commit: %(git_commit)s\nGit URL: %(git_url)s\n" % kwargs
         )
+        if tested_string:
+            m_string.write(tested_string)
         _parse_and_write_results(m_string, **kwargs)
         email_body = m_string.getvalue()
 
