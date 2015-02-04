@@ -139,7 +139,6 @@ def create_boot_report(job, kernel, lab_name, db_options):
         fields=[models.ID_KEY])
 
     total_unique_data = _get_unique_data(total_results.clone())
-    utils.LOG.info(total_unique_data)
 
     git_results = utils.db.find(
         database[models.JOB_COLLECTION],
