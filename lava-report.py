@@ -137,8 +137,11 @@ def boot_report(args):
                 # Check for the LAVA self boot test
                 if test_results['test_id'] == 'lava':
                     for test in test_results['test_results']:
+                        # TODO for compat :(
                         if test['test_case_id'] == 'kernel_boot_time':
                             kernel_boot_time = test['measurement']
+                        if test['test_case_id'] == 'kernel_boot_time':
+                            kernel_boot_time = test['test_kernel_boot_time']
                             print test['measurement']
                     bundle_attributes = bundle_data['test_runs'][0]['attributes']
             boot_meta = {}
@@ -187,6 +190,8 @@ def boot_report(args):
                 dtb_addr = bundle_attributes['dtb-addr']
             if in_bundle_attributes(bundle_attributes, 'dtb-append'):
                 dtb_append = bundle_attributes['dtb-append']
+            if in_bundle_attributes(bundle_attributes, 'boot_retries'):
+                dtb_append = bundle_attributes['boot_retries']
 
         # Record the boot log and result
         # TODO: Will need to map device_types to dashboard device types
@@ -234,7 +239,7 @@ def boot_report(args):
             boot_meta['board'] = platform_name
             if board_offline and result == 'FAIL':
                 boot_meta['boot_result'] = 'OFFLINE'
-                results[kernel_defconfig]['result'] = 'OFFLINE'
+                #results[kernel_defconfig]['result'] = 'OFFLINE'
             else:
                 boot_meta['boot_result'] = result
             if result == 'FAIL' or result == 'OFFLINE':
