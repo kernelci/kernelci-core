@@ -260,18 +260,19 @@ def create_boot_report(job, kernel, lab_name, db_options):
                     x for x in _conflicting_data()
                     if x is not None
                 ))
+
                 conflicts = itertools.chain(
                     conflicting_tuples[0], conflicting_tuples[1])
                 conflict_data, failed_data, conflict_count, _ = \
                     _parse_boot_results(conflicts,
                                         intersect_results=failed_data)
 
-                # Update the data necessary to create the email report.
-                kwargs["failed_data"] = failed_data
-                kwargs["conflict_count"] = conflict_count
-                kwargs["conflict_data"] = conflict_data
-                kwargs["fail_count"] = fail_count - conflict_count
-                kwargs["pass_count"] = total_count - fail_count - offline_count
+        # Update the necessary data to create the email report.
+        kwargs["failed_data"] = failed_data
+        kwargs["conflict_count"] = conflict_count
+        kwargs["conflict_data"] = conflict_data
+        kwargs["fail_count"] = fail_count - conflict_count
+        kwargs["pass_count"] = total_count - fail_count - offline_count
 
         email_body, subject = _create_boot_email(**kwargs)
     elif fail_count == 0 and total_count > 0:
@@ -381,18 +382,23 @@ def _parse_boot_results(results, intersect_results=None, get_unique=False):
             }
         }
 
-        # Check if the current result intersects the other
-        # interect_results
+        # Check if the current result intersects the other interect_results
         if intersect_results:
-            if board in intersect_results[arch][defconfig]:
-                intersections += 1
-                del intersect_results[arch][defconfig][board]
-                # Clean up also the remainder of the data structure so that we
-                # really have cleaned up data.
-                if not intersect_results[arch][defconfig]:
-                    del intersect_results[arch][defconfig]
-                if not intersect_results[arch]:
-                    del intersect_results[arch]
+            arch_view = intersect_results.viewkeys()
+
+            if arch in arch_view:
+                defconfig_view = intersect_results[arch].viewkeys()
+
+                if defconfig in defconfig_view:
+                    if intersect_results[arch][defconfig].get(board, None):
+                        intersections += 1
+                        del intersect_results[arch][defconfig][board]
+                        # Clean up also the remainder of the data structure so
+                        # that we really have cleaned up data.
+                        if not intersect_results[arch][defconfig]:
+                            del intersect_results[arch][defconfig]
+                        if not intersect_results[arch]:
+                            del intersect_results[arch]
 
         if arch in parsed_data.viewkeys():
             if defconfig in parsed_get(arch).viewkeys():
@@ -757,6 +763,7 @@ def _get_boot_subject_string(**kwargs):
     elif all([
             fail_count > 0, offline_count > 0, conflict_count > 0,
             fail_count != total_count]):
+        # We have everything, failed, offline and conflicting.
         if lab_name:
             subject_str = all_subject_with_lab
         else:
