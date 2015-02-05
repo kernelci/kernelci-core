@@ -82,7 +82,11 @@ topt.define(
          "default to 1 hour and 5 seconds"
 )
 topt.define(
-    "storage_url", default=None, type=str, help="The URL of the storage system")
+    "info_email", default=None, type=str,
+    help="The email address to use for footnote in the email reports")
+topt.define(
+    "storage_url", default=None, type=str,
+    help="The URL of the storage system")
 
 
 class KernelCiBackend(tornado.web.Application):
@@ -107,7 +111,8 @@ class KernelCiBackend(tornado.web.Application):
             "user": topt.options.smtp_user,
             "password": topt.options.smtp_password,
             "port": topt.options.smtp_port,
-            "sender": topt.options.smtp_sender
+            "sender": topt.options.smtp_sender,
+            "info_email": topt.options.info_email
         }
 
         if self.mongodb_client is None:
