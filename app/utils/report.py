@@ -112,7 +112,7 @@ def save_report(job, kernel, r_type, status, errors, db_options):
 
 
 # pylint: disable=too-many-locals
-def create_boot_report(job, kernel, lab_name, db_options):
+def create_boot_report(job, kernel, lab_name, db_options, mail_options=None):
     """Create the boot report email to be sent.
 
     If lab_name is not None, it will trigger a boot report only for that
@@ -126,11 +126,18 @@ def create_boot_report(job, kernel, lab_name, db_options):
     :type lab_name: str
     :param db_options: The mongodb database connection parameters.
     :type db_options: dict
+    :param mail_options: The options necessary to connect to the SMTP server.
+    :type mail_options: dict
     :return A tuple with the email body and subject as strings or None.
     """
     kwargs = {}
     email_body = None
     subject = None
+    # This is used to provide a footer note in the email report.
+    info_email = None
+
+    if mail_options:
+        info_email = mail_options.get("info_email", None)
 
     database = utils.db.get_db_connection(db_options)
 
@@ -209,6 +216,7 @@ def create_boot_report(job, kernel, lab_name, db_options):
         "git_branch": git_branch,
         "git_commit": git_commit,
         "git_url": git_url,
+        "info_email": info_email,
         "offline_count": offline_count,
         "offline_data": offline_data,
         "pass_count": total_count - fail_count - offline_count,
@@ -229,6 +237,10 @@ def create_boot_report(job, kernel, lab_name, db_options):
 
         conflict_data = None
         if all([fail_count != total_count, lab_name is None]):
+            # If the number of failed boots differs from the total number of
+            # boot reports, check if we have conflicting reports. We look
+            # for boot reports that have the same attributes of the failed ones
+            # but that indicate a PASS status.
             spec[models.STATUS_KEY] = models.PASS_STATUS
             for key, val in unique_data.iteritems():
                 spec[key] = {"$in": val}
@@ -242,6 +254,8 @@ def create_boot_report(job, kernel, lab_name, db_options):
                 sort=BOOT_SEARCH_SORT)
 
             if pass_count > 0:
+                # If we have such boot reports, filter and aggregate them
+                # together.
                 def _conflicting_data():
                     """Local generator function to search conflicting data.
 
@@ -525,10 +539,13 @@ def _create_boot_email(**kwargs):
     :type git_commit: string
     :param git_url: The URL to the git repository
     :type git_url: string
+    :param info_email: The email address for the footer note.
+    :type info_email: string
     :return A tuple with the email body and subject as strings.
     """
     k_get = kwargs.get
     total_unique_data = k_get("total_unique_data", None)
+    info_email = k_get("info_email", None)
 
     # We use io and strings must be unicode.
     email_body = u""
@@ -596,6 +613,12 @@ def _create_boot_email(**kwargs):
             m_string.write(tested_string)
 
         _parse_and_write_results(m_string, **kwargs)
+
+        if info_email:
+            m_string.write(u"\n")
+            m_string.write(u"---\n")
+            m_string.write(_(u"For more info write to <%s>") % info_email)
+
         email_body = m_string.getvalue()
 
     return email_body, subject_str
