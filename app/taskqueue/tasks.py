@@ -162,7 +162,8 @@ def defconfig_bisect_compared_to(doc_id, compare_to, db_options, fields=None):
 @taskc.app.task(
     name="schedule-boot-report",
     acks_late=True,
-    track_started=True)
+    track_started=True,
+    ignore_result=False)
 def schedule_boot_report(json_obj, db_options, mail_options, countdown):
     """Schedule a second task to send the boot report.
 
@@ -177,6 +178,7 @@ def schedule_boot_report(json_obj, db_options, mail_options, countdown):
     """
     j_get = json_obj.get
     to_addrs = []
+    status = 400
 
     if bool(j_get(models.SEND_BOOT_REPORT_KEY, False)):
         job = j_get(models.JOB_KEY)
@@ -199,13 +201,17 @@ def schedule_boot_report(json_obj, db_options, mail_options, countdown):
                 to_addrs.append(generic_emails)
 
         if to_addrs:
+            status = 200
             send_boot_report.apply_async(
                 [job, kernel, lab_name, to_addrs, db_options, mail_options],
                 countdown=countdown)
         else:
+            status = 500
             utils.LOG.warn(
                 "No send email addresses specified for '%s-%s': boot report "
                 "cannot be sent", job, kernel)
+
+    return status
 
 
 @taskc.app.task(
@@ -233,7 +239,12 @@ def send_boot_report(job, kernel, lab_name, to_addrs, db_options, mail_options):
     status = 400
 
     body, subject = utils.report.create_boot_report(
-        job, kernel, lab_name, db_options=db_options)
+        job,
+        kernel,
+        lab_name,
+        db_options=db_options,
+        mail_options=mail_options
+    )
 
     if all([body is not None, subject is not None]):
         utils.LOG.info("Sending boot report email for '%s-%s'", job, kernel)
