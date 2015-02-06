@@ -11,32 +11,33 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Create and send email reports."""
+"""Create the boot email report."""
 
 import gettext
 import io
 import itertools
 import pymongo
-import types
 
 import models
-import models.report as mreport
-import utils
 import utils.db
+import utils.report.common as rcommon
 
 # Register the translation domain and fallback safely, at the moment we do
 # not care if we have translations or not, we just use gettext to exploit its
 # plural forms capabilities. We mark the email string as translatable though
 # so we might give that feature in the future.
-t = gettext.translation("kernelci-backed", fallback=True)
+L10N = gettext.translation(models.I18N_DOMAIN, fallback=True)
 # Register normal Unicode gettext.
-_ = t.ugettext
+_ = L10N.ugettext
 # Register plural forms Unicode gettext.
-_p = t.ungettext
+_p = L10N.ungettext
 
-DEFAULT_BASE_URL = u"http://kernelci.org"
-DEFAULT_BOOT_URL = u"http://kernelci.org/boot/all/job"
-DEFAULT_BUILD_URL = u"http://kernelci.org/build"
+
+BOOT_SEARCH_SORT = [
+    (models.ARCHITECTURE_KEY, pymongo.ASCENDING),
+    (models.DEFCONFIG_FULL_KEY, pymongo.ASCENDING),
+    (models.BOARD_KEY, pymongo.ASCENDING)
+]
 
 BOOT_SEARCH_FIELDS = [
     models.ARCHITECTURE_KEY,
@@ -47,71 +48,9 @@ BOOT_SEARCH_FIELDS = [
     models.STATUS_KEY
 ]
 
-BUILD_SEARCH_FIELDS = [
-    models.GIT_COMMIT_KEY,
-    models.GIT_URL_KEY,
-    models.GIT_BRANCH_KEY
-]
-
-BOOT_SEARCH_SORT = [
-    (models.ARCHITECTURE_KEY, pymongo.ASCENDING),
-    (models.DEFCONFIG_FULL_KEY, pymongo.ASCENDING),
-    (models.BOARD_KEY, pymongo.ASCENDING)
-]
-
-
-# pylint: disable=too-many-arguments
-# pylint: disable=star-args
-def save_report(job, kernel, r_type, status, errors, db_options):
-    """Save the report in the database.
-
-    :param job: The job name.
-    :type job: str
-    :param kernel: The kernel name.
-    :type kernel: str
-    :param r_type: The type of report to save.
-    :type r_type: str
-    :param status: The status of the send action.
-    :type status: str
-    :param errors: A list of errors from the send action.
-    :type errors: list
-    :param db_options: The mongodb database connection parameters.
-    :type db_options: dict
-    """
-    utils.LOG.info("Saving '%s' report for '%s-%s'", r_type, job, kernel)
-
-    name = "%s-%s" % (job, kernel)
-
-    spec = {
-        models.JOB_KEY: job,
-        models.KERNEL_KEY: kernel,
-        models.NAME_KEY: name,
-        models.TYPE_KEY: r_type
-    }
-
-    database = utils.db.get_db_connection(db_options)
-
-    prev_doc = utils.db.find_one2(
-        database[models.REPORT_COLLECTION], spec_or_id=spec)
-
-    if prev_doc:
-        report = mreport.ReportDocument.from_json(prev_doc)
-        report.status = status
-        report.errors = errors
-
-        utils.db.save(database, report)
-    else:
-        report = mreport.ReportDocument(name)
-        report.job = job
-        report.kernel = kernel
-        report.r_type = r_type
-        report.status = status
-        report.errors = errors
-
-        utils.db.save(database, report, manipulate=True)
-
 
 # pylint: disable=too-many-locals
+# pylint: disable=star-args
 def create_boot_report(job, kernel, lab_name, db_options, mail_options=None):
     """Create the boot report email to be sent.
 
@@ -139,42 +78,27 @@ def create_boot_report(job, kernel, lab_name, db_options, mail_options=None):
     if mail_options:
         info_email = mail_options.get("info_email", None)
 
-    database = utils.db.get_db_connection(db_options)
+    total_count, total_unique_data = rcommon.get_total_results(
+        job,
+        kernel,
+        models.BOOT_COLLECTION,
+        db_options,
+        lab_name=lab_name
+    )
+
+    git_commit, git_url, git_branch = rcommon.get_git_data(
+        job, kernel, db_options)
 
     spec = {
         models.JOB_KEY: job,
         models.KERNEL_KEY: kernel,
+        models.STATUS_KEY: models.OFFLINE_STATUS
     }
 
     if lab_name is not None:
         spec[models.LAB_NAME_KEY] = lab_name
 
-    total_results, total_count = utils.db.find_and_count(
-        database[models.BOOT_COLLECTION],
-        0,
-        0,
-        spec=spec,
-        fields=[models.ID_KEY])
-
-    total_unique_data = _get_unique_data(total_results.clone())
-
-    git_results = utils.db.find(
-        database[models.JOB_COLLECTION],
-        0,
-        0,
-        spec=spec,
-        fields=BUILD_SEARCH_FIELDS)
-
-    git_data = _parse_job_results(git_results)
-    if git_data:
-        git_commit = git_data[models.GIT_COMMIT_KEY]
-        git_url = git_data[models.GIT_URL_KEY]
-        git_branch = git_data[models.GIT_BRANCH_KEY]
-    else:
-        git_commit = git_url = git_branch = u"Unknown"
-
-    spec[models.STATUS_KEY] = models.OFFLINE_STATUS
-
+    database = utils.db.get_db_connection(db_options)
     offline_results, offline_count = utils.db.find_and_count(
         database[models.BOOT_COLLECTION],
         0,
@@ -185,10 +109,9 @@ def create_boot_report(job, kernel, lab_name, db_options, mail_options=None):
 
     # MongoDB cursor gets overwritten somehow by the next query. Extract the
     # data before this happens.
+    offline_data = None
     if offline_count > 0:
         offline_data, _, _, _ = _parse_boot_results(offline_results.clone())
-    else:
-        offline_data = None
 
     spec[models.STATUS_KEY] = models.FAIL_STATUS
 
@@ -206,9 +129,9 @@ def create_boot_report(job, kernel, lab_name, db_options, mail_options=None):
 
     # Fill the data structure for the email report creation.
     kwargs = {
-        "base_url": DEFAULT_BASE_URL,
-        "boot_url": DEFAULT_BOOT_URL,
-        "build_url": DEFAULT_BUILD_URL,
+        "base_url": rcommon.DEFAULT_BASE_URL,
+        "boot_url": rcommon.DEFAULT_BOOT_URL,
+        "build_url": rcommon.DEFAULT_BUILD_URL,
         "conflict_count": conflict_count,
         "conflict_data": conflict_data,
         "fail_count": fail_count - conflict_count,
@@ -298,55 +221,8 @@ def create_boot_report(job, kernel, lab_name, db_options, mail_options=None):
     return email_body, subject
 
 
-def _parse_job_results(results):
-    """Parse the job results from the database creating a new data structure.
-
-    This is done to provide a simpler data structure to create the email
-    body.
-
-
-    :param results: The job results to parse.
-    :type results: `pymongo.cursor.Cursor` or a list of dict
-    :return A tuple with the parsed data as dictionary.
-    """
-    parsed_data = None
-
-    for result in results:
-        res_get = result.get
-
-        git_commit = res_get(models.GIT_COMMIT_KEY)
-        git_url = res_get(models.GIT_URL_KEY)
-        git_branch = res_get(models.GIT_BRANCH_KEY)
-
-        parsed_data = {
-            models.GIT_COMMIT_KEY: git_commit,
-            models.GIT_URL_KEY: git_url,
-            models.GIT_BRANCH_KEY: git_branch
-        }
-
-    return parsed_data
-
-
-def _get_unique_data(results):
-    """Get a dictionary with the unique values in the results.
-
-    :param results: The `Cursor` to analyze.
-    :type results: pymongo.cursor.Cursor
-    :return A dictionary with the unique data found in the results.
-    """
-    unique_data = {}
-
-    if isinstance(results, pymongo.cursor.Cursor):
-        unique_data = {
-            models.ARCHITECTURE_KEY: results.distinct(models.ARCHITECTURE_KEY),
-            models.BOARD_KEY: results.distinct(models.BOARD_KEY),
-            models.DEFCONFIG_FULL_KEY: results.distinct(
-                models.DEFCONFIG_FULL_KEY),
-            models.MACH_KEY: results.distinct(models.MACH_KEY)
-        }
-    return unique_data
-
-
+# pylint: disable=too-many-branches
+# pylint: disable=too-many-statements
 def _parse_boot_results(results, intersect_results=None, get_unique=False):
     """Parse the boot results from the database creating a new data structure.
 
@@ -370,12 +246,11 @@ def _parse_boot_results(results, intersect_results=None, get_unique=False):
     """
     parsed_data = {}
     parsed_get = parsed_data.get
-    result_struct = None
     unique_data = None
     intersections = 0
 
     if get_unique:
-        unique_data = _get_unique_data(results)
+        unique_data = rcommon.get_unique_data(results)
 
     for result in results:
         res_get = result.get
@@ -476,24 +351,6 @@ def _search_conflicts(failed, passed):
     return conflict
 
 
-def _count_unique(to_count):
-    """Count the number of values in a list.
-
-    Traverse the list and consider only the valid values (non-None).
-
-    :param to_count: The list to count.
-    :type to_count: list
-    :return The number of element in the list.
-    """
-    total = 0
-    if isinstance(to_count, (types.ListType, types.TupleType)):
-        filtered_list = None
-        filtered_list = [x for x in to_count if x is not None]
-        total = len(filtered_list)
-    return total
-
-
-# pylint: disable=too-many-arguments
 def _create_boot_email(**kwargs):
     """Parse the results and create the email text body to send.
 
@@ -533,12 +390,6 @@ def _create_boot_email(**kwargs):
     :type boot_url: string
     :param build_url: The base URL for the build section of the dashboard.
     :type build_url: string
-    :param git_branch: The name of the branch.
-    :type git_branch: string
-    :param git_commit: The git commit SHA.
-    :type git_commit: string
-    :param git_url: The URL to the git repository
-    :type git_url: string
     :param info_email: The email address for the footer note.
     :type info_email: string
     :return A tuple with the email body and subject as strings.
@@ -556,9 +407,9 @@ def _create_boot_email(**kwargs):
 
     tested_string = None
     if total_unique_data:
-        unique_boards = _count_unique(
+        unique_boards = rcommon.count_unique(
             total_unique_data.get(models.BOARD_KEY, None))
-        unique_socs = _count_unique(
+        unique_socs = rcommon.count_unique(
             total_unique_data.get(models.MACH_KEY, None))
 
         kwargs["unique_boards"] = unique_boards
@@ -577,9 +428,9 @@ def _create_boot_email(**kwargs):
 
         if all([unique_boards > 0, unique_socs > 0]):
             tested_string = tested_two % (boards_str, soc_str)
-        elif unique_boards > 0:
+        elif all([unique_boards > 0, unique_socs == 0]):
             tested_string = tested_one % boards_str
-        elif unique_socs > 0:
+        elif all([unique_socs > 0, unique_boards == 0]):
             tested_string = tested_one % soc_str
 
         if tested_string:
@@ -624,8 +475,9 @@ def _create_boot_email(**kwargs):
     return email_body, subject_str
 
 
+# pylint: disable=invalid-name
 def _get_boot_subject_string(**kwargs):
-    """Create the email subject line.
+    """Create the boot email subject line.
 
     This is used to created the custom email report line based on the number
     of values we have.
@@ -638,12 +490,15 @@ def _get_boot_subject_string(**kwargs):
     :type offline_count: integer
     :param conflict_count: The number of boot reports in conflict.
     :type conflict_count: integer
+    :param pass_count: The number of successful boot reports.
+    :type pass_count: integer
     :param lab_name: The name of the lab.
     :type lab_name: string
     :param job: The name of the job.
     :type job: string
     :param kernel: The name of the kernel.
     :type kernel: string
+    :return The subject string.
     """
     k_get = kwargs.get
     lab_name = k_get("lab_name", None)

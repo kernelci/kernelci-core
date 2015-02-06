@@ -16,7 +16,6 @@
 from __future__ import absolute_import
 
 import celery
-import types
 
 import models
 import taskqueue.celery as taskc
@@ -27,7 +26,9 @@ import utils.bisect.defconfig as defconfigb
 import utils.bootimport
 import utils.docimport
 import utils.emails
-import utils.report
+import utils.report.boot
+import utils.report.build
+import utils.report.common
 
 
 @taskc.app.task(name='send-emails', ignore_result=True)
@@ -160,61 +161,6 @@ def defconfig_bisect_compared_to(doc_id, compare_to, db_options, fields=None):
 
 
 @taskc.app.task(
-    name="schedule-boot-report",
-    acks_late=True,
-    track_started=True,
-    ignore_result=False)
-def schedule_boot_report(json_obj, db_options, mail_options, countdown):
-    """Schedule a second task to send the boot report.
-
-    :param json_obj: The json data as sent in the request.
-    :type json_obj: dict
-    :param db_options: The options necessary to connect to the database.
-    :type db_options: dict
-    :param mail_options: The options necessary to connect to the SMTP server.
-    :type mail_options: dict
-    :param countdown: The delay in seconds to send the email.
-    :type countdown: int
-    """
-    j_get = json_obj.get
-    to_addrs = []
-    status = 400
-
-    if bool(j_get(models.SEND_BOOT_REPORT_KEY, False)):
-        job = j_get(models.JOB_KEY)
-        kernel = j_get(models.KERNEL_KEY)
-        lab_name = j_get(models.LAB_NAME_KEY, None)
-
-        boot_emails = j_get(models.BOOT_REPORT_SEND_TO_KEY, None)
-        generic_emails = j_get(models.REPORT_SEND_TO_KEY, None)
-
-        if boot_emails is not None:
-            if isinstance(boot_emails, types.ListType):
-                to_addrs.extend(boot_emails)
-            elif isinstance(boot_emails, types.StringTypes):
-                to_addrs.append(boot_emails)
-
-        if generic_emails is not None:
-            if isinstance(generic_emails, types.ListType):
-                to_addrs.extend(generic_emails)
-            elif isinstance(generic_emails, types.StringTypes):
-                to_addrs.append(generic_emails)
-
-        if to_addrs:
-            status = 200
-            send_boot_report.apply_async(
-                [job, kernel, lab_name, to_addrs, db_options, mail_options],
-                countdown=countdown)
-        else:
-            status = 500
-            utils.LOG.warn(
-                "No send email addresses specified for '%s-%s': boot report "
-                "cannot be sent", job, kernel)
-
-    return status
-
-
-@taskc.app.task(
     name="send-boot-report",
     acks_late=True,
     track_started=True,
@@ -236,9 +182,9 @@ def send_boot_report(job, kernel, lab_name, to_addrs, db_options, mail_options):
     :type mail_options: dict
     """
     utils.LOG.info("Preparing boot report email for '%s-%s'", job, kernel)
-    status = 400
+    status = "ERROR"
 
-    body, subject = utils.report.create_boot_report(
+    body, subject = utils.report.boot.create_boot_report(
         job,
         kernel,
         lab_name,
@@ -250,8 +196,43 @@ def send_boot_report(job, kernel, lab_name, to_addrs, db_options, mail_options):
         utils.LOG.info("Sending boot report email for '%s-%s'", job, kernel)
         status, errors = utils.emails.send_email(
             to_addrs, subject, body, mail_options)
-        utils.report.save_report(
+        utils.report.common.save_report(
             job, kernel, models.BOOT_REPORT, status, errors, db_options)
+    else:
+        utils.LOG.error(
+            "No email body nor subject found for boot report '%s-%s'",
+            job, kernel)
+
+    return status
+
+
+@taskc.app.task(
+    name="send-build-report",
+    acks_late=True,
+    track_started=True,
+    ignore_result=False)
+def send_build_report(job, kernel, to_addrs, db_options, mail_options):
+    utils.LOG.info("Preparing build report email for '%s-%s'", job, kernel)
+    status = "ERROR"
+
+    body, subject = utils.report.build.create_build_report(
+        job,
+        kernel,
+        db_options=db_options,
+        mail_options=mail_options
+    )
+
+    if all([body is not None, subject is not None]):
+        utils.LOG.info("Sending build report email for '%s-%s'", job, kernel)
+        status, errors = utils.emails.send_email(
+            to_addrs, subject, body, mail_options)
+        utils.report.common.save_report(
+            job, kernel, models.BOOT_REPORT, status, errors, db_options)
+    else:
+        utils.LOG.error(
+            "No email body nor subject found for build report '%s-%s'",
+            job, kernel)
+
     return status
 
 

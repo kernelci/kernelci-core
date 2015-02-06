@@ -16,6 +16,9 @@ DB_NAME = "kernel-ci"
 
 DEFAULT_SCHEMA_VERSION = "1.0"
 
+# i18n domain name.
+I18N_DOMAIN = "kernelci-backend"
+
 # The default ID key, and other keys, for mongodb documents and queries.
 ACCEPTED_KEYS = "accepted"
 ADDRESS_KEY = "address"
