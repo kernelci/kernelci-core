@@ -294,7 +294,7 @@ def _check_status(send_boot, send_build, boot_errors, build_errors, when):
             not send_boot,
             send_build, not boot_errors, not build_errors]):
         reason = (
-            "Build email report scheduled to be send at '%s' UTC" %
+            "Build email report scheduled to be sent at '%s' UTC" %
             when)
     elif all([
             send_boot,
