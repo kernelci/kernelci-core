@@ -68,7 +68,7 @@ GET
     GET /job?date_range=12&job=arm-soc&field=status&field=kernel HTTP/1.1
     Host: api.kernelci.org
     Accept: */*
-    Authorization: token    
+    Authorization: token
 
  **Example Responses**
 
