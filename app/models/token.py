@@ -292,19 +292,23 @@ class Token(modb.BaseDocument):
 
     @property
     def is_lab_token(self):
+        """If the token is used as a lab one."""
         return self._properties[7]
 
     @is_lab_token.setter
     def is_lab_token(self, value):
+        """Set whether the token is used as a lab one."""
         value = check_attribute_value(value)
         self._properties[7] = value
 
     @property
     def is_upload_token(self):
+        """If the token can be used to upload files."""
         return self._properties[8]
 
     @is_upload_token.setter
     def is_upload_token(self, value):
+        """Set whether the token can upload files."""
         value = check_attribute_value(value)
         self._properties[8] = value
 
@@ -393,7 +397,7 @@ class Token(modb.BaseDocument):
             token_doc.properties = json_get(
                 models.PROPERTIES_KEY, [0 for _ in range(0, PROPERTIES_SIZE)])
             token_doc.ip_address = json_get(models.IP_ADDRESS_KEY, None)
-            token_doc.version = json_get(models.VERSION_KEY, "10.0")
+            token_doc.version = json_get(models.VERSION_KEY, "1.0")
         return token_doc
 
 
@@ -442,7 +446,7 @@ def convert_ip_address(address):
 
     :return An `IPAddress` or `IPNetwork` object.
     """
-    if '/' in address:
+    if "/" in address:
         address = netaddr.IPNetwork(address).ipv6(ipv4_compatible=True)
     else:
         address = netaddr.IPAddress(address).ipv6(ipv4_compatible=True)

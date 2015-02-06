@@ -284,9 +284,7 @@ class TokenHandler(hbase.BaseHandler):
         try:
             doc_obj = bson.objectid.ObjectId(doc_id)
             if utils.db.find_one(self.collection, [doc_obj]):
-                ret_val = utils.db.delete(
-                    self.collection, {models.ID_KEY: {"$in": [doc_obj]}}
-                )
+                ret_val = utils.db.delete(self.collection, doc_obj)
         except bson.errors.InvalidId, ex:
             self.log.exception(ex)
             self.log.error("Wrong ID '%s' value passed as object ID", doc_id)
