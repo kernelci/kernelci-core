@@ -10,13 +10,14 @@ Resources
 .. toctree::
     :maxdepth: 2
 
-    collection-count
-    collection-job
-    collection-defconfig
-    collection-boot
     collection-batch
+    collection-boot
+    collection-count
+    collection-defconfig
+    collection-job
     collection-lab
-    collection-version
     collection-report
     collection-send
+    collection-token
     collection-upload
+    collection-version
