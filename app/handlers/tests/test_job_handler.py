@@ -192,10 +192,8 @@ class TestJobHandler(
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
 
     @mock.patch('taskqueue.tasks.import_job')
-    @mock.patch('taskqueue.tasks.schedule_boot_report')
-    def test_post_correct(self, mock_import_job, mock_schedule):
+    def test_post_correct(self, mock_import_job):
         mock_import_job.apply_async = mock.MagicMock()
-        mock_schedule.apply_async = mock.MagicMock()
 
         headers = {
             'Authorization': 'foo',
