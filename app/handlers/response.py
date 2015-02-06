@@ -49,6 +49,7 @@ class HandlerResponse(object):
         self._limit = None
         self._result = None
         self._headers = None
+        self._errors = []
 
     @property
     def status_code(self):
@@ -100,22 +101,24 @@ class HandlerResponse(object):
 
     @property
     def count(self):
-        """How many result are included."""
+        """How many results are included."""
         return self._count
 
     @count.setter
     def count(self, value):
+        """Set the number of results included."""
         if not isinstance(value, types.IntType):
             raise ValueError("Value must be a integer")
         self._count = value
 
     @property
     def limit(self):
-        """The number of result requested."""
+        """The number of results requested."""
         return self._limit
 
     @limit.setter
     def limit(self, value):
+        """Set the number of results requested."""
         if not isinstance(value, types.IntType):
             raise ValueError("Value must be an integer")
         self._limit = value
@@ -148,6 +151,20 @@ class HandlerResponse(object):
                 value = [r for r in value]
             self._result = value
 
+    @property
+    def errors(self):
+        """The errors that this response might have."""
+        return self._errors
+
+    @errors.setter
+    def errors(self, value):
+        """Set the errors of this response."""
+        if value:
+            if isinstance(value, types.ListType):
+                self._errors.extend(value)
+            else:
+                self._errors.append(value)
+
     def to_dict(self):
         """Create a view of this object as a dictionary.
 
@@ -157,18 +174,21 @@ class HandlerResponse(object):
         """
         dict_obj = {}
 
-        dict_obj['code'] = self.status_code
+        dict_obj["code"] = self.status_code
         if self.count is not None:
-            dict_obj['count'] = self.count
+            dict_obj["count"] = self.count
 
         if self.limit is not None:
-            dict_obj['limit'] = self.limit
+            dict_obj["limit"] = self.limit
 
         if self.result is not None:
-            dict_obj['result'] = self.result
+            dict_obj["result"] = self.result
 
         if self.reason is not None:
-            dict_obj['reason'] = self.reason
+            dict_obj["reason"] = self.reason
+
+        if self.errors:
+            dict_obj["errors"] = self.errors
 
         return dict_obj
 

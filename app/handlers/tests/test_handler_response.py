@@ -59,6 +59,47 @@ class TestHandlerResponse(unittest.TestCase):
         response.reason = r'bar'
         self.assertEqual('bar', response.reason)
 
+    def test_response_reason_setter_not_valid(self):
+        response = handres.HandlerResponse()
+
+        def _setter_call(value):
+            response.reason = value
+
+        self.assertRaises(ValueError, _setter_call, [1])
+        self.assertRaises(ValueError, _setter_call, {})
+        self.assertRaises(ValueError, _setter_call, ())
+
+    def test_response_count_setter_not_valid(self):
+        response = handres.HandlerResponse()
+
+        def _setter_call(value):
+            response.count = value
+
+        self.assertRaises(ValueError, _setter_call, "1")
+        self.assertRaises(ValueError, _setter_call, [1])
+        self.assertRaises(ValueError, _setter_call, {})
+        self.assertRaises(ValueError, _setter_call, ())
+
+    def test_response_limit_setter_not_valid(self):
+        response = handres.HandlerResponse()
+
+        def _setter_call(value):
+            response.limit = value
+
+        self.assertRaises(ValueError, _setter_call, "1")
+        self.assertRaises(ValueError, _setter_call, [1])
+        self.assertRaises(ValueError, _setter_call, {})
+        self.assertRaises(ValueError, _setter_call, ())
+
+    def test_response_errors_setter_valid(self):
+        response = handres.HandlerResponse()
+        response.errors = "1 error"
+
+        self.assertEqual(response.errors, ["1 error"])
+
+        response.errors = ["2 errors", "3 errors"]
+        self.assertEqual(response.errors, ["1 error", "2 errors", "3 errors"])
+
     def test_response_result_setter(self):
         response = handres.HandlerResponse()
 
