@@ -349,6 +349,7 @@ API_TOKEN_HEADER = 'Authorization'
 ACCEPTED_CONTENT_TYPE = 'application/json'
 DEFAULT_RESPONSE_TYPE = 'application/json; charset=UTF-8'
 NOT_VALID_TOKEN = "Operation not permitted: check the token permissions"
+METHOD_NOT_IMPLEMENTED = "Method not implemented"
 
 MIDNIGHT = datetime.time(tzinfo=bson.tz_util.utc)
 ALMOST_MIDNIGHT = datetime.time(23, 59, 59, tzinfo=bson.tz_util.utc)
