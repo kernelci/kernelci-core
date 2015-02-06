@@ -68,10 +68,9 @@ class TokenHandler(hbase.BaseHandler):
         response = hresponse.HandlerResponse()
         response.result = None
 
-        result = utils.db.find_one(
+        result = utils.db.find_one2(
             self.collection,
-            doc_id,
-            field=models.TOKEN_KEY,
+            {models.TOKEN_KEY: doc_id},
             fields=hcommon.get_query_fields(self.get_query_arguments)
         )
 

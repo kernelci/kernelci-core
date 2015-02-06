@@ -95,6 +95,17 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
         self.assertEqual(response.body, expected_body)
 
+    @patch('utils.db.find_one2')
+    def test_get_one(self, mock_find):
+        mock_find.return_value = {"token": "foo"}
+
+        headers = {'Authorization': 'foo'}
+        response = self.fetch('/token/foo', headers=headers)
+
+        self.assertEqual(response.code, 200)
+        self.assertEqual(
+            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+
     def test_post_without_token(self):
         body = json.dumps(dict(email='foo'))
 
