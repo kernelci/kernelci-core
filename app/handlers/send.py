@@ -116,7 +116,7 @@ class SendHandler(hbase.BaseHandler):
                 response.status_code = 400
                 response.reason = (
                     "Don't know which report to send: either specify "
-                    " '%s' or '%s'." %
+                    " '%s' or '%s'" %
                     (models.SEND_BOOT_REPORT_KEY, models.SEND_BUILD_REPORT_KEY)
                 )
         except (TypeError, ValueError):
@@ -161,9 +161,9 @@ class SendHandler(hbase.BaseHandler):
             )
         else:
             has_errors = True
-            error_string = "No email address provided to send boot report"
+            error_string = "No email addresses provided to send boot report to"
             self.log.error(
-                "No email addresses to send boot report for '%s-%s'",
+                "No email addresses to send boot report to for '%s-%s'",
                 job, kernel
             )
 
@@ -201,9 +201,9 @@ class SendHandler(hbase.BaseHandler):
             )
         else:
             has_errors = True
-            error_string = "No email address provided to send build report"
+            error_string = "No email addresses provided to send build report to"
             self.log.error(
-                "No email addresses to send build report for '%s-%s'",
+                "No email addresses to send build report to for '%s-%s'",
                 job, kernel
             )
 
