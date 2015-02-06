@@ -35,7 +35,7 @@ POST
  :reqjson send_to: A string or an array of strings of email addresses where to send the reports.
  :reqjson boot_send_to: A string or an array of strings of email addresses where to send only the boot report.
  :reqjson build_send_to: A string or an array of strings of email addresses where to send only the build report.
- :reqjson int delay: Number of seconds after which the email report will be sent. Default to 60*60 seconds.
+ :reqjson int delay: Number of seconds after which the email report will be sent. Default to 60*60 seconds (1 hour) with a maximum value of 60*60*3 (3 hours).
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Content-Type: Content type of the transmitted data, must be ``application/json``.
@@ -44,7 +44,7 @@ POST
  :resheader Content-Type: Will be ``application/json; charset=UTF-8``.
 
  :status 202: The request has been accepted and will be processed.
- :status 400: JSON data not valid.
+ :status 400: JSON data not valid or other.
  :status 403: Not authorized to perform the operation.
  :status 415: Wrong content type.
  :status 422: No real JSON data provided.
@@ -63,6 +63,8 @@ POST
         "job": "next",
         "kernel": "next-20140801",
         "boot_report": 1,
+        "build_report": 1,
+        "build_send_to": ["another.email@example.net"],
         "send_to": ["email@example.net"],
         "delay": 14400
     }
