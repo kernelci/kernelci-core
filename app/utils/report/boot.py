@@ -29,6 +29,7 @@ import utils.report.common as rcommon
 L10N = gettext.translation(models.I18N_DOMAIN, fallback=True)
 # Register normal Unicode gettext.
 _ = L10N.ugettext
+# pylint: disable=invalid-name
 # Register plural forms Unicode gettext.
 _p = L10N.ungettext
 
@@ -84,6 +85,13 @@ def create_boot_report(job, kernel, lab_name, db_options, mail_options=None):
         models.BOOT_COLLECTION,
         db_options,
         lab_name=lab_name
+    )
+
+    total_builds, _ = rcommon.get_total_results(
+        job,
+        kernel,
+        models.DEFCONFIG_COLLECTION,
+        db_options
     )
 
     git_commit, git_url, git_branch = rcommon.get_git_data(
@@ -143,6 +151,7 @@ def create_boot_report(job, kernel, lab_name, db_options, mail_options=None):
         "offline_count": offline_count,
         "offline_data": offline_data,
         "pass_count": total_count - fail_count - offline_count,
+        "total_builds": total_builds,
         "total_count": total_count,
         "total_unique_data": total_unique_data,
         models.JOB_KEY: job,
@@ -384,6 +393,8 @@ def _create_boot_email(**kwargs):
     :type conflict_data: dict
     :param conflict_count: The number of conflicting results.
     :type conflict_count: int
+    :param total_builds: The total number of defconfig built.
+    :type total_builds: int
     :param base_url: The base URL to build the dashboard links.
     :type base_url: string
     :param boot_url: The base URL for the boot section of the dashboard.
@@ -404,6 +415,7 @@ def _create_boot_email(**kwargs):
 
     tested_one = _(u"Tested: %s\n")
     tested_two = _(u"Tested: %s, %s\n")
+    tested_three = _(u"Tested: %s, %s, %s\n")
 
     tested_string = None
     if total_unique_data:
@@ -411,9 +423,12 @@ def _create_boot_email(**kwargs):
             total_unique_data.get(models.BOARD_KEY, None))
         unique_socs = rcommon.count_unique(
             total_unique_data.get(models.MACH_KEY, None))
+        unique_builds = rcommon.count_unique(
+            total_unique_data[models.DEFCONFIG_FULL_KEY])
 
         kwargs["unique_boards"] = unique_boards
         kwargs["unique_socs"] = unique_socs
+        kwargs["unique_builds"] = unique_builds
 
         boards_str = _p(
             u"%(unique_boards)d unique board",
@@ -425,13 +440,26 @@ def _create_boot_email(**kwargs):
             u"%(unique_socs)d SoC families",
             unique_socs
         )
+        builds_str = _p(
+            u"%(unique_builds)s build out of %(total_builds)s",
+            u"%(unique_builds)s builds out of %(total_builds)s",
+            unique_builds
+        )
 
-        if all([unique_boards > 0, unique_socs > 0]):
+        if all([unique_boards > 0, unique_socs > 0, unique_builds > 0]):
+            tested_string = tested_three % (boards_str, soc_str, builds_str)
+        elif all([unique_boards > 0, unique_socs > 0, unique_builds == 0]):
             tested_string = tested_two % (boards_str, soc_str)
-        elif all([unique_boards > 0, unique_socs == 0]):
+        elif all([unique_boards > 0, unique_socs == 0, unique_builds > 0]):
+            tested_string = tested_two % (boards_str, builds_str)
+        elif all([unique_boards == 0, unique_socs > 0, unique_builds > 0]):
+            tested_string = tested_two % (soc_str, builds_str)
+        elif all([unique_boards > 0, unique_socs == 0, unique_builds == 0]):
             tested_string = tested_one % boards_str
-        elif all([unique_socs > 0, unique_boards == 0]):
+        elif all([unique_boards == 0, unique_socs > 0, unique_builds == 0]):
             tested_string = tested_one % soc_str
+        elif all([unique_boards == 0, unique_socs == 0, unique_builds > 0]):
+            tested_string = tested_one % builds_str
 
         if tested_string:
             tested_string = tested_string % kwargs
