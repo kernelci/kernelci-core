@@ -27,9 +27,10 @@ import utils.report.common as rcommon
 # plural forms capabilities. We mark the email string as translatable though
 # so we might give that feature in the future.
 L10N = gettext.translation(models.I18N_DOMAIN, fallback=True)
-# Register normal Unicode gettext.
-_ = L10N.ugettext
+
 # pylint: disable=invalid-name
+# Register normal Unicode gettext.
+_g = L10N.ugettext
 # Register plural forms Unicode gettext.
 _p = L10N.ungettext
 
@@ -413,9 +414,9 @@ def _create_boot_email(**kwargs):
     email_body = u""
     subject_str = _get_boot_subject_string(**kwargs)
 
-    tested_one = _(u"Tested: %s\n")
-    tested_two = _(u"Tested: %s, %s\n")
-    tested_three = _(u"Tested: %s, %s, %s\n")
+    tested_one = _g(u"Tested: %s\n")
+    tested_two = _g(u"Tested: %s, %s\n")
+    tested_three = _g(u"Tested: %s, %s, %s\n")
 
     tested_string = None
     if total_unique_data:
@@ -467,20 +468,20 @@ def _create_boot_email(**kwargs):
     boot_summary_url = u"%(boot_url)s/%(job)s/kernel/%(kernel)s/" % kwargs
     build_summary_url = u"%(build_url)s/%(job)s/kernel/%(kernel)s/" % kwargs
 
-    tree = _(u"Tree: %(job)s\n") % kwargs
-    branch = _(u"Branch: %(git_branch)s\n") % kwargs
-    git_describe = _(u"Git Describe: %(kernel)s\n") % kwargs
-    git_commit = _(u"Git Commit: %(git_commit)s\n") % kwargs
-    git_url = _(u"Git URL: %(git_url)s\n") % kwargs
+    tree = _g(u"Tree: %(job)s\n") % kwargs
+    branch = _g(u"Branch: %(git_branch)s\n") % kwargs
+    git_describe = _g(u"Git Describe: %(kernel)s\n") % kwargs
+    git_commit = _g(u"Git Commit: %(git_commit)s\n") % kwargs
+    git_url = _g(u"Git URL: %(git_url)s\n") % kwargs
 
     with io.StringIO() as m_string:
         m_string.write(subject_str)
         m_string.write(u"\n")
         m_string.write(u"\n")
         m_string.write(
-            _(u"Full Boot Summary: %s\n") % boot_summary_url)
+            _g(u"Full Boot Summary: %s\n") % boot_summary_url)
         m_string.write(
-            _(u"Full Build Summary: %s\n") % build_summary_url)
+            _g(u"Full Build Summary: %s\n") % build_summary_url)
         m_string.write(u"\n")
         m_string.write(tree)
         m_string.write(branch)
@@ -496,7 +497,7 @@ def _create_boot_email(**kwargs):
         if info_email:
             m_string.write(u"\n")
             m_string.write(u"---\n")
-            m_string.write(_(u"For more info write to <%s>") % info_email)
+            m_string.write(_g(u"For more info write to <%s>") % info_email)
 
         email_body = m_string.getvalue()
 
@@ -536,19 +537,19 @@ def _get_boot_subject_string(**kwargs):
     offline_count = k_get("offline_count", 0)
 
     subject_str = u""
-    base_subject = _(u"%(job)s boot")
+    base_subject = _g(u"%(job)s boot")
     total_boots = _p(
         u"%(total_count)d boot", u"%(total_count)d boots", total_count)
-    passed_boots = _(u"%(pass_count)d passed")
-    failed_boots = _(u"%(fail_count)d failed")
+    passed_boots = _g(u"%(pass_count)d passed")
+    failed_boots = _g(u"%(fail_count)d failed")
     conflict_boots = _p(
         u"%(conflict_count)d conflict",
         u"%(conflict_count)d conflicts",
         conflict_count
     )
-    offline_boots = _(u"%(offline_count)d offline")
-    kernel_name = _(u"(%(kernel)s)")
-    lab_name_str = _(u"%(lab_name)s")
+    offline_boots = _g(u"%(offline_count)d offline")
+    kernel_name = _g(u"(%(kernel)s)")
+    lab_name_str = _g(u"%(lab_name)s")
 
     subject_substitutions = {
         "boot_name": base_subject,
@@ -561,58 +562,58 @@ def _get_boot_subject_string(**kwargs):
         "lab_description": lab_name_str
     }
 
-    subject_all_pass = _(
+    subject_all_pass = _g(
         u"%(boot_name)s: %(total_boots)s: %(passed_boots)s %(kernel_name)s")
-    subject_all_pass_with_lab = _(
+    subject_all_pass_with_lab = _g(
         u"%(boot_name)s: %(total_boots)s: %(passed_boots)s %(kernel_name)s "
         "- %(lab_description)s")
 
-    subject_pass_with_offline = _(
+    subject_pass_with_offline = _g(
         u"%(boot_name)s: %(total_boots)s: %(passed_boots)s, "
         "%(offline_boots)s %(kernel_name)s")
-    subject_pass_with_offline_with_lab = _(
+    subject_pass_with_offline_with_lab = _g(
         u"%(boot_name)s: %(total_boots)s: %(passed_boots)s, "
         "%(offline_boots)s %(kernel_name)s - %(lab_description)s")
 
-    subject_pass_with_conflict = _(
+    subject_pass_with_conflict = _g(
         u"%(boot_name)s: %(total_boots)s: %(passed_boots)s, "
         "%(conflict_boots)s %(kernel_name)s")
-    subject_pass_with_conflict_with_lab = _(
+    subject_pass_with_conflict_with_lab = _g(
         u"%(boot_name)s: %(total_boots)s: %(passed_boots)s, "
         "%(conflict_boots)s %(kernel_name)s - %(lab_description)s")
 
-    subject_only_fail = _(
+    subject_only_fail = _g(
         u"%(boot_name)s: %(total_boots)s: %(failed_boots)s %(kernel_name)s")
-    subject_only_fail_with_lab = _(
+    subject_only_fail_with_lab = _g(
         u"%(boot_name)s: %(total_boots)s: %(failed_boots)s %(kernel_name)s "
         "- %(lab_description)s")
 
-    subject_with_fail = _(
+    subject_with_fail = _g(
         u"%(boot_name)s: %(total_boots)s: %(passed_boots)s, "
         "%(failed_boots)s %(kernel_name)s")
-    subject_with_fail_with_lab = _(
+    subject_with_fail_with_lab = _g(
         u"%(boot_name)s: %(total_boots)s: %(passed_boots)s, "
         "%(failed_boots)s %(kernel_name)s - %(lab_description)s")
 
-    subject_with_fail_and_conflict = _(
+    subject_with_fail_and_conflict = _g(
         u"%(boot_name)s: %(total_boots)s: %(passed_boots)s, %(failed_boots)s "
         "with %(conflict_boots)s %(kernel_name)s")
-    subject_with_fail_and_conflict_with_lab = _(
+    subject_with_fail_and_conflict_with_lab = _g(
         u"%(boot_name)s: %(total_boots)s: %(passed_boots)s, %(failed_boots)s "
         "with %(conflict_boots)s %(kernel_name)s - %(lab_description)s")
 
-    subject_with_fail_and_offline = _(
+    subject_with_fail_and_offline = _g(
         u"%(boot_name)s: %(total_boots)s: %(passed_boots)s, %(failed_boots)s "
         "with %(offline_boots)s %(kernel_name)s")
-    subject_with_fail_and_offline_with_lab = _(
+    subject_with_fail_and_offline_with_lab = _g(
         u"%(boot_name)s: %(total_boots)s: %(passed_boots)s, %(failed_boots)s "
         "with %(offline_boots)s %(kernel_name)s - %(lab_description)s")
 
-    all_subject = _(
+    all_subject = _g(
         u"%(boot_name)s: %(total_boots)s: %(passed_boots)s, "
         "%(failed_boots)s with %(conflict_boots)s, %(offline_boots)s "
         "%(kernel_name)s")
-    all_subject_with_lab = _(
+    all_subject_with_lab = _g(
         u"%(boot_name)s: %(total_boots)s: %(passed_boots)s, "
         "%(failed_boots)s with %(conflict_boots)s, %(offline_boots)s "
         "%(kernel_name)s - %(lab_description)s")
@@ -717,29 +718,29 @@ def _parse_and_write_results(m_string, **kwargs):
         for arch in data.viewkeys():
             m_string.write(u"\n")
             m_string.write(
-                _(u"%s:\n") % arch
+                _g(u"%s:\n") % arch
             )
 
             for defconfig in d_get(arch).viewkeys():
                 m_string.write(u"\n")
                 m_string.write(
-                    _(u"    %s:\n") % defconfig
+                    _g(u"    %s:\n") % defconfig
                 )
                 def_get = d_get(arch)[defconfig].get
 
                 for board in d_get(arch)[defconfig].viewkeys():
                     m_string.write(
-                        _(u"        %s:\n") % board
+                        _g(u"        %s:\n") % board
                     )
 
                     for lab in def_get(board).viewkeys():
                         m_string.write(
-                            _(u"            %s: %s\n") %
+                            _g(u"            %s: %s\n") %
                             (lab, def_get(board)[lab])
                         )
 
     if offline_data:
-        m_string.write(_(u"\nOffline Platforms:\n"))
+        m_string.write(_g(u"\nOffline Platforms:\n"))
         _traverse_data_struct(offline_data, m_string)
 
     if failed_data:
@@ -757,7 +758,7 @@ def _parse_and_write_results(m_string, **kwargs):
         _traverse_data_struct(failed_data, m_string)
 
     if conflict_data:
-        conflict_comment = _(
+        conflict_comment = _g(
             u"(These likely are not failures as other labs are reporting "
             "PASS. Please review.)")
         m_string.write(u"\n")
