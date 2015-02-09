@@ -26,12 +26,10 @@ import utils.report.common as rcommon
 # plural forms capabilities. We mark the email string as translatable though
 # so we might give that feature in the future.
 L10N = gettext.translation(models.I18N_DOMAIN, fallback=True)
-
-# pylint: disable=invalid-name
 # Register normal Unicode gettext.
-_g = L10N.ugettext
+G_ = L10N.ugettext
 # Register plural forms Unicode gettext.
-_p = L10N.ungettext
+P_ = L10N.ungettext
 
 
 BUILD_SEARCH_FIELDS = [
@@ -203,8 +201,8 @@ def _create_build_email(**kwargs):
     email_body = u""
     subject_str = _get_build_subject_string(**kwargs)
 
-    built_unique_one = "Built: %s"
-    built_unique_two = "Built: %s, %s"
+    built_unique_one = G_(u"Built: %s")
+    built_unique_two = G_(u"Built: %s, %s")
 
     built_unique_string = None
     if total_unique_data:
@@ -216,12 +214,12 @@ def _create_build_email(**kwargs):
         kwargs["unique_defconfigs"] = unique_defconfigs
         kwargs["unique_archs"] = unique_archs
 
-        defconfig_str = _p(
+        defconfig_str = P_(
             u"%(unique_defconfigs)d unique defconfig",
             u"%(unique_defconfigs)d unique defconfigs",
             unique_defconfigs
         )
-        arch_str = _p(
+        arch_str = P_(
             u"%(unique_archs)d unique architecture",
             u"%(unique_archs)d unique architectures",
             unique_archs
@@ -239,18 +237,18 @@ def _create_build_email(**kwargs):
 
     build_summary_url = u"%(build_url)s/%(job)s/kernel/%(kernel)s/" % kwargs
 
-    tree = _g(u"Tree: %(job)s\n") % kwargs
-    branch = _g(u"Branch: %(git_branch)s\n") % kwargs
-    git_describe = _g(u"Git Describe: %(kernel)s\n") % kwargs
-    git_commit = _g(u"Git Commit: %(git_commit)s\n") % kwargs
-    git_url = _g(u"Git URL: %(git_url)s\n") % kwargs
+    tree = G_(u"Tree: %(job)s\n") % kwargs
+    branch = G_(u"Branch: %(git_branch)s\n") % kwargs
+    git_describe = G_(u"Git Describe: %(kernel)s\n") % kwargs
+    git_commit = G_(u"Git Commit: %(git_commit)s\n") % kwargs
+    git_url = G_(u"Git URL: %(git_url)s\n") % kwargs
 
     with io.StringIO() as m_string:
         m_string.write(subject_str)
         m_string.write(u"\n")
         m_string.write(u"\n")
         m_string.write(
-            _g(u"Full Build Summary: %s\n") % build_summary_url)
+            G_(u"Full Build Summary: %s\n") % build_summary_url)
         m_string.write(u"\n")
         m_string.write(tree)
         m_string.write(branch)
@@ -265,7 +263,7 @@ def _create_build_email(**kwargs):
         if failed_data:
             m_string.write(u"\n")
             m_string.write(
-                _p(
+                P_(
                     u"Build Failure Detected:\n",
                     u"Build Failures Detected:\n", fail_count
                 ))
@@ -274,20 +272,20 @@ def _create_build_email(**kwargs):
             for arch in failed_data.viewkeys():
                 m_string.write(u"\n")
                 m_string.write(
-                    _g(u"%s:\n") % arch
+                    G_(u"%s:\n") % arch
                 )
 
                 for struct in f_get(arch):
                     m_string.write(u"\n")
                     m_string.write(
-                        _g(u"    %s: %s") % (struct[0], struct[1])
+                        G_(u"    %s: %s") % (struct[0], struct[1])
                     )
                 m_string.write(u"\n")
 
         if info_email:
             m_string.write(u"\n")
             m_string.write(u"---\n")
-            m_string.write(_g(u"For more info write to <%s>") % info_email)
+            m_string.write(G_(u"For more info write to <%s>") % info_email)
 
         email_body = m_string.getvalue()
 
@@ -318,11 +316,11 @@ def _get_build_subject_string(**kwargs):
 
     subject_str = u""
 
-    base_subject = _g(u"%(job)s build")
-    kernel_name = _g(u"(%(kernel)s)")
-    failed_builds = _g(u"%(fail_count)d failed")
-    passed_builds = _g(u"%(pass_count)d passed")
-    total_builds = _p(
+    base_subject = G_(u"%(job)s build")
+    kernel_name = G_(u"(%(kernel)s)")
+    failed_builds = G_(u"%(fail_count)d failed")
+    passed_builds = G_(u"%(pass_count)d passed")
+    total_builds = P_(
         u"%(total_count)d build", u"%(total_count)d builds", total_count)
 
     subject_substitutions = {
@@ -333,12 +331,12 @@ def _get_build_subject_string(**kwargs):
         "kernel_name": kernel_name,
     }
 
-    subject_all_pass = _g(
+    subject_all_pass = G_(
         u"%(build_name)s: %(total_builds)s: %(passed_builds)s %(kernel_name)s")
-    subject_all_fail = _g(
+    subject_all_fail = G_(
         u"%(build_name)s: %(total_builds)s: %(failed_builds)s %(kernel_name)s"
     )
-    subject_pass_and_fail = _g(
+    subject_pass_and_fail = G_(
         u"%(build_name)s: %(total_builds)s: %(passed_builds)s, "
         "%(failed_builds)s %(kernel_name)s"
     )
