@@ -206,11 +206,13 @@ def create_boot_report(job, kernel, lab_name, db_options, mail_options=None):
                     if x is not None
                 ))
 
-                conflicts = itertools.chain(
-                    conflicting_tuples[0], conflicting_tuples[1])
-                conflict_data, failed_data, conflict_count, _ = \
-                    _parse_boot_results(conflicts,
-                                        intersect_results=failed_data)
+                # Make sure we do not have an empty list here after filtering.
+                if conflicting_tuples:
+                    conflicts = itertools.chain(
+                        conflicting_tuples[0], conflicting_tuples[1])
+                    conflict_data, failed_data, conflict_count, _ = \
+                        _parse_boot_results(conflicts,
+                                            intersect_results=failed_data)
 
         # Update the necessary data to create the email report.
         kwargs["failed_data"] = failed_data
