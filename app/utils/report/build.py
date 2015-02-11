@@ -35,7 +35,9 @@ P_ = L10N.ungettext
 BUILD_SEARCH_FIELDS = [
     models.ARCHITECTURE_KEY,
     models.DEFCONFIG_FULL_KEY,
-    models.STATUS_KEY
+    models.ERRORS_KEY,
+    models.STATUS_KEY,
+    models.WARNINGS_KEY
 ]
 
 BUILD_SEARCH_SORT = [
@@ -67,28 +69,38 @@ def create_build_report(job, kernel, db_options, mail_options=None):
     info_email = None
 
     fail_count = total_count = 0
+    errors_count = warnings_count = 0
     fail_results = []
 
     if mail_options:
         info_email = mail_options.get("info_email", None)
 
-    unique_keys = [models.ARCHITECTURE_KEY, models.DEFCONFIG_FULL_KEY]
-    total_count, total_unique_data = rcommon.get_total_results(
-        job,
-        kernel,
-        models.DEFCONFIG_COLLECTION, db_options, unique_keys=unique_keys
+    spec = {
+        models.JOB_KEY: job,
+        models.KERNEL_KEY: kernel
+    }
+
+    database = utils.db.get_db_connection(db_options)
+    total_results, total_count = utils.db.find_and_count(
+        database[models.DEFCONFIG_COLLECTION],
+        0,
+        0,
+        spec=spec,
+        fields=BUILD_SEARCH_FIELDS
     )
+
+    err_data, errors_count, warnings_count = _get_errors_count(
+        total_results.clone())
+
+    unique_keys = [models.ARCHITECTURE_KEY, models.DEFCONFIG_FULL_KEY]
+    total_unique_data = rcommon.get_unique_data(
+        total_results.clone(), unique_keys=unique_keys)
 
     git_commit, git_url, git_branch = rcommon.get_git_data(
         job, kernel, db_options)
 
-    spec = {
-        models.JOB_KEY: job,
-        models.KERNEL_KEY: kernel,
-        models.STATUS_KEY: models.FAIL_STATUS
-    }
+    spec[models.STATUS_KEY] = models.FAIL_STATUS
 
-    database = utils.db.get_db_connection(db_options)
     fail_results, fail_count = utils.db.find_and_count(
         database[models.DEFCONFIG_COLLECTION],
         0,
@@ -102,15 +114,18 @@ def create_build_report(job, kernel, db_options, mail_options=None):
     kwargs = {
         "base_url": rcommon.DEFAULT_BASE_URL,
         "build_url": rcommon.DEFAULT_BUILD_URL,
+        "error_data": err_data,
+        "errors_count": errors_count,
         "fail_count": fail_count,
-        "total_count": total_count,
-        "pass_count": total_count - fail_count,
         "failed_data": failed_data,
         "git_branch": git_branch,
         "git_commit": git_commit,
         "git_url": git_url,
         "info_email": info_email,
+        "pass_count": total_count - fail_count,
+        "total_count": total_count,
         "total_unique_data": total_unique_data,
+        "warnings_count": warnings_count,
         models.JOB_KEY: job,
         models.KERNEL_KEY: kernel,
     }
@@ -123,6 +138,57 @@ def create_build_report(job, kernel, db_options, mail_options=None):
         email_body, subject = _create_build_email(**kwargs)
 
     return email_body, subject
+
+
+def _get_errors_count(results):
+    """Parse the build data and get errors and warnings.
+
+    :param results: The results to parse.
+    :type results: pymongo.cursor.Cursor.
+    :return The errors data structure, the errors and warnings count.
+    """
+    err_data = {}
+    total_errors = total_warnings = 0
+
+    arch_keys = err_data.viewkeys()
+
+    for result in results:
+        res_get = result.get
+
+        arch = res_get(models.ARCHITECTURE_KEY)
+        defconfig = res_get(models.DEFCONFIG_KEY)
+        defconfig_full = res_get(models.DEFCONFIG_FULL_KEY, defconfig)
+        res_errors = res_get(models.ERRORS_KEY, 0)
+        res_warnings = res_get(models.WARNINGS_KEY, 0)
+
+        if defconfig_full is None:
+            defconfig_full = defconfig
+
+        err_struct = {}
+
+        if all([res_errors is not None, res_errors != 0]):
+            total_errors += res_errors
+            err_struct[models.ERRORS_KEY] = res_errors
+
+        if all([res_warnings is not None, res_warnings != 0]):
+            total_warnings += res_warnings
+            err_struct[models.WARNINGS_KEY] = res_warnings
+
+        if err_struct:
+            if arch in arch_keys:
+                if defconfig_full in err_data[arch].keys():
+                    # Multiple builds with the same defconfig value?
+                    err_data[arch][defconfig_full][models.WARNINGS_KEY] += \
+                        res_warnings
+                    err_data[arch][defconfig_full][models.ERRORS_KEY] += \
+                        res_errors
+                else:
+                    err_data[arch][defconfig_full] = err_struct
+            else:
+                err_data[arch] = {}
+                err_data[arch][defconfig_full] = err_struct
+
+    return err_data, total_errors, total_warnings
 
 
 def _parse_build_data(results):
@@ -197,6 +263,9 @@ def _create_build_email(**kwargs):
     failed_data = k_get("failed_data", None)
     info_email = k_get("info_email", None)
     fail_count = k_get("fail_count", 0)
+    warnings_count = k_get("warnings_count", 0)
+    errors_count = k_get("errors_count", 0)
+    error_data = k_get("error_data", None)
 
     email_body = u""
     subject_str = _get_build_subject_string(**kwargs)
@@ -282,6 +351,66 @@ def _create_build_email(**kwargs):
                     )
                 m_string.write(u"\n")
 
+        if error_data:
+            m_string.write(u"\n")
+
+            if all([errors_count > 0, warnings_count > 0]):
+                m_string.write(G_(u"Errors and Warnings Detected:\n"))
+            elif all([errors_count > 0, warnings_count == 0]):
+                m_string.write(G_(u"Errors Detected:\n"))
+            elif all([errors_count == 0, warnings_count > 0]):
+                m_string.write(G_(u"Warnings Detected:\n"))
+
+            m_string.write(u"\n")
+
+            if any([errors_count > 0, warnings_count > 0]):
+                err_get = error_data.get
+
+                for arch in error_data.viewkeys():
+                    m_string.write(G_(u"%s:") % arch)
+                    m_string.write(u"\n\n")
+
+                    for defconfig in err_get(arch).viewkeys():
+                        err_numb = err_get(arch)[defconfig].get(
+                            models.ERRORS_KEY, 0)
+                        warn_numb = err_get(arch)[defconfig].get(
+                            models.WARNINGS_KEY, 0)
+
+                        err_string = P_(
+                            u"%(errors)s error",
+                            u"%(errors)s errors", err_numb)
+                        warn_string = P_(
+                            u"%(warnings)s warning",
+                            u"%(warnings)s warnings", warn_numb)
+
+                        substitutions = {
+                            "defconfig": defconfig,
+                            "err_string": err_string,
+                            "errrors": err_numb,
+                            "warn_string": warn_string,
+                            "warnings": warn_numb
+                        }
+
+                        if all([err_numb > 0, warn_numb > 0]):
+                            desc_string = G_(
+                                u"%(err_string)s, %(warn_string)s")
+                        elif all([err_numb > 0, warn_numb == 0]):
+                            desc_string = u"%(err_string)s"
+                        elif all([err_numb == 0, warn_numb > 0]):
+                            desc_string = u"%(warn_string)s"
+
+                        desc_string = desc_string % substitutions
+                        substitutions["desc_string"] = desc_string
+
+                        defconfig_string = (
+                            G_(u"    %(defconfig)s: %(desc_string)s") %
+                            substitutions)
+
+                        m_string.write(defconfig_string % substitutions)
+                        m_string.write(u"\n")
+
+                    m_string.write(u"\n")
+
         if info_email:
             m_string.write(u"\n")
             m_string.write(u"---\n")
@@ -313,6 +442,8 @@ def _get_build_subject_string(**kwargs):
     k_get = kwargs.get
     fail_count = k_get("fail_count", 0)
     total_count = k_get("total_count", 0)
+    errors = k_get("errors_count", 0)
+    warnings = k_get("warnings_count", 0)
 
     subject_str = u""
 
@@ -322,31 +453,100 @@ def _get_build_subject_string(**kwargs):
     passed_builds = G_(u"%(pass_count)d passed")
     total_builds = P_(
         u"%(total_count)d build", u"%(total_count)d builds", total_count)
+    errors_string = P_(
+        u"%(errors_count)d error", u"%(errors_count)d errors", errors)
+    warnings_string = P_(
+        u"%(warnings_count)d warning",
+        u"%(warnings_count)d warnings", warnings)
 
     subject_substitutions = {
         "build_name": base_subject,
-        "total_builds": total_builds,
-        "passed_builds": passed_builds,
+        "errors_string": errors_string,
         "failed_builds": failed_builds,
         "kernel_name": kernel_name,
+        "passed_builds": passed_builds,
+        "total_builds": total_builds,
+        "warnings_string": warnings_string
     }
 
-    subject_all_pass = G_(
-        u"%(build_name)s: %(total_builds)s: %(passed_builds)s %(kernel_name)s")
-    subject_all_fail = G_(
-        u"%(build_name)s: %(total_builds)s: %(failed_builds)s %(kernel_name)s"
-    )
-    subject_pass_and_fail = G_(
-        u"%(build_name)s: %(total_builds)s: %(passed_builds)s, "
-        "%(failed_builds)s %(kernel_name)s"
-    )
-
-    if all([fail_count > 0, fail_count != total_count]):
-        subject_str = subject_pass_and_fail
-    elif all([fail_count > 0, fail_count == total_count]):
-        subject_str = subject_all_fail
-    elif fail_count == 0:
-        subject_str = subject_all_pass
+    if all([fail_count == 0, total_count != 0, errors == 0, warnings == 0]):
+        subject_str = G_(
+            u"%(build_name)s: %(total_builds)s: %(passed_builds)s "
+            "%(kernel_name)s"
+        )
+    elif all([fail_count == 0, total_count != 0, errors == 0, warnings != 0]):
+        subject_str = G_(
+            u"%(build_name)s: %(total_builds)s: %(passed_builds)s, "
+            "%(warnings_string)s %(kernel_name)s"
+        )
+    elif all([fail_count == 0, total_count != 0, errors != 0, warnings != 0]):
+        subject_str = G_(
+            u"%(build_name)s: %(total_builds)s: %(passed_builds)s, "
+            "%(errors_string)s, %(warnings_string)s %(kernel_name)s"
+        )
+    elif all([fail_count == 0, total_count != 0, errors != 0, warnings == 0]):
+        subject_str = G_(
+            u"%(build_name)s: %(total_builds)s: %(passed_builds)s, "
+            "%(errors_string)s %(kernel_name)s"
+        )
+    elif all([
+            fail_count != 0,
+            fail_count != total_count, errors == 0, warnings != 0]):
+        subject_str = G_(
+            u"%(build_name)s: %(total_builds)s: %(passed_builds)s, "
+            "%(failed_builds)s, %(warnings_string)s %(kernel_name)s"
+        )
+    elif all([
+            fail_count != 0,
+            fail_count != total_count, errors != 0, warnings != 0]):
+        subject_str = G_(
+            u"%(build_name)s: %(total_builds)s: %(passed_builds)s, "
+            "%(failed_builds)s, %(errors_string)s, %(warnings_string)s "
+            "%(kernel_name)s"
+        )
+    elif all([
+            fail_count != 0,
+            fail_count != total_count, errors != 0, warnings == 0]):
+        subject_str = G_(
+            u"%(build_name)s: %(total_builds)s: %(passed_builds)s, "
+            "%(failed_builds)s, %(errors_string)s, "
+            "%(kernel_name)s"
+        )
+    elif all([
+            fail_count != 0,
+            fail_count != total_count, errors == 0, warnings == 0]):
+        subject_str = G_(
+            u"%(build_name)s: %(total_builds)s: %(passed_builds)s, "
+            "%(failed_builds)s %(kernel_name)s"
+        )
+    elif all([
+            fail_count != 0,
+            fail_count == total_count, errors == 0, warnings == 0]):
+        subject_str = G_(
+            u"%(build_name)s: %(total_builds)s: %(failed_builds)s "
+            "%(kernel_name)s"
+        )
+    elif all([
+            fail_count != 0,
+            fail_count == total_count, errors == 0, warnings != 0]):
+        subject_str = G_(
+            u"%(build_name)s: %(total_builds)s: %(failed_builds)s "
+            "%(warnings_string)s %(kernel_name)s"
+        )
+    elif all([
+            fail_count != 0,
+            fail_count == total_count, errors != 0, warnings != 0]):
+        subject_str = G_(
+            u"%(build_name)s: %(total_builds)s: %(failed_builds)s "
+            "%(errors_string)s, %(warnings_string)s %(kernel_name)s"
+        )
+    elif all([
+            fail_count != 0,
+            fail_count == total_count, errors != 0, warnings == 0]):
+        subject_str = G_(
+            u"%(build_name)s: %(total_builds)s: %(failed_builds)s "
+            "%(errors_string)s %(kernel_name)s"
+        )
 
     # Perform all the normal placeholder substitutions.
     subject_str = subject_str % subject_substitutions
