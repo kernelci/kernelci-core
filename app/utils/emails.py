@@ -47,6 +47,9 @@ def send_email(to_addrs, subject, body, mail_options):
     password = m_get("password")
     from_addr = m_get("sender")
 
+    msg["From"] = from_addr
+    msg["To"] = ", ".join(to_addrs)
+
     if all([from_addr, host]):
         server = None
         try:
