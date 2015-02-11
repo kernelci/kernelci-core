@@ -38,7 +38,7 @@ def send_email(to_addrs, subject, body, mail_options):
     status = models.ERROR_STATUS
 
     msg = email.mime.text.MIMEText(body, _charset="utf_8")
-    msg['Subject'] = subject
+    msg["Subject"] = subject
 
     m_get = mail_options.get
     port = m_get("port")
@@ -46,9 +46,13 @@ def send_email(to_addrs, subject, body, mail_options):
     user = m_get("user")
     password = m_get("password")
     from_addr = m_get("sender")
+    sender_desc = m_get("sender_desc", None)
 
-    msg["From"] = from_addr
     msg["To"] = ", ".join(to_addrs)
+    if sender_desc:
+        msg["From"] = "%s <%s>" % (sender_desc, from_addr)
+    else:
+        msg["From"] = from_addr
 
     if all([from_addr, host]):
         server = None

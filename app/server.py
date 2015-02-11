@@ -77,6 +77,10 @@ topt.define(
 topt.define(
     "smtp_sender", default="", type=str, help="The sender email address")
 topt.define(
+    "smtp_sender_desc",
+    default="",
+    type=str, help="The name/description of the sender email address")
+topt.define(
     "send_delay", default=60*60+5, type=int,
     help="The delay in sending the report emails, "
          "default to 1 hour and 5 seconds"
@@ -108,11 +112,12 @@ class KernelCiBackend(tornado.web.Application):
 
         mail_options = {
             "host": topt.options.smtp_host,
-            "user": topt.options.smtp_user,
+            "info_email": topt.options.info_email,
             "password": topt.options.smtp_password,
             "port": topt.options.smtp_port,
             "sender": topt.options.smtp_sender,
-            "info_email": topt.options.info_email
+            "sender_desc": topt.options.smtp_sender_desc,
+            "user": topt.options.smtp_user
         }
 
         if self.mongodb_client is None:
