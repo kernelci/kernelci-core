@@ -92,7 +92,7 @@ def create_build_report(job, kernel, db_options, mail_options=None):
     err_data, errors_count, warnings_count = _get_errors_count(
         total_results.clone())
 
-    unique_keys = [models.ARCHITECTURE_KEY, models.DEFCONFIG_FULL_KEY]
+    unique_keys = [models.ARCHITECTURE_KEY]
     total_unique_data = rcommon.get_unique_data(
         total_results.clone(), unique_keys=unique_keys)
 
@@ -271,34 +271,21 @@ def _create_build_email(**kwargs):
     subject_str = _get_build_subject_string(**kwargs)
 
     built_unique_one = G_(u"Built: %s")
-    built_unique_two = G_(u"Built: %s, %s")
 
     built_unique_string = None
     if total_unique_data:
-        unique_defconfigs = rcommon.count_unique(
-            total_unique_data.get("defconfig_full", None))
         unique_archs = rcommon.count_unique(
             total_unique_data.get("arch", None))
 
-        kwargs["unique_defconfigs"] = unique_defconfigs
         kwargs["unique_archs"] = unique_archs
 
-        defconfig_str = P_(
-            u"%(unique_defconfigs)d unique defconfig",
-            u"%(unique_defconfigs)d unique defconfigs",
-            unique_defconfigs
-        )
         arch_str = P_(
             u"%(unique_archs)d unique architecture",
             u"%(unique_archs)d unique architectures",
             unique_archs
         )
 
-        if all([unique_defconfigs > 0, unique_archs > 0]):
-            built_unique_string = built_unique_two % (defconfig_str, arch_str)
-        elif unique_defconfigs > 0:
-            built_unique_string = built_unique_one % defconfig_str
-        elif unique_archs > 0:
+        if unique_archs > 0:
             built_unique_string = built_unique_one % arch_str
 
         if built_unique_string:
