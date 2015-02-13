@@ -249,6 +249,14 @@ apm_mustang = {'device_type': 'mustang',
                'be': False,
                'fastboot': False}
 
+juno = {'device_type': 'juno',
+        'templates': ['juno-arm64-dtb-kernel-ci-boot-template.json'],
+        'defconfig_blacklist': ['arm64-allnoconfig',
+                                'arm64-allmodconfig'],
+        'lpae': False,
+        'be': False,
+        'fastboot': False}
+
 x86 = {'device_type': 'x86',
        'templates': ['generic-x86-kernel-ci-boot-template.json'],
        'defconfig_blacklist': ['x86-i386_defconfig',
@@ -300,6 +308,7 @@ device_map = {'exynos5250-arndale.dtb': arndale,
               'qemu-arm-legacy': qemu_arm,
               'qemu-aarch64-legacy': qemu_aarch64,
               'apm-mustang.dtb': apm_mustang,
+              'juno.dtb': juno,
               'x86': x86,
               'x86-kvm': x86_kvm}
 
@@ -413,7 +422,11 @@ def walk_url(url, arch=None, target=None, targets=None):
                 if 'arm64-defconfig' in url:
                     legacy_platform_list.append(url + 'qemu-aarch64-legacy')
             if name.endswith('.dtb') and name in device_map:
+                print name
+                print kernel
+                print base_url
                 if base_url and base_url in url:
+                    print base_url
                     platform_list.append(url + name)
         elif arch == 'x86':
             if 'bzImage' in name and 'x86' in url:
@@ -449,8 +462,11 @@ def walk_url(url, arch=None, target=None, targets=None):
         if platform_list:
             print 'Found boot artifacts at: %s' % base_url
             create_jobs(base_url, kernel, platform_list, target, targets)
-            base_url = None
-            kernel = None
+            # Hack for subdirectories with arm64 dtbs
+            if 'arm64' not in base_url:
+                print 'clearing kernel'
+                base_url = None
+                kernel = None
             platform_list = []
         elif legacy_platform_list:
             print 'Found boot artifacts at: %s' % base_url

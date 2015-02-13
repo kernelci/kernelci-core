@@ -38,8 +38,9 @@ device_map = {'arndale': ['exynos5250-arndale', 'exynos'],
               'qemu-arm-cortex-a15-a7': ['vexpress-v2p-ca15_a7', 'vexpress'],
               'qemu-arm-cortex-a9': ['vexpress-v2p-ca9', 'vexpress'],
               'qemu-arm': ['versatilepb', 'versatile'],
-              'qemu-aarch64': ['qemu-aarch64', None],
-              'mustang': ['apm-mustang', None],
+              'qemu-aarch64': ['qemu-aarch64', 'qemu'],
+              'mustang': ['apm-mustang', 'apm'],
+              'juno': ['juno', 'arm'],
               'x86': ['x86', None],
               'kvm': ['x86-kvm', None]}
 
