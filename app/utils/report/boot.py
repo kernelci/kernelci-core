@@ -739,10 +739,6 @@ def _parse_and_write_results(m_string, **kwargs):
                             (lab, def_get(board)[lab])
                         )
 
-    if offline_data:
-        m_string.write(G_(u"\nOffline Platforms:\n"))
-        _traverse_data_struct(offline_data, m_string)
-
     if failed_data:
         boot_failure_url = u"%(base_url)s/boot/?%(kernel)s&fail" % kwargs
 
@@ -756,6 +752,10 @@ def _parse_and_write_results(m_string, **kwargs):
 
         )
         _traverse_data_struct(failed_data, m_string)
+
+    if offline_data:
+        m_string.write(G_(u"\nOffline Platforms:\n"))
+        _traverse_data_struct(offline_data, m_string)
 
     if conflict_data:
         conflict_comment = G_(
