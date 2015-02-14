@@ -422,11 +422,7 @@ def walk_url(url, arch=None, target=None, targets=None):
                 if 'arm64-defconfig' in url:
                     legacy_platform_list.append(url + 'qemu-aarch64-legacy')
             if name.endswith('.dtb') and name in device_map:
-                print name
-                print kernel
-                print base_url
                 if base_url and base_url in url:
-                    print base_url
                     platform_list.append(url + name)
         elif arch == 'x86':
             if 'bzImage' in name and 'x86' in url:
@@ -464,7 +460,6 @@ def walk_url(url, arch=None, target=None, targets=None):
             create_jobs(base_url, kernel, platform_list, target, targets)
             # Hack for subdirectories with arm64 dtbs
             if 'arm64' not in base_url:
-                print 'clearing kernel'
                 base_url = None
                 kernel = None
             platform_list = []
