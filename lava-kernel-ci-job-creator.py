@@ -191,6 +191,13 @@ optimus_a80 = {'device_type': 'optimus-a80',
               'be': False,
               'fastboot': True}
 
+cubieboard4 = {'device_type': 'cubieboard4',
+              'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+              'defconfig_blacklist': [],
+              'lpae': True,
+              'be': False,
+              'fastboot': True}
+
 qemu_arm_cortex_a9 = {'device_type': 'qemu-arm-cortex-a9',
                       'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
                       'defconfig_blacklist': [],
@@ -300,6 +307,7 @@ device_map = {'exynos5250-arndale.dtb': arndale,
               'tegra124-jetson-tk1.dtb': jetson_tk1,
               'zynq-parallella.dtb': parallella,
               'sun9i-a80-optimus.dtb': optimus_a80,
+              'sun9i-a80-cubieboard4.dtb': cubieboard4,
               'vexpress-v2p-ca15-tc1.dtb': qemu_arm_cortex_a15,
               'vexpress-v2p-ca15-tc1-legacy': qemu_arm_cortex_a15_legacy,
               'vexpress-v2p-ca15_a7.dtb': qemu_arm_cortex_a15_a7,
