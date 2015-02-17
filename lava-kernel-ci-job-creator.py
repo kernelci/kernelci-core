@@ -282,43 +282,42 @@ x86_kvm = {'device_type': 'kvm',
            'be': False,
            'fastboot': False}
 
-device_map = {'exynos5250-arndale.dtb': arndale,
-              'exynos5250-snow.dtb': snow,
-              'exynos5420-arndale-octa.dtb': arndale_octa,
-              'exynos5800-peach-pi.dtb': peach_pi,
-              'exynos5422-odroidxu3.dtb': odroid_xu3,
-              'exynos4412-odroidu3.dtb': odroid_u2,
-              'exynos4412-odroidx2.dtb': odroid_x2,
-              'am335x-boneblack.dtb': beaglebone_black,
-              'omap3-beagle-xm.dtb': beagle_xm,
-              'omap3-beagle-xm-legacy': beagle_xm_legacy,
-              'omap4-panda-es.dtb': panda_es,
-              'omap4-panda.dtb': panda,
-              'sun7i-a20-cubietruck.dtb': cubieboard3,
-              'hip04-d01.dtb': d01,
-              'hisi-x5hd2-dkb.dtb': hisi_x5hd2_dkb,
-              'imx6q-wandboard.dtb': imx6q_wandboard,
-              'imx6q-sabrelite.dtb': imx6q_sabrelite,
-              'imx6q-cm-fx6.dtb': utilite_pro,
-              'ste-snowball.dtb': snowball,
-              'qcom-apq8084-ifc6540.dtb': ifc6540,
-              'qcom-apq8064-ifc6410.dtb': ifc6410,
-              'at91-sama5d3_xplained.dtb': sama53d,
-              'tegra124-jetson-tk1.dtb': jetson_tk1,
-              'zynq-parallella.dtb': parallella,
-              'sun9i-a80-optimus.dtb': optimus_a80,
-              'sun9i-a80-cubieboard4.dtb': cubieboard4,
-              'vexpress-v2p-ca15-tc1.dtb': qemu_arm_cortex_a15,
-              'vexpress-v2p-ca15-tc1-legacy': qemu_arm_cortex_a15_legacy,
-              'vexpress-v2p-ca15_a7.dtb': qemu_arm_cortex_a15_a7,
-              'vexpress-v2p-ca9.dtb': qemu_arm_cortex_a9,
-              'vexpress-v2p-ca9-legacy': qemu_arm_cortex_a9_legacy,
-              'qemu-arm-legacy': qemu_arm,
-              'qemu-aarch64-legacy': qemu_aarch64,
-              'apm-mustang.dtb': apm_mustang,
-              'juno.dtb': juno,
-              'x86': x86,
-              'x86-kvm': x86_kvm}
+device_map = {'exynos5250-arndale.dtb': [arndale],
+              'exynos5250-snow.dtb': [snow],
+              'exynos5420-arndale-octa.dtb': [arndale_octa],
+              'exynos5800-peach-pi.dtb': [peach_pi],
+              'exynos5422-odroidxu3.dtb': [odroid_xu3],
+              'exynos4412-odroidu3.dtb': [odroid_u2],
+              'exynos4412-odroidx2.dtb': [odroid_x2],
+              'am335x-boneblack.dtb': [beaglebone_black],
+              'omap3-beagle-xm.dtb': [beagle_xm],
+              'omap3-beagle-xm-legacy': [beagle_xm_legacy],
+              'omap4-panda-es.dtb': [panda_es],
+              'omap4-panda.dtb': [panda],
+              'sun7i-a20-cubietruck.dtb': [cubieboard3],
+              'hip04-d01.dtb': [d01],
+              'hisi-x5hd2-dkb.dtb': [hisi_x5hd2_dkb],
+              'imx6q-wandboard.dtb': [imx6q_wandboard],
+              'imx6q-sabrelite.dtb': [imx6q_sabrelite],
+              'imx6q-cm-fx6.dtb': [utilite_pro],
+              'ste-snowball.dtb': [snowball],
+              'qcom-apq8084-ifc6540.dtb': [ifc6540],
+              'qcom-apq8064-ifc6410.dtb': [ifc6410],
+              'at91-sama5d3_xplained.dtb': [sama53d],
+              'tegra124-jetson-tk1.dtb': [jetson_tk1],
+              'zynq-parallella.dtb': [parallella],
+              'sun9i-a80-optimus.dtb': [optimus_a80, cubieboard4],
+              'vexpress-v2p-ca15-tc1.dtb': [qemu_arm_cortex_a15],
+              'vexpress-v2p-ca15-tc1-legacy': [qemu_arm_cortex_a15_legacy],
+              'vexpress-v2p-ca15_a7.dtb': [qemu_arm_cortex_a15_a7],
+              'vexpress-v2p-ca9.dtb': [qemu_arm_cortex_a9],
+              'vexpress-v2p-ca9-legacy': [qemu_arm_cortex_a9_legacy],
+              'qemu-arm-legacy': [qemu_arm],
+              'qemu-aarch64-legacy': [qemu_aarch64],
+              'apm-mustang.dtb': [apm_mustang],
+              'juno.dtb': [juno],
+              'x86': [x86],
+              'x86-kvm': [x86_kvm]}
 
 parse_re = re.compile('href="([^./"?][^"?]*)"')
 
@@ -346,48 +345,48 @@ def create_jobs(base_url, kernel, platform_list, target, targets):
 
     for platform in platform_list:
         platform_name = platform.split('/')[-1]
-        device = device_map[platform_name]
-        device_type = device['device_type']
-        device_templates = device['templates']
-        lpae = device['lpae']
-        be = device['be']
-        fastboot = device['fastboot']
-        if 'BIG_ENDIAN' in defconfig and not be:
-            print 'BIG_ENDIAN is not supported on %s. Skipping JSON creation' % device_type
-        elif 'LPAE' in defconfig and not lpae:
-            print 'LPAE is not supported on %s. Skipping JSON creation' % device_type
-        elif defconfig in device['defconfig_blacklist']:
-            print '%s has been blacklisted. Skipping JSON creation' % defconfig
-        elif target is not None and target != device_type:
-            print '%s device type has been omitted. Skipping JSON creation.' % device_type
-        elif targets is not None and device_type not in targets:
-            print '%s device type has been omitted. Skipping JSON creation.' % device_type
-        else:
-            for template in device_templates:
-                job_name = tree + '-' + kernel_version + '-' + defconfig[:100] + '-' + platform_name
-                job_json = cwd + '/jobs/' + job_name + '.json'
-                template_file = cwd + '/templates/' + str(template)
-                with open(job_json, 'wt') as fout:
-                    with open(template_file, "rt") as fin:
-                        for line in fin:
-                            tmp = line.replace('{dtb_url}', platform)
-                            tmp = tmp.replace('{kernel_url}', kernel)
-                            tmp = tmp.replace('{device_type}', device_type)
-                            tmp = tmp.replace('{job_name}', job_name)
-                            tmp = tmp.replace('{image_type}', image_type)
-                            tmp = tmp.replace('{image_url}', image_url)
-                            tmp = tmp.replace('{tree}', tree)
-                            if platform_name.endswith('.dtb'):
-                                tmp = tmp.replace('{device_tree}', platform_name)
-                            tmp = tmp.replace('{kernel_version}', kernel_version)
-                            if 'BIG_ENDIAN' in defconfig and be:
-                                tmp = tmp.replace('{endian}', 'big')
-                            else:
-                                tmp = tmp.replace('{endian}', 'little')
-                            tmp = tmp.replace('{defconfig}', defconfig)
-                            tmp = tmp.replace('{fastboot}', str(fastboot).lower())
-                            fout.write(tmp)
-                print 'JSON Job created: jobs/%s' % job_name
+        for device in device_map[platform_name]:
+            device_type = device['device_type']
+            device_templates = device['templates']
+            lpae = device['lpae']
+            be = device['be']
+            fastboot = device['fastboot']
+            if 'BIG_ENDIAN' in defconfig and not be:
+                print 'BIG_ENDIAN is not supported on %s. Skipping JSON creation' % device_type
+            elif 'LPAE' in defconfig and not lpae:
+                print 'LPAE is not supported on %s. Skipping JSON creation' % device_type
+            elif defconfig in device['defconfig_blacklist']:
+                print '%s has been blacklisted. Skipping JSON creation' % defconfig
+            elif target is not None and target != device_type:
+                print '%s device type has been omitted. Skipping JSON creation.' % device_type
+            elif targets is not None and device_type not in targets:
+                print '%s device type has been omitted. Skipping JSON creation.' % device_type
+            else:
+                for template in device_templates:
+                    job_name = tree + '-' + kernel_version + '-' + defconfig[:100] + '-' + platform_name + '-' + device_type
+                    job_json = cwd + '/jobs/' + job_name + '.json'
+                    template_file = cwd + '/templates/' + str(template)
+                    with open(job_json, 'wt') as fout:
+                        with open(template_file, "rt") as fin:
+                            for line in fin:
+                                tmp = line.replace('{dtb_url}', platform)
+                                tmp = tmp.replace('{kernel_url}', kernel)
+                                tmp = tmp.replace('{device_type}', device_type)
+                                tmp = tmp.replace('{job_name}', job_name)
+                                tmp = tmp.replace('{image_type}', image_type)
+                                tmp = tmp.replace('{image_url}', image_url)
+                                tmp = tmp.replace('{tree}', tree)
+                                if platform_name.endswith('.dtb'):
+                                    tmp = tmp.replace('{device_tree}', platform_name)
+                                tmp = tmp.replace('{kernel_version}', kernel_version)
+                                if 'BIG_ENDIAN' in defconfig and be:
+                                    tmp = tmp.replace('{endian}', 'big')
+                                else:
+                                    tmp = tmp.replace('{endian}', 'little')
+                                tmp = tmp.replace('{defconfig}', defconfig)
+                                tmp = tmp.replace('{fastboot}', str(fastboot).lower())
+                                fout.write(tmp)
+                    print 'JSON Job created: jobs/%s' % job_name
 
 
 def walk_url(url, arch=None, target=None, targets=None):
