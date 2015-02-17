@@ -142,8 +142,8 @@ def boot_report(args):
                         # TODO for compat :(
                         if test['test_case_id'] == 'kernel_boot_time':
                             kernel_boot_time = test['measurement']
-                        if test['test_case_id'] == 'kernel_boot_time':
-                            kernel_boot_time = test['test_kernel_boot_time']
+                        if test['test_case_id'] == 'test_kernel_boot_time':
+                            kernel_boot_time = test['measurement']
                             print test['measurement']
                     bundle_attributes = bundle_data['test_runs'][0]['attributes']
             boot_meta = {}
