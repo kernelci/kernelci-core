@@ -217,6 +217,11 @@ def _traverse_defconf_dir(
             defconfig_doc.id = doc_id
             if c_date:
                 defconfig_doc.created_on = c_date
+            else:
+                # Give the defconfig doc the same date as the job one.
+                # In this way all defconfigs will have the same date regardless
+                # of when they were saved on the file system.
+                defconfig_doc.created_on = job_doc.created_on
         else:
             utils.LOG.warn("No build data file found in '%s'", real_dir)
 
@@ -321,9 +326,6 @@ def _parse_build_data(data_file, job, kernel, defconfig_dir):
             )
 
             defconfig_doc.dirname = defconfig_dir
-            defconfig_doc.created_on = datetime.datetime.fromtimestamp(
-                os.stat(data_file).st_mtime, tz=bson.tz_util.utc
-            )
 
             defconfig_doc.arch = data_pop(models.ARCHITECTURE_KEY, None)
             defconfig_doc.build_log = data_pop(models.BUILD_LOG_KEY, None)
