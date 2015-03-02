@@ -345,15 +345,27 @@ def _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f):
     :param json_pop_f: The function used to pop elements out of the JSON object.
     :type json_pop_f: function
     """
-    time_d = datetime.timedelta(
-        seconds=float(json_pop_f(models.BOOT_TIME_KEY, 0.0))
-    )
-    boot_doc.time = datetime.datetime(
-        1970, 1, 1,
-        minute=time_d.seconds / 60,
-        second=time_d.seconds % 60,
-        microsecond=time_d.microseconds
-    )
+    seconds = float(json_pop_f(models.BOOT_TIME_KEY, 0.0))
+    if seconds < 0:
+        seconds = 0.0
+
+    try:
+        if seconds == 0:
+            boot_doc.time = datetime.datetime(
+                1970, 1, 1, hour=0, minute=0, second=0)
+        else:
+            time_d = datetime.timedelta(seconds=seconds)
+            boot_doc.time = datetime.datetime(
+                1970, 1, 1,
+                minute=time_d.seconds / 60,
+                second=time_d.seconds % 60,
+                microsecond=time_d.microseconds
+            )
+    except OverflowError:
+        utils.LOG.error("Boot time passed value is too large for a time value")
+        utils.LOG.info("Boot time will be set to 0")
+        boot_doc.time = datetime.datetime(
+            1970, 1, 1, hour=0, minute=0, second=0)
 
     boot_doc.status = json_pop_f(
         models.BOOT_RESULT_KEY, models.UNKNOWN_STATUS

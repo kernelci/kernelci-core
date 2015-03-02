@@ -11,10 +11,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import datetime
 import json
 import logging
 import mongomock
 import os
+import sys
 import tempfile
 import types
 import unittest
@@ -185,6 +187,96 @@ class TestParseBoot(unittest.TestCase):
                 boot_log.name, self.db)
 
             self.assertIsNone(doc)
+        finally:
+            os.remove(boot_log.name)
+
+    def test_parse_from_file_wrong_boot_time_too_big(self):
+        boot_log = tempfile.NamedTemporaryFile(
+            mode='w+b', bufsize=-1, suffix="json", delete=False
+        )
+        boot_obj = {
+            "job": "job",
+            "kernel": "kernel",
+            "defconfig": "defconfig",
+            "board": "board",
+            "dtb": "dtb",
+            "lab_name": "lab_name",
+            "boot_time": sys.maxint
+        }
+
+        try:
+            with open(boot_log.name, mode="w") as boot_write:
+                boot_write.write(json.dumps(boot_obj))
+
+            doc = utils.bootimport._parse_boot_from_file(
+                boot_log.name, self.db)
+
+            self.assertEqual(doc.board, "board")
+            self.assertEqual(doc.job, "job")
+            self.assertEqual(doc.kernel, "kernel")
+            self.assertEqual(doc.defconfig, "defconfig")
+            self.assertEqual(doc.dtb, "dtb")
+            self.assertEqual(doc.time, datetime.datetime(1970, 1, 1, 0, 0))
+        finally:
+            os.remove(boot_log.name)
+
+    def test_parse_from_file_wrong_boot_time_too_big_negative(self):
+        boot_log = tempfile.NamedTemporaryFile(
+            mode='w+b', bufsize=-1, suffix="json", delete=False
+        )
+        boot_obj = {
+            "job": "job",
+            "kernel": "kernel",
+            "defconfig": "defconfig",
+            "board": "board",
+            "dtb": "dtb",
+            "lab_name": "lab_name",
+            "boot_time": -sys.maxint - 1
+        }
+
+        try:
+            with open(boot_log.name, mode="w") as boot_write:
+                boot_write.write(json.dumps(boot_obj))
+
+            doc = utils.bootimport._parse_boot_from_file(
+                boot_log.name, self.db)
+
+            self.assertEqual(doc.board, "board")
+            self.assertEqual(doc.job, "job")
+            self.assertEqual(doc.kernel, "kernel")
+            self.assertEqual(doc.defconfig, "defconfig")
+            self.assertEqual(doc.dtb, "dtb")
+            self.assertEqual(doc.time, datetime.datetime(1970, 1, 1, 0, 0))
+        finally:
+            os.remove(boot_log.name)
+
+    def test_parse_from_file_wrong_boot_time_negative(self):
+        boot_log = tempfile.NamedTemporaryFile(
+            mode='w+b', bufsize=-1, suffix="json", delete=False
+        )
+        boot_obj = {
+            "job": "job",
+            "kernel": "kernel",
+            "defconfig": "defconfig",
+            "board": "board",
+            "dtb": "dtb",
+            "lab_name": "lab_name",
+            "boot_time": -1500.0
+        }
+
+        try:
+            with open(boot_log.name, mode="w") as boot_write:
+                boot_write.write(json.dumps(boot_obj))
+
+            doc = utils.bootimport._parse_boot_from_file(
+                boot_log.name, self.db)
+
+            self.assertEqual(doc.board, "board")
+            self.assertEqual(doc.job, "job")
+            self.assertEqual(doc.kernel, "kernel")
+            self.assertEqual(doc.defconfig, "defconfig")
+            self.assertEqual(doc.dtb, "dtb")
+            self.assertEqual(doc.time, datetime.datetime(1970, 1, 1, 0, 0))
         finally:
             os.remove(boot_log.name)
 
