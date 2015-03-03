@@ -71,3 +71,22 @@
     - install
     - app
     - secrets
+
+- name: Copy build docs script
+  template: src=build-docs.sh
+            dest=/tmp/build-docs.sh
+            owner=root
+            group=root
+            mode=755
+  tags:
+    - install
+    - app
+    - docs
+
+- name: Build docs
+  shell:  ./build-docs.sh
+          chdir=/tmp
+  tags:
+    - install
+    - app
+    - docs
