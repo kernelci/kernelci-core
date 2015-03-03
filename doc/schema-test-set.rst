@@ -23,3 +23,16 @@ POST
 
 .. literalinclude:: schema/1.0/test_set_post.json
     :language: json
+
+Notes
++++++
+
+* ``test_case``: If not specified, the test case executed must be registered using the appropriate API call.
+
+More Info
+*********
+
+* :ref:`Test suite schema <schema_test_suite>`
+* :ref:`Test case schema <schema_test_case>`
+* :ref:`API results <intro_schema_results>`
+* :ref:`Schema time and date <intro_schema_time_date>`
