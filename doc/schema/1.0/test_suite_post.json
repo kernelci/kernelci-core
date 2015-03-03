@@ -1,0 +1,87 @@
+{
+    "$schema": "http://api.kernelci.org/schema/1.0/test_suite_post.json",
+    "id": "http://api.kernelci.org/schema/1.0/test_suite_post.json",
+    "title": "test_suite",
+    "description": "A test suite JSON object",
+    "type": "object",
+    "properties": {
+        "version": {
+            "type": "string",
+            "description": "The version number of this JSON schema",
+            "enum": ["1.0"]
+        },
+        "name": {
+            "type": "string",
+            "description": "The name given to this test suite"
+        },
+        "lab_name": {
+            "type": "string",
+            "description": "The name of the lab executing this test suite"
+        },
+        "time": {
+            "type": "number",
+            "description": "The number of seconds it took to execute the entire test suite",
+            "default": -1
+        },
+        "job": {
+            "type": "string",
+            "description": "The name of the job (aka the git tree)"
+        },
+        "kernel": {
+            "type": "string",
+            "description": "The name of the kernel or the git describe value"
+        },
+        "defconfig": {
+            "type": "string",
+            "description": "The name of the defconfig"
+        },
+        "defconfig_full": {
+            "type": "string",
+            "description": "The full name of the defconfig, can also contain config fragments information",
+            "default": "The defconfig value"
+        },
+        "arch": {
+            "type": "string",
+            "description": "The architecture type of this board",
+            "enum": ["arm", "arm64", "x86"],
+            "default": "arm"
+        },
+        "board": {
+            "type": "string",
+            "description": "The name of the board"
+        },
+        "board_instance": {
+            "type": "string",
+            "description": "The instance identifier of the board"
+        },
+        "job_id": {
+            "type": "string",
+            "description": "The ID of the job that this test suite is being run on"
+        },
+        "defconfig_id": {
+            "type": "string",
+            "description": "The ID of the build that this test suite is being run on"
+        },
+        "boot_id": {
+            "type": "string",
+            "description": "The ID of the boot test that this test suite is being run on"
+        },
+        "test_set": {
+            "type": "array",
+            "description": "The list of test_set IDs executed by this test suite",
+            "items": {"$ref": "http://api.kernelci.org/schema/1.0/test_set_post.json"},
+            "additionalItems": true
+        },
+        "test_case": {
+            "type": "array",
+            "description": "The list of test_case IDs executed by this test suite",
+            "items": {"$ref": "http://api.kernelci.org/schema/1.0/test_case_post.json"},
+            "additionalItems": true
+        },
+        "metadata": {
+            "type": "object",
+            "description": "Free form object where to store accessory test suite data"
+        }
+    },
+    "required": ["version", "name", "lab_name"]
+}

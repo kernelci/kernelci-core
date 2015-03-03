@@ -1,0 +1,64 @@
+{
+    "$schema": "http://api.kernelci.org/schema/1.0/test_case_post.json",
+    "id": "http://api.kernelci.org/schema/1.0/test_case_post.json",
+    "title": "test_case",
+    "description": "A test case JSON object",
+    "type": "object",
+    "properties": {
+        "version": {
+            "type": "string",
+            "description": "The version number of this JSON schema",
+            "enum": ["1.0"]
+        },
+        "name": {
+            "type": "string",
+            "description": "The name given to this test case"
+        },
+        "test_set_id": {
+            "type": "string",
+            "description": "The test set ID associated with this test case"
+        },
+        "test_suite_id": {
+            "type": "string",
+            "description": "The test suite ID associated with this test case"
+        },
+        "unit": {
+            "type": "string",
+            "description": "The measurement unit associated with this test",
+            "enum": ["string", "epoch", "second", "minute", "watt", "volt"],
+            "default": "string"
+        },
+        "parameters": {
+            "type": "object",
+            "description": "Free form object to store key-value pairs describing the parameters used to run the test"
+        },
+        "measure": {
+            "type": "string",
+            "description": "The data measured during this test case execution; the value will be interpreted based on the unit field"
+        },
+        "status": {
+            "type": "string",
+            "description": "The status of the execution of this test case",
+            "enum": ["PASS", "FAIL", "SKIP", "ERROR"],
+            "default": "PASS"
+        },
+        "time": {
+            "type": "number",
+            "description": "The number of seconds it took to execute this test case",
+            "default": -1
+        },
+        "uri": {
+            "type": "uri",
+            "description": "The URI where this test case definition is stored"
+        },
+        "vcs_commit": {
+            "type": "string",
+            "description": "The VCS commit value if the $uri field is a VCS URI"
+        },
+        "metadata": {
+            "type": "object",
+            "description": "Free form object where to store accessory test case data"
+        }
+    },
+    "required": ["version", "name", "test_suite_id"]
+}
