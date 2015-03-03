@@ -3,11 +3,10 @@
 test
 ----
 
-The test schema to store and retrieve test results, is composed of three
-smaller schemas.
+The test schema to store and retrieve test results is composed of the following schemas.
 
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 2
 
     schema-test-suite
     schema-test-set
