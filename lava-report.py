@@ -150,6 +150,8 @@ def boot_report(args):
             boot_meta = {}
             api_url = None
             arch = None
+            board_instance = None
+            boot_retries = 0
             kernel_defconfig_full = None
             kernel_defconfig = None
             kernel_defconfig_base = None
@@ -164,6 +166,8 @@ def boot_report(args):
             dtb_append = None
             fastboot = None
             fastboot_cmd = None
+            if in_bundle_attributes(bundle_attributes, 'target'):
+                board_instance = bundle_attributes['target']
             if in_bundle_attributes(bundle_attributes, 'kernel.defconfig'):
                 kernel_defconfig = bundle_attributes['kernel.defconfig']
                 arch, kernel_defconfig_full = kernel_defconfig.split('-')
@@ -194,7 +198,7 @@ def boot_report(args):
             if in_bundle_attributes(bundle_attributes, 'dtb-append'):
                 dtb_append = bundle_attributes['dtb-append']
             if in_bundle_attributes(bundle_attributes, 'boot_retries'):
-                dtb_append = bundle_attributes['boot_retries']
+                boot_retries = int(bundle_attributes['boot_retries'])
 
         # Record the boot log and result
         # TODO: Will need to map device_types to dashboard device types
@@ -227,6 +231,9 @@ def boot_report(args):
                 boot_meta['lab_name'] = args.lab
             else:
                 boot_meta['lab_name'] = None
+            if board_instance:
+                boot_meta['board_instance'] = board_instance
+            boot_meta['retries'] = boot_retries
             boot_meta['boot_log'] = log
             boot_meta['boot_log_html'] = html
             # TODO: Fix this
