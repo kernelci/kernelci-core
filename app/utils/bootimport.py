@@ -346,11 +346,11 @@ def _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f):
     :type json_pop_f: function
     """
     seconds = float(json_pop_f(models.BOOT_TIME_KEY, 0.0))
-    if seconds < 0:
+    if seconds < 0.0:
         seconds = 0.0
 
     try:
-        if seconds == 0:
+        if seconds == 0.0:
             boot_doc.time = datetime.datetime(
                 1970, 1, 1, hour=0, minute=0, second=0)
         else:
