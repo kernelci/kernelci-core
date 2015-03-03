@@ -14,3 +14,4 @@ Schema
     schema-lab
     schema-report
     schema-send
+    schema-test
