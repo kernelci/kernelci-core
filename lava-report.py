@@ -42,6 +42,7 @@ device_map = {'arndale': ['exynos5250-arndale', 'exynos'],
               'qemu-aarch64': ['qemu-aarch64', 'qemu'],
               'mustang': ['apm-mustang', 'apm'],
               'juno': ['juno', 'arm'],
+              'minnowboard-max-E3825': ['minnowboard-max', None],
               'x86': ['x86', None],
               'kvm': ['x86-kvm', None]}
 

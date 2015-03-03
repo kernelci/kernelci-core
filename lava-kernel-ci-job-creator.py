@@ -264,20 +264,36 @@ juno = {'device_type': 'juno',
         'be': False,
         'fastboot': False}
 
+
 x86 = {'device_type': 'x86',
        'templates': ['generic-x86-kernel-ci-boot-template.json'],
        'defconfig_blacklist': ['x86-i386_defconfig',
                                'x86-allnoconfig',
-                               'x86-allmodconfig'],
+                               'x86-allmodconfig',
+                               'x86-tiny.config',
+                               'x86-kvm_guest.config'],
        'lpae': False,
        'be': False,
        'fastboot': False}
+
+minnowboard_max_E3825 = {'device_type': 'minnowboard-max-E3825',
+                         'templates': ['generic-x86-kernel-ci-boot-template.json'],
+                         'defconfig_blacklist': ['x86-i386_defconfig',
+                                                 'x86-allnoconfig',
+                                                 'x86-allmodconfig',
+                                                 'x86-tiny.config',
+                                                 'x86-kvm_guest.config'],
+                        'lpae': False,
+                        'be': False,
+                        'fastboot': False}
 
 x86_kvm = {'device_type': 'kvm',
            'templates': ['generic-x86-kernel-ci-boot-template.json'],
            'defconfig_blacklist': ['x86-i386_defconfig',
                                    'x86-allnoconfig',
-                                   'x86-allmodconfig'],
+                                   'x86-allmodconfig',
+                                   'x86-tiny.config',
+                                   'x86-kvm_guest.config'],
            'lpae': False,
            'be': False,
            'fastboot': False}
@@ -316,7 +332,7 @@ device_map = {'exynos5250-arndale.dtb': [arndale],
               'qemu-aarch64-legacy': [qemu_aarch64],
               'apm-mustang.dtb': [apm_mustang],
               'juno.dtb': [juno],
-              'x86': [x86],
+              'x86': [x86, minnowboard_max_E3825],
               'x86-kvm': [x86_kvm]}
 
 parse_re = re.compile('href="([^./"?][^"?]*)"')
