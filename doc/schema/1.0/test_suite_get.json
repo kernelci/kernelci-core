@@ -1,8 +1,8 @@
 {
-    "$schema": "http://api.kernelci.org/json-schema/1.0/test_suite_post.json",
-    "id": "http://api.kernelci.org/json-schema/1.0/test_suite_post.json",
+    "$schema": "http://api.kernelci.org/json-schema/1.0/test_suite_get.json",
+    "id": "http://api.kernelci.org/json-schema/1.0/test_suite_get.json",
     "title": "test_suite",
-    "description": "A test suite JSON object",
+    "description": "A test suite JSON object as returned by the API",
     "type": "object",
     "properties": {
         "version": {
@@ -10,9 +10,24 @@
             "description": "The version number of this JSON schema",
             "enum": ["1.0"]
         },
+        "_id": {
+            "type": "string",
+            "description": "The ID associated with this test suite as provided by the database"
+        },
         "name": {
             "type": "string",
             "description": "The name given to this test suite"
+        },
+        "created_on": {
+            "type": "object",
+            "description": "Creation date of this test suite in the database",
+            "properties": {
+                "$date": {
+                    "type": "number",
+                    "description": "Milliseconds from epoch time",
+                    "format": "utc-millisec"
+                }
+            }
         },
         "lab_name": {
             "type": "string",
@@ -66,10 +81,21 @@
             "type": "string",
             "description": "The ID of the boot test that this test suite is being run on"
         },
+        "test_set": {
+            "type": "array",
+            "description": "The list of test set IDs, or test set objects, executed by this test suite",
+            "items": {"$ref": "http://api.kernelci.org/json-schema/1.0/test_set_get.json"},
+            "additionalItems": true
+        },
+        "test_case": {
+            "type": "array",
+            "description": "The list of test case IDs, or test case objects, executed by this test suite",
+            "items": {"$ref": "http://api.kernelci.org/json-schema/1.0/test_case_get.json"},
+            "additionalItems": true
+        },
         "metadata": {
             "type": "object",
-            "description": "Free form object where to store accessory test suite data"
+            "description": "Free form object where accessory test suite data is stored"
         }
-    },
-    "required": ["version", "name", "lab_name"]
+    }
 }
