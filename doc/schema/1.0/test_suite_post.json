@@ -1,6 +1,6 @@
 {
-    "$schema": "http://api.kernelci.org/schema/1.0/test_suite_post.json",
-    "id": "http://api.kernelci.org/schema/1.0/test_suite_post.json",
+    "$schema": "http://api.kernelci.org/json-schema/1.0/test_suite_post.json",
+    "id": "http://api.kernelci.org/json-schema/1.0/test_suite_post.json",
     "title": "test_suite",
     "description": "A test suite JSON object",
     "type": "object",
@@ -69,13 +69,13 @@
         "test_set": {
             "type": "array",
             "description": "The list of test_set IDs executed by this test suite",
-            "items": {"$ref": "http://api.kernelci.org/schema/1.0/test_set_post.json"},
+            "items": {"$ref": "http://api.kernelci.org/json-schema/1.0/test_set_post.json"},
             "additionalItems": true
         },
         "test_case": {
             "type": "array",
             "description": "The list of test_case IDs executed by this test suite",
-            "items": {"$ref": "http://api.kernelci.org/schema/1.0/test_case_post.json"},
+            "items": {"$ref": "http://api.kernelci.org/json-schema/1.0/test_case_post.json"},
             "additionalItems": true
         },
         "metadata": {
