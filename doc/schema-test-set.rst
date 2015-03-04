@@ -3,6 +3,9 @@
 test_set
 --------
 
+A test set is a collection of :ref:`test cases <schema_test_case>`. Each test set
+must define its own ``name`` and must be associated with a :ref:`test suite <schema_test_suite>`.
+
 .. _schema_test_set_get:
 
 GET

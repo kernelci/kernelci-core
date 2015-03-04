@@ -83,5 +83,5 @@
             "additionalItems": true
         }
     },
-    "required": ["version", "name", "lab_name"]
+    "required": ["version", "name", "lab_name", "defconfig_id"]
 }

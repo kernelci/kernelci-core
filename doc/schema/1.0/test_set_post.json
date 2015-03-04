@@ -22,8 +22,8 @@
             "type": "string",
             "description": "The test suite ID associated with this test set"
         },
-        "uri": {
-            "type": "uri",
+        "definition_uri": {
+            "type": "string",
             "description": "The URI where this test set definition is stored"
         },
         "vcs_commit": {
