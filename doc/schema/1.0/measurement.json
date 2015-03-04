@@ -1,0 +1,20 @@
+{
+    "$schema": "http://api.kernelci.org/json-schema/1.0/measurement.json",
+    "id": "http://api.kernelci.org/json-schema/1.0/measurement.json",
+    "title": "measurement",
+    "description": "A measurement registered by a test case",
+    "type": "object",
+    "properties": {
+        "unit": {
+            "type": "string",
+            "description": "The unit of this measurement",
+            "enum": ["string", "epoch", "second", "minute", "watt", "volt"],
+            "default": "string"
+        },
+        "measure": {
+            "type": "string",
+            "description": "The data measured during the test case execution; the value will be interpreted based on the $unit field"
+        }
+    },
+    "required": ["measure"]
+}

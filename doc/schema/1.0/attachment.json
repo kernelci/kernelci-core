@@ -1,0 +1,18 @@
+{
+    "$schema": "http://api.kernelci.org/json-schema/1.0/attachment.json",
+    "id": "http://api.kernelci.org/json-schema/1.0/attachment.json",
+    "title": "attachment",
+    "description": "An attachment/artifact JSON schema",
+    "type": "object",
+    "properties": {
+        "server_uri": {
+            "type": "string",
+            "description": "The URI of the server that is hosting this attachment"
+        },
+        "path": {
+            "type": "string",
+            "description": "The path on the server that identifies this attachment"
+        }
+    },
+    "required": ["path"]
+}

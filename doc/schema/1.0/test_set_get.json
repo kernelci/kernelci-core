@@ -43,8 +43,8 @@
             "items": {"$ref": "http://api.kernelci.org/json-schema/1.0/test_case_get.json"},
             "additionalItems": true
         },
-        "uri": {
-            "type": "uri",
+        "definition_uri": {
+            "type": "string",
             "description": "The URI where this test set definition is stored"
         },
         "vcs_commit": {
