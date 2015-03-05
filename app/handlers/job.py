@@ -68,10 +68,11 @@ class JobHandler(hbase.BaseHandler):
             if utils.db.find_one(self.collection, [job_obj]):
                 utils.db.delete(
                     self.db[models.DEFCONFIG_COLLECTION],
-                    {models.JOB_ID_KEY: {'$in': [job_obj]}}
+                    {models.JOB_ID_KEY: {"$in": [job_obj]}}
                 )
 
-                response.status_code = utils.db.delete(self.collection, job_obj)
+                response.status_code = utils.db.delete(
+                    self.collection, job_obj)
                 if response.status_code == 200:
                     response.reason = "Resource '%s' deleted" % job_id
             else:
