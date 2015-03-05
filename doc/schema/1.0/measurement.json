@@ -5,6 +5,11 @@
     "description": "A measurement registered by a test case",
     "type": "object",
     "properties": {
+        "time": {
+            "type": "number",
+            "descrption": "Epoch time when the measurement was registered",
+            "format": "utc-millisec"
+        },
         "unit": {
             "type": "string",
             "description": "The unit of this measurement",
