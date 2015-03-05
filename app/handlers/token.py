@@ -243,7 +243,11 @@ class TokenHandler(hbase.BaseHandler):
         if str(json_get(models.UPLOAD_KEY, None)) != "None":
             token.is_upload_token = json_get(models.UPLOAD_KEY)
 
-        if token.is_ip_restricted and not json_get(models.IP_ADDRESS_KEY, None):
+        if str(json_get(models.TEST_LAB_KEY, None)) != "None":
+            token.is_test_lab_token = json_get(models.TEST_LAB_KEY)
+
+        if (token.is_ip_restricted and
+                not json_get(models.IP_ADDRESS_KEY, None)):
             raise Exception("IP restricted but no IP addresses given")
         elif (json_get(models.IP_ADDRESS_KEY, None) and
                 not token.is_ip_restricted):

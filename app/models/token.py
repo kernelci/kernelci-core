@@ -57,6 +57,7 @@ class Token(modb.BaseDocument):
     - 6: if the token can create new tokens
     - 7: if the token is a boot lab token
     - 8: if the token can upload (POST/PUT) files
+    - 9: if the token is a test lab token
     """
 
     def __init__(self):
@@ -311,6 +312,17 @@ class Token(modb.BaseDocument):
         """Set whether the token can upload files."""
         value = check_attribute_value(value)
         self._properties[8] = value
+
+    @property
+    def is_test_lab_token(self):
+        """If the token can be used to upload test results."""
+        return self._properties[9]
+
+    @is_test_lab_token.setter
+    def is_test_lab_token(self, value):
+        """Set if the token can be used to upload test results."""
+        value = check_attribute_value(value)
+        self._properties[9] = value
 
     def is_valid_ip(self, address):
         """Check if an IP address is valid for a token.

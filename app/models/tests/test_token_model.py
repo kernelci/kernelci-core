@@ -91,6 +91,8 @@ class TestTokenModel(unittest.TestCase):
         self.assertEqual(token_obj.is_get_token, 1)
         self.assertEqual(token_obj.is_delete_token, 1)
         self.assertEqual(token_obj.is_post_token, 1)
+        self.assertEqual(token_obj.is_test_lab_token, 0)
+        self.assertEqual(token_obj.is_lab_token, 0)
 
     def test_token_is_admin_no_create(self):
         token_obj = modt.Token()
@@ -103,6 +105,8 @@ class TestTokenModel(unittest.TestCase):
         self.assertEqual(token_obj.is_get_token, 1)
         self.assertEqual(token_obj.is_delete_token, 1)
         self.assertEqual(token_obj.is_post_token, 1)
+        self.assertEqual(token_obj.is_test_lab_token, 0)
+        self.assertEqual(token_obj.is_lab_token, 0)
 
     def test_token_is_superuser(self):
         token_obj = modt.Token()
@@ -114,12 +118,22 @@ class TestTokenModel(unittest.TestCase):
         self.assertEqual(token_obj.is_get_token, 1)
         self.assertEqual(token_obj.is_delete_token, 1)
         self.assertEqual(token_obj.is_post_token, 1)
+        self.assertEqual(token_obj.is_test_lab_token, 0)
+        self.assertEqual(token_obj.is_lab_token, 0)
 
     def test_token_is_lab_token(self):
         token_obj = modt.Token()
         token_obj.is_lab_token = 1
 
         self.assertEqual(token_obj.is_lab_token, 1)
+        self.assertEqual(token_obj.is_test_lab_token, 0)
+
+    def test_token_is_test_lab_token(self):
+        token_obj = modt.Token()
+        token_obj.is_test_lab_token = 1
+
+        self.assertEqual(token_obj.is_lab_token, 0)
+        self.assertEqual(token_obj.is_test_lab_token, 1)
 
     def test_token_wrong_numeric_value(self):
         token_obj = modt.Token()
