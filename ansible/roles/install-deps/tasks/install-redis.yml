@@ -6,12 +6,14 @@
   tags:
     - install
     - redis
+    - deps
 
 - name: Install redis server
   apt: pkg=redis-server
   tags:
     - install
     - redis
+    - deps
 
 - name: Make sure redis is running
   service:  name=redis-server
@@ -19,3 +21,4 @@
   tags:
     - install
     - redis
+    - deps

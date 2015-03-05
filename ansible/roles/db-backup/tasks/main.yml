@@ -8,6 +8,7 @@
     - xz-utils
   tags:
     - backup
+    - deps
 
 - name: Create dedicated user
   user: name=kernelci

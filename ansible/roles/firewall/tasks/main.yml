@@ -5,6 +5,7 @@
         update_cache=yes
   tags:
     - firewall
+    - deps
 
 - name: Fix default config file
   lineinfile: dest=/etc/default/ufw

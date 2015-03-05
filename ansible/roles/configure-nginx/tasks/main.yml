@@ -2,6 +2,9 @@
 - name: Add nginx stable PPA repository
   apt_repository: repo='ppa:nginx/stable'
   when: ansible_lsb.id == "Ubuntu"
+  tags:
+    - install
+    - deps
 
 - name: Install nginx
   apt:  pkg={{ item }}
@@ -12,6 +15,7 @@
     - nginx-extras
   tags:
     - web-server
+    - deps
 
 - name: Install default nginx configuration
   template: src=nginx-default.conf
