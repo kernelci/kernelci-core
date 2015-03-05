@@ -7,7 +7,7 @@
     "properties": {
         "time": {
             "type": "number",
-            "descrption": "Epoch time when the measurement was registered",
+            "description": "Epoch time when the measurement was registered",
             "format": "utc-millisec"
         },
         "unit": {
