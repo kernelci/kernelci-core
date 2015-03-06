@@ -14,7 +14,7 @@ legacy_platform_list = []
 armada_370_mirabox = {'device_type': 'armada-370-mirabox',
                        'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
                        'defconfig_blacklist': [],
-                       'lpae': True,
+                       'lpae': False,
                        'be': False,
                        'fastboot': False}
 
