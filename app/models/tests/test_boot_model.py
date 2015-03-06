@@ -26,7 +26,6 @@ class TestBootModel(unittest.TestCase):
         self.assertIsInstance(boot_doc, mbase.BaseDocument)
 
     def test_boot_document_to_dict(self):
-        self.maxDiff = None
         boot_doc = mboot.BootDocument(
             "board", "job", "kernel", "defconfig", "lab", arch="arm"
         )
@@ -121,7 +120,6 @@ class TestBootModel(unittest.TestCase):
         self.assertIsNone(mboot.BootDocument.from_json(""))
 
     def test_boot_doc_from_json(self):
-        self.maxDiff = None
         boot_json = {
             "_id": "id",
             "arch": "arm",
