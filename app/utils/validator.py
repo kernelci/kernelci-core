@@ -35,18 +35,19 @@ def is_valid_json(json_obj, accepted_keys):
     valid_json = False
     error_message = "No valid keys defined for this request"
 
-    if accepted_keys:
-        if isinstance(accepted_keys, types.ListType):
-            # Simple case, where the valid keys is just a list of keys.
-            valid_json, error_message = _simple_json_validation(
-                json_obj, accepted_keys
-            )
-        elif isinstance(accepted_keys, types.DictionaryType):
-            # More complex case where accepted_keys is a a dictionary with
-            # mandatory and all the valid keys.
-            valid_json, error_message = _complex_json_validation(
-                json_obj, accepted_keys
-            )
+    if not isinstance(json_obj, types.DictionaryType):
+        error_message = "Provided data is not JSON"
+    else:
+        if accepted_keys:
+            if isinstance(accepted_keys, types.ListType):
+                # Simple case, where the valid keys is just a list of keys.
+                valid_json, error_message = _simple_json_validation(
+                    json_obj, accepted_keys)
+            elif isinstance(accepted_keys, types.DictionaryType):
+                # More complex case where accepted_keys is a a dictionary with
+                # mandatory and all the valid keys.
+                valid_json, error_message = _complex_json_validation(
+                    json_obj, accepted_keys)
 
     return valid_json, error_message
 
@@ -118,7 +119,8 @@ def _complex_json_validation(json_obj, accepted_keys):
         strange_keys = list(json_keys - valid_keys)
         if strange_keys:
             error_message = (
-                "Found non recognizable keys, they will not be considered: %s" %
+                "Found non recognizable keys, they will not be "
+                "considered: %s" %
                 ", ".join(strange_keys)
             )
             # If we have keys that are not defined in our model, remove them.
