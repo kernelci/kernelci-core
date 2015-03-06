@@ -181,6 +181,7 @@ BISECT_COLLECTION = "bisect"
 LAB_COLLECTION = "lab"
 REPORT_COLLECTION = "report"
 UPLOAD_COLLECTION = "upload"
+TEST_SUITE_COLLECTION = "test_suite"
 
 # Report types.
 BUILD_REPORT = "build"
