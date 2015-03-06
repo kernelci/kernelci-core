@@ -336,6 +336,50 @@ BISECT_VALID_KEYS = {
     ]
 }
 
+TEST_SUITE_VALID_KEYS = {
+    "POST": {
+        models.MANDATORY_KEYS: [
+            models.DEFCONFIG_ID_KEY,
+            models.LAB_NAME_KEY,
+            models.NAME_KEY,
+            models.VERSION_KEY
+        ],
+        models.ACCEPTED_KEYS: [
+            models.ARCHITECTURE_KEY,
+            models.BOARD_INSTANCE_KEY,
+            models.BOARD_KEY,
+            models.BOOT_ID_KEY,
+            models.DEFCONFIG_FULL_KEY,
+            models.DEFCONFIG_ID_KEY,
+            models.DEFCONFIG_KEY,
+            models.JOB_ID_KEY,
+            models.JOB_KEY,
+            models.KERNEL_KEY,
+            models.LAB_NAME_KEY,
+            models.METADATA_KEY,
+            models.NAME_KEY,
+            models.TEST_CASE_KEY,
+            models.TEST_SET_KEY,
+            models.VERSION_KEY
+        ]
+    },
+    "GET": [
+        models.ARCHITECTURE_KEY,
+        models.BOARD_INSTANCE_KEY,
+        models.BOARD_KEY,
+        models.BOOT_ID_KEY,
+        models.CREATED_KEY,
+        models.DEFCONFIG_FULL_KEY,
+        models.DEFCONFIG_ID_KEY,
+        models.DEFCONFIG_KEY,
+        models.JOB_ID_KEY,
+        models.JOB_KEY,
+        models.KERNEL_KEY,
+        models.LAB_NAME_KEY,
+        models.TIME_KEY
+    ]
+}
+
 ID_KEYS = [
     models.BOOT_ID_KEY,
     models.DEFCONFIG_ID_KEY,
@@ -422,7 +466,8 @@ def get_and_add_gte_lt_keys(spec, query_args_func, valid_keys):
 
     if all([gte, isinstance(gte, types.ListType)]):
         for arg in gte:
-            _parse_and_add_gte_lt_value(arg, "$gte", valid_keys, spec, spec_get)
+            _parse_and_add_gte_lt_value(
+                arg, "$gte", valid_keys, spec, spec_get)
     elif gte and isinstance(gte, types.StringTypes):
         _parse_and_add_gte_lt_value(gte, "$gte", valid_keys, spec, spec_get)
 
@@ -740,8 +785,7 @@ def calculate_date_range(date_range, created_on=None):
             date_range = int(date_range)
         except ValueError:
             utils.LOG.error(
-                "Wrong value passed to date_range: %s", date_range
-            )
+                "Wrong value passed to date_range: %s", date_range)
             date_range = DEFAULT_DATE_RANGE
 
     date_range = abs(date_range)
@@ -771,8 +815,7 @@ def get_query_fields(query_args_func):
     """
     fields = None
     y_fields, n_fields = map(
-        query_args_func, [models.FIELD_KEY, models.NOT_FIELD_KEY]
-    )
+        query_args_func, [models.FIELD_KEY, models.NOT_FIELD_KEY])
 
     if y_fields and not n_fields:
         fields = list(set(y_fields))
@@ -798,8 +841,7 @@ def get_query_sort(query_args_func):
     """
     sort = None
     sort_fields, sort_order = map(
-        query_args_func, [models.SORT_KEY, models.SORT_ORDER_KEY]
-    )
+        query_args_func, [models.SORT_KEY, models.SORT_ORDER_KEY])
 
     if sort_fields:
         if all([sort_order, isinstance(sort_order, types.ListType)]):
@@ -928,6 +970,27 @@ def valid_token_upload(token, method):
     return valid_token
 
 
+def valid_token_tests(token, method):
+    """Make sure a token is enabled for test reports.
+
+    :param token: The token object to validate.
+    :param method: The HTTP method this token is being validated for.
+    :return True or False.
+    """
+    valid_token = False
+
+    if any([token.is_admin, token.is_superuser]):
+        valid_token = True
+    elif all([method == "GET", token.is_get_token]):
+        valid_token = True
+    elif all([method == "PUT" or method == "POST", token.is_test_lab_token]):
+        valid_token = True
+    elif all([method == "DELETE", token.is_test_lab_token]):
+        valid_token = True
+
+    return valid_token
+
+
 def validate_token(token_obj, method, remote_ip, validate_func):
     """Make sure the passed token is valid.
 
@@ -974,7 +1037,8 @@ def _is_expired_token(token):
         is_expired = True
     else:
         expires_on = token.expires_on
-        if expires_on is not None and isinstance(expires_on, datetime.datetime):
+        if (expires_on is not None and
+                isinstance(expires_on, datetime.datetime)):
             if expires_on < datetime.datetime.now():
                 is_expired = True
 
