@@ -162,8 +162,7 @@ def find_and_count(collection, limit, skip, spec=None, fields=None, sort=None):
     :return The search result and the total count.
     """
     db_result = collection.find(
-        limit=limit, skip=skip, spec=spec, fields=fields, sort=sort
-    )
+        spec=spec, limit=limit, skip=skip, fields=fields, sort=sort)
     res_count = db_result.count()
 
     return db_result, res_count
