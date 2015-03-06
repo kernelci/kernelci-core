@@ -2,6 +2,7 @@
 # <variable> = required
 # Usage ./lava-report.py <option> [json]
 import argparse
+import time
 import subprocess
 import re
 import urllib2
@@ -302,11 +303,12 @@ def boot_report(args):
                 with open(os.path.join(directory, html)) as lh:
                     data = lh.read()
                 api_url = urlparse.urljoin(args.api, '/upload/%s/%s/%s/%s/%s' % (kernel_tree, kernel_version, kernel_defconfig, args.lab, html))
-                response = requests.put(api_url, headers=headers, data=data)
                 retry = True
                 while retry:
+                    response = requests.put(api_url, headers=headers, data=data)
                     if response.status_code != '500':
                         retry = False
+                        time.sleep(10)
                 print response.content
 
     if results and kernel_tree and kernel_version:
