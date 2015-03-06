@@ -5,6 +5,10 @@
     "description": "A measurement registered by a test case",
     "type": "object",
     "properties": {
+        "name": {
+            "type": "string",
+            "description": "The name given to this measurement"
+        },
         "time": {
             "type": "number",
             "description": "Epoch time when the measurement was registered",
@@ -13,11 +17,11 @@
         "unit": {
             "type": "string",
             "description": "The unit of this measurement",
-            "enum": ["string", "epoch", "second", "minute", "watt", "volt"],
+            "enum": ["string", "epoch", "time", "watt", "volt", "number", "integer"],
             "default": "string"
         },
         "measure": {
-            "type": "string",
+            "type": ["string", "number", "integer"],
             "description": "The data measured during the test case execution; the value will be interpreted based on the $unit field"
         }
     },

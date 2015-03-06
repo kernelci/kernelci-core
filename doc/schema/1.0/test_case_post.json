@@ -28,9 +28,29 @@
             "items": {"$ref": "http://api.kernelci.org/json-schema/1.0/measurement.json"},
             "additionalItems": true
         },
+        "minimum": {
+            "type": ["integer", "number"],
+            "description": "The minimum measurement registered"
+        },
+        "maximum": {
+            "type": ["integer", "number"],
+            "description": "The maximum measurement registered"
+        },
+        "samples": {
+            "type": "integer",
+            "description": "Number of registered measurements"
+        },
+        "samples_sum": {
+            "type": ["integer", "number"],
+            "description": "Sum of the registered measurements"
+        },
+        "samples_sqr_sum": {
+            "type": ["integer", "number"],
+            "description": "Sum of the square of the registered measurements"
+        },
         "parameters": {
             "type": "object",
-            "description": "Free form object to store key-value pairs describing the parameters used to run the test"
+            "description": "Free form object to store key-value pairs describing the parameters used to run the test case"
         },
         "status": {
             "type": "string",
@@ -49,7 +69,7 @@
         },
         "vcs_commit": {
             "type": "string",
-            "description": "The VCS commit value if the $uri field is a VCS URI"
+            "description": "The VCS commit value if the $definition_uri field is a VCS URI"
         },
         "attachments": {
             "type": "array",
