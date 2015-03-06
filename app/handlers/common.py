@@ -363,6 +363,20 @@ TEST_SUITE_VALID_KEYS = {
             models.VERSION_KEY
         ]
     },
+    "PUT": [
+        models.ARCHITECTURE_KEY,
+        models.BOARD_INSTANCE_KEY,
+        models.BOARD_KEY,
+        models.BOOT_ID_KEY,
+        models.DEFCONFIG_FULL_KEY,
+        models.DEFCONFIG_ID_KEY,
+        models.DEFCONFIG_KEY,
+        models.JOB_ID_KEY,
+        models.JOB_KEY,
+        models.KERNEL_KEY,
+        models.METADATA_KEY,
+        models.NAME_KEY
+    ],
     "GET": [
         models.ARCHITECTURE_KEY,
         models.BOARD_INSTANCE_KEY,
