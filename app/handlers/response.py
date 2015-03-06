@@ -50,6 +50,7 @@ class HandlerResponse(object):
         self._result = None
         self._headers = None
         self._errors = []
+        self._messages = []
 
     @property
     def status_code(self):
@@ -165,6 +166,20 @@ class HandlerResponse(object):
             else:
                 self._errors.append(value)
 
+    @property
+    def messages(self):
+        """The response messages."""
+        return self._messages
+
+    @messages.setter
+    def messages(self, value):
+        """Set the messages for this response."""
+        if value:
+            if isinstance(value, types.ListType):
+                self._messages.extend(value)
+            else:
+                self._messages.append(value)
+
     def to_dict(self):
         """Create a view of this object as a dictionary.
 
@@ -189,6 +204,9 @@ class HandlerResponse(object):
 
         if self.errors:
             dict_obj["errors"] = self.errors
+
+        if self.messages:
+            dict_obj["messages"] = self.messages
 
         return dict_obj
 
