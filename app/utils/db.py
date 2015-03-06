@@ -69,7 +69,8 @@ def find_one(collection,
 
     :param collection: The collection where to search.
     :param value: The value to search. It has to be of the appropriate type for
-    the operator in use. If using the default operator `$in`, it must be a list.
+    the operator in use. If using the default operator `$in`, it must be a
+    list.
     :param field: The field where the value should be searched. Defaults to
         `_id`.
     :param oeprator: The operator used to perform the comparison. Defaults to
