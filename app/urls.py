@@ -25,6 +25,7 @@ import handlers.lab
 import handlers.report
 import handlers.send
 import handlers.subscription
+import handlers.test_suite
 import handlers.token
 import handlers.upload
 import handlers.version
@@ -81,6 +82,11 @@ _SEND_URL = tornado.web.url(
     handlers.send.SendHandler,
     name="send"
 )
+_TEST_SUITE_URL = tornado.web.url(
+    r"/test[s]?/suite[s]?/?(?P<id>.*)",
+    handlers.test_suite.TestSuiteHandler,
+    name="test-suite"
+)
 
 APP_URLS = [
     _BATCH_URL,
@@ -95,5 +101,6 @@ APP_URLS = [
     _VERSION_URL,
     _REPORT_URL,
     _UPLOAD_URL,
-    _SEND_URL
+    _SEND_URL,
+    _TEST_SUITE_URL
 ]
