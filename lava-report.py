@@ -10,7 +10,8 @@ from utils import *
 
 log2html = 'https://git.linaro.org/people/kevin.hilman/build-scripts.git/blob_plain/HEAD:/log2html.py'
 
-device_map = {'arndale': ['exynos5250-arndale', 'exynos'],
+device_map = {'armada-370-mirabox': ['armada-370-mirabox', 'mvebu'],
+              'arndale': ['exynos5250-arndale', 'exynos'],
               'snow': ['exynos5250-snow', 'exynos'],
               'arndale-octa': ['exynos5420-arndale-octa','exynos'],
               'peach-pi': ['exynos5800-peach-pi', 'exynos'],
