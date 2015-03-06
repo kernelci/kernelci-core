@@ -20,6 +20,8 @@ import models
 import models.base as mbase
 
 
+# pylint: disable=invalid-name
+# pylint: disable=too-many-instance-attributes
 class TestSuiteDocument(mbase.BaseDocument):
     """Model for a test suite document.
 
