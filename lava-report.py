@@ -303,6 +303,10 @@ def boot_report(args):
                     data = lh.read()
                 api_url = urlparse.urljoin(args.api, '/upload/%s/%s/%s/%s/%s' % (kernel_tree, kernel_version, kernel_defconfig, args.lab, html))
                 response = requests.put(api_url, headers=headers, data=data)
+                retry = True
+                while retry:
+                    if response.status_code != '500':
+                        retry = False
                 print response.content
 
     if results and kernel_tree and kernel_version:
