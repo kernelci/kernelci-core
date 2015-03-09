@@ -70,21 +70,21 @@ class TestSuiteHandler(hbase.BaseHandler):
 
             if ret_val == 201:
                 response.status_code = ret_val
+                response.result = {models.ID_KEY: doc_id}
                 response.reason = (
                     "Test suite '%s' created with ID: %s" %
                     (test_suite.name, doc_id))
 
+                # TODO: async import of test sets and test cases
                 if all([test_set, isinstance(test_set, types.ListType)]):
                     response.status_code = 202
                     response.messages = (
                         "Associated test sets will be parsed and imported")
-                    # TODO: import async the test sets.
 
                 if all([test_case, isinstance(test_case, types.ListType)]):
                     response.status_code = 202
                     response.messages = (
                         "Associated test cases will be parsed and imported")
-                    # TODO: import async the test cases.
             else:
                 response.status_code = 500
                 response.reason = (
