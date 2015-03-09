@@ -34,7 +34,8 @@ class TestBatchHandler(
         self.mongodb_client = mongomock.Connection()
         super(TestBatchHandler, self).setUp()
 
-        patched_find_token = mock.patch("handlers.base.BaseHandler._find_token")
+        patched_find_token = mock.patch(
+            "handlers.base.BaseHandler._find_token")
         self.find_token = patched_find_token.start()
         self.find_token.return_value = "token"
 
