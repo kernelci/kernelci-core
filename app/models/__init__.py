@@ -26,6 +26,7 @@ AGGREGATE_KEY = "aggregate"
 ARCHITECTURE_KEY = "arch"
 ARM64_ARCHITECTURE_KEY = "arm64"
 ARM_ARCHITECTURE_KEY = "arm"
+ATTACHMENTS_KEY = "attachments"
 BOARD_INSTANCE_KEY = "board_instance"
 BOARD_KEY = "board"
 BOOT_ID_KEY = "boot_id"
@@ -86,6 +87,7 @@ KCONFIG_FRAGMENTS_KEY = "kconfig_fragments"
 KERNEL_CONFIG_KEY = "kernel_config"
 KERNEL_IMAGE_KEY = "kernel_image"
 KERNEL_KEY = "kernel"
+KVM_GUEST_KEY = "kvm_guest"
 LAB_ID_KEY = "lab_id"
 LAB_NAME_KEY = "lab_name"
 LIMIT_KEY = "limit"
@@ -93,7 +95,10 @@ LOAD_ADDR_KEY = "load_addr"
 LT_KEY = "lt"
 MACH_KEY = "mach"
 MANDATORY_KEYS = "mandatory"
+MAXIMUM_KEY = "maximum"
+MEASUREMENTS_KEY = "measurements"
 METADATA_KEY = "metadata"
+MINIMUM_KEY = "minimum"
 MODULES_DIR_KEY = "modules_dir"
 MODULES_KEY = "modules"
 NAME_KEY = "name"
@@ -105,6 +110,9 @@ QEMU_COMMAND_KEY = "qemu_command"
 QEMU_KEY = "qemu"
 RESULT_KEY = "result"
 RETRIES_KEY = "retries"
+SAMPLES_KEY = "samples"
+SAMPLES_SQUARE_SUM_KEY = "samples_sqr_sum"
+SAMPLES_SUM_KEY = "samples_sum"
 SKIP_KEY = "skip"
 SORT_KEY = "sort"
 SORT_ORDER_KEY = "sort_order"
@@ -159,6 +167,7 @@ PASS_STATUS = "PASS"
 SENT_STATUS = "SENT"
 UNKNOWN_STATUS = "UNKNOWN"
 UNTRIED_STATUS = "UNTRIED"
+SKIP_STATUS = "SKIP"
 
 # Build file names.
 DONE_FILE = ".done"
@@ -245,6 +254,14 @@ VALID_JOB_STATUS = [
     FAIL_STATUS,
     PASS_STATUS,
     UNKNOWN_STATUS,
+]
+
+# Valid test case status.
+VALID_TEST_CASE_STATUS = [
+    ERROR_STATUS,
+    FAIL_STATUS,
+    PASS_STATUS,
+    SKIP_STATUS
 ]
 
 # The valid collections for the bisect handler.
