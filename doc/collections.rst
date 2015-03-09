@@ -21,3 +21,4 @@ Resources
     collection-token
     collection-upload
     collection-version
+    collection-test
