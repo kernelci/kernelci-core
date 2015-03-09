@@ -394,6 +394,32 @@ TEST_SUITE_VALID_KEYS = {
     ]
 }
 
+TEST_SET_VALID_KEYS = {
+    "POST": {
+        models.MANDATORY_KEYS: [
+            models.NAME_KEY,
+            models.TEST_SUITE_ID_KEY,
+            models.VERSION_KEY
+        ],
+        models.ACCEPTED_KEYS: [
+            models.DEFINITION_URI_KEY,
+            models.METADATA_KEY,
+            models.NAME_KEY,
+            models.PARAMETERS_KEY,
+            models.TEST_CASE_KEY,
+            models.TEST_SUITE_ID_KEY,
+            models.TIME_KEY,
+            models.VCS_COMMIT_KEY,
+            models.VERSION_KEY,
+        ]
+    },
+    "GET": [
+        models.NAME_KEY,
+        models.TEST_SUITE_ID_KEY,
+        models.TIME_KEY
+    ]
+}
+
 ID_KEYS = [
     models.BOOT_ID_KEY,
     models.DEFCONFIG_ID_KEY,
