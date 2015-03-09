@@ -28,18 +28,18 @@ class TestSuiteDocument(mbase.BaseDocument):
     A test suite is a document that can store test cases and/or test sets ran.
     """
 
-    def __init__(self, name, lab_name, version, defconfig_id):
+    def __init__(self, name, lab_name, defconfig_id, version):
         """
 
         :param name: The name given to this test suite.
         :type name: string
         :param lab_name: The name of the lab running this test suite.
         :type lab_name: string
-        :param version: The version of the JSON schema of this test suite.
-        :type version: string
         :param defconfig_id: The ID of the defconfig associated with this
         test suite.
         :type defconfig_id: string
+        :param version: The version of the JSON schema of this test suite.
+        :type version: string
         """
         self._created_on = None
         self._id = None
@@ -165,7 +165,7 @@ class TestSuiteDocument(mbase.BaseDocument):
                 version = doc_pop(models.VERSION_KEY)
 
                 test_suite = TestSuiteDocument(
-                    name, lab_name, version, defconfig_id)
+                    name, lab_name, defconfig_id, version)
 
                 test_suite.id = suite_id
 

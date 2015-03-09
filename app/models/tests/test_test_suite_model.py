@@ -21,12 +21,12 @@ class TestTestSuiteModel(unittest.TestCase):
 
     def test_suite_doc_valid_instance(self):
         test_suite = mtsuite.TestSuiteDocument(
-            "name", "lab_name", "1.0", "defconfig_id")
+            "name", "lab_name", "defconfig_id", "1.0")
         self.assertIsInstance(test_suite, mbase.BaseDocument)
 
     def test_suite_doc_to_dict(self):
         test_suite = mtsuite.TestSuiteDocument(
-            "name", "lab_name", "1.0", "defconfig_id")
+            "name", "lab_name", "defconfig_id", "1.0")
 
         test_suite.arch = "arm"
         test_suite.board = "board"
@@ -34,14 +34,17 @@ class TestTestSuiteModel(unittest.TestCase):
         test_suite.boot_id = "boot_id"
         test_suite.created_on = "now"
         test_suite.defconfig = "defconfig"
+        test_suite.defconfig_id = "another_defconfig_id"
         test_suite.id = "id"
         test_suite.job = "job"
         test_suite.job_id = "job_id"
         test_suite.kernel = "kernel"
+        test_suite.lab_name = "another_lab"
         test_suite.metadata = {"foo": "bar"}
         test_suite.test_case = ["foo"]
         test_suite.test_set = ["bar"]
         test_suite.time = 10
+        test_suite.version = "1.1"
 
         expected = {
             "_id": "id",
@@ -52,17 +55,17 @@ class TestTestSuiteModel(unittest.TestCase):
             "created_on": "now",
             "defconfig": "defconfig",
             "defconfig_full": "defconfig",
-            "defconfig_id": "defconfig_id",
+            "defconfig_id": "another_defconfig_id",
             "job": "job",
             "job_id": "job_id",
             "kernel": "kernel",
-            "lab_name": "lab_name",
+            "lab_name": "another_lab",
             "metadata": {"foo": "bar"},
             "name": "name",
             "test_case": ["foo"],
             "test_set": ["bar"],
             "time": 10,
-            "version": "1.0",
+            "version": "1.1",
         }
 
         self.assertDictEqual(expected, test_suite.to_dict())
