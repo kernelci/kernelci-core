@@ -66,14 +66,13 @@ class TestSuiteHandler(hbase.BaseHandler):
             test_suite = mtsuite.TestSuiteDocument.from_json(test_suite_json)
             test_suite.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
 
-            ret_val, doc_id = utils.db.save(self.db, test_suite)
+            ret_val, doc_id = utils.db.save(
+                self.db, test_suite, manipulate=True)
+            response.status_code = ret_val
 
             if ret_val == 201:
-                response.status_code = ret_val
                 response.result = {models.ID_KEY: doc_id}
-                response.reason = (
-                    "Test suite '%s' created with ID: %s" %
-                    (test_suite.name, doc_id))
+                response.reason = "Test suite '%s' created" % test_suite.name
 
                 # TODO: async import of test sets and test cases
                 if all([test_set, isinstance(test_set, types.ListType)]):
@@ -86,9 +85,8 @@ class TestSuiteHandler(hbase.BaseHandler):
                     response.messages = (
                         "Associated test cases will be parsed and imported")
             else:
-                response.status_code = 500
                 response.reason = (
-                    "Error saving test set '%s'" % test_suite.name)
+                    "Error saving test suite '%s'" % test_suite.name)
 
         return response
 
@@ -105,8 +103,7 @@ class TestSuiteHandler(hbase.BaseHandler):
                         json_obj = json.loads(self.request.body.decode("utf8"))
 
                         valid_json, j_reason = validator.is_valid_json(
-                            json_obj, self._valid_keys("PUT")
-                        )
+                            json_obj, self._valid_keys("PUT"))
                         if valid_json:
                             kwargs["json_obj"] = json_obj
                             kwargs["db_options"] = self.settings["dboptions"]
@@ -116,18 +113,16 @@ class TestSuiteHandler(hbase.BaseHandler):
                             response = hresponse.HandlerResponse(400)
                             if j_reason:
                                 response.reason = (
-                                    "Provided JSON is not valid: %s" % j_reason
-                                )
+                                    "Provided JSON is not valid: %s" %
+                                    j_reason)
                             else:
                                 response.reason = "Provided JSON is not valid"
-                            response.result = None
                     except ValueError, ex:
                         self.log.exception(ex)
                         error = "No JSON data found in the PUT request"
                         self.log.error(error)
                         response = hresponse.HandlerResponse(422)
                         response.reason = error
-                        response.result = None
                 else:
                     response = hresponse.HandlerResponse(valid_request)
                     response.reason = (
@@ -137,7 +132,6 @@ class TestSuiteHandler(hbase.BaseHandler):
                             "Use %s as the content type" % self.content_type
                         )
                     )
-                    response.result = None
             else:
                 response = hresponse.HandlerResponse(400)
                 response.reason = "No ID specified"
