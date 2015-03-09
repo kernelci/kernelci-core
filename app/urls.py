@@ -24,7 +24,6 @@ import handlers.job
 import handlers.lab
 import handlers.report
 import handlers.send
-import handlers.subscription
 import handlers.test_suite
 import handlers.token
 import handlers.upload
@@ -38,11 +37,6 @@ _DEFCONF_URL = tornado.web.url(
     r"/defconfig[s]?/?(?P<id>.*)",
     handlers.defconf.DefConfHandler,
     name="defconf"
-)
-_SUBSCRIPTION_URL = tornado.web.url(
-    r"/subscription[s]?/?(?P<id>.*)",
-    handlers.subscription.SubscriptionHandler,
-    name="subscription",
 )
 _BOOT_URL = tornado.web.url(
     r"/boot[s]?/?(?P<id>.*)", handlers.boot.BootHandler, name="boot"
@@ -96,7 +90,6 @@ APP_URLS = [
     _DEFCONF_URL,
     _JOB_URL,
     _LAB_URL,
-    _SUBSCRIPTION_URL,
     _TOKEN_URL,
     _VERSION_URL,
     _REPORT_URL,

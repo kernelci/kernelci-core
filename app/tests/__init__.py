@@ -41,7 +41,6 @@ def test_modules():
         "models.tests.test_job_model",
         "models.tests.test_lab_model",
         "models.tests.test_report_model",
-        "models.tests.test_subscription_model",
         "models.tests.test_test_suite_model",
         "models.tests.test_token_model",
         "utils.batch.tests.test_batch_common",
