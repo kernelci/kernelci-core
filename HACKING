@@ -25,8 +25,8 @@ If you already have a file with all the necessary secrets variable:
 This will deploy the kernel-ci backend code into `/srv/kernel-ci-backend/`,
 intall all dependencies and set up an nginx host called `kernel-ci-backend`.
 
-If all you need is accessing the backend and its APIs through the local connection,
-skip all the nginx related tasks:
+If all you need is accessing the backend and its APIs through localhost, skip
+all the nginx related tasks:
 
   ansible-playbook -i hosts site.yml -l local -c local -K --skip-tags=web-server
 
