@@ -349,6 +349,7 @@ TEST_SUITE_VALID_KEYS = {
             models.BOARD_INSTANCE_KEY,
             models.BOARD_KEY,
             models.BOOT_ID_KEY,
+            models.CREATED_KEY,
             models.DEFCONFIG_FULL_KEY,
             models.DEFCONFIG_ID_KEY,
             models.DEFCONFIG_KEY,
@@ -368,6 +369,7 @@ TEST_SUITE_VALID_KEYS = {
         models.BOARD_INSTANCE_KEY,
         models.BOARD_KEY,
         models.BOOT_ID_KEY,
+        models.CREATED_KEY,
         models.DEFCONFIG_FULL_KEY,
         models.DEFCONFIG_ID_KEY,
         models.DEFCONFIG_KEY,
@@ -375,7 +377,8 @@ TEST_SUITE_VALID_KEYS = {
         models.JOB_KEY,
         models.KERNEL_KEY,
         models.METADATA_KEY,
-        models.NAME_KEY
+        models.NAME_KEY,
+        models.VERSION_KEY
     ],
     "GET": [
         models.ARCHITECTURE_KEY,
@@ -390,7 +393,8 @@ TEST_SUITE_VALID_KEYS = {
         models.JOB_KEY,
         models.KERNEL_KEY,
         models.LAB_NAME_KEY,
-        models.TIME_KEY
+        models.TIME_KEY,
+        models.VERSION_KEY
     ]
 }
 
@@ -402,6 +406,7 @@ TEST_SET_VALID_KEYS = {
             models.VERSION_KEY
         ],
         models.ACCEPTED_KEYS: [
+            models.CREATED_KEY,
             models.DEFINITION_URI_KEY,
             models.METADATA_KEY,
             models.NAME_KEY,
@@ -414,16 +419,93 @@ TEST_SET_VALID_KEYS = {
         ]
     },
     "PUT": [
-        models.NAME_KEY,
-        models.PARAMETERS_KEY,
-        models.TEST_SUITE_ID_KEY,
-        models.TIME_KEY
-    ],
-    "GET": [
+        models.CREATED_KEY,
         models.NAME_KEY,
         models.PARAMETERS_KEY,
         models.TEST_SUITE_ID_KEY,
         models.TIME_KEY,
+        models.VERSION_KEY
+    ],
+    "GET": [
+        models.CREATED_KEY,
+        models.NAME_KEY,
+        models.PARAMETERS_KEY,
+        models.TEST_SUITE_ID_KEY,
+        models.TIME_KEY,
+        models.VERSION_KEY
+    ]
+}
+
+TEST_CASE_VALID_KEYS = {
+    "POST": {
+        models.MANDATORY_KEYS: [
+            models.NAME_KEY,
+            models.TEST_SUITE_ID_KEY,
+            models.VERSION_KEY
+        ],
+        models.ACCEPTED_KEYS: [
+            models.ATTACHMENTS_KEY,
+            models.CREATED_KEY,
+            models.DEFINITION_URI_KEY,
+            models.KVM_GUEST_KEY,
+            models.MAXIMUM_KEY,
+            models.MEASUREMENTS_KEY,
+            models.METADATA_KEY,
+            models.MINIMUM_KEY,
+            models.NAME_KEY,
+            models.PARAMETERS_KEY,
+            models.SAMPLES_KEY,
+            models.SAMPLES_SQUARE_SUM_KEY,
+            models.SAMPLES_SUM_KEY,
+            models.STATUS_KEY,
+            models.TEST_SET_ID_KEY,
+            models.TEST_SUITE_ID_KEY,
+            models.TIME_KEY,
+            models.VCS_COMMIT_KEY,
+            models.VERSION_KEY
+        ]
+    },
+    "PUT": [
+        models.ATTACHMENTS_KEY,
+        models.CREATED_KEY,
+        models.DEFINITION_URI_KEY,
+        models.KVM_GUEST_KEY,
+        models.MAXIMUM_KEY,
+        models.MEASUREMENTS_KEY,
+        models.METADATA_KEY,
+        models.MINIMUM_KEY,
+        models.NAME_KEY,
+        models.PARAMETERS_KEY,
+        models.SAMPLES_KEY,
+        models.SAMPLES_SQUARE_SUM_KEY,
+        models.SAMPLES_SUM_KEY,
+        models.STATUS_KEY,
+        models.TEST_SET_ID_KEY,
+        models.TEST_SUITE_ID_KEY,
+        models.TIME_KEY,
+        models.VCS_COMMIT_KEY,
+        models.VERSION_KEY
+    ],
+    "GET": [
+        models.ATTACHMENTS_KEY,
+        models.CREATED_KEY,
+        models.DEFINITION_URI_KEY,
+        models.KVM_GUEST_KEY,
+        models.MAXIMUM_KEY,
+        models.MEASUREMENTS_KEY,
+        models.METADATA_KEY,
+        models.MINIMUM_KEY,
+        models.NAME_KEY,
+        models.PARAMETERS_KEY,
+        models.SAMPLES_KEY,
+        models.SAMPLES_SQUARE_SUM_KEY,
+        models.SAMPLES_SUM_KEY,
+        models.STATUS_KEY,
+        models.TEST_SET_ID_KEY,
+        models.TEST_SUITE_ID_KEY,
+        models.TIME_KEY,
+        models.VCS_COMMIT_KEY,
+        models.VERSION_KEY
     ]
 }
 
