@@ -17,17 +17,16 @@ import bson
 import datetime
 import types
 
-
-import handlers.base as hbase
 import handlers.common as hcommon
 import handlers.response as hresponse
+import handlers.test_base as htbase
 import models
 import models.test_set as mtset
 import utils.db
 
 
 # pylint: disable=too-many-public-methods
-class TestSetHandler(hbase.BaseHandler):
+class TestSetHandler(htbase.TestBaseHandler):
     """The test set request handler."""
 
     def __init__(self, application, request, **kwargs):
@@ -35,15 +34,11 @@ class TestSetHandler(hbase.BaseHandler):
 
     @property
     def collection(self):
-        return models.TEST_SET_COLLECTION
+        return self.db[models.TEST_SET_COLLECTION]
 
     @staticmethod
     def _valid_keys(method):
         return hcommon.TEST_SET_VALID_KEYS.get(method, None)
-
-    @staticmethod
-    def _token_validation_func():
-        return hcommon.valid_token_tests
 
     def _post(self, *args, **kwargs):
         response = hresponse.HandlerResponse()
@@ -108,4 +103,30 @@ class TestSetHandler(hbase.BaseHandler):
             response.status_code = 400
             response.reason = "Wrong ID specified"
 
+        return response
+
+    def _put(self, *args, **kwargs):
+        response = hresponse.HandlerResponse()
+        update_doc = kwargs.get("json_obj")
+        doc_id = kwargs.get("id")
+
+        try:
+            set_id = bson.objectid.ObjectId(doc_id)
+            if utils.db.find_one2(self.collection, set_id):
+                update_val = utils.db.update(
+                    self.collection, set_id, update_doc)
+
+                if update_val == 200:
+                    response.reason = "Resource '%s' updated" % doc_id
+                else:
+                    response.status_code = update_val
+                    response.reason = "Error updating resource '%s'" % doc_id
+            else:
+                response.status_code = 404
+                response.reason = self._get_status_message(404)
+        except bson.errors.InvalidId, ex:
+            self.log.exception(ex)
+            self.log.error("Invalid ID specified: %s", doc_id)
+            response.status_code = 400
+            response.reason = "Wrong ID specified"
         return response
