@@ -52,23 +52,35 @@ class TestSetHandler(htbase.TestBaseHandler):
             set_pop = test_set_json.pop
             test_case = set_pop(models.TEST_CASE_KEY, [])
 
-            test_set = mtset.TestSetDocument.from_json(test_set_json)
-            test_set.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
+            try:
+                test_set = mtset.TestSetDocument.from_json(test_set_json)
+                test_set.created_on = datetime.datetime.now(
+                    tz=bson.tz_util.utc)
 
-            ret_val, doc_id = utils.db.save(self.db, test_set, manipulate=True)
-            response.status_code = ret_val
+                ret_val, doc_id = utils.db.save(
+                    self.db, test_set, manipulate=True)
+                response.status_code = ret_val
 
-            if ret_val == 201:
-                response.result = {models.ID_KEY: doc_id}
-                response.reason = "Test set '%s' created" % test_set.name
+                if ret_val == 201:
+                    response.result = {models.ID_KEY: doc_id}
+                    response.reason = "Test set '%s' created" % test_set.name
 
-                # TODO: async import of test cases.
-                if all([test_case, isinstance(test_case, types.ListType)]):
-                    response.status_code = 202
-                    response.messages = (
-                        "Associated test cases will be parsed and imported")
-            else:
-                response.reason = "Error saving test set '%s'" % test_set.name
+                    # TODO: async import of test cases.
+                    if all([test_case, isinstance(test_case, types.ListType)]):
+                        response.status_code = 202
+                        response.messages = (
+                            "Associated test cases will be parsed and "
+                            "imported")
+                else:
+                    response.reason = (
+                        "Error saving test set '%s'" % test_set.name)
+            except ValueError, ex:
+                error = "Wrong field value in JSON data"
+                self.log.error(error)
+                self.log.exception(ex)
+                response.status_code = 400
+                response.reason = error
+                response.errors = ex.message
 
         return response
 
