@@ -420,11 +420,7 @@ def create_jobs(base_url, kernel, platform_list, target, targets):
                 print 'LPAE is not supported on %s. Skipping JSON creation' % device_type
             elif defconfig in device['defconfig_blacklist']:
                 print '%s has been blacklisted. Skipping JSON creation' % defconfig
-            elif len(device['kernel_blacklist']) > 0:
-                for kversion in device['kernel_blacklist']:
-                    if kernel_version in kversion:
-                        print '%s has been blacklisted. Skipping JSON creation' % kernel_version
-                        break
+            elif any([x for x in device['kernel_blacklist'] if x in kernel_version]):
                 print '%s has been blacklisted. Skipping JSON creation' % kernel_version
             elif target is not None and target != device_type:
                 print '%s device type has been omitted. Skipping JSON creation.' % device_type
