@@ -190,7 +190,7 @@ def save(database, document, manipulate=False):
     :type manipulate: bool
     :return A tuple: first element is the operation code (201 if the save has
     success, 500 in case of an error), second element is the mongodb created
-    `_id` value if manipulate is True or None.
+    `_id` value if manipulate is True, or None.
     """
     ret_value = 201
     doc_id = None
