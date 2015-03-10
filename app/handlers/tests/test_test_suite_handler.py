@@ -218,6 +218,24 @@ class TestTestSuiteHandler(
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
+    def test_post_correct_with_wrong_test_set(self):
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+        body = json.dumps(
+            dict(
+                name="suite",
+                version="1.0",
+                lab_name="lab",
+                defconfig_id="defconfig", test_set={"foo": "bar"}
+            )
+        )
+
+        response = self.fetch(
+            "/test/suite", method="POST", headers=headers, body=body)
+
+        self.assertEqual(response.code, 201)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
     def test_post_correct_with_test_case(self):
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         body = json.dumps(
@@ -233,6 +251,24 @@ class TestTestSuiteHandler(
             "/test/suite", method="POST", headers=headers, body=body)
 
         self.assertEqual(response.code, 202)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    def test_post_correct_with_wrong_test_case(self):
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+        body = json.dumps(
+            dict(
+                name="suite",
+                version="1.0",
+                lab_name="lab",
+                defconfig_id="defconfig", test_case={"foo": "bar"}
+            )
+        )
+
+        response = self.fetch(
+            "/test/suite", method="POST", headers=headers, body=body)
+
+        self.assertEqual(response.code, 201)
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 

@@ -65,15 +65,25 @@ class TestSuiteHandler(htbase.TestBaseHandler):
                 response.reason = "Test suite '%s' created" % test_suite.name
 
                 # TODO: async import of test sets and test cases
-                if all([test_set, isinstance(test_set, types.ListType)]):
-                    response.status_code = 202
-                    response.messages = (
-                        "Associated test sets will be parsed and imported")
+                if test_set:
+                    if isinstance(test_set, types.ListType):
+                        response.status_code = 202
+                        response.messages = (
+                            "Test sets will be parsed and imported")
+                    else:
+                        response.errors = (
+                            "Test sets are not wrapped in a list; "
+                            "they will not be imported")
 
-                if all([test_case, isinstance(test_case, types.ListType)]):
-                    response.status_code = 202
-                    response.messages = (
-                        "Associated test cases will be parsed and imported")
+                if test_case:
+                    if isinstance(test_case, types.ListType):
+                        response.status_code = 202
+                        response.messages = (
+                            "Test cases will be parsed and imported")
+                    else:
+                        response.errors = (
+                            "Test cases are not wrapped in a "
+                            "list; they will not be imported")
             else:
                 response.reason = (
                     "Error saving test suite '%s'" % test_suite.name)
