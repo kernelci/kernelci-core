@@ -1,7 +1,7 @@
 install_base: /srv
 nickname: kernel-ci-backend
 init_service: kernelci-backend
-hostname: backend.kernel-ci.linaro.org
+hostname: kernel-ci-backend
 web_user: www-data
 app_user: www-data
 web_root: /usr/share/nginx/html

@@ -5,6 +5,7 @@
   tags:
     - install
     - deps
+    - web-server
 
 - name: Install nginx
   apt:  pkg={{ item }}
