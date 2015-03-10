@@ -308,3 +308,127 @@ class TestTestSetHandler(
         self.assertEqual(response.code, 200)
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    def test_put_no_token(self):
+        response = self.fetch("/test/set/id", method="PUT", body="")
+
+        self.assertEqual(response.code, 403)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    def test_put_wrong_token(self):
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+        self.validate_token.return_value = False
+
+        response = self.fetch(
+            "/test/set/id", method="PUT", headers=headers, body="")
+
+        self.assertEqual(response.code, 403)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    def test_put_wrong_content_type(self):
+        headers = {"Authorization": "foo"}
+
+        response = self.fetch(
+            "/test/set/id", method="PUT", body="", headers=headers)
+
+        self.assertEqual(response.code, 415)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    def test_put_no_id(self):
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+
+        response = self.fetch(
+            "/test/set/", method="PUT", headers=headers, body=""
+        )
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    def test_put_no_valid_json(self):
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+
+        body = json.dumps(dict(foo="foo", bar="bar"))
+
+        response = self.fetch(
+            "/test/set/id", method="PUT", body=body, headers=headers)
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    def test_put_no_json_data(self):
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+
+        response = self.fetch(
+            "/test/set/id", method="PUT", body="", headers=headers)
+
+        self.assertEqual(response.code, 422)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    def test_put_no_valid_id(self):
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+        body = json.dumps(dict(name="set", parameters={"foo": "bar"}))
+
+        response = self.fetch(
+            "/test/set/wrong-id", method="PUT", body=body, headers=headers)
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    @mock.patch("utils.db.find_one2")
+    @mock.patch("bson.objectid.ObjectId")
+    def test_put_id_not_found(self, mock_id, mock_find):
+        mock_id.return_value = "fake-id"
+        mock_find.return_value = None
+
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+        body = json.dumps(dict(name="set", parameters={"foo": "bar"}))
+
+        response = self.fetch(
+            "/test/set/wrong-id", method="PUT", body=body, headers=headers)
+
+        self.assertEqual(response.code, 404)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    @mock.patch("utils.db.update")
+    @mock.patch("utils.db.find_one2")
+    @mock.patch("bson.objectid.ObjectId")
+    def test_put_valid_no_error(self, mock_id, mock_find, mock_update):
+        mock_id.return_value = "fake-id"
+        mock_find.return_value = {"_id": "fake-id", "name": "fake"}
+        mock_update.return_value = 200
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+
+        body = json.dumps(dict(name="set", parameters={"foo": "bar"}))
+
+        response = self.fetch(
+            "/test/set/fake-id", method="PUT", body=body, headers=headers)
+
+        self.assertEqual(response.code, 200)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    @mock.patch("utils.db.update")
+    @mock.patch("utils.db.find_one2")
+    @mock.patch("bson.objectid.ObjectId")
+    def test_put_valid_with_error(self, mock_id, mock_find, mock_update):
+        mock_id.return_value = "fake-id"
+        mock_find.return_value = {"_id": "fake-id", "name": "bar"}
+        mock_update.return_value = 500
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+
+        body = json.dumps(dict(name="set", parameters={"foo": "bar"}))
+
+        response = self.fetch(
+            "/test/set/fake-id", method="PUT", body=body, headers=headers)
+
+        self.assertEqual(response.code, 500)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
