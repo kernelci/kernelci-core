@@ -119,7 +119,7 @@ class TestCaseDocument(mbase.BaseDocument):
             value = {}
         if not isinstance(value, types.DictionaryType):
             raise ValueError(
-                "The parameters need to be passed as a dictionary")
+                "The parameters must be passed as a dictionary")
         self._parameters = value
 
     @property
@@ -151,7 +151,7 @@ class TestCaseDocument(mbase.BaseDocument):
         if not value:
             value = []
         if not isinstance(value, types.ListType):
-            raise ValueError("Attachments need to be passed as a list")
+            raise ValueError("Attachments must be passed as a list")
         self._attachments = value
 
     def add_attachment(self, attachment):
@@ -168,7 +168,7 @@ class TestCaseDocument(mbase.BaseDocument):
             self._attachments.append(attachment)
         else:
             raise ValueError(
-                "Attachment should be non-empty dictionary-like object")
+                "Attachment must be non-empty dictionary-like object")
 
     @property
     def measurements(self):
@@ -185,7 +185,7 @@ class TestCaseDocument(mbase.BaseDocument):
         if not value:
             value = []
         if not isinstance(value, types.ListType):
-            raise ValueError("Measurements need to be passed as a list")
+            raise ValueError("Measurements must be passed as a list")
         self._measurements = value
 
     def add_measurement(self, measurement):
@@ -203,7 +203,7 @@ class TestCaseDocument(mbase.BaseDocument):
             self._measurements.append(measurement)
         else:
             raise ValueError(
-                "Measurement should be non-empty dictionary-like object")
+                "Measurement must be non-empty dictionary-like object")
 
     @property
     def status(self):

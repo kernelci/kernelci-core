@@ -105,7 +105,7 @@ class TestSetDocument(mbase.BaseDocument):
             value = []
         if not isinstance(value, types.ListType):
             raise ValueError(
-                "The associated test cases need to be passed as a list")
+                "The associated test cases must be passed as a list")
         self._test_case = value
 
     @property
@@ -124,7 +124,7 @@ class TestSetDocument(mbase.BaseDocument):
             value = {}
         if not isinstance(value, types.DictionaryType):
             raise ValueError(
-                "The parameters need to be passed as a dictionary")
+                "The parameters must be passed as a dictionary")
         self._parameters = value
 
     @property
