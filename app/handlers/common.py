@@ -413,10 +413,17 @@ TEST_SET_VALID_KEYS = {
             models.VERSION_KEY,
         ]
     },
-    "GET": [
+    "PUT": [
         models.NAME_KEY,
+        models.PARAMETERS_KEY,
         models.TEST_SUITE_ID_KEY,
         models.TIME_KEY
+    ],
+    "GET": [
+        models.NAME_KEY,
+        models.PARAMETERS_KEY,
+        models.TEST_SUITE_ID_KEY,
+        models.TIME_KEY,
     ]
 }
 
