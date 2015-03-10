@@ -31,20 +31,6 @@ import utils.report.build
 import utils.report.common
 
 
-@taskc.app.task(name='send-emails', ignore_result=True)
-def send_emails(job_id):
-    """Just a wrapper around the real `send` function.
-
-    This is used to provide a Celery-task access to the underlying function.
-
-    :param job_id: The job ID to trigger notifications for.
-    """
-    # send(job_id)
-    # XXX: This has been removed since the subscription handler is not used
-    # right now and will be completely reworked in the future.
-    pass
-
-
 @taskc.app.task(name="import-job")
 def import_job(json_obj, db_options):
     """Just a wrapper around the real import function.
@@ -165,7 +151,8 @@ def defconfig_bisect_compared_to(doc_id, compare_to, db_options, fields=None):
     acks_late=True,
     track_started=True,
     ignore_result=False)
-def send_boot_report(job, kernel, lab_name, to_addrs, db_options, mail_options):
+def send_boot_report(job,
+                     kernel, lab_name, to_addrs, db_options, mail_options):
     """Create the boot report email and send it.
 
     :param job: The job name.
