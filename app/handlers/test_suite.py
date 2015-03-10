@@ -13,26 +13,20 @@
 
 """The RequestHandler for /test/suite URLs."""
 
-try:
-    import simplejson as json
-except ImportError:
-    import json
-
 import bson
 import datetime
 import types
 
-import handlers.base as hbase
 import handlers.common as hcommon
 import handlers.response as hresponse
+import handlers.test_base as htbase
 import models
 import models.test_suite as mtsuite
 import utils.db
-import utils.validator as validator
 
 
 # pylint: disable=too-many-public-methods
-class TestSuiteHandler(hbase.BaseHandler):
+class TestSuiteHandler(htbase.TestBaseHandler):
     """The test suite request handler."""
 
     def __init__(self, application, request, **kwargs):
@@ -40,15 +34,11 @@ class TestSuiteHandler(hbase.BaseHandler):
 
     @property
     def collection(self):
-        return models.TEST_SUITE_COLLECTION
+        return self.db[models.TEST_SUITE_COLLECTION]
 
     @staticmethod
     def _valid_keys(method):
         return hcommon.TEST_SUITE_VALID_KEYS.get(method, None)
-
-    @staticmethod
-    def _token_validation_func():
-        return hcommon.valid_token_tests
 
     def _post(self, *args, **kwargs):
         response = hresponse.HandlerResponse()
@@ -90,57 +80,6 @@ class TestSuiteHandler(hbase.BaseHandler):
 
         return response
 
-    def execute_put(self, *args, **kwargs):
-        """Execute the PUT pre-operations."""
-        response = None
-
-        if self.validate_req_token("PUT"):
-            if kwargs and kwargs.get("id", None):
-                valid_request = self._valid_post_request()
-
-                if valid_request == 200:
-                    try:
-                        json_obj = json.loads(self.request.body.decode("utf8"))
-
-                        valid_json, j_reason = validator.is_valid_json(
-                            json_obj, self._valid_keys("PUT"))
-                        if valid_json:
-                            kwargs["json_obj"] = json_obj
-                            kwargs["db_options"] = self.settings["dboptions"]
-                            kwargs["reason"] = j_reason
-                            response = self._put(*args, **kwargs)
-                        else:
-                            response = hresponse.HandlerResponse(400)
-                            if j_reason:
-                                response.reason = (
-                                    "Provided JSON is not valid: %s" %
-                                    j_reason)
-                            else:
-                                response.reason = "Provided JSON is not valid"
-                    except ValueError, ex:
-                        self.log.exception(ex)
-                        error = "No JSON data found in the PUT request"
-                        self.log.error(error)
-                        response = hresponse.HandlerResponse(422)
-                        response.reason = error
-                else:
-                    response = hresponse.HandlerResponse(valid_request)
-                    response.reason = (
-                        "%s: %s" %
-                        (
-                            self._get_status_message(valid_request),
-                            "Use %s as the content type" % self.content_type
-                        )
-                    )
-            else:
-                response = hresponse.HandlerResponse(400)
-                response.reason = "No ID specified"
-        else:
-            response = hresponse.HandlerResponse(403)
-            response.reason = hcommon.NOT_VALID_TOKEN
-
-        return response
-
     def _put(self, *args, **kwargs):
         response = hresponse.HandlerResponse()
         update_doc = kwargs.get("json_obj")
@@ -149,6 +88,8 @@ class TestSuiteHandler(hbase.BaseHandler):
         try:
             suite_id = bson.objectid.ObjectId(doc_id)
             if utils.db.find_one2(self.collection, suite_id):
+                # TODO: handle case where boot_id, job_id or defconfig_id
+                # is updated.
                 update_val = utils.db.update(
                     self.collection, suite_id, update_doc)
 
