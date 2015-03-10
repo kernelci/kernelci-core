@@ -225,6 +225,23 @@ class TestTestSetHandler(
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
+    def test_post_correct_with_wrong_test_case(self):
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+        body = json.dumps(
+            dict(
+                name="test-set",
+                test_suite_id="test-suite",
+                version="1.0", test_case={"foo": "bar"}
+            )
+        )
+
+        response = self.fetch(
+            "/test/set", method="POST", headers=headers, body=body)
+
+        self.assertEqual(response.code, 201)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
     def test_post_correct_with_params_error(self):
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         body = json.dumps(

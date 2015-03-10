@@ -65,12 +65,17 @@ class TestSetHandler(htbase.TestBaseHandler):
                     response.result = {models.ID_KEY: doc_id}
                     response.reason = "Test set '%s' created" % test_set.name
 
-                    # TODO: async import of test cases.
-                    if all([test_case, isinstance(test_case, types.ListType)]):
-                        response.status_code = 202
-                        response.messages = (
-                            "Associated test cases will be parsed and "
-                            "imported")
+                    if test_case:
+                        if isinstance(test_case, types.ListType):
+                            # TODO: async import of test cases.
+                            response.status_code = 202
+                            response.messages = (
+                                "Associated test cases will be parsed and "
+                                "imported")
+                        else:
+                            response.errors = (
+                                "Test cases are not wrapped in a "
+                                "list; they will not be imported")
                 else:
                     response.reason = (
                         "Error saving test set '%s'" % test_set.name)
