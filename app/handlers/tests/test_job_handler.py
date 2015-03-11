@@ -26,7 +26,7 @@ import handlers.app
 import urls
 
 # Default Content-Type header returned by Tornado.
-DEFAULT_CONTENT_TYPE = 'application/json; charset=UTF-8'
+DEFAULT_CONTENT_TYPE = "application/json; charset=UTF-8"
 
 
 class TestJobHandler(
@@ -50,21 +50,17 @@ class TestJobHandler(
         self.addCleanup(patched_validate_token.stop)
 
     def get_app(self):
-        dboptions = {
-            'dbpassword': "",
-            'dbuser': ""
-        }
-
+        dboptions = {"dbpassword": "", "dbuser": ""}
         mailoptions = {}
 
         settings = {
-            'dboptions': dboptions,
-            'mailoptions': mailoptions,
-            'senddelay': 5,
-            'client': self.mongodb_client,
-            'executor': concurrent.futures.ThreadPoolExecutor(max_workers=2),
-            'default_handler_class': handlers.app.AppHandler,
-            'debug': False
+            "dboptions": dboptions,
+            "mailoptions": mailoptions,
+            "senddelay": 5,
+            "client": self.mongodb_client,
+            "executor": concurrent.futures.ThreadPoolExecutor(max_workers=2),
+            "default_handler_class": handlers.app.AppHandler,
+            "debug": False
         }
 
         return tornado.web.Application([urls._JOB_URL], **settings)
@@ -72,195 +68,179 @@ class TestJobHandler(
     def get_new_ioloop(self):
         return tornado.ioloop.IOLoop.instance()
 
-    @mock.patch('utils.db.find')
-    @mock.patch('utils.db.count')
+    @mock.patch("utils.db.find")
+    @mock.patch("utils.db.count")
     def test_get(self, mock_count, mock_find):
         mock_count.return_value = 0
         mock_find.return_value = []
 
         expected_body = '{"count":0,"code":200,"limit":0,"result":[]}'
 
-        headers = {'Authorization': 'foo'}
-        response = self.fetch('/job?date_range=5&job=job', headers=headers)
+        headers = {"Authorization": "foo"}
+        response = self.fetch("/job?date_range=5&job=job", headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
         self.assertEqual(response.body, expected_body)
 
-    @mock.patch('utils.db.find')
-    @mock.patch('utils.db.count')
+    @mock.patch("utils.db.find")
+    @mock.patch("utils.db.count")
     def test_get_with_limit(self, mock_count, mock_find):
         mock_count.return_value = 0
         mock_find.return_value = []
 
         expected_body = '{"count":0,"code":200,"limit":1024,"result":[]}'
 
-        headers = {'Authorization': 'foo'}
-        response = self.fetch('/job?limit=1024', headers=headers)
+        headers = {"Authorization": "foo"}
+        response = self.fetch("/job?limit=1024", headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
         self.assertEqual(response.body, expected_body)
 
-    @mock.patch('bson.objectid.ObjectId')
-    @mock.patch('handlers.job.JobHandler.collection')
+    @mock.patch("bson.objectid.ObjectId")
+    @mock.patch("handlers.job.JobHandler.collection")
     def test_get_by_id_not_found(self, collection, mock_id):
         mock_id.return_value = "job-kernel"
         collection.find_one = mock.MagicMock()
         collection.find_one.return_value = None
 
-        headers = {'Authorization': 'foo'}
-        response = self.fetch('/job/job-kernel', headers=headers)
+        headers = {"Authorization": "foo"}
+        response = self.fetch("/job/job-kernel", headers=headers)
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
-    @mock.patch('bson.objectid.ObjectId')
-    @mock.patch('handlers.job.JobHandler.collection')
+    @mock.patch("bson.objectid.ObjectId")
+    @mock.patch("handlers.job.JobHandler.collection")
     def test_get_by_id_not_found_empty_list(self, collection, mock_id):
         mock_id.return_value = "job-kernel"
         collection.find_one = mock.MagicMock()
         collection.find_one.return_value = []
 
-        headers = {'Authorization': 'foo'}
-        response = self.fetch('/job/job-kernel', headers=headers)
+        headers = {"Authorization": "foo"}
+        response = self.fetch("/job/job-kernel", headers=headers)
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
-    @mock.patch('bson.objectid.ObjectId')
-    @mock.patch('handlers.job.JobHandler.collection')
+    @mock.patch("bson.objectid.ObjectId")
+    @mock.patch("handlers.job.JobHandler.collection")
     def test_get_by_id_found(self, collection, mock_id):
         mock_id.return_value = "job-kernel"
         collection.find_one = mock.MagicMock()
-        collection.find_one.return_value = {'_id': 'foo'}
+        collection.find_one.return_value = {"_id": "foo"}
 
         expected_body = '{"code":200,"result":[{"_id":"foo"}]}'
 
-        headers = {'Authorization': 'foo'}
-        response = self.fetch('/job/job-kernel', headers=headers)
+        headers = {"Authorization": "foo"}
+        response = self.fetch("/job/job-kernel", headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(response.body, expected_body)
 
     def test_post_without_token(self):
+        body = json.dumps(dict(job="job", kernel="kernel"))
 
-        body = json.dumps(dict(job='job', kernel='kernel'))
-
-        response = self.fetch('/job', method='POST', body=body)
+        response = self.fetch("/job", method="POST", body=body)
 
         self.assertEqual(response.code, 403)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     def test_post_not_json_content(self):
-        headers = {'Authorization': 'foo', 'Content-Type': 'application/json'}
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
 
         response = self.fetch(
-            '/job', method='POST', body='', headers=headers
-        )
+            "/job", method="POST", body="", headers=headers)
 
         self.assertEqual(response.code, 422)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     def test_post_wrong_content_type(self):
-        headers = {'Authorization': 'foo'}
+        headers = {"Authorization": "foo"}
 
         response = self.fetch(
-            '/job/job', method='POST', body='', headers=headers
-        )
+            "/job/job", method="POST", body="", headers=headers)
 
         self.assertEqual(response.code, 415)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     def test_post_wrong_json(self):
-        headers = {'Authorization': 'foo', 'Content-Type': 'application/json'}
-
-        body = json.dumps(dict(foo='foo', bar='bar'))
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+        body = json.dumps(dict(foo="foo", bar="bar"))
 
         response = self.fetch(
-            '/job/job', method='POST', body=body, headers=headers
-        )
+            "/job/job", method="POST", body=body, headers=headers)
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
-    @mock.patch('taskqueue.tasks.import_job')
+    @mock.patch("taskqueue.tasks.import_job")
     def test_post_correct(self, mock_import_job):
         mock_import_job.apply_async = mock.MagicMock()
-
-        headers = {
-            'Authorization': 'foo',
-            'Content-Type': 'application/json',
-        }
-
-        body = json.dumps(dict(job='job', kernel='kernel'))
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+        body = json.dumps(dict(job="job", kernel="kernel"))
 
         response = self.fetch(
-            '/job', method='POST', headers=headers, body=body
-        )
+            "/job", method="POST", headers=headers, body=body)
 
         self.assertEqual(response.code, 202)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     def test_delete_no_token(self):
-        response = self.fetch('/job/job', method='DELETE')
+        response = self.fetch("/job/job", method="DELETE")
         self.assertEqual(response.code, 403)
 
-    @mock.patch('bson.objectid.ObjectId')
+    @mock.patch("bson.objectid.ObjectId")
     def test_delete_with_token_no_job(self, mock_id):
         mock_id.return_value = "job"
-        headers = {'Authorization': 'foo'}
+        headers = {"Authorization": "foo"}
 
         response = self.fetch(
-            '/job/job', method='DELETE', headers=headers,
-        )
+            "/job/job", method="DELETE", headers=headers)
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     @mock.patch("bson.objectid.ObjectId")
     def test_delete_with_token_with_job(self, mock_id):
         mock_id.return_value = "job"
-        db = self.mongodb_client['kernel-ci']
-        db['job'].insert(dict(_id='job', job='job', kernel='kernel'))
-
-        headers = {'Authorization': 'foo'}
+        db = self.mongodb_client["kernel-ci"]
+        db["job"].insert(dict(_id="job", job="job", kernel="kernel"))
+        headers = {"Authorization": "foo"}
 
         response = self.fetch(
-            '/job/job', method='DELETE', headers=headers,
-        )
+            "/job/job", method="DELETE", headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     def test_delete_no_id(self):
-        headers = {'Authorization': 'foo'}
+        headers = {"Authorization": "foo"}
 
         response = self.fetch(
-            '/job', method='DELETE', headers=headers,
-        )
+            "/job", method="DELETE", headers=headers)
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     def test_delete_wrong_id(self):
         headers = {"Authorization": "foo"}
 
         response = self.fetch(
-            "/job/foo", method="DELETE", headers=headers,
-        )
+            "/job/foo", method="DELETE", headers=headers)
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
@@ -273,24 +253,22 @@ class TestJobHandler(
         mock_id.return_value = "job"
         mock_find.return_value = "job"
         mock_delete.return_value = 500
-
         headers = {"Authorization": "foo"}
 
         response = self.fetch(
-            "/job/foo", method="DELETE", headers=headers,
-        )
+            "/job/foo", method="DELETE", headers=headers)
 
         self.assertEqual(response.code, 500)
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
-    @mock.patch('handlers.base.BaseHandler._get_one')
+    @mock.patch("handlers.base.BaseHandler._get_one")
     def test_get_wrong_handler_response(self, mock_get_one):
         mock_get_one.return_value = ""
+        headers = {"Authorization": "foo"}
 
-        headers = {'Authorization': 'foo'}
-        response = self.fetch('/job/job-kernel', headers=headers)
+        response = self.fetch("/job/job-kernel", headers=headers)
 
         self.assertEqual(response.code, 506)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
