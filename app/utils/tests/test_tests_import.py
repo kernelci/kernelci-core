@@ -90,7 +90,10 @@ class TestTestsImport(unittest.TestCase):
         mock_save.return_value = (500, None)
 
         case_list = [
-            {"name": "test-case0", "version": "1.0", "parameters": {"a": 1}}
+            {
+                "name": "test-case0",
+                "test_suite_id": "test-suite-id",
+                "version": "1.0", "parameters": {"a": 1}}
         ]
         test_suite_id = "test-suite-id"
         kwargs = {

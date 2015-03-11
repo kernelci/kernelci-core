@@ -105,11 +105,13 @@ def import_test_case(json_case, test_suite_id, database, **kwargs):
     error = None
 
     if isinstance(json_case, types.DictionaryType):
-        # Inject the test_suite_id value into the data structure.
-        json_case[models.TEST_SUITE_ID_KEY] = test_suite_id
+        j_get = json_case.get
+        if j_get(models.TEST_SUITE_ID_KEY, None) is None:
+            # Inject the test_suite_id value into the data structure.
+            json_case[models.TEST_SUITE_ID_KEY] = test_suite_id
 
         try:
-            test_name = json_case.get(models.NAME_KEY)
+            test_name = j_get(models.NAME_KEY)
             test_case = mtcase.TestCaseDocument.from_json(json_case)
 
             if test_case:
@@ -136,6 +138,6 @@ def import_test_case(json_case, test_suite_id, database, **kwargs):
             utils.LOG.exception(ex)
             utils.LOG.error(error)
     else:
-        error = "Test case is not a JSON object"
+        error = "Test case is not a valid JSON object"
 
     return ret_val, error
