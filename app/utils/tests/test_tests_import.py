@@ -196,3 +196,135 @@ class TestTestsImport(unittest.TestCase):
             case_list, test_suite_id, {}, **kwargs)
 
         self.assertListEqual([400], results.keys())
+
+    @mock.patch("utils.tests_import._parse_test_suite")
+    def test_update_test_suite_simple(self, mock_parse):
+        mock_parse.return_value = {}
+        suite_json = {
+            "name": "test-suite",
+            "defconfig_id": "defconfig",
+            "version": "1.0",
+            "time": 100
+        }
+        test_suite_id = "test-suite-id"
+
+        ret_val, doc = tests_import.update_test_suite(
+            suite_json, test_suite_id, {})
+
+        self.assertEqual(ret_val, 200)
+        self.assertDictEqual({}, doc)
+
+    @mock.patch("utils.db.find_one2")
+    @mock.patch("bson.objectid.ObjectId")
+    @mock.patch("utils.db.get_db_connection")
+    def test_parse_test_suite_with_all(self, mock_db, mock_id, mock_find):
+        defconfig_doc = {
+            "_id": "defconfig-id",
+            "job": None,
+            "kernel": "kernel",
+            "defconfig": None
+        }
+
+        boot_doc = {
+            "_id": "boot-id",
+            "board": "board",
+            "board_instance": "instance",
+            "job": None
+        }
+
+        job_doc = {
+            "_id": "job-id",
+            "job": "job"
+        }
+        mock_db.return_value = self.db
+        mock_id.side_effect = ["defconfig-id", "boot-id", "job-id"]
+        mock_find.side_effect = [defconfig_doc, boot_doc, job_doc]
+
+        suite_json = {
+            "board": None,
+            "board_instance": None,
+            "boot_id": "boot-id",
+            "defconfig_id": "defconfig-id",
+            "job_id": "job-id",
+            "name": "test-suite",
+            "time": 100,
+            "version": "1.0"
+        }
+
+        expected = {
+            "board": "board",
+            "board_instance": "instance",
+            "boot_id": "boot-id",
+            "defconfig_id": "defconfig-id",
+            "job": "job",
+            "job_id": "job-id",
+            "kernel": "kernel",
+            "name": "test-suite",
+            "time": 100,
+            "version": "1.0"
+        }
+
+        doc = tests_import._parse_test_suite(suite_json, {})
+        self.assertDictEqual(expected, doc)
+
+    @mock.patch("utils.db.get_db_connection")
+    def test_parse_test_suite_with_nothing(self, mock_db):
+        mock_db.return_value = self.db
+
+        suite_json = {
+            "board": None,
+            "board_instance": None,
+            "name": "test-suite",
+            "time": 100,
+            "version": "1.0"
+        }
+
+        expected = {
+            "name": "test-suite",
+            "time": 100,
+            "version": "1.0"
+        }
+
+        doc = tests_import._parse_test_suite(suite_json, {})
+        self.assertDictEqual(expected, doc)
+
+    @mock.patch("bson.objectid.ObjectId")
+    @mock.patch("utils.db.get_db_connection")
+    def test_parse_test_suite_with_all_in_suite(self, mock_db, mock_id):
+        mock_db.return_value = self.db
+        mock_id.side_effect = ["defconfig-id", "boot-id", "job-id"]
+
+        suite_json = {
+            "arch": "arch",
+            "board": "board",
+            "board_instance": "instance",
+            "boot_id": "boot-id",
+            "defconfig": "defconfig",
+            "defconfig_full": "defconfig_full",
+            "defconfig_id": "defconfig-id",
+            "job": "job",
+            "job_id": "job-id",
+            "kernel": "kernel",
+            "name": "test-suite",
+            "time": 100,
+            "version": "1.0"
+        }
+
+        expected = {
+            "arch": "arch",
+            "board": "board",
+            "board_instance": "instance",
+            "boot_id": "boot-id",
+            "defconfig": "defconfig",
+            "defconfig_full": "defconfig_full",
+            "defconfig_id": "defconfig-id",
+            "job": "job",
+            "job_id": "job-id",
+            "kernel": "kernel",
+            "name": "test-suite",
+            "time": 100,
+            "version": "1.0"
+        }
+
+        doc = tests_import._parse_test_suite(suite_json, {})
+        self.assertDictEqual(expected, doc)
