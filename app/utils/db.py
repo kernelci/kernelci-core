@@ -134,8 +134,7 @@ def find(collection, limit, skip, spec=None, fields=None, sort=None):
     :return A list of documents matching the specified values.
     """
     return collection.find(
-        limit=limit, skip=skip, fields=fields, sort=sort, spec=spec
-    )
+        limit=limit, skip=skip, fields=fields, sort=sort, spec=spec)
 
 
 def find_and_count(collection, limit, skip, spec=None, fields=None, sort=None):
@@ -200,16 +199,13 @@ def save(database, document, manipulate=False):
     else:
         utils.LOG.warn(
             "Cannot save document, it is not of type BaseDocument, got %s",
-            type(document)
-        )
+            type(document))
 
     try:
         doc_id = database[document.collection].save(
-            to_save, manipulate=manipulate
-        )
+            to_save, manipulate=manipulate)
         utils.LOG.info(
-            "Document '%s' saved (%s)", document.name, document.collection
-        )
+            "Document '%s' saved (%s)", document.name, document.collection)
     except pymongo.errors.OperationFailure, ex:
         utils.LOG.error(
             "Error saving the following document: %s (%s)",
@@ -247,8 +243,7 @@ def save_all(database, documents, manipulate=False, fail_on_err=False):
     for document in documents:
         if isinstance(document, mbase.BaseDocument):
             ret_value, save_id = save(
-                database, document, manipulate=manipulate
-            )
+                database, document, manipulate=manipulate)
             doc_id.append(save_id)
 
             if fail_on_err and ret_value == 500:
@@ -256,8 +251,7 @@ def save_all(database, documents, manipulate=False, fail_on_err=False):
         else:
             utils.LOG.error(
                 "Cannot save document, it is not of type BaseDocument, got %s",
-                type(document)
-            )
+                type(document))
             doc_id.append(None)
 
             if fail_on_err:
@@ -295,8 +289,7 @@ def update(collection, spec, document, operation="$set"):
         )
     except pymongo.errors.OperationFailure, ex:
         utils.LOG.error(
-            "Error updating the following document: %s", str(document)
-        )
+            "Error updating the following document: %s", str(document))
         utils.LOG.exception(str(ex))
         ret_val = 500
 
@@ -319,8 +312,7 @@ def delete(collection, spec_or_id):
         collection.remove(spec_or_id)
     except pymongo.errors.OperationFailure, ex:
         utils.LOG.error(
-            "Error removing the following document: %s", str(spec_or_id)
-        )
+            "Error removing the following document: %s", str(spec_or_id))
         utils.LOG.exception(str(ex))
         ret_val = 500
 
