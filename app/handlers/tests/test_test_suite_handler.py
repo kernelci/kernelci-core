@@ -15,6 +15,7 @@
 
 """Test module for the TestSuiteHandler handler."""
 
+import bson
 import concurrent.futures
 import json
 import mock
@@ -166,9 +167,11 @@ class TestTestSuiteHandler(
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
+    @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
     @mock.patch("utils.db.save")
-    def test_post_correct(self, mock_save):
+    def test_post_correct(self, mock_save, mock_check):
         mock_save.return_value = (201, "test-suite-id")
+        mock_check.return_value = (200, None)
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
 
         body = json.dumps(
@@ -181,7 +184,7 @@ class TestTestSuiteHandler(
             "/test/suite", method="POST", headers=headers, body=body
         )
 
-        self.assertEqual(response.code, 201)
+        self.assertEqual(response.code, 202)
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
@@ -200,7 +203,9 @@ class TestTestSuiteHandler(
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
-    def test_post_correct_with_test_set(self):
+    @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
+    def test_post_correct_with_test_set(self, mock_check):
+        mock_check.return_value = (200, None)
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         body = json.dumps(
             dict(
@@ -218,7 +223,9 @@ class TestTestSuiteHandler(
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
-    def test_post_correct_with_wrong_test_set(self):
+    @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
+    def test_post_correct_with_wrong_test_set(self, mock_check):
+        mock_check.return_value = (200, None)
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         body = json.dumps(
             dict(
@@ -232,11 +239,15 @@ class TestTestSuiteHandler(
         response = self.fetch(
             "/test/suite", method="POST", headers=headers, body=body)
 
-        self.assertEqual(response.code, 201)
+        self.assertEqual(response.code, 202)
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
-    def test_post_correct_with_test_case(self):
+    @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
+    @mock.patch("taskqueue.tasks.import_test_cases")
+    def test_post_correct_with_test_case(self, mock_task, mock_check):
+        mock_check.return_value = (200, None)
+        mock_task.apply_async = mock.MagicMock()
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         body = json.dumps(
             dict(
@@ -254,7 +265,9 @@ class TestTestSuiteHandler(
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
-    def test_post_correct_with_wrong_test_case(self):
+    @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
+    def test_post_correct_with_wrong_test_case(self, mock_check):
+        mock_check.return_value = (200, None)
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         body = json.dumps(
             dict(
@@ -268,15 +281,16 @@ class TestTestSuiteHandler(
         response = self.fetch(
             "/test/suite", method="POST", headers=headers, body=body)
 
-        self.assertEqual(response.code, 201)
+        self.assertEqual(response.code, 202)
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
+    @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
     @mock.patch("utils.db.save")
-    def test_post_correct_with_error(self, mock_save):
+    def test_post_correct_with_error(self, mock_save, mock_check):
+        mock_check.return_value = (200, None)
         mock_save.return_value = (500, None)
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
-
         body = json.dumps(
             dict(
                 name="test", lab_name="lab_name", version="1.0",
@@ -284,10 +298,160 @@ class TestTestSuiteHandler(
         )
 
         response = self.fetch(
-            "/test/suite", method="POST", headers=headers, body=body
-        )
+            "/test/suite", method="POST", headers=headers, body=body)
 
         self.assertEqual(response.code, 500)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    def test_post_correct_wrong_defconfig_id(self):
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+        body = json.dumps(
+            dict(
+                name="test", lab_name="lab_name", version="1.0",
+                defconfig_id="defconfig_id")
+        )
+
+        response = self.fetch(
+            "/test/suite", method="POST", headers=headers, body=body)
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    @mock.patch("bson.objectid.ObjectId")
+    def test_post_correct_wrong_job_id(self, mock_oid):
+        mock_oid.side_effect = ["defconfig-id", bson.errors.InvalidId]
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+        body = json.dumps(
+            dict(
+                name="test", lab_name="lab_name", version="1.0",
+                defconfig_id="defconfig_id", job_id="job_id")
+        )
+
+        response = self.fetch(
+            "/test/suite", method="POST", headers=headers, body=body)
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    @mock.patch("bson.objectid.ObjectId")
+    def test_post_correct_wrong_boot_id(self, mock_oid):
+        mock_oid.side_effect = ["defconfig-id", bson.errors.InvalidId]
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+        body = json.dumps(
+            dict(
+                name="test", lab_name="lab_name", version="1.0",
+                defconfig_id="defconfig_id", boot_id="boot_id")
+        )
+
+        response = self.fetch(
+            "/test/suite", method="POST", headers=headers, body=body)
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    @mock.patch("bson.objectid.ObjectId")
+    @mock.patch("utils.db.find_one2")
+    def test_post_correct_defconfig_not_found(self, mock_find, mock_oid):
+        mock_oid.side_effect = ["defconfig-id", "boot-id"]
+        mock_find.side_effect = [None, {"_id": "fake-boot"}]
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+        body = json.dumps(
+            dict(
+                name="test", lab_name="lab_name", version="1.0",
+                defconfig_id="defconfig_id", boot_id="boot_id")
+        )
+
+        response = self.fetch(
+            "/test/suite", method="POST", headers=headers, body=body)
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    @mock.patch("bson.objectid.ObjectId")
+    @mock.patch("utils.db.find_one2")
+    def test_post_correct_boot_not_found(self, mock_find, mock_oid):
+        mock_oid.side_effect = ["defconfig-id", "boot-id"]
+        mock_find.side_effect = [{"_id": "fake-id"}, None]
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+        body = json.dumps(
+            dict(
+                name="test", lab_name="lab_name", version="1.0",
+                defconfig_id="defconfig_id", boot_id="boot_id")
+        )
+
+        response = self.fetch(
+            "/test/suite", method="POST", headers=headers, body=body)
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    @mock.patch("bson.objectid.ObjectId")
+    @mock.patch("utils.db.find_one2")
+    def test_post_correct_job_not_found(self, mock_find, mock_oid):
+        mock_oid.side_effect = ["defconfig-id", "job-id"]
+        mock_find.side_effect = [{"_id": "fake-id"}, None]
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+        body = json.dumps(
+            dict(
+                name="test", lab_name="lab_name", version="1.0",
+                defconfig_id="defconfig_id", job_id="job_id")
+        )
+
+        response = self.fetch(
+            "/test/suite", method="POST", headers=headers, body=body)
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    @mock.patch("bson.objectid.ObjectId")
+    @mock.patch("utils.db.find_one2")
+    def test_post_correct_boot_not_found2(self, mock_find, mock_oid):
+        mock_oid.side_effect = ["defconfig-id", "job-id", "boot-id"]
+        mock_find.side_effect = [{"_id": "fake-id"}, {"_id": "fake-job"}, None]
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+        body = json.dumps(
+            dict(
+                name="test",
+                lab_name="lab_name",
+                version="1.0",
+                defconfig_id="defconfig_id",
+                job_id="job_id", boot_id="boot_id")
+        )
+
+        response = self.fetch(
+            "/test/suite", method="POST", headers=headers, body=body)
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    @mock.patch("bson.objectid.ObjectId")
+    @mock.patch("utils.db.find_one2")
+    def test_post_correct_job_not_found2(self, mock_find, mock_oid):
+        mock_oid.side_effect = ["defconfig-id", "job-id", "boot-id"]
+        mock_find.side_effect = [
+            {"_id": "fake-id"}, None, {"_id": "fake-boot"}]
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+        body = json.dumps(
+            dict(
+                name="test",
+                lab_name="lab_name",
+                version="1.0",
+                defconfig_id="defconfig_id",
+                job_id="job_id", boot_id="boot_id")
+        )
+
+        response = self.fetch(
+            "/test/suite", method="POST", headers=headers, body=body)
+
+        self.assertEqual(response.code, 400)
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
@@ -303,8 +467,7 @@ class TestTestSuiteHandler(
         self.validate_token.return_value = False
 
         response = self.fetch(
-            "/test/suite/id", method="PUT", headers=headers, body=""
-        )
+            "/test/suite/id", method="PUT", headers=headers, body="")
 
         self.assertEqual(response.code, 403)
         self.assertEqual(
@@ -324,8 +487,7 @@ class TestTestSuiteHandler(
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
 
         response = self.fetch(
-            "/test/suite/", method="PUT", headers=headers, body=""
-        )
+            "/test/suite/", method="PUT", headers=headers, body="")
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
@@ -337,8 +499,7 @@ class TestTestSuiteHandler(
         body = json.dumps(dict(foo="foo", bar="bar"))
 
         response = self.fetch(
-            "/test/suite/id", method="PUT", body=body, headers=headers
-        )
+            "/test/suite/id", method="PUT", body=body, headers=headers)
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
@@ -348,8 +509,7 @@ class TestTestSuiteHandler(
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
 
         response = self.fetch(
-            "/test/suite/id", method="PUT", body="", headers=headers
-        )
+            "/test/suite/id", method="PUT", body="", headers=headers)
 
         self.assertEqual(response.code, 422)
         self.assertEqual(
@@ -361,8 +521,7 @@ class TestTestSuiteHandler(
         body = json.dumps(dict(job="job", kernel="kernel"))
 
         response = self.fetch(
-            "/test/suite/wrong-id", method="PUT", body=body, headers=headers
-        )
+            "/test/suite/wrong-id", method="PUT", body=body, headers=headers)
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
@@ -378,8 +537,7 @@ class TestTestSuiteHandler(
         body = json.dumps(dict(job="job", kernel="kernel"))
 
         response = self.fetch(
-            "/test/suite/wrong-id", method="PUT", body=body, headers=headers
-        )
+            "/test/suite/wrong-id", method="PUT", body=body, headers=headers)
 
         self.assertEqual(response.code, 404)
         self.assertEqual(

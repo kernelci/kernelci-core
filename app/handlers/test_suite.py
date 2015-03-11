@@ -23,6 +23,7 @@ import handlers.test_base as htbase
 import models
 import models.test_suite as mtsuite
 import utils.db
+import taskqueue.tasks as taskq
 
 
 # pylint: disable=too-many-public-methods
@@ -50,43 +51,77 @@ class TestSuiteHandler(htbase.TestBaseHandler):
         else:
             test_suite_json = kwargs.get("json_obj", None)
             suite_pop = test_suite_json.pop
+            suite_get = test_suite_json.get
+
             test_set = suite_pop(models.TEST_SET_KEY, [])
             test_case = suite_pop(models.TEST_CASE_KEY, [])
+            suite_name = suite_get(models.NAME_KEY)
+            defconfig_id = suite_get(models.DEFCONFIG_ID_KEY)
+            job_id = suite_get(models.JOB_ID_KEY, None)
+            boot_id = suite_get(models.BOOT_ID_KEY, None)
 
-            test_suite = mtsuite.TestSuiteDocument.from_json(test_suite_json)
-            test_suite.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
+            # Make sure the _id values passed are valid.
+            ret_val, error = self._check_references(
+                defconfig_id, job_id, boot_id)
 
-            ret_val, doc_id = utils.db.save(
-                self.db, test_suite, manipulate=True)
-            response.status_code = ret_val
+            if ret_val == 200:
+                test_suite = mtsuite.TestSuiteDocument.from_json(
+                    test_suite_json)
+                test_suite.created_on = datetime.datetime.now(
+                    tz=bson.tz_util.utc)
 
-            if ret_val == 201:
-                response.result = {models.ID_KEY: doc_id}
-                response.reason = "Test suite '%s' created" % test_suite.name
+                ret_val, doc_id = utils.db.save(
+                    self.db, test_suite, manipulate=True)
 
-                # TODO: async import of test sets and test cases
-                if test_set:
-                    if isinstance(test_set, types.ListType):
-                        response.status_code = 202
-                        response.messages = (
-                            "Test sets will be parsed and imported")
-                    else:
-                        response.errors = (
-                            "Test sets are not wrapped in a list; "
-                            "they will not be imported")
+                if ret_val == 201:
+                    response.status_code = 202
+                    response.result = {models.ID_KEY: doc_id}
+                    response.reason = (
+                        "Test suite '%s' created, data will be imported" %
+                        suite_name)
 
-                if test_case:
-                    if isinstance(test_case, types.ListType):
-                        response.status_code = 202
-                        response.messages = (
-                            "Test cases will be parsed and imported")
-                    else:
-                        response.errors = (
-                            "Test cases are not wrapped in a "
-                            "list; they will not be imported")
+                    # TODO: async update suite document searching for the other
+                    # _id values.
+
+                    other_args = {
+                        models.DEFCONFIG_ID_KEY: test_suite.defconfig_id,
+                        "mail_options": self.settings["mailoptions"]
+                    }
+
+                    # TODO: async import of test sets.
+                    if test_set:
+                        if isinstance(test_set, types.ListType):
+                            response.messages = (
+                                "Test sets will be parsed and imported")
+                        else:
+                            response.errors = (
+                                "Test sets are not wrapped in a list; "
+                                "they will not be imported")
+
+                    if test_case:
+                        if isinstance(test_case, types.ListType):
+                            response.messages = (
+                                "Test cases will be parsed and imported")
+                            # TODO: move this into other async method.
+                            taskq.import_test_cases.apply_async(
+                                [
+                                    test_case,
+                                    doc_id,
+                                    suite_name,
+                                    self.settings["dboptions"], other_args
+                                ]
+                            )
+                        else:
+                            response.errors = (
+                                "Test cases are not wrapped in a "
+                                "list; they will not be imported")
+                else:
+                    response.status_code = ret_val
+                    response.reason = (
+                        "Error saving test suite '%s'" % suite_name)
             else:
-                response.reason = (
-                    "Error saving test suite '%s'" % test_suite.name)
+                response.status_code = 400
+                response.reason = error
 
         return response
 
@@ -97,6 +132,12 @@ class TestSuiteHandler(htbase.TestBaseHandler):
 
         try:
             suite_id = bson.objectid.ObjectId(doc_id)
+        except bson.errors.InvalidId, ex:
+            self.log.exception(ex)
+            self.log.error("Invalid ID specified: %s", doc_id)
+            response.status_code = 400
+            response.reason = "Wrong ID specified"
+        else:
             if utils.db.find_one2(self.collection, suite_id):
                 # TODO: handle case where boot_id, job_id or defconfig_id
                 # is updated.
@@ -111,11 +152,7 @@ class TestSuiteHandler(htbase.TestBaseHandler):
             else:
                 response.status_code = 404
                 response.reason = self._get_status_message(404)
-        except bson.errors.InvalidId, ex:
-            self.log.exception(ex)
-            self.log.error("Invalid ID specified: %s", doc_id)
-            response.status_code = 400
-            response.reason = "Wrong ID specified"
+
         return response
 
     def _delete(self, doc_id):
@@ -124,6 +161,12 @@ class TestSuiteHandler(htbase.TestBaseHandler):
 
         try:
             suite_id = bson.objectid.ObjectId(doc_id)
+        except bson.errors.InvalidId, ex:
+            self.log.exception(ex)
+            self.log.error("Invalid ID specified: %s", doc_id)
+            response.status_code = 400
+            response.reason = "Wrong ID specified"
+        else:
             if utils.db.find_one2(self.collection, suite_id):
                 response.status_code = utils.db.delete(
                     self.collection, suite_id)
@@ -158,10 +201,56 @@ class TestSuiteHandler(htbase.TestBaseHandler):
             else:
                 response.status_code = 404
                 response.reason = self._get_status_message(404)
-        except bson.errors.InvalidId, ex:
-            self.log.exception(ex)
-            self.log.error("Invalid ID specified: %s", doc_id)
-            response.status_code = 400
-            response.reason = "Wrong ID specified"
 
         return response
+
+    def _check_references(self, defconfig_id, job_id, boot_id):
+        """Check that the provided IDs are valid.
+
+        :param defconfig_id: The ID of the associated defconfig built.
+        :type defconfig_id: string
+        :param job_id: The ID of the associated job.
+        :type job_id: string
+        :param boot_id: The ID of the associated boot report.
+        :type boot_id: string
+        """
+        ret_val = 200
+        error = None
+
+        try:
+            defconfig_oid = bson.objectid.ObjectId(defconfig_id)
+            if job_id:
+                job_oid = bson.objectid.ObjectId(job_id)
+            if boot_id:
+                boot_oid = bson.objectid.ObjectId(boot_id)
+        except bson.errors.InvalidId, ex:
+            self.log.exception(ex)
+            ret_val = 400
+            error = "Invalid value passed for defconfig_id, job_id, or boot_id"
+        else:
+            defconfig_doc = utils.db.find_one2(
+                self.db[models.DEFCONFIG_COLLECTION],
+                defconfig_oid, [models.ID_KEY])
+            if not defconfig_doc:
+                ret_val = 400
+                error = "Build document with ID '%s' not found" % defconfig_id
+            else:
+                if job_id:
+                    job_doc = utils.db.find_one2(
+                        self.db[models.JOB_COLLECTION],
+                        job_oid, [models.ID_KEY])
+                    if not job_doc:
+                        ret_val = 400
+                        error = "Job document with ID '%s' not found" % job_id
+
+                if all([boot_id, error is None]):
+                    boot_doc = utils.db.find_one2(
+                        self.db[models.BOOT_COLLECTION],
+                        boot_oid, [models.ID_KEY]
+                    )
+                    if not boot_doc:
+                        ret_val = 400
+                        error = (
+                            "Boot document with ID '%s' not found" % boot_id)
+
+        return ret_val, error

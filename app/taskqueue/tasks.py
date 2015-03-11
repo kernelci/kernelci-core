@@ -20,6 +20,7 @@ import celery
 import models
 import taskqueue.celery as taskc
 import utils
+import utils.db
 import utils.batch.common
 import utils.bisect.boot as bootb
 import utils.bisect.defconfig as defconfigb
@@ -29,6 +30,7 @@ import utils.emails
 import utils.report.boot
 import utils.report.build
 import utils.report.common
+import utils.tests_import as tests_import
 
 
 @taskc.app.task(name="import-job")
@@ -221,6 +223,44 @@ def send_build_report(job, kernel, to_addrs, db_options, mail_options):
             job, kernel)
 
     return status
+
+
+@taskc.app.task(
+    name="import-test-cases", track_started=True, ignore_result=False)
+def import_test_cases(
+        case_list, test_suite_id, test_suite_name, db_options, **kwargs):
+    """Import the test cases.
+
+    Additional named arguments passed might be (with the exact following
+    names):
+    * test_set_id
+    * defconfig_id
+    * job_id
+    * job
+    * kernel
+    * defconfig
+    * defconfig_full
+    * lab_name
+    * board
+    * board_instance
+    * mail_options
+
+    :param case_list: The list with the test cases to import.
+    :type case_list: list
+    :param test_suite_id: The ID of the test suite these test cases belong to.
+    :type test_suite_id: string
+    :param test_suite_name: The name of the test suite these test cases belong
+    to.
+    :type test_suite_name: string
+    :param db_options: Options for connecting to the database.
+    :type db_options: dict
+    """
+    utils.LOG.info(
+        "Importing test cases for test suite '%s' (%s)",
+        test_suite_name, test_suite_id)
+
+    return tests_import.import_multi_test_case(
+        case_list, test_suite_id, db_options, **kwargs)
 
 
 def run_batch_group(batch_op_list, db_options):
