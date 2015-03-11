@@ -178,9 +178,13 @@ class TestTestCaseHandler(
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
+    @mock.patch("utils.db.find_one2")
+    @mock.patch("bson.objectid.ObjectId")
     @mock.patch("utils.db.save")
-    def test_post_correct_with_error(self, mock_save):
+    def test_post_correct_with_error(self, mock_save, mock_id, mock_find):
         mock_save.return_value = (500, None)
+        mock_id.return_value = "test-suite"
+        mock_find.return_value = {"_id": "test-suite"}
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
 
         body = json.dumps(
@@ -193,9 +197,13 @@ class TestTestCaseHandler(
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
+    @mock.patch("utils.db.find_one2")
+    @mock.patch("bson.objectid.ObjectId")
     @mock.patch("utils.db.save")
-    def test_post_correct(self, mock_save):
+    def test_post_correct(self, mock_save, mock_id, mock_find):
         mock_save.return_value = (201, "test-case-id")
+        mock_id.return_value = "test-suite"
+        mock_find.return_value = {"_id": "test-suite"}
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
 
         body = json.dumps(
@@ -208,7 +216,13 @@ class TestTestCaseHandler(
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
-    def test_post_correct_with_params(self):
+    @mock.patch("utils.db.find_one2")
+    @mock.patch("bson.objectid.ObjectId")
+    @mock.patch("utils.db.save")
+    def test_post_correct_with_params(self, mock_save, mock_id, mock_find):
+        mock_save.return_value = (201, "test-case-id")
+        mock_id.return_value = "test-suite"
+        mock_find.return_value = {"_id": "test-suite"}
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         body = json.dumps(
             dict(
@@ -224,6 +238,25 @@ class TestTestCaseHandler(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     def test_post_correct_with_params_error(self):
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+        body = json.dumps(
+            dict(
+                name="test-case",
+                test_suite_id="test-suite",
+                version="1.0", parameters=[{"foo": "bar"}]))
+
+        response = self.fetch(
+            "/test/case", method="POST", headers=headers, body=body)
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    @mock.patch("utils.db.find_one2")
+    @mock.patch("bson.objectid.ObjectId")
+    def test_post_correct_with_wrong_test_suite_id(self, mock_id, mock_find):
+        mock_id.return_value = "test-suite"
+        mock_find.return_value = None
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         body = json.dumps(
             dict(

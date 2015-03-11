@@ -14,14 +14,13 @@
 """The RequestHandler for /test/case URLs."""
 
 import bson
-import datetime
 
 import handlers.common as hcommon
 import handlers.response as hresponse
 import handlers.test_base as htbase
 import models
-import models.test_case as mtcase
 import utils.db
+import utils.tests_import as tests_import
 
 
 # pylint: disable=too-many-public-methods
@@ -48,29 +47,28 @@ class TestCaseHandler(htbase.TestBaseHandler):
             response.reason = "To update a test case, use a PUT request"
         else:
             test_case_json = kwargs.get("json_obj", None)
+            j_get = test_case_json.get
+            suite_id = j_get(models.TEST_SUITE_ID_KEY)
+            case_name = j_get(models.NAME_KEY)
 
-            try:
-                test_case = mtcase.TestCaseDocument.from_json(test_case_json)
-                test_case.created_on = datetime.datetime.now(
-                    tz=bson.tz_util.utc)
-
-                ret_val, doc_id = utils.db.save(
-                    self.db, test_case, manipulate=True)
+            test_suite, err_msg = self._check_and_get_test_suite(suite_id)
+            if test_suite:
+                # TODO: pass informations.
+                ret_val, doc_id, err_msg = tests_import.import_test_case(
+                    test_case_json, suite_id, self.db)
                 response.status_code = ret_val
 
                 if ret_val == 201:
                     response.result = {models.ID_KEY: doc_id}
-                    response.reason = "Test case '%s' created" % test_case.name
+                    response.reason = "Test case '%s' created" % case_name
                 else:
-                    response.reason = (
-                        "Error saving test case '%s'" % test_case.name)
-            except ValueError, ex:
-                error = "Wrong field value in JSON data"
-                self.log.error(error)
-                self.log.exception(ex)
+                    response.reason = "Error saving test case '%s'" % case_name
+                    response.errors = err_msg
+            else:
+                self.log.error(
+                    "Test suite '%s' not found or not valid ID", suite_id)
                 response.status_code = 400
-                response.reason = error
-                response.errors = ex.message
+                response.reason = err_msg
 
         return response
 
@@ -124,3 +122,28 @@ class TestCaseHandler(htbase.TestBaseHandler):
             response.status_code = 400
             response.reason = "Wrong ID specified"
         return response
+
+    def _check_and_get_test_suite(self, test_suite_id):
+        """Verify that the test suite ID passed is valid, and get it.
+
+        :param test_suite_id: The ID of the test suite associated with the test
+        case
+        :type test_suite_id: string
+        :return The test suite from the database or None, and an error message
+        in case of errors or None.
+        """
+        test_suite = None
+        error = None
+
+        try:
+            suite_id = bson.objectid.ObjectId(test_suite_id)
+            test_suite = utils.db.find_one2(
+                self.db[models.TEST_SUITE_COLLECTION], suite_id)
+            if not test_suite:
+                error = "Test suite with ID '%s' not found" % test_suite_id
+        except bson.errors.InvalidId, ex:
+            error = "Test suite ID '%s' is not valid" % test_suite_id
+            self.log.exception(ex)
+            self.log.error(error)
+
+        return test_suite, error
