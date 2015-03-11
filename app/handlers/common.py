@@ -526,6 +526,7 @@ METHOD_NOT_IMPLEMENTED = "Method not implemented"
 
 MIDNIGHT = datetime.time(tzinfo=bson.tz_util.utc)
 ALMOST_MIDNIGHT = datetime.time(23, 59, 59, tzinfo=bson.tz_util.utc)
+EPOCH = datetime.datetime(1970, 1, 1, tzinfo=bson.tz_util.utc)
 
 
 def get_all_query_values(query_args_func, valid_keys):
