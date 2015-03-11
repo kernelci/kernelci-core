@@ -29,7 +29,7 @@ class TestSuiteDocument(mbase.BaseDocument):
     """
 
     def __init__(self, name, lab_name, defconfig_id, version):
-        """
+        """The test suite document.
 
         :param name: The name given to this test suite.
         :type name: string
