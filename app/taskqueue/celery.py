@@ -1,5 +1,3 @@
-# Copyright (C) 2014 Linaro Ltd.
-#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
@@ -18,12 +16,24 @@
 from __future__ import absolute_import
 
 import celery
+import kombu.serialization
 import os
 
 import taskqueue.celeryconfig as celeryconfig
+import taskqueue.serializer as serializer
 
 
 TASKS_LIST = ["taskqueue.tasks"]
+
+# Register the custom decoder/encoder for celery with the name "kjson".
+# This is in all effect a JSON format, with some extensions.
+kombu.serialization.register(
+    "kjson",
+    serializer.kernelci_json_encoder,
+    serializer.kernelci_json_decoder,
+    content_type="application/json",
+    content_encoding="utf-8"
+)
 
 app = celery.Celery(
     "tasks",

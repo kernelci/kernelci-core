@@ -1,5 +1,3 @@
-# Copyright (C) 2014 Linaro Ltd.
-#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
@@ -22,9 +20,10 @@ BROKER_TRANSPORT_OPTIONS = {
     "fanout_prefix": True,
     "fanout_patterns": True
 }
-CELERY_ACCEPT_CONTENT = ["json"]
-CELERY_RESULT_SERIALIZER = "json"
-CELERY_TASK_SERIALIZER = "json"
+# Use custom json encoder.
+CELERY_ACCEPT_CONTENT = ["kjson"]
+CELERY_RESULT_SERIALIZER = "kjson"
+CELERY_TASK_SERIALIZER = "kjson"
 CELERY_TIMEZONE = "UTC"
 CELERY_ENABLE_UTC = True
 CELERY_IGNORE_RESULT = True
