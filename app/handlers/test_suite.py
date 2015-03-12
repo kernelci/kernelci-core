@@ -49,18 +49,24 @@ class TestSuiteHandler(htbase.TestBaseHandler):
             response.status_code = 400
             response.reason = "To update a test suite, use a PUT request"
         else:
+            # TODO: double check the token with its lab name, we need to make
+            # sure people are sending test reports with a token lab with the
+            # correct lab name value. Check the boot handler.
             test_suite_json = kwargs.get("json_obj", None)
             suite_pop = test_suite_json.pop
             suite_get = test_suite_json.get
 
+            # Remove the test_set and test_case from the JSON and pass them
+            # as is.
             test_set = suite_pop(models.TEST_SET_KEY, [])
             test_case = suite_pop(models.TEST_CASE_KEY, [])
+
             suite_name = suite_get(models.NAME_KEY)
             defconfig_id = suite_get(models.DEFCONFIG_ID_KEY)
             job_id = suite_get(models.JOB_ID_KEY, None)
             boot_id = suite_get(models.BOOT_ID_KEY, None)
 
-            # Make sure the _id values passed are valid.
+            # Make sure the *_id values passed are valid.
             ret_val, error = self._check_references(
                 defconfig_id, job_id, boot_id)
 
@@ -80,20 +86,18 @@ class TestSuiteHandler(htbase.TestBaseHandler):
                         "Test suite '%s' created, data will be imported" %
                         suite_name)
 
-                    # TODO: async update suite document searching for the other
-                    # _id values.
-
                     other_args = {
-                        models.DEFCONFIG_ID_KEY: test_suite.defconfig_id,
-                        "mail_options": self.settings["mailoptions"]
+                        "db_options": self.settings["dboptions"],
+                        "mail_options": self.settings["mailoptions"],
+                        "suite_name": suite_name
                     }
 
-                    # TODO: async import of test sets.
                     if test_set:
                         if isinstance(test_set, types.ListType):
                             response.messages = (
                                 "Test sets will be parsed and imported")
                         else:
+                            test_set = []
                             response.errors = (
                                 "Test sets are not wrapped in a list; "
                                 "they will not be imported")
@@ -102,19 +106,20 @@ class TestSuiteHandler(htbase.TestBaseHandler):
                         if isinstance(test_case, types.ListType):
                             response.messages = (
                                 "Test cases will be parsed and imported")
-                            # TODO: move this into other async method.
-                            taskq.import_test_cases.apply_async(
-                                [
-                                    test_case,
-                                    doc_id,
-                                    suite_name,
-                                    self.settings["dboptions"], other_args
-                                ]
-                            )
                         else:
+                            test_case = []
                             response.errors = (
                                 "Test cases are not wrapped in a "
                                 "list; they will not be imported")
+
+                    # Complete the update of the test suite and import
+                    # everythuing else.
+                    taskq.complete_test_suite_import.apply_async(
+                        [
+                            test_suite_json,
+                            doc_id, test_set, test_case, other_args
+                        ]
+                    )
                 else:
                     response.status_code = ret_val
                     response.reason = (
@@ -204,6 +209,7 @@ class TestSuiteHandler(htbase.TestBaseHandler):
 
         return response
 
+    # TODO: consider caching results here as well.
     def _check_references(self, defconfig_id, job_id, boot_id):
         """Check that the provided IDs are valid.
 

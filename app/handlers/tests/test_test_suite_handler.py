@@ -167,11 +167,13 @@ class TestTestSuiteHandler(
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
+    @mock.patch("taskqueue.tasks.complete_test_suite_import")
     @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
     @mock.patch("utils.db.save")
-    def test_post_correct(self, mock_save, mock_check):
+    def test_post_correct(self, mock_save, mock_check, mock_task):
         mock_save.return_value = (201, "test-suite-id")
         mock_check.return_value = (200, None)
+        mock_task.apply_async = mock.MagicMock()
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
 
         body = json.dumps(
@@ -203,9 +205,11 @@ class TestTestSuiteHandler(
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
+    @mock.patch("taskqueue.tasks.complete_test_suite_import")
     @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
-    def test_post_correct_with_test_set(self, mock_check):
+    def test_post_correct_with_test_set(self, mock_check, mock_task):
         mock_check.return_value = (200, None)
+        mock_task.apply_async = mock.MagicMock()
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         body = json.dumps(
             dict(
@@ -223,9 +227,11 @@ class TestTestSuiteHandler(
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
+    @mock.patch("taskqueue.tasks.complete_test_suite_import")
     @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
-    def test_post_correct_with_wrong_test_set(self, mock_check):
+    def test_post_correct_with_wrong_test_set(self, mock_check, mock_task):
         mock_check.return_value = (200, None)
+        mock_task.apply_async = mock.MagicMock()
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         body = json.dumps(
             dict(
@@ -243,9 +249,9 @@ class TestTestSuiteHandler(
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
+    @mock.patch("taskqueue.tasks.complete_test_suite_import")
     @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
-    @mock.patch("taskqueue.tasks.import_test_cases")
-    def test_post_correct_with_test_case(self, mock_task, mock_check):
+    def test_post_correct_with_test_case(self, mock_check, mock_task):
         mock_check.return_value = (200, None)
         mock_task.apply_async = mock.MagicMock()
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
@@ -265,9 +271,11 @@ class TestTestSuiteHandler(
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
+    @mock.patch("taskqueue.tasks.complete_test_suite_import")
     @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
-    def test_post_correct_with_wrong_test_case(self, mock_check):
+    def test_post_correct_with_wrong_test_case(self, mock_check, mock_task):
         mock_check.return_value = (200, None)
+        mock_task.apply_async = mock.MagicMock()
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         body = json.dumps(
             dict(
