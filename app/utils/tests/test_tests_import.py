@@ -28,9 +28,11 @@ class TestTestsImport(unittest.TestCase):
     def tearDown(self):
         logging.disable(logging.NOTSET)
 
+    @mock.patch("utils.db.update")
     @mock.patch("utils.db.get_db_connection")
-    def test_import_multi_test_cases_empty(self, mock_db):
+    def test_import_multi_test_cases_empty(self, mock_db, mock_update):
         mock_db.return_value = self.db
+        mock_update.return_value = 200
 
         case_list = []
         test_suite_id = "test-suite-id"
@@ -38,16 +40,20 @@ class TestTestsImport(unittest.TestCase):
             "test_set_id": "test-set-id"
         }
 
-        results = tests_import.import_multi_test_case(
+        ids, errors = tests_import.import_multi_test_case(
             case_list, test_suite_id, {}, **kwargs)
 
-        self.assertDictEqual({}, results)
+        self.assertDictEqual({}, errors)
+        self.assertListEqual([], ids)
 
+    @mock.patch("utils.db.update")
     @mock.patch("utils.db.save")
     @mock.patch("utils.db.get_db_connection")
-    def test_import_multi_test_cases_simple(self, mock_db, mock_save):
+    def test_import_multi_test_cases_simple(
+            self, mock_db, mock_save, mock_update):
         mock_db.return_value = self.db
-        mock_save.return_value = (201, "id")
+        mock_save.return_value = (201, "fake-id")
+        mock_update.return_value = 200
 
         case_list = [
             {"name": "test-case", "version": "1.0"}
@@ -57,16 +63,20 @@ class TestTestsImport(unittest.TestCase):
             "test_set_id": "test-set-id"
         }
 
-        results = tests_import.import_multi_test_case(
+        ids, errors = tests_import.import_multi_test_case(
             case_list, test_suite_id, {}, **kwargs)
 
-        self.assertDictEqual({}, results)
+        self.assertDictEqual({}, errors)
+        self.assertListEqual(["fake-id"], ids)
 
+    @mock.patch("utils.db.update")
     @mock.patch("utils.db.save")
     @mock.patch("utils.db.get_db_connection")
-    def test_import_multi_test_cases_complex(self, mock_db, mock_save):
+    def test_import_multi_test_cases_complex(
+            self, mock_db, mock_save, mock_update):
         mock_db.return_value = self.db
-        mock_save.return_value = (201, "id")
+        mock_save.side_effect = [(201, "id0"), (201, "id1"), (201, "id2")]
+        mock_update.return_value = 200
 
         case_list = [
             {"name": "test-case0", "version": "1.0", "parameters": {"a": 1}},
@@ -78,10 +88,11 @@ class TestTestsImport(unittest.TestCase):
             "test_set_id": "test-set-id"
         }
 
-        results = tests_import.import_multi_test_case(
+        ids, errors = tests_import.import_multi_test_case(
             case_list, test_suite_id, {}, **kwargs)
 
-        self.assertDictEqual({}, results)
+        self.assertDictEqual({}, errors)
+        self.assertListEqual(["id0", "id1", "id2"], ids)
 
     @mock.patch("utils.db.save")
     @mock.patch("utils.db.get_db_connection")
@@ -100,10 +111,11 @@ class TestTestsImport(unittest.TestCase):
             "test_set_id": "test-set-id"
         }
 
-        results = tests_import.import_multi_test_case(
+        ids, errors = tests_import.import_multi_test_case(
             case_list, test_suite_id, {}, **kwargs)
 
-        self.assertListEqual([500], results.keys())
+        self.assertListEqual([500], errors.keys())
+        self.assertListEqual([], ids)
 
     @mock.patch("utils.db.save")
     @mock.patch("utils.db.get_db_connection")
@@ -121,11 +133,12 @@ class TestTestsImport(unittest.TestCase):
             "test_set_id": "test-set-id"
         }
 
-        results = tests_import.import_multi_test_case(
+        ids, errors = tests_import.import_multi_test_case(
             case_list, test_suite_id, {}, **kwargs)
 
-        self.assertListEqual([500], results.keys())
-        self.assertEqual(2, len(results[500]))
+        self.assertListEqual([500], errors.keys())
+        self.assertEqual(2, len(errors[500]))
+        self.assertListEqual([], ids)
 
     @mock.patch("utils.db.save")
     @mock.patch("utils.db.get_db_connection")
@@ -133,7 +146,7 @@ class TestTestsImport(unittest.TestCase):
             self, mock_db, mock_save):
         mock_db.return_value = self.db
         mock_save.side_effect = [
-            (500, None), (201, "id"), (201, "id"), (500, None)]
+            (500, None), (201, "id0"), (201, "id1"), (500, None)]
 
         case_list = [
             {"name": "test-case0", "version": "1.0", "parameters": {"a": 1}},
@@ -146,11 +159,12 @@ class TestTestsImport(unittest.TestCase):
             "test_set_id": "test-set-id"
         }
 
-        results = tests_import.import_multi_test_case(
+        ids, errors = tests_import.import_multi_test_case(
             case_list, test_suite_id, {}, **kwargs)
 
-        self.assertListEqual([500], results.keys())
-        self.assertEqual(2, len(results[500]))
+        self.assertListEqual([500], errors.keys())
+        self.assertEqual(2, len(errors[500]))
+        self.assertListEqual(["id0", "id1"], ids)
 
     @mock.patch("utils.db.get_db_connection")
     def test_import_multi_test_cases_with_non_dictionary(self, mock_db):
@@ -162,10 +176,11 @@ class TestTestsImport(unittest.TestCase):
             "test_set_id": "test-set-id"
         }
 
-        results = tests_import.import_multi_test_case(
+        ids, errors = tests_import.import_multi_test_case(
             case_list, test_suite_id, {}, **kwargs)
 
-        self.assertListEqual([400], results.keys())
+        self.assertListEqual([400], errors.keys())
+        self.assertListEqual([], ids)
 
     @mock.patch("utils.db.get_db_connection")
     def test_import_multi_test_cases_missing_mandatory_keys(self, mock_db):
@@ -177,10 +192,11 @@ class TestTestsImport(unittest.TestCase):
             "test_set_id": "test-set-id"
         }
 
-        results = tests_import.import_multi_test_case(
+        ids, errors = tests_import.import_multi_test_case(
             case_list, test_suite_id, {}, **kwargs)
 
-        self.assertListEqual([400], results.keys())
+        self.assertListEqual([400], errors.keys())
+        self.assertListEqual([], ids)
 
     @mock.patch("utils.db.get_db_connection")
     def test_import_multi_test_cases_wrong_key(self, mock_db):
@@ -192,10 +208,11 @@ class TestTestsImport(unittest.TestCase):
             "test_set_id": "test-set-id"
         }
 
-        results = tests_import.import_multi_test_case(
+        ids, errors = tests_import.import_multi_test_case(
             case_list, test_suite_id, {}, **kwargs)
 
-        self.assertListEqual([400], results.keys())
+        self.assertListEqual([400], errors.keys())
+        self.assertListEqual([], ids)
 
     @mock.patch("utils.tests_import._parse_test_suite")
     def test_update_test_suite_simple(self, mock_parse):

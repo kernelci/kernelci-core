@@ -230,7 +230,7 @@ def send_build_report(job, kernel, to_addrs, db_options, mail_options):
     track_started=True,
     ignore_result=False)
 def complete_test_suite_import(
-        suite_json, test_suite_id, test_set, test_case, **kwargs):
+        suite_json, test_suite_id, test_set, test_case, db_options, **kwargs):
     """Complete the test suite import.
 
     First update the test suite references, if what is provided is only the
@@ -244,10 +244,11 @@ def complete_test_suite_import(
     :type test_set: list
     :param test_case: The list of test cases to import.
     :type test_case: list
+    :param db_options: The database connection parameters.
+    :type db_options: dict
     """
     k_get = kwargs.get
     suite_name = k_get("suite_name")
-    db_options = k_get("db_options", {})
 
     ret_val, update_doc = tests_import.update_test_suite(
         suite_json, test_suite_id, db_options, **kwargs)
@@ -263,10 +264,13 @@ def complete_test_suite_import(
         pass
 
     if test_case:
+        # TODO: have to wait here for the test case ids and update the test
+        # suite.
         import_test_cases.apply_async(
             [
-                test_case, test_suite_id, suite_name, db_options, kwargs
-            ]
+                test_case, test_suite_id, suite_name, db_options
+            ],
+            kwargs=kwargs
         )
 
 

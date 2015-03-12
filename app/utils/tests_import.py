@@ -240,32 +240,56 @@ def import_multi_test_case(case_list, test_suite_id, db_options, **kwargs):
     :param test_suite_id: string
     :param db_options: Options for connecting to the database.
     :type db_options: dict
-    :return A dictionary with keys the error codes and value a list of error
-    messages, or an empty dictionary if no errors.
+    :return A list with the saved test case IDs or an empty list; a dictionary
+    with keys the error codes and value a list of error messages, or an empty
+    dictionary.
     """
     database = utils.db.get_db_connection(db_options)
     err_results = {}
+    test_ids = []
     res_keys = err_results.viewkeys()
 
     def _add_err_msg(err_code, err_msg):
-        if err_code != 201:
-            if err_code in res_keys:
-                err_results[err_code].append(err_msg)
-            else:
-                err_results[err_code] = []
-                err_results[err_code].append(err_msg)
+        """Add error code and message to the data structure.
+
+        :param err_code: The error code.
+        :type err_code: integer
+        :param err_msg: The error messag.
+        :"type err_msg: string
+        """
+        if err_code in res_keys:
+            err_results[err_code].append(err_msg)
+        else:
+            err_results[err_code] = []
+            err_results[err_code].append(err_msg)
+
+    def _parse_result(ret_val, doc_id, err_msg):
+        """Parse the result and its return value.
+
+        :param ret_val: The return value of the test case import.
+        :type ret_val: integer
+        :param doc_id: The saved document ID.
+        :type doc_id: bson.obectid.ObjectId
+        :param err_msg: The error message.
+        :type err_msg: string
+        """
+        if all([ret_val == 201, doc_id]):
+            test_ids.append(doc_id)
+        else:
+            _add_err_msg(ret_val, err_msg)
 
     def _yield_test_cases_import():
+        """Iterate through the test cases to import and return them."""
         for test_case in case_list:
             yield import_test_case(
                 test_case, test_suite_id, database, **kwargs)
 
     [
-        _add_err_msg(ret_val, err_msg)
-        for ret_val, _, err_msg in _yield_test_cases_import()
+        _parse_result(ret_val, doc_id, err_msg)
+        for ret_val, doc_id, err_msg in _yield_test_cases_import()
     ]
 
-    return err_results
+    return test_ids, err_results
 
 
 def import_test_case(json_case, test_suite_id, database, **kwargs):
@@ -289,7 +313,8 @@ def import_test_case(json_case, test_suite_id, database, **kwargs):
     :type json_case: dict
     :param test_suite_id: The ID of the test suite these test cases belong to.
     :type test_suite_id: string
-    :return 200 if OK, 500 in case of errors, and None or an error message.
+    :return 200 if OK, 500 in case of errors; the saved document ID or None;
+    an error message in case of error or None.
     """
     ret_val = 400
     error = None

@@ -87,7 +87,6 @@ class TestSuiteHandler(htbase.TestBaseHandler):
                         suite_name)
 
                     other_args = {
-                        "db_options": self.settings["dboptions"],
                         "mail_options": self.settings["mailoptions"],
                         "suite_name": suite_name
                     }
@@ -117,8 +116,10 @@ class TestSuiteHandler(htbase.TestBaseHandler):
                     taskq.complete_test_suite_import.apply_async(
                         [
                             test_suite_json,
-                            doc_id, test_set, test_case, other_args
-                        ]
+                            doc_id,
+                            test_set, test_case, self.settings["dboptions"]
+                        ],
+                        kwargs=other_args
                     )
                 else:
                     response.status_code = ret_val
