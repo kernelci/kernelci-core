@@ -226,6 +226,51 @@ def send_build_report(job, kernel, to_addrs, db_options, mail_options):
 
 
 @taskc.app.task(
+    name="complete-test-suite-import",
+    track_started=True,
+    ignore_result=False)
+def complete_test_suite_import(
+        suite_json, test_suite_id, test_set, test_case, **kwargs):
+    """Complete the test suite import.
+
+    First update the test suite references, if what is provided is only the
+    *_id values. Then, import the test sets and test cases provided.
+
+    :param suite_json: The JSON object with the test suite.
+    :type suite_json: dict
+    :param test_suite_id: The ID of the test suite.
+    :type test_suite_id: string
+    :param test_set: The list of test sets to import.
+    :type test_set: list
+    :param test_case: The list of test cases to import.
+    :type test_case: list
+    """
+    k_get = kwargs.get
+    suite_name = k_get("suite_name")
+    db_options = k_get("db_options", {})
+
+    ret_val, update_doc = tests_import.update_test_suite(
+        suite_json, test_suite_id, db_options, **kwargs)
+
+    if ret_val != 200:
+        utils.LOG.error(
+            "Error updating test suite '%s' (%s)", suite_name, test_suite_id)
+
+    kwargs.update(update_doc)
+
+    if test_set:
+        # TODO: import test sets.
+        pass
+
+    if test_case:
+        import_test_cases.apply_async(
+            [
+                test_case, test_suite_id, suite_name, db_options, kwargs
+            ]
+        )
+
+
+@taskc.app.task(
     name="import-test-cases", track_started=True, ignore_result=False)
 def import_test_cases(
         case_list, test_suite_id, test_suite_name, db_options, **kwargs):
