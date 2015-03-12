@@ -214,6 +214,30 @@ class TestTestsImport(unittest.TestCase):
         self.assertEqual(ret_val, 200)
         self.assertDictEqual({}, doc)
 
+    @mock.patch("bson.objectid.ObjectId")
+    @mock.patch("utils.db.update")
+    @mock.patch("utils.db.get_db_connection")
+    @mock.patch("utils.tests_import._parse_test_suite")
+    def test_update_test_suite_with_result(
+            self, mock_parse, mock_db, mock_update, mock_id):
+        mock_parse.return_value = {"_id": "fake"}
+        mock_db.return_value = self.db
+        mock_update.return_value = 200
+        mock_id.return_value = "fake"
+        suite_json = {
+            "name": "test-suite",
+            "defconfig_id": "defconfig",
+            "version": "1.0",
+            "time": 100
+        }
+        test_suite_id = "test-suite-id"
+
+        ret_val, doc = tests_import.update_test_suite(
+            suite_json, test_suite_id, {})
+
+        self.assertEqual(ret_val, 200)
+        self.assertDictEqual({"_id": "fake"}, doc)
+
     @mock.patch("utils.db.find_one2")
     @mock.patch("bson.objectid.ObjectId")
     @mock.patch("utils.db.get_db_connection")
