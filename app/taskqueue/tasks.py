@@ -201,6 +201,19 @@ def send_boot_report(job,
     track_started=True,
     ignore_result=False)
 def send_build_report(job, kernel, to_addrs, db_options, mail_options):
+    """Create the build report email and send it.
+
+    :param job: The job name.
+    :type job: str
+    :param kernel: The kernel name.
+    :type kernel: str
+    :param to_addrs: List of recipients.
+    :type to_addrs: list
+    :param db_options: The options necessary to connect to the database.
+    :type db_options: dict
+    :param mail_options: The options necessary to connect to the SMTP server.
+    :type mail_options: dict
+    """
     utils.LOG.info("Preparing build report email for '%s-%s'", job, kernel)
     status = "ERROR"
 
