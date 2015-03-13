@@ -281,17 +281,45 @@ def update(collection, spec, document, operation="$set"):
     ret_val = 200
 
     try:
-        collection.update(
-            spec,
-            {
-                operation: document,
-            }
-        )
+        collection.update(spec, {operation: document})
     except pymongo.errors.OperationFailure, ex:
         utils.LOG.error(
             "Error updating the following document: %s", str(document))
         utils.LOG.exception(str(ex))
         ret_val = 500
+
+    return ret_val
+
+
+def find_and_update(collection, query, document, operation="$set"):
+    """Search for a document in the provided collection and update it.
+
+    :param collection: The database collection.
+    :type collection: pymongo.collection
+    :param query: The query to perform to search for the document to update.
+    :type query: dict
+    :param document: The key-value pairs to update.
+    :type document: dict.
+    :return 200 if OK, 404 if the document to search cannot be found, 500 in
+    case of error.
+    """
+    ret_val = 200
+
+    try:
+        result = collection.find_and_modify(
+            query,
+            {operation: document},
+            fields=[models.ID_KEY]
+        )
+        if not result:
+            utils.LOG.error(
+                "Error searching or updating document with query: %s", query)
+            ret_val = 404
+    except pymongo.errors.OperationFailure, ex:
+        ret_val = 500
+        utils.LOG.error(
+            "Error searching and updating the document with query: %s", query)
+        utils.LOG.exception(ex)
 
     return ret_val
 
