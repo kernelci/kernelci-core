@@ -293,6 +293,29 @@ class TestTestSuiteHandler(
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
+    @mock.patch("taskqueue.tasks.complete_test_suite_import")
+    @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
+    def test_post_correct_with_test_case_and_set(self, mock_check, mock_task):
+        mock_check.return_value = (200, None)
+        mock_task.apply_async = mock.MagicMock()
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+        body = json.dumps(
+            dict(
+                name="suite",
+                version="1.0",
+                lab_name="lab",
+                defconfig_id="defconfig",
+                test_case=[{"foo": "bar"}], test_set=[{"foo": "bar"}]
+            )
+        )
+
+        response = self.fetch(
+            "/test/suite", method="POST", headers=headers, body=body)
+
+        self.assertEqual(response.code, 202)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
     @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
     @mock.patch("utils.db.save")
     def test_post_correct_with_error(self, mock_save, mock_check):

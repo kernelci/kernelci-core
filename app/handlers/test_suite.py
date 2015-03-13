@@ -52,14 +52,14 @@ class TestSuiteHandler(htbase.TestBaseHandler):
             # TODO: double check the token with its lab name, we need to make
             # sure people are sending test reports with a token lab with the
             # correct lab name value. Check the boot handler.
-            test_suite_json = kwargs.get("json_obj", None)
-            suite_pop = test_suite_json.pop
-            suite_get = test_suite_json.get
+            suite_json = kwargs.get("json_obj", None)
+            suite_pop = suite_json.pop
+            suite_get = suite_json.get
 
             # Remove the test_set and test_case from the JSON and pass them
             # as is.
-            test_set = suite_pop(models.TEST_SET_KEY, [])
-            test_case = suite_pop(models.TEST_CASE_KEY, [])
+            sets_list = suite_pop(models.TEST_SET_KEY, [])
+            cases_list = suite_pop(models.TEST_CASE_KEY, [])
 
             suite_name = suite_get(models.NAME_KEY)
             defconfig_id = suite_get(models.DEFCONFIG_ID_KEY)
@@ -71,17 +71,16 @@ class TestSuiteHandler(htbase.TestBaseHandler):
                 defconfig_id, job_id, boot_id)
 
             if ret_val == 200:
-                test_suite = mtsuite.TestSuiteDocument.from_json(
-                    test_suite_json)
+                test_suite = mtsuite.TestSuiteDocument.from_json(suite_json)
                 test_suite.created_on = datetime.datetime.now(
                     tz=bson.tz_util.utc)
 
-                ret_val, doc_id = utils.db.save(
+                ret_val, suite_id = utils.db.save(
                     self.db, test_suite, manipulate=True)
 
                 if ret_val == 201:
                     response.status_code = 202
-                    response.result = {models.ID_KEY: doc_id}
+                    response.result = {models.ID_KEY: suite_id}
                     response.reason = (
                         "Test suite '%s' created, data will be imported" %
                         suite_name)
@@ -91,36 +90,58 @@ class TestSuiteHandler(htbase.TestBaseHandler):
                         "suite_name": suite_name
                     }
 
-                    if test_set:
-                        if isinstance(test_set, types.ListType):
+                    if sets_list:
+                        if isinstance(sets_list, types.ListType):
                             response.messages = (
                                 "Test sets will be parsed and imported")
                         else:
-                            test_set = []
+                            sets_list = []
                             response.errors = (
                                 "Test sets are not wrapped in a list; "
                                 "they will not be imported")
 
-                    if test_case:
-                        if isinstance(test_case, types.ListType):
+                    if cases_list:
+                        if isinstance(cases_list, types.ListType):
                             response.messages = (
                                 "Test cases will be parsed and imported")
                         else:
-                            test_case = []
+                            cases_list = []
                             response.errors = (
                                 "Test cases are not wrapped in a "
                                 "list; they will not be imported")
 
                     # Complete the update of the test suite and import
                     # everythuing else.
-                    taskq.complete_test_suite_import.apply_async(
-                        [
-                            test_suite_json,
-                            doc_id,
-                            test_set, test_case, self.settings["dboptions"]
-                        ],
-                        kwargs=other_args
-                    )
+                    if all([cases_list, sets_list]):
+                        self._import_suite_with_sets_and_cases(
+                            suite_json,
+                            suite_id,
+                            sets_list,
+                            cases_list,
+                            self.settings["dboptions"], **other_args
+                        )
+                    elif all([cases_list, not sets_list]):
+                        self._import_suite_and_cases(
+                            suite_json,
+                            suite_id,
+                            cases_list,
+                            self.settings["dboptions"], **other_args
+                        )
+                    elif all([not cases_list, sets_list]):
+                        self._import_suite_and_sets(
+                            suite_json,
+                            suite_id,
+                            sets_list, self.settings["dboptions"], **other_args
+                        )
+                    else:
+                        # Just update the test suite document.
+                        taskq.complete_test_suite_import.apply_async(
+                            [
+                                suite_json,
+                                suite_id, self.settings["dboptions"]
+                            ],
+                            kwargs=kwargs
+                        )
                 else:
                     response.status_code = ret_val
                     response.reason = (
@@ -130,6 +151,82 @@ class TestSuiteHandler(htbase.TestBaseHandler):
                 response.reason = error
 
         return response
+
+    def _import_suite_with_sets_and_cases(
+            self,
+            suite_json, suite_id, sets_list, cases_list, db_options, **kwargs):
+        """Update the test suite and import test sets and cases.
+
+        Just a thin wrapper around the real task call.
+
+        :param suite_json: The test suite JSON object.
+        :type suite_json: dict
+        :param suite_id: The ID of the test suite as saved in the database.
+        :type suite_id: bson.objectid.ObjectId
+        :param sets_list: The list of test sets to import.
+        :type sets_list: list
+        :param cases_list: The list of test cases to import.
+        :rtype cases_list: list
+        :param db_option: The database connection options.
+        :type db_options: dict
+        """
+        # XXX: we should use link_error as well in case of errors.
+        taskq.complete_test_suite_import.apply_async(
+            [suite_json, suite_id, db_options],
+            kwargs=kwargs,
+            link=[
+                taskq.import_test_sets_from_test_suite.s(
+                    suite_id, sets_list, db_options),
+                taskq.import_test_cases_from_test_suite.s(
+                    suite_id, cases_list, db_options)
+            ]
+        )
+
+    def _import_suite_and_cases(
+            self, suite_json, suite_id, tests_list, db_options, **kwargs):
+        """Call the async task to update the test suite and import test cases.
+
+        Just a thin wrapper around the real task call.
+
+        :param suite_json: The test suite JSON object.
+        :type suite_json: dict
+        :param suite_id: The ID of the test suite as saved in the database.
+        :type suite_id: bson.objectid.ObjectId
+        :param tests_list: The list of tests to import.
+        :type tests_list: list
+        :param db_option: The database connection options.
+        :type db_options: dict
+        """
+        # XXX: we should use link_error as well in case of errors.
+        taskq.complete_test_suite_import.apply_async(
+            [suite_json, suite_id, db_options],
+            kwargs=kwargs,
+            link=taskq.import_test_cases_from_test_suite.s(
+                suite_id, tests_list, db_options)
+        )
+
+    def _import_suite_and_sets(
+            self, suite_json, suite_id, tests_list, db_options, **kwargs):
+        """Call the async task to update the test suite and import test sets.
+
+        Just a thin wrapper around the real task call.
+
+        :param suite_json: The test suite JSON object.
+        :type suite_json: dict
+        :param suite_id: The ID of the test suite as saved in the database.
+        :type suite_id: bson.objectid.ObjectId
+        :param tests_list: The list of tests to import.
+        :type tests_list: list
+        :param db_option: The database connection options.
+        :type db_options: dict
+        """
+        # XXX: we should use link_error as well in case of errors.
+        taskq.complete_test_suite_import.apply_async(
+            [suite_json, suite_id, db_options],
+            kwargs=kwargs,
+            link=taskq.import_test_sets_from_test_suite.s(
+                suite_id, tests_list, db_options)
+        )
 
     def _put(self, *args, **kwargs):
         response = hresponse.HandlerResponse()

@@ -51,11 +51,12 @@ class TestCaseHandler(htbase.TestBaseHandler):
             suite_id = j_get(models.TEST_SUITE_ID_KEY)
             case_name = j_get(models.NAME_KEY)
 
-            test_suite, err_msg = self._check_and_get_test_suite(suite_id)
-            if test_suite:
-                # TODO: pass informations.
+            suite_oid, err_msg = self._check_and_get_test_suite(suite_id)
+            if suite_oid:
+                # TODO: pass information.
                 ret_val, doc_id, err_msg = tests_import.import_test_case(
-                    test_case_json, suite_id, self.db)
+                    test_case_json,
+                    suite_oid, self.db, self.settings["dboptions"])
                 response.status_code = ret_val
 
                 if ret_val == 201:
@@ -132,18 +133,20 @@ class TestCaseHandler(htbase.TestBaseHandler):
         :return The test suite from the database or None, and an error message
         in case of errors or None.
         """
-        test_suite = None
+        suite_oid = None
         error = None
 
         try:
-            suite_id = bson.objectid.ObjectId(test_suite_id)
+            suite_oid = bson.objectid.ObjectId(test_suite_id)
             test_suite = utils.db.find_one2(
-                self.db[models.TEST_SUITE_COLLECTION], suite_id)
+                self.db[models.TEST_SUITE_COLLECTION],
+                suite_oid, fields=[models.ID_KEY])
             if not test_suite:
+                suite_oid = None
                 error = "Test suite with ID '%s' not found" % test_suite_id
         except bson.errors.InvalidId, ex:
             error = "Test suite ID '%s' is not valid" % test_suite_id
             self.log.exception(ex)
             self.log.error(error)
 
-        return test_suite, error
+        return suite_oid, error
