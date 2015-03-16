@@ -1,0 +1,21 @@
+{
+    "title": "job",
+    "description": "A job data to trigger build import",
+    "type": "object",
+    "properties": {
+        "version": {
+            "type": "string",
+            "description": "The version number of this JSON schema",
+            "enum": ["1.0"]
+        },
+        "job": {
+            "type": "string",
+            "description": "The job associated with this object"
+        },
+        "kernel": {
+            "type": "string",
+            "description": "The kernel associated with this object"
+        }
+    },
+    "required": ["job", "kernel"]
+}
