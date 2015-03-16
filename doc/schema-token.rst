@@ -72,13 +72,13 @@ Lab Token
 =========
 
 Boot Lab
-********
+++++++++
 
 A boot lab token is a token that is being used inside a lab for boot testing.
 This property is used only internally to describe the token.
 
 Test Lab
-********
+++++++++
 
 A test lab token is a token that is being used to run general tests.
 This property is used only internally to describe the token.

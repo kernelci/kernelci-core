@@ -1,23 +1,23 @@
-.. _collection_test_suite:
+.. _collection_test_set:
 
-suite
------
+set
+---
 
-More info about the test suite schema can be found :ref:`here <schema_test_suite>`.
+More info about the test set schema can be found :ref:`here <schema_test_set>`.
 
 .. note::
 
-    This resource can also be accessed using the plural form ``suites``.
+    This resource can also be accessed using the plural form ``sets``.
 
 GET
 ***
 
-.. http:get:: /test/suite/(string:test_suite_id)
+.. http:get:: /test/set/(string:test_set_id)
 
- Get all the available test suites or a single one if ``test_suite_id`` is provided.
+ Get all the available test sets or a single one if ``test_set_id`` is provided.
 
- :param test_suite_id: The ID of the test suite to retrieve.
- :type test_suite_id: string
+ :param test_set_id: The ID of the test set to retrieve.
+ :type test_set_id: string
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Accept-Encoding: Accept the ``gzip`` coding.
@@ -35,18 +35,11 @@ GET
  :query string field: The field that should be returned in the response. Can be
     repeated multiple times.
  :query string nfield: The field that should *not* be returned in the response. Can be repeated multiple times.
- :query string _id: The internal ID of the test suite report.
- :query string arch: The platform architecture.
- :query string board: The board where the test suite has been run.
- :query string board_instance: The board instance where the test suite has been run.
- :query string boot_id: The ID of the boot report used by the test suite.
+ :query string _id: The internal ID of the test set report.
  :query string created_on: The creation date: accepted formats are ``YYYY-MM-DD`` and ``YYYYMMDD``.
- :query string defconfig_full: A value of the ``defconfig_full`` used for the build.
- :query string defconfig: A value of the ``defconfig`` used for the build.
- :query string job: The job/tree name.
- :query string job_id: The ID of the job.
- :query string kernel: The kernel name.
- :query string name: The name of a test suite.
+ :query string name: The name of a test set.
+ :query string test_suite_id: The ID of the test suite associated with the test set.
+ :query string time: The time it took to execute the test set.
 
  :status 200: Results found.
  :status 403: Not authorized to perform the operation.
@@ -57,14 +50,14 @@ GET
 
  .. sourcecode:: http
 
-    GET /test/suite HTTP/1.1
+    GET /test/set HTTP/1.1
     Host: api.kernelci.org
     Accept: */*
     Authorization: token
 
  .. sourcecode:: http
 
-    GET /tests/suites HTTP/1.1
+    GET /tests/sets HTTP/1.1
     Host: api.kernelci.org
     Accept: */*
     Authorization: token
@@ -85,7 +78,7 @@ GET
             {
                 "_id": {
                     "$oid": "123456789",
-                    "name": "Test suite"
+                    "name": "A test set"
                 }
             }
         ]
@@ -97,16 +90,17 @@ GET
 POST
 ****
 
-.. http:post:: /test/suite
+.. http:post:: /test/set
 
- Create a new test suite as defined in the JSON data. The request will be accepted and, if test sets and/or test cases have been specified in the JSON data, it will begin to parse the data.
+ Create a new test set as defined in the JSON data. The request will be accepted and,
+ if test cases have been specified in the JSON data, they will be parsed asynchronously.
 
- If saving the test suite has success, it will return the associated ID value.
+ If saving the test set has success, it will return the associated ID value.
 
- For more info on all the required JSON request fields, see the :ref:`test suite schema for POST requests <schema_test_suite_post>`.
+ For more info on all the required JSON request fields, see the :ref:`test set schema for POST requests <schema_test_set_post>`.
 
- :reqjson string name: The name of the test suite.
- :reqjson string defconfig_id: The ID of the build report used for testing.
+ :reqjson string name: The name of the test set.
+ :reqjson string test_suite_id: The ID of the test suite the test set belongs to.
  :reqjson string version: The version of the JSON schema format.
 
  :reqheader Authorization: The token necessary to authorize the request.
@@ -115,6 +109,7 @@ POST
 
  :resheader Content-Type: Will be ``application/json; charset=UTF-8``.
 
+ :status 201: The request has been accepted and saved.
  :status 202: The request has been accepted and is going to be created.
  :status 400: JSON data not valid.
  :status 403: Not authorized to perform the operation.
@@ -123,31 +118,31 @@ POST
 
  **Example Requests**
 
- .. sourcecode:: http 
+ .. sourcecode:: http
 
-    POST /test/suite HTTP/1.1
+    POST /test/set HTTP/1.1
     Host: api.kernelci.org
     Content-Type: application/json
     Accept: */*
     Authorization: token
 
     {
-        "name": "LSK test suite",
-        "defconfig_id": "1234567890",
+        "name": "A test set",
+        "test_suite_id": "1234567890",
         "version": "1.0"
     }
 
- .. sourcecode:: http 
+ .. sourcecode:: http
 
-    POST /test/suite HTTP/1.1
+    POST /test/set HTTP/1.1
     Host: api.kernelci.org
     Content-Type: application/json
     Accept: */*
     Authorization: token
 
     {
-        "name": "LSK test suite",
-        "defconfig_id": "1234567890",
+        "name": "A test set",
+        "test_suite_id": "1234567890",
         "version": "1.0",
         "test_case": [
             {
@@ -161,11 +156,11 @@ POST
 
  .. sourcecode:: http
 
-    HTTP/1.1 201 Test suite 'LSK test suite' created
+    HTTP/1.1 201 Test set 'A test set' created
     Vary: Accept-Encoding
     Date: Mon, 16 Mar 2014 12:29:51 GMT
     Content-Type: application/json; charset=UTF-8
-    Location: /test/suite/1234567890
+    Location: /test/set/1234567890
 
     {
         "code": 201,
@@ -176,16 +171,16 @@ POST
                 }
             }
         ],
-        "reason": "Test suite 'LSK test suite' created"
+        "reason": "Test set 'A test set' created"
     }
 
  .. sourcecode:: http
 
-    HTTP/1.1 202 Test suite 'LSK test suite' created
+    HTTP/1.1 202 Test set 'A test set' created
     Vary: Accept-Encoding
     Date: Mon, 16 Mar 2014 12:29:51 GMT
     Content-Type: application/json; charset=UTF-8
-    Location: /test/suite/1234567890
+    Location: /test/set/1234567890
 
     {
         "code": 202,
@@ -196,7 +191,7 @@ POST
                 }
             }
         ],
-        "reason": "Test suite 'LSK test suite' created",
+        "reason": "Test set 'A test set' created",
         "messages": [
             "Test cases will be parsed and imported"
         ]
@@ -205,9 +200,9 @@ POST
 PUT
 ***
 
-.. http:put:: /test/suite/(string:test_suite_id)
+.. http:put:: /test/set/(string:test_set_id)
 
- Update an existing test suite identified by its ``test_suite_id`` with values defined in the JSON data.
+ Update an existing test set identified by its ``test_set_id`` with values defined in the JSON data.
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Content-Type: Content type of the transmitted data, must be ``application/json``.
@@ -226,15 +221,14 @@ PUT
 
  .. sourcecode:: http 
 
-    POST /test/suite/123456789 HTTP/1.1
+    POST /test/set/123456789 HTTP/1.1
     Host: api.kernelci.org
     Content-Type: application/json
     Accept: */*
     Authorization: token
 
     {
-        "name": "LSK test suite - NEW",
-        "defconfig_id": "1234567891"
+        "name": "The new name"
     }
 
  **Example Responses**
@@ -254,12 +248,12 @@ PUT
 DELETE
 ******
 
-.. http:delete:: /test/suite/(string:test_suite_id)
+.. http:delete:: /test/set/(string:test_set_id)
 
- Delete the test suite identified by ``test_suite_id``.
+ Delete the test set identified by ``test_set_id``.
 
- :param test_suite_id: The test suite ID.
- :type test_suite_id: string
+ :param test_set_id: The test set ID.
+ :type test_set_id: string
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Accept-Encoding: Accept the ``gzip`` coding.
@@ -275,7 +269,7 @@ DELETE
 
  .. sourcecode:: http
 
-    DELETE /test/suite/1234567890 HTTP/1.1
+    DELETE /test/set/1234567890 HTTP/1.1
     Host: api.kernelci.org
     Accept: */*
     Content-Type: application/json

@@ -11,3 +11,5 @@ The ``test`` resource is a collection of multiple resources.
    :maxdepth: 2
 
    collection-test-suite
+   collection-test-set
+   collection-test-case
