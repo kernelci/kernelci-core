@@ -1,0 +1,93 @@
+{
+    "$schema": "http://api.kernelci.org/json-schema/1.0/lab_post.json",
+    "id": "http://api.kernelci.org/json-schema/1.0/lab_post.json",
+    "title": "lab",
+    "description": "A lab object",
+    "type": "object",
+    "properties": {
+        "version": {
+            "type": "string",
+            "description": "The version number of this JSON schema",
+            "enum": ["1.0"]
+        },
+        "name": {
+            "type": "string",
+            "description": "The name associated with the object"
+        },
+        "contact": {
+            "type": "object",
+            "description": "The contact details of the object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "The name of the contact"
+                },
+                "surname": {
+                    "type": "string",
+                    "description": "The surname of the contact"
+                },
+                "email": {
+                    "type": "string",
+                    "description": "The email of the contact"
+                },
+                "telephone": {
+                    "type": "string",
+                    "description": "The land-line phone number"
+                },
+                "mobile": {
+                    "type": "string",
+                    "description": "The mobile phone number"
+                },
+                "affiliation": {
+                    "type": "string",
+                    "description": "The name of the company, or association this contact is part of"
+                },
+                "required": ["name", "surname", "email"]
+            }
+        },
+        "address": {
+            "type": "object",
+            "description": "The address where the lab is located",
+            "properties": {
+                "street_1": {
+                    "type": "string",
+                    "description": "First line for the address"
+                },
+                "street_2": {
+                    "type": "string",
+                    "description": "Second line for the address"
+                },
+                "city": {
+                    "type": "string",
+                    "description": "The city name"
+                },
+                "country": {
+                    "type": "string",
+                    "description": "The country name"
+                },
+                "zipcode": {
+                    "type": "string",
+                    "description": "The zip code"
+                },
+                "longitude": {
+                    "type": "number",
+                    "description": "Latitude of the lab location"
+                },
+                "longitude": {
+                    "type": "number",
+                    "description": "Longitude of the lab location"
+                }
+            }
+        },
+        "private": {
+            "type": "boolean",
+            "description": "If the lab is private or not",
+            "default": "false"
+        },
+        "token": {
+            "type": "string",
+            "description": "The token to associated with this lab"
+        }
+    },
+    "required": ["version", "name", "contact"]
+}
