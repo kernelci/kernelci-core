@@ -1,4 +1,6 @@
 {
+    "$schema": "http://api.kernelci.org/json-schema/1.0/job_post.json",
+    "id": "http://api.kernelci.org/json-schema/1.0/job_post.json",
     "title": "job",
     "description": "A job data to trigger build import",
     "type": "object",

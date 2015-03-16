@@ -1,4 +1,6 @@
 {
+    "$schema": "http://api.kernelci.org/json-schema/1.0/defconfig_post.json",
+    "id": "http://api.kernelci.org/json-schema/1.0/defconfig_post.json",
     "title": "defconfig",
     "description": "A defconfig as built by the continuous integration system",
     "type": "object",

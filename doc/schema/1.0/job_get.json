@@ -1,4 +1,6 @@
 {
+    "$schema": "http://api.kernelci.org/json-schema/1.0/job_get.json",
+    "id": "http://api.kernelci.org/json-schema/1.0/job_get.json",
     "title": "job",
     "description": "A job as provided by the CI loop",
     "type": "object",
