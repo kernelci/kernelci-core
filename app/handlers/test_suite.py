@@ -82,7 +82,7 @@ class TestSuiteHandler(htbase.TestBaseHandler):
                     response.status_code = 202
                     response.result = {models.ID_KEY: suite_id}
                     response.reason = (
-                        "Test suite '%s' created, data will be imported" %
+                        "Test suite '%s' created" %
                         suite_name)
                     response.headers = {
                         "Location": "/test/suite/%s" % str(suite_id)}

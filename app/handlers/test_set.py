@@ -78,7 +78,7 @@ class TestSetHandler(htbase.TestBaseHandler):
                             if isinstance(test_cases, types.ListType):
                                 response.status_code = 202
                                 response.messages = (
-                                    "Associated test cases will be parsed and "
+                                    "Test cases will be parsed and "
                                     "imported")
                                 self._import_test_cases(
                                     test_cases, suite_oid, doc_id)
