@@ -23,6 +23,7 @@ import handlers.test_base as htbase
 import models
 import models.test_set as mtset
 import utils.db
+import taskqueue.tasks as taskq
 
 
 # pylint: disable=too-many-public-methods
@@ -49,45 +50,78 @@ class TestSetHandler(htbase.TestBaseHandler):
             response.reason = "To update a test set, use a PUT request"
         else:
             test_set_json = kwargs.get("json_obj", None)
-            set_pop = test_set_json.pop
-            test_case = set_pop(models.TEST_CASE_KEY, [])
+            j_pop = test_set_json.pop
+            j_get = test_set_json.get
+            test_cases = j_pop(models.TEST_CASE_KEY, [])
+            suite_id = j_get(models.TEST_SUITE_ID_KEY)
+            set_name = j_get(models.NAME_KEY)
 
-            try:
-                test_set = mtset.TestSetDocument.from_json(test_set_json)
-                test_set.created_on = datetime.datetime.now(
-                    tz=bson.tz_util.utc)
+            suite_oid, err_msg = self._check_and_get_test_suite(suite_id)
+            if suite_oid:
+                try:
+                    test_set = mtset.TestSetDocument.from_json(test_set_json)
+                    test_set.created_on = datetime.datetime.now(
+                        tz=bson.tz_util.utc)
+                    test_set.test_suite_id = suite_oid
 
-                ret_val, doc_id = utils.db.save(
-                    self.db, test_set, manipulate=True)
-                response.status_code = ret_val
+                    ret_val, doc_id = utils.db.save(
+                        self.db, test_set, manipulate=True)
+                    response.status_code = ret_val
 
-                if ret_val == 201:
-                    response.result = {models.ID_KEY: doc_id}
-                    response.reason = "Test set '%s' created" % test_set.name
+                    if ret_val == 201:
+                        response.result = {models.ID_KEY: doc_id}
+                        response.reason = "Test set '%s' created" % set_name
+                        response.headers = {
+                            "Location": "/test/set/%s" % str(doc_id)}
 
-                    if test_case:
-                        if isinstance(test_case, types.ListType):
-                            # TODO: async import of test cases.
-                            response.status_code = 202
-                            response.messages = (
-                                "Associated test cases will be parsed and "
-                                "imported")
-                        else:
-                            response.errors = (
-                                "Test cases are not wrapped in a "
-                                "list; they will not be imported")
-                else:
-                    response.reason = (
-                        "Error saving test set '%s'" % test_set.name)
-            except ValueError, ex:
-                error = "Wrong field value in JSON data"
-                self.log.error(error)
-                self.log.exception(ex)
+                        if test_cases:
+                            if isinstance(test_cases, types.ListType):
+                                response.status_code = 202
+                                response.messages = (
+                                    "Associated test cases will be parsed and "
+                                    "imported")
+                                self._import_test_cases(
+                                    test_cases, suite_oid, doc_id)
+                            else:
+                                response.errors = (
+                                    "Test cases are not wrapped in a "
+                                    "list; they will not be imported")
+                    else:
+                        response.reason = (
+                            "Error saving test set '%s'" % set_name)
+                except ValueError, ex:
+                    error = "Wrong field value in JSON data"
+                    self.log.error(error)
+                    self.log.exception(ex)
+                    response.status_code = 400
+                    response.reason = error
+                    response.errors = ex.message
+            else:
+                self.log.error(
+                    "Test suite '%s' not found or not valid ID", suite_id)
                 response.status_code = 400
-                response.reason = error
-                response.errors = ex.message
+                response.reason = err_msg
 
         return response
+
+    def _import_test_cases(self, test_cases, set_oid, suite_oid):
+        """Execute the async task to import the test cases.
+
+        :param test_cases: The test cases list to import.
+        :type test_cases: list
+        :param set_oid: The ID of the test set.
+        :type set_oid: bson.objectid.ObjectId
+        :param suite_oid: The ID of the test suite.
+        :type suite_oid: bson.objectid.ObjectId
+        """
+        taskq.import_test_cases_from_test_set.apply_async(
+            [
+                test_cases,
+                suite_oid,
+                set_oid, self.settings["dboptions"]
+            ],
+            kwargs={"mail_options": self.settings["mailoptions"]}
+        )
 
     def _delete(self, doc_id):
         response = hresponse.HandlerResponse()
