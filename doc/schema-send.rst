@@ -3,6 +3,8 @@
 send
 ----
 
+The send schema is used to trigger email reporting.
+
 .. _schema_send_post:
 
 POST
@@ -11,50 +13,8 @@ POST
 The following schema covers the data that should be available in the JSON
 data sent to the server.
 
-::
-
-    {
-        "title": "send",
-        "description": "Data to trigger the email report",
-        "type": "object",
-        "properties": {
-            "job": {
-                "type": "string",
-                "description": "The job name associated with the object"
-            },
-            "kernel": {
-                "type": "string",
-                "description": "The kernel name associated with the object"
-            },
-            "lab_name": {
-                "type": "string",
-                "description": "The name of the lab to trigger the report for"
-            },
-            "boot_report": {
-                "type": "boolean",
-                "description": "Whether the boot report should be created and sent",
-                "default": 0
-            },
-            "build_report": {
-                "type": "boolean",
-                "description": "Whether the build report should be created and sent",
-                "default": 0
-            },
-            "boot_send_to": {
-                "type": ["string", "array"],
-                "description": "The emails to sent the boot report to"
-            },
-            "build_send_to": {
-                "type": ["string", "array"],
-                "description": "The emails to send the build report to"
-            },
-            "send_to": {
-                "type": ["string", "array"],
-                "description": "The emails to send the reports to, will be appended to the more specific email control values"
-            }
-        },
-        "required": ["job", "kernel"]
-    }
+.. literalinclude:: schema/1.0/send_post.json
+    :language: json
 
 More Info
 *********
