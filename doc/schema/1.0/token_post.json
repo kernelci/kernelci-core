@@ -1,0 +1,67 @@
+{
+    "$schema": "http://api.kernelci.org/json-schema/1.0/token_post.json",
+    "id": "http://api.kernelci.org/json-schema/1.0/token_post.json",
+    "title": "token",
+    "description": "The JSON schema to create/update tokens",
+    "type": "object",
+    "properties": {
+        "version": {
+            "type": "string",
+            "description": "The version number of this JSON schema",
+            "enum": ["1.0"]
+        },
+        "email": {
+            "type": "string",
+            "description": "The email address associated with the token"
+        },
+        "username": {
+            "type": "string",
+            "description": "The user name associated with the token"
+        },
+        "expired": {
+            "type": "boolean",
+            "description": "If the token has expired"
+        },
+        "expires_on": {
+            "type": "string",
+            "description": "The date when the token is supposed to expire in the format YYYY-MM-DD"
+        },
+        "get": {
+            "type": "boolean",
+            "description": "If the token can perform GET operations"
+        },
+        "post": {
+            "type": "boolean",
+            "description": "If the token can perform POST/PUT operations"
+        },
+        "delete": {
+            "type": "boolean",
+            "description": "If the token can perform DELETE operations"
+        },
+        "upload": {
+            "type": "boolean",
+            "description": "If the token can be used to upload files"
+        },
+        "admin": {
+            "type": "boolean",
+            "description": "If the token is an administrator token"
+        },
+        "superuser": {
+            "type": "boolean",
+            "description": "If the token is a super user one"
+        },
+        "lab": {
+            "type": "boolean",
+            "description": "If the token is used by a lab (i.e. a boot lab)"
+        },
+        "ip_restricted": {
+            "type": "boolean",
+            "description": "If the token is IP restricted"
+        },
+        "ip_address": {
+            "type": "array",
+            "description": "Array of IP addresses the token is restricted to"
+        }
+    },
+    "required": ["email"]
+}

@@ -1,0 +1,66 @@
+{
+    "$schema": "http://api.kernelci.org/json-schema/1.0/token_get.json",
+    "id": "http://api.kernelci.org/json-schema/1.0/token_get.json",
+    "title": "token",
+    "description": "A token used to interact with the API",
+    "type": "object",
+    "properties": {
+        "version": {
+            "type": "string",
+            "description": "The version number of this JSON schema",
+            "enum": ["1.0"]
+        },
+        "_id": {
+            "type": "string",
+            "description": "The ID associated with this object"
+        },
+        "name": {
+            "type": "string",
+            "description": "The name associated with this token"
+        },
+        "created_on": {
+            "type": "object",
+            "description": "Creation date of the object",
+            "properties": {
+                "$date": {
+                    "type": "number",
+                    "description": "Milliseconds from epoch time"
+                }
+            }
+        },
+        "token": {
+            "type": "string",
+            "description": "The token that will be used to interact with the API"
+        },
+        "expires_on": {
+            "type": "object",
+            "description": "The date when the token is supposed to expire",
+            "properties": {
+                "$date": {
+                    "type": "number",
+                    "description": "Milliseconds from epoch time"
+                }
+            }
+        },
+        "expired": {
+            "type": "boolean",
+            "description": "If the token has expired"
+        },
+        "username": {
+            "type": "string",
+            "description": "The user name associated with the token"
+        },
+        "email": {
+            "type": "string",
+            "description": "The email address associated with the token"
+        },
+        "ip_address": {
+            "type": "array",
+            "description": "List of IP addresses the token is restricted to"
+        },
+        "properties": {
+            "type": "array",
+            "description": "An array of length 16 of integer values; each value defines a properties of the token"
+        }
+    }
+}
