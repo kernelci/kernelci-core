@@ -261,9 +261,6 @@ def complete_test_suite_import(suite_json, suite_id, db_options, **kwargs):
     :return 200 if OK, 500 in case of errors; a dictionary containing the
     kwargs passed plus new values take from the update action.
     """
-    k_get = kwargs.get
-    suite_name = k_get("suite_name")
-
     ret_val, update_doc = tests_import.update_test_suite(
         suite_json, suite_id, db_options, **kwargs)
 
@@ -273,7 +270,8 @@ def complete_test_suite_import(suite_json, suite_id, db_options, **kwargs):
 
     if ret_val != 200:
         utils.LOG.error(
-            "Error updating test suite '%s' (%s)", suite_name, suite_id)
+            "Error updating test suite '%s' (%s)",
+            kwargs["suite_name"], suite_id)
 
     return ret_val, kwargs
 
@@ -284,7 +282,7 @@ def complete_test_suite_import(suite_json, suite_id, db_options, **kwargs):
     ignore_result=False,
     add_to_parent=False)
 def import_test_sets_from_test_suite(
-        prev_results, suite_id, tests_list, db_options):
+        prev_results, suite_id, tests_list, db_options, **kwargs):
     """Import the test sets provided in a test suite.
 
     This task is linked from the test suite update one: the first argument is a
@@ -313,18 +311,20 @@ def import_test_sets_from_test_suite(
             tests_list, suite_id, db_options, **other_args)
 
         if test_ids:
+            utils.LOG.info(
+                "Updating test suite '%s' (%s) with test set IDs",
+                kwargs["suite_name"], str(suite_id))
             database = utils.db.get_db_connection(db_options)
             ret_val = utils.db.update(
                 database[models.TEST_SUITE_COLLECTION],
-                {models.ID_KEY: suite_id},
-                {models.TEST_SET_KEY: test_ids}
-            )
+                suite_id, {models.TEST_SET_KEY: test_ids})
             # TODO: handle errors.
         else:
             ret_val = 500
     else:
         utils.LOG.warn(
-            "Error saving the test suite, will not import tests cases")
+            "Error saving test suite '%s', will not import tests cases",
+            kwargs["suite_name"])
 
     return ret_val, errors
 
@@ -335,7 +335,7 @@ def import_test_sets_from_test_suite(
     ignore_result=False,
     add_to_parent=False)
 def import_test_cases_from_test_suite(
-        prev_results, suite_id, tests_list, db_options):
+        prev_results, suite_id, tests_list, db_options, **kwargs):
     """Import the test cases provided in a test suite.
 
     This task is linked from the test suite update one: the first argument is a
@@ -364,92 +364,45 @@ def import_test_cases_from_test_suite(
             tests_list, suite_id, db_options, **other_args)
 
         if test_ids:
+            utils.LOG.info(
+                "Updating test suite '%s' (%s) with test case IDs",
+                kwargs["suite_name"], str(suite_id))
             database = utils.db.get_db_connection(db_options)
             ret_val = utils.db.update(
                 database[models.TEST_SUITE_COLLECTION],
-                {models.ID_KEY: suite_id},
-                {models.TEST_CASE_KEY: test_ids}
-            )
+                suite_id, {models.TEST_CASE_KEY: test_ids})
             # TODO: handle errors.
         else:
             ret_val = 500
     else:
         utils.LOG.warn(
-            "Error saving the test suite, will not import tests cases")
+            "Error saving test suite '%s', will not import tests cases",
+            kwargs["suite_name"])
 
     return ret_val, errors
 
 
 @taskc.app.task(
-    name="import-test-sets", track_started=True, ignore_result=False)
-def import_test_sets(tests_list, suite_id, suite_name, db_options, **kwargs):
-    """Import the test sets.
+    name="import-test-cases-from-set", track_started=True, ignore_result=False)
+def import_test_cases_from_test_set(
+        tests_list, suite_id, set_id, db_options, **kwargs):
+    """Wrapper around the real import function.
 
-    Additional named arguments passed might be (with the exact following
-    names):
-    * defconfig_id
-    * job_id
-    * job
-    * kernel
-    * defconfig
-    * defconfig_full
-    * lab_name
-    * board
-    * board_instance
-    * mail_options
+    Import the test cases included in a test set.
 
-    :param tests_list: The list with the test sets to import.
+    :param tests_list: The list of test cases to import.
     :type tests_list: list
-    :param suite_id: The ID of the test suite these test sets belong to.
+    :param suite_id: The ID of the test suite.
     :type suite_id: bson.objectid.ObjectId
-    :param suite_name: The name of the test suite these test sets belong
-    to.
-    :type suite_name: string
-    :param db_options: Options for connecting to the database.
-    :type db_options: dict
+    :param set_id: The ID of the test set.
+    :type set_id: bson.objectid.ObjectId
+    :param db_options: The database connection options.
+    :param db_options: dict
+    :return 200 if OK, 500 in case of errors; a dictionary with errors or an
+    empty one.
     """
-    utils.LOG.info(
-        "Importing test sets for test suite '%s' (%s)",
-        suite_name, str(suite_id))
-
-    return tests_import.import_multi_test_sets(
-        tests_list, suite_id, db_options, **kwargs)
-
-
-@taskc.app.task(
-    name="import-test-cases", track_started=True, ignore_result=False)
-def import_test_cases(tests_list, suite_id, suite_name, db_options, **kwargs):
-    """Import the test cases.
-
-    Additional named arguments passed might be (with the exact following
-    names):
-    * test_set_id
-    * defconfig_id
-    * job_id
-    * job
-    * kernel
-    * defconfig
-    * defconfig_full
-    * lab_name
-    * board
-    * board_instance
-    * mail_options
-
-    :param tests_list: The list with the test cases to import.
-    :type tests_list: list
-    :param suite_id: The ID of the test suite these test cases belong to.
-    :type suite_id: string
-    :param suite_name: The name of the test suite these test cases belong
-    to.
-    :type suite_name: string
-    :param db_options: Options for connecting to the database.
-    :type db_options: dict
-    """
-    utils.LOG.info(
-        "Importing test cases for test suite '%s' (%s)", suite_name, suite_id)
-
-    return tests_import.import_multi_test_cases(
-        tests_list, suite_id, db_options, **kwargs)
+    return tests_import.import_test_cases_from_test_set(
+        set_id, suite_id, tests_list, db_options, **kwargs)
 
 
 def run_batch_group(batch_op_list, db_options):

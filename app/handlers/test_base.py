@@ -18,10 +18,14 @@ try:
 except ImportError:
     import json
 
+import bson
+
+import models
 import handlers.base as hbase
 import handlers.common as hcommon
 import handlers.response as hresponse
 import utils.validator as validator
+import utils.db
 
 
 # pylint: disable=too-many-public-methods
@@ -89,3 +93,30 @@ class TestBaseHandler(hbase.BaseHandler):
             response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
+
+    def _check_and_get_test_suite(self, test_suite_id):
+        """Verify that the test suite ID passed is valid, and get it.
+
+        :param test_suite_id: The ID of the test suite associated with the test
+        case
+        :type test_suite_id: string
+        :return The test suite from the database or None, and an error message
+        in case of errors or None.
+        """
+        suite_oid = None
+        error = None
+
+        try:
+            suite_oid = bson.objectid.ObjectId(test_suite_id)
+            test_suite = utils.db.find_one2(
+                self.db[models.TEST_SUITE_COLLECTION],
+                suite_oid, fields=[models.ID_KEY])
+            if not test_suite:
+                suite_oid = None
+                error = "Test suite with ID '%s' not found" % test_suite_id
+        except bson.errors.InvalidId, ex:
+            error = "Test suite ID '%s' is not valid" % test_suite_id
+            self.log.exception(ex)
+            self.log.error(error)
+
+        return suite_oid, error

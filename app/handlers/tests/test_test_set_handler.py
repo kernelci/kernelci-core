@@ -179,12 +179,16 @@ class TestTestSetHandler(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     @mock.patch("utils.db.save")
-    def test_post_correct_with_error(self, mock_save):
+    @mock.patch("utils.db.find_one2")
+    @mock.patch("bson.objectid.ObjectId")
+    def test_post_correct_with_error(self, mock_id, mock_find, mock_save):
+        mock_id.return_value = "suite-id"
+        mock_find.return_value = {"_id": "suite-id"}
         mock_save.return_value = (500, None)
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
 
         body = json.dumps(
-            dict(name="test-set", test_suite_id="test-suite", version="1.0"))
+            dict(name="test-set", test_suite_id="suite-id", version="1.0"))
 
         response = self.fetch(
             "/test/set", method="POST", headers=headers, body=body)
@@ -194,7 +198,11 @@ class TestTestSetHandler(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     @mock.patch("utils.db.save")
-    def test_post_correct(self, mock_save):
+    @mock.patch("utils.db.find_one2")
+    @mock.patch("bson.objectid.ObjectId")
+    def test_post_correct(self, mock_id, mock_find, mock_save):
+        mock_id.return_value = "suite-id"
+        mock_find.return_value = {"_id": "suite-id"}
         mock_save.return_value = (201, "test-set-id")
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
 
@@ -208,12 +216,20 @@ class TestTestSetHandler(
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
-    def test_post_correct_with_test_case(self):
+    @mock.patch("taskqueue.tasks.import_test_cases_from_test_set")
+    @mock.patch("utils.db.save")
+    @mock.patch("utils.db.find_one2")
+    @mock.patch("bson.objectid.ObjectId")
+    def test_post_correct_with_test_case(
+            self, mock_id, mock_find, mock_save, mock_task):
+        mock_id.return_value = "suite-id"
+        mock_find.return_value = {"_id": "suite-id"}
+        mock_save.return_value = (201, "test-set-id")
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         body = json.dumps(
             dict(
                 name="test-set",
-                test_suite_id="test-suite",
+                test_suite_id="suite-id",
                 version="1.0", test_case=[{"foo": "bar"}]
             )
         )
@@ -225,7 +241,26 @@ class TestTestSetHandler(
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
-    def test_post_correct_with_wrong_test_case(self):
+    def test_post_correct_with_wrong_test_suite_id(self):
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+        body = json.dumps(
+            dict(name="test-set", test_suite_id="suite-id", version="1.0"))
+
+        response = self.fetch(
+            "/test/set", method="POST", headers=headers, body=body)
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    @mock.patch("utils.db.save")
+    @mock.patch("utils.db.find_one2")
+    @mock.patch("bson.objectid.ObjectId")
+    def test_post_correct_with_wrong_test_case(
+            self, mock_id, mock_find, mock_save):
+        mock_id.return_value = "test-suite"
+        mock_find.return_value = {"_id": "test-suite"}
+        mock_save.return_value = (201, "doc-id")
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         body = json.dumps(
             dict(

@@ -84,6 +84,8 @@ class TestSuiteHandler(htbase.TestBaseHandler):
                     response.reason = (
                         "Test suite '%s' created, data will be imported" %
                         suite_name)
+                    response.headers = {
+                        "Location": "/test/suite/%s" % str(suite_id)}
 
                     other_args = {
                         "mail_options": self.settings["mailoptions"],
@@ -140,7 +142,7 @@ class TestSuiteHandler(htbase.TestBaseHandler):
                                 suite_json,
                                 suite_id, self.settings["dboptions"]
                             ],
-                            kwargs=kwargs
+                            kwargs=other_args
                         )
                 else:
                     response.status_code = ret_val
@@ -176,9 +178,9 @@ class TestSuiteHandler(htbase.TestBaseHandler):
             kwargs=kwargs,
             link=[
                 taskq.import_test_sets_from_test_suite.s(
-                    suite_id, sets_list, db_options),
+                    suite_id, sets_list, db_options, **kwargs),
                 taskq.import_test_cases_from_test_suite.s(
-                    suite_id, cases_list, db_options)
+                    suite_id, cases_list, db_options, **kwargs)
             ]
         )
 
@@ -202,7 +204,7 @@ class TestSuiteHandler(htbase.TestBaseHandler):
             [suite_json, suite_id, db_options],
             kwargs=kwargs,
             link=taskq.import_test_cases_from_test_suite.s(
-                suite_id, tests_list, db_options)
+                suite_id, tests_list, db_options, **kwargs)
         )
 
     def _import_suite_and_sets(
@@ -225,7 +227,7 @@ class TestSuiteHandler(htbase.TestBaseHandler):
             [suite_json, suite_id, db_options],
             kwargs=kwargs,
             link=taskq.import_test_sets_from_test_suite.s(
-                suite_id, tests_list, db_options)
+                suite_id, tests_list, db_options, **kwargs)
         )
 
     def _put(self, *args, **kwargs):
@@ -279,26 +281,20 @@ class TestSuiteHandler(htbase.TestBaseHandler):
 
                     test_set_canc = utils.db.delete(
                         self.db[models.TEST_SET_COLLECTION],
-                        {models.TEST_SUITE_ID_KEY: {"$in": [suite_id]}}
-                    )
+                        {models.TEST_SUITE_ID_KEY: {"$in": [suite_id]}})
 
                     test_case_canc = utils.db.delete(
                         self.db[models.TEST_CASE_COLLECTION],
-                        {models.TEST_SUITE_ID_KEY: {"$in": [suite_id]}}
-                    )
+                        {models.TEST_SUITE_ID_KEY: {"$in": [suite_id]}})
 
                     if test_case_canc != 200:
                         response.errors = (
                             "Error deleting test cases with "
-                            "test_suite_id '%s'" %
-                            doc_id
-                        )
+                            "test_suite_id '%s'" % doc_id)
                     if test_set_canc != 200:
                         response.errors = (
                             "Error deleting test sets with "
-                            "test_suite_id '%s'" %
-                            doc_id
-                        )
+                            "test_suite_id '%s'" % doc_id)
                 else:
                     response.reason = "Error deleting resource '%s'" % doc_id
             else:

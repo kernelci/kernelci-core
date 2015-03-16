@@ -53,15 +53,20 @@ class TestCaseHandler(htbase.TestBaseHandler):
 
             suite_oid, err_msg = self._check_and_get_test_suite(suite_id)
             if suite_oid:
-                # TODO: pass information.
+                other_args = {
+                    "mail_options": self.settings["mailoptions"]}
                 ret_val, doc_id, err_msg = tests_import.import_test_case(
                     test_case_json,
-                    suite_oid, self.db, self.settings["dboptions"])
+                    suite_oid,
+                    self.db, self.settings["dboptions"], **other_args
+                )
                 response.status_code = ret_val
 
                 if ret_val == 201:
                     response.result = {models.ID_KEY: doc_id}
                     response.reason = "Test case '%s' created" % case_name
+                    response.headers = {
+                        "Location": "/test/case/%s" % str(doc_id)}
                 else:
                     response.reason = "Error saving test case '%s'" % case_name
                     response.errors = err_msg
@@ -123,30 +128,3 @@ class TestCaseHandler(htbase.TestBaseHandler):
             response.status_code = 400
             response.reason = "Wrong ID specified"
         return response
-
-    def _check_and_get_test_suite(self, test_suite_id):
-        """Verify that the test suite ID passed is valid, and get it.
-
-        :param test_suite_id: The ID of the test suite associated with the test
-        case
-        :type test_suite_id: string
-        :return The test suite from the database or None, and an error message
-        in case of errors or None.
-        """
-        suite_oid = None
-        error = None
-
-        try:
-            suite_oid = bson.objectid.ObjectId(test_suite_id)
-            test_suite = utils.db.find_one2(
-                self.db[models.TEST_SUITE_COLLECTION],
-                suite_oid, fields=[models.ID_KEY])
-            if not test_suite:
-                suite_oid = None
-                error = "Test suite with ID '%s' not found" % test_suite_id
-        except bson.errors.InvalidId, ex:
-            error = "Test suite ID '%s' is not valid" % test_suite_id
-            self.log.exception(ex)
-            self.log.error(error)
-
-        return suite_oid, error

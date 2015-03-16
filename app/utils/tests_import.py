@@ -322,7 +322,7 @@ def _import_multi_base(
     return test_ids, err_results
 
 
-def import_test_set(json_obj, suite_id, database, db_options, **kwargs):
+def _import_test_set(json_obj, suite_id, database, db_options, **kwargs):
     """Parse and save a test set.
 
     Additional named arguments passed might be (with the exact following
@@ -337,6 +337,7 @@ def import_test_set(json_obj, suite_id, database, db_options, **kwargs):
     * board
     * board_instance
     * mail_options
+    * suite_name
 
     :param json_obj: The JSON data structure of the test sets to import.
     :type json_obj: dict
@@ -390,7 +391,7 @@ def import_test_set(json_obj, suite_id, database, db_options, **kwargs):
                 else:
                     if cases_list:
                         # XXX: need to handle errors here as well.
-                        _import_test_cases_from_test_set(
+                        import_test_cases_from_test_set(
                             doc_id, suite_id, cases_list, db_options, **kwargs)
             else:
                 error = "Missing mandatory key in JSON object"
@@ -405,7 +406,7 @@ def import_test_set(json_obj, suite_id, database, db_options, **kwargs):
     return ret_val, doc_id, error
 
 
-def _import_test_cases_from_test_set(
+def import_test_cases_from_test_set(
         test_set_id, suite_id, cases_list, db_options, **kwargs):
     """Import the test cases and update the test set.
 
@@ -430,10 +431,11 @@ def _import_test_cases_from_test_set(
         cases_list, suite_id, db_options, **kwargs)
 
     if case_ids:
+        # Update the test set with the test case IDs.
         database = utils.db.get_db_connection()
         ret_val = utils.db.update(
             database[models.TEST_SET_COLLECTION],
-            {models.ID_KEY: test_set_id},
+            test_set_id,
             {models.TEST_CASE_KEY: case_ids}
         )
         if ret_val != 200:
@@ -476,7 +478,7 @@ def import_multi_test_sets(set_list, suite_id, db_options, **kwargs):
     dictionary.
     """
     return _import_multi_base(
-        import_test_set, set_list, suite_id, db_options, **kwargs)
+        _import_test_set, set_list, suite_id, db_options, **kwargs)
 
 
 def import_test_case(json_obj, suite_id, database, db_options, **kwargs):
@@ -534,8 +536,7 @@ def import_test_case(json_obj, suite_id, database, db_options, **kwargs):
 
                 test_case.created_on = datetime.datetime.now(
                     tz=bson.tz_util.utc)
-                if test_case.test_set_id is None:
-                    test_case.test_set_id = k_get(models.TEST_SET_ID_KEY, None)
+                test_case.test_set_id = k_get(models.TEST_SET_ID_KEY, None)
 
                 utils.LOG.info("Saving test case '%s'", test_name)
                 ret_val, doc_id = utils.db.save(

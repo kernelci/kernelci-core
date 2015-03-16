@@ -556,3 +556,33 @@ class TestTestsImport(unittest.TestCase):
 
         self.assertDictEqual({}, errors)
         self.assertListEqual(["test-set0-id"], ids)
+
+    @mock.patch("utils.db.update")
+    @mock.patch("utils.db.get_db_connection")
+    @mock.patch("utils.tests_import.import_multi_test_cases")
+    def test_import_test_cases_from_test_set_ok(
+            self, mock_import, mock_db, mock_update):
+        mock_import.return_value = (["12345", "123456"], {})
+        mock_db.return_value = self.db
+        mock_update.return_value = 200
+
+        ret_val, errors = tests_import.import_test_cases_from_test_set(
+            "set-id", "suite-id", [{"name": "test-case"}], {})
+
+        self.assertEqual(200, ret_val)
+        self.assertDictEqual({}, errors)
+
+    @mock.patch("utils.db.update")
+    @mock.patch("utils.db.get_db_connection")
+    @mock.patch("utils.tests_import.import_multi_test_cases")
+    def test_import_test_cases_from_test_set_with_error(
+            self, mock_import, mock_db, mock_update):
+        mock_import.return_value = (["12345", "123456"], {})
+        mock_db.return_value = self.db
+        mock_update.return_value = 500
+
+        ret_val, errors = tests_import.import_test_cases_from_test_set(
+            "set-id", "suite-id", [{"name": "test-case"}], {})
+
+        self.assertEqual(500, ret_val)
+        self.assertListEqual([500], errors.keys())

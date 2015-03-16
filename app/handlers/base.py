@@ -247,8 +247,7 @@ class BaseHandler(tornado.web.RequestHandler):
                     json_obj = json.loads(self.request.body.decode("utf8"))
 
                     valid_json, j_reason = validator.is_valid_json(
-                        json_obj, self._valid_keys("POST")
-                    )
+                        json_obj, self._valid_keys("POST"))
                     if valid_json:
                         kwargs["json_obj"] = json_obj
                         kwargs["db_options"] = self.settings["dboptions"]
@@ -480,8 +479,7 @@ class BaseHandler(tornado.web.RequestHandler):
         if self.request.arguments:
             spec, sort, fields, skip, limit, unique = \
                 hcommon.get_all_query_values(
-                    self.get_query_arguments, self._valid_keys(method)
-                )
+                    self.get_query_arguments, self._valid_keys(method))
 
         return (spec, sort, fields, skip, limit, unique)
 
@@ -500,8 +498,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
         if req_token:
             valid_token = self._token_validation(
-                req_token, method, remote_ip, master_key
-            )
+                req_token, method, remote_ip, master_key)
 
         if not valid_token:
             self.log.info(
@@ -543,5 +540,4 @@ class BaseHandler(tornado.web.RequestHandler):
         :return A json object, or nothing.
         """
         return utils.db.find_one(
-            db_conn[models.TOKEN_COLLECTION], [token], field=models.TOKEN_KEY
-        )
+            db_conn[models.TOKEN_COLLECTION], [token], field=models.TOKEN_KEY)
