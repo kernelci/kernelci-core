@@ -52,7 +52,11 @@
         },
         "lab": {
             "type": "boolean",
-            "description": "If the token is used by a lab (i.e. a boot lab)"
+            "description": "If the token is used by a boot lab"
+        },
+        "test_lab": {
+            "type": "boolean",
+            "description": "If the token is used by a test lab"
         },
         "ip_restricted": {
             "type": "boolean",
