@@ -71,6 +71,7 @@ class BaseHandler(tornado.web.RequestHandler):
         """The accepted content-type header."""
         return hcommon.ACCEPTED_CONTENT_TYPE
 
+    # pylint: disable=invalid-name
     @property
     def db(self):
         """The database instance associated with the object."""
@@ -246,29 +247,23 @@ class BaseHandler(tornado.web.RequestHandler):
                 try:
                     json_obj = json.loads(self.request.body.decode("utf8"))
 
-                    valid_json, j_reason = validator.is_valid_json(
+                    valid_json, errors = validator.is_valid_json(
                         json_obj, self._valid_keys("POST"))
                     if valid_json:
                         kwargs["json_obj"] = json_obj
                         kwargs["db_options"] = self.settings["dboptions"]
-                        kwargs["reason"] = j_reason
                         response = self._post(*args, **kwargs)
+                        response.errors = errors
                     else:
                         response = hresponse.HandlerResponse(400)
-                        if j_reason:
-                            response.reason = (
-                                "Provided JSON is not valid: %s" % j_reason
-                            )
-                        else:
-                            response.reason = "Provided JSON is not valid"
-                        response.result = None
+                        response.reason = "Provided JSON is not valid"
+                        response.errors = errors
                 except ValueError, ex:
                     self.log.exception(ex)
                     error = "No JSON data found in the POST request"
                     self.log.error(error)
                     response = hresponse.HandlerResponse(422)
                     response.reason = error
-                    response.result = None
             else:
                 response = hresponse.HandlerResponse(valid_request)
                 response.reason = (
@@ -278,7 +273,6 @@ class BaseHandler(tornado.web.RequestHandler):
                         "Use %s as the content type" % self.content_type
                     )
                 )
-                response.result = None
         else:
             response = hresponse.HandlerResponse(403)
             response.reason = hcommon.NOT_VALID_TOKEN
@@ -333,8 +327,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 response = self._delete(kwargs["id"])
             else:
                 response = hresponse.HandlerResponse(400)
-                response.reason = self._get_status_message(400)
-                response.result = None
+                response.reason = "No ID value specified"
         else:
             response = hresponse.HandlerResponse(403)
             response.reason = hcommon.NOT_VALID_TOKEN
@@ -406,7 +399,6 @@ class BaseHandler(tornado.web.RequestHandler):
             else:
                 response.status_code = 404
                 response.reason = "Resource '%s' not found" % doc_id
-                response.result = None
         except bson.errors.InvalidId, ex:
             self.log.exception(ex)
             self.log.error("Provided doc ID '%s' is not valid", doc_id)
