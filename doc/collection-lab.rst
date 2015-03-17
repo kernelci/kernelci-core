@@ -117,7 +117,7 @@ POST
  :status 201: The request has been accepted and the lab created.
  :status 400: JSON data not valid, or provided name for the lab already exists.
  :status 403: Not authorized to perform the operation.
- :status 404: The provided ``lab_id`` was not found.
+ :status 404: The provided resource has not been found.
  :status 415: Wrong content type.
  :status 422: No real JSON data provided.
 
