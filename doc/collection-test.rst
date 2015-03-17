@@ -184,6 +184,10 @@ scenario. The order is: test suite data, test set data, updated test set data:
         ]
     }
 
+Note that even if the ``test_suite_id`` field is mandatory for test cases, as
+specified in their JSON schema, in this case it is not necessary: it will be
+injected into the provided data and will be taken from the test set.
+
 Pros
 ~~~~
 
