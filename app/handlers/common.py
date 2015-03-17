@@ -29,9 +29,9 @@ DEFAULT_DATE_RANGE = 5
 # All the available collections as key-value. The key is the same used for the
 # URL configuration.
 COLLECTIONS = {
-    'boot': models.BOOT_COLLECTION,
-    'defconfig': models.DEFCONFIG_COLLECTION,
-    'job': models.JOB_COLLECTION,
+    "boot": models.BOOT_COLLECTION,
+    "defconfig": models.DEFCONFIG_COLLECTION,
+    "job": models.JOB_COLLECTION,
 }
 
 # Some key values must be treated in a different way, not as string.
@@ -42,7 +42,7 @@ KEY_TYPES = {
 
 # Handlers valid keys.
 BOOT_VALID_KEYS = {
-    'POST': {
+    "POST": {
         models.MANDATORY_KEYS: [
             models.ARCHITECTURE_KEY,
             models.BOARD_KEY,
@@ -97,7 +97,7 @@ BOOT_VALID_KEYS = {
             models.VERSION_KEY
         ]
     },
-    'GET': [
+    "GET": [
         models.ARCHITECTURE_KEY,
         models.BOARD_KEY,
         models.CREATED_KEY,
@@ -118,7 +118,7 @@ BOOT_VALID_KEYS = {
         models.STATUS_KEY,
         models.WARNINGS_KEY
     ],
-    'DELETE': [
+    "DELETE": [
         models.BOARD_KEY,
         models.DEFCONFIG_FULL_KEY,
         models.DEFCONFIG_ID_KEY,
@@ -132,7 +132,7 @@ BOOT_VALID_KEYS = {
 }
 
 COUNT_VALID_KEYS = {
-    'GET': [
+    "GET": [
         models.ARCHITECTURE_KEY,
         models.BOARD_KEY,
         models.CREATED_KEY,
@@ -162,7 +162,7 @@ COUNT_VALID_KEYS = {
 }
 
 DEFCONFIG_VALID_KEYS = {
-    'GET': [
+    "GET": [
         models.ARCHITECTURE_KEY,
         models.BUILD_LOG_KEY,
         models.CREATED_KEY,
@@ -191,7 +191,7 @@ DEFCONFIG_VALID_KEYS = {
 }
 
 TOKEN_VALID_KEYS = {
-    'POST': [
+    "POST": [
         models.ADMIN_KEY,
         models.DELETE_KEY,
         models.EMAIL_KEY,
@@ -204,10 +204,30 @@ TOKEN_VALID_KEYS = {
         models.NAME_KEY,
         models.POST_KEY,
         models.SUPERUSER_KEY,
+        models.TEST_LAB_KEY,
         models.UPLOAD_KEY,
-        models.USERNAME_KEY
+        models.USERNAME_KEY,
+        models.VERSION_KEY
     ],
-    'GET': [
+    "PUT": [
+        models.ADMIN_KEY,
+        models.DELETE_KEY,
+        models.EMAIL_KEY,
+        models.EXPIRED_KEY,
+        models.EXPIRES_KEY,
+        models.GET_KEY,
+        models.IP_ADDRESS_KEY,
+        models.IP_RESTRICTED,
+        models.LAB_KEY,
+        models.NAME_KEY,
+        models.POST_KEY,
+        models.SUPERUSER_KEY,
+        models.TEST_LAB_KEY,
+        models.UPLOAD_KEY,
+        models.USERNAME_KEY,
+        models.VERSION_KEY
+    ],
+    "GET": [
         models.CREATED_KEY,
         models.EMAIL_KEY,
         models.EXPIRED_KEY,
@@ -222,24 +242,24 @@ TOKEN_VALID_KEYS = {
 }
 
 SUBSCRIPTION_VALID_KEYS = {
-    'GET': [
+    "GET": [
         models.JOB_KEY
     ],
-    'POST': [
+    "POST": [
         models.EMAIL_KEY,
         models.JOB_KEY,
     ],
-    'DELETE': [
+    "DELETE": [
         models.EMAIL_KEY
     ],
 }
 
 JOB_VALID_KEYS = {
-    'POST': [
+    "POST": [
         models.JOB_KEY,
         models.KERNEL_KEY
     ],
-    'GET': [
+    "GET": [
         models.CREATED_KEY,
         models.ID_KEY,
         models.JOB_KEY,
@@ -517,10 +537,10 @@ ID_KEYS = [
     models.LAB_ID_KEY,
 ]
 
-MASTER_KEY = 'master_key'
-API_TOKEN_HEADER = 'Authorization'
-ACCEPTED_CONTENT_TYPE = 'application/json'
-DEFAULT_RESPONSE_TYPE = 'application/json; charset=UTF-8'
+MASTER_KEY = "master_key"
+API_TOKEN_HEADER = "Authorization"
+ACCEPTED_CONTENT_TYPE = "application/json"
+DEFAULT_RESPONSE_TYPE = "application/json; charset=UTF-8"
 NOT_VALID_TOKEN = "Operation not permitted: check the token permissions"
 METHOD_NOT_IMPLEMENTED = "Method not implemented"
 
