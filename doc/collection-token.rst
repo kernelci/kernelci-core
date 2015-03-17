@@ -6,11 +6,9 @@ token
 More info about the token schema can be found :ref:`here <schema_token>`.
 
 .. note::
-
     This resource can also be accessed using the plural form ``tokens``.
 
 .. note::
-
     All operations on the token resource can only be performed with an administrator
     token.
 
@@ -97,14 +95,13 @@ GET
 POST
 ****
 
-.. http:post:: /job
+.. http:post:: /token
 
- Create or update a token as defined in the JSON data.
+ Create a token as defined in the JSON data.
 
  For more info on all the required JSON request fields, see the :ref:`JSON token schema for POST requests <schema_token_post>`.
 
  .. note::
-
     When creating the first token to be stored in the database, you must use the
     configured master key.
 
@@ -118,6 +115,8 @@ POST
  :reqjson boolean upload: If the token can be used to upload files.
  :reqjson boolean ip_restricted: If the token is restricted to be used on certain IP addresses.
  :reqjson array ip_address: Array of IP addresses the token is restricted to.
+ :reqjson boolean lab: If the token is a boot lab one.
+ :reqjson boolean test_lab: If the token is a test lab one.
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Content-Type: Content type of the transmitted data, must be ``application/json``.
@@ -125,8 +124,7 @@ POST
 
  :resheader Content-Type: Will be ``application/json; charset=UTF-8``.
 
- :status 200: The request has been accepted and/or updated.
- :status 201: The request has been created.
+ :status 201: The resource has been created.
  :status 400: JSON data not valid.
  :status 403: Not authorized to perform the operation.
  :status 415: Wrong content type.
@@ -134,7 +132,7 @@ POST
 
  **Example Requests**
 
- .. sourcecode:: http 
+ .. sourcecode:: http
 
     POST /token HTTP/1.1
     Host: api.kernelci.org
@@ -149,7 +147,48 @@ POST
         "ip_address": ["192.168.2.1"]
     }
 
- .. sourcecode:: http 
+PUT
+***
+
+.. http:put:: /token/(string:token_id)
+
+ Update an existing token identified by its ``token_id`` with the values
+ provided in the JSON data.
+
+ The ``token_id`` value is different from the token value itself: the ``token_id``
+ is the internal ID as provided by the database.
+
+ For more info on all the required JSON request fields, see the :ref:`JSON token schema for POST requests <schema_token_post>`.
+
+ :reqjson string email: The email associated with the token (**required** only when creating a new token).
+ :reqjson string username: The user name associated with the token.
+ :reqjson string admin: If the token is an administrator one (it automatically sets GET/DELETE/POST/PUT operations)
+ :reqjson string superuser: If the token is a super user one (a super user cannot create new tokens, but can perform GET/DELETE/POST/PUT operations).
+ :reqjson boolean get: If the token can perform GET operations.
+ :reqjson boolean post: If the token can perform POST/PUT operations.
+ :reqjson boolean delete: If the token can perform DELETE operations.
+ :reqjson boolean upload: If the token can be used to upload files.
+ :reqjson boolean ip_restricted: If the token is restricted to be used on certain IP addresses.
+ :reqjson array ip_address: Array of IP addresses the token is restricted to.
+ :reqjson boolean lab: If the token is a boot lab one.
+ :reqjson boolean test_lab: If the token is a test lab one.
+
+ :reqheader Authorization: The token necessary to authorize the request.
+ :reqheader Content-Type: Content type of the transmitted data, must be ``application/json``.
+ :reqheader Accept-Encoding: Accept the ``gzip`` coding.
+
+ :resheader Content-Type: Will be ``application/json; charset=UTF-8``.
+
+ :status 200: The request has been accepted and the token updated.
+ :status 400: JSON data not valid.
+ :status 403: Not authorized to perform the operation.
+ :status 404: The provided resource has not been found.
+ :status 415: Wrong content type.
+ :status 422: No real JSON data provided.
+
+ **Example Requests**
+
+ .. sourcecode:: http
 
     POST /token/12345-12345-12345 HTTP/1.1
     Host: api.kernelci.org
@@ -166,9 +205,10 @@ DELETE
 
 .. http:delete:: /token/(string:token_id)
 
- Delete the token identified by its ``token_id``. The ``token_id`` value is different
- from the token value itself: the ``token_id`` is the internal ID as provided by
- the database.
+ Delete the token identified by its ``token_id``.
+
+ The ``token_id`` value is different from the token value itself: the ``token_id``
+ is the internal ID as provided by the database.
 
  :param token_id: The token ID as provided by the database.
  :type token_id: string
