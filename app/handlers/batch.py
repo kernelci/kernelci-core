@@ -65,17 +65,14 @@ class BatchHandler(hbase.BaseHandler):
                     else:
                         response = hresponse.HandlerResponse(400)
                         response.reason = "Provided JSON is not valid"
-                        response.result = None
                 except ValueError:
                     error = "No JSON data found in the POST request"
                     self.log.error(error)
                     response = hresponse.HandlerResponse(422)
                     response.reason = error
-                    response.result = None
             else:
                 response = hresponse.HandlerResponse(valid_request)
                 response.reason = self._get_status_message(valid_request)
-                response.result = None
         else:
             response = hresponse.HandlerResponse(403)
             response.reason = hcommon.NOT_VALID_TOKEN
