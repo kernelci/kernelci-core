@@ -15,6 +15,11 @@
 
 """The RequestHandler for /token URLs."""
 
+try:
+    import simplejson as json
+except ImportError:
+    import json
+
 import bson
 import urlparse
 
@@ -24,8 +29,10 @@ import handlers.response as hresponse
 import models
 import models.token as mtoken
 import utils.db
+import utils.validator as validator
 
 
+# pylint: disable=too-many-public-methods
 class TokenHandler(hbase.BaseHandler):
     """Handle the /token URLs."""
 
@@ -66,7 +73,6 @@ class TokenHandler(hbase.BaseHandler):
         # Overridden: with the token we do not search by _id, but
         # by token field.
         response = hresponse.HandlerResponse()
-        response.result = None
 
         result = utils.db.find_one2(
             self.collection,
@@ -86,17 +92,54 @@ class TokenHandler(hbase.BaseHandler):
         response = None
 
         if kwargs and kwargs.get("id", None):
-            self.log.info(
-                "Token update from IP address %s",
-                self.request.remote_ip
-            )
-            response = self._update_data(kwargs["id"], kwargs["json_obj"])
+            response = hresponse.HandlerResponse(400)
+            response.reason = "To update a token, use a PUT request"
         else:
             self.log.info(
                 "New token creation from IP address %s",
-                self.request.remote_ip
-            )
+                self.request.remote_ip)
             response = self._new_data(kwargs["json_obj"])
+
+        return response
+
+    def _put(self, *args, **kwargs):
+        response = None
+
+        # PUT and POST request require the same content type.
+        valid_request = self._valid_post_request()
+        if valid_request == 200:
+            doc_id = kwargs.get("id", None)
+            if doc_id:
+                try:
+                    json_obj = json.loads(self.request.body.decode("utf8"))
+
+                    valid_json, errors = validator.is_valid_json(
+                        json_obj, self._valid_keys("PUT"))
+                    if valid_json:
+                        response = self._update_data(doc_id, json_obj)
+                        response.errors = errors
+                    else:
+                        response = hresponse.HandlerResponse(400)
+                        response.reason = "Provided JSON is not valid"
+                        response.errors = errors
+                except ValueError, ex:
+                    self.log.exception(ex)
+                    error = "No JSON data found in the PUT request"
+                    self.log.error(error)
+                    response = hresponse.HandlerResponse(422)
+                    response.reason = error
+            else:
+                response = hresponse.HandlerResponse(400)
+                response.reason = "Missing token ID"
+        else:
+            response = hresponse.HandlerResponse(valid_request)
+            response.reason = (
+                "%s: %s" %
+                (
+                    self._get_status_message(valid_request),
+                    "Use %s as the content type" % self.content_type
+                )
+            )
 
         return response
 
@@ -107,7 +150,6 @@ class TokenHandler(hbase.BaseHandler):
         :return A `HandlerResponse` object.
         """
         response = hresponse.HandlerResponse(201)
-        response.result = None
 
         try:
             new_token = self._token_update_create(json_obj)
@@ -142,15 +184,16 @@ class TokenHandler(hbase.BaseHandler):
         """Update an existing `Token` in the DB.
 
         :param doc_id: The token string identifying the `Token` to update.
+        :type doc_id: string
         :param json_obj: The JSON object with the parameters.
-        :return A `HandlerResponse` objet.
+        :type json_obj: dict
+        :return A `HandlerResponse` object.
         """
         response = hresponse.HandlerResponse()
-        response.result = None
 
         try:
-            obj_id = bson.objectid.ObjectId(doc_id)
-            result = utils.db.find_one(self.collection, [obj_id])
+            token_oid = bson.objectid.ObjectId(doc_id)
+            result = utils.db.find_one2(self.collection, token_oid)
 
             if result:
                 token = mtoken.Token.from_json(result)
@@ -158,7 +201,7 @@ class TokenHandler(hbase.BaseHandler):
                 token = self._token_update_create(json_obj, token, fail=False)
                 response.status_code = utils.db.update(
                     self.collection,
-                    {models.ID_KEY: obj_id},
+                    {models.ID_KEY: token_oid},
                     token.to_dict()
                 )
                 if response.status_code == 200:
@@ -185,6 +228,7 @@ class TokenHandler(hbase.BaseHandler):
 
         return response
 
+    # pylint: disable=too-many-branches
     @staticmethod
     def _token_update_create(json_obj, token=None, fail=True):
         """Create or update a `Token` object.
@@ -259,39 +303,36 @@ class TokenHandler(hbase.BaseHandler):
 
         return token
 
-    def execute_delete(self, *args, **kwargs):
-        """Called by the actual DELETE method.
+    def _delete(self, doc_id):
+        """Delete a resource.
 
-        Make sure we have the correct value to execute a DELETE on the db,
-        and then call the method that does the real delete.
-
-        Subclasses should not override this unless there are special reasons
-        to.
+        :param doc_id: The ID of the resource to delete.
+        :type doc_id: string
+        :return The delete operation status code.
         """
-        response = hresponse.HandlerResponse(400)
+        response = hresponse.HandlerResponse(200)
 
-        if self.validate_req_token("DELETE"):
-            if kwargs and kwargs.get("id", None):
-                response.status_code = self._delete(kwargs["id"])
-                if response.status_code == 200:
-                    response.reason = "Resource deleted"
-        else:
-            response.status_code = 403
-            response.reason = hcommon.NOT_VALID_TOKEN
+        try:
+            token_oid = bson.objectid.ObjectId(doc_id)
+            if utils.db.find_one2(self.collection, token_oid):
+                self.log.info(
+                    "Token (%s) deletion from IP '%s'",
+                    doc_id, self.request.remote_ip)
+                ret_val = utils.db.delete(self.collection, token_oid)
+                response.status_code = ret_val
+
+                if ret_val == 200:
+                    response.reason = "Resource '%s' deleted" % doc_id
+                else:
+                    response.reason = "Error deleting resource '%s'" % doc_id
+            else:
+                response.status_code = 404
+                response.reason = "Resource '%s' not found" % doc_id
+        except bson.errors.InvalidId, ex:
+            error = "Wrong ID value '%s' passed" % doc_id
+            self.log.exception(ex)
+            self.log.error(error)
+            response.status_code = 400
+            response.reason = error
 
         return response
-
-    def _delete(self, doc_id):
-        ret_val = 404
-
-        self.log.info("Token deletion from IP %s", self.request.remote_ip)
-        try:
-            doc_obj = bson.objectid.ObjectId(doc_id)
-            if utils.db.find_one(self.collection, [doc_obj]):
-                ret_val = utils.db.delete(self.collection, doc_obj)
-        except bson.errors.InvalidId, ex:
-            self.log.exception(ex)
-            self.log.error("Wrong ID '%s' value passed as object ID", doc_id)
-            ret_val = 400
-
-        return ret_val

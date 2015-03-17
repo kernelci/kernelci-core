@@ -81,6 +81,19 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
     @patch("utils.db.find")
     @patch("utils.db.count")
+    def test_get_with_master_key(self, mock_count, mock_find):
+        mock_count.return_value = 0
+        mock_find.return_value = []
+
+        headers = {"Authorization": "bar"}
+        response = self.fetch("/token", headers=headers)
+
+        self.assertEqual(response.code, 200)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    @patch("utils.db.find")
+    @patch("utils.db.count")
     def test_get(self, mock_count, mock_find):
         mock_count.return_value = 0
         mock_find.return_value = []
@@ -119,7 +132,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         headers = {"Authorization": "foo"}
 
         response = self.fetch(
-            "/token", method="POST", body='', headers=headers)
+            "/token", method="POST", body="", headers=headers)
 
         self.assertEqual(response.code, 415)
         self.assertEqual(
@@ -129,7 +142,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
 
         response = self.fetch(
-            "/token", method="POST", body='', headers=headers)
+            "/token", method="POST", body="", headers=headers)
 
         self.assertEqual(response.code, 422)
         self.assertEqual(
@@ -235,45 +248,9 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
         self.assertIsNotNone(response.headers["Location"])
 
-    @patch("bson.objectid.ObjectId")
-    def test_post_update_no_token(self, mock_id):
-        mock_id.return_value = "token"
-        headers = {"Authorization": "foo", "Content-Type": "application/json"}
-
-        body = json.dumps(dict(admin=1))
-
-        response = self.fetch(
-            "/token/token", method="POST", headers=headers, body=body)
-
-        self.assertEqual(response.code, 404)
-        self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
-
-    @patch("bson.objectid.ObjectId")
-    @patch("handlers.token.TokenHandler.collection")
-    def test_post_update_with_token(self, mock_collection, mock_id):
-        mock_id.return_value = "token"
-        mock_collection.find_one = MagicMock()
-        mock_collection.find_one.return_value = dict(
-            _id="token", token="token")
+    def test_post_with_id(self):
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         body = json.dumps(dict(admin=1))
-
-        response = self.fetch(
-            "/token/token", method="POST", headers=headers, body=body)
-
-        self.assertEqual(response.code, 200)
-        self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
-
-    @patch("bson.objectid.ObjectId")
-    @patch("handlers.token.TokenHandler.collection")
-    def test_post_update_wrong_content_0(self, mock_collection, mock_id):
-        mock_id.return_value = "token"
-        mock_collection.find_one = MagicMock()
-        mock_collection.find_one.return_value = dict(token="token")
-        headers = {"Authorization": "foo", "Content-Type": "application/json"}
-        body = json.dumps(dict(admin="bar"))
 
         response = self.fetch(
             "/token/token", method="POST", headers=headers, body=body)
@@ -282,9 +259,120 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
+    def test_put_without_token(self):
+        body = json.dumps(dict(email="foo"))
+
+        response = self.fetch("/token", method="PUT", body=body)
+
+        self.assertEqual(response.code, 403)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    def test_put_wrong_content_type(self):
+        headers = {"Authorization": "foo"}
+
+        response = self.fetch(
+            "/token/token", method="PUT", body="", headers=headers)
+
+        self.assertEqual(response.code, 415)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    def test_put_not_json_content(self):
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+
+        response = self.fetch(
+            "/token/token", method="PUT", body="", headers=headers)
+
+        self.assertEqual(response.code, 422)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    def test_put_wrong_json(self):
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+        body = json.dumps(dict(foo="foo", bar="bar"))
+
+        response = self.fetch(
+            "/token/token", method="PUT", body=body, headers=headers)
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    @patch("bson.objectid.ObjectId")
+    def test_put_update_no_token(self, mock_id):
+        mock_id.return_value = "token"
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+
+        body = json.dumps(dict(admin=1))
+
+        response = self.fetch(
+            "/token/token", method="PUT", headers=headers, body=body)
+
+        self.assertEqual(response.code, 404)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    def test_put_no_id(self):
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+        body = json.dumps(dict(admin=1))
+
+        response = self.fetch(
+            "/token", method="PUT", headers=headers, body=body)
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
     @patch("bson.objectid.ObjectId")
     @patch("handlers.token.TokenHandler.collection")
-    def test_post_update_wrong_content_1(self, mock_collection, mock_id):
+    def test_put_update_with_token(self, mock_collection, mock_id):
+        mock_id.return_value = "token"
+        mock_collection.find_one = MagicMock()
+        mock_collection.find_one.return_value = dict(
+            _id="token", token="token")
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+        body = json.dumps(
+            dict(admin=1, expired=1, lab=1, test_lab=1, upload=1))
+
+        response = self.fetch(
+            "/token/token", method="PUT", headers=headers, body=body)
+
+        self.assertEqual(response.code, 200)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    def test_put_update_wrong_id(self):
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+        body = json.dumps(
+            dict(admin=1, expired=1, lab=1, test_lab=1, upload=1))
+
+        response = self.fetch(
+            "/token/token", method="PUT", headers=headers, body=body)
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    @patch("bson.objectid.ObjectId")
+    @patch("handlers.token.TokenHandler.collection")
+    def test_put_update_wrong_content_0(self, mock_collection, mock_id):
+        mock_id.return_value = "token"
+        mock_collection.find_one = MagicMock()
+        mock_collection.find_one.return_value = dict(token="token")
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+        body = json.dumps(dict(admin="bar"))
+
+        response = self.fetch(
+            "/token/token", method="PUT", headers=headers, body=body)
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    @patch("bson.objectid.ObjectId")
+    @patch("handlers.token.TokenHandler.collection")
+    def test_put_update_wrong_content_1(self, mock_collection, mock_id):
         mock_id.return_value = "token"
         mock_collection.find_one = MagicMock()
         mock_collection.find_one.return_value = dict(
@@ -294,7 +382,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         body = json.dumps(dict(ip_address="127"))
 
         response = self.fetch(
-            "/token/token", method="POST", headers=headers, body=body)
+            "/token/token", method="PUT", headers=headers, body=body)
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
@@ -302,7 +390,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
     @patch("bson.objectid.ObjectId")
     @patch("handlers.token.TokenHandler.collection")
-    def test_post_update_wrong_content_2(self, mock_collection, mock_id):
+    def test_put_update_wrong_content_2(self, mock_collection, mock_id):
         mock_id.return_value = "token"
         mock_collection.find_one = MagicMock()
         mock_collection.find_one.return_value = dict(
@@ -312,7 +400,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         body = json.dumps(dict(ip_restricted=1))
 
         response = self.fetch(
-            "/token/token", method="POST", headers=headers, body=body)
+            "/token/token", method="PUT", headers=headers, body=body)
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
@@ -320,7 +408,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
     @patch("bson.objectid.ObjectId")
     @patch("handlers.token.TokenHandler.collection")
-    def test_post_update_ip_restricted(self, mock_collection, mock_id):
+    def test_put_update_ip_restricted(self, mock_collection, mock_id):
         mock_id.return_value = "token"
         mock_collection.find_one = MagicMock()
         mock_collection.find_one.return_value = dict(
@@ -332,7 +420,7 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         body = json.dumps(dict(email="foo", ip_restricted=1, ip_address="127"))
 
         response = self.fetch(
-            "/token/token", method="POST", headers=headers, body=body)
+            "/token/token", method="PUT", headers=headers, body=body)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
@@ -373,3 +461,32 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         response = self.fetch(
             "/token/token", method="GET", headers=headers)
         self.assertEqual(response.code, 404)
+
+    def test_delete_wrong_id_value(self):
+        db = self.mongodb_client["kernel-ci"]
+        db["api-token"].insert(dict(_id="token", token="token", email="email"))
+
+        headers = {"Authorization": "foo"}
+
+        response = self.fetch(
+            "/token/token", method="DELETE", headers=headers)
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    @patch("utils.db.delete")
+    @patch("utils.db.find_one2")
+    @patch("bson.objectid.ObjectId")
+    def test_delete_with_error(self, mock_id, mock_find, mock_delete):
+        mock_id.return_value = "token"
+        mock_find.return_value = {"_id": "token"}
+        mock_delete.return_value = 500
+        headers = {"Authorization": "foo"}
+
+        response = self.fetch(
+            "/token/token", method="DELETE", headers=headers)
+
+        self.assertEqual(response.code, 500)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
