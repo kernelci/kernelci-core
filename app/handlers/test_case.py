@@ -80,7 +80,6 @@ class TestCaseHandler(htbase.TestBaseHandler):
 
     def _delete(self, doc_id):
         response = hresponse.HandlerResponse()
-        response.result = None
 
         try:
             case_id = bson.objectid.ObjectId(doc_id)

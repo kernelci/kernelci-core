@@ -88,8 +88,7 @@ class SendHandler(hbase.BaseHandler):
 
                 when = (
                     datetime.datetime.now(tz=bson.tz_util.utc) +
-                    datetime.timedelta(seconds=countdown)
-                )
+                    datetime.timedelta(seconds=countdown))
 
                 schedule_data = {
                     "countdown": countdown,
@@ -110,8 +109,7 @@ class SendHandler(hbase.BaseHandler):
                         self._schedule_build_report(job, kernel, schedule_data)
 
                 response.reason, response.status_code = _check_status(
-                    send_boot, send_build, boot_errors, build_errors, when
-                )
+                    send_boot, send_build, boot_errors, build_errors, when)
             else:
                 response.status_code = 400
                 response.reason = (
@@ -164,8 +162,7 @@ class SendHandler(hbase.BaseHandler):
             error_string = "No email addresses provided to send boot report to"
             self.log.error(
                 "No email addresses to send boot report to for '%s-%s'",
-                job, kernel
-            )
+                job, kernel)
 
         return has_errors, error_string
 
@@ -201,11 +198,11 @@ class SendHandler(hbase.BaseHandler):
             )
         else:
             has_errors = True
-            error_string = "No email addresses provided to send build report to"
+            error_string = (
+                "No email addresses provided to send build report to")
             self.log.error(
                 "No email addresses to send build report to for '%s-%s'",
-                job, kernel
-            )
+                job, kernel)
 
         return has_errors, error_string
 
@@ -269,21 +266,18 @@ def _check_status(send_boot, send_build, boot_errors, build_errors, when):
             send_boot, send_build, boot_errors, not build_errors]):
         reason = (
             "Build email report scheduled to be sent at '%s' UTC" %
-            when.isoformat()
-        )
+            when.isoformat())
     elif all([
             send_boot, send_build, not boot_errors, build_errors]):
         reason = (
             "Boot email report scheduled to be sent at '%s' UTC" %
-            when.isoformat()
-        )
+            when.isoformat())
     elif all([
             send_boot,
             send_build, not boot_errors, not build_errors]):
         reason = (
             "Email reports scheduled to be sent at '%s' UTC" %
-            when.isoformat()
-        )
+            when.isoformat())
     elif all([
             not send_boot,
             send_build, not boot_errors, build_errors]):

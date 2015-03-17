@@ -53,9 +53,8 @@ class DefConfHandler(hbase.BaseHandler):
 
     def _delete(self, defconf_id):
         response = hresponse.HandlerResponse()
-        response.result = None
-
         response.status_code = utils.db.delete(self.collection, defconf_id)
+
         if response.status_code == 200:
             response.reason = "Resource '%s' deleted" % defconf_id
 

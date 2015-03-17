@@ -40,7 +40,6 @@ class JobHandler(hbase.BaseHandler):
     def _post(self, *args, **kwargs):
         response = hresponse.HandlerResponse(202)
         response.reason = "Request accepted and being imported"
-        response.result = None
 
         taskq.import_job.apply_async(
             [kwargs["json_obj"], kwargs["db_options"]])
@@ -61,7 +60,6 @@ class JobHandler(hbase.BaseHandler):
         # TODO: maybe look into two-phase commits in mongodb
         # http://docs.mongodb.org/manual/tutorial/perform-two-phase-commits/
         response = hresponse.HandlerResponse()
-        response.result = None
 
         try:
             job_obj = bson.objectid.ObjectId(job_id)

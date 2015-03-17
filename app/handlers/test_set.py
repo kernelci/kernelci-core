@@ -125,7 +125,6 @@ class TestSetHandler(htbase.TestBaseHandler):
 
     def _delete(self, doc_id):
         response = hresponse.HandlerResponse()
-        response.result = None
 
         try:
             set_id = bson.objectid.ObjectId(doc_id)

@@ -262,7 +262,6 @@ class TestSuiteHandler(htbase.TestBaseHandler):
 
     def _delete(self, doc_id):
         response = hresponse.HandlerResponse()
-        response.result = None
 
         try:
             suite_id = bson.objectid.ObjectId(doc_id)

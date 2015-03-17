@@ -60,16 +60,12 @@ class LabHandler(handlers.base.BaseHandler):
             response.status_code = status_code
             response.result = result
             if reason:
-                if kwargs["reason"]:
-                    reason += "\n" + kwargs["reason"]
                 response.reason = reason
             if headers:
                 response.headers = headers
         else:
             response.status_code = 400
             if reason:
-                if kwargs["reason"]:
-                    reason += "\n" + kwargs["reason"]
                 response.reason = reason
 
         return response
@@ -340,7 +336,6 @@ class LabHandler(handlers.base.BaseHandler):
                         )
                 else:
                     response = hresponse.HandlerResponse(400)
-                    response.result = None
                     response.reason = (
                         "No valid data provided to execute a DELETE"
                     )
@@ -352,8 +347,6 @@ class LabHandler(handlers.base.BaseHandler):
 
     def _delete(self, spec_or_id):
         response = hresponse.HandlerResponse(200)
-        response.result = None
-
         response.status_code = utils.db.delete(self.collection, spec_or_id)
         response.reason = self._get_status_message(response.status_code)
 

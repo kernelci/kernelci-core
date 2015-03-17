@@ -52,7 +52,6 @@ class CountHandler(hbase.BaseHandler):
         else:
             response.status_code = 404
             response.reason = "Collection %s not found" % collection
-            response.result = None
 
         return response
 
