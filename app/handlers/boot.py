@@ -51,18 +51,10 @@ class BootHandler(hbase.BaseHandler):
 
         if self._is_valid_token(req_token, lab_name):
             response = hresponse.HandlerResponse(202)
-            if kwargs.get("reason", None):
-                response.reason = (
-                    "Request accepted and being imported. WARNING: %s" %
-                    kwargs["reason"]
-                )
-            else:
-                response.reason = "Request accepted and being imported"
-            response.result = None
+            response.reason = "Request accepted and being imported"
 
             taskq.import_boot.apply_async(
-                [kwargs["json_obj"], kwargs["db_options"]]
-            )
+                [kwargs["json_obj"], kwargs["db_options"]])
         else:
             response = hresponse.HandlerResponse(403)
             response.reason = (
@@ -90,13 +82,11 @@ class BootHandler(hbase.BaseHandler):
         valid_lab = False
 
         lab_doc = utils.db.find_one(
-            self.db[models.LAB_COLLECTION], [lab_name], field=models.NAME_KEY
-        )
+            self.db[models.LAB_COLLECTION], [lab_name], field=models.NAME_KEY)
 
         if lab_doc:
             lab_token_doc = utils.db.find_one(
-                self.db[models.TOKEN_COLLECTION], [lab_doc[models.TOKEN_KEY]]
-            )
+                self.db[models.TOKEN_COLLECTION], [lab_doc[models.TOKEN_KEY]])
 
             if lab_token_doc:
                 lab_token = mtoken.Token.from_json(lab_token_doc)
@@ -139,26 +129,21 @@ class BootHandler(hbase.BaseHandler):
                 except bson.errors.InvalidId, ex:
                     self.log.exception(ex)
                     self.log.error(
-                        "Wrong ID '%s' value passed as object ID", doc_id
-                    )
+                        "Wrong ID '%s' value passed as object ID", doc_id)
                     response = hresponse.HandlerResponse(400)
                     response.reason = "Wrong ID value passed as object ID"
             else:
                 spec = hcommon.get_query_spec(
-                    self.get_query_arguments, self._valid_keys("DELETE")
-                )
+                    self.get_query_arguments, self._valid_keys("DELETE"))
                 if spec:
                     response = self._delete(spec)
                     if response.status_code == 200:
                         response.reason = (
-                            "Resources identified with '%s' deleted" % spec
-                        )
+                            "Resources identified with '%s' deleted" % spec)
                 else:
                     response = hresponse.HandlerResponse(400)
-                    response.result = None
                     response.reason = (
-                        "No valid data provided to execute a DELETE"
-                    )
+                        "No valid data provided to execute a DELETE")
         else:
             response = hresponse.HandlerResponse(403)
             response.reason = hcommon.NOT_VALID_TOKEN
@@ -184,7 +169,8 @@ class BootHandler(hbase.BaseHandler):
             token = mtoken.Token.from_json(token)
 
             # Just need to check if it is a lab token. A validation has already
-            # occurred makig sure is a valid DELETE one. This is the extra step.
+            # occurred makig sure is a valid DELETE one.
+            # This is the extra step.
             if token.is_lab_token:
                 # This is only valid if the lab matches.
                 valid_token = False
@@ -205,8 +191,6 @@ class BootHandler(hbase.BaseHandler):
 
     def _delete(self, spec_or_id):
         response = hresponse.HandlerResponse(200)
-        response.result = None
-
         response.status_code = utils.db.delete(self.collection, spec_or_id)
         response.reason = self._get_status_message(response.status_code)
 
