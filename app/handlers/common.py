@@ -32,6 +32,9 @@ COLLECTIONS = {
     "boot": models.BOOT_COLLECTION,
     "defconfig": models.DEFCONFIG_COLLECTION,
     "job": models.JOB_COLLECTION,
+    "test_suite": models.TEST_SUITE_COLLECTION,
+    "test_set": models.TEST_SET_COLLECTION,
+    "test_case": models.TEST_CASE_COLLECTION
 }
 
 # Some key values must be treated in a different way, not as string.

@@ -99,20 +99,16 @@ def count_one_collection(
 
     if spec:
         _, number = utils.db.find_and_count(
-            collection, 0, 0, spec, COUNT_FIELDS
-        )
+            collection, 0, 0, spec, COUNT_FIELDS)
         if not number:
             number = 0
 
-        result.append(
-            dict(collection=collection_name, count=number)
-        )
+        result.append(dict(collection=collection_name, count=number))
     else:
         result.append(
             dict(
                 collection=collection_name,
-                count=utils.db.count(collection)
-            )
+                count=utils.db.count(collection))
         )
 
     return result
@@ -140,8 +136,7 @@ def count_all_collections(database, query_args_func, valid_keys):
     if spec:
         for key, val in hcommon.COLLECTIONS.iteritems():
             _, number = utils.db.find_and_count(
-                database[val], 0, 0, spec, COUNT_FIELDS
-            )
+                database[val], 0, 0, spec, COUNT_FIELDS)
             if not number:
                 number = 0
             result.append(dict(collection=key, count=number))
@@ -150,8 +145,7 @@ def count_all_collections(database, query_args_func, valid_keys):
             result.append(
                 dict(
                     collection=key,
-                    count=utils.db.count(database[val])
-                )
+                    count=utils.db.count(database[val]))
             )
 
     return result
