@@ -85,16 +85,7 @@ def execute_boot_bisection(doc_id, db_options, fields=None):
             bcommon.save_bisect_doc(database, bisect_doc, doc_id)
 
             bisect_doc = bcommon.update_doc_fields(bisect_doc, fields)
-            result = [
-                json.loads(
-                    json.dumps(
-                        bisect_doc,
-                        default=bson.json_util.default,
-                        ensure_ascii=False,
-                        separators=(",", ":")
-                    )
-                )
-            ]
+            result = [bisect_doc]
     else:
         code = 404
         result = None
@@ -307,16 +298,7 @@ def execute_boot_bisection_compared_to(
             bcommon.save_bisect_doc(database, bisect_doc, doc_id)
 
             bisect_doc = bcommon.update_doc_fields(bisect_doc, fields)
-            result = [
-                json.loads(
-                    json.dumps(
-                        bisect_doc,
-                        default=bson.json_util.default,
-                        ensure_ascii=False,
-                        separators=(",", ":")
-                    )
-                )
-            ]
+            result = [bisect_doc]
     else:
         code = 404
         result = None
