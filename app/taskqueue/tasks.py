@@ -144,8 +144,7 @@ def defconfig_bisect_compared_to(doc_id, compare_to, db_options, fields=None):
     :return The result of the defconfig bisect operation.
     """
     return defconfigb.execute_defconfig_bisection_compared_to(
-        doc_id, compare_to, db_options, fields=fields
-    )
+        doc_id, compare_to, db_options, fields=fields)
 
 
 @taskc.app.task(

@@ -92,9 +92,9 @@ def combine_defconfig_values(boot_doc, db_options):
     }
 
     if defconfig_id:
-        defconf_doc = utils.db.find_one(
+        defconf_doc = utils.db.find_one2(
             database[models.DEFCONFIG_COLLECTION],
-            [defconfig_id],
+            defconfig_id,
             fields=BOOT_DEFCONFIG_SEARCH_FIELDS
         )
     else:

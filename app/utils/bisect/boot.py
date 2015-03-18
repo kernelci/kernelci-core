@@ -13,11 +13,6 @@
 
 """All boot bisect operations."""
 
-try:
-    import simplejson as json
-except ImportError:
-    import json
-
 import bson
 import bson.json_util
 import datetime
@@ -70,8 +65,7 @@ def execute_boot_bisection(doc_id, db_options, fields=None):
 
     obj_id = bson.objectid.ObjectId(doc_id)
     start_doc = utils.db.find_one2(
-        database[models.BOOT_COLLECTION], obj_id, fields=BOOT_SEARCH_FIELDS
-    )
+        database[models.BOOT_COLLECTION], obj_id, fields=BOOT_SEARCH_FIELDS)
 
     if all([start_doc, isinstance(start_doc, types.DictionaryType)]):
         start_doc_get = start_doc.get
@@ -215,8 +209,7 @@ def execute_boot_bisection_compared_to(
 
     obj_id = bson.objectid.ObjectId(doc_id)
     start_doc = utils.db.find_one2(
-        database[models.BOOT_COLLECTION], obj_id, fields=BOOT_SEARCH_FIELDS
-    )
+        database[models.BOOT_COLLECTION], obj_id, fields=BOOT_SEARCH_FIELDS)
 
     if all([start_doc, isinstance(start_doc, types.DictionaryType)]):
         start_doc_get = start_doc.get

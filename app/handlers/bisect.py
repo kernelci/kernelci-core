@@ -148,8 +148,7 @@ class BisectHandler(hbase.BaseHandler):
         else:
             response = hresponse.HandlerResponse(400)
             response.reason = (
-                "Provided bisect collection '%s' is not valid" % collection
-            )
+                "Provided bisect collection '%s' is not valid" % collection)
 
         return response
 
@@ -159,12 +158,12 @@ class BisectHandler(hbase.BaseHandler):
         :param id_key: The name of the key that contains the ID value of the
         document we want to bisect.
         :type id_key: string
-        :param spec: The spec data structure as retrieved with the request query
-        args.
+        :param spec: The spec data structure as retrieved with the request
+        query args.
         :type spec: dictionary
-        :param bisect_func: The bisect function that should be called. It should
-        accept the `doc_id` as string, the database options as dictionary and
-        `**kwargs`.
+        :param bisect_func: The bisect function that should be called. It
+        should accept the `doc_id` as string, the database options as
+        dictionary and `**kwargs`.
         :type bisect_func: function
         :param fields: A `fields` data structure with the fields to return or
         exclude. Default to None.
@@ -179,7 +178,6 @@ class BisectHandler(hbase.BaseHandler):
             try:
                 obj_id = bson.objectid.ObjectId(doc_id)
                 spec[id_key] = obj_id
-                self.log.info(spec)
 
                 bisect_result = utils.db.find_one2(
                     self.db[self.collection],
@@ -193,8 +191,7 @@ class BisectHandler(hbase.BaseHandler):
                 else:
                     kwargs = {
                         "fields": fields,
-                        "compare_to": s_get(models.COMPARE_TO_KEY, None)
-                    }
+                        "compare_to": s_get(models.COMPARE_TO_KEY, None)}
                     response = bisect_func(
                         doc_id, self.settings["dboptions"], **kwargs)
             except bson.errors.InvalidId, ex:
@@ -285,8 +282,7 @@ def execute_defconfig_bisect(doc_id, db_options, **kwargs):
     response = hresponse.HandlerResponse()
 
     result = taskt.defconfig_bisect.apply_async(
-        [doc_id, db_options, kwargs.get("fields", None)]
-    )
+        [doc_id, db_options, kwargs.get("fields", None)])
     while not result.ready():
         pass
 
