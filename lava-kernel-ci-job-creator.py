@@ -395,7 +395,7 @@ def setup_job_dir(directory):
     print 'Done setting up JSON output directory'
 
 
-def create_jobs(base_url, kernel, platform_list, target, targets):
+def create_jobs(base_url, kernel, plans, platform_list, target, targets):
     print 'Creating JSON Job Files...'
     cwd = os.getcwd()
     url = urlparse.urlparse(kernel)
@@ -428,34 +428,39 @@ def create_jobs(base_url, kernel, platform_list, target, targets):
             elif targets is not None and device_type not in targets:
                 print '%s device type has been omitted. Skipping JSON creation.' % device_type
             else:
-                for template in device_templates:
-                    job_name = tree + '-' + kernel_version + '-' + defconfig[:100] + '-' + platform_name + '-' + device_type
-                    job_json = cwd + '/jobs/' + job_name + '.json'
-                    template_file = cwd + '/templates/' + str(template)
-                    with open(job_json, 'wt') as fout:
-                        with open(template_file, "rt") as fin:
-                            for line in fin:
-                                tmp = line.replace('{dtb_url}', platform)
-                                tmp = tmp.replace('{kernel_url}', kernel)
-                                tmp = tmp.replace('{device_type}', device_type)
-                                tmp = tmp.replace('{job_name}', job_name)
-                                tmp = tmp.replace('{image_type}', image_type)
-                                tmp = tmp.replace('{image_url}', image_url)
-                                tmp = tmp.replace('{tree}', tree)
-                                if platform_name.endswith('.dtb'):
-                                    tmp = tmp.replace('{device_tree}', platform_name)
-                                tmp = tmp.replace('{kernel_version}', kernel_version)
-                                if 'BIG_ENDIAN' in defconfig and be:
-                                    tmp = tmp.replace('{endian}', 'big')
-                                else:
-                                    tmp = tmp.replace('{endian}', 'little')
-                                tmp = tmp.replace('{defconfig}', defconfig)
-                                tmp = tmp.replace('{fastboot}', str(fastboot).lower())
-                                fout.write(tmp)
-                    print 'JSON Job created: jobs/%s' % job_name
+                for plan in plans:
+                    for template in device_templates:
+                        job_name = tree + '-' + kernel_version + '-' + defconfig[:100] + '-' + platform_name + '-' + device_type
+                        job_json = cwd + '/jobs/' + job_name + '.json'
+                        template_file = cwd + '/templates/' + plan + '/' + str(template)
+                        if os.path.exists(template_file):
+                            with open(job_json, 'wt') as fout:
+                                with open(template_file, "rt") as fin:
+                                    for line in fin:
+                                        tmp = line.replace('{dtb_url}', platform)
+                                        tmp = tmp.replace('{kernel_url}', kernel)
+                                        tmp = tmp.replace('{device_type}', device_type)
+                                        tmp = tmp.replace('{job_name}', job_name)
+                                        tmp = tmp.replace('{image_type}', image_type)
+                                        tmp = tmp.replace('{image_url}', image_url)
+                                        tmp = tmp.replace('{tree}', tree)
+                                        if platform_name.endswith('.dtb'):
+                                            tmp = tmp.replace('{device_tree}', platform_name)
+                                        tmp = tmp.replace('{kernel_version}', kernel_version)
+                                        if 'BIG_ENDIAN' in defconfig and be:
+                                            tmp = tmp.replace('{endian}', 'big')
+                                        else:
+                                            tmp = tmp.replace('{endian}', 'little')
+                                        tmp = tmp.replace('{defconfig}', defconfig)
+                                        tmp = tmp.replace('{fastboot}', str(fastboot).lower())
+                                        fout.write(tmp)
+                            print 'JSON Job created: jobs/%s' % job_name
+                        else:
+                            print 'Template not found'
+                            print template_file
 
 
-def walk_url(url, arch=None, target=None, targets=None):
+def walk_url(url, plans=None, arch=None, target=None, targets=None):
     global base_url
     global kernel
     global platform_list
@@ -530,7 +535,7 @@ def walk_url(url, arch=None, target=None, targets=None):
     if kernel is not None and base_url is not None:
         if platform_list:
             print 'Found boot artifacts at: %s' % base_url
-            create_jobs(base_url, kernel, platform_list, target, targets)
+            create_jobs(base_url, kernel, plans, platform_list, target, targets)
             # Hack for subdirectories with arm64 dtbs
             if 'arm64' not in base_url:
                 base_url = None
@@ -542,20 +547,21 @@ def walk_url(url, arch=None, target=None, targets=None):
             legacy_platform_list = []
 
     for dir in dirs:
-        walk_url(url + dir, arch, target, targets)
+        walk_url(url + dir, plans, arch, target, targets)
 
 
 def main(args):
     setup_job_dir(os.getcwd() + '/jobs')
-    print 'Scanning %s for boot information...' % args.url
-    walk_url(args.url, args.arch, args.target, args.targets)
-    print 'Done scanning for boot information'
+    print 'Scanning %s for kernel information...' % args.url
+    walk_url(args.url, args.plans, args.arch, args.target, args.targets)
+    print 'Done scanning for kernel information'
     print 'Done creating JSON jobs'
     exit(0)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("url", help="url to build artifacts")
+    parser.add_argument("--plans", nargs='+', required=True, help="test plan to create jobs for")
     parser.add_argument("--arch", help="specific architecture to create jobs for")
     parser.add_argument("--target", help="specific target to create jobs for")
     parser.add_argument("--targets", nargs='+', help="specific targets to create jobs for")
