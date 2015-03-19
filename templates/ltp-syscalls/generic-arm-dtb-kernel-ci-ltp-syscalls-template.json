@@ -23,7 +23,7 @@
                 "nfsrootfs": "http://releases.linaro.org/15.02/openembedded/images/lamp-armv7a/linaro-image-lamp-genericarmv7a-20150222-322.rootfs.tar.gz"
             }
         },
-{
+        {
             "command": "lava_test_shell",
             "parameters": {
                 "testdef_repos": [
