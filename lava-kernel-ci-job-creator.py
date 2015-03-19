@@ -29,7 +29,9 @@ arndale = {'device_type': 'arndale',
            'fastboot': False}
 
 snow = {'device_type': 'snow',
-        'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+        'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                      'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                      'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
         'defconfig_blacklist': [],
         'kernel_blacklist': [],
         'lpae': True,
@@ -47,7 +49,9 @@ arndale_octa = {'device_type': 'arndale-octa',
                 'fastboot': False}
 
 peach_pi = {'device_type': 'peach-pi',
-            'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+            'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                          'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                          'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
             'defconfig_blacklist': [],
             'kernel_blacklist': [],
             'lpae': True,
@@ -162,7 +166,9 @@ imx6q_wandboard = {'device_type': 'imx6q-wandboard',
                    'fastboot': False}
 
 imx6q_sabrelite = {'device_type': 'imx6q-sabrelite',
-                   'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+                   'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                                 'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                                 'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
                    'defconfig_blacklist': ['arm-imx_v4_v5_defconfig',
                                            'arm-multi_v5_defconfig'],
                    'kernel_blacklist': [],
