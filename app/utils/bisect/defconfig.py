@@ -13,11 +13,6 @@
 
 """All defconfig bisect operations."""
 
-try:
-    import simplejson as json
-except ImportError:
-    import json
-
 import bson
 import bson.json_util
 import copy
