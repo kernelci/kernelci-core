@@ -444,21 +444,13 @@ def create_jobs(base_url, kernel, plans, platform_list, target, targets):
             lpae = device['lpae']
             be = device['be']
             fastboot = device['fastboot']
-            if 'BIG_ENDIAN' in defconfig and not be:
-                print 'BIG_ENDIAN is not supported on %s. Skipping JSON creation' % device_type
-            elif 'LPAE' in defconfig and not lpae:
-                print 'LPAE is not supported on %s. Skipping JSON creation' % device_type
-            elif defconfig in device['defconfig_blacklist']:
-                print '%s has been blacklisted. Skipping JSON creation' % defconfig
-            elif any([x for x in device['kernel_blacklist'] if x in kernel_version]):
-                print '%s has been blacklisted. Skipping JSON creation' % kernel_version
-            elif target is not None and target != device_type:
-                print '%s device type has been omitted. Skipping JSON creation.' % device_type
-            elif targets is not None and device_type not in targets:
-                print '%s device type has been omitted. Skipping JSON creation.' % device_type
-            else:
-                for plan in plans:
-                    if plan != 'boot':
+            test_suite = None
+            test_set = None
+            test_desc = None
+            test_type = None
+            defconfigs = []
+            for plan in plans:
+                if plan != 'boot':
                         config = ConfigParser.ConfigParser()
                         try:
                             config.read(cwd + '/templates/' + plan + '/' + plan + '.ini')
@@ -466,40 +458,61 @@ def create_jobs(base_url, kernel, plans, platform_list, target, targets):
                             test_set = config.get(plan, 'set')
                             test_desc = config.get(plan, 'description')
                             test_type = config.get(plan, 'type')
+                            defconfigs = config.get(plan, 'defconfigs').split(',')
                         except:
                             print "Unable to load test configuration"
                             exit(1)
-                    for template in device_templates:
-                        job_name = tree + '-' + kernel_version + '-' + defconfig[:100] + '-' + platform_name + '-' + device_type + '-' + plan
-                        job_json = cwd + '/jobs/' + job_name + '.json'
-                        template_file = cwd + '/templates/' + plan + '/' + str(template)
-                        if os.path.exists(template_file):
-                            with open(job_json, 'wt') as fout:
-                                with open(template_file, "rt") as fin:
-                                    for line in fin:
-                                        tmp = line.replace('{dtb_url}', platform)
-                                        tmp = tmp.replace('{kernel_url}', kernel)
-                                        tmp = tmp.replace('{device_type}', device_type)
-                                        tmp = tmp.replace('{job_name}', job_name)
-                                        tmp = tmp.replace('{image_type}', image_type)
-                                        tmp = tmp.replace('{image_url}', image_url)
-                                        tmp = tmp.replace('{tree}', tree)
-                                        if platform_name.endswith('.dtb'):
-                                            tmp = tmp.replace('{device_tree}', platform_name)
-                                        tmp = tmp.replace('{kernel_version}', kernel_version)
-                                        if 'BIG_ENDIAN' in defconfig and be:
-                                            tmp = tmp.replace('{endian}', 'big')
-                                        else:
-                                            tmp = tmp.replace('{endian}', 'little')
-                                        tmp = tmp.replace('{defconfig}', defconfig)
-                                        tmp = tmp.replace('{fastboot}', str(fastboot).lower())
-                                        tmp = tmp.replace('{test_plan}', plan)
-                                        tmp = tmp.replace('{test_suite}', test_suite)
-                                        tmp = tmp.replace('{test_set}', test_set)
-                                        tmp = tmp.replace('{test_desc}', test_desc)
-                                        tmp = tmp.replace('{test_type}', test_type)
-                                        fout.write(tmp)
-                            print 'JSON Job created: jobs/%s' % job_name
+                if 'BIG_ENDIAN' in defconfig and not be:
+                    print 'BIG_ENDIAN is not supported on %s. Skipping JSON creation' % device_type
+                elif 'LPAE' in defconfig and not lpae:
+                    print 'LPAE is not supported on %s. Skipping JSON creation' % device_type
+                elif defconfig in device['defconfig_blacklist']:
+                    print '%s has been blacklisted. Skipping JSON creation' % defconfig
+                elif any([x for x in device['kernel_blacklist'] if x in kernel_version]):
+                    print '%s has been blacklisted. Skipping JSON creation' % kernel_version
+                elif target is not None and target != device_type:
+                    print '%s device type has been omitted. Skipping JSON creation.' % device_type
+                elif targets is not None and device_type not in targets:
+                    print '%s device type has been omitted. Skipping JSON creation.' % device_type
+                elif not any([x for x in defconfigs if x == defconfig]) and plan != 'boot':
+                    print '%s has been omitted from the %s test plan. Skipping JSON creation.' % (defconfig, plan)
+                else:
+                        for template in device_templates:
+                            job_name = tree + '-' + kernel_version + '-' + defconfig[:100] + '-' + platform_name + '-' + device_type + '-' + plan
+                            job_json = cwd + '/jobs/' + job_name + '.json'
+                            template_file = cwd + '/templates/' + plan + '/' + str(template)
+                            if os.path.exists(template_file):
+                                with open(job_json, 'wt') as fout:
+                                    with open(template_file, "rt") as fin:
+                                        for line in fin:
+                                            tmp = line.replace('{dtb_url}', platform)
+                                            tmp = tmp.replace('{kernel_url}', kernel)
+                                            tmp = tmp.replace('{device_type}', device_type)
+                                            tmp = tmp.replace('{job_name}', job_name)
+                                            tmp = tmp.replace('{image_type}', image_type)
+                                            tmp = tmp.replace('{image_url}', image_url)
+                                            tmp = tmp.replace('{tree}', tree)
+                                            if platform_name.endswith('.dtb'):
+                                                tmp = tmp.replace('{device_tree}', platform_name)
+                                            tmp = tmp.replace('{kernel_version}', kernel_version)
+                                            if 'BIG_ENDIAN' in defconfig and be:
+                                                tmp = tmp.replace('{endian}', 'big')
+                                            else:
+                                                tmp = tmp.replace('{endian}', 'little')
+                                            tmp = tmp.replace('{defconfig}', defconfig)
+                                            tmp = tmp.replace('{fastboot}', str(fastboot).lower())
+                                            if plan:
+                                                tmp = tmp.replace('{test_plan}', plan)
+                                            if test_suite:
+                                                tmp = tmp.replace('{test_suite}', test_suite)
+                                            if test_set:
+                                                tmp = tmp.replace('{test_set}', test_set)
+                                            if test_desc:
+                                                tmp = tmp.replace('{test_desc}', test_desc)
+                                            if test_type:
+                                                tmp = tmp.replace('{test_type}', test_type)
+                                            fout.write(tmp)
+                                print 'JSON Job created: jobs/%s' % job_name
 
 
 def walk_url(url, plans=None, arch=None, target=None, targets=None):
@@ -576,7 +589,7 @@ def walk_url(url, plans=None, arch=None, target=None, targets=None):
 
     if kernel is not None and base_url is not None:
         if platform_list:
-            print 'Found boot artifacts at: %s' % base_url
+            print 'Found artifacts at: %s' % base_url
             create_jobs(base_url, kernel, plans, platform_list, target, targets)
             # Hack for subdirectories with arm64 dtbs
             if 'arm64' not in base_url:
@@ -584,13 +597,12 @@ def walk_url(url, plans=None, arch=None, target=None, targets=None):
                 kernel = None
             platform_list = []
         elif legacy_platform_list:
-            print 'Found boot artifacts at: %s' % base_url
-            create_jobs(base_url, kernel, legacy_platform_list, target, targets)
+            print 'Found artifacts at: %s' % base_url
+            create_jobs(base_url, kernel, plans, legacy_platform_list, target, targets)
             legacy_platform_list = []
 
     for dir in dirs:
         walk_url(url + dir, plans, arch, target, targets)
-
 
 def main(args):
     setup_job_dir(os.getcwd() + '/jobs')
