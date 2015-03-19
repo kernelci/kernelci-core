@@ -563,24 +563,29 @@ def _get_boot_subject_string(**kwargs):
     }
 
     subject_all_pass = G_(
-        u"%(boot_name)s: %(total_boots)s: %(passed_boots)s %(kernel_name)s")
+        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, "
+        "%(passed_boots)s %(kernel_name)s")
     subject_all_pass_with_lab = G_(
-        u"%(boot_name)s: %(total_boots)s: %(passed_boots)s %(kernel_name)s "
-        "- %(lab_description)s")
+        u"%(boot_name)s: %(total_boots)s:  %(failed_boots)s, "
+        "%(passed_boots)s %(kernel_name)s - %(lab_description)s")
 
     subject_pass_with_offline = G_(
-        u"%(boot_name)s: %(total_boots)s: %(passed_boots)s, "
-        "%(offline_boots)s %(kernel_name)s")
+        u"%(boot_name)s: %(total_boots)s:  %(failed_boots)s, "
+        "%(passed_boots)s, %(offline_boots)s %(kernel_name)s")
     subject_pass_with_offline_with_lab = G_(
-        u"%(boot_name)s: %(total_boots)s: %(passed_boots)s, "
-        "%(offline_boots)s %(kernel_name)s - %(lab_description)s")
+        u"%(boot_name)s: %(total_boots)s:  %(failed_boots)s, "
+        "%(passed_boots)s, %(offline_boots)s %(kernel_name)s "
+        "- %(lab_description)s"
+    )
 
     subject_pass_with_conflict = G_(
-        u"%(boot_name)s: %(total_boots)s: %(passed_boots)s, "
-        "%(conflict_boots)s %(kernel_name)s")
+        u"%(boot_name)s: %(total_boots)s:  %(failed_boots)s, "
+        "%(passed_boots)s, %(conflict_boots)s %(kernel_name)s")
     subject_pass_with_conflict_with_lab = G_(
-        u"%(boot_name)s: %(total_boots)s: %(passed_boots)s, "
-        "%(conflict_boots)s %(kernel_name)s - %(lab_description)s")
+        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, "
+        "%(passed_boots)s, %(conflict_boots)s %(kernel_name)s "
+        "- %(lab_description)s"
+    )
 
     subject_only_fail = G_(
         u"%(boot_name)s: %(total_boots)s: %(failed_boots)s %(kernel_name)s")
@@ -589,34 +594,34 @@ def _get_boot_subject_string(**kwargs):
         "- %(lab_description)s")
 
     subject_with_fail = G_(
-        u"%(boot_name)s: %(total_boots)s: %(passed_boots)s, "
-        "%(failed_boots)s %(kernel_name)s")
+        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, %(passed_boots)s "
+        "%(kernel_name)s")
     subject_with_fail_with_lab = G_(
-        u"%(boot_name)s: %(total_boots)s: %(passed_boots)s, "
-        "%(failed_boots)s %(kernel_name)s - %(lab_description)s")
+        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, %(passed_boots)s "
+        "%(kernel_name)s - %(lab_description)s")
 
     subject_with_fail_and_conflict = G_(
-        u"%(boot_name)s: %(total_boots)s: %(passed_boots)s, %(failed_boots)s "
+        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, %(passed_boots)s "
         "with %(conflict_boots)s %(kernel_name)s")
     subject_with_fail_and_conflict_with_lab = G_(
-        u"%(boot_name)s: %(total_boots)s: %(passed_boots)s, %(failed_boots)s "
+        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, %(passed_boots)s "
         "with %(conflict_boots)s %(kernel_name)s - %(lab_description)s")
 
     subject_with_fail_and_offline = G_(
-        u"%(boot_name)s: %(total_boots)s: %(passed_boots)s, %(failed_boots)s "
+        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, %(passed_boots)s "
         "with %(offline_boots)s %(kernel_name)s")
     subject_with_fail_and_offline_with_lab = G_(
-        u"%(boot_name)s: %(total_boots)s: %(passed_boots)s, %(failed_boots)s "
+        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, %(passed_boots)s "
         "with %(offline_boots)s %(kernel_name)s - %(lab_description)s")
 
     all_subject = G_(
-        u"%(boot_name)s: %(total_boots)s: %(passed_boots)s, "
-        "%(failed_boots)s with %(conflict_boots)s, %(offline_boots)s "
-        "%(kernel_name)s")
+        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, %(passed_boots)s "
+        "with %(conflict_boots)s, %(offline_boots)s %(kernel_name)s")
     all_subject_with_lab = G_(
-        u"%(boot_name)s: %(total_boots)s: %(passed_boots)s, "
-        "%(failed_boots)s with %(conflict_boots)s, %(offline_boots)s "
-        "%(kernel_name)s - %(lab_description)s")
+        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, %(passed_boots)s "
+        "with %(conflict_boots)s, %(offline_boots)s %(kernel_name)s "
+        "- %(lab_description)s"
+    )
 
     if all([fail_count == 0, offline_count == 0, conflict_count == 0]):
         # All is good!
@@ -705,7 +710,7 @@ def _parse_and_write_results(m_string, **kwargs):
     fail_count = k_get("fail_count", 0)
     conflict_count = k_get("conflict_count", 0)
 
-    def _traverse_data_struct(data, m_string):
+    def _traverse_data_struct(data, m_string, is_conflict=False):
         """Traverse the data structure and write it to file.
 
         :param data: The data structure to parse.
@@ -717,27 +722,28 @@ def _parse_and_write_results(m_string, **kwargs):
 
         for arch in data.viewkeys():
             m_string.write(u"\n")
-            m_string.write(
-                G_(u"%s:\n") % arch
-            )
+            m_string.write(G_(u"%s:\n") % arch)
 
             for defconfig in d_get(arch).viewkeys():
                 m_string.write(u"\n")
-                m_string.write(
-                    G_(u"    %s:\n") % defconfig
-                )
+                m_string.write(G_(u"    %s:\n") % defconfig)
                 def_get = d_get(arch)[defconfig].get
 
-                for board in d_get(arch)[defconfig].viewkeys():
-                    m_string.write(
-                        G_(u"        %s:\n") % board
-                    )
-
-                    for lab in def_get(board).viewkeys():
+                if is_conflict:
+                    for board in d_get(arch)[defconfig].viewkeys():
+                        lab_count = 0
+                        for lab in def_get(board).viewkeys():
+                            lab_count += 1
                         m_string.write(
-                            G_(u"            %s: %s\n") %
-                            (lab, def_get(board)[lab])
-                        )
+                            G_(u"        %s: %d\n") % (board, lab_count))
+                else:
+                    for board in d_get(arch)[defconfig].viewkeys():
+                        m_string.write(G_(u"        %s:\n") % board)
+
+                        for lab in def_get(board).viewkeys():
+                            m_string.write(
+                                G_(u"            %s: %s\n") %
+                                (lab, def_get(board)[lab]))
 
     if failed_data:
         boot_failure_url = u"%(base_url)s/boot/?%(kernel)s&fail" % kwargs
