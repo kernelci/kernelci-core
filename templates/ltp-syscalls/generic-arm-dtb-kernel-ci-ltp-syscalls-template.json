@@ -50,5 +50,5 @@
     "job_name": "{job_name}",
     "logging_level": "DEBUG",
     "priority": "low",
-    "timeout": 3600
+    "timeout": 3601
 }
