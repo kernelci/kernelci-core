@@ -13,13 +13,6 @@
 
 """Batch operation classes."""
 
-try:
-    import simplejson as json
-except ImportError:
-    import json
-
-import bson
-
 import handlers.common as hcommon
 import handlers.count as hcount
 import models
@@ -119,11 +112,10 @@ class BatchOperation(object):
             self.operation = utils.db.find_one
             self.args = [
                 self._database[self._collection],
-                self.document_id,
+                self.document_id
             ]
             self.kwargs = {
-                'fields': hcommon.get_query_fields(self.query_args_func)
-            }
+                "fields": hcommon.get_query_fields(self.query_args_func)}
         else:
             # Get the spec and perform the query, can perform an aggregation
             # as well.
@@ -140,10 +132,10 @@ class BatchOperation(object):
                     unique
                 ]
                 self.kwargs = {
-                    'sort': sort,
-                    'fields': fields,
-                    'match': spec,
-                    'limit': self._limit
+                    "sort": sort,
+                    "fields": fields,
+                    "match": spec,
+                    "limit": self._limit
                 }
             else:
                 self.operation = utils.db.find_and_count
@@ -153,9 +145,9 @@ class BatchOperation(object):
                     self._skip,
                 ]
                 self.kwargs = {
-                    'spec': spec,
-                    'fields': fields,
-                    'sort': sort
+                    "spec": spec,
+                    "fields": fields,
+                    "sort": sort
                 }
 
     def _prepare_post_operation(self):
@@ -186,31 +178,12 @@ class BatchOperation(object):
 
             json_obj = {
                 models.RESULT_KEY: res,
-                models.COUNT_KEY: count
-            }
+                models.COUNT_KEY: count}
 
             if self._limit is not None:
                 json_obj[models.LIMIT_KEY] = self._limit
 
-            try:
-                # Doing like this otherwise the result returned will be a
-                # string and not a real JSON object (since we have to serialize
-                # it here).
-                response[models.RESULT_KEY] = [
-                    json.loads(
-                        json.dumps(
-                            json_obj,
-                            default=bson.json_util.default,
-                            separators=(",", ":")
-                        )
-                    )
-                ]
-            except TypeError:
-                response[models.RESULT_KEY] = []
-                utils.LOG.error(
-                    "Error serializing JSON object. Objects to serialize: "
-                    "%s, %s", type(res), type(count)
-                )
+            response[models.RESULT_KEY] = [json_obj]
         else:
             response[models.RESULT_KEY] = result
 
@@ -219,8 +192,8 @@ class BatchOperation(object):
     def run(self):
         """Prepare and run this operation.
 
-        This method will invoke the `operation` attribute as a function, passing
-        the defined `args` and `kwargs` parameters.
+        This method will invoke the `operation` attribute as a function,
+        passing the defined `args` and `kwargs` parameters.
         """
         self.prepare_operation()
 
@@ -235,8 +208,7 @@ class BatchBootOperation(BatchOperation):
 
     def __init__(self, collection, database, operation_id=None):
         super(BatchBootOperation, self).__init__(
-            collection, database, operation_id
-        )
+            collection, database, operation_id)
         self.valid_keys = hcommon.BOOT_VALID_KEYS
 
 
@@ -245,8 +217,7 @@ class BatchJobOperation(BatchOperation):
 
     def __init__(self, collection, database, operation_id=None):
         super(BatchJobOperation, self).__init__(
-            collection, database, operation_id
-        )
+            collection, database, operation_id)
         self.valid_keys = hcommon.JOB_VALID_KEYS
 
 
@@ -255,8 +226,7 @@ class BatchDefconfigOperation(BatchOperation):
 
     def __init__(self, collection, database, operation_id=None):
         super(BatchDefconfigOperation, self).__init__(
-            collection, database, operation_id
-        )
+            collection, database, operation_id)
         self.valid_keys = hcommon.DEFCONFIG_VALID_KEYS
 
 
@@ -265,8 +235,7 @@ class BatchCountOperation(BatchOperation):
 
     def __init__(self, collection, database, operation_id=None):
         super(BatchCountOperation, self).__init__(
-            collection, database, operation_id
-        )
+            collection, database, operation_id)
         self.valid_keys = hcommon.COUNT_VALID_KEYS
 
     def _prepare_get_operation(self):

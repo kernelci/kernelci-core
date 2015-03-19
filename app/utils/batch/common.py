@@ -43,16 +43,13 @@ def create_batch_operation(json_obj, db_options):
 
             if collection == models.COUNT_COLLECTION:
                 batch_op = batchop.BatchCountOperation(
-                    collection, database, operation_id=operation_id
-                )
+                    collection, database, operation_id=operation_id)
             elif collection == models.BOOT_COLLECTION:
                 batch_op = batchop.BatchBootOperation(
-                    collection, database, operation_id=operation_id
-                )
+                    collection, database, operation_id=operation_id)
             elif collection == models.JOB_COLLECTION:
                 batch_op = batchop.BatchJobOperation(
-                    collection, database, operation_id=operation_id
-                )
+                    collection, database, operation_id=operation_id)
             elif collection == models.DEFCONFIG_COLLECTION:
                 batch_op = batchop.BatchDefconfigOperation(
                     collection, database, operation_id=operation_id)
@@ -61,8 +58,7 @@ def create_batch_operation(json_obj, db_options):
                     collection, database, operation_id=operation_id)
 
             batch_op.query_args = get_batch_query_args(
-                get_func(models.QUERY_KEY, None)
-            )
+                get_func(models.QUERY_KEY, None))
             batch_op.document_id = get_func(models.DOCUMENT_ID_KEY, None)
             batch_op.query_args_func = batch_op.query_args.get
             batch_op.method = get_func(models.METHOD_KEY, None)
