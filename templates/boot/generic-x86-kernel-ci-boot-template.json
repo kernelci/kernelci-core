@@ -9,7 +9,8 @@
                 "kernel.version": "{kernel_version}",
                 "kernel.endian": "{endian}",
                 "kernel.defconfig": "{defconfig}",
-                "platform.fastboot": "{fastboot}"
+                "platform.fastboot": "{fastboot}",
+                "test.plan": "{test_plan}"
             },
             "parameters": {
                 "bootloadertype": "ipxe",
@@ -31,5 +32,6 @@
     "device_type": "{device_type}",
     "job_name": "{job_name}",
     "logging_level": "DEBUG",
+    "priority": "high",
     "timeout": 18000
 }

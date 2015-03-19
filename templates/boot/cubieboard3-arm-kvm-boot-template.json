@@ -26,7 +26,8 @@
                 "kernel.version": "{kernel_version}",
                 "kernel.endian": "{endian}",
                 "kernel.defconfig": "{defconfig}",
-                "platform.fastboot": "{fastboot}"
+                "platform.fastboot": "{fastboot}",
+                "test.plan": "{test_plan}"
         },
         "parameters":
         {

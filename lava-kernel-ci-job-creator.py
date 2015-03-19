@@ -5,6 +5,7 @@ import re
 import os
 import shutil
 import argparse
+import ConfigParser
 
 base_url = None
 kernel = None
@@ -36,7 +37,9 @@ snow = {'device_type': 'snow',
         'fastboot': False}
 
 arndale_octa = {'device_type': 'arndale-octa',
-                'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+                'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                              'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                              'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
                 'defconfig_blacklist': [],
                 'kernel_blacklist': [],
                 'lpae': True,
@@ -52,7 +55,9 @@ peach_pi = {'device_type': 'peach-pi',
             'fastboot': False}
 
 odroid_xu3 = {'device_type': 'odroid-xu3',
-              'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+              'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                            'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                            'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
               'defconfig_blacklist': [],
               'kernel_blacklist': [],
               'lpae': True,
@@ -76,7 +81,9 @@ odroid_x2 = {'device_type': 'odroid-x2',
              'fastboot': False}
 
 beaglebone_black = {'device_type': 'beaglebone-black',
-                    'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+                    'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                                  'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                                  'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
                     'defconfig_blacklist': [],
                     'kernel_blacklist': [],
                     'lpae': False,
@@ -116,7 +123,9 @@ panda = {'device_type': 'panda',
          'fastboot': False}
 
 cubieboard3 = {'device_type': 'cubieboard3',
-               'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+               'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                             'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                             'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
                'defconfig_blacklist': [],
                'kernel_blacklist': [],
                'lpae': True,
@@ -124,7 +133,9 @@ cubieboard3 = {'device_type': 'cubieboard3',
                'fastboot': False}
 
 hisi_x5hd2_dkb = {'device_type': 'hi3716cv200',
-                  'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+                  'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                                'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                                'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
                   'defconfig_blacklist': [],
                   'kernel_blacklist': [],
                   'lpae': False,
@@ -140,7 +151,9 @@ d01 = {'device_type': 'd01',
        'fastboot': False}
 
 imx6q_wandboard = {'device_type': 'imx6q-wandboard',
-                   'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+                   'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                                 'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                                 'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
                    'defconfig_blacklist': ['arm-imx_v4_v5_defconfig',
                                            'arm-multi_v5_defconfig'],
                    'kernel_blacklist': [],
@@ -158,7 +171,9 @@ imx6q_sabrelite = {'device_type': 'imx6q-sabrelite',
                    'fastboot': False}
 
 utilite_pro = {'device_type': 'utilite-pro',
-               'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+               'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                             'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                             'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
                'defconfig_blacklist': ['arm-imx_v4_v5_defconfig',
                                        'arm-multi_v5_defconfig'],
                'kernel_blacklist': [],
@@ -167,7 +182,9 @@ utilite_pro = {'device_type': 'utilite-pro',
                'fastboot': False}
 
 snowball = {'device_type': 'snowball',
-            'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+            'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                          'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                          'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
             'defconfig_blacklist': [],
             'kernel_blacklist': [],
             'lpae': False,
@@ -191,7 +208,9 @@ ifc6410 = {'device_type': 'ifc6410',
            'fastboot': True}
 
 sama53d = {'device_type': 'sama53d',
-           'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+           'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                         'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                         'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
            'defconfig_blacklist': ['arm-at91_dt_defconfig',
                                    'arm-at91sam9260_9g20_defconfig',
                                    'arm-at91sam9g45_defconfig'],
@@ -201,7 +220,9 @@ sama53d = {'device_type': 'sama53d',
            'fastboot': False}
 
 jetson_tk1 = {'device_type': 'jetson-tk1',
-              'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+              'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                            'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                            'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
               'defconfig_blacklist': [],
               'kernel_blacklist': [],
               'lpae': True,
@@ -209,7 +230,9 @@ jetson_tk1 = {'device_type': 'jetson-tk1',
               'fastboot': False}
 
 parallella = {'device_type': 'parallella',
-              'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+              'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                            'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                            'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
               'defconfig_blacklist': [],
               'kernel_blacklist': [],
               'lpae': False,
@@ -429,8 +452,19 @@ def create_jobs(base_url, kernel, plans, platform_list, target, targets):
                 print '%s device type has been omitted. Skipping JSON creation.' % device_type
             else:
                 for plan in plans:
+                    if plan != 'boot':
+                        config = ConfigParser.ConfigParser()
+                        try:
+                            config.read(cwd + '/templates/' + plan + '/' + plan + '.ini')
+                            test_suite = config.get(plan, 'suite')
+                            test_set = config.get(plan, 'set')
+                            test_desc = config.get(plan, 'description')
+                            test_type = config.get(plan, 'type')
+                        except:
+                            print "Unable to load test configuration"
+                            exit(1)
                     for template in device_templates:
-                        job_name = tree + '-' + kernel_version + '-' + defconfig[:100] + '-' + platform_name + '-' + device_type
+                        job_name = tree + '-' + kernel_version + '-' + defconfig[:100] + '-' + platform_name + '-' + device_type + '-' + plan
                         job_json = cwd + '/jobs/' + job_name + '.json'
                         template_file = cwd + '/templates/' + plan + '/' + str(template)
                         if os.path.exists(template_file):
@@ -453,11 +487,13 @@ def create_jobs(base_url, kernel, plans, platform_list, target, targets):
                                             tmp = tmp.replace('{endian}', 'little')
                                         tmp = tmp.replace('{defconfig}', defconfig)
                                         tmp = tmp.replace('{fastboot}', str(fastboot).lower())
+                                        tmp = tmp.replace('{test_plan}', plan)
+                                        tmp = tmp.replace('{test_suite}', test_suite)
+                                        tmp = tmp.replace('{test_set}', test_set)
+                                        tmp = tmp.replace('{test_desc}', test_desc)
+                                        tmp = tmp.replace('{test_type}', test_type)
                                         fout.write(tmp)
                             print 'JSON Job created: jobs/%s' % job_name
-                        else:
-                            print 'Template not found'
-                            print template_file
 
 
 def walk_url(url, plans=None, arch=None, target=None, targets=None):
