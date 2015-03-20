@@ -717,6 +717,9 @@ def _parse_and_write_results(m_string, **kwargs):
         :type data: dict
         :param m_string: The open file where to write.
         :type m_string: io.StringIO
+        :param is_conflict: If the data passed has to be considered a conflict
+        aggregation.
+        :type is_conflict: bool
         """
         d_get = data.get
 
@@ -731,19 +734,25 @@ def _parse_and_write_results(m_string, **kwargs):
 
                 if is_conflict:
                     for board in d_get(arch)[defconfig].viewkeys():
-                        lab_count = 0
-                        for lab in def_get(board).viewkeys():
-                            lab_count += 1
-                        m_string.write(
-                            G_(u"        %s: %d\n") % (board, lab_count))
-                else:
-                    for board in d_get(arch)[defconfig].viewkeys():
                         m_string.write(G_(u"        %s:\n") % board)
 
                         for lab in def_get(board).viewkeys():
                             m_string.write(
                                 G_(u"            %s: %s\n") %
                                 (lab, def_get(board)[lab]))
+                else:
+                    # Not a conflict data structure, we show only the count of
+                    # the failed labs, not which one failed.
+                    for board in d_get(arch)[defconfig].viewkeys():
+                        lab_count = 0
+                        for lab in def_get(board).viewkeys():
+                            lab_count += 1
+
+                        lab_count_str = (
+                            P_("%d failed lab", "%d failed labs", lab_count) %
+                            lab_count)
+                        m_string.write(
+                            G_(u"        %s: %s\n") % (board, lab_count_str))
 
     if failed_data:
         boot_failure_url = u"%(base_url)s/boot/?%(kernel)s&fail" % kwargs
@@ -775,4 +784,4 @@ def _parse_and_write_results(m_string, **kwargs):
                 conflict_count
             ) % {"conflict_comment": conflict_comment}
         )
-        _traverse_data_struct(conflict_data, m_string)
+        _traverse_data_struct(conflict_data, m_string, is_conflict=True)
