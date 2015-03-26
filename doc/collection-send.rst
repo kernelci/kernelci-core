@@ -36,6 +36,7 @@ POST
  :reqjson boot_send_to: A string or an array of strings of email addresses where to send only the boot report.
  :reqjson build_send_to: A string or an array of strings of email addresses where to send only the build report.
  :reqjson int delay: Number of seconds after which the email report will be sent. Default to 60*60 seconds (1 hour) with a maximum value of 60*60*3 (3 hours).
+ :reqjson array format: The format of the email to send. Accepted values are **txt** and **html**.
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Content-Type: Content type of the transmitted data, must be ``application/json``.

@@ -38,6 +38,17 @@
         "send_to": {
             "type": ["string", "array"],
             "description": "The emails to send the reports to, will be appended to the more specific email control values"
+        },
+        "delay": {
+            "type": "number",
+            "description": "The number of seconds after which the email should be sent",
+            "default": 3600
+        },
+        "format": {
+            "type": "array",
+            "description": "The format of the email",
+            "enum": ["txt", "html"],
+            "default": ["txt"]
         }
     },
     "required": ["job", "kernel"]
