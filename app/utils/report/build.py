@@ -225,6 +225,7 @@ def _parse_build_data(results):
 
 
 # pylint: disable=too-many-statements
+# pylint: disable=too-many-branches
 def _create_build_email(**kwargs):
     """Parse the results and create the email text body to send.
 
@@ -353,7 +354,11 @@ def _create_build_email(**kwargs):
                     m_string.write(G_(u"%s:") % arch)
                     m_string.write(u"\n\n")
 
-                    for defconfig in err_get(arch).viewkeys():
+                    # Force defconfigs to be sorted.
+                    defconfigs = list(err_get(arch).viewkeys())
+                    defconfigs.sort()
+
+                    for defconfig in defconfigs:
                         err_numb = err_get(arch)[defconfig].get(
                             models.ERRORS_KEY, 0)
                         warn_numb = err_get(arch)[defconfig].get(

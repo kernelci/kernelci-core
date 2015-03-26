@@ -731,13 +731,21 @@ def _parse_and_write_results(m_string, **kwargs):
             m_string.write(u"\n")
             m_string.write(G_(u"%s:\n") % arch)
 
-            for defconfig in d_get(arch).viewkeys():
+            # Force defconfs to be sorted.
+            defconfs = list(d_get(arch).viewkeys())
+            defconfs.sort()
+
+            for defconfig in defconfs:
                 m_string.write(u"\n")
                 m_string.write(G_(u"    %s:\n") % defconfig)
                 def_get = d_get(arch)[defconfig].get
 
+                # Force boards to be sorted.
+                boards = list(d_get(arch)[defconfig].viewkeys())
+                boards.sort()
+
                 if is_conflict:
-                    for board in d_get(arch)[defconfig].viewkeys():
+                    for board in boards:
                         m_string.write(G_(u"        %s:\n") % board)
 
                         for lab in def_get(board).viewkeys():
@@ -747,7 +755,7 @@ def _parse_and_write_results(m_string, **kwargs):
                 else:
                     # Not a conflict data structure, we show only the count of
                     # the failed labs, not which one failed.
-                    for board in d_get(arch)[defconfig].viewkeys():
+                    for board in boards:
                         lab_count = 0
                         for lab in def_get(board).viewkeys():
                             lab_count += 1
