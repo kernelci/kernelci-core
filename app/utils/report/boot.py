@@ -710,7 +710,8 @@ def _parse_and_write_results(m_string, **kwargs):
     fail_count = k_get("fail_count", 0)
     conflict_count = k_get("conflict_count", 0)
 
-    def _traverse_data_struct(data, m_string, is_conflict=False):
+    def _traverse_data_struct(
+            data, m_string, is_conflict=False, is_offline=False):
         """Traverse the data structure and write it to file.
 
         :param data: The data structure to parse.
@@ -720,6 +721,9 @@ def _parse_and_write_results(m_string, **kwargs):
         :param is_conflict: If the data passed has to be considered a conflict
         aggregation.
         :type is_conflict: bool
+        :param is_offline: If the data passed has to be considered an offline
+        aggregation.
+        :type is_offline: bool
         """
         d_get = data.get
 
@@ -748,9 +752,18 @@ def _parse_and_write_results(m_string, **kwargs):
                         for lab in def_get(board).viewkeys():
                             lab_count += 1
 
-                        lab_count_str = (
-                            P_("%d failed lab", "%d failed labs", lab_count) %
-                            lab_count)
+                        if is_offline:
+                            lab_count_str = (
+                                P_(
+                                    "%d offline lab",
+                                    "%d offline labs", lab_count
+                                ) % lab_count)
+                        else:
+                            lab_count_str = (
+                                P_(
+                                    "%d failed lab",
+                                    "%d failed labs", lab_count
+                                ) % lab_count)
                         m_string.write(
                             G_(u"        %s: %s\n") % (board, lab_count_str))
 
@@ -770,7 +783,7 @@ def _parse_and_write_results(m_string, **kwargs):
 
     if offline_data:
         m_string.write(G_(u"\nOffline Platforms:\n"))
-        _traverse_data_struct(offline_data, m_string)
+        _traverse_data_struct(offline_data, m_string, is_offline=True)
 
     if conflict_data:
         conflict_comment = G_(
