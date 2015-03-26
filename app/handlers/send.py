@@ -14,6 +14,7 @@
 """This module is used to send boot and build report email."""
 
 import bson
+import copy
 import datetime
 import types
 
@@ -65,6 +66,9 @@ class SendHandler(hbase.BaseHandler):
             send_boot = bool(j_get(models.SEND_BOOT_REPORT_KEY, False))
             send_build = bool(j_get(models.SEND_BUILD_REPORT_KEY, False))
 
+            email_format = j_get(models.EMAIL_FORMAT_KEY, None)
+            email_format = _check_email_format(email_format)
+
             boot_errors = False
             build_errors = False
 
@@ -96,7 +100,7 @@ class SendHandler(hbase.BaseHandler):
                     "build_emails": j_get(
                         models.BUILD_REPORT_SEND_TO_KEY, None),
                     "generic_emails": j_get(models.REPORT_SEND_TO_KEY, None),
-                    "db_options": kwargs["db_options"],
+                    "db_options": self.settings["dboptions"],
                     "mail_options": self.settings["mailoptions"]
                 }
 
@@ -304,6 +308,42 @@ def _check_status(send_boot, send_build, boot_errors, build_errors, when):
             when)
 
     return reason, status_code
+
+
+def _check_email_format(email_format):
+    """Check that the specified email formats are valid.
+
+    :param email_format: The email formats to validate.
+    :type email_format: list
+    :return The valid email format as list, and a list of errors.
+    """
+    errors = []
+    valid_format = []
+
+    if email_format:
+        if not isinstance(email_format, types.ListType):
+            email_format = [email_format]
+
+        format_copy = copy.copy(email_format)
+        for e_format in format_copy:
+            if e_format in models.VALID_EMAIL_FORMATS:
+                valid_format.append(e_format)
+            else:
+                email_format.remove(e_format)
+                errors.append(
+                    "Invalid email format '%s' specified, "
+                    "will be ignored" % e_format)
+
+        # Did we remove everything?
+        if not email_format:
+            valid_format.append(models.EMAIL_TXT_FORMAT_KEY)
+    else:
+        errors.append(
+            "No email formats defined, defaulting to '%s'" %
+            models.EMAIL_TXT_FORMAT_KEY)
+        valid_format.append(models.EMAIL_TXT_FORMAT_KEY)
+
+    return valid_format, errors
 
 
 def _get_email_addresses(report_emails, generic_emails):

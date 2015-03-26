@@ -430,3 +430,34 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
         self.assertIsNotNone(reason)
         self.assertEqual(202, status_code)
+
+    def test_email_format(self):
+        email_format, errors = sendh._check_email_format(None)
+
+        self.assertListEqual(["txt"], email_format)
+        self.assertEqual(1, len(errors))
+
+        email_format, errors = sendh._check_email_format(["html"])
+
+        self.assertListEqual(["html"], email_format)
+        self.assertEqual(0, len(errors))
+
+        email_format, errors = sendh._check_email_format(["txt"])
+
+        self.assertListEqual(["txt"], email_format)
+        self.assertEqual(0, len(errors))
+
+        email_format, errors = sendh._check_email_format("foo")
+
+        self.assertListEqual(["txt"], email_format)
+        self.assertEqual(1, len(errors))
+
+        email_format, errors = sendh._check_email_format(["foo"])
+
+        self.assertListEqual(["txt"], email_format)
+        self.assertEqual(1, len(errors))
+
+        email_format, errors = sendh._check_email_format(["html", "txt"])
+
+        self.assertListEqual(["html", "txt"], email_format)
+        self.assertEqual(0, len(errors))
