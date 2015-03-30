@@ -16,9 +16,7 @@
         </style>
     </head>
     <body>
-        <div id="subject">
-            {{ subject_string }}
-        </div>
+        <div id="subject">{{ subject_string }}</div>
         <div id="details">
             <div>{{ full_boot_summary }}</div>
             <div>{{ full_build_summary }}</div>
@@ -40,8 +38,8 @@
                     <div>{{ summary }}</div>
             {%- endfor %}
                 </div>
-            {% for arch in platforms.failed_data.data %}
                 <div class="platform-content">
+            {% for arch in platforms.failed_data.data %}
                     <div>{{ arch }}</div>
                 {% for defconfig in platforms.failed_data.data[arch] %}
                     <div>{{ defconfig }}</div>
@@ -51,8 +49,8 @@
                 {% endfor %} {# defconfig #}
             {%- endfor %} {# arch #}
                 </div>
-        {%- endif %} {# failed_data #}
             </div>
+        {%- endif %} {# failed_data #}
         </div>
         {%- endif %}
         {%- if info_email %}
