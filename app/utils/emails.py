@@ -21,15 +21,17 @@ import utils
 
 
 # pylint: disable=too-many-branches
-def send_email(to_addrs, subject, body, mail_options):
+def send_email(to_addrs, subject, txt_body, html_body, mail_options):
     """Send email to the specified address.
 
     :param to_addrs: The recipients address.
     :type to_addrs: list
     :param subject: The email subject.
-    :type subject: str
-    :param body: The email body.
-    :type body: str, unicode
+    :type subject: string
+    :param txt_body: The email body in TXT format.
+    :type txt_body: string, unicode
+    :param html_body: The email body in HTML.
+    :type html_body: string, unicode
     :param mail_options: The email options data structure.
     :type mail_options: dict
     :return A tuple with the status and a list of errors.
@@ -37,7 +39,22 @@ def send_email(to_addrs, subject, body, mail_options):
     errors = []
     status = models.ERROR_STATUS
 
-    msg = email.mime.text.MIMEText(body, _charset="utf_8")
+    if all([txt_body, html_body]):
+        msg = email.mime.multipart.MIMEMultipart("alternative")
+        txt_msg = email.mime.text.MIMEText(
+            txt_body, _subtype="plain", _charset="utf_8")
+        html_msg = email.mime.text.MIMEText(
+            html_body, _subtype="html", _charset="utf_8")
+
+        msg.attach(txt_msg)
+        msg.attach(html_msg)
+    elif txt_body:
+        msg = email.mime.text.MIMEText(
+            txt_body, _subtype="plain", _charset="utf_8")
+    elif html_body:
+        msg = email.mime.text.MIMEText(
+            html_body, _subtype="html", _charset="utf_8")
+
     msg["Subject"] = subject
 
     m_get = mail_options.get
