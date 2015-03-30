@@ -14,6 +14,7 @@
 """Create the boot email report."""
 
 import gettext
+import htmlmin.minify
 import itertools
 import jinja2
 import pymongo
@@ -522,7 +523,7 @@ def _create_html_email(**kwargs):
         loader=jinja2.FileSystemLoader(rcommon.TEMPLATES_DIR))
     html_body = template_env.get_template("boot.html").render(**kwargs)
 
-    return html_body
+    return htmlmin.minify.html_minify(html_body)
 
 
 def _create_txt_email(**kwargs):
