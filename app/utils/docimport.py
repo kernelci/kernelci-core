@@ -48,8 +48,7 @@ def import_and_save_job(json_obj, db_options, base_path=utils.BASE_PATH):
     if docs:
         utils.LOG.info(
             "Importing %d documents with job ID: %s",
-            len(docs), job_id
-        )
+            len(docs), job_id)
         utils.db.save_all(database, docs, manipulate=True)
     else:
         utils.LOG.info("No jobs to save")
@@ -97,12 +96,10 @@ def _import_job(job, kernel, database, base_path=utils.BASE_PATH):
 
     job_name = (
         models.JOB_DOCUMENT_NAME %
-        {models.JOB_KEY: job, models.KERNEL_KEY: kernel}
-    )
+        {models.JOB_KEY: job, models.KERNEL_KEY: kernel})
 
     saved_doc = utils.db.find_one(
-        database[models.JOB_COLLECTION], [job_name], field=models.NAME_KEY
-    )
+        database[models.JOB_COLLECTION], [job_name], field=models.NAME_KEY)
     if saved_doc:
         job_doc = mjob.JobDocument.from_json(saved_doc)
         job_id = job_doc.id
@@ -269,7 +266,8 @@ def _search_prev_defconfig_doc(defconfig_doc, database):
                     "Found multiple defconfig docs matching: %s",
                     spec)
                 utils.LOG.error(
-                    "Cannot keep old document ID, don't know which one to use!")
+                    "Cannot keep old document ID, don't know which one to "
+                    "use!")
 
     return doc_id, c_date
 
@@ -322,8 +320,7 @@ def _parse_build_data(data_file, job, kernel, defconfig_dir):
             kernel = data_pop(models.KERNEL_KEY, None) or kernel
 
             defconfig_doc = mdefconfig.DefconfigDocument(
-                job, kernel, defconfig, defconfig_full
-            )
+                job, kernel, defconfig, defconfig_full)
 
             defconfig_doc.dirname = defconfig_dir
 
@@ -340,12 +337,14 @@ def _parse_build_data(data_file, job, kernel, defconfig_dir):
                 models.FILE_SERVER_URL_KEY, None)
             defconfig_doc.git_branch = data_pop(models.GIT_BRANCH_KEY, None)
             defconfig_doc.git_commit = data_pop(models.GIT_COMMIT_KEY, None)
-            defconfig_doc.git_describe = data_pop(models.GIT_DESCRIBE_KEY, None)
+            defconfig_doc.git_describe = data_pop(
+                models.GIT_DESCRIBE_KEY, None)
             defconfig_doc.git_url = data_pop(models.GIT_URL_KEY, None)
             defconfig_doc.kconfig_fragments = kconfig_fragments
             defconfig_doc.kernel_config = data_pop(
                 models.KERNEL_CONFIG_KEY, None)
-            defconfig_doc.kernel_image = data_pop(models.KERNEL_IMAGE_KEY, None)
+            defconfig_doc.kernel_image = data_pop(
+                models.KERNEL_IMAGE_KEY, None)
             defconfig_doc.modules = data_pop(models.MODULES_KEY, None)
             defconfig_doc.modules_dir = data_pop(models.MODULES_DIR_KEY, None)
             defconfig_doc.status = data_pop(
@@ -360,8 +359,7 @@ def _parse_build_data(data_file, job, kernel, defconfig_dir):
             utils.LOG.exception(ex)
             utils.LOG.error(
                 "Missing mandatory key in build data file '%s'",
-                data_file
-            )
+                data_file)
 
     return defconfig_doc
 
@@ -386,8 +384,7 @@ def _extrapolate_defconfig_full_from_kconfig(kconfig_fragments, defconfig):
 
         defconfig_full = "%s+%s" % (
             defconfig,
-            kconfig_fragments.replace("frag-", "").replace(".config", "")
-        )
+            kconfig_fragments.replace("frag-", "").replace(".config", ""))
     return defconfig_full
 
 
