@@ -14,9 +14,7 @@
 """Create the boot email report."""
 
 import gettext
-import htmlmin.minify
 import itertools
-import jinja2
 import pymongo
 
 import models
@@ -498,7 +496,7 @@ def _create_boot_email(**kwargs):
     kwargs["platforms"] = _parse_and_structure_results(**kwargs)
 
     if models.EMAIL_TXT_FORMAT_KEY in email_format:
-        txt_body = _create_txt_email(**kwargs)
+        txt_body = rcommon.create_txt_email("boot.txt", **kwargs)
     if models.EMAIL_HTML_FORMAT_KEY in email_format:
         # Fix the summary URLs for the HTML email.
         kwargs["full_boot_summary"] = (
@@ -507,37 +505,9 @@ def _create_boot_email(**kwargs):
         kwargs["full_build_summary"] = (
             G_(u"Full Build Summary: <a href=\"%(url)s\">%(url)s</a>") %
             {"url": build_summary_url})
-        html_body = _create_html_email(**kwargs)
+        html_body = rcommon.create_html_email("boot.html", **kwargs)
 
     return txt_body, html_body, subject_str
-
-
-def _create_html_email(**kwargs):
-    """Create the emal body in HTML format.
-
-    :return The body in HTML format as a string.
-    """
-    html_body = u""
-
-    template_env = jinja2.Environment(
-        loader=jinja2.FileSystemLoader(rcommon.TEMPLATES_DIR))
-    html_body = template_env.get_template("boot.html").render(**kwargs)
-
-    return htmlmin.minify.html_minify(html_body)
-
-
-def _create_txt_email(**kwargs):
-    """Create the email body in text format.
-
-    :return The body as a unicode string.
-    """
-    txt_body = u""
-
-    template_env = jinja2.Environment(
-        loader=jinja2.FileSystemLoader(rcommon.TEMPLATES_DIR))
-    txt_body = template_env.get_template("boot.txt").render(**kwargs)
-
-    return txt_body
 
 
 # pylint: disable=invalid-name
