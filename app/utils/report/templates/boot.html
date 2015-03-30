@@ -3,146 +3,107 @@
     <head>
         <meta charset="utf-8">
         <title>{{ subject_str }}</title>
-        <style type="text/css">
-            body > div {
-                padding-bottom: 15px;
-            }
-            footer {
-                font-size: smaller;
-            }
-            .extra-top-pad {
-                padding-top: 15px;
-            }
-            .subject {
-                font-weight: bold;
-            }
-            .title,
-            .defconfig,
-            .arch-content,
-            .defconfig-content {
-                padding-bottom: 5px;
-            }
-            .title,
-            .arch-content {
-                padding-top: 5px;
-            }
-            .defconfig-content {
-                padding-top: 10px;
-                padding-left: 35px;
-            }
-            .board-content {
-                padding-left: 35px;
-            }
-            .board,
-            .lab {
-                padding-left: 30px;
-            }
-        </style>
     </head>
     <body>
-        <div id="subject" class="subject">{{ subject_str }}</div>
-        <div id="details">
-            <div>{{ full_boot_summary }}</div>
-            <div>{{ full_build_summary }}</div>
-            <div class="extra-top-pad">{{ tree_string }}</div>
-            <div>{{ branch_string }}</div>
-            <div>{{ git_describe_string }}</div>
-            <div>{{ git_commit_string }}</div>
-            <div>{{ git_url_string }}</div>
-            {%- if tested_string %}
-            <div>{{ tested_string }}</div>
-            {%- endif %}
-        </div>
+        <span style="font-weight: bold;">{{ subject_str }}</span>
+        <br />
+        <table style="border: none; padding-top: 15px; padding-bottom: 15px;">
+            <tbody>
+                <tr><td>{{ full_boot_summary }}</td></tr>
+                <tr><td>{{ full_build_summary }}</td></tr>
+                <tr><td style="padding-top: 25px"></td></tr>
+                <tr><td>{{ tree_string }}</td></tr>
+                <tr><td>{{ branch_string }}</td></tr>
+                <tr><td>{{ git_describe_string }}</td></tr>
+                <tr><td>{{ git_commit_string }}</td></tr>
+                <tr><td>{{ git_url_string }}</td></tr>
+                {%- if tested_string %}
+                <tr><td>{{ tested_string }}</td></tr>
+                {%- endif %}
+            </tbody>
+        </table>
         {%- if platforms %}
-        <div id="platforms" class="platforms">
-        {%- if platforms.failed_data %}
-            <div id="failed-data">
-                <div class="title">
+            {%- if platforms.failed_data %}
+            <table style="border: none; padding-bottom: 15px; padding-top: 5px;">
+                <tbody>
                 {%- for summary in platforms.failed_data.summary.html %}
-                    <div>{{ summary }}</div>
+                    <tr><td>{{ summary }}</td></tr>
                 {%- endfor %}
-                </div>
-                <div class="platform-content">
+                    <tr><td style="padding-bottom: 15px;"></td></tr>
                 {%- for arch in platforms.failed_data.data %}
-                    <div class="arch-content">
-                        <div class="arch">{{ arch }}</div>
+                    <tr><td>{{ arch }}</td></tr>
                 {%- for defconfig in platforms.failed_data.data[arch] %}
-                        <div class="defconfig-content">
-                            <div class="defconfig">{{ defconfig }}</div>
-                            <div class="board-content">
+                    <tr>
+                        <td style="padding-left: 25px; padding-top: 15px">
+                            {{ defconfig }}
+                        </td>
+                    </tr>
                 {%- for board in platforms.failed_data.data[arch][defconfig] %}
-                                <div class="board">{{ board }}</div>
+                    <tr><td style="padding-left: 50px;">{{ board }}</td></tr>
                 {%- endfor %}{# board #}
-                            </div>
-                        </div>
                 {%- endfor %}{# defconfig #}
-                    </div>
                 {%- endfor %}{# arch #}
-                </div>
-            </div>
-        {%- endif %}{# failed_data #}
-        {%- if platforms.offline_data %}
-            <div id="offline-data">
-                <div class="title">
+                </tbody>
+            </table>
+            {%- endif %}{# failed_data #}
+            {%- if platforms.offline_data %}
+            <table style="border: none; padding-bottom: 15px; padding-top: 5px;">
+                <tbody>
                 {%- for summary in platforms.offline_data.summary.html %}
-                    <div>{{ summary }}</div>
+                    <tr><td>{{ summary }}</td></tr>
                 {%- endfor %}
-                </div>
-                <div class="platform-content">
+                    <tr><td style="padding-bottom: 15px;"></td></tr>
                 {%- for arch in platforms.offline_data.data %}
-                    <div class="arch-content">
-                        <div class="arch">{{ arch }}</div>
+                    <tr><td>{{ arch }}</td></tr>
                 {%- for defconfig in platforms.offline_data.data[arch] %}
-                        <div class="defconfig-content">
-                            <div class="defconfig">{{ defconfig }}</div>
+                    <tr>
+                        <td style="padding-left: 25px; padding-top: 15px">
+                            {{ defconfig }}
+                        </td>
+                    </tr>
                 {%- for board in platforms.offline_data.data[arch][defconfig] %}
-                            <div class="board">{{ board }}</div>
+                    <tr><td style="padding-left: 50px;">{{ board }}</td></tr>
                 {%- endfor %}{# board #}
-                        </div>
                 {%- endfor %}{# defconfig #}
-                    </div>
                 {%- endfor %}{# arch #}
-                </div>
-            </div>
-        {%- endif %}{# offline_data #}
-        {%- if platforms.conflict_data %}
-            <div id="conflict-data">
-                <div class="title">
-                {%- for summary in platforms.conflict_data.summary.html %}
-                    <div>{{ summary }}</div>
-                {%- endfor %}
-                </div>
-                <div class="platform-content">
-                {%- for arch in platforms.conflict_data.data %}
-                    <div class="arch-content">
-                        <div class="arch">{{ arch }}</div>
-                {%- for defconfig in platforms.conflict_data.data[arch] %}
-                        <div class="defconfig-content">
-                            <div class="defconfig">{{ defconfig }}</div>
-                {%- for board in platforms.conflict_data.data[arch][defconfig] %}
-                            <div class="board-content">
-                                <div class="board">{{ board }}</div>
-                {%- for lab in platforms.conflict_data.data[arch][defconfig][board] %}
-                                <div class="lab">{{ lab }}</div>
-                {%- endfor %}{# lab #}
-                            </div>
-                {%- endfor %}{# board #}
-                        </div>
-                {%- endfor %}{# defconfig #}
-                    </div>
-                {%- endfor %}{# arch #}
-                </div>
-            </div>
+                </tbody>
+            </table>
+            {%- endif %}{# offline_data #}
+            {%- if platforms.conflict_data %}
+                <table style="border: none; padding-bottom: 15px; padding-top: 5px;">
+                    <tbody>
+                    {%- for summary in platforms.conflict_data.summary.html %}
+                        <tr><td>{{ summary }}</td></tr>
+                    {%- endfor %}
+                    <tr><td style="padding-bottom: 15px;"></td></tr>
+                    {%- for arch in platforms.conflict_data.data %}
+                        <tr><td>{{ arch }}</td></tr>
+                    {%- for defconfig in platforms.conflict_data.data[arch] %}
+                        <tr>
+                            <td style="padding-left: 25px; padding-top: 15px;">
+                                {{ defconfig }}
+                            </td>
+                        </tr>
+                    {%- for board in platforms.conflict_data.data[arch][defconfig] %}
+                        <tr><td style="padding-left: 50px">{{ board }}</td></tr>
+                    {%- for lab in platforms.conflict_data.data[arch][defconfig][board] %}
+                        <tr><td style="padding-left: 75px;">{{ lab }}</td></tr>
+                    {%- endfor %}{# lab #}
+                    {%- endfor %}{# board #}
+                    {%- endfor %}{# defconfig #}
+                    {%- endfor %}{# arch #}
+                    </tbody>
+                </table>
         {%- endif %}{# conflict_data #}
-        </div>
         {%- endif %}{# platforms #}
         {%- if info_email %}
         <footer>
-            &#9472;
-            <div>
-            For more info write to
-            &lt;<a href="mailto:{{ info_email}}">{{ info_email }}</a>&gt;
-            </div>
+            <p style="padding-top: 10px;">
+                &#9472;
+                <br />
+                For more info write to
+                &lt;<a href="mailto:{{ info_email}}">{{ info_email }}</a>&gt;
+            </p>
         </footer>
         {%- endif %}
     </body>
