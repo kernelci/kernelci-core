@@ -14,8 +14,8 @@
 """Create the boot email report."""
 
 import gettext
-import io
 import itertools
+import jinja2
 import pymongo
 
 import models
@@ -51,26 +51,34 @@ BOOT_SEARCH_FIELDS = [
 
 # pylint: disable=too-many-locals
 # pylint: disable=star-args
-def create_boot_report(job, kernel, lab_name, db_options, mail_options=None):
+# pylint: disable=too-many-arguments
+def create_boot_report(job,
+                       kernel,
+                       lab_name, email_format, db_options, mail_options=None):
     """Create the boot report email to be sent.
 
     If lab_name is not None, it will trigger a boot report only for that
     specified lab.
 
     :param job: The name of the job.
-    :type job: str
+    :type job: string
     :param  kernel: The name of the kernel.
-    :type kernel: str
+    :type kernel: string
     :param lab_name: The name of the lab.
-    :type lab_name: str
+    :type lab_name: string
+    :param email_format: The email format to send.
+    :type email_format: list
     :param db_options: The mongodb database connection parameters.
     :type db_options: dict
     :param mail_options: The options necessary to connect to the SMTP server.
     :type mail_options: dict
-    :return A tuple with the email body and subject as strings or None.
+    :return A tuple with the TXT email body, the HTML email body and the
+    subject as strings or None.
     """
     kwargs = {}
-    email_body = None
+    # Email TXT and HTML body.
+    txt_body = None
+    html_body = None
     subject = None
     # This is used to provide a footer note in the email report.
     info_email = None
@@ -141,6 +149,7 @@ def create_boot_report(job, kernel, lab_name, db_options, mail_options=None):
         "build_url": rcommon.DEFAULT_BUILD_URL,
         "conflict_count": conflict_count,
         "conflict_data": conflict_data,
+        "email_format": email_format,
         "fail_count": fail_count - conflict_count,
         "failed_data": failed_data,
         "git_branch": git_branch,
@@ -221,14 +230,14 @@ def create_boot_report(job, kernel, lab_name, db_options, mail_options=None):
         kwargs["fail_count"] = fail_count - conflict_count
         kwargs["pass_count"] = total_count - fail_count - offline_count
 
-        email_body, subject = _create_boot_email(**kwargs)
+        txt_body, html_body, subject = _create_boot_email(**kwargs)
     elif fail_count == 0 and total_count > 0:
-        email_body, subject = _create_boot_email(**kwargs)
+        txt_body, html_body, subject = _create_boot_email(**kwargs)
     elif fail_count == 0 and total_count == 0:
         utils.LOG.warn(
             "Nothing found for '%s-%s': no email report sent", job, kernel)
 
-    return email_body, subject
+    return txt_body, html_body, subject
 
 
 # pylint: disable=too-many-branches
@@ -406,17 +415,20 @@ def _create_boot_email(**kwargs):
     :type info_email: string
     :return A tuple with the email body and subject as strings.
     """
+    txt_body = None
+    html_body = None
+    subject_str = None
+
     k_get = kwargs.get
     total_unique_data = k_get("total_unique_data", None)
     info_email = k_get("info_email", None)
+    email_format = k_get("email_format")
 
-    # We use io and strings must be unicode.
-    email_body = u""
     subject_str = _get_boot_subject_string(**kwargs)
 
-    tested_one = G_(u"Tested: %s\n")
-    tested_two = G_(u"Tested: %s, %s\n")
-    tested_three = G_(u"Tested: %s, %s, %s\n")
+    tested_one = G_(u"Tested: %s")
+    tested_two = G_(u"Tested: %s, %s")
+    tested_three = G_(u"Tested: %s, %s, %s")
 
     tested_string = None
     if total_unique_data:
@@ -468,40 +480,63 @@ def _create_boot_email(**kwargs):
     boot_summary_url = u"%(boot_url)s/%(job)s/kernel/%(kernel)s/" % kwargs
     build_summary_url = u"%(build_url)s/%(job)s/kernel/%(kernel)s/" % kwargs
 
-    tree = G_(u"Tree: %(job)s\n") % kwargs
-    branch = G_(u"Branch: %(git_branch)s\n") % kwargs
-    git_describe = G_(u"Git Describe: %(kernel)s\n") % kwargs
-    git_commit = G_(u"Git Commit: %(git_commit)s\n") % kwargs
-    git_url = G_(u"Git URL: %(git_url)s\n") % kwargs
+    kwargs["full_boot_summary"] = (
+        G_(u"Full Boot Summary: %s") % boot_summary_url)
+    kwargs["full_build_summary"] = (
+        G_(u"Full Build Summary: %s") % build_summary_url)
 
-    with io.StringIO() as m_string:
-        m_string.write(subject_str)
-        m_string.write(u"\n")
-        m_string.write(u"\n")
-        m_string.write(
-            G_(u"Full Boot Summary: %s\n") % boot_summary_url)
-        m_string.write(
-            G_(u"Full Build Summary: %s\n") % build_summary_url)
-        m_string.write(u"\n")
-        m_string.write(tree)
-        m_string.write(branch)
-        m_string.write(git_describe)
-        m_string.write(git_commit)
-        m_string.write(git_url)
+    kwargs["tree_string"] = G_(u"Tree: %(job)s") % kwargs
+    kwargs["branch_string"] = G_(u"Branch: %(git_branch)s") % kwargs
+    kwargs["git_describe_string"] = G_(u"Git Describe: %(kernel)s") % kwargs
+    kwargs["git_commit_string"] = G_(u"Git Commit: %(git_commit)s") % kwargs
+    kwargs["git_url_string"] = G_(u"Git URL: %(git_url)s") % kwargs
+    kwargs["info_email"] = info_email
+    kwargs["tested_string"] = tested_string
+    kwargs["subject_str"] = subject_str
 
-        if tested_string:
-            m_string.write(tested_string)
+    kwargs["platforms"] = _parse_and_structure_results(**kwargs)
 
-        _parse_and_write_results(m_string, **kwargs)
+    if models.EMAIL_TXT_FORMAT_KEY in email_format:
+        txt_body = _create_txt_email(**kwargs)
+    if models.EMAIL_HTML_FORMAT_KEY in email_format:
+        # Fix the summary URLs for the HTML email.
+        kwargs["full_boot_symmary"] = (
+            G_(u"Full Boot Summary: <a href=\"%(url)s\">%(url)s</a>") %
+            {"url": boot_summary_url})
+        kwargs["full_build_summary"] = (
+            G_(u"Full Build Summary: <a href=\"%(url)s\">%(url)s</a>") %
+            {"url": build_summary_url})
+        html_body = _create_html_email(**kwargs)
 
-        if info_email:
-            m_string.write(u"\n")
-            m_string.write(u"---\n")
-            m_string.write(G_(u"For more info write to <%s>") % info_email)
+    return txt_body, html_body, subject_str
 
-        email_body = m_string.getvalue()
 
-    return email_body, subject_str
+def _create_html_email(**kwargs):
+    """Create the emal body in HTML format.
+
+    :return The body in HTML format as a string.
+    """
+    html_body = u""
+
+    template_env = jinja2.Environment(
+        loader=jinja2.FileSystemLoader(rcommon.TEMPLATES_DIR))
+    html_body = template_env.get_template("boot.html").render(**kwargs)
+
+    return html_body
+
+
+def _create_txt_email(**kwargs):
+    """Create the email body in text format.
+
+    :return The body as a unicode string.
+    """
+    txt_body = u""
+
+    template_env = jinja2.Environment(
+        loader=jinja2.FileSystemLoader(rcommon.TEMPLATES_DIR))
+    txt_body = template_env.get_template("boot.txt").render(**kwargs)
+
+    return txt_body
 
 
 # pylint: disable=invalid-name
@@ -566,20 +601,20 @@ def _get_boot_subject_string(**kwargs):
         u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, "
         "%(passed_boots)s %(kernel_name)s")
     subject_all_pass_with_lab = G_(
-        u"%(boot_name)s: %(total_boots)s:  %(failed_boots)s, "
+        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, "
         "%(passed_boots)s %(kernel_name)s - %(lab_description)s")
 
     subject_pass_with_offline = G_(
-        u"%(boot_name)s: %(total_boots)s:  %(failed_boots)s, "
+        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, "
         "%(passed_boots)s, %(offline_boots)s %(kernel_name)s")
     subject_pass_with_offline_with_lab = G_(
-        u"%(boot_name)s: %(total_boots)s:  %(failed_boots)s, "
+        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, "
         "%(passed_boots)s, %(offline_boots)s %(kernel_name)s "
         "- %(lab_description)s"
     )
 
     subject_pass_with_conflict = G_(
-        u"%(boot_name)s: %(total_boots)s:  %(failed_boots)s, "
+        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, "
         "%(passed_boots)s, %(conflict_boots)s %(kernel_name)s")
     subject_pass_with_conflict_with_lab = G_(
         u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, "
@@ -689,18 +724,47 @@ def _get_boot_subject_string(**kwargs):
     return subject_str
 
 
-def _parse_and_write_results(m_string, **kwargs):
-    """Parse failed and conflicting results and create the email body.
+def _parse_and_structure_results(**kwargs):
+    """Parse the results and create a data structure for the templates.
 
-    :param m_string: The StringIO object where to write.
-    :param failed_data: The parsed failed results.
-    :type failed_data: dict
-    :param offline_data: The parsed offline results.
-    :type offline_data: dict
-    :param conflict_data: The parsed conflicting results.
-    :type conflict_data: dict
-    :param args: A dictionary with values for string formatting.
-    :type args: dict
+    Create a special data structure to be consumed by the template engine.
+    By default it will create the strings for TXT and HTML templates. The
+    special template will then use the correct format.
+
+    The template data structure is as follows for the normal case
+    (not a conflict):
+
+        {
+            "summary": {
+                "txt": ["List of TXT summary strings"],
+                "html: ["List of HTML summary strings"]
+            },
+            "data": {
+                "arch": {
+                    "defconfig": ["List of failed boards"]
+                }
+            }
+        }
+
+    In case of a conflict:
+
+        {
+            "summary": {
+                "txt": ["List of TXT summary strings"],
+                "html: ["List of HTML summary strings"]
+            },
+            "data": {
+                "arch": {
+                    "defconfig": {
+                        "board": {
+                            "lab": "Lab description"
+                        }
+                    }
+                }
+            }
+        }
+
+    :return The template data structure as a dictionary object.
     """
     k_get = kwargs.get
 
@@ -710,14 +774,17 @@ def _parse_and_write_results(m_string, **kwargs):
     fail_count = k_get("fail_count", 0)
     conflict_count = k_get("conflict_count", 0)
 
-    def _traverse_data_struct(
-            data, m_string, is_conflict=False, is_offline=False):
+    parsed_data = {}
+
+    def _traverse_data_struct(data,
+                              data_struct,
+                              is_conflict=False, is_offline=False):
         """Traverse the data structure and write it to file.
 
         :param data: The data structure to parse.
         :type data: dict
-        :param m_string: The open file where to write.
-        :type m_string: io.StringIO
+        :param data_struct: The data structure where the resuls will be stored.
+        :type data_struct: dict
         :param is_conflict: If the data passed has to be considered a conflict
         aggregation.
         :type is_conflict: bool
@@ -726,18 +793,21 @@ def _parse_and_write_results(m_string, **kwargs):
         :type is_offline: bool
         """
         d_get = data.get
+        s_get = data_struct.get
 
         for arch in data.viewkeys():
-            m_string.write(u"\n")
-            m_string.write(G_(u"%s:\n") % arch)
+            arch_string = G_(u"%s:") % arch
+            data_struct[arch_string] = {}
+
+            arch_struct = s_get(arch_string)
 
             # Force defconfs to be sorted.
             defconfs = list(d_get(arch).viewkeys())
             defconfs.sort()
 
             for defconfig in defconfs:
-                m_string.write(u"\n")
-                m_string.write(G_(u"    %s:\n") % defconfig)
+                defconfig_string = G_(u"%s:") % defconfig
+
                 def_get = d_get(arch)[defconfig].get
 
                 # Force boards to be sorted.
@@ -745,16 +815,29 @@ def _parse_and_write_results(m_string, **kwargs):
                 boards.sort()
 
                 if is_conflict:
+                    # For conflict, we need a dict as data structure,
+                    # since we list boards and labs.
+                    arch_struct[defconfig_string] = {}
+                    defconf_struct = arch_struct[defconfig_string]
+
                     for board in boards:
-                        m_string.write(G_(u"        %s:\n") % board)
+                        board_string = G_(u"%s:") % board
+
+                        defconf_struct[board_string] = []
+                        board_struct = defconf_struct[board_string]
 
                         for lab in def_get(board).viewkeys():
-                            m_string.write(
-                                G_(u"            %s: %s\n") %
-                                (lab, def_get(board)[lab]))
+                            board_struct.append(
+                                G_(u"%s: %s") % (lab, def_get(board)[lab]))
                 else:
                     # Not a conflict data structure, we show only the count of
                     # the failed labs, not which one failed.
+
+                    # For non-conflict, we need a list as data structure,
+                    # since we only list the counts.
+                    arch_struct[defconfig_string] = []
+                    defconf_struct = arch_struct[defconfig_string]
+
                     for board in boards:
                         lab_count = 0
                         for lab in def_get(board).viewkeys():
@@ -772,37 +855,84 @@ def _parse_and_write_results(m_string, **kwargs):
                                     "%d failed lab",
                                     "%d failed labs", lab_count
                                 ) % lab_count)
-                        m_string.write(
-                            G_(u"        %s: %s\n") % (board, lab_count_str))
+
+                        defconf_struct.append(
+                            G_(u"%s: %s") % (board, lab_count_str))
 
     if failed_data:
+        parsed_data["failed_data"] = {}
+        failed_struct = parsed_data["failed_data"]
+
+        failed_struct["data"] = {}
+        failed_struct["summary"] = {}
+        failed_struct["summary"]["txt"] = []
+        failed_struct["summary"]["html"] = []
+
         boot_failure_url = u"%(base_url)s/boot/?%(kernel)s&fail" % kwargs
-
-        m_string.write(u"\n")
-        m_string.write(
-            P_(
-                u"Boot Failure Detected: %(boot_failure_url)s\n",
-                u"Boot Failures Detected: %(boot_failure_url)s\n",
-                fail_count
-            ) % {"boot_failure_url": boot_failure_url}
-
+        boot_failure_url_html = (
+            u"<a href=\"%(boot_failure_url)s\">%(boot_failure_url)s</a>" %
+            {"boot_failure_url": boot_failure_url}
         )
-        _traverse_data_struct(failed_data, m_string)
+        failed_summary = P_(
+            u"Boot Failure Detected: %(boot_failure_url)s",
+            u"Boot Failures Detected: %(boot_failure_url)s",
+            fail_count
+        )
+
+        failed_struct["summary"]["txt"].append(
+            failed_summary % {"boot_failure_url": boot_failure_url})
+
+        failed_struct["summary"]["html"].append(
+            failed_summary % {"boot_failure_url": boot_failure_url_html})
+
+        _traverse_data_struct(failed_data, failed_struct["data"])
+    else:
+        parsed_data["failed_data"] = None
 
     if offline_data:
-        m_string.write(G_(u"\nOffline Platforms:\n"))
-        _traverse_data_struct(offline_data, m_string, is_offline=True)
+        parsed_data["offline_data"] = {}
+        offline_struct = parsed_data["offline_data"]
+
+        offline_struct["data"] = {}
+        offline_struct["summary"] = {}
+        offline_struct["summary"]["txt"] = []
+        offline_struct["summary"]["html"] = []
+
+        summary = G_(u"Offline Platforms:")
+        offline_struct["summary"]["txt"].append(summary)
+        offline_struct["summary"]["html"].append(summary)
+
+        _traverse_data_struct(
+            offline_data, offline_struct["data"], is_offline=True)
+    else:
+        parsed_data["offline_data"] = None
 
     if conflict_data:
+        parsed_data["conflict_data"] = {}
+        conflict_struct = parsed_data["conflict_data"]
+
+        conflict_struct["data"] = {}
+        conflict_struct["summary"] = {}
+        conflict_struct["summary"]["txt"] = []
+        conflict_struct["summary"]["html"] = []
+
         conflict_comment = G_(
             u"(These likely are not failures as other labs are reporting "
             "PASS. Please review.)")
-        m_string.write(u"\n")
-        m_string.write(
+        conflict_summary = (
             P_(
-                u"Conflicting Boot Failure Detected: %(conflict_comment)s\n",
-                u"Conflicting Boot Failures Detected: %(conflict_comment)s\n",
+                u"Conflicting Boot Failure Detected: %(conflict_comment)s",
+                u"Conflicting Boot Failures Detected: %(conflict_comment)s",
                 conflict_count
             ) % {"conflict_comment": conflict_comment}
         )
-        _traverse_data_struct(conflict_data, m_string, is_conflict=True)
+
+        conflict_struct["summary"]["txt"].append(conflict_summary)
+        conflict_struct["summary"]["html"].append(conflict_summary)
+
+        _traverse_data_struct(
+            conflict_data, conflict_struct["data"], is_conflict=True)
+    else:
+        parsed_data["conflict_data"] = None
+
+    return parsed_data
