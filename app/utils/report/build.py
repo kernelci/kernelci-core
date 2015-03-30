@@ -49,13 +49,16 @@ BUILD_SEARCH_SORT = [
 
 # pylint: disable=too-many-locals
 # pylint: disable=star-args
-def create_build_report(job, kernel, db_options, mail_options=None):
+def create_build_report(job,
+                        kernel, email_format, db_options, mail_options=None):
     """Create the build report email to be sent.
 
     :param job: The name of the job.
     :type job: str
     :param  kernel: The name of the kernel.
     :type kernel: str
+    :param email_format: The email format to send.
+    :type email_format: list
     :param db_options: The mongodb database connection parameters.
     :type db_options: dict
     :param mail_options: The options necessary to connect to the SMTP server.
