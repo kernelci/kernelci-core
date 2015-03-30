@@ -13,6 +13,8 @@
 
 """Common functions for email reports creation."""
 
+import htmlmin.minify
+import jinja2
 import os
 import pymongo
 import types
@@ -245,3 +247,35 @@ def get_total_results(
     total_unique_data = get_unique_data(total_results.clone(), unique_keys)
 
     return (total_count, total_unique_data)
+
+
+def create_html_email(template_name, **kwargs):
+    """Create the emal body in HTML format.
+
+    :param template_name: The name of the template to use.
+    :type template_name: string
+    :return The body in HTML format as a string.
+    """
+    html_body = u""
+
+    template_env = jinja2.Environment(
+        loader=jinja2.FileSystemLoader(TEMPLATES_DIR))
+    html_body = template_env.get_template(template_name).render(**kwargs)
+
+    return htmlmin.minify.html_minify(html_body)
+
+
+def create_txt_email(template_name, **kwargs):
+    """Create the email body in text format.
+
+    :param template_name: The name of the template to use.
+    :type template_name: string
+    :return The body as a unicode string.
+    """
+    txt_body = u""
+
+    template_env = jinja2.Environment(
+        loader=jinja2.FileSystemLoader(TEMPLATES_DIR))
+    txt_body = template_env.get_template(template_name).render(**kwargs)
+
+    return txt_body
