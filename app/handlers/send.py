@@ -67,7 +67,8 @@ class SendHandler(hbase.BaseHandler):
             send_build = bool(j_get(models.SEND_BUILD_REPORT_KEY, False))
 
             email_format = j_get(models.EMAIL_FORMAT_KEY, None)
-            email_format = _check_email_format(email_format)
+            email_format, email_errors = _check_email_format(email_format)
+            response.errors = email_errors
 
             boot_errors = False
             build_errors = False
@@ -106,11 +107,12 @@ class SendHandler(hbase.BaseHandler):
 
                 if send_boot:
                     boot_errors, response.errors = self._schedule_boot_report(
-                        job, kernel, lab_name, schedule_data)
+                        job, kernel, lab_name, email_format, schedule_data)
 
                 if send_build:
                     build_errors, response.errors = \
-                        self._schedule_build_report(job, kernel, schedule_data)
+                        self._schedule_build_report(
+                            job, kernel, email_format, schedule_data)
 
                 response.reason, response.status_code = _check_status(
                     send_boot, send_build, boot_errors, build_errors, when)
@@ -128,7 +130,10 @@ class SendHandler(hbase.BaseHandler):
 
         return response
 
-    def _schedule_boot_report(self, job, kernel, lab_name, schedule_data):
+    # pylint: disable=too-many-arguments
+    def _schedule_boot_report(self,
+                              job,
+                              kernel, lab_name, email_format, schedule_data):
         """Schedule the boot report performing some checks on the emails.
 
         :param job: The name of the job.
@@ -137,6 +142,8 @@ class SendHandler(hbase.BaseHandler):
         :type kernel: string
         :param lab_name: The name of the lab.
         :type lab_name: string
+        :param email_format: The email format to send.
+        :type email_format: list
         :param schedule_data: The data necessary for scheduling a report.
         :type schedule_data: dictionary
         :return A tuple with as first parameter a bool indicating if the
@@ -155,6 +162,7 @@ class SendHandler(hbase.BaseHandler):
                     job,
                     kernel,
                     lab_name,
+                    email_format,
                     to_addrs,
                     schedule_data["db_options"],
                     schedule_data["mail_options"]
@@ -170,13 +178,15 @@ class SendHandler(hbase.BaseHandler):
 
         return has_errors, error_string
 
-    def _schedule_build_report(self, job, kernel, schedule_data):
+    def _schedule_build_report(self, job, kernel, email_format, schedule_data):
         """Schedule the build report performing some checks on the emails.
 
         :param job: The name of the job.
         :type job: string
         :param kernel: The name of the kernel.
         :type kernel: string
+        :param email_format: The email format to send.
+        :type email_format: list
         :param schedule_data: The data necessary for scheduling a report.
         :type schedule_data: dictionary
         :return A tuple with as first parameter a bool indicating if the
@@ -194,6 +204,7 @@ class SendHandler(hbase.BaseHandler):
                 [
                     job,
                     kernel,
+                    email_format,
                     to_addrs,
                     schedule_data["db_options"],
                     schedule_data["mail_options"]
@@ -337,10 +348,11 @@ def _check_email_format(email_format):
         # Did we remove everything?
         if not email_format:
             valid_format.append(models.EMAIL_TXT_FORMAT_KEY)
+            errors.append(
+                "No valid email formats specified, defaulting to '%s'" %
+                models.EMAIL_TXT_FORMAT_KEY)
     else:
-        errors.append(
-            "No email formats defined, defaulting to '%s'" %
-            models.EMAIL_TXT_FORMAT_KEY)
+        # By default, do not add warnings.
         valid_format.append(models.EMAIL_TXT_FORMAT_KEY)
 
     return valid_format, errors

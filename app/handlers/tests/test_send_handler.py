@@ -184,6 +184,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
                 "job",
                 "kernel",
                 None,
+                ["txt"],
                 ["test@example.org"], self.dboptions, self.mailoptions
             ],
             countdown=60*60
@@ -229,6 +230,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
                 "job",
                 "kernel",
                 None,
+                ["txt"],
                 ["test@example.org"], self.dboptions, self.mailoptions
             ],
             countdown=100
@@ -257,6 +259,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
                 "job",
                 "kernel",
                 None,
+                ["txt"],
                 ["test@example.org"], self.dboptions, self.mailoptions
             ],
             countdown=10800
@@ -284,6 +287,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             [
                 "job",
                 "kernel",
+                ["txt"],
                 ["test@example.org"], self.dboptions, self.mailoptions
             ],
             countdown=60*60
@@ -334,6 +338,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
                 "job",
                 "kernel",
                 None,
+                ["txt"],
                 ["test2@example.org"], self.dboptions, self.mailoptions
             ],
             countdown=60*60
@@ -342,6 +347,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             [
                 "job",
                 "kernel",
+                ["txt"],
                 ["test@example.org"], self.dboptions, self.mailoptions
             ],
             countdown=60*60
@@ -435,7 +441,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         email_format, errors = sendh._check_email_format(None)
 
         self.assertListEqual(["txt"], email_format)
-        self.assertEqual(1, len(errors))
+        self.assertEqual(0, len(errors))
 
         email_format, errors = sendh._check_email_format(["html"])
 
@@ -450,12 +456,12 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         email_format, errors = sendh._check_email_format("foo")
 
         self.assertListEqual(["txt"], email_format)
-        self.assertEqual(1, len(errors))
+        self.assertEqual(2, len(errors))
 
         email_format, errors = sendh._check_email_format(["foo"])
 
         self.assertListEqual(["txt"], email_format)
-        self.assertEqual(1, len(errors))
+        self.assertEqual(2, len(errors))
 
         email_format, errors = sendh._check_email_format(["html", "txt"])
 
