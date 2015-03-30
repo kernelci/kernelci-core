@@ -13,6 +13,7 @@
 
 """Common functions for email reports creation."""
 
+import os
 import pymongo
 import types
 
@@ -37,6 +38,10 @@ JOB_SEARCH_FIELDS = [
 DEFAULT_BASE_URL = u"http://kernelci.org"
 DEFAULT_BOOT_URL = u"http://kernelci.org/boot/all/job"
 DEFAULT_BUILD_URL = u"http://kernelci.org/build"
+
+# Base path where the templates are stored.
+TEMPLATES_DIR = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "templates/")
 
 
 def save_report(job, kernel, r_type, status, errors, db_options):

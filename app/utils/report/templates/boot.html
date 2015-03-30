@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>{{ subject_string }}</title>
+        <style type="text/css">
+            body > div {
+                padding-bottom: 15px;
+            }
+            footer {
+                padding-top: 5px;
+            }
+            .extra-top-pad {
+                padding-top: 15px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="subject">
+            {{ subject_string }}
+        </div>
+        <div id="details">
+            <div>{{ full_boot_summary }}</div>
+            <div>{{ full_build_summary }}</div>
+            <div class="extra-top-pad">{{ tree_string }}</div>
+            <div>{{ branch_string }}</div>
+            <div>{{ git_describe_string }}</div>
+            <div>{{ git_commit_string }}</div>
+            <div>{{ git_url_string }}</div>
+            {%- if tested_string %}
+            <div>{{ tested_string }}</div>
+            {% endif %}
+        </div>
+        {%- if platforms %}
+        <div id="platforms">
+        {%- if platforms.failed_data %}
+            <div id="failed-data">
+                <div class="title">
+            {%- for summary in platforms.failed_data.summary.html %}
+                    <div>{{ summary }}</div>
+            {%- endfor %}
+                </div>
+            {% for arch in platforms.failed_data.data %}
+                <div class="platform-content">
+                    <div>{{ arch }}</div>
+                {% for defconfig in platforms.failed_data.data[arch] %}
+                    <div>{{ defconfig }}</div>
+                {%- for board in platforms.failed_data.data[arch][defconfig] %}
+                    <div>{{ board }}</div>
+                {%- endfor %} {# board #}
+                {% endfor %} {# defconfig #}
+            {%- endfor %} {# arch #}
+                </div>
+        {%- endif %} {# failed_data #}
+            </div>
+        </div>
+        {%- endif %}
+        {%- if info_email %}
+        <footer>
+            ---
+            <br />
+            For more info write to &lt;<a href="mailto:{{ info_email}}">{{ info_email }}</a>&gt;
+        </footer>
+        {%- endif %}
+    </body>
+</html>

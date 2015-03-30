@@ -1,0 +1,64 @@
+{{ subject_str }}
+
+{{ full_boot_summary }}
+{{ full_build_summary }}
+
+{{ tree_string }}
+{{ branch_string }}
+{{ git_describe_string }}
+{{ git_commit_string }}
+{{ git_url_string }}
+{%- if tested_string %}
+{{ tested_string }}
+{% endif %}
+{%- if platforms %}
+{%- if platforms.failed_data %}
+{%- for summary in platforms.failed_data.summary.txt %}
+{{ summary }}
+{%- endfor %}
+{% for arch in platforms.failed_data.data %}
+{{ arch }}
+{% for defconfig in platforms.failed_data.data[arch] %}
+    {{ defconfig }}
+{%- for board in platforms.failed_data.data[arch][defconfig] %}
+        {{ board }}
+{%- endfor %} {# board #}
+{% endfor %} {# defconfig #}
+{%- endfor %} {# board #}
+{%- endif %} {# failed_data #}
+{%- if platforms.offline_data %}
+{%- for summary in platforms.offline_data.summary.txt %}
+{{ summary }}
+{%- endfor %}
+{% for arch in platforms.offline_data.data %}
+{{ arch }}
+{% for defconfig in platforms.offline_data.data[arch] %}
+    {{ defconfig }}
+{%- for board in platforms.offline_data.data[arch][defconfig] %}
+        {{ board }}
+{%- endfor %} {# board #}
+{% endfor %} {# defconfig #}
+{%- endfor %} {# arch #}
+{%- endif %} {# offline_data #}
+{%- if platforms.conflict_data %}
+{%- for summary in platforms.conflict_data.summary.txt %}
+{{ summary }}
+{%- endfor %}
+{% for arch in platforms.conflict_data.data %}
+{{ arch }}
+{% for defconfig in platforms.conflict_data.data[arch] %}
+    {{ defconfig }}
+{%- for board in platforms.conflict_data.data[arch][defconfig] %}
+        {{ board }}
+{%- for lab in platforms.conflict_data.data[arch][defconfig][board] %}
+            {{ lab }}
+{%- endfor %} {# lab #}
+{%- endfor %} {# board #}
+{% endfor %} {# defconfig #}
+{%- endfor %} {# arch #}
+{%- endif %} {# conflict_data #}
+{%- endif %} {# platforms #}
+{%- if info_email %}
+---
+For more info write to <{{ info_email }}>
+{%- endif %}
