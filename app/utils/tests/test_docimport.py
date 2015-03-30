@@ -181,6 +181,34 @@ class TestDocImport(unittest.TestCase):
             defconf_doc.defconfig_full, "defoo_confbar+CONFIG_TEST=y")
         self.assertEqual(defconf_doc.defconfig, "defoo_confbar")
 
+    def test_parse_and_update_build_metadata_errors(self):
+        meta_content = {
+            "arch": "arm",
+            "defconfig": "defoo_confbar",
+            "job": "job",
+            "kernel": "kernel",
+            "build_errors": 3,
+            "build_warnings": 1,
+        }
+
+        try:
+            fake_meta = tempfile.NamedTemporaryFile(delete=False)
+            with open(fake_meta.name, 'w') as w_file:
+                w_file.write(json.dumps(meta_content))
+
+            defconf_doc = docimport._parse_build_data(
+                fake_meta.name,
+                "job",
+                "kernel",
+                "arm-defoo_confbar"
+            )
+        finally:
+            os.unlink(fake_meta.name)
+
+        self.assertIsInstance(defconf_doc, mdefconfig.DefconfigDocument)
+        self.assertEqual(defconf_doc.errors, 3)
+        self.assertEqual(defconf_doc.warnings, 1)
+
     def test_extrapolate_defconfig_full_non_valid(self):
         kconfig_fragments = "foo-CONFIG.bar"
         defconfig = "defconfig"

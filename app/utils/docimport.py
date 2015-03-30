@@ -333,7 +333,7 @@ def _parse_build_data(data_file, job, kernel, defconfig_dir):
                 models.BUILD_PLATFORM_KEY, [])
             defconfig_doc.build_time = data_pop(models.BUILD_TIME_KEY, 0)
             defconfig_doc.dtb_dir = data_pop(models.DTB_DIR_KEY, None)
-            defconfig_doc.errros = data_pop(models.BUILD_ERRORS_KEY, 0)
+            defconfig_doc.errors = data_pop(models.BUILD_ERRORS_KEY, 0)
             defconfig_doc.file_server_resource = data_pop(
                 models.FILE_SERVER_RESOURCE_KEY, None)
             defconfig_doc.file_server_url = data_pop(
