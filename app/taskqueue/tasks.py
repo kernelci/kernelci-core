@@ -153,7 +153,9 @@ def defconfig_bisect_compared_to(doc_id, compare_to, db_options, fields=None):
     track_started=True,
     ignore_result=False)
 def send_boot_report(job,
-                     kernel, lab_name, to_addrs, db_options, mail_options):
+                     kernel,
+                     lab_name,
+                     email_format, to_addrs, db_options, mail_options):
     """Create the boot report email and send it.
 
     :param job: The job name.
@@ -162,6 +164,8 @@ def send_boot_report(job,
     :type kernel: str
     :param lab_name: The name of the lab.
     :type lab_name: str
+    :param email_format: The email format to send.
+    :type email_format: list
     :param to_addrs: List of recipients.
     :type to_addrs: list
     :param db_options: The options necessary to connect to the database.
@@ -172,18 +176,19 @@ def send_boot_report(job,
     utils.LOG.info("Preparing boot report email for '%s-%s'", job, kernel)
     status = "ERROR"
 
-    body, subject = utils.report.boot.create_boot_report(
+    txt_body, html_body, subject = utils.report.boot.create_boot_report(
         job,
         kernel,
         lab_name,
+        email_format,
         db_options=db_options,
         mail_options=mail_options
     )
 
-    if all([body is not None, subject is not None]):
+    if all([any([txt_body, html_body]), subject]):
         utils.LOG.info("Sending boot report email for '%s-%s'", job, kernel)
         status, errors = utils.emails.send_email(
-            to_addrs, subject, body, mail_options)
+            to_addrs, subject, txt_body, mail_options)
         utils.report.common.save_report(
             job, kernel, models.BOOT_REPORT, status, errors, db_options)
     else:
@@ -199,13 +204,17 @@ def send_boot_report(job,
     acks_late=True,
     track_started=True,
     ignore_result=False)
-def send_build_report(job, kernel, to_addrs, db_options, mail_options):
+def send_build_report(job,
+                      kernel,
+                      email_format, to_addrs, db_options, mail_options):
     """Create the build report email and send it.
 
     :param job: The job name.
     :type job: str
     :param kernel: The kernel name.
     :type kernel: str
+    :param email_format: The email format to send.
+    :type email_format: list
     :param to_addrs: List of recipients.
     :type to_addrs: list
     :param db_options: The options necessary to connect to the database.
@@ -216,17 +225,18 @@ def send_build_report(job, kernel, to_addrs, db_options, mail_options):
     utils.LOG.info("Preparing build report email for '%s-%s'", job, kernel)
     status = "ERROR"
 
-    body, subject = utils.report.build.create_build_report(
+    txt_body, html_body, subject = utils.report.build.create_build_report(
         job,
         kernel,
+        email_format,
         db_options=db_options,
         mail_options=mail_options
     )
 
-    if all([body is not None, subject is not None]):
+    if all([any([txt_body, html_body]), subject]):
         utils.LOG.info("Sending build report email for '%s-%s'", job, kernel)
         status, errors = utils.emails.send_email(
-            to_addrs, subject, body, mail_options)
+            to_addrs, subject, txt_body, mail_options)
         utils.report.common.save_report(
             job, kernel, models.BOOT_REPORT, status, errors, db_options)
     else:
