@@ -2,21 +2,44 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <title>{{ subject_string }}</title>
+        <title>{{ subject_str }}</title>
         <style type="text/css">
             body > div {
                 padding-bottom: 15px;
             }
             footer {
-                padding-top: 5px;
+                font-size: smaller;
             }
             .extra-top-pad {
                 padding-top: 15px;
             }
+            .subject {
+                font-weight: bold;
+            }
+            .title,
+            .defconfig,
+            .arch-content,
+            .defconfig-content {
+                padding-bottom: 5px;
+            }
+            .title,
+            .arch-content {
+                padding-top: 5px;
+            }
+            .defconfig-content {
+                padding-top: 10px;
+                padding-left: 35px;
+            }
+            .board-content {
+                padding-left: 35px;
+            }
+            .lab {
+                padding-left: 30px;
+            }
         </style>
     </head>
     <body>
-        <div id="subject">{{ subject_string }}</div>
+        <div id="subject" class="subject">{{ subject_str }}</div>
         <div id="details">
             <div>{{ full_boot_summary }}</div>
             <div>{{ full_build_summary }}</div>
@@ -27,37 +50,98 @@
             <div>{{ git_url_string }}</div>
             {%- if tested_string %}
             <div>{{ tested_string }}</div>
-            {% endif %}
+            {%- endif %}
         </div>
         {%- if platforms %}
-        <div id="platforms">
+        <div id="platforms" class="platforms">
         {%- if platforms.failed_data %}
             <div id="failed-data">
                 <div class="title">
-            {%- for summary in platforms.failed_data.summary.html %}
+                {%- for summary in platforms.failed_data.summary.html %}
                     <div>{{ summary }}</div>
-            {%- endfor %}
+                {%- endfor %}
                 </div>
                 <div class="platform-content">
-            {% for arch in platforms.failed_data.data %}
-                    <div>{{ arch }}</div>
-                {% for defconfig in platforms.failed_data.data[arch] %}
-                    <div>{{ defconfig }}</div>
+                {%- for arch in platforms.failed_data.data %}
+                    <div class="arch-content">
+                        <div class="arch">{{ arch }}</div>
+                {%- for defconfig in platforms.failed_data.data[arch] %}
+                        <div class="defconfig-content">
+                            <div class="defconfig">{{ defconfig }}</div>
+                            <div class="board-content">
                 {%- for board in platforms.failed_data.data[arch][defconfig] %}
-                    <div>{{ board }}</div>
-                {%- endfor %} {# board #}
-                {% endfor %} {# defconfig #}
-            {%- endfor %} {# arch #}
+                                <div class="board">{{ board }}</div>
+                {%- endfor %}{# board #}
+                            </div>
+                        </div>
+                {%- endfor %}{# defconfig #}
+                    </div>
+                {%- endfor %}{# arch #}
                 </div>
             </div>
-        {%- endif %} {# failed_data #}
+        {%- endif %}{# failed_data #}
+        {%- if platforms.offline_data %}
+            <div id="offline-data">
+                <div class="title">
+                {%- for summary in platforms.offline_data.summary.html %}
+                    <div>{{ summary }}</div>
+                {%- endfor %}
+                </div>
+                <div class="platform-content">
+                {%- for arch in platforms.offline_data.data %}
+                    <div class="arch-content">
+                        <div class="arch">{{ arch }}</div>
+                {%- for defconfig in platforms.offline_data.data[arch] %}
+                        <div class="defconfig-content">
+                            <div class="defconfig">{{ defconfig }}</div>
+                {%- for board in platforms.offline_data.data[arch][defconfig] %}
+                            <div class="board">{{ board }}</div>
+                {%- endfor %}{# board #}
+                        </div>
+                {%- endfor %}{# defconfig #}
+                    </div>
+                {%- endfor %}{# arch #}
+                </div>
+            </div>
+        {%- endif %}{# offline_data #}
+        {%- if platforms.conflict_data %}
+            <div id="conflict-data">
+                <div class="title">
+                {%- for summary in platforms.conflict_data.summary.html %}
+                    <div>{{ summary }}</div>
+                {%- endfor %}
+                </div>
+                <div class="platform-content">
+                {%- for arch in platforms.conflict_data.data %}
+                    <div class="arch-content">
+                        <div class="arch">{{ arch }}</div>
+                {%- for defconfig in platforms.conflict_data.data[arch] %}
+                        <div class="defconfig-content">
+                            <div class="defconfig">{{ defconfig }}</div>
+                {%- for board in platforms.conflict_data.data[arch][defconfig] %}
+                            <div class="board-content">
+                                <div class="board">{{ board }}</div>
+                {%- for lab in platforms.conflict_data.data[arch][defconfig][board] %}
+                                <div class="lab">{{ lab }}</div>
+                {%- endfor %}{# lab #}
+                            </div>
+                {%- endfor %}{# board #}
+                        </div>
+                {%- endfor %}{# defconfig #}
+                    </div>
+                {%- endfor %}{# arch #}
+                </div>
+            </div>
+        {%- endif %}{# conflict_data #}
         </div>
-        {%- endif %}
+        {%- endif %}{# platforms #}
         {%- if info_email %}
         <footer>
-            ---
-            <br />
-            For more info write to &lt;<a href="mailto:{{ info_email}}">{{ info_email }}</a>&gt;
+            &#9472;
+            <div>
+            For more info write to
+            &lt;<a href="mailto:{{ info_email}}">{{ info_email }}</a>&gt;
+            </div>
         </footer>
         {%- endif %}
     </body>
