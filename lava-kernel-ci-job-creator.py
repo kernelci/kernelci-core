@@ -5,6 +5,7 @@ import re
 import os
 import shutil
 import argparse
+import ConfigParser
 
 base_url = None
 kernel = None
@@ -28,7 +29,9 @@ arndale = {'device_type': 'arndale',
            'fastboot': False}
 
 snow = {'device_type': 'snow',
-        'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+        'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                      'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                      'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
         'defconfig_blacklist': [],
         'kernel_blacklist': [],
         'lpae': True,
@@ -36,7 +39,9 @@ snow = {'device_type': 'snow',
         'fastboot': False}
 
 arndale_octa = {'device_type': 'arndale-octa',
-                'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+                'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                              'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                              'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
                 'defconfig_blacklist': [],
                 'kernel_blacklist': [],
                 'lpae': True,
@@ -44,7 +49,9 @@ arndale_octa = {'device_type': 'arndale-octa',
                 'fastboot': False}
 
 peach_pi = {'device_type': 'peach-pi',
-            'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+            'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                          'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                          'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
             'defconfig_blacklist': [],
             'kernel_blacklist': [],
             'lpae': True,
@@ -52,7 +59,9 @@ peach_pi = {'device_type': 'peach-pi',
             'fastboot': False}
 
 odroid_xu3 = {'device_type': 'odroid-xu3',
-              'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+              'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                            'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                            'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
               'defconfig_blacklist': [],
               'kernel_blacklist': [],
               'lpae': True,
@@ -76,7 +85,9 @@ odroid_x2 = {'device_type': 'odroid-x2',
              'fastboot': False}
 
 beaglebone_black = {'device_type': 'beaglebone-black',
-                    'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+                    'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                                  'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                                  'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
                     'defconfig_blacklist': [],
                     'kernel_blacklist': [],
                     'lpae': False,
@@ -116,7 +127,9 @@ panda = {'device_type': 'panda',
          'fastboot': False}
 
 cubieboard3 = {'device_type': 'cubieboard3',
-               'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+               'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                             'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                             'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
                'defconfig_blacklist': [],
                'kernel_blacklist': [],
                'lpae': True,
@@ -124,7 +137,9 @@ cubieboard3 = {'device_type': 'cubieboard3',
                'fastboot': False}
 
 hisi_x5hd2_dkb = {'device_type': 'hi3716cv200',
-                  'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+                  'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                                'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                                'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
                   'defconfig_blacklist': [],
                   'kernel_blacklist': [],
                   'lpae': False,
@@ -140,7 +155,9 @@ d01 = {'device_type': 'd01',
        'fastboot': False}
 
 imx6q_wandboard = {'device_type': 'imx6q-wandboard',
-                   'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+                   'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                                 'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                                 'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
                    'defconfig_blacklist': ['arm-imx_v4_v5_defconfig',
                                            'arm-multi_v5_defconfig'],
                    'kernel_blacklist': [],
@@ -149,7 +166,9 @@ imx6q_wandboard = {'device_type': 'imx6q-wandboard',
                    'fastboot': False}
 
 imx6q_sabrelite = {'device_type': 'imx6q-sabrelite',
-                   'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+                   'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                                 'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                                 'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
                    'defconfig_blacklist': ['arm-imx_v4_v5_defconfig',
                                            'arm-multi_v5_defconfig'],
                    'kernel_blacklist': [],
@@ -158,7 +177,9 @@ imx6q_sabrelite = {'device_type': 'imx6q-sabrelite',
                    'fastboot': False}
 
 utilite_pro = {'device_type': 'utilite-pro',
-               'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+               'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                             'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                             'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
                'defconfig_blacklist': ['arm-imx_v4_v5_defconfig',
                                        'arm-multi_v5_defconfig'],
                'kernel_blacklist': [],
@@ -167,7 +188,9 @@ utilite_pro = {'device_type': 'utilite-pro',
                'fastboot': False}
 
 snowball = {'device_type': 'snowball',
-            'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+            'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                          'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                          'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
             'defconfig_blacklist': [],
             'kernel_blacklist': [],
             'lpae': False,
@@ -191,7 +214,9 @@ ifc6410 = {'device_type': 'ifc6410',
            'fastboot': True}
 
 sama53d = {'device_type': 'sama53d',
-           'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+           'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                         'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                         'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
            'defconfig_blacklist': ['arm-at91_dt_defconfig',
                                    'arm-at91sam9260_9g20_defconfig',
                                    'arm-at91sam9g45_defconfig'],
@@ -201,7 +226,9 @@ sama53d = {'device_type': 'sama53d',
            'fastboot': False}
 
 jetson_tk1 = {'device_type': 'jetson-tk1',
-              'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+              'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                            'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                            'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
               'defconfig_blacklist': [],
               'kernel_blacklist': [],
               'lpae': True,
@@ -209,7 +236,9 @@ jetson_tk1 = {'device_type': 'jetson-tk1',
               'fastboot': False}
 
 parallella = {'device_type': 'parallella',
-              'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+              'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                            'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                            'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
               'defconfig_blacklist': [],
               'kernel_blacklist': [],
               'lpae': False,
@@ -293,7 +322,9 @@ qemu_aarch64 = {'device_type': 'qemu-aarch64',
                 'fastboot': False}
 
 apm_mustang = {'device_type': 'mustang',
-               'templates': ['generic-arm64-uboot-dtb-kernel-ci-boot-template.json'],
+               'templates': ['generic-arm64-uboot-dtb-kernel-ci-boot-template.json',
+                             'generic-arm64-uboot-dtb-kernel-ci-ltp-mm-template.json',
+                             'generic-arm64-uboot-dtb-kernel-ci-ltp-syscalls-template.json'],
                'defconfig_blacklist': ['arm64-allnoconfig',
                                        'arm64-allmodconfig'],
                'kernel_blacklist': [],
@@ -302,7 +333,9 @@ apm_mustang = {'device_type': 'mustang',
                'fastboot': False}
 
 juno = {'device_type': 'juno',
-        'templates': ['juno-arm64-dtb-kernel-ci-boot-template.json'],
+        'templates': ['juno-arm64-dtb-kernel-ci-boot-template.json',
+                      'juno-arm64-dtb-kernel-ci-ltp-mm-template.json',
+                      'juno-arm64-dtb-kernel-ci-ltp-syscalls-template.json'],
         'defconfig_blacklist': ['arm64-allnoconfig',
                                 'arm64-allmodconfig'],
         'kernel_blacklist': [],
@@ -398,7 +431,7 @@ def setup_job_dir(directory):
     print 'Done setting up JSON output directory'
 
 
-def create_jobs(base_url, kernel, platform_list, targets):
+def create_jobs(base_url, kernel, plans, platform_list, targets):
     print 'Creating JSON Job Files...'
     cwd = os.getcwd()
     url = urlparse.urlparse(kernel)
@@ -418,45 +451,76 @@ def create_jobs(base_url, kernel, platform_list, targets):
             lpae = device['lpae']
             be = device['be']
             fastboot = device['fastboot']
-            if 'BIG_ENDIAN' in defconfig and not be:
-                print 'BIG_ENDIAN is not supported on %s. Skipping JSON creation' % device_type
-            elif 'LPAE' in defconfig and not lpae:
-                print 'LPAE is not supported on %s. Skipping JSON creation' % device_type
-            elif defconfig in device['defconfig_blacklist']:
-                print '%s has been blacklisted. Skipping JSON creation' % defconfig
-            elif any([x for x in device['kernel_blacklist'] if x in kernel_version]):
-                print '%s has been blacklisted. Skipping JSON creation' % kernel_version
-            elif targets is not None and device_type not in targets:
-                print '%s device type has been omitted. Skipping JSON creation.' % device_type
-            else:
-                for template in device_templates:
-                    job_name = tree + '-' + kernel_version + '-' + defconfig[:100] + '-' + platform_name + '-' + device_type
-                    job_json = cwd + '/jobs/' + job_name + '.json'
-                    template_file = cwd + '/templates/' + str(template)
-                    with open(job_json, 'wt') as fout:
-                        with open(template_file, "rt") as fin:
-                            for line in fin:
-                                tmp = line.replace('{dtb_url}', platform)
-                                tmp = tmp.replace('{kernel_url}', kernel)
-                                tmp = tmp.replace('{device_type}', device_type)
-                                tmp = tmp.replace('{job_name}', job_name)
-                                tmp = tmp.replace('{image_type}', image_type)
-                                tmp = tmp.replace('{image_url}', image_url)
-                                tmp = tmp.replace('{tree}', tree)
-                                if platform_name.endswith('.dtb'):
-                                    tmp = tmp.replace('{device_tree}', platform_name)
-                                tmp = tmp.replace('{kernel_version}', kernel_version)
-                                if 'BIG_ENDIAN' in defconfig and be:
-                                    tmp = tmp.replace('{endian}', 'big')
-                                else:
-                                    tmp = tmp.replace('{endian}', 'little')
-                                tmp = tmp.replace('{defconfig}', defconfig)
-                                tmp = tmp.replace('{fastboot}', str(fastboot).lower())
-                                fout.write(tmp)
-                    print 'JSON Job created: jobs/%s' % job_name
+            test_suite = None
+            test_set = None
+            test_desc = None
+            test_type = None
+            defconfigs = []
+            for plan in plans:
+                if plan != 'boot':
+                        config = ConfigParser.ConfigParser()
+                        try:
+                            config.read(cwd + '/templates/' + plan + '/' + plan + '.ini')
+                            test_suite = config.get(plan, 'suite')
+                            test_set = config.get(plan, 'set')
+                            test_desc = config.get(plan, 'description')
+                            test_type = config.get(plan, 'type')
+                            defconfigs = config.get(plan, 'defconfigs').split(',')
+                        except:
+                            print "Unable to load test configuration"
+                            exit(1)
+                if 'BIG_ENDIAN' in defconfig and not be:
+                    print 'BIG_ENDIAN is not supported on %s. Skipping JSON creation' % device_type
+                elif 'LPAE' in defconfig and not lpae:
+                    print 'LPAE is not supported on %s. Skipping JSON creation' % device_type
+                elif defconfig in device['defconfig_blacklist']:
+                    print '%s has been blacklisted. Skipping JSON creation' % defconfig
+                elif any([x for x in device['kernel_blacklist'] if x in kernel_version]):
+                    print '%s has been blacklisted. Skipping JSON creation' % kernel_version
+                elif targets is not None and device_type not in targets:
+                    print '%s device type has been omitted. Skipping JSON creation.' % device_type
+                elif not any([x for x in defconfigs if x == defconfig]) and plan != 'boot':
+                    print '%s has been omitted from the %s test plan. Skipping JSON creation.' % (defconfig, plan)
+                else:
+                        for template in device_templates:
+                            job_name = tree + '-' + kernel_version + '-' + defconfig[:100] + '-' + platform_name + '-' + device_type + '-' + plan
+                            job_json = cwd + '/jobs/' + job_name + '.json'
+                            template_file = cwd + '/templates/' + plan + '/' + str(template)
+                            if os.path.exists(template_file):
+                                with open(job_json, 'wt') as fout:
+                                    with open(template_file, "rt") as fin:
+                                        for line in fin:
+                                            tmp = line.replace('{dtb_url}', platform)
+                                            tmp = tmp.replace('{kernel_url}', kernel)
+                                            tmp = tmp.replace('{device_type}', device_type)
+                                            tmp = tmp.replace('{job_name}', job_name)
+                                            tmp = tmp.replace('{image_type}', image_type)
+                                            tmp = tmp.replace('{image_url}', image_url)
+                                            tmp = tmp.replace('{tree}', tree)
+                                            if platform_name.endswith('.dtb'):
+                                                tmp = tmp.replace('{device_tree}', platform_name)
+                                            tmp = tmp.replace('{kernel_version}', kernel_version)
+                                            if 'BIG_ENDIAN' in defconfig and be:
+                                                tmp = tmp.replace('{endian}', 'big')
+                                            else:
+                                                tmp = tmp.replace('{endian}', 'little')
+                                            tmp = tmp.replace('{defconfig}', defconfig)
+                                            tmp = tmp.replace('{fastboot}', str(fastboot).lower())
+                                            if plan:
+                                                tmp = tmp.replace('{test_plan}', plan)
+                                            if test_suite:
+                                                tmp = tmp.replace('{test_suite}', test_suite)
+                                            if test_set:
+                                                tmp = tmp.replace('{test_set}', test_set)
+                                            if test_desc:
+                                                tmp = tmp.replace('{test_desc}', test_desc)
+                                            if test_type:
+                                                tmp = tmp.replace('{test_type}', test_type)
+                                            fout.write(tmp)
+                                print 'JSON Job created: jobs/%s' % job_name
 
 
-def walk_url(url, arch=None, targets=None):
+def walk_url(url, plans=None, arch=None, targets=None):
     global base_url
     global kernel
     global platform_list
@@ -530,33 +594,33 @@ def walk_url(url, arch=None, targets=None):
 
     if kernel is not None and base_url is not None:
         if platform_list:
-            print 'Found boot artifacts at: %s' % base_url
-            create_jobs(base_url, kernel, platform_list, targets)
+            print 'Found artifacts at: %s' % base_url
+            create_jobs(base_url, kernel, plans, platform_list, targets)
             # Hack for subdirectories with arm64 dtbs
             if 'arm64' not in base_url:
                 base_url = None
                 kernel = None
             platform_list = []
         elif legacy_platform_list:
-            print 'Found boot artifacts at: %s' % base_url
-            create_jobs(base_url, kernel, legacy_platform_list, targets)
+            print 'Found artifacts at: %s' % base_url
+            create_jobs(base_url, kernel, plans, legacy_platform_list, targets)
             legacy_platform_list = []
 
     for dir in dirs:
-        walk_url(url + dir, arch, targets)
-
+        walk_url(url + dir, plans, arch, targets)
 
 def main(args):
     setup_job_dir(os.getcwd() + '/jobs')
-    print 'Scanning %s for boot information...' % args.url
-    walk_url(args.url, args.arch, args.targets)
-    print 'Done scanning for boot information'
+    print 'Scanning %s for kernel information...' % args.url
+    walk_url(args.url, args.plans, args.arch, args.targets)
+    print 'Done scanning for kernel information'
     print 'Done creating JSON jobs'
     exit(0)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("url", help="url to build artifacts")
+    parser.add_argument("--plans", nargs='+', required=True, help="test plan to create jobs for")
     parser.add_argument("--arch", help="specific architecture to create jobs for")
     parser.add_argument("--targets", nargs='+', help="specific targets to create jobs for")
     args = parser.parse_args()

@@ -7,15 +7,15 @@
                 "image.url": "{image_url}",
                 "kernel.tree": "{tree}",
                 "kernel.version": "{kernel_version}",
-                "device.tree": "{device_tree}",
                 "kernel.endian": "{endian}",
                 "kernel.defconfig": "{defconfig}",
-                "platform.fastboot": "{fastboot}"
+                "platform.fastboot": "{fastboot}",
+                "test.plan": "{test_plan}"
             },
             "parameters": {
-                "dtb": "{dtb_url}",
+                "bootloadertype": "ipxe",
                 "kernel": "{kernel_url}",
-                "ramdisk": "http://images.armcloud.us/lava/common/buildroot.cpio.gz"
+                "ramdisk": "http://images.armcloud.us/lava/common/ramdisk-x86.gz"
             }
         },
         {
@@ -32,5 +32,6 @@
     "device_type": "{device_type}",
     "job_name": "{job_name}",
     "logging_level": "DEBUG",
+    "priority": "high",
     "timeout": 18000
 }

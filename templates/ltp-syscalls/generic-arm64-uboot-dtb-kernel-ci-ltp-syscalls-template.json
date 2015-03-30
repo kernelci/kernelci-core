@@ -10,20 +10,32 @@
                 "device.tree": "{device_tree}",
                 "kernel.endian": "{endian}",
                 "kernel.defconfig": "{defconfig}",
-                "platform.fastboot": "{fastboot}"
+                "platform.fastboot": "{fastboot}",
+                "test.plan": "{test_plan}",
+                "test.suite": "{test_suite}",
+                "test.set": "{test_set}",
+                "test.desc": "{test_desc}",
+                "test.type": "{test_type}"
             },
             "parameters": {
                 "dtb": "{dtb_url}",
                 "kernel": "{kernel_url}",
-                "ramdisk": "http://images.armcloud.us/lava/common/buildroot.cpio.gz"
+                "nfsrootfs": "http://releases.linaro.org/15.02/openembedded/images/lamp-armv8/linaro-image-lamp-genericarmv8-20150222-741.rootfs.tar.gz"
             }
         },
         {
-            "command": "boot_linaro_image",
+            "command": "lava_test_shell",
             "parameters": {
-                "boot_cmds": [
-                    "console=ttyMSM0,115200,n8 root=/dev/ram0 rootwait rw text androidboot.emmc=true androidboot.serialno=e080c363 androidboot.baseband=apq"
-                ]
+                "testdef_repos": [
+                    {
+                        "git-repo": "git://git.linaro.org/qa/test-definitions.git",
+                        "parameters": {
+                            "TST_CMDFILES": "syscalls"
+                        },
+                        "testdef": "openembedded/ltp.yaml"
+                    }
+                ],
+                "timeout": 3600
             }
         },
         {
@@ -37,5 +49,6 @@
     "device_type": "{device_type}",
     "job_name": "{job_name}",
     "logging_level": "DEBUG",
-    "timeout": 18000
+    "priority": "low",
+    "timeout": 3601
 }

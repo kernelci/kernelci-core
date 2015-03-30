@@ -10,12 +10,13 @@
                 "device.tree": "{device_tree}",
                 "kernel.endian": "{endian}",
                 "kernel.defconfig": "{defconfig}",
-                "platform.fastboot": "{fastboot}"
+                "platform.fastboot": "{fastboot}",
+                "test.plan": "{test_plan}"
             },
             "parameters": {
                 "dtb": "{dtb_url}",
                 "kernel": "{kernel_url}",
-                "nfsrootfs": "http://releases.linaro.org/15.01/openembedded/aarch64/linaro-image-minimal-genericarmv8-20150123-736.rootfs.tar.gz"
+                "ramdisk": "http://images.armcloud.us/lava/common/buildroot.cpio.gz.uboot"
             }
         },
         {
@@ -32,5 +33,6 @@
     "device_type": "{device_type}",
     "job_name": "{job_name}",
     "logging_level": "DEBUG",
+    "priority": "high",
     "timeout": 18000
 }
