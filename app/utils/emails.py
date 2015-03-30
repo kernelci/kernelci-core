@@ -13,7 +13,8 @@
 
 """Send email."""
 
-import email
+import email.mime.multipart
+import email.mime.text
 import smtplib
 
 import models
