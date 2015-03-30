@@ -188,7 +188,7 @@ def send_boot_report(job,
     if all([any([txt_body, html_body]), subject]):
         utils.LOG.info("Sending boot report email for '%s-%s'", job, kernel)
         status, errors = utils.emails.send_email(
-            to_addrs, subject, txt_body, mail_options)
+            to_addrs, subject, txt_body, html_body, mail_options)
         utils.report.common.save_report(
             job, kernel, models.BOOT_REPORT, status, errors, db_options)
     else:
@@ -236,7 +236,7 @@ def send_build_report(job,
     if all([any([txt_body, html_body]), subject]):
         utils.LOG.info("Sending build report email for '%s-%s'", job, kernel)
         status, errors = utils.emails.send_email(
-            to_addrs, subject, txt_body, mail_options)
+            to_addrs, subject, txt_body, html_body, mail_options)
         utils.report.common.save_report(
             job, kernel, models.BOOT_REPORT, status, errors, db_options)
     else:
