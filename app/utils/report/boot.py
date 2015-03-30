@@ -500,7 +500,7 @@ def _create_boot_email(**kwargs):
         txt_body = _create_txt_email(**kwargs)
     if models.EMAIL_HTML_FORMAT_KEY in email_format:
         # Fix the summary URLs for the HTML email.
-        kwargs["full_boot_symmary"] = (
+        kwargs["full_boot_summary"] = (
             G_(u"Full Boot Summary: <a href=\"%(url)s\">%(url)s</a>") %
             {"url": boot_summary_url})
         kwargs["full_build_summary"] = (
