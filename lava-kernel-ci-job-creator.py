@@ -398,7 +398,7 @@ def setup_job_dir(directory):
     print 'Done setting up JSON output directory'
 
 
-def create_jobs(base_url, kernel, platform_list, target, targets):
+def create_jobs(base_url, kernel, platform_list, targets):
     print 'Creating JSON Job Files...'
     cwd = os.getcwd()
     url = urlparse.urlparse(kernel)
@@ -426,8 +426,6 @@ def create_jobs(base_url, kernel, platform_list, target, targets):
                 print '%s has been blacklisted. Skipping JSON creation' % defconfig
             elif any([x for x in device['kernel_blacklist'] if x in kernel_version]):
                 print '%s has been blacklisted. Skipping JSON creation' % kernel_version
-            elif target is not None and target != device_type:
-                print '%s device type has been omitted. Skipping JSON creation.' % device_type
             elif targets is not None and device_type not in targets:
                 print '%s device type has been omitted. Skipping JSON creation.' % device_type
             else:
@@ -458,7 +456,7 @@ def create_jobs(base_url, kernel, platform_list, target, targets):
                     print 'JSON Job created: jobs/%s' % job_name
 
 
-def walk_url(url, arch=None, target=None, targets=None):
+def walk_url(url, arch=None, targets=None):
     global base_url
     global kernel
     global platform_list
@@ -533,7 +531,7 @@ def walk_url(url, arch=None, target=None, targets=None):
     if kernel is not None and base_url is not None:
         if platform_list:
             print 'Found boot artifacts at: %s' % base_url
-            create_jobs(base_url, kernel, platform_list, target, targets)
+            create_jobs(base_url, kernel, platform_list, targets)
             # Hack for subdirectories with arm64 dtbs
             if 'arm64' not in base_url:
                 base_url = None
@@ -541,17 +539,17 @@ def walk_url(url, arch=None, target=None, targets=None):
             platform_list = []
         elif legacy_platform_list:
             print 'Found boot artifacts at: %s' % base_url
-            create_jobs(base_url, kernel, legacy_platform_list, target, targets)
+            create_jobs(base_url, kernel, legacy_platform_list, targets)
             legacy_platform_list = []
 
     for dir in dirs:
-        walk_url(url + dir, arch, target, targets)
+        walk_url(url + dir, arch, targets)
 
 
 def main(args):
     setup_job_dir(os.getcwd() + '/jobs')
     print 'Scanning %s for boot information...' % args.url
-    walk_url(args.url, args.arch, args.target, args.targets)
+    walk_url(args.url, args.arch, args.targets)
     print 'Done scanning for boot information'
     print 'Done creating JSON jobs'
     exit(0)
@@ -560,7 +558,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("url", help="url to build artifacts")
     parser.add_argument("--arch", help="specific architecture to create jobs for")
-    parser.add_argument("--target", help="specific target to create jobs for")
     parser.add_argument("--targets", nargs='+', help="specific targets to create jobs for")
     args = parser.parse_args()
     main(args)
