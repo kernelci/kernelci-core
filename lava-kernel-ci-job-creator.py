@@ -11,9 +11,11 @@ base_url = None
 kernel = None
 platform_list = []
 legacy_platform_list = []
+no_modules_list = ['arm-sunxi_defconfig',
+                   'arm-hisi_defconfig']
 
 armada_370_mirabox = {'device_type': 'armada-370-mirabox',
-                       'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+                       'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
                        'defconfig_blacklist': [],
                        'kernel_blacklist': [],
                        'lpae': False,
@@ -21,7 +23,7 @@ armada_370_mirabox = {'device_type': 'armada-370-mirabox',
                        'fastboot': False}
 
 arndale = {'device_type': 'arndale',
-           'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+           'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
            'defconfig_blacklist': [],
            'kernel_blacklist': [],
            'lpae': True,
@@ -29,7 +31,7 @@ arndale = {'device_type': 'arndale',
            'fastboot': False}
 
 snow = {'device_type': 'snow',
-        'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+        'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
                       'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
                       'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
         'defconfig_blacklist': [],
@@ -39,7 +41,7 @@ snow = {'device_type': 'snow',
         'fastboot': False}
 
 arndale_octa = {'device_type': 'arndale-octa',
-                'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
                               'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
                               'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
                 'defconfig_blacklist': [],
@@ -49,7 +51,7 @@ arndale_octa = {'device_type': 'arndale-octa',
                 'fastboot': False}
 
 peach_pi = {'device_type': 'peach-pi',
-            'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+            'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
                           'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
                           'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
             'defconfig_blacklist': [],
@@ -59,7 +61,7 @@ peach_pi = {'device_type': 'peach-pi',
             'fastboot': False}
 
 odroid_xu3 = {'device_type': 'odroid-xu3',
-              'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+              'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
                             'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
                             'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
               'defconfig_blacklist': [],
@@ -69,7 +71,7 @@ odroid_xu3 = {'device_type': 'odroid-xu3',
               'fastboot': False}
 
 odroid_u2 = {'device_type': 'odroid-u2',
-             'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+             'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
              'defconfig_blacklist': [],
              'kernel_blacklist': [],
              'lpae': False,
@@ -77,7 +79,7 @@ odroid_u2 = {'device_type': 'odroid-u2',
              'fastboot': False}
 
 odroid_x2 = {'device_type': 'odroid-x2',
-             'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+             'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
              'defconfig_blacklist': [],
              'kernel_blacklist': [],
              'lpae': False,
@@ -85,7 +87,7 @@ odroid_x2 = {'device_type': 'odroid-x2',
              'fastboot': False}
 
 beaglebone_black = {'device_type': 'beaglebone-black',
-                    'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
                                   'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
                                   'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
                     'defconfig_blacklist': [],
@@ -95,7 +97,7 @@ beaglebone_black = {'device_type': 'beaglebone-black',
                     'fastboot': False}
 
 beagle_xm = {'device_type': 'beagle-xm',
-             'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+             'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
              'defconfig_blacklist': [],
              'kernel_blacklist': [],
              'lpae': False,
@@ -103,7 +105,7 @@ beagle_xm = {'device_type': 'beagle-xm',
              'fastboot': False}
 
 beagle_xm_legacy = {'device_type': 'beagle-xm',
-                    'templates': ['generic-arm-uboot-kernel-ci-boot-template.json'],
+                    'templates': ['generic-arm-kernel-ci-boot-template.json'],
                     'defconfig_blacklist': [],
                     'kernel_blacklist': [],
                     'lpae': False,
@@ -111,7 +113,7 @@ beagle_xm_legacy = {'device_type': 'beagle-xm',
                     'fastboot': False}
 
 panda_es = {'device_type': 'panda-es',
-            'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+            'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
             'defconfig_blacklist': [],
             'kernel_blacklist': [],
             'lpae': False,
@@ -119,7 +121,7 @@ panda_es = {'device_type': 'panda-es',
             'fastboot': False}
 
 panda = {'device_type': 'panda',
-         'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json'],
+         'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
          'defconfig_blacklist': [],
          'kernel_blacklist': [],
          'lpae': False,
@@ -127,7 +129,7 @@ panda = {'device_type': 'panda',
          'fastboot': False}
 
 cubieboard3 = {'device_type': 'cubieboard3',
-               'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+               'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
                              'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
                              'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json',
                              'generic-arm-dtb-kernel-ci-cpufreq-ljt-stress-test-template.json'],
@@ -138,7 +140,7 @@ cubieboard3 = {'device_type': 'cubieboard3',
                'fastboot': False}
 
 hisi_x5hd2_dkb = {'device_type': 'hi3716cv200',
-                  'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                  'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
                                 'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
                                 'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
                   'defconfig_blacklist': [],
@@ -156,7 +158,7 @@ d01 = {'device_type': 'd01',
        'fastboot': False}
 
 imx6q_wandboard = {'device_type': 'imx6q-wandboard',
-                   'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                   'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
                                  'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
                                  'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
                    'defconfig_blacklist': ['arm-imx_v4_v5_defconfig',
@@ -167,7 +169,7 @@ imx6q_wandboard = {'device_type': 'imx6q-wandboard',
                    'fastboot': False}
 
 imx6q_sabrelite = {'device_type': 'imx6q-sabrelite',
-                   'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+                   'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
                                  'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
                                  'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
                    'defconfig_blacklist': ['arm-imx_v4_v5_defconfig',
@@ -178,7 +180,7 @@ imx6q_sabrelite = {'device_type': 'imx6q-sabrelite',
                    'fastboot': False}
 
 utilite_pro = {'device_type': 'utilite-pro',
-               'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+               'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
                              'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
                              'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
                'defconfig_blacklist': ['arm-imx_v4_v5_defconfig',
@@ -189,7 +191,7 @@ utilite_pro = {'device_type': 'utilite-pro',
                'fastboot': False}
 
 snowball = {'device_type': 'snowball',
-            'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+            'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
                           'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
                           'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
             'defconfig_blacklist': [],
@@ -199,7 +201,7 @@ snowball = {'device_type': 'snowball',
             'fastboot': False}
 
 ifc6540 = {'device_type': 'ifc6540',
-           'templates': ['generic-arm-ifc6540-kernel-ci-boot-template.json'],
+           'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
            'defconfig_blacklist': [],
            'kernel_blacklist': [],
            'lpae': False,
@@ -207,7 +209,7 @@ ifc6540 = {'device_type': 'ifc6540',
            'fastboot': True}
 
 ifc6410 = {'device_type': 'ifc6410',
-           'templates': ['generic-arm-ifc6410-kernel-ci-boot-template.json'],
+           'templates': ['ifc6410-arm-dtb-kernel-ci-boot-template.json'],
            'defconfig_blacklist': [],
            'kernel_blacklist': [],
            'lpae': False,
@@ -215,7 +217,7 @@ ifc6410 = {'device_type': 'ifc6410',
            'fastboot': True}
 
 sama53d = {'device_type': 'sama53d',
-           'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+           'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
                          'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
                          'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
            'defconfig_blacklist': ['arm-at91_dt_defconfig',
@@ -227,7 +229,7 @@ sama53d = {'device_type': 'sama53d',
            'fastboot': False}
 
 jetson_tk1 = {'device_type': 'jetson-tk1',
-              'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+              'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
                             'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
                             'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
               'defconfig_blacklist': [],
@@ -237,7 +239,7 @@ jetson_tk1 = {'device_type': 'jetson-tk1',
               'fastboot': False}
 
 parallella = {'device_type': 'parallella',
-              'templates': ['generic-arm-uboot-dtb-kernel-ci-boot-template.json',
+              'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
                             'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
                             'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json'],
               'defconfig_blacklist': [],
@@ -323,7 +325,7 @@ qemu_aarch64 = {'device_type': 'qemu-aarch64',
                 'fastboot': False}
 
 apm_mustang = {'device_type': 'mustang',
-               'templates': ['generic-arm64-uboot-dtb-kernel-ci-boot-template.json',
+               'templates': ['generic-arm64-dtb-kernel-ci-boot-template.json',
                              'generic-arm64-uboot-dtb-kernel-ci-ltp-mm-template.json',
                              'generic-arm64-uboot-dtb-kernel-ci-ltp-syscalls-template.json'],
                'defconfig_blacklist': ['arm64-allnoconfig',
@@ -497,6 +499,13 @@ def create_jobs(base_url, kernel, plans, platform_list, targets):
                                             tmp = tmp.replace('{job_name}', job_name)
                                             tmp = tmp.replace('{image_type}', image_type)
                                             tmp = tmp.replace('{image_url}', image_url)
+                                            modules_url = image_url + 'modules.tar.xz'
+                                            dummy_modules_url = 'http://images.armcloud.us/lava/common/modules.tar.xz'
+                                            if any([x for x in no_modules_list if x in defconfig]):
+                                                # Dummy Modules
+                                                tmp = tmp.replace('{modules_url}', dummy_modules_url)
+                                            else:
+                                                tmp = tmp.replace('{modules_url}', modules_url)
                                             tmp = tmp.replace('{tree}', tree)
                                             if platform_name.endswith('.dtb'):
                                                 tmp = tmp.replace('{device_tree}', platform_name)
