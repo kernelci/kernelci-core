@@ -714,7 +714,7 @@ def _parse_and_structure_results(**kwargs):
             },
             "data": {
                 "arch": {
-                    "defconfig": ["List of failed boards"]
+                    "defconfig": [("TXT", "HTML")]
                 }
             }
         }
@@ -829,8 +829,28 @@ def _parse_and_structure_results(**kwargs):
                                     "%d failed labs", lab_count
                                 ) % lab_count)
 
-                        defconf_struct.append(
-                            G_(u"%s: %s") % (board, lab_count_str))
+                        # Copy the kwargs parameters and add the local ones.
+                        # This is needed to create the HTML version of some
+                        # of the values we are parsing.
+                        substitutions = kwargs.copy()
+                        substitutions["board"] = board
+                        substitutions["defconfig"] = defconfig
+
+                        board_url = (
+                            "%(base_url)s/boot/%(board)s/job/%(job)s"
+                            "/kernel/%(kernel)s"
+                            "/defconfig/%(defconfig)s/" % substitutions
+                        )
+
+                        substitutions["url"] = board_url
+                        substitutions["count"] = lab_count_str
+
+                        html_string = (
+                            G_(u"<a href=\"%(url)s\">%(board)s</a>: %(count)s")
+                            % substitutions)
+
+                        txt_string = G_(u"%s: %s") % (board, lab_count_str)
+                        defconf_struct.append((txt_string, html_string))
 
     if failed_data:
         parsed_data["failed_data"] = {}
