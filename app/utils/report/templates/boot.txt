@@ -7,7 +7,7 @@
 {{ branch_string }}
 {{ git_describe_string }}
 {{ git_commit_string }}
-{{ git_url_string }}
+{{ git_url_string[0] }}
 {%- if tested_string %}
 {{ tested_string }}
 {% endif %}
