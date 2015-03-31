@@ -40,6 +40,7 @@ JOB_SEARCH_FIELDS = [
 DEFAULT_BASE_URL = u"http://kernelci.org"
 DEFAULT_BOOT_URL = u"http://kernelci.org/boot/all/job"
 DEFAULT_BUILD_URL = u"http://kernelci.org/build"
+DEFAULT_STORAGE_URL = u"http://storage.kernelci.org"
 
 # Base path where the templates are stored.
 TEMPLATES_DIR = os.path.join(

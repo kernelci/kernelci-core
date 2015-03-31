@@ -14,7 +14,6 @@
 """Create the build email report."""
 
 import gettext
-import io
 import pymongo
 
 import models
@@ -66,7 +65,8 @@ def create_build_report(job,
     :return A tuple with the email body and subject as strings or None.
     """
     kwargs = {}
-    email_body = None
+    txt_body = None
+    html_body = None
     subject = None
     # This is used to provide a footer note in the email report.
     info_email = None
@@ -117,6 +117,7 @@ def create_build_report(job,
     kwargs = {
         "base_url": rcommon.DEFAULT_BASE_URL,
         "build_url": rcommon.DEFAULT_BUILD_URL,
+        "email_format": email_format,
         "error_data": err_data,
         "errors_count": errors_count,
         "fail_count": fail_count,
@@ -126,6 +127,7 @@ def create_build_report(job,
         "git_url": git_url,
         "info_email": info_email,
         "pass_count": total_count - fail_count,
+        "storage_url": rcommon.DEFAULT_STORAGE_URL,
         "total_count": total_count,
         "total_unique_data": total_unique_data,
         "warnings_count": warnings_count,
@@ -138,9 +140,9 @@ def create_build_report(job,
             "Nothing found for '%s-%s': no build email report sent",
             job, kernel)
     else:
-        email_body, subject = _create_build_email(**kwargs)
+        txt_body, html_body, subject = _create_build_email(**kwargs)
 
-    return email_body, subject
+    return txt_body, html_body, subject
 
 
 def _get_errors_count(results):
@@ -262,16 +264,19 @@ def _create_build_email(**kwargs):
     :type info_email: string
     :return A tuple with the email body and subject as strings.
     """
+    txt_body = None
+    html_body = None
+    subject_str = None
+
     k_get = kwargs.get
+    email_format = k_get("email_format")
     total_unique_data = k_get("total_unique_data", None)
     failed_data = k_get("failed_data", None)
-    info_email = k_get("info_email", None)
     fail_count = k_get("fail_count", 0)
     warnings_count = k_get("warnings_count", 0)
     errors_count = k_get("errors_count", 0)
     error_data = k_get("error_data", None)
 
-    email_body = u""
     subject_str = _get_build_subject_string(**kwargs)
 
     built_unique_one = G_(u"Built: %s")
@@ -297,119 +302,165 @@ def _create_build_email(**kwargs):
 
     build_summary_url = u"%(build_url)s/%(job)s/kernel/%(kernel)s/" % kwargs
 
-    tree = G_(u"Tree: %(job)s\n") % kwargs
-    branch = G_(u"Branch: %(git_branch)s\n") % kwargs
-    git_describe = G_(u"Git Describe: %(kernel)s\n") % kwargs
-    git_commit = G_(u"Git Commit: %(git_commit)s\n") % kwargs
-    git_url = G_(u"Git URL: %(git_url)s\n") % kwargs
+    kwargs["built_unique_string"] = built_unique_string
+    kwargs["tree_string"] = G_(u"Tree: %(job)s") % kwargs
+    kwargs["branch_string"] = G_(u"Branch: %(git_branch)s") % kwargs
+    kwargs["git_describe_string"] = G_(u"Git Describe: %(kernel)s") % kwargs
+    kwargs["git_commit_string"] = G_(u"Git Commit: %(git_commit)s") % kwargs
+    kwargs["git_url_string"] = G_(u"Git URL: %(git_url)s") % kwargs
+    kwargs["subject_str"] = subject_str
 
-    with io.StringIO() as m_string:
-        m_string.write(subject_str)
-        m_string.write(u"\n")
-        m_string.write(u"\n")
-        m_string.write(
-            G_(u"Full Build Summary: %s\n") % build_summary_url)
-        m_string.write(u"\n")
-        m_string.write(tree)
-        m_string.write(branch)
-        m_string.write(git_describe)
-        m_string.write(git_commit)
-        m_string.write(git_url)
+    if any([failed_data, error_data]):
+        kwargs["platforms"] = _parse_and_structure_results(
+            failed_data, error_data, fail_count, errors_count, warnings_count)
 
-        if built_unique_string:
-            m_string.write(built_unique_string)
-            m_string.write(u"\n")
+    if models.EMAIL_TXT_FORMAT_KEY in email_format:
+        kwargs["full_build_summary"] = (
+            G_(u"Full Build Summary: %s") % build_summary_url)
 
-        if failed_data:
-            m_string.write(u"\n")
-            m_string.write(
-                P_(
-                    u"Build Failure Detected:\n",
-                    u"Build Failures Detected:\n", fail_count
-                ))
+        txt_body = rcommon.create_txt_email("build.txt", **kwargs)
 
-            f_get = failed_data.get
-            for arch in failed_data.viewkeys():
-                m_string.write(u"\n")
-                m_string.write(G_(u"%s:\n") % arch)
+    if models.EMAIL_HTML_FORMAT_KEY in email_format:
+        # Fix the summary URLs for the HTML email.
+        kwargs["full_build_summary"] = (
+            G_(u"Full Build Summary: <a href=\"%(url)s\">%(url)s</a>") %
+            {"url": build_summary_url})
 
-                for struct in f_get(arch):
-                    m_string.write(u"\n")
-                    m_string.write(G_(u"    %s: %s") % (struct[0], struct[1]))
-                m_string.write(u"\n")
+        html_body = rcommon.create_html_email("build.html", **kwargs)
 
-        if error_data:
-            m_string.write(u"\n")
+    # utils.LOG.info(kwargs)
+    return txt_body, html_body, subject_str
 
-            if all([errors_count > 0, warnings_count > 0]):
-                m_string.write(G_(u"Errors and Warnings Detected:\n"))
-            elif all([errors_count > 0, warnings_count == 0]):
-                m_string.write(G_(u"Errors Detected:\n"))
-            elif all([errors_count == 0, warnings_count > 0]):
-                m_string.write(G_(u"Warnings Detected:\n"))
 
-            m_string.write(u"\n")
+def _parse_and_structure_results(failed_data,
+                                 error_data,
+                                 fail_count, errors_count, warnings_count):
+    """Parse the results and create a data structure for the templates.
 
-            if any([errors_count > 0, warnings_count > 0]):
-                err_get = error_data.get
+    Create a special data structure to be consumed by the template engine.
+    By default it will create the strings for TXT and HTML templates. The
+    special template will then use the correct format.
 
-                for arch in error_data.viewkeys():
-                    m_string.write(G_(u"%s:") % arch)
-                    m_string.write(u"\n\n")
+    The template data structure is as follows:
 
-                    # Force defconfigs to be sorted.
-                    defconfigs = list(err_get(arch).viewkeys())
-                    defconfigs.sort()
+        {
+            "summary": {
+                "txt": ["List of TXT summary strings"],
+                "html: ["List of HTML summary strings"]
+            },
+            "data": {
+                "arch": ["List of defconfigs"]
+            }
+        }
 
-                    for defconfig in defconfigs:
-                        err_numb = err_get(arch)[defconfig].get(
-                            models.ERRORS_KEY, 0)
-                        warn_numb = err_get(arch)[defconfig].get(
-                            models.WARNINGS_KEY, 0)
+    :param failed_data: The failed data structure.
+    :type failed_data: dictionary
+    :param error_data: The error data structure.
+    :type error_data: dictionary
+    :param fail_count: The number of failures.
+    :type fail_count: integer
+    :param errors_count: The number of errors.
+    :type errors_count: integer
+    :param warnings_count: The number of warnings.
+    :type warnings_count: integer
+    :return The template data structure as a dictionary object.
+    """
+    platforms = {}
 
-                        err_string = P_(
-                            u"%(errors)s error",
-                            u"%(errors)s errors", err_numb)
-                        warn_string = P_(
-                            u"%(warnings)s warning",
-                            u"%(warnings)s warnings", warn_numb)
+    if failed_data:
+        platforms["failed_data"] = {}
+        platforms["failed_data"]["summary"] = {}
+        platforms["failed_data"]["summary"]["txt"] = []
+        platforms["failed_data"]["summary"]["html"] = []
 
-                        substitutions = {
-                            "defconfig": defconfig,
-                            "err_string": err_string,
-                            "errrors": err_numb,
-                            "warn_string": warn_string,
-                            "warnings": warn_numb
-                        }
+        failure_summary = P_(
+            u"Build Failure Detected:",
+            u"Build Failures Detected:", fail_count)
 
-                        if all([err_numb > 0, warn_numb > 0]):
-                            desc_string = G_(
-                                u"%(err_string)s, %(warn_string)s")
-                        elif all([err_numb > 0, warn_numb == 0]):
-                            desc_string = u"%(err_string)s"
-                        elif all([err_numb == 0, warn_numb > 0]):
-                            desc_string = u"%(warn_string)s"
+        platforms["failed_data"]["summary"]["txt"].append(failure_summary)
+        platforms["failed_data"]["summary"]["html"].append(failure_summary)
+        platforms["failed_data"]["data"] = {}
+        failed_struct = platforms["failed_data"]["data"]
 
-                        desc_string = desc_string % substitutions
-                        substitutions["desc_string"] = desc_string
+        f_get = failed_data.get
+        for arch in failed_data.viewkeys():
+            arch_string = G_(u"%s:") % arch
+            failed_struct[arch_string] = []
+            failed_append = failed_struct[arch_string].append
 
-                        defconfig_string = (
-                            G_(u"    %(defconfig)s: %(desc_string)s") %
-                            substitutions)
+            for struct in f_get(arch):
+                failed_append(G_(u"%s: %s") % (struct[0], struct[1]))
+    else:
+        platforms["failed_data"] = None
 
-                        m_string.write(defconfig_string % substitutions)
-                        m_string.write(u"\n")
+    if error_data:
+        platforms["error_data"] = {}
 
-                    m_string.write(u"\n")
+        if all([errors_count > 0, warnings_count > 0]):
+            summary_string = G_(u"Errors and Warnings Detected:")
+        elif all([errors_count > 0, warnings_count == 0]):
+            summary_string = G_(u"Errors Detected:")
+        elif all([errors_count == 0, warnings_count > 0]):
+            summary_string = G_(u"Warnings Detected:")
 
-        if info_email:
-            m_string.write(u"\n")
-            m_string.write(u"---\n")
-            m_string.write(G_(u"For more info write to <%s>") % info_email)
+        platforms["error_data"]["summary"] = {}
+        platforms["error_data"]["summary"]["txt"] = [summary_string]
+        platforms["error_data"]["summary"]["html"] = [summary_string]
 
-        email_body = m_string.getvalue()
+        if any([errors_count > 0, warnings_count > 0]):
+            platforms["error_data"]["data"] = {}
+            error_struct = platforms["error_data"]["data"]
 
-    return email_body, subject_str
+            err_get = error_data.get
+            for arch in error_data.viewkeys():
+                arch_string = G_(u"%s:") % arch
+                error_struct[arch_string] = []
+
+                error_append = error_struct[arch_string].append
+
+                # Force defconfigs to be sorted.
+                defconfigs = list(err_get(arch).viewkeys())
+                defconfigs.sort()
+
+                for defconfig in defconfigs:
+                    err_numb = err_get(arch)[defconfig].get(
+                        models.ERRORS_KEY, 0)
+                    warn_numb = err_get(arch)[defconfig].get(
+                        models.WARNINGS_KEY, 0)
+
+                    err_string = P_(
+                        u"%(errors)s error",
+                        u"%(errors)s errors", err_numb)
+                    warn_string = P_(
+                        u"%(warnings)s warning",
+                        u"%(warnings)s warnings", warn_numb)
+
+                    substitutions = {
+                        "defconfig": defconfig,
+                        "err_string": err_string,
+                        "errrors": err_numb,
+                        "warn_string": warn_string,
+                        "warnings": warn_numb
+                    }
+
+                    if all([err_numb > 0, warn_numb > 0]):
+                        desc_string = G_(
+                            u"%(err_string)s, %(warn_string)s")
+                    elif all([err_numb > 0, warn_numb == 0]):
+                        desc_string = u"%(err_string)s"
+                    elif all([err_numb == 0, warn_numb > 0]):
+                        desc_string = u"%(warn_string)s"
+
+                    desc_string = desc_string % substitutions
+                    substitutions["desc_string"] = desc_string
+                    defconfig_string = (
+                        G_(u"%(defconfig)s: %(desc_string)s") % substitutions)
+
+                    error_append(defconfig_string % substitutions)
+    else:
+        platforms["error_data"] = None
+
+    return platforms
 
 
 def _get_build_subject_string(**kwargs):
