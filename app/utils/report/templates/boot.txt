@@ -49,7 +49,7 @@
 {% for defconfig in platforms.conflict_data.data[arch] %}
     {{ defconfig }}
 {%- for board in platforms.conflict_data.data[arch][defconfig] %}
-        {{ board }}
+        {{ board[0] }}
 {%- for lab in platforms.conflict_data.data[arch][defconfig][board] %}
             {{ lab }}
 {%- endfor %}{# lab #}

@@ -85,7 +85,7 @@
                             </td>
                         </tr>
                     {%- for board in platforms.conflict_data.data[arch][defconfig] %}
-                        <tr><td style="padding-left: 50px">{{ board }}</td></tr>
+                        <tr><td style="padding-left: 50px">{{ board[1] }}</td></tr>
                     {%- for lab in platforms.conflict_data.data[arch][defconfig][board] %}
                         <tr><td style="padding-left: 75px;">{{ lab }}</td></tr>
                     {%- endfor %}{# lab #}

@@ -794,10 +794,31 @@ def _parse_and_structure_results(**kwargs):
                     defconf_struct = arch_struct[defconfig_string]
 
                     for board in boards:
-                        board_string = G_(u"%s:") % board
+                        # Copy the kwargs parameters and add the local ones.
+                        # This is needed to create the HTML version of some
+                        # of the values we are parsing.
+                        substitutions = kwargs.copy()
+                        substitutions["board"] = board
+                        substitutions["defconfig"] = defconfig
 
-                        defconf_struct[board_string] = []
-                        board_struct = defconf_struct[board_string]
+                        board_url = (
+                            "%(base_url)s/boot/%(board)s/job/%(job)s"
+                            "/kernel/%(kernel)s"
+                            "/defconfig/%(defconfig)s/" % substitutions
+                        )
+
+                        substitutions["url"] = board_url
+
+                        html_string = (
+                            G_(u"<a href=\"%(url)s\">%(board)s</a>:")
+                            % substitutions)
+
+                        txt_string = G_(u"%s:") % board
+
+                        defconf_struct[(txt_string, html_string)] = []
+                        board_struct = defconf_struct[
+                            (txt_string, html_string)
+                        ]
 
                         for lab in def_get(board).viewkeys():
                             board_struct.append(
