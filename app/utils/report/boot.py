@@ -714,7 +714,7 @@ def _parse_and_structure_results(**kwargs):
             },
             "data": {
                 "arch": {
-                    "defconfig": [("TXT", "HTML")]
+                    "defconfig": [("TXT version", "HTML version")]
                 }
             }
         }
@@ -730,7 +730,7 @@ def _parse_and_structure_results(**kwargs):
                 "arch": {
                     "defconfig": {
                         "board": {
-                            "lab": "Lab description"
+                            ("TXT version", "HTML version")
                         }
                     }
                 }
