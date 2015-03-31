@@ -1,8 +1,8 @@
 {{ subject_str }}
-
+{# leave an empty space #}
 {{ full_boot_summary }}
 {{ full_build_summary }}
-
+{# leave an empty space #}
 {{ tree_string }}
 {{ branch_string }}
 {{ git_describe_string }}
@@ -24,8 +24,8 @@
         {{ board }}
 {%- endfor %}{# board #}
 {% endfor %}{# defconfig #}
-{%- endfor %}{# board #}
-{%- endif %}{# failed_data #}
+{%- endfor %}{# arch #}
+{%- endif %}{# end failed_data #}
 {%- if platforms.offline_data %}
 {%- for summary in platforms.offline_data.summary.txt %}
 {{ summary }}
@@ -39,7 +39,7 @@
 {%- endfor %}{# board #}
 {% endfor %}{# defconfig #}
 {%- endfor %}{# arch #}
-{%- endif %}{# offline_data #}
+{%- endif %}{# end offline_data #}
 {%- if platforms.conflict_data %}
 {%- for summary in platforms.conflict_data.summary.txt %}
 {{ summary }}
@@ -56,8 +56,8 @@
 {%- endfor %}{# board #}
 {% endfor %}{# defconfig #}
 {%- endfor %}{# arch #}
-{%- endif %}{# conflict_data #}
-{%- endif %}{# platforms #}
+{%- endif %}{# end conflict_data #}
+{%- endif %}{# end platforms #}
 {%- if info_email %}
 ---
 For more info write to <{{ info_email }}>
