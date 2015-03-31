@@ -1,0 +1,40 @@
+{{ subject_str }}
+{# leave an empty space #}
+{{ full_build_summary }}
+{# leave an empty space #}
+{{ tree_string }}
+{{ branch_string }}
+{{ git_describe_string }}
+{{ git_commit_string }}
+{{ git_url_string }}
+{%- if built_unique_string %}
+{{ built_unique_string }}
+{% endif %}
+{%- if platforms %}
+{%- if platforms.failed_data %}
+{%- for summary in platforms.failed_data.summary.txt %}
+{{ summary }}
+{%- endfor %}
+{% for arch in platforms.failed_data.data %}
+{{ arch }}
+{% for defconfig in platforms.failed_data.data[arch] %}
+    {{ defconfig }}
+{%- endfor %}{# defconfig #}
+{% endfor %}{# arch #}
+{%- endif %}{# end failed_data #}
+{%- if platforms.error_data %}
+{%- for summary in platforms.error_data.summary.txt %}
+{{ summary }}
+{%- endfor %}
+{% for arch in platforms.error_data.data %}
+{{ arch }}
+{% for defconfig in platforms.error_data.data[arch] %}
+    {{ defconfig }}
+{%- endfor %}{# defconfig #}
+{% endfor %}{# arch #}
+{%- endif %}{# end error_data #}
+{%- endif %}{# end platforms #}
+{%- if info_email %}
+---
+For more info write to <{{ info_email }}>
+{%- endif %}

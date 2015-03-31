@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>{{ subject_str }}</title>
+    </head>
+    <body>
+        <span style="font-weight: bold;">{{ subject_str }}</span>
+        <br />
+        <table style="border: none; padding-top: 15px; padding-bottom: 15px;">
+            <tbody>
+                <tr><td>{{ full_build_summary }}</td></tr>
+                <tr><td style="padding-top: 25px"></td></tr>
+                <tr><td>{{ tree_string }}</td></tr>
+                <tr><td>{{ branch_string }}</td></tr>
+                <tr><td>{{ git_describe_string }}</td></tr>
+                <tr><td>{{ git_commit_string }}</td></tr>
+                <tr><td>{{ git_url_string }}</td></tr>
+                {%- if built_unique_string %}
+                <tr><td>{{ built_unique_string }}</td></tr>
+                {%- endif %}
+            </tbody>
+        </table>
+        {%- if platforms %}
+            {%- if platforms.failed_data %}
+            <table style="border: none; padding-bottom: 15px; padding-top: 5px;">
+                <tbody>
+                {%- for summary in platforms.failed_data.summary.html %}
+                    <tr><td>{{ summary }}</td></tr>
+                {%- endfor %}
+                    <tr><td style="padding-bottom: 15px;"></td></tr>
+                {%- for arch in platforms.failed_data.data %}
+                    <tr><td>{{ arch }}</td></tr>
+                {%- for defconfig in platforms.failed_data.data[arch] %}
+                    <tr>
+                        <td style="padding-left: 25px;">{{ defconfig }}</td>
+                    </tr>
+                {%- endfor %}{# defconfig #}
+                <tr><td style="padding-bottom: 7px;"></td></tr>
+                {%- endfor %}{# arch #}
+                </tbody>
+            </table>
+            {%- endif %}{# end failed_data #}
+            {%- if platforms.error_data %}
+            <table style="border: none; padding-bottom: 15px; padding-top: 5px;">
+                <tbody>
+                {%- for summary in platforms.error_data.summary.html %}
+                    <tr><td>{{ summary }}</td></tr>
+                {%- endfor %}
+                    <tr><td style="padding-bottom: 15px;"></td></tr>
+                {%- for arch in platforms.error_data.data %}
+                    <tr><td style="padding-bottom: 15px;">{{ arch }}</td></tr>
+                {%- for defconfig in platforms.error_data.data[arch] %}
+                    <tr>
+                        <td style="padding-left: 25px;">{{ defconfig }}</td>
+                    </tr>
+                {%- endfor %}{# defconfig #}
+                <tr><td style="padding-bottom: 7px;"></td></tr>
+                {%- endfor %}{# arch #}
+                </tbody>
+            </table>
+            {%- endif %}{# end error_data #}
+        {%- endif %}{# end platforms #}
+        {%- if info_email %}
+        <footer>
+            <p style="padding-top: 10px;">
+                &#9472;
+                <br />
+                For more info write to
+                &lt;<a href="mailto:{{ info_email}}">{{ info_email }}</a>&gt;
+            </p>
+        </footer>
+        {%- endif %}
+    </body>
+</html>
