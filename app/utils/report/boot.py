@@ -479,11 +479,6 @@ def _create_boot_email(**kwargs):
     boot_summary_url = u"%(boot_url)s/%(job)s/kernel/%(kernel)s/" % kwargs
     build_summary_url = u"%(build_url)s/%(job)s/kernel/%(kernel)s/" % kwargs
 
-    kwargs["full_boot_summary"] = (
-        G_(u"Full Boot Summary: %s") % boot_summary_url)
-    kwargs["full_build_summary"] = (
-        G_(u"Full Build Summary: %s") % build_summary_url)
-
     kwargs["tree_string"] = G_(u"Tree: %(job)s") % kwargs
     kwargs["branch_string"] = G_(u"Branch: %(git_branch)s") % kwargs
     kwargs["git_describe_string"] = G_(u"Git Describe: %(kernel)s") % kwargs
@@ -496,7 +491,13 @@ def _create_boot_email(**kwargs):
     kwargs["platforms"] = _parse_and_structure_results(**kwargs)
 
     if models.EMAIL_TXT_FORMAT_KEY in email_format:
+        kwargs["full_boot_summary"] = (
+            G_(u"Full Boot Summary: %s") % boot_summary_url)
+        kwargs["full_build_summary"] = (
+            G_(u"Full Build Summary: %s") % build_summary_url)
+
         txt_body = rcommon.create_txt_email("boot.txt", **kwargs)
+
     if models.EMAIL_HTML_FORMAT_KEY in email_format:
         # Fix the summary URLs for the HTML email.
         kwargs["full_boot_summary"] = (
@@ -505,6 +506,7 @@ def _create_boot_email(**kwargs):
         kwargs["full_build_summary"] = (
             G_(u"Full Build Summary: <a href=\"%(url)s\">%(url)s</a>") %
             {"url": build_summary_url})
+
         html_body = rcommon.create_html_email("boot.html", **kwargs)
 
     return txt_body, html_body, subject_str
