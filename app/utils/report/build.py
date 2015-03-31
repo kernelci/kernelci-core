@@ -306,9 +306,20 @@ def _create_build_email(**kwargs):
     kwargs["tree_string"] = G_(u"Tree: %(job)s") % kwargs
     kwargs["branch_string"] = G_(u"Branch: %(git_branch)s") % kwargs
     kwargs["git_describe_string"] = G_(u"Git Describe: %(kernel)s") % kwargs
-    kwargs["git_commit_string"] = G_(u"Git Commit: %(git_commit)s") % kwargs
-    kwargs["git_url_string"] = G_(u"Git URL: %(git_url)s") % kwargs
     kwargs["subject_str"] = subject_str
+
+    git_url = k_get("git_url")
+    git_commit = k_get("git_commit")
+
+    translated_git_url = \
+        rcommon.translate_git_url(git_url, git_commit) or git_url
+
+    git_txt_string = G_(u"Git URL: %s") % git_url
+    git_html_string = G_(u"Git URL: <a href=\"%s\">%s</a>") % (
+        translated_git_url, git_url)
+
+    kwargs["git_commit_string"] = G_(u"Git Commit: %s") % git_commit
+    kwargs["git_url_string"] = (git_txt_string, git_html_string)
 
     if any([failed_data, error_data]):
         kwargs["platforms"] = _parse_and_structure_results(
