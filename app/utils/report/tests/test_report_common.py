@@ -76,3 +76,66 @@ class TestReportCommon(unittest.TestCase):
             "git_url": "url"
         }
         self.assertDictEqual(expected, rcommon.parse_job_results(results))
+
+    def test_translate_git_url_not_knownw(self):
+        git_url = "git://foo.bar/path"
+        commit_id = "12345"
+
+        translated_url = rcommon.translate_git_url(
+            git_url, commit_id=commit_id)
+
+        self.assertIsNone(translated_url)
+
+    def test_translate_git_url_known_no_commit(self):
+        git_url = (
+            "git://git.kernel.org/pub/scm/linux/kernel"
+            "/git/next/linux-next.git")
+
+        translated_url = rcommon.translate_git_url(git_url)
+        expected = (
+            "https://git.kernel.org/cgit/linux/kernel/git/next/linux-next.git")
+
+        self.assertIsNotNone(translated_url)
+        self.assertEqual(expected, translated_url)
+
+    def test_translate_git_url_known_with_commit(self):
+        git_url = (
+            "git://git.kernel.org/pub/scm/linux/kernel"
+            "/git/next/linux-next.git")
+        commit_id = "12345"
+
+        translated_url = rcommon.translate_git_url(
+            git_url, commit_id=commit_id)
+
+        expected = (
+            "https://git.kernel.org/cgit/linux/kernel/git/"
+            "next/linux-next.git/commit/?id=12345")
+
+        self.assertIsNotNone(translated_url)
+        self.assertEqual(expected, translated_url)
+
+    def test_translate_git_linaro_url_known_with_commit(self):
+        git_url = "git://git.linaro.org/lava-team/kernel-ci-backend.git"
+        commit_id = "12345"
+
+        translated_url = rcommon.translate_git_url(
+            git_url, commit_id=commit_id)
+
+        expected = (
+            "https://git.linaro.org/lava-team/"
+            "kernel-ci-backend.git/commitdiff/12345")
+
+        self.assertIsNotNone(translated_url)
+        self.assertEqual(expected, translated_url)
+
+    def test_translate_git_linaro_url_known_no_commit(self):
+        git_url = "git://git.linaro.org/lava-team/kernel-ci-backend.git"
+        commit_id = None
+
+        translated_url = rcommon.translate_git_url(
+            git_url, commit_id=commit_id)
+
+        expected = "https://git.linaro.org/lava-team/kernel-ci-backend.git"
+
+        self.assertIsNotNone(translated_url)
+        self.assertEqual(expected, translated_url)

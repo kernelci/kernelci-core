@@ -18,6 +18,7 @@ import jinja2
 import os
 import pymongo
 import types
+import urlparse
 
 import models
 import models.report as mreport
@@ -45,6 +46,32 @@ DEFAULT_STORAGE_URL = u"http://storage.kernelci.org"
 # Base path where the templates are stored.
 TEMPLATES_DIR = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "templates/")
+
+# The following structure is used to give translation rules to known
+# git:// URLs.
+# Parameters are as follows:
+# 0. scheme
+# 1. base path for web interface view
+# 2. path to web interface commit view
+# 3. list of tuples for replace rules
+# Example:
+# IN: git://git.kernel.org/pub/scm/linux/kernel/git/khilman/linux.git
+# OUT: https://git.kernel.org/linux/kernel/git/khilman/linux.git
+# OUT: git.kernel.org/pub/scm/linux/kernel/git/khilman/linux.git/?id=
+KNOWN_GIT_URLS = {
+    "git.kernel.org": (
+        "https",
+        "/cgit/%s",
+        "/cgit/%s/commit/?id=%s",
+        [("/pub/scm/", "")]
+    ),
+    "git.linaro.org": (
+        "https",
+        "%s",
+        "%s/commitdiff/%s",
+        [],
+    ),
+}
 
 
 def save_report(job, kernel, r_type, status, errors, db_options):
@@ -280,3 +307,37 @@ def create_txt_email(template_name, **kwargs):
     txt_body = template_env.get_template(template_name).render(**kwargs)
 
     return txt_body
+
+
+def translate_git_url(git_url, commit_id=None):
+    """Translate a git URL into an HTTP one for web viewing.
+
+    Apply some defined translations rules to convert a git URL.
+    If the domain of the git URL to convert is not known, it will return None.
+
+    :param git_url: The git URL to convert.
+    :type git_url: string
+    :param commit_id: The ID of the commit to show.
+    :type commit_id: string
+    :return The translated git URL or None.
+    """
+    translated_url = None
+    if git_url:
+        parsed_url = urlparse.urlparse(git_url, scheme="git")
+        if parsed_url.netloc in KNOWN_GIT_URLS:
+            known_git = KNOWN_GIT_URLS[parsed_url.netloc]
+            git_path = parsed_url.path
+            translate_rules = known_git[3]
+
+            for t_rule in translate_rules:
+                git_path = git_path.replace(t_rule[0], t_rule[1])
+
+            if commit_id:
+                git_path = known_git[2] % (git_path, commit_id)
+            else:
+                git_path = known_git[1] % git_path
+
+            translated_url = urlparse.urlunparse(
+                (known_git[0], parsed_url.netloc, git_path, "", "", ""))
+
+    return translated_url
