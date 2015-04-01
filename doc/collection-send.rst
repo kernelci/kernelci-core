@@ -52,7 +52,7 @@ POST
 
  **Example Requests**
 
- .. sourcecode:: http 
+ .. sourcecode:: http
 
     POST /send HTTP/1.1
     Host: api.kernelci.org
@@ -70,7 +70,7 @@ POST
         "delay": 14400
     }
 
- .. sourcecode:: http 
+ .. sourcecode:: http
 
     POST /send HTTP/1.1
     Host: api.kernelci.org
@@ -84,6 +84,25 @@ POST
         "lab_name": "lab",
         "boot_report": 1,
         "send_to": ["email@example.net"],
+        "delay": 30
+    }
+
+ .. sourcecode:: http
+
+    POST /send HTTP/1.1
+    Host: api.kernelci.org
+    Content-Type: application/json
+    Accept: */*
+    Authorization: token
+
+    {
+        "job": "next",
+        "kernel": "next-20150330",
+        "lab_name": "lab",
+        "boot_report": 1,
+        "build_report": 1,
+        "send_to": ["email@example.net"],
+        "format": ["txt", "html"]
         "delay": 30
     }
 
