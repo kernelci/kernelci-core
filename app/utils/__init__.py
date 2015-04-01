@@ -15,14 +15,19 @@
 
 import utils.log
 
-BASE_PATH = '/var/www/images/kernel-ci'
+BASE_PATH = "/var/www/images/kernel-ci"
 DEFAULT_MONGODB_URL = "localhost"
 DEFAULT_MONGODB_PORT = 27017
 DEFAULT_MONGODB_POOL = 250
 LOG = utils.log.get_log()
 
 # Pattern used for glob matching files on the filesystem.
-BOOT_REPORT_PATTERN = 'boot-*.json'
+BOOT_REPORT_PATTERN = "boot-*.json"
+
+# Build log file names.
+BUILD_LOG_FILE = "build.log"
+BUILD_ERRORS_FILE = "build-errors.log"
+BUILD_WARNINGS_FILE = "build-warnings.log"
 
 
 def is_hidden(value):
@@ -40,7 +45,7 @@ def is_hidden(value):
 def is_lab_dir(value):
     """Verify if a file name or dir name is a lab one.
 
-    A lab dir name starts with 'lab-'.
+    A lab dir name starts with lab-.
 
     :param value: The value to verify.
     :return True or False.
