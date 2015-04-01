@@ -53,6 +53,7 @@ def test_modules():
         "utils.tests.test_base",
         "utils.tests.test_bootimport",
         "utils.tests.test_docimport",
+        "utils.tests.test_log_parser",
         "utils.tests.test_tests_import",
         "utils.tests.test_validator"
     ]
