@@ -43,6 +43,10 @@ DEFAULT_BOOT_URL = u"http://kernelci.org/boot/all/job"
 DEFAULT_BUILD_URL = u"http://kernelci.org/build"
 DEFAULT_STORAGE_URL = u"http://storage.kernelci.org"
 
+# Default colors for error and warning links.
+HTML_RED = u"#d9534f"
+HTML_YELLOW = u"#f0ad4e"
+
 # Base path where the templates are stored.
 TEMPLATES_DIR = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "templates/")
