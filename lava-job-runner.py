@@ -21,7 +21,9 @@ def poll_jobs(connection):
     for job in job_map:
         if job_map[job] is not None:
             # Push
-            submitted_jobs[job_map[job]] = job
+            for job_id in job_map[job]:
+                job_name = os.path.basename(job) + '-' + job_id
+                submitted_jobs[job_name] = job_id
 
     while run:
         if not submitted_jobs:
@@ -29,27 +31,27 @@ def poll_jobs(connection):
             break
         for job in submitted_jobs:
             try:
-                status = connection.scheduler.job_status(job)
+                status = connection.scheduler.job_status(submitted_jobs[job])
                 if status['job_status'] == 'Complete':
-                    print 'job-id-' + str(job) + '-' + os.path.basename(submitted_jobs[job]) + ' : pass'
+                    print 'job-id-' + str(job) + ' : pass'
                     # Pop
                     if status['bundle_sha1']:
-                        finished_jobs[job] = {'result': 'PASS', 'bundle': status['bundle_sha1']}
+                        finished_jobs[submitted_jobs[job]] = {'result': 'PASS', 'bundle': status['bundle_sha1']}
                     else:
-                        finished_jobs[job] = {'result': 'PASS', 'bundle': None}
+                        finished_jobs[submitted_jobs[job]] = {'result': 'PASS', 'bundle': None}
                     submitted_jobs.pop(job, None)
                     break
                 elif status['job_status'] == 'Incomplete' or status['job_status'] == 'Canceled' or status['job_status'] == 'Canceling':
-                    print 'job-id-' + str(job) + '-' + os.path.basename(submitted_jobs[job]) + ' : fail'
+                    print 'job-id-' + str(job) + ' : fail'
                     # Pop
                     if status['bundle_sha1']:
-                        finished_jobs[job] = {'result': 'FAIL', 'bundle': status['bundle_sha1']}
+                        finished_jobs[submitted_jobs[job]] = {'result': 'FAIL', 'bundle': status['bundle_sha1']}
                     else:
-                        finished_jobs[job] = {'result': 'FAIL', 'bundle': None}
+                        finished_jobs[submitted_jobs[job]] = {'result': 'FAIL', 'bundle': None}
                     submitted_jobs.pop(job, None)
                     break
                 else:
-                    print str(job) + ' - ' + str(status['job_status'])
+                    print str(submitted_jobs[job]) + ' - ' + str(status['job_status'])
                     time.sleep(10)
             except (xmlrpclib.ProtocolError, xmlrpclib.Fault, IOError) as e:
                 print "POLLING ERROR!"
@@ -79,7 +81,10 @@ def submit_jobs(connection, server, bundle_stream):
                     print os.path.basename(job) + ': skip'
                 elif job_info['target'] in online_devices:
                     pass
-                    job_map[job] = connection.scheduler.submit_job(job_data)
+                    jobs = connection.scheduler.submit_job(job_data)
+                    if isinstance(jobs, int):
+                        jobs = str(jobs).split()
+                    job_map[job] = jobs
                 else:
                     print "No target available on server, skipping..."
                     print os.path.basename(job) + ' : skip'
@@ -89,7 +94,10 @@ def submit_jobs(connection, server, bundle_stream):
                     print os.path.basename(job) + ' : skip'
                 elif job_info['device_type'] in online_device_types:
                     pass
-                    job_map[job] = connection.scheduler.submit_job(job_data)
+                    jobs = connection.scheduler.submit_job(job_data)
+                    if isinstance(jobs, int):
+                        jobs = str(jobs).split()
+                    job_map[job] = jobs
                 else:
                     print "No device-type available on server, skipping..."
                     print os.path.basename(job) + ' : skip'
@@ -122,7 +130,49 @@ def submit_jobs(connection, server, bundle_stream):
                         print os.path.basename(job) + ' : skip'
                 if server_has_required_devices:
                     print "Submitting Multinode Job!"
-                    job_map[job] = connection.scheduler.submit_job(job_data)[0]
+                    jobs = connection.scheduler.submit_job(job_data)
+                    if isinstance(jobs, int):
+                        jobs = str(jobs).split()
+                    job_map[job] = jobs
+            elif 'vm_group' in job_info:
+                print "VMGroup Job Detected! Checking if required devices are available..."
+                vmgroup_online_device_types = online_device_types
+                server_has_required_devices = True
+                for groups in job_info['vm_group']:
+                    if job_info['vm_group'][groups]:
+                        if 'device_type' in job_info['vm_group'][groups]:
+                            if job_info['vm_group'][groups]['device_type'] in offline_device_types:
+                                print "All device types: %s are OFFLINE, skipping..." % groups['device_type']
+                                server_has_required_devices = False
+                                print os.path.basename(job) + ' : skip'
+                                break
+                            elif job_info['vm_group'][groups]['device_type'] in online_device_types:
+                                if 'count' in job_info['vm_group'][groups]:
+                                    count = job_info['vm_group'][groups]['device_type']['count']
+                                else:
+                                    count = 1
+                                if count > vmgroup_online_device_types[job_info['vm_group'][groups]['device_type']]:
+                                    print "Server does not have enough online devices to submit job!"
+                                    print os.path.basename(job) + ' : skip'
+                                    server_has_required_devices = False
+                                    break
+                                elif count <= vmgroup_online_device_types[job_info['vm_group'][groups]['device_type']]:
+                                    print "Server has enough devices for this group!"
+                                    vmgroup_online_device_types[job_info['vm_group'][groups]['device_type']] = vmgroup_online_device_types[job_info['vm_group'][groups]['device_type']] - count
+                                else:
+                                    print "Should never get here!"
+                                    print os.path.basename(job) + ' : skip'
+                                    server_has_required_devices = False
+                                    break
+                    else:
+                            print "No device-type available on server, skipping..."
+                            print os.path.basename(job) + ' : skip'
+                if server_has_required_devices:
+                    print "Submitting VMGroups Job!"
+                    jobs = connection.scheduler.submit_job(job_data)
+                    if isinstance(jobs, int):
+                        jobs = str(jobs).split()
+                    job_map[job] = jobs
             else:
                 print "Should never get here"
                 print os.path.basename(job) + ' : skip'

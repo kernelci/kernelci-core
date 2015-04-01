@@ -1,5 +1,5 @@
 {
-    "timeout": 300,
+    "timeout": 3600,
     "job_name": "{job_name}",
     "logging_level": "DEBUG",
     "vm_group":
@@ -13,7 +13,7 @@
         "vms": [
         {
             "device_type": "kvm-arm",
-            "role": "vm"
+            "role": "guest"
         }]
     },
     "actions": [
@@ -27,18 +27,18 @@
                 "kernel.endian": "{endian}",
                 "kernel.defconfig": "{defconfig}",
                 "platform.fastboot": "{fastboot}",
-                "test.plan": "{test_plan}"
+                "test.plan": "{test_plan}",
+                "test.suite": "{test_suite}",
+                "test.set": "{test_set}",
+                "test.desc": "{test_desc}",
+                "test.type": "{test_type}"
         },
         "parameters":
         {
-            "dtb": "{dtb_url}",
-            "kernel": "{kernel_url}",
-            "login_prompt": "login:",
-            "nfsrootfs": "http://images.armcloud.us/misc/tyler-cubie3/kvm/cubieboard3-sid.tar.gz",
-            "password": "linaro",
-            "password_prompt": "Password",
+            "dtb": "http://images.armcloud.us/misc/tyler-virt/dtbs/dts/sun7i-a20-cubietruck.dtb",
+            "kernel": "http://images.armcloud.us/misc/tyler-virt/zImage",
+            "nfsrootfs": "http://releases.linaro.org/15.03/ubuntu/utopic-images/nano/linaro-utopic-nano-20150319-701.tar.gz",
             "target_type": "ubuntu",
-            "username": "root",
             "role": "host"
         }
     },
@@ -47,16 +47,21 @@
         "parameters":
         {
             "kernel": "http://images.armcloud.us/linaro/kvm/zImage",
-            "ramdisk": "http://images.armcloud.us/lava/common/buildroot.cpio.gz",
+            "ramdisk": "http://storage.kernelci.org/images/rootfs/buildroot/armel/rootfs.cpio.gz",
             "dtb": "http://images.armcloud.us/linaro/kvm/vexpress-v2p-ca15-tc1.dtb",
-            "role": "vm"
+            "role": "guest"
         }
     },
-    {
-        "command": "boot_linaro_image",
+{
+        "command": "lava_test_shell",
         "parameters":
         {
-            "test_image_prompt": "root@debian:~#",
+            "testdef_repos": [
+            {
+                "url": "http://images.armcloud.us/lava/common/tests/test-definitions/ubuntu/kvm-install-qemu-host.yaml"
+            }],
+  
+            "timeout": 1800,
             "role": "host"
         }
     },
@@ -75,7 +80,7 @@
         "command": "boot_linaro_image",
         "parameters":
         {
-            "role": "vm"
+            "role": "guest"
         }
     },
     {
