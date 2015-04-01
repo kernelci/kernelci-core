@@ -102,7 +102,7 @@ POST
         "boot_report": 1,
         "build_report": 1,
         "send_to": ["email@example.net"],
-        "format": ["txt", "html"]
+        "format": ["txt", "html"],
         "delay": 30
     }
 
