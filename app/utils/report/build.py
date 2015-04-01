@@ -272,9 +272,6 @@ def _create_build_email(**kwargs):
     email_format = k_get("email_format")
     total_unique_data = k_get("total_unique_data", None)
     failed_data = k_get("failed_data", None)
-    fail_count = k_get("fail_count", 0)
-    warnings_count = k_get("warnings_count", 0)
-    errors_count = k_get("errors_count", 0)
     error_data = k_get("error_data", None)
 
     subject_str = _get_build_subject_string(**kwargs)
@@ -322,8 +319,7 @@ def _create_build_email(**kwargs):
     kwargs["git_url_string"] = (git_txt_string, git_html_string)
 
     if any([failed_data, error_data]):
-        kwargs["platforms"] = _parse_and_structure_results(
-            failed_data, error_data, fail_count, errors_count, warnings_count)
+        kwargs["platforms"] = _parse_and_structure_results(**kwargs)
 
     if models.EMAIL_TXT_FORMAT_KEY in email_format:
         kwargs["full_build_summary"] = (
@@ -343,9 +339,7 @@ def _create_build_email(**kwargs):
     return txt_body, html_body, subject_str
 
 
-def _parse_and_structure_results(failed_data,
-                                 error_data,
-                                 fail_count, errors_count, warnings_count):
+def _parse_and_structure_results(**kwargs):
     """Parse the results and create a data structure for the templates.
 
     Create a special data structure to be consumed by the template engine.
@@ -377,6 +371,33 @@ def _parse_and_structure_results(failed_data,
     :return The template data structure as a dictionary object.
     """
     platforms = {}
+    k_get = kwargs.get
+    build_url = k_get("build_url")
+    error_data = k_get("error_data", None)
+    errors_count = k_get("errors_count", 0)
+    fail_count = k_get("fail_count", 0)
+    failed_data = k_get("failed_data", None)
+    job = k_get("job")
+    kernel = k_get("kernel")
+    storage_url = k_get("storage_url")
+    warnings_count = k_get("warnings_count", 0)
+
+    defconfig_url = (
+        u"%(build_url)s/%(job)s/kernel/%(kernel)s/defconfig/%(defconfig)s/")
+    log_url = (
+        u"%(storage_url)s/%(job)s/%(kernel)s/%(arch)s-%(defconfig)s/build.log")
+
+    # Local substitutions dictionary, common to both data structures parsed.
+    gen_subs = {
+        "build_url": build_url,
+        "defconfig_url": defconfig_url,
+        "job": job,
+        "kernel": kernel,
+        "log_url": log_url,
+        "red": rcommon.HTML_RED,
+        "storage_url": storage_url,
+        "yellow": rcommon.HTML_YELLOW
+    }
 
     if failed_data:
         platforms["failed_data"] = {}
@@ -394,13 +415,24 @@ def _parse_and_structure_results(failed_data,
         failed_struct = platforms["failed_data"]["data"]
 
         f_get = failed_data.get
+        subs = gen_subs.copy()
+
         for arch in failed_data.viewkeys():
+            subs["arch"] = arch
             arch_string = G_(u"%s:") % arch
             failed_struct[arch_string] = []
             failed_append = failed_struct[arch_string].append
 
             for struct in f_get(arch):
-                failed_append(G_(u"%s: %s") % (struct[0], struct[1]))
+                subs["defconfig"] = struct[0]
+                subs["status"] = struct[1]
+                txt_str = G_(u"%(defconfig)s: %(status)s") % subs
+                html_str = G_(
+                    u"<a href=\"%(defconfig_url)s\">%(defconfig)s</a>: "
+                    "<a style=\"color: %(red)s\" "
+                    "href=\"%(log_url)s\">%(status)s</a>" % subs
+                ) % subs
+                failed_append((txt_str, html_str))
     else:
         platforms["failed_data"] = None
 
@@ -423,7 +455,10 @@ def _parse_and_structure_results(failed_data,
             error_struct = platforms["error_data"]["data"]
 
             err_get = error_data.get
+            subs = gen_subs.copy()
+
             for arch in error_data.viewkeys():
+                subs["arch"] = arch
                 arch_string = G_(u"%s:") % arch
                 error_struct[arch_string] = []
 
@@ -446,28 +481,46 @@ def _parse_and_structure_results(failed_data,
                         u"%(warnings)s warning",
                         u"%(warnings)s warnings", warn_numb)
 
-                    substitutions = {
-                        "defconfig": defconfig,
-                        "err_string": err_string,
-                        "errrors": err_numb,
-                        "warn_string": warn_string,
-                        "warnings": warn_numb
-                    }
+                    subs["defconfig"] = defconfig
+                    subs["err_string"] = err_string
+                    subs["errors"] = err_numb
+                    subs["warn_string"] = warn_string
+                    subs["warnings"] = warn_numb
 
                     if all([err_numb > 0, warn_numb > 0]):
-                        desc_string = G_(
+                        txt_desc_str = G_(
                             u"%(err_string)s, %(warn_string)s")
+                        html_desc_str = G_(
+                            u"<a style=\"color: %(red)s;\" "
+                            "href=\"%(log_url)s\">%(err_string)s</a>, "
+                            "<a style=\"color: %(yellow)s;\" "
+                            "href=\"%(log_url)s\">%(warn_string)s</a>"
+                        )
                     elif all([err_numb > 0, warn_numb == 0]):
-                        desc_string = u"%(err_string)s"
+                        txt_desc_str = u"%(err_string)s"
+                        html_desc_str = (
+                            u"<a style=\"color: %(red)s;\" "
+                            "href=\"%(log_url)s\">%(err_string)s</a>")
                     elif all([err_numb == 0, warn_numb > 0]):
-                        desc_string = u"%(warn_string)s"
+                        txt_desc_str = u"%(warn_string)s"
+                        html_desc_str = (
+                            u"<a style=\"color: %(yellow)s;\" "
+                            "href=\"%(log_url)s\">%(warn_string)s</a>")
 
-                    desc_string = desc_string % substitutions
-                    substitutions["desc_string"] = desc_string
-                    defconfig_string = (
-                        G_(u"%(defconfig)s: %(desc_string)s") % substitutions)
+                    txt_desc_str = txt_desc_str % subs
+                    html_desc_str = html_desc_str % subs
 
-                    error_append(defconfig_string % substitutions)
+                    subs["txt_desc_str"] = txt_desc_str
+                    subs["html_desc_str"] = html_desc_str
+
+                    txt_defconfig_str = (
+                        G_(u"%(defconfig)s: %(txt_desc_str)s") %
+                        subs) % subs
+                    html_defconfing_str = (
+                        u"<a href=\"%(defconfig_url)s\">%(defconfig)s</a>: "
+                        "%(html_desc_str)s" % subs) % subs
+
+                    error_append((txt_defconfig_str, html_defconfing_str))
     else:
         platforms["error_data"] = None
 
