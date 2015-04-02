@@ -363,6 +363,15 @@ juno = {'device_type': 'juno',
         'be': False,
         'fastboot': False}
 
+juno_kvm = {'device_type': 'juno',
+            'templates': ['generic-arm64-boot-kvm-template.json'],
+            'defconfig_blacklist': ['arm64-allnoconfig',
+                                    'arm64-allmodconfig'],
+            'kernel_blacklist': [],
+            'lpae': False,
+            'be': False,
+            'fastboot': False}
+
 
 x86 = {'device_type': 'x86',
        'templates': ['generic-x86-kernel-ci-boot-template.json'],
@@ -435,7 +444,7 @@ device_map = {'armada-370-mirabox.dtb': [armada_370_mirabox],
               'qemu-arm-legacy': [qemu_arm],
               'qemu-aarch64-legacy': [qemu_aarch64],
               'apm-mustang.dtb': [apm_mustang, apm_mustang_kvm],
-              'juno.dtb': [juno],
+              'juno.dtb': [juno, juno_kvm],
               'x86': [x86, minnowboard_max_E3825],
               'x86-kvm': [x86_kvm]}
 

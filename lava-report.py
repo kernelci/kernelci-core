@@ -48,6 +48,8 @@ device_map = {'armada-370-mirabox': ['armada-370-mirabox', 'mvebu'],
               'mustang-kvm-host': ['apm-mustang-kvm-host', 'apm'],
               'mustang-kvm-guest': ['apm-mustang-kvm-guest', 'apm'],
               'juno': ['juno', 'arm'],
+              'juno-kvm-host': ['juno-kvm-host', 'arm'],
+              'juno-kvm-guest': ['juno-kvm-guest', 'arm'],
               'minnowboard-max-E3825': ['minnowboard-max', None],
               'x86': ['x86', None],
               'kvm': ['x86-kvm', None]}
@@ -232,6 +234,13 @@ def boot_report(args):
                             platform_name = device_map[device_type][0]
                         else:
                             device_type = 'mustang-kvm-host'
+                            platform_name = device_map[device_type][0]
+                    elif device_tree == 'juno.dtb':
+                        if device_type == 'dynamic-vm':
+                            device_type = 'juno-kvm-guest'
+                            platform_name = device_map[device_type][0]
+                        else:
+                            device_type = 'juno-kvm-host'
                             platform_name = device_map[device_type][0]
                 else:
                     platform_name = device_map[device_type][0]
