@@ -520,11 +520,13 @@ def boot_report(args):
     # sendmail
     if args.email:
         print 'Sending e-mail summary to %s' % args.email
-        cmd = 'cat %s | sendmail -t' % os.path.join(report_directory, boot)
-        subprocess.check_output(cmd, shell=True)
-        if dt_tests:
-            cmd = 'cat %s | sendmail -t' % os.path.join(report_directory, dt_self_test)
+        if os.path.exists(report_directory):
+            cmd = 'cat %s | sendmail -t' % os.path.join(report_directory, boot)
             subprocess.check_output(cmd, shell=True)
+        if dt_tests:
+            if os.path.exists(report_directory):
+                cmd = 'cat %s | sendmail -t' % os.path.join(report_directory, dt_self_test)
+                subprocess.check_output(cmd, shell=True)
 
 def main(args):
     if args.boot:
