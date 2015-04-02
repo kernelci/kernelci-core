@@ -91,6 +91,11 @@ def boot_report(args):
             job_name = job_details['description']
         result = jobs[job_id]['result']
         bundle = jobs[job_id]['bundle']
+        if bundle is None and device_type == 'dyanmic_vm':
+            host_job_id = job_id.replace('.1', '.0')
+            bundle = jobs[host_job_id]['bundle']
+            if bundle is None:
+                continue
         # Retrieve the log file
         binary_job_file = connection.scheduler.job_output(job_id)
         # Parse LAVA messages out of log
