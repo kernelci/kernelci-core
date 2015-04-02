@@ -12,7 +12,7 @@
         "auto_start_vms": false,
         "vms": [
         {
-            "device_type": "kvm-arm",
+            "device_type": "kvm-aarch64",
             "role": "guest"
         }]
     },
@@ -36,9 +36,10 @@
         },
         "parameters":
         {
-            "dtb": "http://images.armcloud.us/misc/tyler-virt/dtbs/dts/sun7i-a20-cubietruck.dtb",
-            "kernel": "http://images.armcloud.us/misc/tyler-virt/zImage",
-            "nfsrootfs": "http://releases.linaro.org/15.03/ubuntu/utopic-images/nano/linaro-utopic-nano-20150319-701.tar.gz",
+            "dtb": "{dtb_url}",
+            "kernel": "{kernel_url}",
+            "modules": "{modules_url}",
+            "nfsrootfs": "http://releases.linaro.org/15.03/ubuntu/utopic-images/nano-arm64/linaro-utopic-nano-20150309-90.tar.gz",
             "target_type": "ubuntu",
             "role": "host"
         }
@@ -47,9 +48,8 @@
         "command": "deploy_linaro_kernel",
         "parameters":
         {
-            "kernel": "http://images.armcloud.us/linaro/kvm/zImage",
-            "ramdisk": "http://storage.kernelci.org/images/rootfs/buildroot/armel/rootfs.cpio.gz",
-            "dtb": "http://images.armcloud.us/linaro/kvm/vexpress-v2p-ca15-tc1.dtb",
+            "kernel": "{kernel_url}",
+            "ramdisk": "http://storage.kernelci.org/images/rootfs/buildroot/arm64/rootfs.cpio.gz",
             "role": "guest"
         }
     },

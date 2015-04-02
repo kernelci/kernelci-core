@@ -24,6 +24,8 @@ device_map = {'armada-370-mirabox': ['armada-370-mirabox', 'mvebu'],
               'panda-es': ['omap4-panda-es', 'omap2'],
               'panda': ['omap4-panda', 'omap2'],
               'cubieboard3': ['sun7i-a20-cubietruck', 'sunxi'],
+              'cubieboard3-kvm-host': ['sun7i-a20-cubietruck-kvm-host', 'sunxi'],
+              'cubieboard3-kvm-guest': ['sun7i-a20-cubietruck-kvm-guest', 'sunxi'],
               'optimus-a80': ['sun9i-a80-optimus', 'sunxi'],
               'cubieboard4': ['sun9i-a80-cubieboard4', 'sunxi'],
               'hi3716cv200': ['hisi-x5hd2-dkb', 'hisi'],
@@ -43,7 +45,11 @@ device_map = {'armada-370-mirabox': ['armada-370-mirabox', 'mvebu'],
               'qemu-arm': ['versatilepb', 'versatile'],
               'qemu-aarch64': ['qemu-aarch64', 'qemu'],
               'mustang': ['apm-mustang', 'apm'],
+              'mustang-kvm-host': ['apm-mustang-kvm-host', 'apm'],
+              'mustang-kvm-guest': ['apm-mustang-kvm-guest', 'apm'],
               'juno': ['juno', 'arm'],
+              'juno-kvm-host': ['juno-kvm-host', 'arm'],
+              'juno-kvm-guest': ['juno-kvm-guest', 'arm'],
               'minnowboard-max-E3825': ['minnowboard-max', None],
               'x86': ['x86', None],
               'kvm': ['x86-kvm', None]}
@@ -85,6 +91,11 @@ def boot_report(args):
             job_name = job_details['description']
         result = jobs[job_id]['result']
         bundle = jobs[job_id]['bundle']
+        if bundle is None and device_type == 'dyanmic_vm':
+            host_job_id = job_id.replace('.1', '.0')
+            bundle = jobs[host_job_id]['bundle']
+            if bundle is None:
+                continue
         # Retrieve the log file
         binary_job_file = connection.scheduler.job_output(job_id)
         # Parse LAVA messages out of log
@@ -147,8 +158,7 @@ def boot_report(args):
                             kernel_boot_time = test['measurement']
                         if test['test_case_id'] == 'test_kernel_boot_time':
                             kernel_boot_time = test['measurement']
-                            print test['measurement']
-                    bundle_attributes = bundle_data['test_runs'][0]['attributes']
+                    bundle_attributes = bundle_data['test_runs'][-1]['attributes']
             boot_meta = {}
             api_url = None
             arch = None
@@ -168,6 +178,9 @@ def boot_report(args):
             dtb_append = None
             fastboot = None
             fastboot_cmd = None
+            test_plan = None
+            if in_bundle_attributes(bundle_attributes, 'kernel.defconfig'):
+                print bundle_attributes['kernel.defconfig']
             if in_bundle_attributes(bundle_attributes, 'target'):
                 board_instance = bundle_attributes['target']
             if in_bundle_attributes(bundle_attributes, 'kernel.defconfig'):
@@ -201,6 +214,8 @@ def boot_report(args):
                 dtb_append = bundle_attributes['dtb-append']
             if in_bundle_attributes(bundle_attributes, 'boot_retries'):
                 boot_retries = int(bundle_attributes['boot_retries'])
+            if in_bundle_attributes(bundle_attributes, 'test.plan'):
+                test_plan = bundle_attributes['test.plan']
 
         # Record the boot log and result
         # TODO: Will need to map device_types to dashboard device types
@@ -210,6 +225,28 @@ def boot_report(args):
             else:
                 if device_tree == 'vexpress-v2p-ca15_a7.dtb':
                     platform_name = 'vexpress-v2p-ca15_a7'
+                elif test_plan == 'boot-kvm':
+                    if device_tree == 'sun7i-a20-cubietruck.dtb':
+                        if device_type == 'dynamic-vm':
+                            device_type = 'cubieboard3-kvm-guest'
+                            platform_name = device_map[device_type][0]
+                        else:
+                            device_type = 'cubieboard3-kvm-host'
+                            platform_name = device_map[device_type][0]
+                    elif device_tree == 'apm-mustang.dtb':
+                        if device_type == 'dynamic-vm':
+                            device_type = 'mustang-kvm-guest'
+                            platform_name = device_map[device_type][0]
+                        else:
+                            device_type = 'mustang-kvm-host'
+                            platform_name = device_map[device_type][0]
+                    elif device_tree == 'juno.dtb':
+                        if device_type == 'dynamic-vm':
+                            device_type = 'juno-kvm-guest'
+                            platform_name = device_map[device_type][0]
+                        else:
+                            device_type = 'juno-kvm-host'
+                            platform_name = device_map[device_type][0]
                 else:
                     platform_name = device_map[device_type][0]
             print 'Creating boot log for %s' % platform_name

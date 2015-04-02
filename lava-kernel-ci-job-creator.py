@@ -139,6 +139,14 @@ cubieboard3 = {'device_type': 'cubieboard3',
                'be': False,
                'fastboot': False}
 
+cubieboard3_kvm = {'device_type': 'cubieboard3',
+                   'templates': ['cubieboard3-arm-boot-kvm-template.json'],
+                   'defconfig_blacklist': [],
+                   'kernel_blacklist': [],
+                   'lpae': True,
+                   'be': False,
+                   'fastboot': False}
+
 hisi_x5hd2_dkb = {'device_type': 'hi3716cv200',
                   'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
                                 'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
@@ -339,6 +347,15 @@ apm_mustang = {'device_type': 'mustang',
                'be': False,
                'fastboot': False}
 
+apm_mustang_kvm = {'device_type': 'mustang',
+                   'templates': ['generic-arm64-boot-kvm-template.json'],
+                   'defconfig_blacklist': ['arm64-allnoconfig',
+                                           'arm64-allmodconfig'],
+                   'kernel_blacklist': [],
+                   'lpae': False,
+                   'be': False,
+                   'fastboot': False}
+
 juno = {'device_type': 'juno',
         'templates': ['juno-arm64-dtb-kernel-ci-boot-template.json',
                       'juno-arm64-dtb-kernel-ci-ltp-mm-template.json',
@@ -349,6 +366,15 @@ juno = {'device_type': 'juno',
         'lpae': False,
         'be': False,
         'fastboot': False}
+
+juno_kvm = {'device_type': 'juno',
+            'templates': ['generic-arm64-boot-kvm-template.json'],
+            'defconfig_blacklist': ['arm64-allnoconfig',
+                                    'arm64-allmodconfig'],
+            'kernel_blacklist': [],
+            'lpae': False,
+            'be': False,
+            'fastboot': False}
 
 
 x86 = {'device_type': 'x86',
@@ -400,7 +426,7 @@ device_map = {'armada-370-mirabox.dtb': [armada_370_mirabox],
               'omap3-beagle-xm-legacy': [beagle_xm_legacy],
               'omap4-panda-es.dtb': [panda_es],
               'omap4-panda.dtb': [panda],
-              'sun7i-a20-cubietruck.dtb': [cubieboard3],
+              'sun7i-a20-cubietruck.dtb': [cubieboard3, cubieboard3_kvm],
               'hip04-d01.dtb': [d01],
               'hisi-x5hd2-dkb.dtb': [hisi_x5hd2_dkb],
               'imx6q-wandboard.dtb': [imx6q_wandboard],
@@ -421,8 +447,8 @@ device_map = {'armada-370-mirabox.dtb': [armada_370_mirabox],
               'vexpress-v2p-ca9-legacy': [qemu_arm_cortex_a9_legacy],
               'qemu-arm-legacy': [qemu_arm],
               'qemu-aarch64-legacy': [qemu_aarch64],
-              'apm-mustang.dtb': [apm_mustang],
-              'juno.dtb': [juno],
+              'apm-mustang.dtb': [apm_mustang, apm_mustang_kvm],
+              'juno.dtb': [juno, juno_kvm],
               'x86': [x86, minnowboard_max_E3825],
               'x86-kvm': [x86_kvm]}
 
