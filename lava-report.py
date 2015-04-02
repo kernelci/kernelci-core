@@ -83,23 +83,28 @@ def boot_report(args):
     dt_tests = False
     mkdir(results_directory)
     for job_id in jobs:
-        # Retrieve job details
-        job_details = connection.scheduler.job_details(job_id)
-        if job_details['requested_device_type_id']:
-            device_type = job_details['requested_device_type_id']
-        if job_details['description']:
-            job_name = job_details['description']
-        result = jobs[job_id]['result']
-        bundle = jobs[job_id]['bundle']
-        if bundle is None and device_type == 'dyanmic_vm':
-            host_job_id = job_id.replace('.1', '.0')
-            bundle = jobs[host_job_id]['bundle']
-            if bundle is None:
-                continue
-        # Retrieve the log file
-        binary_job_file = connection.scheduler.job_output(job_id)
-        # Parse LAVA messages out of log
-        raw_job_file = str(binary_job_file)
+        print 'Job ID: %s' % job_id
+        # Init
+        boot_meta = {}
+        api_url = None
+        arch = None
+        board_instance = None
+        boot_retries = 0
+        kernel_defconfig_full = None
+        kernel_defconfig = None
+        kernel_defconfig_base = None
+        kernel_version = None
+        device_tree = None
+        kernel_endian = None
+        kernel_tree = None
+        kernel_image = None
+        kernel_addr = None
+        initrd_addr = None
+        dtb_addr = None
+        dtb_append = None
+        fastboot = None
+        fastboot_cmd = None
+        test_plan = None
         job_file = ''
         dt_test = None
         dt_test_result = None
@@ -108,6 +113,28 @@ def boot_report(args):
         board_offline = False
         kernel_boot_time = None
         boot_failure_reason = None
+        # Retrieve job details
+        job_details = connection.scheduler.job_details(job_id)
+        if job_details['requested_device_type_id']:
+            device_type = job_details['requested_device_type_id']
+        if job_details['description']:
+            job_name = job_details['description']
+        result = jobs[job_id]['result']
+        bundle = jobs[job_id]['bundle']
+        if bundle is None and device_type == 'dynamic-vm':
+            host_job_id = job_id.replace('.1', '.0')
+            bundle = jobs[host_job_id]['bundle']
+            if bundle is None:
+                print '%s bundle is empty, skipping...' % device_type
+                continue
+        # Retrieve the log file
+        try:
+            binary_job_file = connection.scheduler.job_output(job_id)
+        except xmlrpclib.Fault:
+            print 'Job output not found for %s' % device_type
+            continue
+        # Parse LAVA messages out of log
+        raw_job_file = str(binary_job_file)
         for line in raw_job_file.splitlines():
             if 'Infrastructure Error:' in line:
                 print 'Infrastructure Error detected!'
@@ -159,26 +186,6 @@ def boot_report(args):
                         if test['test_case_id'] == 'test_kernel_boot_time':
                             kernel_boot_time = test['measurement']
                     bundle_attributes = bundle_data['test_runs'][-1]['attributes']
-            boot_meta = {}
-            api_url = None
-            arch = None
-            board_instance = None
-            boot_retries = 0
-            kernel_defconfig_full = None
-            kernel_defconfig = None
-            kernel_defconfig_base = None
-            kernel_version = None
-            device_tree = None
-            kernel_endian = None
-            kernel_tree = None
-            kernel_image = None
-            kernel_addr = None
-            initrd_addr = None
-            dtb_addr = None
-            dtb_append = None
-            fastboot = None
-            fastboot_cmd = None
-            test_plan = None
             if in_bundle_attributes(bundle_attributes, 'kernel.defconfig'):
                 print bundle_attributes['kernel.defconfig']
             if in_bundle_attributes(bundle_attributes, 'target'):
