@@ -45,7 +45,7 @@ def import_job(json_obj, db_options):
     :param db_options: The mongodb database connection parameters.
     :type db_options: dict
     """
-    utils.docimport.import_and_save_job(json_obj, db_options)
+    return utils.docimport.import_and_save_job(json_obj, db_options)
 
 
 @taskc.app.task(name="import-boot")

@@ -1,5 +1,3 @@
-# Copyright (C) 2014 Linaro Ltd.
-#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
@@ -13,7 +11,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""The model that represents a defconfing document in the mongodb collection."""
+"""The model that represents a defconfing document in the db."""
 
 import types
 
@@ -82,7 +80,7 @@ class DefconfigDocument(modb.BaseDocument):
     def created_on(self, value):
         """Set the creation date of this object.
 
-        :param value: The lab creation date, in UTC time zone.
+        :param value: The document creation date, in UTC time zone.
         :type value: datetime
         """
         self._created_on = value
