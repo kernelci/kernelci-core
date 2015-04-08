@@ -31,6 +31,7 @@ BOOT_REPORT_PATTERN = "boot-*.json"
 BUILD_LOG_FILE = "build.log"
 BUILD_ERRORS_FILE = "build-errors.log"
 BUILD_WARNINGS_FILE = "build-warnings.log"
+BUILD_MISMATCHES_FILE = "build-mismatches.log"
 
 
 def is_hidden(value):
