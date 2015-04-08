@@ -24,6 +24,7 @@ import unittest
 from bson import tz_util
 
 import models.defconfig as mdefconfig
+import utils
 import utils.docimport as docimport
 
 
@@ -215,7 +216,7 @@ class TestDocImport(unittest.TestCase):
 
         self.assertEqual(
             defconfig,
-            docimport._extrapolate_defconfig_full_from_kconfig(
+            utils._extrapolate_defconfig_full_from_kconfig(
                 kconfig_fragments, defconfig)
         )
 
@@ -226,27 +227,27 @@ class TestDocImport(unittest.TestCase):
         expected = "defconfig+CONFIG=y"
         self.assertEqual(
             expected,
-            docimport._extrapolate_defconfig_full_from_kconfig(
+            utils._extrapolate_defconfig_full_from_kconfig(
                 kconfig_fragments, defconfig)
         )
 
     def test_extrapolate_defconfig_full_from_dir_non_valid(self):
         dirname = "foo-defconfig+FRAGMENTS"
         self.assertIsNone(
-            docimport._extrapolate_defconfig_full_from_dirname(dirname))
+            utils._extrapolate_defconfig_full_from_dirname(dirname))
 
     def test_extrapolate_defconfig_full_from_dir_valid(self):
         dirname = "arm-defconfig+FRAGMENTS"
         self.assertEqual(
             "defconfig+FRAGMENTS",
-            docimport._extrapolate_defconfig_full_from_dirname(dirname))
+            utils._extrapolate_defconfig_full_from_dirname(dirname))
 
         dirname = "arm64-defconfig+FRAGMENTS"
         self.assertEqual(
             "defconfig+FRAGMENTS",
-            docimport._extrapolate_defconfig_full_from_dirname(dirname))
+            utils._extrapolate_defconfig_full_from_dirname(dirname))
 
         dirname = "x86-defconfig+FRAGMENTS"
         self.assertEqual(
             "defconfig+FRAGMENTS",
-            docimport._extrapolate_defconfig_full_from_dirname(dirname))
+            utils._extrapolate_defconfig_full_from_dirname(dirname))
