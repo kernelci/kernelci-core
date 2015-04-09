@@ -1,0 +1,53 @@
+#
+# make -j10 -k -s ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- CC="ccache arm-linux-gnueabi-gcc" O=build ebsa110_defconfig
+#
+#
+# configuration written to .config
+#
+#
+# make -j10 -k -s ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- CC="ccache arm-linux-gnueabi-gcc" O=build 
+#
+In file included from ../kernel/time/hrtimer.c:57:0:
+../kernel/time/tick-internal.h: In function 'tick_set_periodic_handler':
+../kernel/time/tick-internal.h:114:5: error: dereferencing pointer to incomplete type
+../kernel/time/tick-internal.h:114:23: error: 'tick_handle_periodic' undeclared (first use in this function)
+../kernel/time/tick-internal.h:114:23: note: each undeclared identifier is reported only once for each function it appears in
+make[3]: *** [kernel/time/hrtimer.o] Error 1
+In file included from ../kernel/time/timekeeping.c:27:0:
+../kernel/time/tick-internal.h: In function 'tick_set_periodic_handler':
+../kernel/time/tick-internal.h:114:5: error: dereferencing pointer to incomplete type
+../kernel/time/tick-internal.h:114:23: error: 'tick_handle_periodic' undeclared (first use in this function)
+../kernel/time/tick-internal.h:114:23: note: each undeclared identifier is reported only once for each function it appears in
+make[3]: *** [kernel/time/timekeeping.o] Error 1
+In file included from ../kernel/time/clocksource.c:34:0:
+../kernel/time/tick-internal.h: In function 'tick_set_periodic_handler':
+../kernel/time/tick-internal.h:114:5: error: dereferencing pointer to incomplete type
+../kernel/time/tick-internal.h:114:23: error: 'tick_handle_periodic' undeclared (first use in this function)
+../kernel/time/tick-internal.h:114:23: note: each undeclared identifier is reported only once for each function it appears in
+make[3]: *** [kernel/time/clocksource.o] Error 1
+In file included from ../kernel/time/timer_list.c:22:0:
+../kernel/time/tick-internal.h: In function 'tick_set_periodic_handler':
+../kernel/time/tick-internal.h:114:5: error: dereferencing pointer to incomplete type
+../kernel/time/tick-internal.h:114:23: error: 'tick_handle_periodic' undeclared (first use in this function)
+../kernel/time/tick-internal.h:114:23: note: each undeclared identifier is reported only once for each function it appears in
+make[3]: *** [kernel/time/timer_list.o] Error 1
+make[3]: Target `__build' not remade because of errors.
+make[2]: *** [kernel/time] Error 2
+../kernel/acct.c: In function 'acct_pin_kill':
+../kernel/acct.c:174:3: warning: value computed is not used [-Wunused-value]
+make[2]: Target `__build' not remade because of errors.
+make[1]: *** [kernel] Error 2
+make[1]: Target `_all' not remade because of errors.
+make: *** [sub-make] Error 2
+make: Target `_all' not remade because of errors.
+make[2]: *** [mm/migrate.o] Error 1
+make[2]: Target `__build' not remade because of errors.
+make[1]: *** [mm] Error 2
+In file included from ../drivers/dma/xilinx/xilinx_vdma.c:26:0:
+../include/linux/dmapool.h:18:4: warning: 'struct device' declared inside parameter list [enabled by default]
+../mm/migrate.c: In function 'migrate_pages':
+../mm/migrate.c:1148:1: internal compiler error: in push_minipool_fix, at config/arm/arm.c:13101
+/home/buildslave/workspace/khilman-kbuilder/stable/arch/arm/kernel/entry-armv.S:363:2: warning: #warning "NPTL on non MMU needs fixing" [-Wcpp]
+No valid symbol.
+No valid symbol.
+/home/buildslave/workspace/khilman-kbuilder/stable/arch/arm/kernel/return_address.c:63:2: warning: #warning "TODO: return_address should use unwind tables" [-Wcpp]
