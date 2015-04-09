@@ -41,7 +41,7 @@ class TestBuildLogParser(unittest.TestCase):
             "kernel": kernel
         }
 
-        status, errors = lparser.parse_build_log(job_id, json_obj)
+        status, errors = lparser.parse_build_log(job_id, json_obj, {})
 
         self.assertEqual(200, status)
         self.assertDictEqual({}, errors)
@@ -55,7 +55,7 @@ class TestBuildLogParser(unittest.TestCase):
             "kernel": kernel
         }
 
-        status, errors = lparser.parse_build_log(job_id, json_obj)
+        status, errors = lparser.parse_build_log(job_id, json_obj, {})
 
         self.assertEqual(500, status)
         self.assertEqual(1, len(errors.keys()))
@@ -70,7 +70,7 @@ class TestBuildLogParser(unittest.TestCase):
             "kernel": kernel
         }
 
-        status, errors = lparser.parse_build_log(job_id, json_obj)
+        status, errors = lparser.parse_build_log(job_id, json_obj, {})
 
         self.assertEqual(500, status)
         self.assertEqual(1, len(errors.keys()))
@@ -88,7 +88,7 @@ class TestBuildLogParser(unittest.TestCase):
             "kernel": kernel
         }
 
-        status, errors = lparser.parse_build_log(job_id, json_obj)
+        status, errors = lparser.parse_build_log(job_id, json_obj, {})
 
         self.assertEqual(500, status)
         self.assertEqual(1, len(errors.keys()))
@@ -103,7 +103,7 @@ class TestBuildLogParser(unittest.TestCase):
                 os.path.abspath(os.path.dirname(__file__)),
                 "assets", "build_log_0.log")
 
-            status, errors, e_l, w_l, m_l = lparser._parse_build_log(
+            status, errors, e_l, w_l, m_l = lparser._parse_log(
                 "job", "kernel", "defconfig", log_file, build_dir)
 
             self.assertEqual(200, status)
@@ -114,7 +114,7 @@ class TestBuildLogParser(unittest.TestCase):
             self.assertIsInstance(m_l, types.ListType)
 
             self.assertEqual(0, len(errors))
-            self.assertEqual(23, len(e_l))
+            self.assertEqual(9, len(e_l))
             self.assertEqual(2, len(w_l))
             self.assertEqual(0, len(m_l))
         finally:
@@ -125,7 +125,7 @@ class TestBuildLogParser(unittest.TestCase):
         try:
             build_dir = tempfile.mkdtemp()
 
-            status, errors, e_l, w_l, m_l = lparser._parse_build_log(
+            status, errors, e_l, w_l, m_l = lparser._parse_log(
                 "job", "kernel", "defconfig", build_dir, build_dir)
 
             self.assertEqual(500, status)
@@ -152,7 +152,7 @@ class TestBuildLogParser(unittest.TestCase):
                 os.path.abspath(os.path.dirname(__file__)),
                 "assets", "build_log_0.log")
 
-            status, errors, e_l, w_l, m_l = lparser._parse_build_log(
+            status, errors, e_l, w_l, m_l = lparser._parse_log(
                 "job", "kernel", "defconfig", log_file, build_dir)
 
             self.assertEqual(500, status)

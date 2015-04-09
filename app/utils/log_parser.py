@@ -31,7 +31,7 @@ import models.error_summary as mesumm
 import utils
 
 
-ERROR_PATTERN_1 = re.compile("[Ee]rror:?")
+ERROR_PATTERN_1 = re.compile("[Ee]rror:")
 ERROR_PATTERN_2 = re.compile("^ERROR")
 WARNING_PATTERN = re.compile("warning:?", re.IGNORECASE)
 MISMATCH_PATTERN = re.compile("Section mismatch", re.IGNORECASE)
@@ -59,20 +59,21 @@ ERROR_PATTERNS = [
 
 def parse_build_log(job_id,
                     json_obj,
+                    db_options,
                     base_path=utils.BASE_PATH,
-                    build_log=utils.BUILD_LOG_FILE, db_options=None):
+                    build_log=utils.BUILD_LOG_FILE):
     """Parse the build log file searching for errors and warnings.
 
     :param job_id: The ID of the job as saved in the database.
     :type job_id: string
     :param json_obj: The JSON object with the job and kernel name.
     :type json_obj: dictionary
+    :param db_options: The database connection options.
+    :type db_options: dictionary
     :param base_path: The path on the file system where the files are stored.
     :type base_path: string
     :param build_log: The name of the build log file.
     :type build_log: string
-    :param db_options: The database connection options.
-    :type db_options: dictionary
     :return A status code and a dictionary. 200 if everything is good, 500 in
     case of errors; an empty dictionary if there are no errors, otherwise the
     dictionary will contain error codes and messages lists.
@@ -131,6 +132,17 @@ def _traverse_dir_and_parse(job_id,
     err_default = errors_all.setdefault
     warn_default = warnings_all.setdefault
     mism_default = mismatches_all.setdefault
+
+    def _dict_to_list(data):
+        """Transform a dictionary into a list of tuples.
+
+        :param data: The dictionary to transform.
+        :return A list of tuples.
+        """
+        tupl = zip(data.values(), data.keys())
+        tupl.sort()
+        tupl.reverse()
+        return tupl
 
     def _add_err_msg(err_code, err_msg):
         """Add error code and message to the data structure.
@@ -198,11 +210,13 @@ def _traverse_dir_and_parse(job_id,
         """Save the summary for errors/warnings/mismatches found."""
         error_summary = mesumm.ErrorSummaryDocument(job_id, "1.0")
         error_summary.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
-        error_summary.errors = errors_all
         error_summary.job = job
         error_summary.kernel = kernel
-        error_summary.mismatches = mismatches_all
-        error_summary.warnings = warnings_all
+
+        # Store the summary as lists of 2-tuple values.
+        error_summary.errors = _dict_to_list(errors_all)
+        error_summary.mismatches = _dict_to_list(mismatches_all)
+        error_summary.warnings = _dict_to_list(warnings_all)
 
         database = utils.db.get_db_connection(db_options)
         ret_val, _ = utils.db.save(database, error_summary, manipulate=True)
@@ -221,7 +235,7 @@ def _traverse_dir_and_parse(job_id,
         :type build_dir: string
         :return The defconfig, defconfig_full and arch values.
         """
-        defconfig = defconfig_full = kconfig_fragments = None
+        arch = defconfig = defconfig_full = kconfig_fragments = None
         build_file = os.path.join(build_dir, models.BUILD_META_JSON_FILE)
 
         if os.path.isfile(build_file):
@@ -263,15 +277,21 @@ def _traverse_dir_and_parse(job_id,
         kernel_dir = os.path.join(job_dir, kernel)
 
         if os.path.isdir(kernel_dir):
-            for defconfig_dir in os.listdir(kernel_dir):
+            for dirname, subdirs, files in os.walk(kernel_dir):
+                if dirname == kernel_dir:
+                    continue
+
+                subdirs[:] = []
+                build_dir = dirname
+                defconfig_dir = os.path.basename(build_dir)
+
                 if not hidden(defconfig_dir):
-                    build_dir = os.path.join(kernel_dir, defconfig_dir)
                     log_file = os.path.join(build_dir, build_log)
 
                     defconfig, defconfig_full, arch = _read_build_data(
                         build_dir)
 
-                    status, err, e_l, w_l, m_l = _parse_build_log(
+                    status, err, e_l, w_l, m_l = _parse_log(
                         job, kernel, defconfig, log_file, build_dir)
 
                     if status == 200:
@@ -291,7 +311,7 @@ def _traverse_dir_and_parse(job_id,
 
 
 # pylint: disable=too-many-statements
-def _parse_build_log(job, kernel, defconfig, log_file, build_dir):
+def _parse_log(job, kernel, defconfig, log_file, build_dir):
     """Read the build log and extract the correct strings.
 
     Parse the build log extracting the errors/warnings/mismatches strings
@@ -433,8 +453,9 @@ def save_defconfig_errors(job_id,
     if defconfig_full:
         spec[models.DEFCONFIG_FULL_KEY] = defconfig_full
 
+    database = utils.db.get_db_connection(db_options)
     defconf_doc = utils.db.find_one2(
-        models.DEFCONFIG_COLLECTION, spec, fields=[models.ID_KEY])
+        database[models.DEFCONFIG_COLLECTION], spec, fields=[models.ID_KEY])
 
     if defconf_doc:
         defconfig_id = defconf_doc[models.ID_KEY]
@@ -454,7 +475,6 @@ def save_defconfig_errors(job_id,
     err_doc.mismatches = mismatch_lines
     err_doc.warnings = warning_lines
 
-    database = utils.db.get_db_connection(db_options)
     ret_val, _ = utils.db.save(database, err_doc, manipulate=True)
 
     return ret_val
