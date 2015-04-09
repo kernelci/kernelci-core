@@ -40,6 +40,8 @@ def test_modules():
         "models.tests.test_bisect_model",
         "models.tests.test_boot_model",
         "models.tests.test_defconfig_model",
+        "models.tests.test_error_log_model",
+        "models.tests.test_error_summary_model",
         "models.tests.test_job_model",
         "models.tests.test_lab_model",
         "models.tests.test_report_model",
