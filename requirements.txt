@@ -5,7 +5,7 @@ mock>0.7.2
 mongomock==1.2.0
 netaddr==0.7.13
 pycares==0.6.3
-pymongo
+pymongo==2.8
 redis==2.10.3
 hiredis
 simplejson>=3.6.1
