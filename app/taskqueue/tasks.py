@@ -35,7 +35,7 @@ import utils.tests_import as tests_import
 
 
 @taskc.app.task(name="import-job")
-def import_job(json_obj, db_options):
+def import_job(json_obj, db_options, mail_options=None):
     """Just a wrapper around the real import function.
 
     This is used to provide a Celery-task access to the import function.
@@ -45,6 +45,8 @@ def import_job(json_obj, db_options):
     :type json_obj: dictionary
     :param db_options: The database connection parameters.
     :type db_options: dictionary
+    :param mail_options: The options necessary to connect to the SMTP server.
+    :type mail_options: dictionary
     """
     return utils.docimport.import_and_save_job(json_obj, db_options)
 
@@ -62,12 +64,14 @@ def parse_build_log(job_id, json_obj, db_options, mail_options=None):
     :type json_obj: dictionary
     :param db_options: The database connection parameters.
     :type db_options: dictionary
+    :param mail_options: The options necessary to connect to the SMTP server.
+    :type mail_options: dictionary
     """
     return utils.log_parser.parse_build_log(job_id, json_obj, db_options)
 
 
 @taskc.app.task(name="import-boot")
-def import_boot(json_obj, db_options):
+def import_boot(json_obj, db_options, mail_options=None):
     """Just a wrapper around the real boot import function.
 
     This is used to provide a Celery-task access to the import function.
@@ -77,8 +81,10 @@ def import_boot(json_obj, db_options):
     :type json_obj: dictionary
     :param db_options: The database connection parameters.
     :type db_options: dictionary
+    :param mail_options: The options necessary to connect to the SMTP server.
+    :type mail_options: dictionary
     """
-    utils.bootimport.import_and_save_boot(json_obj, db_options)
+    return utils.bootimport.import_and_save_boot(json_obj, db_options)
 
 
 @taskc.app.task(name="batch-executor", ignore_result=False)
