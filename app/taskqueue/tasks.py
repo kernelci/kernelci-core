@@ -20,13 +20,14 @@ import celery
 import models
 import taskqueue.celery as taskc
 import utils
-import utils.db
 import utils.batch.common
 import utils.bisect.boot as bootb
 import utils.bisect.defconfig as defconfigb
 import utils.bootimport
+import utils.db
 import utils.docimport
 import utils.emails
+import utils.log_parser
 import utils.report.boot
 import utils.report.build
 import utils.report.common
@@ -34,33 +35,56 @@ import utils.tests_import as tests_import
 
 
 @taskc.app.task(name="import-job")
-def import_job(json_obj, db_options):
+def import_job(json_obj, db_options, mail_options=None):
     """Just a wrapper around the real import function.
 
     This is used to provide a Celery-task access to the import function.
 
     :param json_obj: The JSON object with the values necessary to import the
-        job.
-    :type json_obj: dict
-    :param db_options: The mongodb database connection parameters.
-    :type db_options: dict
+    job.
+    :type json_obj: dictionary
+    :param db_options: The database connection parameters.
+    :type db_options: dictionary
+    :param mail_options: The options necessary to connect to the SMTP server.
+    :type mail_options: dictionary
     """
-    utils.docimport.import_and_save_job(json_obj, db_options)
+    return utils.docimport.import_and_save_job(json_obj, db_options)
+
+
+@taskc.app.task(name="parse-build-log")
+def parse_build_log(job_id, json_obj, db_options, mail_options=None):
+    """Wrapper around the real build log parsing function.
+
+    Used to provided a task to the import function.
+
+    :param job_id: The ID of the job saved in the database. This value gest
+    injected by Celery when linking the task to the previous one.
+    :type job_id: string
+    :param json_obj: The JSON object with the necessary values.
+    :type json_obj: dictionary
+    :param db_options: The database connection parameters.
+    :type db_options: dictionary
+    :param mail_options: The options necessary to connect to the SMTP server.
+    :type mail_options: dictionary
+    """
+    return utils.log_parser.parse_build_log(job_id, json_obj, db_options)
 
 
 @taskc.app.task(name="import-boot")
-def import_boot(json_obj, db_options):
+def import_boot(json_obj, db_options, mail_options=None):
     """Just a wrapper around the real boot import function.
 
     This is used to provide a Celery-task access to the import function.
 
     :param json_obj: The JSON object with the values necessary to import the
     boot report.
-    :type json_obj: dict
-    :param db_options: The mongodb database connection parameters.
-    :type db_options: dict
+    :type json_obj: dictionary
+    :param db_options: The database connection parameters.
+    :type db_options: dictionary
+    :param mail_options: The options necessary to connect to the SMTP server.
+    :type mail_options: dictionary
     """
-    utils.bootimport.import_and_save_boot(json_obj, db_options)
+    return utils.bootimport.import_and_save_boot(json_obj, db_options)
 
 
 @taskc.app.task(name="batch-executor", ignore_result=False)
@@ -68,9 +92,9 @@ def execute_batch(json_obj, db_options):
     """Run batch operations based on the passed JSON object.
 
     :param json_obj: The JSON object with the operations to perform.
-    :type json_obj: dict
-    :param db_options: The mongodb database connection parameters.
-    :type db_options: dict
+    :type json_obj: dictionary
+    :param db_options: The database connection parameters.
+    :type db_options: dictionary
     :return The result of the batch operations.
     """
     return utils.batch.common.execute_batch_operation(json_obj, db_options)
@@ -81,12 +105,12 @@ def boot_bisect(doc_id, db_options, fields=None):
     """Run a boot bisect operation on the passed boot document id.
 
     :param doc_id: The boot document ID.
-    :type doc_id: str
-    :param db_options: The mongodb database connection parameters.
-    :type db_options: dict
+    :type doc_id: string
+    :param db_options: The database connection parameters.
+    :type db_options: dictionary
     :param fields: A `fields` data structure with the fields to return or
     exclude. Default to None.
-    :type fields: list or dict
+    :type fields: list or dictionary
     :return The result of the boot bisect operation.
     """
     return bootb.execute_boot_bisection(doc_id, db_options, fields=fields)
@@ -100,11 +124,11 @@ def boot_bisect_compared_to(doc_id, compare_to, db_options, fields=None):
     :type doc_id: string
     :param compare_to: The name of the tree to compare to.
     :type compare_to: string
-    :param db_options: The mongodb database connection parameters.
+    :param db_options: The database connection parameters.
     :type db_options: dictionary
     :param fields: A `fields` data structure with the fields to return or
     exclude. Default to None.
-    :type fields: list or dict
+    :type fields: list or dictionary
     :return The result of the boot bisect operation.
     """
     return bootb.execute_boot_bisection_compared_to(
@@ -116,12 +140,12 @@ def defconfig_bisect(doc_id, db_options, fields=None):
     """Run a defconfig bisect operation on the passed defconfig document id.
 
     :param doc_id: The boot document ID.
-    :type doc_id: str
-    :param db_options: The mongodb database connection parameters.
-    :type db_options: dict
+    :type doc_id: string
+    :param db_options: The database connection parameters.
+    :type db_options: dictionary
     :param fields: A `fields` data structure with the fields to return or
     exclude. Default to None.
-    :type fields: list or dict
+    :type fields: list or dictionary
     :return The result of the boot bisect operation.
     """
     return defconfigb.execute_defconfig_bisection(
@@ -136,11 +160,11 @@ def defconfig_bisect_compared_to(doc_id, compare_to, db_options, fields=None):
     :type doc_id: string
     :param compare_to: The name of the tree to compare to.
     :type compare_to: string
-    :param db_options: The mongodb database connection parameters.
+    :param db_options: The database connection parameters.
     :type db_options: dictionary
     :param fields: A `fields` data structure with the fields to return or
     exclude. Default to None.
-    :type fields: list or dict
+    :type fields: list or dictionary
     :return The result of the defconfig bisect operation.
     """
     return defconfigb.execute_defconfig_bisection_compared_to(
@@ -159,19 +183,19 @@ def send_boot_report(job,
     """Create the boot report email and send it.
 
     :param job: The job name.
-    :type job: str
+    :type job: string
     :param kernel: The kernel name.
-    :type kernel: str
+    :type kernel: string
     :param lab_name: The name of the lab.
-    :type lab_name: str
+    :type lab_name: string
     :param email_format: The email format to send.
     :type email_format: list
     :param to_addrs: List of recipients.
     :type to_addrs: list
-    :param db_options: The options necessary to connect to the database.
-    :type db_options: dict
+    :param db_options: The database connection parameters.
+    :type db_options: dictionary
     :param mail_options: The options necessary to connect to the SMTP server.
-    :type mail_options: dict
+    :type mail_options: dictionary
     """
     utils.LOG.info("Preparing boot report email for '%s-%s'", job, kernel)
     status = "ERROR"
@@ -210,17 +234,17 @@ def send_build_report(job,
     """Create the build report email and send it.
 
     :param job: The job name.
-    :type job: str
+    :type job: string
     :param kernel: The kernel name.
-    :type kernel: str
+    :type kernel: string
     :param email_format: The email format to send.
     :type email_format: list
     :param to_addrs: List of recipients.
     :type to_addrs: list
-    :param db_options: The options necessary to connect to the database.
-    :type db_options: dict
+    :param db_options: The database connection parameters.
+    :type db_options: dictionary
     :param mail_options: The options necessary to connect to the SMTP server.
-    :type mail_options: dict
+    :type mail_options: dictionary
     """
     utils.LOG.info("Preparing build report email for '%s-%s'", job, kernel)
     status = "ERROR"
@@ -258,7 +282,7 @@ def complete_test_suite_import(suite_json, suite_id, db_options, **kwargs):
     *_id values. Then, import the test sets and test cases provided.
 
     :param suite_json: The JSON object with the test suite.
-    :type suite_json: dict
+    :type suite_json: dictionary
     :param suite_id: The ID of the test suite.
     :type suite_id: bson.objectid.ObjectId
     :param test_set: The list of test sets to import.
@@ -266,7 +290,7 @@ def complete_test_suite_import(suite_json, suite_id, db_options, **kwargs):
     :param test_case: The list of test cases to import.
     :type test_case: list
     :param db_options: The database connection parameters.
-    :type db_options: dict
+    :type db_options: dictionary
     :return 200 if OK, 500 in case of errors; a dictionary containing the
     kwargs passed plus new values take from the update action.
     """
@@ -304,8 +328,8 @@ def import_test_sets_from_test_suite(
     :type suite_id: bson.objectid.ObjectId
     :pram tests_list: The list of tests to import.
     :type tests_list: list
-    :param db_options: The database connection options.
-    :type db_options: dict
+    :param db_options: The database connection parameters.
+    :type db_options: dictionary
     :return 200 if OK, 500 in case of errors; a dictionary with errors or an
     empty one.
     """
@@ -357,8 +381,8 @@ def import_test_cases_from_test_suite(
     :type suite_id: bson.objectid.ObjectId
     :pram tests_list: The list of tests to import.
     :type tests_list: list
-    :param db_options: The database connection options.
-    :type db_options: dict
+    :param db_options: The database connection parameters.
+    :type db_options: dictionary
     :return 200 if OK, 500 in case of errors; a dictionary with errors or an
     empty one.
     """
@@ -405,8 +429,8 @@ def import_test_cases_from_test_set(
     :type suite_id: bson.objectid.ObjectId
     :param set_id: The ID of the test set.
     :type set_id: bson.objectid.ObjectId
-    :param db_options: The database connection options.
-    :param db_options: dict
+    :param db_options: The database connection parameters.
+    :type db_options: dictionary
     :return 200 if OK, 500 in case of errors; a dictionary with errors or an
     empty one.
     """
@@ -420,8 +444,8 @@ def run_batch_group(batch_op_list, db_options):
     :param batch_op_list: List of JSON object used to build the batch
     operation.
     :type batch_op_list: list
-    :param db_options: The mongodb database connection parameters.
-    :type db_options: dict
+    :param db_options: The database connection parameters.
+    :type db_options: dictionary
     """
     job = celery.group(
         [

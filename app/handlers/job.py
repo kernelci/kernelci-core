@@ -41,8 +41,15 @@ class JobHandler(hbase.BaseHandler):
         response = hresponse.HandlerResponse(202)
         response.reason = "Request accepted and being imported"
 
+        json_obj = kwargs["json_obj"]
+        db_options = kwargs["db_options"]
+
         taskq.import_job.apply_async(
-            [kwargs["json_obj"], kwargs["db_options"]])
+            [json_obj, db_options],
+            link=[
+                taskq.parse_build_log.s(json_obj, db_options)
+            ]
+        )
 
         return response
 

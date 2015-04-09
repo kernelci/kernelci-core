@@ -47,8 +47,7 @@ def import_and_save_job(json_obj, db_options, base_path=utils.BASE_PATH):
 
     if docs:
         utils.LOG.info(
-            "Importing %d documents with job ID: %s",
-            len(docs), job_id)
+            "Importing %d documents with job ID: %s", len(docs), job_id)
         utils.db.save_all(database, docs, manipulate=True)
     else:
         utils.LOG.info("No jobs to save")
@@ -105,8 +104,7 @@ def _import_job(job, kernel, database, base_path=utils.BASE_PATH):
         job_id = job_doc.id
     else:
         job_doc = mjob.JobDocument(job, kernel)
-        ret_val, job_id = utils.db.save(
-            database, job_doc, manipulate=True)
+        ret_val, job_id = utils.db.save(database, job_doc, manipulate=True)
 
     if all([ret_val == 201, job_id is not None]):
         job_doc.id = job_id
@@ -292,28 +290,8 @@ def _parse_build_data(data_file, job, kernel, defconfig_dir):
             defconfig_full = data_pop(models.DEFCONFIG_FULL_KEY, None)
             kconfig_fragments = data_pop(models.KCONFIG_FRAGMENTS_KEY, None)
 
-            if all([defconfig_full is None, kconfig_fragments is None]):
-                defconfig_full = defconfig
-            elif all([defconfig_full is None, kconfig_fragments is not None]):
-                # Infer the real defconfig used from the values we have.
-                # Try first from the kconfig_fragments and then from the
-                # directory we are traversing.
-                defconfig_full_k = \
-                    _extrapolate_defconfig_full_from_kconfig(
-                        kconfig_fragments, defconfig)
-                defconfig_full_d = \
-                    _extrapolate_defconfig_full_from_dirname(defconfig_dir)
-
-                # Default to use the one from kconfig_fragments.
-                defconfig_full = defconfig_full_k
-                # Use the one from the directory only if it is different from
-                # the one obtained via the kconfig_fragments and if it is
-                # different from the default defconfig value.
-                if all([
-                        defconfig_full_d is not None,
-                        defconfig_full_d != defconfig_full_k,
-                        defconfig_full_d != defconfig]):
-                    defconfig_full = defconfig_full_k
+            defconfig_full = utils.get_defconfig_full(
+                defconfig_dir, defconfig, defconfig_full, kconfig_fragments)
 
             # Err on the safe side.
             job = data_pop(models.JOB_KEY, None) or job
@@ -362,61 +340,3 @@ def _parse_build_data(data_file, job, kernel, defconfig_dir):
                 data_file)
 
     return defconfig_doc
-
-
-def _extrapolate_defconfig_full_from_kconfig(kconfig_fragments, defconfig):
-    """Try to extrapolate a valid value for the defconfig_full argument.
-
-    When the kconfig_fragments filed is defined, it should have a default
-    structure.
-
-    :param kconfig_fragments: The config fragments value where to start.
-    :type kconfig_fragments: str
-    :param defconfig: The defconfig value to use. Will be returned if
-    `kconfig_fragments` does not match the known ones.
-    :type defconfig: str
-    :return A string with the `defconfig_full` value or the provided
-    `defconfig`.
-    """
-    defconfig_full = defconfig
-    if all([kconfig_fragments.startswith("frag-"),
-            kconfig_fragments.endswith(".config")]):
-
-        defconfig_full = "%s+%s" % (
-            defconfig,
-            kconfig_fragments.replace("frag-", "").replace(".config", ""))
-    return defconfig_full
-
-
-def _extrapolate_defconfig_full_from_dirname(dirname):
-    """Try to extrapolate a valid defconfig_full value from the directory name.
-
-    The directory we are traversing are built with the following pattern:
-
-        ARCH-DEFCONFIG[+FRAGMENTS]
-
-    We strip the ARCH part and keep only the rest.
-
-    :param dirname: The name of the directory we are traversing.
-    :type dirname: str
-    :return None if the directory name does not match a valid pattern, or
-    the value extrapolated from it.
-    """
-    def _replace_arch_value(arch, dirname):
-        """Local function to replace the found arch value.
-
-        :param arch: The name of the architecture.
-        :type arch: str
-        :param dirname: The name of the directory.
-        :param dirname: str
-        :return The directory name without the architecture value.
-        """
-        return dirname.replace("%s-" % arch, "", 1)
-
-    defconfig_full = None
-    for arch in models.VALID_ARCHITECTURES:
-        if arch in dirname:
-            defconfig_full = _replace_arch_value(arch, dirname)
-            break
-
-    return defconfig_full

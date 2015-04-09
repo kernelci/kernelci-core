@@ -29,10 +29,8 @@ class TestDefconfModel(unittest.TestCase):
         self.assertEqual(defconfig_doc.collection, 'defconfig')
 
     def test_defconfig_document_to_dict(self):
-        self.maxDiff = None
         defconf_doc = moddf.DefconfigDocument(
-            'job', 'kernel', 'defconfig', 'defconfig_full'
-        )
+            'job', 'kernel', 'defconfig', 'defconfig_full')
         defconf_doc.id = "defconfig_id"
         defconf_doc.job_id = "job_id"
         defconf_doc.created_on = "now"
@@ -119,9 +117,12 @@ class TestDefconfModel(unittest.TestCase):
     def test_defconfig_set_build_platform_wrong(self):
         defconf_doc = moddf.DefconfigDocument("job", "kernel", "defconfig")
 
-        self.assertRaises(TypeError, setattr, defconf_doc, "build_platform", ())
-        self.assertRaises(TypeError, setattr, defconf_doc, "build_platform", {})
-        self.assertRaises(TypeError, setattr, defconf_doc, "build_platform", "")
+        self.assertRaises(
+            TypeError, setattr, defconf_doc, "build_platform", ())
+        self.assertRaises(
+            TypeError, setattr, defconf_doc, "build_platform", {})
+        self.assertRaises(
+            TypeError, setattr, defconf_doc, "build_platform", "")
 
     def test_defconfig_set_build_platform(self):
         defconf_doc = moddf.DefconfigDocument("job", "kernel", "defconfig")
