@@ -30,9 +30,9 @@ class ErrorSummaryDocument(modb.BaseDocument):
 
         self.job_id = job_id
 
-        self._errors = {}
-        self._mismatches = {}
-        self._warnings = {}
+        self._errors = []
+        self._mismatches = []
+        self._warnings = []
         self.job = None
         self.kernel = None
 
@@ -95,12 +95,11 @@ class ErrorSummaryDocument(modb.BaseDocument):
         :param value: The error data structure to store.
         :type value: list
         """
-        if isinstance(value, types.DictionaryType):
+        if isinstance(value, types.ListType):
             self._errors = value
         else:
             raise TypeError(
-                "Passed value for 'errors' is not a dictionary: %s" %
-                type(value))
+                "Passed value for 'errors' is not a list: %s" % type(value))
 
     @property
     def warnings(self):
@@ -114,12 +113,11 @@ class ErrorSummaryDocument(modb.BaseDocument):
         :param value: The warning data structure to store.
         :type value: list
         """
-        if isinstance(value, types.DictionaryType):
+        if isinstance(value, types.ListType):
             self._warnings = value
         else:
             raise TypeError(
-                "Passed value for 'warnings' is not a dictionary: %s" %
-                type(value))
+                "Passed value for 'warnings' is not a list: %s" % type(value))
 
     @property
     def mismatches(self):
@@ -133,11 +131,11 @@ class ErrorSummaryDocument(modb.BaseDocument):
         :param value: The mismatch data structure to store.
         :type value: list
         """
-        if isinstance(value, types.DictionaryType):
+        if isinstance(value, types.ListType):
             self._mismatches = value
         else:
             raise TypeError(
-                "Passed value for 'mismatches' is not a dictionary: %s" %
+                "Passed value for 'mismatches' is not a list: %s" %
                 type(value))
 
     def to_dict(self):

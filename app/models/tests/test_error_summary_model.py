@@ -31,41 +31,41 @@ class TestErrorSummaryModel(unittest.TestCase):
     def test_doc_wrong_lists(self):
         doc = msumm.ErrorSummaryDocument("job_id", "1.0")
 
-        self.assertRaises(TypeError, setattr, doc, "errors", [])
+        self.assertRaises(TypeError, setattr, doc, "errors", {})
         self.assertRaises(TypeError, setattr, doc, "errors", "")
         self.assertRaises(TypeError, setattr, doc, "errors", 0)
         self.assertRaises(TypeError, setattr, doc, "errors", ())
 
-        self.assertRaises(TypeError, setattr, doc, "warnings", [])
+        self.assertRaises(TypeError, setattr, doc, "warnings", {})
         self.assertRaises(TypeError, setattr, doc, "warnings", "")
         self.assertRaises(TypeError, setattr, doc, "warnings", 0)
         self.assertRaises(TypeError, setattr, doc, "warnings", ())
 
-        self.assertRaises(TypeError, setattr, doc, "mismatches", [])
+        self.assertRaises(TypeError, setattr, doc, "mismatches", {})
         self.assertRaises(TypeError, setattr, doc, "mismatches", "")
         self.assertRaises(TypeError, setattr, doc, "mismatches", 0)
         self.assertRaises(TypeError, setattr, doc, "mismatches", ())
 
     def test_doc_to_dict(self):
         doc = msumm.ErrorSummaryDocument("job_id", "1.0")
-        doc.errors = {"error1": 1}
+        doc.errors = [("error1", 1)]
         doc.job = "job"
         doc.kernel = "kernel"
-        doc.mismatches = {"mismatch1": 1}
-        doc.warnings = {"warning1": 1}
+        doc.mismatches = [("mismatch1", 1)]
+        doc.warnings = [("warning1", 1)]
         doc.created_on = "today"
         doc.version = "1.1"
 
         expected = {
             "created_on": "today",
-            "errors": {"error1": 1},
+            "errors": [("error1", 1)],
             "job": "job",
             "job_id": "job_id",
             "kernel": "kernel",
-            "mismatches": {"mismatch1": 1},
+            "mismatches": [("mismatch1", 1)],
             "name": "job_id",
             "version": "1.1",
-            "warnings": {"warning1": 1}
+            "warnings": [("warning1", 1)]
         }
 
         self.assertDictEqual(expected, doc.to_dict())
@@ -78,14 +78,14 @@ class TestErrorSummaryModel(unittest.TestCase):
         json_obj = {
             "_id": "id",
             "created_on": "today",
-            "errors": ["error1"],
+            "errors": [("error1", 1)],
             "job": "job",
             "job_id": "job_id",
             "kernel": "kernel",
-            "mismatches": ["mismatch1"],
+            "mismatches": [("mismatch1", 1)],
             "name": "job_id",
             "version": "1.0",
-            "warnings": ["warning1"]
+            "warnings": [("warning1", 1)]
         }
 
         self.assertIsNone(msumm.ErrorSummaryDocument.from_json(json_obj))
