@@ -121,6 +121,18 @@ def create_boot_report(job,
         fields=BOOT_SEARCH_FIELDS,
         sort=BOOT_SEARCH_SORT)
 
+    spec[models.STATUS_KEY] = {
+        "$in": [models.UNTRIED_STATUS, models.UNKNOWN_STATUS]
+    }
+    untried_count = 0
+    _, untried_count = utils.db.find_and_count(
+        database[models.BOOT_COLLECTION],
+        0,
+        0,
+        spec=spec,
+        fields=BOOT_SEARCH_FIELDS,
+        sort=BOOT_SEARCH_SORT)
+
     # MongoDB cursor gets overwritten somehow by the next query. Extract the
     # data before this happens.
     offline_data = None
@@ -141,6 +153,9 @@ def create_boot_report(job,
     conflict_data = None
     conflict_count = 0
 
+    # Calculate the PASS count based on the previous obtained values.
+    pass_count = total_count - fail_count - offline_count - untried_count
+
     # Fill the data structure for the email report creation.
     kwargs = {
         "base_url": rcommon.DEFAULT_BASE_URL,
@@ -157,10 +172,11 @@ def create_boot_report(job,
         "info_email": info_email,
         "offline_count": offline_count,
         "offline_data": offline_data,
-        "pass_count": total_count - fail_count - offline_count,
+        "pass_count": pass_count,
         "total_builds": total_builds,
         "total_count": total_count,
         "total_unique_data": total_unique_data,
+        "untried_count": untried_count,
         models.JOB_KEY: job,
         models.KERNEL_KEY: kernel,
         models.LAB_NAME_KEY: lab_name
