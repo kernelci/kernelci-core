@@ -181,50 +181,57 @@ def _traverse_dir_and_parse(job_id,
         :param mismatch_lines: The extracted mismatch lines.
         :type mismatch_lines: list
         """
-        # Store the summary locally and save what we found for each defconfig.
-        for err, warn, mism in itertools.izip_longest(
-                error_lines, warning_lines, mismatch_lines):
-            if err:
-                errors_all[err] = err_default(err, 0) + 1
-            if warn:
-                warnings_all[warn] = warn_default(warn, 0) + 1
-            if mism:
-                mismatches_all[mism] = mism_default(mism, 0) + 1
+        # Store what we found for each defconfig in the db, only if we have
+        # something.
+        if any([error_lines, warning_lines, mismatch_lines]):
+            for err, warn, mism in itertools.izip_longest(
+                    error_lines, warning_lines, mismatch_lines):
+                if err:
+                    errors_all[err] = err_default(err, 0) + 1
+                if warn:
+                    warnings_all[warn] = warn_default(warn, 0) + 1
+                if mism:
+                    mismatches_all[mism] = mism_default(mism, 0) + 1
 
-        status = save_defconfig_errors(
-            job_id,
-            job,
-            kernel,
-            defconfig,
-            defconfig_full,
-            arch,
-            error_lines, warning_lines, mismatch_lines, db_options
-        )
+            status = save_defconfig_errors(
+                job_id,
+                job,
+                kernel,
+                defconfig,
+                defconfig_full,
+                arch,
+                error_lines, warning_lines, mismatch_lines, db_options
+            )
 
-        if status == 500:
-            error = "Error saving errors log document for %s-%s-%s (%s)"
-            utils.LOG.error(error, job, kernel, defconfig_full, arch)
-            _add_err_msg(status, error % (job, kernel, defconfig_full, arch))
+            if status == 500:
+                error = "Error saving errors log document for %s-%s-%s (%s)"
+                utils.LOG.error(error, job, kernel, defconfig_full, arch)
+                _add_err_msg(
+                    status, error % (job, kernel, defconfig_full, arch))
 
     def _save_summary():
         """Save the summary for errors/warnings/mismatches found."""
-        error_summary = mesumm.ErrorSummaryDocument(job_id, "1.0")
-        error_summary.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
-        error_summary.job = job
-        error_summary.kernel = kernel
+        # Save it only if we have something to save.
+        if any([errors_all, warnings_all, mismatches_all]):
+            error_summary = mesumm.ErrorSummaryDocument(job_id, "1.0")
+            error_summary.created_on = datetime.datetime.now(
+                tz=bson.tz_util.utc)
+            error_summary.job = job
+            error_summary.kernel = kernel
 
-        # Store the summary as lists of 2-tuple values.
-        error_summary.errors = _dict_to_list(errors_all)
-        error_summary.mismatches = _dict_to_list(mismatches_all)
-        error_summary.warnings = _dict_to_list(warnings_all)
+            # Store the summary as lists of 2-tuple values.
+            error_summary.errors = _dict_to_list(errors_all)
+            error_summary.mismatches = _dict_to_list(mismatches_all)
+            error_summary.warnings = _dict_to_list(warnings_all)
 
-        database = utils.db.get_db_connection(db_options)
-        ret_val, _ = utils.db.save(database, error_summary, manipulate=True)
+            database = utils.db.get_db_connection(db_options)
+            ret_val, _ = utils.db.save(
+                database, error_summary, manipulate=True)
 
-        if ret_val == 500:
-            error = "Error saving errors summary for %s-%s (%s)"
-            utils.LOG.error(error, job, kernel, job_id)
-            _add_err_msg(ret_val, error % (job, kernel, job_id))
+            if ret_val == 500:
+                error = "Error saving errors summary for %s-%s (%s)"
+                utils.LOG.error(error, job, kernel, job_id)
+                _add_err_msg(ret_val, error % (job, kernel, job_id))
 
     def _read_build_data(build_dir):
         """Locally read the build JSON file to retrieve some values.
