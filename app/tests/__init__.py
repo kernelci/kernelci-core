@@ -51,6 +51,7 @@ def test_modules():
         "models.tests.test_token_model",
         "utils.batch.tests.test_batch_common",
         "utils.bisect.tests.test_bisect",
+        "utils.report.tests.test_boot_report",
         "utils.report.tests.test_report_common",
         "utils.tests.test_base",
         "utils.tests.test_bootimport",

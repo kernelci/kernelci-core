@@ -119,7 +119,8 @@ def create_boot_report(job,
         0,
         spec=spec,
         fields=BOOT_SEARCH_FIELDS,
-        sort=BOOT_SEARCH_SORT)
+        sort=BOOT_SEARCH_SORT
+    )
 
     spec[models.STATUS_KEY] = {
         "$in": [models.UNTRIED_STATUS, models.UNKNOWN_STATUS]
@@ -131,7 +132,8 @@ def create_boot_report(job,
         0,
         spec=spec,
         fields=BOOT_SEARCH_FIELDS,
-        sort=BOOT_SEARCH_SORT)
+        sort=BOOT_SEARCH_SORT
+    )
 
     # MongoDB cursor gets overwritten somehow by the next query. Extract the
     # data before this happens.
@@ -147,7 +149,8 @@ def create_boot_report(job,
         0,
         spec=spec,
         fields=BOOT_SEARCH_FIELDS,
-        sort=BOOT_SEARCH_SORT)
+        sort=BOOT_SEARCH_SORT
+    )
 
     failed_data = None
     conflict_data = None
@@ -200,14 +203,6 @@ def create_boot_report(job,
             for key, val in unique_data.iteritems():
                 spec[key] = {"$in": val}
 
-            pass_results, pass_count = utils.db.find_and_count(
-                database[models.BOOT_COLLECTION],
-                0,
-                0,
-                spec=spec,
-                fields=BOOT_SEARCH_FIELDS,
-                sort=BOOT_SEARCH_SORT)
-
             if pass_count > 0:
                 # If we have such boot reports, filter and aggregate them
                 # together.
@@ -220,6 +215,15 @@ def create_boot_report(job,
                     for failed, passed in itertools.product(
                             fail_results, pass_results.clone()):
                         yield _search_conflicts(failed, passed)
+
+                pass_results = utils.db.find(
+                    database[models.BOOT_COLLECTION],
+                    0,
+                    0,
+                    spec=spec,
+                    fields=BOOT_SEARCH_FIELDS,
+                    sort=BOOT_SEARCH_SORT
+                )
 
                 # zip() is its own inverse, when using the * operator.
                 # We get back (failed,passed) tuples during the list
@@ -243,7 +247,6 @@ def create_boot_report(job,
         kwargs["conflict_count"] = conflict_count
         kwargs["conflict_data"] = conflict_data
         kwargs["fail_count"] = fail_count - conflict_count
-        kwargs["pass_count"] = total_count - fail_count - offline_count
 
         txt_body, html_body, subject = _create_boot_email(**kwargs)
     elif fail_count == 0 and total_count > 0:
@@ -565,11 +568,13 @@ def _get_boot_subject_string(**kwargs):
     :return The subject string.
     """
     k_get = kwargs.get
-    lab_name = k_get("lab_name", None)
-    total_count = k_get("total_count", 0)
     conflict_count = k_get("conflict_count", 0)
     fail_count = k_get("fail_count", 0)
+    lab_name = k_get("lab_name", None)
     offline_count = k_get("offline_count", 0)
+    pass_count = k_get("pass_count", 0)
+    total_count = k_get("total_count", 0)
+    untried_count = k_get("untried_count", 0)
 
     subject_str = u""
     base_subject = G_(u"%(job)s boot")
@@ -584,140 +589,173 @@ def _get_boot_subject_string(**kwargs):
     )
     offline_boots = G_(u"%(offline_count)d offline")
     kernel_name = G_(u"(%(kernel)s)")
-    lab_name_str = G_(u"%(lab_name)s")
-
-    subject_substitutions = {
-        "boot_name": base_subject,
-        "total_boots": total_boots,
-        "passed_boots": passed_boots,
-        "failed_boots": failed_boots,
-        "conflict_boots": conflict_boots,
-        "offline_boots": offline_boots,
-        "kernel_name": kernel_name,
-        "lab_description": lab_name_str
-    }
-
-    subject_all_pass = G_(
-        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, "
-        "%(passed_boots)s %(kernel_name)s")
-    subject_all_pass_with_lab = G_(
-        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, "
-        "%(passed_boots)s %(kernel_name)s - %(lab_description)s")
-
-    subject_pass_with_offline = G_(
-        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, "
-        "%(passed_boots)s, %(offline_boots)s %(kernel_name)s")
-    subject_pass_with_offline_with_lab = G_(
-        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, "
-        "%(passed_boots)s, %(offline_boots)s %(kernel_name)s "
-        "- %(lab_description)s"
+    lab_description = G_(u"%(lab_name)s")
+    untried_boots = P_(
+        "%(untried_count)d untried/unknown",
+        "%(untried_count)d untried/unknown",
+        untried_count
     )
 
-    subject_pass_with_conflict = G_(
-        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, "
-        "%(passed_boots)s, %(conflict_boots)s %(kernel_name)s")
-    subject_pass_with_conflict_with_lab = G_(
-        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, "
-        "%(passed_boots)s, %(conflict_boots)s %(kernel_name)s "
-        "- %(lab_description)s"
-    )
+    # Base format strings to create the subject line.
+    # 1st, 2nd, 3rd and 4th are replace with job name, total, passed, failed.
+    # The last is the kernel/git-describe value:
+    # next boot: 10 boots: 1 failed, 9 passed (next-20990101)
+    base_0 = G_(u"%s: %s: %s, %s %s")
+    # next boot: 10 boots: 0 failed, 0 passed, 10 offline (next-20990101)
+    base_1 = G_(u"%s: %s: %s, %s, %s %s")
+    # next boot: 10 boots: 1 failed, 8 passed with 1 offline (next-20990101)
+    base_2 = G_(u"%s: %s: %s, %s with %s %s")
+    # next boot: 10 boots: 1 failed, 7 passed with 1 offline,
+    # 1 untried/unknown (next-20990101)
+    # next boot: 10 boots: 1 failed, 6 passed with 1 offline,
+    # 1 untried/unknown, 1 conflict (next-20990101)
+    base_3 = G_(u"%s: %s: %s, %s with %s, %s %s")
+    base_4 = G_(u"%s: %s: %s, %s with %s, %s, %s %s")
 
-    subject_only_fail = G_(
-        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s %(kernel_name)s")
-    subject_only_fail_with_lab = G_(
-        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s %(kernel_name)s "
-        "- %(lab_description)s")
+    # Here the last is the lab name.
+    base_lab_0 = G_(u"%s: %s: %s, %s %s - %s")
+    base_lab_1 = G_(u"%s: %s: %s, %s, %s %s - %s")
+    base_lab_2 = G_(u"%s: %s: %s, %s with %s %s - %s")
+    base_lab_3 = G_(u"%s: %s: %s, %s with %s, %s %s - %s")
+    base_lab_4 = G_(u"%s: %s: %s, %s with %s, %s, %s %s - %s")
 
-    subject_with_fail = G_(
-        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, %(passed_boots)s "
-        "%(kernel_name)s")
-    subject_with_fail_with_lab = G_(
-        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, %(passed_boots)s "
-        "%(kernel_name)s - %(lab_description)s")
+    if any([total_count == pass_count, total_count == fail_count]):
+        # Everything is good or failed.
+        if lab_name:
+            subject_str = base_lab_0 % (
+                base_subject,
+                total_boots,
+                failed_boots,
+                passed_boots, kernel_name, lab_description)
+        else:
+            subject_str = base_0 % (
+                base_subject,
+                total_boots, failed_boots, passed_boots, kernel_name)
+    elif total_count == offline_count:
+        # Everything is offline.
+        if lab_name:
+            subject_str = base_lab_1 % (
+                base_subject,
+                total_boots,
+                failed_boots,
+                passed_boots, offline_boots, kernel_name, lab_description)
+        else:
+            subject_str = base_1 % (
+                base_subject,
+                total_boots,
+                failed_boots, passed_boots, offline_boots, kernel_name)
+    elif total_count == untried_count:
+        # Everything is untried/unknown.
+        if lab_name:
+            subject_str = base_lab_1 % (
+                base_subject,
+                total_boots,
+                failed_boots,
+                passed_boots, untried_boots, kernel_name, lab_description)
+        else:
+            subject_str = base_1 % (
+                base_subject,
+                total_boots,
+                failed_boots, passed_boots, untried_boots, kernel_name)
+    elif all([untried_count == 0, offline_count == 0, conflict_count == 0]):
+        # Passed and failed.
+        if lab_name:
+            subject_str = base_lab_0 % (
+                base_subject,
+                total_boots,
+                failed_boots,
+                passed_boots, kernel_name, lab_description)
+        else:
+            subject_str = base_0 % (
+                base_subject,
+                total_boots, failed_boots, passed_boots, kernel_name)
+    elif all([untried_count > 0, offline_count == 0, conflict_count == 0]):
+        # Passed, failed and untried.
+        if lab_name:
+            subject_str = base_lab_2 % (
+                base_subject,
+                total_boots,
+                failed_boots,
+                passed_boots, untried_boots, kernel_name, lab_description)
+        else:
+            subject_str = base_2 % (
+                base_subject,
+                total_boots,
+                failed_boots, passed_boots, untried_boots, kernel_name)
+    elif all([untried_count > 0, offline_count > 0, conflict_count == 0]):
+        # Passed, failed, untried and offline.
+        if lab_name:
+            subject_str = base_lab_3 % (
+                base_subject,
+                total_boots,
+                failed_boots,
+                passed_boots,
+                offline_boots, untried_boots, kernel_name, lab_description)
+        else:
+            subject_str = base_3 % (
+                base_subject,
+                total_boots,
+                failed_boots,
+                passed_boots, offline_boots, untried_boots, kernel_name)
+    elif all([untried_count > 0, offline_count > 0, conflict_count > 0]):
+        # Passed, failed, untried and offline with conflict.
+        if lab_name:
+            subject_str = base_lab_4 % (
+                base_subject,
+                total_boots,
+                failed_boots,
+                passed_boots,
+                offline_boots,
+                untried_boots, conflict_boots, kernel_name, lab_description)
+        else:
+            subject_str = base_4 % (
+                base_subject,
+                total_boots,
+                failed_boots,
+                passed_boots,
+                offline_boots, untried_boots, conflict_boots, kernel_name)
+    elif all([untried_count == 0, offline_count > 0, conflict_count == 0]):
+        # Passed, failed and offline.
+        if lab_name:
+            subject_str = base_lab_2 % (
+                base_subject,
+                total_boots,
+                failed_boots,
+                passed_boots, offline_boots, kernel_name, lab_description)
+        else:
+            subject_str = base_2 % (
+                base_subject,
+                total_boots,
+                failed_boots, passed_boots, offline_boots, kernel_name)
+    elif all([untried_count == 0, offline_count > 0, conflict_count > 0]):
+        # Passed, failed, offline with conflicts.
+        if lab_name:
+            subject_str = base_lab_3 % (
+                base_subject,
+                total_boots,
+                failed_boots,
+                passed_boots,
+                offline_boots, conflict_boots, kernel_name, lab_description)
+        else:
+            subject_str = base_3 % (
+                base_subject,
+                total_boots,
+                failed_boots,
+                passed_boots, offline_boots, conflict_boots, kernel_name)
+    elif all([untried_count == 0, offline_count == 0, conflict_count > 0]):
+        # Passed, failed with conflicts.
+        if lab_name:
+            subject_str = base_lab_2 % (
+                base_subject,
+                total_boots,
+                failed_boots,
+                passed_boots, conflict_boots, kernel_name, lab_description)
+        else:
+            subject_str = base_2 % (
+                base_subject,
+                total_boots,
+                failed_boots, passed_boots, conflict_boots, kernel_name)
 
-    subject_with_fail_and_conflict = G_(
-        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, %(passed_boots)s "
-        "with %(conflict_boots)s %(kernel_name)s")
-    subject_with_fail_and_conflict_with_lab = G_(
-        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, %(passed_boots)s "
-        "with %(conflict_boots)s %(kernel_name)s - %(lab_description)s")
-
-    subject_with_fail_and_offline = G_(
-        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, %(passed_boots)s "
-        "with %(offline_boots)s %(kernel_name)s")
-    subject_with_fail_and_offline_with_lab = G_(
-        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, %(passed_boots)s "
-        "with %(offline_boots)s %(kernel_name)s - %(lab_description)s")
-
-    all_subject = G_(
-        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, %(passed_boots)s "
-        "with %(conflict_boots)s, %(offline_boots)s %(kernel_name)s")
-    all_subject_with_lab = G_(
-        u"%(boot_name)s: %(total_boots)s: %(failed_boots)s, %(passed_boots)s "
-        "with %(conflict_boots)s, %(offline_boots)s %(kernel_name)s "
-        "- %(lab_description)s"
-    )
-
-    if all([fail_count == 0, offline_count == 0, conflict_count == 0]):
-        # All is good!
-        if lab_name:
-            subject_str = subject_all_pass_with_lab
-        else:
-            subject_str = subject_all_pass
-    elif all([fail_count == 0, offline_count == 0, conflict_count > 0]):
-        if lab_name:
-            subject_str = subject_pass_with_conflict_with_lab
-        else:
-            subject_str = subject_pass_with_conflict
-    elif all([fail_count == 0, offline_count > 0, conflict_count == 0]):
-        # We only have offline boards.
-        if lab_name:
-            subject_str = subject_pass_with_offline_with_lab
-        else:
-            subject_str = subject_pass_with_offline
-    elif all([
-            fail_count > 0, offline_count == 0, conflict_count == 0,
-            fail_count == total_count]):
-        # We only have failed data.
-        if lab_name:
-            subject_str = subject_only_fail_with_lab
-        else:
-            subject_str = subject_only_fail
-    elif all([
-            fail_count > 0, offline_count == 0, conflict_count == 0,
-            fail_count != total_count]):
-        # We have some failed boots.
-        if lab_name:
-            subject_str = subject_with_fail_with_lab
-        else:
-            subject_str = subject_with_fail
-    elif all([
-            fail_count > 0, offline_count > 0, conflict_count == 0,
-            fail_count != total_count]):
-        # We have failed and offline boots.
-        if lab_name:
-            subject_str = subject_with_fail_and_offline_with_lab
-        else:
-            subject_str = subject_with_fail_and_offline
-    elif all([
-            fail_count > 0, offline_count == 0, conflict_count > 0,
-            fail_count != total_count]):
-        # We have failed on conflicting boots.
-        if lab_name:
-            subject_str = subject_with_fail_and_conflict_with_lab
-        else:
-            subject_str = subject_with_fail_and_conflict
-    elif all([
-            fail_count > 0, offline_count > 0, conflict_count > 0,
-            fail_count != total_count]):
-        # We have everything, failed, offline and conflicting.
-        if lab_name:
-            subject_str = all_subject_with_lab
-        else:
-            subject_str = all_subject
-
-    # Perform all the normal placeholder substitutions.
-    subject_str = subject_str % subject_substitutions
     # Now fill in the values.
     subject_str = subject_str % kwargs
 
