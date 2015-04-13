@@ -162,6 +162,21 @@ class TestBootReport(unittest.TestCase):
         self.assertIsNotNone(subj)
         self.assertEqual(expected, subj)
 
+        # Passed, fail with conflicts.
+        kwargs["fail_count"] = 2
+        kwargs["pass_count"] = 6
+        kwargs["offline_count"] = 0
+        kwargs["untried_count"] = 0
+        kwargs["conflict_count"] = 2
+
+        subj = breport._get_boot_subject_string(**kwargs)
+
+        expected = (
+            "a-job boot: 10 boots: 2 failed, 6 passed with 2 conflicts "
+            "(a-kernel)")
+        self.assertIsNotNone(subj)
+        self.assertEqual(expected, subj)
+
     def test_boot_subject_line_with_lab(self):
 
         kwargs = {
@@ -304,5 +319,20 @@ class TestBootReport(unittest.TestCase):
         expected = (
             "a-job boot: 10 boots: 2 failed, 5 passed with 2 offline, "
             "1 conflict (a-kernel) - a-lab")
+        self.assertIsNotNone(subj)
+        self.assertEqual(expected, subj)
+
+        # Passed, fail with conflicts.
+        kwargs["fail_count"] = 2
+        kwargs["pass_count"] = 6
+        kwargs["offline_count"] = 0
+        kwargs["untried_count"] = 0
+        kwargs["conflict_count"] = 2
+
+        subj = breport._get_boot_subject_string(**kwargs)
+
+        expected = (
+            "a-job boot: 10 boots: 2 failed, 6 passed with 2 conflicts "
+            "(a-kernel) - a-lab")
         self.assertIsNotNone(subj)
         self.assertEqual(expected, subj)
