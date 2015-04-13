@@ -597,7 +597,7 @@ def _get_boot_subject_string(**kwargs):
     )
 
     # Base format strings to create the subject line.
-    # 1st, 2nd, 3rd and 4th are replace with job name, total, passed, failed.
+    # 1st, 2nd, 3rd and 4th are replaced with job name, total, failed, passed.
     # The last is the kernel/git-describe value:
     # next boot: 10 boots: 1 failed, 9 passed (next-20990101)
     base_0 = G_(u"%s: %s: %s, %s %s")
