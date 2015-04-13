@@ -546,7 +546,6 @@ def _get_build_subject_string(**kwargs):
     :return The subject string.
     """
     k_get = kwargs.get
-    fail_count = k_get("fail_count", 0)
     total_count = k_get("total_count", 0)
     errors = k_get("errors_count", 0)
     warnings = k_get("warnings_count", 0)
@@ -565,87 +564,38 @@ def _get_build_subject_string(**kwargs):
         u"%(warnings_count)d warning",
         u"%(warnings_count)d warnings", warnings)
 
-    subject_substitutions = {
-        "build_name": base_subject,
-        "errors_string": errors_string,
-        "failed_builds": failed_builds,
-        "kernel_name": kernel_name,
-        "passed_builds": passed_builds,
-        "total_builds": total_builds,
-        "warnings_string": warnings_string
-    }
+    # Base format string to create the subject line.
+    # 1st, 2nd, 3rd, 4th: job name, total count, fail count, pass count.
+    # The last one is always the kernel/git-describe name.
+    # The others will contain errors and warnings count.
+    # next build: 0 failed, 10 passed (next-20150401)
+    base_0 = G_(u"%s: %s: %s, %s %s")
+    # next build: 0 failed, 10 passed, 2 warnings (next-20150401)
+    base_1 = G_(u"%s: %s: %s, %s, %s %s")
+    # next build: 0 failed, 10 passed, 1 error, 2 warnings (next-20150401)
+    base_2 = G_(u"%s: %s: %s, %s, %s, %s %s")
 
-    if all([fail_count == 0, total_count != 0, errors == 0, warnings == 0]):
-        subject_str = G_(
-            u"%(build_name)s: %(total_builds)s: %(failed_builds)s, "
-            "%(passed_builds)s %(kernel_name)s")
-    elif all([fail_count == 0, total_count != 0, errors == 0, warnings != 0]):
-        subject_str = G_(
-            u"%(build_name)s: %(total_builds)s: %(failed_builds)s, "
-            "%(passed_builds)s, %(warnings_string)s %(kernel_name)s")
-    elif all([fail_count == 0, total_count != 0, errors != 0, warnings != 0]):
-        subject_str = G_(
-            u"%(build_name)s: %(total_builds)s: %(failed_builds)s, "
-            "%(passed_builds)s, %(errors_string)s, %(warnings_string)s "
-            "%(kernel_name)s"
-        )
-    elif all([fail_count == 0, total_count != 0, errors != 0, warnings == 0]):
-        subject_str = G_(
-            u"%(build_name)s: %(total_builds)s: %(failed_builds)s, "
-            "%(passed_builds)s, %(errors_string)s %(kernel_name)s")
-    elif all([
-            fail_count != 0,
-            fail_count != total_count, errors == 0, warnings != 0]):
-        subject_str = G_(
-            u"%(build_name)s: %(total_builds)s: %(failed_builds)s, "
-            "%(passed_builds)s, %(warnings_string)s %(kernel_name)s")
-    elif all([
-            fail_count != 0,
-            fail_count != total_count, errors != 0, warnings != 0]):
-        subject_str = G_(
-            u"%(build_name)s: %(total_builds)s: %(failed_builds)s, "
-            "%(passed_builds)s, %(errors_string)s, %(warnings_string)s "
-            "%(kernel_name)s"
-        )
-    elif all([
-            fail_count != 0,
-            fail_count != total_count, errors != 0, warnings == 0]):
-        subject_str = G_(
-            u"%(build_name)s: %(total_builds)s: %(failed_builds)s, "
-            "%(passed_builds)s, %(errors_string)s, %(kernel_name)s")
-    elif all([
-            fail_count != 0,
-            fail_count != total_count, errors == 0, warnings == 0]):
-        subject_str = G_(
-            u"%(build_name)s: %(total_builds)s: %(failed_builds)s, "
-            "%(passed_builds)s, %(kernel_name)s")
-    elif all([
-            fail_count != 0,
-            fail_count == total_count, errors == 0, warnings == 0]):
-        subject_str = G_(
-            u"%(build_name)s: %(total_builds)s: %(failed_builds)s "
-            "%(kernel_name)s")
-    elif all([
-            fail_count != 0,
-            fail_count == total_count, errors == 0, warnings != 0]):
-        subject_str = G_(
-            u"%(build_name)s: %(total_builds)s: %(failed_builds)s "
-            "%(warnings_string)s %(kernel_name)s")
-    elif all([
-            fail_count != 0,
-            fail_count == total_count, errors != 0, warnings != 0]):
-        subject_str = G_(
-            u"%(build_name)s: %(total_builds)s: %(failed_builds)s "
-            "%(errors_string)s, %(warnings_string)s %(kernel_name)s")
-    elif all([
-            fail_count != 0,
-            fail_count == total_count, errors != 0, warnings == 0]):
-        subject_str = G_(
-            u"%(build_name)s: %(total_builds)s: %(failed_builds)s "
-            "%(errors_string)s %(kernel_name)s")
+    if all([errors == 0, warnings == 0]):
+        subject_str = base_0 % (
+            base_subject,
+            total_builds, failed_builds, passed_builds, kernel_name)
+    elif all([errors == 0, warnings != 0]):
+        subject_str = base_1 % (
+            base_subject,
+            total_builds,
+            failed_builds, passed_builds, warnings_string, kernel_name)
+    elif all([errors != 0, warnings != 0]):
+        subject_str = base_2 % (
+            base_subject,
+            total_builds,
+            failed_builds,
+            passed_builds, errors_string, warnings_string, kernel_name)
+    elif all([errors != 0, warnings == 0]):
+        subject_str = base_1 % (
+            base_subject,
+            total_builds,
+            failed_builds, passed_builds, errors_string, kernel_name)
 
-    # Perform all the normal placeholder substitutions.
-    subject_str = subject_str % subject_substitutions
     # Now fill in the values.
     subject_str = subject_str % kwargs
 
