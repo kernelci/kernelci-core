@@ -35,6 +35,7 @@ class TestTestSuiteModel(unittest.TestCase):
         test_suite.created_on = "now"
         test_suite.defconfig = "defconfig"
         test_suite.defconfig_id = "another_defconfig_id"
+        test_suite.definition_uri = "uri"
         test_suite.id = "id"
         test_suite.job = "job"
         test_suite.job_id = "job_id"
@@ -44,6 +45,7 @@ class TestTestSuiteModel(unittest.TestCase):
         test_suite.test_case = ["foo"]
         test_suite.test_set = ["bar"]
         test_suite.time = 10
+        test_suite.vcs_commit = "1234"
         test_suite.version = "1.1"
 
         expected = {
@@ -56,6 +58,7 @@ class TestTestSuiteModel(unittest.TestCase):
             "defconfig": "defconfig",
             "defconfig_full": "defconfig",
             "defconfig_id": "another_defconfig_id",
+            "definition_uri": "uri",
             "job": "job",
             "job_id": "job_id",
             "kernel": "kernel",
@@ -65,7 +68,8 @@ class TestTestSuiteModel(unittest.TestCase):
             "test_case": ["foo"],
             "test_set": ["bar"],
             "time": 10,
-            "version": "1.1",
+            "vcs_commit": "1234",
+            "version": "1.1"
         }
 
         self.assertDictEqual(expected, test_suite.to_dict())
@@ -95,6 +99,7 @@ class TestTestSuiteModel(unittest.TestCase):
             "defconfig": "defconfig",
             "defconfig_full": "defconfig",
             "defconfig_id": "defconfig_id",
+            "definition_uri": "uri",
             "job": "job",
             "job_id": "job_id",
             "kernel": "kernel",
@@ -104,6 +109,7 @@ class TestTestSuiteModel(unittest.TestCase):
             "test_case": ["foo"],
             "test_set": ["bar"],
             "time": 10,
+            "vcs_commit": "1234",
             "version": "1.0",
         }
 

@@ -377,6 +377,7 @@ TEST_SUITE_VALID_KEYS = {
             models.DEFCONFIG_FULL_KEY,
             models.DEFCONFIG_ID_KEY,
             models.DEFCONFIG_KEY,
+            models.DEFINITION_URI_KEY,
             models.JOB_ID_KEY,
             models.JOB_KEY,
             models.KERNEL_KEY,
@@ -385,6 +386,7 @@ TEST_SUITE_VALID_KEYS = {
             models.NAME_KEY,
             models.TEST_CASE_KEY,
             models.TEST_SET_KEY,
+            models.VCS_COMMIT_KEY,
             models.VERSION_KEY
         ]
     },
@@ -397,11 +399,13 @@ TEST_SUITE_VALID_KEYS = {
         models.DEFCONFIG_FULL_KEY,
         models.DEFCONFIG_ID_KEY,
         models.DEFCONFIG_KEY,
+        models.DEFINITION_URI_KEY,
         models.JOB_ID_KEY,
         models.JOB_KEY,
         models.KERNEL_KEY,
         models.METADATA_KEY,
         models.NAME_KEY,
+        models.VCS_COMMIT_KEY,
         models.VERSION_KEY
     ],
     "GET": [
@@ -413,11 +417,13 @@ TEST_SUITE_VALID_KEYS = {
         models.DEFCONFIG_FULL_KEY,
         models.DEFCONFIG_ID_KEY,
         models.DEFCONFIG_KEY,
+        models.DEFINITION_URI_KEY,
         models.JOB_ID_KEY,
         models.JOB_KEY,
         models.KERNEL_KEY,
         models.LAB_NAME_KEY,
         models.TIME_KEY,
+        models.VCS_COMMIT_KEY,
         models.VERSION_KEY
     ]
 }
@@ -444,18 +450,22 @@ TEST_SET_VALID_KEYS = {
     },
     "PUT": [
         models.CREATED_KEY,
+        models.DEFINITION_URI_KEY,
         models.NAME_KEY,
         models.PARAMETERS_KEY,
         models.TEST_SUITE_ID_KEY,
         models.TIME_KEY,
+        models.VCS_COMMIT_KEY,
         models.VERSION_KEY
     ],
     "GET": [
         models.CREATED_KEY,
+        models.DEFINITION_URI_KEY,
         models.NAME_KEY,
         models.PARAMETERS_KEY,
         models.TEST_SUITE_ID_KEY,
         models.TIME_KEY,
+        models.VCS_COMMIT_KEY,
         models.VERSION_KEY
     ]
 }

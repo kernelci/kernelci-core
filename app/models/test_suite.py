@@ -55,6 +55,7 @@ class TestSuiteDocument(mbase.BaseDocument):
         self.boot_id = None
         self.defconfig = None
         self.defconfig_full = None
+        self.definition_uri = None
         self.job = None
         self.job_id = None
         self.kernel = None
@@ -62,6 +63,7 @@ class TestSuiteDocument(mbase.BaseDocument):
         self.test_case = []
         self.test_set = []
         self.time = -1
+        self.vcs_commit = None
 
     @property
     def collection(self):
@@ -132,6 +134,7 @@ class TestSuiteDocument(mbase.BaseDocument):
             models.DEFCONFIG_FULL_KEY: self.defconfig_full or self.defconfig,
             models.DEFCONFIG_ID_KEY: self.defconfig_id,
             models.DEFCONFIG_KEY: self.defconfig,
+            models.DEFINITION_URI_KEY: self.definition_uri,
             models.JOB_ID_KEY: self.job_id,
             models.JOB_KEY: self.job,
             models.KERNEL_KEY: self.kernel,
@@ -141,7 +144,8 @@ class TestSuiteDocument(mbase.BaseDocument):
             models.TEST_CASE_KEY: self.test_case,
             models.TEST_SET_KEY: self.test_set,
             models.TIME_KEY: self.time,
-            models.VERSION_KEY: self.version,
+            models.VCS_COMMIT_KEY: self.vcs_commit,
+            models.VERSION_KEY: self.version
         }
 
         if self.id:
