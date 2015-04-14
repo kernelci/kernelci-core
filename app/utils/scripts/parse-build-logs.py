@@ -28,72 +28,98 @@ import utils.db
 import utils.log_parser
 
 
-def main(job):
+def main(job, kernel=None):
     status = 0
 
     database = utils.db.get_db_connection({})
-    start_path = os.path.join(utils.BASE_PATH, job)
 
-    if os.path.isdir(start_path):
-        for dirname, subdirs, files in os.walk(start_path):
-            base_name = os.path.basename(dirname)
+    if kernel:
+        spec = {
+            models.JOB_KEY: job,
+            models.KERNEL_KEY: kernel
+        }
+        job_doc = utils.db.find_one2(
+            database[models.JOB_COLLECTION],
+            spec,
+            [models.ID_KEY]
+        )
 
-            if dirname == start_path:
-                continue
+        if job_doc:
+            job_id = job_doc[models.ID_KEY]
 
-            if base_name.startswith("."):
-                continue
+            json_obj = {
+                models.JOB_KEY: job,
+                models.KERNEL_KEY: kernel
+            }
+            utils.log_parser.parse_build_log(
+                job_id, json_obj, {})
+        else:
+            utils.LOG.error("Cannot find job ID for %s-%s", job, kernel)
+            status = 1
+    else:
+        start_path = os.path.join(utils.BASE_PATH, job)
+        if os.path.isdir(start_path):
+            for dirname, subdirs, files in os.walk(start_path):
+                base_name = os.path.basename(dirname)
 
-            if any(["build.json" not in files, "build.log" not in files]):
-                continue
+                if dirname == start_path:
+                    continue
 
-            build_json = os.path.join(dirname, "build.json")
-            build_log = os.path.join(dirname, utils.BUILD_LOG_FILE)
+                if base_name.startswith("."):
+                    continue
 
-            kernel = None
+                if any(["build.json" not in files, "build.log" not in files]):
+                    continue
 
-            if all([os.path.isfile(build_log), os.path.isfile(build_json)]):
-                build_data = None
-                with open(build_json, "r") as json_data:
-                    build_data = json.load(json_data)
+                build_json = os.path.join(dirname, "build.json")
+                build_log = os.path.join(dirname, utils.BUILD_LOG_FILE)
 
-                new_kernel = build_data.get(models.GIT_DESCRIBE_KEY)
+                kernel = None
 
-                if new_kernel:
-                    if new_kernel != kernel:
-                        kernel = new_kernel
+                if all([
+                        os.path.isfile(build_log),
+                        os.path.isfile(build_json)]):
+                    build_data = None
+                    with open(build_json, "r") as json_data:
+                        build_data = json.load(json_data)
 
-                        spec = {
-                            models.JOB_KEY: job,
-                            models.KERNEL_KEY: kernel
-                        }
-                        job_doc = utils.db.find_one2(
-                            database[models.JOB_COLLECTION],
-                            spec,
-                            [models.ID_KEY]
-                        )
+                    new_kernel = build_data.get(models.GIT_DESCRIBE_KEY)
 
-                    if job_doc:
-                        job_id = job_doc[models.ID_KEY]
-                        utils.LOG.info(job_id)
+                    if new_kernel:
+                        if new_kernel != kernel:
+                            kernel = new_kernel
 
-                        json_obj = {
-                            models.JOB_KEY: job,
-                            models.KERNEL_KEY: kernel
-                        }
-                        utils.log_parser.parse_build_log(job_id, json_obj, {})
+                            spec = {
+                                models.JOB_KEY: job,
+                                models.KERNEL_KEY: kernel
+                            }
+                            job_doc = utils.db.find_one2(
+                                database[models.JOB_COLLECTION],
+                                spec,
+                                [models.ID_KEY]
+                            )
+
+                        if job_doc:
+                            job_id = job_doc[models.ID_KEY]
+
+                            json_obj = {
+                                models.JOB_KEY: job,
+                                models.KERNEL_KEY: kernel
+                            }
+                            utils.log_parser.parse_build_log(
+                                job_id, json_obj, {})
+                        else:
+                            status = 1
+                            utils.LOG.error(
+                                "Job ID missing for %s", dirname)
                     else:
                         status = 1
                         utils.LOG.error(
-                            "Job ID missing for %s", dirname)
-                else:
-                    status = 1
-                    utils.LOG.error(
-                        "Missing kernel key in the build json file for %s",
-                        dirname)
-    else:
-        status = 1
-        utils.LOG.error("Cannot find directory for job %s", job)
+                            "Missing kernel key in the build json file for %s",
+                            dirname)
+        else:
+            status = 1
+            utils.LOG.error("Cannot find directory for job %s", job)
 
     return status
 
@@ -110,8 +136,16 @@ if __name__ == "__main__":
         dest="job",
         required=True,
     )
+    parser.add_argument(
+        "--kernel", "-k",
+        type=str,
+        help="The name of the kernel",
+        dest="kernel",
+        default=None,
+    )
 
     args = parser.parse_args()
     job = args.job
+    kernel = args.kernel
 
-    sys.exit(main(job))
+    sys.exit(main(job, kernel))
