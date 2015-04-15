@@ -50,6 +50,9 @@ HTML_YELLOW = u"#f0ad4e"
 # Base path where the templates are stored.
 TEMPLATES_DIR = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "templates/")
+# The templates loader.
+TEMPLATES_ENV = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(TEMPLATES_DIR))
 
 # The following structure is used to give translation rules to known
 # git:// URLs.
@@ -289,10 +292,7 @@ def create_html_email(template_name, **kwargs):
     :return The body in HTML format as a string.
     """
     html_body = u""
-
-    template_env = jinja2.Environment(
-        loader=jinja2.FileSystemLoader(TEMPLATES_DIR))
-    html_body = template_env.get_template(template_name).render(**kwargs)
+    html_body = TEMPLATES_ENV.get_template(template_name).render(**kwargs)
 
     return htmlmin.minify.html_minify(html_body)
 
@@ -305,10 +305,7 @@ def create_txt_email(template_name, **kwargs):
     :return The body as a unicode string.
     """
     txt_body = u""
-
-    template_env = jinja2.Environment(
-        loader=jinja2.FileSystemLoader(TEMPLATES_DIR))
-    txt_body = template_env.get_template(template_name).render(**kwargs)
+    txt_body = TEMPLATES_ENV.get_template(template_name).render(**kwargs)
 
     return txt_body
 
