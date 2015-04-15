@@ -45,6 +45,22 @@ BUILD_SEARCH_SORT = [
     (models.ARCHITECTURE_KEY, pymongo.ASCENDING)
 ]
 
+# Various build URLS.
+DEFCONFIG_URL = (
+    u"%(build_url)s/%(job)s/kernel/%(kernel)s/defconfig/%(defconfig)s/")
+LOG_URL = (
+    u"%(storage_url)s/%(job)s/%(kernel)s/%(arch)s-%(defconfig)s/" +
+    utils.BUILD_LOG_FILE)
+ERR_LOG_URL = (
+    u"%(storage_url)s/%(job)s/%(kernel)s/%(arch)s-%(defconfig)s/" +
+    utils.BUILD_ERRORS_FILE)
+WARN_LOG_URL = (
+    u"%(storage_url)s/%(job)s/%(kernel)s/%(arch)s-%(defconfig)s/" +
+    utils.BUILD_WARNINGS_FILE)
+MISM_LOG_URL = (
+    u"%(storage_url)s/%(job)s/%(kernel)s/%(arch)s-%(defconfig)s/" +
+    utils.BUILD_MISMATCHES_FILE)
+
 
 # pylint: disable=too-many-locals
 # pylint: disable=star-args
@@ -396,20 +412,18 @@ def _parse_and_structure_results(**kwargs):
     storage_url = k_get("storage_url")
     warnings_count = k_get("warnings_count", 0)
 
-    defconfig_url = (
-        u"%(build_url)s/%(job)s/kernel/%(kernel)s/defconfig/%(defconfig)s/")
-    log_url = (
-        u"%(storage_url)s/%(job)s/%(kernel)s/%(arch)s-%(defconfig)s/build.log")
-
     # Local substitutions dictionary, common to both data structures parsed.
     gen_subs = {
         "build_url": build_url,
-        "defconfig_url": defconfig_url,
+        "defconfig_url": DEFCONFIG_URL,
+        "err_log_url": ERR_LOG_URL,
         "job": job,
         "kernel": kernel,
-        "log_url": log_url,
+        "log_url": LOG_URL,
+        "mism_log_url": MISM_LOG_URL,
         "red": rcommon.HTML_RED,
         "storage_url": storage_url,
+        "warn_log_url": WARN_LOG_URL,
         "yellow": rcommon.HTML_YELLOW
     }
 
@@ -506,20 +520,20 @@ def _parse_and_structure_results(**kwargs):
                             u"%(err_string)s, %(warn_string)s")
                         html_desc_str = G_(
                             u"<a style=\"color: %(red)s;\" "
-                            "href=\"%(log_url)s\">%(err_string)s</a>, "
+                            "href=\"%(err_log_url)s\">%(err_string)s</a>, "
                             "<a style=\"color: %(yellow)s;\" "
-                            "href=\"%(log_url)s\">%(warn_string)s</a>"
+                            "href=\"%(warn_log_url)s\">%(warn_string)s</a>"
                         )
                     elif all([err_numb > 0, warn_numb == 0]):
                         txt_desc_str = u"%(err_string)s"
                         html_desc_str = (
                             u"<a style=\"color: %(red)s;\" "
-                            "href=\"%(log_url)s\">%(err_string)s</a>")
+                            "href=\"%(err_log_url)s\">%(err_string)s</a>")
                     elif all([err_numb == 0, warn_numb > 0]):
                         txt_desc_str = u"%(warn_string)s"
                         html_desc_str = (
                             u"<a style=\"color: %(yellow)s;\" "
-                            "href=\"%(log_url)s\">%(warn_string)s</a>")
+                            "href=\"%(warn_log_url)s\">%(warn_string)s</a>")
 
                     txt_desc_str = txt_desc_str % subs
                     html_desc_str = html_desc_str % subs
