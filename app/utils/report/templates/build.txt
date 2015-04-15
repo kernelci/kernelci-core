@@ -34,6 +34,26 @@
 {% endfor %}{# arch #}
 {%- endif %}{# end error_data #}
 {%- endif %}{# end platforms #}
+{%- if errors_summary %}
+{% if errors_summary.errors %}
+Errors summary:
+{% for err in errors_summary.errors %}
+    {{ "{:>3d}  {:s}".format(err[0], err[1]) -}}
+{% endfor %}
+{%- endif %}{# end errors #}
+{% if errors_summary.warnings %}
+Warnings summary:
+{% for warn in errors_summary.warnings %}
+    {{ "{:>3d}  {:s}".format(warn[0], warn[1]) -}}
+{% endfor %}
+{%- endif %}{# end warnings #}
+{%- endif %}{# and errors summary #}
+{% if errors_summary.mismatches %}
+Mismatches summary:
+{% for mism in errors_summary.mismatches %}
+    {{ "{:>3d}  {:s}".format(mism[0], mism[1]) -}}
+{% endfor %}
+{% endif %}{# end warnings #}
 {%- if info_email %}
 ---
 For more info write to <{{ info_email }}>
