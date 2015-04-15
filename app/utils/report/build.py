@@ -114,10 +114,24 @@ def create_build_report(job,
 
     failed_data = _parse_build_data(fail_results.clone())
 
+    summary_spec = {
+        models.JOB_KEY: job,
+        models.KERNEL_KEY: kernel
+    }
+    summary_fields = [
+        models.ERRORS_KEY, models.WARNINGS_KEY, models.MISMATCHES_KEY
+    ]
+    errors_summary = utils.db.find_one2(
+        database[models.ERRORS_SUMMARY_COLLECTION],
+        summary_spec,
+        summary_fields
+    )
+
     kwargs = {
         "base_url": rcommon.DEFAULT_BASE_URL,
         "build_url": rcommon.DEFAULT_BUILD_URL,
         "email_format": email_format,
+        "errors_summary": errors_summary,
         "error_data": err_data,
         "errors_count": errors_count,
         "fail_count": fail_count,
