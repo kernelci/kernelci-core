@@ -21,14 +21,11 @@
                 "dtb": "{dtb_url}",
                 "kernel": "{kernel_url}",
                 "overlays": ["{modules_url}"],
-                "ramdisk": "http://people.linaro.org/~anders.roxell/buildroot-latest-2015.09.02/rootfs.cpio.gz"
+                "ramdisk": "http://storage.kernelci.org/images/rootfs/buildroot/arm64/tests/rootfs.cpio.gz"
             }
         },
         {
-            "command": "boot_linaro_image",
-            "parameters": {
-                "test_image_prompt": "sh-4.3#"
-            }
+            "command": "boot_linaro_image"
         },
         {
             "command": "lava_command_run",
@@ -36,7 +33,7 @@
                 "commands": [
                     "export LAVA_TESTDIR=/usr/share/linaro-testsuites",
                     "cd ${LAVA_TESTDIR}",
-                    "for i in {1..1000}; do timeout 10s hackbench | tee -a hackbench_res.txt; done",
+                    "for i in $(seq 1 1000); do timeout 10s hackbench | tee -a hackbench_res.txt; done",
                     "./common/scripts/min_max_avg_parse.py hackbench_res.txt 'Time:' 'Seconds'"
                 ],
                 "fixupdict": [
@@ -45,7 +42,7 @@
                     "SKIP:skip"
                 ],
                 "parser": "^(?P<test_case_id>[^:]+):\\s*(?P<measurement>[0-9.]+)\\s+(?P<units>\\w+)\\s+(?P<result>\\w+)",
-                "timeout": 3000
+                "timeout": 5000
             }
         },
         {
