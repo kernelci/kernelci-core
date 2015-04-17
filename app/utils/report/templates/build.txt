@@ -49,7 +49,7 @@ Warnings summary:
 {%- endif %}{# end warnings #}
 {%- endif %}{# and errors summary #}
 {% if errors_summary.mismatches %}
-Mismatches summary:
+Section mismatches summary:
 {% for mism in errors_summary.mismatches %}
     {{ "{:>3d}  {:s}".format(mism[0], mism[1]) -}}
 {% endfor %}
