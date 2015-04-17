@@ -13,6 +13,7 @@
 
 """Common functions for email reports creation."""
 
+import gettext
 import htmlmin.minify
 import jinja2
 import os
@@ -24,6 +25,11 @@ import models
 import models.report as mreport
 import utils
 
+# Register the translation domain and fallback safely, at the moment we do
+# not care if we have translations or not, we just use gettext to exploit its
+# plural forms capabilities. We mark the email string as translatable though
+# so we might give that feature in the future.
+L10N = gettext.translation(models.I18N_DOMAIN, fallback=True)
 
 DEFAULT_UNIQUE_KEYS = [
     models.ARCHITECTURE_KEY,
@@ -52,7 +58,11 @@ TEMPLATES_DIR = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "templates/")
 # The templates loader.
 TEMPLATES_ENV = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(TEMPLATES_DIR))
+    loader=jinja2.FileSystemLoader(TEMPLATES_DIR),
+    extensions=["jinja2.ext.i18n"])
+# Register gettext translate functions: normal and plural Unicode.
+TEMPLATES_ENV.globals["G_"] = L10N.ugettext
+TEMPLATES_ENV.globals["P_"] = L10N.ungettext
 
 # The following structure is used to give translation rules to known
 # git:// URLs.
