@@ -54,12 +54,15 @@ class TestErrorLogModel(unittest.TestCase):
         doc.defconfig_full = "defconfig_full"
         doc.defconfig_id = "defconfig_id"
         doc.errors = ["error1"]
+        doc.errors_count = 1
         doc.job = "job"
         doc.kernel = "kernel"
         doc.mismatches = ["mismatch1"]
+        doc.mismatches_count = 1
         doc.status = "FAIL"
         doc.version = "1.1"
         doc.warnings = ["warning1"]
+        doc.warnings_count = 1
 
         expected = {
             "arch": "arm",
@@ -68,14 +71,17 @@ class TestErrorLogModel(unittest.TestCase):
             "defconfig_full": "defconfig_full",
             "defconfig_id": "defconfig_id",
             "errors": ["error1"],
+            "errors_count": 1,
             "job": "job",
             "job_id": "job_id",
             "kernel": "kernel",
             "mismatches": ["mismatch1"],
+            "mismatches_count": 1,
             "name": "job_id",
             "status": "FAIL",
             "version": "1.1",
-            "warnings": ["warning1"]
+            "warnings": ["warning1"],
+            "warnings_count": 1
         }
 
         self.assertDictEqual(expected, doc.to_dict())
@@ -93,14 +99,17 @@ class TestErrorLogModel(unittest.TestCase):
             "defconfig_full": "defconfig_full",
             "defconfig_id": "defconfig_id",
             "errors": ["error1"],
+            "errors_count": 1,
             "job": "job",
             "job_id": "job_id",
             "kernel": "kernel",
             "mismatches": ["mismatch1"],
+            "mismatches_count": 1,
             "name": "job_id",
             "status": "FAIL",
             "version": "1.0",
-            "warnings": ["warning1"]
+            "warnings": ["warning1"],
+            "warnings_count": 1
         }
 
         self.assertIsNone(merrl.ErrorLogDocument.from_json(json_obj))

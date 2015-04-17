@@ -31,8 +31,11 @@ class ErrorLogDocument(modb.BaseDocument):
         self.job_id = job_id
 
         self._errors = []
+        self._errors_count = 0
         self._mismatches = []
+        self._mismatches_count = 0
         self._warnings = []
+        self._warnings_count = 0
         self.arch = None
         self.defconfig = None
         self.defconfig_full = None
@@ -143,6 +146,48 @@ class ErrorLogDocument(modb.BaseDocument):
                 "Passed value for 'mismatches' is not a list: %s" %
                 type(value))
 
+    @property
+    def errors_count(self):
+        """Get the number or error lines."""
+        return self._errors_count
+
+    @errors_count.setter
+    def errors_count(self, value):
+        """Set the number of error lines.
+
+        :param value: The number of lines.
+        :type value: integer
+        """
+        self._errors_count = value
+
+    @property
+    def warnings_count(self):
+        """Get the number of warning lines."""
+        return self._warnings_count
+
+    @warnings_count.setter
+    def warnings_count(self, value):
+        """Set the number of warning lines.
+
+        :param value: The number of lines.
+        :type values: integer
+        """
+        self._warnings_count = value
+
+    @property
+    def mismatches_count(self):
+        """Get the number of mismatched lines."""
+        return self._mismatches_count
+
+    @mismatches_count.setter
+    def mismatches_count(self, value):
+        """Set the number of mismatched lines.
+
+        :param value: The number of lines.
+        :type values: integer
+        """
+        self._mismatches_count = value
+
     def to_dict(self):
         err_log = {
             models.ARCHITECTURE_KEY: self.arch,
@@ -150,14 +195,17 @@ class ErrorLogDocument(modb.BaseDocument):
             models.DEFCONFIG_FULL_KEY: self.defconfig_full,
             models.DEFCONFIG_ID_KEY: self.defconfig_id,
             models.DEFCONFIG_KEY: self.defconfig,
+            models.ERRORS_COUNT_KEY: self.errors_count,
             models.ERRORS_KEY: self.errors,
             models.JOB_ID_KEY: self.job_id,
             models.JOB_KEY: self.job,
             models.KERNEL_KEY: self.kernel,
+            models.MISMATCHES_COUNT_KEY: self.mismatches_count,
             models.MISMATCHES_KEY: self.mismatches,
             models.NAME_KEY: self.name,
             models.STATUS_KEY: self.status,
             models.VERSION_KEY: self.version,
+            models.WARNINGS_COUNT_KEY: self.warnings_count,
             models.WARNINGS_KEY: self.warnings
         }
 
