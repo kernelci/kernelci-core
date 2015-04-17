@@ -49,6 +49,7 @@ class TestErrorLogModel(unittest.TestCase):
     def test_doc_to_dict(self):
         doc = merrl.ErrorLogDocument("job_id", "1.0")
         doc.arch = "arm"
+        doc.created_on = "today"
         doc.defconfig = "defconfig"
         doc.defconfig_full = "defconfig_full"
         doc.defconfig_id = "defconfig_id"
@@ -56,9 +57,9 @@ class TestErrorLogModel(unittest.TestCase):
         doc.job = "job"
         doc.kernel = "kernel"
         doc.mismatches = ["mismatch1"]
-        doc.warnings = ["warning1"]
-        doc.created_on = "today"
+        doc.status = "FAIL"
         doc.version = "1.1"
+        doc.warnings = ["warning1"]
 
         expected = {
             "arch": "arm",
@@ -72,6 +73,7 @@ class TestErrorLogModel(unittest.TestCase):
             "kernel": "kernel",
             "mismatches": ["mismatch1"],
             "name": "job_id",
+            "status": "FAIL",
             "version": "1.1",
             "warnings": ["warning1"]
         }
@@ -96,6 +98,7 @@ class TestErrorLogModel(unittest.TestCase):
             "kernel": "kernel",
             "mismatches": ["mismatch1"],
             "name": "job_id",
+            "status": "FAIL",
             "version": "1.0",
             "warnings": ["warning1"]
         }

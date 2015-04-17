@@ -39,6 +39,7 @@ class ErrorLogDocument(modb.BaseDocument):
         self.defconfig_id = None
         self.job = None
         self.kernel = None
+        self.status = None
 
     @property
     def collection(self):
@@ -155,6 +156,7 @@ class ErrorLogDocument(modb.BaseDocument):
             models.KERNEL_KEY: self.kernel,
             models.MISMATCHES_KEY: self.mismatches,
             models.NAME_KEY: self.name,
+            models.STATUS_KEY: self.status,
             models.VERSION_KEY: self.version,
             models.WARNINGS_KEY: self.warnings
         }
