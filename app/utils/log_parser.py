@@ -20,6 +20,7 @@ except ImportError:
 
 import bson
 import datetime
+import io
 import itertools
 import os
 import re
@@ -162,7 +163,7 @@ def _traverse_dir_and_parse(job_id,
 
     def _save(defconfig,
               defconfig_full,
-              arch, error_lines, warning_lines, mismatch_lines):
+              arch, build_status, error_lines, warning_lines, mismatch_lines):
         """Save the found errors/warnings/mismatched lines in the db.
 
         Save for each defconfig the found values and update the summary data
@@ -174,6 +175,8 @@ def _traverse_dir_and_parse(job_id,
         :type defconfig_full: string
         :param arch: The architecture type.
         :type arch: string
+        :param build_status: The status of the build.
+        :type build_status: string
         :param error_lines: The extracted error lines.
         :type error_lines: list
         :param warning_lines: The extracted warning lines.
@@ -200,6 +203,7 @@ def _traverse_dir_and_parse(job_id,
                 defconfig,
                 defconfig_full,
                 arch,
+                build_status,
                 error_lines, warning_lines, mismatch_lines, db_options
             )
 
@@ -240,14 +244,14 @@ def _traverse_dir_and_parse(job_id,
 
         :param build_dir: The directory containing the build JSON file.
         :type build_dir: string
-        :return The defconfig, defconfig_full and arch values.
+        :return A 4-tuple: defconfig, defconfig_full, arch and build status.
         """
-        arch = defconfig = defconfig_full = kconfig_fragments = None
+        arch = defconfig = defconfig_full = kconfig_fragments = b_status = None
         build_file = os.path.join(build_dir, models.BUILD_META_JSON_FILE)
 
         if os.path.isfile(build_file):
             build_data = None
-            with open(build_file, "r") as read_file:
+            with io.open(build_file, "r") as read_file:
                 build_data = json.load(read_file)
 
             if all([build_data, isinstance(build_data, types.DictionaryType)]):
@@ -258,6 +262,7 @@ def _traverse_dir_and_parse(job_id,
                     models.ARCHITECTURE_KEY, models.ARM_ARCHITECTURE_KEY)
                 defconfig_full = b_get(models.DEFCONFIG_FULL_KEY, None)
                 kconfig_fragments = b_get(models.KCONFIG_FRAGMENTS_KEY, None)
+                b_status = b_get(models.BUILD_RESULT_KEY, None)
 
                 defconfig_full = utils.get_defconfig_full(
                     build_dir, defconfig, defconfig_full, kconfig_fragments)
@@ -272,7 +277,7 @@ def _traverse_dir_and_parse(job_id,
             utils.LOG.warn(error, job, kernel, build_dir)
             _add_err_msg(500, (error % (job, kernel, build_dir)))
 
-        return defconfig, defconfig_full, arch
+        return defconfig, defconfig_full, arch, b_status
 
     if any([hidden(job), hidden(kernel)]):
         utils.LOG.error(
@@ -295,14 +300,17 @@ def _traverse_dir_and_parse(job_id,
                 if not hidden(defconfig_dir):
                     log_file = os.path.join(build_dir, build_log)
 
-                    defconfig, defconfig_full, arch = _read_build_data(
-                        build_dir)
+                    defconfig, defconfig_full, arch, b_status = \
+                        _read_build_data(build_dir)
 
                     status, err, e_l, w_l, m_l = _parse_log(
                         job, kernel, defconfig, log_file, build_dir)
 
                     if status == 200:
-                        _save(defconfig, defconfig_full, arch, e_l, w_l, m_l)
+                        _save(
+                            defconfig,
+                            defconfig_full, arch, b_status, e_l, w_l, m_l
+                        )
                     else:
                         _add_err_msg(status, err)
 
@@ -351,7 +359,7 @@ def _parse_log(job, kernel, defconfig, log_file, build_dir):
         mismatch_append = mismatch_lines.append
 
         try:
-            with open(log_file) as read_file:
+            with io.open(log_file) as read_file:
                 for line in read_file:
                     has_err = has_warn = False
                     for err_pattrn in ERROR_PATTERNS:
@@ -385,20 +393,20 @@ def _parse_log(job, kernel, defconfig, log_file, build_dir):
             # Save only if we parsed something.
             try:
                 if error_lines:
-                    with open(errors_file, "w") as w_file:
+                    with io.open(errors_file, mode="w") as w_file:
                         for line in error_lines:
                             w_file.write(line)
-                            w_file.write("\n")
+                            w_file.write(u"\n")
                 if warning_lines:
-                    with open(warnings_file, "w") as w_file:
+                    with io.open(warnings_file, mode="w") as w_file:
                         for line in warning_lines:
                             w_file.write(line)
-                            w_file.write("\n")
+                            w_file.write(u"\n")
                 if mismatch_lines:
-                    with open(mismatches_file, "w") as w_file:
+                    with io.open(mismatches_file, mode="w") as w_file:
                         for line in mismatch_lines:
                             w_file.write(line)
-                            w_file.write("\n")
+                            w_file.write(u"\n")
             except IOError, ex:
                 error = "Error writing to errors/warnings file for %s-%s-%s"
                 utils.LOG.exception(ex)
@@ -418,6 +426,7 @@ def save_defconfig_errors(job_id,
                           defconfig,
                           defconfig_full,
                           arch,
+                          build_status,
                           error_lines,
                           warning_lines, mismatch_lines, db_options):
     """Save the build errors found.
@@ -436,6 +445,8 @@ def save_defconfig_errors(job_id,
     :type defconfig_full: string
     :param arch: The architecture type.
     :type arch: string
+    :param build_status: The status of the build.
+    :type build_status: string
     :param error_lines: The extracted error lines.
     :type error_lines: list
     :param warning_lines: The extracted warning lines.
@@ -480,6 +491,7 @@ def save_defconfig_errors(job_id,
     err_doc.job = job
     err_doc.kernel = kernel
     err_doc.mismatches = mismatch_lines
+    err_doc.status = build_status
     err_doc.warnings = warning_lines
 
     ret_val, _ = utils.db.save(database, err_doc, manipulate=True)

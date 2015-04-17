@@ -142,7 +142,7 @@ class TestBuildLogParser(unittest.TestCase):
         finally:
             shutil.rmtree(build_dir, ignore_errors=True)
 
-    @mock.patch("__builtin__.open", create=True)
+    @mock.patch("io.open", create=True)
     def test_parse_build_log_error_opening(self, mock_open):
         mock_open.side_effect = IOError
         build_dir = None
