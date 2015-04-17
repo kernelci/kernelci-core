@@ -392,6 +392,7 @@ def _parse_log(job, kernel, defconfig, log_file, build_dir):
         else:
             # Save only if we parsed something.
             try:
+                # TODO: count the lines here.
                 if error_lines:
                     with io.open(errors_file, mode="w") as w_file:
                         for line in error_lines:
@@ -488,11 +489,14 @@ def save_defconfig_errors(job_id,
     err_doc.defconfig_full = defconfig_full
     err_doc.defconfig_id = defconfig_id
     err_doc.errors = error_lines
+    err_doc.errors_count = len(error_lines)
     err_doc.job = job
     err_doc.kernel = kernel
+    err_doc.mismatch_lines = len(mismatch_lines)
     err_doc.mismatches = mismatch_lines
     err_doc.status = build_status
     err_doc.warnings = warning_lines
+    err_doc.warnings_count = len(warning_lines)
 
     ret_val, _ = utils.db.save(database, err_doc, manipulate=True)
 
