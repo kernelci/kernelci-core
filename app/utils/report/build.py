@@ -13,22 +13,16 @@
 
 """Create the build email report."""
 
-import gettext
 import pymongo
 
 import models
 import utils.db
 import utils.report.common as rcommon
 
-# Register the translation domain and fallback safely, at the moment we do
-# not care if we have translations or not, we just use gettext to exploit its
-# plural forms capabilities. We mark the email string as translatable though
-# so we might give that feature in the future.
-L10N = gettext.translation(models.I18N_DOMAIN, fallback=True)
 # Register normal Unicode gettext.
-G_ = L10N.ugettext
+G_ = rcommon.L10N.ugettext
 # Register plural forms Unicode gettext.
-P_ = L10N.ungettext
+P_ = rcommon.L10N.ungettext
 
 
 BUILD_SEARCH_FIELDS = [
@@ -130,7 +124,7 @@ def create_build_report(job,
 
     failed_data = _parse_build_data(fail_results.clone())
 
-    summary_spec = {
+    errors_spec = {
         models.JOB_KEY: job,
         models.KERNEL_KEY: kernel
     }
@@ -139,17 +133,26 @@ def create_build_report(job,
     ]
     errors_summary = utils.db.find_one2(
         database[models.ERRORS_SUMMARY_COLLECTION],
-        summary_spec,
+        errors_spec,
         summary_fields
+    )
+
+    error_details = utils.db.find(
+        database[models.ERROR_LOGS_COLLECTION],
+        0,
+        0,
+        spec=errors_spec,
+        sort=[(models.DEFCONFIG_FULL_KEY, 1)]
     )
 
     kwargs = {
         "base_url": rcommon.DEFAULT_BASE_URL,
         "build_url": rcommon.DEFAULT_BUILD_URL,
         "email_format": email_format,
-        "errors_summary": errors_summary,
         "error_data": err_data,
+        "error_details": error_details,
         "errors_count": errors_count,
+        "errors_summary": errors_summary,
         "fail_count": fail_count,
         "failed_data": failed_data,
         "git_branch": git_branch,
