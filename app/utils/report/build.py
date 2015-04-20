@@ -124,6 +124,8 @@ def create_build_report(job,
 
     failed_data = _parse_build_data(fail_results.clone())
 
+    # Retrieve the parsed errors/warnings/mismatches summary and then
+    # the details.
     errors_spec = {
         models.JOB_KEY: job,
         models.KERNEL_KEY: kernel
@@ -144,6 +146,7 @@ def create_build_report(job,
         spec=errors_spec,
         sort=[(models.DEFCONFIG_FULL_KEY, 1)]
     )
+    error_details = [d for d in error_details.clone()]
 
     kwargs = {
         "base_url": rcommon.DEFAULT_BASE_URL,
