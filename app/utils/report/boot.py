@@ -41,6 +41,13 @@ BOOT_SEARCH_FIELDS = [
     models.STATUS_KEY
 ]
 
+BOARD_URL = (
+    u"{base_url:s}/boot/{board:s}/job/{job:s}/kernel/{kernel:s}/"
+    u"defconfig/{defconfig:s}/"
+)
+BOOT_SUMMARY_URL = u"{boot_url:s}/{job:s}/kernel/{kernel:s}/"
+BUILD_SUMMARY_URL = u"{build_url:s}/{job:s}/kernel/{kernel:s}/"
+
 
 # pylint: disable=too-many-locals
 # pylint: disable=star-args
@@ -438,9 +445,9 @@ def _create_boot_email(**kwargs):
 
     subject_str = _get_boot_subject_string(**kwargs)
 
-    tested_one = G_(u"Tested: %s")
-    tested_two = G_(u"Tested: %s, %s")
-    tested_three = G_(u"Tested: %s, %s, %s")
+    tested_one = G_(u"Tested: {:s}")
+    tested_two = G_(u"Tested: {:s}, {:s}")
+    tested_three = G_(u"Tested: {:s}, {:s}, {:s}")
 
     tested_string = None
     if total_unique_data:
@@ -456,45 +463,47 @@ def _create_boot_email(**kwargs):
         kwargs["unique_builds"] = unique_builds
 
         boards_str = P_(
-            u"%(unique_boards)d unique board",
-            u"%(unique_boards)d unique boards",
+            u"{unique_boards:d} unique board",
+            u"{unique_boards:d} unique boards",
             unique_boards
         )
         soc_str = P_(
-            u"%(unique_socs)d SoC family",
-            u"%(unique_socs)d SoC families",
+            u"{unique_socs:d} SoC family",
+            u"{unique_socs:d} SoC families",
             unique_socs
         )
         builds_str = P_(
-            u"%(unique_builds)s build out of %(total_builds)s",
-            u"%(unique_builds)s builds out of %(total_builds)s",
+            u"{unique_builds:d} build out of {total_builds:d}",
+            u"{unique_builds:d} builds out of {total_builds:d}",
             unique_builds
         )
 
         if all([unique_boards > 0, unique_socs > 0, unique_builds > 0]):
-            tested_string = tested_three % (boards_str, soc_str, builds_str)
+            tested_string = tested_three.format(
+                boards_str, soc_str, builds_str)
         elif all([unique_boards > 0, unique_socs > 0, unique_builds == 0]):
-            tested_string = tested_two % (boards_str, soc_str)
+            tested_string = tested_two.format(boards_str, soc_str)
         elif all([unique_boards > 0, unique_socs == 0, unique_builds > 0]):
-            tested_string = tested_two % (boards_str, builds_str)
+            tested_string = tested_two.format(boards_str, builds_str)
         elif all([unique_boards == 0, unique_socs > 0, unique_builds > 0]):
-            tested_string = tested_two % (soc_str, builds_str)
+            tested_string = tested_two.format(soc_str, builds_str)
         elif all([unique_boards > 0, unique_socs == 0, unique_builds == 0]):
-            tested_string = tested_one % boards_str
+            tested_string = tested_one.format(boards_str)
         elif all([unique_boards == 0, unique_socs > 0, unique_builds == 0]):
-            tested_string = tested_one % soc_str
+            tested_string = tested_one.format(soc_str)
         elif all([unique_boards == 0, unique_socs == 0, unique_builds > 0]):
-            tested_string = tested_one % builds_str
+            tested_string = tested_one.format(builds_str)
 
         if tested_string:
-            tested_string = tested_string % kwargs
+            tested_string = tested_string.format(**kwargs)
 
-    boot_summary_url = u"%(boot_url)s/%(job)s/kernel/%(kernel)s/" % kwargs
-    build_summary_url = u"%(build_url)s/%(job)s/kernel/%(kernel)s/" % kwargs
+    boot_summary_url = BOOT_SUMMARY_URL.format(**kwargs)
+    build_summary_url = BUILD_SUMMARY_URL.format(**kwargs)
 
-    kwargs["tree_string"] = G_(u"Tree: %(job)s") % kwargs
-    kwargs["branch_string"] = G_(u"Branch: %(git_branch)s") % kwargs
-    kwargs["git_describe_string"] = G_(u"Git Describe: %(kernel)s") % kwargs
+    kwargs["tree_string"] = G_(u"Tree: {job:s}").format(**kwargs)
+    kwargs["branch_string"] = G_(u"Branch: {git_branch:s}").format(**kwargs)
+    kwargs["git_describe_string"] = G_(u"Git Describe: {kernel:s}").format(
+        **kwargs)
     kwargs["info_email"] = info_email
     kwargs["tested_string"] = tested_string
     kwargs["subject_str"] = subject_str
@@ -505,31 +514,33 @@ def _create_boot_email(**kwargs):
     translated_git_url = \
         rcommon.translate_git_url(git_url, git_commit) or git_url
 
-    git_txt_string = G_(u"Git URL: %s") % git_url
-    git_html_string = G_(u"Git URL: <a href=\"%s\">%s</a>") % (
+    git_txt_string = G_(u"Git URL: {:s}").format(git_url)
+    git_html_string = G_(u"Git URL: <a href=\"{:s}\">{:s}</a>").format(
         translated_git_url, git_url)
 
-    kwargs["git_commit_string"] = G_(u"Git Commit: %s") % git_commit
+    kwargs["git_commit_string"] = G_(u"Git Commit: {:s}").format(git_commit)
     kwargs["git_url_string"] = (git_txt_string, git_html_string)
 
     kwargs["platforms"] = _parse_and_structure_results(**kwargs)
 
     if models.EMAIL_TXT_FORMAT_KEY in email_format:
         kwargs["full_boot_summary"] = (
-            G_(u"Full Boot Summary: %s") % boot_summary_url)
+            G_(u"Full Boot Summary: {:s}").format(boot_summary_url))
         kwargs["full_build_summary"] = (
-            G_(u"Full Build Summary: %s") % build_summary_url)
+            G_(u"Full Build Summary: {:s}").format(build_summary_url))
 
         txt_body = rcommon.create_txt_email("boot.txt", **kwargs)
 
     if models.EMAIL_HTML_FORMAT_KEY in email_format:
         # Fix the summary URLs for the HTML email.
         kwargs["full_boot_summary"] = (
-            G_(u"Full Boot Summary: <a href=\"%(url)s\">%(url)s</a>") %
-            {"url": boot_summary_url})
+            G_(u"Full Boot Summary: <a href=\"{url:s}\">{url:s}</a>").format(
+                **{"url": boot_summary_url})
+        )
         kwargs["full_build_summary"] = (
-            G_(u"Full Build Summary: <a href=\"%(url)s\">%(url)s</a>") %
-            {"url": build_summary_url})
+            G_(u"Full Build Summary: <a href=\"{url:s}\">{url:s}</a>").format(
+                **{"url": build_summary_url})
+        )
 
         html_body = rcommon.create_html_email("boot.html", **kwargs)
 
@@ -571,22 +582,22 @@ def _get_boot_subject_string(**kwargs):
     untried_count = k_get("untried_count", 0)
 
     subject_str = u""
-    base_subject = G_(u"%(job)s boot")
+    base_subject = G_(u"{job:s} boot")
     total_boots = P_(
-        u"%(total_count)d boot", u"%(total_count)d boots", total_count)
-    passed_boots = G_(u"%(pass_count)d passed")
-    failed_boots = G_(u"%(fail_count)d failed")
+        u"{total_count:d} boot", u"{total_count:d} boots", total_count)
+    passed_boots = G_(u"{pass_count:d} passed")
+    failed_boots = G_(u"{fail_count:d} failed")
     conflict_boots = P_(
-        u"%(conflict_count)d conflict",
-        u"%(conflict_count)d conflicts",
+        u"{conflict_count:d} conflict",
+        u"{conflict_count:d} conflicts",
         conflict_count
     )
-    offline_boots = G_(u"%(offline_count)d offline")
-    kernel_name = G_(u"(%(kernel)s)")
-    lab_description = G_(u"%(lab_name)s")
+    offline_boots = G_(u"{offline_count:d} offline")
+    kernel_name = G_(u"({kernel:s})")
+    lab_description = G_(u"{lab_name:s}")
     untried_boots = P_(
-        "%(untried_count)d untried/unknown",
-        "%(untried_count)d untried/unknown",
+        "{untried_count:d} untried/unknown",
+        "{untried_count:d} untried/unknown",
         untried_count
     )
 
@@ -594,99 +605,100 @@ def _get_boot_subject_string(**kwargs):
     # 1st, 2nd, 3rd and 4th are replaced with job name, total, failed, passed.
     # The last is the kernel/git-describe value:
     # next boot: 10 boots: 1 failed, 9 passed (next-20990101)
-    base_0 = G_(u"%s: %s: %s, %s %s")
+    base_0 = G_(u"{:s}: {:s}: {:s}, {:s} {:s}")
     # next boot: 10 boots: 0 failed, 0 passed, 10 offline (next-20990101)
-    base_1 = G_(u"%s: %s: %s, %s, %s %s")
+    base_1 = G_(u"{:s}: {:s}: {:s}, {:s}, {:s} {:s}")
     # next boot: 10 boots: 1 failed, 8 passed with 1 offline (next-20990101)
-    base_2 = G_(u"%s: %s: %s, %s with %s %s")
+    base_2 = G_(u"{:s}: {:s}: {:s}, {:s} with {:s} {:s}")
     # next boot: 10 boots: 1 failed, 7 passed with 1 offline,
     # 1 untried/unknown (next-20990101)
     # next boot: 10 boots: 1 failed, 6 passed with 1 offline,
     # 1 untried/unknown, 1 conflict (next-20990101)
-    base_3 = G_(u"%s: %s: %s, %s with %s, %s %s")
-    base_4 = G_(u"%s: %s: %s, %s with %s, %s, %s %s")
+    base_3 = G_(u"{:s}: {:s}: {:s}, {:s} with {:s}, {:s} {:s}")
+    base_4 = G_(u"{:s}: {:s}: {:s}, {:s} with {:s}, {:s}, {:s} {:s}")
 
     # Here the last is the lab name.
-    base_lab_0 = G_(u"%s: %s: %s, %s %s - %s")
-    base_lab_1 = G_(u"%s: %s: %s, %s, %s %s - %s")
-    base_lab_2 = G_(u"%s: %s: %s, %s with %s %s - %s")
-    base_lab_3 = G_(u"%s: %s: %s, %s with %s, %s %s - %s")
-    base_lab_4 = G_(u"%s: %s: %s, %s with %s, %s, %s %s - %s")
+    base_lab_0 = G_(u"{:s}: {:s}: {:s}, {:s} {:s} - {:s}")
+    base_lab_1 = G_(u"{:s}: {:s}: {:s}, {:s}, {:s} {:s} - {:s}")
+    base_lab_2 = G_(u"{:s}: {:s}: {:s}, {:s} with {:s} {:s} - {:s}")
+    base_lab_3 = G_(u"{:s}: {:s}: {:s}, {:s} with {:s}, {:s} {:s} - {:s}")
+    base_lab_4 = G_(
+        u"{:s}: {:s}: {:s}, {:s} with {:s}, {:s}, {:s} {:s} - {:s}")
 
     if any([total_count == pass_count, total_count == fail_count]):
         # Everything is good or failed.
         if lab_name:
-            subject_str = base_lab_0 % (
+            subject_str = base_lab_0.format(
                 base_subject,
                 total_boots,
                 failed_boots,
                 passed_boots, kernel_name, lab_description)
         else:
-            subject_str = base_0 % (
+            subject_str = base_0.format(
                 base_subject,
                 total_boots, failed_boots, passed_boots, kernel_name)
     elif total_count == offline_count:
         # Everything is offline.
         if lab_name:
-            subject_str = base_lab_1 % (
+            subject_str = base_lab_1.format(
                 base_subject,
                 total_boots,
                 failed_boots,
                 passed_boots, offline_boots, kernel_name, lab_description)
         else:
-            subject_str = base_1 % (
+            subject_str = base_1.format(
                 base_subject,
                 total_boots,
                 failed_boots, passed_boots, offline_boots, kernel_name)
     elif total_count == untried_count:
         # Everything is untried/unknown.
         if lab_name:
-            subject_str = base_lab_1 % (
+            subject_str = base_lab_1.format(
                 base_subject,
                 total_boots,
                 failed_boots,
                 passed_boots, untried_boots, kernel_name, lab_description)
         else:
-            subject_str = base_1 % (
+            subject_str = base_1.format(
                 base_subject,
                 total_boots,
                 failed_boots, passed_boots, untried_boots, kernel_name)
     elif all([untried_count == 0, offline_count == 0, conflict_count == 0]):
         # Passed and failed.
         if lab_name:
-            subject_str = base_lab_0 % (
+            subject_str = base_lab_0.format(
                 base_subject,
                 total_boots,
                 failed_boots,
                 passed_boots, kernel_name, lab_description)
         else:
-            subject_str = base_0 % (
+            subject_str = base_0.format(
                 base_subject,
                 total_boots, failed_boots, passed_boots, kernel_name)
     elif all([untried_count > 0, offline_count == 0, conflict_count == 0]):
         # Passed, failed and untried.
         if lab_name:
-            subject_str = base_lab_2 % (
+            subject_str = base_lab_2.format(
                 base_subject,
                 total_boots,
                 failed_boots,
                 passed_boots, untried_boots, kernel_name, lab_description)
         else:
-            subject_str = base_2 % (
+            subject_str = base_2.format(
                 base_subject,
                 total_boots,
                 failed_boots, passed_boots, untried_boots, kernel_name)
     elif all([untried_count > 0, offline_count > 0, conflict_count == 0]):
         # Passed, failed, untried and offline.
         if lab_name:
-            subject_str = base_lab_3 % (
+            subject_str = base_lab_3.format(
                 base_subject,
                 total_boots,
                 failed_boots,
                 passed_boots,
                 offline_boots, untried_boots, kernel_name, lab_description)
         else:
-            subject_str = base_3 % (
+            subject_str = base_3.format(
                 base_subject,
                 total_boots,
                 failed_boots,
@@ -694,7 +706,7 @@ def _get_boot_subject_string(**kwargs):
     elif all([untried_count > 0, offline_count > 0, conflict_count > 0]):
         # Passed, failed, untried and offline with conflict.
         if lab_name:
-            subject_str = base_lab_4 % (
+            subject_str = base_lab_4.format(
                 base_subject,
                 total_boots,
                 failed_boots,
@@ -702,7 +714,7 @@ def _get_boot_subject_string(**kwargs):
                 offline_boots,
                 untried_boots, conflict_boots, kernel_name, lab_description)
         else:
-            subject_str = base_4 % (
+            subject_str = base_4.format(
                 base_subject,
                 total_boots,
                 failed_boots,
@@ -711,27 +723,27 @@ def _get_boot_subject_string(**kwargs):
     elif all([untried_count == 0, offline_count > 0, conflict_count == 0]):
         # Passed, failed and offline.
         if lab_name:
-            subject_str = base_lab_2 % (
+            subject_str = base_lab_2.format(
                 base_subject,
                 total_boots,
                 failed_boots,
                 passed_boots, offline_boots, kernel_name, lab_description)
         else:
-            subject_str = base_2 % (
+            subject_str = base_2.format(
                 base_subject,
                 total_boots,
                 failed_boots, passed_boots, offline_boots, kernel_name)
     elif all([untried_count == 0, offline_count > 0, conflict_count > 0]):
         # Passed, failed, offline with conflicts.
         if lab_name:
-            subject_str = base_lab_3 % (
+            subject_str = base_lab_3.format(
                 base_subject,
                 total_boots,
                 failed_boots,
                 passed_boots,
                 offline_boots, conflict_boots, kernel_name, lab_description)
         else:
-            subject_str = base_3 % (
+            subject_str = base_3.format(
                 base_subject,
                 total_boots,
                 failed_boots,
@@ -739,19 +751,19 @@ def _get_boot_subject_string(**kwargs):
     elif all([untried_count == 0, offline_count == 0, conflict_count > 0]):
         # Passed, failed with conflicts.
         if lab_name:
-            subject_str = base_lab_2 % (
+            subject_str = base_lab_2.format(
                 base_subject,
                 total_boots,
                 failed_boots,
                 passed_boots, conflict_boots, kernel_name, lab_description)
         else:
-            subject_str = base_2 % (
+            subject_str = base_2.format(
                 base_subject,
                 total_boots,
                 failed_boots, passed_boots, conflict_boots, kernel_name)
 
     # Now fill in the values.
-    subject_str = subject_str % kwargs
+    subject_str = subject_str.format(**kwargs)
 
     return subject_str
 
@@ -828,7 +840,7 @@ def _parse_and_structure_results(**kwargs):
         s_get = data_struct.get
 
         for arch in data.viewkeys():
-            arch_string = G_(u"%s:") % arch
+            arch_string = G_(u"{:s}:").format(arch)
             data_struct[arch_string] = {}
 
             arch_struct = s_get(arch_string)
@@ -838,7 +850,7 @@ def _parse_and_structure_results(**kwargs):
             defconfs.sort()
 
             for defconfig in defconfs:
-                defconfig_string = G_(u"%s:") % defconfig
+                defconfig_string = G_(u"{:s}:").format(defconfig)
 
                 def_get = d_get(arch)[defconfig].get
 
@@ -860,19 +872,15 @@ def _parse_and_structure_results(**kwargs):
                         substitutions["board"] = board
                         substitutions["defconfig"] = defconfig
 
-                        board_url = (
-                            "%(base_url)s/boot/%(board)s/job/%(job)s"
-                            "/kernel/%(kernel)s"
-                            "/defconfig/%(defconfig)s/" % substitutions
-                        )
-
+                        board_url = BOARD_URL.format(**substitutions)
                         substitutions["url"] = board_url
 
                         html_string = (
-                            G_(u"<a href=\"%(url)s\">%(board)s</a>:")
-                            % substitutions)
+                            G_(u"<a href=\"{url:s}\">{board:s}</a>:").format(
+                                **substitutions)
+                        )
 
-                        txt_string = G_(u"%s:") % board
+                        txt_string = G_(u"{:s}:").format(board)
 
                         defconf_struct[(txt_string, html_string)] = []
                         board_struct = defconf_struct[
@@ -881,7 +889,9 @@ def _parse_and_structure_results(**kwargs):
 
                         for lab in def_get(board).viewkeys():
                             board_struct.append(
-                                G_(u"%s: %s") % (lab, def_get(board)[lab]))
+                                G_(u"{:s}: {:s}").format(
+                                    lab, def_get(board)[lab])
+                            )
                 else:
                     # Not a conflict data structure, we show only the count of
                     # the failed labs, not which one failed.
@@ -899,15 +909,17 @@ def _parse_and_structure_results(**kwargs):
                         if is_offline:
                             lab_count_str = (
                                 P_(
-                                    "%d offline lab",
-                                    "%d offline labs", lab_count
-                                ) % lab_count)
+                                    "{:d} offline lab",
+                                    "{:d} offline labs", lab_count
+                                ).format(lab_count)
+                            )
                         else:
                             lab_count_str = (
                                 P_(
-                                    "%d failed lab",
-                                    "%d failed labs", lab_count
-                                ) % lab_count)
+                                    "{:d} failed lab",
+                                    "{:d} failed labs", lab_count
+                                ).format(lab_count)
+                            )
 
                         # Copy the kwargs parameters and add the local ones.
                         # This is needed to create the HTML version of some
@@ -916,20 +928,17 @@ def _parse_and_structure_results(**kwargs):
                         substitutions["board"] = board
                         substitutions["defconfig"] = defconfig
 
-                        board_url = (
-                            "%(base_url)s/boot/%(board)s/job/%(job)s"
-                            "/kernel/%(kernel)s"
-                            "/defconfig/%(defconfig)s/" % substitutions
-                        )
-
+                        board_url = BOARD_URL.format(**substitutions)
                         substitutions["url"] = board_url
                         substitutions["count"] = lab_count_str
 
                         html_string = (
-                            G_(u"<a href=\"%(url)s\">%(board)s</a>: %(count)s")
-                            % substitutions)
+                            G_(
+                                u"<a href=\"{url:s}\">{board:s}</a>: {count:s}"
+                            ).format(**substitutions))
 
-                        txt_string = G_(u"%s: %s") % (board, lab_count_str)
+                        txt_string = G_(u"{:s}: {:s}").format(
+                            board, lab_count_str)
                         defconf_struct.append((txt_string, html_string))
 
     if failed_data:
@@ -941,22 +950,25 @@ def _parse_and_structure_results(**kwargs):
         failed_struct["summary"]["txt"] = []
         failed_struct["summary"]["html"] = []
 
-        boot_failure_url = u"%(base_url)s/boot/?%(kernel)s&fail" % kwargs
+        boot_failure_url = u"{base_url:s}/boot/?{kernel:s}&fail".format(
+            **kwargs)
         boot_failure_url_html = (
-            u"<a href=\"%(boot_failure_url)s\">%(boot_failure_url)s</a>" %
-            {"boot_failure_url": boot_failure_url}
+            u"<a href=\"{boot_failure_url:s}\">"
+            u"{boot_failure_url:s}</a>".format(
+                **{"boot_failure_url": boot_failure_url})
         )
         failed_summary = P_(
-            u"Boot Failure Detected: %(boot_failure_url)s",
-            u"Boot Failures Detected: %(boot_failure_url)s",
+            u"Boot Failure Detected: {boot_failure_url:s}",
+            u"Boot Failures Detected: {boot_failure_url:s}",
             fail_count
         )
 
         failed_struct["summary"]["txt"].append(
-            failed_summary % {"boot_failure_url": boot_failure_url})
+            failed_summary.format(**{"boot_failure_url": boot_failure_url}))
 
         failed_struct["summary"]["html"].append(
-            failed_summary % {"boot_failure_url": boot_failure_url_html})
+            failed_summary.format(
+                **{"boot_failure_url": boot_failure_url_html}))
 
         _traverse_data_struct(failed_data, failed_struct["data"])
     else:
@@ -994,10 +1006,10 @@ def _parse_and_structure_results(**kwargs):
             "PASS. Please review.)")
         conflict_summary = (
             P_(
-                u"Conflicting Boot Failure Detected: %(conflict_comment)s",
-                u"Conflicting Boot Failures Detected: %(conflict_comment)s",
+                u"Conflicting Boot Failure Detected: {:s}",
+                u"Conflicting Boot Failures Detected: {:s}",
                 conflict_count
-            ) % {"conflict_comment": conflict_comment}
+            ).format(conflict_comment)
         )
 
         conflict_struct["summary"]["txt"].append(conflict_summary)
