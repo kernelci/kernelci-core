@@ -14,7 +14,7 @@
             },
             "parameters": {
                 "kernel": "{kernel_url}",
-                "modules": "{modules_url}",
+                "overlays": ["{modules_url}"],
                 "ramdisk": "http://storage.kernelci.org/images/rootfs/buildroot/armel/rootfs.cpio.gz"
             }
         },

@@ -20,6 +20,7 @@
             "parameters": {
                 "dtb": "{dtb_url}",
                 "kernel": "{kernel_url}",
+                "overlays": ["{modules_url}"],
                 "nfsrootfs": "http://releases.linaro.org/15.03/ubuntu/utopic-images/nano/linaro-utopic-nano-20150319-701.tar.gz",
                 "target_type": "ubuntu"
             }

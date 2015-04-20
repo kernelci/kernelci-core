@@ -15,7 +15,7 @@
             "parameters": {
                 "bootloadertype": "ipxe",
                 "kernel": "{kernel_url}",
-                "modules": "{modules_url}",
+                "overlays": ["{modules_url}"],
                 "ramdisk": "http://storage.kernelci.org/images/rootfs/buildroot/x86/rootfs.cpio.gz"
             }
         },

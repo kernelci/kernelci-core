@@ -38,7 +38,7 @@
         {
             "dtb": "{dtb_url}",
             "kernel": "{kernel_url}",
-            "modules": "{modules_url}",
+            "overlays": ["{modules_url}"],
             "nfsrootfs": "http://releases.linaro.org/15.03/ubuntu/utopic-images/nano-arm64/linaro-utopic-nano-20150309-90.tar.gz",
             "target_type": "ubuntu",
             "role": "host"
