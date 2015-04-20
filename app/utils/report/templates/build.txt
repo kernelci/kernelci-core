@@ -47,13 +47,47 @@ Warnings summary:
     {{ "{:>3d}  {:s}".format(warn[0], warn[1]) -}}
 {% endfor %}
 {%- endif %}{# end warnings #}
-{%- endif %}{# and errors summary #}
 {% if errors_summary.mismatches %}
 Section mismatches summary:
 {% for mism in errors_summary.mismatches %}
     {{ "{:>3d}  {:s}".format(mism[0], mism[1]) -}}
 {% endfor %}
-{% endif %}{# end warnings #}
+{% endif %}{# end mismatches #}
+{%- endif %}{# and errors summary #}
+{%- if error_details %}
+{{ "{:=^80}".format("") }}
+
+Detailed per-defconfig build reports:
+{% for d in error_details %}
+{% set errs = P_("{:d} error", "{:d} errors", d.errors_count).format(d.errors_count) -%}
+{%- set warns = P_("{:d} warning", "{:d} warnings", d.warnings_count).format(d.warnings_count) -%}
+{%- set mism = P_("{:d} section mismatch", "{:d} section mismatches", d.mismatches_count).format(d.mismatches_count) -%}
+
+{{ "{:-^80}".format("") }}
+{{ "{} \u2014 {}, {}, {}, {}".format(d.defconfig_full, d.status, errs, warns, mism) }}
+{%- if d.errors %}
+
+Errors:
+{%- for line in d.errors %}
+    {{ line -}}
+{%- endfor %}
+{%- endif %}{# end error lines #}
+{%- if d.warnings %}
+
+Warnings:
+{%- for line in d.warnings %}
+    {{ line -}}
+{%- endfor %}
+{%- endif %}{# end warning lines #}
+{%- if d.mismatches %}
+
+Section mismatches:
+{%- for line in d.mismatches %}
+    {{ line -}}
+{%- endfor %}
+{%- endif %}{# end mismatch lines #}
+{% endfor %}
+{%- endif %}{# end error_details #}
 {%- if info_email %}
 ---
 For more info write to <{{ info_email }}>
