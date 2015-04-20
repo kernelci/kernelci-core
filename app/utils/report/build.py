@@ -41,18 +41,18 @@ BUILD_SEARCH_SORT = [
 
 # Various build URLS.
 DEFCONFIG_URL = (
-    u"%(build_url)s/%(job)s/kernel/%(kernel)s/defconfig/%(defconfig)s/")
+    u"{build_url:s}/{job:s}/kernel/{kernel:s}/defconfig/{defconfig:s}/")
 LOG_URL = (
-    u"%(storage_url)s/%(job)s/%(kernel)s/%(arch)s-%(defconfig)s/" +
+    u"{storage_url:s}/{job:s}/{kernel:s}/{arch:s}-{defconfig:s}/" +
     utils.BUILD_LOG_FILE)
 ERR_LOG_URL = (
-    u"%(storage_url)s/%(job)s/%(kernel)s/%(arch)s-%(defconfig)s/" +
+    u"{storage_url:s}/{job:s}/{kernel:s}/{arch:s}-{defconfig:s}/" +
     utils.BUILD_ERRORS_FILE)
 WARN_LOG_URL = (
-    u"%(storage_url)s/%(job)s/%(kernel)s/%(arch)s-%(defconfig)s/" +
+    u"{storage_url:s}/{job:s}/{kernel:s}/{arch:s}-{defconfig:s}/" +
     utils.BUILD_WARNINGS_FILE)
 MISM_LOG_URL = (
-    u"%(storage_url)s/%(job)s/%(kernel)s/%(arch)s-%(defconfig)s/" +
+    u"{storage_url:s}/{job:s}/{kernel:s}/{arch:s}-{defconfig:s}/" +
     utils.BUILD_MISMATCHES_FILE)
 
 
@@ -312,7 +312,7 @@ def _create_build_email(**kwargs):
 
     subject_str = _get_build_subject_string(**kwargs)
 
-    built_unique_one = G_(u"Built: %s")
+    built_unique_one = G_(u"Built: {:s}")
 
     built_unique_string = None
     if total_unique_data:
@@ -322,23 +322,25 @@ def _create_build_email(**kwargs):
         kwargs["unique_archs"] = unique_archs
 
         arch_str = P_(
-            u"%(unique_archs)d unique architecture",
-            u"%(unique_archs)d unique architectures",
+            u"{unique_archs:d} unique architecture",
+            u"{unique_archs:d} unique architectures",
             unique_archs
         )
 
         if unique_archs > 0:
-            built_unique_string = built_unique_one % arch_str
+            built_unique_string = built_unique_one.format(arch_str)
 
         if built_unique_string:
-            built_unique_string = built_unique_string % kwargs
+            built_unique_string = built_unique_string.format(**kwargs)
 
-    build_summary_url = u"%(build_url)s/%(job)s/kernel/%(kernel)s/" % kwargs
+    build_summary_url = u"{build_url:s}/{job:s}/kernel/{kernel:s}/".format(
+        **kwargs)
 
     kwargs["built_unique_string"] = built_unique_string
-    kwargs["tree_string"] = G_(u"Tree: %(job)s") % kwargs
-    kwargs["branch_string"] = G_(u"Branch: %(git_branch)s") % kwargs
-    kwargs["git_describe_string"] = G_(u"Git Describe: %(kernel)s") % kwargs
+    kwargs["tree_string"] = G_(u"Tree: {job:s}").format(**kwargs)
+    kwargs["branch_string"] = G_(u"Branch: {git_branch:s}").format(**kwargs)
+    kwargs["git_describe_string"] = G_(u"Git Describe: {kernel:s}").format(
+        **kwargs)
     kwargs["subject_str"] = subject_str
 
     git_url = k_get("git_url")
@@ -347,11 +349,11 @@ def _create_build_email(**kwargs):
     translated_git_url = \
         rcommon.translate_git_url(git_url, git_commit) or git_url
 
-    git_txt_string = G_(u"Git URL: %s") % git_url
-    git_html_string = G_(u"Git URL: <a href=\"%s\">%s</a>") % (
+    git_txt_string = G_(u"Git URL: {:s}").format(git_url)
+    git_html_string = G_(u"Git URL: <a href=\"{:s}\">{:s}</a>").format(
         translated_git_url, git_url)
 
-    kwargs["git_commit_string"] = G_(u"Git Commit: %s") % git_commit
+    kwargs["git_commit_string"] = G_(u"Git Commit: {:s}").format(git_commit)
     kwargs["git_url_string"] = (git_txt_string, git_html_string)
 
     if any([failed_data, error_data]):
@@ -359,15 +361,15 @@ def _create_build_email(**kwargs):
 
     if models.EMAIL_TXT_FORMAT_KEY in email_format:
         kwargs["full_build_summary"] = (
-            G_(u"Full Build Summary: %s") % build_summary_url)
+            G_(u"Full Build Summary: {:s}").format(build_summary_url))
 
         txt_body = rcommon.create_txt_email("build.txt", **kwargs)
 
     if models.EMAIL_HTML_FORMAT_KEY in email_format:
         # Fix the summary URLs for the HTML email.
         kwargs["full_build_summary"] = (
-            G_(u"Full Build Summary: <a href=\"%(url)s\">%(url)s</a>") %
-            {"url": build_summary_url})
+            G_(u"Full Build Summary: <a href=\"{url:s}\">{url:s}</a>").format(
+                **{"url": build_summary_url}))
 
         html_body = rcommon.create_html_email("build.html", **kwargs)
 
@@ -453,19 +455,19 @@ def _parse_and_structure_results(**kwargs):
 
         for arch in failed_data.viewkeys():
             subs["arch"] = arch
-            arch_string = G_(u"%s:") % arch
+            arch_string = G_(u"{:s}:").format(arch)
             failed_struct[arch_string] = []
             failed_append = failed_struct[arch_string].append
 
             for struct in f_get(arch):
                 subs["defconfig"] = struct[0]
                 subs["status"] = struct[1]
-                txt_str = G_(u"%(defconfig)s: %(status)s") % subs
+                txt_str = G_(u"{defconfig:s}: {status:s}").format(**subs)
                 html_str = G_(
-                    u"<a href=\"%(defconfig_url)s\">%(defconfig)s</a>: "
-                    "<a style=\"color: %(red)s\" "
-                    "href=\"%(log_url)s\">%(status)s</a>" % subs
-                ) % subs
+                    u"<a href=\"{defconfig_url:s}\">{defconfig:s}</a>: "
+                    u"<a style=\"color: {red:s}\" "
+                    u"href=\"{log_url:s}\">{status:s}</a>".format(**subs)
+                ).format(**subs)
                 failed_append((txt_str, html_str))
     else:
         platforms["failed_data"] = None
@@ -493,7 +495,7 @@ def _parse_and_structure_results(**kwargs):
 
             for arch in error_data.viewkeys():
                 subs["arch"] = arch
-                arch_string = G_(u"%s:") % arch
+                arch_string = G_(u"{:s}:").format(arch)
                 error_struct[arch_string] = []
 
                 error_append = error_struct[arch_string].append
@@ -509,11 +511,11 @@ def _parse_and_structure_results(**kwargs):
                         models.WARNINGS_KEY, 0)
 
                     err_string = P_(
-                        u"%(errors)s error",
-                        u"%(errors)s errors", err_numb)
+                        u"{errors:d} error",
+                        u"{errors:d} errors", err_numb)
                     warn_string = P_(
-                        u"%(warnings)s warning",
-                        u"%(warnings)s warnings", warn_numb)
+                        u"{warnings:d} warning",
+                        u"{warnings:d} warnings", warn_numb)
 
                     subs["defconfig"] = defconfig
                     subs["err_string"] = err_string
@@ -523,36 +525,37 @@ def _parse_and_structure_results(**kwargs):
 
                     if all([err_numb > 0, warn_numb > 0]):
                         txt_desc_str = G_(
-                            u"%(err_string)s, %(warn_string)s")
+                            u"{err_string:s}, {warn_string:s}")
                         html_desc_str = G_(
-                            u"<a style=\"color: %(red)s;\" "
-                            "href=\"%(err_log_url)s\">%(err_string)s</a>, "
-                            "<a style=\"color: %(yellow)s;\" "
-                            "href=\"%(warn_log_url)s\">%(warn_string)s</a>"
+                            u"<a style=\"color: {red:s};\" "
+                            "href=\"{err_log_url:s}\">{err_string:s}</a>, "
+                            "<a style=\"color: {yellow:s};\" "
+                            "href=\"{warn_log_url:s}\">{warn_string:s}</a>"
                         )
                     elif all([err_numb > 0, warn_numb == 0]):
-                        txt_desc_str = u"%(err_string)s"
+                        txt_desc_str = u"{err_string:s}"
                         html_desc_str = (
-                            u"<a style=\"color: %(red)s;\" "
-                            "href=\"%(err_log_url)s\">%(err_string)s</a>")
+                            u"<a style=\"color: {red:s};\" "
+                            "href=\"{err_log_url:s}\">{err_string:s}</a>")
                     elif all([err_numb == 0, warn_numb > 0]):
-                        txt_desc_str = u"%(warn_string)s"
+                        txt_desc_str = u"{warn_string:s}"
                         html_desc_str = (
-                            u"<a style=\"color: %(yellow)s;\" "
-                            "href=\"%(warn_log_url)s\">%(warn_string)s</a>")
+                            u"<a style=\"color: {yellow:s};\" "
+                            "href=\"{warn_log_url:s}\">{warn_string:s}</a>")
 
-                    txt_desc_str = txt_desc_str % subs
-                    html_desc_str = html_desc_str % subs
+                    txt_desc_str = txt_desc_str.format(**subs)
+                    html_desc_str = html_desc_str.format(**subs)
 
                     subs["txt_desc_str"] = txt_desc_str
                     subs["html_desc_str"] = html_desc_str
 
                     txt_defconfig_str = (
-                        G_(u"%(defconfig)s: %(txt_desc_str)s") %
-                        subs) % subs
+                        G_(u"{defconfig:s}: {txt_desc_str:s}").format(**subs)
+                    ).format(**subs)
                     html_defconfing_str = (
-                        u"<a href=\"%(defconfig_url)s\">%(defconfig)s</a>: "
-                        "%(html_desc_str)s" % subs) % subs
+                        u"<a href=\"{defconfig_url:s}\">{defconfig:s}</a>: "
+                        u"{html_desc_str:s}".format(**subs)
+                    ).format(**subs)
 
                     error_append((txt_defconfig_str, html_defconfing_str))
     else:
@@ -586,51 +589,51 @@ def _get_build_subject_string(**kwargs):
 
     subject_str = u""
 
-    base_subject = G_(u"%(job)s build")
-    kernel_name = G_(u"(%(kernel)s)")
-    failed_builds = G_(u"%(fail_count)d failed")
-    passed_builds = G_(u"%(pass_count)d passed")
+    base_subject = G_(u"{job:s} build")
+    kernel_name = G_(u"({kernel:s})")
+    failed_builds = G_(u"{fail_count:d} failed")
+    passed_builds = G_(u"{pass_count:d} passed")
     total_builds = P_(
-        u"%(total_count)d build", u"%(total_count)d builds", total_count)
+        u"{total_count:d} build", u"{total_count:d} builds", total_count)
     errors_string = P_(
-        u"%(errors_count)d error", u"%(errors_count)d errors", errors)
+        u"{errors_count:d} error", u"{errors_count:d} errors", errors)
     warnings_string = P_(
-        u"%(warnings_count)d warning",
-        u"%(warnings_count)d warnings", warnings)
+        u"{warnings_count:d} warning",
+        u"{warnings_count:d} warnings", warnings)
 
     # Base format string to create the subject line.
     # 1st, 2nd, 3rd, 4th: job name, total count, fail count, pass count.
     # The last one is always the kernel/git-describe name.
     # The others will contain errors and warnings count.
     # next build: 0 failed, 10 passed (next-20150401)
-    base_0 = G_(u"%s: %s: %s, %s %s")
+    base_0 = G_(u"{:s}: {:s}: {:s}, {:s} {:s}")
     # next build: 0 failed, 10 passed, 2 warnings (next-20150401)
-    base_1 = G_(u"%s: %s: %s, %s, %s %s")
+    base_1 = G_(u"{:s}: {:s}: {:s}, {:s}, {:s} {:s}")
     # next build: 0 failed, 10 passed, 1 error, 2 warnings (next-20150401)
-    base_2 = G_(u"%s: %s: %s, %s, %s, %s %s")
+    base_2 = G_(u"{:s}: {:s}: {:s}, {:s}, {:s}, {:s} {:s}")
 
     if all([errors == 0, warnings == 0]):
-        subject_str = base_0 % (
+        subject_str = base_0.format(
             base_subject,
             total_builds, failed_builds, passed_builds, kernel_name)
     elif all([errors == 0, warnings != 0]):
-        subject_str = base_1 % (
+        subject_str = base_1.format(
             base_subject,
             total_builds,
             failed_builds, passed_builds, warnings_string, kernel_name)
     elif all([errors != 0, warnings != 0]):
-        subject_str = base_2 % (
+        subject_str = base_2.format(
             base_subject,
             total_builds,
             failed_builds,
             passed_builds, errors_string, warnings_string, kernel_name)
     elif all([errors != 0, warnings == 0]):
-        subject_str = base_1 % (
+        subject_str = base_1.format(
             base_subject,
             total_builds,
             failed_builds, passed_builds, errors_string, kernel_name)
 
     # Now fill in the values.
-    subject_str = subject_str % kwargs
+    subject_str = subject_str.format(**kwargs)
 
     return subject_str
