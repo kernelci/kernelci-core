@@ -5,7 +5,7 @@
         <title>{{ subject_str }}</title>
     </head>
     <body>
-        <span style="font-weight: bold;">{{ subject_str }}</span>
+        <span><strong>{{ subject_str }}</strong></span>
         <br />
         <table style="border: none; padding-top: 15px; padding-bottom: 15px;">
             <tbody>
@@ -27,7 +27,7 @@
             <table style="border: none; padding-bottom: 15px; padding-top: 5px;">
                 <tbody>
                 {%- for summary in platforms.failed_data.summary.html %}
-                    <tr><td>{{ summary }}</td></tr>
+                    <tr><td><strong>{{ summary }}</strong></td></tr>
                 {%- endfor %}
                     <tr><td style="padding-bottom: 15px;"></td></tr>
                 {%- for arch in platforms.failed_data.data %}
@@ -50,7 +50,7 @@
             <table style="border: none; padding-bottom: 15px; padding-top: 5px;">
                 <tbody>
                 {%- for summary in platforms.offline_data.summary.html %}
-                    <tr><td>{{ summary }}</td></tr>
+                    <tr><td><strong>{{ summary }}</strong></td></tr>
                 {%- endfor %}
                     <tr><td style="padding-bottom: 15px;"></td></tr>
                 {%- for arch in platforms.offline_data.data %}
@@ -73,7 +73,7 @@
                 <table style="border: none; padding-bottom: 15px; padding-top: 5px;">
                     <tbody>
                     {%- for summary in platforms.conflict_data.summary.html %}
-                        <tr><td>{{ summary }}</td></tr>
+                        <tr><td><strong>{{ summary }}</strong></td></tr>
                     {%- endfor %}
                     <tr><td style="padding-bottom: 15px;"></td></tr>
                     {%- for arch in platforms.conflict_data.data %}
