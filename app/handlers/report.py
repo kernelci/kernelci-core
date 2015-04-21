@@ -43,8 +43,9 @@ class ReportHandler(hbase.BaseHandler):
         Check that the DELETE request is OK.
         """
         response = None
+        valid_token, _ = self.validate_req_token("DELETE")
 
-        if self.validate_req_token("DELETE"):
+        if valid_token:
             response = hresponse.HandlerResponse(501)
         else:
             response = hresponse.HandlerResponse(403)
@@ -58,8 +59,9 @@ class ReportHandler(hbase.BaseHandler):
         Checks that everything is OK to perform a POST.
         """
         response = None
+        valid_token, _ = self.validate_req_token("POST")
 
-        if self.validate_req_token("POST"):
+        if valid_token:
             response = hresponse.HandlerResponse(501)
         else:
             response = hresponse.HandlerResponse(403)

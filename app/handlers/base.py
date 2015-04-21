@@ -206,8 +206,10 @@ class BaseHandler(tornado.web.RequestHandler):
     def execute_put(self, *args, **kwargs):
         """Execute the PUT pre-operations."""
         response = None
+        valid_token, token = self.validate_req_token("PUT")
 
-        if self.validate_req_token("PUT"):
+        if valid_token:
+            kwargs["token"] = token
             response = self._put(*args, **kwargs)
         else:
             response = hresponse.HandlerResponse(403)
@@ -239,8 +241,9 @@ class BaseHandler(tornado.web.RequestHandler):
         Checks that everything is OK to perform a POST.
         """
         response = None
+        valid_token, token = self.validate_req_token("POST")
 
-        if self.validate_req_token("POST"):
+        if valid_token:
             valid_request = self._valid_post_request()
 
             if valid_request == 200:
@@ -251,7 +254,9 @@ class BaseHandler(tornado.web.RequestHandler):
                         json_obj, self._valid_keys("POST"))
                     if valid_json:
                         kwargs["json_obj"] = json_obj
+                        kwargs["token"] = token
                         kwargs["db_options"] = self.settings["dboptions"]
+
                         response = self._post(*args, **kwargs)
                         response.errors = errors
                     else:
@@ -321,10 +326,14 @@ class BaseHandler(tornado.web.RequestHandler):
         Check that the DELETE request is OK.
         """
         response = None
+        valid_token, token = self.validate_req_token("DELETE")
 
-        if self.validate_req_token("DELETE"):
-            if kwargs and kwargs.get("id", None):
-                response = self._delete(kwargs["id"])
+        if valid_token:
+            kwargs["token"] = token
+            del_id = kwargs.get("id", None)
+
+            if del_id:
+                response = self._delete(del_id, **kwargs)
             else:
                 response = hresponse.HandlerResponse(400)
                 response.reason = "No ID value specified"
@@ -334,7 +343,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
         return response
 
-    def _delete(self, doc_id):
+    def _delete(self, doc_id, **kwargs):
         """Placeholder method - used internally.
 
         This is called by the actual method that implements DELETE request.
@@ -360,10 +369,14 @@ class BaseHandler(tornado.web.RequestHandler):
         token authorization if necessary.
         """
         response = None
+        valid_token, token = self.validate_req_token("GET")
 
-        if self.validate_req_token("GET"):
-            if kwargs and kwargs.get("id", None):
-                response = self._get_one(kwargs["id"])
+        if valid_token:
+            kwargs["token"] = token
+            get_id = kwargs.get("id", None)
+
+            if get_id:
+                response = self._get_one(get_id, **kwargs)
             else:
                 response = self._get(**kwargs)
         else:
@@ -372,7 +385,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
         return response
 
-    def _get_one(self, doc_id):
+    def _get_one(self, doc_id, **kwargs):
         """Get just one single document from the collection.
 
         Subclasses should override this method and implement their own
@@ -480,25 +493,25 @@ class BaseHandler(tornado.web.RequestHandler):
         """Validate the request token.
 
         :param method: The HTTP verb we are validating.
-        :return True or False.
+        :return A 2-tuple: True or False; the token object.
         """
         valid_token = False
+        token = None
 
         req_token = self.request.headers.get(hcommon.API_TOKEN_HEADER, None)
         remote_ip = self.request.remote_ip
         master_key = self.settings.get(hcommon.MASTER_KEY, None)
 
         if req_token:
-            valid_token = self._token_validation(
+            valid_token, token = self._token_validation(
                 req_token, method, remote_ip, master_key)
 
         if not valid_token:
             self.log.info(
                 "Token not authorized for IP address %s - Token: %s",
-                self.request.remote_ip, req_token
-            )
+                self.request.remote_ip, req_token)
 
-        return valid_token
+        return valid_token, token
 
     def _token_validation(self, req_token, method, remote_ip, master_key):
         """Perform the real token validation.
@@ -509,19 +522,21 @@ class BaseHandler(tornado.web.RequestHandler):
         :type method: string
         :param remote_ip: The IP address originating the request.
         :param master_key: The default master key.
-        :return True or False.
+        :return A 2-tuple: True or False; the token object.
         """
         valid_token = False
+        token = None
         token_obj = self._find_token(req_token, self.db)
 
         if token_obj:
-            valid_token = hcommon.validate_token(
+            valid_token, token = hcommon.validate_token(
                 token_obj,
                 method,
                 remote_ip,
                 self._token_validation_func()
             )
-        return valid_token
+
+        return valid_token, token
 
     # TODO: cache the token from the DB.
     @staticmethod
@@ -531,5 +546,5 @@ class BaseHandler(tornado.web.RequestHandler):
         :param token: The token to find.
         :return A json object, or nothing.
         """
-        return utils.db.find_one(
-            db_conn[models.TOKEN_COLLECTION], [token], field=models.TOKEN_KEY)
+        return utils.db.find_one2(
+            db_conn[models.TOKEN_COLLECTION], {models.TOKEN_KEY: token})

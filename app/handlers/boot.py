@@ -106,8 +106,9 @@ class BootHandler(hbase.BaseHandler):
 
     def execute_delete(self, *args, **kwargs):
         response = None
+        valid_token, _ = self.validate_req_token("DELETE")
 
-        if self.validate_req_token("DELETE"):
+        if valid_token:
             if kwargs and kwargs.get("id", None):
                 try:
                     doc_id = kwargs["id"]
@@ -189,7 +190,7 @@ class BootHandler(hbase.BaseHandler):
 
         return valid_token
 
-    def _delete(self, spec_or_id):
+    def _delete(self, spec_or_id, **kwargs):
         response = hresponse.HandlerResponse(200)
         response.status_code = utils.db.delete(self.collection, spec_or_id)
         response.reason = self._get_status_message(response.status_code)

@@ -890,11 +890,9 @@ class TestHandlersCommon(unittest.TestCase):
         mock_from_json.return_value = mock.Mock()
 
         self.assertFalse(
-            validate_token("foo", "GET", None, None)
-        )
+            validate_token("foo", "GET", None, None)[0])
         self.assertFalse(
-            validate_token(None, "GET", None, None)
-        )
+            validate_token(None, "GET", None, None)[0])
 
     @mock.patch("models.token.Token.from_json")
     def test_validate_token_true(self, mock_from_json):
@@ -907,15 +905,13 @@ class TestHandlersCommon(unittest.TestCase):
         token.is_ip_restricted = False
 
         self.assertTrue(
-            validate_token(token, "GET", None, validate_func)
-        )
+            validate_token(token, "GET", None, validate_func)[0])
 
         token.is_ip_restricted = True
         token.ip_address = "127.0.0.1"
 
         self.assertTrue(
-            validate_token(token, "GET", "127.0.0.1", validate_func)
-        )
+            validate_token(token, "GET", "127.0.0.1", validate_func)[0])
 
     @mock.patch("models.token.Token.from_json")
     def test_validate_token_false(self, mock_from_json):
@@ -928,21 +924,18 @@ class TestHandlersCommon(unittest.TestCase):
         token.is_ip_restricted = True
 
         self.assertFalse(
-            validate_token(token, "GET", None, validate_func)
-        )
+            validate_token(token, "GET", None, validate_func)[0])
 
         token.is_ip_restricted = True
         token.ip_address = "127.1.1.1"
 
         self.assertFalse(
-            validate_token(token, "GET", "127.0.0.1", validate_func)
-        )
+            validate_token(token, "GET", "127.0.0.1", validate_func)[0])
 
         token.is_ip_restricted = False
 
         self.assertFalse(
-            validate_token(token, "GET", None, validate_func)
-        )
+            validate_token(token, "GET", None, validate_func)[0])
 
     @mock.patch("models.token.Token.from_json")
     def test_validate_token_expired(self, mock_from_json):
@@ -952,7 +945,7 @@ class TestHandlersCommon(unittest.TestCase):
         mock_from_json.return_value = token
         validate_func = mock.Mock()
 
-        self.assertFalse(validate_token(token, "GET", None, validate_func))
+        self.assertFalse(validate_token(token, "GET", None, validate_func)[0])
 
     @mock.patch("models.token.Token", spec=True)
     def test_valid_token_bh(self, mock_class):

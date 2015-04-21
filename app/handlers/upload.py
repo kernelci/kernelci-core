@@ -48,8 +48,9 @@ class UploadHandler(hbase.BaseHandler):
         Checks that everything is OK to perform a GET.
         """
         response = None
+        valid_token, _ = self.validate_req_token("GET")
 
-        if self.validate_req_token("GET"):
+        if valid_token:
             response = hresponse.HandlerResponse(501)
         else:
             response = hresponse.HandlerResponse(403)
@@ -64,8 +65,9 @@ class UploadHandler(hbase.BaseHandler):
         """
         # TODO: in the future we need to enable delete as well.
         response = None
+        valid_token, _ = self.validate_req_token("DELETE")
 
-        if self.validate_req_token("DELETE"):
+        if valid_token:
             response = hresponse.HandlerResponse(501)
         else:
             response = hresponse.HandlerResponse(403)
@@ -79,7 +81,9 @@ class UploadHandler(hbase.BaseHandler):
         Checks that everything is OK to perform a POST.
         """
         response = None
-        if self.validate_req_token("POST"):
+        valid_token, _ = self.validate_req_token("POST")
+
+        if valid_token:
             valid_request = self._valid_post_request()
 
             if valid_request == 200:

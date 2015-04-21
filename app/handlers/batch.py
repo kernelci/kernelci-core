@@ -45,8 +45,9 @@ class BatchHandler(hbase.BaseHandler):
 
     def execute_post(self):
         response = None
+        valid_token, _ = self.validate_req_token("POST")
 
-        if self.validate_req_token("POST"):
+        if valid_token:
             valid_request = self._valid_post_request()
 
             if valid_request == 200:

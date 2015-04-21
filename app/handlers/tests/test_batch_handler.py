@@ -41,7 +41,7 @@ class TestBatchHandler(
 
         patched_validate_token = mock.patch("handlers.common.validate_token")
         self.validate_token = patched_validate_token.start()
-        self.validate_token.return_value = True
+        self.validate_token.return_value = (True, "token")
 
         self.addCleanup(patched_find_token.stop)
         self.addCleanup(patched_validate_token.stop)

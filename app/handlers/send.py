@@ -227,8 +227,9 @@ class SendHandler(hbase.BaseHandler):
         Check that the DELETE request is OK.
         """
         response = None
+        valid_token, _ = self.validate_req_token("DELETE")
 
-        if self.validate_req_token("DELETE"):
+        if valid_token:
             response = hresponse.HandlerResponse(501)
             response.reason = hcommon.METHOD_NOT_IMPLEMENTED
         else:
@@ -243,8 +244,9 @@ class SendHandler(hbase.BaseHandler):
         Checks that everything is OK to perform a GET.
         """
         response = None
+        valid_token, _ = self.validate_req_token("GET")
 
-        if self.validate_req_token("GET"):
+        if valid_token:
             response = hresponse.HandlerResponse(501)
             response.reason = hcommon.METHOD_NOT_IMPLEMENTED
         else:

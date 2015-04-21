@@ -53,6 +53,7 @@ class TokenHandler(hbase.BaseHandler):
 
     def _token_validation(self, req_token, method, remote_ip, master_key):
         valid_token = False
+        token = None
 
         if all([master_key, req_token == master_key]):
             valid_token = True
@@ -60,16 +61,16 @@ class TokenHandler(hbase.BaseHandler):
             token_obj = self._find_token(req_token, self.db)
 
             if token_obj:
-                valid_token = hcommon.validate_token(
+                valid_token, token = hcommon.validate_token(
                     token_obj,
                     method,
                     remote_ip,
                     self._token_validation_func()
                 )
 
-        return valid_token
+        return valid_token, token
 
-    def _get_one(self, doc_id):
+    def _get_one(self, doc_id, **kwargs):
         # Overridden: with the token we do not search by _id, but
         # by token field.
         response = hresponse.HandlerResponse()
@@ -91,7 +92,7 @@ class TokenHandler(hbase.BaseHandler):
     def _post(self, *args, **kwargs):
         response = None
 
-        if kwargs and kwargs.get("id", None):
+        if kwargs.get("id", None):
             response = hresponse.HandlerResponse(400)
             response.reason = "To update a token, use a PUT request"
         else:
@@ -303,7 +304,7 @@ class TokenHandler(hbase.BaseHandler):
 
         return token
 
-    def _delete(self, doc_id):
+    def _delete(self, doc_id, **kwargs):
         """Delete a resource.
 
         :param doc_id: The ID of the resource to delete.

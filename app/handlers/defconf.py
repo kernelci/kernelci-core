@@ -42,8 +42,9 @@ class DefConfHandler(hbase.BaseHandler):
         Checks that everything is OK to perform a POST.
         """
         response = None
+        valid_token, _ = self.validate_req_token("POST")
 
-        if self.validate_req_token("POST"):
+        if valid_token:
             response = hresponse.HandlerResponse(501)
         else:
             response = hresponse.HandlerResponse(403)
@@ -51,7 +52,7 @@ class DefConfHandler(hbase.BaseHandler):
 
         return response
 
-    def _delete(self, defconf_id):
+    def _delete(self, defconf_id, **kwargs):
         response = hresponse.HandlerResponse()
         response.status_code = utils.db.delete(self.collection, defconf_id)
 

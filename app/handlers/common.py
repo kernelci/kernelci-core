@@ -1163,9 +1163,10 @@ def validate_token(token_obj, method, remote_ip, validate_func):
     :param remote_ip: The remote IP address sending the token.
     :param validate_func: Function called to validate the token, must accept
         a Token object and the method string.
-    :return True or False.
+    :return A 2-tuple: True or False; the token object.
     """
     valid_token = True
+    token = None
 
     if token_obj:
         token = mtoken.Token.from_json(token_obj)
@@ -1186,7 +1187,7 @@ def validate_token(token_obj, method, remote_ip, validate_func):
     else:
         valid_token = False
 
-    return valid_token
+    return valid_token, token
 
 
 def _is_expired_token(token):

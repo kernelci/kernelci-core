@@ -44,7 +44,7 @@ class TestTestSetHandler(
 
         patched_validate_token = mock.patch("handlers.common.validate_token")
         self.validate_token = patched_validate_token.start()
-        self.validate_token.return_value = True
+        self.validate_token.return_value = (True, "token")
 
         self.addCleanup(patched_find_token.stop)
         self.addCleanup(patched_validate_token.stop)
@@ -301,7 +301,7 @@ class TestTestSetHandler(
 
     def test_delete_wrong_token(self):
         headers = {"Authorization": "foo"}
-        self.validate_token.return_value = False
+        self.validate_token.return_value = (False, None)
 
         response = self.fetch(
             "/test/set/id", method="DELETE", headers=headers)
@@ -385,7 +385,7 @@ class TestTestSetHandler(
 
     def test_put_wrong_token(self):
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
-        self.validate_token.return_value = False
+        self.validate_token.return_value = (False, None)
 
         response = self.fetch(
             "/test/set/id", method="PUT", headers=headers, body="")

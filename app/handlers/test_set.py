@@ -123,7 +123,7 @@ class TestSetHandler(htbase.TestBaseHandler):
             kwargs={"mail_options": self.settings["mailoptions"]}
         )
 
-    def _delete(self, doc_id):
+    def _delete(self, doc_id, **kwargs):
         response = hresponse.HandlerResponse()
 
         try:

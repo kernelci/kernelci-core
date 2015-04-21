@@ -78,7 +78,7 @@ class TestCaseHandler(htbase.TestBaseHandler):
 
         return response
 
-    def _delete(self, doc_id):
+    def _delete(self, doc_id, **kwargs):
         response = hresponse.HandlerResponse()
 
         try:

@@ -143,7 +143,8 @@ class LabHandler(handlers.base.BaseHandler):
         result = None
         headers = None
 
-        # Locally used to store the contact information from the new lab object.
+        # Locally used to store the contact information from the new lab
+        # object.
         new_contact = None
 
         old_lab = mlab.LabDocument.from_json(old_lab)
@@ -285,13 +286,13 @@ class LabHandler(handlers.base.BaseHandler):
                 }
                 location = urlparse.urlunparse(
                     (
-                        'http',
-                        self.request.headers.get('Host'),
-                        self.request.uri + '/' + lab_doc.name,
-                        '', '', ''
+                        "http",
+                        self.request.headers.get("Host"),
+                        self.request.uri + "/" + lab_doc.name,
+                        "", "", ""
                     )
                 )
-                headers = {'Location': location}
+                headers = {"Location": location}
             else:
                 reason = "Error saving new lab '%s'" % lab_doc.name
         else:
@@ -304,10 +305,12 @@ class LabHandler(handlers.base.BaseHandler):
     def execute_delete(self, *args, **kwargs):
         # TODO: need to expire or delete token as well.
         response = None
+        valid_token, _ = self.validate_req_token("DELETE")
 
-        if self.validate_req_token("DELETE"):
-            if kwargs and kwargs.get('id', None):
-                lab_id = kwargs['id']
+        if valid_token:
+            lab_id = kwargs.get("id", None)
+
+            if lab_id:
                 try:
                     lab_id = bson.objectid.ObjectId(lab_id)
                     if utils.db.find_one(self.collection, [lab_id]):
@@ -320,32 +323,28 @@ class LabHandler(handlers.base.BaseHandler):
                 except bson.errors.InvalidId, ex:
                     self.log.exception(ex)
                     self.log.error(
-                        "Wrong ID value '%s' passed as doc ID", lab_id
-                    )
+                        "Wrong ID value '%s' passed as doc ID", lab_id)
                     response = hresponse.HandlerResponse(400)
                     response.reason = "Wrong ID value provided"
             else:
                 spec = handlers.common.get_query_spec(
-                    self.get_query_arguments, self._valid_keys("DELETE")
-                )
+                    self.get_query_arguments, self._valid_keys("DELETE"))
                 if spec:
                     response = self._delete(spec)
                     if response.status_code == 200:
                         response.reason = (
-                            "Resources identified with '%s' deleted" % spec
-                        )
+                            "Resources identified with '%s' deleted" % spec)
                 else:
                     response = hresponse.HandlerResponse(400)
                     response.reason = (
-                        "No valid data provided to execute a DELETE"
-                    )
+                        "No valid data provided to execute a DELETE")
         else:
             response = hresponse.HandlerResponse(403)
             response.reason = handlers.common.NOT_VALID_TOKEN
 
         return response
 
-    def _delete(self, spec_or_id):
+    def _delete(self, spec_or_id, **kwargs):
         response = hresponse.HandlerResponse(200)
         response.status_code = utils.db.delete(self.collection, spec_or_id)
         response.reason = self._get_status_message(response.status_code)

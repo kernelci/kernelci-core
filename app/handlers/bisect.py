@@ -57,8 +57,9 @@ class BisectHandler(hbase.BaseHandler):
         token authorization if necessary.
         """
         response = None
+        valid_token, _ = self.validate_req_token("GET")
 
-        if self.validate_req_token("GET"):
+        if valid_token:
             doc_id = kwargs.get("id", None)
             fields = hcommon.get_query_fields(self.get_query_arguments)
 

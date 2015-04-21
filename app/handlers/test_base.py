@@ -46,9 +46,10 @@ class TestBaseHandler(hbase.BaseHandler):
     def execute_put(self, *args, **kwargs):
         """Execute the PUT pre-operations."""
         response = None
+        valid_token, token = self.validate_req_token("PUT")
 
-        if self.validate_req_token("PUT"):
-            if kwargs and kwargs.get("id", None):
+        if valid_token:
+            if kwargs.get("id", None):
                 valid_request = self._valid_post_request()
 
                 if valid_request == 200:
@@ -61,6 +62,7 @@ class TestBaseHandler(hbase.BaseHandler):
                             kwargs["json_obj"] = json_obj
                             kwargs["db_options"] = self.settings["dboptions"]
                             kwargs["reason"] = j_reason
+                            kwargs["token"] = token
                             response = self._put(*args, **kwargs)
                         else:
                             response = hresponse.HandlerResponse(400)

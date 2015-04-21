@@ -39,7 +39,7 @@ class CountHandler(hbase.BaseHandler):
     def _valid_keys(method):
         return hcommon.COUNT_VALID_KEYS.get(method, None)
 
-    def _get_one(self, collection):
+    def _get_one(self, collection, **kwargs):
         response = hresponse.HandlerResponse()
 
         if collection in hcommon.COLLECTIONS.keys():

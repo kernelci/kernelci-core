@@ -53,7 +53,7 @@ class JobHandler(hbase.BaseHandler):
 
         return response
 
-    def _delete(self, job_id):
+    def _delete(self, job_id, **kwargs):
         """Delete a job from the database.
 
         Use with care since documents cannot be retrieved after!
