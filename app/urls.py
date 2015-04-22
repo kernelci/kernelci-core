@@ -18,6 +18,7 @@ import tornado.web
 import handlers.batch
 import handlers.bisect
 import handlers.boot
+import handlers.boot_trigger
 import handlers.count
 import handlers.defconf
 import handlers.job
@@ -93,6 +94,12 @@ _TEST_CASE_URL = tornado.web.url(
     handlers.test_case.TestCaseHandler,
     name="test-case"
 )
+_BOOT_TRIGGER_URL = tornado.web.url(
+    r"/trigger/boot[s]?/?",
+    handlers.boot_trigger.BootTriggerHandler,
+    name="boot-trigger"
+)
+
 
 APP_URLS = [
     _BATCH_URL,
@@ -109,5 +116,6 @@ APP_URLS = [
     _SEND_URL,
     _TEST_SUITE_URL,
     _TEST_SET_URL,
-    _TEST_CASE_URL
+    _TEST_CASE_URL,
+    _BOOT_TRIGGER_URL
 ]
