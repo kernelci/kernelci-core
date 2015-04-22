@@ -486,7 +486,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 hcommon.get_all_query_values(
                     self.get_query_arguments, self._valid_keys(method))
 
-        return (spec, sort, fields, skip, limit, unique)
+        return spec, sort, fields, skip, limit, unique
 
     # TODO: cache the validated token.
     def validate_req_token(self, method):
