@@ -13,10 +13,11 @@ from utils import *
 job_map = {}
 
 
-def poll_jobs(connection):
+def poll_jobs(connection, timeout):
     run = True
     submitted_jobs = {}
     finished_jobs = {}
+    start_time = time.time()
 
     for job in job_map:
         if job_map[job] is not None:
@@ -26,6 +27,10 @@ def poll_jobs(connection):
                 submitted_jobs[job_name] = job_id
 
     while run:
+        if timeout < (time.time() - start_time) and timeout != 0:
+            print 'Polling timeout reached, collecting completed results'
+            run = False
+            break
         if not submitted_jobs:
             run = False
             break
@@ -251,7 +256,7 @@ def main(args):
     else:
         submit_jobs(connection, args.server, bundle_stream=None)
     if args.poll:
-        jobs = poll_jobs(connection)
+        jobs = poll_jobs(connection, args.timeout)
         end_time = time.time()
         jobs['duration'] = end_time - start_time
         jobs['username'] = args.username
@@ -271,5 +276,6 @@ if __name__ == '__main__':
     parser.add_argument("--stream", help="bundle stream for LAVA server")
     parser.add_argument("--repo", help="git repo for LAVA jobs")
     parser.add_argument("--poll", help="poll the submitted LAVA jobs, dumps info into specified json")
+    parser.add_argument("--timeout", type=int, default=0, help="polling timeout in seconds. default is 0.")
     args = parser.parse_args()
     main(args)
