@@ -342,6 +342,17 @@ def _parse_log(job, kernel, defconfig, log_file, build_dir):
     """
     utils.LOG.info("Parsing build log file '%s'", log_file)
 
+    def _clean_path(line):
+        """Strip the beginning of the line if it contains a special sequence.
+
+        :param line: The line to clean.
+        :type line: string
+        :return The line without the special sequence.
+        """
+        if line.startswith("../"):
+            line = line[3:]
+        return line
+
     errors = []
     status = 200
 
@@ -366,7 +377,7 @@ def _parse_log(job, kernel, defconfig, log_file, build_dir):
                         if re.search(err_pattrn, line):
                             line = line.strip()
                             has_err = True
-                            err_append(line)
+                            err_append(_clean_path(line))
                             break
 
                     if not has_err:
@@ -377,12 +388,12 @@ def _parse_log(job, kernel, defconfig, log_file, build_dir):
                             else:
                                 has_warn = True
                                 line = line.strip()
-                                warn_append(line)
+                                warn_append(_clean_path(line))
 
                     if any([not has_err, not has_warn]):
                         if re.search(MISMATCH_PATTERN, line):
                             line = line.strip()
-                            mismatch_append(line)
+                            mismatch_append(_clean_path(line))
         except IOError, ex:
             error = "Cannot open build log file for %s-%s-%s"
             utils.LOG.exception(ex)
