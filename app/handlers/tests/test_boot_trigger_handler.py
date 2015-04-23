@@ -147,7 +147,7 @@ class TestBootTriggerHandler(
 
     @mock.patch("utils.db.find_one2",)
     def test_get_lab_name_with_name(self, mock_find):
-        mock_find.return_value = {"lab_name": "fake_name"}
+        mock_find.return_value = {"name": "fake_name"}
         token = mtoken.Token()
 
         lab_name = hbtrigger._get_lab_name(token, self.mongodb_client)

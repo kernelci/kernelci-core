@@ -13,6 +13,7 @@
 
 """The RequestHandler for /trigger/boot URLs."""
 
+import copy
 import pymongo
 
 import handlers.base as hbase
@@ -102,12 +103,76 @@ class BootTriggerHandler(hbase.BaseHandler):
 
         if compared:
             lab_name = kwargs.get("lab_name", None)
-            # TODO: implement logic to retrieve data compared to other labs.
             if lab_name:
-                pass
+                # The final results and count.
+                result = []
+                count = 0
+
+                # First get all the defconfigs with the spec as specified
+                # in the query parameters.
+                all_defconfigs, all_count = utils.db.find_and_count(
+                    self.collection,
+                    0,
+                    0,
+                    spec=spec,
+                    fields=[models.ID_KEY],
+                    sort=GET_SORT_ORDER
+                )
+
+                # If we have defconfigs, search for all the boot reports with
+                # almost the same specified query, excluding the boots
+                # performed by the querying lab, and looking only for the
+                # defconfings similar to the ones retrieved above.
+                if all_count > 0:
+                    all_distinct_def = all_defconfigs.distinct(models.ID_KEY)
+
+                    # Make a copy of the spec used to retrieve the defconfing
+                    # since we need it later as well.
+                    boot_spec = copy.deepcopy(spec)
+                    # Inject the lab name and the previous defconfigs.
+                    boot_spec[models.LAB_NAME_KEY] = {"$ne": lab_name}
+                    boot_spec[models.DEFCONFIG_ID_KEY] = {
+                        "$in": all_distinct_def}
+
+                    already_booted, booted_count = utils.db.find_and_count(
+                        self.db[models.BOOT_COLLECTION],
+                        0,
+                        0,
+                        spec=boot_spec,
+                        fields=[models.DEFCONFIG_ID_KEY],
+                        sort=[(models.CREATED_KEY, pymongo.DESCENDING)]
+                    )
+
+                    booted_defconfigs = []
+                    if booted_count > 0:
+                        booted_defconfigs = already_booted.distinct(
+                            models.DEFCONFIG_ID_KEY)
+
+                    # Do a set difference to get the not booted ones.
+                    not_booted = set(all_distinct_def).difference(
+                        set(booted_defconfigs))
+
+                    if not_booted:
+                        spec[models.ID_KEY] = {"$in": list(not_booted)}
+
+                        # These are the final results, what gets back to the
+                        # user.
+                        result, count = utils.db.find_and_count(
+                            self.collection,
+                            limit,
+                            skip,
+                            spec=spec,
+                            fields=fields,
+                            sort=GET_SORT_ORDER
+                        )
+
+                response.result = result
+                response.count = count
             else:
                 response.status_code = 400
-                response.reason = "Missing lab name to perform a comparison"
+                response.reason = (
+                    "Missing lab name to perform a comparison: "
+                    "was a lab token used?")
         else:
             result, count = utils.db.find_and_count(
                 self.collection,
@@ -178,9 +243,9 @@ def _get_lab_name(token, database):
 
     lab_obj = utils.db.find_one2(
         database[models.LAB_COLLECTION],
-        {models.TOKEN_KEY: token.token}, [models.LAB_NAME_KEY])
+        {models.TOKEN_KEY: token._id}, [models.NAME_KEY])
 
     if lab_obj:
-        lab_name = lab_obj[models.LAB_NAME_KEY]
+        lab_name = lab_obj[models.NAME_KEY]
 
     return lab_name
