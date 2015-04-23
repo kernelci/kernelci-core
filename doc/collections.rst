@@ -22,3 +22,4 @@ Resources
     collection-upload
     collection-version
     collection-test
+    collection-trigger
