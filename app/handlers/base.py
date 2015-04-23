@@ -474,11 +474,11 @@ class BaseHandler(tornado.web.RequestHandler):
         :return A tuple with, in order: `spec`, `sort`, `fields`, `skip`,
         `limit` and `aggregate` values.
         """
-        spec = {}
-        sort = None
         fields = None
-        skip = 0
         limit = 0
+        skip = 0
+        sort = None
+        spec = {}
         unique = None
 
         if self.request.arguments:

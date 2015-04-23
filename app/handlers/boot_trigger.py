@@ -28,20 +28,18 @@ BOOT_TRIGGER_VALID_KEYS = {
         models.ARCHITECTURE_KEY,
         models.CREATED_KEY,
         models.DEFCONFIG_FULL_KEY,
-        models.DEFCONFIG_ID_KEY,
         models.DEFCONFIG_KEY,
+        models.GIT_BRANCH_KEY,
+        models.GIT_COMMIT_KEY,
+        models.GIT_DESCRIBE_KEY,
+        models.ID_KEY,
         models.JOB_ID_KEY,
         models.JOB_KEY,
         models.KERNEL_KEY,
         models.PRIVATE_KEY,
-        models.STATUS_KEY,
+        models.STATUS_KEY
     ]
 }
-
-GET_SORT_ORDER = [
-    (models.CREATED_KEY, pymongo.DESCENDING),
-    (models.DEFCONFIG_FULL_KEY, pymongo.ASCENDING)
-]
 
 
 class BootTriggerHandler(hbase.BaseHandler):
@@ -99,7 +97,7 @@ class BootTriggerHandler(hbase.BaseHandler):
 
     def _get(self, **kwargs):
         response = hresponse.HandlerResponse()
-        spec, fields, skip, limit, compared = self._get_query_args()
+        spec, sort, fields, skip, limit, compared = self._get_query_args()
 
         if compared:
             lab_name = kwargs.get("lab_name", None)
@@ -116,7 +114,7 @@ class BootTriggerHandler(hbase.BaseHandler):
                     0,
                     spec=spec,
                     fields=[models.ID_KEY],
-                    sort=GET_SORT_ORDER
+                    sort=sort
                 )
 
                 # If we have defconfigs, search for all the boot reports with
@@ -129,6 +127,12 @@ class BootTriggerHandler(hbase.BaseHandler):
                     # Make a copy of the spec used to retrieve the defconfing
                     # since we need it later as well.
                     boot_spec = copy.deepcopy(spec)
+                    # Remove possible query arguments that are not in the boot
+                    # schema.
+                    boot_spec.pop(models.GIT_BRANCH_KEY, None)
+                    boot_spec.pop(models.GIT_COMMIT_KEY, None)
+                    boot_spec.pop(models.GIT_DESCRIBE_KEY, None)
+                    boot_spec.pop(models.ID_KEY, None)
                     # Inject the lab name and the previous defconfigs.
                     boot_spec[models.LAB_NAME_KEY] = {"$ne": lab_name}
                     boot_spec[models.DEFCONFIG_ID_KEY] = {
@@ -163,7 +167,7 @@ class BootTriggerHandler(hbase.BaseHandler):
                             skip,
                             spec=spec,
                             fields=fields,
-                            sort=GET_SORT_ORDER
+                            sort=sort
                         )
 
                 response.result = result
@@ -180,7 +184,7 @@ class BootTriggerHandler(hbase.BaseHandler):
                 skip,
                 spec=spec,
                 fields=fields,
-                sort=GET_SORT_ORDER
+                sort=sort
             )
 
             if count > 0:
@@ -199,9 +203,10 @@ class BootTriggerHandler(hbase.BaseHandler):
         limit = 0
         skip = 0
         spec = {}
+        sort = None
 
         if self.request.arguments:
-            spec, fields, skip, limit, compared = \
+            spec, sort, fields, skip, limit, compared = \
                 hcommon.get_trigger_query_values(
                     self.get_query_arguments, self._valid_keys(method))
 

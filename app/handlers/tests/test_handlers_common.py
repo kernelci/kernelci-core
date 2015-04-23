@@ -755,7 +755,7 @@ class TestHandlersCommon(unittest.TestCase):
         valid_keys = []
 
         return_value = get_trigger_query_values(query_args_func, valid_keys)
-        self.assertEqual(len(return_value), 5)
+        self.assertEqual(len(return_value), 6)
 
     def test_get_compared_key_no_key(self):
         def query_args_func(key):

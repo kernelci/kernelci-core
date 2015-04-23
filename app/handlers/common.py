@@ -610,11 +610,12 @@ def get_trigger_query_values(query_args_func, valid_keys):
     get_and_add_gte_lt_keys(spec, query_args_func, valid_keys)
     update_id_fields(spec)
 
+    sort = get_query_sort(query_args_func)
     fields = get_query_fields(query_args_func)
     skip, limit = get_skip_and_limit(query_args_func)
     compared = get_compared_value(query_args_func)
 
-    return spec, fields, skip, limit, compared
+    return spec, sort, fields, skip, limit, compared
 
 
 def _valid_value(value):
