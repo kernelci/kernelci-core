@@ -56,6 +56,21 @@ MISM_LOG_URL = (
     utils.BUILD_MISMATCHES_FILE)
 
 
+# Other template strings.
+DEFCONFIG_URL_HTML = u"<a href=\"{defconfig_url:s}\">{defconfig:s}</a>"
+STATUS_HTML = (
+    u"<a style=\"color: {red:s}\" href=\"{log_url:s}\">{status:s}</a>"
+)
+ERR_STR_HTML = (
+    u"<a style=\"color: {red:s};\" href=\"{err_log_url:s}\">"
+    u"{err_string:s}</a>"
+)
+WARN_STR_HTML = (
+    u"<a style=\"color: {yellow:s};\" href=\"{warn_log_url:s}\">"
+    u"{warn_string:s}</a>"
+)
+
+
 # pylint: disable=too-many-locals
 # pylint: disable=star-args
 def create_build_report(job,
@@ -463,11 +478,9 @@ def _parse_and_structure_results(**kwargs):
                 subs["defconfig"] = struct[0]
                 subs["status"] = struct[1]
                 txt_str = G_(u"{defconfig:s}: {status:s}").format(**subs)
-                html_str = G_(
-                    u"<a href=\"{defconfig_url:s}\">{defconfig:s}</a>: "
-                    u"<a style=\"color: {red:s}\" "
-                    u"href=\"{log_url:s}\">{status:s}</a>".format(**subs)
-                ).format(**subs)
+                html_str = (
+                    DEFCONFIG_URL_HTML.format(**subs).format(**subs),
+                    STATUS_HTML.format(**subs).format(**subs))
                 failed_append((txt_str, html_str))
     else:
         platforms["failed_data"] = None
@@ -526,36 +539,28 @@ def _parse_and_structure_results(**kwargs):
                     if all([err_numb > 0, warn_numb > 0]):
                         txt_desc_str = G_(
                             u"{err_string:s}, {warn_string:s}")
-                        html_desc_str = G_(
-                            u"<a style=\"color: {red:s};\" "
-                            "href=\"{err_log_url:s}\">{err_string:s}</a>, "
-                            "<a style=\"color: {yellow:s};\" "
-                            "href=\"{warn_log_url:s}\">{warn_string:s}</a>"
+                        html_desc_str = (
+                            ERR_STR_HTML.format(**subs).format(**subs),
+                            WARN_STR_HTML.format(**subs).format(**subs)
                         )
                     elif all([err_numb > 0, warn_numb == 0]):
                         txt_desc_str = u"{err_string:s}"
                         html_desc_str = (
-                            u"<a style=\"color: {red:s};\" "
-                            "href=\"{err_log_url:s}\">{err_string:s}</a>")
+                            ERR_STR_HTML.format(**subs).format(**subs), u"")
                     elif all([err_numb == 0, warn_numb > 0]):
                         txt_desc_str = u"{warn_string:s}"
                         html_desc_str = (
-                            u"<a style=\"color: {yellow:s};\" "
-                            "href=\"{warn_log_url:s}\">{warn_string:s}</a>")
+                            u"", WARN_STR_HTML.format(**subs).format(**subs))
 
                     txt_desc_str = txt_desc_str.format(**subs)
-                    html_desc_str = html_desc_str.format(**subs)
-
                     subs["txt_desc_str"] = txt_desc_str
-                    subs["html_desc_str"] = html_desc_str
 
                     txt_defconfig_str = (
                         G_(u"{defconfig:s}: {txt_desc_str:s}").format(**subs)
                     ).format(**subs)
                     html_defconfing_str = (
-                        u"<a href=\"{defconfig_url:s}\">{defconfig:s}</a>: "
-                        u"{html_desc_str:s}".format(**subs)
-                    ).format(**subs)
+                        DEFCONFIG_URL_HTML.format(**subs).format(**subs),
+                        html_desc_str)
 
                     error_append((txt_defconfig_str, html_defconfing_str))
     else:
