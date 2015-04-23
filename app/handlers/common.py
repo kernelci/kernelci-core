@@ -806,7 +806,7 @@ def get_compared_value(query_args_func):
         if compared:
             compared = compared[-1]
 
-    if isinstance(compared, types.IntType):
+    if isinstance(compared, (types.StringTypes, types.IntType)):
         compared = bool(compared)
     else:
         compared = False

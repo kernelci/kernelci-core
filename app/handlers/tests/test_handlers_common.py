@@ -793,7 +793,7 @@ class TestHandlersCommon(unittest.TestCase):
             return args.get(key, [])
 
         compared = get_compared_value(query_args_func)
-        self.assertFalse(compared)
+        self.assertTrue(compared)
 
     @mock.patch("models.token.Token", spec=True)
     def test_valid_token_general_true(self, mock_class):
