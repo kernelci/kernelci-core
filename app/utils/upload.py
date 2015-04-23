@@ -114,6 +114,7 @@ def create_or_update_file(path, filename, content_type, content):
     real_path = os.path.join(utils.BASE_PATH, file_path)
 
     if os.path.exists(real_path):
+        # 201 means created anew, 200 means just OK, as in HTTP.
         ret_dict["status"] = 200
 
     utils.LOG.info("Writing file '%s'", real_path)
