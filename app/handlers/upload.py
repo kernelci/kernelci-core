@@ -146,8 +146,8 @@ class UploadHandler(hbase.BaseHandler):
     def _put(self, *args, **kwargs):
         response = hresponse.HandlerResponse(201)
 
-        if kwargs and kwargs.get("path", None):
-            path = kwargs["path"]
+        path = kwargs.get("path", None)
+        if path:
             # Path points to a file, treat it like that.
             if path.endswith("/"):
                 path = path[:-1]
@@ -172,8 +172,7 @@ class UploadHandler(hbase.BaseHandler):
                             response.status_code = 200
                             response.reason = (
                                 "File '%s' replaced with new content" %
-                                filename
-                            )
+                                filename)
                         else:
                             response.reason = "File '%s' saved" % filename
                             location = self._create_storage_url(path)
@@ -208,7 +207,7 @@ class UploadHandler(hbase.BaseHandler):
         new_storage_url = None
 
         if storage_url:
-            split_url = urlparse.urlsplit(self.settings["storage_url"])
+            split_url = urlparse.urlsplit(storage_url)
             new_storage_url = urlparse.urlunsplit(
                 (
                     split_url.scheme, split_url.netloc, path, split_url.query,
