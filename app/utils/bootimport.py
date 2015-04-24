@@ -148,13 +148,11 @@ def save_to_disk(boot_doc, json_obj, base_path):
 
         with open(file_path, mode="w") as write_json:
             write_json.write(
-                json.dumps(json_obj, ensure_ascii=False, indent="  ")
-            )
+                json.dumps(json_obj, ensure_ascii=False, indent="  "))
     except (OSError, IOError), ex:
         utils.LOG.error(
             "Error saving document '%s' into '%s'",
-            boot_doc.name, dir_path
-        )
+            boot_doc.name, dir_path)
         utils.LOG.exception(ex)
 
 
@@ -192,13 +190,12 @@ def _parse_boot_from_file(boot_log, database):
             if dtb and not TMP_RE.findall(dtb):
                 board = os.path.splitext(os.path.basename(dtb))[0]
             else:
-                # If we do not have the dtb field we use the boot report file to
-                # extract some kind of value for board.
+                # If we do not have the dtb field we use the boot report file
+                # to extract some kind of value for board.
                 board = os.path.splitext(
                     os.path.basename(boot_log).replace('boot-', ''))[0]
                 utils.LOG.info(
-                    "Using boot report file name for board name: %s", board
-                )
+                    "Using boot report file name for board name: %s", board)
 
         boot_doc = modbt.BootDocument(
             board, job, kernel, defconfig, lab_name, defconfig_full, arch)
@@ -247,8 +244,7 @@ def _parse_boot_from_json(boot_json, database):
         _update_boot_doc_ids(boot_doc, database)
     except KeyError, ex:
         utils.LOG.error(
-            "Missing key in boot report: import failed"
-        )
+            "Missing key in boot report: import failed")
         utils.LOG.exception(ex)
     except BootImportError, ex:
         utils.LOG.error("Boot JSON object is not valid")
@@ -342,7 +338,8 @@ def _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f):
     :type boot_doc: `models.boot.BootDocument`.
     :param boot_json: The JSON object from where to take that parameters.
     :type boot_json: dict
-    :param json_pop_f: The function used to pop elements out of the JSON object.
+    :param json_pop_f: The function used to pop elements out of the JSON
+    object.
     :type json_pop_f: function
     """
     seconds = float(json_pop_f(models.BOOT_TIME_KEY, 0.0))
@@ -368,14 +365,12 @@ def _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f):
             1970, 1, 1, hour=0, minute=0, second=0)
 
     boot_doc.status = json_pop_f(
-        models.BOOT_RESULT_KEY, models.UNKNOWN_STATUS
-    )
+        models.BOOT_RESULT_KEY, models.UNKNOWN_STATUS)
     boot_doc.board_instance = json_pop_f(models.BOARD_INSTANCE_KEY, None)
     boot_doc.boot_log = json_pop_f(models.BOOT_LOG_KEY, None)
     boot_doc.boot_log_html = json_pop_f(models.BOOT_LOG_HTML_KEY, None)
     boot_doc.boot_result_description = json_pop_f(
-        models.BOOT_RESULT_DESC_KEY, None
-    )
+        models.BOOT_RESULT_DESC_KEY, None)
     boot_doc.dtb = json_pop_f(models.DTB_KEY, None)
     boot_doc.dtb_addr = json_pop_f(models.DTB_ADDR_KEY, None)
     boot_doc.dtb_append = json_pop_f(models.DTB_APPEND_KEY, None)
