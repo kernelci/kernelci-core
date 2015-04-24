@@ -210,7 +210,7 @@ class BootTriggerHandler(hbase.BaseHandler):
                 hcommon.get_trigger_query_values(
                     self.get_query_arguments, self._valid_keys(method))
 
-        return spec, fields, skip, limit, compared
+        return spec, sort, fields, skip, limit, compared
 
 
 def _is_lab_token(token, database):
