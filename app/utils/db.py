@@ -46,7 +46,7 @@ def get_db_connection(db_options):
         db_pwd = db_options.get("dbpassword", "")
 
         DB_CONNECTION = pymongo.MongoClient(
-            host=db_host, port=db_port, max_pool_size=db_pool
+            host=db_host, port=db_port, max_pool_size=db_pool, w="majority"
         )[models.DB_NAME]
 
         if all([db_user, db_pwd]):

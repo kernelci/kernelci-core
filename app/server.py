@@ -51,7 +51,8 @@ topt.define(
 topt.define(
     "dbhost", default="localhost", type=str, help="The DB host to connect to"
 )
-topt.define("dbport", default=27017, type=int, help="The DB port to connect to")
+topt.define(
+    "dbport", default=27017, type=int, help="The DB port to connect to")
 topt.define(
     "dbuser", default="", type=str,
     help="The user name to use for the DB connection"
@@ -124,7 +125,8 @@ class KernelCiBackend(tornado.web.Application):
             self.mongodb_client = pymongo.MongoClient(
                 host=topt.options.dbhost,
                 port=topt.options.dbport,
-                max_pool_size=topt.options.dbpool
+                max_pool_size=topt.options.dbpool,
+                w="majority"
             )
 
         settings = {
