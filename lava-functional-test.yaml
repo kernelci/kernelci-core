@@ -17,6 +17,6 @@ install:
 
 run:
     steps:
-        - "git clone http://git.linaro.org/git/lava-team/lava-ci.git"
+        - "git clone git@github.com:kernelci/lava-ci.git"
         - "cd lava-ci"
         - "python lava-job-runner.py $USERNAME $TOKEN $SERVER --stream $BUNDLE_STREAM --repo $JOB_REPO --poll lava-functional-tests.json"
