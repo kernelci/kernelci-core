@@ -113,22 +113,36 @@ def create_or_update_file(path, filename, content_type, content):
     file_path = os.path.join(path, filename)
     real_path = os.path.join(utils.BASE_PATH, file_path)
 
-    if os.path.exists(real_path):
-        # 201 means created anew, 200 means just OK, as in HTTP.
-        ret_dict["status"] = 200
+    # Check if the file to upload is in a subdirectory of the provided path.
+    file_dir = os.path.dirname(file_path)
+    if all([path[-1] == "/", file_dir[-1] != "/"]):
+        file_dir += "/"
 
-    utils.LOG.info("Writing file '%s'", real_path)
+    if file_dir != path:
+        ret_val, err = check_or_create_upload_dir(file_dir)
+    ret_val = 200
 
-    try:
-        w_stream = io.open(real_path, mode="bw")
-        ret_dict["bytes"] = w_stream.write(content)
-        w_stream.flush()
-    except IOError, ex:
-        utils.LOG.exception(ex)
-        utils.LOG.error("Unable to open file '%s'", file_path)
+    if ret_val == 200:
+        if os.path.exists(real_path):
+            # 201 means created anew, 200 means just OK, as in HTTP.
+            ret_dict["status"] = 200
+
+        utils.LOG.info("Writing file '%s'", real_path)
+
+        try:
+            w_stream = io.open(real_path, mode="bw")
+            ret_dict["bytes"] = w_stream.write(content)
+            w_stream.flush()
+        except IOError, ex:
+            utils.LOG.exception(ex)
+            utils.LOG.error("Unable to open file '%s'", file_path)
+            ret_dict["status"] = 500
+            ret_dict["error"] = "Error writing file '%s'" % filename
+        finally:
+            if w_stream:
+                w_stream.close()
+    else:
         ret_dict["status"] = 500
-        ret_dict["error"] = "Error writing file '%s'" % filename
-    finally:
-        w_stream.close()
+        ret_dict["error"] = "Error creating upload dir '%s'" % file_dir
 
     return ret_dict
