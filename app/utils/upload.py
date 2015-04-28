@@ -19,7 +19,7 @@ import os
 import utils
 
 
-def is_valid_dir_path(path):
+def is_valid_dir_path(path, base_path=utils.BASE_PATH):
     """Verify if the provided path is a valid directory.
 
     A valid path must be a directory or it does not have to exists.
@@ -29,14 +29,14 @@ def is_valid_dir_path(path):
     :return True or False.
     """
     is_valid = True
-    real_path = os.path.join(utils.BASE_PATH, os.path.dirname(path))
+    real_path = os.path.join(base_path, os.path.dirname(path))
     if os.path.exists(real_path):
         if not os.path.isdir(real_path):
             is_valid = False
     return is_valid
 
 
-def file_exists(path):
+def file_exists(path, base_path=utils.BASE_PATH):
     """Verify if the path exists and is a file.
 
     :param path: The file path to check.
@@ -44,7 +44,7 @@ def file_exists(path):
     :return True or False.
     """
     it_exists = False
-    real_path = os.path.join(utils.BASE_PATH, path)
+    real_path = os.path.join(base_path, path)
     if os.path.isfile(real_path):
         it_exists = True
     return it_exists
@@ -64,7 +64,7 @@ def check_or_create_file_upload_dir(path):
     return check_or_create_upload_dir(os.path.dirname(path))
 
 
-def check_or_create_upload_dir(path):
+def check_or_create_upload_dir(path, base_path=utils.BASE_PATH):
     """Check if the path exists and it can be accessed, or create it.
 
     :param path: The path to verify.
@@ -74,10 +74,12 @@ def check_or_create_upload_dir(path):
     """
     ret_val = 200
     error = None
-    real_path = os.path.join(utils.BASE_PATH, path)
+    real_path = os.path.join(base_path, path)
 
     if os.path.exists(real_path):
-        os.access(real_path, os.R_OK | os.W_OK | os.X_OK)
+        if not os.access(real_path, os.R_OK | os.W_OK | os.X_OK):
+            ret_val = 500
+            error = "Unable to access destination directory '%s'" % path
     else:
         try:
             os.makedirs(real_path, mode=0775)
@@ -89,7 +91,9 @@ def check_or_create_upload_dir(path):
     return ret_val, error
 
 
-def create_or_update_file(path, filename, content_type, content):
+def create_or_update_file(path,
+                          filename,
+                          content_type, content, base_path=utils.BASE_PATH):
     """Create or replace a file.
 
     :param path: The path where the file should be saved.
@@ -111,16 +115,17 @@ def create_or_update_file(path, filename, content_type, content):
     }
 
     file_path = os.path.join(path, filename)
-    real_path = os.path.join(utils.BASE_PATH, file_path)
+    real_path = os.path.join(base_path, file_path)
 
     # Check if the file to upload is in a subdirectory of the provided path.
     file_dir = os.path.dirname(file_path)
-    if all([path[-1] == "/", file_dir[-1] != "/"]):
+    if path and all([path[-1] == "/", file_dir[-1] != "/"]):
         file_dir += "/"
 
-    if file_dir != path:
-        ret_val, err = check_or_create_upload_dir(file_dir)
     ret_val = 200
+    if file_dir != path:
+        ret_val, err = check_or_create_upload_dir(
+            file_dir, base_path=base_path)
 
     if ret_val == 200:
         if os.path.exists(real_path):
@@ -129,6 +134,7 @@ def create_or_update_file(path, filename, content_type, content):
 
         utils.LOG.info("Writing file '%s'", real_path)
 
+        w_stream = None
         try:
             w_stream = io.open(real_path, mode="bw")
             ret_dict["bytes"] = w_stream.write(content)
