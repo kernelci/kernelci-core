@@ -149,9 +149,9 @@ class UploadHandler(hbase.BaseHandler):
         path = kwargs.get("path", None)
         if path:
             # Path points to a file, treat it like that.
-            if path.endswith("/"):
+            if path[-1] == "/":
                 path = path[:-1]
-            if path.startswith("/"):
+            if path[0] == "/":
                 path = path[1:]
 
             filename = os.path.basename(path)
