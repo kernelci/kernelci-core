@@ -1,6 +1,9 @@
 #!/bin/bash
 
 cd $WORKSPACE/$TREE_NAME
+rm -rf _install build/
+git clean -df
+make distclean
 build.py -i -p production -c $1
 if [ $? -ne 0 ]; then
 	echo "Failed to build, skipping..."
