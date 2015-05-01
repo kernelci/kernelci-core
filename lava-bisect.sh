@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd $WORKSPACE
+cd $WORKSPACE/$TREE_NAME
 build.py -i -p production -c $1
 if [ $? -ne 0 ]; then
 	echo "Failed to build, skipping..."
