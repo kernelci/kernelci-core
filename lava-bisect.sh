@@ -4,6 +4,7 @@ cd $WORKSPACE/$TREE_NAME
 rm -rf _install_ build/
 git clean -df
 make distclean
+export GIT_DESCRIBE=$(git describe)
 build.py -i -p production -c $1
 if [ $? -ne 0 ]; then
 	echo "Failed to build, skipping..."
