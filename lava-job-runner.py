@@ -258,6 +258,11 @@ def main(args):
     if args.poll:
         jobs = poll_jobs(connection, args.timeout)
         end_time = time.time()
+        if args.bisect:
+            for job_id in jobs:
+                if 'result' in jobs[job_id]:
+                    if jobs[job_id]['result'] == 'FAIL':
+                        exit(1)
         jobs['duration'] = end_time - start_time
         jobs['username'] = args.username
         jobs['token'] = args.token
@@ -265,7 +270,6 @@ def main(args):
         results_directory = os.getcwd() + '/results'
         mkdir(results_directory)
         write_json(args.poll, results_directory, jobs)
-
     exit(0)
 
 if __name__ == '__main__':
@@ -277,5 +281,6 @@ if __name__ == '__main__':
     parser.add_argument("--repo", help="git repo for LAVA jobs")
     parser.add_argument("--poll", help="poll the submitted LAVA jobs, dumps info into specified json")
     parser.add_argument("--timeout", type=int, default=0, help="polling timeout in seconds. default is 0.")
+    parser.add_argument('--bisect', help="bisection mode, returns 1 on any job failures", action='store_true')
     args = parser.parse_args()
     main(args)
