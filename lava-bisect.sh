@@ -6,8 +6,7 @@ if [ $? -ne 0 ]; then
 	echo "Failed to build, skipping..."
 	exit 125
 fi
-export GIT_DESCRIBE=$(git describe)
-echo $GIT_DESCRIBE
+
 cd $WORKSPACE/local/lava-ci/
 python lava-kernel-ci-job-creator.py http://storage.kernelci.org/$TREE_NAME/$GIT_DESCRIBE/$ARCH-$1/ --plans boot --targets $2
 python lava-job-runner.py $3 $4 $5 --stream /anonymous/kernel-ci/ --poll kernel-ci.json --bisect
