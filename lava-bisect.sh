@@ -1,7 +1,7 @@
 #!/bin/bash
 
 cd $WORKSPACE/$TREE_NAME
-rm -rf _install build/
+rm -rf _install_ build/
 git clean -df
 make distclean
 build.py -i -p production -c $1
