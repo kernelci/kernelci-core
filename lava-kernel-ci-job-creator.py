@@ -397,6 +397,17 @@ juno = {'device_type': 'juno',
         'be': False,
         'fastboot': False}
 
+fvp_aemv8a = {'device_type': 'rtsm_fvp_base-aemv8a',
+              'templates': ['generic-arm64-dtb-uefi-kernel-ci-boot-template.json'],
+              'defconfig_blacklist': ['arm64-allnoconfig',
+                                      'arm64-allmodconfig',
+                                      'arm64-defconfig+kvm-host',
+                                      'arm64-defconfig+kvm-guest'],
+              'kernel_blacklist': [],
+              'lpae': False,
+              'be': False,
+              'fastboot': False}
+
 juno_kvm = {'device_type': 'juno',
             'templates': ['generic-arm64-boot-kvm-template.json'],
             'defconfig_blacklist': ['arm64-allnoconfig',
@@ -485,6 +496,7 @@ device_map = {'armada-370-mirabox.dtb': [armada_370_mirabox],
               'qemu-aarch64-legacy': [qemu_aarch64],
               'apm-mustang.dtb': [apm_mustang, apm_mustang_kvm],
               'juno.dtb': [juno, juno_kvm],
+              'fvp-base-gicv2-psci.dtb': [fvp_aemv8a],
               'x86': [x86, minnowboard_max_E3825],
               'x86-kvm': [x86_kvm]}
 

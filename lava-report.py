@@ -51,6 +51,7 @@ device_map = {'armada-370-mirabox': ['armada-370-mirabox', 'mvebu'],
               'juno': ['juno', 'arm'],
               'juno-kvm-host': ['juno-kvm-host', 'arm'],
               'juno-kvm-guest': ['juno-kvm-guest', 'arm'],
+              'rtsm_fvp_base-aemv8a': ['fvp-base-gicv2-psci', 'arm'],
               'minnowboard-max-E3825': ['minnowboard-max', None],
               'x86': ['x86', None],
               'kvm': ['x86-kvm', None]}
