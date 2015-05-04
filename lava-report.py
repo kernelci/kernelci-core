@@ -11,7 +11,8 @@ from utils import *
 
 log2html = 'https://git.linaro.org/people/kevin.hilman/build-scripts.git/blob_plain/HEAD:/log2html.py'
 
-device_map = {'armada-370-mirabox': ['armada-370-mirabox', 'mvebu'],
+device_map = {'bcm2835-rpi-b-plus': ['bcm2835-rpi-b-plus', 'bcm'],
+              'armada-370-mirabox': ['armada-370-mirabox', 'mvebu'],
               'arndale': ['exynos5250-arndale', 'exynos'],
               'snow': ['exynos5250-snow', 'exynos'],
               'arndale-octa': ['exynos5420-arndale-octa','exynos'],

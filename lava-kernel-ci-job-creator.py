@@ -12,7 +12,16 @@ kernel = None
 platform_list = []
 legacy_platform_list = []
 no_modules_list = ['arm-sunxi_defconfig',
-                   'arm-hisi_defconfig']
+                   'arm-hisi_defconfig',
+                   'arm-bcm2835_defconfig']
+
+bcm2835_rpi_b_plus = {'device_type': 'bcm2835-rpi-b-plus',
+                      'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                      'defconfig_blacklist': ['arm-allmodconfig'],
+                      'kernel_blacklist': [],
+                      'lpae': False,
+                      'be': False,
+                      'fastboot': False}
 
 armada_370_mirabox = {'device_type': 'armada-370-mirabox',
                        'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
@@ -459,7 +468,8 @@ x86_kvm = {'device_type': 'kvm',
            'be': False,
            'fastboot': False}
 
-device_map = {'armada-370-mirabox.dtb': [armada_370_mirabox],
+device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
+              'armada-370-mirabox.dtb': [armada_370_mirabox],
               'exynos5250-arndale.dtb': [arndale],
               'exynos5250-snow.dtb': [snow],
               'exynos5420-arndale-octa.dtb': [arndale_octa],
