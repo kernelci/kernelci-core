@@ -22,7 +22,8 @@ import utils
 
 
 # pylint: disable=too-many-branches
-def send_email(to_addrs, subject, txt_body, html_body, mail_options):
+def send_email(to_addrs,
+               subject, txt_body, html_body, mail_options, headers=None):
     """Send email to the specified address.
 
     :param to_addrs: The recipients address.
@@ -55,6 +56,10 @@ def send_email(to_addrs, subject, txt_body, html_body, mail_options):
     elif html_body:
         msg = email.mime.text.MIMEText(
             html_body, _subtype="html", _charset="utf_8")
+
+    if headers:
+        for key, val in headers.iteritems():
+            msg[key] = str(val)
 
     msg["Subject"] = subject
 
@@ -99,10 +104,10 @@ def send_email(to_addrs, subject, txt_body, html_body, mail_options):
             utils.LOG.error("Generic SMTP error: no auth method, ...")
             errors.append((ex.smtp_code, ex.smtp_error))
         except Exception, ex:
-            utils.LOG.error(
-                "Unexpected SMTP error: %s - %s", ex.errno, ex.strerror)
             utils.LOG.exception(ex)
-            errors.append((ex.errno, ex.strerror))
+            utils.LOG.error(
+                "Unexpected SMTP error: %s", str(ex))
+            errors.append((500, str(ex)))
         finally:
             if server is not None:
                 server.quit()
