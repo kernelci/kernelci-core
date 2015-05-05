@@ -33,7 +33,7 @@ import utils.db
 
 # Some dtb appears to be in a temp directory like 'tmp', and will results in
 # some weird names.
-TMP_RE = re.compile(r'tmp')
+TMP_RE = re.compile(r"tmp")
 
 # Keys that need to be checked for None or null value.
 NON_NULL_KEYS = [
@@ -140,7 +140,7 @@ def save_to_disk(boot_doc, json_obj, base_path):
     r_defconfig = "-".join([arch, defconfig])
 
     dir_path = os.path.join(base_path, job, kernel, r_defconfig, lab_name)
-    file_path = os.path.join(dir_path, 'boot-%s.json' % board)
+    file_path = os.path.join(dir_path, "boot-%s.json" % board)
 
     try:
         if not os.path.isdir(dir_path):
@@ -193,7 +193,7 @@ def _parse_boot_from_file(boot_log, database):
                 # If we do not have the dtb field we use the boot report file
                 # to extract some kind of value for board.
                 board = os.path.splitext(
-                    os.path.basename(boot_log).replace('boot-', ''))[0]
+                    os.path.basename(boot_log).replace("boot-", ""))[0]
                 utils.LOG.info(
                     "Using boot report file name for board name: %s", board)
 
