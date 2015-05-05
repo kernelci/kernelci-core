@@ -277,8 +277,12 @@ def _parse_build_data(data_file, job, kernel, defconfig_dir):
     :param defconf_doc: The `DefconfigDocument` whose metadata will be updated.
     """
     build_data = None
-    with open(data_file) as data:
-        build_data = json.load(data)
+    try:
+        with open(data_file) as data:
+            build_data = json.load(data)
+    except json.JSONDecodeError, ex:
+        utils.LOG.exception(ex)
+        utils.LOG.error("Error loading JSON data from '%s'", defconfig_dir)
 
     defconfig_doc = None
 
