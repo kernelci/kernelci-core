@@ -92,6 +92,9 @@ topt.define(
 topt.define(
     "storage_url", default=None, type=str,
     help="The URL of the storage system")
+topt.define(
+    "buffer_size", default=1024*1024*500, type=int,
+    help="The body buffer size for uploading files")
 
 
 class KernelCiBackend(tornado.web.Application):
@@ -141,7 +144,8 @@ class KernelCiBackend(tornado.web.Application):
             "master_key": topt.options.master_key,
             "autoreload": topt.options.autoreload,
             "senddelay": topt.options.send_delay,
-            "storage_url": topt.options.storage_url
+            "storage_url": topt.options.storage_url,
+            "max_buffer_size": topt.options.buffer_size
         }
 
         hdbindexes.ensure_indexes(self.mongodb_client, db_options)
@@ -158,6 +162,7 @@ if __name__ == "__main__":
     # Settings that should be passed also to the HTTPServer.
     HTTP_SETTINGS = {
         "xheaders": True,
+        "max_buffer_size": topt.options.buffer_size
     }
 
     if topt.options.unixsocket:
