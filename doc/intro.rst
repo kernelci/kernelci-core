@@ -197,3 +197,24 @@ Responses will be compressed using **gzip**.
     It is highly advised to require responses compression from the server, it
     will save considerable amount of transfer time.
 
+Email Reports
+-------------
+
+Through the :ref:`send <collection_send>` resource it is possible to send boot
+and build email reports.
+
+The email reports contain custom headers that can be used by email client.
+
++----------------------------+-----------------------------+----------------------------+
+|                            | Build Report                | Boot Report                |
++============================+=============================+============================+
+| ``X-Kernelci-Report-Type`` | It's value will be "build". | It's value will be "boot". |
++----------------------------+-----------------------------+----------------------------+
+| ``X-Kernelci-Tree``        | The name of the tree/job.                                |
++----------------------------+----------------------------------------------------------+
+| ``X-Kernelci-Kernel``      | The name of the kernel.                                  |
++----------------------------+----------------------------------------------------------+
+| ``X-Kernelci-Branch``      | The name of the branch.                                  |
++----------------------------+-----------------------------+----------------------------+
+| ``X-Kernelci-Lab-Name``    | N/A.                        | The name of the lab.       |
++----------------------------+-----------------------------+----------------------------+
