@@ -431,6 +431,15 @@ juno_kvm = {'device_type': 'juno',
             'be': False,
             'fastboot': False}
 
+hi6220_hikey = {'device_type': 'hi6220-hikey',
+                'templates': ['generic-arm64-dtb-kernel-ci-boot-template.json'],
+                'defconfig_blacklist': ['arm64-allnoconfig',
+                                        'arm64-allmodconfig'],
+               'kernel_blacklist': [],
+               'lpae': False,
+               'be': False,
+               'fastboot': False}
+
 
 x86 = {'device_type': 'x86',
        'templates': ['generic-x86-kernel-ci-boot-template.json'],
@@ -507,6 +516,7 @@ device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'apm-mustang.dtb': [apm_mustang, apm_mustang_kvm],
               'juno.dtb': [juno, juno_kvm],
               'fvp-base-gicv2-psci.dtb': [fvp_aemv8a],
+              'hi6220-hikey.dtb': [hi6220_hikey],
               'x86': [x86, minnowboard_max_E3825],
               'x86-kvm': [x86_kvm]}
 

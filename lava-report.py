@@ -53,6 +53,7 @@ device_map = {'bcm2835-rpi-b-plus': ['bcm2835-rpi-b-plus', 'bcm'],
               'juno-kvm-host': ['juno-kvm-host', 'arm'],
               'juno-kvm-guest': ['juno-kvm-guest', 'arm'],
               'rtsm_fvp_base-aemv8a': ['fvp-base-gicv2-psci', 'arm'],
+              'hi6220-hikey': ['hi6220-hikey', 'hisi'],
               'minnowboard-max-E3825': ['minnowboard-max', None],
               'x86': ['x86', None],
               'kvm': ['x86-kvm', None]}
