@@ -46,10 +46,9 @@ class JobHandler(hbase.BaseHandler):
 
         taskq.import_job.apply_async(
             [json_obj, db_options],
-            # TODO: re-enable when CI is ready.
-            # link=[
-            #     taskq.parse_build_log.s(json_obj, db_options)
-            # ]
+            link=[
+                taskq.parse_build_log.s(json_obj, db_options)
+            ]
         )
 
         return response
