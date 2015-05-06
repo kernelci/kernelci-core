@@ -13,6 +13,7 @@
 
 """Utility functions to handle file uploads."""
 
+import errno
 import io
 import os
 
@@ -84,9 +85,12 @@ def check_or_create_upload_dir(path, base_path=utils.BASE_PATH):
         try:
             os.makedirs(real_path, mode=0775)
         except OSError, ex:
-            utils.LOG.exception(ex)
-            ret_val = 500
-            error = "Unable to create destination directory '%s'" % path
+            # errno.EEXIST (17) means the directory already exists, so do not
+            # treat it as an error.
+            if ex.errno != errno.EEXIST:
+                utils.LOG.exception(ex)
+                ret_val = 500
+                error = "Unable to create destination directory '%s'" % path
 
     return ret_val, error
 
