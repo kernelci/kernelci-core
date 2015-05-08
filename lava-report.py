@@ -65,6 +65,7 @@ def download_log2html(url):
     script = response.read()
     write_file(script, 'log2html.py', os.getcwd())
 
+
 def parse_json(json):
     jobs = load_json(json)
     url = validate_input(jobs['username'], jobs['token'], jobs['server'])
@@ -76,6 +77,24 @@ def parse_json(json):
     jobs.pop('token')
     jobs.pop('server')
     return connection, jobs, duration
+
+
+def push(method, url, data, headers):
+    retry = True
+    while retry:
+        if method == 'POST':
+            response = requests.post(url, data=data, headers=headers)
+        elif method == 'PUT':
+            response = requests.put(url, data=data, headers=headers)
+        else:
+            print "ERROR: unsupported method"
+            exit(1)
+        if response.status_code != 500:
+            retry = False
+            print "OK"
+        else:
+            time.sleep(10)
+            print response.content
 
 
 def boot_report(args):
@@ -336,28 +355,28 @@ def boot_report(args):
                     'Content-Type': 'application/json'
                 }
                 api_url = urlparse.urljoin(args.api, '/boot')
-                response = requests.post(api_url, data=json.dumps(boot_meta), headers=headers)
-                print response.content
+                push('POST', api_url, data=json.dumps(boot_meta), headers=headers)
                 headers = {
                     'Authorization': args.token,
                 }
                 print 'Uploading text version of boot log'
                 with open(os.path.join(directory, log)) as lh:
                     data = lh.read()
-                api_url = urlparse.urljoin(args.api, '/upload/%s/%s/%s/%s/%s' % (kernel_tree, kernel_version, kernel_defconfig, args.lab, log))
-                response = requests.put(api_url, headers=headers, data=data)
-                print response.content
+                api_url = urlparse.urljoin(args.api, '/upload/%s/%s/%s/%s/%s' % (kernel_tree,
+                                                                                 kernel_version,
+                                                                                 kernel_defconfig,
+                                                                                 args.lab,
+                                                                                 log))
+                push('PUT', api_url, data=data, headers=headers)
                 print 'Uploading text version of boot log'
                 with open(os.path.join(directory, html)) as lh:
                     data = lh.read()
-                api_url = urlparse.urljoin(args.api, '/upload/%s/%s/%s/%s/%s' % (kernel_tree, kernel_version, kernel_defconfig, args.lab, html))
-                retry = True
-                while retry:
-                    response = requests.put(api_url, headers=headers, data=data)
-                    if response.status_code != '500':
-                        retry = False
-                        time.sleep(10)
-                print response.content
+                api_url = urlparse.urljoin(args.api, '/upload/%s/%s/%s/%s/%s' % (kernel_tree,
+                                                                                 kernel_version,
+                                                                                 kernel_defconfig,
+                                                                                 args.lab,
+                                                                                 html))
+                push('PUT', api_url, data=data, headers=headers)
 
     if results and kernel_tree and kernel_version:
         print 'Creating boot summary for %s' % kernel_version
