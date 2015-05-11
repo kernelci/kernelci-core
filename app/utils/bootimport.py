@@ -23,6 +23,7 @@ except ImportError:
 import bson
 import copy
 import datetime
+import errno
 import os
 import re
 
@@ -144,7 +145,11 @@ def save_to_disk(boot_doc, json_obj, base_path):
 
     try:
         if not os.path.isdir(dir_path):
-            os.makedirs(dir_path)
+            try:
+                os.makedirs(dir_path)
+            except OSError, ex:
+                if ex.errno != errno.EEXIST:
+                    raise ex
 
         with open(file_path, mode="w") as write_json:
             write_json.write(
