@@ -46,10 +46,11 @@ class BootHandler(hbase.BaseHandler):
         return hcommon.valid_token_bh
 
     def _post(self, *args, **kwargs):
-        req_token = self.request.headers.get(hcommon.API_TOKEN_HEADER, None)
         lab_name = kwargs["json_obj"].get(models.LAB_NAME_KEY, None)
+        req_token = kwargs["token"]
 
-        if self._is_valid_token(req_token, lab_name):
+        valid_lab, error = self._is_valid_token(req_token, lab_name)
+        if valid_lab:
             response = hresponse.HandlerResponse(202)
             response.reason = "Request accepted and being imported"
 
@@ -59,8 +60,9 @@ class BootHandler(hbase.BaseHandler):
             response = hresponse.HandlerResponse(403)
             response.reason = (
                 "Provided authentication token is not associated with "
-                "lab '%s'" % lab_name
-            )
+                "lab '%s' or is not valid" % lab_name)
+
+        response.errors = error
 
         return response
 
@@ -80,33 +82,40 @@ class BootHandler(hbase.BaseHandler):
         :return True if the token is valid, False otherwise.
         """
         valid_lab = False
+        error = None
 
-        lab_doc = utils.db.find_one(
-            self.db[models.LAB_COLLECTION], [lab_name], field=models.NAME_KEY)
+        lab_doc = utils.db.find_one2(
+            self.db[models.LAB_COLLECTION], {models.NAME_KEY: lab_name})
 
         if lab_doc:
-            lab_token_doc = utils.db.find_one(
-                self.db[models.TOKEN_COLLECTION], [lab_doc[models.TOKEN_KEY]])
+            lab_token_doc = utils.db.find_one2(
+                self.db[models.TOKEN_COLLECTION], lab_doc[models.TOKEN_KEY])
 
             if lab_token_doc:
                 lab_token = mtoken.Token.from_json(lab_token_doc)
-                if all([req_token == lab_token.token, not lab_token.expired]):
+                if req_token.is_admin:
                     valid_lab = True
-                elif all([lab_token.is_admin, not lab_token.expired]):
-                    valid_lab = True
-                    utils.LOG.warn(
+                    self.log.warn(
                         "Received boot POST request from an admin token")
+                    error = (
+                        "Using an admin token to send boot reports: "
+                        "use the lab token")
+                elif all([
+                        req_token.token == lab_token.token,
+                        not lab_token.expired]):
+                    valid_lab = True
                 else:
-                    utils.LOG.warn(
-                        "Received token (%s) is not associated with lab '%s'",
+                    self.log.warn(
+                        "Provided token (%s) is not associated with "
+                        "lab '%s' or is not valid",
                         req_token, lab_name
                     )
 
-        return valid_lab
+        return valid_lab, error
 
     def execute_delete(self, *args, **kwargs):
         response = None
-        valid_token, _ = self.validate_req_token("DELETE")
+        valid_token, token = self.validate_req_token("DELETE")
 
         if valid_token:
             if kwargs and kwargs.get("id", None):
@@ -116,7 +125,7 @@ class BootHandler(hbase.BaseHandler):
 
                     boot_doc = utils.db.find_one(self.collection, [obj_id])
                     if boot_doc:
-                        if self._valid_boot_delete_token(boot_doc):
+                        if self._valid_boot_delete_token(token, boot_doc):
                             response = self._delete(obj_id)
                             if response.status_code == 200:
                                 response.reason = (
@@ -151,42 +160,35 @@ class BootHandler(hbase.BaseHandler):
 
         return response
 
-    def _valid_boot_delete_token(self, boot_doc):
+    def _valid_boot_delete_token(self, token, boot_doc):
         """Make sure the token is an actual delete token.
 
         This is an extra step in making sure the token is valid. A lab
         token, token used to send boot reports, can be used to delete boot
         reports only belonging to its lab.
 
+        :param token: The req token.
+        :type token: models.token.Token
         :param boot_doc: The document to delete.
         :type boot_doc: dict
         :return True or False.
         """
-        valid_token = True
-        req_token = self.request.headers.get(hcommon.API_TOKEN_HEADER, None)
-        token = self._find_token(req_token, self.db)
+        valid_token = False
 
-        if token:
-            token = mtoken.Token.from_json(token)
+        # Just need to check if it is a lab token. A validation has already
+        # occurred makig sure is a valid DELETE one.
+        # This is the extra step.
+        if token.is_lab_token:
+            # This is only valid if the lab matches.
+            lab_doc = utils.db.find_one2(
+                self.db[models.LAB_COLLECTION],
+                {models.NAME_KEY: boot_doc[models.LAB_NAME_KEY]})
 
-            # Just need to check if it is a lab token. A validation has already
-            # occurred makig sure is a valid DELETE one.
-            # This is the extra step.
-            if token.is_lab_token:
-                # This is only valid if the lab matches.
-                valid_token = False
+            if lab_doc:
+                lab_doc = mlab.LabDocument.from_json(lab_doc)
 
-                lab_doc = utils.db.find_one(
-                    self.db[models.LAB_COLLECTION],
-                    [boot_doc[models.LAB_NAME_KEY]],
-                    field=models.NAME_KEY
-                )
-
-                if lab_doc:
-                    lab_doc = mlab.LabDocument.from_json(lab_doc)
-
-                    if lab_doc.token == token.id:
-                        valid_token = True
+                if lab_doc.token == token.id:
+                    valid_token = True
 
         return valid_token
 
