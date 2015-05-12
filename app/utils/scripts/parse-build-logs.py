@@ -58,6 +58,8 @@ def main(job, kernel=None):
             status = 1
     else:
         start_path = os.path.join(utils.BASE_PATH, job)
+        visited_dir = set()
+
         if os.path.isdir(start_path):
             for dirname, subdirs, files in os.walk(start_path):
                 base_name = os.path.basename(dirname)
@@ -85,6 +87,9 @@ def main(job, kernel=None):
 
                     new_kernel = build_data.get(models.GIT_DESCRIBE_KEY)
 
+                    if new_kernel in visited_dir:
+                        continue
+
                     if new_kernel:
                         if new_kernel != kernel:
                             kernel = new_kernel
@@ -108,6 +113,7 @@ def main(job, kernel=None):
                             }
                             utils.log_parser.parse_build_log(
                                 job_id, json_obj, {})
+                            visited_dir.add(kernel)
                         else:
                             status = 1
                             utils.LOG.error(
