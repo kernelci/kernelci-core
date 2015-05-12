@@ -186,6 +186,15 @@ def create_boot_report(job,
         models.LAB_NAME_KEY: lab_name
     }
 
+    custom_headers = {
+        rcommon.X_REPORT: rcommon.BOOT_REPORT_TYPE,
+        rcommon.X_BRANCH: git_branch,
+        rcommon.X_TREE: job,
+        rcommon.X_KERNEL: kernel,
+    }
+    if lab_name:
+        custom_headers[rcommon.X_LAB] = lab_name
+
     if fail_count > 0:
         failed_data, _, _, unique_data = \
             _parse_boot_results(fail_results.clone(), get_unique=True)
@@ -256,7 +265,7 @@ def create_boot_report(job,
         utils.LOG.warn(
             "Nothing found for '%s-%s': no email report sent", job, kernel)
 
-    return txt_body, html_body, subject
+    return txt_body, html_body, subject, custom_headers
 
 
 # pylint: disable=too-many-branches

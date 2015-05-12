@@ -200,19 +200,19 @@ def send_boot_report(job,
     utils.LOG.info("Preparing boot report email for '%s-%s'", job, kernel)
     status = "ERROR"
 
-    txt_body, html_body, subject = utils.report.boot.create_boot_report(
-        job,
-        kernel,
-        lab_name,
-        email_format,
-        db_options=db_options,
-        mail_options=mail_options
-    )
+    txt_body, html_body, subject, headers = \
+        utils.report.boot.create_boot_report(
+            job,
+            kernel,
+            lab_name,
+            email_format, db_options=db_options, mail_options=mail_options
+        )
 
     if all([any([txt_body, html_body]), subject]):
         utils.LOG.info("Sending boot report email for '%s-%s'", job, kernel)
         status, errors = utils.emails.send_email(
-            to_addrs, subject, txt_body, html_body, mail_options)
+            to_addrs,
+            subject, txt_body, html_body, mail_options, headers=headers)
         utils.report.common.save_report(
             job, kernel, models.BOOT_REPORT, status, errors, db_options)
     else:
@@ -249,18 +249,20 @@ def send_build_report(job,
     utils.LOG.info("Preparing build report email for '%s-%s'", job, kernel)
     status = "ERROR"
 
-    txt_body, html_body, subject = utils.report.build.create_build_report(
-        job,
-        kernel,
-        email_format,
-        db_options=db_options,
-        mail_options=mail_options
-    )
+    txt_body, html_body, subject, headers = \
+        utils.report.build.create_build_report(
+            job,
+            kernel,
+            email_format,
+            db_options=db_options,
+            mail_options=mail_options
+        )
 
     if all([any([txt_body, html_body]), subject]):
         utils.LOG.info("Sending build report email for '%s-%s'", job, kernel)
         status, errors = utils.emails.send_email(
-            to_addrs, subject, txt_body, html_body, mail_options)
+            to_addrs,
+            subject, txt_body, html_body, mail_options, headers=headers)
         utils.report.common.save_report(
             job, kernel, models.BOOT_REPORT, status, errors, db_options)
     else:

@@ -186,6 +186,13 @@ def create_build_report(job,
         models.KERNEL_KEY: kernel,
     }
 
+    custom_headers = {
+        rcommon.X_REPORT: rcommon.BUILD_REPORT_TYPE,
+        rcommon.X_BRANCH: git_branch,
+        rcommon.X_TREE: job,
+        rcommon.X_KERNEL: kernel,
+    }
+
     if all([fail_count == 0, total_count == 0]):
         utils.LOG.warn(
             "Nothing found for '%s-%s': no build email report sent",
@@ -193,7 +200,7 @@ def create_build_report(job,
     else:
         txt_body, html_body, subject = _create_build_email(**kwargs)
 
-    return txt_body, html_body, subject
+    return txt_body, html_body, subject, custom_headers
 
 
 def _get_errors_count(results):

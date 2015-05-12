@@ -90,6 +90,15 @@ KNOWN_GIT_URLS = {
     ),
 }
 
+# Mail headers.
+X_REPORT = "X-Kernelci-Report-Type"
+X_TREE = "X-Kernelci-Tree"
+X_KERNEL = "X-Kernelci-Kernel"
+X_BRANCH = "X-Kernelci-Branch"
+X_LAB = "X-Kernelci-Lab-Name"
+BOOT_REPORT_TYPE = "boot"
+BUILD_REPORT_TYPE = "build"
+
 
 def save_report(job, kernel, r_type, status, errors, db_options):
     """Save the email report status in the database.
