@@ -134,17 +134,6 @@ def _traverse_dir_and_parse(job_id,
     warn_default = warnings_all.setdefault
     mism_default = mismatches_all.setdefault
 
-    def _dict_to_list(data):
-        """Transform a dictionary into a list of tuples.
-
-        :param data: The dictionary to transform.
-        :return A list of tuples.
-        """
-        tupl = zip(data.values(), data.keys())
-        tupl.sort()
-        tupl.reverse()
-        return tupl
-
     def _add_err_msg(err_code, err_msg):
         """Add error code and message to the data structure.
 
@@ -212,30 +201,6 @@ def _traverse_dir_and_parse(job_id,
                 utils.LOG.error(error, job, kernel, defconfig_full, arch)
                 _add_err_msg(
                     status, error % (job, kernel, defconfig_full, arch))
-
-    def _save_summary():
-        """Save the summary for errors/warnings/mismatches found."""
-        # Save it only if we have something to save.
-        if any([errors_all, warnings_all, mismatches_all]):
-            error_summary = mesumm.ErrorSummaryDocument(job_id, "1.0")
-            error_summary.created_on = datetime.datetime.now(
-                tz=bson.tz_util.utc)
-            error_summary.job = job
-            error_summary.kernel = kernel
-
-            # Store the summary as lists of 2-tuple values.
-            error_summary.errors = _dict_to_list(errors_all)
-            error_summary.mismatches = _dict_to_list(mismatches_all)
-            error_summary.warnings = _dict_to_list(warnings_all)
-
-            database = utils.db.get_db_connection(db_options)
-            ret_val, _ = utils.db.save(
-                database, error_summary, manipulate=True)
-
-            if ret_val == 500:
-                error = "Error saving errors summary for %s-%s (%s)"
-                utils.LOG.error(error, job, kernel, job_id)
-                _add_err_msg(ret_val, error % (job, kernel, job_id))
 
     def _read_build_data(build_dir):
         """Locally read the build JSON file to retrieve some values.
@@ -315,7 +280,14 @@ def _traverse_dir_and_parse(job_id,
                         _add_err_msg(status, err)
 
             # Once done, save the summary.
-            _save_summary()
+            save_status = _save_summary(
+                errors_all,
+                warnings_all, mismatches_all, job_id, job, kernel, db_options)
+
+            if save_status == 500:
+                error_msg = "Error saving errors summary for %s-%s (%s)"
+                utils.LOG.error(error_msg, job, kernel, job_id)
+                _add_err_msg(save_status, error_msg % (job, kernel, job_id))
         else:
             error = "Provided values (%s,%s) do not match a directory"
             utils.LOG.error(error, job, kernel)
@@ -323,6 +295,57 @@ def _traverse_dir_and_parse(job_id,
             _add_err_msg(500, error % (job, kernel))
 
     return status, errors
+
+
+def _dict_to_list(data):
+    """Transform a dictionary into a list of tuples.
+
+    :param data: The dictionary to transform.
+    :return A list of tuples.
+    """
+    tupl = zip(data.values(), data.keys())
+    tupl.sort()
+    tupl.reverse()
+    return tupl
+
+
+def _save_summary(errors,
+                  warnings, mismatches, job_id, job, kernel, db_options):
+    """Save the summary for errors/warnings/mismatches found."""
+    ret_val = 200
+    # Save it only if we have something to save.
+    if any([errors, warnings, mismatches]):
+        error_summary = mesumm.ErrorSummaryDocument(job_id, "1.0")
+        error_summary.created_on = datetime.datetime.now(
+            tz=bson.tz_util.utc)
+        error_summary.job = job
+        error_summary.kernel = kernel
+
+        # Store the summary as lists of 2-tuple values.
+        error_summary.errors = _dict_to_list(errors)
+        error_summary.mismatches = _dict_to_list(mismatches)
+        error_summary.warnings = _dict_to_list(warnings)
+
+        database = utils.db.get_db_connection(db_options)
+        prev_spec = {
+            models.JOB_KEY: job,
+            models.KERNEL_KEY: kernel,
+            models.NAME_KEY: job_id
+        }
+        prev_doc = utils.db.find_one2(
+            database[models.ERRORS_SUMMARY_COLLECTION],
+            prev_spec, fields=[models.ID_KEY]
+        )
+
+        manipulate = True
+        if prev_doc:
+            manipulate = False
+            error_summary._id = prev_doc[models.ID_KEY]
+
+        ret_val, _ = utils.db.save(
+            database, error_summary, manipulate=manipulate)
+
+    return ret_val
 
 
 # pylint: disable=too-many-statements
@@ -493,6 +516,18 @@ def save_defconfig_errors(job_id,
         error = "No defconfig ID found for %s-%s-%s (%s)"
         utils.LOG.warn(error, job, kernel, defconfig_full, arch)
 
+    prev_spec = {
+        models.ARCHITECTURE_KEY: arch,
+        models.DEFCONFIG_FULL_KEY: defconfig_full,
+        models.DEFCONFIG_KEY: defconfig,
+        models.JOB_KEY: job,
+        models.KERNEL_KEY: kernel,
+        models.STATUS_KEY: build_status
+    }
+    prev_doc = utils.db.find_one2(
+        database[models.ERROR_LOGS_COLLECTION],
+        prev_spec, fields=[models.ID_KEY])
+
     err_doc = merrl.ErrorLogDocument(job_id, "1.0")
     err_doc.arch = arch
     err_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
@@ -509,6 +544,11 @@ def save_defconfig_errors(job_id,
     err_doc.warnings = warning_lines
     err_doc.warnings_count = len(warning_lines)
 
-    ret_val, _ = utils.db.save(database, err_doc, manipulate=True)
+    manipulate = True
+    if prev_doc:
+        manipulate = False
+        err_doc._id = prev_doc[models.ID_KEY]
+
+    ret_val, _ = utils.db.save(database, err_doc, manipulate=manipulate)
 
     return ret_val
