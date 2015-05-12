@@ -44,6 +44,10 @@ class JobHandler(hbase.BaseHandler):
         json_obj = kwargs["json_obj"]
         db_options = kwargs["db_options"]
 
+        self.log.info(
+            "Importing defconfigs for %s-%s",
+            json_obj[models.JOB_KEY], json_obj[models.KERNEL_KEY])
+
         taskq.import_job.apply_async(
             [json_obj, db_options],
             link=[
