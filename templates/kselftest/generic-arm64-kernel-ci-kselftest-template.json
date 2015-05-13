@@ -18,11 +18,10 @@
                 "test.type": "{test_type}"
             },
             "parameters": {
-                "dtb": "{dtb_url}",
                 "overlays": ["{modules_url}",
-                             "http://storage.kernelci.org/images/selftests/arm/kselftest.tar.gz"],
+                             "http://storage.kernelci.org/images/selftests/arm64/kselftest.tar.gz"],
                 "kernel": "{kernel_url}",
-                "ramdisk": "http://storage.kernelci.org/images/selftests/arm/rootfs.cpio.gz"
+                "ramdisk": "http://storage.kernelci.org/images/selftests/arm64/rootfs.cpio.gz"
             }
         },
         {
