@@ -1,43 +1,18 @@
 {
-    "$schema": "http://api.kernelci.org/json-schema/1.0/lab_get.json",
-    "id": "http://api.kernelci.org/json-schema/1.0/lab_get.json",
+    "$schema": "http://api.kernelci.org/json-schema/1.0/post_lab.json",
+    "id": "http://api.kernelci.org/json-schema/1.0/post_lab.json",
     "title": "lab",
     "description": "A lab object",
     "type": "object",
     "properties": {
         "version": {
             "type": "string",
-            "description": "The version of this JSON schema: depends on the POST request"
+            "description": "The version number of this JSON schema",
+            "enum": ["1.0"]
         },
         "name": {
             "type": "string",
             "description": "The name associated with the object"
-        },
-        "_id": {
-            "type": "string",
-            "description": "The ID associated with the object as provided by the database"
-        },
-        "created_on": {
-            "type": "object",
-            "description": "Creation date of the object",
-            "properties": {
-                "$date": {
-                    "type": "number",
-                    "description": "Milliseconds from epoch time",
-                    "format": "utc-millisec"
-                }
-            }
-        },
-        "updated_on": {
-            "type": "object",
-            "description": "Update date of the object",
-            "properties": {
-                "$date": {
-                    "type": "number",
-                    "description": "Milliseconds from epoch time",
-                    "format": "utc-millisec"
-                }
-            }
         },
         "contact": {
             "type": "object",
@@ -66,7 +41,8 @@
                 "affiliation": {
                     "type": "string",
                     "description": "The name of the company, or association this contact is part of"
-                }
+                },
+                "required": ["name", "surname", "email"]
             }
         },
         "address": {
@@ -110,7 +86,8 @@
         },
         "token": {
             "type": "string",
-            "description": "The ID of the token associated with this lab"
+            "description": "The token to associated with this lab"
         }
-    }
+    },
+    "required": ["version", "name", "contact"]
 }

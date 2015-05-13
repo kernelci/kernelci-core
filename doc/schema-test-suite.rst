@@ -12,7 +12,7 @@ A test suite must define its own ``name`` and must be associated with a :ref:`la
 GET
 ***
 
-.. literalinclude:: schema/1.0/test_suite_get.json
+.. literalinclude:: schema/1.0/get_test_suite.json
     :language: json
 
 Notes
@@ -25,7 +25,7 @@ Notes
 POST
 ****
 
-.. literalinclude:: schema/1.0/test_suite_post.json
+.. literalinclude:: schema/1.0/get_test_suite.json
     :language: json
 
 Notes

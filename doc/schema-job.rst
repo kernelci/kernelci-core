@@ -25,7 +25,7 @@ GET
     They are taken from the :ref:`defconfig schema <schema_defconfig>` at
     import time and reported here for easier search.
 
-.. literalinclude:: schema/1.0/job_get.json
+.. literalinclude:: schema/1.0/get_job.json
     :language: json
 
 .. _schema_job_post:
@@ -36,7 +36,7 @@ POST
 The following schema covers the data that should be available in the JSON
 data sent to the server.
 
-.. literalinclude:: schema/1.0/job_post.json
+.. literalinclude:: schema/1.0/post_job.json
     :language: json
 
 

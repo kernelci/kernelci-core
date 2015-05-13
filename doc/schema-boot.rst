@@ -14,7 +14,7 @@ and architecture values: ``board``-``job``-``kernel``-``defconfig``-``arch``.
 Boot report ``name``-s are not unique. To uniquely identify a boot report it is
 necessary to use its ``_id`` value.
 
-.. literalinclude:: schema/1.0/boot_get.json
+.. literalinclude:: schema/1.0/get_boot.json
     :language: json
 
 .. _schema_boot_post:
@@ -25,7 +25,7 @@ POST
 The following schema defines the valid fields that a boot report document should
 have when sent to the server.
 
-.. literalinclude:: schema/1.0/boot_post.json
+.. literalinclude:: schema/1.0/post_boot.json
     :language: json
 
 Notes

@@ -10,7 +10,7 @@ A token object as stored in the database.
 GET
 ***
 
-.. literalinclude:: schema/1.0/token_get.json
+.. literalinclude:: schema/1.0/get_token.json
     :language: json
 
 .. _schema_token_post:
@@ -18,7 +18,7 @@ GET
 POST
 ****
 
-.. literalinclude:: schema/1.0/token_post.json
+.. literalinclude:: schema/1.0/post_token.json
     :language: json
 
 .. note::

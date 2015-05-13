@@ -16,7 +16,7 @@ GET
 
 The following schema covers the data that is available with a GET request.
 
-.. literalinclude:: schema/1.0/defconfig_get.json
+.. literalinclude:: schema/1.0/get_defconfig.json
     :language: json
 
 .. _schema_defconfig_post:
@@ -31,7 +31,7 @@ The ``defconfig`` resource does not support POST requests. This schema is
 placed here as a reference document in order to provide correct data to the
 server.
 
-.. literalinclude:: schema/1.0/defconfig_post.json
+.. literalinclude:: schema/1.0/post_defconfig.json
     :language: json
 
 Notes

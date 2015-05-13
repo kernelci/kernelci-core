@@ -1,6 +1,6 @@
 {
-    "$schema": "http://api.kernelci.org/json-schema/1.0/test_set_post.json",
-    "id": "http://api.kernelci.org/json-schema/1.0/test_set_post.json",
+    "$schema": "http://api.kernelci.org/json-schema/1.0/post_test_set.json",
+    "id": "http://api.kernelci.org/json-schema/1.0/post_test_set.json",
     "title": "test_set",
     "description": "A test set JSON object",
     "type": "object",

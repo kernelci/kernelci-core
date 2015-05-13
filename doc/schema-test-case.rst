@@ -13,7 +13,7 @@ A test case can be associated with only one :ref:`test suite <schema_test_suite>
 GET
 ***
 
-.. literalinclude:: schema/1.0/test_case_get.json
+.. literalinclude:: schema/1.0/get_test_case.json
     :language: json
 
 .. _schema_test_case_post:
@@ -21,7 +21,7 @@ GET
 POST
 ****
 
-.. literalinclude:: schema/1.0/test_case_post.json
+.. literalinclude:: schema/1.0/post_test_case.json
     :language: json
 
 Notes

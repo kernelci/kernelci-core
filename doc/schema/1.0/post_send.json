@@ -1,6 +1,6 @@
 {
-    "$schema": "http://api.kernelci.org/json-schema/1.0/send_post.json",
-    "id": "http://api.kernelci.org/json-schema/1.0/send_post.json",
+    "$schema": "http://api.kernelci.org/json-schema/1.0/post_send.json",
+    "id": "http://api.kernelci.org/json-schema/1.0/post_send.json",
     "title": "send",
     "description": "Data to trigger the email report",
     "type": "object",

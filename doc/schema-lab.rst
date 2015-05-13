@@ -20,7 +20,7 @@ As a rule of thumbs for creating a lab ``name``:
 GET
 ***
 
-.. literalinclude:: schema/1.0/lab_get.json
+.. literalinclude:: schema/1.0/get_lab.json
     :language: json
 
 .. _schema_lab_post:
@@ -28,7 +28,7 @@ GET
 POST
 ****
 
-.. literalinclude:: schema/1.0/lab_post.json
+.. literalinclude:: schema/1.0/post_lab.json
     :language: json
 
 More Info

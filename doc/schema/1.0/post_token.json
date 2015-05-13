@@ -1,6 +1,6 @@
 {
-    "$schema": "http://api.kernelci.org/json-schema/1.0/token_post.json",
-    "id": "http://api.kernelci.org/json-schema/1.0/token_post.json",
+    "$schema": "http://api.kernelci.org/json-schema/1.0/post_token.json",
+    "id": "http://api.kernelci.org/json-schema/1.0/post_token.json",
     "title": "token",
     "description": "The JSON schema to create/update tokens",
     "type": "object",

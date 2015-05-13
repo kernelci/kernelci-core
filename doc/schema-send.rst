@@ -13,7 +13,7 @@ POST
 The following schema covers the data that should be available in the JSON
 data sent to the server.
 
-.. literalinclude:: schema/1.0/send_post.json
+.. literalinclude:: schema/1.0/post_send.json
     :language: json
 
 More Info

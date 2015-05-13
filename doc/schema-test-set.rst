@@ -11,7 +11,7 @@ must define its own ``name`` and must be associated with a :ref:`test suite <sch
 GET
 ***
 
-.. literalinclude:: schema/1.0/test_set_get.json
+.. literalinclude:: schema/1.0/get_test_set.json
     :language: json
 
 Notes
@@ -24,7 +24,7 @@ Notes
 POST
 ****
 
-.. literalinclude:: schema/1.0/test_set_post.json
+.. literalinclude:: schema/1.0/post_test_set.json
     :language: json
 
 Notes

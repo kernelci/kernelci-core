@@ -1,4 +1,6 @@
 {
+    "$schema": "http://api.kernelci.org/json-schema/1.0/post_boot.json",
+    "id": "http://api.kernelci.org/json-schema/1.0/post_boot.json",
     "title": "boot",
     "description": "A boot POST request object",
     "type": "object",

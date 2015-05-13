@@ -9,7 +9,7 @@ is used to provide a view on the reports send when error arises.
 GET
 ***
 
-.. literalinclude:: schema/1.0/report_get.json
+.. literalinclude:: schema/1.0/get_report.json
     :language: json
 
 More Info

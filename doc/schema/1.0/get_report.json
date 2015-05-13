@@ -1,6 +1,6 @@
 {
-    "$schema": "http://api.kernelci.org/json-schema/1.0/report_get.json",
-    "id": "http://api.kernelci.org/json-schema/1.0/report_get.json",
+    "$schema": "http://api.kernelci.org/json-schema/1.0/get_report.json",
+    "id": "http://api.kernelci.org/json-schema/1.0/get_report.json",
     "title": "report",
     "description": "A report object",
     "type": "object",
