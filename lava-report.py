@@ -215,7 +215,9 @@ def boot_report(args):
                 board_instance = bundle_attributes['target']
             if in_bundle_attributes(bundle_attributes, 'kernel.defconfig'):
                 kernel_defconfig = bundle_attributes['kernel.defconfig']
-                arch, kernel_defconfig_full = kernel_defconfig.split('-')
+                defconfig_list = kernel_defconfig.split('-')
+                arch = defconfig_list[0]
+                kernel_defconfig_full = '-'.join(defconfig_list)
                 kernel_defconfig_base = ''.join(kernel_defconfig_full.split('+')[:1])
                 if kernel_defconfig_full == kernel_defconfig_base:
                     kernel_defconfig_full = None
@@ -368,7 +370,7 @@ def boot_report(args):
                                                                                  args.lab,
                                                                                  log))
                 push('PUT', api_url, data=data, headers=headers)
-                print 'Uploading text version of boot log'
+                print 'Uploading html version of boot log'
                 with open(os.path.join(directory, html)) as lh:
                     data = lh.read()
                 api_url = urlparse.urljoin(args.api, '/upload/%s/%s/%s/%s/%s' % (kernel_tree,
