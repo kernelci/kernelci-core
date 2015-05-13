@@ -98,3 +98,46 @@
     - reload-nginx
   tags:
     - web-server
+
+- name: Does the nginx custom directory exists?
+  file: path=/etc/nginx/custom/
+        state=directory
+        owner=root
+        group=root
+  notify:
+    - reload-nginx
+  tags:
+    - web-server
+
+- name: Copy backend maintenance configuration
+  copy: src=backend-maintenance.conf
+        dest=/etc/nginx/custom/backend-maintenance.conf
+        owner=root
+        group=root
+        mode=0644
+  notify:
+    - reload-nginx
+  tags:
+    - web-server
+
+- name: Copy backend proxy cache configuration
+  copy: src=backend-proxy-cache.conf
+        dest=/etc/nginx/custom/backend-proxy-cache.conf
+        owner=root
+        group=root
+        mode=0644
+  notify:
+    - reload-nginx
+  tags:
+    - web-server
+
+- name: Copy backend proxy configuration
+  copy: src=backend-proxy.conf
+        dest=/etc/nginx/custom/backend-proxy.conf
+        owner=root
+        group=root
+        mode=0644
+  notify:
+    - reload-nginx
+  tags:
+    - web-server
