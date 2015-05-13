@@ -306,7 +306,7 @@ parallella = {'device_type': 'parallella',
               'fastboot': False}
 
 optimus_a80 = {'device_type': 'optimus-a80',
-               'templates': ['generic-arm-dtb-kernel-ci-boot-template.json,'
+               'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
                              'generic-arm-dtb-kernel-ci-kselftest-template.json'],
                'defconfig_blacklist': ['arm-allmodconfig',
                                        'arm-multi_v7_defconfig+tiny'],
