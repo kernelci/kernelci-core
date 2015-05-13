@@ -16,7 +16,7 @@
 BROKER_URL = "redis://localhost"
 BROKER_POOL_LIMIT = 20
 BROKER_TRANSPORT_OPTIONS = {
-    "visibility_timeout": 60*60*4,
+    "visibility_timeout": 60*60*6,
     "fanout_prefix": True,
     "fanout_patterns": True
 }

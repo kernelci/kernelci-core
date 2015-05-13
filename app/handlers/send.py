@@ -24,8 +24,8 @@ import handlers.response as hresponse
 import models
 import taskqueue.tasks as taskq
 
-# Max delay in sending email report set to 3hrs.
-MAX_DELAY = 10800
+# Max delay in sending email report set to 5hrs.
+MAX_DELAY = 18000
 
 
 # pylint: disable=too-many-public-methods
