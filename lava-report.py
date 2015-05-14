@@ -217,6 +217,8 @@ def boot_report(args):
                 kernel_defconfig = bundle_attributes['kernel.defconfig']
                 defconfig_list = kernel_defconfig.split('-')
                 arch = defconfig_list[0]
+                # Remove arch
+                defconfig_list.pop(0)
                 kernel_defconfig_full = '-'.join(defconfig_list)
                 kernel_defconfig_base = ''.join(kernel_defconfig_full.split('+')[:1])
                 if kernel_defconfig_full == kernel_defconfig_base:
