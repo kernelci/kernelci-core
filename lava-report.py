@@ -366,7 +366,7 @@ def boot_report(args):
                     data = lh.read()
                 api_url = urlparse.urljoin(args.api, '/upload/%s/%s/%s/%s/%s' % (kernel_tree,
                                                                                  kernel_version,
-                                                                                 kernel_defconfig,
+                                                                                 arch + '-' + kernel_defconfig,
                                                                                  args.lab,
                                                                                  log))
                 push('PUT', api_url, data=data, headers=headers)
@@ -375,7 +375,7 @@ def boot_report(args):
                     data = lh.read()
                 api_url = urlparse.urljoin(args.api, '/upload/%s/%s/%s/%s/%s' % (kernel_tree,
                                                                                  kernel_version,
-                                                                                 kernel_defconfig,
+                                                                                 arch + '-' + kernel_defconfig,
                                                                                  args.lab,
                                                                                  html))
                 push('PUT', api_url, data=data, headers=headers)
