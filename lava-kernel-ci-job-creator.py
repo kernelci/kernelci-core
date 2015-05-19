@@ -408,6 +408,7 @@ qemu_aarch64 = {'device_type': 'qemu-aarch64',
 
 apm_mustang = {'device_type': 'mustang',
                'templates': ['generic-arm64-dtb-kernel-ci-boot-template.json',
+                             'generic-arm64-dtb-kernel-ci-boot-be-template.json',
                              'generic-arm64-uboot-dtb-kernel-ci-ltp-mm-template.json',
                              'generic-arm64-uboot-dtb-kernel-ci-ltp-syscalls-template.json',
                              'generic-arm64-dtb-kernel-ci-kselftest-template.json'],
@@ -415,7 +416,7 @@ apm_mustang = {'device_type': 'mustang',
                                        'arm64-allmodconfig'],
                'kernel_blacklist': [],
                'lpae': False,
-               'be': False,
+               'be': True,
                'fastboot': False}
 
 apm_mustang_kvm = {'device_type': 'mustang',
