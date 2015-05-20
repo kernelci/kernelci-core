@@ -20,7 +20,6 @@ bcm2835_rpi_b_plus = {'device_type': 'bcm2835-rpi-b-plus',
                       'defconfig_blacklist': ['arm-allmodconfig'],
                       'kernel_blacklist': [],
                       'lpae': False,
-                      'be': False,
                       'fastboot': False}
 
 armada_370_mirabox = {'device_type': 'armada-370-mirabox',
@@ -29,7 +28,6 @@ armada_370_mirabox = {'device_type': 'armada-370-mirabox',
                        'defconfig_blacklist': ['arm-allmodconfig'],
                        'kernel_blacklist': [],
                        'lpae': False,
-                       'be': False,
                        'fastboot': False}
 
 arndale = {'device_type': 'arndale',
@@ -38,7 +36,6 @@ arndale = {'device_type': 'arndale',
            'defconfig_blacklist': ['arm-allmodconfig'],
            'kernel_blacklist': [],
            'lpae': True,
-           'be': False,
            'fastboot': False}
 
 snow = {'device_type': 'snow',
@@ -49,7 +46,6 @@ snow = {'device_type': 'snow',
         'defconfig_blacklist': ['arm-allmodconfig'],
         'kernel_blacklist': [],
         'lpae': True,
-        'be': False,
         'fastboot': False}
 
 arndale_octa = {'device_type': 'arndale-octa',
@@ -60,7 +56,6 @@ arndale_octa = {'device_type': 'arndale-octa',
                 'defconfig_blacklist': ['arm-allmodconfig'],
                 'kernel_blacklist': [],
                 'lpae': True,
-                'be': False,
                 'fastboot': False}
 
 peach_pi = {'device_type': 'peach-pi',
@@ -71,7 +66,6 @@ peach_pi = {'device_type': 'peach-pi',
             'defconfig_blacklist': ['arm-allmodconfig'],
             'kernel_blacklist': [],
             'lpae': True,
-            'be': False,
             'fastboot': False}
 
 odroid_xu3 = {'device_type': 'odroid-xu3',
@@ -82,7 +76,6 @@ odroid_xu3 = {'device_type': 'odroid-xu3',
               'defconfig_blacklist': ['arm-allmodconfig'],
               'kernel_blacklist': [],
               'lpae': True,
-              'be': False,
               'fastboot': False}
 
 odroid_u2 = {'device_type': 'odroid-u2',
@@ -91,7 +84,6 @@ odroid_u2 = {'device_type': 'odroid-u2',
              'defconfig_blacklist': ['arm-allmodconfig'],
              'kernel_blacklist': [],
              'lpae': False,
-             'be': False,
              'fastboot': False}
 
 odroid_x2 = {'device_type': 'odroid-x2',
@@ -100,7 +92,6 @@ odroid_x2 = {'device_type': 'odroid-x2',
              'defconfig_blacklist': ['arm-allmodconfig'],
              'kernel_blacklist': [],
              'lpae': False,
-             'be': False,
              'fastboot': False}
 
 beaglebone_black = {'device_type': 'beaglebone-black',
@@ -111,7 +102,6 @@ beaglebone_black = {'device_type': 'beaglebone-black',
                     'defconfig_blacklist': ['arm-allmodconfig'],
                     'kernel_blacklist': [],
                     'lpae': False,
-                    'be': False,
                     'fastboot': False}
 
 beagle_xm = {'device_type': 'beagle-xm',
@@ -120,7 +110,6 @@ beagle_xm = {'device_type': 'beagle-xm',
              'defconfig_blacklist': ['arm-allmodconfig'],
              'kernel_blacklist': [],
              'lpae': False,
-             'be': False,
              'fastboot': False}
 
 beagle_xm_legacy = {'device_type': 'beagle-xm',
@@ -129,7 +118,6 @@ beagle_xm_legacy = {'device_type': 'beagle-xm',
                     'defconfig_blacklist': ['arm-allmodconfig'],
                     'kernel_blacklist': [],
                     'lpae': False,
-                    'be': False,
                     'fastboot': False}
 
 panda_es = {'device_type': 'panda-es',
@@ -138,7 +126,6 @@ panda_es = {'device_type': 'panda-es',
             'defconfig_blacklist': ['arm-allmodconfig'],
             'kernel_blacklist': [],
             'lpae': False,
-            'be': False,
             'fastboot': False}
 
 panda = {'device_type': 'panda',
@@ -147,7 +134,6 @@ panda = {'device_type': 'panda',
          'defconfig_blacklist': ['arm-allmodconfig'],
          'kernel_blacklist': [],
          'lpae': False,
-         'be': False,
          'fastboot': False}
 
 cubieboard3 = {'device_type': 'cubieboard3',
@@ -167,7 +153,6 @@ cubieboard3_kvm = {'device_type': 'cubieboard3',
                    'defconfig_blacklist': [],
                    'kernel_blacklist': [],
                    'lpae': True,
-                   'be': False,
                    'fastboot': False}
 
 hisi_x5hd2_dkb = {'device_type': 'hi3716cv200',
@@ -178,7 +163,6 @@ hisi_x5hd2_dkb = {'device_type': 'hi3716cv200',
                   'defconfig_blacklist': ['arm-allmodconfig'],
                   'kernel_blacklist': [],
                   'lpae': False,
-                  'be': False,
                   'fastboot': False}
 
 d01 = {'device_type': 'd01',
@@ -187,7 +171,6 @@ d01 = {'device_type': 'd01',
        'defconfig_blacklist': ['arm-allmodconfig'],
        'kernel_blacklist': [],
        'lpae': True,
-       'be': False,
        'fastboot': False}
 
 imx6q_wandboard = {'device_type': 'imx6q-wandboard',
@@ -200,7 +183,6 @@ imx6q_wandboard = {'device_type': 'imx6q-wandboard',
                                            'arm-allmodconfig'],
                    'kernel_blacklist': [],
                    'lpae': False,
-                   'be': False,
                    'fastboot': False}
 
 imx6q_sabrelite = {'device_type': 'imx6q-sabrelite',
@@ -213,7 +195,6 @@ imx6q_sabrelite = {'device_type': 'imx6q-sabrelite',
                                            'arm-allmodconfig'],
                    'kernel_blacklist': [],
                    'lpae': False,
-                   'be': False,
                    'fastboot': False}
 
 utilite_pro = {'device_type': 'utilite-pro',
@@ -226,7 +207,6 @@ utilite_pro = {'device_type': 'utilite-pro',
                                        'arm-allmodconfig'],
                'kernel_blacklist': [],
                'lpae': False,
-               'be': False,
                'fastboot': False}
 
 snowball = {'device_type': 'snowball',
@@ -237,7 +217,6 @@ snowball = {'device_type': 'snowball',
             'defconfig_blacklist': ['arm-allmodconfig'],
             'kernel_blacklist': [],
             'lpae': False,
-            'be': False,
             'fastboot': False}
 
 ifc6540 = {'device_type': 'ifc6540',
@@ -246,7 +225,6 @@ ifc6540 = {'device_type': 'ifc6540',
            'defconfig_blacklist': ['arm-allmodconfig'],
            'kernel_blacklist': [],
            'lpae': False,
-           'be': False,
            'fastboot': True}
 
 ifc6410 = {'device_type': 'ifc6410',
@@ -255,7 +233,6 @@ ifc6410 = {'device_type': 'ifc6410',
            'defconfig_blacklist': ['arm-allmodconfig'],
            'kernel_blacklist': [],
            'lpae': False,
-           'be': False,
            'fastboot': True}
 
 sama53d = {'device_type': 'sama53d',
@@ -269,7 +246,6 @@ sama53d = {'device_type': 'sama53d',
                                    'arm-allmodconfig'],
            'kernel_blacklist': [],
            'lpae': False,
-           'be': False,
            'fastboot': False}
 
 jetson_tk1 = {'device_type': 'jetson-tk1',
@@ -280,7 +256,6 @@ jetson_tk1 = {'device_type': 'jetson-tk1',
               'defconfig_blacklist': ['arm-allmodconfig'],
               'kernel_blacklist': [],
               'lpae': True,
-              'be': False,
               'fastboot': False}
 
 tegra124_nyan_big = {'device_type': 'tegra124-nyan-big',
@@ -291,7 +266,6 @@ tegra124_nyan_big = {'device_type': 'tegra124-nyan-big',
                      'defconfig_blacklist': ['arm-allmodconfig'],
                      'kernel_blacklist': [],
                      'lpae': True,
-                     'be': False,
                      'fastboot': False}
 
 parallella = {'device_type': 'parallella',
@@ -302,7 +276,6 @@ parallella = {'device_type': 'parallella',
               'defconfig_blacklist': ['arm-allmodconfig'],
               'kernel_blacklist': [],
               'lpae': False,
-              'be': False,
               'fastboot': False}
 
 optimus_a80 = {'device_type': 'optimus-a80',
@@ -311,7 +284,6 @@ optimus_a80 = {'device_type': 'optimus-a80',
                'defconfig_blacklist': ['arm-allmodconfig'],
                'kernel_blacklist': [],
                'lpae': True,
-               'be': False,
                'fastboot': True}
 
 cubieboard4 = {'device_type': 'cubieboard4',
@@ -320,7 +292,6 @@ cubieboard4 = {'device_type': 'cubieboard4',
                'defconfig_blacklist': ['arm-allmodconfig'],
                'kernel_blacklist': [],
                'lpae': True,
-               'be': False,
                'fastboot': True}
 
 qemu_arm_cortex_a9 = {'device_type': 'qemu-arm-cortex-a9',
@@ -329,7 +300,6 @@ qemu_arm_cortex_a9 = {'device_type': 'qemu-arm-cortex-a9',
                       'defconfig_blacklist': ['arm-allmodconfig'],
                       'kernel_blacklist': [],
                       'lpae': False,
-                      'be': False,
                       'fastboot': False}
 
 qemu_arm_cortex_a9_legacy = {'device_type': 'qemu-arm-cortex-a9',
@@ -338,7 +308,6 @@ qemu_arm_cortex_a9_legacy = {'device_type': 'qemu-arm-cortex-a9',
                              'defconfig_blacklist': ['arm-allmodconfig'],
                              'kernel_blacklist': [],
                              'lpae': False,
-                             'be': False,
                              'fastboot': False}
 
 qemu_arm_cortex_a15_a7 = {'device_type': 'qemu-arm-cortex-a15',
@@ -347,7 +316,6 @@ qemu_arm_cortex_a15_a7 = {'device_type': 'qemu-arm-cortex-a15',
                           'defconfig_blacklist': ['arm-allmodconfig'],
                           'kernel_blacklist': [],
                           'lpae': True,
-                          'be': False,
                           'fastboot': False}
 
 qemu_arm_cortex_a15 = {'device_type': 'qemu-arm-cortex-a15',
@@ -356,7 +324,6 @@ qemu_arm_cortex_a15 = {'device_type': 'qemu-arm-cortex-a15',
                        'defconfig_blacklist': ['arm-allmodconfig'],
                        'kernel_blacklist': [],
                        'lpae': True,
-                       'be': False,
                        'fastboot': False}
 
 qemu_arm_cortex_a15_legacy = {'device_type': 'qemu-arm-cortex-a15',
@@ -365,7 +332,6 @@ qemu_arm_cortex_a15_legacy = {'device_type': 'qemu-arm-cortex-a15',
                               'defconfig_blacklist': ['arm-allmodconfig'],
                               'kernel_blacklist': [],
                               'lpae': True,
-                              'be': False,
                               'fastboot': False}
 
 qemu_arm = {'device_type': 'qemu-arm',
@@ -377,7 +343,6 @@ qemu_arm = {'device_type': 'qemu-arm',
                                  'v3.12',
                                  'lsk-v3.12'],
             'lpae': False,
-            'be': False,
             'fastboot': False}
 
 qemu_aarch64 = {'device_type': 'qemu-aarch64',
@@ -387,7 +352,6 @@ qemu_aarch64 = {'device_type': 'qemu-aarch64',
                                         'arm64-allmodconfig'],
                 'kernel_blacklist': [],
                 'lpae': False,
-                'be': False,
                 'fastboot': False}
 
 apm_mustang = {'device_type': 'mustang',
@@ -400,7 +364,6 @@ apm_mustang = {'device_type': 'mustang',
                                        'arm64-allmodconfig'],
                'kernel_blacklist': [],
                'lpae': False,
-               'be': True,
                'fastboot': False}
 
 apm_mustang_kvm = {'device_type': 'mustang',
@@ -416,7 +379,6 @@ apm_mustang_kvm = {'device_type': 'mustang',
                                         'v3.18',
                                         'lsk-v3.18'],
                    'lpae': False,
-                   'be': False,
                    'fastboot': False}
 
 juno = {'device_type': 'juno',
@@ -427,7 +389,6 @@ juno = {'device_type': 'juno',
                                 'arm64-allmodconfig'],
         'kernel_blacklist': [],
         'lpae': False,
-        'be': False,
         'fastboot': False}
 
 fvp_aemv8a = {'device_type': 'rtsm_fvp_base-aemv8a',
@@ -439,7 +400,6 @@ fvp_aemv8a = {'device_type': 'rtsm_fvp_base-aemv8a',
                                       'arm64-defconfig+kvm-guest'],
               'kernel_blacklist': [],
               'lpae': False,
-              'be': False,
               'fastboot': False}
 
 juno_kvm = {'device_type': 'juno',
@@ -455,7 +415,6 @@ juno_kvm = {'device_type': 'juno',
                                  'v3.18',
                                  'lsk-v3.18'],
             'lpae': False,
-            'be': False,
             'fastboot': False}
 
 hi6220_hikey = {'device_type': 'hi6220-hikey',
@@ -479,7 +438,6 @@ x86 = {'device_type': 'x86',
                                'x86-kvm_guest.config'],
        'kernel_blacklist': [],
        'lpae': False,
-       'be': False,
        'fastboot': False}
 
 minnowboard_max_E3825 = {'device_type': 'minnowboard-max-E3825',
@@ -490,10 +448,9 @@ minnowboard_max_E3825 = {'device_type': 'minnowboard-max-E3825',
                                                  'x86-allmodconfig',
                                                  'x86-tinyconfig',
                                                  'x86-kvm_guest.config'],
-                        'kernel_blacklist': [],
-                        'lpae': False,
-                        'be': False,
-                        'fastboot': False}
+                         'kernel_blacklist': [],
+                         'lpae': False,
+                         'fastboot': False}
 
 x86_kvm = {'device_type': 'kvm',
            'templates': ['generic-x86-kernel-ci-boot-template.json',
@@ -505,7 +462,6 @@ x86_kvm = {'device_type': 'kvm',
                                    'x86-kvm_guest.config'],
            'kernel_blacklist': [],
            'lpae': False,
-           'be': False,
            'fastboot': False}
 
 device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
@@ -581,7 +537,6 @@ def create_jobs(base_url, kernel, plans, platform_list, targets):
             device_type = device['device_type']
             device_templates = device['templates']
             lpae = device['lpae']
-            be = device['be']
             fastboot = device['fastboot']
             test_suite = None
             test_set = None
@@ -601,7 +556,7 @@ def create_jobs(base_url, kernel, plans, platform_list, targets):
                         except:
                             print "Unable to load test configuration"
                             exit(1)
-                if 'BIG_ENDIAN' in defconfig and not be:
+                if 'BIG_ENDIAN' in defconfig and plan != 'boot-be':
                     print 'BIG_ENDIAN is not supported on %s. Skipping JSON creation' % device_type
                 elif 'LPAE' in defconfig and not lpae:
                     print 'LPAE is not supported on %s. Skipping JSON creation' % device_type
@@ -639,7 +594,7 @@ def create_jobs(base_url, kernel, plans, platform_list, targets):
                                             if platform_name.endswith('.dtb'):
                                                 tmp = tmp.replace('{device_tree}', platform_name)
                                             tmp = tmp.replace('{kernel_version}', kernel_version)
-                                            if 'BIG_ENDIAN' in defconfig and be:
+                                            if 'BIG_ENDIAN' in defconfig and plan == 'boot-be':
                                                 tmp = tmp.replace('{endian}', 'big')
                                             else:
                                                 tmp = tmp.replace('{endian}', 'little')
