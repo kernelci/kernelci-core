@@ -241,7 +241,8 @@ snowball = {'device_type': 'snowball',
             'fastboot': False}
 
 ifc6540 = {'device_type': 'ifc6540',
-           'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+           'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
+                         'generic-arm-dtb-kernel-ci-kselftest-template.json'],
            'defconfig_blacklist': ['arm-allmodconfig'],
            'kernel_blacklist': [],
            'lpae': False,
@@ -249,7 +250,8 @@ ifc6540 = {'device_type': 'ifc6540',
            'fastboot': True}
 
 ifc6410 = {'device_type': 'ifc6410',
-           'templates': ['ifc6410-arm-dtb-kernel-ci-boot-template.json'],
+           'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
+                         'generic-arm-dtb-kernel-ci-kselftest-template.json'],
            'defconfig_blacklist': ['arm-allmodconfig'],
            'kernel_blacklist': [],
            'lpae': False,
