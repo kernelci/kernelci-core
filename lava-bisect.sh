@@ -12,8 +12,8 @@ if [ $? -ne 0 ]; then
 fi
 
 cd $WORKSPACE/local/lava-ci/
-python lava-kernel-ci-job-creator.py http://storage.kernelci.org/$TREE_NAME/$GIT_DESCRIBE/$ARCH-$1/ --plans boot --targets $2
-python lava-job-runner.py $3 $4 $5 --stream /anonymous/kernel-ci/ --poll kernel-ci.json --bisect
+python lava-kernel-ci-job-creator.py http://storage.kernelci.org/$TREE_NAME/$GIT_DESCRIBE/$ARCH-$2/ --plans boot --targets $3
+python lava-job-runner.py $4 $5 $6 --stream /anonymous/kernel-ci/ --poll kernel-ci.json --bisect
 if [ $? -ne 0 ]; then
 	echo "Boot failed, git bisect bad"
 	exit 1
