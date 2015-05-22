@@ -116,7 +116,8 @@ beagle_xm_legacy = {'device_type': 'beagle-xm',
                     'templates': ['generic-arm-kernel-ci-boot-template.json',
                                   'generic-arm-dtb-kernel-ci-kselftest-template.json'],
                     'defconfig_blacklist': ['arm-allmodconfig'],
-                    'kernel_blacklist': [],
+                    'kernel_blacklist': ['arm-soc',
+                                         'next'],
                     'lpae': False,
                     'fastboot': False}
 
