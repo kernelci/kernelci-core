@@ -622,7 +622,7 @@ def walk_url(url, plans=None, arch=None, targets=None):
     global legacy_platform_list
 
     try:
-        html = urllib2.urlopen(url).read()
+        html = urllib2.urlopen(url, timeout=30).read()
     except IOError, e:
         print 'error fetching %s: %s' % (url, e)
         exit(1)
