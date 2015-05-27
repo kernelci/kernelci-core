@@ -61,7 +61,11 @@ device_map = {'bcm2835-rpi-b-plus': ['bcm2835-rpi-b-plus', 'bcm'],
 
 def download_log2html(url):
     print 'Fetching latest log2html script'
-    response = urllib2.urlopen(url, timeout=30)
+    try:
+        response = urllib2.urlopen(url, timeout=30)
+    except IOError, e:
+        print 'error fetching %s: %s' % (url, e)
+        exit(1)
     script = response.read()
     write_file(script, 'log2html.py', os.getcwd())
 
