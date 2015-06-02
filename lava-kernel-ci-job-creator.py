@@ -355,6 +355,15 @@ qemu_aarch64 = {'device_type': 'qemu-aarch64',
                 'lpae': False,
                 'fastboot': False}
 
+apq8016_sbc = {'device_type': 'apq8016-sbc',
+               'templates': ['generic-arm64-dtb-kernel-ci-boot-template.json',
+                             'generic-arm64-dtb-kernel-ci-kselftest-template.json'],
+               'defconfig_blacklist': ['arm64-allnoconfig',
+                                       'arm64-allmodconfig'],
+               'kernel_blacklist': [],
+               'lpae': False,
+               'fastboot': True}
+
 apm_mustang = {'device_type': 'mustang',
                'templates': ['generic-arm64-dtb-kernel-ci-boot-template.json',
                              'generic-arm64-dtb-kernel-ci-boot-be-template.json',
@@ -501,6 +510,7 @@ device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'vexpress-v2p-ca9-legacy': [qemu_arm_cortex_a9_legacy],
               'qemu-arm-legacy': [qemu_arm],
               'qemu-aarch64-legacy': [qemu_aarch64],
+              'apq8016-sbc.dtb': [apq8016_sbc],
               'apm-mustang.dtb': [apm_mustang, apm_mustang_kvm],
               'juno.dtb': [juno, juno_kvm],
               'fvp-base-gicv2-psci.dtb': [fvp_aemv8a],
