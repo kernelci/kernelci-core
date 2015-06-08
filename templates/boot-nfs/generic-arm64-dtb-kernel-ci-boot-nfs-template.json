@@ -18,7 +18,7 @@
                 "kernel": "{kernel_url}",
                 "overlays": ["{modules_url}"],
                 "target_type": "ubuntu",
-                "nfsrootfs": "http://releases.linaro.org/15.03/ubuntu/utopic-images/nano-arm64/linaro-utopic-nano-20150309-90.tar.gz"
+                "nfsrootfs": "http://storage.kernelci.org/images/rootfs/buildroot/arm64/rootfs.tar.xz"
             }
         },
         {

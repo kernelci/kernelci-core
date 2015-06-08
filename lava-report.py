@@ -311,7 +311,7 @@ def boot_report(args):
                             else:
                                 device_type = 'juno-kvm-host'
                             platform_name = device_map[device_type][0]
-                elif test_plan == 'boot-nfs':
+                elif test_plan == 'boot-nfs' or test_plan == 'boot-nfs-mp':
                     platform_name = device_map[device_type][0] + '_rootfs:nfs'
                 else:
                     platform_name = device_map[device_type][0]
