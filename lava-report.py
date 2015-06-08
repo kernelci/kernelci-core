@@ -50,9 +50,13 @@ device_map = {'bcm2835-rpi-b-plus': ['bcm2835-rpi-b-plus', 'bcm'],
               'mustang': ['apm-mustang', 'apm'],
               'mustang-kvm-host': ['apm-mustang-kvm-host', 'apm'],
               'mustang-kvm-guest': ['apm-mustang-kvm-guest', 'apm'],
+              'mustang-kvm-uefi-host': ['apm-mustang-kvm-uefi-host', 'apm'],
+              'mustang-kvm-uefi-guest': ['apm-mustang-kvm-uefi-guest', 'apm'],
               'juno': ['juno', 'arm'],
               'juno-kvm-host': ['juno-kvm-host', 'arm'],
               'juno-kvm-guest': ['juno-kvm-guest', 'arm'],
+              'juno-kvm-uefi-host': ['juno-kvm-uefi-host', 'arm'],
+              'juno-kvm-uefi-guest': ['juno-kvm-uefi-guest', 'arm'],
               'rtsm_fvp_base-aemv8a': ['fvp-base-gicv2-psci', 'arm'],
               'hi6220-hikey': ['hi6220-hikey', 'hisi'],
               'minnowboard-max-E3825': ['minnowboard-max', None],
@@ -141,6 +145,7 @@ def boot_report(args):
         board_offline = False
         kernel_boot_time = None
         boot_failure_reason = None
+        efi_rtc = False
         # Retrieve job details
         job_details = connection.scheduler.job_details(job_id)
         if job_details['requested_device_type_id']:
@@ -199,6 +204,9 @@ def boot_report(args):
                     dt_test_result = 'FAIL'
                 else:
                     dt_test_result = 'PASS'
+            if 'rtc-efi rtc-efi: setting system clock to' in line:
+                if device_type == 'dynamic-vm':
+                    efi_rtc = True
         # Retrieve bundle
         if bundle is not None:
             json_bundle = connection.dashboard.get(bundle)
@@ -256,6 +264,11 @@ def boot_report(args):
             if in_bundle_attributes(bundle_attributes, 'test.plan'):
                 test_plan = bundle_attributes['test.plan']
 
+        # Check if we found efi-rtc
+        if test_plan == 'boot-kvm-uefi' and not efi_rtc:
+            if device_type == 'dynamic-vm':
+                boot_failure_reason = 'Unable to read EFI rtc'
+                result = 'FAIL'
         # Record the boot log and result
         # TODO: Will need to map device_types to dashboard device types
         if kernel_defconfig and device_type and result:
@@ -264,7 +277,7 @@ def boot_report(args):
             else:
                 if device_tree == 'vexpress-v2p-ca15_a7.dtb':
                     platform_name = 'vexpress-v2p-ca15_a7'
-                elif test_plan == 'boot-kvm':
+                elif test_plan == 'boot-kvm' or test_plan == 'boot-kvm-uefi':
                     if device_tree == 'sun7i-a20-cubietruck.dtb':
                         if device_type == 'dynamic-vm':
                             device_type = 'cubieboard3-kvm-guest'
@@ -274,17 +287,29 @@ def boot_report(args):
                             platform_name = device_map[device_type][0]
                     elif device_tree == 'apm-mustang.dtb':
                         if device_type == 'dynamic-vm':
-                            device_type = 'mustang-kvm-guest'
+                            if test_plan == 'boot-kvm-uefi':
+                                device_type = 'mustang-kvm-uefi-guest'
+                            else:
+                                device_type = 'mustang-kvm-guest'
                             platform_name = device_map[device_type][0]
                         else:
-                            device_type = 'mustang-kvm-host'
+                            if test_plan == 'boot-kvm-uefi':
+                                device_type = 'mustang-kvm-uefi-host'
+                            else:
+                                device_type = 'mustang-kvm-host'
                             platform_name = device_map[device_type][0]
                     elif device_tree == 'juno.dtb':
                         if device_type == 'dynamic-vm':
-                            device_type = 'juno-kvm-guest'
+                            if test_plan == 'boot-kvm-uefi':
+                                device_type = 'juno-kvm-uefi-guest'
+                            else:
+                                device_type = 'juno-kvm-guest'
                             platform_name = device_map[device_type][0]
                         else:
-                            device_type = 'juno-kvm-host'
+                            if test_plan == 'boot-kvm-uefi':
+                                device_type = 'juno-kvm-uefi-host'
+                            else:
+                                device_type = 'juno-kvm-host'
                             platform_name = device_map[device_type][0]
                 elif test_plan == 'boot-nfs':
                     platform_name = device_map[device_type][0] + '_rootfs:nfs'

@@ -393,7 +393,8 @@ apm_mustang = {'device_type': 'mustang',
                'fastboot': False}
 
 apm_mustang_kvm = {'device_type': 'mustang',
-                   'templates': ['generic-arm64-boot-kvm-template.json'],
+                   'templates': ['generic-arm64-boot-kvm-template.json',
+                                 'generic-arm64-boot-kvm-uefi-template.json'],
                    'defconfig_blacklist': ['arm64-allnoconfig',
                                            'arm64-allmodconfig'],
                    'kernel_blacklist': ['v3.10',
@@ -430,7 +431,8 @@ fvp_aemv8a = {'device_type': 'rtsm_fvp_base-aemv8a',
               'fastboot': False}
 
 juno_kvm = {'device_type': 'juno',
-            'templates': ['generic-arm64-boot-kvm-template.json'],
+            'templates': ['generic-arm64-boot-kvm-template.json',
+                          'generic-arm64-boot-kvm-uefi-template.json'],
             'defconfig_blacklist': ['arm64-allnoconfig',
                                     'arm64-allmodconfig'],
             'kernel_blacklist': ['v3.10',
