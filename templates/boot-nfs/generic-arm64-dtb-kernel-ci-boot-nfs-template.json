@@ -17,7 +17,6 @@
                 "dtb": "{dtb_url}",
                 "kernel": "{kernel_url}",
                 "overlays": ["{modules_url}"],
-                "target_type": "ubuntu",
                 "nfsrootfs": "http://storage.kernelci.org/images/rootfs/buildroot/arm64/rootfs.tar.xz"
             }
         },
