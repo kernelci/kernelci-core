@@ -29,6 +29,7 @@ import models.defconfig as mdefconfig
 import models.job as mjob
 import utils
 import utils.db
+import utils.build
 
 
 def import_and_save_job(json_obj, db_options, base_path=utils.BASE_PATH):
@@ -217,6 +218,10 @@ def _traverse_defconf_dir(
                 # In this way all defconfigs will have the same date regardless
                 # of when they were saved on the file system.
                 defconfig_doc.created_on = job_doc.created_on
+
+            if all([defconfig_doc, defconfig_doc.dtb_dir]):
+                defconfig_doc.dtb_dir_data = utils.build.parse_dtb_dir(
+                    real_dir, defconfig_doc.dtb_dir)
         else:
             utils.LOG.warn("No build data file found in '%s'", real_dir)
 

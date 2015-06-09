@@ -50,6 +50,7 @@ class DefconfigDocument(modb.BaseDocument):
         self.build_time = 0
         self.dirname = None
         self.dtb_dir = None
+        self.dtb_dir_data = []
         self.errors = 0
         self.file_server_resource = None
         self.file_server_url = None
@@ -203,6 +204,7 @@ class DefconfigDocument(modb.BaseDocument):
             models.DEFCONFIG_FULL_KEY: self.defconfig_full,
             models.DEFCONFIG_KEY: self.defconfig,
             models.DIRNAME_KEY: self.dirname,
+            models.DTB_DIR_DATA_KEY: self.dtb_dir_data,
             models.DTB_DIR_KEY: self.dtb_dir,
             models.ERRORS_KEY: self.errors,
             models.FILE_SERVER_RESOURCE_KEY: self.file_server_resource,

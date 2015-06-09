@@ -114,6 +114,10 @@
             "type": "string",
             "description": "Name of the dtb directory"
         },
+        "dtb_dir_data": {
+            "type": "array",
+            "description": "An array of file paths relative to the dtb directory"
+        },
         "build_log": {
             "type": "string",
             "description": "Name of the build log file in text format"

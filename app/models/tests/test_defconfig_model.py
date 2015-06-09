@@ -49,6 +49,7 @@ class TestDefconfModel(unittest.TestCase):
         defconf_doc.version = "1.0"
         defconf_doc.modules = "modules-file"
         defconf_doc.dtb_dir = "dtb-dir"
+        defconf_doc.dtb_dir_data = ["a-file"]
         defconf_doc.kernel_config = "kernel-config"
         defconf_doc.system_map = "system-map"
         defconf_doc.text_offset = "offset"
@@ -82,6 +83,7 @@ class TestDefconfModel(unittest.TestCase):
             "build_platform": [],
             "version": "1.0",
             "dtb_dir": "dtb-dir",
+            "dtb_dir_data": ["a-file"],
             "kernel_config": "kernel-config",
             "kernel_image": "kernel-image",
             "system_map": "system-map",
