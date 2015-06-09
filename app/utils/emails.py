@@ -23,7 +23,9 @@ import utils
 
 # pylint: disable=too-many-branches
 def send_email(to_addrs,
-               subject, txt_body, html_body, mail_options, headers=None):
+               subject,
+               txt_body,
+               html_body, mail_options, headers=None, cc=None, bcc=None):
     """Send email to the specified address.
 
     :param to_addrs: The recipients address.
@@ -36,6 +38,10 @@ def send_email(to_addrs,
     :type html_body: string, unicode
     :param mail_options: The email options data structure.
     :type mail_options: dict
+    :param cc: The list of addresses to add in CC.
+    :type cc: list
+    :param bcc: The list of addresses to add in BCC.
+    :type bcc: list
     :return A tuple with the status and a list of errors.
     """
     errors = []
@@ -76,6 +82,12 @@ def send_email(to_addrs,
         msg["From"] = "%s <%s>" % (sender_desc, from_addr)
     else:
         msg["From"] = from_addr
+
+    if cc:
+        msg["Cc"] = ", ".join(cc)
+        to_addrs.extend(cc)
+    if bcc:
+        to_addrs.extend(bcc)
 
     if all([from_addr, host]):
         server = None
