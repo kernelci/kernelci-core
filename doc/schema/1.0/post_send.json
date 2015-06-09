@@ -63,6 +63,10 @@
             "type": ["string", "array"],
             "description": "The emails to send the reports to in blind carbon copy, will be appended to the more specific email control values"
         },
+        "in_reply_to": {
+            "type": "string",
+            "description": "The message ID of the previous message this email report is a reply"
+        },
         "delay": {
             "type": "number",
             "description": "The number of seconds after which the email should be sent",

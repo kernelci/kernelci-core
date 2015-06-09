@@ -180,7 +180,9 @@ def send_boot_report(job,
                      kernel,
                      lab_name,
                      email_format,
-                     to_addrs, db_options, mail_options, cc=None, bcc=None):
+                     to_addrs,
+                     db_options,
+                     mail_options, cc=None, bcc=None, in_reply_to=None):
     """Create the boot report email and send it.
 
     :param job: The job name.
@@ -201,6 +203,8 @@ def send_boot_report(job,
     :type cc: list
     :param bcc: The list of addresses to add in BCC.
     :type bcc: list
+    :param in_reply_to: The ID of the message this email is a reply to.
+    :type in_reply_to: string
     """
     utils.LOG.info("Preparing boot report email for '%s-%s'", job, kernel)
     status = "ERROR"
@@ -218,7 +222,10 @@ def send_boot_report(job,
         status, errors = utils.emails.send_email(
             to_addrs,
             subject,
-            txt_body, html_body, mail_options, headers=headers, cc=cc, bcc=bcc
+            txt_body,
+            html_body,
+            mail_options,
+            headers=headers, cc=cc, bcc=bcc, in_reply_to=in_reply_to
         )
         utils.report.common.save_report(
             job, kernel, models.BOOT_REPORT, status, errors, db_options)
@@ -238,7 +245,9 @@ def send_boot_report(job,
 def send_build_report(job,
                       kernel,
                       email_format,
-                      to_addrs, db_options, mail_options, cc=None, bcc=None):
+                      to_addrs,
+                      db_options,
+                      mail_options, cc=None, bcc=None, in_reply_to=None):
     """Create the build report email and send it.
 
     :param job: The job name.
@@ -257,6 +266,8 @@ def send_build_report(job,
     :type cc: list
     :param bcc: The list of addresses to add in BCC.
     :type bcc: list
+    :param in_reply_to: The ID of the message this email is a reply to.
+    :type in_reply_to: string
     """
     utils.LOG.info("Preparing build report email for '%s-%s'", job, kernel)
     status = "ERROR"
@@ -275,7 +286,10 @@ def send_build_report(job,
         status, errors = utils.emails.send_email(
             to_addrs,
             subject,
-            txt_body, html_body, mail_options, headers=headers, cc=cc, bcc=bcc
+            txt_body,
+            html_body,
+            mail_options,
+            headers=headers, cc=cc, bcc=bcc, in_reply_to=in_reply_to
         )
         utils.report.common.save_report(
             job, kernel, models.BOOT_REPORT, status, errors, db_options)

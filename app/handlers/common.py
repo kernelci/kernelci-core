@@ -345,6 +345,7 @@ SEND_VALID_KEYS = {
             models.BUILD_REPORT_SEND_TO_KEY,
             models.DELAY_KEY,
             models.EMAIL_FORMAT_KEY,
+            models.IN_REPLY_TO_KEY,
             models.JOB_KEY,
             models.KERNEL_KEY,
             models.LAB_NAME_KEY,

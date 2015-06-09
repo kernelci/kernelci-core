@@ -25,7 +25,9 @@ import utils
 def send_email(to_addrs,
                subject,
                txt_body,
-               html_body, mail_options, headers=None, cc=None, bcc=None):
+               html_body,
+               mail_options,
+               headers=None, cc=None, bcc=None, in_reply_to=None):
     """Send email to the specified address.
 
     :param to_addrs: The recipients address.
@@ -42,6 +44,8 @@ def send_email(to_addrs,
     :type cc: list
     :param bcc: The list of addresses to add in BCC.
     :type bcc: list
+    :param in_reply_to: The ID of the message this email is a reply to.
+    :type in_reply_to: string
     :return A tuple with the status and a list of errors.
     """
     errors = []
@@ -66,6 +70,10 @@ def send_email(to_addrs,
     if headers:
         for key, val in headers.iteritems():
             msg[key] = str(val)
+
+    if in_reply_to:
+        msg["In-Reply-To"] = in_reply_to
+        msg["References"] = in_reply_to
 
     msg["Subject"] = subject
 

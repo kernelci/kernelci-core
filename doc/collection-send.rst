@@ -41,6 +41,7 @@ POST
  :reqjson build_send_to: A string or an array of strings of email addresses to send only the build report.
  :reqjson build_send_cc: A string or an array of strings of email addresses to send only the build report in carbon-copy.
  :reqjson build_send_bcc: A string or an array of strings of email addresses to send only the build report in blind carbon-copy.
+ :reqjson string in_reply_to: The message ID the email report should be a reply to.
  :reqjson int delay: Number of seconds after which the email report will be sent. Default to 60*60 seconds (1 hour) with a maximum value of 60*60*5 (5 hours).
  :reqjson array format: The format of the email to send. Accepted values are **txt** and **html**.
 
@@ -130,6 +131,24 @@ POST
         "send_cc": ["anotheremail@example.net"],
         "build_send_cc": ["yetanotheremail@example.net"],
         "format": ["txt", "html"],
+        "delay": 30
+    }
+
+ .. sourcecode:: http
+
+    POST /send HTTP/1.1
+    Host: api.kernelci.org
+    Content-Type: application/json
+    Accept: */*
+    Authorization: token
+
+    {
+        "job": "next",
+        "kernel": "next-20150603",
+        "boot_report": 1,
+        "send_to": ["mailing-list@example.net"],
+        "format": ["txt", "html"],
+        "in_reply_to": "<emailmessageid>",
         "delay": 30
     }
 

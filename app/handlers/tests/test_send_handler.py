@@ -188,7 +188,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
                 ["test@example.org"], self.dboptions, self.mailoptions
             ],
             countdown=60*60,
-            kwargs={"cc": [], "bcc": []}
+            kwargs={"cc": [], "bcc": [], "in_reply_to": None}
         )
 
     def test_post_wrong_delay(self):
@@ -235,7 +235,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
                 ["test@example.org"], self.dboptions, self.mailoptions
             ],
             countdown=100,
-            kwargs={"cc": [], "bcc": []}
+            kwargs={"cc": [], "bcc": [], "in_reply_to": None}
         )
 
     @mock.patch("taskqueue.tasks.send_boot_report")
@@ -265,7 +265,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
                 ["test@example.org"], self.dboptions, self.mailoptions
             ],
             countdown=18000,
-            kwargs={"cc": [], "bcc": []}
+            kwargs={"cc": [], "bcc": [], "in_reply_to": None}
         )
 
     @mock.patch("taskqueue.tasks.send_build_report")
@@ -294,7 +294,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
                 ["test@example.org"], self.dboptions, self.mailoptions
             ],
             countdown=60*60,
-            kwargs={"cc": [], "bcc": []}
+            kwargs={"cc": [], "bcc": [], "in_reply_to": None}
         )
 
     def test_post_build_report_no_email(self):
@@ -346,7 +346,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
                 ["test2@example.org"], self.dboptions, self.mailoptions
             ],
             countdown=60*60,
-            kwargs={"cc": [], "bcc": []}
+            kwargs={"cc": [], "bcc": [], "in_reply_to": None}
         )
         mock_build.apply_async.assert_called_with(
             [
@@ -356,7 +356,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
                 ["test@example.org"], self.dboptions, self.mailoptions
             ],
             countdown=60*60,
-            kwargs={"cc": [], "bcc": []}
+            kwargs={"cc": [], "bcc": [], "in_reply_to": None}
         )
 
     def test_get_email_addresses_no_addresses(self):

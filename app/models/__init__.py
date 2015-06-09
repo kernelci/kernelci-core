@@ -159,6 +159,7 @@ REPORT_SEND_TO_KEY = "send_to"
 REPORT_CC_KEY = "send_cc"
 REPORT_BCC_KEY = "send_bcc"
 DELAY_KEY = "delay"
+IN_REPLY_TO_KEY = "in_reply_to"
 
 # Token special fields.
 ADMIN_KEY = "admin"
