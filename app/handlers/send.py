@@ -98,9 +98,19 @@ class SendHandler(hbase.BaseHandler):
                 schedule_data = {
                     "countdown": countdown,
                     "boot_emails": j_get(models.BOOT_REPORT_SEND_TO_KEY, None),
+                    "boot_cc_emails":
+                        j_get(models.BOOT_REPORT_SEND_CC_KEY, None),
+                    "boot_bcc_emails":
+                        j_get(models.BOOT_REPORT_SEND_BCC_KEY, None),
                     "build_emails": j_get(
                         models.BUILD_REPORT_SEND_TO_KEY, None),
+                    "build_cc_emails":
+                        j_get(models.BUILD_REPORT_SEND_CC_KEY, None),
+                    "build_bcc_emails":
+                        j_get(models.BUILD_REPORT_SEND_BCC_KEY, None),
                     "generic_emails": j_get(models.REPORT_SEND_TO_KEY, None),
+                    "generic_cc_emails": j_get(models.REPORT_CC_KEY, None),
+                    "generic_bcc_emails": j_get(models.REPORT_BCC_KEY, None),
                     "db_options": self.settings["dboptions"],
                     "mail_options": self.settings["mailoptions"]
                 }
@@ -152,9 +162,16 @@ class SendHandler(hbase.BaseHandler):
         """
         has_errors = False
         error_string = None
+        s_get = schedule_data.get
 
-        to_addrs = _get_email_addresses(
-            schedule_data["boot_emails"], schedule_data["generic_emails"])
+        to_addrs, cc_addrs, bcc_addrs = _get_email_addresses(
+            s_get("boot_emails"),
+            s_get("generic_emails"),
+            cc=s_get("boot_cc_emails"),
+            bcc=s_get("boot_bcc_emails"),
+            g_cc=s_get("generic_cc_emails"),
+            g_bcc=s_get("generic_bcc_emails")
+        )
 
         if to_addrs:
             taskq.send_boot_report.apply_async(
@@ -164,10 +181,11 @@ class SendHandler(hbase.BaseHandler):
                     lab_name,
                     email_format,
                     to_addrs,
-                    schedule_data["db_options"],
-                    schedule_data["mail_options"]
+                    s_get("db_options"),
+                    s_get("mail_options")
                 ],
-                countdown=schedule_data["countdown"]
+                kwargs={"cc": cc_addrs, "bcc": bcc_addrs},
+                countdown=s_get("countdown")
             )
         else:
             has_errors = True
@@ -195,9 +213,16 @@ class SendHandler(hbase.BaseHandler):
         """
         has_errors = False
         error_string = None
+        s_get = schedule_data.get
 
-        to_addrs = _get_email_addresses(
-            schedule_data["build_emails"], schedule_data["generic_emails"])
+        to_addrs, cc_addrs, bcc_addrs = _get_email_addresses(
+            s_get("build_emails"),
+            s_get("generic_emails"),
+            cc=s_get("build_cc_emails"),
+            bcc=s_get("build_bcc_emails"),
+            g_cc=s_get("generic_cc_emails"),
+            g_bcc=s_get("generic_bcc_emails")
+        )
 
         if to_addrs:
             taskq.send_build_report.apply_async(
@@ -206,10 +231,11 @@ class SendHandler(hbase.BaseHandler):
                     kernel,
                     email_format,
                     to_addrs,
-                    schedule_data["db_options"],
-                    schedule_data["mail_options"]
+                    s_get("db_options"),
+                    s_get("mail_options")
                 ],
-                countdown=schedule_data["countdown"]
+                kwargs={"cc": cc_addrs, "bcc": bcc_addrs},
+                countdown=s_get("countdown")
             )
         else:
             has_errors = True
@@ -360,16 +386,33 @@ def _check_email_format(email_format):
     return valid_format, errors
 
 
-def _get_email_addresses(report_emails, generic_emails):
-    """Return a list of email address from the ones provided.
+def _get_email_addresses(
+        report_emails,
+        generic_emails,
+        cc=None,
+        bcc=None,
+        g_cc=None,
+        g_bcc=None):
+    """Create to, cc and bcc email addresses lists.
 
     :param report_emails: The emails to analyze.
     :type report_emails: string or list
     :param generic_emails: The generic emails to analyze.
     :type generic_emails: string or list
-    :return A list of email addresses or an empty list.
+    :param cc: The CC emails to analyze.
+    :type cc: string or list
+    :param bcc: The BCC emails to analyze.
+    :type bcc: string or list
+    :param g_cc: The generic CC emails to analyze.
+    :type g_cc: string or list
+    :param g_bcc: The generic BCC emails to analyze.
+    :type g_bcc: string or list
+    :return A 3-tuple with: list of TO, CC and BCC email addresses or empty
+    lists.
     """
     to_addrs = []
+    cc_addrs = []
+    bcc_addrs = []
 
     if report_emails:
         if isinstance(report_emails, types.ListType):
@@ -383,4 +426,28 @@ def _get_email_addresses(report_emails, generic_emails):
         elif isinstance(generic_emails, types.StringTypes):
             to_addrs.append(generic_emails)
 
-    return to_addrs
+    if cc:
+        if isinstance(cc, types.ListType):
+            cc_addrs.extend(cc)
+        elif isinstance(cc, types.StringTypes):
+            cc_addrs.append(cc)
+
+    if g_cc:
+        if isinstance(g_cc, types.ListType):
+            cc_addrs.extend(g_cc)
+        elif isinstance(g_cc, types.StringTypes):
+            cc_addrs.append(g_cc)
+
+    if bcc:
+        if isinstance(bcc, types.ListType):
+            bcc_addrs.extend(bcc)
+        elif isinstance(bcc, types.StringTypes):
+            bcc_addrs.append(bcc)
+
+    if g_bcc:
+        if isinstance(g_bcc, types.ListType):
+            bcc_addrs.extend(g_bcc)
+        elif isinstance(g_bcc, types.StringTypes):
+            bcc_addrs.append(g_bcc)
+
+    return to_addrs, cc_addrs, bcc_addrs

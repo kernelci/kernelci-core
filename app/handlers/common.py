@@ -337,13 +337,19 @@ SEND_VALID_KEYS = {
             models.KERNEL_KEY
         ],
         models.ACCEPTED_KEYS: [
+            models.BOOT_REPORT_SEND_BCC_KEY,
+            models.BOOT_REPORT_SEND_CC_KEY,
             models.BOOT_REPORT_SEND_TO_KEY,
+            models.BUILD_REPORT_SEND_BCC_KEY,
+            models.BUILD_REPORT_SEND_CC_KEY,
             models.BUILD_REPORT_SEND_TO_KEY,
             models.DELAY_KEY,
             models.EMAIL_FORMAT_KEY,
             models.JOB_KEY,
             models.KERNEL_KEY,
             models.LAB_NAME_KEY,
+            models.REPORT_BCC_KEY,
+            models.REPORT_CC_KEY,
             models.REPORT_SEND_TO_KEY,
             models.SEND_BOOT_REPORT_KEY,
             models.SEND_BUILD_REPORT_KEY
