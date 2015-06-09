@@ -24,14 +24,14 @@ import unittest
 from mock import patch
 
 import models.boot as modb
-import utils.bootimport
+import utils.bootimport as bimport
 
 
 class TestParseBoot(unittest.TestCase):
 
     def setUp(self):
         logging.disable(logging.CRITICAL)
-        self.db = mongomock.Database(mongomock.Connection(), 'kernel-ci')
+        self.db = mongomock.Database(mongomock.Connection(), "kernel-ci")
         self.base_path = tempfile.gettempdir()
 
         self.boot_report = dict(
@@ -42,7 +42,7 @@ class TestParseBoot(unittest.TestCase):
             job="job",
             defconfig="defconfig",
             arch="arm",
-            boot_log='boot-board-name.log',
+            boot_log="boot-board-name.log",
             boot_result="PASS",
             boot_result_description="passed",
             boot_time=28.07,
@@ -62,7 +62,7 @@ class TestParseBoot(unittest.TestCase):
         logging.disable(logging.NOTSET)
 
     def test_parse_from_json_simple(self):
-        doc = utils.bootimport._parse_boot_from_json(self.boot_report, self.db)
+        doc = bimport._parse_boot_from_json(self.boot_report, self.db)
 
         self.assertIsInstance(doc, modb.BootDocument)
         self.assertEqual(doc.name, "board-job-kernel-defconfig-arm")
@@ -80,8 +80,8 @@ class TestParseBoot(unittest.TestCase):
         )
 
         self.assertRaises(
-            utils.bootimport.BootImportError,
-            utils.bootimport._check_for_null, json.loads(boot_report))
+            bimport.BootImportError,
+            bimport._check_for_null, json.loads(boot_report))
 
     def test_check_for_null_with_null(self):
         boot_report = (
@@ -90,8 +90,8 @@ class TestParseBoot(unittest.TestCase):
         )
 
         self.assertRaises(
-            utils.bootimport.BootImportError,
-            utils.bootimport._check_for_null, json.loads(boot_report))
+            bimport.BootImportError,
+            bimport._check_for_null, json.loads(boot_report))
 
     def test_check_for_null_with_none_string(self):
         boot_report = (
@@ -101,8 +101,8 @@ class TestParseBoot(unittest.TestCase):
         boot_json = json.loads(boot_report)
 
         self.assertRaises(
-            utils.bootimport.BootImportError,
-            utils.bootimport._check_for_null, boot_json, boot_json.get)
+            bimport.BootImportError,
+            bimport._check_for_null, boot_json, boot_json.get)
 
     def test_check_for_null_with_none_string_lower(self):
         boot_report = (
@@ -112,14 +112,14 @@ class TestParseBoot(unittest.TestCase):
         boot_json = json.loads(boot_report)
 
         self.assertRaises(
-            utils.bootimport.BootImportError,
-            utils.bootimport._check_for_null, boot_json, boot_json.get)
+            bimport.BootImportError,
+            bimport._check_for_null, boot_json, boot_json.get)
 
     @patch("utils.db.get_db_connection")
     def test_import_and_save_boot(self, mock_db):
         mock_db = self.db
 
-        code, doc_id = utils.bootimport.import_and_save_boot(
+        code, doc_id = bimport.import_and_save_boot(
             self.boot_report, {}, base_path=self.base_path
         )
         lab_dir = os.path.join(
@@ -142,32 +142,33 @@ class TestParseBoot(unittest.TestCase):
         boot_json = {
             "foo": "bar"
         }
-        self.assertRaises(
-            KeyError, utils.bootimport._parse_boot_from_json(boot_json, self.db)
-        )
+        doc = bimport._parse_boot_from_json(boot_json, self.db)
+        self.assertIsNone(doc)
 
     def test_parse_from_json_with_null(self):
         boot_json = {
             "board": "null"
         }
 
-        doc = utils.bootimport._parse_boot_from_json(boot_json, self.db)
+        doc = bimport._parse_boot_from_json(boot_json, self.db)
         self.assertIsNone(doc)
 
+    @patch("utils.db.get_db_connection")
     @patch("utils.bootimport._parse_boot_from_json")
-    def test_import_and_save_no_doc(self, mock_parse):
+    def test_import_and_save_no_doc(self, mock_parse, mock_db):
         mock_parse.return_value = None
+        mock_db = self.db
 
-        code, doc_id = utils.bootimport.import_and_save_boot({}, {})
+        code, doc_id = bimport.import_and_save_boot({}, {})
         self.assertIsNone(code)
         self.assertIsNone(doc_id)
 
     def test_parse_from_file_no_file(self):
-        doc = utils.bootimport._parse_boot_from_file(None, self.db)
+        doc = bimport._parse_boot_from_file(None, self.db)
         self.assertIsNone(doc)
 
     def test_parse_from_file_wrong_file(self):
-        doc = utils.bootimport._parse_boot_from_file('foobar.json', self.db)
+        doc = bimport._parse_boot_from_file('foobar.json', self.db)
         self.assertIsNone(doc)
 
     @patch("utils.bootimport._check_for_null")
@@ -183,7 +184,7 @@ class TestParseBoot(unittest.TestCase):
             with open(boot_log.name, mode="w") as boot_write:
                 boot_write.write(json.dumps(boot_obj))
 
-            doc = utils.bootimport._parse_boot_from_file(
+            doc = bimport._parse_boot_from_file(
                 boot_log.name, self.db)
 
             self.assertIsNone(doc)
@@ -208,7 +209,7 @@ class TestParseBoot(unittest.TestCase):
             with open(boot_log.name, mode="w") as boot_write:
                 boot_write.write(json.dumps(boot_obj))
 
-            doc = utils.bootimport._parse_boot_from_file(
+            doc = bimport._parse_boot_from_file(
                 boot_log.name, self.db)
 
             self.assertEqual(doc.board, "board")
@@ -238,7 +239,7 @@ class TestParseBoot(unittest.TestCase):
             with open(boot_log.name, mode="w") as boot_write:
                 boot_write.write(json.dumps(boot_obj))
 
-            doc = utils.bootimport._parse_boot_from_file(
+            doc = bimport._parse_boot_from_file(
                 boot_log.name, self.db)
 
             self.assertEqual(doc.board, "board")
@@ -268,7 +269,7 @@ class TestParseBoot(unittest.TestCase):
             with open(boot_log.name, mode="w") as boot_write:
                 boot_write.write(json.dumps(boot_obj))
 
-            doc = utils.bootimport._parse_boot_from_file(
+            doc = bimport._parse_boot_from_file(
                 boot_log.name, self.db)
 
             self.assertEqual(doc.board, "board")
@@ -298,7 +299,7 @@ class TestParseBoot(unittest.TestCase):
             with open(boot_log.name, mode="w") as boot_write:
                 boot_write.write(json.dumps(boot_obj))
 
-            doc = utils.bootimport._parse_boot_from_file(
+            doc = bimport._parse_boot_from_file(
                 boot_log.name, self.db)
 
             self.assertEqual(doc.board, "board")
@@ -311,8 +312,8 @@ class TestParseBoot(unittest.TestCase):
 
     def test_parse_from_file_no_board(self):
         boot_log = tempfile.NamedTemporaryFile(
-            mode='w+b', bufsize=-1, prefix="boot-", suffix=".json", delete=False
-        )
+            mode='w+b',
+            bufsize=-1, prefix="boot-", suffix=".json", delete=False)
         boot_obj = {
             "job": "job",
             "kernel": "kernel",
@@ -326,7 +327,7 @@ class TestParseBoot(unittest.TestCase):
             with open(boot_log.name, mode="w") as boot_write:
                 boot_write.write(json.dumps(boot_obj))
 
-            doc = utils.bootimport._parse_boot_from_file(
+            doc = bimport._parse_boot_from_file(
                 boot_log.name, self.db)
 
             self.assertEqual(doc.board, "board")
@@ -339,8 +340,8 @@ class TestParseBoot(unittest.TestCase):
 
     def test_parse_from_file_no_board_tmp_dtb(self):
         boot_log = tempfile.NamedTemporaryFile(
-            mode='w+b', bufsize=-1, prefix="boot-", suffix=".json", delete=False
-        )
+            mode="w+b",
+            bufsize=-1, prefix="boot-", suffix=".json", delete=False)
         boot_obj = {
             "job": "job",
             "kernel": "kernel",
@@ -352,13 +353,13 @@ class TestParseBoot(unittest.TestCase):
         }
 
         board = os.path.splitext(
-            os.path.basename(boot_log.name).replace('boot-', ''))[0]
+            os.path.basename(boot_log.name).replace("boot-", ""))[0]
 
         try:
             with open(boot_log.name, mode="w") as boot_write:
                 boot_write.write(json.dumps(boot_obj))
 
-            doc = utils.bootimport._parse_boot_from_file(
+            doc = bimport._parse_boot_from_file(
                 boot_log.name, self.db)
 
             self.assertEqual(doc.board, board)
