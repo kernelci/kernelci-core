@@ -31,13 +31,37 @@
             "type": ["string", "array"],
             "description": "The emails to sent the boot report to"
         },
+        "boot_send_cc": {
+            "type": ["string", "array"],
+            "description": "The emails to sent the boot report to in carbon copy"
+        },
+        "boot_send_bcc": {
+            "type": ["string", "array"],
+            "description": "The emails to sent the boot report to in blind carbon copy"
+        },
         "build_send_to": {
             "type": ["string", "array"],
             "description": "The emails to send the build report to"
         },
+        "build_send_cc": {
+            "type": ["string", "array"],
+            "description": "The emails to send the build report to in carbon copy"
+        },
+        "build_send_bcc": {
+            "type": ["string", "array"],
+            "description": "The emails to send the build report to in blind carbon copy"
+        },
         "send_to": {
             "type": ["string", "array"],
             "description": "The emails to send the reports to, will be appended to the more specific email control values"
+        },
+        "send_cc": {
+            "type": ["string", "array"],
+            "description": "The emails to send the reports to in carbon copy, will be appended to the more specific email control values"
+        },
+        "send_bcc": {
+            "type": ["string", "array"],
+            "description": "The emails to send the reports to in blind carbon copy, will be appended to the more specific email control values"
         },
         "delay": {
             "type": "number",

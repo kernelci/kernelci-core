@@ -32,9 +32,15 @@ POST
  :reqjson string lab_name: The name of the lab.
  :reqjson boolean boot_report: If the boot report should be created and sent. Default to 0 (false).
  :reqjson boolean build_report: If the build report should be created and sent. Default to 0 (false).
- :reqjson send_to: A string or an array of strings of email addresses where to send the reports.
- :reqjson boot_send_to: A string or an array of strings of email addresses where to send only the boot report.
- :reqjson build_send_to: A string or an array of strings of email addresses where to send only the build report.
+ :reqjson send_to: A string or an array of strings of email addresses to send the reports.
+ :reqjson send_cc: A string or an array of strings of email addresses to send the reports in carbon-copy.
+ :reqjson send_bcc: A string or an array of strings of email addresses to send the reports in blind carbon-copy.
+ :reqjson boot_send_to: A string or an array of strings of email addresses to send only the boot report.
+ :reqjson boot_send_cc: A string or an array of strings of email addresses to send only the boot report in carbon-copy.
+ :reqjson boot_send_bcc: A string or an array of strings of email addresses to send only the boot report in blind carbon-copy.
+ :reqjson build_send_to: A string or an array of strings of email addresses to send only the build report.
+ :reqjson build_send_cc: A string or an array of strings of email addresses to send only the build report in carbon-copy.
+ :reqjson build_send_bcc: A string or an array of strings of email addresses to send only the build report in blind carbon-copy.
  :reqjson int delay: Number of seconds after which the email report will be sent. Default to 60*60 seconds (1 hour) with a maximum value of 60*60*5 (5 hours).
  :reqjson array format: The format of the email to send. Accepted values are **txt** and **html**.
 
@@ -102,6 +108,27 @@ POST
         "boot_report": 1,
         "build_report": 1,
         "send_to": ["email@example.net"],
+        "format": ["txt", "html"],
+        "delay": 30
+    }
+
+ .. sourcecode:: http
+
+    POST /send HTTP/1.1
+    Host: api.kernelci.org
+    Content-Type: application/json
+    Accept: */*
+    Authorization: token
+
+    {
+        "job": "next",
+        "kernel": "next-20150330",
+        "lab_name": "lab",
+        "boot_report": 1,
+        "build_report": 1,
+        "send_to": ["email@example.net"],
+        "send_cc": ["anotheremail@example.net"],
+        "build_send_cc": ["yetanotheremail@example.net"],
         "format": ["txt", "html"],
         "delay": 30
     }
