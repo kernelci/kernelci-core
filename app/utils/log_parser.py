@@ -418,7 +418,7 @@ def _parse_log(job, kernel, defconfig, log_file, build_dir):
                             line = line.strip()
                             mismatch_append(_clean_path(line))
         except IOError, ex:
-            error = "Cannot open build log file for %s-%s-%s"
+            error = "Cannot read build log file for %s-%s-%s"
             utils.LOG.exception(ex)
             utils.LOG.error(error, job, kernel, defconfig)
             status = 500

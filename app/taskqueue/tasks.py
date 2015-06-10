@@ -24,8 +24,8 @@ import utils.batch.common
 import utils.bisect.boot as bootb
 import utils.bisect.defconfig as defconfigb
 import utils.bootimport
+import utils.build
 import utils.db
-import utils.docimport
 import utils.emails
 import utils.log_parser
 import utils.report.boot
@@ -47,8 +47,11 @@ def import_job(json_obj, db_options, mail_options=None):
     :type db_options: dictionary
     :param mail_options: The options necessary to connect to the SMTP server.
     :type mail_options: dictionary
+    :return The ID of the job document.
     """
-    return utils.docimport.import_and_save_job(json_obj, db_options)
+    job_id, errors = utils.build.import_from_dir(json_obj, db_options)
+    # TODO: handle errors.
+    return job_id
 
 
 @taskc.app.task(name="parse-build-log")
@@ -57,7 +60,7 @@ def parse_build_log(job_id, json_obj, db_options, mail_options=None):
 
     Used to provided a task to the import function.
 
-    :param job_id: The ID of the job saved in the database. This value gest
+    :param job_id: The ID of the job saved in the database. This value is
     injected by Celery when linking the task to the previous one.
     :type job_id: string
     :param json_obj: The JSON object with the necessary values.
@@ -66,6 +69,7 @@ def parse_build_log(job_id, json_obj, db_options, mail_options=None):
     :type db_options: dictionary
     :param mail_options: The options necessary to connect to the SMTP server.
     :type mail_options: dictionary
+    :return A 2-tuple: The status code, and the errors data structure.
     """
     return utils.log_parser.parse_build_log(job_id, json_obj, db_options)
 
@@ -171,6 +175,9 @@ def defconfig_bisect_compared_to(doc_id, compare_to, db_options, fields=None):
         doc_id, compare_to, db_options, fields=fields)
 
 
+# pylint: disable=too-many-arguments
+# pylint: disable=too-many-locals
+# pylint: disable=invalid-name
 @taskc.app.task(
     name="send-boot-report",
     acks_late=True,
@@ -339,6 +346,7 @@ def complete_test_suite_import(suite_json, suite_id, db_options, **kwargs):
     return ret_val, kwargs
 
 
+# pylint: disable=star-args
 @taskc.app.task(
     name="import-sets-from-suite",
     track_started=True,
