@@ -10,7 +10,7 @@
     - app
 
 - name: Checkout kernel-ci-backend code
-  git:  repo=http://git.linaro.org/git/lava-team/kernel-ci-backend.git
+  git:  repo=https://github.com/kernelci/kernelci-backend.git
         dest={{ install_base }}/{{ hostname }}
         version={{ git_head }}
         update=yes
