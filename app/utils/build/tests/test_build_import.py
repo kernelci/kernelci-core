@@ -31,6 +31,7 @@ import pymongo.errors
 from bson import tz_util
 
 import models.defconfig as mdefconfig
+import models.job as mjob
 import utils.build
 
 
@@ -117,58 +118,50 @@ class TestBuildUtils(unittest.TestCase):
         _, errors = utils.build.import_from_dir(json_obj, {})
         self.assertDictEqual({}, errors)
 
-    def test_parse_and_update_build_metadata_errors(self):
-        meta_content = {
-            "arch": "arm",
-            "defconfig": "defoo_confbar",
-            "job": "job",
-            "kernel": "kernel",
-            "build_errors": 3,
-            "build_warnings": 1,
-        }
-
+    def test_traverse_buld_dir_with_ioerror(self):
         try:
-            fake_meta = tempfile.NamedTemporaryFile(delete=False)
-            with io.open(fake_meta.name, mode="w") as w_file:
-                w_file.write(json.dumps(meta_content, ensure_ascii=False))
+            errors = {}
+            temp_dir = tempfile.mkdtemp()
+            build_dir = os.path.join(temp_dir, "build_dir")
+            os.mkdir(build_dir)
+            io.open(os.path.join(build_dir, "build.json"), mode="w")
 
-            defconf_doc = utils.build._parse_build_data(
-                os.path.basename(fake_meta.name),
-                os.path.dirname(fake_meta.name), "job", "kernel", {})
+            patcher = mock.patch("io.open")
+            mock_open = patcher.start()
+            mock_open.side_effect = IOError("IOError")
+            self.addCleanup(patcher.stop)
+
+            defconfig_doc = utils.build._traverse_build_dir(
+                "build_dir",
+                temp_dir, "job", "kernel", "job_id", "job_date", errors, {})
         finally:
-            os.unlink(fake_meta.name)
+            shutil.rmtree(temp_dir, ignore_errors=True)
 
-        self.assertIsInstance(defconf_doc, mdefconfig.DefconfigDocument)
-        self.assertEqual(defconf_doc.errors, 3)
-        self.assertEqual(defconf_doc.warnings, 1)
+        self.assertIsNotNone(errors)
+        self.assertIsNone(defconfig_doc)
+        self.assertListEqual([500], errors.keys())
 
-    def test_parse_and_update_build_metadata_diff_fragments(self):
-        meta_content = {
-            "arch": "arm",
-            "defconfig": "defoo_confbar",
-            "job": "job",
-            "kernel": "kernel",
-            "kconfig_fragments": "frag-CONFIG_TEST=y.config"
-        }
-
+    def test_traverse_buld_dir_with_jsonerror(self):
         try:
-            fake_meta = tempfile.NamedTemporaryFile(delete=False)
-            with io.open(fake_meta.name, mode="w") as w_file:
-                w_file.write(json.dumps(meta_content, ensure_ascii=False))
+            errors = {}
+            temp_dir = tempfile.mkdtemp()
+            build_dir = os.path.join(temp_dir, "build_dir")
+            os.mkdir(build_dir)
+            with io.open(os.path.join(build_dir, "build.json"), mode="w") as f:
+                f.write(u"a string of text")
 
-            defconf_doc = utils.build._parse_build_data(
-                os.path.basename(fake_meta.name),
-                os.path.dirname(fake_meta.name), "job", "kernel", {})
+            defconfig_doc = utils.build._traverse_build_dir(
+                "build_dir",
+                temp_dir, "job", "kernel", "job_id", "job_date", errors, {})
         finally:
-            os.unlink(fake_meta.name)
+            shutil.rmtree(temp_dir, ignore_errors=True)
 
-        self.assertIsInstance(defconf_doc, mdefconfig.DefconfigDocument)
-        self.assertEqual(
-            defconf_doc.defconfig_full, "defoo_confbar+CONFIG_TEST=y")
-        self.assertEqual(defconf_doc.defconfig, "defoo_confbar")
+        self.assertIsNotNone(errors)
+        self.assertIsNone(defconfig_doc)
+        self.assertListEqual([500], errors.keys())
 
-    def test_parse_and_update_build_metadata_with_fragments(self):
-        meta_content = {
+    def test_traverse_build_dir_with_valid_data(self):
+        build_data = {
             "arch": "arm",
             "git_url": "git://git.example.org",
             "git_branch": "test/branch",
@@ -177,30 +170,128 @@ class TestBuildUtils(unittest.TestCase):
             "defconfig": "defoo_confbar",
             "kernel_image": "zImage",
             "kernel_config": "kernel.config",
-            "dtb_dir": "dtbs",
             "modules_dir": "foo/bar",
-            "build_log": "file.log",
-            "kconfig_fragments": "frag-CONFIG_TEST=y.config"
+            "build_log": "file.log"
         }
 
         try:
-            fake_meta = tempfile.NamedTemporaryFile(delete=False)
-            with io.open(fake_meta.name, mode="w") as w_file:
-                w_file.write(json.dumps(meta_content, ensure_ascii=False))
+            errors = {}
+            temp_dir = tempfile.mkdtemp()
+            build_dir = os.path.join(temp_dir, "build_dir")
+            os.mkdir(build_dir)
+            with io.open(os.path.join(build_dir, "build.json"), mode="w") as f:
+                f.write(json.dumps(build_data, ensure_ascii=False))
 
-            defconf_doc = utils.build._parse_build_data(
-                os.path.basename(fake_meta.name),
-                os.path.dirname(fake_meta.name), "job", "kernel", {})
+            defconfig_doc = utils.build._traverse_build_dir(
+                "build_dir",
+                temp_dir, "job", "kernel", "job_id", "job_date", errors, {})
         finally:
-            os.unlink(fake_meta.name)
+            shutil.rmtree(temp_dir, ignore_errors=True)
 
-        self.assertIsInstance(defconf_doc, mdefconfig.DefconfigDocument)
+        self.assertIsInstance(defconfig_doc, mdefconfig.DefconfigDocument)
+        self.assertEqual("job", defconfig_doc.job)
+        self.assertEqual("kernel", defconfig_doc.kernel)
+
+    def test_parse_build_data_no_dict(self):
+        build_data = []
+        errors = {}
+
+        defconfig_doc = utils.build._parse_build_data(
+            build_data, "job", "kernel", errors)
+
+        self.assertIsNone(defconfig_doc)
+        self.assertIsNotNone(errors)
+        self.assertListEqual([500], errors.keys())
+
+    def test_parse_build_data_missing_key(self):
+        build_data = {"arch": "arm"}
+        errors = {}
+
+        defconfig_doc = utils.build._parse_build_data(
+            build_data, "job", "kernel", errors)
+
+        self.assertIsNone(defconfig_doc)
+        self.assertIsNotNone(errors)
+        self.assertListEqual([500], errors.keys())
+
+    def test_parse_build_data_no_version(self):
+        build_data = {"defconfig": "defconfig"}
+        errors = {}
+
+        defconfig_doc = utils.build._parse_build_data(
+            build_data, "job", "kernel", errors)
+
+        self.assertIsInstance(defconfig_doc, mdefconfig.DefconfigDocument)
+        self.assertEqual(defconfig_doc.version, "1.0")
+
+    def test_parse_build_data_version(self):
+        build_data = {
+            "defconfig": "defconfig",
+            "version": "foo"
+        }
+        errors = {}
+
+        defconfig_doc = utils.build._parse_build_data(
+            build_data, "job", "kernel", errors)
+
+        self.assertIsInstance(defconfig_doc, mdefconfig.DefconfigDocument)
+        self.assertEqual(defconfig_doc.version, "foo")
+
+    def test_parse_build_data_errors_warnings(self):
+        build_data = {
+            "defconfig": "defconfig",
+            "build_errors": 3,
+            "build_warnings": 1
+        }
+        errors = {}
+
+        defconfig_doc = utils.build._parse_build_data(
+            build_data, "job", "kernel", errors)
+
+        self.assertIsInstance(defconfig_doc, mdefconfig.DefconfigDocument)
+        self.assertEqual(defconfig_doc.errors, 3)
+        self.assertEqual(defconfig_doc.warnings, 1)
+
+    def test_parse_build_data_no_job_no_kernel(self):
+        build_data = {"defconfig": "defconfig"}
+        errors = {}
+
+        defconfig_doc = utils.build._parse_build_data(
+            build_data, "job", "kernel", errors)
+
+        self.assertIsInstance(defconfig_doc, mdefconfig.DefconfigDocument)
+        self.assertEqual(defconfig_doc.job, "job")
+        self.assertEqual(defconfig_doc.kernel, "kernel")
+
+    def test_parse_build_data_no_defconfig_full(self):
+        build_data = {"defconfig": "defconfig"}
+        errors = {}
+
+        defconfig_doc = utils.build._parse_build_data(
+            build_data, "job", "kernel", errors)
+
+        self.assertIsInstance(defconfig_doc, mdefconfig.DefconfigDocument)
+        self.assertEqual(defconfig_doc.defconfig_full, "defconfig")
+
+    def test_parse_build_data_diff_fragments(self):
+        build_data = {
+            "arch": "arm",
+            "defconfig": "defoo_confbar",
+            "job": "job",
+            "kernel": "kernel",
+            "kconfig_fragments": "frag-CONFIG_TEST=y.config"
+        }
+
+        defconfig_doc = utils.build._parse_build_data(
+            build_data, "job", "kernel", {}, "arm-build_dir")
+
+        self.assertIsInstance(defconfig_doc, mdefconfig.DefconfigDocument)
         self.assertEqual(
-            defconf_doc.defconfig_full, "defoo_confbar+CONFIG_TEST=y")
-        self.assertEqual(defconf_doc.defconfig, "defoo_confbar")
+            defconfig_doc.defconfig_full, "defoo_confbar+CONFIG_TEST=y")
+        self.assertEqual(defconfig_doc.defconfig, "defoo_confbar")
 
-    def test_parse_and_update_build_metadata(self):
-        meta_content = {
+    def test_parse_build_metadata(self):
+        build_data = {
             "arch": "arm",
             "git_url": "git://git.example.org",
             "git_branch": "test/branch",
@@ -214,109 +305,18 @@ class TestBuildUtils(unittest.TestCase):
             "build_log": "file.log",
             "kconfig_fragments": "fragment"
         }
-
-        try:
-            fake_meta = tempfile.NamedTemporaryFile(delete=False)
-            with io.open(fake_meta.name, mode="w") as w_file:
-                w_file.write(json.dumps(meta_content, ensure_ascii=False))
-
-            defconf_doc = utils.build._parse_build_data(
-                os.path.basename(fake_meta.name),
-                os.path.dirname(fake_meta.name), "job", "kernel", {})
-        finally:
-            os.unlink(fake_meta.name)
+        defconf_doc = utils.build._parse_build_data(
+            build_data, "job", "kernel", {}, "arm-build_dir")
 
         self.assertIsInstance(defconf_doc, mdefconfig.DefconfigDocument)
         self.assertIsInstance(defconf_doc.metadata, types.DictionaryType)
+        self.assertIsInstance(defconf_doc.dtb_dir_data, types.ListType)
         self.assertEqual(defconf_doc.kconfig_fragments, "fragment")
         self.assertEqual(defconf_doc.arch, "arm")
         self.assertEqual(defconf_doc.git_commit, "1234567890")
         self.assertEqual(defconf_doc.git_branch, "test/branch")
         self.assertEqual(defconf_doc.defconfig_full, "defoo_confbar")
         self.assertEqual(defconf_doc.defconfig, "defoo_confbar")
-
-    @mock.patch("os.stat")
-    def test_parse_build_data_missing_key(self, mock_stat):
-        mock_stat.st_mtime.return_value = datetime.datetime.now(tz=tz_util.utc)
-        meta_content = {
-            "arch": "arm",
-            "job": "job",
-            "kernel": "kernel"
-        }
-
-        try:
-            fake_meta = tempfile.NamedTemporaryFile(delete=False)
-            with io.open(fake_meta.name, mode="w") as w_file:
-                w_file.write(json.dumps(meta_content, ensure_ascii=False))
-
-            defconf_doc = utils.build._parse_build_data(
-                os.path.basename(fake_meta.name),
-                os.path.dirname(fake_meta.name), "job", "kernel", {})
-        finally:
-            os.unlink(fake_meta.name)
-
-        self.assertIsNone(defconf_doc)
-
-    def test_parse_build_data_no_fragments_no_full(self):
-        meta_content = {
-            "arch": "arm",
-            "job": "job",
-            "kernel": "kernel",
-            "defconfig": "defconfig"
-        }
-
-        try:
-            fake_meta = tempfile.NamedTemporaryFile(delete=False)
-            with io.open(fake_meta.name, mode="w") as w_file:
-                w_file.write(json.dumps(meta_content, ensure_ascii=False))
-
-            defconf_doc = utils.build._parse_build_data(
-                os.path.basename(fake_meta.name),
-                os.path.dirname(fake_meta.name), "job", "kernel", {})
-        finally:
-            os.unlink(fake_meta.name)
-
-        self.assertIsInstance(defconf_doc, mdefconfig.DefconfigDocument)
-        self.assertIsNone(defconf_doc.kconfig_fragments)
-        self.assertEqual(defconf_doc.defconfig_full, "defconfig")
-        self.assertEqual(defconf_doc.defconfig, "defconfig")
-
-    def test_parse_build_data_jsonerror(self):
-        meta_content = u"a string of text"
-        errors = {}
-
-        try:
-            fake_meta = tempfile.NamedTemporaryFile(delete=False)
-            with io.open(fake_meta.name, mode="w") as w_file:
-                w_file.write(meta_content)
-
-            defconf_doc = utils.build._parse_build_data(
-                os.path.basename(fake_meta.name),
-                os.path.dirname(fake_meta.name), "job", "kernel", errors)
-        finally:
-            os.unlink(fake_meta.name)
-
-        self.assertIsNone(defconf_doc)
-        self.assertIsNotNone(errors)
-        self.assertListEqual([500], errors.keys())
-
-    @mock.patch("io.open")
-    def test_parse_build_data_ioerror(self, mock_open):
-        mock_open.side_effect = IOError("IOError")
-        errors = {}
-
-        try:
-            fake_meta = tempfile.NamedTemporaryFile(delete=False)
-
-            defconf_doc = utils.build._parse_build_data(
-                os.path.basename(fake_meta.name),
-                os.path.dirname(fake_meta.name), "job", "kernel", errors)
-        finally:
-            os.unlink(fake_meta.name)
-
-        self.assertIsNone(defconf_doc)
-        self.assertIsNotNone(errors)
-        self.assertListEqual([500], errors.keys())
 
     def test_parse_dtb_dir_single_file(self):
         temp_dir = tempfile.mkdtemp()
@@ -352,3 +352,149 @@ class TestBuildUtils(unittest.TestCase):
             self.assertListEqual(expected, results)
         finally:
             shutil.rmtree(temp_dir, ignore_errors=True)
+
+    @mock.patch("utils.build._traverse_build_dir")
+    @mock.patch("os.path.exists")
+    def test_traverse_kernel_dir_fake(self, mock_exists, mock_trav):
+        mock_exists.return_value = True
+        mock_trav.side_effect = [None, None, None, "foo"]
+        kernel_dir = tempfile.mkdtemp()
+
+        def scan_func(to_scan):
+            yield None
+            yield None
+            yield None
+            yield None
+
+        try:
+            docs, job_status, errors = utils.build._traverse_kernel_dir(
+                kernel_dir,
+                "job",
+                "kernel", "job_id", "job_date", {}, scan_func=scan_func)
+        finally:
+            shutil.rmtree(kernel_dir, ignore_errors=True)
+
+        self.assertListEqual(["foo"], docs)
+        self.assertEqual("PASS", job_status)
+        self.assertDictEqual({}, errors)
+
+    def test_traverse_kernel_dir_building(self):
+        kernel_dir = tempfile.mkdtemp()
+        try:
+            docs, job_status, errors = utils.build._traverse_kernel_dir(
+                kernel_dir, "job", "kernel", "job_id", "job_date", {})
+        finally:
+            shutil.rmtree(kernel_dir, ignore_errors=True)
+
+        self.assertEqual("BUILD", job_status)
+        self.assertListEqual([], docs)
+        self.assertDictEqual({}, errors)
+
+    def test_traverse_kernel_dir(self):
+        kernel_dir = tempfile.mkdtemp()
+        build_dir = os.path.join(kernel_dir, "arm-fake_defconfig")
+        build_data = {
+            "arch": "arm",
+            "defconfig": "fake_defconfig",
+            "kernel": "kernel",
+            "job": "job"
+        }
+        try:
+            os.mkdir(build_dir)
+            io.open(os.path.join(kernel_dir, ".done"), mode="w")
+            with io.open(os.path.join(build_dir, "build.json"), mode="w") as w:
+                w.write(json.dumps(build_data, ensure_ascii=False))
+
+            docs, job_status, errors = utils.build._traverse_kernel_dir(
+                kernel_dir, "job", "kernel", "job_id", "job_date", {})
+        finally:
+            shutil.rmtree(kernel_dir, ignore_errors=True)
+
+        self.assertEqual("PASS", job_status)
+        self.assertDictEqual({}, errors)
+        self.assertEqual(1, len(docs))
+        self.assertEqual("fake_defconfig", docs[0].defconfig)
+
+    def test_update_job_doc(self):
+        job_doc = mjob.JobDocument("job", "kernel")
+        defconfig_doc = mdefconfig.DefconfigDocument(
+            "job", "kernel", "defconfig")
+        defconfig_doc.git_branch = "local/branch"
+        defconfig_doc.git_commit = "1234567890"
+        defconfig_doc.git_describe = "kernel.version"
+        defconfig_doc.git_url = "git://url.git"
+
+        utils.build._update_job_doc(job_doc, "PASS", [defconfig_doc])
+
+        self.assertIsInstance(job_doc, mjob.JobDocument)
+        self.assertIsNotNone(job_doc.git_branch)
+        self.assertIsNotNone(job_doc.git_commit)
+        self.assertIsNotNone(job_doc.git_describe)
+        self.assertIsNotNone(job_doc.git_url)
+        self.assertEqual("local/branch", job_doc.git_branch)
+        self.assertEqual("1234567890", job_doc.git_commit)
+        self.assertEqual("kernel.version", job_doc.git_describe)
+        self.assertEqual("git://url.git", job_doc.git_url)
+
+    def test_update_job_doc_no_defconfig(self):
+        job_doc = mjob.JobDocument("job", "kernel")
+
+        utils.build._update_job_doc(job_doc, "PASS", [])
+
+        self.assertIsInstance(job_doc, mjob.JobDocument)
+        self.assertIsNone(job_doc.git_branch)
+        self.assertIsNone(job_doc.git_commit)
+        self.assertIsNone(job_doc.git_describe)
+        self.assertIsNone(job_doc.git_url)
+
+    def test_update_job_doc_with_job_doc_and_fake(self):
+        job_doc = mjob.JobDocument("job", "kernel")
+        job_doc_b = mjob.JobDocument("job", "kernel")
+        defconfig_doc = mdefconfig.DefconfigDocument(
+            "job", "kernel", "defconfig")
+        defconfig_doc.git_branch = "local/branch"
+        defconfig_doc.git_commit = "1234567890"
+        defconfig_doc.git_describe = "kernel.version"
+        defconfig_doc.git_url = "git://url.git"
+
+        utils.build._update_job_doc(
+            job_doc, "PASS", [job_doc_b, {"foo": "bar"}, defconfig_doc])
+
+        self.assertIsInstance(job_doc, mjob.JobDocument)
+        self.assertIsNotNone(job_doc.git_branch)
+        self.assertIsNotNone(job_doc.git_commit)
+        self.assertIsNotNone(job_doc.git_describe)
+        self.assertIsNotNone(job_doc.git_url)
+        self.assertEqual("local/branch", job_doc.git_branch)
+        self.assertEqual("1234567890", job_doc.git_commit)
+        self.assertEqual("kernel.version", job_doc.git_describe)
+        self.assertEqual("git://url.git", job_doc.git_url)
+
+    def test_update_job_doc_with_job_doc_fake_and_wrong(self):
+        job_doc = mjob.JobDocument("job", "kernel")
+        job_doc_b = mjob.JobDocument("job", "kernel")
+        defconfig_doc = mdefconfig.DefconfigDocument(
+            "job", "kernel", "defconfig")
+        defconfig_doc.git_branch = "local/branch"
+        defconfig_doc.git_commit = "1234567890"
+        defconfig_doc.git_describe = "kernel.version"
+        defconfig_doc.git_url = "git://url.git"
+
+        defconfig_doc_b = mdefconfig.DefconfigDocument(
+            "job_b", "kernel_b", "defconfig_b")
+
+        utils.build._update_job_doc(
+            job_doc,
+            "PASS",
+            [job_doc_b, defconfig_doc_b, {"foo": "bar"}, defconfig_doc]
+        )
+
+        self.assertIsInstance(job_doc, mjob.JobDocument)
+        self.assertIsNotNone(job_doc.git_branch)
+        self.assertIsNotNone(job_doc.git_commit)
+        self.assertIsNotNone(job_doc.git_describe)
+        self.assertIsNotNone(job_doc.git_url)
+        self.assertEqual("local/branch", job_doc.git_branch)
+        self.assertEqual("1234567890", job_doc.git_commit)
+        self.assertEqual("kernel.version", job_doc.git_describe)
+        self.assertEqual("git://url.git", job_doc.git_url)
