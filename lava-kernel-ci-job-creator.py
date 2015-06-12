@@ -118,15 +118,6 @@ beagle_xm = {'device_type': 'beagle-xm',
              'lpae': False,
              'fastboot': False}
 
-beagle_xm_legacy = {'device_type': 'beagle-xm',
-                    'templates': ['generic-arm-kernel-ci-boot-template.json',
-                                  'generic-arm-dtb-kernel-ci-kselftest-template.json'],
-                    'defconfig_blacklist': ['arm-allmodconfig'],
-                    'kernel_blacklist': ['arm-soc',
-                                         'next'],
-                    'lpae': False,
-                    'fastboot': False}
-
 panda_es = {'device_type': 'panda-es',
             'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
                           'generic-arm-dtb-kernel-ci-kselftest-template.json'],
@@ -512,7 +503,6 @@ device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'exynos4412-odroidx2.dtb': [odroid_x2],
               'am335x-boneblack.dtb': [beaglebone_black],
               'omap3-beagle-xm.dtb': [beagle_xm],
-              'omap3-beagle-xm-legacy': [beagle_xm_legacy],
               'omap4-panda-es.dtb': [panda_es],
               'omap4-panda.dtb': [panda],
               'sun7i-a20-cubietruck.dtb': [cubieboard3, cubieboard3_kvm],
@@ -682,9 +672,6 @@ def walk_url(url, plans=None, arch=None, targets=None):
                 # qemu-arm,legacy
                 if 'arm-versatile_defconfig' in url:
                     legacy_platform_list.append(url + 'qemu-arm-legacy')
-                # omap3-beagle-xm,legacy
-                if 'arm-omap2plus_defconfig' in base_url:
-                    legacy_platform_list.append(url + 'omap3-beagle-xm-legacy')
             if 'Image' in name and 'arm64' in url:
                 kernel = url + name
                 base_url = url
@@ -707,9 +694,6 @@ def walk_url(url, plans=None, arch=None, targets=None):
                 # qemu-arm,legacy
                 if 'arm-versatile_defconfig' in url:
                     legacy_platform_list.append(url + 'qemu-arm-legacy')
-                # omap3-beagle-xm,legacy
-                if 'arm-omap2plus_defconfig' in base_url:
-                    legacy_platform_list.append(url + 'omap3-beagle-xm-legacy')
             if name.endswith('.dtb') and name in device_map:
                 if base_url and base_url in url:
                     legacy_platform_list.append(url + name)
