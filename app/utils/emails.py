@@ -57,18 +57,17 @@ def send_email(to_addrs,
     if all([txt_body, html_body]):
         msg = email.mime.multipart.MIMEMultipart("alternative")
         txt_msg = email.mime.text.MIMEText(
-            txt_body, _subtype="plain", _charset="utf_8")
+            txt_body.encode("utf-8"), "plain", "utf-8")
         html_msg = email.mime.text.MIMEText(
-            html_body, _subtype="html", _charset="utf_8")
-
+            html_body.encode("utf-8"), "html", "utf-8")
         msg.attach(txt_msg)
         msg.attach(html_msg)
     elif txt_body:
         msg = email.mime.text.MIMEText(
-            txt_body, _subtype="plain", _charset="utf_8")
+            txt_body.encode("utf-8"), "plain", "utf-8")
     elif html_body:
         msg = email.mime.text.MIMEText(
-            html_body, _subtype="html", _charset="utf_8")
+            html_body.encode("utf-8"), "html", "utf-8")
 
     if headers:
         for key, val in headers.iteritems():
