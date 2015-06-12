@@ -13,6 +13,7 @@
 
 """Send email."""
 
+import email
 import email.mime.multipart
 import email.mime.text
 import smtplib
@@ -50,6 +51,8 @@ def send_email(to_addrs,
     """
     errors = []
     status = models.ERROR_STATUS
+    email.Charset.add_charset(
+        "utf-8", email.Charset.QP, email.Charset.QP, "utf-8")
 
     if all([txt_body, html_body]):
         msg = email.mime.multipart.MIMEMultipart("alternative")
