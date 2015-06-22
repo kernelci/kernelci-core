@@ -123,6 +123,12 @@ def create_boot_report(job,
         sort=BOOT_SEARCH_SORT
     )
 
+    # MongoDB cursor gets overwritten somehow by the next query. Extract the
+    # data before this happens.
+    offline_data = None
+    if offline_count > 0:
+        offline_data, _, _, _ = _parse_boot_results(offline_results.clone())
+
     spec[models.STATUS_KEY] = {
         "$in": [models.UNTRIED_STATUS, models.UNKNOWN_STATUS]
     }
@@ -135,12 +141,6 @@ def create_boot_report(job,
         fields=BOOT_SEARCH_FIELDS,
         sort=BOOT_SEARCH_SORT
     )
-
-    # MongoDB cursor gets overwritten somehow by the next query. Extract the
-    # data before this happens.
-    offline_data = None
-    if offline_count > 0:
-        offline_data, _, _, _ = _parse_boot_results(offline_results.clone())
 
     spec[models.STATUS_KEY] = models.FAIL_STATUS
 
