@@ -299,7 +299,7 @@ def send_build_report(job,
             headers=headers, cc=cc, bcc=bcc, in_reply_to=in_reply_to
         )
         utils.report.common.save_report(
-            job, kernel, models.BOOT_REPORT, status, errors, db_options)
+            job, kernel, models.BUILD_REPORT, status, errors, db_options)
     else:
         utils.LOG.error(
             "No email body nor subject found for build report '%s-%s'",
