@@ -16,7 +16,6 @@ try:
 except ImportError:
     import json
 
-import datetime
 import io
 import logging
 import mock
@@ -27,8 +26,6 @@ import types
 import unittest
 import shutil
 import pymongo.errors
-
-from bson import tz_util
 
 import models.defconfig as mdefconfig
 import models.job as mjob
