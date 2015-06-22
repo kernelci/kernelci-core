@@ -13,5 +13,4 @@ sphinx-bootstrap-theme
 sphinxcontrib-httpdomain
 tornado==3.2.2
 jinja2
-django-htmlmin
 scandir

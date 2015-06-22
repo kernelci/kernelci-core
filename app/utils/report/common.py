@@ -14,7 +14,6 @@
 """Common functions for email reports creation."""
 
 import gettext
-import htmlmin.minify
 import jinja2
 import os
 import pymongo
@@ -313,7 +312,7 @@ def create_html_email(template_name, **kwargs):
     html_body = u""
     html_body = TEMPLATES_ENV.get_template(template_name).render(**kwargs)
 
-    return htmlmin.minify.html_minify(html_body)
+    return html_body
 
 
 def create_txt_email(template_name, **kwargs):
