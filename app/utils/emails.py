@@ -13,13 +13,32 @@
 
 """Send email."""
 
+import cStringIO
 import email
 import email.mime.multipart
 import email.mime.text
 import smtplib
 
+from email.generator import Generator
+from email.header import Header
+
 import models
 import utils
+
+
+def _is_ascii(string):
+    """Check if a string contains only ASCII characters.
+
+    :param string: The string to check.
+    :type string: string
+    :return True or False
+    """
+    ret_val = True
+    try:
+        string.encode("ascii")
+    except (UnicodeDecodeError, UnicodeEncodeError):
+        ret_val = False
+    return ret_val
 
 
 # pylint: disable=too-many-branches
@@ -71,13 +90,19 @@ def send_email(to_addrs,
 
     if headers:
         for key, val in headers.iteritems():
-            msg[key] = str(val)
+            if _is_ascii(val):
+                msg[key] = str(val)
+            else:
+                msg[key] = Header(val.encode("utf-8"), "UTF-8").encode()
 
     if in_reply_to:
-        msg["In-Reply-To"] = in_reply_to
-        msg["References"] = in_reply_to
+        msg["In-Reply-To"] = in_reply_to.encode("utf-8")
+        msg["References"] = in_reply_to.encode("utf-8")
 
-    msg["Subject"] = subject
+    if _is_ascii(subject):
+        msg["Subject"] = subject.encode("utf-8")
+    else:
+        msg["Subject"] = Header(subject.encode("utf-8"), "UTF-8").encode()
 
     m_get = mail_options.get
     port = m_get("port")
@@ -87,17 +112,29 @@ def send_email(to_addrs,
     from_addr = m_get("sender")
     sender_desc = m_get("sender_desc", None)
 
-    msg["To"] = ", ".join(to_addrs)
+    to_str = u", ".join(to_addrs)
+    msg["To"] = to_str.encode("utf-8")
+
     if sender_desc:
-        msg["From"] = "%s <%s>" % (sender_desc, from_addr)
+        from_str = u"{:s} {:s}".format(sender_desc, from_addr)
     else:
-        msg["From"] = from_addr
+        from_str = from_addr
+
+    if _is_ascii(from_str):
+        msg["From"] = from_str.encode("utf-8")
+    else:
+        msg["From"] = Header(from_str.encode("utf-8"), "UTF-8").encode()
 
     if cc:
-        msg["Cc"] = ", ".join(cc)
         to_addrs.extend(cc)
+        cc_str = u", ".join(cc)
+        msg["Cc"] = cc_str.encode("utf-8")
     if bcc:
         to_addrs.extend(bcc)
+
+    msg_out = cStringIO.StringIO()
+    gen = Generator(msg_out, False)
+    gen.flatten(msg)
 
     if all([from_addr, host]):
         server = None
@@ -110,7 +147,7 @@ def send_email(to_addrs,
             if all([user, password]):
                 server.login(user, password)
 
-            server.sendmail(from_addr, to_addrs, msg.as_string())
+            server.sendmail(from_addr, to_addrs, msg_out.getvalue())
             status = models.SENT_STATUS
         except (smtplib.SMTPAuthenticationError, smtplib.SMTPConnectError), ex:
             utils.LOG.error("SMTP conn/auth error")
