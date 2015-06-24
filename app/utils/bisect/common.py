@@ -78,6 +78,8 @@ def combine_defconfig_values(boot_doc, db_options):
         models.BISECT_DEFCONFIG_ARCHITECTURE_KEY: "",
         models.BISECT_DEFCONFIG_CREATED_KEY: "",
         models.BISECT_DEFCONFIG_STATUS_KEY: "",
+        models.BOARD_KEY: boot_doc.get(models.BOARD_KEY, None),
+        models.BOOT_ID_KEY: boot_doc_get(models.ID_KEY, None),
         models.DEFCONFIG_FULL_KEY: defconfig_full,
         models.DEFCONFIG_ID_KEY: defconfig_id,
         models.DEFCONFIG_KEY: defconfig,
@@ -88,7 +90,8 @@ def combine_defconfig_values(boot_doc, db_options):
         models.GIT_URL_KEY: "",
         models.JOB_ID_KEY: job_id,
         models.JOB_KEY: job,
-        models.KERNEL_KEY: kernel
+        models.KERNEL_KEY: kernel,
+        models.LAB_NAME_KEY: boot_doc_get(models.LAB_NAME_KEY, None)
     }
 
     if defconfig_id:
