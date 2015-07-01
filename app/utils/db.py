@@ -163,9 +163,8 @@ def find_and_count(collection, limit, skip, spec=None, fields=None, sort=None):
     """
     db_result = collection.find(
         spec=spec, limit=limit, skip=skip, fields=fields, sort=sort)
-    res_count = db_result.count()
 
-    return db_result, res_count
+    return db_result, db_result.count()
 
 
 def count(collection):
@@ -369,7 +368,6 @@ def aggregate(
     :type limit int, str
     :return A dictionary with the results.
     """
-
     def _starts_with_dollar(val):
         """Check if a value starts with the dollar sign.
 
@@ -380,17 +378,34 @@ def aggregate(
             val = "$" + val
         return val
 
+    def _parse_list_fields_for_group():
+        """Parse the fields list for the $group operator."""
+        for key in fields:
+            yield key, {"$first": _starts_with_dollar(key)}
+
+    def _parse_dict_fields_for_group():
+        """Parse the fields dictionary for the $group operator.
+
+        Slightly different version, since when the fields are expressed as
+        a dictionary, it means we have exclude and include fields.
+        """
+        for key, val in fields.iteritems():
+            if val:
+                yield key, {"$first": _starts_with_dollar(key)}
+
     # Where the aggregate actions and values will be stored.
+    # XXX: The append order is important!
     pipeline = []
 
-    if match is not None:
+    if match:
         pipeline.append({
             "$match": match
         })
 
-    # XXX: For strange reasons, sort needs to happen before, and also
-    # after grouping, or the resulsts are completely random
-    if sort is not None:
+    # We need to sort twice here: the first time to correctly filter the
+    # results that need to be retrieved from the database, the second time
+    # to obtain the correct sort order wanted in the respose.
+    if sort:
         pipeline.append({
             "$sort": {
                 k: v for k, v in sort
@@ -403,53 +418,55 @@ def aggregate(
         }
     }
 
-    if fields is not None:
-        fields = [
-            (k, v) for k, v in [
-                (key, val)
-                for key in fields
-                for val in [{"$first": _starts_with_dollar(key)}]
+    # By default, consider to retrieve all the fields, otherwise update
+    # the $group action to include only the specified fields.
+    r_fields = [("result", {"$first": "$$CURRENT"})]
+    if fields:
+        if isinstance(fields, types.ListType):
+            r_fields = [
+                group_field for group_field in _parse_list_fields_for_group()
             ]
-        ]
-    else:
-        fields = [("result", {"$first": "$$CURRENT"})]
+        elif isinstance(fields, types.DictionaryType):
+            r_fields = [
+                group_field for group_field in _parse_dict_fields_for_group()
+            ]
 
-    group_dict["$group"].update(fields)
+    group_dict["$group"].update(r_fields)
     pipeline.append(group_dict)
 
-    # XXX: For strange reasons, sort needs to happen before, and also
-    # after grouping, or the resulsts are completely random
-    if sort is not None:
+    # This is the second sorting we have to perform.
+    if sort:
         pipeline.append({
             "$sort": {
                 k: v for k, v in sort
             }
         })
 
-    # Make sure we return the exact number of elements after grouping them.
+    # The limit must be applied at the end, after the second sorting or we
+    # might not get back the correct results.
     if all([limit is not None, limit > 0]):
         pipeline.append({
             "$limit": limit
         })
 
-    utils.LOG.debug(pipeline)
-
     result = collection.aggregate(pipeline)
 
     if result and isinstance(result, types.DictionaryType):
-        element = result.get("result", None)
+        p_results = result.get("result", None)
 
         if all([
-                element,
-                isinstance(element, types.ListType), len(element) > 0]):
-            r_element = element[0]
-
+                p_results,
+                isinstance(p_results, types.ListType), len(p_results) > 0]):
+            # Pick the first element and check if it has a result key with the
+            # actual list of the results. This happens when the fields argument
+            # is not specified.
+            r_element = p_results[0]
             if r_element.get("result", None):
                 result = [
-                    k["result"] for k in [v for v in element]
+                    k["result"] for k in p_results
                 ]
             else:
-                result = [k for k in element]
+                result = p_results
         else:
             result = []
 
