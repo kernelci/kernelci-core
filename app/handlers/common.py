@@ -906,7 +906,6 @@ def get_created_on_date(query_args_func):
     """
     created_on = query_args_func(models.CREATED_KEY)
     valid_date = None
-    strptime_func = datetime.datetime.strptime
 
     if created_on:
         if isinstance(created_on, types.ListType):
@@ -914,10 +913,12 @@ def get_created_on_date(query_args_func):
 
         if isinstance(created_on, types.StringTypes):
             try:
-                valid_date = strptime_func(created_on, "%Y-%m-%d")
+                valid_date = datetime.datetime.strptime(
+                    created_on, "%Y-%m-%d")
             except ValueError:
                 try:
-                    valid_date = strptime_func(created_on, "%Y%m%d")
+                    valid_date = datetime.datetime.strptime(
+                        created_on, "%Y%m%d")
                 except ValueError:
                     utils.LOG.error(
                         "No valid value provided for '%s' key, got '%s'",
