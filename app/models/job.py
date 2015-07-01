@@ -30,7 +30,7 @@ class JobDocument(modb.BaseDocument):
     of the two, and its name is of the form `job-kernel`.
     """
 
-    def __init__(self, job, kernel):
+    def __init__(self, job, kernel, version="1.0"):
 
         doc_name = {
             models.JOB_KEY: job,
@@ -40,7 +40,7 @@ class JobDocument(modb.BaseDocument):
         self._created_on = None
         self._id = None
         self._name = models.JOB_DOCUMENT_NAME % doc_name
-        self._version = None
+        self._version = version
 
         self._job = job
         self._kernel = kernel
