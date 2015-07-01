@@ -62,7 +62,7 @@ topt.define(
     help="The password to use for the DB connection"
 )
 topt.define(
-    "dbpool", default=250, type=int, help="The DB connections pool size")
+    "dbpool", default=100, type=int, help="The DB connections pool size")
 topt.define(
     "unixsocket", default=False, type=bool,
     help="If unix socket should be used"
