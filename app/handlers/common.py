@@ -912,17 +912,30 @@ def get_created_on_date(query_args_func):
             created_on = created_on[-1]
 
         if isinstance(created_on, types.StringTypes):
-            try:
-                valid_date = datetime.datetime.strptime(
-                    created_on, "%Y-%m-%d")
-            except ValueError:
+            tries = 3
+            while tries > 0:
+                tries -= 1
                 try:
                     valid_date = datetime.datetime.strptime(
-                        created_on, "%Y%m%d")
+                        created_on, "%Y-%m-%d")
+                except AttributeError, ex:
+                    # XXX: For some reasons, sometimes we get an exception here
+                    # saying: module object does not have attribute _strptime.
+                    utils.LOG.exception(ex)
+                    utils.LOG.warn("Retrying valid date calculation")
+                    continue
                 except ValueError:
-                    utils.LOG.error(
-                        "No valid value provided for '%s' key, got '%s'",
-                        models.CREATED_KEY, created_on)
+                    try:
+                        valid_date = datetime.datetime.strptime(
+                            created_on, "%Y%m%d")
+                    except ValueError:
+                        utils.LOG.error(
+                            "No valid value provided for '%s' key, got '%s'",
+                            models.CREATED_KEY, created_on)
+                    finally:
+                        break
+                else:
+                    break
             if valid_date:
                 valid_date = datetime.date(
                     valid_date.year, valid_date.month, valid_date.day)
@@ -940,10 +953,8 @@ def add_created_on_date(spec, created_on):
     :return The passed `spec` updated.
     """
     if all([created_on, isinstance(created_on, datetime.date)]):
-        date_combine = datetime.datetime.combine
-
-        start_date = date_combine(created_on, MIDNIGHT)
-        end_date = date_combine(created_on, ALMOST_MIDNIGHT)
+        start_date = datetime.datetime.combine(created_on, MIDNIGHT)
+        end_date = datetime.datetime.combine(created_on, ALMOST_MIDNIGHT)
 
         spec[models.CREATED_KEY] = {
             "$gte": start_date, "$lt": end_date}
@@ -971,7 +982,6 @@ def get_and_add_date_range(spec, query_args_func, created_on=None):
     :type created_on: `datetime.date`
     :return The passed `spec` updated.
     """
-    date_combine = datetime.datetime.combine
     date_range = query_args_func(models.DATE_RANGE_KEY)
 
     if date_range:
@@ -980,9 +990,10 @@ def get_and_add_date_range(spec, query_args_func, created_on=None):
             # If the created_on key is defined, along with the date_range one
             # we combine the both and calculate a date_range from the provided
             # values. created_on must be a `date` object.
-            today = date_combine(created_on, ALMOST_MIDNIGHT)
+            today = datetime.datetime.combine(created_on, ALMOST_MIDNIGHT)
         else:
-            today = date_combine(datetime.date.today(), ALMOST_MIDNIGHT)
+            today = datetime.datetime.combine(
+                datetime.date.today(), ALMOST_MIDNIGHT)
 
         previous = calculate_date_range(date_range, created_on)
 
@@ -1002,9 +1013,6 @@ def calculate_date_range(date_range, created_on=None):
     subtraction of `datetime.date.today()` and
     `datetime.timedelta(days=date_range)`.
     """
-    date_timedelta = datetime.timedelta
-    date_combine = datetime.datetime.combine
-
     if isinstance(date_range, types.ListType):
         date_range = date_range[-1]
 
@@ -1017,16 +1025,16 @@ def calculate_date_range(date_range, created_on=None):
             date_range = DEFAULT_DATE_RANGE
 
     date_range = abs(date_range)
-    if date_range > date_timedelta.max.days:
+    if date_range > datetime.timedelta.max.days:
         date_range = DEFAULT_DATE_RANGE
 
     # Calcuate with midnight in mind though, so we get the starting of
     # the day for the previous date.
     if created_on and isinstance(created_on, datetime.date):
-        today = date_combine(created_on, MIDNIGHT)
+        today = datetime.datetime.combine(created_on, MIDNIGHT)
     else:
-        today = date_combine(datetime.date.today(), MIDNIGHT)
-    delta = date_timedelta(days=date_range)
+        today = datetime.datetime.combine(datetime.date.today(), MIDNIGHT)
+    delta = datetime.timedelta(days=date_range)
 
     return today - delta
 

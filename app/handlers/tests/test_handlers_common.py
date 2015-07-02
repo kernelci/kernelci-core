@@ -572,6 +572,41 @@ class TestHandlersCommon(unittest.TestCase):
         expected = datetime.date(2014, 11, 10)
         self.assertEqual(expected, get_created_on_date(query_args_func))
 
+    def test_get_created_on_raise_attribute_error_valid(self):
+        a_date = datetime.datetime.strptime("2015-07-02", "%Y-%m-%d")
+        expected = datetime.date(2015, 07, 02)
+
+        patcher = mock.patch("datetime.datetime", spec=True)
+        patched_datetime = patcher.start()
+        self.addCleanup(patcher.stop)
+
+        patched_datetime.strptime.side_effect = [
+            AttributeError("Attribute error"), a_date]
+
+        def query_args_func(key):
+            args = {
+                "created_on": "2015-07-02"
+            }
+            return args.get(key, [])
+
+        self.assertEqual(expected, get_created_on_date(query_args_func))
+
+    def test_get_created_on_raise_attribute_error_not_valid(self):
+        patcher = mock.patch("datetime.datetime", spec=True)
+        patched_datetime = patcher.start()
+        self.addCleanup(patcher.stop)
+
+        patched_datetime.strptime.side_effect = AttributeError(
+            "Attribute error")
+
+        def query_args_func(key):
+            args = {
+                "created_on": "2015-07-02"
+            }
+            return args.get(key, [])
+
+        self.assertIsNone(get_created_on_date(query_args_func))
+
     def test_add_created_on_date_valid(self):
         created_on = datetime.date(2014, 12, 11)
         spec = {"foo": "bar"}
