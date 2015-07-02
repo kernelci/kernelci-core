@@ -46,6 +46,7 @@ from handlers.common import (
     valid_token_general,
     valid_token_th,
     valid_token_upload,
+    valid_token_tests,
     validate_token
 )
 from models.token import Token
@@ -946,6 +947,34 @@ class TestHandlersCommon(unittest.TestCase):
         self.assertTrue(valid_token_upload(token, "PUT"))
         self.assertTrue(valid_token_upload(token, "GET"))
         self.assertTrue(valid_token_upload(token, "DELETE"))
+
+    def test_valid_token_tests(self):
+        token = Token()
+
+        token.is_admin = True
+        self.assertTrue(valid_token_tests(token, "GET"))
+        self.assertTrue(valid_token_tests(token, "POST"))
+        self.assertTrue(valid_token_tests(token, "PUT"))
+        self.assertTrue(valid_token_tests(token, "DELETE"))
+
+        token.is_admin = False
+        token.is_superuser = True
+        self.assertTrue(valid_token_tests(token, "GET"))
+        self.assertTrue(valid_token_tests(token, "POST"))
+        self.assertTrue(valid_token_tests(token, "PUT"))
+        self.assertTrue(valid_token_tests(token, "DELETE"))
+
+        token.is_superuser = False
+        token.is_get_token = True
+        self.assertTrue(valid_token_tests(token, "GET"))
+        self.assertFalse(valid_token_tests(token, "POST"))
+        self.assertFalse(valid_token_tests(token, "PUT"))
+        self.assertFalse(valid_token_tests(token, "DELETE"))
+
+        token.is_test_lab_token = True
+        self.assertTrue(valid_token_tests(token, "POST"))
+        self.assertTrue(valid_token_tests(token, "PUT"))
+        self.assertTrue(valid_token_tests(token, "DELETE"))
 
     def test_token_expires_expired(self):
         token = Token()
