@@ -300,7 +300,9 @@ class TestBuildUtils(unittest.TestCase):
             "dtb_dir": "dtbs",
             "modules_dir": "foo/bar",
             "build_log": "file.log",
-            "kconfig_fragments": "fragment"
+            "kconfig_fragments": "fragment",
+            "compiler_version": "gcc",
+            "cross_compile": "foo"
         }
         defconf_doc = utils.build._parse_build_data(
             build_data, "job", "kernel", {}, "arm-build_dir")
@@ -308,12 +310,21 @@ class TestBuildUtils(unittest.TestCase):
         self.assertIsInstance(defconf_doc, mdefconfig.DefconfigDocument)
         self.assertIsInstance(defconf_doc.metadata, types.DictionaryType)
         self.assertIsInstance(defconf_doc.dtb_dir_data, types.ListType)
+        self.assertNotEqual({}, defconf_doc.metadata)
+        self.assertEqual("gcc", defconf_doc.metadata["compiler_version"])
+        self.assertEqual("foo", defconf_doc.metadata["cross_compile"])
         self.assertEqual(defconf_doc.kconfig_fragments, "fragment")
         self.assertEqual(defconf_doc.arch, "arm")
         self.assertEqual(defconf_doc.git_commit, "1234567890")
         self.assertEqual(defconf_doc.git_branch, "test/branch")
+        self.assertEqual(defconf_doc.git_url, "git://git.example.org")
         self.assertEqual(defconf_doc.defconfig_full, "defoo_confbar")
         self.assertEqual(defconf_doc.defconfig, "defoo_confbar")
+        self.assertEqual(defconf_doc.build_log, "file.log")
+        self.assertEqual(defconf_doc.modules_dir, "foo/bar")
+        self.assertEqual(defconf_doc.dtb_dir, "dtbs")
+        self.assertEqual(defconf_doc.kernel_config, "kernel.config")
+        self.assertEqual(defconf_doc.kernel_image, "zImage")
 
     def test_parse_dtb_dir_single_file(self):
         temp_dir = tempfile.mkdtemp()

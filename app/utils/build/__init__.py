@@ -184,6 +184,7 @@ def _parse_build_data(build_data, job, kernel, errors, build_dir=None):
                 models.TEXT_OFFSET_KEY, None)
             defconfig_doc.version = data_pop(models.VERSION_KEY, "1.0")
             defconfig_doc.warnings = data_pop(models.BUILD_WARNINGS_KEY, 0)
+            defconfig_doc.metadata = build_data
         except KeyError, ex:
             err_msg = (
                 "Missing mandatory key in json build data "
