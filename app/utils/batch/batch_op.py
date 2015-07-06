@@ -16,6 +16,7 @@
 import handlers.common as hcommon
 import handlers.count as hcount
 import models
+import models.defconfig as mdefconfig
 import utils
 import utils.db
 
@@ -227,7 +228,7 @@ class BatchDefconfigOperation(BatchOperation):
     def __init__(self, collection, database, operation_id=None):
         super(BatchDefconfigOperation, self).__init__(
             collection, database, operation_id)
-        self.valid_keys = hcommon.DEFCONFIG_VALID_KEYS
+        self.valid_keys = mdefconfig.DEFCONFIG_VALID_KEYS
 
 
 class BatchCountOperation(BatchOperation):
