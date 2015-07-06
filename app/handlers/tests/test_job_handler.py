@@ -15,8 +15,12 @@
 
 """Test module for the JobHandler handler."""
 
+try:
+    import simplejson as json
+except ImportError:
+    import json
+
 import concurrent.futures
-import json
 import mock
 import mongomock
 import tornado
