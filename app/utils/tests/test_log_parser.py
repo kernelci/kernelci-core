@@ -96,6 +96,7 @@ class TestBuildLogParser(unittest.TestCase):
 
     def test_parse_build_log(self):
         build_dir = None
+        errors = {}
 
         try:
             build_dir = tempfile.mkdtemp()
@@ -103,17 +104,17 @@ class TestBuildLogParser(unittest.TestCase):
                 os.path.abspath(os.path.dirname(__file__)),
                 "assets", "build_log_0.log")
 
-            status, errors, e_l, w_l, m_l = lparser._parse_log(
-                "job", "kernel", "defconfig", log_file, build_dir)
+            status, e_l, w_l, m_l = lparser._parse_log(
+                "job", "kernel", "defconfig", log_file, build_dir, errors)
 
             self.assertEqual(200, status)
 
-            self.assertIsInstance(errors, types.ListType)
+            self.assertIsInstance(errors, types.DictionaryType)
             self.assertIsInstance(e_l, types.ListType)
             self.assertIsInstance(w_l, types.ListType)
             self.assertIsInstance(m_l, types.ListType)
 
-            self.assertEqual(0, len(errors))
+            self.assertEqual(0, len(errors.keys()))
             self.assertEqual(9, len(e_l))
             self.assertEqual(2, len(w_l))
             self.assertEqual(0, len(m_l))
@@ -122,20 +123,21 @@ class TestBuildLogParser(unittest.TestCase):
 
     def test_parse_build_log_no_file(self):
         build_dir = None
+        errors = {}
         try:
             build_dir = tempfile.mkdtemp()
 
-            status, errors, e_l, w_l, m_l = lparser._parse_log(
-                "job", "kernel", "defconfig", build_dir, build_dir)
+            status, e_l, w_l, m_l = lparser._parse_log(
+                "job", "kernel", "defconfig", build_dir, build_dir, errors)
 
             self.assertEqual(500, status)
 
-            self.assertIsInstance(errors, types.ListType)
+            self.assertIsInstance(errors, types.DictionaryType)
             self.assertIsInstance(e_l, types.ListType)
             self.assertIsInstance(w_l, types.ListType)
             self.assertIsInstance(m_l, types.ListType)
 
-            self.assertEqual(1, len(errors))
+            self.assertDictEqual({}, errors)
             self.assertEqual(0, len(e_l))
             self.assertEqual(0, len(w_l))
             self.assertEqual(0, len(m_l))
@@ -146,23 +148,25 @@ class TestBuildLogParser(unittest.TestCase):
     def test_parse_build_log_error_opening(self, mock_open):
         mock_open.side_effect = IOError
         build_dir = None
+        errors = {}
         try:
             build_dir = tempfile.mkdtemp()
             log_file = os.path.join(
                 os.path.abspath(os.path.dirname(__file__)),
                 "assets", "build_log_0.log")
 
-            status, errors, e_l, w_l, m_l = lparser._parse_log(
-                "job", "kernel", "defconfig", log_file, build_dir)
+            status, e_l, w_l, m_l = lparser._parse_log(
+                "job", "kernel", "defconfig", log_file, build_dir, errors)
 
             self.assertEqual(500, status)
 
-            self.assertIsInstance(errors, types.ListType)
+            self.assertIsInstance(errors, types.DictionaryType)
             self.assertIsInstance(e_l, types.ListType)
             self.assertIsInstance(w_l, types.ListType)
             self.assertIsInstance(m_l, types.ListType)
 
-            self.assertEqual(1, len(errors))
+            self.assertEqual(1, len(errors.keys()))
+            self.assertEqual([500], errors.keys())
             self.assertEqual(0, len(e_l))
             self.assertEqual(0, len(w_l))
             self.assertEqual(0, len(m_l))
