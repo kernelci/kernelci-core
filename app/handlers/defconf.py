@@ -1,5 +1,3 @@
-# Copyright (C) 2014 Linaro Ltd.
-#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
@@ -16,9 +14,10 @@
 """The RequestHandler for /defconfig URLs."""
 
 import handlers.base as hbase
-import handlers.common as hcommon
 import handlers.response as hresponse
 import models
+import models.defconfig as mdefconfig
+import taskqueue.tasks as taskq
 import utils.db
 
 
@@ -34,21 +33,27 @@ class DefConfHandler(hbase.BaseHandler):
 
     @staticmethod
     def _valid_keys(method):
-        return hcommon.DEFCONFIG_VALID_KEYS.get(method, None)
+        return mdefconfig.DEFCONFIG_VALID_KEYS.get(method, None)
 
-    def execute_post(self, *args, **kwargs):
-        """Execute the POST pre-operations.
+    def _post(self, *args, **kwargs):
+        response = hresponse.HandlerResponse(202)
+        response.reason = "Request accepted and being imported"
 
-        Checks that everything is OK to perform a POST.
-        """
-        response = None
-        valid_token, _ = self.validate_req_token("POST")
+        json_obj = kwargs["json_obj"]
+        db_options = kwargs["db_options"]
 
-        if valid_token:
-            response = hresponse.HandlerResponse(501)
-        else:
-            response = hresponse.HandlerResponse(403)
-            response.reason = hcommon.NOT_VALID_TOKEN
+        self.log.info(
+            "Importing defconfig for %s-%s-%s-%s",
+            json_obj[models.JOB_KEY], json_obj[models.KERNEL_KEY],
+            json_obj[models.ARCHITECTURE_KEY], json_obj[models.DEFCONFIG_KEY]
+        )
+
+        taskq.import_build.apply_async(
+            [json_obj, db_options],
+            link=[
+                taskq.parse_single_build_log.s(db_options)
+            ]
+        )
 
         return response
 

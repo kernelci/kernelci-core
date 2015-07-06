@@ -13,7 +13,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Test module for the DefConfHandler handler.."""
+"""Test module for the DefConfHandler handler."""
+
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 import concurrent.futures
 import mock
@@ -25,7 +30,7 @@ import handlers.app
 import urls
 
 # Default Content-Type header returned by Tornado.
-DEFAULT_CONTENT_TYPE = 'application/json; charset=UTF-8'
+DEFAULT_CONTENT_TYPE = "application/json; charset=UTF-8"
 
 
 class TestDefconfHandler(
@@ -50,16 +55,16 @@ class TestDefconfHandler(
 
     def get_app(self):
         dboptions = {
-            'dbpassword': "",
-            'dbuser': ""
+            "dbpassword": "",
+            "dbuser": ""
         }
 
         settings = {
-            'dboptions': dboptions,
-            'client': self.mongodb_client,
-            'executor': concurrent.futures.ThreadPoolExecutor(max_workers=2),
-            'default_handler_class': handlers.app.AppHandler,
-            'debug': False,
+            "dboptions": dboptions,
+            "client": self.mongodb_client,
+            "executor": concurrent.futures.ThreadPoolExecutor(max_workers=2),
+            "default_handler_class": handlers.app.AppHandler,
+            "debug": False,
         }
 
         return tornado.web.Application([urls._DEFCONF_URL], **settings)
@@ -68,72 +73,107 @@ class TestDefconfHandler(
         return tornado.ioloop.IOLoop.instance()
 
     def test_get_wrong_url(self):
-        response = self.fetch('/foobardefconf')
+        response = self.fetch("/foobardefconf")
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
-    @mock.patch('utils.db.find')
-    @mock.patch('utils.db.count')
+    @mock.patch("utils.db.find")
+    @mock.patch("utils.db.count")
     def test_get(self, mock_count, mock_find):
         mock_count.return_value = 0
         mock_find.return_value = []
 
         expected_body = '{"count":0,"code":200,"limit":0,"result":[]}'
 
-        headers = {'Authorization': 'foo'}
-        response = self.fetch('/defconfig', headers=headers)
+        headers = {"Authorization": "foo"}
+        response = self.fetch("/defconfig", headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
         self.assertEqual(response.body, expected_body)
 
-    @mock.patch('bson.objectid.ObjectId')
-    @mock.patch('handlers.defconf.DefConfHandler.collection')
+    @mock.patch("bson.objectid.ObjectId")
+    @mock.patch("handlers.defconf.DefConfHandler.collection")
     def test_get_by_id_not_found(self, mock_collection, mock_id):
         mock_id.return_value = "defconf"
         mock_collection.find_one = mock.MagicMock()
         mock_collection.find_one.return_value = None
 
-        headers = {'Authorization': 'foo'}
-        response = self.fetch('/defconfig/defconf', headers=headers)
+        headers = {"Authorization": "foo"}
+        response = self.fetch("/defconfig/defconf", headers=headers)
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     def test_post_no_token(self):
-        response = self.fetch('/defconfig', method='POST', body='')
+        response = self.fetch("/defconfig", method="POST", body="")
 
         self.assertEqual(response.code, 403)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
-    def test_post_token(self):
-        # POST is not implemented for the DefConfHandler.
-        headers = {
-            'Authorization': 'foo',
-            'Content-Type': 'application/json'
-        }
+    def test_post_not_json_content(self):
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+
         response = self.fetch(
-            '/defconfig', method='POST', body="{}", headers=headers)
+            "/defconfig", method="POST", body="", headers=headers)
 
-        self.assertEqual(response.code, 501)
+        self.assertEqual(response.code, 422)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    def test_post_wrong_content_type(self):
+        headers = {"Authorization": "foo"}
+
+        response = self.fetch(
+            "/defconfig", method="POST", body="", headers=headers)
+
+        self.assertEqual(response.code, 415)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    def test_post_wrong_json(self):
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+        body = json.dumps(dict(foo="foo", bar="bar"))
+
+        response = self.fetch(
+            "/defconfig", method="POST", body=body, headers=headers)
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    @mock.patch("taskqueue.tasks.import_build")
+    def test_post_correct(self, mock_import):
+        mock_import.apply_async = mock.MagicMock()
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+        body = json.dumps(
+            dict(
+                job="job",
+                kernel="kernel", defconfig="defconfig", arch="arch")
+        )
+
+        response = self.fetch(
+            "/defconfig", method="POST", headers=headers, body=body)
+
+        self.assertEqual(response.code, 202)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     def test_delete(self):
-        db = self.mongodb_client['kernel-ci']
-        db['defconfig'].insert(dict(_id='defconf', job_id='job'))
+        db = self.mongodb_client["kernel-ci"]
+        db["defconfig"].insert(dict(_id="defconf", job_id="job"))
 
-        headers = {'Authorization': 'foo'}
+        headers = {"Authorization": "foo"}
 
         response = self.fetch(
-            '/defconfig/defconf', method='DELETE', headers=headers,
+            "/defconfig/defconf", method="DELETE", headers=headers,
         )
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
