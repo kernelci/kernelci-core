@@ -115,7 +115,7 @@ def _search_prev_defconfig_doc(defconfig_doc, database):
 
 # pylint: disable=too-many-locals
 # pylint: disable=too-many-statements
-def _parse_build_data(build_data, job, kernel, errors, build_dir=None):
+def parse_build_data(build_data, job, kernel, errors, build_dir=None):
     """Parse the json build data and craete the corresponding document.
 
     :param build_data: The json build data.
@@ -187,8 +187,7 @@ def _parse_build_data(build_data, job, kernel, errors, build_dir=None):
             defconfig_doc.metadata = build_data
         except KeyError, ex:
             err_msg = (
-                "Missing mandatory key in json build data "
-                "(job: %s, kernel: %s)")
+                "Missing mandatory key in build data (job: %s, kernel: %s)")
             utils.LOG.exception(ex)
             utils.LOG.error(err_msg, job, kernel)
             ERR_ADD(errors, 500, err_msg % (job, kernel))
@@ -240,7 +239,7 @@ def _traverse_build_dir(
             with io.open(os.path.join(real_dir, data_file)) as data:
                 build_data = json.load(data)
 
-            defconfig_doc = _parse_build_data(
+            defconfig_doc = parse_build_data(
                 build_data, job, kernel, errors, build_dir=real_dir)
 
             if defconfig_doc:
@@ -341,7 +340,7 @@ def _traverse_kernel_dir(
     return docs, job_status, errors
 
 
-def _update_job_doc(job_doc, status, docs):
+def _update_job_doc(job_doc, job_id, status, docs, database):
     """Update the JobDocument with values from a DefconfigDocument.
 
     :param job_doc: The job document to update.
@@ -351,8 +350,21 @@ def _update_job_doc(job_doc, status, docs):
     :param docs: The list of DefconfigDocument objects.
     :type docs: list
     """
-    job_doc.status = status
-    if docs:
+    to_update = False
+    ret_val = 201
+
+    if job_doc.id != job_id:
+        job_doc.id = job_id
+        to_update = True
+
+    if job_doc.status != status:
+        job_doc.status = status
+        to_update = True
+
+    if all([docs,
+            not job_doc.git_url,
+            not job_doc.git_commit,
+            not job_doc.git_branch, not job_doc.git_describe]):
         # Kind of a hack:
         # We want to store some metadata at the job document level as well,
         # like git tree, git commit...
@@ -371,12 +383,16 @@ def _update_job_doc(job_doc, status, docs):
                     job_doc.git_commit = d_doc.git_commit
                     job_doc.git_describe = d_doc.git_describe
                     job_doc.git_url = d_doc.git_url
+                    to_update = True
                     break
 
             idx += 1
     else:
-        utils.LOG.warn(
-            "No build documents found, job reference will not be updated")
+        utils.LOG.warn("No build documents found or job does not need update")
+
+    if to_update:
+        ret_val, _ = utils.db.save(database, job_doc)
+    return ret_val
 
 
 def _import_builds(job, kernel, db_options, base_path):
@@ -397,68 +413,79 @@ def _import_builds(job, kernel, db_options, base_path):
     job_id = None
     errors = {}
 
-    if all([not job.startswith("."), not kernel.startswith(".")]):
+    if all([utils.valid_name(job), utils.valid_name(kernel)]):
         job_dir = os.path.join(base_path, job)
         kernel_dir = os.path.join(job_dir, kernel)
 
-        job_name = models.JOB_DOCUMENT_NAME % \
-            {models.JOB_KEY: job, models.KERNEL_KEY: kernel}
+        if os.path.isdir(kernel_dir):
+            try:
+                p_doc = None
+                database = None
+                ret_val = 201
 
-        p_doc = None
-        database = None
-        ret_val = 201
+                database = utils.db.get_db_connection(db_options)
+                p_doc = utils.db.find_one2(
+                    database[models.JOB_COLLECTION],
+                    {models.JOB_KEY: job, models.KERNEL_KEY: kernel})
 
-        try:
-            database = utils.db.get_db_connection(db_options)
-            p_doc = utils.db.find_one2(
-                database[models.JOB_COLLECTION], {models.NAME_KEY: job_name})
+                if p_doc:
+                    job_doc = mjob.JobDocument.from_json(p_doc)
+                    job_id = job_doc.id
+                else:
+                    job_doc = mjob.JobDocument(job, kernel)
+                    job_doc.created_on = datetime.datetime.now(
+                        tz=bson.tz_util.utc)
+                    ret_val, job_id = utils.db.save(
+                        database, job_doc, manipulate=True)
 
-            if p_doc:
-                job_doc = mjob.JobDocument.from_json(p_doc)
-                job_id = job_doc.id
-            else:
-                job_doc = mjob.JobDocument(job, kernel)
-                job_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
-                ret_val, job_id = utils.db.save(
-                    database, job_doc, manipulate=True)
+                if all([ret_val != 201, job_id is None]):
+                    err_msg = (
+                        "Error saving/finding job document for '%s-%s': "
+                        "builds document might not be linked to their job")
+                    utils.LOG.error(err_msg, job, kernel)
+                    ERR_ADD(errors, ret_val, err_msg % (job, kernel))
 
-            if all([ret_val == 201, job_id is not None]):
-                job_doc.id = job_id
                 docs, j_status, errs = _traverse_kernel_dir(
                     kernel_dir,
                     job, kernel, job_id, job_doc.created_on, database)
                 ERR_UPDATE(errors, errs)
-                _update_job_doc(job_doc, j_status, docs)
-                ret_val, _ = utils.db.save(database, job_doc)
+
+                ret_val = _update_job_doc(
+                    job_doc, job_id, j_status, docs, database)
                 if ret_val != 201:
-                    err_msg = "Error saving job document (job: %s, kernel: %s)"
+                    err_msg = (
+                        "Error updating job document '%s-%s' with values from "
+                        "build doc")
                     utils.LOG.error(err_msg, job, kernel)
                     ERR_ADD(errors, ret_val, err_msg % (job, kernel))
-            else:
-                err_msg = "Error saving job document (job: %s, kernel: %s)"
-                utils.LOG.error(err_msg, job, kernel)
-                ERR_ADD(errors, ret_val, err_msg % (job, kernel))
-        except pymongo.errors.ConnectionFailure, ex:
-            utils.LOG.exception(ex)
-            utils.LOG.error("Error getting database connection")
-            utils.LOG.warn(
-                "Builds for %s-%s will not be imported", job, kernel)
-            ERR_ADD(
-                errors,
-                500,
-                "Error connecting to the database, "
-                "builds for %s-%s have not been imported" % (job, kernel)
-            )
+            except pymongo.errors.ConnectionFailure, ex:
+                utils.LOG.exception(ex)
+                utils.LOG.error("Error getting database connection")
+                utils.LOG.warn(
+                    "Builds for '%s-%s' will not be imported", job, kernel)
+                ERR_ADD(
+                    errors,
+                    500,
+                    "Internal server error: builds for '%s-%s' will not "
+                    "be imported" % (job, kernel)
+                )
+        else:
+            err_msg = (
+                "Kernel directory for '%s-%s' does not exists: builds will "
+                "not be imported. Has everything been uploaded?")
+            utils.LOG.error(err_msg, job, kernel)
+            ERR_ADD(errors, 500, err_msg % (job, kernel))
     else:
         err_msg = (
-            "Job or kernel name cannot start with a dot (job: %s, kernel: %s)")
+            "Wrong name for job and/or kernel value (%s-%s). "
+            "Names cannot start with '.' and cannot contain '$' and '/'")
         utils.LOG.error(err_msg, job, kernel)
         ERR_ADD(errors, 500, err_msg % (job, kernel))
 
     return docs, job_id, errors
 
 
-def import_from_dir(json_obj, db_options, base_path=utils.BASE_PATH):
+def import_multiple_builds(json_obj, db_options, base_path=utils.BASE_PATH):
     """Import builds from a file system directory based on the json data.
 
     :param json_obj: The json object with job and kernel values.
@@ -490,3 +517,120 @@ def import_from_dir(json_obj, db_options, base_path=utils.BASE_PATH):
 
     ERR_UPDATE(errors, errs)
     return job_id, errors
+
+
+def import_single_build(json_obj, db_options, base_path=utils.BASE_PATH):
+    """Import a single build from the file system.
+
+    :param json_obj: The json object containing the necessary data.
+    :type json_obj: dictionary
+    :param db_options: The database connection options.
+    :type db_options: dictionary
+    :param base_path: The base path on the file system where to look for.
+    :type base_path: string
+    :return The defconfig ID, the job ID and the errors data structure.
+    """
+    errors = {}
+    job_id = None
+    defconfig_doc = None
+    defconfig_id = None
+    j_get = json_obj.get
+
+    arch = j_get(models.ARCHITECTURE_KEY)
+    job = j_get(models.JOB_KEY)
+    kernel = j_get(models.KERNEL_KEY)
+    defconfig = j_get(models.DEFCONFIG_KEY)
+    defconfig_full = j_get(models.DEFCONFIG_FULL_KEY, None)
+
+    if all([utils.valid_name(job), utils.valid_name(kernel)]):
+        job_dir = os.path.join(base_path, job)
+        kernel_dir = os.path.join(job_dir, kernel)
+
+        build_rel_dir = "%s-%s" % (arch, defconfig_full or defconfig)
+        build_dir = os.path.join(kernel_dir, build_rel_dir)
+
+        if os.path.isdir(build_dir):
+            try:
+                p_doc = None
+                database = None
+                ret_val = 201
+
+                database = utils.db.get_db_connection(db_options)
+                p_doc = utils.db.find_one2(
+                    database[models.JOB_COLLECTION],
+                    {models.JOB_KEY: job, models.KERNEL_KEY: kernel})
+
+                if p_doc:
+                    job_doc = mjob.JobDocument.from_json(p_doc)
+                    job_id = job_doc.id
+                else:
+                    job_doc = mjob.JobDocument(job, kernel)
+                    job_doc.status = models.BUILD_STATUS
+                    job_doc.created_on = datetime.datetime.now(
+                        tz=bson.tz_util.utc)
+                    ret_val, job_id = utils.db.save(
+                        database, job_doc, manipulate=True)
+
+                if all([ret_val != 201, job_id is None]):
+                    err_msg = (
+                        "Error saving/finding job document for '%s-%s': "
+                        "build document '%s-%s-%s-%s' might not be linked to "
+                        "its job"
+                    )
+                    utils.LOG.error(
+                        err_msg, job, kernel, job, kernel, arch, defconfig)
+                    ERR_ADD(
+                        errors,
+                        ret_val,
+                        err_msg % (job, kernel, job, kernel, arch, defconfig)
+                    )
+
+                defconfig_doc = _traverse_build_dir(
+                    build_dir,
+                    kernel_dir,
+                    job, kernel, job_id, job_doc.created_on, errors, database)
+
+                ret_val = _update_job_doc(
+                    job_doc,
+                    job_id, job_doc.status, [defconfig_doc], database)
+                if ret_val != 201:
+                    err_msg = (
+                        "Error updating job document '%s-%s' with values from "
+                        "build doc")
+                    utils.LOG.error(err_msg, job, kernel)
+                    ERR_ADD(errors, ret_val, err_msg % (job, kernel))
+
+                if defconfig_doc:
+                    ret_val, defconfig_id = utils.db.save(
+                        database, defconfig_doc, manipulate=True)
+                if ret_val != 201:
+                    err_msg = "Error saving build document '%s-%s-%s-%s'"
+                    utils.LOG.error(err_msg, job, kernel, arch, defconfig)
+                    ERR_ADD(
+                        errors,
+                        ret_val, err_msg % (job, kernel, arch, defconfig))
+            except pymongo.errors.ConnectionFailure, ex:
+                utils.LOG.exception(ex)
+                utils.LOG.error("Error getting database connection")
+                utils.LOG.warn(
+                    "Build for '%s-%s-%s-%s' will not be imported",
+                    job, kernel, arch, defconfig)
+                ERR_ADD(
+                    errors, 500,
+                    "Internal server error: build for '%s-%s-%s-%s' "
+                    "will not be imported" % (job, kernel, arch, defconfig)
+                )
+        else:
+            err_msg = (
+                "No build directory found for '%s-%s-%s-%s': "
+                "has everything been uploaded?")
+            utils.LOG.error(err_msg, job, kernel, arch, defconfig)
+            ERR_ADD(errors, 500, err_msg % (job, kernel, arch, defconfig))
+    else:
+        err_msg = (
+            "Wrong name for job and/or kernel value (%s-%s). "
+            "Names cannot start with '.' and cannot contain '$' and '/'")
+        utils.LOG.error(err_msg, job, kernel)
+        ERR_ADD(errors, 500, err_msg % (job, kernel))
+
+    return defconfig_id, job_id, errors

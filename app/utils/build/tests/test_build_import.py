@@ -21,11 +21,11 @@ import logging
 import mock
 import mongomock
 import os
+import pymongo.errors
+import shutil
 import tempfile
 import types
 import unittest
-import shutil
-import pymongo.errors
 
 import models.defconfig as mdefconfig
 import models.job as mjob
@@ -46,7 +46,7 @@ class TestBuildUtils(unittest.TestCase):
             "job": ".job",
             "kernel": ".kernel"
         }
-        job_id, errors = utils.build.import_from_dir(
+        job_id, errors = utils.build.import_multiple_builds(
             json_obj, {}, base_path=utils.BASE_PATH)
 
         self.assertIsNone(job_id)
@@ -61,14 +61,15 @@ class TestBuildUtils(unittest.TestCase):
             "kernel": "kernel"
         }
 
-        job_id, errors = utils.build.import_from_dir(json_obj, {})
+        job_id, errors = utils.build.import_multiple_builds(json_obj, {})
         self.assertIsNone(job_id)
         self.assertIsNotNone(errors)
         self.assertListEqual([500], errors.keys())
 
     @mock.patch("utils.build._import_builds")
     @mock.patch("utils.db.get_db_connection")
-    def test_import_from_dir_connection_error(self, mock_conn, mock_import):
+    def test_import_multiple_builds_connection_error(
+            self, mock_conn, mock_import):
         mock_import.return_value = (["docs"], "job-id", {400: ["error"]})
         mock_conn.side_effect = pymongo.errors.ConnectionFailure("ConnErr")
         json_obj = {
@@ -76,14 +77,14 @@ class TestBuildUtils(unittest.TestCase):
             "kernel": "kernel"
         }
 
-        _, errors = utils.build.import_from_dir(json_obj, {})
+        _, errors = utils.build.import_multiple_builds(json_obj, {})
         self.assertIsNotNone(errors)
         self.assertListEqual([400, 500], errors.keys())
 
     @mock.patch("utils.db.save_all")
     @mock.patch("utils.build._import_builds")
     @mock.patch("utils.db.get_db_connection")
-    def test_import_from_dir_save_error(
+    def test_import_multiple_builds_save_error(
             self, mock_conn, mock_import, mock_save):
         mock_conn = self.db
         mock_import.return_value = (["docs"], "job-id", {500: ["error"]})
@@ -94,14 +95,14 @@ class TestBuildUtils(unittest.TestCase):
             "kernel": "kernel"
         }
 
-        _, errors = utils.build.import_from_dir(json_obj, {})
+        _, errors = utils.build.import_multiple_builds(json_obj, {})
         self.assertIsNotNone(errors)
         self.assertListEqual([500], errors.keys())
 
     @mock.patch("utils.db.save_all")
     @mock.patch("utils.build._import_builds")
     @mock.patch("utils.db.get_db_connection")
-    def test_import_from_dir_no_save_error(
+    def test_import_multiple_builds_no_save_error(
             self, mock_conn, mock_import, mock_save):
         mock_conn = self.db
         mock_import.return_value = (["docs"], "job-id", {})
@@ -112,7 +113,7 @@ class TestBuildUtils(unittest.TestCase):
             "kernel": "kernel"
         }
 
-        _, errors = utils.build.import_from_dir(json_obj, {})
+        _, errors = utils.build.import_multiple_builds(json_obj, {})
         self.assertDictEqual({}, errors)
 
     def test_traverse_buld_dir_with_ioerror(self):
@@ -193,7 +194,7 @@ class TestBuildUtils(unittest.TestCase):
         build_data = []
         errors = {}
 
-        defconfig_doc = utils.build._parse_build_data(
+        defconfig_doc = utils.build.parse_build_data(
             build_data, "job", "kernel", errors)
 
         self.assertIsNone(defconfig_doc)
@@ -204,7 +205,7 @@ class TestBuildUtils(unittest.TestCase):
         build_data = {"arch": "arm"}
         errors = {}
 
-        defconfig_doc = utils.build._parse_build_data(
+        defconfig_doc = utils.build.parse_build_data(
             build_data, "job", "kernel", errors)
 
         self.assertIsNone(defconfig_doc)
@@ -215,7 +216,7 @@ class TestBuildUtils(unittest.TestCase):
         build_data = {"defconfig": "defconfig"}
         errors = {}
 
-        defconfig_doc = utils.build._parse_build_data(
+        defconfig_doc = utils.build.parse_build_data(
             build_data, "job", "kernel", errors)
 
         self.assertIsInstance(defconfig_doc, mdefconfig.DefconfigDocument)
@@ -228,7 +229,7 @@ class TestBuildUtils(unittest.TestCase):
         }
         errors = {}
 
-        defconfig_doc = utils.build._parse_build_data(
+        defconfig_doc = utils.build.parse_build_data(
             build_data, "job", "kernel", errors)
 
         self.assertIsInstance(defconfig_doc, mdefconfig.DefconfigDocument)
@@ -242,7 +243,7 @@ class TestBuildUtils(unittest.TestCase):
         }
         errors = {}
 
-        defconfig_doc = utils.build._parse_build_data(
+        defconfig_doc = utils.build.parse_build_data(
             build_data, "job", "kernel", errors)
 
         self.assertIsInstance(defconfig_doc, mdefconfig.DefconfigDocument)
@@ -253,7 +254,7 @@ class TestBuildUtils(unittest.TestCase):
         build_data = {"defconfig": "defconfig"}
         errors = {}
 
-        defconfig_doc = utils.build._parse_build_data(
+        defconfig_doc = utils.build.parse_build_data(
             build_data, "job", "kernel", errors)
 
         self.assertIsInstance(defconfig_doc, mdefconfig.DefconfigDocument)
@@ -264,7 +265,7 @@ class TestBuildUtils(unittest.TestCase):
         build_data = {"defconfig": "defconfig"}
         errors = {}
 
-        defconfig_doc = utils.build._parse_build_data(
+        defconfig_doc = utils.build.parse_build_data(
             build_data, "job", "kernel", errors)
 
         self.assertIsInstance(defconfig_doc, mdefconfig.DefconfigDocument)
@@ -279,7 +280,7 @@ class TestBuildUtils(unittest.TestCase):
             "kconfig_fragments": "frag-CONFIG_TEST=y.config"
         }
 
-        defconfig_doc = utils.build._parse_build_data(
+        defconfig_doc = utils.build.parse_build_data(
             build_data, "job", "kernel", {}, "arm-build_dir")
 
         self.assertIsInstance(defconfig_doc, mdefconfig.DefconfigDocument)
@@ -304,7 +305,7 @@ class TestBuildUtils(unittest.TestCase):
             "compiler_version": "gcc",
             "cross_compile": "foo"
         }
-        defconf_doc = utils.build._parse_build_data(
+        defconf_doc = utils.build.parse_build_data(
             build_data, "job", "kernel", {}, "arm-build_dir")
 
         self.assertIsInstance(defconf_doc, mdefconfig.DefconfigDocument)
@@ -432,13 +433,16 @@ class TestBuildUtils(unittest.TestCase):
         defconfig_doc.git_describe = "kernel.version"
         defconfig_doc.git_url = "git://url.git"
 
-        utils.build._update_job_doc(job_doc, "PASS", [defconfig_doc])
+        utils.build._update_job_doc(
+            job_doc, "job_id", "PASS", [defconfig_doc], self.db)
 
         self.assertIsInstance(job_doc, mjob.JobDocument)
+        self.assertIsNotNone(job_doc.id)
         self.assertIsNotNone(job_doc.git_branch)
         self.assertIsNotNone(job_doc.git_commit)
         self.assertIsNotNone(job_doc.git_describe)
         self.assertIsNotNone(job_doc.git_url)
+        self.assertEqual("job_id", job_doc.id)
         self.assertEqual("local/branch", job_doc.git_branch)
         self.assertEqual("1234567890", job_doc.git_commit)
         self.assertEqual("kernel.version", job_doc.git_describe)
@@ -447,9 +451,11 @@ class TestBuildUtils(unittest.TestCase):
     def test_update_job_doc_no_defconfig(self):
         job_doc = mjob.JobDocument("job", "kernel")
 
-        utils.build._update_job_doc(job_doc, "PASS", [])
+        utils.build._update_job_doc(
+            job_doc, None, "PASS", [], self.db)
 
         self.assertIsInstance(job_doc, mjob.JobDocument)
+        self.assertIsNone(job_doc.id)
         self.assertIsNone(job_doc.git_branch)
         self.assertIsNone(job_doc.git_commit)
         self.assertIsNone(job_doc.git_describe)
@@ -466,7 +472,9 @@ class TestBuildUtils(unittest.TestCase):
         defconfig_doc.git_url = "git://url.git"
 
         utils.build._update_job_doc(
-            job_doc, "PASS", [job_doc_b, {"foo": "bar"}, defconfig_doc])
+            job_doc,
+            "job_id",
+            "PASS", [job_doc_b, {"foo": "bar"}, defconfig_doc], self.db)
 
         self.assertIsInstance(job_doc, mjob.JobDocument)
         self.assertIsNotNone(job_doc.git_branch)
@@ -493,8 +501,10 @@ class TestBuildUtils(unittest.TestCase):
 
         utils.build._update_job_doc(
             job_doc,
+            "job_id",
             "PASS",
-            [job_doc_b, defconfig_doc_b, {"foo": "bar"}, defconfig_doc]
+            [job_doc_b, defconfig_doc_b, {"foo": "bar"}, defconfig_doc],
+            self.db
         )
 
         self.assertIsInstance(job_doc, mjob.JobDocument)
@@ -506,3 +516,85 @@ class TestBuildUtils(unittest.TestCase):
         self.assertEqual("1234567890", job_doc.git_commit)
         self.assertEqual("kernel.version", job_doc.git_describe)
         self.assertEqual("git://url.git", job_doc.git_url)
+
+    def test_import_single_build_wrong_name(self):
+        json_obj = {
+            "job": ".ajob",
+            "kernel": "akernel",
+            "defconfig": "defconfig",
+            "arch": "arch"
+        }
+        defconfig_id, job_id, errors = utils.build.import_single_build(
+            json_obj, {})
+
+        self.assertIsNone(defconfig_id)
+        self.assertIsNone(job_id)
+        self.assertIsNotNone(errors)
+        self.assertListEqual([500], errors.keys())
+
+    @mock.patch("os.path.isdir")
+    def test_import_single_build_no_build_dir(self, mock_dir):
+        mock_dir.return_value = False
+        json_obj = {
+            "job": ".ajob",
+            "kernel": "akernel",
+            "defconfig": "defconfig",
+            "arch": "arch"
+        }
+        defconfig_id, job_id, errors = utils.build.import_single_build(
+            json_obj, {})
+
+        self.assertIsNone(defconfig_id)
+        self.assertIsNone(job_id)
+        self.assertIsNotNone(errors)
+        self.assertListEqual([500], errors.keys())
+
+    @mock.patch("utils.db.get_db_connection")
+    def test_import_single_build_with_connection_error(self, mock_conn):
+        mock_conn.side_effect = pymongo.errors.ConnectionFailure("ConnErr")
+        json_obj = {
+            "job": "ajob",
+            "kernel": "akernel",
+            "defconfig": "defconfig",
+            "arch": "arch"
+        }
+        defconfig_id, job_id, errors = utils.build.import_single_build(
+            json_obj, {})
+
+        self.assertIsNone(defconfig_id)
+        self.assertIsNone(job_id)
+        self.assertIsNotNone(errors)
+        self.assertListEqual([500], errors.keys())
+
+    @mock.patch("utils.db.save")
+    @mock.patch("utils.build._update_job_doc")
+    @mock.patch("utils.build._traverse_build_dir")
+    @mock.patch("utils.db.find_one2")
+    @mock.patch("os.path.isdir")
+    def test_import_single_build(
+            self, mock_dir, mock_find, mock_tr, mock_up, mock_save):
+        mock_dir.return_value = True
+
+        job_doc = {"job": "ajob", "kernel": "kernel", "_id": "job_id"}
+        defconfig_doc = mdefconfig.DefconfigDocument(
+            "job", "kernel", "defconfig")
+
+        mock_tr.return_value = defconfig_doc
+        mock_find.return_value = job_doc
+        mock_up.return_value = 201
+        mock_save.return_value = (201, "build_id")
+
+        json_obj = {
+            "job": "ajob",
+            "kernel": "akernel",
+            "defconfig": "defconfig",
+            "arch": "arch"
+        }
+        defconfig_id, job_id, errors = utils.build.import_single_build(
+            json_obj, {})
+
+        self.assertDictEqual({}, errors)
+        self.assertIsNotNone(defconfig_id)
+        self.assertIsNotNone(job_id)
+        self.assertEqual("build_id", defconfig_id)
+        self.assertEqual("job_id", job_id)
