@@ -144,3 +144,54 @@ class TestDefconfModel(unittest.TestCase):
         self.assertIsNone(moddf.DefconfigDocument.from_json(""))
         self.assertIsNone(moddf.DefconfigDocument.from_json([]))
         self.assertIsNone(moddf.DefconfigDocument.from_json(()))
+
+    def test_defconfog_from_json(self):
+        json_obj = {
+            "name": "job-kernel-defconfig_full",
+            "_id": "defconfig_id",
+            "job": "job",
+            "kernel": "kernel",
+            "defconfig": "defconfig",
+            "job_id": "job_id",
+            "created_on": "now",
+            "metadata": {
+                "foo": "bar"
+            },
+            "status": "FAIL",
+            "defconfig": "defconfig",
+            "errors": 1,
+            "warnings": 1,
+            "build_time": 1,
+            "arch": "foo",
+            "dirname": "defconfig",
+            "git_url": "git_url",
+            "git_describe": "git_describe",
+            "git_branch": "git_branch",
+            "git_commit": "git_commit",
+            "build_platform": [],
+            "version": "1.0",
+            "dtb_dir": "dtb-dir",
+            "dtb_dir_data": ["a-file"],
+            "kernel_config": "kernel-config",
+            "kernel_image": "kernel-image",
+            "system_map": "system-map",
+            "text_offset": "offset",
+            "modules": "modules-file",
+            "modules_dir": "modules-dir",
+            "build_log": "build.log",
+            "kconfig_fragments": "config-frag",
+            "defconfig_full": "defconfig_full",
+            "file_server_resource": "file-resource",
+            "file_server_url": "server-url",
+        }
+        defconfig_doc = moddf.DefconfigDocument.from_json(json_obj)
+
+        self.assertIsInstance(defconfig_doc, moddf.DefconfigDocument)
+        self.assertEqual(defconfig_doc.id, "defconfig_id")
+        self.assertEqual(defconfig_doc.defconfig_full, "defconfig_full")
+        self.assertEqual(defconfig_doc.version, "1.0")
+        self.assertEqual(defconfig_doc.errors, 1)
+        self.assertEqual(defconfig_doc.warnings, 1)
+        self.assertEqual(defconfig_doc.build_time, 1)
+        self.assertListEqual(defconfig_doc.build_platform, [])
+        self.assertDictEqual(defconfig_doc.metadata, {"foo": "bar"})

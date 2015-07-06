@@ -13,10 +13,57 @@
 
 """The model that represents a defconfing document in the db."""
 
+import copy
 import types
 
 import models
 import models.base as modb
+
+
+DEFCONFIG_VALID_KEYS = {
+    "GET": [
+        models.ARCHITECTURE_KEY,
+        models.BUILD_LOG_KEY,
+        models.CREATED_KEY,
+        models.DEFCONFIG_FULL_KEY,
+        models.DEFCONFIG_KEY,
+        models.DIRNAME_KEY,
+        models.ERRORS_KEY,
+        models.GIT_BRANCH_KEY,
+        models.GIT_COMMIT_KEY,
+        models.GIT_DESCRIBE_KEY,
+        models.ID_KEY,
+        models.JOB_ID_KEY,
+        models.JOB_KEY,
+        models.KCONFIG_FRAGMENTS_KEY,
+        models.KERNEL_CONFIG_KEY,
+        models.KERNEL_IMAGE_KEY,
+        models.KERNEL_KEY,
+        models.MODULES_DIR_KEY,
+        models.MODULES_KEY,
+        models.NAME_KEY,
+        models.STATUS_KEY,
+        models.SYSTEM_MAP_KEY,
+        models.TEXT_OFFSET_KEY,
+        models.WARNINGS_KEY,
+    ],
+    "POST": {
+        models.MANDATORY_KEYS: [
+            models.ARCHITECTURE_KEY,
+            models.DEFCONFIG_KEY,
+            models.JOB_KEY,
+            models.KERNEL_KEY
+        ],
+        models.ACCEPTED_KEYS: [
+            models.ARCHITECTURE_KEY,
+            models.DEFCONFIG_FULL_KEY,
+            models.DEFCONFIG_KEY,
+            models.JOB_KEY,
+            models.KERNEL_KEY,
+            models.VERSION_KEY
+        ]
+    }
+}
 
 
 # pylint: disable=too-many-instance-attributes
@@ -237,4 +284,26 @@ class DefconfigDocument(modb.BaseDocument):
 
     @staticmethod
     def from_json(json_obj):
-        return None
+        build_doc = None
+        if all([json_obj, isinstance(json_obj, types.DictionaryType)]):
+            local_obj = copy.deepcopy(json_obj)
+            doc_pop = local_obj.pop
+
+            doc_id = doc_pop(models.ID_KEY, None)
+            defconfig_full = doc_pop(models.DEFCONFIG_FULL_KEY, None)
+            doc_pop(models.NAME_KEY, None)
+            try:
+                job = doc_pop(models.JOB_KEY)
+                kernel = doc_pop(models.KERNEL_KEY)
+                defconfig = doc_pop(models.DEFCONFIG_KEY)
+
+                build_doc = DefconfigDocument(
+                    job, kernel, defconfig, defconfig_full)
+                build_doc.id = doc_id
+
+                for key, val in local_obj.iteritems():
+                    setattr(build_doc, key, val)
+            except KeyError:
+                # Missing mandatory key? Return None.
+                build_doc = None
+        return build_doc
