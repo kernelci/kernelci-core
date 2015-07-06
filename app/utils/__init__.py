@@ -34,6 +34,22 @@ BUILD_WARNINGS_FILE = "build-warnings.log"
 BUILD_MISMATCHES_FILE = "build-mismatches.log"
 
 
+def valid_name(name):
+    """Check if a job or kernel name is valid.
+
+    A valid name must not:
+    - start with a dot .
+    - contain a dollar $
+    - contain /
+
+    :return True or False
+    """
+    is_valid = True
+    if any([name.startswith("."), "$" in name, "/" in name]):
+        is_valid = False
+    return is_valid
+
+
 def is_hidden(value):
     """Verify if a file name or dir name is hidden (starts with .).
 

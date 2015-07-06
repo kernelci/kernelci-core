@@ -125,3 +125,17 @@ class TestBaseUtils(unittest.TestCase):
 
         utils.errors.update_errors(errors, {500: ["New message"]})
         self.assertDictEqual(expected, errors)
+
+    def test_valid_name(self):
+        self.assertTrue(utils.valid_name("foo"))
+        self.assertTrue(utils.valid_name("foo.bar"))
+        self.assertTrue(utils.valid_name("foo+bar"))
+        self.assertTrue(utils.valid_name("foo-bar"))
+        self.assertTrue(utils.valid_name("foo_bar"))
+        self.assertTrue(utils.valid_name("foo?bar"))
+        self.assertTrue(utils.valid_name("foo*bar"))
+
+        self.assertFalse(utils.valid_name("foo/bar"))
+        self.assertFalse(utils.valid_name(".foo/bar"))
+        self.assertFalse(utils.valid_name("$foobar"))
+        self.assertFalse(utils.valid_name("foo$bar"))
