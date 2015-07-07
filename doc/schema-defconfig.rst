@@ -27,10 +27,6 @@ POST
 The following schema covers the data that should be available in a build JSON
 data file sent to the server.
 
-The ``defconfig`` resource does not support POST requests. This schema is
-placed here as a reference document in order to provide correct data to the
-server.
-
 .. literalinclude:: schema/1.0/post_defconfig.json
     :language: json
 

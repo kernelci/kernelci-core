@@ -142,9 +142,65 @@ GET
 POST
 ****
 
-.. caution::
-    Not implemented. Will return a :ref:`status code <http_status_code>`
-    of ``501``.
+.. http:post:: /defconfig
+
+ Parse a single defconfig built from the provided data. The request will be accepted and it will begin to parse the data.
+
+ Before issuing a POST request on the defconfig resource, the data must have been uploaded
+ to the server. This resource is used to trigger the parsing of the data directly on the server.
+
+ For more info on all the required JSON data fields, see the :ref:`defconfig schema for POST requests <schema_defconfig_post>`.
+
+ :reqjson string job: The name of the job.
+ :reqjson string kernel: The name of the kernel.
+ :reqjson string defconfig: The name of the defconfig built.
+ :reqjson string arch: The architecture type.
+ :reqjson string defconfig_full: The full name of the defconfig (optional). Necessary if the defconfig built contained config fragments or other values.
+
+ :reqheader Authorization: The token necessary to authorize the request.
+ :reqheader Content-Type: Content type of the transmitted data, must be ``application/json``.
+ :reqheader Accept-Encoding: Accept the ``gzip`` coding.
+
+ :resheader Content-Type: Will be ``application/json; charset=UTF-8``.
+
+ :status 202: The request has been accepted and the resource will be created.
+ :status 400: JSON data not valid.
+ :status 403: Not authorized to perform the operation.
+ :status 415: Wrong content type.
+ :status 422: No real JSON data provided.
+
+ **Example Requests**
+
+ .. sourcecode:: http 
+
+    POST /defconfig HTTP/1.1
+    Host: api.kernelci.org
+    Content-Type: application/json
+    Accept: */*
+    Authorization: token
+
+    {
+        "job": "next",
+        "kernel": "next-20140706",
+        "defconfig": "tinyconfig",
+        "arch": "x86"
+    }
+
+ .. sourcecode:: http 
+
+    POST /defconfig HTTP/1.1
+    Host: api.kernelci.org
+    Content-Type: application/json
+    Accept: */*
+    Authorization: token
+
+    {
+        "job": "next",
+        "kernel": "next-20140706",
+        "defconfig": "multi_v7_defconfig",
+        "defconfig_full": "multi_v7_defconfig+CONFIG_CPU_BIG_ENDIAN=y",
+        "arch": "arm"
+    }
 
 DELETE
 ******
