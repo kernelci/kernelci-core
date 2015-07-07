@@ -266,14 +266,6 @@ VALID_BOOT_STATUS = [
     UNTRIED_STATUS,
 ]
 
-# Valid job status.
-VALID_JOB_STATUS = [
-    BUILD_STATUS,
-    FAIL_STATUS,
-    PASS_STATUS,
-    UNKNOWN_STATUS,
-]
-
 # Valid test case status.
 VALID_TEST_CASE_STATUS = [
     ERROR_STATUS,

@@ -164,35 +164,6 @@ COUNT_VALID_KEYS = {
     ],
 }
 
-DEFCONFIG_VALID_KEYS = {
-    "GET": [
-        models.ARCHITECTURE_KEY,
-        models.BUILD_LOG_KEY,
-        models.CREATED_KEY,
-        models.DEFCONFIG_FULL_KEY,
-        models.DEFCONFIG_KEY,
-        models.DIRNAME_KEY,
-        models.ERRORS_KEY,
-        models.GIT_BRANCH_KEY,
-        models.GIT_COMMIT_KEY,
-        models.GIT_DESCRIBE_KEY,
-        models.ID_KEY,
-        models.JOB_ID_KEY,
-        models.JOB_KEY,
-        models.KCONFIG_FRAGMENTS_KEY,
-        models.KERNEL_CONFIG_KEY,
-        models.KERNEL_IMAGE_KEY,
-        models.KERNEL_KEY,
-        models.MODULES_DIR_KEY,
-        models.MODULES_KEY,
-        models.NAME_KEY,
-        models.STATUS_KEY,
-        models.SYSTEM_MAP_KEY,
-        models.TEXT_OFFSET_KEY,
-        models.WARNINGS_KEY,
-    ],
-}
-
 TOKEN_VALID_KEYS = {
     "POST": [
         models.ADMIN_KEY,
@@ -254,22 +225,6 @@ SUBSCRIPTION_VALID_KEYS = {
     ],
     "DELETE": [
         models.EMAIL_KEY
-    ],
-}
-
-JOB_VALID_KEYS = {
-    "POST": [
-        models.JOB_KEY,
-        models.KERNEL_KEY
-    ],
-    "GET": [
-        models.CREATED_KEY,
-        models.ID_KEY,
-        models.JOB_KEY,
-        models.KERNEL_KEY,
-        models.NAME_KEY,
-        models.PRIVATE_KEY,
-        models.STATUS_KEY,
     ],
 }
 
