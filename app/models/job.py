@@ -21,6 +21,39 @@ import models
 import models.base as modb
 
 
+# Valid keys for the /job request handler.
+JOB_VALID_KEYS = {
+    "POST": {
+        models.MANDATORY_KEYS: [
+            models.JOB_KEY,
+            models.KERNEL_KEY
+        ],
+        models.ACCEPTED_KEYS: [
+            models.JOB_KEY,
+            models.KERNEL_KEY,
+            models.STATUS_KEY
+        ]
+    },
+    "GET": [
+        models.CREATED_KEY,
+        models.ID_KEY,
+        models.JOB_KEY,
+        models.KERNEL_KEY,
+        models.NAME_KEY,
+        models.PRIVATE_KEY,
+        models.STATUS_KEY,
+    ],
+}
+
+# Valid job status.
+VALID_JOB_STATUS = [
+    models.BUILD_STATUS,
+    models.FAIL_STATUS,
+    models.PASS_STATUS,
+    models.UNKNOWN_STATUS,
+]
+
+
 # pylint: disable=invalid-name
 class JobDocument(modb.BaseDocument):
     """This class represents a job as seen on the file system.
@@ -122,10 +155,10 @@ class JobDocument(modb.BaseDocument):
 
         :param value: The status.
         """
-        if value is not None and value not in models.VALID_JOB_STATUS:
+        if value is not None and value not in VALID_JOB_STATUS:
             raise ValueError(
                 "Status value '%s' not valid, should be one of: %s",
-                value, str(models.VALID_JOB_STATUS)
+                value, str(VALID_JOB_STATUS)
             )
         self._status = value
 
