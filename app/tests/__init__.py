@@ -24,6 +24,7 @@ def test_modules():
         "handlers.tests.test_bisect_handler",
         "handlers.tests.test_boot_handler",
         "handlers.tests.test_boot_trigger_handler",
+        "handlers.tests.test_build_logs_handler",
         "handlers.tests.test_count_handler",
         "handlers.tests.test_defconf_handler",
         "handlers.tests.test_handler_response",

@@ -19,6 +19,7 @@ import handlers.batch
 import handlers.bisect
 import handlers.boot
 import handlers.boot_trigger
+import handlers.build_logs
 import handlers.count
 import handlers.defconf
 import handlers.job
@@ -37,9 +38,12 @@ _JOB_URL = tornado.web.url(
     r"/job[s]?/?(?P<id>.*)", handlers.job.JobHandler, name="job"
 )
 _DEFCONF_URL = tornado.web.url(
-    r"/defconfig[s]?/?(?P<id>.*)",
-    handlers.defconf.DefConfHandler,
-    name="defconf"
+    r"/defconfig[s]?/?$", handlers.defconf.DefConfHandler, name="defconf"
+)
+_DEFCONF_ID_URL = tornado.web.url(
+    r"/defconfig[s]?/(?P<id>[A-Za-z0-9]{24})/?$",
+    handler=handlers.defconf.DefConfHandler,
+    name="defconfig-id"
 )
 _BOOT_URL = tornado.web.url(
     r"/boot[s]?/?(?P<id>.*)", handlers.boot.BootHandler, name="boot"
@@ -99,23 +103,30 @@ _BOOT_TRIGGER_URL = tornado.web.url(
     handlers.boot_trigger.BootTriggerHandler,
     name="boot-trigger"
 )
+_BUILD_LOGS_URL = tornado.web.url(
+    r"/defconfig[s]?/(?P<id>[A-Za-z0-9]{24})/logs/?$",
+    handlers.build_logs.BuildLogsHandler,
+    name="build-logs"
+)
 
 
 APP_URLS = [
     _BATCH_URL,
     _BISECT_URL,
+    _BOOT_TRIGGER_URL,
     _BOOT_URL,
+    _BUILD_LOGS_URL,
     _COUNT_URL,
+    _DEFCONF_ID_URL,
     _DEFCONF_URL,
     _JOB_URL,
     _LAB_URL,
-    _TOKEN_URL,
-    _VERSION_URL,
     _REPORT_URL,
-    _UPLOAD_URL,
     _SEND_URL,
-    _TEST_SUITE_URL,
-    _TEST_SET_URL,
     _TEST_CASE_URL,
-    _BOOT_TRIGGER_URL
+    _TEST_SET_URL,
+    _TEST_SUITE_URL,
+    _TOKEN_URL,
+    _UPLOAD_URL,
+    _VERSION_URL
 ]

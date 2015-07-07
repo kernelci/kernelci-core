@@ -23,6 +23,8 @@ except ImportError:
 import concurrent.futures
 import mock
 import mongomock
+import random
+import string
 import tornado
 import tornado.testing
 
@@ -52,6 +54,8 @@ class TestDefconfHandler(
 
         self.addCleanup(patched_find_token.stop)
         self.addCleanup(patched_validate_token.stop)
+        self.doc_id = "".join(
+            [random.choice(string.digits) for x in xrange(24)])
 
     def get_app(self):
         dboptions = {
@@ -67,7 +71,8 @@ class TestDefconfHandler(
             "debug": False,
         }
 
-        return tornado.web.Application([urls._DEFCONF_URL], **settings)
+        return tornado.web.Application(
+            [urls._DEFCONF_URL, urls._DEFCONF_ID_URL], **settings)
 
     def get_new_ioloop(self):
         return tornado.ioloop.IOLoop.instance()
@@ -103,7 +108,7 @@ class TestDefconfHandler(
         mock_collection.find_one.return_value = None
 
         headers = {"Authorization": "foo"}
-        response = self.fetch("/defconfig/defconf", headers=headers)
+        response = self.fetch("/defconfig/" + self.doc_id, headers=headers)
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
@@ -166,14 +171,27 @@ class TestDefconfHandler(
 
     def test_delete(self):
         db = self.mongodb_client["kernel-ci"]
-        db["defconfig"].insert(dict(_id="defconf", job_id="job"))
+        db["defconfig"].insert(dict(_id=self.doc_id, job_id="job"))
 
         headers = {"Authorization": "foo"}
 
         response = self.fetch(
-            "/defconfig/defconf", method="DELETE", headers=headers,
+            "/defconfig/" + self.doc_id, method="DELETE", headers=headers,
         )
 
         self.assertEqual(response.code, 200)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    @mock.patch("utils.db.delete")
+    def test_delete_not_found(self, mock_delete):
+        mock_delete.return_value = 404
+        headers = {"Authorization": "foo"}
+
+        response = self.fetch(
+            "/defconfig/" + self.doc_id, method="DELETE", headers=headers,
+        )
+
+        self.assertEqual(response.code, 404)
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
