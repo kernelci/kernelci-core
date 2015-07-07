@@ -17,6 +17,11 @@
         "kernel": {
             "type": "string",
             "description": "The kernel associated with this object"
+        },
+        "status": {
+            "type": "string",
+            "description": "The status this object should be set to",
+            "enum": ["PASS", "FAIL", "BUILD", "UNKNOWN"]
         }
     },
     "required": ["job", "kernel"]

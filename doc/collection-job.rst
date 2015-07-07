@@ -142,12 +142,13 @@ POST
 
 .. http:post:: /job
 
- Create or update a job as defined in the JSON data. The request will be accepted and it will begin to parse the data.
+ Update a job status once all builds have been imported.
 
  For more info on all the required JSON request fields, see the :ref:`job schema for POST requests <schema_job_post>`.
 
  :reqjson string job: The name of the job.
  :reqjson string kernel: The name of the kernel.
+ :reqjson string status: The status the job should be set to (optional). By default it will be set to ``PASS``.
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Content-Type: Content type of the transmitted data, must be ``application/json``.
@@ -155,11 +156,13 @@ POST
 
  :resheader Content-Type: Will be ``application/json; charset=UTF-8``.
 
- :status 202: The request has been accepted and is going to be created.
+ :status 200: The request has been processed.
  :status 400: JSON data not valid.
  :status 403: Not authorized to perform the operation.
+ :status 404: Document not found.
  :status 415: Wrong content type.
  :status 422: No real JSON data provided.
+ :status 500: Internal server error.
 
  **Example Requests**
 
@@ -173,7 +176,8 @@ POST
 
     {
         "job": "next",
-        "kernel": "next-20140801"
+        "kernel": "next-20140801",
+        "status": "FAIL"
     }
 
 DELETE
