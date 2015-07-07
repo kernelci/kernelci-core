@@ -170,7 +170,7 @@ class TestJobHandler(
         headers = {"Authorization": "foo"}
 
         response = self.fetch(
-            "/job/job", method="POST", body="", headers=headers)
+            "/job", method="POST", body="", headers=headers)
 
         self.assertEqual(response.code, 415)
         self.assertEqual(
@@ -181,22 +181,59 @@ class TestJobHandler(
         body = json.dumps(dict(foo="foo", bar="bar"))
 
         response = self.fetch(
-            "/job/job", method="POST", body=body, headers=headers)
+            "/job", method="POST", body=body, headers=headers)
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
-    @mock.patch("taskqueue.tasks.import_job")
-    def test_post_correct(self, mock_import_job):
-        mock_import_job.apply_async = mock.MagicMock()
+    @mock.patch("utils.db.find_and_update")
+    def test_post_correct(self, mock_find):
+        mock_find.retur_value = 200
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         body = json.dumps(dict(job="job", kernel="kernel"))
 
         response = self.fetch(
             "/job", method="POST", headers=headers, body=body)
 
-        self.assertEqual(response.code, 202)
+        self.assertEqual(response.code, 200)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    def test_post_wrong_status(self):
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+        body = json.dumps(dict(job="job", kernel="kernel", status="foo"))
+
+        response = self.fetch(
+            "/job", method="POST", headers=headers, body=body)
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    @mock.patch("utils.db.find_and_update")
+    def test_post_internal_error(self, mock_find):
+        mock_find.return_value = 500
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+        body = json.dumps(dict(job="job", kernel="kernel", status="FAIL"))
+
+        response = self.fetch(
+            "/job", method="POST", headers=headers, body=body)
+
+        self.assertEqual(response.code, 500)
+        self.assertEqual(
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+
+    @mock.patch("utils.db.find_and_update")
+    def test_post_not_found(self, mock_find):
+        mock_find.return_value = 404
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+        body = json.dumps(dict(job="job", kernel="kernel", status="FAIL"))
+
+        response = self.fetch(
+            "/job", method="POST", headers=headers, body=body)
+
+        self.assertEqual(response.code, 404)
         self.assertEqual(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
@@ -251,7 +288,7 @@ class TestJobHandler(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     @mock.patch("utils.db.delete")
-    @mock.patch("utils.db.find_one")
+    @mock.patch("utils.db.find_one2")
     @mock.patch("bson.objectid.ObjectId")
     def test_delete_db_error(self, mock_id, mock_find, mock_delete):
         mock_id.return_value = "job"

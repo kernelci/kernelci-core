@@ -16,13 +16,13 @@
 import bson
 
 import handlers.base as hbase
-import handlers.common as hcommon
 import handlers.response as hresponse
 import models
-import taskqueue.tasks as taskq
+import models.job as mjob
 import utils.db
 
 
+# pylint: disable=too-many-public-methods
 class JobHandler(hbase.BaseHandler):
     """Handle the /job URLs."""
 
@@ -35,25 +35,41 @@ class JobHandler(hbase.BaseHandler):
 
     @staticmethod
     def _valid_keys(method):
-        return hcommon.JOB_VALID_KEYS.get(method, None)
+        return mjob.JOB_VALID_KEYS.get(method, None)
 
     def _post(self, *args, **kwargs):
-        response = hresponse.HandlerResponse(202)
-        response.reason = "Request accepted and being imported"
+        response = hresponse.HandlerResponse()
 
-        json_obj = kwargs["json_obj"]
-        db_options = kwargs["db_options"]
+        job = kwargs["json_obj"].get(models.JOB_KEY)
+        kernel = kwargs["json_obj"].get(models.KERNEL_KEY)
+        status = kwargs["json_obj"].get(models.STATUS_KEY, None)
 
-        self.log.info(
-            "Importing defconfigs for %s-%s",
-            json_obj[models.JOB_KEY], json_obj[models.KERNEL_KEY])
+        if not status:
+            status = models.PASS_STATUS
 
-        taskq.import_job.apply_async(
-            [json_obj, db_options],
-            link=[
-                taskq.parse_build_log.s(json_obj, db_options)
-            ]
-        )
+        if all([status, status in mjob.VALID_JOB_STATUS]):
+            ret_val = utils.db.find_and_update(
+                self.collection,
+                {models.JOB_KEY: job, models.KERNEL_KEY: kernel},
+                {models.STATUS_KEY: status}
+            )
+
+            if ret_val == 404:
+                response.status_code = 404
+                response.reason = "Job '%s-%s' not found" % (job, kernel)
+            elif ret_val == 500:
+                response.status_code = 500
+                response.reason = (
+                    "Internal error while searching/updating job '%s-%s'" %
+                    (job, kernel))
+            else:
+                response.reason = \
+                    "Job '%s-%s' marked as '%s'" % (job, kernel, status)
+        else:
+            response.status_code = 400
+            response.reason = (
+                "Status value '%s' is not valid, should be one of: %s" %
+                (status, str(mjob.VALID_JOB_STATUS)))
 
         return response
 
@@ -74,10 +90,10 @@ class JobHandler(hbase.BaseHandler):
 
         try:
             job_obj = bson.objectid.ObjectId(job_id)
-            if utils.db.find_one(self.collection, [job_obj]):
+            if utils.db.find_one2(self.collection, {models.ID_KEY: job_obj}):
                 utils.db.delete(
                     self.db[models.DEFCONFIG_COLLECTION],
-                    {models.JOB_ID_KEY: {"$in": [job_obj]}}
+                    {models.JOB_ID_KEY: {"$eq": job_obj}}
                 )
 
                 response.status_code = utils.db.delete(
