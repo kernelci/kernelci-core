@@ -554,13 +554,9 @@ def parse_single_build_log(
     status = 200
     errors = {}
 
-    spec = {
-        models.ID_KEY: build_id
-    }
-    utils.LOG.info(spec)
     database = utils.db.get_db_connection(db_options)
     json_obj = utils.db.find_one2(
-        database[models.DEFCONFIG_COLLECTION], spec)
+        database[models.DEFCONFIG_COLLECTION], {models.ID_KEY: build_id})
 
     if json_obj:
         defconfig_doc = mdefconfig.DefconfigDocument.from_json(json_obj)
