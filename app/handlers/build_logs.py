@@ -19,6 +19,7 @@ import handlers.base as hbase
 import handlers.common as hcommon
 import handlers.response as hresponse
 import models
+import models.error_log as merrlog
 import utils.db
 
 
@@ -33,6 +34,10 @@ class BuildLogsHandler(hbase.BaseHandler):
     def collection(self):
         return self.db[models.ERROR_LOGS_COLLECTION]
 
+    @staticmethod
+    def _valid_keys(method):
+        return merrlog.ERROR_LOG_VALID_KEYS.get(method, None)
+
     def execute_delete(self, *args, **kwargs):
         """Not implemented."""
         return hresponse.HandlerResponse(501)
@@ -44,30 +49,6 @@ class BuildLogsHandler(hbase.BaseHandler):
     def execute_post(self, *args, **kwargs):
         """Not implemented."""
         return hresponse.HandlerResponse(501)
-
-    def execute_get(self, *args, **kwargs):
-        """This is the actual GET operation.
-
-        It is done in this way so that subclasses can implement a different
-        token authorization if necessary.
-        """
-        response = None
-        valid_token, token = self.validate_req_token("GET")
-
-        if valid_token:
-            kwargs["token"] = token
-            get_id = kwargs.get("id", None)
-
-            if get_id:
-                response = self._get_one(get_id, **kwargs)
-            else:
-                response = hresponse.HandlerResponse(400)
-                response.reason = "Must specify a build ID"
-        else:
-            response = hresponse.HandlerResponse(403)
-            response.reason = hcommon.NOT_VALID_TOKEN
-
-        return response
 
     def _get_one(self, doc_id, **kwargs):
         response = hresponse.HandlerResponse()

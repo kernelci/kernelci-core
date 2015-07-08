@@ -103,11 +103,14 @@ _BOOT_TRIGGER_URL = tornado.web.url(
     handlers.boot_trigger.BootTriggerHandler,
     name="boot-trigger"
 )
-_BUILD_LOGS_URL = tornado.web.url(
+_BUILD_ID_LOGS_URL = tornado.web.url(
     r"/defconfig[s]?/(?P<id>[A-Za-z0-9]{24})/logs/?$",
     handlers.build_logs.BuildLogsHandler,
-    name="build-logs"
+    name="build-id-logs"
 )
+_BUILD_LOGS_URL = tornado.web.url(
+    r"/defconfig[s]?/logs/?$",
+    handlers.build_logs.BuildLogsHandler, name="build-logs")
 
 
 APP_URLS = [
@@ -115,6 +118,7 @@ APP_URLS = [
     _BISECT_URL,
     _BOOT_TRIGGER_URL,
     _BOOT_URL,
+    _BUILD_ID_LOGS_URL,
     _BUILD_LOGS_URL,
     _COUNT_URL,
     _DEFCONF_ID_URL,
