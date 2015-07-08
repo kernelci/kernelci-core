@@ -19,6 +19,27 @@ import models
 import models.base as modb
 
 
+# Valid keys for API query parameters.
+ERROR_LOG_VALID_KEYS = {
+    "GET": [
+        models.ARCHITECTURE_KEY,
+        models.CREATED_KEY,
+        models.DEFCONFIG_FULL_KEY,
+        models.DEFCONFIG_ID_KEY,
+        models.DEFCONFIG_KEY,
+        models.ERRORS_COUNT_KEY,
+        models.JOB_ID_KEY,
+        models.JOB_KEY,
+        models.KERNEL_KEY,
+        models.MISMATCHES_COUNT_KEY,
+        models.NAME_KEY,
+        models.STATUS_KEY,
+        models.VERSION_KEY,
+        models.WARNINGS_COUNT_KEY
+    ]
+}
+
+
 class ErrorLogDocument(modb.BaseDocument):
     """Store log errors, warnings and other extracted values."""
 

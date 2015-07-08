@@ -488,7 +488,6 @@ class BaseHandler(tornado.web.RequestHandler):
 
         return spec, sort, fields, skip, limit, unique
 
-    # TODO: cache the validated token.
     def validate_req_token(self, method):
         """Validate the request token.
 
@@ -513,6 +512,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
         return valid_token, token
 
+    # TODO: cache token validation.
     def _token_validation(self, req_token, method, remote_ip, master_key):
         """Perform the real token validation.
 
@@ -538,7 +538,6 @@ class BaseHandler(tornado.web.RequestHandler):
 
         return valid_token, token
 
-    # TODO: cache the token from the DB.
     @staticmethod
     def _find_token(token, db_conn):
         """Find a token in the database.
