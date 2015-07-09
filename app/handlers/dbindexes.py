@@ -42,6 +42,7 @@ def ensure_indexes(client, db_options):
     _ensure_token_indexes(database)
     _ensure_lab_indexes(database)
     _ensure_bisect_indexes(database)
+    _ensure_error_logs_indexes(database)
 
 
 def _ensure_job_indexes(database):
@@ -184,5 +185,17 @@ def _ensure_bisect_indexes(database):
 
     collection.ensure_index(
         [(models.NAME_KEY, pymongo.DESCENDING)],
+        background=True
+    )
+
+
+def _ensure_error_logs_indexes(database):
+    """Ensure indexes exists for the 'error_logs' collection.
+
+    :param database: The database connection.
+    """
+    collection = database[models.ERROR_LOGS_COLLECTION]
+    collection.ensure_index(
+        [(models.defconfig_id, pymongo.DESCENDING)],
         background=True
     )
