@@ -1,0 +1,111 @@
+{
+    "$schema": "http://api.kernelci.org/json-schema/1.0/get_defconfig_logs.json",
+    "id": "http://api.kernelci.org/json-schema/1.0/get_defconfig_logs.json",
+    "title": "defconfig",
+    "description": "A defconfig as built by the continuous integration system",
+    "type": "object",
+    "properties": {
+        "version": {
+            "type": "string",
+            "description": "The version number of this JSON schema",
+            "enum": ["1.0"]
+        },
+        "name": {
+            "type": "object",
+            "description": "The ID of this object, coincided with the job_id value",
+            "properties": {
+                "$oid": {
+                    "type": "string",
+                    "description": "The actual ID value"
+                }
+            }
+        },
+        "_id": {
+            "type": "string",
+            "description": "The ID associated with the object"
+        },
+        "created_on": {
+            "type": "object",
+            "description": "Creation date of the object",
+            "properties": {
+                "$date": {
+                    "type": "number",
+                    "description": "Milliseconds from epoch time"
+                }
+            }
+        },
+        "job": {
+            "type": "string",
+            "description": "The job associated with this object"
+        },
+        "job_id": {
+            "type": "object",
+            "description": "The ID of the associated job",
+            "properties": {
+                "$oid": {
+                    "type": "string",
+                    "description": "The actual ID value"
+                }
+            }
+        },
+        "defconfig_id": {
+            "type": "object",
+            "description": "The ID of the associated defconfig",
+            "properties": {
+                "$oid": {
+                    "type": "string",
+                    "description": "The actual ID value"
+                }
+            }
+        },
+        "kernel": {
+            "type": "string",
+            "description": "The kernel associated with this object"
+        },
+        "defconfig": {
+            "type": "string",
+            "description": "The name of the defconfig as reported by the continuous integration system"
+        },
+        "defconfig_full": {
+            "type": "string",
+            "description": "The full name of the defconfig, can contain also config fragments information",
+            "default": "The defconfig value"
+        },
+        "status": {
+            "type": "string",
+            "description": "The status of the defconfig",
+            "enum": ["FAIL", "PASS", "UNKNOWN"]
+        },
+        "errors": {
+            "type": "array",
+            "description": "The list of error lines"
+        },
+        "errors_count": {
+            "type": "integer",
+            "description": "The number of errors",
+            "default": 0
+        },
+        "warnings": {
+            "type": "array",
+            "description": "The list of warning lines"
+        },
+        "warnings_count": {
+            "type": "integer",
+            "description": "The number of warnings",
+            "default": 0
+        },
+        "mismatches": {
+            "type": "array",
+            "description": "The list of mismatched lines"
+        },
+        "mismatches_count": {
+            "type": "integer",
+            "description": "The number of mismatches",
+            "default": 0
+        },
+        "arch": {
+            "type": "string",
+            "description": "The architecture of the defconfig built"
+        }
+    }
+}

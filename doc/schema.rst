@@ -8,6 +8,7 @@ Schema
 
     schema-job
     schema-defconfig
+    schema-defconfig-logs
     schema-boot
     schema-token
     schema-batch
