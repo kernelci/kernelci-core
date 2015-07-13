@@ -252,10 +252,9 @@ def _traverse_build_dir(
                 if c_date:
                     defconfig_doc.created_on = c_date
                 else:
-                    # Give the defconfig doc the same date as the job one.
-                    # In this way all defconfigs will have the same date
-                    # regardless of when they were saved on the file system.
-                    defconfig_doc.created_on = job_date
+                    # XXX: we used to give defconfig the job date.
+                    defconfig_doc.created_on = datetime.datetime.now(
+                        tz=bson.tz_util.utc)
 
                 if all([defconfig_doc, defconfig_doc.dtb_dir]):
                     defconfig_doc.dtb_dir_data = parse_dtb_dir(
