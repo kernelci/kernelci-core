@@ -26,6 +26,12 @@ import utils
 # out of range.
 DEFAULT_DATE_RANGE = 5
 
+# Default value to calculate a time range in case the provided one is not
+# valid.
+DEFAULT_TIME_RANGE = 60
+# Maximum time range possible, otherwise use a date_range value.
+MAX_TIME_RANGE = 60 * 24
+
 # All the available collections as key-value. The key is the same used for the
 # URL configuration.
 COLLECTIONS = {
@@ -661,7 +667,7 @@ def get_and_add_gte_lt_keys(spec, query_args_func, valid_keys):
     :type valid_keys: list
     """
     gte = query_args_func(models.GTE_KEY)
-    lt = query_args_func(models.LT_KEY)
+    less = query_args_func(models.LT_KEY)
     spec_get = spec.get
 
     if all([gte, isinstance(gte, types.ListType)]):
@@ -671,11 +677,11 @@ def get_and_add_gte_lt_keys(spec, query_args_func, valid_keys):
     elif gte and isinstance(gte, types.StringTypes):
         _parse_and_add_gte_lt_value(gte, "$gte", valid_keys, spec, spec_get)
 
-    if all([lt, isinstance(lt, types.ListType)]):
-        for arg in lt:
+    if all([less, isinstance(less, types.ListType)]):
+        for arg in less:
             _parse_and_add_gte_lt_value(arg, "$lt", valid_keys, spec, spec_get)
-    elif all([lt, isinstance(lt, types.StringTypes)]):
-        _parse_and_add_gte_lt_value(lt, "$lt", valid_keys, spec, spec_get)
+    elif all([less, isinstance(less, types.StringTypes)]):
+        _parse_and_add_gte_lt_value(less, "$lt", valid_keys, spec, spec_get)
 
 
 def _parse_and_add_gte_lt_value(
@@ -999,6 +1005,45 @@ def get_and_add_date_range(spec, query_args_func, created_on=None):
         previous = calculate_date_range(date_range, created_on)
 
         spec[models.CREATED_KEY] = {"$gte": previous, "$lt": today}
+    return spec
+
+
+def get_and_add_time_range(spec, query_args_func):
+    """Retrieve the `time_range` query from the request.
+
+    Add the retrieved `time_range` value into the provided `spec` data
+    structure.
+
+    :param spec: The dictionary where to store the key-value.
+    :type spec: dictionary
+    :param query_args_func: A function used to return a list of query
+    arguments.
+    :type query_args_func: function
+    :return The passed `spec` updated.
+    """
+    time_range = query_args_func(models.TIME_RANGE_KEY)
+
+    if time_range:
+        if isinstance(time_range, types.ListType):
+            time_range = time_range[-1]
+
+        if isinstance(time_range, types.StringTypes):
+            try:
+                time_range = int(time_range)
+            except ValueError:
+                # TODO: report error
+                utils.LOG.error(
+                    "Wrong value passed to time_range: %s", time_range)
+                time_range = DEFAULT_TIME_RANGE
+
+        time_range = abs(time_range)
+        if time_range > MAX_TIME_RANGE:
+            time_range = MAX_TIME_RANGE
+
+        delta = datetime.timedelta(minutes=time_range)
+        now = datetime.datetime.now(tzinfo=bson.tz_util.utc)
+        spec[models.CREATED_KEY] = {"$lt": now, "$gte": now - delta}
+
     return spec
 
 

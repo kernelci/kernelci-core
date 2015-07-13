@@ -34,19 +34,20 @@ from handlers.common import (
     get_all_query_values,
     get_and_add_date_range,
     get_and_add_gte_lt_keys,
+    get_and_add_time_range,
     get_compared_value,
     get_created_on_date,
     get_query_fields,
     get_query_sort,
-    get_trigger_query_values,
     get_query_spec,
     get_skip_and_limit,
+    get_trigger_query_values,
     update_id_fields,
     valid_token_bh,
     valid_token_general,
+    valid_token_tests,
     valid_token_th,
     valid_token_upload,
-    valid_token_tests,
     validate_token
 )
 from models.token import Token
@@ -517,6 +518,140 @@ class TestHandlersCommon(unittest.TestCase):
 
         get_and_add_date_range(spec, query_args_func, created_on)
         self.assertEqual(expected, spec)
+
+    def test_get_and_add_time_range(self):
+        def query_args_func(key):
+            args = {
+                "time_range": 10,
+            }
+            return args.get(key, [])
+
+        expected = {
+            "created_on": {
+                "$gte": datetime.datetime(
+                    2015, 7, 13, 12, 25, 00, tzinfo=tz_util.utc
+                ),
+                "$lt": datetime.datetime(
+                    2015, 7, 13, 12, 35, 00, tzinfo=tz_util.utc
+                )
+            }
+        }
+
+        now_value = datetime.datetime(
+            2015, 7, 13, 12, 35, 00, tzinfo=tz_util.utc)
+
+        patcher = mock.patch("datetime.datetime", spec=True)
+        patched_date = patcher.start()
+        patched_date.now.return_value = now_value
+        self.addCleanup(patcher.stop)
+
+        spec = {}
+
+        get_and_add_time_range(spec, query_args_func)
+        self.assertDictEqual(expected, spec)
+
+    def test_get_and_add_time_range_no_value(self):
+        def query_args_func(key):
+            return []
+
+        expected = {}
+        spec = {}
+
+        get_and_add_time_range(spec, query_args_func)
+        self.assertDictEqual(expected, spec)
+
+    def test_get_and_add_time_range_negative_value(self):
+        def query_args_func(key):
+            args = {
+                "time_range": -30,
+            }
+            return args.get(key, [])
+
+        expected = {
+            "created_on": {
+                "$gte": datetime.datetime(
+                    2015, 7, 13, 12, 5, 00, tzinfo=tz_util.utc
+                ),
+                "$lt": datetime.datetime(
+                    2015, 7, 13, 12, 35, 00, tzinfo=tz_util.utc
+                )
+            }
+        }
+
+        now_value = datetime.datetime(
+            2015, 7, 13, 12, 35, 00, tzinfo=tz_util.utc)
+
+        patcher = mock.patch("datetime.datetime", spec=True)
+        patched_date = patcher.start()
+        patched_date.now.return_value = now_value
+        self.addCleanup(patcher.stop)
+
+        spec = {}
+
+        get_and_add_time_range(spec, query_args_func)
+        self.assertDictEqual(expected, spec)
+
+    def test_get_and_add_time_range_too_big(self):
+        def query_args_func(key):
+            args = {
+                "time_range": 60 * 24 * 2,
+            }
+            return args.get(key, [])
+
+        expected = {
+            "created_on": {
+                "$gte": datetime.datetime(
+                    2015, 7, 12, 12, 35, 00, tzinfo=tz_util.utc
+                ),
+                "$lt": datetime.datetime(
+                    2015, 7, 13, 12, 35, 00, tzinfo=tz_util.utc
+                )
+            }
+        }
+
+        now_value = datetime.datetime(
+            2015, 7, 13, 12, 35, 00, tzinfo=tz_util.utc)
+
+        patcher = mock.patch("datetime.datetime", spec=True)
+        patched_date = patcher.start()
+        patched_date.now.return_value = now_value
+        self.addCleanup(patcher.stop)
+
+        spec = {}
+
+        get_and_add_time_range(spec, query_args_func)
+        self.assertDictEqual(expected, spec)
+
+    def test_get_and_add_time_range_list(self):
+        def query_args_func(key):
+            args = {
+                "time_range": [40, 10, 45],
+            }
+            return args.get(key, [])
+
+        expected = {
+            "created_on": {
+                "$gte": datetime.datetime(
+                    2015, 7, 13, 11, 50, 00, tzinfo=tz_util.utc
+                ),
+                "$lt": datetime.datetime(
+                    2015, 7, 13, 12, 35, 00, tzinfo=tz_util.utc
+                )
+            }
+        }
+
+        now_value = datetime.datetime(
+            2015, 7, 13, 12, 35, 00, tzinfo=tz_util.utc)
+
+        patcher = mock.patch("datetime.datetime", spec=True)
+        patched_date = patcher.start()
+        patched_date.now.return_value = now_value
+        self.addCleanup(patcher.stop)
+
+        spec = {}
+
+        get_and_add_time_range(spec, query_args_func)
+        self.assertDictEqual(expected, spec)
 
     def test_get_created_on_date_missing(self):
         def query_args_func(key):
