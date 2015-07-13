@@ -653,6 +653,37 @@ class TestHandlersCommon(unittest.TestCase):
         get_and_add_time_range(spec, query_args_func)
         self.assertDictEqual(expected, spec)
 
+    def test_get_and_add_time_range_less_than_min(self):
+        def query_args_func(key):
+            args = {
+                "time_range": 5
+            }
+            return args.get(key, [])
+
+        expected = {
+            "created_on": {
+                "$gte": datetime.datetime(
+                    2015, 7, 13, 12, 25, 00, tzinfo=tz_util.utc
+                ),
+                "$lt": datetime.datetime(
+                    2015, 7, 13, 12, 35, 00, tzinfo=tz_util.utc
+                )
+            }
+        }
+
+        now_value = datetime.datetime(
+            2015, 7, 13, 12, 35, 00, tzinfo=tz_util.utc)
+
+        patcher = mock.patch("datetime.datetime", spec=True)
+        patched_date = patcher.start()
+        patched_date.now.return_value = now_value
+        self.addCleanup(patcher.stop)
+
+        spec = {}
+
+        get_and_add_time_range(spec, query_args_func)
+        self.assertDictEqual(expected, spec)
+
     def test_get_created_on_date_missing(self):
         def query_args_func(key):
             args = {}

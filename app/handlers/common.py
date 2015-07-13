@@ -31,6 +31,7 @@ DEFAULT_DATE_RANGE = 5
 DEFAULT_TIME_RANGE = 60
 # Maximum time range possible, otherwise use a date_range value.
 MAX_TIME_RANGE = 60 * 24
+MIN_TIME_RANGE = 10
 
 # All the available collections as key-value. The key is the same used for the
 # URL configuration.
@@ -1039,6 +1040,8 @@ def get_and_add_time_range(spec, query_args_func):
         time_range = abs(time_range)
         if time_range > MAX_TIME_RANGE:
             time_range = MAX_TIME_RANGE
+        if time_range < MIN_TIME_RANGE:
+            time_range = MIN_TIME_RANGE
 
         delta = datetime.timedelta(minutes=time_range)
         now = datetime.datetime.now(tzinfo=bson.tz_util.utc)
