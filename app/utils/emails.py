@@ -116,7 +116,7 @@ def send_email(to_addrs,
     msg["To"] = to_str.encode("utf-8")
 
     if sender_desc:
-        from_str = u"{:s} {:s}".format(sender_desc, from_addr)
+        from_str = u"{:s} <{:s}>".format(sender_desc, from_addr)
     else:
         from_str = from_addr
 
