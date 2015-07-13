@@ -127,6 +127,26 @@ date at ``23:59 UTC`` to ``00:00 UTC`` of the range date. Internally it will be 
         }
     }
 
+When using the ``time_range`` parameter in a query:
+
+.. sourcecode:: http
+
+    GET /trigger/boot?time_range=10 HTTP/1.1
+
+The number indicates the minutes of data to consider starting from todays's date
+at UTC time. A value of 30 means to consider the data in the last 10 minutes.
+Internally it will be converted in a timedelta structure: ::
+
+    {
+        "created_on": {
+            "$lt": {"$date": 1436793000000},
+            "$gte": {"$date": 1436792400000}
+        }
+    }
+
+
+1407369600000
+
 Ranged Searches
 ***************
 

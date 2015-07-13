@@ -57,6 +57,9 @@ GET
  :query string git_branch: The name of the git branch.
  :query string git_commit: The git commit SHA.
  :query string git_describe: The git describe value.
+ :query string time_range: Minutes of data to consider, in UTC time
+    (:ref:`more info <intro_schema_time_date>`). Minimum value is 10 minutes, maximum
+    is 60 * 24.
 
  :status 200: Results found.
  :status 403: Not authorized to perform the operation.
