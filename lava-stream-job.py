@@ -189,28 +189,6 @@ class Config(object):
         self.config_sources.insert(0, config_source)
 
 
-    def has_enough_config(self):
-        return (self.get('username') and
-                self.get('token') and
-                self.get('server'))
-
-
-    def construct_url(self):
-        if not self.has_enough_config():
-            raise Exception("Not enough configuration to construct the URL")
-
-        url = urlparse.urlparse(self.get('server'))
-
-        if not url.path.endswith(('/RPC2', '/RPC2/')):
-            print "LAVA Server URL must end with /RPC2 or /RPC2/"
-            exit(1)
-
-        return (url.scheme + '://' +
-                self.get('username') + ':' +
-                self.get('token') +
-                '@' + url.netloc + url.path)
-
-
     def get(self, variable_name):
         for config_source in self.config_sources:
             method_name = 'get_%s' % variable_name
@@ -333,14 +311,14 @@ def handle_connection(func):
 
 
 class LavaConnection(object):
-    def __init__(self, configuration):
-        self.configuration = configuration
+    def __init__(self, config):
+        self.config = config
         self.connection = None
 
 
     @handle_connection
     def connect(self):
-        url = self.configuration.construct_url()
+        url = self.construct_url()
         print "Connecting to Server with URL '%s'" % url
 
         self.connection = xmlrpclib.ServerProxy(url)
@@ -367,6 +345,28 @@ class LavaConnection(object):
     @handle_connection
     def cancel_job(self, job_id):
         return self.connection.scheduler.cancel_job(job_id)
+
+
+    def has_enough_config(self):
+        return (self.config.get('username') and
+                self.config.get('token') and
+                self.config.get('server'))
+
+
+    def construct_url(self):
+        if not self.has_enough_config():
+            raise Exception("Not enough configuration to construct the URL")
+
+        url = urlparse.urlparse(self.config.get('server'))
+
+        if not url.path.endswith(('/RPC2', '/RPC2/')):
+            print "LAVA Server URL must end with /RPC2 or /RPC2/"
+            exit(1)
+
+        return (url.scheme + '://' +
+                self.config.get('username') + ':' +
+                self.config.get('token') +
+                '@' + url.netloc + url.path)
 
 
 class LavaRunJob(object):
