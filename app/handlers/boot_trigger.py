@@ -209,6 +209,7 @@ class BootTriggerHandler(hbase.BaseHandler):
             spec, sort, fields, skip, limit, compared = \
                 hcommon.get_trigger_query_values(
                     self.get_query_arguments, self._valid_keys(method))
+            hcommon.get_and_add_time_range(spec, self.get_query_arguments)
 
         return spec, sort, fields, skip, limit, compared
 
