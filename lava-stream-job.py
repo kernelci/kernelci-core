@@ -190,28 +190,28 @@ class Config(object):
 
 
     def has_enough_config(self):
-        return (self.get_config_variable('username') and
-                self.get_config_variable('token') and
-                self.get_config_variable('server'))
+        return (self.get('username') and
+                self.get('token') and
+                self.get('server'))
 
 
     def construct_url(self):
         if not self.has_enough_config():
             raise Exception("Not enough configuration to construct the URL")
 
-        url = urlparse.urlparse(self.get_config_variable('server'))
+        url = urlparse.urlparse(self.get('server'))
 
         if not url.path.endswith(('/RPC2', '/RPC2/')):
             print "LAVA Server URL must end with /RPC2 or /RPC2/"
             exit(1)
 
         return (url.scheme + '://' +
-                self.get_config_variable('username') + ':' +
-                self.get_config_variable('token') +
+                self.get('username') + ':' +
+                self.get('token') +
                 '@' + url.netloc + url.path)
 
 
-    def get_config_variable(self, variable_name):
+    def get(self, variable_name):
         for config_source in self.config_sources:
             method_name = 'get_%s' % variable_name
             if hasattr(config_source, method_name):
@@ -495,9 +495,9 @@ def get_config(args):
     except IOError:
         pass
     config.add_config_override(ArgumentParser(args))
-    if not config.get_config_variable('token'):
-        server = config.get_config_variable('server')
-        username = config.get_config_variable('username')
+    if not config.get('token'):
+        server = config.get('server')
+        username = config.get('username')
         if server and username:
             token = keyring.core.get_password("lava-tool-%s" % server, username)
             config.add_config_override(ArgumentParser({'token': token}))
@@ -508,7 +508,7 @@ def main(args):
     lava_connection = LavaConnection(config)
 
     lava_job = LavaRunJob(lava_connection,
-                          config.get_config_variable('job'),
+                          config.get('job'),
                           2)
     lava_job.connect()
 
