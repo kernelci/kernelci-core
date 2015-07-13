@@ -17,13 +17,12 @@ import bson
 import datetime
 import types
 
-import handlers.common as hcommon
 import handlers.response as hresponse
 import handlers.test_base as htbase
 import models
 import models.test_set as mtset
-import utils.db
 import taskqueue.tasks as taskq
+import utils.db
 
 
 # pylint: disable=too-many-public-methods
@@ -39,7 +38,7 @@ class TestSetHandler(htbase.TestBaseHandler):
 
     @staticmethod
     def _valid_keys(method):
-        return hcommon.TEST_SET_VALID_KEYS.get(method, None)
+        return models.TEST_SET_VALID_KEYS.get(method, None)
 
     def _post(self, *args, **kwargs):
         response = hresponse.HandlerResponse()

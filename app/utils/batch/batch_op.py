@@ -16,7 +16,6 @@
 import handlers.common as hcommon
 import handlers.count as hcount
 import models
-import models.defconfig as mdefconfig
 import utils
 import utils.db
 
@@ -210,7 +209,7 @@ class BatchBootOperation(BatchOperation):
     def __init__(self, collection, database, operation_id=None):
         super(BatchBootOperation, self).__init__(
             collection, database, operation_id)
-        self.valid_keys = hcommon.BOOT_VALID_KEYS
+        self.valid_keys = models.BOOT_VALID_KEYS
 
 
 class BatchJobOperation(BatchOperation):
@@ -219,7 +218,7 @@ class BatchJobOperation(BatchOperation):
     def __init__(self, collection, database, operation_id=None):
         super(BatchJobOperation, self).__init__(
             collection, database, operation_id)
-        self.valid_keys = hcommon.JOB_VALID_KEYS
+        self.valid_keys = models.JOB_VALID_KEYS
 
 
 class BatchDefconfigOperation(BatchOperation):
@@ -228,7 +227,7 @@ class BatchDefconfigOperation(BatchOperation):
     def __init__(self, collection, database, operation_id=None):
         super(BatchDefconfigOperation, self).__init__(
             collection, database, operation_id)
-        self.valid_keys = mdefconfig.DEFCONFIG_VALID_KEYS
+        self.valid_keys = models.DEFCONFIG_VALID_KEYS
 
 
 class BatchCountOperation(BatchOperation):
@@ -237,7 +236,7 @@ class BatchCountOperation(BatchOperation):
     def __init__(self, collection, database, operation_id=None):
         super(BatchCountOperation, self).__init__(
             collection, database, operation_id)
-        self.valid_keys = hcommon.COUNT_VALID_KEYS
+        self.valid_keys = models.COUNT_VALID_KEYS
 
     def _prepare_get_operation(self):
         if self.document_id:

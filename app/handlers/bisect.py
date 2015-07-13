@@ -48,7 +48,7 @@ class BisectHandler(hbase.BaseHandler):
         :type str
         :return A list of keys that the method accepts.
         """
-        return hcommon.BISECT_VALID_KEYS.get(method, None)
+        return models.BISECT_VALID_KEYS.get(method, None)
 
     def execute_get(self, *args, **kwargs):
         """This is the actual GET operation.

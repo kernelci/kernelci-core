@@ -15,7 +15,6 @@
 
 import bson
 
-import handlers.common as hcommon
 import handlers.response as hresponse
 import handlers.test_base as htbase
 import models
@@ -36,7 +35,7 @@ class TestCaseHandler(htbase.TestBaseHandler):
 
     @staticmethod
     def _valid_keys(method):
-        return hcommon.TEST_CASE_VALID_KEYS.get(method, None)
+        return models.TEST_CASE_VALID_KEYS.get(method, None)
 
     def _post(self, *args, **kwargs):
         response = hresponse.HandlerResponse()

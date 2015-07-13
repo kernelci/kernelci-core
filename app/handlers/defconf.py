@@ -16,7 +16,6 @@
 import handlers.base as hbase
 import handlers.response as hresponse
 import models
-import models.defconfig as mdefconfig
 import taskqueue.tasks as taskq
 import utils.db
 
@@ -33,7 +32,7 @@ class DefConfHandler(hbase.BaseHandler):
 
     @staticmethod
     def _valid_keys(method):
-        return mdefconfig.DEFCONFIG_VALID_KEYS.get(method, None)
+        return models.DEFCONFIG_VALID_KEYS.get(method, None)
 
     def _post(self, *args, **kwargs):
         response = hresponse.HandlerResponse(202)

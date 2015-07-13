@@ -31,7 +31,7 @@ class ReportHandler(hbase.BaseHandler):
 
     @staticmethod
     def _valid_keys(method):
-        return hcommon.REPORT_VALID_KEYS.get(method, None)
+        return models.REPORT_VALID_KEYS.get(method, None)
 
     @staticmethod
     def _token_validation_func():

@@ -18,13 +18,13 @@ import datetime
 import urlparse
 
 import handlers.base
-import handlers.common
+import handlers.common as hcommon
 import handlers.response as hresponse
 import models
 import models.lab as mlab
 import models.token as mtoken
-import utils.validator as validator
 import utils.db
+import utils.validator as validator
 
 
 # pylint: disable=too-many-public-methods
@@ -40,11 +40,11 @@ class LabHandler(handlers.base.BaseHandler):
 
     @staticmethod
     def _valid_keys(method):
-        return handlers.common.LAB_VALID_KEYS.get(method, None)
+        return models.LAB_VALID_KEYS.get(method, None)
 
     @staticmethod
     def _token_validation_func():
-        return handlers.common.valid_token_th
+        return hcommon.valid_token_th
 
     def _post(self, *args, **kwargs):
         response = hresponse.HandlerResponse(201)
@@ -327,7 +327,7 @@ class LabHandler(handlers.base.BaseHandler):
                     response = hresponse.HandlerResponse(400)
                     response.reason = "Wrong ID value provided"
             else:
-                spec = handlers.common.get_query_spec(
+                spec = hcommon.get_query_spec(
                     self.get_query_arguments, self._valid_keys("DELETE"))
                 if spec:
                     response = self._delete(spec)
@@ -340,7 +340,7 @@ class LabHandler(handlers.base.BaseHandler):
                         "No valid data provided to execute a DELETE")
         else:
             response = hresponse.HandlerResponse(403)
-            response.reason = handlers.common.NOT_VALID_TOKEN
+            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 

@@ -16,7 +16,6 @@
 import bson
 
 import handlers.base as hbase
-import handlers.common as hcommon
 import handlers.response as hresponse
 import models
 import taskqueue.tasks as taskq
@@ -35,7 +34,7 @@ class JobHandler(hbase.BaseHandler):
 
     @staticmethod
     def _valid_keys(method):
-        return hcommon.JOB_VALID_KEYS.get(method, None)
+        return models.JOB_VALID_KEYS.get(method, None)
 
     def _post(self, *args, **kwargs):
         response = hresponse.HandlerResponse(202)

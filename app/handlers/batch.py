@@ -35,7 +35,7 @@ class BatchHandler(hbase.BaseHandler):
 
     @staticmethod
     def _valid_keys(method):
-        return hcommon.BATCH_VALID_KEYS.get(method, None)
+        return models.BATCH_VALID_KEYS.get(method, None)
 
     def execute_get(self):
         return hresponse.HandlerResponse(501)
