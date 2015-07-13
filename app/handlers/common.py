@@ -623,6 +623,7 @@ def get_trigger_query_values(query_args_func, valid_keys):
 
     get_and_add_date_range(spec, query_args_func, created_on)
     get_and_add_gte_lt_keys(spec, query_args_func, valid_keys)
+    get_and_add_time_range(spec, query_args_func)
     update_id_fields(spec)
 
     sort = get_query_sort(query_args_func)
