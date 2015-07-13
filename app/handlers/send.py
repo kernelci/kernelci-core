@@ -112,8 +112,9 @@ class SendHandler(hbase.BaseHandler):
                     "generic_cc_emails": j_get(models.REPORT_CC_KEY, None),
                     "generic_bcc_emails": j_get(models.REPORT_BCC_KEY, None),
                     "in_reply_to": j_get(models.IN_REPLY_TO_KEY, None),
+                    "subject": j_get(models.SUBJECT_KEY, None),
                     "db_options": self.settings["dboptions"],
-                    "mail_options": self.settings["mailoptions"]
+                    "mail_options": self.settings["mailoptions"],
                 }
 
                 if send_boot:
@@ -188,7 +189,8 @@ class SendHandler(hbase.BaseHandler):
                 kwargs={
                     "cc": cc_addrs,
                     "bcc": bcc_addrs,
-                    "in_reply_to": s_get("in_reply_to")
+                    "in_reply_to": s_get("in_reply_to"),
+                    "subject": s_get("subject")
                 },
                 countdown=s_get("countdown")
             )
@@ -242,7 +244,8 @@ class SendHandler(hbase.BaseHandler):
                 kwargs={
                     "cc": cc_addrs,
                     "bcc": bcc_addrs,
-                    "in_reply_to": s_get("in_reply_to")
+                    "in_reply_to": s_get("in_reply_to"),
+                    "subject": s_get("subject")
                 },
                 countdown=s_get("countdown")
             )

@@ -230,13 +230,14 @@ def defconfig_bisect_compared_to(doc_id, compare_to, db_options, fields=None):
     acks_late=True,
     track_started=True,
     ignore_result=False)
-def send_boot_report(job,
-                     kernel,
-                     lab_name,
-                     email_format,
-                     to_addrs,
-                     db_options,
-                     mail_options, cc=None, bcc=None, in_reply_to=None):
+def send_boot_report(
+        job,
+        kernel,
+        lab_name,
+        email_format,
+        to_addrs,
+        db_options,
+        mail_options, cc=None, bcc=None, in_reply_to=None, subject=None):
     """Create the boot report email and send it.
 
     :param job: The job name.
@@ -259,17 +260,22 @@ def send_boot_report(job,
     :type bcc: list
     :param in_reply_to: The ID of the message this email is a reply to.
     :type in_reply_to: string
+    :param subject: The subject string to use.
+    :type subject: string.
     """
     utils.LOG.info("Preparing boot report email for '%s-%s'", job, kernel)
     status = "ERROR"
 
-    txt_body, html_body, subject, headers = \
+    txt_body, html_body, new_subject, headers = \
         utils.report.boot.create_boot_report(
             job,
             kernel,
             lab_name,
             email_format, db_options=db_options, mail_options=mail_options
         )
+
+    if not subject:
+        subject = new_subject
 
     if all([any([txt_body, html_body]), subject]):
         utils.LOG.info("Sending boot report email for '%s-%s'", job, kernel)
@@ -296,12 +302,13 @@ def send_boot_report(job,
     acks_late=True,
     track_started=True,
     ignore_result=False)
-def send_build_report(job,
-                      kernel,
-                      email_format,
-                      to_addrs,
-                      db_options,
-                      mail_options, cc=None, bcc=None, in_reply_to=None):
+def send_build_report(
+        job,
+        kernel,
+        email_format,
+        to_addrs,
+        db_options,
+        mail_options, cc=None, bcc=None, in_reply_to=None, subject=None):
     """Create the build report email and send it.
 
     :param job: The job name.
@@ -322,11 +329,13 @@ def send_build_report(job,
     :type bcc: list
     :param in_reply_to: The ID of the message this email is a reply to.
     :type in_reply_to: string
+    :param subject: The subject string to use.
+    :type subject: string
     """
     utils.LOG.info("Preparing build report email for '%s-%s'", job, kernel)
     status = "ERROR"
 
-    txt_body, html_body, subject, headers = \
+    txt_body, html_body, new_subject, headers = \
         utils.report.build.create_build_report(
             job,
             kernel,
@@ -334,6 +343,9 @@ def send_build_report(job,
             db_options=db_options,
             mail_options=mail_options
         )
+
+    if not subject:
+        subject = new_subject
 
     if all([any([txt_body, html_body]), subject]):
         utils.LOG.info("Sending build report email for '%s-%s'", job, kernel)

@@ -77,6 +77,10 @@
             "description": "The format of the email",
             "enum": ["txt", "html"],
             "default": ["txt"]
+        },
+        "subject": {
+            "type": "string",
+            "description": "The subject for the email: overrides the default one. If sending both boot and build reports, the same subject will be used for both emails. "
         }
     },
     "required": ["job", "kernel"]

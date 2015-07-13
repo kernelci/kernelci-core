@@ -188,7 +188,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
                 ["test@example.org"], self.dboptions, self.mailoptions
             ],
             countdown=60*60,
-            kwargs={"cc": [], "bcc": [], "in_reply_to": None}
+            kwargs={"cc": [], "bcc": [], "in_reply_to": None, "subject": None}
         )
 
     def test_post_wrong_delay(self):
@@ -235,7 +235,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
                 ["test@example.org"], self.dboptions, self.mailoptions
             ],
             countdown=100,
-            kwargs={"cc": [], "bcc": [], "in_reply_to": None}
+            kwargs={"cc": [], "bcc": [], "in_reply_to": None, "subject": None}
         )
 
     @mock.patch("taskqueue.tasks.send_boot_report")
@@ -265,7 +265,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
                 ["test@example.org"], self.dboptions, self.mailoptions
             ],
             countdown=18000,
-            kwargs={"cc": [], "bcc": [], "in_reply_to": None}
+            kwargs={"cc": [], "bcc": [], "in_reply_to": None, "subject": None}
         )
 
     @mock.patch("taskqueue.tasks.send_build_report")
@@ -294,7 +294,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
                 ["test@example.org"], self.dboptions, self.mailoptions
             ],
             countdown=60*60,
-            kwargs={"cc": [], "bcc": [], "in_reply_to": None}
+            kwargs={"cc": [], "bcc": [], "in_reply_to": None, "subject": None}
         )
 
     def test_post_build_report_no_email(self):
@@ -316,7 +316,8 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
     @mock.patch("taskqueue.tasks.send_build_report")
     @mock.patch("taskqueue.tasks.send_boot_report")
-    def test_post_build_boot_report_correct(self, mock_boot, mock_build):
+    def test_post_build_boot_report_correct_with_subject(
+            self, mock_boot, mock_build):
         mock_build.apply_async = mock.MagicMock()
         mock_boot.apply_async = mock.MagicMock()
         headers = {
@@ -329,7 +330,8 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             build_report=1,
             boot_report=1,
             build_send_to="test@example.org",
-            boot_send_to="test2@example.org"
+            boot_send_to="test2@example.org",
+            subject="A fake subject"
         )
         body = json.dumps(data)
         response = self.fetch(
@@ -346,7 +348,10 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
                 ["test2@example.org"], self.dboptions, self.mailoptions
             ],
             countdown=60*60,
-            kwargs={"cc": [], "bcc": [], "in_reply_to": None}
+            kwargs={
+                "cc": [],
+                "bcc": [], "in_reply_to": None, "subject": "A fake subject"
+            }
         )
         mock_build.apply_async.assert_called_with(
             [
@@ -356,7 +361,10 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
                 ["test@example.org"], self.dboptions, self.mailoptions
             ],
             countdown=60*60,
-            kwargs={"cc": [], "bcc": [], "in_reply_to": None}
+            kwargs={
+                "cc": [],
+                "bcc": [], "in_reply_to": None, "subject": "A fake subject"
+            }
         )
 
     def test_get_email_addresses_no_addresses(self):

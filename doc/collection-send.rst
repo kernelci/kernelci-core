@@ -44,6 +44,7 @@ POST
  :reqjson string in_reply_to: The message ID the email report should be a reply to.
  :reqjson int delay: Number of seconds after which the email report will be sent. Default to 60*60 seconds (1 hour) with a maximum value of 60*60*5 (5 hours).
  :reqjson array format: The format of the email to send. Accepted values are **txt** and **html**.
+ :reqjson string subject: The subject for the email: overrides the default one. If sending both boot and build reports, the same subject will be used for both emails.
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Content-Type: Content type of the transmitted data, must be ``application/json``.

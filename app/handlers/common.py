@@ -353,7 +353,8 @@ SEND_VALID_KEYS = {
             models.REPORT_CC_KEY,
             models.REPORT_SEND_TO_KEY,
             models.SEND_BOOT_REPORT_KEY,
-            models.SEND_BUILD_REPORT_KEY
+            models.SEND_BUILD_REPORT_KEY,
+            models.SUBJECT_KEY
         ]
     }
 }
