@@ -277,9 +277,11 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("username", help="username for the LAVA server")
-    parser.add_argument("token", help="token for LAVA server api")
-    parser.add_argument("server", help="server url for LAVA server")
+    parser.add_argument("--config", help="configuration for the LAVA server")
+    parser.add_argument("--section", default="default", help="section in the LAVA config file")
+    parser.add_argument("--username", help="username for the LAVA server")
+    parser.add_argument("--token", help="token for LAVA server api")
+    parser.add_argument("--server", help="server url for LAVA server")
     parser.add_argument("--stream", help="bundle stream for LAVA server")
     parser.add_argument("--repo", help="git repo for LAVA jobs")
     parser.add_argument("--poll", help="poll the submitted LAVA jobs, dumps info into specified json")

@@ -15,11 +15,12 @@ class Configuration(object):
 
     def get(self, variable_name):
         for config_source in self.config_sources:
-            method_name = 'get_%s' % variable_name
-            if hasattr(config_source, method_name):
-                variable = getattr(config_source, method_name)()
-                if variable:
-                    return variable
+            var = config_source.get(variable_name)
+            if var:
+                #print 'Found variable "%s" in source %s' % (variable_name,
+                #        config_source.__class__.__name__)
+                return var
+
 
     def add_token_from_keyring(self):
         server = self.get('server')
@@ -31,27 +32,25 @@ class Configuration(object):
 
 class EnvConfigParser(object):
     def __init__(self):
-        self.username = None
-        self.token = None
-        self.server = None
+        self.variables = dict()
+        self.trans = {
+                "username": "LAVA_USER",
+                "server": "LAVA_SERVER",
+                "token": "LAVA_TOKEN"
+                }
 
 
-    def get_username(self):
-        if self.username: return self.username
+    def get(self, variable):
+        if not variable in self.trans:
+            return None
 
-        self.username = os.environ.get('LAVA_USER', None)
+        if variable in self.variables: return self.variables.get(variable)
 
+        trans_var = self.trans.get(variable)
+        resp = os.environ.get(trans_var, None)
+        self.variables[variable] = resp
+        return resp
 
-    def get_token(self):
-        if self.token: return self.token
-
-        self.token = os.environ.get('LAVA_TOKEN', None)
-
-
-    def get_server(self):
-        if self.server: return self.server
-
-        self.server = os.environ.get('LAVA_SERVER', None)
 
 
 class FileConfigParser(object):
@@ -63,60 +62,28 @@ class FileConfigParser(object):
 
         self.config_parser.readfp(open(self.filename))
 
-        self.username = None
-        self.token = None
-        self.server = None
+        self.variables = dict()
 
 
-    def get_username(self):
-        if self.username: return self.username
-
-        if self.config_parser:
-            if self.config_parser.has_option(self.section, 'username'):
-                self.username = self.config_parser.get(self.section, 'username')
-        return self.username
-
-
-    def get_token(self):
-        if self.token: return self.token
+    def get(self, variable):
+        if variable in self.variables:
+            return self.variables.get(variable)
 
         if self.config_parser:
-            if self.config_parser.has_option(self.section, 'token'):
-                self.token = self.config_parser.get(self.section, 'token')
-        return self.token
+            if self.config_parser.has_option(self.section, variable):
+                resp = self.config_parser.get(self.section, variable)
+                self.variables[variable] = resp
+                return resp
 
-
-    def get_server(self):
-        if self.server: return self.server
-
-        if self.config_parser:
-            if self.config_parser.has_option(self.section, 'server'):
-                self.server = self.config_parser.get(self.section, 'server')
-        return self.server
+        return None
 
 
 class ArgumentParser(object):
     def __init__(self, args):
-        self.username = args.get('username')
-        self.token = args.get('token')
-        self.server = args.get('server')
-        self.job = args.get('job')
+        self.args = args
 
-
-    def get_username(self):
-        return self.username
-
-
-    def get_token(self):
-        return self.token
-
-
-    def get_server(self):
-        return self.server
-
-
-    def get_job(self):
-        return self.job
+    def get(self, variable):
+        return self.args.get(variable)
 
 
 def get_config(args):
