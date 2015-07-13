@@ -25,8 +25,8 @@ import curses
 import re
 import keyring.core
 
-from text_output import TextBlock
 from lib import configuration
+from lib import text_output
 
 
 class FileOutputHandler(object):
@@ -70,7 +70,7 @@ class FileOutputHandler(object):
 class CursesOutput(object):
     def __init__(self, outputter, interval, follow=True):
         self.outputter = outputter
-        self.textblock = TextBlock()
+        self.textblock = text_output.TextBlock()
         self.interval = interval
         self.follow = follow
 
