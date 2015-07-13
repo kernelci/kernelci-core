@@ -2,6 +2,7 @@
 
 import os
 import ConfigParser
+import keyring.core
 
 class Configuration(object):
     def __init__(self, config_sources=None):
@@ -19,6 +20,13 @@ class Configuration(object):
                 variable = getattr(config_source, method_name)()
                 if variable:
                     return variable
+
+    def add_token_from_keyring(self):
+        server = self.get('server')
+        username = self.get('username')
+        if server and username:
+            token = keyring.core.get_password("lava-tool-%s" % server, username)
+            self.add_config_override(ArgumentParser({'token': token}))
 
 
 class EnvConfigParser(object):
@@ -109,6 +117,21 @@ class ArgumentParser(object):
 
     def get_job(self):
         return self.job
+
+
+def get_config(args):
+    config = Configuration()
+    try:
+        config.add_config_override(FileConfigParser(filename=args.get('config', None), section=args.get('section', None)))
+        config.add_config_override(EnvConfigParser())
+    except IOError:
+        pass
+    config.add_config_override(ArgumentParser(args))
+
+    if not config.get('token'):
+        config.add_token_from_keyring()
+
+    return config
 
 
 # vim: set ts=8 sw=4 sts=4 et tw=80 fileencoding=utf-8 :

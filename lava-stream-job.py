@@ -23,7 +23,6 @@ import time
 import xmlrpclib
 import curses
 import re
-import keyring.core
 
 from lib import configuration
 from lib import text_output
@@ -378,24 +377,8 @@ class LavaRunJob(object):
         return "unknown (%s)" % substr[:substr.find(' ')]
 
 
-def get_config(args):
-    config = configuration.Configuration()
-    try:
-        config.add_config_override(configuration.FileConfigParser(filename=args.get('config', None), section=args.get('section', None)))
-        config.add_config_override(configuration.EnvConfigParser())
-    except IOError:
-        pass
-    config.add_config_override(configuration.ArgumentParser(args))
-    if not config.get('token'):
-        server = config.get('server')
-        username = config.get('username')
-        if server and username:
-            token = keyring.core.get_password("lava-tool-%s" % server, username)
-            config.add_config_override(configuration.ArgumentParser({'token': token}))
-    return config
-
 def main(args):
-    config = get_config(args)
+    config = configuration.get_config(args)
     lava_connection = LavaConnection(config)
 
     lava_job = LavaRunJob(lava_connection,
