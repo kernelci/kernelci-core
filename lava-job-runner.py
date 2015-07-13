@@ -66,7 +66,7 @@ def poll_jobs(connection, timeout):
     return finished_jobs
 
 
-def submit_jobs(connection, server, bundle_stream):
+def submit_jobs(connection, server, bundle_stream=None):
     online_devices, offline_devices = gather_devices(connection)
     online_device_types, offline_device_types = gather_device_types(connection)
     print "Submitting Jobs to Server..."
@@ -251,10 +251,13 @@ def main(args):
         retrieve_jobs(args.repo)
     load_jobs()
     start_time = time.time()
+
+    bundle_stream = None
     if args.stream:
-        submit_jobs(connection, args.server, args.stream)
-    else:
-        submit_jobs(connection, args.server, bundle_stream=None)
+        bundle_stream = args.stream
+
+    submit_jobs(connection, args.server, bundle_stream=bundle_stream)
+
     if args.poll:
         jobs = poll_jobs(connection, args.timeout)
         end_time = time.time()
