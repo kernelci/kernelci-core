@@ -8,6 +8,8 @@ import shutil
 import argparse
 import ConfigParser
 
+from lib import configuration
+
 base_url = None
 kernel = None
 platform_list = []
@@ -883,9 +885,11 @@ def walk_url(url, plans=None, arch=None, targets=None, priority=None):
         walk_url(url + dir, plans, arch, targets, priority)
 
 def main(args):
+    config = configuration.get_config(args)
+
     setup_job_dir(os.getcwd() + '/jobs')
-    print 'Scanning %s for kernel information...' % args.url
-    walk_url(args.url, args.plans, args.arch, args.targets, args.priority)
+    print 'Scanning %s for kernel information...' % config.get("url")
+    walk_url(config.get("url"), config.get("plans"), config.get("arch"), config.get("targets"), config.get("priority"))
     print 'Done scanning for kernel information'
     print 'Done creating JSON jobs'
     exit(0)
@@ -893,10 +897,12 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("url", help="url to build artifacts")
+    parser.add_argument("--config", help="configuration for the LAVA server")
+    parser.add_argument("--section", default="default", help="section in the LAVA config file")
     parser.add_argument("--plans", nargs='+', required=True, help="test plan to create jobs for")
     parser.add_argument("--arch", help="specific architecture to create jobs for")
     parser.add_argument("--targets", nargs='+', help="specific targets to create jobs for")
     parser.add_argument("--priority", choices=['high', 'medium', 'low', 'HIGH', 'MEDIUM', 'LOW'],
                         help="priority for LAVA jobs")
-    args = parser.parse_args()
+    args = vars(parser.parse_args())
     main(args)
