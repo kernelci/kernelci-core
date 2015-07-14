@@ -8,7 +8,9 @@ import fnmatch
 import time
 import re
 import argparse
+
 from utils import *
+from lib import configuration
 
 job_map = {}
 
@@ -245,34 +247,36 @@ def gather_device_types(connection):
 
 
 def main(args):
-    url = validate_input(args.username, args.token, args.server)
+    config = configuration.get_config(args)
+
+    url = validate_input(config.get("username"), config.get("token"), config.get("server"))
     connection = connect(url)
-    if args.repo:
-        retrieve_jobs(args.repo)
+    if config.get("repo"):
+        retrieve_jobs(config.get("repo"))
     load_jobs()
     start_time = time.time()
 
     bundle_stream = None
-    if args.stream:
-        bundle_stream = args.stream
+    if config.get("stream"):
+        bundle_stream = config.get("stream")
 
-    submit_jobs(connection, args.server, bundle_stream=bundle_stream)
+    submit_jobs(connection, config.get("server"), bundle_stream=bundle_stream)
 
-    if args.poll:
-        jobs = poll_jobs(connection, args.timeout)
+    if config.get("poll"):
+        jobs = poll_jobs(connection, config.get("timeout"))
         end_time = time.time()
-        if args.bisect:
+        if config.get("bisect"):
             for job_id in jobs:
                 if 'result' in jobs[job_id]:
                     if jobs[job_id]['result'] == 'FAIL':
                         exit(1)
         jobs['duration'] = end_time - start_time
-        jobs['username'] = args.username
-        jobs['token'] = args.token
-        jobs['server'] = args.server
+        jobs['username'] = config.get("username")
+        jobs['token'] = config.get("token")
+        jobs['server'] = config.get("server")
         results_directory = os.getcwd() + '/results'
         mkdir(results_directory)
-        write_json(args.poll, results_directory, jobs)
+        write_json(config.get("poll"), results_directory, jobs)
     exit(0)
 
 if __name__ == '__main__':
@@ -287,5 +291,5 @@ if __name__ == '__main__':
     parser.add_argument("--poll", help="poll the submitted LAVA jobs, dumps info into specified json")
     parser.add_argument("--timeout", type=int, default=-1, help="polling timeout in seconds. default is -1.")
     parser.add_argument('--bisect', help="bisection mode, returns 1 on any job failures", action='store_true')
-    args = parser.parse_args()
+    args = vars(parser.parse_args())
     main(args)
