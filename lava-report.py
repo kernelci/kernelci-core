@@ -1,13 +1,18 @@
 #!/usr/bin/python
 # <variable> = required
 # Usage ./lava-report.py <option> [json]
+import os
+import urlparse
+import xmlrpclib
+import json
 import argparse
 import time
 import subprocess
 import re
 import urllib2
 import requests
-from utils import *
+
+from lib import utils
 
 log2html = 'https://git.linaro.org/people/kevin.hilman/build-scripts.git/blob_plain/HEAD:/log2html.py'
 
@@ -77,13 +82,13 @@ def download_log2html(url):
         print 'error fetching %s: %s' % (url, e)
         exit(1)
     script = response.read()
-    write_file(script, 'log2html.py', os.getcwd())
+    utils.write_file(script, 'log2html.py', os.getcwd())
 
 
 def parse_json(json):
-    jobs = load_json(json)
-    url = validate_input(jobs['username'], jobs['token'], jobs['server'])
-    connection = connect(url)
+    jobs = utils.load_json(json)
+    url = utils.validate_input(jobs['username'], jobs['token'], jobs['server'])
+    connection = utils.connect(url)
     duration = jobs['duration']
     # Remove unused data
     jobs.pop('duration')
@@ -118,7 +123,7 @@ def boot_report(args):
     results_directory = os.getcwd() + '/results'
     results = {}
     dt_tests = False
-    mkdir(results_directory)
+    utils.mkdir(results_directory)
     for job_id in jobs:
         print 'Job ID: %s' % job_id
         # Init
@@ -226,11 +231,11 @@ def boot_report(args):
                         if test['test_case_id'] == 'test_kernel_boot_time':
                             kernel_boot_time = test['measurement']
                     bundle_attributes = bundle_data['test_runs'][-1]['attributes']
-            if in_bundle_attributes(bundle_attributes, 'kernel.defconfig'):
+            if utils.in_bundle_attributes(bundle_attributes, 'kernel.defconfig'):
                 print bundle_attributes['kernel.defconfig']
-            if in_bundle_attributes(bundle_attributes, 'target'):
+            if utils.in_bundle_attributes(bundle_attributes, 'target'):
                 board_instance = bundle_attributes['target']
-            if in_bundle_attributes(bundle_attributes, 'kernel.defconfig'):
+            if utils.in_bundle_attributes(bundle_attributes, 'kernel.defconfig'):
                 kernel_defconfig = bundle_attributes['kernel.defconfig']
                 defconfig_list = kernel_defconfig.split('-')
                 arch = defconfig_list[0]
@@ -240,30 +245,30 @@ def boot_report(args):
                 kernel_defconfig_base = ''.join(kernel_defconfig_full.split('+')[:1])
                 if kernel_defconfig_full == kernel_defconfig_base:
                     kernel_defconfig_full = None
-            if in_bundle_attributes(bundle_attributes, 'kernel.version'):
+            if utils.in_bundle_attributes(bundle_attributes, 'kernel.version'):
                 kernel_version = bundle_attributes['kernel.version']
-            if in_bundle_attributes(bundle_attributes, 'device.tree'):
+            if utils.in_bundle_attributes(bundle_attributes, 'device.tree'):
                 device_tree = bundle_attributes['device.tree']
-            if in_bundle_attributes(bundle_attributes, 'kernel.endian'):
+            if utils.in_bundle_attributes(bundle_attributes, 'kernel.endian'):
                 kernel_endian = bundle_attributes['kernel.endian']
-            if in_bundle_attributes(bundle_attributes, 'platform.fastboot'):
+            if utils.in_bundle_attributes(bundle_attributes, 'platform.fastboot'):
                 fastboot = bundle_attributes['platform.fastboot']
             if kernel_boot_time is None:
-                if in_bundle_attributes(bundle_attributes, 'kernel-boot-time'):
+                if utils.in_bundle_attributes(bundle_attributes, 'kernel-boot-time'):
                     kernel_boot_time = bundle_attributes['kernel-boot-time']
-            if in_bundle_attributes(bundle_attributes, 'kernel.tree'):
+            if utils.in_bundle_attributes(bundle_attributes, 'kernel.tree'):
                 kernel_tree = bundle_attributes['kernel.tree']
-            if in_bundle_attributes(bundle_attributes, 'kernel-addr'):
+            if utils.in_bundle_attributes(bundle_attributes, 'kernel-addr'):
                 kernel_addr = bundle_attributes['kernel-addr']
-            if in_bundle_attributes(bundle_attributes, 'initrd-addr'):
+            if utils.in_bundle_attributes(bundle_attributes, 'initrd-addr'):
                 initrd_addr = bundle_attributes['initrd-addr']
-            if in_bundle_attributes(bundle_attributes, 'dtb-addr'):
+            if utils.in_bundle_attributes(bundle_attributes, 'dtb-addr'):
                 dtb_addr = bundle_attributes['dtb-addr']
-            if in_bundle_attributes(bundle_attributes, 'dtb-append'):
+            if utils.in_bundle_attributes(bundle_attributes, 'dtb-append'):
                 dtb_append = bundle_attributes['dtb-append']
-            if in_bundle_attributes(bundle_attributes, 'boot_retries'):
+            if utils.in_bundle_attributes(bundle_attributes, 'boot_retries'):
                 boot_retries = int(bundle_attributes['boot_retries'])
-            if in_bundle_attributes(bundle_attributes, 'test.plan'):
+            if utils.in_bundle_attributes(bundle_attributes, 'test.plan'):
                 test_plan = bundle_attributes['test.plan']
 
         # Check if we found efi-rtc
@@ -324,8 +329,8 @@ def boot_report(args):
                 directory = os.path.join(results_directory, kernel_defconfig + '/' + args.lab)
             else:
                 directory = os.path.join(results_directory, kernel_defconfig)
-            ensure_dir(directory)
-            write_file(job_file, log, directory)
+            utils.ensure_dir(directory)
+            utils.write_file(job_file, log, directory)
             if kernel_boot_time is None:
                 kernel_boot_time = '0.0'
             if results.has_key(kernel_defconfig):
@@ -390,7 +395,7 @@ def boot_report(args):
                 boot_meta['kernel_image'] = 'bzImage'
             boot_meta['loadaddr'] = kernel_addr
             json_file = 'boot-%s.json' % platform_name
-            write_json(json_file, directory, boot_meta)
+            utils.write_json(json_file, directory, boot_meta)
             print 'Creating html version of boot log for %s' % platform_name
             cmd = 'python log2html.py %s' % os.path.join(directory, log)
             subprocess.check_output(cmd, shell=True)
@@ -438,7 +443,7 @@ def boot_report(args):
         total = passed + failed
         if args.lab:
             report_directory = os.path.join(results_directory, args.lab)
-            mkdir(report_directory)
+            utils.mkdir(report_directory)
         else:
             report_directory = results_directory
         with open(os.path.join(report_directory, boot), 'a') as f:

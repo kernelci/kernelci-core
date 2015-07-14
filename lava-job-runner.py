@@ -3,13 +3,16 @@
 # [variable] = optional
 # Usage ./lava-job-runner.py <username> <token> <lava_server_url> [job_repo] [bundle_stream]
 
+import os
+import xmlrpclib
+import json
 import subprocess
 import fnmatch
 import time
 import re
 import argparse
 
-from utils import *
+from lib import utils
 from lib import configuration
 
 job_map = {}
@@ -249,8 +252,8 @@ def gather_device_types(connection):
 def main(args):
     config = configuration.get_config(args)
 
-    url = validate_input(config.get("username"), config.get("token"), config.get("server"))
-    connection = connect(url)
+    url = utils.validate_input(config.get("username"), config.get("token"), config.get("server"))
+    connection = utils.connect(url)
     if config.get("repo"):
         retrieve_jobs(config.get("repo"))
     load_jobs()
@@ -275,8 +278,8 @@ def main(args):
         jobs['token'] = config.get("token")
         jobs['server'] = config.get("server")
         results_directory = os.getcwd() + '/results'
-        mkdir(results_directory)
-        write_json(config.get("poll"), results_directory, jobs)
+        utils.mkdir(results_directory)
+        utils.write_json(config.get("poll"), results_directory, jobs)
     exit(0)
 
 if __name__ == '__main__':
