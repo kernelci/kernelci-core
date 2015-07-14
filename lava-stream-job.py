@@ -386,10 +386,10 @@ def main(args):
                           2)
     lava_job.connect()
 
-    if args["curses"]:
-        output_handler = CursesOutput(lava_job, args.get('interval'))
+    if config.get("curses"):
+        output_handler = CursesOutput(lava_job, config.get("interval"))
     else:
-        output_handler = FileOutputHandler(sys.stdout, lava_job, args.get('interval'))
+        output_handler = FileOutputHandler(sys.stdout, lava_job, config.get("interval"))
 
     output_handler.run()
 
