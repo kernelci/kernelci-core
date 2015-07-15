@@ -100,7 +100,8 @@ def _ensure_boot_indexes(database):
     )
     collection.ensure_index(
         [
-            (models.JOB_ID_KEY, pymongo.DESCENDING)
+            (models.JOB_KEY, pymongo.ASCENDING),
+            (models.KERNEL_KEY, pymongo.ASCENDING)
         ],
         background=True
     )
