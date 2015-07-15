@@ -39,7 +39,6 @@ KEY_TYPES = {
     models.WARNINGS_KEY: "int"
 }
 
-# The list of ID keys.
 ID_KEYS = [
     models.BOOT_ID_KEY,
     models.DEFCONFIG_ID_KEY,

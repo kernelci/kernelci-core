@@ -311,8 +311,7 @@ def find_and_update(collection, query, document, operation="$set"):
             fields=[models.ID_KEY]
         )
         if not result:
-            utils.LOG.error(
-                "Error searching or updating document with query: %s", query)
+            utils.LOG.error("Document with query '%s' not found", query)
             ret_val = 404
     except pymongo.errors.OperationFailure, ex:
         ret_val = 500

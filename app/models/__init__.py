@@ -524,10 +524,17 @@ TOKEN_VALID_KEYS = {
 }
 
 JOB_VALID_KEYS = {
-    "POST": [
-        JOB_KEY,
-        KERNEL_KEY
-    ],
+    "POST": {
+        MANDATORY_KEYS: [
+            JOB_KEY,
+            KERNEL_KEY
+        ],
+        ACCEPTED_KEYS: [
+            JOB_KEY,
+            KERNEL_KEY,
+            STATUS_KEY
+        ]
+    },
     "GET": [
         CREATED_KEY,
         ID_KEY,
@@ -535,8 +542,8 @@ JOB_VALID_KEYS = {
         KERNEL_KEY,
         NAME_KEY,
         PRIVATE_KEY,
-        STATUS_KEY
-    ]
+        STATUS_KEY,
+    ],
 }
 
 BATCH_VALID_KEYS = {
