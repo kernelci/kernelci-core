@@ -37,14 +37,14 @@ class CountHandler(hbase.BaseHandler):
 
     @staticmethod
     def _valid_keys(method):
-        return hcommon.COUNT_VALID_KEYS.get(method, None)
+        return models.COUNT_VALID_KEYS.get(method, None)
 
     def _get_one(self, collection, **kwargs):
         response = hresponse.HandlerResponse()
 
-        if collection in hcommon.COLLECTIONS.keys():
+        if collection in models.COLLECTIONS.viewkeys():
             response.result = count_one_collection(
-                self.db[hcommon.COLLECTIONS[collection]],
+                self.db[models.COLLECTIONS[collection]],
                 collection,
                 self.get_query_arguments,
                 self._valid_keys("GET")
@@ -134,14 +134,14 @@ def count_all_collections(database, query_args_func, valid_keys):
     hcommon.update_id_fields(spec)
 
     if spec:
-        for key, val in hcommon.COLLECTIONS.iteritems():
+        for key, val in models.COLLECTIONS.iteritems():
             _, number = utils.db.find_and_count(
                 database[val], 0, 0, spec, COUNT_FIELDS)
             if not number:
                 number = 0
             result.append(dict(collection=key, count=number))
     else:
-        for key, val in hcommon.COLLECTIONS.iteritems():
+        for key, val in models.COLLECTIONS.iteritems():
             result.append(
                 dict(
                     collection=key,

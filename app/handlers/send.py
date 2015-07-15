@@ -37,7 +37,7 @@ class SendHandler(hbase.BaseHandler):
 
     @staticmethod
     def _valid_keys(method):
-        return hcommon.SEND_VALID_KEYS.get(method, None)
+        return models.SEND_VALID_KEYS.get(method, None)
 
     # pylint: disable=too-many-locals
     def _post(self, *args, **kwargs):

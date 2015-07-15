@@ -20,52 +20,6 @@ import models
 import models.base as modb
 
 
-DEFCONFIG_VALID_KEYS = {
-    "GET": [
-        models.ARCHITECTURE_KEY,
-        models.BUILD_LOG_KEY,
-        models.CREATED_KEY,
-        models.DEFCONFIG_FULL_KEY,
-        models.DEFCONFIG_KEY,
-        models.DIRNAME_KEY,
-        models.ERRORS_KEY,
-        models.GIT_BRANCH_KEY,
-        models.GIT_COMMIT_KEY,
-        models.GIT_DESCRIBE_KEY,
-        models.ID_KEY,
-        models.JOB_ID_KEY,
-        models.JOB_KEY,
-        models.KCONFIG_FRAGMENTS_KEY,
-        models.KERNEL_CONFIG_KEY,
-        models.KERNEL_IMAGE_KEY,
-        models.KERNEL_KEY,
-        models.MODULES_DIR_KEY,
-        models.MODULES_KEY,
-        models.NAME_KEY,
-        models.STATUS_KEY,
-        models.SYSTEM_MAP_KEY,
-        models.TEXT_OFFSET_KEY,
-        models.WARNINGS_KEY,
-    ],
-    "POST": {
-        models.MANDATORY_KEYS: [
-            models.ARCHITECTURE_KEY,
-            models.DEFCONFIG_KEY,
-            models.JOB_KEY,
-            models.KERNEL_KEY
-        ],
-        models.ACCEPTED_KEYS: [
-            models.ARCHITECTURE_KEY,
-            models.DEFCONFIG_FULL_KEY,
-            models.DEFCONFIG_KEY,
-            models.JOB_KEY,
-            models.KERNEL_KEY,
-            models.VERSION_KEY
-        ]
-    }
-}
-
-
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=invalid-name
 class DefconfigDocument(modb.BaseDocument):

@@ -285,51 +285,52 @@ def _update_boot_doc_ids(boot_doc, database):
     """
     job = boot_doc.job
     kernel = boot_doc.kernel
-    defconfig = boot_doc.defconfig_full or boot_doc.defconfig
+    defconfig = boot_doc.defconfig
+    defconfig_full = boot_doc.defconfig_full
 
-    job_name = models.JOB_DOCUMENT_NAME % {
-        models.JOB_KEY: job,
-        models.KERNEL_KEY: kernel
-    }
-    defconfig_name = models.DEFCONFIG_DOCUMENT_NAME % {
+    job_doc = utils.db.find_one2(
+        database[models.JOB_COLLECTION],
+        {models.JOB_KEY: job, models.KERNEL_KEY: kernel}
+    )
+
+    build_spec = {
         models.JOB_KEY: job,
         models.KERNEL_KEY: kernel,
         models.DEFCONFIG_KEY: defconfig
     }
 
-    job_doc = utils.db.find_one(
-        database[models.JOB_COLLECTION],
-        [job_name],
-        field=models.NAME_KEY,
-        fields=[models.ID_KEY]
-    )
+    if defconfig_full:
+        build_spec[models.DEFCONFIG_FULL_KEY] = defconfig_full
 
-    defconfig_doc = utils.db.find_one(
+    defconfig_doc = utils.db.find_one2(
         database[models.DEFCONFIG_COLLECTION],
-        [defconfig_name],
-        field=models.NAME_KEY,
+        build_spec,
         fields=[
             models.GIT_BRANCH_KEY,
             models.GIT_COMMIT_KEY,
             models.GIT_DESCRIBE_KEY,
             models.GIT_URL_KEY,
-            models.ID_KEY
-        ]
-    )
+            models.ID_KEY,
+            models.JOB_ID_KEY
+        ])
 
     if job_doc:
         boot_doc.job_id = job_doc.get(models.ID_KEY, None)
     if defconfig_doc:
         doc_get = defconfig_doc.get
         boot_doc.defconfig_id = doc_get(models.ID_KEY, None)
+
+        # In case we do not have the job_id key with the previous search.
+        if all([not boot_doc.job_id, doc_get(models.JOB_ID_KEY, None)]):
+            boot_doc.job_id = doc_get(models.JOB_ID_KEY, None)
         # Get also git information if we do not have them already,
-        if boot_doc.git_branch is None:
+        if not boot_doc.git_branch:
             boot_doc.git_branch = doc_get(models.GIT_BRANCH_KEY, None)
-        if boot_doc.git_commit is None:
+        if not boot_doc.git_commit:
             boot_doc.git_commit = doc_get(models.GIT_COMMIT_KEY, None)
-        if boot_doc.git_describe is None:
+        if not boot_doc.git_describe:
             boot_doc.git_describe = doc_get(models.GIT_DESCRIBE_KEY, None)
-        if boot_doc.git_url is None:
+        if not boot_doc.git_url:
             boot_doc.git_url = doc_get(models.GIT_URL_KEY, None)
 
 

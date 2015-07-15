@@ -265,7 +265,7 @@ VALID_BOOT_STATUS = [
     FAIL_STATUS,
     OFFLINE_STATUS,
     PASS_STATUS,
-    UNTRIED_STATUS,
+    UNTRIED_STATUS
 ]
 
 # Valid job status.
@@ -273,7 +273,7 @@ VALID_JOB_STATUS = [
     BUILD_STATUS,
     FAIL_STATUS,
     PASS_STATUS,
-    UNKNOWN_STATUS,
+    UNKNOWN_STATUS
 ]
 
 # Valid test case status.
@@ -294,3 +294,525 @@ VALID_EMAIL_FORMATS = [
     EMAIL_HTML_FORMAT_KEY,
     EMAIL_TXT_FORMAT_KEY
 ]
+
+# All the available collections as key-value. The key is the same used for the
+# URL configuration.
+COLLECTIONS = {
+    "boot": BOOT_COLLECTION,
+    "defconfig": DEFCONFIG_COLLECTION,
+    "job": JOB_COLLECTION,
+    "test_suite": TEST_SUITE_COLLECTION,
+    "test_set": TEST_SET_COLLECTION,
+    "test_case": TEST_CASE_COLLECTION
+}
+
+# Handlers valid keys.
+COUNT_VALID_KEYS = {
+    "GET": [
+        ARCHITECTURE_KEY,
+        BOARD_KEY,
+        CREATED_KEY,
+        DEFCONFIG_FULL_KEY,
+        DEFCONFIG_ID_KEY,
+        DEFCONFIG_KEY,
+        ERRORS_KEY,
+        GIT_BRANCH_KEY,
+        GIT_COMMIT_KEY,
+        GIT_DESCRIBE_KEY,
+        ID_KEY,
+        JOB_ID_KEY,
+        JOB_KEY,
+        KERNEL_CONFIG_KEY,
+        KERNEL_IMAGE_KEY,
+        KERNEL_KEY,
+        MODULES_DIR_KEY,
+        MODULES_KEY,
+        NAME_KEY,
+        PRIVATE_KEY,
+        STATUS_KEY,
+        SYSTEM_MAP_KEY,
+        TEXT_OFFSET_KEY,
+        TIME_KEY,
+        WARNINGS_KEY
+    ]
+}
+
+BOOT_VALID_KEYS = {
+    "POST": {
+        MANDATORY_KEYS: [
+            ARCHITECTURE_KEY,
+            BOARD_KEY,
+            DEFCONFIG_KEY,
+            JOB_KEY,
+            KERNEL_KEY,
+            LAB_NAME_KEY,
+            VERSION_KEY
+        ],
+        ACCEPTED_KEYS: [
+            ARCHITECTURE_KEY,
+            BOARD_INSTANCE_KEY,
+            BOARD_KEY,
+            BOOT_LOAD_ADDR_KEY,
+            BOOT_LOG_HTML_KEY,
+            BOOT_LOG_KEY,
+            BOOT_RESULT_DESC_KEY,
+            BOOT_RESULT_KEY,
+            BOOT_RETRIES_KEY,
+            BOOT_TIME_KEY,
+            BOOT_WARNINGS_KEY,
+            DEFCONFIG_FULL_KEY,
+            DEFCONFIG_KEY,
+            DTB_ADDR_KEY,
+            DTB_APPEND_KEY,
+            DTB_KEY,
+            EMAIL_KEY,
+            ENDIANNESS_KEY,
+            FASTBOOT_CMD_KEY,
+            FASTBOOT_KEY,
+            FILE_SERVER_RESOURCE_KEY,
+            FILE_SERVER_URL_KEY,
+            GIT_BRANCH_KEY,
+            GIT_COMMIT_KEY,
+            GIT_DESCRIBE_KEY,
+            GIT_URL_KEY,
+            ID_KEY,
+            INITRD_ADDR_KEY,
+            INITRD_KEY,
+            JOB_KEY,
+            KERNEL_IMAGE_KEY,
+            KERNEL_KEY,
+            LAB_NAME_KEY,
+            MACH_KEY,
+            METADATA_KEY,
+            NAME_KEY,
+            QEMU_COMMAND_KEY,
+            QEMU_KEY,
+            STATUS_KEY,
+            UIMAGE_ADDR_KEY,
+            UIMAGE_KEY,
+            VERSION_KEY
+        ]
+    },
+    "GET": [
+        ARCHITECTURE_KEY,
+        BOARD_KEY,
+        CREATED_KEY,
+        DEFCONFIG_FULL_KEY,
+        DEFCONFIG_ID_KEY,
+        DEFCONFIG_KEY,
+        ENDIANNESS_KEY,
+        GIT_BRANCH_KEY,
+        GIT_COMMIT_KEY,
+        ID_KEY,
+        JOB_ID_KEY,
+        JOB_KEY,
+        KERNEL_KEY,
+        LAB_NAME_KEY,
+        MACH_KEY,
+        NAME_KEY,
+        RETRIES_KEY,
+        STATUS_KEY,
+        WARNINGS_KEY
+    ],
+    "DELETE": [
+        BOARD_KEY,
+        DEFCONFIG_FULL_KEY,
+        DEFCONFIG_ID_KEY,
+        DEFCONFIG_KEY,
+        ID_KEY,
+        JOB_ID_KEY,
+        JOB_KEY,
+        KERNEL_KEY,
+        NAME_KEY
+    ]
+}
+
+DEFCONFIG_VALID_KEYS = {
+    "GET": [
+        ARCHITECTURE_KEY,
+        BUILD_LOG_KEY,
+        CREATED_KEY,
+        DEFCONFIG_FULL_KEY,
+        DEFCONFIG_KEY,
+        DIRNAME_KEY,
+        ERRORS_KEY,
+        GIT_BRANCH_KEY,
+        GIT_COMMIT_KEY,
+        GIT_DESCRIBE_KEY,
+        ID_KEY,
+        JOB_ID_KEY,
+        JOB_KEY,
+        KCONFIG_FRAGMENTS_KEY,
+        KERNEL_CONFIG_KEY,
+        KERNEL_IMAGE_KEY,
+        KERNEL_KEY,
+        MODULES_DIR_KEY,
+        MODULES_KEY,
+        NAME_KEY,
+        STATUS_KEY,
+        SYSTEM_MAP_KEY,
+        TEXT_OFFSET_KEY,
+        WARNINGS_KEY
+    ],
+    "POST": {
+        MANDATORY_KEYS: [
+            ARCHITECTURE_KEY,
+            DEFCONFIG_KEY,
+            JOB_KEY,
+            KERNEL_KEY
+        ],
+        ACCEPTED_KEYS: [
+            ARCHITECTURE_KEY,
+            DEFCONFIG_FULL_KEY,
+            DEFCONFIG_KEY,
+            JOB_KEY,
+            KERNEL_KEY,
+            VERSION_KEY
+        ]
+    }
+}
+
+TOKEN_VALID_KEYS = {
+    "POST": [
+        ADMIN_KEY,
+        DELETE_KEY,
+        EMAIL_KEY,
+        EXPIRED_KEY,
+        EXPIRES_KEY,
+        GET_KEY,
+        IP_ADDRESS_KEY,
+        IP_RESTRICTED,
+        LAB_KEY,
+        NAME_KEY,
+        POST_KEY,
+        SUPERUSER_KEY,
+        TEST_LAB_KEY,
+        UPLOAD_KEY,
+        USERNAME_KEY,
+        VERSION_KEY
+    ],
+    "PUT": [
+        ADMIN_KEY,
+        DELETE_KEY,
+        EMAIL_KEY,
+        EXPIRED_KEY,
+        EXPIRES_KEY,
+        GET_KEY,
+        IP_ADDRESS_KEY,
+        IP_RESTRICTED,
+        LAB_KEY,
+        NAME_KEY,
+        POST_KEY,
+        SUPERUSER_KEY,
+        TEST_LAB_KEY,
+        UPLOAD_KEY,
+        USERNAME_KEY,
+        VERSION_KEY
+    ],
+    "GET": [
+        CREATED_KEY,
+        EMAIL_KEY,
+        EXPIRED_KEY,
+        EXPIRES_KEY,
+        ID_KEY,
+        IP_ADDRESS_KEY,
+        NAME_KEY,
+        PROPERTIES_KEY,
+        TOKEN_KEY,
+        USERNAME_KEY
+    ]
+}
+
+JOB_VALID_KEYS = {
+    "POST": [
+        JOB_KEY,
+        KERNEL_KEY
+    ],
+    "GET": [
+        CREATED_KEY,
+        ID_KEY,
+        JOB_KEY,
+        KERNEL_KEY,
+        NAME_KEY,
+        PRIVATE_KEY,
+        STATUS_KEY
+    ]
+}
+
+BATCH_VALID_KEYS = {
+    "POST": [
+        COLLECTION_KEY,
+        DOCUMENT_ID_KEY,
+        METHOD_KEY,
+        OP_ID_KEY,
+        QUERY_KEY
+    ]
+}
+
+LAB_VALID_KEYS = {
+    "POST": {
+        MANDATORY_KEYS: [
+            CONTACT_KEY,
+            NAME_KEY
+        ],
+        ACCEPTED_KEYS: [
+            ADDRESS_KEY,
+            CONTACT_KEY,
+            NAME_KEY,
+            PRIVATE_KEY,
+            TOKEN_KEY,
+            VERSION_KEY
+        ]
+    },
+    "GET": [
+        ADDRESS_KEY,
+        CONTACT_KEY,
+        CREATED_KEY,
+        ID_KEY,
+        NAME_KEY,
+        PRIVATE_KEY,
+        TOKEN_KEY,
+        UPDATED_KEY
+    ],
+    "DELETE": [
+        ADDRESS_KEY,
+        CONTACT_KEY,
+        ID_KEY,
+        NAME_KEY,
+        TOKEN_KEY
+    ]
+}
+
+REPORT_VALID_KEYS = {
+    "GET": [
+        CREATED_KEY,
+        ID_KEY,
+        JOB_KEY,
+        KERNEL_KEY,
+        NAME_KEY,
+        STATUS_KEY,
+        TYPE_KEY,
+        UPDATED_KEY
+    ]
+}
+
+SEND_VALID_KEYS = {
+    "POST": {
+        MANDATORY_KEYS: [
+            JOB_KEY,
+            KERNEL_KEY
+        ],
+        ACCEPTED_KEYS: [
+            BOOT_REPORT_SEND_BCC_KEY,
+            BOOT_REPORT_SEND_CC_KEY,
+            BOOT_REPORT_SEND_TO_KEY,
+            BUILD_REPORT_SEND_BCC_KEY,
+            BUILD_REPORT_SEND_CC_KEY,
+            BUILD_REPORT_SEND_TO_KEY,
+            DELAY_KEY,
+            EMAIL_FORMAT_KEY,
+            IN_REPLY_TO_KEY,
+            JOB_KEY,
+            KERNEL_KEY,
+            LAB_NAME_KEY,
+            REPORT_BCC_KEY,
+            REPORT_CC_KEY,
+            REPORT_SEND_TO_KEY,
+            SEND_BOOT_REPORT_KEY,
+            SEND_BUILD_REPORT_KEY,
+            SUBJECT_KEY
+        ]
+    }
+}
+
+BISECT_VALID_KEYS = {
+    "GET": [
+        BOOT_ID_KEY,
+        COLLECTION_KEY,
+        COMPARE_TO_KEY,
+        DEFCONFIG_ID_KEY
+    ]
+}
+
+TEST_SUITE_VALID_KEYS = {
+    "POST": {
+        MANDATORY_KEYS: [
+            DEFCONFIG_ID_KEY,
+            LAB_NAME_KEY,
+            NAME_KEY,
+            VERSION_KEY
+        ],
+        ACCEPTED_KEYS: [
+            ARCHITECTURE_KEY,
+            BOARD_INSTANCE_KEY,
+            BOARD_KEY,
+            BOOT_ID_KEY,
+            CREATED_KEY,
+            DEFCONFIG_FULL_KEY,
+            DEFCONFIG_ID_KEY,
+            DEFCONFIG_KEY,
+            DEFINITION_URI_KEY,
+            JOB_ID_KEY,
+            JOB_KEY,
+            KERNEL_KEY,
+            LAB_NAME_KEY,
+            METADATA_KEY,
+            NAME_KEY,
+            TEST_CASE_KEY,
+            TEST_SET_KEY,
+            VCS_COMMIT_KEY,
+            VERSION_KEY
+        ]
+    },
+    "PUT": [
+        ARCHITECTURE_KEY,
+        BOARD_INSTANCE_KEY,
+        BOARD_KEY,
+        BOOT_ID_KEY,
+        CREATED_KEY,
+        DEFCONFIG_FULL_KEY,
+        DEFCONFIG_ID_KEY,
+        DEFCONFIG_KEY,
+        DEFINITION_URI_KEY,
+        JOB_ID_KEY,
+        JOB_KEY,
+        KERNEL_KEY,
+        METADATA_KEY,
+        NAME_KEY,
+        VCS_COMMIT_KEY,
+        VERSION_KEY
+    ],
+    "GET": [
+        ARCHITECTURE_KEY,
+        BOARD_INSTANCE_KEY,
+        BOARD_KEY,
+        BOOT_ID_KEY,
+        CREATED_KEY,
+        DEFCONFIG_FULL_KEY,
+        DEFCONFIG_ID_KEY,
+        DEFCONFIG_KEY,
+        DEFINITION_URI_KEY,
+        JOB_ID_KEY,
+        JOB_KEY,
+        KERNEL_KEY,
+        LAB_NAME_KEY,
+        TIME_KEY,
+        VCS_COMMIT_KEY,
+        VERSION_KEY
+    ]
+}
+
+TEST_SET_VALID_KEYS = {
+    "POST": {
+        MANDATORY_KEYS: [
+            NAME_KEY,
+            TEST_SUITE_ID_KEY,
+            VERSION_KEY
+        ],
+        ACCEPTED_KEYS: [
+            CREATED_KEY,
+            DEFINITION_URI_KEY,
+            METADATA_KEY,
+            NAME_KEY,
+            PARAMETERS_KEY,
+            TEST_CASE_KEY,
+            TEST_SUITE_ID_KEY,
+            TIME_KEY,
+            VCS_COMMIT_KEY,
+            VERSION_KEY
+        ]
+    },
+    "PUT": [
+        CREATED_KEY,
+        DEFINITION_URI_KEY,
+        NAME_KEY,
+        PARAMETERS_KEY,
+        TEST_SUITE_ID_KEY,
+        TIME_KEY,
+        VCS_COMMIT_KEY,
+        VERSION_KEY
+    ],
+    "GET": [
+        CREATED_KEY,
+        DEFINITION_URI_KEY,
+        NAME_KEY,
+        PARAMETERS_KEY,
+        TEST_SUITE_ID_KEY,
+        TIME_KEY,
+        VCS_COMMIT_KEY,
+        VERSION_KEY
+    ]
+}
+
+TEST_CASE_VALID_KEYS = {
+    "POST": {
+        MANDATORY_KEYS: [
+            NAME_KEY,
+            TEST_SUITE_ID_KEY,
+            VERSION_KEY
+        ],
+        ACCEPTED_KEYS: [
+            ATTACHMENTS_KEY,
+            CREATED_KEY,
+            DEFINITION_URI_KEY,
+            KVM_GUEST_KEY,
+            MAXIMUM_KEY,
+            MEASUREMENTS_KEY,
+            METADATA_KEY,
+            MINIMUM_KEY,
+            NAME_KEY,
+            PARAMETERS_KEY,
+            SAMPLES_KEY,
+            SAMPLES_SQUARE_SUM_KEY,
+            SAMPLES_SUM_KEY,
+            STATUS_KEY,
+            TEST_SET_ID_KEY,
+            TEST_SUITE_ID_KEY,
+            TIME_KEY,
+            VCS_COMMIT_KEY,
+            VERSION_KEY
+        ]
+    },
+    "PUT": [
+        ATTACHMENTS_KEY,
+        CREATED_KEY,
+        DEFINITION_URI_KEY,
+        KVM_GUEST_KEY,
+        MAXIMUM_KEY,
+        MEASUREMENTS_KEY,
+        METADATA_KEY,
+        MINIMUM_KEY,
+        NAME_KEY,
+        PARAMETERS_KEY,
+        SAMPLES_KEY,
+        SAMPLES_SQUARE_SUM_KEY,
+        SAMPLES_SUM_KEY,
+        STATUS_KEY,
+        TEST_SET_ID_KEY,
+        TEST_SUITE_ID_KEY,
+        TIME_KEY,
+        VCS_COMMIT_KEY,
+        VERSION_KEY
+    ],
+    "GET": [
+        ATTACHMENTS_KEY,
+        CREATED_KEY,
+        DEFINITION_URI_KEY,
+        KVM_GUEST_KEY,
+        MAXIMUM_KEY,
+        MEASUREMENTS_KEY,
+        METADATA_KEY,
+        MINIMUM_KEY,
+        NAME_KEY,
+        PARAMETERS_KEY,
+        SAMPLES_KEY,
+        SAMPLES_SQUARE_SUM_KEY,
+        SAMPLES_SUM_KEY,
+        STATUS_KEY,
+        TEST_SET_ID_KEY,
+        TEST_SUITE_ID_KEY,
+        TIME_KEY,
+        VCS_COMMIT_KEY,
+        VERSION_KEY
+    ]
+}
