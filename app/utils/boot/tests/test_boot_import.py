@@ -26,7 +26,7 @@ import types
 import unittest
 
 import models.boot as mboot
-import utils.bootimport as bimport
+import utils.boot as bimport
 
 
 class TestParseBoot(unittest.TestCase):
@@ -235,7 +235,7 @@ class TestParseBoot(unittest.TestCase):
         except OSError:
             pass
 
-    @mock.patch("utils.bootimport._check_for_null")
+    @mock.patch("utils.boot._check_for_null")
     def test_parse_from_json_wrong_json(self, mock_null):
         boot_json = {
             "foo": "bar"
@@ -256,7 +256,7 @@ class TestParseBoot(unittest.TestCase):
         self.assertListEqual([400], errors.keys())
 
     @mock.patch("utils.db.get_db_connection")
-    @mock.patch("utils.bootimport._parse_boot_from_json")
+    @mock.patch("utils.boot._parse_boot_from_json")
     def test_import_and_save_no_doc(self, mock_parse, mock_db):
         mock_parse.return_value = None
         mock_db = self.db
