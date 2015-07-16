@@ -130,13 +130,22 @@ class TestParseBoot(unittest.TestCase):
     def test_save_to_disk(self):
         errors = {}
         base_path = tempfile.mkdtemp()
+        json_obj = {
+            "board": "board",
+            "job": "job",
+            "kernel": "kernel",
+            "defconfig": "defconfig",
+            "arch": "arm",
+            "defconfig_full": "defconfig+FRAGMENT",
+            "lab_name": "lab"
+        }
         boot_doc = mboot.BootDocument(
             "board", "job", "kernel", "defconfig", "lab", "defconfig+FRAGMENT")
         expected_path = os.path.join(
             base_path, "job", "kernel", "arm-defconfig+FRAGMENT", "lab")
         expected_file = os.path.join(expected_path, "boot-board.json")
         try:
-            bimport.save_to_disk(boot_doc, base_path, errors)
+            bimport.save_to_disk(boot_doc, json_obj, base_path, errors)
             self.assertTrue(os.path.isdir(expected_path))
             self.assertTrue(os.path.exists(expected_file))
             self.assertDictEqual({}, errors,)
@@ -146,6 +155,15 @@ class TestParseBoot(unittest.TestCase):
     def test_save_to_disk_dir_exists(self):
         errors = {}
         base_path = tempfile.mkdtemp()
+        json_obj = {
+            "board": "board",
+            "job": "job",
+            "kernel": "kernel",
+            "defconfig": "defconfig",
+            "arch": "arm",
+            "defconfig_full": "defconfig+FRAGMENT",
+            "lab_name": "lab"
+        }
         boot_doc = mboot.BootDocument(
             "board", "job", "kernel", "defconfig", "lab", "defconfig+FRAGMENT")
         expected_path = os.path.join(
@@ -160,7 +178,7 @@ class TestParseBoot(unittest.TestCase):
             patched_dir.return_value = False
             self.addCleanup(patcher.stop)
 
-            bimport.save_to_disk(boot_doc, base_path, errors)
+            bimport.save_to_disk(boot_doc, json_obj, base_path, errors)
             self.assertTrue(os.path.exists(expected_file))
             self.assertDictEqual({}, errors,)
         finally:
@@ -170,6 +188,15 @@ class TestParseBoot(unittest.TestCase):
     def test_save_to_disk_dir_create_error(self, mock_mkdir):
         errors = {}
         base_path = tempfile.mkdtemp()
+        json_obj = {
+            "board": "board",
+            "job": "job",
+            "kernel": "kernel",
+            "defconfig": "defconfig",
+            "arch": "arm",
+            "defconfig_full": "defconfig+FRAGMENT",
+            "lab_name": "lab"
+        }
         boot_doc = mboot.BootDocument(
             "board", "job", "kernel", "defconfig", "lab", "defconfig+FRAGMENT")
         expected_path = os.path.join(
@@ -181,7 +208,7 @@ class TestParseBoot(unittest.TestCase):
         mock_mkdir.side_effect = exception
 
         try:
-            bimport.save_to_disk(boot_doc, base_path, errors)
+            bimport.save_to_disk(boot_doc, json_obj, base_path, errors)
             self.assertFalse(os.path.exists(expected_path))
             self.assertFalse(os.path.exists(expected_file))
             self.assertListEqual([500], errors.keys())

@@ -111,15 +111,17 @@ def save_or_update(boot_doc, database, errors):
     return ret_val, doc_id
 
 
-def save_to_disk(boot_doc, base_path, errors):
+def save_to_disk(boot_doc, json_obj, base_path, errors):
     """Save the provided boot report to disk.
 
     :param boot_doc: The document parsed.
     :type boot_doc: models.boot.BootDocument
+    :param json_obj: The JSON data to write.
+    :type json_obj: dictionary
     :param base_path: The base path where to save the document.
     :type base_path: str
     :param errors: Where errors should be stored.
-    :type errors: dict
+    :type errors: dictionary
     """
     job = boot_doc.job
     kernel = boot_doc.kernel
@@ -143,10 +145,11 @@ def save_to_disk(boot_doc, base_path, errors):
 
         with io.open(file_path, mode="w") as write_json:
             write_json.write(
-                json.dumps(
-                    boot_doc.to_dict(),
-                    ensure_ascii=False,
-                    indent="  ", default=bson.json_util.default)
+                unicode(
+                    json.dumps(
+                        json_obj, indent="  ", default=bson.json_util.default),
+                    encoding="utf-8"
+                )
             )
     except (OSError, IOError), ex:
         err_msg = (
@@ -405,7 +408,7 @@ def import_and_save_boot(json_obj, db_options, base_path=utils.BASE_PATH):
         doc = _parse_boot_from_json(json_copy, database, errors)
         if doc:
             ret_code, doc_id = save_or_update(doc, database, errors)
-            save_to_disk(doc, base_path, errors)
+            save_to_disk(doc, json_obj, base_path, errors)
         else:
             utils.LOG.warn("No boot report imported nor saved")
     except pymongo.errors.ConnectionFailure, ex:
