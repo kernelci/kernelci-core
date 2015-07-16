@@ -25,7 +25,6 @@ class BisectDocument(modb.BaseDocument):
     def __init__(self, name):
         self._created_on = None
         self._id = None
-        self._name = name
         self._version = None
 
         self.bad_commit = None
@@ -47,11 +46,6 @@ class BisectDocument(modb.BaseDocument):
         Where document of this kind will be stored.
         """
         return models.BISECT_COLLECTION
-
-    @property
-    def name(self):
-        """The name of the boot report."""
-        return self._name
 
     @property
     def id(self):
@@ -108,7 +102,6 @@ class BisectDocument(modb.BaseDocument):
             models.CREATED_KEY: self.created_on,
             models.JOB_ID_KEY: self.job_id,
             models.JOB_KEY: self.job,
-            models.NAME_KEY: self.name,
             models.TYPE_KEY: self.type,
             models.VERSION_KEY: self.version
         }

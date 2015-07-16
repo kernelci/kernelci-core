@@ -40,10 +40,10 @@ def get_db_connection(db_options):
 
         db_host = db_options_get("dbhost", utils.DEFAULT_MONGODB_URL)
         db_port = db_options_get("dbport", utils.DEFAULT_MONGODB_PORT)
-        db_pool = db_options.get("dbpool", utils.DEFAULT_MONGODB_POOL)
+        db_pool = db_options_get("dbpool", utils.DEFAULT_MONGODB_POOL)
 
         db_user = db_options_get("dbuser", "")
-        db_pwd = db_options.get("dbpassword", "")
+        db_pwd = db_options_get("dbpassword", "")
 
         DB_CONNECTION = pymongo.MongoClient(
             host=db_host, port=db_port, max_pool_size=db_pool, w="majority"
@@ -190,28 +190,24 @@ def save(database, document, manipulate=False):
     success, 500 in case of an error), second element is the mongodb created
     `_id` value if manipulate is True, or None.
     """
-    ret_value = 201
+    ret_value = 500
     doc_id = None
 
     if isinstance(document, mbase.BaseDocument):
-        to_save = document.to_dict()
+        try:
+            doc_id = database[document.collection].save(
+                document.to_dict(), manipulate=manipulate)
+            ret_value = 201
+        except pymongo.errors.OperationFailure, ex:
+            utils.LOG.error(
+                "Error saving the following document: %s (%s)",
+                document.name, document.collection
+            )
+            utils.LOG.exception(ex)
     else:
-        utils.LOG.warn(
-            "Cannot save document, it is not of type BaseDocument, got %s",
-            type(document))
-
-    try:
-        doc_id = database[document.collection].save(
-            to_save, manipulate=manipulate)
-        utils.LOG.info(
-            "Document '%s' saved (%s)", document.name, document.collection)
-    except pymongo.errors.OperationFailure, ex:
         utils.LOG.error(
-            "Error saving the following document: %s (%s)",
-            document.name, document.collection
-        )
-        utils.LOG.exception(ex)
-        ret_value = 500
+            "Cannot save document, it is not of type BaseDocument, got '%s'",
+            type(document))
 
     return ret_value, doc_id
 

@@ -31,33 +31,32 @@ class BootDocument(modb.BaseDocument):
     """
 
     def __init__(
-            self, board, job, kernel, defconfig, lab_name,
-            defconfig_full=None, arch=models.ARM_ARCHITECTURE_KEY):
+            self,
+            board,
+            job,
+            kernel,
+            defconfig,
+            lab_name, defconfig_full=None, arch=models.ARM_ARCHITECTURE_KEY):
         """A new BootDocument.
 
         :param board: The name of the board.
-        :type board: str
-        :param job: The name of the job.
-        :type job: str
-        :param kernel: The name of the kernel.
-        :type kernel: str
-        :param defconfig: The name of the defconfig.
-        :type defconfig: str
+        :type board: string
+        :param job: The job value.
+        :type job: string
+        :param kernel: The kernel value.
+        :type kernel: string
+        :param defconfig: The defconfig value.
+        :type defconfig: string
         :param lab_name: The user readable ID of the lab.
-        :type lab_name: str
+        :type lab_name: string
+        :param defconfig_full: The full value of the defconfig when it contains
+        fragments. Default to the same 'defconfig' value.
+        :type defconfig_full: string
+        :param arch: The architecture type, default to 'arm'.
+        :type arch: string
         """
-
-        doc_name = models.BOOT_DOCUMENT_NAME % {
-            models.BOARD_KEY: board,
-            models.DEFCONFIG_KEY: defconfig_full or defconfig,
-            models.JOB_KEY: job,
-            models.KERNEL_KEY: kernel,
-            models.ARCHITECTURE_KEY: arch
-        }
-
         self._created_on = None
         self._id = None
-        self._name = doc_name
         self._version = None
 
         self._arch = arch
@@ -103,11 +102,6 @@ class BootDocument(modb.BaseDocument):
     @property
     def collection(self):
         return models.BOOT_COLLECTION
-
-    @property
-    def name(self):
-        """The name of the boot report."""
-        return self._name
 
     @property
     def id(self):
@@ -226,7 +220,6 @@ class BootDocument(modb.BaseDocument):
             models.LOAD_ADDR_KEY: self.load_addr,
             models.MACH_KEY: self.mach,
             models.METADATA_KEY: self.metadata,
-            models.NAME_KEY: self.name,
             models.QEMU_COMMAND_KEY: self.qemu_command,
             models.QEMU_KEY: self.qemu,
             models.RETRIES_KEY: self.retries,
@@ -252,7 +245,6 @@ class BootDocument(modb.BaseDocument):
 
             boot_id = doc_pop(models.ID_KEY, None)
             doc_pop(models.NAME_KEY, None)
-
             try:
                 board = doc_pop(models.BOARD_KEY)
                 job = doc_pop(models.JOB_KEY)
@@ -264,16 +256,19 @@ class BootDocument(modb.BaseDocument):
                     models.ARCHITECTURE_KEY, models.ARM_ARCHITECTURE_KEY)
 
                 boot_doc = BootDocument(
-                    board, job, kernel, defconfig, lab_name,
-                    defconfig_full=defconfig_full,
-                    arch=arch)
+                    board,
+                    job,
+                    kernel,
+                    defconfig,
+                    lab_name, defconfig_full=defconfig_full, arch=arch
+                )
 
                 boot_doc.id = boot_id
 
                 for key, val in local_obj.iteritems():
                     setattr(boot_doc, key, val)
             except KeyError:
-                # If a mandatory key is missing, just return None.
+                # Missing mandatory key? Return None.
                 boot_doc = None
 
         return boot_doc

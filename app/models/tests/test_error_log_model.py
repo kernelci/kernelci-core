@@ -77,7 +77,6 @@ class TestErrorLogModel(unittest.TestCase):
             "kernel": "kernel",
             "mismatches": ["mismatch1"],
             "mismatches_count": 1,
-            "name": "job_id",
             "status": "FAIL",
             "version": "1.1",
             "warnings": ["warning1"],

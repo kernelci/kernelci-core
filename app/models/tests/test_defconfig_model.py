@@ -61,7 +61,6 @@ class TestDefconfModel(unittest.TestCase):
         defconf_doc.file_server_url = "server-url"
 
         expected = {
-            "name": "job-kernel-defconfig_full",
             "_id": "defconfig_id",
             "job": "job",
             "kernel": "kernel",

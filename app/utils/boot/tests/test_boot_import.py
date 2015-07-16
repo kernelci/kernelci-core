@@ -79,7 +79,6 @@ class TestParseBoot(unittest.TestCase):
         doc = bimport._parse_boot_from_json(self.boot_report, self.db, errors)
 
         self.assertIsInstance(doc, mboot.BootDocument)
-        self.assertEqual(doc.name, "board-job-kernel-defconfig-arm")
         self.assertEqual(doc.load_addr, "0x80200000")
         self.assertEqual(doc.endian, "little")
         self.assertEqual(doc.version, "1.0")

@@ -63,7 +63,6 @@ class TestErrorSummaryModel(unittest.TestCase):
             "job_id": "job_id",
             "kernel": "kernel",
             "mismatches": [("mismatch1", 1)],
-            "name": "job_id",
             "version": "1.1",
             "warnings": [("warning1", 1)]
         }

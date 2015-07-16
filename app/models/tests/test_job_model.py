@@ -61,7 +61,6 @@ class TestJobModel(unittest.TestCase):
 
         expected = {
             "_id": "job",
-            "name": "job-kernel",
             "kernel": "kernel",
             "job": "job",
             "private": False,
@@ -88,15 +87,13 @@ class TestJobModel(unittest.TestCase):
             job="job",
             kernel="kernel",
             created_on=now,
-            status="BUILD",
-            name="job-kernel"
+            status="BUILD"
         )
 
         job_doc = modj.JobDocument.from_json(json_obj)
 
         self.assertIsInstance(job_doc, modj.JobDocument)
         self.assertIsInstance(job_doc, modb.BaseDocument)
-        self.assertEqual(job_doc.name, 'job-kernel')
         self.assertEqual(job_doc.kernel, 'kernel')
         self.assertEqual(job_doc.job, 'job')
         self.assertEqual(job_doc.created_on, now)
@@ -124,8 +121,7 @@ class TestJobModel(unittest.TestCase):
             "_id": "job",
             "job": "job",
             "kernel": "kernel",
-            "name": "job-kernel",
-            "created_on": now,
+            "created_on": now
         }
 
         json_deserialized = json_util.loads(json_util.dumps(json_obj))
