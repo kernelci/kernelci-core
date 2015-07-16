@@ -1,5 +1,3 @@
-# Copyright (C) 2014 Linaro Ltd.
-#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
@@ -24,13 +22,16 @@ import bson
 import copy
 import datetime
 import errno
+import io
 import os
+import pymongo
 import re
 
 import models
 import models.boot as modbt
 import utils
 import utils.db
+import utils.errors
 
 # Some dtb appears to be in a temp directory like 'tmp', and will results in
 # some weird names.
@@ -44,41 +45,15 @@ NON_NULL_KEYS = [
     models.KERNEL_KEY
 ]
 
+# Local error function.
+ERR_ADD = utils.errors.add_error
+
 
 class BootImportError(Exception):
     """General boot import exceptions class."""
 
 
-def import_and_save_boot(json_obj, db_options, base_path=utils.BASE_PATH):
-    """Wrapper function to be used as an external task.
-
-    This function should only be called by Celery or other task managers.
-    Import and save the boot report as found from the parameters in the
-    provided JSON object.
-
-    :param json_obj: The JSON object with the values that identify the boot
-    report log.
-    :type json_obj: dict
-    :param db_options: The mongodb database connection parameters.
-    :type db_options: dict
-    """
-    database = utils.db.get_db_connection(db_options)
-    json_copy = copy.deepcopy(json_obj)
-
-    doc = _parse_boot_from_json(json_copy, database)
-    doc_id = None
-    ret_code = None
-
-    if doc:
-        ret_code, doc_id = save_or_update(doc, database)
-        save_to_disk(doc, json_obj, base_path)
-    else:
-        utils.LOG.info("Boot report not imported nor saved")
-
-    return ret_code, doc_id
-
-
-def save_or_update(boot_doc, database):
+def save_or_update(boot_doc, database, errors):
     """Save or update the document in the database.
 
     Check if we have a document available in the db, and in case perform an
@@ -87,11 +62,19 @@ def save_or_update(boot_doc, database):
     :param boot_doc: The boot document to save.
     :type boot_doc: BaseDocument
     :param database: The database connection.
+    :param errors: Where errors should be stored.
+    :type errors: dict
     :return The save action return code and the doc ID.
     """
     spec = {
-        models.LAB_NAME_KEY: boot_doc.lab_name,
-        models.NAME_KEY: boot_doc.name,
+        models.ARCHITECTURE_KEY: boot_doc.arch,
+        models.BOARD_KEY: boot_doc.board,
+        models.DEFCONFIG_FULL_KEY: (
+            boot_doc.defconfig_full or boot_doc.defconfig),
+        models.DEFCONFIG_KEY: boot_doc.defconfig,
+        models.JOB_KEY: boot_doc.job,
+        models.KERNEL_KEY: boot_doc.kernel,
+        models.LAB_NAME_KEY: boot_doc.lab_name
     }
 
     fields = [
@@ -99,13 +82,8 @@ def save_or_update(boot_doc, database):
         models.ID_KEY,
     ]
 
-    found_doc = utils.db.find(
-        database[models.BOOT_COLLECTION], 1, 0, spec=spec, fields=fields)
-
-    prev_doc = None
-    doc_len = found_doc.count()
-    if doc_len == 1:
-        prev_doc = found_doc[0]
+    prev_doc = utils.db.find_one2(
+        database[models.BOOT_COLLECTION], spec, fields=fields)
 
     if prev_doc:
         doc_get = prev_doc.get
@@ -118,27 +96,39 @@ def save_or_update(boot_doc, database):
     else:
         ret_val, doc_id = utils.db.save(database, boot_doc, manipulate=True)
 
+    if ret_val == 500:
+        err_msg = (
+            "Error saving/updating boot report in the database "
+            "for '%s-%s-%s (%s, %s)'" %
+            (
+                boot_doc.job,
+                boot_doc.kernel,
+                boot_doc.defconfig_full, boot_doc.arch, boot_doc.board
+            )
+        )
+        ERR_ADD(errors, ret_val, err_msg)
+
     return ret_val, doc_id
 
 
-def save_to_disk(boot_doc, json_obj, base_path):
+def save_to_disk(boot_doc, base_path, errors):
     """Save the provided boot report to disk.
 
     :param boot_doc: The document parsed.
     :type boot_doc: models.boot.BootDocument
-    :param json_obj: The JSON object to save.
-    :type json_obj: dict
     :param base_path: The base path where to save the document.
     :type base_path: str
+    :param errors: Where errors should be stored.
+    :type errors: dict
     """
     job = boot_doc.job
     kernel = boot_doc.kernel
-    defconfig = boot_doc.defconfig_full
+    defconfig_full = boot_doc.defconfig_full
     lab_name = boot_doc.lab_name
     board = boot_doc.board
     arch = boot_doc.arch
 
-    r_defconfig = "-".join([arch, defconfig])
+    r_defconfig = "-".join([arch, defconfig_full])
 
     dir_path = os.path.join(base_path, job, kernel, r_defconfig, lab_name)
     file_path = os.path.join(dir_path, "boot-%s.json" % board)
@@ -151,190 +141,28 @@ def save_to_disk(boot_doc, json_obj, base_path):
                 if ex.errno != errno.EEXIST:
                     raise ex
 
-        with open(file_path, mode="w") as write_json:
+        with io.open(file_path, mode="w") as write_json:
             write_json.write(
-                json.dumps(json_obj, ensure_ascii=False, indent="  "))
+                json.dumps(
+                    boot_doc.to_dict(),
+                    ensure_ascii=False,
+                    indent="  ", default=bson.json_util.default)
+            )
     except (OSError, IOError), ex:
-        utils.LOG.error(
-            "Error saving document '%s' into '%s'",
-            boot_doc.name, dir_path)
+        err_msg = (
+            "Error saving boot report to disk for '%s-%s-%s (%s, %s)'" %
+            (
+                boot_doc.job,
+                boot_doc.kernel,
+                boot_doc.defconfig_full, boot_doc.arch, boot_doc.board
+            )
+        )
         utils.LOG.exception(ex)
+        utils.LOG.error(err_msg)
+        ERR_ADD(errors, 500, err_msg)
 
 
-def _parse_boot_from_file(boot_log, database):
-    """Read and parse the actual boot report.
-
-    :param boot_log: The path to the boot report.
-    :return A `BootDocument` object.
-    """
-
-    utils.LOG.info("Parsing boot log file '%s'", boot_log)
-
-    boot_json = None
-    boot_doc = None
-
-    try:
-        with open(boot_log) as read_f:
-            boot_json = json.load(read_f)
-
-        json_pop_f = boot_json.pop
-
-        # Mandatory fields.
-        job = json_pop_f(models.JOB_KEY)
-        kernel = json_pop_f(models.KERNEL_KEY)
-        defconfig = json_pop_f(models.DEFCONFIG_KEY)
-        defconfig_full = json_pop_f(models.DEFCONFIG_FULL_KEY, defconfig)
-        lab_name = json_pop_f(models.LAB_NAME_KEY)
-        arch = json_pop_f(models.ARCHITECTURE_KEY, models.ARM_ARCHITECTURE_KEY)
-        # Even if board is mandatory, for old cases this used not to be true.
-        board = json_pop_f(models.BOARD_KEY, None)
-        dtb = boot_json.get(models.DTB_KEY, None)
-
-        if not board:
-            utils.LOG.warn("No board value specified in the boot report")
-            if dtb and not TMP_RE.findall(dtb):
-                board = os.path.splitext(os.path.basename(dtb))[0]
-            else:
-                # If we do not have the dtb field we use the boot report file
-                # to extract some kind of value for board.
-                board = os.path.splitext(
-                    os.path.basename(boot_log).replace("boot-", ""))[0]
-                utils.LOG.info(
-                    "Using boot report file name for board name: %s", board)
-
-        boot_doc = modbt.BootDocument(
-            board, job, kernel, defconfig, lab_name, defconfig_full, arch)
-        boot_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
-
-        _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f)
-        _update_boot_doc_ids(boot_doc, database)
-    except (OSError, TypeError, IOError), ex:
-        utils.LOG.error("Error opening the file '%s'", boot_log)
-        utils.LOG.exception(ex)
-    except KeyError, ex:
-        utils.LOG.error("Missing key in boot report: import failed")
-        utils.LOG.exception(ex)
-
-    return boot_doc
-
-
-def _parse_boot_from_json(boot_json, database):
-    """Parse the boot report from a JSON object.
-
-    :param boot_json: The JSON object.
-    :type boot_json: dict
-    :return A `models.boot.BootDocument` instance, or None if the JSON cannot
-    be parsed correctly.
-    """
-    boot_doc = None
-
-    try:
-        json_pop_f = boot_json.pop
-        json_get_f = boot_json.get
-
-        _check_for_null(boot_json, json_get_f)
-
-        board = json_pop_f(models.BOARD_KEY)
-        job = json_pop_f(models.JOB_KEY)
-        kernel = json_pop_f(models.KERNEL_KEY)
-        defconfig = json_pop_f(models.DEFCONFIG_KEY)
-        defconfig_full = json_pop_f(models.DEFCONFIG_FULL_KEY, defconfig)
-        lab_name = json_pop_f(models.LAB_NAME_KEY)
-        arch = json_pop_f(models.ARCHITECTURE_KEY, models.ARM_ARCHITECTURE_KEY)
-
-        boot_doc = modbt.BootDocument(
-            board, job, kernel, defconfig, lab_name, defconfig_full, arch)
-        boot_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
-        _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f)
-        _update_boot_doc_ids(boot_doc, database)
-    except KeyError, ex:
-        utils.LOG.error(
-            "Missing key in boot report: import failed")
-        utils.LOG.exception(ex)
-    except BootImportError, ex:
-        utils.LOG.error("Boot JSON object is not valid")
-        utils.LOG.exception(ex)
-
-    return boot_doc
-
-
-def _check_for_null(boot_json, get_func=None):
-    """Check if the json object has invalid values in its mandatory keys.
-
-    An invalid value is either None or the "null" string.
-
-    :raise BootImportError in case of errors.
-    """
-    if get_func is None:
-        get_func = boot_json.get
-
-    for key in NON_NULL_KEYS:
-        val = get_func(key)
-        if any([val is None, val == "null", val == "None", val == "none"]):
-            raise BootImportError(
-                "Invalid value for mandatory key '%s', got: %s (%s)",
-                key, str(val), type(val))
-
-
-def _update_boot_doc_ids(boot_doc, database):
-    """Update boot document job and defconfig IDs references.
-
-    :param boot_doc: The boot document to update.
-    :type boot_doc: BootDocument
-    :param database: The database connection to use.
-    """
-    job = boot_doc.job
-    kernel = boot_doc.kernel
-    defconfig = boot_doc.defconfig
-    defconfig_full = boot_doc.defconfig_full
-
-    job_doc = utils.db.find_one2(
-        database[models.JOB_COLLECTION],
-        {models.JOB_KEY: job, models.KERNEL_KEY: kernel}
-    )
-
-    build_spec = {
-        models.JOB_KEY: job,
-        models.KERNEL_KEY: kernel,
-        models.DEFCONFIG_KEY: defconfig
-    }
-
-    if defconfig_full:
-        build_spec[models.DEFCONFIG_FULL_KEY] = defconfig_full
-
-    defconfig_doc = utils.db.find_one2(
-        database[models.DEFCONFIG_COLLECTION],
-        build_spec,
-        fields=[
-            models.GIT_BRANCH_KEY,
-            models.GIT_COMMIT_KEY,
-            models.GIT_DESCRIBE_KEY,
-            models.GIT_URL_KEY,
-            models.ID_KEY,
-            models.JOB_ID_KEY
-        ])
-
-    if job_doc:
-        boot_doc.job_id = job_doc.get(models.ID_KEY, None)
-    if defconfig_doc:
-        doc_get = defconfig_doc.get
-        boot_doc.defconfig_id = doc_get(models.ID_KEY, None)
-
-        # In case we do not have the job_id key with the previous search.
-        if all([not boot_doc.job_id, doc_get(models.JOB_ID_KEY, None)]):
-            boot_doc.job_id = doc_get(models.JOB_ID_KEY, None)
-        # Get also git information if we do not have them already,
-        if not boot_doc.git_branch:
-            boot_doc.git_branch = doc_get(models.GIT_BRANCH_KEY, None)
-        if not boot_doc.git_commit:
-            boot_doc.git_commit = doc_get(models.GIT_COMMIT_KEY, None)
-        if not boot_doc.git_describe:
-            boot_doc.git_describe = doc_get(models.GIT_DESCRIBE_KEY, None)
-        if not boot_doc.git_url:
-            boot_doc.git_url = doc_get(models.GIT_URL_KEY, None)
-
-
-def _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f):
+def _update_boot_doc_from_json(boot_doc, json_pop_f, errors):
     """Update a BootDocument from the provided JSON boot object.
 
     This function does not return anything, and the BootDocument passed is
@@ -342,17 +170,30 @@ def _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f):
 
     :param boot_doc: The BootDocument to update.
     :type boot_doc: `models.boot.BootDocument`.
-    :param boot_json: The JSON object from where to take that parameters.
-    :type boot_json: dict
     :param json_pop_f: The function used to pop elements out of the JSON
     object.
     :type json_pop_f: function
+    :param errors: Where errors should be stored.
+    :type errors: dict
     """
-    seconds = float(json_pop_f(models.BOOT_TIME_KEY, 0.0))
-    if seconds < 0.0:
+    boot_time = json_pop_f(models.BOOT_TIME_KEY, 0.0)
+    try:
+        seconds = float(boot_time)
+    except ValueError, ex:
+        # Default to 0.
         seconds = 0.0
+        err_msg = (
+            "Error reading boot time data, got: %s; defaulting to 0" %
+            str(boot_time))
+        utils.LOG.exception(ex)
+        utils.LOG.error(err_msg)
+        ERR_ADD(errors, 400, err_msg)
 
     try:
+        if seconds < 0.0:
+            seconds = 0.0
+            ERR_ADD(errors, 400, "Boot time is negative, defaulting to 0")
+
         if seconds == 0.0:
             boot_doc.time = datetime.datetime(
                 1970, 1, 1, hour=0, minute=0, second=0)
@@ -364,11 +205,14 @@ def _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f):
                 second=time_d.seconds % 60,
                 microsecond=time_d.microseconds
             )
-    except OverflowError:
-        utils.LOG.error("Boot time passed value is too large for a time value")
-        utils.LOG.info("Boot time will be set to 0")
+    except OverflowError, ex:
+        # Default to 0 time.
         boot_doc.time = datetime.datetime(
             1970, 1, 1, hour=0, minute=0, second=0)
+        err_msg = "Boot time value is too large for a time value, default to 0"
+        utils.LOG.exception(ex)
+        utils.LOG.error(err_msg)
+        ERR_ADD(errors, 400, err_msg)
 
     boot_doc.status = json_pop_f(
         models.BOOT_RESULT_KEY, models.UNKNOWN_STATUS)
@@ -402,3 +246,171 @@ def _update_boot_doc_from_json(boot_doc, boot_json, json_pop_f):
     boot_doc.uimage_addr = json_pop_f(models.UIMAGE_ADDR_KEY, None)
     boot_doc.version = json_pop_f(models.VERSION_KEY, "1.0")
     boot_doc.warnings = json_pop_f(models.BOOT_WARNINGS_KEY, 0)
+
+
+def _check_for_null(get_func):
+    """Check if the json object has invalid values in its mandatory keys.
+
+    An invalid value is either None or the "null" string.
+
+    :param get_func: The get() function to retrieve the data.
+    :type get_func: function
+
+    :raise BootImportError in case of errors.
+    """
+    for key in NON_NULL_KEYS:
+        val = get_func(key)
+        if any([val is None, val == "null", val == "None", val == "none"]):
+            raise BootImportError(
+                "Invalid value for mandatory key '%s', got: %s" %
+                (key, str(val)))
+
+
+def _update_boot_doc_ids(boot_doc, database):
+    """Update boot document job and defconfig IDs references.
+
+    :param boot_doc: The boot document to update.
+    :type boot_doc: BootDocument
+    :param database: The database connection to use.
+    """
+    job = boot_doc.job
+    kernel = boot_doc.kernel
+    defconfig = boot_doc.defconfig
+    defconfig_full = boot_doc.defconfig_full
+    arch = boot_doc.arch
+
+    job_doc = utils.db.find_one2(
+        database[models.JOB_COLLECTION],
+        {models.JOB_KEY: job, models.KERNEL_KEY: kernel}
+    )
+
+    build_spec = {
+        models.ARCHITECTURE_KEY: arch,
+        models.DEFCONFIG_KEY: defconfig,
+        models.JOB_KEY: job,
+        models.KERNEL_KEY: kernel
+    }
+
+    if defconfig_full:
+        build_spec[models.DEFCONFIG_FULL_KEY] = defconfig_full
+
+    defconfig_doc = utils.db.find_one2(
+        database[models.DEFCONFIG_COLLECTION],
+        build_spec,
+        fields=[
+            models.GIT_BRANCH_KEY,
+            models.GIT_COMMIT_KEY,
+            models.GIT_DESCRIBE_KEY,
+            models.GIT_URL_KEY,
+            models.ID_KEY,
+            models.JOB_ID_KEY
+        ])
+
+    if job_doc:
+        boot_doc.job_id = job_doc.get(models.ID_KEY, None)
+    else:
+        utils.LOG.warn(
+            "No job document found for boot %s-%s-%s (%s)",
+            job, kernel, defconfig_full, arch)
+    if defconfig_doc:
+        doc_get = defconfig_doc.get
+        boot_doc.defconfig_id = doc_get(models.ID_KEY, None)
+
+        # In case we do not have the job_id key with the previous search.
+        if all([not boot_doc.job_id, doc_get(models.JOB_ID_KEY, None)]):
+            boot_doc.job_id = doc_get(models.JOB_ID_KEY, None)
+        # Get also git information if we do not have them already,
+        if not boot_doc.git_branch:
+            boot_doc.git_branch = doc_get(models.GIT_BRANCH_KEY, None)
+        if not boot_doc.git_commit:
+            boot_doc.git_commit = doc_get(models.GIT_COMMIT_KEY, None)
+        if not boot_doc.git_describe:
+            boot_doc.git_describe = doc_get(models.GIT_DESCRIBE_KEY, None)
+        if not boot_doc.git_url:
+            boot_doc.git_url = doc_get(models.GIT_URL_KEY, None)
+    else:
+        utils.LOG.warn(
+            "No build document found for boot %s-%s-%s (%s)",
+            job, kernel, defconfig_full, arch)
+
+
+def _parse_boot_from_json(boot_json, database, errors):
+    """Parse the boot report from a JSON object.
+
+    :param boot_json: The JSON object.
+    :type boot_json: dict
+    :param database: The database connection.
+    :param errors: Where to store the errors.
+    :type errors: dict
+    :return A `models.boot.BootDocument` instance, or None if the JSON cannot
+    be parsed correctly.
+    """
+    boot_doc = None
+
+    if boot_json:
+        try:
+            json_pop_f = boot_json.pop
+            json_get_f = boot_json.get
+
+            _check_for_null(json_get_f)
+
+            board = json_pop_f(models.BOARD_KEY)
+            job = json_pop_f(models.JOB_KEY)
+            kernel = json_pop_f(models.KERNEL_KEY)
+            defconfig = json_pop_f(models.DEFCONFIG_KEY)
+            defconfig_full = json_pop_f(models.DEFCONFIG_FULL_KEY, defconfig)
+            lab_name = json_pop_f(models.LAB_NAME_KEY)
+            arch = json_pop_f(
+                models.ARCHITECTURE_KEY, models.ARM_ARCHITECTURE_KEY)
+
+            boot_doc = modbt.BootDocument(
+                board, job, kernel, defconfig, lab_name, defconfig_full, arch)
+            boot_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
+            _update_boot_doc_from_json(boot_doc, json_pop_f, errors)
+            _update_boot_doc_ids(boot_doc, database)
+        except KeyError, ex:
+            err_msg = "Missing mandatory key in boot data"
+            utils.LOG.exception(ex)
+            utils.LOG.error(err_msg)
+            ERR_ADD(errors, 400, err_msg)
+        except BootImportError, ex:
+            utils.LOG.error("Boot JSON object is not valid")
+            utils.LOG.exception(ex)
+            ERR_ADD(errors, 400, str(ex))
+
+    return boot_doc
+
+
+def import_and_save_boot(json_obj, db_options, base_path=utils.BASE_PATH):
+    """Wrapper function to be used as an external task.
+
+    This function should only be called by Celery or other task managers.
+    Import and save the boot report as found from the parameters in the
+    provided JSON object.
+
+    :param json_obj: The JSON object with the values that identify the boot
+    report log.
+    :type json_obj: dict
+    :param db_options: The mongodb database connection parameters.
+    :type db_options: dict
+    """
+    ret_code = None
+    doc_id = None
+    errors = {}
+
+    try:
+        database = utils.db.get_db_connection(db_options)
+        json_copy = copy.deepcopy(json_obj)
+
+        doc = _parse_boot_from_json(json_copy, database, errors)
+        if doc:
+            ret_code, doc_id = save_or_update(doc, database, errors)
+            save_to_disk(doc, base_path, errors)
+        else:
+            utils.LOG.warn("No boot report imported nor saved")
+    except pymongo.errors.ConnectionFailure, ex:
+        utils.LOG.exception(ex)
+        utils.LOG.error("Error getting database connection")
+        ERR_ADD(errors, 500, "Error connecting to the database")
+
+    return ret_code, doc_id, errors

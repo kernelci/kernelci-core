@@ -12,18 +12,20 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import datetime
+import errno
 import json
 import logging
+import mock
 import mongomock
 import os
+import pymongo
+import shutil
 import sys
 import tempfile
 import types
 import unittest
 
-from mock import patch
-
-import models.boot as modb
+import models.boot as mboot
 import utils.bootimport as bimport
 
 
@@ -61,10 +63,22 @@ class TestParseBoot(unittest.TestCase):
     def tearDown(self):
         logging.disable(logging.NOTSET)
 
-    def test_parse_from_json_simple(self):
-        doc = bimport._parse_boot_from_json(self.boot_report, self.db)
+    @mock.patch("utils.db.get_db_connection")
+    def test_import_and_save_db_error(self, mock_conn):
+        mock_conn.side_effect = pymongo.errors.ConnectionFailure("ConnErr")
 
-        self.assertIsInstance(doc, modb.BootDocument)
+        ret_code, doc_id, errors = bimport.import_and_save_boot(
+            self.boot_report, {})
+
+        self.assertIsNone(doc_id)
+        self.assertIsNotNone(errors)
+        self.assertListEqual([500], errors.keys())
+
+    def test_parse_from_json_simple(self):
+        errors = {}
+        doc = bimport._parse_boot_from_json(self.boot_report, self.db, errors)
+
+        self.assertIsInstance(doc, mboot.BootDocument)
         self.assertEqual(doc.name, "board-job-kernel-defconfig-arm")
         self.assertEqual(doc.load_addr, "0x80200000")
         self.assertEqual(doc.endian, "little")
@@ -81,7 +95,7 @@ class TestParseBoot(unittest.TestCase):
 
         self.assertRaises(
             bimport.BootImportError,
-            bimport._check_for_null, json.loads(boot_report))
+            bimport._check_for_null, json.loads(boot_report).get)
 
     def test_check_for_null_with_null(self):
         boot_report = (
@@ -91,40 +105,97 @@ class TestParseBoot(unittest.TestCase):
 
         self.assertRaises(
             bimport.BootImportError,
-            bimport._check_for_null, json.loads(boot_report))
+            bimport._check_for_null, json.loads(boot_report).get)
 
     def test_check_for_null_with_none_string(self):
         boot_report = (
             '{"job": "job", "board": "board", '
             '"kernel": "None", "defconfig": "defconfig", "lab_name": "lab"}'
         )
-        boot_json = json.loads(boot_report)
 
         self.assertRaises(
             bimport.BootImportError,
-            bimport._check_for_null, boot_json, boot_json.get)
+            bimport._check_for_null, json.loads(boot_report).get)
 
     def test_check_for_null_with_none_string_lower(self):
         boot_report = (
             '{"job": "job", "board": "board", '
             '"kernel": "kernel", "defconfig": "none", "lab_name": "lab"}'
         )
-        boot_json = json.loads(boot_report)
 
         self.assertRaises(
             bimport.BootImportError,
-            bimport._check_for_null, boot_json, boot_json.get)
+            bimport._check_for_null, json.loads(boot_report).get)
 
-    @patch("utils.db.get_db_connection")
+    def test_save_to_disk(self):
+        errors = {}
+        base_path = tempfile.mkdtemp()
+        boot_doc = mboot.BootDocument(
+            "board", "job", "kernel", "defconfig", "lab", "defconfig+FRAGMENT")
+        expected_path = os.path.join(
+            base_path, "job", "kernel", "arm-defconfig+FRAGMENT", "lab")
+        expected_file = os.path.join(expected_path, "boot-board.json")
+        try:
+            bimport.save_to_disk(boot_doc, base_path, errors)
+            self.assertTrue(os.path.isdir(expected_path))
+            self.assertTrue(os.path.exists(expected_file))
+            self.assertDictEqual({}, errors,)
+        finally:
+            shutil.rmtree(base_path)
+
+    def test_save_to_disk_dir_exists(self):
+        errors = {}
+        base_path = tempfile.mkdtemp()
+        boot_doc = mboot.BootDocument(
+            "board", "job", "kernel", "defconfig", "lab", "defconfig+FRAGMENT")
+        expected_path = os.path.join(
+            base_path, "job", "kernel", "arm-defconfig+FRAGMENT", "lab")
+        expected_file = os.path.join(expected_path, "boot-board.json")
+        try:
+            os.makedirs(expected_path)
+            self.assertTrue(os.path.isdir(expected_path))
+
+            patcher = mock.patch("os.path.isdir", spec=True)
+            patched_dir = patcher.start()
+            patched_dir.return_value = False
+            self.addCleanup(patcher.stop)
+
+            bimport.save_to_disk(boot_doc, base_path, errors)
+            self.assertTrue(os.path.exists(expected_file))
+            self.assertDictEqual({}, errors,)
+        finally:
+            shutil.rmtree(base_path)
+
+    @mock.patch("os.makedirs")
+    def test_save_to_disk_dir_create_error(self, mock_mkdir):
+        errors = {}
+        base_path = tempfile.mkdtemp()
+        boot_doc = mboot.BootDocument(
+            "board", "job", "kernel", "defconfig", "lab", "defconfig+FRAGMENT")
+        expected_path = os.path.join(
+            base_path, "job", "kernel", "arm-defconfig+FRAGMENT", "lab")
+        expected_file = os.path.join(expected_path, "boot-board.json")
+
+        exception = OSError("Error")
+        exception.errno = errno.EIO
+        mock_mkdir.side_effect = exception
+
+        try:
+            bimport.save_to_disk(boot_doc, base_path, errors)
+            self.assertFalse(os.path.exists(expected_path))
+            self.assertFalse(os.path.exists(expected_file))
+            self.assertListEqual([500], errors.keys())
+        finally:
+            shutil.rmtree(base_path)
+
+    @mock.patch("utils.db.get_db_connection")
     def test_import_and_save_boot(self, mock_db):
         mock_db = self.db
 
-        code, doc_id = bimport.import_and_save_boot(
-            self.boot_report, {}, base_path=self.base_path
-        )
+        code, doc_id, errors = bimport.import_and_save_boot(
+            self.boot_report, {}, base_path=self.base_path)
         lab_dir = os.path.join(
-            self.base_path, "job", "kernel", "arm-defconfig", "lab_name"
-        )
+            self.base_path, "job", "kernel", "arm-defconfig", "lab_name")
         boot_file = os.path.join(lab_dir, "boot-board.json")
 
         self.assertTrue(os.path.isdir(lab_dir))
@@ -137,65 +208,45 @@ class TestParseBoot(unittest.TestCase):
         except OSError:
             pass
 
-    @patch("utils.bootimport._check_for_null")
+    @mock.patch("utils.bootimport._check_for_null")
     def test_parse_from_json_wrong_json(self, mock_null):
         boot_json = {
             "foo": "bar"
         }
-        doc = bimport._parse_boot_from_json(boot_json, self.db)
+        errors = {}
+        doc = bimport._parse_boot_from_json(boot_json, self.db, errors)
         self.assertIsNone(doc)
+        self.assertListEqual([400], errors.keys())
 
     def test_parse_from_json_with_null(self):
         boot_json = {
             "board": "null"
         }
+        errors = {}
 
-        doc = bimport._parse_boot_from_json(boot_json, self.db)
+        doc = bimport._parse_boot_from_json(boot_json, self.db, errors)
         self.assertIsNone(doc)
+        self.assertListEqual([400], errors.keys())
 
-    @patch("utils.db.get_db_connection")
-    @patch("utils.bootimport._parse_boot_from_json")
+    @mock.patch("utils.db.get_db_connection")
+    @mock.patch("utils.bootimport._parse_boot_from_json")
     def test_import_and_save_no_doc(self, mock_parse, mock_db):
         mock_parse.return_value = None
         mock_db = self.db
 
-        code, doc_id = bimport.import_and_save_boot({}, {})
+        code, doc_id, errors = bimport.import_and_save_boot({}, {})
         self.assertIsNone(code)
         self.assertIsNone(doc_id)
+        self.assertDictEqual({}, errors)
 
-    def test_parse_from_file_no_file(self):
-        doc = bimport._parse_boot_from_file(None, self.db)
+    def test_parse_from_json_no_json(self):
+        errors = {}
+        doc = bimport._parse_boot_from_json(None, self.db, errors)
         self.assertIsNone(doc)
+        self.assertDictEqual({}, errors)
 
-    def test_parse_from_file_wrong_file(self):
-        doc = bimport._parse_boot_from_file('foobar.json', self.db)
-        self.assertIsNone(doc)
-
-    @patch("utils.bootimport._check_for_null")
-    def test_parse_from_file_no_key(self, mock_null):
-        boot_log = tempfile.NamedTemporaryFile(
-            mode='w+b', bufsize=-1, suffix="json", delete=False
-        )
-        boot_obj = {
-            "foo": "bar"
-        }
-
-        try:
-            with open(boot_log.name, mode="w") as boot_write:
-                boot_write.write(json.dumps(boot_obj))
-
-            doc = bimport._parse_boot_from_file(
-                boot_log.name, self.db)
-
-            self.assertIsNone(doc)
-        finally:
-            os.remove(boot_log.name)
-
-    def test_parse_from_file_wrong_boot_time_too_big(self):
-        boot_log = tempfile.NamedTemporaryFile(
-            mode='w+b', bufsize=-1, suffix="json", delete=False
-        )
-        boot_obj = {
+    def test_parse_from_json_wrong_boot_time_too_big(self):
+        boot_json = {
             "job": "job",
             "kernel": "kernel",
             "defconfig": "defconfig",
@@ -204,28 +255,20 @@ class TestParseBoot(unittest.TestCase):
             "lab_name": "lab_name",
             "boot_time": sys.maxint
         }
+        errors = {}
 
-        try:
-            with open(boot_log.name, mode="w") as boot_write:
-                boot_write.write(json.dumps(boot_obj))
+        doc = bimport._parse_boot_from_json(boot_json, self.db, errors)
 
-            doc = bimport._parse_boot_from_file(
-                boot_log.name, self.db)
+        self.assertEqual(doc.board, "board")
+        self.assertEqual(doc.job, "job")
+        self.assertEqual(doc.kernel, "kernel")
+        self.assertEqual(doc.defconfig, "defconfig")
+        self.assertEqual(doc.dtb, "dtb")
+        self.assertEqual(doc.time, datetime.datetime(1970, 1, 1, 0, 0))
+        self.assertListEqual([400], errors.keys())
 
-            self.assertEqual(doc.board, "board")
-            self.assertEqual(doc.job, "job")
-            self.assertEqual(doc.kernel, "kernel")
-            self.assertEqual(doc.defconfig, "defconfig")
-            self.assertEqual(doc.dtb, "dtb")
-            self.assertEqual(doc.time, datetime.datetime(1970, 1, 1, 0, 0))
-        finally:
-            os.remove(boot_log.name)
-
-    def test_parse_from_file_wrong_boot_time_too_big_negative(self):
-        boot_log = tempfile.NamedTemporaryFile(
-            mode='w+b', bufsize=-1, suffix="json", delete=False
-        )
-        boot_obj = {
+    def test_parse_from_json_wrong_boot_time_too_big_negative(self):
+        boot_json = {
             "job": "job",
             "kernel": "kernel",
             "defconfig": "defconfig",
@@ -234,28 +277,20 @@ class TestParseBoot(unittest.TestCase):
             "lab_name": "lab_name",
             "boot_time": -sys.maxint - 1
         }
+        errors = {}
 
-        try:
-            with open(boot_log.name, mode="w") as boot_write:
-                boot_write.write(json.dumps(boot_obj))
+        doc = bimport._parse_boot_from_json(boot_json, self.db, errors)
 
-            doc = bimport._parse_boot_from_file(
-                boot_log.name, self.db)
+        self.assertEqual(doc.board, "board")
+        self.assertEqual(doc.job, "job")
+        self.assertEqual(doc.kernel, "kernel")
+        self.assertEqual(doc.defconfig, "defconfig")
+        self.assertEqual(doc.dtb, "dtb")
+        self.assertEqual(doc.time, datetime.datetime(1970, 1, 1, 0, 0))
+        self.assertListEqual([400], errors.keys())
 
-            self.assertEqual(doc.board, "board")
-            self.assertEqual(doc.job, "job")
-            self.assertEqual(doc.kernel, "kernel")
-            self.assertEqual(doc.defconfig, "defconfig")
-            self.assertEqual(doc.dtb, "dtb")
-            self.assertEqual(doc.time, datetime.datetime(1970, 1, 1, 0, 0))
-        finally:
-            os.remove(boot_log.name)
-
-    def test_parse_from_file_wrong_boot_time_negative(self):
-        boot_log = tempfile.NamedTemporaryFile(
-            mode='w+b', bufsize=-1, suffix="json", delete=False
-        )
-        boot_obj = {
+    def test_parse_from_json_wrong_boot_time_negative(self):
+        boot_json = {
             "job": "job",
             "kernel": "kernel",
             "defconfig": "defconfig",
@@ -264,28 +299,43 @@ class TestParseBoot(unittest.TestCase):
             "lab_name": "lab_name",
             "boot_time": -1500.0
         }
+        errors = {}
 
-        try:
-            with open(boot_log.name, mode="w") as boot_write:
-                boot_write.write(json.dumps(boot_obj))
+        doc = bimport._parse_boot_from_json(boot_json, self.db, errors)
 
-            doc = bimport._parse_boot_from_file(
-                boot_log.name, self.db)
+        self.assertEqual(doc.board, "board")
+        self.assertEqual(doc.job, "job")
+        self.assertEqual(doc.kernel, "kernel")
+        self.assertEqual(doc.defconfig, "defconfig")
+        self.assertEqual(doc.dtb, "dtb")
+        self.assertEqual(doc.time, datetime.datetime(1970, 1, 1, 0, 0))
+        self.assertListEqual([400], errors.keys())
 
-            self.assertEqual(doc.board, "board")
-            self.assertEqual(doc.job, "job")
-            self.assertEqual(doc.kernel, "kernel")
-            self.assertEqual(doc.defconfig, "defconfig")
-            self.assertEqual(doc.dtb, "dtb")
-            self.assertEqual(doc.time, datetime.datetime(1970, 1, 1, 0, 0))
-        finally:
-            os.remove(boot_log.name)
+    def test_parse_from_json_no_valid_boot_time(self):
+        boot_json = {
+            "board": "board",
+            "job": "job",
+            "kernel": "kernel",
+            "defconfig": "defconfig",
+            "lab_name": "lab_name",
+            "dtb": "dtb",
+            "boot_time": "foo"
+        }
+        errors = {}
 
-    def test_parse_from_file_valid(self):
-        boot_log = tempfile.NamedTemporaryFile(
-            mode='w+b', bufsize=-1, suffix="json", delete=False
-        )
-        boot_obj = {
+        doc = bimport._parse_boot_from_json(boot_json, self.db, errors)
+
+        self.assertIsNotNone(doc)
+        self.assertEqual(doc.board, "board")
+        self.assertEqual(doc.job, "job")
+        self.assertEqual(doc.kernel, "kernel")
+        self.assertEqual(doc.defconfig, "defconfig")
+        self.assertEqual(doc.dtb, "dtb")
+        self.assertEqual(doc.time, datetime.datetime(1970, 1, 1, 0, 0))
+        self.assertListEqual([400], errors.keys())
+
+    def test_parse_from_json_valid(self):
+        boot_json = {
             "job": "job",
             "kernel": "kernel",
             "defconfig": "defconfig",
@@ -294,75 +344,13 @@ class TestParseBoot(unittest.TestCase):
             "lab_name": "lab_name",
             "boot_time": 0,
         }
+        errors = {}
 
-        try:
-            with open(boot_log.name, mode="w") as boot_write:
-                boot_write.write(json.dumps(boot_obj))
+        doc = bimport._parse_boot_from_json(boot_json, self.db, errors)
 
-            doc = bimport._parse_boot_from_file(
-                boot_log.name, self.db)
-
-            self.assertEqual(doc.board, "board")
-            self.assertEqual(doc.job, "job")
-            self.assertEqual(doc.kernel, "kernel")
-            self.assertEqual(doc.defconfig, "defconfig")
-            self.assertEqual(doc.dtb, "dtb")
-        finally:
-            os.remove(boot_log.name)
-
-    def test_parse_from_file_no_board(self):
-        boot_log = tempfile.NamedTemporaryFile(
-            mode='w+b',
-            bufsize=-1, prefix="boot-", suffix=".json", delete=False)
-        boot_obj = {
-            "job": "job",
-            "kernel": "kernel",
-            "defconfig": "defconfig",
-            "dtb": "dtbs/board.dtb",
-            "lab_name": "lab_name",
-            "boot_time": 0,
-        }
-
-        try:
-            with open(boot_log.name, mode="w") as boot_write:
-                boot_write.write(json.dumps(boot_obj))
-
-            doc = bimport._parse_boot_from_file(
-                boot_log.name, self.db)
-
-            self.assertEqual(doc.board, "board")
-            self.assertEqual(doc.job, "job")
-            self.assertEqual(doc.kernel, "kernel")
-            self.assertEqual(doc.defconfig, "defconfig")
-            self.assertEqual(doc.dtb, "dtbs/board.dtb")
-        finally:
-            os.remove(boot_log.name)
-
-    def test_parse_from_file_no_board_tmp_dtb(self):
-        boot_log = tempfile.NamedTemporaryFile(
-            mode="w+b",
-            bufsize=-1, prefix="boot-", suffix=".json", delete=False)
-        boot_obj = {
-            "job": "job",
-            "kernel": "kernel",
-            "defconfig": "defconfig",
-            "dtb": "tmp/board.dtb",
-            "lab_name": "lab_name",
-            "boot_time": 0,
-            "arch": "arm"
-        }
-
-        board = os.path.splitext(
-            os.path.basename(boot_log.name).replace("boot-", ""))[0]
-
-        try:
-            with open(boot_log.name, mode="w") as boot_write:
-                boot_write.write(json.dumps(boot_obj))
-
-            doc = bimport._parse_boot_from_file(
-                boot_log.name, self.db)
-
-            self.assertEqual(doc.board, board)
-            self.assertEqual(doc.dtb, "tmp/board.dtb")
-        finally:
-            os.remove(boot_log.name)
+        self.assertEqual(doc.board, "board")
+        self.assertEqual(doc.job, "job")
+        self.assertEqual(doc.kernel, "kernel")
+        self.assertEqual(doc.defconfig, "defconfig")
+        self.assertEqual(doc.dtb, "dtb")
+        self.assertDictEqual({}, errors)
