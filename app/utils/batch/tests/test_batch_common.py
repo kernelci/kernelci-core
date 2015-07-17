@@ -85,7 +85,7 @@ class TestBatch(unittest.TestCase):
     def test_create_batch_op_count(self):
         json_obj = {
             "collection": "count",
-            "document_id": "defconfig",
+            "document_id": "build",
             "query": "status=FAIL&job=mainline",
             "operation_id": "foo"
         }
@@ -99,7 +99,7 @@ class TestBatch(unittest.TestCase):
 
     def test_create_batch_op_no_collection(self):
         json_obj = {
-            "document_id": "defconfig",
+            "document_id": "build",
             "query": "status=FAIL&job=mainline",
             "operation_id": "foo"
         }
@@ -130,9 +130,9 @@ class TestBatch(unittest.TestCase):
         self.assertIsInstance(op, BatchJobOperation)
 
     @patch('pymongo.MongoClient')
-    def test_create_batch_defconfig_op(self, mocked_mongocl):
+    def test_create_batch_build_op(self, mocked_mongocl):
         json_obj = {
-            "collection": "defconfig",
+            "collection": "build",
             "query": "status=PASS&job=foo",
             "operation_id": "foo"
         }

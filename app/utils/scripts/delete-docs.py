@@ -26,7 +26,7 @@ import utils.db
 
 COLLECTIONS = [
     models.BOOT_COLLECTION,
-    models.DEFCONFIG_COLLECTION,
+    models.BUILD_COLLECTION,
     models.JOB_COLLECTION,
     models.LAB_COLLECTION
 ]

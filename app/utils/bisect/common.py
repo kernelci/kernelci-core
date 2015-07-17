@@ -96,14 +96,14 @@ def combine_defconfig_values(boot_doc, db_options):
 
     if defconfig_id:
         build_doc = utils.db.find_one2(
-            database[models.DEFCONFIG_COLLECTION],
+            database[models.BUILD_COLLECTION],
             defconfig_id,
             fields=BOOT_DEFCONFIG_SEARCH_FIELDS
         )
     else:
         defconfig_name = job + "-" + kernel + "-" + defconfig_full
         build_doc = utils.db.find_one(
-            database[models.DEFCONFIG_COLLECTION],
+            database[models.BUILD_COLLECTION],
             [defconfig_name],
             field=models.NAME_KEY,
             fields=BOOT_DEFCONFIG_SEARCH_FIELDS

@@ -43,9 +43,10 @@ class CountHandler(hbase.BaseHandler):
         response = hresponse.HandlerResponse()
 
         if collection in models.COLLECTIONS.viewkeys():
+            t_collection = models.COLLECTIONS[collection]
             response.result = count_one_collection(
-                self.db[models.COLLECTIONS[collection]],
-                collection,
+                self.db[t_collection],
+                t_collection,
                 self.get_query_arguments,
                 self._valid_keys("GET")
             )

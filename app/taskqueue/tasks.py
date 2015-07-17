@@ -202,7 +202,7 @@ def defconfig_bisect(doc_id, db_options, fields=None):
     :type fields: list or dictionary
     :return The result of the boot bisect operation.
     """
-    return defconfigb.execute_defconfig_bisection(
+    return defconfigb.execute_build_bisection(
         doc_id, db_options, fields=fields)
 
 
@@ -221,7 +221,7 @@ def defconfig_bisect_compared_to(doc_id, compare_to, db_options, fields=None):
     :type fields: list or dictionary
     :return The result of the defconfig bisect operation.
     """
-    return defconfigb.execute_defconfig_bisection_compared_to(
+    return defconfigb.execute_build_bisection_compared_to(
         doc_id, compare_to, db_options, fields=fields)
 
 

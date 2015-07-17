@@ -50,7 +50,7 @@ def create_batch_operation(json_obj, db_options):
             elif collection == models.JOB_COLLECTION:
                 batch_op = batchop.BatchJobOperation(
                     collection, database, operation_id=operation_id)
-            elif collection == models.DEFCONFIG_COLLECTION:
+            elif collection == models.BUILD_COLLECTION:
                 batch_op = batchop.BatchBuildOperation(
                     collection, database, operation_id=operation_id)
             else:

@@ -373,7 +373,7 @@ class TestLabHandler(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     @mock.patch("bson.objectid.ObjectId")
-    @mock.patch("utils.db.find_one")
+    @mock.patch("utils.db.find_one2")
     def test_get_by_id_found(self, find_one, mock_id):
         find_one.side_effect = [{"_id": "foo", "name": "lab-01"}]
         mock_id.return_value = "lab-01"

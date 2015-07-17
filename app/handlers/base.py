@@ -400,9 +400,9 @@ class BaseHandler(tornado.web.RequestHandler):
 
         try:
             obj_id = bson.objectid.ObjectId(doc_id)
-            result = utils.db.find_one(
+            result = utils.db.find_one2(
                 self.collection,
-                [obj_id],
+                {models.ID_KEY: obj_id},
                 fields=hcommon.get_query_fields(self.get_query_arguments)
             )
 

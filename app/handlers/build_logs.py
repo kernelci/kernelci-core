@@ -11,7 +11,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""The RequestHandler for /defconfig/<id>/logs URLs."""
+"""The RequestHandler for /build/<id>/logs URLs."""
 
 import bson
 

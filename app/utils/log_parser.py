@@ -194,7 +194,7 @@ def save_defconfig_errors(
         }
 
         doc = utils.db.find_one2(
-            database[models.DEFCONFIG_COLLECTION],
+            database[models.BUILD_COLLECTION],
             spec, fields=[models.ID_KEY])
 
         if doc:
@@ -556,7 +556,7 @@ def parse_single_build_log(
 
     database = utils.db.get_db_connection(db_options)
     json_obj = utils.db.find_one2(
-        database[models.DEFCONFIG_COLLECTION], {models.ID_KEY: build_id})
+        database[models.BUILD_COLLECTION], {models.ID_KEY: build_id})
 
     if json_obj:
         build_doc = mbuild.BuildDocument.from_json(json_obj)

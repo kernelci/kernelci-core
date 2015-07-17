@@ -130,10 +130,10 @@ class BisectHandler(hbase.BaseHandler):
                     spec,
                     bisect_func,
                     fields=fields)
-            elif collection == models.DEFCONFIG_COLLECTION:
-                bisect_func = execute_defconfig_bisect
+            elif collection == models.BUILD_COLLECTION:
+                bisect_func = execute_build_bisect
                 if spec.get(models.COMPARE_TO_KEY, None):
-                    bisect_func = execute_defconfig_bisect_compared_to
+                    bisect_func = execute_build_bisect_compared_to
                 else:
                     # Force the compare_to field to None (null in mongodb)
                     # so that we can search correctly otherwise we can get
@@ -268,7 +268,7 @@ def execute_boot_bisect_compared_to(doc_id, db_options, **kwargs):
     return response
 
 
-def execute_defconfig_bisect(doc_id, db_options, **kwargs):
+def execute_build_bisect(doc_id, db_options, **kwargs):
     """Execute the defconfig bisect operation.
 
     :param doc_id: The ID of the document to execute the bisect on.
@@ -296,7 +296,7 @@ def execute_defconfig_bisect(doc_id, db_options, **kwargs):
     return response
 
 
-def execute_defconfig_bisect_compared_to(doc_id, db_options, **kwargs):
+def execute_build_bisect_compared_to(doc_id, db_options, **kwargs):
     response = hresponse.HandlerResponse()
     compare_to = kwargs.get("compare_to", None)
     fields = kwargs.get("fields", None)

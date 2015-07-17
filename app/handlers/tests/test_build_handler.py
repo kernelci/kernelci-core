@@ -101,11 +101,10 @@ class TestBuildHandler(
         self.assertEqual(response.body, expected_body)
 
     @mock.patch("bson.objectid.ObjectId")
-    @mock.patch("handlers.defconf.DefConfHandler.collection")
-    def test_get_by_id_not_found(self, mock_collection, mock_id):
-        mock_id.return_value = "defconf"
-        mock_collection.find_one = mock.MagicMock()
-        mock_collection.find_one.return_value = None
+    @mock.patch("utils.db.find_one2")
+    def test_get_by_id_not_found(self, mock_find, mock_id):
+        mock_id.return_value = "build"
+        mock_find.return_value = None
 
         headers = {"Authorization": "foo"}
         response = self.fetch("/build/" + self.doc_id, headers=headers)
@@ -171,13 +170,12 @@ class TestBuildHandler(
 
     def test_delete(self):
         db = self.mongodb_client["kernel-ci"]
-        db["defconfig"].insert(dict(_id=self.doc_id, job_id="job"))
+        db["build"].insert(dict(_id=self.doc_id, job_id="job"))
 
         headers = {"Authorization": "foo"}
 
         response = self.fetch(
-            "/build/" + self.doc_id, method="DELETE", headers=headers,
-        )
+            "/build/" + self.doc_id, method="DELETE", headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
@@ -189,8 +187,7 @@ class TestBuildHandler(
         headers = {"Authorization": "foo"}
 
         response = self.fetch(
-            "/build/" + self.doc_id, method="DELETE", headers=headers,
-        )
+            "/build/" + self.doc_id, method="DELETE", headers=headers)
 
         self.assertEqual(response.code, 404)
         self.assertEqual(

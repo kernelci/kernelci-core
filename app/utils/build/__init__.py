@@ -90,7 +90,7 @@ def _search_prev_build_doc(build_doc, database):
             models.ARCHITECTURE_KEY: build_doc.arch
         }
         prev_doc = utils.db.find(
-            database[models.DEFCONFIG_COLLECTION],
+            database[models.BUILD_COLLECTION],
             10,
             0,
             spec=spec,

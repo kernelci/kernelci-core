@@ -18,11 +18,10 @@ import tornado.web
 import handlers.batch
 import handlers.bisect
 import handlers.boot
-import handlers.build
 import handlers.boot_trigger
+import handlers.build
 import handlers.build_logs
 import handlers.count
-import handlers.defconf
 import handlers.job
 import handlers.lab
 import handlers.report
@@ -54,11 +53,11 @@ _BUILD_LOGS_URL = tornado.web.url(
     handlers.build_logs.BuildLogsHandler, name="build-logs")
 
 _DEFCONF_URL = tornado.web.url(
-    r"/defconfig[s]?/?$", handlers.defconf.DefConfHandler, name="defconf")
+    r"/defconfig[s]?/?$", handlers.build.BuildHandler, name="defconf")
 
 _DEFCONF_ID_URL = tornado.web.url(
     r"/defconfig[s]?/(?P<id>[A-Za-z0-9]{24})/?$",
-    handler=handlers.defconf.DefConfHandler, name="defconfig-id")
+    handler=handlers.build.BuildHandler, name="defconfig-id")
 
 _DEFCONFIG_ID_LOGS_URL = tornado.web.url(
     r"/defconfig[s]?/(?P<id>[A-Za-z0-9]{24})/logs/?$",

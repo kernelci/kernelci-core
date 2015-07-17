@@ -298,7 +298,7 @@ def _update_boot_doc_ids(boot_doc, database):
         build_spec[models.DEFCONFIG_FULL_KEY] = defconfig_full
 
     build_doc = utils.db.find_one2(
-        database[models.DEFCONFIG_COLLECTION],
+        database[models.BUILD_COLLECTION],
         build_spec,
         fields=[
             models.GIT_BRANCH_KEY,

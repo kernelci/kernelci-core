@@ -110,7 +110,7 @@ def create_build_report(job,
 
     database = utils.db.get_db_connection(db_options)
     total_results, total_count = utils.db.find_and_count(
-        database[models.DEFCONFIG_COLLECTION],
+        database[models.BUILD_COLLECTION],
         0,
         0,
         spec=spec,
@@ -130,7 +130,7 @@ def create_build_report(job,
     spec[models.STATUS_KEY] = models.FAIL_STATUS
 
     fail_results, fail_count = utils.db.find_and_count(
-        database[models.DEFCONFIG_COLLECTION],
+        database[models.BUILD_COLLECTION],
         0,
         0,
         spec=spec,

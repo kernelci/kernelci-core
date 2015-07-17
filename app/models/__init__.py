@@ -206,7 +206,6 @@ OP_ID_KEY = "operation_id"
 # Collection names.
 BOOT_COLLECTION = "boot"
 COUNT_COLLECTION = "count"
-DEFCONFIG_COLLECTION = "defconfig"
 BUILD_COLLECTION = "build"
 JOB_COLLECTION = "job"
 SUBSCRIPTION_COLLECTION = "subscription"
@@ -282,7 +281,7 @@ VALID_TEST_CASE_STATUS = [
 # The valid collections for the bisect handler.
 BISECT_VALID_COLLECTIONS = [
     BOOT_COLLECTION,
-    DEFCONFIG_COLLECTION,
+    BUILD_COLLECTION
 ]
 
 VALID_EMAIL_FORMATS = [
@@ -294,11 +293,11 @@ VALID_EMAIL_FORMATS = [
 # URL configuration.
 COLLECTIONS = {
     "boot": BOOT_COLLECTION,
-    "defconfig": DEFCONFIG_COLLECTION,
+    "build": BUILD_COLLECTION,
     "job": JOB_COLLECTION,
-    "test_suite": TEST_SUITE_COLLECTION,
+    "test_case": TEST_CASE_COLLECTION,
     "test_set": TEST_SET_COLLECTION,
-    "test_case": TEST_CASE_COLLECTION
+    "test_suite": TEST_SUITE_COLLECTION
 }
 
 # Handlers valid keys.

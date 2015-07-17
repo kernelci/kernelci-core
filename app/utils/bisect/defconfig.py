@@ -26,7 +26,7 @@ import utils
 import utils.db
 import utils.bisect.common as bcommon
 
-DEFCONFIG_SEARCH_FIELDS = [
+BUILD_SEARCH_FIELDS = [
     models.ARCHITECTURE_KEY,
     models.CREATED_KEY,
     models.DEFCONFIG_FULL_KEY,
@@ -41,13 +41,13 @@ DEFCONFIG_SEARCH_FIELDS = [
     models.STATUS_KEY
 ]
 
-DEFCONFIG_SORT = [(models.CREATED_KEY, pymongo.DESCENDING)]
+BUILD_SORT = [(models.CREATED_KEY, pymongo.DESCENDING)]
 
 
 # pylint: disable=too-many-locals
 # pylint: disable=too-many-branches
 # pylint: disable=too-many-statements
-def execute_defconfig_bisection(doc_id, db_options, fields=None):
+def execute_build_bisection(doc_id, db_options, fields=None):
     """Calculate bisect data for the provided defconfig report.
 
     It searches all the previous defconfig built starting from the provided one
@@ -69,9 +69,9 @@ def execute_defconfig_bisection(doc_id, db_options, fields=None):
 
     obj_id = bson.objectid.ObjectId(doc_id)
     start_doc = utils.db.find_one(
-        database[models.DEFCONFIG_COLLECTION],
+        database[models.BUILD_COLLECTION],
         [obj_id],
-        fields=DEFCONFIG_SEARCH_FIELDS
+        fields=BUILD_SEARCH_FIELDS
     )
 
     if all([start_doc, isinstance(start_doc, types.DictionaryType)]):
@@ -122,12 +122,12 @@ def execute_defconfig_bisection(doc_id, db_options, fields=None):
                 {"$lt": start_doc_get(models.CREATED_KEY)}
 
             passed_builds = utils.db.find(
-                database[models.DEFCONFIG_COLLECTION],
+                database[models.BUILD_COLLECTION],
                 10,
                 0,
                 spec=pass_spec,
-                fields=DEFCONFIG_SEARCH_FIELDS,
-                sort=DEFCONFIG_SORT
+                fields=BUILD_SEARCH_FIELDS,
+                sort=BUILD_SORT
             )
 
             # In case we have a passed doc, tweak the spec to search between
@@ -148,12 +148,12 @@ def execute_defconfig_bisection(doc_id, db_options, fields=None):
                 }
 
             all_prev_docs = utils.db.find(
-                database[models.DEFCONFIG_COLLECTION],
+                database[models.BUILD_COLLECTION],
                 0,
                 0,
                 spec=spec,
-                fields=DEFCONFIG_SEARCH_FIELDS,
-                sort=DEFCONFIG_SORT
+                fields=BUILD_SEARCH_FIELDS,
+                sort=BUILD_SORT
             )
 
             if all_prev_docs:
@@ -211,7 +211,7 @@ def _search_passed_doc(passed_builds):
 
 
 # pylint: disable=invalid-name
-def execute_defconfig_bisection_compared_to(
+def execute_build_bisection_compared_to(
         doc_id, compare_to, db_options, fields=None):
     """Execute a bisect for one tree compared to another one.
 
@@ -232,10 +232,8 @@ def execute_defconfig_bisection_compared_to(
 
     obj_id = bson.objectid.ObjectId(doc_id)
     start_doc = utils.db.find_one2(
-        database[models.DEFCONFIG_COLLECTION],
-        obj_id,
-        fields=DEFCONFIG_SEARCH_FIELDS
-    )
+        database[models.BUILD_COLLECTION],
+        obj_id, fields=BUILD_SEARCH_FIELDS)
 
     if all([start_doc, isinstance(start_doc, types.DictionaryType)]):
         start_doc_get = start_doc.get
@@ -290,12 +288,12 @@ def execute_defconfig_bisection_compared_to(
             }
 
             prev_docs = utils.db.find(
-                database[models.DEFCONFIG_COLLECTION],
+                database[models.BUILD_COLLECTION],
                 limit,
                 0,
                 spec=spec,
-                fields=DEFCONFIG_SEARCH_FIELDS,
-                sort=DEFCONFIG_SORT)
+                fields=BUILD_SEARCH_FIELDS,
+                sort=BUILD_SORT)
 
             all_valid_docs = []
             if prev_docs:

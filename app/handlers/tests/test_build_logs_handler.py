@@ -56,8 +56,8 @@ class TestBuildLogsHandler(
         self.addCleanup(patched_validate_token.stop)
         self.doc_id = "".join(
             [random.choice(string.digits) for x in xrange(24)])
-        self.url_id = "/defconfig/" + self.doc_id + "/logs/"
-        self.url = "/defconfig/logs"
+        self.url_id = "/build/" + self.doc_id + "/logs/"
+        self.url = "/build/logs"
 
     def get_app(self):
         dboptions = {"dbpassword": "", "dbuser": ""}
@@ -74,7 +74,7 @@ class TestBuildLogsHandler(
         }
 
         return tornado.web.Application(
-            [urls._DEFCONFIG_ID_LOGS_URL, urls._DEFCONFIG_LOGS_URL], **settings)
+            [urls._BUILD_ID_LOGS_URL, urls._BUILD_LOGS_URL], **settings)
 
     def get_new_ioloop(self):
         return tornado.ioloop.IOLoop.instance()

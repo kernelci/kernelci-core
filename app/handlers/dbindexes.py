@@ -38,7 +38,7 @@ def ensure_indexes(client, db_options):
 
     _ensure_job_indexes(database)
     _ensure_boot_indexes(database)
-    _ensure_defconfig_indexes(database)
+    _ensure_build_indexes(database)
     _ensure_token_indexes(database)
     _ensure_lab_indexes(database)
     _ensure_bisect_indexes(database)
@@ -107,12 +107,12 @@ def _ensure_boot_indexes(database):
     )
 
 
-def _ensure_defconfig_indexes(database):
+def _ensure_build_indexes(database):
     """Ensure indexes exists for the 'defconfig' collection.
 
     :param database: The database connection.
     """
-    collection = database[models.DEFCONFIG_COLLECTION]
+    collection = database[models.BUILD_COLLECTION]
 
     collection.ensure_index(
         [

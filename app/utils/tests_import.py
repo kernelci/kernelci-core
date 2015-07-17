@@ -188,7 +188,7 @@ def _parse_test_suite(suite_json, db_options):
 
             _get_document_and_update(
                 oid,
-                database[models.DEFCONFIG_COLLECTION],
+                database[models.BUILD_COLLECTION],
                 missing_keys,
                 update_doc,
                 _valid_doc_value

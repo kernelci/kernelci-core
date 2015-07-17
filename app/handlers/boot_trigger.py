@@ -51,7 +51,7 @@ class BootTriggerHandler(hbase.BaseHandler):
 
     @property
     def collection(self):
-        return self.db[models.DEFCONFIG_COLLECTION]
+        return self.db[models.BUILD_COLLECTION]
 
     @staticmethod
     def _token_validation_func():

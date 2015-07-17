@@ -90,12 +90,12 @@ def convert_job_collection(db, limit=0):
 
 def convert_defconfig_collection(db, limit=0):
 
-    count = db[models.DEFCONFIG_COLLECTION].find().count()
+    count = db[models.BUILD_COLLECTION].find().count()
     utils.LOG.info("Processing %s defconfig documents", count)
     time.sleep(2)
 
     doc_count = 0
-    for document in db[models.DEFCONFIG_COLLECTION].find(limit=limit):
+    for document in db[models.BUILD_COLLECTION].find(limit=limit):
         doc_get = document.get
 
         if doc_get("version", None) == "1.0":
@@ -253,7 +253,7 @@ def convert_defconfig_collection(db, limit=0):
                 def_doc.metadata = metadata
 
             ret_val = utils.db.delete(
-                db[models.DEFCONFIG_COLLECTION], doc_get("_id")
+                db[models.BUILD_COLLECTION], doc_get("_id")
             )
             if ret_val != 200:
                 utils.LOG.error(
@@ -282,7 +282,7 @@ def convert_defconfig_collection(db, limit=0):
                     time.sleep(3)
                     sys.exit(1)
 
-    count = db[models.DEFCONFIG_COLLECTION].find().count()
+    count = db[models.BUILD_COLLECTION].find().count()
     utils.LOG.info("Defconfig documents at the end: %s (%s)", count, doc_count)
     time.sleep(2)
 
@@ -461,7 +461,7 @@ def _check_func(db):
     """Check some documents if they are ok."""
     for document in db[models.JOB_COLLECTION].find(limit=3):
         print document
-    for document in db[models.DEFCONFIG_COLLECTION].find(limit=3):
+    for document in db[models.BUILD_COLLECTION].find(limit=3):
         print document
     for document in db[models.BOOT_COLLECTION].find(limit=3):
         print document

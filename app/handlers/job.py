@@ -78,7 +78,7 @@ class JobHandler(hbase.BaseHandler):
         Use with care since documents cannot be retrieved after!
 
         Removing a job from the collection means to remove also all the
-        other documents associated with the it: defconfig and subscription.
+        other documents associated with the it: builds (and boots).
 
         :param job_id: The ID of the job to remove.
         :return Whatever is returned by the `utils.db.delete` function.
@@ -91,7 +91,7 @@ class JobHandler(hbase.BaseHandler):
             job_obj = bson.objectid.ObjectId(job_id)
             if utils.db.find_one2(self.collection, {models.ID_KEY: job_obj}):
                 utils.db.delete(
-                    self.db[models.DEFCONFIG_COLLECTION],
+                    self.db[models.BUILD_COLLECTION],
                     {models.JOB_ID_KEY: {"$eq": job_obj}}
                 )
 

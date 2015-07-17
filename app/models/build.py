@@ -74,7 +74,7 @@ class BuildDocument(mbase.BaseDocument):
 
     @property
     def collection(self):
-        return models.DEFCONFIG_COLLECTION
+        return models.BUILD_COLLECTION
 
     @property
     def created_on(self):
@@ -111,12 +111,12 @@ class BuildDocument(mbase.BaseDocument):
 
     @property
     def job(self):
-        """The job this defconfig belongs too."""
+        """The job this build belongs too."""
         return self._job
 
     @property
     def kernel(self):
-        """The kernel this defconfig was built against."""
+        """The kernel this build was built against."""
         return self._kernel
 
     @property
@@ -126,14 +126,14 @@ class BuildDocument(mbase.BaseDocument):
 
     @property
     def metadata(self):
-        """A dictionary with metadata about this defconfig."""
+        """A dictionary with metadata about this build."""
         return self._metadata
 
     @metadata.setter
     def metadata(self, value):
-        """Set the metadata about this defconfig.
+        """Set the metadata about this build.
 
-        :param value: A dictionary with defconfig metadata.
+        :param value: A dictionary with build metadata.
         """
         if not isinstance(value, types.DictionaryType):
             raise TypeError(
@@ -143,7 +143,7 @@ class BuildDocument(mbase.BaseDocument):
 
     @property
     def status(self):
-        """The status of this defconfig built."""
+        """The status of this build."""
         return self._status
 
     @status.setter

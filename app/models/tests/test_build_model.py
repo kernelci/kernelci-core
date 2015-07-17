@@ -17,7 +17,7 @@ import models.base as modb
 import models.build as mbuild
 
 
-class TestDefconfModel(unittest.TestCase):
+class TestBuildModel(unittest.TestCase):
 
     def test_build_document_valid_instance(self):
         build_doc = mbuild.BuildDocument("job", "kernel", "defconfig")
@@ -26,7 +26,7 @@ class TestDefconfModel(unittest.TestCase):
 
     def test_build_document_collection(self):
         build_doc = mbuild.BuildDocument("job", "kernel", "defconfig")
-        self.assertEqual(build_doc.collection, "defconfig")
+        self.assertEqual(build_doc.collection, "build")
 
     def test_build_document_to_dict(self):
         build_doc = mbuild.BuildDocument(
