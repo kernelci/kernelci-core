@@ -11,7 +11,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""All defconfig bisect operations."""
+"""All build bisect operations."""
 
 import bson
 import bson.json_util
@@ -48,13 +48,13 @@ BUILD_SORT = [(models.CREATED_KEY, pymongo.DESCENDING)]
 # pylint: disable=too-many-branches
 # pylint: disable=too-many-statements
 def execute_build_bisection(doc_id, db_options, fields=None):
-    """Calculate bisect data for the provided defconfig report.
+    """Calculate bisect data for the provided build report.
 
-    It searches all the previous defconfig built starting from the provided one
+    It searches all the previous builds starting from the provided one
     until it finds one that passed. After that, it combines the value into a
     single data structure.
 
-    :param doc_id: The boot document ID.
+    :param doc_id: The build document ID.
     :type doc_id: str
     :param db_options: The mongodb database connection parameters.
     :type db_options: dict
@@ -106,9 +106,9 @@ def execute_build_bisection(doc_id, db_options, fields=None):
 
             all_valid_docs = [start_doc]
 
-            # Search for the first passed defconfig so that we can limit the
+            # Search for the first passed build so that we can limit the
             # next search. Doing this to cut down search and load time on
-            # mongodb side: there are a lot of defconfig documents to search
+            # mongodb side: there are a lot of build documents to search
             # for and the mongodb Cursor can get quite big.
             # Tweak the spec to search for PASS status and limit also the
             # result found: we are only interested in the first found one.
@@ -215,7 +215,7 @@ def execute_build_bisection_compared_to(
         doc_id, compare_to, db_options, fields=None):
     """Execute a bisect for one tree compared to another one.
 
-    :param doc_id: The ID of the defconfig report we want compared.
+    :param doc_id: The ID of the build report we want compared.
     :type doc_id: string
     :param compare_to: The tree name to compare against.
     :type compare_to: string

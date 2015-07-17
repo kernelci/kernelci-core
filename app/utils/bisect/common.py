@@ -54,7 +54,7 @@ def combine_defconfig_values(boot_doc, db_options):
     It returns a dictionary whose structure is a combination
     of the values from the boot document and its associated defconfing.
 
-    :param boot_doc: The boot document to retrieve the defconfig of.
+    :param boot_doc: The boot document to retrieve the build of.
     :type boot_doc: dict
     :param db_options: The mongodb database connection parameters.
     :type db_options: dict
@@ -139,7 +139,7 @@ def search_previous_bisect(database, spec_or_id, date_field):
     :type spec_or_id: dictionary or string
     :param date_field: The name of the date field to look for in the
     `bisect_data` array as found in the database. This field is different
-    between `boot` and `defconfig` bisects.
+    between `boot` and `build` bisects.
     :type date_field: string
     :return The date of the last good commit and the number of documents.
     """

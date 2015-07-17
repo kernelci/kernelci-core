@@ -76,12 +76,12 @@ def is_lab_dir(value):
     return is_lab
 
 
-def get_defconfig_full(defconfig_dir,
+def get_defconfig_full(build_dir,
                        defconfig, defconfig_full, kconfig_fragments):
     """Get the value for defconfig_full variable based on available ones.
 
-    :param defconfig_dir: The defconfig directory we are parsing.
-    :type defconfig_dir: string
+    :param build_dir: The directory we are parsing.
+    :type build_dir: string
     :param defconfig: The value for defconfig
     :type defconfig: string
     :param defconfig_full: The possible value for defconfig_full as taken from
@@ -101,7 +101,7 @@ def get_defconfig_full(defconfig_dir,
             _extrapolate_defconfig_full_from_kconfig(
                 kconfig_fragments, defconfig)
         defconfig_full_d = \
-            _extrapolate_defconfig_full_from_dirname(defconfig_dir)
+            _extrapolate_defconfig_full_from_dirname(build_dir)
 
         # Default to use the one from kconfig_fragments.
         defconfig_full = defconfig_full_k

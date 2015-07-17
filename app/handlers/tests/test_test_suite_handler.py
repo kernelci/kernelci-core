@@ -179,7 +179,7 @@ class TestTestSuiteHandler(
         body = json.dumps(
             dict(
                 name="test",
-                lab_name="lab_name", version="1.0", defconfig_id="defconfig")
+                lab_name="lab_name", version="1.0", defconfig_id="build")
         )
 
         response = self.fetch(
@@ -195,7 +195,7 @@ class TestTestSuiteHandler(
         body = json.dumps(
             dict(
                 name="suite",
-                version="1.0", lab_name="lab", defconfig_id="defconfig")
+                version="1.0", lab_name="lab", defconfig_id="build")
         )
 
         response = self.fetch(
@@ -216,7 +216,7 @@ class TestTestSuiteHandler(
                 name="suite",
                 version="1.0",
                 lab_name="lab",
-                defconfig_id="defconfig", test_set=[{"foo": "bar"}]
+                defconfig_id="build", test_set=[{"foo": "bar"}]
             )
         )
 
@@ -238,7 +238,7 @@ class TestTestSuiteHandler(
                 name="suite",
                 version="1.0",
                 lab_name="lab",
-                defconfig_id="defconfig", test_set={"foo": "bar"}
+                defconfig_id="build", test_set={"foo": "bar"}
             )
         )
 
@@ -260,7 +260,7 @@ class TestTestSuiteHandler(
                 name="suite",
                 version="1.0",
                 lab_name="lab",
-                defconfig_id="defconfig", test_case=[{"foo": "bar"}]
+                defconfig_id="build", test_case=[{"foo": "bar"}]
             )
         )
 
@@ -282,7 +282,7 @@ class TestTestSuiteHandler(
                 name="suite",
                 version="1.0",
                 lab_name="lab",
-                defconfig_id="defconfig", test_case={"foo": "bar"}
+                defconfig_id="build", test_case={"foo": "bar"}
             )
         )
 
@@ -304,7 +304,7 @@ class TestTestSuiteHandler(
                 name="suite",
                 version="1.0",
                 lab_name="lab",
-                defconfig_id="defconfig",
+                defconfig_id="build",
                 test_case=[{"foo": "bar"}], test_set=[{"foo": "bar"}]
             )
         )
@@ -325,7 +325,7 @@ class TestTestSuiteHandler(
         body = json.dumps(
             dict(
                 name="test", lab_name="lab_name", version="1.0",
-                defconfig_id="defconfig_id")
+                defconfig_id="build_id")
         )
 
         response = self.fetch(
@@ -340,7 +340,7 @@ class TestTestSuiteHandler(
         body = json.dumps(
             dict(
                 name="test", lab_name="lab_name", version="1.0",
-                defconfig_id="defconfig_id")
+                defconfig_id="build_id")
         )
 
         response = self.fetch(
@@ -352,12 +352,12 @@ class TestTestSuiteHandler(
 
     @mock.patch("bson.objectid.ObjectId")
     def test_post_correct_wrong_job_id(self, mock_oid):
-        mock_oid.side_effect = ["defconfig-id", bson.errors.InvalidId]
+        mock_oid.side_effect = ["build-id", bson.errors.InvalidId]
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         body = json.dumps(
             dict(
                 name="test", lab_name="lab_name", version="1.0",
-                defconfig_id="defconfig_id", job_id="job_id")
+                defconfig_id="build-id", job_id="job_id")
         )
 
         response = self.fetch(
@@ -369,12 +369,12 @@ class TestTestSuiteHandler(
 
     @mock.patch("bson.objectid.ObjectId")
     def test_post_correct_wrong_boot_id(self, mock_oid):
-        mock_oid.side_effect = ["defconfig-id", bson.errors.InvalidId]
+        mock_oid.side_effect = ["build-id", bson.errors.InvalidId]
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         body = json.dumps(
             dict(
                 name="test", lab_name="lab_name", version="1.0",
-                defconfig_id="defconfig_id", boot_id="boot_id")
+                defconfig_id="build-id", boot_id="boot_id")
         )
 
         response = self.fetch(
@@ -387,13 +387,13 @@ class TestTestSuiteHandler(
     @mock.patch("bson.objectid.ObjectId")
     @mock.patch("utils.db.find_one2")
     def test_post_correct_defconfig_not_found(self, mock_find, mock_oid):
-        mock_oid.side_effect = ["defconfig-id", "boot-id"]
+        mock_oid.side_effect = ["build-id", "boot-id"]
         mock_find.side_effect = [None, {"_id": "fake-boot"}]
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         body = json.dumps(
             dict(
                 name="test", lab_name="lab_name", version="1.0",
-                defconfig_id="defconfig_id", boot_id="boot_id")
+                defconfig_id="build-id", boot_id="boot_id")
         )
 
         response = self.fetch(
@@ -406,13 +406,13 @@ class TestTestSuiteHandler(
     @mock.patch("bson.objectid.ObjectId")
     @mock.patch("utils.db.find_one2")
     def test_post_correct_boot_not_found(self, mock_find, mock_oid):
-        mock_oid.side_effect = ["defconfig-id", "boot-id"]
+        mock_oid.side_effect = ["build-id", "boot-id"]
         mock_find.side_effect = [{"_id": "fake-id"}, None]
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         body = json.dumps(
             dict(
                 name="test", lab_name="lab_name", version="1.0",
-                defconfig_id="defconfig_id", boot_id="boot_id")
+                defconfig_id="build-id", boot_id="boot_id")
         )
 
         response = self.fetch(
@@ -425,13 +425,13 @@ class TestTestSuiteHandler(
     @mock.patch("bson.objectid.ObjectId")
     @mock.patch("utils.db.find_one2")
     def test_post_correct_job_not_found(self, mock_find, mock_oid):
-        mock_oid.side_effect = ["defconfig-id", "job-id"]
+        mock_oid.side_effect = ["build-id", "job-id"]
         mock_find.side_effect = [{"_id": "fake-id"}, None]
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         body = json.dumps(
             dict(
                 name="test", lab_name="lab_name", version="1.0",
-                defconfig_id="defconfig_id", job_id="job_id")
+                defconfig_id="build-id", job_id="job_id")
         )
 
         response = self.fetch(
@@ -444,7 +444,7 @@ class TestTestSuiteHandler(
     @mock.patch("bson.objectid.ObjectId")
     @mock.patch("utils.db.find_one2")
     def test_post_correct_boot_not_found2(self, mock_find, mock_oid):
-        mock_oid.side_effect = ["defconfig-id", "job-id", "boot-id"]
+        mock_oid.side_effect = ["build-id", "job-id", "boot-id"]
         mock_find.side_effect = [{"_id": "fake-id"}, {"_id": "fake-job"}, None]
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         body = json.dumps(
@@ -452,7 +452,7 @@ class TestTestSuiteHandler(
                 name="test",
                 lab_name="lab_name",
                 version="1.0",
-                defconfig_id="defconfig_id",
+                defconfig_id="build-id",
                 job_id="job_id", boot_id="boot_id")
         )
 
@@ -466,7 +466,7 @@ class TestTestSuiteHandler(
     @mock.patch("bson.objectid.ObjectId")
     @mock.patch("utils.db.find_one2")
     def test_post_correct_job_not_found2(self, mock_find, mock_oid):
-        mock_oid.side_effect = ["defconfig-id", "job-id", "boot-id"]
+        mock_oid.side_effect = ["build-id", "job-id", "boot-id"]
         mock_find.side_effect = [
             {"_id": "fake-id"}, None, {"_id": "fake-boot"}]
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
@@ -475,7 +475,7 @@ class TestTestSuiteHandler(
                 name="test",
                 lab_name="lab_name",
                 version="1.0",
-                defconfig_id="defconfig_id",
+                defconfig_id="build-id",
                 job_id="job_id", boot_id="boot_id")
         )
 

@@ -108,7 +108,7 @@ def _ensure_boot_indexes(database):
 
 
 def _ensure_build_indexes(database):
-    """Ensure indexes exists for the 'defconfig' collection.
+    """Ensure indexes exists for the 'build' collection.
 
     :param database: The database connection.
     """

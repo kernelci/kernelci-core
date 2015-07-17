@@ -34,7 +34,7 @@ class TestTestSuiteModel(unittest.TestCase):
         test_suite.boot_id = "boot_id"
         test_suite.created_on = "now"
         test_suite.defconfig = "defconfig"
-        test_suite.defconfig_id = "another_defconfig_id"
+        test_suite.defconfig_id = "another_build-id"
         test_suite.definition_uri = "uri"
         test_suite.id = "id"
         test_suite.job = "job"
@@ -57,7 +57,7 @@ class TestTestSuiteModel(unittest.TestCase):
             "created_on": "now",
             "defconfig": "defconfig",
             "defconfig_full": "defconfig",
-            "defconfig_id": "another_defconfig_id",
+            "defconfig_id": "another_build-id",
             "definition_uri": "uri",
             "job": "job",
             "job_id": "job_id",
@@ -78,7 +78,7 @@ class TestTestSuiteModel(unittest.TestCase):
         test_suite = {
             "_id": "id",
             "version": "1.0",
-            "defconfig_id": "defconfig_id"
+            "defconfig_id": "build-id"
         }
 
         self.assertIsNone(mtsuite.TestSuiteDocument.from_json(test_suite))
@@ -98,7 +98,7 @@ class TestTestSuiteModel(unittest.TestCase):
             "created_on": "now",
             "defconfig": "defconfig",
             "defconfig_full": "defconfig",
-            "defconfig_id": "defconfig_id",
+            "defconfig_id": "build-id",
             "definition_uri": "uri",
             "job": "job",
             "job_id": "job_id",

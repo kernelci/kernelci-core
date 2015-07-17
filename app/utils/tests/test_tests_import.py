@@ -260,7 +260,7 @@ class TestTestsImport(unittest.TestCase):
     @mock.patch("utils.db.get_db_connection")
     def test_parse_test_suite_with_all(self, mock_db, mock_id, mock_find):
         build_doc = {
-            "_id": "defconfig-id",
+            "_id": "build-id",
             "job": None,
             "kernel": "kernel",
             "defconfig": None
@@ -278,14 +278,14 @@ class TestTestsImport(unittest.TestCase):
             "job": "job"
         }
         mock_db.return_value = self.db
-        mock_id.side_effect = ["defconfig-id", "boot-id", "job-id"]
+        mock_id.side_effect = ["build-id", "boot-id", "job-id"]
         mock_find.side_effect = [build_doc, boot_doc, job_doc]
 
         suite_json = {
             "board": None,
             "board_instance": None,
             "boot_id": "boot-id",
-            "defconfig_id": "defconfig-id",
+            "defconfig_id": "build-id",
             "job_id": "job-id",
             "name": "test-suite",
             "time": 100,
@@ -296,7 +296,7 @@ class TestTestsImport(unittest.TestCase):
             "board": "board",
             "board_instance": "instance",
             "boot_id": "boot-id",
-            "defconfig_id": "defconfig-id",
+            "defconfig_id": "build-id",
             "job": "job",
             "job_id": "job-id",
             "kernel": "kernel",

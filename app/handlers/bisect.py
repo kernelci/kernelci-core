@@ -269,7 +269,7 @@ def execute_boot_bisect_compared_to(doc_id, db_options, **kwargs):
 
 
 def execute_build_bisect(doc_id, db_options, **kwargs):
-    """Execute the defconfig bisect operation.
+    """Execute the build bisect operation.
 
     :param doc_id: The ID of the document to execute the bisect on.
     :type doc_id: str

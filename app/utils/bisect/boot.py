@@ -48,7 +48,7 @@ def execute_boot_bisection(doc_id, db_options, fields=None):
 
     It searches all the previous boot reports starting from the provided one
     until it finds one whose boot passed. After that, it looks for all the
-    defconfig reports and combines the value into a single data structure.
+    build reports and combines the value into a single data structure.
 
     :param doc_id: The boot document ID.
     :type doc_id: str

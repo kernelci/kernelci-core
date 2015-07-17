@@ -142,7 +142,7 @@ class BootBisectDocument(BisectDocument):
 
 
 class DefconfigBisectDocument(BisectDocument):
-    """The bisect document class for defconfig/build bisection."""
+    """The bisect document class for build bisection."""
 
     def __init__(self, name):
         super(DefconfigBisectDocument, self).__init__(name)

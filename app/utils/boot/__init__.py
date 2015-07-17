@@ -270,7 +270,7 @@ def _check_for_null(get_func):
 
 
 def _update_boot_doc_ids(boot_doc, database):
-    """Update boot document job and defconfig IDs references.
+    """Update boot document job and build IDs references.
 
     :param boot_doc: The boot document to update.
     :type boot_doc: BootDocument

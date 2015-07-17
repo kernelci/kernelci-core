@@ -200,7 +200,7 @@ def save_defconfig_errors(
         if doc:
             defconfig_id = doc[models.ID_KEY]
         else:
-            error = "No defconfig ID found for %s-%s-%s (%s)"
+            error = "No build ID found for %s-%s-%s (%s)"
             utils.LOG.warn(
                 error,
                 build_doc.job,
@@ -258,9 +258,8 @@ def _save(
         job_id, err_lines, warn_lines, mism_lines, errors, db_options):
     """Save the found errors/warnings/mismatched lines in the db.
 
-    Save for each defconfig the found values and update the summary data
+    Save for each build the found values and update the summary data
     structures that will contain all the found errors/warnings/mismatches.
-
     """
     job = build_doc.job
     kernel = build_doc.kernel

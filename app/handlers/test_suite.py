@@ -305,7 +305,7 @@ class TestSuiteHandler(htbase.TestBaseHandler):
     def _check_references(self, defconfig_id, job_id, boot_id):
         """Check that the provided IDs are valid.
 
-        :param defconfig_id: The ID of the associated defconfig built.
+        :param defconfig_id: The ID of the associated build.
         :type defconfig_id: string
         :param job_id: The ID of the associated job.
         :type job_id: string

@@ -55,7 +55,7 @@ def import_job(json_obj, db_options, mail_options=None):
     return job_id
 
 
-@taskc.app.task(name="import-defconfig")
+@taskc.app.task(name="import-build")
 def import_build(json_obj, db_options, mail_options=None):
     """Import a single build document.
 
@@ -189,28 +189,28 @@ def boot_bisect_compared_to(doc_id, compare_to, db_options, fields=None):
         doc_id, compare_to, db_options, fields=fields)
 
 
-@taskc.app.task(name="defconfig-bisect", ignore_result=False)
+@taskc.app.task(name="build-bisect", ignore_result=False)
 def defconfig_bisect(doc_id, db_options, fields=None):
-    """Run a defconfig bisect operation on the passed defconfig document id.
+    """Run a build bisect operation on the passed build document id.
 
-    :param doc_id: The boot document ID.
+    :param doc_id: The build document ID.
     :type doc_id: string
     :param db_options: The database connection parameters.
     :type db_options: dictionary
     :param fields: A `fields` data structure with the fields to return or
     exclude. Default to None.
     :type fields: list or dictionary
-    :return The result of the boot bisect operation.
+    :return The result of the build bisect operation.
     """
     return defconfigb.execute_build_bisection(
         doc_id, db_options, fields=fields)
 
 
-@taskc.app.task(name="defconfig-bisect-compared-to", ignore_result=False)
+@taskc.app.task(name="build-bisect-compared-to", ignore_result=False)
 def defconfig_bisect_compared_to(doc_id, compare_to, db_options, fields=None):
-    """Run a defconfig bisect operation compared to the provided tree name.
+    """Run a build bisect operation compared to the provided tree name.
 
-    :param doc_id: The defconfig document ID.
+    :param doc_id: The build document ID.
     :type doc_id: string
     :param compare_to: The name of the tree to compare to.
     :type compare_to: string
@@ -219,7 +219,7 @@ def defconfig_bisect_compared_to(doc_id, compare_to, db_options, fields=None):
     :param fields: A `fields` data structure with the fields to return or
     exclude. Default to None.
     :type fields: list or dictionary
-    :return The result of the defconfig bisect operation.
+    :return The result of the build bisect operation.
     """
     return defconfigb.execute_build_bisection_compared_to(
         doc_id, compare_to, db_options, fields=fields)
