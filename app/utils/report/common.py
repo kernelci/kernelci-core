@@ -119,7 +119,7 @@ def save_report(job, kernel, r_type, status, errors, db_options):
     :type db_options: dict
     """
     name = "%s-%s" % (job, kernel)
-    utils.LOG.info("Saving '%s' report for '%s-%s'", r_type, name)
+    utils.LOG.info("Saving '%s' report for '%s'", r_type, name)
 
     spec = {
         models.JOB_KEY: job,
