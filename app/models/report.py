@@ -42,7 +42,7 @@ class ReportDocument(modb.BaseDocument):
         self.job = None
         self.kernel = None
         # The report type.
-        self.r_type = None
+        self.report_type = None
         self.status = None
         self.updated_on = None
 
@@ -105,7 +105,7 @@ class ReportDocument(modb.BaseDocument):
             models.KERNEL_KEY: self.kernel,
             models.NAME_KEY: self.name,
             models.STATUS_KEY: self.status,
-            models.TYPE_KEY: self.r_type,
+            models.TYPE_KEY: self.report_type,
             models.UPDATED_KEY: self.updated_on,
             models.VERSION_KEY: self.version
         }
@@ -126,7 +126,7 @@ class ReportDocument(modb.BaseDocument):
             report_doc = ReportDocument(
                 j_pop(models.NAME_KEY), version=j_pop(models.VERSION_KEY))
 
-            report_doc.r_type = j_pop(models.TYPE_KEY)
+            report_doc.report_type = j_pop(models.TYPE_KEY)
 
             for key, val in local_obj.iteritems():
                 setattr(report_doc, key, val)

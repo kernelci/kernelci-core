@@ -95,6 +95,7 @@ X_TREE = "X-Kernelci-Tree"
 X_KERNEL = "X-Kernelci-Kernel"
 X_BRANCH = "X-Kernelci-Branch"
 X_LAB = "X-Kernelci-Lab-Name"
+# Type of reports we send.
 BOOT_REPORT_TYPE = "boot"
 BUILD_REPORT_TYPE = "build"
 
@@ -117,9 +118,8 @@ def save_report(job, kernel, r_type, status, errors, db_options):
     :param db_options: The mongodb database connection parameters.
     :type db_options: dict
     """
-    utils.LOG.info("Saving '%s' report for '%s-%s'", r_type, job, kernel)
-
     name = "%s-%s" % (job, kernel)
+    utils.LOG.info("Saving '%s' report for '%s-%s'", r_type, name)
 
     spec = {
         models.JOB_KEY: job,
@@ -143,7 +143,7 @@ def save_report(job, kernel, r_type, status, errors, db_options):
         report = mreport.ReportDocument(name)
         report.job = job
         report.kernel = kernel
-        report.r_type = r_type
+        report.report_type = r_type
         report.status = status
         report.errors = errors
 

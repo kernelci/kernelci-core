@@ -32,7 +32,6 @@ ERROR_LOG_VALID_KEYS = {
         models.JOB_KEY,
         models.KERNEL_KEY,
         models.MISMATCHES_COUNT_KEY,
-        models.NAME_KEY,
         models.STATUS_KEY,
         models.VERSION_KEY,
         models.WARNINGS_COUNT_KEY

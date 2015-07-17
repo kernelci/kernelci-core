@@ -327,7 +327,6 @@ COUNT_VALID_KEYS = {
         KERNEL_KEY,
         MODULES_DIR_KEY,
         MODULES_KEY,
-        NAME_KEY,
         PRIVATE_KEY,
         STATUS_KEY,
         SYSTEM_MAP_KEY,
@@ -384,7 +383,6 @@ BOOT_VALID_KEYS = {
             LAB_NAME_KEY,
             MACH_KEY,
             METADATA_KEY,
-            NAME_KEY,
             QEMU_COMMAND_KEY,
             QEMU_KEY,
             STATUS_KEY,
@@ -409,7 +407,6 @@ BOOT_VALID_KEYS = {
         KERNEL_KEY,
         LAB_NAME_KEY,
         MACH_KEY,
-        NAME_KEY,
         RETRIES_KEY,
         STATUS_KEY,
         WARNINGS_KEY
@@ -423,7 +420,6 @@ BOOT_VALID_KEYS = {
         JOB_ID_KEY,
         JOB_KEY,
         KERNEL_KEY,
-        NAME_KEY
     ]
 }
 
@@ -448,7 +444,6 @@ DEFCONFIG_VALID_KEYS = {
         KERNEL_KEY,
         MODULES_DIR_KEY,
         MODULES_KEY,
-        NAME_KEY,
         STATUS_KEY,
         SYSTEM_MAP_KEY,
         TEXT_OFFSET_KEY,
@@ -483,7 +478,6 @@ TOKEN_VALID_KEYS = {
         IP_ADDRESS_KEY,
         IP_RESTRICTED,
         LAB_KEY,
-        NAME_KEY,
         POST_KEY,
         SUPERUSER_KEY,
         TEST_LAB_KEY,
@@ -501,7 +495,6 @@ TOKEN_VALID_KEYS = {
         IP_ADDRESS_KEY,
         IP_RESTRICTED,
         LAB_KEY,
-        NAME_KEY,
         POST_KEY,
         SUPERUSER_KEY,
         TEST_LAB_KEY,
@@ -516,7 +509,6 @@ TOKEN_VALID_KEYS = {
         EXPIRES_KEY,
         ID_KEY,
         IP_ADDRESS_KEY,
-        NAME_KEY,
         PROPERTIES_KEY,
         TOKEN_KEY,
         USERNAME_KEY
@@ -533,7 +525,6 @@ JOB_VALID_KEYS = {
         ID_KEY,
         JOB_KEY,
         KERNEL_KEY,
-        NAME_KEY,
         PRIVATE_KEY,
         STATUS_KEY
     ]
