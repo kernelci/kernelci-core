@@ -3,9 +3,9 @@
 lab
 ---
 
-The ``name`` of the lab must be a unique value among all the registered labs. Use
-a short but descriptive name to identify the lab, since this value will be used
-to perform POST request :ref:`on the boot resource <collection_boot_post>`.
+The ``name`` of the lab must be a unique value among all the registered labs.
+Use a short but descriptive name to identify the lab, since this value will be
+used to perform POST request :ref:`on the boot resource <collection_boot_post>`.
 
 As a rule of thumbs for creating a lab ``name``:
 

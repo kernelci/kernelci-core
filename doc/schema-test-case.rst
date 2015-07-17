@@ -3,10 +3,14 @@
 test_case
 ---------
 
-A test case is the single unit of test that gets executed. Each test must have its
-own ``name`` defined and must be associated with a :ref:`test suite <schema_test_suite>`.
+A test case is the single unit of test that gets executed. Each test must have
+its own ``name`` defined and must be associated with a
+:ref:`test suite <schema_test_suite>`.
 
-A test case can be associated with only one :ref:`test suite <schema_test_suite>` and one :ref:`test set <schema_test_set>`. A test case can also register multiple :ref:`measurements <schema_measurement>`.
+A test case can be associated with only one
+:ref:`test suite <schema_test_suite>` and one
+:ref:`test set <schema_test_set>`. A test case can also register
+multiple :ref:`measurements <schema_measurement>`.
 
 .. _schema_test_case_get:
 

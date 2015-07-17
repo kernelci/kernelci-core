@@ -78,7 +78,6 @@ GET
         "code": 200,
         "result": [
             {
-                "name": "email@example.net",
                 "created_on": {
                     "$date": 1407818315043},
                 "email": "email@example.net",

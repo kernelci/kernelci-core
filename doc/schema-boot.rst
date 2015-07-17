@@ -8,11 +8,7 @@ boot
 GET
 ***
 
-A boot ``name`` is composed from the name of the board, job, kernel, defconfig
-and architecture values: ``board``-``job``-``kernel``-``defconfig``-``arch``.
-
-Boot report ``name``-s are not unique. To uniquely identify a boot report it is
-necessary to use its ``_id`` value.
+The following schema covers the data that is available with a GET request.
 
 .. literalinclude:: schema/1.0/get_boot.json
     :language: json

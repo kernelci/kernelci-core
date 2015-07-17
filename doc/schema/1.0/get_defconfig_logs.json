@@ -10,16 +10,6 @@
             "description": "The version number of this JSON schema",
             "enum": ["1.0"]
         },
-        "name": {
-            "type": "object",
-            "description": "The ID of this object, coincided with the job_id value",
-            "properties": {
-                "$oid": {
-                    "type": "string",
-                    "description": "The actual ID value"
-                }
-            }
-        },
         "_id": {
             "type": "string",
             "description": "The ID associated with the object"
