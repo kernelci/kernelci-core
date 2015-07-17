@@ -30,7 +30,7 @@ class TestReportModel(unittest.TestCase):
         report_doc.created_on = "now"
         report_doc.job = "job"
         report_doc.kernel = "kernel"
-        report_doc.r_type = "boot"
+        report_doc.report_type = "boot"
         report_doc.status = "ERROR"
         report_doc.updated_on = "now"
         report_doc.errors = [(1, "msg")]

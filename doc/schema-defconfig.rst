@@ -3,9 +3,6 @@
 defconfig
 ---------
 
-A defconfig ``name`` is composed of the job, kernel and defconfig values:
-``job``-``kernel``-``defconfig_full``.
-
 A defconfig is the result of a build from the continuous integration system. It
 contains all the necessary information about what has been built.
 

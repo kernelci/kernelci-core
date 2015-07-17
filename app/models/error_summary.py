@@ -25,7 +25,6 @@ class ErrorSummaryDocument(modb.BaseDocument):
     def __init__(self, job_id, version):
         self._created_on = None
         self._id = None
-        self._name = job_id
         self._version = version
 
         self.job_id = job_id
@@ -53,11 +52,6 @@ class ErrorSummaryDocument(modb.BaseDocument):
         :type value: datetime
         """
         self._created_on = value
-
-    @property
-    def name(self):
-        """The name of the object."""
-        return self._name
 
     @property
     def id(self):
@@ -146,7 +140,6 @@ class ErrorSummaryDocument(modb.BaseDocument):
             models.JOB_KEY: self.job,
             models.KERNEL_KEY: self.kernel,
             models.MISMATCHES_KEY: self.mismatches,
-            models.NAME_KEY: self.name,
             models.VERSION_KEY: self.version,
             models.WARNINGS_KEY: self.warnings
         }

@@ -42,7 +42,6 @@ class TestBisectModel(unittest.TestCase):
         expected = {
             "created_on": None,
             "job": None,
-            "name": "foo",
             "bisect_data": [],
             "compare_to": None,
             "good_commit": None,
@@ -65,7 +64,6 @@ class TestBisectModel(unittest.TestCase):
             "_id": "bar",
             "created_on": None,
             "job": None,
-            "name": "foo",
             "bisect_data": [],
             "compare_to": None,
             "good_commit": None,
@@ -94,7 +92,6 @@ class TestBisectModel(unittest.TestCase):
             "board": "baz",
             "created_on": None,
             "job": None,
-            "name": "foo",
             "bisect_data": [],
             "compare_to": None,
             "good_commit": None,
@@ -128,7 +125,6 @@ class TestBisectModel(unittest.TestCase):
         bisect_doc.bad_commit_url = "url"
 
         self.assertEqual(bisect_doc.id, "bar")
-        self.assertEqual(bisect_doc.name, "foo")
         self.assertEqual(bisect_doc.created_on, "now")
         self.assertEqual(bisect_doc.job, "fooz")
         self.assertEqual(bisect_doc.bisect_data, [1, 2, 3])
@@ -160,7 +156,6 @@ class TestBisectModel(unittest.TestCase):
             "_id": "bar",
             "created_on": None,
             "job": "job",
-            "name": "foo",
             "bisect_data": [],
             "compare_to": None,
             "good_commit": None,

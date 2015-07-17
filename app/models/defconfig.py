@@ -27,16 +27,20 @@ class DefconfigDocument(modb.BaseDocument):
     """This class represents a defconfig folder as seen on the file system."""
 
     def __init__(self, job, kernel, defconfig, defconfig_full=None):
+        """A defconfig/build document.
 
-        doc_name = {
-            models.JOB_KEY: job,
-            models.KERNEL_KEY: kernel,
-            models.DEFCONFIG_KEY: defconfig_full or defconfig
-        }
-
+        :param job: The job value.
+        :type job: string
+        :param kernel: The kernel value.
+        :type kernel: string
+        :param defconfig: The defconfig value.
+        :type defconfig: string
+        :param defconfig_full: The full value of the defconfig when it contains
+        fragments. Default to the same 'defconfig' value.
+        :type defconfig_full: string
+        """
         self._created_on = None
         self._id = None
-        self._name = models.DEFCONFIG_DOCUMENT_NAME % doc_name
         self._version = None
 
         self._build_platform = []
@@ -223,7 +227,6 @@ class DefconfigDocument(modb.BaseDocument):
             models.METADATA_KEY: self.metadata,
             models.MODULES_DIR_KEY: self.modules_dir,
             models.MODULES_KEY: self.modules,
-            models.NAME_KEY: self.name,
             models.STATUS_KEY: self.status,
             models.SYSTEM_MAP_KEY: self.system_map,
             models.TEXT_OFFSET_KEY: self.text_offset,

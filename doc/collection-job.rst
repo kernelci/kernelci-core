@@ -39,7 +39,6 @@ GET
  :query string created_on: The creation date: accepted formats are ``YYYY-MM-DD`` and ``YYYYMMDD``.
  :query string job: A job name.
  :query string kernel: A kernel name.
- :query string name: The name of the job report.
  :query string status: The status of the job report.
 
  :status 200: Results found.

@@ -32,7 +32,6 @@ ERROR_LOG_VALID_KEYS = {
         models.JOB_KEY,
         models.KERNEL_KEY,
         models.MISMATCHES_COUNT_KEY,
-        models.NAME_KEY,
         models.STATUS_KEY,
         models.VERSION_KEY,
         models.WARNINGS_COUNT_KEY
@@ -46,7 +45,6 @@ class ErrorLogDocument(modb.BaseDocument):
     def __init__(self, job_id, version):
         self._created_on = None
         self._id = None
-        self._name = job_id
         self._version = version
 
         self.job_id = job_id
@@ -82,11 +80,6 @@ class ErrorLogDocument(modb.BaseDocument):
         :type value: datetime
         """
         self._created_on = value
-
-    @property
-    def name(self):
-        """The name of the object."""
-        return self._name
 
     @property
     def id(self):
@@ -223,7 +216,6 @@ class ErrorLogDocument(modb.BaseDocument):
             models.KERNEL_KEY: self.kernel,
             models.MISMATCHES_COUNT_KEY: self.mismatches_count,
             models.MISMATCHES_KEY: self.mismatches,
-            models.NAME_KEY: self.name,
             models.STATUS_KEY: self.status,
             models.VERSION_KEY: self.version,
             models.WARNINGS_COUNT_KEY: self.warnings_count,

@@ -23,7 +23,7 @@ import utils
 import utils.batch.common
 import utils.bisect.boot as bootb
 import utils.bisect.defconfig as defconfigb
-import utils.bootimport
+import utils.boot
 import utils.build
 import utils.db
 import utils.emails
@@ -135,7 +135,10 @@ def import_boot(json_obj, db_options, mail_options=None):
     :param mail_options: The options necessary to connect to the SMTP server.
     :type mail_options: dictionary
     """
-    return utils.bootimport.import_and_save_boot(json_obj, db_options)
+    ret_code, doc_id, errors = \
+        utils.boot.import_and_save_boot(json_obj, db_options)
+    # TODO: handle errors.
+    return ret_code, doc_id
 
 
 @taskc.app.task(name="batch-executor", ignore_result=False)

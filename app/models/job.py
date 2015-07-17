@@ -31,15 +31,8 @@ class JobDocument(modb.BaseDocument):
     """
 
     def __init__(self, job, kernel, version="1.0"):
-
-        doc_name = {
-            models.JOB_KEY: job,
-            models.KERNEL_KEY: kernel,
-        }
-
         self._created_on = None
         self._id = None
-        self._name = models.JOB_DOCUMENT_NAME % doc_name
         self._version = version
 
         self._job = job
@@ -54,11 +47,6 @@ class JobDocument(modb.BaseDocument):
     @property
     def collection(self):
         return models.JOB_COLLECTION
-
-    @property
-    def name(self):
-        """The name of the object."""
-        return self._name
 
     @property
     def id(self):
@@ -192,7 +180,6 @@ class JobDocument(modb.BaseDocument):
             models.GIT_URL_KEY: self.git_url,
             models.JOB_KEY: self.job,
             models.KERNEL_KEY: self.kernel,
-            models.NAME_KEY: self.name,
             models.PRIVATE_KEY: self.private,
             models.STATUS_KEY: self.status,
             models.VERSION_KEY: self.version,

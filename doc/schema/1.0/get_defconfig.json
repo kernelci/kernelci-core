@@ -10,10 +10,6 @@
             "description": "The version number of this JSON schema",
             "enum": ["1.0"]
         },
-        "name": {
-            "type": "string",
-            "description": "The name of this object (internally created)"
-        },
         "_id": {
             "type": "string",
             "description": "The ID associated with the object"

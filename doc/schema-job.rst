@@ -3,8 +3,6 @@
 job
 ---
 
-A job ``name`` is composed of an actual job name and a kernel name: ``job``-``kernel``.
-
 At a lower level, a job is the combination of a tree (or Linux repository) and
 the name of the kernel that are being built. The tree name is an arbitrary name
 associated with the repository; the kernel value usually is the output of the
@@ -13,12 +11,12 @@ associated with the repository; the kernel value usually is the output of the
 * ``git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git`` is the tree called ``mainline``.
 * The ``kernel``, for example, could be **v4.0-rc3-194-g5fb0f7fa7f6e**.
 
-In the JSON schema, the above example would become: **mainline-v4.0-rc3-194-g5fb0f7fa7f6e**
-
 .. _schema_job_get:
 
 GET
 ***
+
+The following schema covers the data that is available with a GET request.
 
 .. note::
     Some of the values describe here are not declared in the POST schema.

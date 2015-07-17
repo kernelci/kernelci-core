@@ -33,7 +33,6 @@ GET
  :query string job: A job name.
  :query string job_id: A job ID.
  :query string kernel: A kernel name.
- :query string name: The name of an object.
  :query boolean private: The private status.
  :query string status: The status of the elements to get the count of. Can be
     one of: ``PASS`` or ``FAIL``.

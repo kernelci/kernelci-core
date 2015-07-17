@@ -69,7 +69,6 @@ class TestTokenModel(unittest.TestCase):
             "expired": False,
             "expires_on": None,
             "ip_address": None,
-            "name": "foo@example.org",
             "properties": [0 for _ in range(0, 16)],
             "token": "token",
             "username": "user",

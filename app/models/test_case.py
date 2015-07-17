@@ -25,7 +25,7 @@ import models.base as mbase
 class TestCaseDocument(mbase.BaseDocument):
     """Model for a test case document.
 
-    A test case is the smallest unit if a test set: it is the actual test that
+    A test case is the smallest unit of a test set: it is the actual test that
     is run and that reports a result.
     """
 
@@ -70,47 +70,56 @@ class TestCaseDocument(mbase.BaseDocument):
 
     @property
     def name(self):
-        """The name of the test set."""
+        """The name of the test case."""
         return self._name
+
+    @name.setter
+    def name(self, value):
+        """Set the name of the test case.
+
+        :param value: The name of the test case.
+        :type value: string
+        """
+        self._name = value
 
     @property
     def id(self):
-        """The ID of the test set as registered in the database."""
+        """The ID of the test case as registered in the database."""
         return self._id
 
     @id.setter
     def id(self, value):
-        """Set the test set ID."""
+        """Set the test case ID."""
         self._id = value
 
     @property
     def version(self):
-        """The schema version of this test set."""
+        """The schema version of this test case."""
         return self._version
 
     @version.setter
     def version(self, value):
-        """Set the schema version of this test set."""
+        """Set the schema version of this test case."""
         self._version = value
 
     @property
     def created_on(self):
-        """The creation date of this test set."""
+        """The creation date of this test case."""
         return self._created_on
 
     @created_on.setter
     def created_on(self, value):
-        """Set the creation date of this test set."""
+        """Set the creation date of this test case."""
         self._created_on = value
 
     @property
     def parameters(self):
-        """The parameters that this test set ran with."""
+        """The parameters that this test case ran with."""
         return self._parameters
 
     @parameters.setter
     def parameters(self, value):
-        """Set the parameters this test set ran with.
+        """Set the parameters this test case ran with.
 
         :param value: The parameters data structure.
         :type value: dict

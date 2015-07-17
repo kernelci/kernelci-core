@@ -74,6 +74,15 @@ class TestSuiteDocument(mbase.BaseDocument):
         """The name of the test suite."""
         return self._name
 
+    @name.setter
+    def name(self, value):
+        """Set the name of the test suite.
+
+        :param value: The name of the test suite.
+        :type value: string
+        """
+        self._name = value
+
     @property
     def id(self):
         """The ID of the test suite as registered in the database."""

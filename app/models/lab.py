@@ -66,6 +66,15 @@ class LabDocument(modb.BaseDocument):
         """The name of the lab."""
         return self._name
 
+    @name.setter
+    def name(self, value):
+        """Set the name of the lab.
+
+        :param value: The name of the lab.
+        :type value: string
+        """
+        self._name = value
+
     @property
     def id(self):
         """The ID of this object as returned by mongodb."""

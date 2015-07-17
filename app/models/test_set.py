@@ -31,12 +31,12 @@ class TestSetDocument(mbase.BaseDocument):
     def __init__(self, name, test_suite_id, version):
         """
 
-        :param name: The name given to this test suite.
+        :param name: The name given to this test set.
         :type name: string
-        :param test_suite_id: The ID of the test suite this test set
+        :param test_suite_id: The ID of the test set this test set
         belongs to.
         :type test_suite_id: string
-        :param version: The version of the JSON schema of this test suite.
+        :param version: The version of the JSON schema of this test set.
         :type version: string
         """
         self._created_on = None
@@ -62,6 +62,15 @@ class TestSetDocument(mbase.BaseDocument):
     def name(self):
         """The name of the test set."""
         return self._name
+
+    @name.setter
+    def name(self, value):
+        """Set the name of the test set.
+
+        :param value: The name of the test set.
+        :type value: string
+        """
+        self._name = value
 
     @property
     def id(self):

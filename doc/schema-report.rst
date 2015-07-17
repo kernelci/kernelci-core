@@ -4,7 +4,7 @@ report
 ------
 
 A report is an internally used data structure to save email reports status. It
-is used to provide a view on the reports send when error arises.
+is used to provide a view on the reports sent when error arises.
 
 GET
 ***

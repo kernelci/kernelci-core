@@ -23,7 +23,7 @@ import types
 import uuid
 
 import models
-import models.base as modb
+import models.base as mbase
 
 PROPERTIES_SIZE = 16
 
@@ -31,7 +31,7 @@ PROPERTIES_SIZE = 16
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=invalid-name
 # pylint: disable=too-many-public-methods
-class Token(modb.BaseDocument):
+class Token(mbase.BaseDocument):
     """This is an API token as stored in the DB.
 
     A token can be:
@@ -63,7 +63,6 @@ class Token(modb.BaseDocument):
     def __init__(self):
         self._created_on = None
         self._id = None
-        self._name = None
         self._version = None
 
         self._expires_on = None
@@ -77,18 +76,6 @@ class Token(modb.BaseDocument):
     @property
     def collection(self):
         return models.TOKEN_COLLECTION
-
-    @property
-    def name(self):
-        """The name of the object."""
-        if not self._name:
-            self._name = self.email
-        return self._name
-
-    @name.setter
-    def name(self, value):
-        """Set the name of the object."""
-        self._name = value
 
     @property
     def id(self):
@@ -370,7 +357,6 @@ class Token(modb.BaseDocument):
             models.EMAIL_KEY: self.email,
             models.EXPIRED_KEY: self.expired,
             models.EXPIRES_KEY: self.expires_on,
-            models.NAME_KEY: self.name,
             models.VERSION_KEY: self.version,
         }
         if self.ip_address is not None:

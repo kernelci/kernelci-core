@@ -3,7 +3,7 @@
 measurement
 -----------
 
-A measurement object is used to store a measure registered by a test case.
+A measurement object is used to store a measure registered by a test.
 
 .. literalinclude:: schema/1.0/measurement.json
     :language: json

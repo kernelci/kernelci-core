@@ -38,17 +38,6 @@ class BaseDocument(object):
     # pylint: disable=invalid-name
     id = abc.abstractproperty(None, None, doc=id_doc)
 
-    name_doc = (
-        """
-        The name of this document.
-
-        This is a user defined property usually built with values from the
-        document itself. It is not necessary to be unique among all documents.
-        """
-    )
-
-    name = abc.abstractproperty(None, None, doc=name_doc)
-
     @abc.abstractproperty
     def collection(self):
         """The collection this document belongs to."""

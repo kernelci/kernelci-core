@@ -47,7 +47,6 @@ GET
  :query string kernel: The name of a kernel.
  :query string lab_name: The name of the lab that created the boot report.
  :query string mach: The machine type.
- :query string name: The name of the boot report.
  :query string status: The status of the boot report.
  :query int retries: The number of boot retries performed.
  :query int warnings: The number of warnings in the boot report.
