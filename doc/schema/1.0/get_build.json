@@ -1,8 +1,8 @@
 {
-    "$schema": "http://api.kernelci.org/json-schema/1.0/get_defconfig.json",
-    "id": "http://api.kernelci.org/json-schema/1.0/get_defconfig.json",
-    "title": "defconfig",
-    "description": "A defconfig as built by the continuous integration system",
+    "$schema": "http://api.kernelci.org/json-schema/1.0/get_build.json",
+    "id": "http://api.kernelci.org/json-schema/1.0/get_build.json",
+    "title": "build",
+    "description": "A build from a continuous integration system",
     "type": "object",
     "properties": {
         "version": {
@@ -44,20 +44,20 @@
         },
         "defconfig": {
             "type": "string",
-            "description": "The name of the defconfig as reported by the continuous integration system"
+            "description": "The name of the defconfig built as reported by the continuous integration system"
         },
         "defconfig_full": {
             "type": "string",
-            "description": "The full name of the defconfig, can contain also config fragments information",
+            "description": "The full name of the defconfig built, can contain also config fragments information",
             "default": "The defconfig value"
         },
         "dirname": {
             "type": "string",
-            "description": "The name of the directory of the defconfig built; it can be different from the actual defconfig name"
+            "description": "The name of the directory of the built; it can be different from the actual defconfig value"
         },
         "status": {
             "type": "string",
-            "description": "The status of the defconfig",
+            "description": "The status of the build",
             "enum": ["FAIL", "PASS", "UNKNOWN"]
         },
         "errors": {
@@ -72,11 +72,11 @@
         },
         "arch": {
             "type": "string",
-            "description": "The architecture of the defconfig built"
+            "description": "The architecture of the build"
         },
         "build_time": {
             "type": "number",
-            "description": "The time taken to build this defconfig"
+            "description": "The time taken to perform the build"
         },
         "git_url": {
             "type": "string",

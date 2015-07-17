@@ -13,7 +13,7 @@ Resources
     collection-batch
     collection-boot
     collection-count
-    collection-defconfig
+    collection-build
     collection-job
     collection-lab
     collection-report

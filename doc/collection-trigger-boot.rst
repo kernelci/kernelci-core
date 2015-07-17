@@ -3,12 +3,12 @@
 boot
 ----
 
-The boot trigger resource is used by a boot ``lab`` to retrieve ``defconfig`` (build)
+The boot trigger resource is used by a boot ``lab`` to retrieve ``build``
 information on what can be boot tested.
 
-The data returned by this resources has the same format described in the :ref:`defconfig schema <schema_defconfig>`.
+The data returned by this resources has the same format described in the :ref:`build schema <schema_build>`.
 
-By default, this resource returns the same results as the ``defconfig`` one. The
+By default, this resource returns the same results as the ``build`` one. The
 results can be tailored for the requesting lab by comparing what other boot
 labs have already tested. To achieve this, use the ``compared`` parameter in
 the query string.
@@ -26,7 +26,7 @@ GET
 
 .. http:get:: /trigger/boot
 
- Get the available defconfigs built.
+ Get the available builds.
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Accept-Encoding: Accept the ``gzip`` coding.
@@ -141,6 +141,6 @@ PUT
 More Info
 *********
 
-* :ref:`Defconfig schema <schema_defconfig>`
+* :ref:`Defconfig schema <schema_build>`
 * :ref:`API results <intro_schema_results>`
 * :ref:`Schema time and date <intro_schema_time_date>`

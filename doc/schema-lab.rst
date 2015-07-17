@@ -35,6 +35,6 @@ More Info
 *********
 
 * :ref:`Lab resource <collection_lab>`
-* :ref:`Defconfig schema <schema_defconfig>`
+* :ref:`Defconfig schema <schema_build>`
 * :ref:`API results <intro_schema_results>`
 * :ref:`Schema time and date <intro_schema_time_date>`
