@@ -221,13 +221,13 @@ class BatchJobOperation(BatchOperation):
         self.valid_keys = models.JOB_VALID_KEYS
 
 
-class BatchDefconfigOperation(BatchOperation):
+class BatchBuildOperation(BatchOperation):
     """A batch operation for the `job` collection."""
 
     def __init__(self, collection, database, operation_id=None):
-        super(BatchDefconfigOperation, self).__init__(
+        super(BatchBuildOperation, self).__init__(
             collection, database, operation_id)
-        self.valid_keys = models.DEFCONFIG_VALID_KEYS
+        self.valid_keys = models.BUILD_VALID_KEYS
 
 
 class BatchCountOperation(BatchOperation):

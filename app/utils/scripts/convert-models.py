@@ -21,7 +21,7 @@ import sys
 import models
 import models.boot as mboot
 import models.job as mjob
-import models.defconfig as mdefconfig
+import models.build as mbuild
 import utils
 import utils.db
 
@@ -159,7 +159,7 @@ def convert_defconfig_collection(db, limit=0):
             if not defconfig_full:
                 defconfig_full = defconfig
 
-            def_doc = mdefconfig.DefconfigDocument(
+            def_doc = mbuild.BuildDocument(
                 job, kernel, defconfig, defconfig_full)
 
             def_doc.version = "1.0"

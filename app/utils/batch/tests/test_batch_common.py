@@ -19,7 +19,7 @@ from mock import patch
 from utils.batch.batch_op import (
     BatchBootOperation,
     BatchCountOperation,
-    BatchDefconfigOperation,
+    BatchBuildOperation,
     BatchJobOperation,
     BatchOperation,
 )
@@ -138,7 +138,7 @@ class TestBatch(unittest.TestCase):
         }
 
         op = create_batch_operation(json_obj, {})
-        self.assertIsInstance(op, BatchDefconfigOperation)
+        self.assertIsInstance(op, BatchBuildOperation)
 
     @patch('pymongo.MongoClient')
     def test_create_batch_fake_op(self, mocked_mongocl):

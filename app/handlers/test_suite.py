@@ -326,10 +326,10 @@ class TestSuiteHandler(htbase.TestBaseHandler):
             ret_val = 400
             error = "Invalid value passed for defconfig_id, job_id, or boot_id"
         else:
-            defconfig_doc = utils.db.find_one2(
+            build_doc = utils.db.find_one2(
                 self.db[models.DEFCONFIG_COLLECTION],
                 defconfig_oid, [models.ID_KEY])
-            if not defconfig_doc:
+            if not build_doc:
                 ret_val = 400
                 error = "Build document with ID '%s' not found" % defconfig_id
             else:

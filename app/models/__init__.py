@@ -207,6 +207,7 @@ OP_ID_KEY = "operation_id"
 BOOT_COLLECTION = "boot"
 COUNT_COLLECTION = "count"
 DEFCONFIG_COLLECTION = "defconfig"
+BUILD_COLLECTION = "build"
 JOB_COLLECTION = "job"
 SUBSCRIPTION_COLLECTION = "subscription"
 TOKEN_COLLECTION = "api-token"
@@ -245,12 +246,6 @@ VALID_ARCHITECTURES = [
     ARM_ARCHITECTURE_KEY,
     x86_ARCHITECTURE_KEY
 ]
-
-# Name formats.
-JOB_DOCUMENT_NAME = "%(job)s-%(kernel)s"
-BOOT_DOCUMENT_NAME = "%(board)s-%(job)s-%(kernel)s-%(defconfig)s-%(arch)s"
-DEFCONFIG_DOCUMENT_NAME = "%(job)s-%(kernel)s-%(defconfig)s"
-SUBSCRIPTION_DOCUMENT_NAME = "sub-%(job)s-%(kernel)s"
 
 # Valid build status.
 VALID_BUILD_STATUS = [
@@ -423,7 +418,7 @@ BOOT_VALID_KEYS = {
     ]
 }
 
-DEFCONFIG_VALID_KEYS = {
+BUILD_VALID_KEYS = {
     "GET": [
         ARCHITECTURE_KEY,
         BUILD_LOG_KEY,

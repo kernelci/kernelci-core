@@ -11,23 +11,22 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""The model that represents a defconfing document in the db."""
+"""The model that represents a build in the db."""
 
 import copy
 import types
 
 import models
-import models.base as modb
+import models.base as mbase
 
 
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=invalid-name
-class DefconfigDocument(modb.BaseDocument):
-
-    """This class represents a defconfig folder as seen on the file system."""
+class BuildDocument(mbase.BaseDocument):
+    """This class represents a build."""
 
     def __init__(self, job, kernel, defconfig, defconfig_full=None):
-        """A defconfig/build document.
+        """A build document.
 
         :param job: The job value.
         :type job: string
@@ -254,7 +253,7 @@ class DefconfigDocument(modb.BaseDocument):
                 kernel = doc_pop(models.KERNEL_KEY)
                 defconfig = doc_pop(models.DEFCONFIG_KEY)
 
-                build_doc = DefconfigDocument(
+                build_doc = BuildDocument(
                     job, kernel, defconfig, defconfig_full)
                 build_doc.id = doc_id
 

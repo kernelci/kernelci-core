@@ -11,7 +11,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""The RequestHandler for /defconfig URLs."""
+"""The RequestHandler for /build URLs."""
 
 import handlers.base as hbase
 import handlers.response as hresponse
@@ -20,15 +20,15 @@ import taskqueue.tasks as taskq
 import utils.db
 
 
-class DefConfHandler(hbase.BaseHandler):
-    """Handle the /defconfig URLs."""
+class BuildHandler(hbase.BaseHandler):
+    """Handle the /build URLs."""
 
     def __init__(self, application, request, **kwargs):
-        super(DefConfHandler, self).__init__(application, request, **kwargs)
+        super(BuildHandler, self).__init__(application, request, **kwargs)
 
     @property
     def collection(self):
-        return self.db[models.DEFCONFIG_COLLECTION]
+        return self.db[models.BUILD_COLLECTION]
 
     @staticmethod
     def _valid_keys(method):
@@ -40,12 +40,6 @@ class DefConfHandler(hbase.BaseHandler):
 
         json_obj = kwargs["json_obj"]
         db_options = kwargs["db_options"]
-
-        self.log.info(
-            "Importing defconfig for %s-%s-%s-%s",
-            json_obj[models.JOB_KEY], json_obj[models.KERNEL_KEY],
-            json_obj[models.ARCHITECTURE_KEY], json_obj[models.DEFCONFIG_KEY]
-        )
 
         taskq.import_build.apply_async(
             [json_obj, db_options],

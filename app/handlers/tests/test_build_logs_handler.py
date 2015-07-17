@@ -74,7 +74,7 @@ class TestBuildLogsHandler(
         }
 
         return tornado.web.Application(
-            [urls._BUILD_ID_LOGS_URL, urls._BUILD_LOGS_URL], **settings)
+            [urls._DEFCONFIG_ID_LOGS_URL, urls._DEFCONFIG_LOGS_URL], **settings)
 
     def get_new_ioloop(self):
         return tornado.ioloop.IOLoop.instance()

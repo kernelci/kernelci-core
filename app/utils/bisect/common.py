@@ -95,37 +95,37 @@ def combine_defconfig_values(boot_doc, db_options):
     }
 
     if defconfig_id:
-        defconf_doc = utils.db.find_one2(
+        build_doc = utils.db.find_one2(
             database[models.DEFCONFIG_COLLECTION],
             defconfig_id,
             fields=BOOT_DEFCONFIG_SEARCH_FIELDS
         )
     else:
         defconfig_name = job + "-" + kernel + "-" + defconfig_full
-        defconf_doc = utils.db.find_one(
+        build_doc = utils.db.find_one(
             database[models.DEFCONFIG_COLLECTION],
             [defconfig_name],
             field=models.NAME_KEY,
             fields=BOOT_DEFCONFIG_SEARCH_FIELDS
         )
 
-    if defconf_doc:
-        defconf_doc_get = defconf_doc.get
-        combined_values[models.DIRNAME_KEY] = defconf_doc_get(
+    if build_doc:
+        build_doc_get = build_doc.get
+        combined_values[models.DIRNAME_KEY] = build_doc_get(
             models.DIRNAME_KEY)
         combined_values[models.BISECT_DEFCONFIG_CREATED_KEY] = \
-            defconf_doc_get(models.CREATED_KEY)
+            build_doc_get(models.CREATED_KEY)
         combined_values[models.BISECT_DEFCONFIG_ARCHITECTURE_KEY] = \
-            defconf_doc_get(models.ARCHITECTURE_KEY)
+            build_doc_get(models.ARCHITECTURE_KEY)
         combined_values[models.BISECT_DEFCONFIG_STATUS_KEY] = \
-            defconf_doc_get(models.STATUS_KEY)
-        combined_values[models.GIT_URL_KEY] = defconf_doc_get(
+            build_doc_get(models.STATUS_KEY)
+        combined_values[models.GIT_URL_KEY] = build_doc_get(
             models.GIT_URL_KEY, None)
-        combined_values[models.GIT_BRANCH_KEY] = defconf_doc_get(
+        combined_values[models.GIT_BRANCH_KEY] = build_doc_get(
             models.GIT_BRANCH_KEY, None)
-        combined_values[models.GIT_COMMIT_KEY] = defconf_doc_get(
+        combined_values[models.GIT_COMMIT_KEY] = build_doc_get(
             models.GIT_COMMIT_KEY, None)
-        combined_values[models.GIT_DESCRIBE_KEY] = defconf_doc_get(
+        combined_values[models.GIT_DESCRIBE_KEY] = build_doc_get(
             models.GIT_DESCRIBE_KEY, None)
 
     return combined_values
