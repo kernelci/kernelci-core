@@ -40,6 +40,7 @@ GET
  :query string name: The name of a test set.
  :query string test_suite_id: The ID of the test suite associated with the test set.
  :query string time: The time it took to execute the test set.
+ :query string defect_ack: If the test set has an acknowledged defect.
 
  :status 200: Results found.
  :status 403: Not authorized to perform the operation.

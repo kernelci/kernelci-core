@@ -58,6 +58,18 @@
         "parameters": {
             "type": "object",
             "description": "Key-value pairs describing the parameters used to run the test set"
+        },
+        "defect_url": {
+            "type": "string",
+            "description": "The URL where the defect for this test set can be found"
+        },
+        "defect_comment": {
+            "type": "string",
+            "description": "A free-form description of the defect"
+        }, 
+        "defect_ack": {
+            "type": "boolean",
+            "description": "If the defect is known or not"
         }
     }
 }
