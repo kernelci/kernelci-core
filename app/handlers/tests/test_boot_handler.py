@@ -18,59 +18,18 @@ try:
 except ImportError:
     import json
 
-import concurrent.futures
 import mock
-import mongomock
 import tornado
-import tornado.testing
 
-import handlers.app
-import models.token as mtoken
 import urls
 
-# Default Content-Type header returned by Tornado.
-DEFAULT_CONTENT_TYPE = "application/json; charset=UTF-8"
+from handlers.tests.test_handler_base import TestHandlerBase
 
 
-class TestBootHandler(
-        tornado.testing.AsyncHTTPTestCase, tornado.testing.LogTrapTestCase):
-
-    def setUp(self):
-        self.database = mongomock.Connection()["kernel-ci"]
-
-        super(TestBootHandler, self).setUp()
-
-        patched_find_token = mock.patch(
-            "handlers.base.BaseHandler._find_token")
-        self.find_token = patched_find_token.start()
-        self.req_token = mtoken.Token()
-        self.find_token.return_value = self.req_token
-
-        patched_validate_token = mock.patch("handlers.common.validate_token")
-        self.validate_token = patched_validate_token.start()
-        self.validate_token.return_value = (True, self.req_token)
-
-        self.addCleanup(patched_find_token.stop)
-        self.addCleanup(patched_validate_token.stop)
+class TestBootHandler(TestHandlerBase):
 
     def get_app(self):
-        dboptions = {
-            "dbpassword": "",
-            "dbuser": ""
-        }
-
-        settings = {
-            "dboptions": dboptions,
-            "database": self.database,
-            "executor": concurrent.futures.ThreadPoolExecutor(max_workers=1),
-            "default_handler_class": handlers.app.AppHandler,
-            "debug": False
-        }
-
-        return tornado.web.Application([urls._BOOT_URL], **settings)
-
-    def get_new_ioloop(self):
-        return tornado.ioloop.IOLoop.instance()
+        return tornado.web.Application([urls._BOOT_URL], **self.settings)
 
     def test_delete_no_token(self):
         self.find_token.return_value = None
@@ -87,7 +46,7 @@ class TestBootHandler(
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("handlers.boot.BootHandler._valid_boot_delete_token")
     @mock.patch("bson.objectid.ObjectId")
@@ -103,7 +62,7 @@ class TestBootHandler(
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("handlers.boot.BootHandler._valid_boot_delete_token")
     @mock.patch("bson.objectid.ObjectId")
@@ -119,7 +78,7 @@ class TestBootHandler(
 
         self.assertEqual(response.code, 403)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_delete_no_id_no_spec(self):
         headers = {"Authorization": "foo"}
@@ -128,7 +87,7 @@ class TestBootHandler(
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_delete_with_bogus_objectid(self):
         headers = {"Authorization": "foo"}
@@ -138,7 +97,7 @@ class TestBootHandler(
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_delete_wrong_spec(self):
         headers = {"Authorization": "foo"}
@@ -149,7 +108,7 @@ class TestBootHandler(
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_post_wrong_content(self):
         body = {"foo": "bar"}

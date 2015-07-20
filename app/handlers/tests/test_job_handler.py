@@ -20,57 +20,18 @@ try:
 except ImportError:
     import json
 
-import concurrent.futures
 import mock
-import mongomock
 import tornado
-import tornado.testing
 
-import handlers.app
 import urls
 
-# Default Content-Type header returned by Tornado.
-DEFAULT_CONTENT_TYPE = "application/json; charset=UTF-8"
+from handlers.tests.test_handler_base import TestHandlerBase
 
 
-class TestJobHandler(
-        tornado.testing.AsyncHTTPTestCase, tornado.testing.LogTrapTestCase):
-
-    def setUp(self):
-        self.database = mongomock.Connection()["kernel-ci"]
-
-        super(TestJobHandler, self).setUp()
-
-        patched_find_token = mock.patch(
-            "handlers.base.BaseHandler._find_token")
-        self.find_token = patched_find_token.start()
-        self.find_token.return_value = "token"
-
-        patched_validate_token = mock.patch("handlers.common.validate_token")
-        self.validate_token = patched_validate_token.start()
-        self.validate_token.return_value = (True, "token")
-
-        self.addCleanup(patched_find_token.stop)
-        self.addCleanup(patched_validate_token.stop)
+class TestJobHandler(TestHandlerBase):
 
     def get_app(self):
-        dboptions = {"dbpassword": "", "dbuser": ""}
-        mailoptions = {}
-
-        settings = {
-            "dboptions": dboptions,
-            "mailoptions": mailoptions,
-            "senddelay": 60*60,
-            "database": self.database,
-            "executor": concurrent.futures.ThreadPoolExecutor(max_workers=1),
-            "default_handler_class": handlers.app.AppHandler,
-            "debug": False
-        }
-
-        return tornado.web.Application([urls._JOB_URL], **settings)
-
-    def get_new_ioloop(self):
-        return tornado.ioloop.IOLoop.instance()
+        return tornado.web.Application([urls._JOB_URL], **self.settings)
 
     @mock.patch("utils.db.find")
     @mock.patch("utils.db.count")
@@ -85,7 +46,7 @@ class TestJobHandler(
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
         self.assertEqual(response.body, expected_body)
 
     @mock.patch("utils.db.find")
@@ -101,7 +62,7 @@ class TestJobHandler(
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
         self.assertEqual(response.body, expected_body)
 
     @mock.patch("bson.objectid.ObjectId")
@@ -116,7 +77,7 @@ class TestJobHandler(
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("bson.objectid.ObjectId")
     @mock.patch("handlers.job.JobHandler.collection")
@@ -130,7 +91,7 @@ class TestJobHandler(
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("bson.objectid.ObjectId")
     @mock.patch("handlers.job.JobHandler.collection")
@@ -154,7 +115,7 @@ class TestJobHandler(
 
         self.assertEqual(response.code, 403)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_post_not_json_content(self):
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
@@ -164,7 +125,7 @@ class TestJobHandler(
 
         self.assertEqual(response.code, 422)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_post_wrong_content_type(self):
         headers = {"Authorization": "foo"}
@@ -174,7 +135,7 @@ class TestJobHandler(
 
         self.assertEqual(response.code, 415)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_post_wrong_json(self):
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
@@ -185,7 +146,7 @@ class TestJobHandler(
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("utils.db.find_and_update")
     def test_post_correct(self, mock_find):
@@ -198,7 +159,7 @@ class TestJobHandler(
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_post_wrong_status(self):
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
@@ -209,7 +170,7 @@ class TestJobHandler(
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("utils.db.find_and_update")
     def test_post_internal_error(self, mock_find):
@@ -222,7 +183,7 @@ class TestJobHandler(
 
         self.assertEqual(response.code, 500)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("utils.db.find_and_update")
     def test_post_not_found(self, mock_find):
@@ -235,7 +196,7 @@ class TestJobHandler(
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_delete_no_token(self):
         response = self.fetch("/job/job", method="DELETE")
@@ -251,7 +212,7 @@ class TestJobHandler(
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("bson.objectid.ObjectId")
     def test_delete_with_token_with_job(self, mock_id):
@@ -265,7 +226,7 @@ class TestJobHandler(
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_delete_no_id(self):
         headers = {"Authorization": "foo"}
@@ -275,7 +236,7 @@ class TestJobHandler(
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_delete_wrong_id(self):
         headers = {"Authorization": "foo"}
@@ -285,7 +246,7 @@ class TestJobHandler(
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("utils.db.delete")
     @mock.patch("utils.db.find_one2")
@@ -301,7 +262,7 @@ class TestJobHandler(
 
         self.assertEqual(response.code, 500)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("handlers.base.BaseHandler._get_one")
     def test_get_wrong_handler_response(self, mock_get_one):
@@ -312,4 +273,4 @@ class TestJobHandler(
 
         self.assertEqual(response.code, 506)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)

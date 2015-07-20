@@ -16,65 +16,19 @@
 import datetime
 import json
 import mock
-import mongomock
-
-from concurrent.futures import ThreadPoolExecutor
-from tornado import (
-    ioloop,
-    testing,
-    web,
-)
+import tornado
 
 import handlers.send as sendh
 
-from handlers.app import AppHandler
-from urls import _SEND_URL
+import urls
 
-# Default Content-Type header returned by Tornado.
-DEFAULT_CONTENT_TYPE = "application/json; charset=UTF-8"
+from handlers.tests.test_handler_base import TestHandlerBase
 
 
-class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
-
-    def setUp(self):
-        self.database = mongomock.Connection()["kernel-ci"]
-        self.dboptions = {
-            "dbpassword": "",
-            "dbuser": ""
-        }
-        self.mailoptions = {}
-
-        super(TestSendHandler, self).setUp()
-
-        patched_find_token = mock.patch(
-            "handlers.base.BaseHandler._find_token")
-        self.find_token = patched_find_token.start()
-        self.find_token.return_value = "token"
-
-        patched_validate_token = mock.patch("handlers.common.validate_token")
-        self.validate_token = patched_validate_token.start()
-        self.validate_token.return_value = (True, "token")
-
-        self.addCleanup(patched_find_token.stop)
-        self.addCleanup(patched_validate_token.stop)
+class TestSendHandler(TestHandlerBase):
 
     def get_app(self):
-
-        settings = {
-            "dboptions": self.dboptions,
-            "database": self.database,
-            "executor": ThreadPoolExecutor(max_workers=1),
-            "default_handler_class": AppHandler,
-            "master_key": "bar",
-            "debug": False,
-            "mailoptions": self.mailoptions,
-            "senddelay": 60*60
-        }
-
-        return web.Application([_SEND_URL], **settings)
-
-    def get_new_ioloop(self):
-        return ioloop.IOLoop.instance()
+        return tornado.web.Application([urls._SEND_URL], **self.settings)
 
     def test_get(self):
         headers = {"Authorization": "foo"}
@@ -83,13 +37,13 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
         self.assertEqual(response.code, 501)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_get_no_token(self):
         response = self.fetch("/send", method="GET")
         self.assertEqual(response.code, 403)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_delete(self):
         headers = {"Authorization": "foo"}
@@ -98,19 +52,19 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
         self.assertEqual(response.code, 501)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_delete_no_token(self):
         response = self.fetch("/send", method="DELETE")
         self.assertEqual(response.code, 403)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_post_no_token(self):
         response = self.fetch("/send", method="POST", body="")
         self.assertEqual(response.code, 403)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_post_missing_job_key(self):
         headers = {
@@ -122,7 +76,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             "/send", method="POST", headers=headers, body=body)
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_post_missing_kernel_key(self):
         headers = {
@@ -134,7 +88,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             "/send", method="POST", headers=headers, body=body)
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_post_no_report_specified(self):
         headers = {
@@ -147,7 +101,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             "/send", method="POST", headers=headers, body=body)
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_post_boot_report_no_email(self):
         headers = {
@@ -160,7 +114,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             "/send", method="POST", headers=headers, body=body)
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("taskqueue.tasks.send_boot_report")
     def test_post_correct_boot_report(self, mock_schedule):
@@ -178,7 +132,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             "/send", method="POST", headers=headers, body=body)
         self.assertEqual(response.code, 202)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
         mock_schedule.apply_async.assert_called_with(
             [
                 "job",
@@ -206,7 +160,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             "/send", method="POST", headers=headers, body=body)
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("taskqueue.tasks.send_boot_report")
     def test_post_negative_delay(self, mock_schedule):
@@ -225,7 +179,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             "/send", method="POST", headers=headers, body=body)
         self.assertEqual(response.code, 202)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
         mock_schedule.apply_async.assert_called_with(
             [
                 "job",
@@ -255,7 +209,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             "/send", method="POST", headers=headers, body=body)
         self.assertEqual(response.code, 202)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
         mock_schedule.apply_async.assert_called_with(
             [
                 "job",
@@ -285,7 +239,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             "/send", method="POST", headers=headers, body=body)
         self.assertEqual(response.code, 202)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
         mock_schedule.apply_async.assert_called_with(
             [
                 "job",
@@ -312,7 +266,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             "/send", method="POST", headers=headers, body=body)
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("taskqueue.tasks.send_build_report")
     @mock.patch("taskqueue.tasks.send_boot_report")
@@ -338,7 +292,7 @@ class TestSendHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
             "/send", method="POST", headers=headers, body=body)
         self.assertEqual(response.code, 202)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
         mock_boot.apply_async.assert_called_with(
             [
                 "job",

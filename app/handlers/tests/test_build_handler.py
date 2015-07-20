@@ -20,69 +20,26 @@ try:
 except ImportError:
     import json
 
-import concurrent.futures
 import mock
-import mongomock
-import random
-import string
 import tornado
-import tornado.testing
 
-import handlers.app
 import urls
 
-# Default Content-Type header returned by Tornado.
-DEFAULT_CONTENT_TYPE = "application/json; charset=UTF-8"
+from handlers.tests.test_handler_base import TestHandlerBase
 
 
-class TestBuildHandler(
-        tornado.testing.AsyncHTTPTestCase, tornado.testing.LogTrapTestCase):
-
-    def setUp(self):
-        self.database = mongomock.Connection()["kernel-ci"]
-
-        super(TestBuildHandler, self).setUp()
-
-        patched_find_token = mock.patch(
-            "handlers.base.BaseHandler._find_token")
-        self.find_token = patched_find_token.start()
-        self.find_token.return_value = "token"
-
-        patched_validate_token = mock.patch("handlers.common.validate_token")
-        self.validate_token = patched_validate_token.start()
-        self.validate_token.return_value = (True, "token")
-
-        self.addCleanup(patched_find_token.stop)
-        self.addCleanup(patched_validate_token.stop)
-        self.doc_id = "".join(
-            [random.choice(string.digits) for x in xrange(24)])
+class TestBuildHandler(TestHandlerBase):
 
     def get_app(self):
-        dboptions = {
-            "dbpassword": "",
-            "dbuser": ""
-        }
-
-        settings = {
-            "dboptions": dboptions,
-            "database": self.database,
-            "executor": concurrent.futures.ThreadPoolExecutor(max_workers=1),
-            "default_handler_class": handlers.app.AppHandler,
-            "debug": False,
-        }
-
         return tornado.web.Application(
-            [urls._BUILD_URL, urls._BUILD_ID_URL], **settings)
-
-    def get_new_ioloop(self):
-        return tornado.ioloop.IOLoop.instance()
+            [urls._BUILD_URL, urls._BUILD_ID_URL], **self.settings)
 
     def test_get_wrong_url(self):
         response = self.fetch("/foobarbuild")
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("utils.db.find")
     @mock.patch("utils.db.count")
@@ -97,7 +54,7 @@ class TestBuildHandler(
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
         self.assertEqual(response.body, expected_body)
 
     @mock.patch("bson.objectid.ObjectId")
@@ -111,14 +68,14 @@ class TestBuildHandler(
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_post_no_token(self):
         response = self.fetch("/build", method="POST", body="")
 
         self.assertEqual(response.code, 403)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_post_not_json_content(self):
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
@@ -128,7 +85,7 @@ class TestBuildHandler(
 
         self.assertEqual(response.code, 422)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_post_wrong_content_type(self):
         headers = {"Authorization": "foo"}
@@ -138,7 +95,7 @@ class TestBuildHandler(
 
         self.assertEqual(response.code, 415)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_post_wrong_json(self):
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
@@ -149,7 +106,7 @@ class TestBuildHandler(
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("taskqueue.tasks.import_build")
     def test_post_correct(self, mock_import):
@@ -166,7 +123,7 @@ class TestBuildHandler(
 
         self.assertEqual(response.code, 202)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_delete(self):
         self.database["build"].insert(dict(_id=self.doc_id, job_id="job"))
@@ -178,7 +135,7 @@ class TestBuildHandler(
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("utils.db.delete")
     def test_delete_not_found(self, mock_delete):
@@ -190,4 +147,4 @@ class TestBuildHandler(
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
