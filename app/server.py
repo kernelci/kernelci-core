@@ -18,7 +18,6 @@
 
 import concurrent.futures
 import os
-import pymongo
 import tornado
 import tornado.httpserver
 import tornado.netutil
