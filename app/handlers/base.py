@@ -54,7 +54,6 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def __init__(self, application, request, **kwargs):
         super(BaseHandler, self).__init__(application, request, **kwargs)
-        self._db = None
 
     @property
     def executor(self):
@@ -75,9 +74,7 @@ class BaseHandler(tornado.web.RequestHandler):
     @property
     def db(self):
         """The database instance associated with the object."""
-        if self._db is None:
-            self._db = utils.db.get_db_connection(self.settings["dboptions"])
-        return self._db
+        return self.settings["database"]
 
     @property
     def log(self):

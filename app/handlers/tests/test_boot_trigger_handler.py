@@ -13,61 +13,22 @@
 
 """Test module for BootTriggerHandler."""
 
-
-import concurrent.futures
 import mock
-import mongomock
 import tornado
-import tornado.testing
 
-import handlers.app
 import handlers.boot_trigger as hbtrigger
 import handlers.response as hresponse
 import models.token as mtoken
 import urls
 
-# Default Content-Type header returned by Tornado.
-DEFAULT_CONTENT_TYPE = "application/json; charset=UTF-8"
+from handlers.tests.test_handler_base import TestHandlerBase
 
 
-class TestBootTriggerHandler(
-        tornado.testing.AsyncHTTPTestCase, tornado.testing.LogTrapTestCase):
-
-    def setUp(self):
-        self.mongodb_client = mongomock.Connection()
-
-        super(TestBootTriggerHandler, self).setUp()
-
-        patched_find_token = mock.patch(
-            "handlers.base.BaseHandler._find_token")
-        self.find_token = patched_find_token.start()
-        self.find_token.return_value = "token"
-
-        patched_validate_token = mock.patch("handlers.common.validate_token")
-        self.validate_token = patched_validate_token.start()
-        self.validate_token.return_value = (True, "token")
-
-        self.addCleanup(patched_find_token.stop)
-        self.addCleanup(patched_validate_token.stop)
+class TestBootTriggerHandler(TestHandlerBase):
 
     def get_app(self):
-        dboptions = {
-            "dbpassword": "",
-            "dbuser": ""
-        }
-
-        settings = {
-            "dboptions": dboptions,
-            "client": self.mongodb_client,
-            "executor": concurrent.futures.ThreadPoolExecutor(max_workers=1),
-            "default_handler_class": handlers.app.AppHandler,
-            "debug": False
-        }
-
-        return tornado.web.Application([urls._BOOT_TRIGGER_URL], **settings)
-
-    def get_new_ioloop(self):
-        return tornado.ioloop.IOLoop.instance()
+        return tornado.web.Application(
+            [urls._BOOT_TRIGGER_URL], **self.settings)
 
     def test_delete_not_implemented(self):
         headers = {"Authorization": "foo"}
@@ -141,7 +102,7 @@ class TestBootTriggerHandler(
         mock_find.return_value = {}
         token = mtoken.Token()
 
-        lab_name = hbtrigger._get_lab_name(token, self.mongodb_client)
+        lab_name = hbtrigger._get_lab_name(token, self.database)
 
         self.assertIsNone(lab_name)
 
@@ -150,7 +111,7 @@ class TestBootTriggerHandler(
         mock_find.return_value = {"name": "fake_name"}
         token = mtoken.Token()
 
-        lab_name = hbtrigger._get_lab_name(token, self.mongodb_client)
+        lab_name = hbtrigger._get_lab_name(token, self.database)
 
         self.assertIsNotNone(lab_name)
         self.assertEqual("fake_name", lab_name)
@@ -160,7 +121,7 @@ class TestBootTriggerHandler(
         token.is_admin = True
 
         is_lab, is_super, lab_name = hbtrigger._is_lab_token(
-            token, self.mongodb_client)
+            token, self.database)
 
         self.assertTrue(is_lab)
         self.assertTrue(is_super)
@@ -170,7 +131,7 @@ class TestBootTriggerHandler(
         token.is_superuser = True
 
         is_lab, is_super, lab_name = hbtrigger._is_lab_token(
-            token, self.mongodb_client)
+            token, self.database)
 
         self.assertTrue(is_lab)
         self.assertTrue(is_super)
@@ -183,7 +144,7 @@ class TestBootTriggerHandler(
         mock_get_lab.return_value = "fake"
 
         is_lab, is_super, lab_name = hbtrigger._is_lab_token(
-            token, self.mongodb_client)
+            token, self.database)
 
         self.assertTrue(is_lab)
         self.assertFalse(is_super)
@@ -192,7 +153,7 @@ class TestBootTriggerHandler(
         token.is_lab_token = False
 
         is_lab, is_super, lab_name = hbtrigger._is_lab_token(
-            token, self.mongodb_client)
+            token, self.database)
 
         self.assertFalse(is_lab)
         self.assertFalse(is_super)

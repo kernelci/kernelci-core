@@ -16,62 +16,19 @@
 """Test module for the TestSuiteHandler handler."""
 
 import bson
-import concurrent.futures
 import json
 import mock
-import mongomock
 import tornado
-import tornado.testing
 
-import handlers.app
 import urls
 
-# Default Content-Type header returned by Tornado.
-DEFAULT_CONTENT_TYPE = 'application/json; charset=UTF-8'
+from handlers.tests.test_handler_base import TestHandlerBase
 
 
-class TestTestSuiteHandler(
-        tornado.testing.AsyncHTTPTestCase, tornado.testing.LogTrapTestCase):
-
-    def setUp(self):
-        self.mongodb_client = mongomock.Connection()
-
-        super(TestTestSuiteHandler, self).setUp()
-
-        patched_find_token = mock.patch(
-            "handlers.base.BaseHandler._find_token")
-        self.find_token = patched_find_token.start()
-        self.find_token.return_value = "token"
-
-        patched_validate_token = mock.patch("handlers.common.validate_token")
-        self.validate_token = patched_validate_token.start()
-        self.validate_token.return_value = (True, "token")
-
-        self.addCleanup(patched_find_token.stop)
-        self.addCleanup(patched_validate_token.stop)
+class TestTestSuiteHandler(TestHandlerBase):
 
     def get_app(self):
-        dboptions = {
-            "dbpassword": "",
-            "dbuser": ""
-        }
-
-        mailoptions = {}
-
-        settings = {
-            "dboptions": dboptions,
-            "mailoptions": mailoptions,
-            "senddelay": 5,
-            "client": self.mongodb_client,
-            "executor": concurrent.futures.ThreadPoolExecutor(max_workers=2),
-            "default_handler_class": handlers.app.AppHandler,
-            "debug": False
-        }
-
-        return tornado.web.Application([urls._TEST_SUITE_URL], **settings)
-
-    def get_new_ioloop(self):
-        return tornado.ioloop.IOLoop.instance()
+        return tornado.web.Application([urls._TEST_SUITE_URL], **self.settings)
 
     @mock.patch("utils.db.find_and_count")
     def test_get(self, mock_find):
@@ -82,7 +39,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("bson.objectid.ObjectId")
     @mock.patch("handlers.test_suite.TestSuiteHandler.collection")
@@ -96,7 +53,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("bson.objectid.ObjectId")
     @mock.patch("handlers.test_suite.TestSuiteHandler.collection")
@@ -110,7 +67,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("bson.objectid.ObjectId")
     @mock.patch("handlers.test_suite.TestSuiteHandler.collection")
@@ -124,7 +81,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_post_without_token(self):
         body = json.dumps(dict(name="suite", version="1.0"))
@@ -133,7 +90,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 403)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_post_not_json_content(self):
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
@@ -143,7 +100,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 422)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_post_wrong_content_type(self):
         headers = {"Authorization": "foo"}
@@ -153,7 +110,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 415)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_post_wrong_json(self):
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
@@ -165,7 +122,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("taskqueue.tasks.complete_test_suite_import")
     @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
@@ -188,7 +145,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 202)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_post_correct_with_id(self):
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
@@ -203,7 +160,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("taskqueue.tasks.complete_test_suite_import")
     @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
@@ -225,7 +182,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 202)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("taskqueue.tasks.complete_test_suite_import")
     @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
@@ -247,7 +204,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 202)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("taskqueue.tasks.complete_test_suite_import")
     @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
@@ -269,7 +226,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 202)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("taskqueue.tasks.complete_test_suite_import")
     @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
@@ -291,7 +248,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 202)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("taskqueue.tasks.complete_test_suite_import")
     @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
@@ -314,7 +271,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 202)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
     @mock.patch("utils.db.save")
@@ -333,7 +290,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 500)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_post_correct_wrong_defconfig_id(self):
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
@@ -348,7 +305,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("bson.objectid.ObjectId")
     def test_post_correct_wrong_job_id(self, mock_oid):
@@ -365,7 +322,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("bson.objectid.ObjectId")
     def test_post_correct_wrong_boot_id(self, mock_oid):
@@ -382,7 +339,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("bson.objectid.ObjectId")
     @mock.patch("utils.db.find_one2")
@@ -401,7 +358,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("bson.objectid.ObjectId")
     @mock.patch("utils.db.find_one2")
@@ -420,7 +377,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("bson.objectid.ObjectId")
     @mock.patch("utils.db.find_one2")
@@ -439,7 +396,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("bson.objectid.ObjectId")
     @mock.patch("utils.db.find_one2")
@@ -461,7 +418,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("bson.objectid.ObjectId")
     @mock.patch("utils.db.find_one2")
@@ -484,14 +441,14 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_put_no_token(self):
         response = self.fetch("/test/suite/id", method="PUT", body="")
 
         self.assertEqual(response.code, 403)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_put_wrong_token(self):
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
@@ -502,7 +459,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 403)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_put_wrong_content_type(self):
         headers = {"Authorization": "foo"}
@@ -512,7 +469,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 415)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_put_no_id(self):
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
@@ -522,7 +479,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_put_no_valid_json(self):
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
@@ -534,7 +491,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_put_no_json_data(self):
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
@@ -544,7 +501,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 422)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_put_no_valid_id(self):
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
@@ -556,7 +513,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("utils.db.find_one2")
     @mock.patch("bson.objectid.ObjectId")
@@ -572,7 +529,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("utils.db.update")
     @mock.patch("utils.db.find_one2")
@@ -590,7 +547,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("utils.db.update")
     @mock.patch("utils.db.find_one2")
@@ -608,14 +565,14 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 500)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_delete_no_token(self):
         response = self.fetch("/test/suite/id", method="DELETE")
 
         self.assertEqual(response.code, 403)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_delete_wrong_token(self):
         headers = {"Authorization": "foo"}
@@ -626,7 +583,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 403)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_delete_no_id(self):
         headers = {"Authorization": "foo"}
@@ -636,7 +593,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     def test_delete_wrong_id(self):
         headers = {"Authorization": "foo"}
@@ -646,7 +603,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("utils.db.find_one2")
     @mock.patch("bson.objectid.ObjectId")
@@ -660,7 +617,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("utils.db.delete")
     @mock.patch("utils.db.find_one2")
@@ -676,7 +633,7 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 500)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)
 
     @mock.patch("utils.db.delete")
     @mock.patch("utils.db.find_one2")
@@ -692,4 +649,4 @@ class TestTestSuiteHandler(
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
-            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], self.content_type)

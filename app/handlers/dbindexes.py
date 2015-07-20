@@ -20,22 +20,13 @@ import pymongo
 import models
 
 
-def ensure_indexes(client, db_options):
+def ensure_indexes(database):
     """Ensure that mongodb indexes exists, if not create them.
 
     This should be called at server startup.
 
-    :param client: The mongodb client used to access the database.
-    :param db_options: The mongodb database connection parameters.
-    :type db_options: dict
+    :param database: The database connection.
     """
-    db_user = db_options["dbuser"]
-    db_pwd = db_options["dbpassword"]
-
-    database = client[models.DB_NAME]
-    if all([db_user, db_pwd]):
-        database.authenticate(db_user, password=db_pwd)
-
     _ensure_job_indexes(database)
     _ensure_boot_indexes(database)
     _ensure_build_indexes(database)
