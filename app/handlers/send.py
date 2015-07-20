@@ -143,9 +143,8 @@ class SendHandler(hbase.BaseHandler):
         return response
 
     # pylint: disable=too-many-arguments
-    def _schedule_boot_report(self,
-                              job,
-                              kernel, lab_name, email_format, schedule_data):
+    def _schedule_boot_report(
+            self, job, kernel, lab_name, email_format, schedule_data):
         """Schedule the boot report performing some checks on the emails.
 
         :param job: The name of the job.

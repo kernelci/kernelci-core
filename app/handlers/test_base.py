@@ -60,7 +60,6 @@ class TestBaseHandler(hbase.BaseHandler):
                             json_obj, self._valid_keys("PUT"))
                         if valid_json:
                             kwargs["json_obj"] = json_obj
-                            kwargs["db_options"] = self.settings["dboptions"]
                             kwargs["reason"] = j_reason
                             kwargs["token"] = token
                             response = self._put(*args, **kwargs)

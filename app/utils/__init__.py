@@ -19,9 +19,6 @@ import models
 import utils.log
 
 BASE_PATH = "/var/www/images/kernel-ci"
-DEFAULT_MONGODB_URL = "localhost"
-DEFAULT_MONGODB_PORT = 27017
-DEFAULT_MONGODB_POOL = 250
 LOG = utils.log.get_log()
 
 # Pattern used for glob matching files on the filesystem.

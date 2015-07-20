@@ -38,9 +38,9 @@ def get_db_connection(db_options):
     if DB_CONNECTION is None:
         db_options_get = db_options.get
 
-        db_host = db_options_get("dbhost", utils.DEFAULT_MONGODB_URL)
-        db_port = db_options_get("dbport", utils.DEFAULT_MONGODB_PORT)
-        db_pool = db_options_get("dbpool", utils.DEFAULT_MONGODB_POOL)
+        db_host = db_options_get("dbhost", "localhost")
+        db_port = db_options_get("dbport", 27017)
+        db_pool = db_options_get("dbpool", 100)
 
         db_user = db_options_get("dbuser", "")
         db_pwd = db_options_get("dbpassword", "")
@@ -55,11 +55,7 @@ def get_db_connection(db_options):
     return DB_CONNECTION
 
 
-def find_one(collection,
-             value,
-             field="_id",
-             operator="$in",
-             fields=None):
+def find_one(collection, value, field="_id", operator="$in", fields=None):
     """Search for a specific document.
 
     The `field' value can be specified, and by default is `_id'.

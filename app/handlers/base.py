@@ -76,17 +76,7 @@ class BaseHandler(tornado.web.RequestHandler):
     def db(self):
         """The database instance associated with the object."""
         if self._db is None:
-            db_options = self.settings["dboptions"]
-            client = self.settings["client"]
-
-            db_pwd = db_options["dbpassword"]
-            db_user = db_options["dbuser"]
-
-            self._db = client[models.DB_NAME]
-
-            if all([db_user, db_pwd]):
-                self._db.authenticate(db_user, password=db_pwd)
-
+            self._db = utils.db.get_db_connection(self.settings["dboptions"])
         return self._db
 
     @property
@@ -255,7 +245,6 @@ class BaseHandler(tornado.web.RequestHandler):
                     if valid_json:
                         kwargs["json_obj"] = json_obj
                         kwargs["token"] = token
-                        kwargs["db_options"] = self.settings["dboptions"]
 
                         response = self._post(*args, **kwargs)
                         response.errors = errors
