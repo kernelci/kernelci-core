@@ -134,6 +134,9 @@ SURNAME_KEY = "surname"
 SYSTEM_MAP_KEY = "system_map"
 TEST_CASE_ID_KEY = "test_case_id"
 TEST_CASE_KEY = "test_case"
+TEST_JOB_ID_KEY = "test_job_id"
+TEST_JOB_PATH_KEY = "test_job_path"
+TEST_JOB_URL_KEY = "test_job_url"
 TEST_SET_ID_KEY = "test_set_id"
 TEST_SET_KEY = "test_set"
 TEST_SUITE_ID_KEY = "test_suite_id"
@@ -713,6 +716,9 @@ TEST_SET_VALID_KEYS = {
             NAME_KEY,
             PARAMETERS_KEY,
             TEST_CASE_KEY,
+            TEST_JOB_ID_KEY,
+            TEST_JOB_PATH_KEY,
+            TEST_JOB_URL_KEY,
             TEST_SUITE_ID_KEY,
             TIME_KEY,
             VCS_COMMIT_KEY,
@@ -726,6 +732,9 @@ TEST_SET_VALID_KEYS = {
         NAME_KEY,
         PARAMETERS_KEY,
         TEST_SUITE_ID_KEY,
+        TEST_JOB_ID_KEY,
+        TEST_JOB_PATH_KEY,
+        TEST_JOB_URL_KEY,
         TIME_KEY,
         VCS_COMMIT_KEY,
         VERSION_KEY
@@ -735,6 +744,8 @@ TEST_SET_VALID_KEYS = {
         DEFINITION_URI_KEY,
         NAME_KEY,
         PARAMETERS_KEY,
+        TEST_JOB_ID_KEY,
+        TEST_JOB_URL_KEY,
         TEST_SUITE_ID_KEY,
         TIME_KEY,
         VCS_COMMIT_KEY,

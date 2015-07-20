@@ -37,6 +37,9 @@ class TestTestSetModel(unittest.TestCase):
         test_set.vcs_commit = "commit_sha"
         test_set.version = "1.1"
         test_set.test_suite_id = "another_id"
+        test_set.test_job_url = "http://test.executor"
+        test_set.test_job_path = "test/path/12345"
+        test_set.test_job_id = "12345"
 
         expected = {
             "_id": "id",
@@ -47,6 +50,9 @@ class TestTestSetModel(unittest.TestCase):
             "name": "name",
             "parameters": {"param": "value"},
             "test_case": [{"foo": "bar"}],
+            "test_job_id": "12345",
+            "test_job_path": "test/path/12345",
+            "test_job_url": "http://test.executor",
             "test_suite_id": "another_id",
             "time": 10,
             "vcs_commit": "commit_sha",
@@ -74,6 +80,9 @@ class TestTestSetModel(unittest.TestCase):
             "name": "name",
             "parameters": {"param": "value"},
             "test_case": [{"foo": "bar"}],
+            "test_job_id": None,
+            "test_job_path": None,
+            "test_job_url": None,
             "test_suite_id": "test_suite_id",
             "time": 10,
             "vcs_commit": "commit_sha",
@@ -106,6 +115,9 @@ class TestTestSetModel(unittest.TestCase):
             "name": "name",
             "parameters": {"param": "value"},
             "test_case": [{"foo": "bar"}],
+            "test_job_id": "12345",
+            "test_job_path": "test/path/12345",
+            "test_job_url": "http://test.executor",
             "test_suite_id": "test_suite_id",
             "time": 10,
             "vcs_commit": "commit_sha",
