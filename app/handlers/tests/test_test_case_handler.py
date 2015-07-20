@@ -33,7 +33,7 @@ class TestTestCaseHandler(
         tornado.testing.AsyncHTTPTestCase, tornado.testing.LogTrapTestCase):
 
     def setUp(self):
-        self.mongodb_client = mongomock.Connection()
+        self.database = mongomock.Connection()["kernel-ci"]
 
         super(TestTestCaseHandler, self).setUp()
 
@@ -61,7 +61,7 @@ class TestTestCaseHandler(
             "dboptions": dboptions,
             "mailoptions": mailoptions,
             "senddelay": 5,
-            "client": self.mongodb_client,
+            "database": self.database,
             "executor": concurrent.futures.ThreadPoolExecutor(max_workers=2),
             "default_handler_class": handlers.app.AppHandler,
             "debug": False

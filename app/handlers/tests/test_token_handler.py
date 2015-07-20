@@ -39,7 +39,7 @@ DEFAULT_CONTENT_TYPE = "application/json; charset=UTF-8"
 class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
     def setUp(self):
-        self.mongodb_client = mongomock.Connection()
+        self.database = mongomock.Connection()["kernel-ci"]
 
         super(TestTokenHandler, self).setUp()
 
@@ -62,8 +62,8 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
         settings = {
             "dboptions": dboptions,
-            "client": self.mongodb_client,
-            "executor": ThreadPoolExecutor(max_workers=2),
+            "database": self.database,
+            "executor": ThreadPoolExecutor(max_workers=1),
             "default_handler_class": AppHandler,
             "master_key": "bar",
             "debug": False,
@@ -446,8 +446,8 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
     def test_delete_with_token_with_document(self, mock_id):
         mock_id.return_value = "token"
 
-        db = self.mongodb_client["kernel-ci"]
-        db["api-token"].insert(dict(_id="token", token="token", email="email"))
+        self.database["api-token"].insert(
+            dict(_id="token", token="token", email="email"))
 
         headers = {"Authorization": "foo"}
 
@@ -463,8 +463,8 @@ class TestTokenHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
         self.assertEqual(response.code, 404)
 
     def test_delete_wrong_id_value(self):
-        db = self.mongodb_client["kernel-ci"]
-        db["api-token"].insert(dict(_id="token", token="token", email="email"))
+        self.database["api-token"].insert(
+            dict(_id="token", token="token", email="email"))
 
         headers = {"Authorization": "foo"}
 

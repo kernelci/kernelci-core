@@ -34,7 +34,7 @@ class TestBootTriggerHandler(
         tornado.testing.AsyncHTTPTestCase, tornado.testing.LogTrapTestCase):
 
     def setUp(self):
-        self.mongodb_client = mongomock.Connection()
+        self.database = mongomock.Connection()["kernel-ci"]
 
         super(TestBootTriggerHandler, self).setUp()
 
@@ -58,7 +58,7 @@ class TestBootTriggerHandler(
 
         settings = {
             "dboptions": dboptions,
-            "client": self.mongodb_client,
+            "database": self.database,
             "executor": concurrent.futures.ThreadPoolExecutor(max_workers=1),
             "default_handler_class": handlers.app.AppHandler,
             "debug": False
@@ -141,7 +141,7 @@ class TestBootTriggerHandler(
         mock_find.return_value = {}
         token = mtoken.Token()
 
-        lab_name = hbtrigger._get_lab_name(token, self.mongodb_client)
+        lab_name = hbtrigger._get_lab_name(token, self.database)
 
         self.assertIsNone(lab_name)
 
@@ -150,7 +150,7 @@ class TestBootTriggerHandler(
         mock_find.return_value = {"name": "fake_name"}
         token = mtoken.Token()
 
-        lab_name = hbtrigger._get_lab_name(token, self.mongodb_client)
+        lab_name = hbtrigger._get_lab_name(token, self.database)
 
         self.assertIsNotNone(lab_name)
         self.assertEqual("fake_name", lab_name)
@@ -160,7 +160,7 @@ class TestBootTriggerHandler(
         token.is_admin = True
 
         is_lab, is_super, lab_name = hbtrigger._is_lab_token(
-            token, self.mongodb_client)
+            token, self.database)
 
         self.assertTrue(is_lab)
         self.assertTrue(is_super)
@@ -170,7 +170,7 @@ class TestBootTriggerHandler(
         token.is_superuser = True
 
         is_lab, is_super, lab_name = hbtrigger._is_lab_token(
-            token, self.mongodb_client)
+            token, self.database)
 
         self.assertTrue(is_lab)
         self.assertTrue(is_super)
@@ -183,7 +183,7 @@ class TestBootTriggerHandler(
         mock_get_lab.return_value = "fake"
 
         is_lab, is_super, lab_name = hbtrigger._is_lab_token(
-            token, self.mongodb_client)
+            token, self.database)
 
         self.assertTrue(is_lab)
         self.assertFalse(is_super)
@@ -192,7 +192,7 @@ class TestBootTriggerHandler(
         token.is_lab_token = False
 
         is_lab, is_super, lab_name = hbtrigger._is_lab_token(
-            token, self.mongodb_client)
+            token, self.database)
 
         self.assertFalse(is_lab)
         self.assertFalse(is_super)

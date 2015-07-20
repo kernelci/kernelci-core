@@ -30,12 +30,12 @@ from urls import _REPORT_URL
 DEFAULT_CONTENT_TYPE = "application/json; charset=UTF-8"
 
 
-class TestRerportHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
+class TestReportHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
     def setUp(self):
-        self.mongodb_client = mongomock.Connection()
+        self.database = mongomock.Connection()["kernel-ci"]
 
-        super(TestRerportHandler, self).setUp()
+        super(TestReportHandler, self).setUp()
 
         patched_find_token = mock.patch(
             "handlers.base.BaseHandler._find_token")
@@ -57,7 +57,7 @@ class TestRerportHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
         settings = {
             "dboptions": dboptions,
-            "client": self.mongodb_client,
+            "database": self.database,
             "executor": ThreadPoolExecutor(max_workers=2),
             "default_handler_class": AppHandler,
             "master_key": "bar",

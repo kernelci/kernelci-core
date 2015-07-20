@@ -36,7 +36,7 @@ class TestBootHandler(
         tornado.testing.AsyncHTTPTestCase, tornado.testing.LogTrapTestCase):
 
     def setUp(self):
-        self.mongodb_client = mongomock.Connection()
+        self.database = mongomock.Connection()["kernel-ci"]
 
         super(TestBootHandler, self).setUp()
 
@@ -61,8 +61,8 @@ class TestBootHandler(
 
         settings = {
             "dboptions": dboptions,
-            "client": self.mongodb_client,
-            "executor": concurrent.futures.ThreadPoolExecutor(max_workers=2),
+            "database": self.database,
+            "executor": concurrent.futures.ThreadPoolExecutor(max_workers=1),
             "default_handler_class": handlers.app.AppHandler,
             "debug": False
         }
@@ -94,8 +94,8 @@ class TestBootHandler(
     def test_delete_with_token_with_boot(self, mock_id, valid_delete):
         valid_delete.return_value = True
         mock_id.return_value = "boot"
-        db = self.mongodb_client["kernel-ci"]
-        db["boot"].insert(dict(_id="boot", job="job", kernel="kernel"))
+        self.database["boot"].insert(
+            dict(_id="boot", job="job", kernel="kernel"))
 
         headers = {"Authorization": "foo"}
 
@@ -110,8 +110,8 @@ class TestBootHandler(
     def test_delete_with_non_lab_token_with_boot(self, mock_id, valid_delete):
         valid_delete.return_value = False
         mock_id.return_value = "boot"
-        db = self.mongodb_client["kernel-ci"]
-        db["boot"].insert(dict(_id="boot", job="job", kernel="kernel"))
+        self.database["boot"].insert(
+            dict(_id="boot", job="job", kernel="kernel"))
 
         headers = {"Authorization": "foo"}
 

@@ -31,7 +31,7 @@ class TestLabHandler(
         tornado.testing.AsyncHTTPTestCase, tornado.testing.LogTrapTestCase):
 
     def setUp(self):
-        self.mongodb_client = mongomock.Connection()
+        self.database = mongomock.Connection()["kernel-ci"]
 
         super(TestLabHandler, self).setUp()
 
@@ -55,8 +55,8 @@ class TestLabHandler(
 
         settings = {
             "dboptions": dboptions,
-            "client": self.mongodb_client,
-            "executor": concurrent.futures.ThreadPoolExecutor(max_workers=2),
+            "database": self.database,
+            "executor": concurrent.futures.ThreadPoolExecutor(max_workers=1),
             "default_handler_class": handlers.app.AppHandler,
             "debug": False
         }
@@ -411,8 +411,7 @@ class TestLabHandler(
     @mock.patch("bson.objectid.ObjectId")
     def test_delete_with_token_with_lab(self, mock_id):
         mock_id.return_value = "lab"
-        db = self.mongodb_client["kernel-ci"]
-        db["lab"].insert(
+        self.database["lab"].insert(
             dict(_id="lab", name="lab-01", contact={}, address={}))
 
         headers = {"Authorization": "foo"}

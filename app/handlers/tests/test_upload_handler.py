@@ -33,7 +33,7 @@ DEFAULT_CONTENT_TYPE = "application/json; charset=UTF-8"
 class TestUploadHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
     def setUp(self):
-        self.mongodb_client = mongomock.Connection()
+        self.database = mongomock.Connection()["kernel-ci"]
 
         super(TestUploadHandler, self).setUp()
 
@@ -59,8 +59,8 @@ class TestUploadHandler(testing.AsyncHTTPTestCase, testing.LogTrapTestCase):
 
         settings = {
             "dboptions": dboptions,
-            "client": self.mongodb_client,
-            "executor": ThreadPoolExecutor(max_workers=2),
+            "database": self.database,
+            "executor": ThreadPoolExecutor(max_workers=1),
             "default_handler_class": happ.AppHandler,
             "master_key": "bar",
             "debug": False,

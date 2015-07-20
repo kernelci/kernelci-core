@@ -31,7 +31,7 @@ class TestBatchHandler(
         tornado.testing.AsyncHTTPTestCase, tornado.testing.LogTrapTestCase):
 
     def setUp(self):
-        self.mongodb_client = mongomock.Connection()
+        self.database = mongomock.Connection()["kernel-ci"]
         super(TestBatchHandler, self).setUp()
 
         patched_find_token = mock.patch(
@@ -48,16 +48,16 @@ class TestBatchHandler(
 
     def get_app(self):
         dboptions = {
-            'dbpassword': "",
-            'dbuser': ""
+            "dbpassword": "",
+            "dbuser": ""
         }
 
         settings = {
-            'dboptions': dboptions,
-            'client': self.mongodb_client,
-            'executor': concurrent.futures.ThreadPoolExecutor(max_workers=2),
-            'default_handler_class': handlers.app.AppHandler,
-            'debug': False
+            "dboptions": dboptions,
+            "database": self.database,
+            "executor": concurrent.futures.ThreadPoolExecutor(max_workers=2),
+            "default_handler_class": handlers.app.AppHandler,
+            "debug": False
         }
 
         return tornado.web.Application([urls._BATCH_URL], **settings)
@@ -66,38 +66,38 @@ class TestBatchHandler(
         return tornado.ioloop.IOLoop.instance()
 
     def test_delete_no_token(self):
-        response = self.fetch('/batch', method='DELETE')
+        response = self.fetch("/batch", method="DELETE")
         self.assertEqual(response.code, 501)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     def test_delete_with_token(self):
-        headers = {'Authorization': 'foo'}
+        headers = {"Authorization": "foo"}
 
         response = self.fetch(
-            '/batch', method='DELETE', headers=headers,
+            "/batch", method="DELETE", headers=headers,
         )
 
         self.assertEqual(response.code, 501)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     def test_get_no_token(self):
-        response = self.fetch('/batch', method='GET')
+        response = self.fetch("/batch", method="GET")
         self.assertEqual(response.code, 501)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     def test_get_with_token(self):
-        headers = {'Authorization': 'foo'}
+        headers = {"Authorization": "foo"}
 
         response = self.fetch(
-            '/batch', method='GET', headers=headers,
+            "/batch", method="GET", headers=headers,
         )
 
         self.assertEqual(response.code, 501)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     def test_post_without_token(self):
         self.find_token.return_value = None
@@ -109,50 +109,48 @@ class TestBatchHandler(
         }
         body = json.dumps(batch_dict)
 
-        response = self.fetch('/batch', method='POST', body=body)
+        response = self.fetch("/batch", method="POST", body=body)
 
         self.assertEqual(response.code, 403)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     def test_post_not_json_content(self):
-        headers = {'Authorization': 'foo', 'Content-Type': 'application/json'}
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
 
         response = self.fetch(
-            '/batch', method='POST', body='', headers=headers
-        )
+            "/batch", method="POST", body="", headers=headers)
 
         self.assertEqual(response.code, 422)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     def test_post_wrong_content_type(self):
-        headers = {'Authorization': 'foo'}
+        headers = {"Authorization": "foo"}
 
         response = self.fetch(
-            '/batch', method='POST', body='', headers=headers
-        )
+            "/batch", method="POST", body="", headers=headers)
 
         self.assertEqual(response.code, 415)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     def test_post_wrong_json(self):
-        headers = {'Authorization': 'foo', 'Content-Type': 'application/json'}
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
 
-        body = json.dumps(dict(foo='foo', bar='bar'))
+        body = json.dumps(dict(foo="foo", bar="bar"))
 
         response = self.fetch(
-            '/batch', method='POST', body=body, headers=headers
+            "/batch", method="POST", body=body, headers=headers
         )
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     @mock.patch("taskqueue.tasks.run_batch_group")
     def test_post_correct(self, mocked_run_batch):
-        headers = {'Authorization': 'foo', 'Content-Type': 'application/json'}
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
         batch_dict = {
             "batch": [
                 {"method": "GET", "collection": "count", "operation_id": "foo"}
@@ -163,22 +161,22 @@ class TestBatchHandler(
         mocked_run_batch.return_value = {}
 
         response = self.fetch(
-            '/batch', method='POST', body=body, headers=headers
+            "/batch", method="POST", body=body, headers=headers
         )
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
-            response.headers['Content-Type'], DEFAULT_CONTENT_TYPE)
+            response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
         mocked_run_batch.assert_called_once_with(
             [
                 {
-                    'operation_id': 'foo',
-                    'method': 'GET',
-                    'collection': 'count'
+                    "operation_id": "foo",
+                    "method": "GET",
+                    "collection": "count"
                 }
             ],
             {
-                'dbuser': '',
-                'dbpassword': ''
+                "dbuser": "",
+                "dbpassword": ""
             }
         )

@@ -37,7 +37,7 @@ class TestJobHandler(
         tornado.testing.AsyncHTTPTestCase, tornado.testing.LogTrapTestCase):
 
     def setUp(self):
-        self.mongodb_client = mongomock.Connection()
+        self.database = mongomock.Connection()["kernel-ci"]
 
         super(TestJobHandler, self).setUp()
 
@@ -60,9 +60,9 @@ class TestJobHandler(
         settings = {
             "dboptions": dboptions,
             "mailoptions": mailoptions,
-            "senddelay": 5,
-            "client": self.mongodb_client,
-            "executor": concurrent.futures.ThreadPoolExecutor(max_workers=2),
+            "senddelay": 60*60,
+            "database": self.database,
+            "executor": concurrent.futures.ThreadPoolExecutor(max_workers=1),
             "default_handler_class": handlers.app.AppHandler,
             "debug": False
         }
@@ -256,8 +256,8 @@ class TestJobHandler(
     @mock.patch("bson.objectid.ObjectId")
     def test_delete_with_token_with_job(self, mock_id):
         mock_id.return_value = "job"
-        db = self.mongodb_client["kernel-ci"]
-        db["job"].insert(dict(_id="job", job="job", kernel="kernel"))
+        self.database["job"].insert(
+            dict(_id="job", job="job", kernel="kernel"))
         headers = {"Authorization": "foo"}
 
         response = self.fetch(

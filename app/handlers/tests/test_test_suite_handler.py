@@ -27,14 +27,14 @@ import handlers.app
 import urls
 
 # Default Content-Type header returned by Tornado.
-DEFAULT_CONTENT_TYPE = 'application/json; charset=UTF-8'
+DEFAULT_CONTENT_TYPE = "application/json; charset=UTF-8"
 
 
 class TestTestSuiteHandler(
         tornado.testing.AsyncHTTPTestCase, tornado.testing.LogTrapTestCase):
 
     def setUp(self):
-        self.mongodb_client = mongomock.Connection()
+        self.database = mongomock.Connection()["kernel-ci"]
 
         super(TestTestSuiteHandler, self).setUp()
 
@@ -61,8 +61,8 @@ class TestTestSuiteHandler(
         settings = {
             "dboptions": dboptions,
             "mailoptions": mailoptions,
-            "senddelay": 5,
-            "client": self.mongodb_client,
+            "senddelay": 60*60,
+            "database": self.database,
             "executor": concurrent.futures.ThreadPoolExecutor(max_workers=2),
             "default_handler_class": handlers.app.AppHandler,
             "debug": False

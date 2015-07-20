@@ -39,7 +39,7 @@ class TestBuildHandler(
         tornado.testing.AsyncHTTPTestCase, tornado.testing.LogTrapTestCase):
 
     def setUp(self):
-        self.mongodb_client = mongomock.Connection()
+        self.database = mongomock.Connection()["kernel-ci"]
 
         super(TestBuildHandler, self).setUp()
 
@@ -65,8 +65,8 @@ class TestBuildHandler(
 
         settings = {
             "dboptions": dboptions,
-            "client": self.mongodb_client,
-            "executor": concurrent.futures.ThreadPoolExecutor(max_workers=2),
+            "database": self.database,
+            "executor": concurrent.futures.ThreadPoolExecutor(max_workers=1),
             "default_handler_class": handlers.app.AppHandler,
             "debug": False,
         }
@@ -169,8 +169,7 @@ class TestBuildHandler(
             response.headers["Content-Type"], DEFAULT_CONTENT_TYPE)
 
     def test_delete(self):
-        db = self.mongodb_client["kernel-ci"]
-        db["build"].insert(dict(_id=self.doc_id, job_id="job"))
+        self.database["build"].insert(dict(_id=self.doc_id, job_id="job"))
 
         headers = {"Authorization": "foo"}
 

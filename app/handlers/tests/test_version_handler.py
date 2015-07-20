@@ -23,14 +23,14 @@ import handlers.app
 import urls
 
 # Default Content-Type header returned by Tornado.
-DEFAULT_CONTENT_TYPE = 'application/json; charset=UTF-8'
+DEFAULT_CONTENT_TYPE = "application/json; charset=UTF-8"
 
 
 class TestVersionHandler(
         tornado.testing.AsyncHTTPTestCase, tornado.testing.LogTrapTestCase):
 
     def setUp(self):
-        self.mongodb_client = mongomock.Connection()
+        self.database = mongomock.Connection()["kernel-ci"]
 
         super(TestVersionHandler, self).setUp()
 
@@ -48,17 +48,17 @@ class TestVersionHandler(
 
     def get_app(self):
         dboptions = {
-            'dbpassword': "",
-            'dbuser': ""
+            "dbpassword": "",
+            "dbuser": ""
         }
 
         settings = {
-            'dboptions': dboptions,
-            'client': self.mongodb_client,
-            'executor': concurrent.futures.ThreadPoolExecutor(max_workers=2),
-            'default_handler_class': handlers.app.AppHandler,
-            'debug': False,
-            'version': 'foo'
+            "dboptions": dboptions,
+            "database": self.database,
+            "executor": concurrent.futures.ThreadPoolExecutor(max_workers=2),
+            "default_handler_class": handlers.app.AppHandler,
+            "debug": False,
+            "version": "foo"
         }
 
         return tornado.web.Application([urls._VERSION_URL], **settings)
