@@ -41,6 +41,9 @@ class TestTestSetModel(unittest.TestCase):
         expected = {
             "_id": "id",
             "created_on": "now",
+            "defect_ack": None,
+            "defect_comment": None,
+            "defect_url": None,
             "definition_uri": "scheme://authority/path",
             "metadata": {"foo": "bar"},
             "name": "name",
@@ -67,6 +70,9 @@ class TestTestSetModel(unittest.TestCase):
 
         expected = {
             "created_on": "now",
+            "defect_ack": None,
+            "defect_comment": None,
+            "defect_url": None,
             "definition_uri": "scheme://authority/path",
             "metadata": {"foo": "bar"},
             "name": "name",
@@ -98,6 +104,9 @@ class TestTestSetModel(unittest.TestCase):
         set_json = {
             "_id": "id",
             "created_on": "now",
+            "defect_ack": None,
+            "defect_comment": None,
+            "defect_url": None,
             "definition_uri": "scheme://authority/path",
             "metadata": {"foo": "bar"},
             "name": "name",

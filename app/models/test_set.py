@@ -49,6 +49,9 @@ class TestSetDocument(mbase.BaseDocument):
         self._test_case = []
         self._parameters = {}
 
+        self.defect_ack = None
+        self.defect_comment = None
+        self.defect_url = None
         self.definition_uri = None
         self.metadata = {}
         self.time = -1
@@ -153,6 +156,9 @@ class TestSetDocument(mbase.BaseDocument):
     def to_dict(self):
         test_set = {
             models.CREATED_KEY: self.created_on,
+            models.DEFECT_ACK_KEY: self.defect_ack,
+            models.DEFECT_COMMENT_KEY: self.defect_comment,
+            models.DEFECT_URL_KEY: self.defect_url,
             models.DEFINITION_URI_KEY: self.definition_uri,
             models.METADATA_KEY: self.metadata,
             models.NAME_KEY: self.name,

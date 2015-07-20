@@ -148,6 +148,9 @@ VERSION_KEY = "version"
 WARNINGS_COUNT_KEY = "warnings_count"
 WARNINGS_KEY = "warnings"
 x86_ARCHITECTURE_KEY = "x86"
+DEFECT_URL_KEY = "defect_url"
+DEFECT_COMMENT_KEY = "defect_comment"
+DEFECT_ACK_KEY = "defect_ack"
 
 # Email reporting control fields.
 SEND_BOOT_REPORT_KEY = "boot_report"
@@ -703,6 +706,9 @@ TEST_SET_VALID_KEYS = {
         ],
         ACCEPTED_KEYS: [
             CREATED_KEY,
+            DEFECT_ACK_KEY,
+            DEFECT_COMMENT_KEY,
+            DEFECT_URL_KEY,
             DEFINITION_URI_KEY,
             METADATA_KEY,
             NAME_KEY,
@@ -711,11 +717,14 @@ TEST_SET_VALID_KEYS = {
             TEST_SUITE_ID_KEY,
             TIME_KEY,
             VCS_COMMIT_KEY,
-            VERSION_KEY
+            VERSION_KEY,
         ]
     },
     "PUT": [
         CREATED_KEY,
+        DEFECT_ACK_KEY,
+        DEFECT_COMMENT_KEY,
+        DEFECT_URL_KEY,
         DEFINITION_URI_KEY,
         NAME_KEY,
         PARAMETERS_KEY,
@@ -726,6 +735,7 @@ TEST_SET_VALID_KEYS = {
     ],
     "GET": [
         CREATED_KEY,
+        DEFECT_ACK_KEY,
         DEFINITION_URI_KEY,
         NAME_KEY,
         PARAMETERS_KEY,
