@@ -37,13 +37,16 @@ class TestTestSetModel(unittest.TestCase):
         test_set.vcs_commit = "commit_sha"
         test_set.version = "1.1"
         test_set.test_suite_id = "another_id"
+        test_set.defect_ack = True
+        test_set.defect_comment = "A comment"
+        test_set.defect_url = "http://bug"
 
         expected = {
             "_id": "id",
             "created_on": "now",
-            "defect_ack": None,
-            "defect_comment": None,
-            "defect_url": None,
+            "defect_ack": True,
+            "defect_comment": "A comment",
+            "defect_url": "http://bug",
             "definition_uri": "scheme://authority/path",
             "metadata": {"foo": "bar"},
             "name": "name",

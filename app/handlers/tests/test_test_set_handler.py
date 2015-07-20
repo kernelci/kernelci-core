@@ -430,7 +430,8 @@ class TestTestSetHandler(TestHandlerBase):
         mock_update.return_value = 200
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
 
-        body = json.dumps(dict(name="set", parameters={"foo": "bar"}))
+        body = json.dumps(
+            dict(name="set", parameters={"foo": "bar"}, defect_ack=True))
 
         response = self.fetch(
             "/test/set/fake-id", method="PUT", body=body, headers=headers)
