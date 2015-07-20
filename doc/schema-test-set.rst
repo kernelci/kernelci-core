@@ -37,5 +37,6 @@ More Info
 
 * :ref:`Test suite schema <schema_test_suite>`
 * :ref:`Test case schema <schema_test_case>`
+* :ref:`Test defect schema <schema_test_defect>`
 * :ref:`API results <intro_schema_results>`
 * :ref:`Schema time and date <intro_schema_time_date>`

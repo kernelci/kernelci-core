@@ -18,4 +18,5 @@ The following schemas are used by the test schemas defined above.
     :maxdepth: 1
 
     schema-attachment
+    schema-test-defect
     schema-measurement

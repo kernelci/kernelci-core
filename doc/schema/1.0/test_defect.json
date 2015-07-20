@@ -1,0 +1,21 @@
+{
+    "$schema": "http://api.kernelci.org/json-schema/1.0/test_defect.json",
+    "id": "http://api.kernelci.org/json-schema/1.0/test_defect.json",
+    "title": "test_defect",
+    "description": "A defect/problem associated with a test",
+    "type": "object",
+    "properties": {
+        "defect_url": {
+            "type": "string",
+            "description": "The URL where the defect can be found"
+        },
+        "defect_comment": {
+            "type": "string",
+            "description": "A free-form description of the defect"
+        }, 
+        "defect_ack": {
+            "type": "boolean",
+            "description": "If the defect is known or not"
+        }
+    }
+}

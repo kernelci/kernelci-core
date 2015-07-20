@@ -37,16 +37,11 @@ class TestTestSetModel(unittest.TestCase):
         test_set.vcs_commit = "commit_sha"
         test_set.version = "1.1"
         test_set.test_suite_id = "another_id"
-        test_set.defect_ack = True
-        test_set.defect_comment = "A comment"
-        test_set.defect_url = "http://bug"
 
         expected = {
             "_id": "id",
             "created_on": "now",
-            "defect_ack": True,
-            "defect_comment": "A comment",
-            "defect_url": "http://bug",
+            "defects": [],
             "definition_uri": "scheme://authority/path",
             "metadata": {"foo": "bar"},
             "name": "name",
@@ -73,9 +68,7 @@ class TestTestSetModel(unittest.TestCase):
 
         expected = {
             "created_on": "now",
-            "defect_ack": None,
-            "defect_comment": None,
-            "defect_url": None,
+            "defects": [],
             "definition_uri": "scheme://authority/path",
             "metadata": {"foo": "bar"},
             "name": "name",
@@ -107,9 +100,7 @@ class TestTestSetModel(unittest.TestCase):
         set_json = {
             "_id": "id",
             "created_on": "now",
-            "defect_ack": None,
-            "defect_comment": None,
-            "defect_url": None,
+            "defects": [],
             "definition_uri": "scheme://authority/path",
             "metadata": {"foo": "bar"},
             "name": "name",
@@ -162,3 +153,17 @@ class TestTestSetModel(unittest.TestCase):
         self.assertListEqual([], test_set.test_case)
         test_case_setter("")
         self.assertListEqual([], test_set.test_case)
+
+    def test_set_defects_setter(self):
+        test_set = mtset.TestSetDocument("name", "test_suite_id", "1.0")
+
+        def test_defects_setter(value):
+            test_set.defects = value
+
+        test_defects_setter([])
+        self.assertListEqual([], test_set.defects)
+        test_defects_setter({"foo": "bar"})
+        self.assertListEqual([{"foo": "bar"}], test_set.defects)
+        test_defects_setter([{"baz": "foo"}])
+        self.assertListEqual(
+            [{"foo": "bar"}, {"baz": "foo"}], test_set.defects)

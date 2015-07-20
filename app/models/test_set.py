@@ -48,10 +48,8 @@ class TestSetDocument(mbase.BaseDocument):
 
         self._test_case = []
         self._parameters = {}
+        self._defects = []
 
-        self.defect_ack = None
-        self.defect_comment = None
-        self.defect_url = None
         self.definition_uri = None
         self.metadata = {}
         self.time = -1
@@ -153,12 +151,28 @@ class TestSetDocument(mbase.BaseDocument):
         """
         self._test_suite_id = value
 
+    @property
+    def defects(self):
+        """The defects associated with the test set."""
+        return self._defects
+
+    @defects.setter
+    def defects(self, value):
+        """Set the defect associated with the the test set.
+
+        :param value: The defect object to add.
+        :type value: dictionary
+        """
+        if value:
+            if isinstance(value, types.ListType):
+                self._defects.extend(value)
+            else:
+                self._defects.append(value)
+
     def to_dict(self):
         test_set = {
             models.CREATED_KEY: self.created_on,
-            models.DEFECT_ACK_KEY: self.defect_ack,
-            models.DEFECT_COMMENT_KEY: self.defect_comment,
-            models.DEFECT_URL_KEY: self.defect_url,
+            models.DEFECTS_KEY: self.defects,
             models.DEFINITION_URI_KEY: self.definition_uri,
             models.METADATA_KEY: self.metadata,
             models.NAME_KEY: self.name,
