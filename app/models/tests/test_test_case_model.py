@@ -267,3 +267,12 @@ class TestTestCaseModel(unittest.TestCase):
         self.assertRaises(ValueError, set_status, {})
         self.assertRaises(ValueError, set_status, [])
         self.assertRaises(ValueError, set_status, ())
+
+    def test_set_name_setter(self):
+        test_case = mtcase.TestCaseDocument("name", "test_suite_id", "1.0")
+
+        def test_name_setter(value):
+            test_case.name = value
+
+        test_name_setter("foo")
+        self.assertEqual("foo", test_case.name)

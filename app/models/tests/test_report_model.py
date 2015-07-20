@@ -23,6 +23,10 @@ class TestReportModel(unittest.TestCase):
         report_doc = mreport.ReportDocument("name")
         self.assertIsInstance(report_doc, mbase.BaseDocument)
 
+    def test_report_collection_name(self):
+        report_doc = mreport.ReportDocument("name")
+        self.assertEqual("report", report_doc.collection)
+
     def test_report_document_to_dict(self):
         self.maxDiff = None
         report_doc = mreport.ReportDocument("name")
@@ -66,3 +70,9 @@ class TestReportModel(unittest.TestCase):
         self.assertIsInstance(report_doc, mreport.ReportDocument)
 
         self.assertEqual("1.1", report_doc.version)
+
+    def test_report_document_from_json_wrong(self):
+        self.assertIsNone(mreport.ReportDocument.from_json([]))
+        self.assertIsNone(mreport.ReportDocument.from_json(()))
+        self.assertIsNone(mreport.ReportDocument.from_json(""))
+        self.assertIsNone(mreport.ReportDocument.from_json({}))

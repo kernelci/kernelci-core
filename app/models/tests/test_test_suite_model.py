@@ -117,3 +117,13 @@ class TestTestSuiteModel(unittest.TestCase):
 
         self.assertIsInstance(test_suite, mtsuite.TestSuiteDocument)
         self.assertDictEqual(suite_json, test_suite.to_dict())
+
+    def test_set_name_setter(self):
+        test_suite = mtsuite.TestSuiteDocument(
+            "name", "lab_name", "defconfig_id", "1.0")
+
+        def test_name_setter(value):
+            test_suite.name = value
+
+        test_name_setter("foo")
+        self.assertEqual("foo", test_suite.name)

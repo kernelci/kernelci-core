@@ -179,3 +179,12 @@ class TestTestSetModel(unittest.TestCase):
         test_defects_setter([{"baz": "foo"}])
         self.assertListEqual(
             [{"foo": "bar"}, {"baz": "foo"}], test_set.defects)
+
+    def test_set_name_setter(self):
+        test_set = mtset.TestSetDocument("name", "test_suite_id", "1.0")
+
+        def test_name_setter(value):
+            test_set.name = value
+
+        test_name_setter("foo")
+        self.assertEqual("foo", test_set.name)
