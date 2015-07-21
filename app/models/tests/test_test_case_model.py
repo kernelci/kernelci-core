@@ -120,9 +120,7 @@ class TestTestCaseModel(unittest.TestCase):
 
     def test_case_doc_from_json_missing_key(self):
         test_case = {
-            "_id": "id",
-            "version": "1.0",
-            "test_suite_id": "test_suite_id"
+            "_id": "id"
         }
 
         self.assertIsNone(mtcase.TestCaseDocument.from_json(test_case))

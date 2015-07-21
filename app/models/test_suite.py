@@ -175,11 +175,8 @@ class TestSuiteDocument(mbase.BaseDocument):
                 name = doc_pop(models.NAME_KEY)
                 lab_name = doc_pop(models.LAB_NAME_KEY)
                 defconfig_id = doc_pop(models.DEFCONFIG_ID_KEY)
-                version = doc_pop(models.VERSION_KEY)
 
-                test_suite = TestSuiteDocument(
-                    name, lab_name, defconfig_id, version)
-
+                test_suite = TestSuiteDocument(name, lab_name, defconfig_id)
                 test_suite.id = suite_id
 
                 for key, val in local_obj.iteritems():

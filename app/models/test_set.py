@@ -207,9 +207,8 @@ class TestSetDocument(mbase.BaseDocument):
             try:
                 name = doc_pop(models.NAME_KEY)
                 test_suite_id = doc_pop(models.TEST_SUITE_ID_KEY)
-                version = doc_pop(models.VERSION_KEY)
 
-                test_set = TestSetDocument(name, test_suite_id, version)
+                test_set = TestSetDocument(name, test_suite_id)
                 test_set.id = set_id
 
                 for key, val in local_obj.iteritems():

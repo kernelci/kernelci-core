@@ -76,9 +76,7 @@ class TestTestSuiteModel(unittest.TestCase):
 
     def test_suite_doc_from_json_missing_key(self):
         test_suite = {
-            "_id": "id",
-            "version": "1.0",
-            "defconfig_id": "build-id"
+            "_id": "id"
         }
 
         self.assertIsNone(mtsuite.TestSuiteDocument.from_json(test_suite))
@@ -110,7 +108,7 @@ class TestTestSuiteModel(unittest.TestCase):
             "test_set": ["bar"],
             "time": 10,
             "vcs_commit": "1234",
-            "version": "1.0",
+            "version": "1.0"
         }
 
         test_suite = mtsuite.TestSuiteDocument.from_json(suite_json)

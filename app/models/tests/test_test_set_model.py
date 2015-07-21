@@ -93,9 +93,7 @@ class TestTestSetModel(unittest.TestCase):
 
     def test_set_doc_from_json_missing_key(self):
         test_set = {
-            "_id": "id",
-            "version": "1.0",
-            "test_suite_id": "test_suite_id"
+            "_id": "id"
         }
 
         self.assertIsNone(mtset.TestSetDocument.from_json(test_set))
