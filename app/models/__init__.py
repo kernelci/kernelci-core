@@ -638,8 +638,7 @@ TEST_SUITE_VALID_KEYS = {
         MANDATORY_KEYS: [
             DEFCONFIG_ID_KEY,
             LAB_NAME_KEY,
-            NAME_KEY,
-            VERSION_KEY
+            NAME_KEY
         ],
         ACCEPTED_KEYS: [
             ARCHITECTURE_KEY,
@@ -705,8 +704,7 @@ TEST_SET_VALID_KEYS = {
     "POST": {
         MANDATORY_KEYS: [
             NAME_KEY,
-            TEST_SUITE_ID_KEY,
-            VERSION_KEY
+            TEST_SUITE_ID_KEY
         ],
         ACCEPTED_KEYS: [
             CREATED_KEY,
@@ -757,8 +755,7 @@ TEST_CASE_VALID_KEYS = {
     "POST": {
         MANDATORY_KEYS: [
             NAME_KEY,
-            TEST_SUITE_ID_KEY,
-            VERSION_KEY
+            TEST_SUITE_ID_KEY
         ],
         ACCEPTED_KEYS: [
             ATTACHMENTS_KEY,

@@ -52,15 +52,13 @@ scenario. The order is: test suite data, test set data, test case data
 .. sourcecode:: json
 
     {
-        "name": "A test suite",
-        "version": "1.0"
+        "name": "A test suite"
     }
 
 .. sourcecode:: json
 
     {
         "name": "A test set",
-        "version": "1.0",
         "test_suite_id": "a-test-suite-id"
     }
 
@@ -68,7 +66,6 @@ scenario. The order is: test suite data, test set data, test case data
 
     {
         "name": "A test case 1…N",
-        "version": "1.0",
         "test_suite_id": "a-test-suite-id",
         "test_set_id": "a-test-set-id"
     }
@@ -109,16 +106,13 @@ scenario:
 .. sourcecode:: json
 
     {
-        "name": "A test suite",
-        "version": "1.0",
+        "name": "A test suite"
         "test_set": [
             {
                 "name": "A test set",
-                "version": "1.0",
                 "test_case": [
                     {
-                        "name": "A test case 1…N",
-                        "version": "1.0"
+                        "name": "A test case 1…N"
                     }
                 ]
             }
@@ -161,15 +155,13 @@ scenario. The order is: test suite data, test set data, updated test set data:
 .. sourcecode:: json
 
     {
-        "name": "A test suite",
-        "version": "1.0"
+        "name": "A test suite"
     }
 
 .. sourcecode:: json
 
     {
         "name": "A test set",
-        "version": "1.0",
         "test_suite_id": "a-test-suite-id"
     }
 
@@ -178,8 +170,7 @@ scenario. The order is: test suite data, test set data, updated test set data:
     {
         "test_case": [
             {
-                "name": "A test case 1…N",
-                "version": "1.0"
+                "name": "A test case 1…N"
             }
         ]
     }

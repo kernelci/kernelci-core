@@ -65,5 +65,5 @@
             "additionalItems": true
         }
     },
-    "required": ["version", "name", "test_suite_id"]
+    "required": ["name", "test_suite_id"]
 }

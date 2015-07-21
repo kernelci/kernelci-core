@@ -28,7 +28,7 @@ class TestSuiteDocument(mbase.BaseDocument):
     A test suite is a document that can store test cases and/or test sets ran.
     """
 
-    def __init__(self, name, lab_name, defconfig_id, version):
+    def __init__(self, name, lab_name, defconfig_id, version="1.0"):
         """The test suite document.
 
         :param name: The name given to this test suite.

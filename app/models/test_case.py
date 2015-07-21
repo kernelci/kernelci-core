@@ -29,7 +29,7 @@ class TestCaseDocument(mbase.BaseDocument):
     is run and that reports a result.
     """
 
-    def __init__(self, name, test_suite_id, version):
+    def __init__(self, name, test_suite_id, version="1.0"):
         """
 
         :param name: The name given to this test case.
