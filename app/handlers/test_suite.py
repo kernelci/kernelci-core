@@ -248,7 +248,7 @@ class TestSuiteHandler(htbase.TestBaseHandler):
                 # TODO: handle case where boot_id, job_id or defconfig_id
                 # is updated.
                 update_val = utils.db.update(
-                    self.collection, suite_id, update_doc)
+                    self.collection, {models.ID_KEY: suite_id}, update_doc)
 
                 if update_val == 200:
                     response.reason = "Resource '%s' updated" % doc_id

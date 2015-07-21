@@ -450,7 +450,7 @@ def import_test_sets_from_test_suite(
             database = utils.db.get_db_connection(db_options)
             ret_val = utils.db.update(
                 database[models.TEST_SUITE_COLLECTION],
-                suite_id, {models.TEST_SET_KEY: test_ids})
+                {models.ID_KEY: suite_id}, {models.TEST_SET_KEY: test_ids})
             # TODO: handle errors.
         else:
             ret_val = 500
@@ -503,7 +503,7 @@ def import_test_cases_from_test_suite(
             database = utils.db.get_db_connection(db_options)
             ret_val = utils.db.update(
                 database[models.TEST_SUITE_COLLECTION],
-                suite_id, {models.TEST_CASE_KEY: test_ids})
+                {models.ID_KEY: suite_id}, {models.TEST_CASE_KEY: test_ids})
             # TODO: handle errors.
         else:
             ret_val = 500

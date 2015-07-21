@@ -432,10 +432,10 @@ def import_test_cases_from_test_set(
 
     if case_ids:
         # Update the test set with the test case IDs.
-        database = utils.db.get_db_connection()
+        database = utils.db.get_db_connection(db_options)
         ret_val = utils.db.update(
             database[models.TEST_SET_COLLECTION],
-            test_set_id,
+            {models.ID_KEY: test_set_id},
             {models.TEST_CASE_KEY: case_ids}
         )
         if ret_val != 200:

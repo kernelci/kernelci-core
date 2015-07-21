@@ -110,7 +110,7 @@ class TestCaseHandler(htbase.TestBaseHandler):
             set_id = bson.objectid.ObjectId(doc_id)
             if utils.db.find_one2(self.collection, set_id):
                 update_val = utils.db.update(
-                    self.collection, set_id, update_doc)
+                    self.collection, {models.ID_KEY: set_id}, update_doc)
 
                 if update_val == 200:
                     response.reason = "Resource '%s' updated" % doc_id
