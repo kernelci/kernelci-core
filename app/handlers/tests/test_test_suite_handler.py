@@ -140,10 +140,9 @@ class TestTestSuiteHandler(TestHandlerBase):
         )
 
         response = self.fetch(
-            "/test/suite", method="POST", headers=headers, body=body
-        )
+            "/test/suite", method="POST", headers=headers, body=body)
 
-        self.assertEqual(response.code, 202)
+        self.assertEqual(response.code, 201)
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
@@ -202,7 +201,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         response = self.fetch(
             "/test/suite", method="POST", headers=headers, body=body)
 
-        self.assertEqual(response.code, 202)
+        self.assertEqual(response.code, 201)
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
@@ -246,7 +245,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         response = self.fetch(
             "/test/suite", method="POST", headers=headers, body=body)
 
-        self.assertEqual(response.code, 202)
+        self.assertEqual(response.code, 201)
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 

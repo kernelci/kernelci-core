@@ -78,7 +78,7 @@ class TestSuiteHandler(htbase.TestBaseHandler):
                     self.db, test_suite, manipulate=True)
 
                 if ret_val == 201:
-                    response.status_code = 202
+                    response.status_code = ret_val
                     response.result = {models.ID_KEY: suite_id}
                     response.reason = (
                         "Test suite '%s' created" %
@@ -93,6 +93,7 @@ class TestSuiteHandler(htbase.TestBaseHandler):
 
                     if sets_list:
                         if isinstance(sets_list, types.ListType):
+                            response.status_code = 202
                             response.messages = (
                                 "Test sets will be parsed and imported")
                         else:
@@ -103,6 +104,7 @@ class TestSuiteHandler(htbase.TestBaseHandler):
 
                     if cases_list:
                         if isinstance(cases_list, types.ListType):
+                            response.status_code = 202
                             response.messages = (
                                 "Test cases will be parsed and imported")
                         else:
@@ -112,7 +114,7 @@ class TestSuiteHandler(htbase.TestBaseHandler):
                                 "list; they will not be imported")
 
                     # Complete the update of the test suite and import
-                    # everythuing else.
+                    # everything else.
                     if all([cases_list, sets_list]):
                         self._import_suite_with_sets_and_cases(
                             suite_json,
