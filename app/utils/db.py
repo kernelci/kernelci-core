@@ -196,9 +196,7 @@ def save(database, document, manipulate=False):
             ret_value = 201
         except pymongo.errors.OperationFailure, ex:
             utils.LOG.error(
-                "Error saving the following document: %s (%s)",
-                document.name, document.collection
-            )
+                "Error saving document into '%s'", document.collection)
             utils.LOG.exception(ex)
     else:
         utils.LOG.error(

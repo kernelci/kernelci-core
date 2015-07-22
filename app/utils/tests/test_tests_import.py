@@ -533,17 +533,15 @@ class TestTestsImport(unittest.TestCase):
     @mock.patch("utils.db.get_db_connection")
     def test_import_multi_test_sets_with_test_case(self, mock_db, mock_save):
         mock_db.return_value = self.db
-        mock_save.side_effect = [(201, "test-set0-id")]
+        mock_save.side_effect = [(201, "test-set0-id"), (201, "test-case0-id")]
 
         tests_list = [
             {
                 "name": "test-set0",
-                "version": "1.0",
                 "parameters": {"a": 1},
                 "test_case": [
                     {
                         "name": "test-case0",
-                        "version": "1.0",
                         "test_suite_id": "test-suite-id"
                     }
                 ]

@@ -23,23 +23,10 @@ import models.test_case as mtcase
 import models.test_set as mtset
 import utils
 import utils.db
+import utils.errors
 
-
-def _add_error_message(errors_dict, error_code, error_msg):
-    """Update an error data structure.
-
-    :param errors_dict: The errors data structure.
-    :type errors_dict: dict
-    :param error_code: The error code.
-    :type error_code: integer
-    :param error_msg: The error message.
-    :type error_msg: string
-    """
-    if error_code in errors_dict.keys():
-        errors_dict[error_code].append(error_msg)
-    else:
-        errors_dict[error_code] = []
-        errors_dict[error_code].append(error_msg)
+ADD_ERR = utils.errors.add_error
+UPDATE_ERR = utils.errors.update_errors
 
 
 def _get_document_and_update(oid, collection, fields, up_doc, validate_func):
@@ -68,36 +55,6 @@ def _get_document_and_update(oid, collection, fields, up_doc, validate_func):
                 if validate_func(k, v)
             }
         )
-
-
-def update_test_suite(suite_json, test_suite_id, db_options):
-    """Perform update operations on the provided test suite.
-
-    Search for missing values based on the other document keys.
-
-    :param suite_json: The JSON object containing the test suite.
-    :type suite_json: dict
-    :param test_suite_id: The ID of the saved test suite.
-    :type test_suite_id: string
-    :param db_options: The database connection parameters.
-    :type db_options: dict
-    :return 200 if OK, 500 in case of error; the updated values from the test
-    suite document as a dictionary.
-    """
-    ret_val = 200
-    update_doc = {}
-    local_suite = copy.deepcopy(suite_json)
-
-    update_doc = _parse_test_suite(local_suite, db_options)
-    if update_doc:
-        database = utils.db.get_db_connection(db_options)
-        ret_val = utils.db.update(
-            database[models.TEST_SUITE_COLLECTION],
-            {models.ID_KEY: bson.objectid.ObjectId(test_suite_id)},
-            update_doc
-        )
-
-    return ret_val, update_doc
 
 
 def _parse_test_suite(suite_json, db_options):
@@ -156,7 +113,7 @@ def _parse_test_suite(suite_json, db_options):
     # some of the values that make up a test_suite object, look for the
     # document and retrieve the values, then update the test suite.
     if all([missing_keys, any([defconfig_id, job_id, boot_id])]):
-        def _update_missing_keys(key):
+        def _remove_missing_key(key):
             """Remove a key from the needed one when we have a value for it.
 
             :param key: The key to remove.
@@ -178,7 +135,7 @@ def _parse_test_suite(suite_json, db_options):
             is_valid = False
             if all([key in all_keys, value]):
                 is_valid = True
-                _update_missing_keys(key)
+                _remove_missing_key(key)
             return is_valid
 
         database = utils.db.get_db_connection(db_options)
@@ -232,6 +189,34 @@ def _parse_test_suite(suite_json, db_options):
     return update_doc
 
 
+def update_test_suite(suite_json, test_suite_id, db_options):
+    """Perform update operations on the provided test suite.
+
+    Search for missing values based on the other document keys.
+
+    :param suite_json: The JSON object containing the test suite.
+    :type suite_json: dict
+    :param test_suite_id: The ID of the saved test suite.
+    :type test_suite_id: bson.objectid.ObjectId
+    :param db_options: The database connection parameters.
+    :type db_options: dict
+    :return 200 if OK, 500 in case of error; the updated values from the test
+    suite document as a dictionary.
+    """
+    ret_val = 200
+    update_doc = {}
+    local_suite = copy.deepcopy(suite_json)
+
+    update_doc = _parse_test_suite(local_suite, db_options)
+    if update_doc:
+        database = utils.db.get_db_connection(db_options)
+        ret_val = utils.db.update(
+            database[models.TEST_SUITE_COLLECTION],
+            {models.ID_KEY: test_suite_id}, update_doc)
+
+    return ret_val, update_doc
+
+
 def _import_multi_base(
         import_func, tests_list, suite_id, db_options, **kwargs):
     """Generic function to import a test sets or test cases list.
@@ -272,38 +257,23 @@ def _import_multi_base(
     or an empty dictionary.
     """
     database = utils.db.get_db_connection(db_options)
-    err_results = {}
+    errors = {}
     test_ids = []
-    res_keys = err_results.viewkeys()
 
-    def _add_err_msg(err_code, err_msg):
-        """Add error code and message to the data structure.
-
-        :param err_code: The error code.
-        :type err_code: integer
-        :param err_msg: The error message.
-        :"type err_msg: string
-        """
-        if err_code in res_keys:
-            err_results[err_code].append(err_msg)
-        else:
-            err_results[err_code] = []
-            err_results[err_code].append(err_msg)
-
-    def _parse_result(ret_val, doc_id, err_msg):
+    def _parse_result(ret_val, doc_id, imp_errors):
         """Parse the result and its return value.
 
         :param ret_val: The return value of the test case import.
         :type ret_val: integer
         :param doc_id: The saved document ID.
         :type doc_id: bson.obectid.ObjectId
-        :param err_msg: The error message.
-        :type err_msg: string
+        :param imp_errors: The error message.
+        :type imp_errors: string
         """
         if all([ret_val == 201, doc_id]):
             test_ids.append(doc_id)
         else:
-            _add_err_msg(ret_val, err_msg)
+            UPDATE_ERR(errors, imp_errors)
 
     def _yield_tests_import():
         """Iterate through the test objects to import and return them.
@@ -315,11 +285,11 @@ def _import_multi_base(
                 test, suite_id, database, db_options, **kwargs)
 
     [
-        _parse_result(ret_val, doc_id, err_msg)
-        for ret_val, doc_id, err_msg in _yield_tests_import()
+        _parse_result(ret_val, doc_id, imp_errors)
+        for ret_val, doc_id, imp_errors in _yield_tests_import()
     ]
 
-    return test_ids, err_results
+    return test_ids, errors
 
 
 def _import_test_set(json_obj, suite_id, database, db_options, **kwargs):
@@ -350,7 +320,7 @@ def _import_test_set(json_obj, suite_id, database, db_options, **kwargs):
     an error message in case of error or None.
     """
     ret_val = 400
-    error = None
+    errors = {}
     doc_id = None
 
     if isinstance(json_obj, types.DictionaryType):
@@ -381,29 +351,29 @@ def _import_test_set(json_obj, suite_id, database, db_options, **kwargs):
                 test_set.created_on = datetime.datetime.now(
                     tz=bson.tz_util.utc)
 
-                utils.LOG.info("Saving test set '%s'", test_name)
                 ret_val, doc_id = utils.db.save(
                     database, test_set, manipulate=True)
 
                 if ret_val != 201:
-                    error = "Error saving test set '%s'" % test_name
-                    utils.LOG.error(error)
+                    err_msg = "Error saving test set '%s'" % test_name
+                    utils.LOG.error(err_msg)
+                    ADD_ERR(errors, 500, err_msg)
                 else:
                     if cases_list:
-                        # XXX: need to handle errors here as well.
-                        import_test_cases_from_test_set(
+                        _, imp_err = import_test_cases_from_test_set(
                             doc_id, suite_id, cases_list, db_options, **kwargs)
+                        UPDATE_ERR(errors, imp_err)
             else:
-                error = "Missing mandatory key in JSON object"
+                ADD_ERR(errors, 400, "Missing mandatory key in JSON data")
         except ValueError, ex:
+            ADD_ERR(errors, 400, "Error parsing test set '%s'" % test_name)
             error = (
                 "Error parsing test set '%s': %s" % (test_name, ex.message))
-            utils.LOG.exception(ex)
             utils.LOG.error(error)
     else:
-        error = "Test set is not a valid JSON object"
+        ADD_ERR(errors, 400, "Test set is not valid JSON data")
 
-    return ret_val, doc_id, error
+    return ret_val, doc_id, errors
 
 
 def import_test_cases_from_test_set(
@@ -441,12 +411,12 @@ def import_test_cases_from_test_set(
         if ret_val != 200:
             error_msg = (
                 "Error saving test cases for test set '%s'" % test_set_id)
-            _add_error_message(errors, ret_val, error_msg)
+            ADD_ERR(errors, ret_val, error_msg)
     else:
         ret_val = 500
-        error_msg = "No test cases imported for test set '%s'", test_set_id
+        error_msg = "No test cases imported for test set '%s'" % test_set_id
         utils.LOG.error(error_msg)
-        _add_error_message(errors, ret_val, error_msg)
+        ADD_ERR(errors, ret_val, error_msg)
 
     return ret_val, errors
 
@@ -509,7 +479,7 @@ def import_test_case(json_obj, suite_id, database, db_options, **kwargs):
     an error message in case of error or None.
     """
     ret_val = 400
-    error = None
+    errors = {}
     doc_id = None
 
     if isinstance(json_obj, types.DictionaryType):
@@ -538,24 +508,24 @@ def import_test_case(json_obj, suite_id, database, db_options, **kwargs):
                     tz=bson.tz_util.utc)
                 test_case.test_set_id = k_get(models.TEST_SET_ID_KEY, None)
 
-                utils.LOG.info("Saving test case '%s'", test_name)
                 ret_val, doc_id = utils.db.save(
                     database, test_case, manipulate=True)
 
                 if ret_val != 201:
-                    error = "Error saving test case '%s'" % test_name
-                    utils.LOG.error(error)
+                    err_msg = "Error saving test case '%s'" % test_name
+                    utils.LOG.error(err_msg)
+                    ADD_ERR(errors, 500, err_msg)
             else:
-                error = "Missing mandatory key in JSON object"
+                ADD_ERR(errors, 400, "Missing mandatory key in JSON data")
         except ValueError, ex:
+            ADD_ERR(errors, 400, "Error parsing test case '%s'" % test_name)
             error = (
                 "Error parsing test case '%s': %s" % (test_name, ex.message))
-            utils.LOG.exception(ex)
             utils.LOG.error(error)
     else:
-        error = "Test case is not a valid JSON object"
+        ADD_ERR(errors, 400, "Test case is not valid JSON data")
 
-    return ret_val, doc_id, error
+    return ret_val, doc_id, errors
 
 
 def import_multi_test_cases(case_list, suite_id, db_options, **kwargs):

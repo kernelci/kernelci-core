@@ -17,6 +17,9 @@ import models
 import taskqueue.celery as taskc
 import utils
 import utils.tests_import as tests_import
+import utils.errors
+
+ADD_ERR = utils.errors.add_error
 
 
 # pylint: disable=too-many-arguments
@@ -104,7 +107,13 @@ def import_test_sets_from_test_suite(
             ret_val = utils.db.update(
                 database[models.TEST_SUITE_COLLECTION],
                 {models.ID_KEY: suite_id}, {models.TEST_SET_KEY: test_ids})
-            # TODO: handle errors.
+            if ret_val != 200:
+                ADD_ERR(
+                    errors,
+                    ret_val,
+                    "Error updating test suite '%s' with test set references" %
+                    (str(suite_id))
+                )
         else:
             ret_val = 500
     else:
@@ -112,7 +121,8 @@ def import_test_sets_from_test_suite(
             "Error saving test suite '%s', will not import tests cases",
             suite_name)
 
-    return ret_val, errors
+    # TODO: handle errors.
+    return ret_val
 
 
 @taskc.app.task(
@@ -162,7 +172,13 @@ def import_test_cases_from_test_suite(
             ret_val = utils.db.update(
                 database[models.TEST_SUITE_COLLECTION],
                 {models.ID_KEY: suite_id}, {models.TEST_CASE_KEY: test_ids})
-            # TODO: handle errors.
+            if ret_val != 200:
+                ADD_ERR(
+                    errors,
+                    ret_val,
+                    "Error updating test suite '%s' with test case "
+                    "references" % (str(suite_id))
+                )
         else:
             ret_val = 500
     else:
@@ -170,7 +186,8 @@ def import_test_cases_from_test_suite(
             "Error saving test suite '%s', will not import tests cases",
             suite_name)
 
-    return ret_val, errors
+    # TODO: handle errors
+    return ret_val
 
 
 @taskc.app.task(
@@ -194,6 +211,7 @@ def import_test_cases_from_test_set(
     :return 200 if OK, 500 in case of errors; a dictionary with errors or an
     empty one.
     """
-    # TODO: handle errors.
-    return tests_import.import_test_cases_from_test_set(
+    ret_val, errors = tests_import.import_test_cases_from_test_set(
         set_id, suite_id, tests_list, db_options)
+    # TODO: handle errors.
+    return ret_val
