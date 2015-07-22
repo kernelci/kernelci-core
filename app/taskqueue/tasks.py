@@ -525,7 +525,7 @@ def import_test_cases_from_test_suite(
 @taskc.app.task(
     name="import-test-cases-from-set", track_started=True, ignore_result=False)
 def import_test_cases_from_test_set(
-        tests_list, suite_id, set_id, db_options, **kwargs):
+        tests_list, suite_id, set_id, db_options, mail_options):
     """Wrapper around the real import function.
 
     Import the test cases included in a test set.
@@ -537,12 +537,15 @@ def import_test_cases_from_test_set(
     :param set_id: The ID of the test set.
     :type set_id: bson.objectid.ObjectId
     :param db_options: The database connection parameters.
-    :type db_options: dictionary
+    :type db_options: dict
+    :param mail_options: The email system parameters.
+    :type mail_options: dict
     :return 200 if OK, 500 in case of errors; a dictionary with errors or an
     empty one.
     """
+    # TODO: handle errors.
     return tests_import.import_test_cases_from_test_set(
-        set_id, suite_id, tests_list, db_options, **kwargs)
+        set_id, suite_id, tests_list, db_options)
 
 
 def run_batch_group(batch_op_list, db_options):

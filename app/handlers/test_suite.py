@@ -294,11 +294,11 @@ class TestSuiteHandler(htbase.TestBaseHandler):
 
                     test_set_canc = utils.db.delete(
                         self.db[models.TEST_SET_COLLECTION],
-                        {models.TEST_SUITE_ID_KEY: {"$eq": suite_id}})
+                        {models.TEST_SUITE_ID_KEY: suite_id})
 
                     test_case_canc = utils.db.delete(
                         self.db[models.TEST_CASE_COLLECTION],
-                        {models.TEST_SUITE_ID_KEY: {"$eq": suite_id}})
+                        {models.TEST_SUITE_ID_KEY: suite_id})
 
                     if test_case_canc != 200:
                         response.errors = (

@@ -117,9 +117,9 @@ class TestSetHandler(htbase.TestBaseHandler):
             [
                 test_cases,
                 suite_oid,
-                set_oid, self.settings["dboptions"]
-            ],
-            kwargs={"mail_options": self.settings["mailoptions"]}
+                set_oid,
+                self.settings["dboptions"], self.settings["mailoptions"]
+            ]
         )
 
     def _delete(self, doc_id, **kwargs):
@@ -133,9 +133,12 @@ class TestSetHandler(htbase.TestBaseHandler):
                 if response.status_code == 200:
                     response.reason = "Resource '%s' deleted" % doc_id
 
+                    # TODO: need to update the test suite as well.
+                    # Need to remove references of the test set using the
+                    # $pullAll operator.
                     test_case_canc = utils.db.delete(
                         self.db[models.TEST_CASE_COLLECTION],
-                        {models.TEST_SET_ID_KEY: {"$in": [set_id]}})
+                        {models.TEST_SET_ID_KEY: set_id})
 
                     if test_case_canc != 200:
                         response.errors = (

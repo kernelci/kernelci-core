@@ -83,6 +83,9 @@ class TestCaseHandler(htbase.TestBaseHandler):
         try:
             case_id = bson.objectid.ObjectId(doc_id)
             if utils.db.find_one2(self.collection, case_id):
+                # TODO: need to update the test set/suite as well.
+                # Need to remove references of the test case using the
+                # $pullAll operator.
                 response.status_code = utils.db.delete(
                     self.collection, case_id)
 
