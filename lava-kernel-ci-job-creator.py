@@ -22,6 +22,17 @@ bcm2835_rpi_b_plus = {'device_type': 'bcm2835-rpi-b-plus',
                       'lpae': False,
                       'fastboot': False}
 
+bcm4708_smartrg_sr400ac = {'device_type': 'bcm4708-smartrg-sr400ac',
+                           'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
+                                         'generic-arm-dtb-kernel-ci-kselftest-template.json'],
+                           'defconfig_blacklist': ['arm-allmodconfig'],
+                           'kernel_blacklist': ['v3.18',
+                                                'v4.1',
+                                                'lsk-v3.18',
+                                                'lsk-v4.1'],
+                           'lpae': False,
+                           'fastboot': False}
+
 armada_370_mirabox = {'device_type': 'armada-370-mirabox',
                        'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
                                      'generic-arm-dtb-kernel-ci-kselftest-template.json'],
@@ -508,6 +519,7 @@ x86_kvm = {'device_type': 'kvm',
            'fastboot': False}
 
 device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
+              'bcm4708-smartrg-sr400ac.dtb': [bcm4708_smartrg_sr400ac],
               'armada-370-mirabox.dtb': [armada_370_mirabox],
               'exynos5250-arndale.dtb': [arndale],
               'exynos5250-snow.dtb': [snow],
