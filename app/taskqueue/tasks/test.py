@@ -11,7 +11,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""All test import related celery tasks."""
+"""All test related celery tasks."""
 
 import models
 import taskqueue.celery as taskc

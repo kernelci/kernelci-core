@@ -251,7 +251,7 @@ DELETE
 
 .. http:delete:: /test/set/(string:test_set_id)
 
- Delete the test set identified by ``test_set_id``.
+ Delete the test set identified by ``test_set_id``. All its associated test cases will be deleted as well.
 
  :param test_set_id: The test set ID.
  :type test_set_id: string

@@ -83,14 +83,34 @@ class TestCaseHandler(htbase.TestBaseHandler):
         try:
             case_id = bson.objectid.ObjectId(doc_id)
             if utils.db.find_one2(self.collection, case_id):
-                # TODO: need to update the test set/suite as well.
-                # Need to remove references of the test case using the
-                # $pullAll operator.
                 response.status_code = utils.db.delete(
                     self.collection, case_id)
 
                 if response.status_code == 200:
                     response.reason = "Resource '%s' deleted" % doc_id
+
+                    # Remove test case reference from test_set and test_suite
+                    # collections.
+                    ret_val = utils.db.update(
+                        self.db[models.TEST_SET_COLLECTION],
+                        {models.TEST_CASE_KEY: case_id},
+                        {models.TEST_CASE_KEY: [case_id]},
+                        operation="$pullAll"
+                    )
+                    if ret_val != 200:
+                        response.errors = \
+                            "Error removing test case reference from test set"
+
+                    ret_val = utils.db.update(
+                        self.db[models.TEST_SUITE_COLLECTION],
+                        {models.TEST_CASE_KEY: case_id},
+                        {models.TEST_CASE_KEY: [case_id]},
+                        operation="$pullAll"
+                    )
+                    if ret_val != 200:
+                        response.errors = (
+                            "Error removing test case reference from test "
+                            "suite")
                 else:
                     response.reason = "Error deleting resource '%s'" % doc_id
             else:

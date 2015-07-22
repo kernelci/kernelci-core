@@ -133,17 +133,25 @@ class TestSetHandler(htbase.TestBaseHandler):
                 if response.status_code == 200:
                     response.reason = "Resource '%s' deleted" % doc_id
 
-                    # TODO: need to update the test suite as well.
-                    # Need to remove references of the test set using the
-                    # $pullAll operator.
-                    test_case_canc = utils.db.delete(
+                    ret_val = utils.db.delete(
                         self.db[models.TEST_CASE_COLLECTION],
                         {models.TEST_SET_ID_KEY: set_id})
 
-                    if test_case_canc != 200:
+                    if ret_val != 200:
                         response.errors = (
                             "Error deleting test cases with "
                             "test_set_id '%s'" % doc_id)
+
+                    # Remove test set reference from test_suite collection.
+                    ret_val = utils.db.update(
+                        self.db[models.TEST_SUITE_COLLECTION],
+                        {models.TEST_SET_KEY: set_id},
+                        {models.TEST_SET_KEY: [set_id]},
+                        operation="$pullAll"
+                    )
+                    if ret_val != 200:
+                        response.errors = \
+                            "Error removing test set reference from test suite"
                 else:
                     response.reason = "Error deleting resource '%s'" % doc_id
             else:
