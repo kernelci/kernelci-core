@@ -171,10 +171,16 @@ class TestSuiteHandler(htbase.TestBaseHandler):
             link=[
                 taskq.import_test_sets_from_test_suite.s(
                     suite_id,
-                    suite_name, sets_list, self.settings["dboptions"]),
+                    suite_name,
+                    sets_list,
+                    self.settings["dboptions"], self.settings["mailoptions"]
+                ),
                 taskq.import_test_cases_from_test_suite.s(
                     suite_id,
-                    suite_name, cases_list, self.settings["dboptions"])
+                    suite_name,
+                    cases_list,
+                    self.settings["dboptions"], self.settings["mailoptions"]
+                )
             ]
         )
 
@@ -201,7 +207,11 @@ class TestSuiteHandler(htbase.TestBaseHandler):
                 self.settings["dboptions"], self.settings["mailoptions"]
             ],
             link=taskq.import_test_cases_from_test_suite.s(
-                suite_id, suite_name, tests_list, self.settings["dboptions"])
+                suite_id,
+                suite_name,
+                tests_list,
+                self.settings["dboptions"], self.settings["mailoptions"]
+            )
         )
 
     def _import_suite_and_sets(
@@ -227,7 +237,11 @@ class TestSuiteHandler(htbase.TestBaseHandler):
                 self.settings["dboptions"], self.settings["mailoptions"]
             ],
             link=taskq.import_test_sets_from_test_suite.s(
-                suite_id, suite_name, tests_list, self.settings["dboptions"])
+                suite_id,
+                suite_name,
+                tests_list,
+                self.settings["dboptions"], self.settings["mailoptions"]
+            )
         )
 
     def _put(self, *args, **kwargs):

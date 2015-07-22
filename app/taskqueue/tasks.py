@@ -412,7 +412,8 @@ def complete_test_suite_import(
     ignore_result=False,
     add_to_parent=False)
 def import_test_sets_from_test_suite(
-        prev_results, suite_id, suite_name, tests_list, db_options):
+        prev_results,
+        suite_id, suite_name, tests_list, db_options, mail_options):
     """Import the test sets provided in a test suite.
 
     This task is linked from the test suite update one: the first argument is a
@@ -429,6 +430,8 @@ def import_test_sets_from_test_suite(
     :type tests_list: list
     :param db_options: The database connection parameters.
     :type db_options: dict
+    :param mail_options: The email system parameters.
+    :type mail_options: dict
     :return 200 if OK, 500 in case of errors; a dictionary with errors or an
     empty one.
     """
@@ -467,7 +470,8 @@ def import_test_sets_from_test_suite(
     ignore_result=False,
     add_to_parent=False)
 def import_test_cases_from_test_suite(
-        prev_results, suite_id, suite_name, tests_list, db_options):
+        prev_results,
+        suite_id, suite_name, tests_list, db_options, mail_options):
     """Import the test cases provided in a test suite.
 
     This task is linked from the test suite update one: the first argument is a
@@ -484,6 +488,8 @@ def import_test_cases_from_test_suite(
     :type tests_list: list
     :param db_options: The database connection parameters.
     :type db_options: dict
+    :param mail_options: The email system parameters.
+    :type mail_options: dict
     :return 200 if OK, 500 in case of errors; a dictionary with errors or an
     empty one.
     """
