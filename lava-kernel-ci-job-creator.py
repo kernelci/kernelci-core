@@ -23,7 +23,7 @@ bcm2835_rpi_b_plus = {'device_type': 'bcm2835-rpi-b-plus',
                       'fastboot': False}
 
 bcm4708_smartrg_sr400ac = {'device_type': 'bcm4708-smartrg-sr400ac',
-                           'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
+                           'templates': ['cfe-arm-dtb-kernel-ci-boot-template.json',
                                          'generic-arm-dtb-kernel-ci-kselftest-template.json'],
                            'defconfig_blacklist': ['arm-allmodconfig'],
                            'kernel_blacklist': ['v3.18',
