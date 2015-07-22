@@ -374,14 +374,15 @@ def send_build_report(
     name="complete-test-suite-import",
     track_started=True,
     ignore_result=False)
-def complete_test_suite_import(suite_json, suite_id, db_options, **kwargs):
+def complete_test_suite_import(
+        suite_json, suite_id, db_options, mail_options, **kwargs):
     """Complete the test suite import.
 
     First update the test suite references, if what is provided is only the
     *_id values. Then, import the test sets and test cases provided.
 
     :param suite_json: The JSON object with the test suite.
-    :type suite_json: dictionary
+    :type suite_json: dict
     :param suite_id: The ID of the test suite.
     :type suite_id: bson.objectid.ObjectId
     :param test_set: The list of test sets to import.
@@ -389,7 +390,9 @@ def complete_test_suite_import(suite_json, suite_id, db_options, **kwargs):
     :param test_case: The list of test cases to import.
     :type test_case: list
     :param db_options: The database connection parameters.
-    :type db_options: dictionary
+    :type db_options: dict
+    :param mail_options: The email system parameters.
+    :type mail_options: dict
     :return 200 if OK, 500 in case of errors; a dictionary containing the
     kwargs passed plus new values take from the update action.
     """

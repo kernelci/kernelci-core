@@ -87,7 +87,6 @@ class TestSuiteHandler(htbase.TestBaseHandler):
                         "Location": "/test/suite/%s" % str(suite_id)}
 
                     other_args = {
-                        "mail_options": self.settings["mailoptions"],
                         "suite_name": suite_name
                     }
 
@@ -118,30 +117,21 @@ class TestSuiteHandler(htbase.TestBaseHandler):
                     if all([cases_list, sets_list]):
                         self._import_suite_with_sets_and_cases(
                             suite_json,
-                            suite_id,
-                            sets_list,
-                            cases_list,
-                            self.settings["dboptions"], **other_args
-                        )
+                            suite_id, sets_list, cases_list, **other_args)
                     elif all([cases_list, not sets_list]):
                         self._import_suite_and_cases(
-                            suite_json,
-                            suite_id,
-                            cases_list,
-                            self.settings["dboptions"], **other_args
-                        )
+                            suite_json, suite_id, cases_list, **other_args)
                     elif all([not cases_list, sets_list]):
                         self._import_suite_and_sets(
-                            suite_json,
-                            suite_id,
-                            sets_list, self.settings["dboptions"], **other_args
-                        )
+                            suite_json, suite_id, sets_list, **other_args)
                     else:
                         # Just update the test suite document.
                         taskq.complete_test_suite_import.apply_async(
                             [
                                 suite_json,
-                                suite_id, self.settings["dboptions"]
+                                suite_id,
+                                self.settings["dboptions"],
+                                self.settings["mailoptions"]
                             ],
                             kwargs=other_args
                         )
@@ -157,7 +147,7 @@ class TestSuiteHandler(htbase.TestBaseHandler):
 
     def _import_suite_with_sets_and_cases(
             self,
-            suite_json, suite_id, sets_list, cases_list, db_options, **kwargs):
+            suite_json, suite_id, sets_list, cases_list, **kwargs):
         """Update the test suite and import test sets and cases.
 
         Just a thin wrapper around the real task call.
@@ -170,23 +160,25 @@ class TestSuiteHandler(htbase.TestBaseHandler):
         :type sets_list: list
         :param cases_list: The list of test cases to import.
         :rtype cases_list: list
-        :param db_option: The database connection options.
-        :type db_options: dict
         """
         # XXX: we should use link_error as well in case of errors.
         taskq.complete_test_suite_import.apply_async(
-            [suite_json, suite_id, db_options],
+            [
+                suite_json,
+                suite_id,
+                self.settings["dboptions"], self.settings["mailoptions"]
+            ],
             kwargs=kwargs,
             link=[
                 taskq.import_test_sets_from_test_suite.s(
-                    suite_id, sets_list, db_options, **kwargs),
+                    suite_id, sets_list, self.settings["dboptions"], **kwargs),
                 taskq.import_test_cases_from_test_suite.s(
-                    suite_id, cases_list, db_options, **kwargs)
+                    suite_id, cases_list, self.settings["dboptions"], **kwargs)
             ]
         )
 
     def _import_suite_and_cases(
-            self, suite_json, suite_id, tests_list, db_options, **kwargs):
+            self, suite_json, suite_id, tests_list, **kwargs):
         """Call the async task to update the test suite and import test cases.
 
         Just a thin wrapper around the real task call.
@@ -197,19 +189,21 @@ class TestSuiteHandler(htbase.TestBaseHandler):
         :type suite_id: bson.objectid.ObjectId
         :param tests_list: The list of tests to import.
         :type tests_list: list
-        :param db_option: The database connection options.
-        :type db_options: dict
         """
         # XXX: we should use link_error as well in case of errors.
         taskq.complete_test_suite_import.apply_async(
-            [suite_json, suite_id, db_options],
+            [
+                suite_json,
+                suite_id,
+                self.settings["dboptions"], self.settings["mailoptions"]
+            ],
             kwargs=kwargs,
             link=taskq.import_test_cases_from_test_suite.s(
-                suite_id, tests_list, db_options, **kwargs)
+                suite_id, tests_list, self.settings["dboptions"], **kwargs)
         )
 
     def _import_suite_and_sets(
-            self, suite_json, suite_id, tests_list, db_options, **kwargs):
+            self, suite_json, suite_id, tests_list, **kwargs):
         """Call the async task to update the test suite and import test sets.
 
         Just a thin wrapper around the real task call.
@@ -220,15 +214,17 @@ class TestSuiteHandler(htbase.TestBaseHandler):
         :type suite_id: bson.objectid.ObjectId
         :param tests_list: The list of tests to import.
         :type tests_list: list
-        :param db_option: The database connection options.
-        :type db_options: dict
         """
         # XXX: we should use link_error as well in case of errors.
         taskq.complete_test_suite_import.apply_async(
-            [suite_json, suite_id, db_options],
+            [
+                suite_json,
+                suite_id,
+                self.settings["dboptions"], self.settings["mailoptions"]
+            ],
             kwargs=kwargs,
             link=taskq.import_test_sets_from_test_suite.s(
-                suite_id, tests_list, db_options, **kwargs)
+                suite_id, tests_list, self.settings["dboptions"], **kwargs)
         )
 
     def _put(self, *args, **kwargs):
