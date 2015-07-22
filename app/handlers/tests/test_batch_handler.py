@@ -110,7 +110,7 @@ class TestBatchHandler(TestHandlerBase):
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
-    @mock.patch("taskqueue.tasks.run_batch_group")
+    @mock.patch("taskqueue.tasks.common.run_batch_group")
     def test_post_correct(self, mocked_run_batch):
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         batch_dict = {

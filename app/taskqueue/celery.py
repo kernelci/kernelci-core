@@ -23,7 +23,14 @@ import taskqueue.celeryconfig as celeryconfig
 import taskqueue.serializer as serializer
 
 
-TASKS_LIST = ["taskqueue.tasks"]
+TASKS_LIST = [
+    "taskqueue.tasks.bisect",
+    "taskqueue.tasks.boot",
+    "taskqueue.tasks.build",
+    "taskqueue.tasks.common",
+    "taskqueue.tasks.report",
+    "taskqueue.tasks.test"
+]
 
 # Register the custom decoder/encoder for celery with the name "kjson".
 # This is in all effect a JSON format, with some extensions.

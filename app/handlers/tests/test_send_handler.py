@@ -116,7 +116,7 @@ class TestSendHandler(TestHandlerBase):
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
-    @mock.patch("taskqueue.tasks.send_boot_report")
+    @mock.patch("taskqueue.tasks.report.send_boot_report")
     def test_post_correct_boot_report(self, mock_schedule):
         mock_schedule.apply_async = mock.MagicMock()
         headers = {
@@ -162,7 +162,7 @@ class TestSendHandler(TestHandlerBase):
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
-    @mock.patch("taskqueue.tasks.send_boot_report")
+    @mock.patch("taskqueue.tasks.report.send_boot_report")
     def test_post_negative_delay(self, mock_schedule):
         mock_schedule.apply_async = mock.MagicMock()
         headers = {
@@ -192,7 +192,7 @@ class TestSendHandler(TestHandlerBase):
             kwargs={"cc": [], "bcc": [], "in_reply_to": None, "subject": None}
         )
 
-    @mock.patch("taskqueue.tasks.send_boot_report")
+    @mock.patch("taskqueue.tasks.report.send_boot_report")
     def test_post_higher_delay(self, mock_schedule):
         mock_schedule.apply_async = mock.MagicMock()
         headers = {
@@ -222,7 +222,7 @@ class TestSendHandler(TestHandlerBase):
             kwargs={"cc": [], "bcc": [], "in_reply_to": None, "subject": None}
         )
 
-    @mock.patch("taskqueue.tasks.send_build_report")
+    @mock.patch("taskqueue.tasks.report.send_build_report")
     def test_post_build_report_correct(self, mock_schedule):
         mock_schedule.apply_async = mock.MagicMock()
         headers = {
@@ -268,8 +268,8 @@ class TestSendHandler(TestHandlerBase):
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
-    @mock.patch("taskqueue.tasks.send_build_report")
-    @mock.patch("taskqueue.tasks.send_boot_report")
+    @mock.patch("taskqueue.tasks.report.send_build_report")
+    @mock.patch("taskqueue.tasks.report.send_boot_report")
     def test_post_build_boot_report_correct_with_subject(
             self, mock_boot, mock_build):
         mock_build.apply_async = mock.MagicMock()

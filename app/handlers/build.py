@@ -16,7 +16,7 @@
 import handlers.base as hbase
 import handlers.response as hresponse
 import models
-import taskqueue.tasks as taskq
+import taskqueue.tasks.build as taskq
 import utils.db
 
 

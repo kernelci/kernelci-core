@@ -23,7 +23,7 @@ import handlers.response as hresponse
 import models
 import models.lab as mlab
 import models.token as mtoken
-import taskqueue.tasks as taskq
+import taskqueue.tasks.boot as taskq
 import utils.db
 
 

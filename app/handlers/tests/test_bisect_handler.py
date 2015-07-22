@@ -33,7 +33,8 @@ class TestBisectHandler(TestHandlerBase):
         self.task_return_value.get = mock.MagicMock()
         self.task_return_value.get.return_value = 200, []
 
-        patched_boot_bisect_func = mock.patch("taskqueue.tasks.boot_bisect")
+        patched_boot_bisect_func = mock.patch(
+            "taskqueue.tasks.bisect.boot_bisect")
         self.boot_bisect = patched_boot_bisect_func.start()
         self.boot_bisect.apply_async = mock.MagicMock()
         self.boot_bisect.apply_async.return_value = self.task_return_value

@@ -119,7 +119,7 @@ class TestBootHandler(TestHandlerBase):
 
         self.assertEqual(response.code, 400)
 
-    @mock.patch("taskqueue.tasks.import_boot")
+    @mock.patch("taskqueue.tasks.boot.import_boot")
     @mock.patch("utils.db.find_one2")
     def test_post_valid_content_same_token(self, find_one, import_boot):
         self.req_token.token = "foo"
@@ -164,7 +164,7 @@ class TestBootHandler(TestHandlerBase):
 
         self.assertEqual(response.code, 403)
 
-    @mock.patch("taskqueue.tasks.import_boot")
+    @mock.patch("taskqueue.tasks.boot.import_boot")
     @mock.patch("utils.db.find_one2")
     def test_post_valid_content_different_token_admin(
             self, find_one, import_boot):

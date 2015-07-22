@@ -124,7 +124,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
-    @mock.patch("taskqueue.tasks.complete_test_suite_import")
+    @mock.patch("taskqueue.tasks.test.complete_test_suite_import")
     @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
     @mock.patch("utils.db.save")
     def test_post_correct(self, mock_save, mock_check, mock_task):
@@ -161,7 +161,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
-    @mock.patch("taskqueue.tasks.complete_test_suite_import")
+    @mock.patch("taskqueue.tasks.test.complete_test_suite_import")
     @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
     def test_post_correct_with_test_set(self, mock_check, mock_task):
         mock_check.return_value = (200, None)
@@ -183,7 +183,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
-    @mock.patch("taskqueue.tasks.complete_test_suite_import")
+    @mock.patch("taskqueue.tasks.test.complete_test_suite_import")
     @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
     def test_post_correct_with_wrong_test_set(self, mock_check, mock_task):
         mock_check.return_value = (200, None)
@@ -205,7 +205,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
-    @mock.patch("taskqueue.tasks.complete_test_suite_import")
+    @mock.patch("taskqueue.tasks.test.complete_test_suite_import")
     @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
     def test_post_correct_with_test_case(self, mock_check, mock_task):
         mock_check.return_value = (200, None)
@@ -227,7 +227,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
-    @mock.patch("taskqueue.tasks.complete_test_suite_import")
+    @mock.patch("taskqueue.tasks.test.complete_test_suite_import")
     @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
     def test_post_correct_with_wrong_test_case(self, mock_check, mock_task):
         mock_check.return_value = (200, None)
@@ -249,7 +249,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
-    @mock.patch("taskqueue.tasks.complete_test_suite_import")
+    @mock.patch("taskqueue.tasks.test.complete_test_suite_import")
     @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
     def test_post_correct_with_test_case_and_set(self, mock_check, mock_task):
         mock_check.return_value = (200, None)

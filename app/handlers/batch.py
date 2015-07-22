@@ -22,7 +22,7 @@ import handlers.base as hbase
 import handlers.common as hcommon
 import handlers.response as hresponse
 import models
-import taskqueue.tasks as taskq
+import taskqueue.tasks.common as taskq
 import utils.validator as validator
 
 

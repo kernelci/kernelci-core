@@ -173,7 +173,7 @@ class TestTestSetHandler(TestHandlerBase):
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
-    @mock.patch("taskqueue.tasks.import_test_cases_from_test_set")
+    @mock.patch("taskqueue.tasks.test.import_test_cases_from_test_set")
     @mock.patch("utils.db.save")
     @mock.patch("utils.db.find_one2")
     @mock.patch("bson.objectid.ObjectId")

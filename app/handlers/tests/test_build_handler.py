@@ -129,7 +129,7 @@ class TestBuildHandler(TestHandlerBase):
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
-    @mock.patch("taskqueue.tasks.import_build")
+    @mock.patch("taskqueue.tasks.build.import_build")
     def test_post_correct(self, mock_import):
         mock_import.apply_async = mock.MagicMock()
         headers = {"Authorization": "foo", "Content-Type": "application/json"}

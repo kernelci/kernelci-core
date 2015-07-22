@@ -21,7 +21,7 @@ import handlers.response as hresponse
 import handlers.test_base as htbase
 import models
 import models.test_set as mtset
-import taskqueue.tasks as taskq
+import taskqueue.tasks.test as taskq
 import utils.db
 
 
