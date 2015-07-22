@@ -70,7 +70,7 @@ def _get_document_and_update(oid, collection, fields, up_doc, validate_func):
         )
 
 
-def update_test_suite(suite_json, test_suite_id, db_options, **kwargs):
+def update_test_suite(suite_json, test_suite_id, db_options):
     """Perform update operations on the provided test suite.
 
     Search for missing values based on the other document keys.

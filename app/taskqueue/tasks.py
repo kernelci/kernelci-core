@@ -375,7 +375,7 @@ def send_build_report(
     track_started=True,
     ignore_result=False)
 def complete_test_suite_import(
-        suite_json, suite_id, db_options, mail_options, **kwargs):
+        suite_json, suite_id, suite_name, db_options, mail_options):
     """Complete the test suite import.
 
     First update the test suite references, if what is provided is only the
@@ -385,30 +385,24 @@ def complete_test_suite_import(
     :type suite_json: dict
     :param suite_id: The ID of the test suite.
     :type suite_id: bson.objectid.ObjectId
-    :param test_set: The list of test sets to import.
-    :type test_set: list
-    :param test_case: The list of test cases to import.
-    :type test_case: list
+    :param suite_name: The name of the test suite.
+    :type suite_name: str
     :param db_options: The database connection parameters.
     :type db_options: dict
     :param mail_options: The email system parameters.
     :type mail_options: dict
     :return 200 if OK, 500 in case of errors; a dictionary containing the
-    kwargs passed plus new values take from the update action.
+    new values from the update action.
     """
     ret_val, update_doc = tests_import.update_test_suite(
-        suite_json, suite_id, db_options, **kwargs)
-
-    # Update all the kwargs with the one taken from the test suite update
-    # process and pass them along to the next task.
-    kwargs.update(update_doc)
+        suite_json, suite_id, db_options)
 
     if ret_val != 200:
         utils.LOG.error(
             "Error updating test suite '%s' (%s)",
-            kwargs["suite_name"], suite_id)
+            suite_name, suite_id)
 
-    return ret_val, kwargs
+    return ret_val, update_doc
 
 
 # pylint: disable=star-args
@@ -418,7 +412,7 @@ def complete_test_suite_import(
     ignore_result=False,
     add_to_parent=False)
 def import_test_sets_from_test_suite(
-        prev_results, suite_id, tests_list, db_options, **kwargs):
+        prev_results, suite_id, suite_name, tests_list, db_options):
     """Import the test sets provided in a test suite.
 
     This task is linked from the test suite update one: the first argument is a
@@ -429,10 +423,12 @@ def import_test_sets_from_test_suite(
     :type prev_results: list
     :param suite_id: The ID of the suite.
     :type suite_id: bson.objectid.ObjectId
+    :param suite_name: The name of the test suite.
+    :type suite_name: str
     :pram tests_list: The list of tests to import.
     :type tests_list: list
     :param db_options: The database connection parameters.
-    :type db_options: dictionary
+    :type db_options: dict
     :return 200 if OK, 500 in case of errors; a dictionary with errors or an
     empty one.
     """
@@ -449,7 +445,7 @@ def import_test_sets_from_test_suite(
         if test_ids:
             utils.LOG.info(
                 "Updating test suite '%s' (%s) with test set IDs",
-                kwargs["suite_name"], str(suite_id))
+                suite_name, str(suite_id))
             database = utils.db.get_db_connection(db_options)
             ret_val = utils.db.update(
                 database[models.TEST_SUITE_COLLECTION],
@@ -460,7 +456,7 @@ def import_test_sets_from_test_suite(
     else:
         utils.LOG.warn(
             "Error saving test suite '%s', will not import tests cases",
-            kwargs["suite_name"])
+            suite_name)
 
     return ret_val, errors
 
@@ -471,7 +467,7 @@ def import_test_sets_from_test_suite(
     ignore_result=False,
     add_to_parent=False)
 def import_test_cases_from_test_suite(
-        prev_results, suite_id, tests_list, db_options, **kwargs):
+        prev_results, suite_id, suite_name, tests_list, db_options):
     """Import the test cases provided in a test suite.
 
     This task is linked from the test suite update one: the first argument is a
@@ -482,10 +478,12 @@ def import_test_cases_from_test_suite(
     :type prev_results: list
     :param suite_id: The ID of the suite.
     :type suite_id: bson.objectid.ObjectId
+    :param suite_name: The name of the test suite.
+    :type suite_name: str
     :pram tests_list: The list of tests to import.
     :type tests_list: list
     :param db_options: The database connection parameters.
-    :type db_options: dictionary
+    :type db_options: dict
     :return 200 if OK, 500 in case of errors; a dictionary with errors or an
     empty one.
     """
@@ -502,7 +500,7 @@ def import_test_cases_from_test_suite(
         if test_ids:
             utils.LOG.info(
                 "Updating test suite '%s' (%s) with test case IDs",
-                kwargs["suite_name"], str(suite_id))
+                suite_name, str(suite_id))
             database = utils.db.get_db_connection(db_options)
             ret_val = utils.db.update(
                 database[models.TEST_SUITE_COLLECTION],
@@ -513,7 +511,7 @@ def import_test_cases_from_test_suite(
     else:
         utils.LOG.warn(
             "Error saving test suite '%s', will not import tests cases",
-            kwargs["suite_name"])
+            suite_name)
 
     return ret_val, errors
 

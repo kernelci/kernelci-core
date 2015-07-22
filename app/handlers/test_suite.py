@@ -26,6 +26,7 @@ import utils.db
 
 
 # pylint: disable=too-many-public-methods
+# pylint: disable=invalid-name
 class TestSuiteHandler(htbase.TestBaseHandler):
     """The test suite request handler."""
 
@@ -61,13 +62,13 @@ class TestSuiteHandler(htbase.TestBaseHandler):
             cases_list = suite_pop(models.TEST_CASE_KEY, [])
 
             suite_name = suite_get(models.NAME_KEY)
-            defconfig_id = suite_get(models.DEFCONFIG_ID_KEY)
-            job_id = suite_get(models.JOB_ID_KEY, None)
-            boot_id = suite_get(models.BOOT_ID_KEY, None)
 
             # Make sure the *_id values passed are valid.
             ret_val, error = self._check_references(
-                defconfig_id, job_id, boot_id)
+                suite_get(models.DEFCONFIG_ID_KEY, None),
+                suite_get(models.JOB_ID_KEY, None),
+                suite_get(models.BOOT_ID_KEY, None)
+            )
 
             if ret_val == 200:
                 test_suite = mtsuite.TestSuiteDocument.from_json(suite_json)
@@ -85,10 +86,6 @@ class TestSuiteHandler(htbase.TestBaseHandler):
                         suite_name)
                     response.headers = {
                         "Location": "/test/suite/%s" % str(suite_id)}
-
-                    other_args = {
-                        "suite_name": suite_name
-                    }
 
                     if sets_list:
                         if isinstance(sets_list, types.ListType):
@@ -117,23 +114,23 @@ class TestSuiteHandler(htbase.TestBaseHandler):
                     if all([cases_list, sets_list]):
                         self._import_suite_with_sets_and_cases(
                             suite_json,
-                            suite_id, sets_list, cases_list, **other_args)
+                            suite_id, sets_list, cases_list, suite_name)
                     elif all([cases_list, not sets_list]):
                         self._import_suite_and_cases(
-                            suite_json, suite_id, cases_list, **other_args)
+                            suite_json, suite_id, cases_list, suite_name)
                     elif all([not cases_list, sets_list]):
                         self._import_suite_and_sets(
-                            suite_json, suite_id, sets_list, **other_args)
+                            suite_json, suite_id, sets_list, suite_name)
                     else:
                         # Just update the test suite document.
                         taskq.complete_test_suite_import.apply_async(
                             [
                                 suite_json,
                                 suite_id,
+                                suite_name,
                                 self.settings["dboptions"],
                                 self.settings["mailoptions"]
-                            ],
-                            kwargs=other_args
+                            ]
                         )
                 else:
                     response.status_code = ret_val
@@ -145,9 +142,10 @@ class TestSuiteHandler(htbase.TestBaseHandler):
 
         return response
 
+    # pylint: disable=too-many-arguments
     def _import_suite_with_sets_and_cases(
             self,
-            suite_json, suite_id, sets_list, cases_list, **kwargs):
+            suite_json, suite_id, sets_list, cases_list, suite_name):
         """Update the test suite and import test sets and cases.
 
         Just a thin wrapper around the real task call.
@@ -159,26 +157,29 @@ class TestSuiteHandler(htbase.TestBaseHandler):
         :param sets_list: The list of test sets to import.
         :type sets_list: list
         :param cases_list: The list of test cases to import.
-        :rtype cases_list: list
+        :type cases_list: list
+        :param suite_name: The name of the test suite.
+        :type suite_name: str
         """
-        # XXX: we should use link_error as well in case of errors.
         taskq.complete_test_suite_import.apply_async(
             [
                 suite_json,
                 suite_id,
+                suite_name,
                 self.settings["dboptions"], self.settings["mailoptions"]
             ],
-            kwargs=kwargs,
             link=[
                 taskq.import_test_sets_from_test_suite.s(
-                    suite_id, sets_list, self.settings["dboptions"], **kwargs),
+                    suite_id,
+                    suite_name, sets_list, self.settings["dboptions"]),
                 taskq.import_test_cases_from_test_suite.s(
-                    suite_id, cases_list, self.settings["dboptions"], **kwargs)
+                    suite_id,
+                    suite_name, cases_list, self.settings["dboptions"])
             ]
         )
 
     def _import_suite_and_cases(
-            self, suite_json, suite_id, tests_list, **kwargs):
+            self, suite_json, suite_id, tests_list, suite_name):
         """Call the async task to update the test suite and import test cases.
 
         Just a thin wrapper around the real task call.
@@ -189,21 +190,22 @@ class TestSuiteHandler(htbase.TestBaseHandler):
         :type suite_id: bson.objectid.ObjectId
         :param tests_list: The list of tests to import.
         :type tests_list: list
+        :param suite_name: The name of the test suite.
+        :type suite_name: str
         """
-        # XXX: we should use link_error as well in case of errors.
         taskq.complete_test_suite_import.apply_async(
             [
                 suite_json,
                 suite_id,
+                suite_name,
                 self.settings["dboptions"], self.settings["mailoptions"]
             ],
-            kwargs=kwargs,
             link=taskq.import_test_cases_from_test_suite.s(
-                suite_id, tests_list, self.settings["dboptions"], **kwargs)
+                suite_id, suite_name, tests_list, self.settings["dboptions"])
         )
 
     def _import_suite_and_sets(
-            self, suite_json, suite_id, tests_list, **kwargs):
+            self, suite_json, suite_id, tests_list, suite_name):
         """Call the async task to update the test suite and import test sets.
 
         Just a thin wrapper around the real task call.
@@ -214,17 +216,18 @@ class TestSuiteHandler(htbase.TestBaseHandler):
         :type suite_id: bson.objectid.ObjectId
         :param tests_list: The list of tests to import.
         :type tests_list: list
+        :param suite_name: The name of the test suite.
+        :type suite_name: str
         """
-        # XXX: we should use link_error as well in case of errors.
         taskq.complete_test_suite_import.apply_async(
             [
                 suite_json,
                 suite_id,
+                suite_name,
                 self.settings["dboptions"], self.settings["mailoptions"]
             ],
-            kwargs=kwargs,
             link=taskq.import_test_sets_from_test_suite.s(
-                suite_id, tests_list, self.settings["dboptions"], **kwargs)
+                suite_id, suite_name, tests_list, self.settings["dboptions"])
         )
 
     def _put(self, *args, **kwargs):
@@ -277,11 +280,11 @@ class TestSuiteHandler(htbase.TestBaseHandler):
 
                     test_set_canc = utils.db.delete(
                         self.db[models.TEST_SET_COLLECTION],
-                        {models.TEST_SUITE_ID_KEY: {"$in": [suite_id]}})
+                        {models.TEST_SUITE_ID_KEY: {"$eq": suite_id}})
 
                     test_case_canc = utils.db.delete(
                         self.db[models.TEST_CASE_COLLECTION],
-                        {models.TEST_SUITE_ID_KEY: {"$in": [suite_id]}})
+                        {models.TEST_SUITE_ID_KEY: {"$eq": suite_id}})
 
                     if test_case_canc != 200:
                         response.errors = (
