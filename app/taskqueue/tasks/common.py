@@ -26,9 +26,9 @@ def execute_batch(json_obj, db_options):
     """Run batch operations based on the passed JSON object.
 
     :param json_obj: The JSON object with the operations to perform.
-    :type json_obj: dictionary
+    :type json_obj: dict
     :param db_options: The database connection parameters.
-    :type db_options: dictionary
+    :type db_options: dict
     :return The result of the batch operations.
     """
     return utils.batch.common.execute_batch_operation(json_obj, db_options)
@@ -41,15 +41,16 @@ def run_batch_group(batch_op_list, db_options):
     operation.
     :type batch_op_list: list
     :param db_options: The database connection parameters.
-    :type db_options: dictionary
+    :type db_options: dict
+    :return A list with all the results.
     """
     job = celery.group(
-        [
-            execute_batch.s(batch_op, db_options)
-            for batch_op in batch_op_list
-        ]
+        execute_batch.s(batch_op, db_options)
+        for batch_op in batch_op_list
     )
     result = job.apply_async()
     while not result.ready():
         pass
-    return result.get()
+    # Use the result backend optimezed function to retrieve the results.
+    # We are using redis.
+    return result.join_native()

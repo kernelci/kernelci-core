@@ -566,13 +566,15 @@ class TestBuildUtils(unittest.TestCase):
         self.assertIsNotNone(errors)
         self.assertListEqual([500], errors.keys())
 
+    @mock.patch("utils.db.get_db_connection")
     @mock.patch("utils.db.save")
     @mock.patch("utils.build._update_job_doc")
     @mock.patch("utils.build._traverse_build_dir")
     @mock.patch("utils.db.find_one2")
     @mock.patch("os.path.isdir")
     def test_import_single_build(
-            self, mock_dir, mock_find, mock_tr, mock_up, mock_save):
+            self, mock_dir, mock_find, mock_tr, mock_up, mock_save, mock_db):
+        mock_db = self.db
         mock_dir.return_value = True
 
         job_doc = {"job": "ajob", "kernel": "kernel", "_id": "job_id"}
