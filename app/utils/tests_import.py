@@ -317,7 +317,7 @@ def _import_test_set(json_obj, suite_id, database, db_options, **kwargs):
     :param db_options: The database connection options.
     :type db_options: dict
     :return 200 if OK, 500 in case of errors; the saved document ID or None;
-    an error message in case of error or None.
+    a dictionary with error codes and messages.
     """
     ret_val = 400
     errors = {}
@@ -476,7 +476,7 @@ def import_test_case(json_obj, suite_id, database, db_options, **kwargs):
     :param db_options: The database connection options.
     :type db_options: dict
     :return 200 if OK, 500 in case of errors; the saved document ID or None;
-    an error message in case of error or None.
+    a dictionary with error codes and messages.
     """
     ret_val = 400
     errors = {}
