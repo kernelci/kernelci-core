@@ -215,7 +215,6 @@ BOOT_COLLECTION = "boot"
 COUNT_COLLECTION = "count"
 BUILD_COLLECTION = "build"
 JOB_COLLECTION = "job"
-SUBSCRIPTION_COLLECTION = "subscription"
 TOKEN_COLLECTION = "api-token"
 BISECT_COLLECTION = "bisect"
 LAB_COLLECTION = "lab"
@@ -299,23 +298,26 @@ VALID_EMAIL_FORMATS = [
 # All the available collections as key-value. The key is the same used for the
 # URL configuration.
 COLLECTIONS = {
-    "boot": BOOT_COLLECTION,
-    "build": BUILD_COLLECTION,
-    "job": JOB_COLLECTION,
-    "test_case": TEST_CASE_COLLECTION,
-    "test_set": TEST_SET_COLLECTION,
-    "test_suite": TEST_SUITE_COLLECTION
+    BOOT_COLLECTION: BOOT_COLLECTION,
+    BUILD_COLLECTION: BUILD_COLLECTION,
+    JOB_COLLECTION: JOB_COLLECTION,
+    TEST_CASE_COLLECTION: TEST_CASE_COLLECTION,
+    TEST_SET_COLLECTION: TEST_SET_COLLECTION,
+    TEST_SUITE_COLLECTION: TEST_SUITE_COLLECTION
 }
 
 # Handlers valid keys.
 COUNT_VALID_KEYS = {
     "GET": [
         ARCHITECTURE_KEY,
+        BOARD_INSTANCE_KEY,
         BOARD_KEY,
+        BOOT_ID_KEY,
         CREATED_KEY,
         DEFCONFIG_FULL_KEY,
         DEFCONFIG_ID_KEY,
         DEFCONFIG_KEY,
+        DEFINITION_URI_KEY,
         ERRORS_KEY,
         GIT_BRANCH_KEY,
         GIT_COMMIT_KEY,
@@ -326,14 +328,24 @@ COUNT_VALID_KEYS = {
         KERNEL_CONFIG_KEY,
         KERNEL_IMAGE_KEY,
         KERNEL_KEY,
+        LAB_NAME_KEY,
         MODULES_DIR_KEY,
         MODULES_KEY,
+        NAME_KEY,
         PRIVATE_KEY,
         STATUS_KEY,
         SYSTEM_MAP_KEY,
+        TEST_CASE_ID_KEY,
+        TEST_JOB_ID_KEY,
+        TEST_JOB_URL_KEY,
+        TEST_SET_ID_KEY,
+        TEST_SUITE_ID_KEY,
         TEXT_OFFSET_KEY,
         TIME_KEY,
-        WARNINGS_KEY
+        TIME_KEY,
+        VCS_COMMIT_KEY,
+        VERSION_KEY,
+        WARNINGS_KEY,
     ]
 }
 
