@@ -411,10 +411,9 @@ def get_created_on_date(query_args_func):
                 try:
                     valid_date = datetime.datetime.strptime(
                         created_on, "%Y-%m-%d")
-                except AttributeError, ex:
+                except AttributeError:
                     # XXX: For some reasons, sometimes we get an exception here
                     # saying: module object does not have attribute _strptime.
-                    utils.LOG.exception(ex)
                     utils.LOG.warn("Retrying valid date calculation")
                     continue
                 except ValueError:

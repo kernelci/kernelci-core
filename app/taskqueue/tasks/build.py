@@ -15,6 +15,7 @@
 
 import taskqueue.celery as taskc
 import utils.build
+import utils.log_parser
 
 
 @taskc.app.task(name="import-job")

@@ -16,8 +16,9 @@
 import models
 import taskqueue.celery as taskc
 import utils
-import utils.tests_import as tests_import
+import utils.db
 import utils.errors
+import utils.tests_import as tests_import
 
 ADD_ERR = utils.errors.add_error
 
