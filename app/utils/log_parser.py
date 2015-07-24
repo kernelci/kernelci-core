@@ -27,6 +27,7 @@ import bson
 import datetime
 import io
 import itertools
+import multiprocessing.managers
 import os
 import re
 
@@ -38,6 +39,8 @@ import utils
 import utils.build
 import utils.errors
 
+# The key named used for multi-processes locking.
+LOCK_KEY = "buildlogparser"
 
 ERROR_PATTERN_1 = re.compile("[Ee]rror:")
 ERROR_PATTERN_2 = re.compile("^ERROR")
@@ -110,41 +113,150 @@ def count_lines(error_lines, warning_lines, mismatch_lines):
     return errors_all, warnings_all, mismatches_all
 
 
+# pylint: disable=too-many-branches
+def _update_prev_summary(prev_doc, errors, warnings, mismatches, database):
+    """Update a summary document with new log data.
+
+    :param prev_doc: The previous error summary document.
+    :type prev_doc: dict
+    :param errors: The error lines and their count.
+    :type errors: dict
+    :param warnings: The warning lines and their count.
+    :type warnings: dict
+    :param mismatches: The mismatched lines and their count.
+    :type mismatches: dict
+    :param database: The database connection.
+    :return The return value of the update operation.
+    """
+
+    def _update_summary_data(prev_data, new_data):
+        """Create a new summary data structure based on the new and old values.
+
+        :param prev_data: The data found in the document stored in the
+        database.
+        :type prev_data: dict
+        :param new_data: The log data as processed.
+        :type new_data: dict
+        """
+        # First create a new dict based on the old values.
+        # The old value is a list of 2-tuples and we invert the values found in
+        # there: k, v = tuple[1], tuple[0]
+        prev_data_dict = dict((v, k) for k, v in prev_data)
+
+        # Loop through the new data and look for old values to update.
+        # This is done to update the sum of the log lines found.
+        for key, val in new_data.iteritems():
+            if key in prev_data_dict.viewkeys():
+                prev_data_dict[key] += val
+            else:
+                prev_data_dict[key] = val
+
+        return _dict_to_list(prev_data_dict)
+
+    doc_get = prev_doc.get
+    if errors:
+        prev_errors = doc_get(models.ERRORS_KEY, None)
+        if prev_errors:
+            prev_doc[models.ERRORS_KEY] = _update_summary_data(
+                prev_errors, errors)
+        else:
+            prev_doc[models.ERRORS_KEY] = _dict_to_list(errors)
+
+    if mismatches:
+        prev_mismatches = doc_get(models.MISMATCHES_KEY, None)
+        if prev_mismatches:
+            prev_doc[models.MISMATCHES_KEY] = _update_summary_data(
+                prev_mismatches, mismatches)
+        else:
+            prev_doc[models.MISMATCHES_KEY] = _dict_to_list(mismatches)
+
+    if warnings:
+        prev_warnings = doc_get(models.WARNINGS_KEY, None)
+        if prev_warnings:
+            prev_doc[models.WARNINGS_KEY] = _update_summary_data(
+                prev_warnings, warnings)
+        else:
+            prev_doc[models.WARNINGS_KEY] = _dict_to_list(warnings)
+
+    ret_val = utils.db.find_and_update(
+        database[models.ERRORS_SUMMARY_COLLECTION],
+        {models.ID_KEY: prev_doc[models.ID_KEY]},
+        {
+            models.ERRORS_KEY: prev_doc[models.ERRORS_KEY],
+            models.MISMATCHES_KEY: prev_doc[models.MISMATCHES_KEY],
+            models.WARNINGS_KEY: prev_doc[models.WARNINGS_KEY]
+        }
+    )
+    return ret_val
+
+
 # pylint: disable=too-many-arguments
-def _save_summary(errors,
-                  warnings, mismatches, job_id, job, kernel, db_options):
+def _create_new_summary(
+        errors, warnings, mismatches, job_id, job, kernel, database):
+    """Save a new error summary in the database.
+
+    :param errors:
+    :type errors: dict
+    :param warnings:
+    :type warnings: dict
+    :param mismatches:
+    :type mismatches:
+    :param job_id:
+    :type job_id: bson.objectid.ObjectId
+    :param job:
+    :type job: str
+    :param kernel:
+    :type kernel: str
+    :param database: The database connection.
+    :return The return value from the save operation.
+    """
+    error_summary = mesumm.ErrorSummaryDocument(job_id, "1.0")
+    error_summary.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
+    error_summary.job = job
+    error_summary.kernel = kernel
+
+    # Store the summary as lists of 2-tuple values.
+    error_summary.errors = _dict_to_list(errors)
+    error_summary.mismatches = _dict_to_list(mismatches)
+    error_summary.warnings = _dict_to_list(warnings)
+
+    ret_val, _ = utils.db.save(database, error_summary, manipulate=True)
+    return ret_val
+
+
+def _save_summary(
+        errors, warnings, mismatches, job_id, job, kernel, db_options):
     """Save the summary for errors/warnings/mismatches found."""
     ret_val = 200
     if any([errors, warnings, mismatches]):
-        error_summary = mesumm.ErrorSummaryDocument(job_id, "1.0")
-        error_summary.created_on = datetime.datetime.now(
-            tz=bson.tz_util.utc)
-        error_summary.job = job
-        error_summary.kernel = kernel
-
-        # Store the summary as lists of 2-tuple values.
-        error_summary.errors = _dict_to_list(errors)
-        error_summary.mismatches = _dict_to_list(mismatches)
-        error_summary.warnings = _dict_to_list(warnings)
-
+        prev_doc = None
         database = utils.db.get_db_connection(db_options)
         prev_spec = {
+            models.JOB_ID_KEY: job_id,
             models.JOB_KEY: job,
-            models.KERNEL_KEY: kernel,
-            models.NAME_KEY: job_id
+            models.KERNEL_KEY: kernel
         }
-        prev_doc = utils.db.find_one2(
-            database[models.ERRORS_SUMMARY_COLLECTION],
-            prev_spec, fields=[models.ID_KEY]
-        )
 
-        manipulate = True
-        if prev_doc:
-            manipulate = False
-            error_summary.id = prev_doc[models.ID_KEY]
+        try:
+            # We might being importing documents and parsing build logs from
+            # multiple processes.
+            # In order to avoid having wrong data in the database, lock the
+            # process here looking for the previous summary.
+            p_manager = multiprocessing.managers.SyncManager(authkey=LOCK_KEY)
+            p_manager.start()
+            with p_manager.RLock():
+                prev_doc = utils.db.find_one2(
+                    database[models.ERRORS_SUMMARY_COLLECTION], prev_spec)
 
-        ret_val, _ = utils.db.save(
-            database, error_summary, manipulate=manipulate)
+                if prev_doc:
+                    ret_val = _update_prev_summary(
+                        prev_doc, errors, warnings, mismatches, database)
+                else:
+                    ret_val = _create_new_summary(
+                        errors,
+                        warnings, mismatches, job_id, job, kernel, database)
+        finally:
+            p_manager.shutdown()
 
     return ret_val
 
@@ -332,7 +444,6 @@ def _read_build_data(build_dir, job, kernel, errors):
     return build_doc
 
 
-# pylint: disable=too-many-branches
 # pylint: disable=too-many-statements
 def _parse_log(job, kernel, defconfig, log_file, build_dir, errors):
     """Read the build log and extract the correct strings.
