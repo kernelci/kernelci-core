@@ -90,7 +90,7 @@ class ErrorSummaryDocument(modb.BaseDocument):
         :type value: list
         """
         if isinstance(value, types.ListType):
-            self._errors = value
+            self._errors.extend(value)
         else:
             raise TypeError(
                 "Passed value for 'errors' is not a list: %s" % type(value))
@@ -108,7 +108,7 @@ class ErrorSummaryDocument(modb.BaseDocument):
         :type value: list
         """
         if isinstance(value, types.ListType):
-            self._warnings = value
+            self._warnings.extend(value)
         else:
             raise TypeError(
                 "Passed value for 'warnings' is not a list: %s" % type(value))
@@ -126,7 +126,7 @@ class ErrorSummaryDocument(modb.BaseDocument):
         :type value: list
         """
         if isinstance(value, types.ListType):
-            self._mismatches = value
+            self._mismatches.extend(value)
         else:
             raise TypeError(
                 "Passed value for 'mismatches' is not a list: %s" %
