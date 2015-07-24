@@ -15,6 +15,7 @@
 
 import models
 import taskqueue.celery as taskc
+import utils.emails
 import utils.report.boot
 import utils.report.build
 import utils.report.common
