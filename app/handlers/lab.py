@@ -18,7 +18,8 @@ import datetime
 import urlparse
 
 import handlers.base
-import handlers.common as hcommon
+import handlers.common.query
+import handlers.common.token
 import handlers.response as hresponse
 import models
 import models.lab as mlab
@@ -44,7 +45,7 @@ class LabHandler(handlers.base.BaseHandler):
 
     @staticmethod
     def _token_validation_func():
-        return hcommon.valid_token_th
+        return handlers.common.token.valid_token_th
 
     def _post(self, *args, **kwargs):
         response = hresponse.HandlerResponse(201)
@@ -327,7 +328,7 @@ class LabHandler(handlers.base.BaseHandler):
                     response = hresponse.HandlerResponse(400)
                     response.reason = "Wrong ID value provided"
             else:
-                spec = hcommon.get_query_spec(
+                spec = handlers.common.query.get_query_spec(
                     self.get_query_arguments, self._valid_keys("DELETE"))
                 if spec:
                     response = self._delete(spec)
@@ -340,7 +341,6 @@ class LabHandler(handlers.base.BaseHandler):
                         "No valid data provided to execute a DELETE")
         else:
             response = hresponse.HandlerResponse(403)
-            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 

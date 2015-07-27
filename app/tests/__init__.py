@@ -20,6 +20,8 @@ import unittest
 
 def test_modules():
     return [
+        "handlers.common.tests.test_query",
+        "handlers.common.tests.test_token",
         "handlers.tests.test_batch_handler",
         "handlers.tests.test_bisect_handler",
         "handlers.tests.test_boot_handler",
@@ -28,7 +30,6 @@ def test_modules():
         "handlers.tests.test_build_logs_handler",
         "handlers.tests.test_count_handler",
         "handlers.tests.test_handler_response",
-        "handlers.tests.test_handlers_common",
         "handlers.tests.test_job_handler",
         "handlers.tests.test_lab_handler",
         "handlers.tests.test_report_handler",

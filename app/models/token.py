@@ -414,7 +414,7 @@ def check_attribute_value(value):
         raise TypeError("Wrong value passed, must be int or bool")
 
     value = abs(int(value))
-    if 0 != value != 1:
+    if all([value != 0, value != 1]):
         raise ValueError("Value must be 0 or 1")
 
     return value

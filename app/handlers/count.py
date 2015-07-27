@@ -18,7 +18,7 @@
 import tornado.gen
 
 import handlers.base as hbase
-import handlers.common as hcommon
+import handlers.common.query
 import handlers.response as hresponse
 import models
 import utils.db
@@ -90,9 +90,10 @@ def count_one_collection(
     optionally the `fields` fields.
     """
     result = []
-    spec = hcommon.get_query_spec(query_args_func, valid_keys)
-    hcommon.get_and_add_date_range(spec, query_args_func)
-    hcommon.update_id_fields(spec)
+    spec = handlers.common.query.get_query_spec(
+        query_args_func, valid_keys)
+    handlers.common.query.get_and_add_date_range(spec, query_args_func)
+    handlers.common.query.update_id_fields(spec)
 
     if spec:
         _, number = utils.db.find_and_count(
@@ -126,9 +127,9 @@ def count_all_collections(database, query_args_func, valid_keys):
     """
     result = []
 
-    spec = hcommon.get_query_spec(query_args_func, valid_keys)
-    hcommon.get_and_add_date_range(spec, query_args_func)
-    hcommon.update_id_fields(spec)
+    spec = handlers.common.query.get_query_spec(query_args_func, valid_keys)
+    handlers.common.query.get_and_add_date_range(spec, query_args_func)
+    handlers.common.query.update_id_fields(spec)
 
     if spec:
         for collection in models.COLLECTIONS:
