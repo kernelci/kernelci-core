@@ -39,7 +39,7 @@ import utils
 import utils.build
 import utils.errors
 
-# The key named used for multi-processes locking.
+# The key name used for multi-processes locking.
 LOCK_KEY = "buildlogparser"
 
 ERROR_PATTERN_1 = re.compile("[Ee]rror:")

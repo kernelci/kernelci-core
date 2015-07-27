@@ -27,6 +27,7 @@ import bson
 import datetime
 import glob
 import io
+import multiprocessing.managers
 import os
 import pymongo.errors
 import types
@@ -38,6 +39,8 @@ import utils
 import utils.db
 import utils.errors
 
+# The key name used for multi-processes locking.
+LOCK_KEY = "buildimport"
 
 ERR_ADD = utils.errors.add_error
 ERR_UPDATE = utils.errors.update_errors
@@ -519,6 +522,46 @@ def import_multiple_builds(json_obj, db_options, base_path=utils.BASE_PATH):
     return job_id, errors
 
 
+def _search_or_create_job(job, kernel, database):
+    """Search and/or create a job in the database.
+
+    :param job: The name of the job.
+    :type job: str
+    :param kernel: The name of the kernel.
+    :type kernel: str
+    :param database: The database connection.
+    :return a 3-tuple: return value, job document and job ID.
+    """
+    ret_val = 201
+    job_doc = None
+    job_id = None
+
+    try:
+        # We might be importing build in parallel through multi-processes.
+        # Keep a lock here when looking for a job or we might end up with
+        # multiple job creations.
+        p_manager = multiprocessing.managers.SyncManager(authkey=LOCK_KEY)
+        p_manager.start()
+        with p_manager.RLock():
+            p_doc = utils.db.find_one2(
+                database[models.JOB_COLLECTION],
+                {models.JOB_KEY: job, models.KERNEL_KEY: kernel})
+
+            if p_doc:
+                job_doc = mjob.JobDocument.from_json(p_doc)
+                job_id = job_doc.id
+            else:
+                job_doc = mjob.JobDocument(job, kernel)
+                job_doc.status = models.BUILD_STATUS
+                job_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
+                ret_val, job_id = utils.db.save(
+                    database, job_doc, manipulate=True)
+    finally:
+        p_manager.shutdown()
+
+    return ret_val, job_doc, job_id
+
+
 def import_single_build(json_obj, db_options, base_path=utils.BASE_PATH):
     """Import a single build from the file system.
 
@@ -551,25 +594,13 @@ def import_single_build(json_obj, db_options, base_path=utils.BASE_PATH):
 
         if os.path.isdir(build_dir):
             try:
-                p_doc = None
                 database = None
                 ret_val = 201
 
                 database = utils.db.get_db_connection(db_options)
-                p_doc = utils.db.find_one2(
-                    database[models.JOB_COLLECTION],
-                    {models.JOB_KEY: job, models.KERNEL_KEY: kernel})
 
-                if p_doc:
-                    job_doc = mjob.JobDocument.from_json(p_doc)
-                    job_id = job_doc.id
-                else:
-                    job_doc = mjob.JobDocument(job, kernel)
-                    job_doc.status = models.BUILD_STATUS
-                    job_doc.created_on = datetime.datetime.now(
-                        tz=bson.tz_util.utc)
-                    ret_val, job_id = utils.db.save(
-                        database, job_doc, manipulate=True)
+                ret_val, job_doc, job_id = _search_or_create_job(
+                    job, kernel, database)
 
                 if all([ret_val != 201, job_id is None]):
                     err_msg = (
