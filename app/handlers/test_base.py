@@ -20,12 +20,13 @@ except ImportError:
 
 import bson
 
-import models
 import handlers.base as hbase
-import handlers.common as hcommon
+import handlers.common.token
+import handlers.common.request
 import handlers.response as hresponse
-import utils.validator as validator
+import models
 import utils.db
+import utils.validator as validator
 
 
 # pylint: disable=too-many-public-methods
@@ -41,7 +42,7 @@ class TestBaseHandler(hbase.BaseHandler):
 
     @staticmethod
     def _token_validation_func():
-        return hcommon.valid_token_tests
+        return handlers.common.token.valid_token_tests
 
     def execute_put(self, *args, **kwargs):
         """Execute the PUT pre-operations."""
@@ -50,7 +51,8 @@ class TestBaseHandler(hbase.BaseHandler):
 
         if valid_token:
             if kwargs.get("id", None):
-                valid_request = self._valid_post_request()
+                valid_request = handlers.common.request.valid_post_request(
+                    self.request.headers, self.request.remote_ip)
 
                 if valid_request == 200:
                     try:
@@ -91,7 +93,6 @@ class TestBaseHandler(hbase.BaseHandler):
                 response.reason = "No ID specified"
         else:
             response = hresponse.HandlerResponse(403)
-            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 

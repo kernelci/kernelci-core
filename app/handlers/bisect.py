@@ -17,7 +17,7 @@ import bson
 import tornado.gen
 
 import handlers.base as hbase
-import handlers.common as hcommon
+import handlers.common.query
 import handlers.response as hresponse
 import models
 import taskqueue.tasks.bisect as taskt
@@ -61,7 +61,8 @@ class BisectHandler(hbase.BaseHandler):
 
         if valid_token:
             doc_id = kwargs.get("id", None)
-            fields = hcommon.get_query_fields(self.get_query_arguments)
+            fields = handlers.common.query.get_query_fields(
+                self.get_query_arguments)
 
             if doc_id:
                 try:
@@ -83,7 +84,7 @@ class BisectHandler(hbase.BaseHandler):
                     response.reason = "Wrong ID value passed as object ID"
             else:
                 # No ID specified, use the query args.
-                spec = hcommon.get_query_spec(
+                spec = handlers.common.query.get_query_spec(
                     self.get_query_arguments, self._valid_keys("GET"))
                 collection = spec.pop(models.COLLECTION_KEY, None)
 
@@ -95,7 +96,6 @@ class BisectHandler(hbase.BaseHandler):
                         "Missing 'collection' key, cannot process the request")
         else:
             response = hresponse.HandlerResponse(403)
-            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 

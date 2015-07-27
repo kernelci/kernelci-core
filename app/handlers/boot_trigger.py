@@ -17,7 +17,8 @@ import copy
 import pymongo
 
 import handlers.base as hbase
-import handlers.common as hcommon
+import handlers.common.query
+import handlers.common.token
 import handlers.response as hresponse
 import models
 import utils.db
@@ -56,7 +57,7 @@ class BootTriggerHandler(hbase.BaseHandler):
     @staticmethod
     def _token_validation_func():
         # Use the same token validation logic of the boot handler.
-        return hcommon.valid_token_bh
+        return handlers.common.token.valid_token_bh
 
     @staticmethod
     def _valid_keys(method):
@@ -91,7 +92,6 @@ class BootTriggerHandler(hbase.BaseHandler):
                 response.reason = "Provided token is not associated with a lab"
         else:
             response = hresponse.HandlerResponse(403)
-            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 
@@ -207,7 +207,7 @@ class BootTriggerHandler(hbase.BaseHandler):
 
         if self.request.arguments:
             spec, sort, fields, skip, limit, compared = \
-                hcommon.get_trigger_query_values(
+                handlers.common.query.get_trigger_query_values(
                     self.get_query_arguments, self._valid_keys(method))
 
         return spec, sort, fields, skip, limit, compared

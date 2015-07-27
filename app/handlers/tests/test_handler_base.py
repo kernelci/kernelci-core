@@ -56,11 +56,12 @@ class TestHandlerBase(AsyncHTTPTestCase, LogTrapTestCase):
         super(TestHandlerBase, self).setUp()
 
         patched_find_token = mock.patch(
-            "handlers.base.BaseHandler._find_token")
+            "handlers.common.token.find_token")
         self.find_token = patched_find_token.start()
         self.find_token.return_value = self.req_token
 
-        patched_validate_token = mock.patch("handlers.common.validate_token")
+        patched_validate_token = mock.patch(
+            "handlers.common.token.validate_token")
         self.validate_token = patched_validate_token.start()
         self.validate_token.return_value = (True, self.req_token)
 

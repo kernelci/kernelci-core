@@ -24,7 +24,8 @@ import bson
 import urlparse
 
 import handlers.base as hbase
-import handlers.common as hcommon
+import handlers.common.query
+import handlers.common.token
 import handlers.response as hresponse
 import models
 import models.token as mtoken
@@ -49,36 +50,52 @@ class TokenHandler(hbase.BaseHandler):
 
     @staticmethod
     def _token_validation_func():
-        return hcommon.valid_token_th
+        return handlers.common.token.valid_token_th
 
-    def _token_validation(self, req_token, method, remote_ip, master_key):
+    def validate_req_token(self, method):
+        """Validate the request token.
+
+        :param method: The HTTP verb we are validating.
+        :return A 2-tuple: True or False; the token object.
+        """
         valid_token = False
         token = None
 
-        if all([master_key, req_token == master_key]):
-            valid_token = True
-        else:
-            token_obj = self._find_token(req_token, self.db)
+        req_token = self.request.headers.get("Authorization", None)
+        remote_ip = self.request.remote_ip
+        master_key = self.settings.get("master_key", None)
 
-            if token_obj:
-                valid_token, token = hcommon.validate_token(
-                    token_obj,
+        if req_token:
+            if all([master_key, req_token == master_key]):
+                valid_token = True
+            else:
+                valid_token, token = handlers.common.token.token_validation(
                     method,
+                    req_token,
                     remote_ip,
-                    self._token_validation_func()
+                    self._token_validation_func(),
+                    self.db, master_key=master_key
                 )
+
+                if not valid_token:
+                    self.log.warn(
+                        "Token not authorized for IP address %s",
+                        self.request.remote_ip)
+        else:
+            self.log.warn("No token provided by IP address %s", remote_ip)
 
         return valid_token, token
 
     def _get_one(self, doc_id, **kwargs):
-        # Overridden: with the token we do not search by _id, but
-        # by token field.
+        # Overridden: with the token we do not search by _id,
+        # but by token field.
         response = hresponse.HandlerResponse()
 
         result = utils.db.find_one2(
             self.collection,
             {models.TOKEN_KEY: doc_id},
-            fields=hcommon.get_query_fields(self.get_query_arguments)
+            fields=handlers.common.query.get_query_fields(
+                self.get_query_arguments)
         )
 
         if result:
@@ -107,7 +124,8 @@ class TokenHandler(hbase.BaseHandler):
         response = None
 
         # PUT and POST request require the same content type.
-        valid_request = self._valid_post_request()
+        valid_request = handlers.common.request.valid_post_request(
+            self.request.headers, self.request.remote_ip)
         if valid_request == 200:
             doc_id = kwargs.get("id", None)
             if doc_id:

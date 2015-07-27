@@ -19,7 +19,7 @@ except ImportError:
     import json
 
 import handlers.base as hbase
-import handlers.common as hcommon
+import handlers.common.request
 import handlers.response as hresponse
 import models
 import taskqueue.tasks.common as taskq
@@ -48,7 +48,8 @@ class BatchHandler(hbase.BaseHandler):
         valid_token, _ = self.validate_req_token("POST")
 
         if valid_token:
-            valid_request = self._valid_post_request()
+            valid_request = handlers.common.request.valid_post_request(
+                self.request.headers, self.request.remote_ip)
 
             if valid_request == 200:
                 try:
@@ -76,7 +77,6 @@ class BatchHandler(hbase.BaseHandler):
                 response.reason = self._get_status_message(valid_request)
         else:
             response = hresponse.HandlerResponse(403)
-            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 

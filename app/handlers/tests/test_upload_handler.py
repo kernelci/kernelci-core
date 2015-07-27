@@ -76,6 +76,6 @@ class TestUploadHandler(TestHandlerBase):
         }
         response = self.fetch(
             "/upload", method="POST", body="", headers=headers)
-        self.assertEqual(response.code, 400)
+        self.assertEqual(response.code, 415)
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)

@@ -34,6 +34,15 @@ class TestTokenHandler(TestHandlerBase):
 
         self.assertEqual(response.code, 403)
 
+    def test_get_wrong_token(self):
+        self.validate_token.return_value = (False, None)
+        headers = {"Authorization": "foo"}
+        response = self.fetch("/token", headers=headers)
+
+        self.assertEqual(response.code, 403)
+        self.assertEqual(
+            response.headers["Content-Type"], self.content_type)
+
     @mock.patch("utils.db.find")
     @mock.patch("utils.db.count")
     def test_get_with_master_key(self, mock_count, mock_find):

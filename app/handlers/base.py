@@ -26,7 +26,9 @@ import tornado.gen
 import tornado.web
 import types
 
-import handlers.common as hcommon
+import handlers.common.query
+import handlers.common.request
+import handlers.common.token
 import handlers.response as hresponse
 import models
 import utils
@@ -36,6 +38,7 @@ import utils.validator as validator
 
 
 STATUS_MESSAGES = {
+    403: "Operation not permitted: provided token is not authorized",
     404: "Resource not found",
     405: "Operation not allowed",
     415: "Wrong content type defined",
@@ -68,7 +71,7 @@ class BaseHandler(tornado.web.RequestHandler):
     @property
     def content_type(self):
         """The accepted content-type header."""
-        return hcommon.ACCEPTED_CONTENT_TYPE
+        return "application/json"
 
     # pylint: disable=invalid-name
     @property
@@ -97,7 +100,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
         :return A function.
         """
-        return hcommon.valid_token_general
+        return handlers.common.token.valid_token_general
 
     def _get_status_message(self, status_code):
         """Get custom error message based on the status code.
@@ -144,7 +147,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
         self.set_status(status_code=status_code, reason=reason)
         self._write_buffer.append(tornado.escape.utf8(result))
-        self.set_header("Content-Type", hcommon.DEFAULT_RESPONSE_TYPE)
+        self.set_header("Content-Type", "application/json; charset=UTF-8")
 
         if headers:
             for key, val in headers.iteritems():
@@ -163,28 +166,6 @@ class BaseHandler(tornado.web.RequestHandler):
         else:
             super(BaseHandler, self).write_error(status_code, kwargs)
 
-    def _has_valid_content_type(self):
-        """Check if the request content type is the one expected.
-
-        By default, content must be `application/json`.
-
-        :return True or False.
-        """
-        valid_content = False
-
-        if "Content-Type" in self.request.headers.keys():
-            if self.request.headers["Content-Type"].startswith(
-                    self.content_type):
-                valid_content = True
-            else:
-                self.log.error(
-                    "Received wrong content type ('%s') from IP '%s'",
-                    self.request.headers["Content-Type"],
-                    self.request.remote_ip
-                )
-
-        return valid_content
-
     @tornado.gen.coroutine
     def put(self, *args, **kwargs):
         future = yield self.executor.submit(self.execute_put, *args, **kwargs)
@@ -200,7 +181,6 @@ class BaseHandler(tornado.web.RequestHandler):
             response = self._put(*args, **kwargs)
         else:
             response = hresponse.HandlerResponse(403)
-            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 
@@ -231,7 +211,8 @@ class BaseHandler(tornado.web.RequestHandler):
         valid_token, token = self.validate_req_token("POST")
 
         if valid_token:
-            valid_request = self._valid_post_request()
+            valid_request = handlers.common.request.valid_post_request(
+                self.request.headers, self.request.remote_ip)
 
             if valid_request == 200:
                 try:
@@ -266,21 +247,8 @@ class BaseHandler(tornado.web.RequestHandler):
                 )
         else:
             response = hresponse.HandlerResponse(403)
-            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
-
-    def _valid_post_request(self):
-        """Check that a POST request is valid.
-
-        :return 200 in case is valid, 415 if not.
-        """
-        return_code = 200
-
-        if not self._has_valid_content_type():
-            return_code = 415
-
-        return return_code
 
     def _post(self, *args, **kwargs):
         """Placeholder method - used internally.
@@ -325,7 +293,6 @@ class BaseHandler(tornado.web.RequestHandler):
                 response.reason = "No ID value specified"
         else:
             response = hresponse.HandlerResponse(403)
-            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 
@@ -367,7 +334,6 @@ class BaseHandler(tornado.web.RequestHandler):
                 response = self._get(**kwargs)
         else:
             response = hresponse.HandlerResponse(403)
-            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 
@@ -389,7 +355,8 @@ class BaseHandler(tornado.web.RequestHandler):
             result = utils.db.find_one2(
                 self.collection,
                 {models.ID_KEY: obj_id},
-                fields=hcommon.get_query_fields(self.get_query_arguments)
+                fields=handlers.common.query.get_query_fields(
+                    self.get_query_arguments)
             )
 
             if result:
@@ -469,7 +436,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
         if self.request.arguments:
             spec, sort, fields, skip, limit, unique = \
-                hcommon.get_all_query_values(
+                handlers.common.query.get_all_query_values(
                     self.get_query_arguments, self._valid_keys(method))
 
         return spec, sort, fields, skip, limit, unique
@@ -483,53 +450,23 @@ class BaseHandler(tornado.web.RequestHandler):
         valid_token = False
         token = None
 
-        req_token = self.request.headers.get(hcommon.API_TOKEN_HEADER, None)
+        req_token = self.request.headers.get("Authorization", None)
         remote_ip = self.request.remote_ip
-        master_key = self.settings.get(hcommon.MASTER_KEY, None)
+        master_key = self.settings.get("master_key", None)
 
         if req_token:
-            valid_token, token = self._token_validation(
-                req_token, method, remote_ip, master_key)
-
-        if not valid_token:
-            self.log.info(
-                "Token not authorized for IP address %s - Token: %s",
-                self.request.remote_ip, req_token)
-
-        return valid_token, token
-
-    # TODO: cache token validation.
-    def _token_validation(self, req_token, method, remote_ip, master_key):
-        """Perform the real token validation.
-
-        :param req_token: The token as taken from the request.
-        :type req_token: string
-        :param method: The HTTP verb to validate.
-        :type method: string
-        :param remote_ip: The IP address originating the request.
-        :param master_key: The default master key.
-        :return A 2-tuple: True or False; the token object.
-        """
-        valid_token = False
-        token = None
-        token_obj = self._find_token(req_token, self.db)
-
-        if token_obj:
-            valid_token, token = hcommon.validate_token(
-                token_obj,
+            valid_token, token = handlers.common.token.token_validation(
                 method,
+                req_token,
                 remote_ip,
-                self._token_validation_func()
+                self._token_validation_func(), self.db, master_key=master_key
             )
 
+            if not valid_token:
+                self.log.warn(
+                    "Token not authorized for IP address %s",
+                    self.request.remote_ip)
+        else:
+            self.log.warn("No token provided by IP address %s", remote_ip)
+
         return valid_token, token
-
-    @staticmethod
-    def _find_token(token, db_conn):
-        """Find a token in the database.
-
-        :param token: The token to find.
-        :return A json object, or nothing.
-        """
-        return utils.db.find_one2(
-            db_conn[models.TOKEN_COLLECTION], {models.TOKEN_KEY: token})

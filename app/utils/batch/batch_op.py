@@ -13,7 +13,7 @@
 
 """Batch operation classes."""
 
-import handlers.common as hcommon
+import handlers.common.query
 import handlers.count as hcount
 import models
 import utils.db
@@ -109,15 +109,15 @@ class BatchOperation(object):
                 self.document_id
             ]
             self.kwargs = {
-                "fields": hcommon.get_query_fields(self.query_args_func)
+                "fields": handlers.common.query.get_query_fields(
+                    self.query_args_func)
             }
         else:
             # Get the spec and perform the query, can perform an aggregation
             # as well.
             spec, sort, fields, self.skip, self.limit, unique = \
-                hcommon.get_all_query_values(
-                    self.query_args_func, self.valid_keys.get(self.method)
-                )
+                handlers.common.query.get_all_query_values(
+                    self.query_args_func, self.valid_keys.get(self.method))
 
             if unique:
                 # Perform an aggregate

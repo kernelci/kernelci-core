@@ -19,7 +19,6 @@ import datetime
 import types
 
 import handlers.base as hbase
-import handlers.common as hcommon
 import handlers.response as hresponse
 import models
 import taskqueue.tasks.report as taskq
@@ -268,10 +267,8 @@ class SendHandler(hbase.BaseHandler):
 
         if valid_token:
             response = hresponse.HandlerResponse(501)
-            response.reason = hcommon.METHOD_NOT_IMPLEMENTED
         else:
             response = hresponse.HandlerResponse(403)
-            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 
@@ -285,10 +282,8 @@ class SendHandler(hbase.BaseHandler):
 
         if valid_token:
             response = hresponse.HandlerResponse(501)
-            response.reason = hcommon.METHOD_NOT_IMPLEMENTED
         else:
             response = hresponse.HandlerResponse(403)
-            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 
