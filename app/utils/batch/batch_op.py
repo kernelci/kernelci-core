@@ -34,14 +34,14 @@ class BatchOperation(object):
         self._database = None
         self.args = []
         self.db_options = None
-        self.collection = None
-        self.document_id = None
+        self.document = None
         self.kwargs = {}
         self.limit = None
         self.method = None
         self.operation_id = None
         self.query = None
         self.query_args = {}
+        self.resource = None
         self.skip = None
         self.valid_keys = None
 
@@ -101,12 +101,12 @@ class BatchOperation(object):
 
     def _prepare_get_operation(self):
         """Prepare the necessary parameters for a GET operation."""
-        if self.document_id:
+        if self.document:
             # Get only one document.
             self.operation = utils.db.find_one
             self.args = [
-                self.database[self.collection],
-                self.document_id
+                self.database[self.resource],
+                self.document
             ]
             self.kwargs = {
                 "fields": handlers.common.query.get_query_fields(
@@ -123,7 +123,7 @@ class BatchOperation(object):
                 # Perform an aggregate
                 self.operation = utils.db.aggregate
                 self.args = [
-                    self.database[self.collection],
+                    self.database[self.resource],
                     unique
                 ]
                 self.kwargs = {
@@ -135,7 +135,7 @@ class BatchOperation(object):
             else:
                 self.operation = utils.db.find_and_count
                 self.args = [
-                    self.database[self.collection],
+                    self.database[self.resource],
                     self.limit,
                     self.skip,
                 ]
@@ -228,13 +228,13 @@ class BatchCountOperation(BatchOperation):
         self.valid_keys = models.COUNT_VALID_KEYS
 
     def _prepare_get_operation(self):
-        if self.document_id:
+        if self.document:
             self.operation = hcount.count_one_collection
-            # We use document_id here with the database since we need to count
-            # on a different collection.
+            # We use document here with the database since we need to count
+            # on a different (internal) collection.
             self.args = [
-                self.database[self.document_id],
-                self.document_id,
+                self.database[self.document],
+                self.document,
                 self.query_args_func,
                 self.valid_keys.get(self.method)
             ]
@@ -245,3 +245,27 @@ class BatchCountOperation(BatchOperation):
                 self.query_args_func,
                 self.valid_keys.get(self.method)
             ]
+
+
+class BatchTestCaseOperation(BatchOperation):
+    """A batch operation for test cases."""
+
+    def __init__(self):
+        super(BatchTestCaseOperation, self).__init__()
+        self.valid_keys = models.TEST_CASE_VALID_KEYS
+
+
+class BatchTestSetOperation(BatchOperation):
+    """A batch operation for test sets."""
+
+    def __init__(self):
+        super(BatchTestSetOperation, self).__init__()
+        self.valid_keys = models.TEST_SET_VALID_KEYS
+
+
+class BatchTestSuiteOperation(BatchOperation):
+    """A batch operation for test suites."""
+
+    def __init__(self):
+        super(BatchTestSuiteOperation, self).__init__()
+        self.valid_keys = models.TEST_SUITE_VALID_KEYS

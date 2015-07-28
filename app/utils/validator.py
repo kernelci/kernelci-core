@@ -151,9 +151,7 @@ def is_valid_batch_json(json_obj, batch_key, accepted_keys):
             while is_valid:
                 for batch_op in batch_op_list:
                     if isinstance(batch_op, types.DictionaryType):
-                        batch_op_keys = batch_op.keys()
-
-                        for key in batch_op_keys:
+                        for key in batch_op.viewkeys():
                             if key not in accepted_keys:
                                 is_valid &= False
                                 break

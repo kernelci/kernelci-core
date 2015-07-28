@@ -103,8 +103,7 @@ class TestBatchHandler(TestHandlerBase):
         body = json.dumps(dict(foo="foo", bar="bar"))
 
         response = self.fetch(
-            "/batch", method="POST", body=body, headers=headers
-        )
+            "/batch", method="POST", body=body, headers=headers)
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
@@ -115,7 +114,13 @@ class TestBatchHandler(TestHandlerBase):
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         batch_dict = {
             "batch": [
-                {"method": "GET", "collection": "count", "operation_id": "foo"}
+                {
+                    "method": "GET",
+                    "resource": "count",
+                    "document": "boot",
+                    "operation_id": "bar",
+                    "query": "foo=bar"
+                }
             ]
         }
         body = json.dumps(batch_dict)
@@ -123,8 +128,7 @@ class TestBatchHandler(TestHandlerBase):
         mocked_run_batch.return_value = {}
 
         response = self.fetch(
-            "/batch", method="POST", body=body, headers=headers
-        )
+            "/batch", method="POST", body=body, headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
@@ -132,9 +136,11 @@ class TestBatchHandler(TestHandlerBase):
         mocked_run_batch.assert_called_once_with(
             [
                 {
-                    "operation_id": "foo",
+                    "resource": "count",
                     "method": "GET",
-                    "collection": "count"
+                    "document": "boot",
+                    "operation_id": "bar",
+                    "query": "foo=bar"
                 }
             ],
             {

@@ -206,7 +206,9 @@ BUILD_PASS_FILE = "build.PASS"
 BATCH_KEY = "batch"
 METHOD_KEY = "method"
 COLLECTION_KEY = "collection"
+RESOURCE_KEY = "resource"
 DOCUMENT_ID_KEY = "document_id"
+DOCUMENT_KEY = "document"
 QUERY_KEY = "query"
 OP_ID_KEY = "operation_id"
 
@@ -552,11 +554,11 @@ JOB_VALID_KEYS = {
 
 BATCH_VALID_KEYS = {
     "POST": [
-        COLLECTION_KEY,
-        DOCUMENT_ID_KEY,
+        DOCUMENT_KEY,
         METHOD_KEY,
         OP_ID_KEY,
-        QUERY_KEY
+        QUERY_KEY,
+        RESOURCE_KEY
     ]
 }
 
