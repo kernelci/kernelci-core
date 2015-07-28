@@ -76,17 +76,23 @@ def create_batch_operation(json_obj, db_options):
 
     if json_obj:
         get_func = json_obj.get
-        collection = get_func(models.COLLECTION_KEY, None)
+        resource = get_func(models.RESOURCE_KEY, None)
 
-        if all([collection, collection in models.COLLECTIONS]):
-            if collection == models.COUNT_COLLECTION:
+        if all([resource, resource in models.COLLECTIONS]):
+            if resource == models.COUNT_COLLECTION:
                 batch_op = batchop.BatchCountOperation()
-            elif collection == models.BOOT_COLLECTION:
+            elif resource == models.BOOT_COLLECTION:
                 batch_op = batchop.BatchBootOperation()
-            elif collection == models.JOB_COLLECTION:
+            elif resource == models.JOB_COLLECTION:
                 batch_op = batchop.BatchJobOperation()
-            elif collection == models.BUILD_COLLECTION:
+            elif resource == models.BUILD_COLLECTION:
                 batch_op = batchop.BatchBuildOperation()
+            elif resource == models.TEST_CASE_COLLECTION:
+                batch_op = batchop.BatchTestCaseOperation()
+            elif resource == models.TEST_SET_COLLECTION:
+                batch_op = batchop.BatchTestSetOperation()
+            elif resource == models.TEST_SUITE_COLLECTION:
+                batch_op = batchop.BatchTestSuiteOperation()
 
             batch_op.db_options = db_options
             batch_op.query_args = get_batch_query_args(
