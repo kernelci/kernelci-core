@@ -49,27 +49,41 @@ class LabHandler(handlers.base.BaseHandler):
 
     def _post(self, *args, **kwargs):
         response = hresponse.HandlerResponse(201)
-
-        json_obj = kwargs["json_obj"]
-
-        valid_contact, reason = validator.is_valid_lab_contact_data(json_obj)
-        if valid_contact:
-            lab_id = kwargs.get("id", None)
-            status_code, reason, result, headers = self._create_or_update(
-                json_obj, lab_id)
-
-            response.status_code = status_code
-            response.result = result
-            if reason:
-                response.reason = reason
-            if headers:
-                response.headers = headers
-        else:
+        if kwargs.get("id", None):
             response.status_code = 400
-            if reason:
-                response.reason = reason
+            response.reason = "To update a document, perform a PUT request"
+        else:
+            json_obj = kwargs["json_obj"]
+
+            valid_contact, reason = \
+                validator.is_valid_lab_contact_data(json_obj)
+
+            if valid_contact:
+                lab_id = kwargs.get("id", None)
+                status_code, reason, result, headers = self._create_or_update(
+                    json_obj, lab_id)
+
+                response.status_code = status_code
+                response.result = result
+                if reason:
+                    response.reason = reason
+                if headers:
+                    response.headers = headers
+            else:
+                response.status_code = 400
+                if reason:
+                    response.reason = reason
 
         return response
+
+    def _put(self, *args, **kwargs):
+        pass
+
+    def _create_lab(self, json_obj):
+        pass
+
+    def _update_lab(self, json_obj):
+        pass
 
     def _create_or_update(self, json_obj, lab_id):
         """Create or update a new lab object.
@@ -102,17 +116,14 @@ class LabHandler(handlers.base.BaseHandler):
                 reason = "Wrong ID value provided"
         else:
             old_lab = utils.db.find_one(
-                self.collection, [name], field=models.NAME_KEY
-            )
+                self.collection, [name], field=models.NAME_KEY)
 
         if all([lab_id, old_lab]):
             self.log.info(
                 "Updating lab with ID '%s' from IP address %s",
-                old_lab.get(models.ID_KEY), self.request.remote_ip
-            )
+                old_lab.get(models.ID_KEY), self.request.remote_ip)
             status_code, reason, result, headers = self._update_lab(
-                json_obj, old_lab
-            )
+                json_obj, old_lab)
         elif all([lab_id, not old_lab]):
             status_code = 404
             reason = "Lab with name '%s' not found" % lab_id
@@ -125,8 +136,7 @@ class LabHandler(handlers.base.BaseHandler):
             if not reason:
                 reason = (
                     "Lab with name '%s' already exists: did you mean to "
-                    "update it?" % name
-                )
+                    "update it?" % name)
 
         return status_code, reason, result, headers
 
@@ -252,25 +262,23 @@ class LabHandler(handlers.base.BaseHandler):
         lab_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
 
         if lab_doc.token:
-            token_json = utils.db.find_one(
+            token_json = utils.db.find_one2(
                 self.db[models.TOKEN_COLLECTION],
-                [lab_doc.token],
-                field=models.TOKEN_KEY
-            )
+                {models.TOKEN_KEY: lab_doc.token})
+
             if token_json:
                 token = mtoken.Token.from_json(token_json)
-                token_id = token.id
-                ret_val = 200
+                if token:
+                    token_id = token.id
+                    ret_val = 200
+                else:
+                    ret_val = 500
             else:
                 ret_val = 500
         else:
             token = mtoken.Token()
             token.email = lab_doc.contact[models.EMAIL_KEY]
-            token.username = (
-                lab_doc.contact[models.NAME_KEY] +
-                " " +
-                lab_doc.contact[models.SURNAME_KEY]
-            )
+            token.username = "%(name)s %(surname)s" % lab_doc.contact
             token.is_post_token = True
             token.is_delete_token = True
             token.is_lab_token = True
@@ -289,17 +297,15 @@ class LabHandler(handlers.base.BaseHandler):
                     (
                         "http",
                         self.request.headers.get("Host"),
-                        self.request.uri + "/" + lab_doc.name,
+                        self.request.uri + "/" + lab_id,
                         "", "", ""
                     )
                 )
                 headers = {"Location": location}
             else:
-                reason = "Error saving new lab '%s'" % lab_doc.name
+                reason = "Error saving new lab"
         else:
-            reason = (
-                "Error saving or finding the token for lab '%s'" % lab_doc.name
-            )
+            reason = "Error saving or finding the token for the lab"
 
         return (ret_val, reason, result, headers)
 

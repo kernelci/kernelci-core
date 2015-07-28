@@ -248,6 +248,13 @@ class TestCommonToken(unittest.TestCase):
         self.assertFalse(
             handlers.common.token.validate_token(None, "GET", None, None)[0])
 
+    def test_validate_token_invalid_token_json(self):
+        token = {
+            "foo": "bar"
+        }
+        self.assertFalse(
+            handlers.common.token.validate_token(token, "GET", None, None)[0])
+
     @mock.patch("models.token.Token.from_json")
     def test_validate_token_true(self, mock_from_json):
         token = mtoken.Token()
