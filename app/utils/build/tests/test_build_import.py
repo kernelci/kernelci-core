@@ -38,6 +38,11 @@ class TestBuildUtils(unittest.TestCase):
         logging.disable(logging.CRITICAL)
         self.db = mongomock.Database(mongomock.Connection(), "kernel-ci")
 
+        patcher = mock.patch("utils.database.redisdb.get_db_connection")
+        mock_open = patcher.start()
+        mock_open.return_value = mock.MagicMock()
+        self.addCleanup(patcher.stop)
+
     def tearDown(self):
         logging.disable(logging.NOTSET)
 
