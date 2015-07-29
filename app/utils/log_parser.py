@@ -27,9 +27,9 @@ import bson
 import datetime
 import io
 import itertools
-import multiprocessing.managers
 import os
 import re
+import redis
 
 import models
 import models.defconfig as mdefconfig
@@ -37,10 +37,9 @@ import models.error_log as merrl
 import models.error_summary as mesumm
 import utils
 import utils.build
+import utils.database.redisdb as redisdb
 import utils.errors
 
-# The key name used for multi-processes locking.
-LOCK_KEY = "buildlogparser"
 
 ERROR_PATTERN_1 = re.compile("[Ee]rror:")
 ERROR_PATTERN_2 = re.compile("^ERROR")
@@ -231,32 +230,28 @@ def _save_summary(
     if any([errors, warnings, mismatches]):
         prev_doc = None
         database = utils.db.get_db_connection(db_options)
+        redis_conn = redisdb.get_db_connection(db_options)
         prev_spec = {
             models.JOB_ID_KEY: job_id,
             models.JOB_KEY: job,
             models.KERNEL_KEY: kernel
         }
 
-        try:
-            # We might being importing documents and parsing build logs from
-            # multiple processes.
-            # In order to avoid having wrong data in the database, lock the
-            # process here looking for the previous summary.
-            p_manager = multiprocessing.managers.SyncManager(authkey=LOCK_KEY)
-            p_manager.start()
-            with p_manager.RLock():
-                prev_doc = utils.db.find_one2(
-                    database[models.ERRORS_SUMMARY_COLLECTION], prev_spec)
+        # We might being importing documents and parsing build logs from
+        # multiple processes.
+        # In order to avoid having wrong data in the database, lock the
+        # process here looking for the previous summary.
+        with redis.lock.Lock(redis_conn, job_id, timeout=5):
+            prev_doc = utils.db.find_one2(
+                database[models.ERRORS_SUMMARY_COLLECTION], prev_spec)
 
-                if prev_doc:
-                    ret_val = _update_prev_summary(
-                        prev_doc, errors, warnings, mismatches, database)
-                else:
-                    ret_val = _create_new_summary(
-                        errors,
-                        warnings, mismatches, job_id, job, kernel, database)
-        finally:
-            p_manager.shutdown()
+            if prev_doc:
+                ret_val = _update_prev_summary(
+                    prev_doc, errors, warnings, mismatches, database)
+            else:
+                ret_val = _create_new_summary(
+                    errors,
+                    warnings, mismatches, job_id, job, kernel, database)
 
     return ret_val
 
