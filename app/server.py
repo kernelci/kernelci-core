@@ -49,52 +49,72 @@ topt.define(
 
 # mongodb connection parameters.
 topt.define(
-    "dbhost", default="localhost", type=str, help="The DB host to connect to"
-)
+    "dbhost", default="localhost", type=str, help="The DB host to connect to")
 topt.define(
     "dbport", default=27017, type=int, help="The DB port to connect to")
 topt.define(
-    "dbuser", default="", type=str,
-    help="The user name to use for the DB connection"
-)
+    "dbuser",
+    default="", type=str, help="The user name to use for the DB connection")
 topt.define(
-    "dbpassword", default="", type=str,
-    help="The password to use for the DB connection"
-)
+    "dbpassword",
+    default="", type=str, help="The password to use for the DB connection")
 topt.define(
     "dbpool", default=100, type=int, help="The DB connections pool size")
+
+# redis connection parameters
 topt.define(
-    "unixsocket", default=False, type=bool,
-    help="If unix socket should be used"
+    "redishost",
+    default="localhost",
+    type=str, help="The Redis database host to connect to"
 )
+topt.define(
+    "redisport",
+    default=6379, type=int, help="The Redis database port to connect to")
+topt.define("redisdb", default=0, type=int, help="The Redis database to use")
+topt.define(
+    "redispassword", default="", type=str, help="The Redis database password")
+
+# If we want to use UNIX socket for this server.
+topt.define(
+    "unixsocket",
+    default=False, type=bool, help="If unix socket should be used")
+
+# Email options.
 topt.define(
     "smtp_host", default="", type=str, help="The SMTP host to connect to")
 topt.define("smtp_user", default="", type=str, help="SMTP connection user")
 topt.define(
     "smtp_password", default="", type=str, help="SMTP connection password")
 topt.define(
-    "smtp_port", default=587, type=int,
-    help="The SMTP connection port, default to 587")
+    "smtp_port",
+    default=587, type=int, help="The SMTP connection port, default to 587")
 topt.define(
     "smtp_sender", default="", type=str, help="The sender email address")
 topt.define(
     "smtp_sender_desc",
     default="",
-    type=str, help="The name/description of the sender email address")
-topt.define(
-    "send_delay", default=60*60+5, type=int,
-    help="The delay in sending the report emails, "
-         "default to 1 hour and 5 seconds"
+    type=str, help="The name/description of the sender email address"
 )
 topt.define(
-    "info_email", default=None, type=str,
-    help="The email address to use for footnote in the email reports")
+    "send_delay",
+    default=60*60+5,
+    type=int,
+    help="The delay in sending the emails, default to 1 hour and 5 seconds"
+)
 topt.define(
-    "storage_url", default=None, type=str,
-    help="The URL of the storage system")
+    "info_email",
+    default=None,
+    type=str,
+    help="The email address to use for footnote in the email reports"
+)
 topt.define(
-    "buffer_size", default=1024*1024*500, type=int,
-    help="The body buffer size for uploading files")
+    "storage_url",
+    default=None, type=str, help="The URL of the storage system")
+topt.define(
+    "buffer_size",
+    default=1024*1024*500,
+    type=int, help="The body buffer size for uploading files"
+)
 
 
 class KernelCiBackend(tornado.web.Application):
@@ -108,10 +128,14 @@ class KernelCiBackend(tornado.web.Application):
 
         db_options = {
             "dbhost": topt.options.dbhost,
+            "dbpassword": topt.options.dbpassword,
+            "dbpool": topt.options.dbpool,
             "dbport": topt.options.dbport,
             "dbuser": topt.options.dbuser,
-            "dbpassword": topt.options.dbpassword,
-            "dbpool": topt.options.dbpool
+            "redisdb": topt.options.redisdb,
+            "redishost": topt.options.redishost,
+            "redispassword": topt.options.redispassword,
+            "redisport": topt.options.redisport
         }
 
         mail_options = {
