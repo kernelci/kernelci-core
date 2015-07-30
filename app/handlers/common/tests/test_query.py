@@ -25,6 +25,7 @@ from bson import (
 )
 
 from handlers.common.query import (
+    _valid_value,
     add_created_on_date,
     calculate_date_range,
     get_aggregate_value,
@@ -53,6 +54,18 @@ class TestCommonQuery(unittest.TestCase):
     def tearDown(self):
         super(TestCommonQuery, self).tearDown()
         logging.disable(logging.NOTSET)
+
+    def test_valid_values(self):
+        self.assertFalse(_valid_value(""))
+        self.assertFalse(_valid_value(u""))
+        self.assertFalse(_valid_value([]))
+        self.assertFalse(_valid_value(()))
+        self.assertFalse(_valid_value(None))
+
+        self.assertTrue(_valid_value(0))
+        self.assertTrue(_valid_value(False))
+        self.assertTrue(_valid_value(["foo", "bar"]))
+        self.assertTrue(_valid_value(("foo", "bar")))
 
     def test_update_id_fields(self):
         spec = {

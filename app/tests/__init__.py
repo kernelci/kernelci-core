@@ -20,6 +20,7 @@ import unittest
 
 def test_modules():
     return [
+        "handlers.common.tests.test_lab",
         "handlers.common.tests.test_query",
         "handlers.common.tests.test_token",
         "handlers.tests.test_batch_handler",

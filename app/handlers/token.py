@@ -152,13 +152,8 @@ class TokenHandler(hbase.BaseHandler):
                 response.reason = "Missing token ID"
         else:
             response = hresponse.HandlerResponse(valid_request)
-            response.reason = (
-                "%s: %s" %
-                (
-                    self._get_status_message(valid_request),
-                    "Use %s as the content type" % self.content_type
-                )
-            )
+            response.reason = \
+                "Wrong content type, must be '%s'" % self.content_type
 
         return response
 

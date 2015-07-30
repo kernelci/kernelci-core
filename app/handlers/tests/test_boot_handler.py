@@ -125,7 +125,10 @@ class TestBootHandler(TestHandlerBase):
         self.req_token.token = "foo"
         find_one.side_effect = [
             {"name": "lab-name", "token": "id-token"},
-            {"_id": "id-token", "token": "foo", "expired": False}
+            {
+                "_id": "id-token",
+                "token": "foo", "expired": False, "email": "email@example.net"
+            }
         ]
         body = {
             "version": "1.0",
@@ -146,7 +149,12 @@ class TestBootHandler(TestHandlerBase):
     @mock.patch("utils.db.find_one2")
     def test_post_valid_content_different_token(self, find_one):
         find_one.side_effect = [
-            {"token": "bar"}, {"token": "bar", "expired": False}
+            {"token": "bar"},
+            {
+                "token": "bar",
+                "expired": False,
+                "email": "email@example.net", "_id": "token-id"
+            }
         ]
         body = {
             "version": "1.0",

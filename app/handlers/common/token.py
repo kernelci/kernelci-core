@@ -218,6 +218,7 @@ def find_token(database, spec):
     :type spec: dict
     :return A json object, or None.
     """
+    # Done in this way to have life easier with testing.
     return utils.db.find_one2(database[models.TOKEN_COLLECTION], spec)
 
 
