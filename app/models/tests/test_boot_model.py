@@ -21,14 +21,12 @@ class TestBootModel(unittest.TestCase):
 
     def test_boot_document_valid_instance(self):
         boot_doc = mboot.BootDocument(
-            "board", "job", "kernel", "defconfig", "lab"
-        )
+            "board", "job", "kernel", "defconfig", "lab")
         self.assertIsInstance(boot_doc, mbase.BaseDocument)
 
     def test_boot_document_to_dict(self):
         boot_doc = mboot.BootDocument(
-            "board", "job", "kernel", "defconfig", "lab", arch="arm"
-        )
+            "board", "job", "kernel", "defconfig", "lab", arch="arm")
         boot_doc.id = "id"
         boot_doc.job_id = "job-id"
         boot_doc.created_on = "now"
@@ -55,6 +53,7 @@ class TestBootModel(unittest.TestCase):
         boot_doc.qemu_command = "qemu_command"
         boot_doc.metadata = {"foo": "bar"}
         boot_doc.mach = "soc"
+        boot_doc.lab_name = "lab-name"
 
         expected = {
             "_id": "id",
@@ -86,7 +85,7 @@ class TestBootModel(unittest.TestCase):
             "job_id": "job-id",
             "kernel": "kernel",
             "kernel_image": None,
-            "lab_name": "lab",
+            "lab_name": "lab-name",
             "load_addr": None,
             "mach": "soc",
             "metadata": {"foo": "bar"},

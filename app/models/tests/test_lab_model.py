@@ -104,6 +104,7 @@ class TestLabModel(unittest.TestCase):
 
     def test_lab_to_dict(self):
         lab_doc = modl.LabDocument("foo")
+        lab_doc.name = "bar"
         lab_doc.created_on = "now"
         lab_doc.updated_on = "now"
         lab_doc.id = "bar"
@@ -127,7 +128,7 @@ class TestLabModel(unittest.TestCase):
         }
 
         expected = {
-            "name": "foo",
+            "name": "bar",
             "created_on": "now",
             "updated_on": "now",
             "_id": "bar",

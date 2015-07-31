@@ -12,6 +12,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
+import mock
 
 import models.base as mbase
 import models.report as mreport
@@ -27,11 +28,38 @@ class TestReportModel(unittest.TestCase):
         report_doc = mreport.ReportDocument("name")
         self.assertEqual("report", report_doc.collection)
 
-    def test_report_document_to_dict(self):
-        self.maxDiff = None
+    def test_report_setter(self):
+        report_doc = mreport.ReportDocument("name")
+        report_doc.created_on = "now"
+        report_doc.version = "foo"
+        self.assertEqual("name", report_doc.name)
+        self.assertEqual("now", report_doc.created_on)
+        self.assertEqual("foo", report_doc.version)
+
+    def test_report_to_dict_simple(self):
+        report_doc = mreport.ReportDocument("report")
+        report_doc.created_on = "now"
+
+        expected = {
+            "created_on": "now",
+            "errors": [],
+            "job": None,
+            "kernel": None,
+            "name": "report",
+            "status": None,
+            "type": None,
+            "updated_on": None,
+            "version": "1.0"
+        }
+        self.assertDictEqual(expected, report_doc.to_dict())
+
+    @mock.patch("datetime.datetime")
+    def test_report_document_to_dict(self, mock_date):
+        mock_date.now = mock.MagicMock()
+        mock_date.now.return_value = "now"
+
         report_doc = mreport.ReportDocument("name")
         report_doc.id = "id"
-        report_doc.created_on = "now"
         report_doc.job = "job"
         report_doc.kernel = "kernel"
         report_doc.report_type = "boot"

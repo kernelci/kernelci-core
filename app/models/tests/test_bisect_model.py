@@ -36,6 +36,14 @@ class TestBisectModel(unittest.TestCase):
         bisect_doc = modbs.BootBisectDocument("foo")
         self.assertEqual(bisect_doc.collection, "bisect")
 
+    def test_bisect_base_from_json(self):
+        bisect_doc = modbs.BisectDocument("foo")
+
+        self.assertIsNone(bisect_doc.from_json({}))
+        self.assertIsNone(bisect_doc.from_json([]))
+        self.assertIsNone(bisect_doc.from_json(()))
+        self.assertIsNone(bisect_doc.from_json(""))
+
     def test_bisect_base_to_dict(self):
         bisect_doc = modbs.BisectDocument("foo")
 

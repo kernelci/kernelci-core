@@ -29,8 +29,7 @@ class TestBuildModel(unittest.TestCase):
         self.assertEqual(build_doc.collection, "build")
 
     def test_build_document_to_dict(self):
-        build_doc = mbuild.BuildDocument(
-            "job", "kernel", "defconfig", "defconfig_full")
+        build_doc = mbuild.BuildDocument("job", "kernel", "defconfig")
         build_doc.id = "defconfig_id"
         build_doc.job_id = "job_id"
         build_doc.created_on = "now"
@@ -60,6 +59,7 @@ class TestBuildModel(unittest.TestCase):
         build_doc.file_server_resource = "file-resource"
         build_doc.file_server_url = "server-url"
         build_doc.build_type = "foo"
+        build_doc.defconfig_full = "defconfig_full"
 
         expected = {
             "_id": "defconfig_id",
@@ -145,6 +145,28 @@ class TestBuildModel(unittest.TestCase):
         self.assertIsNone(mbuild.BuildDocument.from_json(""))
         self.assertIsNone(mbuild.BuildDocument.from_json([]))
         self.assertIsNone(mbuild.BuildDocument.from_json(()))
+
+    def test_build_from_json_wrong(self):
+        json_obj = {
+            "_id": "build-id"
+        }
+
+        self.assertIsNone(mbuild.BuildDocument.from_json(json_obj))
+
+        json_obj = {
+            "_id": "build-id",
+            "job": "job"
+        }
+
+        self.assertIsNone(mbuild.BuildDocument.from_json(json_obj))
+
+        json_obj = {
+            "_id": "build-id",
+            "job": "job",
+            "kernel": "kernel"
+        }
+
+        self.assertIsNone(mbuild.BuildDocument.from_json(json_obj))
 
     def test_defconfog_from_json(self):
         json_obj = {
