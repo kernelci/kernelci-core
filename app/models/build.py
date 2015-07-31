@@ -92,11 +92,6 @@ class BuildDocument(mbase.BaseDocument):
         self._created_on = value
 
     @property
-    def name(self):
-        """The name of the object."""
-        return self._name
-
-    @property
     def id(self):
         """The ID of this object as returned by mongodb."""
         return self._id
