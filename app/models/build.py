@@ -52,6 +52,7 @@ class BuildDocument(mbase.BaseDocument):
         self.arch = None
         self.build_log = None
         self.build_time = 0
+        self.build_type = None
         self.dirname = None
         self.dtb_dir = None
         self.dtb_dir_data = []
@@ -204,6 +205,7 @@ class BuildDocument(mbase.BaseDocument):
             models.BUILD_LOG_KEY: self.build_log,
             models.BUILD_PLATFORM_KEY: self.build_platform,
             models.BUILD_TIME_KEY: self.build_time,
+            models.BUILD_TYPE_KEY: self.build_type,
             models.CREATED_KEY: self.created_on,
             models.DEFCONFIG_FULL_KEY: self.defconfig_full,
             models.DEFCONFIG_KEY: self.defconfig,
@@ -230,7 +232,7 @@ class BuildDocument(mbase.BaseDocument):
             models.SYSTEM_MAP_KEY: self.system_map,
             models.TEXT_OFFSET_KEY: self.text_offset,
             models.VERSION_KEY: self.version,
-            models.WARNINGS_KEY: self.warnings,
+            models.WARNINGS_KEY: self.warnings
         }
 
         if self.id:

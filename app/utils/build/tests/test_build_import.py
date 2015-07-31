@@ -194,6 +194,7 @@ class TestBuildUtils(unittest.TestCase):
         self.assertIsInstance(build_doc, mbuild.BuildDocument)
         self.assertEqual("job", build_doc.job)
         self.assertEqual("kernel", build_doc.kernel)
+        self.assertEqual("kernel", build_doc.build_type)
 
     def test_parse_build_data_no_dict(self):
         build_data = []
@@ -331,6 +332,7 @@ class TestBuildUtils(unittest.TestCase):
         self.assertEqual(build_doc.dtb_dir, "dtbs")
         self.assertEqual(build_doc.kernel_config, "kernel.config")
         self.assertEqual(build_doc.kernel_image, "zImage")
+        self.assertEqual(build_doc.build_type, "kernel")
 
     def test_parse_dtb_dir_single_file(self):
         temp_dir = tempfile.mkdtemp()

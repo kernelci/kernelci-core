@@ -49,6 +49,7 @@ GET
  :query string git_branch: The name of the git branch.
  :query string git_commit: The git commit SHA.
  :query string git_describe: The git describe value.
+ :query string build_type: The type of the build.
 
  :status 200: Results found.
  :status 403: Not authorized to perform the operation.

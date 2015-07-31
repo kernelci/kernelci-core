@@ -43,6 +43,7 @@ BUILD_LOG_KEY = "build_log"
 BUILD_PLATFORM_KEY = "build_platform"
 BUILD_RESULT_KEY = "build_result"
 BUILD_TIME_KEY = "build_time"
+BUILD_TYPE_KEY = "build_type"
 BUILD_WARNINGS_KEY = "build_warnings"
 COMPARED_KEY = "compared"
 COMPARE_TO_KEY = "compare_to"
@@ -227,6 +228,9 @@ TEST_CASE_COLLECTION = "test_case"
 TEST_SET_COLLECTION = "test_set"
 ERROR_LOGS_COLLECTION = "error_logs"
 ERRORS_SUMMARY_COLLECTION = "errors_summary"
+
+# Build types.
+KERNEL_BUILD_TYPE = "kernel"
 
 # Report types.
 BUILD_REPORT = "build"
@@ -442,6 +446,7 @@ BUILD_VALID_KEYS = {
     "GET": [
         ARCHITECTURE_KEY,
         BUILD_LOG_KEY,
+        BUILD_TYPE_KEY,
         CREATED_KEY,
         DEFCONFIG_FULL_KEY,
         DEFCONFIG_KEY,

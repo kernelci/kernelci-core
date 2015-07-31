@@ -59,6 +59,7 @@ class TestBuildModel(unittest.TestCase):
         build_doc.kconfig_fragments = "config-frag"
         build_doc.file_server_resource = "file-resource"
         build_doc.file_server_url = "server-url"
+        build_doc.build_type = "foo"
 
         expected = {
             "_id": "defconfig_id",
@@ -94,6 +95,7 @@ class TestBuildModel(unittest.TestCase):
             "defconfig_full": "defconfig_full",
             "file_server_resource": "file-resource",
             "file_server_url": "server-url",
+            "build_type": "foo"
         }
 
         self.assertDictEqual(expected, build_doc.to_dict())
@@ -182,6 +184,7 @@ class TestBuildModel(unittest.TestCase):
             "defconfig_full": "defconfig_full",
             "file_server_resource": "file-resource",
             "file_server_url": "server-url",
+            "build_type": "kernel"
         }
         build_doc = mbuild.BuildDocument.from_json(json_obj)
 
@@ -192,5 +195,6 @@ class TestBuildModel(unittest.TestCase):
         self.assertEqual(build_doc.errors, 1)
         self.assertEqual(build_doc.warnings, 1)
         self.assertEqual(build_doc.build_time, 1)
+        self.assertEqual(build_doc.build_type, "kernel")
         self.assertListEqual(build_doc.build_platform, [])
         self.assertDictEqual(build_doc.metadata, {"foo": "bar"})

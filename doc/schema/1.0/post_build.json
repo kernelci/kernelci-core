@@ -125,6 +125,12 @@
         "file_server_resource": {
             "type": "string",
             "description": "The server path where the boot related files are stored"
+        },
+        "build_type": {
+            "type": "string",
+            "description": "The type of the build",
+            "enum": ["kernel"],
+            "default": "kernel"
         }
     },
     "required": ["job", "kernel", "defconfig", "arch"]

@@ -156,6 +156,8 @@ def parse_build_data(build_data, job, kernel, errors, build_dir=None):
             build_doc.build_platform = data_pop(
                 models.BUILD_PLATFORM_KEY, [])
             build_doc.build_time = data_pop(models.BUILD_TIME_KEY, 0)
+            build_doc.build_type = data_pop(
+                models.BUILD_TYPE_KEY, models.KERNEL_BUILD_TYPE)
             build_doc.dtb_dir = data_pop(models.DTB_DIR_KEY, None)
             build_doc.errors = data_pop(models.BUILD_ERRORS_KEY, 0)
             build_doc.file_server_resource = data_pop(
