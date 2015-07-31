@@ -291,13 +291,15 @@ def save_defconfig_errors(
     database = utils.db.get_db_connection(db_options)
     if not build_doc.id:
         spec = {
-            models.JOB_ID_KEY: job_id,
             models.JOB_KEY: build_doc.job,
             models.KERNEL_KEY: build_doc.kernel,
             models.ARCHITECTURE_KEY: build_doc.arch,
             models.DEFCONFIG_KEY: build_doc.defconfig,
             models.DEFCONFIG_FULL_KEY: build_doc.defconfig_full
         }
+
+        if job_id:
+            spec[models.JOB_ID_KEY] = job_id
 
         doc = utils.db.find_one2(
             database[models.BUILD_COLLECTION],

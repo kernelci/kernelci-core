@@ -353,7 +353,7 @@ def _update_job_doc(job_doc, job_id, status, docs, database):
     to_update = False
     ret_val = 201
 
-    if job_doc.id != job_id:
+    if all([job_id, job_doc.id != job_id]):
         job_doc.id = job_id
         to_update = True
 
@@ -519,8 +519,8 @@ def import_multiple_builds(json_obj, db_options, base_path=utils.BASE_PATH):
     return job_id, errors
 
 
-def _search_or_create_job(job, kernel, db_options):
-    """Search and/or create a job in the database.
+def _get_or_create_job(job, kernel, db_options):
+    """Get or create a job in the database.
 
     :param job: The name of the job.
     :type job: str
@@ -594,13 +594,13 @@ def import_single_build(json_obj, db_options, base_path=utils.BASE_PATH):
                 database = None
                 ret_val = 201
 
-                ret_val, job_doc, job_id = _search_or_create_job(
+                ret_val, job_doc, job_id = _get_or_create_job(
                     job, kernel, db_options)
                 database = utils.db.get_db_connection(db_options)
 
                 if all([ret_val != 201, job_id is None]):
                     err_msg = (
-                        "Error saving/finding job document for '%s-%s': "
+                        "Error saving/finding job document '%s-%s': "
                         "build document '%s-%s-%s-%s' might not be linked to "
                         "its job"
                     )
