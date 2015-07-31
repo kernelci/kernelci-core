@@ -31,6 +31,10 @@ POST
 .. literalinclude:: schema/1.0/post_lab.json
     :language: json
 
+Notes:
+
+* The mandatory fields for ``POST`` requests are not required for ``PUT`` requests.
+
 More Info
 *********
 

@@ -40,7 +40,6 @@ import utils.build
 import utils.database.redisdb as redisdb
 import utils.errors
 
-
 ERROR_PATTERN_1 = re.compile("[Ee]rror:")
 ERROR_PATTERN_2 = re.compile("^ERROR")
 WARNING_PATTERN = re.compile("warning:?", re.IGNORECASE)

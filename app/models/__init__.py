@@ -577,6 +577,14 @@ LAB_VALID_KEYS = {
             VERSION_KEY
         ]
     },
+    "PUT": [
+        ADDRESS_KEY,
+        CONTACT_KEY,
+        NAME_KEY,
+        PRIVATE_KEY,
+        TOKEN_KEY,
+        VERSION_KEY
+    ],
     "GET": [
         ADDRESS_KEY,
         CONTACT_KEY,

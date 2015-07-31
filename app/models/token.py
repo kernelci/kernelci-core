@@ -15,6 +15,7 @@
 
 """The API token model to store token in the DB."""
 
+import copy
 import bson
 import datetime
 import netaddr
@@ -60,10 +61,10 @@ class Token(mbase.BaseDocument):
     - 9: if the token is a test lab token
     """
 
-    def __init__(self):
+    def __init__(self, version="1.0"):
         self._created_on = None
         self._id = None
-        self._version = None
+        self._version = version
 
         self._expires_on = None
         self._ip_address = None
@@ -378,24 +379,22 @@ class Token(mbase.BaseDocument):
         """Build a Token object from a JSON string.
 
         :param json_obj: The JSON object to start from.
-        :return An instance of `Token`.
+        :return An instance of `Token` or None.
         """
         token_doc = None
-        if json_obj:
-            token_doc = Token()
-            json_get = json_obj.get
-            token_doc.id = json_get(models.ID_KEY)
-            token_doc.name = json_get(models.NAME_KEY)
-            token_doc.email = json_get(models.EMAIL_KEY)
-            token_doc.username = json_get(models.USERNAME_KEY, None)
-            token_doc.token = json_get(models.TOKEN_KEY, None)
-            token_doc.created_on = json_get(models.CREATED_KEY, None)
-            token_doc.expired = json_get(models.EXPIRED_KEY, False)
-            token_doc.expires_on = json_get(models.EXPIRES_KEY, None)
-            token_doc.properties = json_get(
-                models.PROPERTIES_KEY, [0 for _ in range(0, PROPERTIES_SIZE)])
-            token_doc.ip_address = json_get(models.IP_ADDRESS_KEY, None)
-            token_doc.version = json_get(models.VERSION_KEY, "1.0")
+        if all([json_obj, isinstance(json_obj, types.DictionaryType)]):
+            token_json = copy.deepcopy(json_obj)
+            json_pop = token_json.pop
+
+            try:
+                token_doc = Token()
+                token_doc.id = json_pop(models.ID_KEY)
+                token_doc.email = json_pop(models.EMAIL_KEY)
+
+                for key, val in token_json.iteritems():
+                    setattr(token_doc, key, val)
+            except KeyError:
+                token_doc = None
         return token_doc
 
 

@@ -11,9 +11,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import bson
 import types
 
 import models
+
+# The valid types a document ID can be.
+VALID_ID_TYPES = (
+    types.StringTypes,
+    types.UnicodeType,
+    bson.objectid.ObjectId
+)
 
 
 def is_valid_json(json_obj, accepted_keys):
@@ -199,3 +207,21 @@ def is_valid_lab_contact_data(json_obj):
         )
 
     return is_valid, reason
+
+
+def is_valid_id(doc_id):
+    """Verifies that a document id is real one.
+
+    :param doc_id: The document id to verify.
+    :type doc_id: str
+    :return True or False.
+    """
+    is_valid = False
+    if all([doc_id, isinstance(doc_id, VALID_ID_TYPES)]):
+        try:
+            bson.objectid.ObjectId(doc_id)
+            is_valid = True
+        except bson.errors.InvalidId:
+            pass
+
+    return is_valid

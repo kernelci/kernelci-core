@@ -12,6 +12,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import json
+import random
+import string
 import unittest
 
 import utils.validator
@@ -350,3 +352,16 @@ class TestBatchValidator(unittest.TestCase):
         validated = utils.validator.is_valid_lab_contact_data(json_obj)
         self.assertTrue(validated[0])
         self.assertIsNone(validated[1])
+
+    def test_is_valid_bson_id(self):
+        self.assertFalse(utils.validator.is_valid_id("foo"))
+        self.assertFalse(utils.validator.is_valid_id(""))
+        self.assertFalse(utils.validator.is_valid_id(1234))
+        self.assertFalse(utils.validator.is_valid_id(u"1234foobar"))
+        self.assertFalse(utils.validator.is_valid_id([]))
+        self.assertFalse(utils.validator.is_valid_id(()))
+        self.assertFalse(utils.validator.is_valid_id({}))
+
+        fake_id = "".join(
+            [random.choice(string.digits) for x in xrange(24)])
+        self.assertTrue(utils.validator.is_valid_id(fake_id))

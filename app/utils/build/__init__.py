@@ -40,7 +40,6 @@ import utils.database.redisdb as redisdb
 import utils.db
 import utils.errors
 
-
 ERR_ADD = utils.errors.add_error
 ERR_UPDATE = utils.errors.update_errors
 
@@ -597,6 +596,7 @@ def import_single_build(json_obj, db_options, base_path=utils.BASE_PATH):
 
                 ret_val, job_doc, job_id = _search_or_create_job(
                     job, kernel, db_options)
+                database = utils.db.get_db_connection(db_options)
 
                 if all([ret_val != 201, job_id is None]):
                     err_msg = (
