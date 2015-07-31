@@ -61,6 +61,7 @@ def test_modules():
         "utils.report.tests.test_build_report",
         "utils.report.tests.test_report_common",
         "utils.tests.test_base",
+        "utils.tests.test_emails",
         "utils.tests.test_log_parser",
         "utils.tests.test_tests_import",
         "utils.tests.test_upload",

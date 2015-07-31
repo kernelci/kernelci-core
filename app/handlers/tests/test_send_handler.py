@@ -142,7 +142,10 @@ class TestSendHandler(TestHandlerBase):
                 ["test@example.org"], self.dboptions, self.mailoptions
             ],
             countdown=60*60,
-            kwargs={"cc": [], "bcc": [], "in_reply_to": None, "subject": None}
+            kwargs={
+                "cc_addrs": [],
+                "bcc_addrs": [], "in_reply_to": None, "subject": None
+            }
         )
 
     def test_post_wrong_delay(self):
@@ -189,7 +192,10 @@ class TestSendHandler(TestHandlerBase):
                 ["test@example.org"], self.dboptions, self.mailoptions
             ],
             countdown=100,
-            kwargs={"cc": [], "bcc": [], "in_reply_to": None, "subject": None}
+            kwargs={
+                "cc_addrs": [],
+                "bcc_addrs": [], "in_reply_to": None, "subject": None
+            }
         )
 
     @mock.patch("taskqueue.tasks.report.send_boot_report")
@@ -219,7 +225,10 @@ class TestSendHandler(TestHandlerBase):
                 ["test@example.org"], self.dboptions, self.mailoptions
             ],
             countdown=18000,
-            kwargs={"cc": [], "bcc": [], "in_reply_to": None, "subject": None}
+            kwargs={
+                "cc_addrs": [],
+                "bcc_addrs": [], "in_reply_to": None, "subject": None
+            }
         )
 
     @mock.patch("taskqueue.tasks.report.send_build_report")
@@ -248,7 +257,10 @@ class TestSendHandler(TestHandlerBase):
                 ["test@example.org"], self.dboptions, self.mailoptions
             ],
             countdown=60*60,
-            kwargs={"cc": [], "bcc": [], "in_reply_to": None, "subject": None}
+            kwargs={
+                "cc_addrs": [],
+                "bcc_addrs": [], "in_reply_to": None, "subject": None
+            }
         )
 
     def test_post_build_report_no_email(self):
@@ -303,8 +315,9 @@ class TestSendHandler(TestHandlerBase):
             ],
             countdown=60*60,
             kwargs={
-                "cc": [],
-                "bcc": [], "in_reply_to": None, "subject": "A fake subject"
+                "cc_addrs": [],
+                "bcc_addrs": [],
+                "in_reply_to": None, "subject": "A fake subject"
             }
         )
         mock_build.apply_async.assert_called_with(
@@ -316,8 +329,9 @@ class TestSendHandler(TestHandlerBase):
             ],
             countdown=60*60,
             kwargs={
-                "cc": [],
-                "bcc": [], "in_reply_to": None, "subject": "A fake subject"
+                "cc_addrs": [],
+                "bcc_addrs": [],
+                "in_reply_to": None, "subject": "A fake subject"
             }
         )
 

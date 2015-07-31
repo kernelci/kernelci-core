@@ -36,7 +36,8 @@ def send_boot_report(
         email_format,
         to_addrs,
         db_options,
-        mail_options, cc=None, bcc=None, in_reply_to=None, subject=None):
+        mail_options,
+        cc_addrs=None, bcc_addrs=None, in_reply_to=None, subject=None):
     """Create the boot report email and send it.
 
     :param job: The job name.
@@ -84,7 +85,8 @@ def send_boot_report(
             txt_body,
             html_body,
             mail_options,
-            headers=headers, cc=cc, bcc=bcc, in_reply_to=in_reply_to
+            headers=headers,
+            cc_addrs=cc_addrs, bcc_addrs=bcc_addrs, in_reply_to=in_reply_to
         )
         utils.report.common.save_report(
             job, kernel, models.BOOT_REPORT, status, errors, db_options)
@@ -107,7 +109,8 @@ def send_build_report(
         email_format,
         to_addrs,
         db_options,
-        mail_options, cc=None, bcc=None, in_reply_to=None, subject=None):
+        mail_options,
+        cc_addrs=None, bcc_addrs=None, in_reply_to=None, subject=None):
     """Create the build report email and send it.
 
     :param job: The job name.
@@ -154,7 +157,8 @@ def send_build_report(
             txt_body,
             html_body,
             mail_options,
-            headers=headers, cc=cc, bcc=bcc, in_reply_to=in_reply_to
+            headers=headers,
+            cc_addrs=cc_addrs, bcc_addrs=bcc_addrs, in_reply_to=in_reply_to
         )
         utils.report.common.save_report(
             job, kernel, models.BUILD_REPORT, status, errors, db_options)

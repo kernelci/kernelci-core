@@ -185,8 +185,8 @@ class SendHandler(hbase.BaseHandler):
                     s_get("mail_options")
                 ],
                 kwargs={
-                    "cc": cc_addrs,
-                    "bcc": bcc_addrs,
+                    "cc_addrs": cc_addrs,
+                    "bcc_addrs": bcc_addrs,
                     "in_reply_to": s_get("in_reply_to"),
                     "subject": s_get("subject")
                 },
@@ -240,8 +240,8 @@ class SendHandler(hbase.BaseHandler):
                     s_get("mail_options")
                 ],
                 kwargs={
-                    "cc": cc_addrs,
-                    "bcc": bcc_addrs,
+                    "cc_addrs": cc_addrs,
+                    "bcc_addrs": bcc_addrs,
                     "in_reply_to": s_get("in_reply_to"),
                     "subject": s_get("subject")
                 },
