@@ -28,25 +28,25 @@ class TestSuiteDocument(mbase.BaseDocument):
     A test suite is a document that can store test cases and/or test sets ran.
     """
 
-    def __init__(self, name, lab_name, defconfig_id, version="1.0"):
+    def __init__(self, name, lab_name, build_id, version="1.0"):
         """The test suite document.
 
         :param name: The name given to this test suite.
         :type name: string
         :param lab_name: The name of the lab running this test suite.
-        :type lab_name: string
-        :param defconfig_id: The ID of the defconfig associated with this
+        :type lab_name: str
+        :param build_id: The ID of the defconfig associated with this
         test suite.
-        :type defconfig_id: string
+        :type build_id: str
         :param version: The version of the JSON schema of this test suite.
-        :type version: string
+        :type version: str
         """
         self._created_on = None
         self._id = None
         self._name = name
         self._version = version
 
-        self._defconfig_id = defconfig_id
+        self._build_id = build_id
         self._lab_name = lab_name
 
         self.arch = None
@@ -114,14 +114,14 @@ class TestSuiteDocument(mbase.BaseDocument):
         self._created_on = value
 
     @property
-    def defconfig_id(self):
+    def build_id(self):
         """The defconfig ID associated with this test suite."""
-        return self._defconfig_id
+        return self._build_id
 
-    @defconfig_id.setter
-    def defconfig_id(self, value):
+    @build_id.setter
+    def build_id(self, value):
         """Set the defconfig ID associated with this test suite."""
-        self._defconfig_id = value
+        self._build_id = value
 
     @property
     def lab_name(self):
@@ -139,9 +139,9 @@ class TestSuiteDocument(mbase.BaseDocument):
             models.BOARD_INSTANCE_KEY: self.board_instance,
             models.BOARD_KEY: self.board,
             models.BOOT_ID_KEY: self.boot_id,
+            models.BUILD_ID_KEY: self.build_id,
             models.CREATED_KEY: self.created_on,
             models.DEFCONFIG_FULL_KEY: self.defconfig_full or self.defconfig,
-            models.DEFCONFIG_ID_KEY: self.defconfig_id,
             models.DEFCONFIG_KEY: self.defconfig,
             models.DEFINITION_URI_KEY: self.definition_uri,
             models.JOB_ID_KEY: self.job_id,
@@ -174,9 +174,9 @@ class TestSuiteDocument(mbase.BaseDocument):
             try:
                 name = doc_pop(models.NAME_KEY)
                 lab_name = doc_pop(models.LAB_NAME_KEY)
-                defconfig_id = doc_pop(models.DEFCONFIG_ID_KEY)
+                build_id = doc_pop(models.BUILD_ID_KEY)
 
-                test_suite = TestSuiteDocument(name, lab_name, defconfig_id)
+                test_suite = TestSuiteDocument(name, lab_name, build_id)
                 test_suite.id = suite_id
 
                 for key, val in local_obj.iteritems():

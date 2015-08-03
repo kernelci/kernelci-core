@@ -39,6 +39,7 @@ BOOT_RETRIES_KEY = "boot_retries"
 BOOT_TIME_KEY = "boot_time"
 BOOT_WARNINGS_KEY = "boot_warnings"
 BUILD_ERRORS_KEY = "build_errors"
+BUILD_ID_KEY = "build_id"
 BUILD_LOG_KEY = "build_log"
 BUILD_PLATFORM_KEY = "build_platform"
 BUILD_RESULT_KEY = "build_result"
@@ -240,10 +241,10 @@ BOOT_REPORT = "boot"
 BISECT_BOOT_STATUS_KEY = "boot_status"
 BISECT_BOOT_CREATED_KEY = "boot_created_on"
 BISECT_BOOT_METADATA_KEY = "boot_metadata"
-BISECT_DEFCONFIG_STATUS_KEY = "defconfig_status"
-BISECT_DEFCONFIG_CREATED_KEY = "defconfig_created_on"
-BISECT_DEFCONFIG_METADATA_KEY = "defconfig_metadata"
-BISECT_DEFCONFIG_ARCHITECTURE_KEY = "defconfig_arch"
+BISECT_DEFCONFIG_STATUS_KEY = "build_status"
+BISECT_DEFCONFIG_CREATED_KEY = "build_created_on"
+BISECT_DEFCONFIG_METADATA_KEY = "build_metadata"
+BISECT_DEFCONFIG_ARCHITECTURE_KEY = "build_arch"
 BISECT_DATA_KEY = "bisect_data"
 BISECT_GOOD_COMMIT_KEY = "good_commit"
 BISECT_BAD_COMMIT_KEY = "bad_commit"
@@ -321,7 +322,7 @@ COUNT_VALID_KEYS = {
         BOOT_ID_KEY,
         CREATED_KEY,
         DEFCONFIG_FULL_KEY,
-        DEFCONFIG_ID_KEY,
+        BUILD_ID_KEY,
         DEFCONFIG_KEY,
         DEFINITION_URI_KEY,
         ERRORS_KEY,
@@ -415,7 +416,7 @@ BOOT_VALID_KEYS = {
         BOARD_KEY,
         CREATED_KEY,
         DEFCONFIG_FULL_KEY,
-        DEFCONFIG_ID_KEY,
+        BUILD_ID_KEY,
         DEFCONFIG_KEY,
         ENDIANNESS_KEY,
         GIT_BRANCH_KEY,
@@ -433,7 +434,7 @@ BOOT_VALID_KEYS = {
     "DELETE": [
         BOARD_KEY,
         DEFCONFIG_FULL_KEY,
-        DEFCONFIG_ID_KEY,
+        BUILD_ID_KEY,
         DEFCONFIG_KEY,
         ID_KEY,
         JOB_ID_KEY,
@@ -656,14 +657,14 @@ BISECT_VALID_KEYS = {
         BOOT_ID_KEY,
         COLLECTION_KEY,
         COMPARE_TO_KEY,
-        DEFCONFIG_ID_KEY
+        BUILD_ID_KEY
     ]
 }
 
 TEST_SUITE_VALID_KEYS = {
     "POST": {
         MANDATORY_KEYS: [
-            DEFCONFIG_ID_KEY,
+            BUILD_ID_KEY,
             LAB_NAME_KEY,
             NAME_KEY
         ],
@@ -674,7 +675,7 @@ TEST_SUITE_VALID_KEYS = {
             BOOT_ID_KEY,
             CREATED_KEY,
             DEFCONFIG_FULL_KEY,
-            DEFCONFIG_ID_KEY,
+            BUILD_ID_KEY,
             DEFCONFIG_KEY,
             DEFINITION_URI_KEY,
             JOB_ID_KEY,
@@ -696,7 +697,7 @@ TEST_SUITE_VALID_KEYS = {
         BOOT_ID_KEY,
         CREATED_KEY,
         DEFCONFIG_FULL_KEY,
-        DEFCONFIG_ID_KEY,
+        BUILD_ID_KEY,
         DEFCONFIG_KEY,
         DEFINITION_URI_KEY,
         JOB_ID_KEY,
@@ -714,7 +715,7 @@ TEST_SUITE_VALID_KEYS = {
         BOOT_ID_KEY,
         CREATED_KEY,
         DEFCONFIG_FULL_KEY,
-        DEFCONFIG_ID_KEY,
+        BUILD_ID_KEY,
         DEFCONFIG_KEY,
         DEFINITION_URI_KEY,
         JOB_ID_KEY,

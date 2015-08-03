@@ -61,7 +61,7 @@ def _parse_test_suite(suite_json, db_options):
     """Parse the test suite JSON and retrieve the values to update.
 
     This is used to update a test suite when all its values are empty, but we
-    have the defconfig_id, job_id, and/or boot_id.
+    have the build_id, job_id, and/or boot_id.
 
     Not all values might be retrieved. This function parses the document only
     once and searches for the provided documents only once.
@@ -80,7 +80,7 @@ def _parse_test_suite(suite_json, db_options):
 
     # The necessary values to link a test suite with its job, defconfig
     # and/or boot reports.
-    defconfig_id = suite_pop(models.DEFCONFIG_ID_KEY, None)
+    build_id = suite_pop(models.BUILD_ID_KEY, None)
     boot_id = suite_pop(models.BOOT_ID_KEY, None)
     job_id = suite_pop(models.JOB_ID_KEY, None)
 
@@ -112,7 +112,7 @@ def _parse_test_suite(suite_json, db_options):
     # If we have at least one of the referenced documents, and we do not have
     # some of the values that make up a test_suite object, look for the
     # document and retrieve the values, then update the test suite.
-    if all([missing_keys, any([defconfig_id, job_id, boot_id])]):
+    if all([missing_keys, any([build_id, job_id, boot_id])]):
         def _remove_missing_key(key):
             """Remove a key from the needed one when we have a value for it.
 
@@ -139,9 +139,9 @@ def _parse_test_suite(suite_json, db_options):
             return is_valid
 
         database = utils.db.get_db_connection(db_options)
-        if defconfig_id:
-            oid = bson.objectid.ObjectId(defconfig_id)
-            update_doc[models.DEFCONFIG_ID_KEY] = oid
+        if build_id:
+            oid = bson.objectid.ObjectId(build_id)
+            update_doc[models.BUILD_ID_KEY] = oid
 
             _get_document_and_update(
                 oid,
@@ -176,9 +176,9 @@ def _parse_test_suite(suite_json, db_options):
                 _valid_doc_value
             )
     else:
-        if defconfig_id:
-            update_doc[models.DEFCONFIG_ID_KEY] = \
-                bson.objectid.ObjectId(defconfig_id)
+        if build_id:
+            update_doc[models.BUILD_ID_KEY] = \
+                bson.objectid.ObjectId(build_id)
         if boot_id:
             update_doc[models.BOOT_ID_KEY] = \
                 bson.objectid.ObjectId(boot_id)
@@ -231,7 +231,7 @@ def _import_multi_base(
     Additional named arguments passed might be (with the exact following
     names):
     * test_set_id
-    * defconfig_id
+    * build_id
     * job_id
     * job
     * kernel
@@ -297,7 +297,7 @@ def _import_test_set(json_obj, suite_id, database, db_options, **kwargs):
 
     Additional named arguments passed might be (with the exact following
     names):
-    * defconfig_id
+    * build_id
     * job_id
     * job
     * kernel
@@ -426,7 +426,7 @@ def import_multi_test_sets(set_list, suite_id, db_options, **kwargs):
 
     Additional named arguments passed might be (with the exact following
     names):
-    * defconfig_id
+    * build_id
     * job_id
     * job
     * kernel
@@ -457,7 +457,7 @@ def import_test_case(json_obj, suite_id, database, db_options, **kwargs):
     Additional named arguments passed might be (with the exact following
     names):
     * test_set_id
-    * defconfig_id
+    * build_id
     * job_id
     * job
     * kernel
@@ -534,7 +534,7 @@ def import_multi_test_cases(case_list, suite_id, db_options, **kwargs):
     Additional named arguments passed might be (with the exact following
     names):
     * test_set_id
-    * defconfig_id
+    * build_id
     * job_id
     * job
     * kernel

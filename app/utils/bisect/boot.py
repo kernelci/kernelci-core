@@ -30,7 +30,7 @@ BOOT_SEARCH_FIELDS = [
     models.BOARD_KEY,
     models.CREATED_KEY,
     models.DEFCONFIG_FULL_KEY,
-    models.DEFCONFIG_ID_KEY,
+    models.BUILD_ID_KEY,
     models.DEFCONFIG_KEY,
     models.ID_KEY,
     models.JOB_ID_KEY,
@@ -119,8 +119,7 @@ def _find_boot_bisect_data(obj_id, start_doc, database, db_options):
     bisect_doc.version = "1.0"
     bisect_doc.job = job
     bisect_doc.job_id = start_doc_get(models.JOB_ID_KEY, None)
-    bisect_doc.defconfig_id = start_doc_get(
-        models.DEFCONFIG_ID_KEY, None)
+    bisect_doc.build_id = start_doc_get(models.BUILD_ID_KEY, None)
     bisect_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
     bisect_doc.board = board
     bisect_doc.arch = arch
@@ -137,7 +136,7 @@ def _find_boot_bisect_data(obj_id, start_doc, database, db_options):
         models.CREATED_KEY: {"$lt": created_on}
     }
 
-    # The function to apply to each boot document to find its defconfig
+    # The function to apply to each boot document to find its build
     # one and combine the values.
     func = bcommon.combine_defconfig_values
 
@@ -152,7 +151,7 @@ def _find_boot_bisect_data(obj_id, start_doc, database, db_options):
     all_valid_docs = [bad_doc]
 
     # Search through all the previous boot reports, until one that
-    # passed is found, and combine them with their defconfig document.
+    # passed is found, and combine them with their build document.
     all_prev_docs = utils.db.find(
         database[models.BOOT_COLLECTION],
         0,
@@ -241,8 +240,7 @@ def execute_boot_bisection_compared_to(
             bisect_doc.version = "1.0"
             bisect_doc.job = job
             bisect_doc.job_id = start_doc_get(models.JOB_ID_KEY, None)
-            bisect_doc.defconfig_id = start_doc_get(
-                models.DEFCONFIG_ID_KEY, None)
+            bisect_doc.build_id = start_doc_get(models.BUILD_ID_KEY, None)
             bisect_doc.boot_id = obj_id
             bisect_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
             bisect_doc.board = board

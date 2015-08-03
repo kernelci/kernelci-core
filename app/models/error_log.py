@@ -23,9 +23,9 @@ import models.base as modb
 ERROR_LOG_VALID_KEYS = {
     "GET": [
         models.ARCHITECTURE_KEY,
+        models.BUILD_ID_KEY,
         models.CREATED_KEY,
         models.DEFCONFIG_FULL_KEY,
-        models.DEFCONFIG_ID_KEY,
         models.DEFCONFIG_KEY,
         models.ERRORS_COUNT_KEY,
         models.JOB_ID_KEY,
@@ -58,7 +58,7 @@ class ErrorLogDocument(modb.BaseDocument):
         self.arch = None
         self.defconfig = None
         self.defconfig_full = None
-        self.defconfig_id = None
+        self.build_id = None
         self.job = None
         self.kernel = None
         self.status = None
@@ -205,9 +205,9 @@ class ErrorLogDocument(modb.BaseDocument):
     def to_dict(self):
         err_log = {
             models.ARCHITECTURE_KEY: self.arch,
+            models.BUILD_ID_KEY: self.build_id,
             models.CREATED_KEY: self.created_on,
             models.DEFCONFIG_FULL_KEY: self.defconfig_full,
-            models.DEFCONFIG_ID_KEY: self.defconfig_id,
             models.DEFCONFIG_KEY: self.defconfig,
             models.ERRORS_COUNT_KEY: self.errors_count,
             models.ERRORS_KEY: self.errors,

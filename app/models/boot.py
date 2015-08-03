@@ -70,7 +70,7 @@ class BootDocument(modb.BaseDocument):
         self.boot_log = None
         self.boot_log_html = None
         self.boot_result_description = None
-        self.defconfig_id = None
+        self.build_id = None
         self.dtb = None
         self.dtb_addr = None
         self.dtb_append = None
@@ -194,9 +194,9 @@ class BootDocument(modb.BaseDocument):
             models.BOOT_LOG_HTML_KEY: self.boot_log_html,
             models.BOOT_LOG_KEY: self.boot_log,
             models.BOOT_RESULT_DESC_KEY: self.boot_result_description,
+            models.BUILD_ID_KEY: self.build_id,
             models.CREATED_KEY: self.created_on,
             models.DEFCONFIG_FULL_KEY: self.defconfig_full,
-            models.DEFCONFIG_ID_KEY: self.defconfig_id,
             models.DEFCONFIG_KEY: self.defconfig,
             models.DTB_ADDR_KEY: self.dtb_addr,
             models.DTB_APPEND_KEY: self.dtb_append,

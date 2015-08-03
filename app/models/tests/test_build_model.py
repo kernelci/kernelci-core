@@ -30,7 +30,7 @@ class TestBuildModel(unittest.TestCase):
 
     def test_build_document_to_dict(self):
         build_doc = mbuild.BuildDocument("job", "kernel", "defconfig")
-        build_doc.id = "defconfig_id"
+        build_doc.id = "build_id"
         build_doc.job_id = "job_id"
         build_doc.created_on = "now"
         build_doc.metadata = {}
@@ -62,7 +62,7 @@ class TestBuildModel(unittest.TestCase):
         build_doc.defconfig_full = "defconfig_full"
 
         expected = {
-            "_id": "defconfig_id",
+            "_id": "build_id",
             "job": "job",
             "kernel": "kernel",
             "defconfig": "defconfig",
@@ -171,7 +171,7 @@ class TestBuildModel(unittest.TestCase):
     def test_defconfog_from_json(self):
         json_obj = {
             "name": "job-kernel-defconfig_full",
-            "_id": "defconfig_id",
+            "_id": "build_id",
             "job": "job",
             "kernel": "kernel",
             "defconfig": "defconfig",
@@ -211,7 +211,7 @@ class TestBuildModel(unittest.TestCase):
         build_doc = mbuild.BuildDocument.from_json(json_obj)
 
         self.assertIsInstance(build_doc, mbuild.BuildDocument)
-        self.assertEqual(build_doc.id, "defconfig_id")
+        self.assertEqual(build_doc.id, "build_id")
         self.assertEqual(build_doc.defconfig_full, "defconfig_full")
         self.assertEqual(build_doc.version, "1.0")
         self.assertEqual(build_doc.errors, 1)

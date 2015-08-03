@@ -136,7 +136,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         body = json.dumps(
             dict(
                 name="test",
-                lab_name="lab_name", version="1.0", defconfig_id="build")
+                lab_name="lab_name", version="1.0", build_id="build")
         )
 
         response = self.fetch(
@@ -151,7 +151,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         body = json.dumps(
             dict(
                 name="suite",
-                version="1.0", lab_name="lab", defconfig_id="build")
+                version="1.0", lab_name="lab", build_id="build")
         )
 
         response = self.fetch(
@@ -172,7 +172,7 @@ class TestTestSuiteHandler(TestHandlerBase):
                 name="suite",
                 version="1.0",
                 lab_name="lab",
-                defconfig_id="build", test_set=[{"foo": "bar"}]
+                build_id="build", test_set=[{"foo": "bar"}]
             )
         )
 
@@ -194,7 +194,7 @@ class TestTestSuiteHandler(TestHandlerBase):
                 name="suite",
                 version="1.0",
                 lab_name="lab",
-                defconfig_id="build", test_set={"foo": "bar"}
+                build_id="build", test_set={"foo": "bar"}
             )
         )
 
@@ -216,7 +216,7 @@ class TestTestSuiteHandler(TestHandlerBase):
                 name="suite",
                 version="1.0",
                 lab_name="lab",
-                defconfig_id="build", test_case=[{"foo": "bar"}]
+                build_id="build", test_case=[{"foo": "bar"}]
             )
         )
 
@@ -238,7 +238,7 @@ class TestTestSuiteHandler(TestHandlerBase):
                 name="suite",
                 version="1.0",
                 lab_name="lab",
-                defconfig_id="build", test_case={"foo": "bar"}
+                build_id="build", test_case={"foo": "bar"}
             )
         )
 
@@ -260,7 +260,7 @@ class TestTestSuiteHandler(TestHandlerBase):
                 name="suite",
                 version="1.0",
                 lab_name="lab",
-                defconfig_id="build",
+                build_id="build",
                 test_case=[{"foo": "bar"}], test_set=[{"foo": "bar"}]
             )
         )
@@ -281,7 +281,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         body = json.dumps(
             dict(
                 name="test", lab_name="lab_name", version="1.0",
-                defconfig_id="build_id")
+                build_id="build_id")
         )
 
         response = self.fetch(
@@ -291,12 +291,12 @@ class TestTestSuiteHandler(TestHandlerBase):
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
-    def test_post_correct_wrong_defconfig_id(self):
+    def test_post_correct_wrong_build_id(self):
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         body = json.dumps(
             dict(
                 name="test", lab_name="lab_name", version="1.0",
-                defconfig_id="build_id")
+                build_id="build_id")
         )
 
         response = self.fetch(
@@ -313,7 +313,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         body = json.dumps(
             dict(
                 name="test", lab_name="lab_name", version="1.0",
-                defconfig_id="build-id", job_id="job_id")
+                build_id="build-id", job_id="job_id")
         )
 
         response = self.fetch(
@@ -330,7 +330,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         body = json.dumps(
             dict(
                 name="test", lab_name="lab_name", version="1.0",
-                defconfig_id="build-id", boot_id="boot_id")
+                build_id="build-id", boot_id="boot_id")
         )
 
         response = self.fetch(
@@ -349,7 +349,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         body = json.dumps(
             dict(
                 name="test", lab_name="lab_name", version="1.0",
-                defconfig_id="build-id", boot_id="boot_id")
+                build_id="build-id", boot_id="boot_id")
         )
 
         response = self.fetch(
@@ -368,7 +368,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         body = json.dumps(
             dict(
                 name="test", lab_name="lab_name", version="1.0",
-                defconfig_id="build-id", boot_id="boot_id")
+                build_id="build-id", boot_id="boot_id")
         )
 
         response = self.fetch(
@@ -387,7 +387,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         body = json.dumps(
             dict(
                 name="test", lab_name="lab_name", version="1.0",
-                defconfig_id="build-id", job_id="job_id")
+                build_id="build-id", job_id="job_id")
         )
 
         response = self.fetch(
@@ -408,7 +408,7 @@ class TestTestSuiteHandler(TestHandlerBase):
                 name="test",
                 lab_name="lab_name",
                 version="1.0",
-                defconfig_id="build-id",
+                build_id="build-id",
                 job_id="job_id", boot_id="boot_id")
         )
 
@@ -431,7 +431,7 @@ class TestTestSuiteHandler(TestHandlerBase):
                 name="test",
                 lab_name="lab_name",
                 version="1.0",
-                defconfig_id="build-id",
+                build_id="build-id",
                 job_id="job_id", boot_id="boot_id")
         )
 

@@ -52,7 +52,7 @@ class TestErrorLogModel(unittest.TestCase):
         doc.created_on = "today"
         doc.defconfig = "defconfig"
         doc.defconfig_full = "defconfig_full"
-        doc.defconfig_id = "build-id"
+        doc.build_id = "build-id"
         doc.errors = ["error1"]
         doc.errors_count = 1
         doc.job = "job"
@@ -69,7 +69,7 @@ class TestErrorLogModel(unittest.TestCase):
             "created_on": "today",
             "defconfig": "defconfig",
             "defconfig_full": "defconfig_full",
-            "defconfig_id": "build-id",
+            "build_id": "build-id",
             "errors": ["error1"],
             "errors_count": 1,
             "job": "job",
@@ -96,7 +96,7 @@ class TestErrorLogModel(unittest.TestCase):
             "created_on": "today",
             "defconfig": "defconfig",
             "defconfig_full": "defconfig_full",
-            "defconfig_id": "build-id",
+            "build_id": "build-id",
             "errors": ["error1"],
             "errors_count": 1,
             "job": "job",

@@ -92,7 +92,7 @@ class TestBisectModel(unittest.TestCase):
         bisect_doc.board = "baz"
         bisect_doc.version = "1.0"
         bisect_doc.boot_id = "boot-id"
-        bisect_doc.defconfig_id = "build-id"
+        bisect_doc.build_id = "build-id"
         bisect_doc.job_id = "job-id"
 
         expected = {
@@ -110,7 +110,7 @@ class TestBisectModel(unittest.TestCase):
             "bad_commit_url": None,
             "version": "1.0",
             "boot_id": "boot-id",
-            "defconfig_id": "build-id",
+            "build_id": "build-id",
             "job_id": "job-id",
             "type": "boot",
             "arch": None,
@@ -152,7 +152,7 @@ class TestBisectModel(unittest.TestCase):
     def test_bisect_defconfig_to_dict(self):
         bisect_doc = modbs.DefconfigBisectDocument("foo")
         bisect_doc.id = "bar"
-        bisect_doc.defconfig_id = "build-id"
+        bisect_doc.build_id = "build-id"
         bisect_doc.defconfig = "defconfig-name"
         bisect_doc.version = "1.0"
         bisect_doc.job = "job"
@@ -173,7 +173,7 @@ class TestBisectModel(unittest.TestCase):
             "bad_commit_date": None,
             "bad_commit_url": None,
             "version": "1.0",
-            "defconfig_id": "build-id",
+            "build_id": "build-id",
             "defconfig": "defconfig-name",
             "job_id": "job-id",
             "defconfig_full": "defconfig-full",

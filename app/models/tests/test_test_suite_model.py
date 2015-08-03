@@ -21,12 +21,12 @@ class TestTestSuiteModel(unittest.TestCase):
 
     def test_suite_doc_valid_instance(self):
         test_suite = mtsuite.TestSuiteDocument(
-            "name", "lab_name", "defconfig_id", "1.0")
+            "name", "lab_name", "build_id", "1.0")
         self.assertIsInstance(test_suite, mbase.BaseDocument)
 
     def test_suite_doc_to_dict(self):
         test_suite = mtsuite.TestSuiteDocument(
-            "name", "lab_name", "defconfig_id", "1.0")
+            "name", "lab_name", "build_id", "1.0")
 
         test_suite.arch = "arm"
         test_suite.board = "board"
@@ -34,7 +34,7 @@ class TestTestSuiteModel(unittest.TestCase):
         test_suite.boot_id = "boot_id"
         test_suite.created_on = "now"
         test_suite.defconfig = "defconfig"
-        test_suite.defconfig_id = "another_build-id"
+        test_suite.build_id = "another_build-id"
         test_suite.definition_uri = "uri"
         test_suite.id = "id"
         test_suite.job = "job"
@@ -57,7 +57,7 @@ class TestTestSuiteModel(unittest.TestCase):
             "created_on": "now",
             "defconfig": "defconfig",
             "defconfig_full": "defconfig",
-            "defconfig_id": "another_build-id",
+            "build_id": "another_build-id",
             "definition_uri": "uri",
             "job": "job",
             "job_id": "job_id",
@@ -96,7 +96,7 @@ class TestTestSuiteModel(unittest.TestCase):
             "created_on": "now",
             "defconfig": "defconfig",
             "defconfig_full": "defconfig",
-            "defconfig_id": "build-id",
+            "build_id": "build-id",
             "definition_uri": "uri",
             "job": "job",
             "job_id": "job_id",
@@ -118,7 +118,7 @@ class TestTestSuiteModel(unittest.TestCase):
 
     def test_set_name_setter(self):
         test_suite = mtsuite.TestSuiteDocument(
-            "name", "lab_name", "defconfig_id", "1.0")
+            "name", "lab_name", "build_id", "1.0")
 
         def test_name_setter(value):
             test_suite.name = value

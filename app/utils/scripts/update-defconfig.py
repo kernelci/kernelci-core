@@ -26,6 +26,7 @@ database = utils.db.get_db_connection({})
 
 
 def add_build_type_field(collection_name):
+    utils.LOG.info("Updating build collection")
     collection = database[collection_name]
 
     for doc in collection.find():

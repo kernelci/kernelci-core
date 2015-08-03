@@ -142,7 +142,7 @@ class BisectHandler(hbase.BaseHandler):
                     spec[models.COMPARE_TO_KEY] = None
 
                 response = self._bisect(
-                    models.DEFCONFIG_ID_KEY,
+                    models.BUILD_ID_KEY,
                     spec,
                     bisect_func,
                     fields=fields)

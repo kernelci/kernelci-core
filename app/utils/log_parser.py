@@ -264,19 +264,19 @@ def save_defconfig_errors(
     Save in the database the extracted lines from the build log.
 
     :param job_id: The ID of the job.
-    :type job_id: string
+    :type job_id: str
     :param job: The name of the job.
-    :type job: string
+    :type job: str
     :param kernel: The name of the kernel.
-    :type kernel: string
+    :type kernel: str
     :param defconfig: The defconfig value.
-    :type defconfig: string
+    :type defconfig: str
     :param defconfig_full: The full defconfig value.
-    :type defconfig_full: string
+    :type defconfig_full: str
     :param arch: The architecture type.
-    :type arch: string
+    :type arch: str
     :param build_status: The status of the build.
-    :type build_status: string
+    :type build_status: str
     :param error_lines: The extracted error lines.
     :type error_lines: list
     :param warning_lines: The extracted warning lines.
@@ -287,7 +287,7 @@ def save_defconfig_errors(
     :type db_options: dictionary
     :return 201 if saving has success, 500 otherwise.
     """
-    defconfig_id = None
+    build_id = None
     database = utils.db.get_db_connection(db_options)
     if not build_doc.id:
         spec = {
@@ -306,7 +306,7 @@ def save_defconfig_errors(
             spec, fields=[models.ID_KEY])
 
         if doc:
-            defconfig_id = doc[models.ID_KEY]
+            build_id = doc[models.ID_KEY]
         else:
             error = "No build ID found for %s-%s-%s (%s)"
             utils.LOG.warn(
@@ -316,11 +316,11 @@ def save_defconfig_errors(
                 build_doc.defconfig_full, build_doc.arch
             )
     else:
-        defconfig_id = build_doc.id
+        build_id = build_doc.id
 
-    if defconfig_id:
+    if build_id:
         prev_spec = {
-            models.DEFCONFIG_ID_KEY: defconfig_id
+            models.BUILD_ID_KEY: build_id
         }
     else:
         prev_spec = {
@@ -340,7 +340,7 @@ def save_defconfig_errors(
     err_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
     err_doc.defconfig = build_doc.defconfig
     err_doc.defconfig_full = build_doc.defconfig_full
-    err_doc.defconfig_id = defconfig_id
+    err_doc.build_id = build_id
     err_doc.errors = error_lines
     err_doc.errors_count = len(error_lines)
     err_doc.job = build_doc.job
@@ -406,7 +406,7 @@ def _read_build_data(build_dir, job, kernel, errors):
     Search for the correct defconfig, defconfig_full and arch values.
 
     :param build_dir: The directory containing the build JSON file.
-    :type build_dir: string
+    :type build_dir: str
     :return A 4-tuple: defconfig, defconfig_full, arch and build status.
     """
     build_file = os.path.join(build_dir, models.BUILD_META_JSON_FILE)
@@ -442,9 +442,9 @@ def _read_build_data(build_dir, job, kernel, errors):
 
 # pylint: disable=too-many-statements
 def _parse_log(job, kernel, defconfig, log_file, build_dir, errors):
-    """Read the build log and extract the correct strings.
+    """Read the build log and extract the correct strs.
 
-    Parse the build log extracting the errors/warnings/mismatches strings
+    Parse the build log extracting the errors/warnings/mismatches strs
     saving new files for each of the extracted value.
 
     :param job: The name of the job.
@@ -459,7 +459,7 @@ def _parse_log(job, kernel, defconfig, log_file, build_dir, errors):
         """Strip the beginning of the line if it contains a special sequence.
 
         :param line: The line to clean.
-        :type line: string
+        :type line: str
         :return The line without the special sequence.
         """
         if line.startswith("../"):
@@ -550,15 +550,15 @@ def _traverse_dir_and_parse(
     """Traverse the kernel directory and parse the build logs.
 
     :param job_id: The ID of the job.
-    :type job_id: string
+    :type job_id: str
     :param job: The name of the job.
-    :type job: string
+    :type job: str
     :param kernel: The name of the kernel.
-    :type kernel: string
+    :type kernel: str
     :param base_path: The path on the file system where the files are stored.
-    :type base_path: string
+    :type base_path: str
     :param build_log: The name of the build log file.
-    :type build_log: string
+    :type build_log: str
     :param db_options: The database connection options.
     :type db_options: dictionary
     """
@@ -614,15 +614,15 @@ def parse_build_log(job_id,
     """Parse the build log file searching for errors and warnings.
 
     :param job_id: The ID of the job as saved in the database.
-    :type job_id: string
+    :type job_id: str
     :param json_obj: The JSON object with the job and kernel name.
     :type json_obj: dictionary
     :param db_options: The database connection options.
     :type db_options: dictionary
     :param base_path: The path on the file system where the files are stored.
-    :type base_path: string
+    :type base_path: str
     :param build_log: The name of the build log file.
-    :type build_log: string
+    :type build_log: str
     :return A status code and a dictionary. 200 if everything is good, 500 in
     case of errors; an empty dictionary if there are no errors, otherwise the
     dictionary will contain error codes and messages lists.

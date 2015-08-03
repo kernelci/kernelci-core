@@ -125,9 +125,9 @@ class BootBisectDocument(BisectDocument):
         self.arch = None
         self.board = None
         self.boot_id = None
+        self.build_id = None
         self.defconfig = None
         self.defconfig_full = None
-        self.defconfig_id = None
         self.type = "boot"
 
     def to_dict(self):
@@ -135,8 +135,8 @@ class BootBisectDocument(BisectDocument):
         boot_b_dict[models.ARCHITECTURE_KEY] = self.arch
         boot_b_dict[models.BOARD_KEY] = self.board
         boot_b_dict[models.BOOT_ID_KEY] = self.boot_id
+        boot_b_dict[models.BUILD_ID_KEY] = self.build_id
         boot_b_dict[models.DEFCONFIG_FULL_KEY] = self.defconfig_full
-        boot_b_dict[models.DEFCONFIG_ID_KEY] = self.defconfig_id
         boot_b_dict[models.DEFCONFIG_KEY] = self.defconfig
         return boot_b_dict
 
@@ -148,16 +148,16 @@ class DefconfigBisectDocument(BisectDocument):
         super(DefconfigBisectDocument, self).__init__(name)
 
         self.arch = None
+        self.build_id = None
         self.defconfig = None
         self.defconfig_full = None
-        self.defconfig_id = None
         self.type = "build"
 
     def to_dict(self):
         def_b_dict = super(DefconfigBisectDocument, self).to_dict()
         def_b_dict[models.ARCHITECTURE_KEY] = self.arch
+        def_b_dict[models.BUILD_ID_KEY] = self.build_id
         def_b_dict[models.DEFCONFIG_FULL_KEY] = self.defconfig_full
-        def_b_dict[models.DEFCONFIG_ID_KEY] = self.defconfig_id
         def_b_dict[models.DEFCONFIG_KEY] = self.defconfig
 
         return def_b_dict

@@ -86,7 +86,7 @@ def execute_build_bisection(doc_id, db_options, fields=None):
             bisect_doc.arch = start_doc_get(models.ARCHITECTURE_KEY, None)
             bisect_doc.job = start_doc_get(models.JOB_KEY, None)
             bisect_doc.job_id = start_doc_get(models.JOB_ID_KEY, None)
-            bisect_doc.defconfig_id = start_doc_get(models.ID_KEY)
+            bisect_doc.build_id = start_doc_get(models.ID_KEY)
             bisect_doc.defconfig = start_doc_get(models.DEFCONFIG_KEY, None)
             bisect_doc.defconfig_full = start_doc_get(
                 models.DEFCONFIG_FULL_KEY, None)
@@ -246,7 +246,7 @@ def execute_build_bisection_compared_to(
             # search too much in the past.
             end_date, limit = bcommon.search_previous_bisect(
                 database,
-                {models.DEFCONFIG_ID_KEY: obj_id},
+                {models.BUILD_ID_KEY: obj_id},
                 models.CREATED_KEY
             )
 
@@ -265,8 +265,7 @@ def execute_build_bisection_compared_to(
             bisect_doc.defconfig_full = defconfig_full
             bisect_doc.job = job
             bisect_doc.job_id = start_doc_get(models.JOB_ID_KEY, None)
-            bisect_doc.defconfig_id = start_doc_get(
-                models.DEFCONFIG_ID_KEY, None)
+            bisect_doc.build_id = start_doc_get(models.BUILD_ID_KEY, None)
             bisect_doc.boot_id = obj_id
             bisect_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
             bisect_doc.arch = arch

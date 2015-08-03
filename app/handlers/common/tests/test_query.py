@@ -72,13 +72,13 @@ class TestCommonQuery(unittest.TestCase):
             "job_id": "123344567",
             "_id": "0123456789ab0123456789ab",
             "foo": 1234,
-            "defconfig_id": "0123456789ab0123456789ab"
+            "build_id": "0123456789ab0123456789ab"
         }
         update_id_fields(spec)
         expected = {
             "_id": objectid.ObjectId("0123456789ab0123456789ab"),
             "foo": 1234,
-            "defconfig_id": objectid.ObjectId("0123456789ab0123456789ab")
+            "build_id": objectid.ObjectId("0123456789ab0123456789ab")
         }
 
         self.assertDictEqual(expected, spec)

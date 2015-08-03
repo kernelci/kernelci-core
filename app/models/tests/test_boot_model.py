@@ -30,7 +30,7 @@ class TestBootModel(unittest.TestCase):
         boot_doc.id = "id"
         boot_doc.job_id = "job-id"
         boot_doc.created_on = "now"
-        boot_doc.defconfig_id = "defconfig_id"
+        boot_doc.build_id = "build_id"
         boot_doc.retries = 10
         boot_doc.version = "1.0"
         boot_doc.dtb_append = False
@@ -66,7 +66,7 @@ class TestBootModel(unittest.TestCase):
             "created_on": "now",
             "defconfig": "defconfig",
             "defconfig_full": "defconfig",
-            "defconfig_id": "defconfig_id",
+            "build_id": "build_id",
             "dtb": None,
             "dtb_addr": None,
             "dtb_append": False,
@@ -129,7 +129,7 @@ class TestBootModel(unittest.TestCase):
             "created_on": "now",
             "defconfig": "defconfig",
             "defconfig_full": "defconfig_full",
-            "defconfig_id": "defconfig_id",
+            "build_id": "build_id",
             "dtb": "dtb_val",
             "dtb_addr": "1234",
             "dtb_append": False,

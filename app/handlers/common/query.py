@@ -40,7 +40,7 @@ KEY_TYPES = {
 
 ID_KEYS = [
     models.BOOT_ID_KEY,
-    models.DEFCONFIG_ID_KEY,
+    models.BUILD_ID_KEY,
     models.ID_KEY,
     models.JOB_ID_KEY,
     models.LAB_ID_KEY,

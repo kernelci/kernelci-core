@@ -188,6 +188,6 @@ def _ensure_error_logs_indexes(database):
     """
     collection = database[models.ERROR_LOGS_COLLECTION]
     collection.ensure_index(
-        [(models.DEFCONFIG_ID_KEY, pymongo.DESCENDING)],
+        [(models.BUILD_ID_KEY, pymongo.DESCENDING)],
         background=True
     )

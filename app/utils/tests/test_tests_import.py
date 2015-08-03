@@ -219,7 +219,7 @@ class TestTestsImport(unittest.TestCase):
         mock_parse.return_value = {}
         suite_json = {
             "name": "test-suite",
-            "defconfig_id": "defconfig",
+            "build_id": "build-id",
             "version": "1.0",
             "time": 100
         }
@@ -243,7 +243,7 @@ class TestTestsImport(unittest.TestCase):
         mock_id.return_value = "fake"
         suite_json = {
             "name": "test-suite",
-            "defconfig_id": "defconfig",
+            "build_id": "build-id",
             "version": "1.0",
             "time": 100
         }
@@ -285,7 +285,7 @@ class TestTestsImport(unittest.TestCase):
             "board": None,
             "board_instance": None,
             "boot_id": "boot-id",
-            "defconfig_id": "build-id",
+            "build_id": "build-id",
             "job_id": "job-id",
             "name": "test-suite",
             "time": 100,
@@ -296,7 +296,7 @@ class TestTestsImport(unittest.TestCase):
             "board": "board",
             "board_instance": "instance",
             "boot_id": "boot-id",
-            "defconfig_id": "build-id",
+            "build_id": "build-id",
             "job": "job",
             "job_id": "job-id",
             "kernel": "kernel",
@@ -333,7 +333,7 @@ class TestTestsImport(unittest.TestCase):
     @mock.patch("utils.db.get_db_connection")
     def test_parse_test_suite_with_all_in_suite(self, mock_db, mock_id):
         mock_db.return_value = self.db
-        mock_id.side_effect = ["defconfig-id", "boot-id", "job-id"]
+        mock_id.side_effect = ["build-id", "boot-id", "job-id"]
 
         suite_json = {
             "arch": "arch",
@@ -342,7 +342,7 @@ class TestTestsImport(unittest.TestCase):
             "boot_id": "boot-id",
             "defconfig": "defconfig",
             "defconfig_full": "defconfig_full",
-            "defconfig_id": "defconfig-id",
+            "build_id": "build-id",
             "job": "job",
             "job_id": "job-id",
             "kernel": "kernel",
@@ -358,7 +358,7 @@ class TestTestsImport(unittest.TestCase):
             "boot_id": "boot-id",
             "defconfig": "defconfig",
             "defconfig_full": "defconfig_full",
-            "defconfig_id": "defconfig-id",
+            "build_id": "build-id",
             "job": "job",
             "job_id": "job-id",
             "kernel": "kernel",

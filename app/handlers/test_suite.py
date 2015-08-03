@@ -65,7 +65,7 @@ class TestSuiteHandler(htbase.TestBaseHandler):
 
             # Make sure the *_id values passed are valid.
             ret_val, error = self._check_references(
-                suite_get(models.DEFCONFIG_ID_KEY, None),
+                suite_get(models.BUILD_ID_KEY, None),
                 suite_get(models.JOB_ID_KEY, None),
                 suite_get(models.BOOT_ID_KEY, None)
             )
@@ -258,7 +258,7 @@ class TestSuiteHandler(htbase.TestBaseHandler):
             response.reason = "Wrong ID specified"
         else:
             if utils.db.find_one2(self.collection, suite_id):
-                # TODO: handle case where boot_id, job_id or defconfig_id
+                # TODO: handle case where boot_id, job_id or build_id
                 # is updated.
                 update_val = utils.db.update(
                     self.collection, {models.ID_KEY: suite_id}, update_doc)
@@ -317,11 +317,11 @@ class TestSuiteHandler(htbase.TestBaseHandler):
         return response
 
     # TODO: consider caching results here as well.
-    def _check_references(self, defconfig_id, job_id, boot_id):
+    def _check_references(self, build_id, job_id, boot_id):
         """Check that the provided IDs are valid.
 
-        :param defconfig_id: The ID of the associated build.
-        :type defconfig_id: string
+        :param build_id: The ID of the associated build.
+        :type build_id: string
         :param job_id: The ID of the associated job.
         :type job_id: string
         :param boot_id: The ID of the associated boot report.
@@ -331,7 +331,7 @@ class TestSuiteHandler(htbase.TestBaseHandler):
         error = None
 
         try:
-            defconfig_oid = bson.objectid.ObjectId(defconfig_id)
+            build_oid = bson.objectid.ObjectId(build_id)
             if job_id:
                 job_oid = bson.objectid.ObjectId(job_id)
             if boot_id:
@@ -339,14 +339,13 @@ class TestSuiteHandler(htbase.TestBaseHandler):
         except bson.errors.InvalidId, ex:
             self.log.exception(ex)
             ret_val = 400
-            error = "Invalid value passed for defconfig_id, job_id, or boot_id"
+            error = "Invalid value passed for build_id, job_id, or boot_id"
         else:
             build_doc = utils.db.find_one2(
-                self.db[models.BUILD_COLLECTION],
-                defconfig_oid, [models.ID_KEY])
+                self.db[models.BUILD_COLLECTION], build_oid, [models.ID_KEY])
             if not build_doc:
                 ret_val = 400
-                error = "Build document with ID '%s' not found" % defconfig_id
+                error = "Build document with ID '%s' not found" % build_id
             else:
                 if job_id:
                     job_doc = utils.db.find_one2(
@@ -359,8 +358,7 @@ class TestSuiteHandler(htbase.TestBaseHandler):
                 if all([boot_id, error is None]):
                     boot_doc = utils.db.find_one2(
                         self.db[models.BOOT_COLLECTION],
-                        boot_oid, [models.ID_KEY]
-                    )
+                        boot_oid, [models.ID_KEY])
                     if not boot_doc:
                         ret_val = 400
                         error = (

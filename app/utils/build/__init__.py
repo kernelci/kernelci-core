@@ -575,7 +575,7 @@ def import_single_build(json_obj, db_options, base_path=utils.BASE_PATH):
     errors = {}
     job_id = None
     build_doc = None
-    defconfig_id = None
+    build_id = None
     j_get = json_obj.get
 
     arch = j_get(models.ARCHITECTURE_KEY)
@@ -631,7 +631,7 @@ def import_single_build(json_obj, db_options, base_path=utils.BASE_PATH):
                     ERR_ADD(errors, ret_val, err_msg % (job, kernel))
 
                 if build_doc:
-                    ret_val, defconfig_id = utils.db.save(
+                    ret_val, build_id = utils.db.save(
                         database, build_doc, manipulate=True)
                 if ret_val != 201:
                     err_msg = "Error saving build document '%s-%s-%s-%s'"
@@ -663,4 +663,4 @@ def import_single_build(json_obj, db_options, base_path=utils.BASE_PATH):
         utils.LOG.error(err_msg, job, kernel)
         ERR_ADD(errors, 500, err_msg % (job, kernel))
 
-    return defconfig_id, job_id, errors
+    return build_id, job_id, errors

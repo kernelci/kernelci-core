@@ -317,7 +317,7 @@ def _update_boot_doc_ids(boot_doc, database):
             job, kernel, defconfig_full, arch)
     if build_doc:
         doc_get = build_doc.get
-        boot_doc.defconfig_id = doc_get(models.ID_KEY, None)
+        boot_doc.build_id = doc_get(models.ID_KEY, None)
 
         # In case we do not have the job_id key with the previous search.
         if all([not boot_doc.job_id, doc_get(models.JOB_ID_KEY, None)]):

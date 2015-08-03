@@ -135,22 +135,21 @@ class BootTriggerHandler(hbase.BaseHandler):
                     boot_spec.pop(models.ID_KEY, None)
                     # Inject the lab name and the previous defconfigs.
                     boot_spec[models.LAB_NAME_KEY] = {"$ne": lab_name}
-                    boot_spec[models.DEFCONFIG_ID_KEY] = {
-                        "$in": all_distinct_def}
+                    boot_spec[models.BUILD_ID_KEY] = {"$in": all_distinct_def}
 
                     already_booted, booted_count = utils.db.find_and_count(
                         self.db[models.BOOT_COLLECTION],
                         0,
                         0,
                         spec=boot_spec,
-                        fields=[models.DEFCONFIG_ID_KEY],
+                        fields=[models.BUILD_ID_KEY],
                         sort=[(models.CREATED_KEY, pymongo.DESCENDING)]
                     )
 
                     booted_defconfigs = []
                     if booted_count > 0:
                         booted_defconfigs = already_booted.distinct(
-                            models.DEFCONFIG_ID_KEY)
+                            models.BUILD_ID_KEY)
 
                     # Do a set difference to get the not booted ones.
                     not_booted = set(all_distinct_def).difference(

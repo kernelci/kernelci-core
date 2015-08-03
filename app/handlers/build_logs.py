@@ -58,7 +58,7 @@ class BuildLogsHandler(hbase.BaseHandler):
             obj_id = bson.objectid.ObjectId(doc_id)
             result = utils.db.find_one2(
                 self.collection,
-                {models.DEFCONFIG_ID_KEY: obj_id},
+                {models.BUILD_ID_KEY: obj_id},
                 fields=handlers.common.query.get_query_fields(
                     self.get_query_arguments)
             )

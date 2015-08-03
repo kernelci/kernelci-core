@@ -531,10 +531,10 @@ class TestBuildUtils(unittest.TestCase):
             "defconfig": "defconfig",
             "arch": "arch"
         }
-        defconfig_id, job_id, errors = utils.build.import_single_build(
+        build_id, job_id, errors = utils.build.import_single_build(
             json_obj, {})
 
-        self.assertIsNone(defconfig_id)
+        self.assertIsNone(build_id)
         self.assertIsNone(job_id)
         self.assertIsNotNone(errors)
         self.assertListEqual([500], errors.keys())
@@ -548,10 +548,10 @@ class TestBuildUtils(unittest.TestCase):
             "defconfig": "defconfig",
             "arch": "arch"
         }
-        defconfig_id, job_id, errors = utils.build.import_single_build(
+        build_id, job_id, errors = utils.build.import_single_build(
             json_obj, {})
 
-        self.assertIsNone(defconfig_id)
+        self.assertIsNone(build_id)
         self.assertIsNone(job_id)
         self.assertIsNotNone(errors)
         self.assertListEqual([500], errors.keys())
@@ -565,10 +565,10 @@ class TestBuildUtils(unittest.TestCase):
             "defconfig": "defconfig",
             "arch": "arch"
         }
-        defconfig_id, job_id, errors = utils.build.import_single_build(
+        build_id, job_id, errors = utils.build.import_single_build(
             json_obj, {})
 
-        self.assertIsNone(defconfig_id)
+        self.assertIsNone(build_id)
         self.assertIsNone(job_id)
         self.assertIsNotNone(errors)
         self.assertListEqual([500], errors.keys())
@@ -599,11 +599,11 @@ class TestBuildUtils(unittest.TestCase):
             "defconfig": "defconfig",
             "arch": "arch"
         }
-        defconfig_id, job_id, errors = utils.build.import_single_build(
+        build_id, job_id, errors = utils.build.import_single_build(
             json_obj, {})
 
         self.assertDictEqual({}, errors)
-        self.assertIsNotNone(defconfig_id)
+        self.assertIsNotNone(build_id)
         self.assertIsNotNone(job_id)
-        self.assertEqual("build_id", defconfig_id)
+        self.assertEqual("build_id", build_id)
         self.assertEqual("job_id", job_id)

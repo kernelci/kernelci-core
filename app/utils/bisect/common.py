@@ -68,8 +68,9 @@ def combine_defconfig_values(boot_doc, db_options):
     kernel = boot_doc_get(models.KERNEL_KEY)
     defconfig = boot_doc_get(models.DEFCONFIG_KEY)
     defconfig_full = boot_doc_get(models.DEFCONFIG_FULL_KEY) or defconfig
-    defconfig_id = boot_doc_get(models.DEFCONFIG_ID_KEY, None)
+    build_id = boot_doc_get(models.BUILD_ID_KEY, None)
     job_id = boot_doc_get(models.JOB_ID_KEY, None)
+    arch = boot_doc_get(models.ARCHITECTURE_KEY)
 
     combined_values = {
         models.BISECT_BOOT_CREATED_KEY: boot_doc_get(models.CREATED_KEY),
@@ -81,7 +82,7 @@ def combine_defconfig_values(boot_doc, db_options):
         models.BOARD_KEY: boot_doc.get(models.BOARD_KEY, None),
         models.BOOT_ID_KEY: boot_doc_get(models.ID_KEY, None),
         models.DEFCONFIG_FULL_KEY: defconfig_full,
-        models.DEFCONFIG_ID_KEY: defconfig_id,
+        models.BUILD_ID_KEY: build_id,
         models.DEFCONFIG_KEY: defconfig,
         models.DIRNAME_KEY: "",
         models.GIT_BRANCH_KEY: "",
@@ -94,20 +95,21 @@ def combine_defconfig_values(boot_doc, db_options):
         models.LAB_NAME_KEY: boot_doc_get(models.LAB_NAME_KEY, None)
     }
 
-    if defconfig_id:
+    if build_id:
         build_doc = utils.db.find_one2(
             database[models.BUILD_COLLECTION],
-            defconfig_id,
-            fields=BOOT_DEFCONFIG_SEARCH_FIELDS
-        )
+            build_id, fields=BOOT_DEFCONFIG_SEARCH_FIELDS)
     else:
-        defconfig_name = job + "-" + kernel + "-" + defconfig_full
-        build_doc = utils.db.find_one(
+        spec = {
+            models.JOB_KEY: job,
+            models.KERNEL_KEY: kernel,
+            models.DEFCONFIG_FULL_KEY: defconfig_full,
+            models.DEFCONFIG_KEY: defconfig,
+            models.ARCHITECTURE_KEY: arch
+        }
+        build_doc = utils.db.find_one2(
             database[models.BUILD_COLLECTION],
-            [defconfig_name],
-            field=models.NAME_KEY,
-            fields=BOOT_DEFCONFIG_SEARCH_FIELDS
-        )
+            spec, fields=BOOT_DEFCONFIG_SEARCH_FIELDS)
 
     if build_doc:
         build_doc_get = build_doc.get

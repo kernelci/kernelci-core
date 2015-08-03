@@ -272,8 +272,26 @@ def update(collection, spec, document, operation="$set"):
     try:
         collection.update(spec, {operation: document})
     except pymongo.errors.OperationFailure, ex:
-        utils.LOG.error(
-            "Error updating the following document: %s", str(document))
+        utils.LOG.exception(str(ex))
+        ret_val = 500
+
+    return ret_val
+
+
+def update2(collection, spec, document):
+    """Update a document in the database.
+
+    :param collection: The database collection where to perfrom the update op.
+    :param spec: The query used to search for the document to update.
+    :type spec: dict
+    :param document: The update document with the operations to perform.
+    :type document: dict
+    :return 200 if everything OK, 500 in case of error.
+    """
+    ret_val = 200
+    try:
+        collection.update(spec, document)
+    except pymongo.errors.OperationFailure, ex:
         utils.LOG.exception(str(ex))
         ret_val = 500
 
