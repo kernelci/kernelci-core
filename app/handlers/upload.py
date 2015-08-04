@@ -83,7 +83,8 @@ class UploadHandler(hbase.BaseHandler):
 
         if valid_token:
             valid_request = handlers.common.request.valid_post_request(
-                self.request.headers, self.request.remote_ip)
+                self.request.headers,
+                self.request.remote_ip, content_type=self.content_type)
 
             if valid_request == 200:
                 path = self.get_argument("path", None)

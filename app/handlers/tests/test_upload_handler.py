@@ -62,7 +62,10 @@ class TestUploadHandler(TestHandlerBase):
             response.headers["Content-Type"], self.content_type)
 
     def test_post_token_wrong_content(self):
-        headers = {"Authorization": "foo"}
+        headers = {
+            "Authorization": "foo",
+            "Content-Type": "application/json"
+        }
         response = self.fetch(
             "/upload", method="POST", body="", headers=headers)
         self.assertEqual(response.code, 415)
@@ -71,8 +74,7 @@ class TestUploadHandler(TestHandlerBase):
 
     def test_post_token_missing_content(self):
         headers = {
-            "Authorization": "foo",
-            "Content-Type": "multipart/form-data"
+            "Authorization": "foo"
         }
         response = self.fetch(
             "/upload", method="POST", body="", headers=headers)
