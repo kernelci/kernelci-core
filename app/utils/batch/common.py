@@ -11,78 +11,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import models
+"""Common functions for batch operations."""
+
 import types
 
+import models
 import utils.batch.batch_op as batchop
-import utils.db
-
-
-def create_batch_operation(json_obj, db_options):
-    """Create a `BatchOperation` object from a JSON object.
-
-    No validity checks are performed on the JSON object, it must be a valid
-    batch operation JSON structure.
-
-    :param json_obj: The JSON object with all the necessary paramters.
-    :type json_obj: dict
-    :param db_options: The mongodb configuration parameters.
-    :type db_options: dict
-    :return A `BatchOperation` object, or None if the `BatchOperation` cannot
-    be constructed.
-    """
-    batch_op = None
-
-    if json_obj:
-        get_func = json_obj.get
-        collection = get_func(models.COLLECTION_KEY, None)
-
-        if collection:
-            database = utils.db.get_db_connection(db_options)
-            operation_id = get_func(models.OP_ID_KEY, None)
-
-            if collection == models.COUNT_COLLECTION:
-                batch_op = batchop.BatchCountOperation(
-                    collection, database, operation_id=operation_id)
-            elif collection == models.BOOT_COLLECTION:
-                batch_op = batchop.BatchBootOperation(
-                    collection, database, operation_id=operation_id)
-            elif collection == models.JOB_COLLECTION:
-                batch_op = batchop.BatchJobOperation(
-                    collection, database, operation_id=operation_id)
-            elif collection == models.DEFCONFIG_COLLECTION:
-                batch_op = batchop.BatchDefconfigOperation(
-                    collection, database, operation_id=operation_id)
-            else:
-                batch_op = batchop.BatchOperation(
-                    collection, database, operation_id=operation_id)
-
-            batch_op.query_args = get_batch_query_args(
-                get_func(models.QUERY_KEY, None))
-            batch_op.document_id = get_func(models.DOCUMENT_ID_KEY, None)
-            batch_op.query_args_func = batch_op.query_args.get
-            batch_op.method = get_func(models.METHOD_KEY, None)
-
-    return batch_op
-
-
-def execute_batch_operation(json_obj, db_options):
-    """Create and execute the batch op as defined in the JSON object.
-
-    :param json_obj: The JSON object that will be used to create the batch
-    operation.
-    :type json_obj: dict
-    :param db_options: The mongodb database connection parameters.
-    :type db_options: dict
-    :return The result of the operation execution, or None.
-    """
-    batch_op = create_batch_operation(json_obj, db_options)
-
-    result = None
-    if batch_op:
-        result = batch_op.run()
-
-    return result
 
 
 def get_batch_query_args(query):
@@ -123,3 +57,67 @@ def get_batch_query_args(query):
                         args[arg[0]].append(arg[1])
 
     return args
+
+
+def create_batch_operation(json_obj, db_options):
+    """Create a `BatchOperation` object from a JSON object.
+
+    No validity checks are performed on the JSON object, it must be a valid
+    batch operation JSON structure.
+
+    :param json_obj: The JSON object with all the necessary paramters.
+    :type json_obj: dict
+    :param db_options: The mongodb configuration parameters.
+    :type db_options: dict
+    :return A `BatchOperation` object, or None if the `BatchOperation` cannot
+    be constructed.
+    """
+    batch_op = None
+
+    if json_obj:
+        get_func = json_obj.get
+        resource = get_func(models.RESOURCE_KEY, None)
+
+        if all([resource, resource in models.COLLECTIONS]):
+            if resource == models.COUNT_COLLECTION:
+                batch_op = batchop.BatchCountOperation()
+            elif resource == models.BOOT_COLLECTION:
+                batch_op = batchop.BatchBootOperation()
+            elif resource == models.JOB_COLLECTION:
+                batch_op = batchop.BatchJobOperation()
+            elif resource == models.BUILD_COLLECTION:
+                batch_op = batchop.BatchBuildOperation()
+            elif resource == models.TEST_CASE_COLLECTION:
+                batch_op = batchop.BatchTestCaseOperation()
+            elif resource == models.TEST_SET_COLLECTION:
+                batch_op = batchop.BatchTestSetOperation()
+            elif resource == models.TEST_SUITE_COLLECTION:
+                batch_op = batchop.BatchTestSuiteOperation()
+
+            batch_op.db_options = db_options
+            batch_op.query_args = get_batch_query_args(
+                get_func(models.QUERY_KEY, None))
+
+            for key, val in json_obj.iteritems():
+                setattr(batch_op, key, val)
+
+    return batch_op
+
+
+def execute_batch_operation(json_obj, db_options):
+    """Create and execute the batch op as defined in the JSON object.
+
+    :param json_obj: The JSON object that will be used to create the batch
+    operation.
+    :type json_obj: dict
+    :param db_options: The mongodb database connection parameters.
+    :type db_options: dict
+    :return The result of the operation execution, or None.
+    """
+    batch_op = create_batch_operation(json_obj, db_options)
+
+    result = None
+    if batch_op:
+        result = batch_op.run()
+
+    return result

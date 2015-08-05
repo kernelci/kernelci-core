@@ -91,5 +91,5 @@
             "description": "The VCS commit value if the $definitio_uri field is a VCS URI"
         }
     },
-    "required": ["version", "name", "lab_name", "defconfig_id"]
+    "required": ["name", "lab_name", "defconfig_id"]
 }

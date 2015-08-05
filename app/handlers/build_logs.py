@@ -11,12 +11,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""The RequestHandler for /defconfig/<id>/logs URLs."""
+"""The RequestHandler for /build/<id>/logs URLs."""
 
 import bson
 
 import handlers.base as hbase
-import handlers.common as hcommon
+import handlers.common.query
 import handlers.response as hresponse
 import models
 import models.error_log as merrlog
@@ -58,8 +58,9 @@ class BuildLogsHandler(hbase.BaseHandler):
             obj_id = bson.objectid.ObjectId(doc_id)
             result = utils.db.find_one2(
                 self.collection,
-                {models.DEFCONFIG_ID_KEY: obj_id},
-                fields=hcommon.get_query_fields(self.get_query_arguments)
+                {models.BUILD_ID_KEY: obj_id},
+                fields=handlers.common.query.get_query_fields(
+                    self.get_query_arguments)
             )
 
             if result:

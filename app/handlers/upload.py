@@ -18,7 +18,7 @@ import tornado.web
 import urlparse
 
 import handlers.base as hbase
-import handlers.common as hcommon
+import handlers.common.token
 import handlers.response as hresponse
 import models
 import utils.upload
@@ -36,7 +36,7 @@ class UploadHandler(hbase.BaseHandler):
 
     @staticmethod
     def _token_validation_func():
-        return hcommon.valid_token_upload
+        return handlers.common.token.valid_token_upload
 
     @property
     def content_type(self):
@@ -54,7 +54,6 @@ class UploadHandler(hbase.BaseHandler):
             response = hresponse.HandlerResponse(501)
         else:
             response = hresponse.HandlerResponse(403)
-            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 
@@ -71,7 +70,6 @@ class UploadHandler(hbase.BaseHandler):
             response = hresponse.HandlerResponse(501)
         else:
             response = hresponse.HandlerResponse(403)
-            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 
@@ -84,7 +82,9 @@ class UploadHandler(hbase.BaseHandler):
         valid_token, _ = self.validate_req_token("POST")
 
         if valid_token:
-            valid_request = self._valid_post_request()
+            valid_request = handlers.common.request.valid_post_request(
+                self.request.headers,
+                self.request.remote_ip, content_type=self.content_type)
 
             if valid_request == 200:
                 path = self.get_argument("path", None)
@@ -139,7 +139,6 @@ class UploadHandler(hbase.BaseHandler):
                 )
         else:
             response = hresponse.HandlerResponse(403)
-            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 

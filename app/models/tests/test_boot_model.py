@@ -21,18 +21,16 @@ class TestBootModel(unittest.TestCase):
 
     def test_boot_document_valid_instance(self):
         boot_doc = mboot.BootDocument(
-            "board", "job", "kernel", "defconfig", "lab"
-        )
+            "board", "job", "kernel", "defconfig", "lab")
         self.assertIsInstance(boot_doc, mbase.BaseDocument)
 
     def test_boot_document_to_dict(self):
         boot_doc = mboot.BootDocument(
-            "board", "job", "kernel", "defconfig", "lab", arch="arm"
-        )
+            "board", "job", "kernel", "defconfig", "lab", arch="arm")
         boot_doc.id = "id"
         boot_doc.job_id = "job-id"
         boot_doc.created_on = "now"
-        boot_doc.defconfig_id = "defconfig_id"
+        boot_doc.build_id = "build_id"
         boot_doc.retries = 10
         boot_doc.version = "1.0"
         boot_doc.dtb_append = False
@@ -55,6 +53,7 @@ class TestBootModel(unittest.TestCase):
         boot_doc.qemu_command = "qemu_command"
         boot_doc.metadata = {"foo": "bar"}
         boot_doc.mach = "soc"
+        boot_doc.lab_name = "lab-name"
 
         expected = {
             "_id": "id",
@@ -67,7 +66,7 @@ class TestBootModel(unittest.TestCase):
             "created_on": "now",
             "defconfig": "defconfig",
             "defconfig_full": "defconfig",
-            "defconfig_id": "defconfig_id",
+            "build_id": "build_id",
             "dtb": None,
             "dtb_addr": None,
             "dtb_append": False,
@@ -86,7 +85,7 @@ class TestBootModel(unittest.TestCase):
             "job_id": "job-id",
             "kernel": "kernel",
             "kernel_image": None,
-            "lab_name": "lab",
+            "lab_name": "lab-name",
             "load_addr": None,
             "mach": "soc",
             "metadata": {"foo": "bar"},
@@ -130,7 +129,7 @@ class TestBootModel(unittest.TestCase):
             "created_on": "now",
             "defconfig": "defconfig",
             "defconfig_full": "defconfig_full",
-            "defconfig_id": "defconfig_id",
+            "build_id": "build_id",
             "dtb": "dtb_val",
             "dtb_addr": "1234",
             "dtb_append": False,

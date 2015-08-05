@@ -1,5 +1,3 @@
-# Copyright (C) 2014 Linaro Ltd.
-#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
@@ -18,12 +16,13 @@
 import bson
 
 import handlers.base as hbase
-import handlers.common as hcommon
+import handlers.common.query
+import handlers.common.token
 import handlers.response as hresponse
 import models
 import models.lab as mlab
 import models.token as mtoken
-import taskqueue.tasks as taskq
+import taskqueue.tasks.boot as taskq
 import utils.db
 
 
@@ -43,7 +42,7 @@ class BootHandler(hbase.BaseHandler):
 
     @staticmethod
     def _token_validation_func():
-        return hcommon.valid_token_bh
+        return handlers.common.token.valid_token_bh
 
     def _post(self, *args, **kwargs):
         lab_name = kwargs["json_obj"].get(models.LAB_NAME_KEY, None)
@@ -55,7 +54,7 @@ class BootHandler(hbase.BaseHandler):
             response.reason = "Request accepted and being imported"
 
             taskq.import_boot.apply_async(
-                [kwargs["json_obj"], kwargs["db_options"]])
+                [kwargs["json_obj"], self.settings["dboptions"]])
         else:
             response = hresponse.HandlerResponse(403)
             response.reason = (
@@ -132,7 +131,6 @@ class BootHandler(hbase.BaseHandler):
                                     "Resource '%s' deleted" % doc_id)
                         else:
                             response = hresponse.HandlerResponse(403)
-                            response.reason = hcommon.NOT_VALID_TOKEN
                     else:
                         response = hresponse.HandlerResponse(404)
                         response.reason = "Resource '%s' not found" % doc_id
@@ -143,7 +141,7 @@ class BootHandler(hbase.BaseHandler):
                     response = hresponse.HandlerResponse(400)
                     response.reason = "Wrong ID value passed as object ID"
             else:
-                spec = hcommon.get_query_spec(
+                spec = handlers.common.query.get_query_spec(
                     self.get_query_arguments, self._valid_keys("DELETE"))
                 if spec:
                     response = self._delete(spec)
@@ -156,7 +154,6 @@ class BootHandler(hbase.BaseHandler):
                         "No valid data provided to execute a DELETE")
         else:
             response = hresponse.HandlerResponse(403)
-            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 

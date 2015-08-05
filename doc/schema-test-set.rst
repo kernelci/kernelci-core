@@ -31,11 +31,14 @@ Notes
 +++++
 
 * ``test_case``: If not specified, the test case executed must be registered using the appropriate API call.
+* ``test_job_path``: The path of the test job executor URI *should* contain the job ID. The ``test_job_id`` field is used for searching.
 
 More Info
 *********
 
 * :ref:`Test suite schema <schema_test_suite>`
 * :ref:`Test case schema <schema_test_case>`
+* :ref:`Test defect schema <schema_test_defect>`
+* `URI syntax components <http://tools.ietf.org/html/rfc3986#section-3>`_
 * :ref:`API results <intro_schema_results>`
 * :ref:`Schema time and date <intro_schema_time_date>`

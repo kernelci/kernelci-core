@@ -12,18 +12,33 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import json
+import random
+import string
 import unittest
 
-import utils.validator as utilsv
+import utils.validator
 
 
 class TestValidator(unittest.TestCase):
+
+    def test_valid_json_not_json(self):
+        valid, reason = utils.validator.is_valid_json([], [])
+        self.assertFalse(valid)
+
+        valid, reason = utils.validator.is_valid_json((), [])
+        self.assertFalse(valid)
+
+        valid, reason = utils.validator.is_valid_json("", [])
+        self.assertFalse(valid)
+
+        valid, reason = utils.validator.is_valid_json(10, [])
+        self.assertFalse(valid)
 
     def test_valid_json_valid(self):
         json_string = '{"job": "job", "kernel": "kernel"}'
         accepted_keys = ['job', 'kernel']
 
-        valid, reason = utilsv.is_valid_json(
+        valid, reason = utils.validator.is_valid_json(
             json.loads(json_string), accepted_keys
         )
         self.assertTrue(valid)
@@ -33,7 +48,7 @@ class TestValidator(unittest.TestCase):
         json_string = '{"kernel": "kernel"}'
         accepted_keys = ['job', 'kernel', "defconfig", "foo"]
 
-        valid, reason = utilsv.is_valid_json(
+        valid, reason = utils.validator.is_valid_json(
             json.loads(json_string), accepted_keys
         )
         self.assertTrue(valid)
@@ -52,7 +67,7 @@ class TestValidator(unittest.TestCase):
         }
         accepted_keys = ['job', 'kernel']
 
-        valid, reason = utilsv.is_valid_json(json_obj, accepted_keys)
+        valid, reason = utils.validator.is_valid_json(json_obj, accepted_keys)
 
         self.assertTrue(valid)
         self.assertIsNotNone(reason)
@@ -66,7 +81,7 @@ class TestValidator(unittest.TestCase):
         }
         accepted_keys = None
 
-        valid, reason = utilsv.is_valid_json(json_obj, accepted_keys)
+        valid, reason = utils.validator.is_valid_json(json_obj, accepted_keys)
         self.assertFalse(valid)
         self.assertIsNotNone(reason)
 
@@ -77,7 +92,7 @@ class TestValidator(unittest.TestCase):
         }
 
         accepted_keys = ["foo", "bar"]
-        valid, reason = utilsv.is_valid_json(json_obj, accepted_keys)
+        valid, reason = utils.validator.is_valid_json(json_obj, accepted_keys)
 
         self.assertFalse(valid)
         self.assertIsNotNone(reason)
@@ -103,7 +118,7 @@ class TestValidator(unittest.TestCase):
             "foo": "foo"
         }
 
-        valid, reason = utilsv.is_valid_json(json_obj, accepted_keys)
+        valid, reason = utils.validator.is_valid_json(json_obj, accepted_keys)
 
         self.assertTrue(valid)
         self.assertIsNone(reason)
@@ -127,7 +142,7 @@ class TestValidator(unittest.TestCase):
             "foo": "foo"
         }
 
-        valid, reason = utilsv.is_valid_json(json_obj, accepted_keys)
+        valid, reason = utils.validator.is_valid_json(json_obj, accepted_keys)
 
         self.assertTrue(valid)
         self.assertIsNotNone(reason)
@@ -149,7 +164,7 @@ class TestValidator(unittest.TestCase):
             "foo": "foo"
         }
 
-        valid, reason = utilsv.is_valid_json(json_obj, accepted_keys)
+        valid, reason = utils.validator.is_valid_json(json_obj, accepted_keys)
 
         self.assertFalse(valid)
         self.assertIsNotNone(reason)
@@ -163,10 +178,8 @@ class TestBatchValidator(unittest.TestCase):
         accepted_keys = ()
 
         self.assertFalse(
-            utilsv.is_valid_batch_json(
-                json.loads(json_string), batch_key, accepted_keys
-            )
-        )
+            utils.validator.is_valid_batch_json(
+                json.loads(json_string), batch_key, accepted_keys))
 
     def test_valid_batch_simple_from_obj(self):
         batch_key = 'batch'
@@ -188,8 +201,8 @@ class TestBatchValidator(unittest.TestCase):
         }
 
         self.assertTrue(
-            utilsv.is_valid_batch_json(json_obj, batch_key, accepted_keys)
-        )
+            utils.validator.is_valid_batch_json(
+                json_obj, batch_key, accepted_keys))
 
     def test_valid_batch_json_from_string(self):
         batch_key = 'batch'
@@ -200,10 +213,8 @@ class TestBatchValidator(unittest.TestCase):
         )
 
         self.assertTrue(
-            utilsv.is_valid_batch_json(
-                json.loads(json_str), batch_key, accepted_keys
-            )
-        )
+            utils.validator.is_valid_batch_json(
+                json.loads(json_str), batch_key, accepted_keys))
 
     def test_non_valid_batch_json_from_dict(self):
         batch_key = 'batch'
@@ -216,8 +227,8 @@ class TestBatchValidator(unittest.TestCase):
         }
 
         self.assertFalse(
-            utilsv.is_valid_batch_json(json_obj, batch_key, accepted_keys)
-        )
+            utils.validator.is_valid_batch_json(
+                json_obj, batch_key, accepted_keys))
 
         json_obj = {
             "batch": [
@@ -226,8 +237,8 @@ class TestBatchValidator(unittest.TestCase):
         }
 
         self.assertFalse(
-            utilsv.is_valid_batch_json(json_obj, batch_key, accepted_keys)
-        )
+            utils.validator.is_valid_batch_json(
+                json_obj, batch_key, accepted_keys))
 
     def test_non_valid_batch_json_wrong_keys(self):
         batch_key = 'batch'
@@ -246,24 +257,27 @@ class TestBatchValidator(unittest.TestCase):
         }
 
         self.assertFalse(
-            utilsv.is_valid_batch_json(json_obj, batch_key, accepted_keys)
-        )
+            utils.validator.is_valid_batch_json(
+                json_obj, batch_key, accepted_keys))
 
     def test_validate_contact_object_wrong(self):
         json_obj = {
             "contact": {}
         }
-        self.assertFalse(utilsv.is_valid_lab_contact_data(json_obj)[0])
+        self.assertFalse(
+            utils.validator.is_valid_lab_contact_data(json_obj)[0])
 
         json_obj = {
             "contact": ["a"]
         }
-        self.assertFalse(utilsv.is_valid_lab_contact_data(json_obj)[0])
+        self.assertFalse(
+            utils.validator.is_valid_lab_contact_data(json_obj)[0])
 
         json_obj = {
             "contact": "a"
         }
-        self.assertFalse(utilsv.is_valid_lab_contact_data(json_obj)[0])
+        self.assertFalse(
+            utils.validator.is_valid_lab_contact_data(json_obj)[0])
 
         json_obj = {
             "contact": {
@@ -271,7 +285,8 @@ class TestBatchValidator(unittest.TestCase):
                 "baz": "foo"
             }
         }
-        self.assertFalse(utilsv.is_valid_lab_contact_data(json_obj)[0])
+        self.assertFalse(
+            utils.validator.is_valid_lab_contact_data(json_obj)[0])
 
         json_obj = {
             "contact": {
@@ -279,28 +294,32 @@ class TestBatchValidator(unittest.TestCase):
                 "surname": "foo"
             }
         }
-        self.assertFalse(utilsv.is_valid_lab_contact_data(json_obj)[0])
+        self.assertFalse(
+            utils.validator.is_valid_lab_contact_data(json_obj)[0])
 
         json_obj = {
             "contact": {
                 "surname": "foo"
             }
         }
-        self.assertFalse(utilsv.is_valid_lab_contact_data(json_obj)[0])
+        self.assertFalse(
+            utils.validator.is_valid_lab_contact_data(json_obj)[0])
 
         json_obj = {
             "contact": {
                 "name": "foo"
             }
         }
-        self.assertFalse(utilsv.is_valid_lab_contact_data(json_obj)[0])
+        self.assertFalse(
+            utils.validator.is_valid_lab_contact_data(json_obj)[0])
 
         json_obj = {
             "contact": {
                 "email": "foo"
             }
         }
-        self.assertFalse(utilsv.is_valid_lab_contact_data(json_obj)[0])
+        self.assertFalse(
+            utils.validator.is_valid_lab_contact_data(json_obj)[0])
 
         json_obj = {
             "contact": {
@@ -308,7 +327,8 @@ class TestBatchValidator(unittest.TestCase):
                 "email": "foo"
             }
         }
-        self.assertFalse(utilsv.is_valid_lab_contact_data(json_obj)[0])
+        self.assertFalse(
+            utils.validator.is_valid_lab_contact_data(json_obj)[0])
 
         json_obj = {
             "contact": {
@@ -316,7 +336,8 @@ class TestBatchValidator(unittest.TestCase):
                 "email": "foo"
             }
         }
-        self.assertFalse(utilsv.is_valid_lab_contact_data(json_obj)[0])
+        self.assertFalse(
+            utils.validator.is_valid_lab_contact_data(json_obj)[0])
 
     def test_validate_contact_object_correct(self):
 
@@ -328,6 +349,19 @@ class TestBatchValidator(unittest.TestCase):
             }
         }
 
-        validated = utilsv.is_valid_lab_contact_data(json_obj)
+        validated = utils.validator.is_valid_lab_contact_data(json_obj)
         self.assertTrue(validated[0])
         self.assertIsNone(validated[1])
+
+    def test_is_valid_bson_id(self):
+        self.assertFalse(utils.validator.is_valid_id("foo"))
+        self.assertFalse(utils.validator.is_valid_id(""))
+        self.assertFalse(utils.validator.is_valid_id(1234))
+        self.assertFalse(utils.validator.is_valid_id(u"1234foobar"))
+        self.assertFalse(utils.validator.is_valid_id([]))
+        self.assertFalse(utils.validator.is_valid_id(()))
+        self.assertFalse(utils.validator.is_valid_id({}))
+
+        fake_id = "".join(
+            [random.choice(string.digits) for x in xrange(24)])
+        self.assertTrue(utils.validator.is_valid_id(fake_id))

@@ -28,7 +28,7 @@ class TestSetDocument(mbase.BaseDocument):
     A test set is a container of test cases.
     """
 
-    def __init__(self, name, test_suite_id, version):
+    def __init__(self, name, test_suite_id, version="1.0"):
         """
 
         :param name: The name given to this test set.
@@ -48,11 +48,15 @@ class TestSetDocument(mbase.BaseDocument):
 
         self._test_case = []
         self._parameters = {}
+        self._defects = []
 
         self.definition_uri = None
         self.metadata = {}
         self.time = -1
         self.vcs_commit = None
+        self.test_job_url = None
+        self.test_job_path = None
+        self.test_job_id = None
 
     @property
     def collection(self):
@@ -150,14 +154,36 @@ class TestSetDocument(mbase.BaseDocument):
         """
         self._test_suite_id = value
 
+    @property
+    def defects(self):
+        """The defects associated with the test set."""
+        return self._defects
+
+    @defects.setter
+    def defects(self, value):
+        """Set the defect associated with the the test set.
+
+        :param value: The defect object to add.
+        :type value: dictionary
+        """
+        if value:
+            if isinstance(value, types.ListType):
+                self._defects.extend(value)
+            else:
+                self._defects.append(value)
+
     def to_dict(self):
         test_set = {
             models.CREATED_KEY: self.created_on,
+            models.DEFECTS_KEY: self.defects,
             models.DEFINITION_URI_KEY: self.definition_uri,
             models.METADATA_KEY: self.metadata,
             models.NAME_KEY: self.name,
             models.PARAMETERS_KEY: self.parameters,
             models.TEST_CASE_KEY: self.test_case,
+            models.TEST_JOB_ID_KEY: self.test_job_id,
+            models.TEST_JOB_PATH_KEY: self.test_job_path,
+            models.TEST_JOB_URL_KEY: self.test_job_url,
             models.TEST_SUITE_ID_KEY: self.test_suite_id,
             models.TIME_KEY: self.time,
             models.VCS_COMMIT_KEY: self.vcs_commit,
@@ -181,9 +207,8 @@ class TestSetDocument(mbase.BaseDocument):
             try:
                 name = doc_pop(models.NAME_KEY)
                 test_suite_id = doc_pop(models.TEST_SUITE_ID_KEY)
-                version = doc_pop(models.VERSION_KEY)
 
-                test_set = TestSetDocument(name, test_suite_id, version)
+                test_set = TestSetDocument(name, test_suite_id)
                 test_set.id = set_id
 
                 for key, val in local_obj.iteritems():

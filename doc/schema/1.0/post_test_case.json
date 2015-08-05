@@ -86,5 +86,5 @@
             "description": "Free form object where to store accessory test case data"
         }
     },
-    "required": ["version", "name", "test_suite_id"]
+    "required": ["name", "test_suite_id"]
 }

@@ -1,8 +1,8 @@
 {
-    "$schema": "http://api.kernelci.org/json-schema/1.0/get_defconfig.json",
-    "id": "http://api.kernelci.org/json-schema/1.0/get_defconfig.json",
-    "title": "defconfig",
-    "description": "A defconfig as built by the continuous integration system",
+    "$schema": "http://api.kernelci.org/json-schema/1.0/post_build.json",
+    "id": "http://api.kernelci.org/json-schema/1.0/post_build.json",
+    "title": "build",
+    "description": "A build from a continuous integration system",
     "type": "object",
     "properties": {
         "version": {
@@ -10,33 +10,9 @@
             "description": "The version number of this JSON schema",
             "enum": ["1.0"]
         },
-        "_id": {
-            "type": "string",
-            "description": "The ID associated with the object"
-        },
-        "created_on": {
-            "type": "object",
-            "description": "Creation date of the object",
-            "properties": {
-                "$date": {
-                    "type": "number",
-                    "description": "Milliseconds from epoch time"
-                }
-            }
-        },
         "job": {
             "type": "string",
             "description": "The job associated with this object"
-        },
-        "job_id": {
-            "type": "object",
-            "description": "The ID of the associated job",
-            "properties": {
-                "$oid": {
-                    "type": "string",
-                    "description": "The actual ID value"
-                }
-            }
         },
         "kernel": {
             "type": "string",
@@ -48,35 +24,32 @@
         },
         "defconfig_full": {
             "type": "string",
-            "description": "The full name of the defconfig, can contain also config fragments information",
+            "description": "The full name of the defconfig with config fragments information",
             "default": "The defconfig value"
         },
-        "dirname": {
+        "build_result": {
             "type": "string",
-            "description": "The name of the directory of the defconfig built; it can be different from the actual defconfig name"
-        },
-        "status": {
-            "type": "string",
-            "description": "The status of the defconfig",
+            "description": "The status of the build",
             "enum": ["FAIL", "PASS", "UNKNOWN"]
         },
-        "errors": {
+        "build_errors": {
             "type": "integer",
             "description": "Number of errors reported",
             "default": 0
         },
-        "warnings": {
+        "build_warnings": {
             "type": "integer",
             "description": "Number of warnings reported",
             "default": 0
         },
         "arch": {
             "type": "string",
-            "description": "The architecture of the defconfig built"
+            "description": "The architecture of the build"
         },
         "build_time": {
             "type": "number",
-            "description": "The time taken to build this defconfig"
+            "description": "The time taken to perform the build",
+            "default": 0
         },
         "git_url": {
             "type": "string",
@@ -94,36 +67,25 @@
             "type": "string",
             "description": "The name of the git describe command"
         },
+        "build_log": {
+            "type": "string",
+            "description": "Name of the build log file in text format"
+        },
         "build_platform": {
             "type": "array",
             "description": "An array with info about the build platform"
-        },
-        "modules_dir": {
-            "type": "string",
-            "description": "Name of the modules directory"
-        },
-        "modules": {
-            "type": "string",
-            "description": "Name of the modules file"
         },
         "dtb_dir": {
             "type": "string",
             "description": "Name of the dtb directory"
         },
-        "dtb_dir_data": {
-            "type": "array",
-            "description": "An array of file paths relative to the dtb directory"
-        },
-        "build_log": {
+        "compiler_version": {
             "type": "string",
-            "description": "Name of the build log file in text format"
+            "description": "Description string of the compiler used"
         },
-        "text_offset": {
-            "type": "string"
-        },
-        "system_map": {
+        "kconfig_fragments": {
             "type": "string",
-            "description": "Name of the system map file"
+            "description": "The config fragment used"
         },
         "kernel_config": {
             "type": "string",
@@ -132,6 +94,25 @@
         "kernel_image": {
             "type": "string",
             "description": "Name of the kernel image created"
+        },
+        "cross_compile": {
+            "type": "string",
+            "description": "The cross compiler used"
+        },
+        "modules": {
+            "type": "string",
+            "description": "Name of the modules file"
+        },
+        "modules_dir": {
+            "type": "string",
+            "description": "Name of the modules directory"
+        },
+        "system_map": {
+            "type": "string",
+            "description": "Name of the system map file"
+        },
+        "text_offset": {
+            "type": "string"
         },
         "kconfig_fragments": {
             "type": "string",
@@ -145,9 +126,12 @@
             "type": "string",
             "description": "The server path where the boot related files are stored"
         },
-        "metadata": {
-            "type": "object",
-            "description": "A free form object that can contain different properties"
+        "build_type": {
+            "type": "string",
+            "description": "The type of the build",
+            "enum": ["kernel"],
+            "default": "kernel"
         }
-    }
+    },
+    "required": ["job", "kernel", "defconfig", "arch"]
 }

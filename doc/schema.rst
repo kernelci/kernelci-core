@@ -7,8 +7,8 @@ Schema
     :maxdepth: 1
 
     schema-job
-    schema-defconfig
-    schema-defconfig-logs
+    schema-build
+    schema-build-logs
     schema-boot
     schema-token
     schema-batch

@@ -219,7 +219,7 @@ class TestTestsImport(unittest.TestCase):
         mock_parse.return_value = {}
         suite_json = {
             "name": "test-suite",
-            "defconfig_id": "defconfig",
+            "build_id": "build-id",
             "version": "1.0",
             "time": 100
         }
@@ -243,7 +243,7 @@ class TestTestsImport(unittest.TestCase):
         mock_id.return_value = "fake"
         suite_json = {
             "name": "test-suite",
-            "defconfig_id": "defconfig",
+            "build_id": "build-id",
             "version": "1.0",
             "time": 100
         }
@@ -259,8 +259,8 @@ class TestTestsImport(unittest.TestCase):
     @mock.patch("bson.objectid.ObjectId")
     @mock.patch("utils.db.get_db_connection")
     def test_parse_test_suite_with_all(self, mock_db, mock_id, mock_find):
-        defconfig_doc = {
-            "_id": "defconfig-id",
+        build_doc = {
+            "_id": "build-id",
             "job": None,
             "kernel": "kernel",
             "defconfig": None
@@ -278,14 +278,14 @@ class TestTestsImport(unittest.TestCase):
             "job": "job"
         }
         mock_db.return_value = self.db
-        mock_id.side_effect = ["defconfig-id", "boot-id", "job-id"]
-        mock_find.side_effect = [defconfig_doc, boot_doc, job_doc]
+        mock_id.side_effect = ["build-id", "boot-id", "job-id"]
+        mock_find.side_effect = [build_doc, boot_doc, job_doc]
 
         suite_json = {
             "board": None,
             "board_instance": None,
             "boot_id": "boot-id",
-            "defconfig_id": "defconfig-id",
+            "build_id": "build-id",
             "job_id": "job-id",
             "name": "test-suite",
             "time": 100,
@@ -296,7 +296,7 @@ class TestTestsImport(unittest.TestCase):
             "board": "board",
             "board_instance": "instance",
             "boot_id": "boot-id",
-            "defconfig_id": "defconfig-id",
+            "build_id": "build-id",
             "job": "job",
             "job_id": "job-id",
             "kernel": "kernel",
@@ -333,7 +333,7 @@ class TestTestsImport(unittest.TestCase):
     @mock.patch("utils.db.get_db_connection")
     def test_parse_test_suite_with_all_in_suite(self, mock_db, mock_id):
         mock_db.return_value = self.db
-        mock_id.side_effect = ["defconfig-id", "boot-id", "job-id"]
+        mock_id.side_effect = ["build-id", "boot-id", "job-id"]
 
         suite_json = {
             "arch": "arch",
@@ -342,7 +342,7 @@ class TestTestsImport(unittest.TestCase):
             "boot_id": "boot-id",
             "defconfig": "defconfig",
             "defconfig_full": "defconfig_full",
-            "defconfig_id": "defconfig-id",
+            "build_id": "build-id",
             "job": "job",
             "job_id": "job-id",
             "kernel": "kernel",
@@ -358,7 +358,7 @@ class TestTestsImport(unittest.TestCase):
             "boot_id": "boot-id",
             "defconfig": "defconfig",
             "defconfig_full": "defconfig_full",
-            "defconfig_id": "defconfig-id",
+            "build_id": "build-id",
             "job": "job",
             "job_id": "job-id",
             "kernel": "kernel",
@@ -533,17 +533,15 @@ class TestTestsImport(unittest.TestCase):
     @mock.patch("utils.db.get_db_connection")
     def test_import_multi_test_sets_with_test_case(self, mock_db, mock_save):
         mock_db.return_value = self.db
-        mock_save.side_effect = [(201, "test-set0-id")]
+        mock_save.side_effect = [(201, "test-set0-id"), (201, "test-case0-id")]
 
         tests_list = [
             {
                 "name": "test-set0",
-                "version": "1.0",
                 "parameters": {"a": 1},
                 "test_case": [
                     {
                         "name": "test-case0",
-                        "version": "1.0",
                         "test_suite_id": "test-suite-id"
                     }
                 ]

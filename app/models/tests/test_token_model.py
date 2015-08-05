@@ -61,6 +61,7 @@ class TestTokenModel(unittest.TestCase):
         token_obj.created_on = "now"
         token_obj.token = "token"
         token_obj.username = "user"
+        token_obj.version = "1.1"
 
         expected = {
             "_id": "token-id",
@@ -72,7 +73,7 @@ class TestTokenModel(unittest.TestCase):
             "properties": [0 for _ in range(0, 16)],
             "token": "token",
             "username": "user",
-            "version": None,
+            "version": "1.1",
         }
 
         obtained = token_obj.to_dict()
@@ -221,8 +222,7 @@ class TestTokenModel(unittest.TestCase):
             "email": "bar@foo",
             "expires_on": None,
             "properties": [1 for _ in range(0, 16)],
-            "name": "bar@foo",
-            "_id": "token-id",
+            "_id": "token-id"
         }
 
         token = modt.Token.from_json(token_dict)
@@ -231,7 +231,6 @@ class TestTokenModel(unittest.TestCase):
         self.assertEqual(token.properties, [1 for _ in range(0, 16)])
         self.assertEqual(token.token, token_string)
         self.assertEqual(token.email, "bar@foo")
-        self.assertEqual(token.name, "bar@foo")
         self.assertEqual(token.id, "token-id")
         self.assertTrue(token.expired)
 

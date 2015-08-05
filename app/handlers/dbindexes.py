@@ -20,25 +20,16 @@ import pymongo
 import models
 
 
-def ensure_indexes(client, db_options):
+def ensure_indexes(database):
     """Ensure that mongodb indexes exists, if not create them.
 
     This should be called at server startup.
 
-    :param client: The mongodb client used to access the database.
-    :param db_options: The mongodb database connection parameters.
-    :type db_options: dict
+    :param database: The database connection.
     """
-    db_user = db_options["dbuser"]
-    db_pwd = db_options["dbpassword"]
-
-    database = client[models.DB_NAME]
-    if all([db_user, db_pwd]):
-        database.authenticate(db_user, password=db_pwd)
-
     _ensure_job_indexes(database)
     _ensure_boot_indexes(database)
-    _ensure_defconfig_indexes(database)
+    _ensure_build_indexes(database)
     _ensure_token_indexes(database)
     _ensure_lab_indexes(database)
     _ensure_bisect_indexes(database)
@@ -107,12 +98,12 @@ def _ensure_boot_indexes(database):
     )
 
 
-def _ensure_defconfig_indexes(database):
-    """Ensure indexes exists for the 'defconfig' collection.
+def _ensure_build_indexes(database):
+    """Ensure indexes exists for the 'build' collection.
 
     :param database: The database connection.
     """
-    collection = database[models.DEFCONFIG_COLLECTION]
+    collection = database[models.BUILD_COLLECTION]
 
     collection.ensure_index(
         [
@@ -197,6 +188,6 @@ def _ensure_error_logs_indexes(database):
     """
     collection = database[models.ERROR_LOGS_COLLECTION]
     collection.ensure_index(
-        [(models.DEFCONFIG_ID_KEY, pymongo.DESCENDING)],
+        [(models.BUILD_ID_KEY, pymongo.DESCENDING)],
         background=True
     )

@@ -17,10 +17,10 @@ import bson
 import tornado.gen
 
 import handlers.base as hbase
-import handlers.common as hcommon
+import handlers.common.query
 import handlers.response as hresponse
 import models
-import taskqueue.tasks as taskt
+import taskqueue.tasks.bisect as taskt
 import utils.db
 
 
@@ -61,7 +61,8 @@ class BisectHandler(hbase.BaseHandler):
 
         if valid_token:
             doc_id = kwargs.get("id", None)
-            fields = hcommon.get_query_fields(self.get_query_arguments)
+            fields = handlers.common.query.get_query_fields(
+                self.get_query_arguments)
 
             if doc_id:
                 try:
@@ -83,7 +84,7 @@ class BisectHandler(hbase.BaseHandler):
                     response.reason = "Wrong ID value passed as object ID"
             else:
                 # No ID specified, use the query args.
-                spec = hcommon.get_query_spec(
+                spec = handlers.common.query.get_query_spec(
                     self.get_query_arguments, self._valid_keys("GET"))
                 collection = spec.pop(models.COLLECTION_KEY, None)
 
@@ -95,7 +96,6 @@ class BisectHandler(hbase.BaseHandler):
                         "Missing 'collection' key, cannot process the request")
         else:
             response = hresponse.HandlerResponse(403)
-            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 
@@ -130,10 +130,10 @@ class BisectHandler(hbase.BaseHandler):
                     spec,
                     bisect_func,
                     fields=fields)
-            elif collection == models.DEFCONFIG_COLLECTION:
-                bisect_func = execute_defconfig_bisect
+            elif collection == models.BUILD_COLLECTION:
+                bisect_func = execute_build_bisect
                 if spec.get(models.COMPARE_TO_KEY, None):
-                    bisect_func = execute_defconfig_bisect_compared_to
+                    bisect_func = execute_build_bisect_compared_to
                 else:
                     # Force the compare_to field to None (null in mongodb)
                     # so that we can search correctly otherwise we can get
@@ -142,7 +142,7 @@ class BisectHandler(hbase.BaseHandler):
                     spec[models.COMPARE_TO_KEY] = None
 
                 response = self._bisect(
-                    models.DEFCONFIG_ID_KEY,
+                    models.BUILD_ID_KEY,
                     spec,
                     bisect_func,
                     fields=fields)
@@ -268,8 +268,8 @@ def execute_boot_bisect_compared_to(doc_id, db_options, **kwargs):
     return response
 
 
-def execute_defconfig_bisect(doc_id, db_options, **kwargs):
-    """Execute the defconfig bisect operation.
+def execute_build_bisect(doc_id, db_options, **kwargs):
+    """Execute the build bisect operation.
 
     :param doc_id: The ID of the document to execute the bisect on.
     :type doc_id: str
@@ -296,7 +296,7 @@ def execute_defconfig_bisect(doc_id, db_options, **kwargs):
     return response
 
 
-def execute_defconfig_bisect_compared_to(doc_id, db_options, **kwargs):
+def execute_build_bisect_compared_to(doc_id, db_options, **kwargs):
     response = hresponse.HandlerResponse()
     compare_to = kwargs.get("compare_to", None)
     fields = kwargs.get("fields", None)

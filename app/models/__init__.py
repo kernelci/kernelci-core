@@ -39,10 +39,12 @@ BOOT_RETRIES_KEY = "boot_retries"
 BOOT_TIME_KEY = "boot_time"
 BOOT_WARNINGS_KEY = "boot_warnings"
 BUILD_ERRORS_KEY = "build_errors"
+BUILD_ID_KEY = "build_id"
 BUILD_LOG_KEY = "build_log"
 BUILD_PLATFORM_KEY = "build_platform"
 BUILD_RESULT_KEY = "build_result"
 BUILD_TIME_KEY = "build_time"
+BUILD_TYPE_KEY = "build_type"
 BUILD_WARNINGS_KEY = "build_warnings"
 COMPARED_KEY = "compared"
 COMPARE_TO_KEY = "compare_to"
@@ -55,6 +57,10 @@ DATE_RANGE_KEY = "date_range"
 DEFCONFIG_FULL_KEY = "defconfig_full"
 DEFCONFIG_ID_KEY = "defconfig_id"
 DEFCONFIG_KEY = "defconfig"
+DEFECTS_KEY = "defects"
+DEFECT_ACK_KEY = "defect_ack"
+DEFECT_COMMENT_KEY = "defect_comment"
+DEFECT_URL_KEY = "defect_url"
 DEFINITION_URI_KEY = "definition_uri"
 DIRNAME_KEY = "dirname"
 DOC_ID_KEY = "doc_id"
@@ -130,6 +136,9 @@ SURNAME_KEY = "surname"
 SYSTEM_MAP_KEY = "system_map"
 TEST_CASE_ID_KEY = "test_case_id"
 TEST_CASE_KEY = "test_case"
+TEST_JOB_ID_KEY = "test_job_id"
+TEST_JOB_PATH_KEY = "test_job_path"
+TEST_JOB_URL_KEY = "test_job_url"
 TEST_SET_ID_KEY = "test_set_id"
 TEST_SET_KEY = "test_set"
 TEST_SUITE_ID_KEY = "test_suite_id"
@@ -199,16 +208,17 @@ BUILD_PASS_FILE = "build.PASS"
 BATCH_KEY = "batch"
 METHOD_KEY = "method"
 COLLECTION_KEY = "collection"
+RESOURCE_KEY = "resource"
 DOCUMENT_ID_KEY = "document_id"
+DOCUMENT_KEY = "document"
 QUERY_KEY = "query"
 OP_ID_KEY = "operation_id"
 
 # Collection names.
 BOOT_COLLECTION = "boot"
 COUNT_COLLECTION = "count"
-DEFCONFIG_COLLECTION = "defconfig"
+BUILD_COLLECTION = "build"
 JOB_COLLECTION = "job"
-SUBSCRIPTION_COLLECTION = "subscription"
 TOKEN_COLLECTION = "api-token"
 BISECT_COLLECTION = "bisect"
 LAB_COLLECTION = "lab"
@@ -220,6 +230,9 @@ TEST_SET_COLLECTION = "test_set"
 ERROR_LOGS_COLLECTION = "error_logs"
 ERRORS_SUMMARY_COLLECTION = "errors_summary"
 
+# Build types.
+KERNEL_BUILD_TYPE = "kernel"
+
 # Report types.
 BUILD_REPORT = "build"
 BOOT_REPORT = "boot"
@@ -228,10 +241,10 @@ BOOT_REPORT = "boot"
 BISECT_BOOT_STATUS_KEY = "boot_status"
 BISECT_BOOT_CREATED_KEY = "boot_created_on"
 BISECT_BOOT_METADATA_KEY = "boot_metadata"
-BISECT_DEFCONFIG_STATUS_KEY = "defconfig_status"
-BISECT_DEFCONFIG_CREATED_KEY = "defconfig_created_on"
-BISECT_DEFCONFIG_METADATA_KEY = "defconfig_metadata"
-BISECT_DEFCONFIG_ARCHITECTURE_KEY = "defconfig_arch"
+BISECT_DEFCONFIG_STATUS_KEY = "build_status"
+BISECT_DEFCONFIG_CREATED_KEY = "build_created_on"
+BISECT_DEFCONFIG_METADATA_KEY = "build_metadata"
+BISECT_DEFCONFIG_ARCHITECTURE_KEY = "build_arch"
 BISECT_DATA_KEY = "bisect_data"
 BISECT_GOOD_COMMIT_KEY = "good_commit"
 BISECT_BAD_COMMIT_KEY = "bad_commit"
@@ -245,12 +258,6 @@ VALID_ARCHITECTURES = [
     ARM_ARCHITECTURE_KEY,
     x86_ARCHITECTURE_KEY
 ]
-
-# Name formats.
-JOB_DOCUMENT_NAME = "%(job)s-%(kernel)s"
-BOOT_DOCUMENT_NAME = "%(board)s-%(job)s-%(kernel)s-%(defconfig)s-%(arch)s"
-DEFCONFIG_DOCUMENT_NAME = "%(job)s-%(kernel)s-%(defconfig)s"
-SUBSCRIPTION_DOCUMENT_NAME = "sub-%(job)s-%(kernel)s"
 
 # Valid build status.
 VALID_BUILD_STATUS = [
@@ -287,7 +294,7 @@ VALID_TEST_CASE_STATUS = [
 # The valid collections for the bisect handler.
 BISECT_VALID_COLLECTIONS = [
     BOOT_COLLECTION,
-    DEFCONFIG_COLLECTION,
+    BUILD_COLLECTION
 ]
 
 VALID_EMAIL_FORMATS = [
@@ -295,26 +302,29 @@ VALID_EMAIL_FORMATS = [
     EMAIL_TXT_FORMAT_KEY
 ]
 
-# All the available collections as key-value. The key is the same used for the
-# URL configuration.
-COLLECTIONS = {
-    "boot": BOOT_COLLECTION,
-    "defconfig": DEFCONFIG_COLLECTION,
-    "job": JOB_COLLECTION,
-    "test_suite": TEST_SUITE_COLLECTION,
-    "test_set": TEST_SET_COLLECTION,
-    "test_case": TEST_CASE_COLLECTION
-}
+# List of all available collections.
+COLLECTIONS = [
+    BOOT_COLLECTION,
+    BUILD_COLLECTION,
+    COUNT_COLLECTION,
+    JOB_COLLECTION,
+    TEST_CASE_COLLECTION,
+    TEST_SET_COLLECTION,
+    TEST_SUITE_COLLECTION
+]
 
 # Handlers valid keys.
 COUNT_VALID_KEYS = {
     "GET": [
         ARCHITECTURE_KEY,
+        BOARD_INSTANCE_KEY,
         BOARD_KEY,
+        BOOT_ID_KEY,
         CREATED_KEY,
         DEFCONFIG_FULL_KEY,
-        DEFCONFIG_ID_KEY,
+        BUILD_ID_KEY,
         DEFCONFIG_KEY,
+        DEFINITION_URI_KEY,
         ERRORS_KEY,
         GIT_BRANCH_KEY,
         GIT_COMMIT_KEY,
@@ -325,14 +335,24 @@ COUNT_VALID_KEYS = {
         KERNEL_CONFIG_KEY,
         KERNEL_IMAGE_KEY,
         KERNEL_KEY,
+        LAB_NAME_KEY,
         MODULES_DIR_KEY,
         MODULES_KEY,
+        NAME_KEY,
         PRIVATE_KEY,
         STATUS_KEY,
         SYSTEM_MAP_KEY,
+        TEST_CASE_ID_KEY,
+        TEST_JOB_ID_KEY,
+        TEST_JOB_URL_KEY,
+        TEST_SET_ID_KEY,
+        TEST_SUITE_ID_KEY,
         TEXT_OFFSET_KEY,
         TIME_KEY,
-        WARNINGS_KEY
+        TIME_KEY,
+        VCS_COMMIT_KEY,
+        VERSION_KEY,
+        WARNINGS_KEY,
     ]
 }
 
@@ -396,7 +416,7 @@ BOOT_VALID_KEYS = {
         BOARD_KEY,
         CREATED_KEY,
         DEFCONFIG_FULL_KEY,
-        DEFCONFIG_ID_KEY,
+        BUILD_ID_KEY,
         DEFCONFIG_KEY,
         ENDIANNESS_KEY,
         GIT_BRANCH_KEY,
@@ -414,7 +434,7 @@ BOOT_VALID_KEYS = {
     "DELETE": [
         BOARD_KEY,
         DEFCONFIG_FULL_KEY,
-        DEFCONFIG_ID_KEY,
+        BUILD_ID_KEY,
         DEFCONFIG_KEY,
         ID_KEY,
         JOB_ID_KEY,
@@ -423,10 +443,11 @@ BOOT_VALID_KEYS = {
     ]
 }
 
-DEFCONFIG_VALID_KEYS = {
+BUILD_VALID_KEYS = {
     "GET": [
         ARCHITECTURE_KEY,
         BUILD_LOG_KEY,
+        BUILD_TYPE_KEY,
         CREATED_KEY,
         DEFCONFIG_FULL_KEY,
         DEFCONFIG_KEY,
@@ -516,27 +537,34 @@ TOKEN_VALID_KEYS = {
 }
 
 JOB_VALID_KEYS = {
-    "POST": [
-        JOB_KEY,
-        KERNEL_KEY
-    ],
+    "POST": {
+        MANDATORY_KEYS: [
+            JOB_KEY,
+            KERNEL_KEY
+        ],
+        ACCEPTED_KEYS: [
+            JOB_KEY,
+            KERNEL_KEY,
+            STATUS_KEY
+        ]
+    },
     "GET": [
         CREATED_KEY,
         ID_KEY,
         JOB_KEY,
         KERNEL_KEY,
         PRIVATE_KEY,
-        STATUS_KEY
-    ]
+        STATUS_KEY,
+    ],
 }
 
 BATCH_VALID_KEYS = {
     "POST": [
-        COLLECTION_KEY,
-        DOCUMENT_ID_KEY,
+        DOCUMENT_KEY,
         METHOD_KEY,
         OP_ID_KEY,
-        QUERY_KEY
+        QUERY_KEY,
+        RESOURCE_KEY
     ]
 }
 
@@ -555,6 +583,14 @@ LAB_VALID_KEYS = {
             VERSION_KEY
         ]
     },
+    "PUT": [
+        ADDRESS_KEY,
+        CONTACT_KEY,
+        NAME_KEY,
+        PRIVATE_KEY,
+        TOKEN_KEY,
+        VERSION_KEY
+    ],
     "GET": [
         ADDRESS_KEY,
         CONTACT_KEY,
@@ -621,17 +657,16 @@ BISECT_VALID_KEYS = {
         BOOT_ID_KEY,
         COLLECTION_KEY,
         COMPARE_TO_KEY,
-        DEFCONFIG_ID_KEY
+        BUILD_ID_KEY
     ]
 }
 
 TEST_SUITE_VALID_KEYS = {
     "POST": {
         MANDATORY_KEYS: [
-            DEFCONFIG_ID_KEY,
+            BUILD_ID_KEY,
             LAB_NAME_KEY,
-            NAME_KEY,
-            VERSION_KEY
+            NAME_KEY
         ],
         ACCEPTED_KEYS: [
             ARCHITECTURE_KEY,
@@ -640,7 +675,7 @@ TEST_SUITE_VALID_KEYS = {
             BOOT_ID_KEY,
             CREATED_KEY,
             DEFCONFIG_FULL_KEY,
-            DEFCONFIG_ID_KEY,
+            BUILD_ID_KEY,
             DEFCONFIG_KEY,
             DEFINITION_URI_KEY,
             JOB_ID_KEY,
@@ -662,7 +697,7 @@ TEST_SUITE_VALID_KEYS = {
         BOOT_ID_KEY,
         CREATED_KEY,
         DEFCONFIG_FULL_KEY,
-        DEFCONFIG_ID_KEY,
+        BUILD_ID_KEY,
         DEFCONFIG_KEY,
         DEFINITION_URI_KEY,
         JOB_ID_KEY,
@@ -680,7 +715,7 @@ TEST_SUITE_VALID_KEYS = {
         BOOT_ID_KEY,
         CREATED_KEY,
         DEFCONFIG_FULL_KEY,
-        DEFCONFIG_ID_KEY,
+        BUILD_ID_KEY,
         DEFCONFIG_KEY,
         DEFINITION_URI_KEY,
         JOB_ID_KEY,
@@ -697,28 +732,35 @@ TEST_SET_VALID_KEYS = {
     "POST": {
         MANDATORY_KEYS: [
             NAME_KEY,
-            TEST_SUITE_ID_KEY,
-            VERSION_KEY
+            TEST_SUITE_ID_KEY
         ],
         ACCEPTED_KEYS: [
             CREATED_KEY,
+            DEFECTS_KEY,
             DEFINITION_URI_KEY,
             METADATA_KEY,
             NAME_KEY,
             PARAMETERS_KEY,
             TEST_CASE_KEY,
+            TEST_JOB_ID_KEY,
+            TEST_JOB_PATH_KEY,
+            TEST_JOB_URL_KEY,
             TEST_SUITE_ID_KEY,
             TIME_KEY,
             VCS_COMMIT_KEY,
-            VERSION_KEY
+            VERSION_KEY,
         ]
     },
     "PUT": [
         CREATED_KEY,
         DEFINITION_URI_KEY,
+        DEFECTS_KEY,
         NAME_KEY,
         PARAMETERS_KEY,
         TEST_SUITE_ID_KEY,
+        TEST_JOB_ID_KEY,
+        TEST_JOB_PATH_KEY,
+        TEST_JOB_URL_KEY,
         TIME_KEY,
         VCS_COMMIT_KEY,
         VERSION_KEY
@@ -728,6 +770,8 @@ TEST_SET_VALID_KEYS = {
         DEFINITION_URI_KEY,
         NAME_KEY,
         PARAMETERS_KEY,
+        TEST_JOB_ID_KEY,
+        TEST_JOB_URL_KEY,
         TEST_SUITE_ID_KEY,
         TIME_KEY,
         VCS_COMMIT_KEY,
@@ -739,8 +783,7 @@ TEST_CASE_VALID_KEYS = {
     "POST": {
         MANDATORY_KEYS: [
             NAME_KEY,
-            TEST_SUITE_ID_KEY,
-            VERSION_KEY
+            TEST_SUITE_ID_KEY
         ],
         ACCEPTED_KEYS: [
             ATTACHMENTS_KEY,

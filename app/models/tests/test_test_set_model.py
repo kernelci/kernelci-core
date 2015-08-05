@@ -37,15 +37,22 @@ class TestTestSetModel(unittest.TestCase):
         test_set.vcs_commit = "commit_sha"
         test_set.version = "1.1"
         test_set.test_suite_id = "another_id"
+        test_set.test_job_url = "http://test.executor"
+        test_set.test_job_path = "test/path/12345"
+        test_set.test_job_id = "12345"
 
         expected = {
             "_id": "id",
             "created_on": "now",
+            "defects": [],
             "definition_uri": "scheme://authority/path",
             "metadata": {"foo": "bar"},
             "name": "name",
             "parameters": {"param": "value"},
             "test_case": [{"foo": "bar"}],
+            "test_job_id": "12345",
+            "test_job_path": "test/path/12345",
+            "test_job_url": "http://test.executor",
             "test_suite_id": "another_id",
             "time": 10,
             "vcs_commit": "commit_sha",
@@ -67,11 +74,15 @@ class TestTestSetModel(unittest.TestCase):
 
         expected = {
             "created_on": "now",
+            "defects": [],
             "definition_uri": "scheme://authority/path",
             "metadata": {"foo": "bar"},
             "name": "name",
             "parameters": {"param": "value"},
             "test_case": [{"foo": "bar"}],
+            "test_job_id": None,
+            "test_job_path": None,
+            "test_job_url": None,
             "test_suite_id": "test_suite_id",
             "time": 10,
             "vcs_commit": "commit_sha",
@@ -82,9 +93,7 @@ class TestTestSetModel(unittest.TestCase):
 
     def test_set_doc_from_json_missing_key(self):
         test_set = {
-            "_id": "id",
-            "version": "1.0",
-            "test_suite_id": "test_suite_id"
+            "_id": "id"
         }
 
         self.assertIsNone(mtset.TestSetDocument.from_json(test_set))
@@ -98,11 +107,15 @@ class TestTestSetModel(unittest.TestCase):
         set_json = {
             "_id": "id",
             "created_on": "now",
+            "defects": [],
             "definition_uri": "scheme://authority/path",
             "metadata": {"foo": "bar"},
             "name": "name",
             "parameters": {"param": "value"},
             "test_case": [{"foo": "bar"}],
+            "test_job_id": "12345",
+            "test_job_path": "test/path/12345",
+            "test_job_url": "http://test.executor",
             "test_suite_id": "test_suite_id",
             "time": 10,
             "vcs_commit": "commit_sha",
@@ -150,3 +163,26 @@ class TestTestSetModel(unittest.TestCase):
         self.assertListEqual([], test_set.test_case)
         test_case_setter("")
         self.assertListEqual([], test_set.test_case)
+
+    def test_set_defects_setter(self):
+        test_set = mtset.TestSetDocument("name", "test_suite_id", "1.0")
+
+        def test_defects_setter(value):
+            test_set.defects = value
+
+        test_defects_setter([])
+        self.assertListEqual([], test_set.defects)
+        test_defects_setter({"foo": "bar"})
+        self.assertListEqual([{"foo": "bar"}], test_set.defects)
+        test_defects_setter([{"baz": "foo"}])
+        self.assertListEqual(
+            [{"foo": "bar"}, {"baz": "foo"}], test_set.defects)
+
+    def test_set_name_setter(self):
+        test_set = mtset.TestSetDocument("name", "test_suite_id", "1.0")
+
+        def test_name_setter(value):
+            test_set.name = value
+
+        test_name_setter("foo")
+        self.assertEqual("foo", test_set.name)

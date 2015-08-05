@@ -96,13 +96,12 @@ GET
 POST
 ****
 
-.. http:post:: /lab/(string:lab_id)
+.. http:post:: /lab
 
- Create or update a lab document as defined in the JSON data. If ``lab_id`` is
- provided, it will perform an update.
+ Create a new lab document as defined in the JSON data.
 
  For more info on all the required JSON request fields, see the :ref:`lab
- schema <schema_lab>`.
+ schema <schema_lab_post>`.
 
  :reqjson string name: The name that should be given to the lab.
  :reqjson object contact: The contact data associated with the lab.
@@ -113,11 +112,9 @@ POST
 
  :resheader Content-Type: Will be ``application/json; charset=UTF-8``.
 
- :status 200: The request has been accepted and the lab updated.
  :status 201: The request has been accepted and the lab created.
  :status 400: JSON data not valid, or provided name for the lab already exists.
  :status 403: Not authorized to perform the operation.
- :status 404: The provided resource has not been found.
  :status 415: Wrong content type.
  :status 422: No real JSON data provided.
 
@@ -140,12 +137,49 @@ POST
         }
     }
 
+PUT
+***
+
+.. http:put:: /lab/(string:lab_id)
+
+ Update an existing lab document identified by the ``lab_id`` value.
+
+ For more info on all the required JSON request fields, see the :ref:`lab
+ schema <schema_lab_post>`.
+
+ :reqheader Authorization: The token necessary to authorize the request.
+ :reqheader Content-Type: Content type of the transmitted data, must be ``application/json``.
+ :reqheader Accept-Encoding: Accept the ``gzip`` coding.
+
+ :resheader Content-Type: Will be ``application/json; charset=UTF-8``.
+
+ :status 200: The request has been accepted and the lab updated.
+ :status 400: JSON data not valid, or provided name for the lab already exists.
+ :status 403: Not authorized to perform the operation.
+ :status 404: The provided resource has not been found.
+ :status 415: Wrong content type.
+ :status 422: No real JSON data provided.
+
+ **Example Requests**
+
+ .. sourcecode:: http 
+
+    PUT /lab/0123456789ab0123456789ab HTTP/1.1
+    Host: api.kernelci.org
+    Content-Type: application/json
+    Accept: */*
+    Authorization: token
+
+    {
+        "name": "update-lab-name",
+    }
+
 DELETE
 ******
 
 .. http:delete:: /lab/(string:lab_id)
 
- Delete the lab entry identified by ``lab_id``.
+ Delete the lab document identified by the ``lab_id`` value.
 
  :param lab_id: The ID of the lab document to delete.
  :type lab_id: string
@@ -168,15 +202,7 @@ DELETE
 
  .. sourcecode:: http
 
-    DELETE /lab/lab-01 HTTP/1.1
-    Host: api.kernelci.org
-    Accept: */*
-    Content-Type: application/json
-    Authorization: token
-
- .. sourcecode:: http
-
-    DELETE /lab?private=true HTTP/1.1
+    DELETE /lab/0123456789ab0123456789ab HTTP/1.1
     Host: api.kernelci.org
     Accept: */*
     Content-Type: application/json

@@ -27,7 +27,7 @@ import tempfile
 import types
 import unittest
 
-import models.defconfig as mdefconfig
+import models.build as mbuild
 import models.job as mjob
 import utils.build
 
@@ -134,14 +134,14 @@ class TestBuildUtils(unittest.TestCase):
             mock_open.side_effect = IOError("IOError")
             self.addCleanup(patcher.stop)
 
-            defconfig_doc = utils.build._traverse_build_dir(
+            build_doc = utils.build._traverse_build_dir(
                 "build_dir",
                 temp_dir, "job", "kernel", "job_id", "job_date", errors, {})
         finally:
             shutil.rmtree(temp_dir, ignore_errors=True)
 
         self.assertIsNotNone(errors)
-        self.assertIsNone(defconfig_doc)
+        self.assertIsNone(build_doc)
         self.assertListEqual([500], errors.keys())
 
     def test_traverse_buld_dir_with_jsonerror(self):
@@ -153,14 +153,14 @@ class TestBuildUtils(unittest.TestCase):
             with io.open(os.path.join(build_dir, "build.json"), mode="w") as f:
                 f.write(u"a string of text")
 
-            defconfig_doc = utils.build._traverse_build_dir(
+            build_doc = utils.build._traverse_build_dir(
                 "build_dir",
                 temp_dir, "job", "kernel", "job_id", "job_date", errors, {})
         finally:
             shutil.rmtree(temp_dir, ignore_errors=True)
 
         self.assertIsNotNone(errors)
-        self.assertIsNone(defconfig_doc)
+        self.assertIsNone(build_doc)
         self.assertListEqual([500], errors.keys())
 
     def test_traverse_build_dir_with_valid_data(self):
@@ -185,24 +185,25 @@ class TestBuildUtils(unittest.TestCase):
             with io.open(os.path.join(build_dir, "build.json"), mode="w") as f:
                 f.write(json.dumps(build_data, ensure_ascii=False))
 
-            defconfig_doc = utils.build._traverse_build_dir(
+            build_doc = utils.build._traverse_build_dir(
                 "build_dir",
                 temp_dir, "job", "kernel", "job_id", "job_date", errors, {})
         finally:
             shutil.rmtree(temp_dir, ignore_errors=True)
 
-        self.assertIsInstance(defconfig_doc, mdefconfig.DefconfigDocument)
-        self.assertEqual("job", defconfig_doc.job)
-        self.assertEqual("kernel", defconfig_doc.kernel)
+        self.assertIsInstance(build_doc, mbuild.BuildDocument)
+        self.assertEqual("job", build_doc.job)
+        self.assertEqual("kernel", build_doc.kernel)
+        self.assertEqual("kernel", build_doc.build_type)
 
     def test_parse_build_data_no_dict(self):
         build_data = []
         errors = {}
 
-        defconfig_doc = utils.build.parse_build_data(
+        build_doc = utils.build.parse_build_data(
             build_data, "job", "kernel", errors)
 
-        self.assertIsNone(defconfig_doc)
+        self.assertIsNone(build_doc)
         self.assertIsNotNone(errors)
         self.assertListEqual([500], errors.keys())
 
@@ -210,10 +211,10 @@ class TestBuildUtils(unittest.TestCase):
         build_data = {"arch": "arm"}
         errors = {}
 
-        defconfig_doc = utils.build.parse_build_data(
+        build_doc = utils.build.parse_build_data(
             build_data, "job", "kernel", errors)
 
-        self.assertIsNone(defconfig_doc)
+        self.assertIsNone(build_doc)
         self.assertIsNotNone(errors)
         self.assertListEqual([500], errors.keys())
 
@@ -221,11 +222,11 @@ class TestBuildUtils(unittest.TestCase):
         build_data = {"defconfig": "defconfig"}
         errors = {}
 
-        defconfig_doc = utils.build.parse_build_data(
+        build_doc = utils.build.parse_build_data(
             build_data, "job", "kernel", errors)
 
-        self.assertIsInstance(defconfig_doc, mdefconfig.DefconfigDocument)
-        self.assertEqual(defconfig_doc.version, "1.0")
+        self.assertIsInstance(build_doc, mbuild.BuildDocument)
+        self.assertEqual(build_doc.version, "1.0")
 
     def test_parse_build_data_version(self):
         build_data = {
@@ -234,11 +235,11 @@ class TestBuildUtils(unittest.TestCase):
         }
         errors = {}
 
-        defconfig_doc = utils.build.parse_build_data(
+        build_doc = utils.build.parse_build_data(
             build_data, "job", "kernel", errors)
 
-        self.assertIsInstance(defconfig_doc, mdefconfig.DefconfigDocument)
-        self.assertEqual(defconfig_doc.version, "foo")
+        self.assertIsInstance(build_doc, mbuild.BuildDocument)
+        self.assertEqual(build_doc.version, "foo")
 
     def test_parse_build_data_errors_warnings(self):
         build_data = {
@@ -248,33 +249,33 @@ class TestBuildUtils(unittest.TestCase):
         }
         errors = {}
 
-        defconfig_doc = utils.build.parse_build_data(
+        build_doc = utils.build.parse_build_data(
             build_data, "job", "kernel", errors)
 
-        self.assertIsInstance(defconfig_doc, mdefconfig.DefconfigDocument)
-        self.assertEqual(defconfig_doc.errors, 3)
-        self.assertEqual(defconfig_doc.warnings, 1)
+        self.assertIsInstance(build_doc, mbuild.BuildDocument)
+        self.assertEqual(build_doc.errors, 3)
+        self.assertEqual(build_doc.warnings, 1)
 
     def test_parse_build_data_no_job_no_kernel(self):
         build_data = {"defconfig": "defconfig"}
         errors = {}
 
-        defconfig_doc = utils.build.parse_build_data(
+        build_doc = utils.build.parse_build_data(
             build_data, "job", "kernel", errors)
 
-        self.assertIsInstance(defconfig_doc, mdefconfig.DefconfigDocument)
-        self.assertEqual(defconfig_doc.job, "job")
-        self.assertEqual(defconfig_doc.kernel, "kernel")
+        self.assertIsInstance(build_doc, mbuild.BuildDocument)
+        self.assertEqual(build_doc.job, "job")
+        self.assertEqual(build_doc.kernel, "kernel")
 
     def test_parse_build_data_no_defconfig_full(self):
         build_data = {"defconfig": "defconfig"}
         errors = {}
 
-        defconfig_doc = utils.build.parse_build_data(
+        build_doc = utils.build.parse_build_data(
             build_data, "job", "kernel", errors)
 
-        self.assertIsInstance(defconfig_doc, mdefconfig.DefconfigDocument)
-        self.assertEqual(defconfig_doc.defconfig_full, "defconfig")
+        self.assertIsInstance(build_doc, mbuild.BuildDocument)
+        self.assertEqual(build_doc.defconfig_full, "defconfig")
 
     def test_parse_build_data_diff_fragments(self):
         build_data = {
@@ -285,13 +286,13 @@ class TestBuildUtils(unittest.TestCase):
             "kconfig_fragments": "frag-CONFIG_TEST=y.config"
         }
 
-        defconfig_doc = utils.build.parse_build_data(
+        build_doc = utils.build.parse_build_data(
             build_data, "job", "kernel", {}, "arm-build_dir")
 
-        self.assertIsInstance(defconfig_doc, mdefconfig.DefconfigDocument)
+        self.assertIsInstance(build_doc, mbuild.BuildDocument)
         self.assertEqual(
-            defconfig_doc.defconfig_full, "defoo_confbar+CONFIG_TEST=y")
-        self.assertEqual(defconfig_doc.defconfig, "defoo_confbar")
+            build_doc.defconfig_full, "defoo_confbar+CONFIG_TEST=y")
+        self.assertEqual(build_doc.defconfig, "defoo_confbar")
 
     def test_parse_build_metadata(self):
         build_data = {
@@ -310,27 +311,28 @@ class TestBuildUtils(unittest.TestCase):
             "compiler_version": "gcc",
             "cross_compile": "foo"
         }
-        defconf_doc = utils.build.parse_build_data(
+        build_doc = utils.build.parse_build_data(
             build_data, "job", "kernel", {}, "arm-build_dir")
 
-        self.assertIsInstance(defconf_doc, mdefconfig.DefconfigDocument)
-        self.assertIsInstance(defconf_doc.metadata, types.DictionaryType)
-        self.assertIsInstance(defconf_doc.dtb_dir_data, types.ListType)
-        self.assertNotEqual({}, defconf_doc.metadata)
-        self.assertEqual("gcc", defconf_doc.metadata["compiler_version"])
-        self.assertEqual("foo", defconf_doc.metadata["cross_compile"])
-        self.assertEqual(defconf_doc.kconfig_fragments, "fragment")
-        self.assertEqual(defconf_doc.arch, "arm")
-        self.assertEqual(defconf_doc.git_commit, "1234567890")
-        self.assertEqual(defconf_doc.git_branch, "test/branch")
-        self.assertEqual(defconf_doc.git_url, "git://git.example.org")
-        self.assertEqual(defconf_doc.defconfig_full, "defoo_confbar")
-        self.assertEqual(defconf_doc.defconfig, "defoo_confbar")
-        self.assertEqual(defconf_doc.build_log, "file.log")
-        self.assertEqual(defconf_doc.modules_dir, "foo/bar")
-        self.assertEqual(defconf_doc.dtb_dir, "dtbs")
-        self.assertEqual(defconf_doc.kernel_config, "kernel.config")
-        self.assertEqual(defconf_doc.kernel_image, "zImage")
+        self.assertIsInstance(build_doc, mbuild.BuildDocument)
+        self.assertIsInstance(build_doc.metadata, types.DictionaryType)
+        self.assertIsInstance(build_doc.dtb_dir_data, types.ListType)
+        self.assertNotEqual({}, build_doc.metadata)
+        self.assertEqual("gcc", build_doc.metadata["compiler_version"])
+        self.assertEqual("foo", build_doc.metadata["cross_compile"])
+        self.assertEqual(build_doc.kconfig_fragments, "fragment")
+        self.assertEqual(build_doc.arch, "arm")
+        self.assertEqual(build_doc.git_commit, "1234567890")
+        self.assertEqual(build_doc.git_branch, "test/branch")
+        self.assertEqual(build_doc.git_url, "git://git.example.org")
+        self.assertEqual(build_doc.defconfig_full, "defoo_confbar")
+        self.assertEqual(build_doc.defconfig, "defoo_confbar")
+        self.assertEqual(build_doc.build_log, "file.log")
+        self.assertEqual(build_doc.modules_dir, "foo/bar")
+        self.assertEqual(build_doc.dtb_dir, "dtbs")
+        self.assertEqual(build_doc.kernel_config, "kernel.config")
+        self.assertEqual(build_doc.kernel_image, "zImage")
+        self.assertEqual(build_doc.build_type, "kernel")
 
     def test_parse_dtb_dir_single_file(self):
         temp_dir = tempfile.mkdtemp()
@@ -431,15 +433,15 @@ class TestBuildUtils(unittest.TestCase):
 
     def test_update_job_doc(self):
         job_doc = mjob.JobDocument("job", "kernel")
-        defconfig_doc = mdefconfig.DefconfigDocument(
+        build_doc = mbuild.BuildDocument(
             "job", "kernel", "defconfig")
-        defconfig_doc.git_branch = "local/branch"
-        defconfig_doc.git_commit = "1234567890"
-        defconfig_doc.git_describe = "kernel.version"
-        defconfig_doc.git_url = "git://url.git"
+        build_doc.git_branch = "local/branch"
+        build_doc.git_commit = "1234567890"
+        build_doc.git_describe = "kernel.version"
+        build_doc.git_url = "git://url.git"
 
         utils.build._update_job_doc(
-            job_doc, "job_id", "PASS", [defconfig_doc], self.db)
+            job_doc, "job_id", "PASS", [build_doc], self.db)
 
         self.assertIsInstance(job_doc, mjob.JobDocument)
         self.assertIsNotNone(job_doc.id)
@@ -469,17 +471,17 @@ class TestBuildUtils(unittest.TestCase):
     def test_update_job_doc_with_job_doc_and_fake(self):
         job_doc = mjob.JobDocument("job", "kernel")
         job_doc_b = mjob.JobDocument("job", "kernel")
-        defconfig_doc = mdefconfig.DefconfigDocument(
+        build_doc = mbuild.BuildDocument(
             "job", "kernel", "defconfig")
-        defconfig_doc.git_branch = "local/branch"
-        defconfig_doc.git_commit = "1234567890"
-        defconfig_doc.git_describe = "kernel.version"
-        defconfig_doc.git_url = "git://url.git"
+        build_doc.git_branch = "local/branch"
+        build_doc.git_commit = "1234567890"
+        build_doc.git_describe = "kernel.version"
+        build_doc.git_url = "git://url.git"
 
         utils.build._update_job_doc(
             job_doc,
             "job_id",
-            "PASS", [job_doc_b, {"foo": "bar"}, defconfig_doc], self.db)
+            "PASS", [job_doc_b, {"foo": "bar"}, build_doc], self.db)
 
         self.assertIsInstance(job_doc, mjob.JobDocument)
         self.assertIsNotNone(job_doc.git_branch)
@@ -494,21 +496,21 @@ class TestBuildUtils(unittest.TestCase):
     def test_update_job_doc_with_job_doc_fake_and_wrong(self):
         job_doc = mjob.JobDocument("job", "kernel")
         job_doc_b = mjob.JobDocument("job", "kernel")
-        defconfig_doc = mdefconfig.DefconfigDocument(
+        build_doc = mbuild.BuildDocument(
             "job", "kernel", "defconfig")
-        defconfig_doc.git_branch = "local/branch"
-        defconfig_doc.git_commit = "1234567890"
-        defconfig_doc.git_describe = "kernel.version"
-        defconfig_doc.git_url = "git://url.git"
+        build_doc.git_branch = "local/branch"
+        build_doc.git_commit = "1234567890"
+        build_doc.git_describe = "kernel.version"
+        build_doc.git_url = "git://url.git"
 
-        defconfig_doc_b = mdefconfig.DefconfigDocument(
+        build_doc_b = mbuild.BuildDocument(
             "job_b", "kernel_b", "defconfig_b")
 
         utils.build._update_job_doc(
             job_doc,
             "job_id",
             "PASS",
-            [job_doc_b, defconfig_doc_b, {"foo": "bar"}, defconfig_doc],
+            [job_doc_b, build_doc_b, {"foo": "bar"}, build_doc],
             self.db
         )
 
@@ -529,10 +531,10 @@ class TestBuildUtils(unittest.TestCase):
             "defconfig": "defconfig",
             "arch": "arch"
         }
-        defconfig_id, job_id, errors = utils.build.import_single_build(
+        build_id, job_id, errors = utils.build.import_single_build(
             json_obj, {})
 
-        self.assertIsNone(defconfig_id)
+        self.assertIsNone(build_id)
         self.assertIsNone(job_id)
         self.assertIsNotNone(errors)
         self.assertListEqual([500], errors.keys())
@@ -546,10 +548,10 @@ class TestBuildUtils(unittest.TestCase):
             "defconfig": "defconfig",
             "arch": "arch"
         }
-        defconfig_id, job_id, errors = utils.build.import_single_build(
+        build_id, job_id, errors = utils.build.import_single_build(
             json_obj, {})
 
-        self.assertIsNone(defconfig_id)
+        self.assertIsNone(build_id)
         self.assertIsNone(job_id)
         self.assertIsNotNone(errors)
         self.assertListEqual([500], errors.keys())
@@ -563,28 +565,30 @@ class TestBuildUtils(unittest.TestCase):
             "defconfig": "defconfig",
             "arch": "arch"
         }
-        defconfig_id, job_id, errors = utils.build.import_single_build(
+        build_id, job_id, errors = utils.build.import_single_build(
             json_obj, {})
 
-        self.assertIsNone(defconfig_id)
+        self.assertIsNone(build_id)
         self.assertIsNone(job_id)
         self.assertIsNotNone(errors)
         self.assertListEqual([500], errors.keys())
 
+    @mock.patch("utils.db.get_db_connection")
     @mock.patch("utils.db.save")
     @mock.patch("utils.build._update_job_doc")
     @mock.patch("utils.build._traverse_build_dir")
     @mock.patch("utils.db.find_one2")
     @mock.patch("os.path.isdir")
     def test_import_single_build(
-            self, mock_dir, mock_find, mock_tr, mock_up, mock_save):
+            self, mock_dir, mock_find, mock_tr, mock_up, mock_save, mock_db):
+        mock_db = self.db
         mock_dir.return_value = True
 
         job_doc = {"job": "ajob", "kernel": "kernel", "_id": "job_id"}
-        defconfig_doc = mdefconfig.DefconfigDocument(
+        build_doc = mbuild.BuildDocument(
             "job", "kernel", "defconfig")
 
-        mock_tr.return_value = defconfig_doc
+        mock_tr.return_value = build_doc
         mock_find.return_value = job_doc
         mock_up.return_value = 201
         mock_save.return_value = (201, "build_id")
@@ -595,11 +599,11 @@ class TestBuildUtils(unittest.TestCase):
             "defconfig": "defconfig",
             "arch": "arch"
         }
-        defconfig_id, job_id, errors = utils.build.import_single_build(
+        build_id, job_id, errors = utils.build.import_single_build(
             json_obj, {})
 
         self.assertDictEqual({}, errors)
-        self.assertIsNotNone(defconfig_id)
+        self.assertIsNotNone(build_id)
         self.assertIsNotNone(job_id)
-        self.assertEqual("build_id", defconfig_id)
+        self.assertEqual("build_id", build_id)
         self.assertEqual("job_id", job_id)

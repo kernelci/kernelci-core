@@ -1,23 +1,23 @@
-.. _collection_defconfig:
+.. _collection_build:
 
-defconfig
----------
+build
+-----
 
-More info about the defconfig schema can be found :ref:`here <schema_defconfig>`.
+More info about the build schema can be found :ref:`here <schema_build>`.
 
 .. note::
 
-    This resource can also be accessed using the plural form ``defconfigs``.
+    This resource can also be accessed using the plural form ``builds``.
 
 GET
 ***
 
-.. http:get:: /defconfig/(string:defconfig_id)
+.. http:get:: /build/(string:build_id)
 
- Get all the available defconfigs built or a single one if ``defconfig_id`` is provided.
+ Get all the available builds built or a single one if ``build_id`` is provided.
 
- :param defconfig_id: The ID of the defconfig to retrieve.
- :type defconfig_id: string
+ :param build_id: The ID of the build to retrieve.
+ :type build_id: string
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Accept-Encoding: Accept the ``gzip`` coding.
@@ -35,20 +35,21 @@ GET
  :query string field: The field that should be returned in the response. Can be
     repeated multiple times.
  :query string nfield: The field that should *not* be returned in the response. Can be repeated multiple times.
- :query string _id: The internal ID of the defconfig report.
+ :query string _id: The internal ID of the build report.
  :query string created_on: The creation date: accepted formats are ``YYYY-MM-DD`` and ``YYYYMMDD``.
  :query string job: The name of a job.
  :query string job_id: The ID of a job.
  :query string kernel: The name of a kernel.
  :query string defconfig_full: The full name of a defconfig (with config fragments).
  :query string defconfig: The name of a defconfig.
- :query string arch: The architecture on which the defconfig has been built.
- :query string status: The status of the defconfig report.
- :query int warnings: The number of warnings in the defconfig built.
- :query int errors: The number of errors in the defconfig built.
+ :query string arch: The architecture on which it was built.
+ :query string status: The status of the build report.
+ :query int warnings: The number of warnings in the build.
+ :query int errors: The number of errors in the build.
  :query string git_branch: The name of the git branch.
  :query string git_commit: The git commit SHA.
  :query string git_describe: The git describe value.
+ :query string build_type: The type of the build.
 
  :status 200: Results found.
  :status 403: Not authorized to perform the operation.
@@ -59,21 +60,21 @@ GET
 
  .. sourcecode:: http
 
-    GET /defconfig/ HTTP/1.1
+    GET /build/ HTTP/1.1
     Host: api.kernelci.org
     Accept: */*
     Authorization: token
 
  .. sourcecode:: http
 
-    GET /defconfig/next-next-20140905-arm-omap2plus_defconfig HTTP/1.1
+    GET /build/next-next-20140905-arm-omap2plus_defconfig HTTP/1.1
     Host: api.kernelci.org
     Accept: */*
     Authorization: token
 
  .. sourcecode:: http
 
-    GET /defconfig?job=next&kernel=next-20140905&field=status&field=arch&nfield=_id HTTP/1.1
+    GET /build?job=next&kernel=next-20140905&field=status&field=arch&nfield=_id HTTP/1.1
     Host: api.kernelci.org
     Accept: */*
     Authorization: token
@@ -93,12 +94,11 @@ GET
             {
                 "status": "PASS",
                 "kernel": "next-20140905",
-                "dirname": "arm-omap2plus_defconfig",
                 "job_id": "next-next-20140905",
                 "job": "next",
                 "defconfig": "omap2plus_defconfig",
                 "errors": null,
-                "_id": "next-next-20140905-arm-omap2plus_defconfig",
+                "_id": "1234567890",
                 "arch": "arm",
             }
         ]
@@ -138,16 +138,16 @@ GET
  .. note::
     Results shown here do not include the full JSON response.
 
-.. http:get:: /defconfig/(string:defconfig_id)/logs/
-.. http:get:: /defconfig/logs/
+.. http:get:: /build/(string:build_id)/logs/
+.. http:get:: /build/logs/
 
- Get the redacted logs of the built defconfig. The redacted logs contain only
+ Get the redacted logs of the build. The redacted logs contain only
  the warning, error and mismatched lines from the build log.
 
- For more info about the available fields, see the :ref:`defconfig logs schema <schema_defconfig_logs>`
+ For more info about the available fields, see the :ref:`build logs schema <schema_build_logs>`
 
- :param defconfig_id: The ID of the defconfig to retrieve.
- :type defconfig_id: string
+ :param build_id: The ID of the build to retrieve.
+ :type build_id: string
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Accept-Encoding: Accept the ``gzip`` coding.
@@ -165,18 +165,18 @@ GET
  :query string field: The field that should be returned in the response. Can be
     repeated multiple times.
  :query string nfield: The field that should *not* be returned in the response. Can be repeated multiple times.
- :query string _id: The internal ID of the defconfig logs report.
+ :query string _id: The internal ID of the build logs report.
  :query string created_on: The creation date: accepted formats are ``YYYY-MM-DD`` and ``YYYYMMDD``.
  :query string job: The name of a job.
  :query string job_id: The ID of a job.
  :query string kernel: The name of a kernel.
  :query string defconfig_full: The full name of a defconfig (with config fragments).
  :query string defconfig: The name of a defconfig.
- :query string arch: The architecture on which the defconfig has been built.
- :query string status: The status of the defconfig report.
- :query int warnings_count: The number of warnings in the defconfig build log.
- :query int errors_count: The number of errors in the defconfig build log.
- :query int mismatches_count: The number of mismatched lines in the defconfig build log.
+ :query string arch: The architecture on which it has been built.
+ :query string status: The status of the build.
+ :query int warnings_count: The number of warnings in the build log.
+ :query int errors_count: The number of errors in the build log.
+ :query int mismatches_count: The number of mismatched lines in the build log.
 
  :status 200: Results found.
  :status 403: Not authorized to perform the operation.
@@ -187,14 +187,14 @@ GET
 
  .. sourcecode:: http
 
-    GET /defconfig/123456789012345678901234/logs/ HTTP/1.1
+    GET /build/123456789012345678901234/logs/ HTTP/1.1
     Host: api.kernelci.org
     Accept: */*
     Authorization: token
 
  .. sourcecode:: http
 
-    GET /defconfig/logs?job=next&kernel=next-20150709&defconfig=omap2plus_defconfig HTTP/1.1
+    GET /build/logs?job=next&kernel=next-20150709&defconfig=omap2plus_defconfig HTTP/1.1
     Host: api.kernelci.org
     Accept: */*
     Authorization: token
@@ -202,14 +202,14 @@ GET
 POST
 ****
 
-.. http:post:: /defconfig
+.. http:post:: /build
 
- Parse a single defconfig built from the provided data. The request will be accepted and it will begin to parse the data.
+ Parse a single build result. The request will be accepted and it will begin to parse the data.
 
- Before issuing a POST request on the defconfig resource, the data must have been uploaded
- to the server. This resource is used to trigger the parsing of the data directly on the server.
+ Before issuing a POST request on the build resource, the data must have been uploaded
+ to the server. This resource is used to trigger the parsing of the data.
 
- For more info on all the required JSON data fields, see the :ref:`defconfig schema for POST requests <schema_defconfig_post>`.
+ For more info on all the required JSON data fields, see the :ref:`build schema for POST requests <schema_build_post>`.
 
  :reqjson string job: The name of the job.
  :reqjson string kernel: The name of the kernel.
@@ -233,7 +233,7 @@ POST
 
  .. sourcecode:: http 
 
-    POST /defconfig HTTP/1.1
+    POST /build HTTP/1.1
     Host: api.kernelci.org
     Content-Type: application/json
     Accept: */*
@@ -248,7 +248,7 @@ POST
 
  .. sourcecode:: http 
 
-    POST /defconfig HTTP/1.1
+    POST /build HTTP/1.1
     Host: api.kernelci.org
     Content-Type: application/json
     Accept: */*
@@ -265,12 +265,12 @@ POST
 DELETE
 ******
 
-.. http:delete:: /defconfig/(string:defconfig_id)
+.. http:delete:: /build/(string:build_id)
 
- Delete the job identified by ``defconfig_id``.
+ Delete the job identified by ``build_id``.
 
- :param defconfig_id: The ID of the defconfig to retrieve. Usually in the form of: ``job``-``kernel``-``defconfig``.
- :type defconfig_id: string
+ :param build_id: The ID of the build to delete.
+ :type build_id: string
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Accept-Encoding: Accept the ``gzip`` coding.
@@ -288,7 +288,7 @@ DELETE
 
  .. sourcecode:: http
 
-    DELETE /defconfig/next-next-20140905-arm-omap2plus_defconfig HTTP/1.1
+    DELETE /build/1234567890 HTTP/1.1
     Host: api.kernelci.org
     Accept: */*
     Content-Type: application/json
@@ -297,6 +297,6 @@ DELETE
 More Info
 *********
 
-* :ref:`Defconfig schema <schema_defconfig>`
+* :ref:`Build schema <schema_build>`
 * :ref:`API results <intro_schema_results>`
 * :ref:`Schema time and date <intro_schema_time_date>`

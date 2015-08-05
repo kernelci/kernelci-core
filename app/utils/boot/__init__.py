@@ -28,7 +28,7 @@ import pymongo
 import re
 
 import models
-import models.boot as modbt
+import models.boot as mboot
 import utils
 import utils.db
 import utils.errors
@@ -270,7 +270,7 @@ def _check_for_null(get_func):
 
 
 def _update_boot_doc_ids(boot_doc, database):
-    """Update boot document job and defconfig IDs references.
+    """Update boot document job and build IDs references.
 
     :param boot_doc: The boot document to update.
     :type boot_doc: BootDocument
@@ -297,8 +297,8 @@ def _update_boot_doc_ids(boot_doc, database):
     if defconfig_full:
         build_spec[models.DEFCONFIG_FULL_KEY] = defconfig_full
 
-    defconfig_doc = utils.db.find_one2(
-        database[models.DEFCONFIG_COLLECTION],
+    build_doc = utils.db.find_one2(
+        database[models.BUILD_COLLECTION],
         build_spec,
         fields=[
             models.GIT_BRANCH_KEY,
@@ -315,9 +315,9 @@ def _update_boot_doc_ids(boot_doc, database):
         utils.LOG.warn(
             "No job document found for boot %s-%s-%s (%s)",
             job, kernel, defconfig_full, arch)
-    if defconfig_doc:
-        doc_get = defconfig_doc.get
-        boot_doc.defconfig_id = doc_get(models.ID_KEY, None)
+    if build_doc:
+        doc_get = build_doc.get
+        boot_doc.build_id = doc_get(models.ID_KEY, None)
 
         # In case we do not have the job_id key with the previous search.
         if all([not boot_doc.job_id, doc_get(models.JOB_ID_KEY, None)]):
@@ -366,7 +366,7 @@ def _parse_boot_from_json(boot_json, database, errors):
             arch = json_pop_f(
                 models.ARCHITECTURE_KEY, models.ARM_ARCHITECTURE_KEY)
 
-            boot_doc = modbt.BootDocument(
+            boot_doc = mboot.BootDocument(
                 board, job, kernel, defconfig, lab_name, defconfig_full, arch)
             boot_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
             _update_boot_doc_from_json(boot_doc, json_pop_f, errors)

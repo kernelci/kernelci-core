@@ -31,10 +31,14 @@ POST
 .. literalinclude:: schema/1.0/post_lab.json
     :language: json
 
+Notes:
+
+* The mandatory fields for ``POST`` requests are not required for ``PUT`` requests.
+
 More Info
 *********
 
 * :ref:`Lab resource <collection_lab>`
-* :ref:`Defconfig schema <schema_defconfig>`
+* :ref:`Defconfig schema <schema_build>`
 * :ref:`API results <intro_schema_results>`
 * :ref:`Schema time and date <intro_schema_time_date>`

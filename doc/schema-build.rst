@@ -1,22 +1,19 @@
-.. _schema_defconfig:
+.. _schema_build:
 
-defconfig
----------
+build
+-----
 
-A defconfig is the result of a build from the continuous integration system. It
-contains all the necessary information about what has been built.
-
-.. _schema_defconfig_get:
+.. _schema_build_get:
 
 GET
 ***
 
 The following schema covers the data that is available with a GET request.
 
-.. literalinclude:: schema/1.0/get_defconfig.json
+.. literalinclude:: schema/1.0/get_build.json
     :language: json
 
-.. _schema_defconfig_post:
+.. _schema_build_post:
 
 POST
 ****
@@ -24,7 +21,7 @@ POST
 The following schema covers the data that should be available in a build JSON
 data file sent to the server.
 
-.. literalinclude:: schema/1.0/post_defconfig.json
+.. literalinclude:: schema/1.0/post_build.json
     :language: json
 
 Notes
@@ -37,7 +34,7 @@ Notes
 More Info
 *********
 
-* :ref:`Defconfig resource <collection_defconfig>`
+* :ref:`Defconfig resource <collection_build>`
 * :ref:`Job schema <schema_job>`
 * :ref:`API results <intro_schema_results>`
 * :ref:`Schema time and date <intro_schema_time_date>`

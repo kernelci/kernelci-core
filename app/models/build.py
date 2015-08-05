@@ -11,23 +11,22 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""The model that represents a defconfing document in the db."""
+"""The model that represents a build in the db."""
 
 import copy
 import types
 
 import models
-import models.base as modb
+import models.base as mbase
 
 
 # pylint: disable=too-many-instance-attributes
 # pylint: disable=invalid-name
-class DefconfigDocument(modb.BaseDocument):
-
-    """This class represents a defconfig folder as seen on the file system."""
+class BuildDocument(mbase.BaseDocument):
+    """This class represents a build."""
 
     def __init__(self, job, kernel, defconfig, defconfig_full=None):
-        """A defconfig/build document.
+        """A build document.
 
         :param job: The job value.
         :type job: string
@@ -53,6 +52,7 @@ class DefconfigDocument(modb.BaseDocument):
         self.arch = None
         self.build_log = None
         self.build_time = 0
+        self.build_type = None
         self.dirname = None
         self.dtb_dir = None
         self.dtb_dir_data = []
@@ -75,7 +75,7 @@ class DefconfigDocument(modb.BaseDocument):
 
     @property
     def collection(self):
-        return models.DEFCONFIG_COLLECTION
+        return models.BUILD_COLLECTION
 
     @property
     def created_on(self):
@@ -90,11 +90,6 @@ class DefconfigDocument(modb.BaseDocument):
         :type value: datetime
         """
         self._created_on = value
-
-    @property
-    def name(self):
-        """The name of the object."""
-        return self._name
 
     @property
     def id(self):
@@ -112,12 +107,12 @@ class DefconfigDocument(modb.BaseDocument):
 
     @property
     def job(self):
-        """The job this defconfig belongs too."""
+        """The job this build belongs too."""
         return self._job
 
     @property
     def kernel(self):
-        """The kernel this defconfig was built against."""
+        """The kernel this build was built against."""
         return self._kernel
 
     @property
@@ -127,14 +122,14 @@ class DefconfigDocument(modb.BaseDocument):
 
     @property
     def metadata(self):
-        """A dictionary with metadata about this defconfig."""
+        """A dictionary with metadata about this build."""
         return self._metadata
 
     @metadata.setter
     def metadata(self, value):
-        """Set the metadata about this defconfig.
+        """Set the metadata about this build.
 
-        :param value: A dictionary with defconfig metadata.
+        :param value: A dictionary with build metadata.
         """
         if not isinstance(value, types.DictionaryType):
             raise TypeError(
@@ -144,7 +139,7 @@ class DefconfigDocument(modb.BaseDocument):
 
     @property
     def status(self):
-        """The status of this defconfig built."""
+        """The status of this build."""
         return self._status
 
     @status.setter
@@ -205,6 +200,7 @@ class DefconfigDocument(modb.BaseDocument):
             models.BUILD_LOG_KEY: self.build_log,
             models.BUILD_PLATFORM_KEY: self.build_platform,
             models.BUILD_TIME_KEY: self.build_time,
+            models.BUILD_TYPE_KEY: self.build_type,
             models.CREATED_KEY: self.created_on,
             models.DEFCONFIG_FULL_KEY: self.defconfig_full,
             models.DEFCONFIG_KEY: self.defconfig,
@@ -231,7 +227,7 @@ class DefconfigDocument(modb.BaseDocument):
             models.SYSTEM_MAP_KEY: self.system_map,
             models.TEXT_OFFSET_KEY: self.text_offset,
             models.VERSION_KEY: self.version,
-            models.WARNINGS_KEY: self.warnings,
+            models.WARNINGS_KEY: self.warnings
         }
 
         if self.id:
@@ -254,7 +250,7 @@ class DefconfigDocument(modb.BaseDocument):
                 kernel = doc_pop(models.KERNEL_KEY)
                 defconfig = doc_pop(models.DEFCONFIG_KEY)
 
-                build_doc = DefconfigDocument(
+                build_doc = BuildDocument(
                     job, kernel, defconfig, defconfig_full)
                 build_doc.id = doc_id
 

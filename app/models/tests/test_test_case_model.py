@@ -120,9 +120,7 @@ class TestTestCaseModel(unittest.TestCase):
 
     def test_case_doc_from_json_missing_key(self):
         test_case = {
-            "_id": "id",
-            "version": "1.0",
-            "test_suite_id": "test_suite_id"
+            "_id": "id"
         }
 
         self.assertIsNone(mtcase.TestCaseDocument.from_json(test_case))
@@ -267,3 +265,12 @@ class TestTestCaseModel(unittest.TestCase):
         self.assertRaises(ValueError, set_status, {})
         self.assertRaises(ValueError, set_status, [])
         self.assertRaises(ValueError, set_status, ())
+
+    def test_set_name_setter(self):
+        test_case = mtcase.TestCaseDocument("name", "test_suite_id", "1.0")
+
+        def test_name_setter(value):
+            test_case.name = value
+
+        test_name_setter("foo")
+        self.assertEqual("foo", test_case.name)

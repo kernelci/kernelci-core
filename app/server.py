@@ -18,7 +18,6 @@
 
 import concurrent.futures
 import os
-import pymongo
 import tornado
 import tornado.httpserver
 import tornado.netutil
@@ -28,6 +27,7 @@ import uuid
 
 import handlers.app as happ
 import handlers.dbindexes as hdbindexes
+import utils.db
 import urls
 
 
@@ -122,7 +122,7 @@ class KernelCiBackend(tornado.web.Application):
 
     Where everything starts.
     """
-    mongodb_client = None
+    database = None
 
     def __init__(self):
 
@@ -148,16 +148,11 @@ class KernelCiBackend(tornado.web.Application):
             "user": topt.options.smtp_user
         }
 
-        if self.mongodb_client is None:
-            self.mongodb_client = pymongo.MongoClient(
-                host=topt.options.dbhost,
-                port=topt.options.dbport,
-                max_pool_size=topt.options.dbpool,
-                w="majority"
-            )
+        if not self.database:
+            self.database = utils.db.get_db_connection(db_options)
 
         settings = {
-            "client": self.mongodb_client,
+            "database": self.database,
             "dboptions": db_options,
             "mailoptions": mail_options,
             "default_handler_class": happ.AppHandler,
@@ -172,7 +167,7 @@ class KernelCiBackend(tornado.web.Application):
             "max_buffer_size": topt.options.buffer_size
         }
 
-        hdbindexes.ensure_indexes(self.mongodb_client, db_options)
+        hdbindexes.ensure_indexes(self.database)
 
         super(KernelCiBackend, self).__init__(urls.APP_URLS, **settings)
 

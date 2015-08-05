@@ -3,9 +3,9 @@
 batch
 -----
 
-This is not a real resource. It is instead used to perform a series of operations in batch: if you have more than one request to perform, instead of
-sending each request on its own, send a single batch operation request
-specifying all your requests.
+The batch resource is used to perform a series of operations in batch: if you
+have more than one request to perform, instead of sending each request on its
+own, send a single batch operation request specifying all your requests.
 
 It works by receiving a ``POST`` request with the operations to perform.
 
@@ -35,9 +35,9 @@ POST
  :reqjsonarr string operation_id: An identification for this request opearation.
  :reqjsonarr string resource: On which resource the request should be
     performed.
- :reqjsonarr string document_id: The ID of a document in the resource. For
-    the ``count`` resource, this is used to identify on which resource to
-    perform the count.
+ :reqjsonarr string document: The ID of a document in the specified resource.
+    For the ``count`` resource, this is used to identify the actual resource to
+    perform the count on.
  :reqjsonarr string query: The query to perform as a series of ``key=value``
     pairs separated by the ampersand ("&") character. The keys must be
     the same specified in each resources query parameters.
@@ -53,7 +53,7 @@ POST
 
  :resheader Content-Type: Will be ``application/json; charset=UTF-8``.
 
- :status 202: The request has been accepted and is going to be created.
+ :status 200: The request has been accepted and created.
  :status 400: JSON data not valid.
  :status 403: Not authorized to perform the operation.
  :status 415: Wrong content type.
@@ -73,16 +73,22 @@ POST
         "batch": [
             {
                 "method": "GET",
-                "operation_id": "foo",
-                "collection": "count",
-                "document_id": "boot",
+                "operation_id": "op-0",
+                "resource": "count",
+                "document": "boot",
                 "query": "status=FAIL&job=next&date_range=5"
             },
             {
                 "method": "GET",
-                "operation_id": "bar",
-                "collection": "defconfig",
+                "operation_id": "op-1",
+                "resource": "defconfig",
                 "query": "status=PASS&job=mainline&date_range=5&field=arch&field=defconfig"
+            },
+            {
+                "method": "GET",
+                "operation_id": "op-2",
+                "resource": "boot",
+                "document": "123456789012345678901234"
             }
         ]
     }
@@ -100,7 +106,7 @@ POST
         "code": 200,
         "result": [
             {
-                "operation_id": "foo",
+                "operation_id": "op-0",
                 "result": [
                     {
                         "count": 5,
@@ -109,7 +115,7 @@ POST
                 ]
             },
             {
-                "operation_id": "bar",
+                "operation_id": "op-1",
                 "result": [
                     {
                         "arch": "arm64",
@@ -117,9 +123,24 @@ POST
                         "_id": "baz"
                     }
                 ]
+            },
+            {
+                "operation_id": "op-2",
+                "result": [
+                    {
+                        "arch": "arm"
+                    }
+                ]
             }
         ]
     }
+
+PUT
+***
+
+.. caution::
+    Not implemented. Will return a :ref:`status code <http_status_code>`
+    of ``501``.
 
 DELETE
 ******

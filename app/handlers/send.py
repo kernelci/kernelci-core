@@ -19,10 +19,9 @@ import datetime
 import types
 
 import handlers.base as hbase
-import handlers.common as hcommon
 import handlers.response as hresponse
 import models
-import taskqueue.tasks as taskq
+import taskqueue.tasks.report as taskq
 
 # Max delay in sending email report set to 5hrs.
 MAX_DELAY = 18000
@@ -143,9 +142,8 @@ class SendHandler(hbase.BaseHandler):
         return response
 
     # pylint: disable=too-many-arguments
-    def _schedule_boot_report(self,
-                              job,
-                              kernel, lab_name, email_format, schedule_data):
+    def _schedule_boot_report(
+            self, job, kernel, lab_name, email_format, schedule_data):
         """Schedule the boot report performing some checks on the emails.
 
         :param job: The name of the job.
@@ -187,8 +185,8 @@ class SendHandler(hbase.BaseHandler):
                     s_get("mail_options")
                 ],
                 kwargs={
-                    "cc": cc_addrs,
-                    "bcc": bcc_addrs,
+                    "cc_addrs": cc_addrs,
+                    "bcc_addrs": bcc_addrs,
                     "in_reply_to": s_get("in_reply_to"),
                     "subject": s_get("subject")
                 },
@@ -242,8 +240,8 @@ class SendHandler(hbase.BaseHandler):
                     s_get("mail_options")
                 ],
                 kwargs={
-                    "cc": cc_addrs,
-                    "bcc": bcc_addrs,
+                    "cc_addrs": cc_addrs,
+                    "bcc_addrs": bcc_addrs,
                     "in_reply_to": s_get("in_reply_to"),
                     "subject": s_get("subject")
                 },
@@ -269,10 +267,8 @@ class SendHandler(hbase.BaseHandler):
 
         if valid_token:
             response = hresponse.HandlerResponse(501)
-            response.reason = hcommon.METHOD_NOT_IMPLEMENTED
         else:
             response = hresponse.HandlerResponse(403)
-            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 
@@ -286,10 +282,8 @@ class SendHandler(hbase.BaseHandler):
 
         if valid_token:
             response = hresponse.HandlerResponse(501)
-            response.reason = hcommon.METHOD_NOT_IMPLEMENTED
         else:
             response = hresponse.HandlerResponse(403)
-            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 

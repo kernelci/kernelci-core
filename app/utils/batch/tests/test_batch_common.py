@@ -14,18 +14,19 @@
 
 import unittest
 
-from mock import patch
-
 from utils.batch.batch_op import (
     BatchBootOperation,
+    BatchBuildOperation,
     BatchCountOperation,
-    BatchDefconfigOperation,
     BatchJobOperation,
     BatchOperation,
+    BatchTestCaseOperation,
+    BatchTestSetOperation,
+    BatchTestSuiteOperation
 )
 from utils.batch.common import (
     create_batch_operation,
-    get_batch_query_args,
+    get_batch_query_args
 )
 
 
@@ -73,8 +74,7 @@ class TestBatch(unittest.TestCase):
 
     def test_create_batch_op_generic(self):
         json_obj = {
-            "collection": "boot",
-            "document_id": "doc-id",
+            "resource": "boot",
             "query": "status=FAIL&job=mainline",
             "operation_id": "foo"
         }
@@ -84,14 +84,17 @@ class TestBatch(unittest.TestCase):
 
     def test_create_batch_op_count(self):
         json_obj = {
-            "collection": "count",
-            "document_id": "defconfig",
+            "resource": "count",
+            "document": "build",
             "query": "status=FAIL&job=mainline",
-            "operation_id": "foo"
+            "operation_id": "op_id"
         }
 
         op = create_batch_operation(json_obj, {})
         self.assertIsInstance(op, BatchCountOperation)
+        self.assertEqual("build", op.document)
+        self.assertEqual("count", op.resource)
+        self.assertEqual("op_id", op.operation_id)
 
     def test_create_batch_op_none(self):
         op = create_batch_operation(None, None)
@@ -99,54 +102,75 @@ class TestBatch(unittest.TestCase):
 
     def test_create_batch_op_no_collection(self):
         json_obj = {
-            "document_id": "defconfig",
-            "query": "status=FAIL&job=mainline",
-            "operation_id": "foo"
+            "resource": "foo",
+            "query": "status=FAIL&job=mainline"
         }
 
         op = create_batch_operation(json_obj, {})
         self.assertIsNone(op)
 
-    @patch('pymongo.MongoClient')
-    def test_create_batch_boot_op(self, mocked_mongocl):
+    def test_create_batch_boot_op(self):
         json_obj = {
-            "collection": "boot",
+            "resource": "boot",
             "query": "status=PASS&job=foo",
-            "operation_id": "foo"
+            "operation_id": "op_id"
         }
 
         op = create_batch_operation(json_obj, {})
         self.assertIsInstance(op, BatchBootOperation)
+        self.assertEqual("boot", op.resource)
 
-    @patch('pymongo.MongoClient')
-    def test_create_batch_job_op(self, mocked_mongocl):
+    def test_create_batch_job_op(self):
         json_obj = {
-            "collection": "job",
+            "resource": "job",
             "query": "status=PASS&job=foo",
             "operation_id": "foo"
         }
 
         op = create_batch_operation(json_obj, {})
         self.assertIsInstance(op, BatchJobOperation)
+        self.assertEqual("job", op.resource)
 
-    @patch('pymongo.MongoClient')
-    def test_create_batch_defconfig_op(self, mocked_mongocl):
+    def test_create_batch_build_op(self):
         json_obj = {
-            "collection": "defconfig",
+            "resource": "build",
             "query": "status=PASS&job=foo",
             "operation_id": "foo"
         }
 
         op = create_batch_operation(json_obj, {})
-        self.assertIsInstance(op, BatchDefconfigOperation)
+        self.assertIsInstance(op, BatchBuildOperation)
+        self.assertEqual("build", op.resource)
 
-    @patch('pymongo.MongoClient')
-    def test_create_batch_fake_op(self, mocked_mongocl):
+    def test_create_batch_test_case_op(self):
         json_obj = {
-            "collection": "foo",
+            "resource": "test_case",
             "query": "status=PASS&job=foo",
             "operation_id": "foo"
         }
 
         op = create_batch_operation(json_obj, {})
-        self.assertIsInstance(op, BatchOperation)
+        self.assertIsInstance(op, BatchTestCaseOperation)
+        self.assertEqual("test_case", op.resource)
+
+    def test_create_batch_test_set_op(self):
+        json_obj = {
+            "resource": "test_set",
+            "query": "status=PASS&job=foo",
+            "operation_id": "foo"
+        }
+
+        op = create_batch_operation(json_obj, {})
+        self.assertIsInstance(op, BatchTestSetOperation)
+        self.assertEqual("test_set", op.resource)
+
+    def test_create_batch_test_suite_op(self):
+        json_obj = {
+            "resource": "test_suite",
+            "query": "status=PASS&job=foo",
+            "operation_id": "foo"
+        }
+
+        op = create_batch_operation(json_obj, {})
+        self.assertIsInstance(op, BatchTestSuiteOperation)
+        self.assertEqual("test_suite", op.resource)

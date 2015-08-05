@@ -33,13 +33,12 @@ import redis
 import types
 
 import models
-import models.defconfig as mdefconfig
+import models.build as mbuild
 import models.job as mjob
 import utils
 import utils.database.redisdb as redisdb
 import utils.db
 import utils.errors
-
 
 ERR_ADD = utils.errors.add_error
 ERR_UPDATE = utils.errors.update_errors
@@ -68,7 +67,7 @@ def parse_dtb_dir(build_dir, dtb_dir):
     return dtb_data
 
 
-def _search_prev_defconfig_doc(defconfig_doc, database):
+def _search_prev_build_doc(build_doc, database):
     """Search for a similar defconfig document in the database.
 
     Search for an already imported defconfig/build document in the database
@@ -76,23 +75,23 @@ def _search_prev_defconfig_doc(defconfig_doc, database):
     we do not create double documents when re-importing the same data or
     updating it.
 
-    :param defconfig_doc: The new defconfig document.
+    :param build_doc: The new defconfig document.
     :param database: The db connection.
     :return The previous doc ID and its creation date, or None.
     """
     doc_id = None
     c_date = None
 
-    if all([defconfig_doc, database]):
+    if all([build_doc, database]):
         spec = {
-            models.JOB_KEY: defconfig_doc.job,
-            models.KERNEL_KEY: defconfig_doc.kernel,
-            models.DEFCONFIG_KEY: defconfig_doc.defconfig,
-            models.DEFCONFIG_FULL_KEY: defconfig_doc.defconfig_full,
-            models.ARCHITECTURE_KEY: defconfig_doc.arch
+            models.JOB_KEY: build_doc.job,
+            models.KERNEL_KEY: build_doc.kernel,
+            models.DEFCONFIG_KEY: build_doc.defconfig,
+            models.DEFCONFIG_FULL_KEY: build_doc.defconfig_full,
+            models.ARCHITECTURE_KEY: build_doc.arch
         }
         prev_doc = utils.db.find(
-            database[models.DEFCONFIG_COLLECTION],
+            database[models.BUILD_COLLECTION],
             10,
             0,
             spec=spec,
@@ -130,9 +129,9 @@ def parse_build_data(build_data, job, kernel, errors, build_dir=None):
     :type errors: dictionary
     :param build_dir: Full path to the build directory.
     :type build_dir: string
-    :return A DefconfigDocument or None.
+    :return A BuildDocument or None.
     """
-    defconfig_doc = None
+    build_doc = None
 
     if all([build_data, isinstance(build_data, types.DictionaryType)]):
         data_pop = build_data.pop
@@ -148,45 +147,47 @@ def parse_build_data(build_data, job, kernel, errors, build_dir=None):
             defconfig_full = utils.get_defconfig_full(
                 build_dir, defconfig, defconfig_full, kconfig_fragments)
 
-            defconfig_doc = mdefconfig.DefconfigDocument(
+            build_doc = mbuild.BuildDocument(
                 d_job, d_kernel, defconfig, defconfig_full=defconfig_full)
 
-            defconfig_doc.dirname = build_dir
-            defconfig_doc.arch = data_pop(models.ARCHITECTURE_KEY, None)
-            defconfig_doc.build_log = data_pop(models.BUILD_LOG_KEY, None)
-            defconfig_doc.build_platform = data_pop(
+            build_doc.dirname = build_dir
+            build_doc.arch = data_pop(models.ARCHITECTURE_KEY, None)
+            build_doc.build_log = data_pop(models.BUILD_LOG_KEY, None)
+            build_doc.build_platform = data_pop(
                 models.BUILD_PLATFORM_KEY, [])
-            defconfig_doc.build_time = data_pop(models.BUILD_TIME_KEY, 0)
-            defconfig_doc.dtb_dir = data_pop(models.DTB_DIR_KEY, None)
-            defconfig_doc.errors = data_pop(models.BUILD_ERRORS_KEY, 0)
-            defconfig_doc.file_server_resource = data_pop(
+            build_doc.build_time = data_pop(models.BUILD_TIME_KEY, 0)
+            build_doc.build_type = data_pop(
+                models.BUILD_TYPE_KEY, models.KERNEL_BUILD_TYPE)
+            build_doc.dtb_dir = data_pop(models.DTB_DIR_KEY, None)
+            build_doc.errors = data_pop(models.BUILD_ERRORS_KEY, 0)
+            build_doc.file_server_resource = data_pop(
                 models.FILE_SERVER_RESOURCE_KEY, None)
-            defconfig_doc.file_server_url = data_pop(
+            build_doc.file_server_url = data_pop(
                 models.FILE_SERVER_URL_KEY, None)
-            defconfig_doc.git_branch = data_pop(
+            build_doc.git_branch = data_pop(
                 models.GIT_BRANCH_KEY, None)
-            defconfig_doc.git_commit = data_pop(
+            build_doc.git_commit = data_pop(
                 models.GIT_COMMIT_KEY, None)
-            defconfig_doc.git_describe = data_pop(
+            build_doc.git_describe = data_pop(
                 models.GIT_DESCRIBE_KEY, None)
-            defconfig_doc.git_url = data_pop(models.GIT_URL_KEY, None)
-            defconfig_doc.kconfig_fragments = kconfig_fragments
-            defconfig_doc.kernel_config = data_pop(
+            build_doc.git_url = data_pop(models.GIT_URL_KEY, None)
+            build_doc.kconfig_fragments = kconfig_fragments
+            build_doc.kernel_config = data_pop(
                 models.KERNEL_CONFIG_KEY, None)
-            defconfig_doc.kernel_image = data_pop(
+            build_doc.kernel_image = data_pop(
                 models.KERNEL_IMAGE_KEY, None)
-            defconfig_doc.modules = data_pop(models.MODULES_KEY, None)
-            defconfig_doc.modules_dir = data_pop(
+            build_doc.modules = data_pop(models.MODULES_KEY, None)
+            build_doc.modules_dir = data_pop(
                 models.MODULES_DIR_KEY, None)
-            defconfig_doc.status = data_pop(
+            build_doc.status = data_pop(
                 models.BUILD_RESULT_KEY, models.UNKNOWN_STATUS)
-            defconfig_doc.system_map = data_pop(
+            build_doc.system_map = data_pop(
                 models.SYSTEM_MAP_KEY, None)
-            defconfig_doc.text_offset = data_pop(
+            build_doc.text_offset = data_pop(
                 models.TEXT_OFFSET_KEY, None)
-            defconfig_doc.version = data_pop(models.VERSION_KEY, "1.0")
-            defconfig_doc.warnings = data_pop(models.BUILD_WARNINGS_KEY, 0)
-            defconfig_doc.metadata = build_data
+            build_doc.version = data_pop(models.VERSION_KEY, "1.0")
+            build_doc.warnings = data_pop(models.BUILD_WARNINGS_KEY, 0)
+            build_doc.metadata = build_data
         except KeyError, ex:
             err_msg = (
                 "Missing mandatory key in build data (job: %s, kernel: %s)")
@@ -197,7 +198,7 @@ def parse_build_data(build_data, job, kernel, errors, build_dir=None):
         utils.LOG.error("Provided data does not look like json")
         ERR_ADD(errors, 500, "Provided data is not json")
 
-    return defconfig_doc
+    return build_doc
 
 
 # pylint: disable=too-many-arguments
@@ -221,10 +222,10 @@ def _traverse_build_dir(
     :param errors: The errors data structure.
     :type errors: dictionary
     :param database: The database connection.
-    :return A DefconfigDocument or None.
+    :return A BuildDocument or None.
     """
     real_dir = os.path.join(kernel_dir, build_dir)
-    defconfig_doc = None
+    build_doc = None
 
     def _scan_build_dir():
         """Yield the files found in the build directory."""
@@ -241,27 +242,26 @@ def _traverse_build_dir(
             with io.open(os.path.join(real_dir, data_file)) as data:
                 build_data = json.load(data)
 
-            defconfig_doc = parse_build_data(
+            build_doc = parse_build_data(
                 build_data, job, kernel, errors, build_dir=real_dir)
 
-            if defconfig_doc:
-                defconfig_doc.job_id = job_id
+            if build_doc:
+                build_doc.job_id = job_id
                 # Search for previous defconfig doc. This is only useful when
                 # re-importing data and we want to have the same ID as before.
-                doc_id, c_date = _search_prev_defconfig_doc(
-                    defconfig_doc, database)
-                defconfig_doc.id = doc_id
+                doc_id, c_date = _search_prev_build_doc(
+                    build_doc, database)
+                build_doc.id = doc_id
                 if c_date:
-                    defconfig_doc.created_on = c_date
+                    build_doc.created_on = c_date
                 else:
-                    # Give the defconfig doc the same date as the job one.
-                    # In this way all defconfigs will have the same date
-                    # regardless of when they were saved on the file system.
-                    defconfig_doc.created_on = job_date
+                    # XXX: we used to give defconfig the job date.
+                    build_doc.created_on = datetime.datetime.now(
+                        tz=bson.tz_util.utc)
 
-                if all([defconfig_doc, defconfig_doc.dtb_dir]):
-                    defconfig_doc.dtb_dir_data = parse_dtb_dir(
-                        real_dir, defconfig_doc.dtb_dir)
+                if all([build_doc, build_doc.dtb_dir]):
+                    build_doc.dtb_dir_data = parse_dtb_dir(
+                        real_dir, build_doc.dtb_dir)
         except IOError, ex:
             err_msg = "Error reading json data file (job: %s, kernel: %s) - %s"
             utils.LOG.exception(ex)
@@ -273,7 +273,7 @@ def _traverse_build_dir(
             utils.LOG.error(err_msg, job, kernel, build_dir)
             ERR_ADD(errors, 500, err_msg % (job, kernel, build_dir))
 
-    return defconfig_doc
+    return build_doc
 
 
 def _traverse_kernel_dir(
@@ -296,7 +296,7 @@ def _traverse_kernel_dir(
     :param scan_func: Function to scan a directory yielding its subdirs. It
     must accept a single argument: the full path of the directory to scan.
     :type scan_func: function
-    :return A 3-tuple: the list of DefconfigDocument objects, the job status
+    :return A 3-tuple: the list of BuildDocument objects, the job status
     value and the errors data structure.
     """
     job_status = models.UNKNOWN_STATUS
@@ -317,7 +317,7 @@ def _traverse_kernel_dir(
                     not utils.is_lab_dir(entry.name)]):
                 yield entry.name
 
-    def _get_defconfig_documents():
+    def _get_build_documents():
         """Generator to traverse the build dir and retrieve the documents."""
         for build_dir in scan_func(kernel_dir):
             doc = _traverse_build_dir(
@@ -337,25 +337,25 @@ def _traverse_kernel_dir(
         if any([os.path.exists(done_file), glob.glob(done_file_p)]):
             job_status = models.PASS_STATUS
 
-        docs = [doc for doc in _get_defconfig_documents()]
+        docs = [doc for doc in _get_build_documents()]
 
     return docs, job_status, errors
 
 
 def _update_job_doc(job_doc, job_id, status, docs, database):
-    """Update the JobDocument with values from a DefconfigDocument.
+    """Update the JobDocument with values from a BuildDocument.
 
     :param job_doc: The job document to update.
     :type job_doc: JobDocument
     :param status: The job status value.
     :type status: string
-    :param docs: The list of DefconfigDocument objects.
+    :param docs: The list of BuildDocument objects.
     :type docs: list
     """
     to_update = False
     ret_val = 201
 
-    if job_doc.id != job_id:
+    if all([job_id, job_doc.id != job_id]):
         job_doc.id = job_id
         to_update = True
 
@@ -377,7 +377,7 @@ def _update_job_doc(job_doc, job_id, status, docs, database):
         idx = 0
         while idx < docs_len:
             d_doc = docs[idx]
-            if isinstance(d_doc, mdefconfig.DefconfigDocument):
+            if isinstance(d_doc, mbuild.BuildDocument):
                 if all([
                         d_doc.job == job_doc.job,
                         d_doc.kernel == job_doc.kernel]):
@@ -408,7 +408,7 @@ def _import_builds(job, kernel, db_options, base_path):
     :type db_options: dictionary
     :param base_path: The base path on the file system.
     :type base_path: string
-    :return A 3-tuple: The list of DefconfigDocument objects, the ID of the
+    :return A 3-tuple: The list of BuildDocument objects, the ID of the
     JobDocument object, the errors data structure.
     """
     docs = None
@@ -521,8 +521,8 @@ def import_multiple_builds(json_obj, db_options, base_path=utils.BASE_PATH):
     return job_id, errors
 
 
-def _search_or_create_job(job, kernel, db_options):
-    """Search and/or create a job in the database.
+def _get_or_create_job(job, kernel, db_options):
+    """Get or create a job in the database.
 
     :param job: The name of the job.
     :type job: str
@@ -574,8 +574,8 @@ def import_single_build(json_obj, db_options, base_path=utils.BASE_PATH):
     """
     errors = {}
     job_id = None
-    defconfig_doc = None
-    defconfig_id = None
+    build_doc = None
+    build_id = None
     j_get = json_obj.get
 
     arch = j_get(models.ARCHITECTURE_KEY)
@@ -596,12 +596,13 @@ def import_single_build(json_obj, db_options, base_path=utils.BASE_PATH):
                 database = None
                 ret_val = 201
 
-                ret_val, job_doc, job_id = _search_or_create_job(
+                ret_val, job_doc, job_id = _get_or_create_job(
                     job, kernel, db_options)
+                database = utils.db.get_db_connection(db_options)
 
                 if all([ret_val != 201, job_id is None]):
                     err_msg = (
-                        "Error saving/finding job document for '%s-%s': "
+                        "Error saving/finding job document '%s-%s': "
                         "build document '%s-%s-%s-%s' might not be linked to "
                         "its job"
                     )
@@ -614,14 +615,14 @@ def import_single_build(json_obj, db_options, base_path=utils.BASE_PATH):
                     )
 
                 database = utils.db.get_db_connection(db_options)
-                defconfig_doc = _traverse_build_dir(
+                build_doc = _traverse_build_dir(
                     build_dir,
                     kernel_dir,
                     job, kernel, job_id, job_doc.created_on, errors, database)
 
                 ret_val = _update_job_doc(
                     job_doc,
-                    job_id, job_doc.status, [defconfig_doc], database)
+                    job_id, job_doc.status, [build_doc], database)
                 if ret_val != 201:
                     err_msg = (
                         "Error updating job document '%s-%s' with values from "
@@ -629,9 +630,9 @@ def import_single_build(json_obj, db_options, base_path=utils.BASE_PATH):
                     utils.LOG.error(err_msg, job, kernel)
                     ERR_ADD(errors, ret_val, err_msg % (job, kernel))
 
-                if defconfig_doc:
-                    ret_val, defconfig_id = utils.db.save(
-                        database, defconfig_doc, manipulate=True)
+                if build_doc:
+                    ret_val, build_id = utils.db.save(
+                        database, build_doc, manipulate=True)
                 if ret_val != 201:
                     err_msg = "Error saving build document '%s-%s-%s-%s'"
                     utils.LOG.error(err_msg, job, kernel, arch, defconfig)
@@ -662,4 +663,4 @@ def import_single_build(json_obj, db_options, base_path=utils.BASE_PATH):
         utils.LOG.error(err_msg, job, kernel)
         ERR_ADD(errors, 500, err_msg % (job, kernel))
 
-    return defconfig_id, job_id, errors
+    return build_id, job_id, errors

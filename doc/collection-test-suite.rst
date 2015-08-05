@@ -256,7 +256,7 @@ DELETE
 
 .. http:delete:: /test/suite/(string:test_suite_id)
 
- Delete the test suite identified by ``test_suite_id``.
+ Delete the test suite identified by ``test_suite_id``. All its associated test sets and test cases will be deleted as well.
 
  :param test_suite_id: The test suite ID.
  :type test_suite_id: string

@@ -97,7 +97,7 @@ def create_boot_report(job,
     total_builds, _ = rcommon.get_total_results(
         job,
         kernel,
-        models.DEFCONFIG_COLLECTION,
+        models.BUILD_COLLECTION,
         db_options
     )
 

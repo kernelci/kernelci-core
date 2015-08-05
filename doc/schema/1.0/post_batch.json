@@ -1,0 +1,32 @@
+{
+    "$schema": "http://api.kernelci.org/json-schema/1.0/post_batch.json",
+    "id": "http://api.kernelci.org/json-schema/1.0/post_batch.json",
+    "title": "batch",
+    "description": "A batch request to perform multiple operations",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "method": {
+                "type": "string",
+                "description": "The HTTP method this batch operation should be matched to"
+            },
+            "operation_id": {
+                "type": "string",
+                "description": "A user provided identifier for the operation to perform"
+            },
+            "resource": {
+                "type": "string",
+                "description": "The resource where to perform the operation"
+            },
+            "document": {
+                "type": "string",
+                "description": "The ID of the document in the specified resource"
+            },
+            "query": {
+                "type": "string",
+                "description": "A key=value pairs, separated by the ampersand character, that define the query to perform on the resource"
+            }
+        }
+    }
+}

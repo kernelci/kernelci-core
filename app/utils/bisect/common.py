@@ -54,7 +54,7 @@ def combine_defconfig_values(boot_doc, db_options):
     It returns a dictionary whose structure is a combination
     of the values from the boot document and its associated defconfing.
 
-    :param boot_doc: The boot document to retrieve the defconfig of.
+    :param boot_doc: The boot document to retrieve the build of.
     :type boot_doc: dict
     :param db_options: The mongodb database connection parameters.
     :type db_options: dict
@@ -68,8 +68,9 @@ def combine_defconfig_values(boot_doc, db_options):
     kernel = boot_doc_get(models.KERNEL_KEY)
     defconfig = boot_doc_get(models.DEFCONFIG_KEY)
     defconfig_full = boot_doc_get(models.DEFCONFIG_FULL_KEY) or defconfig
-    defconfig_id = boot_doc_get(models.DEFCONFIG_ID_KEY, None)
+    build_id = boot_doc_get(models.BUILD_ID_KEY, None)
     job_id = boot_doc_get(models.JOB_ID_KEY, None)
+    arch = boot_doc_get(models.ARCHITECTURE_KEY)
 
     combined_values = {
         models.BISECT_BOOT_CREATED_KEY: boot_doc_get(models.CREATED_KEY),
@@ -81,7 +82,7 @@ def combine_defconfig_values(boot_doc, db_options):
         models.BOARD_KEY: boot_doc.get(models.BOARD_KEY, None),
         models.BOOT_ID_KEY: boot_doc_get(models.ID_KEY, None),
         models.DEFCONFIG_FULL_KEY: defconfig_full,
-        models.DEFCONFIG_ID_KEY: defconfig_id,
+        models.BUILD_ID_KEY: build_id,
         models.DEFCONFIG_KEY: defconfig,
         models.DIRNAME_KEY: "",
         models.GIT_BRANCH_KEY: "",
@@ -94,38 +95,39 @@ def combine_defconfig_values(boot_doc, db_options):
         models.LAB_NAME_KEY: boot_doc_get(models.LAB_NAME_KEY, None)
     }
 
-    if defconfig_id:
-        defconf_doc = utils.db.find_one2(
-            database[models.DEFCONFIG_COLLECTION],
-            defconfig_id,
-            fields=BOOT_DEFCONFIG_SEARCH_FIELDS
-        )
+    if build_id:
+        build_doc = utils.db.find_one2(
+            database[models.BUILD_COLLECTION],
+            build_id, fields=BOOT_DEFCONFIG_SEARCH_FIELDS)
     else:
-        defconfig_name = job + "-" + kernel + "-" + defconfig_full
-        defconf_doc = utils.db.find_one(
-            database[models.DEFCONFIG_COLLECTION],
-            [defconfig_name],
-            field=models.NAME_KEY,
-            fields=BOOT_DEFCONFIG_SEARCH_FIELDS
-        )
+        spec = {
+            models.JOB_KEY: job,
+            models.KERNEL_KEY: kernel,
+            models.DEFCONFIG_FULL_KEY: defconfig_full,
+            models.DEFCONFIG_KEY: defconfig,
+            models.ARCHITECTURE_KEY: arch
+        }
+        build_doc = utils.db.find_one2(
+            database[models.BUILD_COLLECTION],
+            spec, fields=BOOT_DEFCONFIG_SEARCH_FIELDS)
 
-    if defconf_doc:
-        defconf_doc_get = defconf_doc.get
-        combined_values[models.DIRNAME_KEY] = defconf_doc_get(
+    if build_doc:
+        build_doc_get = build_doc.get
+        combined_values[models.DIRNAME_KEY] = build_doc_get(
             models.DIRNAME_KEY)
         combined_values[models.BISECT_DEFCONFIG_CREATED_KEY] = \
-            defconf_doc_get(models.CREATED_KEY)
+            build_doc_get(models.CREATED_KEY)
         combined_values[models.BISECT_DEFCONFIG_ARCHITECTURE_KEY] = \
-            defconf_doc_get(models.ARCHITECTURE_KEY)
+            build_doc_get(models.ARCHITECTURE_KEY)
         combined_values[models.BISECT_DEFCONFIG_STATUS_KEY] = \
-            defconf_doc_get(models.STATUS_KEY)
-        combined_values[models.GIT_URL_KEY] = defconf_doc_get(
+            build_doc_get(models.STATUS_KEY)
+        combined_values[models.GIT_URL_KEY] = build_doc_get(
             models.GIT_URL_KEY, None)
-        combined_values[models.GIT_BRANCH_KEY] = defconf_doc_get(
+        combined_values[models.GIT_BRANCH_KEY] = build_doc_get(
             models.GIT_BRANCH_KEY, None)
-        combined_values[models.GIT_COMMIT_KEY] = defconf_doc_get(
+        combined_values[models.GIT_COMMIT_KEY] = build_doc_get(
             models.GIT_COMMIT_KEY, None)
-        combined_values[models.GIT_DESCRIBE_KEY] = defconf_doc_get(
+        combined_values[models.GIT_DESCRIBE_KEY] = build_doc_get(
             models.GIT_DESCRIBE_KEY, None)
 
     return combined_values
@@ -139,7 +141,7 @@ def search_previous_bisect(database, spec_or_id, date_field):
     :type spec_or_id: dictionary or string
     :param date_field: The name of the date field to look for in the
     `bisect_data` array as found in the database. This field is different
-    between `boot` and `defconfig` bisects.
+    between `boot` and `build` bisects.
     :type date_field: string
     :return The date of the last good commit and the number of documents.
     """

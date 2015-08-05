@@ -38,9 +38,9 @@ def get_db_connection(db_options):
     if DB_CONNECTION is None:
         db_options_get = db_options.get
 
-        db_host = db_options_get("dbhost", utils.DEFAULT_MONGODB_URL)
-        db_port = db_options_get("dbport", utils.DEFAULT_MONGODB_PORT)
-        db_pool = db_options_get("dbpool", utils.DEFAULT_MONGODB_POOL)
+        db_host = db_options_get("dbhost", "localhost")
+        db_port = db_options_get("dbport", 27017)
+        db_pool = db_options_get("dbpool", 100)
 
         db_user = db_options_get("dbuser", "")
         db_pwd = db_options_get("dbpassword", "")
@@ -55,11 +55,7 @@ def get_db_connection(db_options):
     return DB_CONNECTION
 
 
-def find_one(collection,
-             value,
-             field="_id",
-             operator="$in",
-             fields=None):
+def find_one(collection, value, field="_id", operator="$in", fields=None):
     """Search for a specific document.
 
     The `field' value can be specified, and by default is `_id'.
@@ -200,9 +196,7 @@ def save(database, document, manipulate=False):
             ret_value = 201
         except pymongo.errors.OperationFailure, ex:
             utils.LOG.error(
-                "Error saving the following document: %s (%s)",
-                document.name, document.collection
-            )
+                "Error saving document into '%s'", document.collection)
             utils.LOG.exception(ex)
     else:
         utils.LOG.error(
@@ -278,8 +272,26 @@ def update(collection, spec, document, operation="$set"):
     try:
         collection.update(spec, {operation: document})
     except pymongo.errors.OperationFailure, ex:
-        utils.LOG.error(
-            "Error updating the following document: %s", str(document))
+        utils.LOG.exception(str(ex))
+        ret_val = 500
+
+    return ret_val
+
+
+def update2(collection, spec, document):
+    """Update a document in the database.
+
+    :param collection: The database collection where to perfrom the update op.
+    :param spec: The query used to search for the document to update.
+    :type spec: dict
+    :param document: The update document with the operations to perform.
+    :type document: dict
+    :return 200 if everything OK, 500 in case of error.
+    """
+    ret_val = 200
+    try:
+        collection.update(spec, document)
+    except pymongo.errors.OperationFailure, ex:
         utils.LOG.exception(str(ex))
         ret_val = 500
 
@@ -307,8 +319,7 @@ def find_and_update(collection, query, document, operation="$set"):
             fields=[models.ID_KEY]
         )
         if not result:
-            utils.LOG.error(
-                "Error searching or updating document with query: %s", query)
+            utils.LOG.error("Document with query '%s' not found", query)
             ret_val = 404
     except pymongo.errors.OperationFailure, ex:
         ret_val = 500

@@ -14,7 +14,7 @@
 """The RequestHandler for /report URLs."""
 
 import handlers.base as hbase
-import handlers.common as hcommon
+import handlers.common.token
 import handlers.response as hresponse
 import models
 
@@ -35,7 +35,7 @@ class ReportHandler(hbase.BaseHandler):
 
     @staticmethod
     def _token_validation_func():
-        return hcommon.valid_token_th
+        return handlers.common.token.valid_token_th
 
     def execute_delete(self, *args, **kwargs):
         """Perform DELETE pre-operations.
@@ -49,7 +49,6 @@ class ReportHandler(hbase.BaseHandler):
             response = hresponse.HandlerResponse(501)
         else:
             response = hresponse.HandlerResponse(403)
-            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 
@@ -65,6 +64,5 @@ class ReportHandler(hbase.BaseHandler):
             response = hresponse.HandlerResponse(501)
         else:
             response = hresponse.HandlerResponse(403)
-            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response

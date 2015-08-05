@@ -17,7 +17,8 @@ import copy
 import pymongo
 
 import handlers.base as hbase
-import handlers.common as hcommon
+import handlers.common.query
+import handlers.common.token
 import handlers.response as hresponse
 import models
 import utils.db
@@ -51,12 +52,12 @@ class BootTriggerHandler(hbase.BaseHandler):
 
     @property
     def collection(self):
-        return self.db[models.DEFCONFIG_COLLECTION]
+        return self.db[models.BUILD_COLLECTION]
 
     @staticmethod
     def _token_validation_func():
         # Use the same token validation logic of the boot handler.
-        return hcommon.valid_token_bh
+        return handlers.common.token.valid_token_bh
 
     @staticmethod
     def _valid_keys(method):
@@ -91,7 +92,6 @@ class BootTriggerHandler(hbase.BaseHandler):
                 response.reason = "Provided token is not associated with a lab"
         else:
             response = hresponse.HandlerResponse(403)
-            response.reason = hcommon.NOT_VALID_TOKEN
 
         return response
 
@@ -135,22 +135,21 @@ class BootTriggerHandler(hbase.BaseHandler):
                     boot_spec.pop(models.ID_KEY, None)
                     # Inject the lab name and the previous defconfigs.
                     boot_spec[models.LAB_NAME_KEY] = {"$ne": lab_name}
-                    boot_spec[models.DEFCONFIG_ID_KEY] = {
-                        "$in": all_distinct_def}
+                    boot_spec[models.BUILD_ID_KEY] = {"$in": all_distinct_def}
 
                     already_booted, booted_count = utils.db.find_and_count(
                         self.db[models.BOOT_COLLECTION],
                         0,
                         0,
                         spec=boot_spec,
-                        fields=[models.DEFCONFIG_ID_KEY],
+                        fields=[models.BUILD_ID_KEY],
                         sort=[(models.CREATED_KEY, pymongo.DESCENDING)]
                     )
 
                     booted_defconfigs = []
                     if booted_count > 0:
                         booted_defconfigs = already_booted.distinct(
-                            models.DEFCONFIG_ID_KEY)
+                            models.BUILD_ID_KEY)
 
                     # Do a set difference to get the not booted ones.
                     not_booted = set(all_distinct_def).difference(
@@ -207,7 +206,7 @@ class BootTriggerHandler(hbase.BaseHandler):
 
         if self.request.arguments:
             spec, sort, fields, skip, limit, compared = \
-                hcommon.get_trigger_query_values(
+                handlers.common.query.get_trigger_query_values(
                     self.get_query_arguments, self._valid_keys(method))
 
         return spec, sort, fields, skip, limit, compared

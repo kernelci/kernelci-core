@@ -18,7 +18,7 @@
 import tornado.gen
 
 import handlers.base as hbase
-import handlers.common as hcommon
+import handlers.common.query
 import handlers.response as hresponse
 import models
 import utils.db
@@ -42,13 +42,10 @@ class CountHandler(hbase.BaseHandler):
     def _get_one(self, collection, **kwargs):
         response = hresponse.HandlerResponse()
 
-        if collection in models.COLLECTIONS.viewkeys():
+        if collection in models.COLLECTIONS:
             response.result = count_one_collection(
-                self.db[models.COLLECTIONS[collection]],
-                collection,
-                self.get_query_arguments,
-                self._valid_keys("GET")
-            )
+                self.db[collection],
+                collection, self.get_query_arguments, self._valid_keys("GET"))
         else:
             response.status_code = 404
             response.reason = "Collection %s not found" % collection
@@ -93,9 +90,10 @@ def count_one_collection(
     optionally the `fields` fields.
     """
     result = []
-    spec = hcommon.get_query_spec(query_args_func, valid_keys)
-    hcommon.get_and_add_date_range(spec, query_args_func)
-    hcommon.update_id_fields(spec)
+    spec = handlers.common.query.get_query_spec(
+        query_args_func, valid_keys)
+    handlers.common.query.get_and_add_date_range(spec, query_args_func)
+    handlers.common.query.update_id_fields(spec)
 
     if spec:
         _, number = utils.db.find_and_count(
@@ -129,23 +127,24 @@ def count_all_collections(database, query_args_func, valid_keys):
     """
     result = []
 
-    spec = hcommon.get_query_spec(query_args_func, valid_keys)
-    hcommon.get_and_add_date_range(spec, query_args_func)
-    hcommon.update_id_fields(spec)
+    spec = handlers.common.query.get_query_spec(query_args_func, valid_keys)
+    handlers.common.query.get_and_add_date_range(spec, query_args_func)
+    handlers.common.query.update_id_fields(spec)
 
     if spec:
-        for key, val in models.COLLECTIONS.iteritems():
+        for collection in models.COLLECTIONS:
             _, number = utils.db.find_and_count(
-                database[val], 0, 0, spec, COUNT_FIELDS)
+                database[collection], 0, 0, spec, COUNT_FIELDS)
             if not number:
                 number = 0
-            result.append(dict(collection=key, count=number))
+            result.append(dict(collection=collection, count=number))
     else:
-        for key, val in models.COLLECTIONS.iteritems():
+        for collection in models.COLLECTIONS:
             result.append(
-                dict(
-                    collection=key,
-                    count=utils.db.count(database[val]))
+                {
+                    models.COLLECTION_KEY: collection,
+                    models.COUNT_KEY: utils.db.count(database[collection])
+                }
             )
 
     return result

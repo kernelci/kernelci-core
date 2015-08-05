@@ -13,10 +13,9 @@
 
 """Batch operation classes."""
 
-import handlers.common as hcommon
+import handlers.common.query
 import handlers.count as hcount
 import models
-import utils
 import utils.db
 
 
@@ -27,28 +26,23 @@ class BatchOperation(object):
     starting from this class.
     """
 
-    def __init__(self, collection, database, operation_id=None):
-        """Create a new `BatchOperation`.
-
-        :param collection: The db collection where to perform the operation.
-        :type collection: string
-        :param database: The mongodb database connection.
-        :type database: `pymongo.Database`
-        :param operation_id: Optional name for this operation.
-        :type operation_id: string
-        """
-        self._collection = collection
-        self._database = database
-        self._limit = None
+    # pylint: disable=too-many-instance-attributes
+    def __init__(self):
+        """Create a new `BatchOperation`."""
         self._operation = None
-        self._operation_id = operation_id
-        self._skip = None
+        self._query_args_func = None
+        self._database = None
         self.args = []
-        self.document_id = None
+        self.db_options = None
+        self.document = None
         self.kwargs = {}
+        self.limit = None
         self.method = None
+        self.operation_id = None
+        self.query = None
         self.query_args = {}
-        self.query_args_func = None
+        self.resource = None
+        self.skip = None
         self.valid_keys = None
 
     @property
@@ -70,24 +64,24 @@ class BatchOperation(object):
         self._operation = value
 
     @property
-    def operation_id(self):
-        """Get the ID of this batch operation.
+    def query_args_func(self):
+        """The function to retrieve the query arguments.
 
-        The operation ID is a name associated with this batch operation. If
-        provided it will be returned in the response.
-
-        Useful to differentiate between multiple operations in a single batch.
+        :return A function.
         """
-        return self._operation_id
+        if not self._query_args_func:
+            self._query_args_func = self.query_args.get
+        return self._query_args_func
 
-    @operation_id.setter
-    def operation_id(self, value):
-        """Set the operation ID value.
+    @property
+    def database(self):
+        """The database connection.
 
-        :param value: The operation ID to set.
-        :param value: string
+        :return A database connection.
         """
-        self._operation_id = value
+        if not self._database:
+            self._database = utils.db.get_db_connection(self.db_options)
+        return self._database
 
     def prepare_operation(self):
         """Prepare the operation that needs to be performed.
@@ -107,42 +101,43 @@ class BatchOperation(object):
 
     def _prepare_get_operation(self):
         """Prepare the necessary parameters for a GET operation."""
-        if self.document_id:
+        if self.document:
             # Get only one document.
             self.operation = utils.db.find_one
             self.args = [
-                self._database[self._collection],
-                self.document_id
+                self.database[self.resource],
+                self.document
             ]
             self.kwargs = {
-                "fields": hcommon.get_query_fields(self.query_args_func)}
+                "fields": handlers.common.query.get_query_fields(
+                    self.query_args_func)
+            }
         else:
             # Get the spec and perform the query, can perform an aggregation
             # as well.
-            spec, sort, fields, self._skip, self._limit, unique = \
-                hcommon.get_all_query_values(
-                    self.query_args_func, self.valid_keys.get(self.method)
-                )
+            spec, sort, fields, self.skip, self.limit, unique = \
+                handlers.common.query.get_all_query_values(
+                    self.query_args_func, self.valid_keys.get(self.method))
 
             if unique:
                 # Perform an aggregate
                 self.operation = utils.db.aggregate
                 self.args = [
-                    self._database[self._collection],
+                    self.database[self.resource],
                     unique
                 ]
                 self.kwargs = {
                     "sort": sort,
                     "fields": fields,
                     "match": spec,
-                    "limit": self._limit
+                    "limit": self.limit
                 }
             else:
                 self.operation = utils.db.find_and_count
                 self.args = [
-                    self._database[self._collection],
-                    self._limit,
-                    self._skip,
+                    self.database[self.resource],
+                    self.limit,
+                    self.skip,
                 ]
                 self.kwargs = {
                     "spec": spec,
@@ -180,8 +175,8 @@ class BatchOperation(object):
                 models.RESULT_KEY: res,
                 models.COUNT_KEY: count}
 
-            if self._limit is not None:
-                json_obj[models.LIMIT_KEY] = self._limit
+            if self.limit is not None:
+                json_obj[models.LIMIT_KEY] = self.limit
 
             response[models.RESULT_KEY] = [json_obj]
         else:
@@ -197,62 +192,80 @@ class BatchOperation(object):
         """
         self.prepare_operation()
 
-        result = []
-        if self.operation:
-            result = self.operation(*self.args, **self.kwargs)
+        result = self.operation(*self.args, **self.kwargs)
         return self._prepare_response(result)
 
 
 class BatchBootOperation(BatchOperation):
     """A batch operation for the `boot` collection."""
 
-    def __init__(self, collection, database, operation_id=None):
-        super(BatchBootOperation, self).__init__(
-            collection, database, operation_id)
+    def __init__(self):
+        super(BatchBootOperation, self).__init__()
         self.valid_keys = models.BOOT_VALID_KEYS
 
 
 class BatchJobOperation(BatchOperation):
     """A batch operation for the `job` collection."""
 
-    def __init__(self, collection, database, operation_id=None):
-        super(BatchJobOperation, self).__init__(
-            collection, database, operation_id)
+    def __init__(self):
+        super(BatchJobOperation, self).__init__()
         self.valid_keys = models.JOB_VALID_KEYS
 
 
-class BatchDefconfigOperation(BatchOperation):
-    """A batch operation for the `job` collection."""
+class BatchBuildOperation(BatchOperation):
+    """A batch operation for the `build` collection."""
 
-    def __init__(self, collection, database, operation_id=None):
-        super(BatchDefconfigOperation, self).__init__(
-            collection, database, operation_id)
-        self.valid_keys = models.DEFCONFIG_VALID_KEYS
+    def __init__(self):
+        super(BatchBuildOperation, self).__init__()
+        self.valid_keys = models.BUILD_VALID_KEYS
 
 
 class BatchCountOperation(BatchOperation):
     """A batch operation for the `count` collection."""
 
-    def __init__(self, collection, database, operation_id=None):
-        super(BatchCountOperation, self).__init__(
-            collection, database, operation_id)
+    def __init__(self, ):
+        super(BatchCountOperation, self).__init__()
         self.valid_keys = models.COUNT_VALID_KEYS
 
     def _prepare_get_operation(self):
-        if self.document_id:
+        if self.document:
             self.operation = hcount.count_one_collection
-            # We use document_id here with the database since we need to count
-            # on a different collection.
+            # We use document here with the database since we need to count
+            # on a different (internal) collection.
             self.args = [
-                self._database[self.document_id],
-                self.document_id,
+                self.database[self.document],
+                self.document,
                 self.query_args_func,
                 self.valid_keys.get(self.method)
             ]
         else:
             self.operation = hcount.count_all_collections
             self.args = [
-                self._database,
+                self.database,
                 self.query_args_func,
                 self.valid_keys.get(self.method)
             ]
+
+
+class BatchTestCaseOperation(BatchOperation):
+    """A batch operation for test cases."""
+
+    def __init__(self):
+        super(BatchTestCaseOperation, self).__init__()
+        self.valid_keys = models.TEST_CASE_VALID_KEYS
+
+
+class BatchTestSetOperation(BatchOperation):
+    """A batch operation for test sets."""
+
+    def __init__(self):
+        super(BatchTestSetOperation, self).__init__()
+        self.valid_keys = models.TEST_SET_VALID_KEYS
+
+
+class BatchTestSuiteOperation(BatchOperation):
+    """A batch operation for test suites."""
+
+    def __init__(self):
+        super(BatchTestSuiteOperation, self).__init__()
+        self.valid_keys = models.TEST_SUITE_VALID_KEYS

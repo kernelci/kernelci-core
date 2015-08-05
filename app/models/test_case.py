@@ -29,7 +29,7 @@ class TestCaseDocument(mbase.BaseDocument):
     is run and that reports a result.
     """
 
-    def __init__(self, name, test_suite_id, version):
+    def __init__(self, name, test_suite_id, version="1.0"):
         """
 
         :param name: The name given to this test case.
@@ -271,9 +271,8 @@ class TestCaseDocument(mbase.BaseDocument):
             try:
                 name = doc_pop(models.NAME_KEY)
                 test_suite_id = doc_pop(models.TEST_SUITE_ID_KEY)
-                version = doc_pop(models.VERSION_KEY)
 
-                test_case = TestCaseDocument(name, test_suite_id, version)
+                test_case = TestCaseDocument(name, test_suite_id)
                 test_case.id = set_id
 
                 for key, val in local_obj.iteritems():

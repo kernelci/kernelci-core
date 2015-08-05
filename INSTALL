@@ -85,12 +85,12 @@ GET
 ---
 
   curl localhost:8888/job
-  curl localhost:8888/defconfig
+  curl localhost:8888/build
   curl localhost:8888/boot
   curl localhost:8888/count
 
   curl localhost:8888/job/$JOB_ID
-  curl localhost:8888/defconfig/$DEFCONF_ID
+  curl localhost:8888/build/$DEFCONF_ID
 
   curl localhost:8888/job?limit=40
   curl localhost:8888/job?limit=40&skip=20

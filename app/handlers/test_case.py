@@ -88,6 +88,29 @@ class TestCaseHandler(htbase.TestBaseHandler):
 
                 if response.status_code == 200:
                     response.reason = "Resource '%s' deleted" % doc_id
+
+                    # Remove test case reference from test_set and test_suite
+                    # collections.
+                    ret_val = utils.db.update(
+                        self.db[models.TEST_SET_COLLECTION],
+                        {models.TEST_CASE_KEY: case_id},
+                        {models.TEST_CASE_KEY: [case_id]},
+                        operation="$pullAll"
+                    )
+                    if ret_val != 200:
+                        response.errors = \
+                            "Error removing test case reference from test set"
+
+                    ret_val = utils.db.update(
+                        self.db[models.TEST_SUITE_COLLECTION],
+                        {models.TEST_CASE_KEY: case_id},
+                        {models.TEST_CASE_KEY: [case_id]},
+                        operation="$pullAll"
+                    )
+                    if ret_val != 200:
+                        response.errors = (
+                            "Error removing test case reference from test "
+                            "suite")
                 else:
                     response.reason = "Error deleting resource '%s'" % doc_id
             else:
@@ -110,7 +133,7 @@ class TestCaseHandler(htbase.TestBaseHandler):
             set_id = bson.objectid.ObjectId(doc_id)
             if utils.db.find_one2(self.collection, set_id):
                 update_val = utils.db.update(
-                    self.collection, set_id, update_doc)
+                    self.collection, {models.ID_KEY: set_id}, update_doc)
 
                 if update_val == 200:
                     response.reason = "Resource '%s' updated" % doc_id

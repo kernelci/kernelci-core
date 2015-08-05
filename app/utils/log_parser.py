@@ -32,14 +32,13 @@ import re
 import redis
 
 import models
-import models.defconfig as mdefconfig
+import models.build as mbuild
 import models.error_log as merrl
 import models.error_summary as mesumm
 import utils
 import utils.build
 import utils.database.redisdb as redisdb
 import utils.errors
-
 
 ERROR_PATTERN_1 = re.compile("[Ee]rror:")
 ERROR_PATTERN_2 = re.compile("^ERROR")
@@ -258,26 +257,26 @@ def _save_summary(
 
 # pylint: disable=too-many-locals
 def save_defconfig_errors(
-        defconfig_doc,
+        build_doc,
         job_id, error_lines, warning_lines, mismatch_lines, db_options):
     """Save the build errors found.
 
     Save in the database the extracted lines from the build log.
 
     :param job_id: The ID of the job.
-    :type job_id: string
+    :type job_id: str
     :param job: The name of the job.
-    :type job: string
+    :type job: str
     :param kernel: The name of the kernel.
-    :type kernel: string
+    :type kernel: str
     :param defconfig: The defconfig value.
-    :type defconfig: string
+    :type defconfig: str
     :param defconfig_full: The full defconfig value.
-    :type defconfig_full: string
+    :type defconfig_full: str
     :param arch: The architecture type.
-    :type arch: string
+    :type arch: str
     :param build_status: The status of the build.
-    :type build_status: string
+    :type build_status: str
     :param error_lines: The extracted error lines.
     :type error_lines: list
     :param warning_lines: The extracted warning lines.
@@ -288,65 +287,67 @@ def save_defconfig_errors(
     :type db_options: dictionary
     :return 201 if saving has success, 500 otherwise.
     """
-    defconfig_id = None
+    build_id = None
     database = utils.db.get_db_connection(db_options)
-    if not defconfig_doc.id:
+    if not build_doc.id:
         spec = {
-            models.JOB_ID_KEY: job_id,
-            models.JOB_KEY: defconfig_doc.job,
-            models.KERNEL_KEY: defconfig_doc.kernel,
-            models.ARCHITECTURE_KEY: defconfig_doc.arch,
-            models.DEFCONFIG_KEY: defconfig_doc.defconfig,
-            models.DEFCONFIG_FULL_KEY: defconfig_doc.defconfig_full
+            models.JOB_KEY: build_doc.job,
+            models.KERNEL_KEY: build_doc.kernel,
+            models.ARCHITECTURE_KEY: build_doc.arch,
+            models.DEFCONFIG_KEY: build_doc.defconfig,
+            models.DEFCONFIG_FULL_KEY: build_doc.defconfig_full
         }
 
+        if job_id:
+            spec[models.JOB_ID_KEY] = job_id
+
         doc = utils.db.find_one2(
-            database[models.DEFCONFIG_COLLECTION],
+            database[models.BUILD_COLLECTION],
             spec, fields=[models.ID_KEY])
 
         if doc:
-            defconfig_id = doc[models.ID_KEY]
+            build_id = doc[models.ID_KEY]
         else:
-            error = "No defconfig ID found for %s-%s-%s (%s)"
+            error = "No build ID found for %s-%s-%s (%s)"
             utils.LOG.warn(
                 error,
-                defconfig_doc.job,
-                defconfig_doc.kernel,
-                defconfig_doc.defconfig_full, defconfig_doc.arch
+                build_doc.job,
+                build_doc.kernel,
+                build_doc.defconfig_full, build_doc.arch
             )
     else:
-        defconfig_id = defconfig_doc.id
+        build_id = build_doc.id
 
-    if defconfig_id:
+    if build_id:
         prev_spec = {
-            models.DEFCONFIG_ID_KEY: defconfig_id
+            models.BUILD_ID_KEY: build_id
         }
     else:
         prev_spec = {
-            models.JOB_KEY: defconfig_doc.job,
-            models.KERNEL_KEY: defconfig_doc.kernel,
-            models.ARCHITECTURE_KEY: defconfig_doc.arch,
-            models.DEFCONFIG_FULL_KEY: defconfig_doc.defconfig_full,
-            models.DEFCONFIG_KEY: defconfig_doc.defconfig,
-            models.STATUS_KEY: defconfig_doc.status
+            models.JOB_KEY: build_doc.job,
+            models.KERNEL_KEY: build_doc.kernel,
+            models.ARCHITECTURE_KEY: build_doc.arch,
+            models.DEFCONFIG_FULL_KEY: build_doc.defconfig_full,
+            models.DEFCONFIG_KEY: build_doc.defconfig,
+            models.STATUS_KEY: build_doc.status
         }
     prev_doc = utils.db.find_one2(
         database[models.ERROR_LOGS_COLLECTION],
         prev_spec, fields=[models.ID_KEY])
 
     err_doc = merrl.ErrorLogDocument(job_id, "1.0")
-    err_doc.arch = defconfig_doc.arch
+    err_doc.arch = build_doc.arch
     err_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
-    err_doc.defconfig = defconfig_doc.defconfig
-    err_doc.defconfig_full = defconfig_doc.defconfig_full
-    err_doc.defconfig_id = defconfig_id
+    err_doc.defconfig = build_doc.defconfig
+    err_doc.defconfig_full = build_doc.defconfig_full
+    err_doc.build_id = build_id
     err_doc.errors = error_lines
     err_doc.errors_count = len(error_lines)
-    err_doc.job = defconfig_doc.job
-    err_doc.kernel = defconfig_doc.kernel
+    err_doc.job = build_doc.job
+    err_doc.kernel = build_doc.kernel
     err_doc.mismatch_lines = len(mismatch_lines)
     err_doc.mismatches = mismatch_lines
-    err_doc.status = defconfig_doc.status
+    err_doc.status = build_doc.status
     err_doc.warnings = warning_lines
     err_doc.warnings_count = len(warning_lines)
 
@@ -361,25 +362,24 @@ def save_defconfig_errors(
 
 
 def _save(
-        defconfig_doc,
+        build_doc,
         job_id, err_lines, warn_lines, mism_lines, errors, db_options):
     """Save the found errors/warnings/mismatched lines in the db.
 
-    Save for each defconfig the found values and update the summary data
+    Save for each build the found values and update the summary data
     structures that will contain all the found errors/warnings/mismatches.
-
     """
-    job = defconfig_doc.job
-    kernel = defconfig_doc.kernel
+    job = build_doc.job
+    kernel = build_doc.kernel
 
     status = save_defconfig_errors(
-        defconfig_doc, job_id, err_lines, warn_lines, mism_lines, db_options)
+        build_doc, job_id, err_lines, warn_lines, mism_lines, db_options)
 
     if status == 500:
         err_msg = (
             "Error saving errors log document for "
             "'%s-%s-%s' (%s)" %
-            (job, kernel, defconfig_doc.defconfig_full, defconfig_doc.arch)
+            (job, kernel, build_doc.defconfig_full, build_doc.arch)
         )
         utils.LOG.error(err_msg)
         ERR_ADD(errors, status, err_msg)
@@ -406,11 +406,11 @@ def _read_build_data(build_dir, job, kernel, errors):
     Search for the correct defconfig, defconfig_full and arch values.
 
     :param build_dir: The directory containing the build JSON file.
-    :type build_dir: string
+    :type build_dir: str
     :return A 4-tuple: defconfig, defconfig_full, arch and build status.
     """
     build_file = os.path.join(build_dir, models.BUILD_META_JSON_FILE)
-    defconfig_doc = None
+    build_doc = None
 
     if os.path.isfile(build_file):
         build_data = None
@@ -419,7 +419,7 @@ def _read_build_data(build_dir, job, kernel, errors):
             with io.open(build_file, "r") as read_file:
                 build_data = json.load(read_file)
 
-            defconfig_doc = utils.build.parse_build_data(
+            build_doc = utils.build.parse_build_data(
                 build_data, job, kernel, errors, build_dir=build_dir)
         except IOError, ex:
             err_msg = (
@@ -437,14 +437,14 @@ def _read_build_data(build_dir, job, kernel, errors):
         utils.LOG.warn(error, job, kernel, build_dir)
         ERR_ADD(errors, 500, (error % (job, kernel, build_dir)))
 
-    return defconfig_doc
+    return build_doc
 
 
 # pylint: disable=too-many-statements
 def _parse_log(job, kernel, defconfig, log_file, build_dir, errors):
-    """Read the build log and extract the correct strings.
+    """Read the build log and extract the correct strs.
 
-    Parse the build log extracting the errors/warnings/mismatches strings
+    Parse the build log extracting the errors/warnings/mismatches strs
     saving new files for each of the extracted value.
 
     :param job: The name of the job.
@@ -459,7 +459,7 @@ def _parse_log(job, kernel, defconfig, log_file, build_dir, errors):
         """Strip the beginning of the line if it contains a special sequence.
 
         :param line: The line to clean.
-        :type line: string
+        :type line: str
         :return The line without the special sequence.
         """
         if line.startswith("../"):
@@ -550,15 +550,15 @@ def _traverse_dir_and_parse(
     """Traverse the kernel directory and parse the build logs.
 
     :param job_id: The ID of the job.
-    :type job_id: string
+    :type job_id: str
     :param job: The name of the job.
-    :type job: string
+    :type job: str
     :param kernel: The name of the kernel.
-    :type kernel: string
+    :type kernel: str
     :param base_path: The path on the file system where the files are stored.
-    :type base_path: string
+    :type base_path: str
     :param build_log: The name of the build log file.
-    :type build_log: string
+    :type build_log: str
     :param db_options: The database connection options.
     :type db_options: dictionary
     """
@@ -577,18 +577,18 @@ def _traverse_dir_and_parse(
                 if all([entry.is_dir(), not entry.name.startswith(".")]):
                     log_file = os.path.join(entry.path, build_log)
 
-                    defconfig_doc = _read_build_data(
+                    build_doc = _read_build_data(
                         entry.path, job, kernel, errors)
 
                     status, err_lines, warn_lines, mism_lines = _parse_log(
-                        defconfig_doc.job,
-                        defconfig_doc.kernel,
-                        defconfig_doc.defconfig, log_file, entry.path, errors
+                        build_doc.job,
+                        build_doc.kernel,
+                        build_doc.defconfig, log_file, entry.path, errors
                     )
 
                     if status == 200:
                         status = _save(
-                            defconfig_doc,
+                            build_doc,
                             job_id,
                             err_lines,
                             warn_lines, mism_lines, errors, db_options)
@@ -614,15 +614,15 @@ def parse_build_log(job_id,
     """Parse the build log file searching for errors and warnings.
 
     :param job_id: The ID of the job as saved in the database.
-    :type job_id: string
+    :type job_id: str
     :param json_obj: The JSON object with the job and kernel name.
     :type json_obj: dictionary
     :param db_options: The database connection options.
     :type db_options: dictionary
     :param base_path: The path on the file system where the files are stored.
-    :type base_path: string
+    :type base_path: str
     :param build_log: The name of the build log file.
-    :type build_log: string
+    :type build_log: str
     :return A status code and a dictionary. 200 if everything is good, 500 in
     case of errors; an empty dictionary if there are no errors, otherwise the
     dictionary will contain error codes and messages lists.
@@ -662,18 +662,18 @@ def parse_single_build_log(
 
     database = utils.db.get_db_connection(db_options)
     json_obj = utils.db.find_one2(
-        database[models.DEFCONFIG_COLLECTION], {models.ID_KEY: build_id})
+        database[models.BUILD_COLLECTION], {models.ID_KEY: build_id})
 
     if json_obj:
-        defconfig_doc = mdefconfig.DefconfigDocument.from_json(json_obj)
-        if defconfig_doc:
-            job = defconfig_doc.job
-            kernel = defconfig_doc.kernel
-            arch = defconfig_doc.arch
-            defconfig_full = defconfig_doc.defconfig_full
+        build_doc = mbuild.BuildDocument.from_json(json_obj)
+        if build_doc:
+            job = build_doc.job
+            kernel = build_doc.kernel
+            arch = build_doc.arch
+            defconfig_full = build_doc.defconfig_full
 
-            if defconfig_doc.dirname:
-                build_dir = defconfig_doc.dirname
+            if build_doc.dirname:
+                build_dir = build_doc.dirname
             else:
                 build_dir = os.path.join(
                     base_path, job, kernel,
@@ -682,11 +682,11 @@ def parse_single_build_log(
             log_file = os.path.join(build_dir, build_log)
             status, err_lines, warn_lines, mism_lines = _parse_log(
                 job,
-                kernel, defconfig_doc.defconfig, log_file, build_dir, errors)
+                kernel, build_doc.defconfig, log_file, build_dir, errors)
 
             if status == 200:
                 status = _save(
-                    defconfig_doc,
+                    build_doc,
                     job_id,
                     err_lines, warn_lines, mism_lines, errors, db_options)
     else:
