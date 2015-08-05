@@ -1,5 +1,7 @@
 [Unit]
 Description=Kernel CI Backend Celery Beat
+Wants=kernelci-celery.service
+After=kernelci-celery.service
 
 [Service]
 Type=simple
@@ -12,6 +14,8 @@ SyslogIdentifier=kernelci-celery-beat
 LimitNOFILE=65536
 RestartSec=5
 Restart=always
+RuntimeDirectory=celery
+RuntimeDirectoryMode=755
 PIDFile=/tmp/kernelci-celery-beat.pid
 WorkingDirectory={{ install_base }}/{{ hostname }}/app
 ExecStart={{ install_base }}/.venv/{{ hostname }}/bin/python -OO -R \
