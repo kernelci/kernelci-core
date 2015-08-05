@@ -106,7 +106,7 @@ POST
  For more info on all the required JSON request fields, see the :ref:`test suite schema for POST requests <schema_test_suite_post>`.
 
  :reqjson string name: The name of the test suite.
- :reqjson string defconfig_id: The ID of the build report used for testing.
+ :reqjson string build_id: The ID of the build report used for testing.
  :reqjson string version: The version of the JSON schema format.
 
  :reqheader Authorization: The token necessary to authorize the request.
@@ -133,7 +133,7 @@ POST
 
     {
         "name": "LSK test suite",
-        "defconfig_id": "1234567890",
+        "build_id": "1234567890",
         "version": "1.0"
     }
 
@@ -147,7 +147,7 @@ POST
 
     {
         "name": "LSK test suite",
-        "defconfig_id": "1234567890",
+        "build_id": "1234567890",
         "version": "1.0",
         "test_case": [
             {
@@ -234,7 +234,7 @@ PUT
 
     {
         "name": "LSK test suite - NEW",
-        "defconfig_id": "1234567891"
+        "build_id": "1234567891"
     }
 
  **Example Responses**

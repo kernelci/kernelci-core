@@ -58,7 +58,7 @@
             "type": "string",
             "description": "The ID of the job that this test suite is being run on"
         },
-        "defconfig_id": {
+        "build_id": {
             "type": "string",
             "description": "The ID of the build that this test suite is being run on"
         },
@@ -91,5 +91,5 @@
             "description": "The VCS commit value if the $definitio_uri field is a VCS URI"
         }
     },
-    "required": ["name", "lab_name", "defconfig_id"]
+    "required": ["name", "lab_name", "build_id"]
 }

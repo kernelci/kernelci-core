@@ -51,7 +51,7 @@
             "description": "The full name of the defconfig, can contain also config fragments information",
             "default": "The defconfig value"
         },
-        "defconfig_id": {
+        "build_id": {
             "type": "object",
             "description": "The ID of the associated build report",
             "properties": {

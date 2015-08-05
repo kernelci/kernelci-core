@@ -73,7 +73,7 @@
             "type": "string",
             "description": "The ID of the job that this test suite is being run on"
         },
-        "defconfig_id": {
+        "build_id": {
             "type": "string",
             "description": "The ID of the build that this test suite is being run on"
         },

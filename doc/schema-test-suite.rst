@@ -5,7 +5,7 @@ test_suite
 
 A test suite is the collection of :ref:`test sets <schema_test_set>` and :ref:`test cases <schema_test_case>`.
 
-A test suite must define its own ``name`` and must be associated with a :ref:`lab <schema_lab>` and with a :ref:`built defconfig <schema_build>`. The association with the ``defconfig`` object is performed through the ``defconfig_id`` value, the lab association via the lab ``name`` value.
+A test suite must define its own ``name`` and must be associated with a :ref:`lab <schema_lab>` and with a :ref:`build <schema_build>`. The association with the ``build`` object is performed through the ``build_id`` value, the lab association via the lab ``name`` value.
 
 .. _schema_test_suite_get:
 

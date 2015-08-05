@@ -40,7 +40,7 @@ GET
  :query string created_on: The creation date: accepted formats are ``YYYY-MM-DD`` and ``YYYYMMDD``.
  :query string defconfig: The name of a defconfig.
  :query string defconfig_full: The full name of a defconfig (with config fragments).
- :query string defconfig_id: The ID of a defconfig.
+ :query string build_id: The ID of a build document.
  :query string endian: The endianness of the board.
  :query string job: The name of a job.
  :query string job_id: The ID of a job.
@@ -190,7 +190,7 @@ DELETE
 
  Delete the boot report identified by ``boot_id``.
 
- :param boot_id: The ID of the boot report to delete. Usually in the form of: ``board``-``job``-``kernel``-``defconfig``.
+ :param boot_id: The ID of the boot report to delete.
  :type boot_id: string
 
  :reqheader Authorization: The token necessary to authorize the request.
@@ -202,7 +202,7 @@ DELETE
  :query string board: The name of a board.
  :query string defconfig: The name of a defconfig.
  :query string defconfig_full: The full name of a defconfig (with config fragments).
- :query string defconfig_id: The ID of a defconfig.
+ :query string build_id: The ID of a build document.
  :query string job: The name of a job.
  :query string job_id: The ID of a job.
  :query string kernel: The name of a kernel.
