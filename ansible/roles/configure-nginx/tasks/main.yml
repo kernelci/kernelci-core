@@ -141,3 +141,21 @@
     - reload-nginx
   tags:
     - web-server
+
+- name: Copy maintenance page
+  copy: src=maintenance.html
+        dest={{ web_root }}/{{ hostname }}/maintenance.html.not
+        owner={{ app_user }}
+        group={{ app_user }}
+        mode=0644
+  tags:
+      - web-server
+
+- name: Copy maintenance page art
+  copy: src=kernelci-maintenance.svg
+        dest={{ web_root }}/{{ hostname }}/kernelci-maintenance.svg
+        owner={{ app_user }}
+        group={{ app_user }}
+        mode=0644
+  tags:
+      - web-server
