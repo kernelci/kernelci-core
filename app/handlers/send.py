@@ -49,14 +49,6 @@ class SendHandler(hbase.BaseHandler):
         kernel = j_get(models.KERNEL_KEY)
         lab_name = j_get(models.LAB_NAME_KEY, None)
 
-        self.log.info(
-            "Email trigger received from IP '%s' for '%s-%s' at %s",
-            self.request.remote_ip,
-            job,
-            kernel,
-            datetime.datetime.utcnow()
-        )
-
         countdown = j_get(models.DELAY_KEY, self.settings["senddelay"])
         if countdown is None:
             countdown = self.settings["senddelay"]
@@ -116,17 +108,29 @@ class SendHandler(hbase.BaseHandler):
                     "mail_options": self.settings["mailoptions"],
                 }
 
+                email_type = []
                 if send_boot:
+                    email_type.append("boot")
                     boot_errors, response.errors = self._schedule_boot_report(
                         job, kernel, lab_name, email_format, schedule_data)
 
                 if send_build:
+                    email_type.append("build")
                     build_errors, response.errors = \
                         self._schedule_build_report(
                             job, kernel, email_format, schedule_data)
 
                 response.reason, response.status_code = _check_status(
                     send_boot, send_build, boot_errors, build_errors, when)
+
+                self.log.info(
+                    "Email trigger received from '%s' for '%s-%s' at %s (%s)",
+                    self.request.remote_ip,
+                    job,
+                    kernel,
+                    datetime.datetime.utcnow(),
+                    str(email_type)
+                )
             else:
                 response.status_code = 400
                 response.reason = (
