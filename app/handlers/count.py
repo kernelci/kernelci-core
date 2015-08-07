@@ -42,7 +42,7 @@ class CountHandler(hbase.BaseHandler):
     def _get_one(self, collection, **kwargs):
         response = hresponse.HandlerResponse()
 
-        if collection in models.COLLECTIONS:
+        if collection in models.COUNT_COLLECTIONS:
             response.result = count_one_collection(
                 self.db[collection],
                 collection, self.get_query_arguments, self._valid_keys("GET"))
@@ -132,14 +132,14 @@ def count_all_collections(database, query_args_func, valid_keys):
     handlers.common.query.update_id_fields(spec)
 
     if spec:
-        for collection in models.COLLECTIONS:
+        for collection in models.COUNT_COLLECTIONS:
             _, number = utils.db.find_and_count(
                 database[collection], 0, 0, spec, COUNT_FIELDS)
             if not number:
                 number = 0
             result.append(dict(collection=collection, count=number))
     else:
-        for collection in models.COLLECTIONS:
+        for collection in models.COUNT_COLLECTIONS:
             result.append(
                 {
                     models.COLLECTION_KEY: collection,

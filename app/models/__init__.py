@@ -315,6 +315,16 @@ COLLECTIONS = [
     TEST_SUITE_COLLECTION
 ]
 
+# Slightly different then above: this is used only for the /count API.
+COUNT_COLLECTIONS = [
+    BOOT_COLLECTION,
+    BUILD_COLLECTION,
+    JOB_COLLECTION,
+    TEST_CASE_COLLECTION,
+    TEST_SET_COLLECTION,
+    TEST_SUITE_COLLECTION
+]
+
 # Handlers valid keys.
 COUNT_VALID_KEYS = {
     "GET": [
