@@ -187,6 +187,9 @@ def parse_build_data(build_data, job, kernel, errors, build_dir=None):
                 models.TEXT_OFFSET_KEY, None)
             build_doc.version = data_pop(models.VERSION_KEY, "1.0")
             build_doc.warnings = data_pop(models.BUILD_WARNINGS_KEY, 0)
+            build_doc.kernel_image_size = data_pop(
+                models.KERNEL_IMAGE_SIZE_KEY, 0)
+            build_doc.modules_size = data_pop(models.MODULES_SIZE_KEY, 0)
             build_doc.metadata = build_data
         except KeyError, ex:
             err_msg = (

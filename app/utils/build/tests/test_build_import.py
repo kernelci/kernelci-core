@@ -297,19 +297,22 @@ class TestBuildUtils(unittest.TestCase):
     def test_parse_build_metadata(self):
         build_data = {
             "arch": "arm",
-            "git_url": "git://git.example.org",
-            "git_branch": "test/branch",
-            "git_describe": "vfoo.bar",
-            "git_commit": "1234567890",
-            "defconfig": "defoo_confbar",
-            "kernel_image": "zImage",
-            "kernel_config": "kernel.config",
-            "dtb_dir": "dtbs",
-            "modules_dir": "foo/bar",
             "build_log": "file.log",
-            "kconfig_fragments": "fragment",
             "compiler_version": "gcc",
-            "cross_compile": "foo"
+            "cross_compile": "foo",
+            "defconfig": "defoo_confbar",
+            "dtb_dir": "dtbs",
+            "git_branch": "test/branch",
+            "git_commit": "1234567890",
+            "git_describe": "vfoo.bar",
+            "git_url": "git://git.example.org",
+            "kconfig_fragments": "fragment",
+            "kernel_config": "kernel.config",
+            "kernel_image": "zImage",
+            "kernel_image_size": 2048,
+            "modules": "modules.tar",
+            "modules_dir": "foo/bar",
+            "modules_size": 1024
         }
         build_doc = utils.build.parse_build_data(
             build_data, "job", "kernel", {}, "arm-build_dir")
@@ -333,6 +336,8 @@ class TestBuildUtils(unittest.TestCase):
         self.assertEqual(build_doc.kernel_config, "kernel.config")
         self.assertEqual(build_doc.kernel_image, "zImage")
         self.assertEqual(build_doc.build_type, "kernel")
+        self.assertEqual(build_doc.modules_size, 1024)
+        self.assertEqual(build_doc.kernel_image_size, 2048)
 
     def test_parse_dtb_dir_single_file(self):
         temp_dir = tempfile.mkdtemp()

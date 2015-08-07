@@ -67,7 +67,9 @@ class BuildDocument(mbase.BaseDocument):
         self.kconfig_fragments = None
         self.kernel_config = None
         self.kernel_image = None
+        self.kernel_image_size = 0
         self.modules = None
+        self.modules_size = 0
         self.modules_dir = None
         self.system_map = None
         self.text_offset = None
@@ -219,10 +221,12 @@ class BuildDocument(mbase.BaseDocument):
             models.KCONFIG_FRAGMENTS_KEY: self.kconfig_fragments,
             models.KERNEL_CONFIG_KEY: self.kernel_config,
             models.KERNEL_IMAGE_KEY: self.kernel_image,
+            models.KERNEL_IMAGE_SIZE_KEY: self.kernel_image_size,
             models.KERNEL_KEY: self.kernel,
             models.METADATA_KEY: self.metadata,
             models.MODULES_DIR_KEY: self.modules_dir,
             models.MODULES_KEY: self.modules,
+            models.MODULES_SIZE_KEY: self.modules_size,
             models.STATUS_KEY: self.status,
             models.SYSTEM_MAP_KEY: self.system_map,
             models.TEXT_OFFSET_KEY: self.text_offset,

@@ -98,6 +98,7 @@ JOB_KEY = "job"
 KCONFIG_FRAGMENTS_KEY = "kconfig_fragments"
 KERNEL_CONFIG_KEY = "kernel_config"
 KERNEL_IMAGE_KEY = "kernel_image"
+KERNEL_IMAGE_SIZE_KEY = "kernel_image_size"
 KERNEL_KEY = "kernel"
 KVM_GUEST_KEY = "kvm_guest"
 LAB_ID_KEY = "lab_id"
@@ -115,6 +116,7 @@ MISMATCHES_COUNT_KEY = "mismatches_count"
 MISMATCHES_KEY = "mismatches"
 MODULES_DIR_KEY = "modules_dir"
 MODULES_KEY = "modules"
+MODULES_SIZE_KEY = "modules_size"
 NAME_KEY = "name"
 NOT_FIELD_KEY = "nfield"
 PARAMETERS_KEY = "parameters"
@@ -462,9 +464,11 @@ BUILD_VALID_KEYS = {
         KCONFIG_FRAGMENTS_KEY,
         KERNEL_CONFIG_KEY,
         KERNEL_IMAGE_KEY,
+        KERNEL_IMAGE_SIZE_KEY,
         KERNEL_KEY,
         MODULES_DIR_KEY,
         MODULES_KEY,
+        MODULES_SIZE_KEY,
         STATUS_KEY,
         SYSTEM_MAP_KEY,
         TEXT_OFFSET_KEY,

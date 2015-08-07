@@ -60,6 +60,8 @@ class TestBuildModel(unittest.TestCase):
         build_doc.file_server_url = "server-url"
         build_doc.build_type = "foo"
         build_doc.defconfig_full = "defconfig_full"
+        build_doc.kernel_image_size = 1024
+        build_doc.modules_size = 1024
 
         expected = {
             "_id": "build_id",
@@ -95,7 +97,9 @@ class TestBuildModel(unittest.TestCase):
             "defconfig_full": "defconfig_full",
             "file_server_resource": "file-resource",
             "file_server_url": "server-url",
-            "build_type": "foo"
+            "build_type": "foo",
+            "kernel_image_size": 1024,
+            "modules_size": 1024
         }
 
         self.assertDictEqual(expected, build_doc.to_dict())
@@ -206,7 +210,9 @@ class TestBuildModel(unittest.TestCase):
             "defconfig_full": "defconfig_full",
             "file_server_resource": "file-resource",
             "file_server_url": "server-url",
-            "build_type": "kernel"
+            "build_type": "kernel",
+            "kernel_image_size": 2048,
+            "modules_size": 1024
         }
         build_doc = mbuild.BuildDocument.from_json(json_obj)
 
@@ -218,5 +224,7 @@ class TestBuildModel(unittest.TestCase):
         self.assertEqual(build_doc.warnings, 1)
         self.assertEqual(build_doc.build_time, 1)
         self.assertEqual(build_doc.build_type, "kernel")
+        self.assertEqual(build_doc.kernel_image_size, 2048)
+        self.assertEqual(build_doc.modules_size, 1024)
         self.assertListEqual(build_doc.build_platform, [])
         self.assertDictEqual(build_doc.metadata, {"foo": "bar"})
