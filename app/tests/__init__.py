@@ -50,6 +50,7 @@ def test_modules():
         "models.tests.test_lab_model",
         "models.tests.test_report_model",
         "models.tests.test_test_case_model",
+        "models.tests.test_stats_model",
         "models.tests.test_test_set_model",
         "models.tests.test_test_suite_model",
         "models.tests.test_token_model",
