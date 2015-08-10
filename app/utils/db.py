@@ -1,5 +1,3 @@
-# Copyright (C) 2014 Linaro Ltd.
-#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
@@ -26,11 +24,14 @@ import utils
 DB_CONNECTION = None
 
 
-def get_db_connection(db_options):
+def get_db_connection(db_options, db_name=models.DB_NAME):
     """Retrieve a mongodb database connection.
 
     :params db_options: The mongodb database connection parameters.
     :type db_options: dict
+    :param db_name: The name of the database to connect to.
+    Defaults to "kernel-ci".
+    :type db_name: str
     :return A mongodb database instance.
     """
     global DB_CONNECTION
@@ -47,7 +48,7 @@ def get_db_connection(db_options):
 
         DB_CONNECTION = pymongo.MongoClient(
             host=db_host, port=db_port, max_pool_size=db_pool, w="majority"
-        )[models.DB_NAME]
+        )[db_name]
 
         if all([db_user, db_pwd]):
             DB_CONNECTION.authenticate(db_user, password=db_pwd)
