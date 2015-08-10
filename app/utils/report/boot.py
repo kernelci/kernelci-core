@@ -1012,7 +1012,7 @@ def _parse_and_structure_results(**kwargs):
 
         conflict_comment = G_(
             u"(These likely are not failures as other labs are reporting "
-            "PASS. Please review.)")
+            "PASS. Needs review.)")
         conflict_summary = (
             P_(
                 u"Conflicting Boot Failure Detected: {:s}",
