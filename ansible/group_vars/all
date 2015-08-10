@@ -9,3 +9,6 @@ git_head: master
 role: production
 bucket_name: linaro-kernelci
 bucket_backup_dir: mongodb
+dbhost: localhost
+dbport: 27017
+dbpool: 100

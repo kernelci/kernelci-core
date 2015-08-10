@@ -72,6 +72,17 @@
     - app
     - secrets
 
+- name: Install celery configuration file
+  template: src=kernelci-celery.cfg
+            dest=/etc/linaro/kernelci-celery.cfg
+            owner=root
+            group=root
+            mode=0644
+  tags:
+    - install
+    - app
+    - secrets
+
 - name: Copy build docs script
   template: src=build-docs.sh
             dest=/tmp/build-docs.sh
