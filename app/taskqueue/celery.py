@@ -15,20 +15,27 @@
 
 from __future__ import absolute_import
 
+import ConfigParser
 import celery
+import celery.schedules
 import kombu.serialization
 import os
 
 import taskqueue.celeryconfig as celeryconfig
 import taskqueue.serializer as serializer
 
+import utils
 
+
+CELERY_CONFIG_FILE = "/etc/linaro/kernelci-celery.cfg"
+CELERY_CONFIG_SECTION = "celery"
 TASKS_LIST = [
     "taskqueue.tasks.bisect",
     "taskqueue.tasks.boot",
     "taskqueue.tasks.build",
     "taskqueue.tasks.common",
     "taskqueue.tasks.report",
+    "taskqueue.tasks.stats",
     "taskqueue.tasks.test"
 ]
 
@@ -49,8 +56,55 @@ app = celery.Celery(
 
 app.config_from_object(celeryconfig)
 
-if os.environ.get("CELERY_CONFIG_MODULE", None):
-    app.config_from_envar("CELERY_CONFIG_MODULE")
+# Periodic tasks to be executed.
+CELERYBEAT_SCHEDULE = {
+    "calculate-daily-stats": {
+        "task": "calculate-daily-statistics",
+        "schedule": celery.schedule.crontab(minute=0, hour=12)
+    }
+}
+
+# The database connection parameters.
+# Read from a config file from disk.
+DB_OPTIONS = {}
+if os.path.exists(CELERY_CONFIG_FILE):
+    parser = ConfigParser.ConfigParser()
+    try:
+        parser.read([CELERY_CONFIG_FILE])
+        if parser.has_section(CELERY_CONFIG_SECTION):
+
+            if parser.has_option(CELERY_CONFIG_SECTION, "dbhost"):
+                DB_OPTIONS["dbhost"] = parser.get(
+                    CELERY_CONFIG_SECTION, "dbhost")
+            else:
+                DB_OPTIONS["dbhost"] = "localhost"
+
+            if parser.has_option(CELERY_CONFIG_SECTION, "dbport"):
+                DB_OPTIONS["dbport"] = parser.getint(
+                    CELERY_CONFIG_SECTION, "dbport")
+            else:
+                DB_OPTIONS["dbport"] = 27017
+
+            if parser.has_option(CELERY_CONFIG_SECTION, "dbpool"):
+                DB_OPTIONS["dbpool"] = parser.getint(
+                    CELERY_CONFIG_SECTION, "dbpool")
+            else:
+                DB_OPTIONS["dbpool"] = 100
+
+            if parser.has_option(CELERY_CONFIG_SECTION, "dbuser"):
+                DB_OPTIONS["dbuser"] = parser.getint(
+                    CELERY_CONFIG_SECTION, "dbuser")
+
+            if parser.has_option(CELERY_CONFIG_SECTION, "dbpassword"):
+                DB_OPTIONS["dbpassword"] = parser.getint(
+                    CELERY_CONFIG_SECTION, "dbpassword")
+    except ConfigParser.ParsingError:
+        utils.LOG.error("Error reading config file from disk")
+
+app.conf.update(
+    DB_OPTIONS=DB_OPTIONS,
+    CELERYBEAT_SCHEDULE=CELERYBEAT_SCHEDULE
+)
 
 
 if __name__ == "__main__":
