@@ -8,6 +8,7 @@ mongomock==1.2.0
 netaddr==0.7.14
 pycares==0.6.3
 pymongo==2.8.1
+pytz
 redis==2.10.3
 scandir
 simplejson>=3.6.1
