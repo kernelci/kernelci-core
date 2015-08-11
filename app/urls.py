@@ -26,6 +26,7 @@ import handlers.job
 import handlers.lab
 import handlers.report
 import handlers.send
+import handlers.stats
 import handlers.test_case
 import handlers.test_set
 import handlers.test_suite
@@ -112,6 +113,8 @@ _BOOT_TRIGGER_URL = tornado.web.url(
     r"/trigger/boot[s]?/?",
     handlers.boot_trigger.BootTriggerHandler, name="boot-trigger")
 
+_STATS_URL = tornado.web.url(
+    r"/statistics/?", handlers.stats.StatisticsHandler, name="statistics")
 
 APP_URLS = [
     _BATCH_URL,
@@ -131,6 +134,7 @@ APP_URLS = [
     _LAB_URL,
     _REPORT_URL,
     _SEND_URL,
+    _STATS_URL,
     _TEST_CASE_URL,
     _TEST_SET_URL,
     _TEST_SUITE_URL,

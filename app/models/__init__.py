@@ -866,3 +866,11 @@ TEST_CASE_VALID_KEYS = {
         VERSION_KEY
     ]
 }
+
+STATISTICS_VALID_KEYS = {
+    "GET": [
+        CREATED_KEY,
+        ID_KEY,
+        VERSION_KEY
+    ]
+}
