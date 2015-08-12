@@ -23,6 +23,7 @@ import utils.stats.daily
 @taskc.app.task(
     name="calculate-daily-statistics", ack_late=True, track_started=True)
 def calculate_daily_statistics():
+    """Collect daily statistics on the data stored."""
     db_options = taskc.app.conf.DB_OPTIONS
     daily_stats = utils.stats.daily.calculate_daily_stats(db_options)
 
