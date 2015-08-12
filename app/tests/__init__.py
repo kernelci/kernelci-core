@@ -35,6 +35,7 @@ def test_modules():
         "handlers.tests.test_lab_handler",
         "handlers.tests.test_report_handler",
         "handlers.tests.test_send_handler",
+        "handlers.tests.test_stats_handler",
         "handlers.tests.test_test_case_handler",
         "handlers.tests.test_test_set_handler",
         "handlers.tests.test_test_suite_handler",
