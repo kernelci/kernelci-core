@@ -18,7 +18,6 @@ try:
 except ImportError:
     import json
 
-import mock
 import tornado
 
 import urls
