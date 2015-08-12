@@ -142,14 +142,14 @@ def get_start_date(database):
         models.CREATED_KEY: {"$ne": None}
     }
     sort = [(models.CREATED_KEY, pymongo.ASCENDING)]
-    fields = [(models.CREATED_KEY, True)]
+    fields = [models.CREATED_KEY]
 
     start_doc = utils.db.find(
         database[models.JOB_COLLECTION],
         1, 0, spec=spec, fields=fields, sort=sort)
 
     if start_doc:
-        start_date = start_doc[models.CREATED_KEY]
+        start_date = start_doc[0][models.CREATED_KEY]
 
     return start_date
 
