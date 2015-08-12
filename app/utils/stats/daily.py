@@ -16,6 +16,7 @@
 import bson
 import datetime
 import itertools
+import pymongo
 
 import models
 import models.stats as mstats
@@ -128,6 +129,31 @@ def calculate_boot_stats(database, date_range):
     return boot_stats
 
 
+def get_start_date(database):
+    """Retrieve the date of the first object stored in the database.
+
+    :param database: The database connection.
+    :return The date of the first document stored or None.
+    """
+    utils.LOG.info("Retrieving start date")
+
+    start_date = None
+    spec = {
+        models.CREATED_KEY: {"$ne": None}
+    }
+    sort = [(models.CREATED_KEY, pymongo.ASCENDING)]
+    fields = [(models.CREATED_KEY, True)]
+
+    start_doc = utils.db.find(
+        database[models.JOB_COLLECTION],
+        1, 0, spec=spec, fields=fields, sort=sort)
+
+    if start_doc:
+        start_date = start_doc[models.CREATED_KEY]
+
+    return start_date
+
+
 def iter_dicts(dict0, dict1, dict2):
     """Iterate through 3 dictionaries at once.
 
@@ -163,11 +189,13 @@ def calculate_daily_stats(db_options):
 
     date_range = [yesterday, one_week, two_weeks]
 
+    start_date = get_start_date(database)
     job_stats = calculate_job_stats(database, date_range)
     build_stats = calculate_build_stats(database, date_range)
     boot_stats = calculate_boot_stats(database, date_range)
 
     daily_stats = mstats.DailyStats()
+    daily_stats.start_date = start_date
     for item in iter_dicts(job_stats, build_stats, boot_stats):
         if item:
             setattr(daily_stats, item[0], item[1])

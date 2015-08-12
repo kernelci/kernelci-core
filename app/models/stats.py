@@ -36,6 +36,8 @@ class DailyStats(mbase.BaseDocument):
         self._id = None
         self._version = version
 
+        self.start_date = None
+
         self.total_boots = 0
         self.total_builds = 0
         self.total_jobs = 0
@@ -133,6 +135,7 @@ class DailyStats(mbase.BaseDocument):
         """Create a dictionary for the object."""
         daily_stats = {
             models.CREATED_KEY: self.created_on,
+            models.START_DATE_KEY: self.start_date,
             models.VERSION_KEY: self.version,
             "biweekly_total_boots": self.biweekly_total_boots,
             "biweekly_total_builds": self.biweekly_total_builds,

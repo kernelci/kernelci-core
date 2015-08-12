@@ -42,13 +42,16 @@ class TestDailyStats(unittest.TestCase):
     def tearDown(self):
         logging.disable(logging.NOTSET)
 
+    @mock.patch("utils.stats.daily.get_start_date")
     @mock.patch("utils.stats.daily.calculate_boot_stats")
     @mock.patch("utils.stats.daily.calculate_build_stats")
     @mock.patch("utils.stats.daily.calculate_job_stats")
-    def test_calculate_daily_empty(self, mock_job, mock_build, mock_boot):
+    def test_calculate_daily_empty(
+            self, mock_job, mock_build, mock_boot, mock_start):
         mock_job.return_value = {}
         mock_boot.return_value = {}
         mock_build.return_value = {}
+        mock_start.return_value = "yesterday"
 
         expected = {
             "biweekly_total_boots": 0,
@@ -70,6 +73,7 @@ class TestDailyStats(unittest.TestCase):
             "daily_unique_machs": 0,
             "daily_unique_trees": 0,
             "daily_unique_defconfigs": 0,
+            "start_date": "yesterday",
             "total_boots": 0,
             "total_builds": 0,
             "total_jobs": 0,
@@ -94,12 +98,15 @@ class TestDailyStats(unittest.TestCase):
         daily_stats = utils.stats.daily.calculate_daily_stats({})
         self.assertDictEqual(expected, daily_stats.to_dict())
 
+    @mock.patch("utils.stats.daily.get_start_date")
     @mock.patch("utils.stats.daily.calculate_boot_stats")
     @mock.patch("utils.stats.daily.calculate_build_stats")
     @mock.patch("utils.stats.daily.calculate_job_stats")
-    def test_calculate_daily_with_job(self, mock_job, mock_build, mock_boot):
+    def test_calculate_daily_with_job(
+            self, mock_job, mock_build, mock_boot, mock_date):
         mock_boot.return_value = {}
         mock_build.return_value = {}
+        mock_date.return_value = "yesterday"
         mock_job.return_value = {
             "biweekly_total_jobs": 10,
             "biweekly_unique_kernels": 1024,
@@ -135,6 +142,7 @@ class TestDailyStats(unittest.TestCase):
             "daily_unique_machs": 0,
             "daily_unique_trees": 100,
             "daily_unique_defconfigs": 0,
+            "start_date": "yesterday",
             "total_boots": 0,
             "total_builds": 0,
             "total_jobs": 1000,
@@ -159,12 +167,15 @@ class TestDailyStats(unittest.TestCase):
         daily_stats = utils.stats.daily.calculate_daily_stats({})
         self.assertDictEqual(expected, daily_stats.to_dict())
 
+    @mock.patch("utils.stats.daily.get_start_date")
     @mock.patch("utils.stats.daily.calculate_boot_stats")
     @mock.patch("utils.stats.daily.calculate_build_stats")
     @mock.patch("utils.stats.daily.calculate_job_stats")
-    def test_calculate_daily_with_build(self, mock_job, mock_build, mock_boot):
+    def test_calculate_daily_with_build(
+            self, mock_job, mock_build, mock_boot, mock_start):
         mock_job.return_value = {}
         mock_boot.return_value = {}
+        mock_start.return_value = "yesterday"
         mock_build.return_value = {
             "biweekly_total_builds": 1,
             "biweekly_unique_defconfigs": 1,
@@ -196,6 +207,7 @@ class TestDailyStats(unittest.TestCase):
             "daily_unique_machs": 0,
             "daily_unique_trees": 0,
             "daily_unique_defconfigs": 10,
+            "start_date": "yesterday",
             "total_boots": 0,
             "total_builds": 1024,
             "total_jobs": 0,
@@ -220,12 +232,15 @@ class TestDailyStats(unittest.TestCase):
         daily_stats = utils.stats.daily.calculate_daily_stats({})
         self.assertDictEqual(expected, daily_stats.to_dict())
 
+    @mock.patch("utils.stats.daily.get_start_date")
     @mock.patch("utils.stats.daily.calculate_boot_stats")
     @mock.patch("utils.stats.daily.calculate_build_stats")
     @mock.patch("utils.stats.daily.calculate_job_stats")
-    def test_calculate_daily_with_boot(self, mock_job, mock_build, mock_boot):
+    def test_calculate_daily_with_boot(
+            self, mock_job, mock_build, mock_boot, mock_start):
         mock_job.return_value = {}
         mock_build.return_value = {}
+        mock_start.return_value = "yesterday"
         mock_boot.return_value = {
             "biweekly_total_boots": 10,
             "biweekly_unique_archs": 3,
@@ -265,6 +280,7 @@ class TestDailyStats(unittest.TestCase):
             "daily_unique_machs": 20,
             "daily_unique_trees": 0,
             "daily_unique_defconfigs": 0,
+            "start_date": "yesterday",
             "total_boots": 10,
             "total_builds": 0,
             "total_jobs": 0,

@@ -35,6 +35,7 @@ class TestStatsModel(unittest.TestCase):
         daily_stats.total_builds = 100
         daily_stats.total_jobs = 1000
         daily_stats.version = "foo"
+        daily_stats.start_date = "yesterday"
 
         expected = {
             "_id": "stats-id",
@@ -57,6 +58,7 @@ class TestStatsModel(unittest.TestCase):
             "daily_unique_machs": 0,
             "daily_unique_trees": 0,
             "daily_unique_defconfigs": 0,
+            "start_date": "yesterday",
             "total_boots": 10,
             "total_builds": 100,
             "total_jobs": 1000,
