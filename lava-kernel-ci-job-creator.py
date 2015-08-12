@@ -599,7 +599,7 @@ x86_kvm = {'device_type': 'kvm',
            'fastboot': False}
 
 device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
-              'bcm4708-smartrg-sr400ac.dtb': [bcm4708_smartrg_sr400ac],
+#             'bcm4708-smartrg-sr400ac.dtb': [bcm4708_smartrg_sr400ac],
               'armada-370-mirabox.dtb': [armada_370_mirabox],
               'exynos5250-arndale.dtb': [arndale],
               'exynos5250-snow.dtb': [snow],
