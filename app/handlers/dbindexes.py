@@ -34,6 +34,7 @@ def ensure_indexes(database):
     _ensure_lab_indexes(database)
     _ensure_bisect_indexes(database)
     _ensure_error_logs_indexes(database)
+    _ensure_stats_indexes(database)
 
 
 def _ensure_job_indexes(database):
@@ -191,3 +192,13 @@ def _ensure_error_logs_indexes(database):
         [(models.BUILD_ID_KEY, pymongo.DESCENDING)],
         background=True
     )
+
+
+def _ensure_stats_indexes(database):
+    """Ensure indexes exists for the 'daily_stats' collection.
+
+    :param database: The database connection.
+    """
+    collection = database[models.DAILY_STATS_COLLECTION]
+    collection.ensure_index(
+        [(models.CREATED_KEY, pymongo.DESCENDING)], background=True)
