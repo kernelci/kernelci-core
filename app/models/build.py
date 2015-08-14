@@ -67,9 +67,9 @@ class BuildDocument(mbase.BaseDocument):
         self.kconfig_fragments = None
         self.kernel_config = None
         self.kernel_image = None
-        self.kernel_image_size = 0
+        self.kernel_image_size = None
         self.modules = None
-        self.modules_size = 0
+        self.modules_size = None
         self.modules_dir = None
         self.system_map = None
         self.text_offset = None

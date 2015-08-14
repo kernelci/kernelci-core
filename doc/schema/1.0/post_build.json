@@ -97,8 +97,7 @@
         },
         "kernel_image_size": {
             "type": "integer",
-            "description": "Size in bytes of the kernel image file",
-            "default": 0
+            "description": "Size in bytes of the kernel image file"
         },
         "cross_compile": {
             "type": "string",
@@ -110,8 +109,7 @@
         },
         "modules_size": {
             "type": "integer",
-            "description": "Size in bytes of the modules file",
-            "default": 0
+            "description": "Size in bytes of the modules file"
         },
         "modules_dir": {
             "type": "string",

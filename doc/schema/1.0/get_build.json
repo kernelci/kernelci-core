@@ -108,8 +108,7 @@
         },
         "modules_size": {
             "type": "integer",
-            "description": "Size in bytes of the modules file",
-            "default": 0
+            "description": "Size in bytes of the modules file"
         },
         "dtb_dir": {
             "type": "string",
@@ -140,8 +139,7 @@
         },
         "kernel_image_size": {
             "type": "integer",
-            "description": "Size in bytes of the kernel image file",
-            "default": 0
+            "description": "Size in bytes of the kernel image file"
         },
         "kconfig_fragments": {
             "type": "string",

@@ -210,9 +210,7 @@ class TestBuildModel(unittest.TestCase):
             "defconfig_full": "defconfig_full",
             "file_server_resource": "file-resource",
             "file_server_url": "server-url",
-            "build_type": "kernel",
-            "kernel_image_size": 2048,
-            "modules_size": 1024
+            "build_type": "kernel"
         }
         build_doc = mbuild.BuildDocument.from_json(json_obj)
 
@@ -224,7 +222,7 @@ class TestBuildModel(unittest.TestCase):
         self.assertEqual(build_doc.warnings, 1)
         self.assertEqual(build_doc.build_time, 1)
         self.assertEqual(build_doc.build_type, "kernel")
-        self.assertEqual(build_doc.kernel_image_size, 2048)
-        self.assertEqual(build_doc.modules_size, 1024)
+        self.assertEqual(build_doc.kernel_image_size, None)
+        self.assertEqual(build_doc.modules_size, None)
         self.assertListEqual(build_doc.build_platform, [])
         self.assertDictEqual(build_doc.metadata, {"foo": "bar"})
