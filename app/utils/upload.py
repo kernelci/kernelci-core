@@ -136,8 +136,6 @@ def create_or_update_file(path,
             # 201 means created anew, 200 means just OK, as in HTTP.
             ret_dict["status"] = 200
 
-        utils.LOG.info("Writing file '%s'", real_path)
-
         w_stream = None
         try:
             w_stream = io.open(real_path, mode="bw")
