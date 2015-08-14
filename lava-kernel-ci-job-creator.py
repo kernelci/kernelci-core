@@ -484,6 +484,7 @@ apm_mustang = {'device_type': 'mustang',
                'nfs_blacklist': ['v3.10',
                                  'lsk-v3.10',
                                  'v3.12',
+                                 'v3.14',
                                  'lsk-v3.14'],
                'lpae': False,
                'fastboot': False}
