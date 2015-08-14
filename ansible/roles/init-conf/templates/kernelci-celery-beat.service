@@ -1,7 +1,6 @@
 [Unit]
 Description=Kernel CI Backend Celery Beat
 Wants=kernelci-celery.service
-After=kernelci-celery.service
 
 [Service]
 Type=simple
