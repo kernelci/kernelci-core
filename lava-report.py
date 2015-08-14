@@ -132,7 +132,6 @@ def boot_report(args):
         device_tree = None
         kernel_endian = None
         kernel_tree = None
-        kernel_image = None
         kernel_addr = None
         initrd_addr = None
         dtb_addr = None
@@ -252,8 +251,6 @@ def boot_report(args):
                     kernel_boot_time = bundle_attributes['kernel-boot-time']
             if in_bundle_attributes(bundle_attributes, 'kernel.tree'):
                 kernel_tree = bundle_attributes['kernel.tree']
-            if in_bundle_attributes(bundle_attributes, 'kernel-image'):
-                kernel_image = bundle_attributes['kernel-image']
             if in_bundle_attributes(bundle_attributes, 'kernel-addr'):
                 kernel_addr = bundle_attributes['kernel-addr']
             if in_bundle_attributes(bundle_attributes, 'initrd-addr'):
@@ -369,7 +366,10 @@ def boot_report(args):
             # TODO: Fix this
             boot_meta['boot_warnings'] = None
             if device_tree:
-                boot_meta['dtb'] = 'dtbs/' + device_tree
+                if arch == 'arm64':
+                    boot_meta['dtb'] = 'dtbs/' + device_map[device_type][1] + '/' + device_tree
+                else:
+                    boot_meta['dtb'] = 'dtbs/' + device_tree
             else:
                 boot_meta['dtb'] = device_tree
             boot_meta['dtb_addr'] = dtb_addr
@@ -380,7 +380,12 @@ def boot_report(args):
             # TODO: Fix this
             boot_meta['initrd'] = None
             boot_meta['initrd_addr'] = initrd_addr
-            boot_meta['kernel_image'] = kernel_image
+            if arch == 'arm':
+                boot_meta['kernel_image'] = 'zImage'
+            elif arch == 'arm64':
+                boot_meta['kernel_image'] = 'Image'
+            else:
+                boot_meta['kernel_image'] = 'bzImage'
             boot_meta['loadaddr'] = kernel_addr
             json_file = 'boot-%s.json' % platform_name
             write_json(json_file, directory, boot_meta)
