@@ -136,6 +136,107 @@ GET
  .. note::
     Results shown here do not include the full JSON response.
 
+.. http:get:: /job/distinct/(string:field)
+
+ Get all the unique values for the specified ``field``.
+ Accepted ``field`` values are:
+
+ * `git_branch`
+ * `git_commit`
+ * `git_describe`
+ * `git_url`
+ * `job`
+ * `kernel`
+
+ The query parameters can be used to first filter the data on which the unique
+ value should be retrieved.
+
+ :param field: The name of the field to get the unique values of.
+ :type field: string
+
+ :reqheader Authorization: The token necessary to authorize the request.
+ :reqheader Accept-Encoding: Accept the ``gzip`` coding.
+
+ :resheader Content-Type: Will be ``application/json; charset=UTF-8``.
+
+ :query int limit: Number of results to return. Default 0 (all results).
+ :query int skip: Number of results to skip. Default 0 (none).
+ :query string sort: Field to sort the results on. Can be repeated multiple times.
+ :query int sort_order: The sort order of the results: -1 (descending), 1
+    (ascending). This will be applied only to the first ``sort``
+    parameter passed. Default -1.
+ :query int date_range: Number of days to consider, starting from today
+    (:ref:`more info <intro_schema_time_date>`). By default consider all results.
+ :query string field: The field that should be returned in the response. Can be
+    repeated multiple times.
+ :query string nfield: The field that should *not* be returned in the response. Can be repeated multiple times.
+ :query string _id: The internal ID of the job report.
+ :query string created_on: The creation date: accepted formats are ``YYYY-MM-DD`` and ``YYYYMMDD``.
+ :query string job: A job name.
+ :query string kernel: A kernel name.
+ :query string status: The status of the job report.
+
+ :status 200: Results found.
+ :status 400: Wrong ``field`` value provided.
+ :status 403: Not authorized to perform the operation.
+ :status 404: The provided resource has not been found.
+ :status 500: Internal database error.
+
+ **Example Requests**
+
+ .. sourcecode:: http
+
+    GET /job/distinct/job HTTP/1.1
+    Host: api.kernelci.org
+    Accept: */*
+    Authorization: token
+
+ .. sourcecode:: http
+
+    GET /job/distinct/kernel?job=next&date_range=5 HTTP/1.1
+    Host: api.kernelci.org
+    Accept: */*
+    Authorization: token
+
+ **Example Responses**
+
+ .. sourcecode:: http
+
+    HTTP/1.1 200 OK
+    Vary: Accept-Encoding
+    Date: Mon, 11 Aug 2014 15:12:50 GMT
+    Content-Type: application/json; charset=UTF-8
+
+    {
+        "code": 200,
+        "count:" 49,
+        "result": [
+            "next",
+            "mainline",
+            "omap"
+        ]
+    }
+
+ .. sourcecode:: http
+
+    HTTP/1.1 200 OK
+    Vary: Accept-Encoding
+    Date: Mon, 11 Aug 2014 15:23:00 GMT
+    Content-Type: application/json; charset=UTF-8
+
+    {
+        "code": 200,
+        "count": 3,
+        "result": [
+            "next-20150826",
+            "next-20150825",
+            "next-20150824"
+        ]
+    }
+
+ .. note::
+    Results shown here do not include the full JSON response.
+
 POST
 ****
 
