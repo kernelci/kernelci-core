@@ -875,3 +875,52 @@ STATISTICS_VALID_KEYS = {
         VERSION_KEY
     ]
 }
+
+# Used by the DistinctHandler to handle query arguments on the various
+# supported resources.
+DISTINCT_VALID_KEYS = {
+    BOOT_COLLECTION: BOOT_VALID_KEYS,
+    BUILD_COLLECTION: BUILD_VALID_KEYS,
+    JOB_COLLECTION: JOB_VALID_KEYS,
+    TEST_CASE_COLLECTION: TEST_CASE_VALID_KEYS,
+    TEST_SET_COLLECTION: TEST_SET_VALID_KEYS,
+    TEST_SUITE_COLLECTION: TEST_SUITE_VALID_KEYS
+}
+
+# Used to define, in the DistinctHandler, which fields can be used as unique.
+DISTINCT_VALID_FIELDS = {
+    JOB_COLLECTION: [
+        GIT_BRANCH_KEY,
+        GIT_COMMIT_KEY,
+        GIT_DESCRIBE_KEY,
+        GIT_URL_KEY,
+        JOB_KEY,
+        KERNEL_KEY
+    ],
+    BUILD_COLLECTION: [
+        ARCHITECTURE_KEY,
+        DEFCONFIG_FULL_KEY,
+        DEFCONFIG_KEY,
+        GIT_BRANCH_KEY,
+        GIT_COMMIT_KEY,
+        GIT_DESCRIBE_KEY,
+        GIT_URL_KEY,
+        JOB_KEY,
+        KERNEL_KEY
+    ],
+    BOOT_COLLECTION: [
+        ARCHITECTURE_KEY,
+        BOARD_INSTANCE_KEY,
+        BOARD_KEY,
+        DEFCONFIG_FULL_KEY,
+        DEFCONFIG_KEY,
+        ENDIANNESS_KEY,
+        GIT_BRANCH_KEY,
+        GIT_COMMIT_KEY,
+        GIT_DESCRIBE_KEY,
+        JOB_KEY,
+        KERNEL_KEY,
+        LAB_NAME_KEY,
+        MACH_KEY
+    ]
+}

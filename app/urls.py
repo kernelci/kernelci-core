@@ -22,6 +22,7 @@ import handlers.boot_trigger
 import handlers.build
 import handlers.build_logs
 import handlers.count
+import handlers.distinct
 import handlers.job
 import handlers.lab
 import handlers.report
@@ -36,7 +37,17 @@ import handlers.version
 
 
 _JOB_URL = tornado.web.url(
-    r"/job[s]?/?(?P<id>.*)", handlers.job.JobHandler, name="job")
+    r"/job[s]?/?$", handlers.job.JobHandler, name="job")
+
+_JOB_ID_URL = tornado.web.url(
+    r"/job[s]?/(?P<id>[A-Za-z0-9]{24})/?$",
+    handlers.job.JobHandler, name="job-id")
+
+_JOB_DISTINCT_URL = tornado.web.url(
+    r"/job[s]?/distinct/(?P<field>[A-Za-z0-9_]+)/?$",
+    handlers.distinct.DistinctHandler,
+    kwargs={"resource": "job"}, name="job-distinct"
+)
 
 _BUILD_URL = tornado.web.url(
     r"/build[s]?/?$", handlers.build.BuildHandler, name="build")
@@ -130,6 +141,8 @@ APP_URLS = [
     _DEFCONFIG_LOGS_URL,
     _DEFCONF_ID_URL,
     _DEFCONF_URL,
+    _JOB_DISTINCT_URL,
+    _JOB_ID_URL,
     _JOB_URL,
     _LAB_URL,
     _REPORT_URL,

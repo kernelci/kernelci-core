@@ -412,7 +412,7 @@ def aggregate(
 
     # We need to sort twice here: the first time to correctly filter the
     # results that need to be retrieved from the database, the second time
-    # to obtain the correct sort order wanted in the respose.
+    # to obtain the correct sort order wanted in the response.
     if sort:
         pipeline.append({
             "$sort": {

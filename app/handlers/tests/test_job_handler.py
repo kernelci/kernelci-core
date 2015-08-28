@@ -29,7 +29,8 @@ from handlers.tests.test_handler_base import TestHandlerBase
 class TestJobHandler(TestHandlerBase):
 
     def get_app(self):
-        return tornado.web.Application([urls._JOB_URL], **self.settings)
+        return tornado.web.Application(
+            [urls._JOB_URL, urls._JOB_ID_URL], **self.settings)
 
     @mock.patch("utils.db.find")
     @mock.patch("utils.db.count")
@@ -101,7 +102,7 @@ class TestJobHandler(TestHandlerBase):
         expected_body = '{"code":200,"result":[{"_id":"foo"}]}'
 
         headers = {"Authorization": "foo"}
-        response = self.fetch("/job/job-kernel", headers=headers)
+        response = self.fetch("/job/" + self.doc_id, headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(response.body, expected_body)
@@ -197,7 +198,7 @@ class TestJobHandler(TestHandlerBase):
             response.headers["Content-Type"], self.content_type)
 
     def test_delete_no_token(self):
-        response = self.fetch("/job/job", method="DELETE")
+        response = self.fetch("/job/" + self.doc_id, method="DELETE")
         self.assertEqual(response.code, 403)
 
     @mock.patch("bson.objectid.ObjectId")
@@ -220,7 +221,7 @@ class TestJobHandler(TestHandlerBase):
         headers = {"Authorization": "foo"}
 
         response = self.fetch(
-            "/job/job", method="DELETE", headers=headers)
+            "/job/" + self.doc_id, method="DELETE", headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
@@ -240,7 +241,7 @@ class TestJobHandler(TestHandlerBase):
         headers = {"Authorization": "foo"}
 
         response = self.fetch(
-            "/job/foo", method="DELETE", headers=headers)
+            "/job/abcdefghilmnopqrstuvwxyz", method="DELETE", headers=headers)
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
@@ -256,7 +257,7 @@ class TestJobHandler(TestHandlerBase):
         headers = {"Authorization": "foo"}
 
         response = self.fetch(
-            "/job/foo", method="DELETE", headers=headers)
+            "/job/" + self.doc_id, method="DELETE", headers=headers)
 
         self.assertEqual(response.code, 500)
         self.assertEqual(
@@ -267,8 +268,88 @@ class TestJobHandler(TestHandlerBase):
         mock_get_one.return_value = ""
         headers = {"Authorization": "foo"}
 
-        response = self.fetch("/job/job-kernel", headers=headers)
+        response = self.fetch("/job/" + self.doc_id, headers=headers)
 
         self.assertEqual(response.code, 506)
+        self.assertEqual(
+            response.headers["Content-Type"], self.content_type)
+
+
+class TestJobDistinctHandler(TestHandlerBase):
+
+    def get_app(self):
+        return tornado.web.Application(
+            [urls._JOB_DISTINCT_URL], **self.settings)
+
+    def test_delete(self):
+        headers = {"Authorization": "foo"}
+
+        response = self.fetch(
+            "/job/distinct/foo", method="DELETE", headers=headers)
+
+        self.assertEqual(response.code, 501)
+        self.assertEqual(
+            response.headers["Content-Type"], self.content_type)
+
+    def test_post(self):
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+
+        response = self.fetch(
+            "/job/distinct/foo", method="POST", headers=headers, body="body")
+
+        self.assertEqual(response.code, 501)
+        self.assertEqual(
+            response.headers["Content-Type"], self.content_type)
+
+    def test_put(self):
+        headers = {"Authorization": "foo", "Content-Type": "application/json"}
+
+        response = self.fetch(
+            "/job/distinct/foo", method="PUT", headers=headers, body="body")
+
+        self.assertEqual(response.code, 501)
+        self.assertEqual(
+            response.headers["Content-Type"], self.content_type)
+
+    def test_get_no_auth(self):
+        response = self.fetch("/job/distinct/foo", method="GET")
+
+        self.assertEqual(response.code, 403)
+        self.assertEqual(
+            response.headers["Content-Type"], self.content_type)
+
+    def test_get_no_field(self):
+        headers = {"Authorization": "foo"}
+        response = self.fetch(
+            "/job/distinct/", headers=headers, method="GET")
+
+        self.assertEqual(response.code, 404)
+        self.assertEqual(
+            response.headers["Content-Type"], self.content_type)
+
+    def test_get_wrong_field(self):
+        headers = {"Authorization": "foo"}
+        response = self.fetch(
+            "/job/distinct/foo", headers=headers, method="GET")
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers["Content-Type"], self.content_type)
+
+    def test_get_correct(self):
+        headers = {"Authorization": "foo"}
+        response = self.fetch(
+            "/job/distinct/job", headers=headers, method="GET")
+
+        self.assertEqual(response.code, 200)
+        self.assertEqual(
+            response.headers["Content-Type"], self.content_type)
+
+    def test_get_correct_with_query(self):
+        headers = {"Authorization": "foo"}
+        response = self.fetch(
+            "/job/distinct/kernel?job=mainline", headers=headers, method="GET")
+
+        self.assertEqual(response.code, 200)
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
