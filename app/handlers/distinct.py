@@ -14,8 +14,8 @@
 """The RequestHandler to handle 'distinct' requests."""
 
 import handlers.base as hbase
-import handlers.response as hresponse
 import handlers.common.query
+import handlers.response as hresponse
 import models
 
 
