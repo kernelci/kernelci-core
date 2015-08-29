@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import urllib2
 import urlparse
+import httplib
 import re
 import os
 import shutil
@@ -11,9 +12,6 @@ base_url = None
 kernel = None
 platform_list = []
 legacy_platform_list = []
-no_modules_list = ['arm-sunxi_defconfig',
-                   'arm-hisi_defconfig',
-                   'arm-bcm2835_defconfig']
 
 bcm2835_rpi_b_plus = {'device_type': 'bcm2835-rpi-b-plus',
                       'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
@@ -672,6 +670,8 @@ def create_jobs(base_url, kernel, plans, platform_list, targets):
     tree = build_info[1]
     kernel_version = build_info[2]
     defconfig = build_info[3]
+    has_modules = True
+    checked_modules = False
 
     for platform in platform_list:
         platform_name = platform.split('/')[-1]
@@ -714,49 +714,61 @@ def create_jobs(base_url, kernel, plans, platform_list, targets):
                 elif not any([x for x in defconfigs if x == defconfig]) and plan != 'boot':
                     print '%s has been omitted from the %s test plan. Skipping JSON creation.' % (defconfig, plan)
                 else:
-                        for template in device_templates:
-                            job_name = tree + '-' + kernel_version + '-' + defconfig[:100] + '-' + platform_name + '-' + device_type + '-' + plan
-                            job_json = cwd + '/jobs/' + job_name + '.json'
-                            template_file = cwd + '/templates/' + plan + '/' + str(template)
-                            if os.path.exists(template_file):
-                                with open(job_json, 'wt') as fout:
-                                    with open(template_file, "rt") as fin:
-                                        for line in fin:
-                                            tmp = line.replace('{dtb_url}', platform)
-                                            tmp = tmp.replace('{kernel_url}', kernel)
-                                            tmp = tmp.replace('{device_type}', device_type)
-                                            tmp = tmp.replace('{job_name}', job_name)
-                                            tmp = tmp.replace('{image_type}', image_type)
-                                            tmp = tmp.replace('{image_url}', image_url)
-                                            modules_url = image_url + 'modules.tar.xz'
-                                            dummy_modules_url = 'http://images.armcloud.us/lava/common/modules.tar.xz'
-                                            if any([x for x in no_modules_list if x in defconfig]):
-                                                # Dummy Modules
-                                                tmp = tmp.replace('{modules_url}', dummy_modules_url)
-                                            else:
-                                                tmp = tmp.replace('{modules_url}', modules_url)
-                                            tmp = tmp.replace('{tree}', tree)
-                                            if platform_name.endswith('.dtb'):
-                                                tmp = tmp.replace('{device_tree}', platform_name)
-                                            tmp = tmp.replace('{kernel_version}', kernel_version)
-                                            if 'BIG_ENDIAN' in defconfig and plan == 'boot-be':
-                                                tmp = tmp.replace('{endian}', 'big')
-                                            else:
-                                                tmp = tmp.replace('{endian}', 'little')
-                                            tmp = tmp.replace('{defconfig}', defconfig)
-                                            tmp = tmp.replace('{fastboot}', str(fastboot).lower())
-                                            if plan:
-                                                tmp = tmp.replace('{test_plan}', plan)
-                                            if test_suite:
-                                                tmp = tmp.replace('{test_suite}', test_suite)
-                                            if test_set:
-                                                tmp = tmp.replace('{test_set}', test_set)
-                                            if test_desc:
-                                                tmp = tmp.replace('{test_desc}', test_desc)
-                                            if test_type:
-                                                tmp = tmp.replace('{test_type}', test_type)
-                                            fout.write(tmp)
-                                print 'JSON Job created: jobs/%s' % job_name
+                    for template in device_templates:
+                        job_name = tree + '-' + kernel_version + '-' + defconfig[:100] + '-' + platform_name + '-' + device_type + '-' + plan
+                        job_json = cwd + '/jobs/' + job_name + '.json'
+                        template_file = cwd + '/templates/' + plan + '/' + str(template)
+                        if os.path.exists(template_file):
+                            with open(job_json, 'wt') as fout:
+                                with open(template_file, "rt") as fin:
+                                    for line in fin:
+                                        tmp = line.replace('{dtb_url}', platform)
+                                        tmp = tmp.replace('{kernel_url}', kernel)
+                                        tmp = tmp.replace('{device_type}', device_type)
+                                        tmp = tmp.replace('{job_name}', job_name)
+                                        tmp = tmp.replace('{image_type}', image_type)
+                                        tmp = tmp.replace('{image_url}', image_url)
+                                        modules_url = image_url + 'modules.tar.xz'
+                                        dummy_modules_url = 'http://images.armcloud.us/lava/common/modules.tar.xz'
+                                        if has_modules:
+                                            # Check if the if the modules actually exist
+                                            if not checked_modules:
+                                                # We only need to check that the modules
+                                                # exist once for each defconfig
+                                                p = urlparse.urlparse(modules_url)
+                                                conn = httplib.HTTPConnection(p.netloc)
+                                                conn.request('HEAD', p.path)
+                                                resp = conn.getresponse()
+                                                if resp.status > 400:
+                                                    has_modules = False
+                                                    print "No modules found, using dummy modules"
+                                                    modules_url = dummy_modules_url
+                                                checked_modules = True
+                                        else:
+                                            modules_url = dummy_modules_url
+                                        tmp = tmp.replace('{modules_url}', modules_url)
+                                        tmp = tmp.replace('{tree}', tree)
+                                        if platform_name.endswith('.dtb'):
+                                            tmp = tmp.replace('{device_tree}', platform_name)
+                                        tmp = tmp.replace('{kernel_version}', kernel_version)
+                                        if 'BIG_ENDIAN' in defconfig and plan == 'boot-be':
+                                            tmp = tmp.replace('{endian}', 'big')
+                                        else:
+                                            tmp = tmp.replace('{endian}', 'little')
+                                        tmp = tmp.replace('{defconfig}', defconfig)
+                                        tmp = tmp.replace('{fastboot}', str(fastboot).lower())
+                                        if plan:
+                                            tmp = tmp.replace('{test_plan}', plan)
+                                        if test_suite:
+                                            tmp = tmp.replace('{test_suite}', test_suite)
+                                        if test_set:
+                                            tmp = tmp.replace('{test_set}', test_set)
+                                        if test_desc:
+                                            tmp = tmp.replace('{test_desc}', test_desc)
+                                        if test_type:
+                                            tmp = tmp.replace('{test_type}', test_type)
+                                        fout.write(tmp)
+                            print 'JSON Job created: jobs/%s' % job_name
 
 
 def walk_url(url, plans=None, arch=None, targets=None):
