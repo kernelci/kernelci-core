@@ -11,13 +11,21 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 import unittest
 
+import bson
 import utils
 import utils.errors
 
 
 class TestBaseUtils(unittest.TestCase):
+
+    def setUp(self):
+        logging.disable(logging.CRITICAL)
+
+    def tearDown(self):
+        logging.disable(logging.NOTSET)
 
     def test_is_hidden(self):
         self.assertTrue(utils.is_hidden(".hidden"))
@@ -139,3 +147,19 @@ class TestBaseUtils(unittest.TestCase):
         self.assertFalse(utils.valid_name(".foo/bar"))
         self.assertFalse(utils.valid_name("$foobar"))
         self.assertFalse(utils.valid_name("foo$bar"))
+
+    def test_update_id_fields(self):
+        spec = {
+            "job_id": "123344567",
+            "_id": "0123456789ab0123456789ab",
+            "foo": 1234,
+            "build_id": "0123456789ab0123456789ab"
+        }
+        utils.update_id_fields(spec)
+        expected = {
+            "_id": bson.objectid.ObjectId("0123456789ab0123456789ab"),
+            "foo": 1234,
+            "build_id": bson.objectid.ObjectId("0123456789ab0123456789ab")
+        }
+
+        self.assertDictEqual(expected, spec)

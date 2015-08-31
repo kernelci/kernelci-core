@@ -15,6 +15,8 @@
 
 """Common functions, variables for all kernelci utils modules."""
 
+import bson
+
 import models
 import utils.log
 
@@ -29,6 +31,44 @@ BUILD_LOG_FILE = "build.log"
 BUILD_ERRORS_FILE = "build-errors.log"
 BUILD_WARNINGS_FILE = "build-warnings.log"
 BUILD_MISMATCHES_FILE = "build-mismatches.log"
+
+# All the mongodb ID keys we use.
+ID_KEYS = [
+    models.BOOT_ID_KEY,
+    models.BUILD_ID_KEY,
+    models.ID_KEY,
+    models.JOB_ID_KEY,
+    models.LAB_ID_KEY,
+    models.TEST_CASE_ID_KEY,
+    models.TEST_SET_ID_KEY,
+    models.TEST_SUITE_ID_KEY
+]
+
+
+def update_id_fields(spec):
+    """Make sure ID fields are treated correctly.
+
+    Update in-place ID fields to perform a search.
+
+    If we search for an ID field, either _id or like job_id, that references
+    a real _id in mongodb, we need to make sure they are treated as such.
+    mongodb stores them as ObjectId elements.
+
+    :param spec: The spec data structure with the parameters to check.
+    :type spec: dict
+    """
+    if spec:
+        common_keys = list(set(ID_KEYS) & set(spec.viewkeys()))
+        for key in common_keys:
+            try:
+                spec[key] = bson.objectid.ObjectId(spec[key])
+            except bson.errors.InvalidId, ex:
+                # We remove the key since it won't serve anything good.
+                utils.LOG.error(
+                    "Wrong ID value for key '%s', got '%s': ignoring",
+                    key, spec[key])
+                utils.LOG.exception(ex)
+                spec.pop(key, None)
 
 
 def valid_name(name):
@@ -71,47 +111,6 @@ def is_lab_dir(value):
     if value.startswith("lab-"):
         is_lab = True
     return is_lab
-
-
-def get_defconfig_full(build_dir,
-                       defconfig, defconfig_full, kconfig_fragments):
-    """Get the value for defconfig_full variable based on available ones.
-
-    :param build_dir: The directory we are parsing.
-    :type build_dir: string
-    :param defconfig: The value for defconfig
-    :type defconfig: string
-    :param defconfig_full: The possible value for defconfig_full as taken from
-    the build json file.
-    :type defconfig_full: string
-    :param kconfig_fragments: The config fragments value where to start.
-    :type kconfig_fragments: string
-    :return The defconfig_full value.
-    """
-    if all([defconfig_full is None, kconfig_fragments is None]):
-        defconfig_full = defconfig
-    elif all([defconfig_full is None, kconfig_fragments is not None]):
-        # Infer the real defconfig used from the values we have.
-        # Try first from the kconfig_fragments and then from the
-        # directory we are traversing.
-        defconfig_full_k = \
-            _extrapolate_defconfig_full_from_kconfig(
-                kconfig_fragments, defconfig)
-        defconfig_full_d = \
-            _extrapolate_defconfig_full_from_dirname(build_dir)
-
-        # Default to use the one from kconfig_fragments.
-        defconfig_full = defconfig_full_k
-        # Use the one from the directory only if it is different from
-        # the one obtained via the kconfig_fragments and if it is
-        # different from the default defconfig value.
-        if all([
-                defconfig_full_d is not None,
-                defconfig_full_d != defconfig_full_k,
-                defconfig_full_d != defconfig]):
-            defconfig_full = defconfig_full_k
-
-    return defconfig_full
 
 
 # pylint: disable=invalid-name
@@ -169,5 +168,46 @@ def _extrapolate_defconfig_full_from_dirname(dirname):
         if arch in dirname:
             defconfig_full = _replace_arch_value(arch, dirname)
             break
+
+    return defconfig_full
+
+
+def get_defconfig_full(build_dir,
+                       defconfig, defconfig_full, kconfig_fragments):
+    """Get the value for defconfig_full variable based on available ones.
+
+    :param build_dir: The directory we are parsing.
+    :type build_dir: string
+    :param defconfig: The value for defconfig
+    :type defconfig: string
+    :param defconfig_full: The possible value for defconfig_full as taken from
+    the build json file.
+    :type defconfig_full: string
+    :param kconfig_fragments: The config fragments value where to start.
+    :type kconfig_fragments: string
+    :return The defconfig_full value.
+    """
+    if all([defconfig_full is None, kconfig_fragments is None]):
+        defconfig_full = defconfig
+    elif all([defconfig_full is None, kconfig_fragments is not None]):
+        # Infer the real defconfig used from the values we have.
+        # Try first from the kconfig_fragments and then from the
+        # directory we are traversing.
+        defconfig_full_k = \
+            _extrapolate_defconfig_full_from_kconfig(
+                kconfig_fragments, defconfig)
+        defconfig_full_d = \
+            _extrapolate_defconfig_full_from_dirname(build_dir)
+
+        # Default to use the one from kconfig_fragments.
+        defconfig_full = defconfig_full_k
+        # Use the one from the directory only if it is different from
+        # the one obtained via the kconfig_fragments and if it is
+        # different from the default defconfig value.
+        if all([
+                defconfig_full_d is not None,
+                defconfig_full_d != defconfig_full_k,
+                defconfig_full_d != defconfig]):
+            defconfig_full = defconfig_full_k
 
     return defconfig_full
