@@ -38,17 +38,6 @@ KEY_TYPES = {
     models.WARNINGS_KEY: "int"
 }
 
-ID_KEYS = [
-    models.BOOT_ID_KEY,
-    models.BUILD_ID_KEY,
-    models.ID_KEY,
-    models.JOB_ID_KEY,
-    models.LAB_ID_KEY,
-    models.TEST_CASE_ID_KEY,
-    models.TEST_SET_ID_KEY,
-    models.TEST_SUITE_ID_KEY
-]
-
 MIDNIGHT = datetime.time(tzinfo=bson.tz_util.utc)
 ALMOST_MIDNIGHT = datetime.time(23, 59, 59, tzinfo=bson.tz_util.utc)
 EPOCH = datetime.datetime(1970, 1, 1, tzinfo=bson.tz_util.utc)
@@ -71,7 +60,7 @@ def get_all_query_values(query_args_func, valid_keys):
 
     get_and_add_date_range(spec, query_args_func, created_on)
     get_and_add_gte_lt_keys(spec, query_args_func, valid_keys)
-    update_id_fields(spec)
+    utils.update_id_fields(spec)
 
     sort = get_query_sort(query_args_func)
     fields = get_query_fields(query_args_func)
@@ -100,7 +89,7 @@ def get_trigger_query_values(query_args_func, valid_keys):
     get_and_add_date_range(spec, query_args_func, created_on)
     get_and_add_gte_lt_keys(spec, query_args_func, valid_keys)
     get_and_add_time_range(spec, query_args_func)
-    update_id_fields(spec)
+    utils.update_id_fields(spec)
 
     sort = get_query_sort(query_args_func)
     fields = get_query_fields(query_args_func)
@@ -238,29 +227,6 @@ def _add_gte_lt_value(field, value, operator, spec, spec_get_func=None):
         prev_val.update(new_key_val)
     else:
         spec[field] = new_key_val
-
-
-def update_id_fields(spec):
-    """Make sure ID fields are treated correctly.
-
-    If we search for an ID field, either _id or like job_id, that references
-    a real _id in mongodb, we need to make sure they are treated as such.
-    mongodb stores them as ObjectId elements.
-
-    :param spec: The spec data structure with the parameters to check.
-    """
-    if spec:
-        common_keys = list(set(ID_KEYS) & set(spec.viewkeys()))
-        for key in common_keys:
-            try:
-                spec[key] = bson.objectid.ObjectId(spec[key])
-            except bson.errors.InvalidId, ex:
-                # We remove the key since it won't serve anything good.
-                utils.LOG.error(
-                    "Wrong ObjectId value for key '%s', got '%s': ignoring",
-                    key, spec[key])
-                utils.LOG.exception(ex)
-                spec.pop(key, None)
 
 
 def get_aggregate_value(query_args_func):

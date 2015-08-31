@@ -20,7 +20,6 @@ import types
 import unittest
 
 from bson import (
-    objectid,
     tz_util
 )
 
@@ -39,8 +38,7 @@ from handlers.common.query import (
     get_query_sort,
     get_query_spec,
     get_skip_and_limit,
-    get_trigger_query_values,
-    update_id_fields
+    get_trigger_query_values
 )
 
 
@@ -66,22 +64,6 @@ class TestCommonQuery(unittest.TestCase):
         self.assertTrue(_valid_value(False))
         self.assertTrue(_valid_value(["foo", "bar"]))
         self.assertTrue(_valid_value(("foo", "bar")))
-
-    def test_update_id_fields(self):
-        spec = {
-            "job_id": "123344567",
-            "_id": "0123456789ab0123456789ab",
-            "foo": 1234,
-            "build_id": "0123456789ab0123456789ab"
-        }
-        update_id_fields(spec)
-        expected = {
-            "_id": objectid.ObjectId("0123456789ab0123456789ab"),
-            "foo": 1234,
-            "build_id": objectid.ObjectId("0123456789ab0123456789ab")
-        }
-
-        self.assertDictEqual(expected, spec)
 
     def test_calculate_date_range_valid(self):
         expected = datetime.datetime.combine(

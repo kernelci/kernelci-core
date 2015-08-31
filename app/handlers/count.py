@@ -21,6 +21,7 @@ import handlers.base as hbase
 import handlers.common.query
 import handlers.response as hresponse
 import models
+import utils
 import utils.db
 
 # Internally used only. It is used to retrieve just one field for
@@ -93,7 +94,7 @@ def count_one_collection(
     spec = handlers.common.query.get_query_spec(
         query_args_func, valid_keys)
     handlers.common.query.get_and_add_date_range(spec, query_args_func)
-    handlers.common.query.update_id_fields(spec)
+    utils.update_id_fields(spec)
 
     if spec:
         _, number = utils.db.find_and_count(
@@ -129,7 +130,7 @@ def count_all_collections(database, query_args_func, valid_keys):
 
     spec = handlers.common.query.get_query_spec(query_args_func, valid_keys)
     handlers.common.query.get_and_add_date_range(spec, query_args_func)
-    handlers.common.query.update_id_fields(spec)
+    utils.update_id_fields(spec)
 
     if spec:
         for collection in models.COUNT_COLLECTIONS:
