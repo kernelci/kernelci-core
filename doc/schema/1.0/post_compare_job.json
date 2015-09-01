@@ -1,0 +1,44 @@
+{
+    "$schema": "http://api.kernelci.org/json-schema/1.0/post_compare_job.json",
+    "id": "http://api.kernelci.org/json-schema/1.0/post_compare_job.json",
+    "title": "job-compare",
+    "description": "The data necessary to perform a job comparison",
+    "type": "object",
+    "properties": {
+        "job": {
+            "type": "string",
+            "description": "The name of the job to use as the starting point"
+        },
+        "kernel": {
+            "type": "string",
+            "description": "The name of kernel to use as the starting point"
+        },
+        "job_id": {
+            "type": "string",
+            "description": "The ID of the job to use as the starting point"
+        },
+        "compare_to": {
+            "type": "array",
+            "description": "Array of jobs against which to run the comparison",
+            "additionalItems": true,
+            "items": {
+                "type": "object",
+                "description": "The data identifying the job to compare against",
+                "properties": {
+                    "job": {
+                        "type": "string",
+                        "description": "The name of the job to compare"
+                    },
+                    "kernel": {
+                        "type": "string",
+                        "description": "The name of the kernel to compare"
+                    },
+                    "job_id": {
+                        "type": "string",
+                        "description": "The ID of the job to compare"
+                    }
+                }
+            }
+        }
+    }
+}

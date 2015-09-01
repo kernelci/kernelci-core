@@ -1,0 +1,133 @@
+{
+    "$schema": "http://api.kernelci.org/json-schema/1.0/get_compare_job.json",
+    "id": "http://api.kernelci.org/json-schema/1.0/get_compare_job.json",
+    "title": "job-compare",
+    "description": "The result of a job comparison",
+    "type": "object",
+    "properties": {
+        "baseline": {
+            "type": "object",
+            "description": "The baseline job for the comparison, the starting point",
+            "properties": {
+                "job": {
+                    "type": "string",
+                    "description": "The name of the job"
+                },
+                "kernel": {
+                    "type": "string",
+                    "description": "The name of the kernel"
+                },
+                "job_id": {
+                    "type": "object",
+                    "description": "The ID of the job",
+                    "properties": {
+                        "$oid": {
+                            "type": "string",
+                            "description": "The actual ID value"
+                        }
+                    }
+                },
+                "git_branch": {
+                    "type": "string",
+                    "description": "The name of the branch"
+                },
+                "git_commit": {
+                    "type": "string",
+                    "description": "The SHA of the commit used"
+                },
+                "git_describe": {
+                    "type": "string",
+                    "description": "The output of the git-describe command"
+                },
+                "git_url": {
+                    "type": "string",
+                    "description": "The URL of the git web interface where the code used to build can be found"
+                },
+                "total_builds": {
+                    "type": "integer",
+                    "description": "The total number of builds associated with the job"
+                }
+            }
+        },
+        "result": {
+            "type": "array",
+            "description": "The comparison results of the baseline job against the other jobs",
+            "additionalItems": true,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "git_branch": {
+                        "type": "string",
+                        "description": "The name of the branch"
+                    },
+                    "git_commit": {
+                        "type": "string",
+                        "description": "The SHA of the commit used"
+                    },
+                    "git_describe": {
+                        "type": "string",
+                        "description": "The output of the git-describe command"
+                    },
+                    "git_url": {
+                        "type": "string",
+                        "description": "The URL of the git web interface where the code used to build can be found"
+                    },
+                    "job": {
+                        "type": "string",
+                        "description": "The name of the job"
+                    },
+                    "job_id": {
+                        "type": "object",
+                        "description": "The ID of the job",
+                        "properties": {
+                            "$oid": {
+                                "type": "string",
+                                "description": "The actual ID value"
+                            }
+                        }
+                    },
+                    "kernel": {
+                        "type": "string",
+                        "description": "The name of the kernel"
+                    },
+                    "total_builds": {
+                        "type": "integer",
+                        "description": "Total number of builds associated with the job"
+                    },
+                    "delta_result": {
+                        "type": "array",
+                        "description": "The results of the comparison between the baseline job builds and this job builds",
+                        "additionalItems": true,
+                        "items": {
+                            "type": "array",
+                            "maxItems": 2,
+                            "description": "The result of the comparison",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "arch": {
+                                        "type": "string",
+                                        "description": "The architecture of the build"
+                                    },
+                                    "defconfig": {
+                                        "type": "string",
+                                        "description": "The name of the defconfig built"
+                                    },
+                                    "defconfig_full": {
+                                        "type": "string",
+                                        "description": "The full name of the defconfig built, can contain more information than defconfig"
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "description": "The status of the build",
+                                        "enum": ["FAIL", "PASS", "UNKNOWN"]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

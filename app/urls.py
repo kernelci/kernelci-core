@@ -21,6 +21,7 @@ import handlers.boot
 import handlers.boot_trigger
 import handlers.build
 import handlers.build_logs
+import handlers.compare
 import handlers.count
 import handlers.distinct
 import handlers.job
@@ -47,6 +48,12 @@ _JOB_DISTINCT_URL = tornado.web.url(
     r"/job[s]?/distinct/(?P<field>[A-Za-z0-9_]+)/?$",
     handlers.distinct.DistinctHandler,
     kwargs={"resource": "job"}, name="job-distinct"
+)
+
+_JOB_COMPARE_URL = tornado.web.url(
+    r"/job[s]?/compare/?$",
+    handlers.compare.CompareHandler,
+    kwargs={"resource": "job"}, name="job-compare"
 )
 
 _BUILD_URL = tornado.web.url(
@@ -141,6 +148,7 @@ APP_URLS = [
     _DEFCONFIG_LOGS_URL,
     _DEFCONF_ID_URL,
     _DEFCONF_URL,
+    _JOB_COMPARE_URL,
     _JOB_DISTINCT_URL,
     _JOB_ID_URL,
     _JOB_URL,

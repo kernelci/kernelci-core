@@ -280,6 +280,86 @@ POST
         "status": "FAIL"
     }
 
+.. _collection_job_post_compare:
+
+.. http:post:: /job/compare/
+
+ Execute a comparison of a job with one or more other jobs.
+
+ The job comparison is done on all the available builds for a given job: it will
+ give an overview about all the builds performed.
+
+ For more info on all the required JSON request fields, see the :ref:`job-compare schema for POST requests <schema_compare_post_job>`. For the results returned by this resource, see the :ref:`job-compare schema for GET requests <schema_compare_get_job>`.
+
+ When successful, the response will contain a ``Location`` header pointing to the saved results URL of the requested comparison.
+
+ :reqjson string job: The name of the job.
+ :reqjson string kernel: The name of the kernel.
+ :reqjson string job_id: The ID of the job.
+ :reqjson array compare_to: The list of jobs to compare against.
+
+ :reqheader Authorization: The token necessary to authorize the request.
+ :reqheader Content-Type: Content type of the transmitted data, must be ``application/json``.
+ :reqheader Accept-Encoding: Accept the ``gzip`` coding.
+
+ :resheader Content-Type: Will be ``application/json; charset=UTF-8``.
+ :resheader Location: Will point to the saved comparison results ID.
+
+ :status 200: The request has been processed, saved results are returned.
+ :status 201: The reuqest has been processed and created.
+ :status 400: JSON data not valid.
+ :status 403: Not authorized to perform the operation.
+ :status 404: Document not found.
+ :status 415: Wrong content type.
+ :status 422: No real JSON data provided.
+ :status 500: Internal server error.
+
+ **Example Requests**
+
+ .. sourcecode:: http 
+
+    POST /job/compare/ HTTP/1.1
+    Host: api.kernelci.org
+    Content-Type: application/json
+    Accept: */*
+    Authorization: token
+
+    {
+        "job": "next",
+        "kernel": "next-20150826",
+        "compare_to": [
+            {
+                "job": "next",
+                "kernel": "next-20150825"
+            },
+            {
+                "job": "next",
+                "kernel": "next-20150824"
+            }
+        ]
+    }
+
+ .. sourcecode:: http 
+
+    POST /job/compare/ HTTP/1.1
+    Host: api.kernelci.org
+    Content-Type: application/json
+    Accept: */*
+    Authorization: token
+
+    {
+        "job_id": "123456789012345678901234"
+        "compare_to": [
+            {
+                "job": "next",
+                "kernel": "next-20150825"
+            },
+            {
+                "job_id": "123456789012345678901234"
+            }
+        ]
+    }
+
 DELETE
 ******
 

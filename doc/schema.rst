@@ -6,13 +6,14 @@ Schema
 .. toctree::
     :maxdepth: 1
 
-    schema-job
+    schema-batch
+    schema-boot
     schema-build
     schema-build-logs
-    schema-boot
-    schema-token
-    schema-batch
+    schema-compare
+    schema-job
     schema-lab
     schema-report
     schema-send
     schema-test
+    schema-token

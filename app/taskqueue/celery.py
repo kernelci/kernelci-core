@@ -34,6 +34,7 @@ TASKS_LIST = [
     "taskqueue.tasks.boot",
     "taskqueue.tasks.build",
     "taskqueue.tasks.common",
+    "taskqueue.tasks.compare",
     "taskqueue.tasks.report",
     "taskqueue.tasks.stats",
     "taskqueue.tasks.test"
