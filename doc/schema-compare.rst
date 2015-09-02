@@ -20,8 +20,8 @@ The following schema covers the data available in the result of a ``job-compare`
 
 **Notes**
 
-* The items (2-objects array) in the ``delta_result`` array contain the baseline build and the compared build respectively at those positions.
-* The items (2-objects array) in the ``delta_result`` array can be made of: two objects, or one object and a null value. In case of a null value, it means that the build in that position was not available.
+* The items (2-objects array) in the ``delta_result`` array contain the baseline build and the compared build respectively in that order.
+* The items (2-objects array) in the ``delta_result`` array can be: two objects, or one object and a null value. In case of a null value, it means that the build in that position was not available.
 
 .. _schema_compare_post:
 

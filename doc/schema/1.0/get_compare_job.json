@@ -5,6 +5,16 @@
     "description": "The result of a job comparison",
     "type": "object",
     "properties": {
+        "_id": {
+            "type": "object",
+            "description": "The ID of ths object",
+            "properties": {
+                "$oid": {
+                    "type": "string",
+                    "description": "The actual ID value"
+                }
+            }
+        },
         "baseline": {
             "type": "object",
             "description": "The baseline job for the comparison, the starting point",
@@ -105,6 +115,16 @@
                             "items": {
                                 "type": "object",
                                 "properties": {
+                                    "_id": {
+                                        "type": "object",
+                                        "description": "The ID of ths build",
+                                        "properties": {
+                                            "$oid": {
+                                                "type": "string",
+                                                "description": "The actual ID value"
+                                            }
+                                        }
+                                    },
                                     "arch": {
                                         "type": "string",
                                         "description": "The architecture of the build"

@@ -237,6 +237,70 @@ GET
  .. note::
     Results shown here do not include the full JSON response.
 
+.. http:get:: /job/compare/(string:id)
+
+ Get the executed job comparison with the specified ``id``.
+ To execute a job comparison, see the :ref:`POST section <collection_job_post_compare>`.
+
+ For more info on the available field in the response, see the :ref:`job-compare schema <schema_compare_get_job>`.
+
+ :param id: The ID of the executed job comparison.
+ :type id: string
+
+ :reqheader Authorization: The token necessary to authorize the request.
+ :reqheader Accept-Encoding: Accept the ``gzip`` coding.
+
+ :resheader Content-Type: Will be ``application/json; charset=UTF-8``.
+
+ :status 200: Results found.
+ :status 400: Wrong ``id`` value provided.
+ :status 403: Not authorized to perform the operation.
+ :status 404: The provided resource has not been found.
+ :status 500: Internal database error.
+
+ **Example Requests**
+
+ .. sourcecode:: http
+
+    GET /job/compare/123456789012345678901234/ HTTP/1.1
+    Host: api.kernelci.org
+    Accept: */*
+    Authorization: token
+
+ **Example Responses**
+
+ .. sourcecode:: http
+
+    HTTP/1.1 200 OK
+    Vary: Accept-Encoding
+    Date: Wed, 2 Sept 2015 11:12:50 GMT
+    Content-Type: application/json; charset=UTF-8
+
+    {
+        "code": 200,
+        "result": [
+            {
+                "_id": {
+                    "$oid": "123456789012345678901234"
+                },
+                "baseline": {
+                    "job": "next",
+                    "kernel": "next-20150826"
+                },
+                "result": [
+                    {
+                        "job": "next",
+                        "kernel": "next-20150825",
+                        "delta_result": []
+                    }
+                ]
+            }
+        ]
+    }
+
+ .. note::
+    Results shown here do not include the full JSON response.
+
 POST
 ****
 

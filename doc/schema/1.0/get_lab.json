@@ -14,8 +14,14 @@
             "description": "The name associated with the object"
         },
         "_id": {
-            "type": "string",
-            "description": "The ID associated with the object as provided by the database"
+            "type": "object",
+            "description": "The ID of ths object",
+            "properties": {
+                "$oid": {
+                    "type": "string",
+                    "description": "The actual ID value"
+                }
+            }
         },
         "created_on": {
             "type": "object",

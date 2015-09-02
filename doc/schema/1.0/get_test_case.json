@@ -11,8 +11,14 @@
             "enum": ["1.0"]
         },
         "_id": {
-            "type": "string",
-            "description": "The ID associated with this test case as provided by the database"
+            "type": "object",
+            "description": "The ID of ths object",
+            "properties": {
+                "$oid": {
+                    "type": "string",
+                    "description": "The actual ID value"
+                }
+            }
         },
         "name": {
             "type": "string",
