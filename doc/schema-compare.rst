@@ -18,6 +18,11 @@ The following schema covers the data available in the result of a ``job-compare`
 .. literalinclude:: schema/1.0/get_compare_job.json
     :language: json
 
+**Notes**
+
+* The items (2-objects array) in the ``delta_result`` array contain the baseline build and the compared build respectively at those positions.
+* The items (2-objects array) in the ``delta_result`` array can be made of: two objects, or one object and a null value. In case of a null value, it means that the build in that position was not available.
+
 .. _schema_compare_post:
 
 POST
@@ -34,8 +39,8 @@ to perform a POST request on the ``job-compare`` resource (:ref:`more info <coll
 .. literalinclude:: schema/1.0/post_compare_job.json
     :language: json
 
-.. note::
-    It is necessary to include either the ``job_id`` value or both ``job`` and ``kernel``.
-    If all are specified, ``job_id`` will be used.
+**Notes**
+
+* It is necessary to include either the ``job_id`` value or both ``job`` and ``kernel``. If all are specified, ``job_id`` will be used.
 
 
