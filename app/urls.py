@@ -56,6 +56,12 @@ _JOB_COMPARE_URL = tornado.web.url(
     kwargs={"resource": "job"}, name="job-compare"
 )
 
+_JOB_COMPARE_ID_URL = tornado.web.url(
+    r"/job[s]?/compare/(?P<id>[A-Za-z0-9]{24})/?$",
+    handlers.compare.CompareHandler,
+    kwargs={"resource": "job"}, name="job-compare-id"
+)
+
 _BUILD_URL = tornado.web.url(
     r"/build[s]?/?$", handlers.build.BuildHandler, name="build")
 
@@ -148,6 +154,7 @@ APP_URLS = [
     _DEFCONFIG_LOGS_URL,
     _DEFCONF_ID_URL,
     _DEFCONF_URL,
+    _JOB_COMPARE_ID_URL,
     _JOB_COMPARE_URL,
     _JOB_DISTINCT_URL,
     _JOB_ID_URL,

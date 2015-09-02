@@ -18,12 +18,16 @@ try:
 except ImportError:
     import json
 
+import bson
+
 import handlers.base as hbase
-import handlers.response as hresponse
-import models.compare as mcompare
 import handlers.common
-import utils.validator as validator
+import handlers.response as hresponse
+import models
+import models.compare as mcompare
 import taskqueue.tasks.compare as taskq
+import utils.db
+import utils.validator as validator
 
 
 # pylint: disable=too-many-public-methods
@@ -59,7 +63,7 @@ class CompareHandler(hbase.BaseHandler):
 
     @property
     def collection(self):
-        return self.db[self.resource]
+        return self.db[mcompare.COMPARE_RESOURCE_COLLECTIONS[self.resource]]
 
     def execute_post(self, *args, **kwargs):
         """Execute the POST pre-operations.
@@ -148,5 +152,61 @@ class CompareHandler(hbase.BaseHandler):
         return hresponse.HandlerResponse(501)
 
     def execute_get(self, *args, **kwargs):
-        """Handle GET pre-operations."""
-        return hresponse.HandlerResponse(501)
+        """This is the actual GET operation.
+
+        It is done in this way so that subclasses can implement a different
+        token authorization if necessary.
+        """
+        response = None
+        valid_token, token = self.validate_req_token("GET")
+
+        if valid_token:
+            kwargs["token"] = token
+            get_id = kwargs.get("id", None)
+
+            if get_id:
+                response = self._get_one(get_id, **kwargs)
+            else:
+                response = hresponse.HandlerResponse(400)
+                response.reason = "No ID specified"
+        else:
+            response = hresponse.HandlerResponse(403)
+
+        return response
+
+    def _get_one(self, doc_id, **kwargs):
+        """Get just one single document from the collection.
+
+        Subclasses should override this method and implement their own
+        search functionalities. This is a general one.
+        It should return a `HandlerResponse` object, with the `result`
+        attribute set with the operation results.
+
+        :return A `HandlerResponse` object.
+        """
+        response = hresponse.HandlerResponse()
+        result = None
+
+        try:
+            obj_id = bson.objectid.ObjectId(doc_id)
+            result = utils.db.find_one2(
+                self.collection, {models.ID_KEY: obj_id})
+
+            if result:
+                # result here is returned as a dictionary from mongodb and we
+                # extract a list from the "data" key.
+                result = result["data"]
+                # Inject the _id field.
+                result[0][models.ID_KEY] = obj_id
+
+                response.result = result
+            else:
+                response.status_code = 404
+                response.reason = "Resource '%s' not found" % doc_id
+        except bson.errors.InvalidId, ex:
+            self.log.exception(ex)
+            self.log.error("Provided doc ID '%s' is not valid", doc_id)
+            response.status_code = 400
+            response.reason = "Wrong ID value provided"
+
+        return response

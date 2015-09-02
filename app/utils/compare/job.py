@@ -235,6 +235,7 @@ def _calculate_delta(baseline, to_compare):
 
 
 # pylint: disable=too-many-arguments
+# pylint: disable=too-many-branches
 def _search_and_compare(
         job_id, job, kernel, compare_to, errors, db_options=None):
     """Search the docs in the database and compare them.
@@ -371,6 +372,19 @@ def execute_job_delta(json_obj, db_options):
         status_code = 400
         ADD_ERR(errors, 400, "No data provided to compare to")
     else:
+        # Need to make sure that when the compare_to dictionaries come in they
+        # have determined sorting, or we might have POST requests with exaclty
+        # the same data that create multiple identical results (due to the
+        # fact that the kyes order in a dictionary is not deterministic).
+        # Create a list of ordered tuples.
+        compare_to_sorted = []
+        for element in compare_to:
+            compared = []
+            for k in sorted(element):
+                compared.append((k, element[k]))
+            compare_to_sorted.append(compared)
+        json_obj[models.COMPARE_TO_KEY] = compare_to_sorted
+
         # First search for any saved results.
         saved = utils.compare.common.search_saved_delta_doc(
             json_obj, models.JOB_DELTA_COLLECTION, db_options=db_options)
@@ -384,7 +398,6 @@ def execute_job_delta(json_obj, db_options):
             if status_code == 201:
                 doc_id = utils.compare.common.save_delta_doc(
                     json_obj,
-                    result, models.JOB_DELTA_COLLECTION, db_options=db_options
-                )
+                    result, models.JOB_DELTA_COLLECTION, db_options=db_options)
 
     return status_code, result, doc_id, errors

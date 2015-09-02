@@ -359,7 +359,7 @@ class TestJobCompareHandler(TestHandlerBase):
 
     def get_app(self):
         return tornado.web.Application(
-            [urls._JOB_COMPARE_URL], **self.settings)
+            [urls._JOB_COMPARE_URL, urls._JOB_COMPARE_ID_URL], **self.settings)
 
     def test_delete(self):
         headers = {"Authorization": "foo"}
@@ -381,12 +381,62 @@ class TestJobCompareHandler(TestHandlerBase):
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
-    def test_get(self):
+    def test_get_no_id(self):
         headers = {"Authorization": "foo"}
 
         response = self.fetch("/job/compare/", method="GET", headers=headers)
 
-        self.assertEqual(response.code, 501)
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers["Content-Type"], self.content_type)
+
+    def test_get_no_token(self):
+        response = self.fetch("/job/compare/", method="GET")
+
+        self.assertEqual(response.code, 403)
+        self.assertEqual(
+            response.headers["Content-Type"], self.content_type)
+
+    def test_get_wrong_id_value(self):
+        headers = {"Authorization": "foo"}
+
+        response = self.fetch(
+            "/job/compare/foo/", method="GET", headers=headers)
+
+        self.assertEqual(response.code, 404)
+        self.assertEqual(
+            response.headers["Content-Type"], self.content_type)
+
+    def test_get_wrong_id(self):
+        headers = {"Authorization": "foo"}
+
+        response = self.fetch(
+            "/job/compare/12345678901234567890asdf/",
+            method="GET", headers=headers)
+
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers["Content-Type"], self.content_type)
+
+    def test_get_not_found(self):
+        headers = {"Authorization": "foo"}
+
+        response = self.fetch(
+            "/job/compare/" + self.doc_id, method="GET", headers=headers)
+
+        self.assertEqual(response.code, 404)
+        self.assertEqual(
+            response.headers["Content-Type"], self.content_type)
+
+    @mock.patch("utils.db.find_one2")
+    def test_get(self, mock_find):
+        headers = {"Authorization": "foo"}
+        mock_find.return_value = {"data": [{"fake": "foo"}]}
+
+        response = self.fetch(
+            "/job/compare/" + self.doc_id, method="GET", headers=headers)
+
+        self.assertEqual(response.code, 200)
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 

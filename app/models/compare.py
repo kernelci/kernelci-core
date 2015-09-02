@@ -33,3 +33,9 @@ JOB_DELTA_VALID_KEYS = {
 COMPARE_VALID_KEYS = {
     models.JOB_COLLECTION: JOB_DELTA_VALID_KEYS
 }
+
+# Matching between compare resources and their real database collection.
+# This is used for GET operations.
+COMPARE_RESOURCE_COLLECTIONS = {
+    models.JOB_COLLECTION: models.JOB_DELTA_COLLECTION
+}

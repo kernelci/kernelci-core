@@ -36,6 +36,9 @@ def save_delta_doc(json_obj, result, collection, db_options=None):
     if not db_options:
         db_options = {}
 
+    # Store the entire result from the comparison into a dedicated key.
+    # When searching with the comparison ID, we just extract the "data" key
+    # and return whatever has been saved there.
     json_obj["data"] = result
 
     database = utils.db.get_db_connection(db_options)
@@ -71,6 +74,9 @@ def search_saved_delta_doc(json_obj, collection, db_options=None):
     result = utils.db.find_one2(database[collection], json_obj)
 
     if result:
-        result = (result["data"], result[models.ID_KEY])
+        data_result = result["data"]
+        # Inject the _id field.
+        data_result[0][models.ID_KEY] = result[models.ID_KEY]
+        result = (data_result, result[models.ID_KEY])
 
     return result
