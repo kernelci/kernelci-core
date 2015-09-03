@@ -60,7 +60,7 @@
         {
             "testdef_repos": [
             {
-                "url": "http://images.armcloud.us/lava/common/tests/test-definitions/ubuntu/kvm-install-qemu-host.yaml"
+                "url": "https://googledrive.com/host/0B9DbsE2BbZ7ufjdLMVVONThlbE1mR3N4TjdFTVJod2c4TXpRUDZjMmF0Ylp4Ukk5VG14Ync/tests/virt/kvm-install-qemu-host.yaml"
             }],
   
             "timeout": 1800,
@@ -73,7 +73,7 @@
         {
             "testdef_repos": [
             {
-                "url": "http://images.armcloud.us/lava/common/tests/test-definitions/ubuntu/kvm-host.yaml"
+                "url": "https://googledrive.com/host/0B9DbsE2BbZ7ufjdLMVVONThlbE1mR3N4TjdFTVJod2c4TXpRUDZjMmF0Ylp4Ukk5VG14Ync/tests/virt/kvm-host.yaml"
             }],
             "role": "host"
         }
