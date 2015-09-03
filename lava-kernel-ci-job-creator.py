@@ -391,6 +391,15 @@ cubieboard4 = {'device_type': 'cubieboard4',
                'lpae': True,
                'fastboot': True}
 
+zx296702_ad1 = {'device_type': 'zx296702-ad1',
+                'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
+                              'generic-arm-dtb-kernel-ci-kselftest-template.json'],
+                'defconfig_blacklist': ['arm-allmodconfig'],
+                'kernel_blacklist': [],
+                'nfs_blacklist': [],
+                'lpae': False,
+                'fastboot': True}
+
 qemu_arm_cortex_a9 = {'device_type': 'qemu-arm-cortex-a9',
                       'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
                                     'generic-arm-dtb-kernel-ci-kselftest-template.json'],
@@ -632,6 +641,7 @@ device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'zynq-parallella.dtb': [parallella],
               'sun9i-a80-optimus.dtb': [optimus_a80],
               'sun9i-a80-cubieboard4.dtb': [cubieboard4],
+              'zx296702-ad1.dtb': [zx296702_ad1],
               'vexpress-v2p-ca15-tc1.dtb': [qemu_arm_cortex_a15],
               'vexpress-v2p-ca15-tc1-legacy': [qemu_arm_cortex_a15_legacy],
               'vexpress-v2p-ca15_a7.dtb': [qemu_arm_cortex_a15_a7],
