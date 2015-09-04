@@ -351,7 +351,6 @@ jetson_tk1 = {'device_type': 'jetson-tk1',
 
 tegra124_nyan_big = {'device_type': 'tegra124-nyan-big',
                      'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
-                                   'generic-arm-dtb-kernel-ci-boot-nfs-template.json',
                                    'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
                                    'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json',
                                    'generic-arm-dtb-kernel-ci-kselftest-template.json'],
