@@ -33,6 +33,6 @@
     "device_type": "{device_type}",
     "job_name": "{job_name}",
     "logging_level": "DEBUG",
-    "priority": "high",
+    "priority": "{priority}",
     "timeout": 18000
 }

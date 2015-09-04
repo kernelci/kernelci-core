@@ -47,6 +47,6 @@
     "device_type": "{device_type}",
     "job_name": "{job_name}",
     "logging_level": "DEBUG",
-    "priority": "low",
+    "priority": "{priority}",
     "timeout": 1801
 }
