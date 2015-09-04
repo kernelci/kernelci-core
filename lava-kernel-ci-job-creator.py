@@ -321,6 +321,15 @@ ifc6410 = {'device_type': 'ifc6410',
            'lpae': False,
            'fastboot': True}
 
+highbank = {'device_type': 'highbank',
+            'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
+                          'generic-arm-dtb-kernel-ci-kselftest-template.json'],
+            'defconfig_blacklist': ['arm-allmodconfig'],
+            'kernel_blacklist': [],
+            'nfs_blacklist': [],
+            'lpae': False,
+            'fastboot': True}
+
 sama53d = {'device_type': 'sama53d',
            'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
                          'generic-arm-dtb-kernel-ci-boot-nfs-mp-template.json',
@@ -634,6 +643,7 @@ device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'ste-snowball.dtb': [snowball],
               'qcom-apq8084-ifc6540.dtb': [ifc6540],
               'qcom-apq8064-ifc6410.dtb': [ifc6410],
+              'highbank.dtb': [highbank],
               'at91-sama5d3_xplained.dtb': [sama53d],
               'tegra124-jetson-tk1.dtb': [jetson_tk1],
               'tegra124-nyan-big.dtb': [tegra124_nyan_big],
