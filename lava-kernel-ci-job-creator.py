@@ -469,6 +469,7 @@ qemu_aarch64 = {'device_type': 'qemu-aarch64',
 
 apq8016_sbc = {'device_type': 'apq8016-sbc',
                'templates': ['generic-arm64-dtb-kernel-ci-boot-template.json',
+                             'generic-arm64-dtb-kernel-ci-boot-be-template.json',
                              'generic-arm64-dtb-kernel-ci-kselftest-template.json'],
                'defconfig_blacklist': ['arm64-allnoconfig',
                                        'arm64-allmodconfig'],
@@ -566,7 +567,6 @@ hi6220_hikey = {'device_type': 'hi6220-hikey',
                'kernel_blacklist': [],
                'nfs_blacklist': [],
                'lpae': False,
-               'be': False,
                'fastboot': False}
 
 
