@@ -287,12 +287,14 @@ GET
                     "job": "next",
                     "kernel": "next-20150826"
                 },
-                "result": [
+                "compare_to": [
                     {
                         "job": "next",
                         "kernel": "next-20150825",
-                        "delta_result": []
                     }
+                ],
+                "delta_result": [
+                    [["allmodconfig", "allmodconfig", "arm"], ["PASS", "FAIL"]]
                 ]
             }
         ]

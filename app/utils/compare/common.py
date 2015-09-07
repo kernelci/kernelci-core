@@ -20,7 +20,7 @@ import utils
 import utils.db
 
 
-def save_delta_doc(json_obj, result, collection, db_options=None):
+def save_delta_doc(json_obj, result, collection, db_options):
     """Save the results of a delta calculation.
 
     :param json_obj: The JSON data used to perform the delta calculation. This
@@ -33,9 +33,6 @@ def save_delta_doc(json_obj, result, collection, db_options=None):
     :param db_options: The database connection parameters.
     :type db_options: dict
     """
-    if not db_options:
-        db_options = {}
-
     # Store the entire result from the comparison into a dedicated key.
     # When searching with the comparison ID, we just extract the "data" key
     # and return whatever has been saved there.
@@ -52,7 +49,7 @@ def save_delta_doc(json_obj, result, collection, db_options=None):
     return doc_id
 
 
-def search_saved_delta_doc(json_obj, collection, db_options=None):
+def search_saved_delta_doc(json_obj, collection, db_options):
     """Search for a previously saved delta document.
 
     The search is performed based on the JSON data passed in the request.
@@ -67,8 +64,6 @@ def search_saved_delta_doc(json_obj, collection, db_options=None):
     :return A 2-tuple: the real result, its ID.
     """
     result = None
-    if not db_options:
-        db_options = {}
 
     database = utils.db.get_db_connection(db_options)
     result = utils.db.find_one2(database[collection], json_obj)
