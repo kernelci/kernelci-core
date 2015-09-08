@@ -33,6 +33,7 @@ ADD_ERR = utils.errors.add_error
 # Fields that will be retrieved during the database lookup.
 BUILD_DOC_FIELDS = [
     models.ARCHITECTURE_KEY,
+    models.CREATED_KEY,
     models.DEFCONFIG_FULL_KEY,
     models.DEFCONFIG_KEY,
     models.GIT_BRANCH_KEY,
