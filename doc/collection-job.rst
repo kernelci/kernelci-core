@@ -294,7 +294,10 @@ GET
                     }
                 ],
                 "delta_result": [
-                    [["allmodconfig", "allmodconfig", "arm"], ["PASS", "FAIL"]]
+                    [
+                        ["allmodconfig", "allmodconfig", "arm"],
+                        [["PASS", {"$oid": "1234567890"}], ["FAIL", {"$oid": "1234567890"}]]
+                    ]
                 ]
             }
         ]

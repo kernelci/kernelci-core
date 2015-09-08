@@ -204,18 +204,18 @@ def _n_way_compare(baseline, compare_to):
                 # First consider the baseline point that should always be
                 # at position 0.
                 if d_el in base_defconf_view:
+                    doc = baseline.docs[baseline.defconfig[d_el]]
                     status_append(
-                        baseline.docs[
-                            baseline.defconfig[d_el]][models.STATUS_KEY]
-                    )
+                        (doc[models.STATUS_KEY], doc[models.ID_KEY]))
                 else:
                     status_append(None)
 
                 # Then go through all the compared objects.
                 for obj in compare_to:
                     if d_el in obj.defconfig_view:
+                        doc = obj.docs[obj.defconfig[d_el]]
                         status_append(
-                            obj.docs[obj.defconfig[d_el]][models.STATUS_KEY])
+                            (doc[models.STATUS_KEY], doc[models.ID_KEY]))
                     else:
                         status_append(None)
 

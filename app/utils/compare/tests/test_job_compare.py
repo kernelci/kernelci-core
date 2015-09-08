@@ -217,6 +217,7 @@ class TestJobCompare(unittest.TestCase):
             "job_id": "job_id",
             "kernel": "kernel",
             "status": "PASS",
+            "_id": "0"
         }
 
         baseline = {
@@ -231,6 +232,7 @@ class TestJobCompare(unittest.TestCase):
             "job_id": "job_id",
             "kernel": "kernel",
             "status": "PASS",
+            "_id": "0"
         }
 
         expected = [
@@ -290,7 +292,8 @@ class TestJobCompare(unittest.TestCase):
                 "job": "job",
                 "job_id": "123456789012345678901234",
                 "kernel": "kernel",
-                "status": "PASS"
+                "status": "PASS",
+                "_id": "0"
             },
             {
                 "arch": "arch",
@@ -303,7 +306,8 @@ class TestJobCompare(unittest.TestCase):
                 "job": "job",
                 "job_id": "123456789012345678901234",
                 "kernel": "kernel",
-                "status": "FAIL"
+                "status": "FAIL",
+                "_id": "1"
             },
             {
                 "arch": "arch",
@@ -316,7 +320,8 @@ class TestJobCompare(unittest.TestCase):
                 "job": "job",
                 "job_id": "123456789012345678901234",
                 "kernel": "kernel",
-                "status": "PASS"
+                "status": "PASS",
+                "_id": "2"
             }
         ]
 
@@ -332,7 +337,8 @@ class TestJobCompare(unittest.TestCase):
                 "job": "compare_job",
                 "job_id": "123456789012345678901235",
                 "kernel": "compare_kernel",
-                "status": "FAIL"
+                "status": "FAIL",
+                "_id": "0"
             },
             {
                 "arch": "arch",
@@ -345,7 +351,8 @@ class TestJobCompare(unittest.TestCase):
                 "job": "compare_job",
                 "job_id": "123456789012345678901235",
                 "kernel": "compare_kernel",
-                "status": "PASS"
+                "status": "PASS",
+                "_id": "1"
             },
             {
                 "arch": "arch",
@@ -358,15 +365,24 @@ class TestJobCompare(unittest.TestCase):
                 "job": "compare_job",
                 "job_id": "123456789012345678901235",
                 "kernel": "compare_kernel",
-                "status": "PASS"
+                "status": "PASS",
+                "_id": "2"
             }
         ]
 
         exp_delta_data = [
-            (("defconfig0", "defconfig_full0", "arch"), ["PASS", "FAIL"]),
-            (("defconfig1", "defconfig_full1", "arch"), ["FAIL", "PASS"]),
-            (("defconfig2", "defconfig_full2", "arch"), [None, "PASS"]),
-            (("defconfig3", "defconfig_full3", "arch"), ["PASS", None])
+            (
+                ("defconfig0", "defconfig_full0", "arch"),
+                [("PASS", "0"), ("FAIL", "0")]),
+            (
+                ("defconfig1", "defconfig_full1", "arch"),
+                [("FAIL", "1"), ("PASS", "1")]),
+            (
+                ("defconfig2", "defconfig_full2", "arch"),
+                [None, ("PASS", "2")]),
+            (
+                ("defconfig3", "defconfig_full3", "arch"),
+                [("PASS", "2"), None])
         ]
 
         baseline = utils.compare.job.CompareJob(baseline_docs)
@@ -395,7 +411,8 @@ class TestJobCompare(unittest.TestCase):
                 "job": "job",
                 "job_id": "123456789012345678901234",
                 "kernel": "kernel",
-                "status": "PASS"
+                "status": "PASS",
+                "_id": "0"
             },
             {
                 "arch": "arch",
@@ -408,7 +425,8 @@ class TestJobCompare(unittest.TestCase):
                 "job": "job",
                 "job_id": "123456789012345678901234",
                 "kernel": "kernel",
-                "status": "FAIL"
+                "status": "FAIL",
+                "_id": "1"
             },
             {
                 "arch": "arch",
@@ -421,7 +439,8 @@ class TestJobCompare(unittest.TestCase):
                 "job": "job",
                 "job_id": "123456789012345678901234",
                 "kernel": "kernel",
-                "status": "PASS"
+                "status": "PASS",
+                "_id": "2"
             }
         ]
 
@@ -438,7 +457,8 @@ class TestJobCompare(unittest.TestCase):
                     "job": "compare_job_0",
                     "job_id": "123456789012345678901235",
                     "kernel": "compare_kernel_0",
-                    "status": "FAIL"
+                    "status": "FAIL",
+                    "_id": "0"
                 },
                 {
                     "arch": "arch",
@@ -451,7 +471,8 @@ class TestJobCompare(unittest.TestCase):
                     "job": "compare_job_0",
                     "job_id": "123456789012345678901235",
                     "kernel": "compare_kernel_0",
-                    "status": "PASS"
+                    "status": "PASS",
+                    "_id": "1"
                 },
                 {
                     "arch": "arch",
@@ -464,7 +485,8 @@ class TestJobCompare(unittest.TestCase):
                     "job": "compare_job_0",
                     "job_id": "123456789012345678901235",
                     "kernel": "compare_kernel_0",
-                    "status": "PASS"
+                    "status": "PASS",
+                    "_id": "2"
                 }
             ],
             [
@@ -479,7 +501,8 @@ class TestJobCompare(unittest.TestCase):
                     "job": "compare_job_1",
                     "job_id": "123456789012345678901236",
                     "kernel": "compare_kernel_1",
-                    "status": "PASS"
+                    "status": "PASS",
+                    "_id": "0"
                 },
                 {
                     "arch": "arch",
@@ -492,7 +515,8 @@ class TestJobCompare(unittest.TestCase):
                     "job": "compare_job_1",
                     "job_id": "123456789012345678901236",
                     "kernel": "compare_kernel_1",
-                    "status": "PASS"
+                    "status": "PASS",
+                    "_id": "1"
                 },
                 {
                     "arch": "arch",
@@ -505,7 +529,8 @@ class TestJobCompare(unittest.TestCase):
                     "job": "compare_job_1",
                     "job_id": "123456789012345678901236",
                     "kernel": "compare_kernel_1",
-                    "status": "FAIL"
+                    "status": "FAIL",
+                    "_id": "2"
                 },
                 {
                     "arch": "arch",
@@ -518,22 +543,23 @@ class TestJobCompare(unittest.TestCase):
                     "job": "compare_job_1",
                     "job_id": "123456789012345678901236",
                     "kernel": "compare_kernel_1",
-                    "status": "FAIL"
+                    "status": "FAIL",
+                    "_id": "3"
                 }
             ]
         ]
 
         exp_delta_data = [
             (("defconfig0", "defconfig_full0", "arch"),
-                ["PASS", "FAIL", "PASS"]),
+                [("PASS", "0"), ("FAIL", "0"), ("PASS", "0")]),
             (("defconfig1", "defconfig_full1", "arch"),
-                ["FAIL", "PASS", None]),
+                [("FAIL", "1"), ("PASS", "1"), None]),
             (("defconfig2", "defconfig_full2", "arch"),
-                [None, "PASS", "PASS"]),
+                [None, ("PASS", "2"), ("PASS", "1")]),
             (("defconfig3", "defconfig_full3", "arch"),
-                ["PASS", None, "FAIL"]),
+                [("PASS", "2"), None, ("FAIL", "2")]),
             (("defconfig4", "defconfig_full4", "arch"),
-                [None, None, "FAIL"])
+                [None, None, ("FAIL", "3")])
         ]
 
         baseline = utils.compare.job.CompareJob(baseline_docs)
@@ -564,7 +590,8 @@ class TestJobCompare(unittest.TestCase):
                 "job": "job",
                 "job_id": "123456789012345678901234",
                 "kernel": "kernel",
-                "status": "PASS"
+                "status": "PASS",
+                "_id": "0"
             },
             {
                 "arch": "arch",
@@ -577,7 +604,8 @@ class TestJobCompare(unittest.TestCase):
                 "job": "job",
                 "job_id": "123456789012345678901234",
                 "kernel": "kernel",
-                "status": "FAIL"
+                "status": "FAIL",
+                "_id": "1"
             },
             {
                 "arch": "arch",
@@ -590,7 +618,8 @@ class TestJobCompare(unittest.TestCase):
                 "job": "job",
                 "job_id": "123456789012345678901234",
                 "kernel": "kernel",
-                "status": "PASS"
+                "status": "PASS",
+                "_id": "2"
             }
         ]
 
@@ -607,7 +636,8 @@ class TestJobCompare(unittest.TestCase):
                     "job": "compare_job_0",
                     "job_id": "123456789012345678901235",
                     "kernel": "compare_kernel_0",
-                    "status": "FAIL"
+                    "status": "FAIL",
+                    "_id": "0"
                 },
                 {
                     "arch": "arch",
@@ -620,7 +650,8 @@ class TestJobCompare(unittest.TestCase):
                     "job": "compare_job_0",
                     "job_id": "123456789012345678901235",
                     "kernel": "compare_kernel_0",
-                    "status": "PASS"
+                    "status": "PASS",
+                    "_id": "1"
                 },
                 {
                     "arch": "arch",
@@ -633,7 +664,8 @@ class TestJobCompare(unittest.TestCase):
                     "job": "compare_job_0",
                     "job_id": "123456789012345678901235",
                     "kernel": "compare_kernel_0",
-                    "status": "PASS"
+                    "status": "PASS",
+                    "_id": "2"
                 }
             ],
             [
@@ -648,7 +680,8 @@ class TestJobCompare(unittest.TestCase):
                     "job": "compare_job_1",
                     "job_id": "123456789012345678901236",
                     "kernel": "compare_kernel_1",
-                    "status": "PASS"
+                    "status": "PASS",
+                    "_id": "0"
                 },
                 {
                     "arch": "arch",
@@ -661,7 +694,8 @@ class TestJobCompare(unittest.TestCase):
                     "job": "compare_job_1",
                     "job_id": "123456789012345678901236",
                     "kernel": "compare_kernel_1",
-                    "status": "PASS"
+                    "status": "PASS",
+                    "_id": "1"
                 },
                 {
                     "arch": "arch",
@@ -674,7 +708,8 @@ class TestJobCompare(unittest.TestCase):
                     "job": "compare_job_1",
                     "job_id": "123456789012345678901236",
                     "kernel": "compare_kernel_1",
-                    "status": "FAIL"
+                    "status": "FAIL",
+                    "_id": "2"
                 },
                 {
                     "arch": "arch",
@@ -687,7 +722,8 @@ class TestJobCompare(unittest.TestCase):
                     "job": "compare_job_1",
                     "job_id": "123456789012345678901236",
                     "kernel": "compare_kernel_1",
-                    "status": "FAIL"
+                    "status": "FAIL",
+                    "_id": "3"
                 }
             ],
             [
@@ -696,13 +732,14 @@ class TestJobCompare(unittest.TestCase):
                     "defconfig": "defconfig5",
                     "defconfig_full": "defconfig_full5",
                     "git_branch": "compare_2_git_branch",
-                    "git_commit": "1234567",
+                    "git_commit": "123456",
                     "git_describe": "compare_2_git_describe",
                     "git_url": "compare_git_url",
                     "job": "compare_job_2",
                     "job_id": "123456789012345678901236",
                     "kernel": "compare_kernel_2",
-                    "status": "FAIL"
+                    "status": "FAIL",
+                    "_id": "0"
                 },
                 {
                     "arch": "arch",
@@ -715,24 +752,25 @@ class TestJobCompare(unittest.TestCase):
                     "job": "compare_job_2",
                     "job_id": "123456789012345678901236",
                     "kernel": "compare_kernel_2",
-                    "status": "FAIL"
+                    "status": "FAIL",
+                    "_id": "1"
                 },
             ]
         ]
 
         exp_delta_data = [
             (("defconfig0", "defconfig_full0", "arch"),
-                ["PASS", "FAIL", "PASS", "FAIL"]),
+                [("PASS", "0"), ("FAIL", "0"), ("PASS", "0"), ("FAIL", "1")]),
             (("defconfig1", "defconfig_full1", "arch"),
-                ["FAIL", "PASS", None, None]),
+                [("FAIL", "1"), ("PASS", "1"), None, None]),
             (("defconfig2", "defconfig_full2", "arch"),
-                [None, "PASS", "PASS", None]),
+                [None, ("PASS", "2"), ("PASS", "1"), None]),
             (("defconfig3", "defconfig_full3", "arch"),
-                ["PASS", None, "FAIL", None]),
+                [("PASS", "2"), None, ("FAIL", "2"), None]),
             (("defconfig4", "defconfig_full4", "arch"),
-                [None, None, "FAIL", None]),
+                [None, None, ("FAIL", "3"), None]),
             (("defconfig5", "defconfig_full5", "arch3"),
-                [None, None, None, "FAIL"]),
+                [None, None, None, ("FAIL", "0")]),
         ]
 
         baseline = utils.compare.job.CompareJob(baseline_docs)
