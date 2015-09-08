@@ -206,7 +206,9 @@ class TestJobCompare(unittest.TestCase):
         errors = {}
 
         compare_doc = {
+            "_id": "0",
             "arch": "arch",
+            "created_on": "today",
             "defconfig": "defconfig",
             "defconfig_full": "defconfig_full",
             "git_branch": "git_branch",
@@ -216,12 +218,13 @@ class TestJobCompare(unittest.TestCase):
             "job": "job",
             "job_id": "job_id",
             "kernel": "kernel",
-            "status": "PASS",
-            "_id": "0"
+            "status": "PASS"
         }
 
         baseline = {
+            "_id": "0",
             "arch": "arch",
+            "created_on": "yesterday",
             "defconfig": "defconfig",
             "defconfig_full": "defconfig_full",
             "git_branch": "git_branch",
@@ -231,13 +234,13 @@ class TestJobCompare(unittest.TestCase):
             "job": "job",
             "job_id": "job_id",
             "kernel": "kernel",
-            "status": "PASS",
-            "_id": "0"
+            "status": "PASS"
         }
 
         expected = [
             {
                 "baseline": {
+                    "created_on": "yesterday",
                     "git_branch": "git_branch",
                     "git_commit": "git_commit",
                     "git_describe": "git_describe",
@@ -249,6 +252,7 @@ class TestJobCompare(unittest.TestCase):
                 },
                 "compare_to": [
                     {
+                        "created_on": "today",
                         "git_branch": "git_branch",
                         "git_commit": "git_commit",
                         "git_describe": "git_describe",

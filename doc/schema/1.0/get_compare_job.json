@@ -19,6 +19,16 @@
             "type": "object",
             "description": "The baseline job for the comparison, the starting point",
             "properties": {
+                "created_on": {
+                    "type": "object",
+                    "description": "The creation date of the job",
+                    "properties": {
+                        "$date": {
+                            "type": "number",
+                            "description": "Milliseconds from epoch time"
+                        }
+                    }
+                },
                 "job": {
                     "type": "string",
                     "description": "The name of the job"
@@ -66,6 +76,16 @@
             "items": {
                 "type": "object",
                 "properties": {
+                    "created_on": {
+                        "type": "object",
+                        "description": "The creation date of the job",
+                        "properties": {
+                            "$date": {
+                                "type": "number",
+                                "description": "Milliseconds from epoch time"
+                            }
+                        }
+                    },
                     "job": {
                         "type": "string",
                         "description": "The name of the job"

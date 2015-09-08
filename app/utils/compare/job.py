@@ -61,6 +61,7 @@ class CompareJob(object):
         self.docs = docs
         self.empty = True
 
+        self.created_on = None
         self.git_branch = None
         self.git_commit = None
         self.git_describe = None
@@ -103,6 +104,7 @@ class CompareJob(object):
         """
         if all([self._job_data is None, not self.empty]):
             self._job_data = {
+                models.CREATED_KEY: self.created_on,
                 models.GIT_BRANCH_KEY: self.git_branch,
                 models.GIT_COMMIT_KEY: self.git_commit,
                 models.GIT_DESCRIBE_KEY: self.git_describe,
@@ -121,13 +123,14 @@ class CompareJob(object):
             b_doc = self.docs[0]
             d_get = b_doc.get
 
-            self.job_id = d_get(models.JOB_ID_KEY, None)
-            self.job = d_get(models.JOB_KEY, None)
-            self.kernel = d_get(models.KERNEL_KEY, None)
+            self.created_on = d_get(models.CREATED_KEY, None)
             self.git_branch = d_get(models.GIT_BRANCH_KEY, None)
-            self.git_url = d_get(models.GIT_URL_KEY, None)
             self.git_commit = d_get(models.GIT_COMMIT_KEY, None)
             self.git_describe = d_get(models.GIT_DESCRIBE_KEY, None)
+            self.git_url = d_get(models.GIT_URL_KEY, None)
+            self.job = d_get(models.JOB_KEY, None)
+            self.job_id = d_get(models.JOB_ID_KEY, None)
+            self.kernel = d_get(models.KERNEL_KEY, None)
 
             for idx, doc in enumerate(self.docs):
                 d_get = doc.get
