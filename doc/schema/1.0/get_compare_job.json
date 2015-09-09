@@ -66,6 +66,26 @@
                 "total_builds": {
                     "type": "integer",
                     "description": "The total number of builds associated with the job"
+                },
+                "build_counts": {
+                    "type": "array",
+                    "description": "List of passed, failed and other build status counts",
+                    "additionalItems": false,
+                    "maxItems": 3,
+                    "items": [
+                        {
+                            "type": "number",
+                            "description": "The total number of passed builds"
+                        },
+                        {
+                            "type": "number",
+                            "description": "The total number of failed builds"
+                        },
+                        {
+                            "type": "number",
+                            "description": "The total number of unknown/other builds"
+                        }
+                    ]
                 }
             }
         },
@@ -123,6 +143,26 @@
                     "total_builds": {
                         "type": "integer",
                         "description": "The total number of builds associated with the job"
+                    },
+                    "build_counts": {
+                        "type": "array",
+                        "description": "List of passed, failed and other build status counts",
+                        "additionalItems": false,
+                        "maxItems": 3,
+                        "items": [
+                            {
+                                "type": "number",
+                                "description": "The total number of passed builds"
+                            },
+                            {
+                                "type": "number",
+                                "description": "The total number of failed builds"
+                            },
+                            {
+                                "type": "number",
+                                "description": "The total number of unknown/other builds"
+                            }
+                        ]
                     }
                 }
             }

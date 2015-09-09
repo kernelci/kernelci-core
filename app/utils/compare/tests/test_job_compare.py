@@ -61,23 +61,38 @@ class TestJobCompare(unittest.TestCase):
                 "defconfig_full": "defconfig_full1",
                 "status": "FAIL",
                 "arch": "arch1"
+            },
+            {
+                "job_id": "123456789012345678901234",
+                "job": "job",
+                "kernel": "kernel",
+                "git_branch": "git_branch",
+                "git_url": "git_url",
+                "git_commit": "123456",
+                "git_describe": "git_describe",
+                "defconfig": "defconfig1",
+                "defconfig_full": "defconfig_full2",
+                "status": "UNKNOWN",
+                "arch": "arch1"
             }
         ]
 
         expected_defconfig = {
             ("defconfig0", "defconfig_full0", "arch0"): 0,
-            ("defconfig1", "defconfig_full1", "arch1"): 1
+            ("defconfig1", "defconfig_full1", "arch1"): 1,
+            ("defconfig1", "defconfig_full2", "arch1"): 2
         }
 
         expected_defconfig_status = {
             ("defconfig0", "defconfig_full0", "arch0", "PASS"): 0,
-            ("defconfig1", "defconfig_full1", "arch1", "FAIL"): 1
+            ("defconfig1", "defconfig_full1", "arch1", "FAIL"): 1,
+            ("defconfig1", "defconfig_full2", "arch1", "UNKNOWN"): 2
         }
 
         baseline_job = utils.compare.job.CompareJob(docs)
 
         self.assertIsInstance(baseline_job, utils.compare.job.CompareJob)
-        self.assertEqual(2, len(baseline_job.docs))
+        self.assertEqual(3, len(baseline_job.docs))
         self.assertEqual("job", baseline_job.job)
         self.assertEqual("kernel", baseline_job.kernel)
         self.assertEqual("123456789012345678901234", baseline_job.job_id)
@@ -85,7 +100,8 @@ class TestJobCompare(unittest.TestCase):
         self.assertEqual("git_url", baseline_job.git_url)
         self.assertEqual("git_branch", baseline_job.git_branch)
         self.assertEqual("123456", baseline_job.git_commit)
-        self.assertEqual(2, baseline_job.total_docs)
+        self.assertEqual(3, baseline_job.total_docs)
+        self.assertTupleEqual((1, 1, 1), baseline_job.build_counts)
 
         self.assertIsNotNone(baseline_job.defconfig)
         self.assertIsNotNone(baseline_job.defconfig_status)
@@ -240,6 +256,7 @@ class TestJobCompare(unittest.TestCase):
         expected = [
             {
                 "baseline": {
+                    "build_counts": (1, 0, 0),
                     "created_on": "yesterday",
                     "git_branch": "git_branch",
                     "git_commit": "git_commit",
@@ -252,6 +269,7 @@ class TestJobCompare(unittest.TestCase):
                 },
                 "compare_to": [
                     {
+                        "build_counts": (1, 0, 0),
                         "created_on": "today",
                         "git_branch": "git_branch",
                         "git_commit": "git_commit",

@@ -71,6 +71,11 @@ class CompareJob(object):
         self.job_id = None
         self.kernel = None
 
+        self._total_docs = None
+        self.failed = 0
+        self.passed = 0
+        self.other = 0
+
         # Hold the indexes of the docs. Keys are, respectively:
         # (defconfig, defconfig_full, arch)
         # (defconfig, defconfig_full, arch, status)
@@ -84,7 +89,14 @@ class CompareJob(object):
     @property
     def total_docs(self):
         """Total number of docs."""
-        return len(self.docs)
+        if self._total_docs is None:
+            self._total_docs = len(self.docs)
+        return self._total_docs
+
+    @property
+    def build_counts(self):
+        """A 3-tuples with the passed, failed and other status build counts."""
+        return (self.passed, self.failed, self.other)
 
     @property
     def defconfig_view(self):
@@ -105,6 +117,7 @@ class CompareJob(object):
         """
         if all([self._job_data is None, not self.empty]):
             self._job_data = {
+                models.BUILD_COUNTS_KEY: self.build_counts,
                 models.CREATED_KEY: self.created_on,
                 models.GIT_BRANCH_KEY: self.git_branch,
                 models.GIT_COMMIT_KEY: self.git_commit,
@@ -139,6 +152,13 @@ class CompareJob(object):
                 defconfig_full = d_get(models.DEFCONFIG_FULL_KEY, None)
                 status = d_get(models.STATUS_KEY, None)
                 arch = d_get(models.ARCHITECTURE_KEY, None)
+
+                if status == models.PASS_STATUS:
+                    self.passed += 1
+                elif status == models.FAIL_STATUS:
+                    self.failed += 1
+                else:
+                    self.other += 1
 
                 self.defconfig[(defconfig, defconfig_full, arch)] = idx
                 self.defconfig_status[
