@@ -139,7 +139,9 @@ class CompareHandler(hbase.BaseHandler):
         response.result = result
         if doc_id:
             response.headers = {
-                "Location": "/%s/compare/%s/" % (self.resource, str(doc_id))}
+                "Location": "/%s/compare/%s/" % (self.resource, str(doc_id)),
+                "X-Kernelci-Compare-Id": str(doc_id)
+            }
 
         return response
 
