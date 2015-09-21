@@ -19,6 +19,17 @@ import models
 import models.base as modb
 
 
+# Valid keys for API query parameters.
+ERROR_SUMMARY_VALID_KEYS = {
+    "GET": [
+        models.CREATED_KEY,
+        models.JOB_ID_KEY,
+        models.JOB_KEY,
+        models.KERNEL_KEY
+    ]
+}
+
+
 class ErrorSummaryDocument(modb.BaseDocument):
     """Store the summary of extracted error values."""
 

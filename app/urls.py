@@ -25,6 +25,7 @@ import handlers.compare
 import handlers.count
 import handlers.distinct
 import handlers.job
+import handlers.job_logs
 import handlers.lab
 import handlers.report
 import handlers.send
@@ -43,6 +44,14 @@ _JOB_URL = tornado.web.url(
 _JOB_ID_URL = tornado.web.url(
     r"/job[s]?/(?P<id>[A-Za-z0-9]{24})/?$",
     handlers.job.JobHandler, name="job-id")
+
+_JOB_ID_LOGS_URL = tornado.web.url(
+    r"/job[s]?/(?P<id>[A-Za-z0-9]{24})/logs/?$",
+    handlers.job_logs.JobLogsHandler, name="job-id-logs")
+
+_JOB_LOGS_URL = tornado.web.url(
+    r"/job[s]?/logs/?$",
+    handlers.job_logs.JobLogsHandler, name="job-logs")
 
 _JOB_DISTINCT_URL = tornado.web.url(
     r"/job[s]?/distinct/(?P<field>[A-Za-z0-9_]+)/?$",
@@ -157,7 +166,9 @@ APP_URLS = [
     _JOB_COMPARE_ID_URL,
     _JOB_COMPARE_URL,
     _JOB_DISTINCT_URL,
+    _JOB_ID_LOGS_URL,
     _JOB_ID_URL,
+    _JOB_LOGS_URL,
     _JOB_URL,
     _LAB_URL,
     _REPORT_URL,
