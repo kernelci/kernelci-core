@@ -146,7 +146,7 @@ GET
 
  For more info about the available fields, see the :ref:`build logs schema <schema_build_logs>`
 
- :param build_id: The ID of the build to retrieve.
+ :param build_id: The ID of the build.
  :type build_id: string
 
  :reqheader Authorization: The token necessary to authorize the request.

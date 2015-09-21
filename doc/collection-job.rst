@@ -306,6 +306,87 @@ GET
  .. note::
     Results shown here do not include the full JSON response.
 
+.. http:get:: /job/(string:id)/logs
+.. http:get:: /job/logs
+
+ Get the summary of the logs of the builds associated with the job.
+
+ For more info about the available fields, see the :ref:`build logs summary schema <schema_build_logs_summary>`.
+
+ :param id: The ID of the job.
+ :type id: string
+
+ :reqheader Authorization: The token necessary to authorize the request.
+ :reqheader Accept-Encoding: Accept the ``gzip`` coding.
+
+ :resheader Content-Type: Will be ``application/json; charset=UTF-8``.
+
+ :query int limit: Number of results to return. Default 0 (all results).
+ :query int skip: Number of results to skip. Default 0 (none).
+ :query string sort: Field to sort the results on. Can be repeated multiple times.
+ :query int sort_order: The sort order of the results: -1 (descending), 1
+    (ascending). This will be applied only to the first ``sort``
+    parameter passed. Default -1.
+ :query int date_range: Number of days to consider, starting from today
+    (:ref:`more info <intro_schema_time_date>`). By default consider all results.
+ :query string field: The field that should be returned in the response. Can be
+    repeated multiple times.
+ :query string nfield: The field that should *not* be returned in the response. Can be repeated multiple times.
+ :query string created_on: The creation date: accepted formats are ``YYYY-MM-DD`` and ``YYYYMMDD``.
+ :query string job: The name of a job.
+ :query string job_id: The ID of a job.
+ :query string kernel: The name of a kernel.
+
+ :status 200: Results found.
+ :status 400: Wrong ``id`` value provided.
+ :status 403: Not authorized to perform the operation.
+ :status 404: The provided resource has not been found.
+ :status 500: Internal database error.
+
+ **Example Requests**
+
+ .. sourcecode:: http
+
+    GET /job/123456789012345678901234/logs HTTP/1.1
+    Host: api.kernelci.org
+    Accept: */*
+    Authorization: token
+
+ **Example Responses**
+
+ .. sourcecode:: http
+
+    HTTP/1.1 200 OK
+    Vary: Accept-Encoding
+    Date: Wed, 2 Sept 2015 11:12:50 GMT
+    Content-Type: application/json; charset=UTF-8
+
+    {
+        "code": 200,
+        "result": [
+            {
+                "_id": {
+                    "$oid": "123456789012345678901234"
+                },
+                "job_id": {
+                    "$oid": "123456789012345678901234"
+                },
+                "job": "next",
+                "kernel": "next-20150921",
+                "errors": [
+                    [1, "An error string"]
+                ],
+                "warnings": [
+                    [10, "A warning string"]
+                ]
+            }
+        ]
+    }
+
+ .. note::
+    Results shown here do not include the full JSON response.
+
+
 POST
 ****
 

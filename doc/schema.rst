@@ -10,6 +10,7 @@ Schema
     schema-boot
     schema-build
     schema-build-logs
+    schema-build-logs-summary
     schema-compare
     schema-job
     schema-lab
