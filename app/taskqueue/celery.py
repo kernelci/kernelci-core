@@ -61,7 +61,7 @@ app.config_from_object(celeryconfig)
 CELERYBEAT_SCHEDULE = {
     "calculate-daily-stats": {
         "task": "calculate-daily-statistics",
-        "schedule": celery.schedules.crontab(minute=0, hour=12)
+        "schedule": celery.schedules.crontab(minute=1, hour=12)
     }
 }
 
