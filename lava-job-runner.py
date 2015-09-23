@@ -27,7 +27,7 @@ def poll_jobs(connection, timeout):
                 submitted_jobs[job_name] = job_id
 
     while run:
-        if timeout < (time.time() - start_time) and timeout != 0:
+        if timeout < (time.time() - start_time) and timeout != -1:
             print 'Polling timeout reached, collecting completed results'
             run = False
             break
@@ -285,7 +285,7 @@ if __name__ == '__main__':
     parser.add_argument("--stream", help="bundle stream for LAVA server")
     parser.add_argument("--repo", help="git repo for LAVA jobs")
     parser.add_argument("--poll", help="poll the submitted LAVA jobs, dumps info into specified json")
-    parser.add_argument("--timeout", type=int, default=0, help="polling timeout in seconds. default is 0.")
+    parser.add_argument("--timeout", type=int, default=-1, help="polling timeout in seconds. default is -1.")
     parser.add_argument('--bisect', help="bisection mode, returns 1 on any job failures", action='store_true')
     args = parser.parse_args()
     main(args)
