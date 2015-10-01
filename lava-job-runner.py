@@ -3,12 +3,17 @@
 # [variable] = optional
 # Usage ./lava-job-runner.py <username> <token> <lava_server_url> [job_repo] [bundle_stream]
 
+import os
+import xmlrpclib
+import json
 import subprocess
 import fnmatch
 import time
 import re
 import argparse
-from utils import *
+
+from lib import utils
+from lib import configuration
 
 job_map = {}
 
@@ -27,7 +32,7 @@ def poll_jobs(connection, timeout):
                 submitted_jobs[job_name] = job_id
 
     while run:
-        if timeout < (time.time() - start_time) and timeout != 0:
+        if timeout < (time.time() - start_time) and timeout != -1:
             print 'Polling timeout reached, collecting completed results'
             run = False
             break
@@ -66,7 +71,7 @@ def poll_jobs(connection, timeout):
     return finished_jobs
 
 
-def submit_jobs(connection, server, bundle_stream):
+def submit_jobs(connection, server, bundle_stream=None):
     online_devices, offline_devices = gather_devices(connection)
     online_device_types, offline_device_types = gather_device_types(connection)
     print "Submitting Jobs to Server..."
@@ -245,42 +250,49 @@ def gather_device_types(connection):
 
 
 def main(args):
-    url = validate_input(args.username, args.token, args.server)
-    connection = connect(url)
-    if args.repo:
-        retrieve_jobs(args.repo)
+    config = configuration.get_config(args)
+
+    url = utils.validate_input(config.get("username"), config.get("token"), config.get("server"))
+    connection = utils.connect(url)
+    if config.get("repo"):
+        retrieve_jobs(config.get("repo"))
     load_jobs()
     start_time = time.time()
-    if args.stream:
-        submit_jobs(connection, args.server, args.stream)
-    else:
-        submit_jobs(connection, args.server, bundle_stream=None)
-    if args.poll:
-        jobs = poll_jobs(connection, args.timeout)
+
+    bundle_stream = None
+    if config.get("stream"):
+        bundle_stream = config.get("stream")
+
+    submit_jobs(connection, config.get("server"), bundle_stream=bundle_stream)
+
+    if config.get("poll"):
+        jobs = poll_jobs(connection, config.get("timeout"))
         end_time = time.time()
-        if args.bisect:
+        if config.get("bisect"):
             for job_id in jobs:
                 if 'result' in jobs[job_id]:
                     if jobs[job_id]['result'] == 'FAIL':
                         exit(1)
         jobs['duration'] = end_time - start_time
-        jobs['username'] = args.username
-        jobs['token'] = args.token
-        jobs['server'] = args.server
+        jobs['username'] = config.get("username")
+        jobs['token'] = config.get("token")
+        jobs['server'] = config.get("server")
         results_directory = os.getcwd() + '/results'
-        mkdir(results_directory)
-        write_json(args.poll, results_directory, jobs)
+        utils.mkdir(results_directory)
+        utils.write_json(config.get("poll"), results_directory, jobs)
     exit(0)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("username", help="username for the LAVA server")
-    parser.add_argument("token", help="token for LAVA server api")
-    parser.add_argument("server", help="server url for LAVA server")
+    parser.add_argument("--config", help="configuration for the LAVA server")
+    parser.add_argument("--section", default="default", help="section in the LAVA config file")
+    parser.add_argument("--username", help="username for the LAVA server")
+    parser.add_argument("--token", help="token for LAVA server api")
+    parser.add_argument("--server", help="server url for LAVA server")
     parser.add_argument("--stream", help="bundle stream for LAVA server")
     parser.add_argument("--repo", help="git repo for LAVA jobs")
     parser.add_argument("--poll", help="poll the submitted LAVA jobs, dumps info into specified json")
-    parser.add_argument("--timeout", type=int, default=0, help="polling timeout in seconds. default is 0.")
+    parser.add_argument("--timeout", type=int, default=-1, help="polling timeout in seconds. default is -1.")
     parser.add_argument('--bisect', help="bisection mode, returns 1 on any job failures", action='store_true')
-    args = parser.parse_args()
+    args = vars(parser.parse_args())
     main(args)

@@ -21,21 +21,33 @@
                 "dtb": "{dtb_url}",
                 "kernel": "{kernel_url}",
                 "overlays": ["{modules_url}"],
-                "nfsrootfs": "http://releases.linaro.org/15.06/openembedded/images/lng-armv8/linaro-image-lng-genericarmv8-20150618-754.rootfs.tar.gz"
+                "ramdisk": "http://people.linaro.org/~anders.roxell/buildroot-latest-2015.09.02/rootfs.cpio.gz"
             }
         },
         {
-            "command": "lava_test_shell",
+            "command": "boot_linaro_image",
             "parameters": {
-                "testdef_repos": [
-                    {
-                        "git-repo": "git://git.linaro.org/qa/test-definitions.git",
-                        "parameters": {
-                            "RTIME": "1800"
-                        },
-                        "testdef": "openembedded/cyclictest-basic.yaml"
-                    }
+                "test_image_prompt": "sh-4.3#"
+            }
+        },
+        {
+            "command": "lava_command_run",
+            "parameters": {
+                "commands": [
+                    "export LAVA_TESTDIR=/usr/share/linaro-testsuites",
+                    "cd ${LAVA_TESTDIR}",
+                    "export TIMES=8",
+                    "export INTERVAL=10000",
+                    "export LATENCY=1000000",
+                    "export DURATION=20",
+                    "./common/scripts/cyclictest-basic.sh ${TIMES} ${INTERVAL} ${LATENCY} ${DURATION}"
                 ],
+                "fixupdict": [
+                    "PASS:pass",
+                    "FAIL:fail",
+                    "SKIP:skip"
+                ],
+                "parser": "^test_case_id:(?P<test_case_id>.+)\\s+result:(?P<result>\\w+)\\s+measurement:(?P<measurement>.+)\\s+units:(?P<units>.+)",
                 "timeout": 1810
             }
         },
