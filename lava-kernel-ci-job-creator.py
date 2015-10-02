@@ -401,6 +401,15 @@ cubieboard4 = {'device_type': 'cubieboard4',
                'lpae': True,
                'fastboot': True}
 
+rk3288_rock2_square = {'device_type': 'rk3288-rock2-square',
+                       'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
+                                     'generic-arm-dtb-kernel-ci-kselftest-template.json'],
+                       'defconfig_blacklist': ['arm-allmodconfig'],
+                       'kernel_blacklist': [],
+                       'nfs_blacklist': [],
+                       'lpae': True,
+                       'fastboot': True}
+
 zx296702_ad1 = {'device_type': 'zx296702-ad1',
                 'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
                               'generic-arm-dtb-kernel-ci-kselftest-template.json'],
@@ -659,6 +668,7 @@ device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'zynq-parallella.dtb': [parallella],
               'sun9i-a80-optimus.dtb': [optimus_a80],
               'sun9i-a80-cubieboard4.dtb': [cubieboard4],
+              'rk3288-rock2-square.dtb': [rk3288_rock2_square],
 #              'zx296702-ad1.dtb': [zx296702_ad1],
               'vexpress-v2p-ca15-tc1.dtb': [qemu_arm_cortex_a15],
               'vexpress-v2p-ca15-tc1-legacy': [qemu_arm_cortex_a15_legacy],
