@@ -594,6 +594,7 @@ hi6220_hikey = {'device_type': 'hi6220-hikey',
 
 fsl_ls2085a_rdb = {'device_type': 'fsl-ls2085a-rdb',
                    'templates': ['generic-arm64-dtb-kernel-ci-boot-template.json',
+                                 'generic-arm64-dtb-kernel-ci-boot-be-template.json',
                                  'generic-arm64-dtb-kernel-ci-kselftest-template.json'],
                    'defconfig_blacklist': ['arm64-allnoconfig',
                                            'arm64-allmodconfig'],
