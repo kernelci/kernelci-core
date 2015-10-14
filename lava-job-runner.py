@@ -11,6 +11,7 @@ import fnmatch
 import time
 import re
 import argparse
+import httplib
 
 from lib import utils
 from lib import configuration
@@ -63,7 +64,7 @@ def poll_jobs(connection, timeout):
                 else:
                     print str(submitted_jobs[job]) + ' - ' + str(status['job_status'])
                     time.sleep(10)
-            except (xmlrpclib.ProtocolError, xmlrpclib.Fault, IOError) as e:
+            except (xmlrpclib.ProtocolError, xmlrpclib.Fault, IOError, httplib.ResponseNotReady) as e:
                 print "POLLING ERROR!"
                 print e
                 continue
