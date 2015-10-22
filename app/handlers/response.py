@@ -44,13 +44,14 @@ class HandlerResponse(object):
             raise ValueError("Value must be an integer")
 
         self._status_code = status_code
-        self._reason = None
         self._count = None
-        self._limit = None
-        self._result = None
-        self._headers = None
         self._errors = []
+        self._headers = None
+        self._limit = None
         self._messages = []
+        self._reason = None
+        self._result = None
+        self._skip = None
 
     @property
     def status_code(self):
@@ -107,10 +108,15 @@ class HandlerResponse(object):
 
     @count.setter
     def count(self, value):
-        """Set the number of results included."""
-        if not isinstance(value, types.IntType):
+        """Set the number of results included.
+        If set to None, it will not be displayed in the output.
+
+        :param value: The number of total results.
+        """
+        if any([value is None, isinstance(value, types.IntType)]):
+            self._count = value
+        else:
             raise ValueError("Value must be a integer")
-        self._count = value
 
     @property
     def limit(self):
@@ -119,10 +125,32 @@ class HandlerResponse(object):
 
     @limit.setter
     def limit(self, value):
-        """Set the number of results requested."""
-        if not isinstance(value, types.IntType):
+        """Set the number of results requested.
+        If set to None, it will not be displayed in the output.
+
+        :param value: The number of requested results.
+        """
+        if any([value is None, isinstance(value, types.IntType)]):
+            self._limit = value
+        else:
             raise ValueError("Value must be an integer")
-        self._limit = value
+
+    @property
+    def skip(self):
+        """The number of results skipped."""
+        return self._skip
+
+    @skip.setter
+    def skip(self, value):
+        """Set the number of skipped values.
+        If set to None, it will not be displayed in the output.
+
+        :param value: The number of skipped values.
+        """
+        if any([value is None, isinstance(value, types.IntType)]):
+            self._skip = value
+        else:
+            raise ValueError("Value must be an integer")
 
     @property
     def result(self):
@@ -190,11 +218,15 @@ class HandlerResponse(object):
         dict_obj = {}
 
         dict_obj["code"] = self.status_code
+
         if self.count is not None:
             dict_obj["count"] = self.count
 
         if self.limit is not None:
             dict_obj["limit"] = self.limit
+
+        if self.skip is not None:
+            dict_obj["skip"] = self.skip
 
         if self.result is not None:
             dict_obj["result"] = self.result

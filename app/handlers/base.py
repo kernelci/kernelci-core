@@ -412,6 +412,7 @@ class BaseHandler(tornado.web.RequestHandler):
             else:
                 response.result = []
 
+            response.skip = skip
             response.count = count
 
         response.limit = limit

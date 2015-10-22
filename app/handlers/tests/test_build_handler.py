@@ -52,7 +52,13 @@ class TestBuildHandler(TestHandlerBase):
         mock_count.return_value = 0
         mock_find.return_value = []
 
-        expected_body = '{"count":0,"code":200,"limit":0,"result":[]}'
+        expected_body = {
+            "count": 0,
+            "code": 200,
+            "limit": 0,
+            "skip": 0,
+            "result": []
+        }
 
         headers = {"Authorization": "foo"}
         response = self.fetch("/build", headers=headers)
@@ -60,7 +66,7 @@ class TestBuildHandler(TestHandlerBase):
         self.assertEqual(response.code, 200)
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
-        self.assertEqual(response.body, expected_body)
+        self.assertDictEqual(json.loads(response.body), expected_body)
 
     @mock.patch("utils.db.find")
     @mock.patch("utils.db.count")
@@ -68,7 +74,13 @@ class TestBuildHandler(TestHandlerBase):
         mock_count.return_value = 0
         mock_find.return_value = []
 
-        expected_body = '{"count":0,"code":200,"limit":0,"result":[]}'
+        expected_body = {
+            "count": 0,
+            "code": 200,
+            "limit": 0,
+            "skip": 0,
+            "result": []
+        }
 
         headers = {"Authorization": "foo"}
         response = self.fetch("/defconfig", headers=headers)
@@ -76,7 +88,7 @@ class TestBuildHandler(TestHandlerBase):
         self.assertEqual(response.code, 200)
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
-        self.assertEqual(response.body, expected_body)
+        self.assertDictEqual(json.loads(response.body), expected_body)
 
     @mock.patch("bson.objectid.ObjectId")
     @mock.patch("utils.db.find_one2")

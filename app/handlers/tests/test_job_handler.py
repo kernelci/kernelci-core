@@ -38,7 +38,13 @@ class TestJobHandler(TestHandlerBase):
         mock_count.return_value = 0
         mock_find.return_value = []
 
-        expected_body = '{"count":0,"code":200,"limit":0,"result":[]}'
+        expected_body = {
+            "count": 0,
+            "code": 200,
+            "limit": 0,
+            "skip": 0,
+            "result": []
+        }
 
         headers = {"Authorization": "foo"}
         response = self.fetch("/job?date_range=5&job=job", headers=headers)
@@ -46,7 +52,7 @@ class TestJobHandler(TestHandlerBase):
         self.assertEqual(response.code, 200)
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
-        self.assertEqual(response.body, expected_body)
+        self.assertDictEqual(json.loads(response.body), expected_body)
 
     @mock.patch("utils.db.find")
     @mock.patch("utils.db.count")
@@ -54,7 +60,13 @@ class TestJobHandler(TestHandlerBase):
         mock_count.return_value = 0
         mock_find.return_value = []
 
-        expected_body = '{"count":0,"code":200,"limit":1024,"result":[]}'
+        expected_body = {
+            "count": 0,
+            "code": 200,
+            "limit": 1024,
+            "skip": 0,
+            "result": []
+        }
 
         headers = {"Authorization": "foo"}
         response = self.fetch("/job?limit=1024", headers=headers)
@@ -62,7 +74,29 @@ class TestJobHandler(TestHandlerBase):
         self.assertEqual(response.code, 200)
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
-        self.assertEqual(response.body, expected_body)
+        self.assertDictEqual(json.loads(response.body), expected_body)
+
+    @mock.patch("utils.db.find")
+    @mock.patch("utils.db.count")
+    def test_get_with_limit_and_skip(self, mock_count, mock_find):
+        mock_count.return_value = 0
+        mock_find.return_value = []
+
+        expected_body = {
+            "count": 0,
+            "code": 200,
+            "limit": 1024,
+            "skip": 10,
+            "result": []
+        }
+
+        headers = {"Authorization": "foo"}
+        response = self.fetch("/job?limit=1024&skip=10", headers=headers)
+
+        self.assertEqual(response.code, 200)
+        self.assertEqual(
+            response.headers["Content-Type"], self.content_type)
+        self.assertDictEqual(json.loads(response.body), expected_body)
 
     @mock.patch("bson.objectid.ObjectId")
     @mock.patch("handlers.job.JobHandler.collection")
@@ -99,13 +133,18 @@ class TestJobHandler(TestHandlerBase):
         collection.find_one = mock.MagicMock()
         collection.find_one.return_value = {"_id": "foo"}
 
-        expected_body = '{"code":200,"result":[{"_id":"foo"}]}'
+        expected_body = {
+            "code": 200,
+            "result": [
+                {"_id": "foo"}
+            ]
+        }
 
         headers = {"Authorization": "foo"}
         response = self.fetch("/job/" + self.doc_id, headers=headers)
 
         self.assertEqual(response.code, 200)
-        self.assertEqual(response.body, expected_body)
+        self.assertDictEqual(json.loads(response.body), expected_body)
 
     def test_post_without_token(self):
         body = json.dumps(dict(job="job", kernel="kernel"))
