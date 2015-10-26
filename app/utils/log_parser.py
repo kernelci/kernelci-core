@@ -42,7 +42,8 @@ import utils.errors
 
 ERROR_PATTERN_1 = re.compile("[Ee]rror:")
 ERROR_PATTERN_2 = re.compile("^ERROR")
-WARNING_PATTERN = re.compile("warning:?", re.IGNORECASE)
+ERROR_PATTERN_3 = re.compile("undefined reference to")
+WARNING_PATTERN = re.compile("warning:", re.IGNORECASE)
 MISMATCH_PATTERN = re.compile("Section mismatch", re.IGNORECASE)
 
 # Regex pattern to exclude.
@@ -56,14 +57,17 @@ NO_WARNING_PATTERN_3 = re.compile(
     "Sparse checking disabled for this file", re.IGNORECASE)
 
 EXCLUDE_PATTERNS = [
+    # Exclude also the mismatch pattern, and treat it separately.
+    MISMATCH_PATTERN,
     NO_WARNING_PATTERN_1,
     NO_WARNING_PATTERN_2,
-    NO_WARNING_PATTERN_3,
+    NO_WARNING_PATTERN_3
 ]
 
 ERROR_PATTERNS = [
     ERROR_PATTERN_1,
-    ERROR_PATTERN_2
+    ERROR_PATTERN_2,
+    ERROR_PATTERN_3
 ]
 
 ERR_ADD = utils.errors.add_error
@@ -489,8 +493,8 @@ def _parse_log(job, kernel, defconfig, log_file, build_dir, errors):
                     has_err = has_warn = False
                     for err_pattrn in ERROR_PATTERNS:
                         if re.search(err_pattrn, line):
-                            line = line.strip()
                             has_err = True
+                            line = line.strip()
                             err_append(_clean_path(line))
                             break
 
@@ -504,7 +508,7 @@ def _parse_log(job, kernel, defconfig, log_file, build_dir, errors):
                                 line = line.strip()
                                 warn_append(_clean_path(line))
 
-                    if any([not has_err, not has_warn]):
+                    if all([not has_err, not has_warn]):
                         if re.search(MISMATCH_PATTERN, line):
                             line = line.strip()
                             mismatch_append(_clean_path(line))
