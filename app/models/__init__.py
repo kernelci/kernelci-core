@@ -573,11 +573,14 @@ JOB_VALID_KEYS = {
     },
     "GET": [
         CREATED_KEY,
+        GIT_BRANCH_KEY,
+        GIT_COMMIT_KEY,
+        GIT_DESCRIBE_KEY,
         ID_KEY,
         JOB_KEY,
         KERNEL_KEY,
         PRIVATE_KEY,
-        STATUS_KEY,
+        STATUS_KEY
     ],
 }
 
