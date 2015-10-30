@@ -409,6 +409,7 @@ cubieboard4 = {'device_type': 'cubieboard4',
 
 rk3288_rock2_square = {'device_type': 'rk3288-rock2-square',
                        'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
+                                     'generic-arm-dtb-kernel-ci-boot-nfs-mp-template.json',
                                      'generic-arm-dtb-kernel-ci-kselftest-template.json'],
                        'defconfig_blacklist': ['arm-allmodconfig'],
                        'kernel_blacklist': [],
