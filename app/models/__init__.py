@@ -357,6 +357,7 @@ COUNT_VALID_KEYS = {
         KERNEL_IMAGE_KEY,
         KERNEL_KEY,
         LAB_NAME_KEY,
+        MACH_KEY,
         MODULES_DIR_KEY,
         MODULES_KEY,
         NAME_KEY,
