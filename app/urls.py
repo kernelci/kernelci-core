@@ -102,7 +102,17 @@ _DEFCONFIG_LOGS_URL = tornado.web.url(
     handlers.build_logs.BuildLogsHandler, name="defconfig-logs")
 
 _BOOT_URL = tornado.web.url(
-    r"/boot[s]?/?(?P<id>.*)", handlers.boot.BootHandler, name="boot")
+    r"/boot[s]?/?$", handlers.boot.BootHandler, name="boot")
+
+_BOOT_ID_URL = tornado.web.url(
+    r"/boot[s]?/(?P<id>[A-Za-z0-9]{24})/?$",
+    handlers.boot.BootHandler, name="boot-id")
+
+_BOOT_DISTINCT_URL = tornado.web.url(
+    r"/boot[s]?/distinct/(?P<field>[A-Za-z0-9_]+)/?$",
+    handlers.distinct.DistinctHandler,
+    kwargs={"resource": "boot"}, name="boot-distinct"
+)
 
 _COUNT_URL = tornado.web.url(
     r"/count[s]?/?(?P<id>.*)", handlers.count.CountHandler, name="count")
@@ -152,6 +162,8 @@ _STATS_URL = tornado.web.url(
 APP_URLS = [
     _BATCH_URL,
     _BISECT_URL,
+    _BOOT_DISTINCT_URL,
+    _BOOT_ID_URL,
     _BOOT_TRIGGER_URL,
     _BOOT_URL,
     _BUILD_ID_LOGS_URL,

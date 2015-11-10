@@ -122,7 +122,7 @@ class BootHandler(hbase.BaseHandler):
                     doc_id = kwargs["id"]
                     obj_id = bson.objectid.ObjectId(doc_id)
 
-                    boot_doc = utils.db.find_one(self.collection, [obj_id])
+                    boot_doc = utils.db.find_one2(self.collection, obj_id)
                     if boot_doc:
                         if self._valid_boot_delete_token(token, boot_doc):
                             response = self._delete(obj_id)

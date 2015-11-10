@@ -29,12 +29,13 @@ from handlers.tests.test_handler_base import TestHandlerBase
 class TestBootHandler(TestHandlerBase):
 
     def get_app(self):
-        return tornado.web.Application([urls._BOOT_URL], **self.settings)
+        return tornado.web.Application(
+            [urls._BOOT_URL, urls._BOOT_ID_URL], **self.settings)
 
     def test_delete_no_token(self):
         self.find_token.return_value = None
 
-        response = self.fetch("/boot/board", method="DELETE")
+        response = self.fetch("/boot/" + self.doc_id, method="DELETE")
         self.assertEqual(response.code, 403)
 
     @mock.patch("bson.objectid.ObjectId")
@@ -49,32 +50,31 @@ class TestBootHandler(TestHandlerBase):
             response.headers["Content-Type"], self.content_type)
 
     @mock.patch("handlers.boot.BootHandler._valid_boot_delete_token")
-    @mock.patch("bson.objectid.ObjectId")
-    def test_delete_with_token_with_boot(self, mock_id, valid_delete):
+    @mock.patch("utils.db.find_one2")
+    def test_delete_with_token_with_boot(self, mock_find, valid_delete):
         valid_delete.return_value = True
-        mock_id.return_value = "boot"
-        self.database["boot"].insert(
-            dict(_id="boot", job="job", kernel="kernel"))
+        mock_find.return_value = "boot"
 
         headers = {"Authorization": "foo"}
 
-        response = self.fetch("/boot/boot", method="DELETE", headers=headers)
+        response = self.fetch(
+            "/boot/" + self.doc_id, method="DELETE", headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
     @mock.patch("handlers.boot.BootHandler._valid_boot_delete_token")
-    @mock.patch("bson.objectid.ObjectId")
-    def test_delete_with_non_lab_token_with_boot(self, mock_id, valid_delete):
+    @mock.patch("utils.db.find_one2")
+    def test_delete_with_non_lab_token_with_boot(
+            self, mock_find, valid_delete):
         valid_delete.return_value = False
-        mock_id.return_value = "boot"
-        self.database["boot"].insert(
-            dict(_id="boot", job="job", kernel="kernel"))
+        mock_find.return_value = "boot"
 
         headers = {"Authorization": "foo"}
 
-        response = self.fetch("/boot/boot", method="DELETE", headers=headers)
+        response = self.fetch(
+            "/boot/" + self.doc_id, method="DELETE", headers=headers)
 
         self.assertEqual(response.code, 403)
         self.assertEqual(
@@ -93,9 +93,10 @@ class TestBootHandler(TestHandlerBase):
         headers = {"Authorization": "foo"}
 
         response = self.fetch(
-            "/boot/!@#$!#$foo", method="DELETE", headers=headers,)
+            "/boot/!@#$!#$foo1$%/:;[]{|}?/>",
+            method="DELETE", headers=headers)
 
-        self.assertEqual(response.code, 400)
+        self.assertEqual(response.code, 404)
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
