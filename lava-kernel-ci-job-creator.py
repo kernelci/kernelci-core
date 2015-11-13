@@ -158,6 +158,15 @@ omap3_overo_tobi = {'device_type': 'omap3-overo-tobi',
                     'lpae': False,
                     'fastboot': False}
 
+omap3_overo_storm_tobi = {'device_type': 'omap3-overo-storm-tobi',
+                          'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
+                                        'generic-arm-dtb-kernel-ci-kselftest-template.json'],
+                          'defconfig_blacklist': ['arm-allmodconfig'],
+                          'kernel_blacklist': [],
+                          'nfs_blacklist': [],
+                          'lpae': False,
+                          'fastboot': False}
+
 panda_es = {'device_type': 'panda-es',
             'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
                           'generic-arm-dtb-kernel-ci-kselftest-template.json'],
@@ -686,6 +695,7 @@ device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'am335x-boneblack.dtb': [beaglebone_black],
               'omap3-beagle-xm.dtb': [beagle_xm],
               'omap3-overo-tobi.dtb': [omap3_overo_tobi],
+              'omap3-overo-storm-tobi.dtb': [omap3_overo_storm_tobi],
               'omap4-panda-es.dtb': [panda_es],
               'omap4-panda.dtb': [panda],
               'sun7i-a20-cubieboard2.dtb': [cubieboard2],
