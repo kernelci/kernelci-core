@@ -41,19 +41,6 @@ class DistinctHandler(hbase.BaseHandler):
     def collection(self):
         return self.db[self.resource]
 
-    def _valid_distinct_keys(self, method):
-        """Get the valid keys associated with this resource.
-
-        :param method: The HTTP method.
-        :type method: str
-        :return None or a list of valid keys.
-        """
-        valid_keys = None
-        resource_keys = models.DISTINCT_VALID_KEYS.get(self.resource, None)
-        if resource_keys:
-            valid_keys = resource_keys.get(method, None)
-        return valid_keys
-
     def execute_post(self, *args, **kwargs):
         """Execute POST pre-operations."""
         return hresponse.HandlerResponse(501)
@@ -75,7 +62,7 @@ class DistinctHandler(hbase.BaseHandler):
             kwargs["token"] = token
             field = kwargs.get("field", None)
 
-            if all([field, self._valid_distinct_field(field)]):
+            if all([field, valid_distinct_field(field, self.resource)]):
                 if self.request.arguments:
                     response = self._get_distinct_query(field)
                 else:
@@ -114,21 +101,12 @@ class DistinctHandler(hbase.BaseHandler):
         """
         response = hresponse.HandlerResponse(200)
 
-        fields = None
-        limit = 0
-        skip = 0
-        sort = None
-        spec = {}
-
-        spec, sort, fields, skip, limit, _ = \
-            handlers.common.query.get_all_query_values(
-                self.get_query_arguments, self._valid_distinct_keys("GET"))
-
-        db_result = self.collection.find(
-            spec=spec, limit=limit, skip=skip, fields=fields, sort=sort)
-
-        response.result = db_result.distinct(field)
-        response.count = len(response.result)
+        response.result, response.count = get_distinct_query(
+            field,
+            self.collection,
+            self.get_query_arguments,
+            valid_distinct_keys(self.resource, "GET")
+        )
 
         return response
 
@@ -140,7 +118,83 @@ class DistinctHandler(hbase.BaseHandler):
         :return A HandlerResponse instance.
         """
         response = hresponse.HandlerResponse()
-        response.result = self.collection.distinct(field)
-        response.count = len(response.result)
+        response.result, response.count = \
+            get_distinct_field(field, self.collection)
 
         return response
+
+
+def get_distinct_query(field, collection, query_args_func, valid_keys):
+    """Perform a distinct query on the collection for the specified field.
+
+    It will first search the database with the provided query arguments.
+
+    :param field: The field to get the unique values of.
+    :type field: str
+    :param collection: The database collection.
+    :param query_args_func: The function to get the query arguments.
+    :type query_args_func: function
+    :param valid_keys: The valid keys for the resource.
+    :type valid_keys: list or dict
+    :return A 2-tuple.
+    """
+    fields = None
+    limit = 0
+    skip = 0
+    sort = None
+    spec = {}
+
+    spec, sort, fields, skip, limit, _ = \
+        handlers.common.query.get_all_query_values(query_args_func, valid_keys)
+
+    result = collection.find(
+        spec=spec, limit=limit, skip=skip, fields=fields, sort=sort)
+    if result:
+        result = result.distinct(field)
+
+    return (result, len(result))
+
+
+def get_distinct_field(field, collection):
+    """Perform a distinct query on the collection for the specified field.
+
+    :param field: The filed to get the unique values of.
+    :type field: str
+    :param collection: The database collection.
+    :return A 2-tuple.
+    """
+    result = collection.distinct(field)
+    return (result, len(result))
+
+
+def valid_distinct_keys(resource, method):
+    """Get the valid distinct keys for the specified resource and method.
+
+    :param resource: The resource to get the keys of.
+    :type resource: str
+    :param method: The HTTP request method.
+    :type method: str
+    :return The valid keys as a dictionary.
+    :type return: dict
+    """
+    valid_keys = None
+    resource_keys = models.DISTINCT_VALID_KEYS.get(resource, None)
+    if resource_keys:
+        valid_keys = resource_keys.get(method, None)
+    return valid_keys
+
+
+def valid_distinct_field(field, resource):
+    """Make sure the requested distinct field is valid.
+
+    :param field: The field name to validate.
+    :type field: str
+    :param resource: The resource this filed belongs to.
+    :type resource: str
+    :return True or False.
+    """
+    valid_field = False
+    if field:
+        valid_field = field in models.DISTINCT_VALID_FIELDS.get(resource, [])
+
+    return valid_field

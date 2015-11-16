@@ -73,33 +73,43 @@ def create_batch_operation(json_obj, db_options):
     be constructed.
     """
     batch_op = None
+    get_func = None
+
+    def _complete_batch_op():
+        batch_op.db_options = db_options
+        batch_op.query_args = get_batch_query_args(
+            get_func(models.QUERY_KEY, None))
+
+        for key, val in json_obj.iteritems():
+            setattr(batch_op, key, val)
 
     if json_obj:
         get_func = json_obj.get
         resource = get_func(models.RESOURCE_KEY, None)
+        distinct = get_func(models.DISTINCT_KEY, None)
 
-        if all([resource, resource in models.COLLECTIONS]):
-            if resource == models.COUNT_COLLECTION:
-                batch_op = batchop.BatchCountOperation()
-            elif resource == models.BOOT_COLLECTION:
-                batch_op = batchop.BatchBootOperation()
-            elif resource == models.JOB_COLLECTION:
-                batch_op = batchop.BatchJobOperation()
-            elif resource == models.BUILD_COLLECTION:
-                batch_op = batchop.BatchBuildOperation()
-            elif resource == models.TEST_CASE_COLLECTION:
-                batch_op = batchop.BatchTestCaseOperation()
-            elif resource == models.TEST_SET_COLLECTION:
-                batch_op = batchop.BatchTestSetOperation()
-            elif resource == models.TEST_SUITE_COLLECTION:
-                batch_op = batchop.BatchTestSuiteOperation()
+        if resource in models.COLLECTIONS:
+            # First check if we have a distinct operation to perform.
+            if distinct:
+                batch_op = batchop.BatchDistinctOperation()
+            # Then in case proceed with the normal operations.
+            elif resource:
+                if resource == models.COUNT_COLLECTION:
+                    batch_op = batchop.BatchCountOperation()
+                elif resource == models.BOOT_COLLECTION:
+                    batch_op = batchop.BatchBootOperation()
+                elif resource == models.JOB_COLLECTION:
+                    batch_op = batchop.BatchJobOperation()
+                elif resource == models.BUILD_COLLECTION:
+                    batch_op = batchop.BatchBuildOperation()
+                elif resource == models.TEST_CASE_COLLECTION:
+                    batch_op = batchop.BatchTestCaseOperation()
+                elif resource == models.TEST_SET_COLLECTION:
+                    batch_op = batchop.BatchTestSetOperation()
+                elif resource == models.TEST_SUITE_COLLECTION:
+                    batch_op = batchop.BatchTestSuiteOperation()
 
-            batch_op.db_options = db_options
-            batch_op.query_args = get_batch_query_args(
-                get_func(models.QUERY_KEY, None))
-
-            for key, val in json_obj.iteritems():
-                setattr(batch_op, key, val)
+            _complete_batch_op()
 
     return batch_op
 

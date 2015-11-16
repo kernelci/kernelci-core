@@ -18,6 +18,7 @@ from utils.batch.batch_op import (
     BatchBootOperation,
     BatchBuildOperation,
     BatchCountOperation,
+    BatchDistinctOperation,
     BatchJobOperation,
     BatchOperation,
     BatchTestCaseOperation,
@@ -174,3 +175,14 @@ class TestBatch(unittest.TestCase):
         op = create_batch_operation(json_obj, {})
         self.assertIsInstance(op, BatchTestSuiteOperation)
         self.assertEqual("test_suite", op.resource)
+
+    def test_create_batch_distinct(self):
+        json_obj = {
+            "resource": "boot",
+            "distinct": "board",
+            "operation_id": "distinct-board"
+        }
+
+        op = create_batch_operation(json_obj, {})
+        self.assertIsInstance(op, BatchDistinctOperation)
+        self.assertEqual("board", op.distinct)

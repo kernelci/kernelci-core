@@ -220,6 +220,8 @@ DOCUMENT_ID_KEY = "document_id"
 DOCUMENT_KEY = "document"
 QUERY_KEY = "query"
 OP_ID_KEY = "operation_id"
+DISTINCT_KEY = "distinct"
+UNIQUE_KEY = "unique"
 
 # Collection names.
 BOOT_COLLECTION = "boot"
@@ -587,6 +589,7 @@ JOB_VALID_KEYS = {
 
 BATCH_VALID_KEYS = {
     "POST": [
+        DISTINCT_KEY,
         DOCUMENT_KEY,
         METHOD_KEY,
         OP_ID_KEY,

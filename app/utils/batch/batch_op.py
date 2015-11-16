@@ -15,6 +15,7 @@
 
 import handlers.common.query
 import handlers.count as hcount
+import handlers.distinct as hdistinct
 import models
 import utils.db
 
@@ -165,7 +166,7 @@ class BatchOperation(object):
 
         # find_and_count returns 2 results: the mongodb cursor and the
         # results count.
-        if isinstance(result, tuple):
+        if all([isinstance(result, tuple), result]):
             count = result[1]
             res = []
             if count > 0:
@@ -192,7 +193,11 @@ class BatchOperation(object):
         """
         self.prepare_operation()
 
-        result = self.operation(*self.args, **self.kwargs)
+        if self.operation:
+            result = self.operation(*self.args, **self.kwargs)
+        else:
+            result = []
+
         return self._prepare_response(result)
 
 
@@ -269,3 +274,29 @@ class BatchTestSuiteOperation(BatchOperation):
     def __init__(self):
         super(BatchTestSuiteOperation, self).__init__()
         self.valid_keys = models.TEST_SUITE_VALID_KEYS
+
+
+class BatchDistinctOperation(BatchOperation):
+    """A batch operation to retrieve distinct values for a resource."""
+
+    def __init__(self):
+        self.distinct = None
+        super(BatchDistinctOperation, self).__init__()
+
+    def _prepare_get_operation(self):
+        # Is the requested distinct field valid?
+        if hdistinct.valid_distinct_field(self.distinct, self.resource):
+            if self.query_args:
+                self.operation = hdistinct.get_distinct_query
+                self.args = [
+                    self.distinct,
+                    self.database[self.resource],
+                    self.query_args_func,
+                    hdistinct.valid_distinct_keys(self.resource, "GET")
+                ]
+            else:
+                self.operation = hdistinct.get_distinct_field
+                self.args = [
+                    self.distinct,
+                    self.database[self.resource]
+                ]
