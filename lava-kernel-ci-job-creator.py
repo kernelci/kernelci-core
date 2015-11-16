@@ -652,6 +652,20 @@ x86 = {'device_type': 'x86',
        'lpae': False,
        'fastboot': False}
 
+x86_atom330 = {'device_type': 'x86-atom330',
+                         'templates': ['generic-x86-kernel-ci-boot-template.json',
+                                       'generic-x86-kernel-ci-kselftest-template.json'],
+                         'defconfig_blacklist': ['x86-i386_defconfig',
+                                                 'x86-allnoconfig',
+                                                 'x86-allmodconfig',
+                                                 'x86-allmodconfig+CONFIG_OF=n',
+                                                 'x86-tinyconfig',
+                                                 'x86-kvm_guest.config'],
+                         'kernel_blacklist': [],
+                         'nfs_blacklist': [],
+                         'lpae': False,
+                         'fastboot': False}
+
 minnowboard_max_E3825 = {'device_type': 'minnowboard-max-E3825',
                          'templates': ['generic-x86-kernel-ci-boot-template.json',
                                        'generic-x86-kernel-ci-kselftest-template.json'],
@@ -731,7 +745,7 @@ device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'fvp-base-gicv2-psci.dtb': [fvp_aemv8a],
               'hi6220-hikey.dtb': [hi6220_hikey],
               'fsl-ls2085a-simu.dtb': [fsl_ls2085a_rdb],
-              'x86': [x86, minnowboard_max_E3825],
+              'x86': [x86, minnowboard_max_E3825, x86_atom330],
               'x86-kvm': [x86_kvm]}
 
 parse_re = re.compile('href="([^./"?][^"?]*)"')

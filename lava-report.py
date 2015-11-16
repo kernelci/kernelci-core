@@ -76,6 +76,7 @@ device_map = {'bcm2835-rpi-b-plus': ['bcm2835-rpi-b-plus', 'bcm'],
               'hi6220-hikey': ['hi6220-hikey', 'hisi'],
               'fsl-ls2085a-rdb': ['fsl-ls2085a-simu', 'freescale'],
               'minnowboard-max-E3825': ['minnowboard-max', None],
+              'x86-atom330': ['x86-atom330', None],
               'x86': ['x86', None],
               'kvm': ['x86-kvm', None]}
 
