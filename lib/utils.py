@@ -4,6 +4,7 @@ import shutil
 import urlparse
 import xmlrpclib
 import json
+import ssl
 
 
 def write_file(file, name, directory):
@@ -53,7 +54,8 @@ def validate_input(username, token, server):
 def connect(url):
     try:
         print "Connecting to Server..."
-        connection = xmlrpclib.ServerProxy(url)
+        context = hasattr(ssl, '_create_unverified_context') and ssl._create_unverified_context() or None
+        connection = xmlrpclib.ServerProxy(url, transport=xmlrpclib.SafeTransport(use_datetime=True, context=context))
 
         print "Connection Successful!"
         print "connect-to-server : pass"
