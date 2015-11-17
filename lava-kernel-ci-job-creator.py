@@ -625,7 +625,20 @@ hi6220_hikey = {'device_type': 'hi6220-hikey',
                'lpae': False,
                'fastboot': False}
 
-fsl_ls2085a_rdb = {'device_type': 'fsl-ls2085a-rdb',
+fsl_ls2080a_rdb = {'device_type': 'fsl-ls2085a-rdb',
+                   'templates': ['generic-arm64-dtb-kernel-ci-boot-template.json',
+                                 'generic-arm64-dtb-kernel-ci-boot-be-template.json',
+                                 'generic-arm64-dtb-kernel-ci-kselftest-template.json'],
+                   'defconfig_blacklist': ['arm64-allnoconfig',
+                                           'arm64-allmodconfig'],
+                   'kernel_blacklist': ['v4.1',
+                                        'lsk-v4.1',
+                                        'stable-queue-v4.1'],
+                   'nfs_blacklist': [],
+                   'lpae': False,
+                   'fastboot': False}
+
+fsl_ls2080a_simu = {'device_type': 'fsl-ls2085a-rdb',
                    'templates': ['generic-arm64-dtb-kernel-ci-boot-template.json',
                                  'generic-arm64-dtb-kernel-ci-boot-be-template.json',
                                  'generic-arm64-dtb-kernel-ci-kselftest-template.json'],
@@ -744,7 +757,8 @@ device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'juno.dtb': [juno, juno_kvm],
               'fvp-base-gicv2-psci.dtb': [fvp_aemv8a],
               'hi6220-hikey.dtb': [hi6220_hikey],
-              'fsl-ls2085a-simu.dtb': [fsl_ls2085a_rdb],
+              'fsl-ls2080a-simu.dtb': [fsl_ls2080a_simu],
+              'fsl-ls2080a-rdb.dtb': [fsl_ls2080a_rdb],
               'x86': [x86, minnowboard_max_E3825, x86_atom330],
               'x86-kvm': [x86_kvm]}
 

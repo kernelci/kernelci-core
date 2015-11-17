@@ -74,7 +74,8 @@ device_map = {'bcm2835-rpi-b-plus': ['bcm2835-rpi-b-plus', 'bcm'],
               'juno-kvm-uefi-guest': ['juno-kvm-uefi-guest', 'arm'],
               'rtsm_fvp_base-aemv8a': ['fvp-base-gicv2-psci', 'arm'],
               'hi6220-hikey': ['hi6220-hikey', 'hisi'],
-              'fsl-ls2085a-rdb': ['fsl-ls2085a-simu', 'freescale'],
+              'fsl-ls2085a-rdb': ['fsl-ls2080a-rdb', 'freescale'],
+              'fsl-ls2085a-simu': ['fsl-ls2080a-simu', 'freescale'],
               'minnowboard-max-E3825': ['minnowboard-max', None],
               'x86-atom330': ['x86-atom330', None],
               'x86': ['x86', None],
@@ -291,6 +292,8 @@ def boot_report(config):
             else:
                 if device_tree == 'vexpress-v2p-ca15_a7.dtb':
                     platform_name = 'vexpress-v2p-ca15_a7'
+                elif device_tree == 'fsl-ls2080a-simu.dtb':
+                    platform_name = 'fsl-ls2080a-simu'
                 elif test_plan == 'boot-kvm' or test_plan == 'boot-kvm-uefi':
                     if device_tree == 'sun7i-a20-cubietruck.dtb':
                         if device_type == 'dynamic-vm':
