@@ -331,6 +331,10 @@ def _update_boot_doc_ids(boot_doc, database):
             boot_doc.git_describe = doc_get(models.GIT_DESCRIBE_KEY, None)
         if not boot_doc.git_url:
             boot_doc.git_url = doc_get(models.GIT_URL_KEY, None)
+
+        # Pick the kernel image size as well.
+        boot_doc.kernel_image_size = \
+            doc_get(models.KERNEL_IMAGE_SIZE_KEY, None)
     else:
         utils.LOG.warn(
             "No build document found for boot %s-%s-%s (%s)",

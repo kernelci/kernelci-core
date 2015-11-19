@@ -137,6 +137,10 @@
             "type": "string",
             "description": "The kernel image used to boot"
         },
+        "kernel_image_size": {
+            "type": "integer",
+            "description": "Size in bytes of the kernel image file"
+        },
         "dtb_addr": {
             "type": "string",
             "description": "The DTB address used"

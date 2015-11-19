@@ -87,6 +87,7 @@ class BootDocument(modb.BaseDocument):
         self.initrd_addr = None
         self.job_id = None
         self.kernel_image = None
+        self.kernel_image_size = None
         self.load_addr = None
         self.mach = None
         self.metadata = {}
@@ -215,6 +216,7 @@ class BootDocument(modb.BaseDocument):
             models.JOB_ID_KEY: self.job_id,
             models.JOB_KEY: self.job,
             models.KERNEL_IMAGE_KEY: self.kernel_image,
+            models.KERNEL_IMAGE_SIZE_KEY: self.kernel_image_size,
             models.KERNEL_KEY: self.kernel,
             models.LAB_NAME_KEY: self.lab_name,
             models.LOAD_ADDR_KEY: self.load_addr,
