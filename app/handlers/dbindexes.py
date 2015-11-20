@@ -97,6 +97,20 @@ def _ensure_boot_indexes(database):
         ],
         background=True
     )
+    collection.ensure_index(
+        [
+            (models.MACH_KEY, pymongo.ASCENDING),
+            (models.BOARD_KEY, pymongo.ASCENDING)
+        ],
+        background=True
+    )
+    collection.ensure_index(
+        [
+            (models.MACH_KEY, pymongo.ASCENDING),
+            (models.CREATED_KEY, pymongo.DESCENDING)
+        ],
+        background=True
+    )
 
 
 def _ensure_build_indexes(database):
