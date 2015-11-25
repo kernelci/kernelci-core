@@ -554,6 +554,7 @@ apm_mustang = {'device_type': 'mustang',
                                  'v3.12',
                                  'v3.14',
                                  'lsk-v3.14'],
+               'be_blacklist': ['v3.10'],
                'lpae': False,
                'fastboot': False}
 
@@ -823,6 +824,10 @@ def create_jobs(base_url, kernel, plans, platform_list, targets, priority):
                     print '%s has been blacklisted. Skipping JSON creation' % kernel_version
                 elif any([x for x in device['nfs_blacklist'] if x in kernel_version]) \
                         and plan in ['boot-nfs', 'boot-nfs-mp']:
+                    print '%s has been blacklisted. Skipping JSON creation' % kernel_version
+                elif 'be_blacklist' in device \
+                        and any([x for x in device['be_blacklist'] if x in kernel_version]) \
+                        and plan in ['boot-be']:
                     print '%s has been blacklisted. Skipping JSON creation' % kernel_version
                 elif targets is not None and device_type not in targets:
                     print '%s device type has been omitted. Skipping JSON creation.' % device_type
