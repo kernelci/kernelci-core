@@ -54,8 +54,11 @@ def validate_input(username, token, server):
 def connect(url):
     try:
         print "Connecting to Server..."
-        context = hasattr(ssl, '_create_unverified_context') and ssl._create_unverified_context() or None
-        connection = xmlrpclib.ServerProxy(url, transport=xmlrpclib.SafeTransport(use_datetime=True, context=context))
+        if 'https' in url:
+            context = hasattr(ssl, '_create_unverified_context') and ssl._create_unverified_context() or None
+            connection = xmlrpclib.ServerProxy(url, transport=xmlrpclib.SafeTransport(use_datetime=True, context=context))
+        else:
+            connection = xmlrpclib.ServerProxy(url)
 
         print "Connection Successful!"
         print "connect-to-server : pass"
