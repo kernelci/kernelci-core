@@ -43,6 +43,7 @@ BUILD_COUNTS_KEY = "build_counts"
 BUILD_ERRORS_KEY = "build_errors"
 BUILD_ID_KEY = "build_id"
 BUILD_LOG_KEY = "build_log"
+BUILD_LOG_SIZE_KEY = "build_log_size"
 BUILD_PLATFORM_KEY = "build_platform"
 BUILD_RESULT_KEY = "build_result"
 BUILD_TIME_KEY = "build_time"
@@ -100,6 +101,7 @@ JOB_ID_KEY = "job_id"
 JOB_KEY = "job"
 KCONFIG_FRAGMENTS_KEY = "kconfig_fragments"
 KERNEL_CONFIG_KEY = "kernel_config"
+KERNEL_CONFIG_SIZE_KEY = "kernel_config_size"
 KERNEL_IMAGE_KEY = "kernel_image"
 KERNEL_IMAGE_SIZE_KEY = "kernel_image_size"
 KERNEL_KEY = "kernel"
@@ -140,6 +142,7 @@ STATUS_KEY = "status"
 SUBJECT_KEY = "subject"
 SURNAME_KEY = "surname"
 SYSTEM_MAP_KEY = "system_map"
+SYSTEM_MAP_SIZE_KEY = "system_map_size"
 TEST_CASE_ID_KEY = "test_case_id"
 TEST_CASE_KEY = "test_case"
 TEST_JOB_ID_KEY = "test_job_id"
@@ -476,6 +479,7 @@ BUILD_VALID_KEYS = {
     "GET": [
         ARCHITECTURE_KEY,
         BUILD_LOG_KEY,
+        BUILD_LOG_SIZE_KEY,
         BUILD_TYPE_KEY,
         CREATED_KEY,
         DEFCONFIG_FULL_KEY,
@@ -490,6 +494,7 @@ BUILD_VALID_KEYS = {
         JOB_KEY,
         KCONFIG_FRAGMENTS_KEY,
         KERNEL_CONFIG_KEY,
+        KERNEL_CONFIG_SIZE_KEY,
         KERNEL_IMAGE_KEY,
         KERNEL_IMAGE_SIZE_KEY,
         KERNEL_KEY,
@@ -498,6 +503,7 @@ BUILD_VALID_KEYS = {
         MODULES_SIZE_KEY,
         STATUS_KEY,
         SYSTEM_MAP_KEY,
+        SYSTEM_MAP_SIZE_KEY,
         TEXT_OFFSET_KEY,
         WARNINGS_KEY
     ],

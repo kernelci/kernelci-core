@@ -51,6 +51,7 @@ class BuildDocument(mbase.BaseDocument):
         self._status = None
         self.arch = None
         self.build_log = None
+        self.build_log_size = None
         self.build_time = 0
         self.build_type = None
         self.dirname = None
@@ -66,12 +67,14 @@ class BuildDocument(mbase.BaseDocument):
         self.job_id = None
         self.kconfig_fragments = None
         self.kernel_config = None
+        self.kernel_config_size = None
         self.kernel_image = None
         self.kernel_image_size = None
         self.modules = None
         self.modules_size = None
         self.modules_dir = None
         self.system_map = None
+        self.system_map_size = None
         self.text_offset = None
         self.warnings = 0
 
@@ -200,6 +203,7 @@ class BuildDocument(mbase.BaseDocument):
         defconf_dict = {
             models.ARCHITECTURE_KEY: self.arch,
             models.BUILD_LOG_KEY: self.build_log,
+            models.BUILD_LOG_SIZE_KEY: self.build_log_size,
             models.BUILD_PLATFORM_KEY: self.build_platform,
             models.BUILD_TIME_KEY: self.build_time,
             models.BUILD_TYPE_KEY: self.build_type,
@@ -220,6 +224,7 @@ class BuildDocument(mbase.BaseDocument):
             models.JOB_KEY: self.job,
             models.KCONFIG_FRAGMENTS_KEY: self.kconfig_fragments,
             models.KERNEL_CONFIG_KEY: self.kernel_config,
+            models.KERNEL_CONFIG_SIZE_KEY: self.kernel_config_size,
             models.KERNEL_IMAGE_KEY: self.kernel_image,
             models.KERNEL_IMAGE_SIZE_KEY: self.kernel_image_size,
             models.KERNEL_KEY: self.kernel,
@@ -229,6 +234,7 @@ class BuildDocument(mbase.BaseDocument):
             models.MODULES_SIZE_KEY: self.modules_size,
             models.STATUS_KEY: self.status,
             models.SYSTEM_MAP_KEY: self.system_map,
+            models.SYSTEM_MAP_SIZE_KEY: self.system_map_size,
             models.TEXT_OFFSET_KEY: self.text_offset,
             models.VERSION_KEY: self.version,
             models.WARNINGS_KEY: self.warnings

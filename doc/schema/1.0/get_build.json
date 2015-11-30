@@ -128,6 +128,10 @@
             "type": "string",
             "description": "Name of the build log file in text format"
         },
+        "build_log_size": {
+            "type": "integer",
+            "description": "Size in bytes of the build log file"
+        },
         "text_offset": {
             "type": "string"
         },
@@ -135,9 +139,17 @@
             "type": "string",
             "description": "Name of the system map file"
         },
+        "system_map_size": {
+            "type": "number",
+            "description": "Size in bytes of the system map file"
+        },
         "kernel_config": {
             "type": "string",
             "description": "Name of the kernel config file used"
+        },
+        "kernel_config_size": {
+            "type": "integer",
+            "description": "Size in bytes of of the kernel config file"
         },
         "kernel_image": {
             "type": "string",

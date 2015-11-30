@@ -43,6 +43,46 @@ import utils.errors
 ERR_ADD = utils.errors.add_error
 ERR_UPDATE = utils.errors.update_errors
 
+# List of 2-tuples that contain keys of which we want to get the size of.
+# tuple[0]: the key of which we want to get the size of.
+# tuple[1]: the key that will hold the size.
+SIZE_KEYS = [
+    (models.BUILD_LOG_KEY, models.BUILD_LOG_SIZE_KEY),
+    (models.KERNEL_CONFIG_KEY, models.KERNEL_CONFIG_SIZE_KEY),
+    (models.KERNEL_IMAGE_KEY, models.KERNEL_IMAGE_SIZE_KEY),
+    (models.MODULES_KEY, models.MODULES_SIZE_KEY),
+    (models.SYSTEM_MAP_KEY, models.SYSTEM_MAP_SIZE_KEY)
+]
+
+
+def parse_build_artifacts(build_doc, build_dir):
+    """Update a build document with the artifacts size.
+
+    :param build_doc: The build document to update.
+    :type build_doc: BuildDocument
+    :param build_dir: The path to the build directory.
+    :type build_dir: str
+    """
+    def _get_size(artifact_path):
+        """Internal function to get the size of an artifact.
+
+        :param artifact_path: The full path to the artifact.
+        :type artifact_path: str
+        :return The size or None if the artifact is not a file.
+        """
+        artifact_size = None
+
+        if os.path.isfile(artifact_path):
+            artifact_size = os.stat(artifact_path).st_size
+
+        return artifact_size
+
+    for key in SIZE_KEYS:
+        artifact = getattr(build_doc, key[0], None)
+        if artifact:
+            artifact = os.path.join(build_dir, artifact)
+            setattr(build_doc, key[1], _get_size(artifact))
+
 
 def parse_dtb_dir(build_dir, dtb_dir):
     """Parse the dtb directory of a build and return its contents.
@@ -262,9 +302,12 @@ def _traverse_build_dir(
                     build_doc.created_on = datetime.datetime.now(
                         tz=bson.tz_util.utc)
 
-                if all([build_doc, build_doc.dtb_dir]):
-                    build_doc.dtb_dir_data = parse_dtb_dir(
-                        real_dir, build_doc.dtb_dir)
+                if build_doc:
+                    if build_doc.dtb_dir:
+                        build_doc.dtb_dir_data = parse_dtb_dir(
+                            real_dir, build_doc.dtb_dir)
+
+                    parse_build_artifacts(build_doc, real_dir)
         except IOError, ex:
             err_msg = "Error reading json data file (job: %s, kernel: %s) - %s"
             utils.LOG.exception(ex)
