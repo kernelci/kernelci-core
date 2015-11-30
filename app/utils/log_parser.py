@@ -365,6 +365,45 @@ def save_defconfig_errors(
     return ret_val
 
 
+def _update_build_doc(
+        build_doc, job_id, errors, warnings, mismatches, db_options):
+    """Update the build document with errors/warnings count.
+
+    :param build_doc: The build doc as read from the system.
+    :type build_doc: dict
+    :param job_id: The id of the job.
+    :type job_id: str
+    :param errors: The errors count.
+    :type errors: int
+    :param warnings: The warnings count.
+    :type warnings: int
+    :param mismatches: The mismatches count.
+    :type mismatches: int
+    :param db_options: The database connection options.
+    :type db_options: dict
+    :return The update status result (200 or 500).
+    """
+    document = {
+        models.ERRORS_KEY: errors,
+        models.WARNINGS_KEY: warnings,
+        models.MISMATCHES_KEY: mismatches
+    }
+    query = {
+        models.ARCHITECTURE_KEY: build_doc.arch,
+        models.DEFCONFIG_FULL_KEY: build_doc.defconfig_full,
+        models.DEFCONFIG_KEY: build_doc.defconfig,
+        models.JOB_KEY: build_doc.job,
+        models.KERNEL_KEY: build_doc.kernel
+    }
+
+    if job_id:
+        query[models.JOB_ID_KEY] = job_id
+
+    database = utils.db.get_db_connection(db_options)
+    return utils.db.find_and_update(
+        database[models.BUILD_COLLECTION], query, document)
+
+
 def _save(
         build_doc,
         job_id, err_lines, warn_lines, mism_lines, errors, db_options):
@@ -390,6 +429,18 @@ def _save(
 
     all_errors, all_warnings, all_mismatches = count_lines(
         err_lines, warn_lines, mism_lines)
+
+    # Update the build doc with the errors count.
+    status = _update_build_doc(
+        build_doc,
+        job_id, len(err_lines), len(warn_lines), len(mism_lines), db_options)
+
+    if status != 200:
+        error_msg = (
+            "Error updating build errors count for %s-%s %s (%s)" %
+            (job, kernel, build_doc.defconfig, build_doc.arch))
+        utils.LOG.error(error_msg)
+        ERR_ADD(errors, status, err_msg)
 
     # Once done, save the summary.
     status = _save_summary(
