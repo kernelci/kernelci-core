@@ -51,3 +51,11 @@ In file included from ../drivers/dma/xilinx/xilinx_vdma.c:26:0:
 No valid symbol.
 No valid symbol.
 /home/buildslave/workspace/khilman-kbuilder/stable/arch/arm/kernel/return_address.c:63:2: warning: #warning "TODO: return_address should use unwind tables" [-Wcpp]
+:(.text+0x17003c): undefined reference to `qcom_smem_alloc'
+:(.text+0x1700d0): undefined reference to `qcom_smem_get'
+:(.text+0x170954): undefined reference to `qcom_smem_get'
+:(.text+0x171474): undefined reference to `qcom_smem_get'
+:(.text+0x17197c): undefined reference to `qcom_smem_alloc'
+:(.text+0x1719d8): undefined reference to `qcom_smem_get'
+:(.text+0x171a40): undefined reference to `qcom_smem_alloc'
+:(.text+0x171ab4): undefined reference to `qcom_smem_get'

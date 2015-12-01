@@ -42,7 +42,7 @@ import utils.errors
 
 ERROR_PATTERN_1 = re.compile("[Ee]rror:")
 ERROR_PATTERN_2 = re.compile("^ERROR")
-ERROR_PATTERN_3 = re.compile("undefined reference to")
+ERROR_PATTERN_3 = re.compile("undefined reference", re.IGNORECASE)
 WARNING_PATTERN = re.compile("warning:", re.IGNORECASE)
 MISMATCH_PATTERN = re.compile("Section mismatch", re.IGNORECASE)
 

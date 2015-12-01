@@ -117,7 +117,7 @@ class TestBuildLogParser(unittest.TestCase):
             self.assertIsInstance(m_l, types.ListType)
 
             self.assertEqual(0, len(errors.keys()))
-            self.assertEqual(9, len(e_l))
+            self.assertEqual(17, len(e_l))
             self.assertEqual(2, len(w_l))
             self.assertEqual(0, len(m_l))
         finally:
