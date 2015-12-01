@@ -62,6 +62,9 @@ class TestBuildModel(unittest.TestCase):
         build_doc.defconfig_full = "defconfig_full"
         build_doc.kernel_image_size = 1024
         build_doc.modules_size = 1024
+        build_doc.kernel_config_size = 1024
+        build_doc.system_map_size = 1024
+        build_doc.build_log_size = 1024
 
         expected = {
             "_id": "build_id",
@@ -99,7 +102,10 @@ class TestBuildModel(unittest.TestCase):
             "file_server_url": "server-url",
             "build_type": "foo",
             "kernel_image_size": 1024,
-            "modules_size": 1024
+            "modules_size": 1024,
+            "kernel_config_size": 1024,
+            "system_map_size": 1024,
+            "build_log_size": 1024
         }
 
         self.assertDictEqual(expected, build_doc.to_dict())
@@ -222,7 +228,10 @@ class TestBuildModel(unittest.TestCase):
         self.assertEqual(build_doc.warnings, 1)
         self.assertEqual(build_doc.build_time, 1)
         self.assertEqual(build_doc.build_type, "kernel")
-        self.assertEqual(build_doc.kernel_image_size, None)
-        self.assertEqual(build_doc.modules_size, None)
+        self.assertIsNone(build_doc.kernel_image_size)
+        self.assertIsNone(build_doc.modules_size)
+        self.assertIsNone(build_doc.build_log_size)
+        self.assertIsNone(build_doc.system_map_size)
+        self.assertIsNone(build_doc.kernel_config_size)
         self.assertListEqual(build_doc.build_platform, [])
         self.assertDictEqual(build_doc.metadata, {"foo": "bar"})
