@@ -159,3 +159,26 @@
         mode=0644
   tags:
       - web-server
+
+# This is a very loooong task.
+# Better doing it directly on the server first.
+# For the why: OpenSSL default Diffie-Helman Ephemeral key is only 1024 bits,
+# but we use a 4096 bits certificate. That means that who uses DHE algo will
+# get weaker keys than non-DH algo.
+- name: Create Diffie-Helman key-exchange cert
+  when: role == "production"
+  shell: openssl dhparam -out /etc/ssl/certs/dhparam.pem 4096
+         creates=/etc/ssl/certs/dhparam.pem
+  tags:
+      - web-server
+  notify:
+      - reload-nginx
+
+- name: Check perms on key-exchange cert
+  when: role == "production"
+  file: path=/etc/ssl/certs/dhparam.pem
+        owner=root
+        group=root
+        mode=0644
+  tags:
+      - web-server
