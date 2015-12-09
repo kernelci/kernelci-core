@@ -48,6 +48,14 @@
   tags:
     - firewall
 
+- name: Accept web secure connections
+  when: role == "production"
+  ufw:  rule=allow
+        port=443
+        proto=tcp
+  tags:
+    - firewall
+
 - name: Deny auth traffic and log it
   ufw:  rule=reject
         port=auth
