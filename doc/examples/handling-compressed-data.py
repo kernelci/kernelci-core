@@ -12,7 +12,7 @@ import requests
 from cStringIO import StringIO
 from urlparse import urljoin
 
-BACKEND_URL = "http://api.kernelci.org"
+BACKEND_URL = "https://api.kernelci.org"
 AUTHORIZATION_TOKEN = "foo"
 
 

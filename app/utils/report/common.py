@@ -43,9 +43,9 @@ JOB_SEARCH_FIELDS = [
     models.GIT_BRANCH_KEY
 ]
 
-DEFAULT_BASE_URL = u"http://kernelci.org"
-DEFAULT_BOOT_URL = u"http://kernelci.org/boot/all/job"
-DEFAULT_BUILD_URL = u"http://kernelci.org/build"
+DEFAULT_BASE_URL = u"https://kernelci.org"
+DEFAULT_BOOT_URL = u"https://kernelci.org/boot/all/job"
+DEFAULT_BUILD_URL = u"https://kernelci.org/build"
 DEFAULT_STORAGE_URL = u"http://storage.kernelci.org"
 
 # Default colors for error and warning links.
