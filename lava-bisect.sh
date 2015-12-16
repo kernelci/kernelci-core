@@ -12,8 +12,7 @@ if [ $? -ne 0 ]; then
 fi
 
 cd $WORKSPACE/local/lava-ci/
-defconfig_full=$(echo $2 | sed 's:linaro/configs/::g')
-python lava-kernel-ci-job-creator.py http://storage.kernelci.org/$TREE_NAME/$GIT_DESCRIBE/$ARCH-$defconfig_full/ --plans $3 --targets $4
+python lava-kernel-ci-job-creator.py http://storage.kernelci.org/$TREE_NAME/$GIT_DESCRIBE/$ARCH-$2/ --plans $3 --targets $4
 python lava-job-runner.py --username $5 --token $6 --server $7 --stream /anonymous/kernel-ci/ --poll kernel-ci.json --bisect
 if [ $? -ne 0 ]; then
 	echo "Boot failed, git bisect bad"
