@@ -14,6 +14,7 @@ base_url = None
 kernel = None
 platform_list = []
 legacy_platform_list = []
+directory = None
 
 bcm2835_rpi_b_plus = {'device_type': 'bcm2835-rpi-b-plus',
                       'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
@@ -806,17 +807,20 @@ device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
 
 parse_re = re.compile('href="([^./"?][^"?]*)"')
 
-def setup_job_dir(directory):
-    print 'Setting up JSON output directory at: jobs/'
-    if not os.path.exists(directory):
-        os.makedirs(directory)
+def setup_job_dir(arg):
+    global directory
+    print 'Setting up JSON output directory at: ' + str(arg)
+    if not os.path.exists(arg):
+        os.makedirs(arg)
     else:
-        shutil.rmtree(directory)
-        os.makedirs(directory)
+        shutil.rmtree(arg)
+        os.makedirs(arg)
+    directory = arg
     print 'Done setting up JSON output directory'
 
 
 def create_jobs(base_url, kernel, plans, platform_list, targets, priority):
+    global directory
     print 'Creating JSON Job Files...'
     cwd = os.getcwd()
     url = urlparse.urlparse(kernel)
@@ -877,7 +881,7 @@ def create_jobs(base_url, kernel, plans, platform_list, targets, priority):
                 else:
                     for template in device_templates:
                         job_name = tree + '-' + kernel_version + '-' + defconfig[:100] + '-' + platform_name + '-' + device_type + '-' + plan
-                        job_json = cwd + '/jobs/' + job_name + '.json'
+                        job_json = directory + '/' + job_name + '.json'
                         template_file = cwd + '/templates/' + plan + '/' + str(template)
                         if os.path.exists(template_file):
                             with open(job_json, 'wt') as fout:
@@ -1023,8 +1027,10 @@ def walk_url(url, plans=None, arch=None, targets=None, priority=None):
 
 def main(args):
     config = configuration.get_config(args)
-
-    setup_job_dir(os.getcwd() + '/jobs')
+    if config.get("jobs"):
+        setup_job_dir(config.get("jobs"))
+    else:
+        setup_job_dir(os.getcwd() + '/jobs')
     print 'Scanning %s for kernel information...' % config.get("url")
     walk_url(config.get("url"), config.get("plans"), config.get("arch"), config.get("targets"), config.get("priority"))
     print 'Done scanning for kernel information'
@@ -1034,6 +1040,7 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("url", help="url to build artifacts")
+    parser.add_argument("--jobs", help="absolute path to top jobs folder")
     parser.add_argument("--config", help="configuration for the LAVA server")
     parser.add_argument("--section", default="default", help="section in the LAVA config file")
     parser.add_argument("--plans", nargs='+', required=True, help="test plan to create jobs for")

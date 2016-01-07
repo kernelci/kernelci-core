@@ -36,7 +36,8 @@ class EnvConfigParser(object):
         self.trans = {
                 "username": "LAVA_USER",
                 "server": "LAVA_SERVER",
-                "token": "LAVA_TOKEN"
+                "token": "LAVA_TOKEN",
+                "jobs": "LAVA_JOBS"
                 }
 
 
