@@ -194,8 +194,7 @@ def submit_jobs(connection, server, bundle_stream=None):
             continue
 
 
-def load_jobs():
-    top = os.getcwd()
+def load_jobs(top):
     for root, dirnames, filenames in os.walk(top):
         for filename in fnmatch.filter(filenames, '*.json'):
             job_map[os.path.join(root, filename)] = None
@@ -257,7 +256,13 @@ def main(args):
     connection = utils.connect(url)
     if config.get("repo"):
         retrieve_jobs(config.get("repo"))
-    load_jobs()
+
+    if config.get("jobs"):
+        load_jobs(config.get("jobs"))
+        print "Loading jobs from top folder " + str(config.get("jobs"))
+    else:
+        load_jobs(os.getcwd())
+
     start_time = time.time()
 
     bundle_stream = None
@@ -287,6 +292,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", help="configuration for the LAVA server")
     parser.add_argument("--section", default="default", help="section in the LAVA config file")
+    parser.add_argument("--jobs", help="absolute path to top jobs folder (default scans the whole cwd)")
     parser.add_argument("--username", help="username for the LAVA server")
     parser.add_argument("--token", help="token for LAVA server api")
     parser.add_argument("--server", help="server url for LAVA server")
