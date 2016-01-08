@@ -7,7 +7,7 @@ S3_BUCKET_NAME="{{ bucket_name }}"
 S3_BUCKET_PATH="{{ bucket_backup_dir }}"
 
 echo "Dumping mongodb database..."
-$MONGODUMP_PATH -d kernel-ci --dumpDbUsersAndRoles -o /tmp/mongodump > /dev/null
+$MONGODUMP_PATH --quiet -d kernel-ci --dumpDbUsersAndRoles -o /tmp/mongodump > /dev/null
 
 echo "Creating compressed archive..."
 mv /tmp/mongodump /tmp/mongodump-$TIMESTAMP
