@@ -1,9 +1,18 @@
 ---
-#  sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
 
-- name: Add MongoDB apt key
+- name: Add MongoDB apt key (Ubuntu)
   apt_key:  id=7F0CEB10
-            url=http://docs.mongodb.org/10gen-gpg-key.asc
+            keyserver=hkp://keyserver.ubuntu.com
+  when: ansible_lsb.id == "Ubuntu"
+  tags:
+    - install
+    - mongodb
+    - deps
+
+- name: Add MongoDB apt key (Debian)
+  apt_key:  id=EA312927
+            keyserver=hkp://keyserver.ubuntu.com
+  when: ansible_lsb.id == "Debian"
   tags:
     - install
     - mongodb
@@ -20,7 +29,7 @@
     - deps
 
 - name: Add MongoDB repository (Debian)
-  apt_repository: repo='deb http://downloads-distro.mongodb.org/repo/debian-sysvinit dist 10gen'
+  apt_repository: repo='deb http://repo.mongodb.org/apt/debian wheezy/mongodb-org/3.2 main'
                   state=present
                   update_cache=yes
   when: ansible_lsb.id == "Debian"
@@ -30,8 +39,11 @@
     - deps
 
 - name: Install MongoDB
-  apt:  pkg=mongodb-org
+  apt:  pkg={{ item }}
         state=latest
+  with_items:
+    - mongodb-org
+    - libsnappy1
   tags:
     - install
     - mongodb
