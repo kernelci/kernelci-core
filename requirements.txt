@@ -5,13 +5,13 @@ hiredis
 jinja2
 mock>0.7.2
 mongomock==1.2.0
-netaddr==0.7.14
+netaddr==0.7.18
 pycares==0.6.3
 pymongo==2.8.1
 pytz
-redis==2.10.3
+redis
 scandir
-simplejson>=3.6.1
+simplejson
 sphinx-bootstrap-theme
 sphinxcontrib-httpdomain
 tornado==3.2.2
