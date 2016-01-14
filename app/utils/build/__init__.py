@@ -567,13 +567,14 @@ def import_multiple_builds(json_obj, db_options, base_path=utils.BASE_PATH):
     return job_id, errors
 
 
-def _get_or_create_job(job, kernel, db_options):
+def _get_or_create_job(job, kernel, database, db_options):
     """Get or create a job in the database.
 
     :param job: The name of the job.
     :type job: str
     :param kernel: The name of the kernel.
     :type kernel: str
+    :param database: The mongodb database connection.
     :param db_options: The database connection options.
     :type db_options: dict
     :return a 3-tuple: return value, job document and job ID.
@@ -582,7 +583,6 @@ def _get_or_create_job(job, kernel, db_options):
     job_doc = None
     job_id = None
 
-    database = utils.db.get_db_connection(db_options)
     redis_conn = redisdb.get_db_connection(db_options)
 
     # We might be importing build in parallel through multi-processes.
@@ -639,12 +639,11 @@ def import_single_build(json_obj, db_options, base_path=utils.BASE_PATH):
 
         if os.path.isdir(build_dir):
             try:
-                database = None
                 ret_val = 201
+                database = utils.db.get_db_connection(db_options)
 
                 ret_val, job_doc, job_id = _get_or_create_job(
-                    job, kernel, db_options)
-                database = utils.db.get_db_connection(db_options)
+                    job, kernel, database, db_options)
 
                 if all([ret_val != 201, job_id is None]):
                     err_msg = (
@@ -660,7 +659,6 @@ def import_single_build(json_obj, db_options, base_path=utils.BASE_PATH):
                         err_msg % (job, kernel, job, kernel, arch, defconfig)
                     )
 
-                database = utils.db.get_db_connection(db_options)
                 build_doc = _traverse_build_dir(
                     build_dir,
                     kernel_dir,
