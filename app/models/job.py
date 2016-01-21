@@ -40,7 +40,9 @@ class JobDocument(modb.BaseDocument):
         self.git_branch = None
         self.git_commit = None
         self.git_describe = None
+        self.git_describe_v = None
         self.git_url = None
+        self.kernel_version = None
         self.private = False
         self.status = None
 
@@ -177,9 +179,11 @@ class JobDocument(modb.BaseDocument):
             models.GIT_BRANCH_KEY: self.git_branch,
             models.GIT_COMMIT_KEY: self.git_commit,
             models.GIT_DESCRIBE_KEY: self.git_describe,
+            models.GIT_DESCRIBE_V_KEY: self.git_describe_v,
             models.GIT_URL_KEY: self.git_url,
             models.JOB_KEY: self.job,
             models.KERNEL_KEY: self.kernel,
+            models.KERNEL_VERSION_KEY: self.kernel_version,
             models.PRIVATE_KEY: self.private,
             models.STATUS_KEY: self.status,
             models.VERSION_KEY: self.version,
