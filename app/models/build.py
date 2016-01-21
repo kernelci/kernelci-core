@@ -63,6 +63,7 @@ class BuildDocument(mbase.BaseDocument):
         self.git_branch = None
         self.git_commit = None
         self.git_describe = None
+        self.git_describe_v = None
         self.git_url = None
         self.job_id = None
         self.kconfig_fragments = None
@@ -70,9 +71,10 @@ class BuildDocument(mbase.BaseDocument):
         self.kernel_config_size = None
         self.kernel_image = None
         self.kernel_image_size = None
+        self.kernel_version = None
         self.modules = None
-        self.modules_size = None
         self.modules_dir = None
+        self.modules_size = None
         self.system_map = None
         self.system_map_size = None
         self.text_offset = None
@@ -219,6 +221,7 @@ class BuildDocument(mbase.BaseDocument):
             models.GIT_BRANCH_KEY: self.git_branch,
             models.GIT_COMMIT_KEY: self.git_commit,
             models.GIT_DESCRIBE_KEY: self.git_describe,
+            models.GIT_DESCRIBE_V_KEY: self.git_describe_v,
             models.GIT_URL_KEY: self.git_url,
             models.JOB_ID_KEY: self.job_id,
             models.JOB_KEY: self.job,
@@ -228,6 +231,7 @@ class BuildDocument(mbase.BaseDocument):
             models.KERNEL_IMAGE_KEY: self.kernel_image,
             models.KERNEL_IMAGE_SIZE_KEY: self.kernel_image_size,
             models.KERNEL_KEY: self.kernel,
+            models.KERNEL_VERSION_KEY: self.kernel_version,
             models.METADATA_KEY: self.metadata,
             models.MODULES_DIR_KEY: self.modules_dir,
             models.MODULES_KEY: self.modules,

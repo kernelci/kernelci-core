@@ -45,6 +45,7 @@ class TestBuildModel(unittest.TestCase):
         build_doc.git_commit = "git_commit"
         build_doc.git_branch = "git_branch"
         build_doc.git_describe = "git_describe"
+        build_doc.git_describe_v = "git_describe_v"
         build_doc.version = "1.0"
         build_doc.modules = "modules-file"
         build_doc.dtb_dir = "dtb-dir"
@@ -65,6 +66,7 @@ class TestBuildModel(unittest.TestCase):
         build_doc.kernel_config_size = 1024
         build_doc.system_map_size = 1024
         build_doc.build_log_size = 1024
+        build_doc.kernel_version = "kernel_version"
 
         expected = {
             "_id": "build_id",
@@ -105,7 +107,9 @@ class TestBuildModel(unittest.TestCase):
             "modules_size": 1024,
             "kernel_config_size": 1024,
             "system_map_size": 1024,
-            "build_log_size": 1024
+            "build_log_size": 1024,
+            "kernel_version": "kernel_version",
+            "git_describe_v": "git_describe_v"
         }
 
         self.assertDictEqual(expected, build_doc.to_dict())
