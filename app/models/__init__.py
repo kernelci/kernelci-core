@@ -91,6 +91,7 @@ FILE_SERVER_URL_KEY = "file_server_url"
 GIT_BRANCH_KEY = "git_branch"
 GIT_COMMIT_KEY = "git_commit"
 GIT_DESCRIBE_KEY = "git_describe"
+GIT_DESCRIBE_V_KEY = "git_describe_v"
 GIT_URL_KEY = "git_url"
 GTE_KEY = "gte"
 ID_KEY = "_id"
@@ -105,6 +106,7 @@ KERNEL_CONFIG_SIZE_KEY = "kernel_config_size"
 KERNEL_IMAGE_KEY = "kernel_image"
 KERNEL_IMAGE_SIZE_KEY = "kernel_image_size"
 KERNEL_KEY = "kernel"
+KERNEL_VERSION_KEY = "kernel_version"
 KVM_GUEST_KEY = "kvm_guest"
 LAB_ID_KEY = "lab_id"
 LAB_NAME_KEY = "lab_name"
@@ -498,6 +500,7 @@ BUILD_VALID_KEYS = {
         KERNEL_IMAGE_KEY,
         KERNEL_IMAGE_SIZE_KEY,
         KERNEL_KEY,
+        KERNEL_VERSION_KEY,
         MODULES_DIR_KEY,
         MODULES_KEY,
         MODULES_SIZE_KEY,
@@ -520,6 +523,7 @@ BUILD_VALID_KEYS = {
             DEFCONFIG_KEY,
             JOB_KEY,
             KERNEL_KEY,
+            KERNEL_VERSION_KEY,
             VERSION_KEY
         ]
     }
@@ -582,6 +586,7 @@ JOB_VALID_KEYS = {
         ACCEPTED_KEYS: [
             JOB_KEY,
             KERNEL_KEY,
+            KERNEL_VERSION_KEY,
             STATUS_KEY
         ]
     },
@@ -593,6 +598,7 @@ JOB_VALID_KEYS = {
         ID_KEY,
         JOB_KEY,
         KERNEL_KEY,
+        KERNEL_VERSION_KEY,
         PRIVATE_KEY,
         STATUS_KEY
     ],
