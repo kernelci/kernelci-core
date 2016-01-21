@@ -154,6 +154,35 @@ def _search_prev_build_doc(build_doc, database):
     return doc_id, c_date
 
 
+def _extract_kernel_version(git_describe_v, git_describe):
+    """Extract the actual kernel version number.
+
+    For now, it simply splits the git_describe version and pick the first
+    value
+
+    :param git_describe_v: The value of the git_describe_v key.
+    :type git_describe_v: str
+    :param git_describe: The value of the git_describe key.
+    :type git_describe: str
+    :return The extracted kernel version.
+    """
+    to_extract = git_describe_v
+    kernel_version = None
+
+    if not to_extract:
+        to_extract = git_describe
+
+    if to_extract:
+        if to_extract[0] == "v":
+            to_extract = to_extract[1:]
+
+        # TODO: add patches count extraction as well.
+        # Need to consider different cases of git_describe_v though.
+        kernel_version = to_extract.split("-")[0]
+
+    return kernel_version
+
+
 # pylint: disable=too-many-locals
 # pylint: disable=too-many-statements
 def parse_build_data(build_data, job, kernel, errors, build_dir=None):
@@ -230,6 +259,10 @@ def parse_build_data(build_data, job, kernel, errors, build_dir=None):
             build_doc.kernel_image_size = data_pop(
                 models.KERNEL_IMAGE_SIZE_KEY, None)
             build_doc.modules_size = data_pop(models.MODULES_SIZE_KEY, None)
+            build_doc.git_describe_v = data_pop(
+                models.GIT_DESCRIBE_V_KEY, None)
+            build_doc.kernel_version = _extract_kernel_version(
+                build_doc.git_describe_v, build_doc.git_describe)
             build_doc.metadata = build_data
         except KeyError, ex:
             err_msg = (
@@ -412,7 +445,8 @@ def _update_job_doc(job_doc, job_id, status, docs, database):
     if all([docs,
             not job_doc.git_url,
             not job_doc.git_commit,
-            not job_doc.git_branch, not job_doc.git_describe]):
+            not job_doc.git_branch,
+            not job_doc.git_describe, not job_doc.git_describe_v]):
         # Kind of a hack:
         # We want to store some metadata at the job document level as well,
         # like git tree, git commit...
@@ -424,12 +458,13 @@ def _update_job_doc(job_doc, job_id, status, docs, database):
         while idx < docs_len:
             d_doc = docs[idx]
             if isinstance(d_doc, mbuild.BuildDocument):
-                if all([
-                        d_doc.job == job_doc.job,
+                if all([d_doc.job == job_doc.job,
                         d_doc.kernel == job_doc.kernel]):
                     job_doc.git_branch = d_doc.git_branch
                     job_doc.git_commit = d_doc.git_commit
                     job_doc.git_describe = d_doc.git_describe
+                    job_doc.git_describe_v = d_doc.git_describe_v
+                    job_doc.kernel_version = d_doc.kernel_version
                     job_doc.git_url = d_doc.git_url
                     to_update = True
                     break

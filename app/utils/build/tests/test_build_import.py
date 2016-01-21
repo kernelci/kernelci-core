@@ -305,6 +305,7 @@ class TestBuildUtils(unittest.TestCase):
             "git_branch": "test/branch",
             "git_commit": "1234567890",
             "git_describe": "vfoo.bar",
+            "git_describe_v": "vfoo.bar.2",
             "git_url": "git://git.example.org",
             "kconfig_fragments": "fragment",
             "kernel_config": "kernel.config",
@@ -338,6 +339,7 @@ class TestBuildUtils(unittest.TestCase):
         self.assertEqual(build_doc.build_type, "kernel")
         self.assertEqual(build_doc.modules_size, 1024)
         self.assertEqual(build_doc.kernel_image_size, 2048)
+        self.assertEqual(build_doc.git_describe_v, "vfoo.bar.2")
 
     def test_parse_dtb_dir_single_file(self):
         temp_dir = tempfile.mkdtemp()
@@ -612,3 +614,27 @@ class TestBuildUtils(unittest.TestCase):
         self.assertIsNotNone(job_id)
         self.assertEqual("build_id", build_id)
         self.assertEqual("job_id", job_id)
+
+    def test_extract_kernel_version_no_values(self):
+        extracted = utils.build._extract_kernel_version(None, None)
+        self.assertIsNone(extracted)
+
+    def test_extract_kernel_version(self):
+        extracted = utils.build._extract_kernel_version(
+            "v4.1.4-40-g123456", None)
+        self.assertEqual("4.1.4", extracted)
+
+    def test_extract_kernel_version_no_v(self):
+        extracted = utils.build._extract_kernel_version(
+            "4.1.4-40-g123456", None)
+        self.assertEqual("4.1.4", extracted)
+
+    def test_extract_kernel_version_no_patches(self):
+        extracted = utils.build._extract_kernel_version(
+            "v4.1.4", None)
+        self.assertEqual("4.1.4", extracted)
+
+    def test_extract_kernel_version_no_git_describe_v(self):
+        extracted = utils.build._extract_kernel_version(
+            None, "4.4.4")
+        self.assertEqual("4.4.4", extracted)
