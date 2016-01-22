@@ -638,3 +638,13 @@ class TestBuildUtils(unittest.TestCase):
         extracted = utils.build._extract_kernel_version(
             None, "4.4.4")
         self.assertEqual("4.4.4", extracted)
+
+    def test_extract_kernel_version_rc_kernel_no_number(self):
+        extracted = utils.build._extract_kernel_version(
+            "4.4.4-rc-1234-g12345", None)
+        self.assertEqual("4.4.4-rc", extracted)
+
+    def test_extract_kernel_version_rc_kernel_with_number(self):
+        extracted = utils.build._extract_kernel_version(
+            "4.1-rc12-1234-g12345", None)
+        self.assertEqual("4.1-rc12", extracted)

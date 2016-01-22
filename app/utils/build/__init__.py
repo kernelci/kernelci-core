@@ -29,6 +29,7 @@ import glob
 import io
 import os
 import pymongo.errors
+import re
 import redis
 import types
 
@@ -53,6 +54,16 @@ SIZE_KEYS = [
     (models.MODULES_KEY, models.MODULES_SIZE_KEY),
     (models.SYSTEM_MAP_KEY, models.SYSTEM_MAP_SIZE_KEY)
 ]
+
+# Regex to extract the kernel version.
+# Should match strings that begins as:
+# 4.1-1234-g12345
+# 4.1.14-rc8-1234-g12345
+# The 'rc*' pattern is part of the kernel version.
+# TODO: add patches count extraction as well.
+KERNEL_VERSION_MATCH = re.compile(r"^(?P<version>\d+\.{1}\d+(?:\.{1}\d+)?)")
+KERNEL_RC_VERSION_MATCH = re.compile(
+    r"^(?P<version>\d+\.{1}\d+(?:\.{1}\d+)?-{1}rc\d*)")
 
 
 def parse_build_artifacts(build_doc, build_dir):
@@ -176,9 +187,14 @@ def _extract_kernel_version(git_describe_v, git_describe):
         if to_extract[0] == "v":
             to_extract = to_extract[1:]
 
-        # TODO: add patches count extraction as well.
-        # Need to consider different cases of git_describe_v though.
-        kernel_version = to_extract.split("-")[0]
+        if "rc" in to_extract:
+            matcher = KERNEL_RC_VERSION_MATCH
+        else:
+            matcher = KERNEL_VERSION_MATCH
+
+        matched = matcher.match(to_extract)
+        if matched:
+            kernel_version = matched.group("version")
 
     return kernel_version
 
