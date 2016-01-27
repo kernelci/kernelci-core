@@ -21,7 +21,7 @@
                 "dtb": "{dtb_url}",
                 "kernel": "{kernel_url}",
                 "overlays": ["{modules_url}"],
-                "nfsrootfs": "http://releases.linaro.org/15.06/openembedded/images/lng-armv7a/linaro-image-lng-genericarmv7a-20150618-335.rootfs.tar.gz"
+                "ramdisk": "http://storage.kernelci.org/images/rootfs/buildroot/armel/tests/rootfs.cpio.gz"
             }
         },
         {
