@@ -25,18 +25,29 @@
             }
         },
         {
-            "command": "lava_test_shell",
+            "command": "boot_linaro_image",
             "parameters": {
-                "testdef_repos": [
-                    {
-                        "git-repo": "git://git.linaro.org/qa/test-definitions.git",
-                        "parameters": {
-                            "RTIME": "1800"
-                        },
-                        "testdef": "openembedded/hackbench.yaml"
-                    }
+                "test_image_prompt": "sh-4.3#"
+            }
+        },
+        {
+            "command": "lava_command_run",
+            "parameters": {
+                "commands": [
+                    "export LAVA_TESTDIR=/usr/share/linaro-testsuites",
+                    "cd ${LAVA_TESTDIR}",
+                    "./common/scripts/lmbench.sh 2>&1| tee lmbench.log",
+                    "./common/scripts/parse_lmbench.sh lmbench.log ms result_lmbench.log",
+                    "cat result_lmbench.log",
+                    "lava-test-run-attach result_lmbench.log text/plain"
                 ],
-                "timeout": 1810
+                "fixupdict": [
+                    "PASS:pass",
+                    "FAIL:fail",
+                    "SKIP:skip"
+                ],
+                "parser": "^(?P<test_case_id>[^:]+):\\s*(?P<measurement>[0-9.]+)\\s+(?P<units>\\w+)\\s+(?P<result>\\w+)",
+                "timeout": 1800
             }
         },
         {
