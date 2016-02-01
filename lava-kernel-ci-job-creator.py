@@ -531,18 +531,6 @@ qemu_arm_cortex_a15_legacy = {'device_type': 'qemu-arm-cortex-a15',
                               'lpae': True,
                               'fastboot': False}
 
-qemu_arm = {'device_type': 'qemu-arm',
-            'templates': ['generic-arm-kernel-ci-boot-template.json',
-                          'generic-arm-dtb-kernel-ci-kselftest-template.json'],
-            'defconfig_blacklist': ['arm-allmodconfig'],
-            'kernel_blacklist': ['v3.10',
-                                 'lsk-v3.10',
-                                 'v3.12',
-                                 'lsk-v3.12'],
-            'nfs_blacklist': [],
-            'lpae': False,
-            'fastboot': False}
-
 qemu_aarch64 = {'device_type': 'qemu-aarch64',
                 'templates': ['generic-arm64-kernel-ci-boot-template.json',
                               'generic-arm64-kernel-ci-kselftest-template.json'],
@@ -794,7 +782,6 @@ device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'vexpress-v2p-ca15_a7.dtb': [qemu_arm_cortex_a15_a7],
               'vexpress-v2p-ca9.dtb': [qemu_arm_cortex_a9],
               'vexpress-v2p-ca9-legacy': [qemu_arm_cortex_a9_legacy],
-              'qemu-arm-legacy': [qemu_arm],
               'qemu-aarch64-legacy': [qemu_aarch64],
               'apq8016-sbc.dtb': [apq8016_sbc],
               'apm-mustang.dtb': [apm_mustang, apm_mustang_kvm],
@@ -968,9 +955,6 @@ def walk_url(url, plans=None, arch=None, targets=None, priority=None):
             if 'zImage' in name and 'arm' in url:
                 kernel = url + name
                 base_url = url
-                # qemu-arm,legacy
-                if 'arm-versatile_defconfig' in url:
-                    legacy_platform_list.append(url + 'qemu-arm-legacy')
             if 'Image' in name and 'arm64' in url:
                 kernel = url + name
                 base_url = url
@@ -990,9 +974,6 @@ def walk_url(url, plans=None, arch=None, targets=None, priority=None):
             if 'zImage' in name and 'arm' in url:
                 kernel = url + name
                 base_url = url
-                # qemu-arm,legacy
-                if 'arm-versatile_defconfig' in url:
-                    legacy_platform_list.append(url + 'qemu-arm-legacy')
             if name.endswith('.dtb') and name in device_map:
                 if base_url and base_url in url:
                     legacy_platform_list.append(url + name)
