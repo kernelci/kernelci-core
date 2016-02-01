@@ -25,14 +25,26 @@
             }
         },
         {
-            "command": "lava_test_shell",
+            "command": "boot_linaro_image",
             "parameters": {
-                "testdef_repos": [
-                    {
-                        "git-repo": "git://git.linaro.org/qa/test-definitions.git",
-                        "testdef": "openembedded/ltp-realtime.yaml"
-                    }
+                "test_image_prompt": "sh-4.3#"
+            }
+        },
+        {
+            "command": "lava_command_run",
+            "parameters": {
+                "commands": [
+                    "export LAVA_TESTDIR=/usr/share/linaro-testsuites",
+                    "export LTP_REALTIME_TESTS_TO_RUN='async_handler gtod_latency hrtimer-prio matrix_mult measurement periodic_cpu_load pi_perf prio-preempt prio-wake pthread_kill_latency rt-migrate sched_football sched_jitter sched_latency thread_clock'",
+                    "cd /usr",
+                    "for TEST_TO_RUN in ${LTP_REALTIME_TESTS_TO_RUN} ; do ./testscripts/test_realtime.sh -t func/$TEST_TO_RUN | ${LAVA_TESTDIR}/common/scripts/ltp-realtime2LAVA.py; done"
                 ],
+                "fixupdict": [
+                    "PASS:pass",
+                    "FAIL:fail",
+                    "SKIP:skip"
+                ],
+                "parser": "^test_case_id:(?P<test_case_id>.+)\\s+measurement:(?P<measurement>[\\d\\.]+)\\s+units:(?P<units>\\w+)\\s+result:(?P<result>\\w+)",
                 "timeout": 1800
             }
         },
