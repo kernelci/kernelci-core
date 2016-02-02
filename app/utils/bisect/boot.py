@@ -44,50 +44,6 @@ BOOT_SEARCH_FIELDS = [
 BOOT_SORT = [(models.CREATED_KEY, pymongo.DESCENDING)]
 
 
-def execute_boot_bisection(doc_id, db_options, fields=None):
-    """Perform a bisect-like on the provided boot report.
-
-    It searches all the previous boot reports starting from the provided one
-    until it finds one whose boot passed. After that, it looks for all the
-    build reports and combines the value into a single data structure.
-
-    :param doc_id: The boot document ID.
-    :type doc_id: str
-    :param db_options: The mongodb database connection parameters.
-    :type db_options: dict
-    :param fields: A `fields` data structure with the fields to return or
-    exclude. Default to None.
-    :type fields: list or dict
-    :return A numeric value for the result status and a list dictionaries.
-    """
-    database = utils.db.get_db_connection(db_options)
-    result = []
-    code = 200
-
-    obj_id = bson.objectid.ObjectId(doc_id)
-    start_doc = utils.db.find_one2(
-        database[models.BOOT_COLLECTION], obj_id, fields=BOOT_SEARCH_FIELDS)
-
-    if all([start_doc, isinstance(start_doc, types.DictionaryType)]):
-        start_doc_get = start_doc.get
-
-        if start_doc_get(models.STATUS_KEY) == models.PASS_STATUS:
-            code = 400
-            result = None
-        else:
-            bisect_doc = _find_boot_bisect_data(
-                obj_id, start_doc, database, db_options)
-            bcommon.save_bisect_doc(database, bisect_doc, doc_id)
-
-            bisect_doc = bcommon.update_doc_fields(bisect_doc, fields)
-            result = [bisect_doc]
-    else:
-        code = 404
-        result = None
-
-    return code, result
-
-
 # pylint: disable=too-many-locals
 def _find_boot_bisect_data(obj_id, start_doc, database, db_options):
     """Execute the real bisect logic.
@@ -186,6 +142,50 @@ def _find_boot_bisect_data(obj_id, start_doc, database, db_options):
     # Store everything in the bisect_data list of the bisect_doc.
     bisect_doc.bisect_data = all_valid_docs
     return bisect_doc
+
+
+def execute_boot_bisection(doc_id, db_options, fields=None):
+    """Perform a bisect-like on the provided boot report.
+
+    It searches all the previous boot reports starting from the provided one
+    until it finds one whose boot passed. After that, it looks for all the
+    build reports and combines the value into a single data structure.
+
+    :param doc_id: The boot document ID.
+    :type doc_id: str
+    :param db_options: The mongodb database connection parameters.
+    :type db_options: dict
+    :param fields: A `fields` data structure with the fields to return or
+    exclude. Default to None.
+    :type fields: list or dict
+    :return A numeric value for the result status and a list dictionaries.
+    """
+    database = utils.db.get_db_connection(db_options)
+    result = []
+    code = 200
+
+    obj_id = bson.objectid.ObjectId(doc_id)
+    start_doc = utils.db.find_one2(
+        database[models.BOOT_COLLECTION], obj_id, fields=BOOT_SEARCH_FIELDS)
+
+    if all([start_doc, isinstance(start_doc, types.DictionaryType)]):
+        start_doc_get = start_doc.get
+
+        if start_doc_get(models.STATUS_KEY) == models.PASS_STATUS:
+            code = 400
+            result = None
+        else:
+            bisect_doc = _find_boot_bisect_data(
+                obj_id, start_doc, database, db_options)
+            bcommon.save_bisect_doc(database, bisect_doc, doc_id)
+
+            bisect_doc = bcommon.update_doc_fields(bisect_doc, fields)
+            result = [bisect_doc]
+    else:
+        code = 404
+        result = None
+
+    return code, result
 
 
 # pylint: disable=invalid-name
