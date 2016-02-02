@@ -261,12 +261,14 @@ def _check_for_null(get_func):
 
     :raise BootImportError in case of errors.
     """
+    err_msg = "Invalid value found for mandatory key '%s': %s"
+
     for key in NON_NULL_KEYS:
-        val = get_func(key)
-        if any([val is None, val == "null", val == "None", val == "none"]):
-            raise BootImportError(
-                "Invalid value for mandatory key '%s', got: %s" %
-                (key, str(val)))
+        t_val = str(get_func(key, ""))
+
+        val = t_val.lower()
+        if any([not val, val == "null", val == "none"]):
+            raise BootImportError(err_msg.format(key, t_val))
 
 
 def _update_boot_doc_ids(boot_doc, database):
@@ -370,18 +372,23 @@ def _parse_boot_from_json(boot_json, database, errors):
             arch = json_pop_f(
                 models.ARCHITECTURE_KEY, models.ARM_ARCHITECTURE_KEY)
 
-            boot_doc = mboot.BootDocument(
-                board, job, kernel, defconfig, lab_name, defconfig_full, arch)
-            boot_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
-            _update_boot_doc_from_json(boot_doc, json_pop_f, errors)
-            _update_boot_doc_ids(boot_doc, database)
+            if arch in models.VALID_ARCHITECTURES:
+                boot_doc = mboot.BootDocument(
+                    board,
+                    job, kernel, defconfig, lab_name, defconfig_full, arch)
+                boot_doc.created_on = datetime.datetime.now(
+                    tz=bson.tz_util.utc)
+                _update_boot_doc_from_json(boot_doc, json_pop_f, errors)
+                _update_boot_doc_ids(boot_doc, database)
+            else:
+                raise BootImportError(
+                    "Invalid architecture found: %s".format(arch))
         except KeyError, ex:
             err_msg = "Missing mandatory key in boot data"
             utils.LOG.exception(ex)
             utils.LOG.error(err_msg)
             ERR_ADD(errors, 400, err_msg)
         except BootImportError, ex:
-            utils.LOG.error("Boot JSON object is not valid")
             utils.LOG.exception(ex)
             ERR_ADD(errors, 400, str(ex))
 

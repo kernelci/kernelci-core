@@ -86,45 +86,97 @@ class TestParseBoot(unittest.TestCase):
         self.assertEqual(doc.uimage, "uimage")
         self.assertIsInstance(doc.metadata, types.DictionaryType)
 
+    def test_parse_from_json_default_arch(self):
+        errors = {}
+        self.boot_report.pop("arch")
+
+        doc = bimport._parse_boot_from_json(self.boot_report, self.db, errors)
+
+        self.assertIsInstance(doc, mboot.BootDocument)
+        self.assertEqual(doc.arch, "arm")
+
+    def test_parse_from_json_wrong_arch(self):
+        errors = {}
+        self.boot_report["arch"] = ""
+
+        doc = bimport._parse_boot_from_json(self.boot_report, self.db, errors)
+
+        self.assertIsNone(doc)
+        self.assertListEqual([400], errors.keys())
+
     def test_check_for_null_with_none(self):
+        boot_report = {
+            "job": None,
+            "board": None,
+            "kernel": None,
+            "defconfig": None,
+            "lab_name": None
+        }
+
+        self.assertRaises(
+            bimport.BootImportError, bimport._check_for_null, boot_report.get)
+
+    def test_check_for_null_with_null_from_string(self):
         boot_report = (
-            '{"job": null, "board": "board", '
-            '"kernel": "kernel", "defconfig": "defconfig", "lab_name": "lab"}'
+            '{"job": "Null", "board": "Null", '
+            '"kernel": "Null", "defconfig": "Null", "lab_name": "Null"}'
         )
 
         self.assertRaises(
             bimport.BootImportError,
             bimport._check_for_null, json.loads(boot_report).get)
 
-    def test_check_for_null_with_null(self):
+    def test_check_for_null_with_null_from_string_lower(self):
         boot_report = (
-            '{"job": "job", "board": "null", '
-            '"kernel": "kernel", "defconfig": "defconfig", "lab_name": "lab"}'
+            '{"job": "null", "board": "null", '
+            '"kernel": "null", "defconfig": "null", "lab_name": "null"}'
         )
 
         self.assertRaises(
             bimport.BootImportError,
             bimport._check_for_null, json.loads(boot_report).get)
 
-    def test_check_for_null_with_none_string(self):
+    def test_check_for_null_with_none_from_string(self):
         boot_report = (
-            '{"job": "job", "board": "board", '
-            '"kernel": "None", "defconfig": "defconfig", "lab_name": "lab"}'
+            '{"job": "None", "board": "None", '
+            '"kernel": "None", "defconfig": "None", "lab_name": "None"}'
         )
 
         self.assertRaises(
             bimport.BootImportError,
             bimport._check_for_null, json.loads(boot_report).get)
 
-    def test_check_for_null_with_none_string_lower(self):
+    def test_check_for_null_with_none_from_string_lower(self):
         boot_report = (
-            '{"job": "job", "board": "board", '
-            '"kernel": "kernel", "defconfig": "none", "lab_name": "lab"}'
+            '{"job": "none", "board": "none", '
+            '"kernel": "none", "defconfig": "none", "lab_name": "none"}'
         )
 
         self.assertRaises(
             bimport.BootImportError,
             bimport._check_for_null, json.loads(boot_report).get)
+
+    def test_check_for_null_with_empty_string_from_string(self):
+        boot_report = (
+            '{"job": "", "board": "", '
+            '"kernel": "", "defconfig": "", "lab_name": ""}'
+        )
+
+        self.assertRaises(
+            bimport.BootImportError,
+            bimport._check_for_null, json.loads(boot_report).get)
+
+    def test_check_for_null_with_empty_string(self):
+        boot_report = {
+            "job": "",
+            "board": "",
+            "kernel": "",
+            "defconfig": "",
+            "lab_name": ""
+        }
+
+        self.assertRaises(
+            bimport.BootImportError, bimport._check_for_null, boot_report.get)
 
     def test_save_to_disk(self):
         errors = {}
@@ -179,7 +231,7 @@ class TestParseBoot(unittest.TestCase):
 
             bimport.save_to_disk(boot_doc, json_obj, base_path, errors)
             self.assertTrue(os.path.exists(expected_file))
-            self.assertDictEqual({}, errors,)
+            self.assertDictEqual({}, errors)
         finally:
             shutil.rmtree(base_path)
 
