@@ -32,6 +32,7 @@ BOOT_SEARCH_FIELDS = [
     models.DEFCONFIG_FULL_KEY,
     models.BUILD_ID_KEY,
     models.DEFCONFIG_KEY,
+    models.GIT_BRANCH_KEY,
     models.ID_KEY,
     models.JOB_ID_KEY,
     models.JOB_KEY,
@@ -133,7 +134,8 @@ def _find_boot_bisect_data(obj_id, start_doc, database, db_options):
         models.DEFCONFIG_FULL_KEY: defconfig_full,
         models.JOB_KEY: start_doc_get(models.JOB_KEY),
         models.ARCHITECTURE_KEY: arch,
-        models.CREATED_KEY: {"$lt": created_on}
+        models.CREATED_KEY: {"$lt": created_on},
+        models.GIT_BRANCH_KEY: start_doc_get(models.GIT_BRANCH_KEY)
     }
 
     # The function to apply to each boot document to find its build
