@@ -65,6 +65,15 @@ KERNEL_VERSION_MATCH = re.compile(r"^(?P<version>\d+\.{1}\d+(?:\.{1}\d+)?)")
 KERNEL_RC_VERSION_MATCH = re.compile(
     r"^(?P<version>\d+\.{1}\d+(?:\.{1}\d+)?-{1}rc\d*)")
 
+# Regex to extract compiler information from the compiler string.
+# Example strings are:
+# gcc version 4.7.3 (Ubuntu/Linaro 4.7.3-12ubuntu1)
+# Apple LLVM version 7.0.2 (clang-700.1.81)
+COMPILER_MATCH = re.compile(
+    r"^(?P<compiler>[\w\s?]+)\s{1}version\s{1}"
+    r"(?P<compiler_version>\d+\.{1}\d+(?:\.{1}\d+)?)"
+)
+
 
 def parse_build_artifacts(build_doc, build_dir):
     """Update a build document with the artifacts size.
@@ -163,6 +172,30 @@ def _search_prev_build_doc(build_doc, database):
                     "use!")
 
     return doc_id, c_date
+
+
+def _extract_compiler_data(compiler_version_full):
+    """Extract the compiler name and version from a compiler string.
+
+    :param compiler_version_full: The full compiler string, its description.
+    :type compiler_version_full: str
+    :return A 3-tuple: compiler, compiler_version, compiler_version_full.
+    """
+    compiler = None
+    compiler_version = None
+
+    if compiler_version_full:
+        compiler_version_full = compiler_version_full.strip()
+
+        matched = COMPILER_MATCH.match(compiler_version_full)
+        if matched:
+            compiler = matched.group("compiler")
+            compiler_version = matched.group("compiler_version")
+    else:
+        # Force it at None, in case we get an empty string.
+        compiler_version_full = None
+
+    return (compiler, compiler_version, compiler_version_full)
 
 
 def _extract_kernel_version(git_describe_v, git_describe):
@@ -279,6 +312,16 @@ def parse_build_data(build_data, job, kernel, errors, build_dir=None):
                 models.GIT_DESCRIBE_V_KEY, None)
             build_doc.kernel_version = _extract_kernel_version(
                 build_doc.git_describe_v, build_doc.git_describe)
+
+            compiler_version_full = (
+                data_pop(models.COMPILER_VERSION_FULL_KEY, None) or
+                data_pop(models.COMPILER_VERSION_KEY, None))
+
+            compiler_data = _extract_compiler_data(compiler_version_full)
+            build_doc.compiler = compiler_data[0]
+            build_doc.compiler_version = compiler_data[1]
+            build_doc.compiler_version_full = compiler_data[2]
+
             build_doc.metadata = build_data
         except KeyError, ex:
             err_msg = (

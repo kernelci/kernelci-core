@@ -648,3 +648,15 @@ class TestBuildUtils(unittest.TestCase):
         extracted = utils.build._extract_kernel_version(
             "4.1-rc12-1234-g12345", None)
         self.assertEqual("4.1-rc12", extracted)
+
+    def test_extract_compiler_data_empty_string(self):
+        compiler_version_full = ""
+        extracted = utils.build._extract_compiler_data(compiler_version_full)
+
+        self.assertTupleEqual(extracted, (None, None, None))
+
+    def test_extract_compiler_data_none(self):
+        compiler_version_full = None
+        extracted = utils.build._extract_compiler_data(compiler_version_full)
+
+        self.assertTupleEqual(extracted, (None, None, None))
