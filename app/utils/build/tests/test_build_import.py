@@ -298,7 +298,7 @@ class TestBuildUtils(unittest.TestCase):
         build_data = {
             "arch": "arm",
             "build_log": "file.log",
-            "compiler_version": "gcc",
+            "compiler_version": "gcc version 4.7.3",
             "cross_compile": "foo",
             "defconfig": "defoo_confbar",
             "dtb_dir": "dtbs",
@@ -322,7 +322,9 @@ class TestBuildUtils(unittest.TestCase):
         self.assertIsInstance(build_doc.metadata, types.DictionaryType)
         self.assertIsInstance(build_doc.dtb_dir_data, types.ListType)
         self.assertNotEqual({}, build_doc.metadata)
-        self.assertEqual("gcc", build_doc.metadata["compiler_version"])
+        self.assertEqual("gcc", build_doc.compiler)
+        self.assertEqual("4.7.3", build_doc.compiler_version)
+        self.assertEqual("gcc version 4.7.3", build_doc.compiler_version_full)
         self.assertEqual("foo", build_doc.metadata["cross_compile"])
         self.assertEqual(build_doc.kconfig_fragments, "fragment")
         self.assertEqual(build_doc.arch, "arm")
@@ -660,3 +662,24 @@ class TestBuildUtils(unittest.TestCase):
         extracted = utils.build._extract_compiler_data(compiler_version_full)
 
         self.assertTupleEqual(extracted, (None, None, None))
+
+    def test_extract_compiler_data_no_compiler_data(self):
+        compiler_version_full = "foo"
+        extracted = utils.build._extract_compiler_data(compiler_version_full)
+
+        self.assertTupleEqual(extracted, (None, None, "foo"))
+
+    def test_extract_compiler_data_gcc_data(self):
+        compiler_version_full =\
+            "gcc version 4.7.3 (Ubuntu/Linaro 4.7.3-12ubuntu1)"
+        extracted = utils.build._extract_compiler_data(compiler_version_full)
+
+        self.assertTupleEqual(
+            extracted, ("gcc", "4.7.3", compiler_version_full))
+
+    def test_extract_compiler_data_llvm_data(self):
+        compiler_version_full = "Apple LLVM version 7.0.2 (clang-700.1.81)"
+        extracted = utils.build._extract_compiler_data(compiler_version_full)
+
+        self.assertTupleEqual(
+            extracted, ("Apple LLVM", "7.0.2", compiler_version_full))
