@@ -57,6 +57,7 @@ class BuildDocument(mbase.BaseDocument):
         self.compiler = None
         self.compiler_version = None
         self.compiler_version_full = None
+        self.cross_compile = None
         self.dirname = None
         self.dtb_dir = None
         self.dtb_dir_data = []
@@ -216,6 +217,7 @@ class BuildDocument(mbase.BaseDocument):
             models.COMPILER_VERSION_FULL_KEY: self.compiler_version_full,
             models.COMPILER_VERSION_KEY: self.compiler_version,
             models.CREATED_KEY: self.created_on,
+            models.CROSS_COMPILE_KEY: self.cross_compile,
             models.DEFCONFIG_FULL_KEY: self.defconfig_full,
             models.DEFCONFIG_KEY: self.defconfig,
             models.DIRNAME_KEY: self.dirname,

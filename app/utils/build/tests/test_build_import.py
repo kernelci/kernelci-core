@@ -299,7 +299,7 @@ class TestBuildUtils(unittest.TestCase):
             "arch": "arm",
             "build_log": "file.log",
             "compiler_version": "gcc version 4.7.3",
-            "cross_compile": "foo",
+            "cross_compile": "arm",
             "defconfig": "defoo_confbar",
             "dtb_dir": "dtbs",
             "git_branch": "test/branch",
@@ -321,11 +321,11 @@ class TestBuildUtils(unittest.TestCase):
         self.assertIsInstance(build_doc, mbuild.BuildDocument)
         self.assertIsInstance(build_doc.metadata, types.DictionaryType)
         self.assertIsInstance(build_doc.dtb_dir_data, types.ListType)
-        self.assertNotEqual({}, build_doc.metadata)
+        self.assertDictEqual({}, build_doc.metadata)
         self.assertEqual("gcc", build_doc.compiler)
         self.assertEqual("4.7.3", build_doc.compiler_version)
         self.assertEqual("gcc version 4.7.3", build_doc.compiler_version_full)
-        self.assertEqual("foo", build_doc.metadata["cross_compile"])
+        self.assertEqual("arm", build_doc.cross_compile)
         self.assertEqual(build_doc.kconfig_fragments, "fragment")
         self.assertEqual(build_doc.arch, "arm")
         self.assertEqual(build_doc.git_commit, "1234567890")

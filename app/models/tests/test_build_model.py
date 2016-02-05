@@ -70,6 +70,7 @@ class TestBuildModel(unittest.TestCase):
         build_doc.compiler = "gcc"
         build_doc.compiler_version = "4.7.8"
         build_doc.compiler_version_full = "gcc 4.7.8"
+        build_doc.cross_compile = "arm"
 
         expected = {
             "_id": "build_id",
@@ -115,7 +116,8 @@ class TestBuildModel(unittest.TestCase):
             "git_describe_v": "git_describe_v",
             "compiler": "gcc",
             "compiler_version": "4.7.8",
-            "compiler_version_full": "gcc 4.7.8"
+            "compiler_version_full": "gcc 4.7.8",
+            "cross_compile": "arm"
         }
 
         self.assertDictEqual(expected, build_doc.to_dict())
@@ -229,7 +231,8 @@ class TestBuildModel(unittest.TestCase):
             "build_type": "kernel",
             "compiler": "gcc",
             "compiler_version": "4.7.8",
-            "compiler_version_full": "gcc 4.7.8"
+            "compiler_version_full": "gcc 4.7.8",
+            "cross_compile": "arm"
         }
         build_doc = mbuild.BuildDocument.from_json(json_obj)
 
@@ -251,3 +254,4 @@ class TestBuildModel(unittest.TestCase):
         self.assertEqual(build_doc.compiler, "gcc")
         self.assertEqual(build_doc.compiler_version, "4.7.8")
         self.assertEqual(build_doc.compiler_version_full, "gcc 4.7.8")
+        self.assertEqual(build_doc.cross_compile, "arm")

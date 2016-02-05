@@ -308,6 +308,8 @@ def parse_build_data(build_data, job, kernel, errors, build_dir=None):
             build_doc.kernel_image_size = data_pop(
                 models.KERNEL_IMAGE_SIZE_KEY, None)
             build_doc.modules_size = data_pop(models.MODULES_SIZE_KEY, None)
+            build_doc.cross_compile = data_pop(models.CROSS_COMPILE_KEY, None)
+
             build_doc.git_describe_v = data_pop(
                 models.GIT_DESCRIBE_V_KEY, None)
             build_doc.kernel_version = _extract_kernel_version(
