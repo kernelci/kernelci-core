@@ -67,6 +67,9 @@ class TestBuildModel(unittest.TestCase):
         build_doc.system_map_size = 1024
         build_doc.build_log_size = 1024
         build_doc.kernel_version = "kernel_version"
+        build_doc.compiler = "gcc"
+        build_doc.compiler_version = "4.7.8"
+        build_doc.compiler_version_full = "gcc 4.7.8"
 
         expected = {
             "_id": "build_id",
@@ -109,7 +112,10 @@ class TestBuildModel(unittest.TestCase):
             "system_map_size": 1024,
             "build_log_size": 1024,
             "kernel_version": "kernel_version",
-            "git_describe_v": "git_describe_v"
+            "git_describe_v": "git_describe_v",
+            "compiler": "gcc",
+            "compiler_version": "4.7.8",
+            "compiler_version_full": "gcc 4.7.8"
         }
 
         self.assertDictEqual(expected, build_doc.to_dict())
@@ -220,7 +226,10 @@ class TestBuildModel(unittest.TestCase):
             "defconfig_full": "defconfig_full",
             "file_server_resource": "file-resource",
             "file_server_url": "server-url",
-            "build_type": "kernel"
+            "build_type": "kernel",
+            "compiler": "gcc",
+            "compiler_version": "4.7.8",
+            "compiler_version_full": "gcc 4.7.8"
         }
         build_doc = mbuild.BuildDocument.from_json(json_obj)
 
@@ -239,3 +248,6 @@ class TestBuildModel(unittest.TestCase):
         self.assertIsNone(build_doc.kernel_config_size)
         self.assertListEqual(build_doc.build_platform, [])
         self.assertDictEqual(build_doc.metadata, {"foo": "bar"})
+        self.assertEqual(build_doc.compiler, "gcc")
+        self.assertEqual(build_doc.compiler_version, "4.7.8")
+        self.assertEqual(build_doc.compiler_version_full, "gcc 4.7.8")
