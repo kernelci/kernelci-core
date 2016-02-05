@@ -101,8 +101,7 @@ class TestParseBoot(unittest.TestCase):
 
         doc = bimport._parse_boot_from_json(self.boot_report, self.db, errors)
 
-        self.assertIsNone(doc)
-        self.assertListEqual([400], errors.keys())
+        self.assertEqual(doc.arch, "arm")
 
     def test_check_for_null_with_none(self):
         boot_report = {

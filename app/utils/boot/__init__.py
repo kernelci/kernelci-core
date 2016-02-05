@@ -372,6 +372,9 @@ def _parse_boot_from_json(boot_json, database, errors):
             arch = json_pop_f(
                 models.ARCHITECTURE_KEY, models.ARM_ARCHITECTURE_KEY)
 
+            if not arch:
+                arch = models.ARM_ARCHITECTURE_KEY
+
             if arch in models.VALID_ARCHITECTURES:
                 boot_doc = mboot.BootDocument(
                     board,
