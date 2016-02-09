@@ -683,3 +683,12 @@ class TestBuildUtils(unittest.TestCase):
 
         self.assertTupleEqual(
             extracted, ("Apple LLVM", "7.0.2", compiler_version_full))
+
+    def test_extract_compiler_data_clang_data(self):
+        compiler_version_full = (
+            "Debian clang version 3.5.0-10 (tags/RELEASE_350/final) "
+            "(based on LLVM 3.5.0)")
+        extracted = utils.build._extract_compiler_data(compiler_version_full)
+
+        self.assertTupleEqual(
+            extracted, ("Debian clang", "3.5.0-10", compiler_version_full))

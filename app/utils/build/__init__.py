@@ -69,9 +69,10 @@ KERNEL_RC_VERSION_MATCH = re.compile(
 # Example strings are:
 # gcc version 4.7.3 (Ubuntu/Linaro 4.7.3-12ubuntu1)
 # Apple LLVM version 7.0.2 (clang-700.1.81)
+# Debian clang version 3.5.0-10 (tags/RELEASE_350/final) (based on LLVM 3.5.0)
 COMPILER_MATCH = re.compile(
     r"^(?P<compiler>[\w\s?]+)\s{1}version\s{1}"
-    r"(?P<compiler_version>\d+\.{1}\d+(?:\.{1}\d+)?)"
+    r"(?P<compiler_version>\d+\.{1}\d+(?:\.{1}\d+)?(?:\-{1}\d+)?)"
 )
 
 
