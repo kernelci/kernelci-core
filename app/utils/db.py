@@ -410,16 +410,6 @@ def aggregate(
             "$match": match
         })
 
-    # We need to sort twice here: the first time to correctly filter the
-    # results that need to be retrieved from the database, the second time
-    # to obtain the correct sort order wanted in the response.
-    if sort:
-        pipeline.append({
-            "$sort": {
-                k: v for k, v in sort
-            }
-        })
-
     group_dict = {
         "$group": {
             "_id": _starts_with_dollar(unique)
@@ -442,7 +432,7 @@ def aggregate(
     group_dict["$group"].update(r_fields)
     pipeline.append(group_dict)
 
-    # This is the second sorting we have to perform.
+    # Sort everything now.
     if sort:
         pipeline.append({
             "$sort": {
@@ -450,20 +440,17 @@ def aggregate(
             }
         })
 
-    # The limit must be applied at the end, after the second sorting or we
-    # might not get back the correct results.
+    # The limit must be applied at the end or we might not get back the
+    # correct results.
     if all([limit is not None, limit > 0]):
-        pipeline.append({
-            "$limit": limit
-        })
+        pipeline.append({"$limit": limit})
 
     result = collection.aggregate(pipeline)
 
     if result and isinstance(result, types.DictionaryType):
         p_results = result.get("result", None)
 
-        if all([
-                p_results,
+        if all([p_results,
                 isinstance(p_results, types.ListType), len(p_results) > 0]):
             # Pick the first element and check if it has a result key with the
             # actual list of the results. This happens when the fields argument

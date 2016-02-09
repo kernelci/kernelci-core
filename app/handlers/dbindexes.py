@@ -111,6 +111,15 @@ def _ensure_boot_indexes(database):
         ],
         background=True
     )
+    collection.ensure_index(
+        [
+            (models.CREATED_KEY, pymongo.DESCENDING),
+            (models.JOB_KEY, pymongo.ASCENDING),
+            (models.KERNEL_KEY, pymongo.DESCENDING),
+            (models.STATUS_KEY, pymongo.ASCENDING)
+        ],
+        background=True
+    )
 
 
 def _ensure_build_indexes(database):
@@ -150,6 +159,17 @@ def _ensure_build_indexes(database):
     collection.ensure_index(
         [
             (models.KERNEL_KEY, pymongo.ASCENDING)
+        ],
+        background=True
+    )
+    collection.ensure_index(
+        [
+            (models.JOB_KEY, pymongo.ASCENDING),
+            (models.KERNEL_KEY, pymongo.DESCENDING),
+            (models.GIT_BRANCH_KEY, pymongo.ASCENDING),
+            (models.GIT_URL_KEY, pymongo.ASCENDING),
+            (models.GIT_COMMIT_KEY, pymongo.ASCENDING),
+            (models.CREATED_KEY, pymongo.DESCENDING)
         ],
         background=True
     )
