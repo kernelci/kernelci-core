@@ -144,9 +144,10 @@ def _ensure_build_indexes(database):
     )
     collection.ensure_index(
         [
-            (models.STATUS_KEY, pymongo.ASCENDING),
+            (models.CREATED_KEY, pymongo.DESCENDING),
             (models.JOB_KEY, pymongo.ASCENDING),
-            (models.KERNEL_KEY, pymongo.ASCENDING)
+            (models.KERNEL_KEY, pymongo.DESCENDING),
+            (models.STATUS_KEY, pymongo.ASCENDING)
         ],
         background=True
     )
