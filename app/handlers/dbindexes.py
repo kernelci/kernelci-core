@@ -131,12 +131,6 @@ def _ensure_build_indexes(database):
 
     collection.ensure_index(
         [
-            (models.CREATED_KEY, pymongo.DESCENDING)
-        ],
-        background=True
-    )
-    collection.ensure_index(
-        [
             (models.STATUS_KEY, pymongo.ASCENDING),
             (models.CREATED_KEY, pymongo.DESCENDING)
         ],
@@ -147,7 +141,11 @@ def _ensure_build_indexes(database):
             (models.CREATED_KEY, pymongo.DESCENDING),
             (models.JOB_KEY, pymongo.ASCENDING),
             (models.KERNEL_KEY, pymongo.DESCENDING),
-            (models.STATUS_KEY, pymongo.ASCENDING)
+            (models.DEFCONFIG_FULL_KEY, pymongo.ASCENDING),
+            (models.ARCHITECTURE_KEY, pymongo.ASCENDING),
+            (models.STATUS_KEY, pymongo.ASCENDING),
+            (models.GIT_BRANCH_KEY, pymongo.ASCENDING),
+            (models.ID_KEY, pymongo.ASCENDING)
         ],
         background=True
     )
@@ -163,6 +161,7 @@ def _ensure_build_indexes(database):
         ],
         background=True
     )
+    # This is used in the aggregation pipeline.
     collection.ensure_index(
         [
             (models.JOB_KEY, pymongo.ASCENDING),
@@ -170,7 +169,8 @@ def _ensure_build_indexes(database):
             (models.GIT_BRANCH_KEY, pymongo.ASCENDING),
             (models.GIT_URL_KEY, pymongo.ASCENDING),
             (models.GIT_COMMIT_KEY, pymongo.ASCENDING),
-            (models.CREATED_KEY, pymongo.DESCENDING)
+            (models.CREATED_KEY, pymongo.DESCENDING),
+            (models.ID_KEY, pymongo.DESCENDING)
         ],
         background=True
     )
