@@ -114,9 +114,15 @@ def _ensure_boot_indexes(database):
     collection.ensure_index(
         [
             (models.CREATED_KEY, pymongo.DESCENDING),
+            (models.ID_KEY, pymongo.DESCENDING),
             (models.JOB_KEY, pymongo.ASCENDING),
             (models.KERNEL_KEY, pymongo.DESCENDING),
-            (models.STATUS_KEY, pymongo.ASCENDING)
+            (models.DEFCONFIG_FULL_KEY, pymongo.ASCENDING),
+            (models.ARCHITECTURE_KEY, pymongo.ASCENDING),
+            (models.BOARD_KEY, pymongo.ASCENDING),
+            (models.LAB_NAME_KEY, pymongo.ASCENDING),
+            (models.STATUS_KEY, pymongo.ASCENDING),
+            (models.GIT_BRANCH_KEY, pymongo.ASCENDING)
         ],
         background=True
     )
