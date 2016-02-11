@@ -86,6 +86,12 @@ _BUILD_LOGS_URL = tornado.web.url(
     r"/build[s]?/logs/?$",
     handlers.build_logs.BuildLogsHandler, name="build-logs")
 
+_BUILD_DISTINCT_URL = tornado.web.url(
+    r"/build[s]?/distinct/(?P<field>[A-Za-z0-9_]+)/?$",
+    handlers.distinct.DistinctHandler,
+    kwargs={"resource": "build"}, name="build-distinct"
+)
+
 _DEFCONF_URL = tornado.web.url(
     r"/defconfig[s]?/?$", handlers.build.BuildHandler, name="defconf")
 
@@ -166,6 +172,7 @@ APP_URLS = [
     _BOOT_ID_URL,
     _BOOT_TRIGGER_URL,
     _BOOT_URL,
+    _BUILD_DISTINCT_URL,
     _BUILD_ID_LOGS_URL,
     _BUILD_ID_URL,
     _BUILD_LOGS_URL,
