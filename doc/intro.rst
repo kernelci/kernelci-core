@@ -144,9 +144,6 @@ Internally it will be converted in a timedelta structure: ::
         }
     }
 
-
-1407369600000
-
 Ranged Searches
 ***************
 
