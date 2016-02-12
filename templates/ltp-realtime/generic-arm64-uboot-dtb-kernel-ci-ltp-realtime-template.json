@@ -21,7 +21,7 @@
                 "dtb": "{dtb_url}",
                 "kernel": "{kernel_url}",
                 "overlays": ["{modules_url}"],
-                "ramdisk": "http://people.linaro.org/~anders.roxell/buildroot-latest-2015.09.02/rootfs.cpio.gz"
+                "ramdisk": "http://storage.kernelci.org/images/rootfs/buildroot/arm64/tests/rootfs.cpio.gz"
             }
         },
         {

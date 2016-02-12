@@ -18,10 +18,10 @@
                 "test.type": "{test_type}"
             },
             "parameters": {
-                "dtb": "{dtb_url}",
+                "bootloadertype": "ipxe",
                 "kernel": "{kernel_url}",
                 "overlays": ["{modules_url}"],
-                "ramdisk": "http://storage.kernelci.org/images/rootfs/buildroot/armel/tests/rootfs.cpio.gz"
+                "ramdisk": "http://storage.kernelci.org/images/rootfs/buildroot/x86/tests/rootfs.cpio.gz"
             }
         },
         {
@@ -59,6 +59,6 @@
     "device_type": "{device_type}",
     "job_name": "{job_name}",
     "logging_level": "DEBUG",
-    "priority": "{priority}",
+    "priority": "low",
     "timeout": 1801
 }

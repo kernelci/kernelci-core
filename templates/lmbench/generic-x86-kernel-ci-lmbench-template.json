@@ -18,10 +18,10 @@
                 "test.type": "{test_type}"
             },
             "parameters": {
-                "dtb": "{dtb_url}",
+                "bootloadertype": "ipxe",
                 "kernel": "{kernel_url}",
                 "overlays": ["{modules_url}"],
-                "ramdisk": "http://storage.kernelci.org/images/rootfs/buildroot/armel/tests/rootfs.cpio.gz"
+                "ramdisk": "http://storage.kernelci.org/images/rootfs/buildroot/x86/tests/rootfs.cpio.gz"
             }
         },
         {
@@ -35,16 +35,18 @@
             "parameters": {
                 "commands": [
                     "export LAVA_TESTDIR=/usr/share/linaro-testsuites",
-                    "export LTP_REALTIME_TESTS_TO_RUN='async_handler gtod_latency hrtimer-prio matrix_mult measurement periodic_cpu_load pi_perf prio-preempt prio-wake pthread_kill_latency rt-migrate sched_football sched_jitter sched_latency thread_clock'",
-                    "cd /usr",
-                    "for TEST_TO_RUN in ${LTP_REALTIME_TESTS_TO_RUN} ; do ./testscripts/test_realtime.sh -t func/$TEST_TO_RUN | ${LAVA_TESTDIR}/common/scripts/ltp-realtime2LAVA.py; done"
+                    "cd ${LAVA_TESTDIR}",
+                    "./common/scripts/lmbench.sh 2>&1| tee lmbench.log",
+                    "./common/scripts/parse_lmbench.sh lmbench.log ms result_lmbench.log",
+                    "cat result_lmbench.log",
+                    "lava-test-run-attach result_lmbench.log text/plain"
                 ],
                 "fixupdict": [
                     "PASS:pass",
                     "FAIL:fail",
                     "SKIP:skip"
                 ],
-                "parser": "^test_case_id:(?P<test_case_id>.+)\\s+measurement:(?P<measurement>[\\d\\.]+)\\s+units:(?P<units>\\w+)\\s+result:(?P<result>\\w+)",
+                "parser": "^(?P<test_case_id>[^:]+):\\s*(?P<measurement>[0-9.]+)\\s+(?P<units>\\w+)\\s+(?P<result>\\w+)",
                 "timeout": 1800
             }
         },
@@ -60,5 +62,5 @@
     "job_name": "{job_name}",
     "logging_level": "DEBUG",
     "priority": "{priority}",
-    "timeout": 1801
+    "timeout": 1811
 }

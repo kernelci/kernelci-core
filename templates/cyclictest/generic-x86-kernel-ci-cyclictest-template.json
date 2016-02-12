@@ -18,10 +18,10 @@
                 "test.type": "{test_type}"
             },
             "parameters": {
-                "dtb": "{dtb_url}",
-                "kernel": "{kernel_url}",
+                "bootloadertype": "ipxe",
                 "overlays": ["{modules_url}"],
-                "ramdisk": "http://storage.kernelci.org/images/rootfs/buildroot/armel/tests/rootfs.cpio.gz"
+                "kernel": "{kernel_url}",
+                "ramdisk": "http://storage.kernelci.org/images/rootfs/buildroot/x86/tests/rootfs.cpio.gz"
             }
         },
         {
@@ -35,17 +35,27 @@
             "parameters": {
                 "commands": [
                     "export LAVA_TESTDIR=/usr/share/linaro-testsuites",
-                    "export LTP_REALTIME_TESTS_TO_RUN='async_handler gtod_latency hrtimer-prio matrix_mult measurement periodic_cpu_load pi_perf prio-preempt prio-wake pthread_kill_latency rt-migrate sched_football sched_jitter sched_latency thread_clock'",
-                    "cd /usr",
-                    "for TEST_TO_RUN in ${LTP_REALTIME_TESTS_TO_RUN} ; do ./testscripts/test_realtime.sh -t func/$TEST_TO_RUN | ${LAVA_TESTDIR}/common/scripts/ltp-realtime2LAVA.py; done"
+                    "cd ${LAVA_TESTDIR}",
+                    "export MAX=15000",
+                    "export AVG=50",
+                    "export RTIME=1800",
+                    "taskset 0x00000002 fping -g 127.0.0.1 127.0.0.10 -t 100 -q -l &> /dev/null &",
+                    "taskset 0x00000002 ./openembedded/scripts/infinite_loop.py $(expr $RTIME - 60) &> /dev/null &",
+                    "taskset 0x00000002 cyclictest -t 1 -p 80 -i 10000 -n -a1 -v -D $(expr $RTIME / 2) > ~/cyclictest_full.log &",
+                    "taskset 0x00000002 cyclictest -t 50 -p 80 -i 10000 -n -a1 -q -D $RTIME > ~/cyclictest_summary.log",
+                    "cat ~/cyclictest_summary.log | ./openembedded/scripts/cyclictest.py $MAX $AVG",
+                    "lava-test-run-attach ~/cyclictest_summary.log text/plain",
+                    "tar -cjf ~/cyclictest_full.log.tbz ~/cyclictest_full.log",
+                    "lava-test-run-attach ~/cyclictest_full.log.tbz application/x-bzip2",
+                    "killall calibrator infinite_loop.py fping"
                 ],
                 "fixupdict": [
                     "PASS:pass",
                     "FAIL:fail",
                     "SKIP:skip"
                 ],
-                "parser": "^test_case_id:(?P<test_case_id>.+)\\s+measurement:(?P<measurement>[\\d\\.]+)\\s+units:(?P<units>\\w+)\\s+result:(?P<result>\\w+)",
-                "timeout": 1800
+                "parser": "^test_case_id:(?P<test_case_id>.+)\\s+result:(?P<result>\\w+)\\s+measurement:(?P<measurement>.+)\\s+units:(?P<units>.+)",
+                "timeout": 1810
             }
         },
         {
@@ -60,5 +70,5 @@
     "job_name": "{job_name}",
     "logging_level": "DEBUG",
     "priority": "{priority}",
-    "timeout": 1801
+    "timeout": 3601
 }
