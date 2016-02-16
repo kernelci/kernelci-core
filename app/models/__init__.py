@@ -248,6 +248,7 @@ ERRORS_SUMMARY_COLLECTION = "errors_summary"
 DAILY_STATS_COLLECTION = "daily_stats"
 # Delta collections.
 JOB_DELTA_COLLECTION = "job_delta"
+BUILD_DELTA_COLLECTION = "build_delta"
 
 # Build types.
 KERNEL_BUILD_TYPE = "kernel"
