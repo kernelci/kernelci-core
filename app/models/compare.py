@@ -30,12 +30,25 @@ JOB_DELTA_VALID_KEYS = {
     ]
 }
 
+BUILD_DELTA_VALID_KEYS = {
+    "POST": [
+        models.ARCHITECTURE_KEY,
+        models.COMPARE_TO_KEY,
+        models.DEFCONFIG_FULL_KEY,
+        models.DEFCONFIG_KEY,
+        models.JOB_KEY,
+        models.KERNEL_KEY
+    ]
+}
+
 COMPARE_VALID_KEYS = {
+    models.BUILD_COLLECTION: BUILD_DELTA_VALID_KEYS,
     models.JOB_COLLECTION: JOB_DELTA_VALID_KEYS
 }
 
 # Matching between compare resources and their real database collection.
 # This is used for GET operations.
 COMPARE_RESOURCE_COLLECTIONS = {
+    models.BUILD_COLLECTION: models.BUILD_DELTA_COLLECTION,
     models.JOB_COLLECTION: models.JOB_DELTA_COLLECTION
 }
