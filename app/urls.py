@@ -92,6 +92,18 @@ _BUILD_DISTINCT_URL = tornado.web.url(
     kwargs={"resource": "build"}, name="build-distinct"
 )
 
+_BUILD_COMPARE_URL = tornado.web.url(
+    r"/build[s]?/compare/?$",
+    handlers.compare.CompareHandler,
+    kwargs={"resource": "build"}, name="build-compare"
+)
+
+_BUILD_COMPARE_ID_URL = tornado.web.url(
+    r"/build[s]?/compare/(?P<id>[A-Za-z0-9]{24})/?$",
+    handlers.compare.CompareHandler,
+    kwargs={"resource": "build"}, name="build-compare-id"
+)
+
 _DEFCONF_URL = tornado.web.url(
     r"/defconfig[s]?/?$", handlers.build.BuildHandler, name="defconf")
 
@@ -172,6 +184,8 @@ APP_URLS = [
     _BOOT_ID_URL,
     _BOOT_TRIGGER_URL,
     _BOOT_URL,
+    _BUILD_COMPARE_ID_URL,
+    _BUILD_COMPARE_URL,
     _BUILD_DISTINCT_URL,
     _BUILD_ID_LOGS_URL,
     _BUILD_ID_URL,
