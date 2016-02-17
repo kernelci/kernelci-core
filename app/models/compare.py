@@ -33,6 +33,7 @@ JOB_DELTA_VALID_KEYS = {
 BUILD_DELTA_VALID_KEYS = {
     "POST": [
         models.ARCHITECTURE_KEY,
+        models.BUILD_ID_KEY,
         models.COMPARE_TO_KEY,
         models.DEFCONFIG_FULL_KEY,
         models.DEFCONFIG_KEY,
