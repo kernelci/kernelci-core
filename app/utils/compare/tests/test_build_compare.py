@@ -23,7 +23,7 @@ import utils.compare.build
 class TestBuildCompare(unittest.TestCase):
 
     def setUp(self):
-        # logging.disable(logging.CRITICAL)
+        logging.disable(logging.CRITICAL)
         self.db = mongomock.Database(mongomock.Connection(), "kernel-ci")
 
         patcher = mock.patch("utils.db.get_db_connection")
@@ -77,8 +77,7 @@ class TestBuildCompare(unittest.TestCase):
         }
 
     def tearDown(self):
-        # logging.disable(logging.NOTSET)
-        pass
+        logging.disable(logging.NOTSET)
 
     def test_execute_build_delta_empty(self):
         status, result, doc_id, errors = utils.compare.build.execute_delta(
