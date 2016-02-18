@@ -391,9 +391,9 @@ def execute_job_delta(json_obj, db_options=None):
     kernel = json_obj.get(models.KERNEL_KEY, None)
     compare_to = json_obj.get(models.COMPARE_TO_KEY, [])
 
-    if all([not job_id, (not job or not kernel)]):
+    if all([not job_id, any([not job, not kernel])]):
         status_code = 400
-        ADD_ERR(errors, 400, "Missing valid job, kernel or job_id value")
+        ADD_ERR(errors, 400, "Missing mandatory data to perform a comparison")
     elif not compare_to:
         status_code = 400
         ADD_ERR(errors, 400, "No data provided to compare to")
