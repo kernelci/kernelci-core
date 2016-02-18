@@ -175,7 +175,7 @@ class TestBuildCompare(unittest.TestCase):
 
         expected = [{
             "baseline": baseline_result,
-            "compared": [
+            "compare_to": [
                 compare_result
             ]
         }]

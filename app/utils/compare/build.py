@@ -135,7 +135,7 @@ def search_and_compare(json_obj, compare_to, errors, db_options):
                 break
         else:
             status = 201
-            compare_data[models.COMPARED_KEY] = compare_result
+            compare_data[models.COMPARE_TO_KEY] = compare_result
             result.append(compare_data)
 
     return status, result
