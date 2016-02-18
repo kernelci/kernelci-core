@@ -120,6 +120,8 @@ class CompareHandler(hbase.BaseHandler):
         task = None
         if self.resource == "job":
             task = taskq.calculate_job_delta
+        elif self.resource == "build":
+            task = taskq.calculate_build_delta
 
         res = task.apply_async(
             [kwargs["json_obj"]],
