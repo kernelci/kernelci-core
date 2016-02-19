@@ -796,6 +796,26 @@ imx53_qsbr = {
   'fastboot': False
 }
 
+socfpga_cyclone5_socrates = {
+  'device_type': 'socfpga-cyclone5-socrates',
+  'templates': [
+    'generic-arm-dtb-kernel-ci-boot-template.json',
+    'generic-arm-dtb-kernel-ci-boot-nfs-template.json',
+    'generic-arm-dtb-kernel-ci-boot-nfs-mp-template.json',
+    'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+    'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json',
+    'generic-arm-dtb-kernel-ci-kselftest-template.json',
+    'generic-arm-dtb-kernel-ci-hackbench-template.json'
+  ],
+  'defconfig_blacklist': [
+    'arm-allmodconfig'
+  ],
+  'kernel_blacklist': [],
+  'nfs_blacklist': [],
+  'lpae': False,
+  'fastboot': False
+}
+
 device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'bcm4708-smartrg-sr400ac.dtb': [bcm4708_smartrg_sr400ac],
               'armada-370-mirabox.dtb': [armada_370_mirabox],
@@ -851,7 +871,8 @@ device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'x86': [x86, minnowboard_max_E3825, x86_atom330],
               'x86-kvm': [x86_kvm],
               'imx6dl-riotboard.dtb': [imx6dl_riotboard],
-              'imx53-qsrb.dtb': [imx53_qsbr]}
+              'imx53-qsrb.dtb': [imx53_qsbr],
+              'socfpga_cyclone5_socrates.dtb': [socfpga_cyclone5_socrates]}
 
 parse_re = re.compile('href="([^./"?][^"?]*)"')
 
