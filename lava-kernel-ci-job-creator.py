@@ -752,65 +752,45 @@ x86_kvm = {'device_type': 'kvm',
            'lpae': False,
            'fastboot': False}
 
-imx6dl_riotboard = {
-  'device_type': 'imx6dl-riotboard',
-  'templates': [
-    'generic-arm-dtb-kernel-ci-boot-template.json',
-    'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
-    'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json',
-    'generic-arm-dtb-kernel-ci-kselftest-template.json',
-    'generic-arm-dtb-kernel-ci-hackbench-template.json'
-  ],
-  'defconfig_blacklist': [
-    'arm-imx_v4_v5_defconfig',
-    'arm-multi_v5_defconfig',
-    'arm-allmodconfig'
-  ],
-  'kernel_blacklist': [],
-  'nfs_blacklist': [],
-  'lpae': False,
-  'fastboot': False
-}
+imx6dl_riotboard = {'device_type': 'imx6dl-riotboard',
+                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
+                                  'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                                  'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json',
+                                  'generic-arm-dtb-kernel-ci-kselftest-template.json',
+                                  'generic-arm-dtb-kernel-ci-hackbench-template.json'],
+                    'defconfig_blacklist': ['arm-imx_v4_v5_defconfig',
+                                            'arm-multi_v5_defconfig',
+                                            'arm-allmodconfig'],
+                    'kernel_blacklist': [],
+                    'nfs_blacklist': [],
+                    'lpae': False,
+                    'fastboot': False}
 
-imx53_qsbr = {
-  'device_type': 'imx53-qsbr',
-  'templates': [
-    'generic-arm-dtb-kernel-ci-boot-template.json',
-    'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
-    'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json',
-    'generic-arm-dtb-kernel-ci-kselftest-template.json',
-    'generic-arm-dtb-kernel-ci-hackbench-template.json'
-  ],
-  'defconfig_blacklist': [
-    'arm-imx_v4_v5_defconfig',
-    'arm-multi_v5_defconfig',
-    'arm-allmodconfig'
-  ],
-  'kernel_blacklist': [],
-  'nfs_blacklist': [],
-  'lpae': False,
-  'fastboot': False
-}
+imx53_qsbr = {'device_type': 'imx53-qsbr',
+              'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
+                            'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                            'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json',
+                            'generic-arm-dtb-kernel-ci-kselftest-template.json',
+                            'generic-arm-dtb-kernel-ci-hackbench-template.json'],
+              'defconfig_blacklist': ['arm-imx_v4_v5_defconfig',
+                                      'arm-multi_v5_defconfig',
+                                      'arm-allmodconfig'],
+              'kernel_blacklist': [],
+              'nfs_blacklist': [],
+              'lpae': False,
+              'fastboot': False}
 
-socfpga_cyclone5_socrates = {
-  'device_type': 'socfpga-cyclone5-socrates',
-  'templates': [
-    'generic-arm-dtb-kernel-ci-boot-template.json',
-    'generic-arm-dtb-kernel-ci-boot-nfs-template.json',
-    'generic-arm-dtb-kernel-ci-boot-nfs-mp-template.json',
-    'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
-    'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json',
-    'generic-arm-dtb-kernel-ci-kselftest-template.json',
-    'generic-arm-dtb-kernel-ci-hackbench-template.json'
-  ],
-  'defconfig_blacklist': [
-    'arm-allmodconfig'
-  ],
-  'kernel_blacklist': [],
-  'nfs_blacklist': [],
-  'lpae': False,
-  'fastboot': False
-}
+socfpga_cyclone5_socrates = {'device_type': 'socfpga-cyclone5-socrates',
+                             'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
+                                           'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
+                                           'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json',
+                                           'generic-arm-dtb-kernel-ci-kselftest-template.json',
+                                           'generic-arm-dtb-kernel-ci-hackbench-template.json'],
+                             'defconfig_blacklist': ['arm-allmodconfig'],
+                             'kernel_blacklist': [],
+                             'nfs_blacklist': [],
+                             'lpae': False,
+                             'fastboot': False}
 
 device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'bcm4708-smartrg-sr400ac.dtb': [bcm4708_smartrg_sr400ac],
