@@ -756,8 +756,6 @@ imx6dl_riotboard = {
   'device_type': 'imx6dl-riotboard',
   'templates': [
     'generic-arm-dtb-kernel-ci-boot-template.json',
-    'generic-arm-dtb-kernel-ci-boot-nfs-template.json',
-    'generic-arm-dtb-kernel-ci-boot-nfs-mp-template.json',
     'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
     'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json',
     'generic-arm-dtb-kernel-ci-kselftest-template.json',
@@ -778,8 +776,6 @@ imx53_qsbr = {
   'device_type': 'imx53-qsbr',
   'templates': [
     'generic-arm-dtb-kernel-ci-boot-template.json',
-    'generic-arm-dtb-kernel-ci-boot-nfs-template.json',
-    'generic-arm-dtb-kernel-ci-boot-nfs-mp-template.json',
     'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
     'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json',
     'generic-arm-dtb-kernel-ci-kselftest-template.json',
