@@ -15,6 +15,7 @@
 
 """The model that represents a job document in the mongodb collection."""
 
+import copy
 import types
 
 import models
@@ -37,6 +38,11 @@ class JobDocument(modb.BaseDocument):
 
         self._job = job
         self._kernel = kernel
+        self.compiler = None
+        self.compiler_version = None
+        self.compiler_version_ext = None
+        self.compiler_version_full = None
+        self.cross_compile = None
         self.git_branch = None
         self.git_commit = None
         self.git_describe = None
@@ -175,7 +181,12 @@ class JobDocument(modb.BaseDocument):
 
     def to_dict(self):
         job_dict = {
+            models.COMPILER_KEY: self.compiler,
+            models.COMPILER_VERSION_EXT_KEY: self.compiler_version_ext,
+            models.COMPILER_VERSION_FULL_KEY: self.compiler_version_full,
+            models.COMPILER_VERSION_KEY: self.compiler_version,
             models.CREATED_KEY: self.created_on,
+            models.CROSS_COMPILE_KEY: self.cross_compile,
             models.GIT_BRANCH_KEY: self.git_branch,
             models.GIT_COMMIT_KEY: self.git_commit,
             models.GIT_DESCRIBE_KEY: self.git_describe,
@@ -186,7 +197,7 @@ class JobDocument(modb.BaseDocument):
             models.KERNEL_VERSION_KEY: self.kernel_version,
             models.PRIVATE_KEY: self.private,
             models.STATUS_KEY: self.status,
-            models.VERSION_KEY: self.version,
+            models.VERSION_KEY: self.version
         }
 
         if self.id:
@@ -205,19 +216,19 @@ class JobDocument(modb.BaseDocument):
 
         # pylint: disable=maybe-no-member
         if json_obj and isinstance(json_obj, types.DictionaryType):
-            json_get = json_obj.get
-            job = json_get(models.JOB_KEY)
-            kernel = json_get(models.KERNEL_KEY)
+            local_obj = copy.deepcopy(json_obj)
+            try:
+                pop_f = local_obj.pop
+                job = pop_f(models.JOB_KEY)
+                kernel = pop_f(models.KERNEL_KEY)
 
-            job_doc = JobDocument(job, kernel)
+                job_doc = JobDocument(job, kernel)
+                job_doc.id = pop_f(models.ID_KEY, None)
 
-            job_doc.created_on = json_get(models.CREATED_KEY, None)
-            job_doc.git_branch = json_get(models.GIT_BRANCH_KEY, None)
-            job_doc.git_commit = json_get(models.GIT_COMMIT_KEY, None)
-            job_doc.git_describe = json_get(models.GIT_DESCRIBE_KEY, None)
-            job_doc.git_url = json_get(models.GIT_URL_KEY, None)
-            job_doc.id = json_get(models.ID_KEY, None)
-            job_doc.status = json_get(models.STATUS_KEY, None)
-            job_doc.version = json_get(models.VERSION_KEY, "1.0")
+                for key, val in local_obj.iteritems():
+                    setattr(job_doc, key, val)
+            except KeyError:
+                # Missing mandatory key? Return None.
+                job_doc = None
 
         return job_doc

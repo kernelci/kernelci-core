@@ -60,6 +60,11 @@ class TestJobModel(unittest.TestCase):
         job_doc.git_describe = "git-describe"
         job_doc.git_describe_v = "git-describe-v"
         job_doc.kernel_version = "kernel-version"
+        job_doc.compiler = "gcc"
+        job_doc.compiler_version = "4.7.3"
+        job_doc.compiler_version_ext = "gcc 4.7.3"
+        job_doc.compiler_version_full = "gcc version 4.7.3"
+        job_doc.cross_compile = "cross-compile"
 
         expected = {
             "_id": "job",
@@ -74,7 +79,12 @@ class TestJobModel(unittest.TestCase):
             "git_branch": "git-branch",
             "git_describe": "git-describe",
             "git_describe_v": "git-describe-v",
-            "kernel_version": "kernel-version"
+            "kernel_version": "kernel-version",
+            "compiler": "gcc",
+            "compiler_version": "4.7.3",
+            "compiler_version_ext": "gcc 4.7.3",
+            "compiler_version_full": "gcc version 4.7.3",
+            "cross_compile": "cross-compile"
         }
 
         self.assertEqual(job_doc.to_dict(), expected)
