@@ -48,6 +48,7 @@ def update_build_doc(doc):
         doc[models.DTB_DIR_DATA_KEY] = 0
 
 
+# pylint: disable=too-many-branches
 def search_and_compare(json_obj, compare_to, errors, db_options):
     """Search for the baseline and compare documents.
 
@@ -141,6 +142,7 @@ def search_and_compare(json_obj, compare_to, errors, db_options):
     return status, result
 
 
+# pylint: disable=too-many-locals
 def execute_delta(json_obj, db_options=None):
     """Execute the build delta calculations.
 
