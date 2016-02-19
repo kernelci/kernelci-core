@@ -184,19 +184,23 @@ def _extract_compiler_data(compiler_version_full):
     """
     compiler = None
     compiler_version = None
+    compiler_version_ext = None
 
     if compiler_version_full:
         compiler_version_full = compiler_version_full.strip()
 
         matched = COMPILER_MATCH.match(compiler_version_full)
         if matched:
-            compiler = matched.group("compiler")
-            compiler_version = matched.group("compiler_version")
+            compiler = matched.group("compiler").strip()
+            compiler_version = matched.group("compiler_version").strip()
+            compiler_version_ext = "{0:s} {1:s}".format(
+                compiler, compiler_version)
     else:
         # Force it at None, in case we get an empty string.
         compiler_version_full = None
 
-    return (compiler, compiler_version, compiler_version_full)
+    return (compiler,
+            compiler_version, compiler_version_ext, compiler_version_full)
 
 
 def _extract_kernel_version(git_describe_v, git_describe):
@@ -323,7 +327,8 @@ def parse_build_data(build_data, job, kernel, errors, build_dir=None):
             compiler_data = _extract_compiler_data(compiler_version_full)
             build_doc.compiler = compiler_data[0]
             build_doc.compiler_version = compiler_data[1]
-            build_doc.compiler_version_full = compiler_data[2]
+            build_doc.compiler_version_ext = compiler_data[2]
+            build_doc.compiler_version_full = compiler_data[3]
 
             build_doc.metadata = build_data
         except KeyError, ex:

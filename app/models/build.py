@@ -56,6 +56,7 @@ class BuildDocument(mbase.BaseDocument):
         self.build_type = None
         self.compiler = None
         self.compiler_version = None
+        self.compiler_version_ext = None
         self.compiler_version_full = None
         self.cross_compile = None
         self.dirname = None
@@ -214,6 +215,7 @@ class BuildDocument(mbase.BaseDocument):
             models.BUILD_TIME_KEY: self.build_time,
             models.BUILD_TYPE_KEY: self.build_type,
             models.COMPILER_KEY: self.compiler,
+            models.COMPILER_VERSION_EXT_KEY: self.compiler_version_ext,
             models.COMPILER_VERSION_FULL_KEY: self.compiler_version_full,
             models.COMPILER_VERSION_KEY: self.compiler_version,
             models.CREATED_KEY: self.created_on,

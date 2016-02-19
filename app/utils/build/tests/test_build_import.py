@@ -655,19 +655,19 @@ class TestBuildUtils(unittest.TestCase):
         compiler_version_full = ""
         extracted = utils.build._extract_compiler_data(compiler_version_full)
 
-        self.assertTupleEqual(extracted, (None, None, None))
+        self.assertTupleEqual(extracted, (None, None, None, None))
 
     def test_extract_compiler_data_none(self):
         compiler_version_full = None
         extracted = utils.build._extract_compiler_data(compiler_version_full)
 
-        self.assertTupleEqual(extracted, (None, None, None))
+        self.assertTupleEqual(extracted, (None, None, None, None))
 
     def test_extract_compiler_data_no_compiler_data(self):
         compiler_version_full = "foo"
         extracted = utils.build._extract_compiler_data(compiler_version_full)
 
-        self.assertTupleEqual(extracted, (None, None, "foo"))
+        self.assertTupleEqual(extracted, (None, None, None, "foo"))
 
     def test_extract_compiler_data_gcc_data(self):
         compiler_version_full =\
@@ -675,20 +675,22 @@ class TestBuildUtils(unittest.TestCase):
         extracted = utils.build._extract_compiler_data(compiler_version_full)
 
         self.assertTupleEqual(
-            extracted, ("gcc", "4.7.3", compiler_version_full))
+            extracted, ("gcc", "4.7.3", "gcc 4.7.3", compiler_version_full))
 
     def test_extract_compiler_data_llvm_data(self):
         compiler_version_full = "Apple LLVM version 7.0.2 (clang-700.1.81)"
         extracted = utils.build._extract_compiler_data(compiler_version_full)
 
         self.assertTupleEqual(
-            extracted, ("Apple LLVM", "7.0.2", compiler_version_full))
+            extracted,
+            ("Apple LLVM", "7.0.2", "Apple LLVM 7.0.2", compiler_version_full))
 
     def test_extract_compiler_data_clang_data(self):
         compiler_version_full = (
             "Debian clang version 3.5.0-10 (tags/RELEASE_350/final) "
             "(based on LLVM 3.5.0)")
         extracted = utils.build._extract_compiler_data(compiler_version_full)
+        expected = ("Debian clang",
+                    "3.5.0-10", "Debian clang 3.5.0-10", compiler_version_full)
 
-        self.assertTupleEqual(
-            extracted, ("Debian clang", "3.5.0-10", compiler_version_full))
+        self.assertTupleEqual(extracted, expected)
