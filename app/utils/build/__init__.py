@@ -509,11 +509,23 @@ def _update_job_doc(job_doc, job_id, status, docs, database):
         job_doc.status = status
         to_update = True
 
-    if all([docs,
-            not job_doc.git_url,
-            not job_doc.git_commit,
-            not job_doc.git_branch,
-            not job_doc.git_describe, not job_doc.git_describe_v]):
+    no_git = all([
+        not job_doc.git_url,
+        not job_doc.git_commit,
+        not job_doc.git_branch,
+        not job_doc.git_describe,
+        not job_doc.git_describe_v
+    ])
+
+    no_compiler = all([
+        not job_doc.compiler,
+        not job_doc.compiler_version,
+        not job_doc.compiler_version_ext,
+        not job_doc.compiler_version_full,
+        not job_doc.cross_compile
+    ])
+
+    if all([docs, no_git, no_compiler]):
         # Kind of a hack:
         # We want to store some metadata at the job document level as well,
         # like git tree, git commit...
@@ -533,6 +545,11 @@ def _update_job_doc(job_doc, job_id, status, docs, database):
                     job_doc.git_describe_v = d_doc.git_describe_v
                     job_doc.kernel_version = d_doc.kernel_version
                     job_doc.git_url = d_doc.git_url
+                    job_doc.compiler = d_doc.compiler
+                    job_doc.compiler_version = d_doc.compiler_version
+                    job_doc.compiler_version_ext = d_doc.compiler_version_ext
+                    job_doc.compiler_version_full = d_doc.compiler_version_full
+                    job_doc.cross_compile = d_doc.cross_compile
                     to_update = True
                     break
 
