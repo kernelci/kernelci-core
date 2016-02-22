@@ -196,9 +196,10 @@
   cron: name="Renew backend HTTPS certificates"
         user=root
         state=present
-        job="{{ install_base }}/letsencrypt/letsencrypt-auto certonly --webroot -w {{ web_root }}/{{ hostname }} -d {{ hostname }} -c /etc/letsencrypt/cli.ini"
+        job="{{ install_base }}/letsencrypt/letsencrypt-auto certonly --webroot -w {{ web_root }}/{{ hostname }} -d {{ hostname }} -c /etc/letsencrypt/cli.ini && systemctl reload nginx.service"
         cron_file=backend-https-certs
-        month=*/2
+        month=*
+        day=1
         hour=3
         minute=10
   tags:
