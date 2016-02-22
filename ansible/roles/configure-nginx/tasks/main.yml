@@ -193,13 +193,12 @@
 
 - name: Set up cronjob for HTTPS certificates renewal
   when: role == "production"
-  cron: name="Renew backend HTTPS certificates"
+  cron: name="Renew TLS certificates"
         user=root
         state=present
-        job="{{ install_base }}/letsencrypt/letsencrypt-auto certonly --webroot -w {{ web_root }}/{{ hostname }} -d {{ hostname }} -c /etc/letsencrypt/cli.ini && systemctl reload nginx.service"
-        cron_file=backend-https-certs
-        month=*
-        day=1
+        job="{{ install_base }}/letsencrypt/letsencrypt-auto renew -c /etc/letsencrypt/cli.ini 1>/dev/null && systemctl reload nginx.service"
+        cron_file=letsencrypt-tls-certs
+        day=1,15
         hour=3
         minute=10
   tags:
