@@ -30,6 +30,8 @@ ATTACHMENTS_KEY = "attachments"
 BASELINE_KEY = "baseline"
 BOARD_INSTANCE_KEY = "board_instance"
 BOARD_KEY = "board"
+BOOTLOADER_TYPE_KEY = "bootloader"
+BOOTLOADER_VERSION_KEY = "bootloader_version"
 BOOT_ID_KEY = "boot_id"
 BOOT_LOAD_ADDR_KEY = "loadaddr"
 BOOT_LOG_HTML_KEY = "boot_log_html"
@@ -49,6 +51,7 @@ BUILD_RESULT_KEY = "build_result"
 BUILD_TIME_KEY = "build_time"
 BUILD_TYPE_KEY = "build_type"
 BUILD_WARNINGS_KEY = "build_warnings"
+CHAINLOADER_TYPE_KEY = "chainloader"
 COMPARED_KEY = "compared"
 COMPARE_TO_KEY = "compare_to"
 COMPILER_KEY = "compiler"
@@ -404,6 +407,8 @@ BOOT_VALID_KEYS = {
             ARCHITECTURE_KEY,
             BOARD_INSTANCE_KEY,
             BOARD_KEY,
+            BOOTLOADER_TYPE_KEY,
+            BOOTLOADER_VERSION_KEY,
             BOOT_LOAD_ADDR_KEY,
             BOOT_LOG_HTML_KEY,
             BOOT_LOG_KEY,
@@ -412,6 +417,7 @@ BOOT_VALID_KEYS = {
             BOOT_RETRIES_KEY,
             BOOT_TIME_KEY,
             BOOT_WARNINGS_KEY,
+            CHAINLOADER_TYPE_KEY,
             DEFCONFIG_FULL_KEY,
             DEFCONFIG_KEY,
             DTB_ADDR_KEY,
@@ -448,9 +454,12 @@ BOOT_VALID_KEYS = {
     "GET": [
         ARCHITECTURE_KEY,
         BOARD_KEY,
+        BOOTLOADER_TYPE_KEY,
+        BOOTLOADER_VERSION_KEY,
+        BUILD_ID_KEY,
+        CHAINLOADER_TYPE_KEY,
         CREATED_KEY,
         DEFCONFIG_FULL_KEY,
-        BUILD_ID_KEY,
         DEFCONFIG_KEY,
         ENDIANNESS_KEY,
         GIT_BRANCH_KEY,

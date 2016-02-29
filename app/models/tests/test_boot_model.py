@@ -54,6 +54,9 @@ class TestBootModel(unittest.TestCase):
         boot_doc.metadata = {"foo": "bar"}
         boot_doc.mach = "soc"
         boot_doc.lab_name = "lab-name"
+        boot_doc.bootloader = "bootloader"
+        boot_doc.bootloader_version = "1.2.3"
+        boot_doc.chainloader = "chainloader"
 
         expected = {
             "_id": "id",
@@ -98,7 +101,10 @@ class TestBootModel(unittest.TestCase):
             "uimage": "path/to/uImage",
             "uimage_addr": "uimage_addr",
             "version": "1.0",
-            "warnings": 2
+            "warnings": 2,
+            "bootloader": "bootloader",
+            "bootloader_version": "1.2.3",
+            "chainloader": "chainloader"
         }
 
         self.assertDictEqual(expected, boot_doc.to_dict())
@@ -162,7 +168,10 @@ class TestBootModel(unittest.TestCase):
             "uimage": "path/to/uImage",
             "uimage_addr": "uimage_addr",
             "version": "1.0",
-            "warnings": 2
+            "warnings": 2,
+            "bootloader": "bootloader",
+            "bootloader_version": "1.2.3",
+            "chainloader": "chainloader"
         }
 
         boot_doc = mboot.BootDocument.from_json(boot_json)

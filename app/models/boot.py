@@ -70,7 +70,10 @@ class BootDocument(modb.BaseDocument):
         self.boot_log = None
         self.boot_log_html = None
         self.boot_result_description = None
+        self.bootloader = None
+        self.bootloader_version = None
         self.build_id = None
+        self.chainloader = None
         self.dtb = None
         self.dtb_addr = None
         self.dtb_append = None
@@ -192,10 +195,13 @@ class BootDocument(modb.BaseDocument):
             models.ARCHITECTURE_KEY: self.arch,
             models.BOARD_INSTANCE_KEY: self.board_instance,
             models.BOARD_KEY: self.board,
+            models.BOOTLOADER_TYPE_KEY: self.bootloader,
+            models.BOOTLOADER_VERSION_KEY: self.bootloader_version,
             models.BOOT_LOG_HTML_KEY: self.boot_log_html,
             models.BOOT_LOG_KEY: self.boot_log,
             models.BOOT_RESULT_DESC_KEY: self.boot_result_description,
             models.BUILD_ID_KEY: self.build_id,
+            models.CHAINLOADER_TYPE_KEY: self.chainloader,
             models.CREATED_KEY: self.created_on,
             models.DEFCONFIG_FULL_KEY: self.defconfig_full,
             models.DEFCONFIG_KEY: self.defconfig,

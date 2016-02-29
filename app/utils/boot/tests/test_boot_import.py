@@ -57,7 +57,10 @@ class TestParseBoot(unittest.TestCase):
             endian="little",
             uimage="uimage",
             uimage_addr="xip",
-            mach="soc"
+            mach="soc",
+            bootloader="bootloader",
+            bootloader_version="1.2.3",
+            chainloader="chainloader"
         )
 
     def tearDown(self):
@@ -84,6 +87,9 @@ class TestParseBoot(unittest.TestCase):
         self.assertEqual(doc.version, "1.0")
         self.assertEqual(doc.mach, "soc")
         self.assertEqual(doc.uimage, "uimage")
+        self.assertEqual(doc.bootloader, "bootloader")
+        self.assertEqual(doc.bootloader_version, "1.2.3")
+        self.assertEqual(doc.chainloader, "chainloader")
         self.assertIsInstance(doc.metadata, types.DictionaryType)
 
     def test_parse_from_json_default_arch(self):
