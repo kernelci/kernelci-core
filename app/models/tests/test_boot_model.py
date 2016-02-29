@@ -57,6 +57,7 @@ class TestBootModel(unittest.TestCase):
         boot_doc.bootloader = "bootloader"
         boot_doc.bootloader_version = "1.2.3"
         boot_doc.chainloader = "chainloader"
+        boot_doc.filesystem = "nfs"
 
         expected = {
             "_id": "id",
@@ -104,7 +105,8 @@ class TestBootModel(unittest.TestCase):
             "warnings": 2,
             "bootloader": "bootloader",
             "bootloader_version": "1.2.3",
-            "chainloader": "chainloader"
+            "chainloader": "chainloader",
+            "filesystem": "nfs"
         }
 
         self.assertDictEqual(expected, boot_doc.to_dict())
@@ -171,7 +173,8 @@ class TestBootModel(unittest.TestCase):
             "warnings": 2,
             "bootloader": "bootloader",
             "bootloader_version": "1.2.3",
-            "chainloader": "chainloader"
+            "chainloader": "chainloader",
+            "filesystem": "nfs"
         }
 
         boot_doc = mboot.BootDocument.from_json(boot_json)

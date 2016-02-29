@@ -92,6 +92,7 @@ EXPIRES_KEY = "expires_on"
 FASTBOOT_CMD_KEY = "fastboot_cmd"
 FASTBOOT_KEY = "fastboot"
 FIELD_KEY = "field"
+FILESYSTEM_TYPE_KEY = "filesystem"
 FILE_SERVER_RESOURCE_KEY = "file_server_resource"
 FILE_SERVER_URL_KEY = "file_server_url"
 GIT_BRANCH_KEY = "git_branch"
@@ -427,6 +428,7 @@ BOOT_VALID_KEYS = {
             ENDIANNESS_KEY,
             FASTBOOT_CMD_KEY,
             FASTBOOT_KEY,
+            FILESYSTEM_TYPE_KEY,
             FILE_SERVER_RESOURCE_KEY,
             FILE_SERVER_URL_KEY,
             GIT_BRANCH_KEY,
@@ -462,6 +464,7 @@ BOOT_VALID_KEYS = {
         DEFCONFIG_FULL_KEY,
         DEFCONFIG_KEY,
         ENDIANNESS_KEY,
+        FILESYSTEM_TYPE_KEY,
         GIT_BRANCH_KEY,
         GIT_COMMIT_KEY,
         GIT_DESCRIBE_KEY,

@@ -253,6 +253,7 @@ def _update_boot_doc_from_json(boot_doc, json_pop_f, errors):
     boot_doc.bootloader_version = json_pop_f(
         models.BOOTLOADER_VERSION_KEY, None)
     boot_doc.chainloader = json_pop_f(models.CHAINLOADER_TYPE_KEY, None)
+    boot_doc.filesystem = json_pop_f(models.FILESYSTEM_TYPE_KEY, None)
 
 
 def _check_for_null(get_func):

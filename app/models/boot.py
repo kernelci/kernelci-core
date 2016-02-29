@@ -82,6 +82,7 @@ class BootDocument(modb.BaseDocument):
         self.fastboot_cmd = None
         self.file_server_resource = None
         self.file_server_url = None
+        self.filesystem = None
         self.git_branch = None
         self.git_commit = None
         self.git_describe = None
@@ -211,6 +212,7 @@ class BootDocument(modb.BaseDocument):
             models.ENDIANNESS_KEY: self.endian,
             models.FASTBOOT_CMD_KEY: self.fastboot_cmd,
             models.FASTBOOT_KEY: self.fastboot,
+            models.FILESYSTEM_TYPE_KEY: self.filesystem,
             models.FILE_SERVER_RESOURCE_KEY: self.file_server_resource,
             models.FILE_SERVER_URL_KEY: self.file_server_url,
             models.GIT_BRANCH_KEY: self.git_branch,
