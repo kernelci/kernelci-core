@@ -37,9 +37,9 @@ import models
 import models.build as mbuild
 import models.job as mjob
 import utils
-import utils.elf as elf
 import utils.database.redisdb as redisdb
 import utils.db
+import utils.elf as elf
 import utils.errors
 
 ERR_ADD = utils.errors.add_error
