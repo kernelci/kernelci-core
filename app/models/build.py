@@ -83,6 +83,8 @@ class BuildDocument(mbase.BaseDocument):
         self.system_map = None
         self.system_map_size = None
         self.text_offset = None
+        self.vmlinux_file = None
+        self.vmlinux_file_size = None
         self.warnings = 0
 
     @property
@@ -251,6 +253,8 @@ class BuildDocument(mbase.BaseDocument):
             models.SYSTEM_MAP_SIZE_KEY: self.system_map_size,
             models.TEXT_OFFSET_KEY: self.text_offset,
             models.VERSION_KEY: self.version,
+            models.VMLINUX_FILE_KEY: self.vmlinux_file,
+            models.VMLINUX_FILE_SIZE_KEY: self.vmlinux_file_size,
             models.WARNINGS_KEY: self.warnings
         }
 
