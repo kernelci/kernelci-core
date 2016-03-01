@@ -52,7 +52,8 @@ SIZE_KEYS = [
     (models.KERNEL_CONFIG_KEY, models.KERNEL_CONFIG_SIZE_KEY),
     (models.KERNEL_IMAGE_KEY, models.KERNEL_IMAGE_SIZE_KEY),
     (models.MODULES_KEY, models.MODULES_SIZE_KEY),
-    (models.SYSTEM_MAP_KEY, models.SYSTEM_MAP_SIZE_KEY)
+    (models.SYSTEM_MAP_KEY, models.SYSTEM_MAP_SIZE_KEY),
+    (models.VMLINUX_FILE_KEY, models.VMLINUX_FILE_SIZE_KEY)
 ]
 
 # Regex to extract the kernel version.
@@ -84,25 +85,13 @@ def parse_build_artifacts(build_doc, build_dir):
     :param build_dir: The path to the build directory.
     :type build_dir: str
     """
-    def _get_size(artifact_path):
-        """Internal function to get the size of an artifact.
-
-        :param artifact_path: The full path to the artifact.
-        :type artifact_path: str
-        :return The size or None if the artifact is not a file.
-        """
-        artifact_size = None
-
-        if os.path.isfile(artifact_path):
-            artifact_size = os.stat(artifact_path).st_size
-
-        return artifact_size
-
     for key in SIZE_KEYS:
         artifact = getattr(build_doc, key[0], None)
         if artifact:
             artifact = os.path.join(build_dir, artifact)
-            setattr(build_doc, key[1], _get_size(artifact))
+
+            if os.path.isfile(artifact):
+                setattr(build_doc, key[1], os.stat(artifact).st_size)
 
 
 def parse_dtb_dir(build_dir, dtb_dir):
