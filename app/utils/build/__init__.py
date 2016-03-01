@@ -37,6 +37,7 @@ import models
 import models.build as mbuild
 import models.job as mjob
 import utils
+import utils.build.elf as elf
 import utils.database.redisdb as redisdb
 import utils.db
 import utils.errors
@@ -302,6 +303,7 @@ def parse_build_data(build_data, job, kernel, errors, build_dir=None):
             build_doc.kernel_image_size = data_pop(
                 models.KERNEL_IMAGE_SIZE_KEY, None)
             build_doc.modules_size = data_pop(models.MODULES_SIZE_KEY, None)
+            build_doc.vmlinux_file = data_pop(models.VMLINUX_FILE_KEY, None)
             build_doc.cross_compile = data_pop(models.CROSS_COMPILE_KEY, None)
 
             build_doc.git_describe_v = data_pop(
@@ -397,6 +399,9 @@ def _traverse_build_dir(
                             real_dir, build_doc.dtb_dir)
 
                     parse_build_artifacts(build_doc, real_dir)
+
+                    if build_doc.vmlinux_file:
+                        elf.read(build_doc, build_dir)
         except IOError, ex:
             err_msg = "Error reading json data file (job: %s, kernel: %s) - %s"
             utils.LOG.exception(ex)
