@@ -21,8 +21,6 @@ import models
 import models.base as mbase
 import utils
 
-DB_CONNECTION = None
-
 
 def get_db_connection(db_options, db_name=models.DB_NAME):
     """Retrieve a mongodb database connection.
@@ -34,26 +32,23 @@ def get_db_connection(db_options, db_name=models.DB_NAME):
     :type db_name: str
     :return A mongodb database instance.
     """
-    global DB_CONNECTION
+    db_options_get = db_options.get
 
-    if DB_CONNECTION is None:
-        db_options_get = db_options.get
+    db_host = db_options_get("dbhost", "localhost")
+    db_port = db_options_get("dbport", 27017)
+    db_pool = db_options_get("dbpool", 100)
 
-        db_host = db_options_get("dbhost", "localhost")
-        db_port = db_options_get("dbport", 27017)
-        db_pool = db_options_get("dbpool", 100)
+    db_user = db_options_get("dbuser", "")
+    db_pwd = db_options_get("dbpassword", "")
 
-        db_user = db_options_get("dbuser", "")
-        db_pwd = db_options_get("dbpassword", "")
+    connection = pymongo.MongoClient(
+        host=db_host, port=db_port, max_pool_size=db_pool, w="majority"
+    )[db_name]
 
-        DB_CONNECTION = pymongo.MongoClient(
-            host=db_host, port=db_port, max_pool_size=db_pool, w="majority"
-        )[db_name]
+    if all([db_user, db_pwd]):
+        connection.authenticate(db_user, password=db_pwd)
 
-        if all([db_user, db_pwd]):
-            DB_CONNECTION.authenticate(db_user, password=db_pwd)
-
-    return DB_CONNECTION
+    return connection
 
 
 def find_one(collection, value, field="_id", operator="$in", fields=None):
@@ -77,7 +72,7 @@ def find_one(collection, value, field="_id", operator="$in", fields=None):
     :return None or the search result as a dictionary.
     """
     result = None
-    if all([operator == '$in', not isinstance(value, types.ListType)]):
+    if all([operator == "$in", not isinstance(value, types.ListType)]):
         utils.LOG.error(
             "Provided value (%s) is not of type list, got: %s",
             value,
