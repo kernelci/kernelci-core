@@ -74,6 +74,9 @@ class TestBuildModel(unittest.TestCase):
         build_doc.cross_compile = "arm"
         build_doc.vmlinux_file = "vmlinux"
         build_doc.vmlinux_file_size = 1024
+        build_doc.vmlinux_text_size = 1024
+        build_doc.vmlinux_bss_size = 1024
+        build_doc.vmlinux_data_size = 1024
 
         expected = {
             "_id": "build_id",
@@ -123,7 +126,10 @@ class TestBuildModel(unittest.TestCase):
             "cross_compile": "arm",
             "compiler_version_ext": "gcc 4.7.8",
             "vmlinux_file": "vmlinux",
-            "vmlinux_file_size": 1024
+            "vmlinux_file_size": 1024,
+            "vmlinux_text_size": 1024,
+            "vmlinux_bss_size": 1024,
+            "vmlinux_data_size": 1024
         }
 
         self.assertDictEqual(expected, build_doc.to_dict())
@@ -241,7 +247,10 @@ class TestBuildModel(unittest.TestCase):
             "cross_compile": "arm",
             "compiler_version_ext": "gcc 4.7.8",
             "vmlinux_file": "vmlinux",
-            "vmlinux_file_size": 1024
+            "vmlinux_file_size": 1024,
+            "vmlinux_text_size": 1024,
+            "vmlinux_bss_size": 1024,
+            "vmlinux_data_size": 1024
         }
         build_doc = mbuild.BuildDocument.from_json(json_obj)
 
@@ -267,3 +276,6 @@ class TestBuildModel(unittest.TestCase):
         self.assertEqual(build_doc.cross_compile, "arm")
         self.assertEqual(build_doc.vmlinux_file, "vmlinux")
         self.assertEqual(build_doc.vmlinux_file_size, 1024)
+        self.assertEqual(build_doc.vmlinux_text_size, 1024)
+        self.assertEqual(build_doc.vmlinux_data_size, 1024)
+        self.assertEqual(build_doc.vmlinux_bss_size, 1024)
