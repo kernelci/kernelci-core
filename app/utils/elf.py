@@ -20,11 +20,12 @@ import os
 
 import models
 
+
 # Default section names and their build document keys to look in the ELF file.
 # These are supposed to always be available.
 DEFAULT_ELF_SECTIONS = [
     (".bss", models.VMLINUX_BSS_SIZE_KEY),
-    (".txt", models.VMLINUX_TEXT_SIZE_KEY)
+    (".text", models.VMLINUX_TEXT_SIZE_KEY)
 ]
 
 
@@ -64,7 +65,7 @@ def read(build_doc, build_dir):
             elf_file = elffile.ELFFile(vmlinux_strm)
 
             for elf_sect in DEFAULT_ELF_SECTIONS:
-                sect = elf_file.get_section_by_name(elf_sect[1])
+                sect = elf_file.get_section_by_name(elf_sect[0])
                 if sect:
                     setattr(build_doc, elf_sect[1], sect["sh_size"])
 

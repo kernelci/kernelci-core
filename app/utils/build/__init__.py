@@ -37,7 +37,7 @@ import models
 import models.build as mbuild
 import models.job as mjob
 import utils
-import utils.build.elf as elf
+import utils.elf as elf
 import utils.database.redisdb as redisdb
 import utils.db
 import utils.errors
@@ -393,15 +393,14 @@ def _traverse_build_dir(
                     build_doc.created_on = datetime.datetime.now(
                         tz=bson.tz_util.utc)
 
-                if build_doc:
-                    if build_doc.dtb_dir:
-                        build_doc.dtb_dir_data = parse_dtb_dir(
-                            real_dir, build_doc.dtb_dir)
+                if build_doc.dtb_dir:
+                    build_doc.dtb_dir_data = parse_dtb_dir(
+                        real_dir, build_doc.dtb_dir)
 
-                    parse_build_artifacts(build_doc, real_dir)
+                parse_build_artifacts(build_doc, real_dir)
 
-                    if build_doc.vmlinux_file:
-                        elf.read(build_doc, build_dir)
+                if build_doc.vmlinux_file:
+                    elf.read(build_doc, real_dir)
         except IOError, ex:
             err_msg = "Error reading json data file (job: %s, kernel: %s) - %s"
             utils.LOG.exception(ex)
