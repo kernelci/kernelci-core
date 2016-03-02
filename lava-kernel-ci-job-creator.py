@@ -780,6 +780,22 @@ imx53_qsbr = {'device_type': 'imx53-qsbr',
               'lpae': False,
               'fastboot': False}
 
+imx28_duckbill = {'device_type': 'imx28-duckbill',
+                  'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                  'defconfig_blacklist': ['arm-allmodconfig'],
+                  'kernel_blacklist': [],
+                  'nfs_blacklist': [],
+                  'lpae': False,
+                  'fastboot': False}
+
+imx23_olinuxino = {'device_type': 'imx23-olinuxino',
+                   'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                   'defconfig_blacklist': ['arm-allmodconfig'],
+                   'kernel_blacklist': [],
+                   'nfs_blacklist': [],
+                   'lpae': False,
+                   'fastboot': False}
+
 socfpga_cyclone5_socrates = {'device_type': 'socfpga-cyclone5-socrates',
                              'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
                                            'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
@@ -848,6 +864,8 @@ device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'x86-kvm': [x86_kvm],
               'imx6dl-riotboard.dtb': [imx6dl_riotboard],
               'imx53-qsrb.dtb': [imx53_qsbr],
+              'imx28-duckbill.dtb': [imx28_duckbill],
+              'imx23-olinuxino.dtb': [imx23_olinuxino],
               'socfpga_cyclone5_socrates.dtb': [socfpga_cyclone5_socrates]}
 
 parse_re = re.compile('href="([^./"?][^"?]*)"')
