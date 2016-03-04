@@ -165,6 +165,7 @@
   git:  repo=https://github.com/letsencrypt/letsencrypt.git
         dest={{ install_base }}/letsencrypt
         update=yes
+        force=yes
   tags:
     - web-server
     - https
