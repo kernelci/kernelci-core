@@ -11,14 +11,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Perform build delta calculations.
+"""Perform boot delta calculations.
 
-Build delta calculations are performed by returining the database results
+Boot delta calculations are performed by returining the database results
 (almost) as is, with a few calculations done here locally.
 """
 
 import bson
-import types
 
 import models
 import models.compare
@@ -27,24 +26,8 @@ import utils.db
 import utils.errors
 import utils.validator
 
+
 ADD_ERR = utils.errors.add_error
-
-
-def update_build_doc(doc):
-    """Update a build doc.
-
-    Perform some calculations/updates on a doc in order to include more
-    interesting data for the comparison.
-
-    :param doc: The build doc to update.
-    :type doc: dict
-    """
-    # Count the number of dtbs available.
-    dtb_data = doc.get(models.DTB_DIR_DATA_KEY, None)
-    if all([dtb_data is not None, isinstance(dtb_data, types.ListType)]):
-        doc[models.DTB_DIR_DATA_KEY] = len(dtb_data)
-    else:
-        doc[models.DTB_DIR_DATA_KEY] = 0
 
 
 # pylint: disable=too-many-branches
@@ -67,9 +50,9 @@ def search_and_compare(json_obj, compare_to, errors, db_options):
     compare_data = {}
     database = utils.db.get_db_connection(db_options)
     result = []
-    status = 201
+    status = 200
 
-    def _find_and_update(to_search):
+    def _find(to_search):
         """Internally used to search and update the document.
 
         Special case of a comparison since we only need to extract all the
@@ -81,10 +64,10 @@ def search_and_compare(json_obj, compare_to, errors, db_options):
         """
         doc = {}
         spec = {}
-        status_code = 201
+        status_code = 200
 
         t_get = to_search.get
-        build_id = t_get(models.BUILD_ID_KEY, None)
+        build_id = t_get(models.BOOT_ID_KEY, None)
 
         if build_id:
             try:
@@ -96,36 +79,35 @@ def search_and_compare(json_obj, compare_to, errors, db_options):
         else:
             spec = {
                 models.ARCHITECTURE_KEY: t_get(models.ARCHITECTURE_KEY),
+                models.BOARD_KEY: t_get(models.BOARD_KEY),
                 models.DEFCONFIG_FULL_KEY: t_get(models.DEFCONFIG_FULL_KEY),
                 models.JOB_KEY: t_get(models.JOB_KEY),
-                models.KERNEL_KEY: t_get(models.KERNEL_KEY)
+                models.KERNEL_KEY: t_get(models.KERNEL_KEY),
+                models.LAB_NAME_KEY: t_get(models.LAB_NAME_KEY)
             }
 
         if spec:
-            doc = database[models.BUILD_COLLECTION].find_one(spec)
+            doc = database[models.BOOT_COLLECTION].find_one(spec)
 
-            if doc:
-                update_build_doc(doc)
-            else:
+            if not doc:
                 status_code = 404
-                ADD_ERR(
-                    errors, 404, "No data found as comparison starting point")
+                ADD_ERR(errors, 404, "No data found")
 
         return status_code, doc
 
-    status, baseline = _find_and_update(json_obj)
-    if all([status == 201, baseline]):
+    status, baseline = _find(json_obj)
+    if all([status == 200, baseline]):
         compare_data[models.BASELINE_KEY] = baseline
 
         compare_result = []
         for compare_doc in compare_to:
             is_valid, err_msg = utils.validator.is_valid_json(
-                compare_doc, models.compare.BUILD_COMPARE_TO_VALID_KEYS)
+                compare_doc, models.compare.BOOT_COMPARE_VALID_KEYS)
 
             if is_valid:
-                status, compared = _find_and_update(compare_doc)
+                status, compared = _find(compare_doc)
 
-                if all([status == 201, compared]):
+                if all([status == 200, compared]):
                     compare_result.append(compared)
                 else:
                     break
@@ -134,7 +116,7 @@ def search_and_compare(json_obj, compare_to, errors, db_options):
                 ADD_ERR(errors, 400, err_msg)
                 break
         else:
-            status = 201
+            status = 200
             compare_data[models.COMPARE_TO_KEY] = compare_result
             result.append(compare_data)
 
@@ -152,12 +134,12 @@ def execute_delta(json_obj, db_options=None):
     :return A 3-tuple: The status code (200 OK), the list of result and an
     error data structure.
     """
-    status = 200
     doc_id = None
-    result = []
     errors = {}
+    result = []
+    status = 200
 
-    if db_options is None:
+    if not db_options:
         db_options = {}
 
     j_get = json_obj.get
@@ -166,11 +148,15 @@ def execute_delta(json_obj, db_options=None):
     kernel = j_get(models.KERNEL_KEY, None)
     defconfig_full = j_get(models.DEFCONFIG_FULL_KEY, None)
     arch = j_get(models.ARCHITECTURE_KEY, None)
+    board = j_get(models.BOARD_KEY, None)
+    lab_name = j_get(models.LAB_NAME_KEY, None)
     compare_to = j_get(models.COMPARE_TO_KEY, [])
-    build_id = j_get(models.BUILD_ID_KEY, None)
+    boot_id = j_get(models.BOOT_ID_KEY, None)
 
-    if all([not build_id,
-            any([not job, not kernel, not defconfig_full, not arch])]):
+    if all([not boot_id,
+            any([not job,
+                 not kernel,
+                 not defconfig_full, not arch, not board, not lab_name])]):
         status = 400
         ADD_ERR(errors, 400, "Missing mandatory data to perform a comparison")
     elif not compare_to:
@@ -192,7 +178,7 @@ def execute_delta(json_obj, db_options=None):
 
         # First search for any saved results.
         saved = utils.compare.common.search_saved_delta_doc(
-            json_obj, models.BUILD_DELTA_COLLECTION, db_options)
+            json_obj, models.BOOT_DELTA_COLLECTION, db_options)
 
         if saved:
             result, doc_id = saved[0], saved[1]
@@ -203,6 +189,6 @@ def execute_delta(json_obj, db_options=None):
             if any([status == 201, status == 200]):
                 doc_id = utils.compare.common.save_delta_doc(
                     json_obj,
-                    result, models.BUILD_DELTA_COLLECTION, db_options)
+                    result, models.BOOT_DELTA_COLLECTION, db_options)
 
     return status, result, doc_id, errors

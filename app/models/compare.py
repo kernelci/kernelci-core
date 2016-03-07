@@ -15,6 +15,7 @@
 
 import models
 
+
 JOB_DELTA_COMPARE_TO_VALID_KEYS = [
     models.JOB_ID_KEY,
     models.JOB_KEY,
@@ -42,6 +43,18 @@ BUILD_DELTA_VALID_KEYS = {
     ]
 }
 
+BOOT_DELTA_VALID_KEYS = {
+    "POST": [
+        models.ARCHITECTURE_KEY,
+        models.BOARD_KEY,
+        models.BOOT_ID_KEY,
+        models.COMPARE_TO_KEY,
+        models.DEFCONFIG_FULL_KEY,
+        models.DEFCONFIG_KEY,
+        models.LAB_NAME_KEY
+    ]
+}
+
 BUILD_COMPARE_TO_VALID_KEYS = [
     models.ARCHITECTURE_KEY,
     models.BUILD_ID_KEY,
@@ -51,7 +64,17 @@ BUILD_COMPARE_TO_VALID_KEYS = [
     models.KERNEL_KEY
 ]
 
+BOOT_COMPARE_VALID_KEYS = [
+    models.ARCHITECTURE_KEY,
+    models.BOARD_KEY,
+    models.BOOT_ID_KEY,
+    models.DEFCONFIG_FULL_KEY,
+    models.DEFCONFIG_KEY,
+    models.LAB_NAME_KEY
+]
+
 COMPARE_VALID_KEYS = {
+    models.BOOT_COLLECTION: BOOT_COMPARE_VALID_KEYS,
     models.BUILD_COLLECTION: BUILD_DELTA_VALID_KEYS,
     models.JOB_COLLECTION: JOB_DELTA_VALID_KEYS
 }
