@@ -24,6 +24,14 @@ bcm2835_rpi_b_plus = {'device_type': 'bcm2835-rpi-b-plus',
                       'lpae': False,
                       'fastboot': False}
 
+bcm2836_rpi_2_b = {'device_type': 'bcm2836-rpi-2-b',
+                      'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                      'defconfig_blacklist': ['arm-allmodconfig'],
+                      'kernel_blacklist': [],
+                      'nfs_blacklist': [],
+                      'lpae': False,
+                      'fastboot': False}
+
 bcm4708_smartrg_sr400ac = {'device_type': 'bcm4708-smartrg-sr400ac',
                            'templates': ['cfe-arm-dtb-kernel-ci-boot-template.json',
                                          'generic-arm-dtb-kernel-ci-kselftest-template.json'],
@@ -809,6 +817,7 @@ socfpga_cyclone5_socrates = {'device_type': 'socfpga-cyclone5-socrates',
                              'fastboot': False}
 
 device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
+              'bcm2836-rpi-2-b.dtb' : [ bcm2836_rpi_2_b],
               'bcm4708-smartrg-sr400ac.dtb': [bcm4708_smartrg_sr400ac],
               'armada-370-mirabox.dtb': [armada_370_mirabox],
               'exynos5250-arndale.dtb': [arndale],
