@@ -289,7 +289,7 @@ if install:
 
     # Patterns for matching kernel images by architecture
     if arch == 'arm':
-        patterns = ['zImage', 'vmlinux']
+        patterns = ['zImage']
     elif arch == 'arm64':
         patterns = ['Image']
     # TODO: Fix this assumption. ARCH != ARM* == x86
@@ -303,6 +303,9 @@ if install:
             for filename in fnmatch.filter(filenames, pattern):
                 kimages.append(os.path.join(root, filename))
                 shutil.copy(os.path.join(root, filename), install_path)
+
+    if os.path.isfile(os.path.join(kbuild_output, "vmlinux")):
+        shutil.copy(os.path.join(kbuild_output, "vmlinux"), install_path)
 
     if len(kimages) == 1:
         kimage_file = kimages[0]
