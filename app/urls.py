@@ -138,6 +138,12 @@ _BOOT_COMPARE_URL = tornado.web.url(
     kwargs={"resource": "boot"}, name="boot-compare"
 )
 
+_BOOT_COMPARE_ID_URL = tornado.web.url(
+    r"/boot[s]?/compare/(?P<id>[A-Za-z0-9]{24})/?$",
+    handlers.compare.CompareHandler,
+    kwargs={"resource": "boot"}, name="boot-compare-id"
+)
+
 _COUNT_URL = tornado.web.url(
     r"/count[s]?/?(?P<id>.*)", handlers.count.CountHandler, name="count")
 
@@ -186,6 +192,7 @@ _STATS_URL = tornado.web.url(
 APP_URLS = [
     _BATCH_URL,
     _BISECT_URL,
+    _BOOT_COMPARE_ID_URL,
     _BOOT_COMPARE_URL,
     _BOOT_DISTINCT_URL,
     _BOOT_ID_URL,
