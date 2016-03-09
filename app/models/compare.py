@@ -51,6 +51,8 @@ BOOT_DELTA_VALID_KEYS = {
         models.COMPARE_TO_KEY,
         models.DEFCONFIG_FULL_KEY,
         models.DEFCONFIG_KEY,
+        models.JOB_KEY,
+        models.KERNEL_KEY,
         models.LAB_NAME_KEY
     ]
 }
@@ -70,11 +72,13 @@ BOOT_COMPARE_VALID_KEYS = [
     models.BOOT_ID_KEY,
     models.DEFCONFIG_FULL_KEY,
     models.DEFCONFIG_KEY,
+    models.JOB_KEY,
+    models.KERNEL_KEY,
     models.LAB_NAME_KEY
 ]
 
 COMPARE_VALID_KEYS = {
-    models.BOOT_COLLECTION: BOOT_COMPARE_VALID_KEYS,
+    models.BOOT_COLLECTION: BOOT_DELTA_VALID_KEYS,
     models.BUILD_COLLECTION: BUILD_DELTA_VALID_KEYS,
     models.JOB_COLLECTION: JOB_DELTA_VALID_KEYS
 }
@@ -82,6 +86,7 @@ COMPARE_VALID_KEYS = {
 # Matching between compare resources and their real database collection.
 # This is used for GET operations.
 COMPARE_RESOURCE_COLLECTIONS = {
+    models.BOOT_COLLECTION: models.BOOT_DELTA_COLLECTION,
     models.BUILD_COLLECTION: models.BUILD_DELTA_COLLECTION,
     models.JOB_COLLECTION: models.JOB_DELTA_COLLECTION
 }
