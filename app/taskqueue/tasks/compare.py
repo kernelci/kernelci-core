@@ -15,9 +15,9 @@
 
 import taskqueue.celery as taskc
 import utils.build
+import utils.compare.boot
 import utils.compare.build
 import utils.compare.job
-import utils.log_parser
 
 
 @taskc.app.task(name="job-delta", ignore_result=False)
@@ -53,3 +53,21 @@ def calculate_build_delta(json_obj, db_options=None, mail_options=None):
     :rtype tuple
     """
     return utils.compare.build.execute_delta(json_obj, db_options)
+
+
+@taskc.app.task(name="boot-delta", ignore_result=False)
+def calculate_boot_delta(json_obj, db_options=None, mail_options=None):
+    """Perform the boot delta calculations.
+
+    Wrapper around the real function to provide a task-based access.
+
+    :param json_obj: The JSON data with the values.
+    :type json_obj: dict
+    :param db_options: The database connection parameters.
+    :type db_options: dict
+    :param mail_options: The email connection parameters.
+    :type mail_options: dict
+    :return A 4-tuple: status code, result, doc_id and errors.
+    :rtype tuple
+    """
+    return utils.compare.boot.execute_delta(json_obj, db_options)
