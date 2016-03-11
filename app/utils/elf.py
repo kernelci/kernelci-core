@@ -28,15 +28,16 @@ DEFAULT_ELF_SECTIONS = [
     (".text", models.VMLINUX_TEXT_SIZE_KEY)
 ]
 
-# Write/Alloc constant we need to check for in the ELF sections.
+# Write/Alloc & Alloc constant we need to check for in the ELF sections.
 ELF_WA_FLAG = elfconst.SH_FLAGS.SHF_WRITE | elfconst.SH_FLAGS.SHF_ALLOC
+ELF_A_FLAG = elfconst.SH_FLAGS.SHF_ALLOC
 
 
 def calculate_data_size(elf_file):
     """Loop through the ELF file sections and compute the .data size.
 
-    If will look for all SHT_PROGBITS type sections that have only the
-    SHF_ALLOC flag set and sum their sizes.
+    It will look for all SHT_PROGBITS type sections that have the
+    SHF_ALLOC or SHF_ALLOC+SHF_WRITE flag set and sum their sizes.
 
     :param elf_file: The open ELF file.
     :return The .data size or 0.
@@ -44,8 +45,9 @@ def calculate_data_size(elf_file):
     data_size = 0
 
     for section in elf_file.iter_sections():
+        elf_flags = section["sh_flags"]
         if all([section["sh_type"] == "SHT_PROGBITS",
-                section["sh_flags"] == ELF_WA_FLAG]):
+                any([elf_flags == ELF_WA_FLAG, elf_flags == ELF_A_FLAG])]):
             data_size += section["sh_size"]
 
     return data_size
