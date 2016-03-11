@@ -306,6 +306,7 @@ if install:
 
     if os.path.isfile(os.path.join(kbuild_output, "vmlinux")):
         shutil.copy(os.path.join(kbuild_output, "vmlinux"), install_path)
+        bmeta["vmlinux_file"] = "vmlinux"
 
     if len(kimages) == 1:
         kimage_file = kimages[0]
