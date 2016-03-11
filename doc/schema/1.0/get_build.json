@@ -175,6 +175,46 @@
             "type": "string",
             "description": "The type of the build"
         },
+        "vmlinux_bss_size": {
+            "type": "integer",
+            "description": "Size in bytes of the .bss ELF file section"
+        },
+        "vmlinux_data_size": {
+            "type": "intger",
+            "description": "Size in bytes of all the WA and A PROGBITS sections in the ELF file (the .data section)"
+        },
+        "vmlinux_file": {
+            "type": "string",
+            "description": "The name of the ELF kernel image"
+        },
+        "vmlinux_file_size": {
+            "type": "integer",
+            "description": "The size in bytes of the vmlinux ELF file"
+        },
+        "vmlinux_text_size": {
+            "type": "integer",
+            "description": "The size in bytes of the .text ELF file section"
+        },
+        "compiler": {
+            "type": "string",
+            "description": "The name of the compiler used"
+        },
+        "compiler_version": {
+            "type": "string",
+            "description": "The version of the compiler used"
+        },
+        "compiler_version_ext": {
+            "type": "string",
+            "description": "Concatenation of compiler and compiler_version"
+        },
+        "compiler_version_full": {
+            "type": "string",
+            "description": "Full string of the compiler used (compiler, version, vendor numbering, ...)"
+        },
+        "cross_compile": {
+            "type": "string",
+            "description": "The description of the cross-compile used"
+        },
         "metadata": {
             "type": "object",
             "description": "A free form object that can contain different properties"

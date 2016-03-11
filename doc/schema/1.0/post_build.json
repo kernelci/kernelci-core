@@ -139,6 +139,10 @@
             "description": "The type of the build",
             "enum": ["kernel"],
             "default": "kernel"
+        },
+        "vmlinux_file": {
+            "type": "string",
+            "description": "The name of the ELF kernel image (usually vmlinux)"
         }
     },
     "required": ["job", "kernel", "defconfig", "arch"]

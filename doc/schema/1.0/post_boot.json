@@ -160,6 +160,22 @@
         "qemu_command": {
             "type": "string",
             "description": "Full command line used to start qemu"
+        },
+        "filesystem": {
+            "type": "string",
+            "description": "Type of file system used"
+        },
+        "chainloader": {
+            "type": "string",
+            "description": "Description of the chainloader used, if any"
+        },
+        "bootloader": {
+            "type": "string",
+            "description": "The name of the bootloader used"
+        },
+        "bootloader_version": {
+            "type": "string",
+            "description": "The version of the bootloader used"
         }
     },
     "required": ["version", "lab_name", "job", "kernel", "defconfig", "board", "arch"]

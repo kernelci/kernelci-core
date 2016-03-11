@@ -157,6 +157,10 @@
             "type": "boolean",
             "description": "If it was a fastboot"
         },
+        "fastboot_cmd": {
+            "type": "string",
+            "description": "The fastboot command used"
+        },
         "boot_result_description": {
             "type": "string",
             "description": "The description of the boot result, useful to provide a cause of a failure"
@@ -201,6 +205,22 @@
         "qemu_command": {
             "type": "string",
             "description": "Full command line used to start qemu"
+        },
+        "filesystem": {
+            "type": "string",
+            "description": "Type of filesystem used"
+        },
+        "chainloader": {
+            "type": "string",
+            "description": "Description of the chainloader used, if any"
+        },
+        "bootloader": {
+            "type": "string",
+            "description": "The name of the bootloader used"
+        },
+        "bootloader_version": {
+            "type": "string",
+            "description": "The version of the bootloader used"
         }
     }
 }
