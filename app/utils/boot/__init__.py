@@ -341,6 +341,8 @@ def _update_boot_doc_ids(boot_doc, database):
         if not boot_doc.compiler_version:
             boot_doc.compiler_version = \
                 doc_get(models.COMPILER_VERSION_KEY, None)
+        if not boot_doc.cross_compile:
+            boot_doc.cross_compile = doc_get(models.CROSS_COMPILE_KEY, None)
 
         # Pick the kernel image size as well.
         boot_doc.kernel_image_size = \

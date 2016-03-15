@@ -212,6 +212,7 @@ class BootDocument(modb.BaseDocument):
             models.COMPILER_VERSION_EXT_KEY: self.compiler_version_ext,
             models.COMPILER_VERSION_FULL_KEY: self.compiler_version_full,
             models.COMPILER_VERSION_KEY: self.compiler_version,
+            models.CROSS_COMPILE_KEY: self.cross_compile,
             models.CREATED_KEY: self.created_on,
             models.DEFCONFIG_FULL_KEY: self.defconfig_full,
             models.DEFCONFIG_KEY: self.defconfig,
