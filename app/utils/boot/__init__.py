@@ -305,16 +305,7 @@ def _update_boot_doc_ids(boot_doc, database):
         build_spec[models.DEFCONFIG_FULL_KEY] = defconfig_full
 
     build_doc = utils.db.find_one2(
-        database[models.BUILD_COLLECTION],
-        build_spec,
-        fields=[
-            models.GIT_BRANCH_KEY,
-            models.GIT_COMMIT_KEY,
-            models.GIT_DESCRIBE_KEY,
-            models.GIT_URL_KEY,
-            models.ID_KEY,
-            models.JOB_ID_KEY
-        ])
+        database[models.BUILD_COLLECTION], build_spec)
 
     if job_doc:
         boot_doc.job_id = job_doc.get(models.ID_KEY, None)
@@ -322,6 +313,7 @@ def _update_boot_doc_ids(boot_doc, database):
         utils.LOG.warn(
             "No job document found for boot %s-%s-%s (%s)",
             job, kernel, defconfig_full, arch)
+
     if build_doc:
         doc_get = build_doc.get
         boot_doc.build_id = doc_get(models.ID_KEY, None)
@@ -338,6 +330,17 @@ def _update_boot_doc_ids(boot_doc, database):
             boot_doc.git_describe = doc_get(models.GIT_DESCRIBE_KEY, None)
         if not boot_doc.git_url:
             boot_doc.git_url = doc_get(models.GIT_URL_KEY, None)
+        if not boot_doc.compiler:
+            boot_doc.compiler = doc_get(models.COMPILER_KEY, None)
+        if not boot_doc.compiler_version_ext:
+            boot_doc.compiler_version_ext = \
+                doc_get(models.COMPILER_VERSION_EXT_KEY, None)
+        if not boot_doc.compiler_version_full:
+            boot_doc.compiler_version_full = \
+                doc_get(models.COMPILER_VERSION_FULL_KEY, None)
+        if not boot_doc.compiler_version:
+            boot_doc.compiler_version = \
+                doc_get(models.COMPILER_VERSION_KEY, None)
 
         # Pick the kernel image size as well.
         boot_doc.kernel_image_size = \
