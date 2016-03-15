@@ -74,6 +74,11 @@ class BootDocument(modb.BaseDocument):
         self.bootloader_version = None
         self.build_id = None
         self.chainloader = None
+        self.compiler = None
+        self.compiler_version = None
+        self.compiler_version_ext = None
+        self.compiler_version_full = None
+        self.cross_compile = None
         self.dtb = None
         self.dtb_addr = None
         self.dtb_append = None
@@ -203,6 +208,10 @@ class BootDocument(modb.BaseDocument):
             models.BOOT_RESULT_DESC_KEY: self.boot_result_description,
             models.BUILD_ID_KEY: self.build_id,
             models.CHAINLOADER_TYPE_KEY: self.chainloader,
+            models.COMPILER_KEY: self.compiler,
+            models.COMPILER_VERSION_EXT_KEY: self.compiler_version_ext,
+            models.COMPILER_VERSION_FULL_KEY: self.compiler_version_full,
+            models.COMPILER_VERSION_KEY: self.compiler_version,
             models.CREATED_KEY: self.created_on,
             models.DEFCONFIG_FULL_KEY: self.defconfig_full,
             models.DEFCONFIG_KEY: self.defconfig,

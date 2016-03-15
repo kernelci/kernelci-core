@@ -58,6 +58,10 @@ class TestBootModel(unittest.TestCase):
         boot_doc.bootloader_version = "1.2.3"
         boot_doc.chainloader = "chainloader"
         boot_doc.filesystem = "nfs"
+        boot_doc.compiler = "gcc"
+        boot_doc.compiler_version = "4.7.3"
+        boot_doc.compiler_version_ext = "gcc 4.7.3"
+        boot_doc.compiler_version_full = "gcc version 4.7.3"
 
         expected = {
             "_id": "id",
@@ -106,7 +110,11 @@ class TestBootModel(unittest.TestCase):
             "bootloader": "bootloader",
             "bootloader_version": "1.2.3",
             "chainloader": "chainloader",
-            "filesystem": "nfs"
+            "filesystem": "nfs",
+            "compiler": "gcc",
+            "compiler_version": "4.7.3",
+            "compiler_version_ext": "gcc 4.7.3",
+            "compiler_version_full": "gcc version 4.7.3"
         }
 
         self.assertDictEqual(expected, boot_doc.to_dict())
@@ -174,7 +182,11 @@ class TestBootModel(unittest.TestCase):
             "bootloader": "bootloader",
             "bootloader_version": "1.2.3",
             "chainloader": "chainloader",
-            "filesystem": "nfs"
+            "filesystem": "nfs",
+            "compiler": "gcc",
+            "compiler_version": "4.7.3",
+            "compiler_version_ext": "gcc 4.7.3",
+            "compiler_version_full": "gcc version 4.7.3"
         }
 
         boot_doc = mboot.BootDocument.from_json(boot_json)
