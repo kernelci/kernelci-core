@@ -172,7 +172,14 @@ _SEND_URL = tornado.web.url(r"/send/?", handlers.send.SendHandler, name="send")
 
 _TEST_SUITE_URL = tornado.web.url(
     r"/test[s]?/suite[s]?/?(?P<id>.*)",
-    handlers.test_suite.TestSuiteHandler, name="test-suite")
+    handlers.test_suite.TestSuiteHandler, name="test-suite"
+)
+
+_TEST_SUITE_DISTINCT_URL = tornado.web.url(
+    r"/test[s]?/suite[s]?/distinct/(?P<field>[A-Za-z0-9_]+)/?$",
+    handlers.distinct.DistinctHandler,
+    kwargs={"resource": "test_suite"}, name="test-suite-distinct"
+)
 
 _TEST_SET_URL = tornado.web.url(
     r"/test[s]?/set[s]?/?(?P<id>.*)",
@@ -223,6 +230,7 @@ APP_URLS = [
     _STATS_URL,
     _TEST_CASE_URL,
     _TEST_SET_URL,
+    _TEST_SUITE_DISTINCT_URL,
     _TEST_SUITE_URL,
     _TOKEN_URL,
     _UPLOAD_URL,

@@ -986,5 +986,8 @@ DISTINCT_VALID_FIELDS = {
         KERNEL_KEY,
         LAB_NAME_KEY,
         MACH_KEY
+    ],
+    TEST_SUITE_COLLECTION: [
+        NAME_KEY
     ]
 }
