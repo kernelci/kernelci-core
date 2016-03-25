@@ -816,6 +816,14 @@ socfpga_cyclone5_socrates = {'device_type': 'socfpga-cyclone5-socrates',
                              'lpae': False,
                              'fastboot': False}
 
+imx27_phycard_s = {'device_type': 'imx27-phytec-phycard-s-rdk',
+                   'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                   'defconfig_blacklist': ['arm-allmodconfig'],
+                   'kernel_blacklist': [],
+                   'nfs_blacklist': [],
+                   'lpae': False,
+                   'fastboot': False}
+
 device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'bcm2836-rpi-2-b.dtb' : [ bcm2836_rpi_2_b],
               'bcm4708-smartrg-sr400ac.dtb': [bcm4708_smartrg_sr400ac],
@@ -875,7 +883,8 @@ device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'imx53-qsrb.dtb': [imx53_qsbr],
               'imx28-duckbill.dtb': [imx28_duckbill],
               'imx23-olinuxino.dtb': [imx23_olinuxino],
-              'socfpga_cyclone5_socrates.dtb': [socfpga_cyclone5_socrates]}
+              'socfpga_cyclone5_socrates.dtb': [socfpga_cyclone5_socrates],
+              'imx27-phytec-phycard-s-rdk.dtb': [imx27_phycard_s]}
 
 parse_re = re.compile('href="([^./"?][^"?]*)"')
 
