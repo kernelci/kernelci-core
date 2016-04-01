@@ -832,6 +832,14 @@ openblocks_ax3 = {'device_type': 'armada-xp-openblocks-ax3-4',
                     'lpae': False,
                     'fastboot': False}
 
+armada_388_clearfog = {'device_type': 'armada-388-clearfog',
+                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'defconfig_blacklist': ['arm-allmodconfig'],
+                    'kernel_blacklist': [],
+                    'nfs_blacklist': [],
+                    'lpae': False,
+                    'fastboot': False}
+
 device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'bcm2836-rpi-2-b.dtb' : [ bcm2836_rpi_2_b],
               'bcm4708-smartrg-sr400ac.dtb': [bcm4708_smartrg_sr400ac],
@@ -893,6 +901,7 @@ device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'imx23-olinuxino.dtb': [imx23_olinuxino],
               'socfpga_cyclone5_socrates.dtb': [socfpga_cyclone5_socrates],
               'imx27-phytec-phycard-s-rdk.dtb': [imx27_phycard_s],
+              'armada-388-clearfog.dtb': [armada_388_clearfog],
               'armada-xp-openblocks-ax3-4.dtb': [openblocks_ax3]}
 
 parse_re = re.compile('href="([^./"?][^"?]*)"')
