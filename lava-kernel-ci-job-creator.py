@@ -824,6 +824,14 @@ imx27_phycard_s = {'device_type': 'imx27-phytec-phycard-s-rdk',
                    'lpae': False,
                    'fastboot': False}
 
+openblocks_ax3 = {'device_type': 'armada-xp-openblocks-ax3-4',
+                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'defconfig_blacklist': ['arm-allmodconfig'],
+                    'kernel_blacklist': [],
+                    'nfs_blacklist': [],
+                    'lpae': False,
+                    'fastboot': False}
+
 device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'bcm2836-rpi-2-b.dtb' : [ bcm2836_rpi_2_b],
               'bcm4708-smartrg-sr400ac.dtb': [bcm4708_smartrg_sr400ac],
@@ -884,7 +892,8 @@ device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'imx28-duckbill.dtb': [imx28_duckbill],
               'imx23-olinuxino.dtb': [imx23_olinuxino],
               'socfpga_cyclone5_socrates.dtb': [socfpga_cyclone5_socrates],
-              'imx27-phytec-phycard-s-rdk.dtb': [imx27_phycard_s]}
+              'imx27-phytec-phycard-s-rdk.dtb': [imx27_phycard_s],
+              'armada-xp-openblocks-ax3-4.dtb': [openblocks_ax3]}
 
 parse_re = re.compile('href="([^./"?][^"?]*)"')
 
