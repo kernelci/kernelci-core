@@ -23,7 +23,10 @@ try:
 except ImportError:
     import json
 
-import bson
+from bson.json_util import (
+    default,
+    object_hook
+)
 
 
 def kernelci_json_encoder(obj):
@@ -34,11 +37,7 @@ def kernelci_json_encoder(obj):
     :return A unicode string.
     """
     return json.dumps(
-        obj,
-        default=bson.json_util.default,
-        ensure_ascii=False,
-        separators=(",", ":")
-    )
+        obj, default=default, ensure_ascii=False, separators=(",", ":"))
 
 
 def kernelci_json_decoder(obj):
@@ -48,4 +47,4 @@ def kernelci_json_decoder(obj):
     :type obj: string or unicode
     :return A JSON object.
     """
-    return json.loads(obj, object_hook=bson.json_util.object_hook)
+    return json.loads(obj, object_hook=object_hook)
