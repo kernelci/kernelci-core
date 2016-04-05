@@ -13,10 +13,10 @@
 
 """Celery configuration values."""
 
-BROKER_URL = "redis://localhost"
-BROKER_POOL_LIMIT = 20
+BROKER_URL = "redis://localhost/1"
+BROKER_POOL_LIMIT = 250
 BROKER_TRANSPORT_OPTIONS = {
-    "visibility_timeout": 60*60*6,
+    "visibility_timeout": 24000,
     "fanout_prefix": True,
     "fanout_patterns": True
 }
@@ -31,3 +31,4 @@ CELERY_IGNORE_RESULT = True
 CELERY_DISABLE_RATE_LIMITS = True
 # Use a different DB than the redis default one.
 CELERY_RESULT_BACKEND = "redis://localhost/1"
+CELERY_REDIS_MAX_CONNECTIONS = 250
