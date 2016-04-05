@@ -1,12 +1,12 @@
 Sphinx
-celery[redis]==3.1.19
-futures==2.2.0
+celery[redis]==3.1.23
+futures==3.0.4
 hiredis
 jinja2
 mock>0.7.2
 mongomock==1.2.0
 netaddr==0.7.18
-pycares==0.6.3
+pycares==1.0.0
 pymongo==2.8.1
 pytz
 redis
