@@ -824,6 +824,70 @@ imx27_phycard_s = {'device_type': 'imx27-phytec-phycard-s-rdk',
                    'lpae': False,
                    'fastboot': False}
 
+openblocks_ax3 = {'device_type': 'armada-xp-openblocks-ax3-4',
+                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'defconfig_blacklist': ['arm-allmodconfig'],
+                    'kernel_blacklist': [],
+                    'nfs_blacklist': [],
+                    'lpae': False,
+                    'fastboot': False}
+
+armada_388_clearfog = {'device_type': 'armada-388-clearfog',
+                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'defconfig_blacklist': ['arm-allmodconfig'],
+                    'kernel_blacklist': [],
+                    'nfs_blacklist': [],
+                    'lpae': False,
+                    'fastboot': False}
+
+chip = {'device_type': 'sun5i-r8-chip',
+                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'defconfig_blacklist': ['arm-allmodconfig'],
+                    'kernel_blacklist': [],
+                    'nfs_blacklist': [],
+                    'lpae': False,
+                    'fastboot': False}
+
+imx6q_nitrogen6x = {'device_type': 'imx6q-nitrogen6x',
+                   'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                   'defconfig_blacklist': ['arm-allmodconfig'],
+                   'kernel_blacklist': [],
+                   'nfs_blacklist': [],
+                   'lpae': False,
+                   'fastboot': False}
+
+sama5d36ek = {'device_type': 'sama5d36ek',
+                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'defconfig_blacklist': ['arm-allmodconfig'],
+                    'kernel_blacklist': [],
+                    'nfs_blacklist': [],
+                    'lpae': False,
+                    'fastboot': False}
+
+sama5d35ek = {'device_type': 'sama5d35ek',
+                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'defconfig_blacklist': ['arm-allmodconfig'],
+                    'kernel_blacklist': [],
+                    'nfs_blacklist': [],
+                    'lpae': False,
+                    'fastboot': False}
+
+sam9261ek = {'device_type': 'at91sam9261ek',
+                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'defconfig_blacklist': ['arm-allmodconfig'],
+                    'kernel_blacklist': [],
+                    'nfs_blacklist': [],
+                    'lpae': False,
+                    'fastboot': False}
+
+sam9x25ek = {'device_type': 'at91sam9x25ek',
+                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'defconfig_blacklist': ['arm-allmodconfig'],
+                    'kernel_blacklist': [],
+                    'nfs_blacklist': [],
+                    'lpae': False,
+                    'fastboot': False}
+
 device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'bcm2836-rpi-2-b.dtb' : [ bcm2836_rpi_2_b],
               'bcm4708-smartrg-sr400ac.dtb': [bcm4708_smartrg_sr400ac],
@@ -884,7 +948,15 @@ device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'imx28-duckbill.dtb': [imx28_duckbill],
               'imx23-olinuxino.dtb': [imx23_olinuxino],
               'socfpga_cyclone5_socrates.dtb': [socfpga_cyclone5_socrates],
-              'imx27-phytec-phycard-s-rdk.dtb': [imx27_phycard_s]}
+              'imx27-phytec-phycard-s-rdk.dtb': [imx27_phycard_s],
+              'armada-388-clearfog.dtb': [armada_388_clearfog],
+              'sun5i-r8-chip.dtb': [chip],
+              'imx6q-nitrogen6x.dtb': [imx6q_nitrogen6x],
+              'sama5d36ek.dtb': [sama5d36ek],
+              'sama5d35ek.dtb': [sama5d35ek],
+              'at91sam9261ek.dtb': [sam9261ek],
+              'at91sam9x25ek.dtb': [sam9x25ek],
+              'armada-xp-openblocks-ax3-4.dtb': [openblocks_ax3]}
 
 parse_re = re.compile('href="([^./"?][^"?]*)"')
 
