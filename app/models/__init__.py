@@ -126,6 +126,7 @@ MAXIMUM_KEY = "maximum"
 MEASUREMENTS_KEY = "measurements"
 METADATA_KEY = "metadata"
 MINIMUM_KEY = "minimum"
+MIPS_ARCHITECTURE_KEY = "mips"
 MISMATCHES_COUNT_KEY = "mismatches_count"
 MISMATCHES_KEY = "mismatches"
 MODULES_DIR_KEY = "modules_dir"
@@ -287,6 +288,7 @@ BISECT_BAD_COMMIT_URL = "bad_commit_url"
 VALID_ARCHITECTURES = [
     ARM64_ARCHITECTURE_KEY,
     ARM_ARCHITECTURE_KEY,
+    MIPS_ARCHITECTURE_KEY,
     x86_ARCHITECTURE_KEY
 ]
 

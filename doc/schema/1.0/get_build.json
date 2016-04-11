@@ -78,7 +78,8 @@
         },
         "arch": {
             "type": "string",
-            "description": "The architecture of the build"
+            "description": "The architecture of the build",
+            "enum": ["arm", "arm64", "mips", "x86"]
         },
         "build_time": {
             "type": "number",

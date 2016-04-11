@@ -42,7 +42,7 @@
         "arch" : {
             "type": "string",
             "description": "The architecture type of this board",
-            "enum": ["arm", "arm64", "x86"],
+            "enum": ["arm", "arm64", "mips", "x86"],
             "default": "arm"
         },
         "git_branch": {
