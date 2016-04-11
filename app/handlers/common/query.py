@@ -60,6 +60,7 @@ def get_all_query_values(query_args_func, valid_keys):
 
     get_and_add_date_range(spec, query_args_func, created_on)
     get_and_add_gte_lt_keys(spec, query_args_func, valid_keys)
+    get_and_add_time_range(spec, query_args_func)
     utils.update_id_fields(spec)
 
     sort = get_query_sort(query_args_func)
@@ -486,7 +487,7 @@ def get_and_add_time_range(spec, query_args_func):
             time_range = MIN_TIME_RANGE
 
         delta = datetime.timedelta(minutes=time_range)
-        now = datetime.datetime.now(tzinfo=bson.tz_util.utc)
+        now = datetime.datetime.now(tz=bson.tz_util.utc)
         spec[models.CREATED_KEY] = {"$lt": now, "$gte": now - delta}
 
     return spec
