@@ -38,17 +38,17 @@ GET
  :query string _id: The internal ID of the boot report.
  :query string board: The name of a board.
  :query string created_on: The creation date: accepted formats are ``YYYY-MM-DD`` and ``YYYYMMDD``.
+ :query string build_id: The ID of a build document.
  :query string defconfig: The name of a defconfig.
  :query string defconfig_full: The full name of a defconfig (with config fragments).
- :query string build_id: The ID of a build document.
  :query string endian: The endianness of the board.
  :query string job: The name of a job.
  :query string job_id: The ID of a job.
  :query string kernel: The name of a kernel.
  :query string lab_name: The name of the lab that created the boot report.
  :query string mach: The machine type.
- :query string status: The status of the boot report.
  :query int retries: The number of boot retries performed.
+ :query string status: The status of the boot report.
  :query int warnings: The number of warnings in the boot report.
 
  :status 200: Results found.

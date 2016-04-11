@@ -37,19 +37,22 @@ GET
  :query string nfield: The field that should *not* be returned in the response. Can be repeated multiple times.
  :query string _id: The internal ID of the build report.
  :query string created_on: The creation date: accepted formats are ``YYYY-MM-DD`` and ``YYYYMMDD``.
- :query string job: The name of a job.
- :query string job_id: The ID of a job.
- :query string kernel: The name of a kernel.
- :query string defconfig_full: The full name of a defconfig (with config fragments).
- :query string defconfig: The name of a defconfig.
  :query string arch: The architecture on which it was built.
- :query string status: The status of the build report.
- :query int warnings: The number of warnings in the build.
+ :query string build_type: The type of the build.
+ :query string defconfig: The name of a defconfig.
+ :query string defconfig_full: The full name of a defconfig (with config fragments).
  :query int errors: The number of errors in the build.
  :query string git_branch: The name of the git branch.
  :query string git_commit: The git commit SHA.
  :query string git_describe: The git describe value.
- :query string build_type: The type of the build.
+ :query string job: The name of a job.
+ :query string job_id: The ID of a job.
+ :query string kernel: The name of a kernel.
+ :query string status: The status of the build report.
+ :query string time_range: Minutes of data to consider, in UTC time
+    (:ref:`more info <intro_schema_time_date>`). Minimum value is 10 minutes, maximum
+    is 60 * 24.
+ :query int warnings: The number of warnings in the build.
 
  :status 200: Results found.
  :status 403: Not authorized to perform the operation.

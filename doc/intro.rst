@@ -134,7 +134,7 @@ When using the ``time_range`` parameter in a query:
     GET /trigger/boot?time_range=10 HTTP/1.1
 
 The number indicates the minutes of data to consider starting from todays's date
-at UTC time. A value of 30 means to consider the data in the last 10 minutes.
+at UTC time. A value of 10 means to consider the data in the last 10 minutes.
 Internally it will be converted in a timedelta structure: ::
 
     {

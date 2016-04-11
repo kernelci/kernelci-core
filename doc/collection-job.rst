@@ -40,6 +40,9 @@ GET
  :query string job: A job name.
  :query string kernel: A kernel name.
  :query string status: The status of the job report.
+ :query string time_range: Minutes of data to consider, in UTC time
+    (:ref:`more info <intro_schema_time_date>`). Minimum value is 10 minutes, maximum
+    is 60 * 24.
 
  :status 200: Results found.
  :status 403: Not authorized to perform the operation.
