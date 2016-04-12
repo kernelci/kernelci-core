@@ -888,6 +888,14 @@ sam9x25ek = {'device_type': 'at91sam9x25ek',
                     'lpae': False,
                     'fastboot': False}
 
+sinlinx_sina33 = {'device_type': 'sun8i-a33-sinlinx-sina33',
+                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'defconfig_blacklist': ['arm-allmodconfig'],
+                    'kernel_blacklist': [],
+                    'nfs_blacklist': [],
+                    'lpae': False,
+                    'fastboot': False}
+
 device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'bcm2836-rpi-2-b.dtb' : [ bcm2836_rpi_2_b],
               'bcm4708-smartrg-sr400ac.dtb': [bcm4708_smartrg_sr400ac],
@@ -956,6 +964,7 @@ device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'sama5d35ek.dtb': [sama5d35ek],
               'at91sam9261ek.dtb': [sam9261ek],
               'at91sam9x25ek.dtb': [sam9x25ek],
+              'sun8i-a33-sinlinx-sina33.dtb': [sinlinx_sina33],
               'armada-xp-openblocks-ax3-4.dtb': [openblocks_ax3]}
 
 parse_re = re.compile('href="([^./"?][^"?]*)"')
