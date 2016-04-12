@@ -43,6 +43,7 @@ class TestTestCaseModel(unittest.TestCase):
         test_case.status = "FAIL"
         test_case.test_set_id = "test_set_id"
         test_case.test_suite_id = "another_id"
+        test_case.test_suite_name = "test-suite"
         test_case.time = 10
         test_case.vcs_commit = "commit_sha"
         test_case.version = "1.1"
@@ -65,6 +66,7 @@ class TestTestCaseModel(unittest.TestCase):
             "status": "FAIL",
             "test_set_id": "test_set_id",
             "test_suite_id": "another_id",
+            "test_suite_name": "test-suite",
             "time": 10,
             "vcs_commit": "commit_sha",
             "version": "1.1"
@@ -90,6 +92,7 @@ class TestTestCaseModel(unittest.TestCase):
         test_case.status = "FAIL"
         test_case.test_set_id = "test_set_id"
         test_case.test_suite_id = "another_id"
+        test_case.test_suite_name = "test-suite"
         test_case.time = 10
         test_case.vcs_commit = "commit_sha"
         test_case.version = "1.1"
@@ -111,6 +114,7 @@ class TestTestCaseModel(unittest.TestCase):
             "status": "FAIL",
             "test_set_id": "test_set_id",
             "test_suite_id": "another_id",
+            "test_suite_name": "test-suite",
             "time": 10,
             "vcs_commit": "commit_sha",
             "version": "1.1"
@@ -149,6 +153,7 @@ class TestTestCaseModel(unittest.TestCase):
             "status": "FAIL",
             "test_set_id": "test_set_id",
             "test_suite_id": "another_id",
+            "test_suite_name": "test-suite",
             "time": 10,
             "vcs_commit": "commit_sha",
             "version": "1.1"

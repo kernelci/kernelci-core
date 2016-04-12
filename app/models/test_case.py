@@ -61,6 +61,7 @@ class TestCaseDocument(mbase.BaseDocument):
         self.samples_sqr_sum = None
         self.samples_sum = None
         self.test_set_id = None
+        self.test_suite_name = None
         self.time = -1
         self.vcs_commit = None
 
@@ -249,6 +250,7 @@ class TestCaseDocument(mbase.BaseDocument):
             models.STATUS_KEY: self.status,
             models.TEST_SET_ID_KEY: self.test_set_id,
             models.TEST_SUITE_ID_KEY: self.test_suite_id,
+            models.TEST_SUITE_NAME_KEY: self.test_suite_name,
             models.TIME_KEY: self.time,
             models.VCS_COMMIT_KEY: self.vcs_commit,
             models.VERSION_KEY: self.version
