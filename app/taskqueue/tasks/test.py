@@ -26,10 +26,7 @@ ADD_ERR = utils.errors.add_error
 # pylint: disable=too-many-arguments
 # pylint: disable=invalid-name
 # pylint: disable=star-args
-@taskc.app.task(
-    name="complete-test-suite-import",
-    track_started=True,
-    ignore_result=False)
+@taskc.app.task(name="complete-test-suite-import", ignore_result=False)
 def complete_test_suite_import(
         suite_json, suite_id, suite_name, db_options, mail_options):
     """Complete the test suite import.
@@ -55,17 +52,13 @@ def complete_test_suite_import(
 
     if ret_val != 200:
         utils.LOG.error(
-            "Error updating test suite '%s' (%s)",
-            suite_name, suite_id)
+            "Error updating test suite '%s' (%s)", suite_name, suite_id)
 
     return ret_val, update_doc
 
 
 @taskc.app.task(
-    name="import-sets-from-suite",
-    track_started=True,
-    ignore_result=False,
-    add_to_parent=False)
+    name="import-sets-from-suite", ignore_result=False, add_to_parent=False)
 def import_test_sets_from_test_suite(
         prev_results,
         suite_id, suite_name, tests_list, db_options, mail_options):
@@ -98,7 +91,7 @@ def import_test_sets_from_test_suite(
 
     if all([prev_val == 200, suite_id]):
         test_ids, errors = tests_import.import_multi_test_sets(
-            tests_list, suite_id, db_options, **other_args)
+            tests_list, suite_id, suite_name, db_options, **other_args)
 
         if test_ids:
             utils.LOG.info(
@@ -127,10 +120,7 @@ def import_test_sets_from_test_suite(
 
 
 @taskc.app.task(
-    name="import-cases-from-suite",
-    track_started=True,
-    ignore_result=False,
-    add_to_parent=False)
+    name="import-cases-from-suite", ignore_result=False, add_to_parent=False)
 def import_test_cases_from_test_suite(
         prev_results,
         suite_id, suite_name, tests_list, db_options, mail_options):
@@ -163,7 +153,7 @@ def import_test_cases_from_test_suite(
 
     if all([prev_val == 200, suite_id]):
         test_ids, errors = tests_import.import_multi_test_cases(
-            tests_list, suite_id, db_options, **other_args)
+            tests_list, suite_id, suite_name, db_options, **other_args)
 
         if test_ids:
             utils.LOG.info(
@@ -191,10 +181,9 @@ def import_test_cases_from_test_suite(
     return ret_val
 
 
-@taskc.app.task(
-    name="import-test-cases-from-set", track_started=True, ignore_result=False)
+@taskc.app.task(name="import-test-cases-from-set", ignore_result=False)
 def import_test_cases_from_test_set(
-        tests_list, suite_id, set_id, db_options, mail_options):
+        tests_list, suite_id, suite_name, set_id, db_options, mail_options):
     """Wrapper around the real import function.
 
     Import the test cases included in a test set.
@@ -203,6 +192,8 @@ def import_test_cases_from_test_set(
     :type tests_list: list
     :param suite_id: The ID of the test suite.
     :type suite_id: bson.objectid.ObjectId
+    :param suite_name: The name of the test suite.
+    :type suite_name: str
     :param set_id: The ID of the test set.
     :type set_id: bson.objectid.ObjectId
     :param db_options: The database connection parameters.
@@ -213,6 +204,6 @@ def import_test_cases_from_test_set(
     empty one.
     """
     ret_val, errors = tests_import.import_test_cases_from_test_set(
-        set_id, suite_id, tests_list, db_options)
+        set_id, suite_id, suite_name, tests_list, db_options)
     # TODO: handle errors.
     return ret_val
