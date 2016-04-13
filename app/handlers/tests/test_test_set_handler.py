@@ -159,7 +159,7 @@ class TestTestSetHandler(TestHandlerBase):
     @mock.patch("bson.objectid.ObjectId")
     def test_post_correct(self, mock_id, mock_find, mock_save):
         mock_id.return_value = "suite-id"
-        mock_find.return_value = {"_id": "suite-id"}
+        mock_find.return_value = {"_id": "suite-id", "name": "suite-name"}
         mock_save.return_value = (201, "test-set-id")
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
 
@@ -180,7 +180,7 @@ class TestTestSetHandler(TestHandlerBase):
     def test_post_correct_with_test_case(
             self, mock_id, mock_find, mock_save, mock_task):
         mock_id.return_value = "suite-id"
-        mock_find.return_value = {"_id": "suite-id"}
+        mock_find.return_value = {"_id": "suite-id", "name": "test-suite"}
         mock_save.return_value = (201, "test-set-id")
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         body = json.dumps(
@@ -216,7 +216,7 @@ class TestTestSetHandler(TestHandlerBase):
     def test_post_correct_with_wrong_test_case(
             self, mock_id, mock_find, mock_save):
         mock_id.return_value = "test-suite"
-        mock_find.return_value = {"_id": "test-suite"}
+        mock_find.return_value = {"_id": "test-suite", "name": "suite-name"}
         mock_save.return_value = (201, "doc-id")
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         body = json.dumps(

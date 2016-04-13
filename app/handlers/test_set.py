@@ -55,7 +55,9 @@ class TestSetHandler(htbase.TestBaseHandler):
             suite_id = j_get(models.TEST_SUITE_ID_KEY)
             set_name = j_get(models.NAME_KEY)
 
-            suite_oid, err_msg = self._check_and_get_test_suite(suite_id)
+            suite_oid, suite_name, err_msg = \
+                self._check_and_get_test_suite(suite_id)
+
             if suite_oid:
                 try:
                     test_set = mtset.TestSetDocument.from_json(test_set_json)
@@ -80,7 +82,7 @@ class TestSetHandler(htbase.TestBaseHandler):
                                     "Test cases will be parsed and "
                                     "imported")
                                 self._import_test_cases(
-                                    test_cases, suite_oid, doc_id)
+                                    test_cases, doc_id, suite_oid, suite_name)
                             else:
                                 response.errors = (
                                     "Test cases are not wrapped in a "
@@ -103,7 +105,7 @@ class TestSetHandler(htbase.TestBaseHandler):
 
         return response
 
-    def _import_test_cases(self, test_cases, set_oid, suite_oid):
+    def _import_test_cases(self, test_cases, set_oid, suite_oid, suite_name):
         """Execute the async task to import the test cases.
 
         :param test_cases: The test cases list to import.
@@ -117,6 +119,7 @@ class TestSetHandler(htbase.TestBaseHandler):
             [
                 test_cases,
                 suite_oid,
+                suite_name,
                 set_oid,
                 self.settings["dboptions"], self.settings["mailoptions"]
             ]

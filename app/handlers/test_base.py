@@ -102,10 +102,11 @@ class TestBaseHandler(hbase.BaseHandler):
         :param test_suite_id: The ID of the test suite associated with the test
         case
         :type test_suite_id: string
-        :return The test suite from the database or None, and an error message
-        in case of errors or None.
+        :return A 3-tuple: the test suite id, the test suite name, an error
+        message in case of errors.
         """
         suite_oid = None
+        suite_name = None
         error = None
 
         try:
@@ -113,12 +114,15 @@ class TestBaseHandler(hbase.BaseHandler):
             test_suite = utils.db.find_one2(
                 self.db[models.TEST_SUITE_COLLECTION],
                 suite_oid, fields=[models.ID_KEY])
+
             if not test_suite:
                 suite_oid = None
                 error = "Test suite with ID '%s' not found" % test_suite_id
+            else:
+                suite_name = test_suite[models.NAME_KEY]
         except bson.errors.InvalidId, ex:
             error = "Test suite ID '%s' is not valid" % test_suite_id
             self.log.exception(ex)
             self.log.error(error)
 
-        return suite_oid, error
+        return suite_oid, suite_name, error
