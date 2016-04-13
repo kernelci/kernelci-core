@@ -52,11 +52,12 @@ class TestSetDocument(mbase.BaseDocument):
 
         self.definition_uri = None
         self.metadata = {}
+        self.test_job_id = None
+        self.test_job_path = None
+        self.test_job_url = None
+        self.test_suite_name = None
         self.time = -1
         self.vcs_commit = None
-        self.test_job_url = None
-        self.test_job_path = None
-        self.test_job_id = None
 
     @property
     def collection(self):
@@ -185,6 +186,7 @@ class TestSetDocument(mbase.BaseDocument):
             models.TEST_JOB_PATH_KEY: self.test_job_path,
             models.TEST_JOB_URL_KEY: self.test_job_url,
             models.TEST_SUITE_ID_KEY: self.test_suite_id,
+            models.TEST_SUITE_NAME_KEY: self.test_suite_name,
             models.TIME_KEY: self.time,
             models.VCS_COMMIT_KEY: self.vcs_commit,
             models.VERSION_KEY: self.version
