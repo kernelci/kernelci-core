@@ -24,11 +24,7 @@ import utils.report.common
 # pylint: disable=too-many-arguments
 # pylint: disable=invalid-name
 # pylint: disable=too-many-locals
-@taskc.app.task(
-    name="send-boot-report",
-    acks_late=True,
-    track_started=True,
-    ignore_result=False)
+@taskc.app.task(name="send-boot-report", acks_late=True, ignore_result=False)
 def send_boot_report(
         job,
         kernel,
@@ -98,11 +94,7 @@ def send_boot_report(
     return status
 
 
-@taskc.app.task(
-    name="send-build-report",
-    acks_late=True,
-    track_started=True,
-    ignore_result=False)
+@taskc.app.task(name="send-build-report", acks_late=True, ignore_result=False)
 def send_build_report(
         job,
         kernel,
