@@ -16,6 +16,7 @@
 """Common functions, variables for all kernelci utils modules."""
 
 import bson
+import re
 
 import models
 import utils.log
@@ -43,6 +44,11 @@ ID_KEYS = [
     models.TEST_SET_ID_KEY,
     models.TEST_SUITE_ID_KEY
 ]
+
+NO_START_CHARS = re.compile(r"^[^a-zA-Z0-9]")
+NO_END_CHARS = re.compile(r"[^a-zA-Z0-9]$")
+VALID_TEST_NAME = re.compile(r"[^a-zA-Z0-9\.\-_+]")
+VALID_KCI_NAME = re.compile(r"[^a-zA-Z0-9\.\-_+=]")
 
 
 def update_id_fields(spec):
@@ -74,15 +80,39 @@ def update_id_fields(spec):
 def valid_name(name):
     """Check if a job or kernel name is valid.
 
-    A valid name must not:
-    - start with a dot .
-    - contain a dollar $
-    - contain /
+    A valid name must start and end with an alphanumeric character, and must
+    match the following regex:
 
-    :return True or False
+    [a-zA-Z0-9.-_+=]+
+
+    :param name: The name to test.
+    :type name: str
+    :return True or False.
+    :rtype bool
     """
     is_valid = True
-    if any([name.startswith("."), "$" in name, "/" in name]):
+    if any([NO_START_CHARS.match(name),
+            NO_END_CHARS.search(name), VALID_KCI_NAME.search(name)]):
+        is_valid = False
+    return is_valid
+
+
+def valid_test_name(name):
+    """Check if a test name is valid or not.
+
+    A valid name must start and end with an alphanumeric character, and must
+    match the following regex:
+
+    [a-zA-Z0-9.-_+]+
+
+    :param name: The name to test.
+    :type name: str
+    :return True or False.
+    :rtype bool
+    """
+    is_valid = True
+    if any([NO_START_CHARS.match(name),
+            NO_END_CHARS.search(name), VALID_TEST_NAME.search(name)]):
         is_valid = False
     return is_valid
 

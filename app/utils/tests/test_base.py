@@ -140,13 +140,40 @@ class TestBaseUtils(unittest.TestCase):
         self.assertTrue(utils.valid_name("foo+bar"))
         self.assertTrue(utils.valid_name("foo-bar"))
         self.assertTrue(utils.valid_name("foo_bar"))
-        self.assertTrue(utils.valid_name("foo?bar"))
-        self.assertTrue(utils.valid_name("foo*bar"))
+        self.assertTrue(utils.valid_name("foo=bar"))
 
+        self.assertFalse(utils.valid_name("foo*bar"))
+        self.assertFalse(utils.valid_name("foo'bar"))
+        self.assertFalse(utils.valid_name("foo\"bar"))
+        self.assertFalse(utils.valid_name("foo~bar"))
+        self.assertFalse(utils.valid_name("[foobar"))
+        self.assertFalse(utils.valid_name("foobar]"))
+        self.assertFalse(utils.valid_name("{foobar"))
+        self.assertFalse(utils.valid_name("~foobar"))
+        self.assertFalse(utils.valid_name("foobar~"))
+        self.assertFalse(utils.valid_name("foo?bar"))
         self.assertFalse(utils.valid_name("foo/bar"))
         self.assertFalse(utils.valid_name(".foo/bar"))
         self.assertFalse(utils.valid_name("$foobar"))
         self.assertFalse(utils.valid_name("foo$bar"))
+
+    def test_valid_test_name(self):
+        self.assertTrue(utils.valid_test_name("a-test-name"))
+        self.assertTrue(utils.valid_test_name("a_test_name"))
+        self.assertTrue(utils.valid_test_name("a.test.name"))
+        self.assertTrue(utils.valid_test_name("a+test+name"))
+
+        self.assertFalse(utils.valid_test_name("a-test/name"))
+        self.assertFalse(utils.valid_test_name("a-test=name"))
+        self.assertFalse(utils.valid_test_name("a-test~name"))
+        self.assertFalse(utils.valid_test_name("a-test\"name"))
+        self.assertFalse(utils.valid_test_name("a-test'name"))
+        self.assertFalse(utils.valid_test_name("+a+test+name"))
+        self.assertFalse(utils.valid_test_name("a+test+name+"))
+        self.assertFalse(utils.valid_test_name(".a.test.name"))
+        self.assertFalse(utils.valid_test_name("a.test.name."))
+        self.assertFalse(utils.valid_test_name("-a.test.name"))
+        self.assertFalse(utils.valid_test_name("a.test.name-"))
 
     def test_update_id_fields(self):
         spec = {
