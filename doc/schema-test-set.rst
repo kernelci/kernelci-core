@@ -6,6 +6,9 @@ test_set
 A test set is a collection of :ref:`test cases <schema_test_case>`. Each test set
 must define its own ``name`` and must be associated with a :ref:`test suite <schema_test_suite>`.
 
+A test set ``name`` must start and end with an alphanumeric character, and it
+must match the following regular expression: ``[a-zA-Z0-9.-_+]+``
+
 .. _schema_test_set_get:
 
 GET

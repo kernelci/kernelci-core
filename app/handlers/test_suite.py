@@ -22,6 +22,7 @@ import handlers.test_base as htbase
 import models
 import models.test_suite as mtsuite
 import taskqueue.tasks.test as taskq
+import utils
 import utils.db
 
 
@@ -62,83 +63,88 @@ class TestSuiteHandler(htbase.TestBaseHandler):
             cases_list = suite_pop(models.TEST_CASE_KEY, [])
 
             suite_name = suite_get(models.NAME_KEY)
+            # TODO: move name validation into the initial json validation.
+            if utils.valid_test_name(suite_name):
+                # Make sure the *_id values passed are valid.
+                ret_val, error = self._check_references(
+                    suite_get(models.BUILD_ID_KEY, None),
+                    suite_get(models.JOB_ID_KEY, None),
+                    suite_get(models.BOOT_ID_KEY, None)
+                )
 
-            # Make sure the *_id values passed are valid.
-            ret_val, error = self._check_references(
-                suite_get(models.BUILD_ID_KEY, None),
-                suite_get(models.JOB_ID_KEY, None),
-                suite_get(models.BOOT_ID_KEY, None)
-            )
+                if ret_val == 200:
+                    test_suite = \
+                        mtsuite.TestSuiteDocument.from_json(suite_json)
+                    test_suite.created_on = datetime.datetime.now(
+                        tz=bson.tz_util.utc)
 
-            if ret_val == 200:
-                test_suite = mtsuite.TestSuiteDocument.from_json(suite_json)
-                test_suite.created_on = datetime.datetime.now(
-                    tz=bson.tz_util.utc)
+                    ret_val, suite_id = utils.db.save(
+                        self.db, test_suite, manipulate=True)
 
-                ret_val, suite_id = utils.db.save(
-                    self.db, test_suite, manipulate=True)
+                    if ret_val == 201:
+                        response.status_code = ret_val
+                        response.result = {models.ID_KEY: suite_id}
+                        response.reason = (
+                            "Test suite '%s' created" %
+                            suite_name)
+                        response.headers = {
+                            "Location": "/test/suite/%s" % str(suite_id)}
 
-                if ret_val == 201:
-                    response.status_code = ret_val
-                    response.result = {models.ID_KEY: suite_id}
-                    response.reason = (
-                        "Test suite '%s' created" %
-                        suite_name)
-                    response.headers = {
-                        "Location": "/test/suite/%s" % str(suite_id)}
+                        if sets_list:
+                            if isinstance(sets_list, types.ListType):
+                                response.status_code = 202
+                                response.messages = (
+                                    "Test sets will be parsed and imported")
+                            else:
+                                sets_list = []
+                                response.errors = (
+                                    "Test sets are not wrapped in a list; "
+                                    "they will not be imported")
 
-                    if sets_list:
-                        if isinstance(sets_list, types.ListType):
-                            response.status_code = 202
-                            response.messages = (
-                                "Test sets will be parsed and imported")
-                        else:
-                            sets_list = []
-                            response.errors = (
-                                "Test sets are not wrapped in a list; "
-                                "they will not be imported")
+                        if cases_list:
+                            if isinstance(cases_list, types.ListType):
+                                response.status_code = 202
+                                response.messages = (
+                                    "Test cases will be parsed and imported")
+                            else:
+                                cases_list = []
+                                response.errors = (
+                                    "Test cases are not wrapped in a "
+                                    "list; they will not be imported")
 
-                    if cases_list:
-                        if isinstance(cases_list, types.ListType):
-                            response.status_code = 202
-                            response.messages = (
-                                "Test cases will be parsed and imported")
-                        else:
-                            cases_list = []
-                            response.errors = (
-                                "Test cases are not wrapped in a "
-                                "list; they will not be imported")
-
-                    # Complete the update of the test suite and import
-                    # everything else.
-                    if all([cases_list, sets_list]):
-                        self._import_suite_with_sets_and_cases(
-                            suite_json,
-                            suite_id, sets_list, cases_list, suite_name)
-                    elif all([cases_list, not sets_list]):
-                        self._import_suite_and_cases(
-                            suite_json, suite_id, cases_list, suite_name)
-                    elif all([not cases_list, sets_list]):
-                        self._import_suite_and_sets(
-                            suite_json, suite_id, sets_list, suite_name)
-                    else:
-                        # Just update the test suite document.
-                        taskq.complete_test_suite_import.apply_async(
-                            [
+                        # Complete the update of the test suite and import
+                        # everything else.
+                        if all([cases_list, sets_list]):
+                            self._import_suite_with_sets_and_cases(
                                 suite_json,
-                                suite_id,
-                                suite_name,
-                                self.settings["dboptions"],
-                                self.settings["mailoptions"]
-                            ]
-                        )
+                                suite_id, sets_list, cases_list, suite_name)
+                        elif all([cases_list, not sets_list]):
+                            self._import_suite_and_cases(
+                                suite_json, suite_id, cases_list, suite_name)
+                        elif all([not cases_list, sets_list]):
+                            self._import_suite_and_sets(
+                                suite_json, suite_id, sets_list, suite_name)
+                        else:
+                            # Just update the test suite document.
+                            taskq.complete_test_suite_import.apply_async(
+                                [
+                                    suite_json,
+                                    suite_id,
+                                    suite_name,
+                                    self.settings["dboptions"],
+                                    self.settings["mailoptions"]
+                                ]
+                            )
+                    else:
+                        response.status_code = ret_val
+                        response.reason = (
+                            "Error saving test suite '%s'" % suite_name)
                 else:
-                    response.status_code = ret_val
-                    response.reason = (
-                        "Error saving test suite '%s'" % suite_name)
+                    response.status_code = 400
+                    response.reason = error
             else:
                 response.status_code = 400
-                response.reason = error
+                response.reason = "Test suite name not valid"
 
         return response
 

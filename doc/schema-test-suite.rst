@@ -7,6 +7,9 @@ A test suite is the collection of :ref:`test sets <schema_test_set>` and :ref:`t
 
 A test suite must define its own ``name`` and must be associated with a :ref:`lab <schema_lab>` and with a :ref:`build <schema_build>`. The association with the ``build`` object is performed through the ``build_id`` value, the lab association via the lab ``name`` value.
 
+A test suite ``name`` must start and end with an alphanumeric character, and it
+must match the following regular expression: ``[a-zA-Z0-9.-_+]+``
+
 .. _schema_test_suite_get:
 
 GET

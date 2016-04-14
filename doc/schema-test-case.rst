@@ -12,6 +12,9 @@ A test case can be associated with only one
 :ref:`test set <schema_test_set>`. A test case can also register
 multiple :ref:`measurements <schema_measurement>`.
 
+A test case ``name`` must start and end with an alphanumeric character, and it
+must match the following regular expression: ``[a-zA-Z0-9.-_+]+``
+
 .. _schema_test_case_get:
 
 GET
