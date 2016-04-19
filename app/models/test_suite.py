@@ -46,8 +46,8 @@ class TestSuiteDocument(mbase.BaseDocument):
         self._name = name
         self._version = version
 
-        self._build_id = build_id
-        self._lab_name = lab_name
+        self.build_id = build_id
+        self.lab_name = lab_name
 
         self.arch = None
         self.board = None
@@ -112,26 +112,6 @@ class TestSuiteDocument(mbase.BaseDocument):
     def created_on(self, value):
         """Set the creation date of this test suite."""
         self._created_on = value
-
-    @property
-    def build_id(self):
-        """The defconfig ID associated with this test suite."""
-        return self._build_id
-
-    @build_id.setter
-    def build_id(self, value):
-        """Set the defconfig ID associated with this test suite."""
-        self._build_id = value
-
-    @property
-    def lab_name(self):
-        """The lab name running this test suite."""
-        return self._lab_name
-
-    @lab_name.setter
-    def lab_name(self, value):
-        """Set the lab name running this test suite."""
-        self._lab_name = value
 
     def to_dict(self):
         test_suite = {
