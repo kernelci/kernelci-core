@@ -23,6 +23,7 @@ import handlers.build
 import handlers.build_logs
 import handlers.compare
 import handlers.count
+import handlers.count_distinct
 import handlers.distinct
 import handlers.job
 import handlers.job_logs
@@ -181,13 +182,43 @@ _TEST_SUITE_DISTINCT_URL = tornado.web.url(
     kwargs={"resource": "test_suite"}, name="test-suite-distinct"
 )
 
+_TEST_SUITE_COUNT_DISTINCT_URL = tornado.web.url(
+    r"/test[s]?/suite[s]?/count/distinct/(?P<field>[A-Za-z0-9_]+)/?$",
+    handlers.count_distinct.CountDistinctHandler,
+    kwargs={"resource": "test_suite"}, name="test-suite-count-distinct"
+)
+
 _TEST_SET_URL = tornado.web.url(
     r"/test[s]?/set[s]?/?(?P<id>.*)",
     handlers.test_set.TestSetHandler, name="test-set")
 
+_TEST_SET_DISTINCT_URL = tornado.web.url(
+    r"/test[s]?/set[s]?/distinct/(?P<field>[A-Za-z0-9_]+)/?$",
+    handlers.distinct.DistinctHandler,
+    kwargs={"resource": "test_set"}, name="test-set-distinct"
+)
+
+_TEST_SET_COUNT_DISTINCT_URL = tornado.web.url(
+    r"/test[s]?/set[s]?/count/distinct/(?P<field>[A-Za-z0-9_]+)/?$",
+    handlers.count_distinct.CountDistinctHandler,
+    kwargs={"resource": "test_set"}, name="test-set-count-distinct"
+)
+
 _TEST_CASE_URL = tornado.web.url(
     r"/test[s]?/case[s]?/?(?P<id>.*)",
     handlers.test_case.TestCaseHandler, name="test-case")
+
+_TEST_CASE_DISTINCT_URL = tornado.web.url(
+    r"/test[s]?/case[s]?/distinct/(?P<field>[A-Za-z0-9_]+)/?$",
+    handlers.distinct.DistinctHandler,
+    kwargs={"resource": "test_case"}, name="test-case-distinct"
+)
+
+_TEST_CASE_COUNT_DISTINCT_URL = tornado.web.url(
+    r"/test[s]?/case[s]?/count/distinct/(?P<field>[A-Za-z0-9_]+)/?$",
+    handlers.count_distinct.CountDistinctHandler,
+    kwargs={"resource": "test_case"}, name="test-case-count-distinct"
+)
 
 _BOOT_TRIGGER_URL = tornado.web.url(
     r"/trigger/boot[s]?/?",
@@ -228,8 +259,13 @@ APP_URLS = [
     _REPORT_URL,
     _SEND_URL,
     _STATS_URL,
+    _TEST_CASE_COUNT_DISTINCT_URL,
+    _TEST_CASE_DISTINCT_URL,
     _TEST_CASE_URL,
+    _TEST_SET_COUNT_DISTINCT_URL,
+    _TEST_SET_DISTINCT_URL,
     _TEST_SET_URL,
+    _TEST_SUITE_COUNT_DISTINCT_URL,
     _TEST_SUITE_DISTINCT_URL,
     _TEST_SUITE_URL,
     _TOKEN_URL,

@@ -990,6 +990,29 @@ DISTINCT_VALID_FIELDS = {
         MACH_KEY
     ],
     TEST_SUITE_COLLECTION: [
+        ARCHITECTURE_KEY,
+        BOARD_INSTANCE_KEY,
+        BOARD_KEY,
+        BOOT_ID_KEY,
+        BUILD_ID_KEY,
+        DEFCONFIG_FULL_KEY,
+        DEFCONFIG_KEY,
+        JOB_ID_KEY,
+        JOB_KEY,
+        KERNEL_KEY,
+        LAB_NAME_KEY,
         NAME_KEY
+    ],
+    TEST_SET_COLLECTION: [
+        BOOT_ID_KEY,
+        BUILD_ID_KEY,
+        JOB_ID_KEY,
+        NAME_KEY,
+        TEST_SUITE_ID_KEY,
+        TEST_SUITE_NAME_KEY,
+    ],
+    TEST_CASE_COLLECTION: [
+        TEST_SUITE_ID_KEY,
+        TEST_SUITE_NAME_KEY,
     ]
 }
