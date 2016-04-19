@@ -14,9 +14,10 @@
 """The RequestHandler to handle 'distinct' requests."""
 
 import handlers.base as hbase
-import handlers.common.query
 import handlers.response as hresponse
 import models
+
+from handlers.common.query import get_all_query_values
 
 
 # pylint: disable=too-many-public-methods
@@ -99,7 +100,7 @@ class DistinctHandler(hbase.BaseHandler):
         :type field: str
         :return A HandlerResponse instance.
         """
-        response = hresponse.HandlerResponse(200)
+        response = hresponse.HandlerResponse()
 
         response.result, response.count = get_distinct_query(
             field,
@@ -145,7 +146,7 @@ def get_distinct_query(field, collection, query_args_func, valid_keys):
     spec = {}
 
     spec, sort, fields, skip, limit, _ = \
-        handlers.common.query.get_all_query_values(query_args_func, valid_keys)
+        get_all_query_values(query_args_func, valid_keys)
 
     result = collection.find(
         spec=spec, limit=limit, skip=skip, fields=fields, sort=sort)
