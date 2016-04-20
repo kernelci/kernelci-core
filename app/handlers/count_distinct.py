@@ -108,7 +108,7 @@ class CountDistinctHandler(hbase.BaseHandler):
             self.get_query_arguments,
             valid_distinct_keys(self.resource, "GET")
         )
-        response.result = [{"count": count, "field": field}]
+        response.result = [{models.COUNT_KEY: count, models.FIELD_KEY: field}]
 
         return response
 
@@ -121,8 +121,8 @@ class CountDistinctHandler(hbase.BaseHandler):
         """
         response = hresponse.HandlerResponse()
         response.result = [{
-            "count": get_distinct_field(field, self.collection),
-            "field": field
+            models.COUNT_KEY: get_distinct_field(field, self.collection),
+            models.FIELD_KEY: field
         }]
 
         return response
