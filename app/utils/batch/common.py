@@ -87,10 +87,14 @@ def create_batch_operation(json_obj, db_options):
         get_func = json_obj.get
         resource = get_func(models.RESOURCE_KEY, None)
         distinct = get_func(models.DISTINCT_KEY, None)
+        document = get_func(models.DOCUMENT_KEY, None)
 
         if resource in models.COLLECTIONS:
-            # First check if we have a distinct operation to perform.
-            if distinct:
+            # Check first if we have a count-distinct or distinct operation
+            # to perform.
+            if all([distinct, document]):
+                batch_op = batchop.BatchCountDistinctOperation()
+            elif all([distinct, not document]):
                 batch_op = batchop.BatchDistinctOperation()
             # Then in case proceed with the normal operations.
             elif resource:
