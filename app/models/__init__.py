@@ -396,6 +396,7 @@ COUNT_VALID_KEYS = {
         TEST_JOB_URL_KEY,
         TEST_SET_ID_KEY,
         TEST_SUITE_ID_KEY,
+        TEST_SUITE_NAME_KEY,
         TEXT_OFFSET_KEY,
         TIME_KEY,
         TIME_KEY,
@@ -829,6 +830,7 @@ TEST_SET_VALID_KEYS = {
             TEST_JOB_PATH_KEY,
             TEST_JOB_URL_KEY,
             TEST_SUITE_ID_KEY,
+            TEST_SUITE_NAME_KEY,
             TIME_KEY,
             VCS_COMMIT_KEY,
             VERSION_KEY,
@@ -836,14 +838,15 @@ TEST_SET_VALID_KEYS = {
     },
     "PUT": [
         CREATED_KEY,
-        DEFINITION_URI_KEY,
         DEFECTS_KEY,
+        DEFINITION_URI_KEY,
         NAME_KEY,
         PARAMETERS_KEY,
-        TEST_SUITE_ID_KEY,
         TEST_JOB_ID_KEY,
         TEST_JOB_PATH_KEY,
         TEST_JOB_URL_KEY,
+        TEST_SUITE_ID_KEY,
+        TEST_SUITE_NAME_KEY,
         TIME_KEY,
         VCS_COMMIT_KEY,
         VERSION_KEY
@@ -856,6 +859,7 @@ TEST_SET_VALID_KEYS = {
         TEST_JOB_ID_KEY,
         TEST_JOB_URL_KEY,
         TEST_SUITE_ID_KEY,
+        TEST_SUITE_NAME_KEY,
         TIME_KEY,
         VCS_COMMIT_KEY,
         VERSION_KEY
@@ -885,6 +889,7 @@ TEST_CASE_VALID_KEYS = {
             STATUS_KEY,
             TEST_SET_ID_KEY,
             TEST_SUITE_ID_KEY,
+            TEST_SUITE_NAME_KEY,
             TIME_KEY,
             VCS_COMMIT_KEY,
             VERSION_KEY
@@ -907,6 +912,7 @@ TEST_CASE_VALID_KEYS = {
         STATUS_KEY,
         TEST_SET_ID_KEY,
         TEST_SUITE_ID_KEY,
+        TEST_SUITE_NAME_KEY,
         TIME_KEY,
         VCS_COMMIT_KEY,
         VERSION_KEY
@@ -928,6 +934,7 @@ TEST_CASE_VALID_KEYS = {
         STATUS_KEY,
         TEST_SET_ID_KEY,
         TEST_SUITE_ID_KEY,
+        TEST_SUITE_NAME_KEY,
         TIME_KEY,
         VCS_COMMIT_KEY,
         VERSION_KEY
