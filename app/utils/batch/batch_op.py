@@ -15,6 +15,7 @@
 
 import handlers.common.query
 import handlers.count as hcount
+import handlers.count_distinct as hcount_distinct
 import handlers.distinct as hdistinct
 import models
 import utils.db
@@ -94,13 +95,13 @@ class BatchOperation(object):
         private ones specialized for each HTTP verbs.
         """
         if self.method == "GET":
-            self._prepare_get_operation()
+            self.prepare_get_operation()
         elif self.method == "DELETE":
-            self._prepare_delete_operation()
+            self.prepare_delete_operation()
         elif self.method == "POST":
-            self._prepare_post_operation()
+            self.prepare_post_operation()
 
-    def _prepare_get_operation(self):
+    def prepare_get_operation(self):
         """Prepare the necessary parameters for a GET operation."""
         if self.document:
             # Get only one document.
@@ -146,15 +147,15 @@ class BatchOperation(object):
                     "sort": sort
                 }
 
-    def _prepare_post_operation(self):
+    def prepare_post_operation(self):
         """Prepare the necessary parameters for a POST operation."""
         raise NotImplementedError
 
-    def _prepare_delete_operation(self):
+    def prepare_delete_operation(self):
         """Prepare the necessary parameters for a DELETE operation."""
         raise NotImplementedError
 
-    def _prepare_response(self, result):
+    def prepare_response(self, result):
         """Prepare the response to be returned.
 
         :param result: The result obtained after invoking the `operation`.
@@ -198,7 +199,7 @@ class BatchOperation(object):
         else:
             result = []
 
-        return self._prepare_response(result)
+        return self.prepare_response(result)
 
 
 class BatchBootOperation(BatchOperation):
@@ -232,7 +233,7 @@ class BatchCountOperation(BatchOperation):
         super(BatchCountOperation, self).__init__()
         self.valid_keys = models.COUNT_VALID_KEYS
 
-    def _prepare_get_operation(self):
+    def prepare_get_operation(self):
         if self.document:
             self.operation = hcount.count_one_collection
             # We use document here with the database since we need to count
@@ -283,7 +284,7 @@ class BatchDistinctOperation(BatchOperation):
         self.distinct = None
         super(BatchDistinctOperation, self).__init__()
 
-    def _prepare_get_operation(self):
+    def prepare_get_operation(self):
         # Is the requested distinct field valid?
         if hdistinct.valid_distinct_field(self.distinct, self.resource):
             if self.query_args:
@@ -300,3 +301,46 @@ class BatchDistinctOperation(BatchOperation):
                     self.distinct,
                     self.database[self.resource]
                 ]
+
+
+class BatchCountDistinctOperation(BatchOperation):
+    """A batch operation to retrieve the count of distinct value."""
+
+    def __init__(self):
+        self.distinct = None
+        super(BatchCountDistinctOperation, self).__init__()
+
+    def prepare_get_operation(self):
+        if hcount_distinct.valid_distinct_field(self.distinct, self.document):
+            if self.query_args:
+                self.operation = hcount_distinct.get_distinct_query
+                self.args = [
+                    self.distinct,
+                    self.database[self.document],
+                    self.query_args_func,
+                    hcount_distinct.valid_distinct_keys(self.document, "GET")
+                ]
+            else:
+                self.operation = hcount_distinct.get_distinct_field
+                self.args = [
+                    self.distinct,
+                    self.database[self.document]
+                ]
+
+    def prepare_response(self, result):
+        """Prepare the response to be returned.
+
+        :param result: The result obtained after invoking the `operation`.
+        :return A dictionary
+        """
+        response = {}
+        if self.operation_id:
+            response[models.OP_ID_KEY] = self.operation_id
+
+        response[models.RESULT_KEY] = [{
+            models.FIELD_KEY: self.distinct,
+            models.COUNT_KEY: result,
+            models.RESOURCE_KEY: self.document
+        }]
+
+        return response
