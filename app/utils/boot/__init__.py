@@ -240,7 +240,6 @@ def _update_boot_doc_from_json(boot_doc, json_pop_f, errors):
     boot_doc.initrd_addr = json_pop_f(models.INITRD_ADDR_KEY, None)
     boot_doc.kernel_image = json_pop_f(models.KERNEL_IMAGE_KEY, None)
     boot_doc.load_addr = json_pop_f(models.BOOT_LOAD_ADDR_KEY, None)
-    boot_doc.mach = json_pop_f(models.MACH_KEY, None)
     boot_doc.metadata = json_pop_f(models.METADATA_KEY, {})
     boot_doc.qemu = json_pop_f(models.QEMU_KEY, None)
     boot_doc.qemu_command = json_pop_f(models.QEMU_COMMAND_KEY, None)
@@ -254,6 +253,13 @@ def _update_boot_doc_from_json(boot_doc, json_pop_f, errors):
         models.BOOTLOADER_VERSION_KEY, None)
     boot_doc.chainloader = json_pop_f(models.CHAINLOADER_TYPE_KEY, None)
     boot_doc.filesystem = json_pop_f(models.FILESYSTEM_TYPE_KEY, None)
+
+    boot_doc.mach = json_pop_f(models.MACH_KEY, None)
+    # If the mach_alias key is defined in the JSON data, its value will be the
+    # value of the mack key.
+    mach_alias = json_pop_f(models.MACH_ALIAS_KEY, None)
+    if mach_alias:
+        boot_doc.mach = mach_alias
 
 
 def _check_for_null(get_func):

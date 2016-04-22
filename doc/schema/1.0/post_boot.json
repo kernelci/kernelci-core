@@ -141,6 +141,10 @@
             "type": "string",
             "description": "The machine (SoC) family"
         },
+        "mach_alias": {
+            "type": "string",
+            "description": "The alternative machine (SoC) family; when defined it will override the 'mach' field"
+        },
         "metadata": {
             "type": "object",
             "description": "A free form object that can contain different properties"
