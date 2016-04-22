@@ -439,3 +439,19 @@ class TestParseBoot(unittest.TestCase):
         self.assertEqual(doc.defconfig, "defconfig")
         self.assertEqual(doc.dtb, "dtb")
         self.assertDictEqual({}, errors)
+
+    def test_parse_from_json_with_mach_alias(self):
+        boot_json = {
+            "job": "job",
+            "kernel": "kernel",
+            "defconfig": "defconfig",
+            "board": "board",
+            "dtb": "dtb",
+            "lab_name": "lab_name",
+            "mach": "mach",
+            "mach_alias": "mach-alias"
+        }
+
+        doc = bimport._parse_boot_from_json(boot_json, self.db, {})
+
+        self.assertEqual(doc.mach, "mach-alias")
