@@ -38,6 +38,13 @@
     - mongodb
     - deps
 
+- name: Disable kernel transparent huge-page defrag
+  file: src=99-thp-defrag.conf
+        dest=/etc/sysfs.d/99-thp-defrag.conf
+        owner=root
+        group=root
+        mode=0644
+
 - name: Install MongoDB
   apt:  pkg={{ item }}
         state=latest

@@ -12,6 +12,7 @@
     - python-pycurl
     - python-virtualenv
     - python2.7-dev
+    - sysfsutils
   tags:
     - install
     - deps
