@@ -72,3 +72,75 @@ Examples:
 ./lava-report.py --boot results/kernel-ci.json --lab <lab-id> --api http://api.kernelci.org --token <dashboard token>
 ```
 The generated results can be found in the results directory.
+
+## Configure LAVA
+
+From the admin panel, you have to create a group named `kernel-ci`, a user named `kernel-ci` and its authentication token, and add it to the members of the group.
+
+You must create a new anonymous bundle stream named `kernel-ci` so KernelCI can retrieve the boot reports from your LAVA instance.
+
+## Add board to KernelCI
+### Add board to LAVA
+
+You have to create a new device\_type in your LAVA dispatcher instance. The file should be named after its dtb's name in the kernel sources (e.g.: `armada-388-clearfog` for the Solidrun ClearFog). Then, you can create a new device in your LAVA dispatcher instance and name this file whatever you want.
+
+You should now add the device\_type and device from your LAVA admin panel. If you want your device to be tested by KernelCI, it has to be owned by the group `kernel-ci`.
+
+### Modify files
+
+To add your board to KernelCI, you will have to modify two files:
+
+- lava-kernel-ci-job-creator.py:
+
+You need to create a dictionary for your board as following:
+
+```
+armada_388_clearfog = {'device_type': 'armada-388-clearfog',
+                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'defconfig_blacklist': ['arm-allmodconfig'],
+                    'kernel_blacklist': [],
+                    'nfs_blacklist': [],
+                    'lpae': False,
+                    'fastboot': False}
+```
+
+`armada_388_clearfog` is the local variable name in this program, it is advisable to use the device\_type name (note that the dash (-) character cannot be used in variables' name in Python so you may replace them with underscores (\_)).
+
+`armada-388-clearfog` is the name of your LAVA device\_type and, as strongly advised above, should be the name of the board's dtb in kernel sources.
+
+The `templates` array represents the templates used to create jobs for the specified board. All templates can be found in the subdirectory templates.
+
+The `nfs_blacklist` array is an array of substrings of a kernel version you should not boot with NFS.
+
+If `lpae` is set to False and the name of the defconfig contains `LPAE`, this job will not be created for this board.
+
+Then, you need to create an entry for you board in the device\_map dictionary:
+
+```
+device_map = {[...],
+              'armada-388-clearfog.dtb': [armada_388_clearfog],
+              [...]}
+```
+
+`armada-388-clearfog.dtb` is the name of the dtb in kernel sources and `armada_388_clearfog` is the local variable name you used previously to name your board's dictionary.
+
+- lava-report.py:
+
+You need to add an entry for your board in the device\_map dictionary:
+
+```
+device_map = {[...],
+              'armada-388-clearfog': ['armada-388-clearfog', 'mvebu'],
+              [...]}
+```
+
+The first `armada-388-clearfog` is the name of of your LAVA device\_type while the second is the name which will be displayed in KernelCI dashboard.
+
+`mvebu` is the SoC name of the board and also where the board will be found in KernelCI dashboard.
+
+### Add your lab to KernelCI
+If you did everything as explained above, send them a mail with the authentication token for user `kernel-ci` and make your LAVA instance (at least the XMLRPC API which is located at /RPC2) available from Internet.
+
+Before sending the mail, test your board by running lava-kernel-ci-job-creator.py then lava-job-runner.py.
+
+If you want to add a board to your lab which already exists in KernelCI, make sure your LAVA device\_type matches the name used in lava-kernel-ci-job-creator.py.
