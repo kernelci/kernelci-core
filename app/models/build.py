@@ -85,7 +85,6 @@ class BuildDocument(mbase.BaseDocument):
         self.text_offset = None
         self.vmlinux_bss_size = None
         self.vmlinux_data_size = None
-        self.vmlinux_file = None
         self.vmlinux_file_size = None
         self.vmlinux_text_size = None
         self.warnings = 0
@@ -258,7 +257,6 @@ class BuildDocument(mbase.BaseDocument):
             models.VERSION_KEY: self.version,
             models.VMLINUX_BSS_SIZE_KEY: self.vmlinux_bss_size,
             models.VMLINUX_DATA_SIZE_KEY: self.vmlinux_data_size,
-            models.VMLINUX_FILE_KEY: self.vmlinux_file,
             models.VMLINUX_FILE_SIZE_KEY: self.vmlinux_file_size,
             models.VMLINUX_TEXT_SIZE_KEY: self.vmlinux_text_size,
             models.WARNINGS_KEY: self.warnings

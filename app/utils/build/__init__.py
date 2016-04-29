@@ -45,18 +45,6 @@ import utils.errors
 ERR_ADD = utils.errors.add_error
 ERR_UPDATE = utils.errors.update_errors
 
-# List of 2-tuples that contain keys of which we want to get the size of.
-# tuple[0]: the key of which we want to get the size of.
-# tuple[1]: the key that will hold the size.
-SIZE_KEYS = [
-    (models.BUILD_LOG_KEY, models.BUILD_LOG_SIZE_KEY),
-    (models.KERNEL_CONFIG_KEY, models.KERNEL_CONFIG_SIZE_KEY),
-    (models.KERNEL_IMAGE_KEY, models.KERNEL_IMAGE_SIZE_KEY),
-    (models.MODULES_KEY, models.MODULES_SIZE_KEY),
-    (models.SYSTEM_MAP_KEY, models.SYSTEM_MAP_SIZE_KEY),
-    (models.VMLINUX_FILE_KEY, models.VMLINUX_FILE_SIZE_KEY)
-]
-
 # Regex to extract the kernel version.
 # Should match strings that begins as:
 # 4.1-1234-g12345
@@ -78,21 +66,21 @@ COMPILER_MATCH = re.compile(
 )
 
 
-def parse_build_artifacts(build_doc, build_dir):
-    """Update a build document with the artifacts size.
+def get_artifacts_size(artifacts, build_dir):
+    """Return artifact file size.
 
-    :param build_doc: The build document to update.
-    :type build_doc: BuildDocument
-    :param build_dir: The path to the build directory.
+    :param artifacts: The dictionary with the key to return and the value to
+    get the size of.
+    :type artifacts: dict
+    :param build_dir: The real path of the build directory.
     :type build_dir: str
+    :return Yield 2-tuples with the key to set and its value.
     """
-    for key in SIZE_KEYS:
-        artifact = getattr(build_doc, key[0], None)
-        if artifact:
-            artifact = os.path.join(build_dir, artifact)
-
+    for k, v in artifacts.iteritems():
+        if v:
+            artifact = os.path.join(build_dir, v)
             if os.path.isfile(artifact):
-                setattr(build_doc, key[1], os.stat(artifact).st_size)
+                yield k, os.stat(artifact).st_size
 
 
 def parse_dtb_dir(build_dir, dtb_dir):
@@ -242,9 +230,11 @@ def parse_build_data(build_data, job, kernel, errors, build_dir=None):
     :type errors: dictionary
     :param build_dir: Full path to the build directory.
     :type build_dir: string
-    :return A BuildDocument or None.
+    :return A 2-tuple: A BuildDocument or None, a dictionary with artifacts
+    keys and names.
     """
     build_doc = None
+    artifacts = {}
 
     if all([build_data, isinstance(build_data, types.DictionaryType)]):
         data_pop = build_data.pop
@@ -303,7 +293,6 @@ def parse_build_data(build_data, job, kernel, errors, build_dir=None):
             build_doc.kernel_image_size = data_pop(
                 models.KERNEL_IMAGE_SIZE_KEY, None)
             build_doc.modules_size = data_pop(models.MODULES_SIZE_KEY, None)
-            build_doc.vmlinux_file = data_pop(models.VMLINUX_FILE_KEY, None)
             build_doc.cross_compile = data_pop(models.CROSS_COMPILE_KEY, None)
 
             build_doc.git_describe_v = data_pop(
@@ -321,6 +310,16 @@ def parse_build_data(build_data, job, kernel, errors, build_dir=None):
             build_doc.compiler_version_ext = compiler_data[2]
             build_doc.compiler_version_full = compiler_data[3]
 
+            artifacts = {
+                models.BUILD_LOG_SIZE_KEY: build_doc.build_log,
+                models.KERNEL_CONFIG_SIZE_KEY: build_doc.kernel_config,
+                models.KERNEL_IMAGE_SIZE_KEY: build_doc.kernel_image,
+                models.MODULES_SIZE_KEY: build_doc.modules,
+                models.SYSTEM_MAP_SIZE_KEY: build_doc.system_map,
+                models.VMLINUX_FILE_SIZE_KEY:
+                    data_pop(models.VMLINUX_FILE_KEY, None)
+            }
+
             build_doc.metadata = build_data
         except KeyError, ex:
             err_msg = (
@@ -332,7 +331,7 @@ def parse_build_data(build_data, job, kernel, errors, build_dir=None):
         utils.LOG.error("Provided data does not look like json")
         ERR_ADD(errors, 500, "Provided data is not json")
 
-    return build_doc
+    return build_doc, artifacts
 
 
 # pylint: disable=too-many-arguments
@@ -376,7 +375,7 @@ def _traverse_build_dir(
             with io.open(os.path.join(real_dir, data_file)) as data:
                 build_data = json.load(data)
 
-            build_doc = parse_build_data(
+            build_doc, artifacts = parse_build_data(
                 build_data, job, kernel, errors, build_dir=real_dir)
 
             if build_doc:
@@ -397,10 +396,15 @@ def _traverse_build_dir(
                     build_doc.dtb_dir_data = parse_dtb_dir(
                         real_dir, build_doc.dtb_dir)
 
-                parse_build_artifacts(build_doc, real_dir)
+                if artifacts:
+                    for key, size in get_artifacts_size(artifacts, real_dir):
+                        setattr(build_doc, key, size)
 
-                if build_doc.vmlinux_file:
-                    elf.read(build_doc, real_dir)
+                    vmlinux = artifacts.get(models.VMLINUX_FILE_SIZE_KEY, None)
+                    if vmlinux:
+                        values = elf.read(os.path.join(build_dir, vmlinux))
+                        for k, v in values.iteritems():
+                            setattr(build_doc, k, v)
         except IOError, ex:
             err_msg = "Error reading json data file (job: %s, kernel: %s) - %s"
             utils.LOG.exception(ex)

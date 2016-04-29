@@ -144,7 +144,7 @@ class TestBuildUtils(unittest.TestCase):
         self.assertIsNone(build_doc)
         self.assertListEqual([500], errors.keys())
 
-    def test_traverse_buld_dir_with_jsonerror(self):
+    def test_traverse_buld_dir_with_json_error(self):
         try:
             errors = {}
             temp_dir = tempfile.mkdtemp()
@@ -195,12 +195,72 @@ class TestBuildUtils(unittest.TestCase):
         self.assertEqual("job", build_doc.job)
         self.assertEqual("kernel", build_doc.kernel)
         self.assertEqual("kernel", build_doc.build_type)
+        self.assertIsNone(build_doc.vmlinux_text_size)
+        self.assertIsNone(build_doc.vmlinux_bss_size)
+        self.assertIsNone(build_doc.vmlinux_data_size)
+
+    @mock.patch("utils.build.get_artifacts_size")
+    @mock.patch("utils.elf.read")
+    def test_traverse_build_dir_data_sizes(self, elf_read, get_size):
+        elf_read.return_value = {
+            "vmlinux_bss_size": 1024,
+            "vmlinux_data_size": 1024,
+            "vmlinux_text_size": 1024
+        }
+
+        get_size.return_value = [
+            ("system_map_size", 1024),
+            ("modules_size", 1025),
+            ("build_log_size", 1026),
+            ("kernel_config_size", 1027),
+            ("kernel_image_size", 1028)
+        ]
+
+        build_data = {
+            "arch": "arm",
+            "git_url": "git://git.example.org",
+            "git_branch": "test/branch",
+            "git_describe": "vfoo.bar",
+            "git_commit": "1234567890",
+            "defconfig": "defoo_confbar",
+            "kernel_image": "zImage",
+            "kernel_config": "kernel.config",
+            "modules": "modules.tar",
+            "modules_dir": "foo/bar",
+            "build_log": "file.log",
+            "vmlinux_file": "vmlinux",
+            "system_map": "System.map"
+        }
+
+        try:
+            errors = {}
+            temp_dir = tempfile.mkdtemp()
+            build_dir = os.path.join(temp_dir, "build_dir")
+            os.mkdir(build_dir)
+            with io.open(os.path.join(build_dir, "build.json"), mode="w") as f:
+                f.write(json.dumps(build_data, ensure_ascii=False))
+
+            build_doc = utils.build._traverse_build_dir(
+                "build_dir",
+                temp_dir, "job", "kernel", "job_id", "job_date", errors, {})
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+        self.assertIsInstance(build_doc, mbuild.BuildDocument)
+        self.assertEqual(build_doc.vmlinux_text_size, 1024)
+        self.assertEqual(build_doc.vmlinux_bss_size, 1024)
+        self.assertEqual(build_doc.vmlinux_data_size, 1024)
+        self.assertEqual(build_doc.system_map_size, 1024)
+        self.assertEqual(build_doc.modules_size, 1025)
+        self.assertEqual(build_doc.build_log_size, 1026)
+        self.assertEqual(build_doc.kernel_config_size, 1027)
+        self.assertEqual(build_doc.kernel_image_size, 1028)
 
     def test_parse_build_data_no_dict(self):
         build_data = []
         errors = {}
 
-        build_doc = utils.build.parse_build_data(
+        build_doc, _ = utils.build.parse_build_data(
             build_data, "job", "kernel", errors)
 
         self.assertIsNone(build_doc)
@@ -211,7 +271,7 @@ class TestBuildUtils(unittest.TestCase):
         build_data = {"arch": "arm"}
         errors = {}
 
-        build_doc = utils.build.parse_build_data(
+        build_doc, _ = utils.build.parse_build_data(
             build_data, "job", "kernel", errors)
 
         self.assertIsNone(build_doc)
@@ -222,7 +282,7 @@ class TestBuildUtils(unittest.TestCase):
         build_data = {"defconfig": "defconfig"}
         errors = {}
 
-        build_doc = utils.build.parse_build_data(
+        build_doc, _ = utils.build.parse_build_data(
             build_data, "job", "kernel", errors)
 
         self.assertIsInstance(build_doc, mbuild.BuildDocument)
@@ -235,7 +295,7 @@ class TestBuildUtils(unittest.TestCase):
         }
         errors = {}
 
-        build_doc = utils.build.parse_build_data(
+        build_doc, _ = utils.build.parse_build_data(
             build_data, "job", "kernel", errors)
 
         self.assertIsInstance(build_doc, mbuild.BuildDocument)
@@ -249,7 +309,7 @@ class TestBuildUtils(unittest.TestCase):
         }
         errors = {}
 
-        build_doc = utils.build.parse_build_data(
+        build_doc, _ = utils.build.parse_build_data(
             build_data, "job", "kernel", errors)
 
         self.assertIsInstance(build_doc, mbuild.BuildDocument)
@@ -260,7 +320,7 @@ class TestBuildUtils(unittest.TestCase):
         build_data = {"defconfig": "defconfig"}
         errors = {}
 
-        build_doc = utils.build.parse_build_data(
+        build_doc, _ = utils.build.parse_build_data(
             build_data, "job", "kernel", errors)
 
         self.assertIsInstance(build_doc, mbuild.BuildDocument)
@@ -271,7 +331,7 @@ class TestBuildUtils(unittest.TestCase):
         build_data = {"defconfig": "defconfig"}
         errors = {}
 
-        build_doc = utils.build.parse_build_data(
+        build_doc, _ = utils.build.parse_build_data(
             build_data, "job", "kernel", errors)
 
         self.assertIsInstance(build_doc, mbuild.BuildDocument)
@@ -286,7 +346,7 @@ class TestBuildUtils(unittest.TestCase):
             "kconfig_fragments": "frag-CONFIG_TEST=y.config"
         }
 
-        build_doc = utils.build.parse_build_data(
+        build_doc, _ = utils.build.parse_build_data(
             build_data, "job", "kernel", {}, "arm-build_dir")
 
         self.assertIsInstance(build_doc, mbuild.BuildDocument)
@@ -315,7 +375,7 @@ class TestBuildUtils(unittest.TestCase):
             "modules_dir": "foo/bar",
             "modules_size": 1024
         }
-        build_doc = utils.build.parse_build_data(
+        build_doc, _ = utils.build.parse_build_data(
             build_data, "job", "kernel", {}, "arm-build_dir")
 
         self.assertIsInstance(build_doc, mbuild.BuildDocument)

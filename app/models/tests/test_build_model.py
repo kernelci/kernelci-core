@@ -72,7 +72,6 @@ class TestBuildModel(unittest.TestCase):
         build_doc.compiler_version_ext = "gcc 4.7.8"
         build_doc.compiler_version_full = "gcc 4.7.8 full"
         build_doc.cross_compile = "arm"
-        build_doc.vmlinux_file = "vmlinux"
         build_doc.vmlinux_file_size = 1024
         build_doc.vmlinux_text_size = 1024
         build_doc.vmlinux_bss_size = 1024
@@ -125,7 +124,6 @@ class TestBuildModel(unittest.TestCase):
             "compiler_version_full": "gcc 4.7.8 full",
             "cross_compile": "arm",
             "compiler_version_ext": "gcc 4.7.8",
-            "vmlinux_file": "vmlinux",
             "vmlinux_file_size": 1024,
             "vmlinux_text_size": 1024,
             "vmlinux_bss_size": 1024,

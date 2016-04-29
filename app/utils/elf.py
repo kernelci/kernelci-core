@@ -53,7 +53,7 @@ def calculate_data_size(elf_file):
     return data_size
 
 
-def read(build_doc, build_dir):
+def read(path):
     """Read a vmlinux file and extract some info from it.
 
     Update the build document in place.
@@ -62,26 +62,27 @@ def read(build_doc, build_dir):
         0. Size of the .text section.
         1. Size of the .data section.
         2. Size of the .bss section.
-    """
-    vmlinux = os.path.join(build_dir, build_doc.vmlinux_file)
 
-    if os.path.isfile(vmlinux):
-        with io.open(vmlinux, mode="rb") as vmlinux_strm:
+    :param path: The path to the vmlinux file.
+    :type path: str
+    :return A dictionary with the extracted values.
+    """
+    extracted = {}
+
+    if os.path.isfile(path):
+        with io.open(path, mode="rb") as vmlinux_strm:
             elf_file = elffile.ELFFile(vmlinux_strm)
 
             for elf_sect in DEFAULT_ELF_SECTIONS:
                 sect = elf_file.get_section_by_name(elf_sect[0])
                 if sect:
-                    setattr(build_doc, elf_sect[1], sect["sh_size"])
+                    extracted[elf_sect[1]] = sect["sh_size"]
 
             data_sect = elf_file.get_section_by_name(".data")
             if data_sect:
-                setattr(
-                    build_doc,
-                    models.VMLINUX_DATA_SIZE_KEY, data_sect["sh_size"])
+                extracted[models.VMLINUX_DATA_SIZE_KEY] = data_sect["sh_size"]
             else:
-                setattr(
-                    build_doc,
-                    models.VMLINUX_DATA_SIZE_KEY,
+                extracted[models.VMLINUX_DATA_SIZE_KEY] = \
                     calculate_data_size(elf_file)
-                )
+
+    return extracted

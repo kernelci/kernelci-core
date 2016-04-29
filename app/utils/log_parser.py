@@ -474,7 +474,7 @@ def _read_build_data(build_dir, job, kernel, errors):
             with io.open(build_file, "r") as read_file:
                 build_data = json.load(read_file)
 
-            build_doc = utils.build.parse_build_data(
+            build_doc, _ = utils.build.parse_build_data(
                 build_data, job, kernel, errors, build_dir=build_dir)
         except IOError, ex:
             err_msg = (
