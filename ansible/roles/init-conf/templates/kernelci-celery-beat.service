@@ -6,6 +6,7 @@ Wants=kernelci-celery.service
 Type=simple
 User={{ app_user }}
 Group={{ app_user }}
+ProtectSystem=full
 ProtectHome=true
 NoNewPrivileges=true
 PrivateTmp=true
