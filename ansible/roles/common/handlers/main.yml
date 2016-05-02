@@ -1,5 +1,0 @@
----
-- include: apache.yml
-- include: nginx.yml
-- include: uwsgi.yml
-- include: sysctl.yml
