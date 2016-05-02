@@ -181,7 +181,7 @@
     - web-server
     - https
 
-- name: Copy letsencrypt config gile
+- name: Copy letsencrypt config file
   when: role == "production"
   template: src=cli.ini
             dest=/etc/letsencrypt/cli.ini
@@ -199,7 +199,7 @@
         state=present
         job="{{ install_base }}/letsencrypt/letsencrypt-auto renew -c /etc/letsencrypt/cli.ini 1>/dev/null && systemctl reload nginx.service"
         cron_file=letsencrypt-tls-certs
-        day=1,15
+        day=7,14,21,28
         hour=3
         minute=10
   tags:
