@@ -27,7 +27,7 @@ fi
 for arch in ${ARCH_LIST}; do
     BASEDIR=/var/www/images/kernel-ci/$TREE_NAME/$GIT_DESCRIBE
     sudo touch ${BASEDIR}/$arch.done
-    sudo find ${BASEDIR} -type f -name "*/$arch-*" > ${BASEDIR}/$arch.filelist
+    sudo find ${BASEDIR} -type f -name "*/$arch-*" -fprint ${BASEDIR}/$arch.filelist
 done
 
 # Check if all builds for all architectures have finished. The magic number here is 3 (arm, arm64, x86)
