@@ -872,6 +872,14 @@ sama5d35ek = {'device_type': 'sama5d35ek',
                     'lpae': False,
                     'fastboot': False}
 
+at91sam9m10g45ek = {'device_type': 'at91sam9m10g45ek',
+                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'defconfig_blacklist': ['arm-allmodconfig'],
+                    'kernel_blacklist': [],
+                    'nfs_blacklist': [],
+                    'lpae': False,
+                    'fastboot': False}
+
 sam9261ek = {'device_type': 'at91sam9261ek',
                     'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
                     'defconfig_blacklist': ['arm-allmodconfig'],
@@ -964,6 +972,7 @@ device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'sama5d35ek.dtb': [sama5d35ek],
               'at91sam9261ek.dtb': [sam9261ek],
               'at91sam9x25ek.dtb': [sam9x25ek],
+              'at91sam9m10g45ek.dtb': [at91sam9m10g45ek],
               'sun8i-a33-sinlinx-sina33.dtb': [sinlinx_sina33],
               'armada-xp-openblocks-ax3-4.dtb': [openblocks_ax3]}
 
