@@ -18,6 +18,7 @@ import bson
 import handlers.base as hbase
 import handlers.response as hresponse
 import models
+import taskqueue.tasks.build as taskb
 import utils.db
 
 
@@ -64,6 +65,8 @@ class JobHandler(hbase.BaseHandler):
             else:
                 response.reason = \
                     "Job '%s-%s' marked as '%s'" % (job, kernel, status)
+                # Create the build logs summary file.
+                taskb.create_build_logs_summary.apply_async([job, kernel])
         else:
             response.status_code = 400
             response.reason = (

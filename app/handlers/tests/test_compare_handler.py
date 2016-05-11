@@ -149,9 +149,12 @@ class TestCompareHandler(TestHandlerBase):
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
+    @mock.patch("taskqueue.tasks.build.create_build_logs_summary")
     @mock.patch("utils.db.find_and_update")
-    def test_post_correct(self, mock_find):
+    def test_post_correct(self, mock_find, mock_task):
         mock_find.retur_value = 200
+        mock_task.apply_async = mock.MagicMock()
+
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         body = json.dumps(dict(job="job", kernel="kernel"))
 

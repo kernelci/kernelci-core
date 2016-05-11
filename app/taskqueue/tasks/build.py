@@ -16,6 +16,7 @@
 import taskqueue.celery as taskc
 import utils.build
 import utils.log_parser
+import utils.logs.build
 
 
 @taskc.app.task(name="import-job")
@@ -102,4 +103,21 @@ def parse_single_build_log(
     status, errors = utils.log_parser.parse_single_build_log(
         prev_res[0], prev_res[1], db_options)
     # TODO: handle errors.
+    return status
+
+
+@taskc.app.task(name="create-logs-summary")
+def create_build_logs_summary(job, kernel):
+    """Task wrapper around the real function.
+
+    Create the build logs summary.
+
+    :param job: The tree value.
+    :type job: str
+    :param kernel: The kernel value.
+    :type kernel: str
+    """
+    # TODO: handle error
+    status, error = utils.logs.build.create_build_logs_summary(
+        job, kernel, taskc.app.conf.DB_OPTIONS)
     return status
