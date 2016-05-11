@@ -289,7 +289,7 @@ if install:
 
     # Patterns for matching kernel images by architecture
     if arch == 'arm':
-        patterns = ['zImage']
+        patterns = ['zImage', 'xipImage']
     elif arch == 'arm64':
         patterns = ['Image']
     # TODO: Fix this assumption. ARCH != ARM* == x86
