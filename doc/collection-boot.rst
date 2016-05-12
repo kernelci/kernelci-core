@@ -50,6 +50,9 @@ GET
  :query int retries: The number of boot retries performed.
  :query string status: The status of the boot report.
  :query int warnings: The number of warnings in the boot report.
+ :query string time_range: Minutes of data to consider, in UTC time
+    (:ref:`more info <intro_schema_time_date>`). Minimum value is 10 minutes, maximum
+    is 60 * 24.
 
  :status 200: Results found.
  :status 403: Not authorized to perform the operation.
