@@ -97,6 +97,33 @@ will be included in the ``result`` field and it will always be a list: ::
 
     {"code": 200, "result": []}
 
+.. _intro_schema_ids:
+
+IDs
+***
+
+ID values in a response object are always wrapped in a JSON object, as follows:
+
+::
+
+    {
+        "_id": {
+            "$oid": "012345678901234567890123"
+        },
+        "job_id": {
+            "$oid": "012345678901234567890123"
+        }
+    }
+
+The ID value conforms to the following regular expression: :regexp:`[A-Za-z0-9]{24}`
+
+When accessing resources through their ID, always use the real ID as defined
+in the ``$oid`` value:
+
+.. sourcecode:: http
+
+    GET /boot/012345678901234567890123/ HTTP/1.1
+
 .. _intro_schema_time_date:
 
 Time and Date
@@ -178,6 +205,7 @@ The operators can be repeated multiple times. If repeated more than once for
 the same field, the last parsed one will be considerd.
 
 The order in which the arguments are parsed might not be guaranteed.
+
 
 Authentication and Tokens
 -------------------------

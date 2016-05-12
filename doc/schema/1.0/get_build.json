@@ -68,12 +68,17 @@
         },
         "errors": {
             "type": "integer",
-            "description": "Number of errors reported",
+            "description": "Number of errors found in the build log",
             "default": 0
         },
         "warnings": {
             "type": "integer",
-            "description": "Number of warnings reported",
+            "description": "Number of warnings found in the build log",
+            "default": 0
+        },
+        "mismatches": {
+            "type": "integer",
+            "description": "Number of mismatched lines in the build log",
             "default": 0
         },
         "arch": {
@@ -183,10 +188,6 @@
         "vmlinux_data_size": {
             "type": "intger",
             "description": "Size in bytes of all the WA and A PROGBITS sections in the ELF file (the .data section)"
-        },
-        "vmlinux_file": {
-            "type": "string",
-            "description": "The name of the ELF kernel image"
         },
         "vmlinux_file_size": {
             "type": "integer",

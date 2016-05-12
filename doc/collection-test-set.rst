@@ -12,12 +12,12 @@ More info about the test set schema can be found :ref:`here <schema_test_set>`.
 GET
 ***
 
-.. http:get:: /test/set/(string:test_set_id)
+.. http:get:: /test/set/(string:id)/
 
- Get all the available test sets or a single one if ``test_set_id`` is provided.
+ Get all the available test sets or a single one if ``id`` is provided.
 
- :param test_set_id: The ID of the test set to retrieve.
- :type test_set_id: string
+ :param id: The :ref:`ID <intro_schema_ids>` of the test set to retrieve.
+ :type id: string
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Accept-Encoding: Accept the ``gzip`` coding.
@@ -45,7 +45,8 @@ GET
  :status 200: Results found.
  :status 403: Not authorized to perform the operation.
  :status 404: The provided resource has not been found.
- :status 500: Internal database error.
+ :status 500: Internal server error.
+ :status 503: Service maintenance.
 
  **Example Requests**
 
@@ -116,6 +117,8 @@ POST
  :status 403: Not authorized to perform the operation.
  :status 415: Wrong content type.
  :status 422: No real JSON data provided.
+ :status 500: Internal server error.
+ :status 503: Service maintenance.
 
  **Example Requests**
 
@@ -201,9 +204,12 @@ POST
 PUT
 ***
 
-.. http:put:: /test/set/(string:test_set_id)
+.. http:put:: /test/set/(string:id)/
 
- Update an existing test set identified by its ``test_set_id`` with values defined in the JSON data.
+ Update an existing test set identified by its ``id`` with values defined in the JSON data.
+
+ :param id: The :ref:`ID <intro_schema_ids>` of the test set.
+ :type id: string
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Content-Type: Content type of the transmitted data, must be ``application/json``.
@@ -217,6 +223,8 @@ PUT
  :status 404: The provided resource has not been found.
  :status 415: Wrong content type.
  :status 422: No real JSON data provided.
+ :status 500: Internal server error.
+ :status 503: Service maintenance.
 
  **Example Requests**
 
@@ -249,12 +257,12 @@ PUT
 DELETE
 ******
 
-.. http:delete:: /test/set/(string:test_set_id)
+.. http:delete:: /test/set/(string:id)/
 
- Delete the test set identified by ``test_set_id``. All its associated test cases will be deleted as well.
+ Delete the test set identified by ``id``. All its associated test cases will be deleted as well.
 
- :param test_set_id: The test set ID.
- :type test_set_id: string
+ :param id: The :ref:`ID <intro_schema_ids>` of the test set.
+ :type id: string
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Accept-Encoding: Accept the ``gzip`` coding.
@@ -264,7 +272,8 @@ DELETE
  :status 200: Resource deleted.
  :status 403: Not authorized to perform the operation.
  :status 404: The provided resource has not been found.
- :status 500: Internal database error.
+ :status 500: Internal server error.
+ :status 503: Service maintenance.
 
  **Example Requests**
 

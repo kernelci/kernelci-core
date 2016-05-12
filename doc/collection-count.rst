@@ -4,7 +4,7 @@ count
 GET
 ***
 
-.. http:get:: /count/(string:resource)
+.. http:get:: /count/(string:resource)/
 
  Count the elements in all resources or in the provided ``resource``.
 

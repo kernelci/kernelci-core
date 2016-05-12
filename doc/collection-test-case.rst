@@ -12,12 +12,12 @@ More info about the test case schema can be found :ref:`here <schema_test_case>`
 GET
 ***
 
-.. http:get:: /test/case/(string:test_case_id)
+.. http:get:: /test/case/(string:id)/
 
- Get all the available test cases or a single one if ``test_case_id`` is provided.
+ Get all the available test cases or a single one if ``id`` is provided.
 
- :param test_case_id: The ID of the test case to retrieve.
- :type test_case_id: string
+ :param id: The :ref:`ID <intro_schema_ids>` of the test case to retrieve.
+ :type id: string
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Accept-Encoding: Accept the ``gzip`` coding.
@@ -45,7 +45,8 @@ GET
  :status 200: Results found.
  :status 403: Not authorized to perform the operation.
  :status 404: The provided resource has not been found.
- :status 500: Internal database error.
+ :status 500: Internal server error.
+ :status 503: Service maintenance.
 
  **Example Requests**
 
@@ -116,6 +117,8 @@ POST
  :status 403: Not authorized to perform the operation.
  :status 415: Wrong content type.
  :status 422: No real JSON data provided.
+ :status 500: Internal server error.
+ :status 503: Service maintenance.
 
  **Example Requests**
 
@@ -129,8 +132,8 @@ POST
 
     {
         "name": "A test case",
-        "test_suite_id": "1234567890",
-        "test_set_id": "1234567890",
+        "test_suite_id": "01234567890123456789ABCD",
+        "test_set_id": "01234567890123456789ABCD",
         "version": "1.0"
     }
 
@@ -144,8 +147,8 @@ POST
 
     {
         "name": "A test case",
-        "test_suite_id": "1234567890",
-        "test_set_id": "1234567890",
+        "test_suite_id": "01234567890123456789ABCD",
+        "test_set_id": "01234567890123456789ABCD",
         "version": "1.0"
     }
 
@@ -157,14 +160,14 @@ POST
     Vary: Accept-Encoding
     Date: Mon, 16 Mar 2014 12:29:51 GMT
     Content-Type: application/json; charset=UTF-8
-    Location: /test/case/1234567890
+    Location: /test/case/01234567890123456789ABCD
 
     {
         "code": 201,
         "result": [
             {
                 "_id": {
-                    "$oid": "1234567890"
+                    "$oid": "01234567890123456789ABCD"
                 }
             }
         ],
@@ -174,9 +177,12 @@ POST
 PUT
 ***
 
-.. http:put:: /test/case/(string:test_case_id)
+.. http:put:: /test/case/(string:id)/
 
- Update an existing test case identified by its ``test_case_id`` with values defined in the JSON data.
+ Update an existing test case identified by its ``id`` with values defined in the JSON data.
+
+ :param id: The :ref:`ID <intro_schema_ids>` of the test case.
+ :type id: string
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Content-Type: Content type of the transmitted data, must be ``application/json``.
@@ -190,12 +196,14 @@ PUT
  :status 404: The provided resource has not been found.
  :status 415: Wrong content type.
  :status 422: No real JSON data provided.
+ :status 500: Internal server error.
+ :status 503: Service maintenance.
 
  **Example Requests**
 
  .. sourcecode:: http 
 
-    POST /test/case/123456789 HTTP/1.1
+    POST /test/case/01234567890123456789ABCD HTTP/1.1
     Host: api.kernelci.org
     Content-Type: application/json
     Accept: */*
@@ -209,25 +217,25 @@ PUT
 
  .. sourcecode:: http
 
-    HTTP/1.1 202 Resource '123456789' updated
+    HTTP/1.1 202 Resource '01234567890123456789ABCD' updated
     Vary: Accept-Encoding
     Date: Mon, 16 Mar 2014 12:29:51 GMT
     Content-Type: application/json; charcase=UTF-8
 
     {
         "code": 200,
-        "reason": "Resource '123456789' updated",
+        "reason": "Resource '01234567890123456789ABCD' updated",
     }
 
 DELETE
 ******
 
-.. http:delete:: /test/case/(string:test_case_id)
+.. http:delete:: /test/case/(string:id)/
 
- Delete the test case identified by ``test_case_id``.
+ Delete the test case identified by ``id``.
 
- :param test_case_id: The test case ID.
- :type test_case_id: string
+ :param id: The :ref:`ID <intro_schema_ids>` of the test case.
+ :type id: string
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Accept-Encoding: Accept the ``gzip`` coding.
@@ -237,13 +245,14 @@ DELETE
  :status 200: Resource deleted.
  :status 403: Not authorized to perform the operation.
  :status 404: The provided resource has not been found.
- :status 500: Internal database error.
+ :status 500: Internal server error.
+ :status 503: Service maintenance.
 
  **Example Requests**
 
  .. sourcecode:: http
 
-    DELETE /test/case/1234567890 HTTP/1.1
+    DELETE /test/case/01234567890123456789ABCD/ HTTP/1.1
     Host: api.kernelci.org
     Accept: */*
     Content-Type: application/json
@@ -253,14 +262,14 @@ DELETE
 
  .. sourcecode:: http
 
-    HTTP/1.1 202 Resource '1234567890' deleted
+    HTTP/1.1 202 Resource '01234567890123456789ABCD' deleted
     Vary: Accept-Encoding
     Date: Mon, 16 Mar 2014 12:29:51 GMT
     Content-Type: application/json; charset=UTF-8
 
     {
         "code": 200,
-        "reason": "Resource '1234567890' deleted",
+        "reason": "Resource '01234567890123456789ABCD' deleted",
     }
 
 More Info

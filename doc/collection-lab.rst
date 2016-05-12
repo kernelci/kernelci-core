@@ -12,13 +12,13 @@ More info about the lab schema can be found :ref:`here <schema_lab>`.
 GET
 ***
 
-.. http:get:: /lab/(string:lab_id)
+.. http:get:: /lab/(string:id)/
 
- Get all the available registered lab or a single one if ``lab_id`` is
+ Get all the available registered lab or a single one if ``id`` is
  provided.
 
- :param lab_id: The ID of the lab to retrieve.
- :type lab_id: string
+ :param id: The :ref:`ID <intro_schema_ids>` of the lab to retrieve.
+ :type id: string
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Accept-Encoding: Accept the ``gzip`` coding.
@@ -40,7 +40,7 @@ GET
  :query string created_on: The creation date: accepted formats are ``YYYY-MM-DD`` and ``YYYYMMDD``.
  :query string name: The name of the lab.
  :query boolean private: If the lab is private or not.
- :query string token: The token ID associated with the lab.
+ :query string token: The ID of the token associated with the lab.
 
  :status 200: Results found.
  :status 403: Not authorized to perform the operation.
@@ -140,9 +140,9 @@ POST
 PUT
 ***
 
-.. http:put:: /lab/(string:lab_id)
+.. http:put:: /lab/(string:id)
 
- Update an existing lab document identified by the ``lab_id`` value.
+ Update an existing lab document identified by the ``id`` value.
 
  For more info on all the required JSON request fields, see the :ref:`lab
  schema <schema_lab_post>`.
@@ -177,12 +177,12 @@ PUT
 DELETE
 ******
 
-.. http:delete:: /lab/(string:lab_id)
+.. http:delete:: /lab/(string:id)
 
- Delete the lab document identified by the ``lab_id`` value.
+ Delete the lab document identified by the ``id`` value.
 
- :param lab_id: The ID of the lab document to delete.
- :type lab_id: string
+ :param id: The :ref:`ID <intro_schema_ids>` of the lab document to delete.
+ :type id: string
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Accept-Encoding: Accept the ``gzip`` coding.
@@ -191,7 +191,7 @@ DELETE
 
  :query string _id: The internal ID of the registered lab.
  :query string private: If the lab is private or not.
- :query string token: The token ID associated with the lab.
+ :query string token: The ID of token associated with the lab.
 
  :status 200: Resource deleted.
  :status 403: Not authorized to perform the operation.

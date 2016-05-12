@@ -12,12 +12,12 @@ More info about the test suite schema can be found :ref:`here <schema_test_suite
 GET
 ***
 
-.. http:get:: /test/suite/(string:test_suite_id)
+.. http:get:: /test/suite/(string:id)/
 
- Get all the available test suites or a single one if ``test_suite_id`` is provided.
+ Get all the available test suites or a single one if ``id`` is provided.
 
- :param test_suite_id: The ID of the test suite to retrieve.
- :type test_suite_id: string
+ :param id: The :ref:`ID <intro_schema_ids>` of the test suite to retrieve.
+ :type id: string
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Accept-Encoding: Accept the ``gzip`` coding.
@@ -84,7 +84,7 @@ GET
         "result": [
             {
                 "_id": {
-                    "$oid": "123456789",
+                    "$oid": "01234567890123456789ABCD",
                     "name": "Test suite"
                 }
             }
@@ -123,7 +123,7 @@ POST
 
  **Example Requests**
 
- .. sourcecode:: http 
+ .. sourcecode:: http
 
     POST /test/suite HTTP/1.1
     Host: api.kernelci.org
@@ -133,11 +133,11 @@ POST
 
     {
         "name": "LSK test suite",
-        "build_id": "1234567890",
+        "build_id": "01234567890123456789ABCD",
         "version": "1.0"
     }
 
- .. sourcecode:: http 
+ .. sourcecode:: http
 
     POST /test/suite HTTP/1.1
     Host: api.kernelci.org
@@ -147,7 +147,7 @@ POST
 
     {
         "name": "LSK test suite",
-        "build_id": "1234567890",
+        "build_id": "01234567890123456789ABCD",
         "version": "1.0",
         "test_case": [
             {
@@ -165,14 +165,14 @@ POST
     Vary: Accept-Encoding
     Date: Mon, 16 Mar 2014 12:29:51 GMT
     Content-Type: application/json; charset=UTF-8
-    Location: /test/suite/1234567890
+    Location: /test/suite/01234567890123456789ABCD
 
     {
         "code": 201,
         "result": [
             {
                 "_id": {
-                    "$oid": "1234567890"
+                    "$oid": "01234567890123456789ABCD"
                 }
             }
         ],
@@ -185,14 +185,14 @@ POST
     Vary: Accept-Encoding
     Date: Mon, 16 Mar 2014 12:29:51 GMT
     Content-Type: application/json; charset=UTF-8
-    Location: /test/suite/1234567890
+    Location: /test/suite/01234567890123456789ABCD
 
     {
         "code": 202,
         "result": [
             {
                 "_id": {
-                    "$oid": "1234567890"
+                    "$oid": "01234567890123456789ABCD"
                 }
             }
         ],
@@ -205,9 +205,12 @@ POST
 PUT
 ***
 
-.. http:put:: /test/suite/(string:test_suite_id)
+.. http:put:: /test/suite/(string:id)/
 
- Update an existing test suite identified by its ``test_suite_id`` with values defined in the JSON data.
+ Update an existing test suite identified by its ``id`` with values defined in the JSON data.
+
+ :param id: The :ref:`ID <intro_schema_ids>` of the test suite.
+ :type id: string
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Content-Type: Content type of the transmitted data, must be ``application/json``.
@@ -234,7 +237,7 @@ PUT
 
     {
         "name": "LSK test suite - NEW",
-        "build_id": "1234567891"
+        "build_id": "01234567890123456789ABCD"
     }
 
  **Example Responses**
@@ -248,18 +251,18 @@ PUT
 
     {
         "code": 200,
-        "reason": "Resource '123456789' updated",
+        "reason": "Resource '01234567890123456789ABCD' updated",
     }
 
 DELETE
 ******
 
-.. http:delete:: /test/suite/(string:test_suite_id)
+.. http:delete:: /test/suite/(string:id)/
 
- Delete the test suite identified by ``test_suite_id``. All its associated test sets and test cases will be deleted as well.
+ Delete the test suite identified by ``id``. All its associated test sets and test cases will be deleted as well.
 
- :param test_suite_id: The test suite ID.
- :type test_suite_id: string
+ :param id: The :ref:`ID <intro_schema_ids>` of the test suite.
+ :type id: string
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Accept-Encoding: Accept the ``gzip`` coding.
@@ -275,7 +278,7 @@ DELETE
 
  .. sourcecode:: http
 
-    DELETE /test/suite/1234567890 HTTP/1.1
+    DELETE /test/suite/01234567890123456789ABCD HTTP/1.1
     Host: api.kernelci.org
     Accept: */*
     Content-Type: application/json
@@ -285,14 +288,14 @@ DELETE
 
  .. sourcecode:: http
 
-    HTTP/1.1 202 Resource '1234567890' deleted
+    HTTP/1.1 202 Resource '01234567890123456789ABCD' deleted
     Vary: Accept-Encoding
     Date: Mon, 16 Mar 2014 12:29:51 GMT
     Content-Type: application/json; charset=UTF-8
 
     {
         "code": 200,
-        "reason": "Resource '1234567890' deleted",
+        "reason": "Resource '01234567890123456789ABCD' deleted",
     }
 
 More Info

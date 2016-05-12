@@ -144,7 +144,7 @@
         },
         "vmlinux_file": {
             "type": "string",
-            "description": "The name of the ELF kernel image (usually vmlinux)"
+            "description": "The name of the ELF kernel image"
         }
     },
     "required": ["job", "kernel", "defconfig", "arch"]

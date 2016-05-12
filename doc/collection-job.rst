@@ -12,12 +12,12 @@ More info about the job schema can be found :ref:`here <schema_job>`.
 GET
 ***
 
-.. http:get:: /job/(string:job_id)
+.. http:get:: /job/(string:id)/
 
- Get all the available jobs or a single one if ``job_id`` is provided.
+ Get all the available jobs or a single one if ``id`` is provided.
 
- :param job_id: The ID of the job to retrieve.
- :type job_id: string
+ :param id: The :ref:`ID <intro_schema_ids>` of the job to retrieve.
+ :type id: string
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Accept-Encoding: Accept the ``gzip`` coding.
@@ -29,7 +29,7 @@ GET
  :query string sort: Field to sort the results on. Can be repeated multiple times.
  :query int sort_order: The sort order of the results: -1 (descending), 1
     (ascending). This will be applied only to the first ``sort``
-    parameter passed. Default -1.
+    parameter passed. Defaults to -1.
  :query int date_range: Number of days to consider, starting from today
     (:ref:`more info <intro_schema_time_date>`). By default consider all results.
  :query string field: The field that should be returned in the response. Can be
@@ -47,20 +47,14 @@ GET
  :status 200: Results found.
  :status 403: Not authorized to perform the operation.
  :status 404: The provided resource has not been found.
- :status 500: Internal database error.
+ :status 500: Internal server error.
+ :status 503: Service maintenance.
 
  **Example Requests**
 
  .. sourcecode:: http
 
-    GET /job/ HTTP/1.1
-    Host: api.kernelci.org
-    Accept: */*
-    Authorization: token
-
- .. sourcecode:: http
-
-    GET /job/next-next-20140731 HTTP/1.1
+    GET /job/012345678901234567890123/ HTTP/1.1
     Host: api.kernelci.org
     Accept: */*
     Authorization: token
@@ -89,7 +83,7 @@ GET
             {
                 "status": "PASS",
                 "job": "arm-soc",
-                "_id": "arm-soc-v3.15-8898-gf79922c",
+                "_id": "012345678901234567890123",
             },
         ],
     }
@@ -107,7 +101,7 @@ GET
             {
                 "status": "PASS",
                 "job": "next",
-                "_id": "next-next-20140731",
+                "_id": "0123456789001234567890123",
                 "kernel": "next-20140731"
             }
         ]
@@ -144,11 +138,16 @@ GET
  Get all the unique values for the specified ``field``.
  Accepted ``field`` values are:
 
+ * `compiler_version_ext`
+ * `compiler_version`
+ * `compiler`
  * `git_branch`
  * `git_commit`
+ * `git_describe_v`
  * `git_describe`
  * `git_url`
  * `job`
+ * `kernel_version`
  * `kernel`
 
  The query parameters can be used to first filter the data on which the unique
@@ -183,7 +182,8 @@ GET
  :status 400: Wrong ``field`` value provided.
  :status 403: Not authorized to perform the operation.
  :status 404: The provided resource has not been found.
- :status 500: Internal database error.
+ :status 500: Internal server error.
+ :status 503: Service maintenance.
 
  **Example Requests**
 
@@ -259,7 +259,8 @@ GET
  :status 400: Wrong ``id`` value provided.
  :status 403: Not authorized to perform the operation.
  :status 404: The provided resource has not been found.
- :status 500: Internal database error.
+ :status 500: Internal server error.
+ :status 503: Service maintenance.
 
  **Example Requests**
 
@@ -344,7 +345,8 @@ GET
  :status 400: Wrong ``id`` value provided.
  :status 403: Not authorized to perform the operation.
  :status 404: The provided resource has not been found.
- :status 500: Internal database error.
+ :status 500: Internal server error.
+ :status 503: Service maintenance.
 
  **Example Requests**
 
@@ -416,6 +418,7 @@ POST
  :status 415: Wrong content type.
  :status 422: No real JSON data provided.
  :status 500: Internal server error.
+ :status 503: Service maintenance.
 
  **Example Requests**
 
@@ -459,13 +462,14 @@ POST
  :resheader Location: Will point to the saved comparison results ID.
 
  :status 200: The request has been processed, saved results are returned.
- :status 201: The reuqest has been processed and created.
+ :status 201: The request has been processed and created.
  :status 400: JSON data not valid.
  :status 403: Not authorized to perform the operation.
  :status 404: Document not found.
  :status 415: Wrong content type.
  :status 422: No real JSON data provided.
  :status 500: Internal server error.
+ :status 503: Service maintenance.
 
  **Example Requests**
 
@@ -516,12 +520,12 @@ POST
 DELETE
 ******
 
-.. http:delete:: /job/(string:job_id)
+.. http:delete:: /job/(string:id)/
 
- Delete the job identified by ``job_id``.
+ Delete the job identified by ``id``.
 
- :param job_id: The job ID in the form of ``job``-``kernel``.
- :type job_id: string
+ :param id: The :ref:`ID <intro_schema_ids>` of the job to delete.
+ :type id: string
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Accept-Encoding: Accept the ``gzip`` coding.
@@ -531,13 +535,14 @@ DELETE
  :status 200: Resource deleted.
  :status 403: Not authorized to perform the operation.
  :status 404: The provided resource has not been found.
- :status 500: Internal database error.
+ :status 500: Internal server error.
+ :status 503: Service maintenance.
 
  **Example Requests**
 
  .. sourcecode:: http
 
-    DELETE /job/next-next-20140612 HTTP/1.1
+    DELETE /job/01234567890123456789ABCD HTTP/1.1
     Host: api.kernelci.org
     Accept: */*
     Content-Type: application/json

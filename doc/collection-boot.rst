@@ -12,12 +12,12 @@ More info about the boot schema can be found :ref:`here <schema_boot>`.
 GET
 ***
 
-.. http:get:: /boot/(string:boot_id)
+.. http:get:: /boot/(string:id)/
 
- Get all the available boot reports or a single one if ``boot_id`` is provided.
+ Get all the available boot reports or a single one if ``id`` is provided.
 
- :param boot_id: The ID of the boot report to retrieve.
- :type boot_id: string
+ :param id: The :ref:`ID <intro_schema_ids>` of the boot report to retrieve.
+ :type id: string
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Accept-Encoding: Accept the ``gzip`` coding.
@@ -29,7 +29,7 @@ GET
  :query string sort: Field to sort the results on. Can be repeated multiple times.
  :query int sort_order: The sort order of the results: -1 (descending), 1
     (ascending). This will be applied only to the first ``sort``
-    parameter passed. Default -1.
+    parameter passed. Defaults to -1.
  :query int date_range: Number of days to consider, starting from today
     (:ref:`more info <intro_schema_time_date>`). By default consider all results.
  :query string field: The field that should be returned in the response. Can be
@@ -54,7 +54,8 @@ GET
  :status 200: Results found.
  :status 403: Not authorized to perform the operation.
  :status 404: The provided resource has not been found.
- :status 500: Internal database error.
+ :status 500: Internal server error.
+ :status 503: Service maintenance.
 
  **Example Requests**
 
@@ -67,7 +68,7 @@ GET
 
  .. sourcecode:: http
 
-    GET /boot/omap4-panda-next-next-20140905-arm-omap2plus_defconfig HTTP/1.1
+    GET /boot/012345678901234567890123/ HTTP/1.1
     Host: api.kernelci.org
     Accept: */*
     Authorization: token
@@ -95,7 +96,7 @@ GET
                 "status": "PASS",
                 "kernel": "next-20140905",
                 "job": "next",
-                "_id": "boot-id",
+                "_id": "012345678901234567890123",
                 "fastboot": false,
                 "warnings": 0,
                 "defconfig": "arm-omap2plus_defconfig"
@@ -133,19 +134,24 @@ GET
  .. note::
     Results shown here do not include the full JSON response.
 
-.. http:get:: /boot/distinct/(string:field)
+.. http:get:: /boot/distinct/(string:field)/
 
  Get all the unique values for the specified ``field``.
  Accepted ``field`` values are:
 
  * `arch`
+ * `board_instance`
  * `board`
+ * `defconfig_full`
+ * `defconfig`
+ * `endian`
  * `git_branch`
  * `git_commit`
  * `git_describe`
  * `git_url`
  * `job`
  * `kernel`
+ * `lab_name`
  * `mach`
 
  The query parameters can be used to first filter the data on which the unique
@@ -180,7 +186,8 @@ GET
  :status 400: Wrong ``field`` value provided.
  :status 403: Not authorized to perform the operation.
  :status 404: The provided resource has not been found.
- :status 500: Internal database error.
+ :status 500: Internal server error.
+ :status 503: Service maintenance.
 
  **Example Requests**
 
@@ -250,6 +257,7 @@ POST
 
  For more info on all the required JSON request fields, see the :ref:`boot schema for POST requests <schema_boot_post>`.
 
+ :reqjson string arch: The architecture of the board.
  :reqjson string board: The name of the board.
  :reqjson string defconfig: The name of the defconfig.
  :reqjson string job: The name of the job.
@@ -268,6 +276,8 @@ POST
  :status 403: Not authorized to perform the operation.
  :status 415: Wrong content type.
  :status 422: No real JSON data provided.
+ :status 500: Internal server error.
+ :status 503: Service maintenance.
 
  **Example Requests**
 
@@ -290,12 +300,12 @@ POST
 DELETE
 ******
 
-.. http:delete:: /boot/(string:boot_id)
+.. http:delete:: /boot/(string:id)/
 
- Delete the boot report identified by ``boot_id``.
+ Delete the boot report identified by ``id``.
 
- :param boot_id: The ID of the boot report to delete.
- :type boot_id: string
+ :param id: The :ref:`ID <intro_schema_ids>` of the boot report to delete.
+ :type id: string
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Accept-Encoding: Accept the ``gzip`` coding.
@@ -315,13 +325,14 @@ DELETE
  :status 200: Resource deleted.
  :status 403: Not authorized to perform the operation.
  :status 404: The provided resource has not been found.
- :status 500: Internal database error.
+ :status 500: Internal server error.
+ :status 503: Service maintenance.
 
  **Example Requests**
 
  .. sourcecode:: http
 
-    DELETE /boot/tegra30-beaver-next-next-20140612-arm-tegra_defconfig HTTP/1.1
+    DELETE /boot/01234567890123456789ABCD HTTP/1.1
     Host: api.kernelci.org
     Accept: */*
     Content-Type: application/json
