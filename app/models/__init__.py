@@ -184,6 +184,7 @@ VMLINUX_TEXT_SIZE_KEY = "vmlinux_text_size"
 WARNINGS_COUNT_KEY = "warnings_count"
 WARNINGS_KEY = "warnings"
 x86_ARCHITECTURE_KEY = "x86"
+x86_64_ARCHITECTURE_KEY = "x86_64"
 
 # Email reporting control fields.
 SEND_BOOT_REPORT_KEY = "boot_report"
@@ -291,6 +292,7 @@ VALID_ARCHITECTURES = [
     ARM64_ARCHITECTURE_KEY,
     ARM_ARCHITECTURE_KEY,
     MIPS_ARCHITECTURE_KEY,
+    x86_64_ARCHITECTURE_KEY,
     x86_ARCHITECTURE_KEY
 ]
 
@@ -964,23 +966,33 @@ DISTINCT_VALID_KEYS = {
 # Used to define, in the DistinctHandler, which fields can be used as unique.
 DISTINCT_VALID_FIELDS = {
     JOB_COLLECTION: [
+        COMPILER_KEY,
+        COMPILER_VERSION_EXT_KEY,
+        COMPILER_VERSION_KEY,
         GIT_BRANCH_KEY,
         GIT_COMMIT_KEY,
         GIT_DESCRIBE_KEY,
+        GIT_DESCRIBE_V_KEY,
         GIT_URL_KEY,
         JOB_KEY,
-        KERNEL_KEY
+        KERNEL_KEY,
+        KERNEL_VERSION_KEY
     ],
     BUILD_COLLECTION: [
         ARCHITECTURE_KEY,
+        COMPILER_KEY,
+        COMPILER_VERSION_EXT_KEY,
+        COMPILER_VERSION_KEY,
         DEFCONFIG_FULL_KEY,
         DEFCONFIG_KEY,
         GIT_BRANCH_KEY,
         GIT_COMMIT_KEY,
         GIT_DESCRIBE_KEY,
+        GIT_DESCRIBE_V_KEY,
         GIT_URL_KEY,
         JOB_KEY,
-        KERNEL_KEY
+        KERNEL_KEY,
+        KERNEL_VERSION_KEY
     ],
     BOOT_COLLECTION: [
         ARCHITECTURE_KEY,
