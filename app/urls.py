@@ -105,21 +105,6 @@ _BUILD_COMPARE_ID_URL = tornado.web.url(
     kwargs={"resource": "build"}, name="build-compare-id"
 )
 
-_DEFCONF_URL = tornado.web.url(
-    r"/defconfig[s]?/?$", handlers.build.BuildHandler, name="defconf")
-
-_DEFCONF_ID_URL = tornado.web.url(
-    r"/defconfig[s]?/(?P<id>[A-Za-z0-9]{24})/?$",
-    handler=handlers.build.BuildHandler, name="defconfig-id")
-
-_DEFCONFIG_ID_LOGS_URL = tornado.web.url(
-    r"/defconfig[s]?/(?P<id>[A-Za-z0-9]{24})/logs/?$",
-    handlers.build_logs.BuildLogsHandler, name="defconfig-id-logs")
-
-_DEFCONFIG_LOGS_URL = tornado.web.url(
-    r"/defconfig[s]?/logs/?$",
-    handlers.build_logs.BuildLogsHandler, name="defconfig-logs")
-
 _BOOT_URL = tornado.web.url(
     r"/boot[s]?/?$", handlers.boot.BootHandler, name="boot")
 
@@ -244,10 +229,6 @@ APP_URLS = [
     _BUILD_LOGS_URL,
     _BUILD_URL,
     _COUNT_URL,
-    _DEFCONFIG_ID_LOGS_URL,
-    _DEFCONFIG_LOGS_URL,
-    _DEFCONF_ID_URL,
-    _DEFCONF_URL,
     _JOB_COMPARE_ID_URL,
     _JOB_COMPARE_URL,
     _JOB_DISTINCT_URL,

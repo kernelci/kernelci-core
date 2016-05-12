@@ -33,9 +33,7 @@ class TestBuildHandler(TestHandlerBase):
     def get_app(self):
         app_urls = [
             urls._BUILD_ID_URL,
-            urls._BUILD_URL,
-            urls._DEFCONF_ID_URL,
-            urls._DEFCONF_URL
+            urls._BUILD_URL
         ]
         return tornado.web.Application(app_urls, **self.settings)
 
@@ -68,27 +66,13 @@ class TestBuildHandler(TestHandlerBase):
             response.headers["Content-Type"], self.content_type)
         self.assertDictEqual(json.loads(response.body), expected_body)
 
-    @mock.patch("utils.db.find")
-    @mock.patch("utils.db.count")
-    def test_get_old_defconfig_url(self, mock_count, mock_find):
-        mock_count.return_value = 0
-        mock_find.return_value = []
-
-        expected_body = {
-            "count": 0,
-            "code": 200,
-            "limit": 0,
-            "skip": 0,
-            "result": []
-        }
-
+    def test_get_old_defconfig_url(self):
         headers = {"Authorization": "foo"}
         response = self.fetch("/defconfig", headers=headers)
 
-        self.assertEqual(response.code, 200)
+        self.assertEqual(response.code, 404)
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
-        self.assertDictEqual(json.loads(response.body), expected_body)
 
     @mock.patch("bson.objectid.ObjectId")
     @mock.patch("utils.db.find_one2")
