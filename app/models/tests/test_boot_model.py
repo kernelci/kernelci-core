@@ -63,6 +63,9 @@ class TestBootModel(unittest.TestCase):
         boot_doc.compiler_version_ext = "gcc 4.7.3"
         boot_doc.compiler_version_full = "gcc version 4.7.3"
         boot_doc.cross_compile = "cross-compile"
+        boot_doc.boot_job_id = "1234"
+        boot_doc.boot_job_url = "http://boot-executor.example.net"
+        boot_doc.boot_job_path = "/public/job"
 
         expected = {
             "_id": "id",
@@ -116,7 +119,10 @@ class TestBootModel(unittest.TestCase):
             "compiler_version": "4.7.3",
             "compiler_version_ext": "gcc 4.7.3",
             "compiler_version_full": "gcc version 4.7.3",
-            "cross_compile": "cross-compile"
+            "cross_compile": "cross-compile",
+            "boot_job_id": "1234",
+            "boot_job_url": "http://boot-executor.example.net",
+            "boot_job_path": "/public/job"
         }
 
         self.assertDictEqual(expected, boot_doc.to_dict())
@@ -189,7 +195,10 @@ class TestBootModel(unittest.TestCase):
             "compiler_version": "4.7.3",
             "compiler_version_ext": "gcc 4.7.3",
             "compiler_version_full": "gcc version 4.7.3",
-            "cross_compile": "cross-compile"
+            "cross_compile": "cross-compile",
+            "boot_job_id": "1234",
+            "boot_job_url": "http://boot-executor.example.net",
+            "boot_job_path": "/public/job"
         }
 
         boot_doc = mboot.BootDocument.from_json(boot_json)

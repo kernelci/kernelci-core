@@ -33,6 +33,9 @@ BOARD_KEY = "board"
 BOOTLOADER_TYPE_KEY = "bootloader"
 BOOTLOADER_VERSION_KEY = "bootloader_version"
 BOOT_ID_KEY = "boot_id"
+BOOT_JOB_ID_KEY = "boot_job_id"
+BOOT_JOB_PATH_KEY = "boot_job_path"
+BOOT_JOB_URL_KEY = "boot_job_url"
 BOOT_LOAD_ADDR_KEY = "loadaddr"
 BOOT_LOG_HTML_KEY = "boot_log_html"
 BOOT_LOG_KEY = "boot_log"
@@ -426,6 +429,9 @@ BOOT_VALID_KEYS = {
             BOARD_KEY,
             BOOTLOADER_TYPE_KEY,
             BOOTLOADER_VERSION_KEY,
+            BOOT_JOB_ID_KEY,
+            BOOT_JOB_PATH_KEY,
+            BOOT_JOB_URL_KEY,
             BOOT_LOAD_ADDR_KEY,
             BOOT_LOG_HTML_KEY,
             BOOT_LOG_KEY,
@@ -477,6 +483,8 @@ BOOT_VALID_KEYS = {
         BOARD_KEY,
         BOOTLOADER_TYPE_KEY,
         BOOTLOADER_VERSION_KEY,
+        BOOT_JOB_ID_KEY,
+        BOOT_JOB_URL_KEY,
         BUILD_ID_KEY,
         CHAINLOADER_TYPE_KEY,
         COMPILER_KEY,
@@ -504,6 +512,8 @@ BOOT_VALID_KEYS = {
     ],
     "DELETE": [
         BOARD_KEY,
+        BOOT_JOB_ID_KEY,
+        BOOT_JOB_URL_KEY,
         DEFCONFIG_FULL_KEY,
         BUILD_ID_KEY,
         DEFCONFIG_KEY,
@@ -998,6 +1008,7 @@ DISTINCT_VALID_FIELDS = {
         ARCHITECTURE_KEY,
         BOARD_INSTANCE_KEY,
         BOARD_KEY,
+        BOOT_JOB_URL_KEY,
         DEFCONFIG_FULL_KEY,
         DEFCONFIG_KEY,
         ENDIANNESS_KEY,

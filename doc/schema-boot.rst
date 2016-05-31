@@ -31,6 +31,8 @@ Notes
 
 * ``file_server_url``, ``file_server_resource``: These field should be used to provide the base URL and the actual path where boot related files (i.e. boot logs) are stored. ``file_server_url`` defines the base path, like ``http://storage.kernelci.org/``, ``file_server_resource`` defines the path on the server, like ``kernel-ci/next/``. When both resources are available, they should be joined together with the file names to form the actual URL. Implementation and default values are left to the user or the visualization tool using the data.
 
+* ``boot_job_path``: The path of the boot test job executor URI *should* contain the job ID. The ``boot_job_id`` field is used for searching and visualization.
+
 More Info
 *********
 

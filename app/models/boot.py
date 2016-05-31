@@ -67,6 +67,9 @@ class BootDocument(modb.BaseDocument):
         self._kernel = kernel
         self._lab_name = lab_name
         self.board_instance = None
+        self.boot_job_id = None
+        self.boot_job_path = None
+        self.boot_job_url = None
         self.boot_log = None
         self.boot_log_html = None
         self.boot_result_description = None
@@ -203,6 +206,9 @@ class BootDocument(modb.BaseDocument):
             models.BOARD_KEY: self.board,
             models.BOOTLOADER_TYPE_KEY: self.bootloader,
             models.BOOTLOADER_VERSION_KEY: self.bootloader_version,
+            models.BOOT_JOB_ID_KEY: self.boot_job_id,
+            models.BOOT_JOB_PATH_KEY: self.boot_job_path,
+            models.BOOT_JOB_URL_KEY: self.boot_job_url,
             models.BOOT_LOG_HTML_KEY: self.boot_log_html,
             models.BOOT_LOG_KEY: self.boot_log,
             models.BOOT_RESULT_DESC_KEY: self.boot_result_description,

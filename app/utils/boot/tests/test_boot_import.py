@@ -61,7 +61,9 @@ class TestParseBoot(unittest.TestCase):
             bootloader="bootloader",
             bootloader_version="1.2.3",
             chainloader="chainloader",
-            filesystem="nfs"
+            filesystem="nfs",
+            boot_job_id="1234",
+            boot_job_url="http://boot-executor.example.net"
         )
 
     def tearDown(self):
@@ -92,6 +94,7 @@ class TestParseBoot(unittest.TestCase):
         self.assertEqual(doc.bootloader_version, "1.2.3")
         self.assertEqual(doc.chainloader, "chainloader")
         self.assertEqual(doc.filesystem, "nfs")
+        self.assertEqual(doc.boot_job_id, "1234")
         self.assertIsInstance(doc.metadata, types.DictionaryType)
 
     def test_parse_from_json_default_arch(self):

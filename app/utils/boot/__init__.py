@@ -253,6 +253,9 @@ def _update_boot_doc_from_json(boot_doc, json_pop_f, errors):
         models.BOOTLOADER_VERSION_KEY, None)
     boot_doc.chainloader = json_pop_f(models.CHAINLOADER_TYPE_KEY, None)
     boot_doc.filesystem = json_pop_f(models.FILESYSTEM_TYPE_KEY, None)
+    boot_doc.boot_job_id = json_pop_f(models.BOOT_JOB_ID_KEY, None)
+    boot_doc.boot_job_path = json_pop_f(models.BOOT_JOB_PATH_KEY, None)
+    boot_doc.boot_job_url = json_pop_f(models.BOOT_JOB_URL_KEY, None)
 
     boot_doc.mach = json_pop_f(models.MACH_KEY, None)
     # If the mach_alias key is defined in the JSON data, its value will be the

@@ -180,6 +180,18 @@
         "bootloader_version": {
             "type": "string",
             "description": "The version of the bootloader used"
+        },
+        "boot_job_url": {
+            "type": "string",
+            "description": "The URL of the boot test executor; this should include the schema and authority parts of the URI"
+        },
+        "boot_job_path": {
+            "type": "string",
+            "description": "The path where the boot test job can be found; this should be the path part of the URI"
+        },
+        "boot_job_id": {
+            "type": "string",
+            "description": "The ID of the job that ran the boot test as reported by the boot test executor"
         }
     },
     "required": ["version", "lab_name", "job", "kernel", "defconfig", "board", "arch"]
