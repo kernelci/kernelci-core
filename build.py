@@ -22,7 +22,7 @@ import ConfigParser
 from urlparse import urljoin
 
 cross_compilers = {
-    "arm": "arm-linux-gnueabi-",
+    "arm": "arm-linux-gnueabihf-",
     "arm64": "aarch64-linux-gnu-",
     "i386": None,
     "x86": None,
