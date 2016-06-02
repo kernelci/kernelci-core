@@ -7,6 +7,18 @@ import json
 import ssl
 
 
+def setup_job_dir(arg):
+    print 'Setting up job output directory at: ' + str(arg)
+    if not os.path.exists(arg):
+        os.makedirs(arg)
+    else:
+        shutil.rmtree(arg)
+        os.makedirs(arg)
+    directory = arg
+    print 'Done setting up job output directory'
+    return directory
+
+
 def write_file(file, name, directory):
     with open(os.path.join(directory, name), 'w') as f:
         f.write(file)

@@ -10,6 +10,7 @@ import ConfigParser
 
 from lib.device_map import device_map
 from lib import configuration
+from lib.utils import setup_job_dir
 
 base_url = None
 kernel = None
@@ -19,16 +20,6 @@ directory = None
 
 parse_re = re.compile('href="([^./"?][^"?]*)"')
 
-def setup_job_dir(arg):
-    global directory
-    print 'Setting up JSON output directory at: ' + str(arg)
-    if not os.path.exists(arg):
-        os.makedirs(arg)
-    else:
-        shutil.rmtree(arg)
-        os.makedirs(arg)
-    directory = arg
-    print 'Done setting up JSON output directory'
 
 
 def create_jobs(base_url, kernel, plans, platform_list, targets, priority):
@@ -235,11 +226,12 @@ def walk_url(url, plans=None, arch=None, targets=None, priority=None):
         walk_url(url + dir, plans, arch, targets, priority)
 
 def main(args):
+    global directory
     config = configuration.get_config(args)
     if config.get("jobs"):
-        setup_job_dir(config.get("jobs"))
+        directory = setup_job_dir(config.get("jobs"))
     else:
-        setup_job_dir(os.getcwd() + '/jobs')
+        directory = setup_job_dir(os.getcwd() + '/jobs')
     print 'Scanning %s for kernel information...' % config.get("url")
     walk_url(config.get("url"), config.get("plans"), config.get("arch"), config.get("targets"), config.get("priority"))
     print 'Done scanning for kernel information'
