@@ -24,8 +24,10 @@ G_ = rcommon.L10N.ugettext
 # Register plural forms Unicode gettext.
 P_ = rcommon.L10N.ungettext
 
+# pylint: disable=star-args
 
 BUILD_SEARCH_FIELDS = [
+    models.ID_KEY,
     models.ARCHITECTURE_KEY,
     models.DEFCONFIG_FULL_KEY,
     models.ERRORS_KEY,
@@ -42,9 +44,7 @@ BUILD_SEARCH_SORT = [
 # Various build URLS.
 DEFCONFIG_URL = (
     u"{build_url:s}/{job:s}/kernel/{kernel:s}/defconfig/{defconfig:s}/")
-DEFCONFIG_ID_URL = (
-    u"{build_url:s}/{job:s}/kernel/{kernel:s}/defconfig/{defconfig:s}/" +
-    u"?_id={build_id:s}")
+DEFCONFIG_ID_URL = (u"{build_url:s}/id/{build_id:s}/")
 LOG_URL = (
     u"{storage_url:s}/{job:s}/{kernel:s}/{arch:s}-{defconfig:s}/" +
     utils.BUILD_LOG_FILE)
@@ -146,11 +146,11 @@ def _parse_build_data(results):
         res_get = result.get
 
         arch = res_get(models.ARCHITECTURE_KEY)
-        defconfig_full = res_get(models.DEFCONFIG_FULL_KEY, None)
-        defconfig = res_get(models.DEFCONFIG_KEY)
+        defconfig = res_get(models.DEFCONFIG_FULL_KEY, None) or \
+            res_get(models.DEFCONFIG_KEY)
 
         struct = (
-            (defconfig_full or defconfig),
+            defconfig,
             res_get(models.STATUS_KEY),
             res_get(models.ID_KEY)
         )
@@ -320,7 +320,7 @@ def _parse_and_structure_results(**kwargs):
 
         for arch in failed_data.viewkeys():
             subs["arch"] = arch
-            arch_string = G_(u"{:s}:").format(arch)
+            arch_string = G_(u"{arch:s}:").format(**subs)
             failed_struct[arch_string] = []
             failed_append = failed_struct[arch_string].append
 
@@ -331,7 +331,6 @@ def _parse_and_structure_results(**kwargs):
                     subs["defconfig_url"] = DEFCONFIG_ID_URL
                     subs["build_id"] = struct[2]
 
-                # pylint: disable=star-args
                 txt_str = G_(u"{defconfig:s}: {status:s}").format(**subs)
                 html_str = (
                     DEFCONFIG_URL_HTML.format(**subs).format(**subs),
@@ -611,13 +610,12 @@ def create_build_report(job,
         models.JOB_KEY: job,
         models.KERNEL_KEY: kernel
     }
-    summary_fields = [
-        models.ERRORS_KEY, models.WARNINGS_KEY, models.MISMATCHES_KEY
-    ]
     errors_summary = utils.db.find_one2(
         database[models.ERRORS_SUMMARY_COLLECTION],
         errors_spec,
-        summary_fields
+        fields=[
+            models.ERRORS_KEY, models.WARNINGS_KEY, models.MISMATCHES_KEY
+        ]
     )
 
     error_details = utils.db.find(
