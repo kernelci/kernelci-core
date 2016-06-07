@@ -137,8 +137,10 @@ if [[ BUILDS_FINISHED -eq 3 ]]; then
         curl -X POST -H "Authorization: 08a92277-7867-4bde-9a3d-a003b4b9cbbe" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "boot_report": 1, "send_to": ["thierry.reding@gmail.com", "jonathanh@nvidia.com", "fellows@kernelci.org"], "format": ["txt", "html"], "delay": 12600}' https://api.kernelci.org/send
     elif [ "$TREE_NAME" == "pmwg" ]; then
         echo "Sending results to PMWG maintainers"
-        curl -X POST -H "Authorization: 08a92277-7867-4bde-9a3d-a003b4b9cbbe" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "build_report": 1, "send_to": ["private-pmwg@lists.linaro.org", "daniel.lezcano@linaro.org", "fellows@kernelci.org"], "format": ["txt", "html"], "delay": 10}' https://api.kernelci.org/send
-        curl -X POST -H "Authorization: 08a92277-7867-4bde-9a3d-a003b4b9cbbe" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "boot_report": 1, "send_to": ["private-pmwg@lists.linaro.org ", "daniel.lezcano@linaro.org", "fellows@kernelci.org"], "format": ["txt", "html"], "delay": 12600}' https://api.kernelci.org/send
+        curl -X POST -H "Authorization: 08a92277-7867-4bde-9a3d-a003b4b9cbbe" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "build_report": 1, "send_to": ["private-pmwg@lists.linaro.org"], "format": ["txt"], "delay": 10}' https://api.kernelci.org/send
+        curl -X POST -H "Authorization: 08a92277-7867-4bde-9a3d-a003b4b9cbbe" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "build_report": 1, "send_to": [ "daniel.lezcano@linaro.org", "fellows@kernelci.org"], "format": ["txt", "html"], "delay": 10}' https://api.kernelci.org/send
+        curl -X POST -H "Authorization: 08a92277-7867-4bde-9a3d-a003b4b9cbbe" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "boot_report": 1, "send_to": ["private-pmwg@lists.linaro.org "], "format": ["txt"], "delay": 12600}' https://api.kernelci.org/send
+        curl -X POST -H "Authorization: 08a92277-7867-4bde-9a3d-a003b4b9cbbe" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "boot_report": 1, "send_to": [, "daniel.lezcano@linaro.org", "fellows@kernelci.org"], "format": ["txt", "html"], "delay": 12600}' https://api.kernelci.org/send
     else
         # Private Mailing List
         echo "Sending results to private mailing list"
@@ -149,7 +151,7 @@ if [[ BUILDS_FINISHED -eq 3 ]]; then
     # Send stable* reports to stable list
     if [[ "$TREE_NAME" == "stable"* ]]; then
         echo "Sending stable results to stable pubic mailing list"
-        curl -X POST -H "Authorization: 08a92277-7867-4bde-9a3d-a003b4b9cbbe" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "build_report": 1, "send_to": ["stable@vger.kernel.org"], "format": ["txt", "html"], "delay": 10}' https://api.kernelci.org/send
-        curl -X POST -H "Authorization: 08a92277-7867-4bde-9a3d-a003b4b9cbbe" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "boot_report": 1, "send_to": ["stable@vger.kernel.org"], "format": ["txt", "html"], "delay": 12600}' https://api.kernelci.org/send
+        curl -X POST -H "Authorization: 08a92277-7867-4bde-9a3d-a003b4b9cbbe" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "build_report": 1, "send_to": ["stable@vger.kernel.org"], "format": ["txt"], "delay": 10}' https://api.kernelci.org/send
+        curl -X POST -H "Authorization: 08a92277-7867-4bde-9a3d-a003b4b9cbbe" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "boot_report": 1, "send_to": ["stable@vger.kernel.org"], "format": ["txt"], "delay": 12600}' https://api.kernelci.org/send
     fi
 fi
