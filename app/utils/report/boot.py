@@ -959,8 +959,8 @@ def _parse_and_structure_results(**kwargs):
         failed_struct["summary"]["txt"] = []
         failed_struct["summary"]["html"] = []
 
-        boot_failure_url = u"{base_url:s}/boot/?{kernel:s}&fail".format(
-            **kwargs)
+        boot_failure_url = \
+            u"{base_url:s}/boot/?{kernel:s}&fail".format(**kwargs)
         boot_failure_url_html = (
             u"<a href=\"{boot_failure_url:s}\">"
             u"{boot_failure_url:s}</a>".format(

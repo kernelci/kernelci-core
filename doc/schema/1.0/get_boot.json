@@ -232,6 +232,22 @@
         "boot_job_id": {
             "type": "string",
             "description": "The ID of the job that ran the boot test as reported by the boot test executor"
+        },
+        "compiler": {
+            "type": "string",
+            "description": "The name of the compiler used"
+        },
+        "compiler_version": {
+            "type": "string",
+            "description": "The version of the compiler used"
+        },
+        "compiler_version_ext": {
+            "type": "string",
+            "description": "Concatenation of compiler and compiler_version"
+        },
+        "compiler_version_full": {
+            "type": "string",
+            "description": "Full string of the compiler used (compiler, version, vendor numbering, ...)"
         }
     }
 }
