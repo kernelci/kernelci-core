@@ -63,6 +63,8 @@ class TestErrorLogModel(unittest.TestCase):
         doc.version = "1.1"
         doc.warnings = ["warning1"]
         doc.warnings_count = 1
+        doc.file_server_url = "foo"
+        doc.file_server_resource = "bar"
 
         expected = {
             "arch": "arm",
@@ -80,7 +82,9 @@ class TestErrorLogModel(unittest.TestCase):
             "status": "FAIL",
             "version": "1.1",
             "warnings": ["warning1"],
-            "warnings_count": 1
+            "warnings_count": 1,
+            "file_server_url": "foo",
+            "file_server_resource": "bar"
         }
 
         self.assertDictEqual(expected, doc.to_dict())

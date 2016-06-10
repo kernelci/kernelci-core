@@ -62,6 +62,8 @@ class ErrorLogDocument(modb.BaseDocument):
         self.job = None
         self.kernel = None
         self.status = None
+        self.file_server_resource = None
+        self.file_server_url = None
 
     @property
     def collection(self):
@@ -211,6 +213,8 @@ class ErrorLogDocument(modb.BaseDocument):
             models.DEFCONFIG_KEY: self.defconfig,
             models.ERRORS_COUNT_KEY: self.errors_count,
             models.ERRORS_KEY: self.errors,
+            models.FILE_SERVER_RESOURCE_KEY: self.file_server_resource,
+            models.FILE_SERVER_URL_KEY: self.file_server_url,
             models.JOB_ID_KEY: self.job_id,
             models.JOB_KEY: self.job,
             models.KERNEL_KEY: self.kernel,
