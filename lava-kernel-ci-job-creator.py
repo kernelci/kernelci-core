@@ -170,6 +170,7 @@ def walk_url(url, plans=None, arch=None, targets=None, priority=None):
                 base_url = url
                 platform_list.append(url + 'x86')
                 platform_list.append(url + 'x86-kvm')
+                platform_list.append(url + 'qemu-i386')
             if 'zImage' in name and 'arm' in url:
                 kernel = url + name
                 base_url = url
@@ -188,6 +189,7 @@ def walk_url(url, plans=None, arch=None, targets=None, priority=None):
                 base_url = url
                 platform_list.append(url + 'x86')
                 platform_list.append(url + 'x86-kvm')
+                platform_list.append(url + 'qemu-i386')
         elif arch == 'arm':
             if 'zImage' in name and 'arm' in url:
                 kernel = url + name
