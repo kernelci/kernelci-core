@@ -51,6 +51,15 @@ armada_388_gp = {'device_type': 'armada-388-gp',
                        'lpae': False,
                        'fastboot': False}
 
+armada_398_db = {'device_type': 'armada-398-db',
+                       'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                       'kernel_defconfig_blacklist': [],
+                       'defconfig_blacklist': ['arm-allmodconfig'],
+                       'kernel_blacklist': [],
+                       'nfs_blacklist': [],
+                       'lpae': False,
+                       'fastboot': False}
+
 arndale = {'device_type': 'arndale',
            'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
                          'generic-arm-dtb-kernel-ci-kselftest-template.json',
@@ -1142,6 +1151,7 @@ device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'bcm4708-smartrg-sr400ac.dtb': [bcm4708_smartrg_sr400ac],
               'armada-370-mirabox.dtb': [armada_370_mirabox],
               'armada-388-gp.dtb': [armada_388_gp],
+              'armada-398-db.dtb': [armada_398_db],
               'exynos5250-arndale.dtb': [arndale],
               'exynos5250-snow.dtb': [snow],
               'exynos5420-arndale-octa.dtb': [arndale_octa],
