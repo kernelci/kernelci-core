@@ -21,7 +21,7 @@ def main():
 
     test_suite = {
         "name": "A test suite",
-        "defconfig_id": "123456789012345678901234",
+        "build_id": "123456789012345678901234",
         "lab_name": "lab-test-00",
         "test_set": [
             {
