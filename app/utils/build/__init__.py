@@ -704,8 +704,8 @@ def _get_or_create_job(job, kernel, database, db_options):
     # We might be importing build in parallel through multi-processes.
     # Keep a lock here when looking for a job or we might end up with
     # multiple job creations.
-    lock_name = "%s-%s" % (job, kernel)
-    with redis.lock.Lock(redis_conn, lock_name, timeout=5):
+    lock_key = "buil-import-{:s}-{:s}".format(job, kernel)
+    with redis.lock.Lock(redis_conn, lock_key, timeout=5):
         p_doc = utils.db.find_one2(
             database[models.JOB_COLLECTION],
             {models.JOB_KEY: job, models.KERNEL_KEY: kernel})

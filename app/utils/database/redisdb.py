@@ -19,7 +19,7 @@ import redis
 REDIS_CONNECTION = None
 
 
-def get_db_connection(db_options):
+def get_db_connection(db_options, db_num=0):
     """Get a Redis DB Connection.
 
     :param db_options: The database connection options.
@@ -34,7 +34,7 @@ def get_db_connection(db_options):
         redis_host = db_options_get("redishost", "localhost")
         redis_port = db_options_get("redisport", 6379)
         redis_pwd = db_options_get("redispassword", "")
-        redis_db = db_options_get("redisdb", 0)
+        redis_db = db_options_get("redisdb", db_num)
 
         if redis_pwd:
             REDIS_CONNECTION = redis.StrictRedis(

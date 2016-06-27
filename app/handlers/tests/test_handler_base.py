@@ -50,7 +50,7 @@ class TestHandlerBase(AsyncHTTPTestCase, LogTrapTestCase):
             "version": "foo",
             "master_key": "bar",
             "mailoptions": self.mailoptions,
-            "senddelay": 60*60
+            "senddelay": 60 * 60
         }
 
         super(TestHandlerBase, self).setUp()

@@ -202,6 +202,39 @@ def save(database, document, manipulate=False):
     return ret_value, doc_id
 
 
+def save2(connection, collection, document, manipulate=True):
+    """Save a document into the database.
+
+    :param connection: The connection to the database.
+    :param collection: The name of the collection to save to.
+    :type collection: str
+    :param document: The document to save.
+    :type document: dict
+    :param manipulate: If the document should be manipulated on save. Default
+    to true.
+    :type manipulate: bool
+    :return tuple The return value (201 or 500), and the saved document ID
+    or None
+    """
+    ret_val = 500
+    doc_id = None
+
+    if isinstance(document, types.DictionaryType):
+        try:
+            doc_id = \
+                connection[collection].save(document, manipulate=manipulate)
+            ret_val = 201
+        except pymongo.errors.OperationFailure as ex:
+            utils.LOG.error("Error saving document into '%s'", collection)
+            utils.LOG.exception(ex)
+    else:
+        utils.LOG.error(
+            "Provided document to save is not a dictionary: %s",
+            type(document))
+
+    return ret_val, doc_id
+
+
 def save_all(database, documents, manipulate=False, fail_on_err=False):
     """Save a list of documents.
 
@@ -274,19 +307,22 @@ def update(collection, spec, document, operation="$set"):
     return ret_val
 
 
-def update2(collection, spec, document):
+def update2(connection, collection, search, document):
     """Update a document in the database.
 
-    :param collection: The database collection where to perfrom the update op.
-    :param spec: The query used to search for the document to update.
-    :type spec: dict
+    :param connection: The database connection.
+    :param collection: The name of the collection where to perform the
+    update operation.
+    :type collection: str
+    :param search: The query used to search for the document to update.
+    :type search: dict
     :param document: The update document with the operations to perform.
     :type document: dict
-    :return 200 if everything OK, 500 in case of error.
+    :return int 200 if everything OK, 500 in case of error.
     """
     ret_val = 200
     try:
-        collection.update(spec, document)
+        connection[collection].update(search, document)
     except pymongo.errors.OperationFailure, ex:
         utils.LOG.exception(str(ex))
         ret_val = 500

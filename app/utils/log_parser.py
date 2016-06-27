@@ -244,7 +244,8 @@ def _save_summary(
         # multiple processes.
         # In order to avoid having wrong data in the database, lock the
         # process here looking for the previous summary.
-        with redis.lock.Lock(redis_conn, job_id, timeout=5):
+        lock_key = "log-parser-{:s}".format(str(job_id))
+        with redis.lock.Lock(redis_conn, lock_key, timeout=5):
             prev_doc = utils.db.find_one2(
                 database[models.ERRORS_SUMMARY_COLLECTION], prev_spec)
 
