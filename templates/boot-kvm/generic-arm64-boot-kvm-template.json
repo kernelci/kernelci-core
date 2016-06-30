@@ -39,7 +39,7 @@
             "dtb": "{dtb_url}",
             "kernel": "{kernel_url}",
             "overlays": ["{modules_url}"],
-            "nfsrootfs": "http://releases.linaro.org/15.03/ubuntu/utopic-images/nano-arm64/linaro-utopic-nano-20150309-90.tar.gz",
+            "nfsrootfs": "http://releases.linaro.org/ubuntu/images/nano-arm64/15.12/linaro-vivid-nano-20151215-114.tar.gz",
             "target_type": "ubuntu",
             "role": "host"
         }
