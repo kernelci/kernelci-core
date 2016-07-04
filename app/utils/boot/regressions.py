@@ -14,6 +14,7 @@
 """Logic to find regressions in boot reports."""
 
 import bson
+import datetime
 import redis
 
 import models
@@ -197,9 +198,11 @@ def track_regression(boot_doc, pass_doc, old_regr_doc, conn, db_options):
             )
         else:
             regression_doc = {
+                models.CREATED_KEY: datetime.datetime.now(
+                    tzinfo=bson.tz_util.tzinfo),
+                models.JOB_ID_KEY: job_id,
                 models.JOB_KEY: job,
-                models.KERNEL_KEY: kernel,
-                models.JOB_ID_KEY: job_id
+                models.KERNEL_KEY: kernel
             }
 
             # The regression data structure.
