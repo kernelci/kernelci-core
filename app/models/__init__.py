@@ -963,6 +963,15 @@ STATISTICS_VALID_KEYS = {
     ]
 }
 
+BOOT_REGRESSIONS_VALID_KEYS = {
+    "GET": [
+        CREATED_KEY,
+        JOB_ID_KEY,
+        JOB_KEY,
+        KERNEL_KEY
+    ]
+}
+
 # Used by the DistinctHandler to handle query arguments on the various
 # supported resources.
 DISTINCT_VALID_KEYS = {

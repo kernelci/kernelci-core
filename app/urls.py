@@ -26,6 +26,7 @@ import handlers.count
 import handlers.count_distinct
 import handlers.distinct
 import handlers.job
+import handlers.boot_regressions
 import handlers.job_logs
 import handlers.lab
 import handlers.report
@@ -111,6 +112,16 @@ _BOOT_URL = tornado.web.url(
 _BOOT_ID_URL = tornado.web.url(
     r"/boot[s]?/(?P<id>[A-Za-z0-9]{24})/?$",
     handlers.boot.BootHandler, name="boot-id")
+
+_BOOT_ID_REGRESSIONS_URL = tornado.web.url(
+    r"/boot[s]?/(?P<id>[A-Za-z0-9]{24})/regressions/?$",
+    handlers.boot_regressions.BootRegressionsHandler,
+    name="boot-id-regressions")
+
+_BOOT_REGRESSIONS_URL = tornado.web.url(
+    r"/boot[s]?/regressions/?$",
+    handlers.boot_regressions.BootRegressionsHandler,
+    name="boot-regressions")
 
 _BOOT_DISTINCT_URL = tornado.web.url(
     r"/boot[s]?/distinct/(?P<field>[A-Za-z0-9_]+)/?$",
@@ -218,7 +229,9 @@ APP_URLS = [
     _BOOT_COMPARE_ID_URL,
     _BOOT_COMPARE_URL,
     _BOOT_DISTINCT_URL,
+    _BOOT_ID_REGRESSIONS_URL,
     _BOOT_ID_URL,
+    _BOOT_REGRESSIONS_URL,
     _BOOT_TRIGGER_URL,
     _BOOT_URL,
     _BUILD_COMPARE_ID_URL,
