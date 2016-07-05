@@ -1,0 +1,52 @@
+{
+    "$schema": "http://api.kernelci.org/json-schema/1.0/get_boot_regressions.json",
+    "id": "http://api.kernelci.org/json-schema/1.0/get_boot_regressions.json",
+    "title": "boot_regressions",
+    "description": "A tracked boot regression",
+    "type": "object",
+    "properties": {
+        "_id": {
+            "type": "object",
+            "description": "The ID of ths object",
+            "properties": {
+                "$oid": {
+                    "type": "string",
+                    "description": "The actual ID value"
+                }
+            }
+        },
+        "created_on": {
+            "type": "object",
+            "description": "Creation date of the object",
+            "properties": {
+                "$date": {
+                    "type": "number",
+                    "description": "Milliseconds from epoch time",
+                    "format": "utc-millisec"
+                }
+            }
+        },
+        "job": {
+            "type": "string",
+            "description": "The job associated with this object"
+        },
+        "job_id": {
+            "type": "object",
+            "description": "The ID of the associated job",
+            "properties": {
+                "$oid": {
+                    "type": "string",
+                    "description": "The actual ID value"
+                }
+            }
+        },
+        "kernel": {
+            "type": "string",
+            "description": "The kernel associated with this object"
+        },
+        "regressions": {
+            "type": "object",
+            "description": "The regressions data structure that holds the grouped boot reports"
+        }
+    }
+}

@@ -260,3 +260,26 @@ The email reports contain custom headers that can be used by email client.
 +----------------------------+-----------------------------+----------------------------+
 | ``X-Kernelci-Lab-Name``    | N/A.                        | The name of the lab.       |
 +----------------------------+-----------------------------+----------------------------+
+
+.. _intro_boot_regressions:
+
+Boot Regressions
+----------------
+
+Each time a new boot report is uploaded it gets compared, if available, with
+the previous one. If a change of state, only from ``PASS`` to ``FAIL``, is
+detected, a new regressions will be registered and tracked.
+
+Each tracked regression is simply the registered boot report, contained in a
+special data structure. The ``PASS`` state is registered, along with all the
+``FAIL`` boot reports.
+
+To uniquely identify each single boot reports and its similar ones, the following
+keys are used:
+
+* ``lab_name``
+* ``arch``
+* ``board``
+* ``board_instance``
+* ``defconfig_full``
+* ``compiler_version_ext``

@@ -8,6 +8,7 @@ Schema
 
     schema-batch
     schema-boot
+    schema-boot-regressions
     schema-build
     schema-build-logs
     schema-build-logs-summary

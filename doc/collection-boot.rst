@@ -247,6 +247,113 @@ GET
  .. note::
     Results shown here do not include the full JSON response.
 
+.. http:get:: /boot/regressions/
+
+ Get the registered boot regressions.
+
+ More info about the boot regressions schema can be found :ref:`here <schema_boot_regressions>`.
+
+ :reqheader Authorization: The token necessary to authorize the request.
+ :reqheader Accept-Encoding: Accept the ``gzip`` coding.
+
+ :resheader Content-Type: Will be ``application/json; charset=UTF-8``.
+
+ :query string field: The field that should be returned in the response. Can be
+    repeated multiple times.
+ :query string nfield: The field that should *not* be returned in the response. Can be repeated multiple times.
+ :query string _id: The internal ID of the registered boot regression.
+ :query string created_on: The creation date: accepted formats are ``YYYY-MM-DD`` and ``YYYYMMDD``.
+ :query string job: The name of the job.
+ :query string kernel: The name of the kernel.
+ :query string job_id: The ID of the job.
+
+ :status 200: Results found.
+ :status 400: Wrong values provided.
+ :status 403: Not authorized to perform the operation.
+ :status 404: The provided resource has not been found.
+ :status 500: Internal server error.
+ :status 503: Service maintenance.
+
+ **Example Requests**
+
+ .. sourcecode:: http
+
+    GET /boot/regressions?job=next&kernel=next-20160705 HTTP/1.1
+    Host: api.kernelci.org
+    Accept: */*
+    Authorization: token
+
+ .. sourcecode:: http
+
+    GET /boot/regressions?job_id=12345678901234567890ABCD HTTP/1.1
+    Host: api.kernelci.org
+    Accept: */*
+    Authorization: token
+
+.. http:get:: /boot/(string:id)/regressions/
+
+ Get the registered regressions for the specified boot report.
+
+ This will only return the array with the boot reports that have been tracked
+ in the regression.
+
+ More info about the boot regressions schema can be found :ref:`here <schema_boot_regressions>`.
+
+ :param id: The ID of the boot report.
+ :type id: string
+
+ :reqheader Authorization: The token necessary to authorize the request.
+ :reqheader Accept-Encoding: Accept the ``gzip`` coding.
+
+ :resheader Content-Type: Will be ``application/json; charset=UTF-8``.
+
+ :status 200: Results found.
+ :status 400: Wrong ``id`` value provided.
+ :status 403: Not authorized to perform the operation.
+ :status 404: The provided resource has not been found.
+ :status 500: Internal server error.
+ :status 503: Service maintenance.
+
+ **Example Requests**
+
+ .. sourcecode:: http
+
+    GET /boot/12345678901234567890ABCD/regressions/ HTTP/1.1
+    Host: api.kernelci.org
+    Accept: */*
+    Authorization: token
+
+ **Example Responses**
+
+ .. sourcecode:: http
+
+    HTTP/1.1 200 OK
+    Vary: Accept-Encoding
+    Date: Tue, 05 Jul 2016 15:12:50 GMT
+    Content-Type: application/json; charset=UTF-8
+
+    {
+        "code": 200,
+        "count:" 2,
+        "result": [
+            {
+                "_id": {
+                    "$oid": "12345678901234567890ABCC"
+                },
+                "status": "PASS"
+            },
+            {
+                "_id": {
+                    "$oid": "12345678901234567890ABCD"
+                },
+                "status": "FAIL"
+            }
+        ]
+    }
+
+ .. note::
+    Results shown here do not include the full JSON response.
+
 .. _collection_boot_post:
 
 POST
@@ -356,3 +463,4 @@ More Info
 * :ref:`Boot schema <schema_boot>`
 * :ref:`API results <intro_schema_results>`
 * :ref:`Schema time and date <intro_schema_time_date>`
+* :ref:`Boot regressions <intro_boot_regressions>`
