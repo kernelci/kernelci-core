@@ -968,6 +968,7 @@ STATISTICS_VALID_KEYS = {
 BOOT_REGRESSIONS_VALID_KEYS = {
     "GET": [
         CREATED_KEY,
+        ID_KEY,
         JOB_ID_KEY,
         JOB_KEY,
         KERNEL_KEY
