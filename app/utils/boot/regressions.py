@@ -233,6 +233,17 @@ def track_regression(boot_doc, pass_doc, old_regr_doc, conn, db_options):
                 utils.db.save2(
                     conn, models.BOOT_REGRESSIONS_COLLECTION, regression_doc)
 
+        # Save the regressions id and boot id in an index collection.
+        if all([ret_val == 201, doc_id]):
+            utils.db.save2(
+                conn,
+                models.BOOT_REGRESSIONS_BY_BOOT_COLLECTION,
+                {
+                    models.BOOT_ID_KEY: b_get(models.ID_KEY),
+                    models.BOOT_REGRESSIONS_ID_KEY: doc_id
+                }
+            )
+
     return ret_val, doc_id
 
 
