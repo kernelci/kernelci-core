@@ -243,3 +243,22 @@ def _ensure_stats_indexes(database):
     collection = database[models.DAILY_STATS_COLLECTION]
     collection.ensure_index(
         [(models.CREATED_KEY, pymongo.DESCENDING)], background=True)
+
+
+def _ensure_regressions_indexes(database):
+    collection = database[models.BOOT_REGRESSIONS_COLLECTION]
+    collection.ensure_index(
+        [
+            (models.JOB_KEY, pymongo.ASCENDING),
+            (models.KERNEL_KEY, pymongo.DESCENDING),
+            (models.CREATED_KEY, pymongo.DESCENDING)
+        ],
+        background=True
+    )
+    collection.ensure_index(
+        [(models.JOB_ID_KEY, pymongo.DESCENDING)], background=True)
+
+    # The index collection.
+    collection = database[models.BOOT_REGRESSIONS_BY_BOOT_COLLECTION]
+    collection.ensure_index(
+        [(models.BOOT_ID_KEY, pymongo.DESCENDING)], background=True)
