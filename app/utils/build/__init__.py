@@ -551,8 +551,6 @@ def _update_job_doc(job_doc, job_id, status, docs, database):
                     break
 
             idx += 1
-    else:
-        utils.LOG.warn("No build documents found or job does not need update")
 
     if to_update:
         ret_val, _ = utils.db.save(database, job_doc)
