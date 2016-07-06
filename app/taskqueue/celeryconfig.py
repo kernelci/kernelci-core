@@ -32,3 +32,9 @@ CELERY_DISABLE_RATE_LIMITS = True
 # Use a different DB than the redis default one.
 CELERY_RESULT_BACKEND = "redis://localhost/1"
 CELERY_REDIS_MAX_CONNECTIONS = 250
+# Custom log format.
+CELERYD_LOG_FORMAT = '[%(levelname)8s/%(threadName)10s] %(message)s'
+CELERYD_TASK_LOG_FORMAT = (
+    '[%(levelname)8s/%(processName)10s] '
+    '[%(task_name)s(%(task_id)s)] %(message)s'
+)

@@ -33,16 +33,14 @@ def get_log(debug=False):
         log_handler = logging.StreamHandler()
 
         formatter = logging.Formatter(
-            '%(asctime)s %(levelname)-8s [%(threadName)-10s] %(message)s'
-        )
+            '[%(levelname)8s/%(threadName)10s] %(message)s')
+        log_handler.setFormatter(formatter)
 
         if debug:
             log_handler.setLevel(logging.DEBUG)
-            log_handler.setFormatter(formatter)
             LOG.setLevel(logging.DEBUG)
         else:
             log_handler.setLevel(logging.INFO)
-            log_handler.setFormatter(formatter)
             LOG.setLevel(logging.INFO)
 
         LOG.addHandler(log_handler)
