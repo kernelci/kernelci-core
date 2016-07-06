@@ -36,7 +36,7 @@ class TestBootRegressions(unittest.TestCase):
             "kernel": "kernel",
             "arch": "arm",
             "defconfig_full": "defconfig-full",
-            "defconfig_full": "defconfig",
+            "defconfig": "defconfig",
             "compiler_version_ext": "gcc 5.1.1",
             "lab_name": "boot-lab",
             "board": "arm-board",
@@ -49,7 +49,7 @@ class TestBootRegressions(unittest.TestCase):
             "kernel": "kernel1",
             "arch": "arm",
             "defconfig_full": "defconfig-full",
-            "defconfig_full": "defconfig",
+            "defconfig": "defconfig",
             "compiler_version_ext": "gcc 5.1.1",
             "lab_name": "boot-lab",
             "board": "arm-board",
@@ -171,3 +171,8 @@ class TestBootRegressions(unittest.TestCase):
 
         results = boot_regressions.find(self.boot_id, {})
         self.assertTupleEqual((None, None), results)
+
+    def test_create_regressions_key(self):
+        expected = "boot-lab.arm.arm-board.none.defconfig-full.gcc5:1:1"
+        self.assertEqual(
+            expected, boot_regressions.create_regressions_key(self.pass_boot))

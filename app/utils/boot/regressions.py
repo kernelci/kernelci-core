@@ -33,6 +33,27 @@ REGRESSION_DOT_FMT = "{:s}.{:s}"
 LOCK_KEY_FMT = "boot-regressions-{:s}-{:s}"
 
 
+def create_regressions_key(boot_doc):
+    """Generate the regressions key for this boot report.
+
+    :param boot_doc: The boot report document.
+    :type boot_doc: dict
+    :return str The boot regression key.
+    """
+    b_get = boot_doc.get
+
+    arch = b_get(models.ARCHITECTURE_KEY)
+    b_instance = \
+        sanitize_key(str(b_get(models.BOARD_INSTANCE_KEY)).lower())
+    board = sanitize_key(b_get(models.BOARD_KEY))
+    compiler = sanitize_key(str(b_get(models.COMPILER_VERSION_EXT_KEY)))
+    defconfig = sanitize_key(b_get(models.DEFCONFIG_FULL_KEY))
+    lab = b_get(models.LAB_NAME_KEY)
+
+    return REGRESSION_FMT.format(
+        lab, arch, board, b_instance, defconfig, compiler)
+
+
 def get_regressions_by_key(key, regressions):
     """From a formatted key, get the actual regressions list.
 
@@ -139,6 +160,8 @@ def track_regression(boot_doc, pass_doc, old_regr_doc, conn, db_options):
     ret_val = 201
     doc_id = None
 
+    regr_key = create_regressions_key(boot_doc)
+
     b_get = boot_doc.get
     arch = b_get(models.ARCHITECTURE_KEY)
     b_instance = sanitize_key(str(b_get(models.BOARD_INSTANCE_KEY)).lower())
@@ -149,9 +172,6 @@ def track_regression(boot_doc, pass_doc, old_regr_doc, conn, db_options):
     job_id = b_get(models.JOB_ID_KEY)
     kernel = b_get(models.KERNEL_KEY)
     lab = b_get(models.LAB_NAME_KEY)
-
-    regr_key = REGRESSION_FMT.format(
-        lab, arch, board, b_instance, defconfig, compiler)
 
     # Do we have "old" regressions?
     regr_docs = []
