@@ -199,7 +199,7 @@ def track_regression(boot_doc, pass_doc, old_regr_doc, conn, db_options):
         else:
             regression_doc = {
                 models.CREATED_KEY: datetime.datetime.now(
-                    tzinfo=bson.tz_util.tzinfo),
+                    tz=bson.tz_util.tzinfo),
                 models.JOB_ID_KEY: job_id,
                 models.JOB_KEY: job,
                 models.KERNEL_KEY: kernel
