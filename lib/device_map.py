@@ -32,6 +32,15 @@ bcm4708_smartrg_sr400ac = {'device_type': 'bcm4708-smartrg-sr400ac',
                            'lpae': False,
                            'fastboot': False}
 
+armada_370_db = {'device_type': 'armada-370-db',
+                       'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                       'kernel_defconfig_blacklist': [],
+                       'defconfig_blacklist': ['arm-allmodconfig'],
+                       'kernel_blacklist': ['v3'],
+                       'nfs_blacklist': [],
+                       'lpae': False,
+                       'fastboot': False}
+
 armada_370_mirabox = {'device_type': 'armada-370-mirabox',
                        'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
                                      'generic-arm-dtb-kernel-ci-kselftest-template.json'],
@@ -1207,6 +1216,7 @@ sinlinx_sina33 = {'device_type': 'sun8i-a33-sinlinx-sina33',
 device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'bcm2836-rpi-2-b.dtb' : [ bcm2836_rpi_2_b],
               'bcm4708-smartrg-sr400ac.dtb': [bcm4708_smartrg_sr400ac],
+              'armada-370-db.dtb': [armada_370_db],
               'armada-370-mirabox.dtb': [armada_370_mirabox],
               'orion5x-rd88f5182-nas.dtb': [orion5x_rd88f5182_nas],
               'armada-370-rd.dtb': [armada_370_rd],

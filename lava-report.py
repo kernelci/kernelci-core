@@ -20,6 +20,7 @@ log2html = 'https://git.linaro.org/people/kevin.hilman/build-scripts.git/blob_pl
 device_map = {'bcm2835-rpi-b-plus': ['bcm2835-rpi-b-plus', 'bcm'],
               'bcm2836-rpi-2-b' : [ 'bcm2836-rpi-2-b', 'bcm'],
               'bcm4708-smartrg-sr400ac': ['bcm4708-smartrg-sr400ac', 'bcm'],
+              'armada-370-db': ['armada-370-db', 'mvebu'],
               'armada-370-mirabox': ['armada-370-mirabox', 'mvebu'],
               'armada-xp-openblocks-ax3-4': ['armada-xp-openblocks-ax3-4', 'mvebu'],
               'armada-370-rd': ['armada-370-rd', 'mvebu'],
