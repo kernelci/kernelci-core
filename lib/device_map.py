@@ -1204,6 +1204,15 @@ at91_sama5d4_xplained = {'device_type': 'at91-sama5d4_xplained',
                     'lpae': False,
                     'fastboot': False}
 
+sun8i_a83t_allwinner_h8homlet_v2 = {'device_type': 'sun8i-a83t-allwinner-h8homlet-v2',
+                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'kernel_defconfig_blacklist': [],
+                    'defconfig_blacklist': ['arm-allmodconfig'],
+                    'kernel_blacklist': [],
+                    'nfs_blacklist': [],
+                    'lpae': False,
+                    'fastboot': False}
+
 sinlinx_sina33 = {'device_type': 'sun8i-a33-sinlinx-sina33',
                     'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
                     'kernel_defconfig_blacklist': [],
@@ -1294,6 +1303,7 @@ device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'at91-sama5d2_xplained.dtb': [at91_sama5d2_xplained],
               'at91-sama5d4_xplained.dtb': [at91_sama5d4_xplained],
               'at91sam9m10g45ek.dtb': [at91sam9m10g45ek],
+              'sun8i-a83t-allwinner-h8homlet-v2.dtb': [sun8i_a83t_allwinner_h8homlet_v2],
               'sun8i-a33-sinlinx-sina33.dtb': [sinlinx_sina33],
               'armada-xp-openblocks-ax3-4.dtb': [openblocks_ax3],
               'vf610-zii-dev-rev-b.dtb': [vf610_zii_dev_rev_b]}
