@@ -97,6 +97,15 @@ armada_398_db = {'device_type': 'armada-398-db',
                        'lpae': False,
                        'fastboot': False}
 
+armada_3720_db = {'device_type': 'armada-3720-db',
+                       'templates': ['generic-arm64-dtb-kernel-ci-boot-template.json'],
+                       'kernel_defconfig_blacklist': [],
+                       'defconfig_blacklist': ['arm64-allmodconfig'],
+                       'kernel_blacklist': [],
+                       'nfs_blacklist': [],
+                       'lpae': False,
+                       'fastboot': False}
+
 armada_7040_db = {'device_type': 'armada-7040-db',
                        'templates': ['generic-arm64-dtb-kernel-ci-boot-template.json'],
                        'kernel_defconfig_blacklist': [],
@@ -1232,6 +1241,7 @@ device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'armada-375-db.dtb': [armada_375_db],
               'armada-388-gp.dtb': [armada_388_gp],
               'armada-398-db.dtb': [armada_398_db],
+              'armada-3720-db.dtb': [armada_3720_db],
               'armada-7040-db.dtb': [armada_7040_db],
               'exynos5250-arndale.dtb': [arndale],
               'exynos5250-snow.dtb': [snow],
