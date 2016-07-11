@@ -62,7 +62,7 @@ Section mismatches summary:
 {%- endif %}{# and errors summary #}
 {%- if error_details %}
 {{ "{:=^80}".format("") }}
-
+{# Leave an empty line #}
 Detailed per-defconfig build reports:
 {% for d in error_details %}
 {% set errs = P_("{:d} error", "{:d} errors", d.errors_count).format(d.errors_count) -%}
@@ -71,22 +71,27 @@ Detailed per-defconfig build reports:
 
 {{ "{:-^80}".format("") }}
 {{ "{} ({}) \u2014 {}, {}, {}, {}".format(d.defconfig_full, d.arch, d.status, errs, warns, mism) }}
+{%- if d.compiler_version_full %}
+{# Leave an empty line #}
+Compiler:
+    {{ d.compiler_version_full }}
+{%- endif %}{# end compiler line #}
 {%- if d.errors %}
-
+{# Leave an empty line #}
 Errors:
 {%- for line in d.errors %}
     {{ line -}}
 {%- endfor %}
 {%- endif %}{# end error lines #}
 {%- if d.warnings %}
-
+{# Leave an empty line #}
 Warnings:
 {%- for line in d.warnings %}
     {{ line -}}
 {%- endfor %}
 {%- endif %}{# end warning lines #}
 {%- if d.mismatches %}
-
+{# Leave an empty line #}
 Section mismatches:
 {%- for line in d.mismatches %}
     {{ line -}}

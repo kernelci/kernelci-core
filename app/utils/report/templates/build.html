@@ -141,6 +141,18 @@
         <p>
     {{ "<strong>{}</strong> ({}) &mdash; {}, {}, {}, {}".format(d.defconfig_full, d.arch, d.status, errs, warns, mism) }}
         </p>
+        {%- if d.compiler_version_full %}
+        <table style="border: none; padding-bottom: 5px; padding-top: 3px; padding-left: 15px;">
+            <thead>
+                <tr>
+                    <th style="padding-bottom: 10px;" align="left">Compiler:</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td style="padding-left: 15px;">{{ d.compiler_version_full }}</td></tr>
+            </tbody>
+        </table>
+        {%- endif %}{# compiler data #}
         {%- if d.errors %}
         <table style="border: none; padding-bottom: 5px; padding-top: 3px; padding-left: 15px;">
             <thead>

@@ -357,6 +357,10 @@ def save_defconfig_errors(
     err_doc.warnings_count = len(warning_lines)
     err_doc.file_server_resource = build_doc.file_server_resource
     err_doc.file_server_url = build_doc.file_server_url
+    err_doc.compiler = build_doc.compiler
+    err_doc.compiler_version = build_doc.compiler_version
+    err_doc.compiler_version_ext = build_doc.compiler_version_ext
+    err_doc.compiler_version_full = build_doc.compiler_version_full
 
     manipulate = True
     if prev_doc:
