@@ -23,7 +23,7 @@
         </table>
         {%- if platforms %}
             {%- if platforms.failed_data %}
-            <p style="padding-bottom: 10px;">
+            <p style="padding-bottom: 7px;">
             {%- for summary in platforms.failed_data.summary.html %}
                 <strong>{{ summary }}</strong><br />
             {%- endfor %}
@@ -32,19 +32,26 @@
                 <tbody>
                 {%- for arch in platforms.failed_data.data %}
                     <tr><td colspan="2" align="left" style="padding-bottom: 5px;">{{ arch }}</td></tr>
+                {%- if compiler_data %}
+                    <tr><td colspan="2" align="left" style="padding-left: 25px">Compiler:</td></tr>
+                {% for comp in compiler_data[arch.replace(":", "")] %}
+                    <tr><td colspan="2" align="left" style="padding-left: 35px">{{ comp }}</td></tr>
+                {% endfor %}
+                <tr><td colspan="2" style="padding-top: 5px; padding-bottom: 5px;"></td></tr>
+                {% endif %}{# end compiler data #}
                 {%- for defconfig in platforms.failed_data.data[arch] %}
                     <tr>
                         <td style="padding-left: 25px; padding-right: 5px;">{{ defconfig[1][0] }}</td>
                         <td align="center">{{ defconfig[1][1] }}</td>
                     </tr>
                 {%- endfor %}{# defconfig #}
-                <tr><td style="padding-bottom: 7px;"></td></tr>
+                <tr><td style="padding-bottom: 5px;"></td></tr>
                 {%- endfor %}{# arch #}
                 </tbody>
             </table>
             {%- endif %}{# end failed_data #}
             {%- if platforms.error_data %}
-            <p style="padding-bottom: 10px;">
+            <p style="padding-bottom: 7px;">
             {%- for summary in platforms.error_data.summary.html %}
                 <strong>{{ summary }}</strong><br />
             {%- endfor %}
@@ -60,7 +67,7 @@
                         <td align="right">{{ defconfig[1][1][1] }}</td>
                     </tr>
                 {%- endfor %}{# defconfig #}
-                <tr><td style="padding-bottom: 7px;"></td></tr>
+                <tr><td style="padding-bottom: 5px;"></td></tr>
                 {%- endfor %}{# arch #}
                 </tbody>
             </table>

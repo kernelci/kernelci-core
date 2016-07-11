@@ -27,10 +27,10 @@ P_ = rcommon.L10N.ungettext
 # pylint: disable=star-args
 
 BUILD_SEARCH_FIELDS = [
-    models.ID_KEY,
     models.ARCHITECTURE_KEY,
     models.DEFCONFIG_FULL_KEY,
     models.ERRORS_KEY,
+    models.ID_KEY,
     models.STATUS_KEY,
     models.WARNINGS_KEY
 ]
@@ -585,12 +585,25 @@ def create_build_report(job,
     err_data, errors_count, warnings_count = _get_errors_count(
         total_results.clone())
 
-    unique_keys = [models.ARCHITECTURE_KEY]
-    total_unique_data = rcommon.get_unique_data(
-        total_results.clone(), unique_keys=unique_keys)
+    compiler_aggregate = database[models.BUILD_COLLECTION].aggregate([
+        {"$match": spec},
+        {
+            "$group": {
+                "_id": "${:s}".format(models.ARCHITECTURE_KEY),
+                "compiler": {
+                    "$addToSet":
+                        "${:s}".format(models.COMPILER_VERSION_FULL_KEY)
+                }
+            }
+        }
+    ])
 
-    git_commit, git_url, git_branch = rcommon.get_git_data(
-        job, kernel, db_options)
+    compiler_data = {}
+    for data in compiler_aggregate["result"]:
+        compiler_data[data["_id"]] = data["compiler"]
+
+    total_unique_data = rcommon.get_unique_data(
+        total_results.clone(), unique_keys=[models.ARCHITECTURE_KEY])
 
     spec[models.STATUS_KEY] = models.FAIL_STATUS
 
@@ -630,6 +643,7 @@ def create_build_report(job,
     kwargs = {
         "base_url": rcommon.DEFAULT_BASE_URL,
         "build_url": rcommon.DEFAULT_BUILD_URL,
+        "compiler_data": compiler_data,
         "email_format": email_format,
         "error_data": err_data,
         "error_details": error_details,
@@ -637,9 +651,6 @@ def create_build_report(job,
         "errors_summary": errors_summary,
         "fail_count": fail_count,
         "failed_data": failed_data,
-        "git_branch": git_branch,
-        "git_commit": git_commit,
-        "git_url": git_url,
         "info_email": info_email,
         "pass_count": total_count - fail_count,
         "storage_url": rcommon.DEFAULT_STORAGE_URL,
@@ -650,9 +661,12 @@ def create_build_report(job,
         models.KERNEL_KEY: kernel,
     }
 
+    kwargs["git_commit"], kwargs["git_url"], kwargs["git_branch"] = \
+        rcommon.get_git_data(job, kernel, db_options)
+
     custom_headers = {
         rcommon.X_REPORT: rcommon.BUILD_REPORT_TYPE,
-        rcommon.X_BRANCH: git_branch,
+        rcommon.X_BRANCH: kwargs["git_branch"],
         rcommon.X_TREE: job,
         rcommon.X_KERNEL: kernel,
     }

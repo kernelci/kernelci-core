@@ -17,6 +17,12 @@
 {%- endfor %}
 {% for arch in platforms.failed_data.data %}
 {{ arch }}
+{% if compiler_data %}
+    Compiler:
+        {%- for comp in compiler_data[arch.replace(":", "")] %}
+        {{ comp}}
+        {%- endfor %}
+{%- endif %}
 {% for defconfig in platforms.failed_data.data[arch] %}
     {{ defconfig[0] }}
 {%- endfor %}{# defconfig #}
@@ -35,7 +41,7 @@
 {%- endif %}{# end error_data #}
 {%- endif %}{# end platforms #}
 {%- if errors_summary %}
-{% if errors_summary.errors %}
+{%- if errors_summary.errors %}
 Errors summary:
 {% for err in errors_summary.errors %}
     {{ "{:>3d}  {:s}".format(err[0], err[1]) -}}
