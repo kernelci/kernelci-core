@@ -254,7 +254,7 @@ def track_regression(boot_doc, pass_doc, old_regr_doc, conn, db_options):
                     conn, models.BOOT_REGRESSIONS_COLLECTION, regression_doc)
 
         # Save the regressions id and boot id in an index collection.
-        if all([ret_val == 201, doc_id]):
+        if all([any([ret_val == 201, ret_val == 200]), doc_id]):
             utils.db.save2(
                 conn,
                 models.BOOT_REGRESSIONS_BY_BOOT_COLLECTION,
@@ -305,7 +305,8 @@ def check_and_track(boot_doc, conn, db_options):
 
         if old_status == "FAIL":
             # "Old" regression case, we might have to keep track of it.
-            utils.LOG.info("Found previous failed boot report")
+            utils.LOG.info(
+                "Found previous failed boot report '%s'", old_doc[models.ID])
             # Check if we have old regressions first.
             # If not, we don't track it since it's the first time we
             # know about it.
