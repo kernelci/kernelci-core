@@ -56,6 +56,10 @@ class ErrorLogDocument(modb.BaseDocument):
         self._warnings = []
         self._warnings_count = 0
         self.arch = None
+        self.compiler = None
+        self.compiler_version = None
+        self.compiler_version_ext = None
+        self.compiler_version_full = None
         self.defconfig = None
         self.defconfig_full = None
         self.build_id = None
@@ -208,6 +212,10 @@ class ErrorLogDocument(modb.BaseDocument):
         err_log = {
             models.ARCHITECTURE_KEY: self.arch,
             models.BUILD_ID_KEY: self.build_id,
+            models.COMPILER_KEY: self.compiler,
+            models.COMPILER_VERSION_EXT_KEY: self.compiler_version_ext,
+            models.COMPILER_VERSION_FULL_KEY: self.compiler_version_full,
+            models.COMPILER_VERSION_KEY: self.compiler_version,
             models.CREATED_KEY: self.created_on,
             models.DEFCONFIG_FULL_KEY: self.defconfig_full,
             models.DEFCONFIG_KEY: self.defconfig,

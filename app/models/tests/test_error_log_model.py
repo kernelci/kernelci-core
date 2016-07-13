@@ -65,6 +65,10 @@ class TestErrorLogModel(unittest.TestCase):
         doc.warnings_count = 1
         doc.file_server_url = "foo"
         doc.file_server_resource = "bar"
+        doc.compiler = "gcc"
+        doc.compiler_version = "gcc version"
+        doc.compiler_version_ext = "gcc version ext"
+        doc.compiler_version_full = "gcc version full"
 
         expected = {
             "arch": "arm",
@@ -84,7 +88,11 @@ class TestErrorLogModel(unittest.TestCase):
             "warnings": ["warning1"],
             "warnings_count": 1,
             "file_server_url": "foo",
-            "file_server_resource": "bar"
+            "file_server_resource": "bar",
+            "compiler": "gcc",
+            "compiler_version": "gcc version",
+            "compiler_version_ext": "gcc version ext",
+            "compiler_version_full": "gcc version full"
         }
 
         self.assertDictEqual(expected, doc.to_dict())
