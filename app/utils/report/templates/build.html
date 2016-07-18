@@ -30,16 +30,22 @@
             </p>
             <table style="border: none; padding-bottom: 15px; padding-top: 5px; padding-left: 15px;">
                 <tbody>
-                {%- for arch in platforms.failed_data.data %}
-                    <tr><td colspan="2" align="left" style="padding-bottom: 5px;">{{ arch }}</td></tr>
+                {%- for arch, arch_data in platforms.failed_data.data|dictsort %}
                 {%- if compiler_data %}
-                    <tr><td colspan="2" align="left" style="padding-left: 25px">Compiler:</td></tr>
-                {% for comp in compiler_data[arch.replace(":", "")] %}
-                    <tr><td colspan="2" align="left" style="padding-left: 35px">{{ comp }}</td></tr>
-                {% endfor %}
-                <tr><td colspan="2" style="padding-top: 5px; padding-bottom: 5px;"></td></tr>
-                {% endif %}{# end compiler data #}
-                {%- for defconfig in platforms.failed_data.data[arch] %}
+                    <tr>
+                        <td align="left" style="padding-bottom: 5px;">
+                            {{ arch }}
+                        </td>
+                        <td align="left" style="padding-bottom: 5px;">
+                            {{ compiler_data[arch.replace(":", "")][0] }}
+                        </td>
+                    </tr>
+                {%- else %}
+                    <tr>
+                        <td colspan="2" align="left" style="padding-bottom: 5px;">{{ arch }}</td>
+                    </tr>
+                {%- endif %}{# end compiler data #}
+                {%- for defconfig in arch_data %}
                     <tr>
                         <td style="padding-left: 25px; padding-right: 5px;">{{ defconfig[1][0] }}</td>
                         <td align="center">{{ defconfig[1][1] }}</td>
@@ -58,12 +64,30 @@
             </p>
             <table style="border: none; padding-bottom: 15px; padding-top: 5px; padding-left: 15px;">
                 <tbody>
-                {%- for arch in platforms.error_data.data %}
-                    <tr><td colspan="3" align="left" style="padding-bottom: 5px;">{{ arch }}</td></tr>
-                {%- for defconfig in platforms.error_data.data[arch] %}
+                {%- for arch, arch_data in platforms.error_data.data|dictsort %}
+                {%- if compiler_data %}
                     <tr>
-                        <td align="left" style="padding-left: 25px; padding-right: 5px;">{{ defconfig[1][0] }}</td>
-                        <td align="right" style="padding-right: 5px;">{{ defconfig[1][1][0] }}</td>
+                        <td align="left" style="padding-bottom: 5px;">
+                            {{ arch }}
+                        </td>
+                        <td align="left" colspan="3" style="padding-bottom: 5px;">
+                            {{ compiler_data[arch.replace(":", "")][0] }}
+                        </td>
+                    </tr>
+                {%- else %}
+                    <tr>
+                        <td colspan="3" align="left" style="padding-bottom: 5px;">
+                            {{ arch }}
+                        </td>
+                    </tr>
+                {%- endif %}{# compiler data #}
+                {%- for defconfig in arch_data %}
+                    <tr>
+                        <td align="left" style="padding-left: 25px; padding-right: 5px;">{{ defconfig[1][0] }}
+                        </td>
+                        <td align="right" style="padding-right: 5px;">
+                            {{ defconfig[1][1][0] }}
+                        </td>
                         <td align="right">{{ defconfig[1][1][1] }}</td>
                     </tr>
                 {%- endfor %}{# defconfig #}

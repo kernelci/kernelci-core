@@ -15,15 +15,13 @@
 {%- for summary in platforms.failed_data.summary.txt %}
 {{ summary }}
 {%- endfor %}
-{% for arch in platforms.failed_data.data %}
+{% for arch, arch_data in platforms.failed_data.data|dictsort %}
+{%- if compiler_data %}
+{{ arch }}    {{ compiler_data[arch.replace(":", "")][0] }}
+{%- else %}
 {{ arch }}
-{% if compiler_data %}
-    Compiler:
-        {%- for comp in compiler_data[arch.replace(":", "")] %}
-        {{ comp}}
-        {%- endfor %}
-{%- endif %}
-{% for defconfig in platforms.failed_data.data[arch] %}
+{%- endif %}{# end compiler data #}
+{% for defconfig in arch_data %}
     {{ defconfig[0] }}
 {%- endfor %}{# defconfig #}
 {% endfor %}{# arch #}
@@ -32,9 +30,13 @@
 {%- for summary in platforms.error_data.summary.txt %}
 {{ summary }}
 {%- endfor %}
-{% for arch in platforms.error_data.data %}
+{% for arch, arch_data in platforms.error_data.data|dictsort %}
+{%- if compiler_data %}
+{{ arch }}    {{ compiler_data[arch.replace(":", "")][0] }}
+{%- else %}
 {{ arch }}
-{% for defconfig in platforms.error_data.data[arch] %}
+{%- endif %}{# end compiler data #}
+{% for defconfig in arch_data %}
     {{ defconfig[0] }}
 {%- endfor %}{# defconfig #}
 {% endfor %}{# arch #}
