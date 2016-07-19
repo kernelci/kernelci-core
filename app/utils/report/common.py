@@ -45,8 +45,9 @@ JOB_SEARCH_FIELDS = [
 
 DEFAULT_BASE_URL = u"https://kernelci.org"
 DEFAULT_BOOT_URL = u"https://kernelci.org/boot/all/job"
+BOOT_ID_URL = u"https://kernelci.org/boot/id/{_id:s}/"
 DEFAULT_BUILD_URL = u"https://kernelci.org/build"
-DEFAULT_STORAGE_URL = u"http://storage.kernelci.org"
+DEFAULT_STORAGE_URL = u"https://storage.kernelci.org"
 
 # Default colors for error and warning links.
 HTML_RED = u"#d9534f"

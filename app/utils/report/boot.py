@@ -48,6 +48,189 @@ BOARD_URL = (
 BOOT_SUMMARY_URL = u"{boot_url:s}/{job:s}/kernel/{kernel:s}/"
 BUILD_SUMMARY_URL = u"{build_url:s}/{job:s}/kernel/{kernel:s}/"
 
+# Regressions strings.
+SINGULAR_FAILURE_HTML = \
+    u"failing since <span style=\"color: {red:s}\">{days:d} day</span>"
+PLURAL_FAILURE_HTML = \
+    u"failing since <span style=\"color: {red:s}\">{days:d} days</span>"
+
+SINGULAR_FAILURE_TXT = u"failing since {days:d} day"
+PLURAL_FAILURE_TXT = u"failing since {days:d} days"
+
+BOOT_ID_HTML = u"<a href=\"{boot_id_url:s}\">{lab_name:s}</a>"
+NEW_FAIL_HTML = u"<span style=\"color: {red:s}\">new failure</span>"
+NEW_FAIL_TXT = u"{lab_name:s}: new failure"
+
+LAST_PASS_TXT = u"last pass: {good_kernel:s}"
+LAST_PASS_HTML = \
+    u"last pass: <a href=\"{boot_id_url:s}\">{good_kernel:s}</a>"
+
+FIRST_FAIL_TXT = u"first fail: {bad_kernel:s}"
+FIRST_FAIL_HTML = \
+    u"first fail: <a href=\"{boot_id_url:s}\">{bad_kernel:s}</a>"
+
+
+def create_regressions_data(data, **kwargs):
+    """Create the regressions data for the email report.
+
+    Will create the TXT/HTML strings to be used in the report.
+
+    :param data: The regressions data (the list of boot reports).
+    :type data: list
+    :return dict The regressions strings in a dictionary.
+    """
+    regr_data = {}
+
+    # Make sure the boot reports in the regressions data structure are
+    # correctly sorted by date, so that the oldest document is the PASS one
+    # and the most recent one is the last FAIL-ed.
+    data.sort(
+        cmp=lambda x, y: cmp(x[models.CREATED_KEY], y[models.CREATED_KEY]))
+
+    last_fail = data[-1]
+    last_good = data[0]
+
+    # Override the lab_name key for the substitutions.
+    kwargs[models.LAB_NAME_KEY] = last_fail[models.LAB_NAME_KEY]
+    kwargs["good_kernel"] = last_good[models.KERNEL_KEY]
+
+    fail_url = BOOT_ID_HTML.format(**kwargs).format(**last_fail)
+
+    if len(data) == 2:
+        failure = NEW_FAIL_HTML.format(**kwargs)
+
+        # Simple case, it's a new failure.
+        regr_data["txt"] = \
+            u"{:s} ({:s})".format(
+                NEW_FAIL_TXT.format(**last_fail),
+                LAST_PASS_TXT.format(**kwargs))
+        regr_data["html"] = \
+            u"{:s}: {:s} <small>({:s})</small>".format(
+                fail_url,
+                failure,
+                LAST_PASS_HTML.format(**kwargs).format(**last_good))
+    else:
+        # The first boot report is always a PASS status.
+        first_fail = data[1]
+        kwargs["bad_kernel"] = first_fail[models.KERNEL_KEY]
+
+        delta = last_fail[models.CREATED_KEY] - first_fail[models.CREATED_KEY]
+        days = delta.days
+
+        # Default to 1 day.
+        if days == 0:
+            days = 1
+        # Inject the number of days.
+        kwargs["days"] = days
+
+        failure_txt = P_(
+            SINGULAR_FAILURE_TXT, PLURAL_FAILURE_TXT, days).format(**kwargs)
+
+        failure_html = P_(
+            SINGULAR_FAILURE_HTML, PLURAL_FAILURE_HTML, days).format(**kwargs)
+
+        regr_data["txt"] = \
+            u"{:s}: {:s} ({:s} - {:s})".format(
+                last_fail[models.LAB_NAME_KEY],
+                failure_txt,
+                LAST_PASS_TXT.format(**kwargs),
+                FIRST_FAIL_TXT.format(**kwargs))
+        regr_data["html"] = \
+            u"{:s}: {:s} <small>({:s} - {:s})</small>".format(
+                fail_url,
+                failure_html,
+                LAST_PASS_HTML.format(**kwargs).format(**last_good),
+                FIRST_FAIL_HTML.format(**kwargs).format(**first_fail))
+
+    return regr_data
+
+
+def parse_regressions(data, **kwargs):
+    """Parse the regressions data and create the strings for the report.
+
+    The returned data structure is:
+
+        {
+            "summary": {
+                "txt": ["List of TXT summary strings"],
+                "html: ["List of HTML summary strings"]
+            },
+            "data": {
+                "arch": {
+                    "defconfig": {
+                        "board": {
+                            "txt": "string",
+                            "html": "string"
+                        }
+                    }
+                }
+            }
+        }
+
+    :param data: The regressions data.
+    :type data: dict
+    :return dict The regressions data structure for the report.
+    """
+    regressions = {}
+    regressions_data = None
+
+    for lab in data.viewkeys():
+
+        if kwargs["lab_name"] and lab != kwargs["lab_name"]:
+            continue
+
+        lab_d = data[lab]
+
+        if "data" not in regressions.viewkeys():
+            regressions["data"] = regressions_data = {}
+
+        for arch in lab_d.viewkeys():
+            arch_d = lab_d[arch]
+
+            # Prepare the arch string for visualization.
+            # Same for defconfig and board ones.
+            arch = u"{:s}:".format(arch)
+
+            if arch not in regressions_data.viewkeys():
+                regressions_data[arch] = regr_arch = {}
+            else:
+                regr_arch = regressions_data[arch]
+
+            for board in arch_d.viewkeys():
+                board_d = arch_d[board]
+
+                for b_instance in board_d.viewkeys():
+                    instance_d = board_d[b_instance]
+
+                    for defconfig in instance_d.viewkeys():
+                        defconfig_d = instance_d[defconfig]
+
+                        defconfig = u"{:s}:".format(defconfig)
+
+                        if defconfig not in regr_arch.viewkeys():
+                            regr_arch[defconfig] = regr_def = {}
+                        else:
+                            regr_def = regr_arch[defconfig]
+
+                        board = u"{:s}:".format(board)
+
+                        if board not in regr_def.viewkeys():
+                            regr_def[board] = regr_board = []
+                        else:
+                            regr_board = regr_def[board]
+
+                        for compiler in defconfig_d.viewkeys():
+                            regr_board.append(
+                                create_regressions_data(
+                                    defconfig_d[compiler], **kwargs))
+
+    if regressions_data:
+        regressions["summary"] = {}
+        regressions["summary"]["txt"] = ["Boot Regressions Detected:"]
+        regressions["summary"]["html"] = ["Boot Regressions Detected:"]
+
+    return regressions
+
 
 # pylint: disable=too-many-locals
 # pylint: disable=star-args
@@ -160,6 +343,10 @@ def create_boot_report(job,
     # Calculate the PASS count based on the previous obtained values.
     pass_count = total_count - fail_count - offline_count - untried_count
 
+    # Get the regressions.
+    regressions = database[models.BOOT_REGRESSIONS_COLLECTION].find_one(
+        {models.JOB_KEY: job, models.KERNEL_KEY: kernel})
+
     # Fill the data structure for the email report creation.
     kwargs = {
         "base_url": rcommon.DEFAULT_BASE_URL,
@@ -181,6 +368,9 @@ def create_boot_report(job,
         "total_count": total_count,
         "total_unique_data": total_unique_data,
         "untried_count": untried_count,
+        "regressions": regressions,
+        "red": rcommon.HTML_RED,
+        "boot_id_url": rcommon.BOOT_ID_URL,
         models.JOB_KEY: job,
         models.KERNEL_KEY: kernel,
         models.LAB_NAME_KEY: lab_name
@@ -531,6 +721,13 @@ def _create_boot_email(**kwargs):
     kwargs["git_url_string"] = (git_txt_string, git_html_string)
 
     kwargs["platforms"] = _parse_and_structure_results(**kwargs)
+
+    if kwargs["regressions"]:
+        kwargs["regressions"] = \
+            parse_regressions(
+                kwargs["regressions"][models.REGRESSIONS_KEY], **kwargs)
+    else:
+        kwargs["regressions"] = None
 
     if models.EMAIL_TXT_FORMAT_KEY in email_format:
         kwargs["full_boot_summary"] = (

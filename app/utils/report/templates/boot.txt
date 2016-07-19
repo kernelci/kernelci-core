@@ -11,6 +11,23 @@
 {%- if tested_string %}
 {{ tested_string }}
 {% endif %}
+{%- if regressions %}
+{%- for summary in regressions.summary.txt %}
+{{ summary }}
+{%- endfor %}
+{% for arch, data in regressions.data|dictsort %}
+{{ arch }}
+{% for defconfig, boards_data in data|dictsort %}
+    {{ defconfig }}
+{%- for board, labs_data in boards_data|dictsort %}
+        {{ board }}
+{%- for lab in labs_data %}
+            {{ lab.txt }}
+{%- endfor %}{# lab #}
+{%- endfor %}{# board #}
+{% endfor %}{# defconfig #}
+{%- endfor %}{# arch #}
+{%- endif %}{# regressions #}
 {%- if platforms %}
 {%- if platforms.failed_data %}
 {%- for summary in platforms.failed_data.summary.txt %}
