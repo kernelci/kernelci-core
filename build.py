@@ -336,6 +336,8 @@ if install:
     if modules:
         tmp_mod_dir = tempfile.mkdtemp()
         os.environ['INSTALL_MOD_PATH'] = tmp_mod_dir
+        os.environ['INSTALL_MOD_STRIP'] = "1"
+        os.environ['STRIP'] = "%sstrip" %cross_compile
         do_make('modules_install')
         modules_tarball = "modules.tar.xz"
         cmd = "(cd %s; tar -Jcf %s lib/modules)" %(tmp_mod_dir, modules_tarball)
