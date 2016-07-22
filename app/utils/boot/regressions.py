@@ -306,7 +306,8 @@ def check_and_track(boot_doc, conn, db_options):
         if old_status == "FAIL":
             # "Old" regression case, we might have to keep track of it.
             utils.LOG.info(
-                "Found previous failed boot report '%s'", old_doc[models.ID])
+                "Found previous failed boot report '%s'",
+                old_doc[models.ID_KEY])
             # Check if we have old regressions first.
             # If not, we don't track it since it's the first time we
             # know about it.
