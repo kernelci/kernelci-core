@@ -1031,6 +1031,17 @@ openblocks_ax3 = {'device_type': 'armada-xp-openblocks-ax3-4',
                     'lpae': False,
                     'fastboot': False}
 
+openblocks_a7 = {'device_type': 'kirkwood-openblocks_a7',
+                 'templates': ['generic-arm-dtb-kernel-ci-boot-nfs-template.json'],
+                 'kernel_defconfig_blacklist': [],
+                 'defconfig_blacklist': ['arm-allmodconfig',
+		 # To be removed once NFS is working for this defconfig
+					 'arm-multi_v5_defconfig'],
+                 'kernel_blacklist': ['v3'],
+                 'nfs_blacklist': [],
+                 'lpae': False,
+                 'fastboot': False}
+
 armada_xp_linksys_mamba = {'device_type': 'armada-xp-linksys-mamba',
 			   'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
 			   'kernel_defconfig_blacklist': [],
@@ -1341,5 +1352,6 @@ device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'at91sam9m10g45ek.dtb': [at91sam9m10g45ek],
               'sun8i-a83t-allwinner-h8homlet-v2.dtb': [sun8i_a83t_allwinner_h8homlet_v2],
               'sun8i-a33-sinlinx-sina33.dtb': [sinlinx_sina33],
+              'kirkwood-openblocks_a7.dtb': [openblocks_a7],
               'armada-xp-openblocks-ax3-4.dtb': [openblocks_ax3],
               'vf610-zii-dev-rev-b.dtb': [vf610_zii_dev_rev_b]}
