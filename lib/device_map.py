@@ -100,6 +100,17 @@ armada_398_db = {'device_type': 'armada-398-db',
                        'lpae': False,
                        'fastboot': False}
 
+kirkwood_db_88f6282 = {'device_type': 'kirkwood-db-88f6282',
+                       'templates': ['generic-arm-dtb-kernel-ci-boot-nfs-template.json'],
+                       'kernel_defconfig_blacklist': [],
+                       'defconfig_blacklist': ['arm-allmodconfig',
+			# To be removed once NFS is working for this defconfig
+					       'arm-multi_v5_defconfig'],
+                       'kernel_blacklist': ['v3'],
+                       'nfs_blacklist': [],
+                       'lpae': False,
+                       'fastboot': False}
+
 armada_3720_db = {'device_type': 'armada-3720-db',
                        'templates': ['generic-arm64-dtb-kernel-ci-boot-template.json'],
                        'kernel_defconfig_blacklist': [],
@@ -1244,6 +1255,7 @@ device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'armada-375-db.dtb': [armada_375_db],
               'armada-388-gp.dtb': [armada_388_gp],
               'armada-398-db.dtb': [armada_398_db],
+              'kirkwood-db-88f6282.dtb': [kirkwood_db_88f6282],
               'armada-3720-db.dtb': [armada_3720_db],
               'armada-7040-db.dtb': [armada_7040_db],
               'exynos5250-arndale.dtb': [arndale],
