@@ -81,6 +81,14 @@ armada_375_db = {'device_type': 'armada-375-db',
                        'lpae': False,
                        'fastboot': False}
 
+armada_385_db_ap = {'device_type': 'armada-385-db-ap',
+                       'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                       'kernel_defconfig_blacklist': [],
+                       'defconfig_blacklist': ['arm-allmodconfig'],
+                       'kernel_blacklist': [],
+                       'nfs_blacklist': [],
+                       'lpae': False,
+                       'fastboot': False}
 
 armada_388_gp = {'device_type': 'armada-388-gp',
                        'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
@@ -1274,6 +1282,7 @@ device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'orion5x-rd88f5182-nas.dtb': [orion5x_rd88f5182_nas],
               'armada-370-rd.dtb': [armada_370_rd],
               'armada-375-db.dtb': [armada_375_db],
+              'armada-385-db-ap.dtb': [armada_385_db_ap],
               'armada-388-gp.dtb': [armada_388_gp],
               'armada-398-db.dtb': [armada_398_db],
               'kirkwood-db-88f6282.dtb': [kirkwood_db_88f6282],
