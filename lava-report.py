@@ -18,6 +18,7 @@ from lib import utils
 log2html = 'https://git.linaro.org/people/kevin.hilman/build-scripts.git/blob_plain/HEAD:/log2html.py'
 
 device_map = {'alpine-db': ['alpine-db', 'alpine'],
+              'alpine-v2-evp': ['alpine-v2-evp', 'alpine'],
               'bcm2835-rpi-b-plus': ['bcm2835-rpi-b-plus', 'bcm'],
               'bcm2836-rpi-2-b' : [ 'bcm2836-rpi-2-b', 'bcm'],
               'bcm4708-smartrg-sr400ac': ['bcm4708-smartrg-sr400ac', 'bcm'],
