@@ -137,6 +137,15 @@ armada_7040_db = {'device_type': 'armada-7040-db',
                        'lpae': False,
                        'fastboot': False}
 
+armada_xp_db = {'device_type': 'armada-xp-db',
+                       'templates': ['generic-arm-dtb-kernel-ci-boot-nfs-template.json'],
+                       'kernel_defconfig_blacklist': [],
+                       'defconfig_blacklist': ['arm-allmodconfig'],
+                       'kernel_blacklist': [],
+                       'nfs_blacklist': [],
+                       'lpae': False,
+                       'fastboot': False}
+
 arndale = {'device_type': 'arndale',
            'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
                          'generic-arm-dtb-kernel-ci-kselftest-template.json',
@@ -1288,6 +1297,7 @@ device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'kirkwood-db-88f6282.dtb': [kirkwood_db_88f6282],
               'armada-3720-db.dtb': [armada_3720_db],
               'armada-7040-db.dtb': [armada_7040_db],
+              'armada-xp-db.dtb': [armada_xp_db],
               'exynos5250-arndale.dtb': [arndale],
               'exynos5250-snow.dtb': [snow],
               'exynos5420-arndale-octa.dtb': [arndale_octa],
