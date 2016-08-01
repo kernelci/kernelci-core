@@ -1,3 +1,12 @@
+alpine_db = {'device_type': 'alpine-db',
+                      'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                      'kernel_defconfig_blacklist': [],
+                      'defconfig_blacklist': ['arm-allmodconfig'],
+                      'kernel_blacklist': [],
+                      'nfs_blacklist': [],
+                      'lpae': False,
+                      'fastboot': False}
+
 bcm2835_rpi_b_plus = {'device_type': 'bcm2835-rpi-b-plus',
                       'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
                       'kernel_defconfig_blacklist': [],
@@ -1283,7 +1292,8 @@ sinlinx_sina33 = {'device_type': 'sun8i-a33-sinlinx-sina33',
                     'lpae': False,
                     'fastboot': False}
 
-device_map = {'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
+device_map = {'alpine-db.dtb': [alpine_db],
+              'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
               'bcm2836-rpi-2-b.dtb' : [ bcm2836_rpi_2_b],
               'bcm4708-smartrg-sr400ac.dtb': [bcm4708_smartrg_sr400ac],
               'armada-370-db.dtb': [armada_370_db],
