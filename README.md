@@ -41,6 +41,7 @@ Examples:
 ```
 The generated jobs can be found in the jobs directory. You can override the default behaviour by passing the output directory in the `--jobs` parameter.
 
+The different possible plans are the name of directories in the template directory.
 
 ## Usage instructions for lava-job-runner.py:
 This command line tool will submit all LAVA jobs in the current working directory.
@@ -109,7 +110,7 @@ armada_388_clearfog = {'device_type': 'armada-388-clearfog',
 
 `armada-388-clearfog` is the name of your LAVA device\_type and, as strongly advised above, should be the name of the board's dtb in kernel sources.
 
-The `templates` array represents the templates used to create jobs for the specified board. All templates can be found in the subdirectory templates.
+The `templates` array represents the templates used to create jobs for the specified board. All templates can be found in the subdirectory templates. For example, here, we want to test with the template `generic-arm-dtb-kernel-ci-boot-template.json` which is located in templates/boot directory. This template will be filled by lava-kernel-ci-job-creator.py only when one of the plans is `boot` (the name of the parent directory of the template).
 
 The `nfs_blacklist` array is an array of substrings of a kernel version you should not boot with NFS.
 
