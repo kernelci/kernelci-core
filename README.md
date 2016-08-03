@@ -143,9 +143,19 @@ The first `armada-388-clearfog` is the name of of your LAVA device\_type while t
 
 `mvebu` is the SoC name of the board and also where the board will be found in KernelCI dashboard.
 
+### Test the board
+
+KernelCI only wants to detect new regressions in the Linux kernel. If, when adding a board to KernelCI, the board is known to not be working on few kernel versions or configurations, you must blacklist those kernel versions or configurations in your board dictionary. You can remove the blacklisting of these boards (or target more precisely impacted kernel versions or configurations) once the kernel is known to be working in the version and configuration which are blacklisted.
+
+KernelCI basically asks you to test your board on all stable releases and the mainline releases (at least the last one). You can perform these tests with the following, plans being set to all templates used by this board:
+```
+./lava-kernel-ci-job-creator.py https://storage.kernelci.org/stable --jobs stable --plans boot --targets armada-388-clearfog
+./lava-kernel-ci-job-creator.py https://storage.kernelci.org/mainline --jobs mainline --plans boot --targets armada-388-clearfog
+./lava-job-runner.py --username <lava username> --token <lava token> --server <http://lava-server/RPC2> --stream /anonymous/mybundle/ --jobs stable
+./lava-job-runner.py --username <lava username> --token <lava token> --server <http://lava-server/RPC2> --stream /anonymous/mybundle/ --jobs mainline
+```
+
 ### Add your lab to KernelCI
 If you did everything as explained above, send them a mail with the authentication token for user `kernel-ci` and make your LAVA instance (at least the XMLRPC API which is located at /RPC2) available from Internet.
-
-Before sending the mail, test your board by running lava-kernel-ci-job-creator.py then lava-job-runner.py.
 
 If you want to add a board to your lab which already exists in KernelCI, make sure your LAVA device\_type matches the name used in lava-kernel-ci-job-creator.py.
