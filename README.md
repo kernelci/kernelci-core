@@ -26,7 +26,7 @@ Examples:
 ## Usage instructions for lava-kernel-ci-job-creator.py:
 This command line tool will create LAVA boot test jobs for various architectures, and platforms.
 ```
-./lava-kernel-ci-job-creator.py [-h] --plans PLANS [PLANS ...] [--arch ARCH] [--targets TARGETS [TARGETS ...]] url
+./lava-kernel-ci-job-creator.py [-h] [--jobs JOBS] --plans PLANS [PLANS ...] [--arch ARCH] [--targets TARGETS [TARGETS ...]] url
 ```
 Examples:
 ```
@@ -39,13 +39,13 @@ Examples:
 # Create only LAVA boot test jobs for a specific build and targets.
 ./lava-kernel-ci-job-creator.py http://storage.kernelci.org/next/next-20150114/ --plans boot --targets mustang odroid-xu3
 ```
-The generated jobs can be found in the jobs directory.
+The generated jobs can be found in the jobs directory. You can override the default behaviour by passing the output directory in the `--jobs` parameter.
 
 
 ## Usage instructions for lava-job-runner.py:
 This command line tool will submit all LAVA jobs in the current working directory.
 ```
-./lava-job-runner.py [-h] [--stream STREAM] [--repo REPO] [--poll POLL]
+./lava-job-runner.py [-h] [--stream STREAM] [--repo REPO] [--poll POLL] [--jobs JOBS]
 ```
 Examples:
 
@@ -59,6 +59,7 @@ Examples:
 # Submit and poll all LAVA jobs in the current working directory to a specific server, bundle stream. Once the results have been obtained, store the results in a JSON encoded file for use later with the dashboard reporting tool.
 ./lava-job-runner.py <username> <lava token> http://my.lavaserver.com/RPC2/ --stream /anonymous/mybundle/ --boot results/kernel-ci.json --lab <lab-id> --api http://api.kernelci.org --token <dashboard token>
 ```
+It will run jobs in the current directory. You can override the default behaviour by passing the jobs directory in the `--jobs` parameter.
 
 ## Usage instructions for lava-report.py:
 This command line tool will report the results of LAVA jobs given a JSON results file.
