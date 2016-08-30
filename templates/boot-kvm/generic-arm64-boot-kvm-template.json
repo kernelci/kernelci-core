@@ -39,7 +39,7 @@
             "dtb": "{dtb_url}",
             "kernel": "{kernel_url}",
             "overlays": ["{modules_url}"],
-            "nfsrootfs": "http://releases.linaro.org/ubuntu/images/nano-arm64/15.12/linaro-vivid-nano-20151215-114.tar.gz",
+            "nfsrootfs": "http://releases.linaro.org/debian/images/developer-arm64/16.07/linaro-jessie-developer-20160722-88.tar.gz",
             "target_type": "ubuntu",
             "role": "host"
         }
