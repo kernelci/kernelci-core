@@ -20,7 +20,7 @@ BROKER_TRANSPORT_OPTIONS = {
     "fanout_prefix": True,
     "fanout_patterns": True
 }
-CELERYD_PREFETCH_MULTIPLIER = 8
+CELERYD_PREFETCH_MULTIPLIER = 64
 # Use custom json encoder.
 CELERY_ACCEPT_CONTENT = ["kjson"]
 CELERY_RESULT_SERIALIZER = "kjson"
