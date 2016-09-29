@@ -87,6 +87,12 @@ KNOWN_GIT_URLS = {
         "%s/commitdiff/%s",
         [],
     ),
+    "android.googlesource.com": (
+        "https",
+        "%s",
+        "%s/+/%s",
+        []
+    )
 }
 
 # Mail headers.

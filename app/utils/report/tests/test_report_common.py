@@ -139,3 +139,27 @@ class TestReportCommon(unittest.TestCase):
 
         self.assertIsNotNone(translated_url)
         self.assertEqual(expected, translated_url)
+
+    def test_translate_android_url_known_with_commit(self):
+        git_url = "https://android.googlesource.com/kernel/common"
+        commit_id = "1234"
+
+        translated_url = rcommon.translate_git_url(
+            git_url, commit_id=commit_id)
+
+        expected = "https://android.googlesource.com/kernel/common/+/1234"
+
+        self.assertIsNotNone(translated_url)
+        self.assertEqual(expected, translated_url)
+
+    def test_translate_android_url_known_with_no_commit(self):
+        git_url = "https://android.googlesource.com/kernel/common"
+        commit_id = None
+
+        translated_url = rcommon.translate_git_url(
+            git_url, commit_id=commit_id)
+
+        expected = "https://android.googlesource.com/kernel/common"
+
+        self.assertIsNotNone(translated_url)
+        self.assertEqual(expected, translated_url)
