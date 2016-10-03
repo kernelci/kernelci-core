@@ -170,6 +170,8 @@ else:
 
 # KBUILD_OUTPUT
 kbuild_output = kbuild_output_prefix
+if arch:
+    kbuild_output += "-%s" % arch
 if os.environ.has_key('KBUILD_OUTPUT'):
     kbuild_output = os.environ['KBUILD_OUTPUT']
 else:
