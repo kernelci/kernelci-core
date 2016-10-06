@@ -189,7 +189,7 @@ def parse_regressions(data, **kwargs):
 
             # Prepare the arch string for visualization.
             # Same for defconfig and board ones.
-            arch = u"{:s}:".format(arch)
+            arch = u"{:s}".format(arch)
 
             if arch not in regressions_data.viewkeys():
                 regressions_data[arch] = regr_arch = {}
@@ -212,7 +212,7 @@ def parse_regressions(data, **kwargs):
                         else:
                             regr_def = regr_arch[defconfig]
 
-                        board = u"{:s}:".format(board)
+                        board = u"{:s}".format(board)
 
                         if board not in regr_def.viewkeys():
                             regr_def[board] = regr_board = []
@@ -1046,7 +1046,7 @@ def _parse_and_structure_results(**kwargs):
         s_get = data_struct.get
 
         for arch in data.viewkeys():
-            arch_string = G_(u"{:s}:").format(arch)
+            arch_string = G_(u"{:s}").format(arch)
             data_struct[arch_string] = {}
 
             arch_struct = s_get(arch_string)
@@ -1056,7 +1056,7 @@ def _parse_and_structure_results(**kwargs):
             defconfs.sort()
 
             for defconfig in defconfs:
-                defconfig_string = G_(u"{:s}:").format(defconfig)
+                defconfig_string = G_(u"{:s}").format(defconfig)
 
                 def_get = d_get(arch)[defconfig].get
 
@@ -1082,11 +1082,11 @@ def _parse_and_structure_results(**kwargs):
                         substitutions["url"] = board_url
 
                         html_string = (
-                            G_(u"<a href=\"{url:s}\">{board:s}</a>:").format(
+                            G_(u"<a href=\"{url:s}\">{board:s}</a>").format(
                                 **substitutions)
                         )
 
-                        txt_string = G_(u"{:s}:").format(board)
+                        txt_string = G_(u"{:s}").format(board)
 
                         defconf_struct[(txt_string, html_string)] = []
                         board_struct = defconf_struct[

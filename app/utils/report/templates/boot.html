@@ -30,7 +30,7 @@
         {%- endfor %}
                 <tr><td style="padding-bottom: 10px;"></td></tr>
         {%- for arch, data in regressions.data|dictsort %}
-                <tr><td>{{ arch }}</td></tr>
+                <tr><td>{{ arch }}:</td></tr>
         {%- for defconfig, boards_data in data|dictsort %}
                 <tr>
                     <td style="padding-left: 20px; padding-top: 10px;">
@@ -38,7 +38,7 @@
                     </td>
                 </tr>
         {%- for board, labs_data in boards_data|dictsort %}
-                <tr><td style="padding-left: 40px;">{{ board }}</td></tr>
+                <tr><td style="padding-left: 40px;">{{ board }}:</td></tr>
         {%- for lab in labs_data %}
                 <tr><td style="padding-left: 55px;">{{ lab.html }}</td></tr>
         {%- endfor %}{# lab #}
@@ -57,11 +57,11 @@
             {%- endfor %}
                 <tr><td style="padding-bottom: 10px;"></td></tr>
             {%- for arch in platforms.failed_data.data %}
-                <tr><td>{{ arch }}</td></tr>
+                <tr><td>{{ arch }}:</td></tr>
             {%- for defconfig in platforms.failed_data.data[arch] %}
                 <tr>
                     <td style="padding-left: 20px; padding-top: 10px;">
-                        {{ defconfig }}
+                        {{ defconfig }}:
                     </td>
                 </tr>
             {%- for board in platforms.failed_data.data[arch][defconfig] %}
@@ -72,7 +72,7 @@
             </tbody>
         </table>
         {%- endif %}{# failed_data #}
-        {%- if platforms.offline_data %}
+        {%- if platforms.offline_data %}{# offline labs #}
         <table style="border: none; padding-bottom: 15px; padding-top: 5px;">
             <tbody>
             {%- for summary in platforms.offline_data.summary.html %}
@@ -80,11 +80,11 @@
             {%- endfor %}
                 <tr><td style="padding-bottom: 10px;"></td></tr>
             {%- for arch in platforms.offline_data.data %}
-                <tr><td>{{ arch }}</td></tr>
+                <tr><td>{{ arch }}:</td></tr>
             {%- for defconfig in platforms.offline_data.data[arch] %}
                 <tr>
                     <td style="padding-left: 20px; padding-top: 10px;">
-                        {{ defconfig }}
+                        {{ defconfig }}:
                     </td>
                 </tr>
             {%- for board in platforms.offline_data.data[arch][defconfig] %}
@@ -107,11 +107,11 @@
             {%- for defconfig in platforms.conflict_data.data[arch] %}
                 <tr>
                     <td style="padding-left: 20px; padding-top: 10px;">
-                        {{ defconfig }}
+                        {{ defconfig }}:
                     </td>
                 </tr>
             {%- for board in platforms.conflict_data.data[arch][defconfig] %}
-                <tr><td style="padding-left: 40px">{{ board[1] }}</td></tr>
+                <tr><td style="padding-left: 40px">{{ board[1] }}:</td></tr>
             {%- for lab in platforms.conflict_data.data[arch][defconfig][board] %}
                 <tr><td style="padding-left: 55px;">{{ lab }}</td></tr>
             {%- endfor %}{# lab #}

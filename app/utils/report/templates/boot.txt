@@ -16,11 +16,11 @@
 {{ summary }}
 {%- endfor %}
 {% for arch, data in regressions.data|dictsort %}
-{{ arch }}
+{{ arch }}:
 {% for defconfig, boards_data in data|dictsort %}
     {{ defconfig }}
 {%- for board, labs_data in boards_data|dictsort %}
-        {{ board }}
+        {{ board }}:
 {%- for lab in labs_data %}
             {{ lab.txt }}
 {%- endfor %}{# lab #}
@@ -33,8 +33,8 @@
 {%- for summary in platforms.failed_data.summary.txt %}
 {{ summary }}
 {%- endfor %}
-{% for arch in platforms.failed_data.data %}
-{{ arch }}
+{% for arch in platforms.failed_data.data %}{# boot failures #}
+{{ arch }}:
 {% for defconfig in platforms.failed_data.data[arch] %}
     {{ defconfig }}
 {%- for board in platforms.failed_data.data[arch][defconfig] %}
@@ -43,30 +43,30 @@
 {% endfor %}{# defconfig #}
 {%- endfor %}{# arch #}
 {%- endif %}{# end failed_data #}
-{%- if platforms.offline_data %}
+{%- if platforms.offline_data %}{# offline boards #}
 {%- for summary in platforms.offline_data.summary.txt %}
 {{ summary }}
 {%- endfor %}
 {% for arch in platforms.offline_data.data %}
-{{ arch }}
+{{ arch }}:
 {% for defconfig in platforms.offline_data.data[arch] %}
-    {{ defconfig }}
+    {{ defconfig }}:
 {%- for board in platforms.offline_data.data[arch][defconfig] %}
         {{ board[0] }}
 {%- endfor %}{# board #}
 {% endfor %}{# defconfig #}
 {%- endfor %}{# arch #}
 {%- endif %}{# end offline_data #}
-{%- if platforms.conflict_data %}
+{%- if platforms.conflict_data %}{# boot conflicts #}
 {%- for summary in platforms.conflict_data.summary.txt %}
 {{ summary }}
 {%- endfor %}
 {% for arch in platforms.conflict_data.data %}
-{{ arch }}
+{{ arch }}:
 {% for defconfig in platforms.conflict_data.data[arch] %}
-    {{ defconfig }}
+    {{ defconfig }}:
 {%- for board in platforms.conflict_data.data[arch][defconfig] %}
-        {{ board[0] }}
+        {{ board[0] }}:
 {%- for lab in platforms.conflict_data.data[arch][defconfig][board] %}
             {{ lab }}
 {%- endfor %}{# lab #}
