@@ -1331,6 +1331,15 @@ sinlinx_sina33 = {'device_type': 'sun8i-a33-sinlinx-sina33',
                     'lpae': False,
                     'fastboot': False}
 
+dove_cubox = {'device_type': 'dove-cubox',
+                       'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                       'kernel_defconfig_blacklist': [],
+                       'defconfig_blacklist': ['arm-allmodconfig'],
+                       'kernel_blacklist': [],
+                       'nfs_blacklist': [],
+                       'lpae': False,
+                       'fastboot': False}
+
 device_map = {'alpine-db.dtb': [alpine_db],
               'alpine-v2-evp.dtb': [alpine_v2_evp],
               'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
@@ -1426,4 +1435,5 @@ device_map = {'alpine-db.dtb': [alpine_db],
               'sun8i-a33-sinlinx-sina33.dtb': [sinlinx_sina33],
               'kirkwood-openblocks_a7.dtb': [openblocks_a7],
               'armada-xp-openblocks-ax3-4.dtb': [openblocks_ax3],
-              'vf610-zii-dev-rev-b.dtb': [vf610_zii_dev_rev_b]}
+              'vf610-zii-dev-rev-b.dtb': [vf610_zii_dev_rev_b],
+              'dove-cubox.dtb' : [dove_cubox]}
