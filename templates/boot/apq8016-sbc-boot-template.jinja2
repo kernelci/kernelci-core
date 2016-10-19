@@ -1,0 +1,35 @@
+{% extends 'base/kernel-ci-base.jinja2' %}
+{% block metadata %}
+{{ super() }}
+{% endblock %}
+{% block main %}
+{{ super() }}
+{% endblock %}
+{% block actions %}
+actions:
+  - deploy:
+     timeout:
+       minutes: 2
+     to: tftp
+     kernel:
+         url: {{ kernel_url }}
+         type: image
+     ramdisk:
+         url: http://storage.kernelci.org/images/rootfs/buildroot/arm64/rootfs.cpio.gz
+         compression: gz
+     modules:
+         url: {{ modules_url }}
+         compression: xz
+     dtb:
+         url: {{ dtb_url }}
+     os: oe
+
+  - boot:
+     method: u-boot
+     commands: ramdisk
+     type: image
+     prompts:
+       - 'linaro-test'
+       - 'root@debian:~#'
+       - '/ #'
+{% endblock %}
