@@ -1,0 +1,24 @@
+{% block metadata %}
+metadata:
+  image.type: 'kernel-ci'
+  image.url: {{ image_url }}
+  kernel.tree: {{ tree }}
+  kernel.version: {{ kernel }}
+  kernel.endian: {{ endian }}
+  kernel.defconfig: {{ defconfig }}
+  platform.fastboot: {{ fastboot }}
+  test.plan: {{ plan }}
+{% endblock %}
+{% block main %}
+device_type: {{ device['device_type'] }}
+
+job_name: {{ name }}
+timeouts:
+  job:
+    minutes: 10
+  action:
+   minutes: 5
+priority: {{ priority }}
+visibility: public
+{% endblock %}
+{% block actions %}{% endblock %}
