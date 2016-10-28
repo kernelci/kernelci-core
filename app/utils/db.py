@@ -21,6 +21,57 @@ import models
 import models.base as mbase
 import utils
 
+CLIENT = None
+
+
+def get_db_client(db_options):
+    """Create a MongoDB connection.
+
+    :param db_options: The connection parameters.
+    :type db_options: dict
+    :return A MongoClient instance.
+    """
+    global CLIENT
+
+    if CLIENT is None:
+        if all([not isinstance(db_options, types.DictType), not db_options]):
+            db_options = {}
+        db_options_get = db_options.get
+
+        db_host = db_options_get("dbhost", "localhost")
+        db_port = db_options_get("dbport", 27017)
+        db_pool = db_options_get("dbpool", 100)
+
+        CLIENT = pymongo.MongoClient(
+            host=db_host, port=db_port, max_pool_size=db_pool, w="majority")
+
+    return CLIENT
+
+
+def get_db_connection2(db_options, db_name=models.DB_NAME):
+    """Get a connection to a mongodb database.
+
+    Get and in case authenticate to the mongodb database.
+
+    :param db_options: The connection parameters.
+    :type db_options: dict
+    :param db_name: The name of the database to connect to.
+    :type db_name: str
+    :return A mongodb instance.
+    """
+    if all([not isinstance(db_options, types.DictType), not db_options]):
+        db_options = {}
+
+    db = get_db_client(db_options)[db_name]
+
+    db_user = db_options.get("dbuser", "")
+    db_pwd = db_options.get("dbpassword", "")
+
+    if all([db_user, db_pwd]):
+        db.authenticate(db_user, password=db_pwd)
+
+    return db
+
 
 def get_db_connection(db_options, db_name=models.DB_NAME):
     """Retrieve a mongodb database connection.
@@ -32,6 +83,9 @@ def get_db_connection(db_options, db_name=models.DB_NAME):
     :type db_name: str
     :return A mongodb database instance.
     """
+    if all([not isinstance(db_options, types.DictType), not db_options]):
+        db_options = {}
+
     db_options_get = db_options.get
 
     db_host = db_options_get("dbhost", "localhost")
@@ -102,6 +156,27 @@ def find_one2(collection, spec_or_id, fields=None):
     :return None or the search result as a dictionary.
     """
     return collection.find_one(spec_or_id, fields=fields)
+
+
+def find_one3(
+        collection, spec_or_id, fields=None, sort=None, db_options=None):
+    """Copy of find_one2.
+
+    Instead of passing the database connection, pass the name of the
+    collection.
+
+    :param collection: The collection where to search.
+    :type collection: str
+    :param spec_or_id: A `spec` data structure or the document id.
+    :param fields: The fiels that should be available or excluded from the
+    result.
+    :param sort: The sort data structure.
+    :param db_options: The connection parameters.
+    :type db_options: dict
+    :return None or the search result as a dictionary.
+    """
+    db = get_db_connection2(db_options)
+    return db[collection].find_one(spec_or_id, fields=fields, sort=sort)
 
 
 def find(collection, limit, skip, spec=None, fields=None, sort=None):
@@ -200,6 +275,41 @@ def save(database, document, manipulate=False):
             type(document))
 
     return ret_value, doc_id
+
+
+def save3(collection, document, manipulate=True, db_options=None):
+    """Save a document into the database.
+
+    :param collection: The name of the collection to save to.
+    :type collection: str
+    :param document: The document to save.
+    :type document: dict
+    :param manipulate: If the document should be manipulated on save. Default
+    to true.
+    :type manipulate: bool
+    :param db_options: The database connection parameters.
+    :type db_options: dict
+    :return tuple The return value (201 or 500), and the saved document ID
+    or None
+    """
+    ret_val = 500
+    doc_id = None
+
+    db = get_db_connection2(db_options)
+
+    if isinstance(document, types.DictionaryType):
+        try:
+            doc_id = db[collection].save(document, manipulate=manipulate)
+            ret_val = 201
+        except pymongo.errors.OperationFailure as ex:
+            utils.LOG.error("Error saving document into '%s'", collection)
+            utils.LOG.exception(ex)
+    else:
+        utils.LOG.error(
+            "Provided document to save is not a dictionary: %s",
+            type(document))
+
+    return ret_val, doc_id
 
 
 def save2(connection, collection, document, manipulate=True):
@@ -323,6 +433,31 @@ def update2(connection, collection, search, document):
     ret_val = 200
     try:
         connection[collection].update(search, document)
+    except pymongo.errors.OperationFailure, ex:
+        utils.LOG.exception(str(ex))
+        ret_val = 500
+
+    return ret_val
+
+
+def update3(collection, search, document, db_options=None):
+    """Update a document in the database.
+
+    :param collection: The name of the collection where to perform the
+    update operation.
+    :type collection: str
+    :param search: The query used to search for the document to update.
+    :type search: dict
+    :param document: The update document with the operations to perform.
+    :type document: dict
+    :param db_options: The database connection parameters.
+    :type db_options: dict
+    :return int 200 if everything OK, 500 in case of error.
+    """
+    ret_val = 200
+    db = get_db_connection2(db_options)
+    try:
+        db[collection].update(search, document)
     except pymongo.errors.OperationFailure, ex:
         utils.LOG.exception(str(ex))
         ret_val = 500

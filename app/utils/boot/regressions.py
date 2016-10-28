@@ -14,7 +14,6 @@
 """Logic to find regressions in boot reports."""
 
 import bson
-import datetime
 import redis
 
 import models
@@ -31,6 +30,22 @@ REGRESSION_FMT = "{:s}.{:s}.{:s}.{:s}.{:s}.{:s}"
 REGRESSION_DOT_FMT = "{:s}.{:s}"
 # Lock key format for the Redis lock.
 LOCK_KEY_FMT = "boot-regressions-{:s}-{:s}"
+
+
+def sanitize_key(key):
+    """Remove and replace invalid characters from a key.
+
+    MongoDB's document keys must not contain some special characters.
+
+    :param key: The key to sanitize.
+    :type key: str
+    :return str The sanitized key.
+    """
+    sanitized = key
+    if key:
+        sanitized = key.replace(" ", "").replace(".", ":")
+
+    return sanitized
 
 
 def create_regressions_key(boot_doc):
@@ -73,22 +88,6 @@ def get_regressions_by_key(key, regressions):
     return regr
 
 
-def sanitize_key(key):
-    """Remove and replace invalid characters from a key.
-
-    MongoDB's document keys must not contain some special characters.
-
-    :param key: The key to sanitize.
-    :type key: str
-    :return str The sanitized key.
-    """
-    sanitized = key
-    if key:
-        sanitized = key.replace(" ", "").replace(".", ":")
-
-    return sanitized
-
-
 def gen_regression_keys(regressions):
     """Go through the regression data structure and yield the "keys".
 
@@ -121,27 +120,46 @@ def gen_regression_keys(regressions):
                             )
 
 
-def check_prev_regression(job, kernel, job_id, conn):
-    """Look up a previous regression document.
+def check_prev_regression(last_boot, prev_boot, db_options):
+    """Check if we have a previous regression document.
 
-    :param job: The job value.
-    :type job: str
-    :param kernel: The kernel value.
-    :type kernel: str
-    :param job_id: The ID of the job.
-    :type job_id: bson.objectid.ObjectId
-    :param conn: The database connection.
-    :return The database query result.
+    Make sure that the boot we are looking for already has a key in a
+    regression document.
+
+    :param last_boot: The boot we are looking at.
+    :type last_boot: dict
+    :param prev_boot: The previous boot report.
+    :type prev_boot: dict
+    :param db_options: The database connection parameters.
+    :type db_options: dict
+    :return A 2-tuple: The ID of the regression document, and the list of
+    all previous regressions.
     """
-    spec = {models.JOB_KEY: job, models.KERNEL_KEY: kernel}
-    if job_id:
-        spec[models.JOB_ID_KEY] = job_id
+    ret_val = (None, None)
+    p_get = prev_boot.get
 
-    return utils.db.find_one2(conn[models.BOOT_REGRESSIONS_COLLECTION], spec)
+    spec = {
+        models.JOB_KEY: p_get(models.JOB_KEY),
+        models.KERNEL_KEY: p_get(models.KERNEL_KEY)
+    }
+    if prev_boot[models.JOB_ID_KEY]:
+        spec[models.JOB_ID_KEY] = p_get(models.JOB_ID_KEY)
+
+    prev_regr_doc = utils.db.find_one3(
+        models.BOOT_REGRESSIONS_COLLECTION, spec, db_options=db_options)
+
+    if prev_regr_doc:
+        prev_regr = prev_regr_doc[models.REGRESSIONS_KEY]
+
+        boot_regr_key = create_regressions_key(last_boot)
+        if boot_regr_key in gen_regression_keys(prev_regr):
+            ret_val = (prev_regr_doc[models.ID_KEY], prev_regr)
+
+    return ret_val
 
 
 # pylint: disable=too-many-locals
-def track_regression(boot_doc, pass_doc, old_regr_doc, conn, db_options):
+def track_regression(boot_doc, pass_doc, old_regr, db_options):
     """Track the regression for the provided boot report.
 
     :param boot_doc: The actual boot document where we have a regression.
@@ -149,9 +167,8 @@ def track_regression(boot_doc, pass_doc, old_regr_doc, conn, db_options):
     :param pass_doc: The previous boot document, when we start tracking a
     regression.
     :type pass_doc: dict
-    :param old_regr_doc: The previous regressions document.
-    :type old_regr_doc: dict
-    :param conn: The database connection.
+    :param old_regr: The previous regressions document.
+    :type old_regr: 2-tuple
     :param db_options: The database connection parameters.
     :type db_options: dict
     :return tuple The status code (200, 201, 500); and the regression
@@ -173,6 +190,7 @@ def track_regression(boot_doc, pass_doc, old_regr_doc, conn, db_options):
     job_id = b_get(models.JOB_ID_KEY)
     kernel = b_get(models.KERNEL_KEY)
     lab = b_get(models.LAB_NAME_KEY)
+    created_on = b_get(models.CREATED_KEY)
 
     # We might be importing boot in parallel through multi-processes.
     # Keep a lock here when looking for the previous regressions or we might
@@ -183,27 +201,26 @@ def track_regression(boot_doc, pass_doc, old_regr_doc, conn, db_options):
     with redis.lock.Lock(redis_conn, lock_key, timeout=5):
         # Do we have "old" regressions?
         regr_docs = []
-        if old_regr_doc:
-            old_regr = old_regr_doc[models.REGRESSIONS_KEY]
-            if regr_key in gen_regression_keys(old_regr):
-                regr_docs = get_regressions_by_key(regr_key, old_regr)
+        if all([old_regr, old_regr[0]]):
+            regr_docs = get_regressions_by_key(
+                regr_key, old_regr[1])
 
         if pass_doc:
             regr_docs.append(pass_doc)
 
+        # Append the actual fail boot report to the list.
         regr_docs.append(boot_doc)
 
         # Do we have already a regression registered for this job_id,
         # job, kernel?
-        prev_reg_doc = check_prev_regression(job, kernel, job_id, conn)
-        if prev_reg_doc:
-            doc_id = prev_reg_doc[models.ID_KEY]
-            prev_regs = prev_reg_doc[models.REGRESSIONS_KEY]
+        prev_reg_doc = check_prev_regression(boot_doc, boot_doc, db_options)
+        if all([prev_reg_doc[0], prev_reg_doc[1]]):
+            doc_id = prev_reg_doc[0]
 
             regr_data_key = \
                 REGRESSION_DOT_FMT.format(models.REGRESSIONS_KEY, regr_key)
 
-            if regr_key in gen_regression_keys(prev_regs):
+            if prev_reg_doc[1]:
                 # If we also have the same key in the document, append the
                 # new boot report.
                 document = {"$addToSet": {regr_data_key: boot_doc}}
@@ -211,15 +228,15 @@ def track_regression(boot_doc, pass_doc, old_regr_doc, conn, db_options):
                 # Otherwise just set the new key.
                 document = {"$set": {regr_data_key: regr_docs}}
 
-            ret_val = utils.db.update2(
-                conn,
+            ret_val = utils.db.update3(
                 models.BOOT_REGRESSIONS_COLLECTION,
-                {models.ID_KEY: prev_reg_doc[models.ID_KEY]},
-                document
+                {models.ID_KEY: prev_reg_doc[0]},
+                document,
+                db_options=db_options
             )
         else:
             regression_doc = {
-                models.CREATED_KEY: datetime.datetime.now(tz=bson.tz_util.utc),
+                models.CREATED_KEY: created_on,
                 models.JOB_ID_KEY: job_id,
                 models.JOB_KEY: job,
                 models.KERNEL_KEY: kernel
@@ -250,24 +267,26 @@ def track_regression(boot_doc, pass_doc, old_regr_doc, conn, db_options):
             }
 
             ret_val, doc_id = \
-                utils.db.save2(
-                    conn, models.BOOT_REGRESSIONS_COLLECTION, regression_doc)
+                utils.db.save3(
+                    models.BOOT_REGRESSIONS_COLLECTION, regression_doc,
+                    db_options=db_options)
 
         # Save the regressions id and boot id in an index collection.
         if all([any([ret_val == 201, ret_val == 200]), doc_id]):
-            utils.db.save2(
-                conn,
+            utils.db.save3(
                 models.BOOT_REGRESSIONS_BY_BOOT_COLLECTION,
                 {
                     models.BOOT_ID_KEY: boot_id,
-                    models.BOOT_REGRESSIONS_ID_KEY: doc_id
-                }
+                    models.BOOT_REGRESSIONS_ID_KEY: doc_id,
+                    models.CREATED_KEY: created_on
+                },
+                db_options=db_options
             )
 
     return ret_val, doc_id
 
 
-def check_and_track(boot_doc, conn, db_options):
+def check_and_track(boot_doc, db_options):
     """Check previous boot report and start tracking regressions.
 
     :param boot_doc: The boot document we are working on.
@@ -284,50 +303,46 @@ def check_and_track(boot_doc, conn, db_options):
     # Look for an older and as much similar as possible boot report.
     # In case the boot report we are analyzing is FAIL and the old one is PASS
     # it's a new regression that we need to track.
-    old_doc = conn[models.BOOT_COLLECTION].find_one(
-        {
-            models.ARCHITECTURE_KEY: b_get(models.ARCHITECTURE_KEY),
-            models.BOARD_INSTANCE_KEY: b_get(models.BOARD_INSTANCE_KEY),
-            models.BOARD_KEY: b_get(models.BOARD_KEY),
-            models.COMPILER_VERSION_EXT_KEY:
-                b_get(models.COMPILER_VERSION_EXT_KEY),
-            models.CREATED_KEY: {"$lt": b_get(models.CREATED_KEY)},
-            models.DEFCONFIG_FULL_KEY: b_get(models.DEFCONFIG_FULL_KEY),
-            models.DEFCONFIG_KEY: b_get(models.DEFCONFIG_KEY),
-            models.JOB_KEY: b_get(models.JOB_KEY),
-            models.LAB_NAME_KEY: b_get(models.LAB_NAME_KEY)
-        },
-        sort=[(models.CREATED_KEY, -1)]
-    )
+    spec = {
+        models.ARCHITECTURE_KEY: b_get(models.ARCHITECTURE_KEY),
+        models.BOARD_INSTANCE_KEY: b_get(models.BOARD_INSTANCE_KEY),
+        models.BOARD_KEY: b_get(models.BOARD_KEY),
+        models.COMPILER_VERSION_EXT_KEY:
+            b_get(models.COMPILER_VERSION_EXT_KEY),
+        models.CREATED_KEY: {"$lt": b_get(models.CREATED_KEY)},
+        models.DEFCONFIG_FULL_KEY: b_get(models.DEFCONFIG_FULL_KEY),
+        models.DEFCONFIG_KEY: b_get(models.DEFCONFIG_KEY),
+        models.JOB_KEY: b_get(models.JOB_KEY),
+        models.LAB_NAME_KEY: b_get(models.LAB_NAME_KEY),
+        models.STATUS_KEY: {"$in": [models.PASS_STATUS, models.FAIL_STATUS]}
+    }
+
+    old_doc = utils.db.find_one3(
+        models.BOOT_COLLECTION, spec, sort=[(models.CREATED_KEY, -1)])
 
     if old_doc:
         old_status = old_doc[models.STATUS_KEY]
-
         if old_status == "FAIL":
             # "Old" regression case, we might have to keep track of it.
             utils.LOG.info(
-                "Found previous failed boot report '%s'",
-                old_doc[models.ID_KEY])
+                "Previous boot report failed, checking previous regressions")
+
             # Check if we have old regressions first.
             # If not, we don't track it since it's the first time we
             # know about it.
-            prev_reg = \
-                check_prev_regression(
-                    old_doc[models.JOB_KEY],
-                    old_doc[models.KERNEL_KEY],
-                    old_doc[models.JOB_ID_KEY], conn)
-            if prev_reg:
-                utils.LOG.info("Found previous regressions, tracking")
+            prev_reg = check_prev_regression(boot_doc, old_doc, db_options)
+
+            if all([prev_reg[0], prev_reg[1]]):
+                utils.LOG.info("Found previous regressions, keep tracking")
                 ret_val, doc_id = track_regression(
-                    boot_doc, None, prev_reg, conn, db_options)
+                    boot_doc, None, prev_reg, db_options)
             else:
-                utils.LOG.info(
-                    "No previous regressions found, not tracking")
+                utils.LOG.info("No previous regressions found, not tracking")
         elif old_status == "PASS":
             # New regression case.
-            utils.LOG.info("Found previous passed boot report, tracking")
+            utils.LOG.info("Previous boot report passed, start tracking")
             ret_val, doc_id = track_regression(
-                boot_doc, old_doc, None, conn, db_options)
+                boot_doc, old_doc, (None, None), db_options)
     else:
         utils.LOG.info("No previous boot report found, not tracking")
 
@@ -345,39 +360,31 @@ def find(boot_id, db_options):
     regression document or None.
     """
     results = (None, None)
-    conn = None
 
-    try:
-        conn = utils.db.get_db_connection(db_options)
+    utils.LOG.info("Searching boot regressions for '%s'", str(boot_id))
 
-        if not isinstance(boot_id, bson.objectid.ObjectId):
-            try:
-                boot_id = bson.objectid.ObjectId(boot_id)
-            except bson.errors.InvalidId:
-                boot_id = None
-                utils.LOG.error("Error converting boot id '%s'", str(boot_id))
+    if not isinstance(boot_id, bson.objectid.ObjectId):
+        try:
+            boot_id = bson.objectid.ObjectId(boot_id)
+        except bson.errors.InvalidId:
+            boot_id = None
+            utils.LOG.info("Error converting boot id '%s'", str(boot_id))
 
-        if boot_id:
-            boot_doc = utils.db.find_one2(
-                conn[models.BOOT_COLLECTION], boot_id)
+    if boot_id:
+        boot_doc = utils.db.find_one3(
+            models.BOOT_COLLECTION, boot_id, db_options=db_options)
 
-            if boot_doc and boot_doc[models.STATUS_KEY] == "FAIL":
-                regressions_id = utils.db.find_one2(
-                    conn[models.BOOT_REGRESSIONS_BY_BOOT_COLLECTION],
-                    {models.BOOT_ID_KEY: boot_id})
+        if boot_doc and boot_doc[models.STATUS_KEY] == "FAIL":
+            regressions_id = utils.db.find_one3(
+                models.BOOT_REGRESSIONS_BY_BOOT_COLLECTION,
+                {models.BOOT_ID_KEY: boot_id},
+                db_options=db_options)
 
-                if regressions_id:
-                    utils.LOG.info(
-                        "Boot regressions for '%s' already tracked", boot_id)
-                else:
-                    utils.LOG.info(
-                        "Searching regressions for boot '%s'", str(boot_id))
-                    results = check_and_track(boot_doc, conn, db_options)
+            if regressions_id:
+                utils.LOG.info("Boot regressions already tracked")
             else:
-                utils.LOG.info(
-                    "No boot doc or not failed boot with id '%s'", boot_id)
-    finally:
-        if conn:
-            conn.connection.close()
+                results = check_and_track(boot_doc, db_options)
+        else:
+            utils.LOG.info("No boot doc or not failed boot report")
 
     return results
