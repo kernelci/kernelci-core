@@ -60,9 +60,9 @@
         {
             "testdef_repos": [
             {
-                "url": "https://googledrive.com/host/0B9DbsE2BbZ7ufjdLMVVONThlbE1mR3N4TjdFTVJod2c4TXpRUDZjMmF0Ylp4Ukk5VG14Ync/tests/virt/kvm-install-qemu-host.yaml"
+                "url": "https://raw.githubusercontent.com/kernelci/lava-kernel-tests/master/kvm/kvm-install-qemu-host.yaml"
             }],
-  
+
             "timeout": 1800,
             "role": "host"
         }
@@ -73,7 +73,7 @@
         {
             "testdef_repos": [
             {
-                "url": "https://googledrive.com/host/0B9DbsE2BbZ7ufjdLMVVONThlbE1mR3N4TjdFTVJod2c4TXpRUDZjMmF0Ylp4Ukk5VG14Ync/tests/virt/kvm-host.yaml"
+                "url": "https://raw.githubusercontent.com/kernelci/lava-kernel-tests/master/kvm/kvm-host.yaml"
             }],
             "role": "host"
         }
