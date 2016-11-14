@@ -1,0 +1,31 @@
+{% extends 'base/kernel-ci-base.jinja2' %}
+{% block metadata %}
+{{ super() }}
+{% endblock %}
+{% block main %}
+{{ super() }}
+{% endblock %}
+{% block actions %}
+
+actions:
+- deploy:
+    timeout:
+      minutes: 3
+    to: tmpfs
+    os: oe
+    images:
+        kernel:
+          image_arg: '-kernel {kernel}'
+          url: {{ kernel_url }}
+        ramdisk:
+          image_arg: '-initrd {ramdisk}'
+          url: http://storage.kernelci.org/images/rootfs/buildroot/arm64/rootfs.cpio.gz
+
+- boot:
+    method: qemu
+    media: tmpfs
+    prompts:
+      - 'linaro-test'
+      - 'root@debian:~#'
+      - '/ #'
+{% endblock %}

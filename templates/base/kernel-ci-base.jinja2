@@ -12,6 +12,9 @@ metadata:
 {% block main %}
 device_type: {{ device['device_type'] }}
 
+context:
+  arch: {{ arch }}
+
 job_name: {{ name }}
 timeouts:
   job:
