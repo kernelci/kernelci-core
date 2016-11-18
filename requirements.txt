@@ -1,5 +1,5 @@
 Sphinx
-celery[redis]==3.1.23
+celery[redis]==3.1.25
 futures==3.0.4
 hiredis
 jinja2
