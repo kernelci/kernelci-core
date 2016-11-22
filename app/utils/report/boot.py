@@ -46,19 +46,26 @@ BOARD_URL = (
     u"defconfig/{defconfig:s}/"
 )
 BOOT_SUMMARY_URL = u"{boot_url:s}/{job:s}/kernel/{kernel:s}/"
+BOOT_REGRESSIONS_URL = BOOT_SUMMARY_URL + u"#regressions"
 BUILD_SUMMARY_URL = u"{build_url:s}/{job:s}/kernel/{kernel:s}/"
+
+HREF_STYLE = u"style=\"color: black; text-decoration: none\""
 
 # Regressions strings.
 SINGULAR_FAILURE_HTML = \
-    u"failing since <span style=\"color: {red:s}\">{days:d} day</span>"
+    u"<a href=\"{boot_regressions_url:s}\" " + HREF_STYLE + u">" + \
+    u"failing since <span style=\"color: {red:s}\">{days:d} day</span></a>"
 PLURAL_FAILURE_HTML = \
-    u"failing since <span style=\"color: {red:s}\">{days:d} days</span>"
+    u"<a href=\"{boot_regressions_url:s}\" " + HREF_STYLE + u">" + \
+    u"failing since <span style=\"color: {red:s}\">{days:d} days</span></a>"
 
 SINGULAR_FAILURE_TXT = u"failing since {days:d} day"
 PLURAL_FAILURE_TXT = u"failing since {days:d} days"
 
 BOOT_ID_HTML = u"<a href=\"{boot_id_url:s}\">{lab_name:s}</a>"
-NEW_FAIL_HTML = u"<span style=\"color: {red:s}\">new failure</span>"
+NEW_FAIL_HTML = u"<span style=\"color: {red:s}\">" + \
+    u"<a href=\"{boot_regressions_url:s}\" " + HREF_STYLE + u">" + \
+    u"new failure</a></span>"
 NEW_FAIL_TXT = u"{lab_name:s}: new failure"
 
 LAST_PASS_TXT = u"last pass: {good_kernel:s}"
@@ -93,6 +100,7 @@ def create_regressions_data(data, **kwargs):
     # Override the lab_name key for the substitutions.
     kwargs[models.LAB_NAME_KEY] = last_fail[models.LAB_NAME_KEY]
     kwargs["good_kernel"] = last_good[models.KERNEL_KEY]
+    kwargs["boot_regressions_url"] = BOOT_REGRESSIONS_URL.format(**kwargs)
 
     fail_url = BOOT_ID_HTML.format(**kwargs).format(**last_fail)
 
