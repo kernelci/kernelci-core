@@ -1172,10 +1172,7 @@ def _parse_and_structure_results(**kwargs):
                 **{"boot_failure_url": boot_failure_url})
         )
         failed_summary = P_(
-            u"Boot Failure Detected: {boot_failure_url:s}",
-            u"Boot Failures Detected: {boot_failure_url:s}",
-            fail_count
-        )
+            u"Boot Failure Detected:", u"Boot Failures Detected:", fail_count)
 
         failed_struct["summary"]["txt"].append(
             failed_summary.format(**{"boot_failure_url": boot_failure_url}))
