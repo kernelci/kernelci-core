@@ -312,6 +312,7 @@ def check_and_track(boot_doc, db_options):
         models.CREATED_KEY: {"$lt": b_get(models.CREATED_KEY)},
         models.DEFCONFIG_FULL_KEY: b_get(models.DEFCONFIG_FULL_KEY),
         models.DEFCONFIG_KEY: b_get(models.DEFCONFIG_KEY),
+        models.GIT_BRANCH_KEY: b_get(models.GIT_BRANCH_KEY),
         models.JOB_KEY: b_get(models.JOB_KEY),
         models.LAB_NAME_KEY: b_get(models.LAB_NAME_KEY),
         models.STATUS_KEY: {"$in": [models.PASS_STATUS, models.FAIL_STATUS]}
