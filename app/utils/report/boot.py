@@ -213,7 +213,7 @@ def parse_regressions(data, **kwargs):
                     for defconfig in instance_d.viewkeys():
                         defconfig_d = instance_d[defconfig]
 
-                        defconfig = u"{:s}:".format(defconfig)
+                        defconfig = u"{:s}".format(defconfig)
 
                         if defconfig not in regr_arch.viewkeys():
                             regr_arch[defconfig] = regr_def = {}

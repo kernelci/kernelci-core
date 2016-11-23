@@ -18,7 +18,7 @@
 {% for arch, data in regressions.data|dictsort %}
 {{ arch }}:
 {% for defconfig, boards_data in data|dictsort %}
-    {{ defconfig }}
+    {{ defconfig }}:
 {%- for board, labs_data in boards_data|dictsort %}
         {{ board }}:
 {%- for lab in labs_data %}
