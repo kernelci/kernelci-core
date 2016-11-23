@@ -596,173 +596,7 @@ def _search_conflicts(failed, passed):
     return conflict
 
 
-def _create_boot_email(**kwargs):
-    """Parse the results and create the email text body to send.
-
-    :param job: The name of the job.
-    :type job: str
-    :param  kernel: The name of the kernel.
-    :type kernel: str
-    :param git_commit: The git commit.
-    :type git_commit: str
-    :param git_url: The git url.
-    :type git_url: str
-    :param git_branch: The git branch.
-    :type git_branch: str
-    :param lab_name: The name of the lab.
-    :type lab_name: str
-    :param failed_data: The parsed failed results.
-    :type failed_data: dict
-    :param fail_count: The total number of failed results.
-    :type fail_count: int
-    :param offline_data: The parsed offline results.
-    :type offline_data: dict
-    :param offline_count: The total number of offline results.
-    :type offline_count: int
-    :param total_count: The total number of results.
-    :type total_count: int
-    :param total_unique_data: The unique values data structure.
-    :type total_unique_data: dictionary
-    :param pass_count: The total number of passed results.
-    :type pass_count: int
-    :param conflict_data: The parsed conflicting results.
-    :type conflict_data: dict
-    :param conflict_count: The number of conflicting results.
-    :type conflict_count: int
-    :param total_builds: The total number of defconfig built.
-    :type total_builds: int
-    :param base_url: The base URL to build the dashboard links.
-    :type base_url: string
-    :param boot_url: The base URL for the boot section of the dashboard.
-    :type boot_url: string
-    :param build_url: The base URL for the build section of the dashboard.
-    :type build_url: string
-    :param info_email: The email address for the footer note.
-    :type info_email: string
-    :return A tuple with the email body and subject as strings.
-    """
-    txt_body = None
-    html_body = None
-    subject_str = None
-
-    k_get = kwargs.get
-    total_unique_data = k_get("total_unique_data", None)
-    info_email = k_get("info_email", None)
-    email_format = k_get("email_format")
-
-    subject_str = _get_boot_subject_string(**kwargs)
-
-    tested_one = G_(u"Tested: {:s}")
-    tested_two = G_(u"Tested: {:s}, {:s}")
-    tested_three = G_(u"Tested: {:s}, {:s}, {:s}")
-
-    tested_string = None
-    if total_unique_data:
-        unique_boards = rcommon.count_unique(
-            total_unique_data.get(models.BOARD_KEY, None))
-        unique_socs = rcommon.count_unique(
-            total_unique_data.get(models.MACH_KEY, None))
-        unique_builds = rcommon.count_unique(
-            total_unique_data[models.DEFCONFIG_FULL_KEY])
-
-        kwargs["unique_boards"] = unique_boards
-        kwargs["unique_socs"] = unique_socs
-        kwargs["unique_builds"] = unique_builds
-
-        boards_str = P_(
-            u"{unique_boards:d} unique board",
-            u"{unique_boards:d} unique boards",
-            unique_boards
-        )
-        soc_str = P_(
-            u"{unique_socs:d} SoC family",
-            u"{unique_socs:d} SoC families",
-            unique_socs
-        )
-        builds_str = P_(
-            u"{unique_builds:d} build out of {total_builds:d}",
-            u"{unique_builds:d} builds out of {total_builds:d}",
-            unique_builds
-        )
-
-        if all([unique_boards > 0, unique_socs > 0, unique_builds > 0]):
-            tested_string = tested_three.format(
-                boards_str, soc_str, builds_str)
-        elif all([unique_boards > 0, unique_socs > 0, unique_builds == 0]):
-            tested_string = tested_two.format(boards_str, soc_str)
-        elif all([unique_boards > 0, unique_socs == 0, unique_builds > 0]):
-            tested_string = tested_two.format(boards_str, builds_str)
-        elif all([unique_boards == 0, unique_socs > 0, unique_builds > 0]):
-            tested_string = tested_two.format(soc_str, builds_str)
-        elif all([unique_boards > 0, unique_socs == 0, unique_builds == 0]):
-            tested_string = tested_one.format(boards_str)
-        elif all([unique_boards == 0, unique_socs > 0, unique_builds == 0]):
-            tested_string = tested_one.format(soc_str)
-        elif all([unique_boards == 0, unique_socs == 0, unique_builds > 0]):
-            tested_string = tested_one.format(builds_str)
-
-        if tested_string:
-            tested_string = tested_string.format(**kwargs)
-
-    boot_summary_url = BOOT_SUMMARY_URL.format(**kwargs)
-    build_summary_url = BUILD_SUMMARY_URL.format(**kwargs)
-
-    kwargs["tree_string"] = G_(u"Tree: {job:s}").format(**kwargs)
-    kwargs["branch_string"] = G_(u"Branch: {git_branch:s}").format(**kwargs)
-    kwargs["git_describe_string"] = G_(u"Git Describe: {kernel:s}").format(
-        **kwargs)
-    kwargs["info_email"] = info_email
-    kwargs["tested_string"] = tested_string
-    kwargs["subject_str"] = subject_str
-
-    git_url = k_get("git_url")
-    git_commit = k_get("git_commit")
-
-    translated_git_url = \
-        rcommon.translate_git_url(git_url, git_commit) or git_url
-
-    git_txt_string = G_(u"Git URL: {:s}").format(git_url)
-    git_html_string = G_(u"Git URL: <a href=\"{:s}\">{:s}</a>").format(
-        translated_git_url, git_url)
-
-    kwargs["git_commit_string"] = G_(u"Git Commit: {:s}").format(git_commit)
-    kwargs["git_url_string"] = (git_txt_string, git_html_string)
-
-    kwargs["platforms"] = _parse_and_structure_results(**kwargs)
-
-    if kwargs["regressions"]:
-        kwargs["regressions"] = \
-            parse_regressions(
-                kwargs["regressions"][models.REGRESSIONS_KEY], **kwargs)
-    else:
-        kwargs["regressions"] = None
-
-    if models.EMAIL_TXT_FORMAT_KEY in email_format:
-        kwargs["full_boot_summary"] = (
-            G_(u"Full Boot Summary: {:s}").format(boot_summary_url))
-        kwargs["full_build_summary"] = (
-            G_(u"Full Build Summary: {:s}").format(build_summary_url))
-
-        txt_body = rcommon.create_txt_email("boot.txt", **kwargs)
-
-    if models.EMAIL_HTML_FORMAT_KEY in email_format:
-        # Fix the summary URLs for the HTML email.
-        kwargs["full_boot_summary"] = (
-            G_(u"Full Boot Summary: <a href=\"{url:s}\">{url:s}</a>").format(
-                **{"url": boot_summary_url})
-        )
-        kwargs["full_build_summary"] = (
-            G_(u"Full Build Summary: <a href=\"{url:s}\">{url:s}</a>").format(
-                **{"url": build_summary_url})
-        )
-
-        html_body = rcommon.create_html_email("boot.html", **kwargs)
-
-    return txt_body, html_body, subject_str
-
-
-# pylint: disable=invalid-name
-def _get_boot_subject_string(**kwargs):
+def get_boot_subject_string(**kwargs):
     """Create the boot email subject line.
 
     This is used to created the custom email report line based on the number
@@ -980,6 +814,171 @@ def _get_boot_subject_string(**kwargs):
     subject_str = subject_str.format(**kwargs)
 
     return subject_str
+
+
+def _create_boot_email(**kwargs):
+    """Parse the results and create the email text body to send.
+
+    :param job: The name of the job.
+    :type job: str
+    :param  kernel: The name of the kernel.
+    :type kernel: str
+    :param git_commit: The git commit.
+    :type git_commit: str
+    :param git_url: The git url.
+    :type git_url: str
+    :param git_branch: The git branch.
+    :type git_branch: str
+    :param lab_name: The name of the lab.
+    :type lab_name: str
+    :param failed_data: The parsed failed results.
+    :type failed_data: dict
+    :param fail_count: The total number of failed results.
+    :type fail_count: int
+    :param offline_data: The parsed offline results.
+    :type offline_data: dict
+    :param offline_count: The total number of offline results.
+    :type offline_count: int
+    :param total_count: The total number of results.
+    :type total_count: int
+    :param total_unique_data: The unique values data structure.
+    :type total_unique_data: dictionary
+    :param pass_count: The total number of passed results.
+    :type pass_count: int
+    :param conflict_data: The parsed conflicting results.
+    :type conflict_data: dict
+    :param conflict_count: The number of conflicting results.
+    :type conflict_count: int
+    :param total_builds: The total number of defconfig built.
+    :type total_builds: int
+    :param base_url: The base URL to build the dashboard links.
+    :type base_url: string
+    :param boot_url: The base URL for the boot section of the dashboard.
+    :type boot_url: string
+    :param build_url: The base URL for the build section of the dashboard.
+    :type build_url: string
+    :param info_email: The email address for the footer note.
+    :type info_email: string
+    :return A tuple with the email body and subject as strings.
+    """
+    txt_body = None
+    html_body = None
+    subject_str = None
+
+    k_get = kwargs.get
+    total_unique_data = k_get("total_unique_data", None)
+    info_email = k_get("info_email", None)
+    email_format = k_get("email_format")
+
+    subject_str = get_boot_subject_string(**kwargs)
+
+    tested_one = G_(u"Tested: {:s}")
+    tested_two = G_(u"Tested: {:s}, {:s}")
+    tested_three = G_(u"Tested: {:s}, {:s}, {:s}")
+
+    tested_string = None
+    if total_unique_data:
+        unique_boards = rcommon.count_unique(
+            total_unique_data.get(models.BOARD_KEY, None))
+        unique_socs = rcommon.count_unique(
+            total_unique_data.get(models.MACH_KEY, None))
+        unique_builds = rcommon.count_unique(
+            total_unique_data[models.DEFCONFIG_FULL_KEY])
+
+        kwargs["unique_boards"] = unique_boards
+        kwargs["unique_socs"] = unique_socs
+        kwargs["unique_builds"] = unique_builds
+
+        boards_str = P_(
+            u"{unique_boards:d} unique board",
+            u"{unique_boards:d} unique boards",
+            unique_boards
+        )
+        soc_str = P_(
+            u"{unique_socs:d} SoC family",
+            u"{unique_socs:d} SoC families",
+            unique_socs
+        )
+        builds_str = P_(
+            u"{unique_builds:d} build out of {total_builds:d}",
+            u"{unique_builds:d} builds out of {total_builds:d}",
+            unique_builds
+        )
+
+        if all([unique_boards > 0, unique_socs > 0, unique_builds > 0]):
+            tested_string = tested_three.format(
+                boards_str, soc_str, builds_str)
+        elif all([unique_boards > 0, unique_socs > 0, unique_builds == 0]):
+            tested_string = tested_two.format(boards_str, soc_str)
+        elif all([unique_boards > 0, unique_socs == 0, unique_builds > 0]):
+            tested_string = tested_two.format(boards_str, builds_str)
+        elif all([unique_boards == 0, unique_socs > 0, unique_builds > 0]):
+            tested_string = tested_two.format(soc_str, builds_str)
+        elif all([unique_boards > 0, unique_socs == 0, unique_builds == 0]):
+            tested_string = tested_one.format(boards_str)
+        elif all([unique_boards == 0, unique_socs > 0, unique_builds == 0]):
+            tested_string = tested_one.format(soc_str)
+        elif all([unique_boards == 0, unique_socs == 0, unique_builds > 0]):
+            tested_string = tested_one.format(builds_str)
+
+        if tested_string:
+            tested_string = tested_string.format(**kwargs)
+
+    boot_summary_url = BOOT_SUMMARY_URL.format(**kwargs)
+    build_summary_url = BUILD_SUMMARY_URL.format(**kwargs)
+
+    kwargs["tree_string"] = G_(u"Tree: {job:s}").format(**kwargs)
+    kwargs["branch_string"] = G_(u"Branch: {git_branch:s}").format(**kwargs)
+    kwargs["git_describe_string"] = G_(u"Git Describe: {kernel:s}").format(
+        **kwargs)
+    kwargs["info_email"] = info_email
+    kwargs["tested_string"] = tested_string
+    kwargs["subject_str"] = subject_str
+
+    git_url = k_get("git_url")
+    git_commit = k_get("git_commit")
+
+    translated_git_url = \
+        rcommon.translate_git_url(git_url, git_commit) or git_url
+
+    git_txt_string = G_(u"Git URL: {:s}").format(git_url)
+    git_html_string = G_(u"Git URL: <a href=\"{:s}\">{:s}</a>").format(
+        translated_git_url, git_url)
+
+    kwargs["git_commit_string"] = G_(u"Git Commit: {:s}").format(git_commit)
+    kwargs["git_url_string"] = (git_txt_string, git_html_string)
+
+    kwargs["platforms"] = _parse_and_structure_results(**kwargs)
+
+    if kwargs["regressions"]:
+        kwargs["regressions"] = \
+            parse_regressions(
+                kwargs["regressions"][models.REGRESSIONS_KEY], **kwargs)
+    else:
+        kwargs["regressions"] = None
+
+    if models.EMAIL_TXT_FORMAT_KEY in email_format:
+        kwargs["full_boot_summary"] = (
+            G_(u"Full Boot Summary: {:s}").format(boot_summary_url))
+        kwargs["full_build_summary"] = (
+            G_(u"Full Build Summary: {:s}").format(build_summary_url))
+
+        txt_body = rcommon.create_txt_email("boot.txt", **kwargs)
+
+    if models.EMAIL_HTML_FORMAT_KEY in email_format:
+        # Fix the summary URLs for the HTML email.
+        kwargs["full_boot_summary"] = (
+            G_(u"Full Boot Summary: <a href=\"{url:s}\">{url:s}</a>").format(
+                **{"url": boot_summary_url})
+        )
+        kwargs["full_build_summary"] = (
+            G_(u"Full Build Summary: <a href=\"{url:s}\">{url:s}</a>").format(
+                **{"url": build_summary_url})
+        )
+
+        html_body = rcommon.create_html_email("boot.html", **kwargs)
+
+    return txt_body, html_body, subject_str
 
 
 def _parse_and_structure_results(**kwargs):
