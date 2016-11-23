@@ -126,6 +126,13 @@ def check_prev_regression(last_boot, prev_boot, db_options):
     Make sure that the boot we are looking for already has a key in a
     regression document.
 
+    It will return a 2-tuple:
+    - (None, None) if nothing is found;
+    - (regr_doc_id, None) if we already have a regression document, but the
+      boot report is not tracked in there;
+    - (regr_doc_id, regr_list) if we have a regressions document and the boot
+      report is already tracked.
+
     :param last_boot: The boot we are looking at.
     :type last_boot: dict
     :param prev_boot: The previous boot report.
@@ -154,6 +161,8 @@ def check_prev_regression(last_boot, prev_boot, db_options):
         boot_regr_key = create_regressions_key(last_boot)
         if boot_regr_key in gen_regression_keys(prev_regr):
             ret_val = (prev_regr_doc[models.ID_KEY], prev_regr)
+        else:
+            ret_val = (prev_regr_doc[models.ID_KEY], None)
 
     return ret_val
 
@@ -214,7 +223,7 @@ def track_regression(boot_doc, pass_doc, old_regr, db_options):
         # Do we have already a regression registered for this job_id,
         # job, kernel?
         prev_reg_doc = check_prev_regression(boot_doc, boot_doc, db_options)
-        if all([prev_reg_doc[0], prev_reg_doc[1]]):
+        if prev_reg_doc[0]:
             doc_id = prev_reg_doc[0]
 
             regr_data_key = \
