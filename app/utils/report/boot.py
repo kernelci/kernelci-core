@@ -643,11 +643,7 @@ def get_boot_subject_string(**kwargs):
     offline_boots = G_(u"{offline_count:d} offline")
     kernel_name = G_(u"({kernel:s})")
     lab_description = G_(u"{lab_name:s}")
-    untried_boots = P_(
-        "{untried_count:d} untried/unknown",
-        "{untried_count:d} untried/unknown",
-        untried_count
-    )
+    untried_boots = G_(u"{untried_count:d} untried/unknown")
 
     # Base format strings to create the subject line.
     # 1st, 2nd, 3rd and 4th are replaced with job name, total, failed, passed.
