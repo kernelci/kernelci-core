@@ -34,7 +34,7 @@ class TestBootReport(unittest.TestCase):
         }
 
         # All is passed.
-        subj = breport._get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(**kwargs)
 
         expected = "a-job boot: 10 boots: 0 failed, 10 passed (a-kernel)"
         self.assertIsNotNone(subj)
@@ -44,7 +44,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["fail_count"] = 10
         kwargs["pass_count"] = 0
 
-        subj = breport._get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(**kwargs)
 
         expected = "a-job boot: 10 boots: 10 failed, 0 passed (a-kernel)"
         self.assertIsNotNone(subj)
@@ -55,7 +55,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["pass_count"] = 0
         kwargs["offline_count"] = 10
 
-        subj = breport._get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(**kwargs)
 
         expected = (
             "a-job boot: 10 boots: 0 failed, 0 passed, 10 offline (a-kernel)")
@@ -68,7 +68,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["offline_count"] = 0
         kwargs["untried_count"] = 10
 
-        subj = breport._get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(**kwargs)
 
         expected = (
             "a-job boot: 10 boots: 0 failed, 0 passed, 10 untried/unknown "
@@ -82,7 +82,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["offline_count"] = 0
         kwargs["untried_count"] = 0
 
-        subj = breport._get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(**kwargs)
 
         expected = (
             "a-job boot: 10 boots: 2 failed, 8 passed (a-kernel)")
@@ -95,7 +95,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["offline_count"] = 0
         kwargs["untried_count"] = 1
 
-        subj = breport._get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(**kwargs)
 
         expected = (
             "a-job boot: 10 boots: 2 failed, 7 passed with 1 untried/unknown "
@@ -109,7 +109,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["offline_count"] = 1
         kwargs["untried_count"] = 1
 
-        subj = breport._get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(**kwargs)
 
         expected = (
             "a-job boot: 10 boots: 2 failed, 6 passed with 1 offline, "
@@ -124,7 +124,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["untried_count"] = 1
         kwargs["conflict_count"] = 2
 
-        subj = breport._get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(**kwargs)
 
         expected = (
             "a-job boot: 10 boots: 1 failed, 5 passed with 1 offline, "
@@ -139,7 +139,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["untried_count"] = 0
         kwargs["conflict_count"] = 0
 
-        subj = breport._get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(**kwargs)
 
         expected = (
             "a-job boot: 10 boots: 3 failed, 5 passed with 2 offline "
@@ -154,7 +154,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["untried_count"] = 0
         kwargs["conflict_count"] = 1
 
-        subj = breport._get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(**kwargs)
 
         expected = (
             "a-job boot: 10 boots: 2 failed, 5 passed with 2 offline, "
@@ -169,7 +169,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["untried_count"] = 0
         kwargs["conflict_count"] = 2
 
-        subj = breport._get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(**kwargs)
 
         expected = (
             "a-job boot: 10 boots: 2 failed, 6 passed with 2 conflicts "
@@ -191,7 +191,7 @@ class TestBootReport(unittest.TestCase):
         }
 
         # All is passed.
-        subj = breport._get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(**kwargs)
 
         expected = (
             "a-job boot: 10 boots: 0 failed, 10 passed (a-kernel) - a-lab")
@@ -202,7 +202,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["fail_count"] = 10
         kwargs["pass_count"] = 0
 
-        subj = breport._get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(**kwargs)
 
         expected = (
             "a-job boot: 10 boots: 10 failed, 0 passed (a-kernel) - a-lab")
@@ -214,7 +214,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["pass_count"] = 0
         kwargs["offline_count"] = 10
 
-        subj = breport._get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(**kwargs)
 
         expected = (
             "a-job boot: 10 boots: 0 failed, 0 passed, 10 offline "
@@ -228,7 +228,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["offline_count"] = 0
         kwargs["untried_count"] = 10
 
-        subj = breport._get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(**kwargs)
 
         expected = (
             "a-job boot: 10 boots: 0 failed, 0 passed, 10 untried/unknown "
@@ -242,7 +242,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["offline_count"] = 0
         kwargs["untried_count"] = 0
 
-        subj = breport._get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(**kwargs)
 
         expected = (
             "a-job boot: 10 boots: 2 failed, 8 passed (a-kernel) - a-lab")
@@ -255,7 +255,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["offline_count"] = 0
         kwargs["untried_count"] = 1
 
-        subj = breport._get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(**kwargs)
 
         expected = (
             "a-job boot: 10 boots: 2 failed, 7 passed with 1 untried/unknown "
@@ -269,7 +269,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["offline_count"] = 1
         kwargs["untried_count"] = 1
 
-        subj = breport._get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(**kwargs)
 
         expected = (
             "a-job boot: 10 boots: 2 failed, 6 passed with 1 offline, "
@@ -284,7 +284,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["untried_count"] = 1
         kwargs["conflict_count"] = 2
 
-        subj = breport._get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(**kwargs)
 
         expected = (
             "a-job boot: 10 boots: 1 failed, 5 passed with 1 offline, "
@@ -299,7 +299,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["untried_count"] = 0
         kwargs["conflict_count"] = 0
 
-        subj = breport._get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(**kwargs)
 
         expected = (
             "a-job boot: 10 boots: 3 failed, 5 passed with 2 offline "
@@ -314,7 +314,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["untried_count"] = 0
         kwargs["conflict_count"] = 1
 
-        subj = breport._get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(**kwargs)
 
         expected = (
             "a-job boot: 10 boots: 2 failed, 5 passed with 2 offline, "
@@ -329,7 +329,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["untried_count"] = 0
         kwargs["conflict_count"] = 2
 
-        subj = breport._get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(**kwargs)
 
         expected = (
             "a-job boot: 10 boots: 2 failed, 6 passed with 2 conflicts "
