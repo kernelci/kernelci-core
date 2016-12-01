@@ -21,7 +21,7 @@
                 "dtb": "{dtb_url}",
                 "kernel": "{kernel_url}",
                 "overlays": ["{modules_url}"],
-                "nfsrootfs": "http://releases.linaro.org/15.02/openembedded/images/lamp-armv7a/linaro-image-lamp-genericarmv7a-20150222-322.rootfs.tar.gz"
+                "nfsrootfs": "http://releases.linaro.org/archive/15.02/openembedded/images/lamp-armv7a/linaro-image-lamp-genericarmv7a-20150222-322.rootfs.tar.gz"
             }
         },
         {

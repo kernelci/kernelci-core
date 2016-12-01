@@ -21,7 +21,7 @@
                 "dtb": "{dtb_url}",
                 "kernel": "{kernel_url}",
                 "overlays": ["{modules_url}"],
-                "nfsrootfs": "http://releases.linaro.org/15.06/openembedded/images/lng-armv8/linaro-image-lng-genericarmv8-20150618-754.rootfs.tar.gz"
+                "nfsrootfs": "http://releases.linaro.org/archive/15.06/openembedded/images/lng-armv8/linaro-image-lng-genericarmv8-20150618-754.rootfs.tar.gz"
             }
         },
         {
