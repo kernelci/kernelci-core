@@ -31,10 +31,10 @@ def get_db_connection(db_options, db_num=0):
     if not REDIS_CONNECTION:
         db_options_get = db_options.get
 
-        redis_host = db_options_get("redishost", "localhost")
-        redis_port = db_options_get("redisport", 6379)
-        redis_pwd = db_options_get("redispassword", "")
-        redis_db = db_options_get("redisdb", db_num)
+        redis_host = db_options_get("redis_host", "localhost")
+        redis_port = db_options_get("redis_port", 6379)
+        redis_pwd = db_options_get("redis_password", "")
+        redis_db = db_options_get("redis_db", db_num)
 
         if redis_pwd:
             REDIS_CONNECTION = redis.StrictRedis(

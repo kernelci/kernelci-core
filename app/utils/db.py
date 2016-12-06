@@ -38,9 +38,9 @@ def get_db_client(db_options):
             db_options = {}
         db_options_get = db_options.get
 
-        db_host = db_options_get("dbhost", "localhost")
-        db_port = db_options_get("dbport", 27017)
-        db_pool = db_options_get("dbpool", 100)
+        db_host = db_options_get("mongodb_host", "localhost")
+        db_port = db_options_get("mongodb_port", 27017)
+        db_pool = db_options_get("mongodb_pool", 100)
 
         CLIENT = pymongo.MongoClient(
             host=db_host, port=db_port, max_pool_size=db_pool, w="majority")
@@ -64,8 +64,8 @@ def get_db_connection2(db_options, db_name=models.DB_NAME):
 
     db = get_db_client(db_options)[db_name]
 
-    db_user = db_options.get("dbuser", "")
-    db_pwd = db_options.get("dbpassword", "")
+    db_user = db_options.get("mongodb_user", "")
+    db_pwd = db_options.get("mongodb_password", "")
 
     if all([db_user, db_pwd]):
         db.authenticate(db_user, password=db_pwd)
@@ -88,12 +88,12 @@ def get_db_connection(db_options, db_name=models.DB_NAME):
 
     db_options_get = db_options.get
 
-    db_host = db_options_get("dbhost", "localhost")
-    db_port = db_options_get("dbport", 27017)
-    db_pool = db_options_get("dbpool", 100)
+    db_host = db_options_get("mongodb_host", "localhost")
+    db_port = db_options_get("mongodb_port", 27017)
+    db_pool = db_options_get("mongodb_pool", 100)
 
-    db_user = db_options_get("dbuser", "")
-    db_pwd = db_options_get("dbpassword", "")
+    db_user = db_options_get("mongodb_user", "")
+    db_pwd = db_options_get("mongodb_password", "")
 
     connection = pymongo.MongoClient(
         host=db_host, port=db_port, max_pool_size=db_pool, w="majority"

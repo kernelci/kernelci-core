@@ -49,30 +49,31 @@ topt.define(
 
 # mongodb connection parameters.
 topt.define(
-    "dbhost", default="localhost", type=str, help="The DB host to connect to")
+    "mongodb_host",
+    default="localhost", type=str, help="The DB host to connect to")
 topt.define(
-    "dbport", default=27017, type=int, help="The DB port to connect to")
+    "mongodb_port", default=27017, type=int, help="The DB port to connect to")
 topt.define(
-    "dbuser",
+    "mongodb_user",
     default="", type=str, help="The user name to use for the DB connection")
 topt.define(
-    "dbpassword",
+    "mongodb_password",
     default="", type=str, help="The password to use for the DB connection")
 topt.define(
-    "dbpool", default=100, type=int, help="The DB connections pool size")
+    "mongodb_pool", default=100, type=int, help="The DB connections pool size")
 
 # redis connection parameters
 topt.define(
-    "redishost",
+    "redis_host",
     default="localhost",
     type=str, help="The Redis database host to connect to"
 )
 topt.define(
-    "redisport",
+    "redis_port",
     default=6379, type=int, help="The Redis database port to connect to")
-topt.define("redisdb", default=0, type=int, help="The Redis database to use")
+topt.define("redis_db", default=0, type=int, help="The Redis database to use")
 topt.define(
-    "redispassword", default="", type=str, help="The Redis database password")
+    "redis_password", default="", type=str, help="The Redis database password")
 
 # If we want to use UNIX socket for this server.
 topt.define(
@@ -97,7 +98,7 @@ topt.define(
 )
 topt.define(
     "send_delay",
-    default=60*60+5,
+    default=60 * 60 + 5,
     type=int,
     help="The delay in sending the emails, default to 1 hour and 5 seconds"
 )
@@ -112,7 +113,7 @@ topt.define(
     default=None, type=str, help="The URL of the storage system")
 topt.define(
     "buffer_size",
-    default=1024*1024*500,
+    default=1024 * 1024 * 500,
     type=int, help="The body buffer size for uploading files"
 )
 
@@ -127,15 +128,15 @@ class KernelCiBackend(tornado.web.Application):
     def __init__(self):
 
         db_options = {
-            "dbhost": topt.options.dbhost,
-            "dbpassword": topt.options.dbpassword,
-            "dbpool": topt.options.dbpool,
-            "dbport": topt.options.dbport,
-            "dbuser": topt.options.dbuser,
-            "redisdb": topt.options.redisdb,
-            "redishost": topt.options.redishost,
-            "redispassword": topt.options.redispassword,
-            "redisport": topt.options.redisport
+            "mongodb_host": topt.options.mongodb_host,
+            "mongodb_password": topt.options.mongodb_password,
+            "mongodb_pool": topt.options.mongodb_pool,
+            "mongodb_port": topt.options.mongodb_port,
+            "mongodb_user": topt.options.mongodb_user,
+            "redis_db": topt.options.redis_db,
+            "redis_host": topt.options.redis_host,
+            "redis_password": topt.options.redis_password,
+            "redis_port": topt.options.redis_port
         }
 
         mail_options = {

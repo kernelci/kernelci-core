@@ -74,31 +74,31 @@ if os.path.exists(CELERY_CONFIG_FILE):
         parser.read([CELERY_CONFIG_FILE])
         if parser.has_section(CELERY_CONFIG_SECTION):
 
-            if parser.has_option(CELERY_CONFIG_SECTION, "dbhost"):
-                DB_OPTIONS["dbhost"] = parser.get(
-                    CELERY_CONFIG_SECTION, "dbhost")
+            if parser.has_option(CELERY_CONFIG_SECTION, "mongodb_host"):
+                DB_OPTIONS["mongodb_host"] = parser.get(
+                    CELERY_CONFIG_SECTION, "mongodb_host")
             else:
-                DB_OPTIONS["dbhost"] = "localhost"
+                DB_OPTIONS["mongodb_host"] = "localhost"
 
-            if parser.has_option(CELERY_CONFIG_SECTION, "dbport"):
-                DB_OPTIONS["dbport"] = parser.getint(
-                    CELERY_CONFIG_SECTION, "dbport")
+            if parser.has_option(CELERY_CONFIG_SECTION, "mongodb_port"):
+                DB_OPTIONS["mongodb_port"] = parser.getint(
+                    CELERY_CONFIG_SECTION, "mongodb_port")
             else:
-                DB_OPTIONS["dbport"] = 27017
+                DB_OPTIONS["mongodb_port"] = 27017
 
-            if parser.has_option(CELERY_CONFIG_SECTION, "dbpool"):
-                DB_OPTIONS["dbpool"] = parser.getint(
-                    CELERY_CONFIG_SECTION, "dbpool")
+            if parser.has_option(CELERY_CONFIG_SECTION, "mongodb_pool"):
+                DB_OPTIONS["mongodb_pool"] = parser.getint(
+                    CELERY_CONFIG_SECTION, "mongodb_pool")
             else:
-                DB_OPTIONS["dbpool"] = 100
+                DB_OPTIONS["mongodb_pool"] = 100
 
-            if parser.has_option(CELERY_CONFIG_SECTION, "dbuser"):
-                DB_OPTIONS["dbuser"] = parser.getint(
-                    CELERY_CONFIG_SECTION, "dbuser")
+            if parser.has_option(CELERY_CONFIG_SECTION, "mongodb_user"):
+                DB_OPTIONS["mongodb_user"] = parser.getint(
+                    CELERY_CONFIG_SECTION, "mongodb_user")
 
-            if parser.has_option(CELERY_CONFIG_SECTION, "dbpassword"):
-                DB_OPTIONS["dbpassword"] = parser.getint(
-                    CELERY_CONFIG_SECTION, "dbpassword")
+            if parser.has_option(CELERY_CONFIG_SECTION, "mongodb_password"):
+                DB_OPTIONS["mongodb_password"] = parser.getint(
+                    CELERY_CONFIG_SECTION, "mongodb_password")
     except ConfigParser.ParsingError:
         utils.LOG.error("Error reading config file from disk")
 

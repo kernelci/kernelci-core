@@ -37,8 +37,8 @@ class TestHandlerBase(AsyncHTTPTestCase, LogTrapTestCase):
         self.req_token = mtoken.Token()
         self.database = mongomock.Connection()["kernel-ci"]
         self.dboptions = {
-            "dbpassword": "",
-            "dbuser": ""
+            "mongodb_password": "",
+            "mongodb_user": ""
         }
         self.mailoptions = {}
         self.settings = {

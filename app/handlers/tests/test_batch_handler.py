@@ -144,7 +144,7 @@ class TestBatchHandler(TestHandlerBase):
                 }
             ],
             {
-                "dbuser": "",
-                "dbpassword": ""
+                "mongodb_user": "",
+                "mongodb_password": ""
             }
         )
