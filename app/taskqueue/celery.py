@@ -15,20 +15,18 @@
 
 from __future__ import absolute_import
 
-import ConfigParser
+import ast
 import celery
 import celery.schedules
+import io
 import kombu.serialization
 import os
 
 import taskqueue.celeryconfig as celeryconfig
 import taskqueue.serializer as serializer
 
-import utils
-
 
 CELERY_CONFIG_FILE = "/etc/linaro/kernelci-celery.cfg"
-CELERY_CONFIG_SECTION = "celery"
 TASKS_LIST = [
     "taskqueue.tasks.bisect",
     "taskqueue.tasks.boot",
@@ -65,45 +63,15 @@ CELERYBEAT_SCHEDULE = {
     }
 }
 
-# The database connection parameters.
 # Read from a config file from disk.
-DB_OPTIONS = {}
 if os.path.exists(CELERY_CONFIG_FILE):
-    parser = ConfigParser.ConfigParser()
-    try:
-        parser.read([CELERY_CONFIG_FILE])
-        if parser.has_section(CELERY_CONFIG_SECTION):
+    with io.open(CELERY_CONFIG_FILE) as conf_file:
+        updates = ast.literal_eval(conf_file.read())
 
-            if parser.has_option(CELERY_CONFIG_SECTION, "mongodb_host"):
-                DB_OPTIONS["mongodb_host"] = parser.get(
-                    CELERY_CONFIG_SECTION, "mongodb_host")
-            else:
-                DB_OPTIONS["mongodb_host"] = "localhost"
-
-            if parser.has_option(CELERY_CONFIG_SECTION, "mongodb_port"):
-                DB_OPTIONS["mongodb_port"] = parser.getint(
-                    CELERY_CONFIG_SECTION, "mongodb_port")
-            else:
-                DB_OPTIONS["mongodb_port"] = 27017
-
-            if parser.has_option(CELERY_CONFIG_SECTION, "mongodb_pool"):
-                DB_OPTIONS["mongodb_pool"] = parser.getint(
-                    CELERY_CONFIG_SECTION, "mongodb_pool")
-            else:
-                DB_OPTIONS["mongodb_pool"] = 100
-
-            if parser.has_option(CELERY_CONFIG_SECTION, "mongodb_user"):
-                DB_OPTIONS["mongodb_user"] = parser.getint(
-                    CELERY_CONFIG_SECTION, "mongodb_user")
-
-            if parser.has_option(CELERY_CONFIG_SECTION, "mongodb_password"):
-                DB_OPTIONS["mongodb_password"] = parser.getint(
-                    CELERY_CONFIG_SECTION, "mongodb_password")
-    except ConfigParser.ParsingError:
-        utils.LOG.error("Error reading config file from disk")
+    app.conf.update(updates)
 
 app.conf.update(
-    DB_OPTIONS=DB_OPTIONS,
+    # DB_OPTIONS=DB_OPTIONS,
     CELERYBEAT_SCHEDULE=CELERYBEAT_SCHEDULE
 )
 
