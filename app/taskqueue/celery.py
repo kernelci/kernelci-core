@@ -70,10 +70,7 @@ if os.path.exists(CELERY_CONFIG_FILE):
 
     app.conf.update(updates)
 
-app.conf.update(
-    # DB_OPTIONS=DB_OPTIONS,
-    CELERYBEAT_SCHEDULE=CELERYBEAT_SCHEDULE
-)
+app.conf.update(CELERYBEAT_SCHEDULE=CELERYBEAT_SCHEDULE)
 
 
 if __name__ == "__main__":

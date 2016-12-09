@@ -119,5 +119,5 @@ def create_build_logs_summary(job, kernel):
     """
     # TODO: handle error
     status, error = utils.logs.build.create_build_logs_summary(
-        job, kernel, taskc.app.conf.DB_OPTIONS)
+        job, kernel, taskc.app.conf.db_options)
     return status
