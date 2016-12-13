@@ -100,7 +100,7 @@ def create_jobs(base_url, kernel, plans, platform_list, targets, priority):
                                         tmp = tmp.replace('{image_type}', image_type)
                                         tmp = tmp.replace('{image_url}', image_url)
                                         modules_url = image_url + 'modules.tar.xz'
-                                        dummy_modules_url = 'https://googledrive.com/host/0B9DbsE2BbZ7ufjdLMVVONThlbE1mR3N4TjdFTVJod2c4TXpRUDZjMmF0Ylp4Ukk5VG14Ync/images/modules/modules.tar.xz'
+                                        dummy_modules_url = 'https://storage.kernelci.org/modules/modules.tar.xz'
                                         if has_modules:
                                             # Check if the if the modules actually exist
                                             if not checked_modules:
