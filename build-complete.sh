@@ -30,10 +30,10 @@ for arch in ${ARCH_LIST}; do
     sudo find ${BASEDIR} -type f -path "*/$arch-*" -fprint ${BASEDIR}/$arch.filelist
 done
 
-# Check if all builds for all architectures have finished. The magic number here is 3 (arm, arm64, x86)
+# Check if all builds for all architectures have finished. The magic number here is 4 (arm, arm64, x86, mips64)
 # This magic number will need to be changed if new architectures are added.
 export BUILDS_FINISHED=$(ls /var/www/images/kernel-ci/$TREE_NAME/$GIT_DESCRIBE/ | grep .done | wc -l)
-if [[ BUILDS_FINISHED -eq 3 ]]; then
+if [[ BUILDS_FINISHED -eq 4 ]]; then
     echo "All builds have now finished, triggering testing..."
     # Tell the dashboard the job has finished build.
     echo "Build has now finished, reporting result to dashboard."
