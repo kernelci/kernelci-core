@@ -3,6 +3,32 @@
 import yaml
 import sys
 import urllib2
+import requests
+import urlparse
+import json
+import time
+import argparse
+import os
+from ConfigParser import SafeConfigParser
+from lib.device_map import device_map
+from lib import configuration
+
+def push(method, url, data, headers):
+    retry = True
+    while retry:
+        if method == 'POST':
+            response = requests.post(url, data=data, headers=headers)
+        elif method == 'PUT':
+            response = requests.put(url, data=data, headers=headers)
+        else:
+            print "ERROR: unsupported method"
+            exit(1)
+        if response.status_code != 500:
+            retry = False
+            print "OK"
+        else:
+            time.sleep(10)
+            print response.content
 
 
 def logfile_url(base, job):
@@ -41,44 +67,48 @@ def logfile_parse(logfile):
 
 
 def fetch(url):
-    return urllib2.urlopen(url).read()
+    try:
+        return urllib2.urlopen(url).read()
+    except Exception as exc:
+        print("ERROR Fetching: %s  -  %s" % (url,exc))
+        return None
 
+def read_jobinfo():
+    data = ""
+    for line in sys.stdin:
+        data += line
+    try:
+        return yaml.load(data)
+    except yaml.YAMLError as exc:
+        print exc
+        sys.exit(0)
 
-def update_api():
-    print "Updating kernelci api"
-    print "STATUS: %s" % status
+def update_api(status, jobinfo, lab_url, lab_name, api_token, api_base):
+    # http://lava.streamtester.net/scheduler/job/109/log_file/plain
+    # http://lava.streamtester.net/results/109/yaml
+    # http://lava.streamtester.net/results/109/metadata
+    # http://lava.streamtester.net/scheduler/job/109/definition/plain
+    job = int(jobinfo['job'])
+    kernel_messages = []
+    kernel_boot_time = 0
+    boot_meta = {}
 
-
-data = ""
-useful_status = ["complete", "incomplete", "cancelled"]
-topic = sys.argv[1]
-
-# http://lava.streamtester.net/scheduler/job/109/log_file/plain
-# http://lava.streamtester.net/results/109/yaml
-# http://lava.streamtester.net/results/109/metadata
-# http://lava.streamtester.net/scheduler/job/109/definition/plain
-
-for line in sys.stdin:
-    data += line
-try:
-    jobinfo = yaml.load(data)
-except yaml.YAMLError as exc:
-    print exc
-    sys.exit(0)
-
-status = jobinfo['status'].lower()
-job = int(jobinfo['job'])
-base_url = base_url_from_topic(topic)
-kernel_messages = []
-
-if status in useful_status:
-    logfile_yaml = logfile_parse(fetch(logfile_url(base_url, job)))
-    results_yaml = fetch(results_url(base_url, job))
-    definition_yaml = fetch(definition_url(base_url, job))
+    logfile_plain = logfile_parse(fetch(logfile_url(lab_url, job)))
+    results_yaml = fetch(results_url(lab_url, job))
+    definition_yaml = fetch(definition_url(lab_url, job))
     jobdef = yaml.load(definition_yaml)
-    if 'metadata' in jobdef:
-        metadata = jobdef['metadata']
-    results = yaml.load(results_yaml)
+    metadata = jobdef['metadata']
+    if results_yaml:
+        results = yaml.load(results_yaml)
+    else:
+        results = {}
+    boot_result = 'UNKNOWN'
+    if status == 'complete':
+        boot_result = 'PASS'
+    elif status == 'cancelled':
+        boot_result = 'OFFLINE'
+    else:
+        boot_result = 'FAIL'
     for result in results:
         if result['name'] == 'auto-login-action':
             if 'metadata' in result:
@@ -90,6 +120,87 @@ if status in useful_status:
                         print "\n".join(kernel_messages)
             kernel_boot_time = result['metadata']['duration']
             print "kernel boot time is: %s seconds" % kernel_boot_time
-    update_api()
-else:
-    print "job still running"
+
+    boot_meta['lab_name'] = lab_name
+    boot_meta['board_instance'] = jobinfo['device']
+    boot_meta['retries'] = 0
+    boot_meta['boot_log'] = 'lava-boot-log-plain.txt'
+    boot_meta['boot_log_html'] = ""
+    boot_meta['version'] = '1.0'
+    boot_meta['arch'] = metadata['job.arch']
+    boot_meta['defconfig'] = metadata['kernel.defconfig_base']
+    boot_meta['defconfig_full'] = metadata['kernel.defconfig']
+    if metadata['platform.dtb_short'] in device_map:
+        if 'mach' in device_map[metadata['platform.dtb_short']][0]:
+            boot_meta['mach'] = device_map[metadata['platform.dtb_short']][0]['mach']
+    boot_meta['kernel'] = metadata['kernel.version']
+    boot_meta['job'] = metadata['kernel.tree']
+    boot_meta['board'] = metadata['device.type']
+    boot_meta['boot_result'] = boot_result
+    if boot_result == 'FAIL' or boot_result == 'OFFLINE':
+        boot_meta['boot_result_description'] = 'Unknown Error: platform failed to boot'
+    boot_meta['boot_time'] = kernel_boot_time
+    boot_meta['boot_warnings'] = None
+    boot_meta['dtb'] = metadata['platform.dtb']
+    # boot_meta['dtb_addr'] = dtb_addr
+    # boot_meta['dtb_append'] = dtb_append
+    # boot_meta['dt_test'] = dt_test
+    # boot_meta['loadaddr'] = kernel_addr
+    # boot_meta['initrd_addr'] = initrd_addr
+    boot_meta['endian'] = metadata['kernel.endian']
+    boot_meta['fastboot'] = metadata['platform.fastboot']
+    boot_meta['initrd'] = metadata['job.initrd_url']
+    boot_meta['kernel_image'] = metadata['job.kernel_image']
+    boot_meta['git_branch'] = metadata['git.branch']
+    boot_meta['git_commit'] = metadata['git.commit']
+    boot_meta['git_describe'] = metadata['git.describe']
+    print boot_meta
+    print 'Sending boot result to %s for %s' % (api_base, metadata['device.type'])
+    headers = {
+        'Authorization': api_token,
+        'Content-Type': 'application/json'
+    }
+    api_url = urlparse.urljoin(api_base, '/boot')
+    push('POST', api_url, data=json.dumps(boot_meta), headers=headers)
+
+
+    headers = {
+        'Authorization': api_token,
+    }
+    print 'Uploading text version of boot log'
+    api_url = urlparse.urljoin(api_base, '/upload/%s/%s/%s/%s/%s' % (metadata['kernel.tree'],
+                                                                     metadata['kernel.version'],
+                                                                     metadata['kernel.arch_defconfig'],
+                                                                     lab_name,
+                                                                     boot_meta['boot_log']))
+    push('PUT', api_url, data=logfile_plain, headers=headers)
+
+def lab_from_config(lab_url, config_file):
+    parser = SafeConfigParser()
+    parser.read(os.path.expanduser(config_file))
+    for section_name in parser.sections():
+        for item, value in parser.items(section_name):
+            if item == 'url':
+                if value == lab_url:
+                    return section_name, parser.get(section_name, 'api-token')
+    print("Could not find lab config for %s" % lab_url)
+    sys.exit(1)
+
+def main(args):
+    lab_url = base_url_from_topic(args.topic)
+    lab_name, api_token = lab_from_config(lab_url, args.config)
+    jobinfo = read_jobinfo()
+    status = jobinfo['status'].lower()
+    if status in ["complete", "incomplete", "cancelled"]:
+        update_api(status, jobinfo, lab_url, lab_name, api_token, args.api)
+    else:
+        print("job still running")
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--topic", help="zmq topic (usually lab url)", required=True)
+    parser.add_argument("--api", help="Kernel CI API URL", default="https//api.kernelci.org")
+    parser.add_argument("--config", help="Kernel CI labs config file (~/kernelci-labs.cfg)", default="~/kernelci-labs.cfg")
+    args = parser.parse_args()
+    main(args)

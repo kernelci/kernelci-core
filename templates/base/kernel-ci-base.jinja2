@@ -6,14 +6,26 @@ metadata:
   kernel.version: {{ kernel }}
   kernel.endian: {{ endian }}
   kernel.defconfig: {{ defconfig }}
+  kernel.defconfig_base: {{ defconfig_base }}
+  kernel.arch_defconfig: {{ arch_defconfig }}
+  platform.dtb: {{ platform }}
+  platform.dtb_short: {{ dtb_short }}
   platform.fastboot: {{ fastboot }}
   test.plan: {{ plan }}
+  git.commit: {{ git_commit }}
+  git.describe: {{ git_describe }}
+  git.branch: {{ git_branch }}
+  device.type: {{ device['device_type'] }}
+  job.arch: {{ arch }}
+  job.name: {{ name }}
+  job.kernel_url: {{ kernel_url }}
+  job.kernel_image: {{ kernel_image }}
+  job.modules_url: {{ modules_url }}
+  job.initrd_url: {{ initrd_url }}
+  job.dtb_url: {{ dtb_url }}
 {% endblock %}
 {% block main %}
 device_type: {{ device['device_type'] }}
-
-context:
-  arch: {{ arch }}
 
 job_name: {{ name }}
 timeouts:

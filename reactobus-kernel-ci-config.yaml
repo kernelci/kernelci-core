@@ -1,20 +1,15 @@
 inputs:
-#- class: ZMQSub
-#  name: validation
-#  options:
-#    url: tcp://validation.linaro.org:5510
-- class: ZMQSub
-  name: streamtester
+- class: ZMQPull
+  name: listener
   options:
-    url: tcp://lava.streamtester.net:5550
-
+    url: tcp://*:5550
 
 core:
   inbound: ipc:///tmp/ReactOBus.lava.inbound
   outbound: ipc:///tmp/ReactOBus.lava.outbound
 
 reactor:
-  workers: 10   # Not used for the moment
+  workers: 100   # Not used for the moment
   rules:
   - name: org.reactobus
     match:
@@ -22,7 +17,12 @@ reactor:
       pattern: 'kernel-ci'
     exec:
       path: /home/matt/git/kernelci-lava-ci/reactobus-job-parser.py
-      timeout: 2
+      timeout: 60
       args:
+      - --topic
       - $topic
+      - --api
+      - https://staging-api.kernelci.org
+      - --config
+      - ~/kernelci-labs.cfg
       - stdin:$data

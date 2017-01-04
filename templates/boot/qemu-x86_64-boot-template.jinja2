@@ -6,6 +6,8 @@
 {{ super() }}
 {% endblock %}
 {% block actions %}
+context:
+  arch: x86_64
 
 actions:
 - deploy:
@@ -15,11 +17,11 @@ actions:
     os: oe
     images:
         kernel:
-          image_arg: '-kernel {kernel}'
+          image_arg: '-kernel {kernel} -append "console=ttyS0,115200 root=/dev/ram0 debug verbose"'
           url: {{ kernel_url }}
         ramdisk:
           image_arg: '-initrd {ramdisk}'
-          url: http://storage.kernelci.org/images/rootfs/buildroot/arm64/rootfs.cpio.gz
+          url: {{ initrd_url }}
 
 - boot:
     method: qemu

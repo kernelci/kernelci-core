@@ -15,11 +15,13 @@ actions:
          url: {{ kernel_url }}
          type: image
      ramdisk:
-         url: http://storage.kernelci.org/images/rootfs/buildroot/arm64/rootfs.cpio.gz
+         url: {{ initrd_url }}
          compression: gz
+{% if modules_url %}
      modules:
          url: {{ modules_url }}
          compression: xz
+{% endif %}
      dtb:
          url: {{ dtb_url }}
      os: oe

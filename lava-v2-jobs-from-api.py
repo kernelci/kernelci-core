@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import urllib2
 import urlparse
 import httplib
@@ -18,6 +19,11 @@ from jinja2 import Environment, FileSystemLoader
 
 LEGACY_X86_PLATFORMS = ['x86', 'x86-kvm']
 LEGACY_ARM64_PLATFORMS = ['qemu-aarch64-legacy']
+INITRD_URLS = {'arm64': 'http://storage.kernelci.org/images/rootfs/buildroot/arm64/rootfs.cpio.gz',
+               'arm64be': 'http://storage.kernelci.org/images/rootfs/buildroot/arm64be/rootfs.cpio.gz',
+               'armeb': 'http://storage.kernelci.org/images/rootfs/buildroot/armeb/rootfs.cpio.gz',
+               'armel': 'http://storage.kernelci.org/images/rootfs/buildroot/armel/rootfs.cpio.gz',
+               'x86': 'http://storage.kernelci.org/images/rootfs/buildroot/x86/rootfs.cpio.gz'}
 
 
 def main(args):
@@ -127,22 +133,33 @@ def main(args):
                                         base_url = "https://storage.kernelci.org/%s/%s/%s/" % (build['job'], build['kernel'], arch_defconfig)
                                         dtb_url = base_url + "dtbs/" + dtb_full
                                         kernel_url = urlparse.urljoin(base_url, build['kernel_image'])
+                                        defconfig_base = ''.join(defconfig.split('+')[:1])
                                         endian = 'little'
                                         if 'BIG_ENDIAN' in defconfig and plan == 'boot-be':
                                             endian = 'big'
+                                        initrd_arch = arch
+                                        if arch not in INITRD_URLS.keys():
+                                            if arch == 'arm64' and endian == 'big':
+                                                initrd_arch = 'arm64be'
+                                            if arch == 'arm':
+                                                if endian == 'big':
+                                                    initrd_arch = 'armeb'
+                                                else:
+                                                    initrd_arch = 'armel'
+                                        initrd_url = INITRD_URLS[initrd_arch]
                                         if build['modules']:
                                             modules_url = urlparse.urljoin(base_url, build['modules'])
                                         else:
                                             modules_url = None
-                                        if device['device_type'].startswith('qemu'):
+                                        if device['device_type'].startswith('qemu') or device['device_type'] == 'kvm':
                                             device['device_type'] = 'qemu'
-                                        job = {'name': job_name, 'dtb_url': dtb_url, 'platform': dtb, 'kernel_url': kernel_url, 'image_type': 'kernel-ci', 'image_url': base_url,
+                                        job = {'name': job_name, 'dtb_url': dtb_url, 'platform': dtb_full, 'kernel_url': kernel_url, 'image_type': 'kernel-ci', 'image_url': base_url,
                                                'modules_url': modules_url, 'plan': plan, 'kernel': branch, 'tree': tree, 'defconfig': defconfig, 'fastboot': fastboot,
                                                'priority': args.get('priority'), 'device': device, 'template_file': template_file, 'base_url': base_url, 'endian': endian,
                                                'test_suite': test_suite, 'test_set': test_set, 'test_desc': test_desc, 'test_type': test_type, 'short_template_file': short_template_file,
-                                               'arch': arch, 'arch_defconfig': arch_defconfig}
+                                               'arch': arch, 'arch_defconfig': arch_defconfig, 'git_branch': build['git_branch'], 'git_commit': build['git_commit'], 'git_describe': build['git_describe'],
+                                               'defconfig_base': defconfig_base, 'initrd_url': initrd_url, 'kernel_image': build['kernel_image'], 'dtb_short': dtb}
                                         jobs.append(job)
-                                        # print job
             else:
                 print "no kernel_image for %s" % build['defconfig_full']
 
