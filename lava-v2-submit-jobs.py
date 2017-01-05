@@ -13,13 +13,17 @@ import httplib
 
 from lib import utils
 from lib import configuration
+DEVICE_ONLINE_STATUS = ['idle', 'running', 'reserved']
 
 job_map = {}
 
 
-def submit_jobs(connection, server, bundle_stream=None):
-    online_devices, offline_devices = gather_devices(connection)
-    online_device_types, offline_device_types = gather_device_types(connection)
+def submit_jobs(connection):
+    print "Fetching all devices from LAVA"
+    all_devices = connection.scheduler.all_devices()
+    print "Fetching all device-types from LAVA"
+    all_device_types = connection.scheduler.all_device_types()
+
     print "Submitting Jobs to Server..."
     for job in job_map:
         try:
@@ -28,19 +32,13 @@ def submit_jobs(connection, server, bundle_stream=None):
             job_info = yaml.load(job_data)
             # Check if request device(s) are available
             if 'device_type' in job_info:
-                if job_info['device_type'] in offline_device_types:
-                    print "All device types: %s are OFFLINE, skipping..." % job_info['device_type']
-                    print os.path.basename(job) + ' : skip'
-                elif job_info['device_type'] in online_device_types:
-                    pass
-                    print "Submitting job %s to device-type %s" % (job_info.get('job_name', 'unknown'), job_info['device_type'])
-                    jobs = connection.scheduler.submit_job(job_data)
-                    if isinstance(jobs, int):
-                        jobs = str(jobs).split()
-                    job_map[job] = jobs
-                else:
-                    print "No device-type available on server, skipping..."
-                    print os.path.basename(job) + ' : skip'
+                for device_type in all_device_types:
+                    if device_type['name'] == job_info['device_type']:
+                        if device_type_has_available(device_type, all_devices):
+                            print "Submitting job %s to device-type %s" % (job_info.get('job_name', 'unknown'), job_info['device_type'])
+                            connection.scheduler.submit_job(job_data)
+                        else:
+                            print "Found device-type %s on server, but it had no available pipeline devices" % device_type['name']
             elif 'device_group' in job_info:
                 print "Multinode Job Detected! Not supported yet :("
             elif 'vm_group' in job_info:
@@ -49,7 +47,7 @@ def submit_jobs(connection, server, bundle_stream=None):
                 print "Should never get here - no idea what job type"
                 print os.path.basename(job) + ' : skip'
         except (xmlrpclib.ProtocolError, xmlrpclib.Fault, IOError, ValueError) as e:
-            print "JSON VALIDATION ERROR!"
+            print "Job submission error!"
             print job
             print e
             continue
@@ -60,56 +58,16 @@ def load_jobs(top):
         for filename in fnmatch.filter(filenames, '*.yaml'):
             job_map[os.path.join(root, filename)] = None
 
-
-def retrieve_jobs(jobs):
-    cmd = 'git clone %s' % jobs
-    try:
-        print "Cloning LAVA Jobs..."
-        subprocess.check_output(cmd, shell=True)
-        print "Clone Successful!"
-        print "clone-jobs : pass"
-    except subprocess.CalledProcessError as e:
-        print "ERROR!"
-        print "Unable to clone %s" % jobs
-        print "clone-jobs : fail"
-        exit(1)
-
-
-def gather_devices(connection):
-    online_devices = {}
-    offline_devices = {}
-    print "Gathering Devices..."
-    all_devices = connection.scheduler.all_devices()
+def device_type_has_available(device_type, all_devices):
     for device in all_devices:
-        if device[4]: #check if pipeline device
-            if device[2] == 'offline':
-                offline_devices[device[0]] = 1
-            else:
-                online_devices[device[0]] = 1
-    print "Gathered Devices Successfully!"
-    return online_devices, offline_devices
-
-
-def gather_device_types(connection):
-    online_device_types = {}
-    offline_device_types = {}
-    print "Gathering Device Types..."
-    all_device_types = connection.scheduler.all_device_types()
-    for device_type in all_device_types:
-        # Only use dictionary data structures
-        if isinstance(device_type, dict):
-            # Retired
-            if device_type['idle'] == 0 and device_type['busy'] == 0 and device_type['offline'] == 0:
-                offline_device_types[device_type['name']] = 0
-            # Running
-            elif device_type['idle'] > 0 or device_type['busy'] > 0:
-                online_device_types[device_type['name']] = device_type['idle'] + device_type['busy']
-            # Offline
-            else:
-                offline_device_types[device_type['name']] = device_type['offline']
-    print "Gathered Device Types Successfully!"
-    return online_device_types, offline_device_types
-
+        if device[1] == device_type['name']:
+            if device[2] in DEVICE_ONLINE_STATUS:
+                try:
+                    return device[4]
+                except IndexError:
+                    print "LAVA all_devices() XMLRPC does not support pipeline"
+                    return False
+    return False
 
 def main(args):
     config = configuration.get_config(args)
@@ -126,7 +84,7 @@ def main(args):
     else:
         load_jobs(os.getcwd())
 
-    submit_jobs(connection, config.get("server"))
+    submit_jobs(connection)
     exit(0)
 
 if __name__ == '__main__':
