@@ -5,7 +5,7 @@
 {% block main %}
 {{ super() }}
 {% endblock %}
-{% block actions %}
+{% block deploy %}
 actions:
   - deploy:
      timeout:
@@ -13,25 +13,16 @@ actions:
      to: tftp
      kernel:
          url: {{ kernel_url }}
-         type: image
+         type: {{ kernel_image.lower() }}
      ramdisk:
          url: {{ initrd_url }}
          compression: gz
-{% if modules_url %}
+{%- if modules_url %}
      modules:
          url: {{ modules_url }}
          compression: xz
-{% endif %}
+{%- endif %}
      dtb:
          url: {{ dtb_url }}
      os: oe
-
-  - boot:
-     method: u-boot
-     commands: ramdisk
-     type: image
-     prompts:
-       - 'linaro-test'
-       - 'root@debian:~#'
-       - '/ #'
 {% endblock %}

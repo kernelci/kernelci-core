@@ -166,6 +166,7 @@ def update_api(status, jobinfo, lab_url, lab_name, api_token, api_base):
 
     headers = {
         'Authorization': api_token,
+        'Content-Type': 'text/plain'
     }
     print 'Uploading text version of boot log'
     api_url = urlparse.urljoin(api_base, '/upload/%s/%s/%s/%s/%s' % (metadata['kernel.tree'],

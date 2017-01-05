@@ -33,6 +33,7 @@ def submit_jobs(connection, server, bundle_stream=None):
                     print os.path.basename(job) + ' : skip'
                 elif job_info['device_type'] in online_device_types:
                     pass
+                    print "Submitting job %s to device-type %s" % (job_info.get('job_name', 'unknown'), job_info['device_type'])
                     jobs = connection.scheduler.submit_job(job_data)
                     if isinstance(jobs, int):
                         jobs = str(jobs).split()

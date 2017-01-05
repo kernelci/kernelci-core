@@ -8,6 +8,7 @@ import shutil
 import argparse
 import ConfigParser
 import json
+import sys
 from lib.utils import setup_job_dir
 from lib import configuration
 from lib.device_map import device_map
@@ -49,7 +50,10 @@ def main(args):
     url = urlparse.urljoin(api, ("/build?job=%s&kernel=%s&status=PASS&arch=%s" % (tree, branch, arch)))
     print "Calling KernelCI API: %s" % url
     response = requests.get(url, headers=headers)
-    print response
+    if response.status_code != 200:
+        print "Error calling KernelCI API"
+        print response
+        sys.exit(1)
     data = json.loads(response.content)
     builds = data['result']
     print len(builds)

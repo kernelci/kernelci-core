@@ -1,0 +1,21 @@
+{% extends 'base/kernel-ci-base-uboot.jinja2' %}
+{% block metadata %}
+{{ super() }}
+{% endblock %}
+{% block main %}
+{{ super() }}
+{% endblock %}
+{% block actions %}
+{%- block deploy %}
+{{ super () }}
+{%- endblock %}
+
+  - boot:
+     method: u-boot
+     commands: ramdisk
+     type: image
+     prompts:
+       - 'linaro-test'
+       - 'root@debian:~#'
+       - '/ #'
+{% endblock %}
