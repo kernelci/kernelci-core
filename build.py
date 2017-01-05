@@ -24,7 +24,7 @@ from urlparse import urljoin
 cross_compilers = {
     "arm": "arm-linux-gnueabihf-",
     "arm64": "aarch64-linux-gnu-",
-    "mips": "mips-linux-gnu-",
+    "mips": "mips-linux-",
     "i386": None,
     "x86": None,
     "x86_64": None,
