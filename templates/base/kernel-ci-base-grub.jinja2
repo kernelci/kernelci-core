@@ -1,0 +1,28 @@
+{% extends 'base/kernel-ci-base.jinja2' %}
+{% block metadata %}
+{{ super() }}
+{% endblock %}
+{% block main %}
+{{ super() }}
+{% endblock %}
+{% block deploy %}
+actions:
+  - deploy:
+     timeout:
+       minutes: 2
+     to: tftp
+     kernel:
+         url: {{ kernel_url }}
+         type: {{ kernel_image.lower() }}
+     ramdisk:
+         url: {{ initrd_url }}
+         compression: gz
+{%- if modules_url %}
+     modules:
+         url: {{ modules_url }}
+         compression: xz
+{%- endif %}
+     dtb:
+         url: {{ dtb_url }}
+     os: oe
+{% endblock %}

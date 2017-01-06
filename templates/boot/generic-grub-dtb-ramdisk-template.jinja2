@@ -1,0 +1,20 @@
+{% extends 'base/kernel-ci-base-grub.jinja2' %}
+{% block metadata %}
+{{ super() }}
+{% endblock %}
+{% block main %}
+{{ super() }}
+{% endblock %}
+{% block actions %}
+{%- block deploy %}
+{{ super () }}
+{%- endblock %}
+
+  - boot:
+     method: grub
+     commands: ramdisk
+     prompts:
+       - 'linaro-test'
+       - 'root@debian:~#'
+       - '/ #'
+{% endblock %}
