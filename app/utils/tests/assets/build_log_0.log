@@ -59,3 +59,5 @@ No valid symbol.
 :(.text+0x1719d8): undefined reference to `qcom_smem_get'
 :(.text+0x171a40): undefined reference to `qcom_smem_alloc'
 :(.text+0x171ab4): undefined reference to `qcom_smem_get'
+../arch/mips/sgi-ip22/Platform:29: *** gcc doesn't support needed
+option -mr10k-cache-barrier=store.  Stop.

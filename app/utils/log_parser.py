@@ -43,6 +43,7 @@ import utils.errors
 ERROR_PATTERN_1 = re.compile("[Ee]rror:")
 ERROR_PATTERN_2 = re.compile("^ERROR")
 ERROR_PATTERN_3 = re.compile("undefined reference", re.IGNORECASE)
+ERROR_PATTERN_4 = re.compile("gcc doesn't support", re.IGNORECASE)
 WARNING_PATTERN = re.compile("warning:", re.IGNORECASE)
 MISMATCH_PATTERN = re.compile("Section mismatch", re.IGNORECASE)
 
@@ -67,7 +68,8 @@ EXCLUDE_PATTERNS = [
 ERROR_PATTERNS = [
     ERROR_PATTERN_1,
     ERROR_PATTERN_2,
-    ERROR_PATTERN_3
+    ERROR_PATTERN_3,
+    ERROR_PATTERN_4
 ]
 
 ERR_ADD = utils.errors.add_error
