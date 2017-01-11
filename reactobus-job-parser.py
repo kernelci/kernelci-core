@@ -102,7 +102,7 @@ def update_api(status, jobinfo, lab_url, lab_name, api_token, api_base):
         results = yaml.load(results_yaml)
     else:
         results = {}
-    boot_result = 'UNKNOWN'
+    boot_result = 'UNTRIED'
     if status == 'complete':
         boot_result = 'PASS'
     elif status == 'cancelled':
@@ -116,15 +116,22 @@ def update_api(status, jobinfo, lab_url, lab_name, api_token, api_base):
                     if 'fail' in result['metadata']['extra']:
                         for fail in result['metadata']['extra']['fail']:
                             kernel_messages.append(fail['message'])
-                        print "Kernel error messages:"
-                        print "\n".join(kernel_messages)
             kernel_boot_time = result['metadata']['duration']
-            print "kernel boot time is: %s seconds" % kernel_boot_time
+        if result['name'] == 'bootloader-overlay':
+            if 'metadata' in result:
+                if 'extra' in result['metadata']:
+                    for extra in result['metadata']['extra']:
+                        if 'kernel_addr' in extra:
+                            boot_meta['loadaddr'] = extra.get('kernel_addr', None)
+                        if 'ramdisk_addr' in extra:
+                            boot_meta['initrd_addr'] = extra.get('ramdisk_addr', None)
+                        if 'dtb_addr' in extra:
+                            boot_meta['dtb_addr'] = extra.get('dtb_addr', None)
 
     boot_meta['lab_name'] = lab_name
     boot_meta['board_instance'] = jobinfo['device']
     boot_meta['retries'] = 0
-    boot_meta['boot_log'] = 'lava-boot-log-plain.txt'
+    boot_meta['boot_log'] = "%s-lava-boot-log-plain.txt" % job
     boot_meta['boot_log_html'] = ""
     boot_meta['version'] = '1.0'
     boot_meta['arch'] = metadata['job.arch']
@@ -140,13 +147,9 @@ def update_api(status, jobinfo, lab_url, lab_name, api_token, api_base):
     if boot_result == 'FAIL' or boot_result == 'OFFLINE':
         boot_meta['boot_result_description'] = 'Unknown Error: platform failed to boot'
     boot_meta['boot_time'] = kernel_boot_time
-    boot_meta['boot_warnings'] = None
+    if kernel_messages:
+        boot_meta['boot_warnings'] = len(kernel_messages)
     boot_meta['dtb'] = metadata['platform.dtb']
-    # boot_meta['dtb_addr'] = dtb_addr
-    # boot_meta['dtb_append'] = dtb_append
-    # boot_meta['dt_test'] = dt_test
-    # boot_meta['loadaddr'] = kernel_addr
-    # boot_meta['initrd_addr'] = initrd_addr
     boot_meta['endian'] = metadata['kernel.endian']
     boot_meta['fastboot'] = metadata['platform.fastboot']
     boot_meta['initrd'] = metadata['job.initrd_url']
