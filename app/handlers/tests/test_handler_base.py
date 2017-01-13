@@ -14,6 +14,7 @@
 """Base module for testing all handlers."""
 
 import concurrent.futures
+import fakeredis
 import mock
 import mongomock
 import random
@@ -36,6 +37,7 @@ class TestHandlerBase(AsyncHTTPTestCase, LogTrapTestCase):
         self.content_type = "application/json; charset=UTF-8"
         self.req_token = mtoken.Token()
         self.database = mongomock.Connection()["kernel-ci"]
+        self.redisdb = fakeredis.FakeStrictRedis()
         self.dboptions = {
             "mongodb_password": "",
             "mongodb_user": ""
@@ -43,6 +45,7 @@ class TestHandlerBase(AsyncHTTPTestCase, LogTrapTestCase):
         self.mailoptions = {}
         self.settings = {
             "dboptions": self.dboptions,
+            "redis_connection": self.redisdb,
             "database": self.database,
             "executor": concurrent.futures.ThreadPoolExecutor(max_workers=1),
             "default_handler_class": handlers.app.AppHandler,

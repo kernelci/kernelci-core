@@ -16,6 +16,8 @@
 import bson
 import copy
 import datetime
+import hashlib
+import redis
 import types
 
 import handlers.base as hbase
@@ -25,6 +27,10 @@ import taskqueue.tasks.report as taskq
 
 # Max delay in sending email report set to 5hrs.
 MAX_DELAY = 18000
+
+TRIGGER_RECEIVED = "Email trigger received from '%s' for '%s-%s' at %s (%s)"
+TRIGGER_RECEIVED_ALREADY = "Email trigger for '%s-%s' (%s) already received"
+ERR_409_MESSAGE = "Email request already registered"
 
 
 # pylint: disable=too-many-public-methods
@@ -111,26 +117,74 @@ class SendHandler(hbase.BaseHandler):
                 email_type = []
                 if send_boot:
                     email_type.append("boot")
-                    boot_errors, response.errors = self._schedule_boot_report(
-                        job, kernel, lab_name, email_format, schedule_data)
 
                 if send_build:
                     email_type.append("build")
-                    build_errors, response.errors = \
-                        self._schedule_build_report(
-                            job, kernel, email_format, schedule_data)
-
-                response.reason, response.status_code = _check_status(
-                    send_boot, send_build, boot_errors, build_errors, when)
 
                 self.log.info(
-                    "Email trigger received from '%s' for '%s-%s' at %s (%s)",
+                    TRIGGER_RECEIVED,
                     self.request.remote_ip,
                     job,
                     kernel,
                     datetime.datetime.utcnow(),
                     str(email_type)
                 )
+
+                hashable_str = "{}-{}-{}".format(
+                    job,
+                    kernel,
+                    str(schedule_data["boot_emails"]),
+                    str(schedule_data["boot_cc_emails"]),
+                    str(schedule_data["boot_bcc_emails"]),
+                    str(schedule_data["build_emails"]),
+                    str(schedule_data["build_cc_emails"]),
+                    str(schedule_data["build_bcc_emails"]),
+                    str(schedule_data["generic_emails"]),
+                    str(schedule_data["generic_cc_emails"]),
+                    str(schedule_data["generic_bcc_emails"]),
+                    schedule_data["in_reply_to"],
+                    schedule_data["subject"],
+                    str(email_type)
+                )
+                schedule_hash = hashlib.sha1(hashable_str)
+
+                try:
+                    lock_key = \
+                        "email-{}-{}-{}".format(str(email_type), job, kernel)
+
+                    with redis.lock.Lock(self.redisdb, lock_key, timeout=2):
+                        if not self.redisdb.exists(schedule_hash):
+                            self.redisdb.set(schedule_hash, "schedule", ex=360)
+
+                            if send_boot:
+                                email_type.append("boot")
+                                boot_errors, response.errors = \
+                                    self._schedule_boot_report(
+                                        job,
+                                        kernel,
+                                        lab_name, email_format, schedule_data)
+
+                            if send_build:
+                                build_errors, response.errors = \
+                                    self._schedule_build_report(
+                                        job,
+                                        kernel, email_format, schedule_data)
+
+                            response.reason, response.status_code = \
+                                _check_status(
+                                    send_boot,
+                                    send_build,
+                                    boot_errors, build_errors, when)
+                        else:
+                            self.log.warn(
+                                TRIGGER_RECEIVED_ALREADY,
+                                job, kernel, str(email_type)
+                            )
+                            response.status_code = 409
+                            response.reason = ERR_409_MESSAGE
+                except redis.lock.LockError:
+                    # Probably only reached during the unit tests.
+                    pass
             else:
                 response.status_code = 400
                 response.reason = (

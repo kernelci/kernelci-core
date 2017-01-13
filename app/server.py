@@ -27,8 +27,9 @@ import uuid
 
 import handlers.app as happ
 import handlers.dbindexes as hdbindexes
-import utils.db
 import urls
+import utils.database.redisdb as redisdb
+import utils.db
 
 
 DEFAULT_CONFIG_FILE = "/etc/linaro/kernelci-backend.cfg"
@@ -124,6 +125,7 @@ class KernelCiBackend(tornado.web.Application):
     Where everything starts.
     """
     database = None
+    redis_con = None
 
     def __init__(self):
 
@@ -152,8 +154,12 @@ class KernelCiBackend(tornado.web.Application):
         if not self.database:
             self.database = utils.db.get_db_connection(db_options)
 
+        if not self.redis_con:
+            self.redis_con = redisdb.get_db_connection(db_options)
+
         settings = {
             "database": self.database,
+            "redis_connection": self.redis_con,
             "dboptions": db_options,
             "mailoptions": mail_options,
             "default_handler_class": happ.AppHandler,

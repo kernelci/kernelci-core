@@ -80,6 +80,11 @@ class BaseHandler(tornado.web.RequestHandler):
         return self.settings["database"]
 
     @property
+    def redisdb(self):
+        """The Redis connection."""
+        return self.settings["redis_connection"]
+
+    @property
     def log(self):
         """The logger of this object."""
         return utils.log.get_log(debug=self.settings["debug"])

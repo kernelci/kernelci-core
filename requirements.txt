@@ -1,6 +1,7 @@
 Sphinx==1.4.9
-docutils==0.12
 celery[redis]==3.1.25
+docutils==0.12
+fakeredis
 futures==3.0.4
 hiredis
 jinja2
@@ -8,6 +9,7 @@ mock>0.7.2
 mongomock==1.2.0
 netaddr==0.7.18
 pycares==1.0.0
+pyelftools
 pymongo==2.8.1
 pytz
 redis
@@ -16,4 +18,3 @@ simplejson
 sphinx-bootstrap-theme
 sphinxcontrib-httpdomain
 tornado==3.2.2
-pyelftools
