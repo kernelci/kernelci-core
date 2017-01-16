@@ -130,7 +130,7 @@ class SendHandler(hbase.BaseHandler):
                     str(email_type)
                 )
 
-                hashable_str = "{}-{}-{}".format(
+                hashable_str = "{}{}{}{}{}{}{}{}{}{}{}{}{}{}".format(
                     job,
                     kernel,
                     str(schedule_data["boot_emails"]),
