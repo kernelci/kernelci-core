@@ -199,12 +199,12 @@ def send_email(
     status = models.ERROR_STATUS
 
     m_get = mail_options.get
-    port = m_get("port", None)
-    host = m_get("host", None)
-    user = m_get("user", None)
-    password = m_get("password", None)
-    from_addr = m_get("sender", None)
-    sender_desc = m_get("sender_desc", None)
+    port = m_get("smtp_port", None)
+    host = m_get("smtp_host", None)
+    user = m_get("smtp_user", None)
+    password = m_get("smtp_password", None)
+    from_addr = m_get("smtp_sender", None)
+    sender_desc = m_get("smtp_sender_desc", None)
 
     _, email_msg, send_to = create_email(
         to_addrs,

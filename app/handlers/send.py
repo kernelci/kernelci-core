@@ -146,7 +146,7 @@ class SendHandler(hbase.BaseHandler):
                     schedule_data["subject"],
                     str(email_type)
                 )
-                schedule_hash = hashlib.sha1(hashable_str)
+                schedule_hash = hashlib.sha1(hashable_str).hexdigest()
 
                 try:
                     lock_key = \
@@ -154,7 +154,8 @@ class SendHandler(hbase.BaseHandler):
 
                     with redis.lock.Lock(self.redisdb, lock_key, timeout=2):
                         if not self.redisdb.exists(schedule_hash):
-                            self.redisdb.set(schedule_hash, "schedule", ex=360)
+                            self.redisdb.set(
+                                schedule_hash, "schedule", ex=86400)
 
                             if send_boot:
                                 email_type.append("boot")
@@ -179,6 +180,15 @@ class SendHandler(hbase.BaseHandler):
                             self.log.warn(
                                 TRIGGER_RECEIVED_ALREADY,
                                 job, kernel, str(email_type)
+                            )
+                            taskq.send_multiple_emails_error.apply_async(
+                                [
+                                    job,
+                                    kernel,
+                                    datetime.datetime.utcnow(),
+                                    email_format,
+                                    schedule_data
+                                ]
                             )
                             response.status_code = 409
                             response.reason = ERR_409_MESSAGE

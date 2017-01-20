@@ -253,12 +253,12 @@ class TestEmailsSend(unittest.TestCase):
         logging.disable(logging.CRITICAL)
 
         self.mail_options = {
-            "port": 465,
-            "host": "localhost",
-            "user": "mailuser",
-            "password": "mailpassword",
-            "sender": "me@example.net",
-            "sender_desc": "Me Email"
+            "smtp_port": 465,
+            "smtp_host": "localhost",
+            "smtp_user": "mailuser",
+            "smtp_password": "mailpassword",
+            "smtp_sender": "me@example.net",
+            "smtp_sender_desc": "Me Email"
         }
 
         self.to_addrs = ["to0@example.net"]

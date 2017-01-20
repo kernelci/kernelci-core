@@ -42,9 +42,17 @@ class TestHandlerBase(AsyncHTTPTestCase, LogTrapTestCase):
             "mongodb_password": "",
             "mongodb_user": ""
         }
-        self.mailoptions = {}
+        self.mail_options = {
+            "smtp_port": 465,
+            "smtp_host": "localhost",
+            "smtp_user": "mailuser",
+            "smtp_password": "mailpassword",
+            "smtp_sender": "me@example.net",
+            "smtp_sender_desc": "Me Email"
+        }
         self.settings = {
             "dboptions": self.dboptions,
+            "mailoptions": self.mail_options,
             "redis_connection": self.redisdb,
             "database": self.database,
             "executor": concurrent.futures.ThreadPoolExecutor(max_workers=1),
@@ -52,7 +60,6 @@ class TestHandlerBase(AsyncHTTPTestCase, LogTrapTestCase):
             "debug": False,
             "version": "foo",
             "master_key": "bar",
-            "mailoptions": self.mailoptions,
             "senddelay": 60 * 60
         }
 
@@ -73,6 +80,9 @@ class TestHandlerBase(AsyncHTTPTestCase, LogTrapTestCase):
 
         self.doc_id = "".join(
             [random.choice(string.digits) for x in xrange(24)])
+
+    def tearDown(self):
+        self.redisdb.flushall()
 
     def get_new_ioloop(self):
         return tornado.ioloop.IOLoop.instance()

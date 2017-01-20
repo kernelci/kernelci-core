@@ -142,13 +142,13 @@ class KernelCiBackend(tornado.web.Application):
         }
 
         mail_options = {
-            "host": topt.options.smtp_host,
+            "smtp_host": topt.options.smtp_host,
             "info_email": topt.options.info_email,
-            "password": topt.options.smtp_password,
-            "port": topt.options.smtp_port,
-            "sender": topt.options.smtp_sender,
-            "sender_desc": topt.options.smtp_sender_desc,
-            "user": topt.options.smtp_user
+            "smtp_password": topt.options.smtp_password,
+            "smtp_port": topt.options.smtp_port,
+            "smtp_sender": topt.options.smtp_sender,
+            "smtp_sender_desc": topt.options.smtp_sender_desc,
+            "smtp_user": topt.options.smtp_user
         }
 
         if not self.database:

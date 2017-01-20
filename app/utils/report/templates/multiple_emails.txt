@@ -1,0 +1,34 @@
+Duplicate email trigger received for:
+
+    Tree: {{ job }}
+    Kernel: {{ kernel }}
+
+at:
+
+    {{ trigger_time }}
+
+Details
+{{ "{:-^80}".format("") }}
+
+Email format:
+{%- for format in email_format %}
+    * {{ format }}
+{% endfor %}
+{%- if subject %}
+Subject: {{ subject }}
+{%- endif %}
+{%- if in_reply_to %}
+In reply to: {{ in_reply_to }}
+{%- endif %}
+{%- if to_addrs %}
+To addresses:
+{%- for addr in to_addrs %}
+    * {{ addr }}
+{% endfor %}
+{%- endif %}
+{%- if cc_addrs %}
+Cc/Bcc addresses:
+{% for addr in cc_addrs %}
+    * {{ addr }}
+{% endfor %}
+{%- endif %}

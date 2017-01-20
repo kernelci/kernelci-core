@@ -19,6 +19,7 @@ import utils.emails
 import utils.report.boot
 import utils.report.build
 import utils.report.common
+import utils.report.error
 
 
 # pylint: disable=too-many-arguments
@@ -160,3 +161,55 @@ def send_build_report(
             job, kernel)
 
     return status
+
+
+@taskc.app.task(name="send-multi-email-errors-report")
+def send_multiple_emails_error(job, kernel, date, email_format, data):
+    to_addrs = []
+    cc_addrs = []
+
+    email_data = {
+        "job": job,
+        "kernel": kernel,
+        "trigger_time": date,
+        "email_format": email_format,
+        "to_addrs": to_addrs,
+        "cc_addrs": cc_addrs,
+        "subject": data.get("subject"),
+        "in_reply_to": data.get("in_reply_to"),
+        "trigger_time": date
+    }
+
+    if data.get("generic_emails"):
+        to_addrs.extend(data.get("generic_emails"))
+    if data.get("boot_emails"):
+        to_addrs.extend(data.get("boot_emails"))
+    if data.get("build_emails"):
+        to_addrs.extend(data.get("build_emails"))
+
+    if data.get("build_cc_emails"):
+        cc_addrs.extend(data.get("build_cc_emails"))
+    if data.get("build_bcc_emails"):
+        cc_addrs.extend(data.get("build_cc_emails"))
+    if data.get("boot_cc_emails"):
+        cc_addrs.extend(data.get("boot_cc_emails"))
+    if data.get("boot_bcc_emails"):
+        cc_addrs.extend(data.get("boot_bcc_emails"))
+    if data.get("generic_cc_emails"):
+        cc_addrs.extend(data.get("generic_cc_emails"))
+    if data.get("generic_bcc_emails"):
+        cc_addrs.extend(data.get("generic_bcc_emails"))
+
+    txt_body, html_body, subject = \
+        utils.report.error.create_duplicate_email_report(email_data)
+
+    if all([any([txt_body, html_body]), subject]):
+        utils.LOG.info(
+            "Sending duplicate emails report for %s - %s", job, kernel)
+        utils.emails.send_email(
+            [taskc.app.conf.mail_options.get("error_email")],
+            subject,
+            txt_body,
+            html_body,
+            taskc.app.conf.mail_options
+        )
