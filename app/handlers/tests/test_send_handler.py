@@ -139,9 +139,9 @@ class TestSendHandler(TestHandlerBase):
                 "kernel",
                 None,
                 ["txt"],
-                ["test@example.org"], self.dboptions, self.mailoptions
+                ["test@example.org"], self.dboptions, self.mail_options
             ],
-            countdown=60*60,
+            countdown=60 * 60,
             kwargs={
                 "cc_addrs": [],
                 "bcc_addrs": [], "in_reply_to": None, "subject": None
@@ -189,7 +189,7 @@ class TestSendHandler(TestHandlerBase):
                 "kernel",
                 None,
                 ["txt"],
-                ["test@example.org"], self.dboptions, self.mailoptions
+                ["test@example.org"], self.dboptions, self.mail_options
             ],
             countdown=100,
             kwargs={
@@ -222,7 +222,7 @@ class TestSendHandler(TestHandlerBase):
                 "kernel",
                 None,
                 ["txt"],
-                ["test@example.org"], self.dboptions, self.mailoptions
+                ["test@example.org"], self.dboptions, self.mail_options
             ],
             countdown=18000,
             kwargs={
@@ -254,9 +254,9 @@ class TestSendHandler(TestHandlerBase):
                 "job",
                 "kernel",
                 ["txt"],
-                ["test@example.org"], self.dboptions, self.mailoptions
+                ["test@example.org"], self.dboptions, self.mail_options
             ],
-            countdown=60*60,
+            countdown=60 * 60,
             kwargs={
                 "cc_addrs": [],
                 "bcc_addrs": [], "in_reply_to": None, "subject": None
@@ -311,9 +311,9 @@ class TestSendHandler(TestHandlerBase):
                 "kernel",
                 None,
                 ["txt"],
-                ["test2@example.org"], self.dboptions, self.mailoptions
+                ["test2@example.org"], self.dboptions, self.mail_options
             ],
-            countdown=60*60,
+            countdown=60 * 60,
             kwargs={
                 "cc_addrs": [],
                 "bcc_addrs": [],
@@ -325,9 +325,9 @@ class TestSendHandler(TestHandlerBase):
                 "job",
                 "kernel",
                 ["txt"],
-                ["test@example.org"], self.dboptions, self.mailoptions
+                ["test@example.org"], self.dboptions, self.mail_options
             ],
-            countdown=60*60,
+            countdown=60 * 60,
             kwargs={
                 "cc_addrs": [],
                 "bcc_addrs": [],

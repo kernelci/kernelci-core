@@ -539,7 +539,7 @@ class TestJobCompareHandler(TestHandlerBase):
             [body],
             kwargs={
                 "db_options": self.dboptions,
-                "mail_options": self.mailoptions
+                "mail_options": self.mail_options
             }
         )
         self.assertEqual(response.code, 200)
@@ -603,7 +603,7 @@ class TestJobCompareHandler(TestHandlerBase):
             [expected_body],
             kwargs={
                 "db_options": self.dboptions,
-                "mail_options": self.mailoptions
+                "mail_options": self.mail_options
             }
         )
         self.assertEqual(response.code, 200)
