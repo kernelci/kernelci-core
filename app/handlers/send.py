@@ -130,7 +130,7 @@ class SendHandler(hbase.BaseHandler):
                     str(email_type)
                 )
 
-                hashable_str = "{}{}{}{}{}{}{}{}{}{}{}{}{}{}".format(
+                hashable_str = "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}".format(
                     job,
                     kernel,
                     str(schedule_data["boot_emails"]),
@@ -144,7 +144,8 @@ class SendHandler(hbase.BaseHandler):
                     str(schedule_data["generic_bcc_emails"]),
                     schedule_data["in_reply_to"],
                     schedule_data["subject"],
-                    str(email_type)
+                    str(email_type),
+                    str(email_format)
                 )
                 schedule_hash = hashlib.sha1(hashable_str).hexdigest()
 
@@ -187,6 +188,7 @@ class SendHandler(hbase.BaseHandler):
                                     kernel,
                                     datetime.datetime.utcnow(),
                                     email_format,
+                                    email_type,
                                     schedule_data
                                 ]
                             )

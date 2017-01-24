@@ -10,25 +10,34 @@ at:
 Details
 {{ "{:-^80}".format("") }}
 
+Report type:
+{%- for e_type in email_type %}
+    * {{ e_type }}
+{%- endfor %}
+
 Email format:
 {%- for format in email_format %}
     * {{ format }}
-{% endfor %}
+{%- endfor %}
 {%- if subject %}
+
 Subject: {{ subject }}
 {%- endif %}
 {%- if in_reply_to %}
+
 In reply to: {{ in_reply_to }}
 {%- endif %}
 {%- if to_addrs %}
+
 To addresses:
 {%- for addr in to_addrs %}
     * {{ addr }}
-{% endfor %}
+{%- endfor %}
 {%- endif %}
 {%- if cc_addrs %}
+
 Cc/Bcc addresses:
-{% for addr in cc_addrs %}
+{%- for addr in cc_addrs %}
     * {{ addr }}
-{% endfor %}
+{%- endfor %}
 {%- endif %}

@@ -23,11 +23,11 @@ MULTIPLE_EMAILS_SUBJECT = \
 
 def create_duplicate_email_report(data):
     """Create the email report for duplicated trigger emails.
-    
+
     When we receive multiple triggers for the same job-kernel, send an error
     email.
     Only a TXT one will be created.
-    
+
     :param data: The data for the email.
     :type dict
     :return The txt and html body, and the subject string.

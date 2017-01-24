@@ -164,7 +164,8 @@ def send_build_report(
 
 
 @taskc.app.task(name="send-multi-email-errors-report")
-def send_multiple_emails_error(job, kernel, date, email_format, data):
+def send_multiple_emails_error(
+        job, kernel, date, email_format, email_type, data):
     to_addrs = []
     cc_addrs = []
 
@@ -173,6 +174,7 @@ def send_multiple_emails_error(job, kernel, date, email_format, data):
         "kernel": kernel,
         "trigger_time": date,
         "email_format": email_format,
+        "email_type": email_type,
         "to_addrs": to_addrs,
         "cc_addrs": cc_addrs,
         "subject": data.get("subject"),
