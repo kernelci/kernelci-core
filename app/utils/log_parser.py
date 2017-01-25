@@ -25,7 +25,6 @@ except ImportError:
 
 import bson
 import datetime
-import io
 import itertools
 import os
 import re
@@ -480,7 +479,7 @@ def _read_build_data(build_dir, job, kernel, errors):
         build_data = None
 
         try:
-            with io.open(build_file, "r") as read_file:
+            with open(build_file, "r") as read_file:
                 build_data = json.load(read_file)
 
             build_doc, _ = utils.build.parse_build_data(
@@ -530,82 +529,72 @@ def _parse_log(job, kernel, defconfig, log_file, build_dir, errors):
             line = line[3:]
         return line
 
-    status = 200
-
     error_lines = []
     warning_lines = []
     mismatch_lines = []
+
+    if not os.path.isfile(log_file):
+        utils.LOG.warn("Build dir '%s' does not have a build log" % defconfig)
+        return 500, [], [], []
 
     errors_file = os.path.join(build_dir, utils.BUILD_ERRORS_FILE)
     warnings_file = os.path.join(build_dir, utils.BUILD_WARNINGS_FILE)
     mismatches_file = os.path.join(build_dir, utils.BUILD_MISMATCHES_FILE)
 
-    if os.path.isfile(log_file):
-        utils.LOG.info("Parsing build log file '%s'", log_file)
+    utils.LOG.info("Parsing build log file '%s'", log_file)
 
-        err_append = error_lines.append
-        warn_append = warning_lines.append
-        mismatch_append = mismatch_lines.append
+    err_append = error_lines.append
+    warn_append = warning_lines.append
+    mismatch_append = mismatch_lines.append
 
-        try:
-            with io.open(log_file) as read_file:
-                for line in read_file:
-                    has_err = has_warn = False
-                    for err_pattrn in ERROR_PATTERNS:
-                        if re.search(err_pattrn, line):
-                            has_err = True
-                            line = line.strip()
-                            err_append(_clean_path(line))
-                            break
+    try:
+        with open(log_file) as read_file:
+            for line in read_file:
+                if any(re.search(err_pattrn, line)
+                       for err_pattrn in ERROR_PATTERNS):
+                    line = line.strip()
+                    err_append(_clean_path(line))
+                    continue
 
-                    if not has_err:
-                        if re.search(WARNING_PATTERN, line):
-                            for warn_pattrn in EXCLUDE_PATTERNS:
-                                if re.search(warn_pattrn, line):
-                                    break
-                            else:
-                                has_warn = True
-                                line = line.strip()
-                                warn_append(_clean_path(line))
+                if re.search(WARNING_PATTERN, line) \
+                        and not any(re.search(warn_pattrn, line)
+                                    for warn_pattrn in EXCLUDE_PATTERNS):
+                    line = line.strip()
+                    warn_append(_clean_path(line))
+                    continue
 
-                    if all([not has_err, not has_warn]):
-                        if re.search(MISMATCH_PATTERN, line):
-                            line = line.strip()
-                            mismatch_append(_clean_path(line))
-        except IOError, ex:
-            err_msg = "Cannot read build log file for %s-%s-%s"
-            utils.LOG.exception(ex)
-            utils.LOG.error(err_msg, job, kernel, defconfig)
-            status = 500
-            ERR_ADD(errors, status, err_msg % (job, kernel, defconfig))
-        else:
-            try:
-                # TODO: count the lines here.
-                if error_lines:
-                    with io.open(errors_file, mode="w") as w_file:
-                        for line in error_lines:
-                            w_file.write(line)
-                            w_file.write(u"\n")
-                if warning_lines:
-                    with io.open(warnings_file, mode="w") as w_file:
-                        for line in warning_lines:
-                            w_file.write(line)
-                            w_file.write(u"\n")
-                if mismatch_lines:
-                    with io.open(mismatches_file, mode="w") as w_file:
-                        for line in mismatch_lines:
-                            w_file.write(line)
-                            w_file.write(u"\n")
-            except IOError, ex:
-                err_msg = "Error writing to errors/warnings file for %s-%s-%s"
-                utils.LOG.exception(ex)
-                utils.LOG.error(err_msg, job, kernel, defconfig)
-                status = 500
-                ERR_ADD(errors, status, err_msg % (job, kernel, defconfig))
-    else:
-        utils.LOG.warn("Build dir '%s' does not have a build log" % defconfig)
+                if re.search(MISMATCH_PATTERN, line):
+                    line = line.strip()
+                    mismatch_append(_clean_path(line))
+    except IOError, ex:
+        err_msg = "Cannot read build log file for %s-%s-%s"
+        utils.LOG.exception(ex)
+        utils.LOG.error(err_msg, job, kernel, defconfig)
         status = 500
+        ERR_ADD(errors, status, err_msg % (job, kernel, defconfig))
+        return status, [], [], []
 
+    def _save_lines(lines, filename):
+        # TODO: count the lines here.
+        if not lines:
+            return
+        with open(filename, mode="w") as w_file:
+            for line in lines:
+                w_file.write(line)
+                w_file.write(u"\n")
+
+    try:
+        _save_lines(error_lines, errors_file)
+        _save_lines(warning_lines, warnings_file)
+        _save_lines(mismatch_lines, mismatches_file)
+    except IOError, ex:
+        err_msg = "Error writing to errors/warnings file for %s-%s-%s"
+        utils.LOG.exception(ex)
+        utils.LOG.error(err_msg, job, kernel, defconfig)
+        status = 500
+        ERR_ADD(errors, status, err_msg % (job, kernel, defconfig))
+    else:
+        status = 200
     return status, error_lines, warning_lines, mismatch_lines
 
 

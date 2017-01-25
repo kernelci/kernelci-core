@@ -33,6 +33,11 @@ import utils
 import utils.db
 import utils.errors
 
+try:  # Py3K compat
+    basestring
+except NameError:
+    basestring = str
+
 # Some dtb appears to be in a temp directory like 'tmp', and will results in
 # some weird names.
 TMP_RE = re.compile(r"tmp")
@@ -51,6 +56,10 @@ ERR_ADD = utils.errors.add_error
 
 class BootImportError(Exception):
     """General boot import exceptions class."""
+
+
+class BootValidationError(ValueError, BootImportError):
+    """General error for values of boot data."""
 
 
 def save_or_update(boot_doc, database, errors):
@@ -165,124 +174,128 @@ def save_to_disk(boot_doc, json_obj, base_path, errors):
         ERR_ADD(errors, 500, err_msg)
 
 
-def _update_boot_doc_from_json(boot_doc, json_pop_f, errors):
-    """Update a BootDocument from the provided JSON boot object.
+def _get_boot_seconds(boot_dict):
+    """Returns boot time in seconds"""
+    try:
+        boot_time_raw = boot_dict[models.BOOT_TIME_KEY]
+    except KeyError:
+        raise BootValidationError("Boot time missing")
+    try:
+        boot_time = float(boot_time_raw)
+    except ValueError:
+        raise BootValidationError("Boot time is not a number: {!r}".format(boot_time_raw))
+    if boot_time < 0.0:
+        raise BootValidationError("Found negative boot time")
+    return boot_time
+
+
+def _seconds_as_datetime(seconds):
+    """
+    Returns seconds encoded as a point in time `seconds` seconds after since 1970-01-01T00:00:00Z.
+    """
+    return datetime.datetime(1970, 1, 1) + datetime.timedelta(seconds=seconds)
+
+
+def _update_boot_doc_from_json(boot_doc, boot_dict, errors):
+    """Update a BootDocument from the provided boot dictionary.
 
     This function does not return anything, and the BootDocument passed is
     updated from the values found in the provided JSON object.
 
     :param boot_doc: The BootDocument to update.
     :type boot_doc: `models.boot.BootDocument`.
-    :param json_pop_f: The function used to pop elements out of the JSON
-    object.
-    :type json_pop_f: function
+    :param boot_dict: Boot dictionary.
+    :type boot_dict: dict
     :param errors: Where errors should be stored.
     :type errors: dict
     """
-    boot_time = json_pop_f(models.BOOT_TIME_KEY, 0.0)
+
     try:
-        seconds = float(boot_time)
-    except ValueError, ex:
-        # Default to 0.
+        seconds = _get_boot_seconds(boot_dict)
+    except BootValidationError as ex:
         seconds = 0.0
-        err_msg = (
-            "Error reading boot time data, got: %s; defaulting to 0" %
-            str(boot_time))
+        err_msg = "Error reading boot time data; defaulting to 0"
         utils.LOG.exception(ex)
         utils.LOG.error(err_msg)
         ERR_ADD(errors, 400, err_msg)
 
     try:
-        if seconds < 0.0:
-            seconds = 0.0
-            ERR_ADD(errors, 400, "Boot time is negative, defaulting to 0")
-
-        if seconds == 0.0:
-            boot_doc.time = datetime.datetime(
-                1970, 1, 1, hour=0, minute=0, second=0)
-        else:
-            time_d = datetime.timedelta(seconds=seconds)
-            boot_doc.time = datetime.datetime(
-                1970, 1, 1,
-                minute=time_d.seconds / 60,
-                second=time_d.seconds % 60,
-                microsecond=time_d.microseconds
-            )
-    except OverflowError, ex:
-        # Default to 0 time.
-        boot_doc.time = datetime.datetime(
-            1970, 1, 1, hour=0, minute=0, second=0)
+        boot_doc.time = _seconds_as_datetime(seconds)
+    except OverflowError as ex:
+        seconds = 0.0
         err_msg = "Boot time value is too large for a time value, default to 0"
         utils.LOG.exception(ex)
         utils.LOG.error(err_msg)
         ERR_ADD(errors, 400, err_msg)
 
-    boot_doc.status = json_pop_f(
+    if seconds == 0.0:
+        boot_doc.time = _seconds_as_datetime(seconds)
+
+    boot_doc.status = boot_dict.get(
         models.BOOT_RESULT_KEY, models.UNKNOWN_STATUS)
-    boot_doc.board_instance = json_pop_f(models.BOARD_INSTANCE_KEY, None)
-    boot_doc.boot_log = json_pop_f(models.BOOT_LOG_KEY, None)
-    boot_doc.boot_log_html = json_pop_f(models.BOOT_LOG_HTML_KEY, None)
-    boot_doc.boot_result_description = json_pop_f(
+    boot_doc.board_instance = boot_dict.get(models.BOARD_INSTANCE_KEY, None)
+    boot_doc.boot_log = boot_dict.get(models.BOOT_LOG_KEY, None)
+    boot_doc.boot_log_html = boot_dict.get(models.BOOT_LOG_HTML_KEY, None)
+    boot_doc.boot_result_description = boot_dict.get(
         models.BOOT_RESULT_DESC_KEY, None)
-    boot_doc.dtb = json_pop_f(models.DTB_KEY, None)
-    boot_doc.dtb_addr = json_pop_f(models.DTB_ADDR_KEY, None)
-    boot_doc.dtb_append = json_pop_f(models.DTB_APPEND_KEY, None)
-    boot_doc.endian = json_pop_f(models.ENDIANNESS_KEY, None)
-    boot_doc.fastboot = json_pop_f(models.FASTBOOT_KEY, None)
-    boot_doc.fastboot_cmd = json_pop_f(models.FASTBOOT_CMD_KEY, None)
-    boot_doc.file_server_resource = json_pop_f(
+    boot_doc.dtb = boot_dict.get(models.DTB_KEY, None)
+    boot_doc.dtb_addr = boot_dict.get(models.DTB_ADDR_KEY, None)
+    boot_doc.dtb_append = boot_dict.get(models.DTB_APPEND_KEY, None)
+    boot_doc.endian = boot_dict.get(models.ENDIANNESS_KEY, None)
+    boot_doc.fastboot = boot_dict.get(models.FASTBOOT_KEY, None)
+    boot_doc.fastboot_cmd = boot_dict.get(models.FASTBOOT_CMD_KEY, None)
+    boot_doc.file_server_resource = boot_dict.get(
         models.FILE_SERVER_RESOURCE_KEY, None)
-    boot_doc.file_server_url = json_pop_f(models.FILE_SERVER_URL_KEY, None)
-    boot_doc.git_branch = json_pop_f(models.GIT_BRANCH_KEY, None)
-    boot_doc.git_commit = json_pop_f(models.GIT_COMMIT_KEY, None)
-    boot_doc.git_describe = json_pop_f(models.GIT_DESCRIBE_KEY, None)
-    boot_doc.git_url = json_pop_f(models.GIT_URL_KEY, None)
-    boot_doc.initrd_addr = json_pop_f(models.INITRD_ADDR_KEY, None)
-    boot_doc.kernel_image = json_pop_f(models.KERNEL_IMAGE_KEY, None)
-    boot_doc.load_addr = json_pop_f(models.BOOT_LOAD_ADDR_KEY, None)
-    boot_doc.metadata = json_pop_f(models.METADATA_KEY, {})
-    boot_doc.qemu = json_pop_f(models.QEMU_KEY, None)
-    boot_doc.qemu_command = json_pop_f(models.QEMU_COMMAND_KEY, None)
-    boot_doc.retries = json_pop_f(models.BOOT_RETRIES_KEY, 0)
-    boot_doc.uimage = json_pop_f(models.UIMAGE_KEY, None)
-    boot_doc.uimage_addr = json_pop_f(models.UIMAGE_ADDR_KEY, None)
-    boot_doc.version = json_pop_f(models.VERSION_KEY, "1.0")
-    boot_doc.warnings = json_pop_f(models.BOOT_WARNINGS_KEY, 0)
-    boot_doc.bootloader = json_pop_f(models.BOOTLOADER_TYPE_KEY, None)
-    boot_doc.bootloader_version = json_pop_f(
+    boot_doc.file_server_url = boot_dict.get(models.FILE_SERVER_URL_KEY, None)
+    boot_doc.git_branch = boot_dict.get(models.GIT_BRANCH_KEY, None)
+    boot_doc.git_commit = boot_dict.get(models.GIT_COMMIT_KEY, None)
+    boot_doc.git_describe = boot_dict.get(models.GIT_DESCRIBE_KEY, None)
+    boot_doc.git_url = boot_dict.get(models.GIT_URL_KEY, None)
+    boot_doc.initrd_addr = boot_dict.get(models.INITRD_ADDR_KEY, None)
+    boot_doc.kernel_image = boot_dict.get(models.KERNEL_IMAGE_KEY, None)
+    boot_doc.load_addr = boot_dict.get(models.BOOT_LOAD_ADDR_KEY, None)
+    boot_doc.metadata = boot_dict.get(models.METADATA_KEY, {})
+    boot_doc.qemu = boot_dict.get(models.QEMU_KEY, None)
+    boot_doc.qemu_command = boot_dict.get(models.QEMU_COMMAND_KEY, None)
+    boot_doc.retries = boot_dict.get(models.BOOT_RETRIES_KEY, 0)
+    boot_doc.uimage = boot_dict.get(models.UIMAGE_KEY, None)
+    boot_doc.uimage_addr = boot_dict.get(models.UIMAGE_ADDR_KEY, None)
+    boot_doc.version = boot_dict.get(models.VERSION_KEY, "1.0")
+    boot_doc.warnings = boot_dict.get(models.BOOT_WARNINGS_KEY, 0)
+    boot_doc.bootloader = boot_dict.get(models.BOOTLOADER_TYPE_KEY, None)
+    boot_doc.bootloader_version = boot_dict.get(
         models.BOOTLOADER_VERSION_KEY, None)
-    boot_doc.chainloader = json_pop_f(models.CHAINLOADER_TYPE_KEY, None)
-    boot_doc.filesystem = json_pop_f(models.FILESYSTEM_TYPE_KEY, None)
-    boot_doc.boot_job_id = json_pop_f(models.BOOT_JOB_ID_KEY, None)
-    boot_doc.boot_job_path = json_pop_f(models.BOOT_JOB_PATH_KEY, None)
-    boot_doc.boot_job_url = json_pop_f(models.BOOT_JOB_URL_KEY, None)
+    boot_doc.chainloader = boot_dict.get(models.CHAINLOADER_TYPE_KEY, None)
+    boot_doc.filesystem = boot_dict.get(models.FILESYSTEM_TYPE_KEY, None)
+    boot_doc.boot_job_id = boot_dict.get(models.BOOT_JOB_ID_KEY, None)
+    boot_doc.boot_job_path = boot_dict.get(models.BOOT_JOB_PATH_KEY, None)
+    boot_doc.boot_job_url = boot_dict.get(models.BOOT_JOB_URL_KEY, None)
 
-    boot_doc.mach = json_pop_f(models.MACH_KEY, None)
-    # If the mach_alias key is defined in the JSON data, its value will be the
-    # value of the mack key.
-    mach_alias = json_pop_f(models.MACH_ALIAS_KEY, None)
-    if mach_alias:
-        boot_doc.mach = mach_alias
+    # mach_alias_key takes precedence if defined
+    boot_doc.mach = boot_dict.get(models.MACH_ALIAS_KEY,
+        boot_dict.get(models.MACH_KEY, None))
 
 
-def _check_for_null(get_func):
-    """Check if the json object has invalid values in its mandatory keys.
+def _check_for_null(board_dict):
+    """Check if the board dictionary has values resembling None in its mandatory keys.
 
-    An invalid value is either None or the "null" string.
+    Values must be different than:
+    - None
+    - ""
+    - "null"
 
-    :param get_func: The get() function to retrieve the data.
-    :type get_func: function
+    :param board_dict: The board dictoinary.
+    :type board_dict: dict
 
-    :raise BootImportError in case of errors.
+    :raise BootValidationError if any of the keys matches the condition.
     """
-    err_msg = "Invalid value found for mandatory key '%s': %s"
-
     for key in NON_NULL_KEYS:
-        t_val = str(get_func(key, ""))
-
-        val = t_val.lower()
-        if any([not val, val == "null", val == "none"]):
-            raise BootImportError(err_msg.format(key, t_val))
+        val = board_dict.get(key, None)
+        if val is None or (isinstance(val, basestring) \
+                and val.lower() in ('', 'null', 'none')):
+            raise BootValidationError(
+                "Invalid value found for mandatory key {!r}: {!r}" \
+                .format(key, val))
 
 
 def _update_boot_doc_ids(boot_doc, database):
@@ -373,47 +386,45 @@ def _parse_boot_from_json(boot_json, database, errors):
     :return A `models.boot.BootDocument` instance, or None if the JSON cannot
     be parsed correctly.
     """
-    boot_doc = None
+    if not boot_json:
+        return None
 
-    if boot_json:
-        try:
-            json_pop_f = boot_json.pop
-            json_get_f = boot_json.get
+    try:
+        _check_for_null(boot_json)
+    except BootValidationError, ex:
+        utils.LOG.exception(ex)
+        ERR_ADD(errors, 400, str(ex))
+        return None
 
-            _check_for_null(json_get_f)
+    try:
+        board = boot_json[models.BOARD_KEY]
+        job = boot_json[models.JOB_KEY]
+        kernel = boot_json[models.KERNEL_KEY]
+        defconfig = boot_json[models.DEFCONFIG_KEY]
+        lab_name = boot_json[models.LAB_NAME_KEY]
+    except KeyError, ex:
+        err_msg = "Missing mandatory key in boot data"
+        utils.LOG.exception(ex)
+        utils.LOG.error(err_msg)
+        ERR_ADD(errors, 400, err_msg)
+        return None
 
-            board = json_pop_f(models.BOARD_KEY)
-            job = json_pop_f(models.JOB_KEY)
-            kernel = json_pop_f(models.KERNEL_KEY)
-            defconfig = json_pop_f(models.DEFCONFIG_KEY)
-            defconfig_full = json_pop_f(models.DEFCONFIG_FULL_KEY, defconfig)
-            lab_name = json_pop_f(models.LAB_NAME_KEY)
-            arch = json_pop_f(
-                models.ARCHITECTURE_KEY, models.ARM_ARCHITECTURE_KEY)
+    defconfig_full = boot_json.get(models.DEFCONFIG_FULL_KEY, defconfig)
+    arch = boot_json.get(models.ARCHITECTURE_KEY, models.ARM_ARCHITECTURE_KEY)
 
-            if not arch:
-                arch = models.ARM_ARCHITECTURE_KEY
+    if arch not in models.VALID_ARCHITECTURES:
+        err_msg = "Invalid architecture found: %s".format(arch)
+        utils.LOG.error(err_msg)
+        ERR_ADD(errors, 400, err_msg)
+        return None
 
-            if arch in models.VALID_ARCHITECTURES:
-                boot_doc = mboot.BootDocument(
-                    board,
-                    job, kernel, defconfig, lab_name, defconfig_full, arch)
-                boot_doc.created_on = datetime.datetime.now(
-                    tz=bson.tz_util.utc)
-                _update_boot_doc_from_json(boot_doc, json_pop_f, errors)
-                _update_boot_doc_ids(boot_doc, database)
-            else:
-                raise BootImportError(
-                    "Invalid architecture found: %s".format(arch))
-        except KeyError, ex:
-            err_msg = "Missing mandatory key in boot data"
-            utils.LOG.exception(ex)
-            utils.LOG.error(err_msg)
-            ERR_ADD(errors, 400, err_msg)
-        except BootImportError, ex:
-            utils.LOG.exception(ex)
-            ERR_ADD(errors, 400, str(ex))
-
+    boot_doc = mboot.BootDocument(
+        board,
+        job, kernel, defconfig, lab_name, defconfig_full, arch)
+    boot_doc.created_on = datetime.datetime.now(
+        tz=bson.tz_util.utc)
+    _update_boot_doc_from_json(boot_doc, boot_json, errors)
+    _update_boot_doc_ids(boot_doc, database)
     return boot_doc
 
 

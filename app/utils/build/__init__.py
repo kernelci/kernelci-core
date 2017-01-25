@@ -26,7 +26,6 @@ except ImportError:
 import bson
 import datetime
 import glob
-import io
 import os
 import pymongo.errors
 import re
@@ -215,9 +214,16 @@ def _extract_kernel_version(git_describe_v, git_describe):
     return kernel_version
 
 
+class BuildError(Exception):
+    def __init__(self, code, *args, **kwargs):
+        self.code = code
+        self.from_exc = kwargs.pop('from_exc', None)
+        super(BuildError, self).__init__(*args, **kwargs)
+
+
 # pylint: disable=too-many-locals
 # pylint: disable=too-many-statements
-def parse_build_data(build_data, job, kernel, errors, build_dir=None):
+def parse_build_data(build_data, job, kernel, build_dir=None):
     """Parse the json build data and craete the corresponding document.
 
     :param build_data: The json build data.
@@ -230,106 +236,97 @@ def parse_build_data(build_data, job, kernel, errors, build_dir=None):
     :type errors: dictionary
     :param build_dir: Full path to the build directory.
     :type build_dir: string
-    :return A 2-tuple: A BuildDocument or None, a dictionary with artifacts
-    keys and names.
+    :return A 2-tuple: (BuildDocument, a "artifact type": "artifact name"
+    dictionary)
     """
-    build_doc = None
-    artifacts = {}
+    if not isinstance(build_data, types.DictionaryType):
+        raise BuildError(500, "JSON data is not a dictionary")
 
-    if all([build_data, isinstance(build_data, types.DictionaryType)]):
-        data_pop = build_data.pop
+    try:
+        defconfig = build_data[models.DEFCONFIG_KEY]
+        d_job = build_data.get(models.JOB_KEY, job)
+        d_kernel = build_data.get(models.KERNEL_KEY, kernel)
+        defconfig_full = build_data.get(models.DEFCONFIG_FULL_KEY, None)
+        kconfig_fragments = build_data.get(
+            models.KCONFIG_FRAGMENTS_KEY, None)
 
-        try:
-            defconfig = data_pop(models.DEFCONFIG_KEY)
-            d_job = data_pop(models.JOB_KEY, None) or job
-            d_kernel = data_pop(models.KERNEL_KEY, None) or kernel
-            defconfig_full = data_pop(models.DEFCONFIG_FULL_KEY, None)
-            kconfig_fragments = data_pop(
-                models.KCONFIG_FRAGMENTS_KEY, None)
+        defconfig_full = utils.get_defconfig_full(
+            build_dir, defconfig, defconfig_full, kconfig_fragments)
 
-            defconfig_full = utils.get_defconfig_full(
-                build_dir, defconfig, defconfig_full, kconfig_fragments)
+        build_doc = mbuild.BuildDocument(
+            d_job, d_kernel, defconfig, defconfig_full=defconfig_full)
 
-            build_doc = mbuild.BuildDocument(
-                d_job, d_kernel, defconfig, defconfig_full=defconfig_full)
+        build_doc.dirname = build_dir
+        build_doc.arch = build_data.get(models.ARCHITECTURE_KEY, None)
+        build_doc.build_log = build_data.get(models.BUILD_LOG_KEY, None)
+        build_doc.build_platform = build_data.get(
+            models.BUILD_PLATFORM_KEY, [])
+        build_doc.build_time = build_data.get(models.BUILD_TIME_KEY, 0)
+        build_doc.build_type = build_data.get(
+            models.BUILD_TYPE_KEY, models.KERNEL_BUILD_TYPE)
+        build_doc.dtb_dir = build_data.get(models.DTB_DIR_KEY, None)
+        build_doc.errors = build_data.get(models.BUILD_ERRORS_KEY, 0)
+        build_doc.file_server_resource = build_data.get(
+            models.FILE_SERVER_RESOURCE_KEY, None)
+        build_doc.file_server_url = build_data.get(
+            models.FILE_SERVER_URL_KEY, None)
+        build_doc.git_branch = build_data.get(
+            models.GIT_BRANCH_KEY, None)
+        build_doc.git_commit = build_data.get(
+            models.GIT_COMMIT_KEY, None)
+        build_doc.git_describe = build_data.get(
+            models.GIT_DESCRIBE_KEY, None)
+        build_doc.git_url = build_data.get(models.GIT_URL_KEY, None)
+        build_doc.kconfig_fragments = kconfig_fragments
+        build_doc.kernel_config = build_data.get(
+            models.KERNEL_CONFIG_KEY, None)
+        build_doc.kernel_image = build_data.get(
+            models.KERNEL_IMAGE_KEY, None)
+        build_doc.modules = build_data.get(models.MODULES_KEY, None)
+        build_doc.modules_dir = build_data.get(
+            models.MODULES_DIR_KEY, None)
+        build_doc.status = build_data.get(
+            models.BUILD_RESULT_KEY, models.UNKNOWN_STATUS)
+        build_doc.system_map = build_data.get(
+            models.SYSTEM_MAP_KEY, None)
+        build_doc.text_offset = build_data.get(
+            models.TEXT_OFFSET_KEY, None)
+        build_doc.version = build_data.get(models.VERSION_KEY, "1.0")
+        build_doc.warnings = build_data.get(models.BUILD_WARNINGS_KEY, 0)
+        build_doc.kernel_image_size = build_data.get(
+            models.KERNEL_IMAGE_SIZE_KEY, None)
+        build_doc.modules_size = build_data.get(models.MODULES_SIZE_KEY, None)
+        build_doc.cross_compile = build_data.get(models.CROSS_COMPILE_KEY, None)
 
-            build_doc.dirname = build_dir
-            build_doc.arch = data_pop(models.ARCHITECTURE_KEY, None)
-            build_doc.build_log = data_pop(models.BUILD_LOG_KEY, None)
-            build_doc.build_platform = data_pop(
-                models.BUILD_PLATFORM_KEY, [])
-            build_doc.build_time = data_pop(models.BUILD_TIME_KEY, 0)
-            build_doc.build_type = data_pop(
-                models.BUILD_TYPE_KEY, models.KERNEL_BUILD_TYPE)
-            build_doc.dtb_dir = data_pop(models.DTB_DIR_KEY, None)
-            build_doc.errors = data_pop(models.BUILD_ERRORS_KEY, 0)
-            build_doc.file_server_resource = data_pop(
-                models.FILE_SERVER_RESOURCE_KEY, None)
-            build_doc.file_server_url = data_pop(
-                models.FILE_SERVER_URL_KEY, None)
-            build_doc.git_branch = data_pop(
-                models.GIT_BRANCH_KEY, None)
-            build_doc.git_commit = data_pop(
-                models.GIT_COMMIT_KEY, None)
-            build_doc.git_describe = data_pop(
-                models.GIT_DESCRIBE_KEY, None)
-            build_doc.git_url = data_pop(models.GIT_URL_KEY, None)
-            build_doc.kconfig_fragments = kconfig_fragments
-            build_doc.kernel_config = data_pop(
-                models.KERNEL_CONFIG_KEY, None)
-            build_doc.kernel_image = data_pop(
-                models.KERNEL_IMAGE_KEY, None)
-            build_doc.modules = data_pop(models.MODULES_KEY, None)
-            build_doc.modules_dir = data_pop(
-                models.MODULES_DIR_KEY, None)
-            build_doc.status = data_pop(
-                models.BUILD_RESULT_KEY, models.UNKNOWN_STATUS)
-            build_doc.system_map = data_pop(
-                models.SYSTEM_MAP_KEY, None)
-            build_doc.text_offset = data_pop(
-                models.TEXT_OFFSET_KEY, None)
-            build_doc.version = data_pop(models.VERSION_KEY, "1.0")
-            build_doc.warnings = data_pop(models.BUILD_WARNINGS_KEY, 0)
-            build_doc.kernel_image_size = data_pop(
-                models.KERNEL_IMAGE_SIZE_KEY, None)
-            build_doc.modules_size = data_pop(models.MODULES_SIZE_KEY, None)
-            build_doc.cross_compile = data_pop(models.CROSS_COMPILE_KEY, None)
+        build_doc.git_describe_v = build_data.get(
+            models.GIT_DESCRIBE_V_KEY, None)
+        build_doc.kernel_version = _extract_kernel_version(
+            build_doc.git_describe_v, build_doc.git_describe)
 
-            build_doc.git_describe_v = data_pop(
-                models.GIT_DESCRIBE_V_KEY, None)
-            build_doc.kernel_version = _extract_kernel_version(
-                build_doc.git_describe_v, build_doc.git_describe)
+        compiler_version_full = (
+            build_data.get(models.COMPILER_VERSION_FULL_KEY, None) or
+            build_data.get(models.COMPILER_VERSION_KEY, None))
 
-            compiler_version_full = (
-                data_pop(models.COMPILER_VERSION_FULL_KEY, None) or
-                data_pop(models.COMPILER_VERSION_KEY, None))
+        compiler_data = _extract_compiler_data(compiler_version_full)
+        build_doc.compiler = compiler_data[0]
+        build_doc.compiler_version = compiler_data[1]
+        build_doc.compiler_version_ext = compiler_data[2]
+        build_doc.compiler_version_full = compiler_data[3]
 
-            compiler_data = _extract_compiler_data(compiler_version_full)
-            build_doc.compiler = compiler_data[0]
-            build_doc.compiler_version = compiler_data[1]
-            build_doc.compiler_version_ext = compiler_data[2]
-            build_doc.compiler_version_full = compiler_data[3]
-
-            artifacts = {
-                models.BUILD_LOG_SIZE_KEY: build_doc.build_log,
-                models.KERNEL_CONFIG_SIZE_KEY: build_doc.kernel_config,
-                models.KERNEL_IMAGE_SIZE_KEY: build_doc.kernel_image,
-                models.MODULES_SIZE_KEY: build_doc.modules,
-                models.SYSTEM_MAP_SIZE_KEY: build_doc.system_map,
-                models.VMLINUX_FILE_SIZE_KEY:
-                    data_pop(models.VMLINUX_FILE_KEY, None)
-            }
-
-            build_doc.metadata = build_data
-        except KeyError, ex:
-            err_msg = (
-                "Missing mandatory key in build data (job: %s, kernel: %s)")
-            utils.LOG.exception(ex)
-            utils.LOG.error(err_msg, job, kernel)
-            ERR_ADD(errors, 500, err_msg % (job, kernel))
-    else:
-        utils.LOG.error("Provided data does not look like json")
-        ERR_ADD(errors, 500, "Provided data is not json")
+        artifacts = {
+            models.BUILD_LOG_SIZE_KEY: build_doc.build_log,
+            models.KERNEL_CONFIG_SIZE_KEY: build_doc.kernel_config,
+            models.KERNEL_IMAGE_SIZE_KEY: build_doc.kernel_image,
+            models.MODULES_SIZE_KEY: build_doc.modules,
+            models.SYSTEM_MAP_SIZE_KEY: build_doc.system_map,
+            models.VMLINUX_FILE_SIZE_KEY:
+                build_data.get(models.VMLINUX_FILE_KEY, None)
+        }
+    except KeyError, ex:
+        raise BuildError(500,
+            "Missing mandatory key '%s' in build data (job: %s, kernel: %s)" \
+            % (ex.args[0], job, kernel),
+            from_exc=ex)
 
     return build_doc, artifacts
 
@@ -358,65 +355,68 @@ def _traverse_build_dir(
     :return A BuildDocument or None.
     """
     real_dir = os.path.join(kernel_dir, build_dir)
-    build_doc = None
 
     def _scan_build_dir():
         """Yield the files found in the build directory."""
         for entry in scandir(real_dir):
-            if all([
-                    entry.is_file(),
-                    entry.name == models.BUILD_META_JSON_FILE]):
+            if entry.is_file() and entry.name == models.BUILD_META_JSON_FILE:
                 yield entry.name
 
     utils.LOG.info("Traversing %s-%s-%s", job, kernel, build_dir)
     for data_file in _scan_build_dir():
         try:
-            build_data = {}
-            with io.open(os.path.join(real_dir, data_file)) as data:
+            with open(os.path.join(real_dir, data_file)) as data:
                 build_data = json.load(data)
-
-            build_doc, artifacts = parse_build_data(
-                build_data, job, kernel, errors, build_dir=real_dir)
-
-            if build_doc:
-                build_doc.job_id = job_id
-                # Search for previous defconfig doc. This is only useful when
-                # re-importing data and we want to have the same ID as before.
-                doc_id, c_date = _search_prev_build_doc(
-                    build_doc, database)
-                build_doc.id = doc_id
-                if c_date:
-                    build_doc.created_on = c_date
-                else:
-                    # XXX: we used to give defconfig the job date.
-                    build_doc.created_on = datetime.datetime.now(
-                        tz=bson.tz_util.utc)
-
-                if build_doc.dtb_dir:
-                    build_doc.dtb_dir_data = parse_dtb_dir(
-                        real_dir, build_doc.dtb_dir)
-
-                if artifacts:
-                    for key, size in get_artifacts_size(artifacts, real_dir):
-                        setattr(build_doc, key, size)
-
-                    vmlinux = artifacts.get(models.VMLINUX_FILE_SIZE_KEY, None)
-                    if vmlinux:
-                        values = elf.read(os.path.join(build_dir, vmlinux))
-                        for k, v in values.iteritems():
-                            setattr(build_doc, k, v)
         except IOError, ex:
             err_msg = "Error reading json data file (job: %s, kernel: %s) - %s"
             utils.LOG.exception(ex)
             utils.LOG.error(err_msg, job, kernel, build_dir)
             ERR_ADD(errors, 500, err_msg % (job, kernel, build_dir))
+            continue
         except json.JSONDecodeError, ex:
             err_msg = "Error loading json data (job: %s, kernel: %s) - %s"
             utils.LOG.exception(ex)
             utils.LOG.error(err_msg, job, kernel, build_dir)
             ERR_ADD(errors, 500, err_msg % (job, kernel, build_dir))
+            continue
 
-    return build_doc
+        try:
+            build_doc, artifacts = parse_build_data(
+                build_data, job, kernel, build_dir=real_dir)
+        except BuildError as e:
+            if e.from_exc:
+                utils.LOG.exception(e.from_exc)
+            utils.LOG.error(e.args[0])
+            ERR_ADD(errors, e.code, e.args[0])
+            continue
+
+        build_doc.job_id = job_id
+        # Search for previous defconfig doc. This is only useful when
+        # re-importing data and we want to have the same ID as before.
+        doc_id, c_date = _search_prev_build_doc(
+            build_doc, database)
+        build_doc.id = doc_id
+        if c_date:
+            build_doc.created_on = c_date
+        else:
+            # XXX: we used to give defconfig the job date.
+            build_doc.created_on = datetime.datetime.now(
+                tz=bson.tz_util.utc)
+
+        if build_doc.dtb_dir:
+            build_doc.dtb_dir_data = parse_dtb_dir(
+                real_dir, build_doc.dtb_dir)
+
+        if artifacts:
+            for key, size in get_artifacts_size(artifacts, real_dir):
+                setattr(build_doc, key, size)
+
+            vmlinux = artifacts.get(models.VMLINUX_FILE_SIZE_KEY, None)
+            if vmlinux:
+                values = elf.read(os.path.join(build_dir, vmlinux))
+                for k, v in values.iteritems():
+                    setattr(build_doc, k, v)
+        return build_doc
 
 
 def _traverse_kernel_dir(
@@ -753,13 +753,11 @@ def import_single_build(json_obj, db_options, base_path=utils.BASE_PATH):
 
         if os.path.isdir(build_dir):
             try:
-                ret_val = 201
                 database = utils.db.get_db_connection(db_options)
 
                 ret_val, job_doc, job_id = _get_or_create_job(
                     job, kernel, database, db_options)
-
-                if all([ret_val != 201, job_id is None]):
+                if ret_val != 201 and job_id is None:
                     err_msg = (
                         "Error saving/finding job document '%s-%s': "
                         "build document '%s-%s-%s-%s' might not be linked to "
@@ -787,7 +785,6 @@ def import_single_build(json_obj, db_options, base_path=utils.BASE_PATH):
                         "build doc")
                     utils.LOG.error(err_msg, job, kernel)
                     ERR_ADD(errors, ret_val, err_msg % (job, kernel))
-
                 if build_doc:
                     ret_val, build_id = utils.db.save(
                         database, build_doc, manipulate=True)
@@ -820,5 +817,4 @@ def import_single_build(json_obj, db_options, base_path=utils.BASE_PATH):
             "Names cannot start with '.' and cannot contain '$' and '/'")
         utils.LOG.error(err_msg, job, kernel)
         ERR_ADD(errors, 500, err_msg % (job, kernel))
-
     return build_id, job_id, errors
