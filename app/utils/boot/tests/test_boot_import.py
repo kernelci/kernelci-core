@@ -115,8 +115,8 @@ class TestParseBoot(unittest.TestCase):
             "lab_name": None
         }
 
-        self.assertRaises(bimport.BootValidationError,
-            bimport._check_for_null, boot_report)
+        self.assertRaises(
+            bimport.BootValidationError, bimport._check_for_null, boot_report)
 
     def test_check_for_null_with_null_from_string(self):
         boot_report = (
@@ -124,7 +124,8 @@ class TestParseBoot(unittest.TestCase):
             '"kernel": "Null", "defconfig": "Null", "lab_name": "Null"}'
         )
 
-        self.assertRaises(bimport.BootValidationError,
+        self.assertRaises(
+            bimport.BootValidationError,
             bimport._check_for_null, json.loads(boot_report))
 
     def test_check_for_null_with_null_from_string_lower(self):
@@ -133,7 +134,8 @@ class TestParseBoot(unittest.TestCase):
             '"kernel": "null", "defconfig": "null", "lab_name": "null"}'
         )
 
-        self.assertRaises(bimport.BootValidationError,
+        self.assertRaises(
+            bimport.BootValidationError,
             bimport._check_for_null, json.loads(boot_report))
 
     def test_check_for_null_with_none_from_string(self):
@@ -142,7 +144,8 @@ class TestParseBoot(unittest.TestCase):
             '"kernel": "None", "defconfig": "None", "lab_name": "None"}'
         )
 
-        self.assertRaises(bimport.BootValidationError,
+        self.assertRaises(
+            bimport.BootValidationError,
             bimport._check_for_null, json.loads(boot_report))
 
     def test_check_for_null_with_none_from_string_lower(self):
@@ -151,7 +154,8 @@ class TestParseBoot(unittest.TestCase):
             '"kernel": "none", "defconfig": "none", "lab_name": "none"}'
         )
 
-        self.assertRaises(bimport.BootValidationError,
+        self.assertRaises(
+            bimport.BootValidationError,
             bimport._check_for_null, json.loads(boot_report))
 
     def test_check_for_null_with_empty_string_from_string(self):
@@ -160,7 +164,8 @@ class TestParseBoot(unittest.TestCase):
             '"kernel": "", "defconfig": "", "lab_name": ""}'
         )
 
-        self.assertRaises(bimport.BootValidationError,
+        self.assertRaises(
+            bimport.BootValidationError,
             bimport._check_for_null, json.loads(boot_report))
 
     def test_check_for_null_with_empty_string(self):
@@ -172,8 +177,8 @@ class TestParseBoot(unittest.TestCase):
             "lab_name": ""
         }
 
-        self.assertRaises(bimport.BootValidationError,
-            bimport._check_for_null, boot_report)
+        self.assertRaises(
+            bimport.BootValidationError, bimport._check_for_null, boot_report)
 
     def test_save_to_disk(self):
         errors = {}
