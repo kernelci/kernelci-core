@@ -106,14 +106,6 @@ class TestParseBoot(unittest.TestCase):
         self.assertIsInstance(doc, mboot.BootDocument)
         self.assertEqual(doc.arch, "arm")
 
-    def test_parse_from_json_wrong_arch(self):
-        errors = {}
-        self.boot_report["arch"] = ""
-
-        doc = bimport._parse_boot_from_json(self.boot_report, self.db, errors)
-
-        self.assertEqual(doc.arch, "arm")
-
     def test_check_for_null_with_none(self):
         boot_report = {
             "job": None,

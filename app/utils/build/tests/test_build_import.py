@@ -256,28 +256,6 @@ class TestBuildUtils(unittest.TestCase):
         self.assertEqual(build_doc.kernel_config_size, 1027)
         self.assertEqual(build_doc.kernel_image_size, 1028)
 
-    def test_parse_build_data_no_dict(self):
-        build_data = []
-        errors = {}
-
-        build_doc, _ = utils.build.parse_build_data(
-            build_data, "job", "kernel", errors)
-
-        self.assertIsNone(build_doc)
-        self.assertIsNotNone(errors)
-        self.assertListEqual([500], errors.keys())
-
-    def test_parse_build_data_missing_key(self):
-        build_data = {"arch": "arm"}
-        errors = {}
-
-        build_doc, _ = utils.build.parse_build_data(
-            build_data, "job", "kernel", errors)
-
-        self.assertIsNone(build_doc)
-        self.assertIsNotNone(errors)
-        self.assertListEqual([500], errors.keys())
-
     def test_parse_build_data_no_version(self):
         build_data = {"defconfig": "defconfig"}
         errors = {}
@@ -347,7 +325,7 @@ class TestBuildUtils(unittest.TestCase):
         }
 
         build_doc, _ = utils.build.parse_build_data(
-            build_data, "job", "kernel", {}, "arm-build_dir")
+            build_data, "job", "kernel", "arm-build_dir")
 
         self.assertIsInstance(build_doc, mbuild.BuildDocument)
         self.assertEqual(
@@ -376,7 +354,7 @@ class TestBuildUtils(unittest.TestCase):
             "modules_size": 1024
         }
         build_doc, _ = utils.build.parse_build_data(
-            build_data, "job", "kernel", {}, "arm-build_dir")
+            build_data, "job", "kernel", "arm-build_dir")
 
         self.assertIsInstance(build_doc, mbuild.BuildDocument)
         self.assertIsInstance(build_doc.metadata, types.DictionaryType)

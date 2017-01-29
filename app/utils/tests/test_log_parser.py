@@ -146,35 +146,6 @@ class TestBuildLogParser(unittest.TestCase):
         finally:
             shutil.rmtree(build_dir, ignore_errors=True)
 
-    @mock.patch("io.open", create=True)
-    def test_parse_build_log_error_opening(self, mock_open):
-        mock_open.side_effect = IOError
-        build_dir = None
-        errors = {}
-        try:
-            build_dir = tempfile.mkdtemp()
-            log_file = os.path.join(
-                os.path.abspath(os.path.dirname(__file__)),
-                "assets", "build_log_0.log")
-
-            status, e_l, w_l, m_l = lparser._parse_log(
-                "job", "kernel", "defconfig", log_file, build_dir, errors)
-
-            self.assertEqual(500, status)
-
-            self.assertIsInstance(errors, types.DictionaryType)
-            self.assertIsInstance(e_l, types.ListType)
-            self.assertIsInstance(w_l, types.ListType)
-            self.assertIsInstance(m_l, types.ListType)
-
-            self.assertEqual(1, len(errors.keys()))
-            self.assertEqual([500], errors.keys())
-            self.assertEqual(0, len(e_l))
-            self.assertEqual(0, len(w_l))
-            self.assertEqual(0, len(m_l))
-        finally:
-            shutil.rmtree(build_dir, ignore_errors=True)
-
     @mock.patch("utils.db.find_and_update")
     def test_update_prev_summary_simple_with_one_error(self, mock_update):
         mock_update.return_value = 200
