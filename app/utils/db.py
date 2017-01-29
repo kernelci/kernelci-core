@@ -34,7 +34,7 @@ def get_db_client(db_options):
     global CLIENT
 
     if CLIENT is None:
-        if all([not isinstance(db_options, types.DictType), not db_options]):
+        if not db_options or not isinstance(db_options, types.DictType):
             db_options = {}
         db_options_get = db_options.get
 
@@ -59,7 +59,7 @@ def get_db_connection2(db_options, db_name=models.DB_NAME):
     :type db_name: str
     :return A mongodb instance.
     """
-    if all([not isinstance(db_options, types.DictType), not db_options]):
+    if not db_options or not isinstance(db_options, types.DictType):
         db_options = {}
 
     db = get_db_client(db_options)[db_name]
@@ -83,7 +83,7 @@ def get_db_connection(db_options, db_name=models.DB_NAME):
     :type db_name: str
     :return A mongodb database instance.
     """
-    if all([not isinstance(db_options, types.DictType), not db_options]):
+    if not db_options or not isinstance(db_options, types.DictType):
         db_options = {}
 
     db_options_get = db_options.get
@@ -126,7 +126,7 @@ def find_one(collection, value, field="_id", operator="$in", fields=None):
     :return None or the search result as a dictionary.
     """
     result = None
-    if all([operator == "$in", not isinstance(value, types.ListType)]):
+    if operator == "$in" and not isinstance(value, types.ListType):
         utils.LOG.error(
             "Provided value (%s) is not of type list, got: %s",
             value,
@@ -608,7 +608,7 @@ def aggregate(
 
     # The limit must be applied at the end or we might not get back the
     # correct results.
-    if all([limit is not None, limit > 0]):
+    if limit is not None and limit > 0:
         pipeline.append({"$limit": limit})
 
     result = collection.aggregate(pipeline)
@@ -616,8 +616,8 @@ def aggregate(
     if result and isinstance(result, types.DictionaryType):
         p_results = result.get("result", None)
 
-        if all([p_results,
-                isinstance(p_results, types.ListType), len(p_results) > 0]):
+        if (p_results and isinstance(p_results, types.ListType) and
+                len(p_results) > 0):
             # Pick the first element and check if it has a result key with the
             # actual list of the results. This happens when the fields argument
             # is not specified.
