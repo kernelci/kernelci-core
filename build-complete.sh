@@ -153,6 +153,7 @@ if [[ BUILDS_FINISHED -eq 4 ]]; then
         curl -X POST -H "Authorization: 08a92277-7867-4bde-9a3d-a003b4b9cbbe" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "boot_report": 1, "send_to": ["linaro-acpi@lists.linaro.org", "graeme.gregory@linaro.org", "fellows@kernelci.org"], "format": ["txt", "html"], "delay": 12600}' https://api.kernelci.org/send
     elif ["$TREE_NAME" == "drm-tip"]; then
         echo "Sending results to DRM-TIP maintainers"
+        curl -XPOST -H "Authorization: 08a92277-7867-4bde-9a3d-a003b4b9cbbe" -H "Content-Type: application/json" -d '{"job": "drm-tip", "kernel": "'$GIT_DESCRIBE'", "build_report": 1, "format": ["txt"], "send_to": ["daniel@ffwll.ch", "dri-devel@lists.freedesktop.org", "fellows@kernelci.org"], "delay": 60}'
         curl -XPOST -H "Authorization: 08a92277-7867-4bde-9a3d-a003b4b9cbbe" -H "Content-Type: application/json" -d '{"job": "drm-tip", "kernel": "'$GIT_DESCRIBE'", "boot_report": 1, "format": ["txt"], "send_to": ["daniel@ffwll.ch", "dri-devel@lists.freedesktop.org", "fellows@kernelci.org"], "delay": 12600}'
     else
         # Private Mailing List
