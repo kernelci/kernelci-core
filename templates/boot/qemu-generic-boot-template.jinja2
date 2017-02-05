@@ -1,4 +1,8 @@
 {% extends 'base/kernel-ci-base.jinja2' %}
+{% set console_dev = 'ttyS0' %}
+{% if arch == "arm64" %}
+{% set console_dev = 'ttyAMA0' %}
+{% endif %}
 {% block metadata %}
 {{ super() }}
 {% endblock %}
@@ -17,7 +21,7 @@ actions:
     os: oe
     images:
         kernel:
-          image_arg: '-kernel {kernel} -append "console=ttyS0,115200 root=/dev/ram0 debug verbose"'
+          image_arg: '-kernel {kernel} -append "console={{ console_dev }},115200 root=/dev/ram0 debug verbose"'
           url: {{ kernel_url }}
         ramdisk:
           image_arg: '-initrd {ramdisk}'
