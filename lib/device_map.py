@@ -612,6 +612,17 @@ r8a7795_salvator_x = {'device_type': 'r8a7795-salvator-x',
                'fastboot': False,
                'mach': 'renesas'}
 
+r8a7791_porter = {'device_type': 'r8a7791-porter',
+               'templates': ['generic-arm-uboot-uimage-dtb-ramdisk-template.jinja2'],
+               'kernel_defconfig_blacklist': [],
+               'defconfig_blacklist': ['arm-allmodconfig'],
+               'kernel_blacklist': [],
+               'nfs_blacklist': [],
+               'lpae': False,
+               'fastboot': False,
+               'mach': 'renesas'}
+
+
 da850_lcdk = {'device_type': 'da850-lcdk',
                     'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
                                   'generic-arm-dtb-kernel-ci-boot-nfs-template.json',
@@ -1618,4 +1629,5 @@ device_map = {'alpine-db.dtb': [alpine_db],
               'kirkwood-openblocks_a7.dtb': [openblocks_a7],
               'armada-xp-openblocks-ax3-4.dtb': [openblocks_ax3],
               'vf610-zii-dev-rev-b.dtb': [vf610_zii_dev_rev_b],
-              'dove-cubox.dtb' : [dove_cubox]}
+              'dove-cubox.dtb' : [dove_cubox],
+              'r8a7791-porter.dtb': [r8a7791_porter]}
