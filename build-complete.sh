@@ -38,6 +38,10 @@ if [[ BUILDS_FINISHED -eq 4 ]]; then
     # Tell the dashboard the job has finished build.
     echo "Build has now finished, reporting result to dashboard."
     curl -X POST -H "Authorization: 08a92277-7867-4bde-9a3d-a003b4b9cbbe" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'"}' https://api.kernelci.org/job
+    if [ $EMAIL != true ]; then
+        echo "Not sending emails because EMAIL was false"
+        exit 0
+    fi
     if [ "$TREE_NAME" == "arm-soc" ] || [ "$TREE_NAME" == "mainline" ] || [ "$TREE_NAME" == "stable" ] || [ "$TREE_NAME" == "rmk" ] || [ "$TREE_NAME" == "tegra" ]; then
         # Public Mailing List
         echo "Sending results pubic mailing list"
