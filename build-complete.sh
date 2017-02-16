@@ -28,6 +28,8 @@ if [[ -z $EMAIL_AUTH_TOKEN ]]; then
   exit 1
 fi
 
+echo "ARCH=${ARCH_LIST},TREE_NAME=${TREE_NAME},GIT_DESCRIBE=${GIT_DESCRIBE},BUILD_NUMBER=${BUILD_NUMBER}" >> /home/buildslave/build-complete.log
+
 # Sanity prevails, do the copy
 for arch in ${ARCH_LIST}; do
     BASEDIR=/var/www/images/kernel-ci/$TREE_NAME/$GIT_DESCRIBE
