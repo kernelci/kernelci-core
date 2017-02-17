@@ -1509,6 +1509,16 @@ sun8i_a83t_allwinner_h8homlet_v2 = {'device_type': 'sun8i-a83t-allwinner-h8homle
                     'fastboot': False,
                     'mach': 'sunxi'}
 
+sun8i_h3_orangepi_pc = {'device_type': 'sun8i-h3-orangepi-pc',
+                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'kernel_defconfig_blacklist': [],
+                    'defconfig_blacklist': ['arm-allmodconfig'],
+                    'kernel_blacklist': [],
+                    'nfs_blacklist': [],
+                    'lpae': False,
+                    'fastboot': False,
+                    'mach': 'sunxi'}
+
 sinlinx_sina33 = {'device_type': 'sun8i-a33-sinlinx-sina33',
                     'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
                     'kernel_defconfig_blacklist': [],
@@ -1625,6 +1635,7 @@ device_map = {'alpine-db.dtb': [alpine_db],
               'at91-sama5d4_xplained.dtb': [at91_sama5d4_xplained],
               'at91sam9m10g45ek.dtb': [at91sam9m10g45ek],
               'sun8i-a83t-allwinner-h8homlet-v2.dtb': [sun8i_a83t_allwinner_h8homlet_v2],
+              'sun8i-h3-orangepi-pc.dtb': [sun8i_h3_orangepi_pc],
               'sun8i-a33-sinlinx-sina33.dtb': [sinlinx_sina33],
               'kirkwood-openblocks_a7.dtb': [openblocks_a7],
               'armada-xp-openblocks-ax3-4.dtb': [openblocks_ax3],
