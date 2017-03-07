@@ -296,7 +296,18 @@ def parse_build_data(build_data, job, kernel, build_dir=None):
         build_doc.kernel_image_size = build_data.get(
             models.KERNEL_IMAGE_SIZE_KEY, None)
         build_doc.modules_size = build_data.get(models.MODULES_SIZE_KEY, None)
-        build_doc.cross_compile = build_data.get(models.CROSS_COMPILE_KEY, None)
+        build_doc.cross_compile = build_data.get(
+            models.CROSS_COMPILE_KEY, None)
+
+        # ELF file data.
+        build_doc.vmlinux_bss_size = build_data.get(
+            models.VMLINUX_BSS_SIZE_KEY, None)
+        build_doc.vmlinux_data_size = build_data.get(
+            models.VMLINUX_DATA_SIZE_KEY, None)
+        build_doc.vmlinux_file_size = build_data.get(
+            models.VMLINUX_FILE_SIZE_KEY, None)
+        build_doc.vmlinux_text_size = build_data.get(
+            models.VMLINUX_TEXT_SIZE_KEY, None)
 
         build_doc.git_describe_v = build_data.get(
             models.GIT_DESCRIBE_V_KEY, None)
@@ -319,14 +330,10 @@ def parse_build_data(build_data, job, kernel, build_dir=None):
             models.KERNEL_IMAGE_SIZE_KEY: build_doc.kernel_image,
             models.MODULES_SIZE_KEY: build_doc.modules,
             models.SYSTEM_MAP_SIZE_KEY: build_doc.system_map,
-            models.VMLINUX_FILE_SIZE_KEY:
-                build_data.get(models.VMLINUX_FILE_KEY, None)
         }
     except KeyError, ex:
-        raise BuildError(500,
-            "Missing mandatory key '%s' in build data (job: %s, kernel: %s)" \
-            % (ex.args[0], job, kernel),
-            from_exc=ex)
+        msg = "Missing mandatory key '%s' in build data (job: %s, kernel: %s)"
+        raise BuildError(500, msg % (ex.args[0], job, kernel), from_exc=ex)
 
     return build_doc, artifacts
 
@@ -411,11 +418,6 @@ def _traverse_build_dir(
             for key, size in get_artifacts_size(artifacts, real_dir):
                 setattr(build_doc, key, size)
 
-            vmlinux = artifacts.get(models.VMLINUX_FILE_SIZE_KEY, None)
-            if vmlinux:
-                values = elf.read(os.path.join(build_dir, vmlinux))
-                for k, v in values.iteritems():
-                    setattr(build_doc, k, v)
         return build_doc
 
 

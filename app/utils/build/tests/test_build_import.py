@@ -174,7 +174,11 @@ class TestBuildUtils(unittest.TestCase):
             "kernel_image": "zImage",
             "kernel_config": "kernel.config",
             "modules_dir": "foo/bar",
-            "build_log": "file.log"
+            "build_log": "file.log",
+            "vmlinux_bss_size": 1024,
+            "vmlinux_data_size": 1024,
+            "vmlinux_file_size": 1024,
+            "vmlinux_text_size": 1024
         }
 
         try:
@@ -195,19 +199,13 @@ class TestBuildUtils(unittest.TestCase):
         self.assertEqual("job", build_doc.job)
         self.assertEqual("kernel", build_doc.kernel)
         self.assertEqual("kernel", build_doc.build_type)
-        self.assertIsNone(build_doc.vmlinux_text_size)
-        self.assertIsNone(build_doc.vmlinux_bss_size)
-        self.assertIsNone(build_doc.vmlinux_data_size)
+        self.assertEqual(build_doc.vmlinux_text_size, 1024)
+        self.assertEqual(build_doc.vmlinux_bss_size, 1024)
+        self.assertEqual(build_doc.vmlinux_data_size, 1024)
+        self.assertEqual(build_doc.vmlinux_file_size, 1024)
 
     @mock.patch("utils.build.get_artifacts_size")
-    @mock.patch("utils.elf.read")
-    def test_traverse_build_dir_data_sizes(self, elf_read, get_size):
-        elf_read.return_value = {
-            "vmlinux_bss_size": 1024,
-            "vmlinux_data_size": 1024,
-            "vmlinux_text_size": 1024
-        }
-
+    def test_traverse_build_dir_data_sizes(self, get_size):
         get_size.return_value = [
             ("system_map_size", 1024),
             ("modules_size", 1025),
@@ -247,9 +245,6 @@ class TestBuildUtils(unittest.TestCase):
             shutil.rmtree(temp_dir, ignore_errors=True)
 
         self.assertIsInstance(build_doc, mbuild.BuildDocument)
-        self.assertEqual(build_doc.vmlinux_text_size, 1024)
-        self.assertEqual(build_doc.vmlinux_bss_size, 1024)
-        self.assertEqual(build_doc.vmlinux_data_size, 1024)
         self.assertEqual(build_doc.system_map_size, 1024)
         self.assertEqual(build_doc.modules_size, 1025)
         self.assertEqual(build_doc.build_log_size, 1026)
