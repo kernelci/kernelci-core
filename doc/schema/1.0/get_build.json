@@ -191,7 +191,7 @@
         },
         "vmlinux_file_size": {
             "type": "integer",
-            "description": "The size in bytes of the vmlinux ELF file"
+            "description": "The size in bytes of the ELF file"
         },
         "vmlinux_text_size": {
             "type": "integer",

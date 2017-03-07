@@ -142,9 +142,21 @@
             "enum": ["kernel"],
             "default": "kernel"
         },
-        "vmlinux_file": {
-            "type": "string",
-            "description": "The name of the ELF kernel image"
+        "vmlinux_bss_size": {
+            "type": "integer",
+            "description": "Size in bytes of the .bss ELF file section"
+        },
+        "vmlinux_data_size": {
+            "type": "intger",
+            "description": "Size in bytes of all the WA and A PROGBITS sections in the ELF file (the .data section)"
+        },
+        "vmlinux_file_size": {
+            "type": "integer",
+            "description": "The size in bytes of the ELF file"
+        },
+        "vmlinux_text_size": {
+            "type": "integer",
+            "description": "The size in bytes of the .text ELF file section"
         }
     },
     "required": ["job", "kernel", "defconfig", "arch"]
