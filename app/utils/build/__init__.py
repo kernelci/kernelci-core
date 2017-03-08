@@ -330,6 +330,8 @@ def parse_build_data(build_data, job, kernel, build_dir=None):
             models.KERNEL_IMAGE_SIZE_KEY: build_doc.kernel_image,
             models.MODULES_SIZE_KEY: build_doc.modules,
             models.SYSTEM_MAP_SIZE_KEY: build_doc.system_map,
+            models.VMLINUX_FILE_KEY:
+                build_data.get(models.VMLINUX_FILE_KEY, None)
         }
     except KeyError, ex:
         msg = "Missing mandatory key '%s' in build data (job: %s, kernel: %s)"
@@ -417,6 +419,12 @@ def _traverse_build_dir(
         if artifacts:
             for key, size in get_artifacts_size(artifacts, real_dir):
                 setattr(build_doc, key, size)
+
+            vmlinux = artifacts.get(models.VMLINUX_FILE_KEY, None)
+            if vmlinux:
+                values = elf.read(os.path.join(build_dir, vmlinux))
+                for k, v in values.iteritems():
+                    setattr(build_doc, k, v)
 
         return build_doc
 
