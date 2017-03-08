@@ -61,3 +61,4 @@ No valid symbol.
 :(.text+0x171ab4): undefined reference to `qcom_smem_get'
 ../arch/mips/sgi-ip22/Platform:29: *** gcc doesn't support needed
 option -mr10k-cache-barrier=store.  Stop.
+"mkimage" command not found - U-Boot images will not be built
