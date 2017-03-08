@@ -46,7 +46,7 @@ build_log_f = None
 
 def usage():
     print "Usage:", sys.argv[0], "[options] [make target]"
-    
+
 def do_make(target=None, log=False):
     make_args = ''
     make_args += "-j%d -k " %make_threads
@@ -307,8 +307,12 @@ if install:
                 kimages.append(os.path.join(root, filename))
                 shutil.copy(os.path.join(root, filename), install_path)
 
-    if os.path.isfile(os.path.join(kbuild_output, "vmlinux")):
-        shutil.copy(os.path.join(kbuild_output, "vmlinux"), install_path)
+    vmlinux_file = os.path.join(kbuild_output, "vmlinux")
+    if os.path.isfile(vmlinux_file):
+        print "found vmlinux, parsing sizes"
+        import elf
+        bmeta.update(elf.read(vmlinux_file))
+        bmeta["vmlinux_file_size"] = os.stat(vmlinux_file).st_size
         bmeta["vmlinux_file"] = "vmlinux"
 
     if len(kimages) == 1:
