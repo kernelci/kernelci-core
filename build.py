@@ -309,11 +309,9 @@ if install:
 
     vmlinux_file = os.path.join(kbuild_output, "vmlinux")
     if os.path.isfile(vmlinux_file):
-        print "found vmlinux, parsing sizes"
         import elf
         bmeta.update(elf.read(vmlinux_file))
         bmeta["vmlinux_file_size"] = os.stat(vmlinux_file).st_size
-        bmeta["vmlinux_file"] = "vmlinux"
 
     if len(kimages) == 1:
         kimage_file = kimages[0]
