@@ -175,6 +175,7 @@ class TestBuildUtils(unittest.TestCase):
             "kernel_config": "kernel.config",
             "modules_dir": "foo/bar",
             "build_log": "file.log",
+            "vmlinux_file": "vmlinux",
             "vmlinux_bss_size": 1024,
             "vmlinux_data_size": 1024,
             "vmlinux_file_size": 1024,
@@ -211,7 +212,8 @@ class TestBuildUtils(unittest.TestCase):
             ("modules_size", 1025),
             ("build_log_size", 1026),
             ("kernel_config_size", 1027),
-            ("kernel_image_size", 1028)
+            ("kernel_image_size", 1028),
+            ("vmlinux_file_size", 1029)
         ]
 
         build_data = {
@@ -250,6 +252,7 @@ class TestBuildUtils(unittest.TestCase):
         self.assertEqual(build_doc.build_log_size, 1026)
         self.assertEqual(build_doc.kernel_config_size, 1027)
         self.assertEqual(build_doc.kernel_image_size, 1028)
+        self.assertEqual(build_doc.vmlinux_file_size, 1029)
 
     def test_parse_build_data_no_version(self):
         build_data = {"defconfig": "defconfig"}
