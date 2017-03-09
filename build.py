@@ -95,6 +95,7 @@ publish = False
 url = None
 token = None
 job = None
+boot_cmd = None
 
 # temp frag file: used to collect all kconfig fragments
 kconfig_tmpfile_fd, kconfig_tmpfile = tempfile.mkstemp(prefix='kconfig-')
@@ -106,12 +107,15 @@ else:
     os.environ['ARCH'] = arch
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "c:ip:s")
+    opts, args = getopt.getopt(sys.argv[1:], "b:c:ip:s")
 
 except getopt.GetoptError as err:
     print str(err) # will print something like "option -a not recognized"
     sys.exit(2)
 for o, a in opts:
+    if o == "-b":
+        boot_cmd = a
+        install = True
     if o == '-c':
         defs = a.split('+')
         for a in defs:
@@ -356,6 +360,11 @@ if install:
     else:
         bmeta['build_result'] = "FAIL"
 
+    if boot_cmd:
+        cmd = "(cd %s; %s)" % (install_path, boot_cmd)
+        print "Running: %s" % cmd
+        subprocess.call(cmd, shell=True)
+        
     bmeta['arch'] = "%s" %arch
     bmeta["cross_compile"] = "%s" %cross_compile
     bmeta["compiler_version"] = "%s" %gcc_version
