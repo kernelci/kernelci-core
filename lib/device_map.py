@@ -790,7 +790,7 @@ rk3288_rock2_square = {'device_type': 'rk3288-rock2-square',
                        'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
                                      'generic-arm-dtb-kernel-ci-boot-nfs-mp-template.json',
                                      'generic-arm-dtb-kernel-ci-kselftest-template.json',
-                                     'generic-arm-dtb-kernel-ci-hackbench-template.json'
+                                     'generic-arm-dtb-kernel-ci-hackbench-template.json',
                                      'generic-arm-uboot-zimage-dtb-ramdisk-template.jinja2'],
                        'kernel_defconfig_blacklist': [],
                        'defconfig_blacklist': ['arm-allmodconfig'],
