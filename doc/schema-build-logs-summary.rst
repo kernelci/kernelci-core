@@ -10,7 +10,7 @@ GET
 
 The following schema covers the data that is available with a GET request.
 
-.. literalinclude:: schema/1.0/get_build_logs_summary.json
+.. literalinclude:: schema/1.1/get_build_logs_summary.json
     :language: json
 
 More Info

@@ -168,7 +168,7 @@ def execute_boot_bisection(doc_id, db_options, fields=None):
     start_doc = utils.db.find_one2(
         database[models.BOOT_COLLECTION], obj_id, fields=BOOT_SEARCH_FIELDS)
 
-    if all([start_doc, isinstance(start_doc, types.DictionaryType)]):
+    if start_doc and isinstance(start_doc, types.DictionaryType):
         start_doc_get = start_doc.get
 
         if start_doc_get(models.STATUS_KEY) == models.PASS_STATUS:
@@ -212,7 +212,7 @@ def execute_boot_bisection_compared_to(
     start_doc = utils.db.find_one2(
         database[models.BOOT_COLLECTION], obj_id, fields=BOOT_SEARCH_FIELDS)
 
-    if all([start_doc, isinstance(start_doc, types.DictionaryType)]):
+    if start_doc and isinstance(start_doc, types.DictionaryType):
         start_doc_get = start_doc.get
 
         if start_doc_get(models.STATUS_KEY) == models.PASS_STATUS:
@@ -265,6 +265,7 @@ def execute_boot_bisection_compared_to(
                 models.DEFCONFIG_FULL_KEY: defconfig_full,
                 models.JOB_KEY: compare_to,
                 models.ARCHITECTURE_KEY: arch,
+                models.GIT_BRANCH_KEY: start_doc_get(models.GIT_BRANCH_KEY),
                 models.CREATED_KEY: date_range
             }
             prev_docs = utils.db.find(

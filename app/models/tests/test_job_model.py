@@ -26,20 +26,12 @@ import models.job as modj
 class TestJobModel(unittest.TestCase):
 
     def test_job_documet_valid_instance(self):
-        job_doc = modj.JobDocument("job", "kernel")
+        job_doc = modj.JobDocument("job", "kernel", "git-branch")
         self.assertIsInstance(job_doc, modb.BaseDocument)
         self.assertIsInstance(job_doc, modj.JobDocument)
 
-    def test_job_wrong_status(self):
-        job_doc = modj.JobDocument("job", "kernel")
-
-        self.assertRaises(ValueError, setattr, job_doc, "status", "foo")
-        self.assertRaises(ValueError, setattr, job_doc, "status", [])
-        self.assertRaises(ValueError, setattr, job_doc, "status", ())
-        self.assertRaises(ValueError, setattr, job_doc, "status", {})
-
     def test_job_correct_status(self):
-        job_doc = modj.JobDocument("job", "kernel")
+        job_doc = modj.JobDocument("job", "kernel", "git-branch")
 
         job_doc.status = "FAIL"
         self.assertEqual(job_doc.status, "FAIL")
@@ -49,14 +41,12 @@ class TestJobModel(unittest.TestCase):
         self.assertEqual(job_doc.status, "PASS")
 
     def test_job_document_to_dict(self):
-        job_doc = modj.JobDocument("job", "kernel")
+        job_doc = modj.JobDocument("job", "kernel", "git-branch")
         job_doc.id = "job"
         job_doc.created_on = "now"
         job_doc.status = "PASS"
-        job_doc.version = "1.0"
         job_doc.git_commit = "1234"
         job_doc.git_url = "git-url"
-        job_doc.git_branch = "git-branch"
         job_doc.git_describe = "git-describe"
         job_doc.git_describe_v = "git-describe-v"
         job_doc.kernel_version = "kernel-version"
@@ -73,7 +63,7 @@ class TestJobModel(unittest.TestCase):
             "private": False,
             "created_on": "now",
             "status": "PASS",
-            "version": "1.0",
+            "version": "1.1",
             "git_commit": "1234",
             "git_url": "git-url",
             "git_branch": "git-branch",
@@ -90,7 +80,7 @@ class TestJobModel(unittest.TestCase):
         self.assertEqual(job_doc.to_dict(), expected)
 
     def test_job_document_collection(self):
-        job_doc = modj.JobDocument("job", "kernel")
+        job_doc = modj.JobDocument("job", "kernel", "git-branch")
         self.assertEqual(job_doc.collection, "job")
 
     def test_job_document_from_json(self):
@@ -100,6 +90,7 @@ class TestJobModel(unittest.TestCase):
             _id="job",
             job="job",
             kernel="kernel",
+            git_branch="git-branch",
             created_on=now,
             status="BUILD"
         )
@@ -108,14 +99,16 @@ class TestJobModel(unittest.TestCase):
 
         self.assertIsInstance(job_doc, modj.JobDocument)
         self.assertIsInstance(job_doc, modb.BaseDocument)
-        self.assertEqual(job_doc.kernel, 'kernel')
-        self.assertEqual(job_doc.job, 'job')
+        self.assertEqual(job_doc.kernel, "kernel")
+        self.assertEqual(job_doc.job, "job")
         self.assertEqual(job_doc.created_on, now)
-        self.assertEqual(job_doc.status, 'BUILD')
+        self.assertEqual(job_doc.status, "BUILD")
+        self.assertEqual(job_doc.git_branch, "git-branch")
+        self.assertEqual(job_doc.version, "1.1")
 
     def test_job_document_private(self):
         # By default, jobs are public.
-        job_doc = modj.JobDocument("job", "kernel")
+        job_doc = modj.JobDocument("job", "kernel", "git-branch")
 
         self.assertFalse(job_doc.private)
 
@@ -126,7 +119,7 @@ class TestJobModel(unittest.TestCase):
     def test_job_document_date_serialization(self):
         now = datetime.datetime.now(tz=tz_util.utc)
 
-        job_doc = modj.JobDocument("job", "kernel")
+        job_doc = modj.JobDocument("job", "kernel", "git-branch")
         job_doc.created_on = now
 
         self.assertIsInstance(job_doc.created_on, datetime.datetime)
@@ -135,6 +128,7 @@ class TestJobModel(unittest.TestCase):
             "_id": "job",
             "job": "job",
             "kernel": "kernel",
+            "git_branch": "git-branch",
             "created_on": now
         }
 

@@ -193,7 +193,8 @@ class TestJobHandler(TestHandlerBase):
         mock_task.apply_async = mock.MagicMock()
 
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
-        body = json.dumps(dict(job="job", kernel="kernel"))
+        body = json.dumps(
+            dict(job="job", kernel="kernel", git_branch="branch"))
 
         response = self.fetch(
             "/job", method="POST", headers=headers, body=body)
@@ -217,7 +218,13 @@ class TestJobHandler(TestHandlerBase):
     def test_post_internal_error(self, mock_find):
         mock_find.return_value = 500
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
-        body = json.dumps(dict(job="job", kernel="kernel", status="FAIL"))
+        body = json.dumps(
+            dict(
+                job="job",
+                kernel="kernel",
+                git_branch="branch",
+                status="FAIL"
+            ))
 
         response = self.fetch(
             "/job", method="POST", headers=headers, body=body)
@@ -230,7 +237,12 @@ class TestJobHandler(TestHandlerBase):
     def test_post_not_found(self, mock_find):
         mock_find.return_value = 404
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
-        body = json.dumps(dict(job="job", kernel="kernel", status="FAIL"))
+        body = json.dumps(
+            dict(
+                job="job",
+                kernel="kernel",
+                git_branch="branch", status="FAIL"
+            ))
 
         response = self.fetch(
             "/job", method="POST", headers=headers, body=body)

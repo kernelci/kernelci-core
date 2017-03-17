@@ -21,23 +21,22 @@ class TestBootModel(unittest.TestCase):
 
     def test_boot_document_valid_instance(self):
         boot_doc = mboot.BootDocument(
-            "board", "job", "kernel", "defconfig", "lab")
+            "board", "job", "kernel", "defconfig", "lab", "branch")
         self.assertIsInstance(boot_doc, mbase.BaseDocument)
 
     def test_boot_document_to_dict(self):
         boot_doc = mboot.BootDocument(
-            "board", "job", "kernel", "defconfig", "lab", arch="arm")
+            "board", "job", "kernel", "defconfig", "lab", "branch", arch="arm")
         boot_doc.id = "id"
         boot_doc.job_id = "job-id"
         boot_doc.created_on = "now"
         boot_doc.build_id = "build_id"
         boot_doc.retries = 10
-        boot_doc.version = "1.0"
+        boot_doc.version = "1.1"
         boot_doc.dtb_append = False
         boot_doc.boot_log = "boot-log"
         boot_doc.boot_log_html = "boot-log-html"
         boot_doc.warnings = 2
-        boot_doc.git_branch = "git-branch"
         boot_doc.git_commit = "git-commit"
         boot_doc.git_describe = "git-describe"
         boot_doc.git_url = "git-url"
@@ -87,7 +86,7 @@ class TestBootModel(unittest.TestCase):
             "fastboot_cmd": "fastboot",
             "file_server_resource": "file-resource",
             "file_server_url": "file-server",
-            "git_branch": "git-branch",
+            "git_branch": "branch",
             "git_commit": "git-commit",
             "git_describe": "git-describe",
             "git_url": "git-url",
@@ -109,7 +108,7 @@ class TestBootModel(unittest.TestCase):
             "time": 0,
             "uimage": "path/to/uImage",
             "uimage_addr": "uimage_addr",
-            "version": "1.0",
+            "version": "1.1",
             "warnings": 2,
             "bootloader": "bootloader",
             "bootloader_version": "1.2.3",
@@ -185,7 +184,7 @@ class TestBootModel(unittest.TestCase):
             "time": 0,
             "uimage": "path/to/uImage",
             "uimage_addr": "uimage_addr",
-            "version": "1.0",
+            "version": "1.1",
             "warnings": 2,
             "bootloader": "bootloader",
             "bootloader_version": "1.2.3",

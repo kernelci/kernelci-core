@@ -132,7 +132,11 @@ class TestBuildHandler(TestHandlerBase):
         body = json.dumps(
             dict(
                 job="job",
-                kernel="kernel", defconfig="defconfig", arch="arch")
+                kernel="kernel",
+                defconfig="defconfig",
+                arch="arch",
+                git_branch="branch"
+            )
         )
 
         response = self.fetch(

@@ -28,6 +28,7 @@ ERROR_LOG_VALID_KEYS = {
         models.DEFCONFIG_FULL_KEY,
         models.DEFCONFIG_KEY,
         models.ERRORS_COUNT_KEY,
+        models.GIT_BRANCH_KEY,
         models.JOB_ID_KEY,
         models.JOB_KEY,
         models.KERNEL_KEY,
@@ -56,18 +57,19 @@ class ErrorLogDocument(modb.BaseDocument):
         self._warnings = []
         self._warnings_count = 0
         self.arch = None
+        self.build_id = None
         self.compiler = None
         self.compiler_version = None
         self.compiler_version_ext = None
         self.compiler_version_full = None
         self.defconfig = None
         self.defconfig_full = None
-        self.build_id = None
+        self.file_server_resource = None
+        self.file_server_url = None
+        self.git_branch = None
         self.job = None
         self.kernel = None
         self.status = None
-        self.file_server_resource = None
-        self.file_server_url = None
 
     @property
     def collection(self):
@@ -223,6 +225,7 @@ class ErrorLogDocument(modb.BaseDocument):
             models.ERRORS_KEY: self.errors,
             models.FILE_SERVER_RESOURCE_KEY: self.file_server_resource,
             models.FILE_SERVER_URL_KEY: self.file_server_url,
+            models.GIT_BRANCH_KEY: self.git_branch,
             models.JOB_ID_KEY: self.job_id,
             models.JOB_KEY: self.job,
             models.KERNEL_KEY: self.kernel,

@@ -20,16 +20,16 @@ import models.error_summary as msumm
 class TestErrorSummaryModel(unittest.TestCase):
 
     def test_doc_valid_instance(self):
-        doc = msumm.ErrorSummaryDocument("job_id", "1.0")
+        doc = msumm.ErrorSummaryDocument("job_id", "1.1")
         self.assertIsInstance(doc, modb.BaseDocument)
         self.assertIsInstance(doc, msumm.ErrorSummaryDocument)
 
     def test_doc_collection(self):
-        doc = msumm.ErrorSummaryDocument("job_id", "1.0")
+        doc = msumm.ErrorSummaryDocument("job_id", "1.1")
         self.assertEqual("errors_summary", doc.collection)
 
     def test_doc_wrong_lists(self):
-        doc = msumm.ErrorSummaryDocument("job_id", "1.0")
+        doc = msumm.ErrorSummaryDocument("job_id", "1.1")
 
         self.assertRaises(TypeError, setattr, doc, "errors", {})
         self.assertRaises(TypeError, setattr, doc, "errors", "")
@@ -47,7 +47,8 @@ class TestErrorSummaryModel(unittest.TestCase):
         self.assertRaises(TypeError, setattr, doc, "mismatches", ())
 
     def test_doc_to_dict(self):
-        doc = msumm.ErrorSummaryDocument("job_id", "1.0")
+        doc = msumm.ErrorSummaryDocument("job_id", "1.1")
+        doc.git_branch = "branch"
         doc.errors = [("error1", 1)]
         doc.job = "job"
         doc.kernel = "kernel"
@@ -59,6 +60,7 @@ class TestErrorSummaryModel(unittest.TestCase):
         expected = {
             "created_on": "today",
             "errors": [("error1", 1)],
+            "git_branch": "branch",
             "job": "job",
             "job_id": "job_id",
             "kernel": "kernel",
@@ -83,7 +85,7 @@ class TestErrorSummaryModel(unittest.TestCase):
             "kernel": "kernel",
             "mismatches": [("mismatch1", 1)],
             "name": "job_id",
-            "version": "1.0",
+            "version": "1.1",
             "warnings": [("warning1", 1)]
         }
 

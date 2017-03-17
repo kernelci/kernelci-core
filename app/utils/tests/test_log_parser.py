@@ -20,6 +20,8 @@ import tempfile
 import types
 import unittest
 
+import models.build as mbuild
+import utils
 import utils.log_parser as lparser
 
 
@@ -32,82 +34,20 @@ class TestBuildLogParser(unittest.TestCase):
     def tearDown(self):
         logging.disable(logging.NOTSET)
 
-    @mock.patch("utils.log_parser._traverse_dir_and_parse")
-    def test_log_parser_correct(self, mock_parse):
-        mock_parse.return_value = (200, {})
-        job_id = "job_id"
-        job = "job"
-        kernel = "kernel"
-        json_obj = {
-            "job": job,
-            "kernel": kernel
-        }
-
-        status, errors = lparser.parse_build_log(job_id, json_obj, {})
-
-        self.assertEqual(200, status)
-        self.assertDictEqual({}, errors)
-
-    def test_log_parser_no_job_id(self):
-        job_id = None
-        job = "job"
-        kernel = "kernel"
-        json_obj = {
-            "job": job,
-            "kernel": kernel
-        }
-
-        status, errors = lparser.parse_build_log(job_id, json_obj, {})
-
-        self.assertEqual(500, status)
-        self.assertEqual(1, len(errors.keys()))
-        self.assertEqual([500], errors.keys())
-
-    def test_log_parser_hidden_dir(self):
-        job_id = "job_id"
-        job = ".job"
-        kernel = "kernel"
-        json_obj = {
-            "job": job,
-            "kernel": kernel
-        }
-
-        status, errors = lparser.parse_build_log(job_id, json_obj, {})
-
-        self.assertEqual(500, status)
-        self.assertEqual(1, len(errors.keys()))
-        self.assertEqual([500], errors.keys())
-
-    @mock.patch("os.path.isdir")
-    def test_log_parser_not_dir(self, mock_isdir):
-        mock_isdir.return_value = False
-
-        job_id = "job_id"
-        job = "job"
-        kernel = "kernel"
-        json_obj = {
-            "job": job,
-            "kernel": kernel
-        }
-
-        status, errors = lparser.parse_build_log(job_id, json_obj, {})
-
-        self.assertEqual(500, status)
-        self.assertEqual(1, len(errors.keys()))
-        self.assertEqual([500], errors.keys())
-
     def test_parse_build_log(self):
         build_dir = None
         errors = {}
 
         try:
+            build_doc = mbuild.BuildDocument(
+                "job", "kernel", "defconfig", "branch")
             build_dir = tempfile.mkdtemp()
             log_file = os.path.join(
                 os.path.abspath(os.path.dirname(__file__)),
                 "assets", "build_log_0.log")
 
             status, e_l, w_l, m_l = lparser._parse_log(
-                "job", "kernel", "defconfig", log_file, build_dir, errors)
+                build_doc, log_file, build_dir, errors)
 
             self.assertEqual(200, status)
 
@@ -127,10 +67,13 @@ class TestBuildLogParser(unittest.TestCase):
         build_dir = None
         errors = {}
         try:
+            build_doc = mbuild.BuildDocument(
+                "job", "kernel", "defconfig", "branch")
             build_dir = tempfile.mkdtemp()
+            log_file = os.path.join(build_dir, utils.BUILD_LOG_FILE)
 
             status, e_l, w_l, m_l = lparser._parse_log(
-                "job", "kernel", "defconfig", build_dir, build_dir, errors)
+                build_doc, log_file, build_dir, errors)
 
             self.assertEqual(500, status)
 

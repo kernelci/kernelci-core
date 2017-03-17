@@ -324,6 +324,7 @@ POST
  :reqjson string defconfig: The name of the defconfig built.
  :reqjson string arch: The architecture type.
  :reqjson string defconfig_full: The full name of the defconfig (optional). Necessary if the defconfig built contained configuration fragments or other values.
+ :reqjson string git_branch: The name of the branch.
 
  :reqheader Authorization: The token necessary to authorize the request.
  :reqheader Content-Type: Content type of the transmitted data, must be ``application/json``.
@@ -353,7 +354,8 @@ POST
         "job": "next",
         "kernel": "next-20140706",
         "defconfig": "tinyconfig",
-        "arch": "x86"
+        "arch": "x86",
+        "git_branch": "master"
     }
 
  .. sourcecode:: http 
@@ -369,7 +371,8 @@ POST
         "kernel": "next-20140706",
         "defconfig": "multi_v7_defconfig",
         "defconfig_full": "multi_v7_defconfig+CONFIG_CPU_BIG_ENDIAN=y",
-        "arch": "arm"
+        "arch": "arm",
+        "git_branch": "master"
     }
 
 DELETE

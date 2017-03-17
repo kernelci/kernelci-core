@@ -42,12 +42,13 @@ BOOT_SEARCH_FIELDS = [
 ]
 
 BOARD_URL = (
-    u"{base_url:s}/boot/{board:s}/job/{job:s}/kernel/{kernel:s}/"
-    u"defconfig/{defconfig:s}/"
+    u"{base_url:s}/boot/{board:s}/job/{job:s}/branch/{git_branch:s}"
+    u"/kernel/{kernel:s}/defconfig/{defconfig:s}/"
 )
 BOOT_SUMMARY_URL = u"{boot_url:s}/{job:s}/kernel/{kernel:s}/"
 BOOT_REGRESSIONS_URL = BOOT_SUMMARY_URL + u"#regressions"
-BUILD_SUMMARY_URL = u"{build_url:s}/{job:s}/kernel/{kernel:s}/"
+BUILD_SUMMARY_URL = \
+    u"{build_url:s}/{job:s}/branch/{git_branch:s}/kernel/{kernel:s}/"
 
 HREF_STYLE = u"style=\"color: black; text-decoration: none\""
 
@@ -243,9 +244,10 @@ def parse_regressions(data, **kwargs):
 # pylint: disable=too-many-locals
 # pylint: disable=star-args
 # pylint: disable=too-many-arguments
-def create_boot_report(job,
-                       kernel,
-                       lab_name, email_format, db_options, mail_options=None):
+def create_boot_report(
+        job,
+        branch,
+        kernel, lab_name, email_format, db_options, mail_options=None):
     """Create the boot report email to be sent.
 
     If lab_name is not None, it will trigger a boot report only for that
@@ -279,6 +281,7 @@ def create_boot_report(job,
 
     total_count, total_unique_data = rcommon.get_total_results(
         job,
+        branch,
         kernel,
         models.BOOT_COLLECTION,
         db_options,
@@ -287,16 +290,18 @@ def create_boot_report(job,
 
     total_builds, _ = rcommon.get_total_results(
         job,
+        branch,
         kernel,
         models.BUILD_COLLECTION,
         db_options
     )
 
-    git_commit, git_url, git_branch = rcommon.get_git_data(
-        job, kernel, db_options)
+    git_commit, git_url = rcommon.get_git_data(
+        job, branch, kernel, db_options)
 
     spec = {
         models.JOB_KEY: job,
+        models.GIT_BRANCH_KEY: branch,
         models.KERNEL_KEY: kernel,
         models.STATUS_KEY: models.OFFLINE_STATUS
     }
@@ -365,7 +370,7 @@ def create_boot_report(job,
         "email_format": email_format,
         "fail_count": fail_count - conflict_count,
         "failed_data": failed_data,
-        "git_branch": git_branch,
+        "git_branch": branch,
         "git_commit": git_commit,
         "git_url": git_url,
         "info_email": info_email,
@@ -386,7 +391,7 @@ def create_boot_report(job,
 
     custom_headers = {
         rcommon.X_REPORT: rcommon.BOOT_REPORT_TYPE,
-        rcommon.X_BRANCH: git_branch,
+        rcommon.X_BRANCH: branch,
         rcommon.X_TREE: job,
         rcommon.X_KERNEL: kernel,
     }
@@ -461,7 +466,8 @@ def create_boot_report(job,
         txt_body, html_body, subject = _create_boot_email(**kwargs)
     elif fail_count == 0 and total_count == 0:
         utils.LOG.warn(
-            "Nothing found for '%s-%s': no email report sent", job, kernel)
+            "Nothing found for '%s-%s-%s': no email report sent",
+            job, branch, kernel)
 
     return txt_body, html_body, subject, custom_headers
 
@@ -579,13 +585,13 @@ def _search_conflicts(failed, passed):
         :return True or False.
         """
         is_valid = False
-        if all([
-                f_g(models.ID_KEY) != p_g(models.ID_KEY),
-                f_g(models.LAB_NAME_KEY) != p_g(models.LAB_NAME_KEY),
-                f_g(models.BOARD_KEY) == p_g(models.BOARD_KEY),
-                f_g(models.ARCHITECTURE_KEY) == p_g(models.ARCHITECTURE_KEY),
+        if (f_g(models.ID_KEY) != p_g(models.ID_KEY) and
+                f_g(models.LAB_NAME_KEY) != p_g(models.LAB_NAME_KEY) and
+                f_g(models.BOARD_KEY) == p_g(models.BOARD_KEY) and
+                f_g(models.ARCHITECTURE_KEY) ==
+                p_g(models.ARCHITECTURE_KEY) and
                 f_g(models.DEFCONFIG_FULL_KEY) ==
-                p_g(models.DEFCONFIG_FULL_KEY)]):
+                p_g(models.DEFCONFIG_FULL_KEY)):
             is_valid = True
         return is_valid
 
@@ -630,7 +636,7 @@ def get_boot_subject_string(**kwargs):
     untried_count = k_get("untried_count", 0)
 
     subject_str = u""
-    base_subject = G_(u"{job:s} boot")
+    base_subject = G_(u"{job:s}/{git_branch:s} boot")
     total_boots = P_(
         u"{total_count:d} boot", u"{total_count:d} boots", total_count)
     passed_boots = G_(u"{pass_count:d} passed")
@@ -669,7 +675,7 @@ def get_boot_subject_string(**kwargs):
     base_lab_4 = G_(
         u"{:s}: {:s}: {:s}, {:s} with {:s}, {:s}, {:s} {:s} - {:s}")
 
-    if any([total_count == pass_count, total_count == fail_count]):
+    if total_count == pass_count and total_count == fail_count:
         # Everything is good or failed.
         if lab_name:
             subject_str = base_lab_0.format(
@@ -707,7 +713,7 @@ def get_boot_subject_string(**kwargs):
                 base_subject,
                 total_boots,
                 failed_boots, passed_boots, untried_boots, kernel_name)
-    elif all([untried_count == 0, offline_count == 0, conflict_count == 0]):
+    elif (untried_count == 0 and offline_count == 0 and conflict_count == 0):
         # Passed and failed.
         if lab_name:
             subject_str = base_lab_0.format(
@@ -719,7 +725,7 @@ def get_boot_subject_string(**kwargs):
             subject_str = base_0.format(
                 base_subject,
                 total_boots, failed_boots, passed_boots, kernel_name)
-    elif all([untried_count > 0, offline_count == 0, conflict_count == 0]):
+    elif untried_count > 0 and offline_count == 0 and conflict_count == 0:
         # Passed, failed and untried.
         if lab_name:
             subject_str = base_lab_2.format(
@@ -732,7 +738,7 @@ def get_boot_subject_string(**kwargs):
                 base_subject,
                 total_boots,
                 failed_boots, passed_boots, untried_boots, kernel_name)
-    elif all([untried_count > 0, offline_count > 0, conflict_count == 0]):
+    elif untried_count > 0 and offline_count > 0 and conflict_count == 0:
         # Passed, failed, untried and offline.
         if lab_name:
             subject_str = base_lab_3.format(
@@ -747,7 +753,7 @@ def get_boot_subject_string(**kwargs):
                 total_boots,
                 failed_boots,
                 passed_boots, offline_boots, untried_boots, kernel_name)
-    elif all([untried_count > 0, offline_count > 0, conflict_count > 0]):
+    elif untried_count > 0 and offline_count > 0 and conflict_count > 0:
         # Passed, failed, untried and offline with conflict.
         if lab_name:
             subject_str = base_lab_4.format(
@@ -764,7 +770,7 @@ def get_boot_subject_string(**kwargs):
                 failed_boots,
                 passed_boots,
                 offline_boots, untried_boots, conflict_boots, kernel_name)
-    elif all([untried_count == 0, offline_count > 0, conflict_count == 0]):
+    elif untried_count == 0 and offline_count > 0 and conflict_count == 0:
         # Passed, failed and offline.
         if lab_name:
             subject_str = base_lab_2.format(
@@ -777,7 +783,7 @@ def get_boot_subject_string(**kwargs):
                 base_subject,
                 total_boots,
                 failed_boots, passed_boots, offline_boots, kernel_name)
-    elif all([untried_count == 0, offline_count > 0, conflict_count > 0]):
+    elif untried_count == 0 and offline_count > 0 and conflict_count > 0:
         # Passed, failed, offline with conflicts.
         if lab_name:
             subject_str = base_lab_3.format(
@@ -792,7 +798,7 @@ def get_boot_subject_string(**kwargs):
                 total_boots,
                 failed_boots,
                 passed_boots, offline_boots, conflict_boots, kernel_name)
-    elif all([untried_count == 0, offline_count == 0, conflict_count > 0]):
+    elif untried_count == 0 and offline_count == 0 and conflict_count > 0:
         # Passed, failed with conflicts.
         if lab_name:
             subject_str = base_lab_2.format(
@@ -901,20 +907,20 @@ def _create_boot_email(**kwargs):
             unique_builds
         )
 
-        if all([unique_boards > 0, unique_socs > 0, unique_builds > 0]):
+        if unique_boards > 0 and unique_socs > 0 and unique_builds > 0:
             tested_string = tested_three.format(
                 boards_str, soc_str, builds_str)
-        elif all([unique_boards > 0, unique_socs > 0, unique_builds == 0]):
+        elif unique_boards > 0 and unique_socs > 0 and unique_builds == 0:
             tested_string = tested_two.format(boards_str, soc_str)
-        elif all([unique_boards > 0, unique_socs == 0, unique_builds > 0]):
+        elif unique_boards > 0 and unique_socs == 0 and unique_builds > 0:
             tested_string = tested_two.format(boards_str, builds_str)
-        elif all([unique_boards == 0, unique_socs > 0, unique_builds > 0]):
+        elif unique_boards == 0 and unique_socs > 0 and unique_builds > 0:
             tested_string = tested_two.format(soc_str, builds_str)
-        elif all([unique_boards > 0, unique_socs == 0, unique_builds == 0]):
+        elif unique_boards > 0 and unique_socs == 0 and unique_builds == 0:
             tested_string = tested_one.format(boards_str)
-        elif all([unique_boards == 0, unique_socs > 0, unique_builds == 0]):
+        elif unique_boards == 0 and unique_socs > 0 and unique_builds == 0:
             tested_string = tested_one.format(soc_str)
-        elif all([unique_boards == 0, unique_socs == 0, unique_builds > 0]):
+        elif unique_boards == 0 and unique_socs == 0 and unique_builds > 0:
             tested_string = tested_one.format(builds_str)
 
         if tested_string:

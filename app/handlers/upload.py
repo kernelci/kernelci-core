@@ -91,18 +91,16 @@ class UploadHandler(hbase.BaseHandler):
                 if path is None:
                     try:
                         job = self.get_argument(models.JOB_KEY)
+                        branch = self.get_argument(models.GIT_BRANCH_KEY)
                         kernel = self.get_argument(models.KERNEL_KEY)
                         defconfig = self.get_argument(models.DEFCONFIG_KEY)
                         defconfig_full = self.get_argument(
-                            models.DEFCONFIG_FULL, default=None)
+                            models.DEFCONFIG_FULL, defconfig)
                         arch = self.get_argument(models.ARCHITECTURE_KEY)
-                        lab = self.get_argument(
-                            models.LAB_NAME_KEY, default=None)
+                        lab = self.get_argument(models.LAB_NAME_KEY, None)
 
-                        defconfig_path = "-".join(
-                            [arch, (defconfig_full or defconfig)])
-
-                        path = os.path.join(job, kernel, defconfig_path)
+                        path = os.path.join(
+                            job, branch, kernel, arch, defconfig_full)
                         if lab is not None:
                             path = os.path.join(path, lab)
                     except tornado.web.MissingArgumentError, ex:

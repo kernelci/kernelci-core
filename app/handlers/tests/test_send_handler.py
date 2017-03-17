@@ -126,6 +126,7 @@ class TestSendHandler(TestHandlerBase):
         data = dict(
             job="job",
             kernel="kernel",
+            git_branch="master",
             boot_report=1, delay=None, boot_send_to="test@example.org")
         body = json.dumps(data)
         response = self.fetch(
@@ -136,6 +137,7 @@ class TestSendHandler(TestHandlerBase):
         mock_schedule.apply_async.assert_called_with(
             [
                 "job",
+                "master",
                 "kernel",
                 None,
                 ["txt"],
@@ -175,6 +177,7 @@ class TestSendHandler(TestHandlerBase):
         data = dict(
             job="job",
             kernel="kernel",
+            git_branch="master",
             boot_report=1, boot_send_to="test@example.org", delay=-100
         )
         body = json.dumps(data)
@@ -186,6 +189,7 @@ class TestSendHandler(TestHandlerBase):
         mock_schedule.apply_async.assert_called_with(
             [
                 "job",
+                "master",
                 "kernel",
                 None,
                 ["txt"],
@@ -208,6 +212,7 @@ class TestSendHandler(TestHandlerBase):
         data = dict(
             job="job",
             kernel="kernel",
+            git_branch="master",
             boot_report=1, boot_send_to="test@example.org", delay=1000000
         )
         body = json.dumps(data)
@@ -219,6 +224,7 @@ class TestSendHandler(TestHandlerBase):
         mock_schedule.apply_async.assert_called_with(
             [
                 "job",
+                "master",
                 "kernel",
                 None,
                 ["txt"],
@@ -241,6 +247,7 @@ class TestSendHandler(TestHandlerBase):
         data = dict(
             job="job",
             kernel="kernel",
+            git_branch="master",
             build_report=1, build_send_to="test@example.org"
         )
         body = json.dumps(data)
@@ -252,6 +259,7 @@ class TestSendHandler(TestHandlerBase):
         mock_schedule.apply_async.assert_called_with(
             [
                 "job",
+                "master",
                 "kernel",
                 ["txt"],
                 ["test@example.org"], self.dboptions, self.mail_options
@@ -293,6 +301,7 @@ class TestSendHandler(TestHandlerBase):
         data = dict(
             job="job",
             kernel="kernel",
+            git_branch="local/master",
             build_report=1,
             boot_report=1,
             build_send_to="test@example.org",
@@ -308,6 +317,7 @@ class TestSendHandler(TestHandlerBase):
         mock_boot.apply_async.assert_called_with(
             [
                 "job",
+                "master",
                 "kernel",
                 None,
                 ["txt"],
@@ -323,6 +333,7 @@ class TestSendHandler(TestHandlerBase):
         mock_build.apply_async.assert_called_with(
             [
                 "job",
+                "master",
                 "kernel",
                 ["txt"],
                 ["test@example.org"], self.dboptions, self.mail_options

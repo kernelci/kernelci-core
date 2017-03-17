@@ -20,13 +20,15 @@ import utils
 import utils.db
 
 
-def create_build_logs_summary(job, kernel, db_options):
+def create_build_logs_summary(job, kernel, git_branch, db_options):
     """Create a summary TXT file with the errors/warnings found in the log.
 
     :param job: The tree value.
     :type job: str
     :param kernel: The kernel value.
     :type kernel: str
+    :param git_branch: The branch name.
+    :type git_branch: str
     :param db_options: The database connection parameters.
     :type db_options: dict
     """
@@ -37,17 +39,21 @@ def create_build_logs_summary(job, kernel, db_options):
 
     result = utils.db.find_one2(
         db_conn[models.ERRORS_SUMMARY_COLLECTION],
-        {"job": job, "kernel": kernel}
-    )
+        {
+            models.GIT_BRANCH_KEY: git_branch,
+            models.JOB_KEY: job,
+            models.KERNEL_KEY: kernel
+        })
 
     if result:
         errors = result.get(models.ERRORS_KEY)
         warnings = result.get(models.WARNINGS_KEY)
         mismatches = result.get(models.MISMATCHES_KEY)
 
-        if any([errors, warnings, mismatches]):
+        if errors or warnings or mismatches:
             file_path = os.path.join(
-                utils.BASE_PATH, job, kernel, "build-logs-summary.txt")
+                utils.BASE_PATH,
+                job, git_branch, kernel, "build-logs-summary.txt")
 
             try:
                 with io.open(file_path, mode="w") as to_write:
@@ -57,13 +63,16 @@ def create_build_logs_summary(job, kernel, db_options):
             except IOError, ex:
                 ret_val = 500
                 error = (
-                    "Error writing logs summary for {:s}-{:s}: {:s}".format(
-                        job, kernel, ex.strerror))
+                    "Error writing logs summary for {}-{}-{}: {}".format(
+                        job, git_branch, kernel, ex.strerror))
 
                 utils.LOG.error(error)
         else:
-            utils.LOG.info("No errors/warnings found for %s-%s", job, kernel)
+            utils.LOG.info(
+                "No errors/warnings found for %s-%s-%s",
+                job, git_branch, kernel)
     else:
-        utils.LOG.info("No errors summary found for %s-%s", job, kernel)
+        utils.LOG.info(
+            "No errors summary found for %s-%s-%s", job, git_branch, kernel)
 
     return ret_val, error

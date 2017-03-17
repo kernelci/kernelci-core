@@ -1,0 +1,163 @@
+{
+    "$schema": "http://api.kernelci.org/json-schema/1.1/post_build.json",
+    "id": "http://api.kernelci.org/json-schema/1.1/post_build.json",
+    "title": "build",
+    "description": "A build from a continuous integration system",
+    "type": "object",
+    "properties": {
+        "version": {
+            "type": "string",
+            "description": "The version number of this JSON schema",
+            "enum": ["1.0", "1.1"]
+        },
+        "job": {
+            "type": "string",
+            "description": "The job associated with this object"
+        },
+        "kernel": {
+            "type": "string",
+            "description": "The kernel associated with this object"
+        },
+        "defconfig": {
+            "type": "string",
+            "description": "The name of the defconfig as reported by the continuous integration system"
+        },
+        "defconfig_full": {
+            "type": "string",
+            "description": "The full name of the defconfig with config fragments information",
+            "default": "The defconfig value"
+        },
+        "build_result": {
+            "type": "string",
+            "description": "The status of the build",
+            "enum": ["FAIL", "PASS", "UNKNOWN"]
+        },
+        "build_errors": {
+            "type": "integer",
+            "description": "Number of errors reported",
+            "default": 0
+        },
+        "build_warnings": {
+            "type": "integer",
+            "description": "Number of warnings reported",
+            "default": 0
+        },
+        "arch": {
+            "type": "string",
+            "description": "The architecture of the build",
+            "enum": ["arm", "arm64", "mips", "x86"],
+            "default": "arm"
+        },
+        "build_time": {
+            "type": "number",
+            "description": "The time taken to perform the build",
+            "default": 0
+        },
+        "git_url": {
+            "type": "string",
+            "description": "The URL of the git web interface where the code used to build can be found"
+        },
+        "git_commit": {
+            "type": "string",
+            "description": "The git SHA of the commit used for the build"
+        },
+        "git_branch": {
+            "type": "string",
+            "description": "The name of the branch"
+        },
+        "git_describe": {
+            "type": "string",
+            "description": "The name of the git describe command"
+        },
+        "build_log": {
+            "type": "string",
+            "description": "Name of the build log file in text format"
+        },
+        "build_platform": {
+            "type": "array",
+            "description": "An array with info about the build platform"
+        },
+        "dtb_dir": {
+            "type": "string",
+            "description": "Name of the dtb directory"
+        },
+        "compiler_version": {
+            "type": "string",
+            "description": "Description string of the compiler used"
+        },
+        "kconfig_fragments": {
+            "type": "string",
+            "description": "The config fragment used"
+        },
+        "kernel_config": {
+            "type": "string",
+            "description": "Name of the kernel config file used"
+        },
+        "kernel_image": {
+            "type": "string",
+            "description": "Name of the kernel image created"
+        },
+        "kernel_image_size": {
+            "type": "integer",
+            "description": "Size in bytes of the kernel image file"
+        },
+        "cross_compile": {
+            "type": "string",
+            "description": "The cross compiler used"
+        },
+        "modules": {
+            "type": "string",
+            "description": "Name of the modules file"
+        },
+        "modules_size": {
+            "type": "integer",
+            "description": "Size in bytes of the modules file"
+        },
+        "modules_dir": {
+            "type": "string",
+            "description": "Name of the modules directory"
+        },
+        "system_map": {
+            "type": "string",
+            "description": "Name of the system map file"
+        },
+        "text_offset": {
+            "type": "string"
+        },
+        "kconfig_fragments": {
+            "type": "string",
+            "description": "The config fragment used"
+        },
+        "file_server_url": {
+            "type": "string",
+            "description": "The URL where boot log files, or other related files, are stored"
+        },
+        "file_server_resource": {
+            "type": "string",
+            "description": "The server path where the boot related files are stored"
+        },
+        "build_type": {
+            "type": "string",
+            "description": "The type of the build",
+            "enum": ["kernel"],
+            "default": "kernel"
+        },
+        "vmlinux_bss_size": {
+            "type": "integer",
+            "description": "Size in bytes of the .bss ELF file section"
+        },
+        "vmlinux_data_size": {
+            "type": "intger",
+            "description": "Size in bytes of all the WA and A PROGBITS sections in the ELF file (the .data section)"
+        },
+        "vmlinux_file_size": {
+            "type": "integer",
+            "description": "The size in bytes of the ELF file"
+        },
+        "vmlinux_text_size": {
+            "type": "integer",
+            "description": "The size in bytes of the .text ELF file section"
+        }
+    },
+    "required": ["job", "kernel", "defconfig", "arch", "git_branch"]
+}

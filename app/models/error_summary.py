@@ -23,6 +23,7 @@ import models.base as modb
 ERROR_SUMMARY_VALID_KEYS = {
     "GET": [
         models.CREATED_KEY,
+        models.GIT_BRANCH_KEY,
         models.JOB_ID_KEY,
         models.JOB_KEY,
         models.KERNEL_KEY
@@ -45,6 +46,7 @@ class ErrorSummaryDocument(modb.BaseDocument):
         self._warnings = []
         self.job = None
         self.kernel = None
+        self.git_branch = None
 
     @property
     def collection(self):
@@ -147,6 +149,7 @@ class ErrorSummaryDocument(modb.BaseDocument):
         dict_obj = {
             models.CREATED_KEY: self.created_on,
             models.ERRORS_KEY: self.errors,
+            models.GIT_BRANCH_KEY: self.git_branch,
             models.JOB_ID_KEY: self.job_id,
             models.JOB_KEY: self.job,
             models.KERNEL_KEY: self.kernel,

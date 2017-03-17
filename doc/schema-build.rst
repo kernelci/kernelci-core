@@ -10,7 +10,7 @@ GET
 
 The following schema covers the data that is available with a GET request.
 
-.. literalinclude:: schema/1.0/get_build.json
+.. literalinclude:: schema/1.1/get_build.json
     :language: json
 
 .. _schema_build_post:
@@ -21,7 +21,7 @@ POST
 The following schema covers the data that should be available in a build JSON
 data file sent to the server.
 
-.. literalinclude:: schema/1.0/post_build.json
+.. literalinclude:: schema/1.1/post_build.json
     :language: json
 
 Notes

@@ -31,19 +31,20 @@ class JobDocument(modb.BaseDocument):
     of the two, and its name is of the form `job-kernel`.
     """
 
-    def __init__(self, job, kernel, version="1.0"):
+    def __init__(self, job, kernel, git_branch, version="1.1"):
         self._created_on = None
         self._id = None
         self._version = version
 
-        self._job = job
-        self._kernel = kernel
+        self.job = job
+        self.kernel = kernel
+        self.git_branch = git_branch
+
         self.compiler = None
         self.compiler_version = None
         self.compiler_version_ext = None
         self.compiler_version_full = None
         self.cross_compile = None
-        self.git_branch = None
         self.git_commit = None
         self.git_describe = None
         self.git_describe_v = None
@@ -85,47 +86,6 @@ class JobDocument(modb.BaseDocument):
         self._created_on = value
 
     @property
-    def private(self):
-        """If the job is private or not.
-
-        :return True or False
-        """
-        return self._private
-
-    @private.setter
-    def private(self, value):
-        """Set the private attribute."""
-        self._private = value
-
-    @property
-    def job(self):
-        """The real job name as found on the file system."""
-        return self._job
-
-    @property
-    def kernel(self):
-        """The real kernel name as found on the file system."""
-        return self._kernel
-
-    @property
-    def status(self):
-        """The status of the job."""
-        return self._status
-
-    @status.setter
-    def status(self, value):
-        """Set the status of the job.
-
-        :param value: The status.
-        """
-        if value is not None and value not in models.VALID_JOB_STATUS:
-            raise ValueError(
-                "Status value '%s' not valid, should be one of: %s",
-                value, str(models.VALID_JOB_STATUS)
-            )
-        self._status = value
-
-    @property
     def version(self):
         """The schema version of this object."""
         return self._version
@@ -138,46 +98,6 @@ class JobDocument(modb.BaseDocument):
         :type param: str
         """
         self._version = value
-
-    @property
-    def git_url(self):
-        """The git URL where the code comes from."""
-        return self._git_url
-
-    @git_url.setter
-    def git_url(self, value):
-        """Set the git URL of this defconfig document."""
-        self._git_url = value
-
-    @property
-    def git_commit(self):
-        """The git commit SHA."""
-        return self._git_commit
-
-    @git_commit.setter
-    def git_commit(self, value):
-        """Set the git commit SHA."""
-        self._git_commit = value
-
-    @property
-    def git_branch(self):
-        """The branch name of the repository used."""
-        return self._git_branch
-
-    @git_branch.setter
-    def git_branch(self, value):
-        """Set the branch name of the repository used."""
-        self._git_branch = value
-
-    @property
-    def git_describe(self):
-        """The git describe value of the repository."""
-        return self._git_describe
-
-    @git_describe.setter
-    def git_describe(self, value):
-        """Set the git describe value of the repository."""
-        self._git_describe = value
 
     def to_dict(self):
         job_dict = {
@@ -221,8 +141,9 @@ class JobDocument(modb.BaseDocument):
                 pop_f = local_obj.pop
                 job = pop_f(models.JOB_KEY)
                 kernel = pop_f(models.KERNEL_KEY)
+                git_branch = pop_f(models.GIT_BRANCH_KEY)
 
-                job_doc = JobDocument(job, kernel)
+                job_doc = JobDocument(job, kernel, git_branch)
                 job_doc.id = pop_f(models.ID_KEY, None)
 
                 for key, val in local_obj.iteritems():

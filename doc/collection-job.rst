@@ -403,6 +403,7 @@ POST
 
  :reqjson string job: The name of the job.
  :reqjson string kernel: The name of the kernel.
+ :reqjson string git_branch: The name of the branch.
  :reqjson string status: The status the job should be set to (optional). By default it will be set to ``PASS``.
 
  :reqheader Authorization: The token necessary to authorize the request.
@@ -433,6 +434,7 @@ POST
     {
         "job": "next",
         "kernel": "next-20140801",
+        "git_branch": "master",
         "status": "FAIL"
     }
 

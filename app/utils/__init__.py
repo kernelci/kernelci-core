@@ -16,6 +16,7 @@
 """Common functions, variables for all kernelci utils modules."""
 
 import bson
+import os
 import re
 
 import models
@@ -49,6 +50,28 @@ NO_START_CHARS = re.compile(r"^[^a-zA-Z0-9]")
 NO_END_CHARS = re.compile(r"[^a-zA-Z0-9]$")
 VALID_TEST_NAME = re.compile(r"[^a-zA-Z0-9\.\-_+]")
 VALID_KCI_NAME = re.compile(r"[^a-zA-Z0-9\.\-_+=]")
+
+
+def clean_branch_name(branch):
+    """Clean up the branch name we get from a build.
+
+    Previously, branch names could be like:
+
+        local/for-next
+        local/linux-4.4.y
+
+    We are not interested in the "local/" part so we clean it out.
+
+    :param branch: The name of the branch.
+    :type branch: str
+    :return The cleaned branch name or the same one.
+    :rtpye str
+    """
+    valid_branch = branch
+    if branch:
+        parts = branch.split("/")
+        valid_branch = parts[-1]
+    return valid_branch
 
 
 def update_id_fields(spec):
@@ -159,8 +182,8 @@ def _extrapolate_defconfig_full_from_kconfig(kconfig_fragments, defconfig):
     `defconfig`.
     """
     defconfig_full = defconfig
-    if all([kconfig_fragments.startswith("frag-"),
-            kconfig_fragments.endswith(".config")]):
+    if (kconfig_fragments.startswith("frag-") and
+            kconfig_fragments.endswith(".config")):
 
         defconfig_full = "%s+%s" % (
             defconfig,
@@ -168,47 +191,13 @@ def _extrapolate_defconfig_full_from_kconfig(kconfig_fragments, defconfig):
     return defconfig_full
 
 
-def _extrapolate_defconfig_full_from_dirname(dirname):
-    """Try to extrapolate a valid defconfig_full value from the directory name.
-
-    The directory we are traversing are built with the following pattern:
-
-        ARCH-DEFCONFIG[+FRAGMENTS]
-
-    We strip the ARCH part and keep only the rest.
-
-    :param dirname: The name of the directory we are traversing.
-    :type dirname: str
-    :return None if the directory name does not match a valid pattern, or
-    the value extrapolated from it.
-    """
-    def _replace_arch_value(arch, dirname):
-        """Local function to replace the found arch value.
-
-        :param arch: The name of the architecture.
-        :type arch: str
-        :param dirname: The name of the directory.
-        :param dirname: str
-        :return The directory name without the architecture value.
-        """
-        return dirname.replace("%s-" % arch, "", 1)
-
-    defconfig_full = None
-    for arch in models.VALID_ARCHITECTURES:
-        if arch in dirname:
-            defconfig_full = _replace_arch_value(arch, dirname)
-            break
-
-    return defconfig_full
-
-
-def get_defconfig_full(build_dir,
-                       defconfig, defconfig_full, kconfig_fragments):
+def get_defconfig_full(
+        build_dir, defconfig, defconfig_full, kconfig_fragments):
     """Get the value for defconfig_full variable based on available ones.
 
     :param build_dir: The directory we are parsing.
     :type build_dir: string
-    :param defconfig: The value for defconfig
+    :param defconfig: The value for defconfig.
     :type defconfig: string
     :param defconfig_full: The possible value for defconfig_full as taken from
     the build json file.
@@ -217,27 +206,25 @@ def get_defconfig_full(build_dir,
     :type kconfig_fragments: string
     :return The defconfig_full value.
     """
-    if all([defconfig_full is None, kconfig_fragments is None]):
+    if (defconfig_full is None and kconfig_fragments is None):
         defconfig_full = defconfig
-    elif all([defconfig_full is None, kconfig_fragments is not None]):
+    elif (defconfig_full is None and kconfig_fragments is not None):
         # Infer the real defconfig used from the values we have.
         # Try first from the kconfig_fragments and then from the
         # directory we are traversing.
         defconfig_full_k = \
             _extrapolate_defconfig_full_from_kconfig(
                 kconfig_fragments, defconfig)
-        defconfig_full_d = \
-            _extrapolate_defconfig_full_from_dirname(build_dir)
+        defconfig_full_d = os.path.basename(build_dir)
 
         # Default to use the one from kconfig_fragments.
         defconfig_full = defconfig_full_k
         # Use the one from the directory only if it is different from
         # the one obtained via the kconfig_fragments and if it is
         # different from the default defconfig value.
-        if all([
-                defconfig_full_d is not None,
-                defconfig_full_d != defconfig_full_k,
-                defconfig_full_d != defconfig]):
+        if (defconfig_full_d is not None and
+                defconfig_full_d != defconfig_full_k and
+                defconfig_full_d != defconfig):
             defconfig_full = defconfig_full_k
 
     return defconfig_full

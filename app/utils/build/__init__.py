@@ -19,13 +19,13 @@ except ImportError:
     import json
 
 try:
-    from os import scandir, walk
+    from os import walk
 except ImportError:
-    from scandir import scandir, walk
+    from scandir import walk
 
 import bson
 import datetime
-import glob
+import io
 import os
 import pymongo.errors
 import re
@@ -119,13 +119,14 @@ def _search_prev_build_doc(build_doc, database):
     doc_id = None
     c_date = None
 
-    if all([build_doc, database]):
+    if build_doc and database:
         spec = {
-            models.JOB_KEY: build_doc.job,
-            models.KERNEL_KEY: build_doc.kernel,
-            models.DEFCONFIG_KEY: build_doc.defconfig,
+            models.ARCHITECTURE_KEY: build_doc.arch,
             models.DEFCONFIG_FULL_KEY: build_doc.defconfig_full,
-            models.ARCHITECTURE_KEY: build_doc.arch
+            models.DEFCONFIG_KEY: build_doc.defconfig,
+            models.GIT_BRANCH_KEY: build_doc.git_branch,
+            models.JOB_KEY: build_doc.job,
+            models.KERNEL_KEY: build_doc.kernel
         }
         prev_doc = utils.db.find(
             database[models.BUILD_COLLECTION],
@@ -222,7 +223,7 @@ class BuildError(Exception):
 
 # pylint: disable=too-many-locals
 # pylint: disable=too-many-statements
-def parse_build_data(build_data, job, kernel, build_dir=None):
+def parse_build_data(build_data, job, kernel, build_dir):
     """Parse the json build data and craete the corresponding document.
 
     :param build_data: The json build data.
@@ -245,6 +246,7 @@ def parse_build_data(build_data, job, kernel, build_dir=None):
         defconfig = build_data[models.DEFCONFIG_KEY]
         d_job = build_data.get(models.JOB_KEY, job)
         d_kernel = build_data.get(models.KERNEL_KEY, kernel)
+        d_branch = build_data.get(models.GIT_BRANCH_KEY)
         defconfig_full = build_data.get(models.DEFCONFIG_FULL_KEY, None)
         kconfig_fragments = build_data.get(
             models.KCONFIG_FRAGMENTS_KEY, None)
@@ -253,9 +255,9 @@ def parse_build_data(build_data, job, kernel, build_dir=None):
             build_dir, defconfig, defconfig_full, kconfig_fragments)
 
         build_doc = mbuild.BuildDocument(
-            d_job, d_kernel, defconfig, defconfig_full=defconfig_full)
+            d_job,
+            d_kernel, defconfig, d_branch, defconfig_full=defconfig_full)
 
-        build_doc.dirname = build_dir
         build_doc.arch = build_data.get(models.ARCHITECTURE_KEY, None)
         build_doc.build_log = build_data.get(models.BUILD_LOG_KEY, None)
         build_doc.build_platform = build_data.get(
@@ -269,8 +271,6 @@ def parse_build_data(build_data, job, kernel, build_dir=None):
             models.FILE_SERVER_RESOURCE_KEY, None)
         build_doc.file_server_url = build_data.get(
             models.FILE_SERVER_URL_KEY, None)
-        build_doc.git_branch = build_data.get(
-            models.GIT_BRANCH_KEY, None)
         build_doc.git_commit = build_data.get(
             models.GIT_COMMIT_KEY, None)
         build_doc.git_describe = build_data.get(
@@ -290,7 +290,7 @@ def parse_build_data(build_data, job, kernel, build_dir=None):
             models.SYSTEM_MAP_KEY, None)
         build_doc.text_offset = build_data.get(
             models.TEXT_OFFSET_KEY, None)
-        build_doc.version = build_data.get(models.VERSION_KEY, "1.0")
+        build_doc.version = build_data.get(models.VERSION_KEY, "1.1")
         build_doc.warnings = build_data.get(models.BUILD_WARNINGS_KEY, 0)
         build_doc.kernel_image_size = build_data.get(
             models.KERNEL_IMAGE_SIZE_KEY, None)
@@ -338,168 +338,85 @@ def parse_build_data(build_data, job, kernel, build_dir=None):
 
 
 # pylint: disable=too-many-arguments
-def _traverse_build_dir(
-        build_dir,
-        kernel_dir, job, kernel, job_id, job_date, errors, database):
+def _traverse_build_dir(build_dir, job_doc, errors, database):
     """Traverse the build directory looking for the build file.
 
-    :param build_dir: The name of the build directory.
+    :param build_dir: The path to the build directory.
     :type build_dir: string
-    :param kernel_dir: The full path to the kernel directory.
-    :type kernel_dir: string
-    :param job: The name of the job.
-    :type job: string
-    :param kernel: The name of the kernel.
-    :type kernel: string
-    :param job_id: The ID of the job this build belongs to.
-    :type job_id: bson.objectid.ObjectId
-    :param job_date: The job document creation date.
-    :type job_date: datetime.datetime
+    :param job_doc: The created JobDocument.
+    :type job: JobDocument
     :param errors: The errors data structure.
     :type errors: dictionary
     :param database: The database connection.
     :return A BuildDocument or None.
     """
-    real_dir = os.path.join(kernel_dir, build_dir)
+    data_path = os.path.join(build_dir, models.BUILD_META_JSON_FILE)
+    utils.LOG.info("Traversing %s", build_dir)
 
-    def _scan_build_dir():
-        """Yield the files found in the build directory."""
-        for entry in scandir(real_dir):
-            if entry.is_file() and entry.name == models.BUILD_META_JSON_FILE:
-                yield entry.name
-
-    utils.LOG.info("Traversing %s-%s-%s", job, kernel, build_dir)
-    for data_file in _scan_build_dir():
+    if os.path.isfile(data_path):
         try:
-            with open(os.path.join(real_dir, data_file)) as data:
+            # with io.open(os.path.join(build_dir, data_file)) as data:
+            with io.open(data_path) as data:
                 build_data = json.load(data)
         except IOError, ex:
-            err_msg = "Error reading json data file (job: %s, kernel: %s) - %s"
+            err_msg = "Error reading json data file from {}".format(build_dir)
             utils.LOG.exception(ex)
-            utils.LOG.error(err_msg, job, kernel, build_dir)
-            ERR_ADD(errors, 500, err_msg % (job, kernel, build_dir))
-            continue
+            utils.LOG.error(err_msg)
+            ERR_ADD(errors, 500, err_msg)
         except json.JSONDecodeError, ex:
-            err_msg = "Error loading json data (job: %s, kernel: %s) - %s"
+            err_msg = "Error loading json data from {}".format(build_dir)
             utils.LOG.exception(ex)
-            utils.LOG.error(err_msg, job, kernel, build_dir)
-            ERR_ADD(errors, 500, err_msg % (job, kernel, build_dir))
-            continue
-
-        try:
-            build_doc, artifacts = parse_build_data(
-                build_data, job, kernel, build_dir=real_dir)
-        except BuildError as e:
-            if e.from_exc:
-                utils.LOG.exception(e.from_exc)
-            utils.LOG.error(e.args[0])
-            ERR_ADD(errors, e.code, e.args[0])
-            continue
-
-        build_doc.job_id = job_id
-        # Search for previous defconfig doc. This is only useful when
-        # re-importing data and we want to have the same ID as before.
-        doc_id, c_date = _search_prev_build_doc(
-            build_doc, database)
-        build_doc.id = doc_id
-        if c_date:
-            build_doc.created_on = c_date
+            utils.LOG.error(err_msg)
+            ERR_ADD(errors, 500, err_msg)
         else:
-            # XXX: we used to give defconfig the job date.
-            build_doc.created_on = datetime.datetime.now(
-                tz=bson.tz_util.utc)
+            try:
+                build_doc, artifacts = parse_build_data(
+                    build_data, job_doc.job, job_doc.kernel, build_dir)
+            except BuildError as e:
+                if e.from_exc:
+                    utils.LOG.exception(e.from_exc)
+                utils.LOG.error(e.args[0])
+                ERR_ADD(errors, e.code, e.args[0])
 
-        if build_doc.dtb_dir:
-            build_doc.dtb_dir_data = parse_dtb_dir(
-                real_dir, build_doc.dtb_dir)
+            build_doc.job_id = job_doc.id
+            # Search for previous defconfig doc. This is only useful when
+            # re-importing data and we want to have the same ID as before.
+            doc_id, c_date = _search_prev_build_doc(
+                build_doc, database)
+            build_doc.id = doc_id
 
-        if artifacts:
-            for key, size in get_artifacts_size(artifacts, real_dir):
-                setattr(build_doc, key, size)
+            if c_date:
+                build_doc.created_on = c_date
+            else:
+                # XXX: we used to give defconfig the job date.
+                build_doc.created_on = datetime.datetime.now(
+                    tz=bson.tz_util.utc)
 
-        return build_doc
+            if build_doc.dtb_dir:
+                build_doc.dtb_dir_data = parse_dtb_dir(
+                    build_dir, build_doc.dtb_dir)
 
+            if artifacts:
+                for key, size in get_artifacts_size(artifacts, build_dir):
+                    setattr(build_doc, key, size)
 
-def _traverse_kernel_dir(
-        kernel_dir, job, kernel, job_id, job_date, database, scan_func=None):
-    """Traverse the kernel directory looking for the build directories.
-
-    :param kernel_dir: The full path to the kernel directory.
-    :type kernel_dir: string
-    :param job: The name of the job.
-    :type job: string
-    :param kernel: The name of the kernel.
-    :type kernel: string
-    :param job_id: The ID of the job this build belongs to.
-    :type job_id: bson.objectid.ObjectId
-    :param job_date: The job document creation date.
-    :type job_date: datetime.datetime
-    :param errors: The errors data structure.
-    :type errors: dictionary
-    :param database: The database connection.
-    :param scan_func: Function to scan a directory yielding its subdirs. It
-    must accept a single argument: the full path of the directory to scan.
-    :type scan_func: function
-    :return A 3-tuple: the list of BuildDocument objects, the job status
-    value and the errors data structure.
-    """
-    job_status = models.UNKNOWN_STATUS
-    errors = {}
-    docs = []
-
-    def _scan_kernel_dir(to_scan):
-        """Yields the directory contained in the kernel one.
-
-        :param to_scan: Full path of the directory to scan.
-        :type to_scan: string
-        :return The name of the subdirectories if they do not start with "." or
-        are not a lab directory.
-        """
-        for entry in scandir(to_scan):
-            if all([entry.is_dir(),
-                    not entry.name.startswith("."),
-                    not utils.is_lab_dir(entry.name)]):
-                yield entry.name
-
-    def _get_build_documents():
-        """Generator to traverse the build dir and retrieve the documents."""
-        for build_dir in scan_func(kernel_dir):
-            doc = _traverse_build_dir(
-                build_dir,
-                kernel_dir, job, kernel, job_id, job_date, errors, database)
-            if doc is not None:
-                yield doc
-
-    if scan_func is None:
-        scan_func = _scan_kernel_dir
-
-    job_status = models.BUILD_STATUS
-    if os.path.isdir(kernel_dir):
-        done_file = os.path.join(kernel_dir, models.DONE_FILE)
-        done_file_p = os.path.join(kernel_dir, models.DONE_FILE_PATTERN)
-
-        if any([os.path.exists(done_file), glob.glob(done_file_p)]):
-            job_status = models.PASS_STATUS
-
-        docs = [doc for doc in _get_build_documents()]
-
-    return docs, job_status, errors
+            return build_doc
 
 
-def _update_job_doc(job_doc, job_id, status, docs, database):
+def _update_job_doc(job_doc, job_id, status, build_doc, database):
     """Update the JobDocument with values from a BuildDocument.
 
     :param job_doc: The job document to update.
     :type job_doc: JobDocument
     :param status: The job status value.
     :type status: string
-    :param docs: The list of BuildDocument objects.
-    :type docs: list
+    :param build_doc: A BuildDocument object.
+    :type build_doc: BuildDocument
     """
     to_update = False
     ret_val = 201
 
-    if all([job_id, job_doc.id != job_id]):
+    if (job_id and job_doc.id != job_id):
         job_doc.id = job_id
         to_update = True
 
@@ -510,7 +427,6 @@ def _update_job_doc(job_doc, job_id, status, docs, database):
     no_git = all([
         not job_doc.git_url,
         not job_doc.git_commit,
-        not job_doc.git_branch,
         not job_doc.git_describe,
         not job_doc.git_describe_v
     ])
@@ -523,166 +439,34 @@ def _update_job_doc(job_doc, job_id, status, docs, database):
         not job_doc.cross_compile
     ])
 
-    if all([docs, no_git, no_compiler]):
+    if (build_doc and no_git and no_compiler):
         # Kind of a hack:
         # We want to store some metadata at the job document level as well,
         # like git tree, git commit...
         # Since, at the moment, we do not have the metadata file at the job
         # level we need to pick one from the build documents, and extract some
         # values.
-        docs_len = len(docs)
-        idx = 0
-        while idx < docs_len:
-            d_doc = docs[idx]
-            if isinstance(d_doc, mbuild.BuildDocument):
-                if all([d_doc.job == job_doc.job,
-                        d_doc.kernel == job_doc.kernel]):
-                    job_doc.git_branch = d_doc.git_branch
-                    job_doc.git_commit = d_doc.git_commit
-                    job_doc.git_describe = d_doc.git_describe
-                    job_doc.git_describe_v = d_doc.git_describe_v
-                    job_doc.kernel_version = d_doc.kernel_version
-                    job_doc.git_url = d_doc.git_url
-                    job_doc.compiler = d_doc.compiler
-                    job_doc.compiler_version = d_doc.compiler_version
-                    job_doc.compiler_version_ext = d_doc.compiler_version_ext
-                    job_doc.compiler_version_full = d_doc.compiler_version_full
-                    job_doc.cross_compile = d_doc.cross_compile
-                    to_update = True
-                    break
-
-            idx += 1
+        if isinstance(build_doc, mbuild.BuildDocument):
+            if (build_doc.job == job_doc.job and
+                    build_doc.kernel == job_doc.kernel):
+                job_doc.git_commit = build_doc.git_commit
+                job_doc.git_describe = build_doc.git_describe
+                job_doc.git_describe_v = build_doc.git_describe_v
+                job_doc.kernel_version = build_doc.kernel_version
+                job_doc.git_url = build_doc.git_url
+                job_doc.compiler = build_doc.compiler
+                job_doc.compiler_version = build_doc.compiler_version
+                job_doc.compiler_version_ext = build_doc.compiler_version_ext
+                job_doc.compiler_version_full = build_doc.compiler_version_full
+                job_doc.cross_compile = build_doc.cross_compile
+                to_update = True
 
     if to_update:
         ret_val, _ = utils.db.save(database, job_doc)
     return ret_val
 
 
-def _import_builds(job, kernel, db_options, base_path):
-    """Execute the actual import and save operations.
-
-    :param job: The job name.
-    :type job: string
-    :param kernel: The kernel name.
-    :type kernel: string
-    :param db_options: The database connection options.
-    :type db_options: dictionary
-    :param base_path: The base path on the file system.
-    :type base_path: string
-    :return A 3-tuple: The list of BuildDocument objects, the ID of the
-    JobDocument object, the errors data structure.
-    """
-    docs = None
-    job_id = None
-    errors = {}
-
-    if all([utils.valid_name(job), utils.valid_name(kernel)]):
-        job_dir = os.path.join(base_path, job)
-        kernel_dir = os.path.join(job_dir, kernel)
-
-        if os.path.isdir(kernel_dir):
-            try:
-                p_doc = None
-                database = None
-                ret_val = 201
-
-                database = utils.db.get_db_connection(db_options)
-                p_doc = utils.db.find_one2(
-                    database[models.JOB_COLLECTION],
-                    {models.JOB_KEY: job, models.KERNEL_KEY: kernel})
-
-                if p_doc:
-                    job_doc = mjob.JobDocument.from_json(p_doc)
-                    job_id = job_doc.id
-                else:
-                    job_doc = mjob.JobDocument(job, kernel)
-                    job_doc.created_on = datetime.datetime.now(
-                        tz=bson.tz_util.utc)
-                    ret_val, job_id = utils.db.save(
-                        database, job_doc, manipulate=True)
-
-                if all([ret_val != 201, job_id is None]):
-                    err_msg = (
-                        "Error saving/finding job document for '%s-%s': "
-                        "builds document might not be linked to their job")
-                    utils.LOG.error(err_msg, job, kernel)
-                    ERR_ADD(errors, ret_val, err_msg % (job, kernel))
-
-                docs, j_status, errs = _traverse_kernel_dir(
-                    kernel_dir,
-                    job, kernel, job_id, job_doc.created_on, database)
-                ERR_UPDATE(errors, errs)
-
-                ret_val = _update_job_doc(
-                    job_doc, job_id, j_status, docs, database)
-                if ret_val != 201:
-                    err_msg = (
-                        "Error updating job document '%s-%s' with values from "
-                        "build doc")
-                    utils.LOG.error(err_msg, job, kernel)
-                    ERR_ADD(errors, ret_val, err_msg % (job, kernel))
-            except pymongo.errors.ConnectionFailure, ex:
-                utils.LOG.exception(ex)
-                utils.LOG.error("Error getting database connection")
-                utils.LOG.warn(
-                    "Builds for '%s-%s' will not be imported", job, kernel)
-                ERR_ADD(
-                    errors,
-                    500,
-                    "Internal server error: builds for '%s-%s' will not "
-                    "be imported" % (job, kernel)
-                )
-        else:
-            err_msg = (
-                "Kernel directory for '%s-%s' does not exists: builds will "
-                "not be imported. Has everything been uploaded?")
-            utils.LOG.error(err_msg, job, kernel)
-            ERR_ADD(errors, 500, err_msg % (job, kernel))
-    else:
-        err_msg = (
-            "Wrong name for job and/or kernel value (%s-%s). "
-            "Names cannot start with '.' and cannot contain '$' and '/'")
-        utils.LOG.error(err_msg, job, kernel)
-        ERR_ADD(errors, 500, err_msg % (job, kernel))
-
-    return docs, job_id, errors
-
-
-def import_multiple_builds(json_obj, db_options, base_path=utils.BASE_PATH):
-    """Import builds from a file system directory based on the json data.
-
-    :param json_obj: The json object with job and kernel values.
-    :type json_obj: dictionary
-    :param db_options: The database connection options.
-    :type db_options: dictionary
-    :param base_path: The base path on the file system where to look for.
-    :type base_path: string
-    :return The job ID value and the errors data structure.
-    """
-    errors = {}
-    job = json_obj[models.JOB_KEY]
-    kernel = json_obj[models.KERNEL_KEY]
-
-    docs, job_id, errs = _import_builds(job, kernel, db_options, base_path)
-    if docs:
-        utils.LOG.info("Saving documents with job ID '%s'", job_id)
-        try:
-            database = utils.db.get_db_connection(db_options)
-            ret_val, _ = utils.db.save_all(database, docs, manipulate=True)
-            if ret_val != 201:
-                ERR_ADD(
-                    errors, ret_val,
-                    "Error saving builds with job ID '%s'" % job_id)
-        except pymongo.errors.ConnectionFailure, ex:
-            utils.LOG.exception(ex)
-            utils.LOG.error("Error getting database connection")
-            ERR_ADD(errors, 500, "Error connecting to the database")
-
-    ERR_UPDATE(errors, errs)
-    return job_id, errors
-
-
-def _get_or_create_job(job, kernel, database, db_options):
+def _get_or_create_job(job, kernel, git_branch, database, db_options):
     """Get or create a job in the database.
 
     :param job: The name of the job.
@@ -703,21 +487,26 @@ def _get_or_create_job(job, kernel, database, db_options):
     # We might be importing build in parallel through multi-processes.
     # Keep a lock here when looking for a job or we might end up with
     # multiple job creations.
-    lock_key = "buil-import-{:s}-{:s}".format(job, kernel)
+    lock_key = "build-import-{}-{}-{}".format(job, kernel, git_branch)
     with redis.lock.Lock(redis_conn, lock_key, timeout=5):
         p_doc = utils.db.find_one2(
             database[models.JOB_COLLECTION],
-            {models.JOB_KEY: job, models.KERNEL_KEY: kernel})
+            {
+                models.JOB_KEY: job,
+                models.KERNEL_KEY: kernel,
+                models.GIT_BRANCH_KEY: git_branch
+            })
 
         if p_doc:
             job_doc = mjob.JobDocument.from_json(p_doc)
             job_id = job_doc.id
         else:
-            job_doc = mjob.JobDocument(job, kernel)
+            job_doc = mjob.JobDocument(job, kernel, git_branch)
             job_doc.status = models.BUILD_STATUS
             job_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
             ret_val, job_id = utils.db.save(
                 database, job_doc, manipulate=True)
+            job_doc.id = job_id
 
     return ret_val, job_doc, job_id
 
@@ -743,75 +532,80 @@ def import_single_build(json_obj, db_options, base_path=utils.BASE_PATH):
     job = j_get(models.JOB_KEY)
     kernel = j_get(models.KERNEL_KEY)
     defconfig = j_get(models.DEFCONFIG_KEY)
+    git_branch = j_get(models.GIT_BRANCH_KEY)
     defconfig_full = j_get(models.DEFCONFIG_FULL_KEY, None)
 
-    if all([utils.valid_name(job), utils.valid_name(kernel)]):
-        job_dir = os.path.join(base_path, job)
-        kernel_dir = os.path.join(job_dir, kernel)
+    # Clean up the branch name so we don't have "local/*" anymore.
+    git_branch = utils.clean_branch_name(git_branch)
 
-        build_rel_dir = "%s-%s" % (arch, defconfig_full or defconfig)
-        build_dir = os.path.join(kernel_dir, build_rel_dir)
+    if (utils.valid_name(job) and utils.valid_name(kernel)):
+        # New directory structure:
+        # $job/$branch/$kernel/$arch/$defconfig
+
+        parent_dir = os.path.join(base_path, job, git_branch, kernel, arch)
+        build_dir = os.path.join(parent_dir, defconfig_full or defconfig)
 
         if os.path.isdir(build_dir):
             try:
                 database = utils.db.get_db_connection(db_options)
 
                 ret_val, job_doc, job_id = _get_or_create_job(
-                    job, kernel, database, db_options)
+                    job, kernel, git_branch, database, db_options)
                 if ret_val != 201 and job_id is None:
                     err_msg = (
-                        "Error saving/finding job document '%s-%s': "
-                        "build document '%s-%s-%s-%s' might not be linked to "
-                        "its job"
-                    )
+                        "Error saving/finding job document '%s-%s-%s' for "
+                        "'%s-%s' might not be linked to its job")
                     utils.LOG.error(
-                        err_msg, job, kernel, job, kernel, arch, defconfig)
+                        err_msg, job, kernel, git_branch, arch, defconfig)
                     ERR_ADD(
                         errors,
                         ret_val,
-                        err_msg % (job, kernel, job, kernel, arch, defconfig)
+                        err_msg % (job, kernel, git_branch, arch, defconfig)
                     )
 
                 build_doc = _traverse_build_dir(
-                    build_dir,
-                    kernel_dir,
-                    job, kernel, job_id, job_doc.created_on, errors, database)
+                    build_dir, job_doc, errors, database)
 
                 ret_val = _update_job_doc(
                     job_doc,
-                    job_id, job_doc.status, [build_doc], database)
+                    job_id, job_doc.status, build_doc, database)
                 if ret_val != 201:
                     err_msg = (
-                        "Error updating job document '%s-%s' with values from "
-                        "build doc")
-                    utils.LOG.error(err_msg, job, kernel)
-                    ERR_ADD(errors, ret_val, err_msg % (job, kernel))
+                        "Error updating job document '%s-%s-%s' with values "
+                        "from build doc")
+                    utils.LOG.error(err_msg, job, git_branch, kernel)
+                    ERR_ADD(
+                        errors, ret_val, err_msg % (job, git_branch, kernel))
                 if build_doc:
                     ret_val, build_id = utils.db.save(
                         database, build_doc, manipulate=True)
                 if ret_val != 201:
-                    err_msg = "Error saving build document '%s-%s-%s-%s'"
-                    utils.LOG.error(err_msg, job, kernel, arch, defconfig)
+                    err_msg = "Error saving build document '%s-%s-%s-%s-%s'"
+                    utils.LOG.error(
+                        err_msg, job, git_branch, kernel, arch, defconfig)
                     ERR_ADD(
                         errors,
-                        ret_val, err_msg % (job, kernel, arch, defconfig))
+                        ret_val, err_msg % (
+                            job, git_branch, kernel, arch, defconfig))
             except pymongo.errors.ConnectionFailure, ex:
                 utils.LOG.exception(ex)
                 utils.LOG.error("Error getting database connection")
                 utils.LOG.warn(
-                    "Build for '%s-%s-%s-%s' will not be imported",
-                    job, kernel, arch, defconfig)
+                    "Build for '%s-%s-%s-%s-%s' will not be imported",
+                    job, git_branch, kernel, arch, defconfig)
                 ERR_ADD(
                     errors, 500,
-                    "Internal server error: build for '%s-%s-%s-%s' "
-                    "will not be imported" % (job, kernel, arch, defconfig)
+                    "Internal server error: build for '%s-%s-%s-%s-%s' "
+                    "will not be imported" % (
+                        job, git_branch, kernel, arch, defconfig)
                 )
         else:
             err_msg = (
-                "No build directory found for '%s-%s-%s-%s': "
+                "No build directory found for '%s-%s-%s-%s-%s': "
                 "has everything been uploaded?")
-            utils.LOG.error(err_msg, job, kernel, arch, defconfig)
-            ERR_ADD(errors, 500, err_msg % (job, kernel, arch, defconfig))
+            utils.LOG.error(err_msg, job, git_branch, kernel, arch, defconfig)
+            ERR_ADD(errors, 500, err_msg % (
+                job, git_branch, kernel, arch, defconfig))
     else:
         err_msg = (
             "Wrong name for job and/or kernel value (%s-%s). "

@@ -1,0 +1,110 @@
+{
+    "$schema": "http://api.kernelci.org/json-schema/1.1/get_build_logs_summary.json",
+    "id": "http://api.kernelci.org/json-schema/1.1/get_build_logs_summary.json",
+    "title": "error_summary",
+    "description": "The summary of errors, warnings and mismatches associated with a job",
+    "type": "object",
+    "properties": {
+        "version": {
+            "type": "string",
+            "description": "The version number of this JSON schema",
+            "enum": ["1.0", "1.1"]
+        },
+        "_id": {
+            "type": "string",
+            "description": "The ID associated with the object"
+        },
+        "created_on": {
+            "type": "object",
+            "description": "Creation date of the object",
+            "properties": {
+                "$date": {
+                    "type": "number",
+                    "description": "Milliseconds from epoch time"
+                }
+            }
+        },
+        "job": {
+            "type": "string",
+            "description": "The job associated with this object"
+        },
+        "job_id": {
+            "type": "object",
+            "description": "The ID of the associated job",
+            "properties": {
+                "$oid": {
+                    "type": "string",
+                    "description": "The actual ID value"
+                }
+            }
+        },
+        "kernel": {
+            "type": "string",
+            "description": "The kernel associated with this object"
+        },
+        "git_branch": {
+            "type": "string",
+            "description": "The name of the branch"
+        },
+        "errors": {
+            "type": "array",
+            "description": "List of lists of unique error lines found in all the builds and their count",
+            "additionalItems": true,
+            "items": {
+                "type": "array",
+                "maxItems": 2,
+                "additionalItems": false,
+                "items": [
+                    {
+                        "type": "number",
+                        "description": "Number of similar lines found"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The actual error line"
+                    }
+                ]
+            }
+        },
+        "mismatches": {
+            "type": "array",
+            "description": "List of lists of unique mismatched lines found in the build log and their count",
+            "additionalItems": true,
+            "items": {
+                "type": "array",
+                "maxItems": 2,
+                "additionalItems": false,
+                "items": [
+                    {
+                        "type": "number",
+                        "description": "Number of similar lines found"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The actual mismatch line"
+                    }
+                ]
+            }
+        },
+        "warnings": {
+            "type": "array",
+            "description": "List of lists of unique warning lines found in the build log and their count",
+            "additionalItems": true,
+            "items": {
+                "type": "array",
+                "maxItems": 2,
+                "additionalItems": false,
+                "items": [
+                    {
+                        "type": "number",
+                        "description": "Number of similar lines found"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The actual warning line"
+                    }
+                ]
+            }
+        }
+    }
+}

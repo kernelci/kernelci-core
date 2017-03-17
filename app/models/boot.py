@@ -36,7 +36,8 @@ class BootDocument(modb.BaseDocument):
             job,
             kernel,
             defconfig,
-            lab_name, defconfig_full=None, arch=models.ARM_ARCHITECTURE_KEY):
+            lab_name,
+            git_branch, defconfig_full=None, arch=models.ARM_ARCHITECTURE_KEY):
         """A new BootDocument.
 
         :param board: The name of the board.
@@ -59,13 +60,15 @@ class BootDocument(modb.BaseDocument):
         self._id = None
         self._version = None
 
-        self._arch = arch
-        self._board = board
-        self._defconfig = defconfig
-        self._defconfig_full = defconfig_full or defconfig
-        self._job = job
-        self._kernel = kernel
-        self._lab_name = lab_name
+        self.arch = arch
+        self.board = board
+        self.defconfig = defconfig
+        self.defconfig_full = defconfig_full or defconfig
+        self.git_branch = git_branch
+        self.job = job
+        self.kernel = kernel
+        self.lab_name = lab_name
+
         self.board_instance = None
         self.boot_job_id = None
         self.boot_job_path = None
@@ -91,7 +94,6 @@ class BootDocument(modb.BaseDocument):
         self.file_server_resource = None
         self.file_server_url = None
         self.filesystem = None
-        self.git_branch = None
         self.git_commit = None
         self.git_describe = None
         self.git_url = None
@@ -129,51 +131,6 @@ class BootDocument(modb.BaseDocument):
         :type value: str
         """
         self._id = value
-
-    @property
-    def arch(self):
-        """The architecture of the board."""
-        return self._arch
-
-    @property
-    def board(self):
-        """The board of this document."""
-        return self._board
-
-    @property
-    def job(self):
-        """The job this boot document belongs to."""
-        return self._job
-
-    @property
-    def kernel(self):
-        """The kernel this boot document belongs to."""
-        return self._kernel
-
-    @property
-    def defconfig(self):
-        """The defconfig of this boot document."""
-        return self._defconfig
-
-    @property
-    def defconfig_full(self):
-        """The full value of the defconfig, with fragments."""
-        return self._defconfig_full
-
-    @defconfig_full.setter
-    def defconfig_full(self, value):
-        """Set the defconfig full name."""
-        self._defconfig_full = value
-
-    @property
-    def lab_name(self):
-        """Get the lab ID value of this boot report."""
-        return self._lab_name
-
-    @lab_name.setter
-    def lab_name(self, value):
-        """Set the lab ID value."""
-        self._lab_name = value
 
     @property
     def created_on(self):
@@ -277,6 +234,7 @@ class BootDocument(modb.BaseDocument):
                 kernel = doc_pop(models.KERNEL_KEY)
                 defconfig = doc_pop(models.DEFCONFIG_KEY)
                 lab_name = doc_pop(models.LAB_NAME_KEY)
+                git_branch = doc_pop(models.GIT_BRANCH_KEY)
                 defconfig_full = doc_pop(models.DEFCONFIG_FULL_KEY, None)
                 arch = doc_pop(
                     models.ARCHITECTURE_KEY, models.ARM_ARCHITECTURE_KEY)
@@ -286,7 +244,9 @@ class BootDocument(modb.BaseDocument):
                     job,
                     kernel,
                     defconfig,
-                    lab_name, defconfig_full=defconfig_full, arch=arch
+                    lab_name,
+                    git_branch,
+                    defconfig_full=defconfig_full, arch=arch
                 )
 
                 boot_doc.id = boot_id

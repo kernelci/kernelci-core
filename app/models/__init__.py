@@ -421,6 +421,7 @@ BOOT_VALID_KEYS = {
             ARCHITECTURE_KEY,
             BOARD_KEY,
             DEFCONFIG_KEY,
+            GIT_BRANCH_KEY,
             JOB_KEY,
             KERNEL_KEY,
             LAB_NAME_KEY,
@@ -566,6 +567,7 @@ BUILD_VALID_KEYS = {
         MANDATORY_KEYS: [
             ARCHITECTURE_KEY,
             DEFCONFIG_KEY,
+            GIT_BRANCH_KEY,
             JOB_KEY,
             KERNEL_KEY
         ],
@@ -573,6 +575,7 @@ BUILD_VALID_KEYS = {
             ARCHITECTURE_KEY,
             DEFCONFIG_FULL_KEY,
             DEFCONFIG_KEY,
+            GIT_BRANCH_KEY,
             JOB_KEY,
             KERNEL_KEY,
             KERNEL_VERSION_KEY,
@@ -632,10 +635,14 @@ TOKEN_VALID_KEYS = {
 JOB_VALID_KEYS = {
     "POST": {
         MANDATORY_KEYS: [
+            GIT_BRANCH_KEY,
             JOB_KEY,
             KERNEL_KEY
         ],
         ACCEPTED_KEYS: [
+            GIT_BRANCH_KEY,
+            GIT_COMMIT_KEY,
+            GIT_DESCRIBE_KEY,
             JOB_KEY,
             KERNEL_KEY,
             KERNEL_VERSION_KEY,
@@ -725,6 +732,7 @@ REPORT_VALID_KEYS = {
 SEND_VALID_KEYS = {
     "POST": {
         MANDATORY_KEYS: [
+            GIT_BRANCH_KEY,
             JOB_KEY,
             KERNEL_KEY
         ],
@@ -737,6 +745,7 @@ SEND_VALID_KEYS = {
             BUILD_REPORT_SEND_TO_KEY,
             DELAY_KEY,
             EMAIL_FORMAT_KEY,
+            GIT_BRANCH_KEY,
             IN_REPLY_TO_KEY,
             JOB_KEY,
             KERNEL_KEY,

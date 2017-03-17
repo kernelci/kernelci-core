@@ -19,7 +19,14 @@ import handlers.base as hbase
 import handlers.response as hresponse
 import models
 import taskqueue.tasks.build as taskb
+import utils
 import utils.db
+
+JOB_NOT_FOUND = "Job '%s-%s (branch %s)' not found"
+INTERNAL_ERROR = \
+    "Internal error while searching/updating job '%s-%s' (branch %s)"
+JOB_UPDATED = "Job '%s-%s' (branch %s) marked as '%s'"
+INVALID_STATUS = "Status value '%s' is not valid, should be one of: %s"
 
 
 # pylint: disable=too-many-public-methods
@@ -40,38 +47,43 @@ class JobHandler(hbase.BaseHandler):
     def _post(self, *args, **kwargs):
         response = hresponse.HandlerResponse()
 
-        job = kwargs["json_obj"].get(models.JOB_KEY)
-        kernel = kwargs["json_obj"].get(models.KERNEL_KEY)
-        status = kwargs["json_obj"].get(models.STATUS_KEY, None)
+        obj = kwargs["json_obj"]
+
+        job = obj.get(models.JOB_KEY)
+        kernel = obj.get(models.KERNEL_KEY)
+        git_branch = utils.clean_branch_name(obj.get(models.GIT_BRANCH_KEY))
+        status = obj.get(models.STATUS_KEY, None)
 
         if not status:
             status = models.PASS_STATUS
 
-        if all([status, status in models.VALID_JOB_STATUS]):
+        if (status in models.VALID_JOB_STATUS):
             ret_val = utils.db.find_and_update(
                 self.collection,
-                {models.JOB_KEY: job, models.KERNEL_KEY: kernel},
+                {
+                    models.GIT_BRANCH_KEY: git_branch,
+                    models.JOB_KEY: job,
+                    models.KERNEL_KEY: kernel
+                },
                 {models.STATUS_KEY: status}
             )
 
             if ret_val == 404:
                 response.status_code = 404
-                response.reason = "Job '%s-%s' not found" % (job, kernel)
+                response.reason = JOB_NOT_FOUND % (job, kernel, git_branch)
             elif ret_val == 500:
                 response.status_code = 500
-                response.reason = (
-                    "Internal error while searching/updating job '%s-%s'" %
-                    (job, kernel))
+                response.reason = INTERNAL_ERROR % (job, kernel, git_branch)
             else:
                 response.reason = \
-                    "Job '%s-%s' marked as '%s'" % (job, kernel, status)
+                    JOB_UPDATED % (job, kernel, git_branch, status)
                 # Create the build logs summary file.
-                taskb.create_build_logs_summary.apply_async([job, kernel])
+                taskb.create_build_logs_summary.apply_async(
+                    [job, kernel, git_branch])
         else:
             response.status_code = 400
-            response.reason = (
-                "Status value '%s' is not valid, should be one of: %s" %
-                (status, str(models.VALID_JOB_STATUS)))
+            response.reason = \
+                INVALID_STATUS % (status, str(models.VALID_JOB_STATUS))
 
         return response
 

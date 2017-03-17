@@ -1,0 +1,91 @@
+{
+    "$schema": "http://api.kernelci.org/json-schema/1.1/post_send.json",
+    "id": "http://api.kernelci.org/json-schema/1.1/post_send.json",
+    "title": "send",
+    "description": "Data to trigger the email report",
+    "type": "object",
+    "properties": {
+        "job": {
+            "type": "string",
+            "description": "The job name associated with the object"
+        },
+        "git_branch": {
+            "type": "string",
+            "description": "The branch name"
+        },
+        "kernel": {
+            "type": "string",
+            "description": "The kernel name associated with the object"
+        },
+        "lab_name": {
+            "type": "string",
+            "description": "The name of the lab to trigger the report for"
+        },
+        "boot_report": {
+            "type": "boolean",
+            "description": "Whether the boot report should be created and sent",
+            "default": 0
+        },
+        "build_report": {
+            "type": "boolean",
+            "description": "Whether the build report should be created and sent",
+            "default": 0
+        },
+        "boot_send_to": {
+            "type": ["string", "array"],
+            "description": "The emails to sent the boot report to"
+        },
+        "boot_send_cc": {
+            "type": ["string", "array"],
+            "description": "The emails to sent the boot report to in carbon copy"
+        },
+        "boot_send_bcc": {
+            "type": ["string", "array"],
+            "description": "The emails to sent the boot report to in blind carbon copy"
+        },
+        "build_send_to": {
+            "type": ["string", "array"],
+            "description": "The emails to send the build report to"
+        },
+        "build_send_cc": {
+            "type": ["string", "array"],
+            "description": "The emails to send the build report to in carbon copy"
+        },
+        "build_send_bcc": {
+            "type": ["string", "array"],
+            "description": "The emails to send the build report to in blind carbon copy"
+        },
+        "send_to": {
+            "type": ["string", "array"],
+            "description": "The emails to send the reports to, will be appended to the more specific email control values"
+        },
+        "send_cc": {
+            "type": ["string", "array"],
+            "description": "The emails to send the reports to in carbon copy, will be appended to the more specific email control values"
+        },
+        "send_bcc": {
+            "type": ["string", "array"],
+            "description": "The emails to send the reports to in blind carbon copy, will be appended to the more specific email control values"
+        },
+        "in_reply_to": {
+            "type": "string",
+            "description": "The message ID of the previous message this email report is a reply"
+        },
+        "delay": {
+            "type": "number",
+            "description": "The number of seconds after which the email should be sent",
+            "default": 3600
+        },
+        "format": {
+            "type": "array",
+            "description": "The format of the email",
+            "enum": ["txt", "html"],
+            "default": ["txt"]
+        },
+        "subject": {
+            "type": "string",
+            "description": "The subject for the email: overrides the default one. If sending both boot and build reports, the same subject will be used for both emails. "
+        }
+    },
+    "required": ["job", "kernel", "git_branch"]
+}

@@ -28,6 +28,7 @@ POST
  For more info on all the required JSON request fields, see the :ref:`schema for POST requests <schema_send_post>`.
 
  :reqjson string job: The name of the job.
+ :reqjson string git_branch: The name of the branch.
  :reqjson string kernel: The name of the kernel.
  :reqjson string lab_name: The name of the lab.
  :reqjson boolean boot_report: If the boot report should be created and sent. Default to 0 (false).

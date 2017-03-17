@@ -178,7 +178,8 @@ class TestBisectModel(unittest.TestCase):
             "job_id": "job-id",
             "defconfig_full": "defconfig-full",
             "arch": "arm",
-            "type": "build"
+            "type": "build",
+            "git_branch": None
         }
 
         self.assertDictEqual(expected, bisect_doc.to_dict())

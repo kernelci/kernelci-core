@@ -39,10 +39,8 @@ class BuildHandler(hbase.BaseHandler):
         response.reason = "Request accepted and being imported"
 
         taskq.import_build.apply_async(
-            [kwargs["json_obj"], self.settings["dboptions"]],
-            link=[
-                taskq.parse_single_build_log.s(self.settings["dboptions"])
-            ]
+            [kwargs["json_obj"]],
+            link=[taskq.parse_single_build_log.s()]
         )
 
         return response

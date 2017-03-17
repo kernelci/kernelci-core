@@ -31,6 +31,7 @@ BUILD_SEARCH_FIELDS = [
     models.CREATED_KEY,
     models.DEFCONFIG_FULL_KEY,
     models.DEFCONFIG_KEY,
+    models.GIT_BRANCH_KEY,
     models.GIT_COMMIT_KEY,
     models.GIT_DESCRIBE_KEY,
     models.GIT_URL_KEY,
@@ -74,7 +75,7 @@ def execute_build_bisection(doc_id, db_options, fields=None):
         fields=BUILD_SEARCH_FIELDS
     )
 
-    if all([start_doc, isinstance(start_doc, types.DictionaryType)]):
+    if start_doc and isinstance(start_doc, types.DictionaryType):
         start_doc_get = start_doc.get
 
         if start_doc_get(models.STATUS_KEY) == models.PASS_STATUS:
@@ -90,6 +91,7 @@ def execute_build_bisection(doc_id, db_options, fields=None):
             bisect_doc.defconfig = start_doc_get(models.DEFCONFIG_KEY, None)
             bisect_doc.defconfig_full = start_doc_get(
                 models.DEFCONFIG_FULL_KEY, None)
+            bisect_doc.git_branch = start_doc_get(models.GIT_BRANCH_KEY)
             bisect_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
             bisect_doc.bad_commit_date = start_doc_get(models.CREATED_KEY)
             bisect_doc.bad_commit = start_doc_get(models.GIT_COMMIT_KEY)
@@ -102,6 +104,7 @@ def execute_build_bisection(doc_id, db_options, fields=None):
                     models.DEFCONFIG_FULL_KEY),
                 models.DEFCONFIG_KEY: start_doc_get(models.DEFCONFIG_KEY),
                 models.JOB_KEY: start_doc_get(models.JOB_KEY),
+                models.GIT_BRANCH_KEY: start_doc_get(models.GIT_BRANCH_KEY)
             }
 
             all_valid_docs = [start_doc]
@@ -164,7 +167,7 @@ def execute_build_bisection(doc_id, db_options, fields=None):
                     ]
                 )
 
-                if all([passed_build, all_valid_docs[-1] != passed_build]):
+                if passed_build and all_valid_docs[-1] != passed_build:
                     all_valid_docs.append(passed_build)
 
                 # The last doc should be the good one, in case it is, add the
@@ -235,7 +238,7 @@ def execute_build_bisection_compared_to(
         database[models.BUILD_COLLECTION],
         obj_id, fields=BUILD_SEARCH_FIELDS)
 
-    if all([start_doc, isinstance(start_doc, types.DictionaryType)]):
+    if start_doc and isinstance(start_doc, types.DictionaryType):
         start_doc_get = start_doc.get
 
         if start_doc_get(models.STATUS_KEY) == models.PASS_STATUS:
@@ -257,6 +260,7 @@ def execute_build_bisection_compared_to(
             created_on = start_doc_get(models.CREATED_KEY)
             arch = start_doc_get(
                 models.ARCHITECTURE_KEY) or models.ARM_ARCHITECTURE_KEY
+            branch = start_doc_get(models.GIT_BRANCH_KEY)
 
             bisect_doc = mbisect.DefconfigBisectDocument(obj_id)
             bisect_doc.compare_to = compare_to
@@ -267,6 +271,7 @@ def execute_build_bisection_compared_to(
             bisect_doc.job_id = start_doc_get(models.JOB_ID_KEY, None)
             bisect_doc.build_id = start_doc_get(models.BUILD_ID_KEY, None)
             bisect_doc.boot_id = obj_id
+            bisect_doc.git_branch = branch
             bisect_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
             bisect_doc.arch = arch
 
@@ -281,6 +286,7 @@ def execute_build_bisection_compared_to(
             spec = {
                 models.DEFCONFIG_KEY: defconfig,
                 models.DEFCONFIG_FULL_KEY: defconfig_full,
+                models.GIT_BRANCH_KEY: branch,
                 models.JOB_KEY: compare_to,
                 models.ARCHITECTURE_KEY: arch,
                 models.CREATED_KEY: date_range

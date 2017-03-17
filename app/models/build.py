@@ -25,7 +25,8 @@ import models.base as mbase
 class BuildDocument(mbase.BaseDocument):
     """This class represents a build."""
 
-    def __init__(self, job, kernel, defconfig, defconfig_full=None):
+    def __init__(
+            self, job, kernel, defconfig, git_branch, defconfig_full=None):
         """A build document.
 
         :param job: The job value.
@@ -43,12 +44,15 @@ class BuildDocument(mbase.BaseDocument):
         self._version = None
 
         self._build_platform = []
-        self._defconfig = defconfig
-        self._defconfig_full = defconfig_full or defconfig
-        self._job = job
-        self._kernel = kernel
         self._metadata = {}
         self._status = None
+
+        self.defconfig = defconfig
+        self.defconfig_full = defconfig_full or defconfig
+        self.job = job
+        self.kernel = kernel
+        self.git_branch = git_branch
+
         self.arch = None
         self.build_log = None
         self.build_log_size = None
@@ -65,7 +69,6 @@ class BuildDocument(mbase.BaseDocument):
         self.errors = 0
         self.file_server_resource = None
         self.file_server_url = None
-        self.git_branch = None
         self.git_commit = None
         self.git_describe = None
         self.git_describe_v = None
@@ -122,19 +125,18 @@ class BuildDocument(mbase.BaseDocument):
         self._id = value
 
     @property
-    def job(self):
-        """The job this build belongs too."""
-        return self._job
+    def version(self):
+        """The schema version of this object."""
+        return self._version
 
-    @property
-    def kernel(self):
-        """The kernel this build was built against."""
-        return self._kernel
+    @version.setter
+    def version(self, value):
+        """Set the schema version of this object.
 
-    @property
-    def defconfig(self):
-        """The defconfig name."""
-        return self._defconfig
+        :param value: The schema string.
+        :type param: str
+        """
+        self._version = value
 
     @property
     def metadata(self):
@@ -182,33 +184,6 @@ class BuildDocument(mbase.BaseDocument):
         if not isinstance(value, types.ListType):
             raise TypeError("Value passed is not a list: %s", type(value))
         self._build_platform = value
-
-    @property
-    def version(self):
-        """The schema version of this object."""
-        return self._version
-
-    @version.setter
-    def version(self, value):
-        """Set the schema version of this object.
-
-        :param value: The schema string.
-        :type param: str
-        """
-        self._version = value
-
-    @property
-    def defconfig_full(self):
-        """The full defconfig name.
-
-        This parameter contains also the config fragments information.
-        """
-        return self._defconfig_full
-
-    @defconfig_full.setter
-    def defconfig_full(self, value):
-        """Set the full defconfig name."""
-        self._defconfig_full = value
 
     def to_dict(self):
         defconf_dict = {
@@ -281,9 +256,12 @@ class BuildDocument(mbase.BaseDocument):
                 job = doc_pop(models.JOB_KEY)
                 kernel = doc_pop(models.KERNEL_KEY)
                 defconfig = doc_pop(models.DEFCONFIG_KEY)
+                git_branch = doc_pop(models.GIT_BRANCH_KEY)
 
                 build_doc = BuildDocument(
-                    job, kernel, defconfig, defconfig_full)
+                    job,
+                    kernel,
+                    defconfig, git_branch, defconfig_full=defconfig_full)
                 build_doc.id = doc_id
 
                 for key, val in local_obj.iteritems():

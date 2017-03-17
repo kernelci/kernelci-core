@@ -29,7 +29,7 @@ REGRESSION_FMT = "{:s}.{:s}.{:s}.{:s}.{:s}.{:s}"
 # the rest of the embedded document key.
 REGRESSION_DOT_FMT = "{:s}.{:s}"
 # Lock key format for the Redis lock.
-LOCK_KEY_FMT = "boot-regressions-{:s}-{:s}"
+LOCK_KEY_FMT = "boot-regressions-{:s}-{:s}-{:s}"
 
 
 def sanitize_key(key):
@@ -146,6 +146,7 @@ def check_prev_regression(last_boot, prev_boot, db_options):
     p_get = prev_boot.get
 
     spec = {
+        models.GIT_BRANCH_KEY: p_get(models.GIT_BRANCH_KEY),
         models.JOB_KEY: p_get(models.JOB_KEY),
         models.KERNEL_KEY: p_get(models.KERNEL_KEY)
     }
@@ -200,12 +201,13 @@ def track_regression(boot_doc, pass_doc, old_regr, db_options):
     kernel = b_get(models.KERNEL_KEY)
     lab = b_get(models.LAB_NAME_KEY)
     created_on = b_get(models.CREATED_KEY)
+    branch = b_get(models.GIT_BRANCH_KEY)
 
     # We might be importing boot in parallel through multi-processes.
     # Keep a lock here when looking for the previous regressions or we might
     # end up with multiple boot regression creations.
     redis_conn = redisdb.get_db_connection(db_options)
-    lock_key = LOCK_KEY_FMT.format(job, kernel)
+    lock_key = LOCK_KEY_FMT.format(job, branch, kernel)
 
     with redis.lock.Lock(redis_conn, lock_key, timeout=5):
         # Do we have "old" regressions?
@@ -246,6 +248,7 @@ def track_regression(boot_doc, pass_doc, old_regr, db_options):
         else:
             regression_doc = {
                 models.CREATED_KEY: created_on,
+                models.GIT_BRANCH_KEY: branch,
                 models.JOB_ID_KEY: job_id,
                 models.JOB_KEY: job,
                 models.KERNEL_KEY: kernel

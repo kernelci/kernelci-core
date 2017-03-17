@@ -1,0 +1,198 @@
+{
+    "$schema": "http://api.kernelci.org/json-schema/1.1/post_boot.json",
+    "id": "http://api.kernelci.org/json-schema/1.1/post_boot.json",
+    "title": "boot",
+    "description": "A boot POST request object",
+    "type": "object",
+    "properties": {
+        "version": {
+            "type": "string",
+            "description": "The version number of this JSON schema",
+            "enum": ["1.0", "1.1"]
+        },
+        "lab_name": {
+            "type": "string",
+            "description": "The name of the lab that is doing the boot tests"
+        },
+        "job": {
+            "type": "string",
+            "description": "The job associated with this boot report"
+        },
+        "kernel": {
+            "type": "string",
+            "description": "The kernel associated with this boot report"
+        },
+        "defconfig": {
+            "type": "string",
+            "description": "The name of the defconfig as reported by the CI loop"
+        },
+        "defconfig_full": {
+            "type": "string",
+            "description": "The full name of the defconfig with config fragments information",
+            "default": "The defconfig value"
+        },
+        "board": {
+            "type": "string",
+            "description": "The name of the board: it must be a valid and recognized name"
+        },
+        "board_instance": {
+            "type": "string",
+            "description": "The instance identifier for the board"
+        },
+        "arch" : {
+            "type": "string",
+            "description": "The architecture type of this board",
+            "enum": ["arm", "arm64", "mips", "x86"],
+            "default": "arm"
+        },
+        "git_branch": {
+            "type": "string",
+            "description": "The branch used for boot testing"
+        },
+        "git_commit": {
+            "type": "string",
+            "description": "The git SHA of the commit used for boot testing"
+        },
+        "git_describe": {
+            "type": "string",
+            "description": "The name of the git describe command"
+        },
+        "boot_retries": {
+            "type": "integer",
+            "description": "The number of boot retries that have been performed",
+            "default": 0
+        },
+        "boot_result": {
+            "type": "string",
+            "description": "The final status of the boot test",
+            "enum": ["FAIL", "OFFLINE", "PASS", "UNTRIED"]
+        },
+        "boot_result_description": {
+            "type": "string",
+            "description": "The description of the boot result, useful to provide a cause of a failure"
+        },
+        "boot_log": {
+            "type": "string",
+            "description": "The name of the boot log file in text format"
+        },
+        "boot_log_html": {
+            "type": "string",
+            "description": "The name of the boot log file in HTML format"
+        },
+        "boot_time": {
+            "type": "number",
+            "description": "The number of seconds it took to boot the board: iternally it will be converted into milliseconds from the epoch time"
+        },
+        "boot_warnings": {
+            "type": "integer",
+            "description": "The number of warnings detected during the boot",
+            "default": 0
+        },
+        "dtb": {
+            "type": "string",
+            "description": "The DTB file or directory used"
+        },
+        "dtb_addr": {
+            "type": "string",
+            "description": "The DTB address used"
+        },
+        "dtb_append": {
+            "type": "boolean",
+            "default": "false"
+        },
+        "endian": {
+            "type": "string",
+            "description": "Endianness of the board"
+        },
+        "fastboot": {
+            "type": "boolean",
+            "description": "If it was a fastboot",
+            "default": "false"
+        },
+        "initrd_addr": {
+            "type": "string",
+            "description": "Initrd address used"
+        },
+        "initrd": {
+            "type": "string",
+            "description": "Initrd path"
+        },
+        "kernel_image": {
+            "type": "string",
+            "description": "The kernel image used to boot"
+        },
+        "loadaddr": {
+            "type": "string",
+            "description": "Load address used"
+        },
+        "email": {
+            "type": "string",
+            "description": "Optional email address to be notified if the boot report import fails"
+        },
+        "file_server_url": {
+            "type": "string",
+            "description": "The URL where boot log files, or other related files, are stored"
+        },
+        "file_server_resource": {
+            "type": "string",
+            "description": "The server path where the boot related files are stored"
+        },
+        "mach": {
+            "type": "string",
+            "description": "The machine (SoC) family"
+        },
+        "mach_alias": {
+            "type": "string",
+            "description": "The alternative machine (SoC) family; when defined it will override the 'mach' field"
+        },
+        "metadata": {
+            "type": "object",
+            "description": "A free form object that can contain different properties"
+        },
+        "uimage": {
+            "type": "string",
+            "description": "Path to the uImage used"
+        },
+        "uimage_addr": {
+            "type": "string",
+            "description": "uImage load address"
+        },
+        "qemu": {
+            "type": "string",
+            "description": "qemu binary used"
+        },
+        "qemu_command": {
+            "type": "string",
+            "description": "Full command line used to start qemu"
+        },
+        "filesystem": {
+            "type": "string",
+            "description": "Type of file system used"
+        },
+        "chainloader": {
+            "type": "string",
+            "description": "Description of the chainloader used, if any"
+        },
+        "bootloader": {
+            "type": "string",
+            "description": "The name of the bootloader used"
+        },
+        "bootloader_version": {
+            "type": "string",
+            "description": "The version of the bootloader used"
+        },
+        "boot_job_url": {
+            "type": "string",
+            "description": "The URL of the boot test executor; this should include the schema and authority parts of the URI"
+        },
+        "boot_job_path": {
+            "type": "string",
+            "description": "The path where the boot test job can be found; this should be the path part of the URI"
+        },
+        "boot_job_id": {
+            "type": "string",
+            "description": "The ID of the job that ran the boot test as reported by the boot test executor"
+        }
+    },
+    "required": ["version", "lab_name", "job", "kernel", "defconfig", "board", "arch", "git_branch"]
+}

@@ -83,7 +83,8 @@ def save_or_update(boot_doc, database, errors):
         models.DEFCONFIG_KEY: boot_doc.defconfig,
         models.JOB_KEY: boot_doc.job,
         models.KERNEL_KEY: boot_doc.kernel,
-        models.LAB_NAME_KEY: boot_doc.lab_name
+        models.LAB_NAME_KEY: boot_doc.lab_name,
+        models.GIT_BRANCH_KEY: boot_doc.git_branch
     }
 
     fields = [
@@ -108,9 +109,10 @@ def save_or_update(boot_doc, database, errors):
     if ret_val == 500:
         err_msg = (
             "Error saving/updating boot report in the database "
-            "for '%s-%s-%s (%s, %s)'" %
+            "for '%s-%s-%s-%s (%s, %s)'" %
             (
                 boot_doc.job,
+                boot_doc.git_branch,
                 boot_doc.kernel,
                 boot_doc.defconfig_full, boot_doc.arch, boot_doc.board
             )
@@ -132,17 +134,14 @@ def save_to_disk(boot_doc, json_obj, base_path, errors):
     :param errors: Where errors should be stored.
     :type errors: dictionary
     """
-    job = boot_doc.job
-    kernel = boot_doc.kernel
-    defconfig_full = boot_doc.defconfig_full
-    lab_name = boot_doc.lab_name
-    board = boot_doc.board
-    arch = boot_doc.arch
-
-    r_defconfig = "-".join([arch, defconfig_full])
-
-    dir_path = os.path.join(base_path, job, kernel, r_defconfig, lab_name)
-    file_path = os.path.join(dir_path, "boot-%s.json" % board)
+    dir_path = os.path.join(
+        base_path,
+        boot_doc.job,
+        boot_doc.git_branch,
+        boot_doc.kernel,
+        boot_doc.arch,
+        boot_doc.defconfig_full, boot_doc.lab_name)
+    file_path = os.path.join(dir_path, "boot-{}.json".format(boot_doc.board))
 
     try:
         if not os.path.isdir(dir_path):
@@ -161,14 +160,7 @@ def save_to_disk(boot_doc, json_obj, base_path, errors):
                 )
             )
     except (OSError, IOError), ex:
-        err_msg = (
-            "Error saving boot report to disk for '%s-%s-%s (%s, %s)'" %
-            (
-                boot_doc.job,
-                boot_doc.kernel,
-                boot_doc.defconfig_full, boot_doc.arch, boot_doc.board
-            )
-        )
+        err_msg = "Error saving boot report to '{}'".format(file_path)
         utils.LOG.exception(ex)
         utils.LOG.error(err_msg)
         ERR_ADD(errors, 500, err_msg)
@@ -183,7 +175,8 @@ def _get_boot_seconds(boot_dict):
     try:
         boot_time = float(boot_time_raw)
     except ValueError:
-        raise BootValidationError("Boot time is not a number: {!r}".format(boot_time_raw))
+        raise BootValidationError(
+            "Boot time is not a number: {!r}".format(boot_time_raw))
     if boot_time < 0.0:
         raise BootValidationError("Found negative boot time")
     return boot_time
@@ -191,7 +184,8 @@ def _get_boot_seconds(boot_dict):
 
 def _seconds_as_datetime(seconds):
     """
-    Returns seconds encoded as a point in time `seconds` seconds after since 1970-01-01T00:00:00Z.
+    Returns seconds encoded as a point in time `seconds` seconds after since
+    1970-01-01T00:00:00Z.
     """
     return datetime.datetime(1970, 1, 1) + datetime.timedelta(seconds=seconds)
 
@@ -247,7 +241,6 @@ def _update_boot_doc_from_json(boot_doc, boot_dict, errors):
     boot_doc.file_server_resource = boot_dict.get(
         models.FILE_SERVER_RESOURCE_KEY, None)
     boot_doc.file_server_url = boot_dict.get(models.FILE_SERVER_URL_KEY, None)
-    boot_doc.git_branch = boot_dict.get(models.GIT_BRANCH_KEY, None)
     boot_doc.git_commit = boot_dict.get(models.GIT_COMMIT_KEY, None)
     boot_doc.git_describe = boot_dict.get(models.GIT_DESCRIBE_KEY, None)
     boot_doc.git_url = boot_dict.get(models.GIT_URL_KEY, None)
@@ -260,7 +253,7 @@ def _update_boot_doc_from_json(boot_doc, boot_dict, errors):
     boot_doc.retries = boot_dict.get(models.BOOT_RETRIES_KEY, 0)
     boot_doc.uimage = boot_dict.get(models.UIMAGE_KEY, None)
     boot_doc.uimage_addr = boot_dict.get(models.UIMAGE_ADDR_KEY, None)
-    boot_doc.version = boot_dict.get(models.VERSION_KEY, "1.0")
+    boot_doc.version = boot_dict.get(models.VERSION_KEY, "1.1")
     boot_doc.warnings = boot_dict.get(models.BOOT_WARNINGS_KEY, 0)
     boot_doc.bootloader = boot_dict.get(models.BOOTLOADER_TYPE_KEY, None)
     boot_doc.bootloader_version = boot_dict.get(
@@ -272,12 +265,13 @@ def _update_boot_doc_from_json(boot_doc, boot_dict, errors):
     boot_doc.boot_job_url = boot_dict.get(models.BOOT_JOB_URL_KEY, None)
 
     # mach_alias_key takes precedence if defined
-    boot_doc.mach = boot_dict.get(models.MACH_ALIAS_KEY,
-        boot_dict.get(models.MACH_KEY, None))
+    boot_doc.mach = boot_dict.get(
+        models.MACH_ALIAS_KEY, boot_dict.get(models.MACH_KEY, None))
 
 
 def _check_for_null(board_dict):
-    """Check if the board dictionary has values resembling None in its mandatory keys.
+    """Check if the board dictionary has values resembling None in its
+    mandatory keys.
 
     Values must be different than:
     - None
@@ -291,11 +285,12 @@ def _check_for_null(board_dict):
     """
     for key in NON_NULL_KEYS:
         val = board_dict.get(key, None)
-        if val is None or (isinstance(val, basestring) \
-                and val.lower() in ('', 'null', 'none')):
+        if (val is None or
+            (isinstance(val, basestring) and
+                val.lower() in ('', 'null', 'none'))):
             raise BootValidationError(
-                "Invalid value found for mandatory key {!r}: {!r}" \
-                .format(key, val))
+                "Invalid value found for mandatory key {!r}: {!r}".format(
+                    key, val))
 
 
 def _update_boot_doc_ids(boot_doc, database):
@@ -310,31 +305,34 @@ def _update_boot_doc_ids(boot_doc, database):
     defconfig = boot_doc.defconfig
     defconfig_full = boot_doc.defconfig_full
     arch = boot_doc.arch
+    branch = boot_doc.git_branch
 
-    job_doc = utils.db.find_one2(
-        database[models.JOB_COLLECTION],
-        {models.JOB_KEY: job, models.KERNEL_KEY: kernel}
-    )
+    spec = {
+        models.JOB_KEY: job,
+        models.KERNEL_KEY: kernel,
+        models.GIT_BRANCH_KEY: branch
+    }
 
-    build_spec = {
+    job_doc = utils.db.find_one2(database[models.JOB_COLLECTION], spec)
+
+    spec.update({
         models.ARCHITECTURE_KEY: arch,
         models.DEFCONFIG_KEY: defconfig,
         models.JOB_KEY: job,
         models.KERNEL_KEY: kernel
-    }
+    })
 
     if defconfig_full:
-        build_spec[models.DEFCONFIG_FULL_KEY] = defconfig_full
+        spec[models.DEFCONFIG_FULL_KEY] = defconfig_full
 
-    build_doc = utils.db.find_one2(
-        database[models.BUILD_COLLECTION], build_spec)
+    build_doc = utils.db.find_one2(database[models.BUILD_COLLECTION], spec)
 
     if job_doc:
         boot_doc.job_id = job_doc.get(models.ID_KEY, None)
     else:
         utils.LOG.warn(
-            "No job document found for boot %s-%s-%s (%s)",
-            job, kernel, defconfig_full, arch)
+            "No job document found for boot %s-%s-%s-%s (%s)",
+            job, branch, kernel, defconfig_full, arch)
 
     if build_doc:
         doc_get = build_doc.get
@@ -371,8 +369,8 @@ def _update_boot_doc_ids(boot_doc, database):
             doc_get(models.KERNEL_IMAGE_SIZE_KEY, None)
     else:
         utils.LOG.warn(
-            "No build document found for boot %s-%s-%s (%s)",
-            job, kernel, defconfig_full, arch)
+            "No build document found for boot %s-%s-%s-%s (%s)",
+            job, branch, kernel, defconfig_full, arch)
 
 
 def _parse_boot_from_json(boot_json, database, errors):
@@ -402,6 +400,7 @@ def _parse_boot_from_json(boot_json, database, errors):
         kernel = boot_json[models.KERNEL_KEY]
         defconfig = boot_json[models.DEFCONFIG_KEY]
         lab_name = boot_json[models.LAB_NAME_KEY]
+        git_branch = boot_json[models.GIT_BRANCH_KEY]
     except KeyError, ex:
         err_msg = "Missing mandatory key in boot data"
         utils.LOG.exception(ex)
@@ -420,7 +419,7 @@ def _parse_boot_from_json(boot_json, database, errors):
 
     boot_doc = mboot.BootDocument(
         board,
-        job, kernel, defconfig, lab_name, defconfig_full, arch)
+        job, kernel, defconfig, lab_name, git_branch, defconfig_full, arch)
     boot_doc.created_on = datetime.datetime.now(
         tz=bson.tz_util.utc)
     _update_boot_doc_from_json(boot_doc, boot_json, errors)

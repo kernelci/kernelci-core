@@ -45,11 +45,12 @@ class TestReportModel(unittest.TestCase):
             "errors": [],
             "job": None,
             "kernel": None,
+            "git_branch": None,
             "name": "report",
             "status": None,
             "type": None,
             "updated_on": None,
-            "version": "1.0"
+            "version": "1.1"
         }
         self.assertDictEqual(expected, report_doc.to_dict())
 
@@ -61,6 +62,7 @@ class TestReportModel(unittest.TestCase):
         report_doc = mreport.ReportDocument("name")
         report_doc.id = "id"
         report_doc.job = "job"
+        report_doc.git_branch = "branch"
         report_doc.kernel = "kernel"
         report_doc.report_type = "boot"
         report_doc.status = "ERROR"
@@ -73,11 +75,12 @@ class TestReportModel(unittest.TestCase):
             "errors": [(1, "msg")],
             "job": "job",
             "kernel": "kernel",
+            "git_branch": "branch",
             "name": "name",
             "status": "ERROR",
             "type": "boot",
             "updated_on": "now",
-            "version": "1.0"
+            "version": "1.1"
         }
 
         self.assertDictEqual(expected, report_doc.to_dict())

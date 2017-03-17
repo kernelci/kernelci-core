@@ -107,7 +107,7 @@ BOOT_REPORT_TYPE = "boot"
 BUILD_REPORT_TYPE = "build"
 
 
-def save_report(job, kernel, r_type, status, errors, db_options):
+def save_report(job, branch, kernel, r_type, status, errors, db_options):
     """Save the email report status in the database.
 
     It does not save the actual email report sent.
@@ -125,11 +125,12 @@ def save_report(job, kernel, r_type, status, errors, db_options):
     :param db_options: The mongodb database connection parameters.
     :type db_options: dict
     """
-    name = "%s-%s" % (job, kernel)
+    name = "%s-%s-%s" % (job, branch, kernel)
     utils.LOG.info("Saving '%s' report for '%s'", r_type, name)
 
     spec = {
         models.JOB_KEY: job,
+        models.GIT_BRANCH_KEY: branch,
         models.KERNEL_KEY: kernel,
         models.NAME_KEY: name,
         models.TYPE_KEY: r_type
@@ -150,6 +151,7 @@ def save_report(job, kernel, r_type, status, errors, db_options):
         report = mreport.ReportDocument(name)
         report.job = job
         report.kernel = kernel
+        report.git_branch = branch
         report.report_type = r_type
         report.status = status
         report.errors = errors
@@ -234,7 +236,7 @@ def parse_job_results(results):
     return parsed_data
 
 
-def get_git_data(job, kernel, db_options):
+def get_git_data(job, branch, kernel, db_options):
     """Retrieve the git data from a job.
 
     :param job: The job name.
@@ -243,11 +245,12 @@ def get_git_data(job, kernel, db_options):
     :type kernel: string
     :param db_options: The mongodb database connection parameters.
     :type db_options: dict
-    :return A tuple with git commit, url and branch.
+    :return A 2-tuple: (git commit, git url).
     """
     spec = {
         models.JOB_KEY: job,
-        models.KERNEL_KEY: kernel
+        models.KERNEL_KEY: kernel,
+        models.GIT_BRANCH_KEY: branch
     }
 
     database = utils.db.get_db_connection(db_options)
@@ -263,21 +266,24 @@ def get_git_data(job, kernel, db_options):
     if git_data:
         git_commit = git_data[models.GIT_COMMIT_KEY]
         git_url = git_data[models.GIT_URL_KEY]
-        git_branch = git_data[models.GIT_BRANCH_KEY]
     else:
-        git_commit = git_url = git_branch = u"Unknown"
+        git_commit = git_url = u"Unknown"
 
-    return (git_commit, git_url, git_branch)
+    return (git_commit, git_url)
 
 
 def get_total_results(
-        job, kernel, collection, db_options, lab_name=None, unique_keys=None):
+        job,
+        branch,
+        kernel, collection, db_options, lab_name=None, unique_keys=None):
     """Retrieve the total count and the unique data for a collection.
 
     :param job: The job name.
-    :type job: string
+    :type job: str
+    :param branch: The branch name.
+    :type branch: str
     :param kernel: The kernel name.
-    :type kernel: string
+    :type kernel: str
     :param collection: The collection name.
     :type collection: string.
     :param db_options: The mongodb database connection parameters.
@@ -289,8 +295,9 @@ def get_total_results(
     :return A tuple with the total count and the unique elements.
     """
     spec = {
+        models.GIT_BRANCH_KEY: branch,
         models.JOB_KEY: job,
-        models.KERNEL_KEY: kernel,
+        models.KERNEL_KEY: kernel
     }
 
     if lab_name:

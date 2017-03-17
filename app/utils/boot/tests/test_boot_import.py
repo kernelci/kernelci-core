@@ -37,7 +37,7 @@ class TestParseBoot(unittest.TestCase):
         self.base_path = tempfile.gettempdir()
 
         self.boot_report = dict(
-            version="1.0",
+            version="1.1",
             board="board",
             lab_name="lab_name",
             kernel="kernel",
@@ -63,7 +63,8 @@ class TestParseBoot(unittest.TestCase):
             chainloader="chainloader",
             filesystem="nfs",
             boot_job_id="1234",
-            boot_job_url="http://boot-executor.example.net"
+            boot_job_url="http://boot-executor.example.net",
+            git_branch="branch"
         )
 
     def tearDown(self):
@@ -87,7 +88,7 @@ class TestParseBoot(unittest.TestCase):
         self.assertIsInstance(doc, mboot.BootDocument)
         self.assertEqual(doc.load_addr, "0x80200000")
         self.assertEqual(doc.endian, "little")
-        self.assertEqual(doc.version, "1.0")
+        self.assertEqual(doc.version, "1.1")
         self.assertEqual(doc.mach, "soc")
         self.assertEqual(doc.uimage, "uimage")
         self.assertEqual(doc.bootloader, "bootloader")
@@ -112,7 +113,8 @@ class TestParseBoot(unittest.TestCase):
             "board": None,
             "kernel": None,
             "defconfig": None,
-            "lab_name": None
+            "lab_name": None,
+            "git_branch": None
         }
 
         self.assertRaises(
@@ -120,7 +122,7 @@ class TestParseBoot(unittest.TestCase):
 
     def test_check_for_null_with_null_from_string(self):
         boot_report = (
-            '{"job": "Null", "board": "Null", '
+            '{"job": "Null", "board": "Null", "git_branch": "Null", '
             '"kernel": "Null", "defconfig": "Null", "lab_name": "Null"}'
         )
 
@@ -130,7 +132,7 @@ class TestParseBoot(unittest.TestCase):
 
     def test_check_for_null_with_null_from_string_lower(self):
         boot_report = (
-            '{"job": "null", "board": "null", '
+            '{"job": "null", "board": "null", "git_branch": "null", '
             '"kernel": "null", "defconfig": "null", "lab_name": "null"}'
         )
 
@@ -140,7 +142,7 @@ class TestParseBoot(unittest.TestCase):
 
     def test_check_for_null_with_none_from_string(self):
         boot_report = (
-            '{"job": "None", "board": "None", '
+            '{"job": "None", "board": "None", "git_branch": "None", '
             '"kernel": "None", "defconfig": "None", "lab_name": "None"}'
         )
 
@@ -150,7 +152,7 @@ class TestParseBoot(unittest.TestCase):
 
     def test_check_for_null_with_none_from_string_lower(self):
         boot_report = (
-            '{"job": "none", "board": "none", '
+            '{"job": "none", "board": "none", "git_branch": "none", '
             '"kernel": "none", "defconfig": "none", "lab_name": "none"}'
         )
 
@@ -160,7 +162,7 @@ class TestParseBoot(unittest.TestCase):
 
     def test_check_for_null_with_empty_string_from_string(self):
         boot_report = (
-            '{"job": "", "board": "", '
+            '{"job": "", "board": "", "git_branch": "", '
             '"kernel": "", "defconfig": "", "lab_name": ""}'
         )
 
@@ -174,7 +176,8 @@ class TestParseBoot(unittest.TestCase):
             "board": "",
             "kernel": "",
             "defconfig": "",
-            "lab_name": ""
+            "lab_name": "",
+            "git_branch": ""
         }
 
         self.assertRaises(
@@ -190,12 +193,16 @@ class TestParseBoot(unittest.TestCase):
             "defconfig": "defconfig",
             "arch": "arm",
             "defconfig_full": "defconfig+FRAGMENT",
-            "lab_name": "lab"
+            "lab_name": "lab",
+            "git_branch": "branch"
         }
         boot_doc = mboot.BootDocument(
-            "board", "job", "kernel", "defconfig", "lab", "defconfig+FRAGMENT")
+            "board",
+            "job",
+            "kernel", "defconfig", "lab", "branch", "defconfig+FRAGMENT")
         expected_path = os.path.join(
-            base_path, "job", "kernel", "arm-defconfig+FRAGMENT", "lab")
+            base_path,
+            "job", "branch", "kernel", "arm", "defconfig+FRAGMENT", "lab")
         expected_file = os.path.join(expected_path, "boot-board.json")
         try:
             bimport.save_to_disk(boot_doc, json_obj, base_path, errors)
@@ -215,12 +222,16 @@ class TestParseBoot(unittest.TestCase):
             "defconfig": "defconfig",
             "arch": "arm",
             "defconfig_full": "defconfig+FRAGMENT",
+            "git_branch": "branch",
             "lab_name": "lab"
         }
         boot_doc = mboot.BootDocument(
-            "board", "job", "kernel", "defconfig", "lab", "defconfig+FRAGMENT")
+            "board",
+            "job",
+            "kernel", "defconfig", "lab", "branch", "defconfig+FRAGMENT")
         expected_path = os.path.join(
-            base_path, "job", "kernel", "arm-defconfig+FRAGMENT", "lab")
+            base_path,
+            "job", "branch", "kernel", "arm", "defconfig+FRAGMENT", "lab")
         expected_file = os.path.join(expected_path, "boot-board.json")
         try:
             os.makedirs(expected_path)
@@ -248,12 +259,16 @@ class TestParseBoot(unittest.TestCase):
             "defconfig": "defconfig",
             "arch": "arm",
             "defconfig_full": "defconfig+FRAGMENT",
-            "lab_name": "lab"
+            "lab_name": "lab",
+            "git_branch": "branch"
         }
         boot_doc = mboot.BootDocument(
-            "board", "job", "kernel", "defconfig", "lab", "defconfig+FRAGMENT")
+            "board",
+            "job",
+            "kernel", "defconfig", "lab", "branch", "defconfig+FRAGMENT")
         expected_path = os.path.join(
-            base_path, "job", "kernel", "arm-defconfig+FRAGMENT", "lab")
+            base_path,
+            "job", "branch", "kernel", "arm", "defconfig+FRAGMENT", "lab")
         expected_file = os.path.join(expected_path, "boot-board.json")
 
         exception = OSError("Error")
@@ -275,7 +290,8 @@ class TestParseBoot(unittest.TestCase):
         code, doc_id, errors = bimport.import_and_save_boot(
             self.boot_report, {}, base_path=self.base_path)
         lab_dir = os.path.join(
-            self.base_path, "job", "kernel", "arm-defconfig", "lab_name")
+            self.base_path,
+            "job", "branch", "kernel", "arm", "defconfig", "lab_name")
         boot_file = os.path.join(lab_dir, "boot-board.json")
 
         self.assertTrue(os.path.isdir(lab_dir))
@@ -333,6 +349,7 @@ class TestParseBoot(unittest.TestCase):
             "board": "board",
             "dtb": "dtb",
             "lab_name": "lab_name",
+            "git_branch": "branch",
             "boot_time": sys.maxint
         }
         errors = {}
@@ -355,6 +372,7 @@ class TestParseBoot(unittest.TestCase):
             "board": "board",
             "dtb": "dtb",
             "lab_name": "lab_name",
+            "git_branch": "branch",
             "boot_time": -sys.maxint - 1
         }
         errors = {}
@@ -377,6 +395,7 @@ class TestParseBoot(unittest.TestCase):
             "board": "board",
             "dtb": "dtb",
             "lab_name": "lab_name",
+            "git_branch": "branch",
             "boot_time": -1500.0
         }
         errors = {}
@@ -398,6 +417,7 @@ class TestParseBoot(unittest.TestCase):
             "kernel": "kernel",
             "defconfig": "defconfig",
             "lab_name": "lab_name",
+            "git_branch": "branch",
             "dtb": "dtb",
             "boot_time": "foo"
         }
@@ -410,6 +430,7 @@ class TestParseBoot(unittest.TestCase):
         self.assertEqual(doc.job, "job")
         self.assertEqual(doc.kernel, "kernel")
         self.assertEqual(doc.defconfig, "defconfig")
+        self.assertEqual(doc.git_branch, "branch")
         self.assertEqual(doc.dtb, "dtb")
         self.assertEqual(doc.time, datetime.datetime(1970, 1, 1, 0, 0))
         self.assertListEqual([400], errors.keys())
@@ -422,6 +443,7 @@ class TestParseBoot(unittest.TestCase):
             "board": "board",
             "dtb": "dtb",
             "lab_name": "lab_name",
+            "git_branch": "branch",
             "boot_time": 0,
         }
         errors = {}
@@ -443,6 +465,7 @@ class TestParseBoot(unittest.TestCase):
             "board": "board",
             "dtb": "dtb",
             "lab_name": "lab_name",
+            "git_branch": "branch",
             "mach": "mach",
             "mach_alias": "mach-alias"
         }

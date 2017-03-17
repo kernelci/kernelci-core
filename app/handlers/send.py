@@ -24,12 +24,13 @@ import handlers.base as hbase
 import handlers.response as hresponse
 import models
 import taskqueue.tasks.report as taskq
+import utils
 
 # Max delay in sending email report set to 5hrs.
 MAX_DELAY = 18000
 
-TRIGGER_RECEIVED = "Email trigger received from '%s' for '%s-%s' at %s (%s)"
-TRIGGER_RECEIVED_ALREADY = "Email trigger for '%s-%s' (%s) already received"
+TRIGGER_RECEIVED = "Email trigger received from '%s' for '%s-%s-%s' at %s (%s)"
+TRIGGER_RECEIVED_ALREADY = "Email trigger for '%s-%s-%s' (%s) already received"
 ERR_409_MESSAGE = "Email request already registered"
 
 
@@ -53,6 +54,7 @@ class SendHandler(hbase.BaseHandler):
         j_get = json_obj.get
         job = j_get(models.JOB_KEY)
         kernel = j_get(models.KERNEL_KEY)
+        branch = utils.clean_branch_name(j_get(models.GIT_BRANCH_KEY))
         lab_name = j_get(models.LAB_NAME_KEY, None)
 
         countdown = j_get(models.DELAY_KEY, self.settings["senddelay"])
@@ -125,13 +127,15 @@ class SendHandler(hbase.BaseHandler):
                     TRIGGER_RECEIVED,
                     self.request.remote_ip,
                     job,
+                    branch,
                     kernel,
                     datetime.datetime.utcnow(),
                     str(email_type)
                 )
 
-                hashable_str = "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}".format(
+                hashable_str = "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}".format(
                     job,
+                    branch,
                     kernel,
                     str(schedule_data["boot_emails"]),
                     str(schedule_data["boot_cc_emails"]),
@@ -151,7 +155,8 @@ class SendHandler(hbase.BaseHandler):
 
                 try:
                     lock_key = \
-                        "email-{}-{}-{}".format(str(email_type), job, kernel)
+                        "email-{}-{}-{}-{}".format(
+                            str(email_type), job, branch, kernel)
 
                     with redis.lock.Lock(self.redisdb, lock_key, timeout=2):
                         if not self.redisdb.exists(schedule_hash):
@@ -163,6 +168,7 @@ class SendHandler(hbase.BaseHandler):
                                 boot_errors, response.errors = \
                                     self._schedule_boot_report(
                                         job,
+                                        branch,
                                         kernel,
                                         lab_name, email_format, schedule_data)
 
@@ -170,6 +176,7 @@ class SendHandler(hbase.BaseHandler):
                                 build_errors, response.errors = \
                                     self._schedule_build_report(
                                         job,
+                                        branch,
                                         kernel, email_format, schedule_data)
 
                             response.reason, response.status_code = \
@@ -180,11 +187,12 @@ class SendHandler(hbase.BaseHandler):
                         else:
                             self.log.warn(
                                 TRIGGER_RECEIVED_ALREADY,
-                                job, kernel, str(email_type)
+                                job, branch, kernel, str(email_type)
                             )
                             taskq.send_multiple_emails_error.apply_async(
                                 [
                                     job,
+                                    branch,
                                     kernel,
                                     datetime.datetime.utcnow(),
                                     email_format,
@@ -213,7 +221,8 @@ class SendHandler(hbase.BaseHandler):
 
     # pylint: disable=too-many-arguments
     def _schedule_boot_report(
-            self, job, kernel, lab_name, email_format, schedule_data):
+            self,
+            job, git_branch, kernel, lab_name, email_format, schedule_data):
         """Schedule the boot report performing some checks on the emails.
 
         :param job: The name of the job.
@@ -247,6 +256,7 @@ class SendHandler(hbase.BaseHandler):
             taskq.send_boot_report.apply_async(
                 [
                     job,
+                    git_branch,
                     kernel,
                     lab_name,
                     email_format,
@@ -266,12 +276,13 @@ class SendHandler(hbase.BaseHandler):
             has_errors = True
             error_string = "No email addresses provided to send boot report to"
             self.log.error(
-                "No email addresses to send boot report to for '%s-%s'",
-                job, kernel)
+                "No email addresses to send boot report to for '%s-%s-%s'",
+                job, git_branch, kernel)
 
         return has_errors, error_string
 
-    def _schedule_build_report(self, job, kernel, email_format, schedule_data):
+    def _schedule_build_report(
+            self, job, git_branch, kernel, email_format, schedule_data):
         """Schedule the build report performing some checks on the emails.
 
         :param job: The name of the job.
@@ -303,6 +314,7 @@ class SendHandler(hbase.BaseHandler):
             taskq.send_build_report.apply_async(
                 [
                     job,
+                    git_branch,
                     kernel,
                     email_format,
                     to_addrs,
@@ -322,8 +334,8 @@ class SendHandler(hbase.BaseHandler):
             error_string = (
                 "No email addresses provided to send build report to")
             self.log.error(
-                "No email addresses to send build report to for '%s-%s'",
-                job, kernel)
+                "No email addresses to send build report to for '%s-%s-%s'",
+                job, git_branch, kernel)
 
         return has_errors, error_string
 
@@ -378,46 +390,34 @@ def _check_status(send_boot, send_build, boot_errors, build_errors, when):
     status_code = 202
     reason = None
 
-    if all([send_boot, send_build, boot_errors, build_errors]):
+    if send_boot and send_build and boot_errors and build_errors:
         reason = "No email reports scheduled to be sent"
         status_code = 400
-    elif all([
-            send_boot, send_build, boot_errors, not build_errors]):
+    elif send_boot and send_build and boot_errors and not build_errors:
         reason = (
             "Build email report scheduled to be sent at '%s' UTC" %
             when.isoformat())
-    elif all([
-            send_boot, send_build, not boot_errors, build_errors]):
+    elif send_boot and send_build and not boot_errors and build_errors:
         reason = (
             "Boot email report scheduled to be sent at '%s' UTC" %
             when.isoformat())
-    elif all([
-            send_boot,
-            send_build, not boot_errors, not build_errors]):
+    elif send_boot and send_build and not boot_errors and not build_errors:
         reason = (
             "Email reports scheduled to be sent at '%s' UTC" %
             when.isoformat())
-    elif all([
-            not send_boot,
-            send_build, not boot_errors, build_errors]):
+    elif not send_boot and send_build and not boot_errors and build_errors:
         reason = (
             "Build email report not scheduled to be sent")
         status_code = 400
-    elif all([
-            not send_boot,
-            send_build, not boot_errors, not build_errors]):
+    elif not send_boot and send_build and not boot_errors and not build_errors:
         reason = (
             "Build email report scheduled to be sent at '%s' UTC" %
             when)
-    elif all([
-            send_boot,
-            not send_build, boot_errors, not build_errors]):
+    elif send_boot and not send_build and boot_errors and not build_errors:
         reason = (
             "Boot email report not scheduled to be sent")
         status_code = 400
-    elif all([
-            send_boot,
-            not send_build, not boot_errors, not build_errors]):
+    elif send_boot and not send_build and not boot_errors and not build_errors:
         reason = (
             "Boot email report scheduled to be sent at '%s' UTC" %
             when)

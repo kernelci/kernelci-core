@@ -18,7 +18,7 @@ import utils.report.common as rcommon
 
 
 MULTIPLE_EMAILS_SUBJECT = \
-    "Duplicate email trigger received for {job} - {kernel}"
+    u"Duplicate email trigger received for {job} - {git_branch} - {kernel}"
 
 
 def create_duplicate_email_report(data):

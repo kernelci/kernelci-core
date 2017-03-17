@@ -28,6 +28,7 @@ import utils.report.error
 @taskc.app.task(name="send-boot-report")
 def send_boot_report(
         job,
+        git_branch,
         kernel,
         lab_name,
         email_format,
@@ -60,12 +61,14 @@ def send_boot_report(
     :param subject: The subject string to use.
     :type subject: string.
     """
-    utils.LOG.info("Preparing boot report email for '%s-%s'", job, kernel)
+    utils.LOG.info(
+        "Preparing boot report email for '%s-%s-%s'", job, git_branch, kernel)
     status = "ERROR"
 
     txt_body, html_body, new_subject, headers = \
         utils.report.boot.create_boot_report(
             job,
+            git_branch,
             kernel,
             lab_name,
             email_format, db_options=db_options, mail_options=mail_options
@@ -75,7 +78,9 @@ def send_boot_report(
         subject = new_subject
 
     if all([any([txt_body, html_body]), subject]):
-        utils.LOG.info("Sending boot report email for '%s-%s'", job, kernel)
+        utils.LOG.info(
+            "Sending boot report email for '%s-%s-%s'",
+            job, git_branch, kernel)
         status, errors = utils.emails.send_email(
             to_addrs,
             subject,
@@ -86,11 +91,12 @@ def send_boot_report(
             cc_addrs=cc_addrs, bcc_addrs=bcc_addrs, in_reply_to=in_reply_to
         )
         utils.report.common.save_report(
-            job, kernel, models.BOOT_REPORT, status, errors, db_options)
+            job,
+            git_branch, kernel, models.BOOT_REPORT, status, errors, db_options)
     else:
         utils.LOG.error(
-            "No email body nor subject found for boot report '%s-%s'",
-            job, kernel)
+            "No email body nor subject found for boot report '%s-%s-%s'",
+            job, git_branch, kernel)
 
     return status
 
@@ -98,6 +104,7 @@ def send_boot_report(
 @taskc.app.task(name="send-build-report")
 def send_build_report(
         job,
+        git_branch,
         kernel,
         email_format,
         to_addrs,
@@ -127,12 +134,14 @@ def send_build_report(
     :param subject: The subject string to use.
     :type subject: string
     """
-    utils.LOG.info("Preparing build report email for '%s-%s'", job, kernel)
+    utils.LOG.info(
+        "Preparing build report email for '%s-%s-%s'", job, git_branch, kernel)
     status = "ERROR"
 
     txt_body, html_body, new_subject, headers = \
         utils.report.build.create_build_report(
             job,
+            git_branch,
             kernel,
             email_format,
             db_options=db_options,
@@ -142,7 +151,7 @@ def send_build_report(
     if not subject:
         subject = new_subject
 
-    if all([any([txt_body, html_body]), subject]):
+    if (txt_body or html_body) and subject:
         utils.LOG.info("Sending build report email for '%s-%s'", job, kernel)
         status, errors = utils.emails.send_email(
             to_addrs,
@@ -154,23 +163,26 @@ def send_build_report(
             cc_addrs=cc_addrs, bcc_addrs=bcc_addrs, in_reply_to=in_reply_to
         )
         utils.report.common.save_report(
-            job, kernel, models.BUILD_REPORT, status, errors, db_options)
+            job,
+            git_branch,
+            kernel, models.BUILD_REPORT, status, errors, db_options)
     else:
         utils.LOG.error(
-            "No email body nor subject found for build report '%s-%s'",
-            job, kernel)
+            "No email body nor subject found for build report '%s-%s-%s'",
+            job, git_branch, kernel)
 
     return status
 
 
 @taskc.app.task(name="send-multi-email-errors-report")
 def send_multiple_emails_error(
-        job, kernel, date, email_format, email_type, data):
+        job, git_branch, kernel, date, email_format, email_type, data):
     to_addrs = []
     cc_addrs = []
 
     email_data = {
         "job": job,
+        "git_branch": git_branch,
         "kernel": kernel,
         "trigger_time": date,
         "email_format": email_format,
@@ -205,9 +217,10 @@ def send_multiple_emails_error(
     txt_body, html_body, subject = \
         utils.report.error.create_duplicate_email_report(email_data)
 
-    if all([any([txt_body, html_body]), subject]):
+    if (txt_body or html_body) and subject:
         utils.LOG.info(
-            "Sending duplicate emails report for %s - %s", job, kernel)
+            "Sending duplicate emails report for %s-%s-%s",
+            job, git_branch, kernel)
         utils.emails.send_email(
             [taskc.app.conf.mail_options.get("error_email")],
             subject,

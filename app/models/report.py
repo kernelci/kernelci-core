@@ -32,7 +32,7 @@ class ReportDocument(modb.BaseDocument):
     This is used to provide some historic data about email reports sent or
     which error they had when sending.
     """
-    def __init__(self, name, version="1.0"):
+    def __init__(self, name, version="1.1"):
         self._created_on = None
         self._id = None
         self._name = name
@@ -41,6 +41,7 @@ class ReportDocument(modb.BaseDocument):
         self.errors = []
         self.job = None
         self.kernel = None
+        self.git_branch = None
         # The report type.
         self.report_type = None
         self.status = None
@@ -101,6 +102,7 @@ class ReportDocument(modb.BaseDocument):
         report_dict = {
             models.CREATED_KEY: self.created_on,
             models.ERRORS_KEY: self.errors,
+            models.GIT_BRANCH_KEY: self.git_branch,
             models.JOB_KEY: self.job,
             models.KERNEL_KEY: self.kernel,
             models.NAME_KEY: self.name,

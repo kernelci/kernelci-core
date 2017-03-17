@@ -1,0 +1,68 @@
+{
+    "$schema": "http://api.kernelci.org/json-schema/1.1/get_job.json",
+    "id": "http://api.kernelci.org/json-schema/1.1/get_job.json",
+    "title": "job",
+    "description": "A job as provided by the CI loop",
+    "type": "object",
+    "properties": {
+        "version": {
+            "type": "string",
+            "description": "The version number of this JSON schema",
+            "enum": ["1.0", "1.1"]
+        },
+        "_id": {
+            "type": "object",
+            "description": "The ID of ths object",
+            "properties": {
+                "$oid": {
+                    "type": "string",
+                    "description": "The actual ID value"
+                }
+            }
+        },
+        "created_on": {
+            "type": "object",
+            "description": "Creation date of the object",
+            "properties": {
+                "$date": {
+                    "type": "number",
+                    "description": "Milliseconds from epoch time"
+                }
+            }
+        },
+        "private": {
+            "type": "boolean",
+            "description": "If the job is private or not",
+            "default": false
+        },
+        "kernel": {
+            "type": "string",
+            "description": "The name of the kernel"
+        },
+        "job": {
+            "type": "string",
+            "description": "The name of the job"
+        },
+        "status": {
+            "type": "string",
+            "description": "The status of the job",
+            "enum": ["BUILD", "FAIL", "PASS", "UNKNOWN"]
+        },
+        "git_branch": {
+            "type": "string",
+            "description": "The name of the branch"
+        },
+        "git_commit": {
+            "type": "string",
+            "description": "The git SHA of the commit used for the build"
+        },
+        "git_describe": {
+            "type": "string",
+            "description": "The name of the git describe command"
+        },
+        "git_url": {
+            "type": "string",
+            "description": "The URL of the git web interface where the code used to build can be found"
+        }
+    }
+}

@@ -1,0 +1,225 @@
+{
+    "$schema": "http://api.kernelci.org/json-schema/1.1/get_build.json",
+    "id": "http://api.kernelci.org/json-schema/1.1/get_build.json",
+    "title": "build",
+    "description": "A build from a continuous integration system",
+    "type": "object",
+    "properties": {
+        "version": {
+            "type": "string",
+            "description": "The version number of this JSON schema",
+            "enum": ["1.0", "1.1"]
+        },
+        "_id": {
+            "type": "object",
+            "description": "The ID of ths object",
+            "properties": {
+                "$oid": {
+                    "type": "string",
+                    "description": "The actual ID value"
+                }
+            }
+        },
+        "created_on": {
+            "type": "object",
+            "description": "Creation date of the object",
+            "properties": {
+                "$date": {
+                    "type": "number",
+                    "description": "Milliseconds from epoch time"
+                }
+            }
+        },
+        "job": {
+            "type": "string",
+            "description": "The job associated with this object"
+        },
+        "job_id": {
+            "type": "object",
+            "description": "The ID of the associated job",
+            "properties": {
+                "$oid": {
+                    "type": "string",
+                    "description": "The actual ID value"
+                }
+            }
+        },
+        "kernel": {
+            "type": "string",
+            "description": "The kernel associated with this object"
+        },
+        "defconfig": {
+            "type": "string",
+            "description": "The name of the defconfig built as reported by the continuous integration system"
+        },
+        "defconfig_full": {
+            "type": "string",
+            "description": "The full name of the defconfig built, can contain also config fragments information",
+            "default": "The defconfig value"
+        },
+        "dirname": {
+            "type": "string",
+            "description": "The name of the directory of the built; it can be different from the actual defconfig value"
+        },
+        "status": {
+            "type": "string",
+            "description": "The status of the build",
+            "enum": ["FAIL", "PASS", "UNKNOWN"]
+        },
+        "errors": {
+            "type": "integer",
+            "description": "Number of errors found in the build log",
+            "default": 0
+        },
+        "warnings": {
+            "type": "integer",
+            "description": "Number of warnings found in the build log",
+            "default": 0
+        },
+        "mismatches": {
+            "type": "integer",
+            "description": "Number of mismatched lines in the build log",
+            "default": 0
+        },
+        "arch": {
+            "type": "string",
+            "description": "The architecture of the build",
+            "enum": ["arm", "arm64", "mips", "x86"]
+        },
+        "build_time": {
+            "type": "number",
+            "description": "The time taken to perform the build"
+        },
+        "git_url": {
+            "type": "string",
+            "description": "The URL of the git web interface where the code used to build can be found"
+        },
+        "git_commit": {
+            "type": "string",
+            "description": "The git SHA of the commit used for the build"
+        },
+        "git_branch": {
+            "type": "string",
+            "description": "The name of the branch"
+        },
+        "git_describe": {
+            "type": "string",
+            "description": "The name of the git describe command"
+        },
+        "build_platform": {
+            "type": "array",
+            "description": "An array with info about the build platform"
+        },
+        "modules_dir": {
+            "type": "string",
+            "description": "Name of the modules directory"
+        },
+        "modules": {
+            "type": "string",
+            "description": "Name of the modules file"
+        },
+        "modules_size": {
+            "type": "integer",
+            "description": "Size in bytes of the modules file"
+        },
+        "dtb_dir": {
+            "type": "string",
+            "description": "Name of the dtb directory"
+        },
+        "dtb_dir_data": {
+            "type": "array",
+            "description": "An array of file paths relative to the dtb directory"
+        },
+        "build_log": {
+            "type": "string",
+            "description": "Name of the build log file in text format"
+        },
+        "build_log_size": {
+            "type": "integer",
+            "description": "Size in bytes of the build log file"
+        },
+        "text_offset": {
+            "type": "string"
+        },
+        "system_map": {
+            "type": "string",
+            "description": "Name of the system map file"
+        },
+        "system_map_size": {
+            "type": "number",
+            "description": "Size in bytes of the system map file"
+        },
+        "kernel_config": {
+            "type": "string",
+            "description": "Name of the kernel config file used"
+        },
+        "kernel_config_size": {
+            "type": "integer",
+            "description": "Size in bytes of of the kernel config file"
+        },
+        "kernel_image": {
+            "type": "string",
+            "description": "Name of the kernel image created"
+        },
+        "kernel_image_size": {
+            "type": "integer",
+            "description": "Size in bytes of the kernel image file"
+        },
+        "kconfig_fragments": {
+            "type": "string",
+            "description": "The config fragment used"
+        },
+        "file_server_url": {
+            "type": "string",
+            "description": "The URL where boot log files, or other related files, are stored"
+        },
+        "file_server_resource": {
+            "type": "string",
+            "description": "The server path where the boot related files are stored"
+        },
+        "build_type": {
+            "type": "string",
+            "description": "The type of the build"
+        },
+        "vmlinux_bss_size": {
+            "type": "integer",
+            "description": "Size in bytes of the .bss ELF file section"
+        },
+        "vmlinux_data_size": {
+            "type": "intger",
+            "description": "Size in bytes of all the WA and A PROGBITS sections in the ELF file (the .data section)"
+        },
+        "vmlinux_file_size": {
+            "type": "integer",
+            "description": "The size in bytes of the ELF file"
+        },
+        "vmlinux_text_size": {
+            "type": "integer",
+            "description": "The size in bytes of the .text ELF file section"
+        },
+        "compiler": {
+            "type": "string",
+            "description": "The name of the compiler used"
+        },
+        "compiler_version": {
+            "type": "string",
+            "description": "The version of the compiler used"
+        },
+        "compiler_version_ext": {
+            "type": "string",
+            "description": "Concatenation of compiler and compiler_version"
+        },
+        "compiler_version_full": {
+            "type": "string",
+            "description": "Full string of the compiler used (compiler, version, vendor numbering, ...)"
+        },
+        "cross_compile": {
+            "type": "string",
+            "description": "The description of the cross-compile used"
+        },
+        "metadata": {
+            "type": "object",
+            "description": "A free form object that can contain different properties"
+        }
+    }
+}

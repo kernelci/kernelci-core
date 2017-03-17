@@ -151,6 +151,7 @@ class DefconfigBisectDocument(BisectDocument):
         self.build_id = None
         self.defconfig = None
         self.defconfig_full = None
+        self.git_branch = None
         self.type = "build"
 
     def to_dict(self):
@@ -159,5 +160,6 @@ class DefconfigBisectDocument(BisectDocument):
         def_b_dict[models.BUILD_ID_KEY] = self.build_id
         def_b_dict[models.DEFCONFIG_FULL_KEY] = self.defconfig_full
         def_b_dict[models.DEFCONFIG_KEY] = self.defconfig
+        def_b_dict[models.GIT_BRANCH_KEY] = self.git_branch
 
         return def_b_dict

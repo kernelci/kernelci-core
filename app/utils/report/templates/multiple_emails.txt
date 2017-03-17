@@ -1,6 +1,7 @@
 Duplicate email trigger received for:
 
     Tree: {{ job }}
+    Branch: {{ git_branch }}
     Kernel: {{ kernel }}
 
 at:

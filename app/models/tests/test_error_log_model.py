@@ -20,16 +20,16 @@ import models.error_log as merrl
 class TestErrorLogModel(unittest.TestCase):
 
     def test_doc_valid_instance(self):
-        doc = merrl.ErrorLogDocument("job_id", "1.0")
+        doc = merrl.ErrorLogDocument("job_id", "1.1")
         self.assertIsInstance(doc, modb.BaseDocument)
         self.assertIsInstance(doc, merrl.ErrorLogDocument)
 
     def test_doc_collection(self):
-        doc = merrl.ErrorLogDocument("job_id", "1.0")
+        doc = merrl.ErrorLogDocument("job_id", "1.1")
         self.assertEqual("error_logs", doc.collection)
 
     def test_doc_wrong_lists(self):
-        doc = merrl.ErrorLogDocument("job_id", "1.0")
+        doc = merrl.ErrorLogDocument("job_id", "1.1")
 
         self.assertRaises(TypeError, setattr, doc, "errors", {})
         self.assertRaises(TypeError, setattr, doc, "errors", "")
@@ -47,7 +47,7 @@ class TestErrorLogModel(unittest.TestCase):
         self.assertRaises(TypeError, setattr, doc, "mismatches", ())
 
     def test_doc_to_dict(self):
-        doc = merrl.ErrorLogDocument("job_id", "1.0")
+        doc = merrl.ErrorLogDocument("job_id", "1.1")
         doc.arch = "arm"
         doc.created_on = "today"
         doc.defconfig = "defconfig"
@@ -60,7 +60,6 @@ class TestErrorLogModel(unittest.TestCase):
         doc.mismatches = ["mismatch1"]
         doc.mismatches_count = 1
         doc.status = "FAIL"
-        doc.version = "1.1"
         doc.warnings = ["warning1"]
         doc.warnings_count = 1
         doc.file_server_url = "foo"
@@ -69,6 +68,7 @@ class TestErrorLogModel(unittest.TestCase):
         doc.compiler_version = "gcc version"
         doc.compiler_version_ext = "gcc version ext"
         doc.compiler_version_full = "gcc version full"
+        doc.git_branch = "branch"
 
         expected = {
             "arch": "arm",
@@ -92,7 +92,8 @@ class TestErrorLogModel(unittest.TestCase):
             "compiler": "gcc",
             "compiler_version": "gcc version",
             "compiler_version_ext": "gcc version ext",
-            "compiler_version_full": "gcc version full"
+            "compiler_version_full": "gcc version full",
+            "git_branch": "branch"
         }
 
         self.assertDictEqual(expected, doc.to_dict())

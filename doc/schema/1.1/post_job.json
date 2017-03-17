@@ -1,0 +1,37 @@
+{
+    "$schema": "http://api.kernelci.org/json-schema/1.1/post_job.json",
+    "id": "http://api.kernelci.org/json-schema/1.1/post_job.json",
+    "title": "job",
+    "description": "A job data to trigger build import",
+    "type": "object",
+    "properties": {
+        "version": {
+            "type": "string",
+            "description": "The version number of this JSON schema",
+            "enum": ["1.0", "1.1"],
+            "default": "1.1"
+        },
+        "job": {
+            "type": "string",
+            "description": "The job associated with this object"
+        },
+        "kernel": {
+            "type": "string",
+            "description": "The kernel associated with this object"
+        },
+        "git_branch": {
+            "type": "string",
+            "description": "The name of the branch"
+        },
+        "git_commit": {
+            "type": "string",
+            "description": "The git SHA of the commit used"
+        },
+        "status": {
+            "type": "string",
+            "description": "The status this object should be set to",
+            "enum": ["PASS", "FAIL", "BUILD", "UNKNOWN"]
+        }
+    },
+    "required": ["job", "kernel", "git_branch"]
+}

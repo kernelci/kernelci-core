@@ -56,27 +56,6 @@ class TestBaseUtils(unittest.TestCase):
                 kconfig_fragments, defconfig)
         )
 
-    def test_extrapolate_defconfig_full_from_dir_non_valid(self):
-        dirname = "foo-defconfig+FRAGMENTS"
-        self.assertIsNone(
-            utils._extrapolate_defconfig_full_from_dirname(dirname))
-
-    def test_extrapolate_defconfig_full_from_dir_valid(self):
-        dirname = "arm-defconfig+FRAGMENTS"
-        self.assertEqual(
-            "defconfig+FRAGMENTS",
-            utils._extrapolate_defconfig_full_from_dirname(dirname))
-
-        dirname = "arm64-defconfig+FRAGMENTS"
-        self.assertEqual(
-            "defconfig+FRAGMENTS",
-            utils._extrapolate_defconfig_full_from_dirname(dirname))
-
-        dirname = "x86-defconfig+FRAGMENTS"
-        self.assertEqual(
-            "defconfig+FRAGMENTS",
-            utils._extrapolate_defconfig_full_from_dirname(dirname))
-
     def test_error_add_no_error(self):
         errors = {}
         expected = {}
@@ -190,3 +169,12 @@ class TestBaseUtils(unittest.TestCase):
         }
 
         self.assertDictEqual(expected, spec)
+
+    def test_clean_branch_name(self):
+        self.assertIsNone(utils.clean_branch_name(None))
+        self.assertEqual("", utils.clean_branch_name(""))
+        self.assertEqual("master", utils.clean_branch_name("master"))
+        self.assertEqual("master", utils.clean_branch_name("local/master"))
+        self.assertEqual("for-next", utils.clean_branch_name("local/for-next"))
+        self.assertEqual(
+            "linux-4.4.y", utils.clean_branch_name("local/linux-4.4.y"))

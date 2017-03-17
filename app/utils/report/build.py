@@ -43,20 +43,23 @@ BUILD_SEARCH_SORT = [
 
 # Various build URLS.
 DEFCONFIG_URL = (
-    u"{build_url:s}/{job:s}/kernel/{kernel:s}/defconfig/{defconfig:s}/")
+    u"{build_url:s}/{job:s}/branch/{git_branch:s}/kernel/{kernel:s}"
+    u"/defconfig/{defconfig:s}/")
 DEFCONFIG_ID_URL = (u"{build_url:s}/id/{build_id:s}/")
 LOG_URL = (
-    u"{storage_url:s}/{job:s}/{kernel:s}/{arch:s}-{defconfig:s}/" +
-    utils.BUILD_LOG_FILE)
+    u"{storage_url:s}/{job:s}/{git_branch:}/{kernel:s}/{arch:s}" +
+    u"/{defconfig:s}/" + utils.BUILD_LOG_FILE)
 ERR_LOG_URL = (
-    u"{storage_url:s}/{job:s}/{kernel:s}/{arch:s}-{defconfig:s}/" +
-    utils.BUILD_ERRORS_FILE)
+    u"{storage_url:s}/{job:s}/{git_branch:s}/{kernel:s}/{arch:s}" +
+    u"/{defconfig:s}/" + utils.BUILD_ERRORS_FILE)
 WARN_LOG_URL = (
-    u"{storage_url:s}/{job:s}/{kernel:s}/{arch:s}-{defconfig:s}/" +
-    utils.BUILD_WARNINGS_FILE)
+    u"{storage_url:s}/{job:s}/{git_branch:s}/{kernel:s}/{arch:s}" +
+    u"/{defconfig:s}/" + utils.BUILD_WARNINGS_FILE)
 MISM_LOG_URL = (
-    u"{storage_url:s}/{job:s}/{kernel:s}/{arch:s}-{defconfig:s}/" +
-    utils.BUILD_MISMATCHES_FILE)
+    u"{storage_url:s}/{job:s}/{git_branch:s}/{kernel:s}/{arch:s}" +
+    u"/{defconfig:s}/" + utils.BUILD_MISMATCHES_FILE)
+BUILD_SUMMARY_URL = \
+    u"{build_url:s}/{job:s}/branch/{git_branch:}/kernel/{kernel:s}/"
 
 
 # Other template strings.
@@ -101,11 +104,11 @@ def _get_errors_count(results):
 
         err_struct = {}
 
-        if all([res_errors is not None, res_errors != 0]):
+        if res_errors is not None and res_errors != 0:
             total_errors += res_errors
             err_struct[models.ERRORS_KEY] = res_errors
 
-        if all([res_warnings is not None, res_warnings != 0]):
+        if res_warnings is not None and res_warnings != 0:
             total_warnings += res_warnings
             err_struct[models.WARNINGS_KEY] = res_warnings
 
@@ -190,7 +193,7 @@ def _get_build_subject_string(**kwargs):
 
     subject_str = u""
 
-    base_subject = G_(u"{job:s} build")
+    base_subject = G_(u"{job:s}/{git_branch:s} build")
     kernel_name = G_(u"({kernel:s})")
     failed_builds = G_(u"{fail_count:d} failed")
     passed_builds = G_(u"{pass_count:d} passed")
@@ -213,22 +216,22 @@ def _get_build_subject_string(**kwargs):
     # next build: 0 failed, 10 passed, 1 error, 2 warnings (next-20150401)
     base_2 = G_(u"{:s}: {:s}: {:s}, {:s}, {:s}, {:s} {:s}")
 
-    if all([errors == 0, warnings == 0]):
+    if errors == 0 and warnings == 0:
         subject_str = base_0.format(
             base_subject,
             total_builds, failed_builds, passed_builds, kernel_name)
-    elif all([errors == 0, warnings != 0]):
+    elif errors == 0 and warnings != 0:
         subject_str = base_1.format(
             base_subject,
             total_builds,
             failed_builds, passed_builds, warnings_string, kernel_name)
-    elif all([errors != 0, warnings != 0]):
+    elif errors != 0 and warnings != 0:
         subject_str = base_2.format(
             base_subject,
             total_builds,
             failed_builds,
             passed_builds, errors_string, warnings_string, kernel_name)
-    elif all([errors != 0, warnings == 0]):
+    elif errors != 0 and warnings == 0:
         subject_str = base_1.format(
             base_subject,
             total_builds,
@@ -275,27 +278,24 @@ def _parse_and_structure_results(**kwargs):
     """
     platforms = {}
     k_get = kwargs.get
-    build_url = k_get("build_url")
     error_data = k_get("error_data", None)
     errors_count = k_get("errors_count", 0)
     fail_count = k_get("fail_count", 0)
     failed_data = k_get("failed_data", None)
-    job = k_get("job")
-    kernel = k_get("kernel")
-    storage_url = k_get("storage_url")
     warnings_count = k_get("warnings_count", 0)
 
     # Local substitutions dictionary, common to both data structures parsed.
     gen_subs = {
-        "build_url": build_url,
+        "build_url": k_get("build_url"),
         "err_log_url": ERR_LOG_URL,
         "defconfig_url": DEFCONFIG_URL,
-        "job": job,
-        "kernel": kernel,
+        "job": k_get("job"),
+        "kernel": k_get("kernel"),
+        "git_branch": k_get("git_branch"),
         "log_url": LOG_URL,
         "mism_log_url": MISM_LOG_URL,
         "red": rcommon.HTML_RED,
-        "storage_url": storage_url,
+        "storage_url": k_get("storage_url"),
         "warn_log_url": WARN_LOG_URL,
         "yellow": rcommon.HTML_YELLOW
     }
@@ -342,18 +342,18 @@ def _parse_and_structure_results(**kwargs):
     if error_data:
         platforms["error_data"] = {}
 
-        if all([errors_count > 0, warnings_count > 0]):
+        if errors_count > 0 and warnings_count > 0:
             summary_string = G_(u"Errors and Warnings Detected:")
-        elif all([errors_count > 0, warnings_count == 0]):
+        elif errors_count > 0 and warnings_count == 0:
             summary_string = G_(u"Errors Detected:")
-        elif all([errors_count == 0, warnings_count > 0]):
+        elif errors_count == 0 and warnings_count > 0:
             summary_string = G_(u"Warnings Detected:")
 
         platforms["error_data"]["summary"] = {}
         platforms["error_data"]["summary"]["txt"] = [summary_string]
         platforms["error_data"]["summary"]["html"] = [summary_string]
 
-        if any([errors_count > 0, warnings_count > 0]):
+        if errors_count > 0 or warnings_count > 0:
             platforms["error_data"]["data"] = {}
             error_struct = platforms["error_data"]["data"]
 
@@ -396,18 +396,18 @@ def _parse_and_structure_results(**kwargs):
                     subs["warn_string"] = warn_string
                     subs["warnings"] = warn_numb
 
-                    if all([err_numb > 0, warn_numb > 0]):
+                    if err_numb > 0 and warn_numb > 0:
                         txt_desc_str = G_(
                             u"{err_string:s}, {warn_string:s}")
                         html_desc_str = (
                             ERR_STR_HTML.format(**subs).format(**subs),
                             WARN_STR_HTML.format(**subs).format(**subs)
                         )
-                    elif all([err_numb > 0, warn_numb == 0]):
+                    elif err_numb > 0 and warn_numb == 0:
                         txt_desc_str = u"{err_string:s}"
                         html_desc_str = (
                             ERR_STR_HTML.format(**subs).format(**subs), u"")
-                    elif all([err_numb == 0, warn_numb > 0]):
+                    elif err_numb == 0 and warn_numb > 0:
                         txt_desc_str = u"{warn_string:s}"
                         html_desc_str = (
                             u"", WARN_STR_HTML.format(**subs).format(**subs))
@@ -495,8 +495,7 @@ def _create_build_email(**kwargs):
         if built_unique_string:
             built_unique_string = built_unique_string.format(**kwargs)
 
-    build_summary_url = u"{build_url:s}/{job:s}/kernel/{kernel:s}/".format(
-        **kwargs)
+    build_summary_url = BUILD_SUMMARY_URL.format(**kwargs)
 
     kwargs["built_unique_string"] = built_unique_string
     kwargs["tree_string"] = G_(u"Tree: {job:s}").format(**kwargs)
@@ -518,7 +517,7 @@ def _create_build_email(**kwargs):
     kwargs["git_commit_string"] = G_(u"Git Commit: {:s}").format(git_commit)
     kwargs["git_url_string"] = (git_txt_string, git_html_string)
 
-    if any([failed_data, error_data]):
+    if failed_data or error_data:
         kwargs["platforms"] = _parse_and_structure_results(**kwargs)
 
     if models.EMAIL_TXT_FORMAT_KEY in email_format:
@@ -538,8 +537,9 @@ def _create_build_email(**kwargs):
     return txt_body, html_body, subject_str
 
 
-def create_build_report(job,
-                        kernel, email_format, db_options, mail_options=None):
+def create_build_report(
+        job,
+        branch, kernel, email_format, db_options, mail_options=None):
     """Create the build report email to be sent.
 
     :param job: The name of the job.
@@ -570,6 +570,7 @@ def create_build_report(job,
 
     spec = {
         models.JOB_KEY: job,
+        models.GIT_BRANCH_KEY: branch,
         models.KERNEL_KEY: kernel
     }
 
@@ -621,6 +622,7 @@ def create_build_report(job,
     # the details.
     errors_spec = {
         models.JOB_KEY: job,
+        models.GIT_BRANCH_KEY: branch,
         models.KERNEL_KEY: kernel
     }
     errors_summary = utils.db.find_one2(
@@ -657,24 +659,25 @@ def create_build_report(job,
         "total_count": total_count,
         "total_unique_data": total_unique_data,
         "warnings_count": warnings_count,
+        "git_branch": branch,
         models.JOB_KEY: job,
         models.KERNEL_KEY: kernel,
     }
 
-    kwargs["git_commit"], kwargs["git_url"], kwargs["git_branch"] = \
-        rcommon.get_git_data(job, kernel, db_options)
+    kwargs["git_commit"], kwargs["git_url"] = \
+        rcommon.get_git_data(job, branch, kernel, db_options)
 
     custom_headers = {
         rcommon.X_REPORT: rcommon.BUILD_REPORT_TYPE,
-        rcommon.X_BRANCH: kwargs["git_branch"],
+        rcommon.X_BRANCH: branch,
         rcommon.X_TREE: job,
         rcommon.X_KERNEL: kernel,
     }
 
     if all([fail_count == 0, total_count == 0]):
         utils.LOG.warn(
-            "Nothing found for '%s-%s': no build email report sent",
-            job, kernel)
+            "Nothing found for '%s-%s-%s': no build email report sent",
+            job, branch, kernel)
     else:
         txt_body, html_body, subject = _create_build_email(**kwargs)
 

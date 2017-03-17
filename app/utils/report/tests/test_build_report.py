@@ -17,6 +17,25 @@ import unittest
 
 import utils.report.build as breport
 
+EXP_01 = u"a-job/a-branch build: 10 builds: 0 failed, 10 passed (a-kernel)"
+EXP_02 = (
+    u"a-job/a-branch build: 10 builds: 0 failed, 10 passed, "
+    u"1 warning (a-kernel)")
+EXP_03 = (
+    u"a-job/a-branch build: 10 builds: 0 failed, 10 passed, "
+    u"10 warnings (a-kernel)")
+EXP_04 = (
+    u"a-job/a-branch build: 10 builds: 0 failed, 10 passed, 10 errors, "
+    u"10 warnings (a-kernel)")
+EXP_05 = (
+    u"a-job/a-branch build: 10 builds: 0 failed, 10 passed, 1 error, "
+    u"1 warning (a-kernel)")
+EXP_06 = \
+    u"a-job/a-branch build: 10 builds: 0 failed, 10 passed, 1 error (a-kernel)"
+EXP_07 = (
+    u"a-job/a-branch build: 10 builds: 0 failed, 10 passed, 10 errors "
+    u"(a-kernel)")
+
 
 class TestBuildReport(unittest.TestCase):
 
@@ -27,6 +46,7 @@ class TestBuildReport(unittest.TestCase):
             "total_count": 10,
             "errors_count": 0,
             "warnings_count": 0,
+            "git_branch": "a-branch",
             "kernel": "a-kernel",
             "job": "a-job",
             "pass_count": 10
@@ -34,77 +54,58 @@ class TestBuildReport(unittest.TestCase):
 
         # No errors, no warnings.
         subject = breport._get_build_subject_string(**kwargs)
-        expected = u"a-job build: 10 builds: 0 failed, 10 passed (a-kernel)"
 
         self.assertIsNotNone(subject)
-        self.assertEqual(expected, subject)
+        self.assertEqual(EXP_01, subject)
 
         # Some warnings, no errors (singular).
         kwargs["warnings_count"] = 1
 
         subject = breport._get_build_subject_string(**kwargs)
-        expected = (
-            u"a-job build: 10 builds: 0 failed, 10 passed, "
-            "1 warning (a-kernel)")
 
         self.assertIsNotNone(subject)
-        self.assertEqual(expected, subject)
+        self.assertEqual(EXP_02, subject)
 
         # Some warnings, no errors (plural).
         kwargs["warnings_count"] = 10
 
         subject = breport._get_build_subject_string(**kwargs)
-        expected = (
-            u"a-job build: 10 builds: 0 failed, 10 passed, "
-            "10 warnings (a-kernel)")
 
         self.assertIsNotNone(subject)
-        self.assertEqual(expected, subject)
+        self.assertEqual(EXP_03, subject)
 
         # Warnings and errors (plural).
         kwargs["errors_count"] = 10
         kwargs["warnings_count"] = 10
 
         subject = breport._get_build_subject_string(**kwargs)
-        expected = (
-            u"a-job build: 10 builds: 0 failed, 10 passed, 10 errors, "
-            "10 warnings (a-kernel)")
 
         self.assertIsNotNone(subject)
-        self.assertEqual(expected, subject)
+        self.assertEqual(EXP_04, subject)
 
         # Warnings and errors (singular).
         kwargs["errors_count"] = 1
         kwargs["warnings_count"] = 1
 
         subject = breport._get_build_subject_string(**kwargs)
-        expected = (
-            u"a-job build: 10 builds: 0 failed, 10 passed, 1 error, "
-            "1 warning (a-kernel)")
 
         self.assertIsNotNone(subject)
-        self.assertEqual(expected, subject)
+        self.assertEqual(EXP_05, subject)
 
         # Errors, no warnings (singular).
         kwargs["errors_count"] = 1
         kwargs["warnings_count"] = 0
 
         subject = breport._get_build_subject_string(**kwargs)
-        expected = (
-            u"a-job build: 10 builds: 0 failed, 10 passed, 1 error "
-            "(a-kernel)")
 
         self.assertIsNotNone(subject)
-        self.assertEqual(expected, subject)
+        self.assertEqual(EXP_06, subject)
 
         # Errors, no warnings (plural).
         kwargs["errors_count"] = 10
         kwargs["warnings_count"] = 0
 
         subject = breport._get_build_subject_string(**kwargs)
-        expected = (
-            u"a-job build: 10 builds: 0 failed, 10 passed, 10 errors "
-            "(a-kernel)")
 
         self.assertIsNotNone(subject)
-        self.assertEqual(expected, subject)
+        self.assertEqual(EXP_07, subject)

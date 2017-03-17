@@ -10,7 +10,7 @@ GET
 
 The following schema covers the data that is available with a GET request.
 
-.. literalinclude:: schema/1.0/get_boot.json
+.. literalinclude:: schema/1.1/get_boot.json
     :language: json
 
 .. _schema_boot_post:
@@ -21,7 +21,7 @@ POST
 The following schema defines the valid fields that a boot report document should
 have when sent to the server.
 
-.. literalinclude:: schema/1.0/post_boot.json
+.. literalinclude:: schema/1.1/post_boot.json
     :language: json
 
 Notes

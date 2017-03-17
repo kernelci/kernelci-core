@@ -371,6 +371,7 @@ POST
  :reqjson string board: The name of the board.
  :reqjson string defconfig: The name of the defconfig.
  :reqjson string job: The name of the job.
+ :reqjson string git_branch: The name of the branch.
  :reqjson string kernel: The name of the kernel.
  :reqjson string lab_name: The name of the boot tests lab.
  :reqjson string version: The version number of the schema.
@@ -404,7 +405,8 @@ POST
         "kernel": "next-20140801",
         "defconfig": "all-noconfig",
         "lab_name": "lab-01",
-        "board": "beagleboneblack"
+        "board": "beagleboneblack",
+        "git_branch": "master"
     }
 
 DELETE

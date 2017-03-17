@@ -20,16 +20,20 @@ import models.build as mbuild
 class TestBuildModel(unittest.TestCase):
 
     def test_build_document_valid_instance(self):
-        build_doc = mbuild.BuildDocument("job", "kernel", "defconfig")
+        build_doc = mbuild.BuildDocument(
+            "job", "kernel", "defconfig", "branch")
         self.assertIsInstance(build_doc, modb.BaseDocument)
         self.assertIsInstance(build_doc, mbuild.BuildDocument)
 
     def test_build_document_collection(self):
-        build_doc = mbuild.BuildDocument("job", "kernel", "defconfig")
+        build_doc = mbuild.BuildDocument(
+            "job", "kernel", "defconfig", "branch")
         self.assertEqual(build_doc.collection, "build")
 
     def test_build_document_to_dict(self):
-        build_doc = mbuild.BuildDocument("job", "kernel", "defconfig")
+        build_doc = mbuild.BuildDocument(
+            "job", "kernel", "defconfig", "branch")
+
         build_doc.id = "build_id"
         build_doc.job_id = "job_id"
         build_doc.created_on = "now"
@@ -43,7 +47,6 @@ class TestBuildModel(unittest.TestCase):
         build_doc.arch = "foo"
         build_doc.git_url = "git_url"
         build_doc.git_commit = "git_commit"
-        build_doc.git_branch = "git_branch"
         build_doc.git_describe = "git_describe"
         build_doc.git_describe_v = "git_describe_v"
         build_doc.version = "1.0"
@@ -94,7 +97,7 @@ class TestBuildModel(unittest.TestCase):
             "dirname": "defconfig",
             "git_url": "git_url",
             "git_describe": "git_describe",
-            "git_branch": "git_branch",
+            "git_branch": "branch",
             "git_commit": "git_commit",
             "build_platform": [],
             "version": "1.0",
@@ -133,7 +136,8 @@ class TestBuildModel(unittest.TestCase):
         self.assertDictEqual(expected, build_doc.to_dict())
 
     def test_deconfig_set_status_wrong_and_right(self):
-        build_doc = mbuild.BuildDocument("job", "kernel", "defconfig")
+        build_doc = mbuild.BuildDocument(
+            "job", "kernel", "defconfig", "branch")
 
         self.assertRaises(ValueError, setattr, build_doc, "status", "foo")
         self.assertRaises(ValueError, setattr, build_doc, "status", [])
@@ -150,7 +154,8 @@ class TestBuildModel(unittest.TestCase):
         self.assertEqual(build_doc.status, "BUILD")
 
     def test_defconfig_set_build_platform_wrong(self):
-        build_doc = mbuild.BuildDocument("job", "kernel", "defconfig")
+        build_doc = mbuild.BuildDocument(
+            "job", "kernel", "defconfig", "branch")
 
         self.assertRaises(
             TypeError, setattr, build_doc, "build_platform", ())
@@ -160,13 +165,15 @@ class TestBuildModel(unittest.TestCase):
             TypeError, setattr, build_doc, "build_platform", "")
 
     def test_defconfig_set_build_platform(self):
-        build_doc = mbuild.BuildDocument("job", "kernel", "defconfig")
+        build_doc = mbuild.BuildDocument(
+            "job", "kernel", "defconfig", "branch")
         build_doc.build_platform = ["a", "b"]
 
         self.assertListEqual(build_doc.build_platform, ["a", "b"])
 
     def test_defconfig_set_metadata_wrong(self):
-        build_doc = mbuild.BuildDocument("job", "kernel", "defconfig")
+        build_doc = mbuild.BuildDocument(
+            "job", "kernel", "defconfig", "branch")
 
         self.assertRaises(TypeError, setattr, build_doc, "metadata", ())
         self.assertRaises(TypeError, setattr, build_doc, "metadata", [])
@@ -224,7 +231,7 @@ class TestBuildModel(unittest.TestCase):
             "git_branch": "git_branch",
             "git_commit": "git_commit",
             "build_platform": [],
-            "version": "1.0",
+            "version": "1.1",
             "dtb_dir": "dtb-dir",
             "dtb_dir_data": ["a-file"],
             "kernel_config": "kernel-config",
@@ -254,8 +261,9 @@ class TestBuildModel(unittest.TestCase):
 
         self.assertIsInstance(build_doc, mbuild.BuildDocument)
         self.assertEqual(build_doc.id, "build_id")
+        self.assertEqual(build_doc.git_branch, "git_branch")
         self.assertEqual(build_doc.defconfig_full, "defconfig_full")
-        self.assertEqual(build_doc.version, "1.0")
+        self.assertEqual(build_doc.version, "1.1")
         self.assertEqual(build_doc.errors, 1)
         self.assertEqual(build_doc.warnings, 1)
         self.assertEqual(build_doc.build_time, 1)

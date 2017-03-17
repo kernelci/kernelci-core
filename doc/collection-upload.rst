@@ -40,13 +40,14 @@ POST
  The destination directory is taken from the data form sent. It first checks
  if a ``path`` parameter is available, otherwise it tries to build the
  destination path with the other form parameters in the following way:
- ``job``/``kernel``/``arch``-[``defconfig_full`` | ``defconfig``]/[``lab_name``]
+ ``job/git_branch/kernel/arch/[defconfig_full | defconfig ][/lab_name]``
 
  .. caution::
     Sending multiple times the same files will overwrite the previous ones.
 
  :formparam path: The destination directory where files should be saved.
  :formparam job: The job name.
+ :formparam git_branch: The branch name.
  :formparam kernel: The kernel name.
  :formparam defconfig: The defconfig value.
  :formparam defconfig_full: The defconfig_full value.

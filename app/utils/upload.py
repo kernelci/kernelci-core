@@ -51,20 +51,6 @@ def file_exists(path, base_path=utils.BASE_PATH):
     return it_exists
 
 
-def check_or_create_file_upload_dir(path):
-    """Check if the path exists and it can be accessed, or create it.
-
-    This accepts the path with the filename in it and checks if the destination
-    directory exists.
-
-    :param path: The full path to the file to check.
-    :type path: str
-    :return A tuple with status code and error. Status code will be 200 in case
-    it is OK, 500 in case of error.
-    """
-    return check_or_create_upload_dir(os.path.dirname(path))
-
-
 def check_or_create_upload_dir(path, base_path=utils.BASE_PATH):
     """Check if the path exists and it can be accessed, or create it.
 
@@ -95,6 +81,20 @@ def check_or_create_upload_dir(path, base_path=utils.BASE_PATH):
     return ret_val, error
 
 
+def check_or_create_file_upload_dir(path):
+    """Check if the path exists and it can be accessed, or create it.
+
+    This accepts the path with the filename in it and checks if the destination
+    directory exists.
+
+    :param path: The full path to the file to check.
+    :type path: str
+    :return A tuple with status code and error. Status code will be 200 in case
+    it is OK, 500 in case of error.
+    """
+    return check_or_create_upload_dir(os.path.dirname(path))
+
+
 def create_or_update_file(path,
                           filename,
                           content_type, content, base_path=utils.BASE_PATH):
@@ -123,7 +123,7 @@ def create_or_update_file(path,
 
     # Check if the file to upload is in a subdirectory of the provided path.
     file_dir = os.path.dirname(file_path)
-    if path and all([path[-1] == "/", file_dir[-1] != "/"]):
+    if path and (path[-1] == "/" and file_dir[-1] != "/"):
         file_dir += "/"
 
     ret_val = 200

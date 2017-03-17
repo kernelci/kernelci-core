@@ -35,6 +35,7 @@ def ensure_indexes(database):
     _ensure_bisect_indexes(database)
     _ensure_error_logs_indexes(database)
     _ensure_stats_indexes(database)
+    _ensure_reports_indexes(database)
 
 
 def _ensure_job_indexes(database):
@@ -167,6 +168,14 @@ def _ensure_build_indexes(database):
         ],
         background=True
     )
+    collection.ensure_index(
+        [
+            (models.JOB_KEY, pymongo.ASCENDING),
+            (models.KERNEL_KEY, pymongo.DESCENDING),
+            (models.CREATED_KEY, pymongo.DESCENDING)
+        ],
+        background=True
+    )
     # This is used in the aggregation pipeline.
     collection.ensure_index(
         [
@@ -221,6 +230,11 @@ def _ensure_bisect_indexes(database):
         [(models.NAME_KEY, pymongo.DESCENDING)],
         background=True
     )
+    collection.ensure_index(
+        models.CREATED_KEY,
+        expireAfterSeconds=1209600,
+        background=True
+    )
 
 
 def _ensure_error_logs_indexes(database):
@@ -268,3 +282,16 @@ def _ensure_regressions_indexes(database):
         [(models.BOOT_ID_KEY, pymongo.DESCENDING)], background=True)
     collection.ensure_index(
         [(models.CREATED_KEY, pymongo.DESCENDING)], background=True)
+
+
+def _ensure_reports_indexes(database):
+    """Ensure indexes exist on the report collection.
+
+    :param database: The database connection.
+    """
+    collection = database[models.REPORT_COLLECTION]
+    collection.ensure_index(
+        models.CREATED_KEY,
+        expireAfterSeconds=604800,
+        background=True
+    )
