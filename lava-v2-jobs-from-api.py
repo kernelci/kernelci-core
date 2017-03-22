@@ -39,20 +39,23 @@ def main(args):
     arch = args.get('arch')
     plans = args.get('plans')
     branch = args.get('branch')
+    git_describe = args.get('describe')
     tree = args.get('tree')
     kernel = tree
+    storage = args.get('storage')
     api = args.get('api')
     headers = {
         "Authorization": config.get('token')
     }
 
     print "Working on kernel %s/%s" % (tree, branch)
-    url = urlparse.urljoin(api, ("/build?job=%s&kernel=%s&status=PASS&arch=%s" % (tree, branch, arch)))
+    url = urlparse.urljoin(api, ("/build?job=%s&kernel=%s&git_branch=%s&status=PASS&arch=%s" % (tree, git_describe, branch, arch)))
     print "Calling KernelCI API: %s" % url
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
         print "Error calling KernelCI API"
         print response
+        print response.content
         sys.exit(1)
     data = json.loads(response.content)
     builds = data['result']
@@ -134,7 +137,7 @@ def main(args):
                                     template_file = cwd + '/templates/' + short_template_file
                                     if os.path.exists(template_file) and template_file.endswith('.jinja2'):
                                         job_name = tree + '-' + branch + '-' + arch + "-" + defconfig[:100] + '-' + dtb + '-' + device_type + '-' + plan
-                                        base_url = "https://storage.kernelci.org/%s/%s/%s/" % (build['job'], build['kernel'], arch_defconfig)
+                                        base_url = "%s/%s/%s/%s/%s/%s/" % (storage, build['job'], build['git_branch'], build['kernel'], arch_defconfig)
                                         dtb_url = base_url + "dtbs/" + dtb_full
                                         kernel_url = urlparse.urljoin(base_url, build['kernel_image'])
                                         defconfig_base = ''.join(defconfig.split('+')[:1])
@@ -184,9 +187,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--token", help="KernelCI API Token")
     parser.add_argument("--api", help="KernelCI API URL", default="https://api.kernelci.org")
+    parser.add_argument("--storage", help="KernelCI storage URL", default="https://storage.kernelci.org")
     parser.add_argument("--jobs", help="absolute path to top jobs folder")
     parser.add_argument("--tree", help="KernelCI build kernel tree")
     parser.add_argument("--branch", help="KernelCI build kernel branch")
+    parser.add_argument("--describe", help="KernelCI build kernel git describe")
     parser.add_argument("--config", help="configuration for the LAVA server")
     parser.add_argument("--section", default="default", help="section in the LAVA config file")
     parser.add_argument("--plans", nargs='+', required=True, help="test plan to create jobs for")

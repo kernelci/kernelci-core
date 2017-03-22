@@ -190,13 +190,13 @@ def boot_report(config):
         arch = None
         board_instance = None
         boot_retries = 0
-        kernel_defconfig_full = None
         kernel_defconfig = None
         kernel_defconfig_base = None
         kernel_version = None
         device_tree = None
         kernel_endian = None
         kernel_tree = None
+        git_branch = None
         kernel_addr = None
         initrd_addr = None
         dtb_addr = None
@@ -295,16 +295,11 @@ def boot_report(config):
                 board_instance = bundle_attributes['target']
             if utils.in_bundle_attributes(bundle_attributes, 'kernel.defconfig'):
                 kernel_defconfig = bundle_attributes['kernel.defconfig']
-                defconfig_list = kernel_defconfig.split('-')
-                arch = defconfig_list[0]
-                # Remove arch
-                defconfig_list.pop(0)
-                kernel_defconfig_full = '-'.join(defconfig_list)
-                kernel_defconfig_base = ''.join(kernel_defconfig_full.split('+')[:1])
-                if kernel_defconfig_full == kernel_defconfig_base:
-                    kernel_defconfig_full = None
-            if utils.in_bundle_attributes(bundle_attributes, 'kernel.version'):
-                kernel_version = bundle_attributes['kernel.version']
+                kernel_defconfig_base = ''.join(kernel_defconfig.split('+')[:1])
+            if utils.in_bundle_attributes(bundle_attributes, 'arch'):
+                arch = bundle_attributes['arch']
+            if utils.in_bundle_attributes(bundle_attributes, 'kernel.describe'):
+                kernel_version = bundle_attributes['kernel.describe']
             if utils.in_bundle_attributes(bundle_attributes, 'device.tree'):
                 device_tree = bundle_attributes['device.tree']
             if utils.in_bundle_attributes(bundle_attributes, 'kernel.endian'):
@@ -328,6 +323,8 @@ def boot_report(config):
                 boot_retries = int(bundle_attributes['boot_retries'])
             if utils.in_bundle_attributes(bundle_attributes, 'test.plan'):
                 test_plan = bundle_attributes['test.plan']
+            if utils.in_bundle_attributes(bundle_attributes, 'kernel.branch'):
+                git_branch = bundle_attributes['kernel.branch']
 
         # Check if we found efi-rtc
         if test_plan == 'boot-kvm-uefi' and not efi_rtc:
@@ -412,11 +409,11 @@ def boot_report(config):
             boot_meta['version'] = '1.0'
             boot_meta['arch'] = arch
             boot_meta['defconfig'] = kernel_defconfig_base
-            if kernel_defconfig_full is not None:
-                boot_meta['defconfig_full'] = kernel_defconfig_full
+            boot_meta['defconfig_full'] = kernel_defconfig
             if device_map[device_type][1]:
                 boot_meta['mach'] = device_map[device_type][1]
             boot_meta['kernel'] = kernel_version
+            boot_meta['git_branch'] = git_branch
             boot_meta['job'] = kernel_tree
             boot_meta['board'] = platform_name
             if board_offline and result == 'FAIL':

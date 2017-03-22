@@ -32,8 +32,10 @@ def create_jobs(base_url, kernel, plans, platform_list, targets, priority):
     # TODO: define image_type dynamically
     image_type = 'kernel-ci'
     tree = build_info[1]
-    kernel_version = build_info[2]
-    defconfig = build_info[3]
+    branch = build_info[2]
+    kernel_version = build_info[3]
+    arch = build_info[4]
+    defconfig = build_info[5]
     has_modules = True
     checked_modules = False
 
@@ -121,7 +123,7 @@ def create_jobs(base_url, kernel, plans, platform_list, targets, priority):
                                         tmp = tmp.replace('{tree}', tree)
                                         if platform_name.endswith('.dtb'):
                                             tmp = tmp.replace('{device_tree}', platform_name)
-                                        tmp = tmp.replace('{kernel_version}', kernel_version)
+                                        tmp = tmp.replace('{kernel_describe}', kernel_version)
                                         if 'BIG_ENDIAN' in defconfig and plan == 'boot-be':
                                             tmp = tmp.replace('{endian}', 'big')
                                         else:
@@ -142,6 +144,9 @@ def create_jobs(base_url, kernel, plans, platform_list, targets, priority):
                                             tmp = tmp.replace('{priority}', priority.lower())
                                         else:
                                             tmp = tmp.replace('{priority}', 'high')
+                                        tmp = tmp.replace('{kernel_tree}', tree)
+                                        tmp = tmp.replace('{kernel_branch}', branch)
+                                        tmp = tmp.replace('{arch}', arch)
                                         fout.write(tmp)
                             print 'JSON Job created: jobs/%s' % job_name
 
@@ -152,13 +157,15 @@ def walk_url(url, plans=None, arch=None, targets=None, priority=None):
     global platform_list
     global legacy_platform_list
 
+    if not url.endswith('/'):
+        url += '/'
+
     try:
         html = urllib2.urlopen(url, timeout=30).read()
     except IOError, e:
         print 'error fetching %s: %s' % (url, e)
         exit(1)
-    if not url.endswith('/'):
-        url += '/'
+
     files = parse_re.findall(html)
     dirs = []
     for name in files:
@@ -178,7 +185,7 @@ def walk_url(url, plans=None, arch=None, targets=None, priority=None):
                 kernel = url + name
                 base_url = url
                 # qemu-aarch64,legacy
-                if 'arm64-defconfig' in url:
+                if 'arm64/defconfig' in url:
                     legacy_platform_list.append(url + 'qemu-aarch64-legacy')
             if name.endswith('.dtb') and name in device_map:
                 if base_url and base_url in url:
@@ -202,7 +209,7 @@ def walk_url(url, plans=None, arch=None, targets=None, priority=None):
                 kernel = url + name
                 base_url = url
                 # qemu-aarch64,legacy
-                if 'arm64-defconfig' in url:
+                if 'arm64/defconfig' in url:
                     legacy_platform_list.append(url + 'qemu-aarch64-legacy')
             if name.endswith('.dtb') and name in device_map:
                 if base_url and base_url in url:
@@ -234,8 +241,12 @@ def main(args):
         directory = setup_job_dir(config.get("jobs"))
     else:
         directory = setup_job_dir(os.getcwd() + '/jobs')
+    url = config.get('url')
+    arch = config.get('arch')
+    if arch:
+        url += arch + "/"
     print 'Scanning %s for kernel information...' % config.get("url")
-    walk_url(config.get("url"), config.get("plans"), config.get("arch"), config.get("targets"), config.get("priority"))
+    walk_url(url, config.get("plans"), arch, config.get("targets"), config.get("priority"))
     print 'Done scanning for kernel information'
     print 'Done creating JSON jobs'
     exit(0)
