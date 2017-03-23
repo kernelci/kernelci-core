@@ -137,7 +137,7 @@ def main(args):
                                     template_file = cwd + '/templates/' + short_template_file
                                     if os.path.exists(template_file) and template_file.endswith('.jinja2'):
                                         job_name = tree + '-' + branch + '-' + arch + "-" + defconfig[:100] + '-' + dtb + '-' + device_type + '-' + plan
-                                        base_url = "%s/%s/%s/%s/%s/%s/" % (storage, build['job'], build['git_branch'], build['kernel'], arch_defconfig)
+                                        base_url = "%s/%s/%s/%s/%s/%s/" % (storage, build['job'], build['git_branch'], build['kernel'], arch, defconfig)
                                         dtb_url = base_url + "dtbs/" + dtb_full
                                         kernel_url = urlparse.urljoin(base_url, build['kernel_image'])
                                         defconfig_base = ''.join(defconfig.split('+')[:1])
