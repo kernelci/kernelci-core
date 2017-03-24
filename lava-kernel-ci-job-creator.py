@@ -88,7 +88,7 @@ def create_jobs(base_url, kernel, plans, platform_list, targets, priority):
                     print '%s has been omitted from the %s test plan. Skipping JSON creation.' % (defconfig, plan)
                 else:
                     for template in device_templates:
-                        job_name = tree + '-' + kernel_version + '-' + defconfig[:100] + '-' + platform_name + '-' + device_type + '-' + plan
+                        job_name = tree + '-' + branch + '-' + kernel_version + '-' + arch + '-' + defconfig[:100] + '-' + platform_name + '-' + device_type + '-' + plan
                         job_json = directory + '/' + job_name + '.json'
                         template_file = cwd + '/templates/' + plan + '/' + str(template)
                         if os.path.exists(template_file) and template_file.endswith('.json'):

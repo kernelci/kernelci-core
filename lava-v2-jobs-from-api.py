@@ -136,7 +136,7 @@ def main(args):
                                     short_template_file = plan + '/' + str(template)
                                     template_file = cwd + '/templates/' + short_template_file
                                     if os.path.exists(template_file) and template_file.endswith('.jinja2'):
-                                        job_name = tree + '-' + branch + '-' + arch + "-" + defconfig[:100] + '-' + dtb + '-' + device_type + '-' + plan
+                                        job_name = tree + '-' + branch + '-' + git_describe + '-' + arch + '-' + defconfig[:100] + '-' + dtb + '-' + device_type + '-' + plan
                                         base_url = "%s/%s/%s/%s/%s/%s/" % (storage, build['job'], build['git_branch'], build['kernel'], arch, defconfig)
                                         dtb_url = base_url + "dtbs/" + dtb_full
                                         kernel_url = urlparse.urljoin(base_url, build['kernel_image'])
@@ -161,10 +161,10 @@ def main(args):
                                         if device['device_type'].startswith('qemu') or device['device_type'] == 'kvm':
                                             device['device_type'] = 'qemu'
                                         job = {'name': job_name, 'dtb_url': dtb_url, 'platform': dtb_full, 'kernel_url': kernel_url, 'image_type': 'kernel-ci', 'image_url': base_url,
-                                               'modules_url': modules_url, 'plan': plan, 'kernel': branch, 'tree': tree, 'defconfig': defconfig, 'fastboot': fastboot,
+                                               'modules_url': modules_url, 'plan': plan, 'kernel': git_describe, 'tree': tree, 'defconfig': defconfig, 'fastboot': fastboot,
                                                'priority': args.get('priority'), 'device': device, 'template_file': template_file, 'base_url': base_url, 'endian': endian,
                                                'test_suite': test_suite, 'test_set': test_set, 'test_desc': test_desc, 'test_type': test_type, 'short_template_file': short_template_file,
-                                               'arch': arch, 'arch_defconfig': arch_defconfig, 'git_branch': build['git_branch'], 'git_commit': build['git_commit'], 'git_describe': build['git_describe'],
+                                               'arch': arch, 'arch_defconfig': arch_defconfig, 'git_branch': branch, 'git_commit': build['git_commit'], 'git_describe': git_describe,
                                                'defconfig_base': defconfig_base, 'initrd_url': initrd_url, 'kernel_image': build['kernel_image'], 'dtb_short': dtb}
                                         jobs.append(job)
             else:
@@ -200,4 +200,7 @@ if __name__ == '__main__':
     parser.add_argument("--priority", choices=['high', 'medium', 'low', 'HIGH', 'MEDIUM', 'LOW'],
                         help="priority for LAVA jobs", default='high')
     args = vars(parser.parse_args())
-    main(args)
+    if args:
+        main(args)
+    else:
+        exit(1)
