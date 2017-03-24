@@ -413,7 +413,7 @@ def boot_report(config):
             if device_map[device_type][1]:
                 boot_meta['mach'] = device_map[device_type][1]
             boot_meta['kernel'] = kernel_version
-            boot_meta['git_branch'] = git_branch`
+            boot_meta['git_branch'] = git_branch
             boot_meta['job'] = kernel_tree
             boot_meta['board'] = platform_name
             if board_offline and result == 'FAIL':
