@@ -470,9 +470,10 @@ def boot_report(config):
                 print 'Uploading text version of boot log'
                 with open(os.path.join(directory, log)) as lh:
                     data = lh.read()
-                api_url = urlparse.urljoin(config.get("api"), '/upload/%s/%s/%s/%s/%s' % (kernel_tree,
+                api_url = urlparse.urljoin(config.get("api"), '/upload/%s/%s/%s/%s/%s/%s/%s' % (kernel_tree,
                                                                                  git_branch,
                                                                                  kernel_version,
+                                                                                 arch,
                                                                                  kernel_defconfig,
                                                                                  config.get("lab"),
                                                                                  log))
@@ -480,9 +481,10 @@ def boot_report(config):
                 print 'Uploading html version of boot log'
                 with open(os.path.join(directory, html)) as lh:
                     data = lh.read()
-                api_url = urlparse.urljoin(config.get("api"), '/upload/%s/%s/%s/%s/%s' % (kernel_tree,
+                api_url = urlparse.urljoin(config.get("api"), '/upload/%s/%s/%s/%s/%s/%s/%s' % (kernel_tree,
                                                                                  git_branch,
                                                                                  kernel_version,
+                                                                                 arch,
                                                                                  kernel_defconfig,
                                                                                  config.get("lab"),
                                                                                  html))
