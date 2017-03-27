@@ -406,7 +406,7 @@ def boot_report(config):
             boot_meta['boot_log'] = log
             boot_meta['boot_log_html'] = html
             # TODO: Fix this
-            boot_meta['version'] = '1.0'
+            boot_meta['version'] = '1.1'
             boot_meta['arch'] = arch
             boot_meta['defconfig'] = kernel_defconfig_base
             boot_meta['defconfig_full'] = kernel_defconfig
