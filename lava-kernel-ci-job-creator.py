@@ -109,7 +109,10 @@ def create_jobs(base_url, kernel, plans, platform_list, targets, priority):
                                                 # We only need to check that the modules
                                                 # exist once for each defconfig
                                                 p = urlparse.urlparse(modules_url)
-                                                conn = httplib.HTTPConnection(p.netloc)
+                                                if modules_url.startswith('https'):
+                                                    conn = httplib.HTTPSConnection(p.netloc)
+                                                else:
+                                                    conn = httplib.HTTPConnection(p.netloc)
                                                 conn.request('HEAD', p.path)
                                                 resp = conn.getresponse()
                                                 if resp.status > 400:
