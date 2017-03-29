@@ -391,12 +391,12 @@ class BaseHandler(tornado.web.RequestHandler):
         :return A `HandlerResponse` object.
         """
         response = hresponse.HandlerResponse()
-        spec, sort, fields, skip, limit, unique = self._get_query_args()
+        spec, sort, fields, skip, limit, aggregate = self._get_query_args()
 
-        if unique:
+        if aggregate:
             response.result = utils.db.aggregate(
                 self.collection,
-                unique,
+                aggregate,
                 match=spec,
                 sort=sort,
                 fields=fields,
@@ -438,14 +438,14 @@ class BaseHandler(tornado.web.RequestHandler):
         skip = 0
         sort = None
         spec = {}
-        unique = None
+        aggregate = None
 
         if self.request.arguments:
-            spec, sort, fields, skip, limit, unique = \
+            spec, sort, fields, skip, limit, aggregate = \
                 handlers.common.query.get_all_query_values(
                     self.get_query_arguments, self._valid_keys(method))
 
-        return spec, sort, fields, skip, limit, unique
+        return spec, sort, fields, skip, limit, aggregate
 
     def validate_req_token(self, method):
         """Validate the request token.
