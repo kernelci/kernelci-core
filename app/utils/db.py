@@ -552,6 +552,12 @@ def aggregate(
             val = "$" + val
         return val
 
+    def _create_multi_key():
+        """Yield (key,value) tuples from the unique field.
+        """
+        for val in unique:
+            yield val, _starts_with_dollar(val)
+
     def _parse_list_fields_for_group():
         """Parse the fields list for the $group operator."""
         for key in fields:
@@ -567,6 +573,16 @@ def aggregate(
             if val:
                 yield key, {"$first": _starts_with_dollar(key)}
 
+    def _parse_aggregate():
+        """Create the _id field for the $group pipeline
+        """
+        if isinstance(unique, types.ListType):
+            return {
+                k: v for k, v in _create_multi_key()
+            }
+        else:
+            return _starts_with_dollar(unique)
+
     # Where the aggregate actions and values will be stored.
     # XXX: The append order is important!
     pipeline = []
@@ -578,7 +594,7 @@ def aggregate(
 
     group_dict = {
         "$group": {
-            "_id": _starts_with_dollar(unique)
+            "_id": _parse_aggregate()
         }
     }
 
@@ -612,15 +628,13 @@ def aggregate(
         pipeline.append({"$limit": limit})
 
     result = collection.aggregate(pipeline)
+    p_results = result.get("result", None)
 
-    if result and isinstance(result, types.DictionaryType):
-        p_results = result.get("result", None)
-
-        if (p_results and isinstance(p_results, types.ListType) and
-                len(p_results) > 0):
-            # Pick the first element and check if it has a result key with the
-            # actual list of the results. This happens when the fields argument
-            # is not specified.
+    if p_results:
+        # Pick the first element and check if it has a result key with the
+        # actual list of the results. This happens when the fields argument
+        # is not specified.
+        try:
             r_element = p_results[0]
             if r_element.get("result", None):
                 result = [
@@ -628,7 +642,9 @@ def aggregate(
                 ]
             else:
                 result = p_results
-        else:
+        except IndexError:
             result = []
+    else:
+        result = []
 
     return result
