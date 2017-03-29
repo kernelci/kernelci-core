@@ -192,7 +192,7 @@ class TestCommonQuery(unittest.TestCase):
             else:
                 return []
 
-        self.assertEqual(get_aggregate_value(query_args_func), "foo")
+        self.assertEqual(get_aggregate_value(query_args_func), ["foo"])
 
     def test_get_aggregate_value_no_list(self):
         def query_args_func(key):
@@ -207,7 +207,7 @@ class TestCommonQuery(unittest.TestCase):
             else:
                 return []
 
-        self.assertEqual(get_aggregate_value(query_args_func), "bar")
+        self.assertEqual(get_aggregate_value(query_args_func), ["foo", "bar"])
 
     @mock.patch("handlers.common.query.KEY_TYPES", spec=True)
     def test_get_query_spec_with_tuple(self, mock_types):
@@ -443,9 +443,10 @@ class TestCommonQuery(unittest.TestCase):
             return args.get(key, [])
 
         valid_keys = []
+        expected = ({}, [("job", -1)], None, 30, 0, None)
 
         return_value = get_all_query_values(query_args_func, valid_keys)
-        self.assertEqual(len(return_value), 6)
+        self.assertTupleEqual(tuple(return_value), expected)
 
     def test_get_and_add_date_range(self):
         def query_args_func(key):

@@ -43,63 +43,6 @@ ALMOST_MIDNIGHT = datetime.time(23, 59, 59, tzinfo=bson.tz_util.utc)
 EPOCH = datetime.datetime(1970, 1, 1, tzinfo=bson.tz_util.utc)
 
 
-def get_all_query_values(query_args_func, valid_keys):
-    """Handy function to get all query args in a batch.
-
-    :param query_args_func: A function used to return a list of the query
-    arguments.
-    :type query_args_func: function
-    :param valid_keys: A list containing the valid keys that should be
-    retrieved.
-    :type valid_keys: list
-    """
-    spec = get_query_spec(query_args_func, valid_keys)
-
-    created_on = get_created_on_date(query_args_func)
-    add_created_on_date(spec, created_on)
-
-    get_and_add_date_range(spec, query_args_func, created_on)
-    get_and_add_gte_lt_keys(spec, query_args_func, valid_keys)
-    get_and_add_time_range(spec, query_args_func)
-    utils.update_id_fields(spec)
-
-    sort = get_query_sort(query_args_func)
-    fields = get_query_fields(query_args_func)
-    skip, limit = get_skip_and_limit(query_args_func)
-    unique = get_aggregate_value(query_args_func)
-
-    return spec, sort, fields, skip, limit, unique
-
-
-def get_trigger_query_values(query_args_func, valid_keys):
-    """Handy function to get all the query args in a batch for trigger APIs.
-
-    :param query_args_func: A function used to return a list of the query
-    arguments.
-    :type query_args_func: function
-    :param valid_keys: A list containing the valid keys that should be
-    retrieved.
-    :type valid_keys: list
-    :return 6-tuple: spec, fields, skip, limit, compared.
-    """
-    spec = get_query_spec(query_args_func, valid_keys)
-
-    created_on = get_created_on_date(query_args_func)
-    add_created_on_date(spec, created_on)
-
-    get_and_add_date_range(spec, query_args_func, created_on)
-    get_and_add_gte_lt_keys(spec, query_args_func, valid_keys)
-    get_and_add_time_range(spec, query_args_func)
-    utils.update_id_fields(spec)
-
-    sort = get_query_sort(query_args_func)
-    fields = get_query_fields(query_args_func)
-    skip, limit = get_skip_and_limit(query_args_func)
-    compared = get_compared_value(query_args_func)
-
-    return spec, sort, fields, skip, limit, compared
-
-
 def _valid_value(value):
     """Make sure the passed value is valid for its type.
 
@@ -138,17 +81,17 @@ def get_and_add_gte_lt_keys(spec, query_args_func, valid_keys):
     less = query_args_func(models.LT_KEY)
     spec_get = spec.get
 
-    if all([gte, isinstance(gte, types.ListType)]):
+    if gte and isinstance(gte, types.ListType):
         for arg in gte:
             _parse_and_add_gte_lt_value(
                 arg, "$gte", valid_keys, spec, spec_get)
     elif gte and isinstance(gte, types.StringTypes):
         _parse_and_add_gte_lt_value(gte, "$gte", valid_keys, spec, spec_get)
 
-    if all([less, isinstance(less, types.ListType)]):
+    if less and isinstance(less, types.ListType):
         for arg in less:
             _parse_and_add_gte_lt_value(arg, "$lt", valid_keys, spec, spec_get)
-    elif all([less, isinstance(less, types.StringTypes)]):
+    elif less and isinstance(less, types.StringTypes):
         _parse_and_add_gte_lt_value(less, "$lt", valid_keys, spec, spec_get)
 
 
@@ -191,7 +134,7 @@ def _parse_and_add_gte_lt_value(
                 utils.LOG.exception(ex)
                 value = None
 
-        if all([field is not None, _valid_value(value)]):
+        if field is not None and _valid_value(value):
             _add_gte_lt_value(
                 field, value, operator, spec, spec_get_func)
     except ValueError, ex:
@@ -239,9 +182,7 @@ def get_aggregate_value(query_args_func):
     :return The aggregate value as string.
     """
     aggregate = query_args_func(models.AGGREGATE_KEY)
-    if aggregate and isinstance(aggregate, types.ListType):
-        aggregate = aggregate[-1]
-    else:
+    if not aggregate:
         aggregate = None
     return aggregate
 
@@ -403,7 +344,7 @@ def add_created_on_date(spec, created_on):
     :type created_on: `datetime.date`
     :return The passed `spec` updated.
     """
-    if all([created_on, isinstance(created_on, datetime.date)]):
+    if created_on and isinstance(created_on, datetime.date):
         start_date = datetime.datetime.combine(created_on, MIDNIGHT)
         end_date = datetime.datetime.combine(created_on, ALMOST_MIDNIGHT)
 
@@ -572,14 +513,14 @@ def get_query_sort(query_args_func):
         query_args_func, [models.SORT_KEY, models.SORT_ORDER_KEY])
 
     if sort_fields:
-        if all([sort_order, isinstance(sort_order, types.ListType)]):
+        if sort_order and isinstance(sort_order, types.ListType):
             sort_order = int(sort_order[-1])
         else:
             sort_order = pymongo.DESCENDING
 
         # Wrong number for sort order? Force descending.
-        if all([sort_order != pymongo.ASCENDING,
-                sort_order != pymongo.DESCENDING]):
+        if (sort_order != pymongo.ASCENDING and
+                sort_order != pymongo.DESCENDING):
             utils.LOG.warn(
                 "Wrong sort order used (%d), default to %d",
                 sort_order, pymongo.DESCENDING
@@ -604,14 +545,82 @@ def get_skip_and_limit(query_args_func):
     """
     skip, limit = map(query_args_func, [models.SKIP_KEY, models.LIMIT_KEY])
 
-    if all([skip, isinstance(skip, types.ListType)]):
+    if skip and isinstance(skip, types.ListType):
         skip = int(skip[-1])
     else:
         skip = 0
 
-    if all([limit, isinstance(limit, types.ListType)]):
+    if limit and isinstance(limit, types.ListType):
         limit = int(limit[-1])
     else:
         limit = 0
 
     return skip, limit
+
+
+def get_values(query_args_func, valid_keys):
+    spec = get_query_spec(query_args_func, valid_keys)
+
+    created_on = get_created_on_date(query_args_func)
+    add_created_on_date(spec, created_on)
+
+    get_and_add_date_range(spec, query_args_func, created_on)
+    get_and_add_gte_lt_keys(spec, query_args_func, valid_keys)
+    get_and_add_time_range(spec, query_args_func)
+    utils.update_id_fields(spec)
+
+    # First the spec.
+    yield spec
+    # Then the sort.
+    yield get_query_sort(query_args_func)
+    # Then the actual fields.
+    yield get_query_fields(query_args_func)
+    # Then the skip value.
+    skip, limit = get_skip_and_limit(query_args_func)
+    yield skip
+    yield limit
+    # Then the aggregate values.
+    yield get_aggregate_value(query_args_func)
+
+
+def get_trigger_query_values(query_args_func, valid_keys):
+    """Handy function to get all the query args in a batch for trigger APIs.
+
+    :param query_args_func: A function used to return a list of the query
+    arguments.
+    :type query_args_func: function
+    :param valid_keys: A list containing the valid keys that should be
+    retrieved.
+    :type valid_keys: list
+    :return 6-tuple: spec, fields, skip, limit, compared.
+    """
+    spec = get_query_spec(query_args_func, valid_keys)
+
+    created_on = get_created_on_date(query_args_func)
+    add_created_on_date(spec, created_on)
+
+    get_and_add_date_range(spec, query_args_func, created_on)
+    get_and_add_gte_lt_keys(spec, query_args_func, valid_keys)
+    get_and_add_time_range(spec, query_args_func)
+    utils.update_id_fields(spec)
+
+    sort = get_query_sort(query_args_func)
+    fields = get_query_fields(query_args_func)
+    skip, limit = get_skip_and_limit(query_args_func)
+    compared = get_compared_value(query_args_func)
+
+    return spec, sort, fields, skip, limit, compared
+
+
+def get_all_query_values(query_args_func, valid_keys):
+    """Handy function to get all query args in a batch.
+
+    :param query_args_func: A function used to return a list of the query
+    arguments.
+    :type query_args_func: function
+    :param valid_keys: A list containing the valid keys that should be
+    retrieved.
+    :type valid_keys: list
+    :return A 6-tuple
+    """
+    return (val for val in get_values(query_args_func, valid_keys))
