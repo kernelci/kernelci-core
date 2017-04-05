@@ -65,6 +65,9 @@ def do_make(target=None, log=False):
     if target:
         make_args += target
     make_cmd = 'make %s' %make_args
+    if target == "oldconfig":
+        make_cmd = 'yes "" |' + make_cmd
+    
     print make_cmd
 
     make_stdout = None
@@ -209,7 +212,7 @@ if os.path.exists('.git'):
     git_commit = subprocess.check_output('git log -n1 --format=%H', shell=True).strip()
     git_url = subprocess.check_output('git config --get remote.origin.url |cat', shell=True).strip()
     git_branch = subprocess.check_output('git rev-parse --abbrev-ref HEAD', shell=True).strip()
-    git_describe_v = subprocess.check_output('git describe --match=v[34]\*', shell=True).strip()
+    git_describe_v = subprocess.check_output('git describe --match=v[234]\*', shell=True).strip()
     if not git_describe:
         git_describe = subprocess.check_output('git describe', shell=True).strip()
 
@@ -235,10 +238,17 @@ if defconfig or frag_names:
         kconfig_frag = os.path.join(kbuild_output, 'frag-' + '+'.join(frag_names) + '.config')
         shutil.copy(kconfig_tmpfile, kconfig_frag)
         os.chmod(kconfig_frag, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH)
-        cmd = "scripts/kconfig/merge_config.sh -O %s %s %s > /dev/null 2>&1" %(kbuild_output, base, kconfig_frag)
-        print cmd
-        subprocess.call(cmd, shell = True)
-
+        if os.path.exists("scripts/kconfig/merge_config.sh"):
+            cmd = "scripts/kconfig/merge_config.sh -O %s %s %s > /dev/null 2>&1" %(kbuild_output, base, kconfig_frag)
+            print cmd
+            subprocess.call(cmd, shell = True)
+        else:
+            print "ERROR: merge_config.sh no present, Trying old 'cat' way."
+            cmd = "cat %s >> %s" %(kconfig_frag, dot_config)
+            print cmd
+            subprocess.call(cmd, shell = True)
+            do_make("oldconfig", log=True)
+            
 elif os.path.exists(dot_config):
     print "Re-using .config:", dot_config
     defconfig = "existing"
