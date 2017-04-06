@@ -71,7 +71,7 @@ def connect(url):
             connection = xmlrpclib.ServerProxy(url, transport=xmlrpclib.SafeTransport(use_datetime=True, context=context))
         else:
             connection = xmlrpclib.ServerProxy(url)
-
+        connection.system.listMethods()
         print "Connection Successful!"
         print "connect-to-server : pass"
         return connection

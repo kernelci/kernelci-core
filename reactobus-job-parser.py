@@ -133,7 +133,7 @@ def update_api(status, jobinfo, lab_url, lab_name, api_token, api_base):
     boot_meta['retries'] = 0
     boot_meta['boot_log'] = "%s-lava-boot-log-plain.txt" % job
     boot_meta['boot_log_html'] = ""
-    boot_meta['version'] = '1.0'
+    boot_meta['version'] = '1.1'
     boot_meta['arch'] = metadata['job.arch']
     boot_meta['defconfig'] = metadata['kernel.defconfig_base']
     boot_meta['defconfig_full'] = metadata['kernel.defconfig']

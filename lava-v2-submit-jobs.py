@@ -72,9 +72,6 @@ def device_type_has_available(device_type, all_devices):
 def main(args):
     config = configuration.get_config(args)
 
-    url = utils.validate_input(config.get("username"), config.get("token"), config.get("server"))
-    connection = utils.connect(url)
-
     if config.get("repo"):
         retrieve_jobs(config.get("repo"))
 
@@ -84,7 +81,10 @@ def main(args):
     else:
         load_jobs(os.getcwd())
 
-    submit_jobs(connection)
+    if job_map:
+        url = utils.validate_input(config.get("username"), config.get("token"), config.get("server"))
+        connection = utils.connect(url)
+        submit_jobs(connection)
     exit(0)
 
 if __name__ == '__main__':

@@ -191,13 +191,13 @@ def boot_report(config):
         arch = None
         board_instance = None
         boot_retries = 0
-        kernel_defconfig_full = None
         kernel_defconfig = None
         kernel_defconfig_base = None
         kernel_version = None
         device_tree = None
         kernel_endian = None
         kernel_tree = None
+        git_branch = None
         kernel_addr = None
         initrd_addr = None
         dtb_addr = None
@@ -296,16 +296,11 @@ def boot_report(config):
                 board_instance = bundle_attributes['target']
             if utils.in_bundle_attributes(bundle_attributes, 'kernel.defconfig'):
                 kernel_defconfig = bundle_attributes['kernel.defconfig']
-                defconfig_list = kernel_defconfig.split('-')
-                arch = defconfig_list[0]
-                # Remove arch
-                defconfig_list.pop(0)
-                kernel_defconfig_full = '-'.join(defconfig_list)
-                kernel_defconfig_base = ''.join(kernel_defconfig_full.split('+')[:1])
-                if kernel_defconfig_full == kernel_defconfig_base:
-                    kernel_defconfig_full = None
-            if utils.in_bundle_attributes(bundle_attributes, 'kernel.version'):
-                kernel_version = bundle_attributes['kernel.version']
+                kernel_defconfig_base = ''.join(kernel_defconfig.split('+')[:1])
+            if utils.in_bundle_attributes(bundle_attributes, 'arch'):
+                arch = bundle_attributes['arch']
+            if utils.in_bundle_attributes(bundle_attributes, 'kernel.describe'):
+                kernel_version = bundle_attributes['kernel.describe']
             if utils.in_bundle_attributes(bundle_attributes, 'device.tree'):
                 device_tree = bundle_attributes['device.tree']
             if utils.in_bundle_attributes(bundle_attributes, 'kernel.endian'):
@@ -329,6 +324,8 @@ def boot_report(config):
                 boot_retries = int(bundle_attributes['boot_retries'])
             if utils.in_bundle_attributes(bundle_attributes, 'test.plan'):
                 test_plan = bundle_attributes['test.plan']
+            if utils.in_bundle_attributes(bundle_attributes, 'kernel.branch'):
+                git_branch = bundle_attributes['kernel.branch']
 
         # Check if we found efi-rtc
         if test_plan == 'boot-kvm-uefi' and not efi_rtc:
@@ -410,14 +407,14 @@ def boot_report(config):
             boot_meta['boot_log'] = log
             boot_meta['boot_log_html'] = html
             # TODO: Fix this
-            boot_meta['version'] = '1.0'
+            boot_meta['version'] = '1.1'
             boot_meta['arch'] = arch
             boot_meta['defconfig'] = kernel_defconfig_base
-            if kernel_defconfig_full is not None:
-                boot_meta['defconfig_full'] = kernel_defconfig_full
+            boot_meta['defconfig_full'] = kernel_defconfig
             if device_map[device_type][1]:
                 boot_meta['mach'] = device_map[device_type][1]
             boot_meta['kernel'] = kernel_version
+            boot_meta['git_branch'] = git_branch
             boot_meta['job'] = kernel_tree
             boot_meta['board'] = platform_name
             if board_offline and result == 'FAIL':
@@ -474,8 +471,10 @@ def boot_report(config):
                 print 'Uploading text version of boot log'
                 with open(os.path.join(directory, log)) as lh:
                     data = lh.read()
-                api_url = urlparse.urljoin(config.get("api"), '/upload/%s/%s/%s/%s/%s' % (kernel_tree,
+                api_url = urlparse.urljoin(config.get("api"), '/upload/%s/%s/%s/%s/%s/%s/%s' % (kernel_tree,
+                                                                                 git_branch,
                                                                                  kernel_version,
+                                                                                 arch,
                                                                                  kernel_defconfig,
                                                                                  config.get("lab"),
                                                                                  log))
@@ -483,185 +482,15 @@ def boot_report(config):
                 print 'Uploading html version of boot log'
                 with open(os.path.join(directory, html)) as lh:
                     data = lh.read()
-                api_url = urlparse.urljoin(config.get("api"), '/upload/%s/%s/%s/%s/%s' % (kernel_tree,
+                api_url = urlparse.urljoin(config.get("api"), '/upload/%s/%s/%s/%s/%s/%s/%s' % (kernel_tree,
+                                                                                 git_branch,
                                                                                  kernel_version,
+                                                                                 arch,
                                                                                  kernel_defconfig,
                                                                                  config.get("lab"),
                                                                                  html))
                 push('PUT', api_url, data=data, headers=headers)
 
-    if results and kernel_tree and kernel_version:
-        print 'Creating boot summary for %s' % kernel_version
-        boot = '%s-boot-report.txt' % kernel_version
-        passed = 0
-        failed = 0
-        for defconfig, results_list in results.items():
-            for result in results_list:
-                if result['result'] == 'PASS':
-                    passed += 1
-                else:
-                    failed += 1
-        total = passed + failed
-        if config.get("lab"):
-            report_directory = os.path.join(results_directory, config.get("lab"))
-            utils.mkdir(report_directory)
-        else:
-            report_directory = results_directory
-        with open(os.path.join(report_directory, boot), 'a') as f:
-            f.write('To: %s\n' % config.get("email"))
-            f.write('From: bot@kernelci.org\n')
-            f.write('Subject: %s boot: %s boots: %s passed, %s failed (%s)\n' % (kernel_tree,
-                                                                                str(total),
-                                                                                str(passed),
-                                                                                str(failed),
-                                                                                kernel_version))
-            f.write('\n')
-            f.write('Full Build Report: http://kernelci.org/build/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
-            f.write('Full Boot Report: http://kernelci.org/boot/all/job/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
-            f.write('\n')
-            f.write('Total Duration: %.2f minutes\n' % (duration / 60))
-            f.write('Tree/Branch: %s\n' % kernel_tree)
-            f.write('Git Describe: %s\n' % kernel_version)
-            first = True
-            for defconfig, results_list in results.items():
-                for result in results_list:
-                    if result['result'] == 'OFFLINE':
-                        if first:
-                            f.write('\n')
-                            f.write('Boards Offline:\n')
-                            first = False
-                        f.write('\n')
-                        f.write(defconfig)
-                        f.write('\n')
-                        break
-                for result in results_list:
-                    if result['result'] == 'OFFLINE':
-                        f.write('    %s   %ss   boot-test: %s\n' % (result['device_type'],
-                                                                    result['kernel_boot_time'],
-                                                                    result['result']))
-                        f.write('\n')
-            first = True
-            for defconfig, results_list in results.items():
-                for result in results_list:
-                    if result['result'] == 'FAIL':
-                        if first:
-                            f.write('\n')
-                            f.write('Failed Boot Tests:\n')
-                            first = False
-                        f.write('\n')
-                        f.write(defconfig)
-                        f.write('\n')
-                        break
-                for result in results_list:
-                    if result['result'] == 'FAIL':
-                        f.write('    %s   %ss   boot-test: %s\n' % (result['device_type'],
-                                                                    result['kernel_boot_time'],
-                                                                    result['result']))
-                        if config.get("lab"):
-                            f.write('    http://storage.kernelci.org/kernel-ci/%s/%s/%s/%s/boot-%s.html' % (kernel_tree,
-                                                                                                            kernel_version,
-                                                                                                            defconfig,
-                                                                                                            config.get("lab"),
-                                                                                                            result['device_type']))
-                        else:
-                            f.write('    http://storage.kernelci.org/kernel-ci/%s/%s/%s/boot-%s.html' % (kernel_tree,
-                                                                                                         kernel_version,
-                                                                                                         defconfig,
-                                                                                                         result['device_type']))
-                        f.write('\n')
-            f.write('\n')
-            f.write('Full Boot Report:\n')
-            for defconfig, results_list in results.items():
-                f.write('\n')
-                f.write(defconfig)
-                f.write('\n')
-                for result in results_list:
-                    f.write('    %s   %ss   boot-test: %s\n' % (result['device_type'], result['kernel_boot_time'], result['result']))
-
-    # dt-self-test
-    if results and kernel_tree and kernel_version and dt_tests:
-        print 'Creating device tree runtime self test summary for %s' % kernel_version
-        dt_self_test = '%s-dt-runtime-self-test-report.txt' % kernel_version
-        passed = 0
-        failed = 0
-        for defconfig, results_list in results.items():
-            for result in results_list:
-                if result['dt_test_result'] == 'PASS':
-                    passed += 1
-                elif result['dt_test_result'] == 'FAIL':
-                    failed += 1
-        total = passed + failed
-        with open(os.path.join(report_directory, dt_self_test), 'a') as f:
-            f.write('To: %s\n' % config.get("email"))
-            f.write('From: bot@kernelci.org\n')
-            f.write('Subject: %s dt-runtime-unit-tests: %s boards tested: %s passed, %s failed (%s)\n' % (kernel_tree,
-                                                                                                           str(total),
-                                                                                                           str(passed),
-                                                                                                           str(failed),
-                                                                                                           kernel_version))
-            f.write('\n')
-            f.write('Full Build Report: http://kernelci.org/build/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
-            f.write('Full Boot Report: http://kernelci.org/boot/all/job/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
-            f.write('Full Test Report: http://kernelci.org/test/%s/kernel/%s/\n' % (kernel_tree, kernel_version))
-            f.write('\n')
-            f.write('Tree/Branch: %s\n' % kernel_tree)
-            f.write('Git Describe: %s\n' % kernel_version)
-            first = True
-            for defconfig, results_list in results.items():
-                for result in results_list:
-                    if result['dt_test_result'] == 'FAIL':
-                        if first:
-                            f.write('\n')
-                            f.write('Failed Device Tree Unit Tests:\n')
-                            first = False
-                        f.write('\n')
-                        f.write(defconfig)
-                        f.write('\n')
-                        break
-                for result in results_list:
-                    if result['dt_test_result'] == "FAIL":
-                        f.write('    %s   passed: %s / failed: %s   dt-runtime-unit-tests: %s\n' % (result['device_type'],
-                                                                                                    result['dt_tests_passed'],
-                                                                                                    result['dt_tests_failed'],
-                                                                                                    result['dt_test_result']))
-                        if config.get("lab"):
-                            f.write('    http://storage.kernelci.org/kernel-ci/%s/%s/%s/%s/boot-%s.html' % (kernel_tree,
-                                                                                                        kernel_version,
-                                                                                                        defconfig,
-                                                                                                        config.get("lab"),
-                                                                                                        result['device_type']))
-                        else:
-                            f.write('    http://storage.kernelci.org/kernel-ci/%s/%s/%s/boot-%s.html' % (kernel_tree,
-                                                                                                         kernel_version,
-                                                                                                         defconfig,
-                                                                                                         result['device_type']))
-            f.write('\n')
-            f.write('\n')
-            f.write('Full Unit Test Report:\n')
-            for defconfig, results_list in results.items():
-                first = True
-                for result in results_list:
-                    if result['dt_test_result']:
-                        if first:
-                            f.write('\n')
-                            f.write(defconfig)
-                            f.write('\n')
-                            first = False
-                        f.write('    %s   passed: %s / failed: %s   dt-runtime-unit-tests: %s\n' % (result['device_type'],
-                                                                                                    result['dt_tests_passed'],
-                                                                                                    result['dt_tests_failed'],
-                                                                                                    result['dt_test_result']))
-
-    # sendmail
-    if config.get("email"):
-        print 'Sending e-mail summary to %s' % config.get("email")
-        if os.path.exists(report_directory):
-            cmd = 'cat %s | sendmail -t' % os.path.join(report_directory, boot)
-            subprocess.check_output(cmd, shell=True)
-        if dt_tests:
-            if os.path.exists(report_directory):
-                cmd = 'cat %s | sendmail -t' % os.path.join(report_directory, dt_self_test)
-                subprocess.check_output(cmd, shell=True)
 
 def main(args):
     config = configuration.get_config(args)
@@ -678,6 +507,5 @@ if __name__ == '__main__':
     parser.add_argument("--lab", help="lab id")
     parser.add_argument("--api", help="api url")
     parser.add_argument("--token", help="authentication token")
-    parser.add_argument("--email", help="email address to send report to")
     args = vars(parser.parse_args())
     main(args)
