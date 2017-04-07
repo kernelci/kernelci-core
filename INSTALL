@@ -1,5 +1,4 @@
-Ansible Local Deployment
-========================
+# Ansible Local Deployment
 
 In the repository ansible hosts file, a local host is defined and is called
 `kernel-ci-backend`. This host is provided to perform local deployment using
@@ -24,23 +23,20 @@ installed as well. Skip them with:
 
   --skip-tags=backup,firewall
 
-Requirements
-============
+# Requirements
 
 Non exhaustive list of requirements is in the 'requirements.txt' file: those
 need to be installed via pip.
 
 For the rest of the necessary packages, see the ansible playbook.
 
-Run the server
-==============
+# Run the server
 
 From the 'app/' folder, run:
 
   python server.py
 
-The Celery worker
------------------
+## The Celery worker
 
 To run external tasks, Celery is used. It will start automatically at boot
 time. In the ansible playbook, there is the upstart configuration file to be
@@ -59,8 +55,7 @@ as well to make it work.
 There is support for MongoDB, but is still experimental and has not been
 tested yet with this application.
 
-Basic interactions
-==================
+# Basic interactions
 
 All operations now need a token or they will not be valid: the server will
 reply with a 403 error.
@@ -71,8 +66,7 @@ DELETE and create new token as well.
 
 For other application usage, you should create a superuser token.
 
-Create Token
-------------
+## Create Token
 
 To create a token at the beginning:
 
@@ -81,8 +75,7 @@ To create a token at the beginning:
 The command will return the token created. Use it to create new tokens.
 The master key should be used only the first time.
 
-GET
----
+## GET
 
   curl localhost:8888/job
   curl localhost:8888/build
@@ -95,8 +88,7 @@ GET
   curl localhost:8888/job?limit=40
   curl localhost:8888/job?limit=40&skip=20
 
-POST
-----
+## POST
 
 POST requests work for:
 
@@ -111,7 +103,6 @@ This command will tell the application to parse the directory located at
 The content of the `Authorization` is not important at the moment. All requests
 without that header will be discarded though.
 
-DELETE
-------
+## DELETE
 
   curl -X DELETE -H "Authorization: foo" localhost:8888/job/job-id

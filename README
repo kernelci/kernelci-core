@@ -1,12 +1,10 @@
-Kernel CI Backend
-=================
+# Kernel CI Backend
 
 This is the backend engine, Python and Tornado powered, that makes up all the
 available API for the Kernel CI reporting dashboard.
 
 For more info, see: http://api.kernelci.org/
 
-Installation
-============
+# Installation
 
-See the INSTALL files.
+See the [INSTALL](./INSTALL.md) files.
