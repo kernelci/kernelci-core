@@ -71,6 +71,7 @@ TEMPLATES_ENV.globals["P_"] = L10N.ungettext
 # 1. base path for web interface view
 # 2. path to web interface commit view
 # 3. list of tuples for replace rules
+# 4. new host name
 # Example:
 # IN: git://git.kernel.org/pub/scm/linux/kernel/git/khilman/linux.git
 # OUT: https://git.kernel.org/linux/kernel/git/khilman/linux.git
@@ -78,22 +79,32 @@ TEMPLATES_ENV.globals["P_"] = L10N.ungettext
 KNOWN_GIT_URLS = {
     "git.kernel.org": (
         "https",
-        "/cgit/%s",
-        "/cgit/%s/commit/?id=%s",
-        [("/pub/scm/", "")]
+        "/cgit/{0}",
+        "/cgit/{0}/commit/?id={1}",
+        [("/pub/scm/", "")],
+        ""
     ),
     "git.linaro.org": (
         "https",
-        "%s",
-        "%s/commitdiff/%s",
+        "{0}",
+        "{0}/commit/?id={1}",
         [],
+        ""
     ),
     "android.googlesource.com": (
         "https",
-        "%s",
-        "%s/+/%s",
-        []
-    )
+        "{0}",
+        "{0}/+/{1}",
+        [],
+        ""
+    ),
+    "anongit.freedesktop.org": [
+        "https",
+        "{0}",
+        "{0}/commit/?id={1}",
+        [["/git/", ""], [".git", ""]],
+        "cgit.freedesktop.org"
+    ]
 }
 
 # Mail headers.
@@ -361,16 +372,20 @@ def translate_git_url(git_url, commit_id=None):
             known_git = KNOWN_GIT_URLS[parsed_url.netloc]
             git_path = parsed_url.path
             translate_rules = known_git[3]
+            hostname = parsed_url.netloc
+
+            if known_git[4]:
+                hostname = known_git[4]
 
             for t_rule in translate_rules:
                 git_path = git_path.replace(t_rule[0], t_rule[1])
 
             if commit_id:
-                git_path = known_git[2] % (git_path, commit_id)
+                git_path = known_git[2].format(git_path, commit_id)
             else:
-                git_path = known_git[1] % git_path
+                git_path = known_git[1].format(git_path)
 
             translated_url = urlparse.urlunparse(
-                (known_git[0], parsed_url.netloc, git_path, "", "", ""))
+                (known_git[0], hostname, git_path, "", "", ""))
 
     return translated_url
