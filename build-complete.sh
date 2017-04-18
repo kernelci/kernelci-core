@@ -162,6 +162,10 @@ if [[ BUILDS_FINISHED -eq 4 ]]; then
         echo "Sending results to DRM-TIP maintainers"
         curl -XPOST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "drm-tip", "kernel": "'$GIT_DESCRIBE'", "build_report": 1, "format": ["txt"], "send_to": ["daniel@ffwll.ch", "fellows@kernelci.org"], "delay": 60}'
         curl -XPOST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "drm-tip", "kernel": "'$GIT_DESCRIBE'", "boot_report": 1, "format": ["txt"], "send_to": ["daniel@ffwll.ch", "fellows@kernelci.org"], "delay": 12600}'
+    elif ["$TREE_NAME" == "android"]; then
+        echo "Sending results to Android maintainers"
+        curl -XPOST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "android", "kernel": "'$GIT_DESCRIBE'", "build_report": 1, "format": ["txt"], "send_to": ["kernel-team+kernelci@android.com", "fellows@kernelci.org"], "delay": 60}'
+        curl -XPOST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "android", "kernel": "'$GIT_DESCRIBE'", "boot_report": 1, "format": ["txt"], "send_to": ["kernel-team+kernelci@android.com", "fellows@kernelci.org"], "delay": 12600}'
     else
         # Private Mailing List
         echo "Sending results to private mailing list"
