@@ -123,7 +123,7 @@ class TestReportCommon(unittest.TestCase):
 
         expected = (
             "https://git.linaro.org/lava-team/"
-            "kernel-ci-backend.git/commitdiff/12345")
+            "kernel-ci-backend.git/commit/?id=12345")
 
         self.assertIsNotNone(translated_url)
         self.assertEqual(expected, translated_url)
