@@ -266,8 +266,6 @@ class BaseHandler(tornado.web.RequestHandler):
 
         This method will receive a named argument containing the JSON object
         with the POST request data. The argument is called `json_obj`.
-        It will also receive a named argument containing the mongodb database
-        connection parameters. The argument is called `db_options`.
 
         :return A `HandlerResponse` object.
         """

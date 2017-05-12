@@ -38,6 +38,7 @@ import handlers.test_suite
 import handlers.token
 import handlers.upload
 import handlers.version
+import handlers.callback
 
 
 _JOB_URL = tornado.web.url(
@@ -223,6 +224,11 @@ _BOOT_TRIGGER_URL = tornado.web.url(
 _STATS_URL = tornado.web.url(
     r"/statistics/?", handlers.stats.StatisticsHandler, name="statistics")
 
+_LAVA_CALLBACK_URL = tornado.web.url(
+    r"/callback/lava",
+    handlers.callback.LavaCallbackHandler, name="callback-lava"
+)
+
 APP_URLS = [
     _BATCH_URL,
     _BISECT_URL,
@@ -250,6 +256,7 @@ APP_URLS = [
     _JOB_LOGS_URL,
     _JOB_URL,
     _LAB_URL,
+    _LAVA_CALLBACK_URL,
     _REPORT_URL,
     _SEND_URL,
     _STATS_URL,

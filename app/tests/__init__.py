@@ -29,6 +29,7 @@ def test_modules():
         "handlers.tests.test_boot_trigger_handler",
         "handlers.tests.test_build_handler",
         "handlers.tests.test_build_logs_handler",
+        "handlers.tests.test_callback_handler",
         "handlers.tests.test_compare_handler",
         "handlers.tests.test_count_handler",
         "handlers.tests.test_handler_response",

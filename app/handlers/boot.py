@@ -107,9 +107,8 @@ class BootHandler(hbase.BaseHandler):
                     error = (
                         "Using an admin token to send boot reports: "
                         "use the lab token")
-                elif all([
-                        req_token.token == lab_token.token,
-                        not lab_token.expired]):
+                elif (req_token.token == lab_token.token and
+                        not lab_token.expired):
                     valid_lab = True
                 else:
                     self.log.warn(

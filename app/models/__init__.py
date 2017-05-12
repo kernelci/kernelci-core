@@ -1069,3 +1069,9 @@ DISTINCT_VALID_FIELDS = {
         TEST_SUITE_NAME_KEY,
     ]
 }
+
+LAVA_CALLBACK_VALID_KEYS = {
+    "POST": [
+        "lava"
+    ]
+}
