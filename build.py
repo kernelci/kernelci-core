@@ -109,7 +109,7 @@ kconfig_frag = None
 frag_names = []
 install = False
 publish = False
-url = None
+api = None
 token = None
 job = None
 boot_cmd = None
@@ -164,7 +164,7 @@ for o, a in opts:
         config = ConfigParser.ConfigParser()
         try:
             config.read(os.path.expanduser('~/.buildpy.cfg'))
-            url = config.get(a, 'url')
+            api = config.get(a, 'api')
             token = config.get(a, 'token')
             publish = True
         except:
@@ -173,7 +173,7 @@ for o, a in opts:
         silent = not silent
     if o == '-e':
         print "Reading build variables from environment"
-        url = os.environ['API']
+        api = os.environ['API']
         token = os.environ['TOKEN']
         publish = True
         use_environment = True
@@ -503,8 +503,8 @@ if install:
                                   (name,
                                    open(os.path.join(root, file_name), 'rb'))))
                 count += 1
-        upload_url = urljoin(url, '/upload')
-        build_url = urljoin(url, '/build')
+        upload_url = urljoin(api, '/upload')
+        build_url = urljoin(api, '/build')
         publish_response = do_post_retry(url=upload_url, data=build_data, headers=headers, files=artifacts)
         print "INFO: published artifacts"
         for publish_result in json.loads(publish_response)["result"]:
