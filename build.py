@@ -46,6 +46,21 @@ build_log_f = None
 
 def usage():
     print "Usage:", sys.argv[0], "[options] [make target]"
+    
+def do_post_retry(url=None, data=None, headers=None, files=None):
+    retry = True
+    while retry:
+        try:
+            response = requests.post(url, data=data, headers=headers, files=files)
+            if str(response.status_code)[:1] != "2":
+                raise Exception(response.content)
+            else:
+                return response.content
+                retry = False
+        except Exception as e:
+            print "ERROR: failed to publish"
+            print e
+            time.sleep(10)
 
 def do_make(target=None, log=False):
     make_args = ''
@@ -67,7 +82,6 @@ def do_make(target=None, log=False):
     make_cmd = 'make %s' %make_args
     if target == "oldconfig":
         make_cmd = 'yes "" |' + make_cmd
-    
     print make_cmd
 
     make_stdout = None
@@ -99,6 +113,7 @@ url = None
 token = None
 job = None
 boot_cmd = None
+use_environment = False
 
 # temp frag file: used to collect all kconfig fragments
 kconfig_tmpfile_fd, kconfig_tmpfile = tempfile.mkstemp(prefix='kconfig-')
@@ -110,7 +125,7 @@ else:
     os.environ['ARCH'] = arch
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "b:c:ip:s")
+    opts, args = getopt.getopt(sys.argv[1:], "b:c:ip:se")
 
 except getopt.GetoptError as err:
     print str(err) # will print something like "option -a not recognized"
@@ -156,6 +171,12 @@ for o, a in opts:
             print "ERROR: unable to load configuration file"
     if o == '-s':
         silent = not silent
+    if o == '-e':
+        print "Reading build variables from environment"
+        url = os.environ['API']
+        token = os.environ['TOKEN']
+        publish = True
+        use_environment = True
 
 # Default umask for file creation
 os.umask(022)
@@ -203,18 +224,31 @@ if ccache and len(ccache):
 else:
     ccache_dir = None
 
-# Misc. env overrides
-if os.environ.has_key('GIT_DESCRIBE'):
-    git_describe = os.environ['GIT_DESCRIBE']
-
-# Gather env/info
-if os.path.exists('.git'):
-    git_commit = subprocess.check_output('git log -n1 --format=%H', shell=True).strip()
-    git_url = subprocess.check_output('git config --get remote.origin.url |cat', shell=True).strip()
-    git_branch = subprocess.check_output('git rev-parse --abbrev-ref HEAD', shell=True).strip()
-    git_describe_v = subprocess.check_output('git describe --match=v[234]\*', shell=True).strip()
-    if not git_describe:
+# Gather info from environment variables
+if use_environment:
+    if os.environ.has_key('GIT_DESCRIBE'):
+        git_describe = os.environ['GIT_DESCRIBE']
+    if os.environ.has_key('GIT_DESCRIBE_VERBOSE'):
+        git_describe_v = os.environ['GIT_DESCRIBE_VERBOSE']
+    if os.environ.has_key('BRANCH'):
+        git_branch = os.environ['BRANCH']
+    if os.environ.has_key('COMMIT_ID'):
+        git_commit = os.environ['COMMIT_ID']
+    if os.environ.has_key('TREE'):
+        git_url = os.environ['TREE']
+else:
+    # Gather info from .git
+    if os.path.exists('.git'):
+        git_commit = subprocess.check_output('git log -n1 --format=%H', shell=True).strip()
+        git_url = subprocess.check_output('git config --get remote.origin.url |cat', shell=True).strip()
+        git_branch = subprocess.check_output('git rev-parse --abbrev-ref HEAD', shell=True).strip()
+        git_describe_v = subprocess.check_output('git describe --match=v[234]\*', shell=True).strip()
         git_describe = subprocess.check_output('git describe', shell=True).strip()
+    else:
+        print "Could not gather build information from environment or .git directory"
+        exit(1)
+
+
 
 cc_cmd = "gcc -v 2>&1"
 if cross_compile:
@@ -248,7 +282,7 @@ if defconfig or frag_names:
             print cmd
             subprocess.call(cmd, shell = True)
             do_make("oldconfig", log=True)
-            
+
 elif os.path.exists(dot_config):
     print "Re-using .config:", dot_config
     defconfig = "existing"
@@ -444,11 +478,13 @@ if install:
         build_data = {}
         if "defconfig_full" in bmeta:
             defconfig = defconfig_full
-        publish_path = os.path.join(job, git_describe, arch + '-' + defconfig)
+        publish_path = os.path.join(job, git_branch, git_describe, arch, defconfig)
         headers['Authorization'] = token
-        upload_data['path'] = publish_path
+        build_data['path'] = publish_path
+        build_data['file_server_resource'] = publish_path
         build_data['job'] = job
         build_data['kernel'] = git_describe
+        build_data['git_branch'] = git_branch
         build_data['defconfig'] = defconfig
         build_data['arch'] = arch
         if "defconfig_full" in bmeta:
@@ -469,23 +505,13 @@ if install:
                 count += 1
         upload_url = urljoin(url, '/upload')
         build_url = urljoin(url, '/build')
-        retry = True
-        while retry:
-            response = requests.post(upload_url, data=upload_data, headers=headers, files=artifacts)
-            if response.status_code != 200:
-                print "ERROR: failed to publish"
-                print response.content
-                time.sleep(10)
-            else:
-                print "INFO: published artifacts"
-                for publish_result in json.loads(response.content)["result"]:
-                    print "%s/%s" % (publish_path, publish_result['filename'])
-                print "INFO: triggering build"
-                headers['Content-Type'] = 'application/json'
-                response = requests.post(
-                    build_url, data=json.dumps(build_data), headers=headers)
-                print response.status_code
-                retry = False
+        publish_response = do_post_retry(url=upload_url, data=build_data, headers=headers, files=artifacts)
+        print "INFO: published artifacts"
+        for publish_result in json.loads(publish_response)["result"]:
+            print "%s/%s" % (publish_path, publish_result['filename'])
+        print "INFO: triggering build"
+        headers['Content-Type'] = 'application/json'
+        do_post_retry(url=build_url, data=json.dumps(build_data), headers=headers)
 
 #
 # Cleanup
