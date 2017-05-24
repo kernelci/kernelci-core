@@ -224,6 +224,7 @@ def main(args):
                                                'git_branch': branch,
                                                'git_commit': build['git_commit'],
                                                'git_describe': git_describe,
+                                               'git_url': build['git_url'],
                                                'defconfig_base': defconfig_base,
                                                'initrd_url': initrd_url,
                                                'kernel_image': build['kernel_image'],
