@@ -46,7 +46,7 @@ build_log_f = None
 
 def usage():
     print "Usage:", sys.argv[0], "[options] [make target]"
-    
+
 def do_post_retry(url=None, data=None, headers=None, files=None):
     retry = True
     while retry:
@@ -290,7 +290,7 @@ else:
     print "ERROR: Missing kernel config"
     sys.exit(0)
 
-# 
+#
 # Build kernel
 #
 if len(args) >= 1:
@@ -300,7 +300,7 @@ result = do_make(build_target, log=True)
 # Build modules
 modules = None
 if result == 0:
-    modules = not subprocess.call('grep -cq CONFIG_MODULES=y %s' %dot_config, shell=True) 
+    modules = not subprocess.call('grep -cq CONFIG_MODULES=y %s' %dot_config, shell=True)
     if modules:
         result |= do_make('modules', log=True)
 
@@ -318,7 +318,7 @@ if install:
     os.environ['INSTALL_PATH'] = install_path
     if not os.path.exists(install_path):
         os.makedirs(install_path)
-    
+
     boot_dir = "%s/arch/%s/boot" %(kbuild_output, arch)
 
     text_offset = -1
@@ -408,7 +408,7 @@ if install:
         cmd = "(cd %s; %s)" % (install_path, boot_cmd)
         print "Running: %s" % cmd
         subprocess.call(cmd, shell=True)
-        
+
     bmeta['arch'] = "%s" %arch
     bmeta["cross_compile"] = "%s" %cross_compile
     bmeta["compiler_version"] = "%s" %gcc_version
@@ -432,7 +432,7 @@ if install:
         bmeta["kernel_image"] = "%s" %os.path.basename(kimage_file)
     else:
         bmeta["kernel_image"] = None
-    
+
     bmeta["kernel_config"] = "%s" %os.path.basename(dot_config_installed)
     if system_map:
         bmeta["system_map"] = "%s" %os.path.basename(system_map)
