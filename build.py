@@ -46,7 +46,7 @@ build_log_f = None
 
 def usage():
     print "Usage:", sys.argv[0], "[options] [make target]"
-    
+
 def do_post_retry(url=None, data=None, headers=None, files=None):
     retry = True
     while retry:
@@ -109,7 +109,7 @@ kconfig_frag = None
 frag_names = []
 install = False
 publish = False
-url = None
+api = None
 token = None
 job = None
 boot_cmd = None
@@ -164,7 +164,7 @@ for o, a in opts:
         config = ConfigParser.ConfigParser()
         try:
             config.read(os.path.expanduser('~/.buildpy.cfg'))
-            url = config.get(a, 'url')
+            api = config.get(a, 'api')
             token = config.get(a, 'token')
             publish = True
         except:
@@ -173,8 +173,6 @@ for o, a in opts:
         silent = not silent
     if o == '-e':
         print "Reading build variables from environment"
-        url = os.environ['API']
-        token = os.environ['TOKEN']
         publish = True
         use_environment = True
 
@@ -224,31 +222,22 @@ if ccache and len(ccache):
 else:
     ccache_dir = None
 
-# Gather info from environment variables
+if os.path.exists('.git'):
+    git_commit = subprocess.check_output('git log -n1 --format=%H', shell=True).strip()
+    git_url = subprocess.check_output('git config --get remote.origin.url |cat', shell=True).strip()
+    git_branch = subprocess.check_output('git rev-parse --abbrev-ref HEAD', shell=True).strip()
+    git_describe = subprocess.check_output('git describe', shell=True).strip()
+    git_describe_v = subprocess.check_output('git describe --match=v[234]\*', shell=True).strip()
+
+# Override info using environment variables
 if use_environment:
-    if os.environ.has_key('GIT_DESCRIBE'):
-        git_describe = os.environ['GIT_DESCRIBE']
-    if os.environ.has_key('GIT_DESCRIBE_VERBOSE'):
-        git_describe_v = os.environ['GIT_DESCRIBE_VERBOSE']
-    if os.environ.has_key('BRANCH'):
-        git_branch = os.environ['BRANCH']
-    if os.environ.has_key('COMMIT_ID'):
-        git_commit = os.environ['COMMIT_ID']
-    if os.environ.has_key('TREE'):
-        git_url = os.environ['TREE']
-else:
-    # Gather info from .git
-    if os.path.exists('.git'):
-        git_commit = subprocess.check_output('git log -n1 --format=%H', shell=True).strip()
-        git_url = subprocess.check_output('git config --get remote.origin.url |cat', shell=True).strip()
-        git_branch = subprocess.check_output('git rev-parse --abbrev-ref HEAD', shell=True).strip()
-        git_describe_v = subprocess.check_output('git describe --match=v[234]\*', shell=True).strip()
-        git_describe = subprocess.check_output('git describe', shell=True).strip()
-    else:
-        print "Could not gather build information from environment or .git directory"
-        exit(1)
-
-
+    api = os.environ.get('API', api)
+    token = os.environ.get('TOKEN', token)
+    git_commit = os.environ.get('GIT_COMMIT_ID', git_commit)
+    git_url = os.environ.get('GIT_TREE', git_url)
+    git_branch = os.environ.get('GIT_BRANCH', git_branch)
+    git_describe = os.environ.get('GIT_DESCRIBE', git_describe)
+    git_describe_v = os.environ.get('GIT_DESCRIBE_VERBOSE', git_describe_v)
 
 cc_cmd = "gcc -v 2>&1"
 if cross_compile:
@@ -290,7 +279,7 @@ else:
     print "ERROR: Missing kernel config"
     sys.exit(0)
 
-# 
+#
 # Build kernel
 #
 if len(args) >= 1:
@@ -300,7 +289,7 @@ result = do_make(build_target, log=True)
 # Build modules
 modules = None
 if result == 0:
-    modules = not subprocess.call('grep -cq CONFIG_MODULES=y %s' %dot_config, shell=True) 
+    modules = not subprocess.call('grep -cq CONFIG_MODULES=y %s' %dot_config, shell=True)
     if modules:
         result |= do_make('modules', log=True)
 
@@ -318,7 +307,7 @@ if install:
     os.environ['INSTALL_PATH'] = install_path
     if not os.path.exists(install_path):
         os.makedirs(install_path)
-    
+
     boot_dir = "%s/arch/%s/boot" %(kbuild_output, arch)
 
     text_offset = -1
@@ -408,7 +397,7 @@ if install:
         cmd = "(cd %s; %s)" % (install_path, boot_cmd)
         print "Running: %s" % cmd
         subprocess.call(cmd, shell=True)
-        
+
     bmeta['arch'] = "%s" %arch
     bmeta["cross_compile"] = "%s" %cross_compile
     bmeta["compiler_version"] = "%s" %gcc_version
@@ -432,7 +421,7 @@ if install:
         bmeta["kernel_image"] = "%s" %os.path.basename(kimage_file)
     else:
         bmeta["kernel_image"] = None
-    
+
     bmeta["kernel_config"] = "%s" %os.path.basename(dot_config_installed)
     if system_map:
         bmeta["system_map"] = "%s" %os.path.basename(system_map)
@@ -503,8 +492,8 @@ if install:
                                   (name,
                                    open(os.path.join(root, file_name), 'rb'))))
                 count += 1
-        upload_url = urljoin(url, '/upload')
-        build_url = urljoin(url, '/build')
+        upload_url = urljoin(api, '/upload')
+        build_url = urljoin(api, '/build')
         publish_response = do_post_retry(url=upload_url, data=build_data, headers=headers, files=artifacts)
         print "INFO: published artifacts"
         for publish_result in json.loads(publish_response)["result"]:
