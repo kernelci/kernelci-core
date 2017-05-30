@@ -393,7 +393,7 @@ if install:
     else:
         bmeta['build_result'] = "FAIL"
 
-    if boot_cmd:
+    if result == 0 and boot_cmd:
         cmd = "(cd %s; %s)" % (install_path, boot_cmd)
         print "Running: %s" % cmd
         subprocess.call(cmd, shell=True)
