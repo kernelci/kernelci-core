@@ -83,11 +83,7 @@ def main(args):
     url = urlparse.urljoin(api, 'build?{}'.format(url_params))
     print "Calling KernelCI API: %s" % url
     response = requests.get(url, headers=headers)
-    if response.status_code != 200:
-        print "Error calling KernelCI API"
-        print response
-        print response.content
-        sys.exit(1)
+    response.raise_for_status()
     data = json.loads(response.content)
     builds = data['result']
     print("Number of builds: {}".format(len(builds)))
