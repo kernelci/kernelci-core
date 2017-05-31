@@ -41,17 +41,10 @@ from jinja2 import Environment, FileSystemLoader
 
 LEGACY_X86_PLATFORMS = ['x86', 'x86-kvm']
 LEGACY_ARM64_PLATFORMS = ['qemu-aarch64-legacy']
-INITRD_URLS = {'arm64': 'http://storage.kernelci.org/images/rootfs/buildroot/arm64/rootfs.cpio.gz',
-               'arm64be': 'http://storage.kernelci.org/images/rootfs/buildroot/arm64be/rootfs.cpio.gz',
-               'armeb': 'http://storage.kernelci.org/images/rootfs/buildroot/armeb/rootfs.cpio.gz',
-               'armel': 'http://storage.kernelci.org/images/rootfs/buildroot/armel/rootfs.cpio.gz',
-               'x86': 'http://storage.kernelci.org/images/rootfs/buildroot/x86/rootfs.cpio.gz'}
-NFSROOTFS_URLS = {'arm64': 'http://storage.kernelci.org/images/rootfs/buildroot/arm64/rootfs.tar.xz',
-               'arm64be': 'http://storage.kernelci.org/images/rootfs/buildroot/arm64be/rootfs.tar.xz',
-               'armeb': 'http://storage.kernelci.org/images/rootfs/buildroot/armeb/rootfs.tar.xz',
-               'armel': 'http://storage.kernelci.org/images/rootfs/buildroot/armel/rootfs.tar.xz',
-               'x86': 'http://storage.kernelci.org/images/rootfs/buildroot/x86/rootfs.tar.xz'}
-
+ARCHS = ['arm64', 'arm64be', 'armeb', 'armel', 'x86']
+ROOTFS_URL = 'http://storage.kernelci.org/images/rootfs'
+INITRD_URL = '/'.join([ROOTFS_URL, 'buildroot/{}/rootfs.cpio.gz'])
+NFSROOTFS_URL = '/'.join([ROOTFS_URL, 'buildroot/{}/rootfs.tar.xz'])
 
 def main(args):
     config = configuration.get_config(args)
@@ -178,7 +171,7 @@ def main(args):
                                         if 'BIG_ENDIAN' in defconfig and plan == 'boot-be':
                                             endian = 'big'
                                         initrd_arch = arch
-                                        if arch not in INITRD_URLS.keys():
+                                        if arch not in ARCHS:
                                             if arch == 'arm64' and endian == 'big':
                                                 initrd_arch = 'arm64be'
                                             if arch == 'arm':
@@ -186,11 +179,8 @@ def main(args):
                                                     initrd_arch = 'armeb'
                                                 else:
                                                     initrd_arch = 'armel'
-                                        initrd_url = INITRD_URLS[initrd_arch]
-                                        if 'nfs' in plan:
-                                            nfsrootfs_url = NFSROOTFS_URLS[initrd_arch]
-                                        else:
-                                            nfsrootfs_url = None
+                                        initrd_url = INITRD_URL.format(initrd_arch)
+                                        nfsrootfs_url = NFSROOTFS_URL.format(initrd_arch) if 'nfs' in plan else None
                                         if build['modules']:
                                             modules_url = urlparse.urljoin(base_url, build['modules'])
                                         else:
