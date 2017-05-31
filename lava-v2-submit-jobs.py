@@ -49,7 +49,7 @@ def submit_jobs(connection):
         try:
             with open(job, 'rb') as stream:
                 job_data = stream.read()
-            job_info = yaml.load(job_data)
+            job_info = yaml.safe_load(job_data)
             # Check if request device(s) are available
             if 'device_type' in job_info:
                 for device_type in all_device_types:
