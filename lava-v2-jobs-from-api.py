@@ -36,6 +36,7 @@ from lib.device_map import device_map
 from lib.utils import write_file
 import requests
 import urlparse
+import urllib
 from jinja2 import Environment, FileSystemLoader
 
 
@@ -72,7 +73,14 @@ def main(args):
     }
 
     print "Working on kernel %s/%s" % (tree, branch)
-    url = urlparse.urljoin(api, ("/build?job=%s&kernel=%s&git_branch=%s&status=PASS&arch=%s" % (tree, git_describe, branch, arch)))
+    url_params = urllib.urlencode({
+        'job': tree,
+        'kernel': git_describe,
+        'git_branch': branch,
+        'status': 'PASS',
+        'arch': arch,
+    })
+    url = urlparse.urljoin(api, 'build?{}'.format(url_params))
     print "Calling KernelCI API: %s" % url
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
