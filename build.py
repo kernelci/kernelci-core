@@ -413,7 +413,7 @@ if install:
         os.environ['INSTALL_MOD_PATH'] = tmp_mod_dir
         os.environ['INSTALL_MOD_STRIP'] = "1"
         os.environ['STRIP'] = "%sstrip" %cross_compile
-        do_make('modules_install')
+        do_make('modules_install', log=(not silent))
         modules_tarball = "modules.tar.xz"
         cmd = "(cd %s; tar -Jcf %s lib/modules)" %(tmp_mod_dir, modules_tarball)
         subprocess.call(cmd, shell=True)
@@ -528,9 +528,10 @@ if install:
         upload_url = urljoin(api, '/upload')
         build_url = urljoin(api, '/build')
         publish_response = do_post_retry(url=upload_url, data=build_data, headers=headers, files=artifacts)
-        print "INFO: published artifacts"
-        for publish_result in json.loads(publish_response)["result"]:
-            print "%s/%s" % (publish_path, publish_result['filename'])
+        if not silent:
+            print "INFO: published artifacts"
+            for publish_result in json.loads(publish_response)["result"]:
+                print "%s/%s" % (publish_path, publish_result['filename'])
         print "INFO: triggering build"
         headers['Content-Type'] = 'application/json'
         do_post_retry(url=build_url, data=json.dumps(build_data), headers=headers)
