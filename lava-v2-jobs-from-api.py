@@ -25,6 +25,11 @@ INITRD_URLS = {'arm64': 'http://storage.kernelci.org/images/rootfs/buildroot/arm
                'armeb': 'http://storage.kernelci.org/images/rootfs/buildroot/armeb/rootfs.cpio.gz',
                'armel': 'http://storage.kernelci.org/images/rootfs/buildroot/armel/rootfs.cpio.gz',
                'x86': 'http://storage.kernelci.org/images/rootfs/buildroot/x86/rootfs.cpio.gz'}
+NFSROOTFS_URLS = {'arm64': 'http://storage.kernelci.org/images/rootfs/buildroot/arm64/rootfs.tar.xz',
+               'arm64be': 'http://storage.kernelci.org/images/rootfs/buildroot/arm64be/rootfs.tar.xz',
+               'armeb': 'http://storage.kernelci.org/images/rootfs/buildroot/armeb/rootfs.tar.xz',
+               'armel': 'http://storage.kernelci.org/images/rootfs/buildroot/armel/rootfs.tar.xz',
+               'x86': 'http://storage.kernelci.org/images/rootfs/buildroot/x86/rootfs.tar.xz'}
 
 
 def main(args):
@@ -65,7 +70,7 @@ def main(args):
     for build in builds:
         defconfig = build['defconfig_full']
         arch_defconfig = ("%s-%s" % (arch, defconfig))
-        print "Working on build %s" % arch_defconfig
+        print "Working on build %s %s %s %s %s" % (tree, branch, git_describe, arch, defconfig)
         test_suite = None
         test_set = None
         test_desc = None
@@ -89,7 +94,7 @@ def main(args):
                 # handle devices without a DTB, hacky :/
                 if build['kernel_image'] == 'bzImage' and arch == 'x86':
                     build['dtb_dir_data'].extend(LEGACY_X86_PLATFORMS)
-                if arch == 'arm64' and 'arm64-defconfig' in arch_defconfig:
+                if arch == 'arm64' and 'defconfig' in defconfig:
                     build['dtb_dir_data'].extend(LEGACY_ARM64_PLATFORMS)
                 for dtb in build['dtb_dir_data']:
                     # hack for arm64 dtbs in subfolders
@@ -105,7 +110,7 @@ def main(args):
                             fastboot = str(device['fastboot']).lower()
                             blacklist = False
                             nfs_blacklist = False
-                            if arch_defconfig in device['defconfig_blacklist']:
+                            if defconfig in device['defconfig_blacklist']:
                                 print "defconfig %s is blacklisted for device %s" % (defconfig, device['device_type'])
                                 continue
                             elif "BIG_ENDIAN" in defconfig and plan != 'boot-be':
@@ -138,7 +143,10 @@ def main(args):
                                     if os.path.exists(template_file) and template_file.endswith('.jinja2'):
                                         job_name = tree + '-' + branch + '-' + git_describe + '-' + arch + '-' + defconfig[:100] + '-' + dtb + '-' + device_type + '-' + plan
                                         base_url = "%s/%s/%s/%s/%s/%s/" % (storage, build['job'], build['git_branch'], build['kernel'], arch, defconfig)
-                                        dtb_url = base_url + "dtbs/" + dtb_full
+                                        if dtb_full.endswith('.dtb'):
+                                            dtb_url = base_url + "dtbs/" + dtb_full
+                                        else:
+                                            dtb_url = None
                                         kernel_url = urlparse.urljoin(base_url, build['kernel_image'])
                                         defconfig_base = ''.join(defconfig.split('+')[:1])
                                         endian = 'little'
@@ -154,6 +162,10 @@ def main(args):
                                                 else:
                                                     initrd_arch = 'armel'
                                         initrd_url = INITRD_URLS[initrd_arch]
+                                        if 'nfs' in plan:
+                                            nfsrootfs_url = NFSROOTFS_URLS[initrd_arch]
+                                        else:
+                                            nfsrootfs_url = None
                                         if build['modules']:
                                             modules_url = urlparse.urljoin(base_url, build['modules'])
                                         else:
@@ -165,7 +177,7 @@ def main(args):
                                                'priority': args.get('priority'), 'device': device, 'template_file': template_file, 'base_url': base_url, 'endian': endian,
                                                'test_suite': test_suite, 'test_set': test_set, 'test_desc': test_desc, 'test_type': test_type, 'short_template_file': short_template_file,
                                                'arch': arch, 'arch_defconfig': arch_defconfig, 'git_branch': branch, 'git_commit': build['git_commit'], 'git_describe': git_describe,
-                                               'defconfig_base': defconfig_base, 'initrd_url': initrd_url, 'kernel_image': build['kernel_image'], 'dtb_short': dtb}
+                                               'defconfig_base': defconfig_base, 'initrd_url': initrd_url, 'kernel_image': build['kernel_image'], 'dtb_short': dtb, 'nfsrootfs_url': nfsrootfs_url}
                                         jobs.append(job)
             else:
                 print "no kernel_image for %s" % build['defconfig_full']

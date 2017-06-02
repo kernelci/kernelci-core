@@ -1,4 +1,4 @@
-{% extends 'base/kernel-ci-base-grub.jinja2' %}
+{% extends 'base/kernel-ci-base-tftp-deploy.jinja2' %}
 {% block metadata %}
 {{ super() }}
 {% endblock %}
@@ -11,7 +11,7 @@
 {%- endblock %}
 
   - boot:
-     method: grub
+     method: ipxe
      commands: ramdisk
      prompts:
        - 'linaro-test'

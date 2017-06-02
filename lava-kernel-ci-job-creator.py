@@ -36,6 +36,7 @@ def create_jobs(base_url, kernel, plans, platform_list, targets, priority):
     kernel_version = build_info[3]
     arch = build_info[4]
     defconfig = build_info[5]
+    arch_defconfig = ("%s-%s" % (arch, defconfig))
     has_modules = True
     checked_modules = False
 
@@ -84,7 +85,7 @@ def create_jobs(base_url, kernel, plans, platform_list, targets, priority):
                     print '%s has been blacklisted. Skipping JSON creation' % kernel_version
                 elif targets is not None and device_type not in targets:
                     print '%s device type has been omitted. Skipping JSON creation.' % device_type
-                elif not any([x for x in defconfigs if x == defconfig]) and plan != 'boot':
+                elif not any([x for x in defconfigs if x == arch_defconfig]) and plan != 'boot':
                     print '%s has been omitted from the %s test plan. Skipping JSON creation.' % (defconfig, plan)
                 else:
                     for template in device_templates:

@@ -1,4 +1,4 @@
-{% extends 'base/kernel-ci-base-uboot.jinja2' %}
+{% extends 'base/kernel-ci-base-tftp-deploy.jinja2' %}
 {% block metadata %}
 {{ super() }}
 {% endblock %}
@@ -11,9 +11,8 @@
 {%- endblock %}
 
   - boot:
-     method: u-boot
+     method: grub
      commands: ramdisk
-     type: zimage
      prompts:
        - 'linaro-test'
        - 'root@debian:~#'
