@@ -74,7 +74,7 @@ fi
 
 echo "Looking for new commits in ${tree_url} (${tree_name}/${branch})"
 
-LAST_COMMIT=`wget -q -o- ${STORAGE_URL}/${tree_name}/${branch}/last.commit`
+LAST_COMMIT=`wget -q -O- ${STORAGE_URL}/${tree_name}/${branch}/last.commit`
 
 COMMIT_ID=`git ls-remote ${tree_url} refs/heads/${branch} | awk '{printf($1)}'`
 if [ -z $COMMIT_ID ]
