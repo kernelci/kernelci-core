@@ -2,8 +2,15 @@
 
 set -x
 
-STORAGE_URL=https://staging-storage.kernelci.org
-API_URL=https://staging-api.kernelci.org
+if [ -z $STORAGE_URL ]; then
+  echo "STORAGE_URL not set, exiting"
+  exit 1
+fi
+
+if [ -z $API_URL ]; then
+  echo "API_URL not set, exiting"
+  exit 1
+fi
 
 declare -A trees
 trees=(
