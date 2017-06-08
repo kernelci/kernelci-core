@@ -67,8 +67,7 @@ fi
 
 echo "Looking for new commits in ${tree_url} (${tree_name}/${branch})"
 
-THIS_COMMIT=${tree_name}-${branch}-this.commit
-LAST_COMMIT=${tree_name}-${branch}-last.commit
+LAST_COMMIT=`wget -q -o- ${STORAGE_URL}/${tree_name}/${branch}/last.commit`
 
 COMMIT_ID=`git ls-remote ${tree_url} refs/heads/${branch} | awk '{printf($1)}'`
 if [ -z $COMMIT_ID ]
@@ -77,18 +76,11 @@ then
   exit 0
 fi
 
-echo $COMMIT_ID > $THIS_COMMIT
-
-if [ ! -e $LAST_COMMIT ]; then
-  echo -n 0 > $LAST_COMMIT
-fi
-
-diff -w $LAST_COMMIT $THIS_COMMIT
-if [ $? == 0 ]; then
+if [ "x$COMMIT_ID" -eq "x$LAST_COMMIT" ]
+then
   echo "Nothing new in $tree_name/$branch.  Skipping"
   exit 0
 fi
-
 
 echo "There was a new commit, time to fetch the tree"
 
@@ -109,7 +101,6 @@ fi
 
 timeout --preserve-status -k 10s 5m git fetch origin ${REFSPEC}
 
-rm -f *.properties
 git remote update
 git checkout -f origin/$branch
 if [ $? != 0 ]; then
@@ -132,8 +123,7 @@ if [ -z $GIT_DESCRIBE ]; then
   exit 1
 fi
 
-cd ${WORKSPACE}
-rm -f *.properties
+rm -f ${WORKSPACE}/*.properties
 
 tar -czf linux-src.tar.gz --exclude=.git -C ${tree_name} .
 if [ $? != 0 ]; then
@@ -141,23 +131,24 @@ if [ $? != 0 ]; then
   exit 1
 fi
 
-./push-source.py --tree ${tree_name} --branch ${branch} --describe ${GIT_DESCRIBE} --api ${API_URL} --token ${API_TOKEN} --file linux-src.tar.gz
+./kernelci-build/push-source.py --tree ${tree_name} --branch ${branch} --describe ${GIT_DESCRIBE} --api ${API_URL} --token ${API_TOKEN} --file linux-src.tar.gz
 if [ $? != 0 ]; then
-  echo "Error pushing source file to API, not updating current commit"
+  echo "Error pushing source file to API"
   rm linux-src.tar.gz
-  rm ${THIS_COMMIT}
-  exit 1
-fi
-./push-source.py --tree ${tree_name} --branch ${branch} --describe ${GIT_DESCRIBE} --api ${API_URL} --token ${API_TOKEN} --file ${THIS_COMMIT}
-if [ $? != 0 ]; then
-  echo "Error pushing last commit update to API, not updating current commit"
-  rm linux-src.tar.gz
-  rm ${THIS_COMMIT}
   exit 1
 fi
 
+echo $COMMIT_ID > last.commit
+./kernelci-build/push-source.py --tree ${tree_name} --branch ${branch} --api ${API_URL} --token ${API_TOKEN} --file last.commit
+if [ $? != 0 ]; then
+  echo "Error pushing last commit update to API, not updating current commit"
+  rm linux-src.tar.gz
+  rm last.commit
+  exit 1
+fi
+
+rm last.commit
 rm linux-src.tar.gz
-cp $THIS_COMMIT $LAST_COMMIT
 
 
 cat << EOF > ${WORKSPACE}/${TREE_BRANCH}-build.properties
