@@ -123,6 +123,7 @@ if [ -z $GIT_DESCRIBE ]; then
   exit 1
 fi
 
+cd ${WORKSPACE}
 rm -f ${WORKSPACE}/*.properties
 
 tar -czf linux-src.tar.gz --exclude=.git -C ${tree_name} .
