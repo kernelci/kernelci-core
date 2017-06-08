@@ -76,7 +76,7 @@ then
   exit 0
 fi
 
-if [ "x$COMMIT_ID" -eq "x$LAST_COMMIT" ]
+if [ "x$COMMIT_ID" == "x$LAST_COMMIT" ]
 then
   echo "Nothing new in $tree_name/$branch.  Skipping"
   exit 0
