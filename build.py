@@ -527,6 +527,7 @@ if install:
                 count += 1
         upload_url = urljoin(api, '/upload')
         build_url = urljoin(api, '/build')
+        print("Uploading build to storage...")
         publish_response = do_post_retry(url=upload_url, data=build_data, headers=headers, files=artifacts)
         if not silent:
             print "INFO: published artifacts"
@@ -534,6 +535,7 @@ if install:
                 print "%s/%s" % (publish_path, publish_result['filename'])
         print "INFO: triggering build"
         headers['Content-Type'] = 'application/json'
+        print("Posting build data...")
         do_post_retry(url=build_url, data=json.dumps(build_data), headers=headers)
 
 #
