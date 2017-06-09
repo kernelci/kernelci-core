@@ -39,7 +39,6 @@ from jinja2 import Environment, FileSystemLoader
 
 
 LEGACY_X86_PLATFORMS = ['x86', 'x86-kvm']
-LEGACY_ARM64_PLATFORMS = ['qemu-aarch64-legacy']
 ARCHS = ['arm64', 'arm64be', 'armeb', 'armel', 'x86']
 ROOTFS_URL = 'http://storage.kernelci.org/images/rootfs'
 INITRD_URL = '/'.join([ROOTFS_URL, 'buildroot/{}/rootfs.cpio.gz'])
@@ -114,8 +113,8 @@ def main(args):
                 # handle devices without a DTB, hacky :/
                 if build['kernel_image'] == 'bzImage' and arch == 'x86':
                     build['dtb_dir_data'].extend(LEGACY_X86_PLATFORMS)
-                if arch == 'arm64' and 'defconfig' in defconfig:
-                    build['dtb_dir_data'].extend(LEGACY_ARM64_PLATFORMS)
+                if arch in ['arm', 'arm64', 'x86'] and 'defconfig' in defconfig:
+                    build['dtb_dir_data'].append('qemu')
                 for dtb in build['dtb_dir_data']:
                     # hack for arm64 dtbs in subfolders
                     dtb_full = dtb
