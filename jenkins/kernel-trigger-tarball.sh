@@ -2,6 +2,8 @@
 
 set -x
 
+rm -f ${WORKSPACE}/*.properties
+
 if [ -z $STORAGE_URL ]; then
   echo "STORAGE_URL not set, exiting"
   exit 1
@@ -131,7 +133,6 @@ if [ -z $GIT_DESCRIBE ]; then
 fi
 
 cd ${WORKSPACE}
-rm -f ${WORKSPACE}/*.properties
 
 tar -czf linux-src.tar.gz --exclude=.git -C ${tree_name} .
 if [ $? != 0 ]; then
