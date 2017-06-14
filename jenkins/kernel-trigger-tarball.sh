@@ -60,6 +60,7 @@ trees=(
     [arnd]="http://git.kernel.org/pub/scm/linux/kernel/git/arnd/playground.git"
     [cip]="https://git.kernel.org/pub/scm/linux/kernel/git/bwh/linux-cip.git"
     [mattface]="https://github.com/mattface/linux.git"
+    [gtucker]="https://git.collabora.com/git/user/gtucker/linux.git"
 )
 
 OFS=${IFS}
