@@ -28,7 +28,7 @@ def do_post_retry(url=None, data=None, headers=None, files=None):
 parser = argparse.ArgumentParser()
 parser.add_argument("--token", help="KernelCI API Token")
 parser.add_argument("--tree", help="Kernel tree")
-parser.add_argument("--describe", help="Kernel describe")
+parser.add_argument("--describe", help="Kernel describe", default='')
 parser.add_argument("--branch", help="Kernel branch")
 parser.add_argument("--file", help="File to upload")
 parser.add_argument("--api", help="KernelCI API URL", default="https://api.kernelci.org")
@@ -39,7 +39,7 @@ headers = {}
 build_data = {}
 headers['Authorization'] = args.get('token')
 build_data['job'] = args.get('tree')
-build_data['kernel'] = args.get('describe')
+build_data['kernel'] = args.get('describe', '')
 build_data['git_branch'] = args.get('branch')
 publish_path = os.path.join(build_data['job'], build_data['git_branch'], build_data['kernel'])
 build_data['path'] = publish_path
