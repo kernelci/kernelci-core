@@ -28,6 +28,18 @@ metadata:
 {% block main %}
 device_type: {{ device['device_type'] }}
 
+{% if callback %}
+notify:
+  criteria:
+    status: finished
+  callback:
+    url: {{ api }}/callback/lava?lab_name={{ lab_name }}&status={STATUS}&status_string={STATUS_STRING}
+    method: POST
+    dataset: all
+    token: kernel-ci-callback
+    content-type: json
+{% endif %}
+
 job_name: {{ name }}
 timeouts:
   job:

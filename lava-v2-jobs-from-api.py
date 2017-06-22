@@ -36,10 +36,16 @@ def main(args):
     config = configuration.get_config(args)
     plans = config.get("plans")
     targets = config.get("targets")
-    if config.get("jobs"):
-        job_dir = setup_job_dir(config.get("jobs"))
-    else:
-        job_dir = setup_job_dir(os.getcwd() + '/jobs')
+    lab_name = config.get('lab')
+    job_dir = setup_job_dir(config.get('jobs') or lab_name)
+    token = config.get('token')
+    api = config.get('api')
+    storage = config.get('storage')
+
+    if not token:
+        raise Exception("No token provided")
+    if not api:
+        raise Exception("No KernelCI API URL provided")
 
     arch = args.get('arch')
     plans = args.get('plans')
@@ -47,10 +53,8 @@ def main(args):
     git_describe = args.get('describe')
     tree = args.get('tree')
     kernel = tree
-    storage = args.get('storage')
-    api = args.get('api')
     headers = {
-        "Authorization": config.get('token')
+        "Authorization": token,
     }
 
     print "Working on kernel %s/%s" % (tree, branch)
@@ -64,7 +68,7 @@ def main(args):
         sys.exit(1)
     data = json.loads(response.content)
     builds = data['result']
-    print len(builds)
+    print("Number of builds: {}".format(len(builds)))
     jobs = []
     cwd = os.getcwd()
     for build in builds:
@@ -177,7 +181,8 @@ def main(args):
                                                'priority': args.get('priority'), 'device': device, 'template_file': template_file, 'base_url': base_url, 'endian': endian,
                                                'test_suite': test_suite, 'test_set': test_set, 'test_desc': test_desc, 'test_type': test_type, 'short_template_file': short_template_file,
                                                'arch': arch, 'arch_defconfig': arch_defconfig, 'git_branch': branch, 'git_commit': build['git_commit'], 'git_describe': git_describe,
-                                               'defconfig_base': defconfig_base, 'initrd_url': initrd_url, 'kernel_image': build['kernel_image'], 'dtb_short': dtb, 'nfsrootfs_url': nfsrootfs_url}
+                                               'defconfig_base': defconfig_base, 'initrd_url': initrd_url, 'kernel_image': build['kernel_image'], 'dtb_short': dtb, 'nfsrootfs_url': nfsrootfs_url,
+                                               'callback': args.get('callback'), 'api': api, 'lab_name': lab_name}
                                         jobs.append(job)
             else:
                 print "no kernel_image for %s" % build['defconfig_full']
@@ -198,19 +203,21 @@ def jinja_render(job):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--token", help="KernelCI API Token")
-    parser.add_argument("--api", help="KernelCI API URL", default="https://api.kernelci.org")
-    parser.add_argument("--storage", help="KernelCI storage URL", default="https://storage.kernelci.org")
+    parser.add_argument("--api", help="KernelCI API URL")
+    parser.add_argument("--storage", help="KernelCI storage URL")
+    parser.add_argument("--lab", help="KernelCI Lab Name", required=True)
     parser.add_argument("--jobs", help="absolute path to top jobs folder")
-    parser.add_argument("--tree", help="KernelCI build kernel tree")
-    parser.add_argument("--branch", help="KernelCI build kernel branch")
-    parser.add_argument("--describe", help="KernelCI build kernel git describe")
-    parser.add_argument("--config", help="configuration for the LAVA server")
-    parser.add_argument("--section", default="default", help="section in the LAVA config file")
+    parser.add_argument("--tree", help="KernelCI build kernel tree", required=True)
+    parser.add_argument("--branch", help="KernelCI build kernel branch", required=True)
+    parser.add_argument("--describe", help="KernelCI build kernel git describe", required=True)
+    parser.add_argument("--config", help="path to KernelCI configuration file")
+    parser.add_argument("--section", default="default", help="section in the KernelCI config file")
     parser.add_argument("--plans", nargs='+', required=True, help="test plan to create jobs for")
-    parser.add_argument("--arch", help="specific architecture to create jobs for")
+    parser.add_argument("--arch", help="specific architecture to create jobs for", required=True)
     parser.add_argument("--targets", nargs='+', help="specific targets to create jobs for")
     parser.add_argument("--priority", choices=['high', 'medium', 'low', 'HIGH', 'MEDIUM', 'LOW'],
                         help="priority for LAVA jobs", default='high')
+    parser.add_argument("--callback", help="Add a callback notification to the Job YAML", action="store_true")
     args = vars(parser.parse_args())
     if args:
         main(args)

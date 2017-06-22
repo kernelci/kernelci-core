@@ -13,10 +13,9 @@ import httplib
 
 from lib import utils
 from lib import configuration
+
 DEVICE_ONLINE_STATUS = ['idle', 'running', 'reserved']
-
-job_map = {}
-
+JOBS = {}
 
 def submit_jobs(connection):
     print "Fetching all devices from LAVA"
@@ -25,7 +24,7 @@ def submit_jobs(connection):
     all_device_types = connection.scheduler.all_device_types()
 
     print "Submitting Jobs to Server..."
-    for job in job_map:
+    for job in JOBS:
         try:
             with open(job, 'rb') as stream:
                 job_data = stream.read()
@@ -52,11 +51,10 @@ def submit_jobs(connection):
             print e
             continue
 
-
 def load_jobs(top):
     for root, dirnames, filenames in os.walk(top):
         for filename in fnmatch.filter(filenames, '*.yaml'):
-            job_map[os.path.join(root, filename)] = None
+            JOBS[os.path.join(root, filename)] = None
 
 def device_type_has_available(device_type, all_devices):
     for device in all_devices:
@@ -75,14 +73,14 @@ def main(args):
     if config.get("repo"):
         retrieve_jobs(config.get("repo"))
 
-    if config.get("jobs"):
-        load_jobs(config.get("jobs"))
-        print "Loading jobs from top folder " + str(config.get("jobs"))
-    else:
-        load_jobs(os.getcwd())
+    jobs = config.get("jobs")
+    print("Loading jobs from {}".format(jobs))
+    load_jobs(jobs)
 
-    if job_map:
-        url = utils.validate_input(config.get("username"), config.get("token"), config.get("server"))
+    if JOBS:
+        start_time = time.time()
+        url = utils.validate_input(config.get("username"), config.get("token"),
+                                   config.get("server"))
         connection = utils.connect(url)
         submit_jobs(connection)
     exit(0)
@@ -90,11 +88,13 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", help="configuration for the LAVA server")
-    parser.add_argument("--jobs", help="absolute path to top jobs folder (default scans the whole cwd)")
+    parser.add_argument("--section", default="default",
+                        help="section in the LAVA config file")
+    parser.add_argument("--jobs", required=True,
+                        help="path to jobs directory (default is cwd)")
     parser.add_argument("--username", help="username for the LAVA server")
     parser.add_argument("--token", help="token for LAVA server api")
     parser.add_argument("--server", help="server url for LAVA server")
     parser.add_argument("--repo", help="git repo for LAVA jobs")
-    parser.add_argument("--timeout", type=int, default=-1, help="polling timeout in seconds. default is -1.")
     args = vars(parser.parse_args())
     main(args)
