@@ -1,4 +1,39 @@
 #!/usr/bin/python
+#
+# Copyright (C) 2014, 2015, 2016, 2017 Linaro Limited
+# Author: Anders Roxell <anders.roxell@linaro.org>
+# Author: Matt Hart <matthew.hart@linaro.org>
+# Author: Tyler Baker <tyler.baker@linaro.org>
+#
+# Copyright (C) 2015 Baylibre SAS
+# Author: Kevin Hilman <khilman@baylibre.com>
+# Author: Marc Titinger <mtitinger@baylibre.com>
+#
+# Copyright (C) 2016, 2017 Free Electrons
+# Author: Florent Jacquet <florent.jacquet@free-electrons.com>
+# Author: Quentin Schulz <quentin.schulz@free-electrons.com>
+#
+# Copyright (C) 2016, 2017 Pengutronix
+# Author: Jan Luebbe <jlu@pengutronix.de>
+# Author: Michael Grzeschik <m.grzeschik@pengutronix.de>
+#
+# Copyright (C) 2016 Collabora Limited
+# Author: Sjoerd Simons <sjoerd.simons@collabora.co.uk>
+#
+# This module is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+
 # <variable> = required
 # Usage ./lava-report.py <option> [json]
 import os

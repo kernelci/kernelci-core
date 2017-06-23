@@ -1,3 +1,36 @@
+# Copyright (C) 2016, 2017 Linaro Limited
+# Author: Matt Hart <matthew.hart@linaro.org>
+# Author: Tyler Baker <tyler.baker@linaro.org>
+#
+# Copyright (C) 2016, 2017 Baylibre SAS
+# Author: Jerome Brunet <jbrunet@baylibre.com>
+# Author: Kevin Hilman <khilman@baylibre.com>
+#
+# Copyright (C) 2016, 2017 Free Electrons
+# Author: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+# Author: Florent Jacquet <florent.jacquet@free-electrons.com>
+# Author: Quentin Schulz <quentin.schulz@free-electrons.com>
+#
+# Copyright (C) 2016, 2017 Pengutronix
+# Author: Michael Grzeschik <m.grzeschik@pengutronix.de>
+#
+# Copyright (C) 2017 Collabora Limited
+# Author: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+#
+# This module is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+
 alpine_db = {'device_type': 'alpine-db',
                       'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
                       'kernel_defconfig_blacklist': [],
