@@ -36,7 +36,7 @@ notify:
     url: {{ api }}/callback/lava?lab_name={{ lab_name }}&status={STATUS}&status_string={STATUS_STRING}
     method: POST
     dataset: all
-    token: kernel-ci-callback
+    token: {{ callback }}
     content-type: json
 {% endif %}
 

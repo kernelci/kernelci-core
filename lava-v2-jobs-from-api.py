@@ -217,7 +217,7 @@ if __name__ == '__main__':
     parser.add_argument("--targets", nargs='+', help="specific targets to create jobs for")
     parser.add_argument("--priority", choices=['high', 'medium', 'low', 'HIGH', 'MEDIUM', 'LOW'],
                         help="priority for LAVA jobs", default='high')
-    parser.add_argument("--callback", help="Add a callback notification to the Job YAML", action="store_true")
+    parser.add_argument("--callback", help="Add a callback notification to the Job YAML")
     args = vars(parser.parse_args())
     if args:
         main(args)
