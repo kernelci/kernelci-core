@@ -43,8 +43,7 @@ import shutil
 import argparse
 import ConfigParser
 
-from lib.device_map import device_map
-from lib import configuration
+from lib import configuration, device_map
 from lib.utils import setup_job_dir
 
 base_url = None

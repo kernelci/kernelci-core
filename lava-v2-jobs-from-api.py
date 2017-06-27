@@ -30,10 +30,8 @@ import argparse
 import ConfigParser
 import json
 import sys
-from lib.utils import setup_job_dir
-from lib import configuration
-from lib.device_map import device_map
-from lib.utils import write_file
+from lib import configuration, device_map
+from lib.utils import setup_job_dir, write_file
 import requests
 import urlparse
 import urllib
