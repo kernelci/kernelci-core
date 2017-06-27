@@ -189,8 +189,9 @@ def main(args):
                                             modules_url = urlparse.urljoin(base_url, build['modules'])
                                         else:
                                             modules_url = None
-                                        if device['device_type'].startswith('qemu') or device['device_type'] == 'kvm':
-                                            device['device_type'] = 'qemu'
+                                        device_type = device['device_type']
+                                        if device_type.startswith('qemu') or device_type == 'kvm':
+                                            device_type = 'qemu'
                                         job = {'name': job_name,
                                                'dtb_url': dtb_url,
                                                'platform': dtb_full,
@@ -204,7 +205,7 @@ def main(args):
                                                'defconfig': defconfig,
                                                'fastboot': fastboot,
                                                'priority': args.get('priority'),
-                                               'device': device,
+                                               'device_type': device_type,
                                                'template_file': template_file,
                                                'base_url': base_url,
                                                'endian': endian,

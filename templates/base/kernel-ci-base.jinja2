@@ -16,7 +16,7 @@ metadata:
   git.describe: {{ git_describe }}
   git.branch: {{ git_branch }}
   git.url: {{ git_url }}
-  device.type: {{ device['device_type'] }}
+  device.type: {{ device_type }}
   job.arch: {{ arch }}
   job.name: {{ name }}
   job.kernel_url: {{ kernel_url }}
@@ -27,7 +27,7 @@ metadata:
   job.dtb_url: {{ dtb_url }}
 {% endblock %}
 {% block main %}
-device_type: {{ device['device_type'] }}
+device_type: {{ device_type }}
 
 {% if callback %}
 notify:
