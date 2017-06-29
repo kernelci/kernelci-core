@@ -137,9 +137,11 @@ fi
 # Dynamically create some special config fragments
 #
 # kselftests: create fragment by combining all the fragments from individual selftests
+#             fragment file will have comment lines showing which selftest dir
+#             each individual fragment came from
 #
 KSELFTEST_FRAG=kernel/configs/kselftest.config
-find tools/testing/selftests -name config -exec cat {} \; > $KSELFTEST_FRAG
+find tools/testing/selftests -name config -printf "#\n# %h/%f\n#\n" -exec cat {} \; > $KSELFTEST_FRAG
 
 cd ${WORKSPACE}
 
