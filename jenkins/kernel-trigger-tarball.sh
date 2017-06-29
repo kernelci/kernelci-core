@@ -135,6 +135,14 @@ fi
 
 cd ${WORKSPACE}
 
+#
+# Dynamically create some special config fragments
+#
+# kselftests: create fragment by combining all the fragments from individual selftests
+#
+KSELFTEST_FRAG=kernel/configs/kselftest.config
+find tools/testing/selftests -name config -exec cat {} \; > $KSELFTEST_FRAG
+
 tar -czf linux-src.tar.gz --exclude=.git -C ${tree_name} .
 if [ $? != 0 ]; then
   echo "Failed to create source tarball"
