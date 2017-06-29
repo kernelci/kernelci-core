@@ -1,4 +1,25 @@
 #!/usr/bin/python
+#
+# Copyright (C) 2016, 2017 Linaro Limited
+# Author: Matt Hart <matthew.hart@linaro.org>
+#
+# Copyright (C) 2017 Collabora Limited
+# Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+#
+# This module is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+
 # Usage ./lava-v2-submit-jobs.py --username test --token xxxx --server http://server/RPC2 --jobs jobfolder
 
 import os
@@ -28,7 +49,7 @@ def submit_jobs(connection):
         try:
             with open(job, 'rb') as stream:
                 job_data = stream.read()
-            job_info = yaml.load(job_data)
+            job_info = yaml.safe_load(job_data)
             # Check if request device(s) are available
             if 'device_type' in job_info:
                 for device_type in all_device_types:

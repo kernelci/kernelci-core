@@ -1,4 +1,25 @@
 #!/usr/bin/python
+#
+# Copyright (C) 2016, 2017 Linaro Limited
+# Author: Matt Hart <matthew.hart@linaro.org>
+#
+# Copyright (C) 2017 Collabora Ltd
+# Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+#
+# This module is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+
 import urllib2
 import urlparse
 import httplib
@@ -15,22 +36,16 @@ from lib.device_map import device_map
 from lib.utils import write_file
 import requests
 import urlparse
+import urllib
 from jinja2 import Environment, FileSystemLoader
 
 
 LEGACY_X86_PLATFORMS = ['x86', 'x86-kvm']
 LEGACY_ARM64_PLATFORMS = ['qemu-aarch64-legacy']
-INITRD_URLS = {'arm64': 'http://storage.kernelci.org/images/rootfs/buildroot/arm64/rootfs.cpio.gz',
-               'arm64be': 'http://storage.kernelci.org/images/rootfs/buildroot/arm64be/rootfs.cpio.gz',
-               'armeb': 'http://storage.kernelci.org/images/rootfs/buildroot/armeb/rootfs.cpio.gz',
-               'armel': 'http://storage.kernelci.org/images/rootfs/buildroot/armel/rootfs.cpio.gz',
-               'x86': 'http://storage.kernelci.org/images/rootfs/buildroot/x86/rootfs.cpio.gz'}
-NFSROOTFS_URLS = {'arm64': 'http://storage.kernelci.org/images/rootfs/buildroot/arm64/rootfs.tar.xz',
-               'arm64be': 'http://storage.kernelci.org/images/rootfs/buildroot/arm64be/rootfs.tar.xz',
-               'armeb': 'http://storage.kernelci.org/images/rootfs/buildroot/armeb/rootfs.tar.xz',
-               'armel': 'http://storage.kernelci.org/images/rootfs/buildroot/armel/rootfs.tar.xz',
-               'x86': 'http://storage.kernelci.org/images/rootfs/buildroot/x86/rootfs.tar.xz'}
-
+ARCHS = ['arm64', 'arm64be', 'armeb', 'armel', 'x86']
+ROOTFS_URL = 'http://storage.kernelci.org/images/rootfs'
+INITRD_URL = '/'.join([ROOTFS_URL, 'buildroot/{}/rootfs.cpio.gz'])
+NFSROOTFS_URL = '/'.join([ROOTFS_URL, 'buildroot/{}/rootfs.tar.xz'])
 
 def main(args):
     config = configuration.get_config(args)
@@ -58,14 +73,17 @@ def main(args):
     }
 
     print "Working on kernel %s/%s" % (tree, branch)
-    url = urlparse.urljoin(api, ("/build?job=%s&kernel=%s&git_branch=%s&status=PASS&arch=%s" % (tree, git_describe, branch, arch)))
+    url_params = urllib.urlencode({
+        'job': tree,
+        'kernel': git_describe,
+        'git_branch': branch,
+        'status': 'PASS',
+        'arch': arch,
+    })
+    url = urlparse.urljoin(api, 'build?{}'.format(url_params))
     print "Calling KernelCI API: %s" % url
     response = requests.get(url, headers=headers)
-    if response.status_code != 200:
-        print "Error calling KernelCI API"
-        print response
-        print response.content
-        sys.exit(1)
+    response.raise_for_status()
     data = json.loads(response.content)
     builds = data['result']
     print("Number of builds: {}".format(len(builds)))
@@ -157,7 +175,7 @@ def main(args):
                                         if 'BIG_ENDIAN' in defconfig and plan == 'boot-be':
                                             endian = 'big'
                                         initrd_arch = arch
-                                        if arch not in INITRD_URLS.keys():
+                                        if arch not in ARCHS:
                                             if arch == 'arm64' and endian == 'big':
                                                 initrd_arch = 'arm64be'
                                             if arch == 'arm':
@@ -165,24 +183,51 @@ def main(args):
                                                     initrd_arch = 'armeb'
                                                 else:
                                                     initrd_arch = 'armel'
-                                        initrd_url = INITRD_URLS[initrd_arch]
-                                        if 'nfs' in plan:
-                                            nfsrootfs_url = NFSROOTFS_URLS[initrd_arch]
-                                        else:
-                                            nfsrootfs_url = None
+                                        initrd_url = INITRD_URL.format(initrd_arch)
+                                        nfsrootfs_url = NFSROOTFS_URL.format(initrd_arch) if 'nfs' in plan else None
                                         if build['modules']:
                                             modules_url = urlparse.urljoin(base_url, build['modules'])
                                         else:
                                             modules_url = None
                                         if device['device_type'].startswith('qemu') or device['device_type'] == 'kvm':
                                             device['device_type'] = 'qemu'
-                                        job = {'name': job_name, 'dtb_url': dtb_url, 'platform': dtb_full, 'kernel_url': kernel_url, 'image_type': 'kernel-ci', 'image_url': base_url,
-                                               'modules_url': modules_url, 'plan': plan, 'kernel': git_describe, 'tree': tree, 'defconfig': defconfig, 'fastboot': fastboot,
-                                               'priority': args.get('priority'), 'device': device, 'template_file': template_file, 'base_url': base_url, 'endian': endian,
-                                               'test_suite': test_suite, 'test_set': test_set, 'test_desc': test_desc, 'test_type': test_type, 'short_template_file': short_template_file,
-                                               'arch': arch, 'arch_defconfig': arch_defconfig, 'git_branch': branch, 'git_commit': build['git_commit'], 'git_describe': git_describe,
-                                               'defconfig_base': defconfig_base, 'initrd_url': initrd_url, 'kernel_image': build['kernel_image'], 'dtb_short': dtb, 'nfsrootfs_url': nfsrootfs_url,
-                                               'callback': args.get('callback'), 'api': api, 'lab_name': lab_name}
+                                        job = {'name': job_name,
+                                               'dtb_url': dtb_url,
+                                               'platform': dtb_full,
+                                               'kernel_url': kernel_url,
+                                               'image_type': 'kernel-ci',
+                                               'image_url': base_url,
+                                               'modules_url': modules_url,
+                                               'plan': plan,
+                                               'kernel': git_describe,
+                                               'tree': tree,
+                                               'defconfig': defconfig,
+                                               'fastboot': fastboot,
+                                               'priority': args.get('priority'),
+                                               'device': device,
+                                               'template_file': template_file,
+                                               'base_url': base_url,
+                                               'endian': endian,
+                                               'test_suite': test_suite,
+                                               'test_set': test_set,
+                                               'test_desc': test_desc,
+                                               'test_type': test_type,
+                                               'short_template_file': short_template_file,
+                                               'arch': arch,
+                                               'arch_defconfig': arch_defconfig,
+                                               'git_branch': branch,
+                                               'git_commit': build['git_commit'],
+                                               'git_describe': git_describe,
+                                               'git_url': build['git_url'],
+                                               'defconfig_base': defconfig_base,
+                                               'initrd_url': initrd_url,
+                                               'kernel_image': build['kernel_image'],
+                                               'dtb_short': dtb,
+                                               'nfsrootfs_url': nfsrootfs_url,
+                                               'callback': args.get('callback'),
+                                               'api': api,
+                                               'lab_name': lab_name,
+                                        }
                                         jobs.append(job)
             else:
                 print "no kernel_image for %s" % build['defconfig_full']
@@ -217,7 +262,7 @@ if __name__ == '__main__':
     parser.add_argument("--targets", nargs='+', help="specific targets to create jobs for")
     parser.add_argument("--priority", choices=['high', 'medium', 'low', 'HIGH', 'MEDIUM', 'LOW'],
                         help="priority for LAVA jobs", default='high')
-    parser.add_argument("--callback", help="Add a callback notification to the Job YAML", action="store_true")
+    parser.add_argument("--callback", help="Add a callback notification to the Job YAML")
     args = vars(parser.parse_args())
     if args:
         main(args)
