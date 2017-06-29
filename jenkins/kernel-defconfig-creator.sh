@@ -77,6 +77,12 @@ if [ ${ARCH} = "x86" ]; then
   done
 fi
 
+# kselftests
+KSELFTEST_FRAG=kernel/configs/kselftest.config
+if [ -e $KSELFTEST_FRAG ]; then
+  DEFCONFIG_LIST+="$base_defconfig+$KSELFTEST_FRAG "
+fi
+
 # Tree specific fragments: stable
 if [ ${tree_name} = "stable" ] || [ ${tree_name} = "stable-rc" ]; then
   # Don't do allmodconfig builds
