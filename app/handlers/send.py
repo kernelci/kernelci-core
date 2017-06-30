@@ -72,7 +72,7 @@ class SendHandler(hbase.BaseHandler):
             boot_errors = False
             build_errors = False
 
-            if any([send_boot, send_build]):
+            if send_boot or send_build:
                 countdown = int(countdown)
                 if countdown < 0:
                     countdown = abs(countdown)
