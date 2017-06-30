@@ -3,6 +3,18 @@ Duplicate email trigger received for:
     Tree: {{ job }}
     Branch: {{ git_branch }}
     Kernel: {{ kernel }}
+{%- if kernel_version %}
+    Kernel version: {{ kernel_version }}
+{%- endif %}
+{%- if git_describe_v %}
+    Git describe ext.: {{ git_describe_v }}
+{%- endif %}
+{%- if git_commit %}
+    Commit: {{ git_commit }}
+{%- endif %}
+{%- if git_url %}
+    Git URL: {{ git_url }}
+{%- endif %}
 
 at:
 

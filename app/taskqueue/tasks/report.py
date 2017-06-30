@@ -15,6 +15,7 @@
 
 import models
 import taskqueue.celery as taskc
+import utils.db
 import utils.emails
 import utils.report.boot
 import utils.report.build
@@ -77,7 +78,7 @@ def send_boot_report(
     if not subject:
         subject = new_subject
 
-    if all([any([txt_body, html_body]), subject]):
+    if (txt_body or html_body) and subject:
         utils.LOG.info(
             "Sending boot report email for '%s-%s-%s'",
             job, git_branch, kernel)
@@ -193,6 +194,24 @@ def send_multiple_emails_error(
         "in_reply_to": data.get("in_reply_to"),
         "trigger_time": date
     }
+
+    db = utils.db.get_db_connection2(taskc.app.conf.db_options)
+    result = utils.db.find_one2(
+        db[models.JOB_COLLECTION],
+        {
+            models.JOB_KEY: job,
+            models.KERNEL_KEY: kernel,
+            models.GIT_BRANCH_KEY: git_branch
+        },
+        [
+            models.GIT_COMMIT_KEY,
+            models.GIT_DESCRIBE_V_KEY,
+            models.KERNEL_VERSION_KEY,
+            models.GIT_URL_KEY
+        ])
+
+    if result:
+        email_data.update(result)
 
     if data.get("generic_emails"):
         to_addrs.extend(data.get("generic_emails"))
