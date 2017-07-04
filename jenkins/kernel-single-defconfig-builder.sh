@@ -6,12 +6,8 @@ set -x
 echo "Executing build of ${TREE} (${TREE_NAME}/${BRANCH}/${GIT_DESCRIBE} (${GIT_DESCRIBE_VERBOSE}) ) for arch ${ARCH} and defconfig ${defconfig}"
 echo "Uploading to ${API}"
 
-# local copy of build scripts
-rm -rf local
-mkdir -p local
-(cd local; git clone --depth=1 https://github.com/kernelci/kernelci-build.git)
-
-export PATH=${WORKSPACE}/local/kernelci-build:${PATH}
+# Scripts are in the parent directory, add it to the path.
+export PATH=${WORKSPACE}/kernelci-build:${PATH}
 
 wget -q ${SRC_TARBALL} && tar -zxf linux-src.tar.gz
 
