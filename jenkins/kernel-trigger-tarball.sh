@@ -133,8 +133,6 @@ if [ -z $GIT_DESCRIBE ]; then
   exit 1
 fi
 
-cd ${WORKSPACE}
-
 #
 # Dynamically create some special config fragments
 #
@@ -142,6 +140,8 @@ cd ${WORKSPACE}
 #
 KSELFTEST_FRAG=kernel/configs/kselftest.config
 find tools/testing/selftests -name config -exec cat {} \; > $KSELFTEST_FRAG
+
+cd ${WORKSPACE}
 
 tar -czf linux-src.tar.gz --exclude=.git -C ${tree_name} .
 if [ $? != 0 ]; then
