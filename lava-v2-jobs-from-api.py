@@ -38,7 +38,7 @@ import urllib
 from jinja2 import Environment, FileSystemLoader
 
 
-LEGACY_X86_PLATFORMS = ['x86', 'x86-kvm']
+LEGACY_X86_PLATFORMS = ['x86', 'x86-kvm', 'x86-32']
 ARCHS = ['arm64', 'arm64be', 'armeb', 'armel', 'x86']
 ROOTFS_URL = 'http://storage.kernelci.org/images/rootfs'
 INITRD_URL = '/'.join([ROOTFS_URL, 'buildroot/{}/rootfs.cpio.gz'])
@@ -165,7 +165,7 @@ def main(args):
                                         base_url = "%s/%s/%s/%s/%s/%s/" % (storage, build['job'], build['git_branch'], build['kernel'], arch, defconfig)
                                         if dtb_full.endswith('.dtb'):
                                             dtb_url = base_url + "dtbs/" + dtb_full
-                                            platform = dtb_url[:-4]
+                                            platform = dtb[:-4]
                                         else:
                                             dtb_url = None
                                             platform = device_type
