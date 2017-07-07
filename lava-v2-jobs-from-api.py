@@ -43,6 +43,7 @@ ARCHS = ['arm64', 'arm64be', 'armeb', 'armel', 'x86']
 ROOTFS_URL = 'http://storage.kernelci.org/images/rootfs'
 INITRD_URL = '/'.join([ROOTFS_URL, 'buildroot/{}/rootfs.cpio.gz'])
 NFSROOTFS_URL = '/'.join([ROOTFS_URL, 'buildroot/{}/rootfs.tar.xz'])
+KSELFTEST_INITRD_URL = '/'.join([ROOTFS_URL, 'buildroot/{}/tests/rootfs.cpio.gz'])
 
 def main(args):
     config = configuration.get_config(args)
@@ -164,8 +165,10 @@ def main(args):
                                         base_url = "%s/%s/%s/%s/%s/%s/" % (storage, build['job'], build['git_branch'], build['kernel'], arch, defconfig)
                                         if dtb_full.endswith('.dtb'):
                                             dtb_url = base_url + "dtbs/" + dtb_full
+                                            platform = dtb_url[:-4]
                                         else:
                                             dtb_url = None
+                                            platform = device_type
                                         kernel_url = urlparse.urljoin(base_url, build['kernel_image'])
                                         defconfig_base = ''.join(defconfig.split('+')[:1])
                                         endian = 'little'
@@ -180,7 +183,10 @@ def main(args):
                                                     initrd_arch = 'armeb'
                                                 else:
                                                     initrd_arch = 'armel'
-                                        initrd_url = INITRD_URL.format(initrd_arch)
+                                        if 'kselftest' in plan:
+                                            initrd_url = KSELFTEST_INITRD_URL.format(initrd_arch)
+                                        else:
+                                            initrd_url = INITRD_URL.format(initrd_arch)
                                         nfsrootfs_url = NFSROOTFS_URL.format(initrd_arch) if 'nfs' in plan else None
                                         if build['modules']:
                                             modules_url = urlparse.urljoin(base_url, build['modules'])
@@ -191,7 +197,8 @@ def main(args):
                                             device_type = 'qemu'
                                         job = {'name': job_name,
                                                'dtb_url': dtb_url,
-                                               'platform': dtb_full,
+                                               'dtb_full': dtb_full,
+                                               'platform': platform,
                                                'kernel_url': kernel_url,
                                                'image_type': 'kernel-ci',
                                                'image_url': base_url,
