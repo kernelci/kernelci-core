@@ -133,6 +133,9 @@ def main(args):
                             if defconfig in device['defconfig_blacklist']:
                                 print "defconfig %s is blacklisted for device %s" % (defconfig, device['device_type'])
                                 continue
+                            elif device.has_key('defconfig_whitelist') and defconfig not in device['defconfig_whitelist']:
+                                print "defconfig %s is not in whitelist for device %s" % (defconfig, device['device_type'])
+                                continue
                             elif "BIG_ENDIAN" in defconfig and plan != 'boot-be':
                                 print "BIG_ENDIAN is not supported on %s" % device_type
                                 continue
