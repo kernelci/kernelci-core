@@ -2,6 +2,11 @@
 
 set -x
 
+if ! ./should-I-boot-this.py; then
+    echo "Blacklisted"
+    exit 0
+fi
+
 curl --silent --fail ${STORAGE}/${TREE}/${BRANCH}/${GIT_DESCRIBE}/${ARCH}_defconfig.count > ${ARCH}_defconfig.count
 if [ $? == 0 ]; then
 	DEFCONFIG_COUNT=`cat ${ARCH}_defconfig.count`
