@@ -97,6 +97,11 @@ def main(args):
         test_type = None
         plan_defconfigs = []
         modules = build['modules']
+        if build['kernel_image']:
+            if build['kernel_image'] == 'bzImage' and arch == 'x86':
+                build['dtb_dir_data'].extend(LEGACY_X86_PLATFORMS)
+        if arch in ['arm', 'arm64', 'x86'] and 'defconfig' in defconfig:
+            build['dtb_dir_data'].append('qemu')
         for plan in plans:
             if plan != 'boot':
                     config = ConfigParser.ConfigParser()
@@ -111,11 +116,6 @@ def main(args):
                         print "Unable to load test configuration"
                         exit(1)
             if build['kernel_image']:
-                # handle devices without a DTB, hacky :/
-                if build['kernel_image'] == 'bzImage' and arch == 'x86':
-                    build['dtb_dir_data'].extend(LEGACY_X86_PLATFORMS)
-                if arch in ['arm', 'arm64', 'x86'] and 'defconfig' in defconfig:
-                    build['dtb_dir_data'].append('qemu')
                 for dtb in build['dtb_dir_data']:
                     # hack for arm64 dtbs in subfolders
                     dtb_full = dtb
@@ -156,6 +156,8 @@ def main(args):
                                 continue
                             elif targets is not None and device_type not in targets:
                                 print "device_type %s is not in targets %s" % (device_type, targets)
+                            elif arch == 'x86' and dtb == 'x86-32' and 'i386' not in arch_defconfig:
+                                print "%s is not a 32-bit x86 build, skipping for 32-bit device %s" % (defconfig, device_type)
                             else:
                                 for template in device['templates']:
                                     short_template_file = plan + '/' + str(template)
