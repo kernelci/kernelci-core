@@ -144,6 +144,19 @@ KSELFTEST_FRAG=kernel/configs/kselftest.config
 find tools/testing/selftests -name config -printf "#\n# %h/%f\n#\n" -exec cat {} \; > $KSELFTEST_FRAG
 
 cd ${WORKSPACE}
+echo $COMMIT_ID > last.commit
+
+curl --output /dev/null --silent --head --fail ${STORAGE_URL}/${tree_name}/${branch}/${GIT_DESCRIBE}/linux-src.tar.gz
+if [ $? == 0 ]; then
+    echo "This git describe was already triggered"
+    ./kernelci-build/push-source.py --tree ${tree_name} --branch ${branch} --api ${API_URL} --token ${API_TOKEN} --file last.commit
+    if [ $? != 0 ]; then
+      echo "Error pushing last commit update to API, not updating current commit"
+      rm last.commit
+      exit 1
+    fi
+    exit 1
+fi
 
 tar -czf linux-src.tar.gz --exclude=.git -C ${tree_name} .
 if [ $? != 0 ]; then
@@ -158,7 +171,7 @@ if [ $? != 0 ]; then
   exit 1
 fi
 
-echo $COMMIT_ID > last.commit
+
 ./kernelci-build/push-source.py --tree ${tree_name} --branch ${branch} --api ${API_URL} --token ${API_TOKEN} --file last.commit
 if [ $? != 0 ]; then
   echo "Error pushing last commit update to API, not updating current commit"
