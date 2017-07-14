@@ -169,6 +169,14 @@ if [[ BUILDS_FINISHED -eq 4 ]]; then
         curl -XPOST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "boot_report": 1, "format": ["txt"], "send_to": ["kernel-team+kernelci@android.com", "gregkh@google.com", "fellows@kernelci.org"], "delay": 12600}' ${API}/send
         curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "build_report": 1, "send_to": ["tom.gall@linaro.org", "sumit.semwal@linaro.org", "amit.pundir@linaro.org", "arnd.bergmann@linaro.org", "anmar.oueja@linaro.org"], "format": ["txt"], "delay": 10}' ${API}/send
         curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "boot_report": 1, "send_to": ["tom.gall@linaro.org", "sumit.semwal@linaro.org", "amit.pundir@linaro.org", "arnd.bergmann@linaro.org", "anmar.oueja@linaro.org"], "format": ["txt"], "delay": 12600}' ${API}/send
+    elif [ "$TREE_NAME" == "mattface" ]; then
+        echo "Sending results to Matt"
+        curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "build_report": 1, "format": ["txt"], "send_to": ["matt@mattface.org"], "delay": 60}' ${API}/send
+        curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "boot_report": 1, "format": ["txt"], "send_to": ["matt@mattface.org"], "delay": 12600}' ${API}/send
+    elif [ "$TREE_NAME" == "gtucker" ]; then
+        echo "Sending results to Guillaume"
+        curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "build_report": 1, "format": ["txt"], "send_to": ["guillaume.tucker@collabora.com"], "delay": 60}' ${API}/send
+        curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "boot_report": 1, "format": ["txt"], "send_to": ["guillaume.tucker@collabora.com"], "delay": 12600}' ${API}/send
     else
         # Private Mailing List
         echo "Sending results to private mailing list"
