@@ -148,11 +148,12 @@ fi
 
 DEFCONFIG_ARRAY=( $DEFCONFIG_LIST )
 DEFCONFIG_COUNT=${#DEFCONFIG_ARRAY[@]}
+echo $DEFCONFIG_COUNT > ${ARCH}_defconfig.count
+./kernelci-build/push-source.py --tree ${tree_name} --branch ${branch} --describe ${GIT_DESCRIBE} --api ${API} --token ${API_TOKEN} --file ${ARCH}_defconfig.count
 
 cat << EOF > ${WORKSPACE}/${TREE_NAME}_${BRANCH}_${ARCH}-build.properties
 ARCH=$ARCH
 DEFCONFIG_LIST=$DEFCONFIG_LIST
-DEFCONFIG_COUNT=${DEFCONFIG_COUNT}
 TREE=${TREE}
 SRC_TARBALL=$SRC_TARBALL
 TREE_NAME=$tree_name
