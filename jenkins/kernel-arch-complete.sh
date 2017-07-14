@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 if [ "$PUBLISH" != "true" ]; then
   echo "Skipping publish step.  PUBLISH != true."
   exit 0
