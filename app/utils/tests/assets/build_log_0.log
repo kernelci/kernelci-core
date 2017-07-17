@@ -62,3 +62,6 @@ No valid symbol.
 ../arch/mips/sgi-ip22/Platform:29: *** gcc doesn't support needed
 option -mr10k-cache-barrier=store.  Stop.
 "mkimage" command not found - U-Boot images will not be built
+/bin/sh: 1: /home/buildslave/workspace/kernel-single-defconfig-builder/defconfig/allmodconfig+CONFIG_OF=n/label/builder/build-x86/tools/objtool//fixdep: Permission denied
+/bin/bash: 1: /home/buildslave/workspace/kernel-single-defconfig-builder/defconfig/allmodconfig+CONFIG_OF=n/label/builder/build-x86/tools/objtool//fixdep: Permission denied
+/bin/zsh: 1: /home/buildslave/workspace/kernel-single-defconfig-builder/defconfig/allmodconfig+CONFIG_OF=n/label/builder/build-x86/tools/objtool//fixdep: Permission denied
