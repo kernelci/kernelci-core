@@ -35,6 +35,8 @@ ERROR_PATTERN_2 = re.compile("^ERROR")
 ERROR_PATTERN_3 = re.compile("undefined reference", re.IGNORECASE)
 ERROR_PATTERN_4 = re.compile("gcc doesn't support", re.IGNORECASE)
 ERROR_PATTERN_5 = re.compile("command not found", re.IGNORECASE)
+ERROR_PATTERN_6 = re.compile("^\/bin\/([bd]a)?sh", re.IGNORECASE)
+ERROR_PATTERN_7 = re.compile("^\/bin\/((tc)?z?c?k?)?sh", re.IGNORECASE)
 WARNING_PATTERN = re.compile("warning:", re.IGNORECASE)
 MISMATCH_PATTERN = re.compile("Section mismatch", re.IGNORECASE)
 
@@ -61,7 +63,9 @@ ERROR_PATTERNS = [
     ERROR_PATTERN_2,
     ERROR_PATTERN_3,
     ERROR_PATTERN_4,
-    ERROR_PATTERN_5
+    ERROR_PATTERN_5,
+    ERROR_PATTERN_6,
+    ERROR_PATTERN_7
 ]
 
 ERR_ADD = utils.errors.add_error
