@@ -12,6 +12,7 @@ pycares==1.0.0
 pyelftools
 pymongo==2.8.1
 pytz
+pyyaml==3.12
 redis
 scandir
 simplejson

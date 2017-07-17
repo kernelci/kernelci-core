@@ -31,6 +31,7 @@ TASKS_LIST = [
     "taskqueue.tasks.bisect",
     "taskqueue.tasks.boot",
     "taskqueue.tasks.build",
+    "taskqueue.tasks.callback",
     "taskqueue.tasks.common",
     "taskqueue.tasks.compare",
     "taskqueue.tasks.report",

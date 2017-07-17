@@ -294,6 +294,23 @@ BISECT_BAD_COMMIT_DATE = "bad_commit_date"
 BISECT_GOOD_COMMIT_URL = "good_commit_url"
 BISECT_BAD_COMMIT_URL = "bad_commit_url"
 
+# LAVA Callback keys
+LAVA_DEFINITION_KEY = "definition"
+LAVA_DESCRIPTION_KEY = "description"
+LAVA_START_TIME_KEY = "start_time"
+LAVA_STATUS_STR_KEY = "status_str"
+LAVA_RESULTS_KEY = "results"
+LAVA_SUBMITTER_KEY = "submitter_username"
+LAVA_ID_KEY = "id"
+LAVA_PRIORITY_KEY = "priority"
+LAVA_END_TIME_KEY = "end_time"
+LAVA_SUBMIT_TIME_KEY = "submit_time"
+LAVA_IS_PIPELINE_KEY = "is_pipeline"
+LAVA_METADATA_KEY = "metadata"
+LAVA_FAILURE_COMMENT_KEY = "failure_comment"
+LAVA_DEVICE_ID_KEY = "actual_device_id"
+LAVA_LOG_KEY = "log"
+
 VALID_ARCHITECTURES = [
     ARM64_ARCHITECTURE_KEY,
     ARM_ARCHITECTURE_KEY,
@@ -1072,6 +1089,22 @@ DISTINCT_VALID_FIELDS = {
 
 LAVA_CALLBACK_VALID_KEYS = {
     "POST": [
-        "lava"
+        STATUS_KEY,
+        LAVA_DEFINITION_KEY,
+        LAVA_DESCRIPTION_KEY,
+        LAVA_START_TIME_KEY,
+        LAVA_STATUS_STR_KEY,
+        LAVA_RESULTS_KEY,
+        LAVA_SUBMITTER_KEY,
+        LAVA_ID_KEY,
+        LAVA_PRIORITY_KEY,
+        TOKEN_KEY,
+        LAVA_END_TIME_KEY,
+        LAVA_SUBMIT_TIME_KEY,
+        LAVA_IS_PIPELINE_KEY,
+        LAVA_METADATA_KEY,
+        LAVA_FAILURE_COMMENT_KEY,
+        LAVA_DEVICE_ID_KEY,
+        LAVA_LOG_KEY,
     ]
 }

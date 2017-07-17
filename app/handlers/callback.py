@@ -21,6 +21,8 @@ import handlers.common.token
 import handlers.response as hresponse
 import models
 import models.token as mtoken
+import taskqueue.tasks.callback as taskq
+import utils.callback.lava
 import utils.db
 
 
@@ -64,7 +66,7 @@ class CallbackHandler(hbase.BaseHandler):
             if valid_lab:
                 response.status_code = 202
                 response.reason = "Request accepted and being imported"
-                self._execute_callback(kwargs["json_obj"])
+                self._execute_callback(kwargs["json_obj"], lab_name)
             else:
                 response.status_code = 403
                 response.reason = (
@@ -124,7 +126,7 @@ class CallbackHandler(hbase.BaseHandler):
 
         return valid_lab, error
 
-    def _execute_callback(self, json_obj):
+    def _execute_callback(self, json_obj, lab_name):
         """A wrapper for the real callback execution logic.
 
         This should be an async operation.
@@ -146,5 +148,5 @@ class LavaCallbackHandler(CallbackHandler):
     def _valid_keys(method):
         return models.LAVA_CALLBACK_VALID_KEYS.get(method, None)
 
-    def _execute_callback(self, json_obj):
-        pass
+    def _execute_callback(self, json_obj, lab_name):
+        taskq.lava_boot.apply_async([json_obj, lab_name])
