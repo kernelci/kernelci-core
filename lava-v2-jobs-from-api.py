@@ -30,6 +30,7 @@ import argparse
 import ConfigParser
 import json
 import sys
+import time
 from lib import configuration, device_map
 from lib.utils import setup_job_dir, write_file
 import requests
@@ -65,6 +66,7 @@ def main(args):
     branch = args.get('branch')
     git_describe = args.get('describe')
     tree = args.get('tree')
+    expected = int(args.get('defconfigs'))
     kernel = tree
     headers = {
         "Authorization": token,
@@ -80,10 +82,19 @@ def main(args):
     })
     url = urlparse.urljoin(api, 'build?{}'.format(url_params))
     print "Calling KernelCI API: %s" % url
-    response = requests.get(url, headers=headers)
-    response.raise_for_status()
-    data = json.loads(response.content)
-    builds = data['result']
+    builds = []
+    loops = 10
+    retry_time = 30
+    for loop in range(loops):
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        data = json.loads(response.content)
+        builds = data['result']
+        if len(builds) >= expected:
+            break
+        print "Got less builds (%s) than expected (%s), retry in %s seconds" % (len(builds), expected, retry_time)
+        time.sleep(retry_time)
+
     print("Number of builds: {}".format(len(builds)))
     jobs = []
     cwd = os.getcwd()
@@ -270,6 +281,7 @@ if __name__ == '__main__':
     parser.add_argument("--priority", choices=['high', 'medium', 'low', 'HIGH', 'MEDIUM', 'LOW'],
                         help="priority for LAVA jobs", default='high')
     parser.add_argument("--callback", help="Add a callback notification to the Job YAML")
+    parser.add_argument("--defconfigs", help="Expected number of defconfigs from the API", default=0)
     args = vars(parser.parse_args())
     if args:
         main(args)
