@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*
 #
 # Copyright (C) 2017 Free Electrons SAS
-# Author: 
+# Author: Florent Jacquet <florent.jacquet@free-electrons.com>
 #
 # This module is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
