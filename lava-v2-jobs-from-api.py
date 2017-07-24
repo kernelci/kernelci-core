@@ -60,6 +60,8 @@ def main(args):
         raise Exception("No token provided")
     if not api:
         raise Exception("No KernelCI API URL provided")
+    if not storage:
+        raise Exception("No KernelCI storage URL provided")
 
     arch = args.get('arch')
     plans = args.get('plans')
@@ -272,7 +274,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--token", help="KernelCI API Token")
     parser.add_argument("--api", help="KernelCI API URL")
-    parser.add_argument("--storage", help="KernelCI storage URL", required=True)
+    parser.add_argument("--storage", help="KernelCI storage URL")
     parser.add_argument("--lab", help="KernelCI Lab Name", required=True)
     parser.add_argument("--jobs", help="absolute path to top jobs folder")
     parser.add_argument("--tree", help="KernelCI build kernel tree", required=True)
