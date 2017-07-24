@@ -47,6 +47,7 @@ META_DATA_MAP = {
     models.JOB_KEY: "kernel.tree",
     models.ARCHITECTURE_KEY: "job.arch",
     models.DTB_KEY: "platform.dtb",
+    models.MACH_KEY: "platform.mach",
     models.FASTBOOT_KEY: "platform.fastboot",
     models.INITRD_KEY: "job.initrd_url",
     models.BOARD_KEY: "device.type",
@@ -73,7 +74,6 @@ def _get_definition_meta(meta, job_data):
     """
     meta["board_instance"] = job_data["actual_device_id"]
     definition = yaml.load(job_data["definition"], Loader=yaml.CLoader)
-    meta["mach"] = definition["device_type"]
     job_meta = definition["metadata"]
     meta.update({x: job_meta[y] for x, y in META_DATA_MAP.iteritems()})
 
