@@ -4,13 +4,13 @@ set -x
 
 rm -f ${WORKSPACE}/*.properties
 
-if [ -z $STORAGE_URL ]; then
-  echo "STORAGE_URL not set, exiting"
+if [ -z $STORAGE ]; then
+  echo "STORAGE not set, exiting"
   exit 1
 fi
 
-if [ -z $API_URL ]; then
-  echo "API_URL not set, exiting"
+if [ -z $API ]; then
+  echo "API not set, exiting"
   exit 1
 fi
 
@@ -77,7 +77,7 @@ fi
 
 echo "Looking for new commits in ${tree_url} (${tree_name}/${branch})"
 
-LAST_COMMIT=`wget -q -O- ${STORAGE_URL}/${tree_name}/${branch}/last.commit`
+LAST_COMMIT=`wget -q -O- ${STORAGE}/${tree_name}/${branch}/last.commit`
 
 COMMIT_ID=`git ls-remote ${tree_url} refs/heads/${branch} | awk '{printf($1)}'`
 if [ -z $COMMIT_ID ]
@@ -133,7 +133,30 @@ if [ -z $GIT_DESCRIBE ]; then
   exit 1
 fi
 
+#
+# Dynamically create some special config fragments
+#
+# kselftests: create fragment by combining all the fragments from individual selftests
+#             fragment file will have comment lines showing which selftest dir
+#             each individual fragment came from
+#
+KSELFTEST_FRAG=kernel/configs/kselftest.config
+find tools/testing/selftests -name config -printf "#\n# %h/%f\n#\n" -exec cat {} \; > $KSELFTEST_FRAG
+
 cd ${WORKSPACE}
+echo $COMMIT_ID > last.commit
+
+curl --output /dev/null --silent --head --fail ${STORAGE}/${tree_name}/${branch}/${GIT_DESCRIBE}/linux-src.tar.gz
+if [ $? == 0 ]; then
+    echo "This git describe was already triggered"
+    ./kernelci-build/push-source.py --tree ${tree_name} --branch ${branch} --api ${API} --token ${API_TOKEN} --file last.commit
+    if [ $? != 0 ]; then
+      echo "Error pushing last commit update to API, not updating current commit"
+      rm last.commit
+      exit 1
+    fi
+    exit 1
+fi
 
 tar -czf linux-src.tar.gz --exclude=.git -C ${tree_name} .
 if [ $? != 0 ]; then
@@ -141,15 +164,15 @@ if [ $? != 0 ]; then
   exit 1
 fi
 
-./kernelci-build/push-source.py --tree ${tree_name} --branch ${branch} --describe ${GIT_DESCRIBE} --api ${API_URL} --token ${API_TOKEN} --file linux-src.tar.gz
+./kernelci-build/push-source.py --tree ${tree_name} --branch ${branch} --describe ${GIT_DESCRIBE} --api ${API} --token ${API_TOKEN} --file linux-src.tar.gz
 if [ $? != 0 ]; then
   echo "Error pushing source file to API"
   rm linux-src.tar.gz
   exit 1
 fi
 
-echo $COMMIT_ID > last.commit
-./kernelci-build/push-source.py --tree ${tree_name} --branch ${branch} --api ${API_URL} --token ${API_TOKEN} --file last.commit
+
+./kernelci-build/push-source.py --tree ${tree_name} --branch ${branch} --api ${API} --token ${API_TOKEN} --file last.commit
 if [ $? != 0 ]; then
   echo "Error pushing last commit update to API, not updating current commit"
   rm linux-src.tar.gz
@@ -163,7 +186,7 @@ rm linux-src.tar.gz
 
 cat << EOF > ${WORKSPACE}/${TREE_BRANCH}-build.properties
 TREE=$tree_url
-SRC_TARBALL=${STORAGE_URL}/${tree_name}/${branch}/${GIT_DESCRIBE}/linux-src.tar.gz
+SRC_TARBALL=${STORAGE}/${tree_name}/${branch}/${GIT_DESCRIBE}/linux-src.tar.gz
 TREE_NAME=$tree_name
 BRANCH=$branch
 COMMIT_ID=$COMMIT_ID

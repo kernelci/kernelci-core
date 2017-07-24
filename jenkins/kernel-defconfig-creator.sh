@@ -2,7 +2,6 @@
 
 set -x
 
-tree_name=${TREE_NAME}
 echo "Creating defconfigs ${TREE} (${TREE_NAME}/${BRANCH}/${GIT_DESCRIBE}) for arch ${ARCH}"
 
 
@@ -42,7 +41,7 @@ if [ ${ARCH} = "arm" ]; then
   fi
   
   # tree specific
-  if [ ${tree_name} = "next" ]; then
+  if [ ${TREE_NAME} = "next" ]; then
     DEFCONFIG_LIST+="allmodconfig "
   fi
 fi
@@ -56,7 +55,7 @@ if [ ${ARCH} = "arm64" ]; then
   DEFCONFIG_LIST+="allmodconfig "
 
   # Enable KASAN for non-stable until image size issues are sorted out
-  if [ ${tree_name} != "stable" ] && [ ${tree_name} != "stable-rc" ]; then
+  if [ ${TREE_NAME} != "stable" ] && [ ${TREE_NAME} != "stable-rc" ]; then
     DEFCONFIG_LIST+="defconfig+CONFIG_KASAN=y "
   fi
 fi
@@ -77,8 +76,14 @@ if [ ${ARCH} = "x86" ]; then
   done
 fi
 
+# kselftests
+KSELFTEST_FRAG=kernel/configs/kselftest.config
+if [ -e $KSELFTEST_FRAG ]; then
+  DEFCONFIG_LIST+="$base_defconfig+$KSELFTEST_FRAG "
+fi
+
 # Tree specific fragments: stable
-if [ ${tree_name} = "stable" ] || [ ${tree_name} = "stable-rc" ]; then
+if [ ${TREE_NAME} = "stable" ] || [ ${TREE_NAME} = "stable-rc" ]; then
   # Don't do allmodconfig builds
   DEFCONFIG_LIST=${DEFCONFIG_LIST/allmodconfig/}
 fi
@@ -87,7 +92,7 @@ fi
 DEFCONFIG_LIST+="$base_defconfig+CONFIG_LKDTM=y "
 
 # Tree specific fragments: LSK + KVM fragments
-if [ ${tree_name} = "lsk" ] || [ ${tree_name} = "anders" ]; then
+if [ ${TREE_NAME} = "lsk" ] || [ ${TREE_NAME} = "anders" ]; then
   FRAGS="linaro/configs/kvm-guest.conf"
 
   # For -rt kernels, build with RT fragment
@@ -140,13 +145,17 @@ if [ ${tree_name} = "lsk" ] || [ ${tree_name} = "anders" ]; then
   fi
 fi
 
+DEFCONFIG_ARRAY=( $DEFCONFIG_LIST )
+DEFCONFIG_COUNT=${#DEFCONFIG_ARRAY[@]}
+echo $DEFCONFIG_COUNT > ${ARCH}_defconfig.count
+./kernelci-build/push-source.py --tree ${TREE_NAME} --branch ${BRANCH} --describe ${GIT_DESCRIBE} --api ${API} --token ${API_TOKEN} --file ${ARCH}_defconfig.count
 
 cat << EOF > ${WORKSPACE}/${TREE_NAME}_${BRANCH}_${ARCH}-build.properties
 ARCH=$ARCH
 DEFCONFIG_LIST=$DEFCONFIG_LIST
 TREE=${TREE}
 SRC_TARBALL=$SRC_TARBALL
-TREE_NAME=$tree_name
+TREE_NAME=$TREE_NAME
 BRANCH=${BRANCH}
 GIT_DESCRIBE=${GIT_DESCRIBE}
 GIT_DESCRIBE_VERBOSE=${GIT_DESCRIBE_VERBOSE}
