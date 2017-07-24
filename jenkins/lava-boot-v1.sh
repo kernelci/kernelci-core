@@ -2,6 +2,11 @@
 
 set -x 
 
+if ! ./should-I-boot-this.py; then
+    echo "Blacklisted"
+    exit 0
+fi
+
 if [ ${LAB} = "lab-tbaker" ]; then
 	python lava-kernel-ci-job-creator.py ${STORAGE}/$TREE/$BRANCH/$GIT_DESCRIBE/ --plans boot boot-be boot-kvm boot-kvm-uefi boot-nfs boot-nfs-mp --arch $ARCH --jobs ${LAB}
 	python lava-job-runner.py --username kernel-ci --token ${LAVA_TOKEN_TBAKER} --server http://lava.kernelci.org/RPC2/ --stream /anonymous/kernel-ci/ --poll kernel-ci.json --timeout 7200

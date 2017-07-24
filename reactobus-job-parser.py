@@ -27,8 +27,7 @@ import time
 import argparse
 import os
 from ConfigParser import SafeConfigParser
-from lib.device_map import device_map
-from lib import configuration
+from lib import configuration, device_map
 
 def push(method, url, data, headers):
     retry = True

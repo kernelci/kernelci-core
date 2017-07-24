@@ -1,7 +1,17 @@
 {% extends 'base/kernel-ci-base.jinja2' %}
-{% set console_dev = 'ttyS0' %}
-{% if arch == "arm64" %}
+{% set ctx_arch = arch %}
+{% if arch == "arm" %}
+{% set ctx_cpu = 'cortex-a15' %}
 {% set console_dev = 'ttyAMA0' %}
+{% endif %}
+{% if arch == "arm64" %}
+{% set ctx_cpu = 'cortex-a57' %}
+{% set console_dev = 'ttyAMA0' %}
+{% endif %}
+{% if arch == 'x86' %}
+{% set ctx_arch = 'x86_64' %}
+{% set ctx_cpu = 'qemu64' %}
+{% set console_dev = 'ttyS0' %}
 {% endif %}
 {% block metadata %}
 {{ super() }}
@@ -11,7 +21,8 @@
 {% endblock %}
 {% block actions %}
 context:
-  arch: {{ arch }}
+  arch: {{ ctx_arch }}
+  cpu: {{ ctx_cpu }}
 
 actions:
 - deploy:

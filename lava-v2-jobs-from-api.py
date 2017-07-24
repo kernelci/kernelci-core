@@ -30,22 +30,21 @@ import argparse
 import ConfigParser
 import json
 import sys
-from lib.utils import setup_job_dir
-from lib import configuration
-from lib.device_map import device_map
-from lib.utils import write_file
+import time
+from lib import configuration, device_map
+from lib.utils import setup_job_dir, write_file
 import requests
 import urlparse
 import urllib
 from jinja2 import Environment, FileSystemLoader
 
 
-LEGACY_X86_PLATFORMS = ['x86', 'x86-kvm']
-LEGACY_ARM64_PLATFORMS = ['qemu-aarch64-legacy']
+LEGACY_X86_PLATFORMS = ['x86', 'x86-kvm', 'x86-32']
 ARCHS = ['arm64', 'arm64be', 'armeb', 'armel', 'x86']
 ROOTFS_URL = 'http://storage.kernelci.org/images/rootfs'
 INITRD_URL = '/'.join([ROOTFS_URL, 'buildroot/{}/rootfs.cpio.gz'])
 NFSROOTFS_URL = '/'.join([ROOTFS_URL, 'buildroot/{}/rootfs.tar.xz'])
+KSELFTEST_INITRD_URL = '/'.join([ROOTFS_URL, 'buildroot/{}/tests/rootfs.cpio.gz'])
 
 def main(args):
     config = configuration.get_config(args)
@@ -61,12 +60,15 @@ def main(args):
         raise Exception("No token provided")
     if not api:
         raise Exception("No KernelCI API URL provided")
+    if not storage:
+        raise Exception("No KernelCI storage URL provided")
 
     arch = args.get('arch')
     plans = args.get('plans')
     branch = args.get('branch')
     git_describe = args.get('describe')
     tree = args.get('tree')
+    expected = int(args.get('defconfigs'))
     kernel = tree
     headers = {
         "Authorization": token,
@@ -82,10 +84,19 @@ def main(args):
     })
     url = urlparse.urljoin(api, 'build?{}'.format(url_params))
     print "Calling KernelCI API: %s" % url
-    response = requests.get(url, headers=headers)
-    response.raise_for_status()
-    data = json.loads(response.content)
-    builds = data['result']
+    builds = []
+    loops = 10
+    retry_time = 30
+    for loop in range(loops):
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        data = json.loads(response.content)
+        builds = data['result']
+        if len(builds) >= expected:
+            break
+        print "Got less builds (%s) than expected (%s), retry in %s seconds" % (len(builds), expected, retry_time)
+        time.sleep(retry_time)
+
     print("Number of builds: {}".format(len(builds)))
     jobs = []
     cwd = os.getcwd()
@@ -99,6 +110,11 @@ def main(args):
         test_type = None
         plan_defconfigs = []
         modules = build['modules']
+        if build['kernel_image']:
+            if build['kernel_image'] == 'bzImage' and arch == 'x86':
+                build['dtb_dir_data'].extend(LEGACY_X86_PLATFORMS)
+        if arch in ['arm', 'arm64', 'x86'] and 'defconfig' in defconfig:
+            build['dtb_dir_data'].append('qemu')
         for plan in plans:
             if plan != 'boot':
                     config = ConfigParser.ConfigParser()
@@ -113,11 +129,6 @@ def main(args):
                         print "Unable to load test configuration"
                         exit(1)
             if build['kernel_image']:
-                # handle devices without a DTB, hacky :/
-                if build['kernel_image'] == 'bzImage' and arch == 'x86':
-                    build['dtb_dir_data'].extend(LEGACY_X86_PLATFORMS)
-                if arch == 'arm64' and 'defconfig' in defconfig:
-                    build['dtb_dir_data'].extend(LEGACY_ARM64_PLATFORMS)
                 for dtb in build['dtb_dir_data']:
                     # hack for arm64 dtbs in subfolders
                     dtb_full = dtb
@@ -129,11 +140,15 @@ def main(args):
                             # print "working on device %s" % dtb
                             lpae = device['lpae']
                             device_type = device['device_type']
+                            mach = device['mach']
                             fastboot = str(device['fastboot']).lower()
                             blacklist = False
                             nfs_blacklist = False
                             if defconfig in device['defconfig_blacklist']:
                                 print "defconfig %s is blacklisted for device %s" % (defconfig, device['device_type'])
+                                continue
+                            elif device.has_key('defconfig_whitelist') and defconfig not in device['defconfig_whitelist']:
+                                print "defconfig %s is not in whitelist for device %s" % (defconfig, device['device_type'])
                                 continue
                             elif "BIG_ENDIAN" in defconfig and plan != 'boot-be':
                                 print "BIG_ENDIAN is not supported on %s" % device_type
@@ -158,6 +173,8 @@ def main(args):
                                 continue
                             elif targets is not None and device_type not in targets:
                                 print "device_type %s is not in targets %s" % (device_type, targets)
+                            elif arch == 'x86' and dtb == 'x86-32' and 'i386' not in arch_defconfig:
+                                print "%s is not a 32-bit x86 build, skipping for 32-bit device %s" % (defconfig, device_type)
                             else:
                                 for template in device['templates']:
                                     short_template_file = plan + '/' + str(template)
@@ -167,8 +184,10 @@ def main(args):
                                         base_url = "%s/%s/%s/%s/%s/%s/" % (storage, build['job'], build['git_branch'], build['kernel'], arch, defconfig)
                                         if dtb_full.endswith('.dtb'):
                                             dtb_url = base_url + "dtbs/" + dtb_full
+                                            platform = dtb[:-4]
                                         else:
                                             dtb_url = None
+                                            platform = device_type
                                         kernel_url = urlparse.urljoin(base_url, build['kernel_image'])
                                         defconfig_base = ''.join(defconfig.split('+')[:1])
                                         endian = 'little'
@@ -183,17 +202,23 @@ def main(args):
                                                     initrd_arch = 'armeb'
                                                 else:
                                                     initrd_arch = 'armel'
-                                        initrd_url = INITRD_URL.format(initrd_arch)
+                                        if 'kselftest' in plan:
+                                            initrd_url = KSELFTEST_INITRD_URL.format(initrd_arch)
+                                        else:
+                                            initrd_url = INITRD_URL.format(initrd_arch)
                                         nfsrootfs_url = NFSROOTFS_URL.format(initrd_arch) if 'nfs' in plan else None
                                         if build['modules']:
                                             modules_url = urlparse.urljoin(base_url, build['modules'])
                                         else:
                                             modules_url = None
-                                        if device['device_type'].startswith('qemu') or device['device_type'] == 'kvm':
-                                            device['device_type'] = 'qemu'
+                                        device_type = device['device_type']
+                                        if device_type.startswith('qemu') or device_type == 'kvm':
+                                            device_type = 'qemu'
                                         job = {'name': job_name,
                                                'dtb_url': dtb_url,
-                                               'platform': dtb_full,
+                                               'dtb_full': dtb_full,
+                                               'platform': platform,
+                                               'mach': mach,
                                                'kernel_url': kernel_url,
                                                'image_type': 'kernel-ci',
                                                'image_url': base_url,
@@ -204,7 +229,7 @@ def main(args):
                                                'defconfig': defconfig,
                                                'fastboot': fastboot,
                                                'priority': args.get('priority'),
-                                               'device': device,
+                                               'device_type': device_type,
                                                'template_file': template_file,
                                                'base_url': base_url,
                                                'endian': endian,
@@ -263,6 +288,7 @@ if __name__ == '__main__':
     parser.add_argument("--priority", choices=['high', 'medium', 'low', 'HIGH', 'MEDIUM', 'LOW'],
                         help="priority for LAVA jobs", default='high')
     parser.add_argument("--callback", help="Add a callback notification to the Job YAML")
+    parser.add_argument("--defconfigs", help="Expected number of defconfigs from the API", default=0)
     args = vars(parser.parse_args())
     if args:
         main(args)

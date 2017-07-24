@@ -8,15 +8,17 @@ metadata:
   kernel.defconfig: {{ defconfig }}
   kernel.defconfig_base: {{ defconfig_base }}
   kernel.arch_defconfig: {{ arch_defconfig }}
-  platform.dtb: {{ platform }}
+  platform.dtb: {{ dtb_full }}
   platform.dtb_short: {{ dtb_short }}
   platform.fastboot: {{ fastboot }}
+  platform.name: {{ platform }}
+  platform.mach: {{ mach }}
   test.plan: {{ plan }}
   git.commit: {{ git_commit }}
   git.describe: {{ git_describe }}
   git.branch: {{ git_branch }}
   git.url: {{ git_url }}
-  device.type: {{ device['device_type'] }}
+  device.type: {{ device_type }}
   job.arch: {{ arch }}
   job.name: {{ name }}
   job.kernel_url: {{ kernel_url }}
@@ -27,7 +29,7 @@ metadata:
   job.dtb_url: {{ dtb_url }}
 {% endblock %}
 {% block main %}
-device_type: {{ device['device_type'] }}
+device_type: {{ device_type }}
 
 {% if callback %}
 notify:
