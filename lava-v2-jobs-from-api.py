@@ -138,6 +138,7 @@ def main(args):
                             # print "working on device %s" % dtb
                             lpae = device['lpae']
                             device_type = device['device_type']
+                            mach = device['mach']
                             fastboot = str(device['fastboot']).lower()
                             blacklist = False
                             nfs_blacklist = False
@@ -215,6 +216,7 @@ def main(args):
                                                'dtb_url': dtb_url,
                                                'dtb_full': dtb_full,
                                                'platform': platform,
+                                               'mach': mach,
                                                'kernel_url': kernel_url,
                                                'image_type': 'kernel-ci',
                                                'image_url': base_url,
