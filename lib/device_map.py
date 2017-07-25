@@ -1196,7 +1196,8 @@ x86 = {'device_type': 'x86',
        'kernel_blacklist': [],
        'nfs_blacklist': [],
        'lpae': False,
-       'fastboot': False}
+       'fastboot': False,
+       'mach': 'x86'}
 
 x86_pentium4 = {'device_type': 'x86-pentium4',
        'templates': ['generic-grub-tftp-ramdisk-template.jinja2',
@@ -1211,8 +1212,9 @@ x86_pentium4 = {'device_type': 'x86-pentium4',
        'kernel_blacklist': [],
        'nfs_blacklist': [],
        'lpae': False,
-       'fastboot': False}
-       
+       'fastboot': False,
+       'mach': 'x86'}
+
 x86_celeron = {'device_type': 'x86-celeron',
        'templates': ['generic-grub-tftp-ramdisk-template.jinja2'],
        'kernel_defconfig_blacklist': [],
@@ -1225,7 +1227,8 @@ x86_celeron = {'device_type': 'x86-celeron',
        'kernel_blacklist': [],
        'nfs_blacklist': [],
        'lpae': False,
-       'fastboot': False}
+       'fastboot': False,
+       'mach': 'x86'}
 
 x86_x5_z8350 = {'device_type': 'x86-x5-z8350',
        'templates': ['generic-grub-tftp-ramdisk-template.jinja2'],
@@ -1239,7 +1242,8 @@ x86_x5_z8350 = {'device_type': 'x86-x5-z8350',
        'kernel_blacklist': [],
        'nfs_blacklist': [],
        'lpae': False,
-       'fastboot': False}
+       'fastboot': False,
+       'mach': 'x86'}
 
 x86_atom330 = {'device_type': 'x86-atom330',
                          'templates': ['generic-ipxe-tftp-ramdisk-template.jinja2',
@@ -1254,7 +1258,8 @@ x86_atom330 = {'device_type': 'x86-atom330',
                          'kernel_blacklist': [],
                          'nfs_blacklist': [],
                          'lpae': False,
-                         'fastboot': False}
+                         'fastboot': False,
+                         'mach': 'x86'}
 
 minnowboard_max_E3825 = {'device_type': 'minnowboard-max-E3825',
                          'templates': ['generic-x86-kernel-ci-boot-template.json',
@@ -1273,7 +1278,8 @@ minnowboard_max_E3825 = {'device_type': 'minnowboard-max-E3825',
                          'kernel_blacklist': [],
                          'nfs_blacklist': [],
                          'lpae': False,
-                         'fastboot': False}
+                         'fastboot': False,
+                         'mach': 'x86'}
 
 x86_kvm = {'device_type': 'kvm',
            'templates': ['generic-x86-kernel-ci-boot-template.json',
@@ -1290,7 +1296,8 @@ x86_kvm = {'device_type': 'kvm',
                                 'lsk-v3.10'],
            'nfs_blacklist': [],
            'lpae': False,
-           'fastboot': False}
+           'fastboot': False,
+           'mach': 'x86'}
 
 qemu_i386 = {'device_type': 'qemu-i386',
              'templates': ['generic-x86-kernel-ci-boot-template.json',
@@ -1310,7 +1317,8 @@ qemu_i386 = {'device_type': 'qemu-i386',
                                   'lsk-v3.10'],
              'nfs_blacklist': [],
              'lpae': False,
-             'fastboot': False}
+             'fastboot': False,
+             'mach': 'qemu'}
 
 imx6dl_riotboard = {'device_type': 'imx6dl-riotboard',
                     'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
@@ -1326,7 +1334,8 @@ imx6dl_riotboard = {'device_type': 'imx6dl-riotboard',
                     'kernel_blacklist': [],
                     'nfs_blacklist': [],
                     'lpae': False,
-                    'fastboot': False}
+                    'fastboot': False,
+                    'mach': 'imx'}
 
 imx53_qsbr = {'device_type': 'imx53-qsbr',
               'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
