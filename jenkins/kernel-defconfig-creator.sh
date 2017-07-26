@@ -4,7 +4,7 @@ set -x
 
 echo "Creating defconfigs ${TREE} (${TREE_NAME}/${BRANCH}/${GIT_DESCRIBE}) for arch ${ARCH}"
 
-wget --retry-connrefused --waitretry=5 --read-timeout=20 --timeout=15 --tries 20 --continue $SRC_TARBALL
+wget --progress=dot:giga --retry-connrefused --waitretry=5 --read-timeout=20 --timeout=15 --tries 20 --continue $SRC_TARBALL
 if [ $? != 0 ]
 then
     echo "Couldnt fetch the source tarball"
