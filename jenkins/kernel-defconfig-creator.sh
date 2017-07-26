@@ -4,9 +4,28 @@ set -x
 
 echo "Creating defconfigs ${TREE} (${TREE_NAME}/${BRANCH}/${GIT_DESCRIBE}) for arch ${ARCH}"
 
+wget --retry-connrefused --waitretry=5 --read-timeout=20 --timeout=15 --tries 20 --continue $SRC_TARBALL
+if [ $? != 0 ]
+then
+    echo "Couldnt fetch the source tarball"
+    exit 2
+fi
 
-wget -q $SRC_TARBALL && tar -zxf linux-src.tar.gz
+tar -zxf linux-src.tar.gz
+if [ $? != 0 ]
+then
+    echo "Extracting the source tarball failed"
+    exit 2
+fi
 
+if [ ! -d arch/${ARCH}/configs ]
+then
+    echo "No configs directory for arch ${ARCH}"
+    exit 2
+fi
+
+# debug
+ls arch/${ARCH}/configs
 
 # defconfigs
 DEFCONFIG_LIST="allnoconfig "
