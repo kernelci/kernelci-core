@@ -113,7 +113,8 @@ class TestBaseHandler(hbase.BaseHandler):
             suite_oid = bson.objectid.ObjectId(test_suite_id)
             test_suite = utils.db.find_one2(
                 self.db[models.TEST_SUITE_COLLECTION],
-                suite_oid, fields=[models.ID_KEY])
+                suite_oid,
+                fields=[models.ID_KEY, models.NAME_KEY])
 
             if not test_suite:
                 suite_oid = None
