@@ -1,10 +1,11 @@
 #!/bin/bash
 
 set -x
+export PATH=${WORKSPACE}/kernelci-build:${PATH}
 
 echo "Creating defconfigs ${TREE} (${TREE_NAME}/${BRANCH}/${GIT_DESCRIBE}) for arch ${ARCH}"
 
-wget --progress=dot:giga --retry-connrefused --waitretry=5 --read-timeout=20 --timeout=15 --tries 20 --continue $SRC_TARBALL
+wget_retry.sh ${SRC_TARBALL}
 if [ $? != 0 ]
 then
     echo "Couldnt fetch the source tarball"
@@ -167,7 +168,7 @@ fi
 DEFCONFIG_ARRAY=( $DEFCONFIG_LIST )
 DEFCONFIG_COUNT=${#DEFCONFIG_ARRAY[@]}
 echo $DEFCONFIG_COUNT > ${ARCH}_defconfig.count
-./kernelci-build/push-source.py --tree ${TREE_NAME} --branch ${BRANCH} --describe ${GIT_DESCRIBE} --api ${API} --token ${API_TOKEN} --file ${ARCH}_defconfig.count
+push-source.py --tree ${TREE_NAME} --branch ${BRANCH} --describe ${GIT_DESCRIBE} --api ${API} --token ${API_TOKEN} --file ${ARCH}_defconfig.count
 
 cat << EOF > ${WORKSPACE}/${TREE_NAME}_${BRANCH}_${ARCH}-build.properties
 ARCH=$ARCH
