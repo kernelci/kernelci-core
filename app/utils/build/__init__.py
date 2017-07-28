@@ -354,10 +354,21 @@ def _traverse_build_dir(build_dir, job_doc, errors, database):
     utils.LOG.info("Traversing %s", build_dir)
 
     if os.path.isfile(data_path):
+        utils.LOG.info("Reading build data file %s", data_path)
         try:
-            # with io.open(os.path.join(build_dir, data_file)) as data:
-            with io.open(data_path) as data:
-                build_data = json.load(data)
+            if os.path.getsize(data_path) > 0:
+                with io.open(data_path) as data:
+                    build_data = json.load(data)
+            else:
+                err_msg = "Build data file has 0 size"
+                utils.LOG.error(err_msg)
+                ERR_ADD(errors, 500, err_msg)
+                return
+        except OSError, ex:
+            err_msg = "Error retrieving build data file size"
+            utils.LOG.error(err_msg)
+            utils.LOG.exception(ex)
+            ERR_ADD(errors, 500, err_msg)
         except IOError, ex:
             err_msg = "Error reading json data file from {}".format(build_dir)
             utils.LOG.exception(ex)

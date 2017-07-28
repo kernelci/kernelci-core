@@ -52,12 +52,63 @@ class TestBuildUtils(unittest.TestCase):
             temp_dir = tempfile.mkdtemp()
             build_dir = os.path.join(temp_dir, "build_dir")
             os.mkdir(build_dir)
-            io.open(os.path.join(build_dir, "build.json"), mode="w")
+
+            build_file = os.path.join(build_dir, "build.json")
+
+            with io.open(build_file, mode="w") as write_f:
+                write_f.write(json.dumps(dict(foo="bar"), ensure_ascii=False))
 
             patcher = mock.patch("io.open")
             mock_open = patcher.start()
             mock_open.side_effect = IOError("IOError")
             self.addCleanup(patcher.stop)
+
+            job_doc = mjob.JobDocument("job", "kernel", "git_branch")
+
+            build_doc = utils.build._traverse_build_dir(
+                build_dir, job_doc, errors, {})
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+        self.assertIsNotNone(errors)
+        self.assertIsNone(build_doc)
+        self.assertListEqual([500], errors.keys())
+
+    def test_traverse_buld_dir_with_oserror(self):
+        try:
+            errors = {}
+            temp_dir = tempfile.mkdtemp()
+            build_dir = os.path.join(temp_dir, "build_dir")
+            os.mkdir(build_dir)
+
+            build_file = os.path.join(build_dir, "build.json")
+
+            with io.open(build_file, mode="w") as write_f:
+                write_f.write(json.dumps(dict(foo="bar"), ensure_ascii=False))
+
+            patcher = mock.patch("io.open")
+            mock_open = patcher.start()
+            mock_open.side_effect = OSError("OSError")
+            self.addCleanup(patcher.stop)
+
+            job_doc = mjob.JobDocument("job", "kernel", "git_branch")
+
+            build_doc = utils.build._traverse_build_dir(
+                build_dir, job_doc, errors, {})
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+        self.assertIsNotNone(errors)
+        self.assertIsNone(build_doc)
+        self.assertListEqual([500], errors.keys())
+
+    def test_traverse_buld_dir_with_empty_file(self):
+        try:
+            errors = {}
+            temp_dir = tempfile.mkdtemp()
+            build_dir = os.path.join(temp_dir, "build_dir")
+            os.mkdir(build_dir)
+            io.open(os.path.join(build_dir, "build.json"), mode="w")
 
             job_doc = mjob.JobDocument("job", "kernel", "git_branch")
 
