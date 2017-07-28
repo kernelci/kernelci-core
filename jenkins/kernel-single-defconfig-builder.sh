@@ -9,7 +9,19 @@ echo "Uploading to ${API}"
 # Scripts are in the parent directory, add it to the path.
 export PATH=${WORKSPACE}/kernelci-build:${PATH}
 
-wget -q ${SRC_TARBALL} && tar -zxf linux-src.tar.gz
+wget_retry.sh ${SRC_TARBALL}
+if [ $? != 0 ]
+then
+    echo "Couldnt fetch the source tarball"
+    exit 2
+fi
+
+tar -zxf linux-src.tar.gz
+if [ $? != 0 ]
+then
+    echo "Extracting the source tarball failed"
+    exit 2
+fi
 
 echo TREE=$TREE
 echo TREE_NAME=$TREE_NAME
