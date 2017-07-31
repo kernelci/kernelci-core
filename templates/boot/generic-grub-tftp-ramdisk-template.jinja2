@@ -10,11 +10,11 @@
 {{ super () }}
 {%- endblock %}
 
-  - boot:
-     method: grub
-     commands: ramdisk
-     prompts:
-       - 'linaro-test'
-       - 'root@debian:~#'
-       - '/ #'
+- boot:
+   method: grub
+   commands: ramdisk
+   prompts:
+     - 'linaro-test'
+     - 'root@debian:~#'
+     - '/ #'
 {% endblock %}

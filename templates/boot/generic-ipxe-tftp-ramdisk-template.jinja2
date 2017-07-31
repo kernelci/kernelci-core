@@ -10,11 +10,11 @@
 {{ super () }}
 {%- endblock %}
 
-  - boot:
-     method: ipxe
-     commands: ramdisk
-     prompts:
-       - 'linaro-test'
-       - 'root@debian:~#'
-       - '/ #'
+- boot:
+   method: ipxe
+   commands: ramdisk
+   prompts:
+     - 'linaro-test'
+     - 'root@debian:~#'
+     - '/ #'
 {% endblock %}
