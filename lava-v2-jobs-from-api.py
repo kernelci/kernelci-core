@@ -184,6 +184,7 @@ def main(args):
                                         base_url = "%s/%s/%s/%s/%s/%s/" % (storage, build['job'], build['git_branch'], build['kernel'], arch, defconfig)
                                         nfsrootfs_url = None
                                         initrd_url = None
+                                        callback_name = 'lavatest' if 'kselftest' in plan else 'lava'
                                         if dtb_full.endswith('.dtb'):
                                             dtb_url = base_url + "dtbs/" + dtb_full
                                             platform = dtb[:-4]
@@ -256,6 +257,7 @@ def main(args):
                                                'callback': args.get('callback'),
                                                'api': api,
                                                'lab_name': lab_name,
+                                               'callback_name': callback_name
                                         }
                                         jobs.append(job)
             else:
