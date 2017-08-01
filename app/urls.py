@@ -225,7 +225,7 @@ _STATS_URL = tornado.web.url(
     r"/statistics/?", handlers.stats.StatisticsHandler, name="statistics")
 
 _LAVA_CALLBACK_URL = tornado.web.url(
-    r"/callback/lava",
+    r"/callback/lava/(?P<action>[A-Za-z0-9_]+)",
     handlers.callback.LavaCallbackHandler, name="callback-lava"
 )
 

@@ -56,26 +56,19 @@ class CallbackHandler(hbase.BaseHandler):
         return hresponse.HandlerResponse(501)
 
     def _post(self, *args, **kwargs):
-        response = hresponse.HandlerResponse()
-
         try:
             lab_name = self.get_query_argument(models.LAB_NAME_KEY)
             req_token = kwargs["token"]
-
             valid_lab, error = self._is_valid_token(req_token, lab_name)
-            if valid_lab:
-                response.status_code = 202
-                response.reason = "Request accepted and being imported"
-                self._execute_callback(kwargs["json_obj"], lab_name)
-            else:
-                response.status_code = 403
+            if not valid_lab:
+                response = hresponse.HandlerResponse(403)
                 response.reason = (
                     "Provided authentication token is not associated with "
                     "lab '%s' or is not valid" % lab_name)
-
-            response.errors = error
+            else:
+                response = self._execute_callback(lab_name, **kwargs)
         except tornado.web.MissingArgumentError:
-            response.status_code = 400
+            response = hresponse.HandlerResponse(400)
             response.reason = 'Missing lab name in query string'
 
         return response
@@ -126,27 +119,38 @@ class CallbackHandler(hbase.BaseHandler):
 
         return valid_lab, error
 
-    def _execute_callback(self, json_obj, lab_name):
+    def _execute_callback(self, lab_name, **kwargs):
         """A wrapper for the real callback execution logic.
 
         This should be an async operation.
 
-        :param json_obj: The JSON data to parse.
-        :type json_obj: dict
+        :param lab_name: Name of the lab
+        :type lab_name: string
         """
-        # TODO: need actual implementation logic.
-        pass
+        return hresponse.HandlerResponse(404)
 
 
 class LavaCallbackHandler(CallbackHandler):
     """Handler specialized to parse LAVA callbacks.
 
-    Bound to /callback/lava
+    Bound to /callback/lava/<action>
     """
 
     @staticmethod
     def _valid_keys(method):
         return models.LAVA_CALLBACK_VALID_KEYS.get(method, None)
 
-    def _execute_callback(self, json_obj, lab_name):
-        taskq.lava_boot.apply_async([json_obj, lab_name])
+    def _execute_callback(self, lab_name, **kwargs):
+        response = hresponse.HandlerResponse()
+        action = kwargs["action"]
+        task = getattr(taskq, "_".join(["lava", action]), None)
+
+        if task is None:
+            response.status_code = 404
+            response.reason = "Unsupported LAVA action: {}".format(action)
+        else:
+            response.status_code = 202
+            response.reason = "Request accepted and being processed"
+            task.apply_async([kwargs["json_obj"], lab_name])
+
+        return response
