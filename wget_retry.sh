@@ -5,7 +5,7 @@ SLEEPTIME=5
 COUNT=0
 while [ $COUNT -lt $RETRIES ]
 do
-    wget --progress=dot:giga --retry-connrefused --waitretry=5 --read-timeout=20 --timeout=15 --tries 20 --continue "$@"
+    wget --no-hsts --progress=dot:giga --retry-connrefused --waitretry=5 --read-timeout=20 --timeout=15 --tries 20 --continue "$@"
     if [ $? == 0 ]
     then
         exit 0
