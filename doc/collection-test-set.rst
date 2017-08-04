@@ -37,10 +37,14 @@ GET
  :query string nfield: The field that should *not* be returned in the response. Can be repeated multiple times.
  :query string _id: The internal ID of the test set report.
  :query string created_on: The creation date: accepted formats are ``YYYY-MM-DD`` and ``YYYYMMDD``.
+ :query string definition_uri: The URI where the test definition is stored.
  :query string name: The name of a test set.
- :query string test_suite_id: The ID of the test suite associated with the test set.
- :query string time: The time it took to execute the test set.
  :query string test_job_id: The ID of the job that executed the test (as reported by a test executor).
+ :query string test_job_url: The URL of the test executor (schema and authority).
+ :query string test_suite_id: The ID of the test suite associated with the test set.
+ :query string test_suite_name: The name of the test suite associated with the test set.
+ :query string time: The time it took to execute the test set.
+ :query string vcs_commit: The VCS commit value.
 
  :status 200: Results found.
  :status 403: Not authorized to perform the operation.

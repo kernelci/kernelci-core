@@ -37,10 +37,17 @@ GET
  :query string nfield: The field that should *not* be returned in the response. Can be repeated multiple times.
  :query string _id: The internal ID of the test case report.
  :query string created_on: The creation date: accepted formats are ``YYYY-MM-DD`` and ``YYYYMMDD``.
+ :query string kvm_guest: The name of the KVM guest the test was executed on.
+ :query int maximum: The maximum measurement registered.
+ :query int minimum: The minimum measurement registered.
  :query string name: The name of a test case.
- :query string test_suite_id: The ID of the test suite associated with the test case.
+ :query int samples: Number of registered measurements.
+ :query string status: The status of the test execution.
  :query string test_set_id: The ID of the test set associated with the test case.
- :query string time: The time it took to execute the test case.
+ :query string test_suite_id: The ID of the test suite associated with the test set.
+ :query string test_suite_name: The name of the test suite associated with the test set.
+ :query string time: The time it took to execute the test set.
+ :query string vcs_commit: The VCS commit value.
 
  :status 200: Results found.
  :status 403: Not authorized to perform the operation.

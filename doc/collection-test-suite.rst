@@ -35,18 +35,22 @@ GET
  :query string field: The field that should be returned in the response. Can be
     repeated multiple times.
  :query string nfield: The field that should *not* be returned in the response. Can be repeated multiple times.
- :query string _id: The internal ID of the test suite report.
  :query string arch: The platform architecture.
  :query string board: The board where the test suite has been run.
  :query string board_instance: The board instance where the test suite has been run.
  :query string boot_id: The ID of the boot report used by the test suite.
+ :query string build_id: The ID of the build report used by the test suite.
  :query string created_on: The creation date: accepted formats are ``YYYY-MM-DD`` and ``YYYYMMDD``.
- :query string defconfig_full: A value of the ``defconfig_full`` used for the build.
  :query string defconfig: A value of the ``defconfig`` used for the build.
- :query string job: The job/tree name.
+ :query string defconfig_full: A value of the ``defconfig_full`` used for the build.
+ :query string definition_uri: The URI where the test definition is stored.
+ :query string job: The tree name.
  :query string job_id: The ID of the job.
  :query string kernel: The kernel name.
+ :query string lab_name: The name of the lab executing the test.
  :query string name: The name of a test suite.
+ :query string time: The time it took to execute the test set.
+ :query string vcs_commit: The VCS commit value.
 
  :status 200: Results found.
  :status 403: Not authorized to perform the operation.
