@@ -75,6 +75,10 @@ class TestSetHandler(htbase.TestBaseHandler):
                         response.headers = {
                             "Location": "/test/set/%s" % str(doc_id)}
 
+                        # Update test_suite add test set ID
+                        self._update_test_suite_add_test_set_id(
+                            doc_id, suite_oid, suite_name)
+
                         if test_cases:
                             if isinstance(test_cases, types.ListType):
                                 response.status_code = 202
@@ -105,6 +109,25 @@ class TestSetHandler(htbase.TestBaseHandler):
 
         return response
 
+    def _update_test_suite_add_test_set_id(
+            self, set_oid, suite_oid, suite_name):
+        """Execute the async task to add the test set ID onto the test suite.
+
+        :param set_oid: The ID of the test set.
+        :type set_oid: bson.objectid.ObjectId
+        :param suite_oid: The ID of the test suite.
+        :type suite_oid: bson.objectid.ObjectId
+        :param suite_name: The name of the test suite.
+        :type suite_name: str
+        """
+        taskq.update_test_suite_add_test_set_id.apply_async(
+            [
+                set_oid,
+                suite_oid,
+                suite_name,
+            ]
+        )
+
     def _import_test_cases(self, test_cases, set_oid, suite_oid, suite_name):
         """Execute the async task to import the test cases.
 
@@ -114,6 +137,8 @@ class TestSetHandler(htbase.TestBaseHandler):
         :type set_oid: bson.objectid.ObjectId
         :param suite_oid: The ID of the test suite.
         :type suite_oid: bson.objectid.ObjectId
+        :param suite_name: The name of the test suite.
+        :type suite_name: str
         """
         taskq.import_test_cases_from_test_set.apply_async(
             [

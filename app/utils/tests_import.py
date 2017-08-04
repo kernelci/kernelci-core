@@ -450,6 +450,7 @@ def import_test_case(
     if isinstance(json_obj, types.DictionaryType):
         j_get = json_obj.get
         json_suite_id = j_get(models.TEST_SUITE_ID_KEY, None)
+        suite_oid = bson.objectid.ObjectId(suite_id)
 
         json_obj[models.TEST_SUITE_NAME_KEY] = suite_name
         if not json_suite_id:
@@ -457,24 +458,27 @@ def import_test_case(
             json_obj[models.TEST_SUITE_ID_KEY] = suite_id
         else:
             if json_suite_id == str(suite_id):
-                json_obj[models.TEST_SUITE_ID_KEY] = suite_id
+                json_obj[models.TEST_SUITE_ID_KEY] = suite_oid
             else:
                 utils.LOG.warning(
                     "Test suite ID does not match the provided one")
                 # XXX For now, force the suite_id value.
-                json_obj[models.TEST_SUITE_ID_KEY] = suite_id
+                json_obj[models.TEST_SUITE_ID_KEY] = suite_oid
 
         try:
             test_name = j_get(models.NAME_KEY, None)
+            set_id = j_get(models.TEST_SET_ID_KEY, None)
+            if set_id:
+                set_id = bson.objectid.ObjectId(set_id)
+                json_obj[models.TEST_SET_ID_KEY] = set_id
+            else:
+                json_obj[models.TEST_SET_ID_KEY] = None
+
             test_case = mtcase.TestCaseDocument.from_json(json_obj)
 
             if test_case:
-                k_get = kwargs.get
-
                 test_case.created_on = datetime.datetime.now(
                     tz=bson.tz_util.utc)
-                test_case.test_set_id = k_get(models.TEST_SET_ID_KEY, None)
-
                 ret_val, doc_id = utils.db.save(
                     database, test_case, manipulate=True)
 
@@ -482,6 +486,16 @@ def import_test_case(
                     err_msg = "Error saving test case '%s'" % test_name
                     utils.LOG.error(err_msg)
                     ADD_ERR(errors, 500, err_msg)
+                # If test case imported correctly
+                # reference it in the test suite
+                else:
+                    update_test_suite_add_test_case_id(
+                        doc_id, suite_oid, suite_name,
+                        db_options)
+                    # and in the test set if it exists
+                    if set_id:
+                        update_test_set_add_test_case_id(
+                            doc_id, set_id, db_options)
             else:
                 ADD_ERR(errors, 400, "Missing mandatory key in JSON data")
         except ValueError, ex:
@@ -572,4 +586,129 @@ def import_test_cases_from_test_set(
         utils.LOG.error(error_msg)
         ADD_ERR(errors, ret_val, error_msg)
 
+    return ret_val, errors
+
+# TODO: create a separate test_update.py document
+
+
+def update_test_suite_add_test_set_id(
+        set_id, suite_id, suite_name, db_options, mail_options):
+    """Add the test set ID provided in a test suite.
+
+    This task is linked from the test set post one: It add the
+    test set ID as a child of the test suite.
+
+    :param set_id: The ID of the test set.
+    :type set_id: bson.objectid.ObjectId
+    :param suite_id: The ID of the suite.
+    :type suite_id: bson.objectid.ObjectId
+    :param suite_name: The name of the test suite.
+    :type suite_name: str
+    :param db_options: The database connection parameters.
+    :type db_options: dict
+    :param mail_options: The email system parameters.
+    :type mail_options: dict
+    :return 200 if OK, 500 in case of errors; a dictionary with errors or an
+    empty one.
+    """
+
+    ret_val = 200
+    errors = {}
+
+    utils.LOG.info(
+        "Updating test suite '%s' (%s) with test set ID",
+        suite_name, str(suite_id))
+    database = utils.db.get_db_connection(db_options)
+
+    ret_val = utils.db.update(
+        database[models.TEST_SUITE_COLLECTION],
+        {models.ID_KEY: suite_id},
+        {models.TEST_SET_KEY: set_id}, operation='$push')
+    if ret_val != 200:
+        ADD_ERR(
+            errors,
+            ret_val,
+            "Error updating test suite '%s' with test set references" %
+            (str(suite_id))
+        )
+    return ret_val, errors
+
+
+def update_test_suite_add_test_case_id(
+        case_id, suite_id, suite_name, db_options):
+    """Add the test set ID provided in a test suite.
+
+    This task is linked from the test set post one: It add the
+    test set ID as a child of the test suite.
+
+    :param case_id: The ID of the test set.
+    :type case_id: bson.objectid.ObjectId
+    :param suite_id: The ID of the suite.
+    :type suite_id: bson.objectid.ObjectId
+    :param suite_name: The name of the test suite.
+    :type suite_name: str
+    :param db_options: The database connection parameters.
+    :type db_options: dict
+    :return 200 if OK, 500 in case of errors; a dictionary with errors or an
+    empty one.
+    """
+
+    ret_val = 200
+    errors = {}
+
+    utils.LOG.info(
+        "Updating test suite '%s' (%s) with test case ID",
+        suite_name, str(suite_id))
+    database = utils.db.get_db_connection(db_options)
+
+    ret_val = utils.db.update(
+        database[models.TEST_SUITE_COLLECTION],
+        {models.ID_KEY: suite_id},
+        {models.TEST_CASE_KEY: case_id}, operation='$push')
+    if ret_val != 200:
+        ADD_ERR(
+            errors,
+            ret_val,
+            "Error updating test suite '%s' with test case references" %
+            (str(suite_id))
+        )
+    return ret_val, errors
+
+
+def update_test_set_add_test_case_id(
+        case_id, set_id, db_options):
+    """Add the test set ID provided in a test set.
+
+    This task is linked from the test set post one: It add the
+    test set ID as a child of the test set.
+
+    :param case_id: The ID of the test set.
+    :type case_id: bson.objectid.ObjectId
+    :param set_id: The ID of the set.
+    :type set_id: bson.objectid.ObjectId
+    :param db_options: The database connection parameters.
+    :type db_options: dict
+    :return 200 if OK, 500 in case of errors; a dictionary with errors or an
+    empty one.
+    """
+
+    ret_val = 200
+    errors = {}
+
+    utils.LOG.info(
+        "Updating test set (%s) with test case ID",
+        str(set_id))
+    database = utils.db.get_db_connection(db_options)
+
+    ret_val = utils.db.update(
+        database[models.TEST_SET_COLLECTION],
+        {models.ID_KEY: set_id},
+        {models.TEST_CASE_KEY: case_id}, operation='$push')
+    if ret_val != 200:
+        ADD_ERR(
+            errors,
+            ret_val,
+            "Error updating test set '%s' with test case references" %
+            (str(set_id))
+        )
     return ret_val, errors

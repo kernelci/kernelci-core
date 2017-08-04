@@ -207,3 +207,33 @@ def import_test_cases_from_test_set(
         set_id, suite_id, suite_name, tests_list, db_options)
     # TODO: handle errors.
     return ret_val
+
+
+@taskc.app.task(
+    name="update-test-suite-add-test-set-id",
+    ignore_result=False,
+    add_to_parent=False)
+def update_test_suite_add_test_set_id(
+        set_id, suite_id, suite_name):
+    """Wrapper around the real import function."""
+
+    """Add the test set ID into a test suite.
+
+    This task is linked from the test set post one: It add the
+    test set ID as a child of the test suite.
+
+    :param set_id: The ID of the test set.
+    :type set_id: bson.objectid.ObjectId
+    :param suite_id: The ID of the suite.
+    :type suite_id: bson.objectid.ObjectId
+    :param suite_name: The name of the test suite.
+    :type suite_name: str
+    :return 200 if OK, 500 in case of errors; a dictionary with errors or an
+    empty one.
+    """
+
+    ret_val, errors = tests_import.update_test_suite_add_test_set_id(
+        set_id, suite_id, suite_name,
+        taskc.app.conf.db_options, taskc.app.conf.mail_options)
+    # TODO: handle errors.
+    return ret_val

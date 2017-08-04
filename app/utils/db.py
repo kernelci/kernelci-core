@@ -121,7 +121,7 @@ def find_one(collection, value, field="_id", operator="$in", fields=None):
         `_id`.
     :param oeprator: The operator used to perform the comparison. Defaults to
         `$in`.
-    :param fields: The fiels that should be available or excluded from the
+    :param fields: The fields that should be available or excluded from the
         result.
     :return None or the search result as a dictionary.
     """
@@ -151,7 +151,7 @@ def find_one2(collection, spec_or_id, fields=None):
 
     :param collection: The collection where to search.
     :param spec_or_id: A `spec` data structure or the document id.
-    :param fields: The fiels that should be available or excluded from the
+    :param fields: The fields that should be available or excluded from the
     result.
     :return None or the search result as a dictionary.
     """
@@ -168,7 +168,7 @@ def find_one3(
     :param collection: The collection where to search.
     :type collection: str
     :param spec_or_id: A `spec` data structure or the document id.
-    :param fields: The fiels that should be available or excluded from the
+    :param fields: The fields that should be available or excluded from the
     result.
     :param sort: The sort data structure.
     :param db_options: The connection parameters.
