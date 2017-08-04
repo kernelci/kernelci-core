@@ -77,7 +77,15 @@ fi
 
 echo "Looking for new commits in ${tree_url} (${tree_name}/${branch})"
 
-LAST_COMMIT=`wget -q -O- ${STORAGE}/${tree_name}/${branch}/last.commit`
+./kernelci-build/wget_retry.sh ${STORAGE}/${tree_name}/${branch}/last.commit
+if [ $? != 0 ] || [ ! -e last.commit ]
+then
+    echo "Failed to fetch the last.commit file, not triggering."
+    echo "If this is a first build, create the file on storage."
+fi
+
+LAST_COMMIT=`cat last.commit`
+rm -f last.commit
 
 COMMIT_ID=`git ls-remote ${tree_url} refs/heads/${branch} | awk '{printf($1)}'`
 if [ -z $COMMIT_ID ]
@@ -192,7 +200,6 @@ BRANCH=$branch
 COMMIT_ID=$COMMIT_ID
 GIT_DESCRIBE=${GIT_DESCRIBE}
 GIT_DESCRIBE_VERBOSE=${GIT_DESCRIBE_VERBOSE}
-PUBLISH=true
 EOF
 
 cat ${WORKSPACE}/${TREE_BRANCH}-build.properties
