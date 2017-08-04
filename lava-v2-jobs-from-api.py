@@ -182,6 +182,9 @@ def main(args):
                                     if os.path.exists(template_file) and template_file.endswith('.jinja2'):
                                         job_name = tree + '-' + branch + '-' + git_describe + '-' + arch + '-' + defconfig[:100] + '-' + dtb + '-' + device_type + '-' + plan
                                         base_url = "%s/%s/%s/%s/%s/%s/" % (storage, build['job'], build['git_branch'], build['kernel'], arch, defconfig)
+                                        nfsrootfs_url = None
+                                        initrd_url = None
+                                        callback_name = 'lava/boot' if 'boot' in plan else 'lava/test'
                                         if dtb_full.endswith('.dtb'):
                                             dtb_url = base_url + "dtbs/" + dtb_full
                                             platform = dtb[:-4]
@@ -194,19 +197,21 @@ def main(args):
                                         if 'BIG_ENDIAN' in defconfig and plan == 'boot-be':
                                             endian = 'big'
                                         initrd_arch = arch
-                                        if arch not in ARCHS:
-                                            if arch == 'arm64' and endian == 'big':
-                                                initrd_arch = 'arm64be'
-                                            if arch == 'arm':
-                                                if endian == 'big':
-                                                    initrd_arch = 'armeb'
-                                                else:
-                                                    initrd_arch = 'armel'
+                                        if arch == 'arm64' and endian == 'big':
+                                            initrd_arch = 'arm64be'
+                                        if arch == 'arm':
+                                            if endian == 'big':
+                                                initrd_arch = 'armeb'
+                                            else:
+                                                initrd_arch = 'armel'
                                         if 'kselftest' in plan:
                                             initrd_url = KSELFTEST_INITRD_URL.format(initrd_arch)
                                         else:
                                             initrd_url = INITRD_URL.format(initrd_arch)
-                                        nfsrootfs_url = NFSROOTFS_URL.format(initrd_arch) if 'nfs' in plan else None
+                                        if 'nfs' in plan:
+                                            nfsrootfs_url = NFSROOTFS_URL.format(initrd_arch)
+                                            initrd_url = None
+                                            platform = platform + "_rootfs:nfs"
                                         if build['modules']:
                                             modules_url = urlparse.urljoin(base_url, build['modules'])
                                         else:
@@ -252,6 +257,7 @@ def main(args):
                                                'callback': args.get('callback'),
                                                'api': api,
                                                'lab_name': lab_name,
+                                               'callback_name': callback_name
                                         }
                                         jobs.append(job)
             else:
