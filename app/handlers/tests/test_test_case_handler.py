@@ -157,14 +157,23 @@ class TestTestCaseHandler(TestHandlerBase):
     @mock.patch("utils.db.find_one2")
     @mock.patch("bson.objectid.ObjectId")
     @mock.patch("utils.db.save")
-    def test_post_correct(self, mock_save, mock_id, mock_find):
-        mock_save.return_value = (201, "test-case-id")
-        mock_id.return_value = "test-suite"
-        mock_find.return_value = {"_id": "test-suite", "name": "test-suite"}
+    @mock.patch("utils.db.update")
+    @mock.patch("utils.db.get_db_connection")
+    def test_post_correct(
+            self, mock_conn, mock_update, mock_save, mock_id, mock_find):
+        mock_update.return_value = 200
+        mock_save.return_value = (201, "0123456789ab0123456789ab")
+        mock_id.return_value = "0123456789ab0123456789ab"
+        mock_find.return_value = {
+            "_id": "0123456789ab0123456789ab", "name": "test-suite"
+        }
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
 
         body = json.dumps(
-            dict(name="test", test_suite_id="test-suite", version="1.0",))
+            dict(
+                name="test",
+                test_suite_id="0123456789ab0123456789ab",
+                version="1.0"))
 
         response = self.fetch(
             "/test/case", method="POST", headers=headers, body=body)
@@ -176,15 +185,21 @@ class TestTestCaseHandler(TestHandlerBase):
     @mock.patch("utils.db.find_one2")
     @mock.patch("bson.objectid.ObjectId")
     @mock.patch("utils.db.save")
-    def test_post_correct_with_params(self, mock_save, mock_id, mock_find):
-        mock_save.return_value = (201, "test-case-id")
-        mock_id.return_value = "test-suite"
-        mock_find.return_value = {"_id": "test-suite", "name": "test-suite"}
+    @mock.patch("utils.db.update")
+    @mock.patch("utils.db.get_db_connection")
+    def test_post_correct_with_params(
+            self, mock_conn, mock_update, mock_save, mock_id, mock_find):
+        mock_update.return_value = 200
+        mock_save.return_value = (201, "0123456789ab0123456789ab")
+        mock_id.return_value = "0123456789ab0123456789ab"
+        mock_find.return_value = {
+            "_id": "0123456789ab0123456789ab", "name": "test-suite"
+        }
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         body = json.dumps(
             dict(
                 name="test-case",
-                test_suite_id="test-suite",
+                test_suite_id="0123456789ab0123456789ab",
                 version="1.0", parameters={"foo": "bar"}))
 
         response = self.fetch(

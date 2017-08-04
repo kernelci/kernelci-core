@@ -154,10 +154,11 @@ class TestTestSetHandler(TestHandlerBase):
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
+    @mock.patch("taskqueue.tasks.test.update_test_suite_add_test_set_id")
     @mock.patch("utils.db.save")
     @mock.patch("utils.db.find_one2")
     @mock.patch("bson.objectid.ObjectId")
-    def test_post_correct(self, mock_id, mock_find, mock_save):
+    def test_post_correct(self, mock_id, mock_find, mock_save, mock_task):
         mock_id.return_value = "suite-id"
         mock_find.return_value = {"_id": "suite-id", "name": "suite-name"}
         mock_save.return_value = (201, "test-set-id")
@@ -173,12 +174,13 @@ class TestTestSetHandler(TestHandlerBase):
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
+    @mock.patch("taskqueue.tasks.test.update_test_suite_add_test_set_id")
     @mock.patch("taskqueue.tasks.test.import_test_cases_from_test_set")
     @mock.patch("utils.db.save")
     @mock.patch("utils.db.find_one2")
     @mock.patch("bson.objectid.ObjectId")
     def test_post_correct_with_test_case(
-            self, mock_id, mock_find, mock_save, mock_task):
+            self, mock_id, mock_find, mock_save, mock_task, mock_task2):
         mock_id.return_value = "suite-id"
         mock_find.return_value = {"_id": "suite-id", "name": "test-suite"}
         mock_save.return_value = (201, "test-set-id")
@@ -210,11 +212,12 @@ class TestTestSetHandler(TestHandlerBase):
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
+    @mock.patch("taskqueue.tasks.test.update_test_suite_add_test_set_id")
     @mock.patch("utils.db.save")
     @mock.patch("utils.db.find_one2")
     @mock.patch("bson.objectid.ObjectId")
     def test_post_correct_with_wrong_test_case(
-            self, mock_id, mock_find, mock_save):
+            self, mock_id, mock_find, mock_save, mock_task):
         mock_id.return_value = "test-suite"
         mock_find.return_value = {"_id": "test-suite", "name": "suite-name"}
         mock_save.return_value = (201, "doc-id")

@@ -35,9 +35,9 @@ class TestTestsImport(unittest.TestCase):
         mock_update.return_value = 200
 
         case_list = []
-        test_suite_id = "test-suite-id"
+        test_suite_id = "0123456789ab0123456789ab"
         kwargs = {
-            "test_set_id": "test-set-id"
+            "test_set_id": "0123456789ab0123456789ab"
         }
 
         ids, errors = tests_import.import_multi_test_cases(
@@ -58,9 +58,9 @@ class TestTestsImport(unittest.TestCase):
         case_list = [
             {"name": "test-case", "version": "1.0"}
         ]
-        test_suite_id = "test-suite-id"
+        test_suite_id = "0123456789ab0123456789ab"
         kwargs = {
-            "test_set_id": "test-set-id"
+            "test_set_id": "0123456789ab0123456789ab"
         }
 
         ids, errors = tests_import.import_multi_test_cases(
@@ -83,9 +83,9 @@ class TestTestsImport(unittest.TestCase):
             {"name": "test-case1", "version": "1.0", "parameters": {"a": 2}},
             {"name": "test-case2", "version": "1.0", "parameters": {"a": 3}}
         ]
-        test_suite_id = "test-suite-id"
+        test_suite_id = "0123456789ab0123456789ab"
         kwargs = {
-            "test_set_id": "test-set-id"
+            "test_set_id": "0123456789ab0123456789ab"
         }
 
         ids, errors = tests_import.import_multi_test_cases(
@@ -106,9 +106,9 @@ class TestTestsImport(unittest.TestCase):
                 "test_suite_id": "test-suite-id",
                 "version": "1.0", "parameters": {"a": 1}}
         ]
-        test_suite_id = "test-suite-id"
+        test_suite_id = "0123456789ab0123456789ab"
         kwargs = {
-            "test_set_id": "test-set-id"
+            "test_set_id": "0123456789ab0123456789ab"
         }
 
         ids, errors = tests_import.import_multi_test_cases(
@@ -128,9 +128,9 @@ class TestTestsImport(unittest.TestCase):
             {"name": "test-case0", "version": "1.0", "parameters": {"a": 1}},
             {"name": "test-case1", "version": "1.0", "parameters": {"a": 2}}
         ]
-        test_suite_id = "test-suite-id"
+        test_suite_id = "0123456789ab0123456789ab"
         kwargs = {
-            "test_set_id": "test-set-id"
+            "test_set_id": "0123456789ab0123456789ab"
         }
 
         ids, errors = tests_import.import_multi_test_cases(
@@ -154,9 +154,9 @@ class TestTestsImport(unittest.TestCase):
             {"name": "test-case2", "version": "1.0", "parameters": {"a": 3}},
             {"name": "test-case3", "version": "1.0", "parameters": {"a": 4}}
         ]
-        test_suite_id = "test-suite-id"
+        test_suite_id = "0123456789ab0123456789ab"
         kwargs = {
-            "test_set_id": "test-set-id"
+            "test_set_id": "0123456789ab0123456789ab"
         }
 
         ids, errors = tests_import.import_multi_test_cases(
@@ -187,9 +187,9 @@ class TestTestsImport(unittest.TestCase):
         mock_db.return_value = self.db
 
         case_list = [{"parameters": {"a": 1}}]
-        test_suite_id = "test-suite-id"
+        test_suite_id = "0123456789ab0123456789ab"
         kwargs = {
-            "test_set_id": "test-set-id"
+            "test_set_id": "0123456789ab0123456789ab"
         }
 
         ids, errors = tests_import.import_multi_test_cases(
@@ -203,9 +203,9 @@ class TestTestsImport(unittest.TestCase):
         mock_db.return_value = self.db
 
         case_list = [{"name": "case", "version": "1.0", "parameters": ["a"]}]
-        test_suite_id = "test-suite-id"
+        test_suite_id = "0123456789ab0123456789ab"
         kwargs = {
-            "test_set_id": "test-set-id"
+            "test_set_id": "0123456789ab0123456789ab"
         }
 
         ids, errors = tests_import.import_multi_test_cases(
@@ -523,12 +523,12 @@ class TestTestsImport(unittest.TestCase):
                 "test_case": [
                     {
                         "name": "test-case0",
-                        "test_suite_id": "test-suite-id"
+                        "test_suite_id": "0123456789ab0123456789a"
                     }
                 ]
             },
         ]
-        test_suite_id = "test-suite-id"
+        test_suite_id = "0123456789ab0123456789ab"
 
         ids, errors = tests_import.import_multi_test_sets(
             tests_list, test_suite_id, "suite-name", {})
