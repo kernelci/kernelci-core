@@ -31,14 +31,16 @@ actions:
     to: tmpfs
     os: oe
     images:
-        kernel:
-          image_arg: '-kernel {kernel} -append "console={{ console_dev }},115200 root=/dev/ram0 debug verbose"'
-          url: {{ kernel_url }}
-        ramdisk:
-          image_arg: '-initrd {ramdisk}'
-          url: {{ initrd_url }}
+      kernel:
+        image_arg: '-kernel {kernel} -append "console={{ console_dev }},115200 root=/dev/ram0 debug verbose"'
+        url: {{ kernel_url }}
+      ramdisk:
+        image_arg: '-initrd {ramdisk}'
+        url: {{ initrd_url }}
 
 - boot:
+    timeout:
+      minutes: 5
     method: qemu
     media: tmpfs
     prompts:

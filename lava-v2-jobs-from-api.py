@@ -79,7 +79,6 @@ def main(args):
         'job': tree,
         'kernel': git_describe,
         'git_branch': branch,
-        'status': 'PASS',
         'arch': arch,
     })
     url = urlparse.urljoin(api, 'build?{}'.format(url_params))
@@ -113,6 +112,10 @@ def main(args):
         if build['kernel_image']:
             if build['kernel_image'] == 'bzImage' and arch == 'x86':
                 build['dtb_dir_data'].extend(LEGACY_X86_PLATFORMS)
+        else:
+            continue
+        if 'PASS' not in build.get('status', ''):
+            continue
         if arch in ['arm', 'arm64', 'x86'] and 'defconfig' in defconfig:
             build['dtb_dir_data'].append('qemu')
         for plan in plans:
