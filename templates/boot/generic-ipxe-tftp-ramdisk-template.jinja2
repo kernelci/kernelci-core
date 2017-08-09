@@ -10,11 +10,13 @@
 {{ super () }}
 {%- endblock %}
 
-  - boot:
-     method: ipxe
-     commands: ramdisk
-     prompts:
-       - 'linaro-test'
-       - 'root@debian:~#'
-       - '/ #'
+- boot:
+    timeout:
+      minutes: 5
+    method: ipxe
+    commands: ramdisk
+    prompts:
+      - 'linaro-test'
+      - 'root@debian:~#'
+      - '/ #'
 {% endblock %}
