@@ -50,7 +50,7 @@ META_DATA_MAP = {
     models.MACH_KEY: "platform.mach",
     models.FASTBOOT_KEY: "platform.fastboot",
     models.INITRD_KEY: "job.initrd_url",
-    models.BOARD_KEY: "device.type",
+    models.BOARD_KEY: "platform.name",
 }
 
 BL_META_MAP = {
