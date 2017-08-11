@@ -44,6 +44,7 @@ GET
  :query string defconfig: A value of the ``defconfig`` used for the build.
  :query string defconfig_full: A value of the ``defconfig_full`` used for the build.
  :query string definition_uri: The URI where the test definition is stored.
+ :query string git_branch: The name of the branch.
  :query string job: The tree name.
  :query string job_id: The ID of the job.
  :query string kernel: The kernel name.

@@ -36,6 +36,7 @@ class TestTestSuiteModel(unittest.TestCase):
         test_suite.defconfig = "defconfig"
         test_suite.build_id = "another_build-id"
         test_suite.definition_uri = "uri"
+        test_suite.git_branch = "git_branch"
         test_suite.id = "id"
         test_suite.job = "job"
         test_suite.job_id = "job_id"
@@ -59,6 +60,7 @@ class TestTestSuiteModel(unittest.TestCase):
             "defconfig_full": "defconfig",
             "build_id": "another_build-id",
             "definition_uri": "uri",
+            "git_branch": "git_branch",
             "job": "job",
             "job_id": "job_id",
             "kernel": "kernel",
@@ -98,6 +100,7 @@ class TestTestSuiteModel(unittest.TestCase):
             "defconfig_full": "defconfig",
             "build_id": "build-id",
             "definition_uri": "uri",
+            "git_branch": "git_branch",
             "job": "job",
             "job_id": "job_id",
             "kernel": "kernel",

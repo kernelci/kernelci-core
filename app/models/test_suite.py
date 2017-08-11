@@ -56,6 +56,7 @@ class TestSuiteDocument(mbase.BaseDocument):
         self.defconfig = None
         self.defconfig_full = None
         self.definition_uri = None
+        self.git_branch = None
         self.job = None
         self.job_id = None
         self.kernel = None
@@ -124,6 +125,7 @@ class TestSuiteDocument(mbase.BaseDocument):
             models.DEFCONFIG_FULL_KEY: self.defconfig_full or self.defconfig,
             models.DEFCONFIG_KEY: self.defconfig,
             models.DEFINITION_URI_KEY: self.definition_uri,
+            models.GIT_BRANCH_KEY: self.git_branch,
             models.JOB_ID_KEY: self.job_id,
             models.JOB_KEY: self.job,
             models.KERNEL_KEY: self.kernel,

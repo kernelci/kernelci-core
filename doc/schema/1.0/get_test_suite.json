@@ -69,6 +69,10 @@
             "type": "string",
             "description": "The instance identifier of the board"
         },
+        "git_branch": {
+            "type": "string",
+            "description": "The branch used for boot testing"
+        },
         "job_id": {
             "type": "string",
             "description": "The ID of the job that this test suite is being run on"
