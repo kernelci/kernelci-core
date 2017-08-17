@@ -35,7 +35,7 @@
         },
         "test_suite_id": {
             "type": "string",
-            "description": "The test suite ID associated with this test case"
+            "description": "The test suite ID associated with this test set"
         },
         "test_case": {
             "type": "array",

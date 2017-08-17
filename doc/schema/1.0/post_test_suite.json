@@ -56,7 +56,7 @@
         },
         "git_branch": {
             "type": "string",
-            "description": "The branch used for boot testing"
+            "description": "The branch used for testing"
         },
         "job_id": {
             "type": "string",

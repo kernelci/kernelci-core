@@ -71,7 +71,7 @@
         },
         "git_branch": {
             "type": "string",
-            "description": "The branch used for boot testing"
+            "description": "The branch used for testing"
         },
         "job_id": {
             "type": "string",
@@ -103,7 +103,7 @@
         },
         "definition_uri": {
             "type": "string",
-            "description": "The URI where this test set definition is stored"
+            "description": "The URI where this test suite definition is stored"
         },
         "vcs_commit": {
             "type": "string",
