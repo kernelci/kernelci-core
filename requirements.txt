@@ -1,12 +1,9 @@
 Sphinx==1.4.9
 celery[redis]==3.1.25
 docutils==0.12
-fakeredis
 futures==3.0.4
 hiredis
 jinja2
-mock>0.7.2
-mongomock==1.2.0
 netaddr==0.7.18
 pycares==1.0.0
 pymongo==2.8.1

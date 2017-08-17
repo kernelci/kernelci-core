@@ -1,0 +1,4 @@
+-r requirements.txt
+mock>0.7.2
+mongomock==1.2.0
+fakeredis

@@ -27,6 +27,8 @@ installed as well. Skip them with:
 
 Non exhaustive list of requirements is in the 'requirements.txt' file: those
 need to be installed via pip.
+For production, requirements.txt is sufficient. For development purpose, requirements-dev.txt
+will add extra package for testing.
 
 For the rest of the necessary packages, see the ansible playbook.
 
