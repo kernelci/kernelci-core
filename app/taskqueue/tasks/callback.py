@@ -36,3 +36,23 @@ def lava_boot(json_obj, lab_name):
                                      taskc.app.conf.db_options)
     # TODO: handle errors.
     return ret_code, doc_id
+
+
+@taskc.app.task(name="lava-test")
+def lava_test(json_obj, lab_name):
+    """Add test data from a LAVA v2 job callback
+
+    This is a wrapper around the actual function which runs in a Celery task.
+
+    :param json_obj: The JSON object with the values necessary to import the
+    LAVA test data.
+    :type json_obj: dictionary
+    :param lab_name: The name of the LAVA lab that posted the callback.
+    :type lab_name: string
+    :return tuple The return code and the test document id.
+    """
+    ret_code, doc_id, errors = \
+        utils.callback.lava.add_tests(json_obj, lab_name,
+                                      taskc.app.conf.db_options)
+    # TODO: handle errors.
+    return ret_code, doc_id

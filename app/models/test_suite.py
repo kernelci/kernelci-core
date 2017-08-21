@@ -17,18 +17,18 @@ import copy
 import types
 
 import models
-import models.base as mbase
+import models.base as modb
 
 
 # pylint: disable=invalid-name
 # pylint: disable=too-many-instance-attributes
-class TestSuiteDocument(mbase.BaseDocument):
+class TestSuiteDocument(modb.BaseDocument):
     """Model for a test suite document.
 
     A test suite is a document that can store test cases and/or test sets ran.
     """
 
-    def __init__(self, name, lab_name, build_id, version="1.0"):
+    def __init__(self, name, lab_name, build_id=None, version="1.0"):
         """The test suite document.
 
         :param name: The name given to this test suite.

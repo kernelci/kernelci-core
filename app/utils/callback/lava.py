@@ -17,9 +17,16 @@ import os
 import yaml
 
 import utils
+import utils.tests_import as tests_import
 import utils.boot
+import utils.kci_test
 import utils.db
 import utils.lava_log_parser
+import pymongo
+import models.test_suite as mtest_suite
+import models.test_case as mtest_case
+import datetime
+import bson
 
 # copied from lava-server/lava_scheduler_app/models.py
 SUBMITTED = 0
@@ -34,7 +41,25 @@ LAVA_JOB_RESULT = {
     INCOMPLETE: "FAIL",
 }
 
-META_DATA_MAP = {
+DATA_MAP_TEST_CASE = {
+    models.NAME_KEY: "name",
+    models.STATUS_KEY: "result",
+
+}
+
+META_DATA_MAP_TEST_SUITE = {
+    models.DEFCONFIG_KEY: "kernel.defconfig_base",
+    models.DEFCONFIG_FULL_KEY: "kernel.defconfig",
+    models.GIT_BRANCH_KEY: "git.branch",
+    models.VCS_COMMIT_KEY: "git.commit",
+    models.KERNEL_KEY: "kernel.version",
+    models.JOB_KEY: "kernel.tree",
+    models.ARCHITECTURE_KEY: "job.arch",
+    models.BOARD_KEY: "platform.name",
+    models.NAME_KEY: "test.plan",
+}
+
+META_DATA_MAP_BOOT = {
     models.DEFCONFIG_KEY: "kernel.defconfig_base",
     models.DEFCONFIG_FULL_KEY: "kernel.defconfig",
     models.GIT_BRANCH_KEY: "git.branch",
@@ -60,17 +85,67 @@ BL_META_MAP = {
 }
 
 
-def _get_definition_meta(meta, job_data):
+def _get_test_case_data(meta, tc_data, job_data, META_DATA_MAP):
+    """Parse the test definition data from the test suite name
+
+    Parse the data from the LAVA v2 job definition sent with the callback
+    and populate the required fields to store in the database.
+
+    :param meta: The test case data to populate.
+    :type meta: dictionary
+    :param tc_data: The JSON data from the callback.
+    :type tc_data: dict
+    :param job_data: The map of keys to search for in the JSON and update.
+    :type job_data: dict
+    :param META_DATA_MAP: The dict of keys to parse and add in the data.
+    :type META_DATA_MAP: list
+    """
+    test_key = None
+    common_meta = {
+        "version": "1.0",
+        # Time shoud be passed in the result as well
+        "time": "0.0",
+    }
+    # TODO: Fix ?
+    # Kind of workaround because the key for a test will be <number>_test_name
+    # Always using first found key for now
+    for key in job_data["results"]:
+        if meta[models.NAME_KEY] in key:
+            test_key = key
+            break
+
+    if test_key is None:
+        utils.LOG.error("Could not find test data for '%s' in lava callback",
+                        meta[models.NAME_KEY])
+        return
+
+    tests = yaml.load(job_data["results"][test_key],
+                      Loader=yaml.CLoader)
+    for test in tests:
+        test_case = {x: test[y] for x, y in META_DATA_MAP.iteritems()}
+        test_case.update(common_meta)
+        # If no set is defined make it part of a generic one
+        if "set" in test["metadata"]:
+            test_case.update({"set": test["metadata"]["set"]})
+        else:
+            test_case.update({"set": "default"})
+        tc_data.append(test_case)
+
+
+def _get_definition_meta(meta, job_data, META_DATA_MAP):
     """Parse the job definition meta-data from LAVA
 
     Parse the meta-data from the LAVA v2 job definition sent with the callback
     and populate the required fields to store in the database.
 
-    :param meta: The boot meta-data.
+    :param meta: The meta-data to populate.
     :type meta: dictionary
     :param job_data: The JSON data from the callback.
     :type job_data: dict
-
+    :param job_data: The map of keys to search for in the JSON and update.
+    :type job_data: dict
+    :param META_DATA_MAP: The dict of keys to parse and add in the meta-data.
+    :type META_DATA_MAP: dict
     """
     meta["board_instance"] = job_data["actual_device_id"]
     definition = yaml.load(job_data["definition"], Loader=yaml.CLoader)
@@ -200,7 +275,7 @@ def add_boot(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
     doc_id = None
     errors = {}
 
-    utils.LOG.info("Processing LAVA data: job {} from {}".format(
+    utils.LOG.info("Processing LAVA boot data: job {} from {}".format(
         job_data["id"], lab_name))
 
     meta = {
@@ -214,11 +289,70 @@ def add_boot(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
 
     try:
         meta["boot_result"] = LAVA_JOB_RESULT[job_data["status"]]
-        _get_definition_meta(meta, job_data)
+        _get_definition_meta(meta, job_data, META_DATA_MAP_BOOT)
         _get_lava_meta(meta, job_data)
         _add_boot_log(meta, job_data["log"], base_path)
         ret_code, doc_id, err = \
             utils.boot.import_and_save_boot(meta, db_options)
+        utils.errors.update_errors(errors, err)
+    except (yaml.YAMLError, ValueError, KeyError) as ex:
+        ret_code = 400
+        msg = "Invalid LAVA data"
+    except (OSError, IOError) as ex:
+        ret_code = 500
+        msg = "Internal error"
+    finally:
+        if ex is not None:
+            utils.LOG.exception(ex)
+        if msg is not None:
+            utils.LOG.error(msg)
+            utils.errors.add_error(errors, ret_code, msg)
+
+    return ret_code, doc_id, errors
+
+
+def add_tests(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
+    """Entry point to be used as an external task.
+
+    This function should only be called by Celery or other task managers.
+    Parse the boot data from a LAVA v2 job callback and save it along with
+    kernel logs.
+
+    :param job_data: The JSON data from the callback.
+    :type job_data: dict
+    :param lab_name: Name of the LAVA lab that posted the callback.
+    :type lab_name: string
+    :param db_options: The mongodb database connection parameters.
+    :type db_options: dict
+    :param base_path: Path to the top-level directory where to save files.
+    :type base_path: string
+    :return tuple The return code, the boot document id and errors.
+    """
+    ret_code = 201
+    doc_id = None
+    errors = {}
+    # Test suite metadata
+    meta = {
+        "version": "1.0",
+        "lab_name": lab_name,
+        "time": "0.0",
+    }
+    # List of test cases data
+    tc_data = []
+
+    ex = None
+    msg = None
+
+    utils.LOG.info("Processing LAVA test data: job {} from {}".format(
+        job_data["id"], lab_name))
+
+    try:
+        # Get Test suite definitions
+        _get_definition_meta(meta, job_data, META_DATA_MAP_TEST_SUITE)
+        # Get Test cases data
+        _get_test_case_data(meta, tc_data, job_data, DATA_MAP_TEST_CASE)
+        ret_code, doc_id, err = \
+            utils.kci_test.import_and_save_kci_test(meta, tc_data, db_options)
         utils.errors.update_errors(errors, err)
     except (yaml.YAMLError, ValueError, KeyError) as ex:
         ret_code = 400
