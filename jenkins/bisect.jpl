@@ -1,0 +1,282 @@
+#!/usr/bin/env groovy
+
+/*
+  Copyright (C) 2017 Collabora Limited
+  Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+
+  This module is free software; you can redistribute it and/or modify it under
+  the terms of the GNU Lesser General Public License as published by the Free
+  Software Foundation; either version 2.1 of the License, or (at your option)
+  any later version.
+
+  This library is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+  details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with this library; if not, write to the Free Software Foundation, Inc.,
+  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+*/
+
+def getSHA(kdir) {
+    def sha
+
+    dir(kdir) {
+        sha = sh(script: "git rev-parse HEAD", returnStdout: true)
+    }
+
+    return sha
+}
+
+def gitDescribe(kdir) {
+    def describe
+
+    dir(kdir) {
+        describe = sh(script: "git describe", returnStdout: true).trim()
+    }
+
+    return describe
+}
+
+def cloneKCIBuild(kci_build) {
+    sh(script: "rm -rf ${kci_build}")
+    dir("${kci_build}") {
+        git(url: params.KCI_BUILD_URL,
+            branch: params.KCI_BUILD_BRANCH,
+            poll: false)
+    }
+}
+
+def cloneLinux(kdir) {
+    echo """
+Initialising kernel tree
+  url:    ${params.KERNEL_URL}
+  branch: ${params.KERNEL_BRANCH}
+  path:   ${kdir}"""
+    sh """
+if [ -d ${kdir}/.git ]; then
+    cd ${kdir}
+    if git remote | grep -e '^${params.TREE}\$'; then
+        git remote set-url ${params.TREE} ${params.KERNEL_URL}
+        git remote update ${params.TREE}
+        git remote prune ${params.TREE}
+    else
+        git remote add ${params.TREE} ${params.KERNEL_URL}
+        git remote update ${params.TREE}
+    fi
+else
+    git clone ${params.KERNEL_URL} ${kdir} -b ${params.KERNEL_BRANCH} -o ${params.TREE}
+    cd ${kdir}
+fi
+git reset --hard
+echo 'build-*' > .git/info/exclude
+git clean -fd
+git bisect reset || echo
+git checkout --detach HEAD
+git branch -D ${params.KERNEL_BRANCH} || echo
+git fetch ${params.TREE} ${params.KERNEL_BRANCH} --tags
+git checkout FETCH_HEAD -b ${params.KERNEL_BRANCH}
+git symbolic-ref HEAD refs/heads/${params.KERNEL_BRANCH}
+cd -
+"""
+}
+
+def cloneLAVA_CI(lava_ci) {
+    sh(script: "rm -rf ${lava_ci}")
+    dir("${lava_ci}") {
+        git(url: params.LAVA_CI_URL,
+            branch: params.LAVA_CI_BRANCH,
+            poll: false)
+    }
+}
+
+/* Working around some seemingly broken Python set-up... */
+def eggCache() {
+    def egg_cache = env.WORKSPACE + "/python-egg-cache"
+    sh(script: "mkdir -p ${egg_cache}")
+    return egg_cache
+}
+
+def buildKernel(kdir, kci_build) {
+    def status
+
+    dir(kdir) {
+        withCredentials([string(credentialsId: params.KCI_TOKEN_ID,
+                                variable: 'SECRET')]) {
+            status = sh(returnStatus: true,
+                        script: """
+API=${params.API} \
+TOKEN=${SECRET} \
+TREE_NAME=${params.TREE} \
+ARCH=${params.ARCH} \
+BRANCH=${params.KERNEL_BRANCH} \
+""" + kci_build + "/build.py -e -g -i -c ${params.DEFCONFIG}")
+        }
+    }
+
+    return status ? 1 : 0;
+}
+
+def submitJob(lava_ci, describe) {
+    dir(lava_ci) {
+        sh(script: "rm -rf data; mkdir data")
+
+        withCredentials([string(credentialsId: params.KCI_TOKEN_ID,
+                                variable: 'SECRET')]) {
+            sh(script: """
+./lava-v2-jobs-from-api.py \
+--lab=${params.LAB} \
+--token=${SECRET} \
+--api=${params.API} \
+--storage=${params.STORAGE} \
+--plans=boot \
+--jobs=data \
+--arch=${params.ARCH} \
+--tree=${params.TREE} \
+--describe=${describe} \
+--branch=${params.KERNEL_BRANCH} \
+--defconfig_full=${params.DEFCONFIG} \
+--priority=${params.LAVA_PRIORITY} \
+--callback=${params.CALLBACK} \
+--targets=${params.TARGET}
+""")
+        }
+
+        def egg_cache = eggCache()
+        def token = "LAVA XMLRPC Token for " + params.LAB.split('-dev')[0]
+
+        withCredentials([string(credentialsId: token, variable: 'SECRET')]) {
+            sh(script: """
+PYTHON_EGG_CACHE=${egg_cache} \
+./lava-v2-submit-jobs.py \
+--username=kernel-ci \
+--token=${SECRET} \
+--lab=${params.LAB} \
+--jobs=data \
+--submitted=data/submitted.json
+""")
+        }
+
+        stash(name: "job-data", includes: "data/**")
+    }
+}
+
+def getResult(lava_ci) {
+    def status
+
+    dir(lava_ci) {
+        sh(script: "rm -rf data")
+        unstash("job-data")
+        def egg_cache = eggCache()
+        withCredentials([string(credentialsId: params.KCI_TOKEN_ID,
+                                variable: 'SECRET')]) {
+            status = sh(returnStatus: true, script: """
+PYTHON_EGG_CACHE=${egg_cache} \
+./lava-v2-get-boot-results.py \
+--lab=${params.LAB} \
+--token=${SECRET} \
+--api=${params.API} \
+--submitted=data/submitted.json \
+--period=30 \
+--output=data/boots.json
+""")
+        }
+    }
+
+    return status
+}
+
+def bisectNext(kdir, status) {
+    dir(kdir) {
+        sh(script: "git clean -fd")
+
+        switch (status) {
+        case 0:
+            sh(script: "git bisect good")
+            break
+        case 2:
+            sh(script: "git bisect bad")
+            break
+        case 1:
+            echo "Iteration failed, skipping"
+            sh(script: "git bisect skip")
+            break
+        default:
+            echo "Unexpected status, skipping"
+            sh(script: "git bisect skip")
+            break
+        }
+    }
+}
+
+node("bisection") {
+    def kci_build = env.WORKSPACE + '/kernelci-build'
+    def kdir = env.WORKSPACE + '/linux'
+
+    echo """\
+Lab:       ${params.LAB}
+Target:    ${params.TARGET}
+Tree:      ${params.TREE}
+Branch:    ${params.KERNEL_BRANCH}
+Defconfig: ${params.DEFCONFIG}
+Good:      ${params.GOOD_COMMIT}
+Bad:       ${params.BAD_COMMIT}"""
+
+    timeout(time: 30, unit: 'MINUTES') {
+        stage("Init") {
+            parallel(
+                p1: { cloneKCIBuild(kci_build) },
+                p2: { cloneLinux(kdir) },
+            )
+
+            dir("${kdir}") {
+                sh(script: "git bisect start")
+                sh(script: "git bisect good ${params.GOOD_COMMIT}")
+                sh(script: "git bisect bad ${params.BAD_COMMIT}")
+            }
+        }
+    }
+
+    def previous = params.GOOD_COMMIT
+    def current = getSHA(kdir)
+    def iteration = 1
+
+    while (previous != current) {
+        def describe = gitDescribe(kdir)
+        def status
+
+        echo "Iteration #${iteration}: ${describe}"
+
+        lock("${env.NODE_NAME}-build-lock") {
+            timeout(time: 60, unit: 'MINUTES') {
+                stage("Build ${iteration}") {
+                    status = buildKernel(kdir, kci_build)
+                }
+            }
+        }
+
+        if (!status) {
+            node("kernel-boot-v2") {
+                timeout(time: 120, unit: 'MINUTES') {
+                    stage("Test ${iteration}") {
+                        def lava_ci = env.WORKSPACE + '/lava-ci'
+                        cloneLAVA_CI(lava_ci)
+                        submitJob(lava_ci, describe)
+                        status = getResult(lava_ci)
+                    }
+                }
+            }
+        }
+
+        timeout(time: 5, unit: 'MINUTES') {
+            stage("Next") {
+                bisectNext(kdir, status)
+            }
+        }
+
+        previous = current
+        current = getSHA(kdir)
+        iteration += 1
+    }
+}
