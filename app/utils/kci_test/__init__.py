@@ -29,7 +29,9 @@ import re
 
 import models
 import models.test_suite as mtest_suite
+import models.test_set as mtest_set
 import models.test_case as mtest_case
+import taskqueue.celery as taskc
 import utils
 import utils.db
 import utils.errors
@@ -233,8 +235,8 @@ def _update_test_case_doc_from_json(case_doc, test_dict, errors):
 
     :param case_doc: The TestCaseDocument to update.
     :type case_doc: `models.test_case.TestCaseDocument`.
-    :param test_case: Test case dictionary.
-    :type test_case: dict
+    :param test_dict: Test case dictionary.
+    :type test_dict: dict
     :param errors: Where errors should be stored.
     :type errors: dict
     """
@@ -354,8 +356,8 @@ def _update_test_suite_doc_from_json(suite_doc, test_dict, errors):
 
     :param suite_doc: The TestSuiteDocument to update.
     :type suite_doc: `models.test_suite.TestSuiteDocument`.
-    :param test_suite: Test suite dictionary.
-    :type test_suite: dict
+    :param test_dict: Test suite dictionary.
+    :type test_dict: dict
     :param errors: Where errors should be stored.
     :type errors: dict
     """
@@ -502,6 +504,144 @@ def _parse_test_suite_from_json(test_json, database, errors):
     return test_doc
 
 
+def import_and_save_test_sets(test_cases, test_sets,
+                              tsu_id, tsu_name,
+                              database, errors):
+    """Parse the test set report from a JSON object.
+
+    This function parses the test cases reports to find the distinct
+    test set names. It creates database entries for each unique set name.
+    The test_sets dict is updated accordingly with the IDs of created test
+    sets. An operation code is returned for success / error.
+
+
+    :param test_cases: The JSON object.
+    :type test_cases: dict
+    :param test_sets: Where to store the test sets references (name & ID).
+    :type test_sets: dict
+    :param tsu_id: The related test suite ID.
+    :type tsu_id: str
+    :param tsu_name: The related test suite name.
+    :type tsu_name: str
+    :param database: The database connection.
+    :param errors: Where to store the errors.
+    :type errors: dict
+    :return the operation code (201 if the save has
+    success, 500 in case of an error).
+    """
+    ret_code = 500
+    # Python set(): unordered collections of unique elements
+    test_sets_set = set()
+
+    if not test_cases:
+        return ret_code
+    if not tsu_id or not tsu_name:
+        return ret_code
+
+    for test_case in test_cases:
+        test_sets_set.add(test_case["set"])
+
+    for test_set_name in test_sets_set:
+        test_set_doc = mtest_set.TestSetDocument(
+            test_set_name,
+            tsu_id)
+        test_set_doc.test_suite_name = tsu_name
+        test_set_doc.created_on = datetime.datetime.now(
+            tz=bson.tz_util.utc)
+        if test_set_doc:
+            ret_code, test_set_doc_id = \
+                utils.db.save(database, test_set_doc, manipulate=True)
+            test_sets[test_set_name] = test_set_doc_id
+
+            if ret_code == 500:
+                err_msg = (
+                    "Error saving test set report in the database "
+                    "for test suite '%s (%s)'" %
+                    (
+                        tsu_name,
+                        tsu_id,
+                    )
+                )
+                ERR_ADD(errors, ret_code, err_msg)
+                return ret_code
+            else:
+                # Test set imported successfully, update test suite
+                tests_import.update_test_suite_add_test_set_id(
+                    test_set_doc_id, tsu_id, tsu_name,
+                    taskc.app.conf.db_options,
+                    taskc.app.conf.mail_options)
+
+        else:
+            return 500
+    return ret_code
+
+
+def import_and_save_test_cases(test_cases, test_sets,
+                               ts_doc_id, ts_doc_name,
+                               database, errors):
+    """Import the tests cases report from a JSON object.
+
+    This function returns an operation code based on the import result
+    of all the test cases.
+    It parses the test_cases JSON, add them to the database and if
+    imported successfuly, updates the related test set and suite.
+
+    :param test_cases: The JSON object.
+    :type test_cases: dict
+    :param test_sets: The JSON object.
+    :type test_sets: dict
+    :param ts_doc_id: The related test suite ID.
+    :type ts_doc_id: str
+    :param ts_doc_name: The related test suite name.
+    :type ts_doc_name: str
+    :param database: The database connection.
+    :param errors: Where errors should be stored.
+    :type errors: dict
+    :return the operation code (201 if the save has
+    success, 500 in case of an error).
+    """
+    ret_code = 500
+
+    if not test_cases:
+        return ret_code
+    if not ts_doc_id or not ts_doc_name:
+        return ret_code
+
+    for test_case in test_cases:
+        tc_doc = \
+            _parse_test_case_from_json(ts_doc_name, ts_doc_id,
+                                       test_case, database, errors)
+        if tc_doc:
+            tc_doc.test_set_id = test_sets[test_case["set"]]
+            ret_code, tc_doc_id = utils.db.save(database, tc_doc,
+                                                manipulate=True)
+
+        if ret_code == 500:
+            err_msg = (
+                "Error saving test case report in the database "
+                "for '%s (%s, %s)'" %
+                (
+                    tc_doc.name,
+                    tc_doc.status,
+                    tc_doc.test_suite_id,
+                )
+            )
+            ERR_ADD(errors, ret_code, err_msg)
+            return ret_code
+        else:
+            # Test case imported successfully update test suite
+            ret_code, errors = \
+                tests_import.update_test_suite_add_test_case_id(
+                    tc_doc_id, ts_doc_id, ts_doc_name,
+                    taskc.app.conf.db_options)
+            # And update test set
+            ret_code, errors = \
+                tests_import.update_test_set_add_test_case_id(
+                    tc_doc_id, tc_doc.test_set_id,
+                    taskc.app.conf.db_options)
+    return ret_code
+
+
 def import_and_save_kci_test(test_suite_obj, test_case_obj,
                              db_options, base_path=utils.BASE_PATH):
     """Wrapper function to be used as an external task.
@@ -522,6 +662,7 @@ def import_and_save_kci_test(test_suite_obj, test_case_obj,
     ret_code = None
     ts_doc_id = None
     tc_doc_id = None
+    test_sets = {}
     errors = {}
 
     try:
@@ -536,35 +677,14 @@ def import_and_save_kci_test(test_suite_obj, test_case_obj,
             ret_code, ts_doc_id = utils.db.save(database,
                                                 ts_doc, manipulate=True)
             tc_json_copy = copy.deepcopy(test_case_obj)
-
-            for test_case in tc_json_copy:
-                tc_doc = \
-                    _parse_test_case_from_json(ts_doc.name, ts_doc_id,
-                                               test_case, database, errors)
-                if tc_doc:
-                    ret_code, tc_doc_id = utils.db.save(database, tc_doc,
-                                                        manipulate=True)
-
-                if ret_code == 500:
-                    err_msg = (
-                        "Error saving test case report in the database "
-                        "for '%s (%s, %s)'" %
-                        (
-                            tc_doc.name,
-                            tc_doc.status,
-                            tc_doc.test_suite_id,
-                        )
-                    )
-                    ERR_ADD(errors, ret_code, err_msg)
-                else:
-                    # Test case imported successfully update test suite
-                    ret_code, errors = \
-                        tests_import.update_test_suite_add_test_case_id(
-                            tc_doc_id, ts_doc_id, ts_doc.name, db_options)
-
-                if errors:
-                    utils.LOG.error("Error while importing test case")
-                    break
+            # Import and save the test set from the test cases
+            ret_code = import_and_save_test_sets(tc_json_copy, test_sets,
+                                                 ts_doc_id, ts_doc.name,
+                                                 database, errors)
+            # Import the test cases
+            ret_code = import_and_save_test_cases(tc_json_copy, test_sets,
+                                                  ts_doc_id, ts_doc.name,
+                                                  database, errors)
             # TODO fix this: need to define a save_to_disk method
             # save_to_disk(ts_doc, test_suite_obj, base_path, errors)
         else:
