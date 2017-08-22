@@ -42,16 +42,12 @@ try:  # Py3K compat
 except NameError:
     basestring = str
 
-# Some dtb appears to be in a temp directory like 'tmp', and will results in
-# some weird names.
-TMP_RE = re.compile(r"tmp")
-
 # Keys that need to be checked for None or null value.
 NON_NULL_KEYS_SUITE = [
     models.BOARD_KEY,
     models.DEFCONFIG_KEY,
     models.JOB_KEY,
-    models.KERNEL_KEY
+    models.KERNEL_KEY,
 ]
 
 NON_NULL_KEYS_CASE = [
@@ -64,122 +60,15 @@ ERR_ADD = utils.errors.add_error
 
 
 class TestImportError(Exception):
-    """General boot import exceptions class."""
+    """General test import exceptions class."""
 
 
 class TestValidationError(ValueError, TestImportError):
-    """General error for values of boot data."""
-
-
-def save_or_update(test_doc, database, errors):
-    """Save or update the document in the database.
-
-    Check if we have a document available in the db, and in case perform an
-    update on it.
-
-    :param test_doc: The test document to save.
-    :type test_doc: BaseDocument
-    :param database: The database connection.
-    :param errors: Where errors should be stored.
-    :type errors: dict
-    :return The save action return code and the doc ID.
-    """
-    spec = {
-        models.ARCHITECTURE_KEY: test_doc.arch,
-        models.BOARD_KEY: test_doc.board,
-        models.DEFCONFIG_FULL_KEY: (
-            test_doc.defconfig_full or test_doc.defconfig),
-        models.DEFCONFIG_KEY: test_doc.defconfig,
-        models.JOB_KEY: test_doc.job,
-        models.KERNEL_KEY: test_doc.kernel,
-        models.LAB_NAME_KEY: test_doc.lab_name,
-        models.GIT_BRANCH_KEY: test_doc.git_branch
-    }
-
-    fields = [
-        models.CREATED_KEY,
-        models.ID_KEY,
-    ]
-
-    # Clear the BOOT keys
-    # look at the test_suite and test_case split
-
-    prev_doc = utils.db.find_one2(
-        database[models.TEST_SUITE_COLLECTION], spec, fields=fields)
-
-    if prev_doc:
-        doc_get = prev_doc.get
-        doc_id = doc_get(models.ID_KEY)
-        test_doc.id = doc_id
-        test_doc.created_on = doc_get(models.CREATED_KEY)
-
-        utils.LOG.info("Updating test_suite document with id '%s'", doc_id)
-        ret_val, _ = utils.db.save(database, test_doc)
-    else:
-        ret_val, doc_id = utils.db.save(database, test_doc, manipulate=True)
-
-    if ret_val == 500:
-        err_msg = (
-            "Error saving/updating test report in the database "
-            "for '%s-%s-%s-%s (%s, %s)'" %
-            (
-                test_doc.job,
-                test_doc.git_branch,
-                test_doc.kernel,
-                test_doc.defconfig_full, test_doc.arch, test_doc.board
-            )
-        )
-        ERR_ADD(errors, ret_val, err_msg)
-
-    return ret_val, doc_id
-
-
-def save_to_disk(test_doc, json_obj, base_path, errors):
-    """Save the provided test report to disk.
-
-    :param test_doc: The document parsed.
-    :type test_doc: models.test.TestDocument
-    :param json_obj: The JSON data to write.
-    :type json_obj: dictionary
-    :param base_path: The base path where to save the document.
-    :type base_path: str
-    :param errors: Where errors should be stored.
-    :type errors: dictionary
-    """
-    dir_path = os.path.join(
-        base_path,
-        test_doc.job,
-        test_doc.git_branch,
-        test_doc.kernel,
-        test_doc.arch,
-        test_doc.defconfig_full, test_doc.lab_name)
-    file_path = os.path.join(dir_path, "test-{}.json".format(test_doc.board))
-
-    try:
-        if not os.path.isdir(dir_path):
-            try:
-                os.makedirs(dir_path)
-            except OSError, ex:
-                if ex.errno != errno.EEXIST:
-                    raise ex
-
-        with io.open(file_path, mode="w") as write_json:
-            write_json.write(
-                unicode(
-                    json.dumps(
-                        json_obj, indent="  ", default=bson.json_util.default),
-                    encoding="utf-8"
-                )
-            )
-    except (OSError, IOError), ex:
-        err_msg = "Error saving test report to '{}'".format(file_path)
-        utils.LOG.exception(ex)
-        utils.LOG.error(err_msg)
-        ERR_ADD(errors, 500, err_msg)
+    """General error for values of test data."""
 
 
 def _check_for_null(test_dict, NON_NULL_KEYS):
-    """Check if the board dictionary has values resembling None in its
+    """Check if the NON_NULL_KEYS dictionary has values resembling None in its
     mandatory keys.
 
     Values must be different than:
@@ -187,7 +76,7 @@ def _check_for_null(test_dict, NON_NULL_KEYS):
     - ""
     - "null"
 
-    :param test_dict: The board dictoinary.
+    :param test_dict: The dictionary to check.
     :type test_dict: dict
     :param NON_NULL_KEYS: The dict of keys to parse and check for non null.
     :type NON_NULL_KEYS: dict
@@ -230,7 +119,7 @@ def _seconds_as_datetime(seconds):
 def _update_test_case_doc_from_json(case_doc, test_dict, errors):
     """Update a TestCaseDocument from the provided test dictionary.
 
-    This function does not return anything, and the TestCaseDocument passed is
+    This function does not return anything, the TestCaseDocument passed is
     updated from the values found in the provided JSON object.
 
     :param case_doc: The TestCaseDocument to update.
@@ -351,7 +240,7 @@ def _parse_test_case_from_json(ts_name, ts_id, test_json, database, errors):
 def _update_test_suite_doc_from_json(suite_doc, test_dict, errors):
     """Update a TestSuiteDocument from the provided test dictionary.
 
-    This function does not return anything, and the TestSuiteDocument passed is
+    This function does not return anything, the TestSuiteDocument passed is
     updated from the values found in the provided JSON object.
 
     :param suite_doc: The TestSuiteDocument to update.
