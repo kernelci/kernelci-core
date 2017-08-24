@@ -64,6 +64,15 @@ if [ ${ARCH} = "arm" ]; then
   if [ ${TREE_NAME} = "next" ]; then
     DEFCONFIG_LIST+="allmodconfig "
   fi
+
+  # Ard specific tree and branch defconfigs.
+  if [ ${TREE_NAME} = "ardb" ] && [ ${BRANCH} = "arm-kaslr-latest" ]; then
+    DEFCONFIG_LIST+="multi_v7_defconfig+CONFIG_RANDOMIZE_BASE=y "
+    DEFCONFIG_LIST+="multi_v7_defconfig+CONFIG_THUMB2_KERNEL=y+CONFIG_RANDOMIZE_BASE=y "
+    DEFCONFIG_LIST+="multi_v5_defconfig "
+    DEFCONFIG_LIST+="omap2plus_defconfig+CONFIG_RANDOMIZE_BASE=y "
+    DEFCONFIG_LIST+="omap2plus_defconfig "
+  fi
 fi
 
 if [ ${ARCH} = "arm64" ]; then
