@@ -15,6 +15,7 @@ import errno
 import models
 import os
 import yaml
+from decimal import Decimal
 
 import utils
 import utils.tests_import as tests_import
@@ -129,6 +130,14 @@ def _get_test_case_data(meta, tc_data, job_data, META_DATA_MAP):
             test_case.update({"set": test["metadata"]["set"]})
         else:
             test_case.update({"set": "default"})
+        # If measurement add them to the data
+        if "measurement" in test["metadata"]:
+            value = test["metadata"]["measurement"]
+            measurements = {
+                "value": float(value),
+                "unit": test["metadata"]["units"],
+            }
+            test_case.update({"measurements": [measurements]})
         tc_data.append(test_case)
 
 
@@ -292,6 +301,7 @@ def add_boot(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
         _get_definition_meta(meta, job_data, META_DATA_MAP_BOOT)
         _get_lava_meta(meta, job_data)
         _add_boot_log(meta, job_data["log"], base_path)
+
         ret_code, doc_id, err = \
             utils.boot.import_and_save_boot(meta, db_options)
         utils.errors.update_errors(errors, err)
@@ -315,7 +325,7 @@ def add_tests(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
     """Entry point to be used as an external task.
 
     This function should only be called by Celery or other task managers.
-    Parse the boot data from a LAVA v2 job callback and save it along with
+    Parse the test data from a LAVA v2 job callback and save it along with
     kernel logs.
 
     :param job_data: The JSON data from the callback.
@@ -329,7 +339,7 @@ def add_tests(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
     :return tuple The return code, the boot document id and errors.
     """
     ret_code = 201
-    doc_id = None
+    ts_doc_id = None
     errors = {}
     # Test suite metadata
     meta = {
@@ -351,7 +361,7 @@ def add_tests(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
         _get_definition_meta(meta, job_data, META_DATA_MAP_TEST_SUITE)
         # Get Test cases data
         _get_test_case_data(meta, tc_data, job_data, DATA_MAP_TEST_CASE)
-        ret_code, doc_id, err = \
+        ret_code, ts_doc_id, err = \
             utils.kci_test.import_and_save_kci_test(meta, tc_data, db_options)
         utils.errors.update_errors(errors, err)
     except (yaml.YAMLError, ValueError, KeyError) as ex:
@@ -367,4 +377,4 @@ def add_tests(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
             utils.LOG.error(msg)
             utils.errors.add_error(errors, ret_code, msg)
 
-    return ret_code, doc_id, errors
+    return ret_code, ts_doc_id, errors

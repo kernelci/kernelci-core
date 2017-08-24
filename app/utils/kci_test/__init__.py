@@ -162,6 +162,7 @@ def _update_test_case_doc_from_json(case_doc, test_dict, errors):
     case_doc.samples_sum = test_dict.get(models.SAMPLES_SUM_KEY, None)
     case_doc.vcs_commit = test_dict.get(models.VCS_COMMIT_KEY, None)
     case_doc.version = test_dict.get(models.VERSION_KEY, "1.0")
+    case_doc.measurements = test_dict.get(models.MEASUREMENTS_KEY, [])
 
 
 def _update_test_case_doc_ids(ts_name, ts_id, case_doc, database):
