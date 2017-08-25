@@ -55,6 +55,21 @@ NON_NULL_KEYS_CASE = [
     models.STATUS_KEY,
 ]
 
+SPEC_TEST_SUITE = {
+    models.BOOT_ID_KEY: "boot_id",
+    models.NAME_KEY: "name",
+}
+
+SPEC_TEST_SET = {
+    models.TEST_SUITE_ID_KEY: "test_suite_id",
+    models.NAME_KEY: "name",
+}
+
+SPEC_TEST_CASE = {
+    models.TEST_SUITE_ID_KEY: "test_suite_id",
+    models.NAME_KEY: "name",
+}
+
 # Local error function.
 ERR_ADD = utils.errors.add_error
 
@@ -65,6 +80,59 @@ class TestImportError(Exception):
 
 class TestValidationError(ValueError, TestImportError):
     """General error for values of test data."""
+
+
+def save_or_update(doc, spec_map, collection, database, errors):
+    """Save or update the document in the database.
+
+    Check if we have a document available in the db, and in case perform an
+    update on it.
+
+    :param doc: The document to save.
+    :type doc: BaseDocument
+    :param collection: The name of the collection to search.
+    :type collection: str
+    :param database: The database connection.
+    :param errors: Where errors should be stored.
+    :type errors: dict
+    :return The save action return code and the doc ID.
+    """
+    spec = {}
+
+    fields = [
+        models.CREATED_KEY,
+        models.ID_KEY,
+    ]
+
+    spec.update({x: getattr(doc, y) for x, y in spec_map.iteritems()})
+
+    prev_doc = utils.db.find_one2(
+        database[collection], spec, fields=fields)
+
+    if prev_doc:
+        doc_get = prev_doc.get
+        doc_id = doc_get(models.ID_KEY)
+        doc.id = doc_id
+        doc.created_on = doc_get(models.CREATED_KEY)
+
+        utils.LOG.info("Updating test document with id '%s'", doc_id)
+        ret_val, _ = utils.db.save(database, doc)
+    else:
+        ret_val, doc_id = utils.db.save(database, doc, manipulate=True)
+        utils.LOG.info("New test document with id '%s'", doc_id)
+
+    if ret_val == 500:
+        err_msg = (
+            "Error saving/updating test report in the database "
+            "for '%s (%s)'" %
+            (
+                doc.name,
+                doc.id,
+            )
+        )
+        ERR_ADD(errors, ret_val, err_msg)
+
+    return ret_val, doc_id
 
 
 def _check_for_null(test_dict, NON_NULL_KEYS):
@@ -154,6 +222,7 @@ def _update_test_case_doc_from_json(case_doc, test_dict, errors):
     case_doc.definition_uri = test_dict.get(models.DEFINITION_URI_KEY, None)
     case_doc.kvm_guest = test_dict.get(models.KVM_GUEST_KEY, None)
     case_doc.maximum = test_dict.get(models.MAXIMUM_KEY, None)
+    case_doc.measurements = test_dict.get(models.MEASUREMENTS_KEY, [])
     case_doc.metadata = test_dict.get(models.METADATA_KEY, None)
     case_doc.minimum = test_dict.get(models.MINIMUM_KEY, None)
     case_doc.samples = test_dict.get(models.SAMPLES_KEY, None)
@@ -162,7 +231,6 @@ def _update_test_case_doc_from_json(case_doc, test_dict, errors):
     case_doc.samples_sum = test_dict.get(models.SAMPLES_SUM_KEY, None)
     case_doc.vcs_commit = test_dict.get(models.VCS_COMMIT_KEY, None)
     case_doc.version = test_dict.get(models.VERSION_KEY, "1.0")
-    case_doc.measurements = test_dict.get(models.MEASUREMENTS_KEY, [])
 
 
 def _update_test_case_doc_ids(ts_name, ts_id, case_doc, database):
@@ -273,17 +341,18 @@ def _update_test_suite_doc_from_json(suite_doc, test_dict, errors):
     if seconds == 0.0:
         suite_doc.time = _seconds_as_datetime(seconds)
 
+    suite_doc.arch = test_dict.get(models.ARCHITECTURE_KEY, None)
     suite_doc.board = test_dict.get(models.BOARD_KEY, None)
     suite_doc.board_instance = test_dict.get(models.BOARD_INSTANCE_KEY, None)
-    suite_doc.vcs_commit = test_dict.get(models.VCS_COMMIT_KEY, None)
-    suite_doc.metadata = test_dict.get(models.METADATA_KEY, {})
-    suite_doc.version = test_dict.get(models.VERSION_KEY, "1.0")
-    suite_doc.git_branch = test_dict.get(models.GIT_BRANCH_KEY, None)
-    suite_doc.kernel = test_dict.get(models.KERNEL_KEY, None)
+    suite_doc.boot_id = test_dict.get(models.BOOT_ID_KEY, None)
     suite_doc.defconfig = test_dict.get(models.DEFCONFIG_KEY, None)
     suite_doc.defconfig_full = test_dict.get(models.DEFCONFIG_FULL_KEY, None)
-    suite_doc.arch = test_dict.get(models.ARCHITECTURE_KEY, None)
+    suite_doc.git_branch = test_dict.get(models.GIT_BRANCH_KEY, None)
     suite_doc.job = test_dict.get(models.JOB_KEY, None)
+    suite_doc.kernel = test_dict.get(models.KERNEL_KEY, None)
+    suite_doc.metadata = test_dict.get(models.METADATA_KEY, {})
+    suite_doc.vcs_commit = test_dict.get(models.VCS_COMMIT_KEY, None)
+    suite_doc.version = test_dict.get(models.VERSION_KEY, "1.0")
 
 
 def _update_test_suite_doc_ids(suite_doc, database):
@@ -440,7 +509,10 @@ def import_and_save_test_sets(test_cases, test_sets,
             tz=bson.tz_util.utc)
         if test_set_doc:
             ret_code, test_set_doc_id = \
-                utils.db.save(database, test_set_doc, manipulate=True)
+                save_or_update(test_set_doc, SPEC_TEST_SET,
+                               models.TEST_SET_COLLECTION,
+                               database, errors)
+            # Each test set name = test set id
             test_sets[test_set_name] = test_set_doc_id
 
             if ret_code == 500:
@@ -503,9 +575,9 @@ def import_and_save_test_cases(test_cases, test_sets,
                                        test_case, database, errors)
         if tc_doc:
             tc_doc.test_set_id = test_sets[test_case["set"]]
-            ret_code, tc_doc_id = utils.db.save(database, tc_doc,
-                                                manipulate=True)
-
+            ret_code, tc_doc_id = save_or_update(tc_doc, SPEC_TEST_CASE,
+                                                 models.TEST_CASE_COLLECTION,
+                                                 database, errors)
         if ret_code == 500:
             err_msg = (
                 "Error saving test case report in the database "
@@ -562,10 +634,10 @@ def import_and_save_kci_test(test_suite_obj, test_case_obj,
         ts_doc = _parse_test_suite_from_json(ts_json_copy, database, errors)
         # If test suite imported correctly
         if ts_doc and not errors:
-            # ret_code, ts_doc_id = save_or_update(ts_doc, database, errors)
-            # For now just save, do not update
-            ret_code, ts_doc_id = utils.db.save(database,
-                                                ts_doc, manipulate=True)
+            ret_code, ts_doc_id = \
+                save_or_update(ts_doc, SPEC_TEST_SUITE,
+                               models.TEST_SUITE_COLLECTION,
+                               database, errors)
             tc_json_copy = copy.deepcopy(test_case_obj)
             # Import and save the test set from the test cases
             ret_code = import_and_save_test_sets(tc_json_copy, test_sets,

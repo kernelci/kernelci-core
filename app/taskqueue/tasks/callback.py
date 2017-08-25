@@ -51,8 +51,11 @@ def lava_test(json_obj, lab_name):
     :type lab_name: string
     :return tuple The return code and the test document id.
     """
+    ret_code, boot_doc_id, errors = \
+        utils.callback.lava.add_boot(json_obj, lab_name,
+                                     taskc.app.conf.db_options)
     ret_code, doc_id, errors = \
-        utils.callback.lava.add_tests(json_obj, lab_name,
+        utils.callback.lava.add_tests(json_obj, lab_name, boot_doc_id,
                                       taskc.app.conf.db_options)
     # TODO: handle errors.
     return ret_code, doc_id
