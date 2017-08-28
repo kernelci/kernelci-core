@@ -15,19 +15,12 @@ import errno
 import models
 import os
 import yaml
-from decimal import Decimal
 
 import utils
-import utils.tests_import as tests_import
 import utils.boot
 import utils.kci_test
 import utils.db
 import utils.lava_log_parser
-import pymongo
-import models.test_suite as mtest_suite
-import models.test_case as mtest_case
-import datetime
-import bson
 
 # copied from lava-server/lava_scheduler_app/models.py
 SUBMITTED = 0
@@ -45,7 +38,6 @@ LAVA_JOB_RESULT = {
 DATA_MAP_TEST_CASE = {
     models.NAME_KEY: "name",
     models.STATUS_KEY: "result",
-
 }
 
 META_DATA_MAP_TEST_SUITE = {

@@ -13,19 +13,10 @@
 
 """Container for all the kci_test import related functions."""
 
-try:
-    import simplejson as json
-except ImportError:
-    import json
-
 import bson
 import copy
 import datetime
-import errno
-import io
-import os
 import pymongo
-import re
 
 import models
 import models.test_suite as mtest_suite
@@ -623,7 +614,6 @@ def import_and_save_kci_test(test_suite_obj, test_case_obj,
     """
     ret_code = None
     ts_doc_id = None
-    tc_doc_id = None
     test_sets = {}
     errors = {}
 
