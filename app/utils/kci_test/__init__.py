@@ -288,8 +288,8 @@ def _parse_test_case_from_json(ts_name, ts_id, test_json, database, errors):
         return None
 
     test_doc = mtest_case.TestCaseDocument(
-        name,
-        status)
+        name=name,
+        status=status)
     test_doc.created_on = datetime.datetime.now(
         tz=bson.tz_util.utc)
     _update_test_case_doc_from_json(test_doc, test_json, errors)
@@ -445,8 +445,8 @@ def _parse_test_suite_from_json(test_json, database, errors):
         return None
 
     test_doc = mtest_suite.TestSuiteDocument(
-        name,
-        lab_name)
+        name=name,
+        lab_name=lab_name)
     test_doc.created_on = datetime.datetime.now(
         tz=bson.tz_util.utc)
     _update_test_suite_doc_from_json(test_doc, test_json, errors)
@@ -493,8 +493,8 @@ def import_and_save_test_sets(test_cases, test_sets,
 
     for test_set_name in test_sets_set:
         test_set_doc = mtest_set.TestSetDocument(
-            test_set_name,
-            tsu_id)
+            name=test_set_name,
+            test_suite_id=tsu_id)
         test_set_doc.test_suite_name = tsu_name
         test_set_doc.created_on = datetime.datetime.now(
             tz=bson.tz_util.utc)
