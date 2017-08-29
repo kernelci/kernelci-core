@@ -94,6 +94,7 @@ def _get_test_case_data(meta, tc_data, job_data, META_DATA_MAP):
     :type META_DATA_MAP: list
     """
     test_key = None
+    found = None
     common_meta = {
         "version": "1.0",
         # Time shoud be passed in the result as well
@@ -101,16 +102,21 @@ def _get_test_case_data(meta, tc_data, job_data, META_DATA_MAP):
     }
     # TODO: Fix ?
     # Kind of workaround because the key for a test will be <number>_test_name
-    # Always using first found key for now
+    # Searching for the test plan.
+    # But, if the test plan name != test_suite name use the first test suite
+    # reported.
     for key in job_data["results"]:
+        if "0_" in key:
+            test_key = key
         if meta[models.NAME_KEY] in key:
             test_key = key
+            found = True
             break
 
-    if test_key is None:
-        utils.LOG.error("Could not find test data for '%s' in lava callback",
-                        meta[models.NAME_KEY])
-        return
+    if not found:
+        utils.LOG.warn("Could not find test data for '%s' in lava callback,"
+                       " using the first test report available: %s" %
+                       (meta[models.NAME_KEY], test_key))
 
     tests = yaml.load(job_data["results"][test_key],
                       Loader=yaml.CLoader)
