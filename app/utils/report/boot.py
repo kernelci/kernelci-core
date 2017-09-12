@@ -168,10 +168,12 @@ def parse_regressions(data, **kwargs):
             "data": {
                 "arch": {
                     "defconfig": {
-                        "board": {
-                            "txt": "string",
-                            "html": "string"
-                        }
+                        "board": [
+                            {
+                                "txt": "string",
+                                "html": "string"
+                            },
+                        ]
                     }
                 }
             }
@@ -183,56 +185,30 @@ def parse_regressions(data, **kwargs):
     """
     regressions = {}
     regressions_data = None
+    lab_name = kwargs.get("lab_name", None)
 
-    for lab in data.viewkeys():
-
-        if kwargs["lab_name"] and lab != kwargs["lab_name"]:
+    for lab, lab_d in data.iteritems():
+        if lab_name and lab != lab_name:
             continue
 
-        lab_d = data[lab]
+        regressions_data = regressions.setdefault("data", {})
 
-        if "data" not in regressions.viewkeys():
-            regressions["data"] = regressions_data = {}
-
-        for arch in lab_d.viewkeys():
-            arch_d = lab_d[arch]
-
+        for arch, arch_d in lab_d.iteritems():
             # Prepare the arch string for visualization.
             # Same for defconfig and board ones.
-            arch = u"{:s}".format(arch)
+            arch = unicode(arch)
+            regr_arch = regressions_data.setdefault(arch, {})
 
-            if arch not in regressions_data.viewkeys():
-                regressions_data[arch] = regr_arch = {}
-            else:
-                regr_arch = regressions_data[arch]
-
-            for board in arch_d.viewkeys():
-                board_d = arch_d[board]
-
-                for b_instance in board_d.viewkeys():
-                    instance_d = board_d[b_instance]
-
-                    for defconfig in instance_d.viewkeys():
-                        defconfig_d = instance_d[defconfig]
-
-                        defconfig = u"{:s}".format(defconfig)
-
-                        if defconfig not in regr_arch.viewkeys():
-                            regr_arch[defconfig] = regr_def = {}
-                        else:
-                            regr_def = regr_arch[defconfig]
-
-                        board = u"{:s}".format(board)
-
-                        if board not in regr_def.viewkeys():
-                            regr_def[board] = regr_board = []
-                        else:
-                            regr_board = regr_def[board]
-
-                        for compiler in defconfig_d.viewkeys():
+            for board, board_d in arch_d.iteritems():
+                board = unicode(board)
+                for instance_d in board_d.itervalues():
+                    for defconfig, defconfig_d in instance_d.iteritems():
+                        defconfig = unicode(defconfig)
+                        regr_def = regr_arch.setdefault(defconfig, {})
+                        regr_board = regr_def.setdefault(board, [])
+                        for compiler, compiler_d in defconfig_d.iteritems():
                             regr_board.append(
-                                create_regressions_data(
-                                    defconfig_d[compiler], **kwargs))
+                                create_regressions_data(compiler_d, **kwargs))
 
     if regressions_data:
         regressions["summary"] = {}
