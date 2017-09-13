@@ -14,6 +14,7 @@
 """Create the boot email report."""
 
 import itertools
+import jenkins
 import pymongo
 
 import models
@@ -185,6 +186,7 @@ def parse_regressions(data, **kwargs):
     """
     regressions = {}
     regressions_data = None
+    bisections = []
     lab_name = kwargs.get("lab_name", None)
 
     for lab, lab_d in data.iteritems():
@@ -207,6 +209,14 @@ def parse_regressions(data, **kwargs):
                         regr_def = regr_arch.setdefault(defconfig, {})
                         regr_board = regr_def.setdefault(board, [])
                         for compiler, compiler_d in defconfig_d.iteritems():
+                            bisections.append({
+                                'lab': lab,
+                                'arch': arch,
+                                'defconfig': defconfig,
+                                'board': board,
+                                'compiler': compiler,
+                                'boots': compiler_d,
+                            })
                             regr_board.append(
                                 create_regressions_data(compiler_d, **kwargs))
 
@@ -215,7 +225,7 @@ def parse_regressions(data, **kwargs):
         regressions["summary"]["txt"] = ["Boot Regressions Detected:"]
         regressions["summary"]["html"] = ["Boot Regressions Detected:"]
 
-    return regressions
+    return regressions, bisections
 
 
 # pylint: disable=too-many-locals
@@ -224,7 +234,8 @@ def parse_regressions(data, **kwargs):
 def create_boot_report(
         job,
         branch,
-        kernel, lab_name, email_format, db_options, mail_options=None):
+        kernel, lab_name, email_format, db_options, mail_options=None,
+        jenkins_options=None):
     """Create the boot report email to be sent.
 
     If lab_name is not None, it will trigger a boot report only for that
@@ -242,6 +253,8 @@ def create_boot_report(
     :type db_options: dict
     :param mail_options: The options necessary to connect to the SMTP server.
     :type mail_options: dict
+    :param jenkins_options: The options necessary to connect to Jenkins.
+    :type jenkins_options: dict
     :return A tuple with the TXT email body, the HTML email body and the
     subject as strings or None.
     """
@@ -333,10 +346,6 @@ def create_boot_report(
     # Calculate the PASS count based on the previous obtained values.
     pass_count = total_count - fail_count - offline_count - untried_count
 
-    # Get the regressions.
-    regressions = database[models.BOOT_REGRESSIONS_COLLECTION].find_one(
-        {models.JOB_KEY: job, models.KERNEL_KEY: kernel})
-
     # Fill the data structure for the email report creation.
     kwargs = {
         "base_url": rcommon.DEFAULT_BASE_URL,
@@ -358,13 +367,23 @@ def create_boot_report(
         "total_count": total_count,
         "total_unique_data": total_unique_data,
         "untried_count": untried_count,
-        "regressions": regressions,
         "red": rcommon.HTML_RED,
         "boot_id_url": rcommon.BOOT_ID_URL,
         models.JOB_KEY: job,
         models.KERNEL_KEY: kernel,
         models.LAB_NAME_KEY: lab_name
     }
+
+    # Get the regressions and determine bisections to run.
+    regressions_doc = database[models.BOOT_REGRESSIONS_COLLECTION].find_one(
+        {models.JOB_KEY: job, models.KERNEL_KEY: kernel})
+
+    if regressions_doc:
+        kwargs["regressions"], bisections = parse_regressions(
+            regressions_doc[models.REGRESSIONS_KEY], **kwargs)
+    else:
+        kwargs["regressions"] = None
+        bisections = []
 
     custom_headers = {
         rcommon.X_REPORT: rcommon.BOOT_REPORT_TYPE,
@@ -446,7 +465,32 @@ def create_boot_report(
             "Nothing found for '%s-%s-%s': no email report sent",
             job, branch, kernel)
 
+    if jenkins_options:
+        for b in bisections:
+            _start_bisection(b, jenkins_options)
+
     return txt_body, html_body, subject, custom_headers
+
+
+def _start_bisection(bisection, jopts):
+    boots = bisection["boots"]
+    good, bad = boots[0], boots[-1]
+    params_map = {
+        "KERNEL_URL": "git_url",
+        "KERNEL_BRANCH": "git_branch",
+        "ARCH": "arch",
+        "DEFCONFIG": "defconfig",
+        "TARGET": "board",
+        "LAB": "lab_name",
+        "TREE": "job",
+        "GOOD_COMMIT": "git_commit",
+    }
+    params = {k: good[v] for k, v in params_map.iteritems()}
+    params["BAD_COMMIT"] = bad["git_commit"]
+    utils.LOG.info("Triggering bisection for {}, board: {}, lab: {}".format(
+        bad["kernel"], bad["board"], bad["lab_name"]))
+    server = jenkins.Jenkins(jopts["url"], jopts["user"], jopts["token"])
+    server.build_job(jopts["bisect"], params)
 
 
 # pylint: disable=too-many-branches
@@ -928,13 +972,6 @@ def _create_boot_email(**kwargs):
     kwargs["git_url_string"] = (git_txt_string, git_html_string)
 
     kwargs["platforms"] = _parse_and_structure_results(**kwargs)
-
-    if kwargs["regressions"]:
-        kwargs["regressions"] = \
-            parse_regressions(
-                kwargs["regressions"][models.REGRESSIONS_KEY], **kwargs)
-    else:
-        kwargs["regressions"] = None
 
     if models.EMAIL_TXT_FORMAT_KEY in email_format:
         kwargs["full_boot_summary"] = (

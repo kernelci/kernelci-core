@@ -70,7 +70,8 @@ def send_boot_report(
             kernel,
             lab_name,
             email_format, db_options=db_options,
-            mail_options=taskc.app.conf.get("mail_options", None)
+            mail_options=taskc.app.conf.get("mail_options", None),
+            jenkins_options=taskc.app.conf.get("jenkins_options", None)
         )
 
     if not subject:
