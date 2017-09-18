@@ -104,7 +104,6 @@ def save_or_update(doc, spec_map, collection, database, errors):
         doc_get = prev_doc.get
         doc_id = doc_get(models.ID_KEY)
         doc.id = doc_id
-        doc.created_on = doc_get(models.CREATED_KEY)
 
         utils.LOG.info("Updating test document with id '%s'", doc_id)
         ret_val, _ = utils.db.save(database, doc)
