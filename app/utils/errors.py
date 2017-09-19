@@ -11,7 +11,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Functions to handle errors data structure."""
+"""Functions and classes to handle errors data structure."""
+
+
+class BackendError(Exception):
+
+    def __init__(self, errors):
+        self.errors = errors
+
+    def __str__(self):
+        return ", ".join([" ".join([str(k)] + v)
+                          for k, v in self.errors.iteritems()])
 
 
 def update_errors(to_update, errors):

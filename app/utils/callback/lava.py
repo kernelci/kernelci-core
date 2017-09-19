@@ -299,10 +299,7 @@ def add_boot(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
         _get_definition_meta(meta, job_data, META_DATA_MAP_BOOT)
         _get_lava_meta(meta, job_data)
         _add_boot_log(meta, job_data["log"], base_path)
-
-        ret_code, doc_id, err = \
-            utils.boot.import_and_save_boot(meta, db_options)
-        utils.errors.update_errors(errors, err)
+        doc_id = utils.boot.import_and_save_boot(meta, db_options)
     except (yaml.YAMLError, ValueError, KeyError) as ex:
         ret_code = 400
         msg = "Invalid LAVA data"
@@ -315,8 +312,10 @@ def add_boot(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
         if msg is not None:
             utils.LOG.error(msg)
             utils.errors.add_error(errors, ret_code, msg)
+        if errors:
+            raise utils.errors.BackendError(errors)
 
-    return ret_code, doc_id, errors
+    return doc_id
 
 
 def add_tests(job_data, lab_name, boot_doc_id,
@@ -378,5 +377,7 @@ def add_tests(job_data, lab_name, boot_doc_id,
         if msg is not None:
             utils.LOG.error(msg)
             utils.errors.add_error(errors, ret_code, msg)
+        if errors:
+            raise utils.errors.BackendError(errors)
 
-    return ret_code, ts_doc_id, errors
+    return ts_doc_id

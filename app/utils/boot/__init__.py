@@ -458,5 +458,6 @@ def import_and_save_boot(json_obj, db_options, base_path=utils.BASE_PATH):
         utils.LOG.exception(ex)
         utils.LOG.error("Error getting database connection")
         ERR_ADD(errors, 500, "Error connecting to the database")
+        raise utils.errors.BackendError(errors)
 
-    return ret_code, doc_id, errors
+    return doc_id

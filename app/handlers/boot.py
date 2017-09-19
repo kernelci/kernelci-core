@@ -22,6 +22,7 @@ import handlers.response as hresponse
 import models
 import models.lab as mlab
 import models.token as mtoken
+import taskqueue.tasks
 import taskqueue.tasks.boot as taskq
 import utils.db
 
@@ -54,14 +55,9 @@ class BootHandler(hbase.BaseHandler):
             response.reason = "Request accepted and being imported"
 
             taskq.import_boot.apply_async(
-                [
-                    kwargs["json_obj"],
-                    self.settings["dboptions"],
-                    self.settings["mailoptions"]
-                ],
-                link=taskq.find_regression.s(
-                    self.settings["dboptions"], self.settings["mailoptions"]
-                )
+                [kwargs["json_obj"]],
+                link=taskq.find_regression.s(),
+                link_error=taskqueue.tasks.error_handler.s()
             )
         else:
             response = hresponse.HandlerResponse(403)
