@@ -59,8 +59,8 @@ def send_boot_report(
     :param subject: The subject string to use.
     :type subject: string.
     """
-    utils.LOG.info(
-        "Preparing boot report email for '%s-%s-%s'", job, git_branch, kernel)
+    report_id = "-".join([job, git_branch, kernel])
+    utils.LOG.info("Preparing boot report email for '{}'".format(report_id))
     status = "ERROR"
 
     txt_body, html_body, new_subject, headers = \
@@ -70,17 +70,14 @@ def send_boot_report(
             kernel,
             lab_name,
             email_format, db_options=db_options,
-            mail_options=taskc.app.conf.get("mail_options", None),
-            jenkins_options=taskc.app.conf.get("jenkins_options", None)
+            mail_options=taskc.app.conf.get("mail_options", None)
         )
 
     if not subject:
         subject = new_subject
 
     if (txt_body or html_body) and subject:
-        utils.LOG.info(
-            "Sending boot report email for '%s-%s-%s'",
-            job, git_branch, kernel)
+        utils.LOG.info("Sending boot report email for '{}'".format(report_id))
         status, errors = utils.emails.send_email(
             to_addrs,
             subject,
@@ -95,10 +92,19 @@ def send_boot_report(
             git_branch, kernel, models.BOOT_REPORT, status, errors, db_options)
     else:
         utils.LOG.error(
-            "No email body nor subject found for boot report '%s-%s-%s'",
-            job, git_branch, kernel)
+            "No email body nor subject found for boot report '{}'"
+            .format(report_id))
 
     return status
+
+
+@taskc.app.task(name="trigger-bisections")
+def trigger_bisections(status, job, branch, kernel, lab_name, db_options):
+    report_id = "-".join([job, branch, kernel])
+    utils.LOG.info("Triggering bisections for '{}'".format(report_id))
+    return utils.report.boot.trigger_bisections(
+        status, job, branch, kernel, lab_name, db_options,
+        taskc.app.conf.get("jenkins_options", None))
 
 
 @taskc.app.task(name="send-build-report")

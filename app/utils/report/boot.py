@@ -424,8 +424,7 @@ def get_boot_data(db_options, job, branch, kernel, lab_name):
 def create_boot_report(
         job,
         branch,
-        kernel, lab_name, email_format, db_options, mail_options=None,
-        jenkins_options=None):
+        kernel, lab_name, email_format, db_options, mail_options=None):
     """Create the boot report email to be sent.
 
     If lab_name is not None, it will trigger a boot report only for that
@@ -481,10 +480,6 @@ def create_boot_report(
             job, branch, kernel)
         txt_body = html_body = subject = None
 
-    if jenkins_options:
-        for b in boot_data["bisections"]:
-            _start_bisection(b, jenkins_options)
-
     return txt_body, html_body, subject, custom_headers
 
 
@@ -507,6 +502,20 @@ def _start_bisection(bisection, jopts):
         bad["kernel"], bad["board"], bad["lab_name"]))
     server = jenkins.Jenkins(jopts["url"], jopts["user"], jopts["token"])
     server.build_job(jopts["bisect"], params)
+
+
+def trigger_bisections(status, job, branch, kernel, lab_name,
+                       db_options, jenkins_options):
+    if not jenkins_options:
+        return 'SKIP'
+
+    boot_data = get_boot_data(db_options, job, branch, kernel, lab_name)
+    bisections = boot_data.get("bisections", None)
+    if bisections:
+        for b in bisections:
+            _start_bisection(b, jenkins_options)
+
+    return 'OK'
 
 
 # pylint: disable=too-many-branches

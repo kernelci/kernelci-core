@@ -260,14 +260,19 @@ class SendHandler(hbase.BaseHandler):
                     lab_name,
                     email_format,
                     to_addrs,
-                    s_get("db_options")
+                    s_get("db_options"),
+                    cc_addrs,
+                    bcc_addrs,
+                    s_get("in_reply_to"),
+                    s_get("subject")
                 ],
-                kwargs={
-                    "cc_addrs": cc_addrs,
-                    "bcc_addrs": bcc_addrs,
-                    "in_reply_to": s_get("in_reply_to"),
-                    "subject": s_get("subject")
-                },
+                link=taskq.trigger_bisections.s(
+                    job,
+                    git_branch,
+                    kernel,
+                    lab_name,
+                    s_get("db_options")
+                ),
                 countdown=s_get("countdown")
             )
         else:
