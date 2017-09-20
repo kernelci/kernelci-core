@@ -235,6 +235,74 @@ def parse_regressions(lab_regressions, boot_data):
     return regressions, bisections
 
 
+def _update_boot_conflicts(data, spec, database):
+    conflict_data = None
+    conflict_count = 0
+    fail_results = data["fail_results"]
+    failed_data, _, _, unique_data = \
+        _parse_boot_results(fail_results.clone(), get_unique=True)
+
+    # Copy the failed results here. The mongodb Cursor, for some
+    # reasons gets overwritten.
+    fail_results = [x for x in fail_results.clone()]
+    fail_count = data["fail_count"]
+
+    if all([fail_count != data["total_count"], data["lab_name"] is None]):
+        # If the number of failed boots differs from the total number of
+        # boot reports, check if we have conflicting reports. We look
+        # for boot reports that have the same attributes of the failed ones
+        # but that indicate a PASS status.
+        spec[models.STATUS_KEY] = models.PASS_STATUS
+        for key, val in unique_data.iteritems():
+            spec[key] = {"$in": val}
+
+        if data["pass_count"] > 0:
+            # If we have such boot reports, filter and aggregate them
+            # together.
+            def _conflicting_data():
+                """Local generator function to search conflicting data.
+
+                This is used to provide a filter mechanism during the list
+                comprehension in order to exclude `None` values.
+                """
+                for failed, passed in itertools.product(
+                        fail_results, pass_results.clone()):
+                    yield _search_conflicts(failed, passed)
+
+            pass_results = utils.db.find(
+                database[models.BOOT_COLLECTION],
+                0,
+                0,
+                spec=spec,
+                fields=BOOT_SEARCH_FIELDS,
+                sort=BOOT_SEARCH_SORT
+            )
+
+            # zip() is its own inverse, when using the * operator.
+            # We get back (failed,passed) tuples during the list
+            # comprehension, but we need a list of values not tuples.
+            # unzip it, and then chain the two resulting tuples together.
+            conflicting_tuples = zip(*(
+                x for x in _conflicting_data()
+                if x is not None
+            ))
+
+            # Make sure we do not have an empty list here after filtering.
+            if conflicting_tuples:
+                conflicts = itertools.chain(
+                    conflicting_tuples[0], conflicting_tuples[1])
+                conflict_data, failed_data, conflict_count, _ = \
+                    _parse_boot_results(conflicts,
+                                        intersect_results=failed_data)
+
+    data.update({
+        "failed_data": failed_data,
+        "conflict_data": conflict_data,
+        "conflict_count": conflict_count,
+        "fail_count": fail_count - conflict_count,
+    })
+
+
 def get_boot_data(db_options, job, branch, kernel, lab_name):
     total_count, total_unique_data = rcommon.get_total_results(
         job,
@@ -344,6 +412,9 @@ def get_boot_data(db_options, job, branch, kernel, lab_name):
     else:
         data["regressions"], data["bisections"] = None, None
 
+    if fail_count > 0:
+        _update_boot_conflicts(data, spec, database)
+
     return data
 
 
@@ -402,84 +473,13 @@ def create_boot_report(
     if lab_name:
         custom_headers[rcommon.X_LAB] = lab_name
 
-    fail_count = boot_data["fail_count"]
-    total_count = boot_data["total_count"]
-
-    if fail_count > 0:
-        failed_data, _, _, unique_data = \
-            _parse_boot_results(boot_data["fail_results"].clone(),
-                                get_unique=True)
-
-        # Copy the failed results here. The mongodb Cursor, for some
-        # reasons gets overwritten.
-        fail_results = [x for x in boot_data["fail_results"].clone()]
-
-        conflict_data = None
-        conflict_count = 0
-
-        if all([fail_count != total_count, lab_name is None]):
-            # If the number of failed boots differs from the total number of
-            # boot reports, check if we have conflicting reports. We look
-            # for boot reports that have the same attributes of the failed ones
-            # but that indicate a PASS status.
-            spec[models.STATUS_KEY] = models.PASS_STATUS
-            for key, val in unique_data.iteritems():
-                spec[key] = {"$in": val}
-
-            if pass_count > 0:
-                # If we have such boot reports, filter and aggregate them
-                # together.
-                def _conflicting_data():
-                    """Local generator function to search conflicting data.
-
-                    This is used to provide a filter mechanism during the list
-                    comprehension in order to exclude `None` values.
-                    """
-                    for failed, passed in itertools.product(
-                            fail_results, pass_results.clone()):
-                        yield _search_conflicts(failed, passed)
-
-                pass_results = utils.db.find(
-                    database[models.BOOT_COLLECTION],
-                    0,
-                    0,
-                    spec=spec,
-                    fields=BOOT_SEARCH_FIELDS,
-                    sort=BOOT_SEARCH_SORT
-                )
-
-                # zip() is its own inverse, when using the * operator.
-                # We get back (failed,passed) tuples during the list
-                # comprehension, but we need a list of values not tuples.
-                # unzip it, and then chain the two resulting tuples together.
-                conflicting_tuples = zip(*(
-                    x for x in _conflicting_data()
-                    if x is not None
-                ))
-
-                # Make sure we do not have an empty list here after filtering.
-                if conflicting_tuples:
-                    conflicts = itertools.chain(
-                        conflicting_tuples[0], conflicting_tuples[1])
-                    conflict_data, failed_data, conflict_count, _ = \
-                        _parse_boot_results(conflicts,
-                                            intersect_results=failed_data)
-
-        # Update the necessary data to create the email report.
-        boot_data.update({
-            "failed_data": failed_data,
-            "conflict_count": conflict_count,
-            "conflict_data": conflict_data,
-            "fail_count": fail_count - conflict_count,
-        })
-
+    if boot_data["fail_count"] or boot_data["total_count"]:
         txt_body, html_body, subject = _create_boot_email(boot_data)
-    elif fail_count == 0 and total_count > 0:
-        txt_body, html_body, subject = _create_boot_email(boot_data)
-    elif fail_count == 0 and total_count == 0:
+    else:
         utils.LOG.warn(
             "Nothing found for '%s-%s-%s': no email report sent",
             job, branch, kernel)
+        txt_body = html_body = subject = None
 
     if jenkins_options:
         for b in boot_data["bisections"]:
