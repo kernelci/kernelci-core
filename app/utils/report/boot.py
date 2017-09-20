@@ -80,13 +80,15 @@ FIRST_FAIL_HTML = \
     u"first fail: <a href=\"{boot_id_url:s}\">{bad_kernel:s}</a>"
 
 
-def create_regressions_data(data, **kwargs):
+def create_regressions_data(boot_docs, boot_data):
     """Create the regressions data for the email report.
 
     Will create the TXT/HTML strings to be used in the report.
 
-    :param data: The regressions data (the list of boot reports).
-    :type data: list
+    :param boot_docs: The regressions data (the list of boot reports).
+    :type boot_docs: list
+    :param boot_data: Details about the boot results
+    :type boot_data: dict
     :return dict The regressions strings in a dictionary.
     """
     regr_data = {}
@@ -94,36 +96,37 @@ def create_regressions_data(data, **kwargs):
     # Make sure the boot reports in the regressions data structure are
     # correctly sorted by date, so that the oldest document is the PASS one
     # and the most recent one is the last FAIL-ed.
-    data.sort(
+    boot_docs.sort(
         cmp=lambda x, y: cmp(x[models.CREATED_KEY], y[models.CREATED_KEY]))
 
-    last_fail = data[-1]
-    last_good = data[0]
+    last_fail = boot_docs[-1]
+    last_good = boot_docs[0]
 
     # Override the lab_name key for the substitutions.
-    kwargs[models.LAB_NAME_KEY] = last_fail[models.LAB_NAME_KEY]
-    kwargs["good_kernel"] = last_good[models.KERNEL_KEY]
-    kwargs["boot_regressions_url"] = BOOT_REGRESSIONS_URL.format(**kwargs)
+    boot_data[models.LAB_NAME_KEY] = last_fail[models.LAB_NAME_KEY]
+    boot_data["good_kernel"] = last_good[models.KERNEL_KEY]
+    boot_data["boot_regressions_url"] = BOOT_REGRESSIONS_URL.format(
+        **boot_data)
 
-    fail_url = BOOT_ID_HTML.format(**kwargs).format(**last_fail)
+    fail_url = BOOT_ID_HTML.format(**boot_data).format(**last_fail)
 
-    if len(data) == 2:
-        failure = NEW_FAIL_HTML.format(**kwargs)
+    if len(boot_docs) == 2:
+        failure = NEW_FAIL_HTML.format(**boot_data)
 
         # Simple case, it's a new failure.
         regr_data["txt"] = \
             u"{:s} ({:s})".format(
                 NEW_FAIL_TXT.format(**last_fail),
-                LAST_PASS_TXT.format(**kwargs))
+                LAST_PASS_TXT.format(**boot_data))
         regr_data["html"] = \
             u"{:s}: {:s} <small>({:s})</small>".format(
                 fail_url,
                 failure,
-                LAST_PASS_HTML.format(**kwargs).format(**last_good))
+                LAST_PASS_HTML.format(**boot_data).format(**last_good))
     else:
         # The first boot report is always a PASS status.
-        first_fail = data[1]
-        kwargs["bad_kernel"] = first_fail[models.KERNEL_KEY]
+        first_fail = boot_docs[1]
+        boot_data["bad_kernel"] = first_fail[models.KERNEL_KEY]
 
         delta = last_fail[models.CREATED_KEY] - first_fail[models.CREATED_KEY]
         days = delta.days
@@ -132,31 +135,33 @@ def create_regressions_data(data, **kwargs):
         if days == 0:
             days = 1
         # Inject the number of days.
-        kwargs["days"] = days
+        boot_data["days"] = days
 
         failure_txt = P_(
-            SINGULAR_FAILURE_TXT, PLURAL_FAILURE_TXT, days).format(**kwargs)
+            SINGULAR_FAILURE_TXT, PLURAL_FAILURE_TXT, days)\
+            .format(**boot_data)
 
         failure_html = P_(
-            SINGULAR_FAILURE_HTML, PLURAL_FAILURE_HTML, days).format(**kwargs)
+            SINGULAR_FAILURE_HTML, PLURAL_FAILURE_HTML, days)\
+            .format(**boot_data)
 
         regr_data["txt"] = \
             u"{:s}: {:s} ({:s} - {:s})".format(
                 last_fail[models.LAB_NAME_KEY],
                 failure_txt,
-                LAST_PASS_TXT.format(**kwargs),
-                FIRST_FAIL_TXT.format(**kwargs))
+                LAST_PASS_TXT.format(**boot_data),
+                FIRST_FAIL_TXT.format(**boot_data))
         regr_data["html"] = \
             u"{:s}: {:s} <small>({:s} - {:s})</small>".format(
                 fail_url,
                 failure_html,
-                LAST_PASS_HTML.format(**kwargs).format(**last_good),
-                FIRST_FAIL_HTML.format(**kwargs).format(**first_fail))
+                LAST_PASS_HTML.format(**boot_data).format(**last_good),
+                FIRST_FAIL_HTML.format(**boot_data).format(**first_fail))
 
     return regr_data
 
 
-def parse_regressions(data, **kwargs):
+def parse_regressions(lab_regressions, boot_data):
     """Parse the regressions data and create the strings for the report.
 
     The returned data structure is:
@@ -180,16 +185,18 @@ def parse_regressions(data, **kwargs):
             }
         }
 
-    :param data: The regressions data.
-    :type data: dict
+    :param lab_regressions: The regressions data for each lab.
+    :type lab_regressions: dict
+    :param boot_data: Details about the boot results
+    :type boot_data: dict
     :return dict The regressions data structure for the report.
     """
     regressions = {}
     regressions_data = None
     bisections = []
-    lab_name = kwargs.get("lab_name", None)
+    lab_name = boot_data.get("lab_name", None)
 
-    for lab, lab_d in data.iteritems():
+    for lab, lab_d in lab_regressions.iteritems():
         if lab_name and lab != lab_name:
             continue
 
@@ -218,7 +225,7 @@ def parse_regressions(data, **kwargs):
                                 'boots': compiler_d,
                             })
                             regr_board.append(
-                                create_regressions_data(compiler_d, **kwargs))
+                                create_regressions_data(compiler_d, boot_data))
 
     if regressions_data:
         regressions["summary"] = {}
@@ -258,7 +265,6 @@ def create_boot_report(
     :return A tuple with the TXT email body, the HTML email body and the
     subject as strings or None.
     """
-    kwargs = {}
     # Email TXT and HTML body.
     txt_body = None
     html_body = None
@@ -347,7 +353,7 @@ def create_boot_report(
     pass_count = total_count - fail_count - offline_count - untried_count
 
     # Fill the data structure for the email report creation.
-    kwargs = {
+    boot_data = {
         "base_url": rcommon.DEFAULT_BASE_URL,
         "boot_url": rcommon.DEFAULT_BOOT_URL,
         "build_url": rcommon.DEFAULT_BUILD_URL,
@@ -375,15 +381,15 @@ def create_boot_report(
     }
 
     # Get the regressions and determine bisections to run.
-    regressions_doc = database[models.BOOT_REGRESSIONS_COLLECTION].find_one(
+    regressions_docs = database[models.BOOT_REGRESSIONS_COLLECTION].find_one(
         {models.JOB_KEY: job, models.KERNEL_KEY: kernel})
 
-    if regressions_doc:
-        kwargs["regressions"], bisections = parse_regressions(
-            regressions_doc[models.REGRESSIONS_KEY], **kwargs)
+    if regressions_docs:
+        boot_data["regressions"], boot_data["bisections"] = parse_regressions(
+            regressions_docs[models.REGRESSIONS_KEY], boot_data)
     else:
-        kwargs["regressions"] = None
-        bisections = []
+        boot_data["regressions"] = None
+        boot_data["bisections"] = []
 
     custom_headers = {
         rcommon.X_REPORT: rcommon.BOOT_REPORT_TYPE,
@@ -452,21 +458,21 @@ def create_boot_report(
                                             intersect_results=failed_data)
 
         # Update the necessary data to create the email report.
-        kwargs["failed_data"] = failed_data
-        kwargs["conflict_count"] = conflict_count
-        kwargs["conflict_data"] = conflict_data
-        kwargs["fail_count"] = fail_count - conflict_count
+        boot_data["failed_data"] = failed_data
+        boot_data["conflict_count"] = conflict_count
+        boot_data["conflict_data"] = conflict_data
+        boot_data["fail_count"] = fail_count - conflict_count
 
-        txt_body, html_body, subject = _create_boot_email(**kwargs)
+        txt_body, html_body, subject = _create_boot_email(boot_data)
     elif fail_count == 0 and total_count > 0:
-        txt_body, html_body, subject = _create_boot_email(**kwargs)
+        txt_body, html_body, subject = _create_boot_email(boot_data)
     elif fail_count == 0 and total_count == 0:
         utils.LOG.warn(
             "Nothing found for '%s-%s-%s': no email report sent",
             job, branch, kernel)
 
     if jenkins_options:
-        for b in bisections:
+        for b in boot_data["bisections"]:
             _start_bisection(b, jenkins_options)
 
     return txt_body, html_body, subject, custom_headers
@@ -623,38 +629,24 @@ def _search_conflicts(failed, passed):
     return conflict
 
 
-def get_boot_subject_string(**kwargs):
+def get_boot_subject_string(boot_data):
     """Create the boot email subject line.
 
     This is used to created the custom email report line based on the number
     of values we have.
 
-    :param total_count: The total number of boot reports.
-    :type total_count: integer
-    :param fail_count: The number of failed boot reports.
-    :type fail_count: integer
-    :param offline_count: The number of offline boards.
-    :type offline_count: integer
-    :param conflict_count: The number of boot reports in conflict.
-    :type conflict_count: integer
-    :param pass_count: The number of successful boot reports.
-    :type pass_count: integer
-    :param lab_name: The name of the lab.
-    :type lab_name: string
-    :param job: The name of the job.
-    :type job: string
-    :param kernel: The name of the kernel.
-    :type kernel: string
+    :param boot_data: Details about the boot results
+    :type boot_data: dict
     :return The subject string.
     """
-    k_get = kwargs.get
-    conflict_count = k_get("conflict_count", 0)
-    fail_count = k_get("fail_count", 0)
-    lab_name = k_get("lab_name", None)
-    offline_count = k_get("offline_count", 0)
-    pass_count = k_get("pass_count", 0)
-    total_count = k_get("total_count", 0)
-    untried_count = k_get("untried_count", 0)
+    b_get = boot_data.get
+    conflict_count = b_get("conflict_count", 0)
+    fail_count = b_get("fail_count", 0)
+    lab_name = b_get("lab_name", None)
+    offline_count = b_get("offline_count", 0)
+    pass_count = b_get("pass_count", 0)
+    total_count = b_get("total_count", 0)
+    untried_count = b_get("untried_count", 0)
 
     subject_str = u""
     base_subject = G_(u"{job:s}/{git_branch:s} boot")
@@ -834,66 +826,28 @@ def get_boot_subject_string(**kwargs):
                 failed_boots, passed_boots, conflict_boots, kernel_name)
 
     # Now fill in the values.
-    subject_str = subject_str.format(**kwargs)
+    subject_str = subject_str.format(**boot_data)
 
     return subject_str
 
 
-def _create_boot_email(**kwargs):
+def _create_boot_email(boot_data):
     """Parse the results and create the email text body to send.
 
-    :param job: The name of the job.
-    :type job: str
-    :param  kernel: The name of the kernel.
-    :type kernel: str
-    :param git_commit: The git commit.
-    :type git_commit: str
-    :param git_url: The git url.
-    :type git_url: str
-    :param git_branch: The git branch.
-    :type git_branch: str
-    :param lab_name: The name of the lab.
-    :type lab_name: str
-    :param failed_data: The parsed failed results.
-    :type failed_data: dict
-    :param fail_count: The total number of failed results.
-    :type fail_count: int
-    :param offline_data: The parsed offline results.
-    :type offline_data: dict
-    :param offline_count: The total number of offline results.
-    :type offline_count: int
-    :param total_count: The total number of results.
-    :type total_count: int
-    :param total_unique_data: The unique values data structure.
-    :type total_unique_data: dictionary
-    :param pass_count: The total number of passed results.
-    :type pass_count: int
-    :param conflict_data: The parsed conflicting results.
-    :type conflict_data: dict
-    :param conflict_count: The number of conflicting results.
-    :type conflict_count: int
-    :param total_builds: The total number of defconfig built.
-    :type total_builds: int
-    :param base_url: The base URL to build the dashboard links.
-    :type base_url: string
-    :param boot_url: The base URL for the boot section of the dashboard.
-    :type boot_url: string
-    :param build_url: The base URL for the build section of the dashboard.
-    :type build_url: string
-    :param info_email: The email address for the footer note.
-    :type info_email: string
+    :param boot_data: Details about the boot results
+    :type boot_data: dict
     :return A tuple with the email body and subject as strings.
     """
     txt_body = None
     html_body = None
     subject_str = None
 
-    k_get = kwargs.get
-    total_unique_data = k_get("total_unique_data", None)
-    info_email = k_get("info_email", None)
-    email_format = k_get("email_format")
+    b_get = boot_data.get
+    total_unique_data = b_get("total_unique_data", None)
+    info_email = b_get("info_email", None)
+    email_format = b_get("email_format")
 
-    subject_str = get_boot_subject_string(**kwargs)
+    subject_str = get_boot_subject_string(boot_data)
 
     tested_one = G_(u"Tested: {:s}")
     tested_two = G_(u"Tested: {:s}, {:s}")
@@ -908,9 +862,9 @@ def _create_boot_email(**kwargs):
         unique_builds = rcommon.count_unique(
             total_unique_data[models.DEFCONFIG_FULL_KEY])
 
-        kwargs["unique_boards"] = unique_boards
-        kwargs["unique_socs"] = unique_socs
-        kwargs["unique_builds"] = unique_builds
+        boot_data["unique_boards"] = unique_boards
+        boot_data["unique_socs"] = unique_socs
+        boot_data["unique_builds"] = unique_builds
 
         boards_str = P_(
             u"{unique_boards:d} unique board",
@@ -945,21 +899,22 @@ def _create_boot_email(**kwargs):
             tested_string = tested_one.format(builds_str)
 
         if tested_string:
-            tested_string = tested_string.format(**kwargs)
+            tested_string = tested_string.format(**boot_data)
 
-    boot_summary_url = BOOT_SUMMARY_URL.format(**kwargs)
-    build_summary_url = BUILD_SUMMARY_URL.format(**kwargs)
+    boot_summary_url = BOOT_SUMMARY_URL.format(**boot_data)
+    build_summary_url = BUILD_SUMMARY_URL.format(**boot_data)
 
-    kwargs["tree_string"] = G_(u"Tree: {job:s}").format(**kwargs)
-    kwargs["branch_string"] = G_(u"Branch: {git_branch:s}").format(**kwargs)
-    kwargs["git_describe_string"] = G_(u"Git Describe: {kernel:s}").format(
-        **kwargs)
-    kwargs["info_email"] = info_email
-    kwargs["tested_string"] = tested_string
-    kwargs["subject_str"] = subject_str
+    boot_data["tree_string"] = G_(u"Tree: {job:s}").format(**boot_data)
+    boot_data["branch_string"] = G_(u"Branch: {git_branch:s}").format(
+        **boot_data)
+    boot_data["git_describe_string"] = G_(u"Git Describe: {kernel:s}").format(
+        **boot_data)
+    boot_data["info_email"] = info_email
+    boot_data["tested_string"] = tested_string
+    boot_data["subject_str"] = subject_str
 
-    git_url = k_get("git_url")
-    git_commit = k_get("git_commit")
+    git_url = b_get("git_url")
+    git_commit = b_get("git_commit")
 
     translated_git_url = \
         rcommon.translate_git_url(git_url, git_commit) or git_url
@@ -968,36 +923,36 @@ def _create_boot_email(**kwargs):
     git_html_string = G_(u"Git URL: <a href=\"{:s}\">{:s}</a>").format(
         translated_git_url, git_url)
 
-    kwargs["git_commit_string"] = G_(u"Git Commit: {:s}").format(git_commit)
-    kwargs["git_url_string"] = (git_txt_string, git_html_string)
+    boot_data["git_commit_string"] = G_(u"Git Commit: {:s}").format(git_commit)
+    boot_data["git_url_string"] = (git_txt_string, git_html_string)
 
-    kwargs["platforms"] = _parse_and_structure_results(**kwargs)
+    boot_data["platforms"] = _parse_and_structure_results(boot_data)
 
     if models.EMAIL_TXT_FORMAT_KEY in email_format:
-        kwargs["full_boot_summary"] = (
+        boot_data["full_boot_summary"] = (
             G_(u"Full Boot Summary: {:s}").format(boot_summary_url))
-        kwargs["full_build_summary"] = (
+        boot_data["full_build_summary"] = (
             G_(u"Full Build Summary: {:s}").format(build_summary_url))
 
-        txt_body = rcommon.create_txt_email("boot.txt", **kwargs)
+        txt_body = rcommon.create_txt_email("boot.txt", **boot_data)
 
     if models.EMAIL_HTML_FORMAT_KEY in email_format:
         # Fix the summary URLs for the HTML email.
-        kwargs["full_boot_summary"] = (
+        boot_data["full_boot_summary"] = (
             G_(u"Full Boot Summary: <a href=\"{url:s}\">{url:s}</a>").format(
                 **{"url": boot_summary_url})
         )
-        kwargs["full_build_summary"] = (
+        boot_data["full_build_summary"] = (
             G_(u"Full Build Summary: <a href=\"{url:s}\">{url:s}</a>").format(
                 **{"url": build_summary_url})
         )
 
-        html_body = rcommon.create_html_email("boot.html", **kwargs)
+        html_body = rcommon.create_html_email("boot.html", **boot_data)
 
     return txt_body, html_body, subject_str
 
 
-def _parse_and_structure_results(**kwargs):
+def _parse_and_structure_results(boot_data):
     """Parse the results and create a data structure for the templates.
 
     Create a special data structure to be consumed by the template engine.
@@ -1037,15 +992,17 @@ def _parse_and_structure_results(**kwargs):
             }
         }
 
+    :param boot_data: Details about the boot results
+    :type boot_data: dict
     :return The template data structure as a dictionary object.
     """
-    k_get = kwargs.get
+    b_get = boot_data.get
 
-    offline_data = k_get("offline_data", None)
-    failed_data = k_get("failed_data", None)
-    conflict_data = k_get("conflict_data", None)
-    fail_count = k_get("fail_count", 0)
-    conflict_count = k_get("conflict_count", 0)
+    offline_data = b_get("offline_data", None)
+    failed_data = b_get("failed_data", None)
+    conflict_data = b_get("conflict_data", None)
+    fail_count = b_get("fail_count", 0)
+    conflict_count = b_get("conflict_count", 0)
 
     parsed_data = {}
 
@@ -1094,10 +1051,10 @@ def _parse_and_structure_results(**kwargs):
                     defconf_struct = arch_struct[defconfig_string]
 
                     for board in boards:
-                        # Copy the kwargs parameters and add the local ones.
+                        # Copy the boot_data parameters and add the local ones.
                         # This is needed to create the HTML version of some
                         # of the values we are parsing.
-                        substitutions = kwargs.copy()
+                        substitutions = boot_data.copy()
                         substitutions["board"] = board
                         substitutions["defconfig"] = defconfig
 
@@ -1150,10 +1107,10 @@ def _parse_and_structure_results(**kwargs):
                                 ).format(lab_count)
                             )
 
-                        # Copy the kwargs parameters and add the local ones.
+                        # Copy the boot_data parameters and add the local ones.
                         # This is needed to create the HTML version of some
                         # of the values we are parsing.
-                        substitutions = kwargs.copy()
+                        substitutions = boot_data.copy()
                         substitutions["board"] = board
                         substitutions["defconfig"] = defconfig
 
@@ -1180,7 +1137,7 @@ def _parse_and_structure_results(**kwargs):
         failed_struct["summary"]["html"] = []
 
         boot_failure_url = \
-            u"{base_url:s}/boot/?{kernel:s}&fail".format(**kwargs)
+            u"{base_url:s}/boot/?{kernel:s}&fail".format(**boot_data)
         boot_failure_url_html = (
             u"<a href=\"{boot_failure_url:s}\">"
             u"{boot_failure_url:s}</a>".format(
