@@ -235,6 +235,118 @@ def parse_regressions(lab_regressions, boot_data):
     return regressions, bisections
 
 
+def get_boot_data(db_options, job, branch, kernel, lab_name):
+    total_count, total_unique_data = rcommon.get_total_results(
+        job,
+        branch,
+        kernel,
+        models.BOOT_COLLECTION,
+        db_options,
+        lab_name
+    )
+
+    total_builds = rcommon.get_total_results(
+        job,
+        branch,
+        kernel,
+        models.BUILD_COLLECTION,
+        db_options
+    )[0]
+
+    git_commit, git_url = rcommon.get_git_data(job, branch, kernel, db_options)
+
+    spec = {
+        models.JOB_KEY: job,
+        models.GIT_BRANCH_KEY: branch,
+        models.KERNEL_KEY: kernel,
+        models.STATUS_KEY: models.OFFLINE_STATUS
+    }
+
+    if lab_name:
+        spec[models.LAB_NAME_KEY] = lab_name
+
+    database = utils.db.get_db_connection(db_options)
+
+    offline_results, offline_count = utils.db.find_and_count(
+        database[models.BOOT_COLLECTION],
+        0,
+        0,
+        spec=spec,
+        fields=BOOT_SEARCH_FIELDS,
+        sort=BOOT_SEARCH_SORT
+    )
+
+    # MongoDB cursor gets overwritten somehow by the next query. Extract the
+    # data before this happens.
+    offline_data = None
+    if offline_count > 0:
+        offline_data = _parse_boot_results(offline_results.clone())[0]
+
+    spec[models.STATUS_KEY] = {
+        "$in": [models.UNTRIED_STATUS, models.UNKNOWN_STATUS]
+    }
+    untried_count = utils.db.find_and_count(
+        database[models.BOOT_COLLECTION],
+        0,
+        0,
+        spec=spec,
+        fields=BOOT_SEARCH_FIELDS,
+        sort=BOOT_SEARCH_SORT
+    )[1]
+
+    spec[models.STATUS_KEY] = models.FAIL_STATUS
+    fail_results, fail_count = utils.db.find_and_count(
+        database[models.BOOT_COLLECTION],
+        0,
+        0,
+        spec=spec,
+        fields=BOOT_SEARCH_FIELDS,
+        sort=BOOT_SEARCH_SORT
+    )
+
+    # Calculate the PASS count based on the previous obtained values.
+    pass_count = total_count - fail_count - offline_count - untried_count
+
+    # Fill the boot data structure
+    data = {
+        "base_url": rcommon.DEFAULT_BASE_URL,
+        "boot_url": rcommon.DEFAULT_BOOT_URL,
+        "build_url": rcommon.DEFAULT_BUILD_URL,
+        "conflict_count": 0,
+        "conflict_data": None,
+        "fail_results": fail_results,
+        "fail_count": fail_count,
+        "failed_data": None,
+        "git_branch": branch,
+        "git_commit": git_commit,
+        "git_url": git_url,
+        "offline_count": offline_count,
+        "offline_data": offline_data,
+        "pass_count": pass_count,
+        "total_builds": total_builds,
+        "total_count": total_count,
+        "total_unique_data": total_unique_data,
+        "untried_count": untried_count,
+        "red": rcommon.HTML_RED,
+        "boot_id_url": rcommon.BOOT_ID_URL,
+        models.JOB_KEY: job,
+        models.KERNEL_KEY: kernel,
+        models.LAB_NAME_KEY: lab_name
+    }
+
+    # Get the regressions and determine which bisections to run.
+    regressions_doc = database[models.BOOT_REGRESSIONS_COLLECTION].find_one(
+        {models.JOB_KEY: job, models.KERNEL_KEY: kernel})
+
+    if regressions_doc:
+        data["regressions"], data["bisections"] = parse_regressions(
+            regressions_doc[models.REGRESSIONS_KEY], data)
+    else:
+        data["regressions"], data["bisections"] = None, None
+
+    return data
+
+
 # pylint: disable=too-many-locals
 # pylint: disable=star-args
 # pylint: disable=too-many-arguments
@@ -265,131 +377,20 @@ def create_boot_report(
     :return A tuple with the TXT email body, the HTML email body and the
     subject as strings or None.
     """
+    boot_data = get_boot_data(db_options, job, branch, kernel, lab_name)
+
     # Email TXT and HTML body.
     txt_body = None
     html_body = None
     subject = None
+
     # This is used to provide a footer note in the email report.
-    info_email = None
+    info_email = mail_options.get("info_email", None) if mail_options else None
 
-    if mail_options:
-        info_email = mail_options.get("info_email", None)
-
-    total_count, total_unique_data = rcommon.get_total_results(
-        job,
-        branch,
-        kernel,
-        models.BOOT_COLLECTION,
-        db_options,
-        lab_name=lab_name
-    )
-
-    total_builds, _ = rcommon.get_total_results(
-        job,
-        branch,
-        kernel,
-        models.BUILD_COLLECTION,
-        db_options
-    )
-
-    git_commit, git_url = rcommon.get_git_data(
-        job, branch, kernel, db_options)
-
-    spec = {
-        models.JOB_KEY: job,
-        models.GIT_BRANCH_KEY: branch,
-        models.KERNEL_KEY: kernel,
-        models.STATUS_KEY: models.OFFLINE_STATUS
-    }
-
-    if lab_name is not None:
-        spec[models.LAB_NAME_KEY] = lab_name
-
-    database = utils.db.get_db_connection(db_options)
-    offline_results, offline_count = utils.db.find_and_count(
-        database[models.BOOT_COLLECTION],
-        0,
-        0,
-        spec=spec,
-        fields=BOOT_SEARCH_FIELDS,
-        sort=BOOT_SEARCH_SORT
-    )
-
-    # MongoDB cursor gets overwritten somehow by the next query. Extract the
-    # data before this happens.
-    offline_data = None
-    if offline_count > 0:
-        offline_data, _, _, _ = _parse_boot_results(offline_results.clone())
-
-    spec[models.STATUS_KEY] = {
-        "$in": [models.UNTRIED_STATUS, models.UNKNOWN_STATUS]
-    }
-    untried_count = 0
-    _, untried_count = utils.db.find_and_count(
-        database[models.BOOT_COLLECTION],
-        0,
-        0,
-        spec=spec,
-        fields=BOOT_SEARCH_FIELDS,
-        sort=BOOT_SEARCH_SORT
-    )
-
-    spec[models.STATUS_KEY] = models.FAIL_STATUS
-
-    fail_results, fail_count = utils.db.find_and_count(
-        database[models.BOOT_COLLECTION],
-        0,
-        0,
-        spec=spec,
-        fields=BOOT_SEARCH_FIELDS,
-        sort=BOOT_SEARCH_SORT
-    )
-
-    failed_data = None
-    conflict_data = None
-    conflict_count = 0
-
-    # Calculate the PASS count based on the previous obtained values.
-    pass_count = total_count - fail_count - offline_count - untried_count
-
-    # Fill the data structure for the email report creation.
-    boot_data = {
-        "base_url": rcommon.DEFAULT_BASE_URL,
-        "boot_url": rcommon.DEFAULT_BOOT_URL,
-        "build_url": rcommon.DEFAULT_BUILD_URL,
-        "conflict_count": conflict_count,
-        "conflict_data": conflict_data,
+    boot_data.update({
         "email_format": email_format,
-        "fail_count": fail_count - conflict_count,
-        "failed_data": failed_data,
-        "git_branch": branch,
-        "git_commit": git_commit,
-        "git_url": git_url,
         "info_email": info_email,
-        "offline_count": offline_count,
-        "offline_data": offline_data,
-        "pass_count": pass_count,
-        "total_builds": total_builds,
-        "total_count": total_count,
-        "total_unique_data": total_unique_data,
-        "untried_count": untried_count,
-        "red": rcommon.HTML_RED,
-        "boot_id_url": rcommon.BOOT_ID_URL,
-        models.JOB_KEY: job,
-        models.KERNEL_KEY: kernel,
-        models.LAB_NAME_KEY: lab_name
-    }
-
-    # Get the regressions and determine bisections to run.
-    regressions_docs = database[models.BOOT_REGRESSIONS_COLLECTION].find_one(
-        {models.JOB_KEY: job, models.KERNEL_KEY: kernel})
-
-    if regressions_docs:
-        boot_data["regressions"], boot_data["bisections"] = parse_regressions(
-            regressions_docs[models.REGRESSIONS_KEY], boot_data)
-    else:
-        boot_data["regressions"] = None
-        boot_data["bisections"] = []
+    })
 
     custom_headers = {
         rcommon.X_REPORT: rcommon.BOOT_REPORT_TYPE,
@@ -397,18 +398,25 @@ def create_boot_report(
         rcommon.X_TREE: job,
         rcommon.X_KERNEL: kernel,
     }
+
     if lab_name:
         custom_headers[rcommon.X_LAB] = lab_name
 
+    fail_count = boot_data["fail_count"]
+    total_count = boot_data["total_count"]
+
     if fail_count > 0:
         failed_data, _, _, unique_data = \
-            _parse_boot_results(fail_results.clone(), get_unique=True)
+            _parse_boot_results(boot_data["fail_results"].clone(),
+                                get_unique=True)
 
         # Copy the failed results here. The mongodb Cursor, for some
         # reasons gets overwritten.
-        fail_results = [x for x in fail_results.clone()]
+        fail_results = [x for x in boot_data["fail_results"].clone()]
 
         conflict_data = None
+        conflict_count = 0
+
         if all([fail_count != total_count, lab_name is None]):
             # If the number of failed boots differs from the total number of
             # boot reports, check if we have conflicting reports. We look
@@ -458,10 +466,12 @@ def create_boot_report(
                                             intersect_results=failed_data)
 
         # Update the necessary data to create the email report.
-        boot_data["failed_data"] = failed_data
-        boot_data["conflict_count"] = conflict_count
-        boot_data["conflict_data"] = conflict_data
-        boot_data["fail_count"] = fail_count - conflict_count
+        boot_data.update({
+            "failed_data": failed_data,
+            "conflict_count": conflict_count,
+            "conflict_data": conflict_data,
+            "fail_count": fail_count - conflict_count,
+        })
 
         txt_body, html_body, subject = _create_boot_email(boot_data)
     elif fail_count == 0 and total_count > 0:
