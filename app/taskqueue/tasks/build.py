@@ -51,8 +51,6 @@ def parse_single_build_log(prev_res):
     :type prev_res: list
     :param db_options: The database connection parameters.
     :type db_options: dictionary
-    :param mail_options: The options necessary to connect to the SMTP server.
-    :type mail_options: dictionary
     :return A 2-tuple: The status code, and the errors data structure.
     """
     status, errors = utils.log_parser.parse_single_build_log(

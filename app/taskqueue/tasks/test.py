@@ -28,7 +28,7 @@ ADD_ERR = utils.errors.add_error
 # pylint: disable=star-args
 @taskc.app.task(name="complete-test-suite-import", ignore_result=False)
 def complete_test_suite_import(
-        suite_json, suite_id, suite_name, db_options, mail_options):
+        suite_json, suite_id, suite_name, db_options):
     """Complete the test suite import.
 
     First update the test suite references, if what is provided is only the
@@ -42,8 +42,6 @@ def complete_test_suite_import(
     :type suite_name: str
     :param db_options: The database connection parameters.
     :type db_options: dict
-    :param mail_options: The email system parameters.
-    :type mail_options: dict
     :return 200 if OK, 500 in case of errors; a dictionary containing the
     new values from the update action.
     """
@@ -61,7 +59,7 @@ def complete_test_suite_import(
     name="import-sets-from-suite", ignore_result=False, add_to_parent=False)
 def import_test_sets_from_test_suite(
         prev_results,
-        suite_id, suite_name, tests_list, db_options, mail_options):
+        suite_id, suite_name, tests_list, db_options):
     """Import the test sets provided in a test suite.
 
     This task is linked from the test suite update one: the first argument is a
@@ -78,8 +76,6 @@ def import_test_sets_from_test_suite(
     :type tests_list: list
     :param db_options: The database connection parameters.
     :type db_options: dict
-    :param mail_options: The email system parameters.
-    :type mail_options: dict
     :return 200 if OK, 500 in case of errors; a dictionary with errors or an
     empty one.
     """
@@ -123,7 +119,7 @@ def import_test_sets_from_test_suite(
     name="import-cases-from-suite", ignore_result=False, add_to_parent=False)
 def import_test_cases_from_test_suite(
         prev_results,
-        suite_id, suite_name, tests_list, db_options, mail_options):
+        suite_id, suite_name, tests_list, db_options):
     """Import the test cases provided in a test suite.
 
     This task is linked from the test suite update one: the first argument is a
@@ -140,8 +136,6 @@ def import_test_cases_from_test_suite(
     :type tests_list: list
     :param db_options: The database connection parameters.
     :type db_options: dict
-    :param mail_options: The email system parameters.
-    :type mail_options: dict
     :return 200 if OK, 500 in case of errors; a dictionary with errors or an
     empty one.
     """
@@ -183,7 +177,7 @@ def import_test_cases_from_test_suite(
 
 @taskc.app.task(name="import-test-cases-from-set", ignore_result=False)
 def import_test_cases_from_test_set(
-        tests_list, suite_id, suite_name, set_id, db_options, mail_options):
+        tests_list, suite_id, suite_name, set_id, db_options):
     """Wrapper around the real import function.
 
     Import the test cases included in a test set.
@@ -198,8 +192,6 @@ def import_test_cases_from_test_set(
     :type set_id: bson.objectid.ObjectId
     :param db_options: The database connection parameters.
     :type db_options: dict
-    :param mail_options: The email system parameters.
-    :type mail_options: dict
     :return 200 if OK, 500 in case of errors; a dictionary with errors or an
     empty one.
     """
@@ -234,6 +226,7 @@ def update_test_suite_add_test_set_id(
 
     ret_val, errors = tests_import.update_test_suite_add_test_set_id(
         set_id, suite_id, suite_name,
-        taskc.app.conf.db_options, taskc.app.conf.mail_options)
+        taskc.app.conf.db_options,
+        taskc.app.conf.get("mail_options", None))
     # TODO: handle errors.
     return ret_val

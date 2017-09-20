@@ -131,8 +131,7 @@ class TestSuiteHandler(htbase.TestBaseHandler):
                                     suite_json,
                                     suite_id,
                                     suite_name,
-                                    self.settings["dboptions"],
-                                    self.settings["mailoptions"]
+                                    self.settings["dboptions"]
                                 ]
                             )
                     else:

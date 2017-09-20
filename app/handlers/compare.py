@@ -129,7 +129,6 @@ class CompareHandler(hbase.BaseHandler):
             [kwargs["json_obj"]],
             kwargs={
                 "db_options": self.settings["dboptions"],
-                "mail_options": self.settings["mailoptions"]
             }
         )
 

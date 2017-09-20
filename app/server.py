@@ -81,34 +81,15 @@ topt.define(
     "unixsocket",
     default=False, type=bool, help="If unix socket should be used")
 
-# Email options.
-topt.define(
-    "smtp_host", default="", type=str, help="The SMTP host to connect to")
-topt.define("smtp_user", default="", type=str, help="SMTP connection user")
-topt.define(
-    "smtp_password", default="", type=str, help="SMTP connection password")
-topt.define(
-    "smtp_port",
-    default=587, type=int, help="The SMTP connection port, default to 587")
-topt.define(
-    "smtp_sender", default="", type=str, help="The sender email address")
-topt.define(
-    "smtp_sender_desc",
-    default="",
-    type=str, help="The name/description of the sender email address"
-)
+# Email report delay in seconds
 topt.define(
     "send_delay",
     default=60 * 60 + 5,
     type=int,
     help="The delay in sending the emails, default to 1 hour and 5 seconds"
 )
-topt.define(
-    "info_email",
-    default=None,
-    type=str,
-    help="The email address to use for footnote in the email reports"
-)
+
+# Storage
 topt.define(
     "storage_url",
     default=None, type=str, help="The URL of the storage system")
@@ -141,16 +122,6 @@ class KernelCiBackend(tornado.web.Application):
             "redis_port": topt.options.redis_port
         }
 
-        mail_options = {
-            "smtp_host": topt.options.smtp_host,
-            "info_email": topt.options.info_email,
-            "smtp_password": topt.options.smtp_password,
-            "smtp_port": topt.options.smtp_port,
-            "smtp_sender": topt.options.smtp_sender,
-            "smtp_sender_desc": topt.options.smtp_sender_desc,
-            "smtp_user": topt.options.smtp_user
-        }
-
         if not self.database:
             self.database = utils.db.get_db_connection(db_options)
 
@@ -161,7 +132,6 @@ class KernelCiBackend(tornado.web.Application):
             "database": self.database,
             "redis_connection": self.redis_con,
             "dboptions": db_options,
-            "mailoptions": mail_options,
             "default_handler_class": happ.AppHandler,
             "executor": concurrent.futures.ThreadPoolExecutor(
                 topt.options.max_workers),

@@ -54,13 +54,11 @@ class TestCaseHandler(htbase.TestBaseHandler):
                 self._check_and_get_test_suite(suite_id)
 
             if suite_oid:
-                other_args = {
-                    "mail_options": self.settings["mailoptions"]}
                 ret_val, doc_id, err_msg = tests_import.import_test_case(
                     test_case_json,
                     suite_oid,
                     suite_name,
-                    self.db, self.settings["dboptions"], **other_args
+                    self.db, self.settings["dboptions"]
                 )
                 response.status_code = ret_val
 

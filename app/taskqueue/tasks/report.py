@@ -35,7 +35,6 @@ def send_boot_report(
         email_format,
         to_addrs,
         db_options,
-        mail_options,
         cc_addrs=None, bcc_addrs=None, in_reply_to=None, subject=None):
     """Create the boot report email and send it.
 
@@ -51,8 +50,6 @@ def send_boot_report(
     :type to_addrs: list
     :param db_options: The database connection parameters.
     :type db_options: dictionary
-    :param mail_options: The options necessary to connect to the SMTP server.
-    :type mail_options: dictionary
     :param cc: The list of addresses to add in CC.
     :type cc: list
     :param bcc: The list of addresses to add in BCC.
@@ -72,7 +69,8 @@ def send_boot_report(
             git_branch,
             kernel,
             lab_name,
-            email_format, db_options=db_options, mail_options=mail_options
+            email_format, db_options=db_options,
+            mail_options=taskc.app.conf.get("mail_options", None)
         )
 
     if not subject:
@@ -87,7 +85,7 @@ def send_boot_report(
             subject,
             txt_body,
             html_body,
-            mail_options,
+            taskc.app.conf.mail_options,
             headers=headers,
             cc_addrs=cc_addrs, bcc_addrs=bcc_addrs, in_reply_to=in_reply_to
         )
@@ -110,7 +108,6 @@ def send_build_report(
         email_format,
         to_addrs,
         db_options,
-        mail_options,
         cc_addrs=None, bcc_addrs=None, in_reply_to=None, subject=None):
     """Create the build report email and send it.
 
@@ -124,8 +121,6 @@ def send_build_report(
     :type to_addrs: list
     :param db_options: The database connection parameters.
     :type db_options: dictionary
-    :param mail_options: The options necessary to connect to the SMTP server.
-    :type mail_options: dictionary
     :param cc: The list of addresses to add in CC.
     :type cc: list
     :param bcc: The list of addresses to add in BCC.
@@ -146,7 +141,7 @@ def send_build_report(
             kernel,
             email_format,
             db_options=db_options,
-            mail_options=mail_options
+            mail_options=taskc.app.conf.get("mail_options", None)
         )
 
     if not subject:
@@ -159,7 +154,7 @@ def send_build_report(
             subject,
             txt_body,
             html_body,
-            mail_options,
+            taskc.app.conf.mail_options,
             headers=headers,
             cc_addrs=cc_addrs, bcc_addrs=bcc_addrs, in_reply_to=in_reply_to
         )
@@ -241,7 +236,7 @@ def send_multiple_emails_error(
             "Sending duplicate emails report for %s-%s-%s",
             job, git_branch, kernel)
         utils.emails.send_email(
-            [taskc.app.conf.mail_options.get("error_email")],
+            [taskc.app.conf.mail_options["error_email"]],
             subject,
             txt_body,
             html_body,

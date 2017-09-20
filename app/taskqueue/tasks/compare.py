@@ -21,7 +21,7 @@ import utils.compare.job
 
 
 @taskc.app.task(name="job-delta", ignore_result=False)
-def calculate_job_delta(json_obj, db_options=None, mail_options=None):
+def calculate_job_delta(json_obj, db_options=None):
     """Perform the job delta calculations.
 
     Wrapper around the real function to provide a task-based access.
@@ -30,15 +30,13 @@ def calculate_job_delta(json_obj, db_options=None, mail_options=None):
     :type json_obj: dict
     :param db_options: The database connection parameters.
     :type db_options: dict
-    :param mail_options: The email connection parameters.
-    :type mail_options: dict
     :return a 4-tuple: status code, result, doc_id, errors.
     """
     return utils.compare.job.execute_job_delta(json_obj, db_options)
 
 
 @taskc.app.task(name="build-delta", ignore_result=False)
-def calculate_build_delta(json_obj, db_options=None, mail_options=None):
+def calculate_build_delta(json_obj, db_options=None):
     """Perform the build delta calculations.
 
     Wrapper around the real function to provide a task-based access.
@@ -47,8 +45,6 @@ def calculate_build_delta(json_obj, db_options=None, mail_options=None):
     :type json_obj: dict
     :param db_options: The database connection parameters.
     :type db_options: dict
-    :param mail_options: The email connection parameters.
-    :type mail_options: dict
     :return A 4-tuple: status code, result, doc_id and errors.
     :rtype tuple
     """
@@ -56,7 +52,7 @@ def calculate_build_delta(json_obj, db_options=None, mail_options=None):
 
 
 @taskc.app.task(name="boot-delta", ignore_result=False)
-def calculate_boot_delta(json_obj, db_options=None, mail_options=None):
+def calculate_boot_delta(json_obj, db_options=None):
     """Perform the boot delta calculations.
 
     Wrapper around the real function to provide a task-based access.
@@ -65,8 +61,6 @@ def calculate_boot_delta(json_obj, db_options=None, mail_options=None):
     :type json_obj: dict
     :param db_options: The database connection parameters.
     :type db_options: dict
-    :param mail_options: The email connection parameters.
-    :type mail_options: dict
     :return A 4-tuple: status code, result, doc_id and errors.
     :rtype tuple
     """

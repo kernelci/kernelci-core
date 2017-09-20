@@ -113,7 +113,6 @@ class SendHandler(hbase.BaseHandler):
                     "in_reply_to": j_get(models.IN_REPLY_TO_KEY, None),
                     "subject": j_get(models.SUBJECT_KEY, None),
                     "db_options": self.settings["dboptions"],
-                    "mail_options": self.settings["mailoptions"],
                 }
 
                 email_type = []
@@ -261,8 +260,7 @@ class SendHandler(hbase.BaseHandler):
                     lab_name,
                     email_format,
                     to_addrs,
-                    s_get("db_options"),
-                    s_get("mail_options")
+                    s_get("db_options")
                 ],
                 kwargs={
                     "cc_addrs": cc_addrs,
@@ -318,8 +316,7 @@ class SendHandler(hbase.BaseHandler):
                     kernel,
                     email_format,
                     to_addrs,
-                    s_get("db_options"),
-                    s_get("mail_options")
+                    s_get("db_options")
                 ],
                 kwargs={
                     "cc_addrs": cc_addrs,
