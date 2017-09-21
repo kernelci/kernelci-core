@@ -100,7 +100,13 @@ def _get_lava_test_case_data(meta, tc_data, job_data, META_DATA_MAP):
 
     tests = yaml.load(job_data["results"]["lava"], Loader=yaml.CLoader)
     for test in tests:
-        test_case = {x: test[y] for x, y in META_DATA_MAP.iteritems()}
+        test_case = {}
+        for x, y in META_DATA_MAP.iteritems():
+            try:
+                test_case.update({x: test[y]})
+            except (KeyError) as ex:
+                utils.LOG.warn("LAVA test case field {} missing in the job"
+                               " result.".format(ex))
         # Not very nice parsing of the lava suite. Need to define a common
         # reporting pattern and change this function and the next one
         if test_case[models.NAME_KEY] == 'http-download':
@@ -171,7 +177,13 @@ def _get_test_case_data(meta, tc_data, job_data, META_DATA_MAP):
 
     tests = yaml.load(job_data["results"][test_key], Loader=yaml.CLoader)
     for test in tests:
-        test_case = {x: test[y] for x, y in META_DATA_MAP.iteritems()}
+        test_case = {}
+        for x, y in META_DATA_MAP.iteritems():
+            try:
+                test_case.update({x: test[y]})
+            except (KeyError) as ex:
+                utils.LOG.warn("Test case field {} missing in the job"
+                               " result.".format(ex))
         test_case.update(common_meta)
         # If no set is defined make it part of a generic one
         if "set" in test["metadata"]:
@@ -207,7 +219,12 @@ def _get_definition_meta(meta, job_data, META_DATA_MAP):
     meta["board_instance"] = job_data["actual_device_id"]
     definition = yaml.load(job_data["definition"], Loader=yaml.CLoader)
     job_meta = definition["metadata"]
-    meta.update({x: job_meta[y] for x, y in META_DATA_MAP.iteritems()})
+    for x, y in META_DATA_MAP.iteritems():
+        try:
+            meta.update({x: job_meta[y]})
+        except (KeyError) as ex:
+            utils.LOG.warn("Metadata field {} missing in the job"
+                           " result.".format(ex))
 
 
 def _get_lava_boot_meta(meta, boot_meta):
@@ -350,7 +367,7 @@ def add_boot(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
         _get_lava_meta(meta, job_data)
         _add_boot_log(meta, job_data["log"], base_path)
         doc_id = utils.boot.import_and_save_boot(meta, db_options)
-    except (yaml.YAMLError, ValueError, KeyError) as ex:
+    except (yaml.YAMLError, ValueError) as ex:
         ret_code = 400
         msg = "Invalid LAVA data"
     except (OSError, IOError) as ex:
@@ -431,9 +448,9 @@ def add_tests(job_data, lab_name, boot_doc_id,
                                                         tc_data,
                                                         db_options)
             utils.errors.update_errors(errors, err)
-        except (yaml.YAMLError, ValueError, KeyError) as ex:
+        except (yaml.YAMLError, ValueError) as ex:
             ret_code = 400
-            msg = "Invalid LAVA data"
+            msg = "Invalid test data from LAVA callback"
         except (OSError, IOError) as ex:
             ret_code = 500
             msg = "Internal error"
