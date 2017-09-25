@@ -349,6 +349,7 @@ beaglebone_black = {'device_type': 'beaglebone-black',
                     'defconfig_blacklist': ['allmodconfig'],
                     'kernel_blacklist': [],
                     'nfs_blacklist': [],
+                    'lab_blacklist': ['lab-baylibre'],
                     'lpae': False,
                     'fastboot': False,
                     'mach': 'omap2'}
