@@ -43,6 +43,9 @@ if [ -e kernel/configs/tiny.config ]; then
   DEFCONFIG_LIST+="tinyconfig "
 fi
 
+# minimal set of in-tree defconfigs
+DEFCONFIG_STABLE=$DEFCONFIG_LIST
+
 # defconfigs + fragments
 if [ ${ARCH} = "arm" ]; then
   ### DEFCONFIG_LIST+="allmodconfig "
@@ -115,6 +118,8 @@ fi
 if [ ${TREE_NAME} = "stable" ] || [ ${TREE_NAME} = "stable-rc" ]; then
   # Don't do allmodconfig builds
   DEFCONFIG_LIST=${DEFCONFIG_LIST/allmodconfig/}
+  # only do minimal "known stable" defconfigs
+  DEFCONFIG_LIST=$DEFCONFIG_STABLE
 fi
 
 # Security testing features
