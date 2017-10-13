@@ -550,8 +550,7 @@ class TestJobCompareHandler(TestHandlerBase):
         mock_calculate.apply_async.assert_called_with(
             [body],
             kwargs={
-                "db_options": self.dboptions,
-                "mail_options": self.mail_options
+                "db_options": self.dboptions
             }
         )
         self.assertEqual(response.code, 200)
@@ -614,8 +613,7 @@ class TestJobCompareHandler(TestHandlerBase):
         mock_calculate.apply_async.assert_called_with(
             [expected_body],
             kwargs={
-                "db_options": self.dboptions,
-                "mail_options": self.mail_options
+                "db_options": self.dboptions
             }
         )
         self.assertEqual(response.code, 200)
