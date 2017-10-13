@@ -43,7 +43,7 @@ class TestCallbackHandler(TestHandlerBase):
     def test_get(self):
         headers = {"Authorization": "foo"}
         response = self.fetch(
-            "/callback/lava", method="GET", headers=headers)
+            "/callback/lava/boot", method="GET", headers=headers)
 
         self.assertEqual(response.code, 501)
         self.assertEqual(
@@ -52,14 +52,14 @@ class TestCallbackHandler(TestHandlerBase):
     def test_delete(self):
         headers = {"Authorization": "foo"}
         response = self.fetch(
-            "/callback/lava", method="DELETE", headers=headers)
+            "/callback/lava/boot", method="DELETE", headers=headers)
 
         self.assertEqual(response.code, 501)
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
     def test_post_no_token(self):
-        response = self.fetch("/callback/lava", method="POST", body="")
+        response = self.fetch("/callback/lava/boot", method="POST", body="")
         self.assertEqual(response.code, 403)
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
@@ -70,7 +70,7 @@ class TestCallbackHandler(TestHandlerBase):
             "Content-Type": "application/x-www-form-urlencoded"
         }
         response = self.fetch(
-            "/callback/lava", method="POST", body="", headers=headers)
+            "/callback/lava/boot", method="POST", body="", headers=headers)
         self.assertEqual(response.code, 415)
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
@@ -81,7 +81,7 @@ class TestCallbackHandler(TestHandlerBase):
             "Content-Type": "application/json"
         }
         response = self.fetch(
-            "/callback/lava", method="POST", body="", headers=headers)
+            "/callback/lava/boot", method="POST", body="", headers=headers)
         self.assertEqual(response.code, 422)
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
@@ -94,7 +94,20 @@ class TestCallbackHandler(TestHandlerBase):
         body = json.dumps(dict(foo="foo", bar="bar"))
 
         response = self.fetch(
-            "/callback/lava", method="POST", body=body, headers=headers)
+            "/callback/lava/boot", method="POST", body=body, headers=headers)
+        self.assertEqual(response.code, 400)
+        self.assertEqual(
+            response.headers["Content-Type"], self.content_type)
+
+    def test_post_wrong_action(self):
+        headers = {
+            "Authorization": "foo",
+            "Content-Type": "application/json"
+        }
+        body = json.dumps(dict(foo="foo", bar="bar"))
+
+        response = self.fetch(
+            "/callback/lava/foo", method="POST", body=body, headers=headers)
         self.assertEqual(response.code, 400)
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
