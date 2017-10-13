@@ -27,6 +27,7 @@ import unittest
 
 import models.boot as mboot
 import utils.boot as bimport
+import utils.errors
 
 
 class TestParseBoot(unittest.TestCase):
@@ -71,15 +72,12 @@ class TestParseBoot(unittest.TestCase):
         logging.disable(logging.NOTSET)
 
     @mock.patch("utils.db.get_db_connection")
-    def test_import_and_save_db_error(self, mock_conn):
-        mock_conn.side_effect = pymongo.errors.ConnectionFailure("ConnErr")
+    def test_import_and_save_db_error(self, mock_db):
+        mock_db.side_effect = pymongo.errors.ConnectionFailure("ConnErr")
 
-        ret_code, doc_id, errors = bimport.import_and_save_boot(
-            self.boot_report, {})
-
-        self.assertIsNone(doc_id)
-        self.assertIsNotNone(errors)
-        self.assertListEqual([500], errors.keys())
+        self.assertRaises(
+            utils.errors.BackendError,
+            bimport.import_and_save_boot, self.boot_report, {})
 
     def test_parse_from_json_simple(self):
         errors = {}
@@ -287,7 +285,7 @@ class TestParseBoot(unittest.TestCase):
     def test_import_and_save_boot(self, mock_db):
         mock_db = self.db
 
-        code, doc_id, errors = bimport.import_and_save_boot(
+        bimport.import_and_save_boot(
             self.boot_report, {}, base_path=self.base_path)
         lab_dir = os.path.join(
             self.base_path,
@@ -296,7 +294,6 @@ class TestParseBoot(unittest.TestCase):
 
         self.assertTrue(os.path.isdir(lab_dir))
         self.assertTrue(os.path.isfile(boot_file))
-        self.assertEqual(code, 201)
 
         try:
             os.remove(boot_file)
@@ -330,10 +327,8 @@ class TestParseBoot(unittest.TestCase):
         mock_parse.return_value = None
         mock_db = self.db
 
-        code, doc_id, errors = bimport.import_and_save_boot({}, {})
-        self.assertIsNone(code)
+        doc_id = bimport.import_and_save_boot({}, {})
         self.assertIsNone(doc_id)
-        self.assertDictEqual({}, errors)
 
     def test_parse_from_json_no_json(self):
         errors = {}
