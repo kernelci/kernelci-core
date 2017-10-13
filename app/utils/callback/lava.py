@@ -109,24 +109,24 @@ def _get_lava_test_case_data(meta, tc_data, job_data, META_DATA_MAP):
                                " result.".format(ex))
         # Not very nice parsing of the lava suite. Need to define a common
         # reporting pattern and change this function and the next one
-        if test_case[models.NAME_KEY] == 'http-download':
-            for key in test['metadata']['extra']:
-                if 'label' in key:
-                    test_case[models.NAME_KEY] += '-' + key['label']
-        if test_case[models.NAME_KEY] == 'git-repo-action':
-            for key in test['metadata']['extra']:
-                if 'commit' in key:
-                    test_case[models.NAME_KEY] += '-' + key['commit']
-                if 'path' in key:
-                    test_case[models.NAME_KEY] += '-' + key['path']
+        if test_case[models.NAME_KEY] == "http-download":
+            for key in test["metadata"]["extra"]:
+                if "label" in key:
+                    test_case[models.NAME_KEY] += "-" + key["label"]
+        if test_case[models.NAME_KEY] == "git-repo-action":
+            for key in test["metadata"]["extra"]:
+                if "commit" in key:
+                    test_case[models.NAME_KEY] += "-" + key["commit"]
+                if "path" in key:
+                    test_case[models.NAME_KEY] += "-" + key["path"]
         if (
-            (test_case[models.NAME_KEY] == 'test-overlay') or
-            (test_case[models.NAME_KEY] == 'test-runscript-overlay') or
-            (test_case[models.NAME_KEY] == 'test-install-overlay')
+            (test_case[models.NAME_KEY] == "test-overlay") or
+            (test_case[models.NAME_KEY] == "test-runscript-overlay") or
+            (test_case[models.NAME_KEY] == "test-install-overlay")
         ):
-            for key in test['metadata']['extra']:
-                if 'name' in key:
-                    test_case[models.NAME_KEY] += '-' + key['name']
+            for key in test["metadata"]["extra"]:
+                if "name" in key:
+                    test_case[models.NAME_KEY] += "-" + key["name"]
         test_case.update(common_meta)
         # If no set is defined make it part of a generic one
         if "set" in test["metadata"]:
@@ -171,7 +171,7 @@ def _get_test_case_data(meta, tc_data, job_data, META_DATA_MAP):
             break
 
     if not key:
-        utils.LOG.error("Could not find test data '{}' in lava callback obj"
+        utils.LOG.error("Could not find test data -{}- in lava callback obj"
                         .format(meta[models.NAME_KEY]))
         return
 
@@ -417,7 +417,7 @@ def add_tests(job_data, lab_name, boot_doc_id,
     for key in job_data["results"]:
         # Lava appends the test suites name with an incremental prefix "X_"
         # Except for the lava key
-        if key != 'lava':
+        if key != "lava":
             key = key[2:]
 
         try:
@@ -435,7 +435,7 @@ def add_tests(job_data, lab_name, boot_doc_id,
             _get_definition_meta(ts_data, job_data, META_DATA_MAP_TEST_SUITE)
             # List of test cases data
             tc_data = []
-            if ts_data[models.NAME_KEY] == 'lava':
+            if ts_data[models.NAME_KEY] == "lava":
                 # Get cases data from lava test suite
                 _get_lava_test_case_data(ts_data, tc_data, job_data,
                                          DATA_MAP_TEST_CASE)
