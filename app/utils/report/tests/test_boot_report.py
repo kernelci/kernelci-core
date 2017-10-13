@@ -99,7 +99,7 @@ class TestBootReport(unittest.TestCase):
         }
 
         # All is passed.
-        subj = breport.get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(kwargs)
 
         self.assertIsNotNone(subj)
         self.assertEqual(EXP_01, subj)
@@ -108,7 +108,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["fail_count"] = 10
         kwargs["pass_count"] = 0
 
-        subj = breport.get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(kwargs)
 
         self.assertIsNotNone(subj)
         self.assertEqual(EXP_02, subj)
@@ -118,7 +118,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["pass_count"] = 0
         kwargs["offline_count"] = 10
 
-        subj = breport.get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(kwargs)
 
         self.assertIsNotNone(subj)
         self.assertEqual(EXP_03, subj)
@@ -129,7 +129,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["offline_count"] = 0
         kwargs["untried_count"] = 10
 
-        subj = breport.get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(kwargs)
 
         self.assertIsNotNone(subj)
         self.assertEqual(EXP_04, subj)
@@ -140,7 +140,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["offline_count"] = 0
         kwargs["untried_count"] = 0
 
-        subj = breport.get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(kwargs)
 
         self.assertIsNotNone(subj)
         self.assertEqual(EXP_05, subj)
@@ -151,7 +151,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["offline_count"] = 0
         kwargs["untried_count"] = 1
 
-        subj = breport.get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(kwargs)
 
         self.assertIsNotNone(subj)
         self.assertEqual(EXP_06, subj)
@@ -162,7 +162,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["offline_count"] = 1
         kwargs["untried_count"] = 1
 
-        subj = breport.get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(kwargs)
 
         self.assertIsNotNone(subj)
         self.assertEqual(EXP_07, subj)
@@ -174,7 +174,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["untried_count"] = 1
         kwargs["conflict_count"] = 2
 
-        subj = breport.get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(kwargs)
 
         self.assertIsNotNone(subj)
         self.assertEqual(EXP_08, subj)
@@ -186,7 +186,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["untried_count"] = 0
         kwargs["conflict_count"] = 0
 
-        subj = breport.get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(kwargs)
 
         self.assertIsNotNone(subj)
         self.assertEqual(EXP_09, subj)
@@ -198,7 +198,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["untried_count"] = 0
         kwargs["conflict_count"] = 1
 
-        subj = breport.get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(kwargs)
 
         self.assertIsNotNone(subj)
         self.assertEqual(EXP_10, subj)
@@ -210,7 +210,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["untried_count"] = 0
         kwargs["conflict_count"] = 2
 
-        subj = breport.get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(kwargs)
 
         self.assertIsNotNone(subj)
         self.assertEqual(EXP_11, subj)
@@ -230,7 +230,7 @@ class TestBootReport(unittest.TestCase):
         }
 
         # All is passed.
-        subj = breport.get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(kwargs)
 
         self.assertIsNotNone(subj)
         self.assertEqual(EXP_12, subj)
@@ -239,7 +239,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["fail_count"] = 10
         kwargs["pass_count"] = 0
 
-        subj = breport.get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(kwargs)
 
         self.assertIsNotNone(subj)
         self.assertEqual(EXP_13, subj)
@@ -249,7 +249,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["pass_count"] = 0
         kwargs["offline_count"] = 10
 
-        subj = breport.get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(kwargs)
 
         self.assertIsNotNone(subj)
         self.assertEqual(EXP_14, subj)
@@ -260,7 +260,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["offline_count"] = 0
         kwargs["untried_count"] = 10
 
-        subj = breport.get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(kwargs)
 
         self.assertIsNotNone(subj)
         self.assertEqual(EXP_15, subj)
@@ -271,7 +271,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["offline_count"] = 0
         kwargs["untried_count"] = 0
 
-        subj = breport.get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(kwargs)
 
         self.assertIsNotNone(subj)
         self.assertEqual(EXP_16, subj)
@@ -282,7 +282,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["offline_count"] = 0
         kwargs["untried_count"] = 1
 
-        subj = breport.get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(kwargs)
 
         self.assertIsNotNone(subj)
         self.assertEqual(EXP_17, subj)
@@ -293,7 +293,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["offline_count"] = 1
         kwargs["untried_count"] = 1
 
-        subj = breport.get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(kwargs)
 
         self.assertIsNotNone(subj)
         self.assertEqual(EXP_18, subj)
@@ -305,7 +305,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["untried_count"] = 1
         kwargs["conflict_count"] = 2
 
-        subj = breport.get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(kwargs)
 
         self.assertIsNotNone(subj)
         self.assertEqual(EXP_19, subj)
@@ -317,7 +317,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["untried_count"] = 0
         kwargs["conflict_count"] = 0
 
-        subj = breport.get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(kwargs)
 
         self.assertIsNotNone(subj)
         self.assertEqual(EXP_20, subj)
@@ -329,7 +329,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["untried_count"] = 0
         kwargs["conflict_count"] = 1
 
-        subj = breport.get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(kwargs)
 
         self.assertIsNotNone(subj)
         self.assertEqual(EXP_21, subj)
@@ -341,7 +341,7 @@ class TestBootReport(unittest.TestCase):
         kwargs["untried_count"] = 0
         kwargs["conflict_count"] = 2
 
-        subj = breport.get_boot_subject_string(**kwargs)
+        subj = breport.get_boot_subject_string(kwargs)
 
         self.assertIsNotNone(subj)
         self.assertEqual(EXP_22, subj)
