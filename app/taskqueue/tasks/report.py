@@ -34,7 +34,6 @@ def send_boot_report(
         lab_name,
         email_format,
         to_addrs,
-        db_options,
         cc_addrs=None, bcc_addrs=None, in_reply_to=None, subject=None):
     """Create the boot report email and send it.
 
@@ -48,8 +47,6 @@ def send_boot_report(
     :type email_format: list
     :param to_addrs: List of recipients.
     :type to_addrs: list
-    :param db_options: The database connection parameters.
-    :type db_options: dictionary
     :param cc: The list of addresses to add in CC.
     :type cc: list
     :param bcc: The list of addresses to add in BCC.
@@ -63,13 +60,16 @@ def send_boot_report(
     utils.LOG.info("Preparing boot report email for '{}'".format(report_id))
     status = "ERROR"
 
+    db_options = taskc.app.conf.get("db_options", {})
+
     txt_body, html_body, new_subject, headers = \
         utils.report.boot.create_boot_report(
             job,
             git_branch,
             kernel,
             lab_name,
-            email_format, db_options=db_options,
+            email_format,
+            db_options=db_options,
             mail_options=taskc.app.conf.get("mail_options", None)
         )
 
@@ -99,11 +99,14 @@ def send_boot_report(
 
 
 @taskc.app.task(name="trigger-bisections")
-def trigger_bisections(status, job, branch, kernel, lab_name, db_options):
+def trigger_bisections(status, job, branch, kernel, lab_name):
     report_id = "-".join([job, branch, kernel])
     utils.LOG.info("Triggering bisections for '{}'".format(report_id))
     return utils.report.boot.trigger_bisections(
-        status, job, branch, kernel, lab_name, db_options,
+        status,
+        job,
+        branch, kernel, lab_name,
+        taskc.app.conf.get("db_options", {}),
         taskc.app.conf.get("jenkins_options", None))
 
 

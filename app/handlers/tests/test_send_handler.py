@@ -141,13 +141,14 @@ class TestSendHandler(TestHandlerBase):
                 "kernel",
                 None,
                 ["txt"],
-                ["test@example.org"], self.dboptions, self.mail_options
+                ["test@example.org"],
+                [],
+                [],
+                None,
+                None
             ],
             countdown=60 * 60,
-            kwargs={
-                "cc_addrs": [],
-                "bcc_addrs": [], "in_reply_to": None, "subject": None
-            }
+            link=mock.ANY
         )
 
     def test_post_wrong_delay(self):
@@ -193,13 +194,14 @@ class TestSendHandler(TestHandlerBase):
                 "kernel",
                 None,
                 ["txt"],
-                ["test@example.org"], self.dboptions, self.mail_options
+                ["test@example.org"],
+                [],
+                [],
+                None,
+                None
             ],
             countdown=100,
-            kwargs={
-                "cc_addrs": [],
-                "bcc_addrs": [], "in_reply_to": None, "subject": None
-            }
+            link=mock.ANY
         )
 
     @mock.patch("taskqueue.tasks.report.send_boot_report")
@@ -228,13 +230,14 @@ class TestSendHandler(TestHandlerBase):
                 "kernel",
                 None,
                 ["txt"],
-                ["test@example.org"], self.dboptions, self.mail_options
+                ["test@example.org"],
+                [],
+                [],
+                None,
+                None
             ],
             countdown=18000,
-            kwargs={
-                "cc_addrs": [],
-                "bcc_addrs": [], "in_reply_to": None, "subject": None
-            }
+            link=mock.ANY
         )
 
     @mock.patch("taskqueue.tasks.report.send_build_report")
@@ -262,7 +265,7 @@ class TestSendHandler(TestHandlerBase):
                 "master",
                 "kernel",
                 ["txt"],
-                ["test@example.org"], self.dboptions, self.mail_options
+                ["test@example.org"], self.dboptions,
             ],
             countdown=60 * 60,
             kwargs={
@@ -321,14 +324,14 @@ class TestSendHandler(TestHandlerBase):
                 "kernel",
                 None,
                 ["txt"],
-                ["test2@example.org"], self.dboptions, self.mail_options
+                ["test2@example.org"],
+                [],
+                [],
+                None,
+                "A fake subject"
             ],
             countdown=60 * 60,
-            kwargs={
-                "cc_addrs": [],
-                "bcc_addrs": [],
-                "in_reply_to": None, "subject": "A fake subject"
-            }
+            link=mock.ANY
         )
         mock_build.apply_async.assert_called_with(
             [
@@ -336,7 +339,7 @@ class TestSendHandler(TestHandlerBase):
                 "master",
                 "kernel",
                 ["txt"],
-                ["test@example.org"], self.dboptions, self.mail_options
+                ["test@example.org"], self.dboptions,
             ],
             countdown=60 * 60,
             kwargs={
