@@ -37,7 +37,7 @@ ERROR_PATTERN_4 = re.compile("gcc doesn't support", re.IGNORECASE)
 ERROR_PATTERN_5 = re.compile("command not found", re.IGNORECASE)
 ERROR_PATTERN_6 = re.compile("^\/bin\/([bd]a)?sh", re.IGNORECASE)
 ERROR_PATTERN_7 = re.compile("^\/bin\/((tc)?z?c?k?)?sh", re.IGNORECASE)
-WARNING_PATTERN = re.compile("warning:", re.IGNORECASE)
+WARNING_PATTERN = re.compile("warning:?", re.IGNORECASE)
 MISMATCH_PATTERN = re.compile("Section mismatch", re.IGNORECASE)
 
 # Regex pattern to exclude.

@@ -65,3 +65,9 @@ option -mr10k-cache-barrier=store.  Stop.
 /bin/sh: 1: /home/buildslave/workspace/kernel-single-defconfig-builder/defconfig/allmodconfig+CONFIG_OF=n/label/builder/build-x86/tools/objtool//fixdep: Permission denied
 /bin/bash: 1: /home/buildslave/workspace/kernel-single-defconfig-builder/defconfig/allmodconfig+CONFIG_OF=n/label/builder/build-x86/tools/objtool//fixdep: Permission denied
 /bin/zsh: 1: /home/buildslave/workspace/kernel-single-defconfig-builder/defconfig/allmodconfig+CONFIG_OF=n/label/builder/build-x86/tools/objtool//fixdep: Permission denied
+arch/arm64/boot/dts/altera/socfpga_stratix10_socdk.dtb: Warning (interrupts_property): Missing interrupt-parent for /pmu
+arch/arm64/boot/dts/broadcom/bcm2837-rpi-3-b.dtb: Warning (phys_property): Missing property '#phy-cells' in node /phy or bad phandle (referred from /soc/usb@7e980000:phys[0])
+arch/arm64/boot/dts/mediatek/mt8173-evb.dtb: Warning (cooling_device_property): Missing property '#cooling-cells' in node /cpus/cpu@0 or bad phandle (referred from /thermal-zones/cpu_thermal/cooling-maps/map@0:cooling-device[0])
+arch/arm64/boot/dts/rockchip/rk3328-evb.dtb: Warning (interrupts_property): interrupts size is (16), expected multiple of 12 in /tsadc@ff250000
+arch/arm64/boot/dts/nvidia/tegra186-p2771-0000.dtb: Warning (power_domains_property): Missing property '#power-domain-cells' in node /bpmp or bad phandle (referred from /gpu@17000000:power-domains[0])
+../sound/soc/soc-dapm.c:3940:2: warning: 'w_param_text' may be used uninitialized in this function [-Wmaybe-uninitialized]
