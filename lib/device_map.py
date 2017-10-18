@@ -352,9 +352,8 @@ beaglebone_black = {'device_type': 'beaglebone-black',
                     'mach': 'omap2'}
 
 beagle_xm = {'device_type': 'beagle-xm',
-             'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
-                           'generic-arm-dtb-kernel-ci-kselftest-template.json',
-                           'generic-arm-dtb-kernel-ci-hackbench-template.json'],
+             'templates': ['generic-uboot-tftp-ramdisk-template.jinja2',
+                           'generic-uboot-tftp-ramdisk-kselftest-template.jinja2'],
              'kernel_defconfig_blacklist': [],
              'defconfig_blacklist': ['allmodconfig'],
              'kernel_blacklist': ['v3.14',
