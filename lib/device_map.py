@@ -1471,7 +1471,7 @@ sama5d34ek = {'device_type': 'sama5d34ek',
                     'mach': 'at91'}
 
 sama5d36ek = {'device_type': 'sama5d36ek',
-                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                     'kernel_defconfig_blacklist': [],
                     'defconfig_blacklist': ['allmodconfig',
 					    'at91_dt_defconfig',
