@@ -1665,7 +1665,7 @@ sun8i_h3_orangepi_pc = {'device_type': 'sun8i-h3-orangepi-pc',
                     'mach': 'sunxi'}
 
 sinlinx_sina33 = {'device_type': 'sun8i-a33-sinlinx-sina33',
-                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                     'kernel_defconfig_blacklist': [],
                     'defconfig_blacklist': ['allmodconfig'],
                     'kernel_blacklist': [],
