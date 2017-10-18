@@ -1405,7 +1405,7 @@ armada_xp_linksys_mamba = {'device_type': 'armada-xp-linksys-mamba',
                'mach': 'mvebu'}
 
 armada_388_clearfog = {'device_type': 'armada-388-clearfog',
-                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                     'kernel_defconfig_blacklist': [],
                     'defconfig_blacklist': ['allmodconfig',
                                             'multi_v7_defconfig+CONFIG_SMP=n'],
