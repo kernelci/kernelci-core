@@ -103,7 +103,7 @@ bcm4708_smartrg_sr400ac = {'device_type': 'bcm4708-smartrg-sr400ac',
                            'mach': 'bcm'}
 
 armada_370_db = {'device_type': 'armada-370-db',
-                       'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                       'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                        'kernel_defconfig_blacklist': [],
                        'defconfig_blacklist': ['allmodconfig'],
                        'kernel_blacklist': ['v3'],
