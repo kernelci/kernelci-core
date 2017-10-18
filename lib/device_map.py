@@ -1621,7 +1621,7 @@ at91_sama5d2_xplained = {'device_type': 'at91-sama5d2_xplained',
                     'mach': 'at91'}
 
 at91_sama5d4_xplained = {'device_type': 'at91-sama5d4_xplained',
-                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                     'kernel_defconfig_blacklist': [],
                     'defconfig_blacklist': ['allmodconfig'],
                     'kernel_blacklist': [],
