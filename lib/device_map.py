@@ -1635,7 +1635,7 @@ at91_sama5d4_xplained = {'device_type': 'at91-sama5d4_xplained',
                     'mach': 'at91'}
 
 sun8i_a23_evb = {'device_type': 'sun8i-a23-evb',
-                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                     'kernel_defconfig_blacklist': [],
                     'defconfig_blacklist': ['allmodconfig'],
                     'kernel_blacklist': [],
