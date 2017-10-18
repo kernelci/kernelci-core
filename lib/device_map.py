@@ -147,7 +147,7 @@ armada_370_rd = {'device_type': 'armada-370-rd',
                        'mach': 'mvebu'}
 
 armada_375_db = {'device_type': 'armada-375-db',
-                       'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                       'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                        'kernel_defconfig_blacklist': [],
                        'defconfig_blacklist': ['allmodconfig'],
                        'kernel_blacklist': [],
