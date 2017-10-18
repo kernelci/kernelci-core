@@ -199,7 +199,7 @@ kirkwood_db_88f6282 = {'device_type': 'kirkwood-db-88f6282',
                        'mach': 'mvebu'}
 
 armada_3720_db = {'device_type': 'armada-3720-db',
-                       'templates': ['generic-arm64-dtb-kernel-ci-boot-template.json'],
+                       'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                        'kernel_defconfig_blacklist': [],
                        'defconfig_blacklist': ['allmodconfig'],
                        'kernel_blacklist': [],
