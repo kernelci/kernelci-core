@@ -1615,7 +1615,7 @@ at91rm9200ek = {'device_type': 'at91rm9200ek',
                     'mach': 'at91'}
 
 at91_sama5d2_xplained = {'device_type': 'at91-sama5d2_xplained',
-                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                     'kernel_defconfig_blacklist': [],
                     'defconfig_blacklist': ['allmodconfig'],
                     'kernel_blacklist': [],
