@@ -124,7 +124,7 @@ armada_370_mirabox = {'device_type': 'armada-370-mirabox',
                        'mach': 'mvebu'}
 
 orion5x_rd88f5182_nas = {'device_type': 'orion5x-rd88f5182-nas',
-                       'templates': ['generic-arm-dtb-kernel-ci-boot-nfs-template.json'],
+                       'templates': ['generic-uboot-tftp-nfs-template.jinja2'],
                        'kernel_defconfig_blacklist': [],
                        'defconfig_blacklist': ['allmodconfig'],
                        'kernel_blacklist': [],
