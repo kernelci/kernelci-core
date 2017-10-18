@@ -32,7 +32,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 alpine_db = {'device_type': 'alpine-db',
-                      'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                      'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                       'kernel_defconfig_blacklist': [],
                       'defconfig_blacklist': ['allmodconfig'],
                       'kernel_blacklist': [],
