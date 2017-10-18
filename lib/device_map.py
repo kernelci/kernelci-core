@@ -1437,7 +1437,7 @@ chip = {'device_type': 'sun5i-r8-chip',
                     'mach': 'sunxi'}
 
 imx6q_nitrogen6x = {'device_type': 'imx6q-nitrogen6x',
-                   'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                   'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                    'kernel_defconfig_blacklist': [],
                    'defconfig_blacklist': ['allmodconfig',
 					   'imx_v4_v5_defconfig',
