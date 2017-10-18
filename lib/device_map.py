@@ -32,7 +32,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 alpine_db = {'device_type': 'alpine-db',
-                      'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                      'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                       'kernel_defconfig_blacklist': [],
                       'defconfig_blacklist': ['allmodconfig'],
                       'kernel_blacklist': [],
@@ -352,9 +352,8 @@ beaglebone_black = {'device_type': 'beaglebone-black',
                     'mach': 'omap2'}
 
 beagle_xm = {'device_type': 'beagle-xm',
-             'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
-                           'generic-arm-dtb-kernel-ci-kselftest-template.json',
-                           'generic-arm-dtb-kernel-ci-hackbench-template.json'],
+             'templates': ['generic-uboot-tftp-ramdisk-template.jinja2',
+                           'generic-uboot-tftp-ramdisk-kselftest-template.jinja2'],
              'kernel_defconfig_blacklist': [],
              'defconfig_blacklist': ['allmodconfig'],
              'kernel_blacklist': ['v3.14',
@@ -766,12 +765,9 @@ highbank = {'device_type': 'highbank',
             'mach': 'highbank'}
 
 sama53d = {'device_type': 'sama53d',
-           'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
-                         'generic-arm-dtb-kernel-ci-boot-nfs-mp-template.json',
-                         'generic-arm-dtb-kernel-ci-boot-nfs-template.json',
-                         'generic-arm-dtb-kernel-ci-ltp-mm-template.json',
-                         'generic-arm-dtb-kernel-ci-ltp-syscalls-template.json',
-                         'generic-arm-dtb-kernel-ci-kselftest-template.json'],
+           'templates': ['generic-uboot-tftp-ramdisk-template.jinja2',
+                         'generic-uboot-tftp-nfs-template.jinja2',
+                         'generic-uboot-tftp-ramdisk-kselftest-template.jinja2'],
            'kernel_defconfig_blacklist': [],
            'defconfig_blacklist': ['at91_dt_defconfig',
                                    'at91sam9260_9g20_defconfig',
@@ -1371,7 +1367,7 @@ imx27_phycard_s = {'device_type': 'imx27-phytec-phycard-s-rdk',
                    'mach': 'imx'}
 
 openblocks_ax3 = {'device_type': 'armada-xp-openblocks-ax3-4',
-                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                     'kernel_defconfig_blacklist': [],
                     'defconfig_blacklist': ['allmodconfig',
                                             'multi_v7_defconfig+CONFIG_SMP=n'],
@@ -1625,7 +1621,7 @@ at91_sama5d2_xplained = {'device_type': 'at91-sama5d2_xplained',
                     'mach': 'at91'}
 
 at91_sama5d4_xplained = {'device_type': 'at91-sama5d4_xplained',
-                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                     'kernel_defconfig_blacklist': [],
                     'defconfig_blacklist': ['allmodconfig'],
                     'kernel_blacklist': [],
