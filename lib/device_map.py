@@ -1427,7 +1427,7 @@ chip_pro = {'device_type': 'sun5i-gr8-chip-pro',
                     'mach': 'sunxi'}
 
 chip = {'device_type': 'sun5i-r8-chip',
-                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                     'kernel_defconfig_blacklist': [],
                     'defconfig_blacklist': ['allmodconfig'],
                     'kernel_blacklist': [],
