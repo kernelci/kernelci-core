@@ -1655,7 +1655,7 @@ sun8i_a83t_allwinner_h8homlet_v2 = {'device_type': 'sun8i-a83t-allwinner-h8homle
                     'mach': 'sunxi'}
 
 sun8i_h3_orangepi_pc = {'device_type': 'sun8i-h3-orangepi-pc',
-                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                     'kernel_defconfig_blacklist': [],
                     'defconfig_blacklist': ['allmodconfig'],
                     'kernel_blacklist': [],
