@@ -167,7 +167,7 @@ armada_385_db_ap = {'device_type': 'armada-385-db-ap',
                        'mach': 'mvebu'}
 
 armada_388_gp = {'device_type': 'armada-388-gp',
-                       'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                       'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                        'kernel_defconfig_blacklist': [],
                        'defconfig_blacklist': ['allmodconfig'],
                        'kernel_blacklist': [],
