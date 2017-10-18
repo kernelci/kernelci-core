@@ -1367,7 +1367,7 @@ imx27_phycard_s = {'device_type': 'imx27-phytec-phycard-s-rdk',
                    'mach': 'imx'}
 
 openblocks_ax3 = {'device_type': 'armada-xp-openblocks-ax3-4',
-                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                     'kernel_defconfig_blacklist': [],
                     'defconfig_blacklist': ['allmodconfig',
                                             'multi_v7_defconfig+CONFIG_SMP=n'],
