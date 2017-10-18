@@ -219,7 +219,7 @@ armada_7040_db = {'device_type': 'armada-7040-db',
                        'mach': 'mvebu'}
 
 armada_8040_db = {'device_type': 'armada-8040-db',
-                       'templates': ['generic-arm64-dtb-kernel-ci-boot-template.json'],
+                       'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                        'kernel_defconfig_blacklist': [],
                        'defconfig_blacklist': ['allmodconfig'],
                        'kernel_blacklist': [],
