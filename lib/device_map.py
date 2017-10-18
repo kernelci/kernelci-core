@@ -1382,7 +1382,7 @@ openblocks_ax3 = {'device_type': 'armada-xp-openblocks-ax3-4',
                     'mach': 'mvebu'}
 
 openblocks_a7 = {'device_type': 'kirkwood-openblocks_a7',
-                 'templates': ['generic-arm-dtb-kernel-ci-boot-nfs-template.json'],
+                 'templates': ['generic-uboot-tftp-nfs-template.jinja2'],
                  'kernel_defconfig_blacklist': [],
                  'defconfig_blacklist': ['allmodconfig',
 		 # To be removed once NFS is working for this defconfig
