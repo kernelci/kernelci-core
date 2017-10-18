@@ -134,7 +134,7 @@ orion5x_rd88f5182_nas = {'device_type': 'orion5x-rd88f5182-nas',
                        'mach': 'mvebu'}
 
 armada_370_rd = {'device_type': 'armada-370-rd',
-                       'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                       'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
 		       'kernel_defconfig_blacklist': [{'kernel_version': 'v4.0', 'defconfig': 'multi_v7_defconfig'},
 						      {'kernel_version': 'v4.1', 'defconfig': 'multi_v7_defconfig'},
 						      {'kernel_version': 'v4.2', 'defconfig': 'multi_v7_defconfig'},
