@@ -1605,7 +1605,7 @@ at91sam9x35ek = {'device_type': 'at91sam9x35ek',
                     'mach': 'at91'}
 
 at91rm9200ek = {'device_type': 'at91rm9200ek',
-                    'templates': ['generic-arm-dtb-kernel-ci-boot-nfs-template.json'],
+                    'templates': ['generic-uboot-tftp-nfs-template.jinja2'],
                     'kernel_defconfig_blacklist': [],
                     'defconfig_blacklist': ['allmodconfig'],
                     'kernel_blacklist': ['v3'],
