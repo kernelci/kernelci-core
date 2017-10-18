@@ -103,7 +103,7 @@ bcm4708_smartrg_sr400ac = {'device_type': 'bcm4708-smartrg-sr400ac',
                            'mach': 'bcm'}
 
 armada_370_db = {'device_type': 'armada-370-db',
-                       'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                       'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                        'kernel_defconfig_blacklist': [],
                        'defconfig_blacklist': ['allmodconfig'],
                        'kernel_blacklist': ['v3'],
@@ -124,7 +124,7 @@ armada_370_mirabox = {'device_type': 'armada-370-mirabox',
                        'mach': 'mvebu'}
 
 orion5x_rd88f5182_nas = {'device_type': 'orion5x-rd88f5182-nas',
-                       'templates': ['generic-arm-dtb-kernel-ci-boot-nfs-template.json'],
+                       'templates': ['generic-uboot-tftp-nfs-template.jinja2'],
                        'kernel_defconfig_blacklist': [],
                        'defconfig_blacklist': ['allmodconfig'],
                        'kernel_blacklist': [],
@@ -134,7 +134,7 @@ orion5x_rd88f5182_nas = {'device_type': 'orion5x-rd88f5182-nas',
                        'mach': 'mvebu'}
 
 armada_370_rd = {'device_type': 'armada-370-rd',
-                       'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                       'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
 		       'kernel_defconfig_blacklist': [{'kernel_version': 'v4.0', 'defconfig': 'multi_v7_defconfig'},
 						      {'kernel_version': 'v4.1', 'defconfig': 'multi_v7_defconfig'},
 						      {'kernel_version': 'v4.2', 'defconfig': 'multi_v7_defconfig'},
@@ -147,7 +147,7 @@ armada_370_rd = {'device_type': 'armada-370-rd',
                        'mach': 'mvebu'}
 
 armada_375_db = {'device_type': 'armada-375-db',
-                       'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                       'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                        'kernel_defconfig_blacklist': [],
                        'defconfig_blacklist': ['allmodconfig'],
                        'kernel_blacklist': [],
@@ -157,7 +157,7 @@ armada_375_db = {'device_type': 'armada-375-db',
                        'mach': 'mvebu'}
 
 armada_385_db_ap = {'device_type': 'armada-385-db-ap',
-                       'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                       'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                        'kernel_defconfig_blacklist': [],
                        'defconfig_blacklist': ['allmodconfig'],
                        'kernel_blacklist': [],
@@ -167,7 +167,7 @@ armada_385_db_ap = {'device_type': 'armada-385-db-ap',
                        'mach': 'mvebu'}
 
 armada_388_gp = {'device_type': 'armada-388-gp',
-                       'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                       'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                        'kernel_defconfig_blacklist': [],
                        'defconfig_blacklist': ['allmodconfig'],
                        'kernel_blacklist': [],
@@ -177,7 +177,7 @@ armada_388_gp = {'device_type': 'armada-388-gp',
                        'mach': 'mvebu'}
 
 armada_398_db = {'device_type': 'armada-398-db',
-                       'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                       'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                        'kernel_defconfig_blacklist': [],
                        'defconfig_blacklist': ['allmodconfig'],
                        'kernel_blacklist': [],
@@ -187,7 +187,7 @@ armada_398_db = {'device_type': 'armada-398-db',
                        'mach': 'mvebu'}
 
 kirkwood_db_88f6282 = {'device_type': 'kirkwood-db-88f6282',
-                       'templates': ['generic-arm-dtb-kernel-ci-boot-nfs-template.json'],
+                       'templates': ['generic-uboot-tftp-nfs-template.jinja2'],
                        'kernel_defconfig_blacklist': [],
                        'defconfig_blacklist': ['allmodconfig',
 			# To be removed once NFS is working for this defconfig
@@ -199,7 +199,7 @@ kirkwood_db_88f6282 = {'device_type': 'kirkwood-db-88f6282',
                        'mach': 'mvebu'}
 
 armada_3720_db = {'device_type': 'armada-3720-db',
-                       'templates': ['generic-arm64-dtb-kernel-ci-boot-template.json'],
+                       'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                        'kernel_defconfig_blacklist': [],
                        'defconfig_blacklist': ['allmodconfig'],
                        'kernel_blacklist': [],
@@ -209,7 +209,7 @@ armada_3720_db = {'device_type': 'armada-3720-db',
                        'mach': 'mvebu'}
 
 armada_7040_db = {'device_type': 'armada-7040-db',
-                       'templates': ['generic-arm64-dtb-kernel-ci-boot-template.json'],
+                       'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                        'kernel_defconfig_blacklist': [],
                        'defconfig_blacklist': ['allmodconfig'],
                        'kernel_blacklist': ['v4.6'],
@@ -219,7 +219,7 @@ armada_7040_db = {'device_type': 'armada-7040-db',
                        'mach': 'mvebu'}
 
 armada_8040_db = {'device_type': 'armada-8040-db',
-                       'templates': ['generic-arm64-dtb-kernel-ci-boot-template.json'],
+                       'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                        'kernel_defconfig_blacklist': [],
                        'defconfig_blacklist': ['allmodconfig'],
                        'kernel_blacklist': [],
@@ -229,7 +229,7 @@ armada_8040_db = {'device_type': 'armada-8040-db',
                        'mach': 'mvebu'}
 
 armada_xp_db = {'device_type': 'armada-xp-db',
-                       'templates': ['generic-arm-dtb-kernel-ci-boot-nfs-template.json'],
+                       'templates': ['generic-uboot-tftp-nfs-template.jinja2'],
                        'kernel_defconfig_blacklist': [],
                        'defconfig_blacklist': ['allmodconfig'],
                        'kernel_blacklist': [],
@@ -239,7 +239,7 @@ armada_xp_db = {'device_type': 'armada-xp-db',
                        'mach': 'mvebu'}
 
 armada_xp_gp = {'device_type': 'armada-xp-gp',
-                       'templates': ['generic-arm-dtb-kernel-ci-boot-nfs-template.json'],
+                       'templates': ['generic-uboot-tftp-nfs-template.jinja2'],
                        'kernel_defconfig_blacklist': [],
                        'defconfig_blacklist': ['allmodconfig'],
                        'kernel_blacklist': [],
@@ -1378,7 +1378,7 @@ openblocks_ax3 = {'device_type': 'armada-xp-openblocks-ax3-4',
                     'mach': 'mvebu'}
 
 openblocks_a7 = {'device_type': 'kirkwood-openblocks_a7',
-                 'templates': ['generic-arm-dtb-kernel-ci-boot-nfs-template.json'],
+                 'templates': ['generic-uboot-tftp-nfs-template.jinja2'],
                  'kernel_defconfig_blacklist': [],
                  'defconfig_blacklist': ['allmodconfig',
 		 # To be removed once NFS is working for this defconfig
@@ -1390,7 +1390,7 @@ openblocks_a7 = {'device_type': 'kirkwood-openblocks_a7',
                  'mach': 'mvebu'}
 
 armada_xp_linksys_mamba = {'device_type': 'armada-xp-linksys-mamba',
-			   'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+			   'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
 			   'kernel_defconfig_blacklist': [],
 			   'defconfig_blacklist': ['allmodconfig',
 						   'multi_v7_defconfig+CONFIG_SMP=n'],
@@ -1401,7 +1401,7 @@ armada_xp_linksys_mamba = {'device_type': 'armada-xp-linksys-mamba',
                'mach': 'mvebu'}
 
 armada_388_clearfog = {'device_type': 'armada-388-clearfog',
-                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                     'kernel_defconfig_blacklist': [],
                     'defconfig_blacklist': ['allmodconfig',
                                             'multi_v7_defconfig+CONFIG_SMP=n'],
@@ -1423,7 +1423,7 @@ chip_pro = {'device_type': 'sun5i-gr8-chip-pro',
                     'mach': 'sunxi'}
 
 chip = {'device_type': 'sun5i-r8-chip',
-                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                     'kernel_defconfig_blacklist': [],
                     'defconfig_blacklist': ['allmodconfig'],
                     'kernel_blacklist': [],
@@ -1433,7 +1433,7 @@ chip = {'device_type': 'sun5i-r8-chip',
                     'mach': 'sunxi'}
 
 imx6q_nitrogen6x = {'device_type': 'imx6q-nitrogen6x',
-                   'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                   'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                    'kernel_defconfig_blacklist': [],
                    'defconfig_blacklist': ['allmodconfig',
 					   'imx_v4_v5_defconfig',
@@ -1467,7 +1467,7 @@ sama5d34ek = {'device_type': 'sama5d34ek',
                     'mach': 'at91'}
 
 sama5d36ek = {'device_type': 'sama5d36ek',
-                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                     'kernel_defconfig_blacklist': [],
                     'defconfig_blacklist': ['allmodconfig',
 					    'at91_dt_defconfig',
@@ -1512,7 +1512,7 @@ sama5d35ek = {'device_type': 'sama5d35ek',
                     'mach': 'at91'}
 
 at91sam9m10g45ek = {'device_type': 'at91sam9m10g45ek',
-                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                     'kernel_defconfig_blacklist': [],
                     'defconfig_blacklist': ['allmodconfig',
 					    'multi_v7_defconfig',
@@ -1534,7 +1534,7 @@ at91sam9m10g45ek = {'device_type': 'at91sam9m10g45ek',
                     'mach': 'at91'}
 
 sam9261ek = {'device_type': 'at91sam9261ek',
-                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                     'kernel_defconfig_blacklist': [],
                     'defconfig_blacklist': ['allmodconfig',
 					    'multi_v7_defconfig',
@@ -1555,7 +1555,7 @@ sam9261ek = {'device_type': 'at91sam9261ek',
                     'mach': 'at91'}
 
 sam9x25ek = {'device_type': 'at91sam9x25ek',
-                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                     'kernel_defconfig_blacklist': [],
                     'defconfig_blacklist': ['allmodconfig',
 					    'multi_v7_defconfig',
@@ -1578,7 +1578,7 @@ sam9x25ek = {'device_type': 'at91sam9x25ek',
                     'mach': 'at91'}
 
 at91sam9x35ek = {'device_type': 'at91sam9x35ek',
-                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                     'kernel_defconfig_blacklist': [],
                     'defconfig_blacklist': ['allmodconfig',
 					    'multi_v7_defconfig',
@@ -1601,7 +1601,7 @@ at91sam9x35ek = {'device_type': 'at91sam9x35ek',
                     'mach': 'at91'}
 
 at91rm9200ek = {'device_type': 'at91rm9200ek',
-                    'templates': ['generic-arm-dtb-kernel-ci-boot-nfs-template.json'],
+                    'templates': ['generic-uboot-tftp-nfs-template.jinja2'],
                     'kernel_defconfig_blacklist': [],
                     'defconfig_blacklist': ['allmodconfig'],
                     'kernel_blacklist': ['v3'],
@@ -1611,7 +1611,7 @@ at91rm9200ek = {'device_type': 'at91rm9200ek',
                     'mach': 'at91'}
 
 at91_sama5d2_xplained = {'device_type': 'at91-sama5d2_xplained',
-                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                     'kernel_defconfig_blacklist': [],
                     'defconfig_blacklist': ['allmodconfig'],
                     'kernel_blacklist': [],
@@ -1631,7 +1631,7 @@ at91_sama5d4_xplained = {'device_type': 'at91-sama5d4_xplained',
                     'mach': 'at91'}
 
 sun8i_a23_evb = {'device_type': 'sun8i-a23-evb',
-                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                     'kernel_defconfig_blacklist': [],
                     'defconfig_blacklist': ['allmodconfig'],
                     'kernel_blacklist': [],
@@ -1641,7 +1641,7 @@ sun8i_a23_evb = {'device_type': 'sun8i-a23-evb',
                     'mach': 'sunxi'}
 
 sun8i_a83t_allwinner_h8homlet_v2 = {'device_type': 'sun8i-a83t-allwinner-h8homlet-v2',
-                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                     'kernel_defconfig_blacklist': [],
                     'defconfig_blacklist': ['allmodconfig'],
                     'kernel_blacklist': [],
@@ -1651,7 +1651,7 @@ sun8i_a83t_allwinner_h8homlet_v2 = {'device_type': 'sun8i-a83t-allwinner-h8homle
                     'mach': 'sunxi'}
 
 sun8i_h3_orangepi_pc = {'device_type': 'sun8i-h3-orangepi-pc',
-                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                     'kernel_defconfig_blacklist': [],
                     'defconfig_blacklist': ['allmodconfig'],
                     'kernel_blacklist': [],
@@ -1661,7 +1661,7 @@ sun8i_h3_orangepi_pc = {'device_type': 'sun8i-h3-orangepi-pc',
                     'mach': 'sunxi'}
 
 sinlinx_sina33 = {'device_type': 'sun8i-a33-sinlinx-sina33',
-                    'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                    'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                     'kernel_defconfig_blacklist': [],
                     'defconfig_blacklist': ['allmodconfig'],
                     'kernel_blacklist': [],
