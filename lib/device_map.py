@@ -187,7 +187,7 @@ armada_398_db = {'device_type': 'armada-398-db',
                        'mach': 'mvebu'}
 
 kirkwood_db_88f6282 = {'device_type': 'kirkwood-db-88f6282',
-                       'templates': ['generic-arm-dtb-kernel-ci-boot-nfs-template.json'],
+                       'templates': ['generic-uboot-tftp-nfs-template.jinja2'],
                        'kernel_defconfig_blacklist': [],
                        'defconfig_blacklist': ['allmodconfig',
 			# To be removed once NFS is working for this defconfig
