@@ -1394,7 +1394,7 @@ openblocks_a7 = {'device_type': 'kirkwood-openblocks_a7',
                  'mach': 'mvebu'}
 
 armada_xp_linksys_mamba = {'device_type': 'armada-xp-linksys-mamba',
-			   'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+			   'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
 			   'kernel_defconfig_blacklist': [],
 			   'defconfig_blacklist': ['allmodconfig',
 						   'multi_v7_defconfig+CONFIG_SMP=n'],
