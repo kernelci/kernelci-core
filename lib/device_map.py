@@ -73,8 +73,7 @@ bcm2836_rpi_2_b = {'device_type': 'bcm2836-rpi-2-b',
 
 bcm2837_rpi_3_b = {'device_type': 'bcm2837-rpi-3-b',
                'templates': ['generic-uboot-tftp-ramdisk-template.jinja2',
-                             'generic-uboot-tftp-ramdisk-kselftest-template.jinja2',
-                             'generic-uboot-tftp-nfs-template.jinja2'],
+                             'generic-uboot-tftp-ramdisk-kselftest-template.jinja2'],
                'kernel_defconfig_blacklist': [],
                'defconfig_blacklist': ['allnoconfig',
                                        'allmodconfig'],
@@ -82,7 +81,7 @@ bcm2837_rpi_3_b = {'device_type': 'bcm2837-rpi-3-b',
                'kernel_blacklist': [],
                'nfs_blacklist': [],
                'lpae': False,
-               'fastboot': True,
+               'fastboot': False,
                'mach': 'bcm'}
 
 bcm4708_smartrg_sr400ac = {'device_type': 'bcm4708-smartrg-sr400ac',
