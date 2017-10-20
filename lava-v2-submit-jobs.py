@@ -20,7 +20,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-# Usage ./lava-v2-submit-jobs.py --username test --token xxxx --server http://server/RPC2 --jobs jobfolder
+# Usage ./lava-v2-submit-jobs.py --username test --token xxxx --lab lab-name --jobs jobfolder
 
 import os
 import xmlrpclib
@@ -32,6 +32,7 @@ import re
 import argparse
 import httplib
 import json
+import configparser
 
 from lib import utils
 from lib import configuration
@@ -111,8 +112,13 @@ def main(args):
 
     if JOBS:
         start_time = time.time()
-        url = utils.validate_input(config.get("username"), config.get("token"),
-                                   config.get("server"))
+        labs_config = configparser.ConfigParser()
+        labs_config.read('labs.ini')
+        lava_api = labs_config[config.get("lab")]['api']
+        print("LAVA API: {}".format(lava_api))
+        url = utils.validate_input(config.get("username"),
+                                   config.get("token"),
+                                   lava_api)
         connection = utils.connect(url)
         submit_jobs(connection)
         if jobs_submitted and SUBMITTED:
@@ -137,7 +143,6 @@ if __name__ == '__main__':
                         help="path to jobs directory (default is cwd)")
     parser.add_argument("--username", help="username for the LAVA server")
     parser.add_argument("--token", help="token for LAVA server api")
-    parser.add_argument("--server", help="server url for LAVA server")
     parser.add_argument("--repo", help="git repo for LAVA jobs")
     parser.add_argument("--submitted", default='submitted.json',
                         help="path to JSON file to save submitted jobs data")
