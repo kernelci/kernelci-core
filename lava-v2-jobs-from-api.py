@@ -74,12 +74,17 @@ def main(args):
     }
 
     print "Working on kernel %s/%s" % (tree, branch)
-    url_params = urllib.urlencode({
+    url_params = {
         'job': tree,
         'kernel': git_describe,
         'git_branch': branch,
         'arch': arch,
-    })
+    }
+    job_defconfig = args.get('defconfig_full')
+    if job_defconfig:
+        print("Single defconfig: {}".format(job_defconfig))
+        url_params['defconfig_full'] = job_defconfig
+    url_params = urllib.urlencode(url_params)
     url = urlparse.urljoin(api, 'build?{}'.format(url_params))
     print "Calling KernelCI API: %s" % url
     builds = []
@@ -309,6 +314,8 @@ if __name__ == '__main__':
                         help="priority for LAVA jobs", default='high')
     parser.add_argument("--callback", help="Add a callback notification to the Job YAML")
     parser.add_argument("--defconfigs", help="Expected number of defconfigs from the API", default=0)
+    parser.add_argument("--defconfig_full",
+                        help="Only look for builds from this full defconfig")
     args = vars(parser.parse_args())
     if args:
         main(args)
