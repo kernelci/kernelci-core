@@ -227,6 +227,11 @@ def _get_definition_meta(meta, job_data, META_DATA_MAP):
                            " result.".format(ex))
 
 
+def _get_lava_job_meta(meta, boot_meta):
+    if boot_meta.get("error_type") == "Infrastructure":
+        meta["boot_result"] = "UNKNOWN"
+
+
 def _get_lava_boot_meta(meta, boot_meta):
     """Parse the boot and login meta-data from LAVA
 
@@ -284,11 +289,15 @@ def _get_lava_meta(meta, job_data):
     :type job_data: dict
     """
     lava = yaml.load(job_data["results"]["lava"], Loader=yaml.CLoader)
+    meta_handlers = {
+        'job': _get_lava_job_meta,
+        'auto-login-action': _get_lava_boot_meta,
+        'bootloader-overlay': _get_lava_bootloader_meta,
+    }
     for step in lava:
-        if step["name"] == "auto-login-action":
-            _get_lava_boot_meta(meta, step["metadata"])
-        elif step["name"] == "bootloader-overlay":
-            _get_lava_bootloader_meta(meta, step["metadata"])
+        handler = meta_handlers.get(step["name"])
+        if handler:
+            handler(meta, step["metadata"])
 
 
 def _add_boot_log(meta, log, base_path):
