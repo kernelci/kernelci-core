@@ -102,31 +102,33 @@ def create_regressions_data(boot_docs, boot_data):
     last_fail = boot_docs[-1]
     last_good = boot_docs[0]
 
-    # Override the lab_name key for the substitutions.
-    boot_data[models.LAB_NAME_KEY] = last_fail[models.LAB_NAME_KEY]
-    boot_data["good_kernel"] = last_good[models.KERNEL_KEY]
-    boot_data["boot_regressions_url"] = BOOT_REGRESSIONS_URL.format(
-        **boot_data)
+    fmt_data = {
+        "boot_id_url": boot_data["boot_id_url"],
+        "red": boot_data["red"],
+        models.LAB_NAME_KEY: last_fail[models.LAB_NAME_KEY],
+        "good_kernel": last_good[models.KERNEL_KEY],
+        "boot_regressions_url": BOOT_REGRESSIONS_URL.format(**boot_data),
+    }
 
-    fail_url = BOOT_ID_HTML.format(**boot_data).format(**last_fail)
+    fail_url = BOOT_ID_HTML.format(**fmt_data).format(**last_fail)
 
     if len(boot_docs) == 2:
-        failure = NEW_FAIL_HTML.format(**boot_data)
+        failure = NEW_FAIL_HTML.format(**fmt_data)
 
         # Simple case, it's a new failure.
         regr_data["txt"] = \
             u"{:s} ({:s})".format(
                 NEW_FAIL_TXT.format(**last_fail),
-                LAST_PASS_TXT.format(**boot_data))
+                LAST_PASS_TXT.format(**fmt_data))
         regr_data["html"] = \
             u"{:s}: {:s} <small>({:s})</small>".format(
                 fail_url,
                 failure,
-                LAST_PASS_HTML.format(**boot_data).format(**last_good))
+                LAST_PASS_HTML.format(**fmt_data).format(**last_good))
     else:
         # The first boot report is always a PASS status.
         first_fail = boot_docs[1]
-        boot_data["bad_kernel"] = first_fail[models.KERNEL_KEY]
+        fmt_data["bad_kernel"] = first_fail[models.KERNEL_KEY]
 
         delta = last_fail[models.CREATED_KEY] - first_fail[models.CREATED_KEY]
         days = delta.days
@@ -135,28 +137,28 @@ def create_regressions_data(boot_docs, boot_data):
         if days == 0:
             days = 1
         # Inject the number of days.
-        boot_data["days"] = days
+        fmt_data["days"] = days
 
         failure_txt = P_(
             SINGULAR_FAILURE_TXT, PLURAL_FAILURE_TXT, days)\
-            .format(**boot_data)
+            .format(**fmt_data)
 
         failure_html = P_(
             SINGULAR_FAILURE_HTML, PLURAL_FAILURE_HTML, days)\
-            .format(**boot_data)
+            .format(**fmt_data)
 
         regr_data["txt"] = \
             u"{:s}: {:s} ({:s} - {:s})".format(
                 last_fail[models.LAB_NAME_KEY],
                 failure_txt,
-                LAST_PASS_TXT.format(**boot_data),
-                FIRST_FAIL_TXT.format(**boot_data))
+                LAST_PASS_TXT.format(**fmt_data),
+                FIRST_FAIL_TXT.format(**fmt_data))
         regr_data["html"] = \
             u"{:s}: {:s} <small>({:s} - {:s})</small>".format(
                 fail_url,
                 failure_html,
-                LAST_PASS_HTML.format(**boot_data).format(**last_good),
-                FIRST_FAIL_HTML.format(**boot_data).format(**first_fail))
+                LAST_PASS_HTML.format(**fmt_data).format(**last_good),
+                FIRST_FAIL_HTML.format(**fmt_data).format(**first_fail))
 
     return regr_data
 
