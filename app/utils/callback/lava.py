@@ -242,9 +242,12 @@ def _get_lava_boot_meta(meta, boot_meta):
     kernel_messages = []
     for e in extra:
         fail = e.get("fail", None)
-        if fail is not None:
-            for f in fail:
-                msg = f.get("message", None)
+        if not fail:
+            continue
+        if isinstance(fail, str):
+            kernel_messages.append(fail)
+        else:
+            for msg in (f.get("message", None) for f in fail):
                 if msg:
                     kernel_messages.append(msg)
     if kernel_messages:
