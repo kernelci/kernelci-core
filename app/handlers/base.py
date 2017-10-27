@@ -153,6 +153,10 @@ class BaseHandler(tornado.web.RequestHandler):
         self.set_status(status_code=status_code, reason=reason)
         self._write_buffer.append(tornado.escape.utf8(result))
         self.set_header("Content-Type", "application/json; charset=UTF-8")
+        self.set_header("Access-Control-Allow-Headers", "authorization")
+        origin = self.request.headers.get("Origin", None)
+        if origin:
+            self.set_header("Access-Control-Allow-Origin", origin)
 
         if headers:
             for key, val in headers.iteritems():
@@ -201,6 +205,24 @@ class BaseHandler(tornado.web.RequestHandler):
         :return A `HandlerResponse` object.
         """
         return hresponse.HandlerResponse(501)
+
+    @tornado.gen.coroutine
+    def options(self, *args, **kwargs):
+        future = yield self.executor.submit(self._options, *args, **kwargs)
+        self.write(future)
+
+    def _options(self, *args, **kwargs):
+        """Placeholder method - used internally.
+
+        This is called by the actual method that implements OPTIONS request.
+        Subclasses should provide their own implementation.
+
+        It must return a `HandlerResponse` object with the appropriate status
+        code and if necessary its custom message.
+
+        :return A `HandlerResponse` object.
+        """
+        return hresponse.HandlerResponse(200)
 
     @tornado.gen.coroutine
     def post(self, *args, **kwargs):
