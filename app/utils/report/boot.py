@@ -444,8 +444,6 @@ def create_boot_report(
     :type db_options: dict
     :param mail_options: The options necessary to connect to the SMTP server.
     :type mail_options: dict
-    :param jenkins_options: The options necessary to connect to Jenkins.
-    :type jenkins_options: dict
     :return A tuple with the TXT email body, the HTML email body and the
     subject as strings or None.
     """

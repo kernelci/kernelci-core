@@ -77,7 +77,7 @@ BL_META_MAP = {
 }
 
 
-def _get_lava_test_case_data(meta, tc_data, job_data, META_DATA_MAP):
+def _get_lava_test_case_data(meta, tc_data, job_data, meta_data_map):
     """Parse the lava test definition data
 
     Parse the data from the LAVA v2 job definition sent with the callback
@@ -89,8 +89,8 @@ def _get_lava_test_case_data(meta, tc_data, job_data, META_DATA_MAP):
     :type tc_data: dict
     :param job_data: The map of keys to search for in the JSON and update.
     :type job_data: dict
-    :param META_DATA_MAP: The dict of keys to parse and add in the data.
-    :type META_DATA_MAP: list
+    :param meta_data_map: The dict of keys to parse and add in the data.
+    :type meta_data_map: dict
     """
     common_meta = {
         "version": "1.0",
@@ -101,7 +101,7 @@ def _get_lava_test_case_data(meta, tc_data, job_data, META_DATA_MAP):
     tests = yaml.load(job_data["results"]["lava"], Loader=yaml.CLoader)
     for test in tests:
         test_case = {}
-        for x, y in META_DATA_MAP.iteritems():
+        for x, y in meta_data_map.iteritems():
             try:
                 test_case.update({x: test[y]})
             except (KeyError) as ex:
@@ -143,7 +143,7 @@ def _get_lava_test_case_data(meta, tc_data, job_data, META_DATA_MAP):
         tc_data.append(test_case)
 
 
-def _get_test_case_data(meta, tc_data, job_data, META_DATA_MAP):
+def _get_test_case_data(meta, tc_data, job_data, meta_data_map):
     """Parse the test definition data from the test suite name
 
     Parse the data from the LAVA v2 job definition sent with the callback
@@ -155,8 +155,8 @@ def _get_test_case_data(meta, tc_data, job_data, META_DATA_MAP):
     :type tc_data: dict
     :param job_data: The map of keys to search for in the JSON and update.
     :type job_data: dict
-    :param META_DATA_MAP: The dict of keys to parse and add in the data.
-    :type META_DATA_MAP: list
+    :param meta_data_map: The dict of keys to parse and add in the data.
+    :type meta_data_map: dict
     """
     test_key = None
     common_meta = {
@@ -201,7 +201,7 @@ def _get_test_case_data(meta, tc_data, job_data, META_DATA_MAP):
         tc_data.append(test_case)
 
 
-def _get_definition_meta(meta, job_data, META_DATA_MAP):
+def _get_definition_meta(meta, job_data, meta_data_map):
     """Parse the job definition meta-data from LAVA
 
     Parse the meta-data from the LAVA v2 job definition sent with the callback
@@ -213,13 +213,13 @@ def _get_definition_meta(meta, job_data, META_DATA_MAP):
     :type job_data: dict
     :param job_data: The map of keys to search for in the JSON and update.
     :type job_data: dict
-    :param META_DATA_MAP: The dict of keys to parse and add in the meta-data.
-    :type META_DATA_MAP: dict
+    :param meta_data_map: The dict of keys to parse and add in the meta-data.
+    :type meta_data_map: dict
     """
     meta["board_instance"] = job_data["actual_device_id"]
     definition = yaml.load(job_data["definition"], Loader=yaml.CLoader)
     job_meta = definition["metadata"]
-    for x, y in META_DATA_MAP.iteritems():
+    for x, y in meta_data_map.iteritems():
         try:
             meta.update({x: job_meta[y]})
         except (KeyError) as ex:
