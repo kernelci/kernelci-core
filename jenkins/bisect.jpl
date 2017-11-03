@@ -130,7 +130,7 @@ def submitJob(lava_ci, describe) {
 --token=${SECRET} \
 --api=${params.API} \
 --storage=${params.STORAGE} \
---plans=boot \
+--plans=${params.PLAN} \
 --jobs=data \
 --arch=${params.ARCH} \
 --tree=${params.TREE} \
@@ -220,8 +220,15 @@ Target:    ${params.TARGET}
 Tree:      ${params.TREE}
 Branch:    ${params.KERNEL_BRANCH}
 Defconfig: ${params.DEFCONFIG}
+Plan:      ${params.PLAN}
 Good:      ${params.GOOD_COMMIT}
 Bad:       ${params.BAD_COMMIT}"""
+
+    if ((params.PLAN != 'boot') && (params.PLAN != 'simple')) {
+        echo "Only doing boot and simple plans for now, aborting."
+        currentBuild.result = 'ABORTED'
+        return
+    }
 
     timeout(time: 30, unit: 'MINUTES') {
         stage("Init") {
