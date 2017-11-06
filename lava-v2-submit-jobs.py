@@ -47,6 +47,8 @@ def submit_jobs(connection):
     print "Fetching all device-types from LAVA"
     all_device_types = connection.scheduler.all_device_types()
 
+    result = True
+
     print "Submitting Jobs to Server..."
     for job in JOBS:
         try:
@@ -74,7 +76,10 @@ def submit_jobs(connection):
             print "Job submission error!"
             print job
             print e
+            result = False
             continue
+
+    return result
 
 def load_jobs(top):
     for root, dirnames, filenames in os.walk(top):
@@ -110,7 +115,10 @@ def main(args):
     print("Loading jobs from {}".format(jobs))
     load_jobs(jobs)
 
-    if JOBS:
+    if not JOBS:
+        print("No jobs to submit")
+        result = True
+    else:
         start_time = time.time()
         labs_config = configparser.ConfigParser()
         labs_config.read('labs.ini')
@@ -120,7 +128,7 @@ def main(args):
                                    config.get("token"),
                                    lava_api)
         connection = utils.connect(url)
-        submit_jobs(connection)
+        result = submit_jobs(connection)
         if jobs_submitted and SUBMITTED:
             print("Saving submitted jobs data in {}".format(jobs_submitted))
             data = {
@@ -131,7 +139,7 @@ def main(args):
             with open(jobs_submitted, 'w') as json_file:
                 json.dump(data, json_file)
 
-    exit(0)
+    exit(0 if result is True else 1)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
