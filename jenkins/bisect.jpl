@@ -187,6 +187,20 @@ PYTHON_EGG_CACHE=${egg_cache} \
     return status
 }
 
+def bisectStart(kdir) {
+    def status
+
+    dir(kdir) {
+        status = sh(returnStatus: true, script: """
+git bisect start
+git bisect good ${params.GOOD_COMMIT}
+git bisect bad ${params.BAD_COMMIT}
+""")
+    }
+
+    return status
+}
+
 def bisectNext(kdir, status) {
     dir(kdir) {
         sh(script: "git clean -fd")
@@ -230,6 +244,8 @@ Bad:       ${params.BAD_COMMIT}"""
         return
     }
 
+    def start_result = 0
+
     timeout(time: 30, unit: 'MINUTES') {
         stage("Init") {
             parallel(
@@ -237,12 +253,14 @@ Bad:       ${params.BAD_COMMIT}"""
                 p2: { cloneLinux(kdir) },
             )
 
-            dir("${kdir}") {
-                sh(script: "git bisect start")
-                sh(script: "git bisect good ${params.GOOD_COMMIT}")
-                sh(script: "git bisect bad ${params.BAD_COMMIT}")
-            }
+            start_result = bisectStart(kdir)
         }
+    }
+
+    if (start_result) {
+        echo "Failed to start bisection, commits range may be invalid."
+        currentBuild.result = 'ABORTED'
+        return
     }
 
     def previous = params.GOOD_COMMIT
