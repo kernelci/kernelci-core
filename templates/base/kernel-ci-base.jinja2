@@ -31,6 +31,13 @@ metadata:
 {% block main %}
 device_type: {{ device_type }}
 
+{% if context %}
+context:
+{%- for key, value in context.items() %}
+  {{ key }}: "{{ value }}"
+{% endfor %}
+{% endif %}
+
 {% if callback %}
 notify:
   criteria:
