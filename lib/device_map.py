@@ -78,10 +78,11 @@ bcm2837_rpi_3_b = {'device_type': 'bcm2837-rpi-3-b',
                'defconfig_blacklist': ['allnoconfig',
                                        'allmodconfig'],
                'arch_blacklist': ['arm'],
-               'kernel_blacklist': [],
+               'kernel_blacklist': ['v4.13-', 'v4.14-rc1', 'v4.14-rc5', 'for-4.15', 'v3.', '4.4-', '4.9-'],
                'nfs_blacklist': [],
                'lpae': False,
                'fastboot': False,
+               'context': {'console_device': 'ttyS1'},
                'mach': 'bcm'}
 
 bcm4708_smartrg_sr400ac = {'device_type': 'bcm4708-smartrg-sr400ac',

@@ -69,7 +69,6 @@ def main(args):
     git_describe = args.get('describe')
     tree = args.get('tree')
     expected = int(args.get('defconfigs'))
-    kernel = tree
     headers = {
         "Authorization": token,
     }
@@ -165,17 +164,17 @@ def main(args):
                             elif "LPAE" in defconfig and not lpae:
                                 print "LPAE is not support on %s" % device_type
                                 continue
-                            elif any([x for x in device['kernel_blacklist'] if x in kernel]):
-                                print "kernel %s is blacklisted for device %s" % (kernel, device_type)
+                            elif any([x for x in device['kernel_blacklist'] if x in git_describe]):
+                                print "git_describe %s is blacklisted for device %s" % (git_describe, device_type)
                                 continue
-                            elif any([x for x in device['nfs_blacklist'] if x in kernel]) \
+                            elif any([x for x in device['nfs_blacklist'] if x in git_describe]) \
                                     and plan in ['boot-nfs', 'boot-nfs-mp']:
-                                print "kernel %s is blacklisted for NFS on device %s" % (kernel, device_type)
+                                print "git_describe %s is blacklisted for NFS on device %s" % (git_describe, device_type)
                                 continue
                             elif 'be_blacklist' in device \
-                                    and any([x for x in device['be_blacklist'] if x in kernel]) \
+                                    and any([x for x in device['be_blacklist'] if x in git_describe]) \
                                     and plan in ['boot-be']:
-                                print "kernel %s is blacklisted for BE on device %s" % (kernel, device_type)
+                                print "git_describe %s is blacklisted for BE on device %s" % (git_describe, device_type)
                                 continue
                             elif (arch_defconfig not in plan_defconfigs) and (plan != "boot"):
                                 print "defconfig %s not in test plan %s" % (arch_defconfig, plan)
@@ -184,6 +183,8 @@ def main(args):
                                 print "device_type %s is not in targets %s" % (device_type, targets)
                             elif arch == 'x86' and dtb == 'x86-32' and 'i386' not in arch_defconfig:
                                 print "%s is not a 32-bit x86 build, skipping for 32-bit device %s" % (defconfig, device_type)
+                            elif 'kselftest' in defconfig and plan != 'kselftest':
+                                print "Skipping kselftest defconfig because plan was not kselftest"
                             else:
                                 for template in device['templates']:
                                     short_template_file = plan + '/' + str(template)
@@ -194,6 +195,7 @@ def main(args):
                                         nfsrootfs_url = None
                                         initrd_url = None
                                         callback_name = 'lava/boot' if 'boot' in plan else 'lava/test'
+                                        context = device['context'] if 'context' in device else None
                                         if dtb_full.endswith('.dtb'):
                                             dtb_url = base_url + "dtbs/" + dtb_full
                                             platform = dtb[:-4]
@@ -266,7 +268,8 @@ def main(args):
                                                'callback': args.get('callback'),
                                                'api': api,
                                                'lab_name': lab_name,
-                                               'callback_name': callback_name
+                                               'callback_name': callback_name,
+                                               'context': context,
                                         }
                                         jobs.append(job)
             else:
