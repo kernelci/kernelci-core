@@ -21,6 +21,7 @@
 
 import argparse
 import cgi
+import dateutil.parser
 import json
 import yaml
 try:
@@ -39,6 +40,7 @@ HTML_HEAD = """\
   span.pass {{ color: green; }}
   span.err {{ color: red; }}
   span.warn {{ color: #F88017; }}
+  span.timestamp {{ color: #AAFFAA; }}
   a:link {{text-decoration: none }}
   a:visited {{text-decoration: none }}
   a:active {{text-decoration: none }}
@@ -72,20 +74,29 @@ def run(log, boot, txt, html):
         "error": "<span class=\"err\">{}</span>\n",
     }
     numbers = {"warning": 0, "error": 0}
+    start_ts = None
     log_buffer = StringIO.StringIO()
 
     for line in log:
-        level = line["lvl"]
+        iso_ts = dateutil.parser.parse(line["dt"])
+        raw_ts = iso_ts.strftime("%H:%M:%S.%f%z  ")
+        timestamp = "<span class=\"timestamp\">{}</span>".format(raw_ts)
+
+        level, msg = (line.get(k) for k in ["lvl", "msg"])
+
         fmt = formats.get(level, None)
         if fmt:
-            log_buffer.write(fmt.format(cgi.escape(line["msg"])))
+            log_buffer.write(timestamp)
+            log_buffer.write(fmt.format(cgi.escape(msg)))
             numbers[level] += 1
         elif level == "target":
-            msg = line["msg"]
+            log_buffer.write(timestamp)
             log_buffer.write(cgi.escape(msg))
             log_buffer.write("\n")
             txt.write(msg)
             txt.write("\n")
+        elif level == "info" and msg.startswith("Start time: "):
+            start_ts = msg
 
     html.write(HTML_HEAD.format(board=boot["board"]))
     html.write("<ul class=\"results\">")
@@ -96,6 +107,8 @@ def run(log, boot, txt, html):
     }
     for title, value in results.iteritems():
         html.write("<li class=\"result\">{}: {}</li>".format(title, value))
+    if start_ts:
+        html.write("<li class=\"result\">{}</li>".format(start_ts))
     html.write("</ul><pre>\n")
     html.write(log_buffer.getvalue())
     html.write("</pre></body></html>\n")
