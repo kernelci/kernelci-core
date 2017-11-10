@@ -230,7 +230,6 @@ def main(args):
                                         if 'nfs' in plan:
                                             nfsrootfs_url = NFSROOTFS_URL.format(initrd_arch)
                                             initrd_url = None
-                                            platform = platform + "_rootfs:nfs"
                                         if build['modules']:
                                             modules_url = urlparse.urljoin(base_url, build['modules'])
                                         else:
