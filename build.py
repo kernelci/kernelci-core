@@ -312,6 +312,29 @@ else:
     print "ERROR: Missing kernel config"
     sys.exit(0)
 
+def extra_configs(dot_config, kbuild_output):
+    disable = os.environ.get('DISABLE_CONFIGS')
+    if disable:
+        for c in disable.split(' '):
+            config = "_".join(["CONFIG", c])
+            print("* disabling {}".format(config))
+            subprocess.call("./scripts/config --file {} --disable {}".
+                            format(dot_config, config), shell=True)
+
+    enable = os.environ.get('ENABLE_CONFIGS')
+    if enable:
+        for c in enable.split(' '):
+            config = "_".join(["CONFIG", c])
+            print("* enabling {}".format(config))
+            subprocess.call("./scripts/config --file {} --enable {}".
+                            format(dot_config, config), shell=True)
+
+    if enable or disable:
+        subprocess.call("make O={} olddefconfig".format(kbuild_output),
+                        shell=True)
+
+extra_configs(dot_config, kbuild_output)
+
 #
 # Build kernel
 #
