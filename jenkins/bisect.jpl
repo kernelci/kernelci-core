@@ -39,6 +39,23 @@ def gitDescribe(kdir) {
     return describe
 }
 
+def createTag(kdir, iteration) {
+    def tag = gitDescribe(kdir)
+
+    dir(kdir) {
+        tag += "-${env.JOB_NAME}-${currentBuild.number}-${iteration}"
+        sh(script: "git tag -a ${tag} -m ${tag} HEAD")
+    }
+
+    return tag
+}
+
+def removeTag(kdir, tag) {
+    dir(kdir) {
+        sh(script: "git tag -d ${tag}")
+    }
+}
+
 def cloneKCIBuild(kci_build) {
     sh(script: "rm -rf ${kci_build}")
     dir("${kci_build}") {
@@ -75,6 +92,7 @@ git clean -fd
 git bisect reset || echo
 git checkout --detach HEAD
 git branch -D ${params.KERNEL_BRANCH} || echo
+for t in \$(git tag -l | grep ${env.JOB_NAME}); do git tag -d \$t; done
 git fetch ${params.TREE} ${params.KERNEL_BRANCH} --tags
 git checkout FETCH_HEAD -b ${params.KERNEL_BRANCH}
 git symbolic-ref HEAD refs/heads/${params.KERNEL_BRANCH}
@@ -268,10 +286,10 @@ Bad:       ${params.BAD_COMMIT}"""
     def iteration = 1
 
     while (previous != current) {
-        def describe = gitDescribe(kdir)
+        def tag = createTag(kdir, iteration)
         def status
 
-        echo "Iteration #${iteration}: ${describe}"
+        echo "Iteration #${iteration}: ${tag}"
 
         lock("${env.NODE_NAME}-build-lock") {
             timeout(time: 60, unit: 'MINUTES') {
@@ -282,6 +300,8 @@ Bad:       ${params.BAD_COMMIT}"""
         }
 
         if (!status) {
+            def describe = gitDescribe(kdir)
+
             node("kernel-boot-v2") {
                 timeout(time: 120, unit: 'MINUTES') {
                     stage("Test ${iteration}") {
@@ -293,6 +313,8 @@ Bad:       ${params.BAD_COMMIT}"""
                 }
             }
         }
+
+        removeTag(kdir, tag)
 
         timeout(time: 5, unit: 'MINUTES') {
             stage("Next") {
