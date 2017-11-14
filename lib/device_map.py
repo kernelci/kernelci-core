@@ -531,7 +531,7 @@ d03 = {'device_type': 'd03',
        'fastboot': False,
        'mach': 'hisi'}
 
-d05 = {'device_type': 'd05',
+d05 = {'device_type': 'hip07-d05',
        'templates': ['generic-grub-tftp-ramdisk-template.jinja2',
                      'generic-grub-tftp-nfs-template.jinja2'],
        'kernel_defconfig_blacklist': [],
