@@ -49,13 +49,8 @@ DEFCONFIG_STABLE=$DEFCONFIG_LIST
 # defconfigs + fragments
 if [ ${ARCH} = "arm" ]; then
   ### DEFCONFIG_LIST+="allmodconfig "
-  DEFCONFIG_LIST+="multi_v7_defconfig+CONFIG_ARM_LPAE=y "
   DEFCONFIG_LIST+="multi_v7_defconfig+CONFIG_CPU_BIG_ENDIAN=y "
-  DEFCONFIG_LIST+="multi_v7_defconfig+CONFIG_PROVE_LOCKING=y "
-  DEFCONFIG_LIST+="versatile_defconfig+CONFIG_OF_UNITTEST=y "
-  DEFCONFIG_LIST+="multi_v7_defconfig+CONFIG_THUMB2_KERNEL=y+CONFIG_ARM_MODULE_PLTS=y "
   DEFCONFIG_LIST+="multi_v7_defconfig+CONFIG_SMP=n "
-  DEFCONFIG_LIST+="multi_v7_defconfig+CONFIG_EFI=y "
   DEFCONFIG_LIST+="multi_v7_defconfig+CONFIG_EFI=y+CONFIG_ARM_LPAE=y "
 
   # Platform specific
@@ -80,23 +75,12 @@ fi
 
 if [ ${ARCH} = "arm64" ]; then
   DEFCONFIG_LIST+="defconfig+CONFIG_CPU_BIG_ENDIAN=y "
-  DEFCONFIG_LIST+="defconfig+CONFIG_OF_UNITTEST=y "
   DEFCONFIG_LIST+="defconfig+CONFIG_RANDOMIZE_BASE=y "
-  # ACPI currently depends on EXPERT on arm64
-  DEFCONFIG_LIST+="defconfig+CONFIG_EXPERT=y+CONFIG_ACPI=y "
   DEFCONFIG_LIST+="allmodconfig "
-
-  # Enable KASAN for non-stable until image size issues are sorted out
-  if [ ${TREE_NAME} != "stable" ] && [ ${TREE_NAME} != "stable-rc" ]; then
-    DEFCONFIG_LIST+="defconfig+CONFIG_KASAN=y "
-  fi
 fi
 
 if [ ${ARCH} = "x86" ]; then
-  DEFCONFIG_LIST+="defconfig+CONFIG_OF_UNITTEST=y "
-  DEFCONFIG_LIST+="defconfig+CONFIG_KASAN=y "
   DEFCONFIG_LIST+="allmodconfig "
-  DEFCONFIG_LIST+="allmodconfig+CONFIG_OF=n "
   DEFCONFIG_LIST+="i386_defconfig "
 
   # Fragments
@@ -116,14 +100,9 @@ fi
 
 # Tree specific fragments: stable
 if [ ${TREE_NAME} = "stable" ] || [ ${TREE_NAME} = "stable-rc" ]; then
-  # Don't do allmodconfig builds
-  DEFCONFIG_LIST=${DEFCONFIG_LIST/allmodconfig/}
   # only do minimal "known stable" defconfigs
   DEFCONFIG_LIST=$DEFCONFIG_STABLE
 fi
-
-# Security testing features
-DEFCONFIG_LIST+="$base_defconfig+CONFIG_LKDTM=y "
 
 # Tree specific fragments: LSK + KVM fragments
 if [ ${TREE_NAME} = "lsk" ] || [ ${TREE_NAME} = "anders" ]; then
