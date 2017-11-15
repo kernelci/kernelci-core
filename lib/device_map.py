@@ -62,7 +62,7 @@ bcm2835_rpi_b_plus = {'device_type': 'bcm2835-rpi-b-plus',
                       'mach': 'bcm'}
 
 bcm2836_rpi_2_b = {'device_type': 'bcm2836-rpi-2-b',
-                      'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
+                      'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                       'kernel_defconfig_blacklist': [],
                       'defconfig_blacklist': ['allmodconfig'],
                       'kernel_blacklist': [],
