@@ -132,8 +132,9 @@ def main(args):
                         test_desc = config.get(plan, 'description')
                         test_type = config.get(plan, 'type')
                         plan_defconfigs = config.get(plan, 'defconfigs').split(',')
-                    except:
+                    except Exception, e:
                         print "Unable to load test configuration"
+                        print(e)
                         exit(1)
             if build['kernel_image']:
                 for dtb in build['dtb_dir_data']:
