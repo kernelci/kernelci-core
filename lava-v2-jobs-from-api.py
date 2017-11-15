@@ -180,7 +180,6 @@ def main(args):
                                 print "defconfig %s not in test plan %s" % (arch_defconfig, plan)
                                 continue
                             elif targets is not None and device_type not in targets:
-                                print "device_type %s is not in targets %s" % (device_type, targets)
                                 continue
                             elif arch == 'x86' and dtb == 'x86-32' and 'i386' not in arch_defconfig:
                                 print "%s is not a 32-bit x86 build, skipping for 32-bit device %s" % (defconfig, device_type)
