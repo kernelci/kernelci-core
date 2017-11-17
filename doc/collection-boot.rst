@@ -37,6 +37,7 @@ GET
  :query string nfield: The field that should *not* be returned in the response. Can be repeated multiple times.
  :query string _id: The internal ID of the boot report.
  :query string board: The name of a board.
+ :query string device_type: The name of the device type.
  :query string created_on: The creation date: accepted formats are ``YYYY-MM-DD`` and ``YYYYMMDD``.
  :query string build_id: The ID of a build document.
  :query string defconfig: The name of a defconfig.
@@ -392,7 +393,7 @@ POST
 
  **Example Requests**
 
- .. sourcecode:: http 
+ .. sourcecode:: http
 
     POST /boot HTTP/1.1
     Host: api.kernelci.org

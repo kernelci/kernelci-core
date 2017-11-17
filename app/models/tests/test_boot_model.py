@@ -46,6 +46,7 @@ class TestBootModel(unittest.TestCase):
         boot_doc.file_server_resource = "file-resource"
         boot_doc.initrd = "initrd"
         boot_doc.board_instance = "instance"
+        boot_doc.device_type = "device-type"
         boot_doc.uimage = "path/to/uImage"
         boot_doc.uimage_addr = "uimage_addr"
         boot_doc.qemu = "qemu_binary"
@@ -77,6 +78,7 @@ class TestBootModel(unittest.TestCase):
             "created_on": "now",
             "defconfig": "defconfig",
             "defconfig_full": "defconfig",
+            "device_type": "device-type",
             "build_id": "build_id",
             "dtb": None,
             "dtb_addr": None,
@@ -154,6 +156,7 @@ class TestBootModel(unittest.TestCase):
             "defconfig": "defconfig",
             "defconfig_full": "defconfig_full",
             "build_id": "build_id",
+            "device_type": "device-type",
             "dtb": "dtb_val",
             "dtb_addr": "1234",
             "dtb_append": False,

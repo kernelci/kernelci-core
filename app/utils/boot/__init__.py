@@ -232,6 +232,7 @@ def _update_boot_doc_from_json(boot_doc, boot_dict, errors):
     boot_doc.boot_log_html = boot_dict.get(models.BOOT_LOG_HTML_KEY, None)
     boot_doc.boot_result_description = boot_dict.get(
         models.BOOT_RESULT_DESC_KEY, None)
+    boot_doc.device_type = boot_dict.get(models.DEVICE_TYPE_KEY, None)
     boot_doc.dtb = boot_dict.get(models.DTB_KEY, None)
     boot_doc.dtb_addr = boot_dict.get(models.DTB_ADDR_KEY, None)
     boot_doc.dtb_append = boot_dict.get(models.DTB_APPEND_KEY, None)

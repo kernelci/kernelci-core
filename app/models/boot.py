@@ -85,6 +85,7 @@ class BootDocument(modb.BaseDocument):
         self.compiler_version_ext = None
         self.compiler_version_full = None
         self.cross_compile = None
+        self.device_type = None
         self.dtb = None
         self.dtb_addr = None
         self.dtb_append = None
@@ -179,6 +180,7 @@ class BootDocument(modb.BaseDocument):
             models.CREATED_KEY: self.created_on,
             models.DEFCONFIG_FULL_KEY: self.defconfig_full,
             models.DEFCONFIG_KEY: self.defconfig,
+            models.DEVICE_TYPE_KEY: self.device_type,
             models.DTB_ADDR_KEY: self.dtb_addr,
             models.DTB_APPEND_KEY: self.dtb_append,
             models.DTB_KEY: self.dtb,

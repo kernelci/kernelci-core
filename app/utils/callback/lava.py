@@ -68,6 +68,7 @@ META_DATA_MAP_BOOT = {
     models.FASTBOOT_KEY: "platform.fastboot",
     models.INITRD_KEY: "job.initrd_url",
     models.BOARD_KEY: "platform.name",
+    models.DEVICE_TYPE_KEY: "device.type",
 }
 
 BL_META_MAP = {

@@ -39,6 +39,10 @@
             "type": "string",
             "description": "The instance identifier for the board"
         },
+        "device_type": {
+            "type": "string",
+            "description": "The device type associated with the board"
+        },
         "arch" : {
             "type": "string",
             "description": "The architecture type of this board",
