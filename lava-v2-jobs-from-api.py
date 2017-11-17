@@ -194,7 +194,7 @@ def main(args):
                                         base_url = "%s/%s/%s/%s/%s/%s/" % (storage, build['job'], build['git_branch'], build['kernel'], arch, defconfig)
                                         nfsrootfs_url = None
                                         initrd_url = None
-                                        callback_name = 'lava/boot' if 'boot' in plan else 'lava/test'
+                                        callback_name = 'lava/boot' if plan == 'boot' else 'lava/test'
                                         context = device['context'] if 'context' in device else None
                                         if dtb_full.endswith('.dtb'):
                                             dtb_url = base_url + "dtbs/" + dtb_full
