@@ -81,7 +81,6 @@ fi
 
 if [ ${ARCH} = "x86" ]; then
   DEFCONFIG_LIST+="allmodconfig "
-  DEFCONFIG_LIST+="i386_defconfig "
 
   # Fragments
   FRAGS="arch/x86/configs/kvm_guest.config"
