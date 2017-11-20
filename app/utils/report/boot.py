@@ -490,7 +490,7 @@ def _start_bisection(bisection, jopts):
         "KERNEL_URL": models.GIT_URL_KEY,
         "KERNEL_BRANCH": models.GIT_BRANCH_KEY,
         "ARCH": models.ARCHITECTURE_KEY,
-        "DEFCONFIG": models.DEFCONFIG_KEY,
+        "DEFCONFIG": models.DEFCONFIG_FULL_KEY,
         "TARGET": models.BOARD_KEY,
         "LAB": models.LAB_NAME_KEY,
         "TREE": models.JOB_KEY,
