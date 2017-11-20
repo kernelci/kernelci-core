@@ -8,6 +8,7 @@ netaddr==0.7.18
 pycares==1.0.0
 pymongo==2.8.1
 python-jenkins==0.4.11
+python-dateutil
 pytz
 pyyaml==3.12
 redis
