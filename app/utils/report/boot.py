@@ -487,14 +487,14 @@ def _start_bisection(bisection, jopts):
     boots = bisection["boots"]
     good, bad = boots[0], boots[-1]
     params_map = {
-        "KERNEL_URL": "git_url",
-        "KERNEL_BRANCH": "git_branch",
-        "ARCH": "arch",
-        "DEFCONFIG": "defconfig",
-        "TARGET": "board",
-        "LAB": "lab_name",
-        "TREE": "job",
-        "GOOD_COMMIT": "git_commit",
+        "KERNEL_URL": models.GIT_URL_KEY,
+        "KERNEL_BRANCH": models.GIT_BRANCH_KEY,
+        "ARCH": models.ARCHITECTURE_KEY,
+        "DEFCONFIG": models.DEFCONFIG_KEY,
+        "TARGET": models.BOARD_KEY,
+        "LAB": models.LAB_NAME_KEY,
+        "TREE": models.JOB_KEY,
+        "GOOD_COMMIT": models.GIT_COMMIT_KEY,
     }
     params = {k: good[v] for k, v in params_map.iteritems()}
     params["BAD_COMMIT"] = bad["git_commit"]
