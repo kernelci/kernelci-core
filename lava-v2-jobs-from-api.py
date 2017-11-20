@@ -181,10 +181,13 @@ def main(args):
                                 continue
                             elif targets is not None and device_type not in targets:
                                 print "device_type %s is not in targets %s" % (device_type, targets)
+                                continue
                             elif arch == 'x86' and dtb == 'x86-32' and 'i386' not in arch_defconfig:
                                 print "%s is not a 32-bit x86 build, skipping for 32-bit device %s" % (defconfig, device_type)
+                                continue
                             elif 'kselftest' in defconfig and plan != 'kselftest':
                                 print "Skipping kselftest defconfig because plan was not kselftest"
+                                continue
                             else:
                                 for template in device['templates']:
                                     short_template_file = plan + '/' + str(template)
