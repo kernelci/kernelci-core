@@ -178,7 +178,7 @@ def _get_test_case_data(meta, tc_data, job_data, meta_data_map):
     tests = yaml.load(job_data["results"][test_key], Loader=yaml.CLoader)
     for test in tests:
         test_case = {}
-        for x, y in META_DATA_MAP.iteritems():
+        for x, y in meta_data_map.iteritems():
             try:
                 test_case.update({x: test[y]})
             except (KeyError) as ex:
