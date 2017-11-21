@@ -372,7 +372,7 @@ def import_test_set(
         except ValueError, ex:
             ADD_ERR(errors, 400, "Error parsing test set '%s'" % test_name)
             error = (
-                "Error parsing test set '%s': %s" % (test_name, ex.message))
+                "Error parsing test set '{}': {}".format(test_name, ex))
             utils.LOG.error(error)
     else:
         ADD_ERR(errors, 400, "Test set is not valid JSON data")
@@ -501,7 +501,7 @@ def import_test_case(
         except ValueError, ex:
             ADD_ERR(errors, 400, "Error parsing test case '%s'" % test_name)
             error = (
-                "Error parsing test case '%s': %s" % (test_name, ex.message))
+                "Error parsing test case '{}': {}".format(test_name, ex))
             utils.LOG.error(error)
     else:
         ADD_ERR(errors, 400, "Test case is not valid JSON data")
