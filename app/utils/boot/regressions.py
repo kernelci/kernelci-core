@@ -317,7 +317,6 @@ def check_and_track(boot_doc, db_options):
     # it's a new regression that we need to track.
     spec = {
         models.ARCHITECTURE_KEY: b_get(models.ARCHITECTURE_KEY),
-        models.BOARD_INSTANCE_KEY: b_get(models.BOARD_INSTANCE_KEY),
         models.BOARD_KEY: b_get(models.BOARD_KEY),
         models.COMPILER_VERSION_EXT_KEY:
             b_get(models.COMPILER_VERSION_EXT_KEY),
