@@ -130,7 +130,7 @@ def createTag(kdir, iteration) {
     def tag = gitDescribe(kdir)
 
     dir(kdir) {
-        tag += "-${env.JOB_NAME}-${currentBuild.number}-${iteration}"
+        tag += "-${env.JOB_NAME}-staging-${currentBuild.number}-${iteration}"
         sh(script: "git tag -a ${tag} -m ${tag} HEAD")
     }
 
@@ -414,7 +414,7 @@ def bisectNext(kdir, status) {
  */
 
 def pushResults(kci_core, kdir, checks, params_summary) {
-    def subject = "${params.KERNEL_TREE}/${params.KERNEL_BRANCH} ${params.PLAN} bisection: ${params.KERNEL_NAME} on ${params.TARGET}"
+    def subject = "${params.KERNEL_TREE}/${params.KERNEL_BRANCH} ${params.PLAN} bisection: ${params.KERNEL_NAME} on ${params.TARGET} #${env.BUILD_NUMBER}-staging"
 
     dir(kci_core) {
         withCredentials([string(credentialsId: params.KCI_TOKEN_ID,
@@ -653,7 +653,7 @@ ${params_summary}""")
             currentBuild.result = "FAILURE"
 
             def tree_branch = "${params.KERNEL_TREE}/${params.KERNEL_BRANCH}"
-            def subject = "bisection error: #${env.BUILD_NUMBER} \
+            def subject = "bisection error: #${env.BUILD_NUMBER}-staging \
 ${tree_branch} ${params.LAB} ${params.TARGET}"
             def body = """\
 ${env.BUILD_URL}
