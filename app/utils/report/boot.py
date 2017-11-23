@@ -513,7 +513,10 @@ def trigger_bisections(status, job, branch, kernel, lab_name,
     bisections = boot_data.get("bisections", None)
     if bisections:
         for b in bisections:
-            _start_bisection(b, jenkins_options)
+            try:
+                _start_bisection(b, jenkins_options)
+            except Exception, e:
+                utils.LOG.error("Failed to start bisection: {}".format(e))
 
     return 'OK'
 
