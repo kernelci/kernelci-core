@@ -316,6 +316,46 @@ Bad:       ${params.BAD_COMMIT}"""
         return
     }
 
+    stage("Check fail") {
+        def tag = null
+
+        lock("${env.NODE_NAME}-build-lock") {
+            timeout(time: 60, unit: 'MINUTES') {
+                checkoutRevision(kdir, params.BAD_COMMIT)
+                tag = createTag(kdir, 'fail')
+                try {
+                    buildKernel(kdir, kci_build)
+                    check = true
+                } catch (error) {
+                    check = false
+                }
+            }
+        }
+
+        if (!check)
+            return
+
+        def describe = gitDescribe(kdir)
+
+        node("kernel-boot-v2") {
+            timeout(time: 120, unit: 'MINUTES') {
+                def lava_ci = env.WORKSPACE + '/lava-ci'
+                cloneLAVA_CI(lava_ci)
+                submitJob(lava_ci, describe)
+                def status = getResult(lava_ci)
+                check = (status == 2 ? true : false)
+            }
+        }
+
+        removeTag(kdir, tag)
+    }
+
+    if (!check) {
+        echo "Bad revision check failed"
+        currentBuild.result = 'ABORTED'
+        return
+    }
+
     timeout(time: 5, unit: 'MINUTES') {
         stage("Start") {
             def start_result = bisectStart(kdir)
