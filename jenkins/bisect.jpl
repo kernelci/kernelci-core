@@ -140,6 +140,13 @@ BRANCH=${params.KERNEL_BRANCH} \
     }
 }
 
+def buildRevision(kdir, kci_build, git_rev, name) {
+    checkoutRevision(kdir, git_rev)
+    def tag = createTag(kdir, name)
+    buildKernel(kdir, kci_build)
+    return tag
+}
+
 def submitJob(lava_ci, describe) {
     dir(lava_ci) {
         sh(script: "rm -rf data; mkdir data")
@@ -287,10 +294,9 @@ Bad:       ${params.BAD_COMMIT}"""
 
         lock("${env.NODE_NAME}-build-lock") {
             timeout(time: 60, unit: 'MINUTES') {
-                checkoutRevision(kdir, params.GOOD_COMMIT)
-                tag = createTag(kdir, 'pass')
                 try {
-                    buildKernel(kdir, kci_build)
+                    tag = buildRevision(kdir, kci_build, params.GOOD_COMMIT,
+                                        'pass')
                     check = true
                 } catch (error) {
                     check = false
@@ -325,10 +331,9 @@ Bad:       ${params.BAD_COMMIT}"""
 
         lock("${env.NODE_NAME}-build-lock") {
             timeout(time: 60, unit: 'MINUTES') {
-                checkoutRevision(kdir, params.BAD_COMMIT)
-                tag = createTag(kdir, 'fail')
                 try {
-                    buildKernel(kdir, kci_build)
+                    tag = buildRevision(kdir, kci_build, params.BAD_COMMIT,
+                                        'fail')
                     check = true
                 } catch (error) {
                     check = false
