@@ -19,6 +19,17 @@
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
+/* Working around some seemingly broken Python set-up... */
+def eggCache() {
+    def egg_cache = env.WORKSPACE + "/python-egg-cache"
+    sh(script: "mkdir -p ${egg_cache}")
+    return egg_cache
+}
+
+/* ----------------------------------------------------------------------------
+ * git utilities
+ */
+
 def getSHA(kdir) {
     def sha
 
@@ -64,6 +75,10 @@ git checkout --detach ${git_rev}
 """)
     }
 }
+
+/* ----------------------------------------------------------------------------
+ * cloning projects
+ */
 
 def cloneKCIBuild(kci_build) {
     sh(script: "rm -rf ${kci_build}")
@@ -118,12 +133,9 @@ def cloneLAVA_CI(lava_ci) {
     }
 }
 
-/* Working around some seemingly broken Python set-up... */
-def eggCache() {
-    def egg_cache = env.WORKSPACE + "/python-egg-cache"
-    sh(script: "mkdir -p ${egg_cache}")
-    return egg_cache
-}
+/* ----------------------------------------------------------------------------
+ * kernel build
+ */
 
 def buildKernel(kdir, kci_build) {
     dir(kdir) {
@@ -146,6 +158,10 @@ def buildRevision(kdir, kci_build, git_rev, name) {
     buildKernel(kdir, kci_build)
     return tag
 }
+
+/* ----------------------------------------------------------------------------
+ * kernel test with LAVA v2
+ */
 
 def submitJob(lava_ci, describe) {
     dir(lava_ci) {
@@ -222,6 +238,10 @@ def runTest(lava_ci, describe) {
     return getResult(lava_ci)
 }
 
+/* ----------------------------------------------------------------------------
+ * bisection
+ */
+
 def bisectStart(kdir) {
     def status
 
@@ -258,6 +278,10 @@ def bisectNext(kdir, status) {
         }
     }
 }
+
+/* ----------------------------------------------------------------------------
+ * pipeline
+ */
 
 node("bisection") {
     def kci_build = env.WORKSPACE + '/kernelci-build'
