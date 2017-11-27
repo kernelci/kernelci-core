@@ -56,6 +56,15 @@ def removeTag(kdir, tag) {
     }
 }
 
+def checkoutRevision(git_dir, git_rev) {
+    dir(git_dir) {
+        sh(script: """
+git clean -fd && \
+git checkout --detach ${git_rev}
+""")
+    }
+}
+
 def cloneKCIBuild(kci_build) {
     sh(script: "rm -rf ${kci_build}")
     dir("${kci_build}") {
@@ -240,6 +249,7 @@ def bisectNext(kdir, status) {
 node("bisection") {
     def kci_build = env.WORKSPACE + '/kernelci-build'
     def kdir = env.WORKSPACE + '/linux'
+    def check = null
 
     echo """\
 Lab:       ${params.LAB}
@@ -257,23 +267,65 @@ Bad:       ${params.BAD_COMMIT}"""
         return
     }
 
-    def start_result = 0
-
     timeout(time: 30, unit: 'MINUTES') {
         stage("Init") {
             parallel(
                 p1: { cloneKCIBuild(kci_build) },
                 p2: { cloneLinux(kdir) },
             )
-
-            start_result = bisectStart(kdir)
         }
     }
 
-    if (start_result) {
-        echo "Failed to start bisection, commits range may be invalid."
+    stage("Check pass") {
+        def tag = null
+
+        lock("${env.NODE_NAME}-build-lock") {
+            timeout(time: 60, unit: 'MINUTES') {
+                checkoutRevision(kdir, params.GOOD_COMMIT)
+                tag = createTag(kdir, 'pass')
+                try {
+                    buildKernel(kdir, kci_build)
+                    check = true
+                } catch (error) {
+                    check = false
+                }
+            }
+        }
+
+        if (!check)
+            return
+
+        def describe = gitDescribe(kdir)
+
+        node("kernel-boot-v2") {
+            timeout(time: 120, unit: 'MINUTES') {
+                def lava_ci = env.WORKSPACE + '/lava-ci'
+                cloneLAVA_CI(lava_ci)
+                submitJob(lava_ci, describe)
+                def status = getResult(lava_ci)
+                check = (status == 0 ? true : false)
+            }
+        }
+
+        removeTag(kdir, tag)
+    }
+
+    if (!check) {
+        echo "Good revision check failed"
         currentBuild.result = 'ABORTED'
         return
+    }
+
+    timeout(time: 5, unit: 'MINUTES') {
+        stage("Start") {
+            def start_result = bisectStart(kdir)
+
+            if (start_result) {
+                echo "Failed to start bisection, commits range may be invalid."
+                currentBuild.result = 'ABORTED'
+                return
+            }
+        }
     }
 
     def previous = params.GOOD_COMMIT
