@@ -13,9 +13,11 @@
 
 """Create the boot email report."""
 
+import copy
 import itertools
 import jenkins
 import pymongo
+import random
 
 import models
 import utils.db
@@ -510,13 +512,27 @@ def trigger_bisections(status, job, branch, kernel, lab_name,
         return 'SKIP'
 
     boot_data = get_boot_data(db_options, job, branch, kernel, lab_name)
-    bisections = boot_data.get("bisections", None)
-    if bisections:
-        for b in bisections:
-            try:
-                _start_bisection(b, jenkins_options)
-            except Exception, e:
-                utils.LOG.error("Failed to start bisection: {}".format(e))
+    bisections = boot_data.get("bisections")
+    if not bisections:
+        return 'OK'
+
+    # We need to make some changes in-place but not modify incoming data
+    bisections = copy.copy(bisections)
+
+    # ToDo: remove unwanted bisections (duplicates, ones already run...)
+    # ...
+
+    # Shuffle the bisections in random order to avoid running ones targetting
+    # the same board at the same time and also to avoid any kind of dependency
+    # on the order in which they are being generated.
+    random.shuffle(bisections)
+
+    # Now trigger all the bisections
+    for b in bisections:
+        try:
+            _start_bisection(b, jenkins_options)
+        except Exception, e:
+            utils.LOG.error("Failed to start bisection: {}".format(e))
 
     return 'OK'
 
