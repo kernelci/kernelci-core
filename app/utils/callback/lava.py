@@ -219,7 +219,7 @@ def _get_definition_meta(meta, job_data, meta_data_map):
     :param meta_data_map: The dict of keys to parse and add in the meta-data.
     :type meta_data_map: dict
     """
-    meta["board_instance"] = job_data["actual_device_id"]
+    meta[models.BOARD_INSTANCE_KEY] = job_data["actual_device_id"]
     definition = yaml.load(job_data["definition"], Loader=yaml.CLoader)
     job_meta = definition["metadata"]
     for x, y in meta_data_map.iteritems():
@@ -239,7 +239,7 @@ def _get_lava_job_meta(meta, boot_meta):
     :type boot_meta: dictionary
     """
     if boot_meta.get("error_type") == "Infrastructure":
-        meta["boot_result"] = "UNKNOWN"
+        meta[models.BOOT_RESULT_KEY] = "UNKNOWN"
 
 
 def _get_lava_boot_meta(meta, boot_meta):
@@ -250,7 +250,7 @@ def _get_lava_boot_meta(meta, boot_meta):
     :param boot_meta: The boot and auto_login meta-data from the LAVA v2 job.
     :type boot_meta: dictionary
     """
-    meta["boot_time"] = boot_meta["duration"]
+    meta[models.BOOT_TIME_KEY] = boot_meta["duration"]
     extra = boot_meta.get("extra", None)
     if extra is None:
         return
@@ -266,7 +266,7 @@ def _get_lava_boot_meta(meta, boot_meta):
                 if msg:
                     kernel_messages.append(msg)
     if kernel_messages:
-        meta["boot_warnings"] = kernel_messages
+        meta[models.BOOT_WARNINGS_KEY] = kernel_messages
 
 
 def _get_lava_bootloader_meta(meta, bl_meta):
@@ -327,16 +327,17 @@ def _add_boot_log(meta, log, base_path):
 
     dir_path = os.path.join(
         base_path,
-        meta["job"],
-        meta["git_branch"],
-        meta["kernel"],
-        meta["arch"],
-        meta["defconfig_full"],
-        meta["lab_name"])
+        meta[models.JOB_KEY],
+        meta[models.GIT_BRANCH_KEY],
+        meta[models.KERNEL_KEY],
+        meta[models.ARCHITECTURE_KEY],
+        meta[models.DEFCONFIG_FULL_KEY],
+        meta[models.LAB_NAME_KEY])
+
     utils.LOG.info("Generating boot log files in {}".format(dir_path))
-    file_name = "-".join(["boot", meta["board"]])
+    file_name = "-".join(["boot", meta[models.BOARD_KEY]])
     files = tuple(".".join([file_name, ext]) for ext in ["txt", "html"])
-    meta["boot_log"], meta["boot_log_html"] = files
+    meta[models.BOOT_LOG_KEY], meta[models.BOOT_LOG_HTML_KEY] = files
     txt_path, html_path = (os.path.join(dir_path, f) for f in files)
 
     if not os.path.isdir(dir_path):
@@ -375,16 +376,16 @@ def add_boot(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
         job_data["id"], lab_name))
 
     meta = {
-        "version": "1.1",
-        "lab_name": lab_name,
-        "boot_time": "0.0",
+        models.VERSION_KEY: "1.1",
+        models.LAB_NAME_KEY: lab_name,
+        models.BOOT_TIME_KEY: "0.0",
     }
 
     ex = None
     msg = None
 
     try:
-        meta["boot_result"] = LAVA_JOB_RESULT[job_data["status"]]
+        meta[models.BOOT_RESULT_KEY] = LAVA_JOB_RESULT[job_data["status"]]
         _get_definition_meta(meta, job_data, META_DATA_MAP_BOOT)
         _get_lava_meta(meta, job_data)
         _add_boot_log(meta, job_data["log"], base_path)
