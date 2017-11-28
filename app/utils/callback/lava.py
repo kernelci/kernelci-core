@@ -37,9 +37,17 @@ LAVA_JOB_RESULT = {
     CANCELING: "UNKNOWN",
 }
 
-DATA_MAP_TEST_CASE = {
+TEST_CASE_MAP = {
     models.NAME_KEY: "name",
     models.STATUS_KEY: "result",
+}
+
+TEST_CASE_NAME_EXTRA = {
+    "http-download": ["label"],
+    "git-repo-action": ["commit", "path"],
+    "test-overlay": ["name"],
+    "test-runscript-overlay": ["name"],
+    "test-install-overlay": ["name"],
 }
 
 META_DATA_MAP_TEST_SUITE = {
@@ -78,130 +86,6 @@ BL_META_MAP = {
     "kernel_addr": "loadaddr",
     "dtb_addr": "dtb_addr",
 }
-
-
-def _get_lava_test_case_data(meta, tc_data, job_data, meta_data_map):
-    """Parse the lava test definition data
-
-    Parse the data from the LAVA v2 job definition sent with the callback
-    and populate the required fields to store in the database.
-
-    :param meta: The test case data to populate.
-    :type meta: dictionary
-    :param tc_data: The JSON data from the callback.
-    :type tc_data: dict
-    :param job_data: The map of keys to search for in the JSON and update.
-    :type job_data: dict
-    :param meta_data_map: The dict of keys to parse and add in the data.
-    :type meta_data_map: dict
-    """
-    common_meta = {
-        "version": "1.0",
-        # Time shoud be passed in the result as well
-        "time": "0.0",
-    }
-
-    tests = yaml.load(job_data["results"]["lava"], Loader=yaml.CLoader)
-    for test in tests:
-        test_case = {}
-        for x, y in meta_data_map.iteritems():
-            try:
-                test_case.update({x: test[y]})
-            except (KeyError) as ex:
-                utils.LOG.warn("LAVA test case field {} missing in the job"
-                               " result.".format(ex))
-        # Not very nice parsing of the lava suite. Need to define a common
-        # reporting pattern and change this function and the next one
-        if test_case[models.NAME_KEY] == "http-download":
-            for key in test["metadata"]["extra"]:
-                if "label" in key:
-                    test_case[models.NAME_KEY] += "-" + key["label"]
-        if test_case[models.NAME_KEY] == "git-repo-action":
-            for key in test["metadata"]["extra"]:
-                if "commit" in key:
-                    test_case[models.NAME_KEY] += "-" + key["commit"]
-                if "path" in key:
-                    test_case[models.NAME_KEY] += "-" + key["path"]
-        if (
-            (test_case[models.NAME_KEY] == "test-overlay") or
-            (test_case[models.NAME_KEY] == "test-runscript-overlay") or
-            (test_case[models.NAME_KEY] == "test-install-overlay")
-        ):
-            for key in test["metadata"]["extra"]:
-                if "name" in key:
-                    test_case[models.NAME_KEY] += "-" + key["name"]
-        test_case.update(common_meta)
-        # If no set is defined make it part of a generic one
-        if "set" in test["metadata"]:
-            test_case.update({"set": test["metadata"]["set"]})
-        else:
-            test_case.update({"set": "default"})
-        # If measurement add them to the data
-        if test["measurement"] != "None":
-            measurements = {
-                "value": float(test["measurement"]),
-                "unit": test["unit"],
-            }
-            test_case.update({"measurements": [measurements]})
-        tc_data.append(test_case)
-
-
-def _get_test_case_data(meta, tc_data, job_data, meta_data_map):
-    """Parse the test definition data from the test suite name
-
-    Parse the data from the LAVA v2 job definition sent with the callback
-    and populate the required fields to store in the database.
-
-    :param meta: The test case data to populate.
-    :type meta: dictionary
-    :param tc_data: The JSON data from the callback.
-    :type tc_data: dict
-    :param job_data: The map of keys to search for in the JSON and update.
-    :type job_data: dict
-    :param meta_data_map: The dict of keys to parse and add in the data.
-    :type meta_data_map: dict
-    """
-    test_key = None
-    common_meta = {
-        "version": "1.0",
-        # Time shoud be passed in the result as well
-        "time": "0.0",
-    }
-
-    for key in job_data["results"]:
-        if meta[models.NAME_KEY] in key:
-            test_key = key
-            break
-
-    if not key:
-        utils.LOG.error("Could not find test data -{}- in lava callback obj"
-                        .format(meta[models.NAME_KEY]))
-        return
-
-    tests = yaml.load(job_data["results"][test_key], Loader=yaml.CLoader)
-    for test in tests:
-        test_case = {}
-        for x, y in meta_data_map.iteritems():
-            try:
-                test_case.update({x: test[y]})
-            except (KeyError) as ex:
-                utils.LOG.warn("Test case field {} missing in the job"
-                               " result.".format(ex))
-        test_case.update(common_meta)
-        # If no set is defined make it part of a generic one
-        if "set" in test["metadata"]:
-            test_case.update({"set": test["metadata"]["set"]})
-        else:
-            test_case.update({"set": "default"})
-        # If measurement add them to the data
-        if "measurement" in test["metadata"]:
-            value = test["metadata"]["measurement"]
-            measurements = {
-                "value": float(value),
-                "unit": test["metadata"]["units"],
-            }
-            test_case.update({"measurements": [measurements]})
-        tc_data.append(test_case)
 
 
 def _get_definition_meta(meta, job_data, meta_data_map):
@@ -408,6 +292,58 @@ def add_boot(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
     return doc_id
 
 
+def _parse_lava_test_data(test_case, test_meta):
+    """Parse the test job meta-data for the lava step
+
+    :param test_case: The parsed test case data to be stored in the database.
+    :type test_case: dict
+    :param test_meta: The test meta-data from the callback.
+    :type test_meta: dict
+    """
+    test_case_name = test_case[models.NAME_KEY]
+    extra = TEST_CASE_NAME_EXTRA.get(test_case_name)
+    if extra:
+        extra_name = [test_case_name]
+        for m in test_meta["extra"]:
+            for n in extra:
+                value = m.get(n)
+                if value:
+                    extra_name.append(value)
+        test_case[models.NAME_KEY] = "-".join(extra_name)
+
+
+def _get_test_case_data(suite_results, suite_name):
+    """Parse the test job meta-data from LAVA
+
+    :param suite_results: Results for the test suite from the callback.
+    :type suite_results: dict
+    :param suite_name: Name of the test suite being parsed.
+    :type suite_name: string
+    """
+    tests = yaml.load(suite_results, Loader=yaml.CLoader)
+    test_cases = []
+
+    for test in tests:
+        test_case = {
+            models.VERSION_KEY: "1.0",
+            models.TIME_KEY: "0.0",
+        }
+        test_case.update({k: test[v] for k, v in TEST_CASE_MAP.iteritems()})
+        test_meta = test["metadata"]
+        if suite_name == "lava":
+            _parse_lava_test_data(test_case, test_meta)
+        test_case["set"] = test_meta.get("set", "default")
+        measurement = test.get("measurement")
+        if measurement and measurement != 'None':
+            test_case[models.MEASUREMENTS_KEY] = [{
+                "value": float(measurement),
+                "unit": test["unit"],
+            }]
+        test_cases.append(test_case)
+
+    return test_cases
+
+
 def add_tests(job_data, lab_name, boot_doc_id,
               db_options, base_path=utils.BASE_PATH):
     """Entry point to be used as an external task.
@@ -429,47 +365,37 @@ def add_tests(job_data, lab_name, boot_doc_id,
     :return tuple The return code, the boot document id and errors.
     """
     ret_code = 201
-    ts_doc_id = None
+    suite_doc_id = None
     errors = {}
     ex = None
     msg = None
 
     utils.LOG.info("Processing LAVA test data: job {} from {}".format(
         job_data["id"], lab_name))
+
     # TODO add a test plan entry in the database to group test suites
-    for key in job_data["results"]:
+    for suite_name, suite_results in job_data["results"].iteritems():
         # Lava appends the test suites name with an incremental prefix "X_"
         # Except for the lava key
-        if key != "lava":
-            key = key[2:]
+        if suite_name != "lava":
+            suite_name = suite_name.split("_")[1]
+
+        suite_data = {
+            models.VERSION_KEY: "1.0",
+            models.LAB_NAME_KEY: lab_name,
+            models.BOOT_ID_KEY: boot_doc_id,
+            models.TIME_KEY: "0.0",
+            models.NAME_KEY: suite_name,
+        }
+
+        utils.LOG.info("Processing test suite: {}".format(suite_name))
 
         try:
-            # Get the test suite data
-            ts_data = {
-                "version": "1.0",
-                "lab_name": lab_name,
-                "boot_id": boot_doc_id,
-                "time": "0.0",
-            }
-            ts_data[models.NAME_KEY] = key
-            utils.LOG.info("Processing test suite {}".
-                           format(ts_data[models.NAME_KEY]))
-            # Get Test suite definitions
-            _get_definition_meta(ts_data, job_data, META_DATA_MAP_TEST_SUITE)
-            # List of test cases data
-            tc_data = []
-            if ts_data[models.NAME_KEY] == "lava":
-                # Get cases data from lava test suite
-                _get_lava_test_case_data(ts_data, tc_data, job_data,
-                                         DATA_MAP_TEST_CASE)
-            else:
-                # Get cases data from other test suites
-                _get_test_case_data(ts_data, tc_data, job_data,
-                                    DATA_MAP_TEST_CASE)
-            ret_code, ts_doc_id, err = \
-                utils.kci_test.import_and_save_kci_test(ts_data,
-                                                        tc_data,
-                                                        db_options)
+            _get_definition_meta(suite_data, job_data, META_DATA_MAP_TEST_SUITE)
+            case_data = _get_test_case_data(suite_results, suite_name)
+            ret_code, suite_doc_id, err = \
+                utils.kci_test.import_and_save_kci_test(
+                    suite_data, case_data, db_options)
             utils.errors.update_errors(errors, err)
         except (yaml.YAMLError, ValueError) as ex:
             ret_code = 400
@@ -485,4 +411,5 @@ def add_tests(job_data, lab_name, boot_doc_id,
                 utils.errors.add_error(errors, ret_code, msg)
             if errors:
                 raise utils.errors.BackendError(errors)
-    return ts_doc_id
+
+    return suite_doc_id
