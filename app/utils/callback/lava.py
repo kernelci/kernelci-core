@@ -231,6 +231,13 @@ def _get_definition_meta(meta, job_data, meta_data_map):
 
 
 def _get_lava_job_meta(meta, boot_meta):
+    """Parse the job meta-data from LAVA
+
+    :param meta: The boot meta-data.
+    :type meta: dictionary
+    :param boot_meta: The boot and auto_login meta-data from the LAVA v2 job.
+    :type boot_meta: dictionary
+    """
     if boot_meta.get("error_type") == "Infrastructure":
         meta["boot_result"] = "UNKNOWN"
 
@@ -241,7 +248,7 @@ def _get_lava_boot_meta(meta, boot_meta):
     :param meta: The boot meta-data.
     :type meta: dictionary
     :param boot_meta: The boot and auto_login meta-data from the LAVA v2 job.
-    :type meta: dictionary
+    :type boot_meta: dictionary
     """
     meta["boot_time"] = boot_meta["duration"]
     extra = boot_meta.get("extra", None)
@@ -268,7 +275,7 @@ def _get_lava_bootloader_meta(meta, bl_meta):
     :param meta: The boot meta-data.
     :type meta: dictionary
     :param bl_meta: The bootloader meta-data from the LAVA v2 job.
-    :type meta: dictionary
+    :type bl_meta: dictionary
     """
     extra = bl_meta.get("extra", None)
     if extra is None:
