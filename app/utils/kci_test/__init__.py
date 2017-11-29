@@ -443,9 +443,7 @@ def _parse_test_suite_from_json(test_json, database, errors):
         ERR_ADD(errors, 400, err_msg)
         return None
 
-    test_doc = mtest_suite.TestSuiteDocument(
-        name=name,
-        lab_name=lab_name)
+    test_doc = mtest_suite.TestSuiteDocument(name, lab_name)
     test_doc.created_on = datetime.datetime.now(
         tz=bson.tz_util.utc)
     _update_test_suite_doc_from_json(test_doc, test_json, errors)
