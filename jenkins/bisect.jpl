@@ -117,13 +117,10 @@ def eggCache() {
 }
 
 def buildKernel(kdir, kci_build) {
-    def status
-
     dir(kdir) {
         withCredentials([string(credentialsId: params.KCI_TOKEN_ID,
                                 variable: 'SECRET')]) {
-            status = sh(returnStatus: true,
-                        script: """
+            sh(script: """
 API=${params.API} \
 TOKEN=${SECRET} \
 TREE_NAME=${params.TREE} \
@@ -132,8 +129,6 @@ BRANCH=${params.KERNEL_BRANCH} \
 """ + kci_build + "/build.py -e -g -i -c ${params.DEFCONFIG}")
         }
     }
-
-    return status ? 1 : 0;
 }
 
 def submitJob(lava_ci, describe) {
@@ -287,19 +282,24 @@ Bad:       ${params.BAD_COMMIT}"""
 
     while (previous != current) {
         def tag = createTag(kdir, iteration)
-        def status
+        def status = null
 
         echo "Iteration #${iteration}: ${tag}"
 
         lock("${env.NODE_NAME}-build-lock") {
             timeout(time: 60, unit: 'MINUTES') {
                 stage("Build ${iteration}") {
-                    status = buildKernel(kdir, kci_build)
+                    try {
+                        buildKernel(kdir, kci_build)
+                        status = 0
+                    } catch (error) {
+                        status = 1
+                    }
                 }
             }
         }
 
-        if (!status) {
+        if (status == 0) {
             def describe = gitDescribe(kdir)
 
             node("kernel-boot-v2") {
