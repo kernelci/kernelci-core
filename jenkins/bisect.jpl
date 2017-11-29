@@ -243,7 +243,7 @@ def runTest(lava_ci, describe) {
  */
 
 def bisectStart(kdir) {
-    def status
+    def status = null
 
     dir(kdir) {
         status = sh(returnStatus: true, script: """
@@ -253,7 +253,7 @@ git bisect bad ${params.BAD_COMMIT}
 """)
     }
 
-    return status
+    return (status == 0) ? true : false
 }
 
 def bisectNext(kdir, status) {
@@ -368,14 +368,14 @@ Bad:       ${params.BAD_COMMIT}"""
 
     stage("Start") {
         timeout(time: 5, unit: 'MINUTES') {
-            def start_result = bisectStart(kdir)
-
-            if (start_result) {
-                echo "Failed to start bisection, commits range may be invalid."
-                currentBuild.result = 'ABORTED'
-                return
-            }
+            check = bisectStart(kdir)
         }
+    }
+
+    if (!check) {
+        echo "Failed to start bisection, commits range may be invalid."
+        currentBuild.result = 'ABORTED'
+        return
     }
 
     def previous = params.GOOD_COMMIT
