@@ -304,8 +304,8 @@ Bad:       ${params.BAD_COMMIT}"""
         return
     }
 
-    timeout(time: 30, unit: 'MINUTES') {
-        stage("Init") {
+    stage("Init") {
+        timeout(time: 30, unit: 'MINUTES') {
             parallel(
                 p1: { cloneKCIBuild(kci_build) },
                 p2: { cloneLinux(kdir) },
@@ -387,8 +387,8 @@ Bad:       ${params.BAD_COMMIT}"""
         return
     }
 
-    timeout(time: 5, unit: 'MINUTES') {
-        stage("Start") {
+    stage("Start") {
+        timeout(time: 5, unit: 'MINUTES') {
             def start_result = bisectStart(kdir)
 
             if (start_result) {
@@ -410,8 +410,8 @@ Bad:       ${params.BAD_COMMIT}"""
         echo "Iteration #${iteration}: ${tag}"
 
         lock("${env.NODE_NAME}-build-lock") {
-            timeout(time: 60, unit: 'MINUTES') {
-                stage("Build ${iteration}") {
+            stage("Build ${iteration}") {
+                timeout(time: 60, unit: 'MINUTES') {
                     try {
                         buildKernel(kdir, kci_build)
                         status = 0
@@ -426,8 +426,8 @@ Bad:       ${params.BAD_COMMIT}"""
             def describe = gitDescribe(kdir)
 
             node("kernel-boot-v2") {
-                timeout(time: 120, unit: 'MINUTES') {
-                    stage("Test ${iteration}") {
+                stage("Test ${iteration}") {
+                    timeout(time: 120, unit: 'MINUTES') {
                         def lava_ci = env.WORKSPACE + '/lava-ci'
                         status = runTest(lava_ci, describe)
                     }
@@ -437,8 +437,8 @@ Bad:       ${params.BAD_COMMIT}"""
 
         removeTag(kdir, tag)
 
-        timeout(time: 5, unit: 'MINUTES') {
-            stage("Next") {
+        stage("Next") {
+            timeout(time: 5, unit: 'MINUTES') {
                 bisectNext(kdir, status)
             }
         }
