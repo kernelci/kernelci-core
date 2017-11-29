@@ -31,7 +31,6 @@ class TestTestSuiteModel(unittest.TestCase):
         test_suite.arch = "arm"
         test_suite.board = "board"
         test_suite.board_instance = 1
-        test_suite.boot_id = "boot_id"
         test_suite.created_on = "now"
         test_suite.defconfig = "defconfig"
         test_suite.build_id = "another_build-id"
@@ -54,7 +53,6 @@ class TestTestSuiteModel(unittest.TestCase):
             "arch": "arm",
             "board": "board",
             "board_instance": 1,
-            "boot_id": "boot_id",
             "created_on": "now",
             "defconfig": "defconfig",
             "defconfig_full": "defconfig",
@@ -94,7 +92,6 @@ class TestTestSuiteModel(unittest.TestCase):
             "arch": "arm",
             "board": "board",
             "board_instance": 1,
-            "boot_id": "boot_id",
             "created_on": "now",
             "defconfig": "defconfig",
             "defconfig_full": "defconfig",

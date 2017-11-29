@@ -52,7 +52,6 @@ class TestSuiteDocument(modb.BaseDocument):
         self.arch = None
         self.board = None
         self.board_instance = None
-        self.boot_id = None
         self.defconfig = None
         self.defconfig_full = None
         self.definition_uri = None
@@ -119,7 +118,6 @@ class TestSuiteDocument(modb.BaseDocument):
             models.ARCHITECTURE_KEY: self.arch,
             models.BOARD_INSTANCE_KEY: self.board_instance,
             models.BOARD_KEY: self.board,
-            models.BOOT_ID_KEY: self.boot_id,
             models.BUILD_ID_KEY: self.build_id,
             models.CREATED_KEY: self.created_on,
             models.DEFCONFIG_FULL_KEY: self.defconfig_full or self.defconfig,

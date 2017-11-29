@@ -397,8 +397,7 @@ def _get_test_case_data(suite_results, suite_name):
     return test_cases
 
 
-def add_tests(job_data, lab_name, boot_doc_id,
-              db_options, base_path=utils.BASE_PATH):
+def add_tests(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
     """Entry point to be used as an external task.
 
     This function should only be called by Celery or other task managers.
@@ -409,13 +408,11 @@ def add_tests(job_data, lab_name, boot_doc_id,
     :type job_data: dict
     :param lab_name: Name of the LAVA lab that posted the callback.
     :type lab_name: string
-    :param boot_doc_id: The ID of the boot document related to this test suite
-    :type boot_doc_id: str
     :param db_options: The mongodb database connection parameters.
     :type db_options: dict
     :param base_path: Path to the top-level directory where to save files.
     :type base_path: string
-    :return tuple The return code, the boot document id and errors.
+    :return tuple The return code, the test document id and errors.
     """
     ret_code = 201
     suite_doc_id = None
@@ -436,7 +433,6 @@ def add_tests(job_data, lab_name, boot_doc_id,
         suite_data = {
             models.VERSION_KEY: "1.0",
             models.LAB_NAME_KEY: lab_name,
-            models.BOOT_ID_KEY: boot_doc_id,
             models.TIME_KEY: "0.0",
             models.NAME_KEY: suite_name,
         }

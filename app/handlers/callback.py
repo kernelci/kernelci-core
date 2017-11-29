@@ -143,26 +143,28 @@ class LavaCallbackHandler(CallbackHandler):
         return models.LAVA_CALLBACK_VALID_KEYS.get(method, None)
 
     def _execute_callback(self, lab_name, **kwargs):
-        response = hresponse.HandlerResponse()
         action = kwargs["action"]
         json_obj = kwargs["json_obj"]
-        tasks = []
+        response = hresponse.HandlerResponse()
+        response.status_code = 202
+        response.reason = "Request accepted and being processed"
 
         if action in ["boot", "test"]:
-            tasks.append(taskqueue.tasks.callback.lava_boot.s(
-                json_obj, lab_name))
-            tasks.append(taskqueue.tasks.boot.find_regression.s())
-
-        if action == "test":
-            tasks.append(taskqueue.tasks.callback.lava_test.s(
-                json_obj, lab_name))
-
-        if not tasks:
+            tasks = [
+                taskqueue.tasks.callback.lava_test.s(json_obj, lab_name),
+            ]
+            chain(tasks).apply_async(
+                link_error=taskqueue.tasks.error_handler.s())
+        else:
             response.status_code = 404
             response.reason = "Unsupported LAVA action: {}".format(action)
-        else:
-            response.status_code = 202
-            response.reason = "Request accepted and being processed"
+
+        # Also run the legacy boot callback to generate boot entries
+        if action == "boot":
+            tasks = [
+                taskqueue.tasks.callback.lava_boot.s(json_obj, lab_name),
+                taskqueue.tasks.boot.find_regression.s(),
+            ]
             chain(tasks).apply_async(
                 link_error=taskqueue.tasks.error_handler.s())
 
