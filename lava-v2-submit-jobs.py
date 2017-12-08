@@ -152,7 +152,7 @@ if __name__ == '__main__':
     parser.add_argument("--username", help="username for the LAVA server")
     parser.add_argument("--token", help="token for LAVA server api")
     parser.add_argument("--repo", help="git repo for LAVA jobs")
-    parser.add_argument("--submitted", default='submitted.json',
+    parser.add_argument("--submitted",
                         help="path to JSON file to save submitted jobs data")
     args = vars(parser.parse_args())
     main(args)
