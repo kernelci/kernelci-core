@@ -52,14 +52,23 @@ TEST_CASE_NAME_EXTRA = {
 }
 
 META_DATA_MAP_TEST_SUITE = {
-    models.DEFCONFIG_KEY: "kernel.defconfig_base",
-    models.DEFCONFIG_FULL_KEY: "kernel.defconfig",
-    models.GIT_BRANCH_KEY: "git.branch",
-    models.VCS_COMMIT_KEY: "git.commit",
-    models.KERNEL_KEY: "kernel.version",
-    models.JOB_KEY: "kernel.tree",
     models.ARCHITECTURE_KEY: "job.arch",
     models.BOARD_KEY: "platform.name",
+    models.DEFCONFIG_KEY: "kernel.defconfig_base",
+    models.DEFCONFIG_FULL_KEY: "kernel.defconfig",
+    models.DEVICE_TYPE_KEY: "device.type",
+    models.DTB_KEY: "platform.dtb",
+    models.ENDIANNESS_KEY: "kernel.endian",
+    models.GIT_BRANCH_KEY: "git.branch",
+    models.GIT_COMMIT_KEY: "git.commit",
+    models.GIT_DESCRIBE_KEY: "git.describe",
+    models.GIT_URL_KEY: "git.url",
+    models.INITRD_KEY: "job.initrd_url",
+    models.JOB_KEY: "kernel.tree",
+    models.KERNEL_KEY: "kernel.version",
+    models.KERNEL_IMAGE_KEY: "job.kernel_image",
+    models.MACH_KEY: "platform.mach",
+    models.VCS_COMMIT_KEY: "git.commit",
 }
 
 META_DATA_MAP_BOOT = {
@@ -89,6 +98,20 @@ BL_META_MAP = {
 }
 
 
+def _get_job_meta(meta, job_data):
+    """Parse the main job meta-data from LAVA
+
+    :param meta: The meta-data to populate.
+    :type meta: dictionary
+    :param job_data: The JSON data from the callback.
+    :type job_data: dict
+    :param job_data: The map of keys to search for in the JSON and update.
+    :type job_data: dict
+    """
+    meta[models.BOOT_RESULT_KEY] = LAVA_JOB_RESULT[job_data["status"]]
+    meta[models.BOARD_INSTANCE_KEY] = job_data["actual_device_id"]
+
+
 def _get_definition_meta(meta, job_data, meta_data_map):
     """Parse the job definition meta-data from LAVA
 
@@ -104,7 +127,6 @@ def _get_definition_meta(meta, job_data, meta_data_map):
     :param meta_data_map: The dict of keys to parse and add in the meta-data.
     :type meta_data_map: dict
     """
-    meta[models.BOARD_INSTANCE_KEY] = job_data["actual_device_id"]
     definition = yaml.load(job_data["definition"], Loader=yaml.CLoader)
     job_meta = definition["metadata"]
     for x, y in meta_data_map.iteritems():
@@ -195,7 +217,7 @@ def _get_lava_meta(meta, job_data):
             handler(meta, step["metadata"])
 
 
-def _add_boot_log(meta, log, base_path):
+def _add_boot_log(meta, job_log, base_path, name):
     """Parse and save kernel logs
 
     Parse the kernel boot log in YAML format from a LAVA v2 job and save it as
@@ -208,7 +230,7 @@ def _add_boot_log(meta, log, base_path):
     :param base_path: Path to the top-level directory where to store the files.
     :type base_path: string
     """
-    log = yaml.load(log, Loader=yaml.CLoader)
+    log = yaml.load(job_log, Loader=yaml.CLoader)
 
     dir_path = os.path.join(
         base_path,
@@ -219,8 +241,8 @@ def _add_boot_log(meta, log, base_path):
         meta[models.DEFCONFIG_FULL_KEY],
         meta[models.LAB_NAME_KEY])
 
-    utils.LOG.info("Generating boot log files in {}".format(dir_path))
-    file_name = "-".join(["boot", meta[models.BOARD_KEY]])
+    utils.LOG.info("Generating {} log files in {}".format(name, dir_path))
+    file_name = "-".join([name, meta[models.BOARD_KEY]])
     files = tuple(".".join([file_name, ext]) for ext in ["txt", "html"])
     meta[models.BOOT_LOG_KEY], meta[models.BOOT_LOG_HTML_KEY] = files
     txt_path, html_path = (os.path.join(dir_path, f) for f in files)
@@ -320,10 +342,10 @@ def add_boot(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
     msg = None
 
     try:
-        meta[models.BOOT_RESULT_KEY] = LAVA_JOB_RESULT[job_data["status"]]
+        _get_job_meta(meta, job_data)
         _get_definition_meta(meta, job_data, META_DATA_MAP_BOOT)
         _get_lava_meta(meta, job_data)
-        _add_boot_log(meta, job_data["log"], base_path)
+        _add_boot_log(meta, job_data["log"], base_path, "boot")
         doc_id = utils.boot.import_and_save_boot(meta, db_options)
     except (yaml.YAMLError, ValueError) as ex:
         ret_code = 400
@@ -440,7 +462,10 @@ def add_tests(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
         utils.LOG.info("Processing test suite: {}".format(suite_name))
 
         try:
+            _get_job_meta(suite_data, job_data)
             _get_definition_meta(suite_data, job_data, META_DATA_MAP_TEST_SUITE)
+            _get_lava_meta(suite_data, job_data)
+            _add_boot_log(suite_data, job_data["log"], base_path, suite_name)
             case_data = _get_test_case_data(suite_results, suite_name)
             ret_code, suite_doc_id, err = \
                 utils.kci_test.import_and_save_kci_test(
