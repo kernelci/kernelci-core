@@ -47,7 +47,14 @@ NON_NULL_KEYS_CASE = [
 ]
 
 SPEC_TEST_SUITE = {
-    models.BOOT_ID_KEY: "boot_id",
+    models.ARCHITECTURE_KEY: "arch",
+    models.BOARD_KEY: "board",
+    models.DEFCONFIG_FULL_KEY: "defconfig_full",
+    models.DEFCONFIG_KEY: "defconfig",
+    models.GIT_BRANCH_KEY: "git_branch",
+    models.JOB_KEY: "job",
+    models.KERNEL_KEY: "kernel",
+    models.LAB_NAME_KEY: "lab_name",
     models.NAME_KEY: "name",
 }
 
@@ -88,14 +95,12 @@ def save_or_update(doc, spec_map, collection, database, errors):
     :type errors: dict
     :return The save action return code and the doc ID.
     """
-    spec = {}
+    spec = {x: getattr(doc, y) for x, y in spec_map.iteritems()}
 
     fields = [
         models.CREATED_KEY,
         models.ID_KEY,
     ]
-
-    spec.update({x: getattr(doc, y) for x, y in spec_map.iteritems()})
 
     prev_doc = utils.db.find_one2(
         database[collection], spec, fields=fields)
@@ -334,15 +339,43 @@ def _update_test_suite_doc_from_json(suite_doc, test_dict, errors):
     suite_doc.arch = test_dict.get(models.ARCHITECTURE_KEY, None)
     suite_doc.board = test_dict.get(models.BOARD_KEY, None)
     suite_doc.board_instance = test_dict.get(models.BOARD_INSTANCE_KEY, None)
-    suite_doc.boot_id = test_dict.get(models.BOOT_ID_KEY, None)
+    suite_doc.boot_log = test_dict.get(models.BOOT_LOG_KEY, None)
+    suite_doc.boot_log_html = test_dict.get(models.BOOT_LOG_HTML_KEY, None)
+    suite_doc.boot_result_description = test_dict.get(
+        models.BOOT_RESULT_DESC_KEY, None)
+    suite_doc.dtb = test_dict.get(models.DTB_KEY, None)
+    suite_doc.dtb_addr = test_dict.get(models.DTB_ADDR_KEY, None)
+    suite_doc.device_type = test_dict.get(models.DEVICE_TYPE_KEY, None)
     suite_doc.defconfig = test_dict.get(models.DEFCONFIG_KEY, None)
     suite_doc.defconfig_full = test_dict.get(models.DEFCONFIG_FULL_KEY, None)
+    suite_doc.endian = test_dict.get(models.ENDIANNESS_KEY, None)
+    suite_doc.file_server_resource = test_dict.get(
+        models.FILE_SERVER_RESOURCE_KEY, None)
+    suite_doc.file_server_url = test_dict.get(models.FILE_SERVER_URL_KEY, None)
     suite_doc.git_branch = test_dict.get(models.GIT_BRANCH_KEY, None)
+    suite_doc.git_commit = test_dict.get(models.GIT_COMMIT_KEY, None)
+    suite_doc.git_describe = test_dict.get(models.GIT_DESCRIBE_KEY, None)
+    suite_doc.git_url = test_dict.get(models.GIT_URL_KEY, None)
+    suite_doc.initrd_addr = test_dict.get(models.INITRD_ADDR_KEY, None)
     suite_doc.job = test_dict.get(models.JOB_KEY, None)
     suite_doc.kernel = test_dict.get(models.KERNEL_KEY, None)
+    suite_doc.kernel_image = test_dict.get(models.KERNEL_IMAGE_KEY, None)
+    suite_doc.kernel_image_size = test_dict.get(
+        models.KERNEL_IMAGE_SIZE_KEY, None)
+    suite_doc.load_addr = test_dict.get(models.BOOT_LOAD_ADDR_KEY, None)
     suite_doc.metadata = test_dict.get(models.METADATA_KEY, {})
+    suite_doc.qemu = test_dict.get(models.QEMU_KEY, None)
+    suite_doc.qemu_command = test_dict.get(models.QEMU_COMMAND_KEY, None)
+    suite_doc.retries = test_dict.get(models.BOOT_RETRIES_KEY, 0)
+    suite_doc.uimage = test_dict.get(models.UIMAGE_KEY, None)
+    suite_doc.uimage_addr = test_dict.get(models.UIMAGE_ADDR_KEY, None)
     suite_doc.vcs_commit = test_dict.get(models.VCS_COMMIT_KEY, None)
     suite_doc.version = test_dict.get(models.VERSION_KEY, "1.0")
+    suite_doc.warnings = test_dict.get(models.BOOT_WARNINGS_KEY, 0)
+
+    # mach_alias_key takes precedence if defined
+    suite_doc.mach = test_dict.get(
+        models.MACH_ALIAS_KEY, test_dict.get(models.MACH_KEY, None))
 
 
 def _update_test_suite_doc_ids(suite_doc, database):
@@ -394,8 +427,24 @@ def _update_test_suite_doc_ids(suite_doc, database):
         if all([not suite_doc.job_id, doc_get(models.JOB_ID_KEY, None)]):
             suite_doc.job_id = doc_get(models.JOB_ID_KEY, None)
         # Get also git information if we do not have them already,
+        if not suite_doc.compiler:
+            suite_doc.compiler = doc_get(models.COMPILER_KEY, None)
+        if not suite_doc.compiler_version:
+            suite_doc.compiler_version = \
+                doc_get(models.COMPILER_VERSION_KEY, None)
+        if not suite_doc.compiler_version_full:
+            suite_doc.compiler_version_full = \
+                doc_get(models.COMPILER_VERSION_FULL_KEY, None)
+        if not suite_doc.cross_compile:
+            suite_doc.cross_compile = doc_get(models.CROSS_COMPILE_KEY, None)
         if not suite_doc.git_branch:
             suite_doc.git_branch = doc_get(models.GIT_BRANCH_KEY, None)
+        if not suite_doc.git_commit:
+            suite_doc.git_commit = doc_get(models.GIT_COMMIT_KEY, None)
+        if not suite_doc.git_describe:
+            suite_doc.git_describe = doc_get(models.GIT_DESCRIBE_KEY, None)
+        if not suite_doc.git_url:
+            suite_doc.git_url = doc_get(models.GIT_URL_KEY, None)
         if not suite_doc.vcs_commit:
             suite_doc.vcs_commit = doc_get(models.GIT_COMMIT_KEY, None)
     else:
@@ -444,8 +493,7 @@ def _parse_test_suite_from_json(test_json, database, errors):
         return None
 
     test_doc = mtest_suite.TestSuiteDocument(name, lab_name)
-    test_doc.created_on = datetime.datetime.now(
-        tz=bson.tz_util.utc)
+    test_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
     _update_test_suite_doc_from_json(test_doc, test_json, errors)
     _update_test_suite_doc_ids(test_doc, database)
     return test_doc
