@@ -325,6 +325,7 @@ node("bisection") {
 Lab:       ${params.LAB}
 Target:    ${params.TARGET}
 Tree:      ${params.TREE}
+URL:       ${params.KERNEL_URL}
 Branch:    ${params.KERNEL_BRANCH}
 Defconfig: ${params.DEFCONFIG}
 Plan:      ${params.PLAN}
