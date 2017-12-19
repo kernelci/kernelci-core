@@ -15,6 +15,7 @@ import errno
 import models
 import os
 import yaml
+import json
 
 import utils
 import utils.boot
@@ -235,6 +236,56 @@ def _add_boot_log(meta, log, base_path):
         utils.lava_log_parser.run(log, meta, txt, html)
 
 
+def store_lava_json(job_data, meta, base_path=utils.BASE_PATH):
+    """ Save the json LAVA v2 callback object
+
+    Save LAVA v2 callback data as json file.
+
+    :param job_data: The JSON data from the LAVA callback.
+    :type job_data: dictionary
+    :param meta: The boot meta-data.
+    :type meta: dictionary
+    :param base_path: Path to the top-level directory where to store the files.
+    :type base_path: string
+    """
+
+    file_name = "-".join(["lava-json", meta[models.BOARD_KEY]])
+    file_name = ".".join([file_name, "json"])
+
+    dir_path = os.path.join(
+        base_path,
+        meta[models.JOB_KEY],
+        meta[models.GIT_BRANCH_KEY],
+        meta[models.KERNEL_KEY],
+        meta[models.ARCHITECTURE_KEY],
+        meta[models.DEFCONFIG_FULL_KEY],
+        meta[models.LAB_NAME_KEY])
+
+    utils.LOG.info("Saving LAVA v2 callback file {} data in {}".format(
+        file_name,
+        dir_path))
+
+    file_path = os.path.join(dir_path, file_name)
+
+    # Removing the token
+    job_data.pop("token", None)
+
+    # Add extra information
+    job_data["lab_name"] = meta.get("lab_name")
+    job_data["version"] = meta.get("version")
+    job_data["boot_log_html"] = meta.get("boot_log_html")
+
+    if not os.path.isdir(dir_path):
+        try:
+            os.makedirs(dir_path)
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise e
+
+    with open(file_path, "wb") as f:
+        f.write(json.dumps(job_data))
+
+
 def add_boot(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
     """Entry point to be used as an external task.
 
@@ -288,6 +339,8 @@ def add_boot(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
             utils.errors.add_error(errors, ret_code, msg)
         if errors:
             raise utils.errors.BackendError(errors)
+
+    store_lava_json(job_data, meta)
 
     return doc_id
 
