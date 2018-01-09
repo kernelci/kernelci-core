@@ -151,7 +151,7 @@ def _get_lava_boot_meta(meta, boot_meta):
                 if msg:
                     kernel_messages.append(msg)
     if kernel_messages:
-        meta[models.BOOT_WARNINGS_KEY] = kernel_messages
+        meta[models.BOOT_WARNINGS_KEY] = len(kernel_messages)
 
 
 def _get_lava_bootloader_meta(meta, bl_meta):
