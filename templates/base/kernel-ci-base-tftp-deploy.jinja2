@@ -13,7 +13,9 @@ actions:
     to: tftp
     kernel:
       url: {{ kernel_url }}
+{%- block kernel_image_type %}
       type: {{ kernel_image.lower() }}
+{%- endblock %}
 {%- if nfsrootfs_url %}
     nfsrootfs:
       url: {{ nfsrootfs_url }}
