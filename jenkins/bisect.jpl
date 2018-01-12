@@ -110,6 +110,8 @@ else
     git clone ${params.KERNEL_URL} ${kdir} -b ${params.KERNEL_BRANCH} -o ${params.TREE}
     cd ${kdir}
 fi
+git config user.name 'kernelci.org bot'
+git config user.email bot@kernelci.org
 git reset --hard
 echo 'build-*' > .git/info/exclude
 git clean -fd
