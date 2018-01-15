@@ -323,16 +323,18 @@ node("bisection") {
     def kdir = env.WORKSPACE + '/linux'
     def check = null
 
+    def params_summary = """\
+    Tree:      ${params.TREE}
+    URL:       ${params.KERNEL_URL}
+    Branch:    ${params.KERNEL_BRANCH}
+    Target:    ${params.TARGET}
+    Lab:       ${params.LAB}
+    Defconfig: ${params.DEFCONFIG}
+    Plan:      ${params.PLAN}"""
     echo """\
-Lab:       ${params.LAB}
-Target:    ${params.TARGET}
-Tree:      ${params.TREE}
-URL:       ${params.KERNEL_URL}
-Branch:    ${params.KERNEL_BRANCH}
-Defconfig: ${params.DEFCONFIG}
-Plan:      ${params.PLAN}
-Good:      ${params.GOOD_COMMIT}
-Bad:       ${params.BAD_COMMIT}"""
+    Good:      ${params.GOOD_COMMIT}
+    Bad:       ${params.BAD_COMMIT}
+${params_summary}"""
 
     if ((params.PLAN != 'boot') && (params.PLAN != 'simple')) {
         echo "Only doing boot and simple plans for now, aborting."
@@ -340,93 +342,111 @@ Bad:       ${params.BAD_COMMIT}"""
         return
     }
 
-    stage("Init") {
-        timeout(time: 30, unit: 'MINUTES') {
-            parallel(
-                p1: { cloneKCIBuild(kci_build) },
-                p2: { cloneLinux(kdir) },
-            )
-        }
-    }
-
-    stage("Check pass") {
-        check = runCheck(kdir, kci_build, params.GOOD_COMMIT, 'pass', 0)
-    }
-
-    if (!check) {
-        echo "Good revision check failed"
-        currentBuild.result = 'ABORTED'
-        return
-    }
-
-    stage("Check fail") {
-        check = runCheck(kdir, kci_build, params.BAD_COMMIT, 'fail', 2)
-    }
-
-    if (!check) {
-        echo "Bad revision check failed"
-        currentBuild.result = 'ABORTED'
-        return
-    }
-
-    stage("Start") {
-        timeout(time: 5, unit: 'MINUTES') {
-            check = bisectStart(kdir)
-        }
-    }
-
-    if (!check) {
-        echo "Failed to start bisection, commits range may be invalid."
-        currentBuild.result = 'ABORTED'
-        return
-    }
-
-    def previous = params.GOOD_COMMIT
-    def current = getSHA(kdir)
-    def iteration = 1
-
-    while (previous != current) {
-        def tag = createTag(kdir, iteration)
-        def status = null
-
-        echo "Iteration #${iteration}: ${tag}"
-
-        lock("${env.NODE_NAME}-build-lock") {
-            stage("Build ${iteration}") {
-                timeout(time: 60, unit: 'MINUTES') {
-                    try {
-                        buildKernel(kdir, kci_build)
-                        status = 0
-                    } catch (error) {
-                        status = 1
-                    }
-                }
+    try {
+        stage("Init") {
+            timeout(time: 30, unit: 'MINUTES') {
+                parallel(
+                    p1: { cloneKCIBuild(kci_build) },
+                    p2: { cloneLinux(kdir) },
+                )
             }
         }
 
-        if (status == 0) {
-            def describe = gitDescribe(kdir)
-
-            node("kernel-boot-v2") {
-                stage("Test ${iteration}") {
-                    timeout(time: 120, unit: 'MINUTES') {
-                        def lava_ci = env.WORKSPACE + '/lava-ci'
-                        status = runTest(lava_ci, describe)
-                    }
-                }
-            }
+        stage("Check pass") {
+            check = runCheck(kdir, kci_build, params.GOOD_COMMIT, 'pass', 0)
         }
 
-        removeTag(kdir, tag)
+        if (!check) {
+            echo "Good revision check failed"
+            currentBuild.result = 'ABORTED'
+            return
+        }
 
-        stage("Next") {
+        stage("Check fail") {
+            check = runCheck(kdir, kci_build, params.BAD_COMMIT, 'fail', 2)
+        }
+
+        if (!check) {
+            echo "Bad revision check failed"
+            currentBuild.result = 'ABORTED'
+            return
+        }
+
+        stage("Start") {
             timeout(time: 5, unit: 'MINUTES') {
-                bisectNext(kdir, status)
+                check = bisectStart(kdir)
             }
         }
 
-        previous = current
-        current = getSHA(kdir)
-        iteration += 1
+        if (!check) {
+            echo "Failed to start bisection, commits range may be invalid."
+            currentBuild.result = 'ABORTED'
+            return
+        }
+
+        def previous = params.GOOD_COMMIT
+        def current = getSHA(kdir)
+        def iteration = 1
+
+        while (previous != current) {
+            def tag = createTag(kdir, iteration)
+            def status = null
+
+            echo "Iteration #${iteration}: ${tag}"
+
+            lock("${env.NODE_NAME}-build-lock") {
+                stage("Build ${iteration}") {
+                    timeout(time: 60, unit: 'MINUTES') {
+                        try {
+                            buildKernel(kdir, kci_build)
+                            status = 0
+                        } catch (error) {
+                            status = 1
+                        }
+                    }
+                }
+            }
+
+            if (status == 0) {
+                def describe = gitDescribe(kdir)
+
+                node("kernel-boot-v2") {
+                    stage("Test ${iteration}") {
+                        timeout(time: 120, unit: 'MINUTES') {
+                            def lava_ci = env.WORKSPACE + '/lava-ci'
+                            status = runTest(lava_ci, describe)
+                        }
+                    }
+                }
+            }
+
+            removeTag(kdir, tag)
+
+            stage("Next") {
+                timeout(time: 5, unit: 'MINUTES') {
+                    bisectNext(kdir, status)
+                }
+            }
+
+            previous = current
+            current = getSHA(kdir)
+            iteration += 1
+        }
+    } catch (err) {
+        currentBuild.result = "FAILURE"
+
+        def tree_branch = "${params.TREE}/${params.KERNEL_BRANCH}"
+        def subject = "bisection error: #${env.BUILD_NUMBER} \
+${tree_branch} ${params.LAB} ${params.TARGET}"
+        def body = """\
+${env.BUILD_URL}
+
+${params_summary}
+
+${err}
+"""
+        emailext(subject: subject, body: body, to: params.EMAIL_RECIPIENTS)
+
+        throw err
     }
 }
