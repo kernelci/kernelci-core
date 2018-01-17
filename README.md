@@ -12,11 +12,11 @@ token: <auth-token>
 ## Usage instructions for lava-stream-job:
 The only required option is "--job", everything else can be configured through either $HOME/.lavarc or the environment.
 ```
-./lava-stream-log.py [-h] [--username <lava username>] [--token <lava token>] [--server <http://lava-server/RPC2>] --job <lava job id>
+./lava-stream-log.py [-h] [--username <lava username>] [--token <lava token>] [--lab <lab-name>] --job <lava job id>
 ```
 Examples:
 ```
-./lava-stream-log.py --username <lava username> --token <lava token> --server <http://lava-server/RPC2> --job <lava job id>
+./lava-stream-log.py --username <lava username> --token <lava token> --lab <lab-name> --job <lava job id>
 ./lava-stream-log.py --section linaro --job <lava job id>
 
 # Override config settings on the command line
@@ -52,10 +52,10 @@ Examples:
 
 ```
 # Submit all LAVA jobs in the current working directory to a specific server, and bundle stream.
-./lava-job-runner.py --username <lava username> --token <lava token> --server <http://lava-server/RPC2> --stream /anonymous/mybundle/
+./lava-job-runner.py --username <lava username> --token <lava token> --lab <lab-name> --stream /anonymous/mybundle/
 
 # Submit and poll all LAVA jobs in the current working directory to a specific server, bundle stream.
-./lava-job-runner.py --username <lava username> --token <lava token> --server <http://lava-server/RPC2> --stream /anonymous/mybundle/ --boot results/kernel-ci.json
+./lava-job-runner.py --username <lava username> --token <lava token> --lab <lab-name> --stream /anonymous/mybundle/ --boot results/kernel-ci.json
 
 # Submit and poll all LAVA jobs in the current working directory to a specific server, bundle stream. Once the results have been obtained, store the results in a JSON encoded file for use later with the dashboard reporting tool.
 ./lava-job-runner.py <username> <lava token> http://my.lavaserver.com/RPC2/ --stream /anonymous/mybundle/ --boot results/kernel-ci.json --lab <lab-id> --api http://api.kernelci.org --token <dashboard token>
@@ -151,8 +151,8 @@ KernelCI basically asks you to test your board on all stable releases and the ma
 ```
 ./lava-kernel-ci-job-creator.py https://storage.kernelci.org/stable --jobs stable --plans boot --targets armada-388-clearfog
 ./lava-kernel-ci-job-creator.py https://storage.kernelci.org/mainline --jobs mainline --plans boot --targets armada-388-clearfog
-./lava-job-runner.py --username <lava username> --token <lava token> --server <http://lava-server/RPC2> --stream /anonymous/mybundle/ --jobs stable
-./lava-job-runner.py --username <lava username> --token <lava token> --server <http://lava-server/RPC2> --stream /anonymous/mybundle/ --jobs mainline
+./lava-job-runner.py --username <lava username> --token <lava token> --lab <lab-name> --stream /anonymous/mybundle/ --jobs stable
+./lava-job-runner.py --username <lava username> --token <lava token> --lab <lab-name> --stream /anonymous/mybundle/ --jobs mainline
 ```
 
 ### Add your lab to KernelCI

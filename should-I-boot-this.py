@@ -32,16 +32,24 @@ export TREE=mainline
 config = configparser.ConfigParser()
 config.read('labs.ini')
 
-# Is the lab existing?
-if os.environ['LAB'] not in config.sections():
-    print("Unknown lab (%s). Allowing boot of %s." % (os.environ['LAB'], os.environ['TREE']))
+lab_name = os.environ['LAB']
+tree_name = os.environ['TREE']
+
+# Is the lab existing?
+if lab_name not in config.sections():
+    print("Unknown lab '{}'. Allowing boot of tree '{}'.".format(
+        lab_name, tree_name))
     sys.exit(0)
 
-# Is the tree blacklisted for this lab?
-if os.environ['TREE'] in config[os.environ['LAB']]['tree_blacklist'].split():
-    print("Tree '%s' is blacklisted for lab '%s'" % (os.environ['TREE'], os.environ['LAB']))
+lab = config[lab_name]
+
+# Is the tree blacklisted for this lab?
+lab_tree_blacklist = lab.get('tree_blacklist')
+if lab_tree_blacklist and tree_name in lab_tree_blacklist.split():
+    print("Tree '{}' is blacklisted for lab '{}'".format(
+        tree_name, lab_name))
     sys.exit(1)
 
-print("Booting tree '%s' is allowed for lab '%s'" % (os.environ['TREE'], os.environ['LAB']))
+print("Booting tree '{}' is allowed for lab '{}'".format(
+    tree_name, lab_name))
 sys.exit(0)
-
