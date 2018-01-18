@@ -34,14 +34,33 @@ config.read('labs.ini')
 
 lab_name = os.environ['LAB']
 tree_name = os.environ['TREE']
+branch = os.environ['BRANCH']
 
 # Is the lab existing?
 if lab_name not in config.sections():
-    print("Unknown lab '{}'. Allowing boot of tree '{}'.".format(
+    print("Unknown lab '{}'. refusing boot of tree '{}' as config is needed.".format(
         lab_name, tree_name))
-    sys.exit(0)
+    sys.exit(1)
 
 lab = config[lab_name]
+
+# Is the tree whitelisted for this lab
+lab_tree_whitelist = lab.get('tree_whitelist')
+if lab_tree_whitelist:
+    whitelisted_trees = lab_tree_whitelist.split()
+    for whitelisted_tree in whitelisted_trees:
+        if '#' in whitelisted_tree:
+            w_tree = whitelisted_tree.split('#')[0]
+            w_branch = whitelisted_tree.split('#')[1]
+            if tree_name == w_tree and branch == w_branch:
+                print("Tree {} and branch {} is whitelisted for lab {}". format(tree_name, branch, lab_name))
+                sys.exit(0)
+        else:
+            if tree_name == whitelisted_tree:
+                print("Tree {} is whitelisted for lab {}". format(tree_name, lab_name))
+                sys.exit(0)
+    print("Tree {} is not whitelisted for lab {}".format(tree_name, lab_name))
+    sys.exit(1)
 
 # Is the tree blacklisted for this lab?
 lab_tree_blacklist = lab.get('tree_blacklist')

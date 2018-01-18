@@ -652,7 +652,8 @@ meson_gxbb_odroidc2 = {'device_type': 'meson-gxbb-odroidc2',
                'nfs_blacklist': [],
                'lpae': False,
                'fastboot': True,
-               'mach': 'amlogic'}
+               'mach': 'amlogic',
+               'boot_be': True}
 
 meson_gxbb_p200 = {'device_type': 'meson-gxbb-p200',
                'templates': ['generic-arm64-dtb-kernel-ci-boot-template.json',
@@ -669,7 +670,8 @@ meson_gxbb_p200 = {'device_type': 'meson-gxbb-p200',
                'nfs_blacklist': [],
                'lpae': False,
                'fastboot': True,
-               'mach': 'amlogic'}
+               'mach': 'amlogic',
+               'boot_be': True}
 
 meson_gxl_s905x_khadas_vim  = {'device_type': 'meson-gxl-s905x-khadas-vim',
                'templates': ['generic-uboot-tftp-ramdisk-template.jinja2',
@@ -682,7 +684,8 @@ meson_gxl_s905x_khadas_vim  = {'device_type': 'meson-gxl-s905x-khadas-vim',
                'nfs_blacklist': [],
                'lpae': False,
                'fastboot': False,
-               'mach': 'amlogic'}
+               'mach': 'amlogic',
+               'boot_be': True}
 
 
 r8a7795_salvator_x = {'device_type': 'r8a7795-salvator-x',
@@ -697,7 +700,8 @@ r8a7795_salvator_x = {'device_type': 'r8a7795-salvator-x',
                'nfs_blacklist': [],
                'lpae': False,
                'fastboot': False,
-               'mach': 'renesas'}
+               'mach': 'renesas',
+               'boot_be': True}
 
 r8a7796_m3ulcb = {'device_type': 'r8a7796-m3ulcb',
                'templates': [ 'generic-uboot-tftp-ramdisk-template.jinja2'],
@@ -1125,7 +1129,8 @@ fsl_ls2080a_rdb = {'device_type': 'fsl-ls2085a-rdb',
                    'nfs_blacklist': [],
                    'lpae': False,
                    'fastboot': False,
-                   'mach': 'freescale'}
+                   'mach': 'freescale',
+                   'boot_be': True}
 
 fsl_ls2080a_simu = {'device_type': 'fsl-ls2085a-rdb',
                    'templates': ['generic-arm64-dtb-kernel-ci-boot-template.json',
@@ -1141,7 +1146,8 @@ fsl_ls2080a_simu = {'device_type': 'fsl-ls2085a-rdb',
                    'nfs_blacklist': [],
                    'lpae': False,
                    'fastboot': False,
-                   'mach': 'freescale'}
+                   'mach': 'freescale',
+                   'boot_be': True}
 
 x86 = {'device_type': 'x86',
        'templates': ['generic-x86-kernel-ci-boot-template.json',

@@ -164,7 +164,7 @@ def main(args):
                             elif device.has_key('lab_blacklist') and lab_name in device['lab_blacklist']:
                                 print "device %s is blacklisted for lab %s" % (device['device_type'], lab_name)
                                 continue
-                            elif "BIG_ENDIAN" in defconfig and plan != 'boot-be':
+                            elif "BIG_ENDIAN" in defconfig and not device.get('boot_be', False):
                                 print "BIG_ENDIAN is not supported on %s" % device_type
                                 continue
                             elif "LPAE" in defconfig and not lpae:
@@ -179,7 +179,7 @@ def main(args):
                                 continue
                             elif 'be_blacklist' in device \
                                     and any([x for x in device['be_blacklist'] if x in git_describe]) \
-                                    and plan in ['boot-be']:
+                                    and device.get('boot_be', False):
                                 print "git_describe %s is blacklisted for BE on device %s" % (git_describe, device_type)
                                 continue
                             elif (arch_defconfig not in plan_defconfigs) and (plan != "boot"):
@@ -213,7 +213,7 @@ def main(args):
                                         kernel_url = urlparse.urljoin(base_url, build['kernel_image'])
                                         defconfig_base = ''.join(defconfig.split('+')[:1])
                                         endian = 'little'
-                                        if 'BIG_ENDIAN' in defconfig and plan == 'boot-be':
+                                        if 'BIG_ENDIAN' in defconfig:
                                             endian = 'big'
                                         initrd_arch = arch
                                         if arch == 'arm64' and endian == 'big':
