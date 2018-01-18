@@ -45,6 +45,6 @@ elif [ ${LAB} = "lab-pengutronix" ]; then
   python lava-v2-jobs-from-api.py --defconfigs ${DEFCONFIG_COUNT} --callback ${CALLBACK} --api ${API} --storage ${STORAGE} --lab ${LAB} --describe ${GIT_DESCRIBE} --tree ${TREE} --branch ${BRANCH} --arch ${ARCH} --plans boot boot-kvm boot-kvm-uefi boot-nfs boot-nfs-mp --token ${API_TOKEN}
   python lava-v2-submit-jobs.py --username kernel-ci --jobs ${LAB} --token ${LAVA_PENGUTRONIX_TOKEN} --lab ${LAB}
 elif [ ${LAB} = "lab-linaro-lkft" ] || [ ${LAB} = "lab-linaro-lkft-dev" ]; then
-  python lava-v2-jobs-from-api.py --defconfigs ${DEFCONFIG_COUNT} --callback ${CALLBACK} --api ${API} --storage ${STORAGE} --lab ${LAB} --describe ${GIT_DESCRIBE} --tree ${TREE} --branch ${BRANCH} --arch ${ARCH} --plans boot --token ${API_TOKEN}
+  python lava-v2-jobs-from-api.py --defconfigs ${DEFCONFIG_COUNT} --callback ${CALLBACK} --api ${API} --storage ${STORAGE} --lab ${LAB} --describe ${GIT_DESCRIBE} --tree ${TREE} --branch ${BRANCH} --arch ${ARCH} --plans boot --token ${API_TOKEN} --priority low
   python lava-v2-submit-jobs.py --username kernel-ci --jobs ${LAB} --token ${LAVA_LINARO_LKFT_TOKEN} --lab ${LAB}
 fi
