@@ -38,13 +38,13 @@ import urlparse
 import urllib
 from jinja2 import Environment, FileSystemLoader
 
-
 LEGACY_X86_PLATFORMS = ['x86', 'x86-kvm', 'x86-32']
 ARCHS = ['arm64', 'arm64be', 'armeb', 'armel', 'x86']
-ROOTFS_URL = 'http://storage.kernelci.org/images/rootfs'
-INITRD_URL = '/'.join([ROOTFS_URL, 'buildroot/{}/rootfs.cpio.gz'])
-NFSROOTFS_URL = '/'.join([ROOTFS_URL, 'buildroot/{}/rootfs.tar.xz'])
-KSELFTEST_INITRD_URL = '/'.join([ROOTFS_URL, 'buildroot/{}/tests/rootfs.cpio.gz'])
+ROOTFS_URL = 'http://storage.kernelci.org/images/rootfs/buildroot'
+INITRD_URL = '/'.join([ROOTFS_URL, '{}', 'rootfs.cpio.gz'])
+NFSROOTFS_URL = '/'.join([ROOTFS_URL, '{}', 'rootfs.tar.xz'])
+KSELFTEST_INITRD_URL = '/'.join([ROOTFS_URL, '{}', 'tests', 'rootfs.cpio.gz'])
+
 
 def get_builds(api, token, config):
     headers = {
@@ -201,13 +201,13 @@ def job_is_valid(config, device, opts, defconfig, arch, plan):
     if defconfig in device['defconfig_blacklist']:
         print("defconfig {} is blacklisted for device {}"
               .format(defconfig, device_type))
-    elif (device.has_key('defconfig_whitelist')
+    elif ('defconfig_whitelist' in device
           and defconfig not in device['defconfig_whitelist']):
         print("defconfig {} is not in whitelist for device {}"
               .format(defconfig, device_type))
-    elif device.has_key('arch_blacklist') and arch in device['arch_blacklist']:
+    elif 'arch_blacklist' in device and arch in device['arch_blacklist']:
         print("arch {} is blacklisted for device {}".format(arch, device_type))
-    elif (device.has_key('lab_blacklist') and lab in device['lab_blacklist']):
+    elif ('lab_blacklist' in device and lab in device['lab_blacklist']):
         print("device {} is blacklisted for lab {}".format(device_type, lab))
     elif "BIG_ENDIAN" in defconfig and not device.get('boot_be', False):
         print("BIG_ENDIAN is not supported on {}".format(device_type))
@@ -354,23 +354,38 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config", help="path to KernelCI configuration file")
-    parser.add_argument("--token", help="KernelCI API Token")
-    parser.add_argument("--api", help="KernelCI API URL")
-    parser.add_argument("--storage", help="KernelCI storage URL")
-    parser.add_argument("--lab", help="KernelCI Lab Name", required=True)
-    parser.add_argument("--jobs", help="absolute path to top jobs folder")
-    parser.add_argument("--tree", help="KernelCI build kernel tree", required=True)
-    parser.add_argument("--branch", help="KernelCI build kernel branch", required=True)
-    parser.add_argument("--describe", help="KernelCI build kernel git describe", required=True)
-    parser.add_argument("--section", default="default", help="section in the KernelCI config file")
-    parser.add_argument("--plans", nargs='+', required=True, help="test plan to create jobs for")
-    parser.add_argument("--arch", help="specific architecture to create jobs for", required=True)
-    parser.add_argument("--targets", nargs='+', help="specific targets to create jobs for")
-    parser.add_argument("--priority", choices=['high', 'medium', 'low', 'HIGH', 'MEDIUM', 'LOW'],
+    parser.add_argument("--config",
+                        help="path to KernelCI configuration file")
+    parser.add_argument("--token",
+                        help="KernelCI API Token")
+    parser.add_argument("--api",
+                        help="KernelCI API URL")
+    parser.add_argument("--storage",
+                        help="KernelCI storage URL")
+    parser.add_argument("--lab", required=True,
+                        help="KernelCI Lab Name")
+    parser.add_argument("--jobs",
+                        help="absolute path to top jobs folder")
+    parser.add_argument("--tree", required=True,
+                        help="KernelCI build kernel tree")
+    parser.add_argument("--branch", required=True,
+                        help="KernelCI build kernel branch")
+    parser.add_argument("--describe", required=True,
+                        help="KernelCI build kernel git describe")
+    parser.add_argument("--section", default="default",
+                        help="section in the KernelCI config file")
+    parser.add_argument("--plans", nargs='+', required=True,
+                        help="test plan to create jobs for")
+    parser.add_argument("--arch", required=True,
+                        help="specific architecture to create jobs for")
+    parser.add_argument("--targets", nargs='+',
+                        help="specific targets to create jobs for")
+    parser.add_argument("--priority", choices=['high', 'medium', 'low'],
                         help="priority for LAVA jobs", default='high')
-    parser.add_argument("--callback", help="Add a callback notification to the Job YAML")
-    parser.add_argument("--defconfigs", help="Expected number of defconfigs from the API", default=0)
+    parser.add_argument("--callback",
+                        help="Add a callback notification to the Job YAML")
+    parser.add_argument("--defconfigs", default=0,
+                        help="Expected number of defconfigs from the API")
     parser.add_argument("--defconfig_full",
                         help="Only look for builds from this full defconfig")
     args = vars(parser.parse_args())
