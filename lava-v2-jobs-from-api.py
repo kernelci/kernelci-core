@@ -84,6 +84,115 @@ def get_builds(api, token, config):
     return builds
 
 
+def get_job_params(config, template, opts, device, build, defconfig, dtb, plan):
+    short_template_file = os.path.join(plan, template)
+    template_file = os.path.join('templates', short_template_file)
+    if not (template_file.endswith('.jinja2')
+            and os.path.exists(template_file)):
+        return None
+
+    arch = config.get('arch')
+    storage = config.get('storage')
+    job_name = '-'.join([
+        config.get('tree'), config.get('branch'), config.get('describe'),
+        arch, defconfig[:100], dtb, device['device_type'], plan])
+
+    url_px = '/'.join([
+        build['job'], build['git_branch'], build['kernel'], arch, defconfig])
+    base_url = urlparse.urljoin(storage, '/'.join([url_px, '']))
+    kernel_url = urlparse.urljoin(
+        storage, '/'.join([url_px, build['kernel_image']]))
+    dtb_full = opts['dtb_full']
+    if dtb_full.endswith('.dtb'):
+        dtb_url = urlparse.urljoin(
+            storage, '/'.join([url_px, 'dtbs', dtb_full]))
+        platform = dtb[:-4]
+    else:
+        dtb_url = None
+        platform = device['device_type']
+
+    endian = 'big' if 'BIG_ENDIAN' in defconfig else 'little'
+    initrd_arch = arch
+    if arch == 'arm64':
+        if endian == 'big':
+            initrd_arch = 'arm64be'
+    elif arch == 'arm':
+        if endian == 'big':
+            initrd_arch = 'armeb'
+        else:
+            initrd_arch = 'armel'
+
+    nfsrootfs_url = None
+    initrd_url = None
+    if 'kselftest' in plan:
+        initrd_url = KSELFTEST_INITRD_URL.format(initrd_arch)
+    else:
+        initrd_url = INITRD_URL.format(initrd_arch)
+    if 'nfs' in plan:
+        nfsrootfs_url = NFSROOTFS_URL.format(initrd_arch)
+        initrd_url = None
+    if build['modules']:
+        modules_url = urlparse.urljoin(
+            storage, '/'.join([url_px, build['modules']]))
+    else:
+        modules_url = None
+
+    device_type = device['device_type']
+    if device_type.startswith('qemu') or device_type == 'kvm':
+        device_type = 'qemu'
+
+    callback_name = 'lava/boot' if plan == 'boot' else 'lava/test'
+    defconfig_base = ''.join(defconfig.split('+')[:1])
+
+    job_params = {
+        'name': job_name,
+        'dtb_url': dtb_url,
+        'dtb_short': dtb,
+        'dtb_full': dtb_full,
+        'platform': platform,
+        'mach': device['mach'],
+        'kernel_url': kernel_url,
+        'image_type': 'kernel-ci',
+        'image_url': base_url,
+        'modules_url': modules_url,
+        'plan': plan,
+        'kernel': config.get('describe'),
+        'tree': config.get('tree'),
+        'defconfig': defconfig,
+        'fastboot': str(device['fastboot']).lower(),
+        'priority': config.get('priority'),
+        'device_type': device['device_type'],
+        'template_file': template_file,
+        'base_url': base_url,
+        'endian': endian,
+        'short_template_file': short_template_file,
+        'arch': arch,
+        'git_branch': config.get('branch'),
+        'git_commit': build['git_commit'],
+        'git_describe': config.get('describe'),
+        'git_url': build['git_url'],
+        'defconfig_base': defconfig_base,
+        'initrd_url': initrd_url,
+        'kernel_image': build['kernel_image'],
+        'nfsrootfs_url': nfsrootfs_url,
+        'callback': config.get('callback'),
+        'api': config.get('api'),
+        'lab_name': config.get('lab'),
+        'callback_name': callback_name,
+        'context': device.get('context'),
+    }
+
+    job_params.update({k: opts[k] for k in [
+        'arch_defconfig',
+        'test_suite',
+        'test_set',
+        'test_desc',
+        'test_type',
+    ] if k in opts
+    })
+
+    return job_params
+
 def main(args):
     config = configuration.get_config(args)
     token = config.get('token')
@@ -103,197 +212,110 @@ def main(args):
     builds = get_builds(api, token, config)
     print("Number of builds: {}".format(len(builds)))
 
-    plans = config.get("plans")
-    targets = config.get("targets")
-    lab_name = config.get('lab')
     arch = config.get('arch')
-    branch = config.get('branch')
-    tree = config.get('tree')
     git_describe = config.get('describe')
-    jobs = []
     cwd = os.getcwd()
+    jobs = []
     for build in builds:
         defconfig = build['defconfig_full']
-        arch_defconfig = ("%s-%s" % (arch, defconfig))
-        print "Working on build %s %s %s %s %s" % (tree, branch, git_describe, arch, defconfig)
-        test_suite = None
-        test_set = None
-        test_desc = None
-        test_type = None
-        plan_defconfigs = []
-        modules = build['modules']
-        if build['kernel_image']:
-            if build['kernel_image'] == 'bzImage' and arch == 'x86':
-                build['dtb_dir_data'].extend(LEGACY_X86_PLATFORMS)
-        else:
+        print("Working on build {}".format(' '.join(
+            [config.get('tree'), config.get('branch'), git_describe,
+             arch, defconfig])))
+
+        if build.get('status') != 'PASS':
             continue
-        if 'PASS' not in build.get('status', ''):
+        kimage = build.get('kernel_image')
+        if not kimage:
+            print("No kernel_image for {}".format(defconfig))
             continue
+        if kimage == 'bzImage' and arch == 'x86':
+            build['dtb_dir_data'].extend(LEGACY_X86_PLATFORMS)
         if arch in ['arm', 'arm64', 'x86'] and 'defconfig' in defconfig:
             build['dtb_dir_data'].append('qemu')
-        for plan in plans:
+
+        for plan in config.get('plans'):
+            opts = {
+                'arch_defconfig': '-'.join([arch, defconfig]),
+            }
+
             if plan != 'boot':
-                    config = ConfigParser.ConfigParser()
-                    try:
-                        config.read(cwd + '/templates/' + plan + '/' + plan + '.ini')
-                        test_suite = config.get(plan, 'suite')
-                        test_set = config.get(plan, 'set')
-                        test_desc = config.get(plan, 'description')
-                        test_type = config.get(plan, 'type')
-                        plan_defconfigs = config.get(plan, 'defconfigs').split(',')
-                    except Exception, e:
-                        print "Unable to load test configuration"
-                        print(e)
-                        exit(1)
-            if not build['kernel_image']:
-                print "no kernel_image for %s" % build['defconfig_full']
-                continue
+                pconfig = ConfigParser.ConfigParser()
+
+                try:
+                    pconfig.read(os.path.join(
+                        cwd, 'templates', plan, '.'.join([plan, 'ini'])))
+                except Exception, e:
+                    print("Unable to load test configuration")
+                    print(e)
+                    continue
+
+                plan_defconfigs = pconfig.get(plan, 'defconfigs').split(',')
+
+                opts.update({
+                    'test_suite': pconfig.get(plan, 'suite'),
+                    'test_set': pconfig.get(plan, 'set'),
+                    'test_desc': pconfig.get(plan, 'description'),
+                    'test_type': pconfig.get(plan, 'type'),
+                    'plan_defconfigs': plan_defconfigs,
+                })
+
             for dtb in build['dtb_dir_data']:
                 # hack for arm64 dtbs in subfolders
-                dtb_full = dtb
+                opts['dtb_full'] = dtb
                 if arch == 'arm64':
                     dtb = str(dtb).split('/')[-1]
                 if dtb in device_map:
-                    # print "device %s was in the device_map" % dtb
                     for device in device_map[dtb]:
-                        # print "working on device %s" % dtb
-                        lpae = device['lpae']
-                        device_type = device['device_type']
-                        mach = device['mach']
-                        fastboot = str(device['fastboot']).lower()
-                        blacklist = False
-                        nfs_blacklist = False
                         if defconfig in device['defconfig_blacklist']:
-                            print "defconfig %s is blacklisted for device %s" % (defconfig, device['device_type'])
-                            continue
+                            print("defconfig {} is blacklisted for device {}"
+                                  .format(defconfig, device['device_type']))
                         elif device.has_key('defconfig_whitelist') and defconfig not in device['defconfig_whitelist']:
-                            print "defconfig %s is not in whitelist for device %s" % (defconfig, device['device_type'])
-                            continue
+                            print("defconfig {} is not in whitelist for device {}"
+                                  .format(defconfig, device['device_type']))
                         elif device.has_key('arch_blacklist') and arch in device['arch_blacklist']:
-                            print "arch %s is blacklisted for device %s" % (arch, device['device_type'])
-                            continue
-                        elif device.has_key('lab_blacklist') and lab_name in device['lab_blacklist']:
-                            print "device %s is blacklisted for lab %s" % (device['device_type'], lab_name)
-                            continue
+                            print("arch {} is blacklisted for device {}"
+                                  .format(arch, device['device_type']))
+                        elif device.has_key('lab_blacklist') and config.get('lab') in device['lab_blacklist']:
+                            print("device {} is blacklisted for lab {}"
+                                  .format(device['device_type'], config.get('lab')))
                         elif "BIG_ENDIAN" in defconfig and not device.get('boot_be', False):
-                            print "BIG_ENDIAN is not supported on %s" % device_type
-                            continue
-                        elif "LPAE" in defconfig and not lpae:
-                            print "LPAE is not support on %s" % device_type
-                            continue
+                            print("BIG_ENDIAN is not supported on {}"
+                                  .format(device['device_type']))
+                        elif "LPAE" in defconfig and not device['lpae']:
+                            print("LPAE is not supported on {}"
+                                  .format(device['device_type']))
                         elif any([x for x in device['kernel_blacklist'] if x in git_describe]):
-                            print "git_describe %s is blacklisted for device %s" % (git_describe, device_type)
-                            continue
+                            print("git_describe {} is blacklisted for device {}"
+                                  .format(git_describe, device['device_type']))
                         elif any([x for x in device['nfs_blacklist'] if x in git_describe]) \
                                 and plan in ['boot-nfs', 'boot-nfs-mp']:
-                            print "git_describe %s is blacklisted for NFS on device %s" % (git_describe, device_type)
-                            continue
+                            print("git_describe {} is blacklisted for NFS on device {}"
+                                  .format(git_describe, device['device_type']))
                         elif 'be_blacklist' in device \
                                 and any([x for x in device['be_blacklist'] if x in git_describe]) \
                                 and device.get('boot_be', False):
-                            print "git_describe %s is blacklisted for BE on device %s" % (git_describe, device_type)
-                            continue
-                        elif (arch_defconfig not in plan_defconfigs) and (plan != "boot"):
-                            print "defconfig %s not in test plan %s" % (arch_defconfig, plan)
-                            continue
-                        elif targets is not None and device_type not in targets:
-                            continue
-                        elif arch == 'x86' and dtb == 'x86-32' and 'i386' not in arch_defconfig:
-                            print "%s is not a 32-bit x86 build, skipping for 32-bit device %s" % (defconfig, device_type)
-                            continue
+                            print("git_describe {} is blacklisted for BE on device {}"
+                                  .format(git_describe, device['device_type']))
+                        elif plan != 'boot' and opts['arch_defconfig'] not in opts['plan_defconfigs']:
+                            print("defconfig {} not in test plan {}"
+                                  .format(opts['arch_defconfig'], plan))
+                        elif config.get('targets') and device['device_type'] not in config.get('targets'):
+                            pass
+                        elif arch == 'x86' and dtb == 'x86-32' and 'i386' not in opts['arch_defconfig']:
+                            print("{} is not a 32-bit x86 build, skipping for 32-bit device {}"
+                                  .format(defconfig, device['device_type']))
                         elif 'kselftest' in defconfig and plan != 'kselftest':
-                            print "Skipping kselftest defconfig because plan was not kselftest"
-                            continue
+                            print("Skipping kselftest defconfig because plan was not kselftest")
                         else:
                             for template in device['templates']:
-                                short_template_file = plan + '/' + str(template)
-                                template_file = cwd + '/templates/' + short_template_file
-                                if os.path.exists(template_file) and template_file.endswith('.jinja2'):
-                                    job_name = tree + '-' + branch + '-' + git_describe + '-' + arch + '-' + defconfig[:100] + '-' + dtb + '-' + device_type + '-' + plan
-                                    base_url = "%s/%s/%s/%s/%s/%s/" % (storage, build['job'], build['git_branch'], build['kernel'], arch, defconfig)
-                                    nfsrootfs_url = None
-                                    initrd_url = None
-                                    callback_name = 'lava/boot' if plan == 'boot' else 'lava/test'
-                                    context = device['context'] if 'context' in device else None
-                                    if dtb_full.endswith('.dtb'):
-                                        dtb_url = base_url + "dtbs/" + dtb_full
-                                        platform = dtb[:-4]
-                                    else:
-                                        dtb_url = None
-                                        platform = device_type
-                                    kernel_url = urlparse.urljoin(base_url, build['kernel_image'])
-                                    defconfig_base = ''.join(defconfig.split('+')[:1])
-                                    endian = 'little'
-                                    if 'BIG_ENDIAN' in defconfig:
-                                        endian = 'big'
-                                    initrd_arch = arch
-                                    if arch == 'arm64' and endian == 'big':
-                                        initrd_arch = 'arm64be'
-                                    if arch == 'arm':
-                                        if endian == 'big':
-                                            initrd_arch = 'armeb'
-                                        else:
-                                            initrd_arch = 'armel'
-                                    if 'kselftest' in plan:
-                                        initrd_url = KSELFTEST_INITRD_URL.format(initrd_arch)
-                                    else:
-                                        initrd_url = INITRD_URL.format(initrd_arch)
-                                    if 'nfs' in plan:
-                                        nfsrootfs_url = NFSROOTFS_URL.format(initrd_arch)
-                                        initrd_url = None
-                                    if build['modules']:
-                                        modules_url = urlparse.urljoin(base_url, build['modules'])
-                                    else:
-                                        modules_url = None
-                                    device_type = device['device_type']
-                                    if device_type.startswith('qemu') or device_type == 'kvm':
-                                        device_type = 'qemu'
-                                    job = {'name': job_name,
-                                           'dtb_url': dtb_url,
-                                           'dtb_full': dtb_full,
-                                           'platform': platform,
-                                           'mach': mach,
-                                           'kernel_url': kernel_url,
-                                           'image_type': 'kernel-ci',
-                                           'image_url': base_url,
-                                           'modules_url': modules_url,
-                                           'plan': plan,
-                                           'kernel': git_describe,
-                                           'tree': tree,
-                                           'defconfig': defconfig,
-                                           'fastboot': fastboot,
-                                           'priority': config.get('priority'),
-                                           'device_type': device_type,
-                                           'template_file': template_file,
-                                           'base_url': base_url,
-                                           'endian': endian,
-                                           'test_suite': test_suite,
-                                           'test_set': test_set,
-                                           'test_desc': test_desc,
-                                           'test_type': test_type,
-                                           'short_template_file': short_template_file,
-                                           'arch': arch,
-                                           'arch_defconfig': arch_defconfig,
-                                           'git_branch': branch,
-                                           'git_commit': build['git_commit'],
-                                           'git_describe': git_describe,
-                                           'git_url': build['git_url'],
-                                           'defconfig_base': defconfig_base,
-                                           'initrd_url': initrd_url,
-                                           'kernel_image': build['kernel_image'],
-                                           'dtb_short': dtb,
-                                           'nfsrootfs_url': nfsrootfs_url,
-                                           'callback': config.get('callback'),
-                                           'api': api,
-                                           'lab_name': lab_name,
-                                           'callback_name': callback_name,
-                                           'context': context,
-                                    }
-                                    jobs.append(job)
+                                job_params = get_job_params(
+                                    config, template, opts, device, build, defconfig, dtb, plan)
+                                if job_params:
+                                    jobs.append(job_params)
 
-    job_dir = setup_job_dir(config.get('jobs') or lab_name)
+    job_dir = setup_job_dir(config.get('jobs') or config.get('lab'))
     for job in jobs:
-        job_file = job_dir + '/' + job['name'] + '.yaml'
+        job_file = os.path.join(job_dir, '.'.join([job['name'], 'yaml']))
         with open(job_file, 'w') as f:
             f.write(jinja_render(job))
         print "Job written: %s" % job_file
