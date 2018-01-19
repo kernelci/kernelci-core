@@ -193,6 +193,55 @@ def get_job_params(config, template, opts, device, build, defconfig, dtb, plan):
 
     return job_params
 
+
+def job_is_valid(config, device, opts, defconfig, arch, dtb, plan):
+    git_describe = config.get('describe')
+    lab = config.get('lab')
+    device_type = device['device_type']
+    if defconfig in device['defconfig_blacklist']:
+        print("defconfig {} is blacklisted for device {}"
+              .format(defconfig, device_type))
+    elif (device.has_key('defconfig_whitelist')
+          and defconfig not in device['defconfig_whitelist']):
+        print("defconfig {} is not in whitelist for device {}"
+              .format(defconfig, device_type))
+    elif device.has_key('arch_blacklist') and arch in device['arch_blacklist']:
+        print("arch {} is blacklisted for device {}".format(arch, device_type))
+    elif (device.has_key('lab_blacklist') and lab in device['lab_blacklist']):
+        print("device {} is blacklisted for lab {}".format(device_type, lab))
+    elif "BIG_ENDIAN" in defconfig and not device.get('boot_be', False):
+        print("BIG_ENDIAN is not supported on {}".format(device_type))
+    elif "LPAE" in defconfig and not device['lpae']:
+        print("LPAE is not supported on {}".format(device_type))
+    elif any([x for x in device['kernel_blacklist'] if x in git_describe]):
+        print("git_describe {} is blacklisted for device {}"
+              .format(git_describe, device_type))
+    elif (any([x for x in device['nfs_blacklist'] if x in git_describe])
+          and plan in ['boot-nfs', 'boot-nfs-mp']):
+        print("git_describe {} is blacklisted for NFS on device {}"
+              .format(git_describe, device_type))
+    elif ('be_blacklist' in device
+          and any([x for x in device['be_blacklist'] if x in git_describe])
+          and device.get('boot_be', False)):
+        print("git_describe {} is blacklisted for BE on device {}"
+              .format(git_describe, device_type))
+    elif (plan != 'boot'
+          and opts['arch_defconfig'] not in opts['plan_defconfigs']):
+        print("defconfig {} not in test plan {}"
+              .format(opts['arch_defconfig'], plan))
+    elif (config.get('targets') and device_type not in config.get('targets')):
+        pass
+    elif (arch == 'x86' and dtb == 'x86-32'
+          and 'i386' not in opts['arch_defconfig']):
+        print("{} is not a 32-bit x86 build, skipping for 32-bit device {}"
+              .format(defconfig, device_type))
+    elif 'kselftest' in defconfig and plan != 'kselftest':
+        print("Skipping kselftest defconfig because plan was not kselftest")
+    else:
+        return True
+    return False
+
+
 def main(args):
     config = configuration.get_config(args)
     token = config.get('token')
@@ -213,13 +262,12 @@ def main(args):
     print("Number of builds: {}".format(len(builds)))
 
     arch = config.get('arch')
-    git_describe = config.get('describe')
     cwd = os.getcwd()
     jobs = []
     for build in builds:
         defconfig = build['defconfig_full']
         print("Working on build {}".format(' '.join(
-            [config.get('tree'), config.get('branch'), git_describe,
+            [config.get('tree'), config.get('branch'), config.get('describe'),
              arch, defconfig])))
 
         if build.get('status') != 'PASS':
@@ -266,47 +314,7 @@ def main(args):
                     dtb = str(dtb).split('/')[-1]
                 if dtb in device_map:
                     for device in device_map[dtb]:
-                        if defconfig in device['defconfig_blacklist']:
-                            print("defconfig {} is blacklisted for device {}"
-                                  .format(defconfig, device['device_type']))
-                        elif device.has_key('defconfig_whitelist') and defconfig not in device['defconfig_whitelist']:
-                            print("defconfig {} is not in whitelist for device {}"
-                                  .format(defconfig, device['device_type']))
-                        elif device.has_key('arch_blacklist') and arch in device['arch_blacklist']:
-                            print("arch {} is blacklisted for device {}"
-                                  .format(arch, device['device_type']))
-                        elif device.has_key('lab_blacklist') and config.get('lab') in device['lab_blacklist']:
-                            print("device {} is blacklisted for lab {}"
-                                  .format(device['device_type'], config.get('lab')))
-                        elif "BIG_ENDIAN" in defconfig and not device.get('boot_be', False):
-                            print("BIG_ENDIAN is not supported on {}"
-                                  .format(device['device_type']))
-                        elif "LPAE" in defconfig and not device['lpae']:
-                            print("LPAE is not supported on {}"
-                                  .format(device['device_type']))
-                        elif any([x for x in device['kernel_blacklist'] if x in git_describe]):
-                            print("git_describe {} is blacklisted for device {}"
-                                  .format(git_describe, device['device_type']))
-                        elif any([x for x in device['nfs_blacklist'] if x in git_describe]) \
-                                and plan in ['boot-nfs', 'boot-nfs-mp']:
-                            print("git_describe {} is blacklisted for NFS on device {}"
-                                  .format(git_describe, device['device_type']))
-                        elif 'be_blacklist' in device \
-                                and any([x for x in device['be_blacklist'] if x in git_describe]) \
-                                and device.get('boot_be', False):
-                            print("git_describe {} is blacklisted for BE on device {}"
-                                  .format(git_describe, device['device_type']))
-                        elif plan != 'boot' and opts['arch_defconfig'] not in opts['plan_defconfigs']:
-                            print("defconfig {} not in test plan {}"
-                                  .format(opts['arch_defconfig'], plan))
-                        elif config.get('targets') and device['device_type'] not in config.get('targets'):
-                            pass
-                        elif arch == 'x86' and dtb == 'x86-32' and 'i386' not in opts['arch_defconfig']:
-                            print("{} is not a 32-bit x86 build, skipping for 32-bit device {}"
-                                  .format(defconfig, device['device_type']))
-                        elif 'kselftest' in defconfig and plan != 'kselftest':
-                            print("Skipping kselftest defconfig because plan was not kselftest")
-                        else:
+                        if job_is_valid(config, device, opts, defconfig, arch, dtb, plan):
                             for template in device['templates']:
                                 job_params = get_job_params(
                                     config, template, opts, device, build, defconfig, dtb, plan)
