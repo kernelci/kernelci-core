@@ -84,7 +84,7 @@ def get_builds(api, token, config):
     return builds
 
 
-def get_job_params(config, template, opts, device, build, defconfig, dtb, plan):
+def get_job_params(config, template, opts, device, build, defconfig, plan):
     short_template_file = os.path.join(plan, template)
     template_file = os.path.join('templates', short_template_file)
     if not (template_file.endswith('.jinja2')
@@ -95,7 +95,7 @@ def get_job_params(config, template, opts, device, build, defconfig, dtb, plan):
     storage = config.get('storage')
     job_name = '-'.join([
         config.get('tree'), config.get('branch'), config.get('describe'),
-        arch, defconfig[:100], dtb, device['device_type'], plan])
+        arch, defconfig[:100], opts['dtb'], device['device_type'], plan])
 
     url_px = '/'.join([
         build['job'], build['git_branch'], build['kernel'], arch, defconfig])
@@ -106,7 +106,7 @@ def get_job_params(config, template, opts, device, build, defconfig, dtb, plan):
     if dtb_full.endswith('.dtb'):
         dtb_url = urlparse.urljoin(
             storage, '/'.join([url_px, 'dtbs', dtb_full]))
-        platform = dtb[:-4]
+        platform = opts['dtb'].split('.')[0]
     else:
         dtb_url = None
         platform = device['device_type']
@@ -147,7 +147,7 @@ def get_job_params(config, template, opts, device, build, defconfig, dtb, plan):
     job_params = {
         'name': job_name,
         'dtb_url': dtb_url,
-        'dtb_short': dtb,
+        'dtb_short': opts['dtb'],
         'dtb_full': dtb_full,
         'platform': platform,
         'mach': device['mach'],
@@ -194,7 +194,7 @@ def get_job_params(config, template, opts, device, build, defconfig, dtb, plan):
     return job_params
 
 
-def job_is_valid(config, device, opts, defconfig, arch, dtb, plan):
+def job_is_valid(config, device, opts, defconfig, arch, plan):
     git_describe = config.get('describe')
     lab = config.get('lab')
     device_type = device['device_type']
@@ -231,7 +231,7 @@ def job_is_valid(config, device, opts, defconfig, arch, dtb, plan):
               .format(opts['arch_defconfig'], plan))
     elif (config.get('targets') and device_type not in config.get('targets')):
         pass
-    elif (arch == 'x86' and dtb == 'x86-32'
+    elif (arch == 'x86' and opts['dtb'] == 'x86-32'
           and 'i386' not in opts['arch_defconfig']):
         print("{} is not a 32-bit x86 build, skipping for 32-bit device {}"
               .format(defconfig, device_type))
@@ -240,6 +240,17 @@ def job_is_valid(config, device, opts, defconfig, arch, dtb, plan):
     else:
         return True
     return False
+
+
+def add_jobs(jobs, config, opts, build, plan, arch, defconfig):
+    for device in device_map[opts['dtb']]:
+        if not job_is_valid(config, device, opts, defconfig, arch, plan):
+            continue
+        for template in device['templates']:
+            job_params = get_job_params(
+                config, template, opts, device, build, defconfig, plan)
+            if job_params:
+                jobs.append(job_params)
 
 
 def main(args):
@@ -308,18 +319,15 @@ def main(args):
                 })
 
             for dtb in build['dtb_dir_data']:
-                # hack for arm64 dtbs in subfolders
                 opts['dtb_full'] = dtb
+                # hack for arm64 dtbs in subfolders
                 if arch == 'arm64':
-                    dtb = str(dtb).split('/')[-1]
-                if dtb in device_map:
-                    for device in device_map[dtb]:
-                        if job_is_valid(config, device, opts, defconfig, arch, dtb, plan):
-                            for template in device['templates']:
-                                job_params = get_job_params(
-                                    config, template, opts, device, build, defconfig, dtb, plan)
-                                if job_params:
-                                    jobs.append(job_params)
+                    dtb = os.path.basename(dtb)
+                opts['dtb'] = dtb
+                if dtb not in device_map:
+                    continue
+
+                add_jobs(jobs, config, opts, build, plan, arch, defconfig)
 
     job_dir = setup_job_dir(config.get('jobs') or config.get('lab'))
     for job in jobs:
