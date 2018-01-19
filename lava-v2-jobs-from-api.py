@@ -46,47 +46,27 @@ INITRD_URL = '/'.join([ROOTFS_URL, 'buildroot/{}/rootfs.cpio.gz'])
 NFSROOTFS_URL = '/'.join([ROOTFS_URL, 'buildroot/{}/rootfs.tar.xz'])
 KSELFTEST_INITRD_URL = '/'.join([ROOTFS_URL, 'buildroot/{}/tests/rootfs.cpio.gz'])
 
-def main(args):
-    config = configuration.get_config(args)
-    plans = config.get("plans")
-    targets = config.get("targets")
-    lab_name = config.get('lab')
-    job_dir = setup_job_dir(config.get('jobs') or lab_name)
-    token = config.get('token')
-    api = config.get('api')
-    storage = config.get('storage')
-
-    if not token:
-        raise Exception("No token provided")
-    if not api:
-        raise Exception("No KernelCI API URL provided")
-    if not storage:
-        raise Exception("No KernelCI storage URL provided")
-
-    arch = args.get('arch')
-    plans = args.get('plans')
-    branch = args.get('branch')
-    git_describe = args.get('describe')
-    tree = args.get('tree')
-    expected = int(args.get('defconfigs'))
+def get_builds(api, token, config):
     headers = {
         "Authorization": token,
     }
-
-    print "Working on kernel %s/%s" % (tree, branch)
     url_params = {
-        'job': tree,
-        'kernel': git_describe,
-        'git_branch': branch,
-        'arch': arch,
+        'job': config.get('tree'),
+        'kernel': config.get('describe'),
+        'git_branch': config.get('branch'),
+        'arch': config.get('arch'),
     }
-    job_defconfig = args.get('defconfig_full')
+    job_defconfig = config.get('defconfig_full')
     if job_defconfig:
-        print("Single defconfig: {}".format(job_defconfig))
         url_params['defconfig_full'] = job_defconfig
+        n_configs = 1
+    else:
+        n_configs = int(config.get('defconfigs'))
     url_params = urllib.urlencode(url_params)
     url = urlparse.urljoin(api, 'build?{}'.format(url_params))
-    print "Calling KernelCI API: %s" % url
+
+    print("Calling KernelCI API: {}".format(url))
+
     builds = []
     loops = 10
     retry_time = 30
@@ -95,12 +75,41 @@ def main(args):
         response.raise_for_status()
         data = json.loads(response.content)
         builds = data['result']
-        if len(builds) >= expected:
+        if len(builds) >= n_configs:
             break
-        print "Got less builds (%s) than expected (%s), retry in %s seconds" % (len(builds), expected, retry_time)
+        print("Got fewer builds ({}) than expected ({}), retry in {} seconds"
+              .format(len(builds), n_configs, retry_time))
         time.sleep(retry_time)
 
+    return builds
+
+
+def main(args):
+    config = configuration.get_config(args)
+    token = config.get('token')
+    api = config.get('api')
+    storage = config.get('storage')
+
+    if not token:
+        raise Exception("No KernelCI API token provided")
+    if not api:
+        raise Exception("No KernelCI API URL provided")
+    if not storage:
+        raise Exception("No KernelCI storage URL provided")
+
+    print("Working on kernel {}/{}".format(
+        config.get('tree'), config.get('branch')))
+
+    builds = get_builds(api, token, config)
     print("Number of builds: {}".format(len(builds)))
+
+    plans = config.get("plans")
+    targets = config.get("targets")
+    lab_name = config.get('lab')
+    arch = config.get('arch')
+    branch = config.get('branch')
+    tree = config.get('tree')
+    git_describe = config.get('describe')
     jobs = []
     cwd = os.getcwd()
     for build in builds:
@@ -251,7 +260,7 @@ def main(args):
                                                'tree': tree,
                                                'defconfig': defconfig,
                                                'fastboot': fastboot,
-                                               'priority': args.get('priority'),
+                                               'priority': config.get('priority'),
                                                'device_type': device_type,
                                                'template_file': template_file,
                                                'base_url': base_url,
@@ -272,7 +281,7 @@ def main(args):
                                                'kernel_image': build['kernel_image'],
                                                'dtb_short': dtb,
                                                'nfsrootfs_url': nfsrootfs_url,
-                                               'callback': args.get('callback'),
+                                               'callback': config.get('callback'),
                                                'api': api,
                                                'lab_name': lab_name,
                                                'callback_name': callback_name,
@@ -282,6 +291,7 @@ def main(args):
             else:
                 print "no kernel_image for %s" % build['defconfig_full']
 
+    job_dir = setup_job_dir(config.get('jobs') or lab_name)
     for job in jobs:
         job_file = job_dir + '/' + job['name'] + '.yaml'
         with open(job_file, 'w') as f:
@@ -297,6 +307,7 @@ def jinja_render(job):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument("--config", help="path to KernelCI configuration file")
     parser.add_argument("--token", help="KernelCI API Token")
     parser.add_argument("--api", help="KernelCI API URL")
     parser.add_argument("--storage", help="KernelCI storage URL")
@@ -305,7 +316,6 @@ if __name__ == '__main__':
     parser.add_argument("--tree", help="KernelCI build kernel tree", required=True)
     parser.add_argument("--branch", help="KernelCI build kernel branch", required=True)
     parser.add_argument("--describe", help="KernelCI build kernel git describe", required=True)
-    parser.add_argument("--config", help="path to KernelCI configuration file")
     parser.add_argument("--section", default="default", help="section in the KernelCI config file")
     parser.add_argument("--plans", nargs='+', required=True, help="test plan to create jobs for")
     parser.add_argument("--arch", help="specific architecture to create jobs for", required=True)
