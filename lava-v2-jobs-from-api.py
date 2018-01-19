@@ -253,6 +253,18 @@ def add_jobs(jobs, config, opts, build, plan, arch, defconfig):
                 jobs.append(job_params)
 
 
+def write_jobs(config, jobs):
+    job_dir = setup_job_dir(config.get('jobs') or config.get('lab'))
+    for job in jobs:
+        job_file = os.path.join(job_dir, '.'.join([job['name'], 'yaml']))
+        with open(job_file, 'w') as f:
+            env = Environment(loader=FileSystemLoader('templates'))
+            template = env.get_template(job['short_template_file'])
+            data = template.render(job)
+            f.write(data)
+        print("Job written: {}".format(job_file))
+
+
 def main(args):
     config = configuration.get_config(args)
     token = config.get('token')
@@ -329,18 +341,7 @@ def main(args):
 
                 add_jobs(jobs, config, opts, build, plan, arch, defconfig)
 
-    job_dir = setup_job_dir(config.get('jobs') or config.get('lab'))
-    for job in jobs:
-        job_file = os.path.join(job_dir, '.'.join([job['name'], 'yaml']))
-        with open(job_file, 'w') as f:
-            f.write(jinja_render(job))
-        print "Job written: %s" % job_file
-
-
-def jinja_render(job):
-    env = Environment(loader=FileSystemLoader('templates'))
-    template = env.get_template(job['short_template_file'])
-    return template.render(job)
+    write_jobs(config, jobs)
 
 
 if __name__ == '__main__':
