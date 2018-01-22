@@ -113,9 +113,9 @@ fi
 git reset --hard
 echo 'build-*' > .git/info/exclude
 git clean -fd
-git bisect reset || echo
-git checkout --detach HEAD
-git branch -D ${params.KERNEL_BRANCH} || echo
+git bisect reset || echo -n
+git checkout --detach HEAD || echo -n
+git branch -D ${params.KERNEL_BRANCH} || echo -n
 for t in \$(git tag -l | grep ${env.JOB_NAME}); do git tag -d \$t; done
 git fetch ${params.TREE} ${params.KERNEL_BRANCH} --tags
 git checkout FETCH_HEAD -b ${params.KERNEL_BRANCH}
