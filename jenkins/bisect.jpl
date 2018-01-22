@@ -220,7 +220,7 @@ def buildRevision(kdir, kci_build, git_rev, name) {
  * kernel test with LAVA v2
  */
 
-def submitJob(lava_ci, describe) {
+def submitJob(lava_ci, describe, hook) {
     dir(lava_ci) {
         sh(script: "rm -rf data; mkdir data")
 
@@ -241,6 +241,9 @@ def submitJob(lava_ci, describe) {
 --defconfig_full=${params.DEFCONFIG} \
 --priority=${params.LAVA_PRIORITY} \
 --callback=${params.LAVA_CALLBACK} \
+--callback-url=${hook.getURL()} \
+--callback-dataset=results \
+--callback-type=custom \
 --targets=${params.TARGET}
 """)
         }
@@ -255,35 +258,31 @@ PYTHON_EGG_CACHE=${egg_cache} \
 --username=kernel-ci \
 --token=${SECRET} \
 --lab=${params.LAB} \
---jobs=data \
---submitted=data/submitted.json
+--jobs=data
 """)
         }
-
-        stash(name: "job-data", includes: "data/**")
     }
 }
 
-def getResult(lava_ci) {
-    def status
+def getResult(lava_ci, hook) {
+    def status = null
 
     dir(lava_ci) {
-        sh(script: "rm -rf data")
-        unstash("job-data")
-        def egg_cache = eggCache()
-        withCredentials([string(credentialsId: params.KCI_TOKEN_ID,
-                                variable: 'SECRET')]) {
+        echo "Waiting for job results..."
+        def data = waitForWebhook(hook)
+        def json_file = 'callback.json'
+        writeFile(file: json_file, text: data)
+        def token = "${params.LAB}-bisection-webhook"
+        withCredentials([string(credentialsId: token, variable: 'SECRET')]) {
+            def egg_cache = eggCache()
             status = sh(returnStatus: true, script: """
 PYTHON_EGG_CACHE=${egg_cache} \
-./lava-v2-get-boot-results.py \
---lab=${params.LAB} \
+./lava-v2-callback.py \
 --token=${SECRET} \
---api=${params.KCI_API_URL} \
---submitted=data/submitted.json \
---period=30 \
---output=data/boots.json
+${json_file}
 """)
         }
+        sh(script: "rm -f ${json_file}")
     }
 
     return status
@@ -291,8 +290,9 @@ PYTHON_EGG_CACHE=${egg_cache} \
 
 def runTest(lava_ci, describe) {
     cloneLAVA_CI(lava_ci)
-    submitJob(lava_ci, describe)
-    return getResult(lava_ci)
+    def hook = registerWebhook()
+    submitJob(lava_ci, describe, hook)
+    return getResult(lava_ci, hook)
 }
 
 /* ----------------------------------------------------------------------------
