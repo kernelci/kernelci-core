@@ -253,40 +253,11 @@ def add_jobs(jobs, config, opts, build, plan, arch, defconfig):
                 jobs.append(job_params)
 
 
-def write_jobs(config, jobs):
-    job_dir = setup_job_dir(config.get('jobs') or config.get('lab'))
-    for job in jobs:
-        job_file = os.path.join(job_dir, '.'.join([job['name'], 'yaml']))
-        with open(job_file, 'w') as f:
-            env = Environment(loader=FileSystemLoader('templates'))
-            template = env.get_template(job['short_template_file'])
-            data = template.render(job)
-            f.write(data)
-        print("Job written: {}".format(job_file))
-
-
-def main(args):
-    config = configuration.get_config(args)
-    token = config.get('token')
-    api = config.get('api')
-    storage = config.get('storage')
-
-    if not token:
-        raise Exception("No KernelCI API token provided")
-    if not api:
-        raise Exception("No KernelCI API URL provided")
-    if not storage:
-        raise Exception("No KernelCI storage URL provided")
-
-    print("Working on kernel {}/{}".format(
-        config.get('tree'), config.get('branch')))
-
-    builds = get_builds(api, token, config)
-    print("Number of builds: {}".format(len(builds)))
-
+def get_jobs_from_builds(config, builds):
     arch = config.get('arch')
     cwd = os.getcwd()
     jobs = []
+
     for build in builds:
         defconfig = build['defconfig_full']
         print("Working on build {}".format(' '.join(
@@ -340,6 +311,43 @@ def main(args):
                     continue
 
                 add_jobs(jobs, config, opts, build, plan, arch, defconfig)
+
+    return jobs
+
+
+def write_jobs(config, jobs):
+    job_dir = setup_job_dir(config.get('jobs') or config.get('lab'))
+    for job in jobs:
+        job_file = os.path.join(job_dir, '.'.join([job['name'], 'yaml']))
+        with open(job_file, 'w') as f:
+            env = Environment(loader=FileSystemLoader('templates'))
+            template = env.get_template(job['short_template_file'])
+            data = template.render(job)
+            f.write(data)
+        print("Job written: {}".format(job_file))
+
+
+def main(args):
+    config = configuration.get_config(args)
+    token = config.get('token')
+    api = config.get('api')
+    storage = config.get('storage')
+
+    if not token:
+        raise Exception("No KernelCI API token provided")
+    if not api:
+        raise Exception("No KernelCI API URL provided")
+    if not storage:
+        raise Exception("No KernelCI storage URL provided")
+
+    print("Working on kernel {}/{}".format(
+        config.get('tree'), config.get('branch')))
+
+    builds = get_builds(api, token, config)
+    print("Number of builds: {}".format(len(builds)))
+
+    jobs = get_jobs_from_builds(config, builds)
+    print("Number of jobs: {}".format(len(jobs)))
 
     write_jobs(config, jobs)
 
