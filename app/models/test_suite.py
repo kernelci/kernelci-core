@@ -147,7 +147,7 @@ class TestSuiteDocument(modb.BaseDocument):
         self._created_on = value
 
     def to_dict(self):
-        return {
+        test_suite = {
             models.ARCHITECTURE_KEY: self.arch,
             models.BOARD_INSTANCE_KEY: self.board_instance,
             models.BOARD_KEY: self.board,
@@ -173,7 +173,6 @@ class TestSuiteDocument(modb.BaseDocument):
             models.GIT_COMMIT_KEY: self.git_commit,
             models.GIT_DESCRIBE_KEY: self.git_describe,
             models.GIT_URL_KEY: self.git_url,
-            models.ID_KEY: self.id,
             models.INITRD_ADDR_KEY: self.initrd_addr,
             models.JOB_ID_KEY: self.job_id,
             models.JOB_KEY: self.job,
@@ -195,6 +194,11 @@ class TestSuiteDocument(modb.BaseDocument):
             models.VERSION_KEY: self.version,
             models.WARNINGS_KEY: self.warnings,
         }
+
+        if self.id:
+            test_suite[models.ID_KEY] = self.id
+
+        return test_suite
 
     @staticmethod
     def from_json(json_obj):
