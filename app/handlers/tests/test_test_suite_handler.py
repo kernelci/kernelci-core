@@ -361,25 +361,6 @@ class TestTestSuiteHandler(TestHandlerBase):
 
     @mock.patch("bson.objectid.ObjectId")
     @mock.patch("utils.db.find_one2")
-    def test_post_correct_boot_not_found(self, mock_find, mock_oid):
-        mock_oid.side_effect = ["build-id", "boot-id"]
-        mock_find.side_effect = [{"_id": "fake-id"}, None]
-        headers = {"Authorization": "foo", "Content-Type": "application/json"}
-        body = json.dumps(
-            dict(
-                name="test", lab_name="lab_name", version="1.0",
-                build_id="build-id", boot_id="boot_id")
-        )
-
-        response = self.fetch(
-            "/test/suite", method="POST", headers=headers, body=body)
-
-        self.assertEqual(response.code, 400)
-        self.assertEqual(
-            response.headers["Content-Type"], self.content_type)
-
-    @mock.patch("bson.objectid.ObjectId")
-    @mock.patch("utils.db.find_one2")
     def test_post_correct_job_not_found(self, mock_find, mock_oid):
         mock_oid.side_effect = ["build-id", "job-id"]
         mock_find.side_effect = [{"_id": "fake-id"}, None]
@@ -388,28 +369,6 @@ class TestTestSuiteHandler(TestHandlerBase):
             dict(
                 name="test", lab_name="lab_name", version="1.0",
                 build_id="build-id", job_id="job_id")
-        )
-
-        response = self.fetch(
-            "/test/suite", method="POST", headers=headers, body=body)
-
-        self.assertEqual(response.code, 400)
-        self.assertEqual(
-            response.headers["Content-Type"], self.content_type)
-
-    @mock.patch("bson.objectid.ObjectId")
-    @mock.patch("utils.db.find_one2")
-    def test_post_correct_boot_not_found2(self, mock_find, mock_oid):
-        mock_oid.side_effect = ["build-id", "job-id", "boot-id"]
-        mock_find.side_effect = [{"_id": "fake-id"}, {"_id": "fake-job"}, None]
-        headers = {"Authorization": "foo", "Content-Type": "application/json"}
-        body = json.dumps(
-            dict(
-                name="test",
-                lab_name="lab_name",
-                version="1.0",
-                build_id="build-id",
-                job_id="job_id", boot_id="boot_id")
         )
 
         response = self.fetch(

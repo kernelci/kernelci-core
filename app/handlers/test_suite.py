@@ -52,7 +52,7 @@ class TestSuiteHandler(htbase.TestBaseHandler):
         else:
             # TODO: double check the token with its lab name, we need to make
             # sure people are sending test reports with a token lab with the
-            # correct lab name value. Check the boot handler.
+            # correct lab name value.
             suite_json = kwargs.get("json_obj", None)
             suite_pop = suite_json.pop
             suite_get = suite_json.get
@@ -68,8 +68,7 @@ class TestSuiteHandler(htbase.TestBaseHandler):
                 # Make sure the *_id values passed are valid.
                 ret_val, error = self._check_references(
                     suite_get(models.BUILD_ID_KEY, None),
-                    suite_get(models.JOB_ID_KEY, None),
-                    suite_get(models.BOOT_ID_KEY, None)
+                    suite_get(models.JOB_ID_KEY, None)
                 )
 
                 if ret_val == 200:
@@ -263,8 +262,7 @@ class TestSuiteHandler(htbase.TestBaseHandler):
             response.reason = "Wrong ID specified"
         else:
             if utils.db.find_one2(self.collection, suite_id):
-                # TODO: handle case where boot_id, job_id or build_id
-                # is updated.
+                # TODO: handle case where job_id or build_id is updated.
                 update_val = utils.db.update(
                     self.collection, {models.ID_KEY: suite_id}, update_doc)
 
@@ -322,15 +320,13 @@ class TestSuiteHandler(htbase.TestBaseHandler):
         return response
 
     # TODO: consider caching results here as well.
-    def _check_references(self, build_id, job_id, boot_id):
+    def _check_references(self, build_id, job_id):
         """Check that the provided IDs are valid.
 
         :param build_id: The ID of the associated build.
         :type build_id: string
         :param job_id: The ID of the associated job.
         :type job_id: string
-        :param boot_id: The ID of the associated boot report.
-        :type boot_id: string
         """
         ret_val = 200
         error = None
@@ -339,12 +335,10 @@ class TestSuiteHandler(htbase.TestBaseHandler):
             build_oid = bson.objectid.ObjectId(build_id)
             if job_id:
                 job_oid = bson.objectid.ObjectId(job_id)
-            if boot_id:
-                boot_oid = bson.objectid.ObjectId(boot_id)
         except bson.errors.InvalidId, ex:
             self.log.exception(ex)
             ret_val = 400
-            error = "Invalid value passed for build_id, job_id, or boot_id"
+            error = "Invalid value passed for build_id or job_id"
         else:
             build_doc = utils.db.find_one2(
                 self.db[models.BUILD_COLLECTION], build_oid, [models.ID_KEY])
@@ -359,14 +353,5 @@ class TestSuiteHandler(htbase.TestBaseHandler):
                     if not job_doc:
                         ret_val = 400
                         error = "Job document with ID '%s' not found" % job_id
-
-                if all([boot_id, error is None]):
-                    boot_doc = utils.db.find_one2(
-                        self.db[models.BOOT_COLLECTION],
-                        boot_oid, [models.ID_KEY])
-                    if not boot_doc:
-                        ret_val = 400
-                        error = (
-                            "Boot document with ID '%s' not found" % boot_id)
 
         return ret_val, error
