@@ -400,7 +400,7 @@ def _get_test_case_data(suite_results, suite_name):
 
     for test in tests:
         test_case = {
-            models.VERSION_KEY: "1.0",
+            models.VERSION_KEY: "1.1",
             models.TIME_KEY: "0.0",
         }
         test_case.update({k: test[v] for k, v in TEST_CASE_MAP.iteritems()})
@@ -453,7 +453,7 @@ def add_tests(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
             suite_name = suite_name.split("_")[1]
 
         suite_data = {
-            models.VERSION_KEY: "1.0",
+            models.VERSION_KEY: "1.1",
             models.LAB_NAME_KEY: lab_name,
             models.TIME_KEY: "0.0",
             models.NAME_KEY: suite_name,
