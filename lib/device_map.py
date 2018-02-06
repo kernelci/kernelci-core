@@ -14,8 +14,9 @@
 # Copyright (C) 2016, 2017 Pengutronix
 # Author: Michael Grzeschik <m.grzeschik@pengutronix.de>
 #
-# Copyright (C) 2017 Collabora Limited
+# Copyright (C) 2017, 2018 Collabora Limited
 # Author: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+# Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 #
 # This module is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -900,6 +901,17 @@ rk3288_veyron_jaq = {'device_type': 'rk3288-veyron-jaq',
                      'lpae': True,
                      'fastboot': False,
                      'mach': 'rockchip'}
+
+rk3399_gru_kevin = {'device_type': 'rk3399-gru-kevin',
+                    'templates': ['generic-depthcharge-tftp-ramdisk-template.jinja2',
+                                  'generic-depthcharge-tftp-nfs-template.jinja2'],
+                    'kernel_defconfig_blacklist': [],
+                    'defconfig_blacklist': ['allmodconfig'],
+                    'kernel_blacklist': [],
+                    'nfs_blacklist': [],
+                    'lpae': True,
+                    'fastboot': False,
+                    'mach': 'rockchip'}
 
 rk3399_puma_haikou = {'device_type': 'rk3399-puma-haikou',
                'templates': ['generic-uboot-tftp-ramdisk-template.jinja2',
@@ -1800,6 +1812,7 @@ device_map = {'alpine-db.dtb': [alpine_db],
               'sun9i-a80-cubieboard4.dtb': [cubieboard4],
               'rk3288-rock2-square.dtb': [rk3288_rock2_square],
               'rk3288-veyron-jaq.dtb': [rk3288_veyron_jaq],
+              'rk3399-gru-kevin.dtb': [rk3399_gru_kevin],
               'rk3399-puma-haikou.dtb': [rk3399_puma_haikou],
 #              'zx296702-ad1.dtb': [zx296702_ad1],
               'vexpress-v2p-ca15-tc1.dtb': [qemu_arm_cortex_a15],
