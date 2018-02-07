@@ -377,6 +377,15 @@ def runCheck(kdir, kci_build, git_commit, name, run_status) {
     return check
 }
 
+def checkAbort(passed, message) {
+    if (!passed) {
+        echo message
+        currentBuild.result = 'ABORTED'
+    }
+
+    return passed
+}
+
 node("bisection") {
     /* Global pipeline constants */
     env._BUILD_JSON = "build-data.json"
@@ -384,6 +393,7 @@ node("bisection") {
     def kci_build = env.WORKSPACE + '/kernelci-build'
     def kdir = env.WORKSPACE + '/linux'
     def check = null
+    def checks = [:]
 
     def params_summary = """\
     Tree:      ${params.KERNEL_TREE}
@@ -417,34 +427,23 @@ ${params_summary}"""
         stage("Check pass") {
             check = runCheck(kdir, kci_build, params.GOOD_COMMIT, 'pass', 0)
         }
-
-        if (!check) {
-            echo "Good revision check failed"
-            currentBuild.result = 'ABORTED'
+        if (!checkAbort(check, "Good revision check failed"))
             return
-        }
 
         stage("Check fail") {
             check = runCheck(kdir, kci_build, params.BAD_COMMIT, 'fail', 2)
         }
-
-        if (!check) {
-            echo "Bad revision check failed"
-            currentBuild.result = 'ABORTED'
+        if (!checkAbort(check, "Bad revision check failed"))
             return
-        }
 
         stage("Start") {
             timeout(time: 5, unit: 'MINUTES') {
                 check = bisectStart(kdir)
             }
         }
-
-        if (!check) {
-            echo "Failed to start bisection, commits range may be invalid."
-            currentBuild.result = 'ABORTED'
+        if (!checkAbort(check,
+                   "Failed to start bisection, commits range may be invalid."))
             return
-        }
 
         def previous = params.GOOD_COMMIT
         def current = getSHA(kdir)
@@ -494,6 +493,24 @@ ${params_summary}"""
             current = getSHA(kdir)
             iteration += 1
         }
+
+        stage("Verify") {
+            check = runCheck(kdir, kci_build, 'refs/bisect/bad', 'verify', 2)
+            checks['verify'] = check ? 'PASS' : 'FAIL'
+        }
+        if (!checkAbort(check, "Result check failed"))
+            return
+
+        stage("Revert") {
+            dir(kdir) {
+                sh(script: "git revert refs/bisect/bad")
+            }
+            check = runCheck(kdir, kci_build, 'HEAD', 'revert', 0)
+            checks['revert'] = check ? 'PASS' : 'FAIL'
+        }
+        if (!check)
+            echo "Warning: revert check failed"
+
     } catch (err) {
         currentBuild.result = "FAILURE"
 
