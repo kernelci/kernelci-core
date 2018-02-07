@@ -10,7 +10,7 @@
 # Copyright (C) 2016 Free Electrons
 # Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 #
-# Copyright (C) 2017 Collabora Ltd
+# Copyright (C) 2017, 2018 Collabora Ltd
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 #
 # This module is free software; you can redistribute it and/or modify it under
@@ -45,6 +45,7 @@ import json
 import platform
 import time
 import requests
+import copy
 import ConfigParser
 from urlparse import urljoin
 
@@ -138,6 +139,7 @@ kconfig_frag = None
 frag_names = []
 install = False
 publish = False
+build_data_json = False
 api = None
 token = None
 job = None
@@ -155,7 +157,7 @@ else:
     os.environ['ARCH'] = arch
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "b:c:ip:sge")
+    opts, args = getopt.getopt(sys.argv[1:], "b:c:ip:sgej:")
 
 except getopt.GetoptError as err:
     print str(err) # will print something like "option -a not recognized"
@@ -208,6 +210,9 @@ for o, a in opts:
         print "Reading build variables from environment"
         publish = True
         use_environment = True
+    if o == '-j':
+        print("Not posting build data but saving to local JSON instead")
+        build_data_json = a
 
 # Default umask for file creation
 os.umask(022)
@@ -463,10 +468,10 @@ if install:
     bmeta["git_describe_v"] =  "%s" %git_describe_v
     bmeta["git_commit"] = "%s" %git_commit
     bmeta["defconfig"] = "%s" %defconfig
+    defconfig_full = defconfig
     if len(frag_names):
-        defconfig_full = defconfig
         defconfig_full += '+' + '+'.join(frag_names)
-        bmeta["defconfig_full"] = defconfig_full
+    bmeta["defconfig_full"] = defconfig_full
 
     if kconfig_frag:
         bmeta["kconfig_fragments"] = "%s" %os.path.basename(kconfig_frag)
@@ -511,10 +516,8 @@ if install:
             publish = False
 
     # Create JSON format build metadata
-    build_json = os.path.join(install_path, 'build.json')
-    build_json_f = open(build_json, 'w')
-    json.dump(bmeta, build_json_f, indent=4, sort_keys=True)
-    build_json_f.close()
+    with open(os.path.join(install_path, 'build.json'), 'w') as json_file:
+        json.dump(bmeta, json_file, indent=4, sort_keys=True)
 
     if publish and job:
         artifacts = []
@@ -549,17 +552,41 @@ if install:
                                    open(os.path.join(root, file_name), 'rb'))))
                 count += 1
         upload_url = urljoin(api, '/upload')
-        build_url = urljoin(api, '/build')
         print("Uploading build to storage...")
         publish_response = do_post_retry(url=upload_url, data=build_data, headers=headers, files=artifacts)
         if not silent:
             print "INFO: published artifacts"
             for publish_result in json.loads(publish_response)["result"]:
                 print "%s/%s" % (publish_path, publish_result['filename'])
-        print "INFO: triggering build"
-        headers['Content-Type'] = 'application/json'
-        print("Posting build data...")
-        do_post_retry(url=build_url, data=json.dumps(build_data), headers=headers)
+
+        if build_data_json:
+            print("Saving build data to {}".format(build_data_json))
+            json_data = copy.deepcopy(build_data)
+            for k in ['kernel_image', 'modules', 'git_commit', 'git_url']:
+                json_data[k] = bmeta[k]
+            json_data['status'] = bmeta['build_result']
+            dtb_data = []
+            if dtb_dest:
+                for root, dirs, files in os.walk(dtb_dest):
+                    if root != dtb_dest:
+                        rel = os.path.relpath(root, dtb_dest)
+                        files = list(os.path.join(rel, dtb) for dtb in files)
+                    dtb_data += files
+            json_data['dtb_dir_data'] = dtb_data
+            try:
+                with open(build_data_json, 'r') as json_file:
+                    full_json = json.load(json_file)
+                full_json.append(json_data)
+            except Exception as e:
+                full_json = [json_data]
+            with open(build_data_json, 'w') as json_file:
+                json.dump(full_json, json_file)
+        else:
+            print("Posting build data...")
+            build_url = urljoin(api, '/build')
+            headers['Content-Type'] = 'application/json'
+            do_post_retry(url=build_url, data=json.dumps(build_data),
+                          headers=headers)
 
 #
 # Cleanup
