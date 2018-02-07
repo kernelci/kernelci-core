@@ -195,6 +195,7 @@ def cloneLAVA_CI(lava_ci) {
 
 def buildKernel(kdir, kci_build) {
     dir(kdir) {
+        sh(script: "rm -f ${env._BUILD_JSON}")
         withCredentials([string(credentialsId: params.KCI_TOKEN_ID,
                                 variable: 'SECRET')]) {
             sh(script: """
@@ -204,8 +205,11 @@ TREE_NAME=${params.KERNEL_TREE} \
 TREE=${params.KERNEL_URL} \
 ARCH=${params.ARCH} \
 BRANCH=${params.KERNEL_BRANCH} \
-""" + kci_build + "/build.py -e -g -i -c ${params.DEFCONFIG}")
+""" + kci_build + """/build.py -e -g -i \
+-j ${env._BUILD_JSON} \
+-c ${params.DEFCONFIG}""")
         }
+        stash(name: env._BUILD_JSON, includes: env._BUILD_JSON)
     }
 }
 
@@ -222,15 +226,15 @@ def buildRevision(kdir, kci_build, git_rev, name) {
 
 def submitJob(lava_ci, describe, hook) {
     dir(lava_ci) {
-        sh(script: "rm -rf data; mkdir data")
+        sh(script: "rm -rf ${env._BUILD_JSON}; rm -rf data; mkdir data")
+        unstash(env._BUILD_JSON)
 
         withCredentials([string(credentialsId: params.KCI_TOKEN_ID,
                                 variable: 'SECRET')]) {
             sh(script: """
 ./lava-v2-jobs-from-api.py \
 --lab=${params.LAB} \
---token=${SECRET} \
---api=${params.KCI_API_URL} \
+--builds=${env._BUILD_JSON} \
 --storage=${params.KCI_STORAGE_URL} \
 --plans=${params.PLAN} \
 --jobs=data \
@@ -374,6 +378,9 @@ def runCheck(kdir, kci_build, git_commit, name, run_status) {
 }
 
 node("bisection") {
+    /* Global pipeline constants */
+    env._BUILD_JSON = "build-data.json"
+
     def kci_build = env.WORKSPACE + '/kernelci-build'
     def kdir = env.WORKSPACE + '/linux'
     def check = null
