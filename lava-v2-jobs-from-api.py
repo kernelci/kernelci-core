@@ -349,18 +349,26 @@ def main(args):
     token = config.get('token')
     api = config.get('api')
     storage = config.get('storage')
-
-    if not token:
-        raise Exception("No KernelCI API token provided")
-    if not api:
-        raise Exception("No KernelCI API URL provided")
-    if not storage:
-        raise Exception("No KernelCI storage URL provided")
+    builds_json = config.get('builds')
 
     print("Working on kernel {}/{}".format(
         config.get('tree'), config.get('branch')))
 
-    builds = get_builds(api, token, config)
+    if not storage:
+        raise Exception("No KernelCI storage URL provided")
+
+    if builds_json:
+        print("Getting builds from {}".format(builds_json))
+        with open(builds_json) as json_file:
+            builds = json.load(json_file)
+    else:
+        print("Getting builds from KernelCI API")
+        if not token:
+            raise Exception("No KernelCI API token provided")
+        if not api:
+            raise Exception("No KernelCI API URL provided")
+        builds = get_builds(api, token, config)
+
     print("Number of builds: {}".format(len(builds)))
 
     jobs = get_jobs_from_builds(config, builds)
@@ -379,6 +387,8 @@ if __name__ == '__main__':
                         help="KernelCI API URL")
     parser.add_argument("--storage",
                         help="KernelCI storage URL")
+    parser.add_argument("--builds",
+                        help="Path to a JSON file to use rather than the API")
     parser.add_argument("--lab", required=True,
                         help="KernelCI Lab Name")
     parser.add_argument("--jobs",
