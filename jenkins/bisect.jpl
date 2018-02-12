@@ -45,6 +45,8 @@ LAB
   Name of the lab in which to run the bisection tests
 PLAN (boot)
   Name of the test plan
+TEST_RUNS (1)
+  Number of LAVA jobs to run before considering pass or fail.
 KCI_API_URL (https://api.kernelci.org)
   URL of the KernelCI backend API
 KCI_TOKEN_ID
@@ -292,11 +294,25 @@ ${json_file}
     return status
 }
 
-def runTest(lava_ci, describe) {
+def runTest(lava_ci, describe, expected=0, runs=0) {
+    if (!runs)
+        runs = params.TEST_RUNS.toInteger()
+
     cloneLAVA_CI(lava_ci)
-    def hook = registerWebhook()
-    submitJob(lava_ci, describe, hook)
-    return getResult(lava_ci, hook)
+
+    def status = null
+
+    for (int i = 1; i <= runs; i++) {
+        echo "Run ${i} / ${runs}"
+        def hook = registerWebhook()
+        submitJob(lava_ci, describe, hook)
+        status = getResult(lava_ci, hook)
+
+        if (status != expected)
+            break;
+    }
+
+    return status
 }
 
 /* ----------------------------------------------------------------------------
@@ -344,7 +360,7 @@ def bisectNext(kdir, status) {
  * pipeline
  */
 
-def runCheck(kdir, kci_build, git_commit, name, run_status) {
+def runCheck(kdir, kci_build, git_commit, name, run_status, runs=0) {
     def check = null
     def tag = null
 
@@ -367,7 +383,7 @@ def runCheck(kdir, kci_build, git_commit, name, run_status) {
     node("kernel-boot-v2") {
         timeout(time: 120, unit: 'MINUTES') {
             def lava_ci = env.WORKSPACE + '/lava-ci'
-            def status = runTest(lava_ci, describe)
+            def status = runTest(lava_ci, describe, run_status, runs)
             check = (status == run_status ? true : false)
         }
     }
@@ -515,7 +531,7 @@ ${params_summary}"""
         }
 
         stage("Verify") {
-            check = runCheck(kdir, kci_build, 'refs/bisect/bad', 'verify', 2)
+            check = runCheck(kdir, kci_build, 'refs/bisect/bad', 'verify', 2,3)
             checks['verify'] = check ? 'PASS' : 'FAIL'
         }
         if (!checkAbort(check, "Result check failed"))
@@ -525,7 +541,7 @@ ${params_summary}"""
             dir(kdir) {
                 sh(script: "git revert refs/bisect/bad")
             }
-            check = runCheck(kdir, kci_build, 'HEAD', 'revert', 0)
+            check = runCheck(kdir, kci_build, 'HEAD', 'revert', 0, 3)
             checks['revert'] = check ? 'PASS' : 'FAIL'
         }
         if (!check)
