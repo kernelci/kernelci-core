@@ -219,8 +219,7 @@ os.umask(022)
 
 # Set number of make threads to number of local processors + 2
 if os.path.exists('/proc/cpuinfo'):
-    output = subprocess.check_output('grep -c processor /proc/cpuinfo',
-                                     shell=True)
+    output = subprocess.check_output('nproc', shell=True)
     make_threads = int(output) + 2
 
 # CROSS_COMPILE
