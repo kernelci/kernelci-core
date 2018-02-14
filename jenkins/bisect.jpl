@@ -147,6 +147,7 @@ def buildKernel(kdir, kci_build) {
 API=${params.API} \
 TOKEN=${SECRET} \
 TREE_NAME=${params.TREE} \
+TREE=${params.KERNEL_URL} \
 ARCH=${params.ARCH} \
 BRANCH=${params.KERNEL_BRANCH} \
 """ + kci_build + "/build.py -e -g -i -c ${params.DEFCONFIG}")
