@@ -495,7 +495,7 @@ def _start_bisection(bisection, jopts):
         "DEFCONFIG": models.DEFCONFIG_FULL_KEY,
         "TARGET": models.DEVICE_TYPE_KEY,
         "LAB": models.LAB_NAME_KEY,
-        "TREE": models.JOB_KEY,
+        "KERNEL_TREE": models.JOB_KEY,
         "GOOD_COMMIT": models.GIT_COMMIT_KEY,
     }
     params = {k: good[v] for k, v in params_map.iteritems()}
