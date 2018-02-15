@@ -49,16 +49,22 @@ parser.add_argument("--describe", help="Kernel describe", default='')
 parser.add_argument("--branch", help="Kernel branch")
 parser.add_argument("--file", help="File to upload")
 parser.add_argument("--api", help="KernelCI API URL", default="https://api.kernelci.org")
+parser.add_argument("--publish_path", help="file path at destination")
+
 args = vars(parser.parse_args())
 
 artifacts = []
 headers = {}
 build_data = {}
 headers['Authorization'] = args.get('token')
-build_data['job'] = args.get('tree')
-build_data['kernel'] = args.get('describe', '')
-build_data['git_branch'] = args.get('branch')
-publish_path = os.path.join(build_data['job'], build_data['git_branch'], build_data['kernel'])
+
+publish_path = args.get('publish_path', None)
+if not publish_path:
+    build_data['job'] = args.get('tree')
+    build_data['kernel'] = args.get('describe', '')
+    build_data['git_branch'] = args.get('branch')
+    publish_path = os.path.join(build_data['job'], build_data['git_branch'], build_data['kernel'])
+
 build_data['path'] = publish_path
 build_data['file_server_resource'] = publish_path
 filename = args.get('file')
