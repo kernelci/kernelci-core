@@ -47,7 +47,7 @@ parser.add_argument("--token", help="KernelCI API Token")
 parser.add_argument("--tree", help="Kernel tree")
 parser.add_argument("--describe", help="Kernel describe", default='')
 parser.add_argument("--branch", help="Kernel branch")
-parser.add_argument("--file", help="File to upload")
+parser.add_argument("--file", nargs='+', help="File to upload")
 parser.add_argument("--api", help="KernelCI API URL", default="https://api.kernelci.org")
 parser.add_argument("--publish_path", help="file path at destination")
 
@@ -67,8 +67,12 @@ if not publish_path:
 
 build_data['path'] = publish_path
 build_data['file_server_resource'] = publish_path
-filename = args.get('file')
-artifacts.append(('file1',(filename, open(filename), 'rb')))
+file_count = 0
+filenames = args.get('file')
+for f in filenames:
+    artifacts.append(('file%d' % file_count,(f, open(f), 'rb')))
+    file_count += 1
+    
 upload_url = urljoin(args.get('api'), '/upload')
-print("pushing %s to %s/%s" % (filename, upload_url, publish_path))
+print("pushing %s to %s/%s" % (filenames, upload_url, publish_path))
 publish_response = do_post_retry(url=upload_url, data=build_data, headers=headers, files=artifacts)
