@@ -89,7 +89,7 @@ def load_jobs(top):
 def device_type_has_available(device_type, all_devices):
     for device in all_devices:
         if device[1] == device_type['name']:
-            if device[2] in DEVICE_ONLINE_STATUS:
+            if device[2].lower() in DEVICE_ONLINE_STATUS:
                 try:
                     return device[4]
                 except IndexError:

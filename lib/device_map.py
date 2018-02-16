@@ -14,8 +14,9 @@
 # Copyright (C) 2016, 2017 Pengutronix
 # Author: Michael Grzeschik <m.grzeschik@pengutronix.de>
 #
-# Copyright (C) 2017 Collabora Limited
+# Copyright (C) 2017, 2018 Collabora Limited
 # Author: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+# Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 #
 # This module is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -652,7 +653,8 @@ meson_gxbb_odroidc2 = {'device_type': 'meson-gxbb-odroidc2',
                'nfs_blacklist': [],
                'lpae': False,
                'fastboot': True,
-               'mach': 'amlogic'}
+               'mach': 'amlogic',
+               'boot_be': True}
 
 meson_gxbb_p200 = {'device_type': 'meson-gxbb-p200',
                'templates': ['generic-arm64-dtb-kernel-ci-boot-template.json',
@@ -669,7 +671,8 @@ meson_gxbb_p200 = {'device_type': 'meson-gxbb-p200',
                'nfs_blacklist': [],
                'lpae': False,
                'fastboot': True,
-               'mach': 'amlogic'}
+               'mach': 'amlogic',
+               'boot_be': True}
 
 meson_gxl_s905x_khadas_vim  = {'device_type': 'meson-gxl-s905x-khadas-vim',
                'templates': ['generic-uboot-tftp-ramdisk-template.jinja2',
@@ -682,7 +685,8 @@ meson_gxl_s905x_khadas_vim  = {'device_type': 'meson-gxl-s905x-khadas-vim',
                'nfs_blacklist': [],
                'lpae': False,
                'fastboot': False,
-               'mach': 'amlogic'}
+               'mach': 'amlogic',
+               'boot_be': True}
 
 
 r8a7795_salvator_x = {'device_type': 'r8a7795-salvator-x',
@@ -697,7 +701,8 @@ r8a7795_salvator_x = {'device_type': 'r8a7795-salvator-x',
                'nfs_blacklist': [],
                'lpae': False,
                'fastboot': False,
-               'mach': 'renesas'}
+               'mach': 'renesas',
+               'boot_be': True}
 
 r8a7796_m3ulcb = {'device_type': 'r8a7796-m3ulcb',
                'templates': [ 'generic-uboot-tftp-ramdisk-template.jinja2'],
@@ -885,6 +890,41 @@ rk3288_rock2_square = {'device_type': 'rk3288-rock2-square',
                        'lpae': True,
                        'fastboot': True,
                        'mach': 'rockchip'}
+
+rk3288_veyron_jaq = {'device_type': 'rk3288-veyron-jaq',
+                     'templates': ['generic-depthcharge-tftp-ramdisk-template.jinja2',
+                                   'generic-depthcharge-tftp-nfs-template.jinja2'],
+                     'kernel_defconfig_blacklist': [],
+                     'defconfig_blacklist': ['allmodconfig'],
+                     'kernel_blacklist': [],
+                     'nfs_blacklist': [],
+                     'lpae': True,
+                     'fastboot': False,
+                     'mach': 'rockchip'}
+
+rk3399_gru_kevin = {'device_type': 'rk3399-gru-kevin',
+                    'templates': ['generic-depthcharge-tftp-ramdisk-template.jinja2',
+                                  'generic-depthcharge-tftp-nfs-template.jinja2'],
+                    'kernel_defconfig_blacklist': [],
+                    'defconfig_blacklist': ['allmodconfig'],
+                    'kernel_blacklist': [],
+                    'nfs_blacklist': [],
+                    'lpae': True,
+                    'fastboot': False,
+                    'mach': 'rockchip'}
+
+rk3399_puma_haikou = {'device_type': 'rk3399-puma-haikou',
+               'templates': ['generic-uboot-tftp-ramdisk-template.jinja2',
+                             'generic-uboot-tftp-ramdisk-kselftest-template.jinja2'],
+               'kernel_defconfig_blacklist': [],
+               'defconfig_blacklist': ['allmodconfig'],
+               'arch_blacklist': ['arm'],
+               'kernel_blacklist': ['v3.', 'v4.1.', 'v4.2.', 'v4.3.', 'v4.4.', 'v4.5.', '4.6.', '4.7.',
+                                    'v4.8.', 'v4.9.', 'v4.10.', 'v4.11.', 'v4.12.', 'v4.13.'],
+               'nfs_blacklist': [],
+               'lpae': False,
+               'fastboot': False,
+               'mach': 'rockchip'}
 
 zx296702_ad1 = {'device_type': 'zx296702-ad1',
                 'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
@@ -1125,7 +1165,8 @@ fsl_ls2080a_rdb = {'device_type': 'fsl-ls2085a-rdb',
                    'nfs_blacklist': [],
                    'lpae': False,
                    'fastboot': False,
-                   'mach': 'freescale'}
+                   'mach': 'freescale',
+                   'boot_be': True}
 
 fsl_ls2080a_simu = {'device_type': 'fsl-ls2085a-rdb',
                    'templates': ['generic-arm64-dtb-kernel-ci-boot-template.json',
@@ -1141,7 +1182,8 @@ fsl_ls2080a_simu = {'device_type': 'fsl-ls2085a-rdb',
                    'nfs_blacklist': [],
                    'lpae': False,
                    'fastboot': False,
-                   'mach': 'freescale'}
+                   'mach': 'freescale',
+                   'boot_be': True}
 
 x86 = {'device_type': 'x86',
        'templates': ['generic-x86-kernel-ci-boot-template.json',
@@ -1769,6 +1811,9 @@ device_map = {'alpine-db.dtb': [alpine_db],
               'sun9i-a80-optimus.dtb': [optimus_a80],
               'sun9i-a80-cubieboard4.dtb': [cubieboard4],
               'rk3288-rock2-square.dtb': [rk3288_rock2_square],
+              'rk3288-veyron-jaq.dtb': [rk3288_veyron_jaq],
+              'rk3399-gru-kevin.dtb': [rk3399_gru_kevin],
+              'rk3399-puma-haikou.dtb': [rk3399_puma_haikou],
 #              'zx296702-ad1.dtb': [zx296702_ad1],
               'vexpress-v2p-ca15-tc1.dtb': [qemu_arm_cortex_a15],
               'vexpress-v2p-ca15-tc1-legacy': [qemu_arm_cortex_a15_legacy],
