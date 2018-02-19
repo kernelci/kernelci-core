@@ -1,6 +1,6 @@
 # Install
 
-All installation docs are now on the dedicated [kernelci-backend-config](https://github.com/kernelci/kernelci-backend-config/INSTALL.md)
+All installation docs are now on the dedicated [kernelci-backend-config](https://github.com/kernelci/kernelci-backend-config/blob/master/INSTALL.md)
 
 # Configuration/Administration
 
