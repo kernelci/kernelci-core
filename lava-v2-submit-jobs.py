@@ -117,7 +117,7 @@ def main(args):
 
     if not JOBS:
         print("No jobs to submit")
-        result = True
+        result = False
     else:
         start_time = time.time()
         labs_config = configparser.ConfigParser()
