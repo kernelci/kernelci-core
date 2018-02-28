@@ -42,9 +42,13 @@ notify:
   criteria:
     status: finished
   callback:
-    url: {{ api }}/callback/{{ callback_name }}?lab_name={{ lab_name }}&status={STATUS}&status_string={STATUS_STRING}
+{%- if callback_type == 'custom' %}
+    url: {{ callback_url }}
+{%- else %}
+    url: {{ callback_url }}/callback/{{ callback_name }}?lab_name={{ lab_name }}&status={STATUS}&status_string={STATUS_STRING}
+{%- endif %}
     method: POST
-    dataset: all
+    dataset: {{ callback_dataset }}
     token: {{ callback }}
     content-type: json
 {% endif %}

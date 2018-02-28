@@ -3,7 +3,7 @@
 # Copyright (C) 2016, 2017 Linaro Limited
 # Author: Matt Hart <matthew.hart@linaro.org>
 #
-# Copyright (C) 2017 Collabora Ltd
+# Copyright (C) 2017, 2018 Collabora Ltd
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 #
 # This module is free software; you can redistribute it and/or modify it under
@@ -84,6 +84,25 @@ def get_builds(api, token, config):
     return builds
 
 
+def add_callback_params(params, config, plan):
+    callback = config.get('callback')
+    if not callback:
+        return
+
+    callback_type = config.get('callback_type')
+
+    if callback_type == 'kernelci':
+        lava_cb = 'boot' if plan == 'boot' else 'test'
+        params['callback_name'] = '/'.join(['lava', lava_cb])
+
+    params.update({
+        'callback': callback,
+        'callback_url': config.get('callback_url') or config.get('api'),
+        'callback_dataset': config.get('callback_dataset'),
+        'callback_type': callback_type,
+    })
+
+
 def get_job_params(config, template, opts, device, build, defconfig, plan):
     short_template_file = os.path.join(plan, template)
     template_file = os.path.join('templates', short_template_file)
@@ -141,7 +160,6 @@ def get_job_params(config, template, opts, device, build, defconfig, plan):
     if device_type.startswith('qemu') or device_type == 'kvm':
         device_type = 'qemu'
 
-    callback_name = 'lava/boot' if plan == 'boot' else 'lava/test'
     defconfig_base = ''.join(defconfig.split('+')[:1])
 
     job_params = {
@@ -175,12 +193,11 @@ def get_job_params(config, template, opts, device, build, defconfig, plan):
         'initrd_url': initrd_url,
         'kernel_image': build['kernel_image'],
         'nfsrootfs_url': nfsrootfs_url,
-        'callback': config.get('callback'),
-        'api': config.get('api'),
         'lab_name': config.get('lab'),
-        'callback_name': callback_name,
         'context': device.get('context'),
     }
+
+    add_callback_params(job_params, config, plan)
 
     job_params.update({k: opts[k] for k in [
         'arch_defconfig',
@@ -332,18 +349,26 @@ def main(args):
     token = config.get('token')
     api = config.get('api')
     storage = config.get('storage')
-
-    if not token:
-        raise Exception("No KernelCI API token provided")
-    if not api:
-        raise Exception("No KernelCI API URL provided")
-    if not storage:
-        raise Exception("No KernelCI storage URL provided")
+    builds_json = config.get('builds')
 
     print("Working on kernel {}/{}".format(
         config.get('tree'), config.get('branch')))
 
-    builds = get_builds(api, token, config)
+    if not storage:
+        raise Exception("No KernelCI storage URL provided")
+
+    if builds_json:
+        print("Getting builds from {}".format(builds_json))
+        with open(builds_json) as json_file:
+            builds = json.load(json_file)
+    else:
+        print("Getting builds from KernelCI API")
+        if not token:
+            raise Exception("No KernelCI API token provided")
+        if not api:
+            raise Exception("No KernelCI API URL provided")
+        builds = get_builds(api, token, config)
+
     print("Number of builds: {}".format(len(builds)))
 
     jobs = get_jobs_from_builds(config, builds)
@@ -362,6 +387,8 @@ if __name__ == '__main__':
                         help="KernelCI API URL")
     parser.add_argument("--storage",
                         help="KernelCI storage URL")
+    parser.add_argument("--builds",
+                        help="Path to a JSON file to use rather than the API")
     parser.add_argument("--lab", required=True,
                         help="KernelCI Lab Name")
     parser.add_argument("--jobs",
@@ -383,7 +410,15 @@ if __name__ == '__main__':
     parser.add_argument("--priority", choices=['high', 'medium', 'low'],
                         help="priority for LAVA jobs", default='high')
     parser.add_argument("--callback",
-                        help="Add a callback notification to the Job YAML")
+                        help="add a callback with the given token name")
+    parser.add_argument("--callback-url",
+                        help="alternative URL to use instead of the API")
+    parser.add_argument("--callback-type", choices=['kernelci', 'custom'],
+                        default='kernelci',
+                        help="type of arguments to append to the URL")
+    parser.add_argument("--callback-dataset", default='all',
+                        choices=['minimal', 'logs', 'results', 'all'],
+                        help="type of dataset to receive in callback")
     parser.add_argument("--defconfigs", default=0,
                         help="Expected number of defconfigs from the API")
     parser.add_argument("--defconfig_full",

@@ -195,6 +195,7 @@ def cloneLAVA_CI(lava_ci) {
 
 def buildKernel(kdir, kci_build) {
     dir(kdir) {
+        sh(script: "rm -f ${env._BUILD_JSON}")
         withCredentials([string(credentialsId: params.KCI_TOKEN_ID,
                                 variable: 'SECRET')]) {
             sh(script: """
@@ -204,8 +205,11 @@ TREE_NAME=${params.KERNEL_TREE} \
 TREE=${params.KERNEL_URL} \
 ARCH=${params.ARCH} \
 BRANCH=${params.KERNEL_BRANCH} \
-""" + kci_build + "/build.py -e -g -i -c ${params.DEFCONFIG}")
+""" + kci_build + """/build.py -e -g -i \
+-j ${env._BUILD_JSON} \
+-c ${params.DEFCONFIG}""")
         }
+        stash(name: env._BUILD_JSON, includes: env._BUILD_JSON)
     }
 }
 
@@ -220,17 +224,17 @@ def buildRevision(kdir, kci_build, git_rev, name) {
  * kernel test with LAVA v2
  */
 
-def submitJob(lava_ci, describe) {
+def submitJob(lava_ci, describe, hook) {
     dir(lava_ci) {
-        sh(script: "rm -rf data; mkdir data")
+        sh(script: "rm -rf ${env._BUILD_JSON}; rm -rf data; mkdir data")
+        unstash(env._BUILD_JSON)
 
         withCredentials([string(credentialsId: params.KCI_TOKEN_ID,
                                 variable: 'SECRET')]) {
             sh(script: """
 ./lava-v2-jobs-from-api.py \
 --lab=${params.LAB} \
---token=${SECRET} \
---api=${params.KCI_API_URL} \
+--builds=${env._BUILD_JSON} \
 --storage=${params.KCI_STORAGE_URL} \
 --plans=${params.PLAN} \
 --jobs=data \
@@ -241,6 +245,9 @@ def submitJob(lava_ci, describe) {
 --defconfig_full=${params.DEFCONFIG} \
 --priority=${params.LAVA_PRIORITY} \
 --callback=${params.LAVA_CALLBACK} \
+--callback-url=${hook.getURL()} \
+--callback-dataset=results \
+--callback-type=custom \
 --targets=${params.TARGET}
 """)
         }
@@ -255,35 +262,31 @@ PYTHON_EGG_CACHE=${egg_cache} \
 --username=kernel-ci \
 --token=${SECRET} \
 --lab=${params.LAB} \
---jobs=data \
---submitted=data/submitted.json
+--jobs=data
 """)
         }
-
-        stash(name: "job-data", includes: "data/**")
     }
 }
 
-def getResult(lava_ci) {
-    def status
+def getResult(lava_ci, hook) {
+    def status = null
 
     dir(lava_ci) {
-        sh(script: "rm -rf data")
-        unstash("job-data")
-        def egg_cache = eggCache()
-        withCredentials([string(credentialsId: params.KCI_TOKEN_ID,
-                                variable: 'SECRET')]) {
+        echo "Waiting for job results..."
+        def data = waitForWebhook(hook)
+        def json_file = 'callback.json'
+        writeFile(file: json_file, text: data)
+        def token = "${params.LAB}-bisection-webhook"
+        withCredentials([string(credentialsId: token, variable: 'SECRET')]) {
+            def egg_cache = eggCache()
             status = sh(returnStatus: true, script: """
 PYTHON_EGG_CACHE=${egg_cache} \
-./lava-v2-get-boot-results.py \
---lab=${params.LAB} \
+./lava-v2-callback.py \
 --token=${SECRET} \
---api=${params.KCI_API_URL} \
---submitted=data/submitted.json \
---period=30 \
---output=data/boots.json
+${json_file}
 """)
         }
+        sh(script: "rm -f ${json_file}")
     }
 
     return status
@@ -291,8 +294,9 @@ PYTHON_EGG_CACHE=${egg_cache} \
 
 def runTest(lava_ci, describe) {
     cloneLAVA_CI(lava_ci)
-    submitJob(lava_ci, describe)
-    return getResult(lava_ci)
+    def hook = registerWebhook()
+    submitJob(lava_ci, describe, hook)
+    return getResult(lava_ci, hook)
 }
 
 /* ----------------------------------------------------------------------------
@@ -373,10 +377,23 @@ def runCheck(kdir, kci_build, git_commit, name, run_status) {
     return check
 }
 
+def checkAbort(passed, message) {
+    if (!passed) {
+        echo message
+        currentBuild.result = 'ABORTED'
+    }
+
+    return passed
+}
+
 node("bisection") {
+    /* Global pipeline constants */
+    env._BUILD_JSON = "build-data.json"
+
     def kci_build = env.WORKSPACE + '/kernelci-build'
     def kdir = env.WORKSPACE + '/linux'
     def check = null
+    def checks = [:]
 
     def params_summary = """\
     Tree:      ${params.KERNEL_TREE}
@@ -410,34 +427,23 @@ ${params_summary}"""
         stage("Check pass") {
             check = runCheck(kdir, kci_build, params.GOOD_COMMIT, 'pass', 0)
         }
-
-        if (!check) {
-            echo "Good revision check failed"
-            currentBuild.result = 'ABORTED'
+        if (!checkAbort(check, "Good revision check failed"))
             return
-        }
 
         stage("Check fail") {
             check = runCheck(kdir, kci_build, params.BAD_COMMIT, 'fail', 2)
         }
-
-        if (!check) {
-            echo "Bad revision check failed"
-            currentBuild.result = 'ABORTED'
+        if (!checkAbort(check, "Bad revision check failed"))
             return
-        }
 
         stage("Start") {
             timeout(time: 5, unit: 'MINUTES') {
                 check = bisectStart(kdir)
             }
         }
-
-        if (!check) {
-            echo "Failed to start bisection, commits range may be invalid."
-            currentBuild.result = 'ABORTED'
+        if (!checkAbort(check,
+                   "Failed to start bisection, commits range may be invalid."))
             return
-        }
 
         def previous = params.GOOD_COMMIT
         def current = getSHA(kdir)
@@ -487,6 +493,24 @@ ${params_summary}"""
             current = getSHA(kdir)
             iteration += 1
         }
+
+        stage("Verify") {
+            check = runCheck(kdir, kci_build, 'refs/bisect/bad', 'verify', 2)
+            checks['verify'] = check ? 'PASS' : 'FAIL'
+        }
+        if (!checkAbort(check, "Result check failed"))
+            return
+
+        stage("Revert") {
+            dir(kdir) {
+                sh(script: "git revert refs/bisect/bad")
+            }
+            check = runCheck(kdir, kci_build, 'HEAD', 'revert', 0)
+            checks['revert'] = check ? 'PASS' : 'FAIL'
+        }
+        if (!check)
+            echo "Warning: revert check failed"
+
     } catch (err) {
         currentBuild.result = "FAILURE"
 
