@@ -486,4 +486,6 @@ def add_tests(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
             if errors:
                 raise utils.errors.BackendError(errors)
 
+    store_lava_json(job_data, suite_data)
+
     return suite_doc_id
