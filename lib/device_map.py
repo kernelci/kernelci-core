@@ -1241,8 +1241,9 @@ x86_pentium4 = {'device_type': 'x86-pentium4',
        'mach': 'x86'}
 
 x86_celeron = {'device_type': 'x86-celeron',
-       'templates': ['generic-grub-tftp-ramdisk-template.jinja2',
-                     'generic-grub-tftp-nfs-template.jinja2'],
+       'templates': ['generic-ipxe-tftp-ramdisk-template.jinja2',
+                     'generic-ipxe-tftp-nfs-template.jinja2',
+                     'generic-ipxe-tftp-ramdisk-simple-template.jinja2'],
        'kernel_defconfig_blacklist': [],
        'defconfig_blacklist': ['x86_64_defconfig',
                                'allnoconfig',
