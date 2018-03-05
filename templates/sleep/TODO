@@ -1,0 +1,3 @@
+- skip power states not in /sys/power/state
+- probably loop a few times (at least two)
+- may need to configure RTCs other than rtc0
