@@ -177,6 +177,10 @@ if [[ BUILDS_FINISHED -eq 4 ]]; then
         echo "Sending results to Guillaume"
         curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "build_report": 1, "format": ["txt"], "send_to": ["guillaume.tucker@collabora.com"], "delay": 60}' ${API}/send
         curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "boot_report": 1, "format": ["txt"], "send_to": ["guillaume.tucker@collabora.com"], "delay": 1800}' ${API}/send
+    elif [ "$TREE_NAME" == "tomeu" ]; then
+        echo "Sending results to Tomeu"
+        curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "build_report": 1, "format": ["txt"], "send_to": ["tomeu.vizoso@collabora.com"], "delay": 60}' ${API}/send
+        curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "boot_report": 1, "format": ["txt"], "send_to": ["tomeu.vizoso@collabora.com"], "delay": 1800}' ${API}/send
     elif [ "$TREE_NAME" == "osf" ]; then
         echo "Sending results to Open Source Foundries"
         curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "build_report": 1, "format": ["txt"], "send_to": ["tyler@opensourcefoundries.com", "ricardo@opensourcefoundries.com", "michael@opensourcefoundries.com", "marti@opensourcefoundries.com", "alan@opensourcefoundries.com"], "delay": 60}' ${API}/send

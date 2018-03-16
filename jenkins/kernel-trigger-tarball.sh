@@ -61,6 +61,7 @@ trees=(
     [cip]="https://git.kernel.org/pub/scm/linux/kernel/git/bwh/linux-cip.git"
     [mattface]="https://github.com/mattface/linux.git"
     [gtucker]="https://gitlab.collabora.com/gtucker/linux.git"
+    [tomeu]="https://gitlab.collabora.com/tomeu/linux.git"
     [osf]="https://github.com/OpenSourceFoundries/linux.git"
 )
 
