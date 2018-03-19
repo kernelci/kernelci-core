@@ -185,6 +185,10 @@ if [[ BUILDS_FINISHED -eq 4 ]]; then
         echo "Sending results to Open Source Foundries"
         curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "build_report": 1, "format": ["txt"], "send_to": ["tyler@opensourcefoundries.com", "ricardo@opensourcefoundries.com", "michael@opensourcefoundries.com", "marti@opensourcefoundries.com", "alan@opensourcefoundries.com"], "delay": 60}' ${API}/send
         curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "boot_report": 1, "format": ["txt"], "send_to": ["tyler@opensourcefoundries.com", "ricardo@opensourcefoundries.com", "michael@opensourcefoundries.com", "marti@opensourcefoundries.com", "alan@opensourcefoundries.com"], "delay": 1800}' ${API}/send
+    elif [ "$TREE_NAME" == "clk" ]; then
+        echo "Sending results for CLK tree"
+        curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "build_report": 1, "format": ["txt"], "send_to": ["sboyd+clkci@kernel.org", "mturquette+clkci@baylibre.com", "kernel-build-reports@lists.linaro.org"], "delay": 60}' ${API}/send
+        curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "boot_report": 1, "format": ["txt"], "send_to": ["sboyd+clkci@kernel.org", "mturquette+clkci@baylibre.com", "kernel-build-reports@lists.linaro.org"], "delay": 1800}' ${API}/send
     else
         # Private Mailing List
         echo "Sending results to private mailing list"
