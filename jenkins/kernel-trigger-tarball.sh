@@ -61,6 +61,7 @@ trees=(
     [cip]="https://git.kernel.org/pub/scm/linux/kernel/git/bwh/linux-cip.git"
     [mattface]="https://github.com/mattface/linux.git"
     [gtucker]="https://gitlab.collabora.com/gtucker/linux.git"
+    [osf]="https://github.com/OpenSourceFoundries/linux.git"
 )
 
 OFS=${IFS}
