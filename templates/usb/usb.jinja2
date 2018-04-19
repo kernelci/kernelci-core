@@ -1,0 +1,20 @@
+- test:
+    timeout:
+      minutes: 5
+    definitions:
+    - repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: USB
+          description: "USB test plan"
+          os:
+          - oe
+          scope:
+          - functional
+        run:
+          steps:
+            - lsusb
+            - lava-test-case usb-presence --shell test -n \"$(lsusb)\"
+      from: inline
+      name: usb
+      path: inline/usb.yaml

@@ -1,0 +1,7 @@
+{% extends 'boot/generic-uboot-tftp-ramdisk-template.jinja2' %}
+{% block actions %}
+{{ super () }}
+
+{% include 'usb/usb.jinja2' %}
+
+{% endblock %}
