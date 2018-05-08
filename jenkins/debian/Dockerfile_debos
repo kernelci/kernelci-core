@@ -1,0 +1,4 @@
+FROM docker-registry.collabora.com/debos:latest
+
+RUN apt-get update
+RUN apt-get install --no-install-recommends xz-utils

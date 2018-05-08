@@ -1,0 +1,89 @@
+{{- $architecture := or .architecture "arm64" -}}
+{{- $basename := or .basename "." -}}
+{{- $extra_packages := or .extra_packages "" -}}
+{{- $suite := or .suite "stretch" -}}
+
+architecture: {{ $architecture }}
+
+actions:
+  - action: debootstrap
+    suite: {{ $suite }}
+    components:
+      - main
+    mirror: http://deb.debian.org/debian
+    variant: minbase
+
+  - action: apt
+    recommends: false
+    packages:
+      - udev
+      - kmod
+      - dbus
+      - systemd-sysv
+      - diffutils
+      - usbutils
+
+  - action: run
+    description: Install extra packages
+    chroot: true
+    command: apt-get update && apt-get -y install --no-install-recommends {{ $extra_packages }}
+
+  - action: run
+    description: Set hostname
+    chroot: true
+    command: echo debian-{{ $suite }}-{{ $architecture }} > /etc/hostname
+
+  - action: run
+    description: Remove root password
+    chroot: true
+    command: passwd root -d
+
+  - action: overlay
+    description: Tell agetty to log automatically on the serial console
+    source: overlays/auto-login
+
+  - action: overlay
+    description: Change prompt to '$(cwd) # '
+    source: overlays/prompt
+
+  - action: overlay
+    description: Add network configuration
+    source: overlays/networkd
+
+  - action: run
+    description: Setup networking
+    chroot: true
+    script: scripts/setup-networking.sh
+
+  - action: run
+    description: Change root shell to sh as bash will be dropped
+    chroot: true
+    command: chsh -s /bin/sh
+
+  - action: overlay
+    description: Add /var/tmp
+    source: overlays/minimal
+
+  - action: run
+    description: Drop legacy /var/lib/dbus/machine-id generation
+    chroot: true
+    command: rm /usr/lib/tmpfiles.d/dbus.conf
+
+  - action: run
+    chroot: true
+    script: scripts/strip.sh
+
+  - action: run
+    chroot: true
+    script: scripts/crush.sh
+
+  - action: run
+    description: Set symbolic link to init
+    chroot: true
+    command: ln -s /usr/bin/systemd /init
+
+  - action: run
+    description: Create cpio archive
+    chroot: false
+    command: cd ${ROOTDIR} ; find -H  |  cpio -H newc -v -o | gzip -c - > ${ARTIFACTDIR}/{{ $basename -}}/rootfs.cpio.gz
+

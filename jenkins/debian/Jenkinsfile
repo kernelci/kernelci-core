@@ -1,0 +1,13 @@
+library identifier: 'kernelci-build-staging@basic', retriever: modernSCM(
+  [$class: 'GitSCMSource',
+   remote: 'http://github.com/ana/kernelci-build-staging'])
+
+buildImage {
+
+    name = 'basic'
+    archList = ["armhf", "armel", "arm64", "x86", "x86_64"]
+
+    //Extra packages to be installed in the image
+    //extra_packages = ""
+
+}
