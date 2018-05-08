@@ -22,6 +22,8 @@ actions:
       - systemd-sysv
       - diffutils
       - usbutils
+      - initramfs-tools
+      - patch
 
   - action: run
     description: Install extra packages
@@ -68,6 +70,15 @@ actions:
     description: Drop legacy /var/lib/dbus/machine-id generation
     chroot: true
     command: rm /usr/lib/tmpfiles.d/dbus.conf
+
+  - action: run
+    description: update-initramfs step
+    chroot: true
+    script: scripts/create_initrd_ramdisk.sh
+
+  - action: run
+    chroot: false
+    command: mv ${ROOTDIR}/boot/initrd.img-min ${ARTIFACTDIR}/{{ $basename -}}/initrd.cpio.gz
 
   - action: run
     chroot: true
