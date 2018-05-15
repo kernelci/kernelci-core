@@ -72,6 +72,40 @@ actions:
     command: rm /usr/lib/tmpfiles.d/dbus.conf
 
   - action: run
+    description: Create full archive
+    chroot: false
+    command: cd ${ROOTDIR} ; tar cvfJ  ${ARTIFACTDIR}/{{ $basename -}}/full.rootfs.tar.xz .
+
+  - action: run
+    description: Create full cpio archive
+    chroot: false
+    command: cd ${ROOTDIR} ; find -H  |  cpio -H newc -v -o | gzip -c - > ${ARTIFACTDIR}/{{ $basename -}}/full.rootfs.cpio.gz
+
+  - action: image-partition
+    imagename: rootfs.ext4
+    imagesize: 500MB
+    partitiontype: msdos
+    mountpoints:
+      - mountpoint: /
+        partition: root
+    partitions:
+      - name: root
+        fs: ext4
+        start: 0%
+        end: 100%
+        flags: [ boot ]
+
+  - action: filesystem-deploy
+    description: Deploying filesystem onto image
+
+  - action: run
+    description: Move image to output directory
+    command: mv ${ARTIFACTDIR}/rootfs.ext4 ${ARTIFACTDIR}/{{ $basename -}}/
+
+  - action: run
+    command: xz -f ${ARTIFACTDIR}/{{ $basename -}}/rootfs.ext4
+
+  - action: run
     description: update-initramfs step
     chroot: true
     script: scripts/create_initrd_ramdisk.sh
