@@ -61,6 +61,16 @@ def makeImageStep(String pipeline_version, String arch, String debian_arch, Stri
                 archiveArtifacts artifacts: "${pipeline_version}/${arch}/full.rootfs.cpio.gz", fingerprint: true
                 archiveArtifacts artifacts: "${pipeline_version}/${arch}/rootfs.ext4.xz", fingerprint: true
                 }
+
+                stage("Upload images for ${arch}") {
+                    withCredentials([string(credentialsId: 'Staging KernelCI API Token', variable: 'API_TOKEN')]) {
+                        sh """
+                            python push-source.py --token ${API_TOKEN} --api https://staging-api.kernelci.org \
+                                --publish_path images/rootfs/debian/stretch/${arch} \
+                                --file ${pipeline_version}/${arch}/*.*
+                        """
+                    }
+                }
             }
         }
     }
