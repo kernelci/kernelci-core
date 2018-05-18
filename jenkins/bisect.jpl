@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 
 /*
-  Copyright (C) 2017 Collabora Limited
+  Copyright (C) 2017, 2018 Collabora Limited
   Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
   This module is free software; you can redistribute it and/or modify it under
@@ -253,7 +253,7 @@ def submitJob(lava_ci, describe, hook) {
         }
 
         def egg_cache = eggCache()
-        def token = "LAVA XMLRPC Token for " + params.LAB.split('-dev')[0]
+        def token = "${params.LAB}-lava-api"
 
         withCredentials([string(credentialsId: token, variable: 'SECRET')]) {
             sh(script: """
