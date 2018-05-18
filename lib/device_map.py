@@ -1811,6 +1811,28 @@ dove_cubox = {'device_type': 'dove-cubox',
                        'fastboot': False,
                        'mach': 'mvebu'}
 
+synquacer_acpi = {'device_type': 'synquacer-acpi',
+       'templates': ['generic-grub-tftp-ramdisk-template.jinja2'],
+       'kernel_defconfig_blacklist': [],
+       'defconfig_blacklist': ['allmodconfig'],
+       'kernel_blacklist': ['v3.'],
+       'nfs_blacklist': [],
+       'lpae': False,
+       'fastboot': False,
+       'defconfig_whitelist': ['defconfig'],
+       'mach': 'socionext'}
+
+synquacer_dtb = {'device_type': 'synquacer-dtb',
+       'templates': ['generic-grub-tftp-ramdisk-template.jinja2'],
+       'kernel_defconfig_blacklist': [],
+       'defconfig_blacklist': ['allmodconfig'],
+       'kernel_blacklist': ['v3.'],
+       'nfs_blacklist': [],
+       'lpae': False,
+       'fastboot': False,
+       'defconfig_whitelist': ['defconfig'],
+       'mach': 'socionext'}
+
 device_map = {'alpine-db.dtb': [alpine_db],
               'alpine-v2-evp.dtb': [alpine_v2_evp],
               'bcm2835-rpi-b-plus.dtb': [bcm2835_rpi_b_plus],
@@ -1929,4 +1951,5 @@ device_map = {'alpine-db.dtb': [alpine_db],
               'armada-xp-openblocks-ax3-4.dtb': [openblocks_ax3],
               'vf610-zii-dev-rev-b.dtb': [vf610_zii_dev_rev_b],
               'dove-cubox.dtb' : [dove_cubox],
-              'r8a7791-porter.dtb': [r8a7791_porter]}
+              'r8a7791-porter.dtb': [r8a7791_porter],
+              'arm64-no-dtb': [synquacer_acpi, synquacer_dtb]}

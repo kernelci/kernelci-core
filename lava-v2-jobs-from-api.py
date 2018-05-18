@@ -291,6 +291,8 @@ def get_jobs_from_builds(config, builds):
             build['dtb_dir_data'].extend(LEGACY_X86_PLATFORMS)
         if arch in ['arm', 'arm64', 'x86'] and 'defconfig' in defconfig:
             build['dtb_dir_data'].append('qemu')
+        if arch == 'arm64':
+            build['dtb_dir_data'].append('arm64-no-dtb')
 
         for plan in config.get('plans'):
             opts = {
