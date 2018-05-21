@@ -1,0 +1,170 @@
+#!/usr/bin/env groovy
+
+/*
+  Copyright (C) 2018 Collabora Limited
+  Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+
+  This module is free software; you can redistribute it and/or modify it under
+  the terms of the GNU Lesser General Public License as published by the Free
+  Software Foundation; either version 2.1 of the License, or (at your option)
+  any later version.
+
+  This library is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+  details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with this library; if not, write to the Free Software Foundation, Inc.,
+  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+*/
+
+/* ----------------------------------------------------------------------------
+ * Jenkins parameters
+
+ARCH
+  CPU architecture as understood by the Linux kernel build system
+DEFCONFIG_LIST
+  List of Linux kernel defconfigs
+SRC_TARBALL
+  URL of the kernel source tarball
+TREE
+  URL of the kernel Git repository
+TREE_NAME
+  Name of the kernel Git repository (tree)
+BRANCH
+  Name of the kernel branch within the tree
+GIT_DESCRIBE
+  Output of 'git describe' at the revision of the snapshot
+GIT_DESCRIBE_VERBOSE
+  Verbose output of 'git describe' at the revision of the snapshot
+COMMIT_ID
+  Git commit SHA1 at the revision of the snapshot
+PUBLISH (boolean)
+  Publish build results via the KernelCI backend API
+EMAIL (boolean)
+  Send build results via email
+KCI_API_URL (https://api.kernelci.org)
+  URL of the KernelCI backend API
+KCI_TOKEN_ID
+  Identifier of the KernelCI backend API token stored in Jenkins
+KCI_BUILD_URL (https://github.com/kernelci/kernelci-build.git)
+  URL of the kernelci-build repository
+KCI_BUILD_BRANCH (master)
+  Name of the branch to use in the kernelci-build repository
+
+ */
+
+
+def cloneKCIBuild(kci_build) {
+    sh(script: "rm -rf ${kci_build}")
+    dir("${kci_build}") {
+        git(url: params.KCI_BUILD_URL,
+            branch: params.KCI_BUILD_BRANCH,
+            poll: false)
+    }
+}
+
+def downloadTarball(kdir, url) {
+    sh(script: "rm -rf ${kdir}")
+    dir(kdir) {
+        sh(script: "\
+wget \
+--no-hsts \
+--progress=dot:giga \
+--retry-connrefused \
+--waitretry=5 \
+--read-timeout=20 \
+--timeout=15 \
+--tries 20 \
+--continue \
+${url}")
+        sh(script: "tar xzf linux-src.tar.gz")
+    }
+}
+
+def buildConfig(config, kdir, kci_build) {
+    def defconfig = sh(script: "echo ${config} | sed 's/\\+/ \\-c /g'",
+                       returnStdout: true)
+    def opt = ""
+
+    if (params.PUBLISH) {
+        opt = "-e"
+    } else {
+        echo "NOT PUBLISHING"
+    }
+
+    dir(kdir) {
+        withCredentials([string(credentialsId: params.KCI_TOKEN_ID,
+                                variable: 'SECRET')]) {
+            sh(script: """
+API=${params.KCI_API_URL} \
+TOKEN=${SECRET} \
+${kci_build}/build.py -i ${opt} -c ${defconfig}""")
+        }
+    }
+}
+
+def runStep(config, number) {
+    echo "Building config #${number}: ${config}"
+
+    def kci_build = env.WORKSPACE + '/kernelci-build'
+    def kdir = env.WORKSPACE + '/linux'
+    def stage_name = "${params.TREE_NAME} ${params.ARCH} ${number}"
+
+    stage("Init ${stage_name}") {
+        timeout(time: 30, unit: 'MINUTES') {
+            parallel(
+                p1: { cloneKCIBuild(kci_build) },
+                p2: { downloadTarball(kdir, params.SRC_TARBALL) },
+            )
+        }
+    }
+
+    stage("Build ${stage_name}") {
+        lock("${env.NODE_NAME}-build-lock") {
+            timeout(time: 60, unit: 'MINUTES') {
+                buildConfig(config, kdir, kci_build)
+            }
+        }
+    }
+
+    echo "Config done #${number}: ${config}"
+}
+
+def makeStep(config) {
+    env.CONFIG_NUMBER = env.CONFIG_NUMBER.toInteger() + 1
+    def number = env.CONFIG_NUMBER
+
+    return {
+        node("shared-builder") {
+            def status = null
+
+            try {
+                runStep(config, number)
+                status = 0
+            } catch (error) {
+                status = 1
+            }
+
+            echo "build status: ${status}"
+        }
+    }
+}
+
+node("trigger") {
+    env.CONFIG_NUMBER = 0
+    def configs = params.DEFCONFIG_LIST.tokenize(' ')
+
+    echo("""\
+    Tree:      ${params.TREE_NAME}
+    URL:       ${params.TREE}
+    Branch:    ${params.BRANCH}
+    CPU arch:  ${params.ARCH}
+    Describe:  ${params.GIT_DESCRIBE}
+    Revision:  ${params.COMMIT_ID}
+    Configs:   ${configs.size()}""")
+
+    def steps = configs.collectEntries { ["${it}": makeStep(it)] }
+    parallel(steps)
+}
