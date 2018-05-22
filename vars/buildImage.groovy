@@ -44,7 +44,7 @@ def call(Closure context) {
 
 def makeImageStep(String pipeline_version, String arch, String debian_arch, String debosFile, String extraPackages) {
     return {
-        node {
+        node('builder' && 'docker') {
             stage("Checkout") {
                 checkout scm
             }
