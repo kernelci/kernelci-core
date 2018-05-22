@@ -84,7 +84,7 @@ def getDockerArgs() {
 
   if (GROUP == "") {
     // defaults to user group gid
-    GROUP = sh(returnStdout: true, script: 'id -u').trim()
+    GROUP = sh(returnStdout: true, script: 'id -g').trim()
   }
 
   return "--group-add " + "${GROUP}"
