@@ -152,6 +152,35 @@ def makeStep(config) {
     }
 }
 
+def archComplete(job) {
+    stage("Complete") {
+        def str_params = [
+            'TREE_NAME': params.TREE_NAME,
+            'ARCH': params.ARCH,
+            'GIT_DESCRIBE': params.GIT_DESCRIBE,
+            'BRANCH': params.BRANCH,
+            'API': params.KCI_API_URL,
+        ]
+        def bool_params = [
+            'EMAIL': params.EMAIL,
+            'PUBLISH': params.PUBLISH,
+        ]
+        def job_params = []
+
+        for (p in str_params)
+            job_params.push(
+                [$class: "StringParameterValue", name: p.key, value: p.value]
+            )
+
+        for (p in bool_params)
+            job_params.push(
+                [$class: "BooleanParameterValue", name: p.key, value: p.value]
+            )
+
+        build(job: job, parameters: job_params)
+    }
+}
+
 node("trigger") {
     env.CONFIG_NUMBER = 0
     def configs = params.DEFCONFIG_LIST.tokenize(' ')
@@ -167,4 +196,5 @@ node("trigger") {
 
     def steps = configs.collectEntries { ["${it}": makeStep(it)] }
     parallel(steps)
+    archComplete("kernel-arch-complete")
 }
