@@ -35,14 +35,15 @@ def call(Closure context) {
                                                     arch,
                                                     debian_arch[arch],
                                                     debosFile,
-                                                    extraPackages)
+                                                    extraPackages,
+                                                    name)
     }
 
     parallel stepsForParallel
 }
 
 
-def makeImageStep(String pipeline_version, String arch, String debian_arch, String debosFile, String extraPackages) {
+def makeImageStep(String pipeline_version, String arch, String debian_arch, String debosFile, String extraPackages, String name) {
     return {
         node('builder' && 'docker') {
             stage("Checkout") {
@@ -66,7 +67,7 @@ def makeImageStep(String pipeline_version, String arch, String debian_arch, Stri
                     withCredentials([string(credentialsId: 'Staging KernelCI API Token', variable: 'API_TOKEN')]) {
                         sh """
                             python push-source.py --token ${API_TOKEN} --api https://staging-api.kernelci.org \
-                                --publish_path images/rootfs/debian/stretch/${arch} \
+                                --publish_path images/rootfs/debian/${name}/ \
                                 --file ${pipeline_version}/${arch}/*.*
                         """
                     }
