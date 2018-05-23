@@ -168,37 +168,27 @@ def create_email(
     return msg, msg_out.getvalue(), send_to
 
 
-def send_email(
-        to_addrs,
-        subject,
-        txt_body,
-        html_body,
-        mail_options,
-        headers=None, cc_addrs=None, bcc_addrs=None, in_reply_to=None):
+def send_email(subject, txt_body, html_body, email_opts, config, headers=None):
     """Send email to the specified address.
 
-    :param to_addrs: The recipients address.
-    :type to_addrs: list
     :param subject: The email subject.
     :type subject: str, unicode
     :param txt_body: The email body in TXT format.
     :type txt_body: str, unicode
     :param html_body: The email body in HTML.
     :type html_body: str, unicode
-    :param mail_options: The email options data structure.
-    :type mail_options: dict
-    :param cc: The list of addresses to add in CC.
-    :type cc: list
-    :param bcc: The list of addresses to add in BCC.
-    :type bcc: list
-    :param in_reply_to: The ID of the message this email is a reply to.
-    :type in_reply_to: str
+    :param email_opts: The email options such as to/cc/in-reply-to.
+    :type email_opts: dict
+    :param config: The email config data structure.
+    :type config: dict
+    :param headers: Extra custom email headers
+    :type headers: dict
     :return A tuple with the status and a list of errors.
     """
     errors = []
     status = models.ERROR_STATUS
 
-    m_get = mail_options.get
+    m_get = config.get
     port = m_get("smtp_port", None)
     host = m_get("smtp_host", None)
     user = m_get("smtp_user", None)
@@ -207,14 +197,16 @@ def send_email(
     sender_desc = m_get("smtp_sender_desc", None)
 
     _, email_msg, send_to = create_email(
-        to_addrs,
+        email_opts["to"],
         from_addr,
         subject,
         txt_body,
         html_body,
         sender_desc=sender_desc,
         headers=headers,
-        cc_addrs=cc_addrs, bcc_addrs=bcc_addrs, in_reply_to=in_reply_to
+        cc_addrs=email_opts.get("cc"),
+        bcc_addrs=email_opts.get("bcc"),
+        in_reply_to=email_opts.get("in_reply_to")
     )
 
     if all([from_addr, host]):

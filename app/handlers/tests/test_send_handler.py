@@ -127,7 +127,7 @@ class TestSendHandler(TestHandlerBase):
             job="job",
             kernel="kernel",
             git_branch="master",
-            boot_report=1, delay=None, boot_send_to="test@example.org")
+            boot_report=1, delay=None, send_to="test@example.org")
         body = json.dumps(data)
         response = self.fetch(
             "/send", method="POST", headers=headers, body=body)
@@ -140,12 +140,14 @@ class TestSendHandler(TestHandlerBase):
                 "master",
                 "kernel",
                 None,
-                ["txt"],
-                ["test@example.org"],
-                [],
-                [],
-                None,
-                None
+                {
+                    "to": ["test@example.org"],
+                    "cc": [],
+                    "bcc": [],
+                    "in_reply_to": None,
+                    "subject": None,
+                    "format": ["txt"],
+                },
             ],
             countdown=60 * 60,
             link=mock.ANY
@@ -159,7 +161,7 @@ class TestSendHandler(TestHandlerBase):
         data = dict(
             job="job",
             kernel="kernel",
-            boot_report=1, boot_send_to="test@example.org", delay="foo"
+            boot_report=1, send_to="test@example.org", delay="foo"
         )
         body = json.dumps(data)
         response = self.fetch(
@@ -179,7 +181,7 @@ class TestSendHandler(TestHandlerBase):
             job="job",
             kernel="kernel",
             git_branch="master",
-            boot_report=1, boot_send_to="test@example.org", delay=-100
+            boot_report=1, send_to="test@example.org", delay=-100
         )
         body = json.dumps(data)
         response = self.fetch(
@@ -193,12 +195,14 @@ class TestSendHandler(TestHandlerBase):
                 "master",
                 "kernel",
                 None,
-                ["txt"],
-                ["test@example.org"],
-                [],
-                [],
-                None,
-                None
+                {
+                    "format": ["txt"],
+                    "to": ["test@example.org"],
+                    "cc": [],
+                    "bcc": [],
+                    "subject": None,
+                    "in_reply_to": None,
+                },
             ],
             countdown=100,
             link=mock.ANY
@@ -215,7 +219,7 @@ class TestSendHandler(TestHandlerBase):
             job="job",
             kernel="kernel",
             git_branch="master",
-            boot_report=1, boot_send_to="test@example.org", delay=1000000
+            boot_report=1, send_to="test@example.org", delay=1000000
         )
         body = json.dumps(data)
         response = self.fetch(
@@ -229,12 +233,14 @@ class TestSendHandler(TestHandlerBase):
                 "master",
                 "kernel",
                 None,
-                ["txt"],
-                ["test@example.org"],
-                [],
-                [],
-                None,
-                None
+                {
+                    "format": ["txt"],
+                    "to": ["test@example.org"],
+                    "cc": [],
+                    "bcc": [],
+                    "subject": None,
+                    "in_reply_to": None,
+                },
             ],
             countdown=18000,
             link=mock.ANY
@@ -251,7 +257,7 @@ class TestSendHandler(TestHandlerBase):
             job="job",
             kernel="kernel",
             git_branch="master",
-            build_report=1, build_send_to="test@example.org"
+            build_report=1, send_to="test@example.org"
         )
         body = json.dumps(data)
         response = self.fetch(
@@ -264,14 +270,16 @@ class TestSendHandler(TestHandlerBase):
                 "job",
                 "master",
                 "kernel",
-                ["txt"],
-                ["test@example.org"], self.dboptions,
+                {
+                    "to": ["test@example.org"],
+                    "cc": [],
+                    "bcc": [],
+                    "in_reply_to": None,
+                    "subject": None,
+                    "format": ["txt"],
+                },
             ],
             countdown=60 * 60,
-            kwargs={
-                "cc_addrs": [],
-                "bcc_addrs": [], "in_reply_to": None, "subject": None
-            }
         )
 
     def test_post_build_report_no_email(self):
@@ -291,189 +299,14 @@ class TestSendHandler(TestHandlerBase):
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
-    @mock.patch("taskqueue.tasks.report.send_build_report")
-    @mock.patch("taskqueue.tasks.report.send_boot_report")
-    def test_post_build_boot_report_correct_with_subject(
-            self, mock_boot, mock_build):
-        mock_build.apply_async = mock.MagicMock()
-        mock_boot.apply_async = mock.MagicMock()
-        headers = {
-            "Authorization": "foo",
-            "Content-Type": "application/json",
-        }
-        data = dict(
-            job="job",
-            kernel="kernel",
-            git_branch="local/master",
-            build_report=1,
-            boot_report=1,
-            build_send_to="test@example.org",
-            boot_send_to="test2@example.org",
-            subject="A fake subject"
-        )
-        body = json.dumps(data)
-        response = self.fetch(
-            "/send", method="POST", headers=headers, body=body)
-        self.assertEqual(response.code, 202)
-        self.assertEqual(
-            response.headers["Content-Type"], self.content_type)
-        mock_boot.apply_async.assert_called_with(
-            [
-                "job",
-                "master",
-                "kernel",
-                None,
-                ["txt"],
-                ["test2@example.org"],
-                [],
-                [],
-                None,
-                "A fake subject"
-            ],
-            countdown=60 * 60,
-            link=mock.ANY
-        )
-        mock_build.apply_async.assert_called_with(
-            [
-                "job",
-                "master",
-                "kernel",
-                ["txt"],
-                ["test@example.org"], self.dboptions,
-            ],
-            countdown=60 * 60,
-            kwargs={
-                "cc_addrs": [],
-                "bcc_addrs": [],
-                "in_reply_to": None, "subject": "A fake subject"
-            }
-        )
-
-    def test_get_email_addresses_no_addresses(self):
-        self.assertTupleEqual(
-            ([], [], []), sendh._get_email_addresses(None, None))
-        self.assertTupleEqual(([], [], []), sendh._get_email_addresses('', ''))
-        self.assertTupleEqual(([], [], []), sendh._get_email_addresses([], []))
-
-    def test_get_email_addresses_only_report(self):
-        self.assertTupleEqual(
-            (["test@example.org"], [], []),
-            sendh._get_email_addresses("test@example.org", None))
-
-        self.assertTupleEqual(
-            (["test@example.org"], [], []),
-            sendh._get_email_addresses(["test@example.org"], None))
-
-        self.assertTupleEqual(
-            (["test@example.org"], [], []),
-            sendh._get_email_addresses("test@example.org", ""))
-
-        self.assertTupleEqual(
-            (["test@example.org"], [], []),
-            sendh._get_email_addresses(["test@example.org"], ""))
-
-        self.assertTupleEqual(
-            (["test@example.org"], [], []),
-            sendh._get_email_addresses("test@example.org", []))
-
-        self.assertTupleEqual(
-            (["test@example.org"], [], []),
-            sendh._get_email_addresses(["test@example.org"], []))
-
-    def test_get_email_addresses_both(self):
-        self.assertTupleEqual(
-            (["test@example.org", "test2@example.org"], [], []),
-            sendh._get_email_addresses(
-                "test@example.org", "test2@example.org"))
-
-        self.assertTupleEqual(
-            (["test@example.org", "test2@example.org"], [], []),
-            sendh._get_email_addresses(
-                ["test@example.org"], ["test2@example.org"]))
-
-    def test_get_email_addrs_with_cc_bcc(self):
-        self.assertTupleEqual(
-            ([], ["test@example.org"], []),
-            sendh._get_email_addresses(None, None, cc="test@example.org"))
-
-        self.assertTupleEqual(
-            ([], ["test@example.org"], []),
-            sendh._get_email_addresses(None, None, cc=["test@example.org"]))
-
-        self.assertTupleEqual(
-            ([], ["test@example.org"], ["test@example.org"]),
-            sendh._get_email_addresses(
-                None, None, cc=["test@example.org"], bcc=["test@example.org"])
-        )
-
-        self.assertTupleEqual(
-            (
-                [],
-                ["test@example.org", "test1@example.org"],
-                ["test@example.org", "test1@example.org"]
-            ),
-            sendh._get_email_addresses(
-                None, None,
-                cc=["test@example.org"], bcc=["test@example.org"],
-                g_cc="test1@example.org", g_bcc=["test1@example.org"]
-            )
-        )
-
-        self.assertTupleEqual(
-            (
-                [],
-                ["test@example.org", "test1@example.org"],
-                ["test@example.org", "test1@example.org"]
-            ),
-            sendh._get_email_addresses(
-                None, None,
-                cc=["test@example.org"], bcc=["test@example.org"],
-                g_cc=["test1@example.org"], g_bcc=["test1@example.org"]
-            )
-        )
-
     def test_check_status(self):
         when = datetime.datetime.now()
-        reason, status_code = sendh._check_status(True, True, True, True, when)
-
-        self.assertIsNotNone(reason)
-        self.assertEqual(400, status_code)
-
-        reason, status_code = sendh._check_status(
-            True, True, True, False, when)
-
-        self.assertIsNotNone(reason)
-        self.assertEqual(202, status_code)
-
-        reason, status_code = sendh._check_status(
-            True, True, False, True, when)
-
-        self.assertIsNotNone(reason)
-        self.assertEqual(202, status_code)
-
-        reason, status_code = sendh._check_status(
-            True, True, False, False, when)
-
-        self.assertIsNotNone(reason)
-        self.assertEqual(202, status_code)
-
-        reason, status_code = sendh._check_status(
-            False, True, False, False, when)
-
-        self.assertIsNotNone(reason)
-        self.assertEqual(202, status_code)
-
-        reason, status_code = sendh._check_status(
-            False, True, False, True, when)
-
-        self.assertIsNotNone(reason)
-        self.assertEqual(400, status_code)
-
-        reason, status_code = sendh._check_status(
-            True, False, False, False, when)
-
-        self.assertIsNotNone(reason)
-        self.assertEqual(202, status_code)
+        for report_type in ['build', 'boot']:
+            for errors in [True, False]:
+                reason, status_code = sendh._check_status(
+                    report_type, errors, when)
+                self.assertIsNotNone(reason)
+                self.assertEqual(status_code, 400 if errors else 202)
 
     def test_email_format(self):
         email_format, errors = sendh._check_email_format(None)

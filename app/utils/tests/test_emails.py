@@ -289,8 +289,9 @@ class TestEmailsSend(unittest.TestCase):
     def test_send_email_no_mail_options(self):
         self.mock_create_email.return_value = (None, None, None)
 
+        email_opts = {"to": self.to_addrs}
         status, errors = utils.emails.send_email(
-            self.to_addrs, "subject", "txt-body", "html-body", {})
+            "subject", "txt-body", "html-body", email_opts, {})
 
         self.assertEqual("ERROR", status)
         self.assertEqual(1, len(errors))
@@ -298,9 +299,9 @@ class TestEmailsSend(unittest.TestCase):
     def test_send_email_simple(self):
         self.mock_create_email.return_value = (None, "Message", [])
 
+        email_opts = {"to": self.to_addrs}
         status, errors = utils.emails.send_email(
-            self.to_addrs,
-            "subject", "txt-body", "html-body", self.mail_options)
+            "subject", "txt-body", "html-body", email_opts, self.mail_options)
 
         self.assertEqual("SENT", status)
         self.assertListEqual([], errors)
@@ -309,9 +310,9 @@ class TestEmailsSend(unittest.TestCase):
         self.mail_options["port"] = 25
         self.mock_create_email.return_value = (None, "Message", [])
 
+        email_opts = {"to": self.to_addrs}
         status, errors = utils.emails.send_email(
-            self.to_addrs,
-            "subject", "txt-body", "html-body", self.mail_options)
+            "subject", "txt-body", "html-body", email_opts, self.mail_options)
 
         self.assertEqual("SENT", status)
         self.assertListEqual([], errors)
