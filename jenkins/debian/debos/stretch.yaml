@@ -2,6 +2,7 @@
 {{- $basename := or .basename "." -}}
 {{- $extra_packages := or .extra_packages "" -}}
 {{- $suite := or .suite "stretch" -}}
+{{- $script := or .script "scripts/nothing.sh" -}}
 
 architecture: {{ $architecture }}
 
@@ -24,6 +25,11 @@ actions:
       - usbutils
       - initramfs-tools
       - patch
+
+  - action: run
+    description: Build testsuite
+    chroot: true
+    script: {{ $script }}
 
   - action: run
     description: Install extra packages

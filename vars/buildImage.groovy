@@ -27,6 +27,12 @@ def call(Closure context) {
         extraPackages = config.extra_packages
     }
 
+    // defaults to empty script scripts/nothing.sh
+    def script = "scripts/nothing.sh"
+    if (config.script != null) {
+        script = config.script
+    }
+
     def stepsForParallel = [:]
     for (int i = 0; i < kernel_arch.size(); i++) {
         def arch = kernel_arch[i]
@@ -36,14 +42,15 @@ def call(Closure context) {
                                                     debian_arch[arch],
                                                     debosFile,
                                                     extraPackages,
-                                                    name)
+                                                    name,
+                                                    script)
     }
 
     parallel stepsForParallel
 }
 
 
-def makeImageStep(String pipeline_version, String arch, String debian_arch, String debosFile, String extraPackages, String name) {
+def makeImageStep(String pipeline_version, String arch, String debian_arch, String debosFile, String extraPackages, String name, String script) {
     return {
         node('builder' && 'docker') {
             stage("Checkout") {
@@ -54,7 +61,7 @@ def makeImageStep(String pipeline_version, String arch, String debian_arch, Stri
                 stage("Build base image for ${arch}") {
                     sh """
                         mkdir -p ${pipeline_version}/${arch}
-                        debos -t architecture:${debian_arch} -t basename:${pipeline_version}/${arch} -t extra_packages:'${extraPackages}' ${debosFile}
+                        debos -t architecture:${debian_arch} -t basename:${pipeline_version}/${arch} -t extra_packages:'${extraPackages}' -t script:${script} ${debosFile}
                     """
                 archiveArtifacts artifacts: "${pipeline_version}/${arch}/initrd.cpio.gz", fingerprint: true
                 archiveArtifacts artifacts: "${pipeline_version}/${arch}/rootfs.cpio.gz", fingerprint: true
