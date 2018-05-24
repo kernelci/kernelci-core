@@ -1,0 +1,16 @@
+library identifier: 'kernelci-build-staging@master', retriever: modernSCM(
+  [$class: 'GitSCMSource',
+   remote: 'http://github.com/kernelci/kernelci-build-staging'])
+
+buildImage {
+
+    name = 'stretchtests'
+    archList = ["armhf", "armel", "arm64", "x86", "x86_64"]
+
+
+    //Extra packages to be installed in the image
+    extra_packages = "libpciaccess0 libkmod2 libprocps6 libcairo2 libunwind8 libudev1 libglib2.0-0"
+
+    // script to build the testsuite(s)
+    script = "scripts/stretchtests.sh"
+}
