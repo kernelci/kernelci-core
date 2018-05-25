@@ -89,7 +89,7 @@ actions:
 
   - action: image-partition
     imagename: rootfs.ext4
-    imagesize: 500MB
+    imagesize: 1GB
     partitiontype: msdos
     mountpoints:
       - mountpoint: /
