@@ -4,7 +4,7 @@ library identifier: 'kernelci-build-staging@master', retriever: modernSCM(
 
 buildImage {
 
-    name = 'basic'
+    name = 'stretch'
     archList = ["armhf", "armel", "arm64", "x86", "x86_64"]
 
     //Extra packages to be installed in the image
