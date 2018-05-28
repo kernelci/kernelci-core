@@ -60,7 +60,17 @@ class TestBisectModel(unittest.TestCase):
             "bad_commit_url": None,
             "version": None,
             "job_id": None,
-            "type": None
+            "type": None,
+            "found_summary": None,
+            "log": None,
+            "verified": None,
+            "arch": None,
+            "build_id": None,
+            "defconfig": None,
+            "defconfig_full": None,
+            "compiler": None,
+            "git_branch": None,
+            "git_url": None,
         }
         self.assertDictEqual(expected, bisect_doc.to_dict())
 
@@ -82,11 +92,22 @@ class TestBisectModel(unittest.TestCase):
             "bad_commit_url": None,
             "version": None,
             "job_id": None,
-            "type": None
+            "type": None,
+            "found_summary": None,
+            "log": None,
+            "verified": None,
+            "arch": None,
+            "build_id": None,
+            "defconfig": None,
+            "defconfig_full": None,
+            "compiler": None,
+            "git_branch": None,
+            "git_url": None,
         }
         self.assertDictEqual(expected, bisect_doc.to_dict())
 
     def test_bisect_boot_to_dict(self):
+        self.maxDiff = None
         bisect_doc = modbs.BootBisectDocument("foo")
         bisect_doc.id = "bar"
         bisect_doc.board = "baz"
@@ -94,6 +115,11 @@ class TestBisectModel(unittest.TestCase):
         bisect_doc.boot_id = "boot-id"
         bisect_doc.build_id = "build-id"
         bisect_doc.job_id = "job-id"
+        bisect_doc.git_url = "https://somewhere.com/blah.git"
+        bisect_doc.git_branch = "master"
+        bisect_doc.log = "https://storage.org/log.txt"
+        bisect_doc.device_type = "qemu"
+        bisect_doc.lab_name = "secret-lab"
 
         expected = {
             "_id": "bar",
@@ -113,9 +139,17 @@ class TestBisectModel(unittest.TestCase):
             "build_id": "build-id",
             "job_id": "job-id",
             "type": "boot",
+            "compiler": None,
+            "lab_name": "secret-lab",
             "arch": None,
+            "device_type": "qemu",
             "defconfig": None,
-            "defconfig_full": None
+            "defconfig_full": None,
+            "git_url": "https://somewhere.com/blah.git",
+            "git_branch": "master",
+            "log": "https://storage.org/log.txt",
+            "found_summary": None,
+            "verified": None,
         }
         self.assertDictEqual(expected, bisect_doc.to_dict())
 
@@ -131,6 +165,9 @@ class TestBisectModel(unittest.TestCase):
         bisect_doc.bad_commit = "2"
         bisect_doc.bad_commit_date = "now"
         bisect_doc.bad_commit_url = "url"
+        bisect_doc.found_summary = "1234abcd foo: bar"
+        bisect_doc.verified = "pass"
+        bisect_doc.log = "https://storage.org/log.txt"
 
         self.assertEqual(bisect_doc.id, "bar")
         self.assertEqual(bisect_doc.created_on, "now")
@@ -142,6 +179,9 @@ class TestBisectModel(unittest.TestCase):
         self.assertEqual(bisect_doc.bad_commit, "2")
         self.assertEqual(bisect_doc.bad_commit_date, "now")
         self.assertEqual(bisect_doc.bad_commit_url, "url")
+        self.assertEqual(bisect_doc.found_summary, "1234abcd foo: bar")
+        self.assertEqual(bisect_doc.verified, "pass")
+        self.assertEqual(bisect_doc.log, "https://storage.org/log.txt")
 
     def test_bisect_boot_properties(self):
         bisect_doc = modbs.BootBisectDocument("foo")
@@ -159,6 +199,8 @@ class TestBisectModel(unittest.TestCase):
         bisect_doc.job_id = "job-id"
         bisect_doc.defconfig_full = "defconfig-full"
         bisect_doc.arch = "arm"
+        bisect_doc.found_summary = "7890cdef foo: change bar into baz"
+        bisect_doc.git_url = "https://somewhere.com/blah.git"
 
         expected = {
             "_id": "bar",
@@ -177,9 +219,14 @@ class TestBisectModel(unittest.TestCase):
             "defconfig": "defconfig-name",
             "job_id": "job-id",
             "defconfig_full": "defconfig-full",
+            "compiler": None,
             "arch": "arm",
             "type": "build",
-            "git_branch": None
+            "git_branch": None,
+            "found_summary": "7890cdef foo: change bar into baz",
+            "git_url": "https://somewhere.com/blah.git",
+            "log": None,
+            "verified": None,
         }
 
         self.assertDictEqual(expected, bisect_doc.to_dict())

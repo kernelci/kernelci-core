@@ -38,6 +38,16 @@ class BisectDocument(modb.BaseDocument):
         self.job = None
         self.job_id = None
         self.type = None
+        self.found_summary = None
+        self.verified = None
+        self.log = None
+        self.git_branch = None
+        self.git_url = None
+        self.arch = None
+        self.defconfig = None
+        self.defconfig_full = None
+        self.compiler = None
+        self.build_id = None
 
     @property
     def collection(self):
@@ -103,7 +113,17 @@ class BisectDocument(modb.BaseDocument):
             models.JOB_ID_KEY: self.job_id,
             models.JOB_KEY: self.job,
             models.TYPE_KEY: self.type,
-            models.VERSION_KEY: self.version
+            models.VERSION_KEY: self.version,
+            models.BISECT_FOUND_SUMMARY_KEY: self.found_summary,
+            models.BISECT_VERIFIED_KEY: self.verified,
+            models.BISECT_LOG_KEY: self.log,
+            models.GIT_BRANCH_KEY: self.git_branch,
+            models.GIT_URL_KEY: self.git_url,
+            models.ARCHITECTURE_KEY: self.arch,
+            models.DEFCONFIG_FULL_KEY: self.defconfig_full,
+            models.DEFCONFIG_KEY: self.defconfig,
+            models.COMPILER_KEY: self.compiler,
+            models.BUILD_ID_KEY: self.build_id,
         }
 
         if self.id:
@@ -121,24 +141,21 @@ class BootBisectDocument(BisectDocument):
 
     def __init__(self, name):
         super(BootBisectDocument, self).__init__(name)
-
-        self.arch = None
+        self.lab_name = None
+        self.device_type = None
         self.board = None
         self.boot_id = None
-        self.build_id = None
-        self.defconfig = None
-        self.defconfig_full = None
         self.type = "boot"
 
     def to_dict(self):
-        boot_b_dict = super(BootBisectDocument, self).to_dict()
-        boot_b_dict[models.ARCHITECTURE_KEY] = self.arch
-        boot_b_dict[models.BOARD_KEY] = self.board
-        boot_b_dict[models.BOOT_ID_KEY] = self.boot_id
-        boot_b_dict[models.BUILD_ID_KEY] = self.build_id
-        boot_b_dict[models.DEFCONFIG_FULL_KEY] = self.defconfig_full
-        boot_b_dict[models.DEFCONFIG_KEY] = self.defconfig
-        return boot_b_dict
+        d = super(BootBisectDocument, self).to_dict()
+        d.update({
+            models.LAB_NAME_KEY: self.lab_name,
+            models.DEVICE_TYPE_KEY: self.device_type,
+            models.BOARD_KEY: self.board,
+            models.BOOT_ID_KEY: self.boot_id,
+        })
+        return d
 
 
 class DefconfigBisectDocument(BisectDocument):
@@ -146,20 +163,4 @@ class DefconfigBisectDocument(BisectDocument):
 
     def __init__(self, name):
         super(DefconfigBisectDocument, self).__init__(name)
-
-        self.arch = None
-        self.build_id = None
-        self.defconfig = None
-        self.defconfig_full = None
-        self.git_branch = None
         self.type = "build"
-
-    def to_dict(self):
-        def_b_dict = super(DefconfigBisectDocument, self).to_dict()
-        def_b_dict[models.ARCHITECTURE_KEY] = self.arch
-        def_b_dict[models.BUILD_ID_KEY] = self.build_id
-        def_b_dict[models.DEFCONFIG_FULL_KEY] = self.defconfig_full
-        def_b_dict[models.DEFCONFIG_KEY] = self.defconfig
-        def_b_dict[models.GIT_BRANCH_KEY] = self.git_branch
-
-        return def_b_dict

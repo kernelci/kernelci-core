@@ -294,6 +294,9 @@ BISECT_GOOD_COMMIT_DATE = "good_commit_date"
 BISECT_BAD_COMMIT_DATE = "bad_commit_date"
 BISECT_GOOD_COMMIT_URL = "good_commit_url"
 BISECT_BAD_COMMIT_URL = "bad_commit_url"
+BISECT_FOUND_SUMMARY_KEY = "found_summary"
+BISECT_VERIFIED_KEY = "verified"
+BISECT_LOG_KEY = "log"
 
 # LAVA Callback keys
 LAVA_DEFINITION_KEY = "definition"
