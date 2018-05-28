@@ -22,6 +22,7 @@ import random
 import models
 import utils.db
 import utils.report.common as rcommon
+import utils.bisect.boot as bbisect
 
 # Register normal Unicode gettext.
 G_ = rcommon.L10N.ugettext
@@ -165,7 +166,7 @@ def create_regressions_data(boot_docs, boot_data):
     return regr_data
 
 
-def parse_regressions(lab_regressions, boot_data):
+def parse_regressions(lab_regressions, boot_data, db_options):
     """Parse the regressions data and create the strings for the report.
 
     The returned data structure is:
@@ -219,17 +220,13 @@ def parse_regressions(lab_regressions, boot_data):
                         defconfig = unicode(defconfig)
                         regr_def = regr_arch.setdefault(defconfig, {})
                         regr_board = regr_def.setdefault(board, [])
-                        for compiler, compiler_d in defconfig_d.iteritems():
-                            bisections.append({
-                                'lab': lab,
-                                'arch': arch,
-                                'defconfig': defconfig,
-                                'board': board,
-                                'compiler': compiler,
-                                'boots': compiler_d,
-                            })
-                            regr_board.append(
-                                create_regressions_data(compiler_d, boot_data))
+                        for compiler, boots in defconfig_d.iteritems():
+                            good, bad = boots[0], boots[-1]
+                            bisect = bbisect.create_boot_bisect(
+                                good, bad, db_options)
+                            bisections.append(bisect)
+                            regr = create_regressions_data(boots, boot_data)
+                            regr_board.append(regr)
 
     if regressions_data:
         regressions["summary"] = {}
@@ -412,7 +409,7 @@ def get_boot_data(db_options, job, branch, kernel, lab_name):
 
     if regressions_doc:
         data["regressions"], data["bisections"] = parse_regressions(
-            regressions_doc[models.REGRESSIONS_KEY], data)
+            regressions_doc[models.REGRESSIONS_KEY], data, db_options)
     else:
         data["regressions"], data["bisections"] = None, None
 
@@ -486,8 +483,6 @@ def create_boot_report(
 
 
 def _start_bisection(bisection, jopts):
-    boots = bisection["boots"]
-    good, bad = boots[0], boots[-1]
     params_map = {
         "KERNEL_URL": models.GIT_URL_KEY,
         "KERNEL_BRANCH": models.GIT_BRANCH_KEY,
@@ -496,12 +491,13 @@ def _start_bisection(bisection, jopts):
         "TARGET": models.DEVICE_TYPE_KEY,
         "LAB": models.LAB_NAME_KEY,
         "KERNEL_TREE": models.JOB_KEY,
-        "GOOD_COMMIT": models.GIT_COMMIT_KEY,
+        "GOOD_COMMIT": models.BISECT_GOOD_COMMIT_KEY,
+        "BAD_COMMIT": models.BISECT_BAD_COMMIT_KEY,
     }
-    params = {k: good[v] for k, v in params_map.iteritems()}
-    params["BAD_COMMIT"] = bad["git_commit"]
-    utils.LOG.info("Triggering bisection for {}, board: {}, lab: {}".format(
-        bad["kernel"], bad["board"], bad["lab_name"]))
+    params = {k: bisection[v] for k, v in params_map.iteritems()}
+    utils.LOG.info("Triggering bisection for {}/{}, board: {}, lab: {}".format(
+        params["KERNEL_TREE"], params["KERNEL_BRANCH"],
+        params["TARGET"], params["LAB"]))
     server = jenkins.Jenkins(jopts["url"], jopts["user"], jopts["token"])
     server.build_job(jopts["bisect"], params)
 

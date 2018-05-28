@@ -298,3 +298,56 @@ def execute_boot_bisection_compared_to(
         result = None
 
     return code, result
+
+
+def create_boot_bisect(good, bad, db_options):
+    """Create a boot bisection document or find existing matching one
+
+    :param good: Passing boot data
+    :type good: dict
+    :param bad: Failing boot data
+    :type bad: dict
+    :param db_options: The options for the database connection.
+    :type db_options: dictionary
+    :return The BootBisectDocument instance.
+    """
+    database = utils.db.get_db_connection(db_options)
+    good_commit, bad_commit = (b[models.GIT_COMMIT_KEY] for b in (good, bad))
+    spec = {x: bad[x] for x in [
+        models.LAB_NAME_KEY,
+        models.DEVICE_TYPE_KEY,
+        models.ARCHITECTURE_KEY,
+        models.DEFCONFIG_FULL_KEY,
+    ]}
+    spec.update({
+        models.BISECT_GOOD_COMMIT_KEY: good_commit,
+        models.BISECT_BAD_COMMIT_KEY: bad_commit,
+    })
+    doc = utils.db.find_one2(database[models.BISECT_COLLECTION], spec)
+    if doc:
+        return doc
+    bad_boot_id = bson.objectid.ObjectId(bad["_id"])
+    doc = mbisect.BootBisectDocument(bad_boot_id)
+    doc.boot_id = bad_boot_id
+    doc.version = "1.0"
+    doc.job = bad[models.JOB_KEY]
+    doc.job_id = bad[models.JOB_ID_KEY]
+    doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
+    doc.bisect_data = [bad, good]
+    doc.good_commit = good_commit
+    doc.good_commit_url = good[models.GIT_URL_KEY]
+    doc.good_commit_date = good[models.CREATED_KEY]
+    doc.bad_commit = bad_commit
+    doc.bad_commit_url = bad[models.GIT_URL_KEY]
+    doc.bad_commit_date = bad[models.CREATED_KEY]
+    doc.git_branch = bad[models.GIT_BRANCH_KEY]
+    doc.git_url = bad[models.GIT_URL_KEY]
+    doc.arch = bad[models.ARCHITECTURE_KEY]
+    doc.defconfig = bad[models.DEFCONFIG_KEY]
+    doc.defconfig_full = bad[models.DEFCONFIG_FULL_KEY]
+    doc.compiler = bad[models.COMPILER_KEY]
+    doc.build_id = bad[models.BUILD_ID_KEY]
+    doc.lab_name = bad[models.LAB_NAME_KEY]
+    doc.device_type = bad[models.DEVICE_TYPE_KEY]
+    bcommon.save_bisect_doc(database, doc, bad_boot_id)
+    return doc
