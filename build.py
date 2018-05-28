@@ -85,7 +85,7 @@ def do_post_retry(url=None, data=None, headers=None, files=None):
             if str(response.status_code)[:1] != "2":
                 raise Exception(response.content)
             else:
-                return response.content
+                return response.content, response.status_code
                 retry = False
         except Exception as e:
             print "ERROR: failed to publish"
@@ -552,7 +552,11 @@ if install:
                 count += 1
         upload_url = urljoin(api, '/upload')
         print("Uploading build to storage...")
-        publish_response = do_post_retry(url=upload_url, data=build_data, headers=headers, files=artifacts)
+        publish_response, status_code = do_post_retry(
+            url=upload_url, data=build_data, headers=headers, files=artifacts)
+        if divmod(status_code, 100)[0] != 2:
+            print("Failed to push build")
+            sys.exit(1)
         if not silent:
             print "INFO: published artifacts"
             for publish_result in json.loads(publish_response)["result"]:
