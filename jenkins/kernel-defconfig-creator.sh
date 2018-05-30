@@ -91,6 +91,12 @@ if [ ${ARCH} = "x86" ]; then
   done
 fi
 
+# debug builds
+DEBUG_FRAG=kernel/configs/debug.config
+if [ -e $DEBUG_FRAG ]; then
+  DEFCONFIG_LIST+="$base_defconfig+$DEBUG_FRAG "
+fi
+
 # kselftests
 KSELFTEST_FRAG=kernel/configs/kselftest.config
 if [ -e $KSELFTEST_FRAG ]; then
