@@ -20,6 +20,7 @@ import handlers.base as hbase
 import handlers.common.query
 import handlers.response as hresponse
 import models
+import taskqueue.tasks
 import taskqueue.tasks.bisect as taskt
 import utils.db
 
@@ -49,6 +50,27 @@ class BisectHandler(hbase.BaseHandler):
         :return A list of keys that the method accepts.
         """
         return models.BISECT_VALID_KEYS.get(method, None)
+
+    def _post(self, *args, **kwargs):
+        """Handle HTTP POST requests
+
+        Update bisection data with received results.
+        """
+        response = hresponse.HandlerResponse(202)
+        response.reason = "Request accepted and being imported"
+        json_obj = kwargs["json_obj"]
+        bisect_type = json_obj["type"]
+
+        if bisect_type == "boot":
+            taskt.import_boot_bisect.apply_async(
+                [json_obj],
+                link_error=taskqueue.tasks.error_handler.s()
+            )
+        else:
+            response = hresponse.HandlerResponse(400)
+            response.reason = "Unknown bisection type: {}".format(bisect_type)
+
+        return response
 
     def execute_get(self, *args, **kwargs):
         """This is the actual GET operation.

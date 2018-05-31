@@ -351,3 +351,34 @@ def create_boot_bisect(good, bad, db_options):
     doc.device_type = bad[models.DEVICE_TYPE_KEY]
     bcommon.save_bisect_doc(database, doc, bad_boot_id)
     return doc
+
+
+def update_results(data, db_options):
+    """Update boot bisection results
+
+    :param data: Meta-data of the boot bisection including results
+    :type data: dict
+    :param db_options: The options for the database connection.
+    :type db_options: dictionary
+    :return A numeric value with the result status.
+    """
+    database = utils.db.get_db_connection(db_options)
+    specs = {x: data[x] for x in [
+        models.TYPE_KEY,
+        models.ARCHITECTURE_KEY,
+        models.DEFCONFIG_FULL_KEY,
+        models.JOB_KEY,
+        models.GIT_BRANCH_KEY,
+        models.LAB_NAME_KEY,
+        models.DEVICE_TYPE_KEY,
+        models.BISECT_GOOD_COMMIT_KEY,
+        models.BISECT_BAD_COMMIT_KEY,
+    ]}
+    update = {k: data[k] for k in [
+        models.BISECT_GOOD_SUMMARY_KEY,
+        models.BISECT_BAD_SUMMARY_KEY,
+        models.BISECT_FOUND_SUMMARY_KEY,
+        models.BISECT_LOG_KEY,
+        models.BISECT_CHECKS_KEY,
+    ]}
+    return utils.db.update(database[models.BISECT_COLLECTION], specs, update)

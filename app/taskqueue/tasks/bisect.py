@@ -18,6 +18,17 @@ import utils.bisect.boot as bootb
 import utils.bisect.defconfig as defconfigb
 
 
+@taskc.app.task(name="import-boot-bisect")
+def import_boot_bisect(data):
+    """Just a wrapper around the real boot bisect import function.
+
+    :param data: Bisection results from the JSON data.
+    :type data: dictionary
+    :return Status code with result of the operation.
+    """
+    return bootb.update_results(data, taskc.app.conf.db_options)
+
+
 @taskc.app.task(name="boot-bisect", ignore_result=False)
 def boot_bisect(doc_id, db_options, fields=None):
     """Run a boot bisect operation on the passed boot document id.

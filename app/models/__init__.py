@@ -789,7 +789,23 @@ BISECT_VALID_KEYS = {
         COLLECTION_KEY,
         COMPARE_TO_KEY,
         BUILD_ID_KEY
-    ]
+    ],
+    "POST": [
+        TYPE_KEY,
+        ARCHITECTURE_KEY,
+        JOB_KEY,
+        GIT_BRANCH_KEY,
+        DEFCONFIG_FULL_KEY,
+        LAB_NAME_KEY,
+        DEVICE_TYPE_KEY,
+        BISECT_GOOD_COMMIT_KEY,
+        BISECT_BAD_COMMIT_KEY,
+        BISECT_GOOD_SUMMARY_KEY,
+        BISECT_BAD_SUMMARY_KEY,
+        BISECT_FOUND_SUMMARY_KEY,
+        BISECT_LOG_KEY,
+        BISECT_CHECKS_KEY,
+    ],
 }
 
 TEST_SUITE_VALID_KEYS = {
