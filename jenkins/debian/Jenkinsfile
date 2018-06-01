@@ -1,6 +1,4 @@
-library identifier: 'kernelci-build-staging@master', retriever: modernSCM(
-  [$class: 'GitSCMSource',
-   remote: 'http://github.com/kernelci/kernelci-build-staging'])
+@Library('kernelci') _
 
 buildImage {
 
