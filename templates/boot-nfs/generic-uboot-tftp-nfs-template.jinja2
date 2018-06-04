@@ -16,7 +16,5 @@
     method: u-boot
     commands: nfs
     prompts:
-      - 'linaro-test'
-      - 'root@debian:~#'
-      - '/ #'
+      - '{{ rootfs_prompt }}'
 {% endblock %}

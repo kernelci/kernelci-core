@@ -16,8 +16,5 @@
     method: u-boot
     commands: ramdisk
     prompts:
-      - 'linaro-test'
-      - 'root@debian:~#'
-      - '(initramfs)'
-      - '/ #'
+      - '{{ rootfs_prompt }}'
 {% endblock %}

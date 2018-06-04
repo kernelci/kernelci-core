@@ -143,6 +143,8 @@ def get_job_params(config, template, opts, device, build, defconfig, plan):
 
     nfsrootfs_url = None
     initrd_url = None
+    rootfs_prompt = "\(initramfs\)"
+
     if 'kselftest' in plan:
         initrd_url = KSELFTEST_INITRD_URL.format(initrd_arch)
     else:
@@ -150,11 +152,16 @@ def get_job_params(config, template, opts, device, build, defconfig, plan):
     if 'nfs' in plan:
         nfsrootfs_url = NFSROOTFS_URL.format(initrd_arch)
         initrd_url = None
+        rootfs_prompt = "/ #"
     if build['modules']:
         modules_url = urlparse.urljoin(
             storage, '/'.join([url_px, build['modules']]))
     else:
         modules_url = None
+
+    # hack for compatibility
+    if (initrd_url and 'buildroot' in initrd_url) or (nfsrootfs_url and 'buildroot' in nfsrootfs_url):
+        rootfs_prompt = "/ #"
 
     device_type = device['device_type']
     if device_type.startswith('qemu') or device_type == 'kvm':
@@ -195,6 +202,7 @@ def get_job_params(config, template, opts, device, build, defconfig, plan):
         'nfsrootfs_url': nfsrootfs_url,
         'lab_name': config.get('lab'),
         'context': device.get('context'),
+        'rootfs_prompt': rootfs_prompt,
     }
 
     add_callback_params(job_params, config, plan)
