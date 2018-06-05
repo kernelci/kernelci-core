@@ -33,6 +33,20 @@ TRIGGER_RECEIVED = "Email trigger received from '%s' for '%s-%s-%s' at %s (%s)"
 TRIGGER_RECEIVED_ALREADY = "Email trigger for '%s-%s-%s' (%s) already received"
 ERR_409_MESSAGE = "Email request already registered"
 
+REPORT_TYPE_KEYS = {
+    'build': [
+        models.JOB_KEY,
+        models.GIT_BRANCH_KEY,
+        models.KERNEL_KEY,
+    ],
+    'boot': [
+        models.JOB_KEY,
+        models.GIT_BRANCH_KEY,
+        models.KERNEL_KEY,
+        models.LAB_NAME_KEY,
+    ],
+}
+
 
 # pylint: disable=too-many-public-methods
 class SendHandler(hbase.BaseHandler):
@@ -57,7 +71,6 @@ class SendHandler(hbase.BaseHandler):
         branch = utils.clean_branch_name(j_get(models.GIT_BRANCH_KEY))
 
         # Optional keys
-        lab_name = j_get(models.LAB_NAME_KEY)
         report_type = j_get(models.REPORT_TYPE_KEY)
         countdown = j_get(models.DELAY_KEY)
         if countdown is None:
@@ -69,13 +82,15 @@ class SendHandler(hbase.BaseHandler):
         elif j_get(models.SEND_BUILD_REPORT_KEY):
             report_type = 'build'
 
-        if not report_type:
+        report_keys = REPORT_TYPE_KEYS.get(report_type)
+        if not report_keys:
             response.status_code = 400
             response.reason = (
-                "No report type specified.  Valid report types are: {}"
-                .format(', '.join(['boot'], ['build']))
+                "Invalid report type: {}.  Valid values are: {}"
+                .format(report_type, ", ".join(REPORT_TYPE_KEYS.keys()))
             )
-            return
+            return response
+        report_data = {k: j_get(k) for k in report_keys}
 
         email_format = j_get(models.EMAIL_FORMAT_KEY, None)
         email_format, email_errors = _check_email_format(email_format)
@@ -154,23 +169,11 @@ class SendHandler(hbase.BaseHandler):
                         self.redisdb.set(
                             schedule_hash, "schedule", ex=86400)
 
-                        if report_type == 'boot':
-                            errors, response.errors = \
-                                self._schedule_boot_report(
-                                    job,
-                                    branch,
-                                    kernel,
-                                    lab_name,
-                                    email_opts,
-                                    countdown)
-                        elif report_type == 'build':
-                            errors, response.errors = \
-                                self._schedule_build_report(
-                                    job,
-                                    branch,
-                                    kernel,
-                                    email_opts,
-                                    countdown)
+                        schedule_method = getattr(
+                            self, "_schedule_{}_report".format(report_type))
+
+                        errors, response.errors = schedule_method(
+                            report_data, email_opts, countdown)
 
                         response.reason, response.status_code = \
                             _check_status(report_type, errors, when)
@@ -202,17 +205,11 @@ class SendHandler(hbase.BaseHandler):
 
         return response
 
-    # pylint: disable=too-many-arguments
-    def _schedule_boot_report(
-            self, job, git_branch, kernel, lab_name, email_opts, countdown):
+    def _schedule_boot_report(self, report_data, email_opts, countdown):
         """Schedule the boot report performing some checks on the emails.
 
-        :param job: The name of the job.
-        :type job: string
-        :param kernel: The name of the kernel.
-        :type kernel: string
-        :param lab_name: The name of the lab.
-        :type lab_name: string
+        :param report_data: Contents to use in the report.
+        :type report_data: dict
         :param email_opts: The data necessary for scheduling a report.
         :type email_opts: dictionary
         :param countdown: Delay time before sending the email.
@@ -223,6 +220,13 @@ class SendHandler(hbase.BaseHandler):
         """
         has_errors = False
         error_string = None
+
+        job, git_branch, kernel, lab_name = (report_data[k] for k in [
+            models.JOB_KEY,
+            models.GIT_BRANCH_KEY,
+            models.KERNEL_KEY,
+            models.LAB_NAME_KEY,
+        ])
 
         if email_opts.get("to"):
             taskq.send_boot_report.apply_async(
@@ -250,16 +254,11 @@ class SendHandler(hbase.BaseHandler):
 
         return has_errors, error_string
 
-    def _schedule_build_report(
-            self, job, git_branch, kernel, email_opts, countdown):
+    def _schedule_build_report(self, report_data, email_opts, countdown):
         """Schedule the build report performing some checks on the emails.
 
-        :param job: The name of the job.
-        :type job: string
-        :param kernel: The name of the kernel.
-        :type kernel: string
-        :param email_format: The email format to send.
-        :type email_format: list
+        :param report_data: Contents to use in the report.
+        :type report_data: dict
         :param email_opts: The data necessary for scheduling a report.
         :type email_opts: dictionary
         :param countdown: Delay time before sending the email.
@@ -270,6 +269,12 @@ class SendHandler(hbase.BaseHandler):
         """
         has_errors = False
         error_string = None
+
+        job, git_branch, kernel = (report_data[k] for k in [
+            models.JOB_KEY,
+            models.GIT_BRANCH_KEY,
+            models.KERNEL_KEY,
+        ])
 
         if email_opts.get("to"):
             taskq.send_build_report.apply_async(
