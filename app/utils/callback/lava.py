@@ -51,7 +51,7 @@ TEST_CASE_NAME_EXTRA = {
     "test-install-overlay": ["name"],
 }
 
-META_DATA_MAP_TEST_SUITE = {
+META_DATA_MAP_TEST = {
     models.ARCHITECTURE_KEY: "job.arch",
     models.BOARD_KEY: "platform.name",
     models.DEFCONFIG_KEY: "kernel.defconfig_base",
@@ -463,7 +463,7 @@ def add_tests(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
 
         try:
             _get_job_meta(suite_data, job_data)
-            _get_definition_meta(suite_data, job_data, META_DATA_MAP_TEST_SUITE)
+            _get_definition_meta(suite_data, job_data, META_DATA_MAP_TEST)
             _get_lava_meta(suite_data, job_data)
             _add_boot_log(suite_data, job_data["log"], base_path, suite_name)
             case_data = _get_test_case_data(suite_results, suite_name)
