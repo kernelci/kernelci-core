@@ -116,6 +116,7 @@ X_LAB = "X-Kernelci-Lab-Name"
 # Type of reports we send.
 BOOT_REPORT_TYPE = "boot"
 BUILD_REPORT_TYPE = "build"
+BISECT_REPORT_TYPE = "bisect"
 
 
 def save_report(job, branch, kernel, r_type, status, errors, db_options):

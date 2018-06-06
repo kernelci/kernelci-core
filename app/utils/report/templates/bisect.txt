@@ -1,0 +1,34 @@
+{{ subject_str }}
+
+  Good:       {{ good }}
+  Bad:        {{ bad }}
+  Found:      {{ found }}
+
+Checks:
+{%- for check, result in checks|dictsort %}
+  {{ "%-11s" | format(check + ":",) }} {{ result }}
+{%- endfor %}
+
+Parameters:
+  Tree:       {{ tree }}
+  URL:        {{ git_url }}
+  Branch:     {{ branch }}
+  Target:     {{ target }}
+  Lab:        {{ lab_name }}
+  Config:     {{ defconfig }}
+  Plan:       {{ plan }}
+
+Breaking commit found:
+
+-------------------------------------------------------------------------------
+{{ show }}
+-------------------------------------------------------------------------------
+
+
+Git bisection log:
+
+-------------------------------------------------------------------------------
+{%- for line in log %}
+{{ line -}}
+{% endfor %}
+-------------------------------------------------------------------------------

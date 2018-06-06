@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+    <head>
+      <meta charset="utf-8">
+      <style>
+h1 {
+  font-size: 1.1em;
+}
+h2 {
+  font-size: 1.0em;
+}
+table {
+  border: none;
+}
+th {
+  font-weight: bold;
+  padding: 4px 10px 4px 10px;
+  text-align: left;
+  vertical-align: bottom;
+}
+td {
+  vertical-align: bottom;
+  padding: 4px;
+}
+pre {
+  display: inline;
+}
+      </style>
+      <title>{{ subject_str }}</title>
+    </head>
+    <body>
+      <p>
+        <h1>{{ subject_str }}</h1>
+        <table>
+          <tr><th>Good</th><td><pre>{{ good }}</pre></td></tr>
+          <tr><th>Bad</th><td><pre>{{ bad }}</pre></td></tr>
+          <tr><th>Found</th><td><pre>{{ found }}</pre></td></tr>
+        </table>
+      </p>
+      <p>
+        <h2>Checks:</h2>
+        <table>
+          {%- for check, result in checks|dictsort %}
+          <tr><th>{{ check }}</th><td>{{ result }}</td></tr>
+          {%- endfor %}
+        </table>
+      </p>
+      <p>
+        <h2>Parameters:</h2>
+        <table>
+          <tr><th>Tree</th><td>{{ tree }}</td></tr>
+          <tr><th>URL</th><td>{{ git_url }}</td></tr>
+          <tr><th>Branch</th><td>{{ branch }}</td></tr>
+          <tr><th>Target</th><td>{{ target }}</td></tr>
+          <tr><th>Lab</th><td>{{ lab_name }}</td></tr>
+          <tr><th>Config</th><td>{{ defconfig }}</td></tr>
+          <tr><th>Plan</th><td>{{ plan }}</td></tr>
+        </table>
+      </p>
+      <p>
+        <h2>Breaking commit found:</h2>
+        <pre>{{ show }}</pre>
+      </p>
+      <p>
+        <h2>Git bisection log:</h2>
+        <pre>
+{%- for line in log %}
+{{ line -}}
+{%- endfor -%}
+        </pre>
+      </p>
+    </body>
+</html>
