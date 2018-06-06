@@ -55,15 +55,17 @@ class TestBisectModel(unittest.TestCase):
             "good_commit": None,
             "good_commit_date": None,
             "good_commit_url": None,
+            "good_summary": None,
             "bad_commit": None,
             "bad_commit_date": None,
             "bad_commit_url": None,
+            "bad_summary": None,
             "version": None,
             "job_id": None,
             "type": None,
             "found_summary": None,
             "log": None,
-            "verified": None,
+            "checks": {},
             "arch": None,
             "build_id": None,
             "defconfig": None,
@@ -87,15 +89,17 @@ class TestBisectModel(unittest.TestCase):
             "good_commit": None,
             "good_commit_date": None,
             "good_commit_url": None,
+            "good_summary": None,
             "bad_commit": None,
             "bad_commit_date": None,
             "bad_commit_url": None,
+            "bad_summary": None,
             "version": None,
             "job_id": None,
             "type": None,
             "found_summary": None,
             "log": None,
-            "verified": None,
+            "checks": {},
             "arch": None,
             "build_id": None,
             "defconfig": None,
@@ -107,7 +111,6 @@ class TestBisectModel(unittest.TestCase):
         self.assertDictEqual(expected, bisect_doc.to_dict())
 
     def test_bisect_boot_to_dict(self):
-        self.maxDiff = None
         bisect_doc = modbs.BootBisectDocument("foo")
         bisect_doc.id = "bar"
         bisect_doc.board = "baz"
@@ -131,9 +134,11 @@ class TestBisectModel(unittest.TestCase):
             "good_commit": None,
             "good_commit_date": None,
             "good_commit_url": None,
+            "good_summary": None,
             "bad_commit": None,
             "bad_commit_date": None,
             "bad_commit_url": None,
+            "bad_summary": None,
             "version": "1.0",
             "boot_id": "boot-id",
             "build_id": "build-id",
@@ -149,7 +154,7 @@ class TestBisectModel(unittest.TestCase):
             "git_branch": "master",
             "log": "https://storage.org/log.txt",
             "found_summary": None,
-            "verified": None,
+            "checks": {},
         }
         self.assertDictEqual(expected, bisect_doc.to_dict())
 
@@ -211,9 +216,11 @@ class TestBisectModel(unittest.TestCase):
             "good_commit": None,
             "good_commit_date": None,
             "good_commit_url": None,
+            "good_summary": None,
             "bad_commit": None,
             "bad_commit_date": None,
             "bad_commit_url": None,
+            "bad_summary": None,
             "version": "1.0",
             "build_id": "build-id",
             "defconfig": "defconfig-name",
@@ -226,7 +233,7 @@ class TestBisectModel(unittest.TestCase):
             "found_summary": "7890cdef foo: change bar into baz",
             "git_url": "https://somewhere.com/blah.git",
             "log": None,
-            "verified": None,
+            "checks": {},
         }
 
         self.assertDictEqual(expected, bisect_doc.to_dict())

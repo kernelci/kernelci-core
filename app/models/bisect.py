@@ -38,8 +38,10 @@ class BisectDocument(modb.BaseDocument):
         self.job = None
         self.job_id = None
         self.type = None
+        self.good_summary = None
+        self.bad_summary = None
         self.found_summary = None
-        self.verified = None
+        self.checks = {}
         self.log = None
         self.git_branch = None
         self.git_url = None
@@ -114,8 +116,10 @@ class BisectDocument(modb.BaseDocument):
             models.JOB_KEY: self.job,
             models.TYPE_KEY: self.type,
             models.VERSION_KEY: self.version,
+            models.BISECT_GOOD_SUMMARY_KEY: self.good_summary,
+            models.BISECT_BAD_SUMMARY_KEY: self.bad_summary,
             models.BISECT_FOUND_SUMMARY_KEY: self.found_summary,
-            models.BISECT_VERIFIED_KEY: self.verified,
+            models.BISECT_CHECKS_KEY: self.checks,
             models.BISECT_LOG_KEY: self.log,
             models.GIT_BRANCH_KEY: self.git_branch,
             models.GIT_URL_KEY: self.git_url,
