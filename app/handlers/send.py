@@ -45,6 +45,19 @@ REPORT_TYPE_KEYS = {
         models.KERNEL_KEY,
         models.LAB_NAME_KEY,
     ],
+    'bisect': [
+        models.JOB_KEY,
+        models.GIT_BRANCH_KEY,
+        models.KERNEL_KEY,
+        models.TYPE_KEY,
+        models.ARCHITECTURE_KEY,
+        models.DEFCONFIG_FULL_KEY,
+        models.LAB_NAME_KEY,
+        models.BISECT_LOG_KEY,
+        models.DEVICE_TYPE_KEY,
+        models.BISECT_GOOD_COMMIT_KEY,
+        models.BISECT_BAD_COMMIT_KEY,
+    ],
 }
 
 
@@ -293,6 +306,38 @@ class SendHandler(hbase.BaseHandler):
             self.log.error(
                 "No email addresses to send build report to for '%s-%s-%s'",
                 job, git_branch, kernel)
+
+        return has_errors, error_string
+
+    def _schedule_bisect_report(self, report_data, email_opts, countdown):
+        """Schedule the bisect report performing some checks on the emails.
+
+        :param report_data: Contents to use in the report.
+        :type report_data: dict
+        :param email_opts: The data necessary for generating a report.
+        :type email_opts: dictionary
+        :param countdown: Delay time before sending the email.
+        :type countdown: int
+        :return A tuple with as first parameter a bool indicating if the
+        scheduling had success, as second argument the error string in case
+        of error or None.
+        """
+        has_errors = False
+        error_string = None
+
+        if email_opts.get("to"):
+            taskq.send_bisect_report.apply_async(
+                [
+                    report_data,
+                    email_opts,
+                ],
+                countdown=countdown
+            )
+        else:
+            has_errors = True
+            error_string = (
+                "No email addresses provided to send bisection report to")
+            self.log.error(error_string)
 
         return has_errors, error_string
 

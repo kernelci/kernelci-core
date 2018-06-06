@@ -273,6 +273,7 @@ KERNEL_BUILD_TYPE = "kernel"
 # Report types.
 BUILD_REPORT = "build"
 BOOT_REPORT = "boot"
+BISECT_REPORT = "bisect"
 
 # Bisect values.
 BISECT_BOOT_STATUS_KEY = "boot_status"
@@ -768,7 +769,15 @@ SEND_VALID_KEYS = {
             REPORT_SEND_TO_KEY,
             SEND_BOOT_REPORT_KEY,
             SEND_BUILD_REPORT_KEY,
-            SUBJECT_KEY
+            SUBJECT_KEY,
+            # Bisection keys
+            TYPE_KEY,
+            ARCHITECTURE_KEY,
+            DEFCONFIG_FULL_KEY,
+            DEVICE_TYPE_KEY,
+            BISECT_GOOD_COMMIT_KEY,
+            BISECT_BAD_COMMIT_KEY,
+            BISECT_LOG_KEY,
         ]
     }
 }

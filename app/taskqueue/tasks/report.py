@@ -17,6 +17,7 @@ import models
 import taskqueue.celery as taskc
 import utils.db
 import utils.emails
+import utils.report.bisect
 import utils.report.boot
 import utils.report.build
 import utils.report.common
@@ -133,6 +134,42 @@ def send_build_report(job, git_branch, kernel, email_opts):
         utils.LOG.error(
             "No email body nor subject found for build report '{}-{}-{}'"
             .format(job, git_branch, kernel))
+
+    return status
+
+
+@taskc.app.task(name="send-bisect-report")
+def send_bisect_report(report_data, email_opts, base_path=utils.BASE_PATH):
+    """Send the bisect report email.
+
+    :param report_data: The data necessary for generating a report.
+    :type report_data: dict
+    :param email_opts: Email options.
+    :type email_opts: dict
+    """
+    status = "ERROR"
+    job, git_branch, kernel = (report_data[k] for k in [
+        models.JOB_KEY,
+        models.GIT_BRANCH_KEY,
+        models.KERNEL_KEY,
+    ])
+    report_id = "-".join([job, git_branch, kernel])
+
+    utils.LOG.info("Sending bisect report email for {}".format(report_id))
+
+    db_options = taskc.app.conf.get("db_options", {})
+
+    txt_body, html_body, headers = \
+        utils.report.bisect.create_bisect_report(
+            report_data, email_opts["format"], db_options)
+
+    status, errors = utils.emails.send_email(
+        email_opts["subject"], txt_body, html_body, email_opts,
+        taskc.app.conf.mail_options, headers)
+
+    utils.report.common.save_report(
+        job, git_branch, kernel, models.BISECT_REPORT,
+        status, errors, db_options)
 
     return status
 
