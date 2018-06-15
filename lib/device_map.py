@@ -1781,6 +1781,16 @@ sun8i_a83t_allwinner_h8homlet_v2 = {'device_type': 'sun8i-a83t-allwinner-h8homle
                     'fastboot': False,
                     'mach': 'sunxi'}
 
+sun8i_h3_libretech_all_h3_cc = {'device_type': 'sun8i-h3-libretech-all-h3-cc',
+                    'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
+                    'kernel_defconfig_blacklist': [],
+                    'defconfig_blacklist': ['allmodconfig'],
+                    'kernel_blacklist': [],
+                    'nfs_blacklist': [],
+                    'lpae': False,
+                    'fastboot': False,
+                    'mach': 'sunxi'}
+
 sun8i_h3_orangepi_pc = {'device_type': 'sun8i-h3-orangepi-pc',
                     'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
                     'kernel_defconfig_blacklist': [],
@@ -1946,6 +1956,7 @@ device_map = {'alpine-db.dtb': [alpine_db],
               'sun8i-a23-evb.dtb': [sun8i_a23_evb],
               'sun8i-a83t-allwinner-h8homlet-v2.dtb': [sun8i_a83t_allwinner_h8homlet_v2],
               'sun8i-h3-orangepi-pc.dtb': [sun8i_h3_orangepi_pc],
+              'sun8i-h3-libretech-all-h3-cc.dtb': [sun8i_h3_libretech_all_h3_cc],
               'sun8i-a33-sinlinx-sina33.dtb': [sinlinx_sina33],
               'kirkwood-openblocks_a7.dtb': [openblocks_a7],
               'armada-xp-openblocks-ax3-4.dtb': [openblocks_ax3],
