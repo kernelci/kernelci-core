@@ -340,6 +340,7 @@ def create_boot_bisect(good, bad, db_options):
     doc.bad_commit = bad_commit
     doc.bad_commit_url = bad[models.GIT_URL_KEY]
     doc.bad_commit_date = bad[models.CREATED_KEY]
+    doc.kernel = bad[models.KERNEL_KEY]
     doc.git_branch = bad[models.GIT_BRANCH_KEY]
     doc.git_url = bad[models.GIT_URL_KEY]
     doc.arch = bad[models.ARCHITECTURE_KEY]
@@ -368,6 +369,7 @@ def update_results(data, db_options):
         models.ARCHITECTURE_KEY,
         models.DEFCONFIG_FULL_KEY,
         models.JOB_KEY,
+        models.KERNEL_KEY,
         models.GIT_BRANCH_KEY,
         models.LAB_NAME_KEY,
         models.DEVICE_TYPE_KEY,

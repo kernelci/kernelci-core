@@ -491,6 +491,7 @@ def _start_bisection(bisection, jopts):
         "TARGET": models.DEVICE_TYPE_KEY,
         "LAB": models.LAB_NAME_KEY,
         "KERNEL_TREE": models.JOB_KEY,
+        "KERNEL_NAME": models.KERNEL_KEY,
         "GOOD_COMMIT": models.BISECT_GOOD_COMMIT_KEY,
         "BAD_COMMIT": models.BISECT_BAD_COMMIT_KEY,
     }

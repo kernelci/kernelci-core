@@ -43,6 +43,7 @@ class BisectDocument(modb.BaseDocument):
         self.found_summary = None
         self.checks = {}
         self.log = None
+        self.kernel = None
         self.git_branch = None
         self.git_url = None
         self.arch = None
@@ -121,6 +122,7 @@ class BisectDocument(modb.BaseDocument):
             models.BISECT_FOUND_SUMMARY_KEY: self.found_summary,
             models.BISECT_CHECKS_KEY: self.checks,
             models.BISECT_LOG_KEY: self.log,
+            models.KERNEL_KEY: self.kernel,
             models.GIT_BRANCH_KEY: self.git_branch,
             models.GIT_URL_KEY: self.git_url,
             models.ARCHITECTURE_KEY: self.arch,
