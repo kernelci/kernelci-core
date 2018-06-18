@@ -17,6 +17,15 @@
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
+/* ----------------------------------------------------------------------------
+ * Jenkins parameters
+
+KCI_API_URL (https://api.kernelci.org)
+  URL of the KernelCI backend API
+KCI_TOKEN_ID
+  Identifier of the KernelCI backend API token stored in Jenkins
+
+*/
 
 
 /* TODO:
@@ -92,9 +101,9 @@ def makeImageStep(String pipeline_version, String arch, String debian_arch, Stri
                 }
 
                 stage("Upload images for ${arch}") {
-                    withCredentials([string(credentialsId: 'Staging KernelCI API Token', variable: 'API_TOKEN')]) {
+                    withCredentials([string(credentialsId: params.KCI_TOKEN_ID, variable: 'API_TOKEN')]) {
                         sh """
-                            python push-source.py --token ${API_TOKEN} --api https://staging-api.kernelci.org \
+                            python push-source.py --token ${API_TOKEN} --api ${params.KCI_API_URL} \
                                 --publish_path images/rootfs/debian/${name}/ \
                                 --file ${pipeline_version}/${arch}/*.*
                         """
