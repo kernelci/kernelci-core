@@ -1,0 +1,19 @@
+- test:
+    timeout:
+      minutes: 5
+    definitions:
+    - repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: cros-ec
+          description: "check /dev/cros_ec"
+          os:
+          - oe
+          scope:
+          - functional
+        run:
+          steps:
+            - lava-test-case cros-ec-presence --shell test -c /dev/cros_ec
+      from: inline
+      name: cros-ec
+      path: inline/cros-ec.yaml
