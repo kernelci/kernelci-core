@@ -40,9 +40,9 @@ from jinja2 import Environment, FileSystemLoader
 
 LEGACY_X86_PLATFORMS = ['x86', 'x86-kvm', 'x86-32']
 ARCHS = ['arm64', 'arm64be', 'armeb', 'armel', 'x86']
-ROOTFS_URL = 'http://storage.kernelci.org/images/rootfs/buildroot'
-INITRD_URL = '/'.join([ROOTFS_URL, '{}', 'rootfs.cpio.gz'])
-NFSROOTFS_URL = '/'.join([ROOTFS_URL, '{}', 'rootfs.tar.xz'])
+ROOTFS_URL = 'http://storage.kernelci.org/images/rootfs/buildroot/kci-2018.05'
+INITRD_URL = '/'.join([ROOTFS_URL, '{}', 'base', 'rootfs.cpio.gz'])
+NFSROOTFS_URL = '/'.join([ROOTFS_URL, '{}', 'base', 'rootfs.tar.xz'])
 KSELFTEST_INITRD_URL = '/'.join([ROOTFS_URL, '{}', 'tests', 'rootfs.cpio.gz'])
 DEBIAN_ROOTFS_URL = 'http://storage.kernelci.org/images/rootfs/debian/stretch/20180627.0/'
 DEBIAN_INITRD_URL = '/'.join([DEBIAN_ROOTFS_URL, '{}', 'rootfs.cpio.gz'])
