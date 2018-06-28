@@ -44,7 +44,10 @@ ROOTFS_URL = 'http://storage.kernelci.org/images/rootfs/buildroot'
 INITRD_URL = '/'.join([ROOTFS_URL, '{}', 'rootfs.cpio.gz'])
 NFSROOTFS_URL = '/'.join([ROOTFS_URL, '{}', 'rootfs.tar.xz'])
 KSELFTEST_INITRD_URL = '/'.join([ROOTFS_URL, '{}', 'tests', 'rootfs.cpio.gz'])
-
+DEBIAN_ROOTFS_URL = 'http://storage.kernelci.org/images/rootfs/debian/stretch/20180627.0/'
+DEBIAN_INITRD_URL = '/'.join([DEBIAN_ROOTFS_URL, '{}', 'rootfs.cpio.gz'])
+DEBIANTESTS_ROOTFS_URL = 'http://storage.kernelci.org/images/rootfs/debian/stretchtests/20180627.0/'
+DEBIANTESTS_INITRD_URL = '/'.join([DEBIANTESTS_ROOTFS_URL, '{}', 'rootfs.cpio.gz'])
 
 def get_builds(api, token, config):
     headers = {
@@ -141,20 +144,37 @@ def get_job_params(config, template, opts, device, build, defconfig, plan):
         else:
             initrd_arch = 'armel'
 
+    debian_initrd_arch = arch
+    if arch == 'arm64':
+        debian_initrd_arch = 'arm64'
+    elif arch == 'arm':
+        debian_initrd_arch = 'armhf'
+
     nfsrootfs_url = None
     initrd_url = None
+    rootfs_prompt = "\(initramfs\)"
+
     if 'kselftest' in plan:
         initrd_url = KSELFTEST_INITRD_URL.format(initrd_arch)
+    elif 'v4l2' in plan:
+        initrd_url = DEBIANTESTS_INITRD_URL.format(debian_initrd_arch)
+        rootfs_prompt = "/ #"
     else:
         initrd_url = INITRD_URL.format(initrd_arch)
+
     if 'nfs' in plan:
         nfsrootfs_url = NFSROOTFS_URL.format(initrd_arch)
         initrd_url = None
+        rootfs_prompt = "/ #"
     if build['modules']:
         modules_url = urlparse.urljoin(
             storage, '/'.join([url_px, build['modules']]))
     else:
         modules_url = None
+
+    # hack for compatibility
+    if (initrd_url and 'buildroot' in initrd_url) or (nfsrootfs_url and 'buildroot' in nfsrootfs_url):
+        rootfs_prompt = "/ #"
 
     device_type = device['device_type']
     if device_type.startswith('qemu') or device_type == 'kvm':
@@ -195,6 +215,7 @@ def get_job_params(config, template, opts, device, build, defconfig, plan):
         'nfsrootfs_url': nfsrootfs_url,
         'lab_name': config.get('lab'),
         'context': device.get('context'),
+        'rootfs_prompt': rootfs_prompt,
     }
 
     add_callback_params(job_params, config, plan)

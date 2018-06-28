@@ -45,7 +45,5 @@ actions:
     method: qemu
     media: tmpfs
     prompts:
-      - 'linaro-test'
-      - 'root@debian:~#'
-      - '/ #'
+      - '{{ rootfs_prompt }}'
 {% endblock %}

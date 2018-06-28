@@ -1,0 +1,26 @@
+- test:
+    timeout:
+      minutes: 10
+    definitions:
+    - repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: v4l2
+          description: "v4l2 test plan"
+          os:
+          - debian
+          scope:
+          - functional
+        run:
+          steps:
+          - lava-test-case v4l2-compliance --shell v4l2-compliance | sed "s/test /test $test/g"
+        parse:
+          pattern: 'test (?P<test_case_id>\S*):\s+(?P<result>(OK|FAIL|SKIP))'
+          fixupdict:
+            OK: pass
+            FAIL: fail
+            SKIP: skip
+      from: inline
+      name: v4l2
+      path: inline/v4l2.yaml
+

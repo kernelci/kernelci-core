@@ -16,7 +16,5 @@
     method: grub
     commands: nfs
     prompts:
-      - 'linaro-test'
-      - 'root@debian:~#'
-      - '/ #'
+      - '{{ rootfs_prompt }}'
 {% endblock %}
