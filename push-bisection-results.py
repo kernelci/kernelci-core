@@ -119,13 +119,13 @@ def send_report(args, log_file_name, token, api):
         'good_commit': 'good',
         'bad_commit': 'bad',
         'subject': 'subject',
-        'send_to': 'to',
     }
     data = {k: args[v] for k, v in data_map.iteritems()}
     data.update({
         'report_type': 'bisect',
         'log': log_file_name,
         'format': ['txt', 'html'],
+        'send_to': args['to'].split(' '),
     })
     url = urlparse.urljoin(api, '/send')
     response = requests.post(url, headers=headers, data=json.dumps(data))
