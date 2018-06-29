@@ -58,7 +58,7 @@ mkdir -p /tmp/tests/igt2/usr/bin
 cp -a tests/core_auth tests/core_get_client_auth tests/core_getclient tests/core_getstats tests/core_getversion \
     tests/core_prop_blob tests/core_setmaster_vs_auth tests/drm_read tests/kms_addfb_basic tests/kms_atomic \
     tests/kms_flip_event_leak tests/kms_setmode tests/kms_vblank tests/kms_frontbuffer_tracking tests/kms_flip  \
-    tests/kms_cursor_legacy /tmp/tests/igt2/usr/bin
+    tests/kms_cursor_legacy tests/testdisplay /tmp/tests/igt2/usr/bin
 strip /tmp/tests/igt2/usr/bin/*
 
 # Copy binaries in the image
