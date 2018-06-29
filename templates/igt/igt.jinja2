@@ -1,0 +1,38 @@
+- test:
+    timeout:
+      minutes: 10
+    definitions:
+    - repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: igt
+          description: "IGT test plan"
+          os:
+          - oe
+          scope:
+          - functional
+        run:
+          steps:
+          - lava-test-case core_auth --shell /usr/bin/core_auth | sed "s/Subtest /Subtest $test@/g"
+          - lava-test-case core_get_client_auth --shell /usr/bin/core_get_client_auth | sed "s/Subtest /Subtest $test@/g"
+          - lava-test-case core_getclient --shell /usr/bin/core_getclient | sed "s/Subtest /Subtest $test@/g"
+          - lava-test-case core_getstats --shell /usr/bin/core_getstats | sed "s/Subtest /Subtest $test@/g"
+          - lava-test-case core_getversion --shell /usr/bin/core_getversion | sed "s/Subtest /Subtest $test@/g"
+          - lava-test-case core_prop_blob --shell /usr/bin/core_prop_blob | sed "s/Subtest /Subtest $test@/g"
+          - lava-test-case core_setmaster_vs_auth --shell /usr/bin/core_setmaster_vs_auth | sed "s/Subtest /Subtest $test@/g"
+          - lava-test-case drm_read --shell /usr/bin/drm_read | sed "s/Subtest /Subtest $test@/g"
+          - lava-test-case kms_addfb_basic --shell /usr/bin/kms_addfb_basic | sed "s/Subtest /Subtest $test@/g"
+          - lava-test-case kms_atomic --shell /usr/bin/kms_atomic | sed "s/Subtest /Subtest $test@/g"
+          - lava-test-case kms_flip_event_leak --shell /usr/bin/kms_flip_event_leak | sed "s/Subtest /Subtest $test@/g"
+          - lava-test-case kms_setmode --shell /usr/bin/kms_setmode | sed "s/Subtest /Subtest $test@/g"
+          - lava-test-case kms_vblank --shell /usr/bin/kms_vblank | sed "s/Subtest /Subtest $test@/g"
+        parse:
+          pattern: 'Subtest (?P<test_case_id>\S*):\s+(?P<result>(SUCCESS|FAIL|SKIP))'
+          fixupdict:
+            SUCCESS: pass
+            FAIL: fail
+            SKIP: skip
+      lava-signal: kmsg
+      from: inline
+      name: igt
+      path: inline/igt.yaml

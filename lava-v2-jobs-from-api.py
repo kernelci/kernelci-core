@@ -156,7 +156,7 @@ def get_job_params(config, template, opts, device, build, defconfig, plan):
 
     if 'kselftest' in plan:
         initrd_url = KSELFTEST_INITRD_URL.format(initrd_arch)
-    elif 'v4l2' in plan:
+    elif 'v4l2' or 'igt' in plan:
         initrd_url = DEBIANTESTS_INITRD_URL.format(debian_initrd_arch)
         rootfs_prompt = "/ #"
     else:
