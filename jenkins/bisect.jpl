@@ -390,7 +390,7 @@ PYTHON_EGG_CACHE=${egg_cache} \
 --revert=${checks['revert']} \
 --kdir=${kdir} \
 --subject=\"${subject}\" \
---to=${params.EMAIL_RECIPIENTS} \
+--to=\"${params.EMAIL_RECIPIENTS}\" \
 """)
         }
     }
