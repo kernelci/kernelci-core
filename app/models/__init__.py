@@ -793,6 +793,7 @@ BISECT_VALID_KEYS = {
         TYPE_KEY,
         ARCHITECTURE_KEY,
         JOB_KEY,
+        KERNEL_KEY,
         GIT_BRANCH_KEY,
         DEFCONFIG_FULL_KEY,
         LAB_NAME_KEY,
