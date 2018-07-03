@@ -24,6 +24,19 @@ import utils.report.common as rcommon
 
 def create_bisect_report(data, email_format, db_options,
                          base_path=utils.BASE_PATH):
+    """Create the bisection report email to be sent.
+
+    :param data: The meta-data for the bisection job.
+    :type data: dictionary
+    :param email_format: The email format to send.
+    :type email_format: list
+    :param db_options: The mongodb database connection parameters.
+    :type db_options: dict
+    :param base_path: Path to the top-level storage directory.
+    :type base_path: string
+    :return A tuple with the TXT email body, the HTML email body and the
+    headers as dictionary.  If an error occured, None.
+    """
     database = utils.db.get_db_connection(db_options)
 
     job, branch, kernel, lab, target = (data[k] for k in [
@@ -48,7 +61,7 @@ def create_bisect_report(data, email_format, db_options,
     doc = utils.db.find_one2(database[models.BISECT_COLLECTION], specs)
     if not doc:
         utils.LOG.warning("Failed to find bisection document")
-        return None, None, {}
+        return None
 
     headers = {
         rcommon.X_REPORT: rcommon.BISECT_REPORT_TYPE,
