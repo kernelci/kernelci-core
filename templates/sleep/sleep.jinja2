@@ -13,9 +13,9 @@
           - functional
         run:
           steps:
-            - dmesg -n 6  # Silence KERN_INFO as it confuses LAVA on wakeup
             - for i in $(seq 1 10); do lava-test-case rtcwake-mem-$i --shell rtcwake -d rtc0 -m mem -s 1; done
             - for i in $(seq 1 10); do lava-test-case rtcwake-freeze-$i --shell rtcwake -d rtc0 -m freeze -s 1; done
+      lava-signal: kmsg
       from: inline
       name: sleep
       path: inline/sleep.yaml
