@@ -44,9 +44,9 @@ ROOTFS_URL = 'http://storage.kernelci.org/images/rootfs/buildroot/kci-2018.05'
 INITRD_URL = '/'.join([ROOTFS_URL, '{}', 'base', 'rootfs.cpio.gz'])
 NFSROOTFS_URL = '/'.join([ROOTFS_URL, '{}', 'base', 'rootfs.tar.xz'])
 KSELFTEST_INITRD_URL = '/'.join([ROOTFS_URL, '{}', 'tests', 'rootfs.cpio.gz'])
-DEBIAN_ROOTFS_URL = 'http://storage.kernelci.org/images/rootfs/debian/stretch/20180627.0/'
+DEBIAN_ROOTFS_URL = 'http://storage.kernelci.org/images/rootfs/debian/stretch/20180627.0'
 DEBIAN_INITRD_URL = '/'.join([DEBIAN_ROOTFS_URL, '{}', 'rootfs.cpio.gz'])
-DEBIANTESTS_ROOTFS_URL = 'http://storage.kernelci.org/images/rootfs/debian/stretchtests/20180627.0/'
+DEBIANTESTS_ROOTFS_URL = 'http://storage.kernelci.org/images/rootfs/debian/stretchtests/20180627.0'
 DEBIANTESTS_INITRD_URL = '/'.join([DEBIANTESTS_ROOTFS_URL, '{}', 'rootfs.cpio.gz'])
 
 def get_builds(api, token, config):
@@ -156,10 +156,10 @@ def get_job_params(config, template, opts, device, build, defconfig, plan):
 
     if 'kselftest' in plan:
         initrd_url = KSELFTEST_INITRD_URL.format(initrd_arch)
-    elif 'v4l2' or 'igt' in plan:
+    elif plan in ['v4l2', 'igt']:
         initrd_url = DEBIANTESTS_INITRD_URL.format(debian_initrd_arch)
         rootfs_prompt = "/ #"
-    elif 'cros-ec' in plan:
+    elif plan in ['cros-ec']:
         initrd_url = DEBIAN_INITRD_URL.format(debian_initrd_arch)
         rootfs_prompt = "/ #"
     else:
