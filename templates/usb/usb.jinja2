@@ -13,8 +13,14 @@
           - functional
         run:
           steps:
-            - lsusb
             - lava-test-case usb-presence --shell test -n \"$(lsusb)\"
+            - lsusb | awk {'print $6'} | sort > before.txt
+            - for i in $(seq 1 3); do /usr/sbin/rtcwake -d rtc0 -m freeze -s 1; done
+            - lsusb | awk {'print $6'} | sort > after-freeze.txt
+            - lava-test-case compare-freeze --shell diff -u before.txt after-freeze.txt
+            - for i in $(seq 1 3); do /usr/sbin/rtcwake -d rtc0 -m mem -s 1; done
+            - lsusb | awk {'print $6'} | sort > after-mem.txt
+            - lava-test-case compare-mem --shell diff -u before.txt after-mem.txt
       lava-signal: kmsg
       from: inline
       name: usb
