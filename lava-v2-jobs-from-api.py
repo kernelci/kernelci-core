@@ -159,7 +159,7 @@ def get_job_params(config, template, opts, device, build, defconfig, plan):
     elif plan in ['v4l2', 'igt']:
         initrd_url = DEBIANTESTS_INITRD_URL.format(debian_initrd_arch)
         rootfs_prompt = "/ #"
-    elif plan in ['cros-ec']:
+    elif plan in ['cros-ec', 'usb', 'sleep']:
         initrd_url = DEBIAN_INITRD_URL.format(debian_initrd_arch)
         rootfs_prompt = "/ #"
     else:
