@@ -24,8 +24,8 @@
 
 ARCH
   CPU architecture as understood by the Linux kernel build system
-DEFCONFIG_LIST
-  List of Linux kernel defconfigs
+DEFCONFIG
+  Linux kernel defconfig to build
 SRC_TARBALL
   URL of the kernel source tarball
 TREE
@@ -56,32 +56,9 @@ KCI_BUILD_BRANCH (master)
  */
 
 
-def cloneKCIBuild(kci_build) {
-    sh(script: "rm -rf ${kci_build}")
-    dir("${kci_build}") {
-        git(url: params.KCI_BUILD_URL,
-            branch: params.KCI_BUILD_BRANCH,
-            poll: false)
-    }
-}
-
-def downloadTarball(kdir, url) {
-    sh(script: "rm -rf ${kdir}")
-    dir(kdir) {
-        sh(script: "\
-wget \
---no-hsts \
---progress=dot:giga \
---retry-connrefused \
---waitretry=5 \
---read-timeout=20 \
---timeout=15 \
---tries 20 \
---continue \
-${url}")
-        sh(script: "tar xzf linux-src.tar.gz")
-    }
-}
+@Library('kernelci') _
+import org.kernelci.build.Kernel
+import org.kernelci.util.Job
 
 def buildConfig(config, kdir, kci_build) {
     def defconfig = sh(script: "echo ${config} | sed 's/\\+/ \\-c /g'",
@@ -105,86 +82,7 @@ ${kci_build}/build.py -i ${opt} -c ${defconfig}""")
     }
 }
 
-def runStep(config, number) {
-    echo "Building config #${number}: ${config}"
-
-    def kci_build = env.WORKSPACE + '/kernelci-build'
-    def kdir = env.WORKSPACE + '/linux'
-    def stage_name = "${params.TREE_NAME} ${params.ARCH} ${number}"
-
-    stage("Init ${stage_name}") {
-        timeout(time: 30, unit: 'MINUTES') {
-            parallel(
-                p1: { cloneKCIBuild(kci_build) },
-                p2: { downloadTarball(kdir, params.SRC_TARBALL) },
-            )
-        }
-    }
-
-    stage("Build ${stage_name}") {
-        lock("${env.NODE_NAME}-build-lock") {
-            timeout(time: 60, unit: 'MINUTES') {
-                buildConfig(config, kdir, kci_build)
-            }
-        }
-    }
-
-    echo "Config done #${number}: ${config}"
-}
-
-def makeStep(config) {
-    env.CONFIG_NUMBER = env.CONFIG_NUMBER.toInteger() + 1
-    def number = env.CONFIG_NUMBER
-
-    return {
-        node("shared-builder") {
-            def status = null
-
-            try {
-                runStep(config, number)
-                status = 0
-            } catch (error) {
-                status = 1
-            }
-
-            echo "build status: ${status}"
-        }
-    }
-}
-
-def archComplete(job) {
-    stage("Complete") {
-        def str_params = [
-            'TREE_NAME': params.TREE_NAME,
-            'ARCH': params.ARCH,
-            'GIT_DESCRIBE': params.GIT_DESCRIBE,
-            'BRANCH': params.BRANCH,
-            'API': params.KCI_API_URL,
-        ]
-        def bool_params = [
-            'EMAIL': params.EMAIL,
-            'PUBLISH': params.PUBLISH,
-        ]
-        def job_params = []
-
-        for (p in str_params)
-            job_params.push(
-                [$class: "StringParameterValue", name: p.key, value: p.value]
-            )
-
-        for (p in bool_params)
-            job_params.push(
-                [$class: "BooleanParameterValue", name: p.key, value: p.value]
-            )
-
-        build(job: job, parameters: job_params)
-    }
-}
-
-node("defconfig-creator") {
-    env.CONFIG_NUMBER = 0
-    def configs = params.DEFCONFIG_LIST.tokenize(' ')
-
+node("shared-builder") {
     echo("""\
     Tree:      ${params.TREE_NAME}
     URL:       ${params.TREE}
@@ -192,9 +90,28 @@ node("defconfig-creator") {
     CPU arch:  ${params.ARCH}
     Describe:  ${params.GIT_DESCRIBE}
     Revision:  ${params.COMMIT_ID}
-    Configs:   ${configs.size()}""")
+    Config:    ${params.DEFCONFIG}""")
 
-    def steps = configs.collectEntries { ["${it}": makeStep(it)] }
-    parallel(steps)
-    archComplete("kernel-arch-complete")
+    def k = new Kernel()
+    def kci_build = env.WORKSPACE + '/kernelci-build'
+    def kdir = env.WORKSPACE + '/linux'
+
+    stage("Init") {
+        timeout(time: 30, unit: 'MINUTES') {
+            parallel(
+                p1: { k.cloneKCIBuild(kci_build,
+                                      params.KCI_BUILD_URL,
+                                      params.KCI_BUILD_BRANCH) },
+                p2: { k.downloadTarball(kdir, params.SRC_TARBALL) },
+            )
+        }
+    }
+
+    stage("Build") {
+        lock("${env.NODE_NAME}-build-lock") {
+            timeout(time: 60, unit: 'MINUTES') {
+                buildConfig(params.DEFCONFIG, kdir, kci_build)
+            }
+        }
+    }
 }
