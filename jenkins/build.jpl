@@ -181,7 +181,7 @@ def archComplete(job) {
     }
 }
 
-node("shared-builder") {
+node("defconfig-creator") {
     env.CONFIG_NUMBER = 0
     def configs = params.DEFCONFIG_LIST.tokenize(' ')
 
