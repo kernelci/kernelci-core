@@ -229,10 +229,10 @@ node("defconfig-creator") {
     stage("Init") {
         timeout(time: 30, unit: 'MINUTES') {
             parallel(
-                p1: { k.cloneKCIBuild(kci_build,
+                clone: { k.cloneKCIBuild(kci_build,
                                       params.KCI_BUILD_URL,
                                       params.KCI_BUILD_BRANCH) },
-                p2: { k.downloadTarball(kdir, params.SRC_TARBALL) },
+                download: { k.downloadTarball(kdir, params.SRC_TARBALL) },
             )
         }
     }
