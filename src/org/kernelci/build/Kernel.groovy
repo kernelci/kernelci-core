@@ -18,7 +18,7 @@
 */
 
 
-package org.kernelci.build;
+package org.kernelci.build
 
 def cloneKCIBuild(path, url, branch) {
     sh(script: "rm -rf ${path}")
@@ -32,7 +32,16 @@ def cloneKCIBuild(path, url, branch) {
 def downloadTarball(kdir, url, filename="linux-src.tar.gz") {
     sh(script: "rm -rf ${kdir}")
     dir(kdir) {
-        sh(script: "\
+        /* Storing the tarball is done asynchronously on the server, so it may
+         * not be ready by the time we try to download it.  Give it a
+         * minute by retrying periodically. */
+        def retry_sleep_s = 5
+        def retries = 12
+        def downloaded = false
+
+        while (!downloaded) {
+            def stat = sh(returnStatus: true,
+                          script: "\
 wget \
 --no-hsts \
 --progress=dot:giga \
@@ -43,6 +52,23 @@ wget \
 --tries 20 \
 --continue \
 ${url}")
+
+            if (!stat) {
+                downloaded = true
+            } else {
+                retries -= 1
+
+                /* Only retry if server returned an HTTP error (status 8) */
+                if (!retries || (stat != 8)) {
+                    throw new hudson.AbortException(
+                        "Failed to download tarball")
+                }
+
+                echo "retries: ${retries}"
+                sleep(time: retry_sleep_s, unit: 'SECONDS')
+            }
+        }
+
         sh(script: "tar xzf ${filename}")
     }
 }
