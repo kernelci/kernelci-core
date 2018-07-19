@@ -15,6 +15,7 @@
           steps:
             - lsusb
             - lava-test-case usb-presence --shell test -n \"$(lsusb)\"
+      lava-signal: kmsg
       from: inline
       name: usb
       path: inline/usb.yaml
