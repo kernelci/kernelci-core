@@ -481,7 +481,7 @@ cubieboard2 = {'device_type': 'cubieboard2',
                'lpae': True,
                'be': False,
                'fastboot': False,
-               'mach': 'sunxi'}
+               'mach': 'allwinner'}
 
 cubieboard3 = {'device_type': 'cubieboard3',
                'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
@@ -502,7 +502,7 @@ cubieboard3 = {'device_type': 'cubieboard3',
                'lpae': True,
                'be': False,
                'fastboot': False,
-               'mach': 'sunxi'}
+               'mach': 'allwinner'}
 
 cubieboard3_kvm = {'device_type': 'cubieboard3',
                    'templates': ['generic-arm-boot-kvm-template.json'],
@@ -512,7 +512,7 @@ cubieboard3_kvm = {'device_type': 'cubieboard3',
                    'nfs_blacklist': [],
                    'lpae': True,
                    'fastboot': False,
-                   'mach': 'sunxi'}
+                   'mach': 'allwinner'}
 
 sun7i_a20_bananapi = {'device_type': 'sun7i-a20-bananapi',
                       'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
@@ -530,7 +530,7 @@ sun7i_a20_bananapi = {'device_type': 'sun7i-a20-bananapi',
                       'lpae': True,
                       'be': False,
                       'fastboot': False,
-                      'mach': 'sunxi'}
+                      'mach': 'allwinner'}
 
 hisi_x5hd2_dkb = {'device_type': 'hi3716cv200',
                   'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
@@ -931,7 +931,7 @@ optimus_a80 = {'device_type': 'optimus-a80',
                'nfs_blacklist': [],
                'lpae': True,
                'fastboot': True,
-               'mach': 'sunxi'}
+               'mach': 'allwinner'}
 
 cubieboard4 = {'device_type': 'cubieboard4',
                'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
@@ -942,7 +942,7 @@ cubieboard4 = {'device_type': 'cubieboard4',
                'nfs_blacklist': [],
                'lpae': True,
                'fastboot': True,
-               'mach': 'sunxi'}
+               'mach': 'allwinner'}
 
 rk3288_rock2_square = {'device_type': 'rk3288-rock2-square',
                        'templates': ['generic-uboot-tftp-ramdisk-template.jinja2',
@@ -1007,7 +1007,7 @@ zx296702_ad1 = {'device_type': 'zx296702-ad1',
                 'nfs_blacklist': [],
                 'lpae': False,
                 'fastboot': True,
-                'mach': 'sunxi'}
+                'mach': 'allwinner'}
 
 vf610_zii_dev_rev_b = {'device_type': 'vf610-zii-dev-rev-b',
                        'templates': ['generic-arm-dtb-kernel-ci-boot-template.json',
@@ -1559,7 +1559,7 @@ chip_pro = {'device_type': 'sun5i-gr8-chip-pro',
                     'nfs_blacklist': [],
                     'lpae': False,
                     'fastboot': False,
-                    'mach': 'sunxi'}
+                    'mach': 'allwinner'}
 
 chip = {'device_type': 'sun5i-r8-chip',
                     'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
@@ -1569,7 +1569,7 @@ chip = {'device_type': 'sun5i-r8-chip',
                     'nfs_blacklist': [],
                     'lpae': False,
                     'fastboot': False,
-                    'mach': 'sunxi'}
+                    'mach': 'allwinner'}
 
 imx6q_nitrogen6x = {'device_type': 'imx6q-nitrogen6x',
                    'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
@@ -1777,7 +1777,7 @@ sun50i_h5_libretech_all_h3_cc = {'device_type': 'sun50i-h5-libretech-all-h3-cc',
                     'nfs_blacklist': [],
                     'lpae': False,
                     'fastboot': False,
-                    'mach': 'sunxi'}
+                    'mach': 'allwinner'}
 
 sun8i_a23_evb = {'device_type': 'sun8i-a23-evb',
                     'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
@@ -1787,7 +1787,7 @@ sun8i_a23_evb = {'device_type': 'sun8i-a23-evb',
                     'nfs_blacklist': [],
                     'lpae': False,
                     'fastboot': False,
-                    'mach': 'sunxi'}
+                    'mach': 'allwinner'}
 
 sun8i_a83t_allwinner_h8homlet_v2 = {'device_type': 'sun8i-a83t-allwinner-h8homlet-v2',
                     'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
@@ -1797,7 +1797,7 @@ sun8i_a83t_allwinner_h8homlet_v2 = {'device_type': 'sun8i-a83t-allwinner-h8homle
                     'nfs_blacklist': [],
                     'lpae': False,
                     'fastboot': False,
-                    'mach': 'sunxi'}
+                    'mach': 'allwinner'}
 
 sun8i_h2_plus_libretech_all_h3_cc = {'device_type': 'sun8i-h2-plus-libretech-all-h3-cc',
                     'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
@@ -1807,7 +1807,7 @@ sun8i_h2_plus_libretech_all_h3_cc = {'device_type': 'sun8i-h2-plus-libretech-all
                     'nfs_blacklist': [],
                     'lpae': False,
                     'fastboot': False,
-                    'mach': 'sunxi'}
+                    'mach': 'allwinner'}
 
 sun8i_h3_libretech_all_h3_cc = {'device_type': 'sun8i-h3-libretech-all-h3-cc',
                     'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
@@ -1817,7 +1817,7 @@ sun8i_h3_libretech_all_h3_cc = {'device_type': 'sun8i-h3-libretech-all-h3-cc',
                     'nfs_blacklist': [],
                     'lpae': False,
                     'fastboot': False,
-                    'mach': 'sunxi'}
+                    'mach': 'allwinner'}
 
 sun8i_h3_orangepi_pc = {'device_type': 'sun8i-h3-orangepi-pc',
                     'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
@@ -1827,7 +1827,7 @@ sun8i_h3_orangepi_pc = {'device_type': 'sun8i-h3-orangepi-pc',
                     'nfs_blacklist': [],
                     'lpae': False,
                     'fastboot': False,
-                    'mach': 'sunxi'}
+                    'mach': 'allwinner'}
 
 sinlinx_sina33 = {'device_type': 'sun8i-a33-sinlinx-sina33',
                     'templates': ['generic-uboot-tftp-ramdisk-template.jinja2'],
@@ -1837,7 +1837,7 @@ sinlinx_sina33 = {'device_type': 'sun8i-a33-sinlinx-sina33',
                     'nfs_blacklist': [],
                     'lpae': False,
                     'fastboot': False,
-                    'mach': 'sunxi'}
+                    'mach': 'allwinner'}
 
 dove_cubox = {'device_type': 'dove-cubox',
                        'templates': ['generic-arm-dtb-kernel-ci-boot-template.json'],
