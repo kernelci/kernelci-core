@@ -449,6 +449,7 @@ if install:
         shutil.copy(os.path.join(tmp_mod_dir, modules_tarball), install_path)
         shutil.rmtree(tmp_mod_dir)
 
+    bmeta["build_threads"] = make_threads
     bmeta["build_time"] = round(build_time, 2)
     if result == 0:
         bmeta['build_result'] = "PASS"
