@@ -157,7 +157,7 @@ else:
     os.environ['ARCH'] = arch
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "b:c:ip:sgej:")
+    opts, args = getopt.getopt(sys.argv[1:], "b:c:ip:sgeJ:")
 
 except getopt.GetoptError as err:
     print str(err) # will print something like "option -a not recognized"
@@ -210,7 +210,7 @@ for o, a in opts:
         print "Reading build variables from environment"
         publish = True
         use_environment = True
-    if o == '-j':
+    if o == '-J':
         print("Not posting build data but saving to local JSON instead")
         build_data_json = a
 
