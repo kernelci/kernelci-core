@@ -67,7 +67,7 @@ git_commit = None
 git_url = None
 git_branch = None
 ccache = None
-make_threads = 2
+make_threads = None
 kbuild_output_prefix = 'build'
 silent = True
 build_target = None
@@ -150,6 +150,9 @@ use_environment = False
 # temp frag file: used to collect all kconfig fragments
 kconfig_tmpfile_fd, kconfig_tmpfile = tempfile.mkstemp(prefix='kconfig-')
 
+# Set number of make threads to number of local processors + 2
+make_threads = int(subprocess.check_output('nproc', shell=True)) + 2
+
 # ARCH
 if os.environ.has_key('ARCH'):
     arch = os.environ['ARCH']
@@ -157,7 +160,7 @@ else:
     os.environ['ARCH'] = arch
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "b:c:ip:sgeJ:")
+    opts, args = getopt.getopt(sys.argv[1:], "b:c:ip:sgeJ:j:")
 
 except getopt.GetoptError as err:
     print str(err) # will print something like "option -a not recognized"
@@ -213,14 +216,12 @@ for o, a in opts:
     if o == '-J':
         print("Not posting build data but saving to local JSON instead")
         build_data_json = a
+    if o == '-j':
+        make_threads = int(a)
+        print("Parallel builds: {}".format(make_threads))
 
 # Default umask for file creation
 os.umask(022)
-
-# Set number of make threads to number of local processors + 2
-if os.path.exists('/proc/cpuinfo'):
-    output = subprocess.check_output('nproc', shell=True)
-    make_threads = int(output) + 2
 
 # CROSS_COMPILE
 if cross_compilers.has_key(arch):
