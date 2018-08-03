@@ -214,7 +214,7 @@ TREE=${params.KERNEL_URL} \
 ARCH=${params.ARCH} \
 BRANCH=${params.KERNEL_BRANCH} \
 """ + kci_build + """/build.py -e -g -i \
--j ${env._BUILD_JSON} \
+-J ${env._BUILD_JSON} \
 -c ${params.DEFCONFIG}""")
         }
         stash(name: env._BUILD_JSON, includes: env._BUILD_JSON)
