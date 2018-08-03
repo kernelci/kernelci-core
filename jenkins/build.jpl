@@ -52,6 +52,8 @@ KCI_BUILD_URL (https://github.com/kernelci/kernelci-build.git)
   URL of the kernelci-build repository
 KCI_BUILD_BRANCH (master)
   Name of the branch to use in the kernelci-build repository
+PARALLEL_BUILDS
+  Number of kernel builds to run in parallel
 
  */
 
@@ -63,13 +65,16 @@ import org.kernelci.util.Job
 def buildConfig(config, kdir, kci_build) {
     def defconfig = sh(script: "echo ${config} | sed 's/\\+/ \\-c /g'",
                        returnStdout: true)
-    def opt = ""
+    def opt = "-i"
 
     if (params.PUBLISH) {
-        opt = "-e"
+        opt += " -e"
     } else {
         echo "NOT PUBLISHING"
     }
+
+    if (params.PARALLEL_BUILDS)
+        opt += " -j${params.PARALLEL_BUILDS}"
 
     dir(kdir) {
         withCredentials([string(credentialsId: params.KCI_TOKEN_ID,
@@ -77,12 +82,15 @@ def buildConfig(config, kdir, kci_build) {
             sh(script: """
 API=${params.KCI_API_URL} \
 TOKEN=${SECRET} \
-${kci_build}/build.py -i ${opt} -c ${defconfig}""")
+${kci_build}/build.py \
+  ${opt} \
+  -c ${defconfig} \
+""")
         }
     }
 }
 
-node("shared-builder") {
+node("builder") {
     echo("""\
     Tree:      ${params.TREE_NAME}
     URL:       ${params.TREE}
@@ -108,10 +116,8 @@ node("shared-builder") {
     }
 
     stage("Build") {
-        lock("${env.NODE_NAME}-build-lock") {
-            timeout(time: 60, unit: 'MINUTES') {
-                buildConfig(params.DEFCONFIG, kdir, kci_build)
-            }
+        timeout(time: 180, unit: 'MINUTES') {
+            buildConfig(params.DEFCONFIG, kdir, kci_build)
         }
     }
 }
