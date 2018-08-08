@@ -11,7 +11,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""This module is used to send boot and build report email."""
+"""This module is used to send boot, build and test report emails."""
 
 import bson
 import copy
@@ -57,6 +57,11 @@ REPORT_TYPE_KEYS = {
         models.DEVICE_TYPE_KEY,
         models.BISECT_GOOD_COMMIT_KEY,
         models.BISECT_BAD_COMMIT_KEY,
+    ],
+    'test': [
+        models.JOB_KEY,
+        models.GIT_BRANCH_KEY,
+        models.KERNEL_KEY,
     ],
 }
 
@@ -338,6 +343,48 @@ class SendHandler(hbase.BaseHandler):
             error_string = (
                 "No email addresses provided to send bisection report to")
             self.log.error(error_string)
+
+        return has_errors, error_string
+
+    def _schedule_test_report(self, report_data, email_opts, countdown):
+        """Schedule the test report performing some checks on the emails.
+
+        :param report_data: Contents to use in the report.
+        :type report_data: dict
+        :param email_opts: The data necessary for scheduling a report.
+        :type email_opts: dictionary
+        :param countdown: Delay time before sending the email.
+        :type countdown: int
+        :return A tuple with as first parameter a bool indicating if the
+        scheduling had success, as second argument the error string in case
+        of error or None.
+        """
+        has_errors = False
+        error_string = None
+
+        job, git_branch, kernel = (report_data[k] for k in [
+            models.JOB_KEY,
+            models.GIT_BRANCH_KEY,
+            models.KERNEL_KEY,
+        ])
+
+        if email_opts.get("to"):
+            taskq.send_test_report.apply_async(
+                [
+                    job,
+                    git_branch,
+                    kernel,
+                    report_data,
+                    email_opts,
+                ],
+                countdown=countdown
+            )
+        else:
+            has_errors = True
+            error_string = "No email addresses provided to send test report to"
+            self.log.error(
+                "No email addresses to send test report to for '%s-%s-%s'",
+                job, git_branch, kernel)
 
         return has_errors, error_string
 

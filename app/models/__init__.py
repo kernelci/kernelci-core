@@ -274,6 +274,7 @@ KERNEL_BUILD_TYPE = "kernel"
 BUILD_REPORT = "build"
 BOOT_REPORT = "boot"
 BISECT_REPORT = "bisect"
+TEST_REPORT = "test"
 
 # Bisect values.
 BISECT_BOOT_STATUS_KEY = "boot_status"

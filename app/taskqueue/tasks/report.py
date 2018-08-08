@@ -22,6 +22,7 @@ import utils.report.boot
 import utils.report.build
 import utils.report.common
 import utils.report.error
+import utils.report.test
 
 
 # pylint: disable=too-many-arguments
@@ -172,6 +173,42 @@ def send_bisect_report(report_data, email_opts, base_path=utils.BASE_PATH):
 
     utils.report.common.save_report(
         job, git_branch, kernel, models.BISECT_REPORT,
+        status, errors, db_options)
+
+    return status
+
+
+@taskc.app.task(name="send-test-report")
+def send_test_report(job, git_branch, kernel, report_data, email_opts):
+    """Send the test suite report email.
+
+    :param job: The job name.
+    :type job: string
+    :param git_branch: The git branch name.
+    :type git_branch: string
+    :param kernel: The kernel name.
+    :type kernel: string
+    :param report_data: The data necessary for generating a report.
+    :type report_data: dict
+    :param email_opts: Email options.
+    :type email_opts: dict
+    """
+    report_id = "-".join([job, git_branch, kernel])
+    utils.LOG.info(
+        "Sending test suite report email for '{}'".format(report_id))
+
+    db_options = taskc.app.conf.get("db_options", {})
+
+    txt_body, html_body, subject, headers = \
+        utils.report.test.create_test_report(
+            report_data, email_opts["format"], db_options)
+
+    status, errors = utils.emails.send_email(
+        subject, txt_body, html_body, email_opts,
+        taskc.app.conf.mail_options, headers)
+
+    utils.report.common.save_report(
+        job, git_branch, kernel, models.TEST_REPORT,
         status, errors, db_options)
 
     return status
