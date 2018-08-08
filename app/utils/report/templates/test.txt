@@ -1,0 +1,31 @@
+Test suites results for:
+  Tree:    {{ tree }}
+  Branch:  {{ branch }}
+  Kernel:  {{ kernel }}
+  URL:     {{ git_url }}
+  Commit:  {{ git_commit }}
+
+
+Summary
+-------
+{{ testsuites|length }} test suites results
+{% for t in testsuites|sort(attribute='name') %}
+{{ "%-10s | %-22s | %3s total: %3s PASS %3s FAIL %3s SKIP"|format(t.name, t.board, t.total_tests, t.total_pass, t.total_fail, t.total_skip) }}
+{%- endfor %}
+
+
+Tests
+-----
+{% for t in testsuites|sort(attribute='name') %}
+{{ t.name|e }} - {{ t.total_tests }} tests: {{ t.total_pass }}  PASS, {{ t.total_fail }} FAIL, {{ t.total_skip }} SKIP
+
+  Config:      {{ t.defconfig_full }}
+  Lab Name:    {{ t.lab_name }}
+  Board:       {{ t.board }}
+  Date:        {{ t.created_on }}
+{# leave an empty space #}
+  Test cases:
+{% for tc in t.test_case_list %}
+    * {{ tc.name }} : {{ tc.status }}
+{%- endfor %}
+{% endfor %}

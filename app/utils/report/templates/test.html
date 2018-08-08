@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <style>
+h1 {
+  font-size: 1.1em;
+}
+h2 {
+  font-size: 1.0em;
+}
+table {
+  border: none;
+}
+th {
+  font-weight: bold;
+  padding: 4px 10px 4px 10px;
+  text-align: left;
+  vertical-align: bottom;
+}
+td {
+  vertical-align: bottom;
+  padding: 4px;
+}
+pre {
+  display: inline;
+}
+    </style>
+    <title>{{ subject_str }}</title>
+  </head>
+  <body>
+    <p>
+      Test suites results for:
+      <table>
+        <tr><td>Tree</td><td>{{ tree }}</td></tr>
+        <tr><td>Branch</td><td>{{ branch }}</td></tr>
+        <tr><td>URL</td><td>{{ git_url }}</td></tr>
+        <tr><td>Kernel</td><td>{{ kernel }}</td></tr>
+        <tr><td>Git Commit</td><td>{{ git_commit }}</td></tr>
+      <table>
+    </p>
+
+    <h1>Summary</h1>
+    <p>
+    {{ testsuites|length }} test suites results
+      <table>
+        <col width="120">
+        <col width="220">
+        <col width="100">
+        <col width="100">
+        <col width="100">
+        <col width="100">
+        {% for t in testsuites|sort(attribute='name') %}
+          <tr><th>{{ t.name|e }}</th><td>{{ t.board }}</td><td>{{ t.total_tests }} tests</td><td> {{ t.total_pass }}  PASS</td><td>{{ t.total_fail }} FAIL </td><td>{{ t.total_skip }} SKIP</td></tr>
+        {% endfor %}
+      <table>
+    </p>
+
+
+      <h1>Tests</h1>
+      {% for t in testsuites|sort(attribute='name') %}
+      <h2>{{ t.name|e }}</h2>
+      <table>
+        <tr><td>Config</td><td>{{ t.defconfig_full }}</td></tr>
+        <tr><td>Lab Name</td><td>{{ t.lab_name }}</td></tr>
+        <tr><td>Board</td><td>{{ t.board }}</td></tr>
+        <tr><td>Date</td><td>{{ t.created_on }}</td></tr>
+        <tr><td>Test cases</td><td><strong>{{ t.total_tests }}</strong> total: <strong>{{ t.total_pass }}</strong> PASS, <strong>{{ t.total_fail }}</strong> FAIL, <strong>{{ t.total_skip }}</strong> SKIP</td></tr>
+      </table>
+      <blockquote>
+      <table>
+        {% for tc in t.test_case_list %}
+        <tr><td>{{ tc.name }}:</td><td>{{ tc.status }}</td></tr>
+        {%- endfor %}
+      </table>
+      </blockquote>
+      {%- endfor %}
+  </body>
+</html>
