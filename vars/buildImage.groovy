@@ -45,7 +45,10 @@ def call(Closure context) {
                         "armel": "armel",
                         "arm64": "arm64",
                         "x86": "i386",
-                        "x86_64": "amd64"]
+                        "x86_64": "amd64",
+                        "mips": "mips",
+                        "mipsel": "mipsel",
+                        "mips64el": "mips64el"]
 
     def debosFile = "jenkins/debian/debos/stretch.yaml"
     // Returns the pipeline version with the format YYYYMMMAA.X where X is the number of the build of the day
