@@ -20,34 +20,18 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-import urllib2
-import urlparse
-import httplib
-import re
-import os
-import shutil
 import argparse
-import ConfigParser
-import json
-import sys
-import time
-from lib import configuration, device_map
-from lib.utils import setup_job_dir, write_file
-import requests
-import urlparse
-import urllib
 from jinja2 import Environment, FileSystemLoader
+import json
+import os
+import requests
+import time
+import urllib
+import urlparse
 
-LEGACY_X86_PLATFORMS = ['x86', 'x86-kvm', 'x86-32']
-ARCHS = ['arm64', 'arm64be', 'armeb', 'armel', 'x86']
-ROOTFS_URL = 'http://storage.kernelci.org/images/rootfs/buildroot/kci-2018.05'
-INITRD_URL = '/'.join([ROOTFS_URL, '{}', 'base', 'rootfs.cpio.gz'])
-NFSROOTFS_URL = '/'.join([ROOTFS_URL, '{}', 'base', 'rootfs.tar.xz'])
-KSELFTEST_INITRD_URL = '/'.join([ROOTFS_URL, '{}', 'tests', 'rootfs.cpio.gz'])
-DEBIAN_ROOTFS_URL = 'http://storage.kernelci.org/images/rootfs/debian/stretch/20180627.0'
-DEBIAN_INITRD_URL = '/'.join([DEBIAN_ROOTFS_URL, '{}', 'rootfs.cpio.gz'])
-DEBIANTESTS_ROOTFS_URL = 'http://storage.kernelci.org/images/rootfs/debian/stretchtests/20180627.0'
-DEBIANTESTS_INITRD_URL = '/'.join([DEBIANTESTS_ROOTFS_URL, '{}', 'rootfs.cpio.gz'])
+from lib import configuration, test_configs
+from lib.utils import setup_job_dir
+
 
 def get_builds(api, token, config):
     headers = {
@@ -106,92 +90,54 @@ def add_callback_params(params, config, plan):
     })
 
 
-def get_job_params(config, template, opts, device, build, defconfig, plan):
-    short_template_file = os.path.join(plan, template)
+def get_job_params(config, test_config, defconfig, opts, build, plan):
+    short_template_file = test_config.get_template_path(plan)
     template_file = os.path.join('templates', short_template_file)
-    if not (template_file.endswith('.jinja2')
-            and os.path.exists(template_file)):
+    if not os.path.exists(template_file):
+        print("Template not found: {}".format(template_file))
         return None
 
     arch = config.get('arch')
     storage = config.get('storage')
+    device_type = test_config.device_type
+    defconfig_base = ''.join(defconfig.split('+')[:1])
+    dtb = dtb_full = opts['dtb_full'] = opts['dtb'] = device_type.dtb
+
+    # hack for arm64 dtbs in subfolders
+    if arch == 'arm64' and dtb:
+        dtb = opts['dtb'] = os.path.basename(dtb)
+
     job_name = '-'.join([
         config.get('tree'), config.get('branch'), config.get('describe'),
-        arch, defconfig[:100], opts['dtb'], device['device_type'], plan])
+        arch, defconfig, dtb or 'no-dtb', device_type.name, plan])
 
     url_px = '/'.join([
         build['job'], build['git_branch'], build['kernel'], arch, defconfig])
     base_url = urlparse.urljoin(storage, '/'.join([url_px, '']))
     kernel_url = urlparse.urljoin(
         storage, '/'.join([url_px, build['kernel_image']]))
-    dtb_full = opts['dtb_full']
-    if dtb_full.endswith('.dtb'):
+    if dtb_full and dtb_full.endswith('.dtb'):
         dtb_url = urlparse.urljoin(
             storage, '/'.join([url_px, 'dtbs', dtb_full]))
         platform = opts['dtb'].split('.')[0]
     else:
         dtb_url = None
-        platform = device['device_type']
-
-    endian = 'big' if 'BIG_ENDIAN' in defconfig else 'little'
-    initrd_arch = arch
-    if arch == 'arm64':
-        if endian == 'big':
-            initrd_arch = 'arm64be'
-    elif arch == 'arm':
-        if endian == 'big':
-            initrd_arch = 'armeb'
-        else:
-            initrd_arch = 'armel'
-
-    debian_initrd_arch = arch
-    if arch == 'arm64':
-        debian_initrd_arch = 'arm64'
-    elif arch == 'arm':
-        debian_initrd_arch = 'armhf'
-
-    nfsrootfs_url = None
-    initrd_url = None
-    rootfs_prompt = "\(initramfs\)"
-
-    if 'kselftest' in plan:
-        initrd_url = KSELFTEST_INITRD_URL.format(initrd_arch)
-    elif plan in ['v4l2', 'igt']:
-        initrd_url = DEBIANTESTS_INITRD_URL.format(debian_initrd_arch)
-        rootfs_prompt = "/ #"
-    elif plan in ['cros-ec', 'usb', 'sleep']:
-        initrd_url = DEBIAN_INITRD_URL.format(debian_initrd_arch)
-        rootfs_prompt = "/ #"
-    else:
-        initrd_url = INITRD_URL.format(initrd_arch)
-
-    if 'nfs' in plan:
-        nfsrootfs_url = NFSROOTFS_URL.format(initrd_arch)
-        initrd_url = None
-        rootfs_prompt = "/ #"
+        platform = device_type.name
     if build['modules']:
         modules_url = urlparse.urljoin(
             storage, '/'.join([url_px, build['modules']]))
     else:
         modules_url = None
 
-    # hack for compatibility
-    if (initrd_url and 'buildroot' in initrd_url) or (nfsrootfs_url and 'buildroot' in nfsrootfs_url):
-        rootfs_prompt = "/ #"
-
-    device_type = device['device_type']
-    if device_type.startswith('qemu') or device_type == 'kvm':
-        device_type = 'qemu'
-
-    defconfig_base = ''.join(defconfig.split('+')[:1])
+    rootfs = test_config.test_plans[plan].rootfs
 
     job_params = {
         'name': job_name,
         'dtb_url': dtb_url,
-        'dtb_short': opts['dtb'],
+        'dtb_short': dtb,
         'dtb_full': dtb_full,
         'platform': platform,
-        'mach': device['mach'],
+        'mach': device_type.mach,
         'kernel_url': kernel_url,
         'image_type': 'kernel-ci',
         'image_url': base_url,
@@ -200,12 +146,13 @@ def get_job_params(config, template, opts, device, build, defconfig, plan):
         'kernel': config.get('describe'),
         'tree': config.get('tree'),
         'defconfig': defconfig,
-        'fastboot': str(device['fastboot']).lower(),
+        'arch_defconfig': opts['arch_defconfig'],
+        'fastboot': str(device_type.get_flag('fastboot')).lower(),
         'priority': config.get('priority'),
-        'device_type': device['device_type'],
+        'device_type': device_type.name,
         'template_file': template_file,
         'base_url': base_url,
-        'endian': endian,
+        'endian': opts['endian'],
         'short_template_file': short_template_file,
         'arch': arch,
         'git_branch': config.get('branch'),
@@ -213,147 +160,74 @@ def get_job_params(config, template, opts, device, build, defconfig, plan):
         'git_describe': config.get('describe'),
         'git_url': build['git_url'],
         'defconfig_base': defconfig_base,
-        'initrd_url': initrd_url,
+        'initrd_url': rootfs.get_url('ramdisk', arch, opts['endian']),
         'kernel_image': build['kernel_image'],
-        'nfsrootfs_url': nfsrootfs_url,
+        'nfsrootfs_url': rootfs.get_url('nfs', arch, opts['endian']),
         'lab_name': config.get('lab'),
-        'context': device.get('context'),
-        'rootfs_prompt': rootfs_prompt,
+        'context': device_type.context,
+        'rootfs_prompt': rootfs.prompt,
     }
 
     add_callback_params(job_params, config, plan)
 
-    job_params.update({k: opts[k] for k in [
-        'arch_defconfig',
-        'test_suite',
-        'test_set',
-        'test_desc',
-        'test_type',
-    ] if k in opts
-    })
-
     return job_params
 
 
-def job_is_valid(config, device, opts, defconfig, arch, plan):
-    git_describe = config.get('describe')
-    lab = config.get('lab')
-    device_type = device['device_type']
-    if defconfig in device['defconfig_blacklist']:
-        print("defconfig {} is blacklisted for device {}"
-              .format(defconfig, device_type))
-    elif ('defconfig_whitelist' in device
-          and defconfig not in device['defconfig_whitelist']):
-        print("defconfig {} is not in whitelist for device {}"
-              .format(defconfig, device_type))
-    elif 'arch_blacklist' in device and arch in device['arch_blacklist']:
-        print("arch {} is blacklisted for device {}".format(arch, device_type))
-    elif ('lab_blacklist' in device and lab in device['lab_blacklist']):
-        print("device {} is blacklisted for lab {}".format(device_type, lab))
-    elif "BIG_ENDIAN" in defconfig and not device.get('boot_be', False):
-        print("BIG_ENDIAN is not supported on {}".format(device_type))
-    elif "LPAE" in defconfig and not device['lpae']:
-        print("LPAE is not supported on {}".format(device_type))
-    elif any([x for x in device['kernel_blacklist'] if x in git_describe]):
-        print("git_describe {} is blacklisted for device {}"
-              .format(git_describe, device_type))
-    elif (any([x for x in device['nfs_blacklist'] if x in git_describe])
-          and plan in ['boot-nfs', 'boot-nfs-mp']):
-        print("git_describe {} is blacklisted for NFS on device {}"
-              .format(git_describe, device_type))
-    elif ('be_blacklist' in device
-          and any([x for x in device['be_blacklist'] if x in git_describe])
-          and device.get('boot_be', False)):
-        print("git_describe {} is blacklisted for BE on device {}"
-              .format(git_describe, device_type))
-    elif (plan != 'boot'
-          and opts['arch_defconfig'] not in opts['plan_defconfigs']):
-        print("defconfig {} not in test plan {}"
-              .format(opts['arch_defconfig'], plan))
-    elif (config.get('targets') and device_type not in config.get('targets')):
-        pass
-    elif (arch == 'x86' and opts['dtb'] == 'x86-32'
-          and 'i386' not in opts['arch_defconfig']):
-        print("{} is not a 32-bit x86 build, skipping for 32-bit device {}"
-              .format(defconfig, device_type))
-    elif 'kselftest' in defconfig and plan != 'kselftest':
-        print("Skipping kselftest defconfig because plan was not kselftest")
-    else:
-        return True
-    return False
+def add_jobs(jobs, config, tests, opts, build, plan, arch, defconfig):
+    filters = {
+        'arch': arch,
+        'defconfig': defconfig,
+        'kernel': config.get('describe'),
+        'lab': config.get('lab'),
+    }
+    flags = {
+        'big_endian': (opts['endian'] == 'big'),
+        'lpae': 'LPAE' in defconfig,
+    }
+    dtbs = build['dtb_dir_data']
+    targets = config.get('targets')
 
-
-def add_jobs(jobs, config, opts, build, plan, arch, defconfig):
-    for device in device_map[opts['dtb']]:
-        if not job_is_valid(config, device, opts, defconfig, arch, plan):
+    for test_config in tests:
+        if targets and str(test_config.device_type) not in targets:
+            print("device not in targets: {}".format(
+                test_config.device_type, targets))
             continue
-        for template in device['templates']:
-            job_params = get_job_params(
-                config, template, opts, device, build, defconfig, plan)
-            if job_params:
-                jobs.append(job_params)
+        if not test_config.match(arch, plan, flags, filters):
+            print("test config did not match: {}".format(
+                test_config.device_type))
+            continue
+        dtb = test_config.device_type.dtb
+        if dtb and dtb not in dtbs:
+            print("dtb not in builds: {}".format(dtb))
+            continue
+        job_params = get_job_params(
+            config, test_config, defconfig, opts, build, plan)
+        if job_params:
+            jobs.append(job_params)
 
 
-def get_jobs_from_builds(config, builds):
+def get_jobs_from_builds(config, builds, tests):
     arch = config.get('arch')
     cwd = os.getcwd()
     jobs = []
 
     for build in builds:
+        if build.get('status') != 'PASS':
+            continue
+
         defconfig = build['defconfig_full']
+
         print("Working on build {}".format(' '.join(
             [config.get('tree'), config.get('branch'), config.get('describe'),
              arch, defconfig])))
 
-        if build.get('status') != 'PASS':
-            continue
-        kimage = build.get('kernel_image')
-        if not kimage:
-            print("No kernel_image for {}".format(defconfig))
-            continue
-        if kimage == 'bzImage' and arch == 'x86':
-            build['dtb_dir_data'].extend(LEGACY_X86_PLATFORMS)
-        if arch in ['arm', 'arm64', 'x86'] and 'defconfig' in defconfig:
-            build['dtb_dir_data'].append('qemu')
-        if arch == 'arm64':
-            build['dtb_dir_data'].append('arm64-no-dtb')
-
         for plan in config.get('plans'):
             opts = {
                 'arch_defconfig': '-'.join([arch, defconfig]),
+                'endian': 'big' if 'BIG_ENDIAN' in defconfig else 'little',
             }
 
-            if plan != 'boot':
-                pconfig = ConfigParser.ConfigParser()
-
-                try:
-                    pconfig.read(os.path.join(
-                        cwd, 'templates', plan, '.'.join([plan, 'ini'])))
-                except Exception, e:
-                    print("Unable to load test configuration")
-                    print(e)
-                    continue
-
-                plan_defconfigs = pconfig.get(plan, 'defconfigs').split(',')
-
-                opts.update({
-                    'test_suite': pconfig.get(plan, 'suite'),
-                    'test_set': pconfig.get(plan, 'set'),
-                    'test_desc': pconfig.get(plan, 'description'),
-                    'test_type': pconfig.get(plan, 'type'),
-                    'plan_defconfigs': plan_defconfigs,
-                })
-
-            for dtb in build['dtb_dir_data']:
-                opts['dtb_full'] = dtb
-                # hack for arm64 dtbs in subfolders
-                if arch == 'arm64':
-                    dtb = os.path.basename(dtb)
-                opts['dtb'] = dtb
-                if dtb not in device_map:
-                    continue
-
-                add_jobs(jobs, config, opts, build, plan, arch, defconfig)
+            add_jobs(jobs, config, tests, opts, build, plan, arch, defconfig)
 
     return jobs
 
@@ -397,7 +271,11 @@ def main(args):
 
     print("Number of builds: {}".format(len(builds)))
 
-    jobs = get_jobs_from_builds(config, builds)
+    config_data = test_configs.load_from_yaml(config.get('test_configs'))
+    tests = config_data['test_configs']
+    print("Number of test configs: {}".format(len(tests)))
+
+    jobs = get_jobs_from_builds(config, builds, tests)
     print("Number of jobs: {}".format(len(jobs)))
 
     write_jobs(config, jobs)
@@ -406,6 +284,8 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--config",
+                        help="path to KernelCI configuration file")
+    parser.add_argument("--test-configs", default="test-configs.yaml",
                         help="path to KernelCI configuration file")
     parser.add_argument("--token",
                         help="KernelCI API Token")
