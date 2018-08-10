@@ -7,7 +7,7 @@ buildImage {
 
 
     //Extra packages to be installed in the image
-    extra_packages = "libpciaccess0 libkmod2 libprocps6 libcairo2 libunwind8 libudev1 libglib2.0-0"
+    extra_packages = "libpciaccess0 libkmod2 libprocps6 libcairo2 libssl1.1 libunwind8 libudev1 libglib2.0-0"
 
     // script to build the testsuite(s)
     script = "scripts/stretchtests.sh"
