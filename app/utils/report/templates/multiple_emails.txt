@@ -24,9 +24,7 @@ Details
 {{ "{:-^80}".format("") }}
 
 Report type:
-{%- for e_type in email_type %}
-    * {{ e_type }}
-{%- endfor %}
+    * {{ email_type }}
 
 Email format:
 {%- for format in email_format %}
