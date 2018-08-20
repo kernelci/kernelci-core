@@ -41,7 +41,6 @@ class TestTestCaseModel(unittest.TestCase):
         test_case.samples_sqr_sum = 1
         test_case.samples_sum = 1
         test_case.status = "FAIL"
-        test_case.test_set_id = "test_set_id"
         test_case.test_suite_id = "another_id"
         test_case.test_suite_name = "test-suite"
         test_case.time = 10
@@ -64,7 +63,6 @@ class TestTestCaseModel(unittest.TestCase):
             "samples_sqr_sum": 1,
             "samples_sum": 1,
             "status": "FAIL",
-            "test_set_id": "test_set_id",
             "test_suite_id": "another_id",
             "test_suite_name": "test-suite",
             "time": 10,
@@ -90,7 +88,6 @@ class TestTestCaseModel(unittest.TestCase):
         test_case.samples_sqr_sum = 1
         test_case.samples_sum = 1
         test_case.status = "FAIL"
-        test_case.test_set_id = "test_set_id"
         test_case.test_suite_id = "another_id"
         test_case.test_suite_name = "test-suite"
         test_case.time = 10
@@ -112,7 +109,6 @@ class TestTestCaseModel(unittest.TestCase):
             "samples_sqr_sum": 1,
             "samples_sum": 1,
             "status": "FAIL",
-            "test_set_id": "test_set_id",
             "test_suite_id": "another_id",
             "test_suite_name": "test-suite",
             "time": 10,
@@ -151,7 +147,6 @@ class TestTestCaseModel(unittest.TestCase):
             "samples_sqr_sum": 1,
             "samples_sum": 1,
             "status": "FAIL",
-            "test_set_id": "test_set_id",
             "test_suite_id": "another_id",
             "test_suite_name": "test-suite",
             "time": 10,

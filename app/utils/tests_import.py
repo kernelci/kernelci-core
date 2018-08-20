@@ -11,7 +11,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""All the necessary functions to import test suites, sets and cases."""
+"""All the necessary functions to import test suites and cases."""
 
 import bson
 import copy
@@ -20,7 +20,6 @@ import types
 
 import models
 import models.test_case as mtcase
-import models.test_set as mtset
 import utils
 import utils.db
 import utils.errors
@@ -216,18 +215,16 @@ def update_test_suite(suite_json, test_suite_id, db_options):
 
 def import_multi_base(
         import_func, tests_list, suite_id, suite_name, db_options, **kwargs):
-    """Generic function to import a test sets or test cases list.
+    """Generic function to import test cases list.
 
     The passed import function must be a function that is able to parse the
-    specific test (either a test set or test case), and return a 3 values tuple
-    as follows:
+    specific test case, and return a 3 values tuple as follows:
     0. The function return value as an integer.
     1. The ID of the saved document, or None if it has not been saved.
     2. An error message if an error occurred, or None.
 
     Additional named arguments passed might be (with the exact following
     names):
-    * test_set_id
     * build_id
     * job_id
     * job
@@ -242,7 +239,7 @@ def import_multi_base(
     :param import_func: The function that will be used to import each test
     object as found the test `tests_list` parameter.
     :type import_func: function
-    :param tests_list: The list with the test sets or cases to import.
+    :param tests_list: The list with the test cases to import.
     :type tests_list: list
     :param suite_id: The ID of the test suite these test objects
     belong to.
@@ -289,137 +286,12 @@ def import_multi_base(
     return test_ids, errors
 
 
-def import_test_set(
-        json_obj, suite_id, suite_name, database, db_options, **kwargs):
-    """Parse and save a test set.
-
-    Additional named arguments passed might be (with the exact following
-    names):
-    * build_id
-    * job_id
-    * job
-    * kernel
-    * defconfig
-    * defconfig_full
-    * lab_name
-    * board
-    * board_instance
-    * mail_options
-    * suite_name
-
-    :param json_obj: The JSON data structure of the test sets to import.
-    :type json_obj: dict
-    :param suite_id: The ID of the test suite the test set belongs to.
-    :type suite_id: bson.objectid.ObjectId
-    :param suite_name: The name of the test suite.
-    :type suite_name: str
-    :param database: The database connection.
-    :param db_options: The database connection options.
-    :type db_options: dict
-    :return 200 if OK, 500 in case of errors; the saved document ID or None;
-    a dictionary with error codes and messages.
-    """
-    ret_val = 400
-    errors = {}
-    doc_id = None
-
-    if isinstance(json_obj, types.DictionaryType):
-        j_get = json_obj.get
-        j_pop = json_obj.pop
-
-        json_suite_id = j_get(models.TEST_SUITE_ID_KEY, None)
-        cases_list = j_pop(models.TEST_CASE_KEY, [])
-
-        json_obj[models.TEST_SUITE_NAME_KEY] = suite_name
-        if not json_suite_id:
-            # Inject the suite_id value into the data structure.
-            json_obj[models.TEST_SUITE_ID_KEY] = suite_id
-        else:
-            if json_suite_id == str(suite_id):
-                # We want the ObjectId value, not the string.
-                json_obj[models.TEST_SUITE_ID_KEY] = suite_id
-            else:
-                utils.LOG.warning(
-                    "Test suite ID does not match the provided one")
-                # XXX For now, force the suite_id value.
-                json_obj[models.TEST_SUITE_ID_KEY] = suite_id
-
-        try:
-            test_name = j_get(models.NAME_KEY, None)
-            test_set = mtset.TestSetDocument.from_json(json_obj)
-
-            if test_set:
-                test_set.created_on = datetime.datetime.now(
-                    tz=bson.tz_util.utc)
-
-                ret_val, doc_id = utils.db.save(
-                    database, test_set, manipulate=True)
-
-                if ret_val != 201:
-                    err_msg = "Error saving test set '%s'" % test_name
-                    utils.LOG.error(err_msg)
-                    ADD_ERR(errors, 500, err_msg)
-                else:
-                    if cases_list:
-                        _, imp_err = import_test_cases_from_test_set(
-                            doc_id,
-                            suite_id,
-                            suite_name, cases_list, db_options, **kwargs
-                        )
-                        UPDATE_ERR(errors, imp_err)
-            else:
-                ADD_ERR(errors, 400, "Missing mandatory key in JSON data")
-        except ValueError, ex:
-            ADD_ERR(errors, 400, "Error parsing test set '%s'" % test_name)
-            error = (
-                "Error parsing test set '{}': {}".format(test_name, ex))
-            utils.LOG.error(error)
-    else:
-        ADD_ERR(errors, 400, "Test set is not valid JSON data")
-
-    return ret_val, doc_id, errors
-
-
-def import_multi_test_sets(
-        set_list, suite_id, suite_name, db_options, **kwargs):
-    """Import all the test sets provided.
-
-    Additional named arguments passed might be (with the exact following
-    names):
-    * build_id
-    * job_id
-    * job
-    * kernel
-    * defconfig
-    * defconfig_full
-    * lab_name
-    * board
-    * board_instance
-    * mail_options
-
-    :param set_list: The list with the test sets to import.
-    :type set_list: list
-    :param suite_id: The ID of the test suite these test sets belong to.
-    :param suite_id: bson.objectid.ObjectId
-    :param suite_name: The name of the test suite.
-    :type suite_name: str
-    :param db_options: Options for connecting to the database.
-    :type db_options: dict
-    :return A list with the saved test set IDs or an empty list; a dictionary
-    with keys the error codes and value a list of error messages, or an empty
-    dictionary.
-    """
-    return import_multi_base(
-        import_test_set, set_list, suite_id, suite_name, db_options, **kwargs)
-
-
 def import_test_case(
         json_obj, suite_id, suite_name, database, db_options, **kwargs):
     """Parse and save a test case.
 
     Additional named arguments passed might be (with the exact following
     names):
-    * test_set_id
     * build_id
     * job_id
     * job
@@ -467,12 +339,6 @@ def import_test_case(
 
         try:
             test_name = j_get(models.NAME_KEY, None)
-            set_id = j_get(models.TEST_SET_ID_KEY, None)
-            if set_id:
-                set_id = bson.objectid.ObjectId(set_id)
-                json_obj[models.TEST_SET_ID_KEY] = set_id
-            else:
-                json_obj[models.TEST_SET_ID_KEY] = None
 
             test_case = mtcase.TestCaseDocument.from_json(json_obj)
 
@@ -492,10 +358,6 @@ def import_test_case(
                     update_test_suite_add_test_case_id(
                         doc_id, suite_oid, suite_name,
                         db_options)
-                    # and in the test set if it exists
-                    if set_id:
-                        update_test_set_add_test_case_id(
-                            doc_id, set_id, db_options)
             else:
                 ADD_ERR(errors, 400, "Missing mandatory key in JSON data")
         except ValueError, ex:
@@ -515,7 +377,6 @@ def import_multi_test_cases(
 
     Additional named arguments passed might be (with the exact following
     names):
-    * test_set_id
     * build_id
     * job_id
     * job
@@ -542,106 +403,16 @@ def import_multi_test_cases(
         case_list, suite_id, suite_name, db_options, **kwargs)
 
 
-def import_test_cases_from_test_set(
-        test_set_id, suite_id, suite_name, cases_list, db_options, **kwargs):
-    """Import the test cases and update the test set.
-
-    After importing the test cases, save the test set with their IDs.
-
-    :param test_set_id: The ID of the test set.
-    :type test_set_id: bson.objectid.ObjectId
-    :param suite_id: The ID of the test suite.
-    :type suite_id: bson.objectid.ObjectId
-    :param suite_name: The name of the test suite.
-    :type suite_name: str
-    :param cases_list: The list of test cases to import.
-    :type cases_list: list
-    :param db_options: The database connection options.
-    :type db_options: dict
-    """
-    ret_val = 200
-    errors = {}
-
-    # Inject the test_set_id so that if we have test cases they will use it.
-    kwargs[models.TEST_SET_ID_KEY] = test_set_id
-
-    case_ids, errors = import_multi_test_cases(
-        cases_list, suite_id, suite_name, db_options, **kwargs)
-
-    if case_ids:
-        # Update the test set with the test case IDs.
-        database = utils.db.get_db_connection(db_options)
-        ret_val = utils.db.update(
-            database[models.TEST_SET_COLLECTION],
-            {models.ID_KEY: test_set_id},
-            {models.TEST_CASE_KEY: case_ids}
-        )
-        if ret_val != 200:
-            error_msg = (
-                "Error saving test cases for test set '%s'" % test_set_id)
-            ADD_ERR(errors, ret_val, error_msg)
-    else:
-        ret_val = 500
-        error_msg = "No test cases imported for test set '%s'" % test_set_id
-        utils.LOG.error(error_msg)
-        ADD_ERR(errors, ret_val, error_msg)
-
-    return ret_val, errors
-
 # TODO: create a separate test_update.py document
-
-
-def update_test_suite_add_test_set_id(
-        set_id, suite_id, suite_name, db_options, mail_options):
-    """Add the test set ID provided in a test suite.
-
-    This task is linked from the test set post one: It add the
-    test set ID as a child of the test suite.
-
-    :param set_id: The ID of the test set.
-    :type set_id: bson.objectid.ObjectId
-    :param suite_id: The ID of the suite.
-    :type suite_id: bson.objectid.ObjectId
-    :param suite_name: The name of the test suite.
-    :type suite_name: str
-    :param db_options: The database connection parameters.
-    :type db_options: dict
-    :param mail_options: The email system parameters.
-    :type mail_options: dict
-    :return 200 if OK, 500 in case of errors; a dictionary with errors or an
-    empty one.
-    """
-
-    ret_val = 200
-    errors = {}
-
-    utils.LOG.info(
-        "Updating test suite '%s' (%s) with test set ID",
-        suite_name, str(suite_id))
-    database = utils.db.get_db_connection(db_options)
-
-    ret_val = utils.db.update(
-        database[models.TEST_SUITE_COLLECTION],
-        {models.ID_KEY: suite_id},
-        {models.TEST_SET_KEY: set_id}, operation='$push')
-    if ret_val != 200:
-        ADD_ERR(
-            errors,
-            ret_val,
-            "Error updating test suite '%s' with test set references" %
-            (str(suite_id))
-        )
-    return ret_val, errors
-
 
 def update_test_suite_add_test_case_id(
         case_id, suite_id, suite_name, db_options):
-    """Add the test set ID provided in a test suite.
+    """Add the test case ID provided in a test suite.
 
     This task is linked from the test set post one: It add the
-    test set ID as a child of the test suite.
+    test case ID as a child of the test suite.
 
-    :param case_id: The ID of the test set.
+    :param case_id: The ID of the test case.
     :type case_id: bson.objectid.ObjectId
     :param suite_id: The ID of the suite.
     :type suite_id: bson.objectid.ObjectId
@@ -671,44 +442,5 @@ def update_test_suite_add_test_case_id(
             ret_val,
             "Error updating test suite '%s' with test case references" %
             (str(suite_id))
-        )
-    return ret_val, errors
-
-
-def update_test_set_add_test_case_id(
-        case_id, set_id, db_options):
-    """Add the test set ID provided in a test set.
-
-    This task is linked from the test set post one: It add the
-    test set ID as a child of the test set.
-
-    :param case_id: The ID of the test set.
-    :type case_id: bson.objectid.ObjectId
-    :param set_id: The ID of the set.
-    :type set_id: bson.objectid.ObjectId
-    :param db_options: The database connection parameters.
-    :type db_options: dict
-    :return 200 if OK, 500 in case of errors; a dictionary with errors or an
-    empty one.
-    """
-
-    ret_val = 200
-    errors = {}
-
-    utils.LOG.info(
-        "Updating test set (%s) with test case ID",
-        str(set_id))
-    database = utils.db.get_db_connection(db_options)
-
-    ret_val = utils.db.update(
-        database[models.TEST_SET_COLLECTION],
-        {models.ID_KEY: set_id},
-        {models.TEST_CASE_KEY: case_id}, operation='$push')
-    if ret_val != 200:
-        ADD_ERR(
-            errors,
-            ret_val,
-            "Error updating test set '%s' with test case references" %
-            (str(set_id))
         )
     return ret_val, errors

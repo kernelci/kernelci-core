@@ -36,9 +36,7 @@ class TestTestsImport(unittest.TestCase):
 
         case_list = []
         test_suite_id = "0123456789ab0123456789ab"
-        kwargs = {
-            "test_set_id": "0123456789ab0123456789ab"
-        }
+        kwargs = {}
 
         ids, errors = tests_import.import_multi_test_cases(
             case_list, test_suite_id, "suite-name", {}, **kwargs)
@@ -59,9 +57,7 @@ class TestTestsImport(unittest.TestCase):
             {"name": "test-case", "version": "1.0"}
         ]
         test_suite_id = "0123456789ab0123456789ab"
-        kwargs = {
-            "test_set_id": "0123456789ab0123456789ab"
-        }
+        kwargs = {}
 
         ids, errors = tests_import.import_multi_test_cases(
             case_list, test_suite_id, "suite-name", {}, **kwargs)
@@ -84,9 +80,7 @@ class TestTestsImport(unittest.TestCase):
             {"name": "test-case2", "version": "1.0", "parameters": {"a": 3}}
         ]
         test_suite_id = "0123456789ab0123456789ab"
-        kwargs = {
-            "test_set_id": "0123456789ab0123456789ab"
-        }
+        kwargs = {}
 
         ids, errors = tests_import.import_multi_test_cases(
             case_list, test_suite_id, "suite-name", {}, **kwargs)
@@ -107,9 +101,7 @@ class TestTestsImport(unittest.TestCase):
                 "version": "1.0", "parameters": {"a": 1}}
         ]
         test_suite_id = "0123456789ab0123456789ab"
-        kwargs = {
-            "test_set_id": "0123456789ab0123456789ab"
-        }
+        kwargs = {}
 
         ids, errors = tests_import.import_multi_test_cases(
             case_list, test_suite_id, "suite-name", {}, **kwargs)
@@ -129,9 +121,7 @@ class TestTestsImport(unittest.TestCase):
             {"name": "test-case1", "version": "1.0", "parameters": {"a": 2}}
         ]
         test_suite_id = "0123456789ab0123456789ab"
-        kwargs = {
-            "test_set_id": "0123456789ab0123456789ab"
-        }
+        kwargs = {}
 
         ids, errors = tests_import.import_multi_test_cases(
             case_list, test_suite_id, "suite-name", {}, **kwargs)
@@ -155,9 +145,7 @@ class TestTestsImport(unittest.TestCase):
             {"name": "test-case3", "version": "1.0", "parameters": {"a": 4}}
         ]
         test_suite_id = "0123456789ab0123456789ab"
-        kwargs = {
-            "test_set_id": "0123456789ab0123456789ab"
-        }
+        kwargs = {}
 
         ids, errors = tests_import.import_multi_test_cases(
             case_list, test_suite_id, "suite-name", {}, **kwargs)
@@ -172,9 +160,7 @@ class TestTestsImport(unittest.TestCase):
 
         case_list = [["foo"]]
         test_suite_id = "test-suite-id"
-        kwargs = {
-            "test_set_id": "test-set-id"
-        }
+        kwargs = {}
 
         ids, errors = tests_import.import_multi_test_cases(
             case_list, test_suite_id, "suite-name", {}, **kwargs)
@@ -188,9 +174,7 @@ class TestTestsImport(unittest.TestCase):
 
         case_list = [{"parameters": {"a": 1}}]
         test_suite_id = "0123456789ab0123456789ab"
-        kwargs = {
-            "test_set_id": "0123456789ab0123456789ab"
-        }
+        kwargs = {}
 
         ids, errors = tests_import.import_multi_test_cases(
             case_list, test_suite_id, "suite-name", {}, **kwargs)
@@ -204,9 +188,7 @@ class TestTestsImport(unittest.TestCase):
 
         case_list = [{"name": "case", "version": "1.0", "parameters": ["a"]}]
         test_suite_id = "0123456789ab0123456789ab"
-        kwargs = {
-            "test_set_id": "0123456789ab0123456789ab"
-        }
+        kwargs = {}
 
         ids, errors = tests_import.import_multi_test_cases(
             case_list, test_suite_id, "suite-name", {}, **kwargs)
@@ -350,218 +332,3 @@ class TestTestsImport(unittest.TestCase):
 
         doc = tests_import.parse_test_suite(suite_json, {})
         self.assertDictEqual(expected, doc)
-
-    @mock.patch("utils.db.get_db_connection")
-    def test_import_multi_test_sets_wrong_key(self, mock_db):
-        mock_db.return_value = self.db
-
-        tests_list = [{"name": "set", "version": "1.0", "parameters": ["a"]}]
-        test_suite_id = "test-suite-id"
-
-        ids, errors = tests_import.import_multi_test_sets(
-            tests_list, test_suite_id, "suite-name", {})
-
-        self.assertListEqual([400], errors.keys())
-        self.assertListEqual([], ids)
-
-    @mock.patch("utils.db.get_db_connection")
-    def test_import_multi_test_sets_with_non_dictionary(self, mock_db):
-        mock_db.return_value = self.db
-
-        tests_list = [["foo"]]
-        test_suite_id = "test-suite-id"
-
-        ids, errors = tests_import.import_multi_test_sets(
-            tests_list, test_suite_id, "suite-name", {})
-
-        self.assertListEqual([400], errors.keys())
-        self.assertListEqual([], ids)
-
-    @mock.patch("utils.db.get_db_connection")
-    def test_import_multi_test_sets_missing_mandatory_keys(self, mock_db):
-        mock_db.return_value = self.db
-
-        tests_list = [{"parameters": {"a": 1}}]
-        test_suite_id = "test-suite-id"
-
-        ids, errors = tests_import.import_multi_test_sets(
-            tests_list, test_suite_id, "suite-name", {})
-
-        self.assertListEqual([400], errors.keys())
-        self.assertListEqual([], ids)
-
-    @mock.patch("utils.db.update")
-    @mock.patch("utils.db.get_db_connection")
-    def test_import_multi_test_sets_empty(self, mock_db, mock_update):
-        mock_db.return_value = self.db
-        mock_update.return_value = 200
-
-        tests_list = []
-        test_suite_id = "test-suite-id"
-
-        ids, errors = tests_import.import_multi_test_sets(
-            tests_list, test_suite_id, "suite-name", {})
-
-        self.assertDictEqual({}, errors)
-        self.assertListEqual([], ids)
-
-    @mock.patch("utils.db.update")
-    @mock.patch("utils.db.save")
-    @mock.patch("utils.db.get_db_connection")
-    def test_import_multi_test_sets_simple(
-            self, mock_db, mock_save, mock_update):
-        mock_db.return_value = self.db
-        mock_save.return_value = (201, "fake-id")
-        mock_update.return_value = 200
-
-        tests_list = [
-            {"name": "test-set", "version": "1.0"}
-        ]
-        test_suite_id = "test-suite-id"
-
-        ids, errors = tests_import.import_multi_test_sets(
-            tests_list, test_suite_id, "suite-name", {})
-
-        self.assertDictEqual({}, errors)
-        self.assertListEqual(["fake-id"], ids)
-
-    @mock.patch("utils.db.update")
-    @mock.patch("utils.db.save")
-    @mock.patch("utils.db.get_db_connection")
-    def test_import_multi_test_sets_complex(
-            self, mock_db, mock_save, mock_update):
-        mock_db.return_value = self.db
-        mock_save.side_effect = [(201, "id0"), (201, "id1"), (201, "id2")]
-        mock_update.return_value = 200
-
-        tests_list = [
-            {"name": "test-set0", "version": "1.0", "parameters": {"a": 1}},
-            {"name": "test-set1", "version": "1.0", "parameters": {"a": 2}},
-            {"name": "test-set2", "version": "1.0", "parameters": {"a": 3}}
-        ]
-        test_suite_id = "test-suite-id"
-
-        ids, errors = tests_import.import_multi_test_sets(
-            tests_list, test_suite_id, "suite-name", {})
-
-        self.assertDictEqual({}, errors)
-        self.assertListEqual(["id0", "id1", "id2"], ids)
-
-    @mock.patch("utils.db.save")
-    @mock.patch("utils.db.get_db_connection")
-    def test_import_multi_test_sets_with_save_error(self, mock_db, mock_save):
-        mock_db.return_value = self.db
-        mock_save.return_value = (500, None)
-
-        tests_list = [
-            {
-                "name": "test-set0",
-                "test_suite_id": "test-suite-id",
-                "version": "1.0", "parameters": {"a": 1}}
-        ]
-        test_suite_id = "test-suite-id"
-
-        ids, errors = tests_import.import_multi_test_sets(
-            tests_list, test_suite_id, "suite-name", {})
-
-        self.assertListEqual([500], errors.keys())
-        self.assertListEqual([], ids)
-
-    @mock.patch("utils.db.save")
-    @mock.patch("utils.db.get_db_connection")
-    def test_import_multi_test_sets_with_multi_save_error(
-            self, mock_db, mock_save):
-        mock_db.return_value = self.db
-        mock_save.return_value = (500, None)
-
-        tests_list = [
-            {"name": "test-set0", "version": "1.0", "parameters": {"a": 1}},
-            {"name": "test-set1", "version": "1.0", "parameters": {"a": 2}}
-        ]
-        test_suite_id = "test-suite-id"
-
-        ids, errors = tests_import.import_multi_test_sets(
-            tests_list, test_suite_id, "suite-name", {})
-
-        self.assertListEqual([500], errors.keys())
-        self.assertEqual(2, len(errors[500]))
-        self.assertListEqual([], ids)
-
-    @mock.patch("utils.db.save")
-    @mock.patch("utils.db.get_db_connection")
-    def test_import_multi_test_sets_with_multi_save_error_complex(
-            self, mock_db, mock_save):
-        mock_db.return_value = self.db
-        mock_save.side_effect = [
-            (500, None), (201, "id0"), (201, "id1"), (500, None)]
-
-        tests_list = [
-            {"name": "test-set0", "version": "1.0", "parameters": {"a": 1}},
-            {"name": "test-set1", "version": "1.0", "parameters": {"a": 2}},
-            {"name": "test-set2", "version": "1.0", "parameters": {"a": 3}},
-            {"name": "test-set3", "version": "1.0", "parameters": {"a": 4}}
-        ]
-        test_suite_id = "test-suite-id"
-
-        ids, errors = tests_import.import_multi_test_sets(
-            tests_list, test_suite_id, "suite-name", {})
-
-        self.assertListEqual([500], errors.keys())
-        self.assertEqual(2, len(errors[500]))
-        self.assertListEqual(["id0", "id1"], ids)
-
-    @mock.patch("utils.db.save")
-    @mock.patch("utils.db.get_db_connection")
-    def test_import_multi_test_sets_with_test_case(self, mock_db, mock_save):
-        mock_db.return_value = self.db
-        mock_save.side_effect = [(201, "test-set0-id"), (201, "test-case0-id")]
-
-        tests_list = [
-            {
-                "name": "test-set0",
-                "parameters": {"a": 1},
-                "test_case": [
-                    {
-                        "name": "test-case0",
-                        "test_suite_id": "0123456789ab0123456789a"
-                    }
-                ]
-            },
-        ]
-        test_suite_id = "0123456789ab0123456789ab"
-
-        ids, errors = tests_import.import_multi_test_sets(
-            tests_list, test_suite_id, "suite-name", {})
-
-        self.assertDictEqual({}, errors)
-        self.assertListEqual(["test-set0-id"], ids)
-
-    @mock.patch("utils.db.update")
-    @mock.patch("utils.db.get_db_connection")
-    @mock.patch("utils.tests_import.import_multi_test_cases")
-    def test_import_test_cases_from_test_set_ok(
-            self, mock_import, mock_db, mock_update):
-        mock_import.return_value = (["12345", "123456"], {})
-        mock_db.return_value = self.db
-        mock_update.return_value = 200
-
-        ret_val, errors = tests_import.import_test_cases_from_test_set(
-            "set-id", "suite-id", "suite-name", [{"name": "test-case"}], {})
-
-        self.assertEqual(200, ret_val)
-        self.assertDictEqual({}, errors)
-
-    @mock.patch("utils.db.update")
-    @mock.patch("utils.db.get_db_connection")
-    @mock.patch("utils.tests_import.import_multi_test_cases")
-    def test_import_test_cases_from_test_set_with_error(
-            self, mock_import, mock_db, mock_update):
-        mock_import.return_value = (["12345", "123456"], {})
-        mock_db.return_value = self.db
-        mock_update.return_value = 500
-
-        ret_val, errors = tests_import.import_test_cases_from_test_set(
-            "set-id", "suite-id", "suite-name", [{"name": "test-case"}], {})
-
-        self.assertEqual(500, ret_val)
-        self.assertListEqual([500], errors.keys())

@@ -25,8 +25,8 @@ import models.base as mbase
 class TestCaseDocument(mbase.BaseDocument):
     """Model for a test case document.
 
-    A test case is the smallest unit of a test set: it is the actual test that
-    is run and that reports a result.
+    A test case is the smallest unit of a test suite: it is the actual test
+    that is run and that reports a result.
     """
 
     def __init__(self, name, test_suite_id=None, version="1.0", status="PASS"):
@@ -59,7 +59,6 @@ class TestCaseDocument(mbase.BaseDocument):
         self.samples = None
         self.samples_sqr_sum = None
         self.samples_sum = None
-        self.test_set_id = None
         self.test_suite_name = None
         self.time = -1
         self.vcs_commit = None
@@ -247,7 +246,6 @@ class TestCaseDocument(mbase.BaseDocument):
             models.SAMPLES_SQUARE_SUM_KEY: self.samples_sqr_sum,
             models.SAMPLES_SUM_KEY: self.samples_sum,
             models.STATUS_KEY: self.status,
-            models.TEST_SET_ID_KEY: self.test_set_id,
             models.TEST_SUITE_ID_KEY: self.test_suite_id,
             models.TEST_SUITE_NAME_KEY: self.test_suite_name,
             models.TIME_KEY: self.time,

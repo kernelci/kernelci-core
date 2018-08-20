@@ -66,7 +66,6 @@ class TestTestSuiteModel(unittest.TestCase):
         test_suite.qemu_command = "qemu-command"
         test_suite.retries = 2
         test_suite.test_case = ["foo"]
-        test_suite.test_set = ["bar"]
         test_suite.time = 10
         test_suite.vcs_commit = "1234"
         test_suite.version = "1.1"
@@ -115,7 +114,6 @@ class TestTestSuiteModel(unittest.TestCase):
             "qemu_command": "qemu-command",
             "retries": 2,
             "test_case": ["foo"],
-            "test_set": ["bar"],
             "time": 10,
             "vcs_commit": "1234",
             "version": "1.1",
@@ -180,7 +178,6 @@ class TestTestSuiteModel(unittest.TestCase):
             "qemu_command": None,
             "retries": 0,
             "test_case": ["foo"],
-            "test_set": ["bar"],
             "time": 10,
             "vcs_commit": "1234",
             "version": "1.0",

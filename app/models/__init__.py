@@ -164,8 +164,6 @@ TEST_CASE_KEY = "test_case"
 TEST_JOB_ID_KEY = "test_job_id"
 TEST_JOB_PATH_KEY = "test_job_path"
 TEST_JOB_URL_KEY = "test_job_url"
-TEST_SET_ID_KEY = "test_set_id"
-TEST_SET_KEY = "test_set"
 TEST_SUITE_ID_KEY = "test_suite_id"
 TEST_SUITE_NAME_KEY = "test_suite_name"
 TEXT_OFFSET_KEY = "text_offset"
@@ -259,7 +257,6 @@ REPORT_COLLECTION = "report"
 UPLOAD_COLLECTION = "upload"
 TEST_SUITE_COLLECTION = "test_suite"
 TEST_CASE_COLLECTION = "test_case"
-TEST_SET_COLLECTION = "test_set"
 ERROR_LOGS_COLLECTION = "error_logs"
 ERRORS_SUMMARY_COLLECTION = "errors_summary"
 DAILY_STATS_COLLECTION = "daily_stats"
@@ -374,7 +371,6 @@ COLLECTIONS = [
     DAILY_STATS_COLLECTION,
     JOB_COLLECTION,
     TEST_CASE_COLLECTION,
-    TEST_SET_COLLECTION,
     TEST_SUITE_COLLECTION
 ]
 
@@ -384,7 +380,6 @@ COUNT_COLLECTIONS = [
     BUILD_COLLECTION,
     JOB_COLLECTION,
     TEST_CASE_COLLECTION,
-    TEST_SET_COLLECTION,
     TEST_SUITE_COLLECTION
 ]
 
@@ -424,7 +419,6 @@ COUNT_VALID_KEYS = {
         TEST_CASE_ID_KEY,
         TEST_JOB_ID_KEY,
         TEST_JOB_URL_KEY,
-        TEST_SET_ID_KEY,
         TEST_SUITE_ID_KEY,
         TEST_SUITE_NAME_KEY,
         TEXT_OFFSET_KEY,
@@ -836,7 +830,6 @@ TEST_SUITE_VALID_KEYS = {
             METADATA_KEY,
             NAME_KEY,
             TEST_CASE_KEY,
-            TEST_SET_KEY,
             VCS_COMMIT_KEY,
             VERSION_KEY
         ]
@@ -882,59 +875,6 @@ TEST_SUITE_VALID_KEYS = {
     ]
 }
 
-TEST_SET_VALID_KEYS = {
-    "POST": {
-        MANDATORY_KEYS: [
-            NAME_KEY,
-            TEST_SUITE_ID_KEY
-        ],
-        ACCEPTED_KEYS: [
-            CREATED_KEY,
-            DEFECTS_KEY,
-            DEFINITION_URI_KEY,
-            METADATA_KEY,
-            NAME_KEY,
-            PARAMETERS_KEY,
-            TEST_CASE_KEY,
-            TEST_JOB_ID_KEY,
-            TEST_JOB_PATH_KEY,
-            TEST_JOB_URL_KEY,
-            TEST_SUITE_ID_KEY,
-            TEST_SUITE_NAME_KEY,
-            TIME_KEY,
-            VCS_COMMIT_KEY,
-            VERSION_KEY,
-        ]
-    },
-    "PUT": [
-        CREATED_KEY,
-        DEFECTS_KEY,
-        DEFINITION_URI_KEY,
-        NAME_KEY,
-        PARAMETERS_KEY,
-        TEST_JOB_ID_KEY,
-        TEST_JOB_PATH_KEY,
-        TEST_JOB_URL_KEY,
-        TEST_SUITE_ID_KEY,
-        TEST_SUITE_NAME_KEY,
-        TIME_KEY,
-        VCS_COMMIT_KEY,
-        VERSION_KEY
-    ],
-    "GET": [
-        CREATED_KEY,
-        DEFINITION_URI_KEY,
-        NAME_KEY,
-        TEST_JOB_ID_KEY,
-        TEST_JOB_URL_KEY,
-        TEST_SUITE_ID_KEY,
-        TEST_SUITE_NAME_KEY,
-        TIME_KEY,
-        VCS_COMMIT_KEY,
-        VERSION_KEY
-    ]
-}
-
 TEST_CASE_VALID_KEYS = {
     "POST": {
         MANDATORY_KEYS: [
@@ -956,7 +896,6 @@ TEST_CASE_VALID_KEYS = {
             SAMPLES_SQUARE_SUM_KEY,
             SAMPLES_SUM_KEY,
             STATUS_KEY,
-            TEST_SET_ID_KEY,
             TEST_SUITE_ID_KEY,
             TEST_SUITE_NAME_KEY,
             TIME_KEY,
@@ -979,7 +918,6 @@ TEST_CASE_VALID_KEYS = {
         SAMPLES_SQUARE_SUM_KEY,
         SAMPLES_SUM_KEY,
         STATUS_KEY,
-        TEST_SET_ID_KEY,
         TEST_SUITE_ID_KEY,
         TEST_SUITE_NAME_KEY,
         TIME_KEY,
@@ -995,7 +933,6 @@ TEST_CASE_VALID_KEYS = {
         NAME_KEY,
         SAMPLES_KEY,
         STATUS_KEY,
-        TEST_SET_ID_KEY,
         TEST_SUITE_ID_KEY,
         TEST_SUITE_NAME_KEY,
         TIME_KEY,
@@ -1029,7 +966,6 @@ DISTINCT_VALID_KEYS = {
     BUILD_COLLECTION: BUILD_VALID_KEYS,
     JOB_COLLECTION: JOB_VALID_KEYS,
     TEST_CASE_COLLECTION: TEST_CASE_VALID_KEYS,
-    TEST_SET_COLLECTION: TEST_SET_VALID_KEYS,
     TEST_SUITE_COLLECTION: TEST_SUITE_VALID_KEYS
 }
 
@@ -1095,14 +1031,6 @@ DISTINCT_VALID_FIELDS = {
         KERNEL_KEY,
         LAB_NAME_KEY,
         NAME_KEY
-    ],
-    TEST_SET_COLLECTION: [
-        BOOT_ID_KEY,
-        BUILD_ID_KEY,
-        JOB_ID_KEY,
-        NAME_KEY,
-        TEST_SUITE_ID_KEY,
-        TEST_SUITE_NAME_KEY,
     ],
     TEST_CASE_COLLECTION: [
         TEST_SUITE_ID_KEY,

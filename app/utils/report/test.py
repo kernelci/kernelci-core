@@ -45,7 +45,6 @@ TEST_REPORT_FIELDS = [
     models.NAME_KEY,
     models.STATUS_KEY,
     models.TEST_CASE_KEY,
-    models.TEST_SET_KEY,
     models.TIME_KEY,
     models.VCS_COMMIT_KEY,
     models.VERSION_KEY,

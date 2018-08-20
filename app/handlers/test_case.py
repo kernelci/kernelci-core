@@ -90,18 +90,7 @@ class TestCaseHandler(htbase.TestBaseHandler):
                 if response.status_code == 200:
                     response.reason = "Resource '%s' deleted" % doc_id
 
-                    # Remove test case reference from test_set and test_suite
-                    # collections.
-                    ret_val = utils.db.update(
-                        self.db[models.TEST_SET_COLLECTION],
-                        {models.TEST_CASE_KEY: case_id},
-                        {models.TEST_CASE_KEY: [case_id]},
-                        operation="$pullAll"
-                    )
-                    if ret_val != 200:
-                        response.errors = \
-                            "Error removing test case reference from test set"
-
+                    # Remove test case reference from the test_suite collection
                     ret_val = utils.db.update(
                         self.db[models.TEST_SUITE_COLLECTION],
                         {models.TEST_CASE_KEY: case_id},

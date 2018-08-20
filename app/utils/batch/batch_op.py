@@ -261,14 +261,6 @@ class BatchTestCaseOperation(BatchOperation):
         self.valid_keys = models.TEST_CASE_VALID_KEYS
 
 
-class BatchTestSetOperation(BatchOperation):
-    """A batch operation for test sets."""
-
-    def __init__(self):
-        super(BatchTestSetOperation, self).__init__()
-        self.valid_keys = models.TEST_SET_VALID_KEYS
-
-
 class BatchTestSuiteOperation(BatchOperation):
     """A batch operation for test suites."""
 

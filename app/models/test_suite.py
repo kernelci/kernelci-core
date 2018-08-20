@@ -25,7 +25,7 @@ import models.base as modb
 class TestSuiteDocument(modb.BaseDocument):
     """Model for a test suite document.
 
-    A test suite is a document that can store test cases and/or test sets ran.
+    A test suite is a document that can store test cases ran.
     """
 
     def __init__(self, name, lab_name):
@@ -80,7 +80,6 @@ class TestSuiteDocument(modb.BaseDocument):
         self.qemu_command = None
         self.retries = 0
         self.test_case = []
-        self.test_set = []
         self.time = -1
         self.vcs_commit = None
         self.warnings = 0
@@ -190,7 +189,6 @@ class TestSuiteDocument(modb.BaseDocument):
             models.RETRIES_KEY: self.retries,
             models.NAME_KEY: self.name,
             models.TEST_CASE_KEY: self.test_case,
-            models.TEST_SET_KEY: self.test_set,
             models.TIME_KEY: self.time,
             models.VCS_COMMIT_KEY: self.vcs_commit,
             models.VERSION_KEY: self.version,

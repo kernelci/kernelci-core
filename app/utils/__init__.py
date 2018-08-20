@@ -42,7 +42,6 @@ ID_KEYS = [
     models.JOB_ID_KEY,
     models.LAB_ID_KEY,
     models.TEST_CASE_ID_KEY,
-    models.TEST_SET_ID_KEY,
     models.TEST_SUITE_ID_KEY
 ]
 
