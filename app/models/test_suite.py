@@ -66,6 +66,7 @@ class TestSuiteDocument(modb.BaseDocument):
         self.git_commit = None
         self.git_describe = None
         self.git_url = None
+        self.image_type = None
         self.initrd_addr = None
         self.job = None
         self.job_id = None
@@ -173,6 +174,7 @@ class TestSuiteDocument(modb.BaseDocument):
             models.GIT_COMMIT_KEY: self.git_commit,
             models.GIT_DESCRIBE_KEY: self.git_describe,
             models.GIT_URL_KEY: self.git_url,
+            models.IMAGE_TYPE_KEY: self.image_type,
             models.INITRD_ADDR_KEY: self.initrd_addr,
             models.JOB_ID_KEY: self.job_id,
             models.JOB_KEY: self.job,

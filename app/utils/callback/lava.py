@@ -70,6 +70,7 @@ META_DATA_MAP_TEST = {
     models.KERNEL_IMAGE_KEY: "job.kernel_image",
     models.MACH_KEY: "platform.mach",
     models.VCS_COMMIT_KEY: "git.commit",
+    models.IMAGE_TYPE_KEY: "image.type",
 }
 
 META_DATA_MAP_BOOT = {
