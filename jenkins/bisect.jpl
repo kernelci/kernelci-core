@@ -363,7 +363,7 @@ def bisectNext(kdir, status) {
  */
 
 def pushResults(kdir, checks, params_summary) {
-    def subject = "${params.KERNEL_TREE}/${params.KERNEL_BRANCH} ${params.PLAN} bisection: ${params.KERNEL_NAME} on ${params.TARGET} #${env.BUILD_NUMBER}"
+    def subject = "${params.KERNEL_TREE}/${params.KERNEL_BRANCH} ${params.PLAN} bisection: ${params.KERNEL_NAME} on ${params.TARGET}"
 
     def lava_ci = env.WORKSPACE + '/lava-ci'
     cloneLAVA_CI(lava_ci)
