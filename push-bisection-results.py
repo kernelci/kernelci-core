@@ -26,7 +26,7 @@ try:
 except ImportError:
     from StringIO import StringIO
 import urlparse
-from lib import configuration, device_map
+from lib import configuration
 
 
 def git_summary(repo, revision):
