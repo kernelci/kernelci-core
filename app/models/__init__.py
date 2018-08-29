@@ -106,6 +106,7 @@ GIT_DESCRIBE_V_KEY = "git_describe_v"
 GIT_URL_KEY = "git_url"
 GTE_KEY = "gte"
 ID_KEY = "_id"
+IMAGE_TYPE_KEY = "image_type"
 INITRD_ADDR_KEY = "initrd_addr"
 INITRD_KEY = "initrd"
 IP_ADDRESS_KEY = "ip_address"
@@ -485,6 +486,7 @@ BOOT_VALID_KEYS = {
             GIT_DESCRIBE_KEY,
             GIT_URL_KEY,
             ID_KEY,
+            IMAGE_TYPE_KEY,
             INITRD_ADDR_KEY,
             INITRD_KEY,
             JOB_KEY,
@@ -1087,6 +1089,7 @@ DISTINCT_VALID_FIELDS = {
         DEFCONFIG_FULL_KEY,
         DEFCONFIG_KEY,
         GIT_BRANCH_KEY,
+        IMAGE_TYPE_KEY,
         JOB_ID_KEY,
         JOB_KEY,
         KERNEL_KEY,

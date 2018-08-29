@@ -356,6 +356,7 @@ def _update_test_suite_doc_from_json(suite_doc, test_dict, errors):
     suite_doc.git_commit = test_dict.get(models.GIT_COMMIT_KEY, None)
     suite_doc.git_describe = test_dict.get(models.GIT_DESCRIBE_KEY, None)
     suite_doc.git_url = test_dict.get(models.GIT_URL_KEY, None)
+    suite_doc.image_type = test_dict.get(models.IMAGE_TYPE_KEY, None)
     suite_doc.initrd_addr = test_dict.get(models.INITRD_ADDR_KEY, None)
     suite_doc.job = test_dict.get(models.JOB_KEY, None)
     suite_doc.kernel = test_dict.get(models.KERNEL_KEY, None)
