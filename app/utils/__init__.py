@@ -42,7 +42,7 @@ ID_KEYS = [
     models.JOB_ID_KEY,
     models.LAB_ID_KEY,
     models.TEST_CASE_ID_KEY,
-    models.TEST_SUITE_ID_KEY
+    models.TEST_GROUP_ID_KEY
 ]
 
 NO_START_CHARS = re.compile(r"^[^a-zA-Z0-9]")

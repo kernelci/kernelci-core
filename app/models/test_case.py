@@ -25,18 +25,18 @@ import models.base as mbase
 class TestCaseDocument(mbase.BaseDocument):
     """Model for a test case document.
 
-    A test case is the smallest unit of a test suite: it is the actual test
+    A test case is the smallest unit of a test group: it is the actual test
     that is run and that reports a result.
     """
 
-    def __init__(self, name, test_suite_id=None, version="1.0", status="PASS"):
+    def __init__(self, name, test_group_id=None, version="1.0", status="PASS"):
         """
 
         :param name: The name given to this test case.
         :type name: string
-        :param test_suite_id: The ID of the test suite this test case
+        :param test_group_id: The ID of the test group this test case
         belongs to.
-        :type test_suite_id: string
+        :type test_group_id: string
         :param version: The version of the JSON schema of this test case.
         :type version: string
         """
@@ -44,7 +44,7 @@ class TestCaseDocument(mbase.BaseDocument):
         self._id = None
         self._name = name
         self._status = status
-        self._test_suite_id = test_suite_id
+        self._test_group_id = test_group_id
         self._version = version
 
         self._attachments = []
@@ -59,7 +59,7 @@ class TestCaseDocument(mbase.BaseDocument):
         self.samples = None
         self.samples_sqr_sum = None
         self.samples_sum = None
-        self.test_suite_name = None
+        self.test_group_name = None
         self.time = -1
         self.vcs_commit = None
 
@@ -131,18 +131,18 @@ class TestCaseDocument(mbase.BaseDocument):
         self._parameters = value
 
     @property
-    def test_suite_id(self):
-        """The ID of the associated test suite."""
-        return self._test_suite_id
+    def test_group_id(self):
+        """The ID of the associated test group."""
+        return self._test_group_id
 
-    @test_suite_id.setter
-    def test_suite_id(self, value):
-        """Set the associated test suite ID.
+    @test_group_id.setter
+    def test_group_id(self, value):
+        """Set the associated test group ID.
 
-        :param value: The test suite ID.
+        :param value: The test group ID.
         :type value: string
         """
-        self._test_suite_id = value
+        self._test_group_id = value
 
     @property
     def attachments(self):
@@ -246,8 +246,8 @@ class TestCaseDocument(mbase.BaseDocument):
             models.SAMPLES_SQUARE_SUM_KEY: self.samples_sqr_sum,
             models.SAMPLES_SUM_KEY: self.samples_sum,
             models.STATUS_KEY: self.status,
-            models.TEST_SUITE_ID_KEY: self.test_suite_id,
-            models.TEST_SUITE_NAME_KEY: self.test_suite_name,
+            models.TEST_GROUP_ID_KEY: self.test_group_id,
+            models.TEST_GROUP_NAME_KEY: self.test_group_name,
             models.TIME_KEY: self.time,
             models.VCS_COMMIT_KEY: self.vcs_commit,
             models.VERSION_KEY: self.version
@@ -269,9 +269,9 @@ class TestCaseDocument(mbase.BaseDocument):
 
             try:
                 name = doc_pop(models.NAME_KEY)
-                test_suite_id = doc_pop(models.TEST_SUITE_ID_KEY)
+                test_group_id = doc_pop(models.TEST_GROUP_ID_KEY)
 
-                test_case = TestCaseDocument(name, test_suite_id)
+                test_case = TestCaseDocument(name, test_group_id)
                 test_case.id = set_id
 
                 for key, val in local_obj.iteritems():

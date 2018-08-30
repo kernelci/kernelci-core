@@ -19,7 +19,7 @@ import datetime
 import pymongo
 
 import models
-import models.test_suite as mtest_suite
+import models.test_group as mtest_group
 import models.test_case as mtest_case
 import taskqueue.celery as taskc
 import utils
@@ -33,7 +33,7 @@ except NameError:
     basestring = str
 
 # Keys that need to be checked for None or null value.
-NON_NULL_KEYS_SUITE = [
+NON_NULL_KEYS_GROUP = [
     models.BOARD_KEY,
     models.DEFCONFIG_KEY,
     models.JOB_KEY,
@@ -45,7 +45,7 @@ NON_NULL_KEYS_CASE = [
     models.STATUS_KEY,
 ]
 
-SPEC_TEST_SUITE = {
+SPEC_TEST_GROUP = {
     models.ARCHITECTURE_KEY: "arch",
     models.BOARD_KEY: "board",
     models.DEFCONFIG_FULL_KEY: "defconfig_full",
@@ -58,7 +58,7 @@ SPEC_TEST_SUITE = {
 }
 
 SPEC_TEST_CASE = {
-    models.TEST_SUITE_ID_KEY: "test_suite_id",
+    models.TEST_GROUP_ID_KEY: "test_group_id",
     models.NAME_KEY: "name",
 }
 
@@ -223,7 +223,7 @@ def _update_test_case_doc_from_json(case_doc, test_dict, errors):
 
 
 def _update_test_case_doc_ids(ts_name, ts_id, case_doc, database):
-    """Update test case document test suite IDs references.
+    """Update test case document test group IDs references.
 
     :param ts_name: The test case name
     :type ts_name: str
@@ -234,18 +234,18 @@ def _update_test_case_doc_ids(ts_name, ts_id, case_doc, database):
     :param database: The database connection to use.
     """
 
-    # Make sure the test suite ID provided is correct
+    # Make sure the test group ID provided is correct
     ts_oid = bson.objectid.ObjectId(ts_id)
-    test_suite_doc = utils.db.find_one2(database[models.TEST_SUITE_COLLECTION],
+    test_group_doc = utils.db.find_one2(database[models.TEST_GROUP_COLLECTION],
                                         ts_oid,
                                         [models.ID_KEY])
     # If exists, update the test case
-    if test_suite_doc:
-        case_doc.test_suite_name = test_suite_doc.get(models.NAME_KEY, None)
-        case_doc.test_suite_id = test_suite_doc.get(models.ID_KEY, None)
+    if test_group_doc:
+        case_doc.test_group_name = test_group_doc.get(models.NAME_KEY, None)
+        case_doc.test_group_id = test_group_doc.get(models.ID_KEY, None)
     else:
         utils.LOG.error(
-            "No test suite document with ID %s found for test case %s",
+            "No test group document with ID %s found for test case %s",
             ts_oid, case_doc.name)
         return None
 
@@ -295,15 +295,15 @@ def _parse_test_case_from_json(ts_name, ts_id, test_json, database, errors):
     return test_doc
 
 
-def _update_test_suite_doc_from_json(suite_doc, test_dict, errors):
-    """Update a TestSuiteDocument from the provided test dictionary.
+def _update_test_group_doc_from_json(group_doc, test_dict, errors):
+    """Update a TestGroupDocument from the provided test dictionary.
 
-    This function does not return anything, the TestSuiteDocument passed is
+    This function does not return anything, the TestGroupDocument passed is
     updated from the values found in the provided JSON object.
 
-    :param suite_doc: The TestSuiteDocument to update.
-    :type suite_doc: `models.test_suite.TestSuiteDocument`.
-    :param test_dict: Test suite dictionary.
+    :param group_doc: The TestGroupDocument to update.
+    :type group_doc: `models.test_group.TestGroupDocument`.
+    :param test_dict: Test group dictionary.
     :type test_dict: dict
     :param errors: Where errors should be stored.
     :type errors: dict
@@ -319,7 +319,7 @@ def _update_test_suite_doc_from_json(suite_doc, test_dict, errors):
         ERR_ADD(errors, 400, err_msg)
 
     try:
-        suite_doc.time = _seconds_as_datetime(seconds)
+        group_doc.time = _seconds_as_datetime(seconds)
     except OverflowError as ex:
         seconds = 0.0
         err_msg = "Test time value is too large for a time value, default to 0"
@@ -328,64 +328,64 @@ def _update_test_suite_doc_from_json(suite_doc, test_dict, errors):
         ERR_ADD(errors, 400, err_msg)
 
     if seconds == 0.0:
-        suite_doc.time = _seconds_as_datetime(seconds)
+        group_doc.time = _seconds_as_datetime(seconds)
 
-    suite_doc.arch = test_dict.get(models.ARCHITECTURE_KEY, None)
-    suite_doc.board = test_dict.get(models.BOARD_KEY, None)
-    suite_doc.board_instance = test_dict.get(models.BOARD_INSTANCE_KEY, None)
-    suite_doc.boot_log = test_dict.get(models.BOOT_LOG_KEY, None)
-    suite_doc.boot_log_html = test_dict.get(models.BOOT_LOG_HTML_KEY, None)
-    suite_doc.boot_result_description = test_dict.get(
+    group_doc.arch = test_dict.get(models.ARCHITECTURE_KEY, None)
+    group_doc.board = test_dict.get(models.BOARD_KEY, None)
+    group_doc.board_instance = test_dict.get(models.BOARD_INSTANCE_KEY, None)
+    group_doc.boot_log = test_dict.get(models.BOOT_LOG_KEY, None)
+    group_doc.boot_log_html = test_dict.get(models.BOOT_LOG_HTML_KEY, None)
+    group_doc.boot_result_description = test_dict.get(
         models.BOOT_RESULT_DESC_KEY, None)
-    suite_doc.dtb = test_dict.get(models.DTB_KEY, None)
-    suite_doc.dtb_addr = test_dict.get(models.DTB_ADDR_KEY, None)
-    suite_doc.device_type = test_dict.get(models.DEVICE_TYPE_KEY, None)
-    suite_doc.defconfig = test_dict.get(models.DEFCONFIG_KEY, None)
-    suite_doc.defconfig_full = test_dict.get(models.DEFCONFIG_FULL_KEY, None)
-    suite_doc.endian = test_dict.get(models.ENDIANNESS_KEY, None)
-    suite_doc.file_server_resource = test_dict.get(
+    group_doc.dtb = test_dict.get(models.DTB_KEY, None)
+    group_doc.dtb_addr = test_dict.get(models.DTB_ADDR_KEY, None)
+    group_doc.device_type = test_dict.get(models.DEVICE_TYPE_KEY, None)
+    group_doc.defconfig = test_dict.get(models.DEFCONFIG_KEY, None)
+    group_doc.defconfig_full = test_dict.get(models.DEFCONFIG_FULL_KEY, None)
+    group_doc.endian = test_dict.get(models.ENDIANNESS_KEY, None)
+    group_doc.file_server_resource = test_dict.get(
         models.FILE_SERVER_RESOURCE_KEY, None)
-    suite_doc.file_server_url = test_dict.get(models.FILE_SERVER_URL_KEY, None)
-    suite_doc.git_branch = test_dict.get(models.GIT_BRANCH_KEY, None)
-    suite_doc.git_commit = test_dict.get(models.GIT_COMMIT_KEY, None)
-    suite_doc.git_describe = test_dict.get(models.GIT_DESCRIBE_KEY, None)
-    suite_doc.git_url = test_dict.get(models.GIT_URL_KEY, None)
-    suite_doc.image_type = test_dict.get(models.IMAGE_TYPE_KEY, None)
-    suite_doc.initrd_addr = test_dict.get(models.INITRD_ADDR_KEY, None)
-    suite_doc.job = test_dict.get(models.JOB_KEY, None)
-    suite_doc.kernel = test_dict.get(models.KERNEL_KEY, None)
-    suite_doc.kernel_image = test_dict.get(models.KERNEL_IMAGE_KEY, None)
-    suite_doc.kernel_image_size = test_dict.get(
+    group_doc.file_server_url = test_dict.get(models.FILE_SERVER_URL_KEY, None)
+    group_doc.git_branch = test_dict.get(models.GIT_BRANCH_KEY, None)
+    group_doc.git_commit = test_dict.get(models.GIT_COMMIT_KEY, None)
+    group_doc.git_describe = test_dict.get(models.GIT_DESCRIBE_KEY, None)
+    group_doc.git_url = test_dict.get(models.GIT_URL_KEY, None)
+    group_doc.image_type = test_dict.get(models.IMAGE_TYPE_KEY, None)
+    group_doc.initrd_addr = test_dict.get(models.INITRD_ADDR_KEY, None)
+    group_doc.job = test_dict.get(models.JOB_KEY, None)
+    group_doc.kernel = test_dict.get(models.KERNEL_KEY, None)
+    group_doc.kernel_image = test_dict.get(models.KERNEL_IMAGE_KEY, None)
+    group_doc.kernel_image_size = test_dict.get(
         models.KERNEL_IMAGE_SIZE_KEY, None)
-    suite_doc.load_addr = test_dict.get(models.BOOT_LOAD_ADDR_KEY, None)
-    suite_doc.metadata = test_dict.get(models.METADATA_KEY, {})
-    suite_doc.qemu = test_dict.get(models.QEMU_KEY, None)
-    suite_doc.qemu_command = test_dict.get(models.QEMU_COMMAND_KEY, None)
-    suite_doc.retries = test_dict.get(models.BOOT_RETRIES_KEY, 0)
-    suite_doc.uimage = test_dict.get(models.UIMAGE_KEY, None)
-    suite_doc.uimage_addr = test_dict.get(models.UIMAGE_ADDR_KEY, None)
-    suite_doc.vcs_commit = test_dict.get(models.VCS_COMMIT_KEY, None)
-    suite_doc.version = test_dict.get(models.VERSION_KEY, "1.0")
-    suite_doc.warnings = test_dict.get(models.BOOT_WARNINGS_KEY, 0)
+    group_doc.load_addr = test_dict.get(models.BOOT_LOAD_ADDR_KEY, None)
+    group_doc.metadata = test_dict.get(models.METADATA_KEY, {})
+    group_doc.qemu = test_dict.get(models.QEMU_KEY, None)
+    group_doc.qemu_command = test_dict.get(models.QEMU_COMMAND_KEY, None)
+    group_doc.retries = test_dict.get(models.BOOT_RETRIES_KEY, 0)
+    group_doc.uimage = test_dict.get(models.UIMAGE_KEY, None)
+    group_doc.uimage_addr = test_dict.get(models.UIMAGE_ADDR_KEY, None)
+    group_doc.vcs_commit = test_dict.get(models.VCS_COMMIT_KEY, None)
+    group_doc.version = test_dict.get(models.VERSION_KEY, "1.0")
+    group_doc.warnings = test_dict.get(models.BOOT_WARNINGS_KEY, 0)
 
     # mach_alias_key takes precedence if defined
-    suite_doc.mach = test_dict.get(
+    group_doc.mach = test_dict.get(
         models.MACH_ALIAS_KEY, test_dict.get(models.MACH_KEY, None))
 
 
-def _update_test_suite_doc_ids(suite_doc, database):
-    """Update test suite document job and build IDs references.
+def _update_test_group_doc_ids(group_doc, database):
+    """Update test group document job and build IDs references.
 
-    :param suite_doc: The test suite document to update.
-    :type suite_doc: TestSuiteDocument
+    :param group_doc: The test group document to update.
+    :type group_doc: TestGroupDocument
     :param database: The database connection to use.
     """
-    job = suite_doc.job
-    kernel = suite_doc.kernel
-    defconfig = suite_doc.defconfig
-    defconfig_full = suite_doc.defconfig_full
-    arch = suite_doc.arch
-    branch = suite_doc.git_branch
+    job = group_doc.job
+    kernel = group_doc.kernel
+    defconfig = group_doc.defconfig
+    defconfig_full = group_doc.defconfig_full
+    arch = group_doc.arch
+    branch = group_doc.git_branch
 
     spec = {
         models.JOB_KEY: job,
@@ -408,62 +408,62 @@ def _update_test_suite_doc_ids(suite_doc, database):
     build_doc = utils.db.find_one2(database[models.BUILD_COLLECTION], spec)
 
     if job_doc:
-        suite_doc.job_id = job_doc.get(models.ID_KEY, None)
+        group_doc.job_id = job_doc.get(models.ID_KEY, None)
     else:
         utils.LOG.warn(
-            "No job document found for test suite %s-%s-%s-%s (%s)",
+            "No job document found for test group %s-%s-%s-%s (%s)",
             job, branch, kernel, defconfig_full, arch)
 
     if build_doc:
         doc_get = build_doc.get
-        suite_doc.build_id = doc_get(models.ID_KEY, None)
+        group_doc.build_id = doc_get(models.ID_KEY, None)
 
         # In case we do not have the job_id key with the previous search.
-        if all([not suite_doc.job_id, doc_get(models.JOB_ID_KEY, None)]):
-            suite_doc.job_id = doc_get(models.JOB_ID_KEY, None)
+        if all([not group_doc.job_id, doc_get(models.JOB_ID_KEY, None)]):
+            group_doc.job_id = doc_get(models.JOB_ID_KEY, None)
         # Get also git information if we do not have them already,
-        if not suite_doc.compiler:
-            suite_doc.compiler = doc_get(models.COMPILER_KEY, None)
-        if not suite_doc.compiler_version:
-            suite_doc.compiler_version = \
+        if not group_doc.compiler:
+            group_doc.compiler = doc_get(models.COMPILER_KEY, None)
+        if not group_doc.compiler_version:
+            group_doc.compiler_version = \
                 doc_get(models.COMPILER_VERSION_KEY, None)
-        if not suite_doc.compiler_version_full:
-            suite_doc.compiler_version_full = \
+        if not group_doc.compiler_version_full:
+            group_doc.compiler_version_full = \
                 doc_get(models.COMPILER_VERSION_FULL_KEY, None)
-        if not suite_doc.cross_compile:
-            suite_doc.cross_compile = doc_get(models.CROSS_COMPILE_KEY, None)
-        if not suite_doc.git_branch:
-            suite_doc.git_branch = doc_get(models.GIT_BRANCH_KEY, None)
-        if not suite_doc.git_commit:
-            suite_doc.git_commit = doc_get(models.GIT_COMMIT_KEY, None)
-        if not suite_doc.git_describe:
-            suite_doc.git_describe = doc_get(models.GIT_DESCRIBE_KEY, None)
-        if not suite_doc.git_url:
-            suite_doc.git_url = doc_get(models.GIT_URL_KEY, None)
-        if not suite_doc.vcs_commit:
-            suite_doc.vcs_commit = doc_get(models.GIT_COMMIT_KEY, None)
+        if not group_doc.cross_compile:
+            group_doc.cross_compile = doc_get(models.CROSS_COMPILE_KEY, None)
+        if not group_doc.git_branch:
+            group_doc.git_branch = doc_get(models.GIT_BRANCH_KEY, None)
+        if not group_doc.git_commit:
+            group_doc.git_commit = doc_get(models.GIT_COMMIT_KEY, None)
+        if not group_doc.git_describe:
+            group_doc.git_describe = doc_get(models.GIT_DESCRIBE_KEY, None)
+        if not group_doc.git_url:
+            group_doc.git_url = doc_get(models.GIT_URL_KEY, None)
+        if not group_doc.vcs_commit:
+            group_doc.vcs_commit = doc_get(models.GIT_COMMIT_KEY, None)
     else:
         utils.LOG.warn(
-            "No build document found for test suite %s-%s-%s-%s (%s)",
+            "No build document found for test group %s-%s-%s-%s (%s)",
             job, branch, kernel, defconfig_full, arch)
 
 
-def _parse_test_suite_from_json(test_json, database, errors):
-    """Parse the test suite report from a JSON object.
+def _parse_test_group_from_json(test_json, database, errors):
+    """Parse the test group report from a JSON object.
 
     :param test_json: The JSON object.
     :type test_json: dict
     :param database: The database connection.
     :param errors: Where to store the errors.
     :type errors: dict
-    :return A `models.test_suite.TestSuiteDocument` instance, or None if
+    :return A `models.test_group.TestGroupDocument` instance, or None if
     the JSON cannot be parsed correctly.
     """
     if not test_json:
         return None
 
     try:
-        _check_for_null(test_json, NON_NULL_KEYS_SUITE)
+        _check_for_null(test_json, NON_NULL_KEYS_GROUP)
     except TestValidationError, ex:
         utils.LOG.exception(ex)
         ERR_ADD(errors, 400, str(ex))
@@ -473,7 +473,7 @@ def _parse_test_suite_from_json(test_json, database, errors):
         name = test_json[models.NAME_KEY]
         lab_name = test_json[models.LAB_NAME_KEY]
     except KeyError, ex:
-        err_msg = "Missing mandatory key in test suite data"
+        err_msg = "Missing mandatory key in test group data"
         utils.LOG.exception(ex)
         utils.LOG.error(err_msg)
         ERR_ADD(errors, 400, err_msg)
@@ -487,10 +487,10 @@ def _parse_test_suite_from_json(test_json, database, errors):
         ERR_ADD(errors, 400, err_msg)
         return None
 
-    test_doc = mtest_suite.TestSuiteDocument(name, lab_name)
+    test_doc = mtest_group.TestGroupDocument(name, lab_name)
     test_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
-    _update_test_suite_doc_from_json(test_doc, test_json, errors)
-    _update_test_suite_doc_ids(test_doc, database)
+    _update_test_group_doc_from_json(test_doc, test_json, errors)
+    _update_test_group_doc_ids(test_doc, database)
     return test_doc
 
 
@@ -501,13 +501,13 @@ def import_and_save_test_cases(test_cases, ts_doc_id, ts_doc_name,
     This function returns an operation code based on the import result
     of all the test cases.
     It parses the test_cases JSON, add them to the database and if
-    imported successfuly, updates the related test suite.
+    imported successfuly, updates the related test group.
 
     :param test_cases: The JSON object.
     :type test_cases: dict
-    :param ts_doc_id: The related test suite ID.
+    :param ts_doc_id: The related test group ID.
     :type ts_doc_id: str
-    :param ts_doc_name: The related test suite name.
+    :param ts_doc_name: The related test group name.
     :type ts_doc_name: str
     :param database: The database connection.
     :param errors: Where errors should be stored.
@@ -537,22 +537,22 @@ def import_and_save_test_cases(test_cases, ts_doc_id, ts_doc_name,
                 (
                     tc_doc.name,
                     tc_doc.status,
-                    tc_doc.test_suite_id,
+                    tc_doc.test_group_id,
                 )
             )
             ERR_ADD(errors, ret_code, err_msg)
             return ret_code
         else:
-            # Test case imported successfully update test suite
+            # Test case imported successfully update test group
             ret_code, errors = \
-                tests_import.update_test_suite_add_test_case_id(
+                tests_import.update_test_group_add_test_case_id(
                     tc_doc_id, ts_doc_id, ts_doc_name,
                     taskc.app.conf.db_options)
 
     return ret_code
 
 
-def import_and_save_kci_test(test_suite_obj, test_case_obj,
+def import_and_save_kci_test(test_group_obj, test_case_obj,
                              db_options, base_path=utils.BASE_PATH):
     """Wrapper function to be used as an external task.
 
@@ -560,9 +560,9 @@ def import_and_save_kci_test(test_suite_obj, test_case_obj,
     Import and save the test report as found from the parameters in the
     provided JSON object.
 
-    :param test_suite_obj: The JSON object with the values that identify
-    the test suite report log.
-    :type test_suite_obj: dict
+    :param test_group_obj: The JSON object with the values that identify
+    the test group report log.
+    :type test_group_obj: dict
     :param test_case_obj: The JSON object with the values that identify
     the test case report log.
     :type test_case_obj: list
@@ -575,14 +575,14 @@ def import_and_save_kci_test(test_suite_obj, test_case_obj,
 
     try:
         database = utils.db.get_db_connection(db_options)
-        ts_json_copy = copy.deepcopy(test_suite_obj)
+        ts_json_copy = copy.deepcopy(test_group_obj)
 
-        ts_doc = _parse_test_suite_from_json(ts_json_copy, database, errors)
-        # If test suite imported correctly
+        ts_doc = _parse_test_group_from_json(ts_json_copy, database, errors)
+        # If test group imported correctly
         if ts_doc and not errors:
             ret_code, ts_doc_id = \
-                save_or_update(ts_doc, SPEC_TEST_SUITE,
-                               models.TEST_SUITE_COLLECTION,
+                save_or_update(ts_doc, SPEC_TEST_GROUP,
+                               models.TEST_GROUP_COLLECTION,
                                database, errors)
             tc_json_copy = copy.deepcopy(test_case_obj)
             # Import the test cases
@@ -590,9 +590,9 @@ def import_and_save_kci_test(test_suite_obj, test_case_obj,
                                                   ts_doc_id, ts_doc.name,
                                                   database, errors)
             # TODO fix this: need to define a save_to_disk method
-            # save_to_disk(ts_doc, test_suite_obj, base_path, errors)
+            # save_to_disk(ts_doc, test_group_obj, base_path, errors)
         else:
-            utils.LOG.warn("No test suite report imported nor saved")
+            utils.LOG.warn("No test group report imported nor saved")
     except pymongo.errors.ConnectionFailure, ex:
         utils.LOG.exception(ex)
         utils.LOG.error("Error getting database connection")

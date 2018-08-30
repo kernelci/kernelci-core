@@ -96,34 +96,34 @@ class TestBaseHandler(hbase.BaseHandler):
 
         return response
 
-    def _check_and_get_test_suite(self, test_suite_id):
-        """Verify that the test suite ID passed is valid, and get it.
+    def _check_and_get_test_group(self, test_group_id):
+        """Verify that the test group ID passed is valid, and get it.
 
-        :param test_suite_id: The ID of the test suite associated with the test
+        :param test_group_id: The ID of the test group associated with the test
         case
-        :type test_suite_id: string
-        :return A 3-tuple: the test suite id, the test suite name, an error
+        :type test_group_id: string
+        :return A 3-tuple: the test group id, the test group name, an error
         message in case of errors.
         """
-        suite_oid = None
-        suite_name = None
+        group_oid = None
+        group_name = None
         error = None
 
         try:
-            suite_oid = bson.objectid.ObjectId(test_suite_id)
-            test_suite = utils.db.find_one2(
-                self.db[models.TEST_SUITE_COLLECTION],
-                suite_oid,
+            group_oid = bson.objectid.ObjectId(test_group_id)
+            test_group = utils.db.find_one2(
+                self.db[models.TEST_GROUP_COLLECTION],
+                group_oid,
                 fields=[models.ID_KEY, models.NAME_KEY])
 
-            if not test_suite:
-                suite_oid = None
-                error = "Test suite with ID '%s' not found" % test_suite_id
+            if not test_group:
+                group_oid = None
+                error = "Test group with ID '%s' not found" % test_group_id
             else:
-                suite_name = test_suite[models.NAME_KEY]
+                group_name = test_group[models.NAME_KEY]
         except bson.errors.InvalidId, ex:
-            error = "Test suite ID '%s' is not valid" % test_suite_id
+            error = "Test group ID '%s' is not valid" % test_group_id
             self.log.exception(ex)
             self.log.error(error)
 
-        return suite_oid, suite_name, error
+        return group_oid, group_name, error

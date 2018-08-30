@@ -126,7 +126,7 @@ class TestTestCaseHandler(TestHandlerBase):
     def test_post_correct_with_id(self):
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         body = json.dumps(
-            dict(name="test-set", test_suite_id="test-suite", version="1.0"))
+            dict(name="test-set", test_group_id="test-suite", version="1.0"))
 
         response = self.fetch(
             "/test/case/fake-id", method="POST", headers=headers, body=body)
@@ -145,7 +145,7 @@ class TestTestCaseHandler(TestHandlerBase):
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
 
         body = json.dumps(
-            dict(name="test-set", test_suite_id="test-suite", version="1.0"))
+            dict(name="test-set", test_group_id="test-suite", version="1.0"))
 
         response = self.fetch(
             "/test/case", method="POST", headers=headers, body=body)
@@ -172,7 +172,7 @@ class TestTestCaseHandler(TestHandlerBase):
         body = json.dumps(
             dict(
                 name="test",
-                test_suite_id="0123456789ab0123456789ab",
+                test_group_id="0123456789ab0123456789ab",
                 version="1.0"))
 
         response = self.fetch(
@@ -199,7 +199,7 @@ class TestTestCaseHandler(TestHandlerBase):
         body = json.dumps(
             dict(
                 name="test-case",
-                test_suite_id="0123456789ab0123456789ab",
+                test_group_id="0123456789ab0123456789ab",
                 version="1.0", parameters={"foo": "bar"}))
 
         response = self.fetch(
@@ -214,7 +214,7 @@ class TestTestCaseHandler(TestHandlerBase):
         body = json.dumps(
             dict(
                 name="test-case",
-                test_suite_id="test-suite",
+                test_group_id="test-suite",
                 version="1.0", parameters=[{"foo": "bar"}]))
 
         response = self.fetch(
@@ -226,14 +226,14 @@ class TestTestCaseHandler(TestHandlerBase):
 
     @mock.patch("utils.db.find_one2")
     @mock.patch("bson.objectid.ObjectId")
-    def test_post_correct_with_wrong_test_suite_id(self, mock_id, mock_find):
+    def test_post_correct_with_wrong_test_group_id(self, mock_id, mock_find):
         mock_id.return_value = "test-suite"
         mock_find.return_value = None
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
         body = json.dumps(
             dict(
                 name="test-case",
-                test_suite_id="test-suite",
+                test_group_id="test-suite",
                 version="1.0", parameters=[{"foo": "bar"}]))
 
         response = self.fetch(

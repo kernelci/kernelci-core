@@ -35,11 +35,11 @@ class TestTestsImport(unittest.TestCase):
         mock_update.return_value = 200
 
         case_list = []
-        test_suite_id = "0123456789ab0123456789ab"
+        test_group_id = "0123456789ab0123456789ab"
         kwargs = {}
 
         ids, errors = tests_import.import_multi_test_cases(
-            case_list, test_suite_id, "suite-name", {}, **kwargs)
+            case_list, test_group_id, "suite-name", {}, **kwargs)
 
         self.assertDictEqual({}, errors)
         self.assertListEqual([], ids)
@@ -56,11 +56,11 @@ class TestTestsImport(unittest.TestCase):
         case_list = [
             {"name": "test-case", "version": "1.0"}
         ]
-        test_suite_id = "0123456789ab0123456789ab"
+        test_group_id = "0123456789ab0123456789ab"
         kwargs = {}
 
         ids, errors = tests_import.import_multi_test_cases(
-            case_list, test_suite_id, "suite-name", {}, **kwargs)
+            case_list, test_group_id, "suite-name", {}, **kwargs)
 
         self.assertDictEqual({}, errors)
         self.assertListEqual(["fake-id"], ids)
@@ -79,11 +79,11 @@ class TestTestsImport(unittest.TestCase):
             {"name": "test-case1", "version": "1.0", "parameters": {"a": 2}},
             {"name": "test-case2", "version": "1.0", "parameters": {"a": 3}}
         ]
-        test_suite_id = "0123456789ab0123456789ab"
+        test_group_id = "0123456789ab0123456789ab"
         kwargs = {}
 
         ids, errors = tests_import.import_multi_test_cases(
-            case_list, test_suite_id, "suite-name", {}, **kwargs)
+            case_list, test_group_id, "suite-name", {}, **kwargs)
 
         self.assertDictEqual({}, errors)
         self.assertListEqual(["id0", "id1", "id2"], ids)
@@ -97,14 +97,14 @@ class TestTestsImport(unittest.TestCase):
         case_list = [
             {
                 "name": "test-case0",
-                "test_suite_id": "test-suite-id",
+                "test_group_id": "test-suite-id",
                 "version": "1.0", "parameters": {"a": 1}}
         ]
-        test_suite_id = "0123456789ab0123456789ab"
+        test_group_id = "0123456789ab0123456789ab"
         kwargs = {}
 
         ids, errors = tests_import.import_multi_test_cases(
-            case_list, test_suite_id, "suite-name", {}, **kwargs)
+            case_list, test_group_id, "suite-name", {}, **kwargs)
 
         self.assertListEqual([500], errors.keys())
         self.assertListEqual([], ids)
@@ -120,11 +120,11 @@ class TestTestsImport(unittest.TestCase):
             {"name": "test-case0", "version": "1.0", "parameters": {"a": 1}},
             {"name": "test-case1", "version": "1.0", "parameters": {"a": 2}}
         ]
-        test_suite_id = "0123456789ab0123456789ab"
+        test_group_id = "0123456789ab0123456789ab"
         kwargs = {}
 
         ids, errors = tests_import.import_multi_test_cases(
-            case_list, test_suite_id, "suite-name", {}, **kwargs)
+            case_list, test_group_id, "suite-name", {}, **kwargs)
 
         self.assertListEqual([500], errors.keys())
         self.assertEqual(2, len(errors[500]))
@@ -144,11 +144,11 @@ class TestTestsImport(unittest.TestCase):
             {"name": "test-case2", "version": "1.0", "parameters": {"a": 3}},
             {"name": "test-case3", "version": "1.0", "parameters": {"a": 4}}
         ]
-        test_suite_id = "0123456789ab0123456789ab"
+        test_group_id = "0123456789ab0123456789ab"
         kwargs = {}
 
         ids, errors = tests_import.import_multi_test_cases(
-            case_list, test_suite_id, "suite-name", {}, **kwargs)
+            case_list, test_group_id, "suite-name", {}, **kwargs)
 
         self.assertListEqual([500], errors.keys())
         self.assertEqual(2, len(errors[500]))
@@ -159,11 +159,11 @@ class TestTestsImport(unittest.TestCase):
         mock_db.return_value = self.db
 
         case_list = [["foo"]]
-        test_suite_id = "test-suite-id"
+        test_group_id = "test-suite-id"
         kwargs = {}
 
         ids, errors = tests_import.import_multi_test_cases(
-            case_list, test_suite_id, "suite-name", {}, **kwargs)
+            case_list, test_group_id, "suite-name", {}, **kwargs)
 
         self.assertListEqual([400], errors.keys())
         self.assertListEqual([], ids)
@@ -173,11 +173,11 @@ class TestTestsImport(unittest.TestCase):
         mock_db.return_value = self.db
 
         case_list = [{"parameters": {"a": 1}}]
-        test_suite_id = "0123456789ab0123456789ab"
+        test_group_id = "0123456789ab0123456789ab"
         kwargs = {}
 
         ids, errors = tests_import.import_multi_test_cases(
-            case_list, test_suite_id, "suite-name", {}, **kwargs)
+            case_list, test_group_id, "suite-name", {}, **kwargs)
 
         self.assertListEqual([400], errors.keys())
         self.assertListEqual([], ids)
@@ -187,17 +187,17 @@ class TestTestsImport(unittest.TestCase):
         mock_db.return_value = self.db
 
         case_list = [{"name": "case", "version": "1.0", "parameters": ["a"]}]
-        test_suite_id = "0123456789ab0123456789ab"
+        test_group_id = "0123456789ab0123456789ab"
         kwargs = {}
 
         ids, errors = tests_import.import_multi_test_cases(
-            case_list, test_suite_id, "suite-name", {}, **kwargs)
+            case_list, test_group_id, "suite-name", {}, **kwargs)
 
         self.assertListEqual([400], errors.keys())
         self.assertListEqual([], ids)
 
-    @mock.patch("utils.tests_import.parse_test_suite")
-    def test_update_test_suite_simple(self, mock_parse):
+    @mock.patch("utils.tests_import.parse_test_group")
+    def test_update_test_group_simple(self, mock_parse):
         mock_parse.return_value = {}
         suite_json = {
             "name": "test-suite",
@@ -205,10 +205,10 @@ class TestTestsImport(unittest.TestCase):
             "version": "1.0",
             "time": 100
         }
-        test_suite_id = "test-suite-id"
+        test_group_id = "test-suite-id"
 
-        ret_val, doc = tests_import.update_test_suite(
-            suite_json, test_suite_id, {})
+        ret_val, doc = tests_import.update_test_group(
+            suite_json, test_group_id, {})
 
         self.assertEqual(ret_val, 200)
         self.assertDictEqual({}, doc)
@@ -216,8 +216,8 @@ class TestTestsImport(unittest.TestCase):
     @mock.patch("bson.objectid.ObjectId")
     @mock.patch("utils.db.update")
     @mock.patch("utils.db.get_db_connection")
-    @mock.patch("utils.tests_import.parse_test_suite")
-    def test_update_test_suite_with_result(
+    @mock.patch("utils.tests_import.parse_test_group")
+    def test_update_test_group_with_result(
             self, mock_parse, mock_db, mock_update, mock_id):
         mock_parse.return_value = {"_id": "fake"}
         mock_db.return_value = self.db
@@ -229,10 +229,10 @@ class TestTestsImport(unittest.TestCase):
             "version": "1.0",
             "time": 100
         }
-        test_suite_id = "test-suite-id"
+        test_group_id = "test-suite-id"
 
-        ret_val, doc = tests_import.update_test_suite(
-            suite_json, test_suite_id, {})
+        ret_val, doc = tests_import.update_test_group(
+            suite_json, test_group_id, {})
 
         self.assertEqual(ret_val, 200)
         self.assertDictEqual({"_id": "fake"}, doc)
@@ -240,7 +240,7 @@ class TestTestsImport(unittest.TestCase):
     @mock.patch("utils.db.find_one2")
     @mock.patch("bson.objectid.ObjectId")
     @mock.patch("utils.db.get_db_connection")
-    def test_parse_test_suite_with_all(self, mock_db, mock_id, mock_find):
+    def test_parse_test_group_with_all(self, mock_db, mock_id, mock_find):
         build_doc = {
             "_id": "build-id",
             "job": None,
@@ -284,11 +284,11 @@ class TestTestsImport(unittest.TestCase):
             "kernel": "kernel"
         }
 
-        doc = tests_import.parse_test_suite(suite_json, {})
+        doc = tests_import.parse_test_group(suite_json, {})
         self.assertDictEqual(expected, doc)
 
     @mock.patch("utils.db.get_db_connection")
-    def test_parse_test_suite_with_nothing(self, mock_db):
+    def test_parse_test_group_with_nothing(self, mock_db):
         mock_db.return_value = self.db
 
         suite_json = {
@@ -299,12 +299,12 @@ class TestTestsImport(unittest.TestCase):
             "version": "1.0"
         }
 
-        doc = tests_import.parse_test_suite(suite_json, {})
+        doc = tests_import.parse_test_group(suite_json, {})
         self.assertDictEqual({}, doc)
 
     @mock.patch("bson.objectid.ObjectId")
     @mock.patch("utils.db.get_db_connection")
-    def test_parse_test_suite_with_all_in_suite(self, mock_db, mock_id):
+    def test_parse_test_group_with_all_in_suite(self, mock_db, mock_id):
         mock_db.return_value = self.db
         mock_id.side_effect = ["build-id", "boot-id", "job-id"]
 
@@ -330,5 +330,5 @@ class TestTestsImport(unittest.TestCase):
             "job_id": "job-id"
         }
 
-        doc = tests_import.parse_test_suite(suite_json, {})
+        doc = tests_import.parse_test_group(suite_json, {})
         self.assertDictEqual(expected, doc)

@@ -14,62 +14,62 @@
 import unittest
 
 import models.base as mbase
-import models.test_suite as mtsuite
+import models.test_group as mtgroup
 
 
-class TestTestSuiteModel(unittest.TestCase):
+class TestTestGroupModel(unittest.TestCase):
 
-    def test_suite_doc_valid_instance(self):
-        test_suite = mtsuite.TestSuiteDocument("name", "lab-name")
-        self.assertIsInstance(test_suite, mbase.BaseDocument)
+    def test_group_doc_valid_instance(self):
+        test_group = mtgroup.TestGroupDocument("name", "lab-name")
+        self.assertIsInstance(test_group, mbase.BaseDocument)
 
-    def test_suite_doc_to_dict(self):
-        test_suite = mtsuite.TestSuiteDocument("name", "lab-name")
+    def test_group_doc_to_dict(self):
+        test_group = mtgroup.TestGroupDocument("name", "lab-name")
 
-        test_suite.arch = "arm"
-        test_suite.board = "board"
-        test_suite.board_instance = 1
-        test_suite.boot_log = "boot-log"
-        test_suite.boot_log_html = "boot-log-html"
-        test_suite.boot_result_description = "boot-result-description"
-        test_suite.build_id = "build-id"
-        test_suite.compiler = "gcc"
-        test_suite.compiler_version = "4.7.3"
-        test_suite.compiler_version_full = "gcc version 4.7.3"
-        test_suite.created_on = "now"
-        test_suite.cross_compile = "cross-compile"
-        test_suite.defconfig = "defconfig"
-        test_suite.defconfig_full = "defconfig-full"
-        test_suite.definition_uri = "uri"
-        test_suite.device_type = "device-type"
-        test_suite.dtb = "dtb"
-        test_suite.dtb_addr = "dtb-addr"
-        test_suite.endian = "big-endian"
-        test_suite.file_server_resource = "file-resource"
-        test_suite.file_server_url = "file-url"
-        test_suite.git_branch = "git-branch"
-        test_suite.git_commit = "git-commit"
-        test_suite.git_describe = "git-describe"
-        test_suite.git_url = "git-url"
-        test_suite.id = "id"
-        test_suite.image_type = "image_type"
-        test_suite.initrd_addr = "initrd-addr"
-        test_suite.job = "job"
-        test_suite.job_id = "job_id"
-        test_suite.kernel = "kernel"
-        test_suite.kernel_image = "kernel-image"
-        test_suite.kernel_image_size = "kernel-image-size"
-        test_suite.load_addr = "load-addr"
-        test_suite.mach = "mach"
-        test_suite.metadata = {"foo": "bar"}
-        test_suite.qemu = "qemu"
-        test_suite.qemu_command = "qemu-command"
-        test_suite.retries = 2
-        test_suite.test_case = ["foo"]
-        test_suite.time = 10
-        test_suite.vcs_commit = "1234"
-        test_suite.version = "1.1"
-        test_suite.warnings = 123
+        test_group.arch = "arm"
+        test_group.board = "board"
+        test_group.board_instance = 1
+        test_group.boot_log = "boot-log"
+        test_group.boot_log_html = "boot-log-html"
+        test_group.boot_result_description = "boot-result-description"
+        test_group.build_id = "build-id"
+        test_group.compiler = "gcc"
+        test_group.compiler_version = "4.7.3"
+        test_group.compiler_version_full = "gcc version 4.7.3"
+        test_group.created_on = "now"
+        test_group.cross_compile = "cross-compile"
+        test_group.defconfig = "defconfig"
+        test_group.defconfig_full = "defconfig-full"
+        test_group.definition_uri = "uri"
+        test_group.device_type = "device-type"
+        test_group.dtb = "dtb"
+        test_group.dtb_addr = "dtb-addr"
+        test_group.endian = "big-endian"
+        test_group.file_server_resource = "file-resource"
+        test_group.file_server_url = "file-url"
+        test_group.git_branch = "git-branch"
+        test_group.git_commit = "git-commit"
+        test_group.git_describe = "git-describe"
+        test_group.git_url = "git-url"
+        test_group.id = "id"
+        test_group.image_type = "image_type"
+        test_group.initrd_addr = "initrd-addr"
+        test_group.job = "job"
+        test_group.job_id = "job_id"
+        test_group.kernel = "kernel"
+        test_group.kernel_image = "kernel-image"
+        test_group.kernel_image_size = "kernel-image-size"
+        test_group.load_addr = "load-addr"
+        test_group.mach = "mach"
+        test_group.metadata = {"foo": "bar"}
+        test_group.qemu = "qemu"
+        test_group.qemu_command = "qemu-command"
+        test_group.retries = 2
+        test_group.test_case = ["foo"]
+        test_group.time = 10
+        test_group.vcs_commit = "1234"
+        test_group.version = "1.1"
+        test_group.warnings = 123
 
         expected = {
             "_id": "id",
@@ -120,22 +120,22 @@ class TestTestSuiteModel(unittest.TestCase):
             "warnings": 123,
         }
 
-        self.assertDictEqual(expected, test_suite.to_dict())
+        self.assertDictEqual(expected, test_group.to_dict())
 
-    def test_suite_doc_from_json_missing_key(self):
-        test_suite = {
+    def test_group_doc_from_json_missing_key(self):
+        test_group = {
             "_id": "id"
         }
 
-        self.assertIsNone(mtsuite.TestSuiteDocument.from_json(test_suite))
+        self.assertIsNone(mtgroup.TestGroupDocument.from_json(test_group))
 
-    def test_suite_doc_from_json_wrong_type(self):
-        self.assertIsNone(mtsuite.TestSuiteDocument.from_json([]))
-        self.assertIsNone(mtsuite.TestSuiteDocument.from_json(()))
-        self.assertIsNone(mtsuite.TestSuiteDocument.from_json(""))
+    def test_group_doc_from_json_wrong_type(self):
+        self.assertIsNone(mtgroup.TestGroupDocument.from_json([]))
+        self.assertIsNone(mtgroup.TestGroupDocument.from_json(()))
+        self.assertIsNone(mtgroup.TestGroupDocument.from_json(""))
 
-    def test_suite_doc_from_json(self):
-        suite_json = {
+    def test_group_doc_from_json(self):
+        group_json = {
             "_id": "id",
             "arch": "arm",
             "board": "board",
@@ -184,7 +184,7 @@ class TestTestSuiteModel(unittest.TestCase):
             "warnings": 123,
         }
 
-        test_suite = mtsuite.TestSuiteDocument.from_json(suite_json)
+        test_group = mtgroup.TestGroupDocument.from_json(group_json)
 
-        self.assertIsInstance(test_suite, mtsuite.TestSuiteDocument)
-        self.assertDictEqual(suite_json, test_suite.to_dict())
+        self.assertIsInstance(test_group, mtgroup.TestGroupDocument)
+        self.assertDictEqual(group_json, test_group.to_dict())

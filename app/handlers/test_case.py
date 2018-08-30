@@ -47,17 +47,17 @@ class TestCaseHandler(htbase.TestBaseHandler):
         else:
             test_case_json = kwargs.get("json_obj", None)
             j_get = test_case_json.get
-            suite_id = j_get(models.TEST_SUITE_ID_KEY)
+            group_id = j_get(models.TEST_GROUP_ID_KEY)
             case_name = j_get(models.NAME_KEY)
 
-            suite_oid, suite_name, err_msg = \
-                self._check_and_get_test_suite(suite_id)
+            group_oid, group_name, err_msg = \
+                self._check_and_get_test_group(group_id)
 
-            if suite_oid:
+            if group_oid:
                 ret_val, doc_id, err_msg = tests_import.import_test_case(
                     test_case_json,
-                    suite_oid,
-                    suite_name,
+                    group_oid,
+                    group_name,
                     self.db, self.settings["dboptions"]
                 )
                 response.status_code = ret_val
@@ -72,7 +72,7 @@ class TestCaseHandler(htbase.TestBaseHandler):
                     response.errors = err_msg
             else:
                 self.log.error(
-                    "Test suite '%s' not found or not valid ID", suite_id)
+                    "Test group '%s' not found or not valid ID", group_id)
                 response.status_code = 400
                 response.reason = err_msg
 
@@ -90,9 +90,9 @@ class TestCaseHandler(htbase.TestBaseHandler):
                 if response.status_code == 200:
                     response.reason = "Resource '%s' deleted" % doc_id
 
-                    # Remove test case reference from the test_suite collection
+                    # Remove test case reference from the test_group collection
                     ret_val = utils.db.update(
-                        self.db[models.TEST_SUITE_COLLECTION],
+                        self.db[models.TEST_GROUP_COLLECTION],
                         {models.TEST_CASE_KEY: case_id},
                         {models.TEST_CASE_KEY: [case_id]},
                         operation="$pullAll"
@@ -100,7 +100,7 @@ class TestCaseHandler(htbase.TestBaseHandler):
                     if ret_val != 200:
                         response.errors = (
                             "Error removing test case reference from test "
-                            "suite")
+                            "group")
                 else:
                     response.reason = "Error deleting resource '%s'" % doc_id
             else:

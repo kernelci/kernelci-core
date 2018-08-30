@@ -33,7 +33,7 @@ import handlers.report
 import handlers.send
 import handlers.stats
 import handlers.test_case
-import handlers.test_suite
+import handlers.test_group
 import handlers.token
 import handlers.upload
 import handlers.version
@@ -167,21 +167,21 @@ _UPLOAD_URL = tornado.web.url(
 
 _SEND_URL = tornado.web.url(r"/send/?", handlers.send.SendHandler, name="send")
 
-_TEST_SUITE_URL = tornado.web.url(
-    r"/test[s]?/suite[s]?/?(?P<id>.*)",
-    handlers.test_suite.TestSuiteHandler, name="test-suite"
+_TEST_GROUP_URL = tornado.web.url(
+    r"/test[s]?/group[s]?/?(?P<id>.*)",
+    handlers.test_group.TestGroupHandler, name="test-group"
 )
 
-_TEST_SUITE_DISTINCT_URL = tornado.web.url(
-    r"/test[s]?/suite[s]?/distinct/(?P<field>[A-Za-z0-9_]+)/?$",
+_TEST_GROUP_DISTINCT_URL = tornado.web.url(
+    r"/test[s]?/group[s]?/distinct/(?P<field>[A-Za-z0-9_]+)/?$",
     handlers.distinct.DistinctHandler,
-    kwargs={"resource": "test_suite"}, name="test-suite-distinct"
+    kwargs={"resource": "test_group"}, name="test-group-distinct"
 )
 
-_TEST_SUITE_COUNT_DISTINCT_URL = tornado.web.url(
-    r"/test[s]?/suite[s]?/count/distinct/(?P<field>[A-Za-z0-9_]+)/?$",
+_TEST_GROUP_COUNT_DISTINCT_URL = tornado.web.url(
+    r"/test[s]?/group[s]?/count/distinct/(?P<field>[A-Za-z0-9_]+)/?$",
     handlers.count_distinct.CountDistinctHandler,
-    kwargs={"resource": "test_suite"}, name="test-suite-count-distinct"
+    kwargs={"resource": "test_group"}, name="test-group-count-distinct"
 )
 
 _TEST_CASE_URL = tornado.web.url(
@@ -246,9 +246,9 @@ APP_URLS = [
     _TEST_CASE_COUNT_DISTINCT_URL,
     _TEST_CASE_DISTINCT_URL,
     _TEST_CASE_URL,
-    _TEST_SUITE_COUNT_DISTINCT_URL,
-    _TEST_SUITE_DISTINCT_URL,
-    _TEST_SUITE_URL,
+    _TEST_GROUP_COUNT_DISTINCT_URL,
+    _TEST_GROUP_DISTINCT_URL,
+    _TEST_GROUP_URL,
     _TOKEN_URL,
     _UPLOAD_URL,
     _VERSION_URL

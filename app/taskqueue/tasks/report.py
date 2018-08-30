@@ -180,7 +180,7 @@ def send_bisect_report(report_data, email_opts, base_path=utils.BASE_PATH):
 
 @taskc.app.task(name="send-test-report")
 def send_test_report(job, git_branch, kernel, report_data, email_opts):
-    """Send the test suite report email.
+    """Send the tests report email.
 
     :param job: The job name.
     :type job: string
@@ -195,7 +195,7 @@ def send_test_report(job, git_branch, kernel, report_data, email_opts):
     """
     report_id = "-".join([job, git_branch, kernel])
     utils.LOG.info(
-        "Sending test suite report email for '{}'".format(report_id))
+        "Sending tests report email for '{}'".format(report_id))
 
     db_options = taskc.app.conf.get("db_options", {})
 

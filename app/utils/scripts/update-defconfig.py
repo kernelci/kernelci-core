@@ -69,7 +69,7 @@ if __name__ == "__main__":
         convert_defconfig_id,
         [
             models.BOOT_COLLECTION,
-            models.TEST_SUITE_COLLECTION,
+            models.TEST_GROUP_COLLECTION,
             models.ERROR_LOGS_COLLECTION
         ]
     )

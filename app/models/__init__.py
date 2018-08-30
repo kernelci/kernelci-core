@@ -164,8 +164,8 @@ TEST_CASE_KEY = "test_case"
 TEST_JOB_ID_KEY = "test_job_id"
 TEST_JOB_PATH_KEY = "test_job_path"
 TEST_JOB_URL_KEY = "test_job_url"
-TEST_SUITE_ID_KEY = "test_suite_id"
-TEST_SUITE_NAME_KEY = "test_suite_name"
+TEST_GROUP_ID_KEY = "test_group_id"
+TEST_GROUP_NAME_KEY = "test_group_name"
 TEXT_OFFSET_KEY = "text_offset"
 TIME_KEY = "time"
 TIME_RANGE_KEY = "time_range"
@@ -255,7 +255,7 @@ BISECT_COLLECTION = "bisect"
 LAB_COLLECTION = "lab"
 REPORT_COLLECTION = "report"
 UPLOAD_COLLECTION = "upload"
-TEST_SUITE_COLLECTION = "test_suite"
+TEST_GROUP_COLLECTION = "test_group"
 TEST_CASE_COLLECTION = "test_case"
 ERROR_LOGS_COLLECTION = "error_logs"
 ERRORS_SUMMARY_COLLECTION = "errors_summary"
@@ -371,7 +371,7 @@ COLLECTIONS = [
     DAILY_STATS_COLLECTION,
     JOB_COLLECTION,
     TEST_CASE_COLLECTION,
-    TEST_SUITE_COLLECTION
+    TEST_GROUP_COLLECTION
 ]
 
 # Slightly different then above: this is used only for the /count API.
@@ -380,7 +380,7 @@ COUNT_COLLECTIONS = [
     BUILD_COLLECTION,
     JOB_COLLECTION,
     TEST_CASE_COLLECTION,
-    TEST_SUITE_COLLECTION
+    TEST_GROUP_COLLECTION
 ]
 
 # Handlers valid keys.
@@ -419,8 +419,8 @@ COUNT_VALID_KEYS = {
         TEST_CASE_ID_KEY,
         TEST_JOB_ID_KEY,
         TEST_JOB_URL_KEY,
-        TEST_SUITE_ID_KEY,
-        TEST_SUITE_NAME_KEY,
+        TEST_GROUP_ID_KEY,
+        TEST_GROUP_NAME_KEY,
         TEXT_OFFSET_KEY,
         TIME_KEY,
         TIME_KEY,
@@ -805,7 +805,7 @@ BISECT_VALID_KEYS = {
     ],
 }
 
-TEST_SUITE_VALID_KEYS = {
+TEST_GROUP_VALID_KEYS = {
     "POST": {
         MANDATORY_KEYS: [
             BUILD_ID_KEY,
@@ -879,7 +879,7 @@ TEST_CASE_VALID_KEYS = {
     "POST": {
         MANDATORY_KEYS: [
             NAME_KEY,
-            TEST_SUITE_ID_KEY
+            TEST_GROUP_ID_KEY
         ],
         ACCEPTED_KEYS: [
             ATTACHMENTS_KEY,
@@ -896,8 +896,8 @@ TEST_CASE_VALID_KEYS = {
             SAMPLES_SQUARE_SUM_KEY,
             SAMPLES_SUM_KEY,
             STATUS_KEY,
-            TEST_SUITE_ID_KEY,
-            TEST_SUITE_NAME_KEY,
+            TEST_GROUP_ID_KEY,
+            TEST_GROUP_NAME_KEY,
             TIME_KEY,
             VCS_COMMIT_KEY,
             VERSION_KEY
@@ -918,8 +918,8 @@ TEST_CASE_VALID_KEYS = {
         SAMPLES_SQUARE_SUM_KEY,
         SAMPLES_SUM_KEY,
         STATUS_KEY,
-        TEST_SUITE_ID_KEY,
-        TEST_SUITE_NAME_KEY,
+        TEST_GROUP_ID_KEY,
+        TEST_GROUP_NAME_KEY,
         TIME_KEY,
         VCS_COMMIT_KEY,
         VERSION_KEY
@@ -933,8 +933,8 @@ TEST_CASE_VALID_KEYS = {
         NAME_KEY,
         SAMPLES_KEY,
         STATUS_KEY,
-        TEST_SUITE_ID_KEY,
-        TEST_SUITE_NAME_KEY,
+        TEST_GROUP_ID_KEY,
+        TEST_GROUP_NAME_KEY,
         TIME_KEY,
         VCS_COMMIT_KEY,
         VERSION_KEY
@@ -966,7 +966,7 @@ DISTINCT_VALID_KEYS = {
     BUILD_COLLECTION: BUILD_VALID_KEYS,
     JOB_COLLECTION: JOB_VALID_KEYS,
     TEST_CASE_COLLECTION: TEST_CASE_VALID_KEYS,
-    TEST_SUITE_COLLECTION: TEST_SUITE_VALID_KEYS
+    TEST_GROUP_COLLECTION: TEST_GROUP_VALID_KEYS
 }
 
 # Used to define, in the DistinctHandler, which fields can be used as unique.
@@ -1016,7 +1016,7 @@ DISTINCT_VALID_FIELDS = {
         LAB_NAME_KEY,
         MACH_KEY
     ],
-    TEST_SUITE_COLLECTION: [
+    TEST_GROUP_COLLECTION: [
         ARCHITECTURE_KEY,
         BOARD_INSTANCE_KEY,
         BOARD_KEY,
@@ -1033,8 +1033,8 @@ DISTINCT_VALID_FIELDS = {
         NAME_KEY
     ],
     TEST_CASE_COLLECTION: [
-        TEST_SUITE_ID_KEY,
-        TEST_SUITE_NAME_KEY,
+        TEST_GROUP_ID_KEY,
+        TEST_GROUP_NAME_KEY,
     ]
 }
 

@@ -11,7 +11,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Create the test suite email report."""
+"""Create the tests email report."""
 
 import json
 import os
@@ -53,9 +53,9 @@ TEST_REPORT_FIELDS = [
 
 def create_test_report(data, email_format, db_options,
                        base_path=utils.BASE_PATH):
-    """Create the test suite report email to be sent.
+    """Create the tests report email to be sent.
 
-    :param data: The meta-data for the test suite job.
+    :param data: The meta-data for the test job.
     :type data: dictionary
     :param email_format: The email format to send.
     :type email_format: list
@@ -76,48 +76,48 @@ def create_test_report(data, email_format, db_options,
 
     specs = {x: data[x] for x in data.keys() if data[x]}
 
-    testsuites = utils.db.find(
-        database[models.TEST_SUITE_COLLECTION],
+    test_groups = utils.db.find(
+        database[models.TEST_GROUP_COLLECTION],
         100,
         0,
         spec=specs,
         fields=TEST_REPORT_FIELDS)
 
-    if not testsuites:
-        utils.LOG.warning("Failed to find test suite document")
+    if not test_groups:
+        utils.LOG.warning("Failed to find test group document")
         return None
 
-    testsuites = [d for d in testsuites.clone()]
+    test_groups = [d for d in test_groups.clone()]
 
-    for ts in testsuites:
-        # ts is a dictionary, where we need to add a new field test_case_list
+    for tg in test_groups:
+        # tg is a dictionary, where we need to add a new field test_case_list
         # test_case_list is a list of dictionary with every test case
-        testcase = ts['test_case']
-        ts['test_case_list'] = []
+        testcase = tg['test_case']
+        tg['test_case_list'] = []
         for tc in testcase:
             # tc is a _id from the testcase
             test_case_doc = utils.db.find_one2(
                database[models.TEST_CASE_COLLECTION],
                {"_id": tc})
-            ts['test_case_list'].append(test_case_doc)
+            tg['test_case_list'].append(test_case_doc)
 
-        resultlist = [test['status'] for test in ts['test_case_list']]
-        ts['total_tests'] = len(resultlist)
-        ts['total_pass'] = len([e for e in resultlist if e == "PASS"])
-        ts['total_fail'] = len([e for e in resultlist if e == "FAIL"])
-        ts['total_skip'] = len([e for e in resultlist if e == "SKIP"])
+        resultlist = [test['status'] for test in tg['test_case_list']]
+        tg['total_tests'] = len(resultlist)
+        tg['total_pass'] = len([e for e in resultlist if e == "PASS"])
+        tg['total_fail'] = len([e for e in resultlist if e == "FAIL"])
+        tg['total_skip'] = len([e for e in resultlist if e == "SKIP"])
 
     # Remove the entries named "lava" since they don't contain any result
     # from the defined test plans
-    for item in list(testsuites):
+    for item in list(test_groups):
         if item['name'] == 'lava':
-            testsuites.remove(item)
+            test_groups.remove(item)
 
-    subject_str = "Test suite results for {}/{} - {}".format(
+    subject_str = "Test results for {}/{} - {}".format(
         job, branch, kernel)
 
-    git_url = testsuites[0][models.GIT_URL_KEY]
-    git_commit = testsuites[0][models.GIT_COMMIT_KEY]
+    git_url = test_groups[0][models.GIT_URL_KEY]
+    git_commit = test_groups[0][models.GIT_COMMIT_KEY]
 
     headers = {
         rcommon.X_REPORT: rcommon.TEST_REPORT_TYPE,
@@ -133,7 +133,7 @@ def create_test_report(data, email_format, db_options,
         "git_url": git_url,
         "kernel": kernel,
         "git_commit": git_commit,
-        "testsuites": testsuites,
+        "test_groups": test_groups,
     }
 
     if models.EMAIL_TXT_FORMAT_KEY in email_format:

@@ -11,7 +11,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""The RequestHandler for /test/suite URLs."""
+"""The RequestHandler for /test/group URLs."""
 
 import bson
 import datetime
@@ -20,7 +20,7 @@ import types
 import handlers.response as hresponse
 import handlers.test_base as htbase
 import models
-import models.test_suite as mtsuite
+import models.test_group as mtgroup
 import taskqueue.tasks.test as taskq
 import utils
 import utils.db
@@ -28,64 +28,64 @@ import utils.db
 
 # pylint: disable=too-many-public-methods
 # pylint: disable=invalid-name
-class TestSuiteHandler(htbase.TestBaseHandler):
-    """The test suite request handler."""
+class TestGroupHandler(htbase.TestBaseHandler):
+    """The test group request handler."""
 
     def __init__(self, application, request, **kwargs):
-        super(TestSuiteHandler, self).__init__(application, request, **kwargs)
+        super(TestGroupHandler, self).__init__(application, request, **kwargs)
 
     @property
     def collection(self):
-        return self.db[models.TEST_SUITE_COLLECTION]
+        return self.db[models.TEST_GROUP_COLLECTION]
 
     @staticmethod
     def _valid_keys(method):
-        return models.TEST_SUITE_VALID_KEYS.get(method, None)
+        return models.TEST_GROUP_VALID_KEYS.get(method, None)
 
     def _post(self, *args, **kwargs):
         response = hresponse.HandlerResponse()
-        suite_id = kwargs.get("id", None)
+        group_id = kwargs.get("id", None)
 
-        if suite_id:
+        if group_id:
             response.status_code = 400
-            response.reason = "To update a test suite, use a PUT request"
+            response.reason = "To update a test group, use a PUT request"
         else:
             # TODO: double check the token with its lab name, we need to make
             # sure people are sending test reports with a token lab with the
             # correct lab name value.
-            suite_json = kwargs.get("json_obj", None)
-            suite_pop = suite_json.pop
-            suite_get = suite_json.get
+            group_json = kwargs.get("json_obj", None)
+            group_pop = group_json.pop
+            group_get = group_json.get
 
             # Remove the test_case from the JSON and pass it as is.
-            cases_list = suite_pop(models.TEST_CASE_KEY, [])
+            cases_list = group_pop(models.TEST_CASE_KEY, [])
 
-            suite_name = suite_get(models.NAME_KEY)
+            group_name = group_get(models.NAME_KEY)
             # TODO: move name validation into the initial json validation.
-            if utils.valid_test_name(suite_name):
+            if utils.valid_test_name(group_name):
                 # Make sure the *_id values passed are valid.
                 ret_val, error = self._check_references(
-                    suite_get(models.BUILD_ID_KEY, None),
-                    suite_get(models.JOB_ID_KEY, None)
+                    group_get(models.BUILD_ID_KEY, None),
+                    group_get(models.JOB_ID_KEY, None)
                 )
 
                 if ret_val == 200:
-                    test_suite = \
-                        mtsuite.TestSuiteDocument.from_json(suite_json)
-                    test_suite.created_on = datetime.datetime.now(
+                    test_group = \
+                        mtgroup.TestGroupDocument.from_json(group_json)
+                    test_group.created_on = datetime.datetime.now(
                         tz=bson.tz_util.utc)
 
-                    ret_val, suite_id = utils.db.save(
-                        self.db, test_suite, manipulate=True)
+                    ret_val, group_id = utils.db.save(
+                        self.db, test_group, manipulate=True)
 
                     if ret_val == 201:
                         response.status_code = ret_val
-                        response.result = {models.ID_KEY: suite_id}
+                        response.result = {models.ID_KEY: group_id}
                         response.reason = (
-                            "Test suite '%s' created" %
-                            suite_name)
+                            "Test group '%s' created" %
+                            group_name)
                         response.headers = {
-                            "Location": "/test/suite/%s" % str(suite_id)}
+                            "Location": "/test/group/%s" % str(group_id)}
 
                         if cases_list:
                             if isinstance(cases_list, types.ListType):
@@ -98,59 +98,59 @@ class TestSuiteHandler(htbase.TestBaseHandler):
                                     "Test cases are not wrapped in a "
                                     "list; they will not be imported")
 
-                        # Complete the update of the test suite and import
+                        # Complete the update of the test group and import
                         # everything else.
                         if all([cases_list]):
-                            self._import_suite_and_cases(
-                                suite_json, suite_id, cases_list, suite_name)
+                            self._import_group_and_cases(
+                                group_json, group_id, cases_list, group_name)
                         else:
-                            # Just update the test suite document.
-                            taskq.complete_test_suite_import.apply_async(
+                            # Just update the test group document.
+                            taskq.complete_test_group_import.apply_async(
                                 [
-                                    suite_json,
-                                    suite_id,
-                                    suite_name,
+                                    group_json,
+                                    group_id,
+                                    group_name,
                                     self.settings["dboptions"]
                                 ]
                             )
                     else:
                         response.status_code = ret_val
                         response.reason = (
-                            "Error saving test suite '%s'" % suite_name)
+                            "Error saving test group '%s'" % group_name)
                 else:
                     response.status_code = 400
                     response.reason = error
             else:
                 response.status_code = 400
-                response.reason = "Test suite name not valid"
+                response.reason = "Test group name not valid"
 
         return response
 
-    def _import_suite_and_cases(
-            self, suite_json, suite_id, tests_list, suite_name):
-        """Call the async task to update the test suite and import test cases.
+    def _import_group_and_cases(
+            self, group_json, group_id, tests_list, group_name):
+        """Call the async task to update the test group and import test cases.
 
         Just a thin wrapper around the real task call.
 
-        :param suite_json: The test suite JSON object.
-        :type suite_json: dict
-        :param suite_id: The ID of the test suite as saved in the database.
-        :type suite_id: bson.objectid.ObjectId
+        :param group_json: The test group JSON object.
+        :type group_json: dict
+        :param group_id: The ID of the test group as saved in the database.
+        :type group_id: bson.objectid.ObjectId
         :param tests_list: The list of tests to import.
         :type tests_list: list
-        :param suite_name: The name of the test suite.
-        :type suite_name: str
+        :param group_name: The name of the test group.
+        :type group_name: str
         """
-        taskq.complete_test_suite_import.apply_async(
+        taskq.complete_test_group_import.apply_async(
             [
-                suite_json,
-                suite_id,
-                suite_name,
+                group_json,
+                group_id,
+                group_name,
                 self.settings["dboptions"], self.settings["mailoptions"]
             ],
-            link=taskq.import_test_cases_from_test_suite.s(
-                suite_id,
-                suite_name,
+            link=taskq.import_test_cases_from_test_group.s(
+                group_id,
+                group_name,
                 tests_list,
                 self.settings["dboptions"], self.settings["mailoptions"]
             )
@@ -162,17 +162,17 @@ class TestSuiteHandler(htbase.TestBaseHandler):
         doc_id = kwargs.get("id")
 
         try:
-            suite_id = bson.objectid.ObjectId(doc_id)
+            group_id = bson.objectid.ObjectId(doc_id)
         except bson.errors.InvalidId, ex:
             self.log.exception(ex)
             self.log.error("Invalid ID specified: %s", doc_id)
             response.status_code = 400
             response.reason = "Wrong ID specified"
         else:
-            if utils.db.find_one2(self.collection, suite_id):
+            if utils.db.find_one2(self.collection, group_id):
                 # TODO: handle case where job_id or build_id is updated.
                 update_val = utils.db.update(
-                    self.collection, {models.ID_KEY: suite_id}, update_doc)
+                    self.collection, {models.ID_KEY: group_id}, update_doc)
 
                 if update_val == 200:
                     response.reason = "Resource '%s' updated" % doc_id
@@ -189,28 +189,28 @@ class TestSuiteHandler(htbase.TestBaseHandler):
         response = hresponse.HandlerResponse()
 
         try:
-            suite_id = bson.objectid.ObjectId(doc_id)
+            group_id = bson.objectid.ObjectId(doc_id)
         except bson.errors.InvalidId, ex:
             self.log.exception(ex)
             self.log.error("Invalid ID specified: %s", doc_id)
             response.status_code = 400
             response.reason = "Wrong ID specified"
         else:
-            if utils.db.find_one2(self.collection, suite_id):
+            if utils.db.find_one2(self.collection, group_id):
                 response.status_code = utils.db.delete(
-                    self.collection, suite_id)
+                    self.collection, group_id)
 
                 if response.status_code == 200:
                     response.reason = "Resource '%s' deleted" % doc_id
 
                     test_case_canc = utils.db.delete(
                         self.db[models.TEST_CASE_COLLECTION],
-                        {models.TEST_SUITE_ID_KEY: suite_id})
+                        {models.TEST_GROUP_ID_KEY: group_id})
 
                     if test_case_canc != 200:
                         response.errors = (
                             "Error deleting test cases with "
-                            "test_suite_id '%s'" % doc_id)
+                            "test_group_id '%s'" % doc_id)
                 else:
                     response.reason = "Error deleting resource '%s'" % doc_id
             else:

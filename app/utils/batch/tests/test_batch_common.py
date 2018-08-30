@@ -22,7 +22,7 @@ from utils.batch.batch_op import (
     BatchJobOperation,
     BatchOperation,
     BatchTestCaseOperation,
-    BatchTestSuiteOperation
+    BatchTestGroupOperation
 )
 from utils.batch.common import (
     create_batch_operation,
@@ -153,16 +153,16 @@ class TestBatch(unittest.TestCase):
         self.assertIsInstance(op, BatchTestCaseOperation)
         self.assertEqual("test_case", op.resource)
 
-    def test_create_batch_test_suite_op(self):
+    def test_create_batch_test_group_op(self):
         json_obj = {
-            "resource": "test_suite",
+            "resource": "test_group",
             "query": "status=PASS&job=foo",
             "operation_id": "foo"
         }
 
         op = create_batch_operation(json_obj, {})
-        self.assertIsInstance(op, BatchTestSuiteOperation)
-        self.assertEqual("test_suite", op.resource)
+        self.assertIsInstance(op, BatchTestGroupOperation)
+        self.assertEqual("test_group", op.resource)
 
     def test_create_batch_distinct(self):
         json_obj = {

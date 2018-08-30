@@ -30,7 +30,7 @@ pre {
   </head>
   <body>
     <p>
-      Test suites results for:
+      Test results for:
       <table>
         <tr><td>Tree</td><td>{{ tree }}</td></tr>
         <tr><td>Branch</td><td>{{ branch }}</td></tr>
@@ -42,7 +42,7 @@ pre {
 
     <h1>Summary</h1>
     <p>
-    {{ testsuites|length }} test suites results
+    {{ test_groups|length }} test groups results
       <table>
         <col width="120">
         <col width="220">
@@ -50,7 +50,7 @@ pre {
         <col width="100">
         <col width="100">
         <col width="100">
-        {% for t in testsuites|sort(attribute='name') %}
+        {% for t in test_groups|sort(attribute='name') %}
           <tr><th>{{ t.name|e }}</th><td>{{ t.board }}</td><td>{{ t.total_tests }} tests</td><td> {{ t.total_pass }}  PASS</td><td>{{ t.total_fail }} FAIL </td><td>{{ t.total_skip }} SKIP</td></tr>
         {% endfor %}
       <table>
@@ -58,7 +58,7 @@ pre {
 
 
       <h1>Tests</h1>
-      {% for t in testsuites|sort(attribute='name') %}
+      {% for t in test_groups|sort(attribute='name') %}
       <h2>{{ t.name|e }}</h2>
       <table>
         <tr><td>Config</td><td>{{ t.defconfig_full }}</td></tr>

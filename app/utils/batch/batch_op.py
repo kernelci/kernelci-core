@@ -261,12 +261,12 @@ class BatchTestCaseOperation(BatchOperation):
         self.valid_keys = models.TEST_CASE_VALID_KEYS
 
 
-class BatchTestSuiteOperation(BatchOperation):
-    """A batch operation for test suites."""
+class BatchTestGroupOperation(BatchOperation):
+    """A batch operation for test groups."""
 
     def __init__(self):
-        super(BatchTestSuiteOperation, self).__init__()
-        self.valid_keys = models.TEST_SUITE_VALID_KEYS
+        super(BatchTestGroupOperation, self).__init__()
+        self.valid_keys = models.TEST_GROUP_VALID_KEYS
 
 
 class BatchDistinctOperation(BatchOperation):

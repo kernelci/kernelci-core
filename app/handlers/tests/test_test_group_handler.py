@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Test module for the TestSuiteHandler handler."""
+"""Test module for the TestGroupHandler handler."""
 
 import bson
 import json
@@ -25,59 +25,59 @@ import urls
 from handlers.tests.test_handler_base import TestHandlerBase
 
 
-class TestTestSuiteHandler(TestHandlerBase):
+class TestTestGroupHandler(TestHandlerBase):
 
     def get_app(self):
-        return tornado.web.Application([urls._TEST_SUITE_URL], **self.settings)
+        return tornado.web.Application([urls._TEST_GROUP_URL], **self.settings)
 
     @mock.patch("utils.db.find_and_count")
     def test_get(self, mock_find):
         mock_find.return_value = ([{"foo": "bar"}], 1)
 
         headers = {"Authorization": "foo"}
-        response = self.fetch("/test/suite/", headers=headers)
+        response = self.fetch("/test/group/", headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
     @mock.patch("bson.objectid.ObjectId")
-    @mock.patch("handlers.test_suite.TestSuiteHandler.collection")
+    @mock.patch("handlers.test_group.TestGroupHandler.collection")
     def test_get_by_id_not_found(self, collection, mock_id):
         mock_id.return_value = "suite-id"
         collection.find_one = mock.MagicMock()
         collection.find_one.return_value = None
 
         headers = {"Authorization": "foo"}
-        response = self.fetch("/test/suite/suite-id", headers=headers)
+        response = self.fetch("/test/group/suite-id", headers=headers)
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
     @mock.patch("bson.objectid.ObjectId")
-    @mock.patch("handlers.test_suite.TestSuiteHandler.collection")
+    @mock.patch("handlers.test_group.TestGroupHandler.collection")
     def test_get_by_id_not_found_empty_list(self, collection, mock_id):
         mock_id.return_value = "suite-id"
         collection.find_one = mock.MagicMock()
         collection.find_one.return_value = []
 
         headers = {"Authorization": "foo"}
-        response = self.fetch("/test/suite/suite-id", headers=headers)
+        response = self.fetch("/test/group/suite-id", headers=headers)
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
     @mock.patch("bson.objectid.ObjectId")
-    @mock.patch("handlers.test_suite.TestSuiteHandler.collection")
+    @mock.patch("handlers.test_group.TestGroupHandler.collection")
     def test_get_by_id_found(self, collection, mock_id):
         mock_id.return_value = "suite-id"
         collection.find_one = mock.MagicMock()
         collection.find_one.return_value = {"_id": "suite-id"}
 
         headers = {"Authorization": "foo"}
-        response = self.fetch("/test/suite/suite-id", headers=headers)
+        response = self.fetch("/test/group/suite-id", headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
@@ -86,7 +86,7 @@ class TestTestSuiteHandler(TestHandlerBase):
     def test_post_without_token(self):
         body = json.dumps(dict(name="suite", version="1.0"))
 
-        response = self.fetch("/test/suite", method="POST", body=body)
+        response = self.fetch("/test/group", method="POST", body=body)
 
         self.assertEqual(response.code, 403)
         self.assertEqual(
@@ -96,7 +96,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
 
         response = self.fetch(
-            "/test/suite", method="POST", body="", headers=headers)
+            "/test/group", method="POST", body="", headers=headers)
 
         self.assertEqual(response.code, 422)
         self.assertEqual(
@@ -106,7 +106,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         headers = {"Authorization": "foo"}
 
         response = self.fetch(
-            "/test/suite", method="POST", body="", headers=headers)
+            "/test/group", method="POST", body="", headers=headers)
 
         self.assertEqual(response.code, 415)
         self.assertEqual(
@@ -118,14 +118,14 @@ class TestTestSuiteHandler(TestHandlerBase):
         body = json.dumps(dict(foo="foo", bar="bar"))
 
         response = self.fetch(
-            "/test/suite", method="POST", body=body, headers=headers)
+            "/test/group", method="POST", body=body, headers=headers)
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
-    @mock.patch("taskqueue.tasks.test.complete_test_suite_import")
-    @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
+    @mock.patch("taskqueue.tasks.test.complete_test_group_import")
+    @mock.patch("handlers.test_group.TestGroupHandler._check_references")
     @mock.patch("utils.db.save")
     def test_post_correct(self, mock_save, mock_check, mock_task):
         mock_save.return_value = (201, "test-suite-id")
@@ -140,7 +140,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         )
 
         response = self.fetch(
-            "/test/suite", method="POST", headers=headers, body=body)
+            "/test/group", method="POST", headers=headers, body=body)
 
         self.assertEqual(response.code, 201)
         self.assertEqual(
@@ -155,14 +155,14 @@ class TestTestSuiteHandler(TestHandlerBase):
         )
 
         response = self.fetch(
-            "/test/suite/fake-id", method="POST", headers=headers, body=body)
+            "/test/group/fake-id", method="POST", headers=headers, body=body)
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
-    @mock.patch("taskqueue.tasks.test.complete_test_suite_import")
-    @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
+    @mock.patch("taskqueue.tasks.test.complete_test_group_import")
+    @mock.patch("handlers.test_group.TestGroupHandler._check_references")
     def test_post_correct_with_test_case(self, mock_check, mock_task):
         mock_check.return_value = (200, None)
         mock_task.apply_async = mock.MagicMock()
@@ -177,14 +177,14 @@ class TestTestSuiteHandler(TestHandlerBase):
         )
 
         response = self.fetch(
-            "/test/suite", method="POST", headers=headers, body=body)
+            "/test/group", method="POST", headers=headers, body=body)
 
         self.assertEqual(response.code, 202)
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
-    @mock.patch("taskqueue.tasks.test.complete_test_suite_import")
-    @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
+    @mock.patch("taskqueue.tasks.test.complete_test_group_import")
+    @mock.patch("handlers.test_group.TestGroupHandler._check_references")
     def test_post_correct_with_wrong_test_case(self, mock_check, mock_task):
         mock_check.return_value = (200, None)
         mock_task.apply_async = mock.MagicMock()
@@ -199,13 +199,13 @@ class TestTestSuiteHandler(TestHandlerBase):
         )
 
         response = self.fetch(
-            "/test/suite", method="POST", headers=headers, body=body)
+            "/test/group", method="POST", headers=headers, body=body)
 
         self.assertEqual(response.code, 201)
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
-    @mock.patch("handlers.test_suite.TestSuiteHandler._check_references")
+    @mock.patch("handlers.test_group.TestGroupHandler._check_references")
     @mock.patch("utils.db.save")
     def test_post_correct_with_error(self, mock_save, mock_check):
         mock_check.return_value = (200, None)
@@ -218,7 +218,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         )
 
         response = self.fetch(
-            "/test/suite", method="POST", headers=headers, body=body)
+            "/test/group", method="POST", headers=headers, body=body)
 
         self.assertEqual(response.code, 500)
         self.assertEqual(
@@ -233,7 +233,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         )
 
         response = self.fetch(
-            "/test/suite", method="POST", headers=headers, body=body)
+            "/test/group", method="POST", headers=headers, body=body)
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
@@ -250,7 +250,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         )
 
         response = self.fetch(
-            "/test/suite", method="POST", headers=headers, body=body)
+            "/test/group", method="POST", headers=headers, body=body)
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
@@ -267,7 +267,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         )
 
         response = self.fetch(
-            "/test/suite", method="POST", headers=headers, body=body)
+            "/test/group", method="POST", headers=headers, body=body)
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
@@ -286,7 +286,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         )
 
         response = self.fetch(
-            "/test/suite", method="POST", headers=headers, body=body)
+            "/test/group", method="POST", headers=headers, body=body)
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
@@ -305,7 +305,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         )
 
         response = self.fetch(
-            "/test/suite", method="POST", headers=headers, body=body)
+            "/test/group", method="POST", headers=headers, body=body)
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
@@ -328,14 +328,14 @@ class TestTestSuiteHandler(TestHandlerBase):
         )
 
         response = self.fetch(
-            "/test/suite", method="POST", headers=headers, body=body)
+            "/test/group", method="POST", headers=headers, body=body)
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
     def test_put_no_token(self):
-        response = self.fetch("/test/suite/id", method="PUT", body="")
+        response = self.fetch("/test/group/id", method="PUT", body="")
 
         self.assertEqual(response.code, 403)
         self.assertEqual(
@@ -346,7 +346,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         self.validate_token.return_value = (False, None)
 
         response = self.fetch(
-            "/test/suite/id", method="PUT", headers=headers, body="")
+            "/test/group/id", method="PUT", headers=headers, body="")
 
         self.assertEqual(response.code, 403)
         self.assertEqual(
@@ -356,7 +356,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         headers = {"Authorization": "foo"}
 
         response = self.fetch(
-            "/test/suite/id", method="PUT", body="", headers=headers)
+            "/test/group/id", method="PUT", body="", headers=headers)
 
         self.assertEqual(response.code, 415)
         self.assertEqual(
@@ -366,7 +366,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
 
         response = self.fetch(
-            "/test/suite/", method="PUT", headers=headers, body="")
+            "/test/group/", method="PUT", headers=headers, body="")
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
@@ -378,7 +378,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         body = json.dumps(dict(foo="foo", bar="bar"))
 
         response = self.fetch(
-            "/test/suite/id", method="PUT", body=body, headers=headers)
+            "/test/group/id", method="PUT", body=body, headers=headers)
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
@@ -388,7 +388,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
 
         response = self.fetch(
-            "/test/suite/id", method="PUT", body="", headers=headers)
+            "/test/group/id", method="PUT", body="", headers=headers)
 
         self.assertEqual(response.code, 422)
         self.assertEqual(
@@ -400,7 +400,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         body = json.dumps(dict(job="job", kernel="kernel"))
 
         response = self.fetch(
-            "/test/suite/wrong-id", method="PUT", body=body, headers=headers)
+            "/test/group/wrong-id", method="PUT", body=body, headers=headers)
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
@@ -416,7 +416,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         body = json.dumps(dict(job="job", kernel="kernel"))
 
         response = self.fetch(
-            "/test/suite/wrong-id", method="PUT", body=body, headers=headers)
+            "/test/group/wrong-id", method="PUT", body=body, headers=headers)
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
@@ -434,7 +434,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         body = json.dumps(dict(job="job", kernel="kernel"))
 
         response = self.fetch(
-            "/test/suite/fake-id", method="PUT", body=body, headers=headers)
+            "/test/group/fake-id", method="PUT", body=body, headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(
@@ -452,14 +452,14 @@ class TestTestSuiteHandler(TestHandlerBase):
         body = json.dumps(dict(job="job", kernel="kernel"))
 
         response = self.fetch(
-            "/test/suite/fake-id", method="PUT", body=body, headers=headers)
+            "/test/group/fake-id", method="PUT", body=body, headers=headers)
 
         self.assertEqual(response.code, 500)
         self.assertEqual(
             response.headers["Content-Type"], self.content_type)
 
     def test_delete_no_token(self):
-        response = self.fetch("/test/suite/id", method="DELETE")
+        response = self.fetch("/test/group/id", method="DELETE")
 
         self.assertEqual(response.code, 403)
         self.assertEqual(
@@ -470,7 +470,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         self.validate_token.return_value = (False, None)
 
         response = self.fetch(
-            "/test/suite/id", method="DELETE", headers=headers)
+            "/test/group/id", method="DELETE", headers=headers)
 
         self.assertEqual(response.code, 403)
         self.assertEqual(
@@ -480,7 +480,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         headers = {"Authorization": "foo"}
 
         response = self.fetch(
-            "/test/suite/", method="DELETE", headers=headers)
+            "/test/group/", method="DELETE", headers=headers)
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
@@ -490,7 +490,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         headers = {"Authorization": "foo"}
 
         response = self.fetch(
-            "/test/suite/wrong-id", method="DELETE", headers=headers)
+            "/test/group/wrong-id", method="DELETE", headers=headers)
 
         self.assertEqual(response.code, 400)
         self.assertEqual(
@@ -504,7 +504,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         headers = {"Authorization": "foo"}
 
         response = self.fetch(
-            "/test/suite/fake-id", method="DELETE", headers=headers)
+            "/test/group/fake-id", method="DELETE", headers=headers)
 
         self.assertEqual(response.code, 404)
         self.assertEqual(
@@ -520,7 +520,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         headers = {"Authorization": "foo"}
 
         response = self.fetch(
-            "/test/suite/fake-id", method="DELETE", headers=headers)
+            "/test/group/fake-id", method="DELETE", headers=headers)
 
         self.assertEqual(response.code, 500)
         self.assertEqual(
@@ -536,7 +536,7 @@ class TestTestSuiteHandler(TestHandlerBase):
         headers = {"Authorization": "foo"}
 
         response = self.fetch(
-            "/test/suite/fake-id", method="DELETE", headers=headers)
+            "/test/group/fake-id", method="DELETE", headers=headers)
 
         self.assertEqual(response.code, 200)
         self.assertEqual(

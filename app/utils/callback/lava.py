@@ -440,7 +440,7 @@ def add_tests(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
     :return tuple The return code, the test document id and errors.
     """
     ret_code = 201
-    suite_doc_id = None
+    group_doc_id = None
     errors = {}
     ex = None
     msg = None
@@ -455,7 +455,7 @@ def add_tests(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
         if suite_name != "lava":
             suite_name = suite_name.split("_")[1]
 
-        suite_data = {
+        group = {
             models.VERSION_KEY: "1.1",
             models.LAB_NAME_KEY: lab_name,
             models.TIME_KEY: "0.0",
@@ -465,14 +465,14 @@ def add_tests(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
         utils.LOG.info("Processing test suite: {}".format(suite_name))
 
         try:
-            _get_job_meta(suite_data, job_data)
-            _get_definition_meta(suite_data, job_data, META_DATA_MAP_TEST)
-            _get_lava_meta(suite_data, job_data)
-            _add_boot_log(suite_data, job_data["log"], base_path, suite_name)
+            _get_job_meta(group, job_data)
+            _get_definition_meta(group, job_data, META_DATA_MAP_TEST)
+            _get_lava_meta(group, job_data)
+            _add_boot_log(group, job_data["log"], base_path, suite_name)
             case_data = _get_test_case_data(suite_results, suite_name)
-            ret_code, suite_doc_id, err = \
+            ret_code, group_doc_id, err = \
                 utils.kci_test.import_and_save_kci_test(
-                    suite_data, case_data, db_options)
+                    group, case_data, db_options)
             utils.errors.update_errors(errors, err)
         except (yaml.YAMLError, ValueError) as ex:
             ret_code = 400
@@ -489,6 +489,6 @@ def add_tests(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
             if errors:
                 raise utils.errors.BackendError(errors)
 
-    store_lava_json(job_data, suite_data)
+    store_lava_json(job_data, group)
 
-    return suite_doc_id
+    return group_doc_id

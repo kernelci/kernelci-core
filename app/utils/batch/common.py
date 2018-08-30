@@ -108,8 +108,8 @@ def create_batch_operation(json_obj, db_options):
                     batch_op = batchop.BatchBuildOperation()
                 elif resource == models.TEST_CASE_COLLECTION:
                     batch_op = batchop.BatchTestCaseOperation()
-                elif resource == models.TEST_SUITE_COLLECTION:
-                    batch_op = batchop.BatchTestSuiteOperation()
+                elif resource == models.TEST_GROUP_COLLECTION:
+                    batch_op = batchop.BatchTestGroupOperation()
 
             _complete_batch_op()
 

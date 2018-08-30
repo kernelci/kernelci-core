@@ -11,7 +11,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""The model that represent a test suite document in the database."""
+"""The model that represent a test group document in the database."""
 
 import copy
 import types
@@ -22,18 +22,18 @@ import models.base as modb
 
 # pylint: disable=invalid-name
 # pylint: disable=too-many-instance-attributes
-class TestSuiteDocument(modb.BaseDocument):
-    """Model for a test suite document.
+class TestGroupDocument(modb.BaseDocument):
+    """Model for a test group document.
 
-    A test suite is a document that can store test cases ran.
+    A test group is a document that can store test cases ran.
     """
 
     def __init__(self, name, lab_name):
-        """The test suite document.
+        """The test group document.
 
-        :param name: The name given to this test suite.
+        :param name: The name given to this test group.
         :type name: string
-        :param lab_name: The name of the lab running this test suite.
+        :param lab_name: The name of the lab running this test group.
         :type lab_name: str
         """
         self._name = name
@@ -86,11 +86,11 @@ class TestSuiteDocument(modb.BaseDocument):
 
     @property
     def collection(self):
-        return models.TEST_SUITE_COLLECTION
+        return models.TEST_GROUP_COLLECTION
 
     @property
     def name(self):
-        """The name of the test suite."""
+        """The name of the test group."""
         return self._name
 
     @property
@@ -112,42 +112,42 @@ class TestSuiteDocument(modb.BaseDocument):
 
     @property
     def version(self):
-        """The schema version of this test suite."""
+        """The schema version of this test group."""
         return self._version
 
     @version.setter
     def version(self, value):
-        """Set the schema version of this test suite."""
+        """Set the schema version of this test group."""
         if self._version:
             raise AttributeError("Schema version already set")
         self._version = value
 
     @property
     def id(self):
-        """The ID of the test suite as registered in the database."""
+        """The ID of the test group as registered in the database."""
         return self._id
 
     @id.setter
     def id(self, value):
-        """Set the test suite ID."""
+        """Set the test group ID."""
         if self._id:
             raise AttributeError("ID already set")
         self._id = value
 
     @property
     def created_on(self):
-        """The creation date of this test suite."""
+        """The creation date of this test group."""
         return self._created_on
 
     @created_on.setter
     def created_on(self, value):
-        """Set the creation date of this test suite."""
+        """Set the creation date of this test group."""
         if self._created_on:
             raise AttributeError("Creation date already set")
         self._created_on = value
 
     def to_dict(self):
-        test_suite = {
+        test_group = {
             models.ARCHITECTURE_KEY: self.arch,
             models.BOARD_INSTANCE_KEY: self.board_instance,
             models.BOARD_KEY: self.board,
@@ -196,13 +196,13 @@ class TestSuiteDocument(modb.BaseDocument):
         }
 
         if self.id:
-            test_suite[models.ID_KEY] = self.id
+            test_group[models.ID_KEY] = self.id
 
-        return test_suite
+        return test_group
 
     @staticmethod
     def from_json(json_obj):
-        test_suite = None
+        test_group = None
         if isinstance(json_obj, types.DictionaryType):
             local_obj = copy.deepcopy(json_obj)
             doc_pop = local_obj.pop
@@ -210,11 +210,11 @@ class TestSuiteDocument(modb.BaseDocument):
             try:
                 name = doc_pop(models.NAME_KEY)
                 lab_name = doc_pop(models.LAB_NAME_KEY)
-                test_suite = TestSuiteDocument(name, lab_name)
+                test_group = TestGroupDocument(name, lab_name)
                 for key, val in local_obj.iteritems():
-                    setattr(test_suite, key, val)
+                    setattr(test_group, key, val)
             except KeyError:
                 # Missing mandatory key? Return None.
-                test_suite = None
+                test_group = None
 
-        return test_suite
+        return test_group

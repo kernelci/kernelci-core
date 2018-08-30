@@ -11,7 +11,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""All the necessary functions to import test suites and cases."""
+"""All the necessary functions to import test groups and cases."""
 
 import bson
 import copy
@@ -56,10 +56,10 @@ def _get_document_and_update(oid, collection, fields, up_doc, validate_func):
         )
 
 
-def parse_test_suite(suite_json, db_options):
-    """Parse the test suite JSON and retrieve the values to update.
+def parse_test_group(group_json, db_options):
+    """Parse the test group JSON and retrieve the values to update.
 
-    This is used to update a test suite when all its values are empty, but we
+    This is used to update a test group when all its values are empty, but we
     have the build_id, job_id, and/or boot_id.
 
     Not all values might be retrieved. This function parses the document only
@@ -68,22 +68,22 @@ def parse_test_suite(suite_json, db_options):
     If only the boot_id is provided, only the field available in that document
     will be update.
 
-    :param suite_json: The JSON object.
-    :type suite_json: dict
+    :param group_json: The JSON object.
+    :type group_json: dict
     :param db_options: The database connection options.
     :type db_options: dict
     :return A dictionary with the fields-values to update.
     """
     update_doc = {}
-    suite_pop = suite_json.pop
+    group_pop = group_json.pop
 
-    # The necessary values to link a test suite with its job, defconfig
+    # The necessary values to link a test group with its job, defconfig
     # and/or boot reports.
-    build_id = suite_pop(models.BUILD_ID_KEY, None)
-    boot_id = suite_pop(models.BOOT_ID_KEY, None)
-    job_id = suite_pop(models.JOB_ID_KEY, None)
+    build_id = group_pop(models.BUILD_ID_KEY, None)
+    boot_id = group_pop(models.BOOT_ID_KEY, None)
+    job_id = group_pop(models.JOB_ID_KEY, None)
 
-    # The set of keys we need to update a test suite with to provide search
+    # The set of keys we need to update a test group with to provide search
     # capabilities based on the values of the job, build and/or boot used.
     all_keys = set([
         models.ARCHITECTURE_KEY,
@@ -99,11 +99,11 @@ def parse_test_suite(suite_json, db_options):
     ])
 
     def _get_valid_keys():
-        """Parse the test suite JSON object and yield its keys.
+        """Parse the test group JSON object and yield its keys.
 
         The yielded keys are those with a non-null value.
         """
-        for k, v in suite_json.iteritems():
+        for k, v in group_json.iteritems():
             if all([v, v is not None, v != "None", v != "null"]):
                 yield k
 
@@ -113,8 +113,8 @@ def parse_test_suite(suite_json, db_options):
     remove_missing = missing_keys.remove
 
     # If we have at least one of the referenced documents, and we do not have
-    # some of the values that make up a test_suite object, look for the
-    # document and retrieve the values, then update the test suite.
+    # some of the values that make up a test_group object, look for the
+    # document and retrieve the values, then update the test group.
     if all([missing_keys, any([build_id, job_id, boot_id])]):
         def _valid_doc_value(key, value):
             """Check that the value is valid (not null, or empty).
@@ -185,36 +185,36 @@ def parse_test_suite(suite_json, db_options):
     return update_doc
 
 
-def update_test_suite(suite_json, test_suite_id, db_options):
-    """Perform update operations on the provided test suite.
+def update_test_group(group_json, test_group_id, db_options):
+    """Perform update operations on the provided test group.
 
     Search for missing values based on the other document keys.
 
-    :param suite_json: The JSON object containing the test suite.
-    :type suite_json: dict
-    :param test_suite_id: The ID of the saved test suite.
-    :type test_suite_id: bson.objectid.ObjectId
+    :param group_json: The JSON object containing the test group.
+    :type group_json: dict
+    :param test_group_id: The ID of the saved test group.
+    :type test_group_id: bson.objectid.ObjectId
     :param db_options: The database connection parameters.
     :type db_options: dict
     :return 200 if OK, 500 in case of error; the updated values from the test
-    suite document as a dictionary.
+    group document as a dictionary.
     """
     ret_val = 200
     update_doc = {}
-    local_suite = copy.deepcopy(suite_json)
+    local_group = copy.deepcopy(group_json)
 
-    update_doc = parse_test_suite(local_suite, db_options)
+    update_doc = parse_test_group(local_group, db_options)
     if update_doc:
         database = utils.db.get_db_connection(db_options)
         ret_val = utils.db.update(
-            database[models.TEST_SUITE_COLLECTION],
-            {models.ID_KEY: test_suite_id}, update_doc)
+            database[models.TEST_GROUP_COLLECTION],
+            {models.ID_KEY: test_group_id}, update_doc)
 
     return ret_val, update_doc
 
 
 def import_multi_base(
-        import_func, tests_list, suite_id, suite_name, db_options, **kwargs):
+        import_func, tests_list, group_id, group_name, db_options, **kwargs):
     """Generic function to import test cases list.
 
     The passed import function must be a function that is able to parse the
@@ -241,11 +241,11 @@ def import_multi_base(
     :type import_func: function
     :param tests_list: The list with the test cases to import.
     :type tests_list: list
-    :param suite_id: The ID of the test suite these test objects
+    :param group_id: The ID of the test group these test objects
     belong to.
-    :type suite_id: str
-    :param suite_name: The name of the test suite.
-    :type suite_name: str
+    :type group_id: str
+    :param group_name: The name of the test group.
+    :type group_name: str
     :param db_options: Options for connecting to the database.
     :type db_options: dict
     :return A list with the saved test objects IDs or an empty list; a
@@ -278,7 +278,7 @@ def import_multi_base(
         """
         for test in tests_list:
             yield import_func(
-                test, suite_id, suite_name, database, db_options, **kwargs)
+                test, group_id, group_name, database, db_options, **kwargs)
 
     for ret_val, doc_id, imp_errors in _yield_tests_import():
         _parse_result(ret_val, doc_id, imp_errors)
@@ -287,7 +287,7 @@ def import_multi_base(
 
 
 def import_test_case(
-        json_obj, suite_id, suite_name, database, db_options, **kwargs):
+        json_obj, group_id, group_name, database, db_options, **kwargs):
     """Parse and save a test case.
 
     Additional named arguments passed might be (with the exact following
@@ -305,10 +305,10 @@ def import_test_case(
 
     :param json_obj: The JSON data structure of the test case to import.
     :type json_obj: dict
-    :param suite_id: The ID of the test suite the test case belongs to.
-    :type suite_id: bson.objectid.ObjectId
-    :param suite_name: The name of the test suite.
-    :type suite_name: str
+    :param group_id: The ID of the test group the test case belongs to.
+    :type group_id: bson.objectid.ObjectId
+    :param group_name: The name of the test group.
+    :type group_name: str
     :param database: The database connection.
     :param db_options: The database connection options.
     :type db_options: dict
@@ -321,21 +321,21 @@ def import_test_case(
 
     if isinstance(json_obj, types.DictionaryType):
         j_get = json_obj.get
-        json_suite_id = j_get(models.TEST_SUITE_ID_KEY, None)
-        suite_oid = bson.objectid.ObjectId(suite_id)
+        json_group_id = j_get(models.TEST_GROUP_ID_KEY, None)
+        group_oid = bson.objectid.ObjectId(group_id)
 
-        json_obj[models.TEST_SUITE_NAME_KEY] = suite_name
-        if not json_suite_id:
-            # Inject the suite_id value into the data structure.
-            json_obj[models.TEST_SUITE_ID_KEY] = suite_id
+        json_obj[models.TEST_GROUP_NAME_KEY] = group_name
+        if not json_group_id:
+            # Inject the group_id value into the data structure.
+            json_obj[models.TEST_GROUP_ID_KEY] = group_id
         else:
-            if json_suite_id == str(suite_id):
-                json_obj[models.TEST_SUITE_ID_KEY] = suite_oid
+            if json_group_id == str(group_id):
+                json_obj[models.TEST_GROUP_ID_KEY] = group_oid
             else:
                 utils.LOG.warning(
-                    "Test suite ID does not match the provided one")
-                # XXX For now, force the suite_id value.
-                json_obj[models.TEST_SUITE_ID_KEY] = suite_oid
+                    "Test group ID does not match the provided one")
+                # XXX For now, force the group_id value.
+                json_obj[models.TEST_GROUP_ID_KEY] = group_oid
 
         try:
             test_name = j_get(models.NAME_KEY, None)
@@ -353,10 +353,10 @@ def import_test_case(
                     utils.LOG.error(err_msg)
                     ADD_ERR(errors, 500, err_msg)
                 # If test case imported correctly
-                # reference it in the test suite
+                # reference it in the test group
                 else:
-                    update_test_suite_add_test_case_id(
-                        doc_id, suite_oid, suite_name,
+                    update_test_group_add_test_case_id(
+                        doc_id, group_oid, group_name,
                         db_options)
             else:
                 ADD_ERR(errors, 400, "Missing mandatory key in JSON data")
@@ -372,7 +372,7 @@ def import_test_case(
 
 
 def import_multi_test_cases(
-        case_list, suite_id, suite_name, db_options, **kwargs):
+        case_list, group_id, group_name, db_options, **kwargs):
     """Import all the test cases provided.
 
     Additional named arguments passed might be (with the exact following
@@ -390,8 +390,8 @@ def import_multi_test_cases(
 
     :param case_list: The list with the test cases to import.
     :type case_list: list
-    :param suite_id: The ID of the test suite these test cases belong to.
-    :param suite_id: string
+    :param group_id: The ID of the test group these test cases belong to.
+    :param group_id: string
     :param db_options: Options for connecting to the database.
     :type db_options: dict
     :return A list with the saved test case IDs or an empty list; a dictionary
@@ -400,24 +400,24 @@ def import_multi_test_cases(
     """
     return import_multi_base(
         import_test_case,
-        case_list, suite_id, suite_name, db_options, **kwargs)
+        case_list, group_id, group_name, db_options, **kwargs)
 
 
 # TODO: create a separate test_update.py document
 
-def update_test_suite_add_test_case_id(
-        case_id, suite_id, suite_name, db_options):
-    """Add the test case ID provided in a test suite.
+def update_test_group_add_test_case_id(
+        case_id, group_id, group_name, db_options):
+    """Add the test case ID provided in a test group.
 
     This task is linked from the test set post one: It add the
-    test case ID as a child of the test suite.
+    test case ID as a child of the test group.
 
     :param case_id: The ID of the test case.
     :type case_id: bson.objectid.ObjectId
-    :param suite_id: The ID of the suite.
-    :type suite_id: bson.objectid.ObjectId
-    :param suite_name: The name of the test suite.
-    :type suite_name: str
+    :param group_id: The ID of the group.
+    :type group_id: bson.objectid.ObjectId
+    :param group_name: The name of the test group.
+    :type group_name: str
     :param db_options: The database connection parameters.
     :type db_options: dict
     :return 200 if OK, 500 in case of errors; a dictionary with errors or an
@@ -428,19 +428,19 @@ def update_test_suite_add_test_case_id(
     errors = {}
 
     utils.LOG.info(
-        "Updating test suite '%s' (%s) with test case ID",
-        suite_name, str(suite_id))
+        "Updating test group '%s' (%s) with test case ID",
+        group_name, str(group_id))
     database = utils.db.get_db_connection(db_options)
 
     ret_val = utils.db.update(
-        database[models.TEST_SUITE_COLLECTION],
-        {models.ID_KEY: suite_id},
+        database[models.TEST_GROUP_COLLECTION],
+        {models.ID_KEY: group_id},
         {models.TEST_CASE_KEY: case_id}, operation='$push')
     if ret_val != 200:
         ADD_ERR(
             errors,
             ret_val,
-            "Error updating test suite '%s' with test case references" %
-            (str(suite_id))
+            "Error updating test group '%s' with test case references" %
+            (str(group_id))
         )
     return ret_val, errors
