@@ -1,0 +1,24 @@
+- test:
+    timeout:
+      minutes: 10
+    definitions:
+    - repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: simple
+          description: "simple test plan"
+          os:
+          - oe
+          scope:
+          - functional
+        run:
+          steps:
+          - lava-test-case df --shell df -h
+          - lava-test-case mount --shell mount
+          - lava-test-case ls --shell ls /
+          - lava-test-case udhcpc --shell udhcpc
+          - lava-test-case ip --shell ip addr
+          - lava-test-case ping --shell ping -c4 8.8.8.8
+      from: inline
+      name: simple
+      path: inline/simple.yaml
