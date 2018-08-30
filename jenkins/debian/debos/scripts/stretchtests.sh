@@ -12,6 +12,8 @@ BUILD_DEPS="libpciaccess-dev \
     libunwind-dev  \
     libudev-dev  \
     libssl-dev \
+    libdw-dev \
+    liblzma-dev \
     git \
     autoconf \
     xutils-dev \
