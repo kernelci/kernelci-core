@@ -3,7 +3,7 @@
 test_suite
 ----------
 
-A test suite is the collection of :ref:`test sets <schema_test_set>` and :ref:`test cases <schema_test_case>`.
+A test suite is the collection of :ref:`test cases <schema_test_case>`.
 
 A test suite must define its own ``name`` and must be associated with a :ref:`lab <schema_lab>` and with a :ref:`build <schema_build>`. The association with the ``build`` object is performed through the ``build_id`` value, the lab association via the lab ``name`` value.
 
@@ -21,7 +21,7 @@ GET
 Notes
 +++++
 
-* ``test_set``, ``test_case``: By default, the API will provide the IDs of the ``test_set`` and ``test_case`` objects. To expand the selection in order to include the actual objects, please refer to the ``test`` resource query arguments.
+* ``test_case``: By default, the API will provide the IDs of the ``test_case`` objects. To expand the selection in order to include the actual objects, please refer to the ``test`` resource query arguments.
 
 .. _schema_test_suite_post:
 
@@ -34,14 +34,11 @@ POST
 Notes
 +++++
 
-* ``test_set``: If not specified, the test set executed must be registered using the appropiate API call.
-
 * ``test_case``: If not specified, the test case executed must be registered using the appropriate API call.
 
 More Info
 *********
 
-* :ref:`Test set schema <schema_test_set>`
 * :ref:`Test case schema <schema_test_case>`
 * :ref:`Defconfig schema <schema_build>`
 * :ref:`Lab schema <schema_lab>`

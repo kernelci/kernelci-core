@@ -8,8 +8,7 @@ its own ``name`` defined and must be associated with a
 :ref:`test suite <schema_test_suite>`.
 
 A test case can be associated with only one
-:ref:`test suite <schema_test_suite>` and one
-:ref:`test set <schema_test_set>`. A test case can also register
+:ref:`test suite <schema_test_suite>`. A test case can also register
 multiple :ref:`measurements <schema_measurement>`.
 
 A test case ``name`` must start and end with an alphanumeric character, and it
@@ -40,7 +39,6 @@ More Info
 *********
 
 * :ref:`Test suite schema <schema_test_suite>`
-* :ref:`Test set schema <schema_test_set>`
 * :ref:`Attachment schema <schema_attachment>`
 * :ref:`Measurement schema <schema_measurement>`
 * :ref:`File upload API <collection_upload>`

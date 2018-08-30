@@ -23,17 +23,12 @@ def main():
         "name": "A test suite",
         "build_id": "123456789012345678901234",
         "lab_name": "lab-test-00",
-        "test_set": [
+        "test_case": [
             {
-                "name": "A test set",
-                "test_case": [
-                    {
-                        "name": "A test case - 0"
-                    },
-                    {
-                        "name": "A test case - 1"
-                    }
-                ]
+                "name": "A test case - 0"
+            },
+            {
+                "name": "A test case - 1"
             }
         ]
     }

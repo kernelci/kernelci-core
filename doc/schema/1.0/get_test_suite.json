@@ -85,12 +85,6 @@
             "type": "string",
             "description": "The ID of the boot test that this test suite is being run on"
         },
-        "test_set": {
-            "type": "array",
-            "description": "The list of test set IDs, or test set objects, executed by this test suite",
-            "items": {"$ref": "http://api.kernelci.org/json-schema/1.0/test_set_get.json"},
-            "additionalItems": true
-        },
         "test_case": {
             "type": "array",
             "description": "The list of test case IDs, or test case objects, executed by this test suite",

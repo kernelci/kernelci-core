@@ -32,30 +32,17 @@ def main():
         test_suite_result = response.json()["result"][0]
         test_suite_id = test_suite_result["_id"]["$oid"]
 
-        test_set = {
-            "name": "A test set",
+        test_case = {
+            "name": "A test case",
             "test_suite_id": test_suite_id
         }
 
-        url = urljoin(BACKEND_URL, "/test/set")
+
+        url = urljoin(BACKEND_URL, "/test/case")
         response = requests.post(
-            url, data=json.dumps(test_set), headers=headers)
+            url, data=json.dumps(test_case), headers=headers)
 
-        if response.status_code == 201:
-            test_set_result = response.json()["result"][0]
-            test_set_id = test_set_result["_id"]["$oid"]
-
-            test_case = {
-                "name": "A test case",
-                "test_set_id": test_set_id,
-                "test_suite_id": test_suite_id
-            }
-
-            url = urljoin(BACKEND_URL, "/test/case")
-            response = requests.post(
-                url, data=json.dumps(test_case), headers=headers)
-
-            print response.content
+        print response.content
 
 if __name__ == "__main__":
     main()

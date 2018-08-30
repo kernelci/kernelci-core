@@ -11,7 +11,6 @@ The ``test`` resource is a collection of multiple resources.
    :maxdepth: 2
 
    collection-test-suite
-   collection-test-set
    collection-test-case
 
 How to Use the Test Resources
@@ -29,16 +28,15 @@ runner and the API. They all have pros and cons.
     suite perform a PUT request. The same principle applies to the other test
     resources.
 
-Register Test Sets and Cases One at the Time
-********************************************
+Register Test Cases One at the Time
+***********************************
 
 In the following example, the user first registers the test suite obtaining its
-``test_suite_id``, that is then used to register the test set to obtain the
-``test_set_id`` value.
+``test_suite_id``.
 
 She then runs all her test cases, and as soon as the first result comes back,
-she registers the test case using the ``test_suite_id`` and ``test_set_id``
-values. The last step is repeated for all the **N** test cases she runs.
+she registers the test case using the ``test_suite_id`` value. The last step is
+repeated for all the **N** test cases she runs.
 
 .. image:: images/test-user-case0.svg
     :align: center
@@ -46,8 +44,7 @@ values. The last step is repeated for all the **N** test cases she runs.
     :width: 600px
 
 The following are examples of the JSON data snippet that might be used in this
-scenario. The order is: test suite data, test set data, test case data
-(for each test cases):
+scenario. The order is: test suite data, test case data (for each test cases):
 
 .. sourcecode:: json
 
@@ -58,17 +55,10 @@ scenario. The order is: test suite data, test set data, test case data
 .. sourcecode:: json
 
     {
-        "name": "A test set",
-        "test_suite_id": "a-test-suite-id"
-    }
-
-.. sourcecode:: json
-
-    {
         "name": "A test case 1…N",
         "test_suite_id": "a-test-suite-id",
-        "test_set_id": "a-test-set-id"
     }
+
 
 Pros
 ~~~~
@@ -84,10 +74,10 @@ Cons
 ~~~~
 
 * Necessary to perform an HTTP POST request for each step: one for the test
-  suite, one for the test set, and one for each test case.
+  suite and one for each test case.
 
-Register Test Suite, Set and Cases Together
-*******************************************
+Register Test Suite and Cases Together
+**************************************
 
 In the following example, the user registers everything with a single request
 (POST) with all the data embedded in the same JSON document.
@@ -107,20 +97,15 @@ scenario:
 
     {
         "name": "A test suite"
-        "test_set": [
+        "test_case": [
             {
-                "name": "A test set",
-                "test_case": [
-                    {
-                        "name": "A test case 1…N"
-                    }
-                ]
+                "name": "A test case 1…N"
             }
         ]
     }
 
-Note that even if the ``test_suite_id`` field is mandatory for test sets and
-test cases, as specified in their JSON schema, in this case it is not necessary:
+Note that even if the ``test_suite_id`` field is mandatory for test cases, as specified
+in their JSON schema, in this case it is not necessary:
 it will be injected into the provided data after the test suite has been saved.
 
 Pros
@@ -132,62 +117,7 @@ Pros
 Cons
 ~~~~
 
-* The data sent might be big, depending on the number of test sets and test
-  cases included.
+* The data sent might be big, depending on the number of test cases.
 * Necessary to perform an extra HTTP GET request to obtain all the test references.
 
-Register Test Suite and Set, Update Test Set
-********************************************
-
-In the following example, the user registers the test suite and test set each
-by itself obtaining their own ID values. She then runs all the test cases, and
-once all the results have been collected, updates the test set with a single
-request (PUT).
-
-.. image:: images/test-user-case2.svg
-    :align: center
-    :height: 600px
-    :width: 600px
-
-The following are examples of the JSON data snippet that might be used in this
-scenario. The order is: test suite data, test set data, updated test set data:
-
-.. sourcecode:: json
-
-    {
-        "name": "A test suite"
-    }
-
-.. sourcecode:: json
-
-    {
-        "name": "A test set",
-        "test_suite_id": "a-test-suite-id"
-    }
-
-.. sourcecode:: json
-
-    {
-        "test_case": [
-            {
-                "name": "A test case 1…N"
-            }
-        ]
-    }
-
-Note that even if the ``test_suite_id`` field is mandatory for test cases, as
-specified in their JSON schema, in this case it is not necessary: it will be
-injected into the provided data and will be taken from the test set.
-
-Pros
-~~~~
-
-* Less HTTP POST requests to send all data.
-
-Cons
-~~~~
-
-* Necessary to perform an extra HTTP GET request to obtain all the test references.
-* The HTTP PUT request data might be big, depending on the number of test cases
-  run.
 

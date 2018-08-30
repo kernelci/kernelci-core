@@ -35,10 +35,6 @@
                 }
             }
         },
-        "test_set_id": {
-            "type": "string",
-            "description": "The test set ID associated with this test case"
-        },
         "test_suite_id": {
             "type": "string",
             "description": "The test suite ID associated with this test case"

@@ -50,7 +50,7 @@ GET
  :query string kernel: The kernel name.
  :query string lab_name: The name of the lab executing the test.
  :query string name: The name of a test suite.
- :query string time: The time it took to execute the test set.
+ :query string time: The time it took to execute the test suite.
  :query string vcs_commit: The VCS commit value.
 
  :status 200: Results found.
@@ -104,7 +104,7 @@ POST
 
 .. http:post:: /test/suite
 
- Create a new test suite as defined in the JSON data. The request will be accepted and, if test sets and/or test cases have been specified in the JSON data, it will begin to parse the data.
+ Create a new test suite as defined in the JSON data. The request will be accepted and, if test cases have been specified in the JSON data, it will begin to parse the data.
 
  If saving the test suite has success, it will return the associated ID value.
 
@@ -264,7 +264,7 @@ DELETE
 
 .. http:delete:: /test/suite/(string:id)/
 
- Delete the test suite identified by ``id``. All its associated test sets and test cases will be deleted as well.
+ Delete the test suite identified by ``id``. All its associated test cases will be deleted as well.
 
  :param id: The :ref:`ID <intro_schema_ids>` of the test suite.
  :type id: string
@@ -307,7 +307,6 @@ More Info
 *********
 
 * :ref:`Test suite schema <schema_test_suite>`
-* :ref:`Test set schema <schema_test_set>`
 * :ref:`Test case schema <schema_test_case>`
 * :ref:`Test schemas <schema_test>`
 * :ref:`API results <intro_schema_results>`

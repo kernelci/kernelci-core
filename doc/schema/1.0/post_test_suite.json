@@ -74,12 +74,6 @@
             "type": "object",
             "description": "Free form object where to store accessory test suite data"
         },
-        "test_set": {
-            "type": "array",
-            "description": "The list of test set objects executed by this test suite",
-            "items": {"$ref": "http://api.kernelci.org/json-schema/1.0/test_set_get.json"},
-            "additionalItems": true
-        },
         "test_case": {
             "type": "array",
             "description": "The list of test case objects executed by this test suite",

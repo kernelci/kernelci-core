@@ -9,7 +9,6 @@ The test schema to store and retrieve test results is composed of the following 
     :maxdepth: 2
 
     schema-test-suite
-    schema-test-set
     schema-test-case
 
 The following schemas are used by the test schemas defined above.

@@ -43,10 +43,9 @@ GET
  :query string name: The name of a test case.
  :query int samples: Number of registered measurements.
  :query string status: The status of the test execution.
- :query string test_set_id: The ID of the test set associated with the test case.
- :query string test_suite_id: The ID of the test suite associated with the test set.
- :query string test_suite_name: The name of the test suite associated with the test set.
- :query string time: The time it took to execute the test set.
+ :query string test_suite_id: The ID of the test suite associated with the test case.
+ :query string test_suite_name: The name of the test suite associated with the test case.
+ :query string time: The time it took to execute the test case.
  :query string vcs_commit: The VCS commit value.
 
  :status 200: Results found.
@@ -140,7 +139,6 @@ POST
     {
         "name": "A test case",
         "test_suite_id": "01234567890123456789ABCD",
-        "test_set_id": "01234567890123456789ABCD",
         "version": "1.0"
     }
 
@@ -155,7 +153,6 @@ POST
     {
         "name": "A test case",
         "test_suite_id": "01234567890123456789ABCD",
-        "test_set_id": "01234567890123456789ABCD",
         "version": "1.0"
     }
 
@@ -283,7 +280,6 @@ More Info
 *********
 
 * :ref:`Test suite schema <schema_test_suite>`
-* :ref:`Test set schema <schema_test_set>`
 * :ref:`Test case schema <schema_test_case>`
 * :ref:`Test schemas <schema_test>`
 * :ref:`API results <intro_schema_results>`
