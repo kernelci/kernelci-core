@@ -52,6 +52,7 @@ class TestTestSuiteModel(unittest.TestCase):
         test_suite.git_describe = "git-describe"
         test_suite.git_url = "git-url"
         test_suite.id = "id"
+        test_suite.image_type = "image_type"
         test_suite.initrd_addr = "initrd-addr"
         test_suite.job = "job"
         test_suite.job_id = "job_id"
@@ -98,6 +99,7 @@ class TestTestSuiteModel(unittest.TestCase):
             "git_commit": "git-commit",
             "git_describe": "git-describe",
             "git_url": "git-url",
+            "image_type": "image_type",
             "initrd_addr": "initrd-addr",
             "job": "job",
             "job_id": "job_id",
@@ -162,6 +164,7 @@ class TestTestSuiteModel(unittest.TestCase):
             "git_commit": "git_commit",
             "git_describe": "git_describe",
             "git_url": "git_url",
+            "image_type": "image_type",
             "initrd_addr": "initrd_addr",
             "job": "job",
             "job_id": "job_id",
