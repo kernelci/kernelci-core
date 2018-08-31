@@ -84,7 +84,6 @@ def run(log, boot, txt, html):
 
         level, msg = (line.get(k) for k in ["lvl", "msg"])
 
-
         fmt = formats.get(level, None)
         if fmt:
             log_buffer.append(timestamp + fmt.format(cgi.escape(msg)))

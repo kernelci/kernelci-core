@@ -256,9 +256,9 @@ def _add_boot_log(meta, job_log, base_path, name):
             if e.errno != errno.EEXIST:
                 raise e
 
-    with codecs.open(txt_path, "w", "utf-8") as txt, \
-         codecs.open(html_path, "w", "utf-8") as html:
-        utils.lava_log_parser.run(log, meta, txt, html)
+    with codecs.open(txt_path, "w", "utf-8") as txt:
+        with codecs.open(html_path, "w", "utf-8") as html:
+            utils.lava_log_parser.run(log, meta, txt, html)
 
 
 def store_lava_json(job_data, meta, base_path=utils.BASE_PATH):
