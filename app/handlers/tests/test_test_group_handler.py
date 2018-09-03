@@ -163,7 +163,7 @@ class TestTestGroupHandler(TestHandlerBase):
 
     @mock.patch("taskqueue.tasks.test.complete_test_group_import")
     @mock.patch("handlers.test_group.TestGroupHandler._check_references")
-    def test_post_correct_with_test_case(self, mock_check, mock_task):
+    def test_post_correct_with_test_cases(self, mock_check, mock_task):
         mock_check.return_value = (200, None)
         mock_task.apply_async = mock.MagicMock()
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
@@ -172,7 +172,7 @@ class TestTestGroupHandler(TestHandlerBase):
                 name="suite",
                 version="1.0",
                 lab_name="lab",
-                build_id="build", test_case=[{"foo": "bar"}]
+                build_id="build", test_cases=[{"foo": "bar"}]
             )
         )
 

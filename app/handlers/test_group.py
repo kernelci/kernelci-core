@@ -57,8 +57,8 @@ class TestGroupHandler(htbase.TestBaseHandler):
             group_pop = group_json.pop
             group_get = group_json.get
 
-            # Remove the test_case from the JSON and pass it as is.
-            cases_list = group_pop(models.TEST_CASE_KEY, [])
+            # Remove the test_cases from the JSON and pass it as is.
+            cases_list = group_pop(models.TEST_CASES_KEY, [])
 
             group_name = group_get(models.NAME_KEY)
             # TODO: move name validation into the initial json validation.

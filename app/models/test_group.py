@@ -25,7 +25,8 @@ import models.base as modb
 class TestGroupDocument(modb.BaseDocument):
     """Model for a test group document.
 
-    A test group is a document that can store test cases ran.
+    A test group is a document that can store test cases results, and nested
+    test groups.
     """
 
     def __init__(self, name, lab_name):
@@ -79,7 +80,8 @@ class TestGroupDocument(modb.BaseDocument):
         self.qemu = None
         self.qemu_command = None
         self.retries = 0
-        self.test_case = []
+        self.test_cases = []
+        self.sub_groups = []
         self.time = -1
         self.vcs_commit = None
         self.warnings = 0
@@ -188,7 +190,8 @@ class TestGroupDocument(modb.BaseDocument):
             models.QEMU_COMMAND_KEY: self.qemu_command,
             models.RETRIES_KEY: self.retries,
             models.NAME_KEY: self.name,
-            models.TEST_CASE_KEY: self.test_case,
+            models.TEST_CASES_KEY: self.test_cases,
+            models.SUB_GROUPS_KEY: self.sub_groups,
             models.TIME_KEY: self.time,
             models.VCS_COMMIT_KEY: self.vcs_commit,
             models.VERSION_KEY: self.version,

@@ -65,7 +65,8 @@ class TestTestGroupModel(unittest.TestCase):
         test_group.qemu = "qemu"
         test_group.qemu_command = "qemu-command"
         test_group.retries = 2
-        test_group.test_case = ["foo"]
+        test_group.sub_groups = [True, False]
+        test_group.test_cases = ["foo"]
         test_group.time = 10
         test_group.vcs_commit = "1234"
         test_group.version = "1.1"
@@ -113,7 +114,8 @@ class TestTestGroupModel(unittest.TestCase):
             "qemu": "qemu",
             "qemu_command": "qemu-command",
             "retries": 2,
-            "test_case": ["foo"],
+            "sub_groups": [True, False],
+            "test_cases": ["foo"],
             "time": 10,
             "vcs_commit": "1234",
             "version": "1.1",
@@ -177,7 +179,8 @@ class TestTestGroupModel(unittest.TestCase):
             "qemu": None,
             "qemu_command": None,
             "retries": 0,
-            "test_case": ["foo"],
+            "sub_groups": [True, False],
+            "test_cases": ["foo"],
             "time": 10,
             "vcs_commit": "1234",
             "version": "1.0",

@@ -155,12 +155,13 @@ SORT_KEY = "sort"
 SORT_ORDER_KEY = "sort_order"
 START_DATE_KEY = "start_date"
 STATUS_KEY = "status"
+SUB_GROUPS_KEY = "sub_groups"
 SUBJECT_KEY = "subject"
 SURNAME_KEY = "surname"
 SYSTEM_MAP_KEY = "system_map"
 SYSTEM_MAP_SIZE_KEY = "system_map_size"
 TEST_CASE_ID_KEY = "test_case_id"
-TEST_CASE_KEY = "test_case"
+TEST_CASES_KEY = "test_cases"
 TEST_JOB_ID_KEY = "test_job_id"
 TEST_JOB_PATH_KEY = "test_job_path"
 TEST_JOB_URL_KEY = "test_job_url"
@@ -829,7 +830,7 @@ TEST_GROUP_VALID_KEYS = {
             LAB_NAME_KEY,
             METADATA_KEY,
             NAME_KEY,
-            TEST_CASE_KEY,
+            TEST_CASES_KEY,
             VCS_COMMIT_KEY,
             VERSION_KEY
         ]

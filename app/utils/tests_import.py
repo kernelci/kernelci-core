@@ -435,7 +435,7 @@ def update_test_group_add_test_case_id(
     ret_val = utils.db.update(
         database[models.TEST_GROUP_COLLECTION],
         {models.ID_KEY: group_id},
-        {models.TEST_CASE_KEY: case_id}, operation='$push')
+        {models.TEST_CASES_KEY: case_id}, operation='$push')
     if ret_val != 200:
         ADD_ERR(
             errors,

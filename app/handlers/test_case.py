@@ -93,8 +93,8 @@ class TestCaseHandler(htbase.TestBaseHandler):
                     # Remove test case reference from the test_group collection
                     ret_val = utils.db.update(
                         self.db[models.TEST_GROUP_COLLECTION],
-                        {models.TEST_CASE_KEY: case_id},
-                        {models.TEST_CASE_KEY: [case_id]},
+                        {models.TEST_CASES_KEY: case_id},
+                        {models.TEST_CASES_KEY: [case_id]},
                         operation="$pullAll"
                     )
                     if ret_val != 200:

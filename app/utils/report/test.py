@@ -44,7 +44,7 @@ TEST_REPORT_FIELDS = [
     models.METADATA_KEY,
     models.NAME_KEY,
     models.STATUS_KEY,
-    models.TEST_CASE_KEY,
+    models.TEST_CASES_KEY,
     models.TIME_KEY,
     models.VCS_COMMIT_KEY,
     models.VERSION_KEY,
@@ -92,7 +92,7 @@ def create_test_report(data, email_format, db_options,
     for tg in test_groups:
         # tg is a dictionary, where we need to add a new field test_case_list
         # test_case_list is a list of dictionary with every test case
-        testcase = tg['test_case']
+        testcase = tg['test_cases']
         tg['test_case_list'] = []
         for tc in testcase:
             # tc is a _id from the testcase

@@ -96,7 +96,7 @@ def import_test_cases_from_test_group(
             database = utils.db.get_db_connection(db_options)
             ret_val = utils.db.update(
                 database[models.TEST_GROUP_COLLECTION],
-                {models.ID_KEY: group_id}, {models.TEST_CASE_KEY: test_ids})
+                {models.ID_KEY: group_id}, {models.TEST_CASES_KEY: test_ids})
             if ret_val != 200:
                 ADD_ERR(
                     errors,
