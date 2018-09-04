@@ -250,34 +250,32 @@ def _update_test_case_doc_ids(ts_name, ts_id, case_doc, database):
         return None
 
 
-def _parse_test_case_from_json(ts_name, ts_id, test_json, database, errors):
+def _parse_test_case_from_json(group_name, group_doc_id, test_case,
+                               database, errors):
     """Parse the test case report from a JSON object.
 
-    :param ts_name: The test case name
-    :type ts_name: str
-    :param ts_id: The test case ID
-    :type ts_id: str
-    :param test_json: The JSON object.
-    :type test_json: dict
+    :param group_name: The test group name.
+    :type group_name: str
+    :param group_doc_id: The test group ID.
+    :type group_doc_id: str
+    :param test_case: The test case data.
+    :type test_case: dict
     :param database: The database connection.
     :param errors: Where to store the errors.
     :type errors: dict
     :return A `models.test_case.TestCaseDocument` instance, or None if
     the JSON cannot be parsed correctly.
     """
-    if not test_json or not ts_name or not ts_id:
-        return None
-
     try:
-        _check_for_null(test_json, NON_NULL_KEYS_CASE)
+        _check_for_null(test_case, NON_NULL_KEYS_CASE)
     except TestValidationError, ex:
         utils.LOG.exception(ex)
         ERR_ADD(errors, 400, str(ex))
         return None
 
     try:
-        name = test_json[models.NAME_KEY]
-        status = test_json[models.STATUS_KEY].upper()
+        name = test_case[models.NAME_KEY]
+        status = test_case[models.STATUS_KEY].upper()
     except KeyError, ex:
         err_msg = "Missing mandatory key in test case data"
         utils.LOG.exception(ex)
@@ -290,8 +288,8 @@ def _parse_test_case_from_json(ts_name, ts_id, test_json, database, errors):
         status=status)
     test_doc.created_on = datetime.datetime.now(
         tz=bson.tz_util.utc)
-    _update_test_case_doc_from_json(test_doc, test_json, errors)
-    _update_test_case_doc_ids(ts_name, ts_id, test_doc, database)
+    _update_test_case_doc_from_json(test_doc, test_case, errors)
+    _update_test_case_doc_ids(group_name, group_doc_id, test_doc, database)
     return test_doc
 
 
@@ -494,42 +492,40 @@ def _parse_test_group_from_json(test_json, database, errors):
     return test_doc
 
 
-def import_and_save_test_cases(test_cases, ts_doc_id, ts_doc_name,
+def import_and_save_test_cases(group_doc_id, group_name, test_cases,
                                database, errors):
-    """Import the tests cases report from a JSON object.
+    """Import the tests cases from a JSON object into a group.
+
+    Parse the test_cases JSON data into a list of test cases, add them to the
+    database and update the related test group.
 
     This function returns an operation code based on the import result
     of all the test cases.
-    It parses the test_cases JSON, add them to the database and if
-    imported successfuly, updates the related test group.
 
-    :param test_cases: The JSON object.
+    :param group_doc_id: The related test group ID.
+    :type group_doc_id: str
+    :param group_name: The related test group name.
+    :type group_name: str
+    :param test_cases: The JSON object with incoming test cases data.
     :type test_cases: dict
-    :param ts_doc_id: The related test group ID.
-    :type ts_doc_id: str
-    :param ts_doc_name: The related test group name.
-    :type ts_doc_name: str
     :param database: The database connection.
     :param errors: Where errors should be stored.
     :type errors: dict
-    :return the operation code (201 if the save has
-    success, 500 in case of an error).
+    :return the operation code (201 if success, 500 in case of an error).
     """
     ret_code = 500
 
-    if not test_cases:
-        return ret_code
-    if not ts_doc_id or not ts_doc_name:
+    if not all((group_doc_id, group_name, test_cases)):
         return ret_code
 
     for test_case in test_cases:
-        tc_doc = \
-            _parse_test_case_from_json(ts_doc_name, ts_doc_id,
-                                       test_case, database, errors)
+        tc_doc = _parse_test_case_from_json(group_name, group_doc_id,
+                                            test_case, database, errors)
         if tc_doc:
-            ret_code, tc_doc_id = save_or_update(tc_doc, SPEC_TEST_CASE,
-                                                 models.TEST_CASE_COLLECTION,
-                                                 database, errors)
+            ret_code, tc_doc_id = save_or_update(
+                tc_doc, SPEC_TEST_CASE, models.TEST_CASE_COLLECTION,
+                database, errors)
+
         if ret_code == 500:
             err_msg = (
                 "Error saving test case report in the database "
@@ -544,58 +540,90 @@ def import_and_save_test_cases(test_cases, ts_doc_id, ts_doc_name,
             return ret_code
         else:
             # Test case imported successfully update test group
-            ret_code, errors = \
-                tests_import.update_test_group_add_test_case_id(
-                    tc_doc_id, ts_doc_id, ts_doc_name,
-                    taskc.app.conf.db_options)
+            ret_code, errors = tests_import.update_test_group_add_test_case_id(
+                tc_doc_id, group_doc_id, group_name, taskc.app.conf.db_options)
 
     return ret_code
 
 
-def import_and_save_kci_test(test_group_obj, test_case_obj,
-                             db_options, base_path=utils.BASE_PATH):
+def import_and_save_test_group(group, database, errors):
+    """Import a test group from a JSON object
+
+    Parse the group JSON data into a TestGroupDocument object.
+
+    This function returns an operation code based on the import result
+    of all the test cases.
+
+    :param group: The test group data.
+    :type group_doc: dict
+    :param database: The database connection.
+    :param errors: Where errors should be stored.
+    :type errors: dict
+    :return The document ID or None if an error occurred.
+    """
+    group_doc_id = None
+    group_doc = _parse_test_group_from_json(group, database, errors)
+
+    if not group_doc or errors:
+        utils.LOG.warn("Failed to parse test group JSON data")
+        return None
+
+    ret_code, group_doc_id = save_or_update(
+        group_doc, SPEC_TEST_GROUP, models.TEST_GROUP_COLLECTION,
+        database, errors)
+
+    test_cases = group.get(models.TEST_CASES_KEY)
+    if test_cases:
+        ret_code = import_and_save_test_cases(
+            group_doc_id, group_doc.name, test_cases, database, errors)
+
+    sub_groups = group.get(models.SUB_GROUPS_KEY)
+    if sub_groups:
+        for sub_group in sub_groups:
+            sub_group_doc_id = import_and_save_test_group(
+                sub_group, database, errors)
+            if not sub_group_doc_id:
+                utils.LOG.warn("Failed to parse sub-group")
+                return None
+            tests_import.update_test_group_add_sub_group_id(
+                group_doc_id, group_doc.name, sub_group_doc_id,
+                taskc.app.conf.db_options)
+
+    return group_doc_id
+
+
+def import_and_save_kci_tests(group, db_options, base_path=utils.BASE_PATH):
     """Wrapper function to be used as an external task.
 
     This function should only be called by Celery or other task managers.
     Import and save the test report as found from the parameters in the
     provided JSON object.
 
-    :param test_group_obj: The JSON object with the values that identify
-    the test group report log.
+    :param group: The JSON group data.
     :type test_group_obj: dict
-    :param test_case_obj: The JSON object with the values that identify
-    the test case report log.
-    :type test_case_obj: list
     :param db_options: The mongodb database connection parameters.
     :type db_options: dict
+    :param base_path: The base path on the file system where data is stored.
+    :type base_path: str
+    :return operation code (201 if success, 500 in case of an error), the group
+    document ID and a dictionary with errors.
     """
-    ret_code = None
-    ts_doc_id = None
+    ret_code = 500
     errors = {}
 
     try:
         database = utils.db.get_db_connection(db_options)
-        ts_json_copy = copy.deepcopy(test_group_obj)
+        group_doc_id = import_and_save_test_group(group, database, errors)
 
-        ts_doc = _parse_test_group_from_json(ts_json_copy, database, errors)
-        # If test group imported correctly
-        if ts_doc and not errors:
-            ret_code, ts_doc_id = \
-                save_or_update(ts_doc, SPEC_TEST_GROUP,
-                               models.TEST_GROUP_COLLECTION,
-                               database, errors)
-            tc_json_copy = copy.deepcopy(test_case_obj)
-            # Import the test cases
-            ret_code = import_and_save_test_cases(tc_json_copy,
-                                                  ts_doc_id, ts_doc.name,
-                                                  database, errors)
+        if not group_doc_id:
+            utils.LOG.warn("No test group report imported nor saved")
+        else:
+            ret_code = 201
             # TODO fix this: need to define a save_to_disk method
             # save_to_disk(ts_doc, test_group_obj, base_path, errors)
-        else:
-            utils.LOG.warn("No test group report imported nor saved")
     except pymongo.errors.ConnectionFailure, ex:
         utils.LOG.exception(ex)
         utils.LOG.error("Error getting database connection")
         ERR_ADD(errors, 500, "Error connecting to the database")
 
-    return ret_code, ts_doc_id, errors
+    return ret_code, group_doc_id, errors

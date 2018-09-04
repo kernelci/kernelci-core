@@ -405,12 +405,47 @@ def import_multi_test_cases(
 
 # TODO: create a separate test_update.py document
 
+def update_test_group_add_sub_group_id(
+        group_id, group_name, sub_group_id, db_options):
+    """Add sub-group ID to the list in a parent test group and save it.
+
+    :param group_id: The ID of the test group.
+    :type case_id: bson.objectid.ObjectId
+    :param group_name: The name of the test group.
+    :type group_name: str
+    :param sub_group_id: The ID of the sub-group.
+    :type sub_group_id: bson.objectid.ObjectId
+    :param db_options: The database connection parameters.
+    :type db_options: dict
+    :return 200 if OK, 500 in case of errors; a dictionary with errors or an
+    empty one.
+    """
+
+    ret_val = 200
+    errors = {}
+
+    utils.LOG.info(
+        "Updating test group '{}' ({}) with sub-group ID {}".format(
+            group_name, str(group_id), sub_group_id))
+    database = utils.db.get_db_connection(db_options)
+
+    ret_val = utils.db.update(
+        database[models.TEST_GROUP_COLLECTION],
+        {models.ID_KEY: group_id},
+        {models.SUB_GROUPS_KEY: sub_group_id}, operation='$push')
+    if ret_val != 200:
+        ADD_ERR(
+            errors,
+            ret_val,
+            "Error updating test group '%s' with test group references" %
+            (str(group_id))
+        )
+    return ret_val, errors
+
+
 def update_test_group_add_test_case_id(
         case_id, group_id, group_name, db_options):
-    """Add the test case ID provided in a test group.
-
-    This task is linked from the test set post one: It add the
-    test case ID as a child of the test group.
+    """Add the test case ID to the list of a a test group and save it.
 
     :param case_id: The ID of the test case.
     :type case_id: bson.objectid.ObjectId

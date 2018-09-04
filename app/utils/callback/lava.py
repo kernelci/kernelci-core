@@ -390,9 +390,15 @@ def _parse_lava_test_data(test_case, test_meta):
         test_case[models.NAME_KEY] = "-".join(extra_name)
 
 
-def _get_test_case_data(suite_results, suite_name):
-    """Parse the test job meta-data from LAVA
+def _add_test_results(group, suite_results, suite_name):
+    """Add test results from test suite data to a group.
 
+    Import test results from a LAVA test suite into a group dictionary with the
+    list of test cases that are not in any test set.  Test sets are converted
+    into sub-groups with the test cases they contain.
+
+    :param group: Test group data.
+    :type group: dict
     :param suite_results: Results for the test suite from the callback.
     :type suite_results: dict
     :param suite_name: Name of the test suite being parsed.
@@ -400,6 +406,7 @@ def _get_test_case_data(suite_results, suite_name):
     """
     tests = yaml.load(suite_results, Loader=yaml.CLoader)
     test_cases = []
+    test_sets = {}
 
     for test in tests:
         test_case = {
@@ -410,16 +417,44 @@ def _get_test_case_data(suite_results, suite_name):
         test_meta = test["metadata"]
         if suite_name == "lava":
             _parse_lava_test_data(test_case, test_meta)
-        test_case["set"] = test_meta.get("set", "default")
+        test_set_name = test_meta.get("set")
+        if test_set_name:
+            test_case_list = test_sets.setdefault(test_set_name, [])
+        else:
+            test_case_list = test_cases
         measurement = test.get("measurement")
         if measurement and measurement != 'None':
             test_case[models.MEASUREMENTS_KEY] = [{
                 "value": float(measurement),
                 "unit": test["unit"],
             }]
-        test_cases.append(test_case)
+        test_case_list.append(test_case)
 
-    return test_cases
+    sub_groups = []
+    for test_set_name, test_set_cases in test_sets.iteritems():
+        sub_group = {
+            models.NAME_KEY: test_set_name,
+            models.TEST_CASES_KEY: test_set_cases,
+        }
+        sub_group.update({
+            k: group[k] for k in [
+                models.ARCHITECTURE_KEY,
+                models.BOARD_KEY,
+                models.DEFCONFIG_FULL_KEY,
+                models.DEFCONFIG_KEY,
+                models.GIT_BRANCH_KEY,
+                models.JOB_KEY,
+                models.KERNEL_KEY,
+                models.LAB_NAME_KEY,
+                models.TIME_KEY,
+            ]
+        })
+        sub_groups.append(sub_group)
+
+    group.update({
+        models.TEST_CASES_KEY: test_cases,
+        models.SUB_GROUPS_KEY: sub_groups,
+    })
 
 
 def add_tests(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
@@ -469,10 +504,9 @@ def add_tests(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
             _get_definition_meta(group, job_data, META_DATA_MAP_TEST)
             _get_lava_meta(group, job_data)
             _add_boot_log(group, job_data["log"], base_path, suite_name)
-            case_data = _get_test_case_data(suite_results, suite_name)
+            _add_test_results(group, suite_results, suite_name)
             ret_code, group_doc_id, err = \
-                utils.kci_test.import_and_save_kci_test(
-                    group, case_data, db_options)
+                utils.kci_test.import_and_save_kci_tests(group, db_options)
             utils.errors.update_errors(errors, err)
         except (yaml.YAMLError, ValueError) as ex:
             ret_code = 400
