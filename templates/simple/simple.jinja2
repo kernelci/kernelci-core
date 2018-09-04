@@ -13,12 +13,17 @@
           - functional
         run:
           steps:
+          - lava-test-case whoami --shell whoami
+          - lava-test-set start filesystem
           - lava-test-case df --shell df -h
           - lava-test-case mount --shell mount
           - lava-test-case ls --shell ls /
+          - lava-test-set stop
+          - lava-test-set start networking
           - lava-test-case udhcpc --shell udhcpc
           - lava-test-case ip --shell ip addr
           - lava-test-case ping --shell ping -c4 8.8.8.8
+          - lava-test-set stop
       from: inline
       name: simple
       path: inline/simple.yaml
