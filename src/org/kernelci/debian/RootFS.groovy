@@ -32,15 +32,13 @@ KCI_TOKEN_ID
 - Harcoded paths at jenkins/debian/... for Dockerfile and debos file
 */
 
-def call(Closure context) {
+package org.kernelci.debian
 
-    def config = [:]
-    context.resolveStrategy = Closure.DELEGATE_FIRST
-    context.delegate = config
-    context()
+
+def buildImage(config) {
 
     def name = config.name
-    def kernel_arch = config.archList
+    def kernel_arch = config.arch_list
     def debian_arch =  ["armhf": "armhf",
                         "armel": "armel",
                         "arm64": "arm64",
