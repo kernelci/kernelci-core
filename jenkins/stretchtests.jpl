@@ -6,6 +6,7 @@ def r = new RootFS()
 def config = ['name':"stretchtests",
               'arch_list':["armhf", "armel", "arm64", "i386", "amd64",
                            "mips", "mipsel", "mips64el"],
+              'debian_release':"stretch",
               'extra_packages':"libpciaccess0 libkmod2 libprocps6 libcairo2 \
                                 libssl1.1 libunwind8 libudev1 libglib2.0-0 \
                                 libdw1 liblzma5",
