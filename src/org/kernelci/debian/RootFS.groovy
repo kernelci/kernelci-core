@@ -38,15 +38,7 @@ package org.kernelci.debian
 def buildImage(config) {
 
     def name = config.name
-    def kernel_arch = config.arch_list
-    def debian_arch =  ["armhf": "armhf",
-                        "armel": "armel",
-                        "arm64": "arm64",
-                        "x86": "i386",
-                        "x86_64": "amd64",
-                        "mips": "mips",
-                        "mipsel": "mipsel",
-                        "mips64el": "mips64el"]
+    def archList = config.arch_list
 
     def debosFile = "jenkins/debian/debos/stretch.yaml"
     // Returns the pipeline version with the format YYYYMMMAA.X where X is the number of the build of the day
@@ -65,12 +57,11 @@ def buildImage(config) {
     }
 
     def stepsForParallel = [:]
-    for (int i = 0; i < kernel_arch.size(); i++) {
-        def arch = kernel_arch[i]
+    for (int i = 0; i < archList.size(); i++) {
+        def arch = archList[i]
         def buildStep = "Build image for ${arch}"
         stepsForParallel[buildStep] = makeImageStep(pipeline_version,
                                                     arch,
-                                                    debian_arch[arch],
                                                     debosFile,
                                                     extraPackages,
                                                     name,
@@ -81,7 +72,7 @@ def buildImage(config) {
 }
 
 
-def makeImageStep(String pipeline_version, String arch, String debian_arch, String debosFile, String extraPackages, String name, String script) {
+def makeImageStep(String pipeline_version, String arch, String debosFile, String extraPackages, String name, String script) {
     return {
         node('builder' && 'docker') {
             stage("Checkout") {
@@ -92,7 +83,7 @@ def makeImageStep(String pipeline_version, String arch, String debian_arch, Stri
                 stage("Build base image for ${arch}") {
                     sh """
                         mkdir -p ${pipeline_version}/${arch}
-                        debos -t architecture:${debian_arch} -t basename:${pipeline_version}/${arch} -t extra_packages:'${extraPackages}' -t script:${script} ${debosFile}
+                        debos -t architecture:${arch} -t basename:${pipeline_version}/${arch} -t extra_packages:'${extraPackages}' -t script:${script} ${debosFile}
                     """
                 archiveArtifacts artifacts: "${pipeline_version}/${arch}/initrd.cpio.gz", fingerprint: true
                 archiveArtifacts artifacts: "${pipeline_version}/${arch}/rootfs.cpio.gz", fingerprint: true
