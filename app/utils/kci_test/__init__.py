@@ -479,7 +479,7 @@ def _parse_test_suite_from_json(test_json, database, errors):
         ERR_ADD(errors, 400, err_msg)
         return None
 
-    arch = test_json.get(models.ARCHITECTURE_KEY, models.ARM_ARCHITECTURE_KEY)
+    arch = test_json.get(models.ARCHITECTURE_KEY)
 
     if arch not in models.VALID_ARCHITECTURES:
         err_msg = "Invalid architecture found: %s".format(arch)
