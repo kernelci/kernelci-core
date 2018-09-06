@@ -39,8 +39,9 @@ def buildImage(config) {
 
     def name = config.name
     def archList = config.arch_list
+    def debianRelease = config.debian_release
 
-    def debosFile = "jenkins/debian/debos/stretch.yaml"
+    def debosFile = "jenkins/debian/debos/rootfs.yaml"
     // Returns the pipeline version with the format YYYYMMMAA.X where X is the number of the build of the day
     def pipeline_version = VersionNumber(versionNumberString: '${BUILD_DATE_FORMATTED,"yyyyMMdd"}.${BUILDS_TODAY_Z}')
 
@@ -62,6 +63,7 @@ def buildImage(config) {
         def buildStep = "Build image for ${arch}"
         stepsForParallel[buildStep] = makeImageStep(pipeline_version,
                                                     arch,
+                                                    debianRelease,
                                                     debosFile,
                                                     extraPackages,
                                                     name,
@@ -72,7 +74,7 @@ def buildImage(config) {
 }
 
 
-def makeImageStep(String pipeline_version, String arch, String debosFile, String extraPackages, String name, String script) {
+def makeImageStep(String pipeline_version, String arch, String debianRelease, String debosFile, String extraPackages, String name, String script) {
     return {
         node('builder' && 'docker') {
             stage("Checkout") {
@@ -83,7 +85,7 @@ def makeImageStep(String pipeline_version, String arch, String debosFile, String
                 stage("Build base image for ${arch}") {
                     sh """
                         mkdir -p ${pipeline_version}/${arch}
-                        debos -t architecture:${arch} -t basename:${pipeline_version}/${arch} -t extra_packages:'${extraPackages}' -t script:${script} ${debosFile}
+                        debos -t architecture:${arch} -t suite:${debianRelease} -t basename:${pipeline_version}/${arch} -t extra_packages:'${extraPackages}' -t script:${script} ${debosFile}
                     """
                 archiveArtifacts artifacts: "${pipeline_version}/${arch}/initrd.cpio.gz", fingerprint: true
                 archiveArtifacts artifacts: "${pipeline_version}/${arch}/rootfs.cpio.gz", fingerprint: true

@@ -6,6 +6,7 @@ def r = new RootFS()
 def config = ['name':"stretch",
               'arch_list':["armhf", "armel", "arm64", "i386", "amd64",
                            "mips", "mipsel", "mips64el"],
+              'debian_release':"stretch",
               'extra_packages':"",
               'script':""]
 
