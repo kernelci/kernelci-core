@@ -45,10 +45,44 @@ TEST_REPORT_FIELDS = [
     models.NAME_KEY,
     models.STATUS_KEY,
     models.TEST_CASES_KEY,
+    models.SUB_GROUPS_KEY,
     models.TIME_KEY,
     models.VCS_COMMIT_KEY,
     models.VERSION_KEY,
 ]
+
+
+def _add_test_group_data(group, database):
+    test_cases = []
+    for test_case_id in group[models.TEST_CASES_KEY]:
+        test_case = utils.db.find_one2(
+           database[models.TEST_CASE_COLLECTION],
+           {"_id": test_case_id})
+        test_cases.append(test_case)
+
+    sub_groups = []
+    for sub_group_id in group[models.SUB_GROUPS_KEY]:
+        sub_group = utils.db.find_one2(
+            database[models.TEST_GROUP_COLLECTION],
+            {"_id": sub_group_id})
+        _add_test_group_data(sub_group, database)
+        sub_groups.append(sub_group)
+
+    total = {status: 0 for status in ["PASS", "FAIL", "SKIP"]}
+
+    for test_case in test_cases:
+        total[test_case["status"]] += 1
+
+    for sub_group_total in (sg["total"] for sg in sub_groups):
+        for status, count in sub_group_total.iteritems():
+            total[status] += count
+
+    group.update({
+        "test_cases": test_cases,
+        "sub_groups": sub_groups,
+        "total_tests": sum(total.values()),
+        "total": total,
+    })
 
 
 def create_test_report(data, email_format, db_options,
@@ -76,48 +110,35 @@ def create_test_report(data, email_format, db_options,
 
     specs = {x: data[x] for x in data.keys() if data[x]}
 
-    test_groups = utils.db.find(
+    test_group_docs = list(utils.db.find(
         database[models.TEST_GROUP_COLLECTION],
         100,
         0,
         spec=specs,
-        fields=TEST_REPORT_FIELDS)
+        fields=TEST_REPORT_FIELDS))
 
-    if not test_groups:
-        utils.LOG.warning("Failed to find test group document")
+    top_groups = []
+    sub_group_ids = []
+
+    for group in test_group_docs:
+        sub_group_ids.extend(group[models.SUB_GROUPS_KEY])
+
+    top_groups = []
+    for group in test_group_docs:
+        if group["_id"] not in sub_group_ids and group["name"] != "lava":
+            top_groups.append(group)
+
+    if not top_groups:
+        utils.LOG.warning("Failed to find test group documents")
         return None
 
-    test_groups = [d for d in test_groups.clone()]
+    for group in top_groups:
+        _add_test_group_data(group, database)
 
-    for tg in test_groups:
-        # tg is a dictionary, where we need to add a new field test_case_list
-        # test_case_list is a list of dictionary with every test case
-        testcase = tg['test_cases']
-        tg['test_case_list'] = []
-        for tc in testcase:
-            # tc is a _id from the testcase
-            test_case_doc = utils.db.find_one2(
-               database[models.TEST_CASE_COLLECTION],
-               {"_id": tc})
-            tg['test_case_list'].append(test_case_doc)
+    subject_str = "Test results for {}/{} - {}".format(job, branch, kernel)
 
-        resultlist = [test['status'] for test in tg['test_case_list']]
-        tg['total_tests'] = len(resultlist)
-        tg['total_pass'] = len([e for e in resultlist if e == "PASS"])
-        tg['total_fail'] = len([e for e in resultlist if e == "FAIL"])
-        tg['total_skip'] = len([e for e in resultlist if e == "SKIP"])
-
-    # Remove the entries named "lava" since they don't contain any result
-    # from the defined test plans
-    for item in list(test_groups):
-        if item['name'] == 'lava':
-            test_groups.remove(item)
-
-    subject_str = "Test results for {}/{} - {}".format(
-        job, branch, kernel)
-
-    git_url = test_groups[0][models.GIT_URL_KEY]
-    git_commit = test_groups[0][models.GIT_COMMIT_KEY]
+    git_url, git_commit = (top_groups[0][k] for k in [
+        models.GIT_URL_KEY, models.GIT_COMMIT_KEY])
 
     headers = {
         rcommon.X_REPORT: rcommon.TEST_REPORT_TYPE,
@@ -133,7 +154,7 @@ def create_test_report(data, email_format, db_options,
         "git_url": git_url,
         "kernel": kernel,
         "git_commit": git_commit,
-        "test_groups": test_groups,
+        "test_groups": top_groups,
     }
 
     if models.EMAIL_TXT_FORMAT_KEY in email_format:

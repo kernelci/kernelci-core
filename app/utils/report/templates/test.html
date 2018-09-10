@@ -37,12 +37,12 @@ pre {
         <tr><td>URL</td><td>{{ git_url }}</td></tr>
         <tr><td>Kernel</td><td>{{ kernel }}</td></tr>
         <tr><td>Git Commit</td><td>{{ git_commit }}</td></tr>
-      <table>
+      </table>
     </p>
 
     <h1>Summary</h1>
     <p>
-    {{ test_groups|length }} test groups results
+      {{ test_groups|length }} test groups results
       <table>
         <col width="120">
         <col width="220">
@@ -50,30 +50,39 @@ pre {
         <col width="100">
         <col width="100">
         <col width="100">
-        {% for t in test_groups|sort(attribute='name') %}
-          <tr><th>{{ t.name|e }}</th><td>{{ t.board }}</td><td>{{ t.total_tests }} tests</td><td> {{ t.total_pass }}  PASS</td><td>{{ t.total_fail }} FAIL </td><td>{{ t.total_skip }} SKIP</td></tr>
-        {% endfor %}
-      <table>
-    </p>
-
-
-      <h1>Tests</h1>
-      {% for t in test_groups|sort(attribute='name') %}
-      <h2>{{ t.name|e }}</h2>
-      <table>
-        <tr><td>Config</td><td>{{ t.defconfig_full }}</td></tr>
-        <tr><td>Lab Name</td><td>{{ t.lab_name }}</td></tr>
-        <tr><td>Board</td><td>{{ t.board }}</td></tr>
-        <tr><td>Date</td><td>{{ t.created_on }}</td></tr>
-        <tr><td>Test cases</td><td><strong>{{ t.total_tests }}</strong> total: <strong>{{ t.total_pass }}</strong> PASS, <strong>{{ t.total_fail }}</strong> FAIL, <strong>{{ t.total_skip }}</strong> SKIP</td></tr>
-      </table>
-      <blockquote>
-      <table>
-        {% for tc in t.test_case_list %}
-        <tr><td>{{ tc.name }}:</td><td>{{ tc.status }}</td></tr>
+        {% for t in test_groups|sort(attribute='name') -%}
+        <tr><th>{{ t.name|e }}</th><td>{{ t.board }}</td><td>{{ t.total_tests }} tests</td><td> {{ t.total["PASS"] }}  PASS</td><td>{{ t.total["FAIL"] }} FAIL </td><td>{{ t.total["SKIP"] }} SKIP</td></tr>
         {%- endfor %}
       </table>
-      </blockquote>
+    </p>
+
+    <h1>Tests</h1>
+    {% for t in test_groups|sort(attribute='name') %}
+    <h2>{{ t.name|e }}</h2>
+    <table>
+      <tr><td>Config</td><td>{{ t.defconfig_full }}</td></tr>
+      <tr><td>Lab Name</td><td>{{ t.lab_name }}</td></tr>
+      <tr><td>Board</td><td>{{ t.board }}</td></tr>
+      <tr><td>Date</td><td>{{ t.created_on }}</td></tr>
+    </table>
+    {% if t.test_cases -%}
+    <p>Test cases ({{ t.total_tests}}): </td><td><strong>{{ t.total["PASS"] }}</strong> PASS, <strong>{{ t.total["FAIL"] }}</strong> FAIL, <strong>{{ t.total["SKIP"] }}</strong> SKIP</p>
+    <table>
+      {% for tc in t.test_cases -%}
+      <tr><td>{{ tc.name }}</td><td>{{ tc.status }}</td></tr>
       {%- endfor %}
+    </table>
+    {% endif -%}
+    {% if t.sub_groups -%}
+    {% for sg in t.sub_groups -%}
+    <p>{{ sg.name }} ({{ sg.total_tests }}): </td><td><strong>{{ sg.total["PASS"] }}</strong> PASS, <strong>{{ sg.total["FAIL"] }}</strong> FAIL, <strong>{{ sg.total["SKIP"] }}</strong> SKIP</p>
+    <table>
+      {% for tc in sg.test_cases -%}
+      <tr><td>{{ tc.name }}</td><td>{{ tc.status }}</tr>
+      {%- endfor %}
+    </table>
+    {%- endfor %}
+    {% endif -%}
+    {% endfor -%}
   </body>
 </html>

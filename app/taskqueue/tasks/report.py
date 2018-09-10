@@ -199,9 +199,13 @@ def send_test_report(job, git_branch, kernel, report_data, email_opts):
 
     db_options = taskc.app.conf.get("db_options", {})
 
-    txt_body, html_body, subject, headers = \
-        utils.report.test.create_test_report(
-            report_data, email_opts["format"], db_options)
+    test_report = utils.report.test.create_test_report(
+        report_data, email_opts["format"], db_options)
+
+    if test_report is None:
+        return 500
+
+    txt_body, html_body, subject, headers = test_report
 
     status, errors = utils.emails.send_email(
         subject, txt_body, html_body, email_opts,

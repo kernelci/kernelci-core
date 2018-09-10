@@ -10,22 +10,32 @@ Summary
 -------
 {{ test_groups|length }} test groups results
 {% for t in test_groups|sort(attribute='name') %}
-{{ "%-10s | %-22s | %3s total: %3s PASS %3s FAIL %3s SKIP"|format(t.name, t.board, t.total_tests, t.total_pass, t.total_fail, t.total_skip) }}
+{{ "%-10s | %-22s | %3s total: %3s PASS %3s FAIL %3s SKIP"|format(t.name, t.board, t.total_tests, t.total["PASS"], t.total["FAIL"], t.total["SKIP"]) }}
 {%- endfor %}
 
 
 Tests
 -----
 {% for t in test_groups|sort(attribute='name') %}
-{{ t.name|e }} - {{ t.total_tests }} tests: {{ t.total_pass }}  PASS, {{ t.total_fail }} FAIL, {{ t.total_skip }} SKIP
+{{ t.name|e }} - {{ t.total_tests }} tests: {{ t.total["PASS"] }}  PASS, {{ t.total["FAIL"] }} FAIL, {{ t.total["SKIP"] }} SKIP
 
   Config:      {{ t.defconfig_full }}
   Lab Name:    {{ t.lab_name }}
   Board:       {{ t.board }}
   Date:        {{ t.created_on }}
-{# leave an empty space #}
+{% if t.test_cases %}
   Test cases:
-{% for tc in t.test_case_list %}
-    * {{ tc.name }} : {{ tc.status }}
+{% for tc in t.test_cases %}
+    * {{ tc.name }}: {{ tc.status }}
 {%- endfor %}
+{%- endif %}
+{% if t.sub_groups %}
+{%- for sg in t.sub_groups %}
+  {{ sg.name }} - {{ sg.total_tests }} tests: {{ sg.total["PASS"] }}  PASS, {{ sg.total["FAIL"] }} FAIL, {{ sg.total["SKIP"] }} SKIP
+{% for tc in sg.test_cases %}
+    * {{ tc.name }}: {{ tc.status }}
+{%- endfor %}
+{% endfor %}
+{%- endif %}
+
 {% endfor %}
