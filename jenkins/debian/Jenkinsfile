@@ -1,0 +1,11 @@
+@Library('kernelci') _
+
+buildImage {
+
+    name = 'stretch'
+    archList = ["armhf", "armel", "arm64", "x86", "x86_64"]
+
+    //Extra packages to be installed in the image
+    //extra_packages = ""
+
+}
