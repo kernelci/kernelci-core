@@ -54,16 +54,14 @@ test_plan_default_filters:
         - ['arm64', 'defconfig']
         - ['x86', 'x86_64_defconfig']
 
-  - blacklist: &kselftest_defconfig_filter
-      defconfig: ['kselftest']
-
 
 test_plans:
 
   boot:
     rootfs: buildroot_ramdisk
     filters:
-      - blacklist: *kselftest_defconfig_filter
+      - blacklist: &kselftest_defconfig_filter
+          defconfig: ['kselftest']
 
   boot_nfs:
     name: 'boot-nfs'
