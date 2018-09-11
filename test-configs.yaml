@@ -37,7 +37,7 @@ file_systems:
     ramdisk: '{arch}/rootfs.cpio.gz'
 
   debian_stretchtests_ramdisk:
-    type: debian_stretch
+    type: debian_stretchtests
     ramdisk: '{arch}/rootfs.cpio.gz'
 
 
