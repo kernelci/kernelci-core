@@ -1,3 +1,7 @@
+# See the KernelCI wiki page regarding the format of this file:
+# https://github.com/kernelci/kernelci-doc/wiki/Test-configurations
+
+
 file_system_types:
 
   buildroot:
