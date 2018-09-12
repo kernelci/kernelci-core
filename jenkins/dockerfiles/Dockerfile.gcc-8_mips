@@ -1,0 +1,13 @@
+FROM debian:buster
+MAINTAINER "Matt Hart" <matt@mattface.org>
+
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install bc bsdmainutils make bison flex ccache wget libelf-dev tar python2.7 python-requests python-pyelftools libssl-dev lzop u-boot-tools kmod
+
+RUN apt-get -y install gcc-8-mips-linux-gnu
+RUN update-alternatives --install /usr/bin/mips-linux-gnu-gcc mips-linux-gnu-gcc /usr/bin/mips-linux-gnu-gcc-8 500
+RUN update-alternatives --install /usr/bin/mips-linux-gnu-ar mips-linux-gnu-ar /usr/bin/mips-linux-gnu-gcc-ar-8 500
+RUN update-alternatives --install /usr/bin/mips-linux-gnu-nm mips-linux-gnu-nm /usr/bin/mips-linux-gnu-gcc-nm-8 500
+RUN update-alternatives --install /usr/bin/mips-linux-gnu-ranlib mips-linux-gnu-ranlib /usr/bin/mips-linux-gnu-gcc-ranlib-8 500
+RUN update-alternatives --install /usr/bin/mips-linux-gnu-gcov mips-linux-gnu-gcov /usr/bin/mips-linux-gnu-gcov-8 500
+RUN update-alternatives --install /usr/bin/mips-linux-gnu-gcov-dump mips-linux-gnu-gcov-dump /usr/bin/mips-linux-gnu-gcov-dump-8 500
+RUN update-alternatives --install /usr/bin/mips-linux-gnu-gcov-tool mips-linux-gnu-gcov-tool /usr/bin/mips-linux-gnu-gcov-tool-8 500

@@ -1,0 +1,7 @@
+FROM debian:buster
+MAINTAINER "Matt Hart" <matt@mattface.org>
+
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install bc bsdmainutils make bison flex ccache wget libelf-dev tar python2.7 python-requests python-pyelftools libssl-dev lzop kmod
+
+RUN apt-get -y install gcc-7
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 500
