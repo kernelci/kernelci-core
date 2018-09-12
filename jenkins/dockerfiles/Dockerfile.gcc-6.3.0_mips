@@ -1,0 +1,9 @@
+FROM debian:stretch
+MAINTAINER "Matt Hart" <matt@mattface.org>
+
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install bc bsdmainutils make bison flex ccache wget libelf-dev tar python2.7 python-requests python-pyelftools libssl-dev lzop u-boot-tools kmod
+
+RUN wget -O /usr/gcc-6.3.0-mips-linux.tar.bz2 https://storage.kernelci.org/images/toolchain/gcc-6.3.0-mips-linux.tar.bz2
+RUN tar -C /usr -a --strip-components=1 -jxvf /usr/gcc-6.3.0-mips-linux.tar.bz2
+RUN rm /usr/gcc-6.3.0-mips-linux.tar.bz2
+RUN apt-get install libmpfr4 libisl15

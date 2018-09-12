@@ -93,6 +93,7 @@ def do_post_retry(url=None, data=None, headers=None, files=None):
             time.sleep(10)
 
 def do_make(target=None, log=False):
+    os.environ['KBUILD_BUILD_USER'] = 'KernelCI'
     make_args = ''
     make_args += "-j%d -k " %make_threads
     if silent:

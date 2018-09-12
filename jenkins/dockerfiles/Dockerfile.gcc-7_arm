@@ -1,0 +1,13 @@
+FROM debian:buster
+MAINTAINER "Matt Hart" <matt@mattface.org>
+
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install bc bsdmainutils make bison flex ccache wget libelf-dev tar python2.7 python-requests python-pyelftools libssl-dev lzop u-boot-tools kmod
+
+RUN apt-get -y install gcc-7-arm-linux-gnueabihf
+RUN update-alternatives --install /usr/bin/arm-linux-gnueabihf-gcc arm-linux-gnueabihf-gcc /usr/bin/arm-linux-gnueabihf-gcc-7 500
+RUN update-alternatives --install /usr/bin/arm-linux-gnueabihf-ar arm-linux-gnueabihf-ar /usr/bin/arm-linux-gnueabihf-gcc-ar-7 500
+RUN update-alternatives --install /usr/bin/arm-linux-gnueabihf-nm arm-linux-gnueabihf-nm /usr/bin/arm-linux-gnueabihf-gcc-nm-7 500
+RUN update-alternatives --install /usr/bin/arm-linux-gnueabihf-ranlib arm-linux-gnueabihf-ranlib /usr/bin/arm-linux-gnueabihf-gcc-ranlib-7 500
+RUN update-alternatives --install /usr/bin/arm-linux-gnueabihf-gcov arm-linux-gnueabihf-gcov /usr/bin/arm-linux-gnueabihf-gcov-7 500
+RUN update-alternatives --install /usr/bin/arm-linux-gnueabihf-gcov-dump arm-linux-gnueabihf-gcov-dump /usr/bin/arm-linux-gnueabihf-gcov-dump-7 500
+RUN update-alternatives --install /usr/bin/arm-linux-gnueabihf-gcov-tool arm-linux-gnueabihf-gcov-tool /usr/bin/arm-linux-gnueabihf-gcov-tool-7 500
