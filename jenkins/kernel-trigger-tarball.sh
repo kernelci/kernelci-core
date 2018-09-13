@@ -80,7 +80,7 @@ fi
 
 echo "Looking for new commits in ${tree_url} (${tree_name}/${branch})"
 
-./kernelci-build/wget_retry.sh ${STORAGE}/${tree_name}/${branch}/last.commit
+./kernelci-core/wget_retry.sh ${STORAGE}/${tree_name}/${branch}/last.commit
 if [ $? != 0 ] || [ ! -e last.commit ]
 then
     echo "Failed to fetch the last.commit file, not triggering."
@@ -160,7 +160,7 @@ echo $COMMIT_ID > last.commit
 curl --output /dev/null --silent --head --fail ${STORAGE}/${tree_name}/${branch}/${GIT_DESCRIBE}/linux-src.tar.gz
 if [ $? == 0 ]; then
     echo "This git describe was already triggered"
-    ./kernelci-build/push-source.py --tree ${tree_name} --branch ${branch} --api ${API} --token ${API_TOKEN} --file last.commit
+    ./kernelci-core/push-source.py --tree ${tree_name} --branch ${branch} --api ${API} --token ${API_TOKEN} --file last.commit
     if [ $? != 0 ]; then
       echo "Error pushing last commit update to API, not updating current commit"
       rm last.commit
@@ -175,7 +175,7 @@ if [ $? != 0 ]; then
   exit 1
 fi
 
-./kernelci-build/push-source.py --tree ${tree_name} --branch ${branch} --describe ${GIT_DESCRIBE} --api ${API} --token ${API_TOKEN} --file linux-src.tar.gz
+./kernelci-core/push-source.py --tree ${tree_name} --branch ${branch} --describe ${GIT_DESCRIBE} --api ${API} --token ${API_TOKEN} --file linux-src.tar.gz
 if [ $? != 0 ]; then
   echo "Error pushing source file to API"
   rm linux-src.tar.gz
@@ -183,7 +183,7 @@ if [ $? != 0 ]; then
 fi
 
 
-./kernelci-build/push-source.py --tree ${tree_name} --branch ${branch} --api ${API} --token ${API_TOKEN} --file last.commit
+./kernelci-core/push-source.py --tree ${tree_name} --branch ${branch} --api ${API} --token ${API_TOKEN} --file last.commit
 if [ $? != 0 ]; then
   echo "Error pushing last commit update to API, not updating current commit"
   rm linux-src.tar.gz
