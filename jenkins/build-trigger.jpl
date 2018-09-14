@@ -46,10 +46,10 @@ KCI_API_URL (https://api.kernelci.org)
   URL of the KernelCI backend API
 KCI_TOKEN_ID
   Identifier of the KernelCI backend API token stored in Jenkins
-KCI_BUILD_URL (https://github.com/kernelci/kernelci-build.git)
-  URL of the kernelci-build repository
-KCI_BUILD_BRANCH (master)
-  Name of the branch to use in the kernelci-build repository
+KCI_CORE_URL (https://github.com/kernelci/kernelci-core.git)
+  URL of the kernelci-core repository
+KCI_CORE_BRANCH (master)
+  Name of the branch to use in the kernelci-core repository
 
 */
 
@@ -223,15 +223,15 @@ node("defconfig-creator") {
     Archs:     ${archs.size()}""")
 
     def k = new Kernel()
-    def kci_build = env.WORKSPACE + '/kernelci-build'
+    def kci_core = env.WORKSPACE + '/kernelci-core'
     def kdir = env.WORKSPACE + '/linux'
 
     stage("Init") {
         timeout(time: 30, unit: 'MINUTES') {
             parallel(
-                clone: { k.cloneKCIBuild(kci_build,
-                                      params.KCI_BUILD_URL,
-                                      params.KCI_BUILD_BRANCH) },
+                clone: { k.cloneKCIBuild(kci_core,
+                                      params.KCI_CORE_URL,
+                                      params.KCI_CORE_BRANCH) },
                 download: { k.downloadTarball(kdir, params.SRC_TARBALL) },
             )
         }
