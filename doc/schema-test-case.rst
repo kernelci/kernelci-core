@@ -5,10 +5,10 @@ test_case
 
 A test case is the single unit of test that gets executed. Each test must have
 its own ``name`` defined and must be associated with a
-:ref:`test suite <schema_test_suite>`.
+:ref:`test group <schema_test_group>`.
 
 A test case can be associated with only one
-:ref:`test suite <schema_test_suite>`. A test case can also register
+:ref:`test group <schema_test_group>`. A test case can also register
 multiple :ref:`measurements <schema_measurement>`.
 
 A test case ``name`` must start and end with an alphanumeric character, and it
@@ -38,7 +38,7 @@ Notes
 More Info
 *********
 
-* :ref:`Test suite schema <schema_test_suite>`
+* :ref:`Test group schema <schema_test_group>`
 * :ref:`Attachment schema <schema_attachment>`
 * :ref:`Measurement schema <schema_measurement>`
 * :ref:`File upload API <collection_upload>`

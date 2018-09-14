@@ -1,8 +1,8 @@
 {
-    "$schema": "http://api.kernelci.org/json-schema/1.0/post_test_suite.json",
-    "id": "http://api.kernelci.org/json-schema/1.0/post_test_suite.json",
-    "title": "test_suite",
-    "description": "A test suite JSON object",
+    "$schema": "http://api.kernelci.org/json-schema/1.0/post_test_group.json",
+    "id": "http://api.kernelci.org/json-schema/1.0/post_test_group.json",
+    "title": "test_group",
+    "description": "A test group JSON object",
     "type": "object",
     "properties": {
         "version": {
@@ -12,15 +12,15 @@
         },
         "name": {
             "type": "string",
-            "description": "The name given to this test suite"
+            "description": "The name given to this test group"
         },
         "lab_name": {
             "type": "string",
-            "description": "The name of the lab executing this test suite"
+            "description": "The name of the lab executing this test group"
         },
         "time": {
             "type": "number",
-            "description": "The number of seconds it took to execute the entire test suite",
+            "description": "The number of seconds it took to execute the entire test group",
             "default": -1
         },
         "job": {
@@ -60,29 +60,35 @@
         },
         "job_id": {
             "type": "string",
-            "description": "The ID of the job that this test suite is being run on"
+            "description": "The ID of the job that this test group is being run on"
         },
         "build_id": {
             "type": "string",
-            "description": "The ID of the build that this test suite is being run on"
+            "description": "The ID of the build that this test group is being run on"
         },
         "boot_id": {
             "type": "string",
-            "description": "The ID of the boot test that this test suite is being run on"
+            "description": "The ID of the boot test that this test group is being run on"
         },
         "metadata": {
             "type": "object",
-            "description": "Free form object where to store accessory test suite data"
+            "description": "Free form object where to store accessory test group data"
         },
-        "test_case": {
+        "test_cases": {
             "type": "array",
-            "description": "The list of test case objects executed by this test suite",
+            "description": "The list of test case objects executed by this test group",
             "items": {"$ref": "http://api.kernelci.org/json-schema/1.0/test_case_get.json"},
+            "additionalItems": true
+        },
+        "sub_groups": {
+            "type": "array",
+            "description": "The list of sub-group objects included in this group",
+            "items": {"$ref": "http://api.kernelci.org/json-schema/1.0/test_group_get.json"},
             "additionalItems": true
         },
         "definition_uri": {
             "type": "string",
-            "description": "The URI where this test suite definition is stored"
+            "description": "The URI where this test group definition is stored"
         },
         "vcs_commit": {
             "type": "string",

@@ -10,7 +10,7 @@ The ``test`` resource is a collection of multiple resources.
 .. toctree::
    :maxdepth: 2
 
-   collection-test-suite
+   collection-test-group
    collection-test-case
 
 How to Use the Test Resources
@@ -23,19 +23,19 @@ The following are just ideas on how to implement the data flow between the tests
 runner and the API. They all have pros and cons.
 
 .. note::
-    If you send (POST) multiple times the same request to register a test suite
-    with the same values, multiple test suites will be registered. To update a test
-    suite perform a PUT request. The same principle applies to the other test
+    If you send (POST) multiple times the same request to register a test group
+    with the same values, multiple test groups will be registered. To update a test
+    group perform a PUT request. The same principle applies to the other test
     resources.
 
 Register Test Cases One at the Time
 ***********************************
 
-In the following example, the user first registers the test suite obtaining its
-``test_suite_id``.
+In the following example, the user first registers the test group obtaining its
+``test_group_id``.
 
 She then runs all her test cases, and as soon as the first result comes back,
-she registers the test case using the ``test_suite_id`` value. The last step is
+she registers the test case using the ``test_group_id`` value. The last step is
 repeated for all the **N** test cases she runs.
 
 .. image:: images/test-user-case0.svg
@@ -44,19 +44,19 @@ repeated for all the **N** test cases she runs.
     :width: 600px
 
 The following are examples of the JSON data snippet that might be used in this
-scenario. The order is: test suite data, test case data (for each test cases):
+scenario. The order is: test group data, test case data (for each test cases):
 
 .. sourcecode:: json
 
     {
-        "name": "A test suite"
+        "name": "A test group"
     }
 
 .. sourcecode:: json
 
     {
         "name": "A test case 1…N",
-        "test_suite_id": "a-test-suite-id",
+        "test_group_id": "a-test-group-id",
     }
 
 
@@ -74,9 +74,9 @@ Cons
 ~~~~
 
 * Necessary to perform an HTTP POST request for each step: one for the test
-  suite and one for each test case.
+  group and one for each test case.
 
-Register Test Suite and Cases Together
+Register Test Group and Cases Together
 **************************************
 
 In the following example, the user registers everything with a single request
@@ -96,17 +96,17 @@ scenario:
 .. sourcecode:: json
 
     {
-        "name": "A test suite"
-        "test_case": [
+        "name": "A test group"
+        "test_cases": [
             {
                 "name": "A test case 1…N"
             }
         ]
     }
 
-Note that even if the ``test_suite_id`` field is mandatory for test cases, as specified
+Note that even if the ``test_group_id`` field is mandatory for test cases, as specified
 in their JSON schema, in this case it is not necessary:
-it will be injected into the provided data after the test suite has been saved.
+it will be injected into the provided data after the test group has been saved.
 
 Pros
 ~~~~
@@ -119,5 +119,3 @@ Cons
 
 * The data sent might be big, depending on the number of test cases.
 * Necessary to perform an extra HTTP GET request to obtain all the test references.
-
-

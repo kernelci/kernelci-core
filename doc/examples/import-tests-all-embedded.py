@@ -19,11 +19,11 @@ def main():
         "Content-Type": "application/json"
     }
 
-    test_suite = {
-        "name": "A test suite",
+    test_group = {
+        "name": "A test group",
         "build_id": "123456789012345678901234",
         "lab_name": "lab-test-00",
-        "test_case": [
+        "test_cases": [
             {
                 "name": "A test case - 0"
             },
@@ -33,8 +33,8 @@ def main():
         ]
     }
 
-    url = urljoin(BACKEND_URL, "/test/suite")
-    response = requests.post(url, data=json.dumps(test_suite), headers=headers)
+    url = urljoin(BACKEND_URL, "/test/group")
+    response = requests.post(url, data=json.dumps(test_group), headers=headers)
 
     print response.content
 

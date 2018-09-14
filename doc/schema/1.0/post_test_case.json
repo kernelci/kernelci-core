@@ -14,9 +14,9 @@
             "type": "string",
             "description": "The name given to this test case"
         },
-        "test_suite_id": {
+        "test_group_id": {
             "type": "string",
-            "description": "The test suite ID associated with this test case"
+            "description": "The test group ID associated with this test case"
         },
         "measurements": {
             "type": "array",
@@ -82,5 +82,5 @@
             "description": "Free form object where to store accessory test case data"
         }
     },
-    "required": ["name", "test_suite_id"]
+    "required": ["name", "test_group_id"]
 }

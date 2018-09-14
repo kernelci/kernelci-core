@@ -19,22 +19,22 @@ def main():
         "Content-Type": "application/json"
     }
 
-    test_suite = {
-        "name": "A test suite",
+    test_group = {
+        "name": "A test group",
         "build_id": "123456789012345678901234",
         "lab_name": "lab-test-00"
     }
 
-    url = urljoin(BACKEND_URL, "/test/suite")
-    response = requests.post(url, data=json.dumps(test_suite), headers=headers)
+    url = urljoin(BACKEND_URL, "/test/group")
+    response = requests.post(url, data=json.dumps(test_group), headers=headers)
 
     if response.status_code == 201:
-        test_suite_result = response.json()["result"][0]
-        test_suite_id = test_suite_result["_id"]["$oid"]
+        test_group_result = response.json()["result"][0]
+        test_group_id = test_group_result["_id"]["$oid"]
 
         test_case = {
             "name": "A test case",
-            "test_suite_id": test_suite_id
+            "test_group_id": test_group_id
         }
 
 

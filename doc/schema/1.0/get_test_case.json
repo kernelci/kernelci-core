@@ -35,9 +35,9 @@
                 }
             }
         },
-        "test_suite_id": {
+        "test_group_id": {
             "type": "string",
-            "description": "The test suite ID associated with this test case"
+            "description": "The test group ID associated with this test case"
         },
         "parameters": {
             "type": "object",
