@@ -1,0 +1,7 @@
+{% extends 'boot/generic-qemu-boot-template.jinja2' %}
+{% block actions %}
+{{ super () }}
+
+{% include 'simple/simple.jinja2' %}
+
+{% endblock %}
