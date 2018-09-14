@@ -104,6 +104,11 @@ test_plans:
   simple:
     rootfs: buildroot_ramdisk
 
+  simple_qemu:
+    name: simple
+    rootfs: buildroot_ramdisk
+    pattern: 'simple/generic-qemu-simple-template.jinja2'
+
   sleep:
     rootfs: debian_stretch_ramdisk
 
@@ -930,13 +935,13 @@ test_configs:
     test_plans: [boot, kselftest, sleep, usb, cros_ec]
 
   - device_type: qemu_arm
-    test_plans: [boot_qemu]
+    test_plans: [boot_qemu, simple_qemu]
 
   - device_type: qemu_arm64
-    test_plans: [boot_qemu]
+    test_plans: [boot_qemu, simple_qemu]
 
   - device_type: qemu_x86_64
-    test_plans: [boot_qemu]
+    test_plans: [boot_qemu, simple_qemu]
 
   - device_type: r8a7791_porter
     test_plans: [boot]
