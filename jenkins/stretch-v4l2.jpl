@@ -1,0 +1,14 @@
+@Library('kernelci') _
+import org.kernelci.debian.RootFS
+
+def r = new RootFS()
+
+def config = ['name':"stretch-v4l2",
+              'arch_list':["armhf", "arm64", "amd64"],
+              'debian_release':"stretch",
+              'extra_packages':"",
+              'script':"scripts/stretch-v4l2.sh",
+              'test_overlay': "overlays/tests",
+             ]
+
+r.buildImage(config)
