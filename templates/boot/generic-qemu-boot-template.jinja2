@@ -33,7 +33,9 @@ actions:
     os: oe
     images:
       kernel:
+{%- block image_arg %}
         image_arg: '-kernel {kernel} -append "console={{ console_dev }},115200 root=/dev/ram0 debug verbose"'
+{%- endblock %}
         url: {{ kernel_url }}
       ramdisk:
         image_arg: '-initrd {ramdisk}'
