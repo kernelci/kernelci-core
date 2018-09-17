@@ -92,6 +92,8 @@ ${kci_core}/build.py \
 }
 
 node("builder") {
+    def docker_image = "${params.DOCKERBASE}${params.COMPILER}_${params.ARCH}"
+
     echo("""\
     Tree:      ${params.TREE_NAME}
     URL:       ${params.TREE}
@@ -101,7 +103,7 @@ node("builder") {
     Revision:  ${params.COMMIT_ID}
     Config:    ${params.DEFCONFIG}
     Compiler:  ${params.COMPILER}
-    Dockerbase: ${params.DOCKERBASE}""")
+    Container: ${docker_image}""")
 
     def k = new Kernel()
     def kci_core = env.WORKSPACE + '/kernelci-core'
@@ -118,16 +120,6 @@ node("builder") {
         }
     }
 
-    stage("Delay") {
-        if (env.DELAY) {
-            echo "Builder has DELAY env set, sleeping for random seconds up to: " + env.DELAY
-            Random rand = new Random()
-            rdelay = rand.nextInt(env.DELAY.toInteger() + 1)
-            sleep(time: rdelay, unit: 'SECONDS')
-        }
-    }
-
-    def docker_image = "${params.DOCKERBASE}${params.COMPILER}_${params.ARCH}"
     docker.image(docker_image).pull()
     docker.image(docker_image).inside {
         stage("Build") {
