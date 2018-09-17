@@ -91,7 +91,7 @@ ${kci_core}/build.py \
     }
 }
 
-node("builder") {
+node("docker-builder") {
     def docker_image = "${params.DOCKERBASE}${params.COMPILER}_${params.ARCH}"
 
     echo("""\
