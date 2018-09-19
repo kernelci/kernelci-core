@@ -80,7 +80,7 @@ def addExtraIfExists(extra, kdir, path) {
         extra.add(path)
 }
 
-def addExtraConfigs(configs, kdir, arch, tree) {
+def addExtraConfigs(configs, kdir, arch) {
     def configs_dir = "${kdir}/arch/${arch}/configs"
     def base_defconfig = "defconfig"
     def extra = []
@@ -122,7 +122,7 @@ def addExtraConfigs(configs, kdir, arch, tree) {
     for (String frag: ["debug", "kselftest"])
         addExtraIfExists(extra, kdir, "kernel/configs/${frag}.config")
 
-    if (tree == "lsk" || tree == "anders") {
+    if (params.TREE_NAME == "lsk" || params.TREE_NAME == "anders") {
         def frags = "linaro/configs/kvm-guest.conf"
 
         /* For -rt kernels, build with RT fragment */
@@ -252,8 +252,8 @@ node("defconfig-creator") {
 
             addDefconfigs(configs, kdir, arch)
 
-            if (params.TREE != "stable" && params.TREE != "stable-rc")
-                addExtraConfigs(configs, kdir, arch, params.TREE)
+            if (params.TREE_NAME != "stable" && params.TREE_NAME != "stable-rc")
+                addExtraConfigs(configs, kdir, arch)
 
             for (String config: configs)
                 arch_configs.add([arch, config])
