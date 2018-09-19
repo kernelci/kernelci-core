@@ -61,7 +61,6 @@ PARALLEL_BUILDS
 @Library('kernelci') _
 import org.kernelci.build.Kernel
 import org.kernelci.util.Job
-import java.util.Random
 
 def buildConfig(config, kdir, kci_core) {
     def defconfig = sh(script: "echo ${config} | sed 's/\\+/ \\-c /g'",
