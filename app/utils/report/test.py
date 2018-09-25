@@ -26,6 +26,8 @@ TEST_REPORT_FIELDS = [
     models.BOARD_INSTANCE_KEY,
     models.BOARD_KEY,
     models.BOOT_ID_KEY,
+    models.BOOT_LOG_HTML_KEY,
+    models.BOOT_LOG_KEY,
     models.BUILD_ID_KEY,
     models.CREATED_KEY,
     models.DEFCONFIG_FULL_KEY,
@@ -154,6 +156,9 @@ def create_test_report(data, email_format, db_options,
         "git_url": git_url,
         "kernel": kernel,
         "git_commit": git_commit,
+        "boot_log": models.BOOT_LOG_KEY,
+        "boot_log_html": models.BOOT_LOG_HTML_KEY,
+        "storage_url": rcommon.DEFAULT_STORAGE_URL,
         "test_groups": top_groups,
     }
 

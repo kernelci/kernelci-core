@@ -65,6 +65,8 @@ pre {
       <tr><td>Config</td><td>{{ t.defconfig_full }}</td></tr>
       <tr><td>Lab Name</td><td>{{ t.lab_name }}</td></tr>
       <tr><td>Date</td><td>{{ t.created_on }}</td></tr>
+      <tr><td><a href="{{ storage_url }}/{{ t.job }}/{{ t.git_branch }}/{{ t.kernel }}/{{ t.arch }}/{{ t.defconfig_full }}/{{ t.lab_name }}/{{ t.boot_log }}">Link to TXT log</a></td><td></td></tr>
+      <tr><td><a href="{{ storage_url }}/{{ t.job }}/{{ t.git_branch }}/{{ t.kernel }}/{{ t.arch }}/{{ t.defconfig_full }}/{{ t.lab_name }}/{{ t.boot_log_html }}">Link to HTML log</a></td><td></td></tr>
     </table>
     {% if t.test_cases -%}
     <p>Test cases ({{ t.total_tests}}): </td><td><strong>{{ t.total["PASS"] }}</strong> PASS, <strong>{{ t.total["FAIL"] }}</strong> FAIL, <strong>{{ t.total["SKIP"] }}</strong> SKIP</p>
