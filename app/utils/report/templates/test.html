@@ -44,6 +44,7 @@ pre {
     <p>
       {{ test_groups|length }} test groups results
       <table>
+        <col width="40">
         <col width="120">
         <col width="220">
         <col width="100">
@@ -52,14 +53,14 @@ pre {
         <col width="100">
         <col width="100">
         {% for t in test_groups|sort(attribute='name') -%}
-        <tr><th>{{ t.name|e }}</th><td>{{ t.board }}</td><td>{{ t.arch }}</td><td>{{ t.total_tests }} tests</td><td> {{ t.total["PASS"] }}  PASS</td><td>{{ t.total["FAIL"] }} FAIL </td><td>{{ t.total["SKIP"] }} SKIP</td></tr>
+        <tr><th>{{ loop.index }}</th><th>{{ t.name|e }}</th><td>{{ t.board }}</td><td>{{ t.arch }}</td><td>{{ t.total_tests }} tests</td><td> {{ t.total["PASS"] }}  PASS</td><td>{{ t.total["FAIL"] }} FAIL </td><td>{{ t.total["SKIP"] }} SKIP</td></tr>
         {%- endfor %}
       </table>
     </p>
 
     <h1>Tests</h1>
     {% for t in test_groups|sort(attribute='name') %}
-    <h2>{{ t.name|e }}</h2>
+    <h2>{{ loop.index }} | {{ t.name|e }}</h2>
     <table>
       <tr><td>Config</td><td>{{ t.defconfig_full }}</td></tr>
       <tr><td>Lab Name</td><td>{{ t.lab_name }}</td></tr>
