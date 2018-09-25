@@ -50,8 +50,9 @@ pre {
         <col width="100">
         <col width="100">
         <col width="100">
+        <col width="100">
         {% for t in test_groups|sort(attribute='name') -%}
-        <tr><th>{{ t.name|e }}</th><td>{{ t.board }}</td><td>{{ t.total_tests }} tests</td><td> {{ t.total["PASS"] }}  PASS</td><td>{{ t.total["FAIL"] }} FAIL </td><td>{{ t.total["SKIP"] }} SKIP</td></tr>
+        <tr><th>{{ t.name|e }}</th><td>{{ t.board }}</td><td>{{ t.arch }}</td><td>{{ t.total_tests }} tests</td><td> {{ t.total["PASS"] }}  PASS</td><td>{{ t.total["FAIL"] }} FAIL </td><td>{{ t.total["SKIP"] }} SKIP</td></tr>
         {%- endfor %}
       </table>
     </p>
