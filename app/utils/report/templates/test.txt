@@ -21,7 +21,6 @@ Tests
 
   Config:      {{ t.defconfig_full }}
   Lab Name:    {{ t.lab_name }}
-  Board:       {{ t.board }}
   Date:        {{ t.created_on }}
 {% if t.test_cases %}
   Test cases:
