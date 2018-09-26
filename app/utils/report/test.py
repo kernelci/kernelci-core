@@ -104,11 +104,16 @@ def create_test_report(data, email_format, db_options,
     """
     database = utils.db.get_db_connection(db_options)
 
-    job, branch, kernel = (data[k] for k in [
+    job, branch, kernel, plans = (data[k] for k in [
         models.JOB_KEY,
         models.GIT_BRANCH_KEY,
         models.KERNEL_KEY,
+        models.PLANS_KEY
     ])
+
+    # Avoid using the field "plans" when fetching the documents
+    # from mongodb
+    del data['plans']
 
     specs = {x: data[x] for x in data.keys() if data[x]}
 
@@ -127,8 +132,12 @@ def create_test_report(data, email_format, db_options,
 
     top_groups = []
     for group in test_group_docs:
-        if group["_id"] not in sub_group_ids and group["name"] != "lava":
-            top_groups.append(group)
+        if group["_id"] not in sub_group_ids and  \
+           group["name"] != "lava" and \
+           not plans:
+               top_groups.append(group)
+        elif plans and group["name"] in plans:
+               top_groups.append(group)
 
     if not top_groups:
         utils.LOG.warning("Failed to find test group documents")

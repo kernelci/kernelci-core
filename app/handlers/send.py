@@ -62,6 +62,7 @@ REPORT_TYPE_KEYS = {
         models.JOB_KEY,
         models.GIT_BRANCH_KEY,
         models.KERNEL_KEY,
+        models.PLANS_KEY,
     ],
 }
 
@@ -93,6 +94,10 @@ class SendHandler(hbase.BaseHandler):
         countdown = j_get(models.DELAY_KEY)
         if countdown is None:
             countdown = self.settings["senddelay"]
+
+        plans = j_get(models.PLANS_KEY)
+        if plans is None:
+            plans = []
 
         # Deprecated - ToDo: use report_type only in client code
         if j_get(models.SEND_BOOT_REPORT_KEY):
@@ -362,10 +367,11 @@ class SendHandler(hbase.BaseHandler):
         has_errors = False
         error_string = None
 
-        job, git_branch, kernel = (report_data[k] for k in [
+        job, git_branch, kernel, plans = (report_data[k] for k in [
             models.JOB_KEY,
             models.GIT_BRANCH_KEY,
             models.KERNEL_KEY,
+            models.PLANS_KEY
         ])
 
         if email_opts.get("to"):
@@ -374,6 +380,7 @@ class SendHandler(hbase.BaseHandler):
                     job,
                     git_branch,
                     kernel,
+                    plans,
                     report_data,
                     email_opts,
                 ],
@@ -383,8 +390,8 @@ class SendHandler(hbase.BaseHandler):
             has_errors = True
             error_string = "No email addresses provided to send test report to"
             self.log.error(
-                "No email addresses to send test report to for '%s-%s-%s'",
-                job, git_branch, kernel)
+                "No email addresses to send test report to for '%s-%s-%s-plans_%s'",
+                job, git_branch, kernel, "_".join(plans))
 
         return has_errors, error_string
 
