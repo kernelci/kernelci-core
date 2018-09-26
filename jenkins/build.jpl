@@ -88,6 +88,8 @@ ${kci_core}/build.py \
 """)
         }
     }
+
+    sh(script: """rm -rf ${kdir}""")
 }
 
 node("docker-builder") {
