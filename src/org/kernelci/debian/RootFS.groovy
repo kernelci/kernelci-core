@@ -92,6 +92,7 @@ def makeImageStep(String pipeline_version, String arch, String debianRelease, St
                 archiveArtifacts artifacts: "${pipeline_version}/${arch}/full.rootfs.tar.xz", fingerprint: true
                 archiveArtifacts artifacts: "${pipeline_version}/${arch}/full.rootfs.cpio.gz", fingerprint: true
                 archiveArtifacts artifacts: "${pipeline_version}/${arch}/rootfs.ext4.xz", fingerprint: true
+                archiveArtifacts artifacts: "${pipeline_version}/${arch}/build_info.json", fingerprint: true
                 }
 
                 stage("Upload images for ${arch}") {
