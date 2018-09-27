@@ -4,7 +4,7 @@ Test results for:
   Kernel:  {{ kernel }}
   URL:     {{ git_url }}
   Commit:  {{ git_commit }}
-
+  Test plans: {{ plans_string }}
 
 Summary
 -------

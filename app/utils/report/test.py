@@ -148,6 +148,11 @@ def create_test_report(data, email_format, db_options,
 
     subject_str = "Test results for {}/{} - {}".format(job, branch, kernel)
 
+    if not plans:
+        plans_string = "All the results are included"
+    else:
+        plans_string = ", ".join(plans)
+
     git_url, git_commit = (top_groups[0][k] for k in [
         models.GIT_URL_KEY, models.GIT_COMMIT_KEY])
 
@@ -165,6 +170,7 @@ def create_test_report(data, email_format, db_options,
         "git_url": git_url,
         "kernel": kernel,
         "git_commit": git_commit,
+        "plans_string": plans_string,
         "boot_log": models.BOOT_LOG_KEY,
         "boot_log_html": models.BOOT_LOG_HTML_KEY,
         "storage_url": rcommon.DEFAULT_STORAGE_URL,
