@@ -34,12 +34,16 @@ apt-get install --no-install-recommends -y  ${BUILD_DEPS}
 # Build tests                                                          #
 ########################################################################
 
+BUILDFILE=/build_info.txt
+echo '  "tests_suites": [' >> $BUILDFILE
 
 # Build libdrm
 ########################################################################
 
 mkdir -p /tmp/tests/libdrm && cd /tmp/tests/libdrm
 git clone --depth=1 git://anongit.freedesktop.org/mesa/drm .
+
+echo '    {"name": "drm", "git_url": "git://anongit.freedesktop.org/mesa/drm", "git_commit": ' \"`git rev-parse HEAD`\" '},' >> $BUILDFILE
 
 autoreconf --force --verbose --install
 ./configure --enable-intel --prefix=/tmp/tests/igt/usr/
@@ -54,6 +58,9 @@ cp -a /tmp/tests/igt/usr/lib/lib*.so* /usr/lib/
 
 mkdir -p /tmp/tests/igt-gpu-tools && cd /tmp/tests/igt-gpu-tools
 git clone --depth=1 git://anongit.freedesktop.org/drm/igt-gpu-tools .
+
+echo '    {"name": "igt-gpu-tools", "git_url": "git://anongit.freedesktop.org/drm/igt-gpu-tools", "git_commit": ' \"`git rev-parse HEAD`\" '},' >> $BUILDFILE
+
 
 PKG_CONFIG_PATH=/tmp/tests/igt/usr/lib/pkgconfig sh autogen.sh
 make V=1
@@ -72,8 +79,10 @@ cp -a /tmp/tests/igt2/usr/bin/* /usr/bin/
 ########################################################################
 
 mkdir -p /tmp/tests/v4l2-compliance && cd /tmp/tests/v4l2-compliance
-
 git clone --depth=1 git://linuxtv.org/v4l-utils.git .
+
+echo '    {"name": "v4l2-compliance", "git_url": "git://linuxtv.org/v4l-utils.git", "git_commit": ' \"`git rev-parse HEAD`\" '}' >> $BUILDFILE
+
 
 sh bootstrap.sh
 ./configure --prefix=/tmp/tests/v4l2/usr/ --with-udevdir=/tmp/tests/v4l2/usr/lib/udev
@@ -85,6 +94,7 @@ strip /tmp/tests/v4l2/usr/bin/* /tmp/tests/v4l2/usr/lib/*.so* /tmp/tests/v4l2/us
 rm -rf  /tmp/tests/v4l2/usr/include /tmp/tests/v4l2/usr/share /tmp/tests/v4l2/usr/lib/udev /tmp/tests/v4l2/usr/lib/pkgconfig/
 cp -a /tmp/tests/v4l2/usr/* /usr/
 
+echo '  ]' >> $BUILDFILE
 
 ########################################################################
 # Cleanup: remove files and packages we don't want in the images       #
