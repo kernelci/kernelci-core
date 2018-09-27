@@ -32,6 +32,15 @@ actions:
     script: {{ $script }}
 
   - action: run
+    description: Create manifest file
+    chroot: false
+    script: scripts/create_manifest.sh
+
+  - action: run
+    chroot: false
+    command: cp ${ROOTDIR}/build_info.json ${ARTIFACTDIR}/{{ $basename -}}/build_info.json
+
+  - action: run
     description: Install extra packages
     chroot: true
     command: apt-get update && apt-get -y install --no-install-recommends {{ $extra_packages }}
