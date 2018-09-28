@@ -200,6 +200,7 @@ REPORT_CC_KEY = "send_cc"
 REPORT_BCC_KEY = "send_bcc"
 DELAY_KEY = "delay"
 IN_REPLY_TO_KEY = "in_reply_to"
+PLANS_KEY = "plans"
 
 # Token special fields.
 ADMIN_KEY = "admin"
@@ -761,6 +762,7 @@ SEND_VALID_KEYS = {
             JOB_KEY,
             KERNEL_KEY,
             LAB_NAME_KEY,
+            PLANS_KEY,
             REPORT_TYPE_KEY,
             REPORT_BCC_KEY,
             REPORT_CC_KEY,

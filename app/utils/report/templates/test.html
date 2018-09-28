@@ -37,6 +37,7 @@ pre {
         <tr><td>URL</td><td>{{ git_url }}</td></tr>
         <tr><td>Kernel</td><td>{{ kernel }}</td></tr>
         <tr><td>Git Commit</td><td>{{ git_commit }}</td></tr>
+        <tr><td>Test plans</td><td>{{ plans_string }}</td></tr>
       </table>
     </p>
 
@@ -44,26 +45,29 @@ pre {
     <p>
       {{ test_groups|length }} test groups results
       <table>
+        <col width="40">
         <col width="120">
         <col width="220">
         <col width="100">
         <col width="100">
         <col width="100">
         <col width="100">
+        <col width="100">
         {% for t in test_groups|sort(attribute='name') -%}
-        <tr><th>{{ t.name|e }}</th><td>{{ t.board }}</td><td>{{ t.total_tests }} tests</td><td> {{ t.total["PASS"] }}  PASS</td><td>{{ t.total["FAIL"] }} FAIL </td><td>{{ t.total["SKIP"] }} SKIP</td></tr>
+        <tr><th>{{ loop.index }}</th><th>{{ t.name|e }}</th><td>{{ t.board }}</td><td>{{ t.arch }}</td><td>{{ t.total_tests }} tests</td><td> {{ t.total["PASS"] }}  PASS</td><td>{{ t.total["FAIL"] }} FAIL </td><td>{{ t.total["SKIP"] }} SKIP</td></tr>
         {%- endfor %}
       </table>
     </p>
 
     <h1>Tests</h1>
     {% for t in test_groups|sort(attribute='name') %}
-    <h2>{{ t.name|e }}</h2>
+    <h2>{{ loop.index }} | {{ t.name|e }}</h2>
     <table>
       <tr><td>Config</td><td>{{ t.defconfig_full }}</td></tr>
       <tr><td>Lab Name</td><td>{{ t.lab_name }}</td></tr>
-      <tr><td>Board</td><td>{{ t.board }}</td></tr>
       <tr><td>Date</td><td>{{ t.created_on }}</td></tr>
+      <tr><td><a href="{{ storage_url }}/{{ t.job }}/{{ t.git_branch }}/{{ t.kernel }}/{{ t.arch }}/{{ t.defconfig_full }}/{{ t.lab_name }}/{{ t.boot_log }}">Link to TXT log</a></td><td></td></tr>
+      <tr><td><a href="{{ storage_url }}/{{ t.job }}/{{ t.git_branch }}/{{ t.kernel }}/{{ t.arch }}/{{ t.defconfig_full }}/{{ t.lab_name }}/{{ t.boot_log_html }}">Link to HTML log</a></td><td></td></tr>
     </table>
     {% if t.test_cases -%}
     <p>Test cases ({{ t.total_tests}}): </td><td><strong>{{ t.total["PASS"] }}</strong> PASS, <strong>{{ t.total["FAIL"] }}</strong> FAIL, <strong>{{ t.total["SKIP"] }}</strong> SKIP</p>

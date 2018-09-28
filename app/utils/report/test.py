@@ -26,6 +26,8 @@ TEST_REPORT_FIELDS = [
     models.BOARD_INSTANCE_KEY,
     models.BOARD_KEY,
     models.BOOT_ID_KEY,
+    models.BOOT_LOG_HTML_KEY,
+    models.BOOT_LOG_KEY,
     models.BUILD_ID_KEY,
     models.CREATED_KEY,
     models.DEFCONFIG_FULL_KEY,
@@ -102,11 +104,16 @@ def create_test_report(data, email_format, db_options,
     """
     database = utils.db.get_db_connection(db_options)
 
-    job, branch, kernel = (data[k] for k in [
+    job, branch, kernel, plans = (data[k] for k in [
         models.JOB_KEY,
         models.GIT_BRANCH_KEY,
         models.KERNEL_KEY,
+        models.PLANS_KEY
     ])
+
+    # Avoid using the field "plans" when fetching the documents
+    # from mongodb
+    del data['plans']
 
     specs = {x: data[x] for x in data.keys() if data[x]}
 
@@ -125,8 +132,12 @@ def create_test_report(data, email_format, db_options,
 
     top_groups = []
     for group in test_group_docs:
-        if group["_id"] not in sub_group_ids and group["name"] != "lava":
-            top_groups.append(group)
+        if group["_id"] not in sub_group_ids and  \
+           group["name"] != "lava" and \
+           not plans:
+               top_groups.append(group)
+        elif plans and group["name"] in plans:
+               top_groups.append(group)
 
     if not top_groups:
         utils.LOG.warning("Failed to find test group documents")
@@ -136,6 +147,11 @@ def create_test_report(data, email_format, db_options,
         _add_test_group_data(group, database)
 
     subject_str = "Test results for {}/{} - {}".format(job, branch, kernel)
+
+    if not plans:
+        plans_string = "All the results are included"
+    else:
+        plans_string = ", ".join(plans)
 
     git_url, git_commit = (top_groups[0][k] for k in [
         models.GIT_URL_KEY, models.GIT_COMMIT_KEY])
@@ -154,6 +170,10 @@ def create_test_report(data, email_format, db_options,
         "git_url": git_url,
         "kernel": kernel,
         "git_commit": git_commit,
+        "plans_string": plans_string,
+        "boot_log": models.BOOT_LOG_KEY,
+        "boot_log_html": models.BOOT_LOG_HTML_KEY,
+        "storage_url": rcommon.DEFAULT_STORAGE_URL,
         "test_groups": top_groups,
     }
 
