@@ -11,5 +11,7 @@ echo '{' >> $MANIFEST
 echo '  "date":' \"`date -u`\" ',' >> $MANIFEST
 echo '  "distro": "debian",' >> $MANIFEST
 echo '  "distro_version":' \"`cat /scratch/root/etc/debian_version`\" ',' >> $MANIFEST
-cat $BUILDFILE >> $MANIFEST
+if [ -f $BUILDFILE ]; then
+  cat $BUILDFILE >> $MANIFEST
+fi
 echo '}' >> $MANIFEST
