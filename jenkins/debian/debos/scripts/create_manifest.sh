@@ -9,6 +9,7 @@ BUILDFILE="/scratch/root/build_info.txt"
 
 echo '{' >> $MANIFEST
 echo '  "date":' \"`date -u`\" ',' >> $MANIFEST
-echo '  "debian_release":' \"`cat /scratch/root/etc/debian_version`\" ',' >> $MANIFEST
+echo '  "distro": "debian",' >> $MANIFEST
+echo '  "distro_version":' \"`cat /scratch/root/etc/debian_version`\" ',' >> $MANIFEST
 cat $BUILDFILE >> $MANIFEST
 echo '}' >> $MANIFEST
