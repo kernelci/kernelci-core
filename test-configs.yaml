@@ -685,7 +685,7 @@ device_types:
 
   sun8i_h3_libretech_all_h3_cc:
     name: 'sun8i-h3-libretech-all-h3-cc'
-    mach: alliwinnder
+    mach: allwinner
     class: arm-dtb
     boot_method: uboot
 
