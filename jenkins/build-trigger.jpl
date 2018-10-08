@@ -67,6 +67,9 @@ def addDefconfigs(configs, kdir, arch) {
             for (String config: found.tokenize(' \n'))
                 configs.add(config)
         }
+        if (arch == "mips") {
+            configs.remove("generic_defconfig")
+        }
     } else {
         echo("WARNING: No configs directory: ${configs_dir}")
     }
