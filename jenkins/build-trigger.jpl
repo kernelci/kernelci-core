@@ -122,7 +122,7 @@ def addExtraConfigs(configs, kdir, arch) {
         addExtraIfExists(extra, kdir, "arch/x86/configs/kvm_guest.config")
     }
 
-    for (String frag: ["debug", "kselftest"])
+    for (String frag: ["debug", "kselftest", "all_abi"])
         addExtraIfExists(extra, kdir, "kernel/configs/${frag}.config")
 
     if (params.TREE_NAME == "lsk" || params.TREE_NAME == "anders") {
