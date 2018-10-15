@@ -10,6 +10,8 @@ def config = ['name':"stretchtests",
               'extra_packages':"libpciaccess0 libkmod2 libprocps6 libcairo2 \
                                 libssl1.1 libunwind8 libudev1 libglib2.0-0 \
                                 libdw1 liblzma5",
-              'script':"scripts/stretchtests.sh"]
+              'script':"scripts/stretchtests.sh",
+              'test_overlay': "overlays/tests",
+             ]
 
 r.buildImage(config)
