@@ -17,7 +17,7 @@ Summary
 Tests
 -----
 {% for t in test_groups|sort(attribute='name') %}
-{{ loop.index }} | {{ t.name|e }} - {{ t.total_tests }} tests: {{ t.total["PASS"] }}  PASS, {{ t.total["FAIL"] }} FAIL, {{ t.total["SKIP"] }} SKIP
+{{ "%-2s | %-10s | %-22s | %-5s | %3s total: %3s PASS %3s FAIL %3s SKIP"|format(loop.index, t.name, t.board, t.arch, t.total_tests, t.total["PASS"], t.total["FAIL"], t.total["SKIP"]) }}
 
   Config:      {{ t.defconfig_full }}
   Lab Name:    {{ t.lab_name }}

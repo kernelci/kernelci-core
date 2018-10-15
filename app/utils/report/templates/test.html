@@ -61,7 +61,7 @@ pre {
 
     <h1>Tests</h1>
     {% for t in test_groups|sort(attribute='name') %}
-    <h2>{{ loop.index }} | {{ t.name|e }}</h2>
+    <h2>{{ loop.index }} | {{ t.name|e }} | {{ t.board}} | {{ t.arch }}</h2>
     <table>
       <tr><td>Config</td><td>{{ t.defconfig_full }}</td></tr>
       <tr><td>Lab Name</td><td>{{ t.lab_name }}</td></tr>
