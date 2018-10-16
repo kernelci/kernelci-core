@@ -113,9 +113,9 @@ node("docker-builder") {
     stage("Init") {
         timeout(time: 30, unit: 'MINUTES') {
             parallel(
-                clone: { k.cloneKCIBuild(kci_core,
-                                      params.KCI_CORE_URL,
-                                      params.KCI_CORE_BRANCH) },
+                clone: { k.cloneKciCore(kci_core,
+                                        params.KCI_CORE_URL,
+                                        params.KCI_CORE_BRANCH) },
                 download: { k.downloadTarball(kdir, params.SRC_TARBALL) },
             )
         }

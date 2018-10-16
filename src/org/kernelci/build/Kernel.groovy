@@ -20,7 +20,7 @@
 
 package org.kernelci.build
 
-def cloneKCIBuild(path, url, branch) {
+def cloneKciCore(path, url, branch) {
     sh(script: "rm -rf ${path}")
     dir("${path}") {
         git(url: url,
