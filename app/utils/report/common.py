@@ -44,10 +44,23 @@ JOB_SEARCH_FIELDS = [
 ]
 
 DEFAULT_BASE_URL = u"https://kernelci.org"
+DEFAULT_STORAGE_URL = u"https://storage.kernelci.org"
+
+DEFAULT_CONFIG_FILE = "/etc/linaro/kernelci-backend.cfg"
+
+if os.path.isfile(DEFAULT_CONFIG_FILE):
+    with open(DEFAULT_CONFIG_FILE, 'r') as infile:
+        for line in infile:
+            if line.startswith("base_url"):
+                value = line.split("=")[1].strip()
+                DEFAULT_BASE_URL = value.replace("'","")
+            elif line.startswith("storage_url"):
+                value = line.split("=")[1].strip()
+                DEFAULT_STORAGE_URL = value.replace("'","")
+
 DEFAULT_BOOT_URL = DEFAULT_BASE_URL + u"/boot/all/job"
 BOOT_ID_URL = DEFAULT_BASE_URL + u"/boot/id/{_id:s}/"
 DEFAULT_BUILD_URL = DEFAULT_BASE_URL + u"/build"
-DEFAULT_STORAGE_URL = u"https://storage.kernelci.org"
 
 # Default colors for error and warning links.
 HTML_RED = u"#d9534f"
