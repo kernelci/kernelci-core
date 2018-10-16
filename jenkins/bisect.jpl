@@ -55,14 +55,10 @@ KCI_TOKEN_ID
   Identifier of the KernelCI backend API token stored in Jenkins
 KCI_STORAGE_URL (https://storage.kernelci.org/)
   URL of the KernelCI storage server
-KCI_BUILD_URL (https://github.com/kernelci/kernelci-build.git)
-  URL of the kernelci-build repository
-KCI_BUILD_BRANCH (master)
-  Name of the branch to use in the kernelci-build repository
-LAVA_CI_URL (https://github.com/kernelci/lava-ci.git)
-  URL of the lava-ci repository
-LAVA_CI_BRANCH (master)
-  Name of the branch to use in the lava-ci repository
+KCI_CORE_URL (https://github.com/kernelci/kernelci-core.git)
+  URL of the kernelci-core repository
+KCI_CORE_BRANCH (master)
+  Name of the branch to use in the kernelci-core repository
 LAVA_CALLBACK (kernel-ci-callback)
   Description of the LAVA auth token to look up and use in LAVA callbacks
 LAVA_PRIORITY (low)
@@ -140,11 +136,11 @@ git checkout --detach ${git_rev}
  * cloning projects
  */
 
-def cloneKCIBuild(kci_build) {
-    sh(script: "rm -rf ${kci_build}")
-    dir("${kci_build}") {
-        git(url: params.KCI_BUILD_URL,
-            branch: params.KCI_BUILD_BRANCH,
+def cloneKciCore(kci_core) {
+    sh(script: "rm -rf ${kci_core}")
+    dir("${kci_core}") {
+        git(url: params.KCI_CORE_URL,
+            branch: params.KCI_CORE_BRANCH,
             poll: false)
     }
 }
@@ -188,20 +184,11 @@ cd -
 """
 }
 
-def cloneLAVA_CI(lava_ci) {
-    sh(script: "rm -rf ${lava_ci}")
-    dir("${lava_ci}") {
-        git(url: params.LAVA_CI_URL,
-            branch: params.LAVA_CI_BRANCH,
-            poll: false)
-    }
-}
-
 /* ----------------------------------------------------------------------------
  * kernel build
  */
 
-def buildKernel(kdir, kci_build) {
+def buildKernel(kdir, kci_core) {
     dir(kdir) {
         sh(script: "rm -f ${env._BUILD_JSON}")
         withCredentials([string(credentialsId: params.KCI_TOKEN_ID,
@@ -213,7 +200,7 @@ TREE_NAME=${params.KERNEL_TREE} \
 TREE=${params.KERNEL_URL} \
 ARCH=${params.ARCH} \
 BRANCH=${params.KERNEL_BRANCH} \
-""" + kci_build + """/build.py -e -g -i \
+""" + kci_core + """/build.py -e -g -i \
 -J ${env._BUILD_JSON} \
 -c ${params.DEFCONFIG}""")
         }
@@ -221,10 +208,10 @@ BRANCH=${params.KERNEL_BRANCH} \
     }
 }
 
-def buildRevision(kdir, kci_build, git_rev, name) {
+def buildRevision(kdir, kci_core, git_rev, name) {
     checkoutRevision(kdir, git_rev)
     def tag = createTag(kdir, name)
-    buildKernel(kdir, kci_build)
+    buildKernel(kdir, kci_core)
     return tag
 }
 
@@ -232,8 +219,8 @@ def buildRevision(kdir, kci_build, git_rev, name) {
  * kernel test with LAVA v2
  */
 
-def submitJob(lava_ci, describe, hook) {
-    dir(lava_ci) {
+def submitJob(kci_core, describe, hook) {
+    dir(kci_core) {
         sh(script: "rm -rf ${env._BUILD_JSON}; rm -rf data; mkdir data")
         unstash(env._BUILD_JSON)
         sh(script: """
@@ -272,10 +259,10 @@ PYTHON_EGG_CACHE=${egg_cache} \
     }
 }
 
-def getResult(lava_ci, hook) {
+def getResult(kci_core, hook) {
     def status = null
 
-    dir(lava_ci) {
+    dir(kci_core) {
         echo "Waiting for job results..."
         def data = waitForWebhook(hook)
         def json_file = 'callback.json'
@@ -296,19 +283,17 @@ ${json_file}
     return status
 }
 
-def runTest(lava_ci, describe, expected=0, runs=0) {
+def runTest(kci_core, describe, expected=0, runs=0) {
     if (!runs)
         runs = params.TEST_RUNS.toInteger()
-
-    cloneLAVA_CI(lava_ci)
 
     def status = null
 
     for (int i = 1; i <= runs; i++) {
         echo "Run ${i} / ${runs}"
         def hook = registerWebhook()
-        submitJob(lava_ci, describe, hook)
-        status = getResult(lava_ci, hook)
+        submitJob(kci_core, describe, hook)
+        status = getResult(kci_core, hook)
 
         if (status != expected)
             break;
@@ -362,13 +347,10 @@ def bisectNext(kdir, status) {
  * Results
  */
 
-def pushResults(kdir, checks, params_summary) {
+def pushResults(kci_core, kdir, checks, params_summary) {
     def subject = "${params.KERNEL_TREE}/${params.KERNEL_BRANCH} ${params.PLAN} bisection: ${params.KERNEL_NAME} on ${params.TARGET}"
 
-    def lava_ci = env.WORKSPACE + '/lava-ci'
-    cloneLAVA_CI(lava_ci)
-
-    dir(lava_ci) {
+    dir(kci_core) {
         withCredentials([string(credentialsId: params.KCI_TOKEN_ID,
                                 variable: 'SECRET')]) {
             def egg_cache = eggCache()
@@ -400,14 +382,14 @@ PYTHON_EGG_CACHE=${egg_cache} \
  * pipeline
  */
 
-def runCheck(kdir, kci_build, git_commit, name, run_status, runs=0) {
+def runCheck(kdir, kci_core, git_commit, name, run_status, runs=0) {
     def check = null
     def tag = null
 
     lock("${env.NODE_NAME}-build-lock") {
         timeout(time: 60, unit: 'MINUTES') {
             try {
-                tag = buildRevision(kdir, kci_build, git_commit, name)
+                tag = buildRevision(kdir, kci_core, git_commit, name)
                 check = true
             } catch (error) {
                 check = false
@@ -422,8 +404,9 @@ def runCheck(kdir, kci_build, git_commit, name, run_status, runs=0) {
 
     node("kernel-boot-v2") {
         timeout(time: 120, unit: 'MINUTES') {
-            def lava_ci = env.WORKSPACE + '/lava-ci'
-            def status = runTest(lava_ci, describe, run_status, runs)
+            def kci_core_boot = env.WORKSPACE + '/kernelci-core'
+            cloneKciCore(kci_core_boot)
+            def status = runTest(kci_core_boot, describe, run_status, runs)
             check = (status == run_status ? true : false)
         }
     }
@@ -446,7 +429,7 @@ node("bisection") {
     /* Global pipeline constants */
     env._BUILD_JSON = "build-data.json"
 
-    def kci_build = env.WORKSPACE + '/kernelci-build'
+    def kci_core = env.WORKSPACE + '/kernelci-core'
     def kdir = env.WORKSPACE + '/linux'
     def check = null
     def checks = [:]
@@ -495,20 +478,20 @@ ${params_summary}"""
         stage("Init") {
             timeout(time: 30, unit: 'MINUTES') {
                 parallel(
-                    p1: { cloneKCIBuild(kci_build) },
-                    p2: { cloneLinux(kdir) },
+                    kci_core: { cloneKciCore(kci_core) },
+                    kdir: { cloneLinux(kdir) },
                 )
             }
         }
 
         stage("Check pass") {
-            check = runCheck(kdir, kci_build, params.GOOD_COMMIT, 'pass', 0)
+            check = runCheck(kdir, kci_core, params.GOOD_COMMIT, 'pass', 0)
         }
         if (!checkAbort(check, "Good revision check failed"))
             return
 
         stage("Check fail") {
-            check = runCheck(kdir, kci_build, params.BAD_COMMIT, 'fail', 2)
+            check = runCheck(kdir, kci_core, params.BAD_COMMIT, 'fail', 2)
         }
         if (!checkAbort(check, "Bad revision check failed"))
             return
@@ -536,7 +519,7 @@ ${params_summary}"""
                 stage("Build ${iteration}") {
                     timeout(time: 60, unit: 'MINUTES') {
                         try {
-                            buildKernel(kdir, kci_build)
+                            buildKernel(kdir, kci_core)
                             status = 0
                         } catch (error) {
                             status = 1
@@ -551,8 +534,9 @@ ${params_summary}"""
                 node("kernel-boot-v2") {
                     stage("Test ${iteration}") {
                         timeout(time: 120, unit: 'MINUTES') {
-                            def lava_ci = env.WORKSPACE + '/lava-ci'
-                            status = runTest(lava_ci, describe)
+                            def kci_core_boot = env.WORKSPACE + '/kernelci-core'
+                            cloneKciCore(kci_core_boot)
+                            status = runTest(kci_core_boot, describe)
                         }
                     }
                 }
@@ -572,7 +556,7 @@ ${params_summary}"""
         }
 
         stage("Verify") {
-            check = runCheck(kdir, kci_build, 'refs/bisect/bad', 'verify', 2,3)
+            check = runCheck(kdir, kci_core, 'refs/bisect/bad', 'verify', 2,3)
             checks['verify'] = check ? 'PASS' : 'FAIL'
         }
         if (!checkAbort(check, "Result check failed"))
@@ -582,7 +566,7 @@ ${params_summary}"""
             dir(kdir) {
                 sh(script: "git revert refs/bisect/bad")
             }
-            check = runCheck(kdir, kci_build, 'HEAD', 'revert', 0, 3)
+            check = runCheck(kdir, kci_core, 'HEAD', 'revert', 0, 3)
             checks['revert'] = check ? 'PASS' : 'FAIL'
         }
         if (!check)
@@ -607,6 +591,6 @@ ${err}
     }
 
     stage("Report") {
-        pushResults(kdir, checks, params_summary)
+        pushResults(kci_core, kdir, checks, params_summary)
     }
 }
