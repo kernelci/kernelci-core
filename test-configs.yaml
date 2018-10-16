@@ -581,6 +581,15 @@ device_types:
       - blacklist: *allmodconfig_filter
       - blacklist: {kernel: ['v3.']}
 
+  qcom_qdf2400:
+    name: 'qcom-qdf2400'
+    mach: qcom
+    arch: arm64
+    boot_method: grub
+    filters:
+      - whitelist: {defconfig: ['defconfig']}
+      - blacklist: {kernel: ['v3.']}
+
   qemu_arm:
     name: qemu
     mach: qemu
@@ -950,6 +959,9 @@ test_configs:
 
   - device_type: peach_pi
     test_plans: [boot, kselftest, sleep, usb, cros_ec]
+
+  - device_type: qcom_qdf2400
+    test_plans: [boot]
 
   - device_type: qemu_arm
     test_plans: [boot_qemu, simple_qemu]
