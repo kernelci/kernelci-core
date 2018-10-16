@@ -75,6 +75,9 @@ TREES_WHITELIST
  */
 
 
+@Library('kernelci') _
+import org.kernelci.build.Kernel
+
 /* Working around some seemingly broken Python set-up... */
 def eggCache() {
     def egg_cache = env.WORKSPACE + "/python-egg-cache"
@@ -137,12 +140,8 @@ git checkout --detach ${git_rev}
  */
 
 def cloneKciCore(kci_core) {
-    sh(script: "rm -rf ${kci_core}")
-    dir("${kci_core}") {
-        git(url: params.KCI_CORE_URL,
-            branch: params.KCI_CORE_BRANCH,
-            poll: false)
-    }
+    def k = new Kernel()
+    k.cloneKciCore(kci_core, params.KCI_CORE_URL, params.KCI_CORE_BRANCH)
 }
 
 def cloneLinux(kdir) {
