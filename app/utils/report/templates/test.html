@@ -71,6 +71,10 @@ pre {
       {%- if t.initrd %}
       <tr><td>Rootfs</td><td>{{ t.initrd }}</td></tr>
       {%- endif %}
+      {%- for e in t.initrd_info.tests_suites %}
+      <tr><td> Test Git:</td><td>{{ e.git_url }}</td></tr>
+      <tr><td> Test Commit:</td><td>{{ e.git_commit }}</td></tr>
+      {% endfor %}
     </table>
     {% if t.test_cases -%}
     <p>Test cases ({{ t.total_tests}}): </td><td><strong>{{ t.total["PASS"] }}</strong> PASS, <strong>{{ t.total["FAIL"] }}</strong> FAIL, <strong>{{ t.total["SKIP"] }}</strong> SKIP</p>

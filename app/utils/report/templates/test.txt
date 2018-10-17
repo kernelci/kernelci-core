@@ -27,6 +27,10 @@ Tests
 {%- if t.initrd %}
   Rootfs:      {{ t.initrd }}
 {%- endif %}
+{%- for e in t.initrd_info.tests_suites %}
+  Test Git:    {{ e.git_url }}
+  Test Commit: {{ e.git_commit }}
+{% endfor %}
 {% if t.test_cases %}
   Test cases:
 {% for tc in t.test_cases %}

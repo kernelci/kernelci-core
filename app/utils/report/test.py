@@ -40,6 +40,7 @@ TEST_REPORT_FIELDS = [
     models.GIT_URL_KEY,
     models.ID_KEY,
     models.INITRD_KEY,
+    models.INITRD_INFO_KEY,
     models.JOB_ID_KEY,
     models.JOB_KEY,
     models.KERNEL_KEY,
