@@ -108,6 +108,7 @@ GTE_KEY = "gte"
 ID_KEY = "_id"
 IMAGE_TYPE_KEY = "image_type"
 INITRD_ADDR_KEY = "initrd_addr"
+INITRD_INFO_KEY = "initrd_info"
 INITRD_KEY = "initrd"
 IP_ADDRESS_KEY = "ip_address"
 JOB_ID_KEY = "job_id"
@@ -827,6 +828,7 @@ TEST_GROUP_VALID_KEYS = {
             DEFINITION_URI_KEY,
             GIT_BRANCH_KEY,
             INITRD_KEY,
+            INITRD_INFO_KEY,
             JOB_ID_KEY,
             JOB_KEY,
             KERNEL_KEY,
@@ -1030,6 +1032,7 @@ DISTINCT_VALID_FIELDS = {
         DEFCONFIG_KEY,
         GIT_BRANCH_KEY,
         INITRD_KEY,
+        INITRD_INFO_KEY,
         IMAGE_TYPE_KEY,
         JOB_ID_KEY,
         JOB_KEY,

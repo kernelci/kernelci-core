@@ -55,6 +55,7 @@ class TestTestGroupModel(unittest.TestCase):
         test_group.image_type = "image_type"
         test_group.initrd = "initrd"
         test_group.initrd_addr = "initrd-addr"
+        test_group.initrd_info = "initrd-info"
         test_group.job = "job"
         test_group.job_id = "job_id"
         test_group.kernel = "kernel"
@@ -103,6 +104,7 @@ class TestTestGroupModel(unittest.TestCase):
             "image_type": "image_type",
             "initrd": "initrd",
             "initrd_addr": "initrd-addr",
+            "initrd_info": "initrd-info",
             "job": "job",
             "job_id": "job_id",
             "kernel": "kernel",
@@ -169,6 +171,7 @@ class TestTestGroupModel(unittest.TestCase):
             "initrd": "initrd",
             "image_type": "image_type",
             "initrd_addr": "initrd_addr",
+            "initrd_info": None,
             "job": "job",
             "job_id": "job_id",
             "kernel": "kernel",

@@ -70,6 +70,7 @@ class TestGroupDocument(modb.BaseDocument):
         self.image_type = None
         self.initrd = None
         self.initrd_addr = None
+        self.initrd_info = None
         self.job = None
         self.job_id = None
         self.kernel = None
@@ -179,6 +180,7 @@ class TestGroupDocument(modb.BaseDocument):
             models.IMAGE_TYPE_KEY: self.image_type,
             models.INITRD_KEY: self.initrd,
             models.INITRD_ADDR_KEY: self.initrd_addr,
+            models.INITRD_INFO_KEY: self.initrd_info,
             models.JOB_ID_KEY: self.job_id,
             models.JOB_KEY: self.job,
             models.KERNEL_KEY: self.kernel,
