@@ -38,6 +38,13 @@ pre {
         </table>
       </p>
       <p>
+        <h2>Details:</h2>
+        <table>
+          <tr><th>Good</th><td><a href="{{ good_details_url }}">{{ good_describe }}</a></td></tr>
+          <tr><th>Bad</th><td><a href="{{ bad_details_url }}">{{ bad_describe }}</a></td></tr>
+        </table>
+      </p>
+      <p>
         <h2>Checks:</h2>
         <table>
           {%- for check, result in checks|dictsort %}

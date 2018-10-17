@@ -4,6 +4,10 @@
   Bad:        {{ bad }}
   Found:      {{ found }}
 
+Details:
+  Good:       {{ good_details_url }}
+  Bad:        {{ bad_details_url }}
+
 Checks:
 {%- for check, result in checks|dictsort %}
   {{ "%-11s" | format(check + ":",) }} {{ result }}

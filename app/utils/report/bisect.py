@@ -86,10 +86,25 @@ def create_bisect_report(data, email_format, db_options,
     with open(log_path) as log_file:
         log_data = json.load(log_file)
 
+    url_params = {
+        'boot_url': rcommon.DEFAULT_BOOT_URL,
+        'job': job,
+        'git_branch': branch,
+    }
+    boot_data = {b['status']: b['git_describe']
+                 for b in doc[models.BISECT_DATA_KEY]}
+    good_url, bad_url = (
+        rcommon.BOOT_SUMMARY_URL.format(kernel=boot_data[x], **url_params)
+        for x in ['PASS', 'FAIL'])
+
     template_data = {
         "subject_str": subject_str,
         "good": doc[models.BISECT_GOOD_SUMMARY_KEY],
         "bad": doc[models.BISECT_BAD_SUMMARY_KEY],
+        "good_details_url": good_url,
+        "bad_details_url": bad_url,
+        "good_describe": boot_data['PASS'],
+        "bad_describe": boot_data['FAIL'],
         "found": doc[models.BISECT_FOUND_SUMMARY_KEY],
         "checks": doc[models.BISECT_CHECKS_KEY],
         "tree": job,
