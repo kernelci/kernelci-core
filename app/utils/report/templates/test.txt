@@ -24,6 +24,9 @@ Tests
   Date:        {{ t.created_on }}
   TXT log:     {{ storage_url }}/{{ t.job }}/{{ t.git_branch }}/{{ t.kernel }}/{{ t.arch }}/{{ t.defconfig_full }}/{{ t.lab_name }}/{{ t.boot_log }}
   HTML log:    {{ storage_url }}/{{ t.job }}/{{ t.git_branch }}/{{ t.kernel }}/{{ t.arch }}/{{ t.defconfig_full }}/{{ t.lab_name }}/{{ t.boot_log_html }}
+{%- if t.initrd %}
+  Rootfs:      {{ t.initrd }}
+{%- endif %}
 {% if t.test_cases %}
   Test cases:
 {% for tc in t.test_cases %}
