@@ -45,16 +45,6 @@ BOOT_SEARCH_FIELDS = [
     models.STATUS_KEY
 ]
 
-BOARD_URL = (
-    u"{base_url:s}/boot/{board:s}/job/{job:s}/branch/{git_branch:s}"
-    u"/kernel/{kernel:s}/defconfig/{defconfig:s}/"
-)
-BOOT_SUMMARY_URL = \
-    u"{boot_url:s}/{job:s}/branch/{git_branch:s}/kernel/{kernel:s}/"
-BOOT_REGRESSIONS_URL = BOOT_SUMMARY_URL + u"#regressions"
-BUILD_SUMMARY_URL = \
-    u"{build_url:s}/{job:s}/branch/{git_branch:s}/kernel/{kernel:s}/"
-
 HREF_STYLE = u"style=\"color: black; text-decoration: none\""
 
 # Regressions strings.
@@ -110,7 +100,8 @@ def create_regressions_data(boot_docs, boot_data):
         "red": boot_data["red"],
         models.LAB_NAME_KEY: last_fail[models.LAB_NAME_KEY],
         "good_kernel": last_good[models.KERNEL_KEY],
-        "boot_regressions_url": BOOT_REGRESSIONS_URL.format(**boot_data),
+        "boot_regressions_url": rcommon.BOOT_REGRESSIONS_URL.format(
+            **boot_data),
     }
 
     fail_url = BOOT_ID_HTML.format(**fmt_data).format(**last_fail)
@@ -936,8 +927,8 @@ def _create_boot_email(boot_data):
         if tested_string:
             tested_string = tested_string.format(**boot_data)
 
-    boot_summary_url = BOOT_SUMMARY_URL.format(**boot_data)
-    build_summary_url = BUILD_SUMMARY_URL.format(**boot_data)
+    boot_summary_url = rcommon.BOOT_SUMMARY_URL.format(**boot_data)
+    build_summary_url = rcommon.BUILD_SUMMARY_URL.format(**boot_data)
 
     boot_data["tree_string"] = G_(u"Tree: {job:s}").format(**boot_data)
     boot_data["branch_string"] = G_(u"Branch: {git_branch:s}").format(
@@ -1093,7 +1084,7 @@ def _parse_and_structure_results(boot_data):
                         substitutions["board"] = board
                         substitutions["defconfig"] = defconfig
 
-                        board_url = BOARD_URL.format(**substitutions)
+                        board_url = rcommon.BOARD_URL.format(**substitutions)
                         substitutions["url"] = board_url
 
                         html_string = (
@@ -1149,7 +1140,7 @@ def _parse_and_structure_results(boot_data):
                         substitutions["board"] = board
                         substitutions["defconfig"] = defconfig
 
-                        board_url = BOARD_URL.format(**substitutions)
+                        board_url = rcommon.BOARD_URL.format(**substitutions)
                         substitutions["url"] = board_url
                         substitutions["count"] = lab_count_str
 

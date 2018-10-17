@@ -45,6 +45,15 @@ JOB_SEARCH_FIELDS = [
 
 DEFAULT_BASE_URL = u"https://kernelci.org"
 DEFAULT_STORAGE_URL = u"https://storage.kernelci.org"
+BOARD_URL = (
+    u"{base_url:s}/boot/{board:s}/job/{job:s}/branch/{git_branch:s}"
+    u"/kernel/{kernel:s}/defconfig/{defconfig:s}/"
+)
+BOOT_SUMMARY_URL = \
+    u"{boot_url:s}/{job:s}/branch/{git_branch:s}/kernel/{kernel:s}/"
+BOOT_REGRESSIONS_URL = BOOT_SUMMARY_URL + u"#regressions"
+BUILD_SUMMARY_URL = \
+    u"{build_url:s}/{job:s}/branch/{git_branch:s}/kernel/{kernel:s}/"
 
 DEFAULT_CONFIG_FILE = "/etc/linaro/kernelci-backend.cfg"
 
