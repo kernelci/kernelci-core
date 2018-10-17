@@ -51,6 +51,7 @@ SPEC_TEST_GROUP = {
     models.DEFCONFIG_FULL_KEY: "defconfig_full",
     models.DEFCONFIG_KEY: "defconfig",
     models.GIT_BRANCH_KEY: "git_branch",
+    models.INITRD_KEY: "initrd",
     models.JOB_KEY: "job",
     models.KERNEL_KEY: "kernel",
     models.LAB_NAME_KEY: "lab_name",
@@ -349,6 +350,7 @@ def _update_test_group_doc_from_json(group_doc, test_dict, errors):
     group_doc.git_describe = test_dict.get(models.GIT_DESCRIBE_KEY, None)
     group_doc.git_url = test_dict.get(models.GIT_URL_KEY, None)
     group_doc.image_type = test_dict.get(models.IMAGE_TYPE_KEY, None)
+    group_doc.initrd = test_dict.get(models.INITRD_KEY, None)
     group_doc.initrd_addr = test_dict.get(models.INITRD_ADDR_KEY, None)
     group_doc.job = test_dict.get(models.JOB_KEY, None)
     group_doc.kernel = test_dict.get(models.KERNEL_KEY, None)
