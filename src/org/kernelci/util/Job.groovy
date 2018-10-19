@@ -33,3 +33,22 @@ def addBoolParams(params, bool_params) {
             [$class: "BooleanParameterValue", name: p.key, value: p.value])
     }
 }
+
+def dockerPullWithRetry(image, retries=10, sleep_time=1) {
+  def pulled = false
+  while (!pulled) {
+      try {
+          docker.image(image).pull()
+          pulled = true
+      }
+      catch (Exception e) {
+          if (!retries) {
+              throw e
+          }
+          echo("""Docker pull failed, retry count ${retries}: ${e.toString()}""")
+          sleep sleep_time
+          retries -= 1
+          sleep_time = sleep_time * 2
+      }
+  }
+}
