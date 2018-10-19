@@ -964,7 +964,7 @@ test_configs:
     test_plans: [boot]
 
   - device_type: rk3399_gru_kevin
-    test_plans: [boot]
+    test_plans: [boot, v4l2]
 
   - device_type: rk3399_puma_haikou
     test_plans: [boot, kselftest]
