@@ -124,8 +124,8 @@ node("docker && builder") {
             )
         }
     }
-
-    docker.image(docker_image).pull()
+    def j = new Job()
+    j.dockerPullWithRetry(docker_image)
     docker.image(docker_image).inside {
         stage("Build") {
             timeout(time: 180, unit: 'MINUTES') {
