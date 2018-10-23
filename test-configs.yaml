@@ -634,6 +634,15 @@ device_types:
     boot_method: uboot
     flags: ['lpae', 'fastboot']
 
+  rk3328_rock64:
+    name: 'rk3328-rock64'
+    mach: rockchip
+    class: arm64-dtb
+    boot_method: uboot
+    filters:
+      - blacklist: *allmodconfig_filter
+      - blacklist: {kernel: ['v3.', 'v4.4', 'v4.9']}
+
   rk3288_veyron_jaq:
     name: 'rk3288-veyron-jaq'
     mach: rockchip
@@ -962,6 +971,9 @@ test_configs:
 
   - device_type: rk3288_rock2_square
     test_plans: [boot, boot_nfs, kselftest, sleep, usb]
+
+  - device_type: rk3328_rock64
+    test_plans: [boot]
 
   - device_type: rk3288_veyron_jaq
     test_plans: [boot, boot_nfs, sleep, usb, v4l2, igt, cros_ec]
