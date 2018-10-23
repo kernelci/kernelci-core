@@ -92,7 +92,7 @@ ${kci_core}/build.py \
     sh(script: """rm -rf ${kdir}""")
 }
 
-node("docker-builder") {
+node("docker") {
     def docker_image = "${params.DOCKERBASE}${params.COMPILER}_${params.ARCH}"
 
     echo("""\
