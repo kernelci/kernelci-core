@@ -74,7 +74,13 @@ def buildImage(config) {
 }
 
 
-def makeImageStep(String pipeline_version, String arch, String debianRelease, String debosFile, String extraPackages, String name, String script) {
+def makeImageStep(String pipeline_version,
+                  String arch,
+                  String debianRelease,
+                  String debosFile,
+                  String extraPackages,
+                  String name,
+                  String script) {
     return {
         node('builder' && 'docker') {
             stage("Checkout") {
@@ -85,7 +91,13 @@ def makeImageStep(String pipeline_version, String arch, String debianRelease, St
                 stage("Build base image for ${arch}") {
                     sh """
                         mkdir -p ${pipeline_version}/${arch}
-                        debos -t architecture:${arch} -t suite:${debianRelease} -t basename:${pipeline_version}/${arch} -t extra_packages:'${extraPackages}' -t script:${script} ${debosFile}
+                        debos \
+                            -t architecture:${arch} \
+                            -t suite:${debianRelease} \
+                            -t basename:${pipeline_version}/${arch} \
+                            -t extra_packages:'${extraPackages}' \
+                            -t script:${script} \
+                            ${debosFile}
                     """
                 archiveArtifacts artifacts: "${pipeline_version}/${arch}/initrd.cpio.gz", fingerprint: true
                 archiveArtifacts artifacts: "${pipeline_version}/${arch}/rootfs.cpio.gz", fingerprint: true
@@ -122,5 +134,3 @@ def getDockerArgs() {
 
   return "--group-add " + "${GROUP}"
 }
-
-
