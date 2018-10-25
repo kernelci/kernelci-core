@@ -57,6 +57,8 @@ def buildImage(config) {
         script = config.script
     }
 
+    def test_overlay = config.test_overlay ?: ""
+
     def stepsForParallel = [:]
     for (int i = 0; i < archList.size(); i++) {
         def arch = archList[i]
@@ -67,7 +69,8 @@ def buildImage(config) {
                                                     debosFile,
                                                     extraPackages,
                                                     name,
-                                                    script)
+                                                    script,
+                                                    test_overlay)
     }
 
     parallel stepsForParallel
@@ -80,7 +83,8 @@ def makeImageStep(String pipeline_version,
                   String debosFile,
                   String extraPackages,
                   String name,
-                  String script) {
+                  String script,
+                  String test_overlay) {
     return {
         node('builder' && 'docker') {
             stage("Checkout") {
@@ -97,6 +101,7 @@ def makeImageStep(String pipeline_version,
                             -t basename:${pipeline_version}/${arch} \
                             -t extra_packages:'${extraPackages}' \
                             -t script:${script} \
+                            -t test_overlay:'${test_overlay}' \
                             ${debosFile}
                     """
                 archiveArtifacts artifacts: "${pipeline_version}/${arch}/initrd.cpio.gz", fingerprint: true
