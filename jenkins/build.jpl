@@ -40,6 +40,8 @@ GIT_DESCRIBE_VERBOSE
   Verbose output of 'git describe' at the revision of the snapshot
 COMMIT_ID
   Git commit SHA1 at the revision of the snapshot
+COMPILER (gcc-7)
+  Name and version number of the compiler
 PUBLISH (boolean)
   Publish build results via the KernelCI backend API
 EMAIL (boolean)
@@ -52,6 +54,8 @@ KCI_CORE_URL (https://github.com/kernelci/kernelci-core.git)
   URL of the kernelci-core repository
 KCI_CORE_BRANCH (master)
   Name of the branch to use in the kernelci-core repository
+DOCKER_BASE
+  Dockerhub base address used for the build images
 PARALLEL_BUILDS
   Number of kernel builds to run in parallel
 
@@ -93,7 +97,7 @@ ${kci_core}/build.py \
 }
 
 node("docker && builder") {
-    def docker_image = "${params.DOCKERBASE}${params.COMPILER}_${params.ARCH}"
+    def docker_image = "${params.DOCKER_BASE}${params.COMPILER}_${params.ARCH}"
 
     echo("""\
     Tree:      ${params.TREE_NAME}
