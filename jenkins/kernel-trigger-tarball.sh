@@ -64,6 +64,8 @@ trees=(
     [tomeu]="https://gitlab.collabora.com/tomeu/linux.git"
     [osf]="https://github.com/OpenSourceFoundries/linux.git"
     [clk]="https://git.kernel.org/pub/scm/linux/kernel/git/clk/linux.git"
+    [dmaengine]="git://git.infradead.org/users/vkoul/slave-dma.git"
+    [soundwire]="https://git.kernel.org/pub/scm/linux/kernel/git/vkoul/soundwire.git"
 )
 
 OFS=${IFS}
