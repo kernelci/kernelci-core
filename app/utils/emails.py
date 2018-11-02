@@ -145,10 +145,10 @@ def create_email(
 
     if sender_desc:
         if is_ascii(sender_desc):
-            from_str = u"{:s} <{:s}>".format(sender_desc, from_addr)
+            from_str = u"\"{:s}\" <{:s}>".format(sender_desc, from_addr)
         else:
             # Only the description needs to be encoded, not the email.
-            from_str = u"{:s} <{:s}>".format(
+            from_str = u"\"{:s}\" <{:s}>".format(
                 Header(sender_desc, "utf-8").encode(), from_addr)
     else:
         from_str = from_addr
