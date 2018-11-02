@@ -56,7 +56,6 @@ cross_compilers = {
     "i386": None,
     "x86": None,
     "x86_64": None,
-    "arc": "arc-linux-"
 }
 
 # Defaults
