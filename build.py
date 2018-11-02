@@ -57,6 +57,7 @@ cross_compilers = {
     "x86": None,
     "x86_64": None,
     "arc": "arc-linux-",
+    "riscv": "riscv64-linux-gnu-",
 }
 
 # Defaults
