@@ -70,6 +70,17 @@ def addDefconfigs(configs, kdir, arch) {
         if (arch == "mips") {
             configs.remove("generic_defconfig")
         }
+        if (arch == "arc") {
+            // remove any non ARCv2 defconfigs since we only have ARCv2 toolchain
+            dir(configs_dir) {
+                def found = sh(script: "grep -L CONFIG_ISA_ARCV2 *defconfig || echo -n",
+                               returnStdout: true)
+                for (String config: found.tokenize(' \n'))
+                    configs.remove(config)
+            }
+	    // also remove "nsim_hs_defconfig" since this will be base_defconfig later
+	    configs.remove("nsim_hs_defconfig")
+        }
     } else {
         echo("WARNING: No configs directory: ${configs_dir}")
     }
@@ -88,6 +99,10 @@ def addExtraConfigs(configs, kdir, arch) {
     def base_defconfig = "defconfig"
     def extra = []
 
+    if (arch == "arc") {
+        // default "defconfig" is not ARCv2, and we only have ARCv2 toolchain
+        base_defconfig = "nsim_hs_defconfig"
+    }
     if (arch == "arm") {
         base_defconfig = "multi_v7_defconfig"
 
