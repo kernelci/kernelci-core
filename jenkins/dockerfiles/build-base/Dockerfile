@@ -27,7 +27,8 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     make \
     tar \
     u-boot-tools \
-    wget
+    wget \
+    xz-utils
 
 # Python 2.7
 RUN apt-get update && apt-get install --no-install-recommends -y \
