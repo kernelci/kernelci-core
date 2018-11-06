@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     bsdmainutils \
     ccache \
     flex \
+    g++ \
     gcc \
     git \
     kmod \
