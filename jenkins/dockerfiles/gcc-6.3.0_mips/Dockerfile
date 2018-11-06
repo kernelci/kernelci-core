@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     bzip2 \
     ccache \
     flex \
+    g++ \
     git \
     kmod \
     libssl-dev \
