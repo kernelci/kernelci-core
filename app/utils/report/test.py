@@ -135,9 +135,9 @@ def create_test_report(data, email_format, db_options,
         if group["_id"] not in sub_group_ids and  \
            group["name"] != "lava" and \
            not plans:
-               top_groups.append(group)
+            top_groups.append(group)
         elif plans and group["name"] in plans:
-               top_groups.append(group)
+            top_groups.append(group)
 
     if not top_groups:
         utils.LOG.warning("Failed to find test group documents")

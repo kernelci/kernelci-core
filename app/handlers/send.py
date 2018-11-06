@@ -390,8 +390,8 @@ class SendHandler(hbase.BaseHandler):
             has_errors = True
             error_string = "No email addresses provided to send test report to"
             self.log.error(
-                "No email addresses to send test report to for '%s-%s-%s-plans_%s'",
-                job, git_branch, kernel, "_".join(plans))
+                "%s for '%s-%s-%s-plans_%s'",
+                error_string, job, git_branch, kernel, "_".join(plans))
 
         return has_errors, error_string
 

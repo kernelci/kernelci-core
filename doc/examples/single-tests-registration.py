@@ -37,12 +37,12 @@ def main():
             "test_group_id": test_group_id
         }
 
-
         url = urljoin(BACKEND_URL, "/test/case")
         response = requests.post(
             url, data=json.dumps(test_case), headers=headers)
 
         print response.content
+
 
 if __name__ == "__main__":
     main()

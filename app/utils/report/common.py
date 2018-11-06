@@ -62,10 +62,10 @@ if os.path.isfile(DEFAULT_CONFIG_FILE):
         for line in infile:
             if line.startswith("base_url"):
                 value = line.split("=")[1].strip()
-                DEFAULT_BASE_URL = value.replace("'","")
+                DEFAULT_BASE_URL = value.replace("'", "")
             elif line.startswith("storage_url"):
                 value = line.split("=")[1].strip()
-                DEFAULT_STORAGE_URL = value.replace("'","")
+                DEFAULT_STORAGE_URL = value.replace("'", "")
 
 DEFAULT_BOOT_URL = DEFAULT_BASE_URL + u"/boot/all/job"
 BOOT_ID_URL = DEFAULT_BASE_URL + u"/boot/id/{_id:s}/"
