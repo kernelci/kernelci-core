@@ -59,7 +59,7 @@ cp -a /tmp/tests/igt/usr/lib/lib*.so* /usr/lib/
 mkdir -p /tmp/tests/igt-gpu-tools && cd /tmp/tests/igt-gpu-tools
 git clone --depth=1 git://anongit.freedesktop.org/drm/igt-gpu-tools .
 
-echo '    {"name": "igt-gpu-tools", "git_url": "git://anongit.freedesktop.org/drm/igt-gpu-tools", "git_commit": ' \"`git rev-parse HEAD`\" '},' >> $BUILDFILE
+echo '    {"name": "igt-gpu-tools", "git_url": "git://anongit.freedesktop.org/drm/igt-gpu-tools", "git_commit": ' \"`git rev-parse HEAD`\" '}' >> $BUILDFILE
 
 
 PKG_CONFIG_PATH=/tmp/tests/igt/usr/lib/pkgconfig sh autogen.sh
@@ -74,25 +74,6 @@ strip /tmp/tests/igt2/usr/bin/*
 # Copy binaries in the image
 cp -a /tmp/tests/igt2/usr/bin/* /usr/bin/
 
-
-# Build v4l2
-########################################################################
-
-mkdir -p /tmp/tests/v4l2-compliance && cd /tmp/tests/v4l2-compliance
-git clone --depth=1 git://linuxtv.org/v4l-utils.git .
-
-echo '    {"name": "v4l2-compliance", "git_url": "git://linuxtv.org/v4l-utils.git", "git_commit": ' \"`git rev-parse HEAD`\" '}' >> $BUILDFILE
-
-
-sh bootstrap.sh
-./configure --prefix=/tmp/tests/v4l2/usr/ --with-udevdir=/tmp/tests/v4l2/usr/lib/udev
-make V=1
-make V=1 install
-strip /tmp/tests/v4l2/usr/bin/* /tmp/tests/v4l2/usr/lib/*.so* /tmp/tests/v4l2/usr/lib/libv4l/*.so*
-
-# Copy files in the image
-rm -rf  /tmp/tests/v4l2/usr/include /tmp/tests/v4l2/usr/share /tmp/tests/v4l2/usr/lib/udev /tmp/tests/v4l2/usr/lib/pkgconfig/
-cp -a /tmp/tests/v4l2/usr/* /usr/
 
 echo '  ]' >> $BUILDFILE
 
