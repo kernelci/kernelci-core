@@ -19,6 +19,7 @@
 
 import argparse
 import json
+import re
 import requests
 import subprocess
 try:
@@ -28,17 +29,19 @@ except ImportError:
 import urlparse
 from lib import configuration
 
-
-def git_summary(repo, revision):
-    return subprocess.check_output(
-        "cd {}; git show --oneline {} | head -n1".format(repo, revision),
-        shell=True).strip()
+RE_TRAILER = re.compile('^(?P<tag>[A-Z][a-z-]*)\: (?P<value>.*)$')
+RE_EMAIL = re.compile('^(?P<name>.*)(?P<email><.*@.*\..*>)')
+RE_MAILING_LIST = re.compile('^(?P<email>.*@.*\..*) \(')
 
 
 def git_cmd(repo, cmd):
     return subprocess.check_output(
         "cd {}; git {}".format(repo, cmd),
-        shell=True).strip()
+        shell=True).decode().strip()
+
+
+def git_summary(repo, revision):
+    return git_cmd(repo, "show --oneline {} | head -n1".format(revision))
 
 
 def git_bisect_log(repo):
@@ -46,6 +49,88 @@ def git_bisect_log(repo):
                          shell=True, stdout=subprocess.PIPE)
     stdout, _ = p.communicate()
     return list(l.strip() for l in StringIO(stdout).readlines())
+
+
+def git_show_fmt(repo, revision, fmt):
+    return git_cmd(
+        repo,
+        "show {} -s --pretty=format:'{}'".format(revision, fmt))
+
+
+def name_address(data):
+    name, address = (data.get(k, '').strip() for k in ['name', 'email'])
+    if name:
+        address = ' '.join([name, address])
+    return address
+
+
+def git_maintainers(kdir, revision):
+    maintainers = set()
+    p = subprocess.Popen(
+        "cd {}; git show {} --pretty=format:%b".format(kdir, revision),
+        shell=True, stdout=subprocess.PIPE)
+    body = p.communicate()[0]
+    p = subprocess.Popen(
+        "cd {}; ./scripts/get_maintainer.pl --nogit".format(kdir),
+        shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+    raw = p.communicate(input=body)[0]
+    for l in raw.split('\n'):
+        m = RE_EMAIL.match(l) or RE_MAILING_LIST.match(l)
+        if m:
+            maintainers.add(name_address(m.groupdict()))
+    return list(maintainers)
+
+
+def git_people(kdir, revision):
+    people = {
+        'maintainers': git_maintainers(kdir, revision),
+        'author': [git_show_fmt(kdir, revision, '%an <%ae>')],
+        'committer': [git_show_fmt(kdir, revision, '%cn <%ce>')],
+        'Acked-by': [],
+        'Reported-by': [],
+        'Reviewed-by': [],
+        'Signed-off-by': [],
+        'Tested-by': [],
+    }
+    body = git_show_fmt(kdir, revision, '%b')
+
+    for l in body.split('\n'):
+        m = RE_TRAILER.match(l)
+        if m:
+            md = m.groupdict()
+            tag, value = (md[k] for k in ['tag', 'value'])
+            if tag in people:
+                e = RE_EMAIL.match(value)
+                if e:
+                    people[tag].append(name_address(e.groupdict()))
+
+    return people
+
+
+def add_git_recipients(kdir, revision, to, cc):
+    recipients_map = {
+        'author': to,
+        'committer': cc,
+        'maintainers': cc,
+        'Acked-by': to,
+        'Reported-by': to,
+        'Reviewed-by': to,
+        'Signed-off-by': to,
+        'Tested-by': to,
+    }
+    people = git_people(kdir, revision)
+
+    for category, entries in people.iteritems():
+        recip = recipients_map[category]
+        for e in entries:
+            recip.add(e)
+
+
+def checks_dict(args):
+    return {check: args[check] for check in [
+        'verify',
+        'revert',
+    ]}
 
 
 def upload_log(args, upload_path, log_file_name, token, api):
@@ -92,10 +177,7 @@ def send_result(args, log_file_name, token, api):
         'good_summary': git_summary(kdir, args['good']),
         'bad_summary': git_summary(kdir, args['bad']),
         'found_summary': git_summary(kdir, 'refs/bisect/bad'),
-        'checks': { check: args[check] for check in [
-            'verify',
-            'revert',
-        ]},
+        'checks': checks_dict(args),
     })
     url = urlparse.urljoin(api, '/bisect')
     response = requests.post(url, headers=headers, data=json.dumps(data))
@@ -103,6 +185,7 @@ def send_result(args, log_file_name, token, api):
 
 
 def send_report(args, log_file_name, token, api):
+    kdir = args['kdir']
     headers = {
         'Authorization': token,
         'Content-Type': 'application/json',
@@ -120,13 +203,20 @@ def send_report(args, log_file_name, token, api):
         'bad_commit': 'bad',
         'subject': 'subject',
     }
+
     data = {k: args[v] for k, v in data_map.iteritems()}
+    to, cc = set(args['to'].split(' ')), set()
+    if all(check == 'PASS' for check in checks_dict(args).values()):
+        add_git_recipients(kdir, 'refs/bisect/bad', to, cc)
+    cc = cc.difference(to)
     data.update({
         'report_type': 'bisect',
         'log': log_file_name,
         'format': ['txt', 'html'],
-        'send_to': args['to'].split(' '),
+        'send_to': list(to),
+        'send_cc': list(cc),
     })
+
     url = urlparse.urljoin(api, '/send')
     response = requests.post(url, headers=headers, data=json.dumps(data))
     response.raise_for_status()
