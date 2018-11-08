@@ -3,15 +3,14 @@ import org.kernelci.debian.RootFS
 
 def r = new RootFS()
 
-def config = ['name':"stretchtests",
+def config = ['name':"stretch-igt",
               'arch_list':["armhf", "armel", "arm64", "i386", "amd64",
                            "mips", "mipsel"],
               'debian_release':"stretch",
               'extra_packages':"libpciaccess0 libkmod2 libprocps6 libcairo2 \
                                 libssl1.1 libunwind8 libudev1 libglib2.0-0 \
                                 libdw1 liblzma5",
-              'script':"scripts/stretchtests.sh",
-              'test_overlay': "overlays/tests",
+              'script':"scripts/stretch-igt.sh",
              ]
 
 r.buildImage(config)
