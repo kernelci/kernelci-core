@@ -8,7 +8,7 @@ def config = ['name':"stretch-v4l2",
               'debian_release':"stretch",
               'extra_packages':"",
               'script':"scripts/stretch-v4l2.sh",
-              'test_overlay': "overlays/tests",
+              'test_overlay': "overlays/v4l2",
              ]
 
 r.buildImage(config)
