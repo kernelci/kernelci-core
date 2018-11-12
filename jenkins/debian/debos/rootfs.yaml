@@ -39,7 +39,7 @@ actions:
 
   - action: run
     chroot: false
-    command: cp ${ROOTDIR}/build_info.json ${ARTIFACTDIR}/{{ $basename -}}/build_info.json
+    command: mkdir -p ${ARTIFACTDIR}/{{ $basename -}} ; cp ${ROOTDIR}/build_info.json ${ARTIFACTDIR}/{{ $basename -}}/build_info.json
 
   - action: run
     description: Install extra packages
