@@ -126,7 +126,8 @@ def _search_prev_build_doc(build_doc, database):
             models.DEFCONFIG_KEY: build_doc.defconfig,
             models.GIT_BRANCH_KEY: build_doc.git_branch,
             models.JOB_KEY: build_doc.job,
-            models.KERNEL_KEY: build_doc.kernel
+            models.KERNEL_KEY: build_doc.kernel,
+            models.BUILD_ENVIRONMENT_KEY: build_doc.build_environment
         }
         prev_doc = utils.db.find(
             database[models.BUILD_COLLECTION],
@@ -247,6 +248,7 @@ def parse_build_data(build_data, job, kernel, build_dir):
         d_job = build_data.get(models.JOB_KEY, job)
         d_kernel = build_data.get(models.KERNEL_KEY, kernel)
         d_branch = build_data.get(models.GIT_BRANCH_KEY)
+        d_build_environment = build_data.get(models.BUILD_ENVIRONMENT_KEY)
         defconfig_full = build_data.get(models.DEFCONFIG_FULL_KEY, None)
         kconfig_fragments = build_data.get(
             models.KCONFIG_FRAGMENTS_KEY, None)
@@ -256,7 +258,7 @@ def parse_build_data(build_data, job, kernel, build_dir):
 
         build_doc = mbuild.BuildDocument(
             d_job,
-            d_kernel, defconfig, d_branch, defconfig_full=defconfig_full)
+            d_kernel, defconfig, d_branch, d_build_environment, defconfig_full=defconfig_full)
 
         build_doc.arch = build_data.get(models.ARCHITECTURE_KEY, None)
         build_doc.build_log = build_data.get(models.BUILD_LOG_KEY, None)
@@ -544,6 +546,7 @@ def import_single_build(json_obj, db_options, base_path=utils.BASE_PATH):
     kernel = j_get(models.KERNEL_KEY)
     defconfig = j_get(models.DEFCONFIG_KEY)
     git_branch = j_get(models.GIT_BRANCH_KEY)
+    build_environment = j_get(models.BUILD_ENVIRONMENT_KEY)
     defconfig_full = j_get(models.DEFCONFIG_FULL_KEY, None)
 
     # Clean up the branch name so we don't have "local/*" anymore.
@@ -551,10 +554,10 @@ def import_single_build(json_obj, db_options, base_path=utils.BASE_PATH):
 
     if (utils.valid_name(job) and utils.valid_name(kernel)):
         # New directory structure:
-        # $job/$branch/$kernel/$arch/$defconfig
+        # $job/$branch/$kernel/$arch/$defconfig/$environment
 
         parent_dir = os.path.join(base_path, job, git_branch, kernel, arch)
-        build_dir = os.path.join(parent_dir, defconfig_full or defconfig)
+        build_dir = os.path.join(parent_dir, defconfig_full or defconfig, build_environment)
 
         if os.path.isdir(build_dir):
             try:
@@ -567,11 +570,11 @@ def import_single_build(json_obj, db_options, base_path=utils.BASE_PATH):
                         "Error saving/finding job document '%s-%s-%s' for "
                         "'%s-%s' might not be linked to its job")
                     utils.LOG.error(
-                        err_msg, job, kernel, git_branch, arch, defconfig)
+                        err_msg, job, kernel, git_branch, arch, defconfig, build_environment)
                     ERR_ADD(
                         errors,
                         ret_val,
-                        err_msg % (job, kernel, git_branch, arch, defconfig)
+                        err_msg % (job, kernel, git_branch, arch, defconfig, build_environment)
                     )
 
                 build_doc = _traverse_build_dir(
@@ -591,9 +594,9 @@ def import_single_build(json_obj, db_options, base_path=utils.BASE_PATH):
                     ret_val, build_id = utils.db.save(
                         database, build_doc, manipulate=True)
                 if ret_val != 201:
-                    err_msg = "Error saving build document '%s-%s-%s-%s-%s'"
+                    err_msg = "Error saving build document '%s-%s-%s-%s-%s-%s'"
                     utils.LOG.error(
-                        err_msg, job, git_branch, kernel, arch, defconfig)
+                        err_msg, job, git_branch, kernel, arch, defconfig, build_environment)
                     ERR_ADD(
                         errors,
                         ret_val, err_msg % (
@@ -602,21 +605,21 @@ def import_single_build(json_obj, db_options, base_path=utils.BASE_PATH):
                 utils.LOG.exception(ex)
                 utils.LOG.error("Error getting database connection")
                 utils.LOG.warn(
-                    "Build for '%s-%s-%s-%s-%s' will not be imported",
-                    job, git_branch, kernel, arch, defconfig)
+                    "Build for '%s-%s-%s-%s-%s-%s' will not be imported",
+                    job, git_branch, kernel, arch, defconfig, build_environment)
                 ERR_ADD(
                     errors, 500,
-                    "Internal server error: build for '%s-%s-%s-%s-%s' "
+                    "Internal server error: build for '%s-%s-%s-%s-%s-%s' "
                     "will not be imported" % (
-                        job, git_branch, kernel, arch, defconfig)
+                        job, git_branch, kernel, arch, defconfig, build_environment)
                 )
         else:
             err_msg = (
-                "No build directory found for '%s-%s-%s-%s-%s': "
+                "No build directory found for '%s-%s-%s-%s-%s-%s': "
                 "has everything been uploaded?")
-            utils.LOG.error(err_msg, job, git_branch, kernel, arch, defconfig)
+            utils.LOG.error(err_msg, job, git_branch, kernel, arch, defconfig, build_environment)
             ERR_ADD(errors, 500, err_msg % (
-                job, git_branch, kernel, arch, defconfig))
+                job, git_branch, kernel, arch, defconfig, build_environment))
     else:
         err_msg = (
             "Wrong name for job and/or kernel value (%s-%s). "

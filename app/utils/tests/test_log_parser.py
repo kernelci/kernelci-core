@@ -40,7 +40,7 @@ class TestBuildLogParser(unittest.TestCase):
 
         try:
             build_doc = mbuild.BuildDocument(
-                "job", "kernel", "defconfig", "branch")
+                "job", "kernel", "defconfig", "branch", "build_environment")
             build_dir = tempfile.mkdtemp()
             log_file = os.path.join(
                 os.path.abspath(os.path.dirname(__file__)),
@@ -68,7 +68,7 @@ class TestBuildLogParser(unittest.TestCase):
         errors = {}
         try:
             build_doc = mbuild.BuildDocument(
-                "job", "kernel", "defconfig", "branch")
+                "job", "kernel", "defconfig", "branch", "build_environment")
             build_dir = tempfile.mkdtemp()
             log_file = os.path.join(build_dir, utils.BUILD_LOG_FILE)
 

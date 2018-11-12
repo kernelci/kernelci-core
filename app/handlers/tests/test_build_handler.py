@@ -135,7 +135,8 @@ class TestBuildHandler(TestHandlerBase):
                 kernel="kernel",
                 defconfig="defconfig",
                 arch="arch",
-                git_branch="branch"
+                git_branch="branch",
+                build_environment="build_environment"
             )
         )
 

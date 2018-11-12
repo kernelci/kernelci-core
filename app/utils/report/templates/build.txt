@@ -72,7 +72,7 @@ Detailed per-defconfig build reports:
 {%- set mism = P_("{:d} section mismatch", "{:d} section mismatches", d.mismatches_count).format(d.mismatches_count) -%}
 
 {{ "{:-^80}".format("") }}
-{{ "{} ({}) \u2014 {}, {}, {}, {}".format(d.defconfig_full, d.arch, d.status, errs, warns, mism) }}
+{{ "{} ({}, {}) \u2014 {}, {}, {}, {}".format(d.defconfig_full, d.arch, d.compiler_version_ext, d.status, errs, warns, mism) }}
 {%- if d.errors %}
 
 Errors:

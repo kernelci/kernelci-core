@@ -57,6 +57,7 @@ CHAINLOADER_TYPE_KEY = "chainloader"
 COMPARED_KEY = "compared"
 COMPARE_TO_KEY = "compare_to"
 COMPILER_KEY = "compiler"
+BUILD_ENVIRONMENT_KEY = "build_environment"
 COMPILER_VERSION_EXT_KEY = "compiler_version_ext"
 COMPILER_VERSION_FULL_KEY = "compiler_version_full"
 COMPILER_VERSION_KEY = "compiler_version"
@@ -545,6 +546,7 @@ BUILD_VALID_KEYS = {
         BUILD_LOG_SIZE_KEY,
         BUILD_TYPE_KEY,
         COMPILER_KEY,
+        BUILD_ENVIRONMENT_KEY,
         COMPILER_VERSION_KEY,
         CREATED_KEY,
         DEFCONFIG_FULL_KEY,
@@ -576,6 +578,7 @@ BUILD_VALID_KEYS = {
     "POST": {
         MANDATORY_KEYS: [
             ARCHITECTURE_KEY,
+            BUILD_ENVIRONMENT_KEY,
             DEFCONFIG_KEY,
             GIT_BRANCH_KEY,
             JOB_KEY,
@@ -583,6 +586,7 @@ BUILD_VALID_KEYS = {
         ],
         ACCEPTED_KEYS: [
             ARCHITECTURE_KEY,
+            BUILD_ENVIRONMENT_KEY,
             DEFCONFIG_FULL_KEY,
             DEFCONFIG_KEY,
             GIT_BRANCH_KEY,
@@ -984,6 +988,7 @@ DISTINCT_VALID_FIELDS = {
     BUILD_COLLECTION: [
         ARCHITECTURE_KEY,
         COMPILER_KEY,
+        BUILD_ENVIRONMENT_KEY,
         COMPILER_VERSION_EXT_KEY,
         COMPILER_VERSION_KEY,
         DEFCONFIG_FULL_KEY,

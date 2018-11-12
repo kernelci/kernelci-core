@@ -26,7 +26,7 @@ class BuildDocument(mbase.BaseDocument):
     """This class represents a build."""
 
     def __init__(
-            self, job, kernel, defconfig, git_branch, defconfig_full=None):
+            self, job, kernel, defconfig, git_branch, build_environment, defconfig_full=None):
         """A build document.
 
         :param job: The job value.
@@ -38,6 +38,8 @@ class BuildDocument(mbase.BaseDocument):
         :param defconfig_full: The full value of the defconfig when it contains
         fragments. Default to the same 'defconfig' value.
         :type defconfig_full: string
+        :param build_environment: The description of the build environment used to build the kernel_image
+        :type build_environment: string
         """
         self._created_on = None
         self._id = None
@@ -62,6 +64,7 @@ class BuildDocument(mbase.BaseDocument):
         self.compiler_version = None
         self.compiler_version_ext = None
         self.compiler_version_full = None
+        self.build_environment = build_environment
         self.cross_compile = None
         self.dirname = None
         self.dtb_dir = None
@@ -197,6 +200,7 @@ class BuildDocument(mbase.BaseDocument):
             models.COMPILER_VERSION_EXT_KEY: self.compiler_version_ext,
             models.COMPILER_VERSION_FULL_KEY: self.compiler_version_full,
             models.COMPILER_VERSION_KEY: self.compiler_version,
+            models.BUILD_ENVIRONMENT_KEY: self.build_environment,
             models.CREATED_KEY: self.created_on,
             models.CROSS_COMPILE_KEY: self.cross_compile,
             models.DEFCONFIG_FULL_KEY: self.defconfig_full,
@@ -257,11 +261,12 @@ class BuildDocument(mbase.BaseDocument):
                 kernel = doc_pop(models.KERNEL_KEY)
                 defconfig = doc_pop(models.DEFCONFIG_KEY)
                 git_branch = doc_pop(models.GIT_BRANCH_KEY)
+                build_environment = doc_pop(models.BUILD_ENVIRONMENT_KEY)
 
                 build_doc = BuildDocument(
                     job,
                     kernel,
-                    defconfig, git_branch, defconfig_full=defconfig_full)
+                    defconfig, git_branch, build_environment, defconfig_full=defconfig_full)
                 build_doc.id = doc_id
 
                 for key, val in local_obj.iteritems():

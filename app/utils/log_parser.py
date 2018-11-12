@@ -590,7 +590,8 @@ def parse_single_build_log(
                 build_doc.git_branch,
                 build_doc.kernel,
                 build_doc.arch,
-                build_doc.defconfig_full)
+                build_doc.defconfig_full,
+                build_doc.build_environment)
 
             log_file = os.path.join(build_dir, build_log)
             status, err_lines, warn_lines, mism_lines = _parse_log(

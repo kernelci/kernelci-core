@@ -39,7 +39,8 @@ BUILD_DELTA_VALID_KEYS = {
         models.DEFCONFIG_FULL_KEY,
         models.DEFCONFIG_KEY,
         models.JOB_KEY,
-        models.KERNEL_KEY
+        models.KERNEL_KEY,
+        models.BUILD_ENVIRONMENT_KEY
     ]
 }
 
@@ -63,7 +64,8 @@ BUILD_COMPARE_TO_VALID_KEYS = [
     models.DEFCONFIG_FULL_KEY,
     models.DEFCONFIG_KEY,
     models.JOB_KEY,
-    models.KERNEL_KEY
+    models.KERNEL_KEY,
+    models.BUILD_ENVIRONMENT_KEY
 ]
 
 BOOT_COMPARE_VALID_KEYS = [

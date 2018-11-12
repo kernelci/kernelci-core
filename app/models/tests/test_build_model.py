@@ -21,18 +21,18 @@ class TestBuildModel(unittest.TestCase):
 
     def test_build_document_valid_instance(self):
         build_doc = mbuild.BuildDocument(
-            "job", "kernel", "defconfig", "branch")
+            "job", "kernel", "defconfig", "branch", "build_environment")
         self.assertIsInstance(build_doc, modb.BaseDocument)
         self.assertIsInstance(build_doc, mbuild.BuildDocument)
 
     def test_build_document_collection(self):
         build_doc = mbuild.BuildDocument(
-            "job", "kernel", "defconfig", "branch")
+            "job", "kernel", "defconfig", "branch", "build_environment")
         self.assertEqual(build_doc.collection, "build")
 
     def test_build_document_to_dict(self):
         build_doc = mbuild.BuildDocument(
-            "job", "kernel", "defconfig", "branch")
+            "job", "kernel", "defconfig", "branch", "build_environment")
 
         build_doc.id = "build_id"
         build_doc.job_id = "job_id"
@@ -130,14 +130,15 @@ class TestBuildModel(unittest.TestCase):
             "vmlinux_file_size": 1024,
             "vmlinux_text_size": 1024,
             "vmlinux_bss_size": 1024,
-            "vmlinux_data_size": 1024
+            "vmlinux_data_size": 1024,
+            "build_environment": "build_environment"
         }
 
         self.assertDictEqual(expected, build_doc.to_dict())
 
     def test_deconfig_set_status_wrong_and_right(self):
         build_doc = mbuild.BuildDocument(
-            "job", "kernel", "defconfig", "branch")
+            "job", "kernel", "defconfig", "branch", "build_environment")
 
         self.assertRaises(ValueError, setattr, build_doc, "status", "foo")
         self.assertRaises(ValueError, setattr, build_doc, "status", [])
@@ -155,7 +156,7 @@ class TestBuildModel(unittest.TestCase):
 
     def test_defconfig_set_build_platform_wrong(self):
         build_doc = mbuild.BuildDocument(
-            "job", "kernel", "defconfig", "branch")
+            "job", "kernel", "defconfig", "branch", "build_environment")
 
         self.assertRaises(
             TypeError, setattr, build_doc, "build_platform", ())
@@ -166,14 +167,14 @@ class TestBuildModel(unittest.TestCase):
 
     def test_defconfig_set_build_platform(self):
         build_doc = mbuild.BuildDocument(
-            "job", "kernel", "defconfig", "branch")
+            "job", "kernel", "defconfig", "branch", "build_environment")
         build_doc.build_platform = ["a", "b"]
 
         self.assertListEqual(build_doc.build_platform, ["a", "b"])
 
     def test_defconfig_set_metadata_wrong(self):
         build_doc = mbuild.BuildDocument(
-            "job", "kernel", "defconfig", "branch")
+            "job", "kernel", "defconfig", "branch", "build_environment")
 
         self.assertRaises(TypeError, setattr, build_doc, "metadata", ())
         self.assertRaises(TypeError, setattr, build_doc, "metadata", [])
@@ -255,7 +256,8 @@ class TestBuildModel(unittest.TestCase):
             "vmlinux_file_size": 1024,
             "vmlinux_text_size": 1024,
             "vmlinux_bss_size": 1024,
-            "vmlinux_data_size": 1024
+            "vmlinux_data_size": 1024,
+            "build_environment": "build_environment"
         }
         build_doc = mbuild.BuildDocument.from_json(json_obj)
 

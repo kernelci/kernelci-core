@@ -400,7 +400,7 @@ class TestBuildUtils(unittest.TestCase):
     def test_update_job_doc(self):
         job_doc = mjob.JobDocument("job", "kernel", "branch")
         build_doc = mbuild.BuildDocument(
-            "job", "kernel", "defconfig", "branch")
+            "job", "kernel", "defconfig", "branch", "build_environment")
         build_doc.git_branch = "branch"
         build_doc.git_commit = "1234567890"
         build_doc.git_describe = "kernel.version"
@@ -473,7 +473,8 @@ class TestBuildUtils(unittest.TestCase):
             "kernel": "akernel",
             "defconfig": "defconfig",
             "arch": "arch",
-            "git_branch": "branch"
+            "git_branch": "branch",
+            "build_environment": "build_environment"
         }
         build_id, job_id, errors = utils.build.import_single_build(
             json_obj, {})
@@ -501,7 +502,7 @@ class TestBuildUtils(unittest.TestCase):
             "git_branch": "branch"
         }
         build_doc = mbuild.BuildDocument(
-            "job", "kernel", "defconfig", "branch")
+            "job", "kernel", "defconfig", "branch", "build_environment")
         build_doc.git_branch = "branch"
 
         mock_tr.return_value = build_doc
@@ -514,7 +515,8 @@ class TestBuildUtils(unittest.TestCase):
             "kernel": "akernel",
             "defconfig": "defconfig",
             "git_branch": "branch",
-            "arch": "arch"
+            "arch": "arch",
+            "build_environment": "build_environment"
         }
         build_id, job_id, errors = utils.build.import_single_build(
             json_obj, {})
