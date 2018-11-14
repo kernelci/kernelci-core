@@ -25,10 +25,27 @@ td {
 pre {
   display: inline;
 }
+div.disclaimer {
+  background-color: #eeeeee;
+  width: 480px;
+  padding: 2px 8px 2px 8px;
+  font-size: 0.8em;
+}
       </style>
       <title>{{ subject_str }}</title>
     </head>
     <body>
+      <div class="disclaimer">
+        <p>
+          This automated bisection report was sent to you on the basis that you
+          may be involved with the breaking commit it has found.  No manual
+          investigation has been done to verify it, and the root cause of the
+          problem may be somewhere else.
+        </p>
+        <p>
+          Hope this helps!
+        </p>
+      </div>
       <p>
         <h1>{{ subject_str }}</h1>
         <table>
