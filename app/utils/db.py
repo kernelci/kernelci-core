@@ -179,7 +179,7 @@ def find_one3(
     return db[collection].find_one(spec_or_id, fields=fields, sort=sort)
 
 
-def find(collection, limit, skip, spec=None, fields=None, sort=None):
+def find(collection, limit=0, skip=0, spec=None, fields=None, sort=None):
     """Find documents in a collection with optional specified values.
 
     The `spec` argument is a dictionary of fields and values that should be
@@ -187,7 +187,7 @@ def find(collection, limit, skip, spec=None, fields=None, sort=None):
     returned. By default all documents in the collection will be returned.
 
     :param collection: The collection where to search.
-    :param limit: How many documents to return.
+    :param limit: How many documents to return, or 0 for not limit.
     :type int
     :param skip: How many document to skip from the result.
     :type int
@@ -204,7 +204,8 @@ def find(collection, limit, skip, spec=None, fields=None, sort=None):
         limit=limit, skip=skip, fields=fields, sort=sort, spec=spec)
 
 
-def find_and_count(collection, limit, skip, spec=None, fields=None, sort=None):
+def find_and_count(collection, limit=0, skip=0, spec=None, fields=None,
+                   sort=None):
     """Find all the documents in a collection, and return the total count.
 
     This will execute two operations: a `find` that will retrieve the documents
@@ -215,7 +216,7 @@ def find_and_count(collection, limit, skip, spec=None, fields=None, sort=None):
     number of documents in the collection.
 
     :param collection: The collection where to search.
-    :param limit: How many documents to return.
+    :param limit: How many documents to return, or 0 for no limit.
     :type int
     :param skip: How many document to skip from the result.
     :type int
