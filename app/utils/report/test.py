@@ -119,8 +119,6 @@ def create_test_report(data, email_format, db_options,
 
     test_group_docs = list(utils.db.find(
         database[models.TEST_GROUP_COLLECTION],
-        100,
-        0,
         spec=specs,
         fields=TEST_REPORT_FIELDS))
 
