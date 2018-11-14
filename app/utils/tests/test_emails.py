@@ -64,7 +64,7 @@ class TestEmails(unittest.TestCase):
         self.assertEqual("text/plain; charset=\"utf-8\"", msg["Content-Type"])
         self.assertEqual("quoted-printable", msg["Content-Transfer-Encoding"])
         self.assertEqual("to0@example.net", msg["To"])
-        self.assertEqual("Sender Email <from@example.net>", msg["From"])
+        self.assertEqual("\"Sender Email\" <from@example.net>", msg["From"])
         self.assertEqual("An ASCII email subject", msg["Subject"])
         self.assertListEqual(expected_addrs, send_to)
 
@@ -238,7 +238,7 @@ class TestEmails(unittest.TestCase):
             sender_desc=sender_desc
         )
 
-        expected_from = u"{:s} <{:s}>".format(
+        expected_from = u"\"{:s}\" <{:s}>".format(
             Header(sender_desc, "utf-8").encode(), self.from_addr)
 
         self.assertEqual("text/plain; charset=\"utf-8\"", msg["Content-Type"])
