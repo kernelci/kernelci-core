@@ -212,6 +212,20 @@ def send_report(args, log_file_name, token, api):
     if all(check == 'PASS' for check in checks_dict(args).values()):
         add_git_recipients(kdir, 'refs/bisect/bad', to, cc)
     cc = cc.difference(to)
+
+    # |<- STAGING --
+    print("*** recipients ***")
+    for recipients, name in (to, 'to'), (cc, 'cc'):
+        print("{}:".format(name))
+        for r in recipients:
+            print("  {}".format(r))
+    to = set(args['to'].split(' '))
+    cc = set()
+    print("Actually only sending emails to:")
+    for r in to:
+        print("  {}".format(r))
+    #  -- STAGING ->|
+
     data.update({
         'report_type': 'bisect',
         'log': log_file_name,
