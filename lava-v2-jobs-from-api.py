@@ -107,12 +107,17 @@ def get_job_params(config, test_config, defconfig, opts, build, plan):
     if arch == 'arm64' and dtb:
         dtb = opts['dtb'] = os.path.basename(dtb)
 
-    job_name = '-'.join([
-        config.get('tree'), config.get('branch'), config.get('describe'),
-        arch, defconfig, dtb or 'no-dtb', device_type.name, plan])
+    file_server_resource = build.get('file_server_resource')
+    if file_server_resource:
+        job_name_prefix = file_server_resource.replace('/', '-')
+        url_px = file_server_resource
+    else:
+        parts = [build['job'], build['git_branch'], build['kernel'], arch, defconfig]
+        job_name_prefix = '-'.join(parts)
+        url_px = '/'.join(parts)
 
-    url_px = '/'.join([
-        build['job'], build['git_branch'], build['kernel'], arch, defconfig])
+    job_name = '-'.join([job_name_prefix, dtb or 'no-dtb', device_type.name, plan])
+
     base_url = urlparse.urljoin(storage, '/'.join([url_px, '']))
     kernel_url = urlparse.urljoin(
         storage, '/'.join([url_px, build['kernel_image']]))
