@@ -2,7 +2,7 @@ Sphinx==1.4.9
 celery[redis]==3.1.25
 docutils==0.12
 futures==3.0.4
-hiredis
+hiredis==0.2.0
 jinja2
 netaddr==0.7.18
 pycares==1.0.0
@@ -11,7 +11,7 @@ python-jenkins==0.4.11
 python-dateutil
 pytz
 pyyaml==3.12
-redis
+redis==2.10.6
 scandir
 simplejson
 sphinx-bootstrap-theme
