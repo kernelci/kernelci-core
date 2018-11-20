@@ -49,7 +49,7 @@ rm -rf etc/dpkg
 # Drop directories not part of ostree
 # Note that /var needs to exist as ostree bind mounts the deployment /var over
 # it
-rm -rf var/* opt srv share
+rm -rf var/* srv share
 
 # ca-certificates are in /etc drop the source
 rm -rf usr/share/ca-certificates
