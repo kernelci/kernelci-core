@@ -58,41 +58,61 @@ pre {
         {%- endfor %}
       </table>
     </p>
+    <hr width="850" align="left">
 
-    <h1>Tests</h1>
     {% for t in test_groups|sort(attribute='name') %}
-    <h2>{{ loop.index }} | {{ t.name|e }} | {{ t.board}} | {{ t.arch }}</h2>
+    {% if t.total["FAIL"] != 0 %}
+    <table>
+        <col width="40">
+        <col width="120">
+        <col width="220">
+        <col width="100">
+        <col width="100">
+        <col width="100">
+        <col width="100">
+        <col width="100">
+        <tr><th>{{ loop.index }}</th><th>{{ t.name|e }}</th><td>{{ t.board }}</td><td>{{ t.arch }}</td><td>{{ t.total_tests }} tests</td><td> {{ t.total["PASS"] }}  PASS</td><td>{{ t.total["FAIL"] }} FAIL </td><td>{{ t.total["SKIP"] }} SKIP</td></tr>
+    </table>
     <table>
       <tr><td>Config</td><td>{{ t.defconfig_full }}</td></tr>
       <tr><td>Lab Name</td><td>{{ t.lab_name }}</td></tr>
       <tr><td>Date</td><td>{{ t.created_on }}</td></tr>
-      <tr><td><a href="{{ storage_url }}/{{ t.job }}/{{ t.git_branch }}/{{ t.kernel }}/{{ t.arch }}/{{ t.defconfig_full }}/{{ t.lab_name }}/{{ t.boot_log }}">Link to TXT log</a></td><td></td></tr>
-      <tr><td><a href="{{ storage_url }}/{{ t.job }}/{{ t.git_branch }}/{{ t.kernel }}/{{ t.arch }}/{{ t.defconfig_full }}/{{ t.lab_name }}/{{ t.boot_log_html }}">Link to HTML log</a></td><td></td></tr>
+      <tr><td>TXT log</td><td><a href="{{ storage_url }}/{{ t.job }}/{{ t.git_branch }}/{{ t.kernel }}/{{ t.arch }}/{{ t.defconfig_full }}/{{ t.lab_name }}/{{ t.boot_log }}">Link to TXT log</a></td><td></td></tr>
+      <tr><td>HTML log</td><td><a href="{{ storage_url }}/{{ t.job }}/{{ t.git_branch }}/{{ t.kernel }}/{{ t.arch }}/{{ t.defconfig_full }}/{{ t.lab_name }}/{{ t.boot_log_html }}">Link to HTML log</a></td><td></td></tr>
       {%- if t.initrd %}
-      <tr><td>Rootfs</td><td>{{ t.initrd }}</td></tr>
+      <tr><td>Rootfs</td><td><a href="{{ t.initrd }}">{{ t.initrd }}</a></td></tr>
       {%- endif %}
       {%- for e in t.initrd_info.tests_suites %}
       <tr><td> Test Git:</td><td>{{ e.git_url }}</td></tr>
       <tr><td> Test Commit:</td><td>{{ e.git_commit }}</td></tr>
       {% endfor %}
     </table>
-    {% if t.test_cases -%}
-    <p>Test cases ({{ t.total_tests}}): </td><td><strong>{{ t.total["PASS"] }}</strong> PASS, <strong>{{ t.total["FAIL"] }}</strong> FAIL, <strong>{{ t.total["SKIP"] }}</strong> SKIP</p>
+
     <table>
       {% for tc in t.test_cases -%}
-      <tr><td>{{ tc.name }}</td><td>{{ tc.status }}</td></tr>
+      {%- if 'FAIL' == tc.status %}
+      <tr><td width="30"></td><td width="100">{{ tc.name }}</td><td width="20">{{ tc.status }}</td></tr>
+      {%- endif %}
       {%- endfor %}
     </table>
-    {% endif -%}
+    <br/>
+
     {% if t.sub_groups -%}
     {% for sg in t.sub_groups -%}
-    <p>{{ sg.name }} ({{ sg.total_tests }}): </td><td><strong>{{ sg.total["PASS"] }}</strong> PASS, <strong>{{ sg.total["FAIL"] }}</strong> FAIL, <strong>{{ sg.total["SKIP"] }}</strong> SKIP</p>
+    <table>
+    <tr><td width="30"></td><td width="100"><strong>{{ sg.name }}</strong></td><td width="100">{{ sg.total_tests }} tests</td><td width="100">{{ sg.total["PASS"] }} PASS</td><td width="100">{{ sg.total["FAIL"] }} FAIL</td><td width="100">{{ sg.total["SKIP"] }} SKIP</td></tr>
+    </table>
     <table>
       {% for tc in sg.test_cases -%}
-      <tr><td>{{ tc.name }}</td><td>{{ tc.status }}</tr>
+      {%- if 'FAIL' == tc.status %}
+      <tr><td width="30"></td><td width="100">{{ tc.name }}</td><td width="20">{{ tc.status }}</td></tr>
+      {%- endif %}
       {%- endfor %}
     </table>
+    <br/>
     {%- endfor %}
+    {% endif -%}
+
     {% endif -%}
     {% endfor -%}
   </body>

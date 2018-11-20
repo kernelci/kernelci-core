@@ -13,10 +13,9 @@ Summary
 {{ "%-2s | %-10s | %-22s | %-5s | %3s total: %3s PASS %3s FAIL %3s SKIP"|format(loop.index, t.name, t.board, t.arch, t.total_tests, t.total["PASS"], t.total["FAIL"], t.total["SKIP"]) }}
 {%- endfor %}
 
-
-Tests
------
-{% for t in test_groups|sort(attribute='name') %}
+---
+{%- for t in test_groups|sort(attribute='name') %}
+{%- if t.total["FAIL"] != 0 %}
 {{ "%-2s | %-10s | %-22s | %-5s | %3s total: %3s PASS %3s FAIL %3s SKIP"|format(loop.index, t.name, t.board, t.arch, t.total_tests, t.total["PASS"], t.total["FAIL"], t.total["SKIP"]) }}
 
   Config:      {{ t.defconfig_full }}
@@ -30,20 +29,21 @@ Tests
 {%- for e in t.initrd_info.tests_suites %}
   Test Git:    {{ e.git_url }}
   Test Commit: {{ e.git_commit }}
-{% endfor %}
-{% if t.test_cases %}
-  Test cases:
+{%- endfor %}
 {% for tc in t.test_cases %}
+  {%- if 'FAIL' == tc.status %}
     * {{ tc.name }}: {{ tc.status }}
+  {%- endif %}
 {%- endfor %}
-{%- endif %}
 {% if t.sub_groups %}
-{%- for sg in t.sub_groups %}
-  {{ sg.name }} - {{ sg.total_tests }} tests: {{ sg.total["PASS"] }}  PASS, {{ sg.total["FAIL"] }} FAIL, {{ sg.total["SKIP"] }} SKIP
-{% for tc in sg.test_cases %}
-    * {{ tc.name }}: {{ tc.status }}
-{%- endfor %}
-{% endfor %}
+  {%- for sg in t.sub_groups %}
+    {{ sg.name }} - {{ sg.total_tests }} tests: {{ sg.total["PASS"] }}  PASS, {{ sg.total["FAIL"] }} FAIL, {{ sg.total["SKIP"] }} SKIP
+    {%- for tc in sg.test_cases %}
+      {%- if 'FAIL' == tc.status %}
+      * {{ tc.name }}: {{ tc.status }}
+      {%- endif %}
+    {%- endfor %}
+  {% endfor %}
 {%- endif %}
-
-{% endfor %}
+{%- endif %}
+{%- endfor %}
