@@ -440,13 +440,13 @@ def bisection(kci_core, kdir, checks) {
         check = runCheck(kdir, kci_core, params.GOOD_COMMIT, 'pass', 0)
     }
     if (!checkAbort(check, "Good revision check failed"))
-        return
+        return check
 
     stage("Check fail") {
         check = runCheck(kdir, kci_core, params.BAD_COMMIT, 'fail', 2)
     }
     if (!checkAbort(check, "Bad revision check failed"))
-        return
+        return check
 
     stage("Start") {
         timeout(time: 5, unit: 'MINUTES') {
@@ -455,7 +455,7 @@ def bisection(kci_core, kdir, checks) {
     }
     if (!checkAbort(check,
                     "Failed to start bisection, commits range may be invalid."))
-        return
+        return check
 
     def previous = params.GOOD_COMMIT
     def current = getSHA(kdir)
@@ -504,11 +504,11 @@ def bisection(kci_core, kdir, checks) {
     }
 
     stage("Verify") {
-        check = runCheck(kdir, kci_core, 'refs/bisect/bad', 'verify', 2,3)
+        check = runCheck(kdir, kci_core, 'refs/bisect/bad', 'verify', 2, 3)
         checks['verify'] = check ? 'PASS' : 'FAIL'
     }
     if (!checkAbort(check, "Result check failed"))
-        return
+        return check
 
     stage("Revert") {
         dir(kdir) {
@@ -519,6 +519,8 @@ def bisection(kci_core, kdir, checks) {
     }
     if (!check)
         echo "Warning: revert check failed"
+
+    return true
 }
 
 node("docker && bisection") {
@@ -574,7 +576,9 @@ ${params_summary}"""
     img.pull()
     img.inside() {
         try {
-            bisection(kci_core, kdir, checks)
+            def valid_bisect = bisection(kci_core, kdir, checks)
+            if (!valid_bisect)
+                return
         } catch (err) {
             currentBuild.result = "FAILURE"
 
