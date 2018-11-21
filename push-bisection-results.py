@@ -215,6 +215,7 @@ def send_report(args, log_file_name, token, api):
         'format': ['txt', 'html'],
         'send_to': list(to),
         'send_cc': list(cc),
+        'delay': '60',
     })
 
     url = urlparse.urljoin(api, '/send')
