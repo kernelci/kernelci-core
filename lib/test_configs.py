@@ -237,13 +237,56 @@ class DeviceTypeFactory(YAMLObject):
         return device_cls(**kw)
 
 
+class RootFSType(YAMLObject):
+    """Root file system type model."""
+
+    def __init__(self, url, arch_dict={}):
+        """A root file system type covers common file system features.
+
+        *url* is the base URL for file system binaries.  Each file system
+              variant will have some URLs based on this one with various
+              formats and architectures.
+
+        *arch_dict* is a dictionary to map CPU architecture names following the
+                    kernel convention with distribution architecture names as
+                    used by the file system type.  Keys are the names used by
+                    the root file system type (distro), and values are lists of
+                    dictionaries with kernel architecture names and other
+                    properties such as the endinanness.
+        """
+        self._url = url
+        self._arch_dict = arch_dict
+
+    @classmethod
+    def from_yaml(cls, fs_type):
+        kw = cls._kw_from_yaml(fs_type, ['url'])
+        arch_map = fs_type.get('arch_map')
+        if arch_map:
+            arch_dict = {}
+            for arch_name, arch_dicts in arch_map.iteritems():
+                for d in arch_dicts:
+                    key = tuple((k, v) for (k, v) in d.iteritems())
+                    arch_dict[key] = arch_name
+            kw['arch_dict'] = arch_dict
+        return cls(**kw)
+
+    @property
+    def url(self):
+        return self._url
+
+    def get_arch_name(self, arch, endian):
+        arch_key = ('arch', arch)
+        endian_key = ('endian', endian)
+        arch_name = (self._arch_dict.get((arch_key, endian_key)) or
+                     self._arch_dict.get((arch_key,), arch))
+        return arch_name
+
+
 class RootFS(YAMLObject):
     """Root file system model."""
 
-    _arch_dict = {}
-
-    def __init__(self, url_formats, boot_protocol='tftp', root_type=None,
-                 prompt="/ #"):
+    def __init__(self, url_formats, fs_type, boot_protocol='tftp',
+                 root_type=None, prompt="/ #"):
         """A root file system is any user-space that can be used in test jobs.
 
         *url_formats* are a dictionary with a format string for each type of
@@ -251,6 +294,8 @@ class RootFS(YAMLObject):
                       typically only one entry here for the main *root_type*,
                       but multiple entries are possible in particular to boot
                       with first a ramdisk and then pivot to nfs root.
+
+        *fs_type* is a RootFSType instance
 
         *boot_protocol* is how the file system is made available to the kernel,
                         by default `tftp` typically to download a ramdisk.
@@ -262,28 +307,25 @@ class RootFS(YAMLObject):
                  user-space is available to run some commands.
         """
         self._url_format = url_formats
+        self._fs_type = fs_type
         self._root_type = root_type or url_formats.keys()[0]
         self._boot_protocol = boot_protocol
         self._prompt = prompt
+        self._arch_dict = {}
 
     @classmethod
     def from_yaml(cls, file_system_types, rootfs):
         kw = cls._kw_from_yaml(rootfs, [
             'boot_protocol', 'root_type', 'prompt'])
-        fstype = file_system_types[rootfs['type']]
-        base_url = fstype['url']
+        fs_type = file_system_types[rootfs['type']]
+        base_url = fs_type.url
+        kw['fs_type'] = fs_type
         kw['url_formats'] = {
             fs: '/'.join([base_url, url]) for fs, url in (
                 (fs, rootfs.get(fs)) for fs in ['ramdisk', 'nfs'])
             if url
         }
-        obj = cls(**kw)
-        arch_map = fstype.get('arch_map')
-        if arch_map:
-            obj._arch_dict = {
-                tuple(v.values()): k for k, v in arch_map.iteritems()
-            }
-        return obj
+        return cls(**kw)
 
     @property
     def prompt(self):
@@ -297,7 +339,7 @@ class RootFS(YAMLObject):
     def root_type(self):
         return self._root_type
 
-    def get_url(self, fs_type, arch, endianness):
+    def get_url(self, fs_type, arch, endian):
         """Get the URL of the file system for the given variant and arch.
 
         The *fs_type* should match one of the URL patterns known to this root
@@ -306,9 +348,7 @@ class RootFS(YAMLObject):
         fmt = self._url_format.get(fs_type)
         if not fmt:
             return None
-        arch_name = self._arch_dict.get((arch, endianness))
-        if not arch_name:
-            arch_name = self._arch_dict.get((arch,), arch)
+        arch_name = self._fs_type.get_arch_name(arch, endian)
         return fmt.format(arch=arch_name)
 
 
@@ -431,7 +471,10 @@ def load_from_yaml(yaml_path="test-configs.yaml"):
     with open(yaml_path) as f:
         data = yaml.load(f)
 
-    fs_types = data['file_system_types']
+    fs_types = {
+        name: RootFSType.from_yaml(fs_type)
+        for name, fs_type in data['file_system_types'].iteritems()
+    }
 
     file_systems = {
         name: RootFS.from_yaml(fs_types, rootfs)
