@@ -97,7 +97,15 @@ ${kci_core}/build.py \
 }
 
 node("docker && builder") {
-    def docker_arch = params.ARCH == "riscv" ? "riscv64" : params.ARCH
+    def docker_arch
+
+    if (params.ARCH == "riscv")
+        docker_arch = "riscv64"
+    else if ((params.ARCH == "i386") || (params.ARCH == "x86_64"))
+        docker_arch = "x86"
+    else
+        docker_arch = params.ARCH
+
     def docker_image = "${params.DOCKER_BASE}${params.COMPILER}_${docker_arch}"
 
     echo("""\
