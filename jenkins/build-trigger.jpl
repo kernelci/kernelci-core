@@ -185,6 +185,9 @@ def addExtraConfigs(configs, kdir, arch) {
         }
     }
 
+    if (!configs.contains(base_defconfig))
+        configs.add(base_defconfig)
+
     for (String e: extra)
         configs.add("${base_defconfig}+${e}")
 }
