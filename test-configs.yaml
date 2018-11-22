@@ -91,14 +91,6 @@ test_plans:
     name: boot
     rootfs: buildroot_ramdisk
     pattern: 'boot/generic-qemu-boot-template.jinja2'
-    filters:
-      - combination:
-          keys: ['arch', 'defconfig']
-          values:
-            - ['arm', 'multi_v7_defconfig']
-            - ['arm', 'vexpress_defconfig']
-            - ['arm64', 'defconfig']
-            - ['x86_64', 'defconfig']
 
   cros_ec:
     rootfs: debian_stretch_ramdisk
