@@ -121,11 +121,11 @@ test_plans:
       - whitelist: {defconfig: ['kselftest']}
 
   simple:
-    rootfs: buildroot_ramdisk
+    rootfs: debian_stretch_ramdisk
 
   simple_qemu:
     name: simple
-    rootfs: buildroot_ramdisk
+    rootfs: debian_stretch_ramdisk
     pattern: 'simple/generic-qemu-simple-template.jinja2'
 
   sleep:
