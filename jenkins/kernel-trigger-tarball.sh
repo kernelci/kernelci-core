@@ -66,6 +66,7 @@ trees=(
     [clk]="https://git.kernel.org/pub/scm/linux/kernel/git/clk/linux.git"
     [dmaengine]="git://git.infradead.org/users/vkoul/slave-dma.git"
     [soundwire]="https://git.kernel.org/pub/scm/linux/kernel/git/vkoul/soundwire.git"
+    [media]="https://git.linuxtv.org/media_tree.git"
 )
 
 OFS=${IFS}
