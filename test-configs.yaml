@@ -473,6 +473,19 @@ device_types:
     filters:
       - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
+  minnowboard_turbot_E3826:
+    name: 'minnowboard-turbot-E3826'
+    mach: x86
+    arch: x86_64
+    boot_method: grub
+    filters:
+      - blacklist:
+          defconfig:
+            - 'allmodconfig'
+            - 'allnoconfig'
+            - 'tinyconfig'
+            - 'kvm_guest.config'
+
   nanopi_k2:
     name: 'meson-gxbb-nanopi-k2'
     mach: amlogic
@@ -915,6 +928,9 @@ test_configs:
 
   - device_type: m3ulcb
     test_plans: [boot, simple, usb]
+
+  - device_type: minnowboard_turbot_E3826
+    test_plans: [boot, simple]
 
   - device_type: nanopi_k2
     test_plans: [boot, kselftest, simple]
