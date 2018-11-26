@@ -4,6 +4,7 @@
 {{- $suite := or .suite "stretch" -}}
 {{- $script := or .script "scripts/nothing.sh" -}}
 {{- $test_overlay := .test_overlay -}}
+{{- $extra_packages_remove := or .extra_packages_remove -}}
 
 architecture: {{ $architecture }}
 
@@ -135,6 +136,13 @@ actions:
   - action: run
     chroot: false
     command: mv ${ROOTDIR}/boot/initrd.img-min ${ARTIFACTDIR}/{{ $basename -}}/initrd.cpio.gz
+
+{{ if $extra_packages_remove }}
+  - action: run
+    description: remove extra packages
+    chroot: true
+    command: dpkg --purge  --force-remove-essential --force-depends {{ $extra_packages_remove }}
+{{ end }}
 
   - action: run
     chroot: true
