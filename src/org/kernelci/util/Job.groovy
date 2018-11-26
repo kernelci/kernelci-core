@@ -34,21 +34,25 @@ def addBoolParams(params, bool_params) {
     }
 }
 
-def dockerPullWithRetry(image, retries=10, sleep_time=1) {
-  def pulled = false
-  while (!pulled) {
-      try {
-          docker.image(image).pull()
-          pulled = true
-      }
-      catch (Exception e) {
-          if (!retries) {
-              throw e
-          }
-          echo("""Docker pull failed, retry count ${retries}: ${e.toString()}""")
-          sleep sleep_time
-          retries -= 1
-          sleep_time = sleep_time * 2
-      }
-  }
+def dockerPullWithRetry(image_name, retries=10, sleep_time=1) {
+    def image = docker.image(image_name)
+    def pulled = false
+
+    while (!pulled) {
+        try {
+            image.pull()
+            pulled = true
+        }
+        catch (Exception e) {
+            if (!retries) {
+                throw e
+            }
+            echo("""Docker pull failed, retry count ${retries}: ${e.toString()}""")
+            sleep sleep_time
+            retries -= 1
+            sleep_time = sleep_time * 2
+        }
+    }
+
+    return image
 }
