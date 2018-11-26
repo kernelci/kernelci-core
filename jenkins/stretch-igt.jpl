@@ -18,6 +18,7 @@ def config = ['name':"stretch-igt",
               'extra_packages':"libpciaccess0 libkmod2 libprocps6 libcairo2 \
                                 libssl1.1 libunwind8 libudev1 libglib2.0-0 \
                                 libdw1 liblzma5",
+              'extra_packages_remove':"bash e2fsprogs e2fslibs",
               'script':"scripts/stretch-igt.sh",
               'docker_image': "${params.DOCKER_BASE}debos",
              ]

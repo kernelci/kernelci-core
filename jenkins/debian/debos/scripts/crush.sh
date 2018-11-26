@@ -10,10 +10,9 @@ UNNEEDED_PACKAGES="apt libapt-pkg5.0 "\
 "ncurses-bin ncurses-base libncursesw5 libncurses5 "\
 "perl-base "\
 "debconf libdebconfclient0 "\
-"e2fsprogs e2fslibs libfdisk1 libdevmapper1.02.1 "\
+"libfdisk1 libdevmapper1.02.1 "\
 "insserv "\
 "init-system-helpers "\
-"bash "\
 "cpio "\
 "passwd "\
 "libsemanage1 libsemanage-common "\
