@@ -146,12 +146,12 @@ def create_test_report(data, email_format, db_options,
     for group in top_groups:
         _add_test_group_data(group, database)
 
-    subject_str = "Test results for {}/{} - {}".format(job, branch, kernel)
-
     if not plans:
         plans_string = "All the results are included"
+        subject_str = "Test results for {}/{} - {}".format(job, branch, kernel)
     else:
         plans_string = ", ".join(plans)
+        subject_str = "Test results ({}) for {}/{} - {}".format(plans_string, job, branch, kernel)
 
     git_url, git_commit = (top_groups[0][k] for k in [
         models.GIT_URL_KEY, models.GIT_COMMIT_KEY])
