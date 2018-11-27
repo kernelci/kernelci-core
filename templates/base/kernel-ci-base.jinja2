@@ -27,6 +27,8 @@ metadata:
   job.initrd_url: {{ initrd_url }}
   job.nfsrootfs_url: {{ nfsrootfs_url }}
   job.dtb_url: {{ dtb_url }}
+  job.file_server_resource: {{ file_server_resource }}
+  job.build_environment: {{ build_environment }}
 {%- endblock %}
 {% block main %}
 device_type: {{ device_type }}
