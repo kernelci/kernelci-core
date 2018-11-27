@@ -38,3 +38,7 @@ CELERYD_TASK_LOG_FORMAT = (
     '[%(levelname)8s/%(processName)10s] '
     '[%(task_name)s(%(task_id)s)] %(message)s'
 )
+# process 20 tasks per child before it's replaced
+CELERYD_MAX_TASKS_PER_CHILD = 20
+# kill the process if the task takes longer than 60 seconds
+CELERYD_TASK_TIME_LIMIT = 90
