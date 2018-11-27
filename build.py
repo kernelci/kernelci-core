@@ -48,6 +48,7 @@ import requests
 import copy
 import ConfigParser
 from urlparse import urljoin
+import urllib
 
 cross_compilers = {
     "arm": "arm-linux-gnueabihf-",
@@ -63,6 +64,7 @@ cross_compilers = {
 # Defaults
 arch = "arm"
 cross_compile = cross_compilers[arch]
+build_environment = None
 git_describe = None
 git_describe_v = None
 git_commit = None
@@ -286,6 +288,13 @@ if os.path.exists('.git') and use_git:
 
 # Override info using environment variables
 if use_environment:
+    required_environment = ["COMMIT_ID", "TREE", "BRANCH", "GIT_DESCRIBE", "GIT_DESCRIBE_VERBOSE"]
+    if publish:
+        required_environment.extend(["API", "TOKEN"])
+    for environment in required_environment:
+        if not os.environ.get(environment, False):
+            print("Required environment variable {} is not set".format(environment))
+            sys.exit(1)
     api = os.environ.get('API', api)
     token = os.environ.get('TOKEN', token)
     git_commit = os.environ.get('COMMIT_ID', git_commit)
@@ -293,6 +302,12 @@ if use_environment:
     git_branch = os.environ.get('BRANCH', git_branch)
     git_describe = os.environ.get('GIT_DESCRIBE', git_describe)
     git_describe_v = os.environ.get('GIT_DESCRIBE_VERBOSE', git_describe_v)
+
+build_environment = os.environ.get(
+                        'BUILD_ENVIRONMENT',
+                        "{}-{}".format(
+                            os.environ.get('CC', urllib.quote_plus(cc)),
+                            os.environ.get('CC_VERSION', urllib.quote_plus(cc_version))))
 
 start_time = time.time()
 
@@ -478,6 +493,7 @@ if install:
     bmeta['arch'] = "%s" %arch
     bmeta["cross_compile"] = "%s" %cross_compile
     bmeta["compiler_version"] = "%s" %cc_version
+    bmeta["build_environment"] = "%s" % build_environment
     bmeta["git_url"] = "%s" %git_url
     bmeta["git_branch"] =  "%s" %git_branch
     bmeta["git_describe"] =  "%s" %git_describe
@@ -532,8 +548,10 @@ if install:
             publish = False
 
     if publish:
-        publish_path = os.path.join(
-            job, git_branch, git_describe, arch, defconfig_full)
+        publish_path_base = [job, git_branch, git_describe, arch, defconfig_full]
+        if build_environment:
+            publish_path_base.append(build_environment)
+        publish_path = os.path.join(*publish_path_base)
         bmeta['file_server_resource'] = publish_path
 
     # Create JSON format build metadata
@@ -555,6 +573,7 @@ if install:
         build_data['git_branch'] = git_branch
         build_data['defconfig'] = defconfig
         build_data['arch'] = arch
+        build_data['build_environment'] = build_environment
         if "defconfig_full" in bmeta:
             build_data['defconfig_full'] = defconfig_full
         count = 1

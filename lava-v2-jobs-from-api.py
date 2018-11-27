@@ -173,6 +173,8 @@ def get_job_params(config, test_config, defconfig, opts, build, plan):
         'context': device_type.context,
         'rootfs_prompt': rootfs.prompt,
         'plan_name': test_plan.name,
+        'file_server_resource': file_server_resource,
+        'build_environment': build.get('build_environment'),
     }
 
     job_params.update(test_plan.params)
@@ -224,10 +226,7 @@ def get_jobs_from_builds(config, builds, tests):
             continue
 
         defconfig = build['defconfig_full']
-
-        print("Working on build {}".format(' '.join(
-            [config.get('tree'), config.get('branch'), config.get('describe'),
-             arch, defconfig])))
+        print("Working on build: {}".format(build.get('file_server_resource')))
 
         for plan in config.get('plans'):
             opts = {
