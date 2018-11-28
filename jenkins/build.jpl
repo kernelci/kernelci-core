@@ -97,16 +97,9 @@ ${kci_core}/build.py \
 }
 
 node("docker && builder") {
-    def docker_arch
-
-    if (params.ARCH == "riscv")
-        docker_arch = "riscv64"
-    else if ((params.ARCH == "i386") || (params.ARCH == "x86_64"))
-        docker_arch = "x86"
-    else
-        docker_arch = params.ARCH
-
-    def docker_image = "${params.DOCKER_BASE}${params.COMPILER}_${docker_arch}"
+    def j = new Job()
+    def docker_image = j.dockerImageName(
+        params.DOCKER_BASE, params.COMPILER, params.ARCH)
 
     echo("""\
     Tree:      ${params.TREE_NAME}
@@ -134,8 +127,7 @@ node("docker && builder") {
         }
     }
 
-    def j = new Job()
-    j.dockerPullWithRetry(docker_image).inside {
+    j.dockerPullWithRetry(docker_image).inside() {
         stage("Build") {
             timeout(time: 180, unit: 'MINUTES') {
                 buildConfig(params.DEFCONFIG, kdir, kci_core)
