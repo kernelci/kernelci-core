@@ -83,6 +83,7 @@ TREES_WHITELIST
 
 @Library('kernelci') _
 import org.kernelci.build.Kernel
+import org.kernelci.util.Job
 
 /* Working around some seemingly broken Python set-up... */
 def eggCache() {
@@ -574,9 +575,8 @@ ${params_summary}"""
         }
     }
 
-    def img = docker.image(docker_image)
-    img.pull()
-    img.inside() {
+    def j = new Job()
+    j.dockerPullWithRetry(docker_image).inside() {
         try {
             def valid_bisect = bisection(kci_core, kdir, checks)
             if (!valid_bisect)
