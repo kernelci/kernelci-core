@@ -37,6 +37,12 @@ GOOD_COMMIT
   Good known Git revision (SHA1 or any valid reference)
 BAD_COMMIT
   Bad known Git revision (SHA1 or any valid reference)
+REF_KERNEL_URL (git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git)
+  URL of the reference kernel Git repository used to find merge bases
+REF_KERNEL_BRANCH (master)
+  Name of the branch from the reference kernel Git repository
+REF_KERNEL_TREE (mainline)
+  Name of the reference kernel Git repository
 ARCH
   CPU architecture as understood by the Linux kernel build system
 DEFCONFIG (defconfig)
@@ -323,14 +329,42 @@ def runTest(kci_core, describe, expected=0, runs=0) {
  * bisection
  */
 
-def bisectStart(kdir) {
+def findMergeBase(kdir, good, bad) {
+    def base = good
+
+    dir(kdir) {
+        def good_base = sh(
+            returnStatus: true,
+            script: "git merge-base --is-ancestor ${base} HEAD")
+
+        if (good_base != 0) {
+            def ref = "${params.REF_KERNEL_TREE}/${params.REF_KERNEL_BRANCH}"
+            print("Good commit not in current branch, finding base in ${ref}")
+
+            print("""\
+Reference:
+    Tree:      ${params.REF_KERNEL_TREE}
+    URL:       ${params.REF_KERNEL_URL}
+    Branch:    ${params.REF_KERNEL_BRANCH}""")
+
+            setRemote(kdir, params.REF_KERNEL_TREE, params.REF_KERNEL_URL)
+            base = sh(script: "git merge-base ${bad} ${ref}",
+                      returnStdout: true).trim()
+            print("Merge base: ${base}")
+        }
+    }
+
+    return base
+}
+
+def bisectStart(kdir, good, bad) {
     def status = null
 
     dir(kdir) {
         status = sh(returnStatus: true, script: """
 git bisect start
-git bisect good ${params.GOOD_COMMIT}
-git bisect bad ${params.BAD_COMMIT}
+git bisect good ${good}
+git bisect bad ${bad}
 """)
     }
 
@@ -440,6 +474,8 @@ def checkAbort(passed, message) {
 
 def bisection(kci_core, kdir, checks) {
     def check = null
+    def good = null
+    def bad = null
 
     stage("Init") {
         timeout(time: 30, unit: 'MINUTES') {
@@ -448,30 +484,33 @@ def bisection(kci_core, kdir, checks) {
                 kdir: { cloneLinux(kdir) },
             )
         }
+
+        bad = params.BAD_COMMIT
+        good = findMergeBase(kdir, params.GOOD_COMMIT, bad)
     }
 
     stage("Check pass") {
-        check = runCheck(kdir, kci_core, params.GOOD_COMMIT, 'pass', 0)
+        check = runCheck(kdir, kci_core, good, 'pass', 0)
     }
     if (!checkAbort(check, "Good revision check failed"))
         return check
 
     stage("Check fail") {
-        check = runCheck(kdir, kci_core, params.BAD_COMMIT, 'fail', 2)
+        check = runCheck(kdir, kci_core, bad, 'fail', 2)
     }
     if (!checkAbort(check, "Bad revision check failed"))
         return check
 
     stage("Start") {
         timeout(time: 5, unit: 'MINUTES') {
-            check = bisectStart(kdir)
+            check = bisectStart(kdir, good, bad)
         }
     }
     if (!checkAbort(check,
                     "Failed to start bisection, commits range may be invalid."))
         return check
 
-    def previous = params.GOOD_COMMIT
+    def previous = good
     def current = getSHA(kdir)
     def iteration = 1
 
