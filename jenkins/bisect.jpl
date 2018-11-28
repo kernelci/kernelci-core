@@ -142,6 +142,21 @@ git checkout --detach ${git_rev}
     }
 }
 
+def setRemote(kdir, name, url) {
+    dir(kdir) {
+        sh(script: """
+if git remote | grep -e '^${name}\$'; then
+    git remote set-url ${name} ${url}
+    git remote update ${name}
+    git remote prune ${name}
+else
+    git remote add ${name} ${url}
+    git remote update ${name}
+fi
+""")
+    }
+}
+
 /* ----------------------------------------------------------------------------
  * cloning projects
  */
@@ -152,28 +167,24 @@ def cloneKciCore(kci_core) {
 }
 
 def cloneLinux(kdir) {
-    echo """
+    print("""\
 Initialising kernel tree
   url:    ${params.KERNEL_URL}
   branch: ${params.KERNEL_BRANCH}
-  path:   ${kdir}"""
-    sh """
-if [ -d ${kdir}/.git ]; then
-    cd ${kdir}
-    if git remote | grep -e '^${params.KERNEL_TREE}\$'; then
-        git remote set-url ${params.KERNEL_TREE} ${params.KERNEL_URL}
-        git remote update ${params.KERNEL_TREE}
-        git remote prune ${params.KERNEL_TREE}
-    else
-        git remote add ${params.KERNEL_TREE} ${params.KERNEL_URL}
-        git remote update ${params.KERNEL_TREE}
-    fi
-else
-    git clone ${params.KERNEL_URL} ${kdir} \
-      -b ${params.KERNEL_BRANCH} \
-      -o ${params.KERNEL_TREE}
-    cd ${kdir}
-fi
+  path:   ${kdir}""")
+
+    if (sh(returnStatus: true, script: "test -d ${kdir}/.git") == 0) {
+        setRemote(kdir, params.KERNEL_TREE, params.KERNEL_URL)
+    } else {
+        sh(script: """
+git clone ${params.KERNEL_URL} ${kdir} \
+  -b ${params.KERNEL_BRANCH} \
+  -o ${params.KERNEL_TREE}
+""")
+    }
+
+    dir(kdir) {
+        sh(script: """
 git config user.name 'kernelci.org bot'
 git config user.email bot@kernelci.org
 git reset --hard
@@ -186,8 +197,8 @@ for t in \$(git tag -l | grep ${env.JOB_NAME}); do git tag -d \$t; done
 git fetch ${params.KERNEL_TREE} ${params.KERNEL_BRANCH} --tags
 git checkout ${params.BAD_COMMIT} -b ${params.KERNEL_BRANCH}
 git symbolic-ref HEAD refs/heads/${params.KERNEL_BRANCH}
-cd -
-"""
+""")
+    }
 }
 
 /* ----------------------------------------------------------------------------
