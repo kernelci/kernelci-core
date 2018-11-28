@@ -101,13 +101,17 @@ def do_make(target=None, log=False):
     if silent:
         make_args += "-s "
     make_args += "ARCH=%s " %arch
+    if (cc != "gcc") and not ccache:
+        make_args += "CC=%s " % cc
+    if cc:
+        make_args += "HOSTCC=%s " % cc
     if cross_compile:
         make_args += "CROSS_COMPILE=%s " %cross_compile
     if ccache:
         prefix = ''
-        if cross_compile:
+        if cross_compile and cc == "gcc":
             prefix = cross_compile
-        make_args += 'CC="ccache %sgcc" ' %prefix
+        make_args += 'CC="ccache %s%s" ' %(prefix, cc)
     if kbuild_output:
         make_args += "O=%s " %kbuild_output
     if target:
@@ -235,10 +239,19 @@ else:
     if cross_compile:
         os.environ['CROSS_COMPILE'] = cross_compile
 
+# CC
+cc = os.environ.get("CC", "gcc")
+cc_cmd = "%s --version 2>&1" % cc
+if cross_compile and cc == "gcc":
+    cc_cmd = "%s%s --version 2>&1" %(cross_compile, cc)
+cc_version = subprocess.check_output(cc_cmd, shell=True).splitlines()[0]
+
 # KBUILD_OUTPUT
 kbuild_output = kbuild_output_prefix
 if arch:
     kbuild_output += "-%s" % arch
+    if cc != "gcc":
+        kbuild_output += "-%s" % cc
 if os.environ.has_key('KBUILD_OUTPUT'):
     kbuild_output = os.environ['KBUILD_OUTPUT']
 else:
@@ -258,7 +271,8 @@ if ccache and len(ccache):
         ccache_dir = os.environ['CCACHE_DIR']
     else:
         ccache_dir = os.path.join(os.getcwd(), '.ccache' + '-' + arch)
-        #ccache_dir = os.path.join(os.getcwd(), '.ccache')
+        if cc != "gcc":
+            ccache_dir += "-" + cc
         os.environ['CCACHE_DIR'] = ccache_dir
 else:
     ccache_dir = None
@@ -279,11 +293,6 @@ if use_environment:
     git_branch = os.environ.get('BRANCH', git_branch)
     git_describe = os.environ.get('GIT_DESCRIBE', git_describe)
     git_describe_v = os.environ.get('GIT_DESCRIBE_VERBOSE', git_describe_v)
-
-cc_cmd = "gcc -v 2>&1"
-if cross_compile:
-    cc_cmd = "%sgcc -v 2>&1" %cross_compile
-gcc_version = subprocess.check_output(cc_cmd, shell=True).splitlines()[-1]
 
 start_time = time.time()
 
@@ -468,7 +477,7 @@ if install:
 
     bmeta['arch'] = "%s" %arch
     bmeta["cross_compile"] = "%s" %cross_compile
-    bmeta["compiler_version"] = "%s" %gcc_version
+    bmeta["compiler_version"] = "%s" %cc_version
     bmeta["git_url"] = "%s" %git_url
     bmeta["git_branch"] =  "%s" %git_branch
     bmeta["git_describe"] =  "%s" %git_describe
