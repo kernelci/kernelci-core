@@ -184,7 +184,7 @@ git checkout --detach HEAD || echo -n
 git branch -D ${params.KERNEL_BRANCH} || echo -n
 for t in \$(git tag -l | grep ${env.JOB_NAME}); do git tag -d \$t; done
 git fetch ${params.KERNEL_TREE} ${params.KERNEL_BRANCH} --tags
-git checkout FETCH_HEAD -b ${params.KERNEL_BRANCH}
+git checkout ${params.BAD_COMMIT} -b ${params.KERNEL_BRANCH}
 git symbolic-ref HEAD refs/heads/${params.KERNEL_BRANCH}
 cd -
 """
