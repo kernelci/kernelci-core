@@ -530,7 +530,9 @@ node("docker && bisection") {
     /* Global pipeline constants */
     env._BUILD_JSON = "build-data.json"
 
-    def docker_image = "${params.DOCKER_BASE}${params.COMPILER}_${params.ARCH}"
+    def j = new Job()
+    def docker_image = j.dockerImageName(
+        params.DOCKER_BASE, params.COMPILER, params.ARCH)
     def kci_core = env.WORKSPACE + '/kernelci-core'
     def kdir = env.WORKSPACE + '/linux'
     def checks = [:]
@@ -575,7 +577,6 @@ ${params_summary}"""
         }
     }
 
-    def j = new Job()
     j.dockerPullWithRetry(docker_image).inside() {
         try {
             def valid_bisect = bisection(kci_core, kdir, checks)

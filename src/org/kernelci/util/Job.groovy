@@ -34,6 +34,19 @@ def addBoolParams(params, bool_params) {
     }
 }
 
+def dockerImageName(base, compiler, kernel_arch) {
+    def docker_arch
+
+    if (arch == "riscv")
+        docker_arch = "riscv64"
+    else if ((arch == "i386") || (arch == "x86_64"))
+        docker_arch = "x86"
+    else
+        docker_arch = arch
+
+    return "${base}${compiler}_${docker_arch}"
+}
+
 def dockerPullWithRetry(image_name, retries=10, sleep_time=1) {
     def image = docker.image(image_name)
     def pulled = false
