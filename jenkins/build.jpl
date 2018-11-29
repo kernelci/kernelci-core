@@ -133,9 +133,9 @@ node("docker && builder") {
             )
         }
     }
+
     def j = new Job()
-    j.dockerPullWithRetry(docker_image)
-    docker.image(docker_image).inside {
+    j.dockerPullWithRetry(docker_image).inside {
         stage("Build") {
             timeout(time: 180, unit: 'MINUTES') {
                 buildConfig(params.DEFCONFIG, kdir, kci_core)
