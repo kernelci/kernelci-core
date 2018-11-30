@@ -314,7 +314,6 @@ def create_boot_bisect(good, bad, db_options):
     database = utils.db.get_db_connection(db_options)
     good_commit, bad_commit = (b[models.GIT_COMMIT_KEY] for b in (good, bad))
     spec = {x: bad[x] for x in [
-        models.LAB_NAME_KEY,
         models.DEVICE_TYPE_KEY,
         models.ARCHITECTURE_KEY,
         models.DEFCONFIG_FULL_KEY,
@@ -351,7 +350,7 @@ def create_boot_bisect(good, bad, db_options):
     doc.lab_name = bad[models.LAB_NAME_KEY]
     doc.device_type = bad[models.DEVICE_TYPE_KEY]
     bcommon.save_bisect_doc(database, doc, bad_boot_id)
-    return doc
+    return doc.to_dict()
 
 
 def update_results(data, db_options):

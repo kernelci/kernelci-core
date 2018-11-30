@@ -219,6 +219,9 @@ def parse_regressions(lab_regressions, boot_data, db_options):
                             regr = create_regressions_data(boots, boot_data)
                             regr_board.append(regr)
 
+    # Remove duplicate entries - they are dictionaries so filter them by _id
+    bisections = {b['_id']: b for b in bisections}.values()
+
     if regressions_data:
         regressions["summary"] = {}
         regressions["summary"]["txt"] = ["Boot Regressions Detected:"]
