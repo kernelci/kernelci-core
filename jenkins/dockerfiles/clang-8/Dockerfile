@@ -10,3 +10,5 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     clang-8
 
 RUN update-alternatives --install /usr/bin/clang clang /usr/bin/clang-8 500
+
+RUN apt-get autoremove -y gcc
