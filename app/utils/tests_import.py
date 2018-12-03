@@ -424,7 +424,7 @@ def update_test_group_add_sub_group_id(
     ret_val = 200
     errors = {}
 
-    utils.LOG.info(
+    utils.LOG.debug(
         "Updating test group '{}' ({}) with sub-group ID {}".format(
             group_name, str(group_id), sub_group_id))
     database = utils.db.get_db_connection(db_options)
@@ -462,7 +462,7 @@ def update_test_group_add_test_case_id(
     ret_val = 200
     errors = {}
 
-    utils.LOG.info(
+    utils.LOG.debug(
         "Updating test group '%s' (%s) with test case ID",
         group_name, str(group_id))
     database = utils.db.get_db_connection(db_options)

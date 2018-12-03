@@ -105,11 +105,11 @@ def save_or_update(doc, spec_map, collection, database, errors):
         doc_id = doc_get(models.ID_KEY)
         doc.id = doc_id
 
-        utils.LOG.info("Updating test document with id '%s'", doc_id)
+        utils.LOG.debug("Updating test document with id '%s'", doc_id)
         ret_val, _ = utils.db.save(database, doc)
     else:
         ret_val, doc_id = utils.db.save(database, doc, manipulate=True)
-        utils.LOG.info("New test document with id '%s'", doc_id)
+        utils.LOG.debug("New test document with id '%s'", doc_id)
 
     if ret_val == 500:
         err_msg = (
