@@ -12,8 +12,7 @@ DOCKER_BASE
 def r = new RootFS()
 
 def config = ['name':"stretch",
-              'arch_list':["armhf", "armel", "arm64", "i386", "amd64",
-                           "mips", "mipsel", "mips64el"],
+              'arch_list':["armhf", "arm64", "amd64"],
               'debian_release':"stretch",
               'extra_packages':"",
               'extra_packages_remove':"bash e2fsprogs e2fslibs"
