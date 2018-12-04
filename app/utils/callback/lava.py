@@ -17,13 +17,14 @@ import models
 import os
 import yaml
 import json
-import urllib
+import urllib2
 
 import utils
 import utils.boot
 import utils.kci_test
 import utils.db
 import utils.lava_log_parser
+from utils.report.common import DEFAULT_STORAGE_URL
 
 # copied from lava-server/lava_scheduler_app/models.py
 SUBMITTED = 0
@@ -459,34 +460,44 @@ def _add_test_results(group, suite_results, suite_name):
     })
 
 
-def _add_test_info(group):
+def _add_rootfs_info(group, base_path, file_name="build_info.json"):
     """Add rootfs info
 
-    Download the the json file with the information of the rootfs if it's
-    available and add its information to the group data
+    Parse the the JSON file with the information of the rootfs if it's
+    available and add its information to the group data.  If the file URL
+    matches the local storage server, then read it directly from the file
+    system.
 
     :param group: Test group data.
     :type group: dict
+    :param base_path: Path to the top-level directory where files are stored.
+    :type base_path: string
+    :param file_name: Name of the JSON file with the rootfs info.
+    :type file_name: string
     """
 
-    rootfs_url = group.get('initrd')
-    if not rootfs_url:
+    rootfs_url = group.get("initrd")
+    if not rootfs_url or rootfs_url == "None":
         return
 
-    file_path = os.path.join(os.path.dirname(rootfs_url), "build_info.json")
+    try:
+        if rootfs_url.startswith(DEFAULT_STORAGE_URL):
+            rootfs_url_path = urllib2.urlparse.urlparse(rootfs_url).path
+            rootfs_rel_dir = os.path.dirname(rootfs_url_path).lstrip("/")
+            json_file = os.path.join(base_path, rootfs_rel_dir, file_name)
+            rootfs_info_json = open(json_file)
+        else:
+            rootfs_top_url = rootfs_url.rpartition("/")[0]
+            file_url = "/".join([rootfs_top_url, file_name])
+            utils.LOG.info("Downloading rootfs info: {}".format(file_url))
+            rootfs_info_json = urllib2.urlopen(file_url)
 
-    ret = urllib.urlopen(file_path)
-
-    if ret.code == 200:
-
-        json_file, obj = urllib.urlretrieve(file_path)
-
-        with open(json_file, 'r') as stream:
-            data_loaded = yaml.load(stream, Loader=yaml.CLoader)
-
-        group.update({
-            models.INITRD_INFO_KEY: data_loaded
-        })
+        rootfs_info = json.load(rootfs_info_json)
+        group[models.INITRD_INFO_KEY] = rootfs_info
+    except IOError as e:
+        utils.LOG.warn("IOError: {}".format(e))
+    except ValueError as e:
+        utils.LOG.warn("ValueError: {}".format(e))
 
 
 def add_tests(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
@@ -537,7 +548,7 @@ def add_tests(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
             _get_lava_meta(group, job_data)
             _add_test_log(group, job_data["log"], base_path, suite_name)
             _add_test_results(group, suite_results, suite_name)
-            _add_test_info(group)
+            _add_rootfs_info(group, base_path)
             ret_code, group_doc_id, err = \
                 utils.kci_test.import_and_save_kci_tests(group, db_options)
             utils.errors.update_errors(errors, err)
