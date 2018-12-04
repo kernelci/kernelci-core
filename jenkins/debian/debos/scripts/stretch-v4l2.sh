@@ -17,8 +17,8 @@ BUILD_DEPS="libglib2.0-dev \
 
 apt-get install --no-install-recommends -y  ${BUILD_DEPS}
 
-BUILDFILE=/build_info.txt
-echo '  "tests_suites": [' >> $BUILDFILE
+BUILDFILE=/test_suites.json
+echo '{  "tests_suites": [' >> $BUILDFILE
 
 # Build v4l2
 ########################################################################
@@ -40,7 +40,7 @@ strip /tmp/tests/v4l2/usr/bin/* /tmp/tests/v4l2/usr/lib/*.so* /tmp/tests/v4l2/us
 rm -rf  /tmp/tests/v4l2/usr/include /tmp/tests/v4l2/usr/share /tmp/tests/v4l2/usr/lib/udev /tmp/tests/v4l2/usr/lib/pkgconfig/
 cp -a /tmp/tests/v4l2/usr/* /usr/
 
-echo '  ]' >> $BUILDFILE
+echo '  ]}' >> $BUILDFILE
 
 ########################################################################
 # Cleanup: remove files and packages we don't want in the images       #
@@ -55,4 +55,3 @@ apt-get clean
 
 # re-add some stuff that is removed by accident
 apt-get install -y initramfs-tools
-

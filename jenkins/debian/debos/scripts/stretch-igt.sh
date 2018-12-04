@@ -34,8 +34,8 @@ apt-get install --no-install-recommends -y  ${BUILD_DEPS}
 # Build tests                                                          #
 ########################################################################
 
-BUILDFILE=/build_info.txt
-echo '  "tests_suites": [' >> $BUILDFILE
+BUILDFILE=/test_suites.json
+echo '{  "tests_suites": [' >> $BUILDFILE
 
 # Build libdrm
 ########################################################################
@@ -75,7 +75,7 @@ strip /tmp/tests/igt2/usr/bin/*
 cp -a /tmp/tests/igt2/usr/bin/* /usr/bin/
 
 
-echo '  ]' >> $BUILDFILE
+echo '  ]}' >> $BUILDFILE
 
 ########################################################################
 # Cleanup: remove files and packages we don't want in the images       #
@@ -90,4 +90,3 @@ apt-get clean
 
 # re-add some stuff that is removed by accident
 apt-get install -y initramfs-tools
-
