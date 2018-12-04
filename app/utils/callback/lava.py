@@ -220,11 +220,10 @@ def _get_lava_meta(meta, job_data):
             handler(meta, step["metadata"])
 
 
-def _add_boot_log(meta, job_log, base_path, name):
-    """Parse and save kernel logs
+def _add_test_log(meta, job_log, base_path, suite):
+    """Parse and save test logs
 
-    Parse the kernel boot log in YAML format from a LAVA v2 job and save it as
-    plain text and HTML.
+    Parse the LAVA v2 log in YAML format and save it as plain text and HTML.
 
     :param meta: The boot meta-data.
     :type meta: dictionary
@@ -232,6 +231,8 @@ def _add_boot_log(meta, job_log, base_path, name):
     :type log: string
     :param base_path: Path to the top-level directory where to store the files.
     :type base_path: string
+    :param suite: Test suite name
+    :type suite: string
     """
     log = yaml.load(job_log, Loader=yaml.CLoader)
 
@@ -244,8 +245,8 @@ def _add_boot_log(meta, job_log, base_path, name):
         meta[models.DEFCONFIG_FULL_KEY],
         meta[models.LAB_NAME_KEY])
 
-    utils.LOG.info("Generating {} log files in {}".format(name, dir_path))
-    file_name = "-".join([name, meta[models.BOARD_KEY]])
+    utils.LOG.info("Generating {} log files in {}".format(suite, dir_path))
+    file_name = "-".join([suite, meta[models.BOARD_KEY]])
     files = tuple(".".join([file_name, ext]) for ext in ["txt", "html"])
     meta[models.BOOT_LOG_KEY], meta[models.BOOT_LOG_HTML_KEY] = files
     txt_path, html_path = (os.path.join(dir_path, f) for f in files)
@@ -349,7 +350,7 @@ def add_boot(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
         _get_job_meta(meta, job_data)
         _get_definition_meta(meta, job_data, META_DATA_MAP_BOOT)
         _get_lava_meta(meta, job_data)
-        _add_boot_log(meta, job_data["log"], base_path, "boot")
+        _add_test_log(meta, job_data["log"], base_path, "boot")
         doc_id = utils.boot.import_and_save_boot(meta, db_options)
     except (yaml.YAMLError, ValueError) as ex:
         ret_code = 400
@@ -534,7 +535,7 @@ def add_tests(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
             _get_job_meta(group, job_data)
             _get_definition_meta(group, job_data, META_DATA_MAP_TEST)
             _get_lava_meta(group, job_data)
-            _add_boot_log(group, job_data["log"], base_path, suite_name)
+            _add_test_log(group, job_data["log"], base_path, suite_name)
             _add_test_results(group, suite_results, suite_name)
             _add_test_info(group)
             ret_code, group_doc_id, err = \
