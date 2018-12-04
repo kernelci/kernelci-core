@@ -23,6 +23,7 @@ import argparse
 import cgi
 import dateutil.parser
 import json
+import re
 import yaml
 try:
     import cStringIO as StringIO
@@ -59,6 +60,9 @@ HTML_HEAD = """\
 <h1>Boot log: {board}</h1>
 """
 
+# datetime follows this format: 2018-12-04T10:44:15.938887
+DT_RE = re.compile("([0-9-]+)T([0-9:.]+)")
+
 
 def run(log, boot, txt, html):
     boot_result = boot.get("boot_result", "Unknown")
@@ -78,13 +82,11 @@ def run(log, boot, txt, html):
     log_buffer = []
 
     for line in log:
-        iso_ts = dateutil.parser.parse(line["dt"])
-        raw_ts = iso_ts.strftime("%H:%M:%S.%f%z  ")
-        timestamp = "<span class=\"timestamp\">{}</span>".format(raw_ts)
+        dt, level, msg = (line.get(k) for k in ["dt", "lvl", "msg"])
+        raw_ts = DT_RE.match(dt).groups()[1]
+        timestamp = "<span class=\"timestamp\">{}  </span>".format(raw_ts)
 
-        level, msg = (line.get(k) for k in ["lvl", "msg"])
-
-        fmt = formats.get(level, None)
+        fmt = formats.get(level)
         if fmt:
             log_buffer.append(timestamp + fmt.format(cgi.escape(msg)))
             numbers[level] += 1
