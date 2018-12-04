@@ -621,6 +621,18 @@ def import_and_save_kci_tests(group, db_options, base_path=utils.BASE_PATH):
         if not group_doc_id:
             utils.LOG.warn("No test group report imported nor saved")
         else:
+            def _count(group, n_groups, n_tests):
+                n_tests += len(group[models.TEST_CASES_KEY])
+                sub_groups = group.get(models.SUB_GROUPS_KEY)
+                if sub_groups:
+                    n_groups += len(sub_groups)
+                    for sub in sub_groups:
+                        n_groups, n_tests = _count(sub, n_groups, n_tests)
+                return n_groups, n_tests
+            n_groups, n_tests = _count(group, 1, 0)
+            utils.LOG.info("Imported {} tests in {} groups from {}".format(
+                n_tests, n_groups, group[models.NAME_KEY]))
+
             ret_code = 201
             # TODO fix this: need to define a save_to_disk method
             # save_to_disk(ts_doc, test_group_obj, base_path, errors)
