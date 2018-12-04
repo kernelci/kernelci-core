@@ -35,7 +35,7 @@ actions:
   - action: run
     description: Create manifest file
     chroot: false
-    script: scripts/create_manifest.sh
+    command: /usr/bin/env python3 ${RECIPEDIR}/scripts/create_manifest.py
 
   - action: run
     chroot: false
