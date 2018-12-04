@@ -73,6 +73,7 @@ META_DATA_MAP_TEST = {
     models.MACH_KEY: "platform.mach",
     models.VCS_COMMIT_KEY: "git.commit",
     models.IMAGE_TYPE_KEY: "image.type",
+    models.PLAN_KEY: "test.plan",
 }
 
 META_DATA_MAP_BOOT = {
@@ -264,7 +265,7 @@ def _add_test_log(meta, job_log, base_path, suite):
             utils.lava_log_parser.run(log, meta, txt, html)
 
 
-def store_lava_json(job_data, meta, base_path=utils.BASE_PATH):
+def _store_lava_json(job_data, meta, base_path=utils.BASE_PATH):
     """ Save the json LAVA v2 callback object
 
     Save LAVA v2 callback data as json file.
@@ -329,7 +330,7 @@ def add_boot(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
     :type db_options: dict
     :param base_path: Path to the top-level directory where to save files.
     :type base_path: string
-    :return tuple The return code, the boot document id and errors.
+    :return ObjectId The boot document id.
     """
     ret_code = 201
     doc_id = None
@@ -351,6 +352,7 @@ def add_boot(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
         _get_job_meta(meta, job_data)
         _get_definition_meta(meta, job_data, META_DATA_MAP_BOOT)
         _get_lava_meta(meta, job_data)
+        _store_lava_json(job_data, meta)
         _add_test_log(meta, job_data["log"], base_path, "boot")
         doc_id = utils.boot.import_and_save_boot(meta, db_options)
     except (yaml.YAMLError, ValueError) as ex:
@@ -367,8 +369,6 @@ def add_boot(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
             utils.errors.add_error(errors, ret_code, msg)
         if errors:
             raise utils.errors.BackendError(errors)
-
-    store_lava_json(job_data, meta)
 
     return doc_id
 
@@ -515,10 +515,10 @@ def add_tests(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
     :type db_options: dict
     :param base_path: Path to the top-level directory where to save files.
     :type base_path: string
-    :return tuple The return code, the test document id and errors.
+    :return list The test group document ids as ObjectId objects.
     """
     ret_code = 201
-    group_doc_id = None
+    group_doc_ids = []
     errors = {}
     ex = None
     msg = None
@@ -526,47 +526,48 @@ def add_tests(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
     utils.LOG.info("Processing LAVA test data: job {} from {}".format(
         job_data["id"], lab_name))
 
-    # TODO add a test plan entry in the database to group test suites
-    for suite_name, suite_results in job_data["results"].iteritems():
-        # Lava appends the test suites name with an incremental prefix "X_"
-        # Except for the lava key
-        if suite_name != "lava":
-            suite_name = suite_name.split("_")[1]
+    meta = {
+        models.VERSION_KEY: "1.1",
+        models.LAB_NAME_KEY: lab_name,
+        models.TIME_KEY: "0.0",
+    }
 
-        group = {
-            models.VERSION_KEY: "1.1",
-            models.LAB_NAME_KEY: lab_name,
-            models.TIME_KEY: "0.0",
-            models.NAME_KEY: suite_name,
-        }
-
-        utils.LOG.info("Processing test suite: {}".format(suite_name))
-
-        try:
-            _get_job_meta(group, job_data)
-            _get_definition_meta(group, job_data, META_DATA_MAP_TEST)
-            _get_lava_meta(group, job_data)
-            _add_test_log(group, job_data["log"], base_path, suite_name)
+    try:
+        _get_job_meta(meta, job_data)
+        _get_definition_meta(meta, job_data, META_DATA_MAP_TEST)
+        _get_lava_meta(meta, job_data)
+        plan_name = meta[models.PLAN_KEY]
+        _add_test_log(meta, job_data["log"], base_path, plan_name)
+        _add_rootfs_info(meta, base_path)
+        _store_lava_json(job_data, meta)
+        # TODO add a test plan entry in the database to group test suites
+        for suite_name, suite_results in job_data["results"].iteritems():
+            if suite_name != "lava":
+                # LAVA adds a prefix index to the test suite names "X_" except
+                # for the lava key.  Remove it to get the original name.
+                suite_name = suite_name.split("_")[1]
+            elif plan_name != "boot":
+                continue
+            group = dict(meta)
+            group[models.NAME_KEY] = suite_name
             _add_test_results(group, suite_results, suite_name)
-            _add_rootfs_info(group, base_path)
             ret_code, group_doc_id, err = \
                 utils.kci_test.import_and_save_kci_tests(group, db_options)
             utils.errors.update_errors(errors, err)
-        except (yaml.YAMLError, ValueError) as ex:
-            ret_code = 400
-            msg = "Invalid test data from LAVA callback"
-        except (OSError, IOError) as ex:
-            ret_code = 500
-            msg = "Internal error"
-        finally:
-            if ex is not None:
-                utils.LOG.exception(ex)
-            if msg is not None:
-                utils.LOG.error(msg)
-                utils.errors.add_error(errors, ret_code, msg)
-            if errors:
-                raise utils.errors.BackendError(errors)
+            group_doc_ids.append(group_doc_id)
+    except (yaml.YAMLError, ValueError) as ex:
+        ret_code = 400
+        msg = "Invalid test data from LAVA callback"
+    except (OSError, IOError) as ex:
+        ret_code = 500
+        msg = "Internal error"
+    finally:
+        if ex is not None:
+            utils.LOG.exception(ex)
+        if msg is not None:
+            utils.LOG.error(msg)
+            utils.errors.add_error(errors, ret_code, msg)
+        if errors:
+            raise utils.errors.BackendError(errors)
 
-    store_lava_json(job_data, group)
-
-    return group_doc_id
+    return group_doc_ids
