@@ -36,6 +36,8 @@ def ensure_indexes(database):
     _ensure_error_logs_indexes(database)
     _ensure_stats_indexes(database)
     _ensure_reports_indexes(database)
+    _ensure_test_group_indexes(database)
+    _ensure_test_case_indexes(database)
 
 
 def _ensure_job_indexes(database):
@@ -295,3 +297,34 @@ def _ensure_reports_indexes(database):
         expireAfterSeconds=604800,
         background=True
     )
+
+
+def _ensure_test_group_indexes(database):
+    """Ensure indexes exist on the test_group collection.
+
+    :param database: The database connection.
+    """
+    collection = database[models.TEST_GROUP_COLLECTION]
+    collection.ensure_index(
+        [
+            (models.ARCHITECTURE_KEY, pymongo.ASCENDING),
+            (models.BOARD_KEY, pymongo.ASCENDING),
+            (models.DEFCONFIG_FULL_KEY, pymongo.ASCENDING),
+            (models.GIT_BRANCH_KEY, pymongo.ASCENDING),
+            (models.JOB_KEY, pymongo.ASCENDING),
+            (models.KERNEL_KEY, pymongo.ASCENDING),
+            (models.LAB_NAME_KEY, pymongo.ASCENDING),
+            (models.NAME_KEY, pymongo.ASCENDING),
+        ],
+        background=True
+    )
+
+
+def _ensure_test_case_indexes(database):
+    """Ensure indexes exist on the test_case collection.
+
+    :param database: The database connection.
+    """
+    collection = database[models.TEST_CASE_COLLECTION]
+    collection.ensure_index(
+        [(models.TEST_GROUP_ID_KEY, pymongo.ASCENDING)], background=True)
