@@ -29,6 +29,7 @@ def ensure_indexes(database):
     """
     _ensure_job_indexes(database)
     _ensure_boot_indexes(database)
+    _ensure_boot_regressions_indexes(database)
     _ensure_build_indexes(database)
     _ensure_token_indexes(database)
     _ensure_lab_indexes(database)
@@ -261,8 +262,8 @@ def _ensure_stats_indexes(database):
         [(models.CREATED_KEY, pymongo.DESCENDING)], background=True)
 
 
-def _ensure_regressions_indexes(database):
-    """Ensure indexes exist on the regression collection.
+def _ensure_boot_regressions_indexes(database):
+    """Ensure indexes exist on the boot regression collection.
 
     :param database: The database connection.
     """
