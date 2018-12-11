@@ -156,6 +156,17 @@ fi
 #
 KSELFTEST_FRAG=kernel/configs/kselftest.config
 find tools/testing/selftests -name config -printf "#\n# %h/%f\n#\n" -exec cat {} \; > $KSELFTEST_FRAG
+VIRTUALVIDEO_FRAG=kernel/configs/virtualvideo.config
+echo """
+CONFIG_MEDIA_SUPPORT=y
+CONFIG_MEDIA_CAMERA_SUPPORT=y
+CONFIG_VIDEO_DEV=y
+CONFIG_VIDEO_V4L2=y
+CONFIG_V4L_TEST_DRIVERS=y
+CONFIG_VIDEO_VIVID=y
+CONFIG_VIDEO_VIVID_MAX_DEVS=64
+""" > $VIRTUALVIDEO_FRAG
+
 
 cd ${WORKSPACE}
 echo $COMMIT_ID > last.commit
