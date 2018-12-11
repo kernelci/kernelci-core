@@ -20,6 +20,7 @@
 import argparse
 import json
 import sys
+import yaml
 
 # copied from lava-server/lava_scheduler_app/models.py
 SUBMITTED = 0
@@ -28,6 +29,39 @@ COMPLETE = 2
 INCOMPLETE = 3
 CANCELED = 4
 CANCELING = 5
+
+# git bisect return codes
+BISECT_PASS = 0
+BISECT_SKIP = 1
+BISECT_FAIL = 2
+
+# LAVA job result names
+LAVA_JOB_RESULT_NAMES = {
+    COMPLETE: "PASS",
+    INCOMPLETE: "FAIL",
+    CANCELED: "UNKNOWN",
+    CANCELING: "UNKNOWN",
+}
+
+# git bisect and LAVA job status map
+BOOT_STATUS_MAP = {
+    COMPLETE: BISECT_PASS,
+    INCOMPLETE: BISECT_FAIL,
+}
+
+
+def is_infra_error(cb):
+    lava_yaml = cb['results']['lava']
+    lava = yaml.load(lava_yaml)
+    stages = {s['name']: s for s in lava}
+    job_meta = stages['job']['metadata']
+    return job_meta.get('error_type') == "Infrastructure"
+
+
+def handle_boot(cb):
+    job_status = cb['status']
+    print("Status: {}".format(LAVA_JOB_RESULT_NAMES[job_status]))
+    return BOOT_STATUS_MAP.get(job_status, BISECT_SKIP)
 
 
 def main(args):
@@ -38,23 +72,13 @@ def main(args):
         print("Token mismatch")
         sys.exit(1)
 
-    job_status = cb['status']
+    if is_infra_error(cb):
+        print("Infrastructure error")
+        ret = BISECT_SKIP
+    else:
+        ret = handle_boot(cb)
 
-    lava_job_result = {
-        COMPLETE: "PASS",
-        INCOMPLETE: "FAIL",
-        CANCELED: "UNKNOWN",
-        CANCELING: "UNKNOWN",
-    }
-
-    print("Status: {}".format(lava_job_result[job_status]))
-
-    status_map = {
-        COMPLETE: 0,
-        INCOMPLETE: 2,
-    }
-
-    sys.exit(status_map.get(job_status, 1))
+    sys.exit(ret)
 
 
 if __name__ == '__main__':
