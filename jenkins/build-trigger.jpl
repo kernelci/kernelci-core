@@ -185,6 +185,9 @@ def addExtraConfigs(configs, kdir, arch) {
         }
     }
 
+    if (params.TREE_NAME == "media")
+        addExtraIfExists(extra, kdir, "kernel/configs/virtualvideo.config")
+
     if (!configs.contains(base_defconfig))
         configs.add(base_defconfig)
 
