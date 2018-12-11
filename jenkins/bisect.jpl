@@ -314,9 +314,19 @@ def runTest(kci_core, describe, expected=0, runs=0) {
 
     for (int i = 1; i <= runs; i++) {
         echo "Run ${i} / ${runs}"
-        def hook = registerWebhook()
-        submitJob(kci_core, describe, hook)
-        status = getResult(kci_core, hook)
+
+        def retries = 3
+
+        while (retries) {
+            def hook = registerWebhook()
+            submitJob(kci_core, describe, hook)
+            status = getResult(kci_core, hook)
+
+            if (status == 1)
+                retries -= 1
+            else
+                break
+        }
 
         if (status != expected)
             break
