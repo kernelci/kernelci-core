@@ -810,6 +810,17 @@ class TestConfig(YAMLObject):
         return self._test_plans
 
     def match(self, arch, plan, flags, config):
+        if True:
+            print(
+                plan,
+                plan in self._test_plans,
+                plan in self._test_plans and self._test_plans[plan].match(config),
+                arch,
+                self.device_type.arch == arch,
+                config,
+                self.device_type.match(flags, config),
+                all(f.match(**config) for f in self._filters)
+            )
         return (
             plan in self._test_plans and
             self._test_plans[plan].match(config) and
