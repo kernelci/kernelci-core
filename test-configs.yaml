@@ -120,6 +120,12 @@ test_plans:
   v4l2:
     rootfs: debian_stretch-v4l2_ramdisk
 
+  v4l2_qemu:
+    name: v4l2
+    rootfs: debian_stretch-v4l2_ramdisk
+    pattern: 'v4l2/generic-qemu-v4l2-template.jinja2'
+    filters:
+        - whitelist: {defconfig: ['defconfig+virtualvideo']}
 
 device_default_filters:
 
@@ -972,13 +978,13 @@ test_configs:
     test_plans: [boot]
 
   - device_type: qemu_arm
-    test_plans: [boot_qemu, simple_qemu]
+    test_plans: [boot_qemu, simple_qemu, v4l2_qemu]
 
   - device_type: qemu_arm64
-    test_plans: [boot_qemu, simple_qemu]
+    test_plans: [boot_qemu, simple_qemu, v4l2_qemu]
 
   - device_type: qemu_x86_64
-    test_plans: [boot_qemu, simple_qemu]
+    test_plans: [boot_qemu, simple_qemu, v4l2_qemu]
 
   - device_type: r8a7791_porter
     test_plans: [boot]
