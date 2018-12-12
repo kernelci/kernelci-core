@@ -161,7 +161,7 @@ def send_bisect_report(report_data, email_opts, base_path=utils.BASE_PATH):
     db_options = taskc.app.conf.get("db_options", {})
 
     report_data = utils.report.bisect.create_bisect_report(
-        report_data, email_opts["format"], db_options)
+        report_data, email_opts, db_options)
 
     if not report_data:
         return status

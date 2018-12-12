@@ -22,14 +22,14 @@ import utils.db
 import utils.report.common as rcommon
 
 
-def create_bisect_report(data, email_format, db_options,
+def create_bisect_report(data, email_options, db_options,
                          base_path=utils.BASE_PATH):
     """Create the bisection report email to be sent.
 
     :param data: The meta-data for the bisection job.
     :type data: dictionary
-    :param email_format: The email format to send.
-    :type email_format: list
+    :param email_options: The email options.
+    :type email_options: dict
     :param db_options: The mongodb database connection parameters.
     :type db_options: dict
     :param base_path: Path to the top-level storage directory.
@@ -45,6 +45,10 @@ def create_bisect_report(data, email_format, db_options,
         models.KERNEL_KEY,
         models.LAB_NAME_KEY,
         models.DEVICE_TYPE_KEY,
+    ])
+
+    email_format, email_subject = (email_options[k] for k in [
+        "format", "subject",
     ])
 
     specs = {x: data[x] for x in [
@@ -71,9 +75,6 @@ def create_bisect_report(data, email_format, db_options,
         rcommon.X_LAB: lab,
     }
 
-    subject_str = "Bisection result for {}/{} ({}) on {}".format(
-        job, branch, kernel, target)
-
     log_path_elements = (base_path, job, branch, kernel) + tuple(
         data[k] for k in [
             models.ARCHITECTURE_KEY,
@@ -98,7 +99,7 @@ def create_bisect_report(data, email_format, db_options,
         for x in ['PASS', 'FAIL'])
 
     template_data = {
-        "subject_str": subject_str,
+        "subject_str": email_subject,
         "good": doc[models.BISECT_GOOD_SUMMARY_KEY],
         "bad": doc[models.BISECT_BAD_SUMMARY_KEY],
         "good_details_url": good_url,
