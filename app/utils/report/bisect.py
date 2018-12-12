@@ -76,15 +76,16 @@ def create_bisect_report(data, email_options, db_options,
         rcommon.X_LAB: lab,
     }
 
-    log_path_elements = (base_path, job, branch, kernel) + tuple(
+    rel_path = '/'.join((job, branch, kernel) + tuple(
         data[k] for k in [
             models.ARCHITECTURE_KEY,
             models.DEFCONFIG_FULL_KEY,
             models.LAB_NAME_KEY,
-            models.BISECT_LOG_KEY,
         ]
-    )
-    log_path = os.path.join(*log_path_elements)
+    ))
+
+
+    log_path = os.path.join(base_path, rel_path, data[models.BISECT_LOG_KEY])
     with open(log_path) as log_file:
         log_data = json.load(log_file)
 
@@ -93,20 +94,22 @@ def create_bisect_report(data, email_options, db_options,
         'job': job,
         'git_branch': branch,
     }
-    boot_data = {b['status']: b['git_describe']
-                 for b in doc[models.BISECT_DATA_KEY]}
-    good_url, bad_url = (
-        rcommon.BOOT_SUMMARY_URL.format(kernel=boot_data[x], **url_params)
-        for x in ['PASS', 'FAIL'])
+
+    boot_data = {b["status"]: b for b in doc[models.BISECT_DATA_KEY]}
+    bad_describe = boot_data["FAIL"]["git_describe"]
+    bad_details_url = '/'.join([
+        rcommon.DEFAULT_BASE_URL, "boot", "id", str(boot_data["FAIL"]["_id"])])
+    log_url_txt, log_url_html = ('/'.join([
+        rcommon.DEFAULT_STORAGE_URL, rel_path, boot_data["FAIL"][k]])
+        for k in [models.BOOT_LOG_KEY, models.BOOT_LOG_HTML_KEY])
 
     template_data = {
         "subject_str": email_subject,
-        "good": doc[models.BISECT_GOOD_SUMMARY_KEY],
         "bad": doc[models.BISECT_BAD_SUMMARY_KEY],
-        "good_details_url": good_url,
-        "bad_details_url": bad_url,
-        "good_describe": boot_data['PASS'],
-        "bad_describe": boot_data['FAIL'],
+        "bad_details_url": bad_details_url,
+        "bad_describe": bad_describe,
+        "log_url_txt": log_url_txt,
+        "log_url_html": log_url_html,
         "found": doc[models.BISECT_FOUND_SUMMARY_KEY],
         "checks": doc[models.BISECT_CHECKS_KEY],
         "tree": job,

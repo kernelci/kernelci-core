@@ -8,13 +8,12 @@
 
 {{ subject_str }}
 
-  Good:       {{ good }}
-  Bad:        {{ bad }}
-  Found:      {{ found }}
-
-Details:
-  Good:       {{ good_details_url }}
-  Bad:        {{ bad_details_url }}
+Summary:
+  Start:      {{ bad }}
+  Details:    {{ bad_details_url }}
+  Plain log:  {{ log_url_txt }}
+  HTML log:   {{ log_url_html }}
+  Result:     {{ found }}
 
 Checks:
 {%- for check, result in checks|dictsort %}

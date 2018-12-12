@@ -48,17 +48,15 @@ div.disclaimer {
       </div>
       <p>
         <h1>{{ subject_str }}</h1>
-        <table>
-          <tr><th>Good</th><td><pre>{{ good }}</pre></td></tr>
-          <tr><th>Bad</th><td><pre>{{ bad }}</pre></td></tr>
-          <tr><th>Found</th><td><pre>{{ found }}</pre></td></tr>
-        </table>
       </p>
       <p>
-        <h2>Details:</h2>
+        <h2>Summary:</h2>
         <table>
-          <tr><th>Good</th><td><a href="{{ good_details_url }}">{{ good_describe }}</a></td></tr>
-          <tr><th>Bad</th><td><a href="{{ bad_details_url }}">{{ bad_describe }}</a></td></tr>
+          <tr><th>Start</th><td><pre>{{ bad }}</pre></td></tr>
+          <tr><th>Details</th><td><a href="{{ bad_details_url }}">{{ bad_describe }}</a></td></tr>
+          <tr><th>Plain log</th><td><a href="{{ log_url_txt }}">{{ log_url_txt }}</a></td></tr>
+          <tr><th>HTML log</th><td><a href="{{ log_url_html }}">{{ log_url_html }}</a></td></tr>
+          <tr><th>Result</th><td><pre>{{ found }}</pre></td></tr>
         </table>
       </p>
       <p>
