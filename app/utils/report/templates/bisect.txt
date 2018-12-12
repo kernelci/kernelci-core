@@ -29,7 +29,7 @@ Parameters:
   CPU arch:   {{ arch }}
   Lab:        {{ lab_name }}
   Config:     {{ defconfig }}
-  Plan:       {{ plan }}
+  Test suite: {{ test_suite }}
 
 Breaking commit found:
 

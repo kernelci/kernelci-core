@@ -39,10 +39,11 @@ def create_bisect_report(data, email_options, db_options,
     """
     database = utils.db.get_db_connection(db_options)
 
-    job, branch, kernel, lab, target = (data[k] for k in [
+    job, branch, kernel, test_suite, lab, target = (data[k] for k in [
         models.JOB_KEY,
         models.GIT_BRANCH_KEY,
         models.KERNEL_KEY,
+        models.TYPE_KEY,
         models.LAB_NAME_KEY,
         models.DEVICE_TYPE_KEY,
     ])
@@ -115,7 +116,7 @@ def create_bisect_report(data, email_options, db_options,
         "arch": doc[models.ARCHITECTURE_KEY],
         "lab_name": lab,
         "defconfig": doc[models.DEFCONFIG_FULL_KEY],
-        "plan": "boot",
+        "test_suite": test_suite,
         "show": log_data["show"],
         "log": log_data["log"],
     }
