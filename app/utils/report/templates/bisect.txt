@@ -26,6 +26,7 @@ Parameters:
   URL:        {{ git_url }}
   Branch:     {{ branch }}
   Target:     {{ target }}
+  CPU arch:   {{ arch }}
   Lab:        {{ lab_name }}
   Config:     {{ defconfig }}
   Plan:       {{ plan }}
