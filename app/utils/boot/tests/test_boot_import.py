@@ -65,7 +65,8 @@ class TestParseBoot(unittest.TestCase):
             filesystem="nfs",
             boot_job_id="1234",
             boot_job_url="http://boot-executor.example.net",
-            git_branch="branch"
+            git_branch="branch",
+            build_environment="build_environment"
         )
 
     def tearDown(self):
@@ -183,14 +184,15 @@ class TestParseBoot(unittest.TestCase):
             "arch": "arm",
             "defconfig_full": "defconfig+FRAGMENT",
             "lab_name": "lab",
-            "git_branch": "branch"
+            "git_branch": "branch",
+            "build_environment": "build_environment"
         }
         boot_doc = mboot.BootDocument(
-            "board", "job", "kernel", "defconfig", "lab", "branch",
+            "board", "job", "kernel", "defconfig", "lab", "branch", "build_environment",
             "defconfig+FRAGMENT", "arm")
         expected_path = os.path.join(
             base_path,
-            "job", "branch", "kernel", "arm", "defconfig+FRAGMENT", "lab")
+            "job", "branch", "kernel", "arm", "defconfig+FRAGMENT", "build_environment", "lab")
         expected_file = os.path.join(expected_path, "boot-board.json")
         try:
             bimport.save_to_disk(boot_doc, json_obj, base_path, errors)
@@ -211,14 +213,15 @@ class TestParseBoot(unittest.TestCase):
             "arch": "arm",
             "defconfig_full": "defconfig+FRAGMENT",
             "git_branch": "branch",
-            "lab_name": "lab"
+            "lab_name": "lab",
+            "build_environment": "build_environment"
         }
         boot_doc = mboot.BootDocument(
-            "board", "job", "kernel", "defconfig", "lab", "branch",
+            "board", "job", "kernel", "defconfig", "lab", "branch", "build_environment",
             "defconfig+FRAGMENT", "arm")
         expected_path = os.path.join(
             base_path,
-            "job", "branch", "kernel", "arm", "defconfig+FRAGMENT", "lab")
+            "job", "branch", "kernel", "arm", "defconfig+FRAGMENT", "build_environment", "lab")
         expected_file = os.path.join(expected_path, "boot-board.json")
         try:
             os.makedirs(expected_path)
@@ -247,14 +250,15 @@ class TestParseBoot(unittest.TestCase):
             "arch": "arm",
             "defconfig_full": "defconfig+FRAGMENT",
             "lab_name": "lab",
-            "git_branch": "branch"
+            "git_branch": "branch",
+            "build_environment": "build_environment"
         }
         boot_doc = mboot.BootDocument(
-            "board", "job", "kernel", "defconfig", "lab", "branch",
+            "board", "job", "kernel", "defconfig", "lab", "branch", "build_environment",
             "defconfig+FRAGMENT", "arm")
         expected_path = os.path.join(
             base_path,
-            "job", "branch", "kernel", "arm", "defconfig+FRAGMENT", "lab")
+            "job", "branch", "kernel", "arm", "defconfig+FRAGMENT", "build_environment", "lab")
         expected_file = os.path.join(expected_path, "boot-board.json")
 
         exception = OSError("Error")
@@ -277,7 +281,7 @@ class TestParseBoot(unittest.TestCase):
             self.boot_report, {}, base_path=self.base_path)
         lab_dir = os.path.join(
             self.base_path,
-            "job", "branch", "kernel", "arm", "defconfig", "lab_name")
+            "job", "branch", "kernel", "arm", "defconfig", "build_environment", "lab_name")
         boot_file = os.path.join(lab_dir, "boot-board.json")
 
         self.assertTrue(os.path.isdir(lab_dir))
@@ -333,7 +337,8 @@ class TestParseBoot(unittest.TestCase):
             "dtb": "dtb",
             "lab_name": "lab_name",
             "git_branch": "branch",
-            "boot_time": sys.maxint
+            "boot_time": sys.maxint,
+            "build_environment": "build_environment"
         }
         errors = {}
 
@@ -356,7 +361,8 @@ class TestParseBoot(unittest.TestCase):
             "dtb": "dtb",
             "lab_name": "lab_name",
             "git_branch": "branch",
-            "boot_time": -sys.maxint - 1
+            "boot_time": -sys.maxint - 1,
+            "build_environment": "build_environment"
         }
         errors = {}
 
@@ -379,7 +385,8 @@ class TestParseBoot(unittest.TestCase):
             "dtb": "dtb",
             "lab_name": "lab_name",
             "git_branch": "branch",
-            "boot_time": -1500.0
+            "boot_time": -1500.0,
+            "build_environment": "build_environment"
         }
         errors = {}
 
@@ -402,7 +409,8 @@ class TestParseBoot(unittest.TestCase):
             "lab_name": "lab_name",
             "git_branch": "branch",
             "dtb": "dtb",
-            "boot_time": "foo"
+            "boot_time": "foo",
+            "build_environment": "build_environment"
         }
         errors = {}
 
@@ -428,6 +436,7 @@ class TestParseBoot(unittest.TestCase):
             "lab_name": "lab_name",
             "git_branch": "branch",
             "boot_time": 0,
+            "build_environment": "build_environment"
         }
         errors = {}
 
@@ -450,7 +459,8 @@ class TestParseBoot(unittest.TestCase):
             "lab_name": "lab_name",
             "git_branch": "branch",
             "mach": "mach",
-            "mach_alias": "mach-alias"
+            "mach_alias": "mach-alias",
+            "build_environment": "build_environment"
         }
 
         doc = bimport._parse_boot_from_json(boot_json, self.db, {})

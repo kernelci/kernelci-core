@@ -139,7 +139,8 @@ class TestBootHandler(TestHandlerBase):
             "defconfig": "defconfig",
             "lab_name": "lab-name",
             "git_branch": "branch",
-            "arch": "arm"
+            "arch": "arm",
+            "build_environment": "build_environment"
         }
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
 
@@ -166,7 +167,8 @@ class TestBootHandler(TestHandlerBase):
             "defconfig": "defconfig",
             "lab_name": "lab-name",
             "git_branch": "branch",
-            "arch": "arm"
+            "arch": "arm",
+            "build_environment": "build_environment"
         }
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
 
@@ -193,7 +195,8 @@ class TestBootHandler(TestHandlerBase):
             "defconfig": "defconfig",
             "lab_name": "lab-name",
             "git_branch": "branch",
-            "arch": "arm"
+            "arch": "arm",
+            "build_environment": "build_environment"
         }
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
 
@@ -212,7 +215,8 @@ class TestBootHandler(TestHandlerBase):
             "defconfig": "defconfig",
             "lab_name": "lab-name",
             "git_branch": "branch",
-            "arch": "arm"
+            "arch": "arm",
+            "build_environment": "build_environment"
         }
         headers = {"Authorization": "foo", "Content-Type": "application/json"}
 

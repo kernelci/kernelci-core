@@ -38,6 +38,7 @@ class BootDocument(modb.BaseDocument):
             defconfig,
             lab_name,
             git_branch,
+            build_environment,
             defconfig_full,
             arch):
         """A new BootDocument.
@@ -70,6 +71,7 @@ class BootDocument(modb.BaseDocument):
         self.job = job
         self.kernel = kernel
         self.lab_name = lab_name
+        self.build_environment = build_environment
 
         self.board_instance = None
         self.boot_job_id = None
@@ -172,6 +174,7 @@ class BootDocument(modb.BaseDocument):
             models.BOOT_LOG_HTML_KEY: self.boot_log_html,
             models.BOOT_LOG_KEY: self.boot_log,
             models.BOOT_RESULT_DESC_KEY: self.boot_result_description,
+            models.BUILD_ENVIRONMENT_KEY: self.build_environment,
             models.BUILD_ID_KEY: self.build_id,
             models.CHAINLOADER_TYPE_KEY: self.chainloader,
             models.COMPILER_KEY: self.compiler,
@@ -241,6 +244,7 @@ class BootDocument(modb.BaseDocument):
                 git_branch = doc_pop(models.GIT_BRANCH_KEY)
                 defconfig_full = doc_pop(models.DEFCONFIG_FULL_KEY, None)
                 arch = doc_pop(models.ARCHITECTURE_KEY)
+                build_environment = doc_pop(models.BUILD_ENVIRONMENT_KEY)
 
                 boot_doc = BootDocument(
                     board,
@@ -249,6 +253,7 @@ class BootDocument(modb.BaseDocument):
                     defconfig,
                     lab_name,
                     git_branch,
+                    build_environment,
                     defconfig_full=defconfig_full, arch=arch
                 )
 

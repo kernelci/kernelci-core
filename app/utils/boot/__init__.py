@@ -84,7 +84,8 @@ def save_or_update(boot_doc, database, errors):
         models.JOB_KEY: boot_doc.job,
         models.KERNEL_KEY: boot_doc.kernel,
         models.LAB_NAME_KEY: boot_doc.lab_name,
-        models.GIT_BRANCH_KEY: boot_doc.git_branch
+        models.GIT_BRANCH_KEY: boot_doc.git_branch,
+        models.BUILD_ENVIRONMENT_KEY: boot_doc.build_environment
     }
 
     fields = [
@@ -140,7 +141,7 @@ def save_to_disk(boot_doc, json_obj, base_path, errors):
         boot_doc.git_branch,
         boot_doc.kernel,
         boot_doc.arch,
-        boot_doc.defconfig_full, boot_doc.lab_name)
+        boot_doc.defconfig_full, boot_doc.build_environment, boot_doc.lab_name)
     file_path = os.path.join(dir_path, "boot-{}.json".format(boot_doc.board))
 
     try:
@@ -264,6 +265,7 @@ def _update_boot_doc_from_json(boot_doc, boot_dict, errors):
     boot_doc.boot_job_id = boot_dict.get(models.BOOT_JOB_ID_KEY, None)
     boot_doc.boot_job_path = boot_dict.get(models.BOOT_JOB_PATH_KEY, None)
     boot_doc.boot_job_url = boot_dict.get(models.BOOT_JOB_URL_KEY, None)
+    boot_doc.build_environment = boot_dict.get(models.BUILD_ENVIRONMENT_KEY, None)
 
     # mach_alias_key takes precedence if defined
     boot_doc.mach = boot_dict.get(
@@ -307,6 +309,7 @@ def _update_boot_doc_ids(boot_doc, database):
     defconfig_full = boot_doc.defconfig_full
     arch = boot_doc.arch
     branch = boot_doc.git_branch
+    build_environment = boot_doc.build_environment
 
     spec = {
         models.JOB_KEY: job,
@@ -320,7 +323,8 @@ def _update_boot_doc_ids(boot_doc, database):
         models.ARCHITECTURE_KEY: arch,
         models.DEFCONFIG_KEY: defconfig,
         models.JOB_KEY: job,
-        models.KERNEL_KEY: kernel
+        models.KERNEL_KEY: kernel,
+        models.BUILD_ENVIRONMENT_KEY: build_environment
     })
 
     if defconfig_full:
@@ -402,6 +406,7 @@ def _parse_boot_from_json(boot_json, database, errors):
         defconfig = boot_json[models.DEFCONFIG_KEY]
         lab_name = boot_json[models.LAB_NAME_KEY]
         git_branch = boot_json[models.GIT_BRANCH_KEY]
+        build_environment = boot_json[models.BUILD_ENVIRONMENT_KEY]
     except KeyError, ex:
         err_msg = "Missing mandatory key in boot data"
         utils.LOG.exception(ex)
@@ -413,7 +418,7 @@ def _parse_boot_from_json(boot_json, database, errors):
     arch = boot_json.get(models.ARCHITECTURE_KEY)
     boot_doc = mboot.BootDocument(
         board,
-        job, kernel, defconfig, lab_name, git_branch, defconfig_full, arch)
+        job, kernel, defconfig, lab_name, git_branch, build_environment, defconfig_full, arch)
     boot_doc.created_on = datetime.datetime.now(
         tz=bson.tz_util.utc)
     _update_boot_doc_from_json(boot_doc, boot_json, errors)

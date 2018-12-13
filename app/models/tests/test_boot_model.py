@@ -21,13 +21,13 @@ class TestBootModel(unittest.TestCase):
 
     def test_boot_document_valid_instance(self):
         boot_doc = mboot.BootDocument(
-            "board", "job", "kernel", "defconfig", "lab", "branch",
+            "board", "job", "kernel", "defconfig", "lab", "branch", "build_environment",
             "defconfig_full", "arch")
         self.assertIsInstance(boot_doc, mbase.BaseDocument)
 
     def test_boot_document_to_dict(self):
         boot_doc = mboot.BootDocument(
-            "board", "job", "kernel", "defconfig", "lab", "branch",
+            "board", "job", "kernel", "defconfig", "lab", "branch", "build_environment",
             "defconfig_full", "arch")
         boot_doc.id = "id"
         boot_doc.job_id = "job-id"
@@ -125,7 +125,8 @@ class TestBootModel(unittest.TestCase):
             "cross_compile": "cross-compile",
             "boot_job_id": "1234",
             "boot_job_url": "http://boot-executor.example.net",
-            "boot_job_path": "/public/job"
+            "boot_job_path": "/public/job",
+            "build_environment": "build_environment"
         }
 
         self.assertDictEqual(expected, boot_doc.to_dict())
@@ -202,7 +203,8 @@ class TestBootModel(unittest.TestCase):
             "cross_compile": "cross-compile",
             "boot_job_id": "1234",
             "boot_job_url": "http://boot-executor.example.net",
-            "boot_job_path": "/public/job"
+            "boot_job_path": "/public/job",
+            "build_environment": "build_environment"
         }
 
         boot_doc = mboot.BootDocument.from_json(boot_json)

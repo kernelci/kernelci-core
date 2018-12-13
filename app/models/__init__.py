@@ -435,7 +435,8 @@ BOOT_VALID_KEYS = {
             JOB_KEY,
             KERNEL_KEY,
             LAB_NAME_KEY,
-            VERSION_KEY
+            VERSION_KEY,
+            BUILD_ENVIRONMENT_KEY
         ],
         ACCEPTED_KEYS: [
             ARCHITECTURE_KEY,
@@ -454,6 +455,7 @@ BOOT_VALID_KEYS = {
             BOOT_RETRIES_KEY,
             BOOT_TIME_KEY,
             BOOT_WARNINGS_KEY,
+            BUILD_ENVIRONMENT_KEY,
             CHAINLOADER_TYPE_KEY,
             COMPILER_KEY,
             COMPILER_VERSION_EXT_KEY,
@@ -500,6 +502,7 @@ BOOT_VALID_KEYS = {
         BOOTLOADER_VERSION_KEY,
         BOOT_JOB_ID_KEY,
         BOOT_JOB_URL_KEY,
+        BUILD_ENVIRONMENT_KEY,
         BUILD_ID_KEY,
         CHAINLOADER_TYPE_KEY,
         COMPILER_KEY,
@@ -1006,6 +1009,7 @@ DISTINCT_VALID_FIELDS = {
         ARCHITECTURE_KEY,
         BOARD_INSTANCE_KEY,
         BOARD_KEY,
+        BUILD_ENVIRONMENT_KEY,
         BOOT_JOB_URL_KEY,
         DEFCONFIG_FULL_KEY,
         DEFCONFIG_KEY,

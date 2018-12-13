@@ -74,6 +74,8 @@ META_DATA_MAP_TEST = {
     models.VCS_COMMIT_KEY: "git.commit",
     models.IMAGE_TYPE_KEY: "image.type",
     models.PLAN_KEY: "test.plan",
+    models.BUILD_ENVIRONMENT_KEY: "job.build_environment",
+    models.FILE_SERVER_RESOURCE_KEY: "job.file_server_resource"
 }
 
 META_DATA_MAP_BOOT = {
@@ -94,6 +96,8 @@ META_DATA_MAP_BOOT = {
     models.INITRD_KEY: "job.initrd_url",
     models.BOARD_KEY: "platform.name",
     models.DEVICE_TYPE_KEY: "device.type",
+    models.BUILD_ENVIRONMENT_KEY: "job.build_environment",
+    models.FILE_SERVER_RESOURCE_KEY: "job.file_server_resource"
 }
 
 BL_META_MAP = {
@@ -222,7 +226,37 @@ def _get_lava_meta(meta, job_data):
             handler(meta, step["metadata"])
 
 
-def _add_test_log(meta, job_log, base_path, suite):
+def _get_dir_path(meta, base_path):
+    """Parse the meta-data from LAVA
+
+    Update the metadata with the storage path of the artifacts.
+    If possible, use the file_server_resource from the metadata.
+
+    :param meta: The boot meta-data.
+    :type meta: dictionary
+    :param base_path: The .
+    :type job_data: dict
+    """
+    file_server_resource = meta.get(models.FILE_SERVER_RESOURCE_KEY)
+    if file_server_resource:
+        dir_path = os.path.join(
+            base_path,
+            file_server_resource,
+            meta[models.LAB_NAME_KEY])
+    else:
+        dir_path = os.path.join(
+            base_path,
+            meta[models.JOB_KEY],
+            meta[models.GIT_BRANCH_KEY],
+            meta[models.KERNEL_KEY],
+            meta[models.ARCHITECTURE_KEY],
+            meta[models.DEFCONFIG_FULL_KEY],
+            meta[models.BUILD_ENVIRONMENT_KEY],
+            meta[models.LAB_NAME_KEY])
+    meta.update({'dir_path': dir_path})
+
+
+def _add_test_log(meta, job_log, suite):
     """Parse and save test logs
 
     Parse the LAVA v2 log in YAML format and save it as plain text and HTML.
@@ -238,14 +272,7 @@ def _add_test_log(meta, job_log, base_path, suite):
     """
     log = yaml.load(job_log, Loader=yaml.CLoader)
 
-    dir_path = os.path.join(
-        base_path,
-        meta[models.JOB_KEY],
-        meta[models.GIT_BRANCH_KEY],
-        meta[models.KERNEL_KEY],
-        meta[models.ARCHITECTURE_KEY],
-        meta[models.DEFCONFIG_FULL_KEY],
-        meta[models.LAB_NAME_KEY])
+    dir_path = meta['dir_path']
 
     utils.LOG.info("Generating {} log files in {}".format(suite, dir_path))
     file_name = "-".join([suite, meta[models.BOARD_KEY]])
@@ -281,14 +308,7 @@ def _store_lava_json(job_data, meta, base_path=utils.BASE_PATH):
     file_name = "-".join(["lava-json", meta[models.BOARD_KEY]])
     file_name = ".".join([file_name, "json"])
 
-    dir_path = os.path.join(
-        base_path,
-        meta[models.JOB_KEY],
-        meta[models.GIT_BRANCH_KEY],
-        meta[models.KERNEL_KEY],
-        meta[models.ARCHITECTURE_KEY],
-        meta[models.DEFCONFIG_FULL_KEY],
-        meta[models.LAB_NAME_KEY])
+    dir_path = meta['dir_path']
 
     utils.LOG.info("Saving LAVA v2 callback file {} data in {}".format(
         file_name,
@@ -351,9 +371,10 @@ def add_boot(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
     try:
         _get_job_meta(meta, job_data)
         _get_definition_meta(meta, job_data, META_DATA_MAP_BOOT)
+        _get_dir_path(meta, base_path)
         _get_lava_meta(meta, job_data)
         _store_lava_json(job_data, meta)
-        _add_test_log(meta, job_data["log"], base_path, "boot")
+        _add_test_log(meta, job_data["log"], "boot")
         doc_id = utils.boot.import_and_save_boot(meta, db_options)
     except (yaml.YAMLError, ValueError) as ex:
         ret_code = 400
@@ -536,9 +557,10 @@ def add_tests(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
     try:
         _get_job_meta(meta, job_data)
         _get_definition_meta(meta, job_data, META_DATA_MAP_TEST)
+        _get_dir_path(meta, base_path)
         _get_lava_meta(meta, job_data)
         plan_name = meta[models.PLAN_KEY]
-        _add_test_log(meta, job_data["log"], base_path, plan_name)
+        _add_test_log(meta, job_data["log"], plan_name)
         _add_rootfs_info(meta, base_path)
         _store_lava_json(job_data, meta)
         # TODO add a test plan entry in the database to group test suites
