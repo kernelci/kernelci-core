@@ -40,8 +40,10 @@ GIT_DESCRIBE_VERBOSE
   Verbose output of 'git describe' at the revision of the snapshot
 COMMIT_ID
   Git commit SHA1 at the revision of the snapshot
-COMPILER (gcc-7)
-  Name and version number of the compiler
+CC (gcc)
+  Name of the compiler
+CC_VERSION (7)
+  Version of the compiler
 PUBLISH (boolean)
   Publish build results via the KernelCI backend API
 EMAIL (boolean)
@@ -99,7 +101,7 @@ ${kci_core}/build.py \
 node("docker && builder") {
     def j = new Job()
     def docker_image = j.dockerImageName(
-        params.DOCKER_BASE, params.COMPILER, params.ARCH)
+        params.DOCKER_BASE, params.CC, params.CC_VERSION, params.ARCH)
 
     echo("""\
     Tree:      ${params.TREE_NAME}
@@ -109,7 +111,7 @@ node("docker && builder") {
     Describe:  ${params.GIT_DESCRIBE}
     Revision:  ${params.COMMIT_ID}
     Config:    ${params.DEFCONFIG}
-    Compiler:  ${params.COMPILER}
+    Compiler:  ${params.CC} ${params.CC_VERSION}
     Container: ${docker_image}""")
 
     def k = new Kernel()
