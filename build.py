@@ -52,7 +52,7 @@ from urlparse import urljoin
 cross_compilers = {
     "arm": "arm-linux-gnueabihf-",
     "arm64": "aarch64-linux-gnu-",
-    "mips": "mips-linux-",
+    "mips": "mips-linux-gnu-",
     "i386": None,
     "x86": None,
     "x86_64": None,
@@ -357,7 +357,7 @@ extra_configs(dot_config, kbuild_output)
 #
 if len(args) >= 1:
     build_target = args[0]
-elif arch == "arc":
+elif arch == "arc" or arch == "mips":
     build_target = "uImage.gz"
 result = do_make(build_target, log=True)
 
@@ -407,9 +407,7 @@ if install:
         patterns = ['zImage', 'xipImage']
     elif arch == 'arm64':
         patterns = ['Image']
-    elif arch == 'mips':
-        patterns = ['vmlinux.bin.z', 'vmlinux.ecoff']
-    elif arch == "arc":
+    elif arch == "arc" or arch == "mips":
         patterns = ['uImage.gz']
     else:
         patterns = ['bzImage']
