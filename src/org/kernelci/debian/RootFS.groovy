@@ -27,25 +27,23 @@ KCI_TOKEN_ID
 
 */
 
-
-/* TODO:
-- Harcoded paths at jenkins/debian/... for Dockerfile and debos file
-*/
-
 package org.kernelci.debian
+import org.kernelci.util.Job
 
 
 def buildImage(config) {
-
     def name = config.name
     def archList = config.arch_list
     def debianRelease = config.debian_release
 
     def debosFile = "jenkins/debian/debos/rootfs.yaml"
-    // Returns the pipeline version with the format YYYYMMMAA.X where X is the number of the build of the day
-    def pipeline_version = VersionNumber(versionNumberString: '${BUILD_DATE_FORMATTED,"yyyyMMdd"}.${BUILDS_TODAY_Z}')
+    /* Returns the pipeline version with the format YYYYMMMAA.X where X is the
+     * number of the build of the day */
+    def pipeline_version = VersionNumber(
+        versionNumberString: '${BUILD_DATE_FORMATTED,"yyyyMMdd"}.${BUILDS_TODAY_Z}')
 
-    // debos will always run the extra packages step, so let's make sure it has something to install
+    /* debos will always run the extra packages step, so let's make sure it has
+     * something to install */
     def extraPackages = "bash"
     if (config.extra_packages != null) {
         extraPackages = config.extra_packages
@@ -59,6 +57,8 @@ def buildImage(config) {
 
     def test_overlay = config.test_overlay ?: ""
 
+    def docker_image = config.docker_image ?: "kernelci/debos"
+
     def stepsForParallel = [:]
     for (int i = 0; i < archList.size(); i++) {
         def arch = archList[i]
@@ -70,7 +70,8 @@ def buildImage(config) {
                                                     extraPackages,
                                                     name,
                                                     script,
-                                                    test_overlay)
+                                                    test_overlay,
+                                                    docker_image)
     }
 
     parallel stepsForParallel
@@ -84,14 +85,16 @@ def makeImageStep(String pipeline_version,
                   String extraPackages,
                   String name,
                   String script,
-                  String test_overlay) {
+                  String test_overlay,
+                  String docker_image) {
     return {
         node("docker && debos") {
             stage("Checkout") {
                 checkout scm
             }
 
-            docker.build("debian", "-f jenkins/debian/Dockerfile_debos --pull .").inside("--device=/dev/kvm ${getDockerArgs()}") {
+            j = new Job()
+            j.dockerPullWithRetry(docker_image).inside(getDockerArgs()) {
                 stage("Build base image for ${arch}") {
                     sh """
                         mkdir -p ${pipeline_version}/${arch}
@@ -129,13 +132,13 @@ def makeImageStep(String pipeline_version,
 
 // make sure the kvm group gid is passed to docker with option --group-add
 def getDockerArgs() {
+    def group = sh(returnStdout: true,
+                   script: "getent group kvm | cut -d : -f 3").trim()
 
-  def GROUP = sh(returnStdout: true, script: 'getent group kvm | cut -d : -f 3').trim()
+    if (group == "") {
+        // defaults to user group gid
+        group = sh(returnStdout: true, script: "id -g").trim()
+    }
 
-  if (GROUP == "") {
-    // defaults to user group gid
-    GROUP = sh(returnStdout: true, script: 'id -g').trim()
-  }
-
-  return "--group-add " + "${GROUP}"
+    return "--device=/dev/kvm --group-add ${group}"
 }

@@ -1,6 +1,14 @@
 @Library('kernelci') _
 import org.kernelci.debian.RootFS
 
+/* ----------------------------------------------------------------------------
+ * Jenkins parameters
+
+DOCKER_BASE
+  Dockerhub base address used for the build images
+
+*/
+
 def r = new RootFS()
 
 def config = ['name':"stretch-v4l2",
@@ -9,6 +17,7 @@ def config = ['name':"stretch-v4l2",
               'extra_packages':"",
               'script':"scripts/stretch-v4l2.sh",
               'test_overlay': "overlays/v4l2",
+              'docker_image': "${params.DOCKER_BASE}debos",
              ]
 
 r.buildImage(config)
