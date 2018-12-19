@@ -1,6 +1,14 @@
 @Library('kernelci') _
 import org.kernelci.debian.RootFS
 
+/* ----------------------------------------------------------------------------
+ * Jenkins parameters
+
+DOCKER_BASE
+  Dockerhub base address used for the build images
+
+*/
+
 def r = new RootFS()
 
 def config = ['name':"stretch-igt",
@@ -11,6 +19,7 @@ def config = ['name':"stretch-igt",
                                 libssl1.1 libunwind8 libudev1 libglib2.0-0 \
                                 libdw1 liblzma5",
               'script':"scripts/stretch-igt.sh",
+              'docker_image': "${params.DOCKER_BASE}debos",
              ]
 
 r.buildImage(config)
