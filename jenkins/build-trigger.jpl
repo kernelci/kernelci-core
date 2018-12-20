@@ -50,6 +50,8 @@ KCI_CORE_URL (https://github.com/kernelci/kernelci-core.git)
   URL of the kernelci-core repository
 KCI_CORE_BRANCH (master)
   Name of the branch to use in the kernelci-core repository
+DOCKER_BASE
+  Dockerhub base address used for the build images
 
 */
 
@@ -245,6 +247,7 @@ node("defconfig-creator") {
     def k = new Kernel()
     def kci_core = "${env.WORKSPACE}/kernelci-core"
     def kdir = "${env.WORKSPACE}/linux"
+    def docker_image = "${params.DOCKER_BASE}base"
     def archs = params.ARCH_LIST.tokenize(' ')
     def arch_configs = []
 
@@ -254,52 +257,58 @@ node("defconfig-creator") {
     Branch:    ${params.BRANCH}
     Describe:  ${params.GIT_DESCRIBE}
     Revision:  ${params.COMMIT_ID}
-    Archs:     ${archs.size()}""")
+    Archs:     ${archs.size()}
+    Container: ${docker_image}""")
 
-    stage("Init") {
-        timeout(time: 30, unit: 'MINUTES') {
-            parallel(
-                clone: { j.cloneKciCore(kci_core,
-                                        params.KCI_CORE_URL,
-                                        params.KCI_CORE_BRANCH) },
-                download: { k.downloadTarball(kdir, params.SRC_TARBALL) },
-            )
-        }
-    }
-
-    stage("Configs") {
-        for (String arch: archs) {
-            def configs = ["allnoconfig"]
-
-            addDefconfigs(configs, kdir, arch)
-
-            if (params.TREE_NAME != "stable" && params.TREE_NAME != "stable-rc")
-                addExtraConfigs(configs, kdir, arch)
-
-            for (String config: configs)
-                arch_configs.add([arch, config])
-        }
-    }
-
-    stage("Build") {
-        def builds = [:]
-        def i = 0
-
-        for (x in arch_configs) {
-            def arch = x[0]
-            def config = x[1]
-            echo("${i} ${arch} ${config}")
-            builds["${i}_${arch}_${config}"] = buildKernelStep("kernel-build", arch, config)
-            i += 1
+    j.dockerPullWithRetry(docker_image).inside() {
+        stage("Init") {
+            timeout(time: 30, unit: 'MINUTES') {
+                parallel(
+                    clone: { j.cloneKciCore(kci_core,
+                                            params.KCI_CORE_URL,
+                                            params.KCI_CORE_BRANCH) },
+                    download: { k.downloadTarball(kdir, params.SRC_TARBALL) },
+                )
+            }
         }
 
-        parallel(builds)
-    }
+        stage("Configs") {
+            for (String arch: archs) {
+                def configs = ["allnoconfig"]
 
-    stage("Complete") {
-        /* ToDo: convert kernel-arch-complete as a stage in this job */
-        for (String arch: archs) {
-            buildsComplete("kernel-arch-complete", arch)
+                addDefconfigs(configs, kdir, arch)
+
+                if ((params.TREE_NAME != "stable") &&
+                    (params.TREE_NAME != "stable-rc")) {
+                    addExtraConfigs(configs, kdir, arch)
+                }
+
+                for (String config: configs)
+                    arch_configs.add([arch, config])
+            }
+
+        }
+
+        stage("Build") {
+            def builds = [:]
+            def i = 0
+
+            for (x in arch_configs) {
+                def arch = x[0]
+                def config = x[1]
+                echo("${i} ${arch} ${config}")
+                builds["${i}_${arch}_${config}"] = buildKernelStep("kernel-build", arch, config)
+                i += 1
+            }
+
+            parallel(builds)
+        }
+
+        stage("Complete") {
+            /* ToDo: convert kernel-arch-complete as a stage in this job */
+            for (String arch: archs) {
+                buildsComplete("kernel-arch-complete", arch)
+            }
         }
     }
 }
