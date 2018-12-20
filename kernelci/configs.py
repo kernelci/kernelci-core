@@ -18,6 +18,10 @@
 import yaml
 
 
+# -----------------------------------------------------------------------------
+# Common classes for all config types
+#
+
 class YAMLObject(object):
     """Base class with helper methods to initialise objects from YAML data."""
 
@@ -136,6 +140,73 @@ class FilterFactory(YAMLObject):
         params = data.get('filters')
         return cls.from_yaml(params) if params else default_filters
 
+
+# -----------------------------------------------------------------------------
+# Build configs
+#
+
+class Tree(YAMLObject):
+
+    def __init__(self, name, url):
+        self._name = name
+        self._url = url
+
+    @classmethod
+    def from_yaml(cls, config, name):
+        kw = {
+            'name': name,
+        }
+        kw.update(cls._kw_from_yaml(config, ['url', 'name']))
+        return cls(**kw)
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def url(self):
+        return self._url
+
+
+class BuildConfig(YAMLObject):
+
+    def __init__(self, name, tree, arch_list, branch):
+        self._name = name
+        self._tree = tree
+        self._arch_list = arch_list
+        self._branch = branch
+
+    @classmethod
+    def from_yaml(cls, config, name, trees, arch_list):
+        kw = {
+            'name': name,
+            'arch_list': arch_list,
+        }
+        kw.update(cls._kw_from_yaml(
+            config, ['name', 'tree', 'branch', 'arch_list']))
+        kw['tree'] = trees[kw['tree']]
+        return cls(**kw)
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def tree(self):
+        return self._tree
+
+    @property
+    def arch_list(self):
+        return list(self._arch_list)
+
+    @property
+    def branch(self):
+        return self._branch
+
+
+# -----------------------------------------------------------------------------
+# Test configs
+#
 
 class DeviceType(YAMLObject):
     """Device type model."""
@@ -476,7 +547,35 @@ class TestConfig(YAMLObject):
         return test_plan.get_template_path(self._device_type.boot_method)
 
 
-def load_from_yaml(yaml_path="test-configs.yaml"):
+# -----------------------------------------------------------------------------
+# Entry points
+#
+
+def builds_from_yaml(yaml_path):
+    with open(yaml_path) as f:
+        data = yaml.load(f)
+
+    trees = {
+        name: Tree.from_yaml(config, name)
+        for name, config in data['trees'].iteritems()
+    }
+
+    arch_list = data.get('build_configs_default_arch_list')
+
+    build_configs = {
+        name: BuildConfig.from_yaml(config, name, trees, arch_list)
+        for name, config in data['build_configs'].iteritems()
+    }
+
+    config_data = {
+        'trees': trees,
+        'build_configs': build_configs,
+    }
+
+    return config_data
+
+
+def tests_from_yaml(yaml_path):
     with open(yaml_path) as f:
         data = yaml.load(f)
 
@@ -509,11 +608,11 @@ def load_from_yaml(yaml_path="test-configs.yaml"):
         for test_config in data['test_configs']
     ]
 
-    data = {
+    config_data = {
         'file_systems': file_systems,
         'test_plans': test_plans,
         'device_types': device_types,
         'test_configs': test_configs,
     }
 
-    return data
+    return config_data

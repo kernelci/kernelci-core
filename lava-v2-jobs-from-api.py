@@ -279,7 +279,7 @@ def main(args):
 
     print("Number of builds: {}".format(len(builds)))
 
-    config_data = kernelci.configs.load_from_yaml(config.get('test_configs'))
+    config_data = kernelci.configs.tests_from_yaml(config.get('test_configs'))
     tests = config_data['test_configs']
     print("Number of test configs: {}".format(len(tests)))
 
