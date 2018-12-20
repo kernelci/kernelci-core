@@ -29,7 +29,8 @@ import time
 import urllib
 import urlparse
 
-from lib import configuration, test_configs
+import kernelci.configs
+from lib import configuration
 from lib.utils import setup_job_dir
 
 
@@ -278,7 +279,7 @@ def main(args):
 
     print("Number of builds: {}".format(len(builds)))
 
-    config_data = test_configs.load_from_yaml(config.get('test_configs'))
+    config_data = kernelci.configs.load_from_yaml(config.get('test_configs'))
     tests = config_data['test_configs']
     print("Number of test configs: {}".format(len(tests)))
 
