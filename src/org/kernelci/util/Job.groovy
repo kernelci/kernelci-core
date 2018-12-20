@@ -34,6 +34,15 @@ def addBoolParams(params, bool_params) {
     }
 }
 
+def cloneKciCore(path, url, branch) {
+    sh(script: "rm -rf ${path}")
+    dir("${path}") {
+        git(url: url,
+            branch: branch,
+            poll: false)
+    }
+}
+
 def dockerImageName(base, cc, cc_version, kernel_arch) {
     def image_name = "${base}${cc}-${cc_version}"
 

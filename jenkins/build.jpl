@@ -100,10 +100,13 @@ ${kci_core}/build.py \
 
 node("docker && builder") {
     def j = new Job()
+    def k = new Kernel()
+    def kci_core = "${env.WORKSPACE}/kernelci-core"
+    def kdir = "${env.WORKSPACE}/linux"
     def docker_image = j.dockerImageName(
         params.DOCKER_BASE, params.CC, params.CC_VERSION, params.ARCH)
 
-    echo("""\
+    print("""\
     Tree:      ${params.TREE_NAME}
     URL:       ${params.TREE}
     Branch:    ${params.BRANCH}
@@ -114,14 +117,10 @@ node("docker && builder") {
     Compiler:  ${params.CC} ${params.CC_VERSION}
     Container: ${docker_image}""")
 
-    def k = new Kernel()
-    def kci_core = env.WORKSPACE + '/kernelci-core'
-    def kdir = env.WORKSPACE + '/linux'
-
     stage("Init") {
         timeout(time: 30, unit: 'MINUTES') {
             parallel(
-                clone: { k.cloneKciCore(kci_core,
+                clone: { j.cloneKciCore(kci_core,
                                         params.KCI_CORE_URL,
                                         params.KCI_CORE_BRANCH) },
                 download: { k.downloadTarball(kdir, params.SRC_TARBALL) },

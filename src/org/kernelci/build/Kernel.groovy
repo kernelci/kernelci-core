@@ -20,15 +20,6 @@
 
 package org.kernelci.build
 
-def cloneKciCore(path, url, branch) {
-    sh(script: "rm -rf ${path}")
-    dir("${path}") {
-        git(url: url,
-            branch: branch,
-            poll: false)
-    }
-}
-
 def downloadTarball(kdir, url, filename="linux-src.tar.gz") {
     sh(script: "rm -rf ${kdir}")
     dir(kdir) {
