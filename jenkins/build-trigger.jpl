@@ -241,9 +241,14 @@ def buildsComplete(job, arch) {
 }
 
 node("defconfig-creator") {
+    def j = new Job()
+    def k = new Kernel()
+    def kci_core = "${env.WORKSPACE}/kernelci-core"
+    def kdir = "${env.WORKSPACE}/linux"
     def archs = params.ARCH_LIST.tokenize(' ')
+    def arch_configs = []
 
-    echo("""\
+    print("""\
     Tree:      ${params.TREE_NAME}
     URL:       ${params.TREE}
     Branch:    ${params.BRANCH}
@@ -251,22 +256,16 @@ node("defconfig-creator") {
     Revision:  ${params.COMMIT_ID}
     Archs:     ${archs.size()}""")
 
-    def k = new Kernel()
-    def kci_core = env.WORKSPACE + '/kernelci-core'
-    def kdir = env.WORKSPACE + '/linux'
-
     stage("Init") {
         timeout(time: 30, unit: 'MINUTES') {
             parallel(
-                clone: { k.cloneKciCore(kci_core,
+                clone: { j.cloneKciCore(kci_core,
                                         params.KCI_CORE_URL,
                                         params.KCI_CORE_BRANCH) },
                 download: { k.downloadTarball(kdir, params.SRC_TARBALL) },
             )
         }
     }
-
-    def arch_configs = []
 
     stage("Configs") {
         for (String arch: archs) {

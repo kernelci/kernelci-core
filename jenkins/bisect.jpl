@@ -170,8 +170,8 @@ fi
  */
 
 def cloneKciCore(kci_core) {
-    def k = new Kernel()
-    k.cloneKciCore(kci_core, params.KCI_CORE_URL, params.KCI_CORE_BRANCH)
+    def j = new Job()
+    j.cloneKciCore(kci_core, params.KCI_CORE_URL, params.KCI_CORE_BRANCH)
 }
 
 def cloneLinux(kdir) {
@@ -595,8 +595,8 @@ node("docker && bisection") {
     def j = new Job()
     def docker_image = j.dockerImageName(
         params.DOCKER_BASE, params.CC, params.CC_VERSION, params.ARCH)
-    def kci_core = env.WORKSPACE + '/kernelci-core'
-    def kdir = env.WORKSPACE + '/linux'
+    def kci_core = "${env.WORKSPACE}/kernelci-core"
+    def kdir = "${env.WORKSPACE}/linux"
     def checks = [:]
 
     def params_summary = """\
@@ -608,10 +608,10 @@ node("docker && bisection") {
     Lab:       ${params.LAB}
     Defconfig: ${params.DEFCONFIG}
     Plan:      ${params.PLAN}"""
-    echo """\
+    print("""\
     Good:      ${params.GOOD_COMMIT}
     Bad:       ${params.BAD_COMMIT}
-${params_summary}"""
+${params_summary}""")
 
     if ((params.PLAN != 'boot') && (params.PLAN != 'simple')) {
         echo "Only doing boot and simple plans for now, aborting."
