@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 
 /*
-  Copyright (C) 2018 Collabora Limited
+  Copyright (C) 2018, 2019 Collabora Limited
   Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
   This module is free software; you can redistribute it and/or modify it under
@@ -22,22 +22,8 @@
 /* ----------------------------------------------------------------------------
  * Jenkins parameters
 
-TREE
-  URL of the kernel Git repository
-TREE_NAME
-  Name of the kernel Git repository (tree)
-BRANCH
-  Name of the kernel branch within the tree
-SRC_TARBALL
-  URL of the kernel source tarball
-GIT_DESCRIBE
-  Output of 'git describe' at the revision of the snapshot
-GIT_DESCRIBE_VERBOSE
-  Verbose output of 'git describe' at the revision of the snapshot
-COMMIT_ID
-  Git commit SHA1 at the revision of the snapshot
-ARCH_LIST (i386 x86_64 arm arm64 mips arc riscv)
-  List of CPU architectures to build
+BUILD_CONFIG
+  Name of the build configuration
 PUBLISH (boolean)
   Publish build results via the KernelCI backend API
 EMAIL (boolean)
@@ -59,7 +45,7 @@ DOCKER_BASE
 import org.kernelci.build.Kernel
 import org.kernelci.util.Job
 
-def addDefconfigs(configs, kdir, arch) {
+def addDefconfigs(configs, kdir, arch, tree_name, branch) {
     def configs_dir = "${kdir}/arch/${arch}/configs"
 
     if (fileExists(configs_dir)) {
@@ -96,7 +82,7 @@ def addExtraIfExists(extra, kdir, path) {
         extra.add(path)
 }
 
-def addExtraConfigs(configs, kdir, arch) {
+def addExtraConfigs(configs, kdir, arch, tree_name, branch) {
     def configs_dir = "${kdir}/arch/${arch}/configs"
     def base_defconfig = "defconfig"
     def extra = []
@@ -104,8 +90,7 @@ def addExtraConfigs(configs, kdir, arch) {
     if (arch == "arc") {
         // default "defconfig" is not ARCv2, and we only have ARCv2 toolchain
         base_defconfig = "nsim_hs_defconfig"
-    }
-    if (arch == "arm") {
+    } else if (arch == "arm") {
         base_defconfig = "multi_v7_defconfig"
 
         extra = [
@@ -117,10 +102,10 @@ def addExtraConfigs(configs, kdir, arch) {
         if (fileExists("${configs_dir}/mvebu_v7_defconfig"))
             configs.add("mvebu_v7_defconfig+CONFIG_CPU_BIG_ENDIAN=y")
 
-        if (params.TREE_NAME == "next")
+        if (tree_name == "next")
             configs.add("allmodconfig")
 
-        if (params.TREE_NAME == "ardb" && params.BRANCH == "arm-kaslr-latest"){
+        if (tree_name == "ardb" && branch == "arm-kaslr-latest"){
             extra.add("CONFIG_RANDOMIZE_BASE=y")
             extra.add("CONFIG_THUMB2_KERNEL=y+CONFIG_RANDOMIZE_BASE=y")
             configs.add("multi_v5_defconfig")
@@ -142,7 +127,7 @@ def addExtraConfigs(configs, kdir, arch) {
     for (String frag: ["debug", "kselftest"])
         addExtraIfExists(extra, kdir, "kernel/configs/${frag}.config")
 
-    if (params.TREE_NAME == "lsk" || params.TREE_NAME == "anders") {
+    if (tree_name == "lsk" || tree_name == "anders") {
         def frags = "linaro/configs/kvm-guest.conf"
 
         /* For -rt kernels, build with RT fragment */
@@ -187,8 +172,7 @@ def addExtraConfigs(configs, kdir, arch) {
         }
     }
 
-    if (params.TREE_NAME == "media")
-        addExtraIfExists(extra, kdir, "kernel/configs/virtualvideo.config")
+    addExtraIfExists(extra, kdir, "kernel/configs/virtualvideo.config")
 
     if (!configs.contains(base_defconfig))
         configs.add(base_defconfig)
@@ -197,22 +181,116 @@ def addExtraConfigs(configs, kdir, arch) {
         configs.add("${base_defconfig}+${e}")
 }
 
-def buildKernelStep(job, arch, config) {
-    def compiler = 'gcc'
-    def compiler_version = '7'
+def pushTarball(config, kci_core, mirror, kdir, opts) {
+    sh(script: """\
+${kci_core}/kci_build \
+--build-configs=${kci_core}/build-configs.yaml \
+--config=${config} \
+--mirror=${mirror} \
+update_mirror""")
 
+    sh(script: """\
+${kci_core}/kci_build \
+--build-configs=${kci_core}/build-configs.yaml \
+--config=${config} \
+--kdir=${kdir} \
+--mirror=${mirror} \
+update_repo""")
+
+    def describe_raw = sh(script: """\
+${kci_core}/kci_build \
+--build-configs=${kci_core}/build-configs.yaml \
+--config=${config} \
+--kdir=${kdir} \
+describe""", returnStdout: true).trim()
+    def describe_list = describe_raw.tokenize('\n')
+    opts['commit'] = describe_list[0]
+    opts['describe'] = describe_list[1]
+    opts['describe_verbose'] = describe_list[2]
+
+    withCredentials([string(credentialsId: params.KCI_TOKEN_ID,
+                            variable: 'SECRET')]) {
+        sh(script: """\
+${kci_core}/kci_build \
+--build-configs=${kci_core}/build-configs.yaml \
+--config=${config} \
+--kdir=${kdir} \
+--commit=${opts['commit']} \
+--storage=${params.KCI_STORAGE_URL} \
+--api=${params.KCI_API_URL} \
+--token=${SECRET} \
+update_last_commit""")
+
+        opts['tarball_url'] = sh(script: """\
+${kci_core}/kci_build \
+--build-configs=${kci_core}/build-configs.yaml \
+--config=${config} \
+--kdir=${kdir} \
+--storage=${params.KCI_STORAGE_URL} \
+--api=${params.KCI_API_URL} \
+--token=${SECRET} \
+push_tarball""", returnStdout: true).trim()
+    }
+}
+
+def listConfigs(config, kci_core, kdir, opts) {
+    def tree_name = null
+    def branch = null
+    def arch_list = null
+    def arch_configs = []
+
+    dir(kci_core) {
+        def opts_raw = sh(
+            script: """\
+./kci_build \
+--kdir=${kdir} \
+--config=${config} \
+tree_branch""", returnStdout: true).trim()
+        def opt_list = opts_raw.tokenize('\n')
+        tree_name = opt_list[0]
+        branch = opt_list[2]
+        opts['tree'] = tree_name
+        opts['git_url'] = opt_list[1]
+        opts['branch'] = branch
+
+        def raw_arch_list = sh(
+            script: """\
+./kci_build \
+--kdir=${kdir} \
+--config=${config} \
+arch_list""", returnStdout: true).trim()
+        arch_list = raw_arch_list.tokenize('\n')
+        opts['arch_list'] = arch_list
+    }
+
+    for (String arch: arch_list) {
+        def configs = ["allnoconfig"]
+
+        addDefconfigs(configs, kdir, arch, tree_name, branch)
+
+        if ((tree_name != "stable") && (tree_name != "stable-rc"))
+            addExtraConfigs(configs, kdir, arch, tree_name, branch)
+
+        for (String kernel_config: configs)
+            arch_configs.add([arch, kernel_config])
+    }
+
+    return arch_configs
+}
+
+def buildKernelStep(job, arch, config, opts, cc='gcc', cc_version='7') {
     def str_params = [
         'ARCH': arch,
         'DEFCONFIG': config,
-        'TREE': params.TREE,
-        'TREE_NAME': params.TREE_NAME,
-        'GIT_DESCRIBE': params.GIT_DESCRIBE,
-        'GIT_DESCRIBE_VERBOSE': params.GIT_DESCRIBE_VERBOSE,
-        'COMMIT_ID': params.COMMIT_ID,
-        'BRANCH': params.BRANCH,
-        'SRC_TARBALL': params.SRC_TARBALL,
-        'CC': compiler,
-        'CC_VERSION': compiler_version,
+        'TREE': opts['git_url'],
+        'TREE_NAME': opts['tree'],
+        'GIT_DESCRIBE': opts['describe'],
+        'GIT_DESCRIBE_VERBOSE': opts['describe_verbose'],
+        'COMMIT_ID': opts['commit'],
+        'BRANCH': opts['branch'],
+        'SRC_TARBALL': opts['tarball_url'],
+        'CC': cc,
+        'CC_VERSION': cc_version,
     ]
     def job_params = []
 
@@ -222,13 +300,12 @@ def buildKernelStep(job, arch, config) {
     return { build(job: job, parameters: job_params, propagate: false) }
 }
 
-def buildsComplete(job, arch) {
+def buildsComplete(job, opts, arch) {
     def str_params = [
-        'TREE_NAME': params.TREE_NAME,
+        'TREE_NAME': opts['tree'],
         'ARCH': arch,
-        'GIT_DESCRIBE': params.GIT_DESCRIBE,
-        'BRANCH': params.BRANCH,
-        'API': params.KCI_API_URL,
+        'GIT_DESCRIBE': opts['describe'],
+        'BRANCH': opts['branch'],
     ]
     def bool_params = [
         'EMAIL': params.EMAIL,
@@ -246,58 +323,46 @@ node("defconfig-creator") {
     def j = new Job()
     def k = new Kernel()
     def kci_core = "${env.WORKSPACE}/kernelci-core"
-    def kdir = "${env.WORKSPACE}/linux"
+    def kdir = "${env.WORKSPACE}/configs/${params.BUILD_CONFIG}"
+    def mirror = "${env.WORKSPACE}/linux.git"
     def docker_image = "${params.DOCKER_BASE}base"
-    def archs = params.ARCH_LIST.tokenize(' ')
-    def arch_configs = []
+    def opts = [:]
+    def configs = null
 
     print("""\
-    Tree:      ${params.TREE_NAME}
-    URL:       ${params.TREE}
-    Branch:    ${params.BRANCH}
-    Describe:  ${params.GIT_DESCRIBE}
-    Revision:  ${params.COMMIT_ID}
-    Archs:     ${archs.size()}
+    Config:    ${params.BUILD_CONFIG}
     Container: ${docker_image}""")
 
     j.dockerPullWithRetry(docker_image).inside() {
         stage("Init") {
-            timeout(time: 30, unit: 'MINUTES') {
-                parallel(
-                    clone: { j.cloneKciCore(kci_core,
-                                            params.KCI_CORE_URL,
-                                            params.KCI_CORE_BRANCH) },
-                    download: { k.downloadTarball(kdir, params.SRC_TARBALL) },
-                )
+            timeout(time: 15, unit: 'MINUTES') {
+                j.cloneKciCore(
+                    kci_core, params.KCI_CORE_URL, params.KCI_CORE_BRANCH)
             }
         }
 
+        stage("Tarball") {
+            pushTarball(params.BUILD_CONFIG, kci_core, mirror, kdir, opts)
+        }
+
         stage("Configs") {
-            for (String arch: archs) {
-                def configs = ["allnoconfig"]
-
-                addDefconfigs(configs, kdir, arch)
-
-                if ((params.TREE_NAME != "stable") &&
-                    (params.TREE_NAME != "stable-rc")) {
-                    addExtraConfigs(configs, kdir, arch)
-                }
-
-                for (String config: configs)
-                    arch_configs.add([arch, config])
-            }
-
+            configs = listConfigs(params.BUILD_CONFIG, kci_core, kdir, opts)
         }
 
         stage("Build") {
             def builds = [:]
             def i = 0
 
-            for (x in arch_configs) {
+            for (x in configs) {
                 def arch = x[0]
                 def config = x[1]
-                echo("${i} ${arch} ${config}")
-                builds["${i}_${arch}_${config}"] = buildKernelStep("kernel-build", arch, config)
+
+                def step_name = "${i} ${arch} ${config}"
+                print(step_name)
+
+                builds[step_name] = buildKernelStep(
+                    "kernel-build", arch, config, opts)
+
                 i += 1
             }
 
@@ -306,8 +371,8 @@ node("defconfig-creator") {
 
         stage("Complete") {
             /* ToDo: convert kernel-arch-complete as a stage in this job */
-            for (String arch: archs) {
-                buildsComplete("kernel-arch-complete", arch)
+            for (String arch: opts['arch_list']) {
+                buildsComplete("kernel-arch-complete", opts, arch)
             }
         }
     }
