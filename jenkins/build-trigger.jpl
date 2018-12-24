@@ -196,10 +196,13 @@ def addExtraConfigs(configs, kdir, arch) {
 }
 
 def buildKernelStep(job, arch, config) {
-    def compiler = 'gcc-7'
-    //yes this hack is nasty, but until we've starting using >1 compilers it will do
+    def compiler = 'gcc'
+    def compiler_version = '7'
+
     if (arch == 'mips') {
-        compiler = 'gcc-6.3.0'
+        /* Yes this hack is nasty, but until we've started using >1 compilers
+         * it will do.  */
+        compiler_version = '6.3.0'
     }
 
     def str_params = [
@@ -212,7 +215,8 @@ def buildKernelStep(job, arch, config) {
         'COMMIT_ID': params.COMMIT_ID,
         'BRANCH': params.BRANCH,
         'SRC_TARBALL': params.SRC_TARBALL,
-        'COMPILER': compiler,
+        'CC': compiler,
+        'CC_VERSION': compiler_version,
     ]
     def job_params = []
 
