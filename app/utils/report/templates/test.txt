@@ -1,27 +1,27 @@
-Test results for:
+Test results summary
+--------------------
+
   Tree:    {{ tree }}
   Branch:  {{ branch }}
   Kernel:  {{ kernel }}
   URL:     {{ git_url }}
   Commit:  {{ git_commit }}
-  Test plans: {{ plans_string }}
+  Tests:   {{ plans_string }}
 
-Summary
--------
-{{ test_groups|length }} test groups results
 {% for t in test_groups|sort(attribute='name') %}
 {{ "%-2s | %-10s | %-22s | %-5s | %3s total: %3s PASS %3s FAIL %3s SKIP"|format(loop.index, t.name, t.board, t.arch, t.total_tests, t.total["PASS"], t.total["FAIL"], t.total["SKIP"]) }}
 {%- endfor %}
 
----
+
+Test failures
+-------------
 {%- for t in test_groups|sort(attribute='name') %}
 {%- if t.total["FAIL"] != 0 %}
 {{ "%-2s | %-10s | %-22s | %-5s | %3s total: %3s PASS %3s FAIL %3s SKIP"|format(loop.index, t.name, t.board, t.arch, t.total_tests, t.total["PASS"], t.total["FAIL"], t.total["SKIP"]) }}
 
   Config:      {{ t.defconfig_full }}
   Lab Name:    {{ t.lab_name }}
-  Date:        {{ t.created_on }}
-  TXT log:     {{ storage_url }}/{{ t.job }}/{{ t.git_branch }}/{{ t.kernel }}/{{ t.arch }}/{{ t.defconfig_full }}/{{ t.lab_name }}/{{ t.boot_log }}
+  Plain log:   {{ storage_url }}/{{ t.job }}/{{ t.git_branch }}/{{ t.kernel }}/{{ t.arch }}/{{ t.defconfig_full }}/{{ t.lab_name }}/{{ t.boot_log }}
   HTML log:    {{ storage_url }}/{{ t.job }}/{{ t.git_branch }}/{{ t.kernel }}/{{ t.arch }}/{{ t.defconfig_full }}/{{ t.lab_name }}/{{ t.boot_log_html }}
 {%- if t.initrd %}
   Rootfs:      {{ t.initrd }}
@@ -30,20 +30,21 @@ Summary
   Test Git:    {{ e.git_url }}
   Test Commit: {{ e.git_commit }}
 {%- endfor %}
-{% for tc in t.test_cases %}
+{%- for tc in t.test_cases %}
   {%- if 'FAIL' == tc.status %}
     * {{ tc.name }}: {{ tc.status }}
   {%- endif %}
 {%- endfor %}
-{% if t.sub_groups %}
-  {%- for sg in t.sub_groups %}
-    {{ sg.name }} - {{ sg.total_tests }} tests: {{ sg.total["PASS"] }}  PASS, {{ sg.total["FAIL"] }} FAIL, {{ sg.total["SKIP"] }} SKIP
+{%- for sg in t.sub_groups %}
+  {%- if sg.total["FAIL"] %}
+
+  {{ sg.name }} - {{ sg.total_tests }} tests: {{ sg.total["PASS"] }}  PASS, {{ sg.total["FAIL"] }} FAIL, {{ sg.total["SKIP"] }} SKIP
     {%- for tc in sg.test_cases %}
       {%- if 'FAIL' == tc.status %}
-      * {{ tc.name }}: {{ tc.status }}
+    * {{ tc.name }}: {{ tc.status }}
       {%- endif %}
     {%- endfor %}
-  {% endfor %}
-{%- endif %}
-{%- endif %}
+  {%- endif %}
 {%- endfor %}
+{%- endif %}
+{% endfor %}
