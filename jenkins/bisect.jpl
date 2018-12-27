@@ -49,8 +49,10 @@ DEFCONFIG (defconfig)
   Name of the Linux kernel defconfig
 TARGET
   Name of the device type to test (typically LAVA device type name)
-COMPILER (gcc-7)
-  Name and version number of the compiler
+CC (gcc)
+  Name of the compiler
+CC_VERSION (7)
+  Version of the compiler
 LAB
   Name of the lab in which to run the bisection tests
 PLAN (boot)
@@ -592,7 +594,7 @@ node("docker && bisection") {
 
     def j = new Job()
     def docker_image = j.dockerImageName(
-        params.DOCKER_BASE, params.COMPILER, params.ARCH)
+        params.DOCKER_BASE, params.CC, params.CC_VERSION, params.ARCH)
     def kci_core = env.WORKSPACE + '/kernelci-core'
     def kdir = env.WORKSPACE + '/linux'
     def checks = [:]
