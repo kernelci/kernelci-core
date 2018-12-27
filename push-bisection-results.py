@@ -29,9 +29,10 @@ except ImportError:
 import urlparse
 from lib import configuration
 
-RE_TRAILER = re.compile('^(?P<tag>[A-Z][a-z-]*)\: (?P<value>.*)$')
-RE_EMAIL = re.compile('^(?P<name>.*)(?P<email><.*@.*\..*>)')
-RE_MAILING_LIST = re.compile('^(?P<email>.*@.*\..*) \(')
+RE_ADDR = r'.*@.*\.[a-z]+'
+RE_TRAILER = re.compile(r'^(?P<tag>[A-Z][a-z-]*)\: (?P<value>.*)$')
+RE_EMAIL = re.compile(r'^(?P<name>.*)(?P<email><{}>)'.format(RE_ADDR))
+RE_MAILING_LIST = re.compile(r'^(?P<email>{}) \('.format(RE_ADDR))
 
 
 def git_cmd(repo, cmd):
