@@ -213,7 +213,7 @@ def send_report(args, log_file_name, token, api):
     data.update({
         'report_type': 'bisect',
         'log': log_file_name,
-        'format': ['txt', 'html'],
+        'format': ['txt'],
         'send_to': list(to),
         'send_cc': list(cc),
         'delay': '60',
