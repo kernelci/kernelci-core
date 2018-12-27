@@ -38,7 +38,8 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 
 # Gradually moving everything to Python 3
 RUN apt-get update && apt-get install --no-install-recommends -y \
-    python3
+    python3 \
+    python3-yaml
 
 RUN wget \
     -O /usr/gcc-6.3.0-mips-linux.tar.bz2 \
