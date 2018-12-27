@@ -84,7 +84,6 @@ def create_bisect_report(data, email_options, db_options,
         ]
     ))
 
-
     log_path = os.path.join(base_path, rel_path, data[models.BISECT_LOG_KEY])
     with open(log_path) as log_file:
         log_data = json.load(log_file)
