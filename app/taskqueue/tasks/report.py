@@ -166,9 +166,9 @@ def send_bisect_report(report_data, email_opts, base_path=utils.BASE_PATH):
     if not report_data:
         return status
 
-    txt_body, html_body, headers = report_data
+    body, headers = report_data
     status, errors = utils.emails.send_email(
-        email_opts["subject"], txt_body, html_body, email_opts,
+        email_opts["subject"], body, None, email_opts,
         taskc.app.conf.mail_options, headers)
 
     utils.report.common.save_report(
