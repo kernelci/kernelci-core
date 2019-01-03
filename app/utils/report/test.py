@@ -56,26 +56,51 @@ TEST_REPORT_FIELDS = [
 ]
 
 
-def _add_test_group_data(group, database):
+def _regression_message(data):
+    last_pass = data[0]
+    first_fail = data[1]
+    last_fail = data[-1]
+
+    if len(data) == 2:
+        return "new failure (last pass: {})".format(
+            last_pass[models.KERNEL_KEY])
+
+    delta = last_fail[models.CREATED_KEY] - first_fail[models.CREATED_KEY]
+    plural = 's' if delta.days > 1 else ''
+    return "failing since {} day{} (last pass: {}, first fail: {})".format(
+        delta.days, plural, last_pass[models.KERNEL_KEY],
+        first_fail[models.KERNEL_KEY])
+
+
+def _add_test_group_data(group, db, spec, hierarchy=[]):
+    hierarchy = hierarchy + [group[models.NAME_KEY]]
+    case_collection = db[models.TEST_CASE_COLLECTION]
+    regr_collection = db[models.TEST_REGRESSION_COLLECTION]
+    group_collection = db[models.TEST_GROUP_COLLECTION]
+    regr_spec = dict(spec)
+
     test_cases = []
     for test_case_id in group[models.TEST_CASES_KEY]:
-        test_case = utils.db.find_one2(
-           database[models.TEST_CASE_COLLECTION],
-           {"_id": test_case_id})
+        test_case = utils.db.find_one2(case_collection, test_case_id)
+        if test_case[models.STATUS_KEY] == "FAIL":
+            regr_spec[models.HIERARCHY_KEY] = (
+                hierarchy + [test_case[models.NAME_KEY]])
+            regr = utils.db.find_one2(regr_collection, regr_spec)
+            test_case["failure_message"] = (
+                _regression_message(regr[models.REGRESSIONS_KEY])
+                if regr else "never passed")
         test_cases.append(test_case)
 
     sub_groups = []
     for sub_group_id in group[models.SUB_GROUPS_KEY]:
-        sub_group = utils.db.find_one2(
-            database[models.TEST_GROUP_COLLECTION],
-            {"_id": sub_group_id})
-        _add_test_group_data(sub_group, database)
+        sub_group = utils.db.find_one2(group_collection, sub_group_id)
+        _add_test_group_data(sub_group, db, spec, hierarchy)
         sub_groups.append(sub_group)
 
     total = {status: 0 for status in ["PASS", "FAIL", "SKIP"]}
 
     for test_case in test_cases:
-        total[test_case["status"]] += 1
+        total[test_case[models.STATUS_KEY]] += 1
 
     for sub_group_total in (sg["total"] for sg in sub_groups):
         for status, count in sub_group_total.iteritems():
@@ -113,15 +138,12 @@ def create_test_report(data, email_format, db_options,
         models.PLANS_KEY
     ])
 
-    # Avoid using the field "plans" when fetching the documents
-    # from mongodb
-    del data['plans']
-
-    specs = {x: data[x] for x in data.keys() if data[x]}
+    # Exclude the field "plans" when fetching the documents
+    spec = {x: y for x, y in data.iteritems() if x != "plans"}
 
     test_group_docs = list(utils.db.find(
         database[models.TEST_GROUP_COLLECTION],
-        spec=specs,
+        spec=spec,
         fields=TEST_REPORT_FIELDS))
 
     top_groups = []
@@ -144,7 +166,7 @@ def create_test_report(data, email_format, db_options,
         return None
 
     for group in top_groups:
-        _add_test_group_data(group, database)
+        _add_test_group_data(group, database, spec)
 
     if not plans:
         plans_string = "All the results are included"

@@ -15,36 +15,36 @@ Test results summary
 
 Test failures
 -------------
-{%- for t in test_groups|sort(attribute='name') %}
-{%- if t.total["FAIL"] != 0 %}
+{%- for t in test_groups|sort(attribute='name') %} {# test_groups #}
+  {%- if t.total["FAIL"] or t.regressions %} {# fail or regressions #}
 {{ "%-2s | %-10s | %-22s | %-5s | %3s total: %3s PASS %3s FAIL %3s SKIP"|format(loop.index, t.name, t.board, t.arch, t.total_tests, t.total["PASS"], t.total["FAIL"], t.total["SKIP"]) }}
 
   Config:      {{ t.defconfig_full }}
   Lab Name:    {{ t.lab_name }}
   Plain log:   {{ storage_url }}/{{ t.job }}/{{ t.git_branch }}/{{ t.kernel }}/{{ t.arch }}/{{ t.defconfig_full }}/{{ t.lab_name }}/{{ t.boot_log }}
   HTML log:    {{ storage_url }}/{{ t.job }}/{{ t.git_branch }}/{{ t.kernel }}/{{ t.arch }}/{{ t.defconfig_full }}/{{ t.lab_name }}/{{ t.boot_log_html }}
-{%- if t.initrd %}
+    {%- if t.initrd %}
   Rootfs:      {{ t.initrd }}
-{%- endif %}
-{%- for e in t.initrd_info.tests_suites %}
+    {%- endif %}
+    {%- for e in t.initrd_info.tests_suites %}
   Test Git:    {{ e.git_url }}
   Test Commit: {{ e.git_commit }}
-{%- endfor %}
-{%- for tc in t.test_cases %}
-  {%- if 'FAIL' == tc.status %}
-    * {{ tc.name }}: {{ tc.status }}
-  {%- endif %}
-{%- endfor %}
-{%- for sg in t.sub_groups %}
-  {%- if sg.total["FAIL"] %}
-
-  {{ sg.name }} - {{ sg.total_tests }} tests: {{ sg.total["PASS"] }}  PASS, {{ sg.total["FAIL"] }} FAIL, {{ sg.total["SKIP"] }} SKIP
-    {%- for tc in sg.test_cases %}
+    {%- endfor %}
+    {% for tc in t.test_cases %}
       {%- if 'FAIL' == tc.status %}
-    * {{ tc.name }}: {{ tc.status }}
+    * {{ tc.name }}: {{ tc.failure_message }}
       {%- endif %}
     {%- endfor %}
-  {%- endif %}
-{%- endfor %}
-{%- endif %}
-{% endfor %}
+    {%- for sg in t.sub_groups %} {# sub_groups #}
+      {%- if sg.total["FAIL"] or sg.regressions %} {# sg fail or regressions #}
+
+    {{ sg.name }} - {{ sg.total_tests }} tests: {{ sg.total["PASS"] }}  PASS, {{ sg.total["FAIL"] }} FAIL, {{ sg.total["SKIP"] }} SKIP
+        {%- for tc in sg.test_cases %}
+          {%- if 'FAIL' == tc.status %}
+      * {{ tc.name }}: {{ tc.failure_message }}
+          {%- endif %}
+        {%- endfor %}
+      {%- endif %} {# sg fail or regressions #}
+    {%- endfor %} {# sub_groups #}
+  {%- endif %} {# fail or regressions #}
+{% endfor %} {# test_groups #}
