@@ -39,6 +39,7 @@ def ensure_indexes(database):
     _ensure_reports_indexes(database)
     _ensure_test_group_indexes(database)
     _ensure_test_case_indexes(database)
+    _ensure_test_regression_indexes(database)
 
 
 def _ensure_job_indexes(database):
@@ -329,3 +330,34 @@ def _ensure_test_case_indexes(database):
     collection = database[models.TEST_CASE_COLLECTION]
     collection.ensure_index(
         [(models.TEST_GROUP_ID_KEY, pymongo.ASCENDING)], background=True)
+
+
+def _ensure_test_regression_indexes(database):
+    """Ensure indexes exist on the test_regression collection.
+
+    :param database: The database connection.
+    """
+    collection = database[models.TEST_REGRESSION_COLLECTION]
+    collection.ensure_index(
+        [
+            (models.JOB_KEY, pymongo.ASCENDING),
+            (models.KERNEL_KEY, pymongo.DESCENDING),
+            (models.GIT_BRANCH_KEY, pymongo.ASCENDING),
+            (models.DEFCONFIG_FULL_KEY, pymongo.ASCENDING),
+            (models.DEVICE_TYPE_KEY, pymongo.ASCENDING),
+            (models.ARCHITECTURE_KEY, pymongo.ASCENDING),
+            (models.HIERARCHY_KEY, pymongo.ASCENDING),
+        ],
+        background=True
+    )
+    collection.ensure_index(
+        [
+            (models.JOB_KEY, pymongo.ASCENDING),
+            (models.GIT_BRANCH_KEY, pymongo.ASCENDING),
+            (models.DEFCONFIG_FULL_KEY, pymongo.ASCENDING),
+            (models.DEVICE_TYPE_KEY, pymongo.ASCENDING),
+            (models.ARCHITECTURE_KEY, pymongo.ASCENDING),
+            (models.HIERARCHY_KEY, pymongo.ASCENDING),
+        ],
+        background=True
+    )
