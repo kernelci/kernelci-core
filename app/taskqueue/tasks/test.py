@@ -19,6 +19,7 @@ import utils
 import utils.db
 import utils.errors
 import utils.tests_import as tests_import
+import utils.kci_test.regressions
 
 ADD_ERR = utils.errors.add_error
 
@@ -113,3 +114,17 @@ def import_test_cases_from_test_group(
 
     # TODO: handle errors
     return ret_val
+
+
+@taskc.app.task(name="test-regressions")
+def find_regression(group_id):
+    """Find test case regressions in the given test group.
+
+    Run this function in a Celery task to find any test case regressions for
+    the given test group document ID, recursively through all sub-groups.
+
+    :param group_id: Test group document object ID.
+    :return tuple 200 if OK, 500 in case of errors; a list with created test
+    regression document ids
+    """
+    return utils.kci_test.regressions.find(group_id, taskc.app.conf.db_options)

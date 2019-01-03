@@ -153,6 +153,8 @@ class LavaCallbackHandler(CallbackHandler):
             tasks = [
                 taskqueue.tasks.callback.lava_test.s(json_obj, lab_name),
             ]
+            if action == "test":
+                tasks.append(taskqueue.tasks.test.find_regression.s())
             chain(tasks).apply_async(
                 link_error=taskqueue.tasks.error_handler.s())
         else:
