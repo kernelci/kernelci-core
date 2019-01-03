@@ -515,7 +515,7 @@ def add_tests(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
     :type db_options: dict
     :param base_path: Path to the top-level directory where to save files.
     :type base_path: string
-    :return list The test group document ids as ObjectId objects.
+    :return The top-level test group document id as ObjectId object.
     """
     ret_code = 201
     group_doc_ids = []
@@ -570,4 +570,11 @@ def add_tests(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
         if errors:
             raise utils.errors.BackendError(errors)
 
-    return group_doc_ids
+    if not group_doc_ids:
+        utils.LOG.warn("No test groups")
+        return None
+
+    if len(group_doc_ids) > 1:
+        utils.LOG.warn("Discarding extra test group documents")
+
+    return group_doc_ids[0]
