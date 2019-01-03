@@ -448,6 +448,7 @@ def _add_test_results(group, suite_results, suite_name):
                 models.GIT_BRANCH_KEY,
                 models.JOB_KEY,
                 models.KERNEL_KEY,
+                models.GIT_COMMIT_KEY,
                 models.LAB_NAME_KEY,
                 models.TIME_KEY,
             ]

@@ -38,6 +38,7 @@ NON_NULL_KEYS_GROUP = [
     models.DEFCONFIG_KEY,
     models.JOB_KEY,
     models.KERNEL_KEY,
+    models.GIT_COMMIT_KEY,
 ]
 
 NON_NULL_KEYS_CASE = [
@@ -54,6 +55,7 @@ SPEC_TEST_GROUP = {
     models.INITRD_KEY: "initrd",
     models.JOB_KEY: "job",
     models.KERNEL_KEY: "kernel",
+    models.GIT_COMMIT_KEY: "git_commit",
     models.LAB_NAME_KEY: "lab_name",
     models.NAME_KEY: "name",
 }

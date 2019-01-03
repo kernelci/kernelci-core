@@ -95,7 +95,8 @@ def parse_test_group(group_json, db_options):
         models.DEFCONFIG_KEY,
         models.JOB_ID_KEY,
         models.JOB_KEY,
-        models.KERNEL_KEY
+        models.KERNEL_KEY,
+        models.GIT_COMMIT_KEY,
     ])
 
     def _get_valid_keys():
