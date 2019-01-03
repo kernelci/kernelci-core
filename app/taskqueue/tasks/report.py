@@ -210,11 +210,10 @@ def send_test_report(job, git_branch, kernel, plans, report_data, email_opts):
     if test_report is None:
         return 500
 
-    txt_body, html_body, subject, headers = test_report
+    body, subject, headers = test_report
 
     status, errors = utils.emails.send_email(
-        subject, txt_body, html_body, email_opts,
-        taskc.app.conf.mail_options, headers)
+        subject, body, None, email_opts, taskc.app.conf.mail_options, headers)
 
     utils.report.common.save_report(
         job, git_branch, kernel, models.TEST_REPORT,

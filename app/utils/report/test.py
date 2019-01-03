@@ -101,8 +101,8 @@ def create_test_report(data, email_format, db_options,
     :type db_options: dict
     :param base_path: Path to the top-level storage directory.
     :type base_path: string
-    :return A tuple with the TXT email body, the HTML email body and the
-    headers as dictionary.  If an error occured, None.
+    :return A tuple with the email body, the email subject and the headers as
+    dictionary.  If an error occured, None.
     """
     database = utils.db.get_db_connection(db_options)
 
@@ -151,7 +151,8 @@ def create_test_report(data, email_format, db_options,
         subject_str = "Test results for {}/{} - {}".format(job, branch, kernel)
     else:
         plans_string = ", ".join(plans)
-        subject_str = "Test results ({}) for {}/{} - {}".format(plans_string, job, branch, kernel)
+        subject_str = "Test results ({}) for {}/{} - {}".format(
+            plans_string, job, branch, kernel)
 
     git_url, git_commit = (top_groups[0][k] for k in [
         models.GIT_URL_KEY, models.GIT_COMMIT_KEY])
@@ -177,14 +178,6 @@ def create_test_report(data, email_format, db_options,
         "test_groups": top_groups,
     }
 
-    if models.EMAIL_TXT_FORMAT_KEY in email_format:
-        txt_body = rcommon.create_txt_email("test.txt", **template_data)
-    else:
-        txt_body = None
+    body = rcommon.create_txt_email("test.txt", **template_data)
 
-    if models.EMAIL_HTML_FORMAT_KEY in email_format:
-        html_body = rcommon.create_html_email("test.html", **template_data)
-    else:
-        html_body = None
-
-    return txt_body, html_body, subject_str, headers
+    return body, subject_str, headers
