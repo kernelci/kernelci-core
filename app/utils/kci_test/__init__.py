@@ -542,7 +542,7 @@ def import_and_save_test_cases(group_doc_id, group_name, test_cases,
     return ret_code
 
 
-def import_and_save_test_group(group, database, errors):
+def import_and_save_test_group(group, parent_id, database, errors):
     """Import a test group from a JSON object
 
     Parse the group JSON data into a TestGroupDocument object.
@@ -552,6 +552,8 @@ def import_and_save_test_group(group, database, errors):
 
     :param group: The test group data.
     :type group_doc: dict
+    :param parent_id: The parent test group document ID.
+    :type parent_id: str
     :param database: The database connection.
     :param errors: Where errors should be stored.
     :type errors: dict
@@ -563,6 +565,8 @@ def import_and_save_test_group(group, database, errors):
     if not group_doc or errors:
         utils.LOG.warn("Failed to parse test group JSON data")
         return None
+
+    group_doc.parent_id = parent_id
 
     ret_code, group_doc_id = save_or_update(
         group_doc, SPEC_TEST_GROUP, models.TEST_GROUP_COLLECTION,
@@ -577,7 +581,7 @@ def import_and_save_test_group(group, database, errors):
     if sub_groups:
         for sub_group in sub_groups:
             sub_group_doc_id = import_and_save_test_group(
-                sub_group, database, errors)
+                sub_group, group_doc_id, database, errors)
             if not sub_group_doc_id:
                 utils.LOG.warn("Failed to parse sub-group")
                 return None
@@ -608,8 +612,8 @@ def import_and_save_kci_tests(group, db_options, base_path=utils.BASE_PATH):
     errors = {}
 
     try:
-        database = utils.db.get_db_connection(db_options)
-        group_doc_id = import_and_save_test_group(group, database, errors)
+        db = utils.db.get_db_connection(db_options)
+        group_doc_id = import_and_save_test_group(group, None, db, errors)
 
         if not group_doc_id:
             utils.LOG.warn("No test group report imported nor saved")

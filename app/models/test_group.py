@@ -83,6 +83,7 @@ class TestGroupDocument(modb.BaseDocument):
         self.qemu_command = None
         self.retries = 0
         self.test_cases = []
+        self.parent_id = None
         self.sub_groups = []
         self.time = -1
         self.vcs_commit = None
@@ -195,6 +196,7 @@ class TestGroupDocument(modb.BaseDocument):
             models.RETRIES_KEY: self.retries,
             models.NAME_KEY: self.name,
             models.TEST_CASES_KEY: self.test_cases,
+            models.PARENT_ID_KEY: self.parent_id,
             models.SUB_GROUPS_KEY: self.sub_groups,
             models.TIME_KEY: self.time,
             models.VCS_COMMIT_KEY: self.vcs_commit,
