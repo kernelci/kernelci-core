@@ -410,14 +410,7 @@ def _parse_boot_from_json(boot_json, database, errors):
         return None
 
     defconfig_full = boot_json.get(models.DEFCONFIG_FULL_KEY, defconfig)
-    arch = boot_json.get(models.ARCHITECTURE_KEY, models.ARM_ARCHITECTURE_KEY)
-
-    if arch not in models.VALID_ARCHITECTURES:
-        err_msg = "Invalid architecture found: %s".format(arch)
-        utils.LOG.error(err_msg)
-        ERR_ADD(errors, 400, err_msg)
-        return None
-
+    arch = boot_json.get(models.ARCHITECTURE_KEY)
     boot_doc = mboot.BootDocument(
         board,
         job, kernel, defconfig, lab_name, git_branch, defconfig_full, arch)

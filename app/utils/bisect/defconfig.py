@@ -258,8 +258,7 @@ def execute_build_bisection_compared_to(
             defconfig_full = start_doc_get(
                 models.DEFCONFIG_FULL_KEY) or defconfig
             created_on = start_doc_get(models.CREATED_KEY)
-            arch = start_doc_get(
-                models.ARCHITECTURE_KEY) or models.ARM_ARCHITECTURE_KEY
+            arch = start_doc_get(models.ARCHITECTURE_KEY)
             branch = start_doc_get(models.GIT_BRANCH_KEY)
 
             bisect_doc = mbisect.DefconfigBisectDocument(obj_id)

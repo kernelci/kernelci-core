@@ -21,12 +21,14 @@ class TestBootModel(unittest.TestCase):
 
     def test_boot_document_valid_instance(self):
         boot_doc = mboot.BootDocument(
-            "board", "job", "kernel", "defconfig", "lab", "branch")
+            "board", "job", "kernel", "defconfig", "lab", "branch",
+            "defconfig_full", "arch")
         self.assertIsInstance(boot_doc, mbase.BaseDocument)
 
     def test_boot_document_to_dict(self):
         boot_doc = mboot.BootDocument(
-            "board", "job", "kernel", "defconfig", "lab", "branch", arch="arm")
+            "board", "job", "kernel", "defconfig", "lab", "branch",
+            "defconfig_full", "arch")
         boot_doc.id = "id"
         boot_doc.job_id = "job-id"
         boot_doc.created_on = "now"
@@ -69,7 +71,7 @@ class TestBootModel(unittest.TestCase):
 
         expected = {
             "_id": "id",
-            "arch": "arm",
+            "arch": "arch",
             "board": "board",
             "board_instance": "instance",
             "boot_log": "boot-log",

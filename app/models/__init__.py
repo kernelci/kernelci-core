@@ -24,8 +24,6 @@ ACCEPTED_KEYS = "accepted"
 ADDRESS_KEY = "address"
 AGGREGATE_KEY = "aggregate"
 ARCHITECTURE_KEY = "arch"
-ARM64_ARCHITECTURE_KEY = "arm64"
-ARM_ARCHITECTURE_KEY = "arm"
 ATTACHMENTS_KEY = "attachments"
 BASELINE_KEY = "baseline"
 BOARD_INSTANCE_KEY = "board_instance"
@@ -133,7 +131,6 @@ MAXIMUM_KEY = "maximum"
 MEASUREMENTS_KEY = "measurements"
 METADATA_KEY = "metadata"
 MINIMUM_KEY = "minimum"
-MIPS_ARCHITECTURE_KEY = "mips"
 MISMATCHES_COUNT_KEY = "mismatches_count"
 MISMATCHES_KEY = "mismatches"
 MODULES_DIR_KEY = "modules_dir"
@@ -190,8 +187,6 @@ VMLINUX_FILE_SIZE_KEY = "vmlinux_file_size"
 VMLINUX_TEXT_SIZE_KEY = "vmlinux_text_size"
 WARNINGS_COUNT_KEY = "warnings_count"
 WARNINGS_KEY = "warnings"
-x86_ARCHITECTURE_KEY = "x86"
-x86_64_ARCHITECTURE_KEY = "x86_64"
 
 # Email reporting control fields.
 SEND_BOOT_REPORT_KEY = "boot_report"
@@ -315,14 +310,6 @@ LAVA_METADATA_KEY = "metadata"
 LAVA_FAILURE_COMMENT_KEY = "failure_comment"
 LAVA_DEVICE_ID_KEY = "actual_device_id"
 LAVA_LOG_KEY = "log"
-
-VALID_ARCHITECTURES = [
-    ARM64_ARCHITECTURE_KEY,
-    ARM_ARCHITECTURE_KEY,
-    MIPS_ARCHITECTURE_KEY,
-    x86_64_ARCHITECTURE_KEY,
-    x86_ARCHITECTURE_KEY
-]
 
 # Valid build status.
 VALID_BUILD_STATUS = [

@@ -481,13 +481,6 @@ def _parse_test_group_from_json(test_json, database, errors):
         return None
 
     arch = test_json.get(models.ARCHITECTURE_KEY)
-
-    if arch not in models.VALID_ARCHITECTURES:
-        err_msg = "Invalid architecture found: %s".format(arch)
-        utils.LOG.error(err_msg)
-        ERR_ADD(errors, 400, err_msg)
-        return None
-
     test_doc = mtest_group.TestGroupDocument(name, lab_name)
     test_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
     _update_test_group_doc_from_json(test_doc, test_json, errors)

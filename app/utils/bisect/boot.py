@@ -64,11 +64,9 @@ def _find_boot_bisect_data(obj_id, start_doc, database, db_options):
     board = start_doc_get(models.BOARD_KEY)
     job = start_doc_get(models.JOB_KEY)
     defconfig = start_doc_get(models.DEFCONFIG_KEY)
-    defconfig_full = start_doc_get(
-        models.DEFCONFIG_FULL_KEY) or defconfig
+    defconfig_full = start_doc_get(models.DEFCONFIG_FULL_KEY) or defconfig
     created_on = start_doc_get(models.CREATED_KEY)
-    arch = start_doc_get(
-        models.ARCHITECTURE_KEY) or models.ARM_ARCHITECTURE_KEY
+    arch = start_doc_get(models.ARCHITECTURE_KEY)
     lab_name = start_doc_get(models.LAB_NAME_KEY)
 
     bisect_doc = mbisect.BootBisectDocument(obj_id)
@@ -233,8 +231,7 @@ def execute_boot_bisection_compared_to(
             defconfig_full = start_doc_get(
                 models.DEFCONFIG_FULL_KEY) or defconfig
             created_on = start_doc_get(models.CREATED_KEY)
-            arch = start_doc_get(
-                models.ARCHITECTURE_KEY) or models.ARM_ARCHITECTURE_KEY
+            arch = start_doc_get(models.ARCHITECTURE_KEY)
             lab_name = start_doc_get(models.LAB_NAME_KEY)
 
             bisect_doc = mbisect.BootBisectDocument(obj_id)

@@ -37,7 +37,9 @@ class BootDocument(modb.BaseDocument):
             kernel,
             defconfig,
             lab_name,
-            git_branch, defconfig_full=None, arch=models.ARM_ARCHITECTURE_KEY):
+            git_branch,
+            defconfig_full,
+            arch):
         """A new BootDocument.
 
         :param board: The name of the board.
@@ -53,7 +55,7 @@ class BootDocument(modb.BaseDocument):
         :param defconfig_full: The full value of the defconfig when it contains
         fragments. Default to the same 'defconfig' value.
         :type defconfig_full: string
-        :param arch: The architecture type, default to 'arm'.
+        :param arch: The architecture type.
         :type arch: string
         """
         self._created_on = None
@@ -238,8 +240,7 @@ class BootDocument(modb.BaseDocument):
                 lab_name = doc_pop(models.LAB_NAME_KEY)
                 git_branch = doc_pop(models.GIT_BRANCH_KEY)
                 defconfig_full = doc_pop(models.DEFCONFIG_FULL_KEY, None)
-                arch = doc_pop(
-                    models.ARCHITECTURE_KEY, models.ARM_ARCHITECTURE_KEY)
+                arch = doc_pop(models.ARCHITECTURE_KEY)
 
                 boot_doc = BootDocument(
                     board,

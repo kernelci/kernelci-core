@@ -96,15 +96,6 @@ class TestParseBoot(unittest.TestCase):
         self.assertEqual(doc.boot_job_id, "1234")
         self.assertIsInstance(doc.metadata, types.DictionaryType)
 
-    def test_parse_from_json_default_arch(self):
-        errors = {}
-        self.boot_report.pop("arch")
-
-        doc = bimport._parse_boot_from_json(self.boot_report, self.db, errors)
-
-        self.assertIsInstance(doc, mboot.BootDocument)
-        self.assertEqual(doc.arch, "arm")
-
     def test_check_for_null_with_none(self):
         boot_report = {
             "job": None,
@@ -195,9 +186,8 @@ class TestParseBoot(unittest.TestCase):
             "git_branch": "branch"
         }
         boot_doc = mboot.BootDocument(
-            "board",
-            "job",
-            "kernel", "defconfig", "lab", "branch", "defconfig+FRAGMENT")
+            "board", "job", "kernel", "defconfig", "lab", "branch",
+            "defconfig+FRAGMENT", "arm")
         expected_path = os.path.join(
             base_path,
             "job", "branch", "kernel", "arm", "defconfig+FRAGMENT", "lab")
@@ -224,9 +214,8 @@ class TestParseBoot(unittest.TestCase):
             "lab_name": "lab"
         }
         boot_doc = mboot.BootDocument(
-            "board",
-            "job",
-            "kernel", "defconfig", "lab", "branch", "defconfig+FRAGMENT")
+            "board", "job", "kernel", "defconfig", "lab", "branch",
+            "defconfig+FRAGMENT", "arm")
         expected_path = os.path.join(
             base_path,
             "job", "branch", "kernel", "arm", "defconfig+FRAGMENT", "lab")
@@ -261,9 +250,8 @@ class TestParseBoot(unittest.TestCase):
             "git_branch": "branch"
         }
         boot_doc = mboot.BootDocument(
-            "board",
-            "job",
-            "kernel", "defconfig", "lab", "branch", "defconfig+FRAGMENT")
+            "board", "job", "kernel", "defconfig", "lab", "branch",
+            "defconfig+FRAGMENT", "arm")
         expected_path = os.path.join(
             base_path,
             "job", "branch", "kernel", "arm", "defconfig+FRAGMENT", "lab")
