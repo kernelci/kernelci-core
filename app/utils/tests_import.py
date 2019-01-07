@@ -357,8 +357,7 @@ def import_test_case(
                 # reference it in the test group
                 else:
                     update_test_group_add_test_case_id(
-                        doc_id, group_oid, group_name,
-                        db_options)
+                        doc_id, group_oid, group_name, database)
             else:
                 ADD_ERR(errors, 400, "Missing mandatory key in JSON data")
         except ValueError, ex:
@@ -445,7 +444,7 @@ def update_test_group_add_sub_group_id(
 
 
 def update_test_group_add_test_case_id(
-        case_id, group_id, group_name, db_options):
+        case_id, group_id, group_name, database):
     """Add the test case ID to the list of a a test group and save it.
 
     :param case_id: The ID of the test case.
@@ -454,8 +453,8 @@ def update_test_group_add_test_case_id(
     :type group_id: bson.objectid.ObjectId
     :param group_name: The name of the test group.
     :type group_name: str
-    :param db_options: The database connection parameters.
-    :type db_options: dict
+    :param database: The database connection.
+    :type database: Database connection object.
     :return 200 if OK, 500 in case of errors; a dictionary with errors or an
     empty one.
     """
@@ -466,7 +465,6 @@ def update_test_group_add_test_case_id(
     utils.LOG.debug(
         "Updating test group '%s' (%s) with test case ID",
         group_name, str(group_id))
-    database = utils.db.get_db_connection(db_options)
 
     ret_val = utils.db.update(
         database[models.TEST_GROUP_COLLECTION],

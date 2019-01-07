@@ -539,7 +539,7 @@ def import_and_save_test_cases(group_doc_id, group_name, test_cases,
         else:
             # Test case imported successfully update test group
             ret_code, errors = tests_import.update_test_group_add_test_case_id(
-                tc_doc_id, group_doc_id, group_name, taskc.app.conf.db_options)
+                tc_doc_id, group_doc_id, group_name, database)
 
     return ret_code
 
@@ -588,8 +588,7 @@ def import_and_save_test_group(group, parent_id, database, errors):
                 utils.LOG.warn("Failed to parse sub-group")
                 return None
             tests_import.update_test_group_add_sub_group_id(
-                group_doc_id, group_doc.name, sub_group_doc_id,
-                taskc.app.conf.db_options)
+                group_doc_id, group_doc.name, sub_group_doc_id, database)
 
     return group_doc_id
 

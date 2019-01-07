@@ -131,13 +131,13 @@ def _add_test_group_regressions(group, last_group, db, spec, hierarchy=None,
     return ids
 
 
-def find(group_id, db_options):
+def find(group_id, db_options={}, db=None):
     """Find the regression starting from a single test group document.
 
     :param group_id: The id of the test group document.
     :type group_id: str
-    :param db_options: The database connection parameters.
-    :type db_options: dict
+    :param db: The database connection.
+    :type db: Database connection object.
     :return tuple The return value that can be 200 (success), 201 (document
     saved) or 500 (error); a list with the IDs of the test regression documents
     or None.
@@ -148,7 +148,8 @@ def find(group_id, db_options):
 
     utils.LOG.info("Searching test regressions for '{}'".format(group_id))
 
-    db = utils.db.get_db_connection(db_options)
+    if db is None:
+        db = utils.db.get_db_connection(db_options)
     collection = db[models.TEST_GROUP_COLLECTION]
     group = utils.db.find_one2(collection, group_id)
 
