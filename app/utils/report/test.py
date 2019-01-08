@@ -78,6 +78,7 @@ def _add_test_group_data(group, db, spec, hierarchy=[]):
     regr_collection = db[models.TEST_REGRESSION_COLLECTION]
     group_collection = db[models.TEST_GROUP_COLLECTION]
     regr_spec = dict(spec)
+    regr_count = 0
 
     test_cases = []
     for test_case_id in group[models.TEST_CASES_KEY]:
@@ -89,6 +90,8 @@ def _add_test_group_data(group, db, spec, hierarchy=[]):
             test_case["failure_message"] = (
                 _regression_message(regr[models.REGRESSIONS_KEY])
                 if regr else "never passed")
+            if regr:
+                regr_count += 1
         test_cases.append(test_case)
 
     sub_groups = []
@@ -106,9 +109,12 @@ def _add_test_group_data(group, db, spec, hierarchy=[]):
         for status, count in sub_group_total.iteritems():
             total[status] += count
 
+    regr_count += sum(sg["regressions"] for sg in sub_groups)
+
     group.update({
         "test_cases": test_cases,
         "sub_groups": sub_groups,
+        "regressions": regr_count,
         "total_tests": sum(total.values()),
         "total": total,
     })
@@ -131,52 +137,39 @@ def create_test_report(data, email_format, db_options,
     """
     database = utils.db.get_db_connection(db_options)
 
-    job, branch, kernel, plans = (data[k] for k in [
+    job, branch, kernel, plan = (data[k] for k in [
         models.JOB_KEY,
         models.GIT_BRANCH_KEY,
         models.KERNEL_KEY,
-        models.PLANS_KEY
+        models.PLAN_KEY,
     ])
 
-    # Exclude the field "plans" when fetching the documents
-    spec = {x: y for x, y in data.iteritems() if x != "plans"}
+    spec = {x: y for x, y in data.iteritems() if x != models.PLAN_KEY}
+    group_spec = dict(spec)
+    group_spec.update({
+        models.NAME_KEY: plan,
+        models.PARENT_ID_KEY: None,
+    })
 
-    test_group_docs = list(utils.db.find(
+    groups = list(utils.db.find(
         database[models.TEST_GROUP_COLLECTION],
-        spec=spec,
+        spec=group_spec,
         fields=TEST_REPORT_FIELDS))
 
-    top_groups = []
-    sub_group_ids = []
-
-    for group in test_group_docs:
-        sub_group_ids.extend(group[models.SUB_GROUPS_KEY])
-
-    top_groups = []
-    for group in test_group_docs:
-        if group["_id"] not in sub_group_ids and  \
-           group["name"] != "lava" and \
-           not plans:
-            top_groups.append(group)
-        elif plans and group["name"] in plans:
-            top_groups.append(group)
-
-    if not top_groups:
+    if not groups:
         utils.LOG.warning("Failed to find test group documents")
         return None
 
-    for group in top_groups:
+    for group in groups:
         _add_test_group_data(group, database, spec)
 
-    if not plans:
-        plans_string = "All the results are included"
-        subject_str = "Test results for {}/{} - {}".format(job, branch, kernel)
-    else:
-        plans_string = ", ".join(plans)
-        subject_str = "Test results ({}) for {}/{} - {}".format(
-            plans_string, job, branch, kernel)
+    tests_total = sum(group["total_tests"] for group in groups)
+    regr_total = sum(group["regressions"] for group in groups)
 
-    git_url, git_commit = (top_groups[0][k] for k in [
+    subject_str = "{}/{} {}: {} tests, {} regressions ({})".format(
+        job, branch, plan, tests_total, regr_total, kernel)
+
+    git_url, git_commit = (groups[0][k] for k in [
         models.GIT_URL_KEY, models.GIT_COMMIT_KEY])
 
     headers = {
@@ -193,11 +186,11 @@ def create_test_report(data, email_format, db_options,
         "git_url": git_url,
         "kernel": kernel,
         "git_commit": git_commit,
-        "plans_string": plans_string,
+        "plan": plan,
         "boot_log": models.BOOT_LOG_KEY,
         "boot_log_html": models.BOOT_LOG_HTML_KEY,
         "storage_url": rcommon.DEFAULT_STORAGE_URL,
-        "test_groups": top_groups,
+        "test_groups": groups,
     }
 
     body = rcommon.create_txt_email("test.txt", **template_data)

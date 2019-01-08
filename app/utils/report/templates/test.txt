@@ -1,3 +1,5 @@
+{{ subject_str }}
+
 Test results summary
 --------------------
 
@@ -6,7 +8,7 @@ Test results summary
   Kernel:  {{ kernel }}
   URL:     {{ git_url }}
   Commit:  {{ git_commit }}
-  Tests:   {{ plans_string }}
+  Test:    {{ plan }}
 
 {% for t in test_groups|sort(attribute='name') %}
 {{ "%-2s | %-10s | %-22s | %-5s | %3s total: %3s PASS %3s FAIL %3s SKIP"|format(loop.index, t.name, t.board, t.arch, t.total_tests, t.total["PASS"], t.total["FAIL"], t.total["SKIP"]) }}
