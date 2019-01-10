@@ -48,7 +48,6 @@ import requests
 import copy
 import ConfigParser
 from urlparse import urljoin
-import urllib
 
 cross_compilers = {
     "arm": "arm-linux-gnueabihf-",
@@ -169,7 +168,7 @@ else:
     os.environ['ARCH'] = arch
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "b:c:ip:sgeJ:j:")
+    opts, args = getopt.getopt(sys.argv[1:], "b:c:ip:sgeJ:E:j:")
 
 except getopt.GetoptError as err:
     print str(err) # will print something like "option -a not recognized"
@@ -228,6 +227,8 @@ for o, a in opts:
     if o == '-j':
         make_threads = int(a)
         print("Parallel builds: {}".format(make_threads))
+    if o == '-E':
+        build_environment = a
 
 # Default umask for file creation
 os.umask(022)
@@ -247,6 +248,11 @@ cc_cmd = "%s --version 2>&1" % cc
 if cross_compile and cc == "gcc":
     cc_cmd = "%s%s --version 2>&1" %(cross_compile, cc)
 cc_version = subprocess.check_output(cc_cmd, shell=True).splitlines()[0]
+
+if not build_environment:
+    build_environment = cc
+
+print("Build environment: {}".format(build_environment))
 
 # KBUILD_OUTPUT
 kbuild_output = kbuild_output_prefix
@@ -288,13 +294,6 @@ if os.path.exists('.git') and use_git:
 
 # Override info using environment variables
 if use_environment:
-    required_environment = ["COMMIT_ID", "TREE", "BRANCH", "GIT_DESCRIBE", "GIT_DESCRIBE_VERBOSE"]
-    if publish:
-        required_environment.extend(["API", "TOKEN"])
-    for environment in required_environment:
-        if not os.environ.get(environment, False):
-            print("Required environment variable {} is not set".format(environment))
-            sys.exit(1)
     api = os.environ.get('API', api)
     token = os.environ.get('TOKEN', token)
     git_commit = os.environ.get('COMMIT_ID', git_commit)
@@ -302,12 +301,6 @@ if use_environment:
     git_branch = os.environ.get('BRANCH', git_branch)
     git_describe = os.environ.get('GIT_DESCRIBE', git_describe)
     git_describe_v = os.environ.get('GIT_DESCRIBE_VERBOSE', git_describe_v)
-
-build_environment = os.environ.get(
-                        'BUILD_ENVIRONMENT',
-                        "{}-{}".format(
-                            os.environ.get('CC', urllib.quote_plus(cc)),
-                            os.environ.get('CC_VERSION', urllib.quote_plus(cc_version))))
 
 start_time = time.time()
 
@@ -548,10 +541,8 @@ if install:
             publish = False
 
     if publish:
-        publish_path_base = [job, git_branch, git_describe, arch, defconfig_full]
-        if build_environment:
-            publish_path_base.append(build_environment)
-        publish_path = os.path.join(*publish_path_base)
+        publish_path = os.path.join(
+            job, git_branch, git_describe, arch, defconfig_full, build_environment)
         bmeta['file_server_resource'] = publish_path
 
     # Create JSON format build metadata
