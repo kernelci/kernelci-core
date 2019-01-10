@@ -71,7 +71,7 @@ import org.kernelci.util.Job
 def buildConfig(config, kdir, kci_core) {
     def defconfig = sh(script: "echo ${config} | sed 's/\\+/ \\-c /g'",
                        returnStdout: true)
-    def opt = "-i"
+    def opt = "-i -E ${params.CC}-${params.CC_VERSION}"
 
     if (params.PUBLISH) {
         opt += " -e"
