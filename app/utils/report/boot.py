@@ -40,6 +40,7 @@ BOOT_SEARCH_FIELDS = [
     models.ARCHITECTURE_KEY,
     models.BOARD_KEY,
     models.DEFCONFIG_FULL_KEY,
+    models.BUILD_ENVIRONMENT_KEY,
     models.LAB_NAME_KEY,
     models.MACH_KEY,
     models.STATUS_KEY
@@ -567,12 +568,15 @@ def _parse_boot_results(results, intersect_results=None, get_unique=False):
         arch = res_get(models.ARCHITECTURE_KEY)
         defconfig = res_get(models.DEFCONFIG_FULL_KEY)
         status = res_get(models.STATUS_KEY)
+        build_environment = res_get(models.BUILD_ENVIRONMENT_KEY)
 
         result_struct = {
             arch: {
                 defconfig: {
-                    board: {
-                        lab_name: status
+                    build_environment: {
+                        board: {
+                            lab_name: status
+                        }
                     }
                 }
             }
@@ -586,24 +590,33 @@ def _parse_boot_results(results, intersect_results=None, get_unique=False):
                 defconfig_view = intersect_results[arch].viewkeys()
 
                 if defconfig in defconfig_view:
-                    if intersect_results[arch][defconfig].get(board, None):
-                        intersections += 1
-                        del intersect_results[arch][defconfig][board]
-                        # Clean up also the remainder of the data structure so
-                        # that we really have cleaned up data.
-                        if not intersect_results[arch][defconfig]:
-                            del intersect_results[arch][defconfig]
-                        if not intersect_results[arch]:
-                            del intersect_results[arch]
+                    build_environment_view = intersect_results[arch][defconfig].viewkeys()
+
+                    if build_environment in build_environment_view:
+                        if intersect_results[arch][defconfig][build_environment].get(board, None):
+                            intersections += 1
+                            del intersect_results[arch][defconfig][build_environment][board]
+                            # Clean up also the remainder of the data structure so
+                            # that we really have cleaned up data.
+                            if not intersect_results[arch][defconfig][build_environment]:
+                                del intersect_results[arch][defconfig][build_environment]
+                            if not intersect_results[arch]:
+                                del intersect_results[arch]
 
         if arch in parsed_data.viewkeys():
             if defconfig in parsed_get(arch).viewkeys():
-                if board in parsed_get(arch)[defconfig].viewkeys():
-                    parsed_get(arch)[defconfig][board][lab_name] = \
-                        result_struct[arch][defconfig][board][lab_name]
+                if build_environment in parsed_get(defconfig).viewkeys():
+                    if board in parsed_get(arch)[defconfig].viewkeys():
+                        print(board)
+                        print(parsed_get(arch)[defconfig][build_environment])
+                        if build_environment in parsed_get(arch)[defconfig][build_environment][board].viewkeys():
+                            parsed_get(arch)[defconfig][build_environment][board][lab_name] = \
+                                result_struct[arch][defconfig][build_environment][board][lab_name]
+                    else:
+                        parsed_get(arch)[defconfig][board] = \
+                            result_struct[arch][defconfig][board]
                 else:
-                    parsed_get(arch)[defconfig][board] = \
-                        result_struct[arch][defconfig][board]
+                    parsed_get(arch)[defconfig][build_environment] = result_struct[arch][defconfig][build_environment]
             else:
                 parsed_get(arch)[defconfig] = result_struct[arch][defconfig]
         else:
@@ -633,7 +646,7 @@ def _search_conflicts(failed, passed):
         A valid pair means that:
           Their `_id` values are different
           Their `lab_name` values are different
-          They have the same `board`, `arch` and `defconfig_full` values
+          They have the same `board`, `arch`, `defconfig_full` and `build_environment` values
 
         :param f_g: The `get` function for the `failed` result.
         :type f_g: function
@@ -647,7 +660,9 @@ def _search_conflicts(failed, passed):
                 f_g(models.ARCHITECTURE_KEY) ==
                 p_g(models.ARCHITECTURE_KEY) and
                 f_g(models.DEFCONFIG_FULL_KEY) ==
-                p_g(models.DEFCONFIG_FULL_KEY)):
+                p_g(models.DEFCONFIG_FULL_KEY) and
+                f_g(models.BUILD_ENVIRONMENT_KEY) ==
+                p_g(models.BUILD_ENVIRONMENT_KEY)):
             is_valid = True
         return is_valid
 
@@ -998,7 +1013,11 @@ def _parse_and_structure_results(boot_data):
             },
             "data": {
                 "arch": {
-                    "defconfig": [("TXT version", "HTML version")]
+                    "defconfig": {
+                        "build_environment": {
+                            "board": [("TXT version", "HTML version")]
+                        }
+                    }
                 }
             }
         }
@@ -1069,92 +1088,101 @@ def _parse_and_structure_results(boot_data):
 
                 def_get = d_get(arch)[defconfig].get
 
-                # Force boards to be sorted.
-                boards = list(d_get(arch)[defconfig].viewkeys())
-                boards.sort()
+                # Force build_envs to be sorted.
+                build_envs = list(d_get(arch)[defconfig].viewkeys())
+                build_envs.sort()
 
-                if is_conflict:
-                    # For conflict, we need a dict as data structure,
-                    # since we list boards and labs.
-                    arch_struct[defconfig_string] = {}
-                    defconf_struct = arch_struct[defconfig_string]
+                for build_environment in build_envs:
+                    build_environment_string = G_(u"{:s}").format(build_environment)
 
-                    for board in boards:
-                        # Copy the boot_data parameters and add the local ones.
-                        # This is needed to create the HTML version of some
-                        # of the values we are parsing.
-                        substitutions = boot_data.copy()
-                        substitutions["board"] = board
-                        substitutions["defconfig"] = defconfig
+                    build_get = d_get(arch)[defconfig][build_environment].get
+                    # Force boards to be sorted.
+                    boards = list(d_get(arch)[defconfig][build_environment].viewkeys())
+                    boards.sort()
 
-                        board_url = rcommon.BOARD_URL.format(**substitutions)
-                        substitutions["url"] = board_url
+                    if is_conflict:
+                        # For conflict, we need a dict as data structure,
+                        # since we list boards and labs.
+                        arch_struct[defconfig_string] = {}
+                        defconf_struct = arch_struct[defconfig_string]
 
-                        html_string = (
-                            G_(u"<a href=\"{url:s}\">{board:s}</a>").format(
-                                **substitutions)
-                        )
+                        for board in boards:
+                            # Copy the boot_data parameters and add the local ones.
+                            # This is needed to create the HTML version of some
+                            # of the values we are parsing.
+                            substitutions = boot_data.copy()
+                            substitutions["board"] = board
+                            substitutions["defconfig"] = defconfig
 
-                        txt_string = G_(u"{:s}").format(board)
+                            board_url = rcommon.BOARD_URL.format(**substitutions)
+                            substitutions["url"] = board_url
 
-                        defconf_struct[(txt_string, html_string)] = []
-                        board_struct = defconf_struct[
-                            (txt_string, html_string)
-                        ]
+                            html_string = (
+                                G_(u"<a href=\"{url:s}\">{board:s}</a>").format(
+                                    **substitutions)
+                                )
+                            txt_string = G_(u"{:s}").format(board)
 
-                        for lab in def_get(board).viewkeys():
-                            board_struct.append(
-                                G_(u"{:s}: {:s}").format(
-                                    lab, def_get(board)[lab])
-                            )
-                else:
-                    # Not a conflict data structure, we show only the count of
-                    # the failed labs, not which one failed.
+                            defconf_struct[(txt_string, html_string)] = []
+                            board_struct = defconf_struct[
+                                (txt_string, html_string)
+                            ]
+                            for lab in def_get(board).viewkeys():
+                                board_struct.append(
+                                    G_(u"{:s}: {:s}").format(
+                                        lab, def_get(board)[lab]), build_environment
+                                )
+                    else:
+                        # Not a conflict data structure, we show only the count of
+                        # the failed labs, not which one failed.
 
-                    # For non-conflict, we need a list as data structure,
-                    # since we only list the counts.
-                    arch_struct[defconfig_string] = []
-                    defconf_struct = arch_struct[defconfig_string]
+                        # For non-conflict, we need a list as data structure,
+                        # since we only list the counts.
+                        build_env_struct = []
+                        arch_struct[defconfig_string] = {}
+                        defconf_struct = arch_struct[defconfig_string]
+                        defconf_struct[build_environment_string] = build_env_struct
 
-                    for board in boards:
-                        lab_count = 0
-                        for lab in def_get(board).viewkeys():
-                            lab_count += 1
+                        for board in boards:
+                            lab_count = 0
+                            for lab in build_get(board).viewkeys():
+                                lab_count += 1
 
-                        if is_offline:
-                            lab_count_str = (
-                                P_(
-                                    "{:d} offline lab",
-                                    "{:d} offline labs", lab_count
-                                ).format(lab_count)
-                            )
-                        else:
-                            lab_count_str = (
-                                P_(
-                                    "{:d} failed lab",
-                                    "{:d} failed labs", lab_count
-                                ).format(lab_count)
-                            )
 
-                        # Copy the boot_data parameters and add the local ones.
-                        # This is needed to create the HTML version of some
-                        # of the values we are parsing.
-                        substitutions = boot_data.copy()
-                        substitutions["board"] = board
-                        substitutions["defconfig"] = defconfig
+                            if is_offline:
+                                lab_count_str = (
+                                    P_(
+                                        "{:d} offline lab",
+                                        "{:d} offline labs", lab_count
+                                    ).format(lab_count)
+                                )
+                            else:
+                                lab_count_str = (
+                                    P_(
+                                        "{:d} failed lab",
+                                        "{:d} failed labs", lab_count
+                                    ).format(lab_count)
+                                )
 
-                        board_url = rcommon.BOARD_URL.format(**substitutions)
-                        substitutions["url"] = board_url
-                        substitutions["count"] = lab_count_str
+                            # Copy the boot_data parameters and add the local ones.
+                            # This is needed to create the HTML version of some
+                            # of the values we are parsing.
+                            substitutions = boot_data.copy()
+                            substitutions["board"] = board
+                            substitutions["defconfig"] = defconfig
 
-                        html_string = (
-                            G_(
-                                u"<a href=\"{url:s}\">{board:s}</a>: {count:s}"
-                            ).format(**substitutions))
+                            board_url = rcommon.BOARD_URL.format(**substitutions)
+                            substitutions["url"] = board_url
+                            substitutions["count"] = lab_count_str
 
-                        txt_string = G_(u"{:s}: {:s}").format(
-                            board, lab_count_str)
-                        defconf_struct.append((txt_string, html_string))
+                            html_string = (
+                                G_(
+                                    u"<a href=\"{url:s}\">{board:s}</a>: {count:s}"
+                                ).format(**substitutions))
+
+                            txt_string = G_(u"{:s}: {:s}").format(
+                                board, lab_count_str)
+                            build_env_struct.append((txt_string, html_string))
 
     if failed_data:
         parsed_data["failed_data"] = {}
@@ -1231,5 +1259,4 @@ def _parse_and_structure_results(boot_data):
             conflict_data, conflict_struct["data"], is_conflict=True)
     else:
         parsed_data["conflict_data"] = None
-
     return parsed_data

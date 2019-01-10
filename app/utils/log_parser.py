@@ -361,6 +361,7 @@ def save_defconfig_errors(
     err_doc.compiler_version = build_doc.compiler_version
     err_doc.compiler_version_ext = build_doc.compiler_version_ext
     err_doc.compiler_version_full = build_doc.compiler_version_full
+    err_doc.build_environment = build_doc.build_environment
 
     manipulate = True
     if prev_doc:

@@ -163,7 +163,7 @@
         {%- set warns = P_("{:d} warning", "{:d} warnings", d.warnings_count).format(d.warnings_count) %}
         {%- set mism = P_("{:d} section mismatch", "{:d} section mismatches", d.mismatches_count).format(d.mismatches_count) %}
         <p>
-    {{ "<strong>{}</strong> ({}, {}) &mdash; {}, {}, {}, {}".format(d.defconfig_full, d.arch, d.compiler_version_ext, d.status, errs, warns, mism) }}
+    {{ "<strong>{}</strong> ({}, {}) &mdash; {}, {}, {}, {}".format(d.defconfig_full, d.arch, d.build_environment, d.status, errs, warns, mism) }}
         </p>
         {%- if d.errors %}
         <table style="border: none; padding-bottom: 5px; padding-top: 3px; padding-left: 15px;">

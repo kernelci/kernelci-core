@@ -57,6 +57,7 @@ class ErrorLogDocument(modb.BaseDocument):
         self._warnings = []
         self._warnings_count = 0
         self.arch = None
+        self.build_environment = None
         self.build_id = None
         self.compiler = None
         self.compiler_version = None
@@ -213,6 +214,7 @@ class ErrorLogDocument(modb.BaseDocument):
     def to_dict(self):
         err_log = {
             models.ARCHITECTURE_KEY: self.arch,
+            models.BUILD_ENVIRONMENT_KEY: self.build_environment,
             models.BUILD_ID_KEY: self.build_id,
             models.COMPILER_KEY: self.compiler,
             models.COMPILER_VERSION_EXT_KEY: self.compiler_version_ext,

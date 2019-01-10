@@ -64,9 +64,11 @@
                         {{ defconfig }}:
                     </td>
                 </tr>
-            {%- for board in platforms.failed_data.data[arch][defconfig] %}
-                <tr><td style="padding-left: 40px;">{{ board[1] }}</td></tr>
+            {%- for build_environment in platforms.failed_data.data[arch][defconfig] %}
+            {%- for board in platforms.failed_data.data[arch][defconfig][build_environment] %}
+                <tr><td style="padding-left: 40px;">{{ build_environment }}: {{ board[1] }}</td></tr>
             {%- endfor %}{# board #}
+            {%- endfor %}{# build_environment #}
             {%- endfor %}{# defconfig #}
             {%- endfor %}{# arch #}
             </tbody>
@@ -87,9 +89,11 @@
                         {{ defconfig }}:
                     </td>
                 </tr>
-            {%- for board in platforms.offline_data.data[arch][defconfig] %}
-                <tr><td style="padding-left: 40px;">{{ board[1] }}</td></tr>
+            {%- for build_environment in platforms.offline_data.data[arch][defconfig] %}
+            {%- for board in platforms.offline_data.data[arch][defconfig][build_environment] %}
+                <tr><td style="padding-left: 40px;">{{ build_environment }}: {{ board[1] }}</td></tr>
             {%- endfor %}{# board #}
+            {%- endfor %}{# build_environment #}
             {%- endfor %}{# defconfig #}
             {%- endfor %}{# arch #}
             </tbody>
@@ -111,7 +115,7 @@
                     </td>
                 </tr>
             {%- for board in platforms.conflict_data.data[arch][defconfig] %}
-                <tr><td style="padding-left: 40px">{{ board[1] }}:</td></tr>
+                <tr><td style="padding-left: 40px">{{ board[1] }} ({{ board[2] }}):</td></tr>
             {%- for lab in platforms.conflict_data.data[arch][defconfig][board] %}
                 <tr><td style="padding-left: 55px;">{{ lab }}</td></tr>
             {%- endfor %}{# lab #}

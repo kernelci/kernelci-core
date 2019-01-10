@@ -34,7 +34,8 @@ DEFAULT_UNIQUE_KEYS = [
     models.ARCHITECTURE_KEY,
     models.BOARD_KEY,
     models.DEFCONFIG_FULL_KEY,
-    models.MACH_KEY
+    models.MACH_KEY,
+    models.BUILD_ENVIRONMENT_KEY
 ]
 
 JOB_SEARCH_FIELDS = [
