@@ -53,16 +53,6 @@ KERNEL_VERSION_MATCH = re.compile(r"^(?P<version>\d+\.{1}\d+(?:\.{1}\d+)?)")
 KERNEL_RC_VERSION_MATCH = re.compile(
     r"^(?P<version>\d+\.{1}\d+(?:\.{1}\d+)?-{1}rc\d*)")
 
-# Regex to extract compiler information from the compiler string.
-# Example strings are:
-# gcc version 4.7.3 (Ubuntu/Linaro 4.7.3-12ubuntu1)
-# Apple LLVM version 7.0.2 (clang-700.1.81)
-# Debian clang version 3.5.0-10 (tags/RELEASE_350/final) (based on LLVM 3.5.0)
-COMPILER_MATCH = re.compile(
-    r"^(?P<compiler>[\w\s?]+)\s{1}version\s{1}"
-    r"(?P<compiler_version>\d+\.{1}\d+(?:\.{1}\d+)?(?:\-{1}\d+)?)"
-)
-
 
 def get_artifacts_size(artifacts, build_dir):
     """Return artifact file size.
@@ -153,34 +143,6 @@ def _search_prev_build_doc(build_doc, database):
     return doc_id, c_date
 
 
-def _extract_compiler_data(compiler_version_full):
-    """Extract the compiler name and version from a compiler string.
-
-    :param compiler_version_full: The full compiler string, its description.
-    :type compiler_version_full: str
-    :return A 3-tuple: compiler, compiler_version, compiler_version_full.
-    """
-    compiler = None
-    compiler_version = None
-    compiler_version_ext = None
-
-    if compiler_version_full:
-        compiler_version_full = compiler_version_full.strip()
-
-        matched = COMPILER_MATCH.match(compiler_version_full)
-        if matched:
-            compiler = matched.group("compiler").strip()
-            compiler_version = matched.group("compiler_version").strip()
-            compiler_version_ext = "{0:s} {1:s}".format(
-                compiler, compiler_version)
-    else:
-        # Force it at None, in case we get an empty string.
-        compiler_version_full = None
-
-    return (compiler,
-            compiler_version, compiler_version_ext, compiler_version_full)
-
-
 def _extract_kernel_version(git_describe_v, git_describe):
     """Extract the actual kernel version number.
 
@@ -247,11 +209,10 @@ def parse_build_data(build_data, job, kernel, build_dir):
         defconfig = build_data[models.DEFCONFIG_KEY]
         d_job = build_data.get(models.JOB_KEY, job)
         d_kernel = build_data.get(models.KERNEL_KEY, kernel)
-        d_branch = build_data.get(models.GIT_BRANCH_KEY)
-        d_build_environment = build_data.get(models.BUILD_ENVIRONMENT_KEY)
-        defconfig_full = build_data.get(models.DEFCONFIG_FULL_KEY, None)
-        kconfig_fragments = build_data.get(
-            models.KCONFIG_FRAGMENTS_KEY, None)
+        d_branch = build_data[models.GIT_BRANCH_KEY]
+        d_build_environment = build_data[models.BUILD_ENVIRONMENT_KEY]
+        defconfig_full = build_data.get(models.DEFCONFIG_FULL_KEY)
+        kconfig_fragments = build_data.get(models.KCONFIG_FRAGMENTS_KEY)
 
         defconfig_full = utils.get_defconfig_full(
             build_dir, defconfig, defconfig_full, kconfig_fragments)
@@ -316,15 +277,14 @@ def parse_build_data(build_data, job, kernel, build_dir):
         build_doc.kernel_version = _extract_kernel_version(
             build_doc.git_describe_v, build_doc.git_describe)
 
-        compiler_version_full = (
-            build_data.get(models.COMPILER_VERSION_FULL_KEY, None) or
-            build_data.get(models.COMPILER_VERSION_KEY, None))
-
-        compiler_data = _extract_compiler_data(compiler_version_full)
-        build_doc.compiler = compiler_data[0]
-        build_doc.compiler_version = compiler_data[1]
-        build_doc.compiler_version_ext = compiler_data[2]
-        build_doc.compiler_version_full = compiler_data[3]
+        build_doc.compiler = build_data.get(
+            models.COMPILER_KEY)
+        build_doc.compiler_version = build_data.get(
+            models.COMPILER_VERSION_KEY)
+        build_doc.compiler_version_full = build_data.get(
+            models.COMPILER_VERSION_FULL_KEY)
+        # ToDo: deprecate in the API and only keep compiler_version_full
+        build_doc.compiler_version_ext = build_doc.compiler_version_full
 
         artifacts = {
             models.BUILD_LOG_SIZE_KEY: build_doc.build_log,

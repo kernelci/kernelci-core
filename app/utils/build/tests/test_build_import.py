@@ -145,6 +145,7 @@ class TestBuildUtils(unittest.TestCase):
     def test_traverse_build_dir_with_valid_data(self):
         build_data = {
             "arch": "arm",
+            "build_environment": "build_environment",
             "git_url": "git://git.example.org",
             "git_branch": "branch",
             "git_describe": "vfoo.bar",
@@ -158,7 +159,7 @@ class TestBuildUtils(unittest.TestCase):
             "vmlinux_bss_size": 1024,
             "vmlinux_data_size": 1024,
             "vmlinux_file_size": 1024,
-            "vmlinux_text_size": 1024
+            "vmlinux_text_size": 1024,
         }
 
         job_doc = mjob.JobDocument("job", "kernel", "branch")
@@ -177,6 +178,7 @@ class TestBuildUtils(unittest.TestCase):
         finally:
             shutil.rmtree(temp_dir, ignore_errors=True)
 
+        self.assertIsNotNone(build_doc)
         self.assertIsInstance(build_doc, mbuild.BuildDocument)
         self.assertEqual("job", build_doc.job)
         self.assertEqual("kernel", build_doc.kernel)
@@ -199,6 +201,7 @@ class TestBuildUtils(unittest.TestCase):
 
         build_data = {
             "arch": "arm",
+            "build_environment": "build_environment",
             "git_url": "git://git.example.org",
             "git_branch": "test/branch",
             "git_describe": "vfoo.bar",
@@ -238,7 +241,11 @@ class TestBuildUtils(unittest.TestCase):
         self.assertEqual(build_doc.vmlinux_file_size, 1029)
 
     def test_parse_build_data_no_version(self):
-        build_data = {"defconfig": "defconfig"}
+        build_data = {
+            "defconfig": "defconfig",
+            "git_branch": "branch",
+            "build_environment": "build_environment",
+        }
         errors = {}
 
         build_doc, _ = utils.build.parse_build_data(
@@ -250,7 +257,9 @@ class TestBuildUtils(unittest.TestCase):
     def test_parse_build_data_version(self):
         build_data = {
             "defconfig": "defconfig",
-            "version": "foo"
+            "version": "foo",
+            "git_branch": "branch",
+            "build_environment": "build_environment",
         }
         errors = {}
 
@@ -264,7 +273,9 @@ class TestBuildUtils(unittest.TestCase):
         build_data = {
             "defconfig": "defconfig",
             "build_errors": 3,
-            "build_warnings": 1
+            "build_warnings": 1,
+            "git_branch": "branch",
+            "build_environment": "build_environment",
         }
         errors = {}
 
@@ -276,7 +287,11 @@ class TestBuildUtils(unittest.TestCase):
         self.assertEqual(build_doc.warnings, 1)
 
     def test_parse_build_data_no_job_no_kernel(self):
-        build_data = {"defconfig": "defconfig"}
+        build_data = {
+            "defconfig": "defconfig",
+            "git_branch": "branch",
+            "build_environment": "build_environment",
+        }
         errors = {}
 
         build_doc, _ = utils.build.parse_build_data(
@@ -287,7 +302,11 @@ class TestBuildUtils(unittest.TestCase):
         self.assertEqual(build_doc.kernel, "kernel")
 
     def test_parse_build_data_no_defconfig_full(self):
-        build_data = {"defconfig": "defconfig"}
+        build_data = {
+            "defconfig": "defconfig",
+            "git_branch": "branch",
+            "build_environment": "build_environment",
+        }
         errors = {}
 
         build_doc, _ = utils.build.parse_build_data(
@@ -302,7 +321,9 @@ class TestBuildUtils(unittest.TestCase):
             "defconfig": "defoo_confbar",
             "job": "job",
             "kernel": "kernel",
-            "kconfig_fragments": "frag-CONFIG_TEST=y.config"
+            "kconfig_fragments": "frag-CONFIG_TEST=y.config",
+            "git_branch": "branch",
+            "build_environment": "build_environment",
         }
 
         build_doc, _ = utils.build.parse_build_data(
@@ -316,8 +337,11 @@ class TestBuildUtils(unittest.TestCase):
     def test_parse_build_metadata(self):
         build_data = {
             "arch": "arm",
+            "build_environment": "build_environment",
             "build_log": "file.log",
-            "compiler_version": "gcc version 4.7.3",
+            "compiler": "gcc",
+            "compiler_version": "4.7.3",
+            "compiler_version_full": "gcc version 4.7.3",
             "cross_compile": "arm",
             "defconfig": "defoo_confbar",
             "dtb_dir": "dtbs",
@@ -560,47 +584,3 @@ class TestBuildUtils(unittest.TestCase):
         extracted = utils.build._extract_kernel_version(
             "4.1-rc12-1234-g12345", None)
         self.assertEqual("4.1-rc12", extracted)
-
-    def test_extract_compiler_data_empty_string(self):
-        compiler_version_full = ""
-        extracted = utils.build._extract_compiler_data(compiler_version_full)
-
-        self.assertTupleEqual(extracted, (None, None, None, None))
-
-    def test_extract_compiler_data_none(self):
-        compiler_version_full = None
-        extracted = utils.build._extract_compiler_data(compiler_version_full)
-
-        self.assertTupleEqual(extracted, (None, None, None, None))
-
-    def test_extract_compiler_data_no_compiler_data(self):
-        compiler_version_full = "foo"
-        extracted = utils.build._extract_compiler_data(compiler_version_full)
-
-        self.assertTupleEqual(extracted, (None, None, None, "foo"))
-
-    def test_extract_compiler_data_gcc_data(self):
-        compiler_version_full =\
-            "gcc version 4.7.3 (Ubuntu/Linaro 4.7.3-12ubuntu1)"
-        extracted = utils.build._extract_compiler_data(compiler_version_full)
-
-        self.assertTupleEqual(
-            extracted, ("gcc", "4.7.3", "gcc 4.7.3", compiler_version_full))
-
-    def test_extract_compiler_data_llvm_data(self):
-        compiler_version_full = "Apple LLVM version 7.0.2 (clang-700.1.81)"
-        extracted = utils.build._extract_compiler_data(compiler_version_full)
-
-        self.assertTupleEqual(
-            extracted,
-            ("Apple LLVM", "7.0.2", "Apple LLVM 7.0.2", compiler_version_full))
-
-    def test_extract_compiler_data_clang_data(self):
-        compiler_version_full = (
-            "Debian clang version 3.5.0-10 (tags/RELEASE_350/final) "
-            "(based on LLVM 3.5.0)")
-        extracted = utils.build._extract_compiler_data(compiler_version_full)
-        expected = ("Debian clang",
-                    "3.5.0-10", "Debian clang 3.5.0-10", compiler_version_full)
-
-        self.assertTupleEqual(extracted, expected)
