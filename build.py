@@ -244,13 +244,16 @@ else:
 
 # CC
 cc = os.environ.get("CC", "gcc")
+cc_version = os.environ.get("CC_VERSION")
 cc_cmd = "%s --version 2>&1" % cc
 if cross_compile and cc == "gcc":
     cc_cmd = "%s%s --version 2>&1" %(cross_compile, cc)
-cc_version = subprocess.check_output(cc_cmd, shell=True).splitlines()[0]
+cc_version_full = subprocess.check_output(cc_cmd, shell=True).splitlines()[0]
+
+print("cc: {}, cc_version: {}".format(cc, cc_version))
 
 if not build_environment:
-    build_environment = cc
+    build_environment = '-'.join([cc, cc_version]) if cc_version else cc
 
 print("Build environment: {}".format(build_environment))
 
@@ -485,8 +488,10 @@ if install:
 
     bmeta['arch'] = "%s" %arch
     bmeta["cross_compile"] = "%s" %cross_compile
-    bmeta["compiler_version"] = "%s" %cc_version
-    bmeta["build_environment"] = "%s" % build_environment
+    bmeta["compiler"] = cc
+    bmeta["compiler_version"] = cc_version
+    bmeta["compiler_version_full"] = cc_version_full
+    bmeta["build_environment"] = build_environment
     bmeta["git_url"] = "%s" %git_url
     bmeta["git_branch"] =  "%s" %git_branch
     bmeta["git_describe"] =  "%s" %git_describe
