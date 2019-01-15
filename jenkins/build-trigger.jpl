@@ -199,12 +199,6 @@ def buildKernelStep(job, arch, config) {
     def compiler = 'gcc'
     def compiler_version = '7'
 
-    if (arch == 'mips') {
-        /* Yes this hack is nasty, but until we've started using >1 compilers
-         * it will do.  */
-        compiler_version = '6.3.0'
-    }
-
     def str_params = [
         'ARCH': arch,
         'DEFCONFIG': config,
