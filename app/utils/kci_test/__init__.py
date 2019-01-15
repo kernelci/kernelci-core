@@ -609,6 +609,7 @@ def import_and_save_kci_tests(group, db_options, base_path=utils.BASE_PATH):
     :return operation code (201 if success, 500 in case of an error), the group
     document ID and a dictionary with errors.
     """
+    group_doc_id = None
     ret_code = 500
     errors = {}
 
