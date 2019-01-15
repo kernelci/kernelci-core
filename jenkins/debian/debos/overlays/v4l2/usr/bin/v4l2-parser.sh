@@ -19,17 +19,16 @@
 
 set -e
 
+# Video driver name
+driver_name="${1}"
+
+[ -z "$driver_name" ] && {
+    echo "No driver name provided"
+    echo "Usage: v4l2-parser.sh <DRIVER_NAME>"
+    exit 1
+}
+
 IFS=''
-
-driver_name=$( \
-    basename $(readlink -f /sys/class/video4linux/video2/device/driver)) \
-    && echo "[kernelci-meta-data] v4l2 driver: $driver_name" \
-    || echo "Failed to get v4l2 driver name"
-
-device_name=$( \
-    cat /sys/class/video4linux/video2/name) \
-    && echo "[kernelci-meta-data] v4l2 device: $device_name" \
-    || echo "Failed to get v4l2 device name"
 
 # Test set name
 test_set=""
@@ -37,7 +36,16 @@ test_set=""
 # io index for streaming tests
 test_io=""
 
-v4l2-compliance -s | sed s/'\r'/'\n'/g | while read line; do
+device_path=$(v4l2-get-device -d $driver_name | head -n1)
+
+[ -z "$device_path" ] && {
+    echo "No device found for driver $driver_name"
+    exit 1
+}
+
+echo "device: $device_path"
+
+v4l2-compliance -s -d $device_path | sed s/'\r'/'\n'/g | while read line; do
     # Skip noisy video capture progress messages
     echo "$line" | grep -q 'Video Capture\|Output' && continue
 
