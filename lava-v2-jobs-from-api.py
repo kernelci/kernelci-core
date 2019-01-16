@@ -100,6 +100,7 @@ def get_job_params(config, test_config, defconfig, opts, build, plan):
     arch = config.get('arch')
     storage = config.get('storage')
     device_type = test_config.device_type
+    test_plan = test_config.test_plans[plan]
     defconfig_base = ''.join(defconfig.split('+')[:1])
     dtb = dtb_full = opts['dtb_full'] = opts['dtb'] = device_type.dtb
 
@@ -173,6 +174,7 @@ def get_job_params(config, test_config, defconfig, opts, build, plan):
         'rootfs_prompt': rootfs.prompt,
     }
 
+    job_params.update(test_plan.params)
     add_callback_params(job_params, config, plan)
 
     return job_params
