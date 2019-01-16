@@ -117,18 +117,24 @@ test_plans:
   usb:
     rootfs: debian_stretch_ramdisk
 
-  v4l2:
+  v4l2_uvc:
+    name: v4l2-uvc
     rootfs: debian_stretch-v4l2_ramdisk
+    # FIXME - this is not very sustainable, improve template naming scheme
+    pattern: 'v4l2/{category}-{method}-{protocol}-{rootfs}-v4l2-template.jinja2'
+    params: {v4l2_driver: "uvcvideo"}
 
-  v4l2_qemu:
-    name: v4l2
+  v4l2_qemu_vivid:
+    name: v4l2-vivid
     rootfs: debian_stretch-v4l2_ramdisk
     pattern: 'v4l2/generic-qemu-v4l2-template.jinja2'
+    params: {v4l2_driver: "vivid"}
     filters:
       - whitelist:
           defconfig:
             - 'defconfig+virtualvideo'
             - 'multi_v7_defconfig+virtualvideo'
+
 
 device_default_filters:
 
@@ -981,19 +987,19 @@ test_configs:
     test_plans: [boot]
 
   - device_type: qemu_arm
-    test_plans: [boot_qemu, simple_qemu, v4l2_qemu]
+    test_plans: [boot_qemu, simple_qemu, v4l2_qemu_vivid]
 
   - device_type: qemu_arm64
-    test_plans: [boot_qemu, simple_qemu, v4l2_qemu]
+    test_plans: [boot_qemu, simple_qemu, v4l2_qemu_vivid]
 
   - device_type: qemu_x86_64
-    test_plans: [boot_qemu, simple_qemu, v4l2_qemu]
+    test_plans: [boot_qemu, simple_qemu, v4l2_qemu_vivid]
 
   - device_type: r8a7791_porter
     test_plans: [boot]
 
   - device_type: rk3399_gru_kevin
-    test_plans: [boot, v4l2]
+    test_plans: [boot, v4l2_uvc]
 
   - device_type: rk3399_puma_haikou
     test_plans: [boot, kselftest]
@@ -1005,7 +1011,7 @@ test_configs:
     test_plans: [boot]
 
   - device_type: rk3288_veyron_jaq
-    test_plans: [boot, boot_nfs, sleep, usb, v4l2, igt, cros_ec]
+    test_plans: [boot, boot_nfs, sleep, usb, v4l2_uvc, igt, cros_ec]
 
   - device_type: salvator_x
     test_plans: [boot, boot_nfs, kselftest, simple]
