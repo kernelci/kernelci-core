@@ -50,6 +50,7 @@ class TestGroupDocument(modb.BaseDocument):
         self.boot_log = None
         self.boot_log_html = None
         self.boot_result_description = None
+        self.build_environment = None
         self.compiler = None
         self.compiler_version = None
         self.compiler_version_full = None
@@ -159,6 +160,7 @@ class TestGroupDocument(modb.BaseDocument):
             models.BOOT_LOG_KEY: self.boot_log,
             models.BOOT_LOG_HTML_KEY: self.boot_log_html,
             models.BOOT_RESULT_DESC_KEY: self.boot_result_description,
+            models.BUILD_ENVIRONMENT_KEY: self.build_environment,
             models.BUILD_ID_KEY: self.build_id,
             models.COMPILER_KEY: self.compiler,
             models.COMPILER_VERSION_FULL_KEY: self.compiler_version_full,

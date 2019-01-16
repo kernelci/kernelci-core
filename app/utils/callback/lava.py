@@ -464,6 +464,7 @@ def _add_test_results(group, suite_results, suite_name):
             k: group[k] for k in [
                 models.ARCHITECTURE_KEY,
                 models.BOARD_KEY,
+                models.BUILD_ENVIRONMENT_KEY,
                 models.DEFCONFIG_FULL_KEY,
                 models.DEFCONFIG_KEY,
                 models.GIT_BRANCH_KEY,
