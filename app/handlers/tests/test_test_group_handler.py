@@ -136,7 +136,8 @@ class TestTestGroupHandler(TestHandlerBase):
         body = json.dumps(
             dict(
                 name="test",
-                lab_name="lab_name", version="1.0", build_id="build")
+                lab_name="lab_name", version="1.0", build_id="build",
+                build_environment="build-environment")
         )
 
         response = self.fetch(
@@ -172,7 +173,8 @@ class TestTestGroupHandler(TestHandlerBase):
                 name="suite",
                 version="1.0",
                 lab_name="lab",
-                build_id="build", test_cases=[{"foo": "bar"}]
+                build_id="build", test_cases=[{"foo": "bar"}],
+                build_environment="build_environment"
             )
         )
 
@@ -194,7 +196,8 @@ class TestTestGroupHandler(TestHandlerBase):
                 name="suite",
                 version="1.0",
                 lab_name="lab",
-                build_id="build", test_case={"foo": "bar"}
+                build_id="build", test_case={"foo": "bar"},
+                build_environment="build-environment"
             )
         )
 
@@ -214,7 +217,7 @@ class TestTestGroupHandler(TestHandlerBase):
         body = json.dumps(
             dict(
                 name="test", lab_name="lab_name", version="1.0",
-                build_id="build_id")
+                build_id="build_id", build_environment="build-environment")
         )
 
         response = self.fetch(

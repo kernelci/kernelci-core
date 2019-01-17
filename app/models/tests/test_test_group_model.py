@@ -32,6 +32,7 @@ class TestTestGroupModel(unittest.TestCase):
         test_group.boot_log = "boot-log"
         test_group.boot_log_html = "boot-log-html"
         test_group.boot_result_description = "boot-result-description"
+        test_group.build_environment = "build-environment"
         test_group.build_id = "build-id"
         test_group.compiler = "gcc"
         test_group.compiler_version = "4.7.3"
@@ -83,6 +84,7 @@ class TestTestGroupModel(unittest.TestCase):
             "boot_log": "boot-log",
             "boot_log_html": "boot-log-html",
             "boot_result_description": "boot-result-description",
+            "build_environment": "build-environment",
             "build_id": "build-id",
             "compiler": "gcc",
             "compiler_version": "4.7.3",
@@ -151,6 +153,7 @@ class TestTestGroupModel(unittest.TestCase):
             "boot_log": None,
             "boot_log_html": None,
             "boot_result_description": None,
+            "build_environment": "build-environment",
             "build_id": "build-id",
             "compiler": None,
             "compiler_version": None,

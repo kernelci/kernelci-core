@@ -258,7 +258,8 @@ def parse_build_data(build_data, job, kernel, build_dir):
 
         build_doc = mbuild.BuildDocument(
             d_job,
-            d_kernel, defconfig, d_branch, d_build_environment, defconfig_full=defconfig_full)
+            d_kernel, defconfig, d_branch, d_build_environment,
+            defconfig_full=defconfig_full)
 
         build_doc.arch = build_data.get(models.ARCHITECTURE_KEY, None)
         build_doc.build_log = build_data.get(models.BUILD_LOG_KEY, None)
@@ -557,7 +558,8 @@ def import_single_build(json_obj, db_options, base_path=utils.BASE_PATH):
         # $job/$branch/$kernel/$arch/$defconfig/$environment
 
         parent_dir = os.path.join(base_path, job, git_branch, kernel, arch)
-        build_dir = os.path.join(parent_dir, defconfig_full or defconfig, build_environment)
+        build_dir = os.path.join(
+            parent_dir, defconfig_full or defconfig, build_environment)
 
         if os.path.isdir(build_dir):
             try:
@@ -570,11 +572,13 @@ def import_single_build(json_obj, db_options, base_path=utils.BASE_PATH):
                         "Error saving/finding job document '%s-%s-%s' for "
                         "'%s-%s' might not be linked to its job")
                     utils.LOG.error(
-                        err_msg, job, kernel, git_branch, arch, defconfig, build_environment)
+                        err_msg, job, kernel, git_branch, arch, defconfig,
+                        build_environment)
                     ERR_ADD(
                         errors,
                         ret_val,
-                        err_msg % (job, kernel, git_branch, arch, defconfig, build_environment)
+                        err_msg % (job, kernel, git_branch, arch, defconfig,
+                                   build_environment)
                     )
 
                 build_doc = _traverse_build_dir(
@@ -596,7 +600,8 @@ def import_single_build(json_obj, db_options, base_path=utils.BASE_PATH):
                 if ret_val != 201:
                     err_msg = "Error saving build document '%s-%s-%s-%s-%s-%s'"
                     utils.LOG.error(
-                        err_msg, job, git_branch, kernel, arch, defconfig, build_environment)
+                        err_msg, job, git_branch, kernel, arch, defconfig,
+                        build_environment)
                     ERR_ADD(
                         errors,
                         ret_val, err_msg % (
@@ -606,18 +611,22 @@ def import_single_build(json_obj, db_options, base_path=utils.BASE_PATH):
                 utils.LOG.error("Error getting database connection")
                 utils.LOG.warn(
                     "Build for '%s-%s-%s-%s-%s-%s' will not be imported",
-                    job, git_branch, kernel, arch, defconfig, build_environment)
+                    job, git_branch, kernel, arch, defconfig,
+                    build_environment)
                 ERR_ADD(
                     errors, 500,
                     "Internal server error: build for '%s-%s-%s-%s-%s-%s' "
                     "will not be imported" % (
-                        job, git_branch, kernel, arch, defconfig, build_environment)
+                        job, git_branch, kernel, arch, defconfig,
+                        build_environment)
                 )
         else:
             err_msg = (
                 "No build directory found for '%s-%s-%s-%s-%s-%s': "
                 "has everything been uploaded?")
-            utils.LOG.error(err_msg, job, git_branch, kernel, arch, defconfig, build_environment)
+            utils.LOG.error(
+                err_msg, job, git_branch, kernel, arch, defconfig,
+                build_environment)
             ERR_ADD(errors, 500, err_msg % (
                 job, git_branch, kernel, arch, defconfig, build_environment))
     else:

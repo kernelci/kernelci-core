@@ -26,7 +26,8 @@ class BuildDocument(mbase.BaseDocument):
     """This class represents a build."""
 
     def __init__(
-            self, job, kernel, defconfig, git_branch, build_environment, defconfig_full=None):
+            self, job, kernel, defconfig, git_branch, build_environment,
+            defconfig_full=None):
         """A build document.
 
         :param job: The job value.
@@ -38,7 +39,8 @@ class BuildDocument(mbase.BaseDocument):
         :param defconfig_full: The full value of the defconfig when it contains
         fragments. Default to the same 'defconfig' value.
         :type defconfig_full: string
-        :param build_environment: The description of the build environment used to build the kernel_image
+        :param build_environment: The description of the build environment
+        used to build the kernel_image
         :type build_environment: string
         """
         self._created_on = None
@@ -266,7 +268,8 @@ class BuildDocument(mbase.BaseDocument):
                 build_doc = BuildDocument(
                     job,
                     kernel,
-                    defconfig, git_branch, build_environment, defconfig_full=defconfig_full)
+                    defconfig, git_branch, build_environment,
+                    defconfig_full=defconfig_full)
                 build_doc.id = doc_id
 
                 for key, val in local_obj.iteritems():

@@ -135,13 +135,21 @@ def save_to_disk(boot_doc, json_obj, base_path, errors):
     :param errors: Where errors should be stored.
     :type errors: dictionary
     """
-    dir_path = os.path.join(
-        base_path,
-        boot_doc.job,
-        boot_doc.git_branch,
-        boot_doc.kernel,
-        boot_doc.arch,
-        boot_doc.defconfig_full, boot_doc.build_environment, boot_doc.lab_name)
+    if boot_doc.file_server_resource:
+        dir_path = os.path.join(
+            base_path,
+            boot_doc.file_server_resource,
+            boot_doc.lab_name)
+    else:
+        dir_path = os.path.join(
+            base_path,
+            boot_doc.job,
+            boot_doc.git_branch,
+            boot_doc.kernel,
+            boot_doc.arch,
+            boot_doc.defconfig_full,
+            boot_doc.build_environment,
+            boot_doc.lab_name)
     file_path = os.path.join(dir_path, "boot-{}.json".format(boot_doc.board))
 
     try:
@@ -265,7 +273,8 @@ def _update_boot_doc_from_json(boot_doc, boot_dict, errors):
     boot_doc.boot_job_id = boot_dict.get(models.BOOT_JOB_ID_KEY, None)
     boot_doc.boot_job_path = boot_dict.get(models.BOOT_JOB_PATH_KEY, None)
     boot_doc.boot_job_url = boot_dict.get(models.BOOT_JOB_URL_KEY, None)
-    boot_doc.build_environment = boot_dict.get(models.BUILD_ENVIRONMENT_KEY, None)
+    boot_doc.build_environment = boot_dict.get(
+        models.BUILD_ENVIRONMENT_KEY, None)
 
     # mach_alias_key takes precedence if defined
     boot_doc.mach = boot_dict.get(
@@ -418,7 +427,8 @@ def _parse_boot_from_json(boot_json, database, errors):
     arch = boot_json.get(models.ARCHITECTURE_KEY)
     boot_doc = mboot.BootDocument(
         board,
-        job, kernel, defconfig, lab_name, git_branch, build_environment, defconfig_full, arch)
+        job, kernel, defconfig, lab_name, git_branch,
+        build_environment, defconfig_full, arch)
     boot_doc.created_on = datetime.datetime.now(
         tz=bson.tz_util.utc)
     _update_boot_doc_from_json(boot_doc, boot_json, errors)

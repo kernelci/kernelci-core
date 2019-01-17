@@ -123,7 +123,7 @@ def create_build(job, config=None):
 
     modules = random.choice(MODULES_LIST)
     if modules:
-        modules_size = random.randint(1024, 1024**6)
+        modules_size = random.randint(1024, 1024 ** 6)
     else:
         modules_size = 0
 
@@ -141,10 +141,10 @@ def create_build(job, config=None):
         modules=modules,
         modules_size=modules_size,
         kernel_image=random.choice(KERNEL_IMAGE_LIST),
-        kernel_image_size=random.randint(1024, 1024**6),
+        kernel_image_size=random.randint(1024, 1024 ** 6),
         git_branch=random.choice(GIT_BRANCH_LIST),
         git_describe=job["kernel"],
-        build_time=random.randint(100, 1204**2),
+        build_time=random.randint(100, 1204 ** 2),
         git_url=random.choice(GIT_URL_LIST),
         git_commit=git_commit
     )

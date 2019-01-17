@@ -69,6 +69,7 @@ class TestErrorLogModel(unittest.TestCase):
         doc.compiler_version_ext = "gcc version ext"
         doc.compiler_version_full = "gcc version full"
         doc.git_branch = "branch"
+        doc.build_environment = "build_environment"
 
         expected = {
             "arch": "arm",
@@ -93,7 +94,8 @@ class TestErrorLogModel(unittest.TestCase):
             "compiler_version": "gcc version",
             "compiler_version_ext": "gcc version ext",
             "compiler_version_full": "gcc version full",
-            "git_branch": "branch"
+            "git_branch": "branch",
+            "build_environment": "build_environment"
         }
 
         self.assertDictEqual(expected, doc.to_dict())

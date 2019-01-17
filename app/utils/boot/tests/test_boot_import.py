@@ -188,11 +188,12 @@ class TestParseBoot(unittest.TestCase):
             "build_environment": "build_environment"
         }
         boot_doc = mboot.BootDocument(
-            "board", "job", "kernel", "defconfig", "lab", "branch", "build_environment",
-            "defconfig+FRAGMENT", "arm")
+            "board", "job", "kernel", "defconfig", "lab", "branch",
+            "build_environment", "defconfig+FRAGMENT", "arm")
         expected_path = os.path.join(
             base_path,
-            "job", "branch", "kernel", "arm", "defconfig+FRAGMENT", "build_environment", "lab")
+            "job", "branch", "kernel", "arm", "defconfig+FRAGMENT",
+            "build_environment", "lab")
         expected_file = os.path.join(expected_path, "boot-board.json")
         try:
             bimport.save_to_disk(boot_doc, json_obj, base_path, errors)
@@ -217,11 +218,12 @@ class TestParseBoot(unittest.TestCase):
             "build_environment": "build_environment"
         }
         boot_doc = mboot.BootDocument(
-            "board", "job", "kernel", "defconfig", "lab", "branch", "build_environment",
-            "defconfig+FRAGMENT", "arm")
+            "board", "job", "kernel", "defconfig", "lab", "branch",
+            "build_environment", "defconfig+FRAGMENT", "arm")
         expected_path = os.path.join(
             base_path,
-            "job", "branch", "kernel", "arm", "defconfig+FRAGMENT", "build_environment", "lab")
+            "job", "branch", "kernel", "arm", "defconfig+FRAGMENT",
+            "build_environment", "lab")
         expected_file = os.path.join(expected_path, "boot-board.json")
         try:
             os.makedirs(expected_path)
@@ -254,11 +256,12 @@ class TestParseBoot(unittest.TestCase):
             "build_environment": "build_environment"
         }
         boot_doc = mboot.BootDocument(
-            "board", "job", "kernel", "defconfig", "lab", "branch", "build_environment",
-            "defconfig+FRAGMENT", "arm")
+            "board", "job", "kernel", "defconfig", "lab", "branch",
+            "build_environment", "defconfig+FRAGMENT", "arm")
         expected_path = os.path.join(
             base_path,
-            "job", "branch", "kernel", "arm", "defconfig+FRAGMENT", "build_environment", "lab")
+            "job", "branch", "kernel", "arm", "defconfig+FRAGMENT",
+            "build_environment", "lab")
         expected_file = os.path.join(expected_path, "boot-board.json")
 
         exception = OSError("Error")
@@ -281,7 +284,8 @@ class TestParseBoot(unittest.TestCase):
             self.boot_report, {}, base_path=self.base_path)
         lab_dir = os.path.join(
             self.base_path,
-            "job", "branch", "kernel", "arm", "defconfig", "build_environment", "lab_name")
+            "job", "branch", "kernel", "arm", "defconfig",
+            "build_environment", "lab_name")
         boot_file = os.path.join(lab_dir, "boot-board.json")
 
         self.assertTrue(os.path.isdir(lab_dir))
