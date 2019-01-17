@@ -406,7 +406,7 @@ def import_multi_test_cases(
 # TODO: create a separate test_update.py document
 
 def update_test_group_add_sub_group_id(
-        group_id, group_name, sub_group_id, db_options):
+        group_id, group_name, sub_group_id, database):
     """Add sub-group ID to the list in a parent test group and save it.
 
     :param group_id: The ID of the test group.
@@ -415,8 +415,8 @@ def update_test_group_add_sub_group_id(
     :type group_name: str
     :param sub_group_id: The ID of the sub-group.
     :type sub_group_id: bson.objectid.ObjectId
-    :param db_options: The database connection parameters.
-    :type db_options: dict
+    :param database: The database connection.
+    :type database: Database connection object.
     :return 200 if OK, 500 in case of errors; a dictionary with errors or an
     empty one.
     """
@@ -427,7 +427,6 @@ def update_test_group_add_sub_group_id(
     utils.LOG.debug(
         "Updating test group '{}' ({}) with sub-group ID {}".format(
             group_name, str(group_id), sub_group_id))
-    database = utils.db.get_db_connection(db_options)
 
     ret_val = utils.db.update(
         database[models.TEST_GROUP_COLLECTION],
