@@ -125,7 +125,10 @@ test_plans:
     rootfs: debian_stretch-v4l2_ramdisk
     pattern: 'v4l2/generic-qemu-v4l2-template.jinja2'
     filters:
-        - whitelist: {defconfig: ['defconfig+virtualvideo']}
+      - whitelist:
+          defconfig:
+            - 'defconfig+virtualvideo'
+            - 'multi_v7_defconfig+virtualvideo'
 
 device_default_filters:
 
