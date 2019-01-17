@@ -13,7 +13,7 @@
           - functional
         run:
           steps:
-          - /usr/bin/v4l2-parser.sh
+          - /usr/bin/v4l2-parser.sh {{ v4l2_driver }}
       from: inline
-      name: v4l2
+      name: {{ plan_name }}
       path: inline/v4l2.yaml
