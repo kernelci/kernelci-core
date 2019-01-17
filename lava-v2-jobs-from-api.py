@@ -135,7 +135,7 @@ def get_job_params(config, test_config, defconfig, opts, build, plan):
     else:
         modules_url = None
 
-    rootfs = test_config.test_plans[plan].rootfs
+    rootfs = test_plan.rootfs
 
     job_params = {
         'name': job_name,
@@ -172,6 +172,7 @@ def get_job_params(config, test_config, defconfig, opts, build, plan):
         'lab_name': config.get('lab'),
         'context': device_type.context,
         'rootfs_prompt': rootfs.prompt,
+        'plan_name': test_plan.name,
     }
 
     job_params.update(test_plan.params)
