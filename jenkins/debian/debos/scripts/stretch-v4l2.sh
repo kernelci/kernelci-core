@@ -13,6 +13,7 @@ BUILD_DEPS="libglib2.0-dev \
     automake \
     gettext \
     build-essential \
+    ca-certificates \
 "
 
 apt-get install --no-install-recommends -y  ${BUILD_DEPS}
@@ -41,6 +42,20 @@ rm -rf  /tmp/tests/v4l2/usr/include /tmp/tests/v4l2/usr/share /tmp/tests/v4l2/us
 cp -a /tmp/tests/v4l2/usr/* /usr/
 
 echo '  ]}' >> $BUILDFILE
+
+# Build v4l2-get-device
+########################################################################
+
+echo "Building v4l2-get-device"
+
+dir="/tmp/tests/v4l2-get-device"
+url="https://gitlab.collabora.com/gtucker/v4l2-get-device.git"
+
+mkdir -p "$dir" && cd "$dir"
+git clone --depth=1 "$url" .
+make
+strip v4l2-get-device
+make install
 
 ########################################################################
 # Cleanup: remove files and packages we don't want in the images       #
