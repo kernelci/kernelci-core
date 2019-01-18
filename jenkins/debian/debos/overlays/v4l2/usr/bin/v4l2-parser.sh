@@ -39,7 +39,7 @@ test_io=""
 
 v4l2-compliance -s | sed s/'\r'/'\n'/g | while read line; do
     # Skip noisy video capture progress messages
-    echo "$line" | grep -q 'Video Capture' && continue
+    echo "$line" | grep -q 'Video Capture\|Output' && continue
 
     # Keep regular output in the log
     echo "$line"
