@@ -1,0 +1,13 @@
+{% extends 'test.txt' %}
+
+{% block plan_description %}
+V4L2 Compliance on the {{ driver_name }} driver.
+
+This test ran "v4l2-compliance -s" from v4l-utils:
+
+    https://www.linuxtv.org/wiki/index.php/V4l2-utils
+
+See each detailed section in the report below to find out the git URL and
+particular revision that was used to build the test binaries.
+
+{% endblock %}

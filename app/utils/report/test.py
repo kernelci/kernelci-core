@@ -57,6 +57,24 @@ TEST_REPORT_FIELDS = [
     models.VERSION_KEY,
 ]
 
+# FIXME: get this from test-configs.yaml
+TEST_PLAN_OPTIONS = {
+    "v4l2-compliance-uvc": {
+        "subject": "v4l2-compliance on uvcvideo",
+        "template": "plans/v4l2-compliance.txt",
+        "params": {
+            "driver_name": "uvcvideo",
+        },
+    },
+    "v4l2-compliance-vivid": {
+        "subject": "v4l2-compliance on vivid",
+        "template": "plans/v4l2-compliance.txt",
+        "params": {
+            "driver_name": "vivid",
+        },
+    },
+}
+
 
 def _regression_message(data):
     last_pass = data[0]
@@ -146,6 +164,8 @@ def create_test_report(data, email_format, db_options,
         models.PLAN_KEY,
     ])
 
+    plan_options = TEST_PLAN_OPTIONS.get(plan, {})
+
     spec = {x: y for x, y in data.iteritems() if x != models.PLAN_KEY}
     group_spec = dict(spec)
     group_spec.update({
@@ -177,8 +197,9 @@ def create_test_report(data, email_format, db_options,
     tests_total = sum(group["total_tests"] for group in groups)
     regr_total = sum(group["regressions"] for group in groups)
 
+    plan_subject = plan_options.get("subject", plan)
     subject_str = "{}/{} {}: {} tests, {} regressions ({})".format(
-        job, branch, plan, tests_total, regr_total, kernel)
+        job, branch, plan_subject, tests_total, regr_total, kernel)
 
     git_url, git_commit = (groups[0][k] for k in [
         models.GIT_URL_KEY, models.GIT_COMMIT_KEY])
@@ -204,6 +225,8 @@ def create_test_report(data, email_format, db_options,
         "test_groups": groups,
     }
 
-    body = rcommon.create_txt_email("test.txt", **template_data)
+    template = plan_options.get("template", "test.txt")
+    template_data.update(plan_options.get("params", {}))
+    body = rcommon.create_txt_email(template, **template_data)
 
     return body, subject_str, headers
