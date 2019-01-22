@@ -1,7 +1,8 @@
 FROM kernelci/build-base
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
-    gcc-8-aarch64-linux-gnu
+    gcc-8-aarch64-linux-gnu \
+    gcc-8-plugin-dev-aarch64-linux-gnu
 
 RUN update-alternatives \
     --install /usr/bin/aarch64-linux-gnu-gcc aarch64-linux-gnu-gcc /usr/bin/aarch64-linux-gnu-gcc-8 500 \
