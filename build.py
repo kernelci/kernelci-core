@@ -269,6 +269,9 @@ if not os.path.exists(kbuild_output):
 build_log = os.path.join(kbuild_output, "build.log")
 build_log_f = open(build_log, 'w', 0)
 
+# Put the compiler in the build log
+build_log_f.write("#\n# " + cc_version_full + "\n#\n")
+
 # ccache
 ccache = None
 ccache_dir = None
