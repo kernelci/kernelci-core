@@ -1,7 +1,8 @@
 FROM kernelci/build-base
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
-    gcc-8-arm-linux-gnueabihf
+    gcc-8-arm-linux-gnueabihf \
+    gcc-8-plugin-dev-arm-linux-gnueabihf
 
 RUN update-alternatives \
     --install /usr/bin/arm-linux-gnueabihf-gcc arm-linux-gnueabihf-gcc /usr/bin/arm-linux-gnueabihf-gcc-8 500 \
