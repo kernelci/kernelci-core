@@ -73,6 +73,8 @@ def buildConfig(config, kdir, kci_core) {
                        returnStdout: true)
     def opt = "-i -E ${params.CC}-${params.CC_VERSION}"
 
+    opt += " -s"  /* not silent */
+
     if (params.PUBLISH) {
         opt += " -e"
     } else {
