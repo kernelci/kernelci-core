@@ -13,12 +13,15 @@
 
 """Create the bisect email report."""
 
+import hashlib
 import json
+import redis
 import os
 
 import models
 import utils
 import utils.db
+import utils.database.redisdb as redisdb
 import utils.report.common as rcommon
 
 
@@ -67,6 +70,21 @@ def create_bisect_report(data, email_options, db_options,
     if not doc:
         utils.LOG.warning("Failed to find bisection document")
         return None
+
+    report_hashable_str = "-".join(str(x) for x in [
+        doc[models.BISECT_FOUND_SUMMARY_KEY],
+        doc[models.KERNEL_KEY],
+        email_options["to"],
+        email_options["cc"],
+    ])
+    report_hash = hashlib.sha1(report_hashable_str).hexdigest()
+    redisdb_conn = redisdb.get_db_connection(db_options)
+    if redisdb_conn.exists(report_hash):
+        utils.LOG.info("Bisection report already sent for {}: {}".format(
+            doc[models.KERNEL_KEY],
+            doc[models.BISECT_FOUND_SUMMARY_KEY]))
+        return None
+    redisdb_conn.set(report_hash, "bisection-report", ex=86400)
 
     headers = {
         rcommon.X_REPORT: rcommon.BISECT_REPORT_TYPE,
