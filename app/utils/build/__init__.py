@@ -391,6 +391,7 @@ def _traverse_build_dir(build_dir, job_doc, errors, database):
                     utils.LOG.exception(e.from_exc)
                 utils.LOG.error(e.args[0])
                 ERR_ADD(errors, e.code, e.args[0])
+                return
 
             build_doc.job_id = job_doc.id
             # Search for previous defconfig doc. This is only useful when
