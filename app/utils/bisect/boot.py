@@ -311,6 +311,7 @@ def create_boot_bisect(good, bad, db_options):
     database = utils.db.get_db_connection(db_options)
     good_commit, bad_commit = (b[models.GIT_COMMIT_KEY] for b in (good, bad))
     spec = {x: bad[x] for x in [
+        models.LAB_NAME_KEY,
         models.DEVICE_TYPE_KEY,
         models.ARCHITECTURE_KEY,
         models.DEFCONFIG_FULL_KEY,

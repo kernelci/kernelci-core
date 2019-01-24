@@ -514,32 +514,42 @@ def _start_bisection(bisection, jopts):
 def trigger_bisections(status, job, branch, kernel, lab_name,
                        db_options, jenkins_options):
     if not jenkins_options:
-        return 'SKIP'
+        return "SKIP"
 
     boot_data = get_boot_data(db_options, job, branch, kernel, lab_name)
     bisections = boot_data.get("bisections")
     if not bisections:
-        return 'OK'
+        return "OK"
 
     # We need to make some changes in-place but not modify incoming data
     bisections = copy.copy(bisections)
-
-    # ToDo: remove unwanted bisections (duplicates, ones already run...)
-    # ...
 
     # Shuffle the bisections in random order to avoid running ones targetting
     # the same board at the same time and also to avoid any kind of dependency
     # on the order in which they are being generated.
     random.shuffle(bisections)
 
-    # Now trigger all the bisections
+    # Group similar bisections together to only run a subset of them
+    similar_bisections = {}
+    for b in bisections:
+        key = (
+            b[models.BISECT_GOOD_COMMIT_KEY],
+            b[models.BISECT_BAD_COMMIT_KEY],
+        )
+        blist = similar_bisections.setdefault(key, [])
+        blist.append(b)
+    bisections = []
+    for b in similar_bisections.values():
+        bisections.extend(b[:3])
+
+    # Now trigger the bisections
     for b in bisections:
         try:
             _start_bisection(b, jenkins_options)
         except Exception, e:
             utils.LOG.error("Failed to start bisection: {}".format(e))
 
-    return 'OK'
+    return "OK"
 
 
 # pylint: disable=too-many-branches
