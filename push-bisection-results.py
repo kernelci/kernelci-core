@@ -166,6 +166,7 @@ def send_result(args, log_file_name, token, api):
         'kernel': 'kernel',
         'git_branch': 'branch',
         'defconfig_full': 'defconfig',
+        'build_environment': 'build_environment',
         'lab_name': 'lab',
         'device_type': 'target',
         'good_commit': 'good',
@@ -198,6 +199,7 @@ def send_report(args, log_file_name, token, api):
         'git_branch': 'branch',
         'arch': 'arch',
         'defconfig_full': 'defconfig',
+        'build_environment': 'build_environment',
         'lab_name': 'lab',
         'device_type': 'target',
         'good_commit': 'good',
@@ -235,7 +237,8 @@ def main(args):
         raise Exception("No KernelCI API URL provided")
 
     upload_path = '/'.join(args[k] for k in [
-        'tree', 'branch', 'kernel', 'arch', 'defconfig', 'lab'])
+        'tree', 'branch', 'kernel', 'arch', 'defconfig',
+        'build_environment', 'lab'])
     log_file_name = 'bisect-{}.json'.format(args['target'])
 
     print("Uploading bisect log: {}".format(upload_path))
@@ -263,6 +266,8 @@ if __name__ == '__main__':
                         help="CPU architecture")
     parser.add_argument("--defconfig", required=True,
                         help="full defconfig")
+    parser.add_argument("--build-environment", required=True,
+                        help="build environment name")
     parser.add_argument("--target", required=True,
                         help="target device type")
     parser.add_argument("--tree", required=True,
