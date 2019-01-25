@@ -53,6 +53,8 @@ CC (gcc)
   Name of the compiler
 CC_VERSION (7)
   Version of the compiler
+BUILD_ENVIRONMENT
+  Name of the build environment
 LAB
   Name of the lab in which to run the bisection tests
 PLAN (boot)
@@ -227,6 +229,7 @@ ARCH=${params.ARCH} \
 BRANCH=${params.KERNEL_BRANCH} \
 """ + kci_core + """/build.py -e -g -i \
 -J ${env._BUILD_JSON} \
+-E ${params.BUILD_ENVIRONMENT} \
 -c ${params.DEFCONFIG}""")
         }
         stash(name: env._BUILD_JSON, includes: env._BUILD_JSON)
@@ -425,6 +428,7 @@ PYTHON_EGG_CACHE=${egg_cache} \
 --lab=${params.LAB} \
 --arch=${params.ARCH} \
 --defconfig=${params.DEFCONFIG} \
+--build-environment=${params.BUILD_ENVIRONMENT} \
 --target=${params.TARGET} \
 --tree=${params.KERNEL_TREE} \
 --kernel=${params.KERNEL_NAME} \
@@ -607,6 +611,7 @@ node("docker && bisection") {
     Target:    ${params.TARGET}
     Lab:       ${params.LAB}
     Defconfig: ${params.DEFCONFIG}
+    Compiler:  ${params.CC} ${params.CC_VERSION}
     Plan:      ${params.PLAN}"""
     print("""\
     Good:      ${params.GOOD_COMMIT}
