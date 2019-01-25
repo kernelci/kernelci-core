@@ -171,12 +171,14 @@ def parse_regressions(lab_regressions, boot_data, db_options):
             "data": {
                 "arch": {
                     "defconfig": {
-                        "board": [
-                            {
-                                "txt": "string",
-                                "html": "string"
-                            },
-                        ]
+                        "build_environment": {
+                            "board": [
+                                {
+                                    "txt": "string",
+                                    "html": "string"
+                                },
+                            ]
+                        }
                     }
                 }
             }
@@ -211,14 +213,19 @@ def parse_regressions(lab_regressions, boot_data, db_options):
                     for defconfig, defconfig_d in instance_d.iteritems():
                         defconfig = unicode(defconfig)
                         regr_def = regr_arch.setdefault(defconfig, {})
-                        regr_board = regr_def.setdefault(board, [])
-                        for compiler, boots in defconfig_d.iteritems():
-                            good, bad = boots[0], boots[-1]
-                            bisect = bbisect.create_boot_bisect(
-                                good, bad, db_options)
-                            bisections.append(bisect)
-                            regr = create_regressions_data(boots, boot_data)
-                            regr_board.append(regr)
+                        for build_env, build_env_d in defconfig_d.iteritems():
+                            regr_build_env = regr_def.setdefault(
+                                build_env, {})
+                            for compiler, boots in build_env_d.iteritems():
+                                regr_board = regr_build_env.setdefault(
+                                    board, [])
+                                good, bad = boots[0], boots[-1]
+                                bisect = bbisect.create_boot_bisect(
+                                    good, bad, db_options)
+                                bisections.append(bisect)
+                                regr = create_regressions_data(
+                                    boots, boot_data)
+                                regr_board.append(regr)
 
     # Remove duplicate entries - they are dictionaries so filter them by _id
     bisections = {b['_id']: b for b in bisections}.values()

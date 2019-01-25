@@ -24,7 +24,7 @@ import utils.db
 # How the key to access the regressions data structure is formatted.
 # Done in this way so that we can use mongodb dot notation to access embedded
 # documents.
-REGRESSION_FMT = "{:s}.{:s}.{:s}.{:s}.{:s}.{:s}"
+REGRESSION_FMT = "{:s}.{:s}.{:s}.{:s}.{:s}.{:s}.{:s}"
 # The real data structure is accessed with the name of the key followed by
 # the rest of the embedded document key.
 REGRESSION_DOT_FMT = "{:s}.{:s}"
@@ -61,12 +61,13 @@ def create_regressions_key(boot_doc):
     b_instance = \
         sanitize_key(str(b_get(models.BOARD_INSTANCE_KEY)).lower())
     board = sanitize_key(b_get(models.BOARD_KEY))
+    build_env = b_get(models.BUILD_ENVIRONMENT_KEY)
     compiler = sanitize_key(str(b_get(models.COMPILER_VERSION_EXT_KEY)))
     defconfig = sanitize_key(b_get(models.DEFCONFIG_FULL_KEY))
     lab = b_get(models.LAB_NAME_KEY)
 
     return REGRESSION_FMT.format(
-        lab, arch, board, b_instance, defconfig, compiler)
+        lab, arch, board, b_instance, defconfig, build_env, compiler)
 
 
 def get_regressions_by_key(key, regressions):
@@ -81,7 +82,7 @@ def get_regressions_by_key(key, regressions):
     k = key.split(".")
     regr = []
     try:
-        regr = regressions[k[0]][k[1]][k[2]][k[3]][k[4]][k[5]]
+        regr = regressions[k[0]][k[1]][k[2]][k[3]][k[4]][k[5]][k[6]]
     except (IndexError, KeyError):
         utils.LOG.error("Error retrieving regressions with key: %s", key)
 
@@ -112,12 +113,14 @@ def gen_regression_keys(regressions):
                     for defconfig in instance_d.viewkeys():
                         defconfig_d = instance_d[defconfig]
 
-                        for compiler in defconfig_d.viewkeys():
-                            yield REGRESSION_FMT.format(
-                                lab,
-                                arch,
-                                board, b_instance, defconfig, compiler
-                            )
+                        for build_env in defconfig_d.viewkeys():
+                            build_env_d = defconfig_d[build_env]
+
+                            for compiler in build_env_d.viewkeys():
+                                yield REGRESSION_FMT.format(
+                                    lab, arch, board, b_instance, defconfig,
+                                    build_env, compiler
+                                )
 
 
 def check_prev_regression(last_boot, prev_boot, db_options):
@@ -194,6 +197,7 @@ def track_regression(boot_doc, pass_doc, old_regr, db_options):
     arch = b_get(models.ARCHITECTURE_KEY)
     b_instance = sanitize_key(str(b_get(models.BOARD_INSTANCE_KEY)).lower())
     board = sanitize_key(b_get(models.BOARD_KEY))
+    build_env = b_get(models.BUILD_ENVIRONMENT_KEY)
     compiler = sanitize_key(str(b_get(models.COMPILER_VERSION_EXT_KEY)))
     defconfig = sanitize_key(b_get(models.DEFCONFIG_FULL_KEY))
     job = b_get(models.JOB_KEY)
@@ -270,7 +274,9 @@ def track_regression(boot_doc, pass_doc, old_regr, db_options):
                         board: {
                             b_instance: {
                                 defconfig: {
-                                    compiler: regr_docs
+                                    build_env: {
+                                        compiler: regr_docs
+                                    }
                                 }
                             }
                         }
