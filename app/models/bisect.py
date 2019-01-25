@@ -50,6 +50,8 @@ class BisectDocument(modb.BaseDocument):
         self.defconfig = None
         self.defconfig_full = None
         self.compiler = None
+        self.compiler_version = None
+        self.build_environment = None
         self.build_id = None
 
     @property
@@ -129,6 +131,8 @@ class BisectDocument(modb.BaseDocument):
             models.DEFCONFIG_FULL_KEY: self.defconfig_full,
             models.DEFCONFIG_KEY: self.defconfig,
             models.COMPILER_KEY: self.compiler,
+            models.COMPILER_VERSION_KEY: self.compiler_version,
+            models.BUILD_ENVIRONMENT_KEY: self.build_environment,
             models.BUILD_ID_KEY: self.build_id,
         }
 

@@ -496,8 +496,14 @@ def _start_bisection(bisection, jopts):
         "KERNEL_NAME": models.KERNEL_KEY,
         "GOOD_COMMIT": models.BISECT_GOOD_COMMIT_KEY,
         "BAD_COMMIT": models.BISECT_BAD_COMMIT_KEY,
+        "CC": models.COMPILER_KEY,
+        "CC_VERSION": models.COMPILER_VERSION_KEY,
+        "BUILD_ENVIRONMENT": models.BUILD_ENVIRONMENT_KEY,
     }
-    params = {k: bisection[v] for k, v in params_map.iteritems()}
+    params = {
+        k: v for (k, v) in (
+            (k, bisection.get(x)) for k, x in params_map.iteritems()) if v
+    }
     utils.LOG.info("Triggering bisection for {}/{}, board: {}, lab: {}".format(
         params["KERNEL_TREE"], params["KERNEL_BRANCH"],
         params["TARGET"], params["LAB"]))

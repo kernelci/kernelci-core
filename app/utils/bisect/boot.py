@@ -343,6 +343,8 @@ def create_boot_bisect(good, bad, db_options):
     doc.defconfig = bad[models.DEFCONFIG_KEY]
     doc.defconfig_full = bad[models.DEFCONFIG_FULL_KEY]
     doc.compiler = bad[models.COMPILER_KEY]
+    doc.compiler_version = bad[models.COMPILER_VERSION_KEY]
+    doc.build_environment = bad[models.BUILD_ENVIRONMENT_KEY]
     doc.build_id = bad[models.BUILD_ID_KEY]
     doc.lab_name = bad[models.LAB_NAME_KEY]
     doc.device_type = bad[models.DEVICE_TYPE_KEY]

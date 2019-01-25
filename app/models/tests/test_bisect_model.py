@@ -72,6 +72,8 @@ class TestBisectModel(unittest.TestCase):
             "defconfig": None,
             "defconfig_full": None,
             "compiler": None,
+            "compiler_version": None,
+            "build_environment": None,
             "git_branch": None,
             "git_url": None,
         }
@@ -107,6 +109,8 @@ class TestBisectModel(unittest.TestCase):
             "defconfig": None,
             "defconfig_full": None,
             "compiler": None,
+            "compiler_version": None,
+            "build_environment": None,
             "git_branch": None,
             "git_url": None,
         }
@@ -148,6 +152,8 @@ class TestBisectModel(unittest.TestCase):
             "job_id": "job-id",
             "type": "boot",
             "compiler": None,
+            "compiler_version": None,
+            "build_environment": None,
             "lab_name": "secret-lab",
             "arch": None,
             "device_type": "qemu",
@@ -213,6 +219,9 @@ class TestBisectModel(unittest.TestCase):
         bisect_doc.found_summary = "7890cdef foo: change bar into baz"
         bisect_doc.kernel = "v4.56"
         bisect_doc.git_url = "https://somewhere.com/blah.git"
+        bisect_doc.compiler = "randomcc"
+        bisect_doc.compiler_version = "123.456"
+        bisect_doc.build_environment = "build-env"
 
         expected = {
             "_id": "bar",
@@ -233,7 +242,9 @@ class TestBisectModel(unittest.TestCase):
             "defconfig": "defconfig-name",
             "job_id": "job-id",
             "defconfig_full": "defconfig-full",
-            "compiler": None,
+            "compiler": "randomcc",
+            "compiler_version": "123.456",
+            "build_environment": "build-env",
             "arch": "arm",
             "type": "build",
             "git_branch": None,
