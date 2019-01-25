@@ -56,6 +56,7 @@ class TestTests(unittest.TestCase):
             models.DEFCONFIG_KEY: "defconfig",
             models.DEFCONFIG_FULL_KEY: "defconfig",
             models.TEST_CASES_KEY: test_cases,
+            models.BUILD_ENVIRONMENT_KEY: "concrete",
         }
         # ToDo: remove BOARD_KEY as it's redundant, use DEVICE_TYPE_KEY instead
         group_data[models.BOARD_KEY] = group_data[models.DEVICE_TYPE_KEY]

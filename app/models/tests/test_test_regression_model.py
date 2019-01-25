@@ -22,14 +22,14 @@ class TestTestRegressionModel(unittest.TestCase):
 
     def test_regression_doc_valid_instance(self):
         test_regr = mtregr.TestRegressionDocument(
-            "job", "kernel", "git_branch", "defconfig_full", "device_type",
-            "arch", ["hierarchy"])
+            "job", "kernel", "git_branch", "defconfig_full", "build_env",
+            "device_type", "arch", ["hierarchy"])
         self.assertIsInstance(test_regr, mbase.BaseDocument)
 
     def test_regression_doc_to_dict(self):
         test_regr = mtregr.TestRegressionDocument(
             "steady", "kernel-123", "a-branch", "defconfig_full+abc",
-            "imaginary-device", "farm", ["hier", "ar", "chy"])
+            "concrete", "imaginary-device", "farm", ["hier", "ar", "chy"])
 
         test_regr.id = "id"
         test_regr.version = "version"
@@ -51,9 +51,12 @@ class TestTestRegressionModel(unittest.TestCase):
             "kernel": "kernel-123",
             "git_branch": "a-branch",
             "defconfig_full": "defconfig_full+abc",
+            "build_environment": "concrete",
             "device_type": "imaginary-device",
             "arch": "farm",
             "hierarchy": ["hier", "ar", "chy"],
+            "compiler": None,
+            "compiler_version": None,
             "regressions": [
                 {
                     "test_case_id": "test-case-id",
@@ -86,9 +89,12 @@ class TestTestRegressionModel(unittest.TestCase):
             "kernel": "linux-1.0",
             "git_branch": "some-branch",
             "defconfig_full": "allnoconfig+random",
+            "build_environment": "concrete",
             "device_type": "dev-board",
             "arch": "bips",
             "hierarchy": ["h", "ierarch", "y"],
+            "compiler": None,
+            "compiler_version": None,
             "regressions": [
                 {
                     "test_case_id": "test-case-id",
@@ -108,6 +114,6 @@ class TestTestRegressionModel(unittest.TestCase):
         }
 
         test_regr = mtregr.TestRegressionDocument.from_json(regr_json)
-        test_regr._created_on = regr_json["created_on"] = "tomorrow"
         self.assertIsInstance(test_regr, mtregr.TestRegressionDocument)
+        test_regr._created_on = regr_json["created_on"] = "tomorrow"
         self.assertDictEqual(regr_json, test_regr.to_dict())

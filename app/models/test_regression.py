@@ -37,8 +37,8 @@ class TestRegressionDocument(modb.BaseDocument):
     Each document is a single test case regression.
     """
 
-    def __init__(self, job, kernel, git_branch, defconfig_full, device_type,
-                 arch, hierarchy):
+    def __init__(self, job, kernel, git_branch, defconfig_full,
+                 build_environment, device_type, arch, hierarchy):
         """A new TestRegressionDocument.
 
         :param job: The job value.
@@ -49,6 +49,8 @@ class TestRegressionDocument(modb.BaseDocument):
         :type git_branch: string
         :param defconfig_full: The full defconfig name with fragments.
         :type defconfig_full: string
+        :param build_environment: The description of the build environment.
+        :type build_environment: string
         :param device_type: The name of the device type.
         :type device_type: string
         :param arch: The name of the CPU architecture.
@@ -64,10 +66,13 @@ class TestRegressionDocument(modb.BaseDocument):
         self.kernel = kernel
         self.git_branch = git_branch
         self.defconfig_full = defconfig_full
+        self.build_environment = build_environment
         self.device_type = device_type
         self.arch = arch
         self.hierarchy = hierarchy
         self.regressions = []
+        self.compiler = None
+        self.compiler_version = None
 
     @property
     def collection(self):
@@ -128,6 +133,7 @@ class TestRegressionDocument(modb.BaseDocument):
             models.ARCHITECTURE_KEY: self.arch,
             models.CREATED_KEY: self.created_on,
             models.DEFCONFIG_FULL_KEY: self.defconfig_full,
+            models.BUILD_ENVIRONMENT_KEY: self.build_environment,
             models.DEVICE_TYPE_KEY: self.device_type,
             models.GIT_BRANCH_KEY: self.git_branch,
             models.HIERARCHY_KEY: self.hierarchy,
@@ -135,6 +141,8 @@ class TestRegressionDocument(modb.BaseDocument):
             models.KERNEL_KEY: self.kernel,
             models.REGRESSIONS_KEY: self.regressions,
             models.VERSION_KEY: self.version,
+            models.COMPILER_KEY: self.compiler,
+            models.COMPILER_VERSION_KEY: self.compiler_version,
         }
 
         if self._id:
@@ -156,13 +164,14 @@ class TestRegressionDocument(modb.BaseDocument):
             kernel = obj.pop(models.KERNEL_KEY)
             git_branch = obj.pop(models.GIT_BRANCH_KEY)
             defconfig_full = obj.pop(models.DEFCONFIG_FULL_KEY)
+            build_environment = obj.pop(models.BUILD_ENVIRONMENT_KEY)
             device_type = obj.pop(models.DEVICE_TYPE_KEY)
             arch = obj.pop(models.ARCHITECTURE_KEY)
             hierarchy = obj.pop(models.HIERARCHY_KEY)
 
             regr_doc = TestRegressionDocument(
-                job, kernel, git_branch, defconfig_full, device_type, arch,
-                hierarchy)
+                job, kernel, git_branch, defconfig_full, build_environment,
+                device_type, arch, hierarchy)
 
             regr_doc.id = regr_id
 

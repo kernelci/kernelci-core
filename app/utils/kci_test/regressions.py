@@ -28,6 +28,12 @@ REGRESSION_SPEC_KEYS = [
     models.ARCHITECTURE_KEY,
     models.DEVICE_TYPE_KEY,
     models.DEFCONFIG_FULL_KEY,
+    models.BUILD_ENVIRONMENT_KEY,
+]
+
+REGRESSION_EXTRA_KEYS = [
+    models.COMPILER_KEY,
+    models.COMPILER_VERSION_KEY,
 ]
 
 TEST_GROUP_SPEC_KEYS = [
@@ -38,6 +44,7 @@ TEST_GROUP_SPEC_KEYS = [
     models.DEFCONFIG_FULL_KEY,
     models.NAME_KEY,
     models.KERNEL_KEY,
+    models.BUILD_ENVIRONMENT_KEY,
 ]
 
 
@@ -55,6 +62,7 @@ def _check_and_track(test_case, group, last_case, last_group, db, spec,
                      hierarchy):
     hierarchy = hierarchy + [test_case[models.NAME_KEY]]
     regr = {k: spec[k] for k in REGRESSION_SPEC_KEYS}
+    regr.update({k: group[k] for k in REGRESSION_EXTRA_KEYS})
     regr[models.HIERARCHY_KEY] = hierarchy
     test_case_path = ".".join(hierarchy)
 

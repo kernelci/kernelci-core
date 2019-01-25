@@ -39,6 +39,7 @@ NON_NULL_KEYS_GROUP = [
     models.JOB_KEY,
     models.KERNEL_KEY,
     models.GIT_COMMIT_KEY,
+    models.BUILD_ENVIRONMENT_KEY,
 ]
 
 NON_NULL_KEYS_CASE = [
@@ -51,6 +52,7 @@ SPEC_TEST_GROUP = {
     models.BOARD_KEY: "board",
     models.DEFCONFIG_FULL_KEY: "defconfig_full",
     models.DEFCONFIG_KEY: "defconfig",
+    models.BUILD_ENVIRONMENT_KEY: "build_environment",
     models.GIT_BRANCH_KEY: "git_branch",
     models.INITRD_KEY: "initrd",
     models.JOB_KEY: "job",
@@ -337,6 +339,7 @@ def _update_test_group_doc_from_json(group_doc, test_dict, errors):
     group_doc.boot_log_html = test_dict.get(models.BOOT_LOG_HTML_KEY, None)
     group_doc.boot_result_description = test_dict.get(
         models.BOOT_RESULT_DESC_KEY, None)
+    group_doc.build_environment = test_dict.get(models.BUILD_ENVIRONMENT_KEY)
     group_doc.dtb = test_dict.get(models.DTB_KEY, None)
     group_doc.dtb_addr = test_dict.get(models.DTB_ADDR_KEY, None)
     group_doc.device_type = test_dict.get(models.DEVICE_TYPE_KEY, None)
@@ -386,6 +389,7 @@ def _update_test_group_doc_ids(group_doc, database):
     kernel = group_doc.kernel
     defconfig = group_doc.defconfig
     defconfig_full = group_doc.defconfig_full
+    build_env = group_doc.build_environment
     arch = group_doc.arch
     branch = group_doc.git_branch
 
@@ -401,7 +405,8 @@ def _update_test_group_doc_ids(group_doc, database):
         models.ARCHITECTURE_KEY: arch,
         models.DEFCONFIG_KEY: defconfig,
         models.JOB_KEY: job,
-        models.KERNEL_KEY: kernel
+        models.KERNEL_KEY: kernel,
+        models.BUILD_ENVIRONMENT_KEY: build_env,
     })
 
     if defconfig_full:
