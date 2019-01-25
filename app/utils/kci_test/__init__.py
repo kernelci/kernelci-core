@@ -309,7 +309,6 @@ def _update_test_group_doc_from_json(group_doc, test_dict, errors):
     :param errors: Where errors should be stored.
     :type errors: dict
     """
-
     try:
         seconds = _get_test_seconds(test_dict)
     except TestValidationError as ex:

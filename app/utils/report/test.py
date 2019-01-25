@@ -29,6 +29,7 @@ TEST_REPORT_FIELDS = [
     models.BOOT_LOG_HTML_KEY,
     models.BOOT_LOG_KEY,
     models.BUILD_ID_KEY,
+    models.COMPILER_VERSION_FULL_KEY,
     models.CREATED_KEY,
     models.DEFCONFIG_FULL_KEY,
     models.DEFCONFIG_KEY,

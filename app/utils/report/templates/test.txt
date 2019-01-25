@@ -22,6 +22,9 @@ Test failures
 {{ "%-2s | %-10s | %-22s | %-5s | %3s total: %3s PASS %3s FAIL %3s SKIP"|format(loop.index, t.name, t.board, t.arch, t.total_tests, t.total["PASS"], t.total["FAIL"], t.total["SKIP"]) }}
 
   Config:      {{ t.defconfig_full }}
+    {%- if t.compiler_version_full %}
+  Compiler:    {{ t.compiler_version_full }}
+    {%- endif %}
   Lab Name:    {{ t.lab_name }}
   Plain log:   {{ storage_url }}/{{ t.job }}/{{ t.git_branch }}/{{ t.kernel }}/{{ t.arch }}/{{ t.defconfig_full }}/{{ t.lab_name }}/{{ t.boot_log }}
   HTML log:    {{ storage_url }}/{{ t.job }}/{{ t.git_branch }}/{{ t.kernel }}/{{ t.arch }}/{{ t.defconfig_full }}/{{ t.lab_name }}/{{ t.boot_log_html }}
