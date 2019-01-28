@@ -553,7 +553,6 @@ def _parse_boot_results(results, intersect_results=None, get_unique=False):
     of intersections found or 0, and the unique data or None.
     """
     parsed_data = {}
-    parsed_get = parsed_data.get
     unique_data = None
     intersections = 0
 
@@ -568,12 +567,12 @@ def _parse_boot_results(results, intersect_results=None, get_unique=False):
         arch = res_get(models.ARCHITECTURE_KEY)
         defconfig = res_get(models.DEFCONFIG_FULL_KEY)
         status = res_get(models.STATUS_KEY)
-        build_environment = res_get(models.BUILD_ENVIRONMENT_KEY)
+        build_env = res_get(models.BUILD_ENVIRONMENT_KEY)
 
         result_struct = {
             arch: {
                 defconfig: {
-                    build_environment: {
+                    build_env: {
                         board: {
                             lab_name: status
                         }
@@ -590,38 +589,38 @@ def _parse_boot_results(results, intersect_results=None, get_unique=False):
                 defconfig_view = intersect_results[arch].viewkeys()
 
                 if defconfig in defconfig_view:
-                    build_environment_view = \
+                    build_env_view = \
                         intersect_results[arch][defconfig].viewkeys()
                     irad = intersect_results[arch][defconfig]
-                    if build_environment in build_environment_view:
-                        if irad[build_environment].get(board, None):
+                    if build_env in build_env_view:
+                        if irad[build_env].get(board, None):
                             intersections += 1
-                            del irad[build_environment][board]
+                            del irad[build_env][board]
                             # Clean up also the remainder of the data structure
                             # so that we really have cleaned up data.
-                            if not irad[build_environment]:
-                                del irad[build_environment]
+                            if not irad[build_env]:
+                                del irad[build_env]
                             if not intersect_results[arch]:
                                 del intersect_results[arch]
 
-        if arch in parsed_data.viewkeys():
-            if defconfig in parsed_get(arch).viewkeys():
-                if build_environment in parsed_get(defconfig).viewkeys():
-                    if board in parsed_get(arch)[defconfig].viewkeys():
-                        pgad = parsed_get(arch)[defconfig]
-                        pgadb = pgad[build_environment]
+        if arch in parsed_data:
+            if defconfig in parsed_data[arch]:
+                if build_env in parsed_data[arch][defconfig]:
+                    if board in parsed_data[arch][defconfig][build_env]:
+                        pgad = parsed_data[arch][defconfig]
+                        pgadb = pgad[build_env]
                         rsad = result_struct[arch][defconfig]
-                        if build_environment in pgadb[board].viewkeys():
+                        if build_env in pgadb[board]:
                             pgadb[board][lab_name] = \
-                                rsad[build_environment][board][lab_name]
+                                rsad[build_env][board][lab_name]
                     else:
-                        parsed_get(arch)[defconfig][board] = \
-                            result_struct[arch][defconfig][board]
+                        parsed_data[arch][defconfig][build_env][board] = \
+                            result_struct[arch][defconfig][build_env][board]
                 else:
-                    parsed_get(arch)[defconfig][build_environment] = \
-                        result_struct[arch][defconfig][build_environment]
+                    parsed_data[arch][defconfig][build_env] = \
+                        result_struct[arch][defconfig][build_env]
             else:
-                parsed_get(arch)[defconfig] = result_struct[arch][defconfig]
+                parsed_data[arch][defconfig] = result_struct[arch][defconfig]
         else:
             parsed_data[arch] = result_struct[arch]
 
