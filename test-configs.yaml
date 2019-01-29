@@ -470,6 +470,15 @@ device_types:
     filters:
       - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
+  meson_gxl_s805x_p241:
+    name: 'meson-gxl-s805x-p241'
+    mach: amlogic
+    class: arm64-dtb
+    boot_method: uboot
+    flags: ['big_endian']
+    filters:
+      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+
   meson_gxl_s905x_libretech_cc:
     name: 'meson-gxl-s905x-libretech-cc'
     mach: amlogic
@@ -934,6 +943,9 @@ test_configs:
 
   - device_type: meson_gxbb_p200
     test_plans: [boot, kselftest]
+
+  - device_type: meson_gxl_s805x_p241
+    test_plans: [boot, kselftest, simple]
 
   - device_type: meson_gxl_s905x_khadas_vim
     test_plans: [boot, kselftest, simple]
