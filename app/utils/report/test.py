@@ -161,7 +161,16 @@ def create_test_report(data, email_format, db_options,
         return None
 
     for group in groups:
-        _add_test_group_data(group, database, spec)
+        group_spec = dict(spec)
+        group_spec.update({
+            k: group[k] for k in [
+                models.DEVICE_TYPE_KEY,
+                models.ARCHITECTURE_KEY,
+                models.BUILD_ENVIRONMENT_KEY,
+                models.DEFCONFIG_FULL_KEY,
+            ]
+        })
+        _add_test_group_data(group, database, group_spec)
 
     tests_total = sum(group["total_tests"] for group in groups)
     regr_total = sum(group["regressions"] for group in groups)
