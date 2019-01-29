@@ -62,7 +62,12 @@ def create_regressions_key(boot_doc):
         sanitize_key(str(b_get(models.BOARD_INSTANCE_KEY)).lower())
     board = sanitize_key(b_get(models.BOARD_KEY))
     build_env = b_get(models.BUILD_ENVIRONMENT_KEY)
-    compiler = sanitize_key(str(b_get(models.COMPILER_VERSION_EXT_KEY)))
+    compiler_name = b_get(models.COMPILER_KEY)
+    compiler_version = b_get(models.COMPILER_VERSION_KEY)
+    compiler = sanitize_key(
+        "-".join([compiler_name, compiler_version])
+        if compiler_version else compiler_name
+    )
     defconfig = sanitize_key(b_get(models.DEFCONFIG_FULL_KEY))
     lab = b_get(models.LAB_NAME_KEY)
 
@@ -198,7 +203,12 @@ def track_regression(boot_doc, pass_doc, old_regr, db_options):
     b_instance = sanitize_key(str(b_get(models.BOARD_INSTANCE_KEY)).lower())
     board = sanitize_key(b_get(models.BOARD_KEY))
     build_env = b_get(models.BUILD_ENVIRONMENT_KEY)
-    compiler = sanitize_key(str(b_get(models.COMPILER_VERSION_EXT_KEY)))
+    compiler_name = b_get(models.COMPILER_KEY)
+    compiler_version = b_get(models.COMPILER_VERSION_KEY)
+    compiler = sanitize_key(
+        "-".join([compiler_name, compiler_version])
+        if compiler_version else compiler_name
+    )
     defconfig = sanitize_key(b_get(models.DEFCONFIG_FULL_KEY))
     job = b_get(models.JOB_KEY)
     job_id = b_get(models.JOB_ID_KEY)
@@ -324,8 +334,8 @@ def check_and_track(boot_doc, db_options):
     spec = {
         models.ARCHITECTURE_KEY: b_get(models.ARCHITECTURE_KEY),
         models.BOARD_KEY: b_get(models.BOARD_KEY),
-        models.COMPILER_VERSION_EXT_KEY:
-            b_get(models.COMPILER_VERSION_EXT_KEY),
+        models.COMPILER_VERSION_FULL_KEY:
+            b_get(models.COMPILER_VERSION_FULL_KEY),
         models.CREATED_KEY: {"$lt": b_get(models.CREATED_KEY)},
         models.DEFCONFIG_FULL_KEY: b_get(models.DEFCONFIG_FULL_KEY),
         models.DEFCONFIG_KEY: b_get(models.DEFCONFIG_KEY),
