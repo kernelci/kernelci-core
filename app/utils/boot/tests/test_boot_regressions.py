@@ -102,14 +102,16 @@ class TestBootRegressions(unittest.TestCase):
         self.assertListEqual([], regr)
 
     def test_get_regressions_by_key(self):
-        key = "a.b.c.d.e.f"
+        key = "a.b.c.d.e.f.g"
         regressions = {
             "a": {
                 "b": {
                     "c": {
                         "d": {
                             "e": {
-                                "f": ["foo"]
+                                "f": {
+                                    "g": ["foo"]
+                                }
                             }
                         }
                     }
