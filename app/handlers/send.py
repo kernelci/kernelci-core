@@ -155,6 +155,8 @@ class SendHandler(hbase.BaseHandler):
                 "format": email_format,
             }
 
+            report_type_or_plan = j_get(models.PLAN_KEY, report_type)
+
             self.log.info(
                 TRIGGER_RECEIVED,
                 self.request.remote_ip,
@@ -162,7 +164,7 @@ class SendHandler(hbase.BaseHandler):
                 branch,
                 kernel,
                 datetime.datetime.utcnow(),
-                report_type
+                report_type_or_plan
             )
 
             hashable_str = ''.join(str(x) for x in [
@@ -174,7 +176,7 @@ class SendHandler(hbase.BaseHandler):
                 email_opts["bcc"],
                 email_opts["in_reply_to"],
                 email_opts["subject"],
-                report_type,
+                report_type_or_plan,
                 str(email_format),
             ])
             schedule_hash = hashlib.sha1(hashable_str).hexdigest()
@@ -199,7 +201,7 @@ class SendHandler(hbase.BaseHandler):
                     else:
                         self.log.warn(
                             TRIGGER_RECEIVED_ALREADY,
-                            job, branch, kernel, report_type
+                            job, branch, kernel, report_type_or_plan
                         )
                         taskq.send_multiple_emails_error.apply_async(
                             [
