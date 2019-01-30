@@ -35,7 +35,7 @@ file_systems:
 
   debian_stretch_ramdisk:
     type: debian
-    ramdisk: 'stretch/20190102.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'stretch/20190130.0/{arch}/rootfs.cpio.gz'
 
   debian_stretch-igt_ramdisk:
     type: debian
@@ -43,7 +43,7 @@ file_systems:
 
   debian_stretch-v4l2_ramdisk:
     type: debian
-    ramdisk: 'stretch-v4l2/20190102.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'stretch-v4l2/20190130.0/{arch}/rootfs.cpio.gz'
 
 
 test_plan_default_filters:
