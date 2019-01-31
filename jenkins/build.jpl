@@ -117,18 +117,18 @@ node("docker && builder") {
     Compiler:  ${params.CC} ${params.CC_VERSION}
     Container: ${docker_image}""")
 
-    stage("Init") {
-        timeout(time: 30, unit: 'MINUTES') {
-            parallel(
-                clone: { j.cloneKciCore(kci_core,
-                                        params.KCI_CORE_URL,
-                                        params.KCI_CORE_BRANCH) },
-                download: { k.downloadTarball(kdir, params.SRC_TARBALL) },
-            )
-        }
-    }
-
     j.dockerPullWithRetry(docker_image).inside() {
+        stage("Init") {
+            timeout(time: 30, unit: 'MINUTES') {
+                parallel(
+                    clone: { j.cloneKciCore(kci_core,
+                                            params.KCI_CORE_URL,
+                                            params.KCI_CORE_BRANCH) },
+                    download: { k.downloadTarball(kdir, params.SRC_TARBALL) },
+                )
+            }
+        }
+
         stage("Build") {
             timeout(time: 180, unit: 'MINUTES') {
                 buildConfig(params.DEFCONFIG, kdir, kci_core)
