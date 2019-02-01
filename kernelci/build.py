@@ -142,6 +142,19 @@ git describe --match=v[1-9]\* \
     return describe.strip()
 
 
+def add_kselftest_fragment(path, frag_path='kernel/configs/kselftest.config'):
+    shell_cmd("""
+cd {path} &&
+find tools/testing/selftests -name config -printf "#\n# %h/%f\n#\n" -exec cat {{}} \; > {frag_path}
+""".format(path=path, frag_path=frag_path))
+
+
+def add_fragment(path, frag):
+    with open(os.path.join(path, frag.path), 'w') as f:
+        for config in frag.configs:
+            f.write(config + '\n')
+
+
 def make_tarball(path, tarball_name):
     cmd = "tar -czf {name} --exclude=.git -C {path} .".format(
         path=path, name=tarball_name)
@@ -172,6 +185,9 @@ def push_tarball(config, path, storage, api, token,
     if resp.status_code == 200:
         return tarball_url
     tarball = "{}.tar.gz".format(config.name)
+    add_kselftest_fragment(path)
+    for frag in config.fragments:
+        add_fragment(path, frag)
     make_tarball(path, tarball)
     upload_tarball(config, path, api, token, tarball, tarball_name, describe)
     os.unlink(tarball)
