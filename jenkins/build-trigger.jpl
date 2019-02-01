@@ -38,7 +38,8 @@ KCI_CORE_BRANCH (master)
   Name of the branch to use in the kernelci-core repository
 DOCKER_BASE
   Dockerhub base address used for the build images
-
+ALLOW_REBUILD (false)
+  Allow building the same revision again.
 */
 
 @Library('kernelci') _
@@ -179,6 +180,18 @@ def addExtraConfigs(configs, kdir, arch, tree_name, branch) {
 
     for (String e: extra)
         configs.add("${base_defconfig}+${e}")
+}
+
+def configAlreadyBuilt(config, kci_core) {
+    def new_commit = sh(
+        script: """
+${kci_core}/kci_build \
+--build-configs=${kci_core}/build-configs.yaml \
+--config=${config} \
+--storage=${params.KCI_STORAGE_URL} \
+check_new_commit""", returnStdout: true).trim()
+
+    return (new_commit == "")
 }
 
 def pushTarball(config, kci_core, mirror, kdir, opts) {
@@ -338,6 +351,14 @@ node("defconfig-creator") {
             timeout(time: 15, unit: 'MINUTES') {
                 j.cloneKciCore(
                     kci_core, params.KCI_CORE_URL, params.KCI_CORE_BRANCH)
+            }
+        }
+
+        if (params.ALLOW_REBUILD != true) {
+            if (configAlreadyBuilt(params.BUILD_CONFIG, kci_core)) {
+                print("Revision already built, aborting")
+                currentBuild.result = 'ABORTED'
+                return
             }
         }
 
