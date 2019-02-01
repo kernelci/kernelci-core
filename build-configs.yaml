@@ -1,0 +1,418 @@
+# See the KernelCI wiki page regarding the format of this file:
+# https://github.com/kernelci/kernelci-doc/wiki/Build-configurations
+
+
+trees:
+
+  agross:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/agross/linux.git"
+
+  alex:
+    url: "https://git.linaro.org/people/alex.bennee/linux.git"
+
+  amlogic:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/khilman/linux-amlogic.git"
+
+  android:
+    url: "https://android.googlesource.com/kernel/common"
+
+  ardb:
+    url: "git://git.kernel.org/pub/scm/linux/kernel/git/ardb/linux.git"
+
+  arm-soc:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/arm/arm-soc.git"
+
+  arnd:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/arnd/playground.git"
+
+  broonie-regmap:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regmap.git"
+
+  broonie-regulator:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git"
+
+  broonie-sound:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/broonie/sound.git"
+
+  broonie-spi:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/broonie/spi.git"
+
+  clk:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/clk/linux.git"
+
+  efi:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/efi/efi.git"
+
+  evalenti:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/evalenti/linux-soc-thermal.git"
+
+  gtucker:
+    url: 'https://gitlab.collabora.com/gtucker/linux.git'
+
+  khilman:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/khilman/linux.git"
+
+  krzysztof:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/krzk/linux.git"
+
+  linaro-android:
+    url: "https://android-git.linaro.org/git/kernel/linaro-android.git"
+
+  lsk:
+    url: "https://git.linaro.org/kernel/linux-linaro-stable.git"
+
+  mainline:
+    url: 'git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git'
+
+  net-next:
+    url: "git://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next.git"
+
+  next:
+    url: 'git://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git'
+
+  omap:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/tmlind/linux-omap.git"
+
+  pmwg:
+    url: "https://git.linaro.org/power/linux.git"
+
+  qcom-lt:
+    url: "https://git.linaro.org/landing-teams/working/qualcomm/kernel.git"
+
+  renesas:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git"
+
+  rmk:
+    url: "git://git.armlinux.org.uk/~rmk/linux-arm.git"
+
+  rt-stable:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/rt/linux-stable-rt.git"
+
+  samsung:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/kgene/linux-samsung.git"
+
+  stable:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
+
+  stable-rc:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git"
+
+  tegra:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/tegra/linux.git"
+
+  ulfh:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/ulfh/mmc.git"
+
+
+build_configs_default_arch_list: &default_arch_list
+  - i386
+  - x86_64
+  - arm
+  - arm64
+  - mips
+  - arc
+  - riscv
+
+
+build_configs:
+
+  agross:
+    tree: agross
+    branch: 'for-next'
+
+  alex:
+    tree: alex
+    branch: 'kernel-ci'
+
+  amlogic:
+    tree: amlogic
+    branch: 'for-next'
+
+  amlogic_integ:
+    tree: amlogic
+    branch: 'integ'
+
+  android_3.18:
+    tree: android
+    branch: 'android-3.18'
+
+  android_4.4:
+    tree: android
+    branch: 'android-4.4'
+
+  android_4.4-o:
+    tree: android
+    branch: 'android-4.4-o'
+
+  android_4.4-p:
+    tree: android
+    branch: 'android-4.4-p'
+
+  android_4.9:
+    tree: android
+    branch: 'android-4.9'
+
+  android_4.9-o:
+    tree: android
+    branch: 'android-4.9-o'
+
+  android_4.9-p:
+    tree: android
+    branch: 'android-4.9-p'
+
+  android_4.14:
+    tree: android
+    branch: 'android-4.14'
+
+  android_4.14-p:
+    tree: android
+    branch: 'android-4.14-p'
+
+  android_mainline_tracking:
+    tree: android
+    branch: 'android-mainline-tracking'
+
+  ardb:
+    tree: ardb
+    branch: 'for-kernelci'
+
+  ardb_arm-kaslr-latest:
+    tree: ardb
+    branch: 'arm-kaslr-latest'
+
+  arnd:
+    tree: arnd
+    branch: 'to-build'
+
+  arm-soc_fixes:
+    tree: arm-soc
+    branch: 'fixes'
+
+  arm-soc_for-next:
+    tree: arm-soc
+    branch: 'for-next'
+
+  broonie-regmap:
+    tree: broonie-regmap
+    branch: 'for-next'
+
+  broonie-regulator:
+    tree: broonie-regulator
+    branch: 'for-next'
+
+  broonie-sound:
+    tree: broonie-sound
+    branch: 'for-next'
+
+  broonie-spi:
+    tree: broonie-spi
+    branch: 'for-next'
+
+  clk:
+    tree: clk
+    branch: 'clk-next'
+
+  efi:
+    tree: efi
+    branch: 'next'
+
+  evalenti:
+    tree: evalenti
+    branch: 'for-kernelci'
+
+  gtucker:
+    tree: gtucker
+    branch: 'kernelci-local'
+    arch_list: ['i386', 'x86_64', 'arm', 'arm64']
+
+  gtucker_stable:
+    tree: gtucker
+    branch: 'kernelci-stable'
+
+  khilman:
+    tree: khilman
+    branch: 'to-build'
+
+  krzysztof:
+    tree: krzysztof
+    branch: 'for-next'
+
+  linaro-android:
+    tree: linaro-android
+    branch: 'linaro-android-llct'
+
+  lsk_for-test:
+    tree: lsk
+    branch: 'for-test'
+
+  lsk_v4.4:
+    tree: lsk
+    branch: 'linux-linaro-lsk-v4.4'
+
+  lsk_v4.4-test:
+    tree: lsk
+    branch: 'linux-linaro-lsk-v4.4-test'
+
+  lsk_v4.4-rt:
+    tree: lsk
+    branch: 'linux-linaro-lsk-v4.4-rt'
+
+  lsk_v4.4-rt-test:
+    tree: lsk
+    branch: 'linux-linaro-lsk-v4.4-rt-test'
+
+  lsk_v4.4-android:
+    tree: lsk
+    branch: 'linux-linaro-lsk-v4.4-android'
+
+  lsk_v4.4-android-test:
+    tree: lsk
+    branch: 'linux-linaro-lsk-v4.4-android-test'
+
+  lsk_v4.9:
+    tree: lsk
+    branch: 'linux-linaro-lsk-v4.9'
+
+  lsk_v4.9-test:
+    tree: lsk
+    branch: 'linux-linaro-lsk-v4.9-test'
+
+  lsk_v4.4.9-rt:
+    tree: lsk
+    branch: 'linux-linaro-lsk-v4.9-rt'
+
+  lsk_v4.9-rt-test:
+    tree: lsk
+    branch: 'linux-linaro-lsk-v4.9-rt-test'
+
+  lsk_v4.14:
+    tree: lsk
+    branch: 'linux-linaro-lsk-v4.14'
+
+  lsk_v4.14-test:
+    tree: lsk
+    branch: 'linux-linaro-lsk-v4.14-test'
+
+  lsk_v4.14-rt:
+    tree: lsk
+    branch: 'linux-linaro-lsk-v4.14-rt'
+
+  lsk_v4.14-rt-test:
+    tree: lsk
+    branch: 'linux-linaro-lsk-v4.14-rt-test'
+
+  mainline:
+    tree: mainline
+    branch: 'master'
+
+  net-next:
+    tree: net-next
+    branch: 'master'
+
+  next:
+    tree: next
+    branch: 'master'
+
+  next_pending-fixes:
+    tree: next
+    branch: 'pending-fixes'
+
+  omap:
+    tree: omap
+    branch: 'for-next'
+
+  pmwg:
+    tree: pmwg
+    branch: 'integ'
+
+  qcom-lt:
+    tree: qcom-lt
+    branch: 'integration-linux-qcomlt'
+
+  rmk_for-next:
+    tree: rmk
+    branch: 'for-next'
+
+  rmk_to-build:
+    tree: rmk
+    branch: 'to-build'
+
+  renesas:
+    tree: renesas
+    branch: 'next'
+
+  renesas_next:
+    tree: renesas
+    branch: 'devel'
+
+  rt-stable_v3.18-rt:
+    tree: rt-stable
+    branch: 'v3.18-rt'
+
+  rt-stable_v4.1-rt:
+    tree: rt-stable
+    branch: 'v4.1-rt'
+
+  rt-stable_v4.4-rt:
+    tree: rt-stable
+    branch: 'v4.4-rt'
+
+  rt-stable_v4.9-rt:
+    tree: rt-stable
+    branch: 'v4.9-rt'
+
+  rt-stable_v4.14-rt:
+    tree: rt-stable
+    branch: 'v4.14-rt'
+
+  samsung:
+    tree: samsung
+    branch: 'for-next'
+
+  stable_3.18:
+    tree: stable
+    branch: 'linux-3.18.y'
+
+  stable_4.4:
+    tree: stable
+    branch: 'linux-4.4.y'
+
+  stable_4.9:
+    tree: stable
+    branch: 'linux-4.9.y'
+
+  stable_4.14:
+    tree: stable
+    branch: 'linux-4.14.y'
+
+  stable_4.18:
+    tree: stable
+    branch: 'linux-4.18.y'
+
+  stable-rc_3.18:
+    tree: stable-rc
+    branch: 'linux-3.18.y'
+
+  stable-rc_4.4:
+    tree: stable-rc
+    branch: 'linux-4.4.y'
+
+  stable-rc_4.9:
+    tree: stable-rc
+    branch: 'linux-4.9.y'
+
+  stable-rc_4.14:
+    tree: stable-rc
+    branch: 'linux-4.14.y'
+
+  stable-rc_4.18:
+    tree: stable-rc
+    branch: 'linux-4.18.y'
+
+  tegra:
+    tree: tegra
+    branch: 'for-next'
+
+  ulfh:
+    tree: ulfh
+    branch: 'next'
