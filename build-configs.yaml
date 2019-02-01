@@ -64,6 +64,9 @@ trees:
   mainline:
     url: 'git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git'
 
+  media:
+    url: "https://git.linuxtv.org/media_tree.git"
+
   net-next:
     url: "git://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next.git"
 
@@ -102,6 +105,20 @@ trees:
 
   ulfh:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/ulfh/mmc.git"
+
+
+fragments:
+
+  virtualvideo:
+    path: "kernel/configs/virtualvideo.config"
+    configs:
+      - CONFIG_MEDIA_SUPPORT=y
+      - CONFIG_MEDIA_CAMERA_SUPPORT=y
+      - CONFIG_VIDEO_DEV=y
+      - CONFIG_VIDEO_V4L2=y
+      - CONFIG_V4L_TEST_DRIVERS=y
+      - CONFIG_VIDEO_VIVID=y
+      - CONFIG_VIDEO_VIVID_MAX_DEVS=64
 
 
 build_configs_default_arch_list: &default_arch_list
@@ -224,6 +241,7 @@ build_configs:
     tree: gtucker
     branch: 'kernelci-local'
     arch_list: ['i386', 'x86_64', 'arm', 'arm64']
+    fragments: [virtualvideo]
 
   gtucker_stable:
     tree: gtucker
@@ -304,6 +322,12 @@ build_configs:
   mainline:
     tree: mainline
     branch: 'master'
+
+  media:
+    tree: media
+    branch: 'master'
+    arch_list: ['i386', 'x86_64', 'arm', 'arm64']
+    fragments: [virtualvideo]
 
   net-next:
     tree: net-next
