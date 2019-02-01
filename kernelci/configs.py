@@ -168,23 +168,55 @@ class Tree(YAMLObject):
         return self._url
 
 
+class Fragment(YAMLObject):
+
+    def __init__(self, name, path, configs):
+        self._name = name
+        self._path = path
+        self._configs = configs
+
+    @classmethod
+    def from_yaml(cls, config, name):
+        kw = {
+            'name': name,
+        }
+        kw.update(cls._kw_from_yaml(config, ['name', 'path', 'configs']))
+        return cls(**kw)
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def path(self):
+        return self._path
+
+    @property
+    def configs(self):
+        return list(self._configs)
+
+
 class BuildConfig(YAMLObject):
 
-    def __init__(self, name, tree, arch_list, branch):
+    def __init__(self, name, tree, arch_list, branch, fragments=None):
         self._name = name
         self._tree = tree
         self._arch_list = arch_list
         self._branch = branch
+        self._fragments = fragments or []
 
     @classmethod
-    def from_yaml(cls, config, name, trees, arch_list):
+    def from_yaml(cls, config, name, trees, fragments, arch_list):
         kw = {
             'name': name,
             'arch_list': arch_list,
         }
         kw.update(cls._kw_from_yaml(
-            config, ['name', 'tree', 'branch', 'arch_list']))
+            config, ['name', 'tree', 'branch', 'arch_list', 'fragments']))
         kw['tree'] = trees[kw['tree']]
+        cf = kw.get('fragments')
+        if cf:
+            kw['fragments'] = list(fragments[f] for f in cf)
         return cls(**kw)
 
     @property
@@ -202,6 +234,10 @@ class BuildConfig(YAMLObject):
     @property
     def branch(self):
         return self._branch
+
+    @property
+    def fragments(self):
+        return list(self._fragments)
 
 
 # -----------------------------------------------------------------------------
@@ -560,10 +596,15 @@ def builds_from_yaml(yaml_path):
         for name, config in data['trees'].iteritems()
     }
 
+    fragments = {
+        name: Fragment.from_yaml(config, name)
+        for name, config in data['fragments'].iteritems()
+    }
+
     arch_list = data.get('build_configs_default_arch_list')
 
     build_configs = {
-        name: BuildConfig.from_yaml(config, name, trees, arch_list)
+        name: BuildConfig.from_yaml(config, name, trees, fragments, arch_list)
         for name, config in data['build_configs'].iteritems()
     }
 
