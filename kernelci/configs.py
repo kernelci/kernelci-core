@@ -206,11 +206,9 @@ class BuildConfig(YAMLObject):
         self._fragments = fragments or []
 
     @classmethod
-    def from_yaml(cls, config, name, trees, fragments, arch_list):
-        kw = {
-            'name': name,
-            'arch_list': arch_list,
-        }
+    def from_yaml(cls, config, name, trees, fragments, defaults):
+        kw = dict(defaults)
+        kw['name'] = name
         kw.update(cls._kw_from_yaml(
             config, ['name', 'tree', 'branch', 'arch_list', 'fragments']))
         kw['tree'] = trees[kw['tree']]
@@ -601,10 +599,10 @@ def builds_from_yaml(yaml_path):
         for name, config in data['fragments'].iteritems()
     }
 
-    arch_list = data.get('build_configs_default_arch_list')
+    defaults = data.get('build_configs_defaults')
 
     build_configs = {
-        name: BuildConfig.from_yaml(config, name, trees, fragments, arch_list)
+        name: BuildConfig.from_yaml(config, name, trees, fragments, defaults)
         for name, config in data['build_configs'].iteritems()
     }
 

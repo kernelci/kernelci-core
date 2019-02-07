@@ -121,14 +121,15 @@ fragments:
       - CONFIG_VIDEO_VIVID_MAX_DEVS=64
 
 
-build_configs_default_arch_list: &default_arch_list
-  - i386
-  - x86_64
-  - arm
-  - arm64
-  - mips
-  - arc
-  - riscv
+build_configs_defaults:
+  arch_list: &default_arch_list
+    - i386
+    - x86_64
+    - arm
+    - arm64
+    - mips
+    - arc
+    - riscv
 
 
 build_configs:
