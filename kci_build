@@ -105,6 +105,15 @@ def cmd_arch_list(configs, args):
     return True
 
 
+def cmd_build_environment(configs, args):
+    conf = configs['build_configs'][args.config]
+    print(conf.build_environment.name)
+    print(conf.build_environment.cc)
+    print(conf.build_environment.cc_version)
+    if args.arch:
+        print(conf.build_environment.get_arch_name(args.arch))
+    return True
+
 # -----------------------------------------------------------------------------
 # Main
 #
@@ -143,6 +152,8 @@ if __name__ == '__main__':
                         help="Path to the kernel clone directory")
     parser.add_argument("--kdir",
                         help="Path to the kernel clone directory")
+    parser.add_argument("--arch",
+                        help="CPU architecture")
     args = parser.parse_args()
     status = main(args)
     sys.exit(0 if status is True else 1)
