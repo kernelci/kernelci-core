@@ -67,7 +67,6 @@ make V=1
 mkdir -p /tmp/tests/igt2/usr/bin
 cp -a \
    tests/core_auth \
-   tests/core_get_client_auth \
    tests/core_getclient \
    tests/core_getstats \
    tests/core_getversion \
