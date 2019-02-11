@@ -24,8 +24,8 @@ Test failures
   Config:      {{ t.defconfig_full }}
   Compiler:    {{ t.build_environment }}{% if t.compiler_version_full %} ({{ t.compiler_version_full }}){% endif %}
   Lab Name:    {{ t.lab_name }}
-  Plain log:   {{ storage_url }}/{{ t.job }}/{{ t.git_branch }}/{{ t.kernel }}/{{ t.arch }}/{{ t.defconfig_full }}/{{ t.lab_name }}/{{ t.boot_log }}
-  HTML log:    {{ storage_url }}/{{ t.job }}/{{ t.git_branch }}/{{ t.kernel }}/{{ t.arch }}/{{ t.defconfig_full }}/{{ t.lab_name }}/{{ t.boot_log_html }}
+  Plain log:   {{ storage_url }}/{{ t.job }}/{{ t.git_branch }}/{{ t.kernel }}/{{ t.arch }}/{{ t.defconfig_full }}/{{ t.build_environment }}/{{ t.lab_name }}/{{ t.boot_log }}
+  HTML log:    {{ storage_url }}/{{ t.job }}/{{ t.git_branch }}/{{ t.kernel }}/{{ t.arch }}/{{ t.defconfig_full }}/{{ t.build_environment }}/{{ t.lab_name }}/{{ t.boot_log_html }}
     {%- if t.initrd %}
   Rootfs:      {{ t.initrd }}
     {%- endif %}
