@@ -195,8 +195,8 @@ if [[ BUILDS_FINISHED -eq 4 ]]; then
         curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "boot_report": 1, "format": ["txt"], "send_to": ["sboyd+clkci@kernel.org", "mturquette+clkci@baylibre.com", "kernel-build-reports@lists.linaro.org"], "delay": 1800}' ${API}/send
     elif [ "$TREE_NAME" == "media" ]; then
         echo "Sending results for media tree"
-        curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'",  "report_type": "test", "plan": "v4l2-compliance-vivid", "send_to": ["linux-media@vger.kernel.org", "ezequiel@collabora.com"], "format": ["txt"], "delay": 5400}' ${API}/send
-        curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'",  "report_type": "test", "plan": "v4l2-compliance-uvc", "send_to": ["linux-media@vger.kernel.org", "ezequiel@collabora.com"], "format": ["txt"], "delay": 5400}' ${API}/send
+        curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'",  "report_type": "test", "plan": "v4l2-compliance-vivid", "send_to": ["gtucker@collabora.com", "ezequiel@collabora.com"], "format": ["txt"], "delay": 5400}' ${API}/send
+        curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'",  "report_type": "test", "plan": "v4l2-compliance-uvc", "send_to": ["gtucker@collabora.com", "ezequiel@collabora.com"], "format": ["txt"], "delay": 5400}' ${API}/send
     else
         # Private Mailing List
         echo "Sending results to private mailing list"
