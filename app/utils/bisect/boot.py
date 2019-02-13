@@ -367,6 +367,7 @@ def update_results(data, db_options):
         models.TYPE_KEY,
         models.ARCHITECTURE_KEY,
         models.DEFCONFIG_FULL_KEY,
+        models.BUILD_ENVIRONMENT_KEY,
         models.JOB_KEY,
         models.KERNEL_KEY,
         models.GIT_BRANCH_KEY,

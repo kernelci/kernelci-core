@@ -52,6 +52,7 @@ REPORT_TYPE_KEYS = {
         models.TYPE_KEY,
         models.ARCHITECTURE_KEY,
         models.DEFCONFIG_FULL_KEY,
+        models.BUILD_ENVIRONMENT_KEY,
         models.LAB_NAME_KEY,
         models.BISECT_LOG_KEY,
         models.DEVICE_TYPE_KEY,

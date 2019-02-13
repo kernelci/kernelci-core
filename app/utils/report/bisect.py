@@ -59,7 +59,9 @@ def create_bisect_report(data, email_options, db_options,
         models.TYPE_KEY,
         models.ARCHITECTURE_KEY,
         models.DEFCONFIG_FULL_KEY,
+        models.BUILD_ENVIRONMENT_KEY,
         models.JOB_KEY,
+        models.KERNEL_KEY,
         models.GIT_BRANCH_KEY,
         models.LAB_NAME_KEY,
         models.DEVICE_TYPE_KEY,
@@ -98,6 +100,7 @@ def create_bisect_report(data, email_options, db_options,
         data[k] for k in [
             models.ARCHITECTURE_KEY,
             models.DEFCONFIG_FULL_KEY,
+            models.BUILD_ENVIRONMENT_KEY,
             models.LAB_NAME_KEY,
         ]
     ))
