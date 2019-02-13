@@ -27,6 +27,7 @@ Parameters:
   Target:     {{ target }}
   CPU arch:   {{ arch }}
   Lab:        {{ lab_name }}
+  Compiler:   {{ compiler }}
   Config:     {{ defconfig }}
   Test suite: {{ test_suite }}
 
