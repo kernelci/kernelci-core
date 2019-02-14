@@ -504,6 +504,42 @@ build_configs:
     branch: 'kernelci.org'
     variants: *stable_variants
 
+  kernelci_staging:
+    tree: kernelci
+    branch: 'staging.kernelci.org'
+    variants:
+      gcc-8:
+        build_environment: gcc-8
+        architectures:
+          arc:
+            base_defconfig: 'nsim_hs_defconfig'
+            filters:
+              - whitelist: {defconfig: ['nsim_hs_defconfig']}
+          arm: &staging_arm
+            base_defconfig: 'multi_v7_defconfig'
+            filters:
+              - whitelist: {defconfig: ['multi_v7_defconfig']}
+          arm64: &staging_arm64
+            filters:
+              - whitelist: {defconfig: ['defconfig']}
+            fragments: [kselftest]
+          mips:
+            base_defconfig: '32r2el_defconfig'
+            filters:
+              - whitelist: {defconfig: ['32r2el_defconfig']}
+          riscv:
+            filters:
+              - whitelist: {defconfig: ['defconfig']}
+          x86_64:
+            base_defconfig: 'x86_64_defconfig'
+            filters:
+              - whitelist: {defconfig: ['x86_64_defconfig']}
+      clang-8:
+        build_environment: clang-8
+        architectures:
+          arm: *staging_arm
+          arm64: *staging_arm64
+
   khilman:
     tree: khilman
     branch: 'to-build'
