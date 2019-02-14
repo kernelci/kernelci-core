@@ -103,6 +103,9 @@ trees:
   stable-rc:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git"
 
+  staging:
+    url: "https://gitlab.collabora.com/gtucker/linux.git"
+
   tegra:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/tegra/linux.git"
 
@@ -428,6 +431,41 @@ build_configs:
   evalenti:
     tree: evalenti
     branch: 'for-kernelci'
+
+  staging:
+    tree: staging
+    branch: 'kernelci-stable'
+    variants:
+      gcc-7:
+        build_environment: gcc-7
+        architectures:
+          arc:
+            base_defconfig: 'nsim_hs_defconfig'
+            filters:
+              - whitelist: {defconfig: ['nsim_hs_defconfig']}
+          arm:
+            base_defconfig: 'multi_v7_defconfig'
+            filters:
+              - whitelist: {defconfig: ['multi_v7_defconfig']}
+          arm64: &staging_arm64
+            filters:
+              - whitelist: {defconfig: ['defconfig']}
+            fragments: [kselftest]
+          mips:
+            base_defconfig: '32r2el_defconfig'
+            filters:
+              - whitelist: {defconfig: ['32r2el_defconfig']}
+          riscv:
+            filters:
+              - whitelist: {defconfig: ['defconfig']}
+          x86_64:
+            base_defconfig: 'x86_64_defconfig'
+            filters:
+              - whitelist: {defconfig: ['x86_64_defconfig']}
+      clang-8:
+        build_environment: clang-8
+        architectures:
+          arm64: *staging_arm64
 
   gtucker_stable:
     tree: gtucker
