@@ -237,12 +237,6 @@ build_configs:
     tree: evalenti
     branch: 'for-kernelci'
 
-  gtucker:
-    tree: gtucker
-    branch: 'kernelci-local'
-    arch_list: ['i386', 'x86_64', 'arm', 'arm64']
-    fragments: [virtualvideo]
-
   gtucker_stable:
     tree: gtucker
     branch: 'kernelci-stable'
