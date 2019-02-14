@@ -840,6 +840,52 @@ build_configs:
     tree: evalenti
     branch: 'for-kernelci'
 
+  kernelci_staging-mainline:
+    tree: kernelci
+    branch: 'staging-mainline'
+    variants:
+      gcc-9: &staging_gcc
+        build_environment: gcc-9
+        fragments: [kselftest]
+        architectures:
+          arc: *arc_defconfig
+          arm: *arm_defconfig
+          arm64: *arm64_defconfig
+          i386: *i386_defconfig
+          mips: *mips_defconfig
+          riscv: *riscv_defconfig
+          x86_64:
+            <<: *x86_64_defconfig
+            fragments: [x86-chromebook]
+            extra_configs: ['x86_64_defconfig+x86-chromebook+kselftest']
+      clang-10: &staging_clang
+        build_environment: clang-10
+        fragments: [kselftest]
+        architectures:
+          arm: *arm_defconfig
+          arm64: *arm64_defconfig
+          x86_64:
+            <<: *x86_64_defconfig
+            fragments: [x86-chromebook]
+            extra_configs: ['x86_64_defconfig+x86-chromebook+kselftest']
+
+
+  kernelci_staging-next:
+    tree: kernelci
+    branch: 'staging-next'
+    variants:
+      gcc-9: *staging_gcc
+      clang-13:
+        <<: *staging_clang
+        build_environment: clang-13
+
+  kernelci_staging-stable:
+    tree: kernelci
+    branch: 'staging-stable'
+    variants:
+      gcc-9: *staging_gcc
+      clang-10: *staging_clang
+
   khilman:
     tree: khilman
     branch: 'to-build'
