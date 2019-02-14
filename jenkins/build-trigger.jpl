@@ -371,6 +371,17 @@ node("defconfig-creator") {
         }
 
         stage("Build") {
+            def build_env_raw = sh(script: """\
+${kci_core}/kci_build \
+--build-configs=${kci_core}/build-configs.yaml \
+--config=${params.BUILD_CONFIG} \
+--kdir=${kdir} \
+build_environment""", returnStdout: true).trim()
+            def build_env_list = build_env_raw.tokenize('\n')
+            def build_env = build_env_list[0]
+            def cc = build_env_list[1]
+            def cc_version = build_env_list[2]
+
             def builds = [:]
             def i = 0
 
@@ -378,11 +389,11 @@ node("defconfig-creator") {
                 def arch = x[0]
                 def config = x[1]
 
-                def step_name = "${i} ${arch} ${config}"
+                def step_name = "${i} ${arch} ${config} ${cc} ${cc_version}"
                 print(step_name)
 
                 builds[step_name] = buildKernelStep(
-                    "kernel-build", arch, config, opts)
+                    "kernel-build", arch, config, opts, cc, cc_version)
 
                 i += 1
             }
