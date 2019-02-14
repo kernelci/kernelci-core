@@ -81,7 +81,7 @@ def cmd_describe(configs, args):
     verbose = kernelci.build.git_describe_verbose(conf, args.kdir)
     print(commit)
     print(describe)
-    print(verbose)
+    print(verbose or describe)
     return True
 
 
