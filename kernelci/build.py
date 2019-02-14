@@ -23,6 +23,10 @@ import urlparse
 from kernelci import shell_cmd
 import kernelci.configs
 
+# This is used to get the mainline tags as a minimum for git describe
+TORVALDS_GIT_URL = \
+    "git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
+
 
 def get_last_commit(config, storage):
     last_commit_url = "{storage}/{tree}/{branch}/last.commit".format(
@@ -83,6 +87,13 @@ fi
 """.format(path=path, remote=config.tree.name, url=config.tree.url))
 
 
+def _fetch_tags(path, url=TORVALDS_GIT_URL):
+    shell_cmd("""
+cd {path}
+git fetch --tags {url}
+""".format(path=path, url=url))
+
+
 def update_mirror(config, path):
     if not os.path.exists(path):
         shell_cmd("""
@@ -101,6 +112,7 @@ git clone --reference={ref} -o {remote} {url} {path}
 """.format(ref=ref, remote=config.tree.name, url=config.tree.url, path=path))
 
     _update_remote(config, path)
+    _fetch_tags(path)
 
     shell_cmd("""
 cd {path}
