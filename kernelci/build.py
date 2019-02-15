@@ -28,24 +28,29 @@ TORVALDS_GIT_URL = \
     "git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
 
 
+def _get_last_commit_file_name(config):
+    return '_'.join(['last-commit', config.name])
+
+
 def get_last_commit(config, storage):
-    last_commit_url = "{storage}/{tree}/{branch}/last.commit".format(
-        storage=storage, tree=config.tree.name, branch=config.branch)
+    last_commit_url = "{storage}/{tree}/{file_name}".format(
+        storage=storage, tree=config.tree.name,
+        file_name=_get_last_commit_file_name(config))
     last_commit_resp = requests.get(last_commit_url)
     if last_commit_resp.status_code != 200:
         return False
     return last_commit_resp.text.strip()
 
 
-def update_last_commit(config, api, token, commit, file_name='last.commit'):
+def update_last_commit(config, api, token, commit):
     headers = {
         'Authorization': token,
     }
     data = {
-        'path': '/'.join([config.tree.name, config.branch]),
+        'path': config.tree.name,
     }
     files = {
-        'file': (file_name, commit),
+        'file': (_get_last_commit_file_name(config), commit),
     }
     url = urlparse.urljoin(api, 'upload')
     resp = requests.post(url, headers=headers, data=data, files=files)
@@ -188,8 +193,8 @@ def upload_tarball(config, path, api, token, tarball, file_name, describe):
     resp.raise_for_status()
 
 
-def push_tarball(config, path, storage, api, token,
-                 tarball_name='linux-src.tar.gz'):
+def push_tarball(config, path, storage, api, token):
+    tarball_name = "linux-src_{}.tar.gz".format(config.name)
     describe = git_describe(config, path)
     tarball_url = '/'.join([
         storage, config.tree.name, config.branch, describe, tarball_name])
