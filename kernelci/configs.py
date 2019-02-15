@@ -196,22 +196,60 @@ class Fragment(YAMLObject):
         return list(self._configs)
 
 
+class BuildEnvironment(YAMLObject):
+
+    def __init__(self, name, cc, cc_version, arch_map=None):
+        self._name = name
+        self._cc = cc
+        self._cc_version = cc_version
+        self._arch_map = arch_map or {}
+
+    @classmethod
+    def from_yaml(cls, config, name):
+        kw = {
+            'name': name,
+        }
+        kw.update(cls._kw_from_yaml(
+            config, ['name', 'cc', 'cc_version', 'arch_map']))
+        return cls(**kw)
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def cc(self):
+        return self._cc
+
+    @property
+    def cc_version(self):
+        return self._cc_version
+
+    def get_arch_name(self, kernel_arch):
+        return self._arch_map.get(kernel_arch, kernel_arch)
+
+
 class BuildConfig(YAMLObject):
 
-    def __init__(self, name, tree, arch_list, branch, fragments=None):
+    def __init__(self, name, tree, arch_list, branch, build_environment,
+                 fragments=None):
         self._name = name
         self._tree = tree
         self._arch_list = arch_list
         self._branch = branch
+        self._build_environment = build_environment
         self._fragments = fragments or []
 
     @classmethod
-    def from_yaml(cls, config, name, trees, fragments, defaults):
+    def from_yaml(cls, config, name, trees, fragments, build_environments,
+                  defaults):
         kw = dict(defaults)
         kw['name'] = name
         kw.update(cls._kw_from_yaml(
-            config, ['name', 'tree', 'branch', 'arch_list', 'fragments']))
+            config, ['name', 'tree', 'branch', 'arch_list',
+                     'build_environment', 'fragments']))
         kw['tree'] = trees[kw['tree']]
+        kw['build_environment'] = build_environments[kw['build_environment']]
         cf = kw.get('fragments')
         if cf:
             kw['fragments'] = list(fragments[f] for f in cf)
@@ -232,6 +270,10 @@ class BuildConfig(YAMLObject):
     @property
     def branch(self):
         return self._branch
+
+    @property
+    def build_environment(self):
+        return self._build_environment
 
     @property
     def fragments(self):
@@ -599,15 +641,23 @@ def builds_from_yaml(yaml_path):
         for name, config in data['fragments'].iteritems()
     }
 
+    build_environments = {
+        name: BuildEnvironment.from_yaml(config, name)
+        for name, config in data['build_environments'].iteritems()
+    }
+
     defaults = data.get('build_configs_defaults')
 
     build_configs = {
-        name: BuildConfig.from_yaml(config, name, trees, fragments, defaults)
+        name: BuildConfig.from_yaml(config, name, trees, fragments,
+                                    build_environments, defaults)
         for name, config in data['build_configs'].iteritems()
     }
 
     config_data = {
         'trees': trees,
+        'fragments': fragments,
+        'build_environments': build_environments,
         'build_configs': build_configs,
     }
 
