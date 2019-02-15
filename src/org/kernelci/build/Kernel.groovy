@@ -42,6 +42,7 @@ wget \
 --timeout=15 \
 --tries 20 \
 --continue \
+-O ${filename} \
 ${url}")
 
             if (!stat) {
