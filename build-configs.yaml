@@ -121,7 +121,41 @@ fragments:
       - CONFIG_VIDEO_VIVID_MAX_DEVS=64
 
 
+build_environments:
+
+  gcc-7:
+    cc: gcc
+    cc_version: 7
+    arch_map: &gcc_arch_map
+      i386: x86
+      x86_64: x86
+      riscv: riscv64
+
+  gcc-8:
+    cc: gcc
+    cc_version: 8
+    arch_map: *gcc_arch_map
+
+  clang-8:
+    cc: clang
+    cc_version: 8
+    arch_map: &clang_arch_map
+      i386:
+      x86_64:
+      arm:
+      arm64:
+      mips:
+      arc:
+      riscv:
+
+  clang-9:
+    cc: clang
+    cc_version: 9
+    arch_map: *clang_arch_map
+
+
 build_configs_defaults:
+  build_environment: gcc-7
   arch_list: &default_arch_list
     - i386
     - x86_64
