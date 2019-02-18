@@ -155,15 +155,16 @@ build_environments:
 
 
 build_configs_defaults:
-  build_environment: gcc-7
-  arch_list: &default_arch_list
-    - i386
-    - x86_64
-    - arm
-    - arm64
-    - mips
-    - arc
-    - riscv
+  gcc-7:
+    build_environment: gcc-7
+    arch_list: &default_arch_list
+      - i386
+      - x86_64
+      - arm
+      - arm64
+      - mips
+      - arc
+      - riscv
 
 
 build_configs:

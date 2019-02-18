@@ -98,20 +98,29 @@ def cmd_push_tarball(configs, args):
     return True
 
 
+def cmd_list_variants(configs, args):
+    conf = configs['build_configs'][args.config]
+    for variant in conf.variants:
+        print(variant.name)
+    return True
+
+
 def cmd_arch_list(configs, args):
     conf = configs['build_configs'][args.config]
-    for arch in conf.arch_list:
+    variant = conf.get_variant(args.variant)
+    for arch in variant.arch_list:
         print(arch)
     return True
 
 
 def cmd_build_environment(configs, args):
     conf = configs['build_configs'][args.config]
-    print(conf.build_environment.name)
-    print(conf.build_environment.cc)
-    print(conf.build_environment.cc_version)
+    variant = conf.get_variant(args.variant)
+    print(variant.build_environment.name)
+    print(variant.build_environment.cc)
+    print(variant.build_environment.cc_version)
     if args.arch:
-        print(conf.build_environment.get_arch_name(args.arch))
+        print(variant.build_environment.get_arch_name(args.arch))
     return True
 
 # -----------------------------------------------------------------------------
@@ -140,6 +149,8 @@ if __name__ == '__main__':
                         help="Path to build configs file")
     parser.add_argument("--config",
                         help="Config name")
+    parser.add_argument("--variant",
+                        help="Config variant name")
     parser.add_argument("--storage", default="https://storage.kernelci.org",
                         help="Storage URL")
     parser.add_argument("--api", default="https://api.kernelci.org",
