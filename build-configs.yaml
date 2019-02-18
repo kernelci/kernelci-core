@@ -203,7 +203,7 @@ build_configs:
 
   arm-soc_fixes:
     tree: arm-soc
-    branch: 'fixes'
+    branch: 'arm/fixes'
 
   arm-soc_for-next:
     tree: arm-soc
