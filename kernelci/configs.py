@@ -229,26 +229,21 @@ class BuildEnvironment(YAMLObject):
         return self._arch_map.get(kernel_arch, kernel_arch)
 
 
-class BuildConfig(YAMLObject):
+class BuildVariant(YAMLObject):
 
-    def __init__(self, name, tree, arch_list, branch, build_environment,
-                 fragments=None):
+    def __init__(self, name, arch_list, build_environment, fragments=None):
         self._name = name
-        self._tree = tree
         self._arch_list = arch_list
-        self._branch = branch
         self._build_environment = build_environment
         self._fragments = fragments or []
 
     @classmethod
-    def from_yaml(cls, config, name, trees, fragments, build_environments,
-                  defaults):
-        kw = dict(defaults)
-        kw['name'] = name
+    def from_yaml(cls, config, name, fragments, build_environments):
+        kw = {
+            'name': name,
+        }
         kw.update(cls._kw_from_yaml(
-            config, ['name', 'tree', 'branch', 'arch_list',
-                     'build_environment', 'fragments']))
-        kw['tree'] = trees[kw['tree']]
+            config, ['name', 'arch_list', 'build_environment', 'fragments']))
         kw['build_environment'] = build_environments[kw['build_environment']]
         cf = kw.get('fragments')
         if cf:
@@ -260,16 +255,8 @@ class BuildConfig(YAMLObject):
         return self._name
 
     @property
-    def tree(self):
-        return self._tree
-
-    @property
     def arch_list(self):
         return list(self._arch_list)
-
-    @property
-    def branch(self):
-        return self._branch
 
     @property
     def build_environment(self):
@@ -278,6 +265,50 @@ class BuildConfig(YAMLObject):
     @property
     def fragments(self):
         return list(self._fragments)
+
+
+class BuildConfig(YAMLObject):
+
+    def __init__(self, name, tree, branch, variants):
+        self._name = name
+        self._tree = tree
+        self._branch = branch
+        self._variants = variants
+
+    @classmethod
+    def from_yaml(cls, config, name, trees, fragments, build_envs, defaults):
+        kw = {
+            'name': name,
+        }
+        kw.update(cls._kw_from_yaml(
+            config, ['name', 'tree', 'branch']))
+        kw['tree'] = trees[kw['tree']]
+        config_variants = config.get('variants', defaults)
+        variants = [
+            BuildVariant.from_yaml(variant, name, fragments, build_envs)
+            for name, variant in config_variants.iteritems()
+        ]
+        kw['variants'] = {v.name: v for v in variants}
+        return cls(**kw)
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def tree(self):
+        return self._tree
+
+    @property
+    def branch(self):
+        return self._branch
+
+    @property
+    def variants(self):
+        return list(self._variants.values())
+
+    def get_variant(self, name):
+        return self._variants[name]
 
 
 # -----------------------------------------------------------------------------

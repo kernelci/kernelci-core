@@ -203,8 +203,9 @@ def push_tarball(config, path, storage, api, token):
         return tarball_url
     tarball = "{}.tar.gz".format(config.name)
     add_kselftest_fragment(path)
-    for frag in config.fragments:
-        add_fragment(path, frag)
+    for variant in config.variants:
+        for frag in variant.fragments:
+            add_fragment(path, frag)
     make_tarball(path, tarball)
     upload_tarball(config, path, api, token, tarball, tarball_name, describe)
     os.unlink(tarball)
