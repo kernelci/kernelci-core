@@ -246,17 +246,32 @@ push_tarball""", returnStdout: true).trim()
     }
 }
 
-def listConfigs(config, kci_core, kdir, opts) {
+def getVariants(config, kci_core) {
+    def variants = null
+
+    dir(kci_core) {
+        def raw_variants = sh(
+            script: """\
+./kci_build \
+--config=${config} \
+list_variants""", returnStdout: true).trim()
+        variants = raw_variants.tokenize('\n')
+    }
+
+    return variants
+}
+
+def listConfigs(config, kci_core, kdir, opts, variant, config_list) {
     def tree_name = null
     def branch = null
     def arch_list = null
-    def arch_configs = []
+    def cc = null
+    def cc_version = null
 
     dir(kci_core) {
         def opts_raw = sh(
             script: """\
 ./kci_build \
---kdir=${kdir} \
 --config=${config} \
 tree_branch""", returnStdout: true).trim()
         def opt_list = opts_raw.tokenize('\n')
@@ -269,11 +284,27 @@ tree_branch""", returnStdout: true).trim()
         def raw_arch_list = sh(
             script: """\
 ./kci_build \
---kdir=${kdir} \
 --config=${config} \
+--variant=${variant} \
 arch_list""", returnStdout: true).trim()
         arch_list = raw_arch_list.tokenize('\n')
-        opts['arch_list'] = arch_list
+
+        def opt_arch_list = opts['arch_list']
+        print("opt_arch_list: ${opt_arch_list}")
+        for (String arch: arch_list)
+            if (!opt_arch_list.contains(arch))
+                opt_arch_list.add(arch)
+        opts['arch_list'] = opt_arch_list
+
+        def build_env_raw = sh(script: """\
+./kci_build \
+--config=${config} \
+--variant=${variant} \
+build_environment""", returnStdout: true).trim()
+        def build_env_list = build_env_raw.tokenize('\n')
+        def build_env = build_env_list[0]
+        cc = build_env_list[1]
+        cc_version = build_env_list[2]
     }
 
     for (String arch: arch_list) {
@@ -285,10 +316,8 @@ arch_list""", returnStdout: true).trim()
             addExtraConfigs(configs, kdir, arch, tree_name, branch)
 
         for (String kernel_config: configs)
-            arch_configs.add([arch, kernel_config])
+            config_list.add([arch, kernel_config, cc, cc_version])
     }
-
-    return arch_configs
 }
 
 def buildKernelStep(job, arch, config, opts, cc='gcc', cc_version='7') {
@@ -340,7 +369,7 @@ node("defconfig-creator") {
     def mirror = "${env.WORKSPACE}/linux.git"
     def docker_image = "${params.DOCKER_BASE}base"
     def opts = [:]
-    def configs = null
+    def configs = []
 
     print("""\
     Config:    ${params.BUILD_CONFIG}
@@ -367,27 +396,24 @@ node("defconfig-creator") {
         }
 
         stage("Configs") {
-            configs = listConfigs(params.BUILD_CONFIG, kci_core, kdir, opts)
+            def variants = getVariants(params.BUILD_CONFIG, kci_core)
+            opts['arch_list'] = []
+
+            for (String variant: variants) {
+                listConfigs(params.BUILD_CONFIG, kci_core, kdir, opts,
+                            variant, configs)
+            }
         }
 
         stage("Build") {
-            def build_env_raw = sh(script: """\
-${kci_core}/kci_build \
---build-configs=${kci_core}/build-configs.yaml \
---config=${params.BUILD_CONFIG} \
---kdir=${kdir} \
-build_environment""", returnStdout: true).trim()
-            def build_env_list = build_env_raw.tokenize('\n')
-            def build_env = build_env_list[0]
-            def cc = build_env_list[1]
-            def cc_version = build_env_list[2]
-
             def builds = [:]
             def i = 0
 
             for (x in configs) {
                 def arch = x[0]
                 def config = x[1]
+                def cc = x[2]
+                def cc_version = x[3]
 
                 def step_name = "${i} ${arch} ${config} ${cc} ${cc_version}"
                 print(step_name)
