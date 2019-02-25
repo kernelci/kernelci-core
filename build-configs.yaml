@@ -237,9 +237,12 @@ build_configs:
     tree: arnd
     branch: 'to-build'
 
-  arm-soc_fixes:
-    tree: arm-soc
-    branch: 'arm/fixes'
+#  Disabled as the branch name contains a '/'.  See discussion here:
+#  https://github.com/kernelci/kernelci-core/issues/23
+#
+#  arm-soc_fixes:
+#    tree: arm-soc
+#    branch: 'arm/fixes'
 
   arm-soc_for-next:
     tree: arm-soc
