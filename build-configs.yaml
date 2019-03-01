@@ -224,6 +224,10 @@ build_configs:
     tree: android
     branch: 'android-4.14-p'
 
+  android_4.19:
+    tree: android
+    branch: 'android-4.19'
+
   android_mainline_tracking:
     tree: android
     branch: 'android-mainline-tracking'
