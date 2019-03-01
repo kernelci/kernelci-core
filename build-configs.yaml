@@ -378,8 +378,11 @@ build_configs:
   media:
     tree: media
     branch: 'master'
-    arch_list: ['i386', 'x86_64', 'arm', 'arm64']
-    fragments: [virtualvideo]
+    variants:
+      gcc-7:
+        build_environment: gcc-7
+        arch_list: ['i386', 'x86_64', 'arm', 'arm64']
+        fragments: [virtualvideo]
 
   net-next:
     tree: net-next
