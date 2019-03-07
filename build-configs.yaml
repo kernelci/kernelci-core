@@ -192,6 +192,14 @@ build_configs:
     tree: android
     branch: 'android-3.18'
 
+  android_3.18-o-mr1:
+    tree: android
+    branch: 'android-3.18-o-mr1'
+
+  android_3.18-o-release:
+    tree: android
+    branch: 'android-3.18-o-release'
+
   android_4.4:
     tree: android
     branch: 'android-4.4'
@@ -200,9 +208,21 @@ build_configs:
     tree: android
     branch: 'android-4.4-o'
 
+  android_4.4-o-mr1:
+    tree: android
+    branch: 'android-4.4-o-mr1'
+
+  android_4.4-o-release:
+    tree: android
+    branch: 'android-4.4-o-release'
+
   android_4.4-p:
     tree: android
     branch: 'android-4.4-p'
+
+  android_4.4-p-release:
+    tree: android
+    branch: 'android-4.4-p-release'
 
   android_4.9:
     tree: android
@@ -212,9 +232,21 @@ build_configs:
     tree: android
     branch: 'android-4.9-o'
 
+  android_4.9-o-mr1:
+    tree: android
+    branch: 'android-4.9-o-mr1'
+
+  android_4.9-o-release:
+    tree: android
+    branch: 'android-4.9-o-release'
+
   android_4.9-p:
     tree: android
     branch: 'android-4.9-p'
+
+  android_4.9-p-release:
+    tree: android
+    branch: 'android-4.9-p-release'
 
   android_4.14:
     tree: android
@@ -223,6 +255,10 @@ build_configs:
   android_4.14-p:
     tree: android
     branch: 'android-4.14-p'
+
+  android_4.14-p-release:
+    tree: android
+    branch: 'android-4.14-p-release'
 
   android_4.19:
     tree: android
