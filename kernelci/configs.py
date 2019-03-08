@@ -201,7 +201,7 @@ class BuildEnvironment(YAMLObject):
     def __init__(self, name, cc, cc_version, arch_map=None):
         self._name = name
         self._cc = cc
-        self._cc_version = cc_version
+        self._cc_version = str(cc_version)
         self._arch_map = arch_map or dict()
 
     @classmethod
