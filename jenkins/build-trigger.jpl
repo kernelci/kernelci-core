@@ -183,49 +183,49 @@ def addExtraConfigs(configs, kdir, arch, tree_name, branch) {
 }
 
 def configAlreadyBuilt(config, kci_core) {
-    def new_commit = sh(
+    def new_commit = null
+
+    dir(kci_core) {
+        new_commit = sh(
         script: """
-${kci_core}/kci_build \
---build-configs=${kci_core}/build-configs.yaml \
+./kci_build \
 --config=${config} \
 --storage=${params.KCI_STORAGE_URL} \
 check_new_commit""", returnStdout: true).trim()
+    }
 
     return (new_commit == "")
 }
 
 def pushTarball(config, kci_core, mirror, kdir, opts) {
-    sh(script: """\
-${kci_core}/kci_build \
---build-configs=${kci_core}/build-configs.yaml \
+    dir(kci_core) {
+        sh(script: """\
+./kci_build \
 --config=${config} \
 --mirror=${mirror} \
 update_mirror""")
 
-    sh(script: """\
-${kci_core}/kci_build \
---build-configs=${kci_core}/build-configs.yaml \
+        sh(script: """\
+./kci_build \
 --config=${config} \
 --kdir=${kdir} \
 --mirror=${mirror} \
 update_repo""")
 
-    def describe_raw = sh(script: """\
-${kci_core}/kci_build \
---build-configs=${kci_core}/build-configs.yaml \
+        def describe_raw = sh(script: """\
+./kci_build \
 --config=${config} \
 --kdir=${kdir} \
 describe""", returnStdout: true).trim()
-    def describe_list = describe_raw.tokenize('\n')
-    opts['commit'] = describe_list[0]
-    opts['describe'] = describe_list[1]
-    opts['describe_verbose'] = describe_list[2]
+        def describe_list = describe_raw.tokenize('\n')
+        opts['commit'] = describe_list[0]
+        opts['describe'] = describe_list[1]
+        opts['describe_verbose'] = describe_list[2]
 
-    withCredentials([string(credentialsId: params.KCI_TOKEN_ID,
-                            variable: 'SECRET')]) {
-        sh(script: """\
-${kci_core}/kci_build \
---build-configs=${kci_core}/build-configs.yaml \
+        withCredentials([string(credentialsId: params.KCI_TOKEN_ID,
+                                variable: 'SECRET')]) {
+            sh(script: """\
+./kci_build \
 --config=${config} \
 --kdir=${kdir} \
 --commit=${opts['commit']} \
@@ -234,15 +234,15 @@ ${kci_core}/kci_build \
 --token=${SECRET} \
 update_last_commit""")
 
-        opts['tarball_url'] = sh(script: """\
-${kci_core}/kci_build \
---build-configs=${kci_core}/build-configs.yaml \
+            opts['tarball_url'] = sh(script: """\
+./kci_build \
 --config=${config} \
 --kdir=${kdir} \
 --storage=${params.KCI_STORAGE_URL} \
 --api=${params.KCI_API_URL} \
 --token=${SECRET} \
 push_tarball""", returnStdout: true).trim()
+        }
     }
 }
 
