@@ -84,6 +84,12 @@ def cmd_describe(configs, args):
     return True
 
 
+def cmd_generate_fragments(configs, args):
+    conf = configs['build_configs'][args.config]
+    kernelci.build.generate_fragments(conf, args.kdir)
+    return True
+
+
 def cmd_push_tarball(configs, args):
     conf = configs['build_configs'][args.config]
     func_args = (conf, args.kdir, args.storage, args.api, args.token)
