@@ -182,8 +182,6 @@ for o, a in opts:
         for a in defs:
             if os.path.exists("arch/%s/configs/%s" % (arch, a)):
                 defconfig = a
-            elif a == "defconfig" or a == "tinyconfig" or re.match("all(\w*)config", a):
-                defconfig = a
             elif os.path.exists(a):
                 # Append fragment contents to temp frag file
                 frag = open(a)
@@ -197,9 +195,8 @@ for o, a in opts:
                 os.write(kconfig_tmpfile_fd, a + "\n")
                 os.fsync(kconfig_tmpfile_fd)
                 frag_names.append(a)
-            else:
-                print "ERROR: kconfig file/fragment (%s) doesn't exist" %a
-                sys.exit(1)
+            else: # assume it's a special build target
+                defconfig = a
 
     if o == '-i':
         install = True
