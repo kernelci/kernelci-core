@@ -203,6 +203,49 @@ class Fragment(YAMLObject):
         return self._defconfig
 
 
+class Architecture(YAMLObject):
+
+    def __init__(self, name, base_defconfig='defconfig', extra_configs=None,
+                 fragments=None, filters=None):
+        self._name = name
+        self._base_defconfig = base_defconfig
+        self._extra_configs = extra_configs or []
+        self._fragments = fragments or []
+        self._filters = filters or list()
+
+    @classmethod
+    def from_yaml(cls, data, name, fragments):
+        kw = {
+            'name': name,
+        }
+        kw.update(cls._kw_from_yaml(data, [
+            'name', 'base_defconfig', 'extra_configs',
+        ]))
+        cf = data.get('fragments')
+        kw['fragments'] = [fragments[name] for name in cf] if cf else None
+        kw['filters'] = FilterFactory.from_data(data)
+        return cls(**kw)
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def base_defconfig(self):
+        return self._base_defconfig
+
+    @property
+    def extra_configs(self):
+        return list(self._extra_configs)
+
+    @property
+    def fragments(self):
+        return list(self._fragments)
+
+    def match(self, params):
+        return all(f.match(**params) for f in self._filters)
+
+
 class BuildEnvironment(YAMLObject):
 
     def __init__(self, name, cc, cc_version, arch_map=None):
@@ -238,9 +281,9 @@ class BuildEnvironment(YAMLObject):
 
 class BuildVariant(YAMLObject):
 
-    def __init__(self, name, arch_list, build_environment, fragments=None):
+    def __init__(self, name, architectures, build_environment, fragments=None):
         self._name = name
-        self._arch_list = arch_list
+        self._architectures = architectures
         self._build_environment = build_environment
         self._fragments = fragments or list()
 
@@ -250,11 +293,14 @@ class BuildVariant(YAMLObject):
             'name': name,
         }
         kw.update(cls._kw_from_yaml(
-            config, ['name', 'arch_list', 'build_environment', 'fragments']))
+            config, ['name', 'build_environment', 'fragments']))
         kw['build_environment'] = build_environments[kw['build_environment']]
+        kw['architectures'] = list(
+            Architecture.from_yaml(data, name, fragments)
+            for name, data in config['architectures'].iteritems()
+        )
         cf = kw.get('fragments')
-        if cf:
-            kw['fragments'] = list(fragments[f] for f in cf)
+        kw['fragments'] = [fragments[name] for name in cf] if cf else None
         return cls(**kw)
 
     @property
@@ -263,7 +309,11 @@ class BuildVariant(YAMLObject):
 
     @property
     def arch_list(self):
-        return list(self._arch_list)
+        return list(arch.name for arch in self._architectures)
+
+    @property
+    def architectures(self):
+        return list(self._architectures)
 
     @property
     def build_environment(self):
