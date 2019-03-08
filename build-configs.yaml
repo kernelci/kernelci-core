@@ -112,6 +112,22 @@ trees:
 
 fragments:
 
+  debug:
+    path: "kernel/configs/debug.config"
+
+  kselftest:
+    path: "kernel/configs/kselftest.config"
+
+  linaro_android_base:
+    path: "android/configs/android-base.cfg"
+
+  linaro_android_recommended:
+    path: "android/configs/android-recommended.cfg"
+
+  tinyconfig:
+    path: "kernel/configs/tiny.config"
+    defconfig: 'tinyconfig'
+
   virtualvideo:
     path: "kernel/configs/virtualvideo.config"
     configs:
@@ -122,6 +138,9 @@ fragments:
       - 'CONFIG_V4L_TEST_DRIVERS=y'
       - 'CONFIG_VIDEO_VIVID=y'
       - 'CONFIG_VIDEO_VIVID_MAX_DEVS=64'
+
+  x86_kvm_guest:
+    path: "arch/x86/configs/kvm_guest.config"
 
 
 build_environments:
@@ -158,16 +177,92 @@ build_environments:
 
 
 build_configs_defaults:
+
+  gcc-7:
+
+    build_environment: gcc-7
+
+    fragments: &default_fragments
+      - 'debug'
+      - 'kselftest'
+      - 'tinyconfig'
+
+    architectures: &default_architectures
+
+      arc: &arc_arch
+        base_defconfig: 'nsim_hs_defconfig'
+        extra_configs: ['allnoconfig']
+        filters: &arc_defconfig_filters
+          # remove any non-ARCv2 defconfigs since we only have ARCv2 toolchain
+          - blacklist:
+              defconfig:
+                - 'axs101_defconfig'
+                - 'nps_defconfig'
+                - 'nsim_700_defconfig'
+                - 'nsimosci_defconfig'
+                - 'tb10x_defconfig'
+
+      arm: &arm_arch
+        base_defconfig: 'multi_v7_defconfig'
+        extra_configs:
+          - 'allnoconfig'
+          - 'multi_v7_defconfig+CONFIG_CPU_BIG_ENDIAN=y'
+          - 'multi_v7_defconfig+CONFIG_SMP=n'
+          - 'multi_v7_defconfig+CONFIG_EFI=y+CONFIG_ARM_LPAE=y'
+
+      arm64: &arm64_arch
+        extra_configs:
+          - 'allmodconfig'
+          - 'allnoconfig'
+          - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
+          - 'defconfig+CONFIG_RANDOMIZE_BASE=y'
+
+      i386: &i386_arch
+        base_defconfig: 'i386_defconfig'
+        extra_configs: ['allnoconfig']
+
+      mips: &mips_arch
+        base_defconfig: '32r2el_defconfig'
+        extra_configs: ['allnoconfig']
+        filters: &mips_defconfig_filters
+          - blacklist: {defconfig: ['generic_defconfig']}
+
+      riscv: &riscv_arch
+        extra_configs: ['allnoconfig']
+
+      x86_64: &x86_64_arch
+        base_defconfig: 'x86_64_defconfig'
+        extra_configs: ['allmodconfig', 'allnoconfig']
+        fragments: [x86_kvm_guest]
+
+
+# Build fewer kernel configs with stable branches
+stable_variants: &stable_variants
   gcc-7:
     build_environment: gcc-7
-    arch_list: &default_arch_list
-      - i386
-      - x86_64
-      - arm
-      - arm64
-      - mips
-      - arc
-      - riscv
+    fragments: ['tinyconfig']
+    architectures:
+      arc:
+        base_defconfig: 'nsim_hs_defconfig'
+        extra_configs: ['allnoconfig']
+        filters: *arc_defconfig_filters
+      arm:
+        base_defconfig: 'multi_v7_defconfig'
+        extra_configs: ['allnoconfig']
+      arm64:
+        extra_configs: ['allnoconfig']
+      i386:
+        base_defconfig: 'i386_defconfig'
+        extra_configs: ['allnoconfig']
+      mips:
+        base_defconfig: '32r2el_defconfig'
+        extra_configs: ['allnoconfig']
+        filters: *mips_defconfig_filters
+      riscv:
+        extra_configs: ['allnoconfig']
+      x86_64:
+        base_defconfig: 'x86_64_defconfig'
+        extra_configs: ['allnoconfig']
 
 
 build_configs:
@@ -275,6 +370,21 @@ build_configs:
   ardb_arm-kaslr-latest:
     tree: ardb
     branch: 'arm-kaslr-latest'
+    variants:
+      gcc-7:
+        build_environment: gcc-7
+        architectures:
+          x86_64: *x86_64_arch
+          arm64: *arm64_arch
+          arm:
+            base_defconfig: 'multi_v7_defconfig'
+            extra_configs:
+              - 'multi_v7_defconfig+CONFIG_CPU_BIG_ENDIAN=y'
+              - 'multi_v7_defconfig+CONFIG_SMP=n'
+              - 'multi_v7_defconfig+CONFIG_EFI=y+CONFIG_ARM_LPAE=y'
+              - 'multi_v7_defconfig+CONFIG_RANDOMIZE_BASE=y'
+              - 'multi_v7_defconfig+CONFIG_THUMB2_KERNEL=y+CONFIG_RANDOMIZE_BASE=y'
+              - 'omap2plus_defconfig+CONFIG_RANDOMIZE_BASE=y'
 
   arnd:
     tree: arnd
@@ -374,6 +484,14 @@ build_configs:
   lsk_v4.4-android-test:
     tree: lsk
     branch: 'linux-linaro-lsk-v4.4-android-test'
+    variants:
+      gcc-7:
+        build_environment: gcc-7
+        fragments: [linaro_android_base, linaro_android_recommended]
+        architectures:
+          arm: *arm_arch
+          arm64: *arm64_arch
+          x86_64: *x86_64_arch
 
   lsk_v4.9:
     tree: lsk
@@ -417,8 +535,12 @@ build_configs:
     variants:
       gcc-7:
         build_environment: gcc-7
-        arch_list: ['i386', 'x86_64', 'arm', 'arm64']
         fragments: [virtualvideo]
+        architectures:
+          i386: *i386_arch
+          x86_64: *x86_64_arch
+          arm: *arm_arch
+          arm64: *arm64_arch
 
   net-next:
     tree: net-next
@@ -427,6 +549,25 @@ build_configs:
   next:
     tree: next
     branch: 'master'
+    variants:
+      gcc-7:
+        build_environment: gcc-7
+        fragments: *default_fragments
+        architectures:
+          i386: *i386_arch
+          x86_64: *x86_64_arch
+          mips: *mips_arch
+          riscv: *riscv_arch
+          arc: *arc_arch
+          arm64: *arm64_arch
+          arm:
+            base_defconfig: 'multi_v7_defconfig'
+            extra_configs:
+              - 'multi_v7_defconfig+CONFIG_CPU_BIG_ENDIAN=y'
+              - 'multi_v7_defconfig+CONFIG_SMP=n'
+              - 'multi_v7_defconfig+CONFIG_EFI=y+CONFIG_ARM_LPAE=y'
+              - 'allnoconfig'
+              - 'allmodconfig'
 
   next_pending-fixes:
     tree: next
@@ -487,42 +628,52 @@ build_configs:
   stable_3.18:
     tree: stable
     branch: 'linux-3.18.y'
+    variants: *stable_variants
 
   stable_4.4:
     tree: stable
     branch: 'linux-4.4.y'
+    variants: *stable_variants
 
   stable_4.9:
     tree: stable
     branch: 'linux-4.9.y'
+    variants: *stable_variants
 
   stable_4.14:
     tree: stable
     branch: 'linux-4.14.y'
+    variants: *stable_variants
 
   stable_4.19:
     tree: stable
     branch: 'linux-4.19.y'
+    variants: *stable_variants
 
   stable-rc_3.18:
     tree: stable-rc
     branch: 'linux-3.18.y'
+    variants: *stable_variants
 
   stable-rc_4.4:
     tree: stable-rc
     branch: 'linux-4.4.y'
+    variants: *stable_variants
 
   stable-rc_4.9:
     tree: stable-rc
     branch: 'linux-4.9.y'
+    variants: *stable_variants
 
   stable-rc_4.14:
     tree: stable-rc
     branch: 'linux-4.14.y'
+    variants: *stable_variants
 
   stable-rc_4.19:
     tree: stable-rc
     branch: 'linux-4.19.y'
+    variants: *stable_variants
 
   tegra:
     tree: tegra
