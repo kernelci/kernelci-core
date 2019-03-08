@@ -166,12 +166,6 @@ find tools/testing/selftests -name config -printf "#\n# %h/%f\n#\n" -exec cat {{
 """.format(path=path, frag_path=frag_path))
 
 
-def add_fragment(path, frag):
-    with open(os.path.join(path, frag.path), 'w') as f:
-        for config in frag.configs:
-            f.write(config + '\n')
-
-
 def make_tarball(path, tarball_name):
     cmd = "tar -czf {name} --exclude=.git -C {path} .".format(
         path=path, name=tarball_name)
@@ -193,20 +187,27 @@ def upload_tarball(config, path, api, token, tarball, file_name, describe):
     resp.raise_for_status()
 
 
-def push_tarball(config, path, storage, api, token):
+def generate_fragments(config, kdir):
+    add_kselftest_fragment(kdir)
+    for variant in config.variants:
+        for frag in variant.fragments:
+            if frag.configs:
+                with open(os.path.join(kdir, frag.path), 'w') as f:
+                    print(frag.path)
+                    for kernel_config in frag.configs:
+                        f.write(kernel_config + '\n')
+
+
+def push_tarball(config, kdir, storage, api, token):
     tarball_name = "linux-src_{}.tar.gz".format(config.name)
-    describe = git_describe(config, path)
+    describe = git_describe(config, kdir)
     tarball_url = '/'.join([
         storage, config.tree.name, config.branch, describe, tarball_name])
     resp = requests.head(tarball_url)
     if resp.status_code == 200:
         return tarball_url
     tarball = "{}.tar.gz".format(config.name)
-    add_kselftest_fragment(path)
-    for variant in config.variants:
-        for frag in variant.fragments:
-            add_fragment(path, frag)
-    make_tarball(path, tarball)
-    upload_tarball(config, path, api, token, tarball, tarball_name, describe)
+    make_tarball(kdir, tarball)
+    upload_tarball(config, kdir, api, token, tarball, tarball_name, describe)
     os.unlink(tarball)
     return tarball_url
