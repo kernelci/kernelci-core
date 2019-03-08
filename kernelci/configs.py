@@ -130,7 +130,7 @@ class FilterFactory(YAMLObject):
         return filter_list
 
     @classmethod
-    def from_data(cls, data, default_filters=[]):
+    def from_data(cls, data, default_filters=None):
         """Look for filters in YAML *data* or return *default_filters*.
 
         Look for a *filters* element in the YAML *data* dictionary.  If there
@@ -170,10 +170,10 @@ class Tree(YAMLObject):
 
 class Fragment(YAMLObject):
 
-    def __init__(self, name, path, configs):
+    def __init__(self, name, path, configs=None):
         self._name = name
         self._path = path
-        self._configs = configs
+        self._configs = configs or list()
 
     @classmethod
     def from_yaml(cls, config, name):
@@ -202,7 +202,7 @@ class BuildEnvironment(YAMLObject):
         self._name = name
         self._cc = cc
         self._cc_version = cc_version
-        self._arch_map = arch_map or {}
+        self._arch_map = arch_map or dict()
 
     @classmethod
     def from_yaml(cls, config, name):
@@ -235,7 +235,7 @@ class BuildVariant(YAMLObject):
         self._name = name
         self._arch_list = arch_list
         self._build_environment = build_environment
-        self._fragments = fragments or []
+        self._fragments = fragments or list()
 
     @classmethod
     def from_yaml(cls, config, name, fragments, build_environments):
@@ -319,7 +319,7 @@ class DeviceType(YAMLObject):
     """Device type model."""
 
     def __init__(self, name, mach, arch, boot_method, dtb=None,
-                 flags=[], filters=[], context={}):
+                 flags=None, filters=None, context=None):
         """A device type describes a category of equivalent hardware devices.
 
         *name* is unique for the device type, typically as used by LAVA.
@@ -336,9 +336,9 @@ class DeviceType(YAMLObject):
         self._arch = arch
         self._boot_method = boot_method
         self._dtb = dtb
-        self._flags = flags
-        self._filters = filters
-        self._context = context
+        self._flags = flags or list()
+        self._filters = filters or list()
+        self._context = context or dict()
 
     def __repr__(self):
         return self.name
@@ -403,7 +403,7 @@ class DeviceTypeFactory(YAMLObject):
     }
 
     @classmethod
-    def from_yaml(cls, name, device_type, default_filters=[]):
+    def from_yaml(cls, name, device_type, default_filters=None):
         kw = cls._kw_from_yaml(device_type, [
             'mach', 'arch', 'boot_method', 'dtb', 'flags', 'context'])
         kw.update({
@@ -418,7 +418,7 @@ class DeviceTypeFactory(YAMLObject):
 class RootFSType(YAMLObject):
     """Root file system type model."""
 
-    def __init__(self, url, arch_dict={}):
+    def __init__(self, url, arch_dict=None):
         """A root file system type covers common file system features.
 
         *url* is the base URL for file system binaries.  Each file system
@@ -433,7 +433,7 @@ class RootFSType(YAMLObject):
                     properties such as the endinanness.
         """
         self._url = url
-        self._arch_dict = arch_dict
+        self._arch_dict = arch_dict or dict()
 
     @classmethod
     def from_yaml(cls, fs_type):
@@ -535,8 +535,8 @@ class TestPlan(YAMLObject):
 
     _pattern = '{plan}/{category}-{method}-{protocol}-{rootfs}-{plan}-template.jinja2'
 
-    def __init__(self, name, rootfs, params={}, category='generic',
-                 filters=[], pattern=None):
+    def __init__(self, name, rootfs, params=None, category='generic',
+                 filters=None, pattern=None):
         """A test plan is an arbitrary group of test cases to be run.
 
         *name* is the overall arbitrary test plan name, used when looking for
@@ -558,14 +558,14 @@ class TestPlan(YAMLObject):
         """
         self._name = name
         self._rootfs = rootfs
-        self._params = params
+        self._params = params or dict()
         self._category = category
-        self._filters = filters
+        self._filters = filters or list()
         if pattern:
             self._pattern = pattern
 
     @classmethod
-    def from_yaml(cls, name, test_plan, file_systems, default_filters=[]):
+    def from_yaml(cls, name, test_plan, file_systems, default_filters=None):
         kw = {
             'name': name,
             'rootfs': file_systems[test_plan['rootfs']],
@@ -608,7 +608,7 @@ class TestPlan(YAMLObject):
 class TestConfig(YAMLObject):
     """Test configuration model."""
 
-    def __init__(self, device_type, test_plans, filters=[]):
+    def __init__(self, device_type, test_plans, filters=None):
         """A test configuration has a *device_type* and a list of *test_plans*.
 
         *device_type* is a DeviceType object.
@@ -618,11 +618,11 @@ class TestConfig(YAMLObject):
         self._test_plans = {
             t.name: t for t in test_plans
         }
-        self._filters = filters
+        self._filters = filters or list()
 
     @classmethod
     def from_yaml(cls, test_config, device_types, test_plans,
-                  default_filters=[]):
+                  default_filters=None):
         kw = {
             'device_type': device_types[test_config['device_type']],
             'test_plans': [test_plans[test]
