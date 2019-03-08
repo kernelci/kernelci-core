@@ -170,17 +170,20 @@ class Tree(YAMLObject):
 
 class Fragment(YAMLObject):
 
-    def __init__(self, name, path, configs=None):
+    def __init__(self, name, path, configs=None, defconfig=None):
         self._name = name
         self._path = path
         self._configs = configs or list()
+        self._defconfig = defconfig
 
     @classmethod
     def from_yaml(cls, config, name):
         kw = {
             'name': name,
         }
-        kw.update(cls._kw_from_yaml(config, ['name', 'path', 'configs']))
+        kw.update(cls._kw_from_yaml(config, [
+            'name', 'path', 'configs', 'defconfig',
+        ]))
         return cls(**kw)
 
     @property
@@ -194,6 +197,10 @@ class Fragment(YAMLObject):
     @property
     def configs(self):
         return list(self._configs)
+
+    @property
+    def defconfig(self):
+        return self._defconfig
 
 
 class BuildEnvironment(YAMLObject):
