@@ -69,8 +69,7 @@ def cmd_update_mirror(configs, args):
 
 def cmd_update_repo(configs, args):
     conf = configs['build_configs'][args.config]
-    kdir = args.kdir or args.config
-    kernelci.build.update_repo(conf, kdir, args.mirror)
+    kernelci.build.update_repo(conf, args.kdir, args.mirror)
     return True
 
 
