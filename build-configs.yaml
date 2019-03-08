@@ -464,9 +464,9 @@ build_configs:
     tree: stable
     branch: 'linux-4.14.y'
 
-  stable_4.18:
+  stable_4.19:
     tree: stable
-    branch: 'linux-4.18.y'
+    branch: 'linux-4.19.y'
 
   stable-rc_3.18:
     tree: stable-rc
@@ -484,9 +484,9 @@ build_configs:
     tree: stable-rc
     branch: 'linux-4.14.y'
 
-  stable-rc_4.18:
+  stable-rc_4.19:
     tree: stable-rc
-    branch: 'linux-4.18.y'
+    branch: 'linux-4.19.y'
 
   tegra:
     tree: tegra
