@@ -211,3 +211,45 @@ def push_tarball(config, kdir, storage, api, token):
     upload_tarball(config, kdir, api, token, tarball, tarball_name, describe)
     os.unlink(tarball)
     return tarball_url
+
+
+def _add_frag_configs(kdir, frag_list, frag_paths, frag_configs):
+    for frag in frag_list:
+        if os.path.exists(os.path.join(kdir, frag.path)):
+            if frag.defconfig:
+                frag_configs.add(frag.defconfig)
+            else:
+                frag_paths.add(frag.path)
+
+
+def list_kernel_configs(config, kdir, single_variant=None, single_arch=None):
+    kernel_configs = set()
+
+    for variant in config.variants:
+        if single_variant and variant.name != single_variant:
+            continue
+        cc = variant.build_environment.cc
+        cc_version = variant.build_environment.cc_version
+        frag_paths = set()
+        frag_configs = set()
+        _add_frag_configs(kdir, variant.fragments, frag_paths, frag_configs)
+        for arch in variant.architectures:
+            if single_arch and arch.name != single_arch:
+                continue
+            frags = set(frag_paths)
+            defconfigs = set(frag_configs)
+            defconfigs.add(arch.base_defconfig)
+            _add_frag_configs(kdir, arch.fragments, frags, defconfigs)
+            for frag in frags:
+                defconfigs.add('+'.join([arch.base_defconfig, frag]))
+            defconfigs.update(arch.extra_configs)
+            defconfigs_dir = os.path.join(kdir, 'arch', arch.name, 'configs')
+            if os.path.exists(defconfigs_dir):
+                for f in os.listdir(defconfigs_dir):
+                    if f.endswith('defconfig'):
+                        defconfigs.add(f)
+            for defconfig in defconfigs:
+                if arch.match({'defconfig': defconfig}):
+                    kernel_configs.add((arch.name, defconfig, cc, cc_version))
+
+    return kernel_configs
