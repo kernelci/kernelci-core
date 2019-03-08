@@ -46,142 +46,6 @@ ALLOW_REBUILD (false)
 import org.kernelci.build.Kernel
 import org.kernelci.util.Job
 
-def addDefconfigs(configs, kdir, arch, tree_name, branch) {
-    def configs_dir = "${kdir}/arch/${arch}/configs"
-
-    if (fileExists(configs_dir)) {
-        dir(configs_dir) {
-            def found = sh(script: "ls -1 *defconfig || echo -n",
-                           returnStdout: true)
-            for (String config: found.tokenize(' \n'))
-                configs.add(config)
-        }
-        if (arch == "mips") {
-            configs.remove("generic_defconfig")
-        }
-        if (arch == "arc") {
-            // remove any non ARCv2 defconfigs since we only have ARCv2 toolchain
-            dir(configs_dir) {
-                def found = sh(script: "grep -L CONFIG_ISA_ARCV2 *defconfig || echo -n",
-                               returnStdout: true)
-                for (String config: found.tokenize(' \n'))
-                    configs.remove(config)
-            }
-	    // also remove "nsim_hs_defconfig" since this will be base_defconfig later
-	    configs.remove("nsim_hs_defconfig")
-        }
-    } else {
-        echo("WARNING: No configs directory: ${configs_dir}")
-    }
-
-    if (fileExists("${kdir}/kernel/configs/tiny.config"))
-        configs.add("tinyconfig")
-}
-
-def addExtraIfExists(extra, kdir, path) {
-    if (fileExists("${kdir}/${path}"))
-        extra.add(path)
-}
-
-def addExtraConfigs(configs, kdir, arch, tree_name, branch) {
-    def configs_dir = "${kdir}/arch/${arch}/configs"
-    def base_defconfig = "defconfig"
-    def extra = []
-
-    if (arch == "arc") {
-        // default "defconfig" is not ARCv2, and we only have ARCv2 toolchain
-        base_defconfig = "nsim_hs_defconfig"
-    } else if (arch == "arm") {
-        base_defconfig = "multi_v7_defconfig"
-
-        extra = [
-            "CONFIG_CPU_BIG_ENDIAN=y",
-            "CONFIG_SMP=n",
-            "CONFIG_EFI=y+CONFIG_ARM_LPAE=y",
-        ]
-
-        if (fileExists("${configs_dir}/mvebu_v7_defconfig"))
-            configs.add("mvebu_v7_defconfig+CONFIG_CPU_BIG_ENDIAN=y")
-
-        if (tree_name == "next")
-            configs.add("allmodconfig")
-
-        if (tree_name == "ardb" && branch == "arm-kaslr-latest"){
-            extra.add("CONFIG_RANDOMIZE_BASE=y")
-            extra.add("CONFIG_THUMB2_KERNEL=y+CONFIG_RANDOMIZE_BASE=y")
-            configs.add("multi_v5_defconfig")
-            configs.add("omap2plus_defconfig+CONFIG_RANDOMIZE_BASE=y")
-            configs.add("omap2plus_defconfig")
-        }
-    } else if (arch == "arm64") {
-        configs.add("allmodconfig")
-
-        extra = [
-            "CONFIG_CPU_BIG_ENDIAN=y",
-            "CONFIG_RANDOMIZE_BASE=y",
-        ]
-    } else if (arch == "x86") {
-        configs.add("allmodconfig")
-        addExtraIfExists(extra, kdir, "arch/x86/configs/kvm_guest.config")
-    }
-
-    for (String frag: ["debug", "kselftest"])
-        addExtraIfExists(extra, kdir, "kernel/configs/${frag}.config")
-
-    if (tree_name == "lsk" || tree_name == "anders") {
-        def frags = "linaro/configs/kvm-guest.conf"
-
-        /* For -rt kernels, build with RT fragment */
-        def rt_frag = "kernel/configs/preempt-rt.config"
-
-        if (!fileExists("${kdir}/${rt_frag}"))
-            rt_frag = "linaro/configs/preempt-rt.conf"
-
-        def has_preempt_rt_full = sh(
-            returnStatus: true,
-            script: "grep -q \"config PREEMPT_RT_FULL\" ${kdir}/kernel/Kconfig.preempt")
-
-        if (has_preempt_rt_full)
-            extra.add(rt_frag)
-
-        if (arch == "arm") {
-            def kvm_host_frag = "linaro/configs/kvm-host.conf"
-            if (fileExists("${kdir}/${kvm_host_frag}")) {
-                def lpae_base = "multi_v7_defconfig+CONFIG_ARM_LPAE=y"
-                configs.add("${lpae_base}+${kvm_host_frag}")
-            }
-        }
-
-        for (String frag: ["linaro-base", "distribution"])
-            addExtraIfExists(extra, kdir, "linaro/configs/${frag}.conf")
-
-        if (fileExists("${kdir}/android/configs")) {
-            for (String frag: ['base', 'recommended']) {
-                def path = "android/configs/android-${frag}.cfg"
-                def android_extra = ""
-
-                if (fileExists(path))
-                    android_extra += "+${path}"
-            }
-
-            if (android_extra) {
-                configs.add("${base_defconfig}${android_extra}")
-
-                /* Also build vexpress_defconfig for testing on QEMU */
-                configs.add("vexpress_defconfig${android_extra}")
-            }
-        }
-    }
-
-    addExtraIfExists(extra, kdir, "kernel/configs/virtualvideo.config")
-
-    if (!configs.contains(base_defconfig))
-        configs.add(base_defconfig)
-
-    for (String e: extra)
-        configs.add("${base_defconfig}+${e}")
-}
-
 def configAlreadyBuilt(config, kci_core) {
     def new_commit = null
 
@@ -234,6 +98,12 @@ describe""", returnStdout: true).trim()
 --token=${SECRET} \
 update_last_commit""")
 
+            sh(script: """\
+./kci_build \
+--config=${config} \
+--kdir=${kdir} \
+generate_fragments""")
+
             opts['tarball_url'] = sh(script: """\
 ./kci_build \
 --config=${config} \
@@ -246,28 +116,27 @@ push_tarball""", returnStdout: true).trim()
     }
 }
 
-def getVariants(config, kci_core) {
-    def variants = null
-
+def listConfigs(config, kci_core, kdir, config_list) {
     dir(kci_core) {
-        def raw_variants = sh(
-            script: """\
+        def kernel_config_list_raw = sh(script: """\
 ./kci_build \
 --config=${config} \
-list_variants""", returnStdout: true).trim()
-        variants = raw_variants.tokenize('\n')
-    }
+--kdir=${kdir} \
+list_kernel_configs""", returnStdout: true).trim()
+        def kernel_config_list = kernel_config_list_raw.tokenize('\n')
 
-    return variants
+        for (String kernel_config_raw: kernel_config_list) {
+            def data = kernel_config_raw.tokenize(' ')
+            def arch = data[0]
+            def defconfig = data[1]
+            def cc = data[2]
+            def cc_version = data[3]
+            config_list.add([arch, defconfig, cc, cc_version])
+        }
+    }
 }
 
-def listConfigs(config, kci_core, kdir, opts, variant, config_list) {
-    def tree_name = null
-    def branch = null
-    def arch_list = null
-    def cc = null
-    def cc_version = null
-
+def addBuildOpts(config, kci_core, opts) {
     dir(kci_core) {
         def opts_raw = sh(
             script: """\
@@ -275,48 +144,32 @@ def listConfigs(config, kci_core, kdir, opts, variant, config_list) {
 --config=${config} \
 tree_branch""", returnStdout: true).trim()
         def opt_list = opts_raw.tokenize('\n')
-        tree_name = opt_list[0]
-        branch = opt_list[2]
-        opts['tree'] = tree_name
+        opts['tree'] = opt_list[0]
         opts['git_url'] = opt_list[1]
-        opts['branch'] = branch
+        opts['branch'] = opt_list[2]
 
-        def raw_arch_list = sh(
+        def raw_variants = sh(
             script: """\
+./kci_build \
+--config=${config} \
+list_variants""", returnStdout: true).trim()
+        def variants = raw_variants.tokenize('\n')
+
+        def arch_list = []
+        for (String variant: variants) {
+            def raw_variant_arch_list = sh(
+                script: """\
 ./kci_build \
 --config=${config} \
 --variant=${variant} \
 arch_list""", returnStdout: true).trim()
-        arch_list = raw_arch_list.tokenize('\n')
+            def variant_arch_list = raw_variant_arch_list.tokenize('\n')
 
-        def opt_arch_list = opts['arch_list']
-        print("opt_arch_list: ${opt_arch_list}")
-        for (String arch: arch_list)
-            if (!opt_arch_list.contains(arch))
-                opt_arch_list.add(arch)
-        opts['arch_list'] = opt_arch_list
-
-        def build_env_raw = sh(script: """\
-./kci_build \
---config=${config} \
---variant=${variant} \
-build_environment""", returnStdout: true).trim()
-        def build_env_list = build_env_raw.tokenize('\n')
-        def build_env = build_env_list[0]
-        cc = build_env_list[1]
-        cc_version = build_env_list[2]
-    }
-
-    for (String arch: arch_list) {
-        def configs = ["allnoconfig"]
-
-        addDefconfigs(configs, kdir, arch, tree_name, branch)
-
-        if ((tree_name != "stable") && (tree_name != "stable-rc"))
-            addExtraConfigs(configs, kdir, arch, tree_name, branch)
-
-        for (String kernel_config: configs)
-            config_list.add([arch, kernel_config, cc, cc_version])
+            for (String arch: variant_arch_list)
+                if (!arch_list.contains(arch))
+                    arch_list.add(arch)
+        }
+        opts['arch_list'] = arch_list
     }
 }
 
@@ -396,18 +249,14 @@ node("defconfig-creator") {
         }
 
         stage("Configs") {
-            def variants = getVariants(params.BUILD_CONFIG, kci_core)
-            opts['arch_list'] = []
-
-            for (String variant: variants) {
-                listConfigs(params.BUILD_CONFIG, kci_core, kdir, opts,
-                            variant, configs)
-            }
+            listConfigs(params.BUILD_CONFIG, kci_core, kdir, configs)
         }
 
         stage("Build") {
             def builds = [:]
             def i = 0
+
+            addBuildOpts(params.BUILD_CONFIG, kci_core, opts)
 
             for (x in configs) {
                 def arch = x[0]
