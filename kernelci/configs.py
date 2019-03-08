@@ -38,7 +38,7 @@ class YAMLObject(object):
         """
         return {
             k: v for k, v in ((k, data.get(k)) for k in args) if v
-        }
+        } if data else dict()
 
 
 class Filter(object):
