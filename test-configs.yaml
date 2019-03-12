@@ -150,6 +150,13 @@ device_types:
     class: arm-dtb
     boot_method: uboot
 
+  am57xx-beagle-x15:
+    mach: omap2
+    class: arm-dtb
+    boot_method: uboot
+    filters:
+      - blacklist: *allmodconfig_filter
+
   apm_mustang:
     name: 'mustang'
     mach: apm
@@ -838,6 +845,9 @@ test_configs:
 
   - device_type: alpine_db
     test_plans: [boot]
+
+  - device_type: am57xx-beagle-x15
+    test_plans: [boot, boot_nfs, kselftest, simple, sleep]
 
   - device_type: apm_mustang
     test_plans: [boot, boot_nfs, kselftest]
