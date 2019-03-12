@@ -51,6 +51,6 @@ elif [ ${LAB} = "lab-theobroma-systems" ] || [ ${LAB} = "lab-theobroma-systems-d
   python lava-v2-jobs-from-api.py --defconfigs ${DEFCONFIG_COUNT} --callback ${CALLBACK} --api ${API} --storage ${STORAGE} --lab ${LAB} --describe ${GIT_DESCRIBE} --tree ${TREE} --branch ${BRANCH} --arch ${ARCH} --plans boot kselftest --token ${API_TOKEN}
   python lava-v2-submit-jobs.py --username kernel-ci --jobs ${LAB} --token ${LAVA_THEOBROMA_SYSTEMS_TOKEN} --lab ${LAB}
 elif [ ${LAB} = "lab-drue" ] || [ ${LAB} = "lab-drue-dev" ]; then
-  python lava-v2-jobs-from-api.py --defconfigs ${DEFCONFIG_COUNT} --callback ${CALLBACK} --api ${API} --storage ${STORAGE} --lab ${LAB} --describe ${GIT_DESCRIBE} --tree ${TREE} --branch ${BRANCH} --arch ${ARCH} --plans boot boot-kvm boot-kvm-uefi boot-nfs boot-nfs-mp simple --token ${API_TOKEN} --priority medium
+  python lava-v2-jobs-from-api.py --defconfigs ${DEFCONFIG_COUNT} --callback ${CALLBACK} --api ${API} --storage ${STORAGE} --lab ${LAB} --describe ${GIT_DESCRIBE} --tree ${TREE} --branch ${BRANCH} --arch ${ARCH} --plans boot boot-kvm boot-kvm-uefi boot-nfs boot-nfs-mp simple sleep --token ${API_TOKEN} --priority medium
   python lava-v2-submit-jobs.py --username kernel-ci --jobs ${LAB} --token ${LAVA_DRUE_TOKEN} --lab ${LAB}
 fi

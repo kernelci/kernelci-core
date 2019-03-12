@@ -151,6 +151,16 @@ device_types:
     class: arm-dtb
     boot_method: uboot
 
+  am57xx-beagle-x15:
+    mach: omap2
+    class: arm-dtb
+    boot_method: uboot
+    filters:
+      - blacklist: *allmodconfig_filter
+      # This board could boot v4.* if CONFIG_SERIAL_8250_OMAP is set. It was
+      # added to multi_v7_defconfig as of 5.0.
+      - blacklist: {kernel: ['v3.', 'v4.']}
+
   apm_mustang:
     name: 'mustang'
     mach: apm
@@ -839,6 +849,9 @@ test_configs:
 
   - device_type: alpine_db
     test_plans: [boot]
+
+  - device_type: am57xx-beagle-x15
+    test_plans: [boot, boot_nfs, simple, sleep]
 
   - device_type: apm_mustang
     test_plans: [boot, boot_nfs, kselftest]
