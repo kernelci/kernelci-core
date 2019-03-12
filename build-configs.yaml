@@ -454,11 +454,11 @@ build_configs:
 
   renesas:
     tree: renesas
-    branch: 'next'
+    branch: 'devel'
 
   renesas_next:
     tree: renesas
-    branch: 'devel'
+    branch: 'next'
 
   rt-stable_v3.18-rt:
     tree: rt-stable
