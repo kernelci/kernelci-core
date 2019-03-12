@@ -146,8 +146,14 @@ class FilterFactory(YAMLObject):
 #
 
 class Tree(YAMLObject):
+    """Kernel git tree model."""
 
     def __init__(self, name, url):
+        """A kernel git tree is essentially a repository with kernel branches.
+
+        *name* is the name of the tree, such as "mainline" or "next".
+        *url* is the git remote URL for the tree.
+        """
         self._name = name
         self._url = url
 
@@ -169,8 +175,25 @@ class Tree(YAMLObject):
 
 
 class Fragment(YAMLObject):
+    """Kernel config fragment model."""
 
     def __init__(self, name, path, configs=None, defconfig=None):
+        """A kernel config fragment is a list of config options in file.
+
+        *name* is the name of the config fragment so it can be referred to in
+               other configuration objects.
+
+        *path* is the path where the config fragment either can be found,
+               either from the git checkout or after being generated.
+
+        *configs* is an optional list of kernel configs to use when generating
+                  a config fragment that does not exist in the git checkout.
+
+        *defconfig* is an optional defconfig name to use as a make target
+                    instead of a real config path.  This is only used for
+                    special cases such as the tiny.config fragment which needs
+                    to be built with the tinyconfig make target.
+        """
         self._name = name
         self._path = path
         self._configs = configs or list()
@@ -204,9 +227,27 @@ class Fragment(YAMLObject):
 
 
 class Architecture(YAMLObject):
+    """CPU architecture attributes."""
 
     def __init__(self, name, base_defconfig='defconfig', extra_configs=None,
                  fragments=None, filters=None):
+        """Particularities to build kernels for each CPU architecture.
+
+        *name* is the CPU architecture name as per the kernel's convention.
+
+        *base_defconfig* is the defconfig used by default and as a basis when
+                         adding fragments.
+
+        *extra_configs* is a list of extra defconfigs and make targets to
+                        build, for example allnoconfig, allmodconfig and any
+                        arbitrary some_defconfig+CONFIG_XXX=y definitions.
+
+        *fragments* is a list of CPU-specific config fragments to build if
+                    present.
+
+        *filters* is a list of filters to limit the number of builds, typically
+                  using a list of defconfigs to blacklist or whitelist.
+        """
         self._name = name
         self._base_defconfig = base_defconfig
         self._extra_configs = extra_configs or []
@@ -247,8 +288,26 @@ class Architecture(YAMLObject):
 
 
 class BuildEnvironment(YAMLObject):
+    """Kernel build environment model."""
 
     def __init__(self, name, cc, cc_version, arch_map=None):
+        """A build environment is a compiler and tools to build a kernel.
+
+        *name* is the name of the build environment so it can be referred to in
+               other parts of the build configuration.  Typical build
+               environment names include the compiler type and version such as
+               "gcc-7" although this is entirely arbitrary.
+
+        *cc* is the compiler type, such as "gcc" or "clang".  This is
+            functional and indicates the actual compiler binary being used.
+
+        *cc_version* is the full version of the compiler.
+
+        *arch_map* is a dictionary mapping kernel CPU architecture names to
+                   ones used in compiler names.  For example, gcc compilers are
+                   the same "x86" for both "i386" and "x86_64" kernel
+                   architectures.
+        """
         self._name = name
         self._cc = cc
         self._cc_version = str(cc_version)
@@ -280,8 +339,26 @@ class BuildEnvironment(YAMLObject):
 
 
 class BuildVariant(YAMLObject):
+    """A variant of a given build configuration."""
 
     def __init__(self, name, architectures, build_environment, fragments=None):
+        """A build variant is a sub-section of a build configuration.
+
+        *name* is the name of the build variant.  It is arbitrary and defined
+               to be able to refer to the build variant in other parts of the
+               build configurations or the code using it.
+
+        *architectures* is a list of Architecture objects.  There can only be
+                        one Architecture object for any given kernel CPU
+                        architecture name.  This list defines the architectures
+                        that should be built for a given build variant.
+
+        *build_environment" is a BuildEnvironment object, to define which
+                            compiler to use to build the kernels.
+
+        *fragments* is an optional list of Fragment objects to define fragments
+                    to build with this build variant.
+        """
         self._name = name
         self._architectures = architectures
         self._build_environment = build_environment
@@ -325,8 +402,23 @@ class BuildVariant(YAMLObject):
 
 
 class BuildConfig(YAMLObject):
+    """Build configuration model."""
 
     def __init__(self, name, tree, branch, variants):
+        """A build configuration defines the actual kernels to be built.
+
+        *name* is the name of the build configuration.  It is arbitrary and
+               used in other places to refer to the build configuration.
+
+        *tree* is a Tree object, where the kernel branche to be built can be
+               found.
+
+        *branch* is the name of the branch to build.  There can only be one
+                 branch in each BuildConfig object.
+
+        *variants* is a list of BuildVariant objects, to define all the
+                   variants to build for this tree / branch combination.
+        """
         self._name = name
         self._tree = tree
         self._branch = branch
@@ -530,7 +622,7 @@ class RootFS(YAMLObject):
                       but multiple entries are possible in particular to boot
                       with first a ramdisk and then pivot to nfs root.
 
-        *fs_type* is a RootFSType instance
+        *fs_type* is a RootFSType instance.
 
         *boot_protocol* is how the file system is made available to the kernel,
                         by default `tftp` typically to download a ramdisk.
@@ -602,7 +694,7 @@ class TestPlan(YAMLObject):
         *rootfs* is a RootFS object to be used to run this test plan.
 
         *params" is a dictionary with parameters to pass to the test job
-                 generator
+                 generator.
 
         *category* is to classify the type of job to be run, used when looking
                    for job template files.
