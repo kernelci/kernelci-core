@@ -28,158 +28,275 @@ import kernelci.configs
 
 
 # -----------------------------------------------------------------------------
+# Standard arguments that can be used in sub-commands
+#
+
+class Args(object):
+    config= {
+        'name': '--config',
+        'help': "Build config name",
+    }
+
+    variant = {
+        'name': '--variant',
+        'help': "Build config variant name",
+    }
+
+    storage = {
+        'name': '--storage',
+        'help': "Storage URL",
+        'default': "https://storage.kernelci.org",
+        'required': False,
+    }
+
+    api = {
+        'name': '--api',
+        'help': "Backend API URL",
+        'default': "https://api.kernelci.org",
+        'required': False,
+    }
+
+    token = {
+        'name': '--token',
+        'help': "Backend API token",
+    }
+
+    commit = {
+        'name': '--commit',
+        'help': "Git commit checksum",
+    }
+
+    mirror = {
+        'name': '--mirror',
+        'help': "Path to the local kernel git mirror",
+    }
+
+    kdir = {
+        'name': '--kdir',
+        'help': "Path to the kernel checkout directory",
+    }
+
+    arch = {
+        'name': '--arch',
+        'help': "CPU architecture name",
+    }
+
+
+# -----------------------------------------------------------------------------
 # Commands
 #
 
+class Command(object):
+    help = None
+    args = None
+    opt_args = None
+
+    def __init__(self, sub_parser, name):
+        if not self.help:
+            raise AttributeError("Missing help message for {}".format(name))
+        self._parser = sub_parser.add_parser(name, help=self.help)
+        if self.args:
+            for arg in self.args:
+                self._add_arg(arg, True)
+        if self.opt_args:
+            for arg in self.opt_args:
+                self._add_arg(arg, False)
+        self._parser.set_defaults(func=self)
+
+    def __call__(self, *args, **kw):
+        raise NotImplementedError("Command not implemented")
+
+    def _add_arg(self, arg, required=True):
+        kw = dict(arg)
+        arg_name = kw.pop('name')
+        if required:
+            kw.setdefault('required', True)
+        self._parser.add_argument(arg_name, **kw)
+
+
 # ToDo: filter using arch, compiler and defconfig
-def cmd_list_configs(configs, args):
-    for conf_name in configs['build_configs'].keys():
-        print(conf_name)
-    return True
+class cmd_list_configs(Command):
+    help = "List the build configurations"
+
+    def __call__(self, configs, args):
+        for conf_name in configs['build_configs'].keys():
+            print(conf_name)
+        return True
 
 
-def cmd_check_new_commit(configs, args):
-    conf = configs['build_configs'][args.config]
-    update = kernelci.build.check_new_commit(conf, args.storage)
-    if update is False or update is True:
-        return update
-    print(update)
-    return True
+class cmd_check_new_commit(Command):
+    help = "Check if a new commit is available on a branch"
+    args = [Args.config, Args.storage]
+
+    def __call__(self, configs, args):
+        conf = configs['build_configs'][args.config]
+        update = kernelci.build.check_new_commit(conf, args.storage)
+        if update is False or update is True:
+            return update
+        print(update)
+        return True
 
 
-def cmd_update_last_commit(configs, args):
-    conf = configs['build_configs'][args.config]
-    kernelci.build.update_last_commit(conf, args.api, args.token, args.commit)
-    return True
+class cmd_update_last_commit(Command):
+    help = "Update the last commit file on the remote storage server"
+    args = [Args.config, Args.api, Args.token, Args.commit]
+
+    def __call__(self, configs, args):
+        conf = configs['build_configs'][args.config]
+        kernelci.build.update_last_commit(
+            conf, args.api, args.token, args.commit)
+        return True
 
 
-def cmd_tree_branch(configs, args):
-    conf = configs['build_configs'][args.config]
-    print(conf.tree.name)
-    print(conf.tree.url)
-    print(conf.branch)
-    return True
+class cmd_tree_branch(Command):
+    help = "Print the name of the tree and branch for a given build config"
+    args = [Args.config]
+
+    def __call__(self, configs, args):
+        conf = configs['build_configs'][args.config]
+        print(conf.tree.name)
+        print(conf.tree.url)
+        print(conf.branch)
+        return True
 
 
-def cmd_update_mirror(configs, args):
-    conf = configs['build_configs'][args.config]
-    kernelci.build.update_mirror(conf, args.mirror)
-    return True
+class cmd_update_mirror(Command):
+    help = "Update the local kernel git mirror"
+    args = [Args.config, Args.mirror]
+
+    def __call__(self, configs, args):
+        conf = configs['build_configs'][args.config]
+        kernelci.build.update_mirror(conf, args.mirror)
+        return True
 
 
-def cmd_update_repo(configs, args):
-    conf = configs['build_configs'][args.config]
-    kernelci.build.update_repo(conf, args.kdir, args.mirror)
-    return True
+class cmd_update_repo(Command):
+    help = "Update the local kernel repository checkout"
+    args = [Args.config, Args.kdir]
+    opt_args = [Args.mirror]
+
+    def __call__(self, configs, args):
+        conf = configs['build_configs'][args.config]
+        kernelci.build.update_repo(conf, args.kdir, args.mirror)
+        return True
 
 
-def cmd_describe(configs, args):
-    conf = configs['build_configs'][args.config]
-    commit = kernelci.build.head_commit(conf, args.kdir)
-    describe = kernelci.build.git_describe(conf, args.kdir)
-    verbose = kernelci.build.git_describe_verbose(conf, args.kdir)
-    print(commit)
-    print(describe)
-    print(verbose or describe)
-    return True
+
+class cmd_describe(Command):
+    help = "Print the git commit, describe and verbose describe from kdir"
+    args = [Args.config, Args.kdir]
+
+    def __call__(self, configs, args):
+        conf = configs['build_configs'][args.config]
+        commit = kernelci.build.head_commit(conf, args.kdir)
+        describe = kernelci.build.git_describe(conf, args.kdir)
+        verbose = kernelci.build.git_describe_verbose(conf, args.kdir)
+        print(commit)
+        print(describe)
+        print(verbose or describe)
+        return True
 
 
-def cmd_generate_fragments(configs, args):
-    conf = configs['build_configs'][args.config]
-    kernelci.build.generate_fragments(conf, args.kdir)
-    return True
+class cmd_generate_fragments(Command):
+    help = "Generate the config fragment files in kdir"
+    args = [Args.config, Args.kdir]
+
+    def __call__(self, configs, args):
+        conf = configs['build_configs'][args.config]
+        kernelci.build.generate_fragments(conf, args.kdir)
+        return True
 
 
-def cmd_push_tarball(configs, args):
-    conf = configs['build_configs'][args.config]
-    func_args = (conf, args.kdir, args.storage, args.api, args.token)
-    if not all(func_args):
-        print("Invalid arguments")
-        return False
-    tarball_url = kernelci.build.push_tarball(*func_args)
-    if not tarball_url:
-        return False
-    print(tarball_url)
-    return True
+class cmd_push_tarball(Command):
+    help = "Create and up a source tarball to the remote storage server"
+    args = [Args.config, Args.kdir, Args.storage, Args.api, Args.token]
+
+    def __call__(self, configs, args):
+        conf = configs['build_configs'][args.config]
+        func_args = (conf, args.kdir, args.storage, args.api, args.token)
+        if not all(func_args):
+            print("Invalid arguments")
+            return False
+        tarball_url = kernelci.build.push_tarball(*func_args)
+        if not tarball_url:
+            return False
+        print(tarball_url)
+        return True
 
 
-def cmd_list_variants(configs, args):
-    conf = configs['build_configs'][args.config]
-    for variant in conf.variants:
-        print(variant.name)
-    return True
+class cmd_list_variants(Command):
+    help = "Print the list of build variants for a given build configuration"
+    args = [Args.config]
+
+    def __call__(self, configs, args):
+        conf = configs['build_configs'][args.config]
+        for variant in conf.variants:
+            print(variant.name)
+        return True
 
 
-def cmd_arch_list(configs, args):
-    conf = configs['build_configs'][args.config]
-    variant = conf.get_variant(args.variant)
-    for arch in variant.arch_list:
-        print(arch)
-    return True
+class cmd_arch_list(Command):
+    help = "Print the list of CPU architecture names for a given build variant"
+    args = [Args.config, Args.variant]
+
+    def __call__(self, configs, args):
+        conf = configs['build_configs'][args.config]
+        variant = conf.get_variant(args.variant)
+        for arch in variant.arch_list:
+            print(arch)
+        return True
 
 
-def cmd_build_environment(configs, args):
-    conf = configs['build_configs'][args.config]
-    variant = conf.get_variant(args.variant)
-    print(variant.build_environment.name)
-    print(variant.build_environment.cc)
-    print(variant.build_environment.cc_version)
-    if args.arch:
-        print(variant.build_environment.get_arch_name(args.arch))
-    return True
+class cmd_build_environment(Command):
+    help = "Print the build environment name for a given build variant"
+    args = [Args.config, Args.variant]
+
+    def __call__(self, configs, args):
+        conf = configs['build_configs'][args.config]
+        variant = conf.get_variant(args.variant)
+        print(variant.build_environment.name)
+        print(variant.build_environment.cc)
+        print(variant.build_environment.cc_version)
+        if args.arch:
+            print(variant.build_environment.get_arch_name(args.arch))
+        return True
 
 
-def cmd_list_kernel_configs(configs, args):
-    conf = configs['build_configs'][args.config]
-    configs = kernelci.build.list_kernel_configs(
-        conf, args.kdir, args.variant, args.arch)
-    for item in configs:
-        print(' '.join(item))
-    return True
+class cmd_list_kernel_configs(Command):
+    help = "List the kernel configs to build for a given build configuration"
+    args = [Args.config, Args.kdir]
+    opt_args = [Args.variant, Args.arch]
+
+    def __call__(self, configs, args):
+        conf = configs['build_configs'][args.config]
+        configs = kernelci.build.list_kernel_configs(
+            conf, args.kdir, args.variant, args.arch)
+        for item in configs:
+            print(' '.join(item))
+        return True
 
 
 # -----------------------------------------------------------------------------
 # Main
 #
 
-COMMANDS = dict()
-for k in globals().keys():
-    split = k.split('cmd_')
-    if len(split) == 2:
-        func = globals().get(k)
-        if callable(func):
-            COMMANDS[split[1]] = func
-
-
-def main(args):
-    configs = kernelci.configs.builds_from_yaml(args.build_configs)
-    return COMMANDS[args.cmd](configs, args)
-
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("KernelCI build interface")
-    parser.add_argument("cmd", choices=COMMANDS.keys(),
-                        help="Available commands")
     parser.add_argument("--build-configs", default="build-configs.yaml",
                         help="Path to build configs file")
-    parser.add_argument("--config",
-                        help="Config name")
-    parser.add_argument("--variant",
-                        help="Config variant name")
-    parser.add_argument("--storage", default="https://storage.kernelci.org",
-                        help="Storage URL")
-    parser.add_argument("--api", default="https://api.kernelci.org",
-                        help="Backend API URL")
-    parser.add_argument("--token",
-                        help="Backend API token")
-    parser.add_argument("--commit",
-                        help="Git commit identifier")
-    parser.add_argument("--mirror",
-                        help="Path to the kernel clone directory")
-    parser.add_argument("--kdir",
-                        help="Path to the kernel clone directory")
-    parser.add_argument("--arch",
-                        help="CPU architecture")
+    sub_parser = parser.add_subparsers(title="Commands",
+                                       help="List of available commands")
+
+    commands = dict()
+    for k in globals().keys():
+        split = k.split('cmd_')
+        if len(split) == 2:
+            obj = globals().get(k)
+            if issubclass(obj, Command):
+                cmd_name = split[1]
+                commands[cmd_name] = obj(sub_parser, cmd_name)
+
     args = parser.parse_args()
-    status = main(args)
+    configs = kernelci.configs.builds_from_yaml(args.build_configs)
+    status = args.func(configs, args)
     sys.exit(0 if status is True else 1)
