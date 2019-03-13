@@ -53,9 +53,10 @@ def configAlreadyBuilt(config, kci_core) {
         new_commit = sh(
         script: """
 ./kci_build \
+check_new_commit \
 --config=${config} \
 --storage=${params.KCI_STORAGE_URL} \
-check_new_commit""", returnStdout: true).trim()
+""", returnStdout: true).trim()
     }
 
     return (new_commit == "")
@@ -65,22 +66,25 @@ def pushTarball(config, kci_core, mirror, kdir, opts) {
     dir(kci_core) {
         sh(script: """\
 ./kci_build \
+update_mirror \
 --config=${config} \
 --mirror=${mirror} \
-update_mirror""")
+""")
 
         sh(script: """\
 ./kci_build \
+update_repo \
 --config=${config} \
 --kdir=${kdir} \
 --mirror=${mirror} \
-update_repo""")
+""")
 
         def describe_raw = sh(script: """\
 ./kci_build \
+describe \
 --config=${config} \
 --kdir=${kdir} \
-describe""", returnStdout: true).trim()
+""", returnStdout: true).trim()
         def describe_list = describe_raw.tokenize('\n')
         opts['commit'] = describe_list[0]
         opts['describe'] = describe_list[1]
@@ -90,28 +94,29 @@ describe""", returnStdout: true).trim()
                                 variable: 'SECRET')]) {
             sh(script: """\
 ./kci_build \
+update_last_commit \
 --config=${config} \
---kdir=${kdir} \
 --commit=${opts['commit']} \
---storage=${params.KCI_STORAGE_URL} \
 --api=${params.KCI_API_URL} \
 --token=${SECRET} \
-update_last_commit""")
+""")
 
             sh(script: """\
 ./kci_build \
+generate_fragments \
 --config=${config} \
 --kdir=${kdir} \
-generate_fragments""")
+""")
 
             opts['tarball_url'] = sh(script: """\
 ./kci_build \
+push_tarball \
 --config=${config} \
 --kdir=${kdir} \
 --storage=${params.KCI_STORAGE_URL} \
 --api=${params.KCI_API_URL} \
 --token=${SECRET} \
-push_tarball""", returnStdout: true).trim()
+""", returnStdout: true).trim()
         }
     }
 }
@@ -120,9 +125,10 @@ def listConfigs(config, kci_core, kdir, config_list) {
     dir(kci_core) {
         def kernel_config_list_raw = sh(script: """\
 ./kci_build \
+list_kernel_configs \
 --config=${config} \
 --kdir=${kdir} \
-list_kernel_configs""", returnStdout: true).trim()
+""", returnStdout: true).trim()
         def kernel_config_list = kernel_config_list_raw.tokenize('\n')
 
         for (String kernel_config_raw: kernel_config_list) {
@@ -141,8 +147,9 @@ def addBuildOpts(config, kci_core, opts) {
         def opts_raw = sh(
             script: """\
 ./kci_build \
+tree_branch \
 --config=${config} \
-tree_branch""", returnStdout: true).trim()
+""", returnStdout: true).trim()
         def opt_list = opts_raw.tokenize('\n')
         opts['tree'] = opt_list[0]
         opts['git_url'] = opt_list[1]
@@ -151,8 +158,9 @@ tree_branch""", returnStdout: true).trim()
         def raw_variants = sh(
             script: """\
 ./kci_build \
+list_variants \
 --config=${config} \
-list_variants""", returnStdout: true).trim()
+""", returnStdout: true).trim()
         def variants = raw_variants.tokenize('\n')
 
         def arch_list = []
@@ -160,9 +168,10 @@ list_variants""", returnStdout: true).trim()
             def raw_variant_arch_list = sh(
                 script: """\
 ./kci_build \
+arch_list \
 --config=${config} \
 --variant=${variant} \
-arch_list""", returnStdout: true).trim()
+""", returnStdout: true).trim()
             def variant_arch_list = raw_variant_arch_list.tokenize('\n')
 
             for (String arch: variant_arch_list)
