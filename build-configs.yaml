@@ -432,6 +432,7 @@ build_configs:
   gtucker_stable:
     tree: gtucker
     branch: 'kernelci-stable'
+    variants: *stable_variants
 
   khilman:
     tree: khilman
