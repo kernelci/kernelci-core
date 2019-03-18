@@ -70,17 +70,17 @@ cp -a \
    tests/core_getclient \
    tests/core_getstats \
    tests/core_getversion \
-   tests/core_prop_blob \
    tests/core_setmaster_vs_auth \
    tests/drm_read \
    tests/kms_addfb_basic \
    tests/kms_atomic \
+   tests/kms_cursor_legacy \
+   tests/kms_flip  \
    tests/kms_flip_event_leak \
+   tests/kms_frontbuffer_tracking \
+   tests/kms_prop_blob \
    tests/kms_setmode \
    tests/kms_vblank \
-   tests/kms_frontbuffer_tracking \
-   tests/kms_flip  \
-   tests/kms_cursor_legacy \
    tests/testdisplay \
    /tmp/tests/igt2/usr/bin
 strip /tmp/tests/igt2/usr/bin/*
