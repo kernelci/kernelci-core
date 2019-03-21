@@ -45,7 +45,7 @@ sudo touch ${BASEDIR}/${ARCH}.done
 # Check if all builds for all architectures have finished. The magic number here is 4 (arm, arm64, x86, mips64)
 # This magic number will need to be changed if new architectures are added.
 export BUILDS_FINISHED=$(ls ${BASEDIR}/ | grep .done | wc -l)
-if [[ BUILDS_FINISHED -eq 4 ]]; then
+if [[ BUILDS_FINISHED -eq 6 ]]; then
     echo "All builds have now finished, triggering testing..."
     # Tell the dashboard the job has finished build.
     echo "Build has now finished, reporting result to dashboard."
@@ -54,7 +54,16 @@ if [[ BUILDS_FINISHED -eq 4 ]]; then
         echo "Not sending emails because EMAIL was false"
         exit 0
     fi
-    if [ "$TREE_NAME" == "arm-soc" ] || [ "$TREE_NAME" == "mainline" ] || [ "$TREE_NAME" == "stable" ] || [ "$TREE_NAME" == "stable-rc" ] || [ "$TREE_NAME" == "rmk" ] || [ "$TREE_NAME" == "tegra" ]; then
+    if [ "$TREE_NAME" == "staging" ]; then
+        echo "Sending results to staging folks"
+        #STAGING_LIST='"gtucker@collabora.com", "mgalka@collabora.com, matthew.hart@linaro.org", "dan.rue@linaro.org", "khilman@baylibre.com", "anders.roxell@gmail.com"'
+        curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "build_report": 1, "format": ["txt"], "send_to": ["gtucker@collabora.com", "mgalka@collabora.com"], "delay": 0}' ${API}/send
+        curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "boot_report": 1, "format": ["txt"], "send_to": ["gtucker@collabora.com", "mgalka@collabora.com"], "delay": 1800}' ${API}/send
+        curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'",  "report_type": "test", "plan": "v4l2-compliance-vivid", "send_to": ["gtucker@collabora.com", "mgalka@collabora.com"], "format": ["txt"], "delay": 2700}' ${API}/send
+        curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'",  "report_type": "test", "plan": "v4l2-compliance-uvc", "send_to": ["gtucker@collabora.com", "mgalka@collabora.com"], "format": ["txt"], "delay": 2700}' ${API}/send
+        curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'",  "report_type": "test", "plan": "igt", "send_to": ["gtucker@collabora.com", "mgalka@collabora.com"], "format": ["txt"], "delay": 2700}' ${API}/send
+        curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'",  "report_type": "test", "plan": "sleep", "send_to": ["gtucker@collabora.com", "mgalka@collabora.com"], "format": ["txt"], "delay": 2700}' ${API}/send
+    elif [ "$TREE_NAME" == "arm-soc" ] || [ "$TREE_NAME" == "mainline" ] || [ "$TREE_NAME" == "stable" ] || [ "$TREE_NAME" == "stable-rc" ] || [ "$TREE_NAME" == "rmk" ] || [ "$TREE_NAME" == "tegra" ]; then
         # Public Mailing List
         echo "Sending results pubic mailing list"
         curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "build_report": 1, "send_to": ["kernel-build-reports@lists.linaro.org"], "format": ["txt", "html"], "delay": 10}' ${API}/send
