@@ -32,6 +32,8 @@ KCI_API_URL (https://api.kernelci.org)
   URL of the KernelCI backend API
 KCI_TOKEN_ID
   Identifier of the KernelCI backend API token stored in Jenkins
+KCI_STORAGE_URL (https://storage.kernelci.org/)
+  URL of the KernelCI storage server
 KCI_CORE_URL (https://github.com/kernelci/kernelci-core.git)
   URL of the kernelci-core repository
 KCI_CORE_BRANCH (master)
