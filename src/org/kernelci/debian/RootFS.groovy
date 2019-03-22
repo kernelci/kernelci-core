@@ -42,6 +42,8 @@ def buildImage(config) {
     def pipeline_version = VersionNumber(
         versionNumberString: '${BUILD_DATE_FORMATTED,"yyyyMMdd"}.${BUILDS_TODAY_Z}')
 
+    def vmMemory = config.vm_memory ?: "2G"
+
     /* debos will always run the extra packages step, so let's make sure it has
      * something to install */
     def extraPackages = "bash"
@@ -64,6 +66,7 @@ def buildImage(config) {
         def arch = archList[i]
         def buildStep = "Build image for ${arch}"
         stepsForParallel[buildStep] = makeImageStep(pipeline_version,
+                                                    vmMemory,
                                                     arch,
                                                     debianRelease,
                                                     debosFile,
@@ -79,6 +82,7 @@ def buildImage(config) {
 
 
 def makeImageStep(String pipeline_version,
+                  String vmMemory,
                   String arch,
                   String debianRelease,
                   String debosFile,
@@ -99,6 +103,7 @@ def makeImageStep(String pipeline_version,
                     sh """
                         mkdir -p ${pipeline_version}/${arch}
                         debos \
+                            -m ${vmMemory} \
                             -t architecture:${arch} \
                             -t suite:${debianRelease} \
                             -t basename:${pipeline_version}/${arch} \
