@@ -119,9 +119,9 @@
                     </td>
                 </tr>
             {%- for board in platforms.conflict_data.data[arch][defconfig] %}
-                <tr><td style="padding-left: 40px">{{ board[1] }} ({{ board[2] }}):</td></tr>
+                <tr><td style="padding-left: 40px">{{ board[0] }}:</td></tr>
             {%- for lab in platforms.conflict_data.data[arch][defconfig][board] %}
-                <tr><td style="padding-left: 55px;">{{ lab }}</td></tr>
+                <tr><td style="padding-left: 55px;">{{ lab[0] }} ({{ lab[1] }})</td></tr>
             {%- endfor %}{# lab #}
             {%- endfor %}{# board #}
             {%- endfor %}{# defconfig #}

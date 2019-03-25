@@ -1161,12 +1161,12 @@ def _parse_and_structure_results(boot_data):
                             board_struct = defconf_struct[
                                 (txt_string, html_string)
                             ]
-                            for lab in def_get(board).viewkeys():
-                                board_struct.append(
+                            for lab in build_get(board).viewkeys():
+                                board_struct.append((
                                     G_(u"{:s}: {:s}").format(
-                                        lab, def_get(board)[lab]),
+                                        lab, build_get(board)[lab]),
                                     build_environment
-                                )
+                                ))
                     else:
                         # Not a conflict data structure, we show only the count
                         # of the failed labs, not which one failed.
