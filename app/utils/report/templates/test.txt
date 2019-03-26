@@ -15,10 +15,15 @@ Test results summary
 {%- endfor %}
 
 
-Test failures
--------------
+{%- set print_header = true %}
 {%- for t in test_groups|sort(attribute='name') %} {# test_groups #}
   {%- if t.total["FAIL"] or t.regressions %} {# fail or regressions #}
+    {% if print_header %}
+
+Test failures
+-------------
+        {%- set print_header = false %}
+    {%- endif %} {# print_header #}
 {{ "%-2s | %-22s | %-5s | %3s total: %3s PASS %3s FAIL %3s SKIP"|format(loop.index, t.board, t.arch, t.total_tests, t.total["PASS"], t.total["FAIL"], t.total["SKIP"]) }}
 
   Config:      {{ t.defconfig_full }}
