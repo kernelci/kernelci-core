@@ -1,0 +1,20 @@
+# See the KernelCI wiki page regarding the format of this file:
+# https://github.com/kernelci/kernelci-doc/wiki/Build-configurations
+
+trees:
+  agross:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/agross/linux.git"
+
+build_environments:
+  gcc-7:
+    cc: gcc
+    cc_version: 7
+    arch_map:
+      i386: 'x86'
+      x86_64: 'x86'
+      riscv: 'riscv64'
+
+build_configs:
+  agross:
+    tree: agross
+    branch: 'for-next'

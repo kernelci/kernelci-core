@@ -373,7 +373,7 @@ class BuildVariant(YAMLObject):
             config, ['name', 'build_environment', 'fragments']))
         kw['build_environment'] = build_environments[kw['build_environment']]
         kw['architectures'] = list(
-            Architecture.from_yaml(data, name, fragments)
+            Architecture.from_yaml(data or {}, name, fragments)
             for name, data in config['architectures'].iteritems()
         )
         cf = kw.get('fragments')
@@ -818,7 +818,7 @@ def builds_from_yaml(yaml_path):
 
     fragments = {
         name: Fragment.from_yaml(config, name)
-        for name, config in data['fragments'].iteritems()
+        for name, config in data.get('fragments', {}).iteritems()
     }
 
     build_environments = {
@@ -826,7 +826,7 @@ def builds_from_yaml(yaml_path):
         for name, config in data['build_environments'].iteritems()
     }
 
-    defaults = data.get('build_configs_defaults')
+    defaults = data.get('build_configs_defaults', {})
 
     build_configs = {
         name: BuildConfig.from_yaml(config, name, trees, fragments,
