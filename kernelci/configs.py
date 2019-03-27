@@ -262,10 +262,9 @@ class Architecture(YAMLObject):
         kw.update(cls._kw_from_yaml(data, [
             'name', 'base_defconfig', 'extra_configs',
         ]))
-        if data is not None:
-            cf = data.get('fragments')
-            kw['fragments'] = [fragments[name] for name in cf] if cf else None
-            kw['filters'] = FilterFactory.from_data(data)
+        cf = data.get('fragments')
+        kw['fragments'] = [fragments[name] for name in cf] if cf else None
+        kw['filters'] = FilterFactory.from_data(data)
         return cls(**kw)
 
     @property
@@ -374,7 +373,7 @@ class BuildVariant(YAMLObject):
             config, ['name', 'build_environment', 'fragments']))
         kw['build_environment'] = build_environments[kw['build_environment']]
         kw['architectures'] = list(
-            Architecture.from_yaml(data, name, fragments)
+            Architecture.from_yaml(data or dict(), name, fragments)
             for name, data in config['architectures'].iteritems()
         )
         cf = kw.get('fragments')
