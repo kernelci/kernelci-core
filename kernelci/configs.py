@@ -262,9 +262,10 @@ class Architecture(YAMLObject):
         kw.update(cls._kw_from_yaml(data, [
             'name', 'base_defconfig', 'extra_configs',
         ]))
-        cf = data.get('fragments')
-        kw['fragments'] = [fragments[name] for name in cf] if cf else None
-        kw['filters'] = FilterFactory.from_data(data)
+        if data is not None:
+            cf = data.get('fragments')
+            kw['fragments'] = [fragments[name] for name in cf] if cf else None
+            kw['filters'] = FilterFactory.from_data(data)
         return cls(**kw)
 
     @property
@@ -818,7 +819,7 @@ def builds_from_yaml(yaml_path):
 
     fragments = {
         name: Fragment.from_yaml(config, name)
-        for name, config in data['fragments'].iteritems()
+        for name, config in data.get('fragments', {}).iteritems()
     }
 
     build_environments = {
@@ -826,7 +827,7 @@ def builds_from_yaml(yaml_path):
         for name, config in data['build_environments'].iteritems()
     }
 
-    defaults = data.get('build_configs_defaults')
+    defaults = data.get('build_configs_defaults', {})
 
     build_configs = {
         name: BuildConfig.from_yaml(config, name, trees, fragments,
