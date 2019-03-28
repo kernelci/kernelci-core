@@ -409,7 +409,7 @@ device_types:
     name: 'imx6ul-pico-hobbit'
     mach: imx
     class: arm-dtb
-    boot_method: uboot
+    boot_method: barebox
     flags: ['fastboot']
     filters:
       - blacklist:
@@ -931,7 +931,7 @@ test_configs:
     test_plans: [boot]
 
   - device_type: imx6ul_pico_hobbit
-    test_plans: [boot, boot_nfs, kselftest]
+    test_plans: [boot, boot_nfs, kselftest, sleep]
 
   - device_type: imx6q_sabrelite
     test_plans: [boot, boot_nfs, kselftest, sleep, usb]
