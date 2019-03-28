@@ -42,12 +42,16 @@ def buildImage(config) {
     def pipeline_version = VersionNumber(
         versionNumberString: '${BUILD_DATE_FORMATTED,"yyyyMMdd"}.${BUILDS_TODAY_Z}')
 
+    def vmMemory = config.vm_memory ?: "2G"
+
     /* debos will always run the extra packages step, so let's make sure it has
      * something to install */
     def extraPackages = "bash"
     if (config.extra_packages != null) {
         extraPackages = config.extra_packages
     }
+
+    def extraPackagesRemove = config.extra_packages_remove ?: ""
 
     // defaults to empty script scripts/nothing.sh
     def script = "scripts/nothing.sh"
@@ -64,10 +68,12 @@ def buildImage(config) {
         def arch = archList[i]
         def buildStep = "Build image for ${arch}"
         stepsForParallel[buildStep] = makeImageStep(pipeline_version,
+                                                    vmMemory,
                                                     arch,
                                                     debianRelease,
                                                     debosFile,
                                                     extraPackages,
+                                                    extraPackagesRemove,
                                                     name,
                                                     script,
                                                     test_overlay,
@@ -79,10 +85,12 @@ def buildImage(config) {
 
 
 def makeImageStep(String pipeline_version,
+                  String vmMemory,
                   String arch,
                   String debianRelease,
                   String debosFile,
                   String extraPackages,
+                  String extraPackagesRemove,
                   String name,
                   String script,
                   String test_overlay,
@@ -99,10 +107,12 @@ def makeImageStep(String pipeline_version,
                     sh """
                         mkdir -p ${pipeline_version}/${arch}
                         debos \
+                            -m ${vmMemory} \
                             -t architecture:${arch} \
                             -t suite:${debianRelease} \
                             -t basename:${pipeline_version}/${arch} \
                             -t extra_packages:'${extraPackages}' \
+                            -t extra_packages_remove:'${extraPackagesRemove}' \
                             -t script:${script} \
                             -t test_overlay:'${test_overlay}' \
                             ${debosFile}

@@ -16,6 +16,7 @@ def config = ['name':"stretch",
                            "mips", "mipsel", "mips64el"],
               'debian_release':"stretch",
               'extra_packages':"",
+              'extra_packages_remove':"bash e2fsprogs e2fslibs"
               'script':"",
               'docker_image': "${params.DOCKER_BASE}debos",
              ]
