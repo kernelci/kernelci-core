@@ -1,0 +1,37 @@
+{% extends 'boot/generic-barebox-tftp-ramdisk-boot-template.jinja2' %}
+{% block actions %}
+{{ super () }}
+
+- test:
+    timeout:
+      minutes: 10
+    definitions:
+    - repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: kselftest
+          description: "kselftest"
+          os:
+          - debian
+          scope:
+          - functional
+        parse:
+          pattern: "^selftests:\\s(?P<test_case_id>\\S+)\\s[[](?P<result>(FAIL|PASS|SKIP))[]]"
+          fixupdict:
+            PASS: pass
+            FAIL: fail
+            SKIP: skip
+        run:
+          steps:
+          - rm -f /etc/resolv.conf
+          - udhcpc
+          - wget http://storage.kernelci.org/images/selftests/{{ arch }}/kselftest.tar.gz
+          - gunzip kselftest.tar.gz
+          - tar xvf kselftest.tar
+          - cd kselftest
+          - ./run_kselftest.sh
+      from: inline
+      name: kselftest
+      path: inline/kselftest.yaml
+
+{% endblock %}
