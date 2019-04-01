@@ -419,6 +419,14 @@ device_types:
     filters:
       - blacklist: *allmodconfig_filter
 
+  imx23_olinuxino:
+    name: 'imx23-olinuxino'
+    mach: imx
+    class: arm-dtb
+    boot_method: barebox
+    filters:
+      - blacklist: *allmodconfig_filter
+
   imx6q_nitrogen6x:
     name: 'imx6q-nitrogen6x'
     mach: imx
