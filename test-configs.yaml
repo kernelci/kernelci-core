@@ -455,6 +455,18 @@ device_types:
             - 'multi_v5_defconfig'
             - 'allmodconfig'
 
+  imx6dl_riotboard:
+    name: 'imx6dl-riotboard'
+    mach: imx
+    class: arm-dtb
+    boot_method: barebox
+    filters:
+      - blacklist:
+          defconfig:
+            - 'imx_v4_v5_defconfig'
+            - 'multi_v5_defconfig'
+            - 'allmodconfig'
+
   imx6q_nitrogen6x:
     name: 'imx6q-nitrogen6x'
     mach: imx
