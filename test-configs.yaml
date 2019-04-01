@@ -411,6 +411,14 @@ device_types:
     class: arm-dtb
     boot_method: uboot
 
+  dove_cubox:
+    name: 'dove-cubox'
+    mach: imx
+    class: arm-dtb
+    boot_method: barebox
+    filters:
+      - blacklist: *allmodconfig_filter
+
   imx6q_nitrogen6x:
     name: 'imx6q-nitrogen6x'
     mach: imx
