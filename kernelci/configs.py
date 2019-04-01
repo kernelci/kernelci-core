@@ -535,6 +535,14 @@ class DeviceType_arm(DeviceType):
         super(DeviceType_arm, self).__init__(name, mach, arch, *args, **kw)
 
 
+class DeviceType_mips(DeviceType):
+
+    def __init__(self, name, mach, arch='mips', *args, **kw):
+        """mips device type with a device tree."""
+        kw.setdefault('dtb', '{}.dtb'.format(name))
+        super(DeviceType_mips, self).__init__(name, mach, arch, *args, **kw)
+
+
 class DeviceType_arm64(DeviceType):
 
     def __init__(self, name, mach, arch='arm64', *args, **kw):
@@ -547,6 +555,7 @@ class DeviceTypeFactory(YAMLObject):
     """Factory to create device types from YAML data."""
 
     _classes = {
+        'mips-dtb': DeviceType_mips,
         'arm-dtb': DeviceType_arm,
         'arm64-dtb': DeviceType_arm64,
     }
