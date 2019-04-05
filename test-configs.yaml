@@ -759,6 +759,18 @@ device_types:
     class: arm-dtb
     boot_method: uboot
 
+  sun8i_h2_plus_orangepi_r1:
+    name: 'sun8i-h2-plus-orangepi-r1'
+    mach: allwinner
+    class: arm-dtb
+    boot_method: uboot
+
+  sun8i_h2_plus_orangepi_zero:
+    name: 'sun8i-h2-plus-orangepi-zero'
+    mach: allwinner
+    class: arm-dtb
+    boot_method: uboot
+
   sun8i_h2_plus_libretech_all_h3_cc:
     name: 'sun8i-h2-plus-libretech-all-h3-cc'
     mach: allwinner
@@ -1075,6 +1087,12 @@ test_configs:
     test_plans: [boot]
 
   - device_type: sun8i_a83t_allwinner_h8homlet_v2
+    test_plans: [boot]
+
+  - device_type: sun8i_h2_plus_orangepi_zero
+    test_plans: [boot]
+
+  - device_type: sun8i_h2_plus_orangepi_r1
     test_plans: [boot]
 
   - device_type: sun8i_h2_plus_libretech_all_h3_cc
