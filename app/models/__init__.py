@@ -108,6 +108,7 @@ GTE_KEY = "gte"
 HIERARCHY_KEY = "hierarchy"
 ID_KEY = "_id"
 IMAGE_TYPE_KEY = "image_type"
+INDEX_KEY = "index"
 INITRD_ADDR_KEY = "initrd_addr"
 INITRD_INFO_KEY = "initrd_info"
 INITRD_KEY = "initrd"
@@ -897,6 +898,7 @@ TEST_CASE_VALID_KEYS = {
             CREATED_KEY,
             DEFINITION_URI_KEY,
             KVM_GUEST_KEY,
+            INDEX_KEY,
             MAXIMUM_KEY,
             MEASUREMENTS_KEY,
             METADATA_KEY,
@@ -919,6 +921,7 @@ TEST_CASE_VALID_KEYS = {
         CREATED_KEY,
         DEFINITION_URI_KEY,
         KVM_GUEST_KEY,
+        INDEX_KEY,
         MAXIMUM_KEY,
         MEASUREMENTS_KEY,
         METADATA_KEY,
@@ -939,6 +942,7 @@ TEST_CASE_VALID_KEYS = {
         CREATED_KEY,
         DEFINITION_URI_KEY,
         KVM_GUEST_KEY,
+        INDEX_KEY,
         MAXIMUM_KEY,
         MINIMUM_KEY,
         NAME_KEY,

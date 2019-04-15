@@ -31,6 +31,7 @@ class TestTestCaseModel(unittest.TestCase):
         test_case.attachments = [{"foo": "bar"}]
         test_case.created_on = "now"
         test_case.definition_uri = "scheme://authority/path"
+        test_case.index = 1
         test_case.kvm_guest = "kvm_guest"
         test_case.maximum = 1
         test_case.measurements = [{"foo": 1}]
@@ -52,6 +53,7 @@ class TestTestCaseModel(unittest.TestCase):
             "attachments": [{"foo": "bar"}],
             "created_on": "now",
             "definition_uri": "scheme://authority/path",
+            "index": 1,
             "kvm_guest": "kvm_guest",
             "maximum": 1,
             "measurements": [{"foo": 1}],
@@ -78,6 +80,7 @@ class TestTestCaseModel(unittest.TestCase):
         test_case.attachments = [{"foo": "bar"}]
         test_case.created_on = "now"
         test_case.definition_uri = "scheme://authority/path"
+        test_case.index = 1
         test_case.kvm_guest = "kvm_guest"
         test_case.maximum = 1
         test_case.measurements = [{"foo": 1}]
@@ -98,6 +101,7 @@ class TestTestCaseModel(unittest.TestCase):
             "attachments": [{"foo": "bar"}],
             "created_on": "now",
             "definition_uri": "scheme://authority/path",
+            "index": 1,
             "kvm_guest": "kvm_guest",
             "maximum": 1,
             "measurements": [{"foo": 1}],
@@ -136,6 +140,7 @@ class TestTestCaseModel(unittest.TestCase):
             "attachments": [{"foo": "bar"}],
             "created_on": "now",
             "definition_uri": "scheme://authority/path",
+            "index": 1,
             "kvm_guest": "kvm_guest",
             "maximum": 1,
             "measurements": [{"foo": 1}],

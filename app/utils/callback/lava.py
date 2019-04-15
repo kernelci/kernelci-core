@@ -44,6 +44,7 @@ LAVA_JOB_RESULT = {
 TEST_CASE_MAP = {
     models.NAME_KEY: "name",
     models.STATUS_KEY: "result",
+    models.INDEX_KEY: "logged",
 }
 
 TEST_CASE_NAME_EXTRA = {
@@ -432,7 +433,7 @@ def _add_test_results(group, suite_results, suite_name):
     test_cases = []
     test_sets = {}
 
-    for test in tests:
+    for test in reversed(tests):
         test_case = {
             models.VERSION_KEY: "1.1",
             models.TIME_KEY: "0.0",
@@ -446,6 +447,7 @@ def _add_test_results(group, suite_results, suite_name):
             test_case_list = test_sets.setdefault(test_set_name, [])
         else:
             test_case_list = test_cases
+        test_case[models.INDEX_KEY] = len(test_case_list) + 1
         measurement = test.get("measurement")
         if measurement and measurement != 'None':
             test_case[models.MEASUREMENTS_KEY] = [{

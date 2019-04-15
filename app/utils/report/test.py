@@ -13,9 +13,6 @@
 
 """Create the tests email report."""
 
-import json
-import os
-
 import models
 import utils
 import utils.db
@@ -113,6 +110,8 @@ def _add_test_group_data(group, db, spec, hierarchy=[]):
             if regr:
                 regr_count += 1
         test_cases.append(test_case)
+
+    test_cases.sort(key=lambda tc: tc[models.INDEX_KEY])
 
     sub_groups = []
     for sub_group_id in group[models.SUB_GROUPS_KEY]:

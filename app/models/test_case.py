@@ -51,6 +51,7 @@ class TestCaseDocument(mbase.BaseDocument):
         self._measurements = []
         self._parameters = {}
 
+        self.index = None
         self.definition_uri = None
         self.kvm_guest = None
         self.maximum = None
@@ -236,6 +237,7 @@ class TestCaseDocument(mbase.BaseDocument):
             models.CREATED_KEY: self.created_on,
             models.DEFINITION_URI_KEY: self.definition_uri,
             models.KVM_GUEST_KEY: self.kvm_guest,
+            models.INDEX_KEY: self.index,
             models.MAXIMUM_KEY: self.maximum,
             models.MEASUREMENTS_KEY: self.measurements,
             models.METADATA_KEY: self.metadata,

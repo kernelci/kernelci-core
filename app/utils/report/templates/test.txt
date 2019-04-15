@@ -43,7 +43,7 @@ Test failures
     * {{ tc.name }}: {{ tc.failure_message }}
       {%- endif %}
     {%- endfor %}
-    {%- for sg in t.sub_groups %} {# sub_groups #}
+    {%- for sg in t.sub_groups|sort(attribute='test_cases.0.index') %} {# sub_groups #}
       {%- if sg.total["FAIL"] or sg.regressions %} {# sg fail or regressions #}
 
     {{ sg.name }} - {{ sg.total_tests }} tests: {{ sg.total["PASS"] }}  PASS, {{ sg.total["FAIL"] }} FAIL, {{ sg.total["SKIP"] }} SKIP
