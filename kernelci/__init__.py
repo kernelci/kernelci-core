@@ -22,4 +22,4 @@ def shell_cmd(cmd, ret_code=False):
     if ret_code:
         return False if subprocess.call(cmd, shell=True) else True
     else:
-        subprocess.check_output(cmd, shell=True)
+        return subprocess.check_output(cmd, shell=True)
