@@ -60,8 +60,7 @@ def update_last_commit(config, api, token, commit):
 def get_branch_head(config):
     cmd = "git ls-remote {url} refs/heads/{branch}".format(
         url=config.tree.url, branch=config.branch)
-    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    head, _ = p.communicate()
+    head = shell_cmd(cmd)
     if not head:
         return False
     return head.split()[0]
@@ -133,8 +132,7 @@ def head_commit(path):
 cd {path} &&
 git log --pretty=format:%H -n1
 """.format(path=path)
-    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    commit, _ = p.communicate()
+    commit = shell_cmd(cmd)
     return commit.strip()
 
 
@@ -144,8 +142,7 @@ def git_describe(tree_name, path):
 cd {path} && \
 git describe {describe_args} \
 """.format(path=path, describe_args=describe_args)
-    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    describe, _ = p.communicate()
+    describe = shell_cmd(cmd)
     return describe.strip().replace('/', '_')
 
 
@@ -154,8 +151,7 @@ def git_describe_verbose(path):
 cd {path} &&
 git describe --match=v[1-9]\* \
 """.format(path=path)
-    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    describe, _ = p.communicate()
+    describe = shell_cmd(cmd)
     return describe.strip()
 
 
