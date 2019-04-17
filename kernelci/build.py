@@ -32,6 +32,22 @@ def _get_last_commit_file_name(config):
     return '_'.join(['last-commit', config.name])
 
 
+def _upload_files(api, token, path, input_files):
+    headers = {
+        'Authorization': token,
+    }
+    data = {
+        'path': path,
+    }
+    files = {
+        'file{}'.format(i): (name, fobj)
+        for i, (name, fobj) in enumerate(input_files.iteritems())
+    }
+    url = urlparse.urljoin(api, 'upload')
+    resp = requests.post(url, headers=headers, data=data, files=files)
+    resp.raise_for_status()
+
+
 def get_last_commit(config, storage):
     last_commit_url = "{storage}/{tree}/{file_name}".format(
         storage=storage, tree=config.tree.name,
@@ -43,18 +59,8 @@ def get_last_commit(config, storage):
 
 
 def update_last_commit(config, api, token, commit):
-    headers = {
-        'Authorization': token,
-    }
-    data = {
-        'path': config.tree.name,
-    }
-    files = {
-        'file': (_get_last_commit_file_name(config), commit),
-    }
-    url = urlparse.urljoin(api, 'upload')
-    resp = requests.post(url, headers=headers, data=data, files=files)
-    resp.raise_for_status()
+    _upload_files(api, token, config.tree.name,
+                  {_get_last_commit_file_name(config): commit})
 
 
 def get_branch_head(config):
@@ -168,21 +174,6 @@ def make_tarball(path, tarball_name):
     subprocess.check_output(cmd, shell=True)
 
 
-def upload_tarball(config, path, api, token, tarball, file_name, describe):
-    headers = {
-        'Authorization': token,
-    }
-    data = {
-        'path': '/'.join([config.tree.name, config.branch, describe]),
-    }
-    files = {
-        'file': (file_name, open(tarball),),
-    }
-    url = urlparse.urljoin(api, 'upload')
-    resp = requests.post(url, headers=headers, data=data, files=files)
-    resp.raise_for_status()
-
-
 def generate_fragments(config, kdir):
     add_kselftest_fragment(kdir)
     for variant in config.variants:
@@ -204,7 +195,8 @@ def push_tarball(config, kdir, storage, api, token):
         return tarball_url
     tarball = "{}.tar.gz".format(config.name)
     make_tarball(kdir, tarball)
-    upload_tarball(config, kdir, api, token, tarball, tarball_name, describe)
+    path = '/'.join([config.tree.name, config.branch, describe]),
+    _upload_files(api, token, path, {tarball_name: open(tarball)})
     os.unlink(tarball)
     return tarball_url
 
