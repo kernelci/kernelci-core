@@ -120,7 +120,7 @@ class LabHandler(handlers.base.BaseHandler):
                 lab_bson_id = bson.objectid.ObjectId(lab_id)
 
                 lab_doc = utils.db.find_one2(
-                    self.collection, {models.ID_KEY, lab_bson_id})
+                    self.collection, {models.ID_KEY: lab_bson_id})
 
                 if lab_doc:
                     token_id = lab_doc.get(models.TOKEN_KEY, None)
