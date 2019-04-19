@@ -71,6 +71,31 @@ class Args(object):
         'help': "Git commit checksum",
     }
 
+    describe = {
+        'name': '--describe',
+        'help': "Git describe",
+    }
+
+    describe_verbose = {
+        'name': '--describe-verbose',
+        'help': "Verbose version of git describe",
+    }
+
+    tree_name = {
+        'name': '--tree-name',
+        'help': "Name of a kernel tree",
+    }
+
+    tree_url = {
+        'name': '--tree-url',
+        'help': "URL of a kernel tree",
+    }
+
+    branch = {
+        'name': '--branch',
+        'help': "Name of a kernel branch in a tree",
+    }
+
     mirror = {
         'name': '--mirror',
         'help': "Path to the local kernel git mirror",
@@ -84,6 +109,22 @@ class Args(object):
     arch = {
         'name': '--arch',
         'help': "CPU architecture name",
+    }
+
+    defconfig = {
+        'name': '--defconfig',
+        'help': "Kernel defconfig name",
+    }
+
+    j = {
+        'name': '-j',
+        'help': "Number of parallel build processes",
+    }
+
+    verbose = {
+        'name': '--verbose',
+        'help': "Verbose output",
+        'action': 'store_true',
     }
 
 
@@ -299,6 +340,62 @@ class cmd_list_kernel_configs(Command):
             print(' '.join(item))
         return True
 
+
+class cmd_build_kernel(Command):
+    help = "Build a kernel"
+    args = [Args.build_env, Args.arch, Args.kdir]
+    opt_args = [Args.defconfig, Args.j, Args.verbose]
+
+    def __call__(self, configs, args):
+        build_env = configs['build_environments'][args.build_env]
+        return kernelci.build.build_kernel(
+            build_env, args.kdir, args.arch, args.defconfig, args.j,
+            args.verbose)
+
+
+class cmd_install_kernel(Command):
+    help = "Install the kernel binaries and build.json locally"
+    args = [Args.kdir]
+    opt_args = [Args.config, Args.tree_name, Args.tree_url, Args.branch,
+                Args.commit, Args.describe, Args.describe_verbose]
+
+    def __call__(self, configs, args):
+        if args.config:
+            conf = configs['build_configs'][args.config]
+            tree_name = conf.tree.name
+            tree_url = conf.tree.url
+            branch = conf.branch
+        else:
+            tree_name = args.tree_name
+            tree_url = args.tree_url
+            branch = args.branch
+        if not all((tree_name, tree_url, branch)):
+            print("""\
+Invalid arguments, either of these 2 sets are possible:
+   --tree-name, --tree-url and --branch
+or
+   --config (in which case the tree and branch are read from the YAML config)\
+""")
+            return False
+        return kernelci.build.install_kernel(
+            args.kdir, tree_name, tree_url, branch, args.commit, args.describe,
+            args.describe_verbose)
+
+
+class cmd_push_kernel(Command):
+    help = "Push the kernel binaries"
+    args = [Args.kdir, Args.api, Args.token]
+
+    def __call__(self, configs, args):
+        return kernelci.build.push_kernel(args.kdir, args.api, args.token)
+
+
+class cmd_publish_kernel(Command):
+    help = "Publish the kernel meta-data"
+    args = [Args.kdir, Args.api, Args.token]
+
+    def __call__(self, configs, args):
+        return kernelci.build.publish_kernel(args.kdir, args.api, args.token)
 
 # -----------------------------------------------------------------------------
 # Main
