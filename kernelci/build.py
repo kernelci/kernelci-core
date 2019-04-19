@@ -15,17 +15,45 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+import fnmatch
+import json
 import os
+import platform
 import requests
+import shutil
+import stat
 import subprocess
+import tempfile
+import time
 import urlparse
 
 from kernelci import shell_cmd
 import kernelci.configs
+import kernelci.elf
 
 # This is used to get the mainline tags as a minimum for git describe
 TORVALDS_GIT_URL = \
     "git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
+
+# Hard-coded make targets for each CPU architecture
+MAKE_TARGETS = {
+    'arm': 'zImage dtbs',
+    'arm64': 'Image dtbs',
+    'arc': 'uImage.gz dtbs',
+    'mips': 'all',
+}
+
+# Hard-coded binary kernel image names for each CPU architecture
+KERNEL_IMAGE_NAMES = {
+    'arm': ['zImage', 'xipImage'],
+    'arm64': ['Image'],
+    'arc': ['uImage.gz'],
+    'i386': ['bzImage'],
+    'mips': ['uImage.gz', 'vmlinux.gz.itb'],
+    'riscv': ['Image.gz'],
+    'x86_64': ['bzImage'],
+    'x86': ['bzImage'],
+}
 
 
 def _get_last_commit_file_name(config):
@@ -241,3 +269,347 @@ def list_kernel_configs(config, kdir, single_variant=None, single_arch=None):
                     kernel_configs.add((arch.name, defconfig, cc, cc_version))
 
     return kernel_configs
+
+
+def _run_make(kdir, arch, target=None, jopt=None, silent=True, cc='gcc',
+              cross_compile=None, use_ccache=None, output=None, log_file=None,
+              opts=None):
+    args = ['make']
+
+    if opts:
+        args += ['='.join([k, v]) for k, v in opts.iteritems()]
+
+    if jopt:
+        args.append('-j{}'.format(jopt))
+
+    if silent:
+        args.append('-s')
+
+    args.append('ARCH={}'.format(arch))
+
+    if cross_compile:
+        args.append('CROSS_COMPILE={}'.format(cross_compile))
+
+    args.append('HOSTCC={}'.format(cc))
+
+    if use_ccache:
+        px = cross_compile if cc == 'gcc' and cross_compile else ''
+        args.append('CC="ccache {}{}"'.format(px, cc))
+        os.environ.setdefault('CCACHE_DIR',
+                              os.path.join(kdir, '-'.join(['.ccache', arch])))
+    elif cc != 'gcc':
+        args.append('CC={}'.format(cc))
+
+    if output:
+        args.append('O={}'.format(output))
+
+    if target:
+        args.append(target)
+
+    cmd = ' '.join(args)
+    print(cmd)
+    if log_file:
+        log_file_path = os.path.join(kdir, output, log_file)
+        open(log_file_path, 'a').write("#\n# {}\n#\n".format(cmd))
+        cmd = "/bin/bash -c '(set -o pipefail; {} | tee -a {})'".format(
+            cmd, log_file)
+    cmd = "cd {} && {}".format(kdir, cmd)
+    return shell_cmd(cmd, True)
+
+
+def _make_defconfig(defconfig, kwargs, fragments):
+    kdir, output = (kwargs.get(k) for k in ('kdir', 'output'))
+    kdir_output = os.path.join(kdir, output)
+
+    tmpfile_fd, tmpfile_path = tempfile.mkstemp(prefix='kconfig-')
+    tmpfile = os.fdopen(tmpfile_fd, 'w')
+    defs = defconfig.split('+')
+    target = defs.pop(0)
+    for d in defs:
+        if d.startswith('CONFIG_'):
+            tmpfile.write(d + '\n')
+            fragments.append(d)
+        else:
+            frag_path = os.path.join(kdir, d)
+            if os.path.exists(frag_path):
+                with open(frag_path) as frag:
+                    tmpfile.write("\n# fragment from : {}\n".format(d))
+                    tmpfile.writelines(frag)
+                fragments.append(os.path.basename(os.path.splitext(d)[0]))
+    tmpfile.flush()
+    if not _run_make(target=target, **kwargs):
+        return False
+
+    if fragments:
+        kconfig_frag_name = 'frag.config'
+        kconfig_frag = os.path.join(kdir_output, kconfig_frag_name)
+        shutil.copy(tmpfile_path, kconfig_frag)
+        os.chmod(kconfig_frag,
+                 stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH)
+        cmd = """\
+cd {kdir}
+export ARCH={arch}
+scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' > /dev/null 2>&1
+""".format(kdir=kdir, arch=kwargs['arch'], output=output,
+           base=os.path.join(output, '.config'),
+           frag=os.path.join(output, kconfig_frag_name))
+        print(cmd.strip())
+        shell_cmd(cmd)
+
+    tmpfile.close()
+    os.unlink(tmpfile_path)
+
+    return True
+
+
+def build_kernel(build_env, kdir, arch, defconfig=None, jopt=None,
+                 verbose=False, output='build', mod_path='_modules_'):
+    cc = build_env.cc
+    cross_compile = build_env.get_cross_compile(arch) or None
+    use_ccache = shell_cmd("which ccache > /dev/null", True)
+    kdir_output = os.path.join(kdir, output)
+    build_log = 'build.log'
+    log_file = os.path.join(kdir_output, build_log)
+    dot_config = os.path.join(kdir_output, '.config')
+    target = MAKE_TARGETS.get(arch)
+    if jopt is None:
+        jopt = int(subprocess.check_output('nproc', shell=True)) + 2
+    if not os.path.exists(kdir_output):
+        os.mkdir(kdir_output)
+    if os.path.exists(log_file):
+        os.unlink(log_file)
+
+    opts = {
+        'KBUILD_BUILD_USER': 'KernelCI',
+    }
+
+    kwargs = {
+        'kdir': kdir,
+        'arch': arch,
+        'cc': cc,
+        'cross_compile': cross_compile,
+        'use_ccache': use_ccache,
+        'output': output,
+        'silent': not verbose,
+        'log_file': build_log,
+        'opts': opts,
+    }
+
+    start_time = time.time()
+    fragments = []
+    if defconfig:
+        result = _make_defconfig(defconfig, kwargs, fragments)
+    elif os.path.exists(dot_config):
+        print("Re-using {}".format(dot_config))
+        result = True
+    else:
+        print("ERROR: Missing kernel config")
+        result = False
+    if result:
+        result = _run_make(jopt=jopt, target=target, **kwargs)
+    mods = shell_cmd('grep -cq CONFIG_MODULES=y {}'.format(dot_config), True)
+    if result and mods:
+        result = _run_make(jopt=jopt, target='modules', **kwargs)
+    build_time = time.time() - start_time
+
+    if result and mods and mod_path:
+        abs_mod_path = os.path.join(kdir_output, mod_path)
+        if os.path.exists(abs_mod_path):
+            shutil.rmtree(abs_mod_path)
+        os.makedirs(abs_mod_path)
+        opts.update({
+            'INSTALL_MOD_PATH': mod_path,
+            'INSTALL_MOD_STRIP': '1',
+            'STRIP': "{}strip".format(cross_compile),
+        })
+        result = _run_make(target='modules_install', **kwargs)
+
+    cc_version_cmd = "{}{} --version 2>&1".format(
+        cross_compile if cross_compile and cc == 'gcc' else '', cc)
+    cc_version_full = shell_cmd(cc_version_cmd).splitlines()[0]
+
+    bmeta = {
+        'build_threads': jopt,
+        'build_time': round(build_time, 2),
+        'build_result': 'PASS' if result is True else 'FAIL',
+        'arch': arch,
+        'cross_compile': cross_compile,
+        'compiler': cc,
+        'compiler_version': build_env.cc_version,
+        'compiler_version_full': cc_version_full,
+        'build_environment': build_env.name,
+        'build_log': build_log,
+        'build_platform': platform.uname(),
+    }
+
+    if defconfig:
+        defconfig_target = defconfig.split('+')[0]
+        bmeta.update({
+            'defconfig': defconfig_target,
+            'defconfig_full': '+'.join([defconfig_target] + fragments),
+        })
+
+    vmlinux_file = os.path.join(kdir_output, 'vmlinux')
+    if os.path.isfile(vmlinux_file):
+        vmlinux_meta = kernelci.elf.read(vmlinux_file)
+        bmeta.update(vmlinux_meta)
+        bmeta['vmlinux_file_size'] = os.stat(vmlinux_file).st_size
+
+    with open(os.path.join(kdir_output, 'bmeta.json'), 'w') as json_file:
+        json.dump(bmeta, json_file, indent=4, sort_keys=True)
+
+    return result
+
+
+def install_kernel(kdir, tree_name, tree_url, git_branch,
+                   git_commit=None, describe=None, describe_v=None,
+                   output='build', install='_install_', mod_path='_modules_'):
+    kdir_output = os.path.join(kdir, output)
+    install_path = os.path.join(kdir, install)
+    if not git_commit:
+        git_commit = head_commit(kdir)
+    if not describe:
+        describe = git_describe(tree_name, kdir)
+    if not describe_v:
+        describe_v = git_describe_verbose(kdir)
+
+    if os.path.exists(install_path):
+        shutil.rmtree(install_path)
+    os.makedirs(install_path)
+
+    with open(os.path.join(kdir_output, 'bmeta.json')) as json_file:
+        bmeta = json.load(json_file)
+
+    system_map = os.path.join(kdir, output, 'System.map')
+    if os.path.exists(system_map):
+        virt_text = shell_cmd('grep " _text" {}'.format(system_map)).split()[0]
+        text_offset = int(virt_text, 16) & (1 << 30)-1  # phys: cap at 1G
+        shutil.copy(system_map, install_path)
+    else:
+        text_offset = None
+
+    dot_config = os.path.join(kdir_output, '.config')
+    dot_config_installed = os.path.join(install_path, 'kernel.config')
+    shutil.copy(dot_config, dot_config_installed)
+
+    build_log = os.path.join(kdir_output, 'build.log')
+    shutil.copy(build_log, install_path)
+
+    frags = os.path.join(kdir_output, 'frag.config')
+    if os.path.exists(frags):
+        shutil.copy(frags, install_path)
+
+    arch = bmeta['arch']
+    boot_dir = os.path.join(kdir, output, 'arch', arch, 'boot')
+    kimage_names = KERNEL_IMAGE_NAMES[arch]
+    kimages = []
+    for root, _, files in os.walk(boot_dir):
+        for name in kimage_names:
+            if name in files:
+                kimages.append(name)
+                image_path = os.path.join(root, name)
+                shutil.copy(image_path, install_path)
+    if len(kimages) > 1:
+        for name in kimage_names:
+            if name in kimages:
+                kimage_file = name
+                break
+    else:
+        kimage_file = kimages[0]
+
+    dts_dir = os.path.join(boot_dir, 'dts')
+    dtbs = os.path.join(install_path, 'dtbs')
+    for root, _, files in os.walk(dts_dir):
+        for f in fnmatch.filter(files, '*.dtb'):
+            dtb_path = os.path.join(root, f)
+            dtb_rel = os.path.relpath(dtb_path, dts_dir)
+            dest_path = os.path.join(dtbs, dtb_rel)
+            dest_dir = os.path.dirname(dest_path)
+            if not os.path.exists(dest_dir):
+                os.makedirs(dest_dir)
+            shutil.copy(dtb_path, dest_path)
+
+    modules_tarball = None
+    if mod_path:
+        abs_mod_path = os.path.join(kdir_output, mod_path)
+        if os.path.exists(abs_mod_path):
+            modules_tarball = 'modules.tar.xz'
+            modules_tarball_path = os.path.join(install_path, modules_tarball)
+            shell_cmd("tar -C{path} -cJf {tarball} .".format(
+                path=abs_mod_path, tarball=modules_tarball_path))
+
+    build_env = bmeta['build_environment']
+    defconfig_full = bmeta['defconfig_full']
+    publish_path = '/'.join([
+        tree_name, git_branch, describe, arch, defconfig_full, build_env,
+    ])
+
+    bmeta.update({
+        'kconfig_fragments': 'frag.config' if os.path.exists(frags) else '',
+        'kernel_image': kimage_file,
+        'kernel_config': os.path.basename(dot_config_installed),
+        'system_map': 'System.map' if os.path.exists(system_map) else None,
+        'text_offset': '0x{:08x}'.format(text_offset) if text_offset else None,
+        'dtb_dir': 'dtbs' if os.path.exists(dtbs) else None,
+        'modules': modules_tarball,
+        'job': tree_name,
+        'git_url': tree_url,
+        'git_branch': git_branch,
+        'git_describe': describe,
+        'git_describe_verbose': describe_v,
+        'git_commit': git_commit,
+        'file_server_resource': publish_path,
+    })
+
+    with open(os.path.join(install_path, 'build.json'), 'w') as json_file:
+        json.dump(bmeta, json_file, indent=4, sort_keys=True)
+
+    return True
+
+
+def push_kernel(kdir, api, token, install='_install_'):
+    install_path = os.path.join(kdir, install)
+
+    with open(os.path.join(install_path, 'build.json')) as f:
+        bmeta = json.load(f)
+
+    artifacts = {}
+    for root, _, files in os.walk(install_path):
+        for f in files:
+            px = os.path.relpath(root, install_path)
+            artifacts[os.path.join(px, f)] = open(os.path.join(root, f))
+    upload_path = bmeta['file_server_resource']
+    print("Upload path: {}".format(upload_path))
+    _upload_files(api, token, upload_path, artifacts)
+
+    return True
+
+
+def publish_kernel(kdir, api, token, install='_install_'):
+    install_path = os.path.join(kdir, install)
+
+    with open(os.path.join(install_path, 'build.json')) as f:
+        bmeta = json.load(f)
+
+    data = {k: bmeta[v] for k, v in {
+        'path': 'file_server_resource',
+        'job': 'job',
+        'git_branch': 'git_branch',
+        'arch': 'arch',
+        'kernel': 'git_describe',
+        'build_environment': 'build_environment',
+        'defconfig': 'defconfig',
+        'defconfig_full': 'defconfig_full',
+    }.iteritems()}
+
+    headers = {
+        'Authorization': token,
+        'Content-Type': 'application/json',
+    }
+
+    url = urlparse.urljoin(api, '/build')
+    json_data = json.dumps(data)
+    resp = requests.post(url, headers=headers, data=json_data)
+    resp.raise_for_status()
+
+    return True
