@@ -128,7 +128,7 @@ git checkout --detach {remote}/{branch}
 """.format(path=path, remote=config.tree.name, branch=config.branch))
 
 
-def head_commit(config, path):
+def head_commit(path):
     cmd = """\
 cd {path} &&
 git log --pretty=format:%H -n1
@@ -138,8 +138,8 @@ git log --pretty=format:%H -n1
     return commit.strip()
 
 
-def git_describe(config, path):
-    describe_args = "--match=v\*" if config.tree.name == "arm-soc" else ""
+def git_describe(tree_name, path):
+    describe_args = "--match=v\*" if tree_name == "arm-soc" else ""
     cmd = """\
 cd {path} && \
 git describe {describe_args} \
@@ -149,7 +149,7 @@ git describe {describe_args} \
     return describe.strip().replace('/', '_')
 
 
-def git_describe_verbose(config, path):
+def git_describe_verbose(path):
     cmd = """\
 cd {path} &&
 git describe --match=v[1-9]\* \
@@ -200,7 +200,7 @@ def generate_fragments(config, kdir):
 
 def push_tarball(config, kdir, storage, api, token):
     tarball_name = "linux-src_{}.tar.gz".format(config.name)
-    describe = git_describe(config, kdir)
+    describe = git_describe(config.tree.name, kdir)
     tarball_url = '/'.join([
         storage, config.tree.name, config.branch, describe, tarball_name])
     resp = requests.head(tarball_url)
