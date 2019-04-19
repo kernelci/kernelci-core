@@ -305,7 +305,7 @@ class cmd_list_kernel_configs(Command):
 #
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser("KernelCI build interface")
+    parser = argparse.ArgumentParser("kci_build")
     parser.add_argument("--build-configs", default="build-configs.yaml",
                         help="Path to build configs file")
     sub_parser = parser.add_subparsers(title="Commands",
