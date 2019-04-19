@@ -188,9 +188,9 @@ class cmd_describe(Command):
 
     def __call__(self, configs, args):
         conf = configs['build_configs'][args.config]
-        commit = kernelci.build.head_commit(conf, args.kdir)
-        describe = kernelci.build.git_describe(conf, args.kdir)
-        verbose = kernelci.build.git_describe_verbose(conf, args.kdir)
+        commit = kernelci.build.head_commit(args.kdir)
+        describe = kernelci.build.git_describe(conf.tree.name, args.kdir)
+        verbose = kernelci.build.git_describe_verbose(args.kdir)
         print(commit)
         print(describe)
         print(verbose or describe)
