@@ -137,15 +137,16 @@ list_kernel_configs \
             def data = kernel_config_raw.tokenize(' ')
             def arch = data[0]
             def defconfig = data[1]
-            def cc = data[2]
-            def cc_version = data[3]
-            config_list.add([arch, defconfig, cc, cc_version])
+            def build_env = data[2]
+            config_list.add([arch, defconfig, build_env])
         }
     }
 }
 
 def addBuildOpts(config, kci_core, opts) {
     dir(kci_core) {
+        opts['config'] = config
+
         def opts_raw = sh(
             script: """\
 ./kci_build \
@@ -184,19 +185,16 @@ arch_list \
     }
 }
 
-def buildKernelStep(job, arch, config, opts, cc='gcc', cc_version='7') {
+def buildKernelStep(job, arch, defconfig, build_env, opts) {
     def str_params = [
         'ARCH': arch,
-        'DEFCONFIG': config,
-        'TREE': opts['git_url'],
-        'TREE_NAME': opts['tree'],
+        'DEFCONFIG': defconfig,
         'GIT_DESCRIBE': opts['describe'],
         'GIT_DESCRIBE_VERBOSE': opts['describe_verbose'],
         'COMMIT_ID': opts['commit'],
-        'BRANCH': opts['branch'],
         'SRC_TARBALL': opts['tarball_url'],
-        'CC': cc,
-        'CC_VERSION': cc_version,
+        'BUILD_CONFIG': opts['config'],
+        'BUILD_ENVIRONMENT': build_env,
     ]
     def job_params = []
 
@@ -271,15 +269,14 @@ node("defconfig-creator") {
 
             for (x in configs) {
                 def arch = x[0]
-                def config = x[1]
-                def cc = x[2]
-                def cc_version = x[3]
+                def defconfig = x[1]
+                def build_env = x[2]
 
-                def step_name = "${i} ${arch} ${config} ${cc} ${cc_version}"
+                def step_name = "${i} ${arch} ${defconfig} ${build_env}"
                 print(step_name)
 
                 builds[step_name] = buildKernelStep(
-                    "kernel-build", arch, config, opts, cc, cc_version)
+                    "kernel-build", arch, defconfig, build_env, opts)
 
                 i += 1
             }
