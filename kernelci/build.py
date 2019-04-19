@@ -244,8 +244,7 @@ def list_kernel_configs(config, kdir, single_variant=None, single_arch=None):
     for variant in config.variants:
         if single_variant and variant.name != single_variant:
             continue
-        cc = variant.build_environment.cc
-        cc_version = variant.build_environment.cc_version
+        build_env = variant.build_environment.name
         frag_paths = set()
         frag_configs = set()
         _add_frag_configs(kdir, variant.fragments, frag_paths, frag_configs)
@@ -266,7 +265,7 @@ def list_kernel_configs(config, kdir, single_variant=None, single_arch=None):
                         defconfigs.add(f)
             for defconfig in defconfigs:
                 if arch.match({'defconfig': defconfig}):
-                    kernel_configs.add((arch.name, defconfig, cc, cc_version))
+                    kernel_configs.add((arch.name, defconfig, build_env))
 
     return kernel_configs
 
