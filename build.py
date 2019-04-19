@@ -415,7 +415,7 @@ if install:
     # Patterns for matching kernel images by architecture
     if arch == 'arm':
         patterns = ['zImage', 'xipImage']
-    elif arch == 'arm64':
+    elif arch == 'arm64' or arch == "riscv":
         patterns = ['Image']
     elif arch == "arc" or arch == "mips":
         patterns = ['uImage.gz']
