@@ -42,6 +42,11 @@ class Args(object):
         'help': "Build config variant name",
     }
 
+    build_env = {
+        'name': '--build-env',
+        'help': "Build environment name",
+    }
+
     storage = {
         'name': '--storage',
         'help': "Storage URL",
@@ -247,18 +252,37 @@ class cmd_arch_list(Command):
         return True
 
 
-class cmd_build_environment(Command):
-    help = "Print the build environment name for a given build variant"
+def _show_build_env(build_env, arch=None):
+    print(build_env.name)
+    print(build_env.cc)
+    print(build_env.cc_version)
+    if arch:
+        print(build_env.get_arch_name(args.arch))
+        xc = build_env.get_cross_compile(args.arch)
+        if xc:
+            print(xc)
+
+
+class cmd_get_build_env(Command):
+    help = "Print the build environment parameters for a given build variant"
     args = [Args.config, Args.variant]
+    opt_args = [Args.arch]
 
     def __call__(self, configs, args):
         conf = configs['build_configs'][args.config]
         variant = conf.get_variant(args.variant)
-        print(variant.build_environment.name)
-        print(variant.build_environment.cc)
-        print(variant.build_environment.cc_version)
-        if args.arch:
-            print(variant.build_environment.get_arch_name(args.arch))
+        _show_build_env(variant.build_environment, args.arch)
+        return True
+
+
+class cmd_show_build_env(Command):
+    help = "Show parameters of a given build environment"
+    args = [Args.build_env]
+    opt_args = [Args.arch]
+
+    def __call__(self, configs, args):
+        build_env = configs['build_environments'][args.build_env]
+        _show_build_env(build_env, args.arch)
         return True
 
 
