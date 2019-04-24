@@ -585,7 +585,8 @@ def push_kernel(kdir, api, token, install='_install_'):
     return True
 
 
-def publish_kernel(kdir, api, token, install='_install_'):
+def publish_kernel(kdir, install='_install_', api=None, token=None,
+                   json_path=None):
     install_path = os.path.join(kdir, install)
 
     with open(os.path.join(install_path, 'build.json')) as f:
@@ -593,6 +594,7 @@ def publish_kernel(kdir, api, token, install='_install_'):
 
     data = {k: bmeta[v] for k, v in {
         'path': 'file_server_resource',
+        'file_server_resource': 'file_server_resource',
         'job': 'job',
         'git_branch': 'git_branch',
         'arch': 'arch',
@@ -602,14 +604,38 @@ def publish_kernel(kdir, api, token, install='_install_'):
         'defconfig_full': 'defconfig_full',
     }.iteritems()}
 
-    headers = {
-        'Authorization': token,
-        'Content-Type': 'application/json',
-    }
+    if json_path:
+        json_data = dict(data)
+        for k in ['kernel_image', 'modules', 'git_commit', 'git_url']:
+            json_data[k] = bmeta[k]
+        json_data['status'] = bmeta['build_result']
+        dtb_data = []
+        if bmeta['dtb_dir']:
+            dtb_dir = os.path.join(install_path, bmeta['dtb_dir'])
+            for root, dirs, files in os.walk(dtb_dir):
+                if root != dtb_dir:
+                    rel = os.path.relpath(root, dtb_dir)
+                    files = list(os.path.join(rel, dtb) for dtb in files)
+                dtb_data += files
+        json_data['dtb_dir_data'] = dtb_data
+        try:
+            with open(json_path, 'r') as json_file:
+                full_json = json.load(json_file)
+            full_json.append(json_data)
+        except Exception as e:
+            full_json = [json_data]
+        with open(json_path, 'w') as json_file:
+            json.dump(full_json, json_file)
 
-    url = urlparse.urljoin(api, '/build')
-    json_data = json.dumps(data)
-    resp = requests.post(url, headers=headers, data=json_data)
-    resp.raise_for_status()
+    if api and token:
+        headers = {
+            'Authorization': token,
+            'Content-Type': 'application/json',
+        }
+
+        url = urlparse.urljoin(api, '/build')
+        json_data = json.dumps(data)
+        resp = requests.post(url, headers=headers, data=json_data)
+        resp.raise_for_status()
 
     return True
