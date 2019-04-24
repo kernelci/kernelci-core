@@ -132,6 +132,11 @@ class Args(object):
         'help': "Path the output directory",
     }
 
+    json_path = {
+        'name': '--json-path',
+        'help': "Path to the JSON file",
+    }
+
 
 # -----------------------------------------------------------------------------
 # Commands
@@ -397,10 +402,20 @@ class cmd_push_kernel(Command):
 
 class cmd_publish_kernel(Command):
     help = "Publish the kernel meta-data"
-    args = [Args.kdir, Args.api, Args.token]
+    args = [Args.kdir]
+    opt_args = [Args.api, Args.token, Args.json_path]
 
     def __call__(self, configs, args):
-        return kernelci.build.publish_kernel(args.kdir, args.api, args.token)
+        if not ((args.api and args.token) or args.json_path):
+            print("""\
+Invalid arguments, please provide at least one of these sets of options:
+    --token, --api to publish to the backend server
+    --json-path to save the data in a local JSON file\
+""")
+            return False
+        return kernelci.build.publish_kernel(
+            args.kdir, api=args.api, token=args.token,
+            json_path=args.json_path)
 
 # -----------------------------------------------------------------------------
 # Main
