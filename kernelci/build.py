@@ -308,8 +308,7 @@ def _run_make(kdir, arch, target=None, jopt=None, silent=True, cc='gcc',
     cmd = ' '.join(args)
     print(cmd)
     if log_file:
-        log_file_path = os.path.join(kdir, output, log_file)
-        open(log_file_path, 'a').write("#\n# {}\n#\n".format(cmd))
+        open(log_file, 'a').write("#\n# {}\n#\n".format(cmd))
         cmd = "/bin/bash -c '(set -o pipefail; {} | tee -a {})'".format(
             cmd, log_file)
     cmd = "cd {} && {}".format(kdir, cmd)
@@ -317,8 +316,7 @@ def _run_make(kdir, arch, target=None, jopt=None, silent=True, cc='gcc',
 
 
 def _make_defconfig(defconfig, kwargs, fragments):
-    kdir, output = (kwargs.get(k) for k in ('kdir', 'output'))
-    kdir_output = os.path.join(kdir, output)
+    kdir, output_path = (kwargs.get(k) for k in ('kdir', 'output'))
 
     tmpfile_fd, tmpfile_path = tempfile.mkstemp(prefix='kconfig-')
     tmpfile = os.fdopen(tmpfile_fd, 'w')
@@ -341,17 +339,18 @@ def _make_defconfig(defconfig, kwargs, fragments):
 
     if fragments:
         kconfig_frag_name = 'frag.config'
-        kconfig_frag = os.path.join(kdir_output, kconfig_frag_name)
+        kconfig_frag = os.path.join(output_path, kconfig_frag_name)
         shutil.copy(tmpfile_path, kconfig_frag)
         os.chmod(kconfig_frag,
                  stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH)
+        rel_path = os.path.relpath(output_path, kdir)
         cmd = """\
 cd {kdir}
 export ARCH={arch}
 scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' > /dev/null 2>&1
-""".format(kdir=kdir, arch=kwargs['arch'], output=output,
-           base=os.path.join(output, '.config'),
-           frag=os.path.join(output, kconfig_frag_name))
+""".format(kdir=kdir, arch=kwargs['arch'],output=rel_path,
+           base=os.path.join(rel_path, '.config'),
+           frag=os.path.join(rel_path, kconfig_frag_name))
         print(cmd.strip())
         shell_cmd(cmd)
 
@@ -362,19 +361,20 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' > /dev/null 2>&1
 
 
 def build_kernel(build_env, kdir, arch, defconfig=None, jopt=None,
-                 verbose=False, output='build', mod_path='_modules_'):
+                 verbose=False, output_path=None, mod_path='_modules_'):
     cc = build_env.cc
     cross_compile = build_env.get_cross_compile(arch) or None
     use_ccache = shell_cmd("which ccache > /dev/null", True)
-    kdir_output = os.path.join(kdir, output)
-    build_log = 'build.log'
-    log_file = os.path.join(kdir_output, build_log)
-    dot_config = os.path.join(kdir_output, '.config')
     target = MAKE_TARGETS.get(arch)
     if jopt is None:
         jopt = int(subprocess.check_output('nproc', shell=True)) + 2
-    if not os.path.exists(kdir_output):
-        os.mkdir(kdir_output)
+    if not output_path:
+        output_path = os.path.join(kdir, 'build')
+    if not os.path.exists(output_path):
+        os.mkdir(output_path)
+    build_log = 'build.log'
+    log_file = os.path.join(output_path, build_log)
+    dot_config = os.path.join(output_path, '.config')
     if os.path.exists(log_file):
         os.unlink(log_file)
 
@@ -388,9 +388,9 @@ def build_kernel(build_env, kdir, arch, defconfig=None, jopt=None,
         'cc': cc,
         'cross_compile': cross_compile,
         'use_ccache': use_ccache,
-        'output': output,
+        'output': output_path,
         'silent': not verbose,
-        'log_file': build_log,
+        'log_file': log_file,
         'opts': opts,
     }
 
@@ -412,7 +412,7 @@ def build_kernel(build_env, kdir, arch, defconfig=None, jopt=None,
     build_time = time.time() - start_time
 
     if result and mods and mod_path:
-        abs_mod_path = os.path.join(kdir_output, mod_path)
+        abs_mod_path = os.path.join(output_path, mod_path)
         if os.path.exists(abs_mod_path):
             shutil.rmtree(abs_mod_path)
         os.makedirs(abs_mod_path)
@@ -448,23 +448,24 @@ def build_kernel(build_env, kdir, arch, defconfig=None, jopt=None,
             'defconfig_full': '+'.join([defconfig_target] + fragments),
         })
 
-    vmlinux_file = os.path.join(kdir_output, 'vmlinux')
+    vmlinux_file = os.path.join(output_path, 'vmlinux')
     if os.path.isfile(vmlinux_file):
         vmlinux_meta = kernelci.elf.read(vmlinux_file)
         bmeta.update(vmlinux_meta)
         bmeta['vmlinux_file_size'] = os.stat(vmlinux_file).st_size
 
-    with open(os.path.join(kdir_output, 'bmeta.json'), 'w') as json_file:
+    with open(os.path.join(output_path, 'bmeta.json'), 'w') as json_file:
         json.dump(bmeta, json_file, indent=4, sort_keys=True)
 
     return result
 
 
-def install_kernel(kdir, tree_name, tree_url, git_branch,
-                   git_commit=None, describe=None, describe_v=None,
-                   output='build', install='_install_', mod_path='_modules_'):
-    kdir_output = os.path.join(kdir, output)
+def install_kernel(kdir, tree_name, tree_url, git_branch, git_commit=None,
+                   describe=None, describe_v=None, output_path=None,
+                   install='_install_', mod_path='_modules_'):
     install_path = os.path.join(kdir, install)
+    if not output_path:
+        output_path = os.path.join(kdir, 'build')
     if not git_commit:
         git_commit = head_commit(kdir)
     if not describe:
@@ -476,10 +477,10 @@ def install_kernel(kdir, tree_name, tree_url, git_branch,
         shutil.rmtree(install_path)
     os.makedirs(install_path)
 
-    with open(os.path.join(kdir_output, 'bmeta.json')) as json_file:
+    with open(os.path.join(output_path, 'bmeta.json')) as json_file:
         bmeta = json.load(json_file)
 
-    system_map = os.path.join(kdir, output, 'System.map')
+    system_map = os.path.join(output_path, 'System.map')
     if os.path.exists(system_map):
         virt_text = shell_cmd('grep " _text" {}'.format(system_map)).split()[0]
         text_offset = int(virt_text, 16) & (1 << 30)-1  # phys: cap at 1G
@@ -487,19 +488,19 @@ def install_kernel(kdir, tree_name, tree_url, git_branch,
     else:
         text_offset = None
 
-    dot_config = os.path.join(kdir_output, '.config')
+    dot_config = os.path.join(output_path, '.config')
     dot_config_installed = os.path.join(install_path, 'kernel.config')
     shutil.copy(dot_config, dot_config_installed)
 
-    build_log = os.path.join(kdir_output, 'build.log')
+    build_log = os.path.join(output_path, 'build.log')
     shutil.copy(build_log, install_path)
 
-    frags = os.path.join(kdir_output, 'frag.config')
+    frags = os.path.join(output_path, 'frag.config')
     if os.path.exists(frags):
         shutil.copy(frags, install_path)
 
     arch = bmeta['arch']
-    boot_dir = os.path.join(kdir, output, 'arch', arch, 'boot')
+    boot_dir = os.path.join(output_path, 'arch', arch, 'boot')
     kimage_names = KERNEL_IMAGE_NAMES[arch]
     kimages = []
     for root, _, files in os.walk(boot_dir):
@@ -530,7 +531,7 @@ def install_kernel(kdir, tree_name, tree_url, git_branch,
 
     modules_tarball = None
     if mod_path:
-        abs_mod_path = os.path.join(kdir_output, mod_path)
+        abs_mod_path = os.path.join(output_path, mod_path)
         if os.path.exists(abs_mod_path):
             modules_tarball = 'modules.tar.xz'
             modules_tarball_path = os.path.join(install_path, modules_tarball)

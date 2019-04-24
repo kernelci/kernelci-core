@@ -127,6 +127,11 @@ class Args(object):
         'action': 'store_true',
     }
 
+    output = {
+        'name': '--output',
+        'help': "Path the output directory",
+    }
+
 
 # -----------------------------------------------------------------------------
 # Commands
@@ -160,7 +165,6 @@ class Command(object):
         self._parser.add_argument(arg_name, **kw)
 
 
-# ToDo: filter using arch, compiler and defconfig
 class cmd_list_configs(Command):
     help = "List the build configurations"
 
@@ -344,20 +348,21 @@ class cmd_list_kernel_configs(Command):
 class cmd_build_kernel(Command):
     help = "Build a kernel"
     args = [Args.build_env, Args.arch, Args.kdir]
-    opt_args = [Args.defconfig, Args.j, Args.verbose]
+    opt_args = [Args.defconfig, Args.j, Args.verbose, Args.output]
 
     def __call__(self, configs, args):
         build_env = configs['build_environments'][args.build_env]
         return kernelci.build.build_kernel(
             build_env, args.kdir, args.arch, args.defconfig, args.j,
-            args.verbose)
+            args.verbose, args.output)
 
 
 class cmd_install_kernel(Command):
     help = "Install the kernel binaries and build.json locally"
     args = [Args.kdir]
     opt_args = [Args.config, Args.tree_name, Args.tree_url, Args.branch,
-                Args.commit, Args.describe, Args.describe_verbose]
+                Args.commit, Args.describe, Args.describe_verbose,
+                Args.output]
 
     def __call__(self, configs, args):
         if args.config:
@@ -379,7 +384,7 @@ or
             return False
         return kernelci.build.install_kernel(
             args.kdir, tree_name, tree_url, branch, args.commit, args.describe,
-            args.describe_verbose)
+            args.describe_verbose, args.output)
 
 
 class cmd_push_kernel(Command):
