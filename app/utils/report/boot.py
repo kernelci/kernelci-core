@@ -623,6 +623,8 @@ def _parse_boot_results(results, intersect_results=None, get_unique=False):
                             # so that we really have cleaned up data.
                             if not irad[build_env]:
                                 del irad[build_env]
+                            if not intersect_results[arch][defconfig]:
+                                del intersect_results[arch][defconfig]
                             if not intersect_results[arch]:
                                 del intersect_results[arch]
 
@@ -630,11 +632,11 @@ def _parse_boot_results(results, intersect_results=None, get_unique=False):
             if defconfig in parsed_data[arch]:
                 if build_env in parsed_data[arch][defconfig]:
                     if board in parsed_data[arch][defconfig][build_env]:
-                        pgad = parsed_data[arch][defconfig]
-                        pgadb = pgad[build_env]
+                        pdad = parsed_data[arch][defconfig]
+                        pdadb = pdad[build_env]
                         rsad = result_struct[arch][defconfig]
-                        if build_env in pgadb[board]:
-                            pgadb[board][lab_name] = \
+                        if lab_name not in pdadb[board]:
+                            pdadb[board][lab_name] = \
                                 rsad[build_env][board][lab_name]
                     else:
                         parsed_data[arch][defconfig][build_env][board] = \
@@ -1269,10 +1271,6 @@ def _parse_and_structure_results(boot_data):
             offline_data, offline_struct["data"], is_offline=True)
     else:
         parsed_data["offline_data"] = None
-
-    if conflict_data:
-        utils.LOG.warn("Skipping conflict data due to known bug")
-        conflict_data = None
 
     if conflict_data:
         parsed_data["conflict_data"] = {}
