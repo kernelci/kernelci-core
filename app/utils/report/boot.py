@@ -1271,6 +1271,10 @@ def _parse_and_structure_results(boot_data):
         parsed_data["offline_data"] = None
 
     if conflict_data:
+        utils.LOG.warn("Skipping conflict data due to known bug")
+        conflict_data = None
+
+    if conflict_data:
         parsed_data["conflict_data"] = {}
         conflict_struct = parsed_data["conflict_data"]
 
