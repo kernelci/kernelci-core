@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 
 # Host build tools
 RUN apt-get update && apt-get install --no-install-recommends -y \
+    bash \
     bc \
     bison \
     bsdmainutils \
