@@ -443,8 +443,8 @@ device_types:
     filters:
       - blacklist: *allmodconfig_filter
 
-  imx53_qsbr:
-    name: 'imx53-qsbr'
+  imx53_qsrbr:
+    name: 'imx53-qsrb'
     mach: imx
     class: arm-dtb
     boot_method: barebox
