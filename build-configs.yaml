@@ -152,11 +152,19 @@ build_environments:
       i386: 'x86'
       x86_64: 'x86'
       riscv: 'riscv64'
+    cross_compile: &default_cross_compile
+      arc: 'arc-linux-'
+      arm: 'arm-linux-gnueabihf-'
+      arm64: 'aarch64-linux-gnu-'
+      mips: 'mips-linux-gnu-'
+      riscv: 'riscv64-linux-gnu-'
+
 
   gcc-8:
     cc: gcc
     cc_version: 8
     arch_map: *gcc_arch_map
+    cross_compile: *default_cross_compile
 
   clang-8:
     cc: clang
@@ -169,11 +177,13 @@ build_environments:
       mips:
       arc:
       riscv:
+    cross_compile: *default_cross_compile
 
   clang-9:
     cc: clang
     cc_version: 9
     arch_map: *clang_arch_map
+    cross_compile: *default_cross_compile
 
 
 build_configs_defaults:

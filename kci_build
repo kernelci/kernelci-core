@@ -42,6 +42,11 @@ class Args(object):
         'help': "Build config variant name",
     }
 
+    build_env = {
+        'name': '--build-env',
+        'help': "Build environment name",
+    }
+
     storage = {
         'name': '--storage',
         'help': "Storage URL",
@@ -66,6 +71,31 @@ class Args(object):
         'help': "Git commit checksum",
     }
 
+    describe = {
+        'name': '--describe',
+        'help': "Git describe",
+    }
+
+    describe_verbose = {
+        'name': '--describe-verbose',
+        'help': "Verbose version of git describe",
+    }
+
+    tree_name = {
+        'name': '--tree-name',
+        'help': "Name of a kernel tree",
+    }
+
+    tree_url = {
+        'name': '--tree-url',
+        'help': "URL of a kernel tree",
+    }
+
+    branch = {
+        'name': '--branch',
+        'help': "Name of a kernel branch in a tree",
+    }
+
     mirror = {
         'name': '--mirror',
         'help': "Path to the local kernel git mirror",
@@ -79,6 +109,32 @@ class Args(object):
     arch = {
         'name': '--arch',
         'help': "CPU architecture name",
+    }
+
+    defconfig = {
+        'name': '--defconfig',
+        'help': "Kernel defconfig name",
+    }
+
+    j = {
+        'name': '-j',
+        'help': "Number of parallel build processes",
+    }
+
+    verbose = {
+        'name': '--verbose',
+        'help': "Verbose output",
+        'action': 'store_true',
+    }
+
+    output = {
+        'name': '--output',
+        'help': "Path the output directory",
+    }
+
+    json_path = {
+        'name': '--json-path',
+        'help': "Path to the JSON file",
     }
 
 
@@ -114,7 +170,6 @@ class Command(object):
         self._parser.add_argument(arg_name, **kw)
 
 
-# ToDo: filter using arch, compiler and defconfig
 class cmd_list_configs(Command):
     help = "List the build configurations"
 
@@ -188,9 +243,9 @@ class cmd_describe(Command):
 
     def __call__(self, configs, args):
         conf = configs['build_configs'][args.config]
-        commit = kernelci.build.head_commit(conf, args.kdir)
-        describe = kernelci.build.git_describe(conf, args.kdir)
-        verbose = kernelci.build.git_describe_verbose(conf, args.kdir)
+        commit = kernelci.build.head_commit(args.kdir)
+        describe = kernelci.build.git_describe(conf.tree.name, args.kdir)
+        verbose = kernelci.build.git_describe_verbose(args.kdir)
         print(commit)
         print(describe)
         print(verbose or describe)
@@ -247,18 +302,37 @@ class cmd_arch_list(Command):
         return True
 
 
-class cmd_build_environment(Command):
-    help = "Print the build environment name for a given build variant"
+def _show_build_env(build_env, arch=None):
+    print(build_env.name)
+    print(build_env.cc)
+    print(build_env.cc_version)
+    if arch:
+        print(build_env.get_arch_name(args.arch))
+        xc = build_env.get_cross_compile(args.arch)
+        if xc:
+            print(xc)
+
+
+class cmd_get_build_env(Command):
+    help = "Print the build environment parameters for a given build variant"
     args = [Args.config, Args.variant]
+    opt_args = [Args.arch]
 
     def __call__(self, configs, args):
         conf = configs['build_configs'][args.config]
         variant = conf.get_variant(args.variant)
-        print(variant.build_environment.name)
-        print(variant.build_environment.cc)
-        print(variant.build_environment.cc_version)
-        if args.arch:
-            print(variant.build_environment.get_arch_name(args.arch))
+        _show_build_env(variant.build_environment, args.arch)
+        return True
+
+
+class cmd_show_build_env(Command):
+    help = "Show parameters of a given build environment"
+    args = [Args.build_env]
+    opt_args = [Args.arch]
+
+    def __call__(self, configs, args):
+        build_env = configs['build_environments'][args.build_env]
+        _show_build_env(build_env, args.arch)
         return True
 
 
@@ -276,12 +350,79 @@ class cmd_list_kernel_configs(Command):
         return True
 
 
+class cmd_build_kernel(Command):
+    help = "Build a kernel"
+    args = [Args.build_env, Args.arch, Args.kdir]
+    opt_args = [Args.defconfig, Args.j, Args.verbose, Args.output]
+
+    def __call__(self, configs, args):
+        build_env = configs['build_environments'][args.build_env]
+        return kernelci.build.build_kernel(
+            build_env, args.kdir, args.arch, args.defconfig, args.j,
+            args.verbose, args.output)
+
+
+class cmd_install_kernel(Command):
+    help = "Install the kernel binaries and build.json locally"
+    args = [Args.kdir]
+    opt_args = [Args.config, Args.tree_name, Args.tree_url, Args.branch,
+                Args.commit, Args.describe, Args.describe_verbose,
+                Args.output]
+
+    def __call__(self, configs, args):
+        if args.config:
+            conf = configs['build_configs'][args.config]
+            tree_name = conf.tree.name
+            tree_url = conf.tree.url
+            branch = conf.branch
+        else:
+            tree_name = args.tree_name
+            tree_url = args.tree_url
+            branch = args.branch
+        if not all((tree_name, tree_url, branch)):
+            print("""\
+Invalid arguments, either of these 2 sets are possible:
+   --tree-name, --tree-url and --branch
+or
+   --config (in which case the tree and branch are read from the YAML config)\
+""")
+            return False
+        return kernelci.build.install_kernel(
+            args.kdir, tree_name, tree_url, branch, args.commit, args.describe,
+            args.describe_verbose, args.output)
+
+
+class cmd_push_kernel(Command):
+    help = "Push the kernel binaries"
+    args = [Args.kdir, Args.api, Args.token]
+
+    def __call__(self, configs, args):
+        return kernelci.build.push_kernel(args.kdir, args.api, args.token)
+
+
+class cmd_publish_kernel(Command):
+    help = "Publish the kernel meta-data"
+    args = [Args.kdir]
+    opt_args = [Args.api, Args.token, Args.json_path]
+
+    def __call__(self, configs, args):
+        if not ((args.api and args.token) or args.json_path):
+            print("""\
+Invalid arguments, please provide at least one of these sets of options:
+    --token, --api to publish to the backend server
+    --json-path to save the data in a local JSON file\
+""")
+            return False
+        return kernelci.build.publish_kernel(
+            args.kdir, api=args.api, token=args.token,
+            json_path=args.json_path)
+
 # -----------------------------------------------------------------------------
 # Main
 #
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser("KernelCI build interface")
+    parser = argparse.ArgumentParser("kci_build")
     parser.add_argument("--build-configs", default="build-configs.yaml",
                         help="Path to build configs file")
     sub_parser = parser.add_subparsers(title="Commands",
