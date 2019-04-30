@@ -1041,6 +1041,9 @@ test_configs:
   - device_type: dra7_evm
     test_plans: [boot, kselftest, simple]
 
+  - device_type: dove_cubox
+    test_plans: [boot, boot_nfs, kselftest, sleep]
+
   - device_type: imx6q_nitrogen6x
     test_plans: [boot]
 
