@@ -957,6 +957,9 @@ test_configs:
   - device_type: apq8016_sbc
     test_plans: [boot, kselftest]
 
+  - device_type: ar9331_dpt_module
+    test_plans: [boot, boot_nfs, kselftest, sleep]
+
   - device_type: armada_370_db
     test_plans: [boot]
 
