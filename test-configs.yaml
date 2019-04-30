@@ -1152,6 +1152,9 @@ test_configs:
   - device_type: sinlinx_sina33
     test_plans: [boot]
 
+  - device_type: socfpga_cyclone5_socrates
+    test_plans: [boot, boot_nfs, kselftest, sleep]
+
   - device_type: snow
     test_plans: [boot, boot_nfs, kselftest]
 
