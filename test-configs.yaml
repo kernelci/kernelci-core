@@ -1053,6 +1053,9 @@ test_configs:
   - device_type: imx28_duckbill
     test_plans: [boot, boot_nfs, kselftest, sleep]
 
+  - device_type: imx53_qsrb
+    test_plans: [boot, boot_nfs, kselftest, sleep]
+
   - device_type: imx6q_nitrogen6x
     test_plans: [boot]
 
