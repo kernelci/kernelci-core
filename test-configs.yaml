@@ -1044,6 +1044,9 @@ test_configs:
   - device_type: dove_cubox
     test_plans: [boot, boot_nfs, kselftest, sleep]
 
+  - device_type: imx23_olinuxino
+    test_plans: [boot, boot_nfs, kselftest, sleep]
+
   - device_type: imx6q_nitrogen6x
     test_plans: [boot]
 
