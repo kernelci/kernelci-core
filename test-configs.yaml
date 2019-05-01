@@ -30,6 +30,10 @@ file_systems:
     type: buildroot
     nfs: '{arch}/base/rootfs.tar.xz'
 
+  buildroot_baseline_ramdisk:
+    type: buildroot
+    ramdisk: '{arch}/baseline/rootfs.cpio.gz'
+
   buildroot_kselftest_ramdisk:
     type: buildroot
     ramdisk: '{arch}/tests/rootfs.cpio.gz'
@@ -60,11 +64,16 @@ test_plan_default_filters:
 
 test_plans:
 
-  boot:
-    rootfs: buildroot_ramdisk
+  baseline:
+    rootfs: buildroot_baseline_ramdisk
     filters:
       - blacklist: &kselftest_defconfig_filter
           defconfig: ['kselftest']
+
+  boot:
+    rootfs: buildroot_ramdisk
+    filters:
+      - blacklist: *kselftest_defconfig_filter
 
   boot_nfs:
     name: 'boot-nfs'
@@ -1157,7 +1166,10 @@ test_configs:
     test_plans: [boot]
 
   - device_type: rk3399_gru_kevin
-    test_plans: [boot, v4l2_compliance_uvc]
+    test_plans:
+      - baseline
+      - boot
+      - v4l2_compliance_uvc
 
   - device_type: rk3399_gru_kevin
     test_plans: [igt]
@@ -1174,7 +1186,15 @@ test_configs:
     test_plans: [boot]
 
   - device_type: rk3288_veyron_jaq
-    test_plans: [boot, boot_nfs, sleep, usb, v4l2_compliance_uvc, igt, cros-ec]
+    test_plans:
+      - baseline
+      - boot
+      - boot_nfs
+      - cros-ec
+      - igt
+      - sleep
+      - usb
+      - v4l2_compliance_uvc
 
   - device_type: salvator_x
     test_plans: [boot, boot_nfs, kselftest, simple]
