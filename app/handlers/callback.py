@@ -15,6 +15,7 @@
 
 import tornado.web
 from celery import chain
+import yaml
 
 import handlers.base as hbase
 import handlers.common.query
@@ -141,6 +142,29 @@ class LavaCallbackHandler(CallbackHandler):
     @staticmethod
     def _valid_keys(method):
         return models.LAVA_CALLBACK_VALID_KEYS.get(method, None)
+
+    def is_valid_json(self, json_obj, **kwargs):
+        valid, errors = super(LavaCallbackHandler, self).is_valid_json(
+            json_obj, **kwargs)
+        if not valid:
+            return valid, errors
+        definition = yaml.load(json_obj["definition"], Loader=yaml.CLoader)
+        job_meta = definition.get("metadata")
+        if not job_meta:
+            return False, "metadata missing from LAVA job definition"
+        action = kwargs["action"]
+        keys = models.LAVA_CALLBACK_VALID_METADATA_KEYS.get(action, [])
+        mandatory_keys = keys[models.MANDATORY_KEYS]
+        accepted_keys = keys[models.ACCEPTED_KEYS]
+        all_keys = mandatory_keys + accepted_keys
+        job_meta_keys = job_meta.keys()
+        for k in job_meta_keys:
+            if k not in all_keys:
+                return False, "invalid LAVA metadata: {}".format(k)
+        for k in mandatory_keys:
+            if k not in job_meta_keys:
+                return False, "missing mandatory LAVA metadata: {}".format(k)
+        return True, ''
 
     def _execute_callback(self, lab_name, **kwargs):
         action = kwargs["action"]
