@@ -387,7 +387,6 @@ device_types:
     class: arm64-dtb
     boot_method: grub
     dtb: 'hip06-d03.dtb'
-    flags: ['lpae']
     filters:
       - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
@@ -555,7 +554,7 @@ device_types:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
-    flags: ['lpae', 'big_endian']
+    flags: ['big_endian']
     filters:
       - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
@@ -745,7 +744,6 @@ device_types:
     mach: rockchip
     class: arm64-dtb
     boot_method: depthcharge
-    flags: ['lpae']
 
   rk3399_puma_haikou:
     name: 'rk3399-puma-haikou'
