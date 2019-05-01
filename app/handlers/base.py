@@ -229,6 +229,9 @@ class BaseHandler(tornado.web.RequestHandler):
         future = yield self.executor.submit(self.execute_post, *args, **kwargs)
         self.write(future)
 
+    def is_valid_json(self, json_obj, **kwargs):
+        return validator.is_valid_json(json_obj, self._valid_keys("POST"))
+
     def execute_post(self, *args, **kwargs):
         """Execute the POST pre-operations.
 
@@ -245,8 +248,7 @@ class BaseHandler(tornado.web.RequestHandler):
                 try:
                     json_obj = json.loads(self.request.body.decode("utf8"))
 
-                    valid_json, errors = validator.is_valid_json(
-                        json_obj, self._valid_keys("POST"))
+                    valid_json, errors = self.is_valid_json(json_obj, **kwargs)
                     if valid_json:
                         kwargs["json_obj"] = json_obj
                         kwargs["token"] = token
