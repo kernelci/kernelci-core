@@ -122,7 +122,7 @@ def _get_job_meta(meta, job_data):
     meta[models.BOARD_INSTANCE_KEY] = job_data["actual_device_id"]
 
 
-def _get_definition_meta(meta, job_data, meta_data_map):
+def _get_definition_meta(meta, job_meta, meta_data_map):
     """Parse the job definition meta-data from LAVA
 
     Parse the meta-data from the LAVA v2 job definition sent with the callback
@@ -137,8 +137,6 @@ def _get_definition_meta(meta, job_data, meta_data_map):
     :param meta_data_map: The dict of keys to parse and add in the meta-data.
     :type meta_data_map: dict
     """
-    definition = yaml.load(job_data["definition"], Loader=yaml.CLoader)
-    job_meta = definition["metadata"]
     for x, y in meta_data_map.iteritems():
         try:
             meta.update({x: job_meta[y]})
@@ -336,7 +334,8 @@ def _store_lava_json(job_data, meta, base_path=utils.BASE_PATH):
         f.write(json.dumps(job_data))
 
 
-def add_boot(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
+def add_boot(job_data, job_meta, lab_name, db_options,
+             base_path=utils.BASE_PATH):
     """Entry point to be used as an external task.
 
     This function should only be called by Celery or other task managers.
@@ -371,7 +370,7 @@ def add_boot(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
 
     try:
         _get_job_meta(meta, job_data)
-        _get_definition_meta(meta, job_data, META_DATA_MAP_BOOT)
+        _get_definition_meta(meta, job_meta, META_DATA_MAP_BOOT)
         _get_directory_path(meta, base_path)
         _get_lava_meta(meta, job_data)
         _store_lava_json(job_data, meta)
@@ -525,7 +524,8 @@ def _add_rootfs_info(group, base_path, file_name="build_info.json"):
         utils.LOG.warn("ValueError: {}".format(e))
 
 
-def add_tests(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
+def add_tests(job_data, job_meta, lab_name, db_options,
+              base_path=utils.BASE_PATH):
     """Entry point to be used as an external task.
 
     This function should only be called by Celery or other task managers.
@@ -559,7 +559,7 @@ def add_tests(job_data, lab_name, db_options, base_path=utils.BASE_PATH):
 
     try:
         _get_job_meta(meta, job_data)
-        _get_definition_meta(meta, job_data, META_DATA_MAP_TEST)
+        _get_definition_meta(meta, job_meta, META_DATA_MAP_TEST)
         _get_directory_path(meta, base_path)
         _get_lava_meta(meta, job_data)
         plan_name = meta[models.PLAN_KEY]
