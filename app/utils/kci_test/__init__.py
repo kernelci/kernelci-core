@@ -487,7 +487,6 @@ def _parse_test_group_from_json(test_json, database, errors):
         ERR_ADD(errors, 400, err_msg)
         return None
 
-    arch = test_json.get(models.ARCHITECTURE_KEY)
     test_doc = mtest_group.TestGroupDocument(name, lab_name)
     test_doc.created_on = datetime.datetime.now(tz=bson.tz_util.utc)
     _update_test_group_doc_from_json(test_doc, test_json, errors)
