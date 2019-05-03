@@ -463,7 +463,7 @@ build_configs:
             base_defconfig: 'nsim_hs_defconfig'
             filters:
               - whitelist: {defconfig: ['nsim_hs_defconfig']}
-          arm:
+          arm: &staging_arm
             base_defconfig: 'multi_v7_defconfig'
             filters:
               - whitelist: {defconfig: ['multi_v7_defconfig']}
@@ -486,6 +486,7 @@ build_configs:
         build_environment: clang-8
         architectures:
           arm64: *staging_arm64
+          arm: *staging_arm
 
   khilman:
     tree: khilman
