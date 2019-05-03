@@ -75,6 +75,7 @@ build_kernel \
 --arch=${params.ARCH} \
 --build-env=${params.BUILD_ENVIRONMENT} \
 ${jopt} \
+|| echo 'Kernel build failed'
 """)
 
         sh(script: """\

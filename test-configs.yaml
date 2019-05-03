@@ -54,17 +54,22 @@ test_plan_default_filters:
       values:
         - ['arm', 'multi_v7_defconfig']
         - ['arm64', 'defconfig']
-        - ['i386', 'defconfig']
-        - ['x86_64', 'defconfig']
+        - ['i386', 'i386_defconfig']
+        - ['x86_64', 'x86_64_defconfig']
 
 
 test_plans:
 
-  boot:
-    rootfs: buildroot_ramdisk
+  baseline:
+    rootfs: debian_stretch_ramdisk
     filters:
       - blacklist: &kselftest_defconfig_filter
           defconfig: ['kselftest']
+
+  boot:
+    rootfs: buildroot_ramdisk
+    filters:
+      - blacklist: *kselftest_defconfig_filter
 
   boot_nfs:
     name: 'boot-nfs'
@@ -387,7 +392,6 @@ device_types:
     class: arm64-dtb
     boot_method: grub
     dtb: 'hip06-d03.dtb'
-    flags: ['lpae']
     filters:
       - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
@@ -443,7 +447,7 @@ device_types:
     filters:
       - blacklist: *allmodconfig_filter
 
-  imx53_qsrbr:
+  imx53_qsrb:
     name: 'imx53-qsrb'
     mach: imx
     class: arm-dtb
@@ -555,7 +559,7 @@ device_types:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
-    flags: ['lpae', 'big_endian']
+    flags: ['big_endian']
     filters:
       - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
@@ -745,7 +749,6 @@ device_types:
     mach: rockchip
     class: arm64-dtb
     boot_method: depthcharge
-    flags: ['lpae']
 
   rk3399_puma_haikou:
     name: 'rk3399-puma-haikou'
@@ -957,6 +960,9 @@ test_configs:
   - device_type: apq8016_sbc
     test_plans: [boot, kselftest]
 
+  - device_type: ar9331_dpt_module
+    test_plans: [boot, boot_nfs, kselftest, sleep]
+
   - device_type: armada_370_db
     test_plans: [boot]
 
@@ -1037,6 +1043,24 @@ test_configs:
 
   - device_type: dra7_evm
     test_plans: [boot, kselftest, simple]
+
+  - device_type: dove_cubox
+    test_plans: [boot, boot_nfs, kselftest, sleep]
+
+  - device_type: imx23_olinuxino
+    test_plans: [boot, boot_nfs, kselftest, sleep]
+
+  - device_type: imx27_phycard_s
+    test_plans: [boot, boot_nfs, kselftest, sleep]
+
+  - device_type: imx28_duckbill
+    test_plans: [boot, boot_nfs, kselftest, sleep]
+
+  - device_type: imx53_qsrb
+    test_plans: [boot, boot_nfs, kselftest, sleep]
+
+  - device_type: imx6dl_riotboard
+    test_plans: [boot, boot_nfs, kselftest, sleep]
 
   - device_type: imx6q_nitrogen6x
     test_plans: [boot]
@@ -1129,7 +1153,10 @@ test_configs:
     test_plans: [boot]
 
   - device_type: rk3399_gru_kevin
-    test_plans: [boot, v4l2_compliance_uvc]
+    test_plans:
+      - baseline
+      - boot
+      - v4l2_compliance_uvc
 
   - device_type: rk3399_puma_haikou
     test_plans: [boot, kselftest]
@@ -1141,13 +1168,24 @@ test_configs:
     test_plans: [boot]
 
   - device_type: rk3288_veyron_jaq
-    test_plans: [boot, boot_nfs, sleep, usb, v4l2_compliance_uvc, igt, cros_ec]
+    test_plans:
+      - baseline
+      - boot
+      - boot_nfs
+      - cros_ec
+      - igt
+      - sleep
+      - usb
+      - v4l2_compliance_uvc
 
   - device_type: salvator_x
     test_plans: [boot, boot_nfs, kselftest, simple]
 
   - device_type: sinlinx_sina33
     test_plans: [boot]
+
+  - device_type: socfpga_cyclone5_socrates
+    test_plans: [boot, boot_nfs, kselftest, sleep]
 
   - device_type: snow
     test_plans: [boot, boot_nfs, kselftest]

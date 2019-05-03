@@ -1,0 +1,9 @@
+- test:
+    timeout:
+      minutes: 10
+    definitions:
+    - repository: https://gitlab.collabora.com/collabora/bootrr.git
+      from: git
+      revision: master
+      name: {{ plan_name }}
+      path: bootrr.yaml

@@ -50,7 +50,7 @@ KERNEL_IMAGE_NAMES = {
     'arc': ['uImage.gz'],
     'i386': ['bzImage'],
     'mips': ['uImage.gz', 'vmlinux.gz.itb'],
-    'riscv': ['Image.gz'],
+    'riscv': ['Image', 'Image.gz'],
     'x86_64': ['bzImage'],
     'x86': ['bzImage'],
 }
@@ -278,6 +278,8 @@ def _run_make(kdir, arch, target=None, jopt=None, silent=True, cc='gcc',
     if opts:
         args += ['='.join([k, v]) for k, v in opts.iteritems()]
 
+    args += ['-C{}'.format(kdir)]
+
     if jopt:
         args.append('-j{}'.format(jopt))
 
@@ -300,7 +302,7 @@ def _run_make(kdir, arch, target=None, jopt=None, silent=True, cc='gcc',
         args.append('CC={}'.format(cc))
 
     if output:
-        args.append('O={}'.format(output))
+        args.append('O={}'.format(os.path.relpath(output, kdir)))
 
     if target:
         args.append(target)
@@ -309,14 +311,14 @@ def _run_make(kdir, arch, target=None, jopt=None, silent=True, cc='gcc',
     print(cmd)
     if log_file:
         open(log_file, 'a').write("#\n# {}\n#\n".format(cmd))
-        cmd = "/bin/bash -c '(set -o pipefail; {} | tee -a {})'".format(
+        cmd = "/bin/bash -c '(set -o pipefail; {} 2>&1 | tee -a {})'".format(
             cmd, log_file)
-    cmd = "cd {} && {}".format(kdir, cmd)
     return shell_cmd(cmd, True)
 
 
 def _make_defconfig(defconfig, kwargs, fragments):
     kdir, output_path = (kwargs.get(k) for k in ('kdir', 'output'))
+    result = True
 
     tmpfile_fd, tmpfile_path = tempfile.mkstemp(prefix='kconfig-')
     tmpfile = os.fdopen(tmpfile_fd, 'w')
@@ -335,9 +337,9 @@ def _make_defconfig(defconfig, kwargs, fragments):
                 fragments.append(os.path.basename(os.path.splitext(d)[0]))
     tmpfile.flush()
     if not _run_make(target=target, **kwargs):
-        return False
+        result = False
 
-    if fragments:
+    if result and fragments:
         kconfig_frag_name = 'frag.config'
         kconfig_frag = os.path.join(output_path, kconfig_frag_name)
         shutil.copy(tmpfile_path, kconfig_frag)
@@ -352,12 +354,12 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' > /dev/null 2>&1
            base=os.path.join(rel_path, '.config'),
            frag=os.path.join(rel_path, kconfig_frag_name))
         print(cmd.strip())
-        shell_cmd(cmd)
+        result = shell_cmd(cmd, True)
 
     tmpfile.close()
     os.unlink(tmpfile_path)
 
-    return True
+    return result
 
 
 def build_kernel(build_env, kdir, arch, defconfig=None, jopt=None,
@@ -367,7 +369,7 @@ def build_kernel(build_env, kdir, arch, defconfig=None, jopt=None,
     use_ccache = shell_cmd("which ccache > /dev/null", True)
     target = MAKE_TARGETS.get(arch)
     if jopt is None:
-        jopt = int(subprocess.check_output('nproc', shell=True)) + 2
+        jopt = int(shell_cmd("nproc")) + 2
     if not output_path:
         output_path = os.path.join(kdir, 'build')
     if not os.path.exists(output_path):
@@ -419,7 +421,7 @@ def build_kernel(build_env, kdir, arch, defconfig=None, jopt=None,
         opts.update({
             'INSTALL_MOD_PATH': mod_path,
             'INSTALL_MOD_STRIP': '1',
-            'STRIP': "{}strip".format(cross_compile),
+            'STRIP': "{}strip".format(cross_compile or ''),
         })
         result = _run_make(target='modules_install', **kwargs)
 
@@ -503,19 +505,20 @@ def install_kernel(kdir, tree_name, tree_url, git_branch, git_commit=None,
     boot_dir = os.path.join(output_path, 'arch', arch, 'boot')
     kimage_names = KERNEL_IMAGE_NAMES[arch]
     kimages = []
+    kimage_file = None
     for root, _, files in os.walk(boot_dir):
         for name in kimage_names:
             if name in files:
                 kimages.append(name)
                 image_path = os.path.join(root, name)
                 shutil.copy(image_path, install_path)
-    if len(kimages) > 1:
+    if kimages:
         for name in kimage_names:
             if name in kimages:
                 kimage_file = name
                 break
-    else:
-        kimage_file = kimages[0]
+    if not kimage_file:
+        print("Warning: no kernel image found")
 
     dts_dir = os.path.join(boot_dir, 'dts')
     dtbs = os.path.join(install_path, 'dtbs')
