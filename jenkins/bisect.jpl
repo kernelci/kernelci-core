@@ -49,10 +49,6 @@ DEFCONFIG (defconfig)
   Name of the Linux kernel defconfig
 TARGET
   Name of the device type to test (typically LAVA device type name)
-CC (gcc)
-  Name of the compiler
-CC_VERSION (7)
-  Version of the compiler
 BUILD_ENVIRONMENT
   Name of the build environment
 LAB
@@ -216,22 +212,48 @@ git symbolic-ref HEAD refs/heads/${params.KERNEL_BRANCH}
  */
 
 def buildKernel(kdir, kci_core) {
-    dir(kdir) {
+    def output = "${kdir}/build-${params.ARCH}-${params.BUILD_ENVIRONMENT}"
+    dir(kci_core) {
         sh(script: "rm -f ${env._BUILD_JSON}")
+
+        sh(script:"""\
+./kci_build \
+build_kernel \
+--kdir=${kdir} \
+--defconfig=${params.DEFCONFIG} \
+--arch=${params.ARCH} \
+--build-env=${params.BUILD_ENVIRONMENT} \
+--output=${output} \
+""")
+
+        sh(script: """\
+./kci_build \
+install_kernel \
+--kdir=${kdir} \
+--tree-name=${params.KERNEL_TREE} \
+--tree-url=${params.KERNEL_URL} \
+--branch=${params.KERNEL_BRANCH} \
+--output=${output} \
+""")
+
         withCredentials([string(credentialsId: params.KCI_TOKEN_ID,
                                 variable: 'SECRET')]) {
-            sh(script: """
-API=${params.KCI_API_URL} \
-TOKEN=${SECRET} \
-TREE_NAME=${params.KERNEL_TREE} \
-TREE=${params.KERNEL_URL} \
-ARCH=${params.ARCH} \
-BRANCH=${params.KERNEL_BRANCH} \
-""" + kci_core + """/build.py -e -g -i \
--J ${env._BUILD_JSON} \
--E ${params.BUILD_ENVIRONMENT} \
--c ${params.DEFCONFIG}""")
+            sh(script: """\
+./kci_build \
+push_kernel \
+--kdir=${kdir} \
+--token=${SECRET} \
+--api=${params.KCI_API_URL} \
+""")
         }
+
+        sh(script: """\
+./kci_build \
+publish_kernel \
+--kdir=${kdir} \
+--json-path=${env._BUILD_JSON} \
+""")
+
         stash(name: env._BUILD_JSON, includes: env._BUILD_JSON)
     }
 }
@@ -597,11 +619,10 @@ node("docker && bisection") {
     env._BUILD_JSON = "build-data.json"
 
     def j = new Job()
-    def docker_image = j.dockerImageName(
-        params.DOCKER_BASE, params.CC, params.CC_VERSION, params.ARCH)
     def kci_core = "${env.WORKSPACE}/kernelci-core"
     def kdir = "${env.WORKSPACE}/linux"
     def checks = [:]
+    def docker_image = null
 
     def params_summary = """\
     Tree:      ${params.KERNEL_TREE}
@@ -611,7 +632,7 @@ node("docker && bisection") {
     Target:    ${params.TARGET}
     Lab:       ${params.LAB}
     Defconfig: ${params.DEFCONFIG}
-    Compiler:  ${params.CC} ${params.CC_VERSION}
+    Compiler:  ${params.BUILD_ENVIRONMENT}
     Plan:      ${params.PLAN}"""
     print("""\
     Good:      ${params.GOOD_COMMIT}
@@ -642,6 +663,13 @@ ${params_summary}""")
             currentBuild.result = 'ABORTED'
             return
         }
+    }
+
+    j.dockerPullWithRetry("${params.DOCKER_BASE}base").inside() {
+        j.cloneKciCore(kci_core, params.KCI_CORE_URL, params.KCI_CORE_BRANCH)
+        build_env_docker_image = j.dockerImageName(
+            kci_core, params.BUILD_ENVIRONMENT, params.ARCH)
+        docker_image = "${params.DOCKER_BASE}${build_env_docker_image}"
     }
 
     j.dockerPullWithRetry(docker_image).inside() {

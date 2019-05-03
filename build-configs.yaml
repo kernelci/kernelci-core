@@ -145,18 +145,19 @@ fragments:
 
 build_environments:
 
-  gcc-7:
+  gcc-8:
     cc: gcc
-    cc_version: 7
+    cc_version: 8
     arch_map: &gcc_arch_map
       i386: 'x86'
       x86_64: 'x86'
       riscv: 'riscv64'
-
-  gcc-8:
-    cc: gcc
-    cc_version: 8
-    arch_map: *gcc_arch_map
+    cross_compile: &default_cross_compile
+      arc: 'arc-linux-'
+      arm: 'arm-linux-gnueabihf-'
+      arm64: 'aarch64-linux-gnu-'
+      mips: 'mips-linux-gnu-'
+      riscv: 'riscv64-linux-gnu-'
 
   clang-8:
     cc: clang
@@ -169,18 +170,20 @@ build_environments:
       mips:
       arc:
       riscv:
+    cross_compile: *default_cross_compile
 
   clang-9:
     cc: clang
     cc_version: 9
     arch_map: *clang_arch_map
+    cross_compile: *default_cross_compile
 
 
 build_configs_defaults:
 
-  gcc-7:
+  gcc-8:
 
-    build_environment: gcc-7
+    build_environment: gcc-8
 
     fragments: &default_fragments
       - 'debug'
@@ -238,8 +241,8 @@ build_configs_defaults:
 
 # Build fewer kernel configs with stable branches
 stable_variants: &stable_variants
-  gcc-7:
-    build_environment: gcc-7
+  gcc-8:
+    build_environment: gcc-8
     fragments: ['tinyconfig']
     architectures:
       arc:
@@ -383,8 +386,8 @@ build_configs:
     tree: ardb
     branch: 'arm-kaslr-latest'
     variants:
-      gcc-7:
-        build_environment: gcc-7
+      gcc-8:
+        build_environment: gcc-8
         architectures:
           x86_64: *x86_64_arch
           arm64: *arm64_arch
@@ -498,8 +501,8 @@ build_configs:
     tree: lsk
     branch: 'linux-linaro-lsk-v4.4-android-test'
     variants:
-      gcc-7:
-        build_environment: gcc-7
+      gcc-8:
+        build_environment: gcc-8
         fragments: [linaro_android_base, linaro_android_recommended]
         architectures:
           arm: *arm_arch
@@ -546,8 +549,8 @@ build_configs:
     tree: media
     branch: 'master'
     variants:
-      gcc-7:
-        build_environment: gcc-7
+      gcc-8:
+        build_environment: gcc-8
         fragments: [virtualvideo]
         architectures:
           i386: *i386_arch
@@ -563,8 +566,8 @@ build_configs:
     tree: next
     branch: 'master'
     variants:
-      gcc-7:
-        build_environment: gcc-7
+      gcc-8:
+        build_environment: gcc-8
         fragments: *default_fragments
         architectures:
           i386: *i386_arch
