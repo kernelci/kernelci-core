@@ -197,6 +197,12 @@ def add_jobs(jobs, config, tests, opts, build, plan, arch, defconfig):
     }
     dtbs = build['dtb_dir_data']
     targets = config.get('targets')
+    from pprint import pprint
+    print('======BEGIN======')
+    for data in (filters, flags, dtbs, targets):
+        pprint(data)
+        print(15 * '-')
+    print('======END======')
 
     for test_config in tests:
         if targets and str(test_config.device_type) not in targets:

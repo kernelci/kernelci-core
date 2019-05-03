@@ -749,6 +749,8 @@ device_types:
     mach: rockchip
     class: arm64-dtb
     boot_method: depthcharge
+    filters:
+       - blacklist: {kernel: ['v4.20-']}
 
   rk3399_puma_haikou:
     name: 'rk3399-puma-haikou'
@@ -1157,6 +1159,7 @@ test_configs:
       - baseline
       - boot
       - v4l2_compliance_uvc
+      - igt
 
   - device_type: rk3399_puma_haikou
     test_plans: [boot, kselftest]
