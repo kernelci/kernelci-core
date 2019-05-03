@@ -1159,6 +1159,11 @@ test_configs:
   - device_type: rk3399_gru_kevin
     test_plans: [boot, v4l2_compliance_uvc]
 
+  - device_type: rk3399_gru_kevin
+    test_plans: [igt]
+    filters:
+      - blacklist: {kernel: ['v3.', 'v4.4', 'v4.9', 'v4.14']}
+
   - device_type: rk3399_puma_haikou
     test_plans: [boot, kselftest]
 
