@@ -447,8 +447,8 @@ device_types:
     filters:
       - blacklist: *allmodconfig_filter
 
-  imx53_qsbr:
-    name: 'imx53-qsbr'
+  imx53_qsrb:
+    name: 'imx53-qsrb'
     mach: imx
     class: arm-dtb
     boot_method: barebox
@@ -960,6 +960,9 @@ test_configs:
   - device_type: apq8016_sbc
     test_plans: [boot, kselftest]
 
+  - device_type: ar9331_dpt_module
+    test_plans: [boot, boot_nfs, kselftest, sleep]
+
   - device_type: armada_370_db
     test_plans: [boot]
 
@@ -1040,6 +1043,24 @@ test_configs:
 
   - device_type: dra7_evm
     test_plans: [boot, kselftest, simple]
+
+  - device_type: dove_cubox
+    test_plans: [boot, boot_nfs, kselftest, sleep]
+
+  - device_type: imx23_olinuxino
+    test_plans: [boot, boot_nfs, kselftest, sleep]
+
+  - device_type: imx27_phycard_s
+    test_plans: [boot, boot_nfs, kselftest, sleep]
+
+  - device_type: imx28_duckbill
+    test_plans: [boot, boot_nfs, kselftest, sleep]
+
+  - device_type: imx53_qsrb
+    test_plans: [boot, boot_nfs, kselftest, sleep]
+
+  - device_type: imx6dl_riotboard
+    test_plans: [boot, boot_nfs, kselftest, sleep]
 
   - device_type: imx6q_nitrogen6x
     test_plans: [boot]
@@ -1162,6 +1183,9 @@ test_configs:
 
   - device_type: sinlinx_sina33
     test_plans: [boot]
+
+  - device_type: socfpga_cyclone5_socrates
+    test_plans: [boot, boot_nfs, kselftest, sleep]
 
   - device_type: snow
     test_plans: [boot, boot_nfs, kselftest]
