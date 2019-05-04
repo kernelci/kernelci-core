@@ -365,10 +365,8 @@ extra_configs(dot_config, kbuild_output)
 #
 if len(args) >= 1:
     build_target = args[0]
-elif arch == "arc":
+elif arch == "arc" or arch == "mips":
     build_target = "uImage.gz"
-elif arch == "mips":
-    build_target = "all"
 result = do_make(build_target, log=True)
 
 # Build modules
