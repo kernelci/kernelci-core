@@ -5,15 +5,17 @@
 set -e
 
 # Build-depends needed to build the test suites, they'll be removed later
-BUILD_DEPS="libglib2.0-dev \
+BUILD_DEPS="\
+    build-essential \
+    ca-certificates \
     git \
     autoconf \
     autogen \
-    libtool \
     automake \
+    autopoint \
     gettext \
-    build-essential \
-    ca-certificates \
+    libglib2.0-dev \
+    libtool \
 "
 
 apt-get install --no-install-recommends -y  ${BUILD_DEPS}
