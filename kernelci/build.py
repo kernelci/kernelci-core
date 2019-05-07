@@ -419,7 +419,9 @@ def build_kernel(build_env, kdir, arch, defconfig=None, jopt=None,
     if result and mods:
         result = _run_make(jopt=jopt, target='modules', **kwargs)
     if result and _kernel_config_enabled(dot_config, 'OF_FLATTREE'):
-        result = _run_make(target='dtbs', **kwargs)
+        dts_tree = os.path.join(kdir, 'arch/{}/boot/dts'.format(arch))
+        if os.path.exists(dts_tree):
+            result = _run_make(target='dtbs', **kwargs)
     build_time = time.time() - start_time
 
     if result and mods and mod_path:
