@@ -37,10 +37,10 @@ TORVALDS_GIT_URL = \
 
 # Hard-coded make targets for each CPU architecture
 MAKE_TARGETS = {
-    'arm': 'zImage dtbs',
-    'arm64': 'Image dtbs',
-    'arc': 'uImage.gz dtbs',
-    'mips': 'uImage.gz dtbs',
+    'arm': 'zImage',
+    'arm64': 'Image',
+    'arc': 'uImage.gz',
+    'mips': 'uImage.gz',
 }
 
 # Hard-coded binary kernel image names for each CPU architecture
@@ -411,6 +411,9 @@ def build_kernel(build_env, kdir, arch, defconfig=None, jopt=None,
     mods = shell_cmd('grep -cq CONFIG_MODULES=y {}'.format(dot_config), True)
     if result and mods:
         result = _run_make(jopt=jopt, target='modules', **kwargs)
+    dtbs = shell_cmd('grep -cq CONFIG_USE_OF=y {}'.format(dot_config), True)
+    if result and dtbs:
+        result = _run_make(target='dtbs', **kwargs)
     build_time = time.time() - start_time
 
     if result and mods and mod_path:
