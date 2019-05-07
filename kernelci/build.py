@@ -362,12 +362,15 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' > /dev/null 2>&1
     return result
 
 
+def _kernel_config_enabled(dot_config, name):
+    return shell_cmd('grep -cq CONFIG_{}=y {}'.format(name, dot_config), True)
+
+
 def build_kernel(build_env, kdir, arch, defconfig=None, jopt=None,
                  verbose=False, output_path=None, mod_path='_modules_'):
     cc = build_env.cc
     cross_compile = build_env.get_cross_compile(arch) or None
     use_ccache = shell_cmd("which ccache > /dev/null", True)
-    target = MAKE_TARGETS.get(arch)
     if jopt is None:
         jopt = int(shell_cmd("nproc")) + 2
     if not output_path:
@@ -407,12 +410,15 @@ def build_kernel(build_env, kdir, arch, defconfig=None, jopt=None,
         print("ERROR: Missing kernel config")
         result = False
     if result:
+        target = (
+            'xipImage' if _kernel_config_enabled(dot_config, 'XIP_KERNEL')
+            else MAKE_TARGETS.get(arch)
+        )
         result = _run_make(jopt=jopt, target=target, **kwargs)
-    mods = shell_cmd('grep -cq CONFIG_MODULES=y {}'.format(dot_config), True)
+    mods = _kernel_config_enabled(dot_config, 'MODULES')
     if result and mods:
         result = _run_make(jopt=jopt, target='modules', **kwargs)
-    dtbs = shell_cmd('grep -cq CONFIG_USE_OF=y {}'.format(dot_config), True)
-    if result and dtbs:
+    if result and _kernel_config_enabled(dot_config, 'USE_OF'):
         result = _run_make(target='dtbs', **kwargs)
     build_time = time.time() - start_time
 
