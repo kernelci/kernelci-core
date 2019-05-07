@@ -418,7 +418,7 @@ def build_kernel(build_env, kdir, arch, defconfig=None, jopt=None,
     mods = _kernel_config_enabled(dot_config, 'MODULES')
     if result and mods:
         result = _run_make(jopt=jopt, target='modules', **kwargs)
-    if result and _kernel_config_enabled(dot_config, 'USE_OF'):
+    if result and _kernel_config_enabled(dot_config, 'OF_FLATTREE'):
         result = _run_make(target='dtbs', **kwargs)
     build_time = time.time() - start_time
 
