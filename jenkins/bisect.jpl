@@ -218,9 +218,22 @@ def buildKernel(kdir, kci_core) {
 
         sh(script:"""\
 ./kci_build \
+generate_defconfig_fragments \
+--defconfig=${params.DEFCONFIG} \
+--kdir=${kdir} \
+""")
+
+        def expanded_defconfig = sh(script: """\
+./kci_build \
+expand_fragments \
+--defconfig=${params.DEFCONFIG} \
+""", returnStdout: true).trim()
+
+        sh(script:"""\
+./kci_build \
 build_kernel \
 --kdir=${kdir} \
---defconfig=${params.DEFCONFIG} \
+--defconfig=${expanded_defconfig} \
 --arch=${params.ARCH} \
 --build-env=${params.BUILD_ENVIRONMENT} \
 --output=${output} \
