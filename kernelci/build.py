@@ -201,15 +201,21 @@ def make_tarball(path, tarball_name):
     subprocess.check_output(cmd, shell=True)
 
 
+def generate_config_fragment(frag, kdir):
+    with open(os.path.join(kdir, frag.path), 'w') as f:
+        print(frag.path)
+        for kernel_config in frag.configs:
+            f.write(kernel_config + '\n')
+
+
 def generate_fragments(config, kdir):
-    add_kselftest_fragment(kdir)
     for variant in config.variants:
         for frag in variant.fragments:
-            if frag.configs:
-                with open(os.path.join(kdir, frag.path), 'w') as f:
-                    print(frag.path)
-                    for kernel_config in frag.configs:
-                        f.write(kernel_config + '\n')
+            if frag.name == 'kselftest':
+                print(frag.path)
+                add_kselftest_fragment(kdir)
+            elif frag.configs:
+                generate_config_fragment(frag, kdir)
 
 
 def push_tarball(config, kdir, storage, api, token):
