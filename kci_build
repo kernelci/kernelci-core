@@ -262,6 +262,24 @@ class cmd_generate_fragments(Command):
         return True
 
 
+class cmd_expand_fragments(Command):
+    help = "Expand a defconfig string with full fragment paths"
+    args = [Args.defconfig]
+
+    def __call__(self, configs, args):
+        frags = configs['fragments']
+        split = args.defconfig.split('+')
+        expanded = [split.pop(0)]
+        for part in split:
+            frag = frags.get(part)
+            if frag:
+                expanded.append(frag.path)
+            else:
+                expanded.append(part)
+        print('+'.join(expanded))
+        return True
+
+
 class cmd_push_tarball(Command):
     help = "Create and up a source tarball to the remote storage server"
     args = [Args.config, Args.kdir, Args.storage, Args.api, Args.token]
