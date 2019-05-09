@@ -96,7 +96,7 @@ v4l2-compliance -s -d $device_path | sed s/'\r'/'\n'/g | while read line; do
         res=$( \
             echo $line | \
                 sed s/'\(.*\): \([OK|FAIL].*\)'/'\2'/ | \
-                sed s/'OK (Not Supported)'/skip/ | \
+                sed s/'OK (Not Supported)'/pass/ | \
                 sed s/OK/pass/ | \
                 sed s/FAIL/fail/)
 
