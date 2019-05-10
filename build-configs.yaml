@@ -684,6 +684,11 @@ build_configs:
     branch: 'linux-5.0.y'
     variants: *stable_variants
 
+  stable_5.1:
+    tree: stable
+    branch: 'linux-5.1.y'
+    variants: *stable_variants
+
   stable-rc_3.18:
     tree: stable-rc
     branch: 'linux-3.18.y'
@@ -712,6 +717,11 @@ build_configs:
   stable-rc_5.0:
     tree: stable-rc
     branch: 'linux-5.0.y'
+    variants: *stable_variants
+
+  stable-rc_5.1:
+    tree: stable-rc
+    branch: 'linux-5.1.y'
     variants: *stable_variants
 
   tegra:
