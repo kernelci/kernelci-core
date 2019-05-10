@@ -36,7 +36,7 @@ GIT_DESCRIBE_VERBOSE
   Verbose output of 'git describe' at the revision of the snapshot
 COMMIT_ID
   Git commit SHA1 at the revision of the snapshot
-BUILD_ENVIRONMENT (gcc-7)
+BUILD_ENVIRONMENT
   Name of the build environment
 PUBLISH (boolean)
   Publish build results via the KernelCI backend API
