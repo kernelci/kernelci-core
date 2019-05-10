@@ -24,12 +24,12 @@
 # -b = also rebuild build-base
 # -d = also rebuild debos
 # -q = make the builds quiet
-# -d = the docker namespace/account to build for (default is kernelci)
+# -t = the prefix to use in docker tags (default is kernelci/)
 
 set -e
-dockerhub='kernelci'
+tag_px='kernelci/'
 
-options='npbdqh:'
+options='npbdqt:'
 while getopts $options option
 do
   case $option in
@@ -38,7 +38,7 @@ do
     b )  base=true;;
     d )  debos=true;;
     q )  quiet="--quiet";;
-    h )  dockerhub=$OPTARG;;
+    t )  tag_px=$OPTARG;;
     \? )
         echo "Invalid Option: -$OPTARG" 1>&2
         exit 1
@@ -62,7 +62,7 @@ echo_push() {
 
 if [ "x${base}" == "xtrue" ]
 then
-  tag=${dockerhub}/build-base
+  tag=${tag_px}build-base
   echo_build $tag
   docker build ${quiet} ${cache_args} build-base -t $tag
   if [ "x${push}" == "xtrue" ]
@@ -74,7 +74,7 @@ fi
 
 for c in {gcc,clang}-*
 do
-  tag=${dockerhub}/build-$c
+  tag=${tag_px}build-$c
   echo_build $tag
   docker build ${quiet} ${cache_args} $c -t $tag
   if [ "x${push}" == "xtrue" ]
@@ -86,7 +86,7 @@ done
 
 if [ "x${debos}" == "xtrue" ]
 then
-  tag=${dockerhub}/debos
+  tag=${tag_px}debos
   echo_build $tag
   docker build ${quiet} ${cache_args} debos -t $tag
   if [ "x${push}" == "xtrue" ]
