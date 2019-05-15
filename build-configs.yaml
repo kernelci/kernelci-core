@@ -156,7 +156,7 @@ build_environments:
       x86_64: 'x86'
       riscv: 'riscv64'
     cross_compile: &default_cross_compile
-      arc: 'arc-linux-'
+      arc: 'arc-elf32-'
       arm: 'arm-linux-gnueabihf-'
       arm64: 'aarch64-linux-gnu-'
       mips: 'mips-linux-gnu-'
