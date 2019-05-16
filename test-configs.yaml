@@ -418,6 +418,12 @@ device_types:
     filters:
       - blacklist: *allmodconfig_filter
 
+  hikey_uboot:
+    name: 'hi6220-hikey'
+    mach: hisilicon
+    class: arm64-dtb
+    boot_method: uboot
+
   imx23_olinuxino:
     name: 'imx23-olinuxino'
     mach: imx
@@ -1041,6 +1047,9 @@ test_configs:
 
   - device_type: dove_cubox
     test_plans: [boot, boot_nfs, kselftest, sleep]
+
+  - device_type: hikey_uboot
+    test_plans: [boot, boot_nfs, kselftest, simple]
 
   - device_type: imx23_olinuxino
     test_plans: [boot, boot_nfs, kselftest, sleep]
