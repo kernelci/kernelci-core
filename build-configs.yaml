@@ -370,9 +370,17 @@ build_configs:
     tree: android
     branch: 'android-4.19'
 
+  android_4.19-gki-dev:
+    tree: android
+    branch: 'android-4.19-gki-dev'
+
   android_4.19-q:
     tree: android
     branch: 'android-4.19-q'
+
+  android_mainline:
+    tree: android
+    branch: 'android-mainline'
 
   android_mainline_tracking:
     tree: android
