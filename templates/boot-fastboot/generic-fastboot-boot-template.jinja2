@@ -1,0 +1,95 @@
+{%- extends 'base/kernel-ci-base.jinja2' %}
+{% block metadata %}
+{{ super() }}
+{% endblock %}
+{% block main %}
+{{ super() }}
+tags:
+  - fastboot
+protocols:
+  lava-lxc:
+    name: lxc-{{ platform }}-kernelci-fastboot
+    template: debian
+    distribution: debian
+    release: buster
+{% endblock %}
+{% block actions %}
+actions:
+{%- block deploy_lxc %}
+
+- deploy:
+    namespace: host
+    timeout:
+      minutes: 15
+    to: lxc
+    packages:
+    - android-tools-adb
+    - android-tools-fastboot
+    - cpio
+    - mkbootimg
+{%- endblock %}
+{%- block boot_lxc %}
+
+- boot:
+    namespace: host
+    prompts:
+    - 'root@(.*):/#'
+    timeout:
+      minutes: 5
+    method: lxc
+{%- endblock %}
+{%- block deploy_url %}
+
+- deploy:
+    timeout:
+      minutes: 40
+    namespace: target
+    to: download
+    images:
+     kernel:
+      url: {{ kernel_url }}
+{%- block kernel_image_type %}
+      type: {{ kernel_image.lower() }}
+{%- endblock %}
+{%- if initrd_url %}
+     ramdisk:
+      url: {{ initrd_url }}
+{%- endif %}
+{%- if modules_url %}
+     modules:
+      url: {{ modules_url }}
+{%- endif %}
+{%- if dtb_url %}
+     dtb:
+      url: {{ dtb_url }}
+{%- endif %}
+{%- endblock %}
+{%- block test_lxc %}
+
+{% include "/boot-fastboot/mkbootimg.jinja2" %}
+{%- endblock %}
+{%- block deploy_boot %}
+
+- deploy:
+    timeout:
+      minutes: 40
+    to: fastboot
+    namespace: target
+    images:
+      boot:
+        url: lxc:///boot.img
+{%- endblock %}
+{%- block boot %}
+
+- boot:
+    namespace: target
+    prompts:
+    - '/ #'
+    timeout:
+      minutes: 15
+    method: fastboot
+    transfer_overlay:
+      download_command: wget
+      unpack_command: tar -C / -xvpf
+{%- endblock %}
+{% endblock %}
