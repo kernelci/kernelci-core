@@ -37,6 +37,9 @@ trees:
   broonie-spi:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/broonie/spi.git"
 
+  chrome-platform:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/chrome-platform/linux.git"
+
   clk:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/clk/linux.git"
 
@@ -439,6 +442,10 @@ build_configs:
   broonie-spi:
     tree: broonie-spi
     branch: 'for-next'
+
+  chrome-platform:
+    tree: chrome-platform
+    branch: 'for-kernelci'
 
   clk:
     tree: clk
