@@ -10,7 +10,7 @@ UNNEEDED_PACKAGES="apt libapt-pkg5.0 "\
 "ncurses-bin ncurses-base libncursesw5 libncurses5 "\
 "perl-base "\
 "debconf libdebconfclient0 "\
-"libfdisk1 libdevmapper1.02.1 "\
+"libfdisk1 "\
 "insserv "\
 "init-system-helpers "\
 "cpio "\
@@ -101,9 +101,9 @@ find usr etc -name '*fuse*' -prune -exec rm -r {} \;
 rm -rf usr/lib/lsb
 
 # Utils using ncurses
-rm usr/bin/pg
-rm usr/bin/watch
-rm usr/bin/slabtop
+rm -f usr/bin/pg
+rm -f usr/bin/watch
+rm -f usr/bin/slabtop
 
 # boot analyser
 rm usr/bin/systemd-analyze
