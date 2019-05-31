@@ -223,7 +223,7 @@ def buildsComplete(job, opts, arch) {
     build(job: job, parameters: job_params)
 }
 
-node("defconfig-creator") {
+node("docker && build-trigger") {
     def j = new Job()
     def k = new Kernel()
     def kci_core = "${env.WORKSPACE}/kernelci-core"
