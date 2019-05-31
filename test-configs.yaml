@@ -39,17 +39,21 @@ file_systems:
     type: buildroot
     ramdisk: '{arch}/tests/rootfs.cpio.gz'
 
+  debian_buster_ramdisk:
+    type: debian
+    ramdisk: 'buster/20190607.0/{arch}/rootfs.cpio.gz'
+
   debian_stretch_ramdisk:
     type: debian
-    ramdisk: 'stretch/20190531.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'stretch/20190607.0/{arch}/rootfs.cpio.gz'
 
   debian_stretch-igt_ramdisk:
     type: debian
-    ramdisk: 'stretch-igt/20190531.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'stretch-igt/20190607.0/{arch}/rootfs.cpio.gz'
 
   debian_stretch-v4l2_ramdisk:
     type: debian
-    ramdisk: 'stretch-v4l2/20190531.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'stretch-v4l2/20190607.0/{arch}/rootfs.cpio.gz'
 
 
 test_plan_default_filters:
@@ -104,7 +108,7 @@ test_plans:
     pattern: 'boot/generic-qemu-boot-template.jinja2'
 
   cros-ec:
-    rootfs: debian_stretch_ramdisk
+    rootfs: debian_buster_ramdisk
 
   igt:
     rootfs: debian_stretch-igt_ramdisk
@@ -115,18 +119,18 @@ test_plans:
       - whitelist: {defconfig: ['kselftest']}
 
   simple:
-    rootfs: debian_stretch_ramdisk
+    rootfs: debian_buster_ramdisk
 
   simple_qemu:
     name: simple
-    rootfs: debian_stretch_ramdisk
+    rootfs: debian_buster_ramdisk
     pattern: 'simple/generic-qemu-simple-template.jinja2'
 
   sleep:
-    rootfs: debian_stretch_ramdisk
+    rootfs: debian_buster_ramdisk
 
   usb:
-    rootfs: debian_stretch_ramdisk
+    rootfs: debian_buster_ramdisk
 
   v4l2_compliance_uvc:
     name: v4l2-compliance-uvc
