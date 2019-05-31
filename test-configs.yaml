@@ -93,7 +93,7 @@ test_plans:
     rootfs: buildroot_ramdisk
     pattern: 'boot/generic-qemu-boot-template.jinja2'
 
-  cros_ec:
+  cros-ec:
     rootfs: debian_stretch_ramdisk
 
   igt:
@@ -1109,7 +1109,7 @@ test_configs:
     test_plans: [boot, kselftest, simple]
 
   - device_type: nyan_big
-    test_plans: [boot, sleep, usb, igt, cros_ec]
+    test_plans: [boot, sleep, usb, igt, cros-ec]
 
   - device_type: odroid_c1
     test_plans: [boot, kselftest]
@@ -1139,7 +1139,7 @@ test_configs:
     test_plans: [boot, kselftest]
 
   - device_type: peach_pi
-    test_plans: [boot, kselftest, sleep, usb, cros_ec]
+    test_plans: [boot, kselftest, sleep, usb, cros-ec]
 
   - device_type: qcom_qdf2400
     test_plans: [boot]
@@ -1174,7 +1174,7 @@ test_configs:
     test_plans: [boot]
 
   - device_type: rk3288_veyron_jaq
-    test_plans: [boot, boot_nfs, sleep, usb, v4l2_compliance_uvc, igt, cros_ec]
+    test_plans: [boot, boot_nfs, sleep, usb, v4l2_compliance_uvc, igt, cros-ec]
 
   - device_type: salvator_x
     test_plans: [boot, boot_nfs, kselftest, simple]
