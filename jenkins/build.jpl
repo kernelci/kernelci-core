@@ -74,6 +74,7 @@ build_kernel \
 --defconfig=${params.DEFCONFIG} \
 --arch=${params.ARCH} \
 --build-env=${params.BUILD_ENVIRONMENT} \
+--verbose \
 ${jopt} \
 || echo 'Kernel build failed'
 """)
