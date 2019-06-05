@@ -381,6 +381,12 @@ device_types:
       - blacklist: *allmodconfig_filter
       - blacklist: {defconfig: ['multi_v7_defconfig+CONFIG_LKDTM=n']}
 
+  cubietruck:
+    mach: allwinner
+    class: arm-dtb
+    dtb: "sun7i-a20-cubietruck.dtb"
+    boot_method: uboot
+
   d03:
     name: 'd03'
     mach: hisilicon
@@ -1032,6 +1038,9 @@ test_configs:
 
   - device_type: chip_pro
     test_plans: [boot]
+
+  - device_type: cubietruck
+    test_plans: [boot, boot_nfs]
 
   - device_type: d03
     test_plans: [boot]
