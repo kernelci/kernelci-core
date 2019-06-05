@@ -182,6 +182,7 @@ build_environments:
     cross_compile: *default_cross_compile
 
 
+# Default config with full build coverage
 build_configs_defaults:
 
   gcc-8:
@@ -198,7 +199,7 @@ build_configs_defaults:
       arc: &arc_arch
         base_defconfig: 'nsim_hs_defconfig'
         extra_configs: ['allnoconfig']
-        filters: &arc_defconfig_filters
+        filters: &arc_default_filters
           # remove any non-ARCv2 defconfigs since we only have ARCv2 toolchain
           - blacklist:
               defconfig:
@@ -230,7 +231,7 @@ build_configs_defaults:
       mips: &mips_arch
         base_defconfig: '32r2el_defconfig'
         extra_configs: ['allnoconfig']
-        filters: &mips_defconfig_filters
+        filters: &mips_default_filters
           - blacklist: {defconfig: ['generic_defconfig']}
 
       riscv: &riscv_arch
@@ -242,6 +243,34 @@ build_configs_defaults:
         fragments: [x86_kvm_guest]
 
 
+# Minimum architecture defconfigs
+arch_defconfigs:
+  arc: &arc_defconfig
+    base_defconfig: 'nsim_hs_defconfig'
+    filters:
+      - whitelist: { defconfig: ['nsim_hs_defconfig'] }
+  arm: &arm_defconfig
+    base_defconfig: 'multi_v7_defconfig'
+    filters:
+      - whitelist: { defconfig: ['multi_v7_defconfig'] }
+  arm64: &arm64_defconfig
+    base_defconfig: 'defconfig'
+    filters:
+      - whitelist: { defconfig: ['defconfig'] }
+  mips: &mips_defconfig
+    base_defconfig: '32r2el_defconfig'
+    filters:
+      - whitelist: { defconfig: ['32r2el_defconfig'] }
+  riscv: &riscv_defconfig
+    base_defconfig: 'defconfig'
+    filters:
+      - whitelist: { defconfig: ['defconfig'] }
+  x86_64: &x86_64_defconfig
+    base_defconfig: 'x86_64_defconfig'
+    filters:
+      - whitelist: { defconfig: ['x86_64_defconfig'] }
+
+
 # Build fewer kernel configs with stable branches
 stable_variants: &stable_variants
   gcc-8:
@@ -251,7 +280,7 @@ stable_variants: &stable_variants
       arc:
         base_defconfig: 'nsim_hs_defconfig'
         extra_configs: ['allnoconfig']
-        filters: *arc_defconfig_filters
+        filters: *arc_default_filters
       arm:
         base_defconfig: 'multi_v7_defconfig'
         extra_configs: ['allnoconfig']
@@ -263,7 +292,7 @@ stable_variants: &stable_variants
       mips:
         base_defconfig: '32r2el_defconfig'
         extra_configs: ['allnoconfig']
-        filters: *mips_defconfig_filters
+        filters: *mips_default_filters
       riscv:
         extra_configs: ['allnoconfig']
       x86_64:
