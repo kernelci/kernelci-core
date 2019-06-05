@@ -475,6 +475,13 @@ build_configs:
   chrome-platform:
     tree: chrome-platform
     branch: 'for-kernelci'
+    variants:
+      gcc-8:
+        build_environment: gcc-8
+        architectures:
+          arm: *arm_defconfig
+          arm64: *arm64_defconfig
+          x86_64: *x86_64_defconfig
 
   clk:
     tree: clk
