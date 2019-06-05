@@ -787,7 +787,7 @@ device_types:
     name: 'r8a7795-salvator-x'
     mach: renesas
     class: arm64-dtb
-    boot_method: qemu
+    boot_method: uboot
     flags: ['big_endian']
     filters:
       - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
