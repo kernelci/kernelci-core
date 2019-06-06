@@ -1,4 +1,7 @@
 #!/bin/bash
+
+set -e
+
 env
 
 arch=${1}
