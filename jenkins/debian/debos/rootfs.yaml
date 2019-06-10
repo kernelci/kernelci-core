@@ -137,16 +137,16 @@ actions:
     chroot: false
     command: mv ${ROOTDIR}/boot/initrd.img-min ${ARTIFACTDIR}/{{ $basename -}}/initrd.cpio.gz
 
+  - action: run
+    chroot: true
+    script: scripts/strip.sh
+
 {{ if $extra_packages_remove }}
   - action: run
     description: remove extra packages
     chroot: true
-    command: dpkg --purge  --force-remove-essential --force-depends {{ $extra_packages_remove }}
+    command: dpkg --purge --force-remove-essential --force-depends {{ $extra_packages_remove }}
 {{ end }}
-
-  - action: run
-    chroot: true
-    script: scripts/strip.sh
 
   - action: run
     chroot: true
