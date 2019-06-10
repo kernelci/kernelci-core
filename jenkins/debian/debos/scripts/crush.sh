@@ -77,10 +77,10 @@ rm -rf usr/lib/xtables
 rm -rf usr/lib/locale/*
 
 # partition helpers
-rm usr/sbin/*fdisk
+rm -f usr/sbin/*fdisk
 
 # local compiler
-rm usr/bin/localedef
+rm -f usr/bin/localedef
 
 # Systemd dns resolver
 #find usr etc -name '*systemd-resolve*' -prune -exec rm -r {} \;
@@ -106,22 +106,22 @@ rm -f usr/bin/watch
 rm -f usr/bin/slabtop
 
 # boot analyser
-rm usr/bin/systemd-analyze
+rm -f usr/bin/systemd-analyze
 
 # Only needed when adding libraries
-rm usr/sbin/ldconfig*
+rm -f usr/sbin/ldconfig*
 
 # Games, unused
-rmdir usr/games
+rm -rf usr/games
 
 # Unused systemd generators
-rm lib/systemd/system-generators/systemd-cryptsetup-generator
-rm lib/systemd/system-generators/systemd-debug-generator
-rm lib/systemd/system-generators/systemd-gpt-auto-generator
-rm lib/systemd/system-generators/systemd-hibernate-resume-generator
-rm lib/systemd/system-generators/systemd-rc-local-generator
-rm lib/systemd/system-generators/systemd-system-update-generator
-rm lib/systemd/system-generators/systemd-sysv-generator
+rm -f lib/systemd/system-generators/systemd-cryptsetup-generator
+rm -f lib/systemd/system-generators/systemd-debug-generator
+rm -f lib/systemd/system-generators/systemd-gpt-auto-generator
+rm -f lib/systemd/system-generators/systemd-hibernate-resume-generator
+rm -f lib/systemd/system-generators/systemd-rc-local-generator
+rm -f lib/systemd/system-generators/systemd-system-update-generator
+rm -f lib/systemd/system-generators/systemd-sysv-generator
 
 
 # Efi blobs
@@ -131,25 +131,25 @@ rm -rf usr/lib/systemd/boot
 rm -rf usr/lib/systemd/catalog
 
 # Misc systemd utils
-rm usr/bin/bootctl
-rm usr/bin/busctl
-rm usr/bin/hostnamectl
-rm usr/bin/localectl
-rm usr/bin/systemd-cat
-rm usr/bin/systemd-cgls
-rm usr/bin/systemd-cgtop
-rm usr/bin/systemd-delta
-rm usr/bin/systemd-detect-virt
-rm usr/bin/systemd-mount
-rm usr/bin/systemd-path
-rm usr/bin/systemd-run
-rm usr/bin/systemd-socket-activate
+rm -f usr/bin/bootctl
+rm -f usr/bin/busctl
+rm -f usr/bin/hostnamectl
+rm -f usr/bin/localectl
+rm -f usr/bin/systemd-cat
+rm -f usr/bin/systemd-cgls
+rm -f usr/bin/systemd-cgtop
+rm -f usr/bin/systemd-delta
+rm -f usr/bin/systemd-detect-virt
+rm -f usr/bin/systemd-mount
+rm -f usr/bin/systemd-path
+rm -f usr/bin/systemd-run
+rm -f usr/bin/systemd-socket-activate
 
 # Remove pam module to authenticate against a DB
 # plus libdb-5.3.so that is only used by this pam module
-rm usr/lib/*/security/pam_userdb.so
-rm usr/lib/*/libdb-5.3.so
+rm -f usr/lib/*/security/pam_userdb.so
+rm -f usr/lib/*/libdb-5.3.so
 
 # remove NSS support for nis, nisplus and hesiod
-rm usr/lib/*/libnss_hesiod*
-rm usr/lib/*/libnss_nis*
+rm -f usr/lib/*/libnss_hesiod*
+rm -f usr/lib/*/libnss_nis*
