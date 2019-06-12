@@ -144,9 +144,10 @@ git init --bare
 
 def update_repo(config, path, ref):
     if not os.path.exists(path):
+        ref_opt = '--reference={ref}'.format(ref=ref) if ref else ''
         shell_cmd("""
-git clone --reference={ref} -o {remote} {url} {path}
-""".format(ref=ref, remote=config.tree.name, url=config.tree.url, path=path))
+git clone {ref} -o {remote} {url} {path}
+""".format(ref=ref_opt, remote=config.tree.name, url=config.tree.url, path=path))
 
     _update_remote(config, path)
     _fetch_tags(path)
