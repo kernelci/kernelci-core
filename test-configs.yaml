@@ -76,6 +76,11 @@ test_plans:
     filters:
       - blacklist: *kselftest_defconfig_filter
 
+  boot_fastboot:
+    name: 'boot-fastboot'
+    rootfs: buildroot_ramdisk
+    pattern: 'boot-fastboot/generic-fastboot-boot-template.jinja2'
+
   boot_nfs:
     name: 'boot-nfs'
     rootfs: buildroot_nfs
