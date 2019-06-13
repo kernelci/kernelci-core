@@ -5,6 +5,7 @@
 {{- $script := or .script "scripts/nothing.sh" -}}
 {{- $test_overlay := .test_overlay -}}
 {{- $extra_packages_remove := or .extra_packages_remove -}}
+{{- $extra_files_remove := or .extra_files_remove -}}
 
 architecture: {{ $architecture }}
 
@@ -151,6 +152,18 @@ actions:
   - action: run
     chroot: true
     script: scripts/crush.sh
+
+{{ if $extra_files_remove }}
+  - action: run
+    description: remove extra files
+    chroot: true
+    command: |
+      for exp in {{ $extra_files_remove }}; do
+        for f in $(find . -name "$exp"); do
+          rm -rf "$f"
+        done
+      done
+{{ end }}
 
   - action: run
     description: Set symbolic link to init

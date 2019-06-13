@@ -52,6 +52,7 @@ def buildImage(config) {
     }
 
     def extraPackagesRemove = config.extra_packages_remove ?: ""
+    def extraFilesRemove = config.extra_files_remove ?: ""
 
     // defaults to empty script scripts/nothing.sh
     def script = "scripts/nothing.sh"
@@ -74,6 +75,7 @@ def buildImage(config) {
                                                     debosFile,
                                                     extraPackages,
                                                     extraPackagesRemove,
+                                                    extraFilesRemove,
                                                     name,
                                                     script,
                                                     test_overlay,
@@ -91,6 +93,7 @@ def makeImageStep(String pipeline_version,
                   String debosFile,
                   String extraPackages,
                   String extraPackagesRemove,
+                  String extraFilesRemove,
                   String name,
                   String script,
                   String test_overlay,
@@ -113,6 +116,7 @@ def makeImageStep(String pipeline_version,
                             -t basename:${pipeline_version}/${arch} \
                             -t extra_packages:'${extraPackages}' \
                             -t extra_packages_remove:'${extraPackagesRemove}' \
+                            -t extra_files_remove:'${extraFilesRemove}' \
                             -t script:${script} \
                             -t test_overlay:'${test_overlay}' \
                             ${debosFile}
