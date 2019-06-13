@@ -119,6 +119,13 @@ test_plans:
     filters:
       - blacklist: *kselftest_defconfig_clang_environment_filter
 
+  boot_fastboot:
+    name: 'boot-fastboot'
+    rootfs: debian_buster_ramdisk
+    pattern: 'boot-fastboot/generic-fastboot-boot-template.jinja2'
+    params:
+      job_timeout: '50'
+
   boot-nfs:
     rootfs: buildroot_nfs
     pattern: 'boot-nfs/{category}-{method}-{protocol}-nfs-template.jinja2'
