@@ -76,8 +76,10 @@ rm -rf usr/lib/xtables
 # TODO: only remaining locale is actually "C". Should we really remove it?
 rm -rf usr/lib/locale/*
 
-# partition helpers
+# Partition and file system tools
 rm -f usr/sbin/*fdisk
+rm -f usr/sbin/mkfs*
+rm -f usr/sbin/fsck*
 
 # local compiler
 rm -f usr/bin/localedef
@@ -122,7 +124,6 @@ rm -f lib/systemd/system-generators/systemd-hibernate-resume-generator
 rm -f lib/systemd/system-generators/systemd-rc-local-generator
 rm -f lib/systemd/system-generators/systemd-system-update-generator
 rm -f lib/systemd/system-generators/systemd-sysv-generator
-
 
 # Efi blobs
 rm -rf usr/lib/systemd/boot
