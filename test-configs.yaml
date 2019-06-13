@@ -862,6 +862,11 @@ device_types:
     class: arm64-dtb
     boot_method: uboot
 
+  sun5i-a13-olinuxino-micro:
+    mach: allwinner
+    class: arm-dtb
+    boot_method: uboot
+
   sun8i_a23_evb:
     name: 'sun8i-a23-evb'
     mach: allwinner
@@ -1248,6 +1253,9 @@ test_configs:
     test_plans: [boot, boot_nfs, kselftest]
 
   - device_type: sun50i_h5_libretech_all_h3_cc
+    test_plans: [boot]
+
+  - device_type: sun5i-a13-olinuxino-micro
     test_plans: [boot]
 
   - device_type: sun8i_a23_evb
