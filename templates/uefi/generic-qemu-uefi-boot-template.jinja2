@@ -1,0 +1,62 @@
+{% extends 'base/kernel-ci-base.jinja2' %}
+{% set ctx_arch = arch %}
+{% if arch == "arm" %}
+{% set ctx_arch = 'arm64' %}
+{% set ctx_cpu = 'cortex-a15' %}
+{% set console_dev = 'ttyAMA0' %}
+{% endif %}
+{% if arch == "arm64" %}
+{% set ctx_arch = 'arm64' %}
+{% set console_dev = 'ttyAMA0' %}
+{% endif %}
+{% if arch == 'x86_64' %}
+{% set ctx_arch = 'amd64' %}
+{% set console_dev = 'ttyS0' %}
+{% endif %}
+{% if arch == 'i386' %}
+{% set ctx_arch = 'i386' %}
+{% set ctx_cpu = 'host' %}
+{% set console_dev = 'ttyS0' %}
+{% endif %}
+{% block metadata %}
+{{ super() }}
+{% endblock %}
+{% block main %}
+{{ super() }}
+{% endblock %}
+{% block actions %}
+context:
+  arch: {{ ctx_arch }}
+  cpu: {{ ctx_cpu }}
+  guestfs_interface: virtio
+{% if arch == 'arm' or arch == 'arm64' %}
+  machine: virt,{{ ctx_gicversion }}
+{% endif %}
+
+actions:
+- deploy:
+    timeout:
+      minutes: 3
+    to: tmpfs
+    os: oe
+    images:
+      bios:
+        image_arg: '-bios {bios}'
+        url: {{ image_url_uefi }}
+      kernel:
+{%- block image_arg %}
+        image_arg: '-kernel {kernel} -append "console={{ console_dev }},115200 root=/dev/ram0 debug verbose {{ extra_kernel_args }}"'
+{%- endblock %}
+        url: {{ kernel_url }}
+      ramdisk:
+        image_arg: '-initrd {ramdisk}'
+        url: {{ initrd_url }}
+
+- boot:
+    timeout:
+      minutes: 5
+    method: qemu
+    media: tmpfs
+    prompts:
+      - '{{ rootfs_prompt }}'
+{% endblock %}
