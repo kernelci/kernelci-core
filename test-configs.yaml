@@ -573,6 +573,7 @@ device_types:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
+    flags: ['fastboot']
     filters:
       - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
@@ -1124,7 +1125,7 @@ test_configs:
     test_plans: [boot_nfs]
 
   - device_type: meson-g12a-sei510
-    test_plans: [boot, simple]
+    test_plans: [boot, simple, boot_fastboot]
 
   - device_type: meson-g12a-x96-max
     test_plans: [boot, simple]
