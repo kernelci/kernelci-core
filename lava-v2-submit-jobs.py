@@ -36,6 +36,7 @@ import configparser
 
 from lib import utils
 from lib import configuration
+from kernelci import lava
 
 DEVICE_ONLINE_STATUS = ['idle', 'running', 'reserved']
 JOBS = {}
@@ -46,6 +47,14 @@ def submit_jobs(connection):
     all_devices = connection.scheduler.all_devices()
     print "Fetching all device-types from LAVA"
     all_device_types = connection.scheduler.all_device_types()
+    print "Fetching all device-type aliases from LAVA"
+    all_aliases = []
+    try:
+        for alias in connection.scheduler.aliases.list():
+            all_aliases.append(connection.scheduler.aliases.show(alias))
+    except (xmlrpclib.ProtocolError, xmlrpclib.Fault, IOError, ValueError) as e:
+        print("Unable to retrieve device_type aliases from LAVA; continuing")
+        print(e)
 
     result = True
 
@@ -57,14 +66,14 @@ def submit_jobs(connection):
             job_info = yaml.safe_load(job_data)
             # Check if request device(s) are available
             if 'device_type' in job_info:
-                for device_type in all_device_types:
-                    if device_type['name'] == job_info['device_type']:
-                        if device_type_has_available(device_type, all_devices):
-                            print "Submitting job %s to device-type %s" % (job_info.get('job_name', 'unknown'), job_info['device_type'])
-                            job_id = connection.scheduler.submit_job(job_data)
-                            SUBMITTED[job] = job_id
-                        else:
-                            print "Found device-type %s on server, but it had no available pipeline devices" % device_type['name']
+                device_type = lava.get_device_type_by_name(job_info['device_type'], all_device_types, all_aliases)
+                if device_type:
+                    if device_type_has_available(device_type, all_devices):
+                        print "Submitting job %s to device-type %s" % (job_info.get('job_name', 'unknown'), job_info['device_type'])
+                        job_id = connection.scheduler.submit_job(job_data)
+                        SUBMITTED[job] = job_id
+                    else:
+                        print "Found device-type %s on server, but it had no available pipeline devices" % device_type['name']
             elif 'device_group' in job_info:
                 print "Multinode Job Detected! Not supported yet :("
             elif 'vm_group' in job_info:
