@@ -1,0 +1,20 @@
+- test:
+    namespace: host
+    timeout:
+      minutes: 30
+    definitions:
+    - from: inline
+      name: {{ device_type }}-images
+      path: inline/{{ device_type }}-images.yaml
+      repository:
+        metadata:
+          description: {{ device_type }} images
+          format: Lava-Test Test Definition 1.0
+          name: {{ device_type }}-images
+        run:
+          steps:
+          - cd /lava-lxc
+          - tar xf modules.tar.xz
+          - gunzip rootfs.cpio.gz
+          - find lib/ | cpio -o --format=newc --append -F rootfs.cpio
+          - mkbootimg --kernel {{ kernel_image }} --second {{ dtb_short }} --ramdisk rootfs.cpio --cmdline {{ cmdline }} --kernel_offset {{ kernel_addr }} --ramdisk_offset {{ ramdisk_addr }} --second_offset {{ dtb_addr }} -o boot.img
