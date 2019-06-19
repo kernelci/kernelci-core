@@ -41,19 +41,15 @@ file_systems:
 
   debian_buster_ramdisk:
     type: debian
-    ramdisk: 'buster/20190607.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'buster/20190619.1/{arch}/rootfs.cpio.gz'
 
-  debian_stretch_ramdisk:
+  debian_buster-igt_ramdisk:
     type: debian
-    ramdisk: 'stretch/20190607.0/{arch}/rootfs.cpio.gz'
-
-  debian_stretch-igt_ramdisk:
-    type: debian
-    ramdisk: 'stretch-igt/20190607.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'buster-igt/20190619.0/{arch}/rootfs.cpio.gz'
 
   debian_stretch-v4l2_ramdisk:
     type: debian
-    ramdisk: 'stretch-v4l2/20190607.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'stretch-v4l2/20190619.0/{arch}/rootfs.cpio.gz'
 
 
 test_plan_default_filters:
@@ -111,7 +107,7 @@ test_plans:
     rootfs: debian_buster_ramdisk
 
   igt:
-    rootfs: debian_stretch-igt_ramdisk
+    rootfs: debian_buster-igt_ramdisk
 
   kselftest:
     rootfs: buildroot_kselftest_ramdisk
