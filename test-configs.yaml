@@ -587,6 +587,12 @@ device_types:
     boot_method: uboot
     filters:
       - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+    flags: ['fastboot']
+    params:
+      kernel_addr: '0x01080000'
+      dtb_addr: '0x1000000'
+      ramdisk_addr: '0x6000000'
+      cmdline: '"console=ttyAML0,115200 consoleblank=0 earlycon"'
 
   meson-g12a-u200:
     mach: amlogic
