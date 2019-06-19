@@ -5,7 +5,7 @@
 trees:
 
   agross:
-    url: "https://git.kernel.org/pub/scm/linux/kernel/git/agross/linux.git"
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/qcom/linux.git"
 
   alex:
     url: "https://git.linaro.org/people/alex.bennee/linux.git"
@@ -304,7 +304,7 @@ build_configs:
 
   agross:
     tree: agross
-    branch: 'for-next'
+    branch: 'ci-next'
 
   alex:
     tree: alex
