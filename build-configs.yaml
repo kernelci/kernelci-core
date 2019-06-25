@@ -52,6 +52,9 @@ trees:
   gtucker:
     url: 'https://gitlab.collabora.com/gtucker/linux.git'
 
+  kernelci:
+    url: "https://github.com/kernelci/linux.git"
+
   khilman:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/khilman/linux.git"
 
@@ -498,6 +501,11 @@ build_configs:
   gtucker_stable:
     tree: gtucker
     branch: 'kernelci-stable'
+    variants: *stable_variants
+
+  kernelci:
+    tree: kernelci
+    branch: 'kernelci.org'
     variants: *stable_variants
 
   khilman:
