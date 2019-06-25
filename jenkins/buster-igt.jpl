@@ -17,6 +17,7 @@ def config = [
         "amd64",
         "armhf",
         "arm64",
+        "mips",
     ],
     'debian_release': "buster",
     'extra_packages': "\
