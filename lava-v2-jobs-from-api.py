@@ -245,7 +245,7 @@ def write_jobs(config, jobs):
     for job in jobs:
         job_file = os.path.join(job_dir, '.'.join([job['name'], 'yaml']))
         with open(job_file, 'w') as f:
-            env = Environment(loader=FileSystemLoader('templates'))
+            env = Environment(loader=FileSystemLoader('templates'), extensions=["jinja2.ext.do"])
             template = env.get_template(job['short_template_file'])
             data = template.render(job)
             f.write(data)
