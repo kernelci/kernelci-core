@@ -6,6 +6,10 @@
 {{ super() }}
 {% endblock %}
 {% block actions %}
+{%- if extra_kernel_args %}
+context:
+  extra_kernel_args: {{ extra_kernel_args }}
+{% endif %}
 {%- block deploy %}
 {{ super () }}
 {%- endblock %}
