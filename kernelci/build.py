@@ -39,14 +39,14 @@ TORVALDS_GIT_URL = \
 MAKE_TARGETS = {
     'arm': 'zImage',
     'arm64': 'Image',
-    'arc': 'uImage.gz',
+    'arc': 'uImage',
 }
 
 # Hard-coded binary kernel image names for each CPU architecture
 KERNEL_IMAGE_NAMES = {
     'arm': ['zImage', 'xipImage'],
     'arm64': ['Image'],
-    'arc': ['uImage.gz'],
+    'arc': ['uImage'],
     'i386': ['bzImage'],
     'mips': ['uImage.gz', 'vmlinux.gz.itb'],
     'riscv': ['Image', 'Image.gz'],
