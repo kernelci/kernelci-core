@@ -38,7 +38,7 @@ device_type: {{ base_device_type }}
 
 {% if context %}
 context:
-{% for key, value in context.items() %}  {{ key }}: "{{ value }}"
+{% for key, value in context.items() %}  {{ key }}: {{ value }}
 {% endfor %}
 {% endif %}
 
