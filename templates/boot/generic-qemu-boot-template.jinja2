@@ -39,6 +39,11 @@ actions:
       ramdisk:
         image_arg: '-initrd {ramdisk}'
         url: {{ initrd_url }}
+{%- if dtb_url %}
+      dtb:
+        image_arg: '-dtb {dtb}'
+        url: {{ dtb_url }}
+{% endif %}
 
 - boot:
     timeout:
