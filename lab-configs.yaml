@@ -56,6 +56,7 @@ labs:
             - igt-kms-rockchip
             - igt-kms-exynos
             - igt-kms-tegra
+            - igt-gpu-i915
             - igt-gpu-panfrost
             - kselftest
             - ltp-ipc

@@ -153,6 +153,19 @@ test_plans:
       <<: *igt-kms-test-list
       drm_driver: "exynos"
 
+  igt-gpu-i915:
+    <<: *igt
+    params:
+      drm_driver: "i915"
+      tests: >
+        core_auth
+        core_getclient
+        core_getstats
+        core_getversion
+        core_setmaster_vs_auth
+        gem_create
+        i915_selftest
+
   igt-gpu-panfrost:
     <<: *igt
     params:
@@ -1853,6 +1866,7 @@ test_configs:
   - device_type: minnowboard-turbot-E3826
     test_plans:
       - baseline
+      - igt-gpu-i915
 
   - device_type: mt8173-elm-hana
     test_plans:
