@@ -5,7 +5,7 @@
     - repository:
         metadata:
           format: Lava-Test Test Definition 1.0
-          name: igt
+          name: {{ plan_name }}
           description: "IGT test plan"
           os:
           - oe
@@ -13,27 +13,10 @@
           - functional
         run:
           steps:
-          - export PATH=/usr/libexec/igt-gpu-tools:$PATH
-          - lava-test-case core_auth --shell core_auth | sed "s/Subtest /Subtest $test@/g"
-          - lava-test-case core_get_client_auth --shell core_get_client_auth | sed "s/Subtest /Subtest $test@/g"
-          - lava-test-case core_getclient --shell core_getclient | sed "s/Subtest /Subtest $test@/g"
-          - lava-test-case core_getstats --shell core_getstats | sed "s/Subtest /Subtest $test@/g"
-          - lava-test-case core_getversion --shell core_getversion | sed "s/Subtest /Subtest $test@/g"
-          - lava-test-case core_setmaster_vs_auth --shell core_setmaster_vs_auth | sed "s/Subtest /Subtest $test@/g"
-          - lava-test-case drm_read --shell drm_read | sed "s/Subtest /Subtest $test@/g"
-          - lava-test-case kms_addfb_basic --shell kms_addfb_basic | sed "s/Subtest /Subtest $test@/g"
-          - lava-test-case kms_atomic --shell kms_atomic | sed "s/Subtest /Subtest $test@/g"
-          - lava-test-case kms_flip_event_leak --shell kms_flip_event_leak | sed "s/Subtest /Subtest $test@/g"
-          - lava-test-case kms_prop_blob --shell kms_prop_blob | sed "s/Subtest /Subtest $test@/g"
-          - lava-test-case kms_setmode --shell kms_setmode | sed "s/Subtest /Subtest $test@/g"
-          - lava-test-case kms_vblank --shell kms_vblank | sed "s/Subtest /Subtest $test@/g"
-        parse:
-          pattern: 'Subtest (?P<test_case_id>\S*):\s+(?P<result>(SUCCESS|FAIL|SKIP))'
-          fixupdict:
-            SUCCESS: pass
-            FAIL: fail
-            SKIP: skip
-      lava-signal: kmsg
+          - >
+              /usr/bin/igt-parser.sh
+              {{ tests|wordwrap(1, False, "\n              ") }}
       from: inline
-      name: igt
-      path: inline/igt.yaml
+      name: {{ plan_name }}
+      path: inline/{{ plan_name }}.yaml
+      lava-signal: kmsg
