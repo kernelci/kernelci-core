@@ -333,10 +333,6 @@ build_configs:
     tree: android
     branch: 'android-3.18-o-release'
 
-  android_4.4:
-    tree: android
-    branch: 'android-4.4'
-
   android_4.4-o:
     tree: android
     branch: 'android-4.4-o'
