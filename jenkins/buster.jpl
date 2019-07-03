@@ -43,7 +43,6 @@ sensible-utils \
 *resolved* \
 tar \
 patch \
-diff \
 dir \
 partx \
 find \
