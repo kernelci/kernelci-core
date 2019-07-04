@@ -514,7 +514,7 @@ build_configs:
           arc:
             base_defconfig: 'nsim_hs_defconfig'
             filters:
-              - whitelist: {defconfig: ['nsim_hs_defconfig']}
+              - whitelist: {defconfig: ['nsim_hs_defconfig', 'hsdk_defconfig']}
           arm: &staging_arm
             base_defconfig: 'multi_v7_defconfig'
             filters:
