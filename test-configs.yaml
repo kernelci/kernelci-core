@@ -440,6 +440,11 @@ device_types:
     class: arm64-dtb
     boot_method: uboot
 
+  hsdk:
+    mach: arc
+    class: arc-dtb
+    boot_method: uboot
+
   imx23_olinuxino:
     name: 'imx23-olinuxino'
     mach: imx
@@ -1087,6 +1092,9 @@ test_configs:
 
   - device_type: hikey_uboot
     test_plans: [boot, boot_nfs, kselftest, simple]
+
+  - device_type: hsdk
+    test_plans: [boot]
 
   - device_type: imx23_olinuxino
     test_plans: [boot, boot_nfs, kselftest, sleep]
