@@ -198,8 +198,7 @@ class cmd_update_last_commit(Command):
 
     def __call__(self, configs, args):
         conf = configs['build_configs'][args.config]
-        kernelci.build.update_last_commit(
-            conf, args.api, args.token, args.commit)
+        kernelci.build.set_last_commit(conf, args.api, args.token, args.commit)
         return True
 
 
