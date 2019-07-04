@@ -76,6 +76,14 @@ def _upload_files(api, token, path, input_files):
 
 
 def get_last_commit(config, storage):
+    """Get the last commit SHA that was built for a given build configuration
+
+    *config* is a BuildConfig object
+    *storage* is the base URL for the storage server
+
+    The returned value is the SHA of the last git commit that was built, or
+    None if an error occurred or if the configuration has never been built.
+    """
     last_commit_url = "{storage}/{tree}/{file_name}".format(
         storage=storage, tree=config.tree.name,
         file_name=_get_last_commit_file_name(config))
@@ -85,12 +93,26 @@ def get_last_commit(config, storage):
     return last_commit_resp.text.strip()
 
 
-def update_last_commit(config, api, token, commit):
+def set_last_commit(config, api, token, commit):
+    """Set the last commit SHA that was built for a given build configuration
+
+    *config* is a BuildConfig object
+    *api* is the URL of the KernelCI backend API
+    *token* is the backend API token to use
+    *commit* is the git SHA to send
+    """
     _upload_files(api, token, config.tree.name,
                   {_get_last_commit_file_name(config): commit})
 
 
 def get_branch_head(config):
+    """Get the commit SHA for the head of the branch of a given configuration
+
+    *config* is a BuildConfig object
+
+    The returned value is the git SHA of the current head of the branch
+    associated with the build config, or None if an error occurred.
+    """
     cmd = "git ls-remote {url} refs/heads/{branch}".format(
         url=config.tree.url, branch=config.branch)
     head = shell_cmd(cmd)
@@ -100,6 +122,15 @@ def get_branch_head(config):
 
 
 def check_new_commit(config, storage):
+    """Check if there is a new commit that hasn't been built yet
+
+    *config* is a BuildConfig object
+    *storage* is the base URL of the storage server
+
+    The returned value is the git SHA of a new commit to be built if there is
+    one, or True if the last built commit is the same as the branch head
+    (nothing to do), or False if an error occurred.
+    """
     last_commit = get_last_commit(config, storage)
     branch_head = get_branch_head(config)
     if not branch_head:
@@ -132,6 +163,11 @@ git fetch --tags {url}
 
 
 def update_mirror(config, path):
+    """Initialise or update a local git mirror
+
+    *config* is a BuildConfig object
+    *path* is the path to the local mirror
+    """
     if not os.path.exists(path):
         shell_cmd("""
 mkdir -p {path}
@@ -142,12 +178,19 @@ git init --bare
     _update_remote(config, path)
 
 
-def update_repo(config, path, ref):
+def update_repo(config, path, ref=None):
+    """Initialise or update a local git repo
+
+    *config* is a BuildConfig object
+    *path* is the path to the local git repo
+    *ref* is the path to a reference repo, typically a mirror
+    """
     if not os.path.exists(path):
         ref_opt = '--reference={ref}'.format(ref=ref) if ref else ''
         shell_cmd("""
 git clone {ref} -o {remote} {url} {path}
-""".format(ref=ref_opt, remote=config.tree.name, url=config.tree.url, path=path))
+""".format(ref=ref_opt, remote=config.tree.name,
+           url=config.tree.url, path=path))
 
     _update_remote(config, path)
     _fetch_tags(path)
@@ -162,6 +205,13 @@ git checkout --detach {remote}/{branch}
 
 
 def head_commit(path):
+    """Get the current git head SHA from an arbitrary git repository
+
+    *path* is the path to the local git repository
+
+    The returned value is the git SHA of the current HEAD of the branch checked
+    out in the local git repository.
+    """
     cmd = """\
 cd {path} &&
 git log --pretty=format:%H -n1
@@ -171,6 +221,14 @@ git log --pretty=format:%H -n1
 
 
 def git_describe(tree_name, path):
+    """Get the "git describe" from an arbitrary git repository
+
+    *tree_name* is the name of the tree used in a BuildConfig
+    *path* is the path to the local git repository
+
+    The returned value is a string with the "git describe" for the commit
+    currently checked out in the local git repository.
+    """
     describe_args = "--match=v\*" if tree_name == "arm-soc" else ""
     cmd = """\
 cd {path} && \
@@ -181,6 +239,14 @@ git describe {describe_args} \
 
 
 def git_describe_verbose(path):
+    """Get a verbose "git describe" from an arbitrary git repository
+
+    *path* is the path to the local git repository
+
+    The returned value is a string with a verbose version of "git describe" for
+    the commit currently checked out in the local git repository.  This is
+    typically based on a mainline kernel version tag.
+    """
     cmd = """\
 cd {path} &&
 git describe --match=v[1-9]\* \
@@ -190,36 +256,77 @@ git describe --match=v[1-9]\* \
 
 
 def add_kselftest_fragment(path, frag_path='kernel/configs/kselftest.config'):
+    """Create a config fragment file for kselftest
+
+    *path* is the path to the local kernel git repository
+    *frag_path* is the path where to create the fragment within the repo
+    """
     shell_cmd("""
 cd {path} &&
-find tools/testing/selftests -name config -printf "#\n# %h/%f\n#\n" -exec cat {{}} \; > {frag_path}
+find \
+  tools/testing/selftests \
+  -name config \
+  -printf "#\n# %h/%f\n#\n" \
+  -exec cat {{}} \; \
+> {frag_path}
 """.format(path=path, frag_path=frag_path))
 
 
-def make_tarball(path, tarball_name):
-    cmd = "tar -czf {name} --exclude=.git -C {path} .".format(
-        path=path, name=tarball_name)
+def make_tarball(kdir, tarball_name):
+    """Make a kernel source tarball
+
+    All the files in the kernel source are added to the tarball except any .git
+    directory.  Note that this doesn't need to be run from within a git
+    repository, any kernel source directory can be used.
+
+    *kdir* is the path to the local kernel source directory
+    *tarball_name* is the name of the tarball file to create
+    """
+    cmd = "tar -czf {name} --exclude=.git -C {kdir} .".format(
+        kdir=kdir, name=tarball_name)
     subprocess.check_output(cmd, shell=True)
 
 
 def generate_config_fragment(frag, kdir):
+    """Generate a config fragment file for a given fragment config
+
+    *frag* is a Fragment object
+    *kdir* is the path to a kernel source directory
+    """
     with open(os.path.join(kdir, frag.path), 'w') as f:
-        print(frag.path)
         for kernel_config in frag.configs:
             f.write(kernel_config + '\n')
 
 
 def generate_fragments(config, kdir):
+    """Generate all the config fragments for a given build configuration
+
+    *config* is a BuildConfig object
+    *kdir* is the path to a kernel source directory
+    """
     for variant in config.variants:
         for frag in variant.fragments:
+            print(frag.path)
             if frag.name == 'kselftest':
-                print(frag.path)
                 add_kselftest_fragment(kdir)
             elif frag.configs:
                 generate_config_fragment(frag, kdir)
 
 
 def push_tarball(config, kdir, storage, api, token):
+    """Create and push a linux kernel source tarball to the storage server
+
+    If a tarball with a same name is already on the storage server, no new
+    tarball is uploaded.  Otherwise, a tarball is created
+
+    *config* is a BuildConfig object
+    *kdir* is the path to a kernel source directory
+    *storage* is the base URL of the storage server
+    *api* is the URL of the KernelCI backend API
+    *token* is the token to use with the KernelCI backend API
+
+    The returned value is the URL of the uploaded tarball.
+    """
     tarball_name = "linux-src_{}.tar.gz".format(config.name)
     describe = git_describe(config.tree.name, kdir)
     tarball_url = '/'.join([
@@ -245,6 +352,21 @@ def _add_frag_configs(kdir, frag_list, frag_paths, frag_configs):
 
 
 def list_kernel_configs(config, kdir, single_variant=None, single_arch=None):
+    """List all the kernel build combinations for a given build configuration
+
+    List all the combinations of architecture, defconfig and compiler that are
+    required to be built for a given build configuration.
+
+    *config* is a BuildConfig object
+
+    *kdir* is the path to the kernel source directory
+
+    *single_variant* is an optional build variant to only list build
+                     combinations that match it
+
+    *single_arch* is an optional CPU architecture name to only list build
+                  combinations that match it
+    """
     kernel_configs = set()
 
     for variant in config.variants:
@@ -356,7 +478,7 @@ def _make_defconfig(defconfig, kwargs, fragments):
 cd {kdir}
 export ARCH={arch}
 scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' > /dev/null 2>&1
-""".format(kdir=kdir, arch=kwargs['arch'],output=rel_path,
+""".format(kdir=kdir, arch=kwargs['arch'], output=rel_path,
            base=os.path.join(rel_path, '.config'),
            frag=os.path.join(rel_path, kconfig_frag_name))
         print(cmd.strip())
@@ -374,6 +496,19 @@ def _kernel_config_enabled(dot_config, name):
 
 def build_kernel(build_env, kdir, arch, defconfig=None, jopt=None,
                  verbose=False, output_path=None, mod_path='_modules_'):
+    """Build a linux kernel
+
+    *build_env* is a BuildEnvironment object
+    *kdir* is the path to the kernel source directory
+    *defconfig* is the name of the kernel defconfig
+    *jopt* is the -j option to pass to make for parallel builds
+    *verbose* is whether to print all the output of the make commands
+    *output_path* is the path to the directory where the binaries are made
+    *mod_path* is the path to where the modules are installed
+
+    The returned value is True if the build was successful or False if there
+    was any build error.
+    """
     cc = build_env.cc
     cross_compile = build_env.get_cross_compile(arch) or None
     use_ccache = shell_cmd("which ccache > /dev/null", True)
@@ -482,6 +617,27 @@ def build_kernel(build_env, kdir, arch, defconfig=None, jopt=None,
 def install_kernel(kdir, tree_name, tree_url, git_branch, git_commit=None,
                    describe=None, describe_v=None, output_path=None,
                    install='_install_', mod_path='_modules_'):
+    """Install the kernel binaries in a directory for a given built revision
+
+    Installing the kernel binaries into a new directory consists of creating a
+    "bmeta.json" file with all the meta-data for the kernel build, copying the
+    System.map file, the kernel .config, the build log, the frag.config file,
+    all the dtbs and a tarball with all the modules.  This is an intermediate
+    step between building a kernel and publishing it via the KernelCI backend.
+
+    *kdir* is the path to the kernel source directory
+    *tree_name* is the name of the tree from a build configuration
+    *git_branch* is the name of the git branch in the tree
+    *git_commit* is the git commit SHA
+    *describe* is the "git describe" for the commit
+    *describe_v* is the verbose "git describe" for the commit
+    *output_path" is the path to the directory where the kernel was built
+    *install* is the path where to install the kernel inside kdir
+    *mod_path* is the path where the modules were installed
+
+    The returned value is True if it was done successfully or False if an error
+    occurred.
+    """
     install_path = os.path.join(kdir, install)
     if not output_path:
         output_path = os.path.join(kdir, 'build')
@@ -588,6 +744,19 @@ def install_kernel(kdir, tree_name, tree_url, git_branch, git_commit=None,
 
 
 def push_kernel(kdir, api, token, install='_install_'):
+    """Push the kernel binaries to the storage server
+
+    Push the kernel image, the modules tarball, the dtbs and the build.json
+    meta-data to the storage server via the KernelCI backend API.
+
+    *kdir* is the path to the kernel source directory
+    *api* is the URL of the KernelCI backend API
+    *token* is the token to use with the KernelCI backend API
+    *install* is the path to the installation directory inside kdir
+
+    The returned value is True if it was done successfully or False if an error
+    occurred.
+    """
     install_path = os.path.join(kdir, install)
 
     with open(os.path.join(install_path, 'build.json')) as f:
@@ -607,6 +776,24 @@ def push_kernel(kdir, api, token, install='_install_'):
 
 def publish_kernel(kdir, install='_install_', api=None, token=None,
                    json_path=None):
+    """Publish a kernel via the KernelCI backend API or in a JSON file
+
+    If api and token are provided, the the kernel is published via the KernelCI
+    backend API.  If json_path is provided, the same data is written to a JSON
+    file locally.  This is especially useful for bisections which push kernel
+    binaries but don't publish kernels via the backend.  The JSON file can be
+    used later on to generate matching test jobs rather than querying the
+    backend API again.
+
+    *kdir* is the path to the kernel source directory
+    *install* is the directory where the binaries were installed inside kdir
+    *api* is the URL of the KernelCI backend API
+    *token* is the token to use with the KernelCI backend API
+    *json_path* is the path to a JSON file where to store the publish data
+
+    The returned value is True if it was done successfully or False if an error
+    occurred.
+    """
     install_path = os.path.join(kdir, install)
 
     with open(os.path.join(install_path, 'build.json')) as f:
