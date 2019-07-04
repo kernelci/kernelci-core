@@ -50,7 +50,7 @@ the `jenkins` directory:
 * [`jenkins/build-trigger.jpl`](https://github.com/kernelci/kernelci-core/tree/master/jenkins/build-trigger.jpl) to trigger all the builds for a kernel revision
 * [`jenkins/build.jpl`](https://github.com/kernelci/kernelci-core/tree/master/jenkins/build.jpl) to build each individual kernel
 * [`jenkins/bisect.jpl`](https://github.com/kernelci/kernelci-core/tree/master/jenkins/bisect.jpl) to run boot bisections
-* [`jenkins/stretch.jpl`](https://github.com/kernelci/kernelci-core/tree/master/jenkins/stretch.jpl) to build a Debian Stretch file system
+* [`jenkins/buster.jpl`](https://github.com/kernelci/kernelci-core/tree/master/jenkins/buster.jpl) to build a Debian Buster file system
 
 There are other variants based on `stretch.jpl` to build other file systems
 with extra tools needed to run specific test suites.
