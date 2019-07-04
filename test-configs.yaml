@@ -111,8 +111,22 @@ test_plans:
   cros-ec:
     rootfs: debian_buster_ramdisk
 
-  igt:
+  igt_drm_kms:
     rootfs: debian_buster-igt_ramdisk
+    pattern: 'igt/{category}-{method}-{protocol}-{rootfs}-igt.jinja2'
+    params:
+      tests: >
+        core_auth
+        core_getclient
+        core_getstats
+        core_getversion
+        core_setmaster_vs_auth
+        drm_read
+        kms_addfb_basic
+        kms_atomic
+        kms_flip_event_leak
+        kms_prop_blob
+        kms_setmode kms_vblank
 
   kselftest:
     rootfs: buildroot_kselftest_ramdisk
@@ -1252,7 +1266,7 @@ test_configs:
     test_plans: [boot, kselftest, simple]
 
   - device_type: nyan_big
-    test_plans: [boot, sleep, usb, igt, cros-ec]
+    test_plans: [boot, sleep, usb, igt_drm_kms, cros-ec]
 
   - device_type: odroid_c1
     test_plans: [boot, kselftest]
@@ -1264,7 +1278,7 @@ test_configs:
     test_plans: [boot, boot_nfs, kselftest]
 
   - device_type: odroid_xu3
-    test_plans: [boot, boot_nfs, kselftest, sleep, usb, igt]
+    test_plans: [boot, boot_nfs, kselftest, sleep, usb, igt_drm_kms]
 
   - device_type: openblocks_a7
     test_plans: [boot, boot_nfs]
@@ -1312,7 +1326,7 @@ test_configs:
       - v4l2_compliance_uvc
 
   - device_type: rk3399_gru_kevin
-    test_plans: [igt]
+    test_plans: [igt_drm_kms]
     filters:
       - blacklist: {kernel: ['v3.', 'v4.4', 'v4.9', 'v4.14']}
 
@@ -1331,7 +1345,7 @@ test_configs:
       - boot
       - boot_nfs
       - cros-ec
-      - igt
+      - igt_drm_kms
       - sleep
       - usb
       - v4l2_compliance_uvc
