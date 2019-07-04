@@ -20,6 +20,12 @@ file_system_types:
       armhf: [{arch: arm}]
       amd64: [{arch: x86_64}]
 
+  debian_staging:
+    url: 'http://staging-storage.kernelci.org/images/rootfs/debian'
+    arch_map:
+      armhf: [{arch: arm}]
+      amd64: [{arch: x86_64}]
+
 
 file_systems:
 
@@ -44,8 +50,8 @@ file_systems:
     ramdisk: 'buster/20190628.0/{arch}/rootfs.cpio.gz'
 
   debian_buster-igt_ramdisk:
-    type: debian
-    ramdisk: 'buster-igt/20190628.0/{arch}/rootfs.cpio.gz'
+    type: debian_staging
+    ramdisk: 'buster-igt/20190704.0/{arch}/rootfs.cpio.gz'
 
   debian_stretch-v4l2_ramdisk:
     type: debian
