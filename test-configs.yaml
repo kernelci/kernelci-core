@@ -151,6 +151,83 @@ test_plans:
             - 'defconfig+virtualvideo'
             - 'multi_v7_defconfig+virtualvideo'
 
+  uefi-arm64-gicv2:
+    rootfs: buildroot_ramdisk
+    params: {ctx_gicversion: "gic-version=2", ctx_cpu: "cortex-a57",
+             image_url_uefi: 'http://people.linaro.org/~ard.biesheuvel/kernelci/QEMU_EFI.fd-AARCH64-RELEASE-325ad6226099'
+            }
+    pattern: 'uefi/generic-qemu-uefi-boot-template.jinja2'
+    filters:
+      - whitelist:
+          defconfig:
+            - 'defconfig'
+
+  uefi-arm64-gicv3:
+    rootfs: buildroot_ramdisk
+    params: {ctx_gicversion: "gic-version=3", ctx_cpu: "cortex-a57",
+             image_url_uefi: 'http://people.linaro.org/~ard.biesheuvel/kernelci/QEMU_EFI.fd-AARCH64-RELEASE-325ad6226099'
+            }
+    pattern: 'uefi/generic-qemu-uefi-boot-template.jinja2'
+    filters:
+      - whitelist:
+          defconfig:
+            - 'defconfig'
+
+  uefi-arm-gicv2:
+    rootfs: buildroot_ramdisk
+    params: {ctx_gicversion: "gic-version=2", ctx_cpu: "cortex-a15",
+             image_url_uefi: 'http://people.linaro.org/~ard.biesheuvel/kernelci/QEMU_EFI.fd-ARM-RELEASE-325ad6226099'
+            }
+    pattern: 'uefi/generic-qemu-uefi-boot-template.jinja2'
+    filters:
+      - whitelist:
+          defconfig:
+            - 'multi_v7_defconfig'
+
+  uefi-arm-gicv3:
+    rootfs: buildroot_ramdisk
+    params: {ctx_gicversion: "gic-version=3", ctx_cpu: "cortex-a15",
+             image_url_uefi: 'http://people.linaro.org/~ard.biesheuvel/kernelci/QEMU_EFI.fd-ARM-RELEASE-325ad6226099'
+            }
+    pattern: 'uefi/generic-qemu-uefi-boot-template.jinja2'
+    filters:
+      - whitelist:
+          defconfig:
+            - 'multi_v7_defconfig'
+
+  uefi-x86_64:
+    rootfs: buildroot_ramdisk
+    params: {ctx_cpu: "host",
+             image_url_uefi: 'http://people.linaro.org/~ard.biesheuvel/kernelci/OVMF.fd-X64-RELEASE-325ad6226099'
+            }
+    pattern: 'uefi/generic-qemu-uefi-boot-template.jinja2'
+    filters:
+      - whitelist:
+          defconfig:
+            - 'defconfig'
+
+  uefi-x86_i386:
+    rootfs: buildroot_ramdisk
+    params: {ctx_cpu: "host",
+             image_url_uefi: 'http://people.linaro.org/~ard.biesheuvel/kernelci/OVMF.fd-IA32-RELEASE-325ad6226099'
+            }
+    pattern: 'uefi/generic-qemu-uefi-boot-template.jinja2'
+    filters:
+      - whitelist:
+          defconfig:
+            - 'i386_defconfig'
+
+  uefi-x86-mixed:
+    rootfs: buildroot_ramdisk
+    params: {ctx_cpu: "i386",
+             image_url_uefi: 'http://people.linaro.org/~ard.biesheuvel/kernelci/OVMF.fd-IA32-RELEASE-325ad6226099'
+            }
+    pattern: 'uefi/generic-qemu-uefi-boot-template.jinja2'
+    filters:
+      - whitelist:
+          defconfig:
+            - 'i386_defconfig'
+
 
 device_default_filters:
 
@@ -783,6 +860,14 @@ device_types:
     filters:
       - whitelist: {defconfig: ['defconfig']}
 
+  qemu_i386:
+    name: qemu
+    mach: qemu
+    arch: i386
+    boot_method: qemu
+    filters:
+      - whitelist: {defconfig: ['i386_defconfig']}
+
   r8a7791_porter:
     name: 'r8a7791-porter'
     mach: renesas
@@ -1206,13 +1291,16 @@ test_configs:
     test_plans: [boot]
 
   - device_type: qemu_arm
-    test_plans: [boot_qemu, simple_qemu, v4l2_compliance_qemu_vivid]
+    test_plans: [boot_qemu, simple_qemu, v4l2_compliance_qemu_vivid, uefi-arm-gicv2, uefi-arm-gicv3]
 
   - device_type: qemu_arm64
-    test_plans: [boot_qemu, simple_qemu, v4l2_compliance_qemu_vivid]
+    test_plans: [boot_qemu, simple_qemu, v4l2_compliance_qemu_vivid, uefi-arm64-gicv2, uefi-arm64-gicv3]
 
   - device_type: qemu_x86_64
-    test_plans: [boot_qemu, simple_qemu, v4l2_compliance_qemu_vivid]
+    test_plans: [boot_qemu, simple_qemu, v4l2_compliance_qemu_vivid, uefi-x86_64, uefi-x86-mixed]
+
+  - device_type: qemu_i386
+    test_plans: [uefi-x86_i386]
 
   - device_type: r8a7791_porter
     test_plans: [boot]
