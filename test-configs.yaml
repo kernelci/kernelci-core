@@ -1225,6 +1225,7 @@ test_configs:
     test_plans:
       - baseline
       - boot
+      - cros-ec
       - v4l2_compliance_uvc
 
   - device_type: rk3399_gru_kevin
