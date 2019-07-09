@@ -519,14 +519,26 @@ build_configs:
   linusw_devel:
     tree: linusw
     branch: 'devel'
+    variants:
+      gcc-8:
+        build_environment: gcc-8
+        architectures: *all_defconfigs
 
   linusw_fixes:
     tree: linusw
     branch: 'fixes'
+    variants:
+      gcc-8:
+        build_environment: gcc-8
+        architectures: *all_defconfigs
 
   linusw_for-next:
     tree: linusw
     branch: 'for-next'
+    variants:
+      gcc-8:
+        build_environment: gcc-8
+        architectures: *all_defconfigs
 
   lsk_for-test:
     tree: lsk
