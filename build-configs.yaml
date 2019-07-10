@@ -673,6 +673,10 @@ build_configs:
     tree: qcom-lt
     branch: 'integration-linux-qcomlt'
 
+  qcom-lt_experimental:
+    tree: qcom-lt
+    branch: 'integration-experimental'
+
   rmk_for-next:
     tree: rmk
     branch: 'for-next'
