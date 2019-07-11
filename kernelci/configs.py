@@ -15,6 +15,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+import re
 import yaml
 
 
@@ -91,6 +92,26 @@ class Whitelist(Filter):
         return True
 
 
+class Regex(Filter):
+    """Regex filter to only accept certain configurations.
+
+    Regex *items* are a dictionary associating keys with regular expressions.
+    The should be one regular expression for each key, not a list of them.  For
+    a configuration to be accepted, its value must match the regular expression
+    for each key specified in the filter items.
+    """
+
+    def __init__(self, *args, **kw):
+        super(Regex, self).__init__(*args, **kw)
+        self._re_items = {k: re.compile(v) for k, v in self._items.iteritems()}
+
+
+    def match(self, **kw):
+        for k, r in self._re_items.iteritems():
+            v = kw.get(k)
+            return v and r.match(v)
+
+
 class Combination(Filter):
     """Combination filter to only accept some combined configurations.
 
@@ -116,6 +137,7 @@ class FilterFactory(YAMLObject):
     _classes = {
         'blacklist': Blacklist,
         'whitelist': Whitelist,
+        'regex': Regex,
         'combination': Combination,
     }
 

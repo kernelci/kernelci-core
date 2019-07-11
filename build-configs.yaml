@@ -247,31 +247,31 @@ build_configs_defaults:
 
 
 # Minimum architecture defconfigs
-arch_defconfigs:
+arch_defconfigs: &all_defconfigs
   arc: &arc_defconfig
     base_defconfig: 'nsim_hs_defconfig'
     filters:
-      - whitelist: { defconfig: ['nsim_hs_defconfig'] }
+      - regex: { defconfig: 'nsim_hs_defconfig' }
   arm: &arm_defconfig
     base_defconfig: 'multi_v7_defconfig'
     filters:
-      - whitelist: { defconfig: ['multi_v7_defconfig'] }
+      - regex: { defconfig: 'multi_v7_defconfig' }
   arm64: &arm64_defconfig
     base_defconfig: 'defconfig'
     filters:
-      - whitelist: { defconfig: ['defconfig'] }
+      - regex: { defconfig: 'defconfig' }
   mips: &mips_defconfig
     base_defconfig: '32r2el_defconfig'
     filters:
-      - whitelist: { defconfig: ['32r2el_defconfig'] }
+      - regex: { defconfig: '32r2el_defconfig' }
   riscv: &riscv_defconfig
     base_defconfig: 'defconfig'
     filters:
-      - whitelist: { defconfig: ['defconfig'] }
+      - regex: { defconfig: 'defconfig' }
   x86_64: &x86_64_defconfig
     base_defconfig: 'x86_64_defconfig'
     filters:
-      - whitelist: { defconfig: ['x86_64_defconfig'] }
+      - regex: { defconfig: 'x86_64_defconfig' }
 
 
 # Build fewer kernel configs with stable branches
@@ -519,14 +519,26 @@ build_configs:
   linusw_devel:
     tree: linusw
     branch: 'devel'
+    variants:
+      gcc-8:
+        build_environment: gcc-8
+        architectures: *all_defconfigs
 
   linusw_fixes:
     tree: linusw
     branch: 'fixes'
+    variants:
+      gcc-8:
+        build_environment: gcc-8
+        architectures: *all_defconfigs
 
   linusw_for-next:
     tree: linusw
     branch: 'for-next'
+    variants:
+      gcc-8:
+        build_environment: gcc-8
+        architectures: *all_defconfigs
 
   lsk_for-test:
     tree: lsk
