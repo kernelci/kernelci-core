@@ -76,6 +76,11 @@ test_plans:
     filters:
       - blacklist: *kselftest_defconfig_filter
 
+  boot_fastboot:
+    name: 'boot-fastboot'
+    rootfs: buildroot_ramdisk
+    pattern: 'boot-fastboot/generic-fastboot-boot-template.jinja2'
+
   boot_nfs:
     name: 'boot-nfs'
     rootfs: buildroot_nfs
@@ -587,6 +592,11 @@ device_types:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
+    kernel_addr: '0x01080000'
+    dtb_addr: '0x1000000'
+    ramdisk_addr: '0x6000000'
+    cmdline: '"console=ttyAML0,115200 consoleblank=0 earlycon"'
+    flags: ['fastboot']
     filters:
       - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
@@ -1141,7 +1151,7 @@ test_configs:
     test_plans: [boot_nfs]
 
   - device_type: meson-g12a-sei510
-    test_plans: [boot, simple]
+    test_plans: [boot, simple, boot_fastboot]
 
   - device_type: meson-g12a-x96-max
     test_plans: [boot, simple]

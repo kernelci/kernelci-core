@@ -1,0 +1,83 @@
+{%- extends 'base/kernel-ci-base.jinja2' %}
+{%- block protocols %}
+protocols:
+  lava-lxc:
+    name: lxc-{{ platform }}-kernelci-fastboot
+    template: debian
+    distribution: debian
+    release: jessie
+{%- endblock %}
+
+{% block actions %}
+actions:
+{%- block deploy_lxc %}
+
+  - deploy:
+      namespace: host
+      timeout:
+        minutes: 5
+      to: lxc
+      packages:
+    - android-tools-adb
+    - android-tools-fastboot
+    - mkbootimg
+{%- endblock %}
+{%- block boot_lxc %}
+
+  - boot:
+      namespace: host
+      prompts:
+      - 'root@(.*):/#'
+      timeout:
+        minutes: 5
+      method: lxc
+{%- endblock %}
+{%- block deploy_url %}
+
+  - deploy:
+      timeout:
+        minutes: 40
+      namespace: target
+      to: download
+      images:
+      kernel:
+        url: {{ kernel_url }}
+{%- block kernel_image_type %}
+        type: {{ kernel_image.lower() }}
+{%- endblock %}
+{%- if initrd_url %}
+      ramdisk:
+        url: {{ initrd_url }}
+        compression: gz
+{%- endif %}
+{%- if dtb_url %}
+      dtb:
+        url: {{ dtb_url }}
+{%- endif %}
+{%- endblock %}
+{%- block test_lxc %}
+
+  {% include "/boot-fastboot/mkbootimg.jinja2" %}
+{%- endblock %}
+{%- block deploy_boot %}
+
+  - deploy:
+      timeout:
+        minutes: 40
+      to: fastboot
+      namespace: target
+      images:
+        boot:
+          url: lxc:///{{ boot_image }}
+{%- endblock %}
+{%- block boot %}
+
+  - boot:
+      namespace: target
+      prompts:
+      - '/ #'
+      timeout:
+        minutes: 15
+      method: fastboot
+{%- endblock %}
+{% endblock %}
