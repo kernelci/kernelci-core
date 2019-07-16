@@ -865,6 +865,11 @@ device_types:
       - blacklist: *allmodconfig_filter
       - blacklist: {defconfig: ['multi_v7_defconfig+CONFIG_SMP=n']}
 
+  sun50i-a64-bananapi-m64:
+    mach: allwinner
+    class: arm64-dtb
+    boot_method: uboot
+
   sun50i_h5_libretech_all_h3_cc:
     name: 'sun50i-h5-libretech-all-h3-cc'
     mach: allwinner
@@ -876,14 +881,29 @@ device_types:
     class: arm-dtb
     boot_method: uboot
 
+  sun7i-a20-cubieboard2:
+    mach: allwinner
+    class: arm-dtb
+    boot_method: uboot
+
   sun8i_a23_evb:
     name: 'sun8i-a23-evb'
     mach: allwinner
     class: arm-dtb
     boot_method: uboot
 
+  sun8i-a33-olinuxino:
+    mach: allwinner
+    class: arm-dtb
+    boot_method: uboot
+
   sun8i_a83t_allwinner_h8homlet_v2:
     name: 'sun8i-a83t-allwinner-h8homlet-v2'
+    mach: allwinner
+    class: arm-dtb
+    boot_method: uboot
+
+  sun8i-a83t-bananapi-m3:
     mach: allwinner
     class: arm-dtb
     boot_method: uboot
@@ -1265,13 +1285,25 @@ test_configs:
   - device_type: snow
     test_plans: [boot, boot_nfs, kselftest]
 
+  - device_type: sun50i-a64-bananapi-m64
+    test_plans: [boot]
+
   - device_type: sun50i_h5_libretech_all_h3_cc
     test_plans: [boot]
 
   - device_type: sun5i-a13-olinuxino-micro
     test_plans: [boot]
 
+  - device_type: sun7i-a20-cubieboard2
+    test_plans: [boot]
+
   - device_type: sun8i_a23_evb
+    test_plans: [boot]
+
+  - device_type: sun8i-a33-olinuxino
+    test_plans: [boot]
+
+  - device_type: sun8i-a83t-bananapi-m3
     test_plans: [boot]
 
   - device_type: sun8i_a83t_allwinner_h8homlet_v2
