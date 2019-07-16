@@ -181,6 +181,7 @@ def get_job_params(config, test_config, defconfig, opts, build, plan):
     }
 
     job_params.update(test_plan.params)
+    job_params.update(device_type.params)
     add_callback_params(job_params, config, plan)
 
     return job_params
