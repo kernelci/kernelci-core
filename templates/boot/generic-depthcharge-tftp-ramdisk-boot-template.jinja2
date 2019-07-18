@@ -3,6 +3,9 @@
 {{ super() }}
 {% endblock %}
 {% block main %}
+{%- if extra_kernel_args %}
+{% do context.update({"extra_kernel_args": extra_kernel_args}) %}
+{% endif %}
 {{ super() }}
 {% endblock %}
 {% block actions %}
