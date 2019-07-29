@@ -159,7 +159,6 @@ def send_result(args, log_file_name, token, api):
         'Content-Type': 'application/json',
     }
     data_map = {
-        'type': 'type',
         'arch': 'arch',
         'job': 'tree',
         'kernel': 'kernel',
@@ -168,12 +167,14 @@ def send_result(args, log_file_name, token, api):
         'build_environment': 'build_environment',
         'lab_name': 'lab',
         'device_type': 'target',
+        'test_case_path': 'test_case',
         'good_commit': 'good',
         'bad_commit': 'bad',
     }
     data = {k: getattr(args, v) for k, v in data_map.items()}
     kdir = args.kdir
     data.update({
+        'type': args.bisect_type,
         'log': log_file_name,
         'good_summary': git_summary(kdir, args.good),
         'bad_summary': git_summary(kdir, args.bad),
@@ -192,7 +193,6 @@ def send_report(args, log_file_name, token, api):
         'Content-Type': 'application/json',
     }
     data_map = {
-        'type': 'type',
         'job': 'tree',
         'kernel': 'kernel',
         'git_branch': 'branch',
@@ -201,6 +201,7 @@ def send_report(args, log_file_name, token, api):
         'build_environment': 'build_environment',
         'lab_name': 'lab',
         'device_type': 'target',
+        'test_case_path': 'test_case',
         'good_commit': 'good',
         'bad_commit': 'bad',
         'subject': 'subject',
@@ -213,6 +214,7 @@ def send_report(args, log_file_name, token, api):
     cc = cc.difference(to)
     data.update({
         'report_type': 'bisect',
+        'type': args.bisect_type,
         'log': log_file_name,
         'format': ['txt'],
         'send_to': list(to),
@@ -230,7 +232,7 @@ def main(args):
     upload_path = '/'.join(getattr(args, k) for k in [
         'tree', 'branch', 'kernel', 'arch', 'defconfig',
         'build_environment', 'lab'])
-    log_file_name = 'bisect-{}.json'.format(args.target)
+    log_file_name = 'bisect-{}-{}.json'.format(args.test_case, args.target)
 
     print("Uploading bisect log: {}".format(upload_path))
     upload_log(args, upload_path, log_file_name, args.token, args.api)
@@ -273,8 +275,10 @@ if __name__ == '__main__':
                         help="verified status")
     parser.add_argument("--revert", default="SKIPPED",
                         help="revert check status")
-    parser.add_argument("--type", default='boot',
+    parser.add_argument("--bisect-type", default="test",
                         help="bisection type")
+    parser.add_argument("--test-case", required=True,
+                        help="test case path")
     parser.add_argument("--kdir", required=True,
                         help="path to the kernel directory")
     parser.add_argument("--subject", required=True,
