@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 
 /*
-  Copyright (C) 2017, 2018 Collabora Limited
+  Copyright (C) 2017, 2018, 2019 Collabora Limited
   Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
   This module is free software; you can redistribute it and/or modify it under
@@ -53,10 +53,10 @@ BUILD_ENVIRONMENT
   Name of the build environment
 LAB
   Name of the lab in which to run the bisection tests
-TEST_PLAN
-  Name of the KernelCI test plan (e.g. baseline)
 TEST_PLAN_VARIANT:
   Name of the KernelCI test plan variant (e.g. baseline_qemu)
+TEST_CASE
+  Test case path in dotted syntax (e.g. baseline.dmesg.crit)
 TEST_RUNS (1)
   Number of LAVA jobs to run before considering pass or fail.
 KCI_API_URL (https://api.kernelci.org)
@@ -372,6 +372,7 @@ def getResult(kci_core, hook) {
 PYTHON_EGG_CACHE=${egg_cache} \
 ./lava-v2-callback.py \
 --token=${SECRET} \
+--test-case=${params.TEST_CASE} \
 ${json_file}
 """)
         }
@@ -502,7 +503,7 @@ def bisectNext(kdir, status) {
 def pushResults(kci_core, kdir, checks, params_summary) {
     def subject = "\
 ${params.KERNEL_TREE}/${params.KERNEL_BRANCH} bisection: \
-${params.TEST_PLAN} on ${params.TARGET}"
+${params.TEST_CASE} on ${params.TARGET}"
 
     dir(kci_core) {
         withCredentials([string(credentialsId: params.KCI_TOKEN_ID,
@@ -521,6 +522,8 @@ PYTHON_EGG_CACHE=${egg_cache} \
 --tree=${params.KERNEL_TREE} \
 --kernel=${params.KERNEL_NAME} \
 --branch=${params.KERNEL_BRANCH} \
+--bisect-type=test \
+--test-case=${params.TEST_CASE} \
 --good=${params.GOOD_COMMIT} \
 --bad=${params.BAD_COMMIT} \
 --verify=${checks['verify']} \
@@ -702,18 +705,12 @@ node("docker && bisection") {
     Lab:       ${params.LAB}
     Defconfig: ${params.DEFCONFIG}
     Compiler:  ${params.BUILD_ENVIRONMENT}
-    Plan:      ${params.TEST_PLAN}
-    Variant:   ${params.TEST_PLAN_VARIANT}"""
+    Test plan: ${params.TEST_PLAN_VARIANT}
+    Test case: ${params.TEST_CASE}"""
     print("""\
     Good:      ${params.GOOD_COMMIT}
     Bad:       ${params.BAD_COMMIT}
 ${params_summary}""")
-
-    if (params.TEST_PLAN != 'boot') {
-        echo "Only doing boot bisections for now, aborting."
-        currentBuild.result = 'ABORTED'
-        return
-    }
 
     if (params.LABS_WHITELIST) {
         def labs = params.LABS_WHITELIST.tokenize(' ')
