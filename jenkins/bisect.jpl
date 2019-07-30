@@ -212,6 +212,12 @@ def buildKernel(kdir, kci_core) {
     dir(kci_core) {
         sh(script: "rm -f ${env._BUILD_JSON}")
 
+        sh(script: """\
+for d in \$(find ${kdir} -name "build-*" -type d); do
+  [ "\$d" = "${output}" ] || rm -rf "\$d"
+done
+""")
+
         sh(script:"""\
 ./kci_build \
 generate_defconfig_fragments \
