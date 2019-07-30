@@ -424,8 +424,8 @@ def _run_make(kdir, arch, target=None, jopt=None, silent=True, cc='gcc',
     if use_ccache:
         px = cross_compile if cc == 'gcc' and cross_compile else ''
         args.append('CC="ccache {}{}"'.format(px, cc))
-        os.environ.setdefault('CCACHE_DIR',
-                              os.path.join(kdir, '-'.join(['.ccache', arch])))
+        ccache_dir = '-'.join(['.ccache', arch, cc])
+        os.environ.setdefault('CCACHE_DIR', ccache_dir)
     elif cc != 'gcc':
         args.append('CC={}'.format(cc))
 
