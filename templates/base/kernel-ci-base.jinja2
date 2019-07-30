@@ -60,7 +60,7 @@ notify:
 job_name: {{ name }}
 timeouts:
   job:
-    minutes: 10
+    minutes: {{ job_timeout|default("10") }}
   action:
    minutes: 10
   actions:
