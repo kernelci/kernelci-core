@@ -115,6 +115,9 @@ trees:
   ulfh:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/ulfh/mmc.git"
 
+  vireshk:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/vireshk/linux.git"
+
 
 fragments:
 
@@ -804,3 +807,7 @@ build_configs:
   ulfh:
     tree: ulfh
     branch: 'next'
+
+  vireshk:
+    tree: vireshk
+    branch: 'for-kernelci'
