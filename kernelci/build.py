@@ -228,7 +228,7 @@ def git_describe(tree_name, path):
     The returned value is a string with the "git describe" for the commit
     currently checked out in the local git repository.
     """
-    describe_args = "--match=v\*" if tree_name == "soc" else ""
+    describe_args = r"--match=v\*" if tree_name == "soc" else ""
     cmd = """\
 cd {path} && \
 git describe {describe_args} \
@@ -246,7 +246,7 @@ def git_describe_verbose(path):
     the commit currently checked out in the local git repository.  This is
     typically based on a mainline kernel version tag.
     """
-    cmd = """\
+    cmd = r"""\
 cd {path} &&
 git describe --match=v[1-9]\* \
 """.format(path=path)
@@ -260,7 +260,7 @@ def add_kselftest_fragment(path, frag_path='kernel/configs/kselftest.config'):
     *path* is the path to the local kernel git repository
     *frag_path* is the path where to create the fragment within the repo
     """
-    shell_cmd("""
+    shell_cmd(r"""
 cd {path} &&
 find \
   tools/testing/selftests \
