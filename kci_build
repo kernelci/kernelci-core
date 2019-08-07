@@ -17,157 +17,11 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-import argparse
-import os
-import subprocess
 import sys
-import time
 
+from kernelci.cli import Args, Command, parse_args
 import kernelci.build
 import kernelci.config.build
-
-
-# -----------------------------------------------------------------------------
-# Standard arguments that can be used in sub-commands
-#
-
-class Args(object):
-    config= {
-        'name': '--config',
-        'help': "Build config name",
-    }
-
-    variant = {
-        'name': '--variant',
-        'help': "Build config variant name",
-    }
-
-    build_env = {
-        'name': '--build-env',
-        'help': "Build environment name",
-    }
-
-    storage = {
-        'name': '--storage',
-        'help': "Storage URL",
-        'default': "https://storage.kernelci.org",
-        'required': False,
-    }
-
-    api = {
-        'name': '--api',
-        'help': "Backend API URL",
-        'default': "https://api.kernelci.org",
-        'required': False,
-    }
-
-    token = {
-        'name': '--token',
-        'help': "Backend API token",
-    }
-
-    commit = {
-        'name': '--commit',
-        'help': "Git commit checksum",
-    }
-
-    describe = {
-        'name': '--describe',
-        'help': "Git describe",
-    }
-
-    describe_verbose = {
-        'name': '--describe-verbose',
-        'help': "Verbose version of git describe",
-    }
-
-    tree_name = {
-        'name': '--tree-name',
-        'help': "Name of a kernel tree",
-    }
-
-    tree_url = {
-        'name': '--tree-url',
-        'help': "URL of a kernel tree",
-    }
-
-    branch = {
-        'name': '--branch',
-        'help': "Name of a kernel branch in a tree",
-    }
-
-    mirror = {
-        'name': '--mirror',
-        'help': "Path to the local kernel git mirror",
-    }
-
-    kdir = {
-        'name': '--kdir',
-        'help': "Path to the kernel checkout directory",
-    }
-
-    arch = {
-        'name': '--arch',
-        'help': "CPU architecture name",
-    }
-
-    defconfig = {
-        'name': '--defconfig',
-        'help': "Kernel defconfig name",
-    }
-
-    j = {
-        'name': '-j',
-        'help': "Number of parallel build processes",
-    }
-
-    verbose = {
-        'name': '--verbose',
-        'help': "Verbose output",
-        'action': 'store_true',
-    }
-
-    output = {
-        'name': '--output',
-        'help': "Path the output directory",
-    }
-
-    json_path = {
-        'name': '--json-path',
-        'help': "Path to the JSON file",
-    }
-
-
-# -----------------------------------------------------------------------------
-# Commands
-#
-
-class Command(object):
-    help = None
-    args = None
-    opt_args = None
-
-    def __init__(self, sub_parser, name):
-        if not self.help:
-            raise AttributeError("Missing help message for {}".format(name))
-        self._parser = sub_parser.add_parser(name, help=self.help)
-        if self.args:
-            for arg in self.args:
-                self._add_arg(arg, True)
-        if self.opt_args:
-            for arg in self.opt_args:
-                self._add_arg(arg, False)
-        self._parser.set_defaults(func=self)
-
-    def __call__(self, *args, **kw):
-        raise NotImplementedError("Command not implemented")
-
-    def _add_arg(self, arg, required=True):
-        kw = dict(arg)
-        arg_name = kw.pop('name')
-        if required:
-            kw.setdefault('required', True)
-        self._parser.add_argument(arg_name, **kw)
 
 
 class cmd_list_configs(Command):
@@ -233,7 +87,6 @@ class cmd_update_repo(Command):
         conf = configs['build_configs'][args.config]
         kernelci.build.update_repo(conf, args.kdir, args.mirror)
         return True
-
 
 
 class cmd_describe(Command):
@@ -449,27 +302,9 @@ Invalid arguments, please provide at least one of these sets of options:
             args.kdir, api=args.api, token=args.token,
             json_path=args.json_path)
 
-# -----------------------------------------------------------------------------
-# Main
-#
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser("kci_build")
-    parser.add_argument("--build-configs", default="build-configs.yaml",
-                        help="Path to build configs file")
-    sub_parser = parser.add_subparsers(title="Commands",
-                                       help="List of available commands")
-
-    commands = dict()
-    for k in globals().keys():
-        split = k.split('cmd_')
-        if len(split) == 2:
-            obj = globals().get(k)
-            if issubclass(obj, Command):
-                cmd_name = split[1]
-                commands[cmd_name] = obj(sub_parser, cmd_name)
-
-    args = parser.parse_args()
-    configs = kernelci.config.build.from_yaml(args.build_configs)
+    args = parse_args("kci_build", "build-configs.yaml", globals())
+    configs = kernelci.config.build.from_yaml(args.yaml_configs)
     status = args.func(configs, args)
     sys.exit(0 if status is True else 1)

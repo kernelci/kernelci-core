@@ -49,7 +49,7 @@ def checkConfig(config, kci_core, trees_dir) {
     def commit = sh(
         script: """
 ${kci_core}/kci_build \
---build-configs=${kci_core}/build-configs.yaml \
+--yaml-configs=${kci_core}/build-configs.yaml \
 check_new_commit \
 --config=${config} \
 --storage=${params.KCI_STORAGE_URL} \
