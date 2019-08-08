@@ -214,6 +214,10 @@ if [[ BUILDS_FINISHED -eq 1 ]]; then
         echo "Sending results for media tree"
         curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'",  "report_type": "test", "plan": "v4l2-compliance-vivid", "send_to": ["kernel-build-reports@lists.linaro.org"], "format": ["txt"], "delay": 5400}' ${API}/send
         curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'",  "report_type": "test", "plan": "v4l2-compliance-uvc", "send_to": ["kernel-build-reports@lists.linaro.org"], "format": ["txt"], "delay": 5400}' ${API}/send
+    elif [ "$TREE_NAME" == "vireshk" ]; then
+        echo "Sending results for vireshk's tree"
+        curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "build_report": 1, "format": ["txt"], "send_to": ["vireshk@kernel.org"], "delay": 60}' ${API}/send
+        curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "boot_report": 1, "format": ["txt"], "send_to": ["vireshk@kernel.org"], "delay": 2700}' ${API}/send
     elif [ "$TREE_NAME" == "kernelci" ]; then
         echo "Sending results to kernelci folks"
         curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "build_report": 1, "format": ["txt"], "send_to": ["gtucker@collabora.com", "mgalka@collabora.com", "dan.rue@linaro.org", "matthew.hart@linaro.org", "broonie@kernel.org", "kernelci@baylibre.com"], "delay": 0}' ${API}/send
