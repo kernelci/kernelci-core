@@ -250,7 +250,7 @@ build_configs_defaults:
 
 
 # Minimum architecture defconfigs
-arch_defconfigs: &all_defconfigs
+arch_defconfigs: &arch_defconfigs
   arc: &arc_defconfig
     base_defconfig: 'nsim_hs_defconfig'
     filters:
@@ -525,7 +525,7 @@ build_configs:
     variants:
       gcc-8:
         build_environment: gcc-8
-        architectures: *all_defconfigs
+        architectures: *arch_defconfigs
 
   linusw_fixes:
     tree: linusw
@@ -533,7 +533,7 @@ build_configs:
     variants:
       gcc-8:
         build_environment: gcc-8
-        architectures: *all_defconfigs
+        architectures: *arch_defconfigs
 
   linusw_for-next:
     tree: linusw
@@ -541,7 +541,7 @@ build_configs:
     variants:
       gcc-8:
         build_environment: gcc-8
-        architectures: *all_defconfigs
+        architectures: *arch_defconfigs
 
   lsk_for-test:
     tree: lsk
