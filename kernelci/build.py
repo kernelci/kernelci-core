@@ -478,8 +478,12 @@ def _make_defconfig(defconfig, kwargs, fragments):
         cmd = """\
 cd {kdir}
 export ARCH={arch}
+export HOSTCC={cc}
+export CC={cc}
+export CROSS_COMPILE={cross}
 scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' > /dev/null 2>&1
-""".format(kdir=kdir, arch=kwargs['arch'], output=rel_path,
+""".format(kdir=kdir, arch=kwargs['arch'], cc=kwargs['cc'],
+           cross=kwargs['cross_compile'], output=rel_path,
            base=os.path.join(rel_path, '.config'),
            frag=os.path.join(rel_path, kconfig_frag_name))
         print(cmd.strip())
