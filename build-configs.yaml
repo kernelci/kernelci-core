@@ -811,3 +811,7 @@ build_configs:
   vireshk:
     tree: vireshk
     branch: 'for-kernelci'
+    variants:
+      gcc-8:
+        build_environment: gcc-8
+        architectures: *arch_defconfigs
