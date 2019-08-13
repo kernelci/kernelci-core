@@ -229,7 +229,7 @@ def git_describe(tree_name, path):
     The returned value is a string with the "git describe" for the commit
     currently checked out in the local git repository.
     """
-    describe_args = "--match=v\*" if tree_name == "arm-soc" else ""
+    describe_args = "--match=v\*" if tree_name == "soc" else ""
     cmd = """\
 cd {path} && \
 git describe {describe_args} \
