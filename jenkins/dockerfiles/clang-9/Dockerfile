@@ -12,5 +12,3 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     clang-9
 
 RUN update-alternatives --install /usr/bin/clang clang /usr/bin/clang-9 500
-
-RUN apt-get autoremove -y gcc
