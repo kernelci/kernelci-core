@@ -691,7 +691,6 @@ device_types:
     class: arm-dtb
     boot_method: uboot
     dtb: 'exynos4412-odroidx2.dtb'
-    flags: ['lpae']
 
   odroid_xu3:
     name: 'odroid-xu3'
