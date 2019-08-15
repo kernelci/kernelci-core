@@ -1,5 +1,6 @@
 jinja2
 keyring
+pyelftools
 pytest
 pyyaml
 requests
