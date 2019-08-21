@@ -215,8 +215,7 @@ device_default_filters:
 
 device_types:
 
-  alpine_db:
-    name: 'alpine-db'
+  alpine-db:
     mach: alpine
     class: arm-dtb
     boot_method: uboot
@@ -231,22 +230,7 @@ device_types:
       # added to multi_v7_defconfig as of 5.0.
       - blacklist: {kernel: ['v3.', 'v4.']}
 
-  apm_mustang:
-    name: 'mustang'
-    mach: apm
-    class: arm64-dtb
-    boot_method: uboot
-    dtb: 'apm-mustang.dtb'
-    filters:
-      - blacklist:
-          defconfig:
-            - 'allmodconfig'
-            - 'allnoconfig'
-            - 'defconfig+CONFIG_RAMDOMIZE_BASE=y'
-          kernel: ['v3.']
-
-  apq8016_sbc:
-    name: 'apq8016-sbc'
+  apq8016-sbc:
     mach: qcom
     class: arm64-dtb
     boot_method: uboot
@@ -257,16 +241,14 @@ device_types:
             - 'allnoconfig'
             - 'defconfig+CONFIG_KASAN=y'
 
-  ar9331_dpt_module:
-    name: 'ar9331-dpt-module'
+  ar9331-dpt-module:
     mach: ar9331
     class: mips-dtb
     boot_method: barebox
     filters:
       - blacklist: *allmodconfig_filter
 
-  armada_370_db:
-    name: 'armada-370-db'
+  armada-370-db:
     mach: mvebu
     class: arm-dtb
     boot_method: uboot
@@ -274,8 +256,7 @@ device_types:
       - blacklist: *allmodconfig_filter
       - blacklist: {kernel: ['v3.']}
 
-  armada_370_rd:
-    name: 'armada-370-rd'
+  armada-370-rd:
     mach: mvebu
     class: arm-dtb
     boot_method: uboot
@@ -290,20 +271,17 @@ device_types:
             - ['v4.3', 'multi_v7_defconfig']
       - blacklist: {kernel: ['v3.']}
 
-  armada_375_db:
-    name: 'armada-375-db'
+  armada-375-db:
     mach: mvebu
     class: arm-dtb
     boot_method: uboot
 
-  armada_385_db_ap:
-    name: 'armada-385-db-ap'
+  armada-385-db-ap:
     mach: mvebu
     class: arm-dtb
     boot_method: uboot
 
-  armada_388_clearfog:
-    name: 'armada-388-clearfog'
+  armada-388-clearfog:
     mach: mvebu
     class: arm-dtb
     boot_method: uboot
@@ -311,26 +289,22 @@ device_types:
       - blacklist: *allmodconfig_filter
       - blacklist: {defconfig: ['multi_v7_defconfig+CONFIG_SMP=n']}
 
-  armada_388_gp:
-    name: 'armada-388-gp'
+  armada-388-gp:
     mach: mvebu
     class: arm-dtb
     boot_method: uboot
 
-  armada_398_db:
-    name: 'armada-398-db'
+  armada-398-db:
     mach: mvebu
     class: arm-dtb
     boot_method: uboot
 
-  armada_3720_db:
-    name: 'armada-3720-db'
+  armada-3720-db:
     mach: mvebu
     class: arm64-dtb
     boot_method: uboot
 
-  armada_7040_db:
-    name: 'armada-7040-db'
+  armada-7040-db:
     mach: mvebu
     class: arm64-dtb
     boot_method: uboot
@@ -338,26 +312,30 @@ device_types:
       - blacklist: *allmodconfig_filter
       - blacklist: {kernel: ['v4.6']}
 
-  armada_8040_db:
-    name: 'armada-8040-db'
+  armada-8040-db:
     mach: mvebu
     class: arm64-dtb
     boot_method: uboot
 
-  armada_xp_db:
-    name: 'armada-xp-db'
+  armada-xp-db:
     mach: mvebu
     class: arm-dtb
     boot_method: uboot
 
-  armada_xp_gp:
-    name: 'armada-xp-gp'
+  armada-xp-gp:
     mach: mvebu
     class: arm-dtb
     boot_method: uboot
 
-  armada_xp_linksys_mamba:
-    name: 'armada-xp-linksys-mamba'
+  armada-xp-linksys-mamba:
+    mach: mvebu
+    class: arm-dtb
+    boot_method: uboot
+    filters:
+      - blacklist: *allmodconfig_filter
+      - blacklist: {defconfig: ['multi_v7_defconfig+CONFIG_SMP=n']}
+
+  armada-xp-openblocks-ax3-4:
     mach: mvebu
     class: arm-dtb
     boot_method: uboot
@@ -366,7 +344,6 @@ device_types:
       - blacklist: {defconfig: ['multi_v7_defconfig+CONFIG_SMP=n']}
 
   arndale:
-    name: 'arndale'
     mach: exynos
     class: arm-dtb
     boot_method: uboot
@@ -376,26 +353,22 @@ device_types:
       - blacklist: *allmodconfig_filter
       - blacklist: {defconfig: ['multi_v7_defconfig+CONFIG_SMP=n']}
 
-  at91_sama5d2_xplained:
-    name: 'at91-sama5d2_xplained'
+  at91-sama5d2-xplained:
     mach: at91
     class: arm-dtb
     boot_method: uboot
 
-  at91_sama5d4_xplained:
-    name: 'at91-sama5d4_xplained'
+  at91-sama5d4-xplained:
     mach: at91
     class: arm-dtb
     boot_method: uboot
 
-  bcm2836_rpi_2_b:
-    name: 'bcm2836-rpi-2-b'
+  bcm2836-rpi-2-b:
     mach: broadcom
     class: arm-dtb
     boot_method: uboot
 
-  bcm2837_rpi_3_b:
-    name: 'bcm2837-rpi-3-b'
+  bcm2837-rpi-3-b:
     mach: broadcom
     class: arm64-dtb
     boot_method: uboot
@@ -405,8 +378,7 @@ device_types:
           defconfig: ['allnoconfig', 'allmodconfig']
           kernel: ['v3.', '4.4-', '4.9-', 'v4.13']
 
-  bcm2837_rpi_3_b_32:
-    name: 'bcm2837-rpi-3-b-32'
+  bcm2837-rpi-3-b-32:
     mach: broadcom
     class: arm-dtb
     boot_method: uboot
@@ -416,8 +388,7 @@ device_types:
       - whitelist: {defconfig: ['bcm2835_defconfig']}
       - blacklist: {kernel: ['v3.', '4.4-', '4.9-', 'v4.13']}
 
-  beaglebone_black:
-    name: 'beaglebone-black'
+  beaglebone-black:
     mach: omap2
     class: arm-dtb
     boot_method: uboot
@@ -426,8 +397,7 @@ device_types:
       - blacklist: *allmodconfig_filter
       - blacklist: {lab: ['lab-baylibre']}
 
-  beagle_xm:
-    name: 'beagle-xm'
+  beagle-xm:
     mach: omap2
     class: arm-dtb
     boot_method: uboot
@@ -436,21 +406,6 @@ device_types:
       - blacklist: *allmodconfig_filter
       - blacklist: {kernel: ['v3.14']}
 
-  chip:
-    name: 'sun5i-r8-chip'
-    mach: allwinner
-    class: arm-dtb
-    boot_method: uboot
-
-  chip_pro:
-    name: 'sun5i-gr8-chip-pro'
-    mach: allwinner
-    class: arm-dtb
-    boot_method: uboot
-    filters:
-      - blacklist: *allmodconfig_filter
-      - blacklist: {defconfig: ['multi_v7_defconfig+CONFIG_LKDTM=n']}
-
   cubietruck:
     mach: allwinner
     class: arm-dtb
@@ -458,44 +413,31 @@ device_types:
     boot_method: uboot
 
   d03:
-    name: 'd03'
     mach: hisilicon
     class: arm64-dtb
     boot_method: grub
-    dtb: 'hip06-d03.dtb'
+    dtb: 'hisilicon/hip06-d03.dtb'
     filters:
       - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
-  d05:
-    name: 'hip07-d05'
-    mach: hisilicon
-    class: arm64-dtb
-    boot_method: grub
-    filters:
-      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
-
-  da850_lcdk:
-    name: 'da850-lcdk'
+  da850-lcdk:
     mach: davinci
     class: arm-dtb
     boot_method: uboot
 
-  dra7_evm:
-    name: 'dra7-evm'
+  dra7-evm:
     mach: omap2
     class: arm-dtb
     boot_method: uboot
 
-  dove_cubox:
-    name: 'dove-cubox'
+  dove-cubox:
     mach: imx
     class: arm-dtb
     boot_method: barebox
     filters:
       - blacklist: *allmodconfig_filter
 
-  hikey_uboot:
-    name: 'hi6220-hikey'
+  hi6220-hikey:
     mach: hisilicon
     class: arm64-dtb
     boot_method: uboot
@@ -505,32 +447,35 @@ device_types:
     class: arc-dtb
     boot_method: uboot
 
-  imx23_olinuxino:
-    name: 'imx23-olinuxino'
+  hip07-d05:
+    mach: hisilicon
+    class: arm64-dtb
+    boot_method: grub
+    filters:
+      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+
+  imx23-olinuxino:
     mach: imx
     class: arm-dtb
     boot_method: barebox
     filters:
       - blacklist: *allmodconfig_filter
 
-  imx27_phycard_s:
-    name: 'imx27-phytec-phycard-s-rdk'
+  imx27-phytec-phycard-s-rdk:
     mach: imx
     class: arm-dtb
     boot_method: barebox
     filters:
       - blacklist: *allmodconfig_filter
 
-  imx28_duckbill:
-    name: 'imx28-duckbill'
+  imx28-duckbill:
     mach: imx
     class: arm-dtb
     boot_method: barebox
     filters:
       - blacklist: *allmodconfig_filter
 
-  imx53_qsrb:
-    name: 'imx53-qsrb'
+  imx53-qsrb:
     mach: imx
     class: arm-dtb
     boot_method: barebox
@@ -541,8 +486,7 @@ device_types:
             - 'multi_v5_defconfig'
             - 'allmodconfig'
 
-  imx6dl_riotboard:
-    name: 'imx6dl-riotboard'
+  imx6dl-riotboard:
     mach: imx
     class: arm-dtb
     boot_method: barebox
@@ -553,8 +497,7 @@ device_types:
             - 'multi_v5_defconfig'
             - 'allmodconfig'
 
-  imx6q_nitrogen6x:
-    name: 'imx6q-nitrogen6x'
+  imx6q-nitrogen6x:
     mach: imx
     class: arm-dtb
     boot_method: uboot
@@ -565,8 +508,7 @@ device_types:
             - 'multi_v5_defconfig'
             - 'allmodconfig'
 
-  imx6ul_pico_hobbit:
-    name: 'imx6ul-pico-hobbit'
+  imx6ul-pico-hobbit:
     mach: imx
     class: arm-dtb
     boot_method: barebox
@@ -578,8 +520,7 @@ device_types:
             - 'multi_v5_defconfig'
             - 'allmodconfig'
 
-  imx6q_sabrelite:
-    name: 'imx6q-sabrelite'
+  imx6q-sabrelite:
     mach: imx
     class: arm-dtb
     boot_method: uboot
@@ -593,8 +534,7 @@ device_types:
             - 'multi_v7_defconfig+kselftest'
           kernel: ['v3.18']
 
-  jetson_tk1:
-    name: 'jetson-tk1'
+  jetson-tk1:
     mach: tegra
     class: arm-dtb
     boot_method: uboot
@@ -604,8 +544,7 @@ device_types:
       - blacklist: *allmodconfig_filter
       - blacklist: {defconfig: ['multi_v7_defconfig+kselftest']}
 
-  kirkwood_db_88f6282:
-    name: 'kirkwood-db-88f6282'
+  kirkwood-db-88f6282:
     mach: mvebu
     class: arm-dtb
     boot_method: uboot
@@ -614,13 +553,26 @@ device_types:
       - blacklist: {defconfig: ['allmodconfig', 'multi_v5_defconfig']}
       - blacklist: {kernel: ['v3.']}
 
-  m3ulcb:
-    name: 'r8a7796-m3ulcb'
+  kirkwood-openblocks_a7:
+    mach: mvebu
+    class: arm-dtb
+    boot_method: uboot
+    filters:
+        # To be removed once NFS is working with multi_v5_defconfig
+      - blacklist: {defconfig: ['allmodconfig', 'multi_v5_defconfig']}
+      - blacklist: {kernel: ['v3.']}
+
+  r8a7796-m3ulcb:
     mach: renesas
     class: arm64-dtb
     boot_method: uboot
     filters:
       - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+
+  meson8b-odroidc1:
+    mach: meson
+    class: arm-dtb
+    boot_method: uboot
 
   meson-g12a-sei510:
     mach: amlogic
@@ -643,8 +595,23 @@ device_types:
     filters:
       - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
-  meson_gxbb_p200:
-    name: 'meson-gxbb-p200'
+  meson-gxbb-nanopi-k2:
+    mach: amlogic
+    class: arm64-dtb
+    boot_method: uboot
+    filters:
+      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+    flags: ['big_endian']
+
+  meson-gxbb-odroidc2:
+    mach: amlogic
+    class: arm64-dtb
+    boot_method: uboot
+    flags: ['big_endian', 'fastboot']
+    filters:
+      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+
+  meson-gxbb-p200:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
@@ -660,8 +627,7 @@ device_types:
     filters:
       - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
-  meson_gxl_s805x_p241:
-    name: 'meson-gxl-s805x-p241'
+  meson-gxl-s805x-p241:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
@@ -677,8 +643,7 @@ device_types:
     filters:
       - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
-  meson_gxl_s905x_libretech_cc:
-    name: 'meson-gxl-s905x-libretech-cc'
+  meson-gxl-s905x-libretech-cc:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
@@ -686,8 +651,7 @@ device_types:
     filters:
       - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
-  meson_gxl_s905x_khadas_vim:
-    name: 'meson-gxl-s905x-khadas-vim'
+  meson-gxl-s905x-khadas-vim:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
@@ -703,8 +667,7 @@ device_types:
     filters:
       - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
-  minnowboard_turbot_E3826:
-    name: 'minnowboard-turbot-E3826'
+  minnowboard-turbot-E3826:
     mach: x86
     arch: x86_64
     boot_method: grub
@@ -716,73 +679,33 @@ device_types:
             - 'tinyconfig'
             - 'kvm_guest.config'
 
-  nanopi_k2:
-    name: 'meson-gxbb-nanopi-k2'
-    mach: amlogic
+  mustang:
+    mach: apm
     class: arm64-dtb
     boot_method: uboot
+    dtb: 'apm/apm-mustang.dtb'
     filters:
-      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
-    flags: ['big_endian']
+      - blacklist:
+          defconfig:
+            - 'allmodconfig'
+            - 'allnoconfig'
+            - 'defconfig+CONFIG_RAMDOMIZE_BASE=y'
+          kernel: ['v3.']
 
-  nyan_big:
-    name: 'tegra124-nyan-big'
-    mach: tegra
-    class: arm-dtb
-    boot_method: depthcharge
-    flags: ['lpae']
-
-  odroid_c1:
-    name: 'meson8b-odroidc1'
-    mach: meson
-    class: arm-dtb
-    boot_method: uboot
-
-  odroid_c2:
-    name: 'meson-gxbb-odroidc2'
-    mach: amlogic
-    class: arm64-dtb
-    boot_method: uboot
-    flags: ['big_endian', 'fastboot']
-    filters:
-      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
-
-  odroid_x2:
-    name: 'odroid-x2'
+  odroid-x2:
     mach: exynos
     class: arm-dtb
     boot_method: uboot
     dtb: 'exynos4412-odroidx2.dtb'
 
-  odroid_xu3:
-    name: 'odroid-xu3'
+  odroid-xu3:
     mach: exynos
     class: arm-dtb
     boot_method: uboot
     dtb: 'exynos5422-odroidxu3.dtb'
     flags: ['lpae']
 
-  openblocks_a7:
-    name: 'kirkwood-openblocks_a7'
-    mach: mvebu
-    class: arm-dtb
-    boot_method: uboot
-    filters:
-        # To be removed once NFS is working with multi_v5_defconfig
-      - blacklist: {defconfig: ['allmodconfig', 'multi_v5_defconfig']}
-      - blacklist: {kernel: ['v3.']}
-
-  openblocks_ax3:
-    name: 'armada-xp-openblocks-ax3-4'
-    mach: mvebu
-    class: arm-dtb
-    boot_method: uboot
-    filters:
-      - blacklist: *allmodconfig_filter
-      - blacklist: {defconfig: ['multi_v7_defconfig+CONFIG_SMP=n']}
-
-  orion5x_rd88f5182_nas:
-    name: 'orion5x-rd88f5182-nas'
+  orion5x-rd88f5182-nas:
     mach: mvebu
     class: arm-dtb
     boot_method: uboot
@@ -804,15 +727,13 @@ device_types:
             - 'multi_v7_defconfig+CONFIG_PROVE_LOCKING=y'
             - 'multi_v7_defconfig+kselftest'
 
-  panda_es:
-    name: 'panda-es'
+  panda-es:
     mach: omap2
     class: arm-dtb
     boot_method: uboot
     dtb: 'omap4-panda-es.dtb'
 
-  peach_pi:
-    name: 'peach-pi'
+  peach-pi:
     mach: exynos
     class: arm-dtb
     boot_method: uboot
@@ -822,8 +743,7 @@ device_types:
       - blacklist: *allmodconfig_filter
       - blacklist: {kernel: ['v3.']}
 
-  qcom_qdf2400:
-    name: 'qcom-qdf2400'
+  qcom-qdf2400:
     mach: qcom
     arch: arm64
     boot_method: grub
@@ -863,20 +783,17 @@ device_types:
     filters:
       - whitelist: {defconfig: ['defconfig']}
 
-  r8a7791_porter:
-    name: 'r8a7791-porter'
+  r8a7791-porter:
     mach: renesas
     class: arm-dtb
     boot_method: uboot
 
-  rk3399_gru_kevin:
-    name: 'rk3399-gru-kevin'
+  rk3399-gru-kevin:
     mach: rockchip
     class: arm64-dtb
     boot_method: depthcharge
 
-  rk3399_puma_haikou:
-    name: 'rk3399-puma-haikou'
+  rk3399-puma-haikou:
     mach: rockchip
     class: arm64-dtb
     boot_method: uboot
@@ -884,15 +801,13 @@ device_types:
       - blacklist: *allmodconfig_filter
       - blacklist: {kernel: ['v3.', 'v4.4', 'v4.9']}
 
-  rk3288_rock2_square:
-    name: 'rk3288-rock2-square'
+  rk3288-rock2-square:
     mach: rockchip
     class: arm-dtb
     boot_method: uboot
     flags: ['lpae', 'fastboot']
 
-  rk3328_rock64:
-    name: 'rk3328-rock64'
+  rk3328-rock64:
     mach: rockchip
     class: arm64-dtb
     boot_method: uboot
@@ -900,15 +815,13 @@ device_types:
       - blacklist: *allmodconfig_filter
       - blacklist: {kernel: ['v3.', 'v4.4', 'v4.9']}
 
-  rk3288_veyron_jaq:
-    name: 'rk3288-veyron-jaq'
+  rk3288-veyron-jaq:
     mach: rockchip
     class: arm-dtb
     boot_method: depthcharge
     flags: ['lpae']
 
-  salvator_x:
-    name: 'r8a7795-salvator-x'
+  r8a7795-salvator-x:
     mach: renesas
     class: arm64-dtb
     boot_method: uboot
@@ -916,14 +829,12 @@ device_types:
     filters:
       - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
-  sinlinx_sina33:
-    name: 'sun8i-a33-sinlinx-sina33'
+  sun8i-a33-sinlinx-sina33:
     mach: allwinner
     class: arm-dtb
     boot_method: uboot
 
-  socfpga_cyclone5_socrates:
-    name: 'socfpga-cyclone5-socrates'
+  socfpga-cyclone5-socrates:
     mach: socfpga
     class: arm-dtb
     boot_method: barebox
@@ -931,7 +842,6 @@ device_types:
       - blacklist: *allmodconfig_filter
 
   snow:
-    name: 'snow'
     mach: exynos
     class: arm-dtb
     boot_method: uboot
@@ -946,8 +856,7 @@ device_types:
     class: arm64-dtb
     boot_method: uboot
 
-  sun50i_h5_libretech_all_h3_cc:
-    name: 'sun50i-h5-libretech-all-h3-cc'
+  sun50i-h5-libretech-all-h3-cc:
     mach: allwinner
     class: arm64-dtb
     boot_method: uboot
@@ -967,13 +876,25 @@ device_types:
     class: arm-dtb
     boot_method: uboot
 
+  sun5i-gr8-chip:
+    mach: allwinner
+    class: arm-dtb
+    boot_method: uboot
+
+  sun5i-gr8-chip-pro:
+    mach: allwinner
+    class: arm-dtb
+    boot_method: uboot
+    filters:
+      - blacklist: *allmodconfig_filter
+      - blacklist: {defconfig: ['multi_v7_defconfig+CONFIG_LKDTM=n']}
+
   sun7i-a20-cubieboard2:
     mach: allwinner
     class: arm-dtb
     boot_method: uboot
 
-  sun8i_a23_evb:
-    name: 'sun8i-a23-evb'
+  sun8i-a23-evb:
     mach: allwinner
     class: arm-dtb
     boot_method: uboot
@@ -983,8 +904,7 @@ device_types:
     class: arm-dtb
     boot_method: uboot
 
-  sun8i_a83t_allwinner_h8homlet_v2:
-    name: 'sun8i-a83t-allwinner-h8homlet-v2'
+  sun8i-a83t-allwinner-h8homlet-v2:
     mach: allwinner
     class: arm-dtb
     boot_method: uboot
@@ -994,38 +914,32 @@ device_types:
     class: arm-dtb
     boot_method: uboot
 
-  sun8i_h2_plus_orangepi_r1:
-    name: 'sun8i-h2-plus-orangepi-r1'
+  sun8i-h2-plus-orangepi-r1:
     mach: allwinner
     class: arm-dtb
     boot_method: uboot
 
-  sun8i_h2_plus_orangepi_zero:
-    name: 'sun8i-h2-plus-orangepi-zero'
+  sun8i-h2-plus-orangepi-zero:
     mach: allwinner
     class: arm-dtb
     boot_method: uboot
 
-  sun8i_h2_plus_libretech_all_h3_cc:
-    name: 'sun8i-h2-plus-libretech-all-h3-cc'
+  sun8i-h2-plus-libretech-all-h3-cc:
     mach: allwinner
     class: arm-dtb
     boot_method: uboot
 
-  sun8i_h3_libretech_all_h3_cc:
-    name: 'sun8i-h3-libretech-all-h3-cc'
+  sun8i-h3-libretech-all-h3-cc:
     mach: allwinner
     class: arm-dtb
     boot_method: uboot
 
-  sun8i_h3_orangepi_pc:
-    name: 'sun8i-h3-orangepi-pc'
+  sun8i-h3-orangepi-pc:
     mach: allwinner
     class: arm-dtb
     boot_method: uboot
 
-  synquacer_acpi:
-    name: 'synquacer-acpi'
+  synquacer-acpi:
     mach: socionext
     arch: arm64
     boot_method: grub
@@ -1033,8 +947,7 @@ device_types:
       - whitelist: {defconfig: ['defconfig']}
       - blacklist: {kernel: ['v3.', 'v4.4']}
 
-  synquacer_dtb:
-    name: 'synquacer-dtb'
+  synquacer-dtb:
     mach: socionext
     arch: arm64
     boot_method: grub
@@ -1042,8 +955,13 @@ device_types:
       - whitelist: {defconfig: ['defconfig']}
       - blacklist: {kernel: ['v3.']}
 
-  x86_atom330:
-    name: 'x86-atom330'
+  tegra124-nyan-big:
+    mach: tegra
+    class: arm-dtb
+    boot_method: depthcharge
+    flags: ['lpae']
+
+  x86-atom330:
     mach: x86
     arch: x86
     boot_method: ipxe
@@ -1055,8 +973,7 @@ device_types:
             - 'tinyconfig'
             - 'kvm_guest.config'
 
-  x86_celeron:
-    name: 'x86-celeron'
+  x86-celeron:
     mach: x86
     arch: i386
     boot_method: ipxe
@@ -1069,8 +986,7 @@ device_types:
             - 'tinyconfig'
             - 'kvm_guest.config'
 
-  x86_pentium4:
-    name: 'x86-pentium4'
+  x86-pentium4:
     mach: x86
     arch: i386
     boot_method: grub
@@ -1083,8 +999,7 @@ device_types:
             - 'tinyconfig'
             - 'kvm_guest.config'
 
-  x86_x5_z8350:
-    name: 'x86-x5-z8350'
+  x86-x5-z8350:
     mach: x86
     arch: x86_64
     boot_method: grub
@@ -1096,8 +1011,7 @@ device_types:
             - 'tinyconfig'
             - 'kvm_guest.config'
 
-  zynq_zc702:
-    name: 'zynq-zc702'
+  zynq-zc702:
     mach: zynq
     class: arm-dtb
     boot_method: uboot
@@ -1108,89 +1022,107 @@ device_types:
 
 test_configs:
 
-  - device_type: alpine_db
+  - device_type: alpine-db
     test_plans: [boot]
 
   - device_type: am57xx-beagle-x15
-    test_plans: [boot, boot_nfs, simple, sleep]
+    test_plans:
+      - boot
+      - boot_nfs
+      - simple
+      - sleep
 
-  - device_type: apm_mustang
-    test_plans: [boot, boot_nfs, kselftest]
+  - device_type: apq8016-sbc
+    test_plans:
+      - boot
+      - kselftest
 
-  - device_type: apq8016_sbc
-    test_plans: [boot, kselftest]
+  - device_type: ar9331-dpt-module
+    test_plans:
+      - boot
+      - boot_nfs
+      - kselftest
+      - sleep
 
-  - device_type: ar9331_dpt_module
-    test_plans: [boot, boot_nfs, kselftest, sleep]
-
-  - device_type: armada_370_db
+  - device_type: armada-370-db
     test_plans: [boot]
 
-  - device_type: armada_370_rd
+  - device_type: armada-370-rd
     test_plans: [boot]
 
-  - device_type: armada_375_db
+  - device_type: armada-375-db
     test_plans: [boot]
 
-  - device_type: armada_385_db_ap
+  - device_type: armada-385-db-ap
     test_plans: [boot]
 
-  - device_type: armada_388_clearfog
+  - device_type: armada-388-clearfog
     test_plans: [boot]
 
-  - device_type: armada_388_gp
+  - device_type: armada-388-gp
     test_plans: [boot]
 
-  - device_type: armada_398_db
+  - device_type: armada-398-db
     test_plans: [boot]
 
-  - device_type: armada_3720_db
+  - device_type: armada-3720-db
     test_plans: [boot]
 
-  - device_type: armada_7040_db
+  - device_type: armada-7040-db
     test_plans: [boot]
 
-  - device_type: armada_8040_db
+  - device_type: armada-8040-db
     test_plans: [boot]
 
-  - device_type: armada_xp_db
+  - device_type: armada-xp-db
     test_plans: [boot]
 
-  - device_type: armada_xp_gp
+  - device_type: armada-xp-gp
     test_plans: [boot_nfs]
 
-  - device_type: armada_xp_linksys_mamba
+  - device_type: armada-xp-linksys-mamba
+    test_plans: [boot]
+
+  - device_type: armada-xp-openblocks-ax3-4
     test_plans: [boot]
 
   - device_type: arndale
     test_plans: [boot, kselftest]
 
-  - device_type: at91_sama5d2_xplained
+  - device_type: at91-sama5d2-xplained
     test_plans: [boot]
 
-  - device_type: at91_sama5d4_xplained
+  - device_type: at91-sama5d4-xplained
     test_plans: [boot]
 
-  - device_type: bcm2836_rpi_2_b
-    test_plans: [boot, sleep, usb]
+  - device_type: bcm2836-rpi-2-b
+    test_plans:
+      - boot
+      - sleep
+      - usb
 
-  - device_type: bcm2837_rpi_3_b
-    test_plans: [boot, kselftest, simple, usb]
+  - device_type: bcm2837-rpi-3-b
+    test_plans:
+      - boot
+      - kselftest
+      - simple
+      - usb
 
-  - device_type: bcm2837_rpi_3_b_32
-    test_plans: [boot, kselftest, simple]
+  - device_type: bcm2837-rpi-3-b-32
+    test_plans:
+      - boot
+      - kselftest
+      - simple
 
-  - device_type: beaglebone_black
-    test_plans: [boot, boot_nfs, kselftest, simple]
+  - device_type: beaglebone-black
+    test_plans:
+      - boot
+      - boot_nfs
+      - kselftest
+      - simple
 
-  - device_type: beagle_xm
+  - device_type: beagle-xm
     test_plans: [boot, kselftest]
-
-  - device_type: chip
-    test_plans: [boot]
-
-  - device_type: chip_pro
-    test_plans: [boot]
 
   - device_type: cubietruck
     test_plans: [boot, boot_nfs]
@@ -1198,53 +1130,99 @@ test_configs:
   - device_type: d03
     test_plans: [boot]
 
-  - device_type: d05
-    test_plans: [boot, boot_nfs]
-
-  - device_type: da850_lcdk
+  - device_type: da850-lcdk
     test_plans: [boot]
 
-  - device_type: dra7_evm
-    test_plans: [boot, kselftest, simple]
+  - device_type: dra7-evm
+    test_plans:
+      - boot
+      - kselftest
+      - simple
 
-  - device_type: dove_cubox
-    test_plans: [boot, boot_nfs, kselftest, sleep]
+  - device_type: dove-cubox
+    test_plans:
+      - boot
+      - boot_nfs
+      - kselftest
+      - sleep
 
-  - device_type: hikey_uboot
-    test_plans: [boot, boot_nfs, kselftest, simple]
+  - device_type: hi6220-hikey
+    test_plans:
+      - boot
+      - boot_nfs
+      - kselftest
+      - simple
+
+  - device_type: hip07-d05
+    test_plans: [boot, boot_nfs]
 
   - device_type: hsdk
     test_plans: [boot]
 
-  - device_type: imx23_olinuxino
-    test_plans: [boot, boot_nfs, kselftest, sleep]
+  - device_type: imx23-olinuxino
+    test_plans:
+      - boot
+      - boot_nfs
+      - kselftest
+      - sleep
 
-  - device_type: imx27_phycard_s
-    test_plans: [boot, boot_nfs, kselftest, sleep]
+  - device_type: imx27-phytec-phycard-s-rdk
+    test_plans:
+      - boot
+      - boot_nfs
+      - kselftest
+      - sleep
 
-  - device_type: imx28_duckbill
-    test_plans: [boot, boot_nfs, kselftest, sleep]
+  - device_type: imx28-duckbill
+    test_plans:
+      - boot
+      - boot_nfs
+      - kselftest
+      - sleep
 
-  - device_type: imx53_qsrb
-    test_plans: [boot, boot_nfs, kselftest, sleep]
+  - device_type: imx53-qsrb
+    test_plans:
+      - boot
+      - boot_nfs
+      - kselftest
+      - sleep
 
-  - device_type: imx6dl_riotboard
-    test_plans: [boot, boot_nfs, kselftest, sleep]
+  - device_type: imx6dl-riotboard
+    test_plans:
+      - boot
+      - boot_nfs
+      - kselftest
+      - sleep
 
-  - device_type: imx6q_nitrogen6x
+  - device_type: imx6q-nitrogen6x
     test_plans: [boot]
 
-  - device_type: imx6ul_pico_hobbit
-    test_plans: [boot, boot_nfs, kselftest, sleep]
+  - device_type: imx6ul-pico-hobbit
+    test_plans:
+      - boot
+      - boot_nfs
+      - kselftest
+      - sleep
 
-  - device_type: imx6q_sabrelite
-    test_plans: [boot, boot_nfs, kselftest, sleep, usb]
+  - device_type: imx6q-sabrelite
+    test_plans:
+      - boot
+      - boot_nfs
+      - kselftest
+      - sleep
+      - usb
 
-  - device_type: jetson_tk1
+  - device_type: jetson-tk1
     test_plans: [boot, boot_nfs, kselftest]
 
-  - device_type: kirkwood_db_88f6282
+  - device_type: kirkwood-db-88f6282
     test_plans: [boot_nfs]
+
+  - device_type: kirkwood-openblocks_a7
+    test_plans: [boot, boot_nfs]
+
+  - device_type: meson8b-odroidc1
+    test_plans: [boot, kselftest]
 
   - device_type: meson-g12a-sei510
     test_plans: [boot, simple]
@@ -1255,58 +1233,79 @@ test_configs:
   - device_type: meson-g12b-odroid-n2
     test_plans: [boot, simple]
 
-  - device_type: meson_gxbb_p200
+  - device_type: meson-gxbb-nanopi-k2
+    test_plans:
+      - boot
+      - kselftest
+      - simple
+
+  - device_type: meson-gxbb-odroidc2
+    test_plans: [boot, kselftest]
+
+  - device_type: meson-gxbb-p200
     test_plans: [boot, kselftest]
 
   - device_type: meson-gxl-s805x-libretech-ac
-    test_plans: [boot, kselftest, simple]
-
-  - device_type: meson_gxl_s805x_p241
-    test_plans: [boot, kselftest, simple]
+    test_plans:
+      - boot
+      - kselftest
+      - simple
 
   - device_type: meson-gxl-s905d-p230
-    test_plans: [boot, kselftest, simple]
+    test_plans:
+      - boot
+      - kselftest
+      - simple
 
-  - device_type: meson_gxl_s905x_khadas_vim
-    test_plans: [boot, kselftest, simple]
+  - device_type: meson-gxl-s805x-p241
+    test_plans:
+      - boot
+      - kselftest
+      - simple
 
-  - device_type: meson_gxl_s905x_libretech_cc
-    test_plans: [boot, kselftest, simple]
+  - device_type: meson-gxl-s905x-khadas-vim
+    test_plans:
+      - boot
+      - kselftest
+      - simple
+
+  - device_type: meson-gxl-s905x-libretech-cc
+    test_plans:
+      - boot
+      - kselftest
+      - simple
 
   - device_type: meson-gxm-khadas-vim2
-    test_plans: [boot, kselftest, simple, boot_nfs]
+    test_plans:
+      - boot
+      - kselftest
+      - simple
+      - boot_nfs
 
-  - device_type: m3ulcb
-    test_plans: [boot, simple, usb]
+  - device_type: minnowboard-turbot-E3826
+    test_plans:
+      - boot
+      - simple
 
-  - device_type: minnowboard_turbot_E3826
-    test_plans: [boot, simple]
+  - device_type: mustang
+    test_plans:
+      - boot
+      - boot_nfs
+      - kselftest
 
-  - device_type: nanopi_k2
-    test_plans: [boot, kselftest, simple]
-
-  - device_type: nyan_big
-    test_plans: [boot, sleep, usb, igt_drm_kms, cros-ec]
-
-  - device_type: odroid_c1
-    test_plans: [boot, kselftest]
-
-  - device_type: odroid_c2
-    test_plans: [boot, kselftest]
-
-  - device_type: odroid_x2
+  - device_type: odroid-x2
     test_plans: [boot, boot_nfs, kselftest]
 
-  - device_type: odroid_xu3
-    test_plans: [boot, boot_nfs, kselftest, sleep, usb, igt_drm_kms]
+  - device_type: odroid-xu3
+    test_plans:
+      - boot
+      - boot_nfs
+      - igt_drm_kms
+      - kselftest
+      - sleep
+      - usb
 
-  - device_type: openblocks_a7
-    test_plans: [boot, boot_nfs]
-
-  - device_type: openblocks_ax3
-    test_plans: [boot]
-
-  - device_type: orion5x_rd88f5182_nas
+  - device_type: orion5x-rd88f5182-nas
     test_plans: [boot_nfs]
 
   - device_type: ox820-cloudengines-pogoplug-series-3
@@ -1315,13 +1314,18 @@ test_configs:
   - device_type: panda
     test_plans: [boot, kselftest]
 
-  - device_type: panda_es
+  - device_type: panda-es
     test_plans: [boot, kselftest]
 
-  - device_type: peach_pi
-    test_plans: [boot, kselftest, sleep, usb, cros-ec]
+  - device_type: peach-pi
+    test_plans:
+      - boot
+      - cros-ec
+      - kselftest
+      - sleep
+      - usb
 
-  - device_type: qcom_qdf2400
+  - device_type: qcom-qdf2400
     test_plans: [boot]
 
   - device_type: qemu_arm
@@ -1344,6 +1348,8 @@ test_configs:
     test_plans:
       - boot
       - uefi-x86_i386
+      - simple_qemu
+      - v4l2_compliance_qemu_vivid
 
   - device_type: qemu_x86_64
     test_plans:
@@ -1353,31 +1359,49 @@ test_configs:
       - uefi-x86-mixed
       - v4l2_compliance_qemu_vivid
 
-  - device_type: r8a7791_porter
+  - device_type: r8a7791-porter
     test_plans: [boot]
 
-  - device_type: rk3399_gru_kevin
+  - device_type: r8a7795-salvator-x
+    test_plans:
+      - boot
+      - boot_nfs
+      - kselftest
+      - simple
+
+  - device_type: r8a7796-m3ulcb
+    test_plans:
+      - boot
+      - simple
+      - usb
+
+  - device_type: rk3399-gru-kevin
     test_plans:
       - baseline
       - boot
       - cros-ec
       - v4l2_compliance_uvc
 
-  - device_type: rk3399_gru_kevin
+  - device_type: rk3399-gru-kevin
     test_plans: [igt_drm_kms]
     filters:
       - blacklist: {kernel: ['v3.', 'v4.4', 'v4.9', 'v4.14']}
 
-  - device_type: rk3399_puma_haikou
+  - device_type: rk3399-puma-haikou
     test_plans: [boot, kselftest]
 
-  - device_type: rk3288_rock2_square
-    test_plans: [boot, boot_nfs, kselftest, sleep, usb]
+  - device_type: rk3288-rock2-square
+    test_plans:
+      - boot
+      - boot_nfs
+      - kselftest
+      - sleep
+      - usb
 
-  - device_type: rk3328_rock64
+  - device_type: rk3328-rock64
     test_plans: [boot]
 
-  - device_type: rk3288_veyron_jaq
+  - device_type: rk3288-veyron-jaq
     test_plans:
       - baseline
       - boot
@@ -1388,22 +1412,23 @@ test_configs:
       - usb
       - v4l2_compliance_uvc
 
-  - device_type: salvator_x
-    test_plans: [boot, boot_nfs, kselftest, simple]
-
-  - device_type: sinlinx_sina33
-    test_plans: [boot]
-
-  - device_type: socfpga_cyclone5_socrates
-    test_plans: [boot, boot_nfs, kselftest, sleep]
+  - device_type: socfpga-cyclone5-socrates
+    test_plans:
+      - boot
+      - boot_nfs
+      - kselftest
+      - sleep
 
   - device_type: snow
-    test_plans: [boot, boot_nfs, kselftest]
+    test_plans:
+      - boot
+      - boot_nfs
+      - kselftest
 
   - device_type: sun50i-a64-bananapi-m64
     test_plans: [boot]
 
-  - device_type: sun50i_h5_libretech_all_h3_cc
+  - device_type: sun50i-h5-libretech-all-h3-cc
     test_plans: [boot]
 
   - device_type: sun50i-h6-orangepi-one-plus
@@ -1415,10 +1440,19 @@ test_configs:
   - device_type: sun5i-a13-olinuxino-micro
     test_plans: [boot]
 
+  - device_type: sun5i-gr8-chip
+    test_plans: [boot]
+
+  - device_type: sun5i-gr8-chip-pro
+    test_plans: [boot]
+
   - device_type: sun7i-a20-cubieboard2
     test_plans: [boot]
 
-  - device_type: sun8i_a23_evb
+  - device_type: sun8i-a23-evb
+    test_plans: [boot]
+
+  - device_type: sun8i-a33-sinlinx-sina33
     test_plans: [boot]
 
   - device_type: sun8i-a33-olinuxino
@@ -1427,41 +1461,59 @@ test_configs:
   - device_type: sun8i-a83t-bananapi-m3
     test_plans: [boot]
 
-  - device_type: sun8i_a83t_allwinner_h8homlet_v2
+  - device_type: sun8i-a83t-allwinner-h8homlet-v2
     test_plans: [boot]
 
-  - device_type: sun8i_h2_plus_orangepi_zero
+  - device_type: sun8i-h2-plus-orangepi-zero
     test_plans: [boot]
 
-  - device_type: sun8i_h2_plus_orangepi_r1
+  - device_type: sun8i-h2-plus-orangepi-r1
     test_plans: [boot]
 
-  - device_type: sun8i_h2_plus_libretech_all_h3_cc
+  - device_type: sun8i-h2-plus-libretech-all-h3-cc
     test_plans: [boot]
 
-  - device_type: sun8i_h3_libretech_all_h3_cc
+  - device_type: sun8i-h3-libretech-all-h3-cc
     test_plans: [boot]
 
-  - device_type: sun8i_h3_orangepi_pc
+  - device_type: sun8i-h3-orangepi-pc
     test_plans: [boot]
 
-  - device_type: synquacer_acpi
+  - device_type: synquacer-acpi
     test_plans: [boot]
 
-  - device_type: synquacer_dtb
+  - device_type: synquacer-dtb
     test_plans: [boot]
 
-  - device_type: x86_atom330
-    test_plans: [boot, boot_nfs, kselftest, simple]
+  - device_type: tegra124-nyan-big
+    test_plans:
+      - boot
+      - cros-ec
+      - igt_drm_kms
+      - sleep
+      - usb
 
-  - device_type: x86_celeron
-    test_plans: [boot, boot_nfs, simple]
+  - device_type: x86-atom330
+    test_plans:
+      - boot
+      - boot_nfs
+      - kselftest
+      - simple
 
-  - device_type: x86_pentium4
-    test_plans: [boot, boot_nfs, simple]
+  - device_type: x86-celeron
+    test_plans:
+      - boot
+      - boot_nfs
+      - simple
 
-  - device_type: x86_x5_z8350
+  - device_type: x86-pentium4
+    test_plans:
+      - boot
+      - boot_nfs
+      - simple
+
+  - device_type: x86-x5-z8350
     test_plans: [boot, boot_nfs]
 
-  - device_type: zynq_zc702
+  - device_type: zynq-zc702
     test_plans: [boot]
