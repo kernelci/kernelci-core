@@ -752,7 +752,7 @@ device_types:
       - blacklist: {kernel: ['v3.']}
 
   qemu_arm:
-    name: qemu
+    type: qemu
     mach: qemu
     arch: arm
     boot_method: qemu
@@ -760,7 +760,7 @@ device_types:
       - whitelist: {defconfig: ['multi_v7_defconfig', 'vexpress_defconfig']}
 
   qemu_arm64:
-    name: qemu
+    type: qemu
     mach: qemu
     arch: arm64
     boot_method: qemu
@@ -776,7 +776,7 @@ device_types:
       - whitelist: {defconfig: ['i386_defconfig']}
 
   qemu_x86_64:
-    name: qemu
+    type: qemu
     mach: qemu
     arch: x86_64
     boot_method: qemu
