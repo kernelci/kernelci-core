@@ -641,9 +641,11 @@ build_configs:
               - 'allmodconfig'
       clang-8:
         build_environment: clang-8
-        fragments: *default_fragments
         architectures:
-          arm64: *arm64_arch
+          arm64:
+            extra_configs:
+              - 'allmodconfig'
+              - 'allnoconfig'
 
   next_pending-fixes:
     tree: next
