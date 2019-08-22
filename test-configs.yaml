@@ -446,6 +446,9 @@ device_types:
     mach: arc
     class: arc-dtb
     boot_method: uboot
+    filters:
+      - blacklist:
+          kernel: ['v4.14']
 
   hip07-d05:
     mach: hisilicon
