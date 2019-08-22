@@ -504,6 +504,9 @@ device_types:
     mach: arc
     class: arc-dtb
     boot_method: uboot
+    filters:
+      - blacklist:
+          kernel: ['v4.14']
 
   imx23_olinuxino:
     name: 'imx23-olinuxino'
