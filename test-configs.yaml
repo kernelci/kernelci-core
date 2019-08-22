@@ -785,6 +785,14 @@ device_types:
     filters:
       - whitelist: {defconfig: ['defconfig']}
 
+  qemu_i386:
+    name: qemu
+    mach: qemu
+    arch: i386
+    boot_method: qemu
+    filters:
+      - whitelist: {defconfig: ['i386_defconfig']}
+
   qemu_x86_64:
     name: qemu
     mach: qemu
@@ -1249,13 +1257,26 @@ test_configs:
     test_plans: [boot]
 
   - device_type: qemu_arm
-    test_plans: [boot_qemu, simple_qemu, v4l2_compliance_qemu_vivid]
+    test_plans:
+      - boot_qemu
+      - simple_qemu
+      - v4l2_compliance_qemu_vivid
 
   - device_type: qemu_arm64
-    test_plans: [boot_qemu, simple_qemu, v4l2_compliance_qemu_vivid]
+    test_plans:
+      - boot_qemu
+      - simple_qemu
+      - v4l2_compliance_qemu_vivid
+
+  - device_type: qemu_i386
+    test_plans:
+      - boot
 
   - device_type: qemu_x86_64
-    test_plans: [boot_qemu, simple_qemu, v4l2_compliance_qemu_vivid]
+    test_plans:
+      - boot_qemu
+      - simple_qemu
+      - v4l2_compliance_qemu_vivid
 
   - device_type: r8a7791_porter
     test_plans: [boot]
