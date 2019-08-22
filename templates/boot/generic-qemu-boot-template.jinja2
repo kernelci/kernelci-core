@@ -9,8 +9,11 @@
 {% set console_dev = 'ttyAMA0' %}
 {% endif %}
 {% if arch == 'x86_64' %}
-{% set ctx_arch = 'x86_64' %}
 {% set ctx_cpu = 'qemu64' %}
+{% set console_dev = 'ttyS0' %}
+{% endif %}
+{% if arch == 'i386' %}
+{% set ctx_cpu = 'qemu32' %}
 {% set console_dev = 'ttyS0' %}
 {% endif %}
 {% block metadata %}
@@ -24,6 +27,9 @@ context:
   arch: {{ ctx_arch }}
   cpu: {{ ctx_cpu }}
   guestfs_interface: virtio
+{%- if qemu_machine %}
+  machine: {{ qemu_machine }}
+{%- endif %}
 
 actions:
 - deploy:
@@ -32,6 +38,11 @@ actions:
     to: tmpfs
     os: oe
     images:
+{%- if bios_url %}
+      bios:
+        image_arg: '-bios {bios}'
+        url: {{ bios_url }}
+{%- endif %}
       kernel:
 {%- block image_arg %}
         image_arg: '-kernel {kernel} -append "console={{ console_dev }},115200 root=/dev/ram0 debug verbose {{ extra_kernel_args }}"'
