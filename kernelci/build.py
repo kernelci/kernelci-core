@@ -444,7 +444,7 @@ def _run_make(kdir, arch, target=None, jopt=None, silent=True, cc='gcc',
     return shell_cmd(cmd, True)
 
 
-def _make_defconfig(defconfig, kwargs, fragments):
+def _make_defconfig(defconfig, kwargs, fragments, verbose):
     kdir, output_path = (kwargs.get(k) for k in ('kdir', 'output'))
     result = True
 
@@ -481,11 +481,12 @@ export ARCH={arch}
 export HOSTCC={cc}
 export CC={cc}
 export CROSS_COMPILE={cross}
-scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' > /dev/null 2>&1
+scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
 """.format(kdir=kdir, arch=kwargs['arch'], cc=kwargs['cc'],
            cross=kwargs['cross_compile'], output=rel_path,
            base=os.path.join(rel_path, '.config'),
-           frag=os.path.join(rel_path, kconfig_frag_name))
+           frag=os.path.join(rel_path, kconfig_frag_name),
+           redir='> /dev/null' if not verbose else '')
         print(cmd.strip())
         result = shell_cmd(cmd, True)
 
@@ -548,7 +549,7 @@ def build_kernel(build_env, kdir, arch, defconfig=None, jopt=None,
     start_time = time.time()
     fragments = []
     if defconfig:
-        result = _make_defconfig(defconfig, kwargs, fragments)
+        result = _make_defconfig(defconfig, kwargs, fragments, verbose)
     elif os.path.exists(dot_config):
         print("Re-using {}".format(dot_config))
         result = True
