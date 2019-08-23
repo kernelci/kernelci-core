@@ -11,12 +11,12 @@ DOCKER_BASE
 
 def r = new RootFS()
 
-def config = ['name':"stretch-v4l2",
+def config = ['name':"buster-v4l2",
               'arch_list':["armhf", "arm64", "amd64"],
-              'debian_release':"stretch",
+              'debian_release':"buster",
               'extra_packages':"",
               'extra_packages_remove':"bash e2fsprogs e2fslibs",
-              'script':"scripts/stretch-v4l2.sh",
+              'script':"scripts/buster-v4l2.sh",
               'test_overlay': "overlays/v4l2",
               'docker_image': "${params.DOCKER_BASE}debos",
              ]
