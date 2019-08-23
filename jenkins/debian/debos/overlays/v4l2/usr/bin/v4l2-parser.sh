@@ -40,9 +40,11 @@ device_path=$(v4l2-get-device -d $driver_name | head -n1)
 
 [ -z "$device_path" ] && {
     echo "No device found for driver $driver_name"
+    lava-test-case device-presence --result fail
     exit 1
 }
 
+lava-test-case device-presence --result pass
 echo "device: $device_path"
 
 v4l2-compliance -s -d $device_path | sed s/'\r'/'\n'/g | while read line; do
