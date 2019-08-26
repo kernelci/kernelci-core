@@ -488,7 +488,7 @@ export ARCH={arch}
 export HOSTCC={cc}
 export CC={cc}
 export CROSS_COMPILE={cross}
-scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
+scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir} \
 """.format(kdir=kdir, arch=kwargs['arch'], cc=kwargs['cc'],
            cross=kwargs['cross_compile'], output=rel_path,
            base=os.path.join(rel_path, '.config'),
