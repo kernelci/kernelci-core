@@ -398,8 +398,10 @@ def list_kernel_configs(config, kdir, single_variant=None, single_arch=None):
     return kernel_configs
 
 
-def _output_to_file(cmd, log_file):
+def _output_to_file(cmd, log_file, rel_dir=None):
     open(log_file, 'a').write("#\n# {}\n#\n".format(cmd))
+    if rel_dir:
+        log_file = os.path.relpath(log_file, rel_dir)
     cmd = "/bin/bash -c '(set -o pipefail; {} 2>&1 | tee -a {})'".format(
         cmd, log_file)
     return cmd
@@ -494,7 +496,7 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
            redir='> /dev/null' if not verbose else '')
         print(cmd.strip())
         if log_file:
-            cmd = _output_to_file(cmd, log_file)
+            cmd = _output_to_file(cmd, log_file, kdir)
         result = shell_cmd(cmd, True)
 
     tmpfile.close()
