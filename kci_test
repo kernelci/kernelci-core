@@ -1,0 +1,181 @@
+#!/usr/bin/env python
+#
+# Copyright (C) 2019 Collabora Limited
+# Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+#
+# This module is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+
+import argparse
+import glob
+import json
+import os
+import sys
+
+from kernelci.cli import Args, Command, parse_args
+import kernelci.config.lab
+import kernelci.config.test
+import kernelci.lab
+import kernelci.test
+
+
+# -----------------------------------------------------------------------------
+# Commands
+#
+
+class cmd_list_jobs(Command):
+    help = "List all the jobs that need to be run for a given build and lab"
+    args = [Args.bmeta_json, Args.dtbs_json, Args.lab, Args.user, Args.token]
+    opt_args = [Args.lab_json]
+
+    def __call__(self, test_configs, lab_configs, args):
+        with open(args.bmeta_json) as json_file:
+            bmeta = json.load(json_file)
+        with open(args.dtbs_json) as json_file:
+            dtbs = json.load(json_file)['dtbs']
+        lab = lab_configs['labs'][args.lab]
+        lab_api = kernelci.lab.get_api(lab, args.user, args.token)
+        if args.lab_json:
+            with open(args.lab_json) as json_file:
+                devices = json.load(json_file)['devices']
+                lab_api.import_devices(devices)
+        configs = kernelci.test.match_configs(
+            test_configs['test_configs'], bmeta, dtbs, lab)
+        for device_type, plan in configs:
+            if not lab_api.device_type_online(device_type):
+                continue
+            print(' '.join([device_type.name, plan.name]))
+        return True
+
+
+class cmd_list_plans(Command):
+    help = "List all the existing test plan names"
+
+    def __call__(self, test_configs, lab_configs, args):
+        plans = set(plan.name for plan in test_configs['test_plans'].values())
+        for plan in sorted(plans):
+            print(plan)
+        return True
+
+
+class cmd_list_labs(Command):
+    help = "List all the existing lab names"
+
+    def __call__(self, test_configs, lab_configs, args):
+        for lab in sorted(lab_configs['labs'].keys()):
+            print(lab)
+        return True
+
+
+class cmd_get_lab_info(Command):
+    help = "Get the information about a lab into a JSON file"
+    args = [Args.lab, Args.lab_json]
+    opt_args = [Args.user, Args.token]
+
+    def __call__(self, test_configs, lab_configs, args):
+        lab = lab_configs['labs'][args.lab]
+        lab_api = kernelci.lab.get_api(lab, args.user, args.token)
+        data = {
+            'lab': lab.name,
+            'lab_type': lab.lab_type,
+            'url': lab.url,
+            'devices': lab_api.devices,
+        }
+        with open(args.lab_json, 'w') as json_file:
+            json.dump(data, json_file, indent=4, sort_keys=True)
+        return True
+
+
+class cmd_generate(Command):
+    help = "Generate the job definition for a given target, plan and build"
+    args = [Args.bmeta_json, Args.plan, Args.target, Args.storage,
+            Args.lab, Args.user, Args.token]
+    opt_args = [Args.job_file, Args.output, Args.lab_json,
+                Args.callback_id, Args.callback_dataset,
+                Args.callback_type, Args.callback_url]
+
+    def __call__(self, test_configs, lab_configs, args):
+        with open(args.bmeta_json) as json_file:
+            bmeta = json.load(json_file)
+        lab = lab_configs['labs'][args.lab]
+        target = test_configs['device_types'][args.target]
+        plan = test_configs['test_plans'][args.plan]
+        if args.callback_id and not args.callback_url:
+            print("--callback-url is required with --callback-id")
+            return False
+        lab_api = kernelci.lab.get_api(lab, args.user, args.token)
+        if args.lab_json:
+            with open(args.lab_json) as json_file:
+                devices = json.load(json_file)['devices']
+                lab_api.import_devices(devices)
+
+        # ToDo: deal with a JSON file containing a list of builds to iterate
+        # over, such as the one produced by "kci_build publish" or saved as a
+        # result of a new command "kci_build get_meta" to download meta-data
+        # from the backend API.
+        params = kernelci.test.get_params(bmeta, target, plan, args.storage)
+        callback_opts = {
+            'id': args.callback_id,
+            'dataset': args.callback_dataset,
+            'type': args.callback_type,
+            'url': args.callback_url,
+        }
+        job = lab_api.generate(params, target, plan, callback_opts)
+        if args.output:
+            if not os.path.exists(args.output):
+                os.makedirs(args.output)
+            file_name = args.job_file or lab_api.job_file_name(params)
+            output_file = os.path.join(args.output, file_name)
+            print(output_file)
+            with open(output_file, 'wb') as output:
+                output.write(job)
+        else:
+            print(job)
+        return True
+
+
+class cmd_submit(Command):
+    help = "Submit job definitions to a lab"
+    args = [Args.lab, Args.user, Args.token, Args.jobs]
+
+    def __call__(self, test_configs, lab_configs, args):
+        lab = lab_configs['labs'][args.lab]
+        lab_api = kernelci.lab.get_api(lab, args.user, args.token)
+        job_paths = glob.glob(args.jobs)
+        for path in job_paths:
+            if not os.path.isfile(path):
+                continue
+            with open(path, 'rb') as job_file:
+                job = job_file.read()
+                job_id = lab_api.submit(job)
+                print("{} {}".format(job_id, path))
+        return True
+
+
+# -----------------------------------------------------------------------------
+# Main
+#
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser("kci_test")
+    parser.add_argument("--yaml-test-configs", default="test-configs.yaml",
+                        help="Path to the YAML test configs file")
+    parser.add_argument("--yaml-lab-configs", default="lab-configs.yaml",
+                        help="Path to the YAML lab configs file")
+    kernelci.cli.add_subparser(parser, globals())
+    args = parser.parse_args()
+    test_configs = kernelci.config.test.from_yaml(args.yaml_test_configs)
+    lab_configs = kernelci.config.lab.from_yaml(args.yaml_lab_configs)
+    status = args.func(test_configs, lab_configs, args)
+    sys.exit(0 if status is True else 1)

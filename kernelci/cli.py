@@ -52,9 +52,46 @@ class Args(object):
         'required': False,
     }
 
+    user = {
+        'name': '--user',
+        'help': "User name",
+    }
+
     token = {
         'name': '--token',
         'help': "Backend API token",
+    }
+
+    callback_id = {
+        'name': '--callback-id',
+        'help': "Callback identifier used to look up an authentication token",
+    }
+
+    callback_dataset = {
+        'name': '--callback-dataset',
+        'help': "Dataset to include in a lab callback",
+        'default': 'all',
+    }
+
+    callback_type = {
+        'name': '--callback-type',
+        'help': "Type of callback URL",
+        'default': 'kernelci',
+    }
+
+    callback_url = {
+        'name': '--callback-url',
+        'help': "Base URL for the callback",
+    }
+
+    job_file = {
+        'name': '--job-file',
+        'help': "Path where to write the job definition",
+    }
+
+    jobs = {
+        'name': '--jobs',
+        'help': "File pattern with jobs to submit",
     }
 
     commit = {
@@ -102,6 +139,31 @@ class Args(object):
         'help': "CPU architecture name",
     }
 
+    bmeta_json = {
+        'name': '--bmeta-json',
+        'help': "Path to the build.json file",
+    }
+
+    dtbs_json = {
+        'name': '--dtbs-json',
+        'help': "Path to the dtbs.json file",
+    }
+
+    lab_json = {
+        'name': '--lab-json',
+        'help': "Path to a JSON file with lab-specific info",
+    }
+
+    lab = {
+        'name': '--lab',
+        'help': "Name of a test lab",
+    }
+
+    target = {
+        'name': '--target',
+        'help': "Name of a target platform",
+    }
+
     defconfig = {
         'name': '--defconfig',
         'help': "Kernel defconfig name",
@@ -126,6 +188,11 @@ class Args(object):
     json_path = {
         'name': '--json-path',
         'help': "Path to the JSON file",
+    }
+
+    plan = {
+        'name': '--plan',
+        'help': "Test plan name",
     }
 
 
