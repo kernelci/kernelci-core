@@ -130,7 +130,7 @@ def get_job_params(config, test_config, defconfig, opts, build, plan):
         platform = opts['dtb'].split('.')[0]
     else:
         dtb_url = None
-        platform = device_type.type_name
+        platform = device_type.name
     if build['modules']:
         modules_url = urlparse.urljoin(
             storage, '/'.join([url_px, build['modules']]))
@@ -157,7 +157,8 @@ def get_job_params(config, test_config, defconfig, opts, build, plan):
         'arch_defconfig': opts['arch_defconfig'],
         'fastboot': str(device_type.get_flag('fastboot')).lower(),
         'priority': config.get('priority'),
-        'device_type': device_type.type_name,
+        'device_type': device_type.name,
+        'device_type_name': device_type.type_name,
         'template_file': template_file,
         'base_url': base_url,
         'endian': opts['endian'],
