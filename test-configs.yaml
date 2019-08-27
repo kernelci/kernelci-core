@@ -756,6 +756,10 @@ device_types:
     mach: qemu
     arch: arm
     boot_method: qemu
+    context:
+      arch: arm
+      cpu: 'cortex-a15'
+      guestfs_interface: 'virtio'
     filters:
       - whitelist: {defconfig: ['multi_v7_defconfig', 'vexpress_defconfig']}
 
@@ -764,6 +768,10 @@ device_types:
     mach: qemu
     arch: arm64
     boot_method: qemu
+    context:
+      arch: arm64
+      cpu: 'cortex-a57'
+      guestfs_interface: 'virtio'
     filters:
       - whitelist: {defconfig: ['defconfig']}
 
@@ -772,6 +780,10 @@ device_types:
     mach: qemu
     arch: i386
     boot_method: qemu
+    context:
+      arch: i386
+      cpu: 'qemu32'
+      guestfs_interface: 'virtio'
     filters:
       - whitelist: {defconfig: ['i386_defconfig']}
 
@@ -780,6 +792,10 @@ device_types:
     mach: qemu
     arch: x86_64
     boot_method: qemu
+    context:
+      arch: x86_64
+      cpu: 'qemu64'
+      guestfs_interface: 'virtio'
     filters:
       - whitelist: {defconfig: ['defconfig']}
 
