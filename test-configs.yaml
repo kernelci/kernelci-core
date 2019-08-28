@@ -62,19 +62,27 @@ test_plan_default_filters:
         - ['i386', 'i386_defconfig']
         - ['x86_64', 'x86_64_defconfig']
 
+  - blacklist: &clang_environment_filter
+      build_environment: ['clang']
+
+  - blacklist: &kselftest_defconfig_filter
+      defconfig: ['kselftest']
+
+  - blacklist: &kselftest_defconfig_clang_environment_filter
+      <<: *kselftest_defconfig_filter
+      <<: *clang_environment_filter
 
 test_plans:
 
   baseline:
     rootfs: buildroot_baseline_ramdisk
     filters:
-      - blacklist: &kselftest_defconfig_filter
-          defconfig: ['kselftest']
+      - blacklist: *kselftest_defconfig_clang_environment_filter
 
   boot:
     rootfs: buildroot_ramdisk
     filters:
-      - blacklist: *kselftest_defconfig_filter
+      - blacklist: *kselftest_defconfig_clang_environment_filter
 
   boot_nfs:
     name: 'boot-nfs'
@@ -97,11 +105,14 @@ test_plans:
             - ['arm', 'at91_dt_defconfig']
             - ['arm', 'davinci_all_defconfig']
             - ['arm64', 'defconfig']
+      - blacklist: *clang_environment_filter
 
   boot_qemu:
     name: boot
     rootfs: buildroot_ramdisk
     pattern: 'boot/generic-qemu-boot-template.jinja2'
+    filters:
+      - blacklist: *clang_environment_filter
 
   cros-ec:
     rootfs: debian_buster_ramdisk
