@@ -192,6 +192,7 @@ def add_jobs(jobs, config, tests, opts, build, plan, arch, defconfig):
         'defconfig': defconfig,
         'kernel': config.get('describe'),
         'lab': config.get('lab'),
+        'build_environment': build.get('build_environment'),
     }
     flags = {
         'big_endian': (opts['endian'] == 'big'),
