@@ -1,0 +1,122 @@
+labs:
+
+  # ToDo: also run jobs with callbacks sent to BayLibre's KernelCI backend
+  lab-baylibre:
+    lab_type: lava
+    url: 'http://lava.baylibre.com:10080/RPC2/'
+    filters:
+      - blacklist: {tree: [drm-tip]}
+      - whitelist:
+          plan:
+            - baseline
+            - baseline-fastboot
+            - boot
+            - kselftest
+
+  lab-clabbe:
+    lab_type: lava
+    url: 'https://lava.montjoie.ovh/RPC2/'
+    filters:
+      - whitelist:
+          plan:
+            - baseline
+            - boot
+            - boot-nfs
+            - simple
+            - sleep
+
+  lab-collabora:
+    lab_type: lava
+    url: 'https://lava.collabora.co.uk/RPC2/'
+    filters:
+      - whitelist:
+          plan:
+            - baseline
+            - boot
+            - boot-nfs
+            - cros-ec
+            - igt-drm-kms
+            - kselftest
+            - simple
+            - sleep
+            - usb
+            - v4l2-compliance-uvc
+            - v4l2-compliance-vivid
+
+  lab-drue:
+    lab_type: lava
+    url: 'https://lava.therub.org/RPC2/'
+    filters:
+      - whitelist:
+          plan:
+            - baseline
+            - boot
+            - boot-nfs
+            - simple
+            - sleep
+
+  lab-free-electrons:
+    lab_type: lava
+    url: 'https://lab.free-electrons.com/RPC2/'
+    filters:
+      - blacklist: {tree: [drm-tip, linaro-android]}
+      - whitelist:
+          plan:
+            - baseline
+            - boot
+            - boot-nfs
+
+  lab-linaro-lkft:
+    lab_type: lava
+    url: 'https://lkft.validation.linaro.org/RPC2/'
+    priority: low
+    filters:
+      - combination:
+          keys: ['tree', 'branch']
+          values:
+            - ['stable', 'linux-4.4.y']
+            - ['stable', 'linux-4.9.y']
+            - ['stable', 'linux-4.14.y']
+            - ['stable-rc', 'linux-4.4.y']
+            - ['stable-rc', 'linux-4.9.y']
+            - ['stable-rc', 'linux-4.14.y']
+            - ['next', 'master']
+            - ['next', 'pending-fixes']
+            - ['kernelci', 'kernelci.org']
+            - ['kernelci', 'staging.kernelci.org']
+      - whitelist:
+          plan:
+            - baseline
+            - baseline-uefi
+            - boot
+
+  lab-mhart:
+    lab_type: lava
+    url: 'http://lava.streamtester.net/RPC2/'
+    filters:
+      - blacklist: {tree: ['android', 'drm-tip', 'linaro-android']}
+      - whitelist:
+          plan:
+            - baseline
+            - boot
+            - boot-nfs
+            - simple
+
+  lab-pengutronix:
+    lab_type: lava
+    url: 'https://hekla.openlab.pengutronix.de/RPC2/'
+    filters:
+      - whitelist:
+          plan:
+            - baseline
+            - boot
+
+  lab-theobroma-systems:
+    lab_type: lava
+    url: 'https://lava.theobroma-systems.com/RPC2/'
+    filters:
+      - whitelist:
+          plan:
+            - baseline
+            - boot
+            - kselftest
