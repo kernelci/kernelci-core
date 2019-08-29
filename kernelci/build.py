@@ -28,7 +28,6 @@ import time
 import urlparse
 
 from kernelci import shell_cmd
-import kernelci.configs
 import kernelci.elf
 
 # This is used to get the mainline tags as a minimum for git describe
