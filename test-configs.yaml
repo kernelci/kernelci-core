@@ -107,7 +107,7 @@ test_plans:
       - blacklist: *clang_environment_filter
 
   boot_qemu:
-    name: boot
+    base_name: boot
     rootfs: buildroot_ramdisk
     pattern: 'boot/generic-qemu-boot-template.jinja2'
     filters:
@@ -142,7 +142,7 @@ test_plans:
     rootfs: debian_buster_ramdisk
 
   simple_qemu:
-    name: simple
+    base_name: simple
     rootfs: debian_buster_ramdisk
     pattern: 'simple/generic-qemu-simple-template.jinja2'
 
