@@ -867,7 +867,7 @@ class TestConfig(YAMLObject):
 
 def builds_from_yaml(yaml_path):
     with open(yaml_path) as f:
-        data = yaml.load(f)
+        data = yaml.safe_load(f)
 
     trees = {
         name: Tree.from_yaml(config, name)
@@ -904,7 +904,7 @@ def builds_from_yaml(yaml_path):
 
 def tests_from_yaml(yaml_path):
     with open(yaml_path) as f:
-        data = yaml.load(f)
+        data = yaml.safe_load(f)
 
     fs_types = {
         name: RootFSType.from_yaml(fs_type)
