@@ -33,7 +33,7 @@ metadata:
   job.build_environment: {{ build_environment }}
 {%- endblock %}
 {% block main %}
-device_type: {{ device_type_name }}
+device_type: {{ base_device_type }}
 
 {% if context %}
 context:

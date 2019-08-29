@@ -500,7 +500,7 @@ class BuildConfig(YAMLObject):
 class DeviceType(YAMLObject):
     """Device type model."""
 
-    def __init__(self, name, mach, arch, boot_method, dtb=None, type_name=None,
+    def __init__(self, name, mach, arch, boot_method, dtb=None, base_name=None,
                  flags=None, filters=None, context=None):
         """A device type describes a category of equivalent hardware devices.
 
@@ -509,7 +509,7 @@ class DeviceType(YAMLObject):
         *arch* is the CPU architecture following the Linux kernel convention.
         *boot_method* is the name of the boot method to use.
         *dtb* is an optional name for a device tree binary.
-        *type_name* is the actual device type name to use in test labs.
+        *base_name* is the name of the base device type used in test labs.
         *flags* is a list of optional arbitrary strings.
         *filters* is a list of Filter objects associated with this device type.
         *context* is an arbirary dictionary used when scheduling tests.
@@ -519,7 +519,7 @@ class DeviceType(YAMLObject):
         self._arch = arch
         self._boot_method = boot_method
         self._dtb = dtb
-        self._type_name = type_name or name
+        self._base_name = base_name or name
         self._flags = flags or list()
         self._filters = filters or list()
         self._context = context or dict()
@@ -532,8 +532,8 @@ class DeviceType(YAMLObject):
         return self._name
 
     @property
-    def type_name(self):
-        return self._type_name
+    def base_name(self):
+        return self._base_name
 
     @property
     def mach(self):
@@ -614,7 +614,7 @@ class DeviceTypeFactory(YAMLObject):
             'mach', 'arch', 'boot_method', 'dtb', 'flags', 'context'])
         kw.update({
             'name': name,
-            'type_name': device_type.get('type'),
+            'base_name': device_type.get('base_name'),
             'filters': FilterFactory.from_data(device_type, default_filters),
         })
         cls_name = device_type.get('class')
