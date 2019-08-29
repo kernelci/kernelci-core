@@ -274,14 +274,17 @@ class TestPlan(YAMLObject):
 
     _pattern = '{plan}/{category}-{method}-{protocol}-{rootfs}-{plan}-template.jinja2'
 
-    def __init__(self, name, rootfs, params=None, category='generic',
-                 filters=None, pattern=None):
+    def __init__(self, name, rootfs, base_name=None, params=None,
+                 category='generic', filters=None, pattern=None):
         """A test plan is an arbitrary group of test cases to be run.
 
         *name* is the overall arbitrary test plan name, used when looking for
                job template files.
 
         *rootfs* is a RootFS object to be used to run this test plan.
+
+        *base_name* is the name of the base test plan which this test plan
+                    configuration refers to.
 
         *params" is a dictionary with parameters to pass to the test job
                  generator.
@@ -294,9 +297,11 @@ class TestPlan(YAMLObject):
         *pattern* is a string pattern to create the path to the job template
                   file, see TestPlan._pattern for the default value with the
                   regular template file naming scheme.
+
         """
         self._name = name
         self._rootfs = rootfs
+        self._base_name = base_name or name
         self._params = params or dict()
         self._category = category
         self._filters = filters or list()
@@ -308,6 +313,7 @@ class TestPlan(YAMLObject):
         kw = {
             'name': name,
             'rootfs': file_systems[test_plan['rootfs']],
+            'base_name': test_plan.get('base_name'),
             'filters': FilterFactory.from_data(test_plan, default_filters),
         }
         kw.update(cls._kw_from_yaml(test_plan, [
@@ -321,6 +327,10 @@ class TestPlan(YAMLObject):
     @property
     def rootfs(self):
         return self._rootfs
+
+    @property
+    def base_name(self):
+        return self._base_name
 
     @property
     def params(self):

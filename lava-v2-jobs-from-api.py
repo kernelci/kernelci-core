@@ -72,7 +72,7 @@ def get_builds(api, token, config):
     return builds
 
 
-def add_callback_params(params, config, plan):
+def add_callback_params(params, config, plan_config):
     callback = config.get('callback')
     if not callback:
         return
@@ -80,7 +80,7 @@ def add_callback_params(params, config, plan):
     callback_type = config.get('callback_type')
 
     if callback_type == 'kernelci':
-        lava_cb = 'boot' if plan == 'boot' else 'test'
+        lava_cb = 'boot' if plan_config.base_name == 'boot' else 'test'
         params['callback_name'] = '/'.join(['lava', lava_cb])
 
     params.update({
@@ -91,8 +91,8 @@ def add_callback_params(params, config, plan):
     })
 
 
-def get_job_params(config, test_config, defconfig, opts, build, plan):
-    short_template_file = test_config.get_template_path(plan)
+def get_job_params(config, test_config, defconfig, opts, build, plan_config):
+    short_template_file = test_config.get_template_path(plan_config.name)
     template_file = os.path.join('templates', short_template_file)
     if not os.path.exists(template_file):
         print("Template not found: {}".format(template_file))
@@ -101,7 +101,6 @@ def get_job_params(config, test_config, defconfig, opts, build, plan):
     arch = config.get('arch')
     storage = config.get('storage')
     device_type = test_config.device_type
-    test_plan = test_config.test_plans[plan]
     defconfig_base = ''.join(defconfig.split('+')[:1])
     dtb = dtb_full = opts['dtb_full'] = opts['dtb'] = device_type.dtb
 
@@ -119,7 +118,7 @@ def get_job_params(config, test_config, defconfig, opts, build, plan):
         url_px = '/'.join(parts)
 
     job_name = '-'.join([job_name_prefix, dtb or 'no-dtb',
-                         device_type.name, plan])
+                         device_type.name, plan_config.name])
 
     base_url = urlparse.urljoin(storage, '/'.join([url_px, '']))
     kernel_url = urlparse.urljoin(
@@ -137,7 +136,7 @@ def get_job_params(config, test_config, defconfig, opts, build, plan):
     else:
         modules_url = None
 
-    rootfs = test_plan.rootfs
+    rootfs = plan_config.rootfs
 
     job_params = {
         'name': job_name,
@@ -150,7 +149,7 @@ def get_job_params(config, test_config, defconfig, opts, build, plan):
         'image_type': 'kernel-ci',
         'image_url': base_url,
         'modules_url': modules_url,
-        'plan': plan,
+        'plan': plan_config.base_name,
         'kernel': config.get('describe'),
         'tree': config.get('tree'),
         'defconfig': defconfig,
@@ -179,14 +178,14 @@ def get_job_params(config, test_config, defconfig, opts, build, plan):
         'build_environment': build.get('build_environment'),
     }
 
-    job_params.update(test_plan.params)
+    job_params.update(plan_config.params)
     job_params.update(device_type.params)
-    add_callback_params(job_params, config, plan)
+    add_callback_params(job_params, config, plan_config)
 
     return job_params
 
 
-def add_jobs(jobs, config, tests, opts, build, plan, arch, defconfig):
+def add_jobs(jobs, config, tests, opts, build, plan_config, arch, defconfig):
     filters = {
         'arch': arch,
         'defconfig': defconfig,
@@ -206,7 +205,7 @@ def add_jobs(jobs, config, tests, opts, build, plan, arch, defconfig):
             print("device not in targets: {}".format(
                 test_config.device_type, targets))
             continue
-        if not test_config.match(arch, plan, flags, filters):
+        if not test_config.match(arch, plan_config.name, flags, filters):
             print("test config did not match: {}".format(
                 test_config.device_type))
             continue
@@ -215,12 +214,12 @@ def add_jobs(jobs, config, tests, opts, build, plan, arch, defconfig):
             print("dtb not in builds: {}".format(dtb))
             continue
         job_params = get_job_params(
-            config, test_config, defconfig, opts, build, plan)
+            config, test_config, defconfig, opts, build, plan_config)
         if job_params:
             jobs.append(job_params)
 
 
-def get_jobs_from_builds(config, builds, tests):
+def get_jobs_from_builds(config, builds, tests, plans):
     arch = config.get('arch')
     cwd = os.getcwd()
     jobs = []
@@ -232,7 +231,7 @@ def get_jobs_from_builds(config, builds, tests):
         defconfig = build['defconfig_full']
         print("Working on build: {}".format(build.get('file_server_resource')))
 
-        for plan in config.get('plans'):
+        for plan in plans:
             opts = {
                 'arch_defconfig': '-'.join([arch, defconfig]),
                 'endian': 'big' if 'BIG_ENDIAN' in defconfig else 'little',
@@ -283,10 +282,19 @@ def main(args):
     print("Number of builds: {}".format(len(builds)))
 
     config_data = kernelci.config.test.from_yaml(config.get('test_configs'))
+
+    plan_configs = config_data['test_plans']
+    base_plans = config.get('plans')
+    plans = list(
+        plan_config
+        for plan_config in plan_configs.values()
+        if plan_config.base_name in base_plans
+    )
+
     tests = config_data['test_configs']
     print("Number of test configs: {}".format(len(tests)))
 
-    jobs = get_jobs_from_builds(config, builds, tests)
+    jobs = get_jobs_from_builds(config, builds, tests, plans)
     print("Number of jobs: {}".format(len(jobs)))
 
     write_jobs(config, jobs)
