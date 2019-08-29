@@ -24,7 +24,7 @@ import sys
 import time
 
 import kernelci.build
-import kernelci.configs
+import kernelci.config.build
 
 
 # -----------------------------------------------------------------------------
@@ -470,6 +470,6 @@ if __name__ == '__main__':
                 commands[cmd_name] = obj(sub_parser, cmd_name)
 
     args = parser.parse_args()
-    configs = kernelci.configs.builds_from_yaml(args.build_configs)
+    configs = kernelci.config.build.from_yaml(args.build_configs)
     status = args.func(configs, args)
     sys.exit(0 if status is True else 1)
