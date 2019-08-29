@@ -1378,7 +1378,6 @@ test_configs:
       - boot
       - uefi-x86_i386
       - simple_qemu
-      - v4l2_compliance_qemu_vivid
 
   - device_type: qemu_x86_64
     test_plans:
