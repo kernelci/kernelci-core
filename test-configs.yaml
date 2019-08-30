@@ -808,6 +808,49 @@ device_types:
       - whitelist: {defconfig: ['defconfig']}
       - blacklist: {kernel: ['v3.']}
 
+  qemu_arm-vexpress-a9:
+    base_name: qemu
+    mach: qemu
+    arch: arm
+    context:
+      arch: 'arm'
+      machine: 'vexpress-a9'
+      cpu: 'cortex-a9'
+      model: 'model=lan9118'
+    dtb: 'vexpress-v2p-ca9.dtb'
+    boot_method: qemu
+    filters:
+      - whitelist: {defconfig: ['vexpress_defconfig']}
+
+  qemu_arm-vexpress-a15:
+    base_name: qemu
+    mach: qemu
+    arch: arm
+    context:
+      arch: 'arm'
+      machine: 'vexpress-a15'
+      cpu: 'cortex-a15'
+      model: 'model=lan9118'
+    dtb: 'vexpress-v2p-ca15-tc1.dtb'
+    boot_method: qemu
+    filters:
+      - whitelist: {defconfig: ['vexpress_defconfig']}
+
+  qemu_arm-versatilepb:
+    base_name: qemu
+    mach: qemu
+    arch: arm
+    context:
+      arch: 'arm'
+      machine: 'versatilepb'
+      cpu: 'arm926'
+      memory: 256
+      model: 'model=smc91c111'
+    dtb: 'versatile-pb.dtb'
+    boot_method: qemu
+    filters:
+      - whitelist: {defconfig: ['versatile_defconfig']}
+
   qemu_arm-virt-gicv2:
     base_name: qemu
     mach: qemu
@@ -1596,6 +1639,18 @@ test_configs:
     test_plans:
       - baseline
       - boot
+
+  - device_type: qemu_arm-vexpress-a9
+    test_plans:
+      - boot_qemu
+
+  - device_type: qemu_arm-vexpress-a15
+    test_plans:
+      - boot_qemu
+
+  - device_type: qemu_arm-versatilepb
+    test_plans:
+      - boot_qemu
 
   - device_type: qemu_arm-virt-gicv2
     test_plans:
