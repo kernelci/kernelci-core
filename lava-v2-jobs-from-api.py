@@ -205,7 +205,7 @@ def add_jobs(jobs, config, tests, opts, build, plan_config, arch, defconfig):
             print("device not in targets: {}".format(
                 test_config.device_type, targets))
             continue
-        if not test_config.match(arch, plan_config.name, flags, filters):
+        if not test_config.match(arch, flags, filters, plan_config.name):
             print("test config did not match: {}".format(
                 test_config.device_type))
             continue
