@@ -116,7 +116,7 @@ test_plans:
   cros-ec:
     rootfs: debian_buster_ramdisk
 
-  igt_drm_kms:
+  igt-drm-kms:
     rootfs: debian_buster-igt_ramdisk
     pattern: 'igt/{category}-{method}-{protocol}-{rootfs}-igt.jinja2'
     params:
@@ -1349,7 +1349,7 @@ test_configs:
     test_plans:
       - boot
       - boot-nfs
-      - igt_drm_kms
+      - igt-drm-kms
       - kselftest
       - sleep
       - usb
@@ -1439,7 +1439,7 @@ test_configs:
       - v4l2-compliance-uvc
 
   - device_type: rk3399-gru-kevin
-    test_plans: [igt_drm_kms]
+    test_plans: [igt-drm-kms]
     filters:
       - blacklist: {kernel: ['v3.', 'v4.4', 'v4.9', 'v4.14']}
 
@@ -1463,7 +1463,7 @@ test_configs:
       - boot
       - boot-nfs
       - cros-ec
-      - igt_drm_kms
+      - igt-drm-kms
       - sleep
       - usb
       - v4l2-compliance-uvc
@@ -1545,7 +1545,7 @@ test_configs:
     test_plans:
       - boot
       - cros-ec
-      - igt_drm_kms
+      - igt-drm-kms
       - sleep
       - usb
 
