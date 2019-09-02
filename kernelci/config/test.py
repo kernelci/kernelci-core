@@ -391,10 +391,12 @@ class TestConfig(YAMLObject):
     def test_plans(self):
         return self._test_plans
 
-    def match(self, arch, plan, flags, config):
+    def match(self, arch, flags, config, plan=None):
         return (
-            plan in self._test_plans and
-            self._test_plans[plan].match(config) and
+            plan is None or (
+                plan in self._test_plans and
+                self._test_plans[plan].match(config)
+            ) and
             self.device_type.arch == arch and
             self.device_type.match(flags, config) and
             all(f.match(**config) for f in self._filters)
