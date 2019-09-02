@@ -710,15 +710,19 @@ def install_kernel(kdir, tree_name, tree_url, git_branch, git_commit=None,
 
     dts_dir = os.path.join(boot_dir, 'dts')
     dtbs = os.path.join(install_path, 'dtbs')
+    dtb_list = []
     for root, _, files in os.walk(dts_dir):
         for f in fnmatch.filter(files, '*.dtb'):
             dtb_path = os.path.join(root, f)
             dtb_rel = os.path.relpath(dtb_path, dts_dir)
+            dtb_list.append(dtb_rel)
             dest_path = os.path.join(dtbs, dtb_rel)
             dest_dir = os.path.dirname(dest_path)
             if not os.path.exists(dest_dir):
                 os.makedirs(dest_dir)
             shutil.copy(dtb_path, dest_path)
+    with open(os.path.join(install_path, 'dtbs.json'), 'w') as json_file:
+        json.dump({'dtbs': sorted(dtb_list)}, json_file, indent=4)
 
     modules_tarball = None
     if mod_path:
@@ -831,15 +835,9 @@ def publish_kernel(kdir, install='_install_', api=None, token=None,
         for k in ['kernel_image', 'modules', 'git_commit', 'git_url']:
             json_data[k] = bmeta[k]
         json_data['status'] = bmeta['build_result']
-        dtb_data = []
-        if bmeta['dtb_dir']:
-            dtb_dir = os.path.join(install_path, bmeta['dtb_dir'])
-            for root, dirs, files in os.walk(dtb_dir):
-                if root != dtb_dir:
-                    rel = os.path.relpath(root, dtb_dir)
-                    files = list(os.path.join(rel, dtb) for dtb in files)
-                dtb_data += files
-        json_data['dtb_dir_data'] = dtb_data
+        with open(os.path.join(install_path, 'dtbs.json')) as f:
+            dtbs = json.load(f)['dtbs']
+        json_data['dtb_dir_data'] = dtbs
         try:
             with open(json_path, 'r') as json_file:
                 full_json = json.load(json_file)
@@ -854,10 +852,9 @@ def publish_kernel(kdir, install='_install_', api=None, token=None,
             'Authorization': token,
             'Content-Type': 'application/json',
         }
-
         url = urlparse.urljoin(api, '/build')
-        json_data = json.dumps(data)
-        resp = requests.post(url, headers=headers, data=json_data)
+        data_json = json.dumps(data)
+        resp = requests.post(url, headers=headers, data=data_json)
         resp.raise_for_status()
 
     return True
