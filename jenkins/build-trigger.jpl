@@ -28,6 +28,8 @@ PUBLISH (boolean)
   Publish build results via the KernelCI backend API
 EMAIL (boolean)
   Send build results via email
+LABS_WHITELIST
+  List of labs to include in the tests, all labs will be tested by default.
 KCI_API_URL (https://api.kernelci.org)
   URL of the KernelCI backend API
 KCI_TOKEN_ID
@@ -53,7 +55,7 @@ def configAlreadyBuilt(config, kci_core) {
 
     dir(kci_core) {
         new_commit = sh(
-        script: """
+        script: """\
 ./kci_build \
 check_new_commit \
 --config=${config} \
@@ -143,21 +145,10 @@ list_kernel_configs \
     }
 }
 
-def addBuildOpts(config, kci_core, opts) {
+def listArchitectures(kci_core, config) {
+    def arch_list = []
+
     dir(kci_core) {
-        opts['config'] = config
-
-        def opts_raw = sh(
-            script: """\
-./kci_build \
-tree_branch \
---config=${config} \
-""", returnStdout: true).trim()
-        def opt_list = opts_raw.tokenize('\n')
-        opts['tree'] = opt_list[0]
-        opts['git_url'] = opt_list[1]
-        opts['branch'] = opt_list[2]
-
         def raw_variants = sh(
             script: """\
 ./kci_build \
@@ -166,7 +157,6 @@ list_variants \
 """, returnStdout: true).trim()
         def variants = raw_variants.tokenize('\n')
 
-        def arch_list = []
         for (String variant: variants) {
             def raw_variant_arch_list = sh(
                 script: """\
@@ -181,11 +171,50 @@ arch_list \
                 if (!arch_list.contains(arch))
                     arch_list.add(arch)
         }
-        opts['arch_list'] = arch_list
+    }
+
+    return arch_list
+}
+
+def addBuildOpts(config, kci_core, opts) {
+    dir(kci_core) {
+        opts['config'] = config
+
+        def opts_raw = sh(
+            script: """\
+./kci_build \
+tree_branch \
+--config=${config} \
+""", returnStdout: true).trim()
+        def opt_list = opts_raw.tokenize('\n')
+        opts['tree'] = opt_list[0]
+        opts['git_url'] = opt_list[1]
+        opts['branch'] = opt_list[2]
     }
 }
 
-def buildKernelStep(job, arch, defconfig, build_env, opts) {
+def scheduleTests(build_job_name, build_job_number, labs, kci_core) {
+    dir(kci_core) {
+        def labs_str = ""
+        for (lab in labs)
+            labs_str += "${lab} "
+
+        def str_params = [
+            'LABS': labs_str.trim(),
+            'TRIGGER_JOB_NAME': env.JOB_NAME,
+            'TRIGGER_JOB_NUMBER': env.BUILD_NUMBER,
+            'BUILD_JOB_NAME': build_job_name,
+            'BUILD_JOB_NUMBER': "${build_job_number}",
+        ]
+        def params = []
+
+        def j = new Job()
+        j.addStrParams(params, str_params)
+        build(job: 'test-runner', parameters: params, propagate: false)
+    }
+}
+
+def buildKernelStep(job, arch, defconfig, build_env, opts, labs, kci_core) {
     def str_params = [
         'ARCH': arch,
         'DEFCONFIG': defconfig,
@@ -201,7 +230,12 @@ def buildKernelStep(job, arch, defconfig, build_env, opts) {
     def j = new Job()
     j.addStrParams(job_params, str_params)
 
-    return { build(job: job, parameters: job_params, propagate: false) }
+    return {
+        def res = build(job: job, parameters: job_params, propagate: false)
+        print("${res.number}: ${arch} ${defconfig} ${build_env} ${res.result}")
+        if (res.result == "SUCCESS")
+            scheduleTests(job, res.number, labs, kci_core)
+    }
 }
 
 def buildsComplete(job, opts, arch) {
@@ -229,6 +263,7 @@ node("docker && build-trigger") {
     def kci_core = "${env.WORKSPACE}/kernelci-core"
     def kdir = "${env.WORKSPACE}/configs/${params.BUILD_CONFIG}"
     def mirror = "${env.WORKSPACE}/linux.git"
+    def labs_info = "${env.WORKSPACE}/labs"
     def docker_image = "${params.DOCKER_BASE}base"
     def opts = [:]
     def configs = []
@@ -238,10 +273,56 @@ node("docker && build-trigger") {
     Container: ${docker_image}""")
 
     j.dockerPullWithRetry(docker_image).inside() {
+        def labs = []
+
         stage("Init") {
             timeout(time: 15, unit: 'MINUTES') {
                 j.cloneKciCore(
                     kci_core, params.KCI_CORE_URL, params.KCI_CORE_BRANCH)
+            }
+
+            sh(script: "rm -rf ${labs_info}; mkdir -p ${labs_info}")
+
+            dir(kci_core) {
+                def raw_lab_names = sh(
+                    script: "./kci_test list_labs", returnStdout: true).trim()
+                def all_lab_names = raw_lab_names.tokenize('\n')
+                def labs_list = []
+
+                if (params.LABS_WHITELIST) {
+                    def whitelist = params.LABS_WHITELIST.tokenize(' ')
+
+                    for (lab in all_lab_names)
+                        if (whitelist.contains(lab))
+                            labs_list.add(lab)
+                } else {
+                    labs_list = all_lab_names
+                }
+
+                for (lab in labs_list) {
+                    def lab_json = "${labs_info}/${lab}.json"
+                    def token = "${lab}-lava-api"
+                    try {
+                        withCredentials([string(credentialsId: token,
+                                                variable: 'SECRET')]) {
+                            sh(script: """\
+./kci_test \
+get_lab_info \
+--lab=${lab} \
+--lab-json=${lab_json} \
+--user=kernel-ci \
+--token=${SECRET} \
+""")
+                        }
+                        labs.add(lab)
+                    } catch (error) {
+                        print("Error with ${lab}: ${error}")
+                    }
+                }
+            }
+
+            dir(labs_info) {
+                archiveArtifacts("*.json")
             }
         }
 
@@ -276,7 +357,8 @@ node("docker && build-trigger") {
                 print(step_name)
 
                 builds[step_name] = buildKernelStep(
-                    "kernel-build", arch, defconfig, build_env, opts)
+                    "kernel-build", arch, defconfig, build_env, opts, labs,
+                    kci_core)
 
                 i += 1
             }
@@ -286,7 +368,8 @@ node("docker && build-trigger") {
 
         stage("Complete") {
             /* ToDo: convert kernel-arch-complete as a stage in this job */
-            for (String arch: opts['arch_list']) {
+            def arch_list = listArchitectures(kci_core, params.BUILD_CONFIG)
+            for (String arch: arch_list) {
                 buildsComplete("kernel-arch-complete", opts, arch)
             }
         }
