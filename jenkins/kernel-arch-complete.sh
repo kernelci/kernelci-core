@@ -151,6 +151,7 @@ if [[ BUILDS_FINISHED -eq 1 ]]; then
         echo "Sending results to Ard Biesheuvel"
         curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "build_report": 1, "send_to": ["ard.biesheuvel@linaro.org", "fellows@kernelci.org"], "format": ["txt", "html"], "delay": 10}' ${API}/send
         curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "boot_report": 1, "send_to": ["ard.biesheuvel@linaro.org", "fellows@kernelci.org"], "format": ["txt", "html"], "delay": 12600}' ${API}/send
+        curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "report_type": "test", "plan: "baseline-uefi", "send_to": ["ard.biesheuvel@linaro.org", "anders.roxell@linaro.org", "fellows@kernelci.org"], "format": ["txt""], "delay": 10}' ${API}/send
     elif [ "$TREE_NAME" == "evalenti" ]; then
         echo "Sending results to Eduardo Valentin"
         curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "build_report": 1, "send_to": ["edubezval@gmail.com", "fellows@kernelci.org"], "format": ["txt", "html"], "delay": 10}' ${API}/send
