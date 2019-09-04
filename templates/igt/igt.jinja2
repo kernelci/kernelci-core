@@ -5,7 +5,7 @@
     - repository:
         metadata:
           format: Lava-Test Test Definition 1.0
-          name: {{ plan_name }}
+          name: {{ plan }}
           description: "IGT test plan"
           os:
           - oe
@@ -17,6 +17,6 @@
               /usr/bin/igt-parser.sh
               {{ tests|wordwrap(1, False, "\n              ") }}
       from: inline
-      name: {{ plan_name }}
-      path: inline/{{ plan_name }}.yaml
+      name: {{ plan }}
+      path: inline/{{ plan }}.yaml
       lava-signal: kmsg
