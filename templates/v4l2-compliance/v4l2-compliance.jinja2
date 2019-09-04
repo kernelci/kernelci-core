@@ -5,7 +5,7 @@
     - repository:
         metadata:
           format: Lava-Test Test Definition 1.0
-          name: v4l2
+          name: {{ plan }}
           description: "v4l2 test plan"
           os:
           - debian
@@ -15,5 +15,5 @@
           steps:
           - /usr/bin/v4l2-parser.sh {{ v4l2_driver }}
       from: inline
-      name: {{ plan_name }}
-      path: inline/v4l2.yaml
+      name: {{ plan }}
+      path: inline/{{ plan }}.yaml

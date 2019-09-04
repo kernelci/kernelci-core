@@ -175,7 +175,6 @@ def get_job_params(config, test_config, defconfig, opts, build, plan):
         'lab_name': config.get('lab'),
         'context': device_type.context,
         'rootfs_prompt': rootfs.prompt,
-        'plan_name': test_plan.name,
         'file_server_resource': file_server_resource,
         'build_environment': build.get('build_environment'),
     }
