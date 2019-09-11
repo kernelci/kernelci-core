@@ -395,7 +395,7 @@ class cmd_build_kernel(Command):
 
 
 class cmd_install_kernel(Command):
-    help = "Install the kernel binaries and build.json locally"
+    help = "Install the kernel binaries and bmeta.json locally"
     args = [Args.kdir]
     opt_args = [Args.config, Args.tree_name, Args.tree_url, Args.branch,
                 Args.commit, Args.describe, Args.describe_verbose,
