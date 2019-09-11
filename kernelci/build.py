@@ -756,7 +756,7 @@ def install_kernel(kdir, tree_name, tree_url, git_branch, git_commit=None,
         'file_server_resource': publish_path,
     })
 
-    with open(os.path.join(install_path, 'build.json'), 'w') as json_file:
+    with open(os.path.join(install_path, 'bmeta.json'), 'w') as json_file:
         json.dump(bmeta, json_file, indent=4, sort_keys=True)
 
     return True
@@ -778,7 +778,7 @@ def push_kernel(kdir, api, token, install='_install_'):
     """
     install_path = os.path.join(kdir, install)
 
-    with open(os.path.join(install_path, 'build.json')) as f:
+    with open(os.path.join(install_path, 'bmeta.json')) as f:
         bmeta = json.load(f)
 
     artifacts = {}
@@ -815,39 +815,34 @@ def publish_kernel(kdir, install='_install_', api=None, token=None,
     """
     install_path = os.path.join(kdir, install)
 
-    with open(os.path.join(install_path, 'build.json')) as f:
+    with open(os.path.join(install_path, 'bmeta.json')) as f:
         bmeta = json.load(f)
 
-    data = {k: bmeta[v] for k, v in {
-        'path': 'file_server_resource',
-        'file_server_resource': 'file_server_resource',
-        'job': 'job',
-        'git_branch': 'git_branch',
-        'arch': 'arch',
-        'kernel': 'git_describe',
-        'build_environment': 'build_environment',
-        'defconfig': 'defconfig',
-        'defconfig_full': 'defconfig_full',
-    }.iteritems()}
-
     if json_path:
-        json_data = dict(data)
-        for k in ['kernel_image', 'modules', 'git_commit', 'git_url',
-                  'status']:
-            json_data[k] = bmeta[k]
         with open(os.path.join(install_path, 'dtbs.json')) as f:
             dtbs = json.load(f)['dtbs']
-        json_data['dtb_dir_data'] = dtbs
+        bmeta['dtb_dir_data'] = dtbs
         try:
             with open(json_path, 'r') as json_file:
                 full_json = json.load(json_file)
-            full_json.append(json_data)
+            full_json.append(bmeta)
         except Exception as e:
-            full_json = [json_data]
+            full_json = [bmeta]
         with open(json_path, 'w') as json_file:
             json.dump(full_json, json_file)
 
     if api and token:
+        data = {k: bmeta[v] for k, v in {
+            'path': 'file_server_resource',
+            'file_server_resource': 'file_server_resource',
+            'job': 'job',
+            'git_branch': 'git_branch',
+            'arch': 'arch',
+            'kernel': 'git_describe',
+            'build_environment': 'build_environment',
+            'defconfig': 'defconfig',
+            'defconfig_full': 'defconfig_full',
+        }.iteritems()}
         headers = {
             'Authorization': token,
             'Content-Type': 'application/json',
