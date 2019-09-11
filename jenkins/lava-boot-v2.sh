@@ -45,7 +45,7 @@ elif [ ${LAB} = "lab-pengutronix" ] || [ ${LAB} = "lab-pengutronix-dev" ]; then
   python lava-v2-jobs-from-api.py --defconfigs ${DEFCONFIG_COUNT} --callback ${CALLBACK} --api ${API} --storage ${STORAGE} --lab ${LAB} --describe ${GIT_DESCRIBE} --tree ${TREE} --branch ${BRANCH} --arch ${ARCH} --plans baseline boot boot-kvm boot-kvm-uefi --token ${API_TOKEN}
   python lava-v2-submit-jobs.py --username kernel-ci --jobs ${LAB} --token ${LAVA_PENGUTRONIX_TOKEN} --lab ${LAB}
 elif [ ${LAB} = "lab-linaro-lkft" ] || [ ${LAB} = "lab-linaro-lkft-dev" ]; then
-  python lava-v2-jobs-from-api.py --defconfigs ${DEFCONFIG_COUNT} --callback ${CALLBACK} --api ${API} --storage ${STORAGE} --lab ${LAB} --describe ${GIT_DESCRIBE} --tree ${TREE} --branch ${BRANCH} --arch ${ARCH} --plans baseline boot uefi_arm uefi_arm64 uefi_i386 uefi_x86_64 uefi_x86-mixed --token ${API_TOKEN} --priority low
+  python lava-v2-jobs-from-api.py --defconfigs ${DEFCONFIG_COUNT} --callback ${CALLBACK} --api ${API} --storage ${STORAGE} --lab ${LAB} --describe ${GIT_DESCRIBE} --tree ${TREE} --branch ${BRANCH} --arch ${ARCH} --plans baseline baseline-uefi boot --token ${API_TOKEN} --priority low
   python lava-v2-submit-jobs.py --username kernel-ci --jobs ${LAB} --token ${LAVA_LINARO_LKFT_TOKEN} --lab ${LAB}
 elif [ ${LAB} = "lab-theobroma-systems" ] || [ ${LAB} = "lab-theobroma-systems-dev" ]; then
   python lava-v2-jobs-from-api.py --defconfigs ${DEFCONFIG_COUNT} --callback ${CALLBACK} --api ${API} --storage ${STORAGE} --lab ${LAB} --describe ${GIT_DESCRIBE} --tree ${TREE} --branch ${BRANCH} --arch ${ARCH} --plans baseline boot kselftest --token ${API_TOKEN}
