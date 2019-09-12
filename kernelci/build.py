@@ -450,34 +450,44 @@ def _run_make(kdir, arch, target=None, jopt=None, silent=True, cc='gcc',
     return shell_cmd(cmd, True)
 
 
-def _make_defconfig(defconfig, kwargs, fragments, verbose, log_file):
+def _make_defconfig(defconfig, kwargs, extras, verbose, log_file):
     kdir, output_path = (kwargs.get(k) for k in ('kdir', 'output'))
     result = True
 
+    defconfig_kwargs = dict(kwargs)
+    defconfig_opts = dict(defconfig_kwargs['opts'])
+    defconfig_kwargs['opts'] = defconfig_opts
     tmpfile_fd, tmpfile_path = tempfile.mkstemp(prefix='kconfig-')
     tmpfile = os.fdopen(tmpfile_fd, 'w')
+    tmpfile_used = False
     defs = defconfig.split('+')
     target = defs.pop(0)
     for d in defs:
-        if d.startswith('CONFIG_'):
+        if d.startswith('KCONFIG_'):
+            config, value = d.split('=')
+            defconfig_opts[config] = value
+            extras.append(d)
+        elif d.startswith('CONFIG_'):
             tmpfile.write(d + '\n')
-            fragments.append(d)
+            extras.append(d)
+            tmpfile_used = True
         else:
             frag_path = os.path.join(kdir, d)
             if os.path.exists(frag_path):
                 with open(frag_path) as frag:
                     tmpfile.write("\n# fragment from : {}\n".format(d))
                     tmpfile.writelines(frag)
-                fragments.append(os.path.basename(os.path.splitext(d)[0]))
+                    tmpfile_used = True
+                extras.append(os.path.basename(os.path.splitext(d)[0]))
             else:
                 print("Fragment not found: {}".format(frag_path))
                 result = False
     tmpfile.flush()
 
-    if result and not _run_make(target=target, **kwargs):
+    if not _run_make(target=target, **defconfig_kwargs):
         result = False
 
-    if result and fragments:
+    if result and tmpfile_used:
         kconfig_frag_name = 'frag.config'
         kconfig_frag = os.path.join(output_path, kconfig_frag_name)
         shutil.copy(tmpfile_path, kconfig_frag)
@@ -558,10 +568,10 @@ def build_kernel(build_env, kdir, arch, defconfig=None, jopt=None,
     }
 
     start_time = time.time()
-    fragments = []
+    defconfig_extras = []
     if defconfig:
         result = _make_defconfig(
-            defconfig, kwargs, fragments, verbose, log_file)
+            defconfig, kwargs, defconfig_extras, verbose, log_file)
     elif os.path.exists(dot_config):
         print("Re-using {}".format(dot_config))
         result = True
@@ -617,7 +627,7 @@ def build_kernel(build_env, kdir, arch, defconfig=None, jopt=None,
         defconfig_target = defconfig.split('+')[0]
         bmeta.update({
             'defconfig': defconfig_target,
-            'defconfig_full': '+'.join([defconfig_target] + fragments),
+            'defconfig_full': '+'.join([defconfig_target] + defconfig_extras),
         })
     else:
         bmeta.update({
@@ -743,8 +753,9 @@ def install_kernel(kdir, tree_name, tree_url, git_branch, git_commit=None,
 
     build_env = bmeta['build_environment']
     defconfig_full = bmeta['defconfig_full']
+    defconfig_dir = defconfig_full.replace('/', '-')
     publish_path = '/'.join([
-        tree_name, git_branch, describe, arch, defconfig_full, build_env,
+        tree_name, git_branch, describe, arch, defconfig_dir, build_env,
     ])
 
     bmeta.update({
