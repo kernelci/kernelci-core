@@ -210,6 +210,21 @@ class cmd_get_build_env(Command):
         return True
 
 
+class cmd_get_reference(Command):
+    help = "Print reference tree and branch for bisections"
+    args = [Args.tree_name, Args.branch]
+
+    def __call__(self, configs, args):
+        for conf in (c for c in configs['build_configs'].itervalues()
+                     if c.tree.name == args.tree_name and
+                        c.branch == args.branch):
+            print(conf.reference.tree.url)
+            print(conf.reference.tree.name)
+            print(conf.reference.branch)
+            return True
+        return False
+
+
 class cmd_show_build_env(Command):
     help = "Show parameters of a given build environment"
     args = [Args.build_env]
