@@ -79,6 +79,12 @@ test_plans:
     filters:
       - blacklist: *kselftest_defconfig_clang_environment_filter
 
+  baseline-fastboot:
+    rootfs: buildroot_baseline_ramdisk
+    pattern: 'baseline/generic-fastboot-baseline-template.jinja2'
+    params:
+      job_timeout: '50'
+
   baseline-uefi_arm:
     base_name: baseline-uefi
     rootfs: buildroot_baseline_ramdisk
@@ -118,13 +124,6 @@ test_plans:
     rootfs: buildroot_ramdisk
     filters:
       - blacklist: *kselftest_defconfig_clang_environment_filter
-
-  boot_fastboot:
-    name: 'boot-fastboot'
-    rootfs: debian_buster_ramdisk
-    pattern: 'boot-fastboot/generic-fastboot-boot-template.jinja2'
-    params:
-      job_timeout: '50'
 
   boot-nfs:
     rootfs: buildroot_nfs
@@ -1372,9 +1371,9 @@ test_configs:
   - device_type: meson-g12a-sei510
     test_plans:
       - baseline
+      - baseline-fastboot
       - boot
       - simple
-      - boot_fastboot
 
   - device_type: meson-g12a-u200
     test_plans:
