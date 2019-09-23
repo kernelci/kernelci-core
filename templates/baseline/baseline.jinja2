@@ -1,4 +1,7 @@
 - test:
+{%- if test_namespace %}
+    namespace: {{ test_namespace }}
+{%- endif %}
     timeout:
       minutes: 10
     definitions:
@@ -35,6 +38,9 @@
       path: inline/dmesg.yaml
 
 - test:
+{%- if test_namespace %}
+    namespace: {{ test_namespace }}
+{%- endif %}
     timeout:
       minutes: 10
     definitions:
