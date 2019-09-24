@@ -79,6 +79,13 @@ test_plans:
     filters:
       - blacklist: *kselftest_defconfig_clang_environment_filter
 
+  baseline_qemu:
+    base_name: baseline
+    rootfs: buildroot_baseline_ramdisk
+    pattern: 'baseline/generic-qemu-baseline-template.jinja2'
+    filters:
+      - blacklist: *kselftest_defconfig_clang_environment_filter
+
   baseline-fastboot:
     rootfs: buildroot_baseline_ramdisk
     pattern: 'baseline/generic-fastboot-baseline-template.jinja2'
@@ -1539,13 +1546,13 @@ test_configs:
 
   - device_type: qemu_arm-virt-gicv2
     test_plans:
-      - baseline
+      - baseline_qemu
       - baseline-uefi_arm
       - boot_qemu
 
   - device_type: qemu_arm-virt-gicv3
     test_plans:
-      - baseline
+      - baseline_qemu
       - baseline-uefi_arm
       - boot_qemu
       - simple_qemu
@@ -1553,13 +1560,13 @@ test_configs:
 
   - device_type: qemu_arm64-virt-gicv2
     test_plans:
-      - baseline
+      - baseline_qemu
       - baseline-uefi_arm64
       - boot_qemu
 
   - device_type: qemu_arm64-virt-gicv3
     test_plans:
-      - baseline
+      - baseline_qemu
       - baseline-uefi_arm64
       - boot_qemu
       - simple_qemu
@@ -1567,14 +1574,14 @@ test_configs:
 
   - device_type: qemu_i386
     test_plans:
-      - baseline
+      - baseline_qemu
       - baseline-uefi_i386
       - boot_qemu
       - simple_qemu
 
   - device_type: qemu_x86_64
     test_plans:
-      - baseline
+      - baseline_qemu
       - baseline-uefi_x86_64
       - baseline-uefi_x86-mixed
       - boot_qemu
