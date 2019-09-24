@@ -155,7 +155,7 @@ fragments:
       - 'CONFIG_VIDEO_VIVID_MAX_DEVS=64'
 
   x86_kvm_guest:
-    path: "arch/x86/configs/kvm_guest.config"
+    path: "kernel/configs/kvm_guest.config"
 
 
 build_environments:
