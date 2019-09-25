@@ -89,7 +89,7 @@ actions:
       minutes: 15
     method: fastboot
     transfer_overlay:
-      download_command: wget
-      unpack_command: tar -C / -xvpf
+      download_command: udhcpc ; ip addr show ; wget
+      unpack_command: tar -C / -zxvpf
 {%- endblock %}
 {% endblock %}
