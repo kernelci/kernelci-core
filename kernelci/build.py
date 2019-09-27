@@ -616,6 +616,11 @@ def build_kernel(build_env, kdir, arch, defconfig=None, jopt=None,
             'defconfig': defconfig_target,
             'defconfig_full': '+'.join([defconfig_target] + fragments),
         })
+    else:
+        bmeta.update({
+            'defconfig': 'none',
+            'defconfig_full': 'none',
+        })
 
     vmlinux_file = os.path.join(output_path, 'vmlinux')
     if os.path.isfile(vmlinux_file):
