@@ -599,7 +599,7 @@ def build_kernel(build_env, kdir, arch, defconfig=None, jopt=None,
     bmeta = {
         'build_threads': jopt,
         'build_time': round(build_time, 2),
-        'build_result': 'PASS' if result is True else 'FAIL',
+        'status': 'PASS' if result is True else 'FAIL',
         'arch': arch,
         'cross_compile': cross_compile,
         'compiler': cc,
@@ -832,9 +832,9 @@ def publish_kernel(kdir, install='_install_', api=None, token=None,
 
     if json_path:
         json_data = dict(data)
-        for k in ['kernel_image', 'modules', 'git_commit', 'git_url']:
+        for k in ['kernel_image', 'modules', 'git_commit', 'git_url',
+                  'status']:
             json_data[k] = bmeta[k]
-        json_data['status'] = bmeta['build_result']
         with open(os.path.join(install_path, 'dtbs.json')) as f:
             dtbs = json.load(f)['dtbs']
         json_data['dtb_dir_data'] = dtbs
