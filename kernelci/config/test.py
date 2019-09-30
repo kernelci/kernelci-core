@@ -128,6 +128,14 @@ class DeviceType_arm64(DeviceType):
         super(DeviceType_arm64, self).__init__(name, mach, arch, *args, **kw)
 
 
+class DeviceType_riscv(DeviceType):
+
+    def __init__(self, name, mach, arch='riscv', *args, **kw):
+        """RISCV device type with a device tree."""
+        kw.setdefault('dtb', '{}/{}.dtb'.format(mach, name))
+        super(DeviceType_riscv, self).__init__(name, mach, arch, *args, **kw)
+
+
 class DeviceTypeFactory(YAMLObject):
     """Factory to create device types from YAML data."""
 
@@ -136,6 +144,7 @@ class DeviceTypeFactory(YAMLObject):
         'mips-dtb': DeviceType_mips,
         'arm-dtb': DeviceType_arm,
         'arm64-dtb': DeviceType_arm64,
+        'riscv-dtb': DeviceType_riscv,
     }
 
     @classmethod
