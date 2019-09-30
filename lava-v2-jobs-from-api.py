@@ -107,6 +107,8 @@ def get_job_params(config, test_config, defconfig, opts, build, plan_config):
     # hack for arm64 dtbs in subfolders
     if arch == 'arm64' and dtb:
         dtb = opts['dtb'] = os.path.basename(dtb)
+    if arch == 'riscv' and dtb:
+        dtb = opts['dtb'] = os.path.basename(dtb)
 
     file_server_resource = build.get('file_server_resource')
     if file_server_resource:

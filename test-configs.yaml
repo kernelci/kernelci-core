@@ -445,6 +445,16 @@ device_types:
     class: arm64-dtb
     boot_method: uboot
 
+  hifive-unleashed-a00:
+    mach: sifive
+    class: riscv-dtb
+    boot_method: uboot
+    filters:
+    # no console in tinyconfig
+      - blacklist:
+          defconfig: ['tinyconfig']
+          kernel: ['v4.', 'v5.1', 'v5.2']
+
   hsdk:
     mach: arc
     class: arc-dtb
@@ -1276,6 +1286,11 @@ test_configs:
       - baseline
       - boot
       - boot-nfs
+
+  - device_type: hifive-unleashed-a00
+    test_plans:
+      - baseline
+      - boot
 
   - device_type: hsdk
     test_plans:
