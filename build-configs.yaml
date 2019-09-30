@@ -100,6 +100,9 @@ trees:
   samsung:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/kgene/linux-samsung.git"
 
+  sashal:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/sashal/linux-stable.git"
+
   soc:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/soc/soc.git"
 
@@ -702,6 +705,11 @@ build_configs:
   samsung:
     tree: samsung
     branch: 'for-next'
+
+  sashal_stable-next:
+    tree: sashal
+    branch: 'stable-next'
+    variants: *stable_variants
 
 #  Disabled as the branch name contains a '/'.  See discussion here:
 #  https://github.com/kernelci/kernelci-core/issues/23
