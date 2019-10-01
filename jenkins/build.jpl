@@ -108,6 +108,10 @@ publish_kernel \
 """)
         }
     }
+
+    dir("linux/_install_") {
+        archiveArtifacts("*.json")
+    }
 }
 
 node("docker && builder") {
