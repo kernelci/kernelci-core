@@ -1569,7 +1569,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-uefi_i386
-      - boot
+      - boot_qemu
       - simple_qemu
 
   - device_type: qemu_x86_64
