@@ -115,6 +115,9 @@ trees:
   tegra:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/tegra/linux.git"
 
+  thermal:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/thermal/linux.git"
+
   ulfh:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/ulfh/mmc.git"
 
@@ -812,6 +815,11 @@ build_configs:
   tegra:
     tree: tegra
     branch: 'for-next'
+
+  thermal:
+    tree: thermal
+    branch: 'testing'
+    variants: *minimal_variants
 
   ulfh:
     tree: ulfh
