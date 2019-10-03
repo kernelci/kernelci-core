@@ -280,6 +280,12 @@ arch_defconfigs: &arch_defconfigs
       - regex: { defconfig: 'x86_64_defconfig' }
 
 
+minimal_variants: &minimal_variants
+  gcc-8:
+    build_environment: gcc-8
+    architectures: *arch_defconfigs
+
+
 # Build fewer kernel configs with stable branches
 stable_variants: &stable_variants
   gcc-8:
@@ -506,26 +512,17 @@ build_configs:
   linusw_devel:
     tree: linusw
     branch: 'devel'
-    variants:
-      gcc-8:
-        build_environment: gcc-8
-        architectures: *arch_defconfigs
+    variants: *minimal_variants
 
   linusw_fixes:
     tree: linusw
     branch: 'fixes'
-    variants:
-      gcc-8:
-        build_environment: gcc-8
-        architectures: *arch_defconfigs
+    variants: *minimal_variants
 
   linusw_for-next:
     tree: linusw
     branch: 'for-next'
-    variants:
-      gcc-8:
-        build_environment: gcc-8
-        architectures: *arch_defconfigs
+    variants: *minimal_variants
 
   lsk_for-test:
     tree: lsk
@@ -823,7 +820,4 @@ build_configs:
   vireshk:
     tree: vireshk
     branch: 'for-kernelci'
-    variants:
-      gcc-8:
-        build_environment: gcc-8
-        architectures: *arch_defconfigs
+    variants: *minimal_variants
