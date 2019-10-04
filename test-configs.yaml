@@ -41,7 +41,7 @@ file_systems:
 
   debian_buster_ramdisk:
     type: debian
-    ramdisk: 'buster/20190927.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'buster/20191004.0/{arch}/rootfs.cpio.gz'
 
   debian_buster-igt_ramdisk:
     type: debian
@@ -49,7 +49,7 @@ file_systems:
 
   debian_buster-v4l2_ramdisk:
     type: debian
-    ramdisk: 'buster-v4l2/20190927.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'buster-v4l2/20191004.0/{arch}/rootfs.cpio.gz'
 
 
 test_plan_default_filters:
