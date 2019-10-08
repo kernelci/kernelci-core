@@ -99,49 +99,71 @@ class cmd_get_lab_info(Command):
 
 class cmd_generate(Command):
     help = "Generate the job definition for a given target, plan and build"
-    args = [Args.bmeta_json, Args.plan, Args.target, Args.storage,
-            Args.lab, Args.user, Args.token]
-    opt_args = [Args.job_file, Args.output, Args.lab_json,
+    args = [Args.bmeta_json, Args.dtbs_json, Args.storage, Args.lab,
+            Args.user, Args.token]
+    opt_args = [Args.plan, Args.target,
+                Args.output, Args.lab_json,
                 Args.callback_id, Args.callback_dataset,
                 Args.callback_type, Args.callback_url]
 
     def __call__(self, test_configs, lab_configs, args):
-        with open(args.bmeta_json) as json_file:
-            bmeta = json.load(json_file)
-        lab = lab_configs['labs'][args.lab]
-        target = test_configs['device_types'][args.target]
-        plan = test_configs['test_plans'][args.plan]
         if args.callback_id and not args.callback_url:
             print("--callback-url is required with --callback-id")
             return False
+
+        with open(args.bmeta_json) as json_file:
+            bmeta = json.load(json_file)
+        with open(args.dtbs_json) as json_file:
+            dtbs = json.load(json_file)['dtbs']
+
+        lab = lab_configs['labs'][args.lab]
         lab_api = kernelci.lab.get_api(lab, args.user, args.token)
         if args.lab_json:
             with open(args.lab_json) as json_file:
                 devices = json.load(json_file)['devices']
                 lab_api.import_devices(devices)
 
+        if args.target and args.plan:
+            target = test_configs['device_types'][args.target]
+            plan = test_configs['test_plans'][args.plan]
+            jobs_list = [(target, plan)]
+        else:
+            jobs_list = []
+            configs = kernelci.test.match_configs(
+                test_configs['test_configs'], bmeta, dtbs, lab)
+            for device_type, plan in configs:
+                if not lab_api.device_type_online(device_type):
+                    continue
+                if args.target and device_type.name != args.target:
+                    continue
+                if args.plan and plan.name != args.plan:
+                    continue
+                jobs_list.append((device_type, plan))
+
         # ToDo: deal with a JSON file containing a list of builds to iterate
         # over, such as the one produced by "kci_build publish" or saved as a
         # result of a new command "kci_build get_meta" to download meta-data
         # from the backend API.
-        params = kernelci.test.get_params(bmeta, target, plan, args.storage)
         callback_opts = {
             'id': args.callback_id,
             'dataset': args.callback_dataset,
             'type': args.callback_type,
             'url': args.callback_url,
         }
-        job = lab_api.generate(params, target, plan, callback_opts)
-        if args.output:
-            if not os.path.exists(args.output):
-                os.makedirs(args.output)
-            file_name = args.job_file or lab_api.job_file_name(params)
-            output_file = os.path.join(args.output, file_name)
-            print(output_file)
-            with open(output_file, 'wb') as output:
-                output.write(job)
-        else:
-            print(job)
+        if args.output and not os.path.exists(args.output):
+            os.makedirs(args.output)
+        for target, plan in jobs_list:
+            params = kernelci.test.get_params(bmeta, target, plan, args.storage)
+            job = lab_api.generate(params, target, plan, callback_opts)
+            if args.output:
+                file_name = lab_api.job_file_name(params)
+                output_file = os.path.join(args.output, file_name)
+                print(output_file)
+                with open(output_file, 'wb') as output:
+                    output.write(job)
+            else:
+                print("# Job: {}".format(params['name']))
+                print(job)
         return True
 
 

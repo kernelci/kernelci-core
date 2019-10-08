@@ -84,11 +84,6 @@ class Args(object):
         'help': "Base URL for the callback",
     }
 
-    job_file = {
-        'name': '--job-file',
-        'help': "Path where to write the job definition",
-    }
-
     jobs = {
         'name': '--jobs',
         'help': "File pattern with jobs to submit",
