@@ -51,8 +51,6 @@ import org.kernelci.util.Job
 
 def getArtifacts(artifacts)
 {
-    sh(script: "rm -rf ${artifacts}")
-
     dir(artifacts) {
         copyArtifacts(
             projectName: params.BUILD_JOB_NAME,
@@ -68,52 +66,18 @@ def getArtifacts(artifacts)
     }
 }
 
-def listJobs(kci_core, lab, artifacts)
-{
-    def token = "${lab}-lava-api"
-    def lab_json = "${artifacts}/${lab}.json"
-    def raw_jobs = null
-
-    dir(kci_core) {
-        withCredentials([string(credentialsId: token, variable: 'SECRET')]) {
-            raw_jobs = sh(script: """\
-./kci_test \
-list_jobs \
---lab=${lab} \
---user=kernel-ci \
---token=${SECRET} \
---lab-json=${lab_json} \
---bmeta-json=${artifacts}/bmeta.json \
---dtbs-json=${artifacts}/dtbs.json \
-""", returnStdout: true).trim()
-        }
-    }
-
-    return raw_jobs.tokenize('\n')
-}
-
-def generateJobs(kci_core, lab, artifacts, jobs_dir, jobs_list)
+def generateJobs(kci_core, lab, artifacts, jobs_dir)
 {
     def token = "${lab}-lava-api"
 
-    sh(script: "rm -rf ${jobs_dir}")
-
     dir(kci_core) {
         withCredentials([string(credentialsId: token, variable: 'SECRET')]) {
-            for (job in jobs_list) {
-                def opts = job.tokenize(' ')
-                def target = opts[0]
-                def plan = opts[1]
-
-                print("Generating job for ${plan} on ${target}")
-
-                sh(script: """\
+            sh(script: """\
 ./kci_test \
 generate \
 --bmeta-json=${artifacts}/bmeta.json \
+--dtbs-json=${artifacts}/dtbs.json \
 --lab-json=${artifacts}/${lab}.json \
---plan=${plan} \
---target=${target} \
 --storage=${params.KCI_STORAGE_URL} \
 --lab=${lab} \
 --user=kernel-ci \
@@ -122,7 +86,6 @@ generate \
 --callback-id=${params.CALLBACK_ID} \
 --callback-url=${params.CALLBACK_URL} \
 """)
-            }
         }
     }
 }
@@ -185,13 +148,8 @@ node("docker && test-runner") {
 
         stage("Generate") {
             for (lab in labs) {
-                def jobs_list = listJobs(kci_core, lab, artifacts)
-
-                if (!jobs_list)
-                    continue
-
                 def lab_dir = "${jobs_dir}/${lab}"
-                generateJobs(kci_core, lab, artifacts, lab_dir, jobs_list)
+                generateJobs(kci_core, lab, artifacts, lab_dir)
                 labs_submit.add(lab)
             }
         }
