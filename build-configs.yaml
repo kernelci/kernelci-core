@@ -392,6 +392,10 @@ build_configs:
     tree: android
     branch: 'android-4.9-q'
 
+  android_4.9-q-release:
+    tree: android
+    branch: 'android-4.9-q-release'
+
   android_4.14-p:
     tree: android
     branch: 'android-4.14-p'
@@ -404,6 +408,10 @@ build_configs:
     tree: android
     branch: 'android-4.14-q'
 
+  android_4.14-q-release:
+    tree: android
+    branch: 'android-4.14-q-release'
+
   android_4.14-r:
     tree: android
     branch: 'android-4.14-r'
@@ -411,6 +419,10 @@ build_configs:
   android_4.19-q:
     tree: android
     branch: 'android-4.19-q'
+
+  android_4.19-q-release:
+    tree: android
+    branch: 'android-4.19-q-release'
 
   android_4.19-r:
     tree: android
