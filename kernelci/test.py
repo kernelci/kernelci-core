@@ -78,7 +78,7 @@ def get_params(bmeta, target, plan_config, storage):
         if modules else None
     )
     rootfs = plan_config.rootfs
-    defconfig = bmeta['defconfig']
+    defconfig = bmeta['defconfig_full']
     defconfig_base = ''.join(defconfig.split('+')[:1])
     endian = 'big' if 'BIG_ENDIAN' in defconfig else 'little'
     describe = bmeta['git_describe']
