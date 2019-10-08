@@ -55,8 +55,8 @@ def match_configs(configs, bmeta, dtbs, lab):
 def get_params(bmeta, target, plan_config, storage):
     arch = target.arch
     dtb = dtb_full = target.dtb
-    if arch == 'arm64' and dtb:
-        dtb = os.path.basename(dtb)  # hack for arm64 dtbs in subfolders
+    if dtb:
+        dtb = os.path.basename(dtb)  # hack for dtbs in subfolders
     file_server_resource = bmeta['file_server_resource']
     job_px = file_server_resource.replace('/', '-')
     url_px = file_server_resource
