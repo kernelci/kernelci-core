@@ -318,7 +318,7 @@ class BuildConfig(YAMLObject):
         kw.update(cls._kw_from_yaml(
             config, ['name', 'tree', 'branch']))
         kw['tree'] = trees[kw['tree']]
-        config_variants = config.get('variants', defaults)
+        config_variants = config.get('variants', defaults['variants'])
         variants = [
             BuildVariant.from_yaml(variant, name, fragments, build_envs)
             for name, variant in config_variants.iteritems()
