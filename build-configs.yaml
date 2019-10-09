@@ -196,63 +196,62 @@ build_environments:
 
 # Default config with full build coverage
 build_configs_defaults:
+  variants:
+    gcc-8:
+      build_environment: gcc-8
 
-  gcc-8:
+      fragments: &default_fragments
+        - 'debug'
+        - 'kselftest'
+        - 'tinyconfig'
 
-    build_environment: gcc-8
+      architectures: &default_architectures
 
-    fragments: &default_fragments
-      - 'debug'
-      - 'kselftest'
-      - 'tinyconfig'
+        arc: &arc_arch
+          base_defconfig: 'nsim_hs_defconfig'
+          extra_configs: ['allnoconfig']
+          filters: &arc_default_filters
+            # remove any non-ARCv2 defconfigs since we only have ARCv2 toolchain
+            - blacklist:
+                defconfig:
+                  - 'axs101_defconfig'
+                  - 'nps_defconfig'
+                  - 'nsim_700_defconfig'
+                  - 'nsimosci_defconfig'
+                  - 'tb10x_defconfig'
 
-    architectures: &default_architectures
+        arm: &arm_arch
+          base_defconfig: 'multi_v7_defconfig'
+          extra_configs:
+            - 'allnoconfig'
+            - 'multi_v7_defconfig+CONFIG_CPU_BIG_ENDIAN=y'
+            - 'multi_v7_defconfig+CONFIG_SMP=n'
+            - 'multi_v7_defconfig+CONFIG_EFI=y+CONFIG_ARM_LPAE=y'
 
-      arc: &arc_arch
-        base_defconfig: 'nsim_hs_defconfig'
-        extra_configs: ['allnoconfig']
-        filters: &arc_default_filters
-          # remove any non-ARCv2 defconfigs since we only have ARCv2 toolchain
-          - blacklist:
-              defconfig:
-                - 'axs101_defconfig'
-                - 'nps_defconfig'
-                - 'nsim_700_defconfig'
-                - 'nsimosci_defconfig'
-                - 'tb10x_defconfig'
+        arm64: &arm64_arch
+          extra_configs:
+            - 'allmodconfig'
+            - 'allnoconfig'
+            - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
+            - 'defconfig+CONFIG_RANDOMIZE_BASE=y'
 
-      arm: &arm_arch
-        base_defconfig: 'multi_v7_defconfig'
-        extra_configs:
-          - 'allnoconfig'
-          - 'multi_v7_defconfig+CONFIG_CPU_BIG_ENDIAN=y'
-          - 'multi_v7_defconfig+CONFIG_SMP=n'
-          - 'multi_v7_defconfig+CONFIG_EFI=y+CONFIG_ARM_LPAE=y'
+        i386: &i386_arch
+          base_defconfig: 'i386_defconfig'
+          extra_configs: ['allnoconfig']
 
-      arm64: &arm64_arch
-        extra_configs:
-          - 'allmodconfig'
-          - 'allnoconfig'
-          - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
-          - 'defconfig+CONFIG_RANDOMIZE_BASE=y'
+        mips: &mips_arch
+          base_defconfig: '32r2el_defconfig'
+          extra_configs: ['allnoconfig']
+          filters: &mips_default_filters
+            - blacklist: {defconfig: ['generic_defconfig']}
 
-      i386: &i386_arch
-        base_defconfig: 'i386_defconfig'
-        extra_configs: ['allnoconfig']
+        riscv: &riscv_arch
+          extra_configs: ['allnoconfig']
 
-      mips: &mips_arch
-        base_defconfig: '32r2el_defconfig'
-        extra_configs: ['allnoconfig']
-        filters: &mips_default_filters
-          - blacklist: {defconfig: ['generic_defconfig']}
-
-      riscv: &riscv_arch
-        extra_configs: ['allnoconfig']
-
-      x86_64: &x86_64_arch
-        base_defconfig: 'x86_64_defconfig'
-        extra_configs: ['allmodconfig', 'allnoconfig']
-        fragments: [x86_kvm_guest]
+        x86_64: &x86_64_arch
+          base_defconfig: 'x86_64_defconfig'
+          extra_configs: ['allmodconfig', 'allnoconfig']
+          fragments: [x86_kvm_guest]
 
 
 # Minimum architecture defconfigs
