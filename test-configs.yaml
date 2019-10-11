@@ -632,6 +632,13 @@ device_types:
     filters:
       - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
+  meson-g12b-a311d-khadas-vim3:
+    mach: amlogic
+    class: arm64-dtb
+    boot_method: uboot
+    filters:
+      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+
   meson-gxbb-nanopi-k2:
     mach: amlogic
     class: arm64-dtb
@@ -697,6 +704,14 @@ device_types:
       - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson-gxm-khadas-vim2:
+    mach: amlogic
+    class: arm64-dtb
+    boot_method: uboot
+    flags: ['big_endian']
+    filters:
+      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+
+  meson-gxm-q200:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
@@ -932,6 +947,11 @@ device_types:
       - blacklist: *allmodconfig_filter
       - blacklist: {defconfig: ['multi_v7_defconfig+CONFIG_SMP=n']}
 
+  sun4i-a10-olinuxino-lime:
+    mach: allwinner
+    class: arm-dtb
+    boot_method: uboot
+
   sun50i-a64-bananapi-m64:
     mach: allwinner
     class: arm64-dtb
@@ -971,6 +991,11 @@ device_types:
       - blacklist: {defconfig: ['multi_v7_defconfig+CONFIG_LKDTM=n']}
 
   sun7i-a20-cubieboard2:
+    mach: allwinner
+    class: arm-dtb
+    boot_method: uboot
+
+  sun7i-a20-olinuxino-lime2:
     mach: allwinner
     class: arm-dtb
     boot_method: uboot
@@ -1415,6 +1440,14 @@ test_configs:
       - boot
       - simple
 
+  - device_type: meson-g12b-a311d-khadas-vim3
+    test_plans:
+      - baseline
+      - boot
+      - boot-nfs
+      - kselftest
+      - simple
+
   - device_type: meson-gxbb-nanopi-k2
     test_plans:
       - baseline
@@ -1470,6 +1503,14 @@ test_configs:
       - simple
 
   - device_type: meson-gxm-khadas-vim2
+    test_plans:
+      - baseline
+      - boot
+      - boot-nfs
+      - kselftest
+      - simple
+
+  - device_type: meson-gxm-q200
     test_plans:
       - baseline
       - boot
@@ -1666,6 +1707,14 @@ test_configs:
       - boot-nfs
       - kselftest
 
+  - device_type: sun4i-a10-olinuxino-lime
+    test_plans:
+      - baseline
+      - boot
+      - boot-nfs
+      - kselftest
+      - simple
+
   - device_type: sun50i-a64-bananapi-m64
     test_plans:
       - baseline
@@ -1705,6 +1754,14 @@ test_configs:
     test_plans:
       - baseline
       - boot
+
+  - device_type: sun7i-a20-olinuxino-lime2
+    test_plans:
+      - baseline
+      - boot
+      - boot-nfs
+      - kselftest
+      - simple
 
   - device_type: sun8i-a23-evb
     test_plans:
