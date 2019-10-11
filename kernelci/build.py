@@ -469,9 +469,12 @@ def _make_defconfig(defconfig, kwargs, fragments, verbose, log_file):
                     tmpfile.write("\n# fragment from : {}\n".format(d))
                     tmpfile.writelines(frag)
                 fragments.append(os.path.basename(os.path.splitext(d)[0]))
+            else:
+                print("Fragment not found: {}".format(frag_path))
+                result = False
     tmpfile.flush()
 
-    if not _run_make(target=target, **kwargs):
+    if result and not _run_make(target=target, **kwargs):
         result = False
 
     if result and fragments:
