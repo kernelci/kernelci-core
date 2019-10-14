@@ -24,6 +24,10 @@ labs:
             - boot-nfs
             - simple
             - sleep
+          tree:
+            - kernelci
+            - next
+            - stable-rc
 
   lab-collabora:
     lab_type: lava
