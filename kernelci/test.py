@@ -45,6 +45,8 @@ def match_configs(configs, bmeta, dtbs, lab):
         if dtb and dtb not in dtbs:
             continue
         for plan_name, plan in test_config.test_plans.iteritems():
+            if not plan.match(filters):
+                continue
             filters['plan'] = plan_name
             if lab.match(filters):
                 match.add((test_config.device_type, plan))
