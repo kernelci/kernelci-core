@@ -318,6 +318,16 @@ Invalid arguments, please provide at least one of these sets of options:
             json_path=args.json_path)
 
 
+class cmd_pull_tarball(Command):
+    help = "Downloads and untars kernel sources"
+    args = [Args.kdir, Args.url]
+    opt_args = [Args.filename, Args.retries]
+
+    def __call__(self, configs, args):
+        return kernelci.build.pull_tarball(args.kdir, args.url,
+                                           args.filename, args.retries)
+
+
 if __name__ == '__main__':
     args = parse_args("kci_build", "build-configs.yaml", globals())
     configs = kernelci.config.build.from_yaml(args.yaml_configs)
