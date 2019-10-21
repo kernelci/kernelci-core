@@ -23,6 +23,7 @@ import requests
 import shutil
 import stat
 import subprocess
+import tarfile
 import tempfile
 import time
 import urlparse
@@ -339,6 +340,22 @@ def push_tarball(config, kdir, storage, api, token):
     _upload_files(api, token, path, {tarball_name: open(tarball)})
     os.unlink(tarball)
     return tarball_url
+
+
+def pull_tarball(kdir, url, dest_filename, retries):
+    if os.path.exists(kdir):
+        shutil.rmtree(kdir)
+    os.makedirs(kdir)
+    for i in range(1, retries + 1):
+        if _download_file(url, dest_filename):
+            break
+        if i < retries:
+            time.sleep(2 ** i)
+    else:
+        return False
+    with tarfile.open(dest_filename, 'r:*') as tarball:
+        tarball.extractall(kdir)
+    return True
 
 
 def _add_frag_configs(kdir, frag_list, frag_paths, frag_configs):
@@ -872,3 +889,14 @@ def publish_kernel(kdir, install='_install_', api=None, token=None,
         resp.raise_for_status()
 
     return True
+
+
+def _download_file(url, dest_filename, chunk_size=1024):
+    resp = requests.get(url, stream=True)
+    if resp.status_code == 200:
+        with open(dest_filename, 'wb') as out_file:
+            for chunk in resp.iter_content(chunk_size):
+                out_file.write(chunk)
+        return True
+    else:
+        return False
