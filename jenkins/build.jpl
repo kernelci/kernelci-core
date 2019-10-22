@@ -61,7 +61,6 @@ PARALLEL_BUILDS
 
 
 @Library('kernelci') _
-import org.kernelci.build.Kernel
 import org.kernelci.util.Job
 
 def buildConfig(kdir, kci_core) {
@@ -120,7 +119,6 @@ publish_kernel \
 
 node("docker" && params.NODE_LABEL) {
     def j = new Job()
-    def k = new Kernel()
     def kci_core = "${env.WORKSPACE}/kernelci-core"
     def kdir = "${env.WORKSPACE}/linux"
     def docker_image = null
@@ -143,7 +141,13 @@ node("docker" && params.NODE_LABEL) {
     j.dockerPullWithRetry(docker_image).inside() {
         stage("Init") {
             timeout(time: 30, unit: 'MINUTES') {
-                k.downloadTarball(kdir, params.SRC_TARBALL)
+                dir(kci_core) {
+                  sh(script: """./kci_build pull_tarball \
+                                --kdir ${kdir} \
+                                --url ${params.SRC_TARBALL} \
+                                --retries=12 \
+                  """)
+                }
             }
         }
 

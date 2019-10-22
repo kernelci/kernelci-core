@@ -84,7 +84,6 @@ TREES_WHITELIST
 
 
 @Library('kernelci') _
-import org.kernelci.build.Kernel
 import org.kernelci.util.Job
 
 /* Working around some seemingly broken Python set-up... */
