@@ -47,7 +47,6 @@ ALLOW_REBUILD (false)
 */
 
 @Library('kernelci') _
-import org.kernelci.build.Kernel
 import org.kernelci.util.Job
 
 def configAlreadyBuilt(config, kci_core) {
@@ -269,7 +268,6 @@ def buildsComplete(job, opts, arch) {
 
 node("docker && build-trigger") {
     def j = new Job()
-    def k = new Kernel()
     def kci_core = "${env.WORKSPACE}/kernelci-core"
     def kdir = "${env.WORKSPACE}/configs/${params.BUILD_CONFIG}"
     def mirror = "${env.WORKSPACE}/linux.git"
