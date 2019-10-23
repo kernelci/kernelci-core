@@ -38,11 +38,8 @@ labs:
           plan:
             - baseline
             - boot
-            - boot-nfs
             - cros-ec
             - igt-drm-kms
-            - kselftest
-            - simple
             - sleep
             - usb
             - v4l2-compliance-uvc
