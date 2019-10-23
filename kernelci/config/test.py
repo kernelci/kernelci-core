@@ -360,8 +360,6 @@ class TestPlan(YAMLObject):
             plan=self.name)
 
     def match(self, config):
-        if self.name == 'boot':
-            return True
         return all(f.match(**config) for f in self._filters)
 
 
