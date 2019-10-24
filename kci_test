@@ -44,12 +44,17 @@ class cmd_list_jobs(Command):
             bmeta = json.load(json_file)
         with open(args.dtbs_json) as json_file:
             dtbs = json.load(json_file)['dtbs']
+
+        if bmeta['status'] != "PASS":
+            return True
+
         lab = lab_configs['labs'][args.lab]
         lab_api = kernelci.lab.get_api(lab, args.user, args.token)
         if args.lab_json:
             with open(args.lab_json) as json_file:
                 devices = json.load(json_file)['devices']
                 lab_api.import_devices(devices)
+
         configs = kernelci.test.match_configs(
             test_configs['test_configs'], bmeta, dtbs, lab)
         for device_type, plan in configs:
@@ -115,6 +120,9 @@ class cmd_generate(Command):
             bmeta = json.load(json_file)
         with open(args.dtbs_json) as json_file:
             dtbs = json.load(json_file)['dtbs']
+
+        if bmeta['status'] != "PASS":
+            return True
 
         lab = lab_configs['labs'][args.lab]
         lab_api = kernelci.lab.get_api(lab, args.user, args.token)
