@@ -215,6 +215,14 @@ def scheduleTests(build_job_name, build_job_number, labs, kci_core) {
 }
 
 def buildKernelStep(job, arch, defconfig, build_env, opts, labs, kci_core) {
+    def node_label = "builder"
+    def parallel_builds = "4"
+
+    if (defconfig.matches(".*allmodconfig.*")) {
+        node_label = "big-config-builder"
+        parallel_builds = ""
+    }
+
     def str_params = [
         'ARCH': arch,
         'DEFCONFIG': defconfig,
@@ -224,6 +232,8 @@ def buildKernelStep(job, arch, defconfig, build_env, opts, labs, kci_core) {
         'SRC_TARBALL': opts['tarball_url'],
         'BUILD_CONFIG': opts['config'],
         'BUILD_ENVIRONMENT': build_env,
+        'NODE_LABEL': node_label,
+        'PARALLEL_BUILDS': parallel_builds,
     ]
     def job_params = []
 

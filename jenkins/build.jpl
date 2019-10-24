@@ -38,6 +38,8 @@ COMMIT_ID
   Git commit SHA1 at the revision of the snapshot
 BUILD_ENVIRONMENT
   Name of the build environment
+NODE_LABEL
+  Label to use to choose a node on which to run this job
 PUBLISH (boolean)
   Publish build results via the KernelCI backend API
 EMAIL (boolean)
@@ -63,6 +65,8 @@ import org.kernelci.build.Kernel
 import org.kernelci.util.Job
 
 def buildConfig(kdir, kci_core) {
+    def jopt = ""
+
     if (params.PARALLEL_BUILDS)
         jopt = "-j${params.PARALLEL_BUILDS}"
 
@@ -114,7 +118,7 @@ publish_kernel \
     }
 }
 
-node("docker && builder") {
+node("docker" && params.NODE_LABEL) {
     def j = new Job()
     def k = new Kernel()
     def kci_core = "${env.WORKSPACE}/kernelci-core"
