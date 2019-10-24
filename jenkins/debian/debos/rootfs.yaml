@@ -6,6 +6,7 @@
 {{- $test_overlay := .test_overlay -}}
 {{- $extra_packages_remove := or .extra_packages_remove -}}
 {{- $extra_files_remove := or .extra_files_remove -}}
+{{- $crush_image_options := or .crush_image_options "" -}}
 
 architecture: {{ $architecture }}
 
@@ -151,7 +152,7 @@ actions:
 
   - action: run
     chroot: true
-    script: scripts/crush.sh
+    script: scripts/crush.sh {{ $crush_image_options }}
 
 {{ if $extra_files_remove }}
   - action: run
