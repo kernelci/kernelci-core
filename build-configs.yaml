@@ -19,6 +19,9 @@ trees:
   ardb:
     url: "git://git.kernel.org/pub/scm/linux/kernel/git/ardb/linux.git"
 
+  arm64:
+    url: "git://git.kernel.org/pub/scm/linux/kernel/git/arm64/linux.git"
+
   arnd:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/arnd/playground.git"
 
@@ -457,6 +460,19 @@ build_configs:
               - 'multi_v7_defconfig+CONFIG_RANDOMIZE_BASE=y'
               - 'multi_v7_defconfig+CONFIG_THUMB2_KERNEL=y+CONFIG_RANDOMIZE_BASE=y'
               - 'omap2plus_defconfig+CONFIG_RANDOMIZE_BASE=y'
+
+  arm64:
+    tree: arm64
+    branch: 'for-kernelci'
+    variants:
+      gcc-8:
+        build_environment: gcc-8
+        architectures:
+          arm64:
+            base_defconfig: 'defconfig'
+            extra_configs:
+              - 'allmodconfig'
+              - 'allnoconfig'
 
   arnd:
     tree: arnd
