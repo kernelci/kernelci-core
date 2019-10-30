@@ -281,7 +281,8 @@ class RootFS(YAMLObject):
 class TestPlan(YAMLObject):
     """Test plan model."""
 
-    _pattern = '{plan}/{category}-{method}-{protocol}-{rootfs}-{plan}-template.jinja2'
+    _pattern = \
+        '{plan}/{category}-{method}-{protocol}-{rootfs}-{plan}-template.jinja2'
 
     def __init__(self, name, rootfs, base_name=None, params=None,
                  category='generic', filters=None, pattern=None):
