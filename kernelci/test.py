@@ -20,6 +20,16 @@ import urlparse
 
 
 def match_configs(configs, bmeta, dtbs, lab):
+    """Filter the test configs for a given kernel build and lab.
+
+    *configs* is a list of all the initial test configs
+    *bmeta* is a dictionary with the kernel build meta-data
+    *dtbs* is the list of dtb files included in the kernel build
+    *lab* is a Lab object instance
+
+    The returned value is a list with a subset of the configs that match the
+    provided kernel build meta-data and lab filters.
+    """
     defconfig = bmeta['defconfig_full']
     arch = bmeta['arch']
 
@@ -55,6 +65,13 @@ def match_configs(configs, bmeta, dtbs, lab):
 
 
 def get_params(bmeta, target, plan_config, storage):
+    """Get a dictionary with all the test parameters to run a test job
+
+    *bmeta* is a dictionary with the kernel build meta-data
+    *target* is the name of the target platform to run the test
+    *plan_config* is a TestPlan object for the test plan to run
+    *storage* is the URL of the storage server
+    """
     arch = target.arch
     dtb = dtb_full = target.dtb
     if dtb:
