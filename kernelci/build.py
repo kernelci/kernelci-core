@@ -141,7 +141,7 @@ def check_new_commit(config, storage):
 
 
 def _update_remote(config, path):
-        shell_cmd("""
+    shell_cmd("""
 cd {path}
 if git remote | grep -e '^{remote}$'; then
     git remote set-url {remote} {url}
