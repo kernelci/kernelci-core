@@ -103,7 +103,7 @@ class cmd_get_lab_info(Command):
 
 
 class cmd_generate(Command):
-    help = "Generate the job definition for a given target, plan and build"
+    help = "Generate the job definition for a given build"
     args = [Args.bmeta_json, Args.dtbs_json, Args.storage, Args.lab,
             Args.user, Args.token]
     opt_args = [Args.plan, Args.target,
@@ -161,7 +161,8 @@ class cmd_generate(Command):
         if args.output and not os.path.exists(args.output):
             os.makedirs(args.output)
         for target, plan in jobs_list:
-            params = kernelci.test.get_params(bmeta, target, plan, args.storage)
+            params = kernelci.test.get_params(
+                bmeta, target, plan, args.storage)
             job = lab_api.generate(params, target, plan, callback_opts)
             if args.output:
                 file_name = lab_api.job_file_name(params)
