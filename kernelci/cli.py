@@ -23,6 +23,15 @@ import argparse
 #
 
 class Args(object):
+    """A list of all the common command line argument options
+
+    All the members of this class are arguments that can be reused in various
+    command line tools.  They are dictionaries with at least a `name`
+    attribute, and all the other ones are passed as keyword arguments to the
+    add_argument() method of the parser object from argparse.  There should
+    also always be a `help` attribute, as this is needed by the Command class.
+    """
+
     config = {
         'name': '--config',
         'help': "Build config name",
@@ -212,11 +221,31 @@ class Args(object):
 
 
 class Command(object):
+    """A command helper class.
+
+    It contains several class attributes:
+
+    *help* is the help message passed to tbe sub-parser
+    *args* is a list of required arguments dictionaries to add to the parser
+    *opt_args* is a list of optional arguments to add to the parser
+    """
+
     help = None
     args = None
     opt_args = None
 
     def __init__(self, sub_parser, name):
+        """This class is to facilitate creating command line utilities
+
+        Each command uses a separate sub-parser to be able to have a different
+        set of arguments.  A Command object is callable like a function, so it
+        is also possible to simply have a function in the command line tool
+        instead.
+
+        *sub_parser* is a sub-parser from argparse for this particular command.
+        *name* is the name of the command as used on the command line.
+
+        """
         if not self.help:
             raise AttributeError("Missing help message for {}".format(name))
         self._parser = sub_parser.add_parser(name, help=self.help)
@@ -240,6 +269,11 @@ class Command(object):
 
 
 def make_parser(title, default_yaml):
+    """Helper to make a parser object from argparse.
+
+    *title* is the title of the parser
+    *default_yaml* is the default YAML config file name to use
+    """
     parser = argparse.ArgumentParser(title)
     parser.add_argument("--yaml-configs", default=default_yaml,
                         help="Path to the YAML configs file")
@@ -247,6 +281,14 @@ def make_parser(title, default_yaml):
 
 
 def add_subparser(parser, glob):
+    """Helper to add a sub-parser to add sub-commands
+
+    All the global attributes from `glob` starting with `cmd_` are added as
+    sub-commands to the parser.
+
+    *parser* is the main parser object from argparse
+    *glob* is the globals dictionary
+    """
     sub_parser = parser.add_subparsers(title="Commands",
                                        help="List of available commands")
     commands = dict()
@@ -260,6 +302,19 @@ def add_subparser(parser, glob):
 
 
 def parse_args(title, default_yaml, glob):
+    """Helper function to parse the command line arguments
+
+    This will create a parser and automatically add the sub-commands from the
+    global attributes `glob` and return the parsed arguments.
+
+    *title* is the parser title
+
+    *default_yaml* is the name of the default YAML configuration file to use
+                   with the command line utility
+
+    *glob* is the dictionary with all the global attributes where to look for
+           commands starting with `cmd_`
+    """
     parser = make_parser(title, default_yaml)
     add_subparser(parser, glob)
     args = parser.parse_args()
