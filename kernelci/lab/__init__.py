@@ -21,8 +21,15 @@ import xmlrpclib
 
 
 class LabAPI(object):
+    """Remote API to a test lab"""
 
     def __init__(self, config, user, token):
+        """A test lab API object can be used to remotely interact with a lab
+
+        *config* is a kernelci.config.lab.Lab object
+        *user* is the name of the user to connect to the lab
+        *token* is the token associated with the user to connect to the lab
+        """
         self._config = config
         self._connect(user, token)
         self._devices = None
@@ -70,5 +77,11 @@ class LabAPI(object):
 
 
 def get_api(lab, user, token):
+    """Get the LabAPI object for a given lab config.
+
+    *lab* is a kernelci.config.lab.Lab object
+    *user* is the name of the user to connect to the remote lab
+    *token* is the associated token to connect to the remote lab
+    """
     m = importlib.import_module('.'.join(['kernelci', 'lab', lab.lab_type]))
     return m.get_api(lab, user, token)

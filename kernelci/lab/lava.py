@@ -53,6 +53,14 @@ def get_device_type_by_name(name, device_types, aliases=[]):
 
 
 class LAVA(LabAPI):
+    """Interface to a LAVA lab
+
+    This implementation of kernelci.lab.LabAPI is to communicate with LAVA
+    labs.  It can retrieve some information such as the list of devices and
+    their online status, generate and submit jobs with callback parameters.
+    One special thing it can deal with is job priorities, which is only
+    available in kernelci.config.lab.lab_LAVA objects.
+    """
 
     def _get_aliases(self):
         aliases = []
@@ -134,4 +142,5 @@ class LAVA(LabAPI):
 
 
 def get_api(lab, user, token):
+    """Get a LAVA lab API object"""
     return LAVA(lab, user, token)
