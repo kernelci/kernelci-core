@@ -317,7 +317,7 @@ class BuildVariant(YAMLObject):
 class BuildConfig(YAMLObject):
     """Build configuration model."""
 
-    def __init__(self, name, tree, branch, variants, reference):
+    def __init__(self, name, tree, branch, variants, reference=None):
         """A build configuration defines the actual kernels to be built.
 
         *name* is the name of the build configuration.  It is arbitrary and
@@ -332,9 +332,10 @@ class BuildConfig(YAMLObject):
         *variants* is a list of BuildVariant objects, to define all the
                    variants to build for this tree / branch combination.
 
-        *reference* is a Reference object which defines the tree and branch
-                    for bisections when no base commit is found for
-                    the good and bad revisions.
+        *reference* is a Reference object which defines the tree and branch for
+                    bisections when no base commit is found for the good and
+                    bad revisions.  It can also be None if no reference branch
+                    can be used with this build configuration.
         """
         self._name = name
         self._tree = tree
@@ -357,8 +358,9 @@ class BuildConfig(YAMLObject):
             for name, variant in config_variants.iteritems()
         ]
         kw['variants'] = {v.name: v for v in variants}
-        reference = config.get('reference', defaults['reference'])
-        kw['reference'] = Reference.from_yaml(reference, trees)
+        reference = config.get('reference', defaults.get('reference'))
+        if reference:
+            kw['reference'] = Reference.from_yaml(reference, trees)
         return cls(**kw)
 
     @property
