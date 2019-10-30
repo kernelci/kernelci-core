@@ -1,0 +1,15 @@
+dist: xenial
+
+language: python
+
+python:
+  - "2.7"
+
+install:
+  - pip install -r requirements.txt
+  - pip install pycodestyle
+
+script:
+  - make test
+  - pycodestyle kernelci
+  - pycodestyle kci_*
