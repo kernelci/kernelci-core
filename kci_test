@@ -36,8 +36,8 @@ import kernelci.test
 
 class cmd_list_jobs(Command):
     help = "List all the jobs that need to be run for a given build and lab"
-    args = [Args.bmeta_json, Args.dtbs_json, Args.lab, Args.user, Args.token]
-    opt_args = [Args.lab_json]
+    args = [Args.bmeta_json, Args.dtbs_json, Args.lab]
+    opt_args = [Args.user, Args.token, Args.lab_json]
 
     def __call__(self, test_configs, lab_configs, args):
         with open(args.bmeta_json) as json_file:
@@ -49,18 +49,15 @@ class cmd_list_jobs(Command):
             return True
 
         lab = lab_configs['labs'][args.lab]
-        lab_api = kernelci.lab.get_api(lab, args.user, args.token)
-        if args.lab_json:
-            with open(args.lab_json) as json_file:
-                devices = json.load(json_file)['devices']
-                lab_api.import_devices(devices)
+        api = kernelci.lab.get_api(lab, args.user, args.token, args.lab_json)
 
         configs = kernelci.test.match_configs(
             test_configs['test_configs'], bmeta, dtbs, lab)
         for device_type, plan in configs:
-            if not lab_api.device_type_online(device_type):
+            if not api.device_type_online(device_type):
                 continue
             print(' '.join([device_type.name, plan.name]))
+
         return True
 
 
@@ -104,10 +101,9 @@ class cmd_get_lab_info(Command):
 
 class cmd_generate(Command):
     help = "Generate the job definition for a given build"
-    args = [Args.bmeta_json, Args.dtbs_json, Args.storage, Args.lab,
-            Args.user, Args.token]
-    opt_args = [Args.plan, Args.target,
-                Args.output, Args.lab_json,
+    args = [Args.bmeta_json, Args.dtbs_json, Args.storage, Args.lab]
+    opt_args = [Args.plan, Args.target, Args.output,
+                Args.lab_json, Args.user, Args.token,
                 Args.callback_id, Args.callback_dataset,
                 Args.callback_type, Args.callback_url]
 
@@ -125,11 +121,7 @@ class cmd_generate(Command):
             return True
 
         lab = lab_configs['labs'][args.lab]
-        lab_api = kernelci.lab.get_api(lab, args.user, args.token)
-        if args.lab_json:
-            with open(args.lab_json) as json_file:
-                devices = json.load(json_file)['devices']
-                lab_api.import_devices(devices)
+        api = kernelci.lab.get_api(lab, args.user, args.token, args.lab_json)
 
         if args.target and args.plan:
             target = test_configs['device_types'][args.target]
@@ -140,7 +132,7 @@ class cmd_generate(Command):
             configs = kernelci.test.match_configs(
                 test_configs['test_configs'], bmeta, dtbs, lab)
             for device_type, plan in configs:
-                if not lab_api.device_type_online(device_type):
+                if not api.device_type_online(device_type):
                     continue
                 if args.target and device_type.name != args.target:
                     continue
@@ -163,9 +155,9 @@ class cmd_generate(Command):
         for target, plan in jobs_list:
             params = kernelci.test.get_params(
                 bmeta, target, plan, args.storage)
-            job = lab_api.generate(params, target, plan, callback_opts)
+            job = api.generate(params, target, plan, callback_opts)
             if args.output:
-                file_name = lab_api.job_file_name(params)
+                file_name = api.job_file_name(params)
                 output_file = os.path.join(args.output, file_name)
                 print(output_file)
                 with open(output_file, 'wb') as output:
