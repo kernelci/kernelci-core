@@ -26,6 +26,7 @@ import sys
 from kernelci.cli import Args, Command, parse_args
 import kernelci.config.lab
 import kernelci.config.test
+import kernelci.build
 import kernelci.lab
 import kernelci.test
 
@@ -40,10 +41,7 @@ class cmd_list_jobs(Command):
     opt_args = [Args.user, Args.token, Args.lab_json]
 
     def __call__(self, test_configs, lab_configs, args):
-        with open(args.bmeta_json) as json_file:
-            bmeta = json.load(json_file)
-        with open(args.dtbs_json) as json_file:
-            dtbs = json.load(json_file)['dtbs']
+        bmeta, dtbs = kernelci.build.load_json(args.bmeta_json, args.dtbs_json)
 
         if bmeta['status'] != "PASS":
             return True
@@ -112,10 +110,7 @@ class cmd_generate(Command):
             print("--callback-url is required with --callback-id")
             return False
 
-        with open(args.bmeta_json) as json_file:
-            bmeta = json.load(json_file)
-        with open(args.dtbs_json) as json_file:
-            dtbs = json.load(json_file)['dtbs']
+        bmeta, dtbs = kernelci.build.load_json(args.bmeta_json, args.dtbs_json)
 
         if bmeta['status'] != "PASS":
             return True

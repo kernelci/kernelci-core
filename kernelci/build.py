@@ -342,6 +342,17 @@ def push_tarball(config, kdir, storage, api, token):
     return tarball_url
 
 
+def _download_file(url, dest_filename, chunk_size=1024):
+    resp = requests.get(url, stream=True)
+    if resp.status_code == 200:
+        with open(dest_filename, 'wb') as out_file:
+            for chunk in resp.iter_content(chunk_size):
+                out_file.write(chunk)
+        return True
+    else:
+        return False
+
+
 def pull_tarball(kdir, url, dest_filename, retries):
     if os.path.exists(kdir):
         shutil.rmtree(kdir)
@@ -891,12 +902,16 @@ def publish_kernel(kdir, install='_install_', api=None, token=None,
     return True
 
 
-def _download_file(url, dest_filename, chunk_size=1024):
-    resp = requests.get(url, stream=True)
-    if resp.status_code == 200:
-        with open(dest_filename, 'wb') as out_file:
-            for chunk in resp.iter_content(chunk_size):
-                out_file.write(chunk)
-        return True
-    else:
-        return False
+def load_json(bmeta_json, dtbs_json):
+    """Load the build meta-data from JSON files and return dictionaries
+
+    *bmeta_json* is the path to a kernel build meta-data JSON file
+    *dtbs_json* is the path to a kernel dtbs JSON file
+
+    The returned value is a 2-tuple with the bmeta and dtbs data.
+    """
+    with open(bmeta_json) as json_file:
+        bmeta = json.load(json_file)
+    with open(dtbs_json) as json_file:
+        dtbs = json.load(json_file)['dtbs']
+    return bmeta, dtbs
