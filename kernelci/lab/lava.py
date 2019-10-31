@@ -141,6 +141,6 @@ class LAVA(LabAPI):
         return self._server.scheduler.submit_job(job)
 
 
-def get_api(lab, user, token):
+def get_api(lab):
     """Get a LAVA lab API object"""
-    return LAVA(lab, user, token)
+    return LAVA(lab)

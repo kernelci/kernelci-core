@@ -16,6 +16,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import importlib
+import json
 import urlparse
 import xmlrpclib
 
@@ -23,15 +24,13 @@ import xmlrpclib
 class LabAPI(object):
     """Remote API to a test lab"""
 
-    def __init__(self, config, user, token):
+    def __init__(self, config):
         """A test lab API object can be used to remotely interact with a lab
 
         *config* is a kernelci.config.lab.Lab object
-        *user* is the name of the user to connect to the lab
-        *token* is the token associated with the user to connect to the lab
         """
         self._config = config
-        self._connect(user, token)
+        self._server = None
         self._devices = None
 
     @property
@@ -44,7 +43,15 @@ class LabAPI(object):
             self._devices = self._get_devices()
         return self._devices
 
-    def _connect(self, user=None, token=None):
+    def _get_devices(self):
+        return list()
+
+    def connect(self, user=None, token=None):
+        """Connect to the remote server API
+
+        *user* is the name of the user to connect to the lab
+        *token* is the token associated with the user to connect to the lab
+        """
         if user and token:
             url = urlparse.urlparse(self.config.url)
             api_url = "{scheme}://{user}:{token}@{loc}{path}".format(
@@ -53,9 +60,6 @@ class LabAPI(object):
         else:
             api_url = self.config.url
         self._server = xmlrpclib.ServerProxy(api_url)
-
-    def _get_devices(self):
-        return list()
 
     def import_devices(self, data):
         self._devices = data
@@ -76,12 +80,20 @@ class LabAPI(object):
         raise NotImplementedError("Lab.submit() is required")
 
 
-def get_api(lab, user, token):
+def get_api(lab, user=None, token=None, lab_json=None):
     """Get the LabAPI object for a given lab config.
 
     *lab* is a kernelci.config.lab.Lab object
     *user* is the name of the user to connect to the remote lab
     *token* is the associated token to connect to the remote lab
+    *lab_json* is the path to a JSON file with cached lab information
     """
     m = importlib.import_module('.'.join(['kernelci', 'lab', lab.lab_type]))
-    return m.get_api(lab, user, token)
+    api = m.get_api(lab)
+    if lab_json:
+        with open(lab_json) as json_file:
+            devices = json.load(json_file)['devices']
+            api.import_devices(devices)
+    if user and token:
+        api.connect(user, token)
+    return api
