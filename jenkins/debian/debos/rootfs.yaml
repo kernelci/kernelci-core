@@ -6,6 +6,8 @@
 {{- $test_overlay := .test_overlay -}}
 {{- $extra_packages_remove := or .extra_packages_remove -}}
 {{- $extra_files_remove := or .extra_files_remove -}}
+{{- $crush_image_options := or .crush_image_options " " -}}
+{{- $multiple_partition := or .multiple_partition -}}
 
 architecture: {{ $architecture }}
 
@@ -105,6 +107,29 @@ actions:
     chroot: false
     command: cd ${ROOTDIR} ; find -H  |  cpio -H newc -v -o | gzip -c - > ${ARTIFACTDIR}/{{ $basename -}}/full.rootfs.cpio.gz
 
+{{ if $multiple_partition }}
+  - action: image-partition
+    imagename: rootfs.ext4
+    imagesize: 15GB
+    partitiontype: msdos
+    mountpoints:
+      - mountpoint: /
+        partition: root
+    partitions:
+      - name: root
+        fs: ext4
+        start: 0%
+        end: 10%
+        flags: [ boot ]
+      - name: test
+        fs: ext4
+        start: 10%
+        end: 55%
+      - name: scratch
+        fs: ext4
+        start: 55%
+        end: 100%
+{{ else }}
   - action: image-partition
     imagename: rootfs.ext4
     imagesize: 1GB
@@ -118,6 +143,7 @@ actions:
         start: 0%
         end: 100%
         flags: [ boot ]
+{{ end }}
 
   - action: filesystem-deploy
     description: Deploying filesystem onto image
@@ -151,7 +177,7 @@ actions:
 
   - action: run
     chroot: true
-    script: scripts/crush.sh
+    script: scripts/crush.sh {{ $crush_image_options }}
 
 {{ if $extra_files_remove }}
   - action: run

@@ -1,0 +1,25 @@
+@Library('kernelci') _
+import org.kernelci.debian.RootFS
+
+/* ----------------------------------------------------------------------------
+ * Jenkins parameters
+
+DOCKER_BASE
+  Dockerhub base address used for the build images
+
+*/
+
+def r = new RootFS()
+
+def config = ['name':"buster-xfstests",
+              'arch_list':["amd64"],
+              'debian_release':"buster",
+              'extra_packages':"",
+              'extra_packages_remove':"",
+              'crush_image_options':"-s filesystem",
+              'multiple_partition':"yes",
+              'script':"scripts/buster-xfstests.sh",
+              'docker_image': "${params.DOCKER_BASE}debos",
+             ]
+
+r.buildImage(config)
