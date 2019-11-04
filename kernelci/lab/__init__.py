@@ -17,8 +17,8 @@
 
 import importlib
 import json
-import urlparse
-import xmlrpclib
+import urllib.parse
+import xmlrpc.client
 
 
 class LabAPI(object):
@@ -53,13 +53,13 @@ class LabAPI(object):
         *token* is the token associated with the user to connect to the lab
         """
         if user and token:
-            url = urlparse.urlparse(self.config.url)
+            url = urllib.parse.urlparse(self.config.url)
             api_url = "{scheme}://{user}:{token}@{loc}{path}".format(
                 scheme=url.scheme, user=user, token=token,
                 loc=url.netloc, path=url.path)
         else:
             api_url = self.config.url
-        self._server = xmlrpclib.ServerProxy(api_url)
+        self._server = xmlrpc.client.ServerProxy(api_url)
 
     def import_devices(self, data):
         self._devices = data

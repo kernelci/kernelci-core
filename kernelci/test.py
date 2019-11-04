@@ -16,7 +16,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import os
-import urlparse
+import urllib.parse
 
 
 def match_configs(configs, bmeta, dtbs, lab):
@@ -54,7 +54,7 @@ def match_configs(configs, bmeta, dtbs, lab):
         dtb = test_config.device_type.dtb
         if dtb and dtb not in dtbs:
             continue
-        for plan_name, plan in test_config.test_plans.iteritems():
+        for plan_name, plan in test_config.test_plans.items():
             if not plan.match(filters):
                 continue
             filters['plan'] = plan_name
@@ -81,11 +81,11 @@ def get_params(bmeta, target, plan_config, storage):
     url_px = file_server_resource
     job_name = '-'.join([job_px, dtb or 'no-dtb',
                          target.name, plan_config.name])
-    base_url = urlparse.urljoin(storage, '/'.join([url_px, '']))
+    base_url = urllib.parse.urljoin(storage, '/'.join([url_px, '']))
     kernel_img = bmeta['kernel_image']
-    kernel_url = urlparse.urljoin(storage, '/'.join([url_px, kernel_img]))
+    kernel_url = urllib.parse.urljoin(storage, '/'.join([url_px, kernel_img]))
     if dtb_full and dtb_full.endswith('.dtb'):
-        dtb_url = urlparse.urljoin(
+        dtb_url = urllib.parse.urljoin(
             storage, '/'.join([url_px, 'dtbs', dtb_full]))
         platform = dtb.split('.')[0]
     else:
@@ -93,7 +93,7 @@ def get_params(bmeta, target, plan_config, storage):
         platform = target.name
     modules = bmeta.get('modules')
     modules_url = (
-        urlparse.urljoin(storage, '/'.join([url_px, modules]))
+        urllib.parse.urljoin(storage, '/'.join([url_px, modules]))
         if modules else None
     )
     rootfs = plan_config.rootfs

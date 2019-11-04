@@ -284,7 +284,7 @@ class BuildVariant(YAMLObject):
         kw['build_environment'] = build_environments[kw['build_environment']]
         kw['architectures'] = list(
             Architecture.from_yaml(data or {}, name, fragments)
-            for name, data in config['architectures'].iteritems()
+            for name, data in config['architectures'].items()
         )
         cf = kw.get('fragments')
         kw['fragments'] = [fragments[name] for name in cf] if cf else None
@@ -296,7 +296,7 @@ class BuildVariant(YAMLObject):
 
     @property
     def arch_list(self):
-        return self._architectures.keys()
+        return list(self._architectures.keys())
 
     @property
     def architectures(self):
@@ -355,7 +355,7 @@ class BuildConfig(YAMLObject):
         config_variants = config.get('variants', default_variants)
         variants = [
             BuildVariant.from_yaml(variant, name, fragments, build_envs)
-            for name, variant in config_variants.iteritems()
+            for name, variant in config_variants.items()
         ]
         kw['variants'] = {v.name: v for v in variants}
         reference = config.get('reference', defaults.get('reference'))
@@ -393,17 +393,17 @@ def from_yaml(yaml_path):
 
     trees = {
         name: Tree.from_yaml(config, name)
-        for name, config in data['trees'].iteritems()
+        for name, config in data['trees'].items()
     }
 
     fragments = {
         name: Fragment.from_yaml(config, name)
-        for name, config in data.get('fragments', {}).iteritems()
+        for name, config in data.get('fragments', {}).items()
     }
 
     build_environments = {
         name: BuildEnvironment.from_yaml(config, name)
-        for name, config in data['build_environments'].iteritems()
+        for name, config in data['build_environments'].items()
     }
 
     defaults = data.get('build_configs_defaults', {})
@@ -411,7 +411,7 @@ def from_yaml(yaml_path):
     build_configs = {
         name: BuildConfig.from_yaml(config, name, trees, fragments,
                                     build_environments, defaults)
-        for name, config in data['build_configs'].iteritems()
+        for name, config in data['build_configs'].items()
     }
 
     config_data = {

@@ -26,7 +26,7 @@ import stat
 import tarfile
 import tempfile
 import time
-import urlparse
+import urllib.parse
 
 from kernelci import shell_cmd
 import kernelci.elf
@@ -68,9 +68,9 @@ def _upload_files(api, token, path, input_files):
     }
     files = {
         'file{}'.format(i): (name, fobj)
-        for i, (name, fobj) in enumerate(input_files.iteritems())
+        for i, (name, fobj) in enumerate(input_files.items())
     }
-    url = urlparse.urljoin(api, 'upload')
+    url = urllib.parse.urljoin(api, 'upload')
     resp = requests.post(url, headers=headers, data=data, files=files)
     resp.raise_for_status()
 
@@ -451,7 +451,7 @@ def _run_make(kdir, arch, target=None, jopt=None, silent=True, cc='gcc',
     args = ['make']
 
     if opts:
-        args += ['='.join([k, v]) for k, v in opts.iteritems()]
+        args += ['='.join([k, v]) for k, v in opts.items()]
 
     args += ['-C{}'.format(kdir)]
 
@@ -903,12 +903,12 @@ def publish_kernel(kdir, install='_install_', api=None, token=None,
             'build_environment': 'build_environment',
             'defconfig': 'defconfig',
             'defconfig_full': 'defconfig_full',
-        }.iteritems()}
+        }.items()}
         headers = {
             'Authorization': token,
             'Content-Type': 'application/json',
         }
-        url = urlparse.urljoin(api, '/build')
+        url = urllib.parse.urljoin(api, '/build')
         data_json = json.dumps(data)
         resp = requests.post(url, headers=headers, data=data_json)
         resp.raise_for_status()

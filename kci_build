@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright (C) 2018, 2019 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
@@ -28,7 +28,7 @@ class cmd_list_configs(Command):
     help = "List the build configurations"
 
     def __call__(self, configs, args):
-        for conf_name in configs['build_configs'].keys():
+        for conf_name in list(configs['build_configs'].keys()):
             print(conf_name)
         return True
 
@@ -215,7 +215,7 @@ class cmd_get_reference(Command):
     args = [Args.tree_name, Args.branch]
 
     def __call__(self, configs, args):
-        for conf in configs['build_configs'].itervalues():
+        for conf in configs['build_configs'].values():
             if conf.tree.name == args.tree_name and conf.branch == args.branch:
                 if conf.reference:
                     print(conf.reference.tree.url)

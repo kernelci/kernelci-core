@@ -63,7 +63,7 @@ class Blacklist(Filter):
     """
 
     def match(self, **kw):
-        for k, v in kw.iteritems():
+        for k, v in kw.items():
             bl = self._items.get(k)
             if not bl:
                 continue
@@ -82,7 +82,7 @@ class Whitelist(Filter):
     """
 
     def match(self, **kw):
-        for k, wl in self._items.iteritems():
+        for k, wl in self._items.items():
             v = kw.get(k)
             if not v:
                 return False
@@ -103,10 +103,10 @@ class Regex(Filter):
 
     def __init__(self, *args, **kw):
         super(Regex, self).__init__(*args, **kw)
-        self._re_items = {k: re.compile(v) for k, v in self._items.iteritems()}
+        self._re_items = {k: re.compile(v) for k, v in self._items.items()}
 
     def match(self, **kw):
-        for k, r in self._re_items.iteritems():
+        for k, r in self._re_items.items():
             v = kw.get(k)
             return v and r.match(v)
 
@@ -145,7 +145,7 @@ class FilterFactory(YAMLObject):
         """Iterate through the YAML filters and return Filter objects."""
         filter_list = []
         for f in filter_params:
-            for filter_type, items in f.iteritems():
+            for filter_type, items in f.items():
                 filter_cls = cls._classes[filter_type]
                 filter_list.append(filter_cls(items))
         return filter_list
