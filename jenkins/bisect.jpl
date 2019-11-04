@@ -53,8 +53,10 @@ BUILD_ENVIRONMENT
   Name of the build environment
 LAB
   Name of the lab in which to run the bisection tests
-PLAN (boot)
-  Name of the test plan
+TEST_PLAN
+  Name of the KernelCI test plan (e.g. baseline)
+TEST_PLAN_VARIANT:
+  Name of the KernelCI test plan variant (e.g. baseline_qemu)
 TEST_RUNS (1)
   Number of LAVA jobs to run before considering pass or fail.
 KCI_API_URL (https://api.kernelci.org)
@@ -209,7 +211,8 @@ git symbolic-ref HEAD refs/heads/${params.KERNEL_BRANCH}
 def buildKernel(kdir, kci_core) {
     def output = "${kdir}/build-${params.ARCH}-${params.BUILD_ENVIRONMENT}"
     dir(kci_core) {
-        sh(script: "rm -f ${env._BUILD_JSON}")
+        sh(script: "rm -f ${env._BMETA_JSON}")
+        sh(script: "rm -f ${env._DTBS_JSON}")
 
         sh(script: """\
 for d in \$(find ${kdir} -name "build-*" -type d); do
@@ -261,14 +264,10 @@ push_kernel \
 """)
         }
 
-        sh(script: """\
-./kci_build \
-publish_kernel \
---kdir=${kdir} \
---json-path=${env._BUILD_JSON} \
-""")
-
-        stash(name: env._BUILD_JSON, includes: env._BUILD_JSON)
+        dir("${kdir}/_install_") {
+            stash(name: env._BMETA_JSON, includes: env._BMETA_JSON)
+            stash(name: env._DTBS_JSON, includes: env.DTBS_JSON)
+        }
     }
 }
 
@@ -283,41 +282,68 @@ def buildRevision(kdir, kci_core, git_rev, name) {
  * kernel test with LAVA v2
  */
 
+def fetchLabInfo(kci_core) {
+    dir(kci_core) {
+        def token = "${params.LAB}-lava-api"
+
+        withCredentials([string(credentialsId: token, variable: 'SECRET')]) {
+            sh(script: """\
+./kci_test \
+get_lab_info \
+--lab=${params.LAB} \
+--lab-json=${env._LAB_JSON} \
+--user=kernel-ci \
+--token=${SECRET} \
+""")
+        }
+        stash(name: env._LAB_JSON, includes: env._LAB_JSON)
+    }
+}
+
 def submitJob(kci_core, describe, hook) {
     dir(kci_core) {
-        sh(script: "rm -rf ${env._BUILD_JSON}; rm -rf data; mkdir data")
-        unstash(env._BUILD_JSON)
-        sh(script: """
-./lava-v2-jobs-from-api.py \
---lab=${params.LAB} \
---builds=${env._BUILD_JSON} \
---storage=${params.KCI_STORAGE_URL} \
---plans=${params.PLAN} \
---jobs=data \
---arch=${params.ARCH} \
---tree=${params.KERNEL_TREE} \
---describe=${describe} \
---branch=${params.KERNEL_BRANCH} \
---defconfig_full=${params.DEFCONFIG} \
---priority=${params.LAVA_PRIORITY} \
---callback=${params.LAVA_CALLBACK} \
---callback-url=${hook.getURL()} \
---callback-dataset=results \
---callback-type=custom \
---targets=${params.TARGET}
+        sh(script: """\
+rm -f ${env._BMETA_JSON} \
+rm -f ${env._DTBS_JSON} \
+rm -f ${env._LAB_JSON} \
+rm -rf data; mkdir data \
 """)
+        unstash(env._BMETA_JSON)
+        unstash(env._DTBS_JSON)
+        unstash(env._LAB_JSON)
 
         def egg_cache = eggCache()
         def token = "${params.LAB}-lava-api"
 
+        /* ToDo: deal with params.LAVA_PRIORITY or drop it */
+
         withCredentials([string(credentialsId: token, variable: 'SECRET')]) {
-            sh(script: """
-PYTHON_EGG_CACHE=${egg_cache} \
-./lava-v2-submit-jobs.py \
---username=kernel-ci \
---token=${SECRET} \
+            sh(script: """ \
+./kci_test \
+generate \
+--bmeta-json=${env._BMETA_JSON} \
+--dtbs-json=${env._DTBS_JSON} \
+--lab-json=${env._LAB_JSON} \
+--storage=${params.KCI_STORAGE_URL} \
 --lab=${params.LAB} \
---jobs=data
+--user=kernel-ci \
+--token=${SECRET} \
+--output=data \
+--callback-id=${params.LAVA_CALLBACK} \
+--callback-url=${hook.getURL()} \
+--callback-dataset=results \
+--callback-type=custom \
+--target=${params.TARGET} \
+--plan=${params.TEST_PLAN_VARIANT} \
+""")
+
+            sh(script: """ \
+./kci_test \
+submit \
+--lab=${params.LAB} \
+--user=kernel-ci \
+--token=${SECRET} \
+--jobs=data/* \
 """)
         }
     }
@@ -551,6 +577,7 @@ def bisection(kci_core, kdir, checks) {
                 kci_core: { cloneKciCore(kci_core) },
                 kdir: { cloneLinux(kdir) },
             )
+            fetchLabInfo(kci_core)
         }
 
         bad = params.BAD_COMMIT
@@ -646,7 +673,9 @@ def bisection(kci_core, kdir, checks) {
 
 node("docker && bisection") {
     /* Global pipeline constants */
-    env._BUILD_JSON = "build-data.json"
+    env._BMETA_JSON = "bmeta.json"
+    env._DTBS_JSON = "dtbs.json"
+    env._LAB_JSON = "lab-info.json"
 
     def j = new Job()
     def kci_core = "${env.WORKSPACE}/kernelci-core"
@@ -663,14 +692,15 @@ node("docker && bisection") {
     Lab:       ${params.LAB}
     Defconfig: ${params.DEFCONFIG}
     Compiler:  ${params.BUILD_ENVIRONMENT}
-    Plan:      ${params.PLAN}"""
+    Plan:      ${params.TEST_PLAN}
+    Variant:   ${params.TEST_PLAN_VARIANT}"""
     print("""\
     Good:      ${params.GOOD_COMMIT}
     Bad:       ${params.BAD_COMMIT}
 ${params_summary}""")
 
-    if ((params.PLAN != 'boot') && (params.PLAN != 'simple')) {
-        echo "Only doing boot and simple plans for now, aborting."
+    if (params.TEST_PLAN != 'boot') {
+        echo "Only doing boot bisections for now, aborting."
         currentBuild.result = 'ABORTED'
         return
     }
