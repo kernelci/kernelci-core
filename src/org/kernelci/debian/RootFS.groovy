@@ -53,6 +53,7 @@ def buildImage(config) {
 
     def extraPackagesRemove = config.extra_packages_remove ?: ""
     def extraFilesRemove = config.extra_files_remove ?: ""
+    def crush_image_options = config.crush_image_options ?: ""
 
     // defaults to empty script scripts/nothing.sh
     def script = "scripts/nothing.sh"
@@ -79,6 +80,7 @@ def buildImage(config) {
                                                     name,
                                                     script,
                                                     test_overlay,
+                                                    crush_image_options,
                                                     docker_image)
     }
 
@@ -97,6 +99,7 @@ def makeImageStep(String pipeline_version,
                   String name,
                   String script,
                   String test_overlay,
+                  String crush_image_options,
                   String docker_image) {
     return {
         node("docker && debos") {
@@ -118,6 +121,7 @@ def makeImageStep(String pipeline_version,
                             -t extra_packages_remove:'${extraPackagesRemove}' \
                             -t extra_files_remove:'${extraFilesRemove}' \
                             -t script:${script} \
+                            -t crush_image_options:'${crush_image_options}' \
                             -t test_overlay:'${test_overlay}' \
                             ${debosFile}
                     """
