@@ -114,7 +114,7 @@ def get_params(bmeta, target, plan_config, storage):
         'image_url': base_url,
         'modules_url': modules_url,
         'plan': plan_config.base_name,
-        'plan_name': plan_config.base_name,
+        'plan_variant': plan_config.name,
         'kernel': describe,
         'tree': bmeta['job'],
         'defconfig': defconfig,

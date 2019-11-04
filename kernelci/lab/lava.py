@@ -96,7 +96,7 @@ class LAVA(LabAPI):
             return
         callback_type = opts.get('type')
         if callback_type == 'kernelci':
-            lava_cb = 'boot' if params['plan_name'] == 'boot' else 'test'
+            lava_cb = 'boot' if params['plan'] == 'boot' else 'test'
             # ToDo: consolidate this to just have to pass the callback_url
             params['callback_name'] = '/'.join(['lava', lava_cb])
         params.update({
