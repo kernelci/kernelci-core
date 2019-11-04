@@ -83,7 +83,7 @@ class LAVA(LabAPI):
             })
         device_type_online = {
             device_type: any(device['online'] for device in devices)
-            for device_type, devices in device_types.iteritems()
+            for device_type, devices in device_types.items()
         }
         return {
             'device_type_online': device_type_online,
@@ -109,7 +109,8 @@ class LAVA(LabAPI):
     def device_type_online(self, device_type):
         devices = self.devices['device_type_online']
         device_type_name = get_device_type_by_name(
-            device_type.base_name, devices.keys(), self.devices['aliases'])
+            device_type.base_name, list(devices.keys()),
+            self.devices['aliases'])
         return self.devices['device_type_online'].get(device_type_name, False)
 
     def job_file_name(self, params):
@@ -128,7 +129,7 @@ class LAVA(LabAPI):
             'priority': self.config.priority,
             'lab_name': self.config.name,
             'base_device_type': get_device_type_by_name(
-                base_name, devices.keys(), self.devices['aliases']),
+                base_name, list(devices.keys()), self.devices['aliases']),
         })
         self._add_callback_params(params, callback_opts)
         jinja2_env = Environment(loader=FileSystemLoader('templates'),

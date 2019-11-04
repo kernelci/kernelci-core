@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Copyright (C) 2018, 2019 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
@@ -23,10 +23,10 @@ import re
 import requests
 import subprocess
 try:
-    from cStringIO import StringIO
+    from io import StringIO
 except ImportError:
-    from StringIO import StringIO
-import urlparse
+    from io import StringIO
+import urllib.parse
 
 RE_ADDR = r'.*@.*\.[a-z]+'
 RE_TRAILER = re.compile(r'^(?P<tag>[A-Z][a-z-]*)\: (?P<value>.*)$')
@@ -120,7 +120,7 @@ def add_git_recipients(kdir, revision, to, cc):
     }
     people = git_people(kdir, revision)
 
-    for category, entries in people.iteritems():
+    for category, entries in people.items():
         recip = recipients_map[category]
         for e in entries:
             recip.add(e)
@@ -148,7 +148,7 @@ def upload_log(args, upload_path, log_file_name, token, api):
     files = {
         ('file1', (log_file_name, StringIO(json.dumps(log_data, indent=4)))),
     }
-    url = urlparse.urljoin(api, '/upload')
+    url = urllib.parse.urljoin(api, '/upload')
     response = requests.post(url, headers=headers, data=data, files=files)
     response.raise_for_status()
 
@@ -171,7 +171,7 @@ def send_result(args, log_file_name, token, api):
         'good_commit': 'good',
         'bad_commit': 'bad',
     }
-    data = {k: getattr(args, v) for k, v in data_map.iteritems()}
+    data = {k: getattr(args, v) for k, v in data_map.items()}
     kdir = args.kdir
     data.update({
         'log': log_file_name,
@@ -180,7 +180,7 @@ def send_result(args, log_file_name, token, api):
         'found_summary': git_summary(kdir, 'refs/bisect/bad'),
         'checks': checks_dict(args),
     })
-    url = urlparse.urljoin(api, '/bisect')
+    url = urllib.parse.urljoin(api, '/bisect')
     response = requests.post(url, headers=headers, data=json.dumps(data))
     response.raise_for_status()
 
@@ -206,9 +206,9 @@ def send_report(args, log_file_name, token, api):
         'subject': 'subject',
     }
 
-    data = {k: getattr(args, v) for k, v in data_map.iteritems()}
+    data = {k: getattr(args, v) for k, v in data_map.items()}
     to, cc = set(args.to.split(' ')), set()
-    if all(check == 'PASS' for check in checks_dict(args).values()):
+    if all(check == 'PASS' for check in list(checks_dict(args).values())):
         add_git_recipients(kdir, 'refs/bisect/bad', to, cc)
     cc = cc.difference(to)
     data.update({
@@ -220,7 +220,7 @@ def send_report(args, log_file_name, token, api):
         'delay': '60',
     })
 
-    url = urlparse.urljoin(api, '/send')
+    url = urllib.parse.urljoin(api, '/send')
     response = requests.post(url, headers=headers, data=json.dumps(data))
     response.raise_for_status()
 

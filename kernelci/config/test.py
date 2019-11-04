@@ -91,7 +91,7 @@ class DeviceType(YAMLObject):
     def match(self, flags, config):
         """Checks if the given *flags* and *config* match this device type."""
         return (
-            all(not v or self.get_flag(k) for k, v in flags.iteritems()) and
+            all(not v or self.get_flag(k) for k, v in flags.items()) and
             all(f.match(**config) for f in self._filters)
         )
 
@@ -189,9 +189,9 @@ class RootFSType(YAMLObject):
         arch_map = fs_type.get('arch_map')
         if arch_map:
             arch_dict = {}
-            for arch_name, arch_dicts in arch_map.iteritems():
+            for arch_name, arch_dicts in arch_map.items():
                 for d in arch_dicts:
-                    key = tuple((k, v) for (k, v) in d.iteritems())
+                    key = tuple((k, v) for (k, v) in d.items())
                     arch_dict[key] = arch_name
             kw['arch_dict'] = arch_dict
         return cls(**kw)
@@ -234,7 +234,7 @@ class RootFS(YAMLObject):
         """
         self._url_format = url_formats
         self._fs_type = fs_type
-        self._root_type = root_type or url_formats.keys()[0]
+        self._root_type = root_type or list(url_formats.keys())[0]
         self._boot_protocol = boot_protocol
         self._prompt = prompt
         self._arch_dict = {}
@@ -421,26 +421,26 @@ def from_yaml(yaml_path):
 
     fs_types = {
         name: RootFSType.from_yaml(fs_type)
-        for name, fs_type in data['file_system_types'].iteritems()
+        for name, fs_type in data['file_system_types'].items()
     }
 
     file_systems = {
         name: RootFS.from_yaml(fs_types, rootfs)
-        for name, rootfs in data['file_systems'].iteritems()
+        for name, rootfs in data['file_systems'].items()
     }
 
     plan_filters = FilterFactory.from_yaml(data['test_plan_default_filters'])
 
     test_plans = {
         name: TestPlan.from_yaml(name, test_plan, file_systems, plan_filters)
-        for name, test_plan in data['test_plans'].iteritems()
+        for name, test_plan in data['test_plans'].items()
     }
 
     device_filters = FilterFactory.from_yaml(data['device_default_filters'])
 
     device_types = {
         name: DeviceTypeFactory.from_yaml(name, device_type, device_filters)
-        for name, device_type in data['device_types'].iteritems()
+        for name, device_type in data['device_types'].items()
     }
 
     test_configs = [

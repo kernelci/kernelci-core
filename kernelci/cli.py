@@ -292,7 +292,7 @@ def add_subparser(parser, glob):
     sub_parser = parser.add_subparsers(title="Commands",
                                        help="List of available commands")
     commands = dict()
-    for k in glob.keys():
+    for k in list(glob.keys()):
         split = k.split('cmd_')
         if len(split) == 2:
             obj = glob.get(k)

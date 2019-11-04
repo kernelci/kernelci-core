@@ -101,7 +101,7 @@ def from_yaml(yaml_path):
 
     labs = {
         name: LabFactory.from_yaml(name, lab)
-        for name, lab in data['labs'].iteritems()
+        for name, lab in data['labs'].items()
     }
 
     config_data = {
