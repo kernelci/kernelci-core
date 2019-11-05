@@ -61,6 +61,9 @@ trees:
   krzysztof:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/krzk/linux.git"
 
+  lee:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/lee/linux.git"
+
   linaro-android:
     url: "https://android-git.linaro.org/git/kernel/linaro-android.git"
 
@@ -537,6 +540,17 @@ build_configs:
   krzysztof:
     tree: krzysztof
     branch: 'for-next'
+
+  lee_android_3.18:
+    tree: lee
+    branch: 'android-3.18-preview'
+    variants:
+      gcc-8:
+        build_environment: gcc-8
+        architectures:
+          x86_64: *x86_64_arch
+          arm64: *arm64_arch
+          arm: *arm_arch
 
   linaro-android:
     tree: linaro-android
