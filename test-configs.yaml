@@ -557,6 +557,11 @@ device_types:
             - 'multi_v7_defconfig+kselftest'
           kernel: ['v3.18']
 
+  imx8mn-ddr4-evk:
+    mach: freescale
+    class: arm64-dtb
+    boot_method: uboot
+
   jetson-tk1:
     mach: tegra
     class: arm-dtb
@@ -1365,6 +1370,13 @@ test_configs:
       - kselftest
       - sleep
       - usb
+
+  - device_type: imx8mn-ddr4-evk
+    test_plans:
+      - baseline
+      - boot
+      - boot-nfs
+      - kselftest
 
   - device_type: jetson-tk1
     test_plans:
