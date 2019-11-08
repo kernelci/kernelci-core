@@ -815,46 +815,73 @@ build_configs:
     tree: stable-rc
     branch: 'linux-3.18.y'
     variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-3.18.y'
 
   stable-rc_4.4:
     tree: stable-rc
     branch: 'linux-4.4.y'
     variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-4.4.y'
 
   stable-rc_4.9:
     tree: stable-rc
     branch: 'linux-4.9.y'
     variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-4.9.y'
 
   stable-rc_4.14:
     tree: stable-rc
     branch: 'linux-4.14.y'
     variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-4.14.y'
 
   stable-rc_4.19:
     tree: stable-rc
     branch: 'linux-4.19.y'
     variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-4.19.y'
 
   stable-rc_5.0:
     tree: stable-rc
     branch: 'linux-5.0.y'
     variants: *stable_variants
+    reference:
+          tree: stable
+          branch: 'linux-5.0.y'
 
   stable-rc_5.1:
     tree: stable-rc
     branch: 'linux-5.1.y'
     variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.1.y'
 
   stable-rc_5.2:
     tree: stable-rc
     branch: 'linux-5.2.y'
     variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.2.y'
 
   stable-rc_5.3:
     tree: stable-rc
     branch: 'linux-5.3.y'
     variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.3.y'
 
   tegra:
     tree: tegra
