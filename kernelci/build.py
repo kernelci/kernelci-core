@@ -143,6 +143,7 @@ def check_new_commit(config, storage):
 
 def _update_remote(config, path):
     shell_cmd("""
+set -e
 cd {path}
 if git remote | grep -e '^{remote}$'; then
     git remote set-url {remote} {url}
@@ -157,6 +158,7 @@ fi
 
 def _fetch_tags(path, url=TORVALDS_GIT_URL):
     shell_cmd("""
+set -e
 cd {path}
 git fetch --tags {url}
 """.format(path=path, url=url))
@@ -170,6 +172,7 @@ def update_mirror(config, path):
     """
     if not os.path.exists(path):
         shell_cmd("""
+set -e
 mkdir -p {path}
 cd {path}
 git init --bare
@@ -187,19 +190,19 @@ def update_repo(config, path, ref=None):
     """
     if not os.path.exists(path):
         ref_opt = '--reference={ref}'.format(ref=ref) if ref else ''
-        shell_cmd("""
-git clone {ref} -o {remote} {url} {path}
-""".format(ref=ref_opt, remote=config.tree.name,
-           url=config.tree.url, path=path))
+        shell_cmd("git clone {ref} -o {remote} {url} {path}".format(
+            ref=ref_opt, remote=config.tree.name,
+            url=config.tree.url, path=path))
 
     _update_remote(config, path)
-    _fetch_tags(path)
+    _fetch_tags(path, config.tree.url)
+    _fetch_tags(path, TORVALDS_GIT_URL)
 
     shell_cmd("""
+set -e
 cd {path}
 git reset --hard
 git clean -fd
-git fetch --tags {remote}
 git checkout --detach {remote}/{branch}
 """.format(path=path, remote=config.tree.name, branch=config.branch))
 
@@ -212,8 +215,9 @@ def head_commit(path):
     The returned value is the git SHA of the current HEAD of the branch checked
     out in the local git repository.
     """
-    cmd = """\
-cd {path} &&
+    cmd = """
+set -e
+cd {path}
 git log --pretty=format:%H -n1
 """.format(path=path)
     commit = shell_cmd(cmd)
@@ -230,9 +234,10 @@ def git_describe(tree_name, path):
     currently checked out in the local git repository.
     """
     describe_args = r"--match=v\*" if tree_name == "soc" else ""
-    cmd = """\
-cd {path} && \
-git describe {describe_args} \
+    cmd = """
+set -e
+cd {path}
+git describe {describe_args}
 """.format(path=path, describe_args=describe_args)
     describe = shell_cmd(cmd)
     return describe.strip().replace('/', '_')
@@ -247,9 +252,10 @@ def git_describe_verbose(path):
     the commit currently checked out in the local git repository.  This is
     typically based on a mainline kernel version tag.
     """
-    cmd = r"""\
-cd {path} &&
-git describe --match=v[1-9]\* \
+    cmd = r"""
+set -e
+cd {path}
+git describe --match=v[1-9]\*
 """.format(path=path)
     describe = shell_cmd(cmd)
     return describe.strip()
@@ -262,7 +268,8 @@ def add_kselftest_fragment(path, frag_path='kernel/configs/kselftest.config'):
     *frag_path* is the path where to create the fragment within the repo
     """
     shell_cmd(r"""
-cd {path} &&
+set -e
+cd {path}
 find \
   tools/testing/selftests \
   -name config \
@@ -522,13 +529,14 @@ def _make_defconfig(defconfig, kwargs, extras, verbose, log_file):
         os.chmod(kconfig_frag,
                  stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH)
         rel_path = os.path.relpath(output_path, kdir)
-        cmd = """\
+        cmd = """
+set -e
 cd {kdir}
 export ARCH={arch}
 export HOSTCC={cc}
 export CC={cc}
 export CROSS_COMPILE={cross}
-scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir} \
+scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
 """.format(kdir=kdir, arch=kwargs['arch'], cc=kwargs['cc'],
            cross=kwargs['cross_compile'], output=rel_path,
            base=os.path.join(rel_path, '.config'),
