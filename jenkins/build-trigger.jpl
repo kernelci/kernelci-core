@@ -74,13 +74,23 @@ update_mirror \
 --mirror=${mirror} \
 """)
 
-        sh(script: """\
+        while (true) {
+            try {
+                sh(script: """\
 ./kci_build \
 update_repo \
 --config=${config} \
 --kdir=${kdir} \
 --mirror=${mirror} \
 """)
+                break
+            } catch (error) {
+                print("Failed to update repo: ${error}")
+                print("Removing clone and retrying")
+                sh(script: "rm -rf ${kdir}")
+                sleep 1
+            }
+        }
 
         def describe_raw = sh(script: """\
 ./kci_build \
