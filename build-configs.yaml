@@ -229,6 +229,7 @@ build_configs_defaults:
         arm: &arm_arch
           base_defconfig: 'multi_v7_defconfig'
           extra_configs:
+            - 'allmodconfig'
             - 'allnoconfig'
             - 'multi_v7_defconfig+CONFIG_CPU_BIG_ENDIAN=y'
             - 'multi_v7_defconfig+CONFIG_SMP=n'
