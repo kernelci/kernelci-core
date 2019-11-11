@@ -16,13 +16,13 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import fnmatch
+import itertools
 import json
 import os
 import platform
 import requests
 import shutil
 import stat
-import subprocess
 import tarfile
 import tempfile
 import time
@@ -282,9 +282,13 @@ def make_tarball(kdir, tarball_name):
     *kdir* is the path to the local kernel source directory
     *tarball_name* is the name of the tarball file to create
     """
-    cmd = "tar -czf {name} --exclude=.git -C {kdir} .".format(
-        kdir=kdir, name=tarball_name)
-    subprocess.check_output(cmd, shell=True)
+    cwd = os.getcwd()
+    os.chdir(kdir)
+    _, dirs, files = next(os.walk('.'))
+    with tarfile.open(os.path.join(cwd, tarball_name), "w:gz") as tarball:
+        for item in itertools.chain(dirs, files):
+            tarball.add(item, filter=lambda f: f if f.name != '.git' else None)
+    os.chdir(cwd)
 
 
 def generate_config_fragment(frag, kdir):
