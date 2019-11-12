@@ -492,7 +492,9 @@ def bisectNext(kdir, status) {
  */
 
 def pushResults(kci_core, kdir, checks, params_summary) {
-    def subject = "${params.KERNEL_TREE}/${params.KERNEL_BRANCH} ${params.PLAN} bisection: ${params.KERNEL_NAME} on ${params.TARGET}"
+    def subject = "\
+${params.KERNEL_TREE}/${params.KERNEL_BRANCH} bisection: \
+${params.TEST_PLAN} on ${params.TARGET}"
 
     dir(kci_core) {
         withCredentials([string(credentialsId: params.KCI_TOKEN_ID,
