@@ -810,7 +810,7 @@ def install_kernel(kdir, tree_name, tree_url, git_branch, git_commit=None,
         'git_url': tree_url,
         'git_branch': git_branch,
         'git_describe': describe,
-        'git_describe_verbose': describe_v,
+        'git_describe_v': describe_v,
         'git_commit': git_commit,
         'file_server_resource': publish_path,
     })
