@@ -1,0 +1,3 @@
+rootfs_configs:
+  dummy-rootfs:
+    rootfs_type: debos
