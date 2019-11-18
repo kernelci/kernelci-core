@@ -45,9 +45,19 @@ class cmd_validate(Command):
             return True
 
 
+class cmd_list_configs(Command):
+    help = "Lists all rootfs config names"
+
+    def __call__(self, config_data, *args, **kwargs):
+        rootfs_configs = config_data['rootfs_configs']
+        for config_name in rootfs_configs:
+            print(config_name)
+        return True
+
 # -----------------------------------------------------------------------------
 # Main
 #
+
 
 if __name__ == '__main__':
     args = parse_args("kci_rootfs", "rootfs-configs.yaml", globals())
