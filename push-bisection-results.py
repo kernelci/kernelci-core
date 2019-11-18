@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2018 Collabora Limited
+# Copyright (C) 2018, 2019 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 #
 # This module is free software; you can redistribute it and/or modify it under
@@ -27,7 +27,6 @@ try:
 except ImportError:
     from StringIO import StringIO
 import urlparse
-from lib import configuration
 
 RE_ADDR = r'.*@.*\.[a-z]+'
 RE_TRAILER = re.compile(r'^(?P<tag>[A-Z][a-z-]*)\: (?P<value>.*)$')
@@ -128,14 +127,14 @@ def add_git_recipients(kdir, revision, to, cc):
 
 
 def checks_dict(args):
-    return {check: args[check] for check in [
+    return {check: getattr(args, check) for check in [
         'verify',
         'revert',
     ]}
 
 
 def upload_log(args, upload_path, log_file_name, token, api):
-    kdir = args['kdir']
+    kdir = args.kdir
     log_data = {
         'show': git_cmd(kdir, 'show refs/bisect/bad'),
         'log': git_bisect_log(kdir),
@@ -172,12 +171,12 @@ def send_result(args, log_file_name, token, api):
         'good_commit': 'good',
         'bad_commit': 'bad',
     }
-    data = {k: args[v] for k, v in data_map.iteritems()}
-    kdir = args['kdir']
+    data = {k: getattr(args, v) for k, v in data_map.iteritems()}
+    kdir = args.kdir
     data.update({
         'log': log_file_name,
-        'good_summary': git_summary(kdir, args['good']),
-        'bad_summary': git_summary(kdir, args['bad']),
+        'good_summary': git_summary(kdir, args.good),
+        'bad_summary': git_summary(kdir, args.bad),
         'found_summary': git_summary(kdir, 'refs/bisect/bad'),
         'checks': checks_dict(args),
     })
@@ -187,7 +186,7 @@ def send_result(args, log_file_name, token, api):
 
 
 def send_report(args, log_file_name, token, api):
-    kdir = args['kdir']
+    kdir = args.kdir
     headers = {
         'Authorization': token,
         'Content-Type': 'application/json',
@@ -207,8 +206,8 @@ def send_report(args, log_file_name, token, api):
         'subject': 'subject',
     }
 
-    data = {k: args[v] for k, v in data_map.iteritems()}
-    to, cc = set(args['to'].split(' ')), set()
+    data = {k: getattr(args, v) for k, v in data_map.iteritems()}
+    to, cc = set(args.to.split(' ')), set()
     if all(check == 'PASS' for check in checks_dict(args).values()):
         add_git_recipients(kdir, 'refs/bisect/bad', to, cc)
     cc = cc.difference(to)
@@ -227,38 +226,28 @@ def send_report(args, log_file_name, token, api):
 
 
 def main(args):
-    config = configuration.get_config(args)
-    token = config.get('token')
-    api = config.get('api')
-
-    if not token:
-        raise Exception("No KernelCI API token provided")
-    if not api:
-        raise Exception("No KernelCI API URL provided")
-
-    upload_path = '/'.join(args[k] for k in [
+    # ToDo: get file_resource from build meta-data
+    upload_path = '/'.join(getattr(args, k) for k in [
         'tree', 'branch', 'kernel', 'arch', 'defconfig',
         'build_environment', 'lab'])
-    log_file_name = 'bisect-{}.json'.format(args['target'])
+    log_file_name = 'bisect-{}.json'.format(args.target)
 
     print("Uploading bisect log: {}".format(upload_path))
-    upload_log(args, upload_path, log_file_name, token, api)
+    upload_log(args, upload_path, log_file_name, args.token, args.api)
 
     print("Sending bisection results")
-    send_result(args, log_file_name, token, api)
+    send_result(args, log_file_name, args.token, args.api)
 
     print("Sending bisection report email")
-    send_report(args, log_file_name, token, api)
+    send_report(args, log_file_name, args.token, args.api)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         "Push automated bisection results to the KernelCI backend API")
-    parser.add_argument("--config",
-                        help="path to KernelCI configuration file")
     parser.add_argument("--token",
-                        help="KernelCI API Token")
-    parser.add_argument("--api",
+                        help="KernelCI API Token", required=True)
+    parser.add_argument("--api", required=True,
                         help="KernelCI API URL")
     parser.add_argument("--lab", required=True,
                         help="KernelCI lab name")
@@ -292,5 +281,5 @@ if __name__ == '__main__':
                         help="email report subject")
     parser.add_argument("--to", required=True,
                         help="email recipients")
-    args = vars(parser.parse_args())
+    args = parser.parse_args()
     main(args)
