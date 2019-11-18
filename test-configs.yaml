@@ -845,7 +845,8 @@ device_types:
       guestfs_interface: 'virtio'
       machine: 'virt,gic-version=2'
     filters:
-      - whitelist: {defconfig: ['defconfig']}
+      - whitelist: {defconfig: ['defconfig', 'allmodconfig']}
+      - whitelist: {kernel: ['next']}
 
   qemu_arm64-virt-gicv3:
     base_name: qemu
@@ -858,7 +859,8 @@ device_types:
       guestfs_interface: 'virtio'
       machine: 'virt,gic-version=3'
     filters:
-      - whitelist: {defconfig: ['defconfig']}
+      - whitelist: {defconfig: ['defconfig', 'allmodconfig']}
+      - whitelist: {kernel: ['next']}
 
   qemu_i386:
     base_name: qemu
