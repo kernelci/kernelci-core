@@ -724,6 +724,19 @@ device_types:
     filters:
       - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
+  meson-sm1-sei610:
+    mach: amlogic
+    class: arm64-dtb
+    boot_method: uboot
+    filters:
+      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+    flags: ['fastboot']
+    params:
+      kernel_addr: '0x01080000'
+      dtb_addr: '0x1000000'
+      ramdisk_addr: '0x6000000'
+      cmdline: '"console=ttyAML0,115200 consoleblank=0 earlycon"'
+
   minnowboard-turbot-E3826:
     mach: x86
     arch: x86_64
@@ -1571,6 +1584,13 @@ test_configs:
       - boot
       - boot-nfs
       - kselftest
+      - simple
+
+  - device_type: meson-sm1-sei610
+    test_plans:
+      - baseline
+      - baseline-fastboot
+      - boot
       - simple
 
   - device_type: minnowboard-turbot-E3826
