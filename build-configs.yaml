@@ -674,7 +674,12 @@ build_configs:
           mips: *mips_arch
           riscv: *riscv_arch
           arc: *arc_arch
-          arm64: *arm64_arch
+          arm64:
+            extra_configs:
+              - 'allmodconfig+KCONFIG_ALLCONFIG=arch/arm64/configs/defconfig'
+              - 'allnoconfig'
+              - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
+              - 'defconfig+CONFIG_RANDOMIZE_BASE=y'
           arm:
             base_defconfig: 'multi_v7_defconfig'
             extra_configs:
