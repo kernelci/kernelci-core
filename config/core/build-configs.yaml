@@ -1087,7 +1087,7 @@ build_configs:
           arm64:
             <<: *arm64_arch
             extra_configs:
-              - 'allmodconfig'
+              - 'allmodconfig+KCONFIG_ALLCONFIG=arch/arm64/configs/defconfig'
               - 'allnoconfig'
               - 'defconfig+CONFIG_ARM64_16K_PAGES=y'
               - 'defconfig+CONFIG_ARM64_64K_PAGES=y'
