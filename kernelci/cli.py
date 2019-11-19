@@ -219,6 +219,11 @@ class Args(object):
         'type': int,
     }
 
+    publish_path = {
+        'name': '--publish-path',
+        'help': "Relative path where build artifacts are published",
+    }
+
 
 class Command(object):
     """A command helper class.
