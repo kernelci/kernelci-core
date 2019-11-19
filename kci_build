@@ -267,7 +267,7 @@ class cmd_install_kernel(Command):
     args = [Args.kdir]
     opt_args = [Args.config, Args.tree_name, Args.tree_url, Args.branch,
                 Args.commit, Args.describe, Args.describe_verbose,
-                Args.output]
+                Args.output, Args.publish_path]
 
     def __call__(self, configs, args):
         if args.config:
@@ -289,7 +289,7 @@ or
             return False
         return kernelci.build.install_kernel(
             args.kdir, tree_name, tree_url, branch, args.commit, args.describe,
-            args.describe_verbose, args.output)
+            args.describe_verbose, args.output, args.publish_path)
 
 
 class cmd_push_kernel(Command):

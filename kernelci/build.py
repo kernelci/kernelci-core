@@ -689,6 +689,7 @@ def build_kernel(build_env, kdir, arch, defconfig=None, jopt=None,
 
 def install_kernel(kdir, tree_name, tree_url, git_branch, git_commit=None,
                    describe=None, describe_v=None, output_path=None,
+                   publish_path=None,
                    install='_install_', mod_path='_modules_'):
     """Install the kernel binaries in a directory for a given built revision
 
@@ -794,9 +795,10 @@ def install_kernel(kdir, tree_name, tree_url, git_branch, git_commit=None,
     build_env = bmeta['build_environment']
     defconfig_full = bmeta['defconfig_full']
     defconfig_dir = defconfig_full.replace('/', '-')
-    publish_path = '/'.join([
-        tree_name, git_branch, describe, arch, defconfig_dir, build_env,
-    ])
+    if not publish_path:
+        publish_path = '/'.join([
+            tree_name, git_branch, describe, arch, defconfig_dir, build_env,
+        ])
 
     bmeta.update({
         'kconfig_fragments': 'frag.config' if os.path.exists(frags) else '',
