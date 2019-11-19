@@ -93,6 +93,9 @@ class cmd_get_lab_info(Command):
             'url': lab.url,
             'devices': lab_api.devices,
         }
+        dir = os.path.dirname(args.lab_json)
+        if dir and not os.path.exists(dir):
+            os.makedirs(dir)
         with open(args.lab_json, 'w') as json_file:
             json.dump(data, json_file, indent=4, sort_keys=True)
         return True
