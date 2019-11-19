@@ -15,6 +15,12 @@ some tests will be run and test reports will also be sent.
 Please provide the information described below in order to add a new branch to
 kernelci.org:
 
+- **Which Git branch do you want to add?**
+
+⇨ Git repo URL:
+
+⇨ Git branch name:
+
 - **How much build coverage do you need for your branch?**
 
 Generally speaking, a good rule is to build fewer variants for branches that
@@ -26,14 +32,14 @@ This is we do with linux-next.
 
 2. Skip a few things such as allmodconfig as it's very long to build and
 doesn't really boot, and also architectures that are less useful such as MIPS
-which saves 80 builds and doesn't have much test platforms in KernelCI.  This
+which saves 80 builds and doesn't have many test platforms in KernelCI.  This
 is we do with some subsystems such as linux-media.
 
 3. Build only the main defconfig for each architecture to save a lot of build
 power, get the fastest results and highest boots/builds ratio.  This is what do
 with some maintainer branches such as linusw' GPIO branch.
 
-⇨ Choice:
+⇨ Build coverage choice:
 
 - **How often do you expect this branch to be updated?**
 
