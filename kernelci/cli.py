@@ -199,6 +199,11 @@ class Args(object):
         'help': "Test plan name",
     }
 
+    mach = {
+        'name': '--mach',
+        'help': "Mach name (aka SoC family)",
+    }
+
     url = {
         'name': '--url',
         'help': "Kernel sources download URL",

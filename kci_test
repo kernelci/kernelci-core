@@ -103,7 +103,7 @@ class cmd_generate(Command):
     opt_args = [Args.plan, Args.target, Args.output,
                 Args.lab_json, Args.user, Args.token,
                 Args.callback_id, Args.callback_dataset,
-                Args.callback_type, Args.callback_url]
+                Args.callback_type, Args.callback_url, Args.mach]
 
     def __call__(self, test_configs, lab_configs, args):
         if args.callback_id and not args.callback_url:
@@ -132,6 +132,8 @@ class cmd_generate(Command):
                 if args.target and device_type.name != args.target:
                     continue
                 if args.plan and plan.name != args.plan:
+                    continue
+                if args.mach and device_type.mach != args.mach:
                     continue
                 jobs_list.append((device_type, plan))
 
