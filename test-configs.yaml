@@ -1023,6 +1023,12 @@ device_types:
     class: arm64-dtb
     boot_method: uboot
 
+  sun50i-h6-orangepi-3:
+    mach: allwinner
+    class: arm64-dtb
+    boot_method: uboot
+    flags: ['big_endian']
+
   sun50i-h6-orangepi-one-plus:
     mach: allwinner
     class: arm64-dtb
@@ -1814,6 +1820,11 @@ test_configs:
       - boot
 
   - device_type: sun50i-h6-orangepi-one-plus
+    test_plans:
+      - baseline
+      - boot
+
+  - device_type: sun50i-h6-orangepi-3
     test_plans:
       - baseline
       - boot
