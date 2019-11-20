@@ -13,3 +13,4 @@ script:
   - make test
   - pycodestyle kernelci
   - pycodestyle kci_*
+  - pycodestyle *.py
