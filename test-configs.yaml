@@ -598,7 +598,7 @@ device_types:
       - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson8b-odroidc1:
-    mach: meson
+    mach: amlogic
     class: arm-dtb
     boot_method: uboot
 
