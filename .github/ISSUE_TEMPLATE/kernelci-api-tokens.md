@@ -1,5 +1,5 @@
 ---
-name: New KernelCI API tokens
+name: KernelCI API tokens
 about: Request to get some KernelCI API tokens
 title: Request API tokens for USER
 labels: ''
