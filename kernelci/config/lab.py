@@ -97,7 +97,7 @@ class LabFactory(YAMLObject):
 
 def from_yaml(yaml_path):
     with open(yaml_path) as f:
-        data = yaml.load(f)
+        data = yaml.safe_load(f)
 
     labs = {
         name: LabFactory.from_yaml(name, lab)
