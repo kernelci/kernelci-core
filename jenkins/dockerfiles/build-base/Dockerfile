@@ -33,16 +33,11 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     wget \
     xz-utils
 
-# Python 2.7
+# Python 3.7
 RUN apt-get update && apt-get install --no-install-recommends -y \
-    python2.7 \
-    python-jinja2 \
-    python-keyring \
-    python-pyelftools \
-    python-requests \
-    python-yaml
-
-# Gradually moving everything to Python 3
-RUN apt-get update && apt-get install --no-install-recommends -y \
-    python3 \
+    python3.7 \
+    python3-jinja2 \
+    python3-keyring \
+    python3-pyelftools \
+    python3-requests \
     python3-yaml
