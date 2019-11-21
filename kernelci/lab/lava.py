@@ -113,7 +113,7 @@ class LAVA(LabAPI):
         return self.devices['device_type_online'].get(device_type_name, False)
 
     def job_file_name(self, params):
-        return '.'.join([params['name'], 'yaml'])
+        return '.'.join([params['filename'], 'yaml'])
 
     def generate(self, params, target, plan, callback_opts):
         short_template_file = plan.get_template_path(target.boot_method)

@@ -79,8 +79,11 @@ def get_params(bmeta, target, plan_config, storage):
     file_server_resource = bmeta['file_server_resource']
     job_px = file_server_resource.replace('/', '-')
     url_px = file_server_resource
-    job_name = '-'.join([job_px, dtb or 'no-dtb',
-                         target.name, plan_config.name])
+    job_name = '-'.join([job_px, target.name, plan_config.name])
+    if len(job_name) > 200:
+        job_name = '{}...'.format(job_name[:197])
+    job_filename = '-'.join([job_px, dtb or 'no-dtb',
+                             target.name, plan_config.name])
     base_url = urlparse.urljoin(storage, '/'.join([url_px, '']))
     kernel_img = bmeta['kernel_image']
     kernel_url = urlparse.urljoin(storage, '/'.join([url_px, kernel_img]))
@@ -104,6 +107,7 @@ def get_params(bmeta, target, plan_config, storage):
 
     params = {
         'name': job_name,
+        'filename': job_filename,
         'dtb_url': dtb_url,
         'dtb_short': dtb,
         'dtb_full': dtb_full,
