@@ -292,7 +292,7 @@ def make_tarball(kdir, tarball_name):
     cwd = os.getcwd()
     os.chdir(kdir)
     _, dirs, files = next(os.walk('.'))
-    with tarfile.open(os.path.join(cwd, tarball_name), "w:gz") as tarball:
+    with tarfile.open(os.path.join(cwd, tarball_name), 'w:gz') as tarball:
         for item in itertools.chain(dirs, files):
             tarball.add(item, filter=lambda f: f if f.name != '.git' else None)
     os.chdir(cwd)
@@ -348,7 +348,7 @@ def push_tarball(config, kdir, storage, api, token):
     tarball = "{}.tar.gz".format(config.name)
     make_tarball(kdir, tarball)
     path = '/'.join([config.tree.name, config.branch, describe]),
-    _upload_files(api, token, path, {tarball_name: open(tarball)})
+    _upload_files(api, token, path, {tarball_name: open(tarball, 'rb')})
     os.unlink(tarball)
     return tarball_url
 
@@ -844,7 +844,7 @@ def push_kernel(kdir, api, token, install='_install_'):
     for root, _, files in os.walk(install_path):
         for f in files:
             px = os.path.relpath(root, install_path)
-            artifacts[os.path.join(px, f)] = open(os.path.join(root, f))
+            artifacts[os.path.join(px, f)] = open(os.path.join(root, f), "rb")
     upload_path = bmeta['file_server_resource']
     print("Upload path: {}".format(upload_path))
     _upload_files(api, token, upload_path, artifacts)
