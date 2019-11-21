@@ -421,9 +421,9 @@ build_configs:
     tree: android
     branch: 'android-4.14-q-release'
 
-  android_4.14-r:
+  android_4.14:
     tree: android
-    branch: 'android-4.14-r'
+    branch: 'android-4.14'
 
   android_4.19-q:
     tree: android
@@ -433,9 +433,9 @@ build_configs:
     tree: android
     branch: 'android-4.19-q-release'
 
-  android_4.19-r:
+  android_4.19:
     tree: android
-    branch: 'android-4.19-r'
+    branch: 'android-4.19'
 
   android_mainline:
     tree: android
