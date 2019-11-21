@@ -156,7 +156,7 @@ class cmd_generate(Command):
                 file_name = api.job_file_name(params)
                 output_file = os.path.join(args.output, file_name)
                 print(output_file)
-                with open(output_file, 'wb') as output:
+                with open(output_file, 'w') as output:
                     output.write(job)
             else:
                 print("# Job: {}".format(params['name']))
@@ -176,7 +176,7 @@ class cmd_submit(Command):
         for path in job_paths:
             if not os.path.isfile(path):
                 continue
-            with open(path, 'rb') as job_file:
+            with open(path, 'r') as job_file:
                 job = job_file.read()
                 try:
                     job_id = lab_api.submit(job)
