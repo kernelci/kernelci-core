@@ -44,6 +44,6 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 
 # Extra packages needed by kernelCI
 RUN apt-get update && apt-get install --no-install-recommends -y \
-    python \
-    python-requests \
+    python3.7 \
+    python3-requests \
     xz-utils
