@@ -70,9 +70,6 @@ trees:
   linusw:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/linusw/linux-gpio.git/"
 
-  lsk:
-    url: "https://git.linaro.org/kernel/linux-linaro-stable.git"
-
   mainline:
     url: 'git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git'
 
@@ -571,74 +568,6 @@ build_configs:
     tree: linusw
     branch: 'for-next'
     variants: *minimal_variants
-
-  lsk_for-test:
-    tree: lsk
-    branch: 'for-test'
-
-  lsk_v4.4:
-    tree: lsk
-    branch: 'linux-linaro-lsk-v4.4'
-
-  lsk_v4.4-test:
-    tree: lsk
-    branch: 'linux-linaro-lsk-v4.4-test'
-
-  lsk_v4.4-rt:
-    tree: lsk
-    branch: 'linux-linaro-lsk-v4.4-rt'
-
-  lsk_v4.4-rt-test:
-    tree: lsk
-    branch: 'linux-linaro-lsk-v4.4-rt-test'
-
-  lsk_v4.4-android:
-    tree: lsk
-    branch: 'linux-linaro-lsk-v4.4-android'
-
-  lsk_v4.4-android-test:
-    tree: lsk
-    branch: 'linux-linaro-lsk-v4.4-android-test'
-    variants:
-      gcc-8:
-        build_environment: gcc-8
-        fragments: [linaro_android_base, linaro_android_recommended]
-        architectures:
-          arm: *arm_arch
-          arm64: *arm64_arch
-          x86_64: *x86_64_arch
-
-  lsk_v4.9:
-    tree: lsk
-    branch: 'linux-linaro-lsk-v4.9'
-
-  lsk_v4.9-test:
-    tree: lsk
-    branch: 'linux-linaro-lsk-v4.9-test'
-
-  lsk_v4.4.9-rt:
-    tree: lsk
-    branch: 'linux-linaro-lsk-v4.9-rt'
-
-  lsk_v4.9-rt-test:
-    tree: lsk
-    branch: 'linux-linaro-lsk-v4.9-rt-test'
-
-  lsk_v4.14:
-    tree: lsk
-    branch: 'linux-linaro-lsk-v4.14'
-
-  lsk_v4.14-test:
-    tree: lsk
-    branch: 'linux-linaro-lsk-v4.14-test'
-
-  lsk_v4.14-rt:
-    tree: lsk
-    branch: 'linux-linaro-lsk-v4.14-rt'
-
-  lsk_v4.14-rt-test:
-    tree: lsk
-    branch: 'linux-linaro-lsk-v4.14-rt-test'
 
   mainline:
     tree: mainline
