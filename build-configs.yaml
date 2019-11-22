@@ -64,9 +64,6 @@ trees:
   lee:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/lee/linux.git"
 
-  linaro-android:
-    url: "https://android-git.linaro.org/git/kernel/linaro-android.git"
-
   linusw:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/linusw/linux-gpio.git/"
 
@@ -135,12 +132,6 @@ fragments:
 
   kselftest:
     path: "kernel/configs/kselftest.config"
-
-  linaro_android_base:
-    path: "android/configs/android-base.cfg"
-
-  linaro_android_recommended:
-    path: "android/configs/android-recommended.cfg"
 
   tinyconfig:
     path: "kernel/configs/tiny.config"
@@ -549,10 +540,6 @@ build_configs:
           x86_64: *x86_64_arch
           arm64: *arm64_arch
           arm: *arm_arch
-
-  linaro-android:
-    tree: linaro-android
-    branch: 'linaro-android-llct'
 
   linusw_devel:
     tree: linusw
