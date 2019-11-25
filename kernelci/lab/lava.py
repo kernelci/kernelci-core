@@ -47,7 +47,7 @@ def get_device_type_by_name(name, device_types, aliases=[]):
     for alias in aliases:
         if alias["name"] == name:
             for device_type in device_types:
-                if alias["device_type"] == device_type:
+                if device_type in alias["device_types"]:
                     return device_type
     return None
 
