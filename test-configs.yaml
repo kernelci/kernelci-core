@@ -447,6 +447,11 @@ device_types:
     filters:
       - blacklist: *allmodconfig_filter
 
+  fsl-ls2088a-rdb:
+    mach: freescale
+    class: arm64-dtb
+    boot_method: uboot
+    
   hi6220-hikey:
     mach: hisilicon
     class: arm64-dtb
@@ -1410,6 +1415,10 @@ test_configs:
       - boot
       - kselftest
       - simple
+
+  - device_type: fsl-ls2088a-rdb
+    test_plans:
+      - baseline
 
   - device_type: hi6220-hikey
     test_plans:
