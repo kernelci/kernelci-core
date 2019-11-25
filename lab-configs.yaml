@@ -125,3 +125,7 @@ labs:
             - baseline
             - boot
             - kselftest
+
+  lab-nxp:
+    lab_type: lava
+    url: 'https://lavalab.nxp.com/RPC2'
