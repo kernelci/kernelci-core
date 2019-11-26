@@ -195,6 +195,12 @@ class Args(object):
         "Path to the install directory, or _install_ inside kdir by default",
     }
 
+    mod_path = {
+        'name': '--mod-path',
+        'help':
+        "Path to the installed modules, or _modules_ inside output by default",
+    }
+
     json_path = {
         'name': '--json-path',
         'help': "Path to the JSON file",
