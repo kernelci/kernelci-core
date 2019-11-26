@@ -189,6 +189,12 @@ class Args(object):
         'help': "Path the output directory",
     }
 
+    install_path = {
+        'name': '--install-path',
+        'help':
+        "Path to the install directory, or _install_ inside kdir by default",
+    }
+
     json_path = {
         'name': '--json-path',
         'help': "Path to the JSON file",
