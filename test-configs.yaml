@@ -821,6 +821,21 @@ device_types:
       - whitelist: {defconfig: ['defconfig']}
       - blacklist: {kernel: ['v3.']}
 
+  qemu_arm-versatilepb:
+    base_name: qemu
+    mach: qemu
+    arch: arm
+    context:
+      arch: 'arm'
+      machine: 'versatilepb'
+      cpu: 'arm926'
+      memory: 256
+      model: 'model=smc91c111'
+    dtb: 'versatile-pb.dtb'
+    boot_method: qemu
+    filters:
+      - whitelist: {defconfig: ['versatile_defconfig']}
+
   qemu_arm-vexpress-a9:
     base_name: qemu
     mach: qemu
@@ -848,21 +863,6 @@ device_types:
     boot_method: qemu
     filters:
       - whitelist: {defconfig: ['vexpress_defconfig']}
-
-  qemu_arm-versatilepb:
-    base_name: qemu
-    mach: qemu
-    arch: arm
-    context:
-      arch: 'arm'
-      machine: 'versatilepb'
-      cpu: 'arm926'
-      memory: 256
-      model: 'model=smc91c111'
-    dtb: 'versatile-pb.dtb'
-    boot_method: qemu
-    filters:
-      - whitelist: {defconfig: ['versatile_defconfig']}
 
   qemu_arm-virt-gicv2:
     base_name: qemu
@@ -1666,16 +1666,19 @@ test_configs:
       - baseline
       - boot
 
+  - device_type: qemu_arm-versatilepb
+    test_plans:
+      - baseline_qemu
+      - boot_qemu
+
   - device_type: qemu_arm-vexpress-a9
     test_plans:
+      - baseline_qemu
       - boot_qemu
 
   - device_type: qemu_arm-vexpress-a15
     test_plans:
-      - boot_qemu
-
-  - device_type: qemu_arm-versatilepb
-    test_plans:
+      - baseline_qemu
       - boot_qemu
 
   - device_type: qemu_arm-virt-gicv2
