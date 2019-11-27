@@ -132,7 +132,7 @@ def makeImageStep(String pipeline_version,
                 stage("Upload images for ${arch}") {
                     withCredentials([string(credentialsId: params.KCI_TOKEN_ID, variable: 'API_TOKEN')]) {
                         sh """
-                            python push-source.py --token ${API_TOKEN} --api ${params.KCI_API_URL} \
+                            python3 push-source.py --token ${API_TOKEN} --api ${params.KCI_API_URL} \
                                 --publish_path images/rootfs/debian/${name}/ \
                                 --file ${pipeline_version}/${arch}/*.*
                         """
