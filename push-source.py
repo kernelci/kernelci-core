@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 #
 # Copyright (C) 2017 Linaro Limited
 # Author: Matt Hart <matthew.hart@linaro.org>
