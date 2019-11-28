@@ -78,7 +78,7 @@ build_data['file_server_resource'] = publish_path
 file_count = 0
 filenames = args.get('file')
 for f in filenames:
-    artifacts.append(('file%d' % file_count, (f, open(f), 'rb')))
+    artifacts.append(('file%d' % file_count, (f, open(f, 'rb'), 'rb')))
     file_count += 1
 
 upload_url = urljoin(args.get('api'), '/upload')
