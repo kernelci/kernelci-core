@@ -48,7 +48,7 @@ def git_bisect_log(repo):
     p = subprocess.Popen("cd {}; git bisect log".format(repo),
                          shell=True, stdout=subprocess.PIPE)
     stdout, _ = p.communicate()
-    return list(l.strip() for l in StringIO(stdout).readlines())
+    return list(l.strip() for l in StringIO(stdout.decode()).readlines())
 
 
 def git_show_fmt(repo, revision, fmt):
@@ -73,7 +73,7 @@ def git_maintainers(kdir, revision):
     p = subprocess.Popen(
         "cd {}; ./scripts/get_maintainer.pl --nogit".format(kdir),
         shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
-    raw = p.communicate(input=body)[0]
+    raw = p.communicate(input=body)[0].decode()
     for l in raw.split('\n'):
         m = RE_EMAIL.match(l) or RE_MAILING_LIST.match(l)
         if m:
