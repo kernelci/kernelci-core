@@ -58,7 +58,7 @@ notify:
     content-type: json
 {% endif %}
 
-job_name: {{ name }}
+job_name: {{ name|truncate(200) }}
 timeouts:
   job:
     minutes: {{ job_timeout|default("10") }}
