@@ -1,3 +1,34 @@
 rootfs_configs:
-  dummy-rootfs:
+  buster:
     rootfs_type: debos
+    debian_release: buster
+    arch_list:
+      - 'amd64'
+      - 'arm64'
+      - 'armel'
+      - 'armhf'
+      - 'i386'
+      - 'mips'
+      - 'mipsel'
+      - 'mips64el'
+    extra_packages_remove:
+      - bash
+      - e2fslibs
+      - e2fsprogs
+      - klibc-utils
+      - libext2fs2
+      - libgnutls30
+      - libklibc
+      - libncursesw6
+      - libp11-kit0
+      - libunistring2
+      - sensible-utils
+    extra_files_remove:
+      - '*networkd*'
+      - '*resolved*'
+      - tar
+      - patch
+      - dir
+      - partx
+      - find
+    script: ""
