@@ -39,12 +39,51 @@ class RootFS(YAMLObject):
 
 
 class RootFS_Debos(RootFS):
-    def __init__(self, *args, **kwargs):
-        super(RootFS_Debos, self).__init__(*args, **kwargs)
+    def __init__(self, name, rootfs_type, debian_release=None,
+                 arch_list=None, extra_packages=None,
+                 extra_packages_remove=None,
+                 extra_files_remove=None, script=""):
+
+        super(RootFS_Debos, self).__init__(name, rootfs_type)
+        self._debian_release = debian_release
+        self._arch_list = arch_list or list()
+        self._extra_packages = extra_packages or list()
+        self._extra_packages_remove = extra_packages_remove or list()
+        self._extra_files_remove = extra_files_remove or list()
+        self._script = script
 
     @classmethod
-    def from_yaml(cls, name, kw):
+    def from_yaml(cls, config, name):
+        kw = name
+        kw.update(cls._kw_from_yaml(
+            config, ['name', 'debian_release', 'arch_list',
+                     'extra_packages', 'extra_packages_remove',
+                     'extra_files_remove', 'script']))
         return cls(**kw)
+
+    @property
+    def debian_release(self):
+        return self._debian_release
+
+    @property
+    def arch_list(self):
+        return list(self._arch_list)
+
+    @property
+    def extra_packages(self):
+        return list(self._extra_packages)
+
+    @property
+    def extra_packages_remove(self):
+        return list(self._extra_packages_remove)
+
+    @property
+    def extra_files_remove(self):
+        return list(self._extra_files_remove)
+
+    @property
+    def script(self):
+        return self._script
 
 
 class RootFSFactory(YAMLObject):
@@ -69,7 +108,7 @@ def from_yaml(yaml_path):
 
     rootfs_configs = {
         name: RootFSFactory.from_yaml(name, rootfs)
-        for name, rootfs in data['rootfs_configs'].iteritems()
+        for name, rootfs in data['rootfs_configs'].items()
     }
 
     config_data = {
