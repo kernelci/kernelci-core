@@ -306,7 +306,6 @@ def submitJob(kci_core, describe, hook) {
 rm -f ${env._BMETA_JSON} \
 rm -f ${env._DTBS_JSON} \
 rm -f ${env._LAB_JSON} \
-rm -rf data; mkdir data \
 """)
         unstash(env._BMETA_JSON)
         unstash(env._DTBS_JSON)
@@ -328,13 +327,13 @@ generate \
 --lab=${params.LAB} \
 --user=kernel-ci \
 --token=${SECRET} \
---output=data \
 --callback-id=${params.LAVA_CALLBACK} \
 --callback-url=${hook.getURL()} \
 --callback-dataset=results \
 --callback-type=custom \
 --target=${params.TARGET} \
 --plan=${params.TEST_PLAN_VARIANT} \
+> job.yaml
 """)
 
             sh(script: """ \
@@ -343,7 +342,7 @@ submit \
 --lab=${params.LAB} \
 --user=kernel-ci \
 --token=${SECRET} \
---jobs=data/* \
+--jobs=job.yaml \
 """)
         }
     }
