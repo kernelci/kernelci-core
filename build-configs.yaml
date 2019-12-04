@@ -425,6 +425,10 @@ build_configs:
     tree: android
     branch: 'android-4.19'
 
+  android_5.4:
+    tree: android
+    branch: 'android-5.4'
+
   android_mainline:
     tree: android
     branch: 'android-mainline'
