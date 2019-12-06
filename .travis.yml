@@ -3,11 +3,11 @@ dist: xenial
 language: python
 
 python:
-  - "2.7"
+  - "3.7"
 
 install:
-  - pip install -r requirements.txt
-  - pip install pycodestyle
+  - pip3 install -r requirements.txt
+  - pip3 install pycodestyle
 
 script:
   - make test
