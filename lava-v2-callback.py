@@ -70,6 +70,21 @@ def handle_boot(cb):
     return BOOT_STATUS_MAP.get(job_status, BISECT_SKIP)
 
 
+def _add_login_case(cases, tests):
+    tests_by_name = {t['name']: t for t in tests}
+    login = tests_by_name.get(name)
+    if not login:
+        return
+    cases.append({'login': login['result']})
+
+
+def _add_login_case(results, tests):
+    tests_by_name = {t['name']: t for t in tests}
+    login = tests_by_name.get('auto-login-action')
+    if login:
+        results['login'] = login['result']
+
+
 def _add_test_results(results, tests, suite_name):
     suite_name = suite_name.partition("_")[2]
     suite_results = results[suite_name] = dict()
@@ -87,7 +102,10 @@ def _parse_results(data):
     results = dict()
     for suite_name, suite_results in data.items():
         tests = yaml.load(suite_results, Loader=yaml.CLoader)
-        _add_test_results(results, tests, suite_name)
+        if suite_name == 'lava':
+            _add_login_case(results, tests)
+        else:
+            _add_test_results(results, tests, suite_name)
     return results
 
 
