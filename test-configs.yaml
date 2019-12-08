@@ -1018,6 +1018,12 @@ device_types:
     class: arm64-dtb
     boot_method: uboot
 
+  sun50i-a64-pine64-plus:
+    mach: allwinner
+    class: arm64-dtb
+    boot_method: uboot
+    flags: ['big_endian']
+
   sun50i-h5-libretech-all-h3-cc:
     mach: allwinner
     class: arm64-dtb
@@ -1813,6 +1819,11 @@ test_configs:
       - simple
 
   - device_type: sun50i-a64-bananapi-m64
+    test_plans:
+      - baseline
+      - boot
+
+  - device_type: sun50i-a64-pine64-plus
     test_plans:
       - baseline
       - boot
