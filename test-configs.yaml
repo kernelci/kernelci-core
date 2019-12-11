@@ -1045,6 +1045,11 @@ device_types:
     class: arm64-dtb
     boot_method: uboot
 
+  sun50i-h6-pine-h64-model-b:
+    mach: allwinner
+    class: arm64-dtb
+    boot_method: uboot
+
   sun5i-a13-olinuxino-micro:
     mach: allwinner
     class: arm-dtb
@@ -1844,6 +1849,11 @@ test_configs:
       - boot
 
   - device_type: sun50i-h6-pine-h64
+    test_plans:
+      - baseline
+      - boot
+
+  - device_type: sun50i-h6-pine-h64-model-b
     test_plans:
       - baseline
       - boot
