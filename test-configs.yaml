@@ -1040,6 +1040,7 @@ device_types:
     class: arm64-dtb
     boot_method: uboot
 
+# sun50i-h6-pine-h64 model A
   sun50i-h6-pine-h64:
     mach: allwinner
     class: arm64-dtb
@@ -1049,6 +1050,21 @@ device_types:
     mach: allwinner
     class: arm64-dtb
     boot_method: uboot
+
+#Pine H64 exists in two version A and B.
+#Before 5.5, sun50i-h6-pine-h64 was for model B but could be also used for model A.
+#Starting with 5.5, sun50i-h6-pine-h64 will be only for model A and a new
+#dtb will exists for model B.
+#And so a new LAVA device-type will be necessary.
+#But we need to test model B before 5.5 using the pre 5.5 sun50i-h6-pine-h64.dtb WITH the the new model B LAVA device-type.
+  sun50i-h6-pine-h64-model-b_5.4:
+    base_name: "sun50i-h6-pine-h64-model-b"
+    dtb: "allwinner/sun50i-h6-pine-h64.dtb"
+    mach: allwinner
+    class: arm64-dtb
+    boot_method: uboot
+    filters:
+      - whitelist: {kernel: ['v4.9', 'v4.14', 'v4.19', 'v5.3', 'v5.4']}
 
   sun5i-a13-olinuxino-micro:
     mach: allwinner
@@ -1854,6 +1870,11 @@ test_configs:
       - boot
 
   - device_type: sun50i-h6-pine-h64-model-b
+    test_plans:
+      - baseline
+      - boot
+
+  - device_type: sun50i-h6-pine-h64-model-b_5.4
     test_plans:
       - baseline
       - boot
