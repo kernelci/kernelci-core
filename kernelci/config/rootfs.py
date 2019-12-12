@@ -15,6 +15,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+import sys
 import yaml
 
 from kernelci.config import YAMLObject
@@ -94,10 +95,15 @@ class RootFSFactory(YAMLObject):
     @classmethod
     def from_yaml(cls, name, rootfs):
         rootfs_type = rootfs.get('rootfs_type')
-        kw = {
-            'name': name,
-            'rootfs_type': rootfs_type,
-        }
+        if rootfs_type is None:
+            raise TypeError("rootfs_type cannot be Empty")
+        elif rootfs_type not in cls._rootfs_types:
+            raise ValueError("Unsupported value {}".format(rootfs_type))
+        else:
+            kw = {
+                'name': name,
+                'rootfs_type': rootfs_type,
+                }
         rootfs_cls = cls._rootfs_types[rootfs_type] if rootfs_type else RootFS
         return rootfs_cls.from_yaml(rootfs, kw)
 
