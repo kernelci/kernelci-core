@@ -20,6 +20,7 @@
 import sys
 
 from kernelci.cli import Args, Command, parse_args
+import kernelci.rootfs
 import kernelci.config.rootfs
 
 # -----------------------------------------------------------------------------
@@ -54,6 +55,21 @@ class cmd_list_configs(Command):
             print(config_name)
         return True
 
+
+class cmd_build(Command):
+    help = "Build rootfs image"
+    args = [Args.config, Args.data_path]
+
+    def __call__(self, config_data, args, **kwargs):
+        data_path = args.data_path
+        config_name = args.config
+        if config_name not in config_data['rootfs_configs']:
+            print("{} invalid. Check 'kci_rootfs list_configs' for valid \
+                    entries".format(config_name))
+            return False
+        config = config_data['rootfs_configs'][args.config]
+        kernelci.rootfs.build(config_name, config, data_path)
+        return True
 # -----------------------------------------------------------------------------
 # Main
 #
