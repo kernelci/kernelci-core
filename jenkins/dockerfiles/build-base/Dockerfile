@@ -38,6 +38,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     python3.7 \
     python3-jinja2 \
     python3-keyring \
+    python3-pip \
     python3-pyelftools \
     python3-requests \
     python3-yaml
