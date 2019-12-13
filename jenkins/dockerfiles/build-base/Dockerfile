@@ -42,3 +42,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     python3-pyelftools \
     python3-requests \
     python3-yaml
+
+# kernelci-core tools and dependencies
+RUN git clone --depth 1 --branch master https://github.com/kernelci/kernelci-core.git /opt/kernelci-core; \
+  (cd /opt/kernelci-core; pip3 install `cat requirements.txt`)
