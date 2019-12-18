@@ -13,8 +13,16 @@
           - functional
         run:
           steps:
-            - for i in $(seq 1 10); do lava-test-case rtcwake-mem-$i --shell rtcwake -d rtc0 -m mem -s 1; done
-            - for i in $(seq 1 10); do lava-test-case rtcwake-freeze-$i --shell rtcwake -d rtc0 -m freeze -s 1; done
+            - >
+              for i in $(seq 1 10); do
+                lava-test-case rtcwake-mem-$i --shell \
+                  rtcwake -d rtc0 -m mem -s 5
+              done
+            - >
+              for i in $(seq 1 10); do
+                lava-test-case rtcwake-freeze-$i --shell \
+                  rtcwake -d rtc0 -m freeze -s 5
+              done
       lava-signal: kmsg
       from: inline
       name: sleep
