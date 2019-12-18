@@ -46,7 +46,7 @@ class RootFS_Debos(RootFS):
                  extra_files_remove=None, script="",
                  test_overlay="", crush_image_options=None):
 
-        super(RootFS_Debos, self).__init__(name, rootfs_type)
+        super().__init__(name, rootfs_type)
         self._debian_release = debian_release
         self._arch_list = arch_list or list()
         self._extra_packages = extra_packages or list()

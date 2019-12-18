@@ -101,7 +101,7 @@ class DeviceType_arc(DeviceType):
     def __init__(self, name, mach, arch='arc', *args, **kw):
         """arc device type with a device tree."""
         kw.setdefault('dtb', '{}.dtb'.format(name))
-        super(DeviceType_arc, self).__init__(name, mach, arch, *args, **kw)
+        super().__init__(name, mach, arch, *args, **kw)
 
 
 class DeviceType_arm(DeviceType):
@@ -109,7 +109,7 @@ class DeviceType_arm(DeviceType):
     def __init__(self, name, mach, arch='arm', *args, **kw):
         """arm device type with a device tree."""
         kw.setdefault('dtb', '{}.dtb'.format(name))
-        super(DeviceType_arm, self).__init__(name, mach, arch, *args, **kw)
+        super().__init__(name, mach, arch, *args, **kw)
 
 
 class DeviceType_mips(DeviceType):
@@ -117,7 +117,7 @@ class DeviceType_mips(DeviceType):
     def __init__(self, name, mach, arch='mips', *args, **kw):
         """mips device type with a device tree."""
         kw.setdefault('dtb', '{}.dtb'.format(name))
-        super(DeviceType_mips, self).__init__(name, mach, arch, *args, **kw)
+        super().__init__(name, mach, arch, *args, **kw)
 
 
 class DeviceType_arm64(DeviceType):
@@ -125,7 +125,7 @@ class DeviceType_arm64(DeviceType):
     def __init__(self, name, mach, arch='arm64', *args, **kw):
         """arm64 device type with a device tree."""
         kw.setdefault('dtb', '{}/{}.dtb'.format(mach, name))
-        super(DeviceType_arm64, self).__init__(name, mach, arch, *args, **kw)
+        super().__init__(name, mach, arch, *args, **kw)
 
 
 class DeviceType_riscv(DeviceType):
@@ -133,7 +133,7 @@ class DeviceType_riscv(DeviceType):
     def __init__(self, name, mach, arch='riscv', *args, **kw):
         """RISCV device type with a device tree."""
         kw.setdefault('dtb', '{}/{}.dtb'.format(mach, name))
-        super(DeviceType_riscv, self).__init__(name, mach, arch, *args, **kw)
+        super().__init__(name, mach, arch, *args, **kw)
 
 
 class DeviceTypeFactory(YAMLObject):

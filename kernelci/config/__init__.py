@@ -23,7 +23,7 @@ import yaml
 # Common classes for all config types
 #
 
-class YAMLObject(object):
+class YAMLObject:
     """Base class with helper methods to initialise objects from YAML data."""
 
     @classmethod
@@ -42,7 +42,7 @@ class YAMLObject(object):
         } if data else dict()
 
 
-class Filter(object):
+class Filter:
     """Base class to implement arbitrary configuration filters."""
 
     def __init__(self, items):
@@ -102,7 +102,7 @@ class Regex(Filter):
     """
 
     def __init__(self, *args, **kw):
-        super(Regex, self).__init__(*args, **kw)
+        super().__init__(*args, **kw)
         self._re_items = {k: re.compile(v) for k, v in self._items.items()}
 
     def match(self, **kw):
