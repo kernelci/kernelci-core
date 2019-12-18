@@ -22,7 +22,7 @@ import argparse
 # Standard arguments that can be used in sub-commands
 #
 
-class Args(object):
+class Args:
     """A list of all the common command line argument options
 
     All the members of this class are arguments that can be reused in various
@@ -268,7 +268,7 @@ class Args(object):
     }
 
 
-class Command(object):
+class Command:
     """A command helper class.
 
     It contains several class attributes:

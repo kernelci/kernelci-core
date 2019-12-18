@@ -60,7 +60,7 @@ class Lab(YAMLObject):
 class Lab_LAVA(Lab):
 
     def __init__(self, priority='medium', *args, **kwargs):
-        super(Lab_LAVA, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._priority = priority
 
     @property
