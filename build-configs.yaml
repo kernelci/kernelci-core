@@ -542,6 +542,7 @@ build_configs:
         build_environment: gcc-8
         architectures:
           x86_64: *x86_64_arch
+          i386: *i386_arch
           arm64: *arm64_arch
           arm: *arm_arch
 
