@@ -38,7 +38,7 @@ labs:
           plan:
             - baseline
             - boot
-            - cros-ec
+            - crostests
             - igt-drm-kms
             - sleep
             - usb

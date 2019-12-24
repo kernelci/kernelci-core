@@ -5,15 +5,15 @@
     - repository:
         metadata:
           format: Lava-Test Test Definition 1.0
-          name: cros-ec
-          description: "check /dev/cros_ec"
+          name: {{ plan }}
+          description: "cros test plan"
           os:
-          - oe
+          - debian
           scope:
           - functional
         run:
           steps:
-            - lava-test-case cros-ec-presence --shell test -c /dev/cros_ec
+            - python3 -m cros.runners.lava_runner
       from: inline
-      name: cros-ec
-      path: inline/cros-ec.yaml
+      name: {{ plan }}
+      path: inline/{{ plan }}.yaml

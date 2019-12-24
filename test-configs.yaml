@@ -161,8 +161,8 @@ test_plans:
     filters:
       - blacklist: *clang_environment_filter
 
-  cros-ec:
-    rootfs: debian_buster_ramdisk
+  crostests:
+    rootfs: debian_buster-crostests_ramdisk
 
   igt-drm-kms:
     rootfs: debian_buster-igt_ramdisk
@@ -1683,7 +1683,7 @@ test_configs:
     test_plans:
       - baseline
       - boot
-      - cros-ec
+      - crostests
       - kselftest
       - sleep
       - usb
@@ -1776,7 +1776,7 @@ test_configs:
     test_plans:
       - baseline
       - boot
-      - cros-ec
+      - crostests
       - sleep
       - v4l2-compliance-uvc
 
@@ -1810,7 +1810,7 @@ test_configs:
       - baseline
       - boot
       - boot-nfs
-      - cros-ec
+      - crostests
       - igt-drm-kms
       - sleep
       - usb
@@ -1971,7 +1971,7 @@ test_configs:
     test_plans:
       - baseline
       - boot
-      - cros-ec
+      - crostests
       - igt-drm-kms
       - sleep
       - usb
