@@ -176,9 +176,18 @@ Initialising kernel tree
   branch: ${params.KERNEL_BRANCH}
   path:   ${kdir}""")
 
-    if (sh(returnStatus: true, script: "test -d ${kdir}/.git") == 0) {
+    def is_git = !sh(returnStatus: true, script: "test -d ${kdir}/.git")
+    def is_valid = (is_git &&
+                    !sh(returnStatus: true, script: "cd ${kdir}; git status"))
+
+    if (is_valid) {
         setRemote(kdir, params.KERNEL_TREE, params.KERNEL_URL)
     } else {
+        if (is_git) {
+            print("Broken Git clone, recreating ${kdir}")
+            sh(script: "rm -rf ${kdir}")
+        }
+
         sh(script: """
 git clone ${params.KERNEL_URL} ${kdir} \
   -b ${params.KERNEL_BRANCH} \
