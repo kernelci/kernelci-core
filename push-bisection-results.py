@@ -211,6 +211,20 @@ def send_report(args, log_file_name, token, api):
     if all(check == 'PASS' for check in list(checks_dict(args).values())):
         add_git_recipients(kdir, 'refs/bisect/bad', to, cc)
     cc = cc.difference(to)
+
+    print("Recipients:")
+    for recipients, cat in (to, 'to'), (cc, 'cc'):
+        print("{}:".format(cat))
+        for r in recipients:
+            print("  {}".format(r))
+
+    if args.no_auto_recipients:
+        print("Not sending to automatic recipients.  Final recipients:")
+        to = set(args.to.split(' '))
+        cc = set()
+        for r in to:
+            print("  {}".format(r))
+
     data.update({
         'report_type': 'bisect',
         'log': log_file_name,
@@ -281,5 +295,7 @@ if __name__ == '__main__':
                         help="email report subject")
     parser.add_argument("--to", required=True,
                         help="email recipients")
+    parser.add_argument("--no-auto-recipients", action='store_true',
+                        help="Disable automatic email recipients")
     args = parser.parse_args()
     main(args)
