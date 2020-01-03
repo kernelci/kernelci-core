@@ -531,6 +531,7 @@ PYTHON_EGG_CACHE=${egg_cache} \
 --kdir=${kdir} \
 --subject=\"${subject}\" \
 --to=\"${params.EMAIL_RECIPIENTS}\" \
+--no-auto-recipients \
 """)
         }
     }
