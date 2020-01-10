@@ -39,7 +39,10 @@ labs:
             - baseline
             - boot
             - cros-ec
-            - igt-drm-kms
+            - igt-kms-rockchip
+            - igt-kms-exynos
+            - igt-kms-tegra
+            - igt-gpu-panfrost
             - sleep
             - usb
             - v4l2-compliance-uvc

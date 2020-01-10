@@ -14,7 +14,7 @@
         run:
           steps:
           - >
-              /usr/bin/igt-parser.sh
+              IGT_FORCE_DRIVER={{ drm_driver }} /usr/bin/igt-parser.sh
               {{ tests|wordwrap(1, False, "\n              ") }}
       from: inline
       name: {{ plan }}
