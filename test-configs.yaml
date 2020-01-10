@@ -168,10 +168,10 @@ test_plans:
   cros-ec:
     rootfs: debian_buster-cros-ec_ramdisk
 
-  igt-drm-kms:
+  igt-kms: &igt
     rootfs: debian_buster-igt_ramdisk
     pattern: 'igt/{category}-{method}-{protocol}-{rootfs}-igt.jinja2'
-    params:
+    params: &igt-kms-test-list
       tests: >
         core_auth
         core_getclient
@@ -183,7 +183,36 @@ test_plans:
         kms_atomic
         kms_flip_event_leak
         kms_prop_blob
-        kms_setmode kms_vblank
+        kms_setmode
+        kms_vblank
+
+  igt-kms-rockchip:
+    <<: *igt
+    params:
+      <<: *igt-kms-test-list
+      drm_driver: "rockchip"
+
+  igt-kms-tegra:
+    <<: *igt
+    params:
+      <<: *igt-kms-test-list
+      drm_driver: "tegra"
+
+  igt-kms-exynos:
+    <<: *igt
+    params:
+      <<: *igt-kms-test-list
+      drm_driver: "exynos"
+
+  igt-gpu-panfrost:
+    <<: *igt
+    params:
+      drm_driver: "panfrost"
+      tests: >
+        panfrost_gem_new
+        panfrost_get_param
+        panfrost_prime
+        panfrost_submit
 
   kselftest:
     rootfs: buildroot_kselftest_ramdisk
@@ -1667,7 +1696,7 @@ test_configs:
       - baseline
       - boot
       - boot-nfs
-      - igt-drm-kms
+      - igt-kms-exynos
       - kselftest
       - sleep
       - usb
@@ -1797,7 +1826,7 @@ test_configs:
       - v4l2-compliance-uvc
 
   - device_type: rk3399-gru-kevin
-    test_plans: [igt-drm-kms]
+    test_plans: [igt-kms-rockchip, igt-gpu-panfrost]
     filters:
       - blacklist: {kernel: ['v3.', 'v4.4', 'v4.9', 'v4.14']}
 
@@ -1827,7 +1856,8 @@ test_configs:
       - boot
       - boot-nfs
       - cros-ec
-      - igt-drm-kms
+      - igt-kms-rockchip
+      - igt-gpu-panfrost
       - sleep
       - usb
       - v4l2-compliance-uvc
@@ -1998,7 +2028,7 @@ test_configs:
       - baseline
       - boot
       - cros-ec
-      - igt-drm-kms
+      - igt-kms-tegra
       - sleep
       - usb
 
