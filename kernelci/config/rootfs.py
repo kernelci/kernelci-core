@@ -43,7 +43,8 @@ class RootFS_Debos(RootFS):
     def __init__(self, name, rootfs_type, debian_release=None,
                  arch_list=None, extra_packages=None,
                  extra_packages_remove=None,
-                 extra_files_remove=None, script=""):
+                 extra_files_remove=None, script="",
+                 test_overlay="", crush_image_options=None):
 
         super(RootFS_Debos, self).__init__(name, rootfs_type)
         self._debian_release = debian_release
@@ -52,6 +53,8 @@ class RootFS_Debos(RootFS):
         self._extra_packages_remove = extra_packages_remove or list()
         self._extra_files_remove = extra_files_remove or list()
         self._script = script
+        self._test_overlay = test_overlay
+        self._crush_image_options = crush_image_options or list()
 
     @classmethod
     def from_yaml(cls, config, name):
@@ -59,7 +62,8 @@ class RootFS_Debos(RootFS):
         kw.update(cls._kw_from_yaml(
             config, ['name', 'debian_release', 'arch_list',
                      'extra_packages', 'extra_packages_remove',
-                     'extra_files_remove', 'script']))
+                     'extra_files_remove', 'script', 'test_overlay',
+                     'crush_image_options']))
         return cls(**kw)
 
     @property
@@ -85,6 +89,14 @@ class RootFS_Debos(RootFS):
     @property
     def script(self):
         return self._script
+
+    @property
+    def test_overlay(self):
+        return self._test_overlay
+
+    @property
+    def crush_image_options(self):
+        return list(self._crush_image_options)
 
 
 class RootFSFactory(YAMLObject):
