@@ -43,6 +43,9 @@ class cmd_validate(Command):
                   .format(config.extra_packages_remove))
             print('\textra_files_remove: {}'.format(config.extra_files_remove))
             print('\tscript: {}'.format(config.script))
+            print('\ttest_overlay: {}'.format(config.test_overlay))
+            print('\tcrush_image_options: {}'
+                  .format(config.crush_image_options))
             return True
 
 
