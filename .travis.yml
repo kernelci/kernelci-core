@@ -14,3 +14,4 @@ script:
   - pycodestyle kernelci
   - pycodestyle kci_*
   - pycodestyle *.py
+  - ./kci_rootfs validate
