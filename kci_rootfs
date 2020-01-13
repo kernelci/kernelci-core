@@ -70,6 +70,15 @@ class cmd_build(Command):
         config = config_data['rootfs_configs'][args.config]
         kernelci.rootfs.build(config_name, config, data_path)
         return True
+
+
+class cmd_upload(Command):
+    help = "Upload rootfs image"
+    args = [Args.rootfs_dir, Args.upload_path, Args.api, Args.token]
+
+    def __call__(self, config_data, args):
+        return kernelci.rootfs.upload(args.api, args.token, args.upload_path,
+                                      args.rootfs_dir)
 # -----------------------------------------------------------------------------
 # Main
 #
