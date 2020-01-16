@@ -260,10 +260,9 @@ def buildKernelStep(job, arch, defconfig, build_env, opts, labs, kci_core) {
     }
 }
 
-def buildsComplete(job, opts, arch) {
+def buildsComplete(job, opts) {
     def str_params = [
         'TREE_NAME': opts['tree'],
-        'ARCH': arch,
         'GIT_DESCRIBE': opts['describe'],
         'BRANCH': opts['branch'],
     ]
@@ -388,11 +387,7 @@ get_lab_info \
         }
 
         stage("Complete") {
-            /* ToDo: convert kernel-arch-complete as a stage in this job */
-            def arch_list = listArchitectures(kci_core, params.BUILD_CONFIG)
-            for (String arch: arch_list) {
-                buildsComplete("kernel-arch-complete", opts, arch)
-            }
+            buildsComplete("kernel-arch-complete", opts)
         }
     }
 }
