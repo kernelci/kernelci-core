@@ -22,11 +22,6 @@ if [[ -z $GIT_DESCRIBE ]]; then
   exit 1
 fi
 
-if [[ -z $ARCH ]]; then
-  echo "ARCH not set.  Not publishing."
-  exit 1
-fi
-
 if [[ -z $EMAIL_AUTH_TOKEN ]]; then
   echo "EMAIL_AUTH_TOKEN not set.  Not publishing."
   exit 1
@@ -37,17 +32,6 @@ if [[ -z $API ]]; then
   exit 1
 fi
 
-echo "ARCH=${ARCH},TREE_NAME=${TREE_NAME},BRANCH=${BRANCH},GIT_DESCRIBE=${GIT_DESCRIBE},BUILD_NUMBER=${BUILD_NUMBER}" >> /tmp/build-complete.log
-BASEDIR=/var/www/images/kernel-ci/$TREE_NAME/$BRANCH/$GIT_DESCRIBE
-
-sudo touch ${BASEDIR}/${ARCH}.done
-
-# Check if all builds for all architectures have finished. The magic number here is 4 (arm, arm64, x86, mips64)
-# This magic number will need to be changed if new architectures are added.
-export BUILDS_FINISHED=$(ls ${BASEDIR}/ | grep .done | wc -l)
-if [[ BUILDS_FINISHED -eq 1 ]]; then
-    echo "All builds have now finished, triggering testing..."
-    # Tell the dashboard the job has finished build.
     echo "Build has now finished, reporting result to dashboard."
     curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'"}' ${API}/job
     if [ "$EMAIL" != "true" ]; then
@@ -276,4 +260,3 @@ if [[ BUILDS_FINISHED -eq 1 ]]; then
             curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "boot_report": 1, "send_to": ["tom.gall@linaro.org", "sumit.semwal@linaro.org", "amit.pundir@linaro.org", "arnd.bergmann@linaro.org", "anmar.oueja@linaro.org"], "format": ["txt"], "delay": 12600}' ${API}/send
         fi
     fi
-fi
