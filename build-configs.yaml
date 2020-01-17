@@ -733,6 +733,11 @@ build_configs:
     branch: 'linux-5.3.y'
     variants: *stable_variants
 
+  stable_5.4:
+    tree: stable
+    branch: 'linux-5.4.y'
+    variants: *stable_variants
+
   stable-rc_3.18:
     tree: stable-rc
     branch: 'linux-3.18.y'
@@ -804,6 +809,14 @@ build_configs:
     reference:
       tree: stable
       branch: 'linux-5.3.y'
+
+  stable-rc_5.4:
+    tree: stable-rc
+    branch: 'linux-5.4.y'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.4.y'
 
   tegra:
     tree: tegra
