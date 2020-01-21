@@ -30,6 +30,7 @@ import urllib.parse
 
 from kernelci import shell_cmd
 import kernelci.elf
+from kernelci.storage import upload_files
 
 # This is used to get the mainline tags as a minimum for git describe
 TORVALDS_GIT_URL = \
@@ -59,22 +60,6 @@ def _get_last_commit_file_name(config):
     return '_'.join(['last-commit', config.name])
 
 
-def _upload_files(api, token, path, input_files):
-    headers = {
-        'Authorization': token,
-    }
-    data = {
-        'path': path,
-    }
-    files = {
-        'file{}'.format(i): (name, fobj)
-        for i, (name, fobj) in enumerate(input_files.items())
-    }
-    url = urllib.parse.urljoin(api, 'upload')
-    resp = requests.post(url, headers=headers, data=data, files=files)
-    resp.raise_for_status()
-
-
 def get_last_commit(config, storage):
     """Get the last commit SHA that was built for a given build configuration
 
@@ -101,8 +86,8 @@ def set_last_commit(config, api, token, commit):
     *token* is the backend API token to use
     *commit* is the git SHA to send
     """
-    _upload_files(api, token, config.tree.name,
-                  {_get_last_commit_file_name(config): commit})
+    upload_files(api, token, config.tree.name,
+                 {_get_last_commit_file_name(config): commit})
 
 
 def get_branch_head(config):
@@ -348,7 +333,7 @@ def push_tarball(config, kdir, storage, api, token):
     tarball = "{}.tar.gz".format(config.name)
     make_tarball(kdir, tarball)
     path = '/'.join([config.tree.name, config.branch, describe]),
-    _upload_files(api, token, path, {tarball_name: open(tarball, 'rb')})
+    upload_files(api, token, path, {tarball_name: open(tarball, 'rb')})
     os.unlink(tarball)
     return tarball_url
 
@@ -851,7 +836,7 @@ def push_kernel(kdir, api, token, install_path=None):
             artifacts[os.path.join(px, f)] = open(os.path.join(root, f), "rb")
     upload_path = bmeta['file_server_resource']
     print("Upload path: {}".format(upload_path))
-    _upload_files(api, token, upload_path, artifacts)
+    upload_files(api, token, upload_path, artifacts)
 
     return True
 
