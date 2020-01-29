@@ -954,6 +954,62 @@ build_configs:
       tree: stable
       branch: 'linux-5.7.y'
 
+  stable-rc_queue-4.4:
+    tree: stable-rc
+    branch: 'queue/4.4'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-4.4.y'
+
+  stable-rc_queue-4.9:
+    tree: stable-rc
+    branch: 'queue/4.9'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-4.9.y'
+
+  stable-rc_queue-4.14:
+    tree: stable-rc
+    branch: 'queue/4.14'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-4.14.y'
+
+  stable-rc_queue-4.19:
+    tree: stable-rc
+    branch: 'queue/4.19'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-4.19.y'
+
+  stable-rc_queue-5.4:
+    tree: stable-rc
+    branch: 'queue/5.4'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.4.y'
+
+  stable-rc_queue-5.6:
+    tree: stable-rc
+    branch: 'queue/5.6'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.6.y'
+
+  stable-rc_queue-5.7:
+    tree: stable-rc
+    branch: 'queue/5.7'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.7.y'
+
   tegra:
     tree: tegra
     branch: 'for-next'
