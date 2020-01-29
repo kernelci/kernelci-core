@@ -82,6 +82,9 @@ trees:
   omap:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/tmlind/linux-omap.git"
 
+  pm:
+    url: "git://git.kernel.org/pub/scm/linux/kernel/git/rafael/linux-pm.git"
+
   pmwg:
     url: "https://git.linaro.org/power/linux.git"
 
@@ -619,6 +622,11 @@ build_configs:
   omap:
     tree: omap
     branch: 'for-next'
+
+  pm:
+    tree: pm
+    branch: 'testing'
+    variants: *minimal_variants
 
   pmwg:
     tree: pmwg
