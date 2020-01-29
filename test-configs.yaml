@@ -1029,6 +1029,12 @@ device_types:
     class: arm64-dtb
     boot_method: uboot
 
+  sun50i-h5-nanopi-neo-plus2:
+    mach: allwinner
+    class: arm64-dtb
+    boot_method: uboot
+    flags: ['big_endian']
+
   sun50i-h6-orangepi-3:
     mach: allwinner
     class: arm64-dtb
@@ -1850,6 +1856,11 @@ test_configs:
       - boot
 
   - device_type: sun50i-h5-libretech-all-h3-cc
+    test_plans:
+      - baseline
+      - boot
+
+  - device_type: sun50i-h5-nanopi-neo-plus2
     test_plans:
       - baseline
       - boot
