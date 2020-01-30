@@ -57,6 +57,45 @@
             - lava-test-shell
         run:
           steps:
+            - echo "==DRIVER_DUMP==" > driverlist
+            - echo "==VERSION=0==" >> driverlist
+            - echo "drivers:" >> driverlist
+            - >
+               for line in $(find /sys/devices/ -name uevent |xargs grep -l ^DRIVER); do
+                 echo "  - driver: $(grep ^DRIVER= "$line" |cut -d= -f2)" >> driverlist
+                 if [ ! -z $(grep ^OF_COMPATIBLE_N= "$line") ];then
+                   echo "    compatibles:" >> driverlist
+                   for compatible in $(grep ^OF_COMPATIBLE_[0-9]*= "$line" | cut -d= -f2); do
+                     echo "      - $compatible" >> driverlist
+                   done
+                 fi
+               done
+            - echo "==DRIVER_DUMP_END==" >> driverlist
+            - cat driverlist
+      from: inline
+      name: drivers
+      path: inline/drivers.yaml
+
+- test:
+{%- if test_namespace %}
+    namespace: {{ test_namespace }}
+{%- endif %}
+    timeout:
+      minutes: 1
+    definitions:
+    - repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: baseline
+          description: "baseline test plan"
+          os:
+            - debian
+          scope:
+            - functional
+          environment:
+            - lava-test-shell
+        run:
+          steps:
             - export PATH=/opt/bootrr/helpers:$PATH
             - cd /opt/bootrr && sh helpers/bootrr-auto
       lava-signal: kmsg
