@@ -1139,6 +1139,12 @@ device_types:
     class: arm-dtb
     boot_method: uboot
 
+  sun8i-r40-bananapi-m2-ultra:
+    mach: allwinner
+    class: arm-dtb
+    boot_method: uboot
+    flags: ['big_endian']
+
   synquacer-acpi:
     mach: socionext
     arch: arm64
@@ -1953,6 +1959,11 @@ test_configs:
       - boot
 
   - device_type: sun8i-h3-orangepi-pc
+    test_plans:
+      - baseline
+      - boot
+
+  - device_type: sun8i-r40-bananapi-m2-ultra
     test_plans:
       - baseline
       - boot
