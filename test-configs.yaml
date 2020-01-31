@@ -43,6 +43,10 @@ file_systems:
     type: debian
     ramdisk: 'buster/20200127.0/{arch}/rootfs.cpio.gz'
 
+  debian_buster-cros-ec_ramdisk:
+    type: debian
+    ramdisk: 'buster-cros-ec/20200130.0/{arch}/rootfs.cpio.gz'
+
   debian_buster-igt_ramdisk:
     type: debian
     ramdisk: 'buster-igt/20200127.0/{arch}/rootfs.cpio.gz'
@@ -162,7 +166,7 @@ test_plans:
       - blacklist: *clang_environment_filter
 
   cros-ec:
-    rootfs: debian_buster_ramdisk
+    rootfs: debian_buster-cros-ec_ramdisk
 
   igt-drm-kms:
     rootfs: debian_buster-igt_ramdisk
