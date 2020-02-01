@@ -74,7 +74,9 @@ def get_params(bmeta, target, plan_config, storage):
     """
     arch = target.arch
     dtb = dtb_full = target.dtb
+    dtb_dir = bmeta.get("dtb_dir", "")
     if dtb:
+        dtb = dtb_full = os.path.join(dtb_dir, target.dtb)
         dtb = os.path.basename(dtb)  # hack for dtbs in subfolders
     file_server_resource = bmeta['file_server_resource']
     job_px = file_server_resource.replace('/', '-')
@@ -86,7 +88,7 @@ def get_params(bmeta, target, plan_config, storage):
     kernel_url = urllib.parse.urljoin(storage, '/'.join([url_px, kernel_img]))
     if dtb_full and dtb_full.endswith('.dtb'):
         dtb_url = urllib.parse.urljoin(
-            storage, '/'.join([url_px, 'dtbs', dtb_full]))
+            storage, '/'.join([url_px, dtb_full]))
         platform = dtb.split('.')[0]
     else:
         dtb_url = None
