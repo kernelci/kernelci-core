@@ -1,32 +1,69 @@
 # Welcome to KernelCI
 
-This repository provides the core functions used on
-[kernelci.org](https://kernelci.org) to monitor upstream Linux kernel branches,
-build many kernel variants, run tests, run bisections and schedule email
-reports.
+The KernelCI project is dedicated to testing the upstream Linux kernel.  Its
+mission statement is defined as follows:
 
-This software can also be used to set up an independent instance and to build
-any arbitrary kernel branches and run any arbitrary tests.
+> To ensure the quality, stability and long-term maintenance of the Linux
+> kernel by maintaining an open ecosystem around test automation practices and
+> principles.
 
-You can find some general information as well as detailed technical
-instructions on the KernelCI
+The main instance of KernelCI is available on
+[kernelci.org](https://kernelci.org).
+
+This repository provides core functions to monitor upstream Linux kernel
+branches, build many kernel variants, run tests, run bisections and schedule
+email reports.
+
+It is also possible to set up an independent instance to build any arbitrary
+kernel and run any arbitrary tests.
+
+You can find some more general information about the KernelCI project on the
 [wiki](https://github.com/kernelci/kernelci-doc/wiki/KernelCI).
 
 
-# Contents of this repository
+## Command line tools
+
+All the steps of the KernelCI pipeline are implemented with portable command
+line tools.  They are used in [Jenkins pipeline
+jobs](https://github.com/kernelci/kernelci-core/tree/master/jenkins) for
+kernelci.org, but can also be run by hand in a shell or integrated with any CI
+environment.  The `kernelci/build-base` Docker image comes with all the
+dependencies needed.
+
+**The available command line tools are:**
+
+* **[`kci_build`](doc/kci_build.md)** to get the kernel source code, create a
+  foncig file, build kernels and push them to a storage server.
+
+* **[`kci_test`](doc/kci_test.md)** to generate and submit test definitions in
+  an automated test lab.
+
+**Other command line tools are being worked on** to replace the current legacy
+implementation which is still tied to Jenkins or hard-coded in shell scripts:
+
+* **`kci_rootfs` (WIP)** to produce root file systems containing test suites to
+  run on target platforms.
+
+* **`kci_bisect` (WIP)** To run KernelCI automated bisections.
+
+* **`kci_email` (WIP)** to generate an email report with test results.
 
 
 ## Configuration files
 
-All the builds are configured in [`build-configs.yaml`](https://github.com/kernelci/kernelci-core/blob/master/build-configs.yaml), with the list of
-branches to monitor and which kernel variants to build for each of them.
+All the builds are configured in
+[`build-configs.yaml`](https://github.com/kernelci/kernelci-core/blob/master/build-configs.yaml),
+with the list of branches to monitor and which kernel variants to build for
+each of them.
 
-Then all the tests are configured in [`test-configs.yaml`](https://github.com/kernelci/kernelci-core/blob/master/test-configs.yaml) with the list of
-devices, test suites and which tests to run on which devices.
+Then all the tests are configured in
+[`test-configs.yaml`](https://github.com/kernelci/kernelci-core/blob/master/test-configs.yaml)
+with the list of devices, test suites and which tests to run on which devices.
 
-Details for the format of these files can be found on the wiki pages for
-[build configurations](https://github.com/kernelci/kernelci-doc/wiki/Build-configurations)
-and [test configurations](https://github.com/kernelci/kernelci-doc/wiki/Test-configurations).
+Details for the format of these files can be found on the wiki pages for [build
+configurations](https://github.com/kernelci/kernelci-doc/wiki/Build-configurations)
+and [test
+configurations](https://github.com/kernelci/kernelci-doc/wiki/Test-configurations).
 
 
 ## Python modules
@@ -74,14 +111,3 @@ The kernelci.org tests typically run in [LAVA](https://lavasoftware.org/).
 Each LAVA test is generated using template files which can be found in the
 [`templates`](https://github.com/kernelci/kernelci-core/tree/master/templates)
 directory.
-
-# Reproducing KernelCI steps locally
-
-It's possible to reproduce KernelCI builds locally, see the
-[KernelCI command line](https://github.com/kernelci/kernelci-doc/wiki/KernelCI-command-line)
-wiki page.
-
-All the KernelCI steps are being gradually refactored into command line tools
-in order to be able to run them in a terminal, or in any automation system
-rather than just Jenkins.  The next steps to be added are to generate and
-submit test jobs and to run bisections.
