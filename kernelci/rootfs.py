@@ -20,9 +20,8 @@ from kernelci.storage import upload_files
 import os
 
 
-def _build_debos(name, config, data_path):
-    for arch_type in config.arch_list:
-        cmd = 'cd {data_path} && debos \
+def _build_debos(name, config, data_path, arch):
+    cmd = 'cd {data_path} && debos \
 -t architecture:{arch} \
 -t suite:{release_name} \
 -t basename:{name}/{arch} \
@@ -35,7 +34,7 @@ def _build_debos(name, config, data_path):
 rootfs.yaml'.format(
             name=name,
             data_path=data_path,
-            arch=arch_type,
+            arch=arch,
             release_name=config.debian_release,
             extra_packages=" ".join(config.extra_packages),
             extra_packages_remove=" ".join(config.extra_packages_remove),
@@ -44,17 +43,25 @@ rootfs.yaml'.format(
             test_overlay=config.test_overlay,
             crush_image_options=" ".join(config.crush_image_options)
             )
-        shell_cmd(cmd)
+    shell_cmd(cmd)
 
     return True
 
 
-def build(name, config, data_path):
+def build(name, config, data_path, arch):
+    """Build rootfs images.
+
+    *name* is the rootfs config
+    *config* contains rootfs-configs.yaml entries
+    *data_path* points to debos location
+    *arch* required architecture
+    """
+
     if config.rootfs_type == "debos":
-        return _build_debos(name, config, data_path)
+        _build_debos(name, config, data_path, arch)
     else:
-        print("rootfs_type:{} not supported".format(config.rootfs_type))
-        return False
+        raise ValueError("rootfs_type:{} not supported"
+                         .format(config.rootfs_type))
 
 
 def upload(api, token, upload_path, input_dir):
