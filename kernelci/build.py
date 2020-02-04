@@ -222,7 +222,7 @@ def git_describe(tree_name, path):
     cmd = """
 set -e
 cd {path}
-git describe {describe_args}
+git describe --always {describe_args}
 """.format(path=path, describe_args=describe_args)
     describe = shell_cmd(cmd)
     return describe.strip().replace('/', '_')
@@ -240,7 +240,7 @@ def git_describe_verbose(path):
     cmd = r"""
 set -e
 cd {path}
-git describe --match=v[1-9]\*
+git describe --always --match=v[1-9]\*
 """.format(path=path)
     describe = shell_cmd(cmd)
     return describe.strip()
