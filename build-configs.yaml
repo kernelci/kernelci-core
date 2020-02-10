@@ -205,7 +205,7 @@ build_configs_defaults:
       architectures: &default_architectures
 
         arc: &arc_arch
-          base_defconfig: 'nsim_hs_defconfig'
+          base_defconfig: 'haps_hs_smp_defconfig'
           extra_configs: ['allnoconfig']
           filters: &arc_default_filters
             # remove any non-ARCv2 defconfigs since we only have ARCv2 toolchain
@@ -258,9 +258,9 @@ build_configs_defaults:
 # Minimum architecture defconfigs
 arch_defconfigs: &arch_defconfigs
   arc: &arc_defconfig
-    base_defconfig: 'nsim_hs_defconfig'
+    base_defconfig: 'haps_hs_smp_defconfig'
     filters:
-      - regex: { defconfig: 'nsim_hs_defconfig' }
+      - regex: { defconfig: 'haps_hs_smp_defconfig' }
   arm: &arm_defconfig
     base_defconfig: 'multi_v7_defconfig'
     filters:
@@ -296,7 +296,7 @@ stable_variants: &stable_variants
     fragments: ['tinyconfig']
     architectures:
       arc:
-        base_defconfig: 'nsim_hs_defconfig'
+        base_defconfig: 'haps_hs_smp_defconfig'
         extra_configs: ['allnoconfig']
         filters: *arc_default_filters
       arm:
