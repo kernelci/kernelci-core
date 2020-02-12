@@ -349,7 +349,7 @@ def _download_file(url, dest_filename, chunk_size=1024):
         return False
 
 
-def pull_tarball(kdir, url, dest_filename, retries):
+def pull_tarball(kdir, url, dest_filename, retries, delete):
     if os.path.exists(kdir):
         shutil.rmtree(kdir)
     os.makedirs(kdir)
@@ -362,6 +362,9 @@ def pull_tarball(kdir, url, dest_filename, retries):
         return False
     with tarfile.open(dest_filename, 'r:*') as tarball:
         tarball.extractall(kdir)
+    if delete:
+        if os.path.isfile(dest_filename):
+            os.remove(dest_filename)
     return True
 
 

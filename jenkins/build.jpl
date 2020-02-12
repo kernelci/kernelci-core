@@ -146,6 +146,7 @@ node("docker" && params.NODE_LABEL) {
                                 --kdir ${kdir} \
                                 --url ${params.SRC_TARBALL} \
                                 --retries=12 \
+                                --delete \
                   """)
                 }
             }
