@@ -1534,7 +1534,6 @@ test_configs:
     test_plans:
       - baseline
       - boot
-      - boot-nfs
       - kselftest
 
   - device_type: jetson-tk1
