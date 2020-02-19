@@ -613,7 +613,7 @@ build_configs:
               - 'aspeed_g5_defconfig'
               - 'multi_v5_defconfig'
               - 'allmodconfig'
-          x86_64: &x86_64_arch
+          x86_64: *x86_64_arch
 
   next_pending-fixes:
     tree: next
