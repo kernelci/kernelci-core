@@ -762,6 +762,14 @@ device_types:
     filters:
       - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
+  meson-sm1-khadas-vim3l:
+    mach: amlogic
+    class: arm64-dtb
+    boot_method: uboot
+    flags: ['big_endian']
+    filters:
+      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+
   meson-sm1-sei610:
     mach: amlogic
     class: arm64-dtb
@@ -1670,6 +1678,12 @@ test_configs:
       - boot
       - boot-nfs
       - kselftest
+      - simple
+
+  - device_type: meson-sm1-khadas-vim3l
+    test_plans:
+      - baseline
+      - boot
       - simple
 
   - device_type: meson-sm1-sei610
