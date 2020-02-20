@@ -406,6 +406,11 @@ device_types:
     class: arm-dtb
     boot_method: uboot
 
+  bcm2711-rpi-4-b:
+    mach: broadcom
+    class: arm64-dtb
+    boot_method: uboot
+
   bcm2836-rpi-2-b:
     mach: broadcom
     class: arm-dtb
@@ -1376,6 +1381,12 @@ test_configs:
     test_plans:
       - baseline
       - boot
+
+  - device_type: bcm2711-rpi-4-b
+    test_plans:
+      - baseline
+      - boot
+      - simple
 
   - device_type: bcm2836-rpi-2-b
     test_plans:
