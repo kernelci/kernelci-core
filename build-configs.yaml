@@ -171,9 +171,9 @@ build_environments:
       mips: 'mips-linux-gnu-'
       riscv: 'riscv64-linux-gnu-'
 
-  clang-8:
+  clang-9:
     cc: clang
-    cc_version: 8
+    cc_version: 9
     arch_map: &clang_arch_map
       i386:
       x86_64:
@@ -182,12 +182,6 @@ build_environments:
       mips:
       arc:
       riscv:
-    cross_compile: *default_cross_compile
-
-  clang-9:
-    cc: clang
-    cc_version: 9
-    arch_map: *clang_arch_map
     cross_compile: *default_cross_compile
 
 
@@ -607,13 +601,19 @@ build_configs:
               - 'multi_v7_defconfig+CONFIG_EFI=y+CONFIG_ARM_LPAE=y'
               - 'allnoconfig'
               - 'allmodconfig'
-      clang-8:
-        build_environment: clang-8
+      clang-9:
+        build_environment: clang-9
         architectures:
           arm64:
             extra_configs:
               - 'allmodconfig'
-              - 'allnoconfig'
+          arm:
+            base_defconfig: 'multi_v7_defconfig'
+            extra_configs:
+              - 'aspeed_g5_defconfig'
+              - 'multi_v5_defconfig'
+              - 'allmodconfig'
+          x86_64: *x86_64_arch
 
   next_pending-fixes:
     tree: next
