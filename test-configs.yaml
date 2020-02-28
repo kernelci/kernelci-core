@@ -41,11 +41,11 @@ file_systems:
 
   debian_buster_ramdisk:
     type: debian
-    ramdisk: 'buster/20200219.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'buster/20200228.1/{arch}/rootfs.cpio.gz'
 
   debian_buster-cros-ec_ramdisk:
     type: debian
-    ramdisk: 'buster-cros-ec/20200219.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'buster-cros-ec/20200228.1/{arch}/rootfs.cpio.gz'
 
   debian_buster-igt_ramdisk:
     type: debian
@@ -53,7 +53,7 @@ file_systems:
 
   debian_buster-v4l2_ramdisk:
     type: debian
-    ramdisk: 'buster-v4l2/20200207.1/{arch}/rootfs.cpio.gz'
+    ramdisk: 'buster-v4l2/20200228.1/{arch}/rootfs.cpio.gz'
 
 
 test_plan_default_filters:
@@ -489,7 +489,7 @@ device_types:
     mach: freescale
     class: arm64-dtb
     boot_method: uboot
-    
+
   hi6220-hikey:
     mach: hisilicon
     class: arm64-dtb
