@@ -363,8 +363,7 @@ def pull_tarball(kdir, url, dest_filename, retries, delete):
     with tarfile.open(dest_filename, 'r:*') as tarball:
         tarball.extractall(kdir)
     if delete:
-        if os.path.isfile(dest_filename):
-            os.remove(dest_filename)
+        os.remove(dest_filename)
     return True
 
 
