@@ -897,6 +897,8 @@ device_types:
       machine: 'vexpress-a9'
       cpu: 'cortex-a9'
       model: 'model=lan9118'
+      guestfs_interface: 'none'
+      extra_options: ['-device virtio-blk-device,drive=lavatest']
     dtb: 'vexpress-v2p-ca9.dtb'
     boot_method: qemu
     filters:
@@ -911,6 +913,8 @@ device_types:
       machine: 'vexpress-a15'
       cpu: 'cortex-a15'
       model: 'model=lan9118'
+      guestfs_interface: 'none'
+      extra_options: ['-device virtio-blk-device,drive=lavatest']
     dtb: 'vexpress-v2p-ca15-tc1.dtb'
     boot_method: qemu
     filters:
