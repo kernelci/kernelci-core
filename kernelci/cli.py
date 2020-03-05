@@ -256,6 +256,12 @@ class Args(object):
         'help': "Upload path on Storage where rootfs stored",
     }
 
+    delete = {
+        'name': '--delete',
+        'help': "Delete the tarball after extracting",
+        'action': 'store_true'
+    }
+
 
 class Command(object):
     """A command helper class.
