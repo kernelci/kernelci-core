@@ -920,6 +920,7 @@ device_types:
     filters:
       - whitelist: {defconfig: ['vexpress_defconfig']}
 
+# we use virt-2.11 due to https://bugzilla.redhat.com/show_bug.cgi?id=1633328
   qemu_arm-virt-gicv2:
     base_name: qemu
     mach: qemu
@@ -929,7 +930,7 @@ device_types:
       arch: arm
       cpu: 'cortex-a15'
       guestfs_interface: 'virtio'
-      machine: 'virt,gic-version=2'
+      machine: 'virt-2.11,gic-version=2'
     filters:
       - whitelist: {defconfig: ['multi_v7_defconfig']}
 
@@ -942,7 +943,7 @@ device_types:
       arch: arm
       cpu: 'cortex-a15'
       guestfs_interface: 'virtio'
-      machine: 'virt,gic-version=3'
+      machine: 'virt-2.11,gic-version=3'
     filters:
       - whitelist: {defconfig: ['multi_v7_defconfig']}
 
