@@ -882,6 +882,7 @@ device_types:
       cpu: 'arm926'
       memory: 256
       model: 'model=smc91c111'
+      guestfs_interface: 'scsi'
     dtb: 'versatile-pb.dtb'
     boot_method: qemu
     filters:
