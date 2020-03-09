@@ -157,6 +157,9 @@ class cmd_generate(Command):
             params = kernelci.test.get_params(
                 bmeta, target, plan, args.storage)
             job = api.generate(params, target, plan, callback_opts)
+            if job is None:
+                print("Failed to generate the job definition")
+                return False
             if args.output:
                 file_name = api.job_file_name(params)
                 output_file = os.path.join(args.output, file_name)
