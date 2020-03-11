@@ -17,10 +17,10 @@ trees:
     url: "https://android.googlesource.com/kernel/common"
 
   ardb:
-    url: "git://git.kernel.org/pub/scm/linux/kernel/git/ardb/linux.git"
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/ardb/linux.git"
 
   arm64:
-    url: "git://git.kernel.org/pub/scm/linux/kernel/git/arm64/linux.git"
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/arm64/linux.git"
 
   arnd:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/arnd/playground.git"
@@ -68,22 +68,22 @@ trees:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/linusw/linux-gpio.git/"
 
   mainline:
-    url: 'git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git'
+    url: 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git'
 
   media:
     url: "https://git.linuxtv.org/media_tree.git"
 
   net-next:
-    url: "git://git.kernel.org/pub/scm/linux/kernel/git/davem/net-next.git"
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next.git"
 
   next:
-    url: 'git://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git'
+    url: 'https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git'
 
   omap:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/tmlind/linux-omap.git"
 
   pm:
-    url: "git://git.kernel.org/pub/scm/linux/kernel/git/rafael/linux-pm.git"
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/rafael/linux-pm.git"
 
   pmwg:
     url: "https://git.linaro.org/power/linux.git"
