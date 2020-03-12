@@ -467,7 +467,8 @@ def _run_make(kdir, arch, target=None, jopt=None, silent=True, cc='gcc',
         args.append('CC={}'.format(cc))
 
     if output:
-        args.append('O={}'.format(os.path.relpath(output, kdir)))
+        # due to kselftest Makefile issues, O= cannot be a relative path
+        args.append('O={}'.format(os.path.abspath(output)))
 
     if target:
         args.append(target)
@@ -640,6 +641,28 @@ def build_kernel(build_env, kdir, arch, defconfig=None, jopt=None,
         })
         result = _run_make(target='modules_install', **kwargs)
 
+    # kselftest
+    if result and "kselftest" in defconfig_extras:
+        kselftest_install_path = os.path.join(output_path, '_kselftest_')
+        if os.path.exists(kselftest_install_path):
+            shutil.rmtree(kselftest_install_path)
+        opts.update({
+            'INSTALL_PATH': kselftest_install_path,
+        })
+        #
+        # Ideally this should just be a 'make kselftest-install', but
+        # due to bugs with O= in kselftest Makefile, this has to be
+        # 'make -C tools/testing/selftests install'
+        #
+        kwargs.update({
+            'kdir': os.path.join(kdir, 'tools/testing/selftests')
+        })
+        opts.update({
+            'FORMAT': '.gz',
+        })
+        # 'gen_tar' target does 'make install' and creates tarball
+        result = _run_make(target='gen_tar', **kwargs)
+
     cc_version_cmd = "{}{} --version 2>&1".format(
         cross_compile if cross_compile and cc == 'gcc' else '', cc)
     cc_version_full = shell_cmd(cc_version_cmd).splitlines()[0]
@@ -787,6 +810,17 @@ def install_kernel(kdir, tree_name, tree_url, git_branch, git_commit=None,
         shell_cmd("tar -C{path} -cJf {tarball} .".format(
             path=mod_path, tarball=modules_tarball_path))
 
+    # 'make gen_tar' creates this tarball path
+    kselftest_tarball = 'kselftest-packages/kselftest.tar.gz'
+    kselftest_tarball_path = os.path.join(output_path, '_kselftest_',
+                                          kselftest_tarball)
+    if os.path.exists(kselftest_tarball_path):
+        kselftest_tarball = os.path.basename(kselftest_tarball_path)
+        shutil.copy(kselftest_tarball_path,
+                    os.path.join(install_path, kselftest_tarball))
+    else:
+        kselftest_tarball = kselftest_tarball_path = None
+
     build_env = bmeta['build_environment']
     defconfig_full = bmeta['defconfig_full']
     defconfig_dir = defconfig_full.replace('/', '-')
@@ -810,6 +844,7 @@ def install_kernel(kdir, tree_name, tree_url, git_branch, git_commit=None,
         'git_describe_v': describe_v,
         'git_commit': git_commit,
         'file_server_resource': publish_path,
+        'kselftests': kselftest_tarball,
     })
 
     with open(os.path.join(install_path, 'bmeta.json'), 'w') as json_file:
