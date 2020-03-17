@@ -607,13 +607,22 @@ build_configs:
           arm64:
             extra_configs:
               - 'allmodconfig'
+              - 'allnoconfig'
           arm:
-            base_defconfig: 'multi_v7_defconfig'
+            filters:
+              - regex: {
+                defconfig: '(?:aspeed_g5_def|multi_v5_def|multi_v7_def|allmod|allno)config',
+              }
             extra_configs:
               - 'aspeed_g5_defconfig'
               - 'multi_v5_defconfig'
               - 'allmodconfig'
-          x86_64: *x86_64_arch
+              - 'allnoconfig'
+          x86_64:
+            extra_configs:
+              - 'allmodconfig'
+              - 'allnoconfig'
+            fragments: []
 
   next_pending-fixes:
     tree: next
