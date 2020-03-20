@@ -600,6 +600,16 @@ device_types:
             - 'multi_v7_defconfig+kselftest'
           kernel: ['v3.18']
 
+  imx6q-sabresd:
+    mach: freescale
+    class: arm-dtb
+    boot_method: uboot
+
+  imx7d-sdb:
+    mach: freescale
+    class: arm-dtb
+    boot_method: uboot
+
   imx8mn-ddr4-evk:
     mach: freescale
     class: arm64-dtb
@@ -1563,6 +1573,18 @@ test_configs:
       - kselftest
       - sleep
       - usb
+
+  - device_type: imx6q-sabresd
+    test_plans:
+      - baseline
+      - boot
+      - kselftest
+
+  - device_type: imx7d-sdb
+    test_plans:
+      - baseline
+      - boot
+      - kselftest
 
   - device_type: imx8mn-ddr4-evk
     test_plans:
