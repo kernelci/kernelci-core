@@ -28,6 +28,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     libelf-dev \
     lzop \
     make \
+    rsync \
     tar \
     u-boot-tools \
     wget \
