@@ -1075,6 +1075,11 @@ device_types:
       - blacklist: *allmodconfig_filter
       - blacklist: {defconfig: ['multi_v7_defconfig+CONFIG_SMP=n']}
 
+  stm32mp157c-dk2:
+    mach: stm32
+    class: arm-dtb
+    boot_method: uboot
+
   sun4i-a10-olinuxino-lime:
     mach: allwinner
     class: arm-dtb
@@ -1936,6 +1941,12 @@ test_configs:
       - baseline
       - boot
       - boot-nfs
+      - kselftest
+
+  - device_type: stm32mp157c-dk2
+    test_plans:
+      - baseline
+      - boot
       - kselftest
 
   - device_type: sun4i-a10-olinuxino-lime
