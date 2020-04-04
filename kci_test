@@ -181,6 +181,23 @@ class cmd_generate(Command):
         api = kernelci.lab.get_api(
             lab, args.user, args.lab_token, args.lab_json)
 
+        if lab.lab_type == 'shell':
+            if not args.plan:
+                print("--plan is required with a SHELL lab")
+                return False
+            plan = test_configs['test_plans'][args.plan]
+            params = plan.params
+            target = args.bmeta_json.split('_install_/')[0]
+            # target here will be set to the linux checkout that we will run
+            # the KUnit shell command through this is fetched using the
+            # bmeta_json for now
+            job = api.generate(params=params,
+                               target=target,
+                               plan=plan,
+                               callback_opts=None,
+                               args=args)
+            return True
+
         if args.target and args.plan:
             target = configs['device_types'][args.target]
             plan = configs['test_plans'][args.plan]

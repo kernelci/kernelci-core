@@ -53,6 +53,10 @@ class Lab(YAMLObject):
     def url(self):
         return self._url
 
+    @property
+    def filters(self):
+        return self._filters
+
     def match(self, data):
         return all(f.match(**data) for f in self._filters)
 
@@ -75,12 +79,19 @@ class Lab_LAVA(Lab):
         return cls(**kw)
 
 
+class Lab_SHELL(Lab):
+
+    def __init__(self, priority='medium', *args, **kwargs):
+        super(Lab_SHELL, self).__init__(*args, **kwargs)
+
+
 class LabFactory(YAMLObject):
     """Factory to create lab objects from YAML data."""
 
     _lab_types = {
         'lava.lava_xmlrpc': Lab_LAVA,
         'lava.lava_rest': Lab_LAVA,
+        'shell': Lab_SHELL,
     }
 
     @classmethod
