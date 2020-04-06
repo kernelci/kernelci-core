@@ -574,6 +574,11 @@ device_types:
             - 'multi_v5_defconfig'
             - 'allmodconfig'
 
+  imx6q-var-dt6customboard:
+    mach: imx
+    class: arm-dtb
+    boot_method: uboot
+
   imx6ul-pico-hobbit:
     mach: imx
     class: arm-dtb
@@ -1558,6 +1563,11 @@ test_configs:
       - sleep
 
   - device_type: imx6q-nitrogen6x
+    test_plans:
+      - baseline
+      - boot
+
+  - device_type: imx6q-var-dt6customboard
     test_plans:
       - baseline
       - boot
