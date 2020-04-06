@@ -1212,6 +1212,11 @@ device_types:
     class: arm-dtb
     boot_method: uboot
 
+  sun8i-h3-bananapi-m2-plus:
+    mach: allwinner
+    class: arm-dtb
+    boot_method: uboot
+
   sun8i-h3-libretech-all-h3-cc:
     mach: allwinner
     class: arm-dtb
@@ -2076,6 +2081,11 @@ test_configs:
       - boot
 
   - device_type: sun8i-h2-plus-libretech-all-h3-cc
+    test_plans:
+      - baseline
+      - boot
+
+  - device_type: sun8i-h3-bananapi-m2-plus
     test_plans:
       - baseline
       - boot
