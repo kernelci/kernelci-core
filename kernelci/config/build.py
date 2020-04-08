@@ -193,7 +193,7 @@ class BuildEnvironment(YAMLObject):
     """Kernel build environment model."""
 
     def __init__(self, name, cc, cc_version, arch_map=None,
-                 cross_compile=None):
+                 cross_compile=None, cross_compile_compat=None):
         """A build environment is a compiler and tools to build a kernel.
 
         *name* is the name of the build environment so it can be referred to in
@@ -213,12 +213,17 @@ class BuildEnvironment(YAMLObject):
 
         *cross_compile* is a dictionary mapping kernel CPU architecture names
                         to cross-compiler prefixes.
+
+        *cross_compile_compat* is a dictionary mapping kernel CPU
+                               architecture names to cross-compiler
+                               prefixes for building compat VDSOs.
         """
         self._name = name
         self._cc = cc
         self._cc_version = str(cc_version)
         self._arch_map = arch_map or dict()
         self._cross_compile = cross_compile or dict()
+        self._cross_compile_compat = cross_compile_compat or dict()
 
     @classmethod
     def from_yaml(cls, config, name):
@@ -226,7 +231,8 @@ class BuildEnvironment(YAMLObject):
             'name': name,
         }
         kw.update(cls._kw_from_yaml(
-            config, ['name', 'cc', 'cc_version', 'arch_map', 'cross_compile']))
+            config, ['name', 'cc', 'cc_version', 'arch_map', 'cross_compile',
+                     'cross_compile_compat']))
         return cls(**kw)
 
     @property
@@ -246,6 +252,9 @@ class BuildEnvironment(YAMLObject):
 
     def get_cross_compile(self, kernel_arch):
         return self._cross_compile.get(kernel_arch, '')
+
+    def get_cross_compile_compat(self, kernel_arch):
+        return self._cross_compile_compat.get(kernel_arch, '')
 
 
 class BuildVariant(YAMLObject):
