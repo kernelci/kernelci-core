@@ -799,10 +799,18 @@ build_configs:
     tree: mainline
     branch: 'master'
     variants:
-      gcc-8: *default_gcc-8
+      gcc-8:
+        build_environment: gcc-8
+        architectures:
+          arm: *arm_defconfig
+          arm64: *arm64_defconfig
+          x86_64: *x86_64_defconfig
       clang-10:
         build_environment: clang-10
-        architectures: *arch_clang_configs
+        architectures:
+          arm: *arm_defconfig
+          arm64: *arm64_defconfig
+          x86_64: *x86_64_defconfig
 
   media:
     tree: media
