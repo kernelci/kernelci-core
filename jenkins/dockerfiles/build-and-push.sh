@@ -23,13 +23,14 @@
 # -p = push to dockerhub
 # -b = also rebuild build-base
 # -d = also rebuild debos
+# -i = also rebuild dt-validation
 # -q = make the builds quiet
 # -t = the prefix to use in docker tags (default is kernelci/)
 
 set -e
 tag_px='kernelci/'
 
-options='npbdqt:'
+options='npbdiqt:'
 while getopts $options option
 do
   case $option in
@@ -37,6 +38,7 @@ do
     p )  push=true;;
     b )  base=true;;
     d )  debos=true;;
+    i )  dt_validation=true;;
     q )  quiet="--quiet";;
     t )  tag_px=$OPTARG;;
     \? )
@@ -89,6 +91,18 @@ then
   tag=${tag_px}debos
   echo_build $tag
   docker build ${quiet} ${cache_args} debos -t $tag
+  if [ "x${push}" == "xtrue" ]
+  then
+    echo_push $tag
+    docker push $tag
+  fi
+fi
+
+if [ "x${dt_validation}" == "xtrue" ]
+then
+  tag=${tag_px}dt-validation
+  echo_build $tag
+  docker build ${quiet} ${cache_args} dt-validation -t $tag
   if [ "x${push}" == "xtrue" ]
   then
     echo_push $tag
