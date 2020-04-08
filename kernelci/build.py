@@ -434,7 +434,7 @@ def _output_to_file(cmd, log_file, rel_dir=None):
 
 def _run_make(kdir, arch, target=None, jopt=None, silent=True, cc='gcc',
               cross_compile=None, use_ccache=None, output=None, log_file=None,
-              opts=None):
+              opts=None, cross_compile_compat=None):
     args = ['make']
 
     if opts:
@@ -452,6 +452,9 @@ def _run_make(kdir, arch, target=None, jopt=None, silent=True, cc='gcc',
 
     if cross_compile:
         args.append('CROSS_COMPILE={}'.format(cross_compile))
+
+    if cross_compile_compat:
+        args.append('CROSS_COMPILE_COMPAT={}'.format(cross_compile_compat))
 
     args.append('HOSTCC={}'.format(cc))
 
@@ -565,6 +568,7 @@ def build_kernel(build_env, kdir, arch, defconfig=None, jopt=None,
     """
     cc = build_env.cc
     cross_compile = build_env.get_cross_compile(arch) or ''
+    cross_compile_compat = build_env.get_cross_compile_compat(arch) or ''
     use_ccache = shell_cmd("which ccache > /dev/null", True)
     if jopt is None:
         jopt = int(shell_cmd("nproc")) + 2
@@ -589,6 +593,7 @@ def build_kernel(build_env, kdir, arch, defconfig=None, jopt=None,
         'arch': arch,
         'cc': cc,
         'cross_compile': cross_compile,
+        'cross_compile_compat': cross_compile_compat,
         'use_ccache': use_ccache,
         'output': output_path,
         'silent': not verbose,
