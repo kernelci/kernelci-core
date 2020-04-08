@@ -918,10 +918,18 @@ build_configs:
     tree: mainline
     branch: 'master'
     variants:
-      gcc-9: *default_gcc-9
+      gcc-9:
+        build_environment: gcc-9
+        architectures:
+          arm: *arm_defconfig
+          arm64: *arm64_defconfig
+          x86_64: *x86_64_defconfig
       clang-10:
         build_environment: clang-10
-        architectures: *arch_clang_configs
+        architectures:
+          arm: *arm_defconfig
+          arm64: *arm64_defconfig
+          x86_64: *x86_64_defconfig
 
   media:
     tree: media
