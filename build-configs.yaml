@@ -171,6 +171,8 @@ build_environments:
       arm64: 'aarch64-linux-gnu-'
       mips: 'mips-linux-gnu-'
       riscv: 'riscv64-linux-gnu-'
+    cross_compile_compat: &default_cross_compile_compat
+      arm64: 'arm-linux-gnueabihf-'
 
   clang-9:
     cc: clang
@@ -184,6 +186,7 @@ build_environments:
       arc:
       riscv:
     cross_compile: *default_cross_compile
+    cross_compile_compat: *default_cross_compile_compat
 
   clang-10:
     cc: clang
