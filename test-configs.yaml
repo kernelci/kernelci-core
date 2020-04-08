@@ -815,6 +815,11 @@ device_types:
             - 'tinyconfig'
             - 'kvm_guest.config'
 
+  mt8173-elm-hana:
+    mach: mediatek
+    class: arm64-dtb
+    boot_method: depthcharge
+
   mustang:
     mach: apm
     class: arm64-dtb
@@ -1757,6 +1762,14 @@ test_configs:
       - baseline
       - boot
       - simple
+
+  - device_type: mt8173-elm-hana
+    test_plans:
+      - baseline
+      - boot
+      - cros-ec
+      - sleep
+      - v4l2-compliance-uvc
 
   - device_type: mustang
     test_plans:
