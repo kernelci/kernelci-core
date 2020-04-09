@@ -38,7 +38,7 @@ KCI_CORE_BRANCH (master)
   Name of the branch to use in the kernelci-core repository
 KCI_STORAGE_URL (https://storage.kernelci.org/)
   URL of the KernelCI storage server
-DOCKER_BASE (kernelci/build-)
+DOCKER_BASE (kernelci/)
   Dockerhub base address used for the build images
 CALLBACK_ID (kernel-ci-callback)
   Identifier of the callback to look up an authentication token
@@ -113,7 +113,7 @@ node("docker && test-runner") {
     def kci_core = "${env.WORKSPACE}/kernelci-core"
     def jobs_dir = "${env.WORKSPACE}/jobs"
     def artifacts = "${env.WORKSPACE}/artifacts"
-    def docker_image = "${params.DOCKER_BASE}base"
+    def docker_image = "${params.DOCKER_BASE}build-base"
     def labs = params.LABS.tokenize(' ')
     def labs_submit = []
 
