@@ -69,7 +69,7 @@ KCI_CORE_URL (https://github.com/kernelci/kernelci-core.git)
   URL of the kernelci-core repository
 KCI_CORE_BRANCH (master)
   Name of the branch to use in the kernelci-core repository
-DOCKER_BASE (kernelci/build-)
+DOCKER_BASE (kernelci/)
   Dockerhub base address used for the build images
 LAVA_CALLBACK (kernel-ci-callback)
   Description of the LAVA auth token to look up and use in LAVA callbacks
@@ -733,11 +733,11 @@ ${params_summary}""")
         }
     }
 
-    j.dockerPullWithRetry("${params.DOCKER_BASE}base").inside() {
+    j.dockerPullWithRetry("${params.DOCKER_BASE}build-base").inside() {
         j.cloneKciCore(kci_core, params.KCI_CORE_URL, params.KCI_CORE_BRANCH)
         build_env_docker_image = j.dockerImageName(
             kci_core, params.BUILD_ENVIRONMENT, params.ARCH)
-        docker_image = "${params.DOCKER_BASE}${build_env_docker_image}"
+        docker_image = "${params.DOCKER_BASE}build-${build_env_docker_image}"
     }
 
     j.dockerPullWithRetry(docker_image).inside() {

@@ -37,7 +37,7 @@ KCI_CORE_URL (https://github.com/kernelci/kernelci-core.git)
   URL of the kernelci-core repository
 KCI_CORE_BRANCH (master)
   Name of the branch to use in the kernelci-core repository
-DOCKER_BASE (kernelci/build-)
+DOCKER_BASE (kernelci/)
   Dockerhub base address used for the build images
 
 */
@@ -77,7 +77,7 @@ node("docker && monitor") {
     def j = new Job()
     def kci_core = env.WORKSPACE + '/kernelci-core'
     def trees_dir = "${env.WORKSPACE}/trees"
-    def docker_image = "${params.DOCKER_BASE}base"
+    def docker_image = "${params.DOCKER_BASE}build-base"
 
     print("""\
     Storage:   ${params.KCI_STORAGE_URL}
