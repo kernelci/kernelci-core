@@ -29,9 +29,9 @@ KCI_CORE_BRANCH (master)
 DOCKER_BASE
   Dockerhub base address used for the build images
 ROOTFS_CONFIG
-  Configuration name to build RootFS images
+  Set this to limit the rootfs builds to only one configuration
 ROOTFS_ARCH
-  RootFS image architecture
+  Set this to limit the rootfs builds to only one architecture
 */
 
 @Library('kernelci') _
@@ -44,7 +44,7 @@ def listVariants(kci_core, config_list, rootfs_config, rootfs_arch) {
     if (rootfs_config) {
         cli_opts += " --config ${rootfs_config}"
     }
-       
+
     if (rootfs_arch) {
         cli_opts += " --arch ${rootfs_arch}"
     }
@@ -53,7 +53,7 @@ def listVariants(kci_core, config_list, rootfs_config, rootfs_arch) {
         def rootfs_config_list_raw = sh(script: """\
 ./kci_rootfs \
 list_variants \
-${cli_opts} 
+${cli_opts}
 """, returnStdout: true).trim()
 
         def rootfs_config_list =  rootfs_config_list_raw.tokenize('\n')
@@ -83,7 +83,7 @@ def buildRootfsStep(job, config ,arch) {
     j.addStrParams(job_params, str_params)
 
     return {
-          def res = build(job: job, parameters: job_params, propagate: false)
+        def res = build(job: job, parameters: job_params, propagate: false)
     }
 }
 
@@ -92,21 +92,12 @@ node("docker && build-trigger") {
     def j = new Job()
     def kci_core = "${env.WORKSPACE}/kernelci-core"
     def docker_image = "${params.DOCKER_BASE}debos"
-    def ROOTFS_CONFIG = "${params.ROOTFS_CONFIG}"
-    def ROOTFS_ARCH = "${params.ROOTFS_ARCH}"
-
     def configs = []
 
     print("""\
-    rootfs_config:  ${params.ROOTFS_CONFIG}
-    rootfs_arch:    ${params.ROOTFS_ARCH}
-    Container:      ${docker_image}""")
-
-    if (params.ROOTFS_ARCH == ''){
-        print("Please provide valid architecture.")
-        currentBuild.result = 'ABORTED'
-        return
-    }
+    Config:    ${params.ROOTFS_CONFIG}
+    CPU arch:  ${params.ROOTFS_ARCH}
+    Container: ${docker_image}""")
 
     j.dockerPullWithRetry(docker_image).inside() {
 
@@ -118,7 +109,8 @@ node("docker && build-trigger") {
         }
 
         stage("Configs") {
-            listVariants(kci_core, configs, rootfs_config, rootfs_arch)
+            listVariants(kci_core, configs, params.ROOTFS_CONFIG,
+                         params.ROOTFS_ARCH)
         }
 
         stage("Build") {
