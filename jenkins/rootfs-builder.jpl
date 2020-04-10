@@ -36,6 +36,8 @@ ROOTFS_CONFIG
   Configuration name to build RootFS images
 ROOTFS_ARCH
   RootFS image architecture
+PIPELINE_VERSION
+  Unique string identifier for the series of rootfs build jobs
 */
 
 
