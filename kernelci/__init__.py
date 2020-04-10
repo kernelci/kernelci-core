@@ -16,6 +16,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import subprocess
+import sys
 
 
 def shell_cmd(cmd, ret_code=False):
@@ -23,3 +24,8 @@ def shell_cmd(cmd, ret_code=False):
         return False if subprocess.call(cmd, shell=True) else True
     else:
         return subprocess.check_output(cmd, shell=True).decode()
+
+
+def print_flush(msg):
+    print(msg)
+    sys.stdout.flush()

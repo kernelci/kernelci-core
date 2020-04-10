@@ -28,7 +28,7 @@ import tempfile
 import time
 import urllib.parse
 
-from kernelci import shell_cmd
+from kernelci import shell_cmd, print_flush
 import kernelci.elf
 from kernelci.storage import upload_files
 
@@ -470,7 +470,7 @@ def _run_make(kdir, arch, target=None, jopt=None, silent=True, cc='gcc',
         args.append(target)
 
     cmd = ' '.join(args)
-    print(cmd)
+    print_flush(cmd)
     if log_file:
         cmd = _output_to_file(cmd, log_file)
     return shell_cmd(cmd, True)
@@ -506,7 +506,7 @@ def _make_defconfig(defconfig, kwargs, extras, verbose, log_file):
                     tmpfile_used = True
                 extras.append(os.path.basename(os.path.splitext(d)[0]))
             else:
-                print("Fragment not found: {}".format(frag_path))
+                print_flush("Fragment not found: {}".format(frag_path))
                 result = False
     tmpfile.flush()
 
@@ -533,7 +533,7 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
            base=os.path.join(rel_path, '.config'),
            frag=os.path.join(rel_path, kconfig_frag_name),
            redir='> /dev/null' if not verbose else '')
-        print(cmd.strip())
+        print_flush(cmd.strip())
         if log_file:
             cmd = _output_to_file(cmd, log_file, kdir)
         result = shell_cmd(cmd, True)
@@ -602,10 +602,10 @@ def build_kernel(build_env, kdir, arch, defconfig=None, jopt=None,
         result = _make_defconfig(
             defconfig, kwargs, defconfig_extras, verbose, log_file)
     elif os.path.exists(dot_config):
-        print("Re-using {}".format(dot_config))
+        print_flush("Re-using {}".format(dot_config))
         result = True
     else:
-        print("ERROR: Missing kernel config")
+        print_flush("ERROR: Missing kernel config")
         result = False
     if result:
         target = (
@@ -755,7 +755,7 @@ def install_kernel(kdir, tree_name, tree_url, git_branch, git_commit=None,
                 kimage_file = name
                 break
     if not kimage_file:
-        print("Warning: no kernel image found")
+        print_flush("Warning: no kernel image found")
 
     dts_dir = os.path.join(boot_dir, 'dts')
     dtbs = os.path.join(install_path, 'dtbs')
@@ -837,7 +837,7 @@ def push_kernel(kdir, api, token, install_path=None):
             px = os.path.relpath(root, install_path)
             artifacts[os.path.join(px, f)] = open(os.path.join(root, f), "rb")
     upload_path = bmeta['file_server_resource']
-    print("Upload path: {}".format(upload_path))
+    print_flush("Upload path: {}".format(upload_path))
     upload_files(api, token, upload_path, artifacts)
 
     return True
