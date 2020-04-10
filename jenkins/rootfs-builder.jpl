@@ -42,21 +42,24 @@ ROOTFS_ARCH
 @Library('kernelci') _
 import org.kernelci.util.Job
 
-def build_rootfs(config, arch, pipeline_version, kci_core) {
+def build(config, arch, pipeline_version, kci_core) {
     dir(kci_core) {
         sh(script: """\
 ./kci_rootfs \
 build \
 --config ${config} \
---arch  ${arch} \
---data-path jenkins/debian/debos 
-mkdir -p ${pipeline_version} 
+--arch ${arch} \
+--data-path jenkins/debian/debos
+mkdir -p ${pipeline_version}
 mv jenkins/debian/debos/${config}/* ${pipeline_version}
 """)
+    }
+}
 
-    archiveArtifacts artifacts: "${pipeline_version}/**"
-
-    withCredentials([string(credentialsId: params.KCI_TOKEN_ID, variable: 'API_TOKEN')]) {
+def upload(config, pipeline_version, kci_core) {
+    dir(kci_core) {
+        withCredentials([string(credentialsId: params.KCI_TOKEN_ID,
+                                variable: 'API_TOKEN')]) {
             sh(script: """\
 ./kci_rootfs \
 upload \
@@ -74,17 +77,37 @@ node("debos && docker") {
     def kci_core = "${env.WORKSPACE}/kernelci-core"
     def config = "${params.ROOTFS_CONFIG}"
     def arch = "${params.ROOTFS_ARCH}"
-    def docker_image = "${params.DOCKER_BASE}debos"
     def pipeline_version =  "${params.PIPELINE_VERSION}"
+    def docker_image = "${params.DOCKER_BASE}debos"
+
+    print("""\
+    Config:    ${config}
+    CPU arch:  ${arch}
+    Pipeline:  ${pipeline_version}
+    Container: ${docker_image}""")
+
+    if (!config || !arch || !pipeline_version) {
+        print("Invalid parameters")
+        currentBuild.result = 'ABORTED'
+        return
+    }
 
     j.dockerPullWithRetry(docker_image).inside() {
         j.cloneKciCore(kci_core, params.KCI_CORE_URL, params.KCI_CORE_BRANCH)
     }
 
-    j.dockerPullWithRetry(docker_image).inside(" --privileged --device /dev/kvm ") {
-        stage("Build ${config} ${arch}") {
+    j.dockerPullWithRetry(docker_image).
+        inside(" --privileged --device /dev/kvm ") {
+
+        stage("Build") {
             timeout(time: 4, unit: 'HOURS') {
-	        build_rootfs(config, arch, pipeline_version, kci_core)
+	        build(config, arch, pipeline_version, kci_core)
+            }
+        }
+
+        stage("Upload") {
+            timeout(time: 30, unit: 'MINUTES') {
+                upload(config, pipeline_version, kci_core);
             }
         }
     }
