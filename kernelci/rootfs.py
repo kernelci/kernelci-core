@@ -42,10 +42,8 @@ rootfs.yaml'.format(
             script=config.script,
             test_overlay=config.test_overlay,
             crush_image_options=" ".join(config.crush_image_options)
-            )
-    shell_cmd(cmd)
-
-    return True
+    )
+    return shell_cmd(cmd, True)
 
 
 def build(name, config, data_path, arch):
@@ -56,11 +54,10 @@ def build(name, config, data_path, arch):
     *data_path* points to debos location
     *arch* required architecture
     """
-
     if config.rootfs_type == "debos":
-        _build_debos(name, config, data_path, arch)
+        return _build_debos(name, config, data_path, arch)
     else:
-        raise ValueError("rootfs_type:{} not supported"
+        raise ValueError("rootfs_type not supported: {}"
                          .format(config.rootfs_type))
 
 
@@ -78,4 +75,3 @@ def upload(api, token, upload_path, input_dir):
             px = os.path.relpath(root, input_dir)
             artifacts[os.path.join(px, f)] = open(os.path.join(root, f), "rb")
     upload_files(api, token, upload_path, artifacts)
-    return True
