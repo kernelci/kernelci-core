@@ -45,26 +45,20 @@ def cloneKciCore(path, url, branch) {
 
 def dockerImageName(kci_core, build_env, kernel_arch) {
     def image_name = build_env
-    def cc = null
 
     dir(kci_core) {
         def build_env_raw = sh(
-            script: "./kci_build show_build_env --build-env=${build_env}",
-            returnStdout: true).trim()
-        cc = build_env_raw.tokenize('\n')[1]
-    }
+            script: """
+./kci_build \
+  show_build_env \
+  --build-env=${build_env} \
+  --arch=${kernel_arch} \
+""", returnStdout: true).trim()
+        def build_env_data = build_env_raw.split('\n').toList()
+        def cc_arch = build_env_data[3]
 
-    if (cc == "gcc") {
-        def docker_arch
-
-        if (kernel_arch == "riscv")
-            docker_arch = "riscv64"
-        else if ((kernel_arch == "i386") || (kernel_arch == "x86_64"))
-            docker_arch = "x86"
-        else
-            docker_arch = kernel_arch
-
-	image_name = "${image_name}_${docker_arch}"
+        if (cc_arch)
+            image_name = "${build_env}_${cc_arch}"
     }
 
     return image_name
