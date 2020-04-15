@@ -192,8 +192,8 @@ def _show_build_env(build_env, arch=None):
     print(build_env.cc)
     print(build_env.cc_version)
     if arch:
-        print(build_env.get_arch_name(args.arch))
-        xc = build_env.get_cross_compile(args.arch)
+        print(build_env.get_arch_name(arch) or '')
+        xc = build_env.get_cross_compile(arch)
         if xc:
             print(xc)
 
