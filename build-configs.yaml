@@ -184,6 +184,12 @@ build_environments:
       riscv:
     cross_compile: *default_cross_compile
 
+  clang-10:
+    cc: clang
+    cc_version: 10
+    arch_map: *clang_arch_map
+    cross_compile: *default_cross_compile
+
 
 # Default config with full build coverage
 build_configs_defaults:
@@ -613,6 +619,7 @@ build_configs:
               - 'multi_v7_defconfig+CONFIG_EFI=y+CONFIG_ARM_LPAE=y'
               - 'allnoconfig'
               - 'allmodconfig'
+
       clang-9:
         build_environment: clang-9
         architectures:
@@ -621,6 +628,7 @@ build_configs:
               - 'allmodconfig'
               - 'allnoconfig'
           arm:
+            base_defconfig: 'multi_v7_defconfig'
             filters:
               - regex: {
                 defconfig: '(?:aspeed_g5_def|multi_v5_def|multi_v7_def|allmod|allno)config',
@@ -631,10 +639,17 @@ build_configs:
               - 'allmodconfig'
               - 'allnoconfig'
           x86_64:
+            base_defconfig: 'x86_64_defconfig'
             extra_configs:
               - 'allmodconfig'
               - 'allnoconfig'
-            fragments: []
+
+      clang-10:
+        build_environment: clang-10
+        architectures:
+          arm: *arm_defconfig
+          arm64: *arm64_defconfig
+          x86_64: *x86_64_defconfig
 
   next_pending-fixes:
     tree: next
