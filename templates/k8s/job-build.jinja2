@@ -1,0 +1,100 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ job_name }}
+spec:
+  completions: 1
+  template:
+    spec:
+      restartPolicy: OnFailure
+
+      # in-memory tmpfs
+      volumes:
+      - name: scratch-volume
+        emptyDir: { medium: "Memory" }
+
+      # only run on preemptible nods
+      #nodeSelector:
+      #  cloud.google.com/gke-preemptible: "true"
+
+      # tolerate Azure spot instances
+      tolerations:
+      - key: "kubernetes.azure.com/scalesetpriority"
+        operator: "Equal"
+        value: "spot"
+        effect: "NoSchedule"
+
+      initContainers:
+      - name: kernelci-core-setup
+        image: {{ "FIXME" | env_override('DOCKER_BASE') }}build-{{ "FIXME" | env_override('DOCKER_IMAGE') }}
+
+        volumeMounts:
+        - mountPath: "/scratch"
+          name: scratch-volume
+
+        command: ["/bin/bash", "-x", "-c"]
+        args: ["cd /scratch && git clone --depth=1 --branch ${KCI_CORE_BRANCH} ${KCI_CORE_URL}"]
+
+        env:
+        - name: KCI_CORE_URL
+          value: "{{ "FIXME" | env_override('KCI_CORE_URL') }}"
+        - name: KCI_CORE_BRANCH
+          value: "{{ "FIXME" | env_override('KCI_CORE_BRANCH') }}"
+
+      containers:
+      - name: kci-build
+        image: {{ "FIXME" | env_override('DOCKER_BASE') }}build-{{ "FIXME" | env_override('DOCKER_IMAGE') }}
+
+        volumeMounts:
+        - mountPath: "/scratch"
+          name: scratch-volume
+
+        command: ["/bin/bash", "-x", "-c"]
+        args: ["echo nproc=$(nproc); df; free; \
+export KDIR=/scratch/linux && export OUTPUT=$HOME/build && export CCACHE_DISABLE=true && \
+cd /scratch/kernelci-core &&  \
+./kci_build pull_tarball --kdir ${KDIR} --url ${SRC_TARBALL} --retries 3 --delete && \
+./kci_build build_kernel --kdir ${KDIR} --output ${OUTPUT} --defconfig=${DEFCONFIG} --arch=${ARCH} --build-env=${BUILD_ENVIRONMENT} --verbose ${PARALLEL_JOPT}; export KERNEL_BUILD_RESULT=$?; \
+./kci_build install_kernel --kdir ${KDIR} --output ${OUTPUT} --config ${BUILD_CONFIG} --describe=${GIT_DESCRIBE} --describe-verbose=${GIT_DESCRIBE_VERBOSE} --commit=${COMMIT_ID}; \
+./kci_build push_kernel --kdir ${KDIR} --token=${KCI_API_TOKEN} --api=${KCI_API_URL}; \
+./kci_build publish_kernel --kdir ${KDIR} --token=${KCI_API_TOKEN} --api=${KCI_API_URL}; \
+echo KERNEL_BUILD_RESULT=$KERNEL_BUILD_RESULT; \
+exit 0; \
+"]
+
+        env:
+        - name: ARCH
+          value: "{{ "FIXME" | env_override('ARCH') }}"
+        - name: BUILD_ENVIRONMENT
+          value: "{{ "FIXME" | env_override('BUILD_ENVIRONMENT') }}"
+        - name: DEFCONFIG
+          value: "{{ "FIXME" | env_override('DEFCONFIG') }}"
+        - name: SRC_TARBALL
+          value: "{{ "FIXME" | env_override('SRC_TARBALL') }}"
+        - name: GIT_DESCRIBE
+          value: "{{ "FIXME" | env_override('GIT_DESCRIBE') }}"
+        - name: GIT_DESCRIBE_VERBOSE
+          value: "{{ "FIXME" | env_override('GIT_DESCRIBE_VERBOSE') }}"
+        - name: COMMIT_ID
+          value: "{{ "FIXME" | env_override('COMMIT_ID') }}"
+        - name: BUILD_CONFIG
+          value: "{{ "FIXME" | env_override('BUILD_CONFIG') }}"
+        - name: KCI_API_URL
+          value: "{{ "FIXME" | env_override('KCI_API_URL') }}"
+        - name: KCI_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: kci-api-token-staging
+              key: token
+
+        # optional env
+        - name: PARALLEL_JOPT
+          value: "{{ "" | env_override('PARALLEL_JOPT') }}"
+
+        resources:
+          limits:
+            cpu: {{ cpu_limit }}
+          requests:
+            cpu: {{ cpu_request }}
+            memory: {{ mem_request }}
+
