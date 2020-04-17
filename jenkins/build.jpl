@@ -117,6 +117,7 @@ publish_kernel \
     }
 }
 
+/*
 node("docker" && params.NODE_LABEL) {
     def j = new Job()
     def kci_core = "${env.WORKSPACE}/kernelci-core"
@@ -158,5 +159,77 @@ node("docker" && params.NODE_LABEL) {
                 sh(script: "rm -rf ${kdir}")
             }
         }
+    }
+}
+*/
+
+/* K8S build */
+node("docker" && "k8s") {
+    def j = new Job()
+    def kci_core = "${env.WORKSPACE}/kernelci-core"
+    def k8s_docker_image = "khilman/build-k8s"
+
+        print("""\
+    Config:    ${params.BUILD_CONFIG}
+    CPU arch:  ${params.ARCH}
+    Describe:  ${params.GIT_DESCRIBE}
+    Revision:  ${params.COMMIT_ID}
+    Defconfig: ${params.DEFCONFIG}
+    Compiler:  ${params.BUILD_ENVIRONMENT}""")
+
+    withCredentials([file(credentialsId: "${GCLOUD_SA_ID}",
+			  variable: 'GCLOUD_SA_KEY_FILE')]) {
+	j.dockerPullWithRetry("${k8s_docker_image}").inside("-v ${GCLOUD_SA_KEY_FILE}:/tmp/sa.json") {
+
+	    stage("Init") {
+		/* Init gcloud / kubectl config */
+		sh(script: """\
+gcloud auth activate-service-account --key-file ${GCLOUD_SA_KEY_FILE};
+gcloud config set project ${GCLOUD_PROJECT};
+gcloud config list;
+gcloud container clusters list;
+gcloud container clusters get-credentials ${GCLOUD_CLUSTER} --region ${GCLOUD_REGION} --project ${GCLOUD_PROJECT};
+kubectl get nodes""")
+	    }
+
+            j.cloneKciCore(kci_core, params.KCI_CORE_URL, params.KCI_CORE_BRANCH)
+            build_env_docker_image = j.dockerImageName(
+		kci_core, params.BUILD_ENVIRONMENT, params.ARCH)
+	    stage("Build") {
+		timeout(time: 180, unit: 'MINUTES') {
+		    dir(kci_core) {
+			def k8s_job = sh(script: """\
+DOCKER_IMAGE=${build_env_docker_image} \
+./templates/k8s/gen.py\
+""", returnStdout: true).trim()
+
+			/* submit */
+			sh(script: "cat ${k8s_job}.yaml; kubectl apply -f ${k8s_job}.yaml")
+
+			/* Wait for pod to be ready */
+			def phase = ""
+			while(phase != "Running") {
+			    /* NOTE: important to check/update the pod name *
+			     * each time, because pods can be moved/rescheduled
+			     * etc. */
+			    def k8s_pod = sh(script:
+					     "kubectl get pods --selector=job-name=${k8s_job} -o jsonpath=\"{.items[0].metadata.name}\"",
+					     returnStdout: true).trim()
+			    phase = sh(script:
+				       "kubectl get pods ${k8s_pod} -o jsonpath='{.status.phase}'",
+				       returnStdout:true).trim()
+			    print("pod ${k8s_pod}: not running (phase=${phase}).  Waiting.")
+			    sleep 15
+			}
+
+			/* get logs */
+			sh(script: "kubectl logs -f job/${k8s_job}; exit 0")
+
+			/* delete job */
+			sh(script: "kubectl delete job ${k8s_job}")
+		    }
+		}
+	    }
+	}
     }
 }

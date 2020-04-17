@@ -443,6 +443,7 @@ def _run_make(kdir, arch, target=None, jopt=None, silent=True, cc='gcc',
     args += ['-C{}'.format(kdir)]
 
     if jopt:
+        print("KJH: jopt = {}".format(jopt))
         args.append('-j{}'.format(jopt))
 
     if silent:
