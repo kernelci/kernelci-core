@@ -545,6 +545,21 @@ build_configs:
   khilman:
     tree: khilman
     branch: 'to-build'
+    variants:
+      gcc-8:
+        build_environment: gcc-8
+        fragments: [kselftest]
+        architectures:
+          arm64:
+            base_defconfig: defconfig
+          arm: *staging_arm
+          x86_64:
+            base_defconfig: 'x86_64_defconfig'
+          riscv: *riscv_defconfig
+      clang-9:
+        build_environment: clang-9
+        architectures:
+          arm64: *arm64_defconfig
 
   krzysztof:
     tree: krzysztof
