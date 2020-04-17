@@ -41,7 +41,7 @@ file_systems:
 
   debian_buster_ramdisk:
     type: debian
-    ramdisk: 'buster/20200325.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'buster/20200417.1/{arch}/rootfs.cpio.gz'
 
   debian_buster-cros-ec_ramdisk:
     type: debian
