@@ -485,12 +485,37 @@ device_types:
     filters:
       - blacklist: *allmodconfig_filter
 
+  fsl-ls1012a-rdb:
+    mach: freescale
+    class: arm64-dtb
+    boot_method: uboot
+
+  fsl-ls1028a-rdb:
+    mach: freescale
+    class: arm64-dtb
+    boot_method: uboot
+
   fsl-ls1043a-rdb:
     mach: freescale
     class: arm64-dtb
     boot_method: uboot
 
+  fsl-ls1046a-rdb:
+    mach: freescale
+    class: arm64-dtb
+    boot_method: uboot
+
+  fsl-ls1088a-rdb:
+    mach: freescale
+    class: arm64-dtb
+    boot_method: uboot
+
   fsl-ls2088a-rdb:
+    mach: freescale
+    class: arm64-dtb
+    boot_method: uboot
+
+  fsl-lx2160a-rdb:
     mach: freescale
     class: arm64-dtb
     boot_method: uboot
@@ -1509,6 +1534,20 @@ test_configs:
       - kselftest
       - simple
 
+  - device_type: fsl-ls1012a-rdb
+    test_plans:
+      - baseline
+      - boot
+      - kselftest
+      - simple
+
+  - device_type: fsl-ls1028a-rdb
+    test_plans:
+      - baseline
+      - boot
+      - kselftest
+      - simple
+
   - device_type: fsl-ls1043a-rdb
     test_plans:
       - baseline
@@ -1516,7 +1555,28 @@ test_configs:
       - kselftest
       - simple
 
+  - device_type: fsl-ls1046a-rdb
+    test_plans:
+      - baseline
+      - boot
+      - kselftest
+      - simple
+
+  - device_type: fsl-ls1088a-rdb
+    test_plans:
+      - baseline
+      - boot
+      - kselftest
+      - simple
+
   - device_type: fsl-ls2088a-rdb
+    test_plans:
+      - baseline
+      - boot
+      - kselftest
+      - simple
+
+  - device_type: fsl-lx2160a-rdb
     test_plans:
       - baseline
       - boot
