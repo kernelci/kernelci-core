@@ -1119,6 +1119,8 @@ device_types:
     mach: stm32
     class: arm-dtb
     boot_method: uboot
+    filters:
+      - blacklist: {defconfig: ['stm32_defconfig']}
 
   sun4i-a10-olinuxino-lime:
     mach: allwinner
