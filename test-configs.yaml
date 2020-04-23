@@ -15,7 +15,7 @@ file_system_types:
       mipsel:  [{arch: mips}]
 
   debian:
-    url: 'http://storage.kernelci.org/images/rootfs/debian'
+    url: 'http://storage.staging.kernelci.org/images/rootfs/debian'
     arch_map:
       armhf: [{arch: arm}]
       amd64: [{arch: x86_64}]
@@ -41,19 +41,19 @@ file_systems:
 
   debian_buster_ramdisk:
     type: debian
-    ramdisk: 'buster/20200417.1/{arch}/rootfs.cpio.gz'
+    ramdisk: 'buster/20200421.0/{arch}/rootfs.cpio.gz'
 
   debian_buster-cros-ec_ramdisk:
     type: debian
-    ramdisk: 'buster-cros-ec/20200403.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'buster-cros-ec/20200421.0/{arch}/rootfs.cpio.gz'
 
   debian_buster-igt_ramdisk:
     type: debian
-    ramdisk: 'buster-igt/20200403.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'buster-igt/20200421.0/{arch}/rootfs.cpio.gz'
 
   debian_buster-v4l2_ramdisk:
     type: debian
-    ramdisk: 'buster-v4l2/20200403.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'buster-v4l2/20200421.0/{arch}/rootfs.cpio.gz'
 
 
 test_plan_default_filters:
