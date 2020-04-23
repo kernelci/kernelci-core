@@ -3,7 +3,7 @@ labs:
   # ToDo: also run jobs with callbacks sent to BayLibre's KernelCI backend
   lab-baylibre:
     lab_type: lava
-    url: 'http://lava.baylibre.com:10080/RPC2/'
+    url: 'https://lava.baylibre.com/RPC2/'
     filters:
       - blacklist: {tree: [drm-tip]}
       - whitelist:
