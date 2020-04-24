@@ -358,7 +358,7 @@ class TestPlan(YAMLObject):
             method=boot_method,
             protocol=self.rootfs.boot_protocol,
             rootfs=self.rootfs.root_type,
-            plan=self.name)
+            plan=self.base_name)
 
     def match(self, config):
         return all(f.match(**config) for f in self._filters)
