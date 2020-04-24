@@ -14,6 +14,16 @@ file_system_types:
       x86:     [{arch: i386}, {arch: x86_64}]
       mipsel:  [{arch: mips}]
 
+  buildroot_gtucker:
+    url: 'https://storage.staging.kernelci.org/images/rootfs/buildroot/gtucker/2019.02-rc2-350-g83ef2496e1a7'
+
+    arch_map:
+      arm64be: [{arch: arm64, endian: big}]
+      armeb:   [{arch: arm,   endian: big}]
+      armel:   [{arch: arm}]
+      x86:     [{arch: i386}, {arch: x86_64}]
+      mipsel:  [{arch: mips}]
+
   debian:
     url: 'http://storage.kernelci.org/images/rootfs/debian'
     arch_map:
@@ -33,6 +43,10 @@ file_systems:
 
   buildroot_baseline_ramdisk:
     type: buildroot
+    ramdisk: '{arch}/baseline/rootfs.cpio.gz'
+
+  buildroot_gtucker_baseline_ramdisk:
+    type: buildroot_gtucker
     ramdisk: '{arch}/baseline/rootfs.cpio.gz'
 
   buildroot_kselftest_ramdisk:
@@ -80,6 +94,12 @@ test_plans:
 
   baseline:
     rootfs: buildroot_baseline_ramdisk
+    filters:
+      - blacklist: *kselftest_defconfig_clang_environment_filter
+
+  baseline_gtucker:
+    base_name: baseline
+    rootfs: buildroot_gtucker_baseline_ramdisk
     filters:
       - blacklist: *kselftest_defconfig_clang_environment_filter
 
@@ -1900,7 +1920,7 @@ test_configs:
 
   - device_type: rk3399-gru-kevin
     test_plans:
-      - baseline
+      - baseline_gtucker
       - boot
       - cros-ec
       - sleep
