@@ -1463,6 +1463,21 @@ device_types:
     params: &uefi_i386
       bios_url: 'http://storage.kernelci.org/images/uefi/edk2-stable202005/i386/OVMF.fd'
 
+  qemu_mips-malta:
+    base_name: qemu
+    mach: qemu
+    arch: mips
+    boot_method: qemu
+    context:
+      arch: mipsel
+      guestfs_interface: 'ide'
+      machine: 'malta'
+      memory: 256
+      model: 'model=pcnet'
+      no_kvm: True
+    filters:
+      - passlist: {defconfig: ['malta_defconfig']}
+
   qemu_riscv64:
     base_name: qemu
     mach: qemu
@@ -2571,6 +2586,10 @@ test_configs:
       - baseline_qemu
 
   - device_type: qemu_i386-uefi
+    test_plans:
+      - baseline_qemu
+
+  - device_type: qemu_mips-malta
     test_plans:
       - baseline_qemu
 
