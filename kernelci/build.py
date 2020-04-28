@@ -49,7 +49,7 @@ KERNEL_IMAGE_NAMES = {
     'arm64': ['Image'],
     'arc': ['uImage'],
     'i386': ['bzImage'],
-    'mips': ['uImage.gz', 'vmlinux.gz.itb'],
+    'mips': ['uImage.gz', 'vmlinux.gz.itb', 'vmlinuz'],
     'riscv': ['Image', 'Image.gz'],
     'x86_64': ['bzImage'],
     'x86': ['bzImage'],
@@ -624,10 +624,12 @@ def build_kernel(build_env, kdir, arch, defconfig=None, jopt=None,
         print_flush("ERROR: Missing kernel config")
         result = False
     if result:
-        target = (
-            'xipImage' if _kernel_config_enabled(dot_config, 'XIP_KERNEL')
-            else MAKE_TARGETS.get(arch)
-        )
+        if _kernel_config_enabled(dot_config, 'XIP_KERNEL'):
+            target = 'xipImage'
+        elif _kernel_config_enabled(dot_config, 'SYS_SUPPORTS_ZBOOT'):
+            target = 'vmlinuz'
+        else:
+            target = MAKE_TARGETS.get(arch)
         result = _run_make(jopt=jopt, target=target, **kwargs)
     mods = _kernel_config_enabled(dot_config, 'MODULES')
     if result and mods:
@@ -786,6 +788,12 @@ def install_kernel(kdir, tree_name, tree_url, git_branch, git_commit=None,
             if name in files:
                 kimages.append(name)
                 image_path = os.path.join(root, name)
+                shutil.copy(image_path, install_path)
+    for files in os.listdir(output_path):
+        for name in kimage_names:
+            if name == files:
+                kimages.append(name)
+                image_path = os.path.join(output_path, name)
                 shutil.copy(image_path, install_path)
     if kimages:
         for name in kimage_names:
