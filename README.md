@@ -38,11 +38,11 @@ dependencies needed.
 * **[`kci_test`](doc/kci_test.md)** to generate and submit test definitions in
   an automated test lab.
 
+* **[`kci_rootfs`](doc/kci_rootfs.md)** to build a CPU specific rootfs image
+  for given OS variant and push them to a storage server.
+
 **Other command line tools are being worked on** to replace the current legacy
 implementation which is still tied to Jenkins or hard-coded in shell scripts:
-
-* **`kci_rootfs` (WIP)** to produce root file systems containing test suites to
-  run on target platforms.
 
 * **`kci_bisect` (WIP)** To run KernelCI automated bisections.
 
