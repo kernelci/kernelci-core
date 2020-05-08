@@ -233,6 +233,9 @@ def buildKernelStep(job, arch, defconfig, build_env, opts, labs, kci_core) {
     } else if (defconfig.matches("^defconfig.*") && arch == "arm64") {
         node_label = "medium-config-builder"
         parallel_builds = ""
+    } else if (defconfig.matches(".*kselftest.config.*")) {
+        node_label = "medium-config-builder"
+        parallel_builds = ""
     }
 
     def str_params = [
