@@ -658,12 +658,15 @@ device_types:
       - blacklist: {defconfig: ['allmodconfig', 'multi_v5_defconfig']}
       - blacklist: {kernel: ['v3.']}
 
-  r8a7796-m3ulcb:
+  r8a7796-m3ulcb: &r8a7796-m3ulcb
     mach: renesas
     class: arm64-dtb
     boot_method: uboot
     filters:
       - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+
+# this is the same device than r8a7796-m3ulcb
+  r8a77960-ulcb: *r8a7796-m3ulcb
 
   meson8b-odroidc1:
     mach: amlogic
@@ -1065,13 +1068,16 @@ device_types:
     boot_method: depthcharge
     flags: ['lpae']
 
-  r8a7795-salvator-x:
+  r8a7795-salvator-x: &r8a7795-salvator-x
     mach: renesas
     class: arm64-dtb
     boot_method: uboot
     flags: ['big_endian']
     filters:
       - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+
+# this is the same device than r8a7795-salvator-x
+  r8a77950-salvator-x: *r8a7795-salvator-x
 
   sun8i-a33-sinlinx-sina33:
     mach: allwinner
@@ -1828,15 +1834,23 @@ test_configs:
       - baseline
 
   - device_type: r8a7795-salvator-x
-    test_plans:
+    test_plans: &r8a7795-salvator-x_test-plans
       - baseline
       - baseline-nfs
       - kselftest
 
+# this is the same device than r8a7795-salvator-x
+  - device_type: r8a77950-salvator-x
+    test_plans: *r8a7795-salvator-x_test-plans
+
   - device_type: r8a7796-m3ulcb
-    test_plans:
+    test_plans: &r8a7796-m3ulcb_test-plans
       - baseline
       - usb
+
+# this is the same device than r8a7796-m3ulcb
+  - device_type: r8a77960-ulcb
+    test_plans: *r8a7796-m3ulcb_test-plans
 
   - device_type: rk3399-gru-kevin
     test_plans:
