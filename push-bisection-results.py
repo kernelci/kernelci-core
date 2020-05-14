@@ -48,7 +48,7 @@ def git_bisect_log(repo):
     p = subprocess.Popen("cd {}; git bisect log".format(repo),
                          shell=True, stdout=subprocess.PIPE)
     stdout, _ = p.communicate()
-    return list(l.strip() for l in StringIO(stdout.decode()).readlines())
+    return list(ln.strip() for ln in StringIO(stdout.decode()).readlines())
 
 
 def git_show_fmt(repo, revision, fmt):
@@ -74,8 +74,8 @@ def git_maintainers(kdir, revision):
         "cd {}; ./scripts/get_maintainer.pl --nogit".format(kdir),
         shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
     raw = p.communicate(input=body)[0].decode()
-    for l in raw.split('\n'):
-        m = RE_EMAIL.match(l) or RE_MAILING_LIST.match(l)
+    for ln in raw.split('\n'):
+        m = RE_EMAIL.match(ln) or RE_MAILING_LIST.match(ln)
         if m:
             maintainers.add(name_address(m.groupdict()))
     return list(maintainers)
@@ -94,8 +94,8 @@ def git_people(kdir, revision):
     }
     body = git_show_fmt(kdir, revision, '%b')
 
-    for l in body.split('\n'):
-        m = RE_TRAILER.match(l)
+    for ln in body.split('\n'):
+        m = RE_TRAILER.match(ln)
         if m:
             md = m.groupdict()
             tag, value = (md[k] for k in ['tag', 'value'])
