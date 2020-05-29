@@ -19,8 +19,8 @@ labs:
       - whitelist:
           plan:
             - baseline
+            - baseline-nfs
             - boot
-            - boot-nfs
             - simple
             - sleep
           tree:
@@ -38,6 +38,7 @@ labs:
       - whitelist:
           plan:
             - baseline
+            - baseline-nfs
             - boot
             - cros-ec
             - igt-kms-rockchip
@@ -57,8 +58,8 @@ labs:
       - whitelist:
           plan:
             - baseline
+            - baseline-nfs
             - boot
-            - boot-nfs
 
   lab-linaro-lkft:
     lab_type: lava
@@ -92,8 +93,8 @@ labs:
       - whitelist:
           plan:
             - baseline
+            - baseline-nfs
             - boot
-            - boot-nfs
             - simple
 
   lab-pengutronix:
