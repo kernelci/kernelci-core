@@ -219,14 +219,6 @@ test_plans:
     filters:
       - whitelist: {defconfig: ['kselftest']}
 
-  simple:
-    rootfs: debian_buster_ramdisk
-
-  simple_qemu:
-    base_name: simple
-    rootfs: debian_buster_ramdisk
-    pattern: 'simple/generic-qemu-simple-template.jinja2'
-
   sleep:
     rootfs: debian_buster_ramdisk
 
@@ -1363,7 +1355,6 @@ test_configs:
       - baseline
       - boot
       - boot-nfs
-      - simple
       - sleep
 
   - device_type: apq8016-sbc
@@ -1467,7 +1458,6 @@ test_configs:
     test_plans:
       - baseline
       - boot
-      - simple
 
   - device_type: bcm2836-rpi-2-b
     test_plans:
@@ -1481,7 +1471,6 @@ test_configs:
       - baseline
       - boot
       - kselftest
-      - simple
       - usb
 
   - device_type: bcm2837-rpi-3-b-32
@@ -1489,7 +1478,6 @@ test_configs:
       - baseline
       - boot
       - kselftest
-      - simple
 
   - device_type: beaglebone-black
     test_plans:
@@ -1497,7 +1485,6 @@ test_configs:
       - boot
       - boot-nfs
       - kselftest
-      - simple
 
   - device_type: beagle-xm
     test_plans:
@@ -1534,56 +1521,48 @@ test_configs:
       - baseline
       - boot
       - kselftest
-      - simple
 
   - device_type: fsl-ls1012a-rdb
     test_plans:
       - baseline
       - boot
       - kselftest
-      - simple
 
   - device_type: fsl-ls1028a-rdb
     test_plans:
       - baseline
       - boot
       - kselftest
-      - simple
 
   - device_type: fsl-ls1043a-rdb
     test_plans:
       - baseline
       - boot
       - kselftest
-      - simple
 
   - device_type: fsl-ls1046a-rdb
     test_plans:
       - baseline
       - boot
       - kselftest
-      - simple
 
   - device_type: fsl-ls1088a-rdb
     test_plans:
       - baseline
       - boot
       - kselftest
-      - simple
 
   - device_type: fsl-ls2088a-rdb
     test_plans:
       - baseline
       - boot
       - kselftest
-      - simple
 
   - device_type: fsl-lx2160a-rdb
     test_plans:
       - baseline
       - boot
       - kselftest
-      - simple
 
   - device_type: hi6220-hikey
     test_plans:
@@ -1591,7 +1570,6 @@ test_configs:
       - boot
       - boot-nfs
       - kselftest
-      - simple
 
   - device_type: hip07-d05
     test_plans:
@@ -1723,25 +1701,21 @@ test_configs:
       - baseline
       - baseline-fastboot
       - boot
-      - simple
 
   - device_type: meson-g12a-u200
     test_plans:
       - baseline
       - boot
-      - simple
 
   - device_type: meson-g12a-x96-max
     test_plans:
       - baseline
       - boot
-      - simple
 
   - device_type: meson-g12b-odroid-n2
     test_plans:
       - baseline
       - boot
-      - simple
 
   - device_type: meson-g12b-a311d-khadas-vim3
     test_plans:
@@ -1749,14 +1723,12 @@ test_configs:
       - boot
       - boot-nfs
       - kselftest
-      - simple
 
   - device_type: meson-gxbb-nanopi-k2
     test_plans:
       - baseline
       - boot
       - kselftest
-      - simple
 
   - device_type: meson-gxbb-odroidc2
     test_plans:
@@ -1775,35 +1747,30 @@ test_configs:
       - baseline
       - boot
       - kselftest
-      - simple
 
   - device_type: meson-gxl-s905d-p230
     test_plans:
       - baseline
       - boot
       - kselftest
-      - simple
 
   - device_type: meson-gxl-s805x-p241
     test_plans:
       - baseline
       - boot
       - kselftest
-      - simple
 
   - device_type: meson-gxl-s905x-khadas-vim
     test_plans:
       - baseline
       - boot
       - kselftest
-      - simple
 
   - device_type: meson-gxl-s905x-libretech-cc
     test_plans:
       - baseline
       - boot
       - kselftest
-      - simple
 
   - device_type: meson-gxm-khadas-vim2
     test_plans:
@@ -1811,7 +1778,6 @@ test_configs:
       - boot
       - boot-nfs
       - kselftest
-      - simple
 
   - device_type: meson-gxm-q200
     test_plans:
@@ -1819,26 +1785,22 @@ test_configs:
       - boot
       - boot-nfs
       - kselftest
-      - simple
 
   - device_type: meson-sm1-khadas-vim3l
     test_plans:
       - baseline
       - boot
-      - simple
 
   - device_type: meson-sm1-sei610
     test_plans:
       - baseline
       - baseline-fastboot
       - boot
-      - simple
 
   - device_type: minnowboard-turbot-E3826
     test_plans:
       - baseline
       - boot
-      - simple
 
   - device_type: mt8173-elm-hana
     test_plans:
@@ -1935,7 +1897,6 @@ test_configs:
       - baseline_qemu
       - baseline-uefi_arm
       - boot_qemu
-      - simple_qemu
       - v4l2-compliance-vivid
 
   - device_type: qemu_arm64-virt-gicv2
@@ -1949,7 +1910,6 @@ test_configs:
       - baseline_qemu
       - baseline-uefi_arm64
       - boot_qemu
-      - simple_qemu
       - v4l2-compliance-vivid
 
   - device_type: qemu_i386
@@ -1957,7 +1917,6 @@ test_configs:
       - baseline_qemu
       - baseline-uefi_i386
       - boot_qemu
-      - simple_qemu
 
   - device_type: qemu_x86_64
     test_plans:
@@ -1965,7 +1924,6 @@ test_configs:
       - baseline-uefi_x86_64
       - baseline-uefi_x86-mixed
       - boot_qemu
-      - simple_qemu
       - v4l2-compliance-vivid
 
   - device_type: r8a7791-porter
@@ -1979,13 +1937,11 @@ test_configs:
       - boot
       - boot-nfs
       - kselftest
-      - simple
 
   - device_type: r8a7796-m3ulcb
     test_plans:
       - baseline
       - boot
-      - simple
       - usb
 
   - device_type: rk3399-gru-kevin
@@ -2060,7 +2016,6 @@ test_configs:
       - boot
       - boot-nfs
       - kselftest
-      - simple
 
   - device_type: sun50i-a64-bananapi-m64
     test_plans:
@@ -2133,7 +2088,6 @@ test_configs:
       - boot
       - boot-nfs
       - kselftest
-      - simple
 
   - device_type: sun8i-a23-evb
     test_plans:
@@ -2220,21 +2174,18 @@ test_configs:
       - boot
       - boot-nfs
       - kselftest
-      - simple
 
   - device_type: x86-celeron
     test_plans:
       - baseline
       - boot
       - boot-nfs
-      - simple
 
   - device_type: x86-pentium4
     test_plans:
       - baseline
       - boot
       - boot-nfs
-      - simple
 
   - device_type: x86-x5-z8350
     test_plans:
