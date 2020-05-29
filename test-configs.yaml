@@ -153,18 +153,6 @@ test_plans:
     params:
       bios_url: 'http://storage.kernelci.org/images/uefi/111bbcf87621/OVMF.fd-IA32X64-RELEASE-111bbcf87621'
 
-  boot:
-    rootfs: buildroot_ramdisk
-    filters:
-      - blacklist: *kselftest_defconfig_clang_environment_filter
-
-  boot_qemu:
-    base_name: boot
-    rootfs: buildroot_ramdisk
-    pattern: 'boot/generic-qemu-boot-template.jinja2'
-    filters:
-      - blacklist: *clang_environment_filter
-
   cros-ec:
     rootfs: debian_buster-cros-ec_ramdisk
 
@@ -1348,83 +1336,68 @@ test_configs:
   - device_type: alpine-db
     test_plans:
       - baseline
-      - boot
 
   - device_type: am57xx-beagle-x15
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
       - sleep
 
   - device_type: apq8016-sbc
     test_plans:
       - baseline
-      - boot
       - kselftest
 
   - device_type: ar9331-dpt-module
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
       - kselftest
       - sleep
 
   - device_type: armada-370-db
     test_plans:
       - baseline
-      - boot
 
   - device_type: armada-370-rd
     test_plans:
       - baseline
-      - boot
 
   - device_type: armada-375-db
     test_plans:
       - baseline
-      - boot
 
   - device_type: armada-385-db-ap
     test_plans:
       - baseline
-      - boot
 
   - device_type: armada-388-clearfog
     test_plans:
       - baseline
-      - boot
 
   - device_type: armada-388-gp
     test_plans:
       - baseline
-      - boot
 
   - device_type: armada-398-db
     test_plans:
       - baseline
-      - boot
 
   - device_type: armada-3720-db
     test_plans:
       - baseline
-      - boot
 
   - device_type: armada-7040-db
     test_plans:
       - baseline
-      - boot
 
   - device_type: armada-8040-db
     test_plans:
       - baseline
-      - boot
 
   - device_type: armada-xp-db
     test_plans:
       - baseline
-      - boot
 
   - device_type: armada-xp-gp
     test_plans:
@@ -1434,164 +1407,139 @@ test_configs:
   - device_type: armada-xp-linksys-mamba
     test_plans:
       - baseline
-      - boot
 
   - device_type: armada-xp-openblocks-ax3-4
     test_plans:
       - baseline
-      - boot
 
   - device_type: arndale
-    test_plans: [boot, kselftest]
+    test_plans:
+      - baseline
+      - kselftest
 
   - device_type: at91-sama5d2_xplained
     test_plans:
       - baseline
-      - boot
 
   - device_type: at91-sama5d4_xplained
     test_plans:
       - baseline
-      - boot
 
   - device_type: bcm2711-rpi-4-b
     test_plans:
       - baseline
-      - boot
 
   - device_type: bcm2836-rpi-2-b
     test_plans:
       - baseline
-      - boot
       - sleep
       - usb
 
   - device_type: bcm2837-rpi-3-b
     test_plans:
       - baseline
-      - boot
       - kselftest
       - usb
 
   - device_type: bcm2837-rpi-3-b-32
     test_plans:
       - baseline
-      - boot
       - kselftest
 
   - device_type: beaglebone-black
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
       - kselftest
 
   - device_type: beagle-xm
     test_plans:
       - baseline
-      - boot
       - kselftest
 
   - device_type: cubietruck
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
 
   - device_type: d03
     test_plans:
       - baseline
-      - boot
 
   - device_type: da850-lcdk
     test_plans:
       - baseline
-      - boot
 
   - device_type: dove-cubox
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
       - kselftest
       - sleep
 
   - device_type: dra7-evm
     test_plans:
       - baseline
-      - boot
       - kselftest
 
   - device_type: fsl-ls1012a-rdb
     test_plans:
       - baseline
-      - boot
       - kselftest
 
   - device_type: fsl-ls1028a-rdb
     test_plans:
       - baseline
-      - boot
       - kselftest
 
   - device_type: fsl-ls1043a-rdb
     test_plans:
       - baseline
-      - boot
       - kselftest
 
   - device_type: fsl-ls1046a-rdb
     test_plans:
       - baseline
-      - boot
       - kselftest
 
   - device_type: fsl-ls1088a-rdb
     test_plans:
       - baseline
-      - boot
       - kselftest
 
   - device_type: fsl-ls2088a-rdb
     test_plans:
       - baseline
-      - boot
       - kselftest
 
   - device_type: fsl-lx2160a-rdb
     test_plans:
       - baseline
-      - boot
       - kselftest
 
   - device_type: hi6220-hikey
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
       - kselftest
 
   - device_type: hip07-d05
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
 
   - device_type: hifive-unleashed-a00
     test_plans:
       - baseline
-      - boot
 
   - device_type: hsdk
     test_plans:
       - baseline
-      - boot
 
   - device_type: imx23-olinuxino
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
       - kselftest
       - sleep
 
@@ -1599,7 +1547,6 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
       - kselftest
       - sleep
 
@@ -1607,7 +1554,6 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
       - kselftest
       - sleep
 
@@ -1615,7 +1561,6 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
       - kselftest
       - sleep
 
@@ -1623,25 +1568,21 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
       - kselftest
       - sleep
 
   - device_type: imx6q-nitrogen6x
     test_plans:
       - baseline
-      - boot
 
   - device_type: imx6q-var-dt6customboard
     test_plans:
       - baseline
-      - boot
 
   - device_type: imx6ul-pico-hobbit
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
       - kselftest
       - sleep
 
@@ -1649,7 +1590,6 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
       - kselftest
       - sleep
       - usb
@@ -1657,26 +1597,22 @@ test_configs:
   - device_type: imx6q-sabresd
     test_plans:
       - baseline
-      - boot
       - kselftest
 
   - device_type: imx7d-sdb
     test_plans:
       - baseline
-      - boot
       - kselftest
 
   - device_type: imx8mn-ddr4-evk
     test_plans:
       - baseline
-      - boot
       - kselftest
 
   - device_type: jetson-tk1
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
       - kselftest
 
   - device_type: kirkwood-db-88f6282
@@ -1688,124 +1624,103 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
 
   - device_type: meson8b-odroidc1
     test_plans:
       - baseline
-      - boot
       - kselftest
 
   - device_type: meson-g12a-sei510
     test_plans:
       - baseline
       - baseline-fastboot
-      - boot
 
   - device_type: meson-g12a-u200
     test_plans:
       - baseline
-      - boot
 
   - device_type: meson-g12a-x96-max
     test_plans:
       - baseline
-      - boot
 
   - device_type: meson-g12b-odroid-n2
     test_plans:
       - baseline
-      - boot
 
   - device_type: meson-g12b-a311d-khadas-vim3
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
       - kselftest
 
   - device_type: meson-gxbb-nanopi-k2
     test_plans:
       - baseline
-      - boot
       - kselftest
 
   - device_type: meson-gxbb-odroidc2
     test_plans:
       - baseline
-      - boot
       - kselftest
 
   - device_type: meson-gxbb-p200
     test_plans:
       - baseline
-      - boot
       - kselftest
 
   - device_type: meson-gxl-s805x-libretech-ac
     test_plans:
       - baseline
-      - boot
       - kselftest
 
   - device_type: meson-gxl-s905d-p230
     test_plans:
       - baseline
-      - boot
       - kselftest
 
   - device_type: meson-gxl-s805x-p241
     test_plans:
       - baseline
-      - boot
       - kselftest
 
   - device_type: meson-gxl-s905x-khadas-vim
     test_plans:
       - baseline
-      - boot
       - kselftest
 
   - device_type: meson-gxl-s905x-libretech-cc
     test_plans:
       - baseline
-      - boot
       - kselftest
 
   - device_type: meson-gxm-khadas-vim2
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
       - kselftest
 
   - device_type: meson-gxm-q200
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
       - kselftest
 
   - device_type: meson-sm1-khadas-vim3l
     test_plans:
       - baseline
-      - boot
 
   - device_type: meson-sm1-sei610
     test_plans:
       - baseline
       - baseline-fastboot
-      - boot
 
   - device_type: minnowboard-turbot-E3826
     test_plans:
       - baseline
-      - boot
 
   - device_type: mt8173-elm-hana
     test_plans:
       - baseline
-      - boot
       - cros-ec
       - sleep
       - v4l2-compliance-uvc
@@ -1814,20 +1729,17 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
       - kselftest
 
   - device_type: odroid-x2
     test_plans:
       - baseline
-      - boot
       - kselftest
 
   - device_type: odroid-xu3
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
       - igt-kms-exynos
       - kselftest
       - sleep
@@ -1842,24 +1754,20 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
 
   - device_type: panda
     test_plans:
       - baseline
-      - boot
       - kselftest
 
   - device_type: panda-es
     test_plans:
       - baseline
-      - boot
       - kselftest
 
   - device_type: peach-pi
     test_plans:
       - baseline
-      - boot
       - cros-ec
       - kselftest
       - sleep
@@ -1868,85 +1776,71 @@ test_configs:
   - device_type: qcom-qdf2400
     test_plans:
       - baseline
-      - boot
 
   - device_type: qemu_arm-versatilepb
     test_plans:
       - baseline_qemu
-      - boot_qemu
 
   - device_type: qemu_arm-vexpress-a9
     test_plans:
       - baseline_qemu
-      - boot_qemu
 
   - device_type: qemu_arm-vexpress-a15
     test_plans:
       - baseline_qemu
-      - boot_qemu
 
   - device_type: qemu_arm-virt-gicv2
     test_plans:
       - baseline_qemu
       - baseline-uefi_arm
-      - boot_qemu
 
   - device_type: qemu_arm-virt-gicv3
     test_plans:
       - baseline_qemu
       - baseline-uefi_arm
-      - boot_qemu
       - v4l2-compliance-vivid
 
   - device_type: qemu_arm64-virt-gicv2
     test_plans:
       - baseline_qemu
       - baseline-uefi_arm64
-      - boot_qemu
 
   - device_type: qemu_arm64-virt-gicv3
     test_plans:
       - baseline_qemu
       - baseline-uefi_arm64
-      - boot_qemu
       - v4l2-compliance-vivid
 
   - device_type: qemu_i386
     test_plans:
       - baseline_qemu
       - baseline-uefi_i386
-      - boot_qemu
 
   - device_type: qemu_x86_64
     test_plans:
       - baseline_qemu
       - baseline-uefi_x86_64
       - baseline-uefi_x86-mixed
-      - boot_qemu
       - v4l2-compliance-vivid
 
   - device_type: r8a7791-porter
     test_plans:
       - baseline
-      - boot
 
   - device_type: r8a7795-salvator-x
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
       - kselftest
 
   - device_type: r8a7796-m3ulcb
     test_plans:
       - baseline
-      - boot
       - usb
 
   - device_type: rk3399-gru-kevin
     test_plans:
       - baseline
-      - boot
       - cros-ec
       - sleep
       - v4l2-compliance-uvc
@@ -1959,14 +1853,12 @@ test_configs:
   - device_type: rk3399-puma-haikou
     test_plans:
       - baseline
-      - boot
       - kselftest
 
   - device_type: rk3288-rock2-square
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
       - kselftest
       - sleep
       - usb
@@ -1974,13 +1866,11 @@ test_configs:
   - device_type: rk3328-rock64
     test_plans:
       - baseline
-      - boot
 
   - device_type: rk3288-veyron-jaq
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
       - cros-ec
       - igt-kms-rockchip
       - igt-gpu-panfrost
@@ -1992,7 +1882,6 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
       - kselftest
       - sleep
 
@@ -2000,168 +1889,136 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
       - kselftest
 
   - device_type: stm32mp157c-dk2
     test_plans:
       - baseline
-      - boot
       - kselftest
 
   - device_type: sun4i-a10-olinuxino-lime
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
       - kselftest
 
   - device_type: sun50i-a64-bananapi-m64
     test_plans:
       - baseline
-      - boot
 
   - device_type: sun50i-a64-pine64-plus
     test_plans:
       - baseline
-      - boot
 
   - device_type: sun50i-h5-libretech-all-h3-cc
     test_plans:
       - baseline
-      - boot
 
   - device_type: sun50i-h5-nanopi-neo-plus2
     test_plans:
       - baseline
-      - boot
 
   - device_type: sun50i-h6-orangepi-one-plus
     test_plans:
       - baseline
-      - boot
 
   - device_type: sun50i-h6-orangepi-3
     test_plans:
       - baseline
-      - boot
 
   - device_type: sun50i-h6-pine-h64
     test_plans:
       - baseline
-      - boot
 
   - device_type: sun50i-h6-pine-h64-model-b
     test_plans:
       - baseline
-      - boot
 
   - device_type: sun50i-h6-pine-h64-model-b_5.4
     test_plans:
       - baseline
-      - boot
 
   - device_type: sun5i-a13-olinuxino-micro
     test_plans:
       - baseline
-      - boot
 
   - device_type: sun5i-gr8-chip
     test_plans:
       - baseline
-      - boot
 
   - device_type: sun5i-gr8-chip-pro
     test_plans:
       - baseline
-      - boot
 
   - device_type: sun7i-a20-cubieboard2
     test_plans:
       - baseline
-      - boot
 
   - device_type: sun7i-a20-olinuxino-lime2
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
       - kselftest
 
   - device_type: sun8i-a23-evb
     test_plans:
       - baseline
-      - boot
 
   - device_type: sun8i-a33-sinlinx-sina33
     test_plans:
       - baseline
-      - boot
 
   - device_type: sun8i-a33-olinuxino
     test_plans:
       - baseline
-      - boot
 
   - device_type: sun8i-a83t-bananapi-m3
     test_plans:
       - baseline
-      - boot
 
   - device_type: sun8i-a83t-allwinner-h8homlet-v2
     test_plans:
       - baseline
-      - boot
 
   - device_type: sun8i-h2-plus-orangepi-zero
     test_plans:
       - baseline
-      - boot
 
   - device_type: sun8i-h2-plus-orangepi-r1
     test_plans:
       - baseline
-      - boot
 
   - device_type: sun8i-h2-plus-libretech-all-h3-cc
     test_plans:
       - baseline
-      - boot
 
   - device_type: sun8i-h3-bananapi-m2-plus
     test_plans:
       - baseline
-      - boot
 
   - device_type: sun8i-h3-libretech-all-h3-cc
     test_plans:
       - baseline
-      - boot
 
   - device_type: sun8i-h3-orangepi-pc
     test_plans:
       - baseline
-      - boot
 
   - device_type: sun8i-r40-bananapi-m2-ultra
     test_plans:
       - baseline
-      - boot
 
   - device_type: synquacer-acpi
     test_plans:
       - baseline
-      - boot
 
   - device_type: synquacer-dtb
     test_plans:
       - baseline
-      - boot
 
   - device_type: tegra124-nyan-big
     test_plans:
       - baseline
-      - boot
       - cros-ec
       - igt-kms-tegra
       - sleep
@@ -2171,28 +2028,23 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
       - kselftest
 
   - device_type: x86-celeron
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
 
   - device_type: x86-pentium4
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
 
   - device_type: x86-x5-z8350
     test_plans:
       - baseline
       - baseline-nfs
-      - boot
 
   - device_type: zynq-zc702
     test_plans:
       - baseline
-      - boot
