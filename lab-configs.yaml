@@ -10,7 +10,6 @@ labs:
           plan:
             - baseline
             - baseline-fastboot
-            - boot
 
   lab-clabbe:
     lab_type: lava
@@ -20,7 +19,6 @@ labs:
           plan:
             - baseline
             - baseline-nfs
-            - boot
             - simple
             - sleep
           tree:
@@ -39,7 +37,6 @@ labs:
           plan:
             - baseline
             - baseline-nfs
-            - boot
             - cros-ec
             - igt-kms-rockchip
             - igt-kms-exynos
@@ -59,7 +56,6 @@ labs:
           plan:
             - baseline
             - baseline-nfs
-            - boot
 
   lab-linaro-lkft:
     lab_type: lava
@@ -83,7 +79,6 @@ labs:
           plan:
             - baseline
             - baseline-uefi
-            - boot
 
   lab-mhart:
     lab_type: lava
@@ -94,7 +89,6 @@ labs:
           plan:
             - baseline
             - baseline-nfs
-            - boot
             - simple
 
   lab-pengutronix:
@@ -104,7 +98,6 @@ labs:
       - whitelist:
           plan:
             - baseline
-            - boot
 
   lab-theobroma-systems:
     lab_type: lava
@@ -113,7 +106,6 @@ labs:
       - whitelist:
           plan:
             - baseline
-            - boot
             - kselftest
 
   lab-nxp:
