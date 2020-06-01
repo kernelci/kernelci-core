@@ -449,11 +449,6 @@ build_configs:
     branch: 'android-4.14-stable'
     variants: *android_variants
 
-  android_4.14:
-    tree: android
-    branch: 'android-4.14'
-    variants: *android_variants
-
   android_4.19-q:
     tree: android
     branch: 'android-4.19-q'
