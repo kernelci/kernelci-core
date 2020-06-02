@@ -568,6 +568,10 @@ build_configs:
     tree: efi
     branch: 'next'
 
+  efi_urgent:
+    tree: efi
+    branch: 'urgent'
+
   evalenti:
     tree: evalenti
     branch: 'for-kernelci'
