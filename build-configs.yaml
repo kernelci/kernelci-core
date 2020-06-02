@@ -273,6 +273,10 @@ arch_defconfigs: &arch_defconfigs
     base_defconfig: 'defconfig'
     filters:
       - regex: { defconfig: 'defconfig' }
+  i386: &i386_defconfig
+    base_defconfig: 'i386_defconfig'
+    filters:
+      - regex: { defconfig: 'i386_defconfig' }
   mips: &mips_defconfig
     base_defconfig: '32r2el_defconfig'
     filters:
