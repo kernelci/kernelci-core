@@ -578,6 +578,18 @@ device_types:
             - 'multi_v5_defconfig'
             - 'allmodconfig'
 
+  imx6qp-wandboard-revd1:
+    mach: imx
+    class: arm-dtb
+    boot_method: barebox
+    flags: ['fastboot']
+    filters:
+      - blocklist:
+          defconfig:
+            - 'imx_v4_v5_defconfig'
+            - 'multi_v5_defconfig'
+            - 'allmodconfig'
+
   imx6q-var-dt6customboard:
     mach: imx
     class: arm-dtb
