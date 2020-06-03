@@ -589,6 +589,18 @@ device_types:
             - 'multi_v5_defconfig'
             - 'allmodconfig'
 
+  imx6qp-wandboard-revd1:
+    mach: imx
+    class: arm-dtb
+    boot_method: barebox
+    flags: ['fastboot']
+    filters:
+      - blacklist:
+          defconfig:
+            - 'imx_v4_v5_defconfig'
+            - 'multi_v5_defconfig'
+            - 'allmodconfig'
+
   imx6q-var-dt6customboard:
     mach: imx
     class: arm-dtb
@@ -1610,6 +1622,12 @@ test_configs:
   - device_type: imx6q-nitrogen6x
     test_plans:
       - baseline
+
+  - device_type: imx6qp-wandboard-revd1
+    test_plans:
+      - baseline
+      - baseline-nfs
+      - kselftest
 
   - device_type: imx6q-var-dt6customboard
     test_plans:
