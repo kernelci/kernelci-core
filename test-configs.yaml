@@ -616,17 +616,17 @@ device_types:
           kernel: ['v3.18']
 
   imx6q-sabresd:
-    mach: freescale
+    mach: imx
     class: arm-dtb
     boot_method: uboot
 
   imx7d-sdb:
-    mach: freescale
+    mach: imx
     class: arm-dtb
     boot_method: uboot
 
   imx8mn-ddr4-evk:
-    mach: freescale
+    mach: imx
     class: arm64-dtb
     boot_method: uboot
 
