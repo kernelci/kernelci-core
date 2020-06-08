@@ -25,6 +25,9 @@ trees:
   arnd:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/arnd/playground.git"
 
+  broonie-misc:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/broonie/misc.git"
+
   broonie-regmap:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regmap.git"
 
@@ -528,6 +531,10 @@ build_configs:
   arnd:
     tree: arnd
     branch: 'to-build'
+
+  broonie-misc:
+    tree: broonie-misc
+    branch: 'for-kernelci'
 
   broonie-regmap:
     tree: broonie-regmap
