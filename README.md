@@ -33,7 +33,7 @@ dependencies needed.
 **The available command line tools are:**
 
 * **[`kci_build`](doc/kci_build.md)** to get the kernel source code, create a
-  foncig file, build kernels and push them to a storage server.
+  config file, build kernels and push them to a storage server.
 
 * **[`kci_test`](doc/kci_test.md)** to generate and submit test definitions in
   an automated test lab.
