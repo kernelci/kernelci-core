@@ -81,6 +81,10 @@ labs:
             - baseline-nfs
             - simple
 
+  lab-nxp:
+    lab_type: lava
+    url: 'https://lavalab.nxp.com/RPC2'
+
   lab-pengutronix:
     lab_type: lava
     url: 'https://hekla.openlab.pengutronix.de/RPC2/'
@@ -97,7 +101,3 @@ labs:
           plan:
             - baseline
             - kselftest
-
-  lab-nxp:
-    lab_type: lava
-    url: 'https://lavalab.nxp.com/RPC2'
