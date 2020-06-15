@@ -11,6 +11,15 @@ labs:
             - baseline
             - baseline-fastboot
 
+  lab-cip:
+    lab_type: lava
+    url: 'https://lava.ciplatform.org/RPC2'
+    filters:
+      - blacklist: {tree: [android]}
+      - whitelist:
+          plan:
+            - baseline
+
   lab-clabbe:
     lab_type: lava
     url: 'https://lava.montjoie.ovh/RPC2/'
