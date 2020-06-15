@@ -1025,6 +1025,27 @@ device_types:
     filters:
       - whitelist: {defconfig: ['defconfig']}
 
+  r8a774a1-hihope-rzg2m-ex:
+    mach: renesas
+    class: arm64-dtb
+    boot_method: uboot
+    filters:
+      - whitelist: {defconfig: ['defconfig']}
+
+  r8a774b1-hihope-rzg2n-ex:
+    mach: renesas
+    class: arm64-dtb
+    boot_method: uboot
+    filters:
+      - whitelist: {defconfig: ['defconfig']}
+
+  r8a774c0-ek874:
+    mach: renesas
+    class: arm64-dtb
+    boot_method: uboot
+    filters:
+      - whitelist: {defconfig: ['defconfig']}
+
   r8a7791-porter:
     mach: renesas
     class: arm-dtb
@@ -1837,6 +1858,18 @@ test_configs:
       - baseline-uefi_x86_64
       - baseline-uefi_x86-mixed
       - v4l2-compliance-vivid
+
+  - device_type: r8a774a1-hihope-rzg2m-ex
+    test_plans:
+      - baseline
+
+  - device_type: r8a774b1-hihope-rzg2n-ex
+    test_plans:
+      - baseline
+
+  - device_type: r8a774c0-ek874
+    test_plans:
+      - baseline
 
   - device_type: r8a7791-porter
     test_plans:
