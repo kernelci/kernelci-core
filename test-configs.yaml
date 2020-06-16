@@ -1148,26 +1148,15 @@ device_types:
     class: arm-dtb
     boot_method: uboot
 
-  r8a7795-salvator-x: &r8a7795-salvator-x
-    mach: renesas
-    class: arm64-dtb
-    boot_method: uboot
-    flags: ['big_endian']
-    filters:
-      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
-
-# this is the same device than r8a7795-salvator-x
-  r8a77950-salvator-x: *r8a7795-salvator-x
-
   r8a7796-m3ulcb: &r8a7796-m3ulcb
+    base_name: r8a7796-m3ulcb
     mach: renesas
     class: arm64-dtb
     boot_method: uboot
     filters:
       - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
-# this is the same device than r8a7796-m3ulcb
-  r8a77960-ulcb: *r8a7796-m3ulcb
+  r8a77960-ulcb: *r8a7796-m3ulcb # same device as r8a7796-m3ulcb
 
   rk3399-gru-kevin:
     mach: rockchip
@@ -1201,6 +1190,17 @@ device_types:
     class: arm-dtb
     boot_method: depthcharge
     flags: ['lpae']
+
+  r8a7795-salvator-x: &r8a7795-salvator-x
+    base_name: r8a7795-salvator-x
+    mach: renesas
+    class: arm64-dtb
+    boot_method: uboot
+    flags: ['big_endian']
+    filters:
+      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+
+  r8a77950-salvator-x: *r8a7795-salvator-x # same device as r8a7795-salvator-x
 
   sun8i-a33-sinlinx-sina33:
     mach: allwinner
@@ -2018,18 +2018,16 @@ test_configs:
       - baseline
       - baseline-nfs
 
-# this is the same device than r8a7795-salvator-x
-  - device_type: r8a77950-salvator-x
+  - device_type: r8a77950-salvator-x  # same as r8a7795-salvator-x
     test_plans: *r8a7795-salvator-x_test-plans
 
-  - device_type: r8a7796-m3ulcb
-    test_plans: &r8a7796-m3ulcb_test-plans
+  - device_type: r8a77960-ulcb
+    test_plans: &r8a77960-ulcb_test-plans
       - baseline
       - usb
 
-# this is the same device than r8a7796-m3ulcb
-  - device_type: r8a77960-ulcb
-    test_plans: *r8a7796-m3ulcb_test-plans
+  - device_type: r8a7796-m3ulcb  # same as r8a77960-ulcb
+    test_plans: *r8a77960-ulcb_test-plans
 
   - device_type: rk3399-gru-kevin
     test_plans:
