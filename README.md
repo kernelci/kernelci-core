@@ -10,6 +10,10 @@ mission statement is defined as follows:
 The main instance of KernelCI is available on
 [kernelci.org](https://kernelci.org).
 
+There is also a separate instance used for KernelCI development available on
+[staging.kernelci.org](https://staging.kernelci.org), see [Development
+workflow](doc/staging.md) for all the details about it.
+
 This repository provides core functions to monitor upstream Linux kernel
 branches, build many kernel variants, run tests, run bisections and schedule
 email reports.
