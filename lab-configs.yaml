@@ -47,16 +47,6 @@ labs:
             - v4l2-compliance-uvc
             - v4l2-compliance-vivid
 
-  lab-free-electrons:
-    lab_type: lava
-    url: 'https://lab.free-electrons.com/RPC2/'
-    filters:
-      - blacklist: {tree: [drm-tip, linaro-android]}
-      - whitelist:
-          plan:
-            - baseline
-            - baseline-nfs
-
   lab-linaro-lkft:
     lab_type: lava
     url: 'https://lkft.validation.linaro.org/RPC2/'
