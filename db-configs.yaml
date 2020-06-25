@@ -1,0 +1,4 @@
+db_configs:
+  staging-kernelci-org:
+    db_type: kernelci_backend
+    url: https://staging.kernelci.org/test
