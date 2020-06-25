@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+#
+# Copyright (C) 2020 Collabora Limited
+# Author: Michal Galka <michal.galka@collabora.com>
+#
+# This module is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+
+import sys
+
+import kernelci.config.data
+from kernelci.data import submit
+from kernelci.cli import Args, Command, parse_args
+
+
+class cmd_list_configs(Command):
+    help = "List all database configurations"
+
+    def __call__(self, config_data, *args, **kwargs):
+        db_configs = config_data['db_configs']
+        for config_name in db_configs:
+            print(config_name)
+        return True
+
+
+class cmd_submit(Command):
+    help = "Submit data to the specified database"
+    args = [Args.config, Args.data_file]
+    opt_args = [Args.token]
+
+    def __call__(self, config_data, args):
+        config = config_data['db_configs'][args.config]
+        if args.data_file == '-':
+            data = sys.stdin.read()
+        else:
+            with open(args.data_file, 'r') as f:
+                data = f.read()
+        return submit(args.config, config, data, args.token)
+
+
+if __name__ == '__main__':
+    args = parse_args("kci_data", "db-configs.yaml", globals())
+    configs = kernelci.config.data.from_yaml(args.yaml_configs)
+    status = args.func(configs, args)
+    sys.exit(0 if status is True else 1)
