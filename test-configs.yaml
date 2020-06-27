@@ -617,6 +617,26 @@ device_types:
     class: arm-dtb
     boot_method: uboot
 
+  imx6qp-sabresd:
+    mach: imx
+    class: arm-dtb
+    boot_method: uboot
+
+  imx6sx-sdb:
+    mach: imx
+    class: arm-dtb
+    boot_method: uboot
+
+  imx6ul-14x14-evk:
+    mach: imx
+    class: arm-dtb
+    boot_method: uboot
+
+  imx6ull-14x14-evk:
+    mach: imx
+    class: arm-dtb
+    boot_method: uboot
+
   imx7d-sdb:
     mach: imx
     class: arm-dtb
@@ -1623,6 +1643,26 @@ test_configs:
       - usb
 
   - device_type: imx6q-sabresd
+    test_plans:
+      - baseline
+      - kselftest
+
+  - device_type: imx6qp-sabresd
+    test_plans:
+      - baseline
+      - kselftest
+
+  - device_type: imx6sx-sdb
+    test_plans:
+      - baseline
+      - kselftest
+
+  - device_type: imx6ul-14x14-evk
+    test_plans:
+      - baseline
+      - kselftest
+
+  - device_type: imx6ull-14x14-evk
     test_plans:
       - baseline
       - kselftest
