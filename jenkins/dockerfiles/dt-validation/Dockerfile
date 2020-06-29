@@ -19,5 +19,3 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     pkg-config \
     python-yaml
     
- 
-RUN export PATH=$HOME/.local/bin/:$PATH
