@@ -828,6 +828,11 @@ build_configs:
     branch: 'linux-5.6.y'
     variants: *stable_variants
 
+  stable_5.7:
+    tree: stable
+    branch: 'linux-5.7.y'
+    variants: *stable_variants
+
   stable-rc_3.16:
     tree: stable-rc
     branch: 'linux-3.16.y'
@@ -883,6 +888,14 @@ build_configs:
     reference:
       tree: stable
       branch: 'linux-5.6.y'
+
+  stable-rc_5.7:
+    tree: stable-rc
+    branch: 'linux-5.7.y'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.7.y'
 
   tegra:
     tree: tegra
