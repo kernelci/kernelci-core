@@ -46,6 +46,9 @@ class cmd_validate(Command):
             print('\ttest_overlay: {}'.format(config.test_overlay))
             print('\tcrush_image_options: {}'
                   .format(config.crush_image_options))
+            print('\tdebian_mirror: {}'.format(config.debian_mirror))
+            print('\tkeyring_package: {}'.format(config.keyring_package))
+            print('\tkeyring_file: {}'.format(config.keyring_file))
         return True
 
 

@@ -7,6 +7,9 @@
 {{- $extra_packages_remove := or .extra_packages_remove -}}
 {{- $extra_files_remove := or .extra_files_remove -}}
 {{- $crush_image_options := or .crush_image_options "" -}}
+{{- $debian_mirror := or .debian_mirror "http://deb.debian.org/debian" -}}
+{{- $keyring_package := or .keyring_package "" -}}
+{{- $keyring_file := or .keyring_file "" -}}
 
 architecture: {{ $architecture }}
 
@@ -15,8 +18,10 @@ actions:
     suite: {{ $suite }}
     components:
       - main
-    mirror: http://deb.debian.org/debian
+    mirror: {{ $debian_mirror }}
     variant: minbase
+    keyring-package: {{ $keyring_package }}
+    keyring-file: {{ $keyring_file }}
 
   - action: apt
     recommends: false
