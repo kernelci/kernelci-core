@@ -31,6 +31,9 @@ def _build_debos(name, config, data_path, arch):
 -t script:"{script}" \
 -t test_overlay:"{test_overlay}" \
 -t crush_image_options:"{crush_image_options}" \
+-t debian_mirror:"{debian_mirror}" \
+-t keyring_package:"{keyring_package}" \
+-t keyring_file:"{keyring_file}" \
 rootfs.yaml'.format(
             name=name,
             data_path=data_path,
@@ -41,7 +44,10 @@ rootfs.yaml'.format(
             extra_files_remove=" ".join(config.extra_files_remove),
             script=config.script,
             test_overlay=config.test_overlay,
-            crush_image_options=" ".join(config.crush_image_options)
+            crush_image_options=" ".join(config.crush_image_options),
+            debian_mirror=config.debian_mirror,
+            keyring_package=config.keyring_package,
+            keyring_file=config.keyring_file,
     )
     return shell_cmd(cmd, True)
 
