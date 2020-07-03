@@ -66,29 +66,22 @@ test_plan_default_filters:
         - ['i386', 'i386_defconfig']
         - ['x86_64', 'x86_64_defconfig']
 
-  - blacklist: &clang_environment_filter
-      build_environment: ['clang']
-
   - blacklist: &kselftest_defconfig_filter
       defconfig: ['kselftest']
-
-  - blacklist: &kselftest_defconfig_clang_environment_filter
-      <<: *kselftest_defconfig_filter
-      <<: *clang_environment_filter
 
 test_plans:
 
   baseline:
     rootfs: buildroot_baseline_ramdisk
     filters:
-      - blacklist: *kselftest_defconfig_clang_environment_filter
+      - blacklist: *kselftest_defconfig_filter
 
   baseline_qemu:
     base_name: baseline
     rootfs: buildroot_baseline_ramdisk
     pattern: 'baseline/generic-qemu-baseline-template.jinja2'
     filters:
-      - blacklist: *kselftest_defconfig_clang_environment_filter
+      - blacklist: *kselftest_defconfig_filter
 
   baseline-fastboot:
     rootfs: buildroot_baseline_ramdisk
@@ -116,7 +109,6 @@ test_plans:
             - ['arm', 'at91_dt_defconfig']
             - ['arm', 'davinci_all_defconfig']
             - ['arm64', 'defconfig']
-      - blacklist: *clang_environment_filter
 
   baseline-uefi_arm:
     base_name: baseline-uefi
