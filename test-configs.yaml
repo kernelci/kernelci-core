@@ -1669,6 +1669,10 @@ test_configs:
     test_plans:
       - baseline
 
+  - device_type: imx6qp-wandboard-revd1
+    test_plans:
+      - baseline
+
   - device_type: imx6q-var-dt6customboard
     test_plans:
       - baseline
