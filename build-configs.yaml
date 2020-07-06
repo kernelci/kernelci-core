@@ -539,6 +539,13 @@ build_configs:
   broonie-misc:
     tree: broonie-misc
     branch: 'for-kernelci'
+    variants:
+      gcc-8:
+        build_environment: gcc-8
+        architectures:
+          arm: {base_defconfig: 'multi_v7_defconfig'}
+          arm64:
+          x86_64: {base_defconfig: 'x86_64_defconfig'}
 
   broonie-regmap:
     tree: broonie-regmap
