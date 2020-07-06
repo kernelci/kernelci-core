@@ -35,6 +35,15 @@ import kernelci.test
 # Commands
 #
 
+class cmd_validate(Command):
+    help = "Validate the YAML configuration"
+    opt_args = [Args.verbose]
+
+    def __call__(self, test_configs, lab_configs, args):
+        # ToDo: Use jsonschema
+        return True
+
+
 class cmd_list_jobs(Command):
     help = "List all the jobs that need to be run for a given build and lab"
     args = [Args.bmeta_json, Args.dtbs_json, Args.lab]

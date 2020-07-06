@@ -24,6 +24,15 @@ import kernelci.build
 import kernelci.config.build
 
 
+class cmd_validate(Command):
+    help = "Validate the YAML configuration"
+    opt_args = [Args.verbose]
+
+    def __call__(self, configs, args):
+        # ToDo: Use jsonschema
+        return True
+
+
 class cmd_list_configs(Command):
     help = "List the build configurations"
 
