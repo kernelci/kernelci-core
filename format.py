@@ -63,13 +63,20 @@ for i,line in enumerate(lines):
 for i, line in enumerate(lines):
 	linereg = re.search("^ *(CHECK|CHKDT|SCHEMA) +(.*)$",line)
 	if linereg != None: 
+		currname = linereg.group(2)
 		if linereg.group(1) == "CHECK":
-			if( not(linereg.group(2) in elist) and not(linereg.group(2) in wlist) ):
+			failed = False
+			for name in elist.keys(): 
+				if currname in name: #checking if currname is in the key of elist because the elist key is shows the directory path from root
+					failed = True
+					print("Filename: ", currname, "CHECK FAIL")
+					break
+			if(not(failed) and not(linereg.group(2) in wlist) ):
 				print("Filename: ", linereg.group(2), "CHECK PASS")
 		elif linereg.group(1) == "CHKDT":
-			print("Filename: ", linereg.group(2), "CHKDT PASS")#I am making the assumption that lines beginning with "CHKDT" have passing files based on previous testing
+			print("Filename: ", currname, "CHKDT PASS")#I am making the assumption that lines beginning with "CHKDT" have passing files based on previous testing
 		elif linereg.group(1) == "SCHEMA":
-			print("Filename: ", linereg.group(2), "SCHEMA PASS")#Assuming lines beginning with "Schema" have passing files
+			print("Filename: ", currname, "SCHEMA PASS")#Assuming lines beginning with "Schema" have passing files
 
 print("\nWarnings: ")
 for name, warning in wlist.items(): 
@@ -79,5 +86,6 @@ print("\nErrors: ")
 for name, error in elist.items(): 
 	print("Filename: ", name, " Error: ", error)
 
-print("\nError Count: ", len(elist))
 print("\nWarning Count: ", len(wlist))
+print("\nError Count: ", len(elist))
+
