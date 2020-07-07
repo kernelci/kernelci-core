@@ -530,9 +530,11 @@ export ARCH={arch}
 export HOSTCC={cc}
 export CC={cc}
 export CROSS_COMPILE={cross}
+export CROSS_COMPILE_COMPAT={cross_compat}
 scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
 """.format(kdir=kdir, arch=kwargs['arch'], cc=kwargs['cc'],
            cross=kwargs['cross_compile'], output=rel_path,
+           cross_compat=kwargs['cross_compile_compat'],
            base=os.path.join(rel_path, '.config'),
            frag=os.path.join(rel_path, kconfig_frag_name),
            redir='> /dev/null' if not verbose else '')
