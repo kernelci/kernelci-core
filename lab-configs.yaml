@@ -11,6 +11,10 @@ labs:
             - baseline
             - baseline-fastboot
 
+  lab-broonie:
+    lab_type: lava
+    url: 'https://lava.sirena.org.uk/RPC2/'
+
   lab-cip:
     lab_type: lava
     url: 'https://lava.ciplatform.org/RPC2'
