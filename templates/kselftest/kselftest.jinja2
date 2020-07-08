@@ -1,0 +1,25 @@
+- test:
+    timeout:
+      minutes: 55
+
+    definitions:
+    - from: inline
+      repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: timesync-off
+          description: Disable systemd time sync services
+        run:
+          steps:
+          - systemctl stop systemd-timesyncd || true
+      name: timesync-off
+      path: inline/timesync-off.yaml
+
+    - repository: https://github.com/Linaro/test-definitions.git
+      from: git
+      revision: master
+      path: automated/linux/kselftest/kselftest.yaml
+      name: kselftest
+      parameters:
+        TESTPROG_URL: {{ kselftests_url }}
+        SKIPFILE: skipfile-lkft.yaml

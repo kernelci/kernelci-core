@@ -102,6 +102,11 @@ def get_params(bmeta, target, plan_config, storage):
     defconfig = ''.join(defconfig_full.split('+')[:1])
     endian = 'big' if 'BIG_ENDIAN' in defconfig_full else 'little'
     describe = bmeta['git_describe']
+    kselftests = bmeta.get('kselftests')
+    kselftests_url = (
+        urllib.parse.urljoin(storage, '/'.join([url_px, kselftests]))
+        if kselftests else None
+    )
 
     params = {
         'name': job_name,
@@ -136,6 +141,7 @@ def get_params(bmeta, target, plan_config, storage):
         'rootfs_prompt': rootfs.prompt,
         'file_server_resource': file_server_resource,
         'build_environment': bmeta['build_environment'],
+        'kselftests_url': kselftests_url,
     }
 
     params.update(plan_config.params)
