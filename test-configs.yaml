@@ -161,9 +161,12 @@ test_plans:
         panfrost_submit
 
   kselftest:
-    rootfs: buildroot_kselftest_ramdisk
+    rootfs: debian_buster_nfs
+    pattern: 'kselftest/{category}-{method}-{protocol}-nfs-kselftest-template.jinja2'
     filters:
       - passlist: {defconfig: ['kselftest']}
+    params:
+      job_timeout: '60'
 
   sleep:
     rootfs: debian_buster_ramdisk
