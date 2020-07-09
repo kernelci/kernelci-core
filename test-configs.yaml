@@ -115,35 +115,35 @@ test_plans:
     rootfs: buildroot_baseline_ramdisk
     pattern: 'baseline/generic-qemu-baseline-template.jinja2'
     params:
-      bios_url: 'http://storage.kernelci.org/images/uefi/111bbcf87621/QEMU_EFI.fd-ARM-RELEASE-111bbcf87621'
+      bios_url: 'http://storage.kernelci.org/images/uefi/edk2-stable202005/arm/QEMU_EFI.fd'
 
   baseline-uefi_arm64:
     base_name: baseline-uefi
     rootfs: buildroot_baseline_ramdisk
     pattern: 'baseline/generic-qemu-baseline-template.jinja2'
     params:
-      bios_url: 'http://storage.kernelci.org/images/uefi/111bbcf87621/QEMU_EFI.fd-AARCH64-RELEASE-111bbcf87621'
+      bios_url: 'http://storage.kernelci.org/images/uefi/edk2-stable202005/arm64/QEMU_EFI.fd'
 
   baseline-uefi_x86_64:
     base_name: baseline-uefi
     rootfs: buildroot_baseline_ramdisk
     pattern: 'baseline/generic-qemu-baseline-template.jinja2'
     params:
-      bios_url: 'http://storage.kernelci.org/images/uefi/111bbcf87621/OVMF.fd-X64-RELEASE-111bbcf87621'
+      bios_url: 'http://storage.kernelci.org/images/uefi/edk2-stable202005/x86_64/OVMF.fd'
 
   baseline-uefi_i386:
     base_name: baseline-uefi
     rootfs: buildroot_baseline_ramdisk
     pattern: 'baseline/generic-qemu-baseline-template.jinja2'
     params:
-      bios_url: 'http://storage.kernelci.org/images/uefi/111bbcf87621/OVMF.fd-IA32-RELEASE-111bbcf87621'
+      bios_url: 'http://storage.kernelci.org/images/uefi/edk2-stable202005/i386/OVMF.fd'
 
   baseline-uefi_x86-mixed:
     base_name: baseline-uefi
     rootfs: buildroot_baseline_ramdisk
     pattern: 'baseline/generic-qemu-baseline-template.jinja2'
     params:
-      bios_url: 'http://storage.kernelci.org/images/uefi/111bbcf87621/OVMF.fd-IA32X64-RELEASE-111bbcf87621'
+      bios_url: 'http://storage.kernelci.org/images/uefi/edk2-stable202005/i386/OVMF.fd'
 
   cros-ec:
     rootfs: debian_buster-cros-ec_ramdisk
