@@ -30,7 +30,7 @@
 set -e
 tag_px='kernelci/'
 
-options='npbdiqt:'
+options='npbdikqt:'
 while getopts $options option
 do
   case $option in
@@ -39,6 +39,7 @@ do
     b )  base=true;;
     d )  debos=true;;
     i )  dt_validation=true;;
+    k )  k8s=true;;
     q )  quiet="--quiet";;
     t )  tag_px=$OPTARG;;
     \? )
@@ -103,6 +104,18 @@ then
   tag=${tag_px}dt-validation
   echo_build $tag
   docker build ${quiet} ${cache_args} dt-validation -t $tag
+  if [ "x${push}" == "xtrue" ]
+  then
+    echo_push $tag
+    docker push $tag
+  fi
+fi
+
+if [ "x${k8s}" == "xtrue" ]
+then
+  tag=${tag_px}build-k8s
+  echo_build $tag
+  docker build ${quiet} ${cache_args} build-k8s -t $tag
   if [ "x${push}" == "xtrue" ]
   then
     echo_push $tag
