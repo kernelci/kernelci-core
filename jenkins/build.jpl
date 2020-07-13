@@ -1,0 +1,162 @@
+#!/usr/bin/env groovy
+
+/*
+  Copyright (C) 2018 Collabora Limited
+  Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+
+  This module is free software; you can redistribute it and/or modify it under
+  the terms of the GNU Lesser General Public License as published by the Free
+  Software Foundation; either version 2.1 of the License, or (at your option)
+  any later version.
+
+  This library is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+  details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with this library; if not, write to the Free Software Foundation, Inc.,
+  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+*/
+
+/* ----------------------------------------------------------------------------
+ * Jenkins parameters
+
+ARCH
+  CPU architecture as understood by the Linux kernel build system
+DEFCONFIG
+  Linux kernel defconfig to build
+SRC_TARBALL
+  URL of the kernel source tarball
+BUILD_CONFIG
+  Name of the build configuration
+GIT_DESCRIBE
+  Output of 'git describe' at the revision of the snapshot
+GIT_DESCRIBE_VERBOSE
+  Verbose output of 'git describe' at the revision of the snapshot
+COMMIT_ID
+  Git commit SHA1 at the revision of the snapshot
+BUILD_ENVIRONMENT
+  Name of the build environment
+NODE_LABEL
+  Label to use to choose a node on which to run this job
+PUBLISH (boolean)
+  Publish build results via the KernelCI backend API
+EMAIL (boolean)
+  Send build results via email
+KCI_API_URL (https://api.kernelci.org)
+  URL of the KernelCI backend API
+KCI_TOKEN_ID
+  Identifier of the KernelCI backend API token stored in Jenkins
+KCI_CORE_URL (https://github.com/kernelci/kernelci-core.git)
+  URL of the kernelci-core repository
+KCI_CORE_BRANCH (master)
+  Name of the branch to use in the kernelci-core repository
+DOCKER_BASE (kernelci/)
+  Dockerhub base address used for the build images
+PARALLEL_BUILDS
+  Number of kernel builds to run in parallel
+
+ */
+
+
+@Library('kernelci') _
+import org.kernelci.util.Job
+
+def buildConfig(kdir, kci_core) {
+    def jopt = ""
+
+    if (params.PARALLEL_BUILDS)
+        jopt = "-j${params.PARALLEL_BUILDS}"
+
+    dir(kci_core) {
+        sh(script: """\
+./kci_build \
+build_kernel \
+--kdir=${kdir} \
+--defconfig=${params.DEFCONFIG} \
+--arch=${params.ARCH} \
+--build-env=${params.BUILD_ENVIRONMENT} \
+--verbose \
+${jopt} \
+|| echo 'Kernel build failed'
+""")
+
+        sh(script: """\
+./kci_build \
+install_kernel \
+--kdir=${kdir} \
+--config=${params.BUILD_CONFIG} \
+--describe=${params.GIT_DESCRIBE} \
+--describe-verbose=${params.GIT_DESCRIBE_VERBOSE} \
+--commit=${params.COMMIT_ID} \
+""")
+
+        withCredentials([string(credentialsId: params.KCI_TOKEN_ID,
+                                variable: 'SECRET')]) {
+            sh(script: """\
+./kci_build \
+push_kernel \
+--kdir=${kdir} \
+--token=${SECRET} \
+--api=${params.KCI_API_URL} \
+""")
+
+            sh(script: """\
+./kci_build \
+publish_kernel \
+--kdir=${kdir} \
+--token=${SECRET} \
+--api=${params.KCI_API_URL} \
+""")
+        }
+    }
+
+    dir("linux/_install_") {
+        archiveArtifacts("*.json")
+    }
+}
+
+node("docker" && params.NODE_LABEL) {
+    def j = new Job()
+    def kci_core = "${env.WORKSPACE}/kernelci-core"
+    def kdir = "${env.WORKSPACE}/linux"
+    def docker_image = null
+
+    print("""\
+    Config:    ${params.BUILD_CONFIG}
+    CPU arch:  ${params.ARCH}
+    Describe:  ${params.GIT_DESCRIBE}
+    Revision:  ${params.COMMIT_ID}
+    Defconfig: ${params.DEFCONFIG}
+    Compiler:  ${params.BUILD_ENVIRONMENT}""")
+
+    j.dockerPullWithRetry("${params.DOCKER_BASE}build-base").inside() {
+        j.cloneKciCore(kci_core, params.KCI_CORE_URL, params.KCI_CORE_BRANCH)
+        build_env_docker_image = j.dockerImageName(
+            kci_core, params.BUILD_ENVIRONMENT, params.ARCH)
+        docker_image = "${params.DOCKER_BASE}build-${build_env_docker_image}"
+    }
+
+    j.dockerPullWithRetry(docker_image).inside() {
+        stage("Init") {
+            timeout(time: 30, unit: 'MINUTES') {
+                dir(kci_core) {
+                  sh(script: """./kci_build pull_tarball \
+                                --kdir ${kdir} \
+                                --url ${params.SRC_TARBALL} \
+                                --retries=12 \
+                                --delete \
+                  """)
+                }
+            }
+        }
+
+        stage("Build") {
+            timeout(time: 180, unit: 'MINUTES') {
+                buildConfig(kdir, kci_core)
+                sh(script: "rm -rf ${kdir}")
+            }
+        }
+    }
+}
