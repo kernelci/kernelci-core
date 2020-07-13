@@ -534,6 +534,13 @@ device_types:
           defconfig: ['tinyconfig']
           kernel: ['v4.', 'v5.1', 'v5.2']
 
+  hp-11A-G6-EE-grunt:
+    mach: x86
+    arch: x86_64
+    boot_method: depthcharge
+    filters:
+      - passlist: {defconfig: ['x86-chromebook']}
+
   hsdk:
     mach: arc
     class: arc-dtb
@@ -1685,6 +1692,13 @@ test_configs:
   - device_type: hifive-unleashed-a00
     test_plans:
       - baseline
+
+  - device_type: hp-11A-G6-EE-grunt
+    test_plans:
+      - baseline
+      - baseline-nfs
+      - cros-ec
+      - sleep
 
   - device_type: hsdk
     test_plans:
