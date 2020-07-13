@@ -302,13 +302,17 @@ def generate_fragments(config, kdir):
     *config* is a BuildConfig object
     *kdir* is the path to a kernel source directory
     """
+    frag_list = []
     for variant in config.variants:
-        for frag in variant.fragments:
-            print(frag.path)
-            if frag.name == 'kselftest':
-                add_kselftest_fragment(kdir)
-            elif frag.configs:
-                generate_config_fragment(frag, kdir)
+        frag_list.extend(variant.fragments)
+        for arch in variant.architectures:
+            frag_list.extend(arch.fragments)
+    for frag in frag_list:
+        print(frag.path)
+        if frag.name == 'kselftest':
+            add_kselftest_fragment(kdir)
+        elif frag.configs:
+            generate_config_fragment(frag, kdir)
 
 
 def push_tarball(config, kdir, storage, api, token):
