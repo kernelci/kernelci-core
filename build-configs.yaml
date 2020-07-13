@@ -168,6 +168,12 @@ fragments:
       - 'CONFIG_VIDEO_VIVID=y'
       - 'CONFIG_VIDEO_VIVID_MAX_DEVS=64'
 
+  x86_chromebook:
+    path: "kernel/configs/x86-chromebook.config"
+    configs:
+      - 'CONFIG_SERIAL_8250_DW=y'
+      - 'CONFIG_X86_AMD_PLATFORM_DEVICE=y'
+
   x86_kvm_guest:
     path: "kernel/configs/kvm_guest.config"
 
