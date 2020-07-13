@@ -54,10 +54,10 @@ class Filter(object):
         raise NotImplementedError("Filter.match() is not implemented")
 
 
-class Blacklist(Filter):
-    """Blacklist filter to discard certain configurations.
+class Blocklist(Filter):
+    """Blocklist filter to discard certain configurations.
 
-    Blacklist *items* are a dictionary associating keys with lists of values.
+    Blocklist *items* are a dictionary associating keys with lists of values.
     Any configuration with a key-value pair present in these lists will be
     rejected.
     """
@@ -73,10 +73,10 @@ class Blacklist(Filter):
         return True
 
 
-class Whitelist(Filter):
-    """Whitelist filter to only accept certain configurations.
+class Passlist(Filter):
+    """Passlist filter to only accept certain configurations.
 
-    Whitelist *items* are a dictionary associating keys with lists of values.
+    Passlist *items* are a dictionary associating keys with lists of values.
     For a configuration to be accepted, there must be a value found in each of
     these lists.
     """
@@ -134,8 +134,8 @@ class FilterFactory(YAMLObject):
     """Factory to create filters from YAML data."""
 
     _classes = {
-        'blacklist': Blacklist,
-        'whitelist': Whitelist,
+        'blocklist': Blocklist,
+        'passlist': Passlist,
         'regex': Regex,
         'combination': Combination,
     }
