@@ -18,4 +18,3 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libyaml-dev \
     pkg-config \
     python-yaml
-    
