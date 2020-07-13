@@ -69,14 +69,14 @@ for i, line in enumerate(lines):
 			for name in elist.keys(): 
 				if currname in name: #checking if currname is in the key of elist because the elist key is shows the directory path from root
 					failed = True
-					print("Filename: ", currname, "CHECK FAIL")
+					print("\"", currname.replace('.', '_').replace(',', '_').replace('/', '.'), ".check\" : ", "\"FAIL\"",sep='')
 					break
-			if(not(failed) and not(linereg.group(2) in wlist) ):
-				print("Filename: ", linereg.group(2), "CHECK PASS")
+			if(not(failed) and not(currname in wlist) ):
+				print("\"", currname.replace('.', '_').replace(',', '_').replace('/', '.'), ".check\" : ", "\"PASS\"",sep='')
 		elif linereg.group(1) == "CHKDT":
-			print("Filename: ", currname, "CHKDT PASS")#I am making the assumption that lines beginning with "CHKDT" have passing files based on previous testing
+			print("\"", currname.replace('.', '_').replace(',', '_').replace('/', '.'), ".chkdt\" : ", "\"PASS\"",sep='')#I am making the assumption that lines beginning with "CHKDT" have passing files based on previous testing
 		elif linereg.group(1) == "SCHEMA":
-			print("Filename: ", currname, "SCHEMA PASS")#Assuming lines beginning with "Schema" have passing files
+			print("\"", currname.replace('.', '_').replace(',', '_').replace('/', '.'), ".schema\" : ", "\"PASS\"",sep='')#Assuming lines beginning with "Schema" have passing files
 
 print("\nWarnings: ")
 for name, warning in wlist.items(): 
