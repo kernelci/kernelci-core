@@ -216,7 +216,7 @@ build_configs_defaults:
           extra_configs: ['allnoconfig']
           filters: &arc_default_filters
             # remove any non-ARCv2 defconfigs since we only have ARCv2 toolchain
-            - blacklist:
+            - blocklist:
                 defconfig:
                   - 'axs101_defconfig'
                   - 'nps_defconfig'
@@ -248,7 +248,7 @@ build_configs_defaults:
           base_defconfig: '32r2el_defconfig'
           extra_configs: ['allnoconfig']
           filters: &mips_default_filters
-            - blacklist: {defconfig: ['generic_defconfig']}
+            - blocklist: {defconfig: ['generic_defconfig']}
 
         riscv: &riscv_arch
           extra_configs: ['allnoconfig']
