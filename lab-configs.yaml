@@ -10,6 +10,7 @@ labs:
           plan:
             - baseline
             - baseline-fastboot
+            - kselftest
 
   lab-broonie:
     lab_type: lava
