@@ -28,7 +28,6 @@ labs:
           plan:
             - baseline
             - baseline-nfs
-            - simple
             - sleep
           tree:
             - kernelci
@@ -88,7 +87,6 @@ labs:
           plan:
             - baseline
             - baseline-nfs
-            - simple
 
   lab-nxp:
     lab_type: lava
