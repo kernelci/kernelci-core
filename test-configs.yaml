@@ -1731,6 +1731,7 @@ test_configs:
   - device_type: meson-g12b-odroid-n2
     test_plans:
       - baseline
+      - kselftest
 
   - device_type: meson-g12b-a311d-khadas-vim3
     test_plans:
