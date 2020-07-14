@@ -91,6 +91,10 @@ labs:
   lab-nxp:
     lab_type: lava
     url: 'https://lavalab.nxp.com/RPC2'
+    filters:
+      - passlist:
+          plan:
+            - baseline
 
   lab-pengutronix:
     lab_type: lava
@@ -107,4 +111,3 @@ labs:
       - passlist:
           plan:
             - baseline
-            - kselftest
