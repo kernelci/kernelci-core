@@ -471,12 +471,12 @@ build_configs:
     branch: 'android-4.19-stable'
     variants: *android_variants
 
-  android11_5.4:
+  android_11-5.4:
     tree: android
     branch: 'android11-5.4'
     variants: *android_variants
 
-  android12_5.4:
+  android_12-5.4:
     tree: android
     branch: 'android12-5.4'
     variants: *android_variants
