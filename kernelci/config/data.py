@@ -66,7 +66,7 @@ class DatabaseFactory(YAMLObject):
         if db_type is None:
             raise TypeError("db_type cannot be Empty")
         elif db_type not in cls._db_types:
-            raise ValueError("Unsupported value {}".format(db_type))
+            raise ValueError("Unsupported database type: {}".format(db_type))
         else:
             kw = {
                 'name': name,
