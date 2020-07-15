@@ -15,24 +15,24 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-import json
-import requests
+import importlib
 
 
-def _submit_backend(name, config, data, token):
-    if token is None:
-        print('API token must be provided')
-        return False
-    resp = requests.post(config.url,
-                         json=json.loads(data),
-                         headers={'Authorization': token})
-    print("Status: {}".format(resp.status_code))
-    print(resp.text)
-    return 200 <= resp.status_code <= 300
+class Database:
+
+    def __init__(self, config, token=None):
+        self._config = config
+        self._token = token
+
+    def submit(self, data):
+        raise NotImplementedError("Database.submit() must be implemented")
+
+    @property
+    def config(self):
+        return self._config
 
 
-def submit(name, config, data, token=None):
-    if config.db_type == "kernelci_backend":
-        return _submit_backend(name, config, data, token)
-    else:
-        raise ValueError("db_type not supported: {}".format(config.db_type))
+def get_db(config, token=None):
+    m = importlib.import_module('.'.join(['kernelci', 'data', config.db_type]))
+    db = m.get_db(config, token)
+    return db

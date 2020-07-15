@@ -2,6 +2,7 @@
 #
 # Copyright (C) 2020 Collabora Limited
 # Author: Michal Galka <michal.galka@collabora.com>
+# Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 #
 # This module is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -19,9 +20,9 @@
 
 import sys
 
-import kernelci.config.data
-from kernelci.data import submit
 from kernelci.cli import Args, Command, parse_args
+import kernelci.config.data
+import kernelci.data
 
 
 class cmd_validate(Command):
@@ -55,7 +56,8 @@ class cmd_submit(Command):
         else:
             with open(args.data_file, 'r') as f:
                 data = f.read()
-        return submit(args.config, config, data, args.token)
+        db = kernelci.data.get_db(config, args.token)
+        return db.submit(data)
 
 
 if __name__ == '__main__':
