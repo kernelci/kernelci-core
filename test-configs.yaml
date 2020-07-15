@@ -110,41 +110,6 @@ test_plans:
             - ['arm', 'davinci_all_defconfig']
             - ['arm64', 'defconfig']
 
-  baseline-uefi_arm:
-    base_name: baseline-uefi
-    rootfs: buildroot_baseline_ramdisk
-    pattern: 'baseline/generic-qemu-baseline-template.jinja2'
-    params:
-      bios_url: 'http://storage.kernelci.org/images/uefi/edk2-stable202005/arm/QEMU_EFI.fd'
-
-  baseline-uefi_arm64:
-    base_name: baseline-uefi
-    rootfs: buildroot_baseline_ramdisk
-    pattern: 'baseline/generic-qemu-baseline-template.jinja2'
-    params:
-      bios_url: 'http://storage.kernelci.org/images/uefi/edk2-stable202005/arm64/QEMU_EFI.fd'
-
-  baseline-uefi_x86_64:
-    base_name: baseline-uefi
-    rootfs: buildroot_baseline_ramdisk
-    pattern: 'baseline/generic-qemu-baseline-template.jinja2'
-    params:
-      bios_url: 'http://storage.kernelci.org/images/uefi/edk2-stable202005/x86_64/OVMF.fd'
-
-  baseline-uefi_i386:
-    base_name: baseline-uefi
-    rootfs: buildroot_baseline_ramdisk
-    pattern: 'baseline/generic-qemu-baseline-template.jinja2'
-    params:
-      bios_url: 'http://storage.kernelci.org/images/uefi/edk2-stable202005/i386/OVMF.fd'
-
-  baseline-uefi_x86-mixed:
-    base_name: baseline-uefi
-    rootfs: buildroot_baseline_ramdisk
-    pattern: 'baseline/generic-qemu-baseline-template.jinja2'
-    params:
-      bios_url: 'http://storage.kernelci.org/images/uefi/edk2-stable202005/i386/OVMF.fd'
-
   cros-ec:
     rootfs: debian_buster-cros-ec_ramdisk
 
@@ -960,8 +925,7 @@ device_types:
     filters:
       - passlist: {defconfig: ['vexpress_defconfig']}
 
-# we use virt-2.11 due to https://bugzilla.redhat.com/show_bug.cgi?id=1633328
-  qemu_arm-virt-gicv2:
+  qemu_arm-virt-gicv2: &qemu_arm-virt-gicv2
     base_name: qemu
     mach: qemu
     arch: arm
@@ -970,11 +934,17 @@ device_types:
       arch: arm
       cpu: 'cortex-a15'
       guestfs_interface: 'virtio'
+      # virt-2.11 due to https://bugzilla.redhat.com/show_bug.cgi?id=1633328
       machine: 'virt-2.11,gic-version=2'
     filters:
       - passlist: {defconfig: ['multi_v7_defconfig']}
 
-  qemu_arm-virt-gicv3:
+  qemu_arm-virt-gicv2-uefi:
+    <<: *qemu_arm-virt-gicv2
+    params: &uefi_arm
+      bios_url: 'http://storage.kernelci.org/images/uefi/edk2-stable202005/arm/QEMU_EFI.fd'
+
+  qemu_arm-virt-gicv3: &qemu_arm-virt-gicv3
     base_name: qemu
     mach: qemu
     arch: arm
@@ -987,7 +957,11 @@ device_types:
     filters:
       - passlist: {defconfig: ['multi_v7_defconfig']}
 
-  qemu_arm64-virt-gicv2:
+  qemu_arm-virt-gicv3-uefi:
+    <<: *qemu_arm-virt-gicv3
+    params: *uefi_arm
+
+  qemu_arm64-virt-gicv2: &qemu_arm64-virt-gicv2
     base_name: qemu
     mach: qemu
     arch: arm64
@@ -1000,7 +974,12 @@ device_types:
     filters:
       - passlist: {defconfig: ['defconfig']}
 
-  qemu_arm64-virt-gicv3:
+  qemu_arm64-virt-gicv2-uefi:
+    <<: *qemu_arm64-virt-gicv2
+    params: &uefi_arm64
+      bios_url: 'http://storage.kernelci.org/images/uefi/edk2-stable202005/arm64/QEMU_EFI.fd'
+
+  qemu_arm64-virt-gicv3: &qemu_arm64-virt-gicv3
     base_name: qemu
     mach: qemu
     arch: arm64
@@ -1013,7 +992,11 @@ device_types:
     filters:
       - passlist: {defconfig: ['defconfig']}
 
-  qemu_i386:
+  qemu_arm64-virt-gicv3-uefi:
+    <<: *qemu_arm64-virt-gicv3
+    params: *uefi_arm64
+
+  qemu_i386: &qemu_i386
     base_name: qemu
     mach: qemu
     arch: i386
@@ -1025,7 +1008,12 @@ device_types:
     filters:
       - passlist: {defconfig: ['i386_defconfig']}
 
-  qemu_x86_64:
+  qemu_i386-uefi:
+    <<: *qemu_i386
+    params: &uefi_i386
+      bios_url: 'http://storage.kernelci.org/images/uefi/edk2-stable202005/i386/OVMF.fd'
+
+  qemu_x86_64: &qemu_x86_64
     base_name: qemu
     mach: qemu
     arch: x86_64
@@ -1036,6 +1024,15 @@ device_types:
       guestfs_interface: 'ide'
     filters:
       - passlist: {defconfig: ['defconfig']}
+
+  qemu_x86_64-uefi:
+    <<: *qemu_x86_64
+    params: &uefi_x86_64
+      bios_url: 'http://storage.kernelci.org/images/uefi/edk2-stable202005/x86_64/OVMF.fd'
+
+  qemu_x86_64-uefi-mixed:
+    <<: *qemu_x86_64
+    params: *uefi_i386
 
   r8a774a1-hihope-rzg2m-ex:
     mach: renesas
@@ -1860,36 +1857,57 @@ test_configs:
   - device_type: qemu_arm-virt-gicv2
     test_plans:
       - baseline_qemu
-      - baseline-uefi_arm
+
+  - device_type: qemu_arm-virt-gicv2-uefi
+    test_plans:
+      - baseline_qemu
 
   - device_type: qemu_arm-virt-gicv3
     test_plans:
       - baseline_qemu
-      - baseline-uefi_arm
       - v4l2-compliance-vivid
+
+  - device_type: qemu_arm-virt-gicv3-uefi
+    test_plans:
+      - baseline_qemu
 
   - device_type: qemu_arm64-virt-gicv2
     test_plans:
       - baseline_qemu
-      - baseline-uefi_arm64
+
+  - device_type: qemu_arm64-virt-gicv2-uefi
+    test_plans:
+      - baseline_qemu
 
   - device_type: qemu_arm64-virt-gicv3
     test_plans:
       - baseline_qemu
-      - baseline-uefi_arm64
       - v4l2-compliance-vivid
+
+  - device_type: qemu_arm64-virt-gicv3-uefi
+    test_plans:
+      - baseline_qemu
 
   - device_type: qemu_i386
     test_plans:
       - baseline_qemu
-      - baseline-uefi_i386
+
+  - device_type: qemu_i386-uefi
+    test_plans:
+      - baseline_qemu
 
   - device_type: qemu_x86_64
     test_plans:
       - baseline_qemu
-      - baseline-uefi_x86_64
-      - baseline-uefi_x86-mixed
       - v4l2-compliance-vivid
+
+  - device_type: qemu_x86_64-uefi
+    test_plans:
+      - baseline_qemu
+
+  - device_type: qemu_x86_64-uefi-mixed
+    test_plans:
+      - baseline_qemu
 
   - device_type: r8a774a1-hihope-rzg2m-ex
     test_plans:
