@@ -43,6 +43,11 @@ file_systems:
     type: debian
     ramdisk: 'buster/20200710.0/{arch}/rootfs.cpio.gz'
 
+  debian_buster_nfs:
+    type: debian
+    ramdisk: 'buster/20200710.0/{arch}/initrd.cpio.gz'
+    nfs: 'buster/20200710.0/{arch}/full.rootfs.tar.xz'
+
   debian_buster-cros-ec_ramdisk:
     type: debian
     ramdisk: 'buster-cros-ec/20200710.0/{arch}/rootfs.cpio.gz'
@@ -90,8 +95,8 @@ test_plans:
       job_timeout: '50'
 
   baseline-nfs:
-    rootfs: buildroot_baseline_nfs
-    pattern: 'baseline/{category}-{method}-{protocol}-{rootfs}-baseline-template.jinja2'
+    rootfs: debian_buster_nfs
+    pattern: 'baseline/{category}-{method}-{protocol}-nfs-baseline-template.jinja2'
     filters:
       - combination:
           keys: ['arch', 'defconfig']
