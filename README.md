@@ -25,6 +25,15 @@ You can find some more general information about the KernelCI project on the
 [wiki](https://github.com/kernelci/kernelci-doc/wiki/KernelCI).
 
 
+## User guide
+
+KernelCI users will typically want to add their kernel branch to be monitored,
+connect their lab or send results from their own existing CI system.  The pages
+below are a work-in-progress to cover all these topics:
+
+* [Using LAVA with KernelCI](doc/lava.md)
+
+
 ## Command line tools
 
 All the steps of the KernelCI pipeline are implemented with portable command
