@@ -46,8 +46,8 @@ class cmd_validate(Command):
 
 class cmd_list_jobs(Command):
     help = "List all the jobs that need to be run for a given build and lab"
-    args = [Args.bmeta_json, Args.dtbs_json, Args.lab_config]
-    opt_args = [Args.user, Args.lab_token, Args.lab_json]
+    args = [Args.bmeta_json, Args.lab_config]
+    opt_args = [Args.dtbs_json, Args.user, Args.lab_token, Args.lab_json]
 
     def __call__(self, test_configs, lab_configs, args):
         bmeta, dtbs = kernelci.build.load_json(args.bmeta_json, args.dtbs_json)
@@ -113,8 +113,8 @@ class cmd_get_lab_info(Command):
 
 class cmd_generate(Command):
     help = "Generate the job definition for a given build"
-    args = [Args.bmeta_json, Args.dtbs_json, Args.storage, Args.lab_config]
-    opt_args = [Args.plan, Args.target, Args.output,
+    args = [Args.bmeta_json, Args.storage, Args.lab_config]
+    opt_args = [Args.plan, Args.target, Args.output, Args.dtbs_json,
                 Args.lab_json, Args.user, Args.lab_token, Args.db_config,
                 Args.callback_id, Args.callback_dataset,
                 Args.callback_type, Args.callback_url, Args.mach]
