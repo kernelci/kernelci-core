@@ -32,6 +32,7 @@ RUN go get github.com/go-debos/debos/cmd/debos && \
 RUN apt-get update && apt-get install --no-install-recommends -y \
     binfmt-support \
     busybox \
+    debian-ports-archive-keyring \
     debootstrap \
     dosfstools \
     e2fsprogs \
