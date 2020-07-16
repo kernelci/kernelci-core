@@ -949,16 +949,19 @@ def publish_kernel(kdir, install_path=None, api=None, token=None,
     return True
 
 
-def load_json(bmeta_json, dtbs_json):
+def load_json(bmeta_json, dtbs_json=None):
     """Load the build meta-data from JSON files and return dictionaries
 
     *bmeta_json* is the path to a kernel build meta-data JSON file
-    *dtbs_json* is the path to a kernel dtbs JSON file
+    *dtbs_json* is the path to an optional kernel dtbs JSON file
 
     The returned value is a 2-tuple with the bmeta and dtbs data.
     """
     with open(bmeta_json) as json_file:
         bmeta = json.load(json_file)
-    with open(dtbs_json) as json_file:
-        dtbs = json.load(json_file)['dtbs']
+    if dtbs_json:
+        with open(dtbs_json) as json_file:
+            dtbs = json.load(json_file)['dtbs']
+    else:
+        dtbs = {'dtbs': []}
     return bmeta, dtbs
