@@ -1,4 +1,3 @@
-  CHKDT   Documentation/devicetree/bindings/extcon/wlf,arizona.yaml
   CHKDT   Documentation/devicetree/bindings/extcon/extcon-usbc-cros-ec.yaml
   CHKDT   Documentation/devicetree/bindings/interconnect/fsl,imx8m-noc.yaml
   CHKDT   Documentation/devicetree/bindings/interconnect/qcom,qcs404.yaml
