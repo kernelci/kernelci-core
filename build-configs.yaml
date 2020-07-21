@@ -696,6 +696,7 @@ build_configs:
           arm64:
             extra_configs:
               - 'allmodconfig'
+              - 'defconfig+CONFIG_ARM64_64K_PAGES'
               - 'allnoconfig'
           arm:
             base_defconfig: 'multi_v7_defconfig'
