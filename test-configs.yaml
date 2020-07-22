@@ -31,10 +31,6 @@ file_systems:
     type: buildroot
     ramdisk: '{arch}/baseline/rootfs.cpio.gz'
 
-  buildroot_baseline_nfs:
-    type: buildroot
-    nfs: '{arch}/baseline/rootfs.tar.xz'
-
   buildroot_kselftest_ramdisk:
     type: buildroot
     ramdisk: '{arch}/tests/rootfs.cpio.gz'
