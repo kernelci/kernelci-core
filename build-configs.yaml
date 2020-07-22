@@ -95,7 +95,7 @@ trees:
     url: "https://git.linaro.org/landing-teams/working/qualcomm/kernel.git"
 
   renesas:
-    url: "https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git"
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/geert/renesas-devel.git"
 
   rmk:
     url: "git://git.armlinux.org.uk/~rmk/linux-arm.git"
