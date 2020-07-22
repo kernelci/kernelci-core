@@ -84,7 +84,7 @@ exit 0; \
         - name: KCI_API_TOKEN
           valueFrom:
             secretKeyRef:
-              name: kci-api-token-staging
+              name: {{ "kci-api-token" | env_override('KCI_API_TOKEN_ID') }}
               key: token
 
         # optional env
@@ -97,4 +97,3 @@ exit 0; \
           requests:
             cpu: {{ cpu_request }}
             memory: {{ mem_request }}
-
