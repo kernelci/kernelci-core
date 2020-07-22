@@ -43,6 +43,9 @@ trees:
   chrome-platform:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/chrome-platform/linux.git"
 
+  cip:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/cip/linux-cip.git"
+
   clk:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/clk/linux.git"
 
@@ -568,6 +571,50 @@ build_configs:
           arm: *arm_defconfig
           arm64: *arm64_defconfig
           x86_64: *x86_64_defconfig
+
+  cip_4.4:
+    tree: cip
+    branch: 'linux-4.4.y-cip'
+    variants:
+      gcc-8:
+        build_environment: gcc-8
+        architectures:
+          arm: *arm_arch
+          i386: *i386_arch
+          x86_64: *x86_64_arch
+
+  cip_4.4-rt:
+    tree: cip
+    branch: 'linux-4.4.y-cip-rt'
+    variants:
+      gcc-8:
+        build_environment: gcc-8
+        architectures:
+          arm: *arm_arch
+          i386: *i386_arch
+          x86_64: *x86_64_arch
+
+  cip_4.19:
+    tree: cip
+    branch: 'linux-4.19.y-cip'
+    variants:
+      gcc-8:
+        build_environment: gcc-8
+        architectures:
+          arm: *arm_arch
+          arm64: *arm64_arch
+          x86_64: *x86_64_arch
+
+  cip_4.19-rt:
+    tree: cip
+    branch: 'linux-4.19.y-cip-rt'
+    variants:
+      gcc-8:
+        build_environment: gcc-8
+        architectures:
+          arm: *arm_arch
+          arm64: *arm64_arch
+          x86_64: *x86_64_arch
 
   clk:
     tree: clk
