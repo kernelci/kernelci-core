@@ -64,23 +64,15 @@ labs:
     url: 'https://lkft.validation.linaro.org/RPC2/'
     priority: low
     filters:
-      - combination:
-          keys: ['tree', 'branch']
-          values:
-            - ['stable', 'linux-4.4.y']
-            - ['stable', 'linux-4.9.y']
-            - ['stable', 'linux-4.14.y']
-            - ['stable-rc', 'linux-4.4.y']
-            - ['stable-rc', 'linux-4.9.y']
-            - ['stable-rc', 'linux-4.14.y']
-            - ['next', 'master']
-            - ['next', 'pending-fixes']
-            - ['kernelci', 'kernelci.org']
-            - ['kernelci', 'staging.kernelci.org']
       - passlist:
           plan:
             - baseline
             - baseline-uefi
+          tree:
+            - kernelci
+            - next
+            - stable-rc
+            - stable
 
   lab-mhart:
     lab_type: lava
