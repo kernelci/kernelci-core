@@ -337,16 +337,15 @@ def add_subparser(parser, glob):
     *parser* is the main parser object from argparse
     *glob* is the globals dictionary
     """
-    sub_parser = parser.add_subparsers(title="Commands",
-                                       help="List of available commands")
-    commands = dict()
+    sub_parsers = parser.add_subparsers(title="Commands",
+                                        help="List of available commands")
     for k in list(glob.keys()):
         split = k.split('cmd_')
         if len(split) == 2:
             obj = glob.get(k)
             if issubclass(obj, Command):
                 cmd_name = split[1]
-                commands[cmd_name] = obj(sub_parser, cmd_name)
+                obj(sub_parsers, cmd_name)
 
 
 def parse_args(title, default_yaml, glob):
@@ -366,4 +365,7 @@ def parse_args(title, default_yaml, glob):
     parser = make_parser(title, default_yaml)
     add_subparser(parser, glob)
     args = parser.parse_args()
+    if not hasattr(args, 'func'):
+        parser.print_help()
+        exit(1)
     return args
