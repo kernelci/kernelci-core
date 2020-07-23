@@ -32,26 +32,9 @@ class Args:
     also always be a `help` attribute, as this is needed by the Command class.
     """
 
-    config = {
-        'name': '--config',
-        'help': "Build config name",
-    }
-
-    variant = {
-        'name': '--variant',
-        'help': "Build config variant name",
-    }
-
-    build_env = {
-        'name': '--build-env',
-        'help': "Build environment name",
-    }
-
-    storage = {
-        'name': '--storage',
-        'help': "Storage URL",
-        'default': "https://storage.kernelci.org",
-        'required': False,
+    arch = {
+        'name': '--arch',
+        'help': "CPU architecture name",
     }
 
     api = {
@@ -61,25 +44,30 @@ class Args:
         'required': False,
     }
 
-    user = {
-        'name': '--user',
-        'help': "User name",
+    bmeta_json = {
+        'name': '--bmeta-json',
+        'help': "Path to the build.json file",
     }
 
-    token = {
-        'name': '--token',
-        'help': "Backend API token",
+    branch = {
+        'name': '--branch',
+        'help': "Name of a kernel branch in a tree",
     }
 
-    callback_id = {
-        'name': '--callback-id',
-        'help': "Callback identifier used to look up an authentication token",
+    build_env = {
+        'name': '--build-env',
+        'help': "Build environment name",
     }
 
     callback_dataset = {
         'name': '--callback-dataset',
         'help': "Dataset to include in a lab callback",
         'default': 'all',
+    }
+
+    callback_id = {
+        'name': '--callback-id',
+        'help': "Callback identifier used to look up an authentication token",
     }
 
     callback_type = {
@@ -93,14 +81,35 @@ class Args:
         'help': "Base URL for the callback",
     }
 
-    jobs = {
-        'name': '--jobs',
-        'help': "File pattern with jobs to submit",
-    }
-
     commit = {
         'name': '--commit',
         'help': "Git commit checksum",
+    }
+
+    config = {
+        'name': '--config',
+        'help': "Build config name",
+    }
+
+    data_file = {
+        'name': '--data-file',
+        'help': "Path to the file with data to be submitted to storage",
+    }
+
+    data_path = {
+        'name': '--data-path',
+        'help': "Path to the debos files",
+    }
+
+    defconfig = {
+        'name': '--defconfig',
+        'help': "Kernel defconfig name",
+    }
+
+    delete = {
+        'name': '--delete',
+        'help': "Delete the tarball after extracting",
+        'action': 'store_true'
     }
 
     describe = {
@@ -113,85 +122,16 @@ class Args:
         'help': "Verbose version of git describe",
     }
 
-    tree_name = {
-        'name': '--tree-name',
-        'help': "Name of a kernel tree",
-    }
-
-    tree_url = {
-        'name': '--tree-url',
-        'help': "URL of a kernel tree",
-    }
-
-    branch = {
-        'name': '--branch',
-        'help': "Name of a kernel branch in a tree",
-    }
-
-    mirror = {
-        'name': '--mirror',
-        'help': "Path to the local kernel git mirror",
-    }
-
-    kdir = {
-        'name': '--kdir',
-        'help': "Path to the kernel checkout directory",
-    }
-
-    rootfs_dir = {
-        'name': '--rootfs-dir',
-        'help': "Path to the rootfs images directory",
-    }
-
-    arch = {
-        'name': '--arch',
-        'help': "CPU architecture name",
-    }
-
-    bmeta_json = {
-        'name': '--bmeta-json',
-        'help': "Path to the build.json file",
-    }
-
     dtbs_json = {
         'name': '--dtbs-json',
         'help': "Path to the dtbs.json file",
     }
 
-    lab_json = {
-        'name': '--lab-json',
-        'help': "Path to a JSON file with lab-specific info",
-    }
-
-    lab = {
-        'name': '--lab',
-        'help': "Name of a test lab",
-    }
-
-    target = {
-        'name': '--target',
-        'help': "Name of a target platform",
-    }
-
-    defconfig = {
-        'name': '--defconfig',
-        'help': "Kernel defconfig name",
-    }
-
-    j = {
-        'name': '-j',
-        'help': "Number of parallel build processes",
-    }
-
-    verbose = {
-        'name': '--verbose',
-        'help': "Verbose output",
-        'action': 'store_true',
-    }
-
-    output = {
-        'name': '--output',
-        'help': "Path the output directory",
+    filename = {
+        'name': '--filename',
+        'help': "Kernel sources destination filename",
+        'required': False,
+        'default': 'linux-src.tar.gz',
     }
 
     install_path = {
@@ -200,10 +140,14 @@ class Args:
         "Path to the install directory, or _install_ inside kdir by default",
     }
 
-    mod_path = {
-        'name': '--mod-path',
-        'help':
-        "Path to the installed modules, or _modules_ inside output by default",
+    j = {
+        'name': '-j',
+        'help': "Number of parallel build processes",
+    }
+
+    jobs = {
+        'name': '--jobs',
+        'help': "File pattern with jobs to submit",
     }
 
     json_path = {
@@ -211,9 +155,19 @@ class Args:
         'help': "Path to the JSON file",
     }
 
-    plan = {
-        'name': '--plan',
-        'help': "Test plan name",
+    kdir = {
+        'name': '--kdir',
+        'help': "Path to the kernel checkout directory",
+    }
+
+    lab = {
+        'name': '--lab',
+        'help': "Name of a test lab",
+    }
+
+    lab_json = {
+        'name': '--lab-json',
+        'help': "Path to a JSON file with lab-specific info",
     }
 
     mach = {
@@ -221,16 +175,30 @@ class Args:
         'help': "Mach name (aka SoC family)",
     }
 
-    url = {
-        'name': '--url',
-        'help': "Kernel sources download URL",
+    mirror = {
+        'name': '--mirror',
+        'help': "Path to the local kernel git mirror",
     }
 
-    filename = {
-        'name': '--filename',
-        'help': "Kernel sources destination filename",
-        'required': False,
-        'default': 'linux-src.tar.gz',
+    mod_path = {
+        'name': '--mod-path',
+        'help':
+        "Path to the installed modules, or _modules_ inside output by default",
+    }
+
+    output = {
+        'name': '--output',
+        'help': "Path the output directory",
+    }
+
+    plan = {
+        'name': '--plan',
+        'help': "Test plan name",
+    }
+
+    publish_path = {
+        'name': '--publish-path',
+        'help': "Relative path where build artifacts are published",
     }
 
     retries = {
@@ -241,14 +209,36 @@ class Args:
         'type': int,
     }
 
-    publish_path = {
-        'name': '--publish-path',
-        'help': "Relative path where build artifacts are published",
+    rootfs_dir = {
+        'name': '--rootfs-dir',
+        'help': "Path to the rootfs images directory",
     }
 
-    data_path = {
-        'name': '--data-path',
-        'help': "Path to the debos files",
+    storage = {
+        'name': '--storage',
+        'help': "Storage URL",
+        'default': "https://storage.kernelci.org",
+        'required': False,
+    }
+
+    target = {
+        'name': '--target',
+        'help': "Name of a target platform",
+    }
+
+    token = {
+        'name': '--token',
+        'help': "Backend API token",
+    }
+
+    tree_name = {
+        'name': '--tree-name',
+        'help': "Name of a kernel tree",
+    }
+
+    tree_url = {
+        'name': '--tree-url',
+        'help': "URL of a kernel tree",
     }
 
     upload_path = {
@@ -256,15 +246,25 @@ class Args:
         'help': "Upload path on Storage where rootfs stored",
     }
 
-    delete = {
-        'name': '--delete',
-        'help': "Delete the tarball after extracting",
-        'action': 'store_true'
+    url = {
+        'name': '--url',
+        'help': "Kernel sources download URL",
     }
 
-    data_file = {
-        'name': '--data-file',
-        'help': "Path to the file with data to be submitted to storage",
+    user = {
+        'name': '--user',
+        'help': "User name",
+    }
+
+    variant = {
+        'name': '--variant',
+        'help': "Build config variant name",
+    }
+
+    verbose = {
+        'name': '--verbose',
+        'help': "Verbose output",
+        'action': 'store_true',
     }
 
 
