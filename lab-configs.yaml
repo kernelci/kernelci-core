@@ -14,6 +14,7 @@ labs:
   lab-broonie:
     lab_type: lava
     url: 'https://lava.sirena.org.uk/RPC2/'
+    priority: low
 
   lab-cip:
     lab_type: lava
