@@ -328,7 +328,7 @@ def make_parser(title, default_yaml):
     return parser
 
 
-def add_subparser(parser, glob):
+def add_subparsers(parser, glob):
     """Helper to add a sub-parser to add sub-commands
 
     All the global attributes from `glob` starting with `cmd_` are added as
@@ -348,8 +348,24 @@ def add_subparser(parser, glob):
                 obj(sub_parsers, cmd_name)
 
 
+def parse_args_with_parser(parser, glob):
+    """Parse the command line arguments with a provided parser
+
+    *glob* is the dictionary with all the global attributes where to look for
+           commands starting with `cmd_`
+
+    *parser* is an `ArgumentParser` instance used to parse the command line.
+    """
+    add_subparsers(parser, glob)
+    args = parser.parse_args()
+    if not hasattr(args, 'func'):
+        parser.print_help()
+        exit(1)
+    return args
+
+
 def parse_args(title, default_yaml, glob):
-    """Helper function to parse the command line arguments
+    """Create a parser and parse the command line arguments
 
     This will create a parser and automatically add the sub-commands from the
     global attributes `glob` and return the parsed arguments.
@@ -363,9 +379,4 @@ def parse_args(title, default_yaml, glob):
            commands starting with `cmd_`
     """
     parser = make_parser(title, default_yaml)
-    add_subparser(parser, glob)
-    args = parser.parse_args()
-    if not hasattr(args, 'func'):
-        parser.print_help()
-        exit(1)
-    return args
+    return parse_args_with_parser(parser, glob)
