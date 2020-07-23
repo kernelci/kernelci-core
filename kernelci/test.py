@@ -39,6 +39,7 @@ def match_configs(configs, bmeta, dtbs, lab):
         'kernel': bmeta['git_describe'],
         'build_environment': bmeta['build_environment'],
         'tree': bmeta['job'],
+        'branch': bmeta['git_branch']
     }
 
     flags = {
