@@ -47,7 +47,7 @@ class cmd_validate(Command):
 class cmd_list_jobs(Command):
     help = "List all the jobs that need to be run for a given build and lab"
     args = [Args.bmeta_json, Args.dtbs_json, Args.lab]
-    opt_args = [Args.user, Args.token, Args.lab_json]
+    opt_args = [Args.user, Args.lab_token, Args.lab_json]
 
     def __call__(self, test_configs, lab_configs, args):
         bmeta, dtbs = kernelci.build.load_json(args.bmeta_json, args.dtbs_json)
@@ -56,7 +56,8 @@ class cmd_list_jobs(Command):
             return True
 
         lab = lab_configs['labs'][args.lab]
-        api = kernelci.lab.get_api(lab, args.user, args.token, args.lab_json)
+        api = kernelci.lab.get_api(
+            lab, args.user, args.lab_token, args.lab_json)
 
         configs = kernelci.test.match_configs(
             test_configs['test_configs'], bmeta, dtbs, lab)
@@ -91,11 +92,11 @@ class cmd_list_labs(Command):
 class cmd_get_lab_info(Command):
     help = "Get the information about a lab into a JSON file"
     args = [Args.lab, Args.lab_json]
-    opt_args = [Args.user, Args.token]
+    opt_args = [Args.user, Args.lab_token]
 
     def __call__(self, test_configs, lab_configs, args):
         lab = lab_configs['labs'][args.lab]
-        lab_api = kernelci.lab.get_api(lab, args.user, args.token)
+        lab_api = kernelci.lab.get_api(lab, args.user, args.lab_token)
         data = {
             'lab': lab.name,
             'lab_type': lab.lab_type,
@@ -114,7 +115,7 @@ class cmd_generate(Command):
     help = "Generate the job definition for a given build"
     args = [Args.bmeta_json, Args.dtbs_json, Args.storage, Args.lab]
     opt_args = [Args.plan, Args.target, Args.output,
-                Args.lab_json, Args.user, Args.token,
+                Args.lab_json, Args.user, Args.lab_token,
                 Args.callback_id, Args.callback_dataset,
                 Args.callback_type, Args.callback_url, Args.mach]
 
@@ -129,7 +130,8 @@ class cmd_generate(Command):
             return True
 
         lab = lab_configs['labs'][args.lab]
-        api = kernelci.lab.get_api(lab, args.user, args.token, args.lab_json)
+        api = kernelci.lab.get_api(
+            lab, args.user, args.lab_token, args.lab_json)
 
         if args.target and args.plan:
             target = test_configs['device_types'][args.target]
@@ -183,11 +185,11 @@ class cmd_generate(Command):
 
 class cmd_submit(Command):
     help = "Submit job definitions to a lab"
-    args = [Args.lab, Args.user, Args.token, Args.jobs]
+    args = [Args.lab, Args.user, Args.lab_token, Args.jobs]
 
     def __call__(self, test_configs, lab_configs, args):
         lab = lab_configs['labs'][args.lab]
-        lab_api = kernelci.lab.get_api(lab, args.user, args.token)
+        lab_api = kernelci.lab.get_api(lab, args.user, args.lab_token)
         job_paths = glob.glob(args.jobs)
         res = True
         for path in job_paths:

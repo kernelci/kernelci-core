@@ -110,10 +110,10 @@ binaries and also the meta-data with these commands:
 
 ```
 ./kci_build push_kernel \
-  --kdir=linux --api=https://localhost:12345 --token=1234-5678
+  --kdir=linux --api=https://localhost:12345 --db-token=1234-5678
 
 ./kci_build publish_kernel \
-  --kdir=linux --api=https://localhost:12345 --token=1234-5678
+  --kdir=linux --api=https://localhost:12345 --db-token=1234-5678
 ```
 
 Alternatively, to store the meta-data locally in a JSON file:

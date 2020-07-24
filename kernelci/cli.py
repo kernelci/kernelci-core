@@ -101,6 +101,11 @@ class Args:
         'help': "Path to the debos files",
     }
 
+    db_token = {
+        'name': '--db-token',
+        'help': "Database token",
+    }
+
     defconfig = {
         'name': '--defconfig',
         'help': "Kernel defconfig name",
@@ -170,6 +175,11 @@ class Args:
         'help': "Path to a JSON file with lab-specific info",
     }
 
+    lab_token = {
+        'name': '--lab-token',
+        'help': "Test lab token",
+    }
+
     mach = {
         'name': '--mach',
         'help': "Mach name (aka SoC family)",
@@ -224,11 +234,6 @@ class Args:
     target = {
         'name': '--target',
         'help': "Name of a target platform",
-    }
-
-    token = {
-        'name': '--token',
-        'help': "Backend API token",
     }
 
     tree_name = {

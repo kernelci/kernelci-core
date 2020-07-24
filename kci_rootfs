@@ -104,10 +104,10 @@ class cmd_build(Command):
 
 class cmd_upload(Command):
     help = "Upload a rootfs image"
-    args = [Args.rootfs_dir, Args.upload_path, Args.api, Args.token]
+    args = [Args.rootfs_dir, Args.upload_path, Args.api, Args.db_token]
 
     def __call__(self, config_data, args):
-        kernelci.rootfs.upload(args.api, args.token, args.upload_path,
+        kernelci.rootfs.upload(args.api, args.db_token, args.upload_path,
                                args.rootfs_dir)
         return True
 

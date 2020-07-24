@@ -57,11 +57,12 @@ class cmd_check_new_commit(Command):
 
 class cmd_update_last_commit(Command):
     help = "Update the last commit file on the remote storage server"
-    args = [Args.config, Args.api, Args.token, Args.commit]
+    args = [Args.config, Args.api, Args.db_token, Args.commit]
 
     def __call__(self, configs, args):
         conf = configs['build_configs'][args.config]
-        kernelci.build.set_last_commit(conf, args.api, args.token, args.commit)
+        kernelci.build.set_last_commit(
+            conf, args.api, args.db_token, args.commit)
         return True
 
 
@@ -158,11 +159,11 @@ class cmd_expand_fragments(Command):
 
 class cmd_push_tarball(Command):
     help = "Create and up a source tarball to the remote storage server"
-    args = [Args.config, Args.kdir, Args.storage, Args.api, Args.token]
+    args = [Args.config, Args.kdir, Args.storage, Args.api, Args.db_token]
 
     def __call__(self, configs, args):
         conf = configs['build_configs'][args.config]
-        func_args = (conf, args.kdir, args.storage, args.api, args.token)
+        func_args = (conf, args.kdir, args.storage, args.api, args.db_token)
         if not all(func_args):
             print("Invalid arguments")
             return False
@@ -305,29 +306,30 @@ or
 
 class cmd_push_kernel(Command):
     help = "Push the kernel binaries"
-    args = [Args.kdir, Args.api, Args.token]
+    args = [Args.kdir, Args.api, Args.db_token]
     opt_args = [Args.install_path]
 
     def __call__(self, configs, args):
-        return kernelci.build.push_kernel(args.kdir, args.api, args.token,
+        return kernelci.build.push_kernel(args.kdir, args.api, args.db_token,
                                           args.install_path)
 
 
 class cmd_publish_kernel(Command):
     help = "Publish the kernel meta-data"
     args = [Args.kdir]
-    opt_args = [Args.api, Args.token, Args.json_path, Args.install_path]
+    opt_args = [Args.api, Args.db_token, Args.json_path, Args.install_path]
 
     def __call__(self, configs, args):
-        if not ((args.api and args.token) or args.json_path):
+        if not ((args.api and args.db_token) or args.json_path):
             print("""\
 Invalid arguments, please provide at least one of these sets of options:
-    --token, --api to publish to the backend server
+    --db-token, --api to publish to the backend server
     --json-path to save the data in a local JSON file\
 """)
             return False
         return kernelci.build.publish_kernel(
-            args.kdir, args.install_path, args.api, args.token, args.json_path)
+            args.kdir, args.install_path, args.api, args.db_token,
+            args.json_path)
 
 
 class cmd_pull_tarball(Command):
