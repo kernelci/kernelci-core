@@ -16,6 +16,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import argparse
+import kernelci.settings
 
 
 # -----------------------------------------------------------------------------
@@ -330,6 +331,8 @@ def make_parser(title, default_yaml):
     parser = argparse.ArgumentParser(title)
     parser.add_argument("--yaml-configs", default=default_yaml,
                         help="Path to the YAML configs file")
+    parser.add_argument("--settings",
+                        help="Path to the settings file")
     return parser
 
 
@@ -369,11 +372,12 @@ def parse_args_with_parser(parser, glob):
     return args
 
 
-def parse_args(title, default_yaml, glob):
-    """Create a parser and parse the command line arguments
+def parse_opts(title, default_yaml, glob):
+    """Return a Settings object with command line arguments and settings
 
     This will create a parser and automatically add the sub-commands from the
-    global attributes `glob` and return the parsed arguments.
+    global attributes `glob` and parse the arguments, then create a `Settings`
+    object using any KernelCI config file found.
 
     *title* is the parser title
 
@@ -384,4 +388,5 @@ def parse_args(title, default_yaml, glob):
            commands starting with `cmd_`
     """
     parser = make_parser(title, default_yaml)
-    return parse_args_with_parser(parser, glob)
+    args = parse_args_with_parser(parser, glob)
+    return kernelci.settings.Settings(args.settings, title, args)

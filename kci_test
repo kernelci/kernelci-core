@@ -28,6 +28,7 @@ import kernelci.config.lab
 import kernelci.config.test
 import kernelci.build
 import kernelci.lab
+import kernelci.settings
 import kernelci.test
 
 
@@ -211,12 +212,16 @@ class cmd_submit(Command):
 #
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser("kci_test")
+    name = "kci_test"
+    parser = argparse.ArgumentParser(name)
     parser.add_argument("--yaml-test-configs", default="test-configs.yaml",
                         help="Path to the YAML test configs file")
     parser.add_argument("--yaml-lab-configs", default="lab-configs.yaml",
                         help="Path to the YAML lab configs file")
+    parser.add_argument("--settings",
+                        help="Path to the settings file")
     args = parse_args_with_parser(parser, globals())
+    opts = kernelci.settings.Settings(args.settings, name, args)
     test_configs = kernelci.config.test.from_yaml(args.yaml_test_configs)
     lab_configs = kernelci.config.lab.from_yaml(args.yaml_lab_configs)
     status = args.func(test_configs, lab_configs, args)

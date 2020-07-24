@@ -19,7 +19,7 @@
 
 import sys
 
-from kernelci.cli import Args, Command, parse_args
+from kernelci.cli import Args, Command, parse_opts
 import kernelci.rootfs
 import kernelci.config.rootfs
 
@@ -120,7 +120,7 @@ class cmd_upload(Command):
 #
 
 if __name__ == '__main__':
-    args = parse_args("kci_rootfs", "rootfs-configs.yaml", globals())
-    configs = kernelci.config.rootfs.from_yaml(args.yaml_configs)
-    status = args.func(configs, args)
+    opts = parse_opts("kci_rootfs", "rootfs-configs.yaml", globals())
+    configs = kernelci.config.rootfs.from_yaml(opts.yaml_configs)
+    status = opts.args.func(configs, opts)
     sys.exit(0 if status is True else 1)

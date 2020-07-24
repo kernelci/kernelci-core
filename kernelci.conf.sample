@@ -1,0 +1,32 @@
+# Sample kernelci.conf settings file with arbitrary default values.
+#
+# These value are only for illustration purposes, they should be manually set
+# by any user to mach a particular installation.  The options mentioned here
+# are typical ones that shouldn't change in every command line call when used
+# manually for local development purposes.  Any command line argument can have
+# a default value stored in this file.
+
+[DEFAULT]
+
+#db_token: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+
+[kci_build]
+
+#mirror: linux-mirror.git
+#kdir: linux
+#build_env: gcc-8
+
+[kci_test]
+
+#lab: lab-localhost
+#user: kernel-ci
+#lab_token: XXXXXXXXXXXXXXXXXXXXXXX
+#callback_id: kernelci-callback-local
+#collback_url: http://localhost:5001
+#storage: http://localhost:5002
+
+[kci_data]
+
+#config: localhost
+
+[kci_rootfs]
