@@ -29,7 +29,7 @@ class cmd_validate(Command):
     help = "Validate the YAML configuration"
     opt_args = [Args.verbose]
 
-    def __call__(self, configs, args):
+    def __call__(self, configs, opts):
         # ToDo: Use jsonschema
         return True
 
@@ -37,7 +37,7 @@ class cmd_validate(Command):
 class cmd_list_configs(Command):
     help = "List all database configurations"
 
-    def __call__(self, config_data, args):
+    def __call__(self, config_data, opts):
         db_configs = config_data['db_configs']
         for config_name in db_configs:
             print(config_name)
@@ -46,18 +46,21 @@ class cmd_list_configs(Command):
 
 class cmd_submit(Command):
     help = "Submit data to the specified database"
-    args = [Args.config, Args.data_file]
-    opt_args = [Args.db_token, Args.verbose]
+    args = [Args.data_file]
+    opt_args = [Args.config, Args.db_token, Args.verbose]
 
-    def __call__(self, config_data, args):
-        config = config_data['db_configs'][args.config]
-        if args.data_file == '-':
+    def __call__(self, config_data, opts):
+        if not opts.config:
+            print("Missing database config name")
+            return False
+        config = config_data['db_configs'][opts.config]
+        if opts.data_file == '-':
             data = sys.stdin.read()
         else:
-            with open(args.data_file, 'r') as f:
+            with open(opts.data_file, 'r') as f:
                 data = f.read()
-        db = kernelci.data.get_db(config, args.db_token)
-        return db.submit(data, args.verbose)
+        db = kernelci.data.get_db(config, opts.db_token)
+        return db.submit(data, opts.verbose)
 
 
 if __name__ == '__main__':
