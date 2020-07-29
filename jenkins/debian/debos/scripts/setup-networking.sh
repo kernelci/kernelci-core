@@ -3,11 +3,17 @@
 set -e
 
 # Network management
-systemctl enable systemd-networkd
+if [ -e /lib/systemd/system/systemd-networkd.service ]; then
+    systemctl enable systemd-networkd
+fi
 # DNS resolving
-systemctl enable systemd-resolved
+if [ -e /lib/systemd/system/systemd-resolved.service ]; then
+    systemctl enable systemd-resolved
+fi
 # NTP client
-systemctl enable systemd-timesyncd
+if [ -e /lib/systemd/system/systemd-timesyncd.service ]; then
+    systemctl enable systemd-timesyncd
+fi
 
 ln -sf /lib/systemd/resolv.conf /etc/resolv.conf
 
