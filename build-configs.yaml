@@ -70,6 +70,9 @@ trees:
   lee-backlight:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/lee/backlight.git"
 
+  lee-mfd:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git"
+
   linusw:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/linusw/linux-gpio.git/"
 
@@ -637,6 +640,10 @@ build_configs:
   lee_backlight:
     tree: lee-backlight
     branch: 'for-backlight-next'
+
+  lee_mfd:
+    tree: lee-mfd
+    branch: 'for-mfd-next'
 
   linusw_devel:
     tree: linusw
