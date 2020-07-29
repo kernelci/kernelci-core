@@ -67,6 +67,9 @@ trees:
   lee-korg:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/lee/linux.git"
 
+  lee-backlight:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/lee/backlight.git"
+
   linusw:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/linusw/linux-gpio.git/"
 
@@ -630,6 +633,10 @@ build_configs:
           i386: *i386_arch
           arm64: *arm64_arch
           arm: *arm_arch
+
+  lee_backlight:
+    tree: lee-backlight
+    branch: 'for-backlight-next'
 
   linusw_devel:
     tree: linusw
