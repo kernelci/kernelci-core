@@ -61,6 +61,9 @@ trees:
   kselftest:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/shuah/linux-kselftest.git'
 
+  lee-backlight:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/lee/backlight.git"
+
   linusw:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/linusw/linux-gpio.git/"
 
@@ -985,6 +988,11 @@ build_configs:
   kselftest_next:
     <<: *kselftest-tree
     branch: 'next'
+
+  lee_backlight:
+    tree: lee-backlight
+    branch: 'for-backlight-next'
+    variants: *minimal_variants
 
   linusw_devel:
     tree: linusw
