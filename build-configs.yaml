@@ -64,7 +64,7 @@ trees:
   krzysztof:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/krzk/linux.git"
 
-  lee:
+  lee-korg:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/lee/linux.git"
 
   linusw:
@@ -620,7 +620,7 @@ build_configs:
     branch: 'for-next'
 
   lee_android_3.18:
-    tree: lee
+    tree: lee-korg
     branch: 'android-3.18-preview'
     variants:
       gcc-8:

@@ -134,8 +134,8 @@ fi
         echo "Sending results to Krzysztof Kozlowski"
         curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "build_report": 1, "send_to": ["krzk@kernel.org", "fellows@kernelci.org"], "format": ["txt", "html"], "delay": 10}' ${API}/send
         curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'",  "report_type": "test", "plan": "baseline", "send_to": ["krzk@kernel.org", "fellows@kernelci.org"], "format": ["txt"], "delay": 12600}' ${API}/send
-    elif [ "$TREE_NAME" == "lee" ]; then
-        echo "Sending results for Lee's tree"
+    elif [ "$TREE_NAME" == "lee-korg" ]; then
+        echo "Sending results for Lee's Personal (korg) tree"
         curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "build_report": 1, "format": ["txt"], "send_to": ["lee.jones@linaro.org", "kernel-build-reports@lists.linaro.org", "kernelci-results@groups.io"], "delay": 60}' ${API}/send
         curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'",  "report_type": "test", "plan": "baseline", "send_to": ["lee.jones@linaro.org", "kernel-build-reports@lists.linaro.org", "kernelci-results@groups.io"], "format": ["txt"], "delay": 2700}' ${API}/send
     elif [ "$TREE_NAME" == "linusw" ]; then
