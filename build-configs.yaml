@@ -645,6 +645,10 @@ build_configs:
     tree: lee-mfd
     branch: 'for-mfd-next'
 
+  lee_korg:
+    tree: lee-korg
+    branch: 'for-kernelci'
+
   linusw_devel:
     tree: linusw
     branch: 'devel'
