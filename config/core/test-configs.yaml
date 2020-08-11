@@ -1197,6 +1197,22 @@ device_types:
     params: &uefi_i386
       bios_url: 'http://storage.kernelci.org/images/uefi/edk2-stable202005/i386/OVMF.fd'
 
+  qemu_riscv64:
+    base_name: qemu
+    mach: qemu
+    arch: riscv
+    boot_method: qemu
+    context:
+      arch: riscv64
+      cpu: 'rv64'
+      guestfs_interface: 'virtio'
+      machine: 'virt'
+      no_kvm: True
+      memory: 1024
+      extra_options: ['-bios default']
+    filters:
+      - passlist: {defconfig: ['defconfig']}
+
   qemu_x86_64: &qemu_x86_64
     base_name: qemu
     mach: qemu
@@ -2151,6 +2167,10 @@ test_configs:
   - device_type: qemu_i386-uefi
     test_plans:
       - baseline_qemu
+
+  - device_type: qemu_riscv64
+    test_plans:
+      - baseline-qemu-docker
 
   - device_type: qemu_x86_64
     test_plans:
