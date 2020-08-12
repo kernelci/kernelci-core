@@ -224,6 +224,11 @@ class Args:
         'type': int,
     }
 
+    rootfs_config = {
+        'name': '--rootfs-config',
+        'help': "Root file system config name",
+    }
+
     rootfs_dir = {
         'name': '--rootfs-dir',
         'help': "Path to the rootfs images directory",
