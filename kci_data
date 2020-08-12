@@ -46,11 +46,11 @@ class cmd_list_configs(Command):
 
 class cmd_submit(Command):
     help = "Submit data to the specified database"
-    args = [Args.config, Args.data_file]
+    args = [Args.db_config, Args.data_file]
     opt_args = [Args.db_token, Args.verbose]
 
     def __call__(self, config_data, args):
-        config = config_data['db_configs'][args.config]
+        config = config_data['db_configs'][args.db_config]
         if args.data_file == '-':
             data = sys.stdin.read()
         else:

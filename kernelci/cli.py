@@ -91,11 +91,6 @@ class Args:
         'help': "Git commit checksum",
     }
 
-    config = {
-        'name': '--config',
-        'help': "Build config name",
-    }
-
     data_file = {
         'name': '--data-file',
         'help': "Path to the file with data to be submitted to storage",
@@ -104,6 +99,11 @@ class Args:
     data_path = {
         'name': '--data-path',
         'help': "Path to the debos files",
+    }
+
+    db_config = {
+        'name': '--db-config',
+        'help': 'Database config name',
     }
 
     db_token = {
