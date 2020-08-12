@@ -54,6 +54,11 @@ class Args:
         'help': "Name of a kernel branch in a tree",
     }
 
+    build_config = {
+        'name': '--build-config',
+        'help': "Build config name",
+    }
+
     build_env = {
         'name': '--build-env',
         'help': "Build environment name",
