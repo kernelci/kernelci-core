@@ -170,9 +170,9 @@ class Args:
         'help': "Path to the kernel checkout directory",
     }
 
-    lab = {
-        'name': '--lab',
-        'help': "Name of a test lab",
+    lab_config = {
+        'name': '--lab-config',
+        'help': 'Test lab config name',
     }
 
     lab_json = {

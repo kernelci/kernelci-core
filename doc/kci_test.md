@@ -42,10 +42,10 @@ Here's a sample command to get the data from a lab and store it in a JSON file:
 
 ```
 ./kci_test get_lab_info \
-  --lab=lab-name \
-  --lab-json=lab-name.json \
   --user=kernelci-user-name \
-  --lab-token=abcd-7890
+  --lab-config=lab-name \
+  --lab-token=abcd-7890 \
+  --lab-json=lab-name.json
 ```
 
 ### 2. Generate test definitions
@@ -69,8 +69,8 @@ To generate the definitions of all the jobs that can be run in a lab:
   --dtbs-json=linux/_install_/dtbs.json \
   --lab-json=lab-name.json \
   --storage=https://some-storage-place.com/ \
-  --lab=lab-name \
   --user=kernelci-user-name \
+  --lab-config=lab-name \
   --lab-token=abcd-7890 \
   --output=jobs \
   --callback-id=kernelci-callback \
@@ -101,8 +101,8 @@ and target, even if it is not listed in any `test_config` entry:
   --dtbs-json=linux/_install_/dtbs.json \
   --plan=baseline_qemu \
   --target=qemu_arm64-virt-gicv3 \
-  --lab=lab-name \
   --user=kernelci-user-name \
+  --lab-config=lab-name \
   --lab-token=abcd-7890 \
   --lab-json=lab-name.json \
   --storage=https://some-storage-place.com/ \
@@ -118,8 +118,8 @@ they can be submitted to the test lab with the `kci_test submit` command:
 
 ```
 ./kci_test submit \
-  --lab=lab-name \
   --user=kernelci-user-name \
+  --lab-config=lab-name \
   --lab-token=abcd-7890 \
   --jobs=jobs/*
 ```
