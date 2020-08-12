@@ -53,13 +53,14 @@ rootfs name along with its architecture.
     buster arm64
     ```
 
-    It also comes with couple of options `--config` and `--arch` to filter the results based on config name or arch type.
+    It also comes with couple of options `--rootfs-config` and `--arch` to
+    filter the results based on config name or arch type.
 
     ```
-    $ ./kci_rootfs list_variants --config buster --arch i386
+    $ ./kci_rootfs list_variants --rootfs-config buster --arch i386
     buster i386
 
-    $ ./kci_rootfs list_variants --config buster
+    $ ./kci_rootfs list_variants --rootfs-config buster
     buster amd64
     buster arm64
 
@@ -68,13 +69,18 @@ rootfs name along with its architecture.
     buster-v4l2 amd64
     buster-igt amd64
     ```
-7. Now it's time to re-build existing rootfs image using `kci_rootfs build`. It takes three arguments,
-`--config` refers to rootfs name which you want to build. `--data-path` points to debos files location.
-`--arch` refers to CPU arch you want to build. For example, to build a buster rootfs image for i386,
-you can run
+7. Now it's time to re-build existing rootfs image using `kci_rootfs build`. It
+   takes three arguments:
+    * `--rootfs-config` refers to rootfs name which you want to build
+    * `--data-path` points to debos files location
+    * `--arch` refers to CPU arch you want to build
 
+    For example, to build a buster rootfs image for i386, you can run
     ```
-    ./kci_rootfs build --config buster --data-path jenkins/debian/debos --arch i386
+    ./kci_rootfs build \
+        --rootfs-config buster \
+        --data-path jenkins/debian/debos \
+        --arch i386
     ```
 
    depending on your network speed, this will take some time to complete.
@@ -133,9 +139,14 @@ Now you know how to build default `kci_rootfs` images. Let's look at how to add 
 3. If no issues reported during validation, start the build process using,
 
     ```
-    ./kci_rootfs build --config buster-example --data-path jenkins/debian/debos --arch amd64
+    ./kci_rootfs build \
+        --rootfs-config buster-example \
+        --data-path jenkins/debian/debos \
+        --arch amd64
     ```
-    and wait for its completion. If everything went fine you should see something like below under `jenkins/debian/debos/buster-example/amd64/` directory.
+    and wait for its completion. If everything went fine you should see
+    something like below under `jenkins/debian/debos/buster-example/amd64/`
+    directory.
 
     ```
     ls jenkins/debian/debos/buster-example/amd64/
