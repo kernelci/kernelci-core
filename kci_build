@@ -44,10 +44,10 @@ class cmd_list_configs(Command):
 
 class cmd_check_new_commit(Command):
     help = "Check if a new commit is available on a branch"
-    args = [Args.config, Args.storage]
+    args = [Args.build_config, Args.storage]
 
     def __call__(self, configs, args):
-        conf = configs['build_configs'][args.config]
+        conf = configs['build_configs'][args.build_config]
         update = kernelci.build.check_new_commit(conf, args.storage)
         if update is False or update is True:
             return update
@@ -57,10 +57,10 @@ class cmd_check_new_commit(Command):
 
 class cmd_update_last_commit(Command):
     help = "Update the last commit file on the remote storage server"
-    args = [Args.config, Args.api, Args.db_token, Args.commit]
+    args = [Args.build_config, Args.api, Args.db_token, Args.commit]
 
     def __call__(self, configs, args):
-        conf = configs['build_configs'][args.config]
+        conf = configs['build_configs'][args.build_config]
         kernelci.build.set_last_commit(
             conf, args.api, args.db_token, args.commit)
         return True
@@ -68,10 +68,10 @@ class cmd_update_last_commit(Command):
 
 class cmd_tree_branch(Command):
     help = "Print the name of the tree and branch for a given build config"
-    args = [Args.config]
+    args = [Args.build_config]
 
     def __call__(self, configs, args):
-        conf = configs['build_configs'][args.config]
+        conf = configs['build_configs'][args.build_config]
         print(conf.tree.name)
         print(conf.tree.url)
         print(conf.branch)
@@ -80,31 +80,31 @@ class cmd_tree_branch(Command):
 
 class cmd_update_mirror(Command):
     help = "Update the local kernel git mirror"
-    args = [Args.config, Args.mirror]
+    args = [Args.build_config, Args.mirror]
 
     def __call__(self, configs, args):
-        conf = configs['build_configs'][args.config]
+        conf = configs['build_configs'][args.build_config]
         kernelci.build.update_mirror(conf, args.mirror)
         return True
 
 
 class cmd_update_repo(Command):
     help = "Update the local kernel repository checkout"
-    args = [Args.config, Args.kdir]
+    args = [Args.build_config, Args.kdir]
     opt_args = [Args.mirror]
 
     def __call__(self, configs, args):
-        conf = configs['build_configs'][args.config]
+        conf = configs['build_configs'][args.build_config]
         kernelci.build.update_repo(conf, args.kdir, args.mirror)
         return True
 
 
 class cmd_describe(Command):
     help = "Print the git commit, describe and verbose describe from kdir"
-    args = [Args.config, Args.kdir]
+    args = [Args.build_config, Args.kdir]
 
     def __call__(self, configs, args):
-        conf = configs['build_configs'][args.config]
+        conf = configs['build_configs'][args.build_config]
         commit = kernelci.build.head_commit(args.kdir)
         describe = kernelci.build.git_describe(conf.tree.name, args.kdir)
         verbose = kernelci.build.git_describe_verbose(args.kdir)
@@ -116,10 +116,10 @@ class cmd_describe(Command):
 
 class cmd_generate_fragments(Command):
     help = "Generate the config fragment files in kdir"
-    args = [Args.config, Args.kdir]
+    args = [Args.build_config, Args.kdir]
 
     def __call__(self, configs, args):
-        conf = configs['build_configs'][args.config]
+        conf = configs['build_configs'][args.build_config]
         kernelci.build.generate_fragments(conf, args.kdir)
         return True
 
@@ -159,10 +159,11 @@ class cmd_expand_fragments(Command):
 
 class cmd_push_tarball(Command):
     help = "Create and up a source tarball to the remote storage server"
-    args = [Args.config, Args.kdir, Args.storage, Args.api, Args.db_token]
+    args = [Args.build_config, Args.kdir, Args.storage,
+            Args.api, Args.db_token]
 
     def __call__(self, configs, args):
-        conf = configs['build_configs'][args.config]
+        conf = configs['build_configs'][args.build_config]
         func_args = (conf, args.kdir, args.storage, args.api, args.db_token)
         if not all(func_args):
             print("Invalid arguments")
@@ -176,10 +177,10 @@ class cmd_push_tarball(Command):
 
 class cmd_list_variants(Command):
     help = "Print the list of build variants for a given build configuration"
-    args = [Args.config]
+    args = [Args.build_config]
 
     def __call__(self, configs, args):
-        conf = configs['build_configs'][args.config]
+        conf = configs['build_configs'][args.build_config]
         for variant in conf.variants:
             print(variant.name)
         return True
@@ -187,10 +188,10 @@ class cmd_list_variants(Command):
 
 class cmd_arch_list(Command):
     help = "Print the list of CPU architecture names for a given build variant"
-    args = [Args.config, Args.variant]
+    args = [Args.build_config, Args.variant]
 
     def __call__(self, configs, args):
-        conf = configs['build_configs'][args.config]
+        conf = configs['build_configs'][args.build_config]
         variant = conf.get_variant(args.variant)
         for arch in variant.arch_list:
             print(arch)
@@ -209,11 +210,11 @@ def _show_build_env(build_env, arch=None):
 
 class cmd_get_build_env(Command):
     help = "Print the build environment parameters for a given build variant"
-    args = [Args.config, Args.variant]
+    args = [Args.build_config, Args.variant]
     opt_args = [Args.arch]
 
     def __call__(self, configs, args):
-        conf = configs['build_configs'][args.config]
+        conf = configs['build_configs'][args.build_config]
         variant = conf.get_variant(args.variant)
         _show_build_env(variant.build_environment, args.arch)
         return True
@@ -247,11 +248,11 @@ class cmd_show_build_env(Command):
 
 class cmd_list_kernel_configs(Command):
     help = "List the kernel configs to build for a given build configuration"
-    args = [Args.config, Args.kdir]
+    args = [Args.build_config, Args.kdir]
     opt_args = [Args.variant, Args.arch]
 
     def __call__(self, configs, args):
-        conf = configs['build_configs'][args.config]
+        conf = configs['build_configs'][args.build_config]
         configs = kernelci.build.list_kernel_configs(
             conf, args.kdir, args.variant, args.arch)
         for item in configs:
@@ -275,14 +276,14 @@ class cmd_build_kernel(Command):
 class cmd_install_kernel(Command):
     help = "Install the kernel binaries and bmeta.json locally"
     args = [Args.kdir]
-    opt_args = [Args.config, Args.tree_name, Args.tree_url, Args.branch,
+    opt_args = [Args.build_config, Args.tree_name, Args.tree_url, Args.branch,
                 Args.commit, Args.describe, Args.describe_verbose,
                 Args.output, Args.publish_path, Args.install_path,
                 Args.mod_path]
 
     def __call__(self, configs, args):
-        if args.config:
-            conf = configs['build_configs'][args.config]
+        if args.build_config:
+            conf = configs['build_configs'][args.build_config]
             tree_name = conf.tree.name
             tree_url = conf.tree.url
             branch = conf.branch

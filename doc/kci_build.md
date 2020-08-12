@@ -28,7 +28,7 @@ To create or update an existing mirror and fetch the git history for the `next`
 build configuration:
 
 ```
-./kci_build update_mirror --config=next --mirror=linux-mirror.git
+./kci_build update_mirror --build-config=next --mirror=linux-mirror.git
 ```
 
 Tip: it's quicker to create a mainline mirror first if you already have a Linux
@@ -50,14 +50,14 @@ locally.  This is typically done using git but any source form will work
 repo, with the `--mirror` optional argument:
 
 ```
-./kci_build update_repo --config=next --kdir=linux --mirror=linux-mirror.git
+./kci_build update_repo --build-config=next --kdir=linux --mirror=linux-mirror.git
 ```
 
 Optionally, to generate additional config fragments to then be able to build
 `defconfig+kselftest` or other KernelCI specific configurations:
 
 ```
-./kci_build generate_fragments --config=next --kdir=linux
+./kci_build generate_fragments --build-config=next --kdir=linux
 ```
 
 ### 3. Build the kernel
@@ -98,7 +98,7 @@ later on using [`kci_test`](kci_test.md).  It's also an intermediate step
 before publishing a kernel build to KernelCI.
 
 ```
-./kci_build install_kernel --config=next --kdir=linux
+./kci_build install_kernel --build-config=next --kdir=linux
 ```
 
 See the output in `linux/_install_`.
