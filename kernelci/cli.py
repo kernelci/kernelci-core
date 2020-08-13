@@ -319,6 +319,13 @@ class Command:
             for arg in self.opt_args:
                 self._add_arg(arg, False)
         self._parser.set_defaults(func=self)
+        self._args_dict = dict()
+        for arg_list in [self.args, self.opt_args]:
+            if arg_list:
+                self._args_dict.update({
+                    self.to_opt_name(arg['name']): arg
+                    for arg in arg_list
+                })
 
     def __call__(self, *args, **kw):
         raise NotImplementedError("Command not implemented")
@@ -330,6 +337,26 @@ class Command:
         if required:
             kw.setdefault('required', True)
         self._parser.add_argument(arg_name, **kw)
+
+    def get_arg_data(self, arg_name):
+        """Get the data associated with an argument definition
+
+        Get the dictionary with the data associated with an argument using the
+        option form of the name.  For example, to get the data associated with
+        `--db-token` argument, use `db_token` per the translation implemented
+        by the `Command.to_opt_name()` method.
+        """
+        return self._args_dict.get(arg_name)
+
+    @classmethod
+    def to_opt_name(cls, arg_name):
+        """Convert a command line argument name to the option name convention
+
+        Convert a command line argument to an option name which can be used as
+        a Python attribute in the same way as `argparse` adds options to a
+        namespace.  For example, `--db-token` gets convereted to `db_token`.
+        """
+        return arg_name.strip('-').replace('-', '_')
 
 
 def make_parser(title, default_yaml):
