@@ -41,7 +41,6 @@ class Args:
         'name': '--api',
         'help': "Backend API URL",
         'default': "https://api.kernelci.org",
-        'required': False,
     }
 
     bmeta_json = {
@@ -140,7 +139,6 @@ class Args:
     filename = {
         'name': '--filename',
         'help': "Kernel sources destination filename",
-        'required': False,
         'default': 'linux-src.tar.gz',
     }
 
@@ -219,7 +217,6 @@ class Args:
     retries = {
         'name': '--retries',
         'help': 'Number of retries before download fails',
-        'required': False,
         'default': 1,
         'type': int,
     }
@@ -238,7 +235,6 @@ class Args:
         'name': '--storage',
         'help': "Storage URL",
         'default': "https://storage.kernelci.org",
-        'required': False,
     }
 
     target = {
