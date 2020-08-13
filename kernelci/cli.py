@@ -314,12 +314,10 @@ class Command:
         if not self.help:
             raise AttributeError("Missing help message for {}".format(name))
         self._parser = sub_parser.add_parser(name, help=self.help)
-        if self.args:
-            for arg in self.args:
-                self._add_arg(arg, True)
-        if self.opt_args:
-            for arg in self.opt_args:
-                self._add_arg(arg, False)
+        for arg_list in [self.args, self.opt_args]:
+            if arg_list:
+                for arg in arg_list:
+                    self._add_arg(arg)
         self._parser.set_defaults(func=self)
         self._args_dict = dict()
         for arg_list in [self.args, self.opt_args]:
@@ -332,12 +330,10 @@ class Command:
     def __call__(self, *args, **kw):
         raise NotImplementedError("Command not implemented")
 
-    def _add_arg(self, arg, required=True):
+    def _add_arg(self, arg):
         kw = dict(arg)
         arg_name = kw.pop('name')
         kw.pop('section', None)
-        if required:
-            kw.setdefault('required', True)
         self._parser.add_argument(arg_name, **kw)
 
     def get_arg_data(self, arg_name):
@@ -449,6 +445,17 @@ class Options:
             value = value[0]
         return value
 
+    def get_missing_args(self):
+        """Get a list of any missing required arguments."""
+        if not self.command.args:
+            return None
+        missing_args = []
+        for arg_name in (arg['name'] for arg in self.command.args):
+            opt_name = self.command.to_opt_name(arg_name)
+            if self.get(opt_name) is None:
+                missing_args.append(arg_name)
+        return missing_args
+
 
 def make_parser(title, default_yaml):
     """Helper to make a parser object from argparse.
@@ -459,6 +466,8 @@ def make_parser(title, default_yaml):
     parser = argparse.ArgumentParser(title)
     parser.add_argument("--yaml-configs", default=default_yaml,
                         help="Path to the YAML configs file")
+    parser.add_argument("--settings",
+                        help="Path to the settings file")
     return parser
 
 
@@ -498,13 +507,29 @@ def parse_args_with_parser(parser, glob):
     return args
 
 
-def parse_args(title, default_yaml, glob):
-    """Create a parser and parse the command line arguments
+def make_options(args, prog):
+    """Return an Options object using existing arguments
+
+    *args* is the arguments as returned by `argparse`
+    *prog* is the name of the command line program
+    """
+    opts = Options(args.settings, args.func, args, prog)
+    missing_args = opts.get_missing_args()
+    if missing_args:
+        print("The following arguments or settings are required: {}".format(
+            ', '.join(missing_args)))
+        exit(1)
+    return opts
+
+
+def parse_opts(prog, default_yaml, glob):
+    """Return an Options object with command line arguments and settings
 
     This will create a parser and automatically add the sub-commands from the
-    global attributes `glob` and return the parsed arguments.
+    global attributes `glob` and parse the arguments.  Thhen it will create an
+    `Options` object using any KernelCI settings file found.
 
-    *title* is the parser title
+    *prog* is the command line program name
 
     *default_yaml* is the name of the default YAML configuration file to use
                    with the command line utility
@@ -512,5 +537,6 @@ def parse_args(title, default_yaml, glob):
     *glob* is the dictionary with all the global attributes where to look for
            commands starting with `cmd_`
     """
-    parser = make_parser(title, default_yaml)
-    return parse_args_with_parser(parser, glob)
+    parser = make_parser(prog, default_yaml)
+    args = parse_args_with_parser(parser, glob)
+    return make_options(args, prog)
