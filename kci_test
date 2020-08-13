@@ -23,7 +23,7 @@ import json
 import os
 import sys
 
-from kernelci.cli import Args, Command, parse_args_with_parser
+from kernelci.cli import Args, Command
 import kernelci.config.lab
 import kernelci.config.test
 import kernelci.build
@@ -216,8 +216,11 @@ if __name__ == '__main__':
                         help="Path to the YAML test configs file")
     parser.add_argument("--yaml-lab-configs", default="lab-configs.yaml",
                         help="Path to the YAML lab configs file")
-    args = parse_args_with_parser(parser, globals())
-    test_configs = kernelci.config.test.from_yaml(args.yaml_test_configs)
-    lab_configs = kernelci.config.lab.from_yaml(args.yaml_lab_configs)
-    status = args.func(test_configs, lab_configs, args)
+    parser.add_argument("--settings",
+                        help="Path to the settings file")
+    args = kernelci.cli.parse_args_with_parser(parser, globals())
+    opts = kernelci.cli.make_options(args, parser.prog)
+    test_configs = kernelci.config.test.from_yaml(opts.yaml_test_configs)
+    lab_configs = kernelci.config.lab.from_yaml(opts.yaml_lab_configs)
+    status = opts.command(test_configs, lab_configs, opts)
     sys.exit(0 if status is True else 1)

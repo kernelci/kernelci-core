@@ -19,7 +19,7 @@
 
 import sys
 
-from kernelci.cli import Args, Command, parse_args
+from kernelci.cli import Args, Command, parse_opts
 import kernelci.build
 import kernelci.config.build
 
@@ -346,7 +346,7 @@ class cmd_pull_tarball(Command):
 
 
 if __name__ == '__main__':
-    args = parse_args("kci_build", "build-configs.yaml", globals())
-    configs = kernelci.config.build.from_yaml(args.yaml_configs)
-    status = args.func(configs, args)
+    opts = parse_opts("kci_build", "build-configs.yaml", globals())
+    configs = kernelci.config.build.from_yaml(opts.yaml_configs)
+    status = opts.command(configs, opts)
     sys.exit(0 if status is True else 1)
