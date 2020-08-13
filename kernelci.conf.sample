@@ -1,0 +1,57 @@
+# Sample kernelci.conf settings file with arbitrary values.
+#
+# These value are only for illustration purposes, they should be manually set
+# by any user to mach a particular installation.  The options mentioned here
+# are typical ones that shouldn't change in every command line call when used
+# manually for local development purposes.  Any command line argument can have
+# a default value stored in this file.  Components such as databases and labs
+# have their own section too, with a naming convention of the form [db:db-name]
+# or [lab:lab-name].
+
+[DEFAULT]
+
+# -- Sample global defaults ---
+#
+# storage: http://localhost:5002
+# db_config: localhost
+
+# -- Sample test lab --
+#
+# [lab:my-lava-lab]
+#
+# user: user-name
+# lab_token: 1234-5678
+
+# -- Sample database --
+#
+# [db:localhost]
+#
+# db_token: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+# api: http://192.168.122.1:5001
+# callback_id: kernelci-callback-local
+# callback_url: http://localhost:5001
+
+
+# -- Sample command line defaults --
+
+[kci_build]
+
+# mirror: linux-mirror.git
+# kdir: linux
+# build_env: gcc-8
+# j: 3
+
+[kci_test]
+
+# lab_config: localhost
+# bmeta_json: linux/_install_/bmeta.json
+# dtbs_json: linux/_install_/dtbs.json
+
+[kci_data]
+
+# db_config: localhost
+# verbose: True
+
+[kci_rootfs]
+
+# arch: arm64
