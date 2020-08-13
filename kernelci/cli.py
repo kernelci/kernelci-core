@@ -16,6 +16,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import argparse
+import configparser
+import os.path
 
 
 # -----------------------------------------------------------------------------
@@ -357,6 +359,95 @@ class Command:
         namespace.  For example, `--db-token` gets convereted to `db_token`.
         """
         return arg_name.strip('-').replace('-', '_')
+
+
+class Options:
+    """Options based on user settings with CLI override."""
+
+    def __init__(self, path, command, cli_args, section=None):
+        """An Options object provides key/value pairs via its attributes.
+
+        The options are first loaded from a settings file using the
+        `configparser` module.  Then when getting an object attribute, the name
+        is first looked up in the command line arguments so that they take
+        precendence over the settings file.  Conversely, any command line
+        argument can have a default value set in the settings file.
+
+        Arguments that have a `section` attribute can only be defined in the
+        settings file under the section that matches the specification.  For
+        example, with `('db', 'db_config')`, the option can only be defined in
+        a section called `db:<db-config-name>` with `db-config-name` the value
+        passed in `db_config`, or in the `--db-config` command line argument.
+
+        *path* is the path to the config file, which by default is
+                `kernelci.conf` or
+               `~/.config/kernelci/kernelci.conf` or
+               `/etc/kernelci/kernelci.conf`
+
+        *command* is a `Command` object for the commant being run
+
+        *cli_args* is an object with command line arguments as produced by
+                   argparse
+
+        *section* is a section name to use in the settings file, to provide a
+                  way to have default values for each CLI tool
+
+        """
+        if path is None:
+            default_paths = [
+                'kernelci.conf',
+                os.path.expanduser('~/.config/kernelci/kernelci.conf'),
+                '/etc/kernelci/kernelci.conf',
+            ]
+            for path in default_paths:
+                if os.path.exists(path):
+                    break
+        self._settings = configparser.ConfigParser()
+        if path and os.path.exists(path):
+            self._settings.read(path)
+        self._command = command
+        self._cli_args = cli_args
+        self._section = section
+
+    def __getattr__(self, name):
+        return self.get(name)
+
+    @property
+    def command(self):
+        """The Command object associated with this instance."""
+        return self._command
+
+    def get(self, option, as_list=False):
+        """Get an option value.
+
+        This is an explicit call to get an option value, which can also be done
+        by accessing an object attribute i.e. `self.option`.
+
+        *option* is the name of the option to look up
+
+        *as_list* is to always get the result as a list even if there is only
+                  one value, for options that can have multiple values
+                  separated by some spaces
+        """
+        value = getattr(self._cli_args, option, None)
+        if value:
+            return value
+        opt_data = self._command.get_arg_data(option)
+        section_data = opt_data.get('section')
+        if section_data:
+            section_name, section_config_option = section_data
+            section_config = self.get(section_config_option)
+            if not section_config:
+                return None
+            section = ':'.join([section_name, section_config])
+        else:
+            section = self._section
+        if not self._settings.has_option(section, option):
+            return None
+        value = self._settings.get(section, option).split()
+        if not as_list and len(value) == 1:
+            value = value[0]
+        return value
 
 
 def make_parser(title, default_yaml):
