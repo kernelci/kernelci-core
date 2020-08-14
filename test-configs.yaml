@@ -37,24 +37,24 @@ file_systems:
 
   debian_buster_ramdisk:
     type: debian
-    ramdisk: 'buster/20200729.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'buster/20200814.0/{arch}/rootfs.cpio.gz'
 
   debian_buster_nfs:
     type: debian
-    ramdisk: 'buster/20200710.0/{arch}/initrd.cpio.gz'
-    nfs: 'buster/20200710.0/{arch}/full.rootfs.tar.xz'
+    ramdisk: 'buster/20200814.0/{arch}/initrd.cpio.gz'
+    nfs: 'buster/20200814.0/{arch}/full.rootfs.tar.xz'
 
   debian_buster-cros-ec_ramdisk:
     type: debian
-    ramdisk: 'buster-cros-ec/20200729.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'buster-cros-ec/20200814.0/{arch}/rootfs.cpio.gz'
 
   debian_buster-igt_ramdisk:
     type: debian
-    ramdisk: 'buster-igt/20200729.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'buster-igt/20200814.0/{arch}/rootfs.cpio.gz'
 
   debian_buster-v4l2_ramdisk:
     type: debian
-    ramdisk: 'buster-v4l2/20200729.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'buster-v4l2/20200814.0/{arch}/rootfs.cpio.gz'
 
 
 test_plan_default_filters:
