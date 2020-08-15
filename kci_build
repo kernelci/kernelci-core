@@ -336,11 +336,11 @@ Invalid arguments, please provide at least one of these sets of options:
 class cmd_pull_tarball(Command):
     help = "Downloads and untars kernel sources"
     args = [Args.kdir, Args.url]
-    opt_args = [Args.filename, Args.retries, Args.delete]
+    opt_args = [Args.kernel_tarball, Args.retries, Args.delete]
 
     def __call__(self, configs, args):
         retries = args.retries or 1
-        tarball = args.filename or 'linux-src.tar.gz'
+        tarball = args.kernel_tarball or 'linux-src.tar.gz'
         return kernelci.build.pull_tarball(
             args.kdir, args.url, tarball, retries, args.delete)
 
