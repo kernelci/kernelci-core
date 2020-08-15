@@ -42,7 +42,6 @@ class Args:
     api = {
         'name': '--api',
         'help': "Backend API URL",
-        'default': "https://api.kernelci.org",
         'section': SECTION_DB,
     }
 
@@ -147,7 +146,6 @@ class Args:
     filename = {
         'name': '--filename',
         'help': "Kernel sources destination filename",
-        'default': 'linux-src.tar.gz',
     }
 
     install_path = {
@@ -226,7 +224,6 @@ class Args:
     retries = {
         'name': '--retries',
         'help': 'Number of retries before download fails',
-        'default': 1,
         'type': int,
     }
 

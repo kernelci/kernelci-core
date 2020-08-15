@@ -339,9 +339,10 @@ class cmd_pull_tarball(Command):
     opt_args = [Args.filename, Args.retries, Args.delete]
 
     def __call__(self, configs, args):
-        return kernelci.build.pull_tarball(args.kdir, args.url,
-                                           args.filename, args.retries,
-                                           args.delete)
+        retries = args.retries or 1
+        tarball = args.filename or 'linux-src.tar.gz'
+        return kernelci.build.pull_tarball(
+            args.kdir, args.url, tarball, retries, args.delete)
 
 
 if __name__ == '__main__':
