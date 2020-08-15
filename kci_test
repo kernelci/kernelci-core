@@ -115,7 +115,7 @@ class cmd_generate(Command):
     help = "Generate the job definition for a given build"
     args = [Args.bmeta_json, Args.dtbs_json, Args.storage, Args.lab_config]
     opt_args = [Args.plan, Args.target, Args.output,
-                Args.lab_json, Args.user, Args.lab_token,
+                Args.lab_json, Args.user, Args.lab_token, Args.db_config,
                 Args.callback_id, Args.callback_dataset,
                 Args.callback_type, Args.callback_url, Args.mach]
 
