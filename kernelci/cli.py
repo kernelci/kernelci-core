@@ -143,11 +143,6 @@ class Args:
         'help': "Path to the dtbs.json file",
     }
 
-    filename = {
-        'name': '--filename',
-        'help': "Kernel sources destination filename",
-    }
-
     install_path = {
         'name': '--install-path',
         'help':
@@ -172,6 +167,11 @@ class Args:
     kdir = {
         'name': '--kdir',
         'help': "Path to the kernel checkout directory",
+    }
+
+    kernel_tarball = {
+        'name': '--kernel-tarball',
+        'help': "Kernel source tarball destination filename",
     }
 
     lab_config = {
