@@ -68,7 +68,6 @@ class Args:
     callback_dataset = {
         'name': '--callback-dataset',
         'help': "Dataset to include in a lab callback",
-        'default': 'all',
         'section': SECTION_DB,
     }
 
@@ -81,7 +80,6 @@ class Args:
     callback_type = {
         'name': '--callback-type',
         'help': "Type of callback URL",
-        'default': 'kernelci',
         'section': SECTION_DB,
     }
 

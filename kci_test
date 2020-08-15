@@ -158,8 +158,8 @@ class cmd_generate(Command):
         # from the backend API.
         callback_opts = {
             'id': args.callback_id,
-            'dataset': args.callback_dataset,
-            'type': args.callback_type,
+            'dataset': args.callback_dataset or 'all',
+            'type': args.callback_type or 'kernelci',
             'url': args.callback_url,
         }
         if args.output and not os.path.exists(args.output):
