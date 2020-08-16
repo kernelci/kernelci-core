@@ -238,7 +238,6 @@ class Args:
     storage = {
         'name': '--storage',
         'help': "Storage URL",
-        'default': "https://storage.kernelci.org",
     }
 
     target = {
