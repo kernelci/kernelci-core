@@ -131,3 +131,11 @@ rootfs_configs:
       - libp11-kit0
       - sensible-utils
     extra_files_remove: *extra_files_remove_buster
+
+  buster-ltp:
+    rootfs_type: debos
+    debian_release: buster
+    arch_list:
+      - amd64
+      - arm64
+    script: "scripts/buster-ltp.sh"
