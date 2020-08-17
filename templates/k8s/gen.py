@@ -42,6 +42,11 @@ if parallel_builds:
 
 if (cpu_limit < 8):
     cpu_request = cpu_limit * 0.875
+# HACK: Azure nodes with 32 vCPUs refuse jobs with
+#       CPU request > 30.  Support ticket open with
+#       Azure
+elif (cpu_limit == 32):
+    cpu_request = 30
 else:
     cpu_request = cpu_limit - 0.9
 

@@ -21,7 +21,7 @@ import urllib.parse
 import xmlrpc.client
 
 
-class LabAPI(object):
+class LabAPI:
     """Remote API to a test lab"""
 
     def __init__(self, config):

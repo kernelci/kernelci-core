@@ -148,7 +148,7 @@ class Architecture(YAMLObject):
                     present.
 
         *filters* is a list of filters to limit the number of builds, typically
-                  using a list of defconfigs to blacklist or whitelist.
+                  using a list of defconfigs to blocklist or passlist.
         """
         self._name = name
         self._base_defconfig = base_defconfig

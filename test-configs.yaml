@@ -31,29 +31,30 @@ file_systems:
     type: buildroot
     ramdisk: '{arch}/baseline/rootfs.cpio.gz'
 
-  buildroot_baseline_nfs:
-    type: buildroot
-    nfs: '{arch}/baseline/rootfs.tar.xz'
-
   buildroot_kselftest_ramdisk:
     type: buildroot
     ramdisk: '{arch}/tests/rootfs.cpio.gz'
 
   debian_buster_ramdisk:
     type: debian
-    ramdisk: 'buster/20200710.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'buster/20200814.0/{arch}/rootfs.cpio.gz'
+
+  debian_buster_nfs:
+    type: debian
+    ramdisk: 'buster/20200814.0/{arch}/initrd.cpio.gz'
+    nfs: 'buster/20200814.0/{arch}/full.rootfs.tar.xz'
 
   debian_buster-cros-ec_ramdisk:
     type: debian
-    ramdisk: 'buster-cros-ec/20200710.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'buster-cros-ec/20200814.0/{arch}/rootfs.cpio.gz'
 
   debian_buster-igt_ramdisk:
     type: debian
-    ramdisk: 'buster-igt/20200710.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'buster-igt/20200814.0/{arch}/rootfs.cpio.gz'
 
   debian_buster-v4l2_ramdisk:
     type: debian
-    ramdisk: 'buster-v4l2/20200710.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'buster-v4l2/20200814.0/{arch}/rootfs.cpio.gz'
 
 
 test_plan_default_filters:
@@ -66,7 +67,7 @@ test_plan_default_filters:
         - ['i386', 'i386_defconfig']
         - ['x86_64', 'x86_64_defconfig']
 
-  - blacklist: &kselftest_defconfig_filter
+  - blocklist: &kselftest_defconfig_filter
       defconfig: ['kselftest']
 
 test_plans:
@@ -74,14 +75,14 @@ test_plans:
   baseline:
     rootfs: buildroot_baseline_ramdisk
     filters:
-      - blacklist: *kselftest_defconfig_filter
+      - blocklist: *kselftest_defconfig_filter
 
   baseline_qemu:
     base_name: baseline
     rootfs: buildroot_baseline_ramdisk
     pattern: 'baseline/generic-qemu-baseline-template.jinja2'
     filters:
-      - blacklist: *kselftest_defconfig_filter
+      - blocklist: *kselftest_defconfig_filter
 
   baseline-fastboot:
     rootfs: buildroot_baseline_ramdisk
@@ -90,8 +91,8 @@ test_plans:
       job_timeout: '50'
 
   baseline-nfs:
-    rootfs: buildroot_baseline_nfs
-    pattern: 'baseline/{category}-{method}-{protocol}-{rootfs}-baseline-template.jinja2'
+    rootfs: debian_buster_nfs
+    pattern: 'baseline/{category}-{method}-{protocol}-nfs-baseline-template.jinja2'
     filters:
       - combination:
           keys: ['arch', 'defconfig']
@@ -109,41 +110,6 @@ test_plans:
             - ['arm', 'at91_dt_defconfig']
             - ['arm', 'davinci_all_defconfig']
             - ['arm64', 'defconfig']
-
-  baseline-uefi_arm:
-    base_name: baseline-uefi
-    rootfs: buildroot_baseline_ramdisk
-    pattern: 'baseline/generic-qemu-baseline-template.jinja2'
-    params:
-      bios_url: 'http://storage.kernelci.org/images/uefi/111bbcf87621/QEMU_EFI.fd-ARM-RELEASE-111bbcf87621'
-
-  baseline-uefi_arm64:
-    base_name: baseline-uefi
-    rootfs: buildroot_baseline_ramdisk
-    pattern: 'baseline/generic-qemu-baseline-template.jinja2'
-    params:
-      bios_url: 'http://storage.kernelci.org/images/uefi/111bbcf87621/QEMU_EFI.fd-AARCH64-RELEASE-111bbcf87621'
-
-  baseline-uefi_x86_64:
-    base_name: baseline-uefi
-    rootfs: buildroot_baseline_ramdisk
-    pattern: 'baseline/generic-qemu-baseline-template.jinja2'
-    params:
-      bios_url: 'http://storage.kernelci.org/images/uefi/111bbcf87621/OVMF.fd-X64-RELEASE-111bbcf87621'
-
-  baseline-uefi_i386:
-    base_name: baseline-uefi
-    rootfs: buildroot_baseline_ramdisk
-    pattern: 'baseline/generic-qemu-baseline-template.jinja2'
-    params:
-      bios_url: 'http://storage.kernelci.org/images/uefi/111bbcf87621/OVMF.fd-IA32-RELEASE-111bbcf87621'
-
-  baseline-uefi_x86-mixed:
-    base_name: baseline-uefi
-    rootfs: buildroot_baseline_ramdisk
-    pattern: 'baseline/generic-qemu-baseline-template.jinja2'
-    params:
-      bios_url: 'http://storage.kernelci.org/images/uefi/111bbcf87621/OVMF.fd-IA32X64-RELEASE-111bbcf87621'
 
   cros-ec:
     rootfs: debian_buster-cros-ec_ramdisk
@@ -197,7 +163,7 @@ test_plans:
   kselftest:
     rootfs: buildroot_kselftest_ramdisk
     filters:
-      - whitelist: {defconfig: ['kselftest']}
+      - passlist: {defconfig: ['kselftest']}
 
   sleep:
     rootfs: debian_buster_ramdisk
@@ -216,7 +182,7 @@ test_plans:
     pattern: 'v4l2-compliance/generic-qemu-v4l2-compliance-template.jinja2'
     params: {v4l2_driver: "vivid"}
     filters:
-      - whitelist:
+      - passlist:
           defconfig:
             - 'defconfig+virtualvideo'
             - 'multi_v7_defconfig+virtualvideo'
@@ -224,7 +190,7 @@ test_plans:
 
 device_default_filters:
 
-  - blacklist: &allmodconfig_filter
+  - blocklist: &allmodconfig_filter
       defconfig: ['allmodconfig']
 
 
@@ -240,17 +206,17 @@ device_types:
     class: arm-dtb
     boot_method: uboot
     filters:
-      - blacklist: *allmodconfig_filter
+      - blocklist: *allmodconfig_filter
       # This board could boot v4.* if CONFIG_SERIAL_8250_OMAP is set. It was
       # added to multi_v7_defconfig as of 5.0.
-      - blacklist: {kernel: ['v3.', 'v4.']}
+      - blocklist: {kernel: ['v3.', 'v4.']}
 
   apq8016-sbc:
     mach: qcom
     class: arm64-dtb
     boot_method: uboot
     filters:
-      - blacklist:
+      - blocklist:
           defconfig:
             - 'allmodconfig'
             - 'allnoconfig'
@@ -261,22 +227,22 @@ device_types:
     class: mips-dtb
     boot_method: barebox
     filters:
-      - blacklist: *allmodconfig_filter
+      - blocklist: *allmodconfig_filter
 
   armada-370-db:
     mach: mvebu
     class: arm-dtb
     boot_method: uboot
     filters:
-      - blacklist: *allmodconfig_filter
-      - blacklist: {kernel: ['v3.']}
+      - blocklist: *allmodconfig_filter
+      - blocklist: {kernel: ['v3.']}
 
   armada-370-rd:
     mach: mvebu
     class: arm-dtb
     boot_method: uboot
     filters:
-      - blacklist: *allmodconfig_filter
+      - blocklist: *allmodconfig_filter
       - combination:
           keys: ['kernel', 'defconfig']
           values:
@@ -284,7 +250,7 @@ device_types:
             - ['v4.1', 'multi_v7_defconfig']
             - ['v4.2', 'multi_v7_defconfig']
             - ['v4.3', 'multi_v7_defconfig']
-      - blacklist: {kernel: ['v3.']}
+      - blocklist: {kernel: ['v3.']}
 
   armada-375-db:
     mach: mvebu
@@ -301,8 +267,8 @@ device_types:
     class: arm-dtb
     boot_method: uboot
     filters:
-      - blacklist: *allmodconfig_filter
-      - blacklist: {defconfig: ['multi_v7_defconfig+CONFIG_SMP=n']}
+      - blocklist: *allmodconfig_filter
+      - blocklist: {defconfig: ['multi_v7_defconfig+CONFIG_SMP=n']}
 
   armada-388-gp:
     mach: mvebu
@@ -324,8 +290,8 @@ device_types:
     class: arm64-dtb
     boot_method: uboot
     filters:
-      - blacklist: *allmodconfig_filter
-      - blacklist: {kernel: ['v4.6']}
+      - blocklist: *allmodconfig_filter
+      - blocklist: {kernel: ['v4.6']}
 
   armada-8040-db:
     mach: mvebu
@@ -347,16 +313,16 @@ device_types:
     class: arm-dtb
     boot_method: uboot
     filters:
-      - blacklist: *allmodconfig_filter
-      - blacklist: {defconfig: ['multi_v7_defconfig+CONFIG_SMP=n']}
+      - blocklist: *allmodconfig_filter
+      - blocklist: {defconfig: ['multi_v7_defconfig+CONFIG_SMP=n']}
 
   armada-xp-openblocks-ax3-4:
     mach: mvebu
     class: arm-dtb
     boot_method: uboot
     filters:
-      - blacklist: *allmodconfig_filter
-      - blacklist: {defconfig: ['multi_v7_defconfig+CONFIG_SMP=n']}
+      - blocklist: *allmodconfig_filter
+      - blocklist: {defconfig: ['multi_v7_defconfig+CONFIG_SMP=n']}
 
   arndale:
     mach: exynos
@@ -365,8 +331,8 @@ device_types:
     dtb: 'exynos5250-arndale.dtb'
     flags: ['fastboot']
     filters:
-      - blacklist: *allmodconfig_filter
-      - blacklist: {defconfig: ['multi_v7_defconfig+CONFIG_SMP=n']}
+      - blocklist: *allmodconfig_filter
+      - blocklist: {defconfig: ['multi_v7_defconfig+CONFIG_SMP=n']}
 
   at91-sama5d2_xplained:
     mach: at91
@@ -394,7 +360,7 @@ device_types:
     boot_method: uboot
     context: {console_device: 'ttyS1', test_character_delay: 10}
     filters:
-      - blacklist:
+      - blocklist:
           defconfig: ['allnoconfig', 'allmodconfig']
           kernel: ['v3.', '4.4-', '4.9-', 'v4.13']
 
@@ -405,8 +371,8 @@ device_types:
     dtb: 'bcm2837-rpi-3-b.dtb'
     context: {console_device: 'ttyS1', test_character_delay: 10}
     filters:
-      - whitelist: {defconfig: ['bcm2835_defconfig']}
-      - blacklist: {kernel: ['v3.', '4.4-', '4.9-', 'v4.13']}
+      - passlist: {defconfig: ['bcm2835_defconfig']}
+      - blocklist: {kernel: ['v3.', '4.4-', '4.9-', 'v4.13']}
 
   beaglebone-black:
     mach: omap2
@@ -414,8 +380,8 @@ device_types:
     boot_method: uboot
     dtb: 'am335x-boneblack.dtb'
     filters:
-      - blacklist: *allmodconfig_filter
-      - blacklist: {lab: ['lab-baylibre']}
+      - blocklist: *allmodconfig_filter
+      - blocklist: {lab: ['lab-baylibre']}
 
   beagle-xm:
     mach: omap2
@@ -423,8 +389,8 @@ device_types:
     boot_method: uboot
     dtb: 'omap3-beagle-xm.dtb'
     filters:
-      - blacklist: *allmodconfig_filter
-      - blacklist: {kernel: ['v3.14']}
+      - blocklist: *allmodconfig_filter
+      - blocklist: {kernel: ['v3.14']}
 
   cubietruck:
     mach: allwinner
@@ -438,7 +404,7 @@ device_types:
     boot_method: grub
     dtb: 'hisilicon/hip06-d03.dtb'
     filters:
-      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   d2500cc:
     mach: x86
@@ -460,7 +426,7 @@ device_types:
     class: arm-dtb
     boot_method: barebox
     filters:
-      - blacklist: *allmodconfig_filter
+      - blocklist: *allmodconfig_filter
 
   fsl-ls1012a-rdb:
     mach: freescale
@@ -508,7 +474,7 @@ device_types:
     boot_method: uboot
     filters:
     # no console in tinyconfig
-      - blacklist:
+      - blocklist:
           defconfig: ['tinyconfig']
           kernel: ['v4.', 'v5.1', 'v5.2']
 
@@ -517,7 +483,7 @@ device_types:
     class: arc-dtb
     boot_method: uboot
     filters:
-      - blacklist:
+      - blocklist:
           kernel: ['v4.14']
 
   hip07-d05:
@@ -525,35 +491,35 @@ device_types:
     class: arm64-dtb
     boot_method: grub
     filters:
-      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   imx23-olinuxino:
     mach: imx
     class: arm-dtb
     boot_method: barebox
     filters:
-      - blacklist: *allmodconfig_filter
+      - blocklist: *allmodconfig_filter
 
   imx27-phytec-phycard-s-rdk:
     mach: imx
     class: arm-dtb
     boot_method: barebox
     filters:
-      - blacklist: *allmodconfig_filter
+      - blocklist: *allmodconfig_filter
 
   imx28-duckbill:
     mach: imx
     class: arm-dtb
     boot_method: barebox
     filters:
-      - blacklist: *allmodconfig_filter
+      - blocklist: *allmodconfig_filter
 
   imx53-qsrb:
     mach: imx
     class: arm-dtb
     boot_method: barebox
     filters:
-      - blacklist:
+      - blocklist:
           defconfig:
             - 'imx_v4_v5_defconfig'
             - 'multi_v5_defconfig'
@@ -564,7 +530,7 @@ device_types:
     class: arm-dtb
     boot_method: barebox
     filters:
-      - blacklist:
+      - blocklist:
           defconfig:
             - 'imx_v4_v5_defconfig'
             - 'multi_v5_defconfig'
@@ -575,7 +541,7 @@ device_types:
     class: arm-dtb
     boot_method: uboot
     filters:
-      - blacklist:
+      - blocklist:
           defconfig:
             - 'imx_v4_v5_defconfig'
             - 'multi_v5_defconfig'
@@ -592,7 +558,7 @@ device_types:
     boot_method: barebox
     flags: ['fastboot']
     filters:
-      - blacklist:
+      - blocklist:
           defconfig:
             - 'imx_v4_v5_defconfig'
             - 'multi_v5_defconfig'
@@ -603,7 +569,7 @@ device_types:
     class: arm-dtb
     boot_method: uboot
     filters:
-      - blacklist:
+      - blocklist:
           defconfig:
             - 'imx_v4_v5_defconfig'
             - 'imx_v6_v7_defconfig'
@@ -671,8 +637,8 @@ device_types:
     flags: ['lpae']
     dtb: 'tegra124-jetson-tk1.dtb'
     filters:
-      - blacklist: *allmodconfig_filter
-      - blacklist: {defconfig: ['multi_v7_defconfig+kselftest']}
+      - blocklist: *allmodconfig_filter
+      - blocklist: {defconfig: ['multi_v7_defconfig+kselftest']}
 
   kirkwood-db-88f6282:
     mach: mvebu
@@ -680,8 +646,8 @@ device_types:
     boot_method: uboot
     filters:
         # To be removed once NFS is working with multi_v5_defconfig
-      - blacklist: {defconfig: ['allmodconfig', 'multi_v5_defconfig']}
-      - blacklist: {kernel: ['v3.']}
+      - blocklist: {defconfig: ['allmodconfig', 'multi_v5_defconfig']}
+      - blocklist: {kernel: ['v3.']}
 
   kirkwood-openblocks_a7:
     mach: mvebu
@@ -689,8 +655,8 @@ device_types:
     boot_method: uboot
     filters:
         # To be removed once NFS is working with multi_v5_defconfig
-      - blacklist: {defconfig: ['allmodconfig', 'multi_v5_defconfig']}
-      - blacklist: {kernel: ['v3.']}
+      - blocklist: {defconfig: ['allmodconfig', 'multi_v5_defconfig']}
+      - blocklist: {kernel: ['v3.']}
 
   meson8b-odroidc1:
     mach: amlogic
@@ -702,7 +668,7 @@ device_types:
     class: arm64-dtb
     boot_method: uboot
     filters:
-      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
     flags: ['fastboot']
     params:
       kernel_addr: '0x01080000'
@@ -715,7 +681,7 @@ device_types:
     class: arm64-dtb
     boot_method: uboot
     filters:
-      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson-g12a-x96-max:
     mach: amlogic
@@ -723,28 +689,28 @@ device_types:
     boot_method: uboot
     flags: ['fastboot']
     filters:
-      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson-g12b-odroid-n2:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
     filters:
-      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson-g12b-a311d-khadas-vim3:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
     filters:
-      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson-gxbb-nanopi-k2:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
     filters:
-      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
     flags: ['big_endian']
 
   meson-gxbb-odroidc2:
@@ -753,7 +719,7 @@ device_types:
     boot_method: uboot
     flags: ['big_endian', 'fastboot']
     filters:
-      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson-gxbb-p200:
     mach: amlogic
@@ -761,7 +727,7 @@ device_types:
     boot_method: uboot
     flags: ['big_endian']
     filters:
-      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson-gxl-s805x-libretech-ac:
     mach: amlogic
@@ -769,7 +735,7 @@ device_types:
     boot_method: uboot
     flags: ['big_endian']
     filters:
-      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson-gxl-s805x-p241:
     mach: amlogic
@@ -777,7 +743,7 @@ device_types:
     boot_method: uboot
     flags: ['big_endian']
     filters:
-      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson-gxl-s905d-p230:
     mach: amlogic
@@ -785,7 +751,7 @@ device_types:
     boot_method: uboot
     flags: ['big_endian']
     filters:
-      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson-gxl-s905x-libretech-cc:
     mach: amlogic
@@ -793,7 +759,7 @@ device_types:
     boot_method: uboot
     flags: ['big_endian']
     filters:
-      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson-gxl-s905x-khadas-vim:
     mach: amlogic
@@ -801,7 +767,7 @@ device_types:
     boot_method: uboot
     flags: ['big_endian']
     filters:
-      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson-gxm-khadas-vim2:
     mach: amlogic
@@ -809,7 +775,7 @@ device_types:
     boot_method: uboot
     flags: ['big_endian']
     filters:
-      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson-gxm-q200:
     mach: amlogic
@@ -817,7 +783,7 @@ device_types:
     boot_method: uboot
     flags: ['big_endian']
     filters:
-      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson-sm1-khadas-vim3l:
     mach: amlogic
@@ -825,14 +791,14 @@ device_types:
     boot_method: uboot
     flags: ['big_endian']
     filters:
-      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson-sm1-sei610:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
     filters:
-      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
     flags: ['fastboot']
     params:
       kernel_addr: '0x01080000'
@@ -845,7 +811,7 @@ device_types:
     arch: x86_64
     boot_method: grub
     filters:
-      - blacklist:
+      - blocklist:
           defconfig:
             - 'allmodconfig'
             - 'allnoconfig'
@@ -863,7 +829,7 @@ device_types:
     boot_method: uboot
     dtb: 'apm/apm-mustang.dtb'
     filters:
-      - blacklist:
+      - blocklist:
           defconfig:
             - 'allmodconfig'
             - 'allnoconfig'
@@ -899,7 +865,7 @@ device_types:
     boot_method: uboot
     dtb: 'omap4-panda.dtb'
     filters:
-      - blacklist:
+      - blocklist:
           defconfig:
             - 'allmodconfig'
             - 'multi_v7_defconfig+CONFIG_PROVE_LOCKING=y'
@@ -918,16 +884,16 @@ device_types:
     dtb: 'exynos5800-peach-pi.dtb'
     flags: ['lpae']
     filters:
-      - blacklist: *allmodconfig_filter
-      - blacklist: {kernel: ['v3.']}
+      - blocklist: *allmodconfig_filter
+      - blocklist: {kernel: ['v3.']}
 
   qcom-qdf2400:
     mach: qcom
     arch: arm64
     boot_method: grub
     filters:
-      - whitelist: {defconfig: ['defconfig']}
-      - blacklist: {kernel: ['v3.']}
+      - passlist: {defconfig: ['defconfig']}
+      - blocklist: {kernel: ['v3.']}
 
   qemu_arm-versatilepb:
     base_name: qemu
@@ -943,7 +909,7 @@ device_types:
     dtb: 'versatile-pb.dtb'
     boot_method: qemu
     filters:
-      - whitelist: {defconfig: ['versatile_defconfig']}
+      - passlist: {defconfig: ['versatile_defconfig']}
 
   qemu_arm-vexpress-a9:
     base_name: qemu
@@ -959,7 +925,7 @@ device_types:
     dtb: 'vexpress-v2p-ca9.dtb'
     boot_method: qemu
     filters:
-      - whitelist: {defconfig: ['vexpress_defconfig']}
+      - passlist: {defconfig: ['vexpress_defconfig']}
 
   qemu_arm-vexpress-a15:
     base_name: qemu
@@ -971,14 +937,15 @@ device_types:
       cpu: 'cortex-a15'
       model: 'model=lan9118'
       guestfs_interface: 'none'
-      extra_options: ['-device virtio-blk-device,drive=lavatest']
+      extra_options:
+        - '-device virtio-blk-device,drive=lavatest'
+        - '-smp 2'
     dtb: 'vexpress-v2p-ca15-tc1.dtb'
     boot_method: qemu
     filters:
-      - whitelist: {defconfig: ['vexpress_defconfig']}
+      - passlist: {defconfig: ['vexpress_defconfig']}
 
-# we use virt-2.11 due to https://bugzilla.redhat.com/show_bug.cgi?id=1633328
-  qemu_arm-virt-gicv2:
+  qemu_arm-virt-gicv2: &qemu_arm-virt-gicv2
     base_name: qemu
     mach: qemu
     arch: arm
@@ -987,11 +954,17 @@ device_types:
       arch: arm
       cpu: 'cortex-a15'
       guestfs_interface: 'virtio'
+      # virt-2.11 due to https://bugzilla.redhat.com/show_bug.cgi?id=1633328
       machine: 'virt-2.11,gic-version=2'
     filters:
-      - whitelist: {defconfig: ['multi_v7_defconfig']}
+      - passlist: {defconfig: ['multi_v7_defconfig']}
 
-  qemu_arm-virt-gicv3:
+  qemu_arm-virt-gicv2-uefi:
+    <<: *qemu_arm-virt-gicv2
+    params: &uefi_arm
+      bios_url: 'http://storage.kernelci.org/images/uefi/edk2-stable202005/arm/QEMU_EFI.fd'
+
+  qemu_arm-virt-gicv3: &qemu_arm-virt-gicv3
     base_name: qemu
     mach: qemu
     arch: arm
@@ -1002,9 +975,13 @@ device_types:
       guestfs_interface: 'virtio'
       machine: 'virt-2.11,gic-version=3'
     filters:
-      - whitelist: {defconfig: ['multi_v7_defconfig']}
+      - passlist: {defconfig: ['multi_v7_defconfig']}
 
-  qemu_arm64-virt-gicv2:
+  qemu_arm-virt-gicv3-uefi:
+    <<: *qemu_arm-virt-gicv3
+    params: *uefi_arm
+
+  qemu_arm64-virt-gicv2: &qemu_arm64-virt-gicv2
     base_name: qemu
     mach: qemu
     arch: arm64
@@ -1015,9 +992,14 @@ device_types:
       guestfs_interface: 'virtio'
       machine: 'virt,gic-version=2'
     filters:
-      - whitelist: {defconfig: ['defconfig']}
+      - passlist: {defconfig: ['defconfig']}
 
-  qemu_arm64-virt-gicv3:
+  qemu_arm64-virt-gicv2-uefi:
+    <<: *qemu_arm64-virt-gicv2
+    params: &uefi_arm64
+      bios_url: 'http://storage.kernelci.org/images/uefi/edk2-stable202005/arm64/QEMU_EFI.fd'
+
+  qemu_arm64-virt-gicv3: &qemu_arm64-virt-gicv3
     base_name: qemu
     mach: qemu
     arch: arm64
@@ -1028,9 +1010,13 @@ device_types:
       guestfs_interface: 'virtio'
       machine: 'virt,gic-version=3'
     filters:
-      - whitelist: {defconfig: ['defconfig']}
+      - passlist: {defconfig: ['defconfig']}
 
-  qemu_i386:
+  qemu_arm64-virt-gicv3-uefi:
+    <<: *qemu_arm64-virt-gicv3
+    params: *uefi_arm64
+
+  qemu_i386: &qemu_i386
     base_name: qemu
     mach: qemu
     arch: i386
@@ -1040,9 +1026,14 @@ device_types:
       cpu: 'qemu32'
       guestfs_interface: 'ide'
     filters:
-      - whitelist: {defconfig: ['i386_defconfig']}
+      - passlist: {defconfig: ['i386_defconfig']}
 
-  qemu_x86_64:
+  qemu_i386-uefi:
+    <<: *qemu_i386
+    params: &uefi_i386
+      bios_url: 'http://storage.kernelci.org/images/uefi/edk2-stable202005/i386/OVMF.fd'
+
+  qemu_x86_64: &qemu_x86_64
     base_name: qemu
     mach: qemu
     arch: x86_64
@@ -1052,28 +1043,37 @@ device_types:
       cpu: 'qemu64'
       guestfs_interface: 'ide'
     filters:
-      - whitelist: {defconfig: ['defconfig']}
+      - passlist: {defconfig: ['defconfig']}
+
+  qemu_x86_64-uefi:
+    <<: *qemu_x86_64
+    params: &uefi_x86_64
+      bios_url: 'http://storage.kernelci.org/images/uefi/edk2-stable202005/x86_64/OVMF.fd'
+
+  qemu_x86_64-uefi-mixed:
+    <<: *qemu_x86_64
+    params: *uefi_i386
 
   r8a774a1-hihope-rzg2m-ex:
     mach: renesas
     class: arm64-dtb
     boot_method: uboot
     filters:
-      - whitelist: {defconfig: ['defconfig']}
+      - passlist: {defconfig: ['defconfig']}
 
   r8a774b1-hihope-rzg2n-ex:
     mach: renesas
     class: arm64-dtb
     boot_method: uboot
     filters:
-      - whitelist: {defconfig: ['defconfig']}
+      - passlist: {defconfig: ['defconfig']}
 
   r8a774c0-ek874:
     mach: renesas
     class: arm64-dtb
     boot_method: uboot
     filters:
-      - whitelist: {defconfig: ['defconfig']}
+      - passlist: {defconfig: ['defconfig']}
 
   r8a7791-porter:
     mach: renesas
@@ -1086,7 +1086,7 @@ device_types:
     boot_method: uboot
     flags: ['big_endian']
     filters:
-      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
 # this is the same device than r8a7795-salvator-x
   r8a77950-salvator-x: *r8a7795-salvator-x
@@ -1096,7 +1096,7 @@ device_types:
     class: arm64-dtb
     boot_method: uboot
     filters:
-      - blacklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
 # this is the same device than r8a7796-m3ulcb
   r8a77960-ulcb: *r8a7796-m3ulcb
@@ -1111,8 +1111,8 @@ device_types:
     class: arm64-dtb
     boot_method: uboot
     filters:
-      - blacklist: *allmodconfig_filter
-      - blacklist: {kernel: ['v3.', 'v4.4', 'v4.9']}
+      - blocklist: *allmodconfig_filter
+      - blocklist: {kernel: ['v3.', 'v4.4', 'v4.9']}
 
   rk3288-rock2-square:
     mach: rockchip
@@ -1125,8 +1125,8 @@ device_types:
     class: arm64-dtb
     boot_method: uboot
     filters:
-      - blacklist: *allmodconfig_filter
-      - blacklist: {kernel: ['v3.', 'v4.4', 'v4.9']}
+      - blocklist: *allmodconfig_filter
+      - blocklist: {kernel: ['v3.', 'v4.4', 'v4.9']}
 
   rk3288-veyron-jaq:
     mach: rockchip
@@ -1144,7 +1144,7 @@ device_types:
     class: arm-dtb
     boot_method: barebox
     filters:
-      - blacklist: *allmodconfig_filter
+      - blocklist: *allmodconfig_filter
 
   snow:
     mach: exynos
@@ -1153,15 +1153,15 @@ device_types:
     dtb: 'exynos5250-snow.dtb'
     flags: ['fastboot']
     filters:
-      - blacklist: *allmodconfig_filter
-      - blacklist: {defconfig: ['multi_v7_defconfig+CONFIG_SMP=n']}
+      - blocklist: *allmodconfig_filter
+      - blocklist: {defconfig: ['multi_v7_defconfig+CONFIG_SMP=n']}
 
   stm32mp157c-dk2:
     mach: stm32
     class: arm-dtb
     boot_method: uboot
     filters:
-      - blacklist: {defconfig: ['stm32_defconfig']}
+      - blocklist: {defconfig: ['stm32_defconfig']}
 
   sun4i-a10-olinuxino-lime:
     mach: allwinner
@@ -1225,7 +1225,7 @@ device_types:
     class: arm64-dtb
     boot_method: uboot
     filters:
-      - whitelist: {kernel: ['v4.9', 'v4.14', 'v4.19', 'v5.3', 'v5.4']}
+      - passlist: {kernel: ['v4.9', 'v4.14', 'v4.19', 'v5.3', 'v5.4']}
 
   sun5i-a13-olinuxino-micro:
     mach: allwinner
@@ -1242,8 +1242,8 @@ device_types:
     class: arm-dtb
     boot_method: uboot
     filters:
-      - blacklist: *allmodconfig_filter
-      - blacklist: {defconfig: ['multi_v7_defconfig+CONFIG_LKDTM=n']}
+      - blocklist: *allmodconfig_filter
+      - blocklist: {defconfig: ['multi_v7_defconfig+CONFIG_LKDTM=n']}
 
   sun7i-a20-cubieboard2:
     mach: allwinner
@@ -1316,16 +1316,16 @@ device_types:
     arch: arm64
     boot_method: grub
     filters:
-      - whitelist: {defconfig: ['defconfig']}
-      - blacklist: {kernel: ['v3.', 'v4.4']}
+      - passlist: {defconfig: ['defconfig']}
+      - blocklist: {kernel: ['v3.', 'v4.4']}
 
   synquacer-dtb:
     mach: socionext
     arch: arm64
     boot_method: grub
     filters:
-      - whitelist: {defconfig: ['defconfig']}
-      - blacklist: {kernel: ['v3.']}
+      - passlist: {defconfig: ['defconfig']}
+      - blocklist: {kernel: ['v3.']}
 
   tegra124-nyan-big:
     mach: tegra
@@ -1333,12 +1333,20 @@ device_types:
     boot_method: depthcharge
     flags: ['lpae']
 
+  thunderx:
+    mach: sbsa
+    arch: arm64
+    boot_method: grub
+    filters:
+      - passlist: {defconfig: ['defconfig']}
+      - blocklist: {kernel: ['v3.']}
+
   x86-atom330:
     mach: x86
     arch: x86
     boot_method: ipxe
     filters:
-      - blacklist:
+      - blocklist:
           defconfig:
             - 'allmodconfig'
             - 'allnoconfig'
@@ -1350,7 +1358,7 @@ device_types:
     arch: i386
     boot_method: ipxe
     filters:
-      - blacklist:
+      - blocklist:
           defconfig:
             - 'allmodconfig'
             - 'allnoconfig'
@@ -1363,7 +1371,7 @@ device_types:
     arch: i386
     boot_method: grub
     filters:
-      - blacklist:
+      - blocklist:
           defconfig:
             - 'allmodconfig'
             - 'allnoconfig'
@@ -1376,7 +1384,7 @@ device_types:
     arch: x86_64
     boot_method: grub
     filters:
-      - blacklist:
+      - blocklist:
           defconfig:
             - 'allmodconfig'
             - 'allnoconfig'
@@ -1388,8 +1396,8 @@ device_types:
     class: arm-dtb
     boot_method: uboot
     filters:
-      - blacklist: *allmodconfig_filter
-      - blacklist: {defconfig: ['multi_v7_defconfig+linaro-base+distribution']}
+      - blocklist: *allmodconfig_filter
+      - blocklist: {defconfig: ['multi_v7_defconfig+linaro-base+distribution']}
 
 
 test_configs:
@@ -1892,36 +1900,57 @@ test_configs:
   - device_type: qemu_arm-virt-gicv2
     test_plans:
       - baseline_qemu
-      - baseline-uefi_arm
+
+  - device_type: qemu_arm-virt-gicv2-uefi
+    test_plans:
+      - baseline_qemu
 
   - device_type: qemu_arm-virt-gicv3
     test_plans:
       - baseline_qemu
-      - baseline-uefi_arm
       - v4l2-compliance-vivid
+
+  - device_type: qemu_arm-virt-gicv3-uefi
+    test_plans:
+      - baseline_qemu
 
   - device_type: qemu_arm64-virt-gicv2
     test_plans:
       - baseline_qemu
-      - baseline-uefi_arm64
+
+  - device_type: qemu_arm64-virt-gicv2-uefi
+    test_plans:
+      - baseline_qemu
 
   - device_type: qemu_arm64-virt-gicv3
     test_plans:
       - baseline_qemu
-      - baseline-uefi_arm64
       - v4l2-compliance-vivid
+
+  - device_type: qemu_arm64-virt-gicv3-uefi
+    test_plans:
+      - baseline_qemu
 
   - device_type: qemu_i386
     test_plans:
       - baseline_qemu
-      - baseline-uefi_i386
+
+  - device_type: qemu_i386-uefi
+    test_plans:
+      - baseline_qemu
 
   - device_type: qemu_x86_64
     test_plans:
       - baseline_qemu
-      - baseline-uefi_x86_64
-      - baseline-uefi_x86-mixed
       - v4l2-compliance-vivid
+
+  - device_type: qemu_x86_64-uefi
+    test_plans:
+      - baseline_qemu
+
+  - device_type: qemu_x86_64-uefi-mixed
+    test_plans:
+      - baseline_qemu
 
   - device_type: r8a774a1-hihope-rzg2m-ex
     test_plans:
@@ -1968,7 +1997,7 @@ test_configs:
   - device_type: rk3399-gru-kevin
     test_plans: [igt-kms-rockchip, igt-gpu-panfrost]
     filters:
-      - blacklist: {kernel: ['v3.', 'v4.4', 'v4.9', 'v4.14']}
+      - blocklist: {kernel: ['v3.', 'v4.4', 'v4.9', 'v4.14']}
 
   - device_type: rk3399-puma-haikou
     test_plans:
@@ -2143,6 +2172,10 @@ test_configs:
       - igt-kms-tegra
       - sleep
       - usb
+
+  - device_type: thunderx
+    test_plans:
+      - baseline
 
   - device_type: x86-atom330
     test_plans:

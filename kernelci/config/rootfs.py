@@ -44,9 +44,9 @@ class RootFS_Debos(RootFS):
                  arch_list=None, extra_packages=None,
                  extra_packages_remove=None,
                  extra_files_remove=None, script="",
-                 test_overlay="", crush_image_options=None):
-
-        super(RootFS_Debos, self).__init__(name, rootfs_type)
+                 test_overlay="", crush_image_options=None, debian_mirror="",
+                 keyring_package="", keyring_file=""):
+        super().__init__(name, rootfs_type)
         self._debian_release = debian_release
         self._arch_list = arch_list or list()
         self._extra_packages = extra_packages or list()
@@ -55,6 +55,9 @@ class RootFS_Debos(RootFS):
         self._script = script
         self._test_overlay = test_overlay
         self._crush_image_options = crush_image_options or list()
+        self._debian_mirror = debian_mirror
+        self._keyring_package = keyring_package
+        self._keyring_file = keyring_file
 
     @classmethod
     def from_yaml(cls, config, name):
@@ -63,7 +66,8 @@ class RootFS_Debos(RootFS):
             config, ['name', 'debian_release', 'arch_list',
                      'extra_packages', 'extra_packages_remove',
                      'extra_files_remove', 'script', 'test_overlay',
-                     'crush_image_options']))
+                     'crush_image_options', 'debian_mirror',
+                     'keyring_package', 'keyring_file']))
         return cls(**kw)
 
     @property
@@ -97,6 +101,18 @@ class RootFS_Debos(RootFS):
     @property
     def crush_image_options(self):
         return list(self._crush_image_options)
+
+    @property
+    def debian_mirror(self):
+        return self._debian_mirror
+
+    @property
+    def keyring_package(self):
+        return self._keyring_package
+
+    @property
+    def keyring_file(self):
+        return self._keyring_file
 
 
 class RootFSFactory(YAMLObject):

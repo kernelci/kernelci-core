@@ -23,7 +23,7 @@ import json
 import os
 import sys
 
-from kernelci.cli import Args, Command, parse_args
+from kernelci.cli import Args, Command, parse_args_with_parser
 import kernelci.config.lab
 import kernelci.config.test
 import kernelci.build
@@ -46,8 +46,8 @@ class cmd_validate(Command):
 
 class cmd_list_jobs(Command):
     help = "List all the jobs that need to be run for a given build and lab"
-    args = [Args.bmeta_json, Args.dtbs_json, Args.lab]
-    opt_args = [Args.user, Args.token, Args.lab_json]
+    args = [Args.bmeta_json, Args.dtbs_json, Args.lab_config]
+    opt_args = [Args.user, Args.lab_token, Args.lab_json]
 
     def __call__(self, test_configs, lab_configs, args):
         bmeta, dtbs = kernelci.build.load_json(args.bmeta_json, args.dtbs_json)
@@ -55,8 +55,9 @@ class cmd_list_jobs(Command):
         if bmeta['status'] != "PASS":
             return True
 
-        lab = lab_configs['labs'][args.lab]
-        api = kernelci.lab.get_api(lab, args.user, args.token, args.lab_json)
+        lab = lab_configs['labs'][args.lab_config]
+        api = kernelci.lab.get_api(
+            lab, args.user, args.lab_token, args.lab_json)
 
         configs = kernelci.test.match_configs(
             test_configs['test_configs'], bmeta, dtbs, lab)
@@ -90,12 +91,12 @@ class cmd_list_labs(Command):
 
 class cmd_get_lab_info(Command):
     help = "Get the information about a lab into a JSON file"
-    args = [Args.lab, Args.lab_json]
-    opt_args = [Args.user, Args.token]
+    args = [Args.lab_config, Args.lab_json]
+    opt_args = [Args.user, Args.lab_token]
 
     def __call__(self, test_configs, lab_configs, args):
-        lab = lab_configs['labs'][args.lab]
-        lab_api = kernelci.lab.get_api(lab, args.user, args.token)
+        lab = lab_configs['labs'][args.lab_config]
+        lab_api = kernelci.lab.get_api(lab, args.user, args.lab_token)
         data = {
             'lab': lab.name,
             'lab_type': lab.lab_type,
@@ -112,9 +113,9 @@ class cmd_get_lab_info(Command):
 
 class cmd_generate(Command):
     help = "Generate the job definition for a given build"
-    args = [Args.bmeta_json, Args.dtbs_json, Args.storage, Args.lab]
+    args = [Args.bmeta_json, Args.dtbs_json, Args.storage, Args.lab_config]
     opt_args = [Args.plan, Args.target, Args.output,
-                Args.lab_json, Args.user, Args.token,
+                Args.lab_json, Args.user, Args.lab_token,
                 Args.callback_id, Args.callback_dataset,
                 Args.callback_type, Args.callback_url, Args.mach]
 
@@ -128,8 +129,9 @@ class cmd_generate(Command):
         if bmeta['status'] != "PASS":
             return True
 
-        lab = lab_configs['labs'][args.lab]
-        api = kernelci.lab.get_api(lab, args.user, args.token, args.lab_json)
+        lab = lab_configs['labs'][args.lab_config]
+        api = kernelci.lab.get_api(
+            lab, args.user, args.lab_token, args.lab_json)
 
         if args.target and args.plan:
             target = test_configs['device_types'][args.target]
@@ -183,11 +185,11 @@ class cmd_generate(Command):
 
 class cmd_submit(Command):
     help = "Submit job definitions to a lab"
-    args = [Args.lab, Args.user, Args.token, Args.jobs]
+    args = [Args.lab_config, Args.user, Args.lab_token, Args.jobs]
 
     def __call__(self, test_configs, lab_configs, args):
-        lab = lab_configs['labs'][args.lab]
-        lab_api = kernelci.lab.get_api(lab, args.user, args.token)
+        lab = lab_configs['labs'][args.lab_config]
+        lab_api = kernelci.lab.get_api(lab, args.user, args.lab_token)
         job_paths = glob.glob(args.jobs)
         res = True
         for path in job_paths:
@@ -214,8 +216,7 @@ if __name__ == '__main__':
                         help="Path to the YAML test configs file")
     parser.add_argument("--yaml-lab-configs", default="lab-configs.yaml",
                         help="Path to the YAML lab configs file")
-    kernelci.cli.add_subparser(parser, globals())
-    args = parser.parse_args()
+    args = parse_args_with_parser(parser, globals())
     test_configs = kernelci.config.test.from_yaml(args.yaml_test_configs)
     lab_configs = kernelci.config.lab.from_yaml(args.yaml_lab_configs)
     status = args.func(test_configs, lab_configs, args)

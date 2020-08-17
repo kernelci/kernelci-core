@@ -1,0 +1,13 @@
+db_configs:
+
+  kernelci.org:
+    db_type: kernelci_backend
+    url: https://api.kernelci.org/test
+
+  staging.kernelci.org:
+    db_type: kernelci_backend
+    url: https://api.staging.kernelci.org/test
+
+  localhost:
+    db_type: kernelci_backend
+    url: http://localhost:5001/test

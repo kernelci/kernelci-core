@@ -23,7 +23,7 @@ import yaml
 # Common classes for all config types
 #
 
-class YAMLObject(object):
+class YAMLObject:
     """Base class with helper methods to initialise objects from YAML data."""
 
     @classmethod
@@ -42,7 +42,7 @@ class YAMLObject(object):
         } if data else dict()
 
 
-class Filter(object):
+class Filter:
     """Base class to implement arbitrary configuration filters."""
 
     def __init__(self, items):
@@ -54,10 +54,10 @@ class Filter(object):
         raise NotImplementedError("Filter.match() is not implemented")
 
 
-class Blacklist(Filter):
-    """Blacklist filter to discard certain configurations.
+class Blocklist(Filter):
+    """Blocklist filter to discard certain configurations.
 
-    Blacklist *items* are a dictionary associating keys with lists of values.
+    Blocklist *items* are a dictionary associating keys with lists of values.
     Any configuration with a key-value pair present in these lists will be
     rejected.
     """
@@ -73,10 +73,10 @@ class Blacklist(Filter):
         return True
 
 
-class Whitelist(Filter):
-    """Whitelist filter to only accept certain configurations.
+class Passlist(Filter):
+    """Passlist filter to only accept certain configurations.
 
-    Whitelist *items* are a dictionary associating keys with lists of values.
+    Passlist *items* are a dictionary associating keys with lists of values.
     For a configuration to be accepted, there must be a value found in each of
     these lists.
     """
@@ -102,7 +102,7 @@ class Regex(Filter):
     """
 
     def __init__(self, *args, **kw):
-        super(Regex, self).__init__(*args, **kw)
+        super().__init__(*args, **kw)
         self._re_items = {k: re.compile(v) for k, v in self._items.items()}
 
     def match(self, **kw):
@@ -134,8 +134,8 @@ class FilterFactory(YAMLObject):
     """Factory to create filters from YAML data."""
 
     _classes = {
-        'blacklist': Blacklist,
-        'whitelist': Whitelist,
+        'blocklist': Blocklist,
+        'passlist': Passlist,
         'regex': Regex,
         'combination': Combination,
     }

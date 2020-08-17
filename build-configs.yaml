@@ -43,6 +43,9 @@ trees:
   chrome-platform:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/chrome-platform/linux.git"
 
+  cip:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/cip/linux-cip.git"
+
   clk:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/clk/linux.git"
 
@@ -95,7 +98,7 @@ trees:
     url: "https://git.linaro.org/landing-teams/working/qualcomm/kernel.git"
 
   renesas:
-    url: "https://git.kernel.org/pub/scm/linux/kernel/git/horms/renesas.git"
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/geert/renesas-devel.git"
 
   rmk:
     url: "git://git.armlinux.org.uk/~rmk/linux-arm.git"
@@ -216,7 +219,7 @@ build_configs_defaults:
           extra_configs: ['allnoconfig']
           filters: &arc_default_filters
             # remove any non-ARCv2 defconfigs since we only have ARCv2 toolchain
-            - blacklist:
+            - blocklist:
                 defconfig:
                   - 'axs101_defconfig'
                   - 'nps_defconfig'
@@ -248,7 +251,7 @@ build_configs_defaults:
           base_defconfig: '32r2el_defconfig'
           extra_configs: ['allnoconfig']
           filters: &mips_default_filters
-            - blacklist: {defconfig: ['generic_defconfig']}
+            - blocklist: {defconfig: ['generic_defconfig']}
 
         riscv: &riscv_arch
           extra_configs: ['allnoconfig']
@@ -471,19 +474,14 @@ build_configs:
     branch: 'android-4.19-stable'
     variants: *android_variants
 
-  android_4.19:
+  android_11-5.4:
     tree: android
-    branch: 'android-4.19'
+    branch: 'android11-5.4'
     variants: *android_variants
 
-  android_5.4-stable:
+  android_12-5.4:
     tree: android
-    branch: 'android-5.4-stable'
-    variants: *android_variants
-
-  android_5.4:
-    tree: android
-    branch: 'android-5.4'
+    branch: 'android12-5.4'
     variants: *android_variants
 
   android_mainline:
@@ -573,6 +571,50 @@ build_configs:
           arm: *arm_defconfig
           arm64: *arm64_defconfig
           x86_64: *x86_64_defconfig
+
+  cip_4.4:
+    tree: cip
+    branch: 'linux-4.4.y-cip'
+    variants:
+      gcc-8:
+        build_environment: gcc-8
+        architectures:
+          arm: *arm_arch
+          i386: *i386_arch
+          x86_64: *x86_64_arch
+
+  cip_4.4-rt:
+    tree: cip
+    branch: 'linux-4.4.y-cip-rt'
+    variants:
+      gcc-8:
+        build_environment: gcc-8
+        architectures:
+          arm: *arm_arch
+          i386: *i386_arch
+          x86_64: *x86_64_arch
+
+  cip_4.19:
+    tree: cip
+    branch: 'linux-4.19.y-cip'
+    variants:
+      gcc-8:
+        build_environment: gcc-8
+        architectures:
+          arm: *arm_arch
+          arm64: *arm64_arch
+          x86_64: *x86_64_arch
+
+  cip_4.19-rt:
+    tree: cip
+    branch: 'linux-4.19.y-cip-rt'
+    variants:
+      gcc-8:
+        build_environment: gcc-8
+        architectures:
+          arm: *arm_arch
+          arm64: *arm64_arch
+          x86_64: *x86_64_arch
 
   clk:
     tree: clk

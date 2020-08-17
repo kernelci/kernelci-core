@@ -46,6 +46,9 @@ class cmd_validate(Command):
             print('\ttest_overlay: {}'.format(config.test_overlay))
             print('\tcrush_image_options: {}'
                   .format(config.crush_image_options))
+            print('\tdebian_mirror: {}'.format(config.debian_mirror))
+            print('\tkeyring_package: {}'.format(config.keyring_package))
+            print('\tkeyring_file: {}'.format(config.keyring_file))
         return True
 
 
@@ -61,11 +64,11 @@ class cmd_list_configs(Command):
 
 class cmd_list_variants(Command):
     help = "List all rootfs variants"
-    opt_args = [Args.config, Args.arch]
+    opt_args = [Args.rootfs_config, Args.arch]
 
     def __call__(self, config_data, args, **kwargs):
         rootfs_configs = config_data['rootfs_configs']
-        config_name = args.config
+        config_name = args.rootfs_config
         arch = args.arch
 
         if config_name and config_name not in rootfs_configs:
@@ -88,26 +91,25 @@ class cmd_list_variants(Command):
 
 class cmd_build(Command):
     help = "Build a rootfs image"
-    args = [Args.config, Args.data_path, Args.arch]
+    args = [Args.rootfs_config, Args.data_path, Args.arch]
 
     def __call__(self, config_data, args, **kwargs):
-        data_path = args.data_path
-        config_name = args.config
-        arch = args.arch
-        if config_name not in config_data['rootfs_configs']:
+        config_name = args.rootfs_config
+        config = config_data['rootfs_configs'].get(config_name)
+        if not config:
             print("{} invalid. Check 'kci_rootfs list_configs' for valid \
                     entries".format(config_name))
             return False
-        config = config_data['rootfs_configs'][args.config]
-        return kernelci.rootfs.build(config_name, config, data_path, arch)
+        return kernelci.rootfs.build(config_name, config,
+                                     args.data_path, args.arch)
 
 
 class cmd_upload(Command):
     help = "Upload a rootfs image"
-    args = [Args.rootfs_dir, Args.upload_path, Args.api, Args.token]
+    args = [Args.rootfs_dir, Args.upload_path, Args.api, Args.db_token]
 
     def __call__(self, config_data, args):
-        kernelci.rootfs.upload(args.api, args.token, args.upload_path,
+        kernelci.rootfs.upload(args.api, args.db_token, args.upload_path,
                                args.rootfs_dir)
         return True
 
