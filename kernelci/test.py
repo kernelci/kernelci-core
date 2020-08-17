@@ -90,10 +90,8 @@ def get_params(bmeta, target, plan_config, storage):
     if dtb_full and dtb_full.endswith('.dtb'):
         dtb_url = urllib.parse.urljoin(
             storage, '/'.join([url_px, dtb_full]))
-        platform = dtb.split('.')[0]
     else:
         dtb_url = None
-        platform = target.name
     modules = bmeta.get('modules')
     modules_url = (
         urllib.parse.urljoin(storage, '/'.join([url_px, modules]))
@@ -110,7 +108,6 @@ def get_params(bmeta, target, plan_config, storage):
         'dtb_url': dtb_url,
         'dtb_short': dtb,
         'dtb_full': dtb_full,
-        'platform': platform,
         'mach': target.mach,
         'kernel_url': kernel_url,
         'image_type': 'kernel-ci',
