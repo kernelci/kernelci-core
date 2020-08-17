@@ -118,7 +118,6 @@ def get_params(bmeta, target, plan_config, storage):
         'kernel': describe,
         'tree': bmeta['job'],
         'defconfig': defconfig,
-        'arch_defconfig': '-'.join([arch, defconfig]),
         'fastboot': str(target.get_flag('fastboot')).lower(),
         'device_type': target.name,
         'base_device_type': target.base_name,
