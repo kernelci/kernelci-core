@@ -38,7 +38,7 @@ below are a work-in-progress to cover all these topics:
 
 All the steps of the KernelCI pipeline are implemented with portable command
 line tools.  They are used in [Jenkins pipeline
-jobs](https://github.com/kernelci/kernelci-core/tree/master/jenkins) for
+jobs](https://github.com/kernelci/kernelci-jenkins/tree/master/jobs) for
 kernelci.org, but can also be run by hand in a shell or integrated with any CI
 environment.  The `kernelci/build-base` Docker image comes with all the
 dependencies needed.
@@ -89,28 +89,6 @@ configuration data from the YAML files, as well as the
 command line tool to access this data directly and implement automated build
 jobs.  Each module has some Python docstrings and the command line tool has
 detailed help messages for each command it can run.
-
-
-## Jenkins jobs
-
-All the automated jobs on kernelci.org are run in Jenkins.  Some legacy scripts
-are still being used in "freestyle" projects but they are gradually being
-replaced with Pipeline jobs.  Each Pipeline job has a `.jpl` file located in
-the `jenkins` directory:
-
-* [`jenkins/monitor.jpl`](https://github.com/kernelci/kernelci-core/tree/master/jenkins/monitor.jpl) to monitor kernel branches
-* [`jenkins/build-trigger.jpl`](https://github.com/kernelci/kernelci-core/tree/master/jenkins/build-trigger.jpl) to trigger all the builds for a kernel revision
-* [`jenkins/build.jpl`](https://github.com/kernelci/kernelci-core/tree/master/jenkins/build.jpl) to build each individual kernel
-* [`jenkins/bisect.jpl`](https://github.com/kernelci/kernelci-core/tree/master/jenkins/bisect.jpl) to run boot bisections
-* [`jenkins/buster.jpl`](https://github.com/kernelci/kernelci-core/tree/master/jenkins/buster.jpl) to build a Debian Buster file system
-
-There are other variants based on `stretch.jpl` to build other file systems
-with extra tools needed to run specific test suites.
-
-In addition to the job files, there are also some common library files located
-in the
-[`src/org/kernelci`](https://github.com/kernelci/kernelci-core/tree/master/src/org/kernelci)
-directory.
 
 
 ## Dockerfiles
