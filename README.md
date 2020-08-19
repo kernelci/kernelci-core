@@ -40,8 +40,9 @@ All the steps of the KernelCI pipeline are implemented with portable command
 line tools.  They are used in [Jenkins pipeline
 jobs](https://github.com/kernelci/kernelci-jenkins/tree/master/jobs) for
 kernelci.org, but can also be run by hand in a shell or integrated with any CI
-environment.  The `kernelci/build-base` Docker image comes with all the
-dependencies needed.
+environment.  The
+[`kernelci/build-base`](https://hub.docker.com/r/kernelci/build-base) Docker
+image comes with all the dependencies needed.
 
 **The available command line tools are:**
 
@@ -64,7 +65,19 @@ implementation which is still tied to Jenkins or hard-coded in shell scripts:
 * **`kci_email` (WIP)** to generate an email report with test results.
 
 
-## Configuration files
+## [User Settings file](doc/settings.md)
+
+The command line tools can make use of an optional settings file with
+user-specific options.  These settings provide default values for any of the
+command line arguments, as a convenience but also to avoid providing secrets
+such as API tokens in clear.  The file uses sections for each command line tool
+and also for each component (i.e. each lab, backend...).
+
+See the [`kernelci.conf.sample`](kernelci.conf.sample) sample config file and
+the [user settings file](doc/settings.md) section for more details about how
+this works.
+
+## YAML Configuration files
 
 All the builds are configured in
 [`build-configs.yaml`](https://github.com/kernelci/kernelci-core/blob/master/build-configs.yaml),
