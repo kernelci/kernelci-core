@@ -57,7 +57,9 @@ dependencies needed.
 **Other command line tools are being worked on** to replace the current legacy
 implementation which is still tied to Jenkins or hard-coded in shell scripts:
 
-* **`kci_bisect` (WIP)** To run KernelCI automated bisections.
+* **`kci_data` (WIP)** to submit KernelCI data to a database and retrieve it.
+
+* **`kci_bisect` (WIP)** to run KernelCI automated bisections.
 
 * **`kci_email` (WIP)** to generate an email report with test results.
 
