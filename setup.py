@@ -29,6 +29,9 @@ setuptools.setup(
         "kernelci.config",
         "kernelci.lab",
     ],
+    package_data={
+        '': ['../doc/*.md'],
+    },
     scripts=[
         'kci_build',
         'kci_test',
