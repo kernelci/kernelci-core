@@ -81,26 +81,28 @@ and [test
 configurations](https://github.com/kernelci/kernelci-doc/wiki/Test-configurations).
 
 
-## Python modules
+## Python package on PyPI
 
-There are Python modules in the `kernelci` package to parse and use the
-configuration data from the YAML files, as well as the
-[`kci_build`](https://github.com/kernelci/kernelci-core/blob/master/kci_build)
-command line tool to access this data directly and implement automated build
-jobs.  Each module has some Python docstrings and the command line tool has
-detailed help messages for each command it can run.
+The [`kernelci` package on PyPI](https://pypi.org/project/kernelci/) contains
+all the modules from the `kernelci` directory as well as the `kci_*` command
+line tools.  This provides the core functions of KernelCI, to parse YAML
+configuration and perform each step of the pipeline such as building kernels,
+running tests and sending results to a database.
 
 
 ## Dockerfiles
 
-Each Jenkins Pipeline job runs in a Docker container.  The Docker images used
-by these containers are built from `jenkins/dockerfiles` and pushed to the
-[`kernelci Docker repositories`](https://cloud.docker.com/u/kernelci/repository/list).
+Each step of the KernelCI Pipeline can be run in a Docker container.  On
+[kernelci.org](https://kernelci.org), this is done in Jenkins jobs.  The Docker
+images used by these containers are built from `jenkins/dockerfiles` and pushed
+to the [`kernelci Docker
+repositories`](https://cloud.docker.com/u/kernelci/repository/list).
 
 
 ## Test templates
 
-The kernelci.org tests typically run in [LAVA](https://lavasoftware.org/).
-Each LAVA test is generated using template files which can be found in the
+The majority of [kernelci.org](https://kernelci.org) tests get run in
+[LAVA](https://lavasoftware.org/), although this is not a requirement.  Each
+LAVA test is generated using template files which can be found in the
 [`templates`](https://github.com/kernelci/kernelci-core/tree/master/templates)
 directory.
