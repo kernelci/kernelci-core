@@ -410,6 +410,8 @@ device_types:
     mach: x86
     arch: x86_64
     boot_method: grub
+    filters:
+      - blocklist: {defconfig: ['allnoconfig', 'tinyconfig']}
 
   da850-lcdk:
     mach: davinci
