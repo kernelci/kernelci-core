@@ -167,6 +167,15 @@ test_plans:
 
   sleep:
     rootfs: debian_buster_ramdisk
+    params:
+      sleep_params: mem freeze
+
+  sleep_mem:
+    base_name: sleep
+    rootfs: debian_buster_ramdisk
+    pattern: 'sleep/{category}-{method}-{protocol}-{rootfs}-sleep-template.jinja2'
+    params:
+      sleep_params: mem
 
   usb:
     rootfs: debian_buster_ramdisk
@@ -506,7 +515,6 @@ device_types:
     boot_method: barebox
     filters:
       - blocklist: *allmodconfig_filter
-
   imx28-duckbill:
     mach: imx
     class: arm-dtb

@@ -2,28 +2,11 @@
     timeout:
       minutes: 5
     definitions:
-    - repository:
-        metadata:
-          format: Lava-Test Test Definition 1.0
-          name: sleep
-          description: "sleep test plan"
-          os:
-          - oe
-          scope:
-          - functional
-        run:
-          steps:
-            - >
-              for i in $(seq 1 10); do
-                lava-test-case rtcwake-mem-$i --shell \
-                  rtcwake -d rtc0 -m mem -s 5
-              done
-            - >
-              for i in $(seq 1 10); do
-                lava-test-case rtcwake-freeze-$i --shell \
-                  rtcwake -d rtc0 -m freeze -s 5
-              done
-      lava-signal: kmsg
-      from: inline
+    - repository: https://github.com/kernelci/kernelci-core
+      branch: kernelci.org
+      from: git
+      history: False
+      path: templates/sleep/sleep.yaml
       name: sleep
-      path: inline/sleep.yaml
+      parameters:
+        sleep_params: "{{ sleep_params }}"

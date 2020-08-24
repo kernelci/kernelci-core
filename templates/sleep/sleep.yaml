@@ -1,0 +1,16 @@
+metadata:
+    name: sleep
+    format: "Lava-Test Test Definition 1.0"
+    description: "sleep test plan"
+    maintainer:
+        - ktouil@baylibre.com
+    os:
+        - openembedded
+    scope:
+        - functional
+params:
+  test_params: ""
+
+run:
+    steps:
+        - ./templates/sleep/sleep.sh ${sleep_params}
