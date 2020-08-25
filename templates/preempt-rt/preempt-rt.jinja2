@@ -1,0 +1,30 @@
+- test:
+    timeout:
+      minutes: 10
+
+    definitions:
+    - from: inline
+      repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: preempt-rt-prereq
+          description: Pre-requisites for PREEMPT_RT
+        run:
+          steps:
+          - apt-get update && apt-get install -y procps rt-tests
+      name: preempt-rt-prereq
+      path: inline/preempt-rt-prereq.yaml
+
+    - repository: https://github.com/kernelci/test-definitions.git
+      from: git
+      revision: kernelci.org
+      path: automated/linux/cyclictest/cyclictest.yaml
+      name: cyclictest
+      parameters:
+        AFFINTIY: 0-1
+        BACKGROUND_CMD: hackbench
+        DURATION: 300s
+        INTERVAL: 1000
+        MAX_LATENCY: 35
+        PRIORITY: 98
+        THREADS: 2
