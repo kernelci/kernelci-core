@@ -11,6 +11,7 @@ labs:
             - baseline
             - baseline-fastboot
             - kselftest
+            - preempt-rt
 
   lab-broonie:
     lab_type: lava

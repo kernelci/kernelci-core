@@ -1796,6 +1796,7 @@ test_configs:
   - device_type: meson-sm1-khadas-vim3l
     test_plans:
       - baseline
+      - preempt-rt
 
   - device_type: meson-sm1-sei610
     test_plans:
