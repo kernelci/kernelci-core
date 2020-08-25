@@ -175,6 +175,11 @@ test_plans:
     filters:
       - blocklist: *kselftest_defconfig_filter
 
+  preempt-rt:
+    rootfs: debian_buster_nfs
+    filters:
+      - passlist: {defconfig: ['preempt_rt']}
+
   sleep:
     rootfs: debian_buster_ramdisk
 
