@@ -1670,52 +1670,42 @@ test_configs:
   - device_type: imx6q-sabresd
     test_plans:
       - baseline
-      - kselftest
 
   - device_type: imx6qp-sabresd
     test_plans:
       - baseline
-      - kselftest
 
   - device_type: imx6sll-evk
     test_plans:
       - baseline
-      - kselftest
 
   - device_type: imx6sx-sdb
     test_plans:
       - baseline
-      - kselftest
 
   - device_type: imx6ul-14x14-evk
     test_plans:
       - baseline
-      - kselftest
 
   - device_type: imx6ull-14x14-evk
     test_plans:
       - baseline
-      - kselftest
 
   - device_type: imx7d-sdb
     test_plans:
       - baseline
-      - kselftest
 
   - device_type: imx7ulp-evk
     test_plans:
       - baseline
-      - kselftest
 
   - device_type: imx8mn-ddr4-evk
     test_plans:
       - baseline
-      - kselftest
 
   - device_type: imx8mp-evk
     test_plans:
       - baseline
-      - kselftest
 
   - device_type: jetson-tk1
     test_plans:
