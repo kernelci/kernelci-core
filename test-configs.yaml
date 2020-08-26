@@ -621,7 +621,7 @@ device_types:
   imx8mm-ddr4-evk:
     mach: imx
     arch: arm64
-    dtb: 'freescale/imx8mn-ddr4-evk.dtb'
+    dtb: 'freescale/imx8mm-ddr4-evk.dtb'
     boot_method: uboot
 
   imx8mn-ddr4-evk:
