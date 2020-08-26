@@ -55,6 +55,7 @@ labs:
             - igt-kms-exynos
             - igt-kms-tegra
             - igt-gpu-panfrost
+            - ltp
             - sleep
             - usb
             - v4l2-compliance-uvc
