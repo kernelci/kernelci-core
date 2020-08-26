@@ -1681,13 +1681,10 @@ test_configs:
   - device_type: imx6qp-sabresd
     test_plans:
       - baseline
-<<<<<<< HEAD
 
   - device_type: imx6sll-evk
     test_plans:
       - baseline
-=======
->>>>>>> 9ef8131f... Removed kself tests for all NXP's i.MX boards
 
   - device_type: imx6sll-evk
     test_plans:
@@ -1708,7 +1705,6 @@ test_configs:
   - device_type: imx7d-sdb
     test_plans:
       - baseline
-<<<<<<< HEAD
 
   - device_type: imx7ulp-evk
     test_plans:
@@ -1717,23 +1713,22 @@ test_configs:
   - device_type: imx8mm-ddr4-evk
     test_plans:
       - baseline
-=======
->>>>>>> 9ef8131f... Removed kself tests for all NXP's i.MX boards
 
   - device_type: imx7ulp-evk
+    test_plans:
+      - baseline
+
+  - device_type: imx8mm-ddr4-evk
     test_plans:
       - baseline
 
   - device_type: imx8mn-ddr4-evk
     test_plans:
       - baseline
-<<<<<<< HEAD
 
   - device_type: imx8mp-evk
     test_plans:
       - baseline
-=======
->>>>>>> 9ef8131f... Removed kself tests for all NXP's i.MX boards
 
   - device_type: imx8mp-evk
     test_plans:
