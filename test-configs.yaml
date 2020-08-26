@@ -618,6 +618,12 @@ device_types:
     class: arm-dtb
     boot_method: uboot
 
+  imx8mm-ddr4-evk:
+    mach: imx
+    arch: arm64
+    dtb: 'freescale/imx8mn-ddr4-evk.dtb'
+    boot_method: uboot
+
   imx8mn-ddr4-evk:
     mach: imx
     arch: arm64
@@ -1696,6 +1702,10 @@ test_configs:
       - baseline
 
   - device_type: imx7ulp-evk
+    test_plans:
+      - baseline
+
+  - device_type: imx8mm-ddr4-evk
     test_plans:
       - baseline
 
