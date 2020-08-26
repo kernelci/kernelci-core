@@ -1,0 +1,21 @@
+- test:
+    timeout:
+      minutes: 10
+    definitions:
+    - repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: {{ plan }}
+          description: "Simple LTP test plan"
+          os:
+          - debian
+          scope:
+          - functional
+        run:
+          steps:
+          - cd /opt/ltp/ && ./runltp -p -f syscalls -s ^open02 -l /tmp/results.log
+          - cat /tmp/results.log
+          - lava-test-case check-result --shell grep 'PASS' /tmp/results.log
+      from: inline
+      name: {{ plan }}
+      path: inline/{{ plan }}.yaml
