@@ -19,7 +19,7 @@ import setuptools
 
 setuptools.setup(
     name='kernelci',
-    version='1.0',
+    version='1.1',
     description="KernelCI core functions",
     author="kernelci.org",
     author_email="kernelci@groups.io",
@@ -29,12 +29,16 @@ setuptools.setup(
         "kernelci.config",
         "kernelci.lab",
     ],
+    package_data={
+        '': ['../doc/*.md'],
+    },
     scripts=[
         'kci_build',
         'kci_test',
         'kci_rootfs',
     ],
     long_description=open('README.md', 'rb').read().decode('utf8'),
+    long_description_content_type='text/markdown',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
@@ -50,7 +54,10 @@ setuptools.setup(
     ],
     python_requires='>=3.6',
     install_requires=[
-        "pyyaml",
         "jinja2",
+        "pyelftools",
+        "pytest",
+        "pyyaml",
+        "requests",
     ]
 )

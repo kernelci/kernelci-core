@@ -38,7 +38,7 @@ below are a work-in-progress to cover all these topics:
 
 All the steps of the KernelCI pipeline are implemented with portable command
 line tools.  They are used in [Jenkins pipeline
-jobs](https://github.com/kernelci/kernelci-core/tree/master/jenkins) for
+jobs](https://github.com/kernelci/kernelci-jenkins/tree/master/jobs) for
 kernelci.org, but can also be run by hand in a shell or integrated with any CI
 environment.  The `kernelci/build-base` Docker image comes with all the
 dependencies needed.
@@ -57,7 +57,9 @@ dependencies needed.
 **Other command line tools are being worked on** to replace the current legacy
 implementation which is still tied to Jenkins or hard-coded in shell scripts:
 
-* **`kci_bisect` (WIP)** To run KernelCI automated bisections.
+* **`kci_data` (WIP)** to submit KernelCI data to a database and retrieve it.
+
+* **`kci_bisect` (WIP)** to run KernelCI automated bisections.
 
 * **`kci_email` (WIP)** to generate an email report with test results.
 
@@ -79,48 +81,28 @@ and [test
 configurations](https://github.com/kernelci/kernelci-doc/wiki/Test-configurations).
 
 
-## Python modules
+## Python package on PyPI
 
-There are Python modules in the `kernelci` package to parse and use the
-configuration data from the YAML files, as well as the
-[`kci_build`](https://github.com/kernelci/kernelci-core/blob/master/kci_build)
-command line tool to access this data directly and implement automated build
-jobs.  Each module has some Python docstrings and the command line tool has
-detailed help messages for each command it can run.
-
-
-## Jenkins jobs
-
-All the automated jobs on kernelci.org are run in Jenkins.  Some legacy scripts
-are still being used in "freestyle" projects but they are gradually being
-replaced with Pipeline jobs.  Each Pipeline job has a `.jpl` file located in
-the `jenkins` directory:
-
-* [`jenkins/monitor.jpl`](https://github.com/kernelci/kernelci-core/tree/master/jenkins/monitor.jpl) to monitor kernel branches
-* [`jenkins/build-trigger.jpl`](https://github.com/kernelci/kernelci-core/tree/master/jenkins/build-trigger.jpl) to trigger all the builds for a kernel revision
-* [`jenkins/build.jpl`](https://github.com/kernelci/kernelci-core/tree/master/jenkins/build.jpl) to build each individual kernel
-* [`jenkins/bisect.jpl`](https://github.com/kernelci/kernelci-core/tree/master/jenkins/bisect.jpl) to run boot bisections
-* [`jenkins/buster.jpl`](https://github.com/kernelci/kernelci-core/tree/master/jenkins/buster.jpl) to build a Debian Buster file system
-
-There are other variants based on `stretch.jpl` to build other file systems
-with extra tools needed to run specific test suites.
-
-In addition to the job files, there are also some common library files located
-in the
-[`src/org/kernelci`](https://github.com/kernelci/kernelci-core/tree/master/src/org/kernelci)
-directory.
+The [`kernelci` package on PyPI](https://pypi.org/project/kernelci/) contains
+all the modules from the `kernelci` directory as well as the `kci_*` command
+line tools.  This provides the core functions of KernelCI, to parse YAML
+configuration and perform each step of the pipeline such as building kernels,
+running tests and sending results to a database.
 
 
 ## Dockerfiles
 
-Each Jenkins Pipeline job runs in a Docker container.  The Docker images used
-by these containers are built from `jenkins/dockerfiles` and pushed to the
-[`kernelci Docker repositories`](https://cloud.docker.com/u/kernelci/repository/list).
+Each step of the KernelCI Pipeline can be run in a Docker container.  On
+[kernelci.org](https://kernelci.org), this is done in Jenkins jobs.  The Docker
+images used by these containers are built from `jenkins/dockerfiles` and pushed
+to the [`kernelci Docker
+repositories`](https://cloud.docker.com/u/kernelci/repository/list).
 
 
 ## Test templates
 
-The kernelci.org tests typically run in [LAVA](https://lavasoftware.org/).
-Each LAVA test is generated using template files which can be found in the
+The majority of [kernelci.org](https://kernelci.org) tests get run in
+[LAVA](https://lavasoftware.org/), although this is not a requirement.  Each
+LAVA test is generated using template files which can be found in the
 [`templates`](https://github.com/kernelci/kernelci-core/tree/master/templates)
 directory.
