@@ -456,7 +456,10 @@ def _run_make(kdir, arch, target=None, jopt=None, silent=True, cc='gcc',
     if cross_compile_compat:
         args.append('CROSS_COMPILE_COMPAT={}'.format(cross_compile_compat))
 
-    args.append('HOSTCC={}'.format(cc))
+    if cc.startswith('clang'):
+        args.append('LLVM=1')
+    else:
+        args.append('HOSTCC={}'.format(cc))
 
     if use_ccache:
         px = cross_compile if cc == 'gcc' and cross_compile else ''
