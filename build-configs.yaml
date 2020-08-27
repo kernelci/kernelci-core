@@ -201,6 +201,13 @@ build_environments:
     cross_compile: *default_cross_compile
     cross_compile_compat: *default_cross_compile_compat
 
+  clang-12:
+    cc: clang
+    cc_version: 12
+    arch_map: *clang_arch_map
+    cross_compile: *default_cross_compile
+    cross_compile_compat: *default_cross_compile_compat
+
 
 # Default config with full build coverage
 build_configs_defaults:
@@ -763,6 +770,13 @@ build_configs:
               - 'allnoconfig'
 
       clang-10:
+        build_environment: clang-10
+        architectures:
+          arm: *arm_defconfig
+          arm64: *arm64_defconfig
+          x86_64: *x86_64_defconfig
+
+      clang-12:
         build_environment: clang-10
         architectures:
           arm: *arm_defconfig
