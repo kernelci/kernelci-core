@@ -199,6 +199,7 @@ build_environments:
     cc_version: 10
     arch_map: *clang_arch_map
     cross_compile: *default_cross_compile
+    cross_compile_compat: *default_cross_compile_compat
 
 
 # Default config with full build coverage
