@@ -182,6 +182,7 @@ class Args:
     lab_json = {
         'name': '--lab-json',
         'help': "Path to a JSON file with lab-specific info",
+        'section': SECTION_LAB,
     }
 
     lab_token = {
