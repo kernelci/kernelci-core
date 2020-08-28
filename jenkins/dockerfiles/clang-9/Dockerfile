@@ -11,8 +11,8 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     binutils-aarch64-linux-gnu \
     binutils-arm-linux-gnueabihf \
     binutils \
-    clang-9
+    clang-9 lld-9 llvm-9
 
-RUN update-alternatives --install /usr/bin/clang clang /usr/bin/clang-9 500
+ENV PATH=/usr/lib/llvm-9/bin:${PATH}
 
 RUN apt-get autoremove -y gcc
