@@ -527,16 +527,20 @@ def _make_defconfig(defconfig, kwargs, extras, verbose, log_file):
         os.chmod(kconfig_frag,
                  stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH)
         rel_path = os.path.relpath(output_path, kdir)
+        cc = kwargs['cc']
+        cc_env = (
+            "export LLVM=1" if cc.startswith('clang') else
+            "export HOSTCC={cc}\nexport CC={cc}".format(cc=cc)
+        )
         cmd = """
 set -e
 cd {kdir}
+{cc_env}
 export ARCH={arch}
-export HOSTCC={cc}
-export CC={cc}
 export CROSS_COMPILE={cross}
 export CROSS_COMPILE_COMPAT={cross_compat}
 scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
-""".format(kdir=kdir, arch=kwargs['arch'], cc=kwargs['cc'],
+""".format(kdir=kdir, arch=kwargs['arch'], cc_env=cc_env,
            cross=kwargs['cross_compile'], output=rel_path,
            cross_compat=kwargs['cross_compile_compat'],
            base=os.path.join(rel_path, '.config'),
