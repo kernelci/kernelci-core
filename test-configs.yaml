@@ -39,6 +39,7 @@ file_systems:
     type: debian
     ramdisk: 'buster/20200911.0/{arch}/initrd.cpio.gz'
     nfs: 'buster/20200911.0/{arch}/full.rootfs.tar.xz'
+    root_type: nfs
 
   debian_buster-cros-ec_ramdisk:
     type: debian
@@ -164,7 +165,6 @@ test_plans:
 
   kselftest:
     rootfs: debian_buster_nfs
-    pattern: 'kselftest/{category}-{method}-{protocol}-nfs-kselftest-template.jinja2'
     filters:
       - passlist: {defconfig: ['kselftest']}
     params:
