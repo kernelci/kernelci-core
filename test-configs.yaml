@@ -588,6 +588,11 @@ device_types:
     class: arm-dtb
     boot_method: uboot
 
+  imx6sll-evk:
+    mach: imx
+    class: arm-dtb
+    boot_method: uboot
+
   imx6sx-sdb:
     mach: imx
     class: arm-dtb
@@ -608,9 +613,27 @@ device_types:
     class: arm-dtb
     boot_method: uboot
 
+  imx7ulp-evk:
+    mach: imx
+    class: arm-dtb
+    boot_method: uboot
+
+  imx8mm-ddr4-evk:
+    mach: imx
+    arch: arm64
+    dtb: 'freescale/imx8mm-ddr4-evk.dtb'
+    boot_method: uboot
+
   imx8mn-ddr4-evk:
     mach: imx
-    class: arm64-dtb
+    arch: arm64
+    dtb: 'freescale/imx8mn-ddr4-evk.dtb'
+    boot_method: uboot
+
+  imx8mp-evk:
+    mach: imx
+    arch: arm64
+    dtb: 'freescale/imx8mp-evk.dtb'
     boot_method: uboot
 
   jetson-tk1:
@@ -1653,37 +1676,46 @@ test_configs:
   - device_type: imx6q-sabresd
     test_plans:
       - baseline
-      - kselftest
 
   - device_type: imx6qp-sabresd
     test_plans:
       - baseline
-      - kselftest
+
+  - device_type: imx6sll-evk
+    test_plans:
+      - baseline
 
   - device_type: imx6sx-sdb
     test_plans:
       - baseline
-      - kselftest
 
   - device_type: imx6ul-14x14-evk
     test_plans:
       - baseline
-      - kselftest
 
   - device_type: imx6ull-14x14-evk
     test_plans:
       - baseline
-      - kselftest
 
   - device_type: imx7d-sdb
     test_plans:
       - baseline
-      - kselftest
+
+  - device_type: imx7ulp-evk
+    test_plans:
+      - baseline
+
+  - device_type: imx8mm-ddr4-evk
+    test_plans:
+      - baseline
 
   - device_type: imx8mn-ddr4-evk
     test_plans:
       - baseline
-      - kselftest
+
+  - device_type: imx8mp-evk
+    test_plans:
+      - baseline
 
   - device_type: jetson-tk1
     test_plans:
