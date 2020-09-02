@@ -168,7 +168,7 @@ test_plans:
     filters:
       - passlist: {defconfig: ['kselftest']}
     params:
-      job_timeout: '60'
+      job_timeout: '120'
 
   ltp:
     rootfs: debian_buster-ltp_nfs
