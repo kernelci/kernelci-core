@@ -31,10 +31,6 @@ file_systems:
     type: buildroot
     ramdisk: '{arch}/baseline/rootfs.cpio.gz'
 
-  buildroot_kselftest_ramdisk:
-    type: buildroot
-    ramdisk: '{arch}/tests/rootfs.cpio.gz'
-
   debian_buster_ramdisk:
     type: debian
     ramdisk: 'buster/20200911.0/{arch}/rootfs.cpio.gz'
