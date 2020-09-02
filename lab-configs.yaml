@@ -56,6 +56,7 @@ labs:
             - igt-kms-exynos
             - igt-kms-tegra
             - igt-gpu-panfrost
+            - kselftest
             - ltp
             - sleep
             - usb
