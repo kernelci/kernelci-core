@@ -12,3 +12,12 @@ RUN update-alternatives \
     --slave /usr/bin/arm-linux-gnueabihf-gcc-gcov arm-linux-gnueabihf-gcov /usr/bin/arm-linux-gnueabihf-gcov-8 \
     --slave /usr/bin/arm-linux-gnueabihf-gcc-gcov-dump arm-linux-gnueabihf-gcov-dump /usr/bin/arm-linux-gnueabihf-gcov-dump-8 \
     --slave /usr/bin/arm-linux-gnueabihf-gcc-gcov-tool arm-linux-gnueabihf-gcov-tool /usr/bin/arm-linux-gnueabihf-gcov-tool-8
+
+# kselftest
+RUN dpkg --add-architecture armhf
+RUN apt-get update && apt-get install --no-install-recommends -y \
+   libc6-dev:armhf \
+   libcap-dev:armhf \
+   libcap-ng-dev:armhf \
+   libelf-dev:armhf \
+   libpopt-dev:armhf
