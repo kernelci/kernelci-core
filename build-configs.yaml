@@ -833,12 +833,9 @@ build_configs:
     branch: 'stable-next'
     variants: *stable_variants
 
-#  Disabled as the branch name contains a '/'.  See discussion here:
-#  https://github.com/kernelci/kernelci-core/issues/23
-#
-#  soc_fixes:
-#    tree: soc
-#    branch: 'arm/fixes'
+  soc_fixes:
+    tree: soc
+    branch: 'arm/fixes'
 
   soc_for-next:
     tree: soc
