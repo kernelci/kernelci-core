@@ -23,3 +23,12 @@ RUN update-alternatives \
     --slave /usr/bin/arm-linux-gnueabihf-gcc-gcov arm-linux-gnueabihf-gcov /usr/bin/arm-linux-gnueabihf-gcov-8 \
     --slave /usr/bin/arm-linux-gnueabihf-gcc-gcov-dump arm-linux-gnueabihf-gcov-dump /usr/bin/arm-linux-gnueabihf-gcov-dump-8 \
     --slave /usr/bin/arm-linux-gnueabihf-gcc-gcov-tool arm-linux-gnueabihf-gcov-tool /usr/bin/arm-linux-gnueabihf-gcov-tool-8
+
+# kselftest
+RUN dpkg --add-architecture arm64
+RUN apt-get update && apt-get install --no-install-recommends -y \
+   libc6-dev:arm64 \
+   libcap-dev:arm64 \
+   libcap-ng-dev:arm64 \
+   libelf-dev:arm64 \
+   libpopt-dev:arm64
