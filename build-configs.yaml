@@ -180,9 +180,9 @@ build_environments:
     cross_compile_compat: &default_cross_compile_compat
       arm64: 'arm-linux-gnueabihf-'
 
-  clang-9:
+  clang-10:
     cc: clang
-    cc_version: 9
+    cc_version: 10
     arch_map: &clang_arch_map
       i386:
       x86_64:
@@ -191,13 +191,6 @@ build_environments:
       mips:
       arc:
       riscv:
-    cross_compile: *default_cross_compile
-    cross_compile_compat: *default_cross_compile_compat
-
-  clang-10:
-    cc: clang
-    cc_version: 10
-    arch_map: *clang_arch_map
     cross_compile: *default_cross_compile
     cross_compile_compat: *default_cross_compile_compat
 
@@ -745,8 +738,8 @@ build_configs:
               - 'allnoconfig'
               - 'allmodconfig'
 
-      clang-9:
-        build_environment: clang-9
+      clang-10:
+        build_environment: clang-10
         architectures:
           arm64:
             extra_configs:
@@ -769,13 +762,6 @@ build_configs:
             extra_configs:
               - 'allmodconfig'
               - 'allnoconfig'
-
-      clang-10:
-        build_environment: clang-10
-        architectures:
-          arm: *arm_defconfig
-          arm64: *arm64_defconfig
-          x86_64: *x86_64_defconfig
 
   next_pending-fixes:
     tree: next
