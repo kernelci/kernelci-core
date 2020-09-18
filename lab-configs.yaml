@@ -58,7 +58,7 @@ labs:
             - igt-kms-tegra
             - igt-gpu-panfrost
             - kselftest
-            - ltp
+            - ltp-ipc
             - sleep
             - usb
             - v4l2-compliance-uvc
