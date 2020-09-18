@@ -170,10 +170,15 @@ test_plans:
     params:
       job_timeout: '120'
 
-  ltp:
+  ltp-ipc:
     rootfs: debian_buster-ltp_nfs
+    pattern: 'ltp/{category}-{method}-{protocol}-{rootfs}-ltp-template.jinja2'
     filters:
       - blocklist: *kselftest_defconfig_filter
+    params:
+      skip_install: "true"
+      tst_cmdfiles: "ipc"
+      skipfile: skipfile-lkft.yaml
 
   preempt-rt:
     rootfs: debian_buster_nfs
@@ -1978,7 +1983,7 @@ test_configs:
       - baseline-nfs
       - cros-ec
       - kselftest
-      - ltp
+      - ltp-ipc
       - sleep
       - v4l2-compliance-uvc
 
