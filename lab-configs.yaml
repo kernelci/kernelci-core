@@ -96,6 +96,7 @@ labs:
       - passlist:
           plan:
             - baseline
+            - baseline-nfs
 
   lab-pengutronix:
     lab_type: lava
