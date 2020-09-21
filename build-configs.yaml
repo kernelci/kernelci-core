@@ -173,6 +173,7 @@ fragments:
     configs:
       - 'CONFIG_SERIAL_8250_DW=y'
       - 'CONFIG_X86_AMD_PLATFORM_DEVICE=y'
+      - 'CONFIG_MFD_INTEL_LPSS_PCI=y'
 
   x86_kvm_guest:
     path: "kernel/configs/kvm_guest.config"
