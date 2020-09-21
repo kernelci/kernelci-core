@@ -547,6 +547,14 @@ device_types:
     boot_method: depthcharge
     filters:
       - passlist: {defconfig: ['x86-chromebook']}
+
+  hp-x360-12b-ca0004na-octopus:
+    mach: x86
+    arch: x86_64
+    boot_method: depthcharge
+    filters:
+      - passlist: {defconfig: ['x86-chromebook']}
+
   hsdk:
     mach: arc
     class: arc-dtb
@@ -1696,6 +1704,13 @@ test_configs:
       - ltp-crypto
 
   - device_type: hp-11A-G6-EE-grunt
+    test_plans:
+      - baseline
+      - baseline-nfs
+      - cros-ec
+      - sleep
+
+  - device_type: hp-x360-12b-ca0004na-octopus
     test_plans:
       - baseline
       - baseline-nfs
