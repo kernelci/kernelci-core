@@ -88,6 +88,17 @@ labs:
           plan:
             - baseline
 
+  lab-kunit:
+    lab_type: shell
+    url: '#'
+    filters:
+      - passlist:
+          plan:
+            - baseline
+            - kunit-alltests
+            - kunit-defconfig
+            - kunit-kunitconfig
+
   lab-linaro-lkft:
     lab_type: lava.lava_rest
     url: 'https://lkft.validation.linaro.org/'
