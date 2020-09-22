@@ -67,14 +67,15 @@ labs:
             - v4l2-compliance-uvc
             - v4l2-compliance-vivid
 
-  lab-kontron:
-    lab_type: lava
-    url: 'https://lavalab.kontron.com/RPC2/'
+  lab-kunit:
+    lab_type: shell
+    url: '#'
     filters:
       - passlist:
           plan:
-            - baseline
-            - baseline-nfs
+            - kunit-alltests
+            - kunit-defconfig
+            - kunit-kunitconfig
 
   lab-linaro-lkft:
     lab_type: lava
