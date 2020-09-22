@@ -299,6 +299,30 @@ test_plans:
     filters:
       - passlist: {defconfig: ['preempt_rt']}
 
+  kunit-alltests:
+    base_name: kunit
+    rootfs: buildroot_ramdisk
+    params:
+      config: "--alltests"
+      kunit_json: "kunit_alltests.json"
+      run_path: "tools/testing/kunit/kunit.py"
+
+  kunit-defconfig:
+    base_name: kunit
+    rootfs: buildroot_ramdisk
+    params:
+      config: ""
+      kunit_json: "kunit_defconfig.json"
+      run_path: "tools/testing/kunit/kunit.py"
+
+  kunit-kunitconfig:
+    base_name: kunit
+    rootfs: buildroot_ramdisk
+    params:
+      config: ""
+      kunit_json: "kunit_kunitconfig.json"
+      run_path: "tools/testing/kunit/kunit.py"
+
   sleep:
     rootfs: debian_buster_ramdisk
     params:
