@@ -184,6 +184,10 @@ fi
         echo "Sending results to Simon Horman"
         curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "build_report": 1, "send_to": ["horms@verge.net.au", "kernelci-results@groups.io"], "format": ["txt", "html"], "delay": 10}' ${API}/send
         curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'",  "report_type": "test", "plan": "baseline", "send_to": ["horms@verge.net.au", "kernelci-results@groups.io"], "format": ["txt"], "delay": 12600}' ${API}/send
+    elif [ "$TREE_NAME" == "robh" ]; then
+        echo "Sending results for Rob Herring's tree"
+        curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "build_report": 1, "format": ["txt"], "send_to": ["kernelci-results@groups.io", "robh@kernel.org"], "delay": 60}' ${API}/send
+        curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'",  "report_type": "test", "plan": "baseline", "send_to": ["kernelci-results@groups.io", "robh@kernel.org"], "format": ["txt"], "delay": 1800}' ${API}/send
     elif [ "$TREE_NAME" == "rmk" ]; then
         echo "Sending results for SoC tree"
         curl -X POST -H "Authorization: $EMAIL_AUTH_TOKEN" -H "Content-Type: application/json" -d '{"job": "'$TREE_NAME'", "kernel": "'$GIT_DESCRIBE'", "git_branch": "'$BRANCH'", "build_report": 1, "format": ["txt"], "send_to": ["kernel-build-reports@lists.linaro.org", "kernelci-results@groups.io"], "delay": 60}' ${API}/send
