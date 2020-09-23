@@ -525,6 +525,7 @@ device_types:
     boot_method: barebox
     filters:
       - blocklist: *allmodconfig_filter
+
   imx28-duckbill:
     mach: imx
     class: arm-dtb
