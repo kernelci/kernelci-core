@@ -15,4 +15,30 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 
 ENV PATH=/usr/lib/llvm-11/bin:${PATH}
 
+# kselftest x86
+RUN apt-get update && apt-get install --no-install-recommends -y \
+   libc6-dev \
+   libcap-dev \
+   libcap-ng-dev \
+   libelf-dev \
+   libpopt-dev
+
+# kselftest arm64
+RUN dpkg --add-architecture arm64
+RUN apt-get update && apt-get install --no-install-recommends -y \
+   libc6-dev:arm64 \
+   libcap-dev:arm64 \
+   libcap-ng-dev:arm64 \
+   libelf-dev:arm64 \
+   libpopt-dev:arm64
+
+# kselftest arm
+RUN dpkg --add-architecture armhf
+RUN apt-get update && apt-get install --no-install-recommends -y \
+   libc6-dev:armhf \
+   libcap-dev:armhf \
+   libcap-ng-dev:armhf \
+   libelf-dev:armhf \
+   libpopt-dev:armhf
+
 RUN apt-get autoremove -y gcc
