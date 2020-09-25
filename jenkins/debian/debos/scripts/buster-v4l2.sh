@@ -6,16 +6,20 @@ set -e
 
 # Build-depends needed to build the test suites, they'll be removed later
 BUILD_DEPS="\
-    build-essential \
-    ca-certificates \
-    git \
     autoconf \
     autogen \
     automake \
     autopoint \
+    build-essential \
+    ca-certificates \
+    git \
     gettext \
+    libasound2-dev \
+    libelf-dev  \
     libglib2.0-dev \
+    libjpeg62-turbo-dev \
     libtool \
+    libudev-dev  \
 "
 
 apt-get install --no-install-recommends -y  ${BUILD_DEPS}
