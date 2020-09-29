@@ -773,14 +773,18 @@ build_configs:
           i386: *i386_defconfig
           mips: *mips_defconfig
           riscv: *riscv_defconfig
-          x86_64: *x86_64_defconfig
+          x86_64:
+            <<: *x86_64_defconfig
+            fragments: [x86_chromebook]
       clang-10: &staging_clang
         build_environment: clang-10
         fragments: [kselftest]
         architectures:
           arm: *arm_defconfig
           arm64: *arm64_defconfig
-          x86_64: *x86_64_defconfig
+          x86_64:
+            <<: *x86_64_defconfig
+            fragments: [x86_chromebook]
 
   kernelci_staging-next:
     tree: kernelci
