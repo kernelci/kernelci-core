@@ -103,22 +103,7 @@ test_plans:
     rootfs: debian_buster_nfs
     pattern: 'baseline/{category}-{method}-{protocol}-nfs-baseline-template.jinja2'
     filters:
-      - combination:
-          keys: ['arch', 'defconfig']
-          values:
-            - ['arm', 'exynos_defconfig']
-            - ['arm', 'omap2plus_defconfig']
-            - ['arm', 'sunxi_defconfig']
-            - ['arm', 'hisi_defconfig']
-            - ['arm', 'sama5_defconfig']
-            - ['arm', 'tegra_defconfig']
-            - ['arm', 'mvebu_v5_defconfig']
-            - ['arm', 'multi_v5_defconfig']
-            - ['arm', 'multi_v7_defconfig']
-            - ['arm', 'mvebu_v7_defconfig']
-            - ['arm', 'at91_dt_defconfig']
-            - ['arm', 'davinci_all_defconfig']
-            - ['arm64', 'defconfig']
+      - blocklist: *kselftest_defconfig_filter
 
   cros-ec:
     rootfs: debian_buster-cros-ec_ramdisk
