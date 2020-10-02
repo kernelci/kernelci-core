@@ -5,7 +5,7 @@
 file_system_types:
 
   buildroot:
-    url: 'http://storage.kernelci.org/images/rootfs/buildroot/kci-2020.05-2-g61393d279614'
+    url: 'http://storage.kernelci.org/images/rootfs/buildroot/kci-2020.05-3-g27eeeac7da2d'
 
     arch_map:
       arm64be: [{arch: arm64, endian: big}]
