@@ -117,6 +117,11 @@ test_plans:
   cros-ec:
     rootfs: debian_buster-cros-ec_ramdisk
 
+  crypto:
+    base_name: crypto
+    rootfs: debian_buster_ramdisk
+    pattern: 'crypto/{category}-{method}-{protocol}-{rootfs}-crypto-template.jinja2'
+
   igt-kms: &igt
     rootfs: debian_buster-igt_ramdisk
     pattern: 'igt/{category}-{method}-{protocol}-{rootfs}-igt.jinja2'
@@ -1558,10 +1563,12 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - crypto
 
   - device_type: d2500cc
     test_plans:
       - baseline
+      - crypto
 
   - device_type: d03
     test_plans:
@@ -1676,6 +1683,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - crypto
       - sleep
       - usb
 
@@ -1796,6 +1804,7 @@ test_configs:
   - device_type: meson-gxl-s905x-libretech-cc
     test_plans:
       - baseline
+      - crypto
 
   - device_type: meson-gxm-khadas-vim2
     test_plans:
@@ -1860,6 +1869,7 @@ test_configs:
   - device_type: panda
     test_plans:
       - baseline
+      - crypto
 
   - device_type: panda-es
     test_plans:
@@ -1963,6 +1973,7 @@ test_configs:
     test_plans: &r8a7795-salvator-x_test-plans
       - baseline
       - baseline-nfs
+      - crypto
 
 # this is the same device than r8a7795-salvator-x
   - device_type: r8a77950-salvator-x
@@ -2033,51 +2044,63 @@ test_configs:
   - device_type: stm32mp157c-dk2
     test_plans:
       - baseline
+      - crypto
 
   - device_type: sun4i-a10-olinuxino-lime
     test_plans:
       - baseline
       - baseline-nfs
+      - crypto
 
   - device_type: sun50i-a64-bananapi-m64
     test_plans:
       - baseline
+      - crypto
 
   - device_type: sun50i-a64-pine64-plus
     test_plans:
       - baseline
+      - crypto
 
   - device_type: sun50i-h5-libretech-all-h3-cc
     test_plans:
       - baseline
+      - crypto
 
   - device_type: sun50i-h5-nanopi-neo-plus2
     test_plans:
       - baseline
+      - crypto
 
   - device_type: sun50i-h6-orangepi-one-plus
     test_plans:
       - baseline
+      - crypto
 
   - device_type: sun50i-h6-orangepi-3
     test_plans:
       - baseline
+      - crypto
 
   - device_type: sun50i-h6-pine-h64
     test_plans:
       - baseline
+      - crypto
 
   - device_type: sun50i-h6-pine-h64-model-b
     test_plans:
       - baseline
+      - crypto
 
   - device_type: sun50i-h6-pine-h64-model-b_5.4
     test_plans:
       - baseline
+      - crypto
 
   - device_type: sun5i-a13-olinuxino-micro
     test_plans:
       - baseline
+      - crypto
 
   - device_type: sun5i-gr8-chip
     test_plans:
@@ -2090,11 +2113,13 @@ test_configs:
   - device_type: sun7i-a20-cubieboard2
     test_plans:
       - baseline
+      - crypto
 
   - device_type: sun7i-a20-olinuxino-lime2
     test_plans:
       - baseline
       - baseline-nfs
+      - crypto
 
   - device_type: sun8i-a23-evb
     test_plans:
@@ -2107,10 +2132,12 @@ test_configs:
   - device_type: sun8i-a33-olinuxino
     test_plans:
       - baseline
+      - crypto
 
   - device_type: sun8i-a83t-bananapi-m3
     test_plans:
       - baseline
+      - crypto
 
   - device_type: sun8i-a83t-allwinner-h8homlet-v2
     test_plans:
@@ -2119,30 +2146,37 @@ test_configs:
   - device_type: sun8i-h2-plus-orangepi-zero
     test_plans:
       - baseline
+      - crypto
 
   - device_type: sun8i-h2-plus-orangepi-r1
     test_plans:
       - baseline
+      - crypto
 
   - device_type: sun8i-h2-plus-libretech-all-h3-cc
     test_plans:
       - baseline
+      - crypto
 
   - device_type: sun8i-h3-bananapi-m2-plus
     test_plans:
       - baseline
+      - crypto
 
   - device_type: sun8i-h3-libretech-all-h3-cc
     test_plans:
       - baseline
+      - crypto
 
   - device_type: sun8i-h3-orangepi-pc
     test_plans:
       - baseline
+      - crypto
 
   - device_type: sun8i-r40-bananapi-m2-ultra
     test_plans:
       - baseline
+      - crypto
 
   - device_type: synquacer-acpi
     test_plans:

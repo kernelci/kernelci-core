@@ -139,6 +139,13 @@ trees:
 
 fragments:
 
+  crypto:
+    path: "kernel/configs/crypto.config"
+    configs:
+      - 'CONFIG_CRYPTO_TEST=m'
+      - 'CONFIG_CRYPTO_MANAGER_EXTRA_TESTS=y'
+      - '# CONFIG_CRYPTO_MANAGER_DISABLE_TESTS is not set'
+
   debug:
     path: "kernel/configs/debug.config"
 

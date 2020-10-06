@@ -1,0 +1,9 @@
+- test:
+    timeout:
+      minutes: 10
+    definitions:
+    - repository: https://github.com/linaro/test-definitions
+      from: git
+      history: False
+      path: automated/linux/crypto/crypto.yaml
+      name: crypto

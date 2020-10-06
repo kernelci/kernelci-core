@@ -12,6 +12,7 @@ labs:
             - baseline-fastboot
             - kselftest
             - preempt-rt
+            - crypto
 
   lab-broonie:
     lab_type: lava
@@ -36,6 +37,7 @@ labs:
             - baseline
             - baseline-nfs
             - sleep
+            - crypto
           tree:
             - kernelci
             - mainline
