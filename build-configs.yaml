@@ -358,6 +358,36 @@ android_variants: &android_variants
       i386: *i386_arch
       riscv: *riscv_arch
 
+# Build fewer kernel configs with stable branches and kselftest
+stable_selftest_variants: &stable_selftest_variants
+  gcc-8:
+    build_environment: gcc-8
+    fragments: &stable_selftest_fragments
+      - 'kselftest'
+      - 'tinyconfig'
+    architectures:
+      arc:
+        base_defconfig: 'haps_hs_smp_defconfig'
+        extra_configs: ['allnoconfig']
+        filters: *arc_default_filters
+      arm:
+        base_defconfig: 'multi_v7_defconfig'
+        extra_configs: ['allnoconfig']
+      arm64:
+        extra_configs: ['allnoconfig']
+      i386:
+        base_defconfig: 'i386_defconfig'
+        extra_configs: ['allnoconfig']
+      mips:
+        base_defconfig: '32r2el_defconfig'
+        extra_configs: ['allnoconfig']
+        filters: *mips_default_filters
+      riscv:
+        extra_configs: ['allnoconfig']
+      x86_64:
+        base_defconfig: 'x86_64_defconfig'
+        extra_configs: ['allnoconfig']
+
 build_configs:
 
   agross:
@@ -927,7 +957,7 @@ build_configs:
   stable_5.8:
     tree: stable
     branch: 'linux-5.8.y'
-    variants: *stable_variants
+    variants: *stable_selftest_variants
 
   stable-rc_3.16:
     tree: stable-rc
