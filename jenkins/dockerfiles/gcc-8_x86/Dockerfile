@@ -8,6 +8,7 @@ RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 500
 
 # kselftest
 RUN apt-get update && apt-get install --no-install-recommends -y \
+   gcc-multilib \
    libc6-dev \
    libcap-dev \
    libcap-ng-dev \
