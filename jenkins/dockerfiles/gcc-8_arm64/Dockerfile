@@ -31,4 +31,5 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    libcap-dev:arm64 \
    libcap-ng-dev:arm64 \
    libelf-dev:arm64 \
-   libpopt-dev:arm64
+   libpopt-dev:arm64 \ 
+   libc6-dev-amd64-cross:amd64
