@@ -761,9 +761,10 @@ build_configs:
               - 'allnoconfig'
               - 'allmodconfig'
 
+      # clang-10 is the current minium clang version for -next
       clang-10:
         build_environment: clang-10
-        architectures:
+        architectures: &clang_arches_next
           arm64:
             extra_configs:
               - 'allmodconfig'
@@ -785,6 +786,11 @@ build_configs:
             extra_configs:
               - 'allmodconfig'
               - 'allnoconfig'
+
+      # Latest clang release
+      clang-11:
+        build_environment: clang-11
+        architectures: *clang_arches_next
 
   next_pending-fixes:
     tree: next
