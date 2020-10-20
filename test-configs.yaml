@@ -1547,6 +1547,7 @@ test_configs:
   - device_type: bcm2836-rpi-2-b
     test_plans:
       - baseline
+      - ltp-ipc
       - sleep
       - usb
 
@@ -1563,6 +1564,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - ltp-ipc
 
   - device_type: beagle-xm
     test_plans:
@@ -1694,6 +1696,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - ltp-ipc
       - sleep
       - usb
 
@@ -1745,6 +1748,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - ltp-ipc
 
   - device_type: kirkwood-db-88f6282
     test_plans:
@@ -1862,6 +1866,7 @@ test_configs:
       - baseline
       - baseline-nfs
       - igt-kms-exynos
+      - ltp-ipc
       - sleep
       - usb
 
@@ -2018,6 +2023,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - ltp-ipc
       - sleep
       - usb
 
@@ -2085,6 +2091,7 @@ test_configs:
   - device_type: sun50i-h6-pine-h64
     test_plans:
       - baseline
+      - ltp-ipc
 
   - device_type: sun50i-h6-pine-h64-model-b
     test_plans:
