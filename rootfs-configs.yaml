@@ -143,4 +143,5 @@ rootfs_configs:
     arch_list:
       - amd64
       - arm64
+      - armhf
     script: "scripts/buster-ltp.sh"
