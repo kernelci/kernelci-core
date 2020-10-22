@@ -21,7 +21,7 @@
 # You will need push privileges to kernelci namespace on dockerhub
 # -n = disable cache (for when rebuilding a moving target image e.g. clang-8)
 # -p = push to dockerhub
-# -b = also rebuild build-base
+# -b = also rebuild kernel builders
 # -d = also rebuild debos
 # -i = also rebuild dt-validation
 # -q = make the builds quiet
@@ -36,7 +36,7 @@ do
   case $option in
     n )  cache_args="--no-cache";;
     p )  push=true;;
-    b )  base=true;;
+    b )  builders=true;;
     d )  debos=true;;
     i )  dt_validation=true;;
     k )  k8s=true;;
@@ -63,7 +63,7 @@ echo_push() {
 }
 
 
-if [ "x${base}" == "xtrue" ]
+if [ "x${builders}" == "xtrue" ]
 then
   tag=${tag_px}build-base
   echo_build $tag
@@ -73,19 +73,18 @@ then
     echo_push $tag
     docker push $tag
   fi
+  for c in {gcc,clang}-*
+  do
+      tag=${tag_px}build-$c
+      echo_build $tag
+      docker build ${quiet} ${cache_args} $c -t $tag
+      if [ "x${push}" == "xtrue" ]
+      then
+          echo_push $tag
+          docker push $tag
+      fi
+  done
 fi
-
-for c in {gcc,clang}-*
-do
-  tag=${tag_px}build-$c
-  echo_build $tag
-  docker build ${quiet} ${cache_args} $c -t $tag
-  if [ "x${push}" == "xtrue" ]
-  then
-    echo_push $tag
-    docker push $tag
-  fi
-done
 
 if [ "x${debos}" == "xtrue" ]
 then
