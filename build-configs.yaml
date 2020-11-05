@@ -215,7 +215,7 @@ build_environments:
 # Default config with full build coverage
 build_configs_defaults:
   variants:
-    gcc-8:
+    gcc-8: &default_gcc-8
       build_environment: gcc-8
 
       fragments: &default_fragments
@@ -275,6 +275,32 @@ build_configs_defaults:
   reference:
     tree: mainline
     branch: 'master'
+
+
+# Set of configs to build with Clang
+arch_clang_configs: &arch_clang_configs
+  arm64:
+    extra_configs:
+      - 'allmodconfig'
+      - 'allnoconfig'
+      - 'defconfig+CONFIG_ARM64_64K_PAGES=y'
+  arm:
+    base_defconfig: 'multi_v7_defconfig'
+    filters:
+      - regex: {
+          defconfig: '(?:aspeed_g5_def|multi_v5_def|multi_v7_def|allmod|allno)config',
+          }
+    extra_configs:
+      - 'aspeed_g5_defconfig'
+      - 'multi_v5_defconfig'
+      - 'allmodconfig'
+      - 'allnoconfig'
+  x86_64:
+    base_defconfig: 'x86_64_defconfig'
+    extra_configs:
+      - 'allmodconfig'
+      - 'allnoconfig'
+
 
 # Minimum architecture defconfigs
 arch_defconfigs: &arch_defconfigs
@@ -713,6 +739,11 @@ build_configs:
   mainline:
     tree: mainline
     branch: 'master'
+    variants:
+      gcc-8: *default_gcc-8
+      clang-10:
+        build_environment: clang-10
+        architectures: *arch_clang_configs
 
   media:
     tree: media
@@ -764,33 +795,12 @@ build_configs:
       # clang-10 is the current minium clang version for -next
       clang-10:
         build_environment: clang-10
-        architectures: &clang_arches_next
-          arm64:
-            extra_configs:
-              - 'allmodconfig'
-              - 'allnoconfig'
-              - 'defconfig+CONFIG_ARM64_64K_PAGES=y'
-          arm:
-            base_defconfig: 'multi_v7_defconfig'
-            filters:
-              - regex: {
-                defconfig: '(?:aspeed_g5_def|multi_v5_def|multi_v7_def|allmod|allno)config',
-              }
-            extra_configs:
-              - 'aspeed_g5_defconfig'
-              - 'multi_v5_defconfig'
-              - 'allmodconfig'
-              - 'allnoconfig'
-          x86_64:
-            base_defconfig: 'x86_64_defconfig'
-            extra_configs:
-              - 'allmodconfig'
-              - 'allnoconfig'
+        architectures: *arch_clang_configs
 
       # Latest clang release
       clang-11:
         build_environment: clang-11
-        architectures: *clang_arches_next
+        architectures: *arch_clang_configs
 
   next_pending-fixes:
     tree: next
