@@ -428,15 +428,6 @@ device_types:
       - passlist: {defconfig: ['bcm2835_defconfig']}
       - blocklist: {kernel: ['v3.', '4.4-', '4.9-', 'v4.13']}
 
-  beaglebone-black:
-    mach: omap2
-    class: arm-dtb
-    boot_method: uboot
-    dtb: 'am335x-boneblack.dtb'
-    filters:
-      - blocklist: *allmodconfig_filter
-      - blocklist: {lab: ['lab-baylibre']}
-
   beagle-xm:
     mach: omap2
     class: arm-dtb
@@ -445,6 +436,15 @@ device_types:
     filters:
       - blocklist: *allmodconfig_filter
       - blocklist: {kernel: ['v3.14']}
+
+  beaglebone-black:
+    mach: omap2
+    class: arm-dtb
+    boot_method: uboot
+    dtb: 'am335x-boneblack.dtb'
+    filters:
+      - blocklist: *allmodconfig_filter
+      - blocklist: {lab: ['lab-baylibre']}
 
   cubietruck:
     mach: allwinner
@@ -472,17 +472,17 @@ device_types:
     class: arm-dtb
     boot_method: uboot
 
-  dra7-evm:
-    mach: omap2
-    class: arm-dtb
-    boot_method: uboot
-
   dove-cubox:
     mach: mvebu
     class: arm-dtb
     boot_method: barebox
     filters:
       - blocklist: *allmodconfig_filter
+
+  dra7-evm:
+    mach: omap2
+    class: arm-dtb
+    boot_method: uboot
 
   fsl-ls1012a-rdb:
     mach: freescale
@@ -534,13 +534,19 @@ device_types:
           defconfig: ['tinyconfig']
           kernel: ['v4.', 'v5.1', 'v5.2']
 
+  hip07-d05:
+    mach: hisilicon
+    class: arm64-dtb
+    boot_method: grub
+    filters:
+      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+
   hp-11A-G6-EE-grunt:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
     filters:
       - passlist: {defconfig: ['x86-chromebook']}
-
   hsdk:
     mach: arc
     class: arc-dtb
@@ -548,13 +554,6 @@ device_types:
     filters:
       - blocklist:
           kernel: ['v4.14']
-
-  hip07-d05:
-    mach: hisilicon
-    class: arm64-dtb
-    boot_method: grub
-    filters:
-      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   imx23-olinuxino:
     mach: imx
@@ -610,35 +609,6 @@ device_types:
             - 'multi_v5_defconfig'
             - 'allmodconfig'
 
-  imx6qp-wandboard-revd1:
-    mach: imx
-    class: arm-dtb
-    boot_method: barebox
-    flags: ['fastboot']
-    filters:
-      - blocklist:
-          defconfig:
-            - 'imx_v4_v5_defconfig'
-            - 'multi_v5_defconfig'
-            - 'allmodconfig'
-
-  imx6q-var-dt6customboard:
-    mach: imx
-    class: arm-dtb
-    boot_method: uboot
-
-  imx6ul-pico-hobbit:
-    mach: imx
-    class: arm-dtb
-    boot_method: barebox
-    flags: ['fastboot']
-    filters:
-      - blocklist:
-          defconfig:
-            - 'imx_v4_v5_defconfig'
-            - 'multi_v5_defconfig'
-            - 'allmodconfig'
-
   imx6q-sabrelite:
     mach: imx
     class: arm-dtb
@@ -658,10 +628,27 @@ device_types:
     class: arm-dtb
     boot_method: uboot
 
+  imx6q-var-dt6customboard:
+    mach: imx
+    class: arm-dtb
+    boot_method: uboot
+
   imx6qp-sabresd:
     mach: imx
     class: arm-dtb
     boot_method: uboot
+
+  imx6qp-wandboard-revd1:
+    mach: imx
+    class: arm-dtb
+    boot_method: barebox
+    flags: ['fastboot']
+    filters:
+      - blocklist:
+          defconfig:
+            - 'imx_v4_v5_defconfig'
+            - 'multi_v5_defconfig'
+            - 'allmodconfig'
 
   imx6sll-evk:
     mach: imx
@@ -677,6 +664,18 @@ device_types:
     mach: imx
     class: arm-dtb
     boot_method: uboot
+
+  imx6ul-pico-hobbit:
+    mach: imx
+    class: arm-dtb
+    boot_method: barebox
+    flags: ['fastboot']
+    filters:
+      - blocklist:
+          defconfig:
+            - 'imx_v4_v5_defconfig'
+            - 'multi_v5_defconfig'
+            - 'allmodconfig'
 
   imx6ull-14x14-evk:
     mach: imx
@@ -757,11 +756,6 @@ device_types:
     dtb: 'freescale/fsl-ls1028a-kontron-sl28-var3-ads2.dtb'
     boot_method: uboot
 
-  meson8b-odroidc1:
-    mach: amlogic
-    class: arm-dtb
-    boot_method: uboot
-
   meson-g12a-sei510:
     mach: amlogic
     class: arm64-dtb
@@ -790,14 +784,14 @@ device_types:
     filters:
       - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
-  meson-g12b-odroid-n2:
+  meson-g12b-a311d-khadas-vim3:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
     filters:
       - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
-  meson-g12b-a311d-khadas-vim3:
+  meson-g12b-odroid-n2:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
@@ -852,7 +846,7 @@ device_types:
     filters:
       - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
-  meson-gxl-s905x-libretech-cc:
+  meson-gxl-s905x-khadas-vim:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
@@ -860,7 +854,7 @@ device_types:
     filters:
       - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
-  meson-gxl-s905x-khadas-vim:
+  meson-gxl-s905x-libretech-cc:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
@@ -904,6 +898,11 @@ device_types:
       dtb_addr: '0x1000000'
       ramdisk_addr: '0x6000000'
       cmdline: '"console=ttyAML0,115200 consoleblank=0 earlycon"'
+
+  meson8b-odroidc1:
+    mach: amlogic
+    class: arm-dtb
+    boot_method: uboot
 
   minnowboard-turbot-E3826:
     mach: x86
@@ -1010,22 +1009,6 @@ device_types:
     filters:
       - passlist: {defconfig: ['versatile_defconfig']}
 
-  qemu_arm-vexpress-a9:
-    base_name: qemu
-    mach: qemu
-    arch: arm
-    context:
-      arch: 'arm'
-      machine: 'vexpress-a9'
-      cpu: 'cortex-a9'
-      model: 'model=lan9118'
-      guestfs_interface: 'none'
-      extra_options: ['-device virtio-blk-device,drive=lavatest']
-    dtb: 'vexpress-v2p-ca9.dtb'
-    boot_method: qemu
-    filters:
-      - passlist: {defconfig: ['vexpress_defconfig']}
-
   qemu_arm-vexpress-a15:
     base_name: qemu
     mach: qemu
@@ -1040,6 +1023,22 @@ device_types:
         - '-device virtio-blk-device,drive=lavatest'
         - '-smp 2'
     dtb: 'vexpress-v2p-ca15-tc1.dtb'
+    boot_method: qemu
+    filters:
+      - passlist: {defconfig: ['vexpress_defconfig']}
+
+  qemu_arm-vexpress-a9:
+    base_name: qemu
+    mach: qemu
+    arch: arm
+    context:
+      arch: 'arm'
+      machine: 'vexpress-a9'
+      cpu: 'cortex-a9'
+      model: 'model=lan9118'
+      guestfs_interface: 'none'
+      extra_options: ['-device virtio-blk-device,drive=lavatest']
+    dtb: 'vexpress-v2p-ca9.dtb'
     boot_method: qemu
     filters:
       - passlist: {defconfig: ['vexpress_defconfig']}
@@ -1179,6 +1178,17 @@ device_types:
     class: arm-dtb
     boot_method: uboot
 
+  r8a7795-salvator-x: &r8a7795-salvator-x
+    base_name: r8a7795-salvator-x
+    mach: renesas
+    class: arm64-dtb
+    boot_method: uboot
+    flags: ['big_endian']
+    filters:
+      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
+
+  r8a77950-salvator-x: *r8a7795-salvator-x # same device as r8a7795-salvator-x
+
   r8a7796-m3ulcb: &r8a7796-m3ulcb
     base_name: r8a7796-m3ulcb
     mach: renesas
@@ -1188,6 +1198,26 @@ device_types:
       - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   r8a77960-ulcb: *r8a7796-m3ulcb # same device as r8a7796-m3ulcb
+
+  rk3288-rock2-square:
+    mach: rockchip
+    class: arm-dtb
+    boot_method: uboot
+    flags: ['lpae', 'fastboot']
+
+  rk3288-veyron-jaq:
+    mach: rockchip
+    class: arm-dtb
+    boot_method: depthcharge
+    flags: ['lpae']
+
+  rk3328-rock64:
+    mach: rockchip
+    class: arm64-dtb
+    boot_method: uboot
+    filters:
+      - blocklist: *allmodconfig_filter
+      - blocklist: {kernel: ['v3.', 'v4.4', 'v4.9']}
 
   rk3399-gru-kevin:
     mach: rockchip
@@ -1202,49 +1232,6 @@ device_types:
       - blocklist: *allmodconfig_filter
       - blocklist: {kernel: ['v3.', 'v4.4', 'v4.9']}
 
-  rk3288-rock2-square:
-    mach: rockchip
-    class: arm-dtb
-    boot_method: uboot
-    flags: ['lpae', 'fastboot']
-
-  rk3328-rock64:
-    mach: rockchip
-    class: arm64-dtb
-    boot_method: uboot
-    filters:
-      - blocklist: *allmodconfig_filter
-      - blocklist: {kernel: ['v3.', 'v4.4', 'v4.9']}
-
-  rk3288-veyron-jaq:
-    mach: rockchip
-    class: arm-dtb
-    boot_method: depthcharge
-    flags: ['lpae']
-
-  r8a7795-salvator-x: &r8a7795-salvator-x
-    base_name: r8a7795-salvator-x
-    mach: renesas
-    class: arm64-dtb
-    boot_method: uboot
-    flags: ['big_endian']
-    filters:
-      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
-
-  r8a77950-salvator-x: *r8a7795-salvator-x # same device as r8a7795-salvator-x
-
-  sun8i-a33-sinlinx-sina33:
-    mach: allwinner
-    class: arm-dtb
-    boot_method: uboot
-
-  socfpga-cyclone5-socrates:
-    mach: socfpga
-    class: arm-dtb
-    boot_method: barebox
-    filters:
-      - blocklist: *allmodconfig_filter
-
   snow:
     mach: exynos
     class: arm-dtb
@@ -1254,6 +1241,13 @@ device_types:
     filters:
       - blocklist: *allmodconfig_filter
       - blocklist: {defconfig: ['multi_v7_defconfig+CONFIG_SMP=n']}
+
+  socfpga-cyclone5-socrates:
+    mach: socfpga
+    class: arm-dtb
+    boot_method: barebox
+    filters:
+      - blocklist: *allmodconfig_filter
 
   stm32mp157c-dk2:
     mach: stm32
@@ -1364,6 +1358,14 @@ device_types:
     class: arm-dtb
     boot_method: uboot
 
+  sun8i-a33-sinlinx-sina33:
+    mach: allwinner
+    class: arm-dtb
+    boot_method: uboot
+    filters:
+      - blocklist: *allmodconfig_filter
+      - blocklist: {kernel: ['v3.', 'v4.4', 'v4.9']}
+
   sun8i-a83t-allwinner-h8homlet-v2:
     mach: allwinner
     class: arm-dtb
@@ -1374,17 +1376,17 @@ device_types:
     class: arm-dtb
     boot_method: uboot
 
+  sun8i-h2-plus-libretech-all-h3-cc:
+    mach: allwinner
+    class: arm-dtb
+    boot_method: uboot
+
   sun8i-h2-plus-orangepi-r1:
     mach: allwinner
     class: arm-dtb
     boot_method: uboot
 
   sun8i-h2-plus-orangepi-zero:
-    mach: allwinner
-    class: arm-dtb
-    boot_method: uboot
-
-  sun8i-h2-plus-libretech-all-h3-cc:
     mach: allwinner
     class: arm-dtb
     boot_method: uboot
