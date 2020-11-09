@@ -67,6 +67,11 @@ class cmd_validate(Command):
                     config.device_type, err[0], err[1]))
                 return False
 
+        err = kernelci.sort_check(lab_configs['labs'].keys())
+        if err:
+            print("Labs broken order: '{}' before '{}'".format(*err))
+            return False
+
         return True
 
 
