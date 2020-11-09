@@ -55,6 +55,11 @@ class cmd_validate(Command):
             print("Test configs broken order: '{}' before '{}'".format(*err))
             return False
 
+        for device_type in test_configs['device_types'].keys():
+            if device_type not in test_config_devices:
+                print("Device type has no test config: {}".format(device_type))
+                return False
+
         return True
 
 
