@@ -13,5 +13,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    libcap-ng-dev \
    libelf-dev \
    libfuse-dev \
+   libhugetlbfs-dev \
+   libmnl-dev \
    libnuma-dev \
    libpopt-dev

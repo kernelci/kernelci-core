@@ -21,5 +21,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    libcap-ng-dev:armhf \
    libelf-dev:armhf \
    libfuse-dev:armhf \
+   libhugetlbfs-dev:armhf \
+   libmnl-dev:armhf \
    libnuma-dev:armhf \
    libpopt-dev:armhf
