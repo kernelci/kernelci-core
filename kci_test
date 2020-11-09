@@ -47,6 +47,14 @@ class cmd_validate(Command):
             print("Device types broken order: '{}' before '{}'".format(*err))
             return False
 
+        test_config_devices = list(
+            str(config.device_type) for config in test_configs['test_configs']
+        )
+        err = kernelci.sort_check(test_config_devices)
+        if err:
+            print("Test configs broken order: '{}' before '{}'".format(*err))
+            return False
+
         return True
 
 
