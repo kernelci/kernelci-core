@@ -65,6 +65,7 @@ class cmd_validate(Command):
             if err:
                 print("Plans broken order for {}: '{}' before '{}'".format(
                     config.device_type, err[0], err[1]))
+                return False
 
         return True
 

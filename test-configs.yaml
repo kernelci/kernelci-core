@@ -2091,8 +2091,8 @@ test_configs:
       - baseline
       - baseline-nfs
       - cros-ec
-      - igt-kms-rockchip
       - igt-gpu-panfrost
+      - igt-kms-rockchip
       - kselftest
       - ltp-crypto
       - ltp-ipc
@@ -2115,7 +2115,9 @@ test_configs:
       - v4l2-compliance-uvc
 
   - device_type: rk3399-gru-kevin
-    test_plans: [igt-kms-rockchip, igt-gpu-panfrost]
+    test_plans:
+      - igt-gpu-panfrost
+      - igt-kms-rockchip
     filters:
       - blocklist: {kernel: ['v3.', 'v4.4', 'v4.9', 'v4.14']}
 
