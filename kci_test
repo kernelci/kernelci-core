@@ -60,6 +60,12 @@ class cmd_validate(Command):
                 print("Device type has no test config: {}".format(device_type))
                 return False
 
+        for config in test_configs['test_configs']:
+            err = kernelci.sort_check(config.test_plans.keys())
+            if err:
+                print("Plans broken order for {}: '{}' before '{}'".format(
+                    config.device_type, err[0], err[1]))
+
         return True
 
 
