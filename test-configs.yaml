@@ -1613,6 +1613,10 @@ test_configs:
     test_plans:
       - baseline
 
+  - device_type: beagle-xm
+    test_plans:
+      - baseline
+
   - device_type: beaglebone-black
     test_plans:
       - baseline
@@ -1620,20 +1624,16 @@ test_configs:
       - ltp-crypto
       - ltp-ipc
 
-  - device_type: beagle-xm
-    test_plans:
-      - baseline
-
   - device_type: cubietruck
     test_plans:
       - baseline
       - baseline-nfs
 
-  - device_type: d2500cc
+  - device_type: d03
     test_plans:
       - baseline
 
-  - device_type: d03
+  - device_type: d2500cc
     test_plans:
       - baseline
 
@@ -1684,16 +1684,16 @@ test_configs:
       - baseline
       - baseline-nfs
 
+  - device_type: hifive-unleashed-a00
+    test_plans:
+      - baseline
+
   - device_type: hip07-d05
     test_plans:
       - baseline
       - baseline-nfs
       - kselftest
       - ltp-crypto
-
-  - device_type: hifive-unleashed-a00
-    test_plans:
-      - baseline
 
   - device_type: hp-11A-G6-EE-grunt
     test_plans:
@@ -1740,20 +1740,6 @@ test_configs:
     test_plans:
       - baseline
 
-  - device_type: imx6qp-wandboard-revd1
-    test_plans:
-      - baseline
-
-  - device_type: imx6q-var-dt6customboard
-    test_plans:
-      - baseline
-
-  - device_type: imx6ul-pico-hobbit
-    test_plans:
-      - baseline
-      - baseline-nfs
-      - sleep
-
   - device_type: imx6q-sabrelite
     test_plans:
       - baseline
@@ -1767,7 +1753,15 @@ test_configs:
     test_plans:
       - baseline
 
+  - device_type: imx6q-var-dt6customboard
+    test_plans:
+      - baseline
+
   - device_type: imx6qp-sabresd
+    test_plans:
+      - baseline
+
+  - device_type: imx6qp-wandboard-revd1
     test_plans:
       - baseline
 
@@ -1782,6 +1776,12 @@ test_configs:
   - device_type: imx6ul-14x14-evk
     test_plans:
       - baseline
+
+  - device_type: imx6ul-pico-hobbit
+    test_plans:
+      - baseline
+      - baseline-nfs
+      - sleep
 
   - device_type: imx6ull-14x14-evk
     test_plans:
@@ -1799,15 +1799,15 @@ test_configs:
     test_plans:
       - baseline
 
-  - device_type: imx8mq-zii-ultra-zest
-    test_plans:
-      - baseline
-
   - device_type: imx8mn-ddr4-evk
     test_plans:
       - baseline
 
   - device_type: imx8mp-evk
+    test_plans:
+      - baseline
+
+  - device_type: imx8mq-zii-ultra-zest
     test_plans:
       - baseline
 
@@ -1838,10 +1838,6 @@ test_configs:
       - baseline
       - baseline-nfs
 
-  - device_type: meson8b-odroidc1
-    test_plans:
-      - baseline
-
   - device_type: meson-g12a-sei510
     test_plans:
       - baseline
@@ -1855,15 +1851,15 @@ test_configs:
     test_plans:
       - baseline
 
-  - device_type: meson-g12b-odroid-n2
-    test_plans:
-      - baseline
-      - kselftest
-
   - device_type: meson-g12b-a311d-khadas-vim3
     test_plans:
       - baseline
       - baseline-nfs
+
+  - device_type: meson-g12b-odroid-n2
+    test_plans:
+      - baseline
+      - kselftest
 
   - device_type: meson-gxbb-nanopi-k2
     test_plans:
@@ -1881,11 +1877,11 @@ test_configs:
     test_plans:
       - baseline
 
-  - device_type: meson-gxl-s905d-p230
+  - device_type: meson-gxl-s805x-p241
     test_plans:
       - baseline
 
-  - device_type: meson-gxl-s805x-p241
+  - device_type: meson-gxl-s905d-p230
     test_plans:
       - baseline
 
@@ -1916,6 +1912,10 @@ test_configs:
     test_plans:
       - baseline
       - baseline-fastboot
+
+  - device_type: meson8b-odroidc1
+    test_plans:
+      - baseline
 
   - device_type: minnowboard-turbot-E3826
     test_plans:
@@ -1982,11 +1982,11 @@ test_configs:
     test_plans:
       - baseline_qemu
 
-  - device_type: qemu_arm-vexpress-a9
+  - device_type: qemu_arm-vexpress-a15
     test_plans:
       - baseline_qemu
 
-  - device_type: qemu_arm-vexpress-a15
+  - device_type: qemu_arm-vexpress-a9
     test_plans:
       - baseline_qemu
 
@@ -2069,13 +2069,39 @@ test_configs:
   - device_type: r8a77950-salvator-x  # same as r8a7795-salvator-x
     test_plans: *r8a7795-salvator-x_test-plans
 
-  - device_type: r8a77960-ulcb
-    test_plans: &r8a77960-ulcb_test-plans
+  - device_type: r8a7796-m3ulcb
+    test_plans: &r8a7796-m3ulcb_test-plans
       - baseline
       - usb
 
-  - device_type: r8a7796-m3ulcb  # same as r8a77960-ulcb
-    test_plans: *r8a77960-ulcb_test-plans
+  - device_type: r8a77960-ulcb  # same as r8a7796-m3ulcb
+    test_plans: *r8a7796-m3ulcb_test-plans
+
+  - device_type: rk3288-rock2-square
+    test_plans:
+      - baseline
+      - baseline-nfs
+      - ltp-crypto
+      - ltp-ipc
+      - sleep
+      - usb
+
+  - device_type: rk3288-veyron-jaq
+    test_plans:
+      - baseline
+      - baseline-nfs
+      - cros-ec
+      - igt-kms-rockchip
+      - igt-gpu-panfrost
+      - kselftest
+      - ltp-crypto
+      - ltp-ipc
+      - sleep
+      - usb
+
+  - device_type: rk3328-rock64
+    test_plans:
+      - baseline
 
   - device_type: rk3399-gru-kevin
     test_plans:
@@ -2097,43 +2123,16 @@ test_configs:
     test_plans:
       - baseline
 
-  - device_type: rk3288-rock2-square
+  - device_type: snow
     test_plans:
       - baseline
       - baseline-nfs
-      - ltp-crypto
-      - ltp-ipc
-      - sleep
-      - usb
-
-  - device_type: rk3328-rock64
-    test_plans:
-      - baseline
-
-  - device_type: rk3288-veyron-jaq
-    test_plans:
-      - baseline
-      - baseline-nfs
-      - cros-ec
-      - igt-kms-rockchip
-      - igt-gpu-panfrost
-      - kselftest
-      - ltp-crypto
-      - ltp-ipc
-      - sleep
-      - usb
-      - v4l2-compliance-uvc
 
   - device_type: socfpga-cyclone5-socrates
     test_plans:
       - baseline
       - baseline-nfs
       - sleep
-
-  - device_type: snow
-    test_plans:
-      - baseline
-      - baseline-nfs
 
   - device_type: stm32mp157c-dk2
     test_plans:
@@ -2160,11 +2159,11 @@ test_configs:
     test_plans:
       - baseline
 
-  - device_type: sun50i-h6-orangepi-one-plus
+  - device_type: sun50i-h6-orangepi-3
     test_plans:
       - baseline
 
-  - device_type: sun50i-h6-orangepi-3
+  - device_type: sun50i-h6-orangepi-one-plus
     test_plans:
       - baseline
 
@@ -2207,15 +2206,11 @@ test_configs:
     test_plans:
       - baseline
 
-  - device_type: sun8i-a33-sinlinx-sina33
-    test_plans:
-      - baseline
-
   - device_type: sun8i-a33-olinuxino
     test_plans:
       - baseline
 
-  - device_type: sun8i-a83t-bananapi-m3
+  - device_type: sun8i-a33-sinlinx-sina33
     test_plans:
       - baseline
 
@@ -2223,7 +2218,11 @@ test_configs:
     test_plans:
       - baseline
 
-  - device_type: sun8i-h2-plus-orangepi-zero
+  - device_type: sun8i-a83t-bananapi-m3
+    test_plans:
+      - baseline
+
+  - device_type: sun8i-h2-plus-libretech-all-h3-cc
     test_plans:
       - baseline
 
@@ -2231,7 +2230,7 @@ test_configs:
     test_plans:
       - baseline
 
-  - device_type: sun8i-h2-plus-libretech-all-h3-cc
+  - device_type: sun8i-h2-plus-orangepi-zero
     test_plans:
       - baseline
 
