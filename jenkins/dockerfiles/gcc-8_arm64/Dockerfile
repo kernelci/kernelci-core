@@ -32,5 +32,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    libcap-ng-dev:arm64 \
    libelf-dev:arm64 \
    libfuse-dev:arm64 \
+   libhugetlbfs-dev:arm64 \
+   libmnl-dev:arm64 \
    libnuma-dev:arm64 \
    libpopt-dev:arm64
