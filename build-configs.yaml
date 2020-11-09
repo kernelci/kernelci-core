@@ -100,11 +100,11 @@ trees:
   renesas:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/geert/renesas-devel.git"
 
-  robh:
-    url: "https://git.kernel.org/pub/scm/linux/kernel/git/robh/linux.git"
-
   rmk:
     url: "git://git.armlinux.org.uk/~rmk/linux-arm.git"
+
+  robh:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/robh/linux.git"
 
   rt-stable:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/rt/linux-stable-rt.git"
@@ -418,6 +418,7 @@ android_variants: &android_variants
       i386: *i386_arch
       riscv: *riscv_arch
 
+
 build_configs:
 
   agross:
@@ -551,16 +552,6 @@ build_configs:
     branch: 'android-4.19-stable'
     variants: *android_variants
 
-  android_11-5.4:
-    tree: android
-    branch: 'android11-5.4'
-    variants: *android_variants
-
-  android_12-5.4:
-    tree: android
-    branch: 'android12-5.4'
-    variants: *android_variants
-
   android_mainline:
     tree: android
     branch: 'android-mainline'
@@ -569,6 +560,16 @@ build_configs:
   android_mainline_tracking:
     tree: android
     branch: 'android-mainline-tracking'
+    variants: *android_variants
+
+  android11-5.4:
+    tree: android
+    branch: 'android11-5.4'
+    variants: *android_variants
+
+  android12-5.4:
+    tree: android
+    branch: 'android12-5.4'
     variants: *android_variants
 
   ardb:
@@ -871,10 +872,13 @@ build_configs:
     tree: qcom-lt
     branch: 'integration-experimental'
 
-  robh:
-    tree: robh
-    branch: 'for-kernelci'
-    variants: *minimal_variants
+  renesas:
+    tree: renesas
+    branch: 'master'
+
+  renesas_next:
+    tree: renesas
+    branch: 'next'
 
   rmk_for-next:
     tree: rmk
@@ -884,13 +888,10 @@ build_configs:
     tree: rmk
     branch: 'to-build'
 
-  renesas:
-    tree: renesas
-    branch: 'master'
-
-  renesas_next:
-    tree: renesas
-    branch: 'next'
+  robh:
+    tree: robh
+    branch: 'for-kernelci'
+    variants: *minimal_variants
 
   rt-stable_v3.18-rt:
     tree: rt-stable
