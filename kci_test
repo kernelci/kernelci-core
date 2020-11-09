@@ -24,6 +24,7 @@ import os
 import sys
 
 from kernelci.cli import Args, Command
+import kernelci
 import kernelci.config.lab
 import kernelci.config.test
 import kernelci.build
@@ -41,6 +42,11 @@ class cmd_validate(Command):
 
     def __call__(self, test_configs, lab_configs, args):
         # ToDo: Use jsonschema
+        err = kernelci.sort_check(test_configs['device_types'].keys())
+        if err:
+            print("Device types broken order: '{}' before '{}'".format(*err))
+            return False
+
         return True
 
 
