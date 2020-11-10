@@ -214,9 +214,6 @@ build_environments:
       mips:
         <<: *mips_params
         name:
-      riscv:
-        <<: *riscv_params
-        name:
       x86_64:
         <<: *x86_64_params
         name:
@@ -224,7 +221,14 @@ build_environments:
   clang-11:
     cc: clang
     cc_version: 11
-    arch_params: *clang_arch_params
+    arch_params:
+      <<: *clang_arch_params
+      riscv:
+        <<: *riscv_params
+        name:
+        opts:
+          LLVM_IAS: '1'
+          LD: 'riscv64-linux-gnu-ld'
 
 
 # Default config with full build coverage
@@ -815,7 +819,15 @@ build_configs:
       # Latest clang release
       clang-11:
         build_environment: clang-11
-        architectures: *arch_clang_configs
+        architectures:
+          <<: *arch_clang_configs
+          riscv:
+            extra_configs: &riscv_clang_configs
+              - 'allnoconfig'
+              - 'defconfig+CONFIG_EFI=n'
+            filters:
+              - passlist:
+                  defconfig: *riscv_clang_configs
 
   next_pending-fixes:
     tree: next
