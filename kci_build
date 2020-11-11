@@ -297,7 +297,7 @@ class cmd_install_kernel(Command):
 Invalid arguments, either of these 2 sets are possible:
    --tree-name, --tree-url and --branch
 or
-   --config (in which case the tree and branch are read from the YAML config)\
+   --build-config (to get the information from the YAML config)
 """)
             return False
         return kernelci.build.install_kernel(
