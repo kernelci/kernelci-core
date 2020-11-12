@@ -177,39 +177,54 @@ build_environments:
   gcc-8:
     cc: gcc
     cc_version: 8
-    arch_map: &gcc_arch_map
-      i386: 'x86'
-      x86_64: 'x86'
-      riscv: 'riscv64'
-    cross_compile: &default_cross_compile
-      arc: 'arc-elf32-'
-      arm: 'arm-linux-gnueabihf-'
-      arm64: 'aarch64-linux-gnu-'
-      mips: 'mips-linux-gnu-'
-      riscv: 'riscv64-linux-gnu-'
-    cross_compile_compat: &default_cross_compile_compat
-      arm64: 'arm-linux-gnueabihf-'
+    arch_params: &gcc_arch_params
+      arc: &arc_params
+        cross_compile: 'arc-elf32-'
+      arm: &arm_params
+        cross_compile: 'arm-linux-gnueabihf-'
+      arm64: &arm64_params
+        cross_compile: 'aarch64-linux-gnu-'
+        cross_compile_compat: 'arm-linux-gnueabihf-'
+      i386: &i386_params
+        name: 'x86'
+      mips: &mips_params
+        cross_compile: 'mips-linux-gnu-'
+      x86_64: &x86_64_params
+        name: 'x86'
+      riscv: &riscv_params
+        name: 'riscv64'
+        cross_compile: 'riscv64-linux-gnu-'
 
   clang-10:
     cc: clang
     cc_version: 10
-    arch_map: &clang_arch_map
-      i386:
-      x86_64:
-      arm:
-      arm64:
-      mips:
+    arch_params: &clang_arch_params
       arc:
+        <<: *arc_params
+        name:
+      arm:
+        <<: *arm_params
+        name:
+      arm64:
+        <<: *arm64_params
+        name:
+      i386:
+        <<: *i386_params
+        name:
+      mips:
+        <<: *mips_params
+        name:
       riscv:
-    cross_compile: *default_cross_compile
-    cross_compile_compat: *default_cross_compile_compat
+        <<: *riscv_params
+        name:
+      x86_64:
+        <<: *x86_64_params
+        name:
 
   clang-11:
     cc: clang
     cc_version: 11
-    arch_map: *clang_arch_map
-    cross_compile: *default_cross_compile
-    cross_compile_compat: *default_cross_compile_compat
+    arch_params: *clang_arch_params
 
 
 # Default config with full build coverage
