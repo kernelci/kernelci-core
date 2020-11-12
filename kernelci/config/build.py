@@ -240,6 +240,10 @@ class BuildEnvironment(YAMLObject):
         params = self._arch_params.get(kernel_arch) or dict()
         return params.get('name', kernel_arch)
 
+    def get_arch_opts(self, arch):
+        params = self._arch_params.get(arch) or dict()
+        return params.get('opts') or dict()
+
     def get_cross_compile(self, arch):
         params = self._arch_params.get(arch) or dict()
         return params.get('cross_compile', '')
