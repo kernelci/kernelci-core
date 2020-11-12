@@ -601,6 +601,8 @@ def build_kernel(build_env, kdir, arch, defconfig=None, jopt=None,
         'KBUILD_BUILD_USER': 'KernelCI',
     }
 
+    opts.update(build_env.get_arch_opts(arch))
+
     kwargs = {
         'kdir': kdir,
         'arch': arch,
