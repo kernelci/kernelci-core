@@ -453,7 +453,7 @@ device_types:
     boot_method: uboot
 
   dove-cubox:
-    mach: imx
+    mach: mvebu
     class: arm-dtb
     boot_method: barebox
     filters:
