@@ -542,10 +542,12 @@ cd {kdir}
 export ARCH={arch}
 export CROSS_COMPILE={cross}
 export CROSS_COMPILE_COMPAT={cross_compat}
+export LLVM_IAS={llvm_ias}
 scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
 """.format(kdir=kdir, arch=kwargs['arch'], cc_env=cc_env,
            cross=kwargs['cross_compile'], output=rel_path,
            cross_compat=kwargs['cross_compile_compat'],
+           llvm_ias=defconfig_opts.get('LLVM_IAS', ''),
            base=os.path.join(rel_path, '.config'),
            frag=os.path.join(rel_path, kconfig_frag_name),
            redir='> /dev/null' if not verbose else '')
