@@ -10,6 +10,7 @@ RUN apt-add-repository 'deb http://apt.llvm.org/buster/ llvm-toolchain-buster-11
 RUN apt-get update && apt-get install --no-install-recommends -y \
     binutils-aarch64-linux-gnu \
     binutils-arm-linux-gnueabihf \
+    binutils-riscv64-linux-gnu \
     binutils \
     clang-11 lld-11 llvm-11
 
