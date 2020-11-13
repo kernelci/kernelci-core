@@ -1,7 +1,7 @@
 - test:
     name: {{ plan }}
     timeout:
-      minutes: 10
+      minutes: {{ job_timeout }}
     definitions:
        - repository: https://github.com/kernelci/test-definitions
          from: git
