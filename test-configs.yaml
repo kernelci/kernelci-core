@@ -178,6 +178,7 @@ test_plans:
     params:
       skip_install: "true"
       tst_cmdfiles: "ipc"
+      job_timeout: '15'
       skipfile: skipfile-lkft.yaml
 
   preempt-rt:
