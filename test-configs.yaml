@@ -714,6 +714,18 @@ device_types:
       - blocklist: {defconfig: ['allmodconfig', 'multi_v5_defconfig']}
       - blocklist: {kernel: ['v3.']}
 
+  kontron-kbox-a-230-ls:
+    mach: freescale
+    class: arm64-dtb
+    dtb: 'freescale/fsl-ls1028a-kontron-kbox-a-230-ls.dtb'
+    boot_method: uboot
+
+  kontron-sl28-var3-ads2:
+    mach: freescale
+    class: arm64-dtb
+    dtb: 'freescale/fsl-ls1028a-kontron-sl28-var3-ads2.dtb'
+    boot_method: uboot
+
   meson8b-odroidc1:
     mach: amlogic
     class: arm-dtb
@@ -1770,6 +1782,14 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+
+  - device_type: kontron-kbox-a-230-ls
+    test_plans:
+      - baseline
+
+  - device_type: kontron-sl28-var3-ads2
+    test_plans:
+      - baseline
 
   - device_type: meson8b-odroidc1
     test_plans:
