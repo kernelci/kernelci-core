@@ -183,6 +183,17 @@ test_plans:
     params:
       job_timeout: '120'
 
+  ltp-crypto:
+    rootfs: debian_buster-ltp_nfs
+    pattern: 'ltp/{category}-{method}-{protocol}-{rootfs}-ltp-template.jinja2'
+    filters:
+      - blocklist: *kselftest_defconfig_filter
+    params:
+      skip_install: "true"
+      tst_cmdfiles: "crypto"
+      job_timeout: '15'
+      skipfile: skipfile-lkft.yaml
+
   ltp-ipc:
     rootfs: debian_buster-ltp_nfs
     pattern: 'ltp/{category}-{method}-{protocol}-{rootfs}-ltp-template.jinja2'
@@ -1579,6 +1590,7 @@ test_configs:
   - device_type: bcm2836-rpi-2-b
     test_plans:
       - baseline
+      - ltp-crypto
       - ltp-ipc
       - sleep
       - usb
@@ -1596,6 +1608,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - ltp-crypto
       - ltp-ipc
 
   - device_type: beagle-xm
@@ -1667,6 +1680,7 @@ test_configs:
       - baseline
       - baseline-nfs
       - kselftest
+      - ltp-crypto
 
   - device_type: hifive-unleashed-a00
     test_plans:
@@ -1728,6 +1742,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - ltp-crypto
       - ltp-ipc
       - sleep
       - usb
@@ -1784,6 +1799,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - ltp-crypto
       - ltp-ipc
 
   - device_type: kirkwood-db-88f6282
@@ -2051,6 +2067,7 @@ test_configs:
       - baseline-nfs
       - cros-ec
       - kselftest
+      - ltp-crypto
       - ltp-ipc
       - sleep
       - v4l2-compliance-uvc
@@ -2068,6 +2085,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - ltp-crypto
       - ltp-ipc
       - sleep
       - usb
@@ -2084,6 +2102,7 @@ test_configs:
       - igt-kms-rockchip
       - igt-gpu-panfrost
       - kselftest
+      - ltp-crypto
       - ltp-ipc
       - sleep
       - usb
@@ -2136,6 +2155,7 @@ test_configs:
   - device_type: sun50i-h6-pine-h64
     test_plans:
       - baseline
+      - ltp-crypto
       - ltp-ipc
 
   - device_type: sun50i-h6-pine-h64-model-b
