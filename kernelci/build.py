@@ -647,7 +647,7 @@ def build_kernel(build_env, kdir, arch, defconfig=None, jopt=None,
             shutil.rmtree(mod_path)
         os.makedirs(mod_path)
         opts.update({
-            'INSTALL_MOD_PATH': mod_path,
+            'INSTALL_MOD_PATH': os.path.abspath(mod_path),
             'INSTALL_MOD_STRIP': '1',
             'STRIP': "{}strip".format(cross_compile),
         })
