@@ -285,6 +285,9 @@ build_configs_defaults:
 
         riscv: &riscv_arch
           extra_configs: ['allnoconfig']
+          filters:
+            - blocklist: &riscv_kernel_filter
+                kernel: ['v3.', 'v4.4', 'v4.9', 'v4.14']
 
         x86_64: &x86_64_arch
           base_defconfig: 'x86_64_defconfig'
@@ -347,6 +350,7 @@ arch_defconfigs: &arch_defconfigs
     base_defconfig: 'defconfig'
     filters:
       - regex: { defconfig: 'defconfig' }
+      - blocklist: *riscv_kernel_filter
   x86_64: &x86_64_defconfig
     base_defconfig: 'x86_64_defconfig'
     filters:
@@ -383,6 +387,8 @@ stable_variants: &stable_variants
         filters: *mips_default_filters
       riscv:
         extra_configs: ['allnoconfig']
+        filters:
+          - blocklist: *riscv_kernel_filter
       x86_64:
         base_defconfig: 'x86_64_defconfig'
         extra_configs: ['allnoconfig']
