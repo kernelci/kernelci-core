@@ -394,6 +394,11 @@ def list_kernel_configs(config, kdir, single_variant=None, single_arch=None):
                   combinations that match it
     """
     kernel_configs = set()
+    filter_params = {
+        'kernel': git_describe_verbose(kdir),
+        'tree': config.tree.name,
+        'branch': config.branch,
+    }
 
     for variant in config.variants:
         if single_variant and variant.name != single_variant:
@@ -418,7 +423,8 @@ def list_kernel_configs(config, kdir, single_variant=None, single_arch=None):
                     if f.endswith('defconfig'):
                         defconfigs.add(f)
             for defconfig in defconfigs:
-                if arch.match({'defconfig': defconfig}):
+                filter_params['defconfig'] = defconfig
+                if arch.match(filter_params):
                     kernel_configs.add((arch.name, defconfig, build_env))
 
     return kernel_configs
