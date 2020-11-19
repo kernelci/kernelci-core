@@ -32,13 +32,13 @@ def get_device_type_by_name(name, device_types, aliases=[]):
 
         Example:
         IN:
-            name = "x15"
+            name = "am57xx-beagle-x15"
             device_types = ['x15', 'beaglebone-black'],
             aliases = [
-              {'name': 'x15', 'device_type': 'am57xx-beagle-x15'}
+              {'name': 'am57xx-beagle-x15', 'device_type': 'x15'}
             ]
         OUT:
-            'am57xx-beagle-x15'
+            'x15'
 
     """
     for device_type in device_types:
