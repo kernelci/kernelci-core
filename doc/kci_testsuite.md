@@ -93,29 +93,14 @@ For this example, we will be using the `btrfs-progs` test-suite.
     debian_release: buster
     arch_list:
       - amd64
-    extra_packages:
-      - git 
-      - autoconf 
-      - automake 
-      - gcc 
-      - make 
-      - pkg-config 
-      - e2fslibs-dev 
-      - libblkid-dev 
-      - zlib1g-dev 
-      - liblzo2-dev 
-      - asciidoc 
-      - xmlto 
-      - libzstd-dev
-      - python3-setuptools
-      - python3.7-dev
     script: "scripts/buster-btrfs.sh"
     test_overlay: "overlays/btrfs"
+    extra_files_remove: *extra_files_remove_buster
 ```
 
 
-We will now look into last three config entries, namely: `extra_packages`, `script` and `test_overlay`.
-2. `extra_packages` as its name suggests will add the listed packages to the final rootfs image.
+We will now look into some config entries, namely: `extra_packages`, `script` and `test_overlay`.
+2. `extra_packages` as its name suggests will add the listed packages to the final rootfs image. As we don't need any additional packages this option can be ommited in our config.
 
 3. `script` is the path to an arbitrary script to run in the root file system.  This is typically used to build some test
     suites from source.  Remember that its path is relative to the `kci_rootfs build --data-path` value, which by default is
@@ -125,11 +110,21 @@ We will now look into last three config entries, namely: `extra_packages`, `scri
 ```
 $ cat jenkins/debian/debos/script/buster-btrfs.sh
 
-git clone --depth=1 https://github.com/kdave/btrfs-progs.git /btrfs-progs
+#!/bin/bash
+set -e
+
+BUILD_DEPS="pkg-config git make autoconf automake gcc \
+make libblkid-dev zlib1g-dev liblzo2-dev libzstd-dev e2fslibs-dev python3-setuptools python3.7-dev"
+
+apt-get update && apt-get install -y $BUILD_DEPS
+GIT_SSL_NO_VERIFY=1 git clone --depth=1 https://github.com/kdave/btrfs-progs.git /btrfs-progs
 cd /btrfs-progs
-./autogen.sh && ./configure
+./autogen.sh
+./configure --disable-documentation
 make
 make install
+apt-get purge -y $BUILD_DEPS && apt-get autoremove -y
+
 ```
 
 
@@ -155,7 +150,7 @@ cd  /btrfs-progs && TEST=001\* ./tests/cli-tests.sh
 
 ```
 chmod +x jenkins/debian/debos/overlays/btrfs/usr/bin/btrfs-verify-cli.sh
-chmod +x jenkins/debian/debos/script/buster-btrfs.sh
+chmod +x jenkins/debian/debos/scripts/buster-btrfs.sh
 ```
 
 6. Now build `buster-btrfs` rootfs image using kci_rootfs like:
