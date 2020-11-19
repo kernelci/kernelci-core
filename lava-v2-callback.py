@@ -70,17 +70,9 @@ def handle_boot(cb, verbose):
     return BOOT_STATUS_MAP.get(job_status, BISECT_SKIP)
 
 
-def _add_login_case(cases, tests):
-    tests_by_name = {t['name']: t for t in tests}
-    login = tests_by_name.get(name)
-    if not login:
-        return
-    cases.append({'login': login['result']})
-
-
 def _add_login_case(results, tests):
-    tests_by_name = {t['name']: t for t in tests}
-    login = tests_by_name.get('auto-login-action')
+    tests_map = {t['name']: t for t in tests}
+    login = tests_map.get('auto-login-action') or tests_map.get('login-action')
     if login:
         results['login'] = login['result']
 
