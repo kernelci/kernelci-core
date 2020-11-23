@@ -478,7 +478,7 @@ def _run_make(kdir, arch, target=None, jopt=None, silent=True, cc='gcc',
     elif cc != 'gcc':
         args.append('CC={}'.format(cc))
 
-    if output:
+    if output != kdir:
         # due to kselftest Makefile issues, O= cannot be a relative path
         args.append('O={}'.format(os.path.abspath(output)))
 
