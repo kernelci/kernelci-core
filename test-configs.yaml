@@ -1786,10 +1786,12 @@ test_configs:
   - device_type: kontron-kbox-a-230-ls
     test_plans:
       - baseline
+      - baseline-nfs
 
   - device_type: kontron-sl28-var3-ads2
     test_plans:
       - baseline
+      - baseline-nfs
 
   - device_type: meson8b-odroidc1
     test_plans:
