@@ -58,7 +58,41 @@ labs:
             - igt-kms-tegra
             - igt-gpu-panfrost
             - kselftest
+            - ltp-admin_tools
+            - ltp-connectors
+            - ltp-containers
+            - ltp-controllers
+            - ltp-crypto
+            - ltp-device-drivers
+            - ltp-fcntl-locktests
+            - ltp-filecaps
+            - ltp-firmware
+            - ltp-fs
+            - ltp-fs_bind
+            - ltp-fsx
+            - ltp-hotplug
+            - ltp-hugetlb
+            - ltp-include
+            - ltp-input
+            - ltp-io
             - ltp-ipc
+            - ltp-lib
+            - ltp-logging
+            - ltp-math
+            - ltp-mce-test
+            - ltp-mem
+            - ltp-mm
+            - ltp-nptl
+            - ltp-numa
+            - ltp-power_management
+            - ltp-pty
+            - ltp-sched
+            - ltp-security
+            - ltp-sound
+            - ltp-syscalls
+            - ltp-timers
+            - ltp-tracing
+            - ltp-uevents
             - sleep
             - usb
             - v4l2-compliance-uvc

@@ -170,16 +170,232 @@ test_plans:
     params:
       job_timeout: '120'
 
-  ltp-ipc:
+  ltp-opts: &ltp-rootfs
     rootfs: debian_buster-ltp_nfs
     pattern: 'ltp/{category}-{method}-{protocol}-{rootfs}-ltp-template.jinja2'
     filters:
       - blocklist: *kselftest_defconfig_filter
-    params:
+    params: &ltp-params
       skip_install: "true"
-      tst_cmdfiles: "ipc"
+      tst_cmdfiles: "ltp"
       job_timeout: '15'
       skipfile: skipfile-lkft.yaml
+
+  ltp-admin_tools:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "admin_tools"
+
+  ltp-connectors:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "connectors"
+
+  ltp-containers:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "containers"
+
+  ltp-controllers:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "controllers"
+      job_timeout: '45'
+
+  ltp-crypto:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "crypto"
+
+  ltp-device-drivers:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "device-drivers"
+
+  ltp-fcntl-locktests:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "fcntl-locktests"
+
+  ltp-filecaps:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "filecaps"
+
+  ltp-firmware:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "firmware"
+
+  ltp-fs:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "fs"
+      job_timeout: '60'
+
+  ltp-fs_bind:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "fs_bind"
+      job_timeout: '30'
+
+  ltp-fsx:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "fsx"
+
+  ltp-hotplug:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "hotplug"
+
+  ltp-hugetlb:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "hugetlb"
+
+  ltp-include:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "include"
+
+  ltp-input:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "input"
+
+  ltp-io:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "io"
+
+  ltp-ipc:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "ipc"
+
+  ltp-lib:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "lib"
+
+  ltp-logging:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "logging"
+
+  ltp-math:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "math"
+      job_timeout: '30'
+
+  ltp-mce-test:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "mce-test"
+
+  ltp-mem:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "mem"
+
+  ltp-mm:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "mm"
+      job_timeout: '30'
+
+  ltp-nptl:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "nptl"
+
+  ltp-numa:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "numa"
+
+  ltp-power_management:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "power_management"
+
+  ltp-pty:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "pty"
+
+  ltp-sched:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "sched"
+
+  ltp-security:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "security"
+
+  ltp-sound:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "sound"
+
+  ltp-syscalls:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "syscalls"
+      job_timeout: '90'
+
+  ltp-timers:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "timers"
+
+  ltp-tracing:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "tracing"
+
+  ltp-uevents:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "uevents"
 
   preempt-rt:
     rootfs: debian_buster_nfs
@@ -223,6 +439,43 @@ device_default_filters:
   - blocklist: &allmodconfig_filter
       defconfig: ['allmodconfig']
 
+
+ltp-test-plans: &ltp_test_plans
+      - ltp-admin_tools
+      - ltp-connectors
+      - ltp-containers
+      - ltp-controllers
+      - ltp-crypto
+      - ltp-device-drivers
+      - ltp-fcntl-locktests
+      - ltp-filecaps
+      - ltp-firmware
+      - ltp-fs
+      - ltp-fs_bind
+      - ltp-fsx
+      - ltp-hotplug
+      - ltp-hugetlb
+      - ltp-include
+      - ltp-input
+      - ltp-io
+      - ltp-ipc
+      - ltp-lib
+      - ltp-logging
+      - ltp-math
+      - ltp-mce-test
+      - ltp-mem
+      - ltp-mm
+      - ltp-nptl
+      - ltp-numa
+      - ltp-power_management
+      - ltp-pty
+      - ltp-sched
+      - ltp-security
+      - ltp-sound
+      - ltp-syscalls
+      - ltp-timers
+      - ltp-tracing
+      - ltp-uevents
 
 device_types:
 
@@ -1468,6 +1721,7 @@ device_types:
       - blocklist: {defconfig: ['multi_v7_defconfig+linaro-base+distribution']}
 
 
+
 test_configs:
 
   - device_type: alpine-db
@@ -1566,9 +1820,11 @@ test_configs:
   - device_type: bcm2836-rpi-2-b
     test_plans:
       - baseline
-      - ltp-ipc
       - sleep
       - usb
+
+  - device_type: bcm2836-rpi-2-b
+    test_plans: *ltp_test_plans
 
   - device_type: bcm2837-rpi-3-b
     test_plans:
@@ -1583,7 +1839,9 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - ltp-ipc
+
+  - device_type: beaglebone-black
+    test_plans: *ltp_test_plans
 
   - device_type: beagle-xm
     test_plans:
@@ -1715,9 +1973,11 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - ltp-ipc
       - sleep
       - usb
+
+  - device_type: imx6q-sabrelite
+    test_plans: *ltp_test_plans
 
   - device_type: imx6q-sabresd
     test_plans:
@@ -1771,7 +2031,9 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - ltp-ipc
+
+  - device_type: jetson-tk1
+    test_plans: *ltp_test_plans
 
   - device_type: kirkwood-db-88f6282
     test_plans:
@@ -1897,9 +2159,11 @@ test_configs:
       - baseline
       - baseline-nfs
       - igt-kms-exynos
-      - ltp-ipc
       - sleep
       - usb
+
+  - device_type: odroid-xu3
+    test_plans: *ltp_test_plans
 
   - device_type: orion5x-rd88f5182-nas
     test_plans:
@@ -2037,9 +2301,11 @@ test_configs:
       - baseline-nfs
       - cros-ec
       - kselftest
-      - ltp-ipc
       - sleep
       - v4l2-compliance-uvc
+
+  - device_type: rk3399-gru-kevin
+    test_plans: *ltp_test_plans
 
   - device_type: rk3399-gru-kevin
     test_plans: [igt-kms-rockchip, igt-gpu-panfrost]
@@ -2054,9 +2320,11 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - ltp-ipc
       - sleep
       - usb
+
+  - device_type: rk3288-rock2-square
+    test_plans: *ltp_test_plans
 
   - device_type: rk3328-rock64
     test_plans:
@@ -2070,10 +2338,12 @@ test_configs:
       - igt-kms-rockchip
       - igt-gpu-panfrost
       - kselftest
-      - ltp-ipc
       - sleep
       - usb
       - v4l2-compliance-uvc
+
+  - device_type: rk3288-veyron-jaq
+    test_plans: *ltp_test_plans
 
   - device_type: socfpga-cyclone5-socrates
     test_plans:
@@ -2122,7 +2392,9 @@ test_configs:
   - device_type: sun50i-h6-pine-h64
     test_plans:
       - baseline
-      - ltp-ipc
+
+  - device_type: sun50i-h6-pine-h64
+    test_plans: *ltp_test_plans
 
   - device_type: sun50i-h6-pine-h64-model-b
     test_plans:
