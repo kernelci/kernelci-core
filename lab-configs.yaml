@@ -72,6 +72,7 @@ labs:
       - passlist:
           plan:
             - baseline
+            - baseline-nfs
 
   lab-linaro-lkft:
     lab_type: lava
