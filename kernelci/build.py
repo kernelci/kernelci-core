@@ -1,4 +1,4 @@
-# Copyright (C) 2018, 2019 Collabora Limited
+# Copyright (C) 2018, 2019, 2020 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 #
 # This module is free software; you can redistribute it and/or modify it under
@@ -490,6 +490,78 @@ def _run_make(kdir, arch, target=None, jopt=None, silent=True, cc='gcc',
     if log_file:
         cmd = _output_to_file(cmd, log_file)
     return shell_cmd(cmd, True)
+
+
+class Step:
+    """Kernel build step"""
+
+    def __init__(self, kdir, output_path=None, log=None, reset=False):
+        """Each Step deals with a part of the build and its related meta-data
+
+        This abstract class handles the common code to run any kernel build
+        step, such as running `make`, managing log files or checking whether
+        some kernel config options are enabled.  It uses the `bmeta.json` file
+        to share meta-data between each step and later on when sending the
+        build to a database.
+
+        Each concrete class should implement the `run()` method, with arbitrary
+        arguments to perform their dedicated tasks.
+
+        *kdir* is the path to the kernel source tree directory
+        *output_path* is the path to the build output directory
+        *log* is the name of the log file within the output directory
+        *reset* is whether the meta-data should be reset in this step
+        """
+        self._kdir = kdir
+        self._output_path = output_path or os.path.join(kdir, 'build')
+        self._bmeta_path = os.path.join(self._output_path, 'bmeta.json')
+        self._log_file = log
+        self._log_path = os.path.join(self._output_path, log) if log else None
+        self._bmeta = dict()
+        self._dot_config = None
+        if not os.path.exists(self._output_path):
+            os.mkdir(self._output_path)
+        elif os.path.exists(self._bmeta_path):
+            if reset:
+                os.unlink(self._bmeta_path)
+            else:
+                with open(self._bmeta_path) as json_file:
+                    self._bmeta = json.load(json_file)
+
+    @property
+    def bmeta_path(self):
+        """Path to the build meta-data JSON file"""
+        return self._bmeta_path
+
+    def _save_bmeta(self):
+        if self._log_path and os.path.exists(self._log_path):
+            logs = self._bmeta.setdefault('logs', list())
+            if self._log_file not in logs:
+                logs.append(self._log_file)
+        with open(self._bmeta_path, 'w') as json_file:
+            json.dump(self._bmeta, json_file, indent=4, sort_keys=True)
+
+    def _kernel_config_enabled(self, config_name):
+        dot_config = os.path.join(self._output_path, '.config')
+        cmd = 'grep -cq CONFIG_{}=y {}'.format(config_name, dot_config)
+        return shell_cmd(cmd, True)
+
+    def _run_make(self, target, jopt=None, verbose=False, opts=None):
+        env = self._bmeta['environment']
+        make_opts = env['make_opts'].copy()
+        if opts:
+            make_opts.update(opts)
+        if jopt is None:
+            jopt = int(shell_cmd("nproc")) + 2
+        return _run_make(
+            self._kdir, env['arch'], target, jopt, not verbose,
+            env['compiler'], env['cross_compile'], env['use_ccache'],
+            self._output_path, self._log_path, make_opts,
+            env['cross_compile_compat'])
+
+    def run(self):
+        """Abstract method to run the build step."""
+        raise NotImplementedError("Step.run() needs to be implemented.")
 
 
 def _make_defconfig(defconfig, kwargs, extras, verbose, log_file):
