@@ -191,6 +191,11 @@ class Args:
         'section': SECTION_LAB,
     }
 
+    log = {
+        'name': '--log',
+        'help': "Path to log file",
+    }
+
     mach = {
         'name': '--mach',
         'help': "Mach name (aka SoC family)",
