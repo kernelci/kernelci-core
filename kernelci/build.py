@@ -626,6 +626,113 @@ class EnvironmentData(Step):
         return True
 
 
+class MakeConfig(Step):
+
+    def _parse_elements(self, elements):
+        opts = dict()
+        configs = list()
+        fragments = dict()
+        extras = list()
+
+        for ele in elements:
+            if ele.startswith('KCONFIG_'):
+                config, value = ele.split('=')
+                opts[config] = value
+                extras.append(ele)
+            elif ele.startswith('CONFIG_'):
+                configs.append(ele)
+                extras.append(ele)
+            else:
+                frag_path = os.path.join(self._kdir, ele)
+                frag_name = os.path.basename(os.path.splitext(ele)[0])
+                fragments[frag_name] = frag_path
+                extras.append(frag_name)
+
+        return opts, configs, fragments, extras
+
+    def _gen_kci_frag(self, configs, fragments, name):
+        kci_frag_path = os.path.join(self._output_path, name)
+        with open(kci_frag_path, 'w') as kci_frag:
+            for config in configs:
+                kci_frag.write(config + '\n')
+            for name, path in fragments.items():
+                with open(path) as frag:
+                    kci_frag.write("\n# fragment from : {}\n".format(name))
+                    kci_frag.writelines(frag)
+
+    def _merge_config(self, kci_frag_name, verbose=False):
+        rel_path = os.path.relpath(self._output_path, self._kdir)
+        env = self._bmeta['environment']
+        cc = env['compiler']
+        cc_env = (
+            "export LLVM=1" if cc.startswith('clang') else
+            "export HOSTCC={cc}\nexport CC={cc}".format(cc=cc)
+        )
+        cmd = """
+set -e
+cd {kdir}
+{cc_env}
+export ARCH={arch}
+export CROSS_COMPILE={cross}
+export CROSS_COMPILE_COMPAT={cross_compat}
+export LLVM_IAS={llvm_ias}
+scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
+""".format(kdir=self._kdir, arch=env['arch'], cc_env=cc_env,
+           cross=env['cross_compile'], output=rel_path,
+           cross_compat=env['cross_compile_compat'],
+           llvm_ias=env['make_opts'].get('LLVM_IAS', ''),
+           base=os.path.join(rel_path, '.config'),
+           frag=os.path.join(rel_path, kci_frag_name),
+           redir='> /dev/null' if not verbose else '')
+        print_flush(cmd.strip())
+        if self._log_path:
+            cmd = _output_to_file(cmd, self._log_path, self._kdir)
+        return shell_cmd(cmd, True)
+
+    def run(self, defconfig, jopt=None, verbose=False, frag='kernelci.config'):
+        """Make the kernel config
+
+        Make the kernel .config file using a number of options.  This will
+        first use a given defconfig, then use the KernelCI extended syntax for
+        enabling or disabling any extra kernel build options defined or merge
+        any config fragment files.  Finally it will save the extra config
+        options in a separate config fragment called `kernelci.config` by
+        default.  The "kernel" section in `bmeta.json` will be created with the
+        defconfig name and other related meta-data about extra config options
+        and fragments.
+
+        *defconfig* is the defconfig name, e.g. defconfig, x86_64_defconfig...
+        *jopt* is the `make -j` option which will default to `nproc + 2`
+        *verbose* is whether the build output should be shown
+        *frag* is the name of the output kernel config fragment
+        """
+        elements = defconfig.split('+')
+        target = elements.pop(0)
+        kci_frag_name = None
+        opts, configs, fragments, extras = self._parse_elements(elements)
+
+        if configs or fragments:
+            kci_frag_name = frag
+            self._gen_kci_frag(configs, fragments, kci_frag_name)
+
+        self._bmeta['kernel'] = {
+            'defconfig': target,
+            'defconfig_full': defconfig,
+            'defconfig_extras': extras,
+        }
+
+        res = self._run_make(target, jopt, verbose, opts)
+
+        if res and kci_frag_name:
+            # ToDo: treat kernelci.config as an implementation detail and list
+            # the actual input config fragment files here instead
+            self._bmeta['kernel']['fragments'] = [kci_frag_name]
+            res = self._merge_config(kci_frag_name, verbose)
+
+        self._save_bmeta()
+        return res
+
+
 def _make_defconfig(defconfig, kwargs, extras, verbose, log_file):
     kdir, output_path = (kwargs.get(k) for k in ('kdir', 'output'))
     result = True
