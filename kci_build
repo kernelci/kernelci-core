@@ -313,6 +313,16 @@ class cmd_make_config(Command):
         return step.run(args.defconfig, args.j, args.verbose)
 
 
+class cmd_make_kernel(Command):
+    help = "Make a kernel image"
+    args = [Args.kdir]
+    opt_args = [Args.verbose, Args.output, Args.j, Args.log]
+
+    def __call__(self, configs, args):
+        step = kernelci.build.MakeKernel(args.kdir, args.output, args.log)
+        return step.run(args.j, args.verbose)
+
+
 class cmd_build_kernel(Command):
     help = "Build a kernel"
     args = [Args.build_env, Args.arch, Args.kdir]
