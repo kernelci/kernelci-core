@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (C) 2018, 2019 Collabora Limited
+# Copyright (C) 2018, 2019, 2020 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 #
 # This module is free software; you can redistribute it and/or modify it under
@@ -259,6 +259,48 @@ class cmd_list_kernel_configs(Command):
         for item in configs:
             print(' '.join(item))
         return True
+
+
+class cmd_init_bmeta(Command):
+    help = "Create initial bmeta.json"
+    args = [Args.kdir]
+    opt_args = [Args.output, Args.build_config,
+                Args.tree_name, Args.tree_url, Args.branch,
+                Args.build_env, Args.arch]
+
+    def __call__(self, configs, args):
+        if args.build_config:
+            conf = configs['build_configs'][args.build_config]
+            tree_name = conf.tree.name
+            tree_url = conf.tree.url
+            branch = conf.branch
+        else:
+            tree_name = args.tree_name
+            tree_url = args.tree_url
+            branch = args.branch
+        if not all((tree_name, tree_url, branch)):
+            print("""\
+Invalid arguments, either of these 2 sets are possible:
+   --tree-name, --tree-url and --branch
+or
+   --build-config (the tree and branch are read from the YAML config)\
+""")
+            return False
+
+        step = kernelci.build.RevisionData(args.kdir, args.output, reset=True)
+        print("Initialising build meta-data in {}".format(step.bmeta_path))
+        res = step.run(tree_name, tree_url, branch)
+
+        if res and (args.build_env or args.arch):
+            if not (args.build_env and args.arch):
+                print("""\
+Invalid arguments, --build-env and --arch need to be used together.""")
+                return False
+            build_env = configs['build_environments'][args.build_env]
+            step = kernelci.build.EnvironmentData(args.kdir, args.output)
+            res = step.run(build_env, args.arch)
+
+        return res
 
 
 class cmd_build_kernel(Command):
