@@ -769,6 +769,48 @@ class MakeKernel(Step):
         return res
 
 
+class MakeModules(Step):
+
+    def modules_enabled(self):
+        """Check whether modules are enabled.
+
+        Return True if the modules are enabled in the kernel config file, or
+        False otherwise.  This can be used to determine whether the step should
+        be run or not, prior to running it.
+        """
+        return self._kernel_config_enabled('MODULES')
+
+    def run(self, mod_path=None, jopt=None, verbose=False):
+        """Make the kernel modules
+
+        Make the kernel modules and install them as stripped binaries in
+        *mod_path*, which defaults to _modules_ within the output directory.
+        This step does not add any extra build meta-data.
+
+        *mod_path* is the path to the output kernel modules directory.
+        *jopt* is the `make -j` option which will default to `nproc + 2`
+        *verbose* is whether the build output should be shown
+        """
+        res = self._run_make('modules', jopt, verbose)
+
+        if res:
+            if not mod_path:
+                mod_path = os.path.join(self._output_path, '_modules_')
+            if os.path.exists(mod_path):
+                shutil.rmtree(mod_path)
+            os.makedirs(mod_path)
+            cross_compile = self._bmeta['environment']['cross_compile']
+            opts = {
+                'INSTALL_MOD_PATH': os.path.abspath(mod_path),
+                'INSTALL_MOD_STRIP': '1',
+                'STRIP': "{}strip".format(cross_compile),
+            }
+            res = self._run_make('modules_install', jopt, verbose, opts)
+
+        self._save_bmeta()
+        return res
+
+
 def _make_defconfig(defconfig, kwargs, extras, verbose, log_file):
     kdir, output_path = (kwargs.get(k) for k in ('kdir', 'output'))
     result = True
