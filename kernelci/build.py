@@ -564,6 +564,68 @@ class Step:
         raise NotImplementedError("Step.run() needs to be implemented.")
 
 
+class RevisionData(Step):
+
+    def run(self, tree_name, tree_url, branch):
+        """Add all the meta-data related to the current kernel revision.
+
+        This step retrieves the revision information from the current kernel
+        source directory using Git, typically to initialise `bmeta.json` file
+        with just a revision section before running any actual build step.
+
+        *tree_name* is the short name of the kernel tree e.g. mainline, next...
+        *tree_url* is the URL of the remote Git repository for the tree
+        *branch* is the name of the Git branch
+        """
+        self._bmeta['revision'] = {
+            'tree': tree_name,
+            'url': tree_url,
+            'branch': branch,
+            'describe': git_describe(tree_name, self._kdir),
+            'describe_v': git_describe_verbose(self._kdir),
+            'commit': head_commit(self._kdir),
+        }
+        self._save_bmeta()
+        return True
+
+
+class EnvironmentData(Step):
+
+    def run(self, build_env, arch):
+        """Add all the meta-data related to the current build.
+
+        This step relies on a BuildEnvironment object and also queries any
+        currently installed compiler toolchain to populate the build
+        environment section of the `bmeta.json` file.
+
+        *build_env* is a BuildEnvironment object
+        *arch* is the CPU architecture name e.g. x86_64, arm64, riscv...
+        """
+        cross_compile = build_env.get_cross_compile(arch) or ''
+        cross_compile_compat = build_env.get_cross_compile_compat(arch) or ''
+        cc = build_env.cc
+        cc_version_cmd = "{}{} --version 2>&1".format(
+            cross_compile if cross_compile and cc == 'gcc' else '', cc)
+        cc_version_full = shell_cmd(cc_version_cmd).splitlines()[0]
+        make_opts = {'KBUILD_BUILD_USER': 'KernelCI'}
+        make_opts.update(build_env.get_arch_opts(arch))
+
+        self._bmeta['environment'] = {
+            'arch': arch,
+            'compiler': cc,
+            'compiler_version': build_env.cc_version,
+            'compiler_version_full': cc_version_full,
+            'cross_compile': cross_compile,
+            'cross_compile_compat': cross_compile_compat,
+            'name': build_env.name,
+            'platform': platform.uname(),
+            'use_ccache': shell_cmd("which ccache > /dev/null", True),
+            'make_opts': make_opts,
+        }
+        self._save_bmeta()
+        return True
+
+
 def _make_defconfig(defconfig, kwargs, extras, verbose, log_file):
     kdir, output_path = (kwargs.get(k) for k in ('kdir', 'output'))
     result = True
