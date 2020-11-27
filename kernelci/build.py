@@ -811,6 +811,51 @@ class MakeModules(Step):
         return res
 
 
+class MakeDeviceTrees(Step):
+
+    def dt_enabled(self):
+        """Check whether device tree support is enabled.
+
+        Return True if device tree support is enabled in the kernel config, or
+        False otherwise.  This can be used to not run this step and skip
+        building dtbs if they are not supported.
+        """
+        return self._kernel_config_enabled('OF_FLATTREE')
+
+    def _dtbs_json(self):
+        arch = self._bmeta['environment']['arch']
+        boot_dir = os.path.join(self._output_path, 'arch', arch, 'boot')
+        dts_dir = os.path.join(boot_dir, 'dts')
+        dtbs_path = os.path.join(self._output_path, '_dtbs_')
+        dtb_list = []
+        for root, _, files in os.walk(dts_dir):
+            for f in fnmatch.filter(files, '*.dtb'):
+                dtb_path = os.path.join(root, f)
+                dtb_rel = os.path.relpath(dtb_path, dts_dir)
+                dtb_list.append(dtb_rel)
+                dest_path = os.path.join(dtbs_path, dtb_rel)
+                dest_dir = os.path.dirname(dest_path)
+                if not os.path.exists(dest_dir):
+                    os.makedirs(dest_dir)
+                shutil.copy(dtb_path, dest_path)
+        with open(os.path.join(self._output_path, 'dtbs.json'), 'w') as f:
+            json.dump({'dtbs': sorted(dtb_list)}, f, indent=4)
+
+    def run(self, jopt=None, verbose=False):
+        """Make the device trees
+
+        Make the device tree binary files (dtbs).  This step does not add any
+        extrabuild meta-data.
+
+        *jopt* is the `make -j` option which will default to `nproc + 2`
+        *verbose* is whether the build output should be shown
+        """
+        res = self._run_make('dtbs', jopt, verbose)
+        if res:
+            self._dtbs_json()
+        return res
+
+
 def _make_defconfig(defconfig, kwargs, extras, verbose, log_file):
     kdir, output_path = (kwargs.get(k) for k in ('kdir', 'output'))
     result = True
