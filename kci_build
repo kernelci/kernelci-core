@@ -336,6 +336,19 @@ class cmd_make_modules(Command):
         return step.run(args.mod_path, args.j, args.verbose)
 
 
+class cmd_make_dtbs(Command):
+    help = "Build device trees"
+    args = [Args.kdir]
+    opt_args = [Args.verbose, Args.output, Args.j, Args.log]
+
+    def __call__(self, configs, args):
+        step = kernelci.build.MakeDeviceTrees(args.kdir, args.output, args.log)
+        if not step.dt_enabled():
+            print("Device tree support disabled, not building.")
+            return True
+        return step.run(args.j, args.verbose)
+
+
 class cmd_build_kernel(Command):
     help = "Build a kernel"
     args = [Args.build_env, Args.arch, Args.kdir]
