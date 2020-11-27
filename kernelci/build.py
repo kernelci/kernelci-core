@@ -609,6 +609,18 @@ class EnvironmentData(Step):
         cc_version_full = shell_cmd(cc_version_cmd).splitlines()[0]
         make_opts = {'KBUILD_BUILD_USER': 'KernelCI'}
         make_opts.update(build_env.get_arch_opts(arch))
+        platform_data = {'uname': platform.uname()}
+        if os.path.exists('/proc/cpuinfo'):
+            cpu_list = []
+            with open('/proc/cpuinfo') as f:
+                for line in f:
+                    if 'model name' in line:
+                        cpu_list.append(line.split(':')[1].strip())
+            cpus = {}
+            for cpu in cpu_list:
+                ncpus = cpus.get(cpu, 0)
+                cpus[cpu] = ncpus + 1
+            platform_data['cpus'] = cpus
 
         self._bmeta['environment'] = {
             'arch': arch,
@@ -618,7 +630,7 @@ class EnvironmentData(Step):
             'cross_compile': cross_compile,
             'cross_compile_compat': cross_compile_compat,
             'name': build_env.name,
-            'platform': platform.uname(),
+            'platform': platform_data,
             'use_ccache': shell_cmd("which ccache > /dev/null", True),
             'make_opts': make_opts,
         }
