@@ -1700,6 +1700,7 @@ test_configs:
       - baseline
       - baseline-nfs
       - cros-ec
+      - igt-gpu-i915
       - sleep
 
   - device_type: hsdk
