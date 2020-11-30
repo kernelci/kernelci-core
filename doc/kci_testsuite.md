@@ -156,7 +156,7 @@ chmod +x jenkins/debian/debos/scripts/buster-btrfs.sh
 6. Now build `buster-btrfs` rootfs image using kci_rootfs like:
 
 ```
-./kci_rootfs build --config buster-btrfs --data-path jenkins/debian/debos --arch amd64
+./kci_rootfs build --rootfs-config buster-btrfs --data-path jenkins/debian/debos --arch amd64
 ```
 
 If you would like to read more about `kci_rootfs`, please check the `kci_rootfs` [documentation](https://github.com/kernelci/kernelci-core/blob/master/doc/kci_rootfs.md)
@@ -194,7 +194,7 @@ Adding new test plan to LAVA
 Upload rootfs image to kernelci-backend (storage)
 
 ```
-kci_rootfs upload --rootfs-dir /path/to/rootf/image/ --upload-path server/path --api http://api.kernelci --token KCI_API_TOKEN
+kci_rootfs upload --rootfs-dir /path/to/rootf/image/ --upload-path server/path --api http://api.kernelci --db-token KCI_API_TOKEN
 ```
 
 Add rootfs definition to `test-configs.yaml`
@@ -297,7 +297,7 @@ kci_build build_kernel --kdir /path/to/linux --arch x86_64 --build-env gcc-8 --v
 Genrate test job definitions
 
 ```
-kci_test generate --bmeta-json /path/to/bmeta.json --dtbs-json /path/to/artifacts/dtbs.json --lab-json /path/to/mgalka-lava-local.json --storage http://storage.kernelci --lab your-lab-name --user lava_user --token LAVA_API_TOKEN --output /output/path --callback-id your-lava-callback-name --callback-url http://api.kernelci
+kci_test generate --bmeta-json /path/to/bmeta.json --dtbs-json /path/to/artifacts/dtbs.json --lab-json /path/to/mgalka-lava-local.json --storage http://storage.kernelci --lab-config your-lab-name --user lava_user --lab-token LAVA_API_TOKEN --output /output/path --callback-id your-lava-callback-name --callback-url http://api.kernelci
 ```
 
 **Note** 
@@ -321,7 +321,7 @@ e.g.
 Submit test jobs
 
 ```
-kci_test submit --lab your-lab-name --user lava_user --token LAVA_API_TOKEN --jobs /path/to/generated/test/job/definitions
+kci_test submit --lab-config your-lab-name --user lava_user --lab-token LAVA_API_TOKEN --jobs /path/to/generated/test/job/definitions
 ```
 
 5. Create PR to add the test plan
