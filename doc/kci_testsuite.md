@@ -175,3 +175,153 @@ run:
 
 If you would like to read more about LAVA job definitions, please check the LAVA documentation part about [writing tests](https://docs.lavasoftware.org/lava/writing-tests.html)
 
+How to add tests to LAVA
+========================
+
+Prerequisites
+-------------
+
+- Rootfs image is built 
+- Rootfs image boots on a platform
+- Tests can be run
+
+If you're facing issues with tha above you may want to go through the section "How to add test suite to a rootfs image"
+
+Adding new test plan to LAVA
+------------------------------
+
+1. Use the rootfs image to boot the device and produce a LAVA job definition for the tests.
+Upload rootfs image to kernelci-backend (storage)
+
+```
+kci_rootfs upload --rootfs-dir /path/to/rootf/image/ --upload-path server/path --api http://api.kernelci --token KCI_API_TOKEN
+```
+
+Add rootfs definition to `test-configs.yaml`
+
+```yaml
+  debian_buster_btrfs_ramdisk:
+    type: debian
+    ramdisk: 'buster-btrfs/{arch}/rootfs.cpio.gz'
+```
+
+**Note**
+`ramdisk` path must be relative to storage server URL as defined in a `file_system_types` section of `test-configs.yaml`
+
+If you need to define a filesystem type you may want to have a look at `file_system_types` section of `test-configs.yaml`
+
+e.g.
+
+```yaml
+debian:
+    url: 'http://yourstorage/path/to/images/debian/'
+    arch_map:
+      armhf: [{arch: arm}]
+      amd64: [{arch: x86_64}]
+```
+
+Detailed description of the test configuration can be found [here](https://github.com/kernelci/kernelci-doc/wiki/Test-configurations)
+
+2. Add LAVA job definition template
+
+Create appropriate directory structure under `templates` directory.
+
+```
+mkdir templates/btrfs/
+```
+
+Create test plan definition
+
+```
+cat templates/btrfs/btrfs.jinja2
+```
+
+```yaml
+- test:
+    timeout:
+      minutes: 10
+    definitions:
+    - repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: {{ plan }}
+          description: "btrfs test plan"
+          os:
+          - debian
+          scope:
+          - functional
+        run:
+          steps:
+          - lava-test-case test-btrfs-cli-001 --shell ls /usr/bin/btrfs-verify-cli.sh
+      from: inline
+      name: {{ plan }}
+      path: inline/{{ plan }}.yaml
+```
+
+
+```
+cat templates/btrfs/generic-qemu-btrfs-template.jinja2
+```
+
+```
+{% extends 'boot/generic-qemu-boot-template.jinja2' %}
+{% block actions %}
+{{ super () }}
+
+{% include 'btrfs/btrfs.jinja2' %}
+
+{% endblock %}
+
+{%- block image_arg %}
+        image_arg: '-kernel {kernel} -append "console={{ console_dev }},115200 root=/dev/ram0 debug verbose {{ extra_kernel_args }}"'
+{%- endblock %}
+```
+
+3. Update `test-plans` section of `test-configs.yaml` with new test definition
+
+
+```yaml
+  btrfs:
+    rootfs: debian_buster_btrfs_ramdisk
+    pattern: 'btrfs/generic-qemu-btrfs-template.jinja2'
+```
+
+4. Use `kci_build` to build the kernel and `kci_test` to run the tests in a LAVA lab.
+
+Build the Kernel
+
+```
+kci_build build_kernel --kdir /path/to/linux --arch x86_64 --build-env gcc-8 --verbose -j 4
+```
+
+Genrate test job definitions
+
+```
+kci_test generate --bmeta-json /path/to/bmeta.json --dtbs-json /path/to/artifacts/dtbs.json --lab-json /path/to/mgalka-lava-local.json --storage http://storage.kernelci --lab your-lab-name --user lava_user --token LAVA_API_TOKEN --output /output/path --callback-id your-lava-callback-name --callback-url http://api.kernelci
+```
+
+**Note** 
+
+Make sure that there is that the lab you chose to supports the type of tests which you've just defined. You may need to modify `lab-configs.yaml` accordingly.
+
+e.g.
+
+```yaml
+  your-local-lab:
+    lab_type: lava
+    url: 'http://kernelci-lava/RPC2/'
+    filters:
+      - passlist:
+          plan:
+            - baseline
+            - btrfs
+```
+
+
+Submit test jobs
+
+```
+kci_test submit --lab your-lab-name --user lava_user --token LAVA_API_TOKEN --jobs /path/to/generated/test/job/definitions
+```
+
+5. Create PR to add the test plan
