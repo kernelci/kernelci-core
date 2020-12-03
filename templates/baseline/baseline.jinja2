@@ -19,6 +19,7 @@
         run:
           steps:
             - KERNELCI_LAVA=y /bin/sh /opt/kernelci/dmesg.sh
+      lava-signal: kmsg
       from: inline
       name: dmesg
       path: inline/dmesg.yaml
