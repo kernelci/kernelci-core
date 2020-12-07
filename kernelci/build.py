@@ -978,6 +978,35 @@ class MakeDeviceTrees(Step):
         return res
 
 
+class MakeSelftests(Step):
+
+    def fragment_enabled(self):
+        """Check whether the kselftest fragment is enabled
+
+        Return True if the kselftest config fragment is enabled in the build
+        meta-data, or False otherwise.
+        """
+        return 'kselftest' in self._bmeta['kernel']['defconfig_extras']
+
+    def run(self, jopt=None, verbose=False):
+        """Make the kernel selftests
+
+        Make the kernel selftests or "kselftest" and produce a tarball so they
+        can be installed on a separate test platform.
+
+        *jopt* is the `make -j` option which will default to `nproc + 2`
+        *verbose* is whether the build output should be shown
+        """
+        opts = {
+            'FORMAT': '.xz',
+        }
+        res = self._make('gen_tar', jopt, verbose, opts,
+                         'tools/testing/selftests')
+        self._add_run_step('kselftest', jopt, res)
+        self._save_bmeta()
+        return res
+
+
 def _make_defconfig(defconfig, kwargs, extras, verbose, log_file):
     kdir, output_path = (kwargs.get(k) for k in ('kdir', 'output'))
     result = True
