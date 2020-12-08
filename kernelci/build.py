@@ -594,6 +594,14 @@ class Step:
         cmd = 'grep -cq CONFIG_{}=y {}'.format(config_name, dot_config)
         return shell_cmd(cmd, True)
 
+    def _output_to_file(self, cmd, log_file, rel_path=None):
+        open(log_file, 'a').write("#\n# {}\n#\n".format(cmd))
+        if rel_path:
+            log_file = os.path.relpath(log_file, rel_path)
+        cmd = "/bin/bash -c '(set -o pipefail; {} 2>&1 | tee -a {})'".format(
+            cmd, log_file)
+        return cmd
+
     def _get_make_opts(self, opts, make_path):
         env = self._bmeta['environment']
         make_opts = env['make_opts'].copy()
@@ -653,7 +661,7 @@ class Step:
         cmd = ' '.join(args)
         print_flush(cmd)
         if self._log_path:
-            cmd = _output_to_file(cmd, self._log_path)
+            cmd = self._output_to_file(cmd, self._log_path)
         return shell_cmd(cmd, True)
 
     def run(self):
@@ -786,7 +794,7 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
            redir='> /dev/null' if not verbose else '')
         print_flush(cmd.strip())
         if self._log_path:
-            cmd = _output_to_file(cmd, self._log_path, self._kdir)
+            cmd = self._output_to_file(cmd, self._log_path, self._kdir)
         return shell_cmd(cmd, True)
 
     def run(self, defconfig, jopt=None, verbose=False, frag='kernelci.config'):
