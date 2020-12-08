@@ -594,18 +594,67 @@ class Step:
         cmd = 'grep -cq CONFIG_{}=y {}'.format(config_name, dot_config)
         return shell_cmd(cmd, True)
 
-    def _run_make(self, target, jopt=None, verbose=False, opts=None):
+    def _get_make_opts(self, opts, make_path):
         env = self._bmeta['environment']
         make_opts = env['make_opts'].copy()
         if opts:
             make_opts.update(opts)
+
+        arch = env['arch']
+        make_opts['ARCH'] = arch
+
+        cc = env['compiler']
+        if env['compiler'].startswith('clang'):
+            make_opts['LLVM'] = '1'
+        else:
+            make_opts['HOSTCC'] = cc
+
+        cross_compile = env['cross_compile']
+        if cross_compile:
+            make_opts['CROSS_COMPILE'] = cross_compile
+
+        cross_compile_compat = env['cross_compile_compat']
+        if cross_compile_compat:
+            make_opts['CROSS_COMPILE_COMPAT'] = cross_compile_compat
+
+        if env['use_ccache']:
+            px = cross_compile if cc == 'gcc' and cross_compile else ''
+            make_opts['CC'] = '"ccache {}{}"'.format(px, cc)
+            ccache_dir = '-'.join(['.ccache', arch, cc])
+            os.environ.setdefault('CCACHE_DIR', ccache_dir)
+        elif cc != 'gcc':
+            make_opts['CC'] = cc
+
+        if self._output_path and (self._output_path != make_path):
+            # due to kselftest Makefile issues, O= cannot be a relative path
+            make_opts['O'] = format(os.path.abspath(self._output_path))
+
+        return make_opts
+
+    def _make(self, target, jopt=None, verbose=False, opts=None, subdir=None):
+        make_path = os.path.join(self._kdir, subdir) if subdir else self._kdir
+        make_opts = self._get_make_opts(opts, make_path)
+
+        args = ['make']
+        args += ['='.join([k, v]) for k, v in make_opts.items()]
+        args += ['-C{}'.format(make_path)]
+
         if jopt is None:
             jopt = int(shell_cmd("nproc")) + 2
-        return _run_make(
-            self._kdir, env['arch'], target, jopt, not verbose,
-            env['compiler'], env['cross_compile'], env['use_ccache'],
-            self._output_path, self._log_path, make_opts,
-            env['cross_compile_compat'])
+        if jopt:
+            args.append('-j{}'.format(jopt))
+
+        if not verbose:
+            args.append('-s')
+
+        if target:
+            args.append(target)
+
+        cmd = ' '.join(args)
+        print_flush(cmd)
+        if self._log_path:
+            cmd = _output_to_file(cmd, self._log_path)
+        return shell_cmd(cmd, True)
 
     def run(self):
         """Abstract method to run the build step."""
@@ -772,7 +821,7 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
             'defconfig_extras': extras,
         }
 
-        res = self._run_make(target, jopt, verbose, opts)
+        res = self._make(target, jopt, verbose, opts)
 
         if res and kci_frag_name:
             # ToDo: treat kernelci.config as an implementation detail and list
@@ -808,7 +857,7 @@ class MakeKernel(Step):
         kbmeta = self._bmeta.setdefault('kernel', dict())
         kbmeta['image'] = target
 
-        res = self._run_make(target, jopt, verbose)
+        res = self._make(target, jopt, verbose)
 
         if res:
             vmlinux_file = os.path.join(self._output_path, 'vmlinux')
@@ -844,7 +893,7 @@ class MakeModules(Step):
         *jopt* is the `make -j` option which will default to `nproc + 2`
         *verbose* is whether the build output should be shown
         """
-        res = self._run_make('modules', jopt, verbose)
+        res = self._make('modules', jopt, verbose)
 
         if res:
             if not mod_path:
@@ -858,7 +907,7 @@ class MakeModules(Step):
                 'INSTALL_MOD_STRIP': '1',
                 'STRIP': "{}strip".format(cross_compile),
             }
-            res = self._run_make('modules_install', jopt, verbose, opts)
+            res = self._make('modules_install', jopt, verbose, opts)
 
         self._add_run_step('modules', jopt, res)
         self._save_bmeta()
@@ -904,7 +953,7 @@ class MakeDeviceTrees(Step):
         *jopt* is the `make -j` option which will default to `nproc + 2`
         *verbose* is whether the build output should be shown
         """
-        res = self._run_make('dtbs', jopt, verbose)
+        res = self._make('dtbs', jopt, verbose)
         if res:
             self._dtbs_json()
         self._add_run_step('dtbs', jopt, res)
