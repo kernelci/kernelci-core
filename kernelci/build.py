@@ -15,6 +15,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+from datetime import datetime
 import fnmatch
 import itertools
 import json
@@ -594,12 +595,19 @@ class Step:
         cmd = 'grep -cq CONFIG_{}=y {}'.format(config_name, dot_config)
         return shell_cmd(cmd, True)
 
-    def _output_to_file(self, cmd, log_file, rel_path=None):
-        open(log_file, 'a').write("#\n# {}\n#\n".format(cmd))
+    def _output_to_file(self, cmd, file_path, rel_path=None):
+        with open(file_path, 'a') as output_file:
+            output = ["#\n"]
+            if self._start_time:
+                dt = datetime.fromtimestamp(time.time())
+                output.append("# {}\n#\n".format(dt.isoformat()))
+            output.append("# {}\n".format(cmd))
+            output.append("#\n")
+            output_file.write("".join(output))
         if rel_path:
-            log_file = os.path.relpath(log_file, rel_path)
+            file_path = os.path.relpath(file_path, rel_path)
         cmd = "/bin/bash -c '(set -o pipefail; {} 2>&1 | tee -a {})'".format(
-            cmd, log_file)
+            cmd, file_path)
         return cmd
 
     def _get_make_opts(self, opts, make_path):
