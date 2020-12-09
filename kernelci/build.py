@@ -550,9 +550,10 @@ class Step:
                 self._steps = json.load(json_file)
 
     def _add_run_step(self, name, jopt=None, status=None):
+        start_time = datetime.fromtimestamp(self._start_time).isoformat()
         run_data = {
             'name': name,
-            'start_time': self._start_time,
+            'start_time': start_time,
             'duration': time.time() - self._start_time,
             'cpus': self._get_cpus(),
         }
