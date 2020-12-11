@@ -183,38 +183,40 @@ test_plans:
     params:
       job_timeout: '120'
 
-  ltp-crypto:
+  ltp-opts: &ltp-rootfs
     rootfs: debian_buster-ltp_nfs
     pattern: 'ltp/{category}-{method}-{protocol}-{rootfs}-ltp-template.jinja2'
     filters:
       - blocklist: *kselftest_defconfig_filter
-    params:
+    params: &ltp-params
       skip_install: "true"
-      tst_cmdfiles: "crypto"
+      tst_cmdfiles: ""
       job_timeout: '15'
       skipfile: skipfile-lkft.yaml
+
+  ltp-crypto:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "crypto"
 
   ltp-ipc:
-    rootfs: debian_buster-ltp_nfs
-    pattern: 'ltp/{category}-{method}-{protocol}-{rootfs}-ltp-template.jinja2'
-    filters:
-      - blocklist: *kselftest_defconfig_filter
+    <<: *ltp-rootfs
     params:
-      skip_install: "true"
+      <<: *ltp-params
       tst_cmdfiles: "ipc"
-      job_timeout: '15'
-      skipfile: skipfile-lkft.yaml
+
+  ltp-lib:
+    <<: *ltp-rootfs
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "lib"
 
   ltp-timers:
-    rootfs: debian_buster-ltp_nfs
-    pattern: 'ltp/{category}-{method}-{protocol}-{rootfs}-ltp-template.jinja2'
-    filters:
-      - blocklist: *kselftest_defconfig_filter
+    <<: *ltp-rootfs
     params:
-      skip_install: "true"
+      <<: *ltp-params
       tst_cmdfiles: "timers"
-      job_timeout: '15'
-      skipfile: skipfile-lkft.yaml
 
   preempt-rt:
     rootfs: debian_buster_nfs
@@ -1603,6 +1605,7 @@ test_configs:
       - baseline
       - ltp-crypto
       - ltp-ipc
+      - ltp-lib
       - ltp-timers
       - sleep
       - usb
@@ -1622,6 +1625,7 @@ test_configs:
       - baseline-nfs
       - ltp-crypto
       - ltp-ipc
+      - ltp-lib
       - ltp-timers
 
   - device_type: beagle-xm
@@ -1694,6 +1698,8 @@ test_configs:
       - baseline-nfs
       - kselftest
       - ltp-crypto
+      - ltp-ipc
+      - ltp-lib
       - ltp-timers
 
   - device_type: hifive-unleashed-a00
@@ -1758,6 +1764,7 @@ test_configs:
       - baseline-nfs
       - ltp-crypto
       - ltp-ipc
+      - ltp-lib
       - ltp-timers
       - sleep
       - usb
@@ -1816,6 +1823,7 @@ test_configs:
       - baseline-nfs
       - ltp-crypto
       - ltp-ipc
+      - ltp-lib
       - ltp-timers
 
   - device_type: kirkwood-db-88f6282
@@ -1946,6 +1954,7 @@ test_configs:
       - baseline-nfs
       - igt-kms-exynos
       - ltp-ipc
+      - ltp-lib
       - ltp-timers
       - sleep
       - usb
@@ -2086,6 +2095,7 @@ test_configs:
       - kselftest
       - ltp-crypto
       - ltp-ipc
+      - ltp-lib
       - ltp-timers
       - sleep
       - v4l2-compliance-uvc
@@ -2105,6 +2115,7 @@ test_configs:
       - baseline-nfs
       - ltp-crypto
       - ltp-ipc
+      - ltp-lib
       - ltp-timers
       - sleep
       - usb
@@ -2123,6 +2134,7 @@ test_configs:
       - kselftest
       - ltp-crypto
       - ltp-ipc
+      - ltp-lib
       - ltp-timers
       - sleep
       - usb
@@ -2177,6 +2189,7 @@ test_configs:
       - baseline
       - ltp-crypto
       - ltp-ipc
+      - ltp-lib
       - ltp-timers
 
   - device_type: sun50i-h6-pine-h64-model-b
