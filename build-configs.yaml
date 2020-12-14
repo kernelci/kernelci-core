@@ -301,7 +301,7 @@ build_configs_defaults:
         x86_64: &x86_64_arch
           base_defconfig: 'x86_64_defconfig'
           extra_configs: ['allmodconfig', 'allnoconfig']
-          fragments: [x86_kvm_guest]
+          fragments: [x86_kvm_guest, x86_chromebook]
 
   reference:
     tree: mainline
@@ -647,7 +647,9 @@ build_configs:
         architectures:
           arm: *arm_defconfig
           arm64: *arm64_defconfig
-          x86_64: *x86_64_defconfig
+          x86_64:
+            <<: *x86_64_defconfig
+            fragments: [x86_chromebook]
 
   cip_4.4:
     tree: cip
