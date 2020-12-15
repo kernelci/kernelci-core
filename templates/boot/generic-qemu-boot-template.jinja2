@@ -1,15 +1,15 @@
 {% extends 'base/kernel-ci-base.jinja2' %}
 {% if arch == "arm" %}
-{% set console_dev = 'ttyAMA0' %}
+{% set console_dev = console_dev|default('ttyAMA0') %}
 {% endif %}
 {% if arch == "arm64" %}
-{% set console_dev = 'ttyAMA0' %}
+{% set console_dev = console_dev|default('ttyAMA0') %}
 {% endif %}
 {% if arch == 'x86_64' %}
-{% set console_dev = 'ttyS0' %}
+{% set console_dev = console_dev|default('ttyS0') %}
 {% endif %}
 {% if arch == 'i386' %}
-{% set console_dev = 'ttyS0' %}
+{% set console_dev = console_dev|default('ttyS0') %}
 {% endif %}
 {% block metadata %}
 {{ super() }}
