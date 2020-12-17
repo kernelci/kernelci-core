@@ -427,6 +427,13 @@ device_types:
       - blocklist: *allmodconfig_filter
       - blocklist: {defconfig: ['multi_v7_defconfig+CONFIG_SMP=n']}
 
+  asus-C523NA-A20057-coral:
+    mach: x86
+    arch: x86_64
+    boot_method: depthcharge
+    filters:
+      - passlist: {defconfig: ['x86-chromebook']}
+
   at91-sama5d2_xplained:
     mach: at91
     class: arm-dtb
@@ -1635,6 +1642,17 @@ test_configs:
   - device_type: arndale
     test_plans:
       - baseline
+
+  - device_type: asus-C523NA-A20057-coral
+    test_plans:
+      - baseline
+      - baseline-nfs
+      - cros-ec
+      - igt-gpu-i915
+      - ltp-crypto
+      - ltp-ipc
+      - ltp-mm
+      - sleep_mem
 
   - device_type: at91-sama5d2_xplained
     test_plans:
