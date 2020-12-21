@@ -677,6 +677,10 @@ class Step:
             cmd = self._output_to_file(cmd, self._log_path)
         return shell_cmd(cmd, True)
 
+    def is_enabled(self):
+        """Determine whether the step is enabled with the current kernel."""
+        return True
+
     def run(self):
         """Abstract method to run the build step."""
         raise NotImplementedError("Step.run() needs to be implemented.")
@@ -894,7 +898,7 @@ class MakeKernel(Step):
 
 class MakeModules(Step):
 
-    def modules_enabled(self):
+    def is_enabled(self):
         """Check whether modules are enabled.
 
         Return True if the modules are enabled in the kernel config file, or
@@ -937,7 +941,7 @@ class MakeModules(Step):
 
 class MakeDeviceTrees(Step):
 
-    def dt_enabled(self):
+    def is_enabled(self):
         """Check whether device tree support is enabled.
 
         Return True if device tree support is enabled in the kernel config, or
@@ -984,7 +988,7 @@ class MakeDeviceTrees(Step):
 
 class MakeSelftests(Step):
 
-    def fragment_enabled(self):
+    def is_enabled(self):
         """Check whether the kselftest fragment is enabled
 
         Return True if the kselftest config fragment is enabled in the build
