@@ -342,14 +342,14 @@ class cmd_make_kernel(Command):
 class cmd_make_modules(Command):
     help = "Build kernel modules"
     args = [Args.kdir]
-    opt_args = [Args.verbose, Args.output, Args.j, Args.log, Args.mod_path]
+    opt_args = [Args.verbose, Args.output, Args.j, Args.log]
 
     def __call__(self, configs, args):
         step = kernelci.build.MakeModules(args.kdir, args.output, args.log)
         if not step.is_enabled():
             print("Kernel modules disabled, not building.")
             return True
-        return step.run(args.mod_path, args.j, args.verbose)
+        return step.run(args.j, args.verbose)
 
 
 class cmd_make_dtbs(Command):
