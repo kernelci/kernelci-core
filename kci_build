@@ -319,63 +319,54 @@ Invalid arguments, --build-env and --arch need to be used together.""")
         return res
 
 
-class cmd_make_config(Command):
-    help = "Make kernel config"
-    args = [Args.kdir, Args.defconfig]
+class MakeCommand(Command):
+    args = [Args.kdir]
     opt_args = [Args.verbose, Args.output, Args.j, Args.log]
+    step_cls = None
 
     def __call__(self, configs, args):
-        step = kernelci.build.MakeConfig(args.kdir, args.output, args.log)
+        step = self._get_step(args)
+        if not step.is_enabled():
+            print("Not enabled, skipping.")
+            return True
+        return self._run_step(step, args)
+
+    def _get_step(self, args):
+        if self.step_cls is None:
+            raise ValueError("Step class not defined.")
+        return self.step_cls(args.kdir, args.output, args.log)
+
+    def _run_step(self, step, args):
+        return step.run(args.j, args.verbose)
+
+
+class cmd_make_config(MakeCommand):
+    help = "Make kernel config"
+    args = MakeCommand.args + [Args.defconfig]
+    step_cls = kernelci.build.MakeConfig
+
+    def _run_step(self, step, args):
         return step.run(args.defconfig, args.j, args.verbose)
 
 
-class cmd_make_kernel(Command):
+class cmd_make_kernel(MakeCommand):
     help = "Make a kernel image"
-    args = [Args.kdir]
-    opt_args = [Args.verbose, Args.output, Args.j, Args.log]
-
-    def __call__(self, configs, args):
-        step = kernelci.build.MakeKernel(args.kdir, args.output, args.log)
-        return step.run(args.j, args.verbose)
+    step_cls = kernelci.build.MakeKernel
 
 
-class cmd_make_modules(Command):
+class cmd_make_modules(MakeCommand):
     help = "Build kernel modules"
-    args = [Args.kdir]
-    opt_args = [Args.verbose, Args.output, Args.j, Args.log]
-
-    def __call__(self, configs, args):
-        step = kernelci.build.MakeModules(args.kdir, args.output, args.log)
-        if not step.is_enabled():
-            print("Kernel modules disabled, not building.")
-            return True
-        return step.run(args.j, args.verbose)
+    step_cls = kernelci.build.MakeModules
 
 
-class cmd_make_dtbs(Command):
+class cmd_make_dtbs(MakeCommand):
     help = "Build device trees"
-    args = [Args.kdir]
-    opt_args = [Args.verbose, Args.output, Args.j, Args.log]
-
-    def __call__(self, configs, args):
-        step = kernelci.build.MakeDeviceTrees(args.kdir, args.output, args.log)
-        if not step.is_enabled():
-            print("Device tree support disabled, not building.")
-            return True
-        return step.run(args.j, args.verbose)
+    step_cls = kernelci.build.MakeDeviceTrees
 
 
-class cmd_make_kselftest(Command):
+class cmd_make_kselftest(MakeCommand):
     help = "Build kselftest"
-    args = [Args.kdir]
-    opt_args = [Args.verbose, Args.output, Args.j, Args.log]
-
-    def __call__(self, configs, args):
-        step = kernelci.build.MakeSelftests(args.kdir, args.output, args.log)
-        if not step.is_enabled():
-            print("No kselftest fragment being used, not building.")
-            return True
-        return step.run(args.j, args.verbose)
+    step_cls = kernelci.build.MakeSelftests
 
 
 class cmd_build_kernel(Command):
