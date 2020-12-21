@@ -280,7 +280,7 @@ class cmd_list_kernel_configs(Command):
 class cmd_init_bmeta(Command):
     help = "Create initial bmeta.json"
     args = [Args.kdir]
-    opt_args = [Args.output, Args.build_config,
+    opt_args = [Args.output, Args.build_config, Args.install,
                 Args.tree_name, Args.tree_url, Args.branch,
                 Args.build_env, Args.arch]
 
@@ -307,6 +307,10 @@ or
         print("Initialising build meta-data in {}".format(args.output))
         res = step.run(tree_name, tree_url, branch)
 
+        if args.install:
+            print("Install directory: {}".format(step.install_path))
+            step.install()
+
         if res and (args.build_env or args.arch):
             if not (args.build_env and args.arch):
                 print("""\
@@ -315,13 +319,15 @@ Invalid arguments, --build-env and --arch need to be used together.""")
             build_env = configs['build_environments'][args.build_env]
             step = kernelci.build.EnvironmentData(args.kdir, args.output)
             res = step.run(build_env, args.arch)
+            if args.install:
+                step.install()
 
         return res
 
 
 class MakeCommand(Command):
     args = [Args.kdir]
-    opt_args = [Args.verbose, Args.output, Args.j, Args.log]
+    opt_args = [Args.verbose, Args.output, Args.j, Args.log, Args.install]
     step_cls = None
 
     def __call__(self, configs, args):
@@ -329,7 +335,11 @@ class MakeCommand(Command):
         if not step.is_enabled():
             print("Not enabled, skipping.")
             return True
-        return self._run_step(step, args)
+        res = self._run_step(step, args)
+        if args.install:
+            install_res = self._install_step(step, args)
+            res = res and install_res
+        return res
 
     def _get_step(self, args):
         if self.step_cls is None:
@@ -338,6 +348,9 @@ class MakeCommand(Command):
 
     def _run_step(self, step, args):
         return step.run(args.j, args.verbose)
+
+    def _install_step(self, step, args):
+        return step.install(args.verbose)
 
 
 class cmd_make_config(MakeCommand):

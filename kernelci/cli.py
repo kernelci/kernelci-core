@@ -143,6 +143,12 @@ class Args:
         'help': "Path to the dtbs.json file",
     }
 
+    install = {
+        'name': '--install',
+        'action': 'store_true',
+        'help': "Install the build artifacts ",
+    }
+
     install_path = {
         'name': '--install-path',
         'help':
