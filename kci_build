@@ -346,7 +346,7 @@ class cmd_make_modules(Command):
 
     def __call__(self, configs, args):
         step = kernelci.build.MakeModules(args.kdir, args.output, args.log)
-        if not step.modules_enabled():
+        if not step.is_enabled():
             print("Kernel modules disabled, not building.")
             return True
         return step.run(args.mod_path, args.j, args.verbose)
@@ -359,7 +359,7 @@ class cmd_make_dtbs(Command):
 
     def __call__(self, configs, args):
         step = kernelci.build.MakeDeviceTrees(args.kdir, args.output, args.log)
-        if not step.dt_enabled():
+        if not step.is_enabled():
             print("Device tree support disabled, not building.")
             return True
         return step.run(args.j, args.verbose)
@@ -372,7 +372,7 @@ class cmd_make_kselftest(Command):
 
     def __call__(self, configs, args):
         step = kernelci.build.MakeSelftests(args.kdir, args.output, args.log)
-        if not step.fragment_enabled():
+        if not step.is_enabled():
             print("No kselftest fragment being used, not building.")
             return True
         return step.run(args.j, args.verbose)
