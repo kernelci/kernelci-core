@@ -825,7 +825,7 @@ class MakeConfig(Step):
                 kci_frag.write(config + '\n')
             for name, path in fragments.items():
                 with open(path) as frag:
-                    kci_frag.write("\n# fragment from : {}\n".format(name))
+                    kci_frag.write("\n# fragment from: {}\n".format(name))
                     kci_frag.writelines(frag)
 
     def _merge_config(self, kci_frag_name, verbose=False):
@@ -898,6 +898,24 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
             res = self._merge_config(kci_frag_name, verbose)
 
         return self._add_run_step(res, jopt)
+
+    def install(self, verbose=False):
+        """Install the kernel configuration files
+
+        Install the Linux kernel config file and associated fragments.
+
+        *verbose* is whether the build output should be shown
+        """
+        self._install_file(
+            os.path.join(self._output_path, '.config'),
+            'kernel.config',
+            verbose
+        )
+        for frag in self._bmeta['kernel'].get('fragments', list()):
+            self._install_file(
+                os.path.join(self._output_path, frag), frag, verbose
+            )
+        return super().install(verbose)
 
 
 class MakeKernel(Step):
