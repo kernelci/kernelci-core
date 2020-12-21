@@ -539,11 +539,6 @@ class Step:
         """Name of the step to use in logs and meta-data"""
         raise NotImplementedError("Step.name needs to be implemented.")
 
-    @property
-    def bmeta_path(self):
-        """Path to the build meta-data JSON file"""
-        return self._bmeta_path
-
     def _load_json(self, json_path, default):
         data = default
         if os.path.exists(json_path):
