@@ -898,6 +898,10 @@ class MakeKernel(Step):
 
 class MakeModules(Step):
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._mod_path = os.path.join(self._output_path, '_modules_')
+
     def is_enabled(self):
         """Check whether modules are enabled.
 
@@ -907,28 +911,25 @@ class MakeModules(Step):
         """
         return self._kernel_config_enabled('MODULES')
 
-    def run(self, mod_path=None, jopt=None, verbose=False):
+    def run(self, jopt=None, verbose=False):
         """Make the kernel modules
 
-        Make the kernel modules and install them as stripped binaries in
-        *mod_path*, which defaults to _modules_ within the output directory.
-        This step does not add any extra build meta-data.
+        Make the kernel modules and install them as stripped binaries in a
+        _modules_ output sub-directory.  This step does not add any extra build
+        meta-data.
 
-        *mod_path* is the path to the output kernel modules directory.
         *jopt* is the `make -j` option which will default to `nproc + 2`
         *verbose* is whether the build output should be shown
         """
         res = self._make('modules', jopt, verbose)
 
         if res:
-            if not mod_path:
-                mod_path = os.path.join(self._output_path, '_modules_')
-            if os.path.exists(mod_path):
-                shutil.rmtree(mod_path)
-            os.makedirs(mod_path)
+            if os.path.exists(self._mod_path):
+                shutil.rmtree(self._mod_path)
+            os.makedirs(self._mod_path)
             cross_compile = self._bmeta['environment']['cross_compile']
             opts = {
-                'INSTALL_MOD_PATH': os.path.abspath(mod_path),
+                'INSTALL_MOD_PATH': os.path.abspath(self._mod_path),
                 'INSTALL_MOD_STRIP': '1',
                 'STRIP': "{}strip".format(cross_compile),
             }
