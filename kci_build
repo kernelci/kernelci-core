@@ -304,7 +304,7 @@ or
             return False
 
         step = kernelci.build.RevisionData(args.kdir, args.output, reset=True)
-        print("Initialising build meta-data in {}".format(step.bmeta_path))
+        print("Initialising build meta-data in {}".format(args.output))
         res = step.run(tree_name, tree_url, branch)
 
         if res and (args.build_env or args.arch):
