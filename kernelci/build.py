@@ -518,40 +518,33 @@ class Step:
         *reset* is whether the meta-data should be reset in this step
         """
         self._kdir = kdir
+        self._reset = reset
         self._output_path = output_path or os.path.join(kdir, 'build')
-        self._bmeta_path = os.path.join(self._output_path, 'bmeta.json')
-        self._steps_path = os.path.join(self._output_path, 'steps.json')
-        self._log_file = log
-        self._log_path = os.path.join(self._output_path, log) if log else None
-        self._bmeta = dict()
-        self._steps = list()
-        self._dot_config = None
-        self._start_time = time.time()
         if not os.path.exists(self._output_path):
             os.mkdir(self._output_path)
-        elif reset:
-            self._reset_bmeta()
-        else:
-            self._load_bmeta()
+        self._bmeta_path = os.path.join(self._output_path, 'bmeta.json')
+        self._steps_path = os.path.join(self._output_path, 'steps.json')
+        self._bmeta = self._load_json(self._bmeta_path, dict())
+        self._steps = self._load_json(self._steps_path, list())
+        self._log_file = log
+        self._log_path = os.path.join(self._output_path, log) if log else None
+        self._dot_config = None
+        self._start_time = time.time()
 
     @property
     def bmeta_path(self):
         """Path to the build meta-data JSON file"""
         return self._bmeta_path
 
-    def _reset_bmeta(self):
-        if os.path.exists(self._bmeta_path):
-            os.unlink(self._bmeta_path)
-        if os.path.exists(self._steps_path):
-            os.unlink(self._steps_path)
-
-    def _load_bmeta(self):
-        if os.path.exists(self._bmeta_path):
-            with open(self._bmeta_path) as json_file:
-                self._bmeta = json.load(json_file)
-        if os.path.exists(self._steps_path):
-            with open(self._steps_path) as json_file:
-                self._steps = json.load(json_file)
+    def _load_json(self, json_path, default):
+        data = default
+        if os.path.exists(json_path):
+            if self._reset:
+                os.unlink(json_path)
+            else:
+                with open(json_path) as json_file:
+                    data = json.load(json_file)
+        return data
 
     def _add_run_step(self, name, jopt=None, status=None):
         start_time = datetime.fromtimestamp(self._start_time).isoformat()
