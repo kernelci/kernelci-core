@@ -1106,12 +1106,31 @@ class MakeDeviceTrees(Step):
         """
         return self._kernel_config_enabled('OF_FLATTREE')
 
-    def _dtbs_json(self):
+    def run(self, jopt=None, verbose=False):
+        """Make the device trees
+
+        Make the device tree binary files (dtbs).  This step does not add any
+        extra build meta-data.
+
+        *jopt* is the `make -j` option which will default to `nproc + 2`
+        *verbose* is whether the build output should be shown
+        """
+        res = self._make('dtbs', jopt, verbose)
+        return self._add_run_step(res, jopt)
+
+    def _install_dtbs(self, verbose):
         arch = self._bmeta['environment']['arch']
         boot_dir = os.path.join(self._output_path, 'arch', arch, 'boot')
         dts_dir = os.path.join(boot_dir, 'dts')
-        dtbs_path = os.path.join(self._output_path, '_dtbs_')
         dtb_list = []
+
+        dtbs_path = os.path.join(self._install_path, 'dtbs')
+        if os.path.exists(dtbs_path):
+            shutil.rmtree(dtbs_path)
+
+        if verbose:
+            print("Copying dtbs to {}".format(dtbs_path))
+
         for root, _, files in os.walk(dts_dir):
             for f in fnmatch.filter(files, '*.dtb'):
                 dtb_path = os.path.join(root, f)
@@ -1122,22 +1141,27 @@ class MakeDeviceTrees(Step):
                 if not os.path.exists(dest_dir):
                     os.makedirs(dest_dir)
                 shutil.copy(dtb_path, dest_path)
-        with open(os.path.join(self._output_path, 'dtbs.json'), 'w') as f:
-            json.dump({'dtbs': sorted(dtb_list)}, f, indent=4)
 
-    def run(self, jopt=None, verbose=False):
-        """Make the device trees
+        return dtb_list
 
-        Make the device tree binary files (dtbs).  This step does not add any
-        extrabuild meta-data.
+    def _create_dtbs_json(self, dtb_list, verbose):
+        dtbs_json = os.path.join(self._install_path, 'dtbs.json')
+        if verbose:
+            print("Creating {}".format(dtbs_json))
+        with open(dtbs_json, 'w') as json_file:
+            json.dump({'dtbs': sorted(dtb_list)}, json_file, indent=4)
 
-        *jopt* is the `make -j` option which will default to `nproc + 2`
+    def install(self, verbose=False):
+        """Install the device trees
+
+        Install the device tree binary blobs (dtbs) and generate dtbs.json with
+        the list of device tree files.
+
         *verbose* is whether the build output should be shown
         """
-        res = self._make('dtbs', jopt, verbose)
-        if res:
-            self._dtbs_json()
-        return self._add_run_step(res, jopt)
+        dtb_list = self._install_dtbs(verbose)
+        self._create_dtbs_json(dtb_list, verbose)
+        return super().install(verbose)
 
 
 class MakeSelftests(Step):
