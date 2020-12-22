@@ -1026,31 +1026,69 @@ class MakeModules(Step):
         """
         return self._kernel_config_enabled('MODULES')
 
+    def _make_modules_install(self, jopt, verbose):
+        if os.path.exists(self._mod_path):
+            shutil.rmtree(self._mod_path)
+        os.makedirs(self._mod_path)
+        cross_compile = self._bmeta['environment']['cross_compile']
+        opts = {
+            'INSTALL_MOD_PATH': os.path.abspath(self._mod_path),
+            'INSTALL_MOD_STRIP': '1',
+            'STRIP': "{}strip".format(cross_compile),
+        }
+        return self._make('modules_install', jopt, verbose, opts)
+
+    def _create_modules_json(self, verbose):
+        mod_json = os.path.join(self._install_path, 'modules.json')
+        if verbose:
+            print("Creating {}".format(mod_json))
+        modules = []
+        for root, _, files in os.walk(self._mod_path):
+            rel_path = os.path.relpath(self._kdir)
+            for fname in fnmatch.filter(files, '*.ko'):
+                module_path = os.path.join(rel_path, fname)
+                modules.append(module_path)
+        with open(mod_json, 'w') as json_file:
+            json.dump({'modules': sorted(modules)}, json_file, indent=4)
+
+    def _create_modules_tarball(self, verbose):
+        modules_tarball = 'modules.tar.xz'
+        modules_tarball_path = os.path.join(
+            self._install_path, modules_tarball)
+        if verbose:
+            print("Creating {}".format(modules_tarball_path))
+        shell_cmd("tar -C{path} -cJf {tarball} .".format(
+            path=self._mod_path, tarball=modules_tarball_path))
+
     def run(self, jopt=None, verbose=False):
         """Make the kernel modules
 
-        Make the kernel modules and install them as stripped binaries in a
-        _modules_ output sub-directory.  This step does not add any extra build
+        Make the kernel modules and   This step does not add any extra build
         meta-data.
 
         *jopt* is the `make -j` option which will default to `nproc + 2`
         *verbose* is whether the build output should be shown
         """
         res = self._make('modules', jopt, verbose)
+        return self._add_run_step(res, jopt)
+
+    def install(self, verbose=False, jopt=None):
+        """Install the kernel modules
+
+        Install the kernel modules as stripped binaries in a _modules_ output
+        sub-directory.  Also create a modules.json file with the list of all
+        the module files and a tarball with all the modules.
+
+        *verbose* is whether the build output should be shown
+        *jopt* is the `make -j` option which will default to `nproc + 2`
+        """
+        res = self._make_modules_install(jopt, verbose)
 
         if res:
-            if os.path.exists(self._mod_path):
-                shutil.rmtree(self._mod_path)
-            os.makedirs(self._mod_path)
-            cross_compile = self._bmeta['environment']['cross_compile']
-            opts = {
-                'INSTALL_MOD_PATH': os.path.abspath(self._mod_path),
-                'INSTALL_MOD_STRIP': '1',
-                'STRIP': "{}strip".format(cross_compile),
-            }
-            res = self._make('modules_install', jopt, verbose, opts)
+            self._create_modules_json(verbose)
+            self._create_modules_tarball(verbose)
 
-        return self._add_run_step(res, jopt)
+        return super().install(verbose, res)
 
 
 class MakeDeviceTrees(Step):
