@@ -34,6 +34,10 @@ class cmd_validate(Command):
 
     def __call__(self, config_data, args, **kwargs):
         # ToDo: Use jsonschema
+        err = kernelci.sort_check(configs['rootfs_configs'])
+        if err:
+            print("Rootfs broken order: '{}' before '{}".format(*err))
+            return False
         if args.verbose:
             rootfs_configs = config_data['rootfs_configs']
             for config_name, config in rootfs_configs.items():
