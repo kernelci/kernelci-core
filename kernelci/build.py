@@ -939,11 +939,11 @@ class MakeKernel(Step):
         elif self._kernel_config_enabled('SYS_SUPPORTS_ZBOOT'):
             target = 'vmlinuz'
         else:
-            env = self._bmeta['environment']
-            target = MAKE_TARGETS.get(env['arch'])
+            target = MAKE_TARGETS.get(self._bmeta['environment']['arch'])
 
         kbmeta = self._bmeta.setdefault('kernel', dict())
-        kbmeta['image'] = target
+        if target:
+            kbmeta['image'] = target
 
         res = self._make(target, jopt, verbose)
 
