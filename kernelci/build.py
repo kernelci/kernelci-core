@@ -1182,7 +1182,8 @@ class MakeSelftests(Step):
         """Make the kernel selftests
 
         Make the kernel selftests or "kselftest" and produce a tarball so they
-        can be installed on a separate test platform.
+        can be installed on a separate test platform.  This step does not add
+        any extrabuild meta-data.
 
         *jopt* is the `make -j` option which will default to `nproc + 2`
         *verbose* is whether the build output should be shown
@@ -1193,6 +1194,25 @@ class MakeSelftests(Step):
         res = self._make('gen_tar', jopt, verbose, opts,
                          'tools/testing/selftests')
         return self._add_run_step(jopt, res)
+
+    def install(self, verbose=False):
+        """Install the kselftest tarball
+
+        Install the kselftest tarball which was already packaged as part of the
+        build action.
+
+        *verbose* is whether the build output should be shown
+        """
+        kselftest_tarball = os.path.join(
+            self._output_path,
+            'kselftest/kselftest_install/kselftest-packages/kselftest.tar.xz'
+        )
+
+        res = os.path.exists(kselftest_tarball)
+        if res:
+            self._install_file(kselftest_tarball, verbose=verbose)
+
+        return super().install(verbose, res)
 
 
 def _make_defconfig(defconfig, kwargs, extras, verbose, log_file):
