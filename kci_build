@@ -371,6 +371,9 @@ class cmd_make_modules(MakeCommand):
     help = "Build kernel modules"
     step_cls = kernelci.build.MakeModules
 
+    def _install_step(self, step, args):
+        return step.install(args.verbose, args.j)
+
 
 class cmd_make_dtbs(MakeCommand):
     help = "Build device trees"
