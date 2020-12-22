@@ -9,8 +9,8 @@ rootfs_configs:
       - armhf
       - i386
       - mips
-      - mipsel
       - mips64el
+      - mipsel
     extra_packages:
       - isc-dhcp-client
     extra_packages_remove: &extra_packages_remove_buster
@@ -59,8 +59,8 @@ rootfs_configs:
     debian_release: buster
     arch_list:
         - amd64
-        - armhf
         - arm64
+        - armhf
         - mips
     extra_packages:
         - libcairo2
