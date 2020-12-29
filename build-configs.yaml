@@ -331,6 +331,11 @@ arch_clang_configs: &arch_clang_configs
     extra_configs:
       - 'allmodconfig'
       - 'allnoconfig'
+  i386:
+    base_defconfig: 'i386_defconfig'
+    extra_configs:
+      - 'allmodconfig'
+      - 'allnoconfig'
 
 
 # Minimum architecture defconfigs
