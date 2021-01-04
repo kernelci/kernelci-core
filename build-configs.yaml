@@ -572,6 +572,11 @@ build_configs:
     branch: 'android12-5.4'
     variants: *android_variants
 
+  android12-5.10:
+    tree: android
+    branch: 'android12-5.10'
+    variants: *android_variants
+
   ardb:
     tree: ardb
     branch: 'for-kernelci'
@@ -990,6 +995,11 @@ build_configs:
     branch: 'linux-5.8.y'
     variants: *stable_variants
 
+  stable_5.10:
+    tree: stable
+    branch: 'linux-5.10.y'
+    variants: *stable_variants
+
   stable-rc_3.16:
     tree: stable-rc
     branch: 'linux-3.16.y'
@@ -1062,6 +1072,14 @@ build_configs:
       tree: stable
       branch: 'linux-5.8.y'
 
+  stable-rc_5.10:
+    tree: stable-rc
+    branch: 'linux-5.10.y'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.10.y'
+
   stable-rc_queue-4.4:
     tree: stable-rc
     branch: 'queue/4.4'
@@ -1125,6 +1143,14 @@ build_configs:
     reference:
       tree: stable
       branch: 'linux-5.8.y'
+
+  stable-rc_queue-5.10:
+    tree: stable-rc
+    branch: 'queue/5.10'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.10.y'
 
   tegra:
     tree: tegra
