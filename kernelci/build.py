@@ -514,7 +514,8 @@ class Step:
 
         *kdir* is the path to the kernel source tree directory
         *output_path* is the path to the build output directory
-        *log* is the name of the log file within the output directory
+        *log* is the name of the log file within the output directory, or in
+              the format step-name.log where step-name is the Step.name value.
         *reset* is whether the meta-data should be reset in this step
         """
         self._kdir = kdir
@@ -526,10 +527,17 @@ class Step:
         self._steps_path = os.path.join(self._output_path, 'steps.json')
         self._bmeta = self._load_json(self._bmeta_path, dict())
         self._steps = self._load_json(self._steps_path, list())
-        self._log_file = log
-        self._log_path = os.path.join(self._output_path, log) if log else None
+        self._log_file = '.'.join([self.name, 'log']) if log is None else log
+        self._log_path = os.path.join(self._output_path, self._log_file)
+        if log is None and os.path.exists(self._log_path):
+            os.unlink(self._log_path)
         self._dot_config = None
         self._start_time = time.time()
+
+    @property
+    def name(self):
+        """Name of the step to use in logs and meta-data"""
+        raise NotImplementedError("Step.name needs to be implemented.")
 
     @property
     def bmeta_path(self):
@@ -680,6 +688,10 @@ class Step:
 
 class RevisionData(Step):
 
+    @property
+    def name(self):
+        return 'revision'
+
     def run(self, tree_name, tree_url, branch):
         """Add all the meta-data related to the current kernel revision.
 
@@ -705,6 +717,10 @@ class RevisionData(Step):
 
 
 class EnvironmentData(Step):
+
+    @property
+    def name(self):
+        return 'environment'
 
     def run(self, build_env, arch):
         """Add all the meta-data related to the current build.
@@ -744,6 +760,10 @@ class EnvironmentData(Step):
 
 
 class MakeConfig(Step):
+
+    @property
+    def name(self):
+        return 'config'
 
     def _parse_elements(self, elements):
         opts = dict()
@@ -853,6 +873,10 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
 
 class MakeKernel(Step):
 
+    @property
+    def name(self):
+        return 'kernel'
+
     def run(self, jopt=None, verbose=False):
         """Make the kernel image
 
@@ -894,6 +918,10 @@ class MakeModules(Step):
         super().__init__(*args, **kwargs)
         self._mod_path = os.path.join(self._output_path, '_modules_')
 
+    @property
+    def name(self):
+        return 'modules'
+
     def is_enabled(self):
         """Check whether modules are enabled.
 
@@ -933,6 +961,10 @@ class MakeModules(Step):
 
 
 class MakeDeviceTrees(Step):
+
+    @property
+    def name(self):
+        return 'dtbs'
 
     def is_enabled(self):
         """Check whether device tree support is enabled.
@@ -980,6 +1012,10 @@ class MakeDeviceTrees(Step):
 
 
 class MakeSelftests(Step):
+
+    @property
+    def name(self):
+        return 'kselftest'
 
     def is_enabled(self):
         """Check whether the kselftest fragment is enabled
