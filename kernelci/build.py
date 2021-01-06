@@ -554,10 +554,16 @@ class Step:
                     data = json.load(json_file)
         return data
 
-    def _add_run_step(self, name, status, jopt=None):
+    def _save_bmeta(self):
+        with open(self._bmeta_path, 'w') as json_file:
+            json.dump(self._bmeta, json_file, indent=4, sort_keys=True)
+        with open(self._steps_path, 'w') as json_file:
+            json.dump(self._steps, json_file, indent=4, sort_keys=True)
+
+    def _add_run_step(self, status, jopt=None):
         start_time = datetime.fromtimestamp(self._start_time).isoformat()
         run_data = {
-            'name': name,
+            'name': self.name,
             'start_time': start_time,
             'duration': time.time() - self._start_time,
             'cpus': self._get_cpus(),
@@ -575,12 +581,8 @@ class Step:
             'duration': total_duration,
             'status': 'PASS' if all_status == {'PASS'} else 'FAIL'
         }
-
-    def _save_bmeta(self):
-        with open(self._bmeta_path, 'w') as json_file:
-            json.dump(self._bmeta, json_file, indent=4, sort_keys=True)
-        with open(self._steps_path, 'w') as json_file:
-            json.dump(self._steps, json_file, indent=4, sort_keys=True)
+        self._save_bmeta()
+        return status
 
     def _get_cpus(self):
         cpus = {}
@@ -711,9 +713,7 @@ class RevisionData(Step):
             'describe_v': git_describe_verbose(self._kdir),
             'commit': head_commit(self._kdir),
         }
-        self._add_run_step('revision', True)
-        self._save_bmeta()
-        return True
+        return self._add_run_step(True)
 
 
 class EnvironmentData(Step):
@@ -754,9 +754,7 @@ class EnvironmentData(Step):
             'use_ccache': shell_cmd("which ccache > /dev/null", True),
             'make_opts': make_opts,
         }
-        self._add_run_step('environment', True)
-        self._save_bmeta()
-        return True
+        return self._add_run_step(True)
 
 
 class MakeConfig(Step):
@@ -866,9 +864,7 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
             self._bmeta['kernel']['fragments'] = [kci_frag_name]
             res = self._merge_config(kci_frag_name, verbose)
 
-        self._add_run_step('config', res, jopt)
-        self._save_bmeta()
-        return res
+        return self._add_run_step(res, jopt)
 
 
 class MakeKernel(Step):
@@ -907,9 +903,7 @@ class MakeKernel(Step):
                 kbmeta.update(vmlinux_meta)
                 kbmeta['vmlinux_file_size'] = os.stat(vmlinux_file).st_size
 
-        self._add_run_step('kernel', res, jopt)
-        self._save_bmeta()
-        return res
+        return self._add_run_step(res, jopt)
 
 
 class MakeModules(Step):
@@ -955,9 +949,7 @@ class MakeModules(Step):
             }
             res = self._make('modules_install', jopt, verbose, opts)
 
-        self._add_run_step('modules', res, jopt)
-        self._save_bmeta()
-        return res
+        return self._add_run_step(res, jopt)
 
 
 class MakeDeviceTrees(Step):
@@ -1006,9 +998,7 @@ class MakeDeviceTrees(Step):
         res = self._make('dtbs', jopt, verbose)
         if res:
             self._dtbs_json()
-        self._add_run_step('dtbs', res, jopt)
-        self._save_bmeta()
-        return res
+        return self._add_run_step(res, jopt)
 
 
 class MakeSelftests(Step):
@@ -1039,9 +1029,7 @@ class MakeSelftests(Step):
         }
         res = self._make('gen_tar', jopt, verbose, opts,
                          'tools/testing/selftests')
-        self._add_run_step('kselftest', jopt, res)
-        self._save_bmeta()
-        return res
+        return self._add_run_step(jopt, res)
 
 
 def _make_defconfig(defconfig, kwargs, extras, verbose, log_file):
