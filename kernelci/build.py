@@ -568,10 +568,10 @@ class Step:
         if not os.path.exists(self._install_path):
             os.makedirs(self._install_path)
 
-    def _add_run_step(self, status, jopt=None):
+    def _add_run_step(self, status, jopt=None, action=''):
         start_time = datetime.fromtimestamp(self._start_time).isoformat()
         run_data = {
-            'name': self.name,
+            'name': ' '.join([self.name, action]) if action else self.name,
             'start_time': start_time,
             'duration': time.time() - self._start_time,
             'cpus': self._get_cpus(),
