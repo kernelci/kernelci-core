@@ -576,6 +576,7 @@ class Step:
             'duration': time.time() - self._start_time,
             'cpus': self._get_cpus(),
         }
+        self._start_time = time.time()
         if jopt is not None:
             run_data['threads'] = str(jopt)
         if self._log_path and os.path.exists(self._log_path):
