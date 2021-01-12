@@ -176,12 +176,19 @@ test_plans:
         panfrost_prime
         panfrost_submit
 
-  kselftest:
+  kselftest: &kselftest
     rootfs: debian_buster_nfs
+    pattern: 'kselftest/{category}-{method}-{protocol}-{rootfs}-kselftest-template.jinja2'
     filters:
       - passlist: {defconfig: ['kselftest']}
     params:
       job_timeout: '120'
+
+  kselftest-lib:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "lib"
 
   ltp-crypto:
     rootfs: debian_buster-ltp_nfs
@@ -1693,6 +1700,7 @@ test_configs:
       - baseline
       - baseline-nfs
       - kselftest
+      - kselftest-lib
       - ltp-crypto
 
   - device_type: hp-11A-G6-EE-grunt
@@ -1860,6 +1868,7 @@ test_configs:
     test_plans:
       - baseline
       - kselftest
+      - kselftest-lib
 
   - device_type: meson-gxbb-nanopi-k2
     test_plans:
@@ -2094,6 +2103,7 @@ test_configs:
       - igt-gpu-panfrost
       - igt-kms-rockchip
       - kselftest
+      - kselftest-lib
       - ltp-crypto
       - ltp-ipc
       - sleep
