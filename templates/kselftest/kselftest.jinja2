@@ -1,7 +1,6 @@
 - test:
     timeout:
-      minutes: 55
-
+      minutes: {{ job_timeout }}
     definitions:
     - from: inline
       repository:
@@ -19,7 +18,9 @@
       from: git
       revision: kernelci.org
       path: automated/linux/kselftest/kselftest.yaml
-      name: kselftest
+      name: {{ plan }}
       parameters:
         TESTPROG_URL: {{ kselftests_url }}
         SKIPFILE: skipfile-lkft.yaml
+        KSELFTEST_COLLECTIONS: {{ kselftest_collections }}
+        KSELFTEST_TESTS: {{ kselftest_tests }}
