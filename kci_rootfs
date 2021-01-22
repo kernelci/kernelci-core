@@ -146,7 +146,8 @@ class cmd_upload(Command):
 #
 
 if __name__ == '__main__':
-    opts = parse_opts("kci_rootfs", "rootfs-configs.yaml", globals())
+    opts = parse_opts("kci_rootfs", "config/core/rootfs-configs.yaml",
+                      globals())
     configs = kernelci.config.rootfs.from_yaml(opts.yaml_configs)
     status = opts.command(configs, opts)
     sys.exit(0 if status is True else 1)

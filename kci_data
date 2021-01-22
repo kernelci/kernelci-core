@@ -61,7 +61,7 @@ class cmd_submit(Command):
 
 
 if __name__ == '__main__':
-    opts = parse_opts("kci_data", "db-configs.yaml", globals())
+    opts = parse_opts("kci_data", "config/core/db-configs.yaml", globals())
     configs = kernelci.config.data.from_yaml(opts.yaml_configs)
     status = opts.command(configs, opts)
     sys.exit(0 if status is True else 1)
