@@ -4,7 +4,7 @@ import kernelci.config.test
 
 def test_build_configs_parsing():
     """ Verify build-configs.yaml """
-    configs = kernelci.config.build.from_yaml("build-configs.yaml")
+    configs = kernelci.config.build.from_yaml("config/core/build-configs.yaml")
     assert len(configs) == 4
     for key in ['build_configs', 'build_environments', 'fragments', 'trees']:
         assert key in configs

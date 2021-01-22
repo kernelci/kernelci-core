@@ -243,9 +243,11 @@ class cmd_submit(Command):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("kci_test")
-    parser.add_argument("--yaml-test-configs", default="test-configs.yaml",
+    parser.add_argument("--yaml-test-configs",
+                        default="config/core/test-configs.yaml",
                         help="Path to the YAML test configs file")
-    parser.add_argument("--yaml-lab-configs", default="lab-configs.yaml",
+    parser.add_argument("--yaml-lab-configs",
+                        default="config/core/lab-configs.yaml",
                         help="Path to the YAML lab configs file")
     parser.add_argument("--settings",
                         help="Path to the settings file")
