@@ -92,7 +92,7 @@ class LAVA(LabAPI):
 
     def generate(self, params, target, plan, callback_opts):
         short_template_file = plan.get_template_path(target.boot_method)
-        template_file = os.path.join('templates', short_template_file)
+        template_file = os.path.join('config/lava', short_template_file)
         if not os.path.exists(template_file):
             print("Template not found: {}".format(template_file))
             return None
@@ -104,7 +104,7 @@ class LAVA(LabAPI):
             'base_device_type': self._alias_device_type(base_name),
         })
         self._add_callback_params(params, callback_opts)
-        jinja2_env = Environment(loader=FileSystemLoader('templates'),
+        jinja2_env = Environment(loader=FileSystemLoader('config/lava'),
                                  extensions=["jinja2.ext.do"])
         template = jinja2_env.get_template(short_template_file)
         data = template.render(params)
