@@ -190,27 +190,29 @@ test_plans:
       job_timeout: '10'
       kselftest_collections: "lib"
 
-  ltp-crypto:
+  ltp: &ltp
     rootfs: debian_buster-ltp_nfs
     pattern: 'ltp/{category}-{method}-{protocol}-{rootfs}-ltp-template.jinja2'
     filters:
       - blocklist: *kselftest_defconfig_filter
-    params:
+    params: &ltp-params
       skip_install: "true"
-      tst_cmdfiles: "crypto"
+      tst_cmdfiles: ""
       job_timeout: '15'
       skipfile: skipfile-lkft.yaml
 
-  ltp-ipc:
-    rootfs: debian_buster-ltp_nfs
-    pattern: 'ltp/{category}-{method}-{protocol}-{rootfs}-ltp-template.jinja2'
-    filters:
-      - blocklist: *kselftest_defconfig_filter
+  ltp-crypto:
+    <<: *ltp
     params:
-      skip_install: "true"
+      <<: *ltp-params
+      tst_cmdfiles: "crypto"
+
+  ltp-ipc:
+    <<: *ltp
+    params:
+      <<: *ltp-params
       tst_cmdfiles: "ipc"
-      job_timeout: '15'
-      skipfile: skipfile-lkft.yaml
+
 
   preempt-rt:
     rootfs: debian_buster_nfs
