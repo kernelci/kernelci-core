@@ -25,33 +25,6 @@ from kernelci.lab import LabAPI
 DEVICE_ONLINE_STATUS = ['idle', 'running', 'reserved']
 
 
-def get_device_type_by_name(name, device_types, aliases=[]):
-    """
-        Return a device type named name. In the case of an alias, resolve the
-        alias to a device_type
-
-        Example:
-        IN:
-            name = "x15"
-            device_types = ['x15', 'beaglebone-black'],
-            aliases = [
-              {'name': 'x15', 'device_type': 'am57xx-beagle-x15'}
-            ]
-        OUT:
-            'am57xx-beagle-x15'
-
-    """
-    for device_type in device_types:
-        if device_type == name:
-            return device_type
-    for alias in aliases:
-        if alias["name"] == name:
-            for device_type in device_types:
-                if alias["device_type"] == device_type:
-                    return device_type
-    return None
-
-
 class LAVA(LabAPI):
     """Interface to a LAVA lab
 
@@ -62,17 +35,16 @@ class LAVA(LabAPI):
     available in kernelci.config.lab.lab_LAVA objects.
     """
 
-    def _get_aliases(self):
-        aliases = []
-        for alias in self._server.scheduler.aliases.list():
-            aliases.append(self._server.scheduler.aliases.show(alias))
-        return aliases
-
     def _get_devices(self):
         all_devices = self._server.scheduler.all_devices()
-        all_aliases = []
-        for alias in self._server.scheduler.aliases.list():
-            all_aliases.append(self._server.scheduler.aliases.show(alias))
+
+        all_aliases = dict()
+        for device_type_data in self._server.scheduler.device_types.list():
+            name = device_type_data['name']
+            aliases = self._server.scheduler.device_types.aliases.list(name)
+            for alias in aliases:
+                all_aliases[alias] = name
+
         device_types = {}
         for device in all_devices:
             name, device_type, status, _, _ = device
@@ -85,6 +57,7 @@ class LAVA(LabAPI):
             device_type: any(device['online'] for device in devices)
             for device_type, devices in device_types.items()
         }
+
         return {
             'device_type_online': device_type_online,
             'aliases': all_aliases,
@@ -106,12 +79,13 @@ class LAVA(LabAPI):
             'callback_type': callback_type,
         })
 
+    def _alias_device_type(self, device_type):
+        aliases = self.devices.get('aliases', dict())
+        return aliases.get(device_type, device_type)
+
     def device_type_online(self, device_type):
-        devices = self.devices['device_type_online']
-        device_type_name = get_device_type_by_name(
-            device_type.base_name, list(devices.keys()),
-            self.devices['aliases'])
-        return self.devices['device_type_online'].get(device_type_name, False)
+        device_type = self._alias_device_type(device_type)
+        return device_type in self.devices['device_type_online']
 
     def job_file_name(self, params):
         return '.'.join([params['name'], 'yaml'])
@@ -122,14 +96,12 @@ class LAVA(LabAPI):
         if not os.path.exists(template_file):
             print("Template not found: {}".format(template_file))
             return None
-        devices = self.devices['device_type_online']
         base_name = params['base_device_type']
         params.update({
             'template_file': template_file,
             'priority': self.config.priority,
             'lab_name': self.config.name,
-            'base_device_type': get_device_type_by_name(
-                base_name, list(devices.keys()), self.devices['aliases']),
+            'base_device_type': self._alias_device_type(base_name),
         })
         self._add_callback_params(params, callback_opts)
         jinja2_env = Environment(loader=FileSystemLoader('templates'),
