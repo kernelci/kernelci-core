@@ -62,21 +62,38 @@ class LabAPI:
         self._server = xmlrpc.client.ServerProxy(api_url)
 
     def import_devices(self, data):
+        """Import devices information
+
+        Import an arbitrary data structure describing the devices available in
+        the lab.
+
+        *data* is the devices data structure to import
+        """
         self._devices = data
 
     def device_type_online(self, device_type_name):
+        """Check whether a given device type is online
+
+        Return True if the device type is online in the lab, False otherwise.
+
+        *device_type_name* is the name of the device type
+        """
         return True
 
     def job_file_name(self, params):
+        """Get the file name where to store the generated job definition."""
         return params['name']
 
     def match(self, filter_data):
+        """Apply filters and return True if they match, False otherwise."""
         return self.config.match(filter_data)
 
     def generate(self, params, target, plan, callback_opts):
+        """Generate a test job definition."""
         raise NotImplementedError("Lab.generate() is required")
 
     def submit(self, job):
+        """Submit a test job definition in a lab."""
         raise NotImplementedError("Lab.submit() is required")
 
 
