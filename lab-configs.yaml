@@ -61,6 +61,7 @@ labs:
             - kselftest-lib
             - ltp-crypto
             - ltp-ipc
+            - ltp-mm
             - sleep
             - usb
             - v4l2-compliance-uvc
