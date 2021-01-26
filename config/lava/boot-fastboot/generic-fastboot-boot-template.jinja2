@@ -6,45 +6,23 @@
 {{ super() }}
 tags:
   - fastboot
-protocols:
-  lava-lxc:
-    name: lxc-{{ platform }}-kernelci-fastboot
-    template: debian
-    distribution: debian
-    release: buster
 {% endblock %}
 {% block actions %}
 actions:
-{%- block deploy_lxc %}
-
-- deploy:
-    namespace: host
-    timeout:
-      minutes: 15
-    to: lxc
-    packages:
-    - android-tools-adb
-    - android-tools-fastboot
-    - cpio
-    - mkbootimg
-{%- endblock %}
-{%- block boot_lxc %}
-
-- boot:
-    namespace: host
-    prompts:
-    - 'root@(.*):/#'
-    timeout:
-      minutes: 5
-    method: lxc
-{%- endblock %}
-{%- block deploy_url %}
 
 - deploy:
     timeout:
       minutes: 40
-    namespace: target
-    to: download
+    to: downloads
+    postprocess:
+      docker:
+        image: montjoie/fastboot
+        steps:
+        - tar xf modules.tar.xz
+        - gunzip rootfs.cpio.gz
+        - find lib/ | cpio -o --format=newc --append -F rootfs.cpio
+        - mkbootimg --kernel {{ kernel_image }} --second {{ dtb_short }} --ramdisk rootfs.cpio --cmdline {{ cmdline }} --kernel_offset {{ kernel_addr }} --ramdisk_offset {{ ramdisk_addr }} --second_offset {{ dtb_addr }} -o boot.img
+        - rm -rf lib
     images:
      kernel:
       url: {{ kernel_url }}
@@ -63,26 +41,24 @@ actions:
      dtb:
       url: {{ dtb_url }}
 {%- endif %}
-{%- endblock %}
-{%- block test_lxc %}
 
-{% include "/boot-fastboot/mkbootimg.jinja2" %}
-{%- endblock %}
 {%- block deploy_boot %}
 
 - deploy:
     timeout:
       minutes: 40
+    docker:
+      image: montjoie/fastboot
     to: fastboot
-    namespace: target
     images:
       boot:
-        url: lxc:///boot.img
+        url: downloads://boot.img
 {%- endblock %}
 {%- block boot %}
 
 - boot:
-    namespace: target
+    docker:
+      image: montjoie/fastboot
     prompts:
     - '/ #'
     timeout:
