@@ -58,6 +58,7 @@ coccinelle \
 cvehound \
 debos \
 dt-validation \
+fastboot \
 kernelci \
 k8s \
 qemu \
