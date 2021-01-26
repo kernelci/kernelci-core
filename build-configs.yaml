@@ -209,9 +209,6 @@ build_environments:
     cc: clang
     cc_version: 10
     arch_params: &clang_arch_params
-      arc:
-        <<: *arc_params
-        name:
       arm:
         <<: *arm_params
         name:
