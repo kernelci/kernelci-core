@@ -1220,6 +1220,17 @@ class MakeSelftests(Step):
                          'tools/testing/selftests')
         return self._add_run_step(jopt, res)
 
+    def _get_kselftests(self, kselftest_tarball):
+        with tarfile.open(kselftest_tarball, 'r:xz') as tarball:
+            kselftests = set(
+                path for path in (
+                    os.path.split(os.path.relpath(entry.name))[0]
+                    for entry in tarball
+                )
+                if path
+            )
+        return kselftests
+
     def install(self, verbose=False):
         """Install the kselftest tarball
 
@@ -1236,6 +1247,8 @@ class MakeSelftests(Step):
         res = os.path.exists(kselftest_tarball)
         if res:
             self._install_file(kselftest_tarball, verbose=verbose)
+            kselftests = self._get_kselftests(kselftest_tarball)
+            self._artifacts['kselftest'] = kselftests
 
         return super().install(verbose, res)
 
