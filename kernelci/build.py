@@ -934,14 +934,16 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
 
         *verbose* is whether the build output should be shown
         """
-        self._install_file(
+        item = self._install_file(
             os.path.join(self._output_path, '.config'), 'config',
             'kernel.config', verbose
         )
+        self._add_artifact('config', item)
         for frag in self._bmeta['kernel'].get('fragments', list()):
-            self._install_file(
+            item = self._install_file(
                 os.path.join(self._output_path, frag), 'config', frag, verbose
             )
+            self._add_artifact('config', item)
         return super().install(verbose)
 
 
