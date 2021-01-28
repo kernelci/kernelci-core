@@ -1007,7 +1007,8 @@ class MakeKernel(Step):
         if os.path.exists(system_map):
             text = shell_cmd('grep " _text" {}'.format(system_map)).split()[0]
             text_offset = int(text, 16) & (1 << 30)-1  # phys: cap at 1G
-            self._install_file(system_map, 'kernel', file_name, verbose)
+            item = self._install_file(system_map, 'kernel', file_name, verbose)
+            self._add_artifact('kernel', file_name)
             kbmeta.update({
                 'system_map': file_name,
                 'text_offset': '0x{:08x}'.format(text_offset),
@@ -1033,6 +1034,7 @@ class MakeKernel(Step):
                 image = sorted(kimages.keys())[0]
                 kbmeta['image'] = image
             self._install_file(kimages[image], 'kernel', image, verbose)
+            self._add_artifact('kernel', image)
 
         return super().install(verbose, res)
 
