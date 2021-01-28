@@ -529,6 +529,7 @@ class Step:
         self._steps_path = os.path.join(self._output_path, 'steps.json')
         self._bmeta = self._load_json(self._bmeta_path, dict())
         self._steps = self._load_json(self._steps_path, list())
+        self._artifacts = dict()
         self._log_file = '.'.join([self.name, 'log']) if log is None else log
         self._log_path = os.path.join(self._output_path, self._log_file)
         if log is None and os.path.exists(self._log_path):
@@ -698,6 +699,22 @@ class Step:
         if not os.path.exists(install_dir):
             os.makedirs(install_dir)
         shutil.copy(path, install_path)
+        return dest_name
+
+    def _add_artifact(self, category, item):
+        items = self._artifacts.setdefault(category, set())
+        items.add(item)
+
+    def _update_artifacts_json(self):
+        artifacts_path = os.path.join(self._install_path, 'artifacts.json')
+        data = self._load_json(artifacts_path, dict())
+
+        for category, items in self._artifacts.items():
+            input_items = set(data.get(category, set()))
+            data[category] = list(sorted(input_items.union(items)))
+
+        with open(artifacts_path, 'w') as json_file:
+            json.dump(data, json_file, indent=4, sort_keys=True)
 
     def is_enabled(self):
         """Determine whether the step is enabled with the current kernel."""
@@ -725,7 +742,10 @@ class Step:
         ]
         for file_name, dest_dir in files:
             if os.path.exists(file_name):
-                self._install_file(file_name, dest_dir, verbose=verbose)
+                item = self._install_file(file_name, dest_dir, verbose=verbose)
+                if dest_dir:
+                    self._add_artifact(dest_dir, item)
+        self._update_artifacts_json()
         return status
 
 
