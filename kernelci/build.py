@@ -688,14 +688,16 @@ class Step:
             cmd = self._output_to_file(cmd, self._log_path)
         return shell_cmd(cmd, True)
 
-    def _install_file(self, path, dest_name=None, verbose=False):
-        if path and os.path.exists(path):
-            if dest_name is None:
-                dest_name = os.path.basename(path)
-            dest_path = os.path.join(self._install_path, dest_name)
-            if verbose:
-                print("Installing {}".format(dest_path))
-            shutil.copy(path, dest_path)
+    def _install_file(self, path, dest_dir='', dest_name=None, verbose=False):
+        install_dir = os.path.join(self._install_path, dest_dir)
+        if not dest_name:
+            dest_name = os.path.basename(path)
+        install_path = os.path.join(install_dir, dest_name)
+        if verbose:
+            print("Installing {}".format(install_path))
+        if not os.path.exists(install_dir):
+            os.makedirs(install_dir)
+        shutil.copy(path, install_path)
 
     def is_enabled(self):
         """Determine whether the step is enabled with the current kernel."""
@@ -716,8 +718,14 @@ class Step:
         *status* is True if install commands succeeded, False otherwise
         """
         self._add_run_step(status, action='install')
-        for path in [self._log_path, self._bmeta_path, self._steps_path]:
-            self._install_file(path, verbose=verbose)
+        files = [
+            (self._bmeta_path, ''),
+            (self._steps_path, ''),
+            (self._log_path, 'logs'),
+        ]
+        for file_name, dest_dir in files:
+            if os.path.exists(file_name):
+                self._install_file(file_name, dest_dir, verbose=verbose)
         return status
 
 
@@ -907,13 +915,12 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
         *verbose* is whether the build output should be shown
         """
         self._install_file(
-            os.path.join(self._output_path, '.config'),
-            'kernel.config',
-            verbose
+            os.path.join(self._output_path, '.config'), 'config',
+            'kernel.config', verbose
         )
         for frag in self._bmeta['kernel'].get('fragments', list()):
             self._install_file(
-                os.path.join(self._output_path, frag), frag, verbose
+                os.path.join(self._output_path, frag), 'config', frag, verbose
             )
         return super().install(verbose)
 
@@ -973,13 +980,14 @@ class MakeKernel(Step):
         return kimages
 
     def _install_system_map(self, kbmeta, verbose):
-        system_map = os.path.join(self._output_path, 'System.map')
+        file_name = 'System.map'
+        system_map = os.path.join(self._output_path, file_name)
         if os.path.exists(system_map):
             text = shell_cmd('grep " _text" {}'.format(system_map)).split()[0]
             text_offset = int(text, 16) & (1 << 30)-1  # phys: cap at 1G
-            self._install_file(system_map, 'System.map', verbose)
+            self._install_file(system_map, 'kernel', file_name, verbose)
             kbmeta.update({
-                'system_map': 'System.map',
+                'system_map': file_name,
                 'text_offset': '0x{:08x}'.format(text_offset),
             })
 
@@ -1002,7 +1010,7 @@ class MakeKernel(Step):
             if image not in kimages:
                 image = sorted(kimages.keys())[0]
                 kbmeta['image'] = image
-            self._install_file(kimages[image], image, verbose)
+            self._install_file(kimages[image], 'kernel', image, verbose)
 
         return super().install(verbose, res)
 
