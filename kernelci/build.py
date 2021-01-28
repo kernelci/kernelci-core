@@ -1176,23 +1176,16 @@ class MakeDeviceTrees(Step):
 
         return dtb_list
 
-    def _create_dtbs_json(self, dtb_list, verbose):
-        dtbs_json = os.path.join(self._install_path, 'dtbs.json')
-        if verbose:
-            print("Creating {}".format(dtbs_json))
-        with open(dtbs_json, 'w') as json_file:
-            json.dump({'dtbs': sorted(dtb_list)}, json_file, indent=4)
-
     def install(self, verbose=False):
         """Install the device trees
 
-        Install the device tree binary blobs (dtbs) and generate dtbs.json with
-        the list of device tree files.
+        Install the device tree binary blobs (dtbs) and list all the .dtb files
+        in artifacts.
 
         *verbose* is whether the build output should be shown
         """
         dtb_list = self._install_dtbs(verbose)
-        self._create_dtbs_json(dtb_list, verbose)
+        self._artifacts['dtbs'] = dtb_list
         return super().install(verbose)
 
 
