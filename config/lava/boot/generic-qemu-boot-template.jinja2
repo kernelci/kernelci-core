@@ -63,7 +63,7 @@ actions:
     method: qemu
     media: tmpfs
     docker:
-      image: kernelci/qemu
+      image: kernelci/staging-qemu
       binary: {{ qemu_binary }}
     prompts:
       - '{{ rootfs_prompt }}'
