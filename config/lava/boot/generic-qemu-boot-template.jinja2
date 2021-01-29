@@ -60,7 +60,7 @@ actions:
     media: tmpfs
 {%- if qemu_docker %}
     docker:
-      image: kernelci/qemu
+      image: kernelci/staging-qemu
       binary: {{ qemu_binary }}
 {%- endif %}
     prompts:
