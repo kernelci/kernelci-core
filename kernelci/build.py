@@ -347,7 +347,10 @@ def push_tarball(config, kdir, storage, api, token):
 
 
 def _download_file(url, dest_filename, chunk_size=1024):
-    resp = requests.get(url, stream=True)
+    headers = {
+        'User-Agent': 'kernelci 1.1'
+    }
+    resp = requests.get(url, stream=True, headers=headers)
     if resp.status_code == 200:
         with open(dest_filename, 'wb') as out_file:
             for chunk in resp.iter_content(chunk_size):
