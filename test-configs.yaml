@@ -89,7 +89,7 @@ test_plans:
 
   baseline-qemu-docker:
     rootfs: buildroot_baseline_ramdisk
-    pattern: 'baseline/generic-qemu-baseline-template-docker.jinja2'
+    pattern: 'baseline/generic-qemu-baseline-docker-template.jinja2'
     filters:
       - blocklist: *kselftest_defconfig_filter
 
