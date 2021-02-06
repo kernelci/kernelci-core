@@ -63,6 +63,7 @@ labs:
             - ltp-fcntl-locktests
             - ltp-ipc
             - ltp-mm
+            - ltp-timers
             - sleep
             - usb
             - v4l2-compliance-uvc
