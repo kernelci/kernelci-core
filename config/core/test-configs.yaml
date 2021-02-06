@@ -220,6 +220,14 @@ test_plans:
       tst_cmdfiles: "mm"
       job_timeout: '30'
 
+  ltp-timers:
+    <<: *ltp
+    pattern: 'ltp/{category}-{method}-{protocol}-{rootfs}-ltp-open-posix-template.jinja2'
+    params:
+      <<: *ltp-params
+      grp_test: "TMR"
+      job_timeout: '30'
+
   preempt-rt:
     rootfs: debian_buster_nfs
     filters:
@@ -1718,6 +1726,7 @@ test_configs:
       - baseline
       - baseline-nfs
       - cros-ec
+      - ltp-timers
       - sleep
 
   - device_type: hsdk
@@ -1765,6 +1774,7 @@ test_configs:
       - ltp-crypto
       - ltp-ipc
       - ltp-mm
+      - ltp-timers
       - sleep
       - usb
 
@@ -1837,6 +1847,7 @@ test_configs:
       - ltp-crypto
       - ltp-ipc
       - ltp-mm
+      - ltp-timers
 
   - device_type: kirkwood-db-88f6282
     test_plans:
@@ -2106,6 +2117,7 @@ test_configs:
       - ltp-crypto
       - ltp-ipc
       - ltp-mm
+      - ltp-timers
       - sleep
       - usb
 
@@ -2121,6 +2133,7 @@ test_configs:
       - ltp-crypto
       - ltp-ipc
       - ltp-mm
+      - ltp-timers
       - sleep
       - usb
 
@@ -2137,6 +2150,7 @@ test_configs:
       - ltp-crypto
       - ltp-ipc
       - ltp-mm
+      - ltp-timers
       - sleep
       - v4l2-compliance-uvc
 
@@ -2201,6 +2215,7 @@ test_configs:
       - ltp-crypto
       - ltp-ipc
       - ltp-mm
+      - ltp-timers
 
   - device_type: sun50i-h6-pine-h64-model-b
     test_plans:
