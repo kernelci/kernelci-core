@@ -130,6 +130,9 @@ trees:
   thermal:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/thermal/linux.git"
 
+  tip:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git"
+
   ulfh:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/ulfh/mmc.git"
 
@@ -1162,6 +1165,10 @@ build_configs:
     tree: thermal
     branch: 'testing'
     variants: *minimal_variants
+
+  tip:
+    tree: tip
+    branch: 'master'
 
   ulfh:
     tree: ulfh
