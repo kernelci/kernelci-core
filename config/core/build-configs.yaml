@@ -88,6 +88,9 @@ trees:
   omap:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/tmlind/linux-omap.git"
 
+  peterz:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/peterz/queue.git"
+
   pm:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/rafael/linux-pm.git"
 
@@ -864,6 +867,11 @@ build_configs:
   omap:
     tree: omap
     branch: 'for-next'
+
+  peterz:
+    tree: peterz
+    branch: 'kernelci'
+    variants: *minimal_variants
 
   pm:
     tree: pm
