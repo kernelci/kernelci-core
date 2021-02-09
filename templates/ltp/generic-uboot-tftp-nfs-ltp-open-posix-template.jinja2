@@ -1,0 +1,7 @@
+{% extends 'boot-nfs/generic-uboot-tftp-nfs-template.jinja2' %}
+{% block actions %}
+{{ super () }}
+
+{% include 'ltp/ltp-open-posix.jinja2' %}
+
+{% endblock %}
