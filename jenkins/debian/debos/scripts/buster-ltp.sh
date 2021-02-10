@@ -39,8 +39,8 @@ echo '  ]}' >> $BUILDFILE
 
 git clone --depth=1 -b 20200515 ${LTP_URL}
 cd ltp && make autotools 
-./configure 
-make all
+./configure --with-open-posix-testsuite
+make -j`nproc` all
 find . -executable -type f -exec strip {} \;
 make install
 
