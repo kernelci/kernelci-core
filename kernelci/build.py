@@ -529,6 +529,7 @@ class Step:
         self._steps_path = os.path.join(self._output_path, 'steps.json')
         self._bmeta = self._load_json(self._bmeta_path, dict())
         self._steps = self._load_json(self._steps_path, list())
+        self._artifacts = dict()
         self._log_file = '.'.join([self.name, 'log']) if log is None else log
         self._log_path = os.path.join(self._output_path, self._log_file)
         if log is None and os.path.exists(self._log_path):
@@ -688,14 +689,32 @@ class Step:
             cmd = self._output_to_file(cmd, self._log_path)
         return shell_cmd(cmd, True)
 
-    def _install_file(self, path, dest_name=None, verbose=False):
-        if path and os.path.exists(path):
-            if dest_name is None:
-                dest_name = os.path.basename(path)
-            dest_path = os.path.join(self._install_path, dest_name)
-            if verbose:
-                print("Installing {}".format(dest_path))
-            shutil.copy(path, dest_path)
+    def _install_file(self, path, dest_dir='', dest_name=None, verbose=False):
+        install_dir = os.path.join(self._install_path, dest_dir)
+        if not dest_name:
+            dest_name = os.path.basename(path)
+        install_path = os.path.join(install_dir, dest_name)
+        if verbose:
+            print("Installing {}".format(install_path))
+        if not os.path.exists(install_dir):
+            os.makedirs(install_dir)
+        shutil.copy(path, install_path)
+        return dest_name
+
+    def _add_artifact(self, category, item):
+        items = self._artifacts.setdefault(category, set())
+        items.add(item)
+
+    def _update_artifacts_json(self):
+        artifacts_path = os.path.join(self._install_path, 'artifacts.json')
+        data = self._load_json(artifacts_path, dict())
+
+        for category, items in self._artifacts.items():
+            input_items = set(data.get(category, set()))
+            data[category] = list(sorted(input_items.union(items)))
+
+        with open(artifacts_path, 'w') as json_file:
+            json.dump(data, json_file, indent=4, sort_keys=True)
 
     def is_enabled(self):
         """Determine whether the step is enabled with the current kernel."""
@@ -716,8 +735,17 @@ class Step:
         *status* is True if install commands succeeded, False otherwise
         """
         self._add_run_step(status, action='install')
-        for path in [self._log_path, self._bmeta_path, self._steps_path]:
-            self._install_file(path, verbose=verbose)
+        files = [
+            (self._bmeta_path, ''),
+            (self._steps_path, ''),
+            (self._log_path, 'logs'),
+        ]
+        for file_name, dest_dir in files:
+            if os.path.exists(file_name):
+                item = self._install_file(file_name, dest_dir, verbose=verbose)
+                if dest_dir:
+                    self._add_artifact(dest_dir, item)
+        self._update_artifacts_json()
         return status
 
 
@@ -906,15 +934,16 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
 
         *verbose* is whether the build output should be shown
         """
-        self._install_file(
-            os.path.join(self._output_path, '.config'),
-            'kernel.config',
-            verbose
+        item = self._install_file(
+            os.path.join(self._output_path, '.config'), 'config',
+            'kernel.config', verbose
         )
+        self._add_artifact('config', item)
         for frag in self._bmeta['kernel'].get('fragments', list()):
-            self._install_file(
-                os.path.join(self._output_path, frag), frag, verbose
+            item = self._install_file(
+                os.path.join(self._output_path, frag), 'config', frag, verbose
             )
+            self._add_artifact('config', item)
         return super().install(verbose)
 
 
@@ -973,13 +1002,15 @@ class MakeKernel(Step):
         return kimages
 
     def _install_system_map(self, kbmeta, verbose):
-        system_map = os.path.join(self._output_path, 'System.map')
+        file_name = 'System.map'
+        system_map = os.path.join(self._output_path, file_name)
         if os.path.exists(system_map):
             text = shell_cmd('grep " _text" {}'.format(system_map)).split()[0]
             text_offset = int(text, 16) & (1 << 30)-1  # phys: cap at 1G
-            self._install_file(system_map, 'System.map', verbose)
+            item = self._install_file(system_map, 'kernel', file_name, verbose)
+            self._add_artifact('kernel', file_name)
             kbmeta.update({
-                'system_map': 'System.map',
+                'system_map': file_name,
                 'text_offset': '0x{:08x}'.format(text_offset),
             })
 
@@ -1002,7 +1033,8 @@ class MakeKernel(Step):
             if image not in kimages:
                 image = sorted(kimages.keys())[0]
                 kbmeta['image'] = image
-            self._install_file(kimages[image], image, verbose)
+            self._install_file(kimages[image], 'kernel', image, verbose)
+            self._add_artifact('kernel', image)
 
         return super().install(verbose, res)
 
@@ -1026,40 +1058,6 @@ class MakeModules(Step):
         """
         return self._kernel_config_enabled('MODULES')
 
-    def _make_modules_install(self, jopt, verbose):
-        if os.path.exists(self._mod_path):
-            shutil.rmtree(self._mod_path)
-        os.makedirs(self._mod_path)
-        cross_compile = self._bmeta['environment']['cross_compile']
-        opts = {
-            'INSTALL_MOD_PATH': os.path.abspath(self._mod_path),
-            'INSTALL_MOD_STRIP': '1',
-            'STRIP': "{}strip".format(cross_compile),
-        }
-        return self._make('modules_install', jopt, verbose, opts)
-
-    def _create_modules_json(self, verbose):
-        mod_json = os.path.join(self._install_path, 'modules.json')
-        if verbose:
-            print("Creating {}".format(mod_json))
-        modules = []
-        for root, _, files in os.walk(self._mod_path):
-            rel_path = os.path.relpath(self._kdir)
-            for fname in fnmatch.filter(files, '*.ko'):
-                module_path = os.path.join(rel_path, fname)
-                modules.append(module_path)
-        with open(mod_json, 'w') as json_file:
-            json.dump({'modules': sorted(modules)}, json_file, indent=4)
-
-    def _create_modules_tarball(self, verbose):
-        modules_tarball = 'modules.tar.xz'
-        modules_tarball_path = os.path.join(
-            self._install_path, modules_tarball)
-        if verbose:
-            print("Creating {}".format(modules_tarball_path))
-        shell_cmd("tar -C{path} -cJf {tarball} .".format(
-            path=self._mod_path, tarball=modules_tarball_path))
-
     def run(self, jopt=None, verbose=False):
         """Make the kernel modules
 
@@ -1072,12 +1070,45 @@ class MakeModules(Step):
         res = self._make('modules', jopt, verbose)
         return self._add_run_step(res, jopt)
 
+    def _make_modules_install(self, jopt, verbose):
+        if os.path.exists(self._mod_path):
+            shutil.rmtree(self._mod_path)
+        os.makedirs(self._mod_path)
+        cross_compile = self._bmeta['environment']['cross_compile']
+        opts = {
+            'INSTALL_MOD_PATH': os.path.abspath(self._mod_path),
+            'INSTALL_MOD_STRIP': '1',
+            'STRIP': "{}strip".format(cross_compile),
+        }
+        return self._make('modules_install', jopt, verbose, opts)
+
+    def _get_modules_artifacts(self, modules_tarball):
+        with tarfile.open(modules_tarball, 'r:xz') as tarball:
+            modules = sorted(list(set(
+                path for path in (
+                    os.path.basename(entry.name)
+                    for entry in tarball
+                )
+                if path
+            )))
+        return modules
+
+    def _create_modules_tarball(self, verbose):
+        modules_tarball = 'modules.tar.xz'
+        modules_tarball_path = os.path.join(
+            self._install_path, modules_tarball)
+        if verbose:
+            print("Creating {}".format(modules_tarball_path))
+        shell_cmd("tar -C{path} -cJf {tarball} .".format(
+            path=self._mod_path, tarball=modules_tarball_path))
+        return modules_tarball_path
+
     def install(self, verbose=False, jopt=None):
         """Install the kernel modules
 
-        Install the kernel modules as stripped binaries in a _modules_ output
-        sub-directory.  Also create a modules.json file with the list of all
-        the module files and a tarball with all the modules.
+        Install the kernel modules as stripped binaries in a _modules_ build
+        sub-directory.  Also install a tarball with all the module files and
+        list all the files as artifacts.
 
         *verbose* is whether the build output should be shown
         *jopt* is the `make -j` option which will default to `nproc + 2`
@@ -1085,8 +1116,9 @@ class MakeModules(Step):
         res = self._make_modules_install(jopt, verbose)
 
         if res:
-            self._create_modules_json(verbose)
-            self._create_modules_tarball(verbose)
+            tarball = self._create_modules_tarball(verbose)
+            modules = self._get_modules_artifacts(tarball)
+            self._artifacts['modules'] = modules
 
         return super().install(verbose, res)
 
@@ -1144,23 +1176,16 @@ class MakeDeviceTrees(Step):
 
         return dtb_list
 
-    def _create_dtbs_json(self, dtb_list, verbose):
-        dtbs_json = os.path.join(self._install_path, 'dtbs.json')
-        if verbose:
-            print("Creating {}".format(dtbs_json))
-        with open(dtbs_json, 'w') as json_file:
-            json.dump({'dtbs': sorted(dtb_list)}, json_file, indent=4)
-
     def install(self, verbose=False):
         """Install the device trees
 
-        Install the device tree binary blobs (dtbs) and generate dtbs.json with
-        the list of device tree files.
+        Install the device tree binary blobs (dtbs) and list all the .dtb files
+        in artifacts.
 
         *verbose* is whether the build output should be shown
         """
         dtb_list = self._install_dtbs(verbose)
-        self._create_dtbs_json(dtb_list, verbose)
+        self._artifacts['dtbs'] = dtb_list
         return super().install(verbose)
 
 
@@ -1195,6 +1220,17 @@ class MakeSelftests(Step):
                          'tools/testing/selftests')
         return self._add_run_step(jopt, res)
 
+    def _get_kselftests(self, kselftest_tarball):
+        with tarfile.open(kselftest_tarball, 'r:xz') as tarball:
+            kselftests = set(
+                path for path in (
+                    os.path.split(os.path.relpath(entry.name))[0]
+                    for entry in tarball
+                )
+                if path
+            )
+        return kselftests
+
     def install(self, verbose=False):
         """Install the kselftest tarball
 
@@ -1211,6 +1247,8 @@ class MakeSelftests(Step):
         res = os.path.exists(kselftest_tarball)
         if res:
             self._install_file(kselftest_tarball, verbose=verbose)
+            kselftests = self._get_kselftests(kselftest_tarball)
+            self._artifacts['kselftest'] = kselftests
 
         return super().install(verbose, res)
 
