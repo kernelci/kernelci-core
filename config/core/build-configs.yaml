@@ -259,6 +259,7 @@ build_configs_defaults:
 
       fragments: &default_fragments
         - 'debug'
+        - 'kselftest'
         - 'tinyconfig'
 
       architectures: &default_architectures
