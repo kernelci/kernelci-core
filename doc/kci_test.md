@@ -1,3 +1,10 @@
+---
+title: "kci_test"
+date: 2021-02-10T11:48:13Z
+draft: true
+description: "Command line tool to generate and run tests"
+---
+
 ## `kci_test`
 
 The output of [`kci_build`](kci_build.md) can be used with the
