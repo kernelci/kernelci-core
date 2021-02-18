@@ -213,6 +213,14 @@ test_plans:
       tst_cmdfiles: "mm"
       job_timeout: '30'
 
+  ltp-timers:
+    <<: *ltp
+    pattern: 'ltp/{category}-{method}-{protocol}-{rootfs}-ltp-open-posix-template.jinja2'
+    params:
+      <<: *ltp-params
+      grp_test: "TMR"
+      job_timeout: '30'
+
   preempt-rt:
     rootfs: debian_buster_nfs
     filters:
@@ -1738,6 +1746,7 @@ test_configs:
       - baseline
       - baseline-nfs
       - cros-ec
+      - ltp-timers
       - sleep
 
   - device_type: hp-x360-12b-n4000-octopus
