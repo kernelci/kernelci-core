@@ -58,7 +58,61 @@ labs:
             - igt-kms-tegra
             - igt-gpu-i915
             - igt-gpu-panfrost
+            - kselftest-arm64
+            - kselftest-capabilities
+            - kselftest-cgroup
+            - kselftest-clone3
+            - kselftest-core
+            - kselftest-cpufreq
+            - kselftest-cpu-hotplug
+            - kselftest-drivers-dma-buf
+            - kselftest-efivarfs
+            - kselftest-filesystems
+            - kselftest-filesystems-binderfs
+            - kselftest-filesystems-epoll
+            - kselftest-firmware
+            - kselftest-fpu
+            - kselftest-ftrace
+            - kselftest-futex
+            - kselftest-intel_pstate
+            - kselftest-ipc
+            - kselftest-ir
+            - kselftest-kcmp
+            - kselftest-kvm
             - kselftest-lib
+            - kselftest-livepatch
+            - kselftest-lkdtm
+            - kselftest-membarrier
+            - kselftest-memory-hotplug
+            - kselftest-mincore
+            - kselftest-mount
+            - kselftest-mqueue
+            - kselftest-net
+            - kselftest-net-forwarding
+            - kselftest-net-mptcp
+            - kselftest-netfilter
+            - kselftest-nsfs
+            - kselftest-pidfd
+            - kselftest-pid_namespace
+            - kselftest-pstore
+            - kselftest-ptrace
+            - kselftest-openat2
+            - kselftest-rseq
+            - kselftest-rtc
+            - kselftest-seccomp
+            - kselftest-sgx
+            - kselftest-sigaltstack
+            - kselftest-size
+            - kselftest-splice
+            - kselftest-static_keys
+            - kselftest-sync
+            - kselftest-sysctl
+            - kselftest-timens
+            - kselftest-timers
+            - kselftest-tmpfs
+            - kselftest-tpm2
+            - kselftest-user
+            - kselftest-zram
             - ltp-crypto
             - ltp-ipc
             - ltp-mm

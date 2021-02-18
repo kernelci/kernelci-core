@@ -190,11 +190,341 @@ test_plans:
     params:
       job_timeout: '120'
 
+  kselftest-arm64:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "arm64"
+
+  kselftest-capabilities:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "capabilities"
+
+  kselftest-cgroup:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "cgroup"
+
+  kselftest-clone3:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "clone3"
+
+  kselftest-core:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "core"
+
+  kselftest-cpu-hotplug:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "cpu-hotplug"
+
+  kselftest-cpufreq:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "cpufreq"
+
+  kselftest-cpu-hotplug:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "cpu-hotplug"
+
+  kselftest-drivers-dma-buf:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "drivers/dma-buf"
+
+  kselftest-efivarfs:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "efivarfs"
+
+  kselftest-filesystems:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "filesystems"
+
+  kselftest-filesystems-binderfs:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "filesystems/binderfs"
+
+  kselftest-filesystems-epoll:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "filesystems/epoll"
+
+  kselftest-firmware:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "firmware"
+
+  kselftest-fpu:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "fpu"
+
+  kselftest-ftrace:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "ftrace"
+
+  kselftest-futex:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "futex"
+
+  kselftest-intel_pstate:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "intel_pstate"
+
+  kselftest-ipc:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "ipc"
+
+  kselftest-ir:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "ir"
+
+  kselftest-kcmp:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "kcmp"
+
   kselftest-lib:
     <<: *kselftest
     params:
       job_timeout: '10'
       kselftest_collections: "lib"
+
+  kselftest-kvm:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "kvm"
+
+  kselftest-livepatch:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "livepatch"
+
+  kselftest-lkdtm:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "lkdtm"
+
+  kselftest-membarrier:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "membarrier"
+
+  kselftest-memory-hotplug:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "memory-hotplug"
+
+  kselftest-mincore:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "mincore"
+
+  kselftest-mount:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "mount"
+
+  kselftest-mqueue:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "mqueue"
+
+  kselftest-net:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "net"
+
+  kselftest-net-forwarding:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "net/forwarding"
+
+  kselftest-net-mptcp:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "net/mptcp"
+
+  kselftest-netfilter:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "netfilter"
+
+  kselftest-nsfs:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "nsfs"
+
+  kselftest-openat2:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "openat2"
+
+  kselftest-pid_namespace:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "pid_namespace"
+
+  kselftest-pidfd:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "pidfd"
+
+  kselftest-pstore:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "pstore"
+
+  kselftest-ptrace:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "ptrace"
+
+  kselftest-rseq:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "rseq"
+
+  kselftest-rtc:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "rtc"
+
+  kselftest-seccomp:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "seccomp"
+
+  kselftest-sgx:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "sgx"
+
+  kselftest-sigaltstack:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "sigaltstack"
+
+  kselftest-size:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "size"
+
+  kselftest-splice:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "splice"
+
+  kselftest-static_keys:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "static_keys"
+
+  kselftest-sync:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "sync"
+
+  kselftest-sysctl:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "sysctl"
+
+  kselftest-timens:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "timens"
+
+  kselftest-timers:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "timers"
+
+  kselftest-tmpfs:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "tmpfs"
+
+  kselftest-tpm2:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "tpm2"
+
+  kselftest-user:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "user"
+
+  kselftest-zram:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "zram"
 
   ltp: &ltp
     rootfs: debian_buster-ltp_nfs
@@ -1722,7 +2052,61 @@ test_configs:
       - baseline
       - baseline-nfs
       - kselftest
+      - kselftest-arm64
+      - kselftest-capabilities
+      - kselftest-cgroup
+      - kselftest-clone3
+      - kselftest-core
+      - kselftest-cpu-hotplug
+      - kselftest-cpufreq
+      - kselftest-drivers-dma-buf
+      - kselftest-efivarfs
+      - kselftest-filesystems
+      - kselftest-filesystems-binderfs
+      - kselftest-filesystems-epoll
+      - kselftest-firmware
+      - kselftest-fpu
+      - kselftest-ftrace
+      - kselftest-futex
+      - kselftest-intel_pstate
+      - kselftest-ipc
+      - kselftest-ir
+      - kselftest-kcmp
+      - kselftest-kvm
       - kselftest-lib
+      - kselftest-livepatch
+      - kselftest-lkdtm
+      - kselftest-membarrier
+      - kselftest-memory-hotplug
+      - kselftest-mincore
+      - kselftest-mount
+      - kselftest-mqueue
+      - kselftest-net
+      - kselftest-net-forwarding
+      - kselftest-net-mptcp
+      - kselftest-netfilter
+      - kselftest-nsfs
+      - kselftest-openat2
+      - kselftest-pid_namespace
+      - kselftest-pidfd
+      - kselftest-pstore
+      - kselftest-ptrace
+      - kselftest-rseq
+      - kselftest-rtc
+      - kselftest-seccomp
+      - kselftest-sgx
+      - kselftest-sigaltstack
+      - kselftest-size
+      - kselftest-splice
+      - kselftest-static_keys
+      - kselftest-sync
+      - kselftest-sysctl
+      - kselftest-timens
+      - kselftest-timers
+      - kselftest-tmpfs
+      - kselftest-tpm2
+      - kselftest-user
+      - kselftest-zram
       - ltp-crypto
 
   - device_type: hp-11A-G6-EE-grunt
@@ -2133,7 +2517,16 @@ test_configs:
       - igt-gpu-panfrost
       - igt-kms-rockchip
       - kselftest
+      - kselftest-arm64
+      - kselftest-capabilities
+      - kselftest-cgroup
+      - kselftest-clone3
+      - kselftest-core
+      - kselftest-filesystems
+      - kselftest-futex
       - kselftest-lib
+      - kselftest-mincore
+      - kselftest-pid_namespace
       - ltp-crypto
       - ltp-ipc
       - ltp-mm
