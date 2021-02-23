@@ -202,6 +202,42 @@ test_plans:
       job_timeout: '10'
       kselftest_collections: "capabilities"
 
+  kselftest-cgroup:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "cgroup"
+
+  kselftest-clone3:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "clone3"
+
+  kselftest-filesystems:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "filesystems"
+
+  kselftest-futex:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "futex"
+
+  kselftest-mincore:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "mincore"
+
+  kselftest-pid_namespace:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "pid_namespace"
+
   ltp: &ltp
     rootfs: debian_buster-ltp_nfs
     pattern: 'ltp/{category}-{method}-{protocol}-{rootfs}-ltp-template.jinja2'
@@ -1724,7 +1760,14 @@ test_configs:
       - kselftest
       - kselftest-arm64
       - kselftest-capabilities
+      - kselftest-cgroup
+      - kselftest-clone3
+      - kselftest-core
+      - kselftest-filesystems
+      - kselftest-futex
       - kselftest-lib
+      - kselftest-mincore
+      - kselftest-pid_namespace
       - ltp-crypto
 
   - device_type: hp-11A-G6-EE-grunt
@@ -2131,7 +2174,16 @@ test_configs:
       - igt-gpu-panfrost
       - igt-kms-rockchip
       - kselftest
+      - kselftest-arm64
+      - kselftest-capabilities
+      - kselftest-cgroup
+      - kselftest-clone3
+      - kselftest-core
+      - kselftest-filesystems
+      - kselftest-futex
       - kselftest-lib
+      - kselftest-mincore
+      - kselftest-pid_namespace
       - ltp-crypto
       - ltp-ipc
       - ltp-mm
