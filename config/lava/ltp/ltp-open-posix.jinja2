@@ -1,0 +1,15 @@
+- test:
+    name: {{ plan }}
+    timeout:
+      minutes: {{ job_timeout }}
+    definitions:
+       - repository: https://github.com/kernelci/test-definitions
+         from: git
+         revision: kernelci.org
+         path: automated/linux/ltp-open-posix/ltp-open-posix.yaml
+         name: {{ plan }}
+         parameters:
+            GRP_TEST: "{{ grp_test }}"
+            TST_CMDFILES: "{{ tst_cmdfiles }}"
+            SKIP_INSTALL: "{{ skip_install }}"
+            SKIPFILE: {{ skipfile }}
