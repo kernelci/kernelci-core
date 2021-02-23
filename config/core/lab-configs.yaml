@@ -58,7 +58,15 @@ labs:
             - igt-kms-tegra
             - igt-gpu-i915
             - igt-gpu-panfrost
+            - kselftest-arm64
+            - kselftest-capabilities
+            - kselftest-cgroup
+            - kselftest-clone3
+            - kselftest-core
+            - kselftest-futex
             - kselftest-lib
+            - kselftest-mincore
+            - kselftest-pid_namespace
             - ltp-crypto
             - ltp-ipc
             - ltp-mm
