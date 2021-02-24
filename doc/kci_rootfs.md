@@ -1,3 +1,10 @@
+---
+title: "kci_rootfs"
+date: 2021-02-10T11:48:13Z
+draft: true
+description: "Command line tool to build rootfs images"
+---
+
 ### How to build a rootfs image using kci_rootfs
 
 You will be using `kernelci/staging-debos` docker image for this purpose.
