@@ -71,12 +71,12 @@ class LabAPI:
         """
         self._devices = data
 
-    def device_type_online(self, device_type_name):
+    def device_type_online(self, device_type_config):
         """Check whether a given device type is online
 
         Return True if the device type is online in the lab, False otherwise.
 
-        *device_type_name* is the name of the device type
+        *device_type_config* is a config.test.DeviceType object
         """
         return True
 

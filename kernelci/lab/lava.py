@@ -83,8 +83,8 @@ class LAVA(LabAPI):
         aliases = self.devices.get('aliases', dict())
         return aliases.get(device_type, device_type)
 
-    def device_type_online(self, device_type):
-        device_type = self._alias_device_type(device_type)
+    def device_type_online(self, device_type_config):
+        device_type = self._alias_device_type(device_type_config.base_name)
         return device_type in self.devices['device_type_online']
 
     def job_file_name(self, params):
