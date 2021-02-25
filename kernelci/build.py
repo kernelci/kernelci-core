@@ -752,6 +752,35 @@ class Step:
         return status
 
 
+class MetaStep(Step):
+    """Access the existing meta-data without running any actual step"""
+
+    def __init__(self, kdir, output_path=None):
+        super().__init__(kdir, output_path, 'meta')
+
+    def get_value(self, *keys):
+        """Find some meta-data value
+
+        Without any argument, all the meta-data dictionary will be returned.
+        Otherwise, each argument will be used to look up the meta-data
+        recursively.  For example, to get the build status use
+        `.get_meta("build", "status")`.  If the key doesn't exist, None is
+        returned.
+
+        *keys* is an arbitary number of keys to look up the meta-data
+        """
+        if len(keys) == 0:
+            return self._bmeta
+        if len(keys) == 1:
+            return self._bmeta.get(keys[0])
+        value = self._bmeta
+        for key in keys:
+            value = value.get(key)
+            if value is None:
+                break
+        return value
+
+
 class RevisionData(Step):
 
     @property
