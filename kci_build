@@ -361,7 +361,8 @@ class cmd_make_config(MakeCommand):
     step_cls = kernelci.build.MakeConfig
 
     def _run_step(self, step, args, configs):
-        return step.run(args.defconfig, args.j, args.verbose)
+        frags_config = configs['fragments']
+        return step.run(args.defconfig, frags_config, args.j, args.verbose)
 
 
 class cmd_make_kernel(MakeCommand):
