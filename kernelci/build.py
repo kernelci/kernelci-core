@@ -936,11 +936,22 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
             kci_frag_name = 'kernelci.config'
             self._gen_kci_frag(configs, fragments, kci_frag_name)
 
+        rev, env = (self._bmeta[cat] for cat in ('revision', 'environment'))
+        publish_path = '/'.join(item.replace('/', '-') for item in [
+            rev['tree'],
+            rev['branch'],
+            rev['describe'],
+            env['arch'],
+            defconfig,
+            env['name'],
+        ])
+
         self._bmeta['kernel'] = {
             'defconfig': target,
             'defconfig_full': defconfig,
             'defconfig_expanded': defconfig_expanded,
             'defconfig_extras': extras,
+            'publish_path': publish_path,
         }
 
         res = self._make(target, jopt, verbose, opts)
