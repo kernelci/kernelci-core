@@ -23,6 +23,7 @@ from kernelci.cli import Args, Command, parse_opts
 import kernelci
 import kernelci.build
 import kernelci.config.build
+import kernelci.storage
 
 
 class cmd_validate(Command):
@@ -434,13 +435,19 @@ or
 
 
 class cmd_push_kernel(Command):
-    help = "Push the kernel binaries"
+    help = "Push the kernel build artifacts"
     args = [Args.kdir, Args.api, Args.db_token]
-    opt_args = [Args.install_path, Args.db_config]
+    opt_args = [Args.output, Args.db_config]
 
     def __call__(self, configs, args):
-        return kernelci.build.push_kernel(args.kdir, args.api, args.db_token,
-                                          args.install_path)
+        meta = kernelci.build.MetaStep(args.kdir, args.output)
+        publish_path = meta.get_value("kernel", "publish_path")
+        artifacts = kernelci.storage.discover_files(meta.install_path)
+        print("Upload path: {}".format(publish_path))
+        kernelci.storage.upload_files(
+            args.api, args.db_token, publish_path, artifacts
+        )
+        return True
 
 
 class cmd_publish_kernel(Command):
