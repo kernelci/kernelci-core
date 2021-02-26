@@ -859,6 +859,17 @@ class MakeConfig(Step):
 
         return opts, configs, fragments, extras
 
+    def _expand_defconfig(self, defconfig, frags):
+        split = defconfig.split('+')
+        expanded = [split.pop(0)]
+        for part in split:
+            frag = frags.get(part)
+            if frag:
+                expanded.append(frag.path)
+            else:
+                expanded.append(part)
+        return '+'.join(expanded)
+
     def _gen_kci_frag(self, configs, fragments, name):
         kci_frag_path = os.path.join(self._output_path, name)
         with open(kci_frag_path, 'w') as kci_frag:
@@ -898,7 +909,7 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
             cmd = self._output_to_file(cmd, self._log_path, self._kdir)
         return shell_cmd(cmd, True)
 
-    def run(self, defconfig, jopt=None, verbose=False, frag='kernelci.config'):
+    def run(self, defconfig, frags_config, jopt=None, verbose=False):
         """Make the kernel config
 
         Make the kernel .config file using a number of options.  This will
@@ -911,22 +922,24 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
         and fragments.
 
         *defconfig* is the defconfig name, e.g. defconfig, x86_64_defconfig...
+        *frags_config* is a dict with the Fragment configuration objects
         *jopt* is the `make -j` option which will default to `nproc + 2`
         *verbose* is whether the build output should be shown
-        *frag* is the name of the output kernel config fragment
         """
-        elements = defconfig.split('+')
+        defconfig_expanded = self._expand_defconfig(defconfig, frags_config)
+        elements = defconfig_expanded.split('+')
         target = elements.pop(0)
         kci_frag_name = None
         opts, configs, fragments, extras = self._parse_elements(elements)
 
         if configs or fragments:
-            kci_frag_name = frag
+            kci_frag_name = 'kernelci.config'
             self._gen_kci_frag(configs, fragments, kci_frag_name)
 
         self._bmeta['kernel'] = {
             'defconfig': target,
             'defconfig_full': defconfig,
+            'defconfig_expanded': defconfig_expanded,
             'defconfig_extras': extras,
         }
 
