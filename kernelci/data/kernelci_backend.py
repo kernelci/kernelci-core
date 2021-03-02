@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Collabora Limited
+# Copyright (C) 2020, 2021 Collabora Limited
 # Author: Michal Galka <michal.galka@collabora.com>
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 #
@@ -18,6 +18,7 @@
 
 import json
 import requests
+import urllib
 from kernelci.data import Database
 
 
@@ -28,8 +29,11 @@ class KernelCIBackend(Database):
         if self._token is None:
             raise ValueError("API token required for kernelci_backend")
 
-    def submit(self, data, verbose=False):
-        resp = requests.post(self.config.url, json=json.loads(data),
+    def submit(self, data, path=None, verbose=False):
+        if path is None:
+            return False
+        url = urllib.parse.urljoin(self.config.url, path)
+        resp = requests.post(url, json=json.loads(data),
                              headers={'Authorization': self._token})
         resp.raise_for_status()
         if verbose:
