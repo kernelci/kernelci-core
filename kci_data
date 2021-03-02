@@ -57,7 +57,7 @@ class cmd_submit(Command):
             with open(args.data_file, 'r') as f:
                 data = f.read()
         db = kernelci.data.get_db(config, args.db_token)
-        return db.submit(data, 'test', args.verbose)
+        return db.submit(data, args.verbose)
 
 
 if __name__ == '__main__':
