@@ -18,6 +18,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+import json
 import sys
 
 from kernelci.cli import Args, Command, parse_opts
@@ -54,8 +55,8 @@ class cmd_submit(Command):
         if args.data_file == '-':
             data = sys.stdin.read()
         else:
-            with open(args.data_file, 'r') as f:
-                data = f.read()
+            with open(args.data_file, 'r') as json_file:
+                data = json.load(json_file)
         db = kernelci.data.get_db(config, args.db_token)
         return db.submit(data, args.verbose)
 
