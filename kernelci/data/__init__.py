@@ -35,13 +35,12 @@ class Database:
         self._config = config
         self._token = token
 
-    def submit(self, data, path=None, verbose=False):
+    def submit(self, data, verbose=False):
         """Submit arbitrary data to the database
 
         Primitive method to send some data to the database.
 
-        *data* is the payload to send to the database
-        *path* is to identify the part of the API to use to send the data
+        *data* is a dictionary with the data to send to the database
         *verbose* is to print more information
         """
         raise NotImplementedError("Database.submit() must be implemented")
