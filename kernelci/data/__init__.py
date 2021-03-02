@@ -35,6 +35,11 @@ class Database:
         self._config = config
         self._token = token
 
+    @property
+    def config(self):
+        """Database configuration"""
+        return self._config
+
     def submit(self, data, verbose=False):
         """Submit arbitrary data to the database
 
@@ -45,10 +50,16 @@ class Database:
         """
         raise NotImplementedError("Database.submit() must be implemented")
 
-    @property
-    def config(self):
-        """Database configuration"""
-        return self._config
+    def submit_build(self, meta, verbose=False):
+        """Submit meta-data for a kernel build
+
+        Alternative entry point to submit the kernel build meta-data from a
+        build.MetaStep object.
+
+        *meta* is a kernelci.build.MetaStep object
+        *verbose* is to print more information
+        """
+        raise NotImplementedError("Database.submit_build() not implemented")
 
 
 def get_db(config, token=None):
