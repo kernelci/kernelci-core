@@ -28,16 +28,19 @@ class KernelCIBackend(Database):
         super().__init__(config, token)
         if self._token is None:
             raise ValueError("API token required for kernelci_backend")
+        self._headers = {'Authorization': self._token}
 
-    def submit(self, data, path=None, verbose=False):
-        if path is None:
-            return False
+    def _submit(self, path, data, verbose):
         url = urllib.parse.urljoin(self.config.url, path)
-        resp = requests.post(url, json=json.loads(data),
-                             headers={'Authorization': self._token})
+        resp = requests.post(url, json=data, headers=self._headers)
         resp.raise_for_status()
         if verbose:
             print(resp.text)
+
+    def submit(self, data, verbose=False):
+        json_data = json.loads(data)
+        for path, item in json_data.items():
+            self._submit(path, item, verbose)
         return True
 
 
