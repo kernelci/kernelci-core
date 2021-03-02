@@ -33,7 +33,7 @@ spec:
           name: scratch-volume
 
         command: ["/bin/bash", "-x", "-c"]
-        args: ["cd /scratch && git clone --depth=1 --branch ${KCI_CORE_BRANCH} ${KCI_CORE_URL}"]
+        args: ["mkdir -p /tmp/kci && cd /scratch && git clone --depth=1 --branch ${KCI_CORE_BRANCH} ${KCI_CORE_URL}"]
 
         env:
         - name: KCI_CORE_URL
@@ -51,7 +51,7 @@ spec:
 
         command: ["/bin/bash", "-x", "-c"]
         args: ["echo nproc=$(nproc); df; free; \
-export KDIR=/scratch/linux && export CCACHE_DISABLE=true && \
+export KDIR=/tmp/kci/linux && export CCACHE_DISABLE=true && \
 cd /scratch/kernelci-core &&  \
 ./kci_build pull_tarball --kdir ${KDIR} --url ${SRC_TARBALL} --retries 3 --delete && \
 ./kci_build build_kernel --kdir ${KDIR} --output ${KDIR} --defconfig=${DEFCONFIG} --arch=${ARCH} --build-env=${BUILD_ENVIRONMENT} --verbose ${PARALLEL_JOPT}; export KERNEL_BUILD_RESULT=$?; \
