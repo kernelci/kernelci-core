@@ -16,6 +16,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+import json
 import requests
 import urllib
 from kernelci.data import Database
@@ -40,6 +41,24 @@ class KernelCIBackend(Database):
         for path, item in data.items():
             self._submit(path, item, verbose)
         return True
+
+    def submit_build(self, meta, verbose=False):
+        revision, kernel, env = (
+            meta.get_value(key) for key in [
+                'revision', 'kernel', 'environment']
+        )
+        data = {  # ToDo clean-up names and remove duplicates...
+            'path': kernel['publish_path'],
+            'file_server_resource': kernel['publish_path'],
+            'job': revision['tree'],
+            'git_branch': revision['branch'],
+            'arch': env['arch'],
+            'kernel': revision['describe'],
+            'build_environment': env['name'],
+            'defconfig': kernel['defconfig'],
+            'defconfig_full': kernel['defconfig_full'],
+        }
+        return self._submit('build',  data, verbose)
 
 
 def get_db(config, token):
