@@ -53,13 +53,13 @@ class LAVA(LabAPI):
                 'name': name,
                 'online': status in DEVICE_ONLINE_STATUS,
             })
-        device_type_online = {
+        online_status = {
             device_type: any(device['online'] for device in devices)
             for device_type, devices in device_types.items()
         }
 
         return {
-            'device_type_online': device_type_online,
+            'online_status': online_status,
             'aliases': all_aliases,
         }
 
@@ -85,7 +85,8 @@ class LAVA(LabAPI):
 
     def device_type_online(self, device_type_config):
         device_type = self._alias_device_type(device_type_config.base_name)
-        return device_type in self.devices['device_type_online']
+        online_status = self.devices.get('online_status', dict())
+        return online_status.get(device_type, False)
 
     def job_file_name(self, params):
         return '.'.join([params['name'], 'yaml'])
