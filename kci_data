@@ -74,6 +74,19 @@ class cmd_submit_build(Command):
         return db.submit_build(meta, args.verbose)
 
 
+class cmd_submit_test(Command):
+    help = "Submit test results"
+    args = [Args.db_config, Args.data_file]
+    opt_args = [Args.db_token, Args.verbose]
+
+    def __call__(self, config_data, args):
+        config = config_data['db_configs'][args.db_config]
+        with open(args.data_file, 'r') as json_file:
+            data = json.load(json_file)
+        db = kernelci.data.get_db(config, args.db_token)
+        return db.submit_test(data, args.verbose)
+
+
 if __name__ == '__main__':
     opts = parse_opts("kci_data", "config/core/db-configs.yaml", globals())
     configs = kernelci.config.data.from_yaml(opts.yaml_configs)
