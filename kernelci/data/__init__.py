@@ -61,6 +61,16 @@ class Database:
         """
         raise NotImplementedError("Database.submit_build() not implemented")
 
+    def submit_test(self, results, verbose=False):
+        """Submit test results
+
+        Alternative entry point to submit test results.
+
+        *results* is a dictionary with the test results data
+        *verbose* is to print more information
+        """
+        raise NotImplementedError("Database.submit_test() not implemented")
+
 
 def get_db(config, token=None):
     m = importlib.import_module('.'.join(['kernelci', 'data', config.db_type]))
