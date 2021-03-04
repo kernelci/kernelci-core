@@ -60,6 +60,9 @@ class KernelCIBackend(Database):
         }
         return self._submit('build',  data, verbose)
 
+    def submit_test(self, results, verbose=False):
+        self._submit('test', results, verbose)
+
 
 def get_db(config, token):
     """Get a KernelCI backend database object"""
