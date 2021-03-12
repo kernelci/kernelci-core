@@ -777,6 +777,9 @@ class MetaStep(Step):
 
     def __init__(self, kdir, output_path=None):
         super().__init__(kdir, output_path, 'meta')
+        self._bmeta['steps'] = self._steps
+        self._bmeta['artifacts'] = self._load_json(
+            self._artifacts_path, dict())
 
     def get_value(self, *keys):
         """Find some meta-data value
