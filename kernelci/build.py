@@ -530,6 +530,8 @@ class Step:
         self._create_install_dir()
         self._bmeta_path = os.path.join(self._output_path, 'bmeta.json')
         self._steps_path = os.path.join(self._output_path, 'steps.json')
+        self._artifacts_path = os.path.join(
+            self._install_path, 'artifacts.json')
         self._bmeta = self._load_json(self._bmeta_path, dict())
         self._steps = self._load_json(self._steps_path, list())
         self._artifacts = dict()
@@ -704,19 +706,40 @@ class Step:
         shutil.copy(path, install_path)
         return dest_name
 
-    def _add_artifact(self, category, item):
-        items = self._artifacts.setdefault(category, set())
-        items.add(item)
+    def _add_artifacts_entry(self, artifact_type, artifact_path, key=None):
+        entry = self._artifacts.get(artifact_path)
+        if entry is None:
+            entry = {
+                'type': artifact_type,
+                'path': artifact_path,
+            }
+            if key:
+                entry['key'] = key
+            self._artifacts[artifact_path] = entry
+        elif entry['type'] != artifact_type:
+            raise ValueError("Conflicting artifact types")
+        elif entry.get('key') != key:
+            raise ValueError("Conflicting artifact keys")
+        return entry
 
-    def _update_artifacts_json(self):
-        artifacts_path = os.path.join(self._install_path, 'artifacts.json')
-        data = self._load_json(artifacts_path, dict())
+    def _add_artifact(self, directory, file_name, key=None):
+        path = os.path.join(directory, file_name)
+        return self._add_artifacts_entry('file', path, key)
 
-        for category, items in self._artifacts.items():
-            input_items = set(data.get(category, set()))
-            data[category] = list(sorted(input_items.union(items)))
+    def _add_artifact_contents(self, artifact_type, path, contents, key=None):
+        entry = self._add_artifacts_entry(artifact_type, path, key)
+        entry['contents'] = contents
+        return entry
 
-        with open(artifacts_path, 'w') as json_file:
+    def _save_artifacts_json(self):
+        for entry in self._artifacts.values():
+            contents = entry.get('contents')
+            if contents:
+                entry['contents'] = list(sorted(set(contents)))
+        data = self._load_json(self._artifacts_path, dict())
+        data[self.name] = list(self._artifacts.values())
+        data = {k: v for k, v in data.items() if v}
+        with open(self._artifacts_path, 'w') as json_file:
             json.dump(data, json_file, indent=4, sort_keys=True)
 
     def is_enabled(self):
@@ -739,16 +762,16 @@ class Step:
         """
         self._add_run_step(status, action='install')
         files = [
-            (self._bmeta_path, ''),
-            (self._steps_path, ''),
-            (self._log_path, 'logs'),
+            (self._bmeta_path, '', ''),
+            (self._steps_path, '', ''),
+            (self._log_path, 'logs', 'log'),
         ]
-        for file_name, dest_dir in files:
+        for file_name, dest_dir, key in files:
             if os.path.exists(file_name):
                 item = self._install_file(file_name, dest_dir, verbose=verbose)
                 if dest_dir:
-                    self._add_artifact(dest_dir, item)
-        self._update_artifacts_json()
+                    self._add_artifact(dest_dir, item, key)
+        self._save_artifacts_json()
         return status
 
 
@@ -1005,12 +1028,12 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
             os.path.join(self._output_path, '.config'), 'config',
             'kernel.config', verbose
         )
-        self._add_artifact('config', item)
+        self._add_artifact('config', item, 'config')
         for frag in self._bmeta['kernel'].get('fragments', list()):
             item = self._install_file(
                 os.path.join(self._output_path, frag), 'config', frag, verbose
             )
-            self._add_artifact('config', item)
+            self._add_artifact('config', item, 'fragment')
         return super().install(verbose)
 
 
@@ -1075,11 +1098,8 @@ class MakeKernel(Step):
             text = shell_cmd('grep " _text" {}'.format(system_map)).split()[0]
             text_offset = int(text, 16) & (1 << 30)-1  # phys: cap at 1G
             item = self._install_file(system_map, 'kernel', file_name, verbose)
-            self._add_artifact('kernel', file_name)
-            kbmeta.update({
-                'system_map': file_name,
-                'text_offset': '0x{:08x}'.format(text_offset),
-            })
+            self._add_artifact('kernel', file_name, 'system_map')
+            kbmeta['text_offset'] = '0x{:08x}'.format(text_offset)
 
     def install(self, verbose=False):
         """Install the kernel image
@@ -1101,7 +1121,7 @@ class MakeKernel(Step):
                 image = sorted(kimages.keys())[0]
                 kbmeta['image'] = image
             self._install_file(kimages[image], 'kernel', image, verbose)
-            self._add_artifact('kernel', image)
+            self._add_artifact('kernel', image, 'image')
 
         return super().install(verbose, res)
 
@@ -1156,18 +1176,17 @@ class MakeModules(Step):
                     os.path.basename(entry.name)
                     for entry in tarball
                 )
-                if path
+                if path and path.endswith('.ko')
             )))
         return modules
 
-    def _create_modules_tarball(self, verbose):
-        modules_tarball = 'modules.tar.xz'
+    def _create_modules_tarball(self, verbose, modules_tarball, compr='J'):
         modules_tarball_path = os.path.join(
             self._install_path, modules_tarball)
         if verbose:
             print("Creating {}".format(modules_tarball_path))
-        shell_cmd("tar -C{path} -cJf {tarball} .".format(
-            path=self._mod_path, tarball=modules_tarball_path))
+        shell_cmd("tar -C{path} -c{compr}f {tarball} .".format(
+            path=self._mod_path, compr=compr, tarball=modules_tarball_path))
         return modules_tarball_path
 
     def install(self, verbose=False, jopt=None):
@@ -1183,9 +1202,10 @@ class MakeModules(Step):
         res = self._make_modules_install(jopt, verbose)
 
         if res:
-            tarball = self._create_modules_tarball(verbose)
-            modules = self._get_modules_artifacts(tarball)
-            self._artifacts['modules'] = modules
+            tarball = 'modules.tar.xz'
+            tarball_path = self._create_modules_tarball(verbose, tarball)
+            modules = self._get_modules_artifacts(tarball_path)
+            self._add_artifact_contents('tarball', tarball, modules)
 
         return super().install(verbose, res)
 
@@ -1252,7 +1272,7 @@ class MakeDeviceTrees(Step):
         *verbose* is whether the build output should be shown
         """
         dtb_list = self._install_dtbs(verbose)
-        self._artifacts['dtbs'] = dtb_list
+        self._add_artifact_contents('directory', 'dtbs', dtb_list)
         return super().install(verbose)
 
 
@@ -1313,9 +1333,9 @@ class MakeSelftests(Step):
 
         res = os.path.exists(kselftest_tarball)
         if res:
-            self._install_file(kselftest_tarball, verbose=verbose)
+            tarball = self._install_file(kselftest_tarball, verbose=verbose)
             kselftests = self._get_kselftests(kselftest_tarball)
-            self._artifacts['kselftest'] = kselftests
+            self._add_artifact_contents('tarball', tarball, kselftests)
 
         return super().install(verbose, res)
 
