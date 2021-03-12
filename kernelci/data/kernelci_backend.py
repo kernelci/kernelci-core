@@ -33,20 +33,30 @@ class KernelCIBackend(Database):
     def _submit(self, path, data, verbose):
         url = urllib.parse.urljoin(self.config.url, path)
         resp = requests.post(url, json=data, headers=self._headers)
-        resp.raise_for_status()
+        try:
+            resp.raise_for_status()
+        except requests.exceptions.HTTPError as ex:
+            print(ex)
+            if verbose:
+                errors = json.loads(ex.response.content).get("errors", [])
+                for err in errors:
+                    print(err)
+            return False
         if verbose:
             print(resp.text)
+        return True
 
     def submit(self, data, verbose=False):
         for path, item in data.items():
-            self._submit(path, item, verbose)
+            if not self._submit(path, item, verbose):
+                return False
         return True
 
     def submit_build(self, meta, verbose=False):
         return self._submit('build', meta.get_value(), verbose)
 
     def submit_test(self, results, verbose=False):
-        self._submit('test', results, verbose)
+        return self._submit('test', results, verbose)
 
 
 def get_db(config, token):
