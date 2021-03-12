@@ -810,7 +810,8 @@ class RevisionData(Step):
             'url': tree_url,
             'branch': branch,
             'describe': describe or git_describe(tree_name, self._kdir),
-            'describe_v': describe_v or git_describe_verbose(self._kdir),
+            # ToDo: consolidate describe and describe_verbose
+            'describe_verbose': describe_v or git_describe_verbose(self._kdir),
             'commit': commit or head_commit(self._kdir),
         }
         return self._add_run_step(True)
