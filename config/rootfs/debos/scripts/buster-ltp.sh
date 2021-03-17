@@ -39,11 +39,15 @@ echo '  ]}' >> $BUILDFILE
 
 git clone --depth=1 -b 20200515 ${LTP_URL}
 cd ltp && make autotools 
-./configure --with-open-posix-testsuite
-make -j`nproc` all
+./configure
+make all
 find . -executable -type f -exec strip {} \;
 make install
 
+cd testcases/open_posix_testsuite/ && make generate-makefiles
+make all
+mkdir /opt/openposix_testsuite/bin -p
+make install
 ########################################################################
 # Cleanup: remove files and packages we don't want in the images       #
 ########################################################################
