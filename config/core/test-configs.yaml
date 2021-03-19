@@ -1623,7 +1623,6 @@ test_configs:
       - baseline
       - ltp-crypto
       - ltp-ipc
-      - ltp-mm
       - sleep
       - usb
 
