@@ -231,9 +231,9 @@ build_environments:
         <<: *x86_64_params
         name:
 
-  clang-11:
+  clang-12:
     cc: clang
-    cc_version: 11
+    cc_version: 12
     arch_params:
       <<: *clang_arch_params
       riscv:
@@ -848,8 +848,8 @@ build_configs:
         architectures: *arch_clang_configs
 
       # Latest clang release
-      clang-11:
-        build_environment: clang-11
+      clang-12:
+        build_environment: clang-12
         architectures:
           <<: *arch_clang_configs
           riscv:
