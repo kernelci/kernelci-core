@@ -60,6 +60,7 @@ labs:
             - igt-gpu-panfrost
             - kselftest-lib
             - ltp-crypto
+            - ltp-fcntl-locktests
             - ltp-ipc
             - ltp-mm
             - sleep

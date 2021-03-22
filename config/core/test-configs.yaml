@@ -213,6 +213,12 @@ test_plans:
       <<: *ltp-params
       tst_cmdfiles: "ipc"
 
+  ltp-fcntl-locktests:
+    <<: *ltp
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "fcntl-locktests"
+
   ltp-mm:
     <<: *ltp
     params:
@@ -1719,6 +1725,7 @@ test_configs:
       - kselftest
       - kselftest-lib
       - ltp-crypto
+      - ltp-fcntl-locktests
 
   - device_type: hp-11A-G6-EE-grunt
     test_plans:
@@ -2142,6 +2149,7 @@ test_configs:
       - cros-ec
       - kselftest
       - ltp-crypto
+      - ltp-fcntl-locktests
       - ltp-ipc
       - ltp-mm
       - sleep
