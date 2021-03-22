@@ -64,6 +64,7 @@ labs:
             - ltp-ipc
             - ltp-mm
             - ltp-timers
+            - ltp-pty
             - sleep
             - usb
             - v4l2-compliance-uvc
