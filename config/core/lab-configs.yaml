@@ -10,6 +10,7 @@ labs:
           plan:
             - baseline
             - baseline-fastboot
+            - baseline-qemu-docker
             - kselftest
             - preempt-rt
 
