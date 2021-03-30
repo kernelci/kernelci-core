@@ -1985,6 +1985,9 @@ test_configs:
     test_plans:
       - baseline
       - igt-gpu-i915
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
 
   - device_type: mt8173-elm-hana
     test_plans:
