@@ -58,6 +58,8 @@ labs:
             - igt-kms-tegra
             - igt-gpu-i915
             - igt-gpu-panfrost
+            - kselftest-filesystems
+            - kselftest-futex
             - kselftest-lib
             - ltp-crypto
             - ltp-fcntl-locktests
