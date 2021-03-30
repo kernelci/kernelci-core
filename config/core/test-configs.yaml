@@ -1759,6 +1759,8 @@ test_configs:
       - baseline
       - baseline-nfs
       - kselftest
+      - kselftest-filesystems
+      - kselftest-futex
       - kselftest-lib
       - ltp-crypto
       - ltp-fcntl-locktests
