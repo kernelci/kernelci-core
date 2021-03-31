@@ -282,6 +282,7 @@ class cmd_init_bmeta(Command):
     args = [Args.kdir]
     opt_args = [Args.output, Args.build_config, Args.install,
                 Args.tree_name, Args.tree_url, Args.branch,
+                Args.commit, Args.describe, Args.describe_verbose,
                 Args.build_env, Args.arch]
 
     def __call__(self, configs, args):
@@ -305,7 +306,8 @@ or
 
         step = kernelci.build.RevisionData(args.kdir, args.output, reset=True)
         print("Initialising build meta-data in {}".format(args.output))
-        res = step.run(tree_name, tree_url, branch)
+        res = step.run(tree_name, tree_url, branch,
+                       args.commit, args.describe, args.describe_verbose)
 
         if args.install:
             print("Install directory: {}".format(step.install_path))

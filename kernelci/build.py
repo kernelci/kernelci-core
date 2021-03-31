@@ -758,7 +758,8 @@ class RevisionData(Step):
     def name(self):
         return 'revision'
 
-    def run(self, tree_name, tree_url, branch):
+    def run(self, tree_name, tree_url, branch,
+            commit=None, describe=None, describe_v=None):
         """Add all the meta-data related to the current kernel revision.
 
         This step retrieves the revision information from the current kernel
@@ -768,14 +769,23 @@ class RevisionData(Step):
         *tree_name* is the short name of the kernel tree e.g. mainline, next...
         *tree_url* is the URL of the remote Git repository for the tree
         *branch* is the name of the Git branch
+
+        Optional arguments:
+
+        *commit* is the Git commit checksum, if None it will be determined
+                 automatically
+        *describe* is the Git describe string, if None it will be determined
+                   automatically
+        *describe_v* is the Git describe "verbose" string, if None it will be
+                     determined automatically
         """
         self._bmeta['revision'] = {
             'tree': tree_name,
             'url': tree_url,
             'branch': branch,
-            'describe': git_describe(tree_name, self._kdir),
-            'describe_v': git_describe_verbose(self._kdir),
-            'commit': head_commit(self._kdir),
+            'describe': describe or git_describe(tree_name, self._kdir),
+            'describe_v': describe_v or git_describe_verbose(self._kdir),
+            'commit': commit or head_commit(self._kdir),
         }
         return self._add_run_step(True)
 
