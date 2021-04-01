@@ -50,15 +50,61 @@ spec:
           name: scratch-volume
 
         command: ["/bin/bash", "-x", "-c"]
-        args: ["echo nproc=$(nproc); df; free; \
+        args: ["\
+echo nproc=$(nproc); df; free; \
 export KDIR=/tmp/kci/linux && export CCACHE_DISABLE=true && \
 cd /scratch/kernelci-core &&  \
-./kci_build pull_tarball --kdir ${KDIR} --url ${SRC_TARBALL} --retries 3 --delete && \
-./kci_build build_kernel --kdir ${KDIR} --output ${KDIR} --defconfig=${DEFCONFIG} --arch=${ARCH} --build-env=${BUILD_ENVIRONMENT} --verbose ${PARALLEL_JOPT}; export KERNEL_BUILD_RESULT=$?; \
-./kci_build install_kernel --kdir ${KDIR} --output ${KDIR} --build-config ${BUILD_CONFIG} --describe=${GIT_DESCRIBE} --describe-verbose=${GIT_DESCRIBE_VERBOSE} --commit=${COMMIT_ID}; \
-./kci_build push_kernel --kdir ${KDIR} --db-token=${KCI_API_TOKEN} --api=${KCI_API_URL}; \
-./kci_build publish_kernel --kdir ${KDIR} --db-token=${KCI_API_TOKEN} --api=${KCI_API_URL}; \
-echo KERNEL_BUILD_RESULT=$KERNEL_BUILD_RESULT; \
+\
+set +x; \
+[ -n \"${PARALLEL_JOPT}\" ] && jopt=\"j: ${PARALLEL_JOPT}\n\" || jopt=; \
+echo -e \"\
+[DEFAULT]\n\
+kdir: ${KDIR}\n\
+verbose: true\n\
+db_config: staging.kernelci.org\n\
+\n\
+[db:staging.kernelci.org]\n\
+db_token: ${KCI_API_TOKEN}\n\
+api: ${KCI_API_URL}\n\
+\n\
+[kci_build]\n\
+${jopt}\
+build_env: ${BUILD_ENVIRONMENT}\n\
+arch: ${ARCH}\n\
+output: ${KDIR}/build\n\
+install: true\n\
+\n\
+[kci_data]\n\
+output: ${KDIR}/build\n\
+\" > kernelci.conf; \
+set -x; \
+\
+./kci_build pull_tarball \
+  --url ${SRC_TARBALL} \
+  --retries 3 \
+  --delete; \
+\
+./kci_build init_bmeta \
+  --build-config=${BUILD_CONFIG} \
+  --commit=${COMMIT_ID} \
+  --describe=${GIT_DESCRIBE} \
+  --describe-verbose=${GIT_DESCRIBE_VERBOSE}; \
+\
+./kci_build make_config --defconfig=${DEFCONFIG} && \
+./kci_build make_kernel && \
+./kci_build make_modules && \
+./kci_build make_dtbs && \
+./kci_build make_kselftest; \
+export KERNEL_BUILD_RESULT=$?;
+\
+set +x; \
+echo Build result: ${KERNEL_BUILD_RESULT}; \
+echo; echo bmeta.json; cat ${KDIR}/build/bmeta.json; \
+echo; echo _install_; ls -l ${KDIR}/build/_install_; \
+\
+./kci_build push_kernel; \
+./kci_data submit_build; \
+\
 exit 0; \
 "]
 
