@@ -38,7 +38,7 @@ parallel_builds = os.getenv('PARALLEL_BUILDS')
 if parallel_builds:
     parallel_builds = int(parallel_builds)
     cpu_limit = min(cpu_limit, parallel_builds)
-    os.environ['PARALLEL_JOPT'] = "-j{}".format(parallel_builds)
+    os.environ['PARALLEL_JOPT'] = "{}".format(parallel_builds)
 
 if (cpu_limit < 8):
     cpu_request = cpu_limit * 0.875
