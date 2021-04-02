@@ -392,7 +392,7 @@ class Options:
                `~/.config/kernelci/kernelci.conf` or
                `/etc/kernelci/kernelci.conf`
 
-        *command* is a `Command` object for the commant being run
+        *command* is a `Command` object for the command being run
 
         *cli_args* is an object with command line arguments as produced by
                    argparse
@@ -441,7 +441,7 @@ class Options:
         if value:
             return value
         opt_data = self._command.get_arg_data(option)
-        section_data = opt_data.get('section')
+        section_data = opt_data.get('section') if opt_data else None
         if section_data:
             section_name, section_config_option = section_data
             section_config = self.get(section_config_option)
