@@ -1657,7 +1657,6 @@ test_configs:
       - baseline-nfs
       - ltp-crypto
       - ltp-ipc
-      - ltp-mm
 
   - device_type: cubietruck
     test_plans:
@@ -1986,7 +1985,6 @@ test_configs:
       - baseline-nfs
       - igt-kms-exynos
       - ltp-ipc
-      - ltp-mm
       - sleep
       - usb
 
