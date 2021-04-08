@@ -375,13 +375,16 @@ def pull_tarball(kdir, url, dest_filename, retries, delete):
     return True
 
 
-def _add_frag_configs(kdir, frag_list, frag_paths, frag_configs):
+def _get_frag_configs(kdir, frag_list):
+    configs = set()
+    names = set()
     for frag in frag_list:
         if os.path.exists(os.path.join(kdir, frag.path)):
             if frag.defconfig:
-                frag_configs.add(frag.defconfig)
+                configs.add(frag.defconfig)
             else:
-                frag_paths.add(frag.path)
+                names.add(frag.name)
+    return configs, names
 
 
 def list_kernel_configs(config, kdir, single_variant=None, single_arch=None):
@@ -411,16 +414,17 @@ def list_kernel_configs(config, kdir, single_variant=None, single_arch=None):
         if single_variant and variant.name != single_variant:
             continue
         build_env = variant.build_environment.name
-        frag_paths = set()
-        frag_configs = set()
-        _add_frag_configs(kdir, variant.fragments, frag_paths, frag_configs)
+        frag_configs, frag_names = _get_frag_configs(kdir, variant.fragments)
+
         for arch in variant.architectures:
             if single_arch and arch.name != single_arch:
                 continue
-            frags = set(frag_paths)
+            frags = set(frag_names)
             defconfigs = set(frag_configs)
             defconfigs.add(arch.base_defconfig)
-            _add_frag_configs(kdir, arch.fragments, frags, defconfigs)
+            configs, names = _get_frag_configs(kdir, arch.fragments)
+            frags = frags.union(names)
+            defconfigs = defconfigs.union(configs)
             for frag in frags:
                 defconfigs.add('+'.join([arch.base_defconfig, frag]))
             defconfigs.update(arch.extra_configs)
