@@ -1309,7 +1309,7 @@ class MakeSelftests(Step):
         }
         res = self._make('gen_tar', jopt, verbose, opts,
                          'tools/testing/selftests')
-        return self._add_run_step(jopt, res)
+        return self._add_run_step(res, jopt)
 
     def _get_kselftests(self, kselftest_tarball):
         with tarfile.open(kselftest_tarball, 'r:xz') as tarball:
