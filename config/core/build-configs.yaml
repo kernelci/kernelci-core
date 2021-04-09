@@ -455,11 +455,6 @@ build_configs:
     branch: 'android-3.18-o-mr1'
     variants: *android_variants
 
-  android_3.18-o-release:
-    tree: android
-    branch: 'android-3.18-o-release'
-    variants: *android_variants
-
   android_4.4-o:
     tree: android
     branch: 'android-4.4-o'
@@ -468,11 +463,6 @@ build_configs:
   android_4.4-o-mr1:
     tree: android
     branch: 'android-4.4-o-mr1'
-    variants: *android_variants
-
-  android_4.4-o-release:
-    tree: android
-    branch: 'android-4.4-o-release'
     variants: *android_variants
 
   android_4.4-p:
@@ -493,11 +483,6 @@ build_configs:
   android_4.9-o-mr1:
     tree: android
     branch: 'android-4.9-o-mr1'
-    variants: *android_variants
-
-  android_4.9-o-release:
-    tree: android
-    branch: 'android-4.9-o-release'
     variants: *android_variants
 
   android_4.9-p:
@@ -580,9 +565,24 @@ build_configs:
     branch: 'android12-5.4'
     variants: *android_variants
 
+  android12-5.4-lts:
+    tree: android
+    branch: 'android12-5.4-lts'
+    variants: *android_variants
+
   android12-5.10:
     tree: android
     branch: 'android12-5.10'
+    variants: *android_variants
+
+  android12-5.10-lts:
+    tree: android
+    branch: 'android12-5.10-lts'
+    variants: *android_variants
+
+  android13-5.10:
+    tree: android
+    branch: 'android13-5.10'
     variants: *android_variants
 
   ardb:
