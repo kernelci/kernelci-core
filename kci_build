@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (C) 2018, 2019, 2020 Collabora Limited
+# Copyright (C) 2018, 2019, 2020, 2021 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 #
 # This module is free software; you can redistribute it and/or modify it under
@@ -398,51 +398,6 @@ class cmd_make_kselftest(MakeCommand):
     step_cls = kernelci.build.MakeSelftests
 
 
-class cmd_build_kernel(Command):
-    help = "Build a kernel"
-    args = [Args.build_env, Args.arch, Args.kdir]
-    opt_args = [Args.defconfig, Args.j, Args.verbose, Args.output,
-                Args.mod_path]
-
-    def __call__(self, configs, args):
-        build_env = configs['build_environments'][args.build_env]
-        return kernelci.build.build_kernel(
-            build_env, args.kdir, args.arch, args.defconfig, args.j,
-            args.verbose, args.output, args.mod_path)
-
-
-class cmd_install_kernel(Command):
-    help = "Install the kernel binaries and bmeta.json locally"
-    args = [Args.kdir]
-    opt_args = [Args.build_config, Args.tree_name, Args.tree_url, Args.branch,
-                Args.commit, Args.describe, Args.describe_verbose,
-                Args.output, Args.publish_path, Args.install_path,
-                Args.mod_path]
-
-    def __call__(self, configs, args):
-        if args.build_config:
-            conf = configs['build_configs'][args.build_config]
-            tree_name = conf.tree.name
-            tree_url = conf.tree.url
-            branch = conf.branch
-        else:
-            tree_name = args.tree_name
-            tree_url = args.tree_url
-            branch = args.branch
-        if not all((tree_name, tree_url, branch)):
-            print("""\
-Invalid arguments, either of these 2 sets are possible:
-   --tree-name, --tree-url and --branch
-or
-   --build-config (to get the information from the YAML config)
-""")
-            return False
-        return kernelci.build.install_kernel(
-            args.kdir, tree_name, tree_url, branch, args.commit, args.describe,
-            args.describe_verbose, args.output, args.publish_path,
-            args.install_path, args.mod_path)
-
-
 class cmd_push_kernel(Command):
     help = "Push the kernel build artifacts"
     args = [Args.kdir, Args.api, Args.db_token]
@@ -458,25 +413,6 @@ class cmd_push_kernel(Command):
             args.api, args.db_token, publish_path, artifacts
         )
         return True
-
-
-class cmd_publish_kernel(Command):
-    help = "Publish the kernel meta-data"
-    args = [Args.kdir]
-    opt_args = [Args.db_config, Args.api, Args.db_token,
-                Args.json_path, Args.install_path]
-
-    def __call__(self, configs, args):
-        if not ((args.api and args.db_token) or args.json_path):
-            print("""\
-Invalid arguments, please provide at least one of these sets of options:
-    --db-config, --db-token, --api to publish to the backend server
-    --json-path to save the data in a local JSON file\
-""")
-            return False
-        return kernelci.build.publish_kernel(
-            args.kdir, args.install_path, args.api, args.db_token,
-            args.json_path)
 
 
 class cmd_pull_tarball(Command):
