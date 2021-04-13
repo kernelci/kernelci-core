@@ -527,10 +527,10 @@ class Step:
         """
         self._kdir = kdir
         self._reset = reset
-        self._output_path = output_path or os.path.join(kdir, 'build')
+        self._output_path = output_path or self.get_default_output_path(kdir)
         if not os.path.exists(self._output_path):
             os.mkdir(self._output_path)
-        self._install_path = os.path.join(self._output_path, '_install_')
+        self._install_path = self.get_install_path(kdir, self._output_path)
         self._create_install_dir()
         self._bmeta_path = os.path.join(self._output_path, 'bmeta.json')
         self._steps_path = os.path.join(self._output_path, 'steps.json')
@@ -552,9 +552,43 @@ class Step:
         raise NotImplementedError("Step.name needs to be implemented.")
 
     @property
+    def output_path(self):
+        """Path to the kernel build output"""
+        return self._output_path
+
+    @property
     def install_path(self):
         """Path to the installation directory"""
         return self._install_path
+
+    @classmethod
+    def get_default_output_path(cls, kdir):
+        """Get the default build output path based on the kernel source path
+
+        *kdir* is the path to the kernel source directory
+        """
+        return os.path.join(kdir, 'build')
+
+    @classmethod
+    def get_install_path(cls, kdir=None, output_path=None):
+        """Get the default build install path
+
+        Get the default path where the kernel build artifacts get installed
+        based on the kernel source tree or a supplied output path.  They are
+        both optional to be able to deal with all the cases: the build output
+        directory may be the default one or an arbitrary one instead.  When
+        neither is supplied, the default path is `_install_` relative to the
+        current working directory.
+
+        *kdir* is the optional path to the kernel source directory
+        *output_path* is the optional path to the kernel build output
+        """
+        if output_path is None:
+            if kdir is None:
+                output_path = ''
+            else:
+                output_path = cls.get_default_output_path(kdir)
+        return os.path.join(output_path, '_install_')
 
     def _load_json(self, json_path, default):
         data = default
