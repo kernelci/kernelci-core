@@ -53,7 +53,7 @@ class KernelCIBackend(Database):
         return True
 
     def submit_build(self, meta, verbose=False):
-        return self._submit('build', meta.get_value(), verbose)
+        return self._submit('build', meta.get(), verbose)
 
     def submit_test(self, results, verbose=False):
         return self._submit('test', results, verbose)

@@ -54,9 +54,9 @@ class Database:
         """Submit meta-data for a kernel build
 
         Alternative entry point to submit the kernel build meta-data from a
-        build.MetaStep object.
+        build.Metadata object.
 
-        *meta* is a kernelci.build.MetaStep object
+        *meta* is a kernelci.build.Metadata object
         *verbose* is to print more information
         """
         raise NotImplementedError("Database.submit_build() not implemented")
