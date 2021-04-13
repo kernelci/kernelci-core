@@ -440,9 +440,10 @@ class cmd_push_kernel(Command):
     opt_args = [Args.output, Args.db_config]
 
     def __call__(self, configs, args):
-        meta = kernelci.build.MetaStep(args.kdir, args.output)
-        publish_path = meta.get_value("kernel", "publish_path")
-        artifacts = kernelci.storage.discover_files(meta.install_path)
+        install = kernelci.build.Step.get_install_path(args.kdir, args.output)
+        meta = kernelci.build.Metadata(install)
+        publish_path = meta.get('bmeta', 'kernel', 'publish_path')
+        artifacts = kernelci.storage.discover_files(install)
         print("Upload path: {}".format(publish_path))
         kernelci.storage.upload_files(
             args.api, args.db_token, publish_path, artifacts
