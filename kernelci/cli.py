@@ -47,6 +47,11 @@ class Args:
         'section': SECTION_DB,
     }
 
+    build_output = {
+        'name': '--build-output',
+        'help': "Path to the build output directory",
+    }
+
     bmeta_json = {
         'name': '--bmeta-json',
         'help': "Path to the build.json file",
