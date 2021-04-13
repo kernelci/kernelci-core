@@ -69,7 +69,8 @@ class cmd_submit_build(Command):
 
     def __call__(self, config_data, args):
         config = config_data['db_configs'][args.db_config]
-        meta = kernelci.build.MetaStep(args.kdir, args.output)
+        install = kernelci.build.Step.get_install_path(args.kdir, args.output)
+        meta = kernelci.build.Metadata(install)
         db = kernelci.data.get_db(config, args.db_token)
         return db.submit_build(meta, args.verbose)
 
