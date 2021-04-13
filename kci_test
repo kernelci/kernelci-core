@@ -77,13 +77,23 @@ class cmd_validate(Command):
 
 class cmd_list_jobs(Command):
     help = "List all the jobs that need to be run for a given build and lab"
-    args = [Args.bmeta_json, Args.lab_config]
-    opt_args = [Args.dtbs_json, Args.user, Args.lab_token, Args.lab_json]
+    args = [Args.lab_config]
+    opt_args = [Args.user, Args.lab_token, Args.lab_json,
+                Args.build_output, Args.install_path]
 
     def __call__(self, test_configs, lab_configs, args):
-        bmeta, dtbs = kernelci.build.load_json(args.bmeta_json, args.dtbs_json)
+        path_args = (args.build_output, args.install_path)
+        if not any(path_args) or all(path_args):
+            print("Either --build-output or --install-path is required")
+            return False
 
-        if bmeta['status'] != "PASS":
+        install = (
+            args.install_path
+            or kernelci.build.Step.get_install_path(None, args.build_output)
+        )
+        meta = kernelci.build.Metadata(install)
+
+        if meta.get('bmeta', 'build', 'status') != "PASS":
             return True
 
         lab = lab_configs['labs'][args.lab_config]
@@ -91,7 +101,7 @@ class cmd_list_jobs(Command):
             lab, args.user, args.lab_token, args.lab_json)
 
         configs = kernelci.test.match_configs(
-            test_configs['test_configs'], bmeta, dtbs, lab)
+            test_configs['test_configs'], meta, lab)
         for device_type, plan in configs:
             if not api.device_type_online(device_type):
                 continue
@@ -144,8 +154,9 @@ class cmd_get_lab_info(Command):
 
 class cmd_generate(Command):
     help = "Generate the job definition for a given build"
-    args = [Args.bmeta_json, Args.storage, Args.lab_config]
-    opt_args = [Args.plan, Args.target, Args.output, Args.dtbs_json,
+    args = [Args.lab_config, Args.storage]
+    opt_args = [Args.plan, Args.target, Args.output,
+                Args.build_output, Args.install_path,
                 Args.lab_json, Args.user, Args.lab_token, Args.db_config,
                 Args.callback_id, Args.callback_dataset,
                 Args.callback_type, Args.callback_url, Args.mach]
@@ -155,9 +166,18 @@ class cmd_generate(Command):
             print("--callback-url is required with --callback-id")
             return False
 
-        bmeta, dtbs = kernelci.build.load_json(args.bmeta_json, args.dtbs_json)
+        path_args = (args.build_output, args.install_path)
+        if not any(path_args) or all(path_args):
+            print("Either --build-output or --install-path is required")
+            return False
 
-        if bmeta['status'] != "PASS":
+        install = (
+            args.install_path
+            or kernelci.build.Step.get_install_path(None, args.build_output)
+        )
+        meta = kernelci.build.Metadata(install)
+
+        if meta.get('bmeta', 'build', 'status') != "PASS":
             return True
 
         lab = lab_configs['labs'][args.lab_config]
@@ -171,7 +191,7 @@ class cmd_generate(Command):
         else:
             jobs_list = []
             configs = kernelci.test.match_configs(
-                test_configs['test_configs'], bmeta, dtbs, lab)
+                test_configs['test_configs'], meta, lab)
             for device_type, plan in configs:
                 if not api.device_type_online(device_type):
                     continue
@@ -183,10 +203,6 @@ class cmd_generate(Command):
                     continue
                 jobs_list.append((device_type, plan))
 
-        # ToDo: deal with a JSON file containing a list of builds to iterate
-        # over, such as the one produced by "kci_build publish" or saved as a
-        # result of a new command "kci_build get_meta" to download meta-data
-        # from the backend API.
         callback_opts = {
             'id': args.callback_id,
             'dataset': args.callback_dataset or 'all',
@@ -197,7 +213,7 @@ class cmd_generate(Command):
             os.makedirs(args.output)
         for target, plan in jobs_list:
             params = kernelci.test.get_params(
-                bmeta, target, plan, args.storage)
+                meta, target, plan, args.storage)
             job = api.generate(params, target, plan, callback_opts)
             if job is None:
                 print("Failed to generate the job definition")
