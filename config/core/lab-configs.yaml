@@ -9,7 +9,6 @@ labs:
       - passlist:
           plan:
             - baseline
-            - kselftest
             - preempt-rt
 
   lab-broonie:
