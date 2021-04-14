@@ -1758,7 +1758,6 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - kselftest
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
@@ -1940,7 +1939,6 @@ test_configs:
   - device_type: meson-g12b-odroid-n2
     test_plans:
       - baseline
-      - kselftest
       - kselftest-lib
 
   - device_type: meson-gxbb-nanopi-k2
@@ -2012,7 +2010,6 @@ test_configs:
       - baseline
       - baseline-nfs
       - cros-ec
-      - kselftest
       - sleep
       - v4l2-compliance-uvc
 
@@ -2184,7 +2181,6 @@ test_configs:
       - cros-ec
       - igt-gpu-panfrost
       - igt-kms-rockchip
-      - kselftest
       - kselftest-lib
       - ltp-crypto
       - ltp-ipc
@@ -2202,7 +2198,6 @@ test_configs:
       - baseline
       - baseline-nfs
       - cros-ec
-      - kselftest
       - ltp-crypto
       - ltp-fcntl-locktests
       - ltp-ipc
