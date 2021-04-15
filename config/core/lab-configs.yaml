@@ -9,6 +9,9 @@ labs:
       - passlist:
           plan:
             - baseline
+            - kselftest-filesystems
+            - kselftest-futex
+            - kselftest-lib
             - preempt-rt
 
   lab-broonie:
