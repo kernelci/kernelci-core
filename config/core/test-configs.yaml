@@ -1804,6 +1804,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - kselftest-lib
       - ltp-crypto
       - ltp-ipc
       - ltp-mm
@@ -1923,6 +1924,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - kselftest-lib
 
   - device_type: meson-g12b-odroid-n2
     test_plans:
@@ -2035,6 +2037,7 @@ test_configs:
   - device_type: panda
     test_plans:
       - baseline
+      - kselftest-lib
 
   - device_type: panda-es
     test_plans:
@@ -2256,6 +2259,7 @@ test_configs:
   - device_type: sun50i-h6-pine-h64
     test_plans:
       - baseline
+      - kselftest-lib
       - ltp-crypto
       - ltp-ipc
       - ltp-mm
