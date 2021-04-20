@@ -779,6 +779,14 @@ class Step:
         if not os.path.exists(self._install_path):
             os.makedirs(self._install_path)
 
+    def _check_opts(self, opts, required):
+        res = True
+        for key in required:
+            if not opts or key not in opts:
+                print("Missing required option: {}".format(key))
+                res = False
+        return res
+
     def _add_run_step(self, status, jopt=None, action=''):
         start_time = datetime.fromtimestamp(self._start_time).isoformat()
         run_data = {
@@ -915,8 +923,13 @@ class Step:
         """Determine whether the step is enabled with the current kernel."""
         return True
 
-    def run(self):
-        """Abstract method to run the build step."""
+    def run(self, jopt=None, verbose=False, opts=None):
+        """Abstract method to run the build step.
+
+        *jopt* is the `make -j` option which will default to `nproc + 2`
+        *verbose* is whether to show what is being installed
+        *opts* is an arbitrary dictionary with step-specific options
+        """
         raise NotImplementedError("Step.run() needs to be implemented.")
 
     def install(self, verbose=False, status=True):
@@ -951,20 +964,19 @@ class RevisionData(Step):
     def name(self):
         return 'revision'
 
-    def run(self, tree_name, tree_url, branch,
-            commit=None, describe=None, describe_v=None):
+    def run(self, jopt=None, verbose=False, opts=None):
         """Add all the meta-data related to the current kernel revision.
 
         This step retrieves the revision information from the current kernel
         source directory using Git, typically to initialise `bmeta.json` file
         with just a revision section before running any actual build step.
 
+        Required options in *opts*:
         *tree_name* is the short name of the kernel tree e.g. mainline, next...
         *tree_url* is the URL of the remote Git repository for the tree
         *branch* is the name of the Git branch
 
-        Optional arguments:
-
+        Other options:
         *commit* is the Git commit checksum, if None it will be determined
                  automatically
         *describe* is the Git describe string, if None it will be determined
@@ -972,15 +984,20 @@ class RevisionData(Step):
         *describe_v* is the Git describe "verbose" string, if None it will be
                      determined automatically
         """
-        self._meta.get('bmeta')['revision'] = {
-            'tree': tree_name,
-            'url': tree_url,
-            'branch': branch,
-            'describe': describe or git_describe(tree_name, self._kdir),
-            # ToDo: consolidate describe and describe_verbose
-            'describe_verbose': describe_v or git_describe_verbose(self._kdir),
-            'commit': commit or head_commit(self._kdir),
-        }
+        if not self._check_opts(opts, ('tree', 'url', 'branch')):
+            return False
+
+        revision = opts.copy()
+
+        if not revision.get('describe'):
+            revision['describe'] = git_describe(opts['tree'], self._kdir)
+        if not revision.get('describe_verbose'):
+            revision['describe_verbose'] = git_describe_verbose(self._kdir)
+        if not revision.get('commit'):
+            revision['commit'] = head_commit(self._kdir)
+
+        self._meta.get('bmeta')['revision'] = revision
+
         return self._add_run_step(True)
 
 
@@ -990,16 +1007,22 @@ class EnvironmentData(Step):
     def name(self):
         return 'environment'
 
-    def run(self, build_env, arch):
+    def run(self, jopt=None, verbose=False, opts=None):
         """Add all the meta-data related to the current build.
 
         This step relies on a BuildEnvironment object and also queries any
         currently installed compiler toolchain to populate the build
         environment section of the `bmeta.json` file.
 
+        Required options in *opts*:
         *build_env* is a BuildEnvironment object
         *arch* is the CPU architecture name e.g. x86_64, arm64, riscv...
         """
+        keys = ('build_env', 'arch')
+        if not self._check_opts(opts, keys):
+            return False
+
+        build_env, arch = (opts[key] for key in keys)
         cross_compile = build_env.get_cross_compile(arch) or ''
         cross_compile_compat = build_env.get_cross_compile_compat(arch) or ''
         cc = build_env.cc
@@ -1103,7 +1126,7 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
             cmd = self._output_to_file(cmd, self._log_path, self._kdir)
         return shell_cmd(cmd, True)
 
-    def run(self, defconfig, frags_config, jopt=None, verbose=False):
+    def run(self, jopt=None, verbose=False, opts=None):
         """Make the kernel config
 
         Make the kernel .config file using a number of options.  This will
@@ -1115,11 +1138,15 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
         defconfig name and other related meta-data about extra config options
         and fragments.
 
+        Required options in *opts*:
         *defconfig* is the defconfig name, e.g. defconfig, x86_64_defconfig...
         *frags_config* is a dict with the Fragment configuration objects
-        *jopt* is the `make -j` option which will default to `nproc + 2`
-        *verbose* is whether the build output should be shown
         """
+        keys = ('defconfig', 'frags_config')
+        if not self._check_opts(opts, keys):
+            return False
+
+        defconfig, frags_config = (opts[key] for key in keys)
         defconfig_expanded = self._expand_defconfig(defconfig, frags_config)
         elements = defconfig_expanded.split('+')
         target = elements.pop(0)
@@ -1185,7 +1212,7 @@ class MakeKernel(Step):
     def name(self):
         return 'kernel'
 
-    def run(self, jopt=None, verbose=False):
+    def run(self, jopt=None, verbose=False, opts=None):
         """Make the kernel image
 
         Make the actual kernel image given the parameters already provided in
@@ -1288,7 +1315,7 @@ class MakeModules(Step):
         """
         return self._kernel_config_enabled('MODULES')
 
-    def run(self, jopt=None, verbose=False):
+    def run(self, jopt=None, verbose=False, opts=None):
         """Make the kernel modules
 
         Make the kernel modules and   This step does not add any extra build
@@ -1368,7 +1395,7 @@ class MakeDeviceTrees(Step):
         """
         return self._kernel_config_enabled('OF_FLATTREE')
 
-    def run(self, jopt=None, verbose=False):
+    def run(self, jopt=None, verbose=False, opts=None):
         """Make the device trees
 
         Make the device tree binary files (dtbs).  This step does not add any
@@ -1435,7 +1462,7 @@ class MakeSelftests(Step):
             'bmeta', 'kernel', 'defconfig_extras'
         )
 
-    def run(self, jopt=None, verbose=False):
+    def run(self, jopt=None, verbose=False, opts=None):
         """Make the kernel selftests
 
         Make the kernel selftests or "kselftest" and produce a tarball so they
