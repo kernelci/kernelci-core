@@ -1013,6 +1013,56 @@ build_configs:
     branch: 'linux-5.10.y'
     variants: *stable_variants
 
+  stable_5.11:
+    tree: stable
+    branch: 'linux-5.11.y'
+    variants: *stable_variants
+
+  stable_5.12:
+    tree: stable
+    branch: 'linux-5.12.y'
+    variants: *stable_variants
+
+  stable_5.13:
+    tree: stable
+    branch: 'linux-5.13.y'
+    variants: *stable_variants
+
+  stable_5.14:
+    tree: stable
+    branch: 'linux-5.14.y'
+    variants: *stable_variants
+
+  stable_5.15:
+    tree: stable
+    branch: 'linux-5.15.y'
+    variants: *stable_variants
+
+  stable_5.16:
+    tree: stable
+    branch: 'linux-5.16.y'
+    variants: *stable_variants
+
+  stable_5.17:
+    tree: stable
+    branch: 'linux-5.17.y'
+    variants: *stable_variants
+
+  stable_5.18:
+    tree: stable
+    branch: 'linux-5.18.y'
+    variants: *stable_variants
+
+  stable_5.19:
+    tree: stable
+    branch: 'linux-5.19.y'
+    variants: *stable_variants
+
+  stable_5.20:
+    tree: stable
+    branch: 'linux-5.20.y'
+    variants: *stable_variants
+
   stable-rc_3.16:
     tree: stable-rc
     branch: 'linux-3.16.y'
@@ -1093,6 +1143,86 @@ build_configs:
       tree: stable
       branch: 'linux-5.10.y'
 
+  stable-rc_5.11:
+    tree: stable-rc
+    branch: 'linux-5.11.y'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.11.y'
+
+  stable-rc_5.12:
+    tree: stable-rc
+    branch: 'linux-5.12.y'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.12.y'
+
+  stable-rc_5.13:
+    tree: stable-rc
+    branch: 'linux-5.13.y'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.13.y'
+
+  stable-rc_5.14:
+    tree: stable-rc
+    branch: 'linux-5.14.y'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.14.y'
+
+  stable-rc_5.15:
+    tree: stable-rc
+    branch: 'linux-5.15.y'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.15.y'
+
+  stable-rc_5.16:
+    tree: stable-rc
+    branch: 'linux-5.16.y'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.16.y'
+
+  stable-rc_5.17:
+    tree: stable-rc
+    branch: 'linux-5.17.y'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.17.y'
+
+  stable-rc_5.18:
+    tree: stable-rc
+    branch: 'linux-5.18.y'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.18.y'
+
+  stable-rc_5.19:
+    tree: stable-rc
+    branch: 'linux-5.19.y'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.19.y'
+
+  stable-rc_5.20:
+    tree: stable-rc
+    branch: 'linux-5.20.y'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.20.y'
+
   stable-rc_queue-4.4:
     tree: stable-rc
     branch: 'queue/4.4'
@@ -1164,6 +1294,86 @@ build_configs:
     reference:
       tree: stable
       branch: 'linux-5.10.y'
+
+  stable-rc_queue-5.11:
+    tree: stable-rc
+    branch: 'queue/5.11'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.11.y'
+
+  stable-rc_queue-5.12:
+    tree: stable-rc
+    branch: 'queue/5.12'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.12.y'
+
+  stable-rc_queue-5.13:
+    tree: stable-rc
+    branch: 'queue/5.13'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.13.y'
+
+  stable-rc_queue-5.14:
+    tree: stable-rc
+    branch: 'queue/5.14'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.14.y'
+
+  stable-rc_queue-5.15:
+    tree: stable-rc
+    branch: 'queue/5.15'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.15.y'
+
+  stable-rc_queue-5.16:
+    tree: stable-rc
+    branch: 'queue/5.16'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.16.y'
+
+  stable-rc_queue-5.17:
+    tree: stable-rc
+    branch: 'queue/5.17'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.17.y'
+
+  stable-rc_queue-5.18:
+    tree: stable-rc
+    branch: 'queue/5.18'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.18.y'
+
+  stable-rc_queue-5.19:
+    tree: stable-rc
+    branch: 'queue/5.19'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.19.y'
+
+  stable-rc_queue-5.20:
+    tree: stable-rc
+    branch: 'queue/5.20'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-5.20.y'
 
   tegra:
     tree: tegra
