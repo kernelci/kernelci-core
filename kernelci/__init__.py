@@ -19,6 +19,8 @@ import re
 import subprocess
 import sys
 
+__version__ = '1.1'
+
 
 def shell_cmd(cmd, ret_code=False):
     if ret_code:

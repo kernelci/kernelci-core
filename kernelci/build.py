@@ -27,7 +27,7 @@ import time
 import urllib.parse
 
 import requests
-from kernelci import shell_cmd, print_flush
+from kernelci import shell_cmd, print_flush, __version__ as kernelci_version
 import kernelci.elf
 from kernelci.storage import upload_files
 
@@ -347,7 +347,7 @@ def push_tarball(config, kdir, storage, api, token):
 
 def _download_file(url, dest_filename, chunk_size=1024):
     headers = {
-        'User-Agent': 'kernelci 1.1'
+        'User-Agent': 'kernelci {}'.format(kernelci_version),
     }
     resp = requests.get(url, stream=True, headers=headers)
     if resp.status_code == 200:
