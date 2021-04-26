@@ -16,10 +16,11 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import setuptools
+import kernelci
 
 setuptools.setup(
     name='kernelci',
-    version='1.1',
+    version=kernelci.__version__,
     description="KernelCI core functions",
     author="kernelci.org",
     author_email="kernelci@groups.io",
