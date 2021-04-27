@@ -148,6 +148,12 @@ fragments:
   debug:
     path: "kernel/configs/debug.config"
 
+  gemini:
+    path: "kernel/configs/gemini.config"
+    configs:
+      - 'CONFIG_CMDLINE="console=ttyS0,19200n8 ip=dhcp initrdmem=0x800000,10M"'
+      - 'CONFIG_CMDLINE_FORCE=y'
+
   kselftest:
     path: "kernel/configs/kselftest.config"
 
@@ -841,6 +847,7 @@ build_configs:
               - 'multi_v7_defconfig+CONFIG_EFI=y+CONFIG_ARM_LPAE=y'
               - 'allnoconfig'
               - 'allmodconfig'
+              - 'gemini_defconfig+gemini'
 
       # clang-10 is the current minium clang version for -next
       clang-10:
