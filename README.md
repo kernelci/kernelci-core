@@ -31,7 +31,7 @@ KernelCI users will typically want to add their kernel branch to be monitored,
 connect their lab or send results from their own existing CI system.  The pages
 below are a work-in-progress to cover all these topics:
 
-* [Using LAVA with KernelCI](doc/lava.md)
+* [Using LAVA with KernelCI](https://kernelci.org/docs/labs/lava/)
 
 
 ## Command line tools
