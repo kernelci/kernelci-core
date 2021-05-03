@@ -84,8 +84,9 @@ def get_params(meta, target, plan_config, storage):
     dtb = dtb_full = target.dtb
     if dtb:
         dtb_dir = meta.get_single_artifact('dtbs', attr='path')
-        dtb = dtb_full = os.path.join(dtb_dir, target.dtb)
-        dtb = os.path.basename(dtb)  # hack for dtbs in subfolders
+        if dtb_dir:
+            dtb = dtb_full = os.path.join(dtb_dir, target.dtb)
+            dtb = os.path.basename(dtb)  # hack for dtbs in subfolders
     publish_path = kernel['publish_path']
     job_px = publish_path.replace('/', '-')
     url_px = publish_path
