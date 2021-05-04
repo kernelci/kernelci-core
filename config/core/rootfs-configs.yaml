@@ -97,6 +97,37 @@ rootfs_configs:
     script: "scripts/buster-igt.sh"
     test_overlay: "overlays/igt"
 
+  buster-kselftest:
+    rootfs_type: debos
+    debian_release: buster
+    arch_list:
+      - amd64
+      - arm64
+      - armhf
+    extra_packages:
+      - ca-certificates
+      - iproute2
+      - jdim
+      - libatm1
+      - libcap2-bin
+      - libelf1
+      - libgdbm-compat4
+      - libgdbm6
+      - libhugetlbfs0
+      - libmnl0
+      - libpam-cap
+      - libpcre2-8-0
+      - libperl5.28
+      - libpsl5
+      - libxtables12
+      - netbase
+      - openssl
+      - perl
+      - perl-modules-5.28
+      - publicsuffix
+      - wget
+      - xz-utils
+
   buster-ltp:
     rootfs_type: debos
     debian_release: buster
