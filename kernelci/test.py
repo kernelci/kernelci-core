@@ -57,10 +57,9 @@ def match_configs(configs, meta, lab):
     for test_config in configs:
         if not test_config.match(arch, flags, filters):
             continue
-        if dtbs:
-            dtb = test_config.device_type.dtb
-            if dtb and dtb not in dtbs:
-                continue
+        dtb = test_config.device_type.dtb
+        if dtb and (not dtbs or dtb not in dtbs):
+            continue
         for plan_name, plan in test_config.test_plans.items():
             if not plan.match(filters):
                 continue
