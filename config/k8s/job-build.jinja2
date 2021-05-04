@@ -61,9 +61,9 @@ echo -e \"\
 [DEFAULT]\n\
 kdir: ${KDIR}\n\
 verbose: true\n\
-db_config: staging.kernelci.org\n\
+db_config: ${KCI_DB_CONFIG}\n\
 \n\
-[db:staging.kernelci.org]\n\
+[db:${KCI_DB_CONFIG}]\n\
 db_token: ${KCI_API_TOKEN}\n\
 api: ${KCI_API_URL}\n\
 \n\
@@ -125,6 +125,8 @@ exit 0; \
           value: "{{ "FIXME" | env_override('COMMIT_ID') }}"
         - name: BUILD_CONFIG
           value: "{{ "FIXME" | env_override('BUILD_CONFIG') }}"
+        - name: KCI_DB_CONFIG
+          value: "{{ "FIXME" | env_override('KCI_DB_CONFIG') }}"
         - name: KCI_API_URL
           value: "{{ "FIXME" | env_override('KCI_API_URL') }}"
         - name: KCI_API_TOKEN
