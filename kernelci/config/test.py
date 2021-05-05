@@ -17,7 +17,7 @@
 
 import yaml
 
-from kernelci.config import FilterFactory, YAMLObject
+from kernelci.config.base import FilterFactory, YAMLObject
 
 
 class DeviceType(YAMLObject):

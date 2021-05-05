@@ -18,7 +18,7 @@
 import sys
 import yaml
 
-from kernelci.config import YAMLObject
+from kernelci.config.base import YAMLObject
 
 
 class RootFS(YAMLObject):
