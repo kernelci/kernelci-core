@@ -474,15 +474,15 @@ class Options:
         return missing_args
 
 
-def make_parser(title, default_yaml):
+def make_parser(title, default_config_path):
     """Helper to make a parser object from argparse.
 
     *title* is the title of the parser
-    *default_yaml* is the default YAML config file name to use
+    *default_config_path* is the default YAML config directory to use
     """
     parser = argparse.ArgumentParser(title)
-    parser.add_argument("--yaml-configs", default=default_yaml,
-                        help="Path to the YAML configs file")
+    parser.add_argument("--yaml-config", default=default_config_path,
+                        help="Path to the directory with YAML config files")
     parser.add_argument("--settings",
                         help="Path to the settings file")
     return parser
@@ -539,7 +539,7 @@ def make_options(args, prog):
     return opts
 
 
-def parse_opts(prog, default_yaml, glob):
+def parse_opts(prog, glob, default_config_path="config/core"):
     """Return an Options object with command line arguments and settings
 
     This will create a parser and automatically add the sub-commands from the
@@ -548,12 +548,12 @@ def parse_opts(prog, default_yaml, glob):
 
     *prog* is the command line program name
 
-    *default_yaml* is the name of the default YAML configuration file to use
-                   with the command line utility
+    *default_config_path* is the name of the default YAML configuration
+                          directory to use with the command line utility
 
     *glob* is the dictionary with all the global attributes where to look for
            commands starting with `cmd_`
     """
-    parser = make_parser(prog, default_yaml)
+    parser = make_parser(prog, default_config_path)
     args = parse_args_with_parser(parser, glob)
     return make_options(args, prog)

@@ -95,10 +95,7 @@ class LabFactory(YAMLObject):
         return lab_cls.from_yaml(lab, kw)
 
 
-def from_yaml(yaml_path):
-    with open(yaml_path) as f:
-        data = yaml.safe_load(f)
-
+def from_yaml(data):
     labs = {
         name: LabFactory.from_yaml(name, lab)
         for name, lab in data['labs'].items()

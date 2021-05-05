@@ -415,10 +415,7 @@ class TestConfig(YAMLObject):
         return test_plan.get_template_path(self._device_type.boot_method)
 
 
-def from_yaml(yaml_path):
-    with open(yaml_path) as f:
-        data = yaml.safe_load(f)
-
+def from_yaml(data):
     fs_types = {
         name: RootFSType.from_yaml(fs_type)
         for name, fs_type in data['file_system_types'].items()

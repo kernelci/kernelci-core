@@ -23,7 +23,7 @@ import json
 import os
 import sys
 
-from kernelci.cli import Args, Command
+from kernelci.cli import Args, Command, parse_opts
 import kernelci
 import kernelci.config.lab
 import kernelci.config.test
@@ -40,34 +40,34 @@ class cmd_validate(Command):
     help = "Validate the YAML configuration"
     opt_args = [Args.verbose]
 
-    def __call__(self, test_configs, lab_configs, args):
+    def __call__(self, configs, args):
         # ToDo: Use jsonschema
-        err = kernelci.sort_check(test_configs['device_types'].keys())
+        err = kernelci.sort_check(configs['device_types'].keys())
         if err:
             print("Device types broken order: '{}' before '{}'".format(*err))
             return False
 
         test_config_devices = list(
-            str(config.device_type) for config in test_configs['test_configs']
+            str(config.device_type) for config in configs['test_configs']
         )
         err = kernelci.sort_check(test_config_devices)
         if err:
             print("Test configs broken order: '{}' before '{}'".format(*err))
             return False
 
-        for device_type in test_configs['device_types'].keys():
+        for device_type in configs['device_types'].keys():
             if device_type not in test_config_devices:
                 print("Device type has no test config: {}".format(device_type))
                 return False
 
-        for config in test_configs['test_configs']:
+        for config in configs['test_configs']:
             err = kernelci.sort_check(config.test_plans.keys())
             if err:
                 print("Plans broken order for {}: '{}' before '{}'".format(
                     config.device_type, err[0], err[1]))
                 return False
 
-        err = kernelci.sort_check(lab_configs['labs'].keys())
+        err = kernelci.sort_check(configs['labs'].keys())
         if err:
             print("Labs broken order: '{}' before '{}'".format(*err))
             return False
@@ -81,7 +81,7 @@ class cmd_list_jobs(Command):
     opt_args = [Args.user, Args.lab_token, Args.lab_json,
                 Args.build_output, Args.install_path]
 
-    def __call__(self, test_configs, lab_configs, args):
+    def __call__(self, configs, args):
         path_args = (args.build_output, args.install_path)
         if not any(path_args) or all(path_args):
             print("Either --build-output or --install-path is required")
@@ -96,12 +96,12 @@ class cmd_list_jobs(Command):
         if meta.get('bmeta', 'build', 'status') != "PASS":
             return True
 
-        lab = lab_configs['labs'][args.lab_config]
+        lab = configs['labs'][args.lab_config]
         api = kernelci.lab.get_api(
             lab, args.user, args.lab_token, args.lab_json)
 
         configs = kernelci.test.match_configs(
-            test_configs['test_configs'], meta, lab)
+            configs['test_configs'], meta, lab)
         for device_type, plan in configs:
             if not api.device_type_online(device_type):
                 continue
@@ -113,9 +113,9 @@ class cmd_list_jobs(Command):
 class cmd_list_plans(Command):
     help = "List all the existing test plan names"
 
-    def __call__(self, test_configs, lab_configs, args):
+    def __call__(self, configs, args):
         plans = set(plan.name
-                    for plan in list(test_configs['test_plans'].values()))
+                    for plan in list(configs['test_plans'].values()))
         for plan in sorted(plans):
             print(plan)
         return True
@@ -124,8 +124,8 @@ class cmd_list_plans(Command):
 class cmd_list_labs(Command):
     help = "List all the existing lab names"
 
-    def __call__(self, test_configs, lab_configs, args):
-        for lab in sorted(lab_configs['labs'].keys()):
+    def __call__(self, configs, args):
+        for lab in sorted(configs['labs'].keys()):
             print(lab)
         return True
 
@@ -135,8 +135,8 @@ class cmd_get_lab_info(Command):
     args = [Args.lab_config, Args.lab_json]
     opt_args = [Args.user, Args.lab_token]
 
-    def __call__(self, test_configs, lab_configs, args):
-        lab = lab_configs['labs'][args.lab_config]
+    def __call__(self, configs, args):
+        lab = configs['labs'][args.lab_config]
         lab_api = kernelci.lab.get_api(lab, args.user, args.lab_token)
         data = {
             'lab': lab.name,
@@ -161,7 +161,7 @@ class cmd_generate(Command):
                 Args.callback_id, Args.callback_dataset,
                 Args.callback_type, Args.callback_url, Args.mach]
 
-    def __call__(self, test_configs, lab_configs, args):
+    def __call__(self, configs, args):
         if args.callback_id and not args.callback_url:
             print("--callback-url is required with --callback-id")
             return False
@@ -180,18 +180,18 @@ class cmd_generate(Command):
         if meta.get('bmeta', 'build', 'status') != "PASS":
             return True
 
-        lab = lab_configs['labs'][args.lab_config]
+        lab = configs['labs'][args.lab_config]
         api = kernelci.lab.get_api(
             lab, args.user, args.lab_token, args.lab_json)
 
         if args.target and args.plan:
-            target = test_configs['device_types'][args.target]
-            plan = test_configs['test_plans'][args.plan]
+            target = configs['device_types'][args.target]
+            plan = configs['test_plans'][args.plan]
             jobs_list = [(target, plan)]
         else:
             jobs_list = []
             configs = kernelci.test.match_configs(
-                test_configs['test_configs'], meta, lab)
+                configs['test_configs'], meta, lab)
             for device_type, plan in configs:
                 if not api.device_type_online(device_type):
                     continue
@@ -234,8 +234,8 @@ class cmd_submit(Command):
     help = "Submit job definitions to a lab"
     args = [Args.lab_config, Args.user, Args.lab_token, Args.jobs]
 
-    def __call__(self, test_configs, lab_configs, args):
-        lab = lab_configs['labs'][args.lab_config]
+    def __call__(self, configs, args):
+        lab = configs['labs'][args.lab_config]
         lab_api = kernelci.lab.get_api(lab, args.user, args.lab_token)
         job_paths = glob.glob(args.jobs)
         res = True
@@ -258,18 +258,7 @@ class cmd_submit(Command):
 #
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser("kci_test")
-    parser.add_argument("--yaml-test-configs",
-                        default="config/core/test-configs.yaml",
-                        help="Path to the YAML test configs file")
-    parser.add_argument("--yaml-lab-configs",
-                        default="config/core/lab-configs.yaml",
-                        help="Path to the YAML lab configs file")
-    parser.add_argument("--settings",
-                        help="Path to the settings file")
-    args = kernelci.cli.parse_args_with_parser(parser, globals())
-    opts = kernelci.cli.make_options(args, parser.prog)
-    test_configs = kernelci.config.test.from_yaml(opts.yaml_test_configs)
-    lab_configs = kernelci.config.lab.from_yaml(opts.yaml_lab_configs)
-    status = opts.command(test_configs, lab_configs, opts)
+    opts = parse_opts("kci_test", globals())
+    configs = kernelci.config.load(opts.yaml_config, opts.verbose)
+    status = opts.command(configs, opts)
     sys.exit(0 if status is True else 1)
