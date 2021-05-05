@@ -76,10 +76,7 @@ class DatabaseFactory(YAMLObject):
         return db_cls.from_yaml(db, kw)
 
 
-def from_yaml(yaml_path):
-    with open(yaml_path) as f:
-        data = yaml.safe_load(f)
-
+def from_yaml(data):
     db_configs = {
         name: DatabaseFactory.from_yaml(name, db)
         for name, db in data['db_configs'].items()

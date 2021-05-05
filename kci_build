@@ -22,7 +22,7 @@ import sys
 from kernelci.cli import Args, Command, parse_opts
 import kernelci
 import kernelci.build
-import kernelci.config.build
+import kernelci.config
 import kernelci.storage
 
 
@@ -428,7 +428,7 @@ class cmd_pull_tarball(Command):
 
 
 if __name__ == '__main__':
-    opts = parse_opts("kci_build", "config/core/build-configs.yaml", globals())
-    configs = kernelci.config.build.from_yaml(opts.yaml_configs)
+    opts = parse_opts("kci_build", globals())
+    configs = kernelci.config.load(opts.yaml_config, opts.verbose)
     status = opts.command(configs, opts)
     sys.exit(0 if status is True else 1)
