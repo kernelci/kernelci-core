@@ -42,6 +42,7 @@ MAKE_TARGETS = {
     'arc': 'uImage',
     'i386': 'bzImage',
     'x86_64': 'bzImage',
+    'mips': 'uImage.gz',
 }
 
 # Hard-coded binary kernel image names for each CPU architecture
