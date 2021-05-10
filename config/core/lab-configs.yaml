@@ -44,6 +44,7 @@ labs:
   lab-collabora:
     lab_type: lava
     url: 'https://lava.collabora.co.uk/RPC2/'
+    priority: '45'
     filters:
       - blocklist:
           tree: [android]
