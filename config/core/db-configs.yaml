@@ -8,6 +8,10 @@ db_configs:
     db_type: kernelci_backend
     url: https://api.staging.kernelci.org/
 
+  chromeos.kernelci.org:
+    db_type: kernelci_backend
+    url: https://api.chromeos.kernelci.org/
+
   localhost:
     db_type: kernelci_backend
     url: http://localhost:5001/
