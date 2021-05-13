@@ -410,6 +410,7 @@ stable_variants: &stable_variants
       x86_64:
         base_defconfig: 'x86_64_defconfig'
         extra_configs: ['allnoconfig']
+        fragments: [x86-chromebook]
 
 preempt_rt_variants: &preempt_rt_variants
   <<: *minimal_variants
