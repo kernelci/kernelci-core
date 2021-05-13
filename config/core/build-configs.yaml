@@ -174,7 +174,7 @@ fragments:
       - 'CONFIG_VIDEO_VIVID=y'
       - 'CONFIG_VIDEO_VIVID_MAX_DEVS=64'
 
-  x86_chromebook:
+  x86-chromebook:
     path: "kernel/configs/x86-chromebook.config"
     configs:
       - 'CONFIG_SERIAL_8250_DW=y'
@@ -305,7 +305,7 @@ build_configs_defaults:
         x86_64: &x86_64_arch
           base_defconfig: 'x86_64_defconfig'
           extra_configs: ['allmodconfig', 'allnoconfig']
-          fragments: [x86_kvm_guest, x86_chromebook]
+          fragments: [x86_kvm_guest, x86-chromebook]
 
   reference:
     tree: mainline
@@ -664,7 +664,7 @@ build_configs:
           arm64: *arm64_defconfig
           x86_64:
             <<: *x86_64_defconfig
-            fragments: [x86_chromebook]
+            fragments: [x86-chromebook]
 
   cip_4.4:
     tree: cip
