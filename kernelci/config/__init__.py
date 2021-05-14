@@ -27,7 +27,7 @@ import kernelci.config.rootfs
 import kernelci.config.test
 
 
-def load_yaml(config_path, verbose=False):
+def load_yaml(config_path):
     """Load the YAML configuration
 
     Load all the YAML files found in the configuration directory into a single
@@ -36,8 +36,6 @@ def load_yaml(config_path, verbose=False):
 
     *config_path* is the path to the YAML config directory, or alternative a
                   single YAML file
-
-    *verbose* is whether to show the names of the YAML files being loaded
     """
     if config_path.endswith('.yaml'):
         yaml_files = [config_path]
@@ -45,8 +43,6 @@ def load_yaml(config_path, verbose=False):
         yaml_files = glob.glob(os.path.join(config_path, "*.yaml"))
     config = dict()
     for yaml_path in yaml_files:
-        if verbose:
-            print("Loading {}".format(yaml_path))
         with open(yaml_path) as yaml_file:
             data = yaml.safe_load(yaml_file)
             for k, v in data.items():
@@ -77,14 +73,13 @@ def from_data(data):
     return config
 
 
-def load(config_path, verbose=False):
+def load(config_path):
     """Load the configuration from YAML files
 
     Load all the YAML files found in the configuration directory then create
     a dictionary containing the configuration objects and return it.
 
     *config_path* is the path to the YAML config directory
-    *verbose* is whether to show the names of the YAML files being loaded
     """
-    data = load_yaml(config_path, verbose)
+    data = load_yaml(config_path)
     return from_data(data)
