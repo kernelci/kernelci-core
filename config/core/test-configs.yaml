@@ -49,6 +49,12 @@ file_systems:
     type: debian
     ramdisk: 'buster-igt/20210503.0/{arch}/rootfs.cpio.gz'
 
+  debian_buster_kselftest:
+    type: debian
+    ramdisk: 'buster-kselftest/20210514.0/{arch}/rootfs.cpio.gz'
+    nfs: 'buster-kselftest/20210514.0/{arch}/full.rootfs.tar.xz'
+    root_type: nfs
+
   debian_buster-v4l2_ramdisk:
     type: debian
     ramdisk: 'buster-v4l2/20210503.0/{arch}/rootfs.cpio.gz'
@@ -183,7 +189,7 @@ test_plans:
         panfrost_submit
 
   kselftest: &kselftest
-    rootfs: debian_buster_nfs
+    rootfs: debian_buster_kselftest
     pattern: 'kselftest/{category}-{method}-{protocol}-{rootfs}-kselftest-template.jinja2'
     filters:
       - passlist: {defconfig: ['kselftest']}
