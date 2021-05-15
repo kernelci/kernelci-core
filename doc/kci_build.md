@@ -1,16 +1,16 @@
 ---
 title: "kci_build"
 date: 2021-02-10T11:48:13Z
-draft: true
+draft: false
 description: "Command line tool to build the Linux kernel"
 ---
 
 The
-[`kci_build`](https://github.com/kernelci/kernelci-core/blob/master/kci_build)
+[`kci_build`](https://github.com/kernelci/kernelci-core/blob/main/kci_build)
 tool is used to run all the KernelCI steps related to building kernels with
 extras: getting the source, creating the config file, building the binaries,
 generating meta-data files and pushing the binaries to a storage server.  The
-[`build-configs.yaml`](https://github.com/kernelci/kernelci-core/blob/master/build-configs.yaml)
+[`build-configs.yaml`](https://github.com/kernelci/kernelci-core/blob/main/config/core/build-configs.yaml)
 file contains the definitions of which kernel branches should be built and with
 which combinations of compilers, architectures, kernel configurations.
 
@@ -100,8 +100,8 @@ various `kci_build make_*` commands to perform each separate build step.  The
 main difference between doing this with `kci_build` and manually calling
 `make`, is that `kci_build` will also generate some meta-data that can be send
 to the backend API and used when generating tests.  The example below uses the
-[settings file](#1-local-settings-file) with the build configuration and
-defconfig passed as command line arguments.
+[local settings file](#1-local-settings-file) mentioned previously with the
+build configuration and defconfig passed as command line arguments.
 
 First, `init_bmeta` will create the basic build meta-data with the CPU
 architecture, the compiler type, the build configuration and the kernel
