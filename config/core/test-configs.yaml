@@ -2178,7 +2178,6 @@ test_configs:
   - device_type: r8a7796-m3ulcb
     test_plans: &r8a7796-m3ulcb_test-plans
       - baseline
-      - usb
 
   - device_type: r8a77960-ulcb  # same as r8a7796-m3ulcb
     test_plans: *r8a7796-m3ulcb_test-plans
