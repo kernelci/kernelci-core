@@ -307,7 +307,10 @@ build_configs_defaults:
 
         x86_64: &x86_64_arch
           base_defconfig: 'x86_64_defconfig'
-          extra_configs: ['allmodconfig', 'allnoconfig']
+          extra_configs:
+            - 'allmodconfig'
+            - 'allnoconfig'
+            - 'x86_64_defconfig+x86-chromebook+kselftest'
           fragments: [x86_kvm_guest, x86-chromebook]
 
   reference:
