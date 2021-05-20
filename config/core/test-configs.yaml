@@ -1663,6 +1663,9 @@ test_configs:
       - baseline-nfs
       - cros-ec
       - igt-gpu-i915
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
       - ltp-crypto
       - ltp-ipc
       - ltp-mm
