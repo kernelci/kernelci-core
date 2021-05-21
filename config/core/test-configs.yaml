@@ -1785,6 +1785,9 @@ test_configs:
       - baseline
       - baseline-nfs
       - cros-ec
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
       - sleep
 
   - device_type: hp-x360-12b-n4000-octopus
