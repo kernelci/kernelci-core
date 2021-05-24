@@ -1748,11 +1748,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - kselftest-filesystems
       - kselftest-futex
-      - kselftest-lib
-      - ltp-crypto
-      - ltp-fcntl-locktests
       - ltp-pty
 
   - device_type: hp-11A-G6-EE-grunt
