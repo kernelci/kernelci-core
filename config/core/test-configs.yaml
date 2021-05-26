@@ -1836,13 +1836,13 @@ test_configs:
   - device_type: imx6q-sabrelite
     test_plans:
       - baseline
+
+  - device_type: imx6q-sabrelite
+    test_plans:
       - baseline-nfs
-      - ltp-crypto
-      - ltp-ipc
-      - ltp-mm
-      - ltp-timers
-      - sleep
-      - usb
+    filters:
+      - passlist:
+          lab: [lab-baylibre]
 
   - device_type: imx6q-sabresd
     test_plans:
