@@ -45,6 +45,7 @@ def match_configs(configs, meta, lab):
         'build_environment': env['name'],
         'tree': rev['tree'],
         'branch': rev['branch'],
+        'lab': lab.name,
     }
 
     flags = {
