@@ -1788,6 +1788,12 @@ test_configs:
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
+      - ltp-crypto
+      - ltp-fcntl-locktests
+      - ltp-ipc
+      - ltp-mm
+      - ltp-pty
+      - ltp-timers
       - sleep
 
   - device_type: hp-x360-12b-n4000-octopus
