@@ -11,7 +11,7 @@ trees:
     url: "https://git.linaro.org/people/alex.bennee/linux.git"
 
   amlogic:
-    url: "https://git.kernel.org/pub/scm/linux/kernel/git/khilman/linux-amlogic.git"
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/amlogic/linux.git"
 
   android:
     url: "https://android.googlesource.com/kernel/common"
