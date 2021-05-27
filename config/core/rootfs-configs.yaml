@@ -135,6 +135,8 @@ rootfs_configs:
       - amd64
       - arm64
       - armhf
+    extra_packages:
+      - libnuma-dev
     script: "scripts/buster-ltp.sh"
 
   buster-v4l2:
