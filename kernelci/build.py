@@ -21,6 +21,7 @@ import itertools
 import json
 import os
 import platform
+import re
 import shutil
 import tarfile
 import time
@@ -34,6 +35,9 @@ from kernelci.storage import upload_files
 # This is used to get the mainline tags as a minimum for git describe
 TORVALDS_GIT_URL = \
     "git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
+
+CROS_CONFIG_URL = \
+    "https://chromium.googlesource.com/chromiumos/third_party/kernel/+archive/refs/heads/{branch}/chromeos/config.tar.gz"  # noqa
 
 # Hard-coded make targets for each CPU architecture
 MAKE_TARGETS = {
@@ -1065,6 +1069,19 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
             cmd = self._output_to_file(cmd, self._log_path, self._kdir)
         return shell_cmd(cmd, True)
 
+    def _create_cros_config(self, config):
+        [(branch, config)] = re.findall(r"cros://([\w\-.]+)/(.*)", config)
+        cros_config = os.path.join(self._output_path, "cros-config.tgz")
+        url = CROS_CONFIG_URL.format(branch=branch)
+        if not _download_file(url, cros_config):
+            raise FileNotFoundError("Error reading {}".format(url))
+        tar = tarfile.open(cros_config)
+        with open(os.path.join(self._output_path, ".config"), 'wb') as f:
+            f.write(tar.extractfile("base.config").read())
+            f.write(tar.extractfile(os.path.join(os.path.dirname(config),
+                                    "common.config")).read())
+            f.write(tar.extractfile(config).read())
+
     def run(self, jopt=None, verbose=False, opts=None):
         """Make the kernel config
 
@@ -1114,6 +1131,10 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
             'defconfig_extras': extras,
             'publish_path': publish_path,
         }
+
+        if target.startswith("cros://"):
+            self._create_cros_config(target)
+            target = "olddefconfig"
 
         res = self._make(target, jopt, verbose, opts)
 
