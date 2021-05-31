@@ -40,6 +40,9 @@ CIP_CONFIG_URL = \
     "https://gitlab.com/cip-project/cip-kernel/cip-kernel-config/-\
 /raw/master/{branch}/{config}"
 
+CROS_CONFIG_URL = \
+    "https://chromium.googlesource.com/chromiumos/third_party/kernel/+archive/refs/heads/{branch}/chromeos/config.tar.gz"  # noqa
+
 # Hard-coded make targets for each CPU architecture
 MAKE_TARGETS = {
     'arm': 'zImage',
@@ -1087,6 +1090,19 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
         if not _download_file(url, cip_config):
             raise FileNotFoundError("Error reading {}".format(url))
 
+    def _create_cros_config(self, config):
+        [(branch, config)] = re.findall(r"cros://([\w\-.]+)/(.*)", config)
+        cros_config = os.path.join(self._output_path, "cros-config.tgz")
+        url = CROS_CONFIG_URL.format(branch=branch)
+        if not _download_file(url, cros_config):
+            raise FileNotFoundError("Error reading {}".format(url))
+        tar = tarfile.open(cros_config)
+        with open(os.path.join(self._output_path, ".config"), 'wb') as f:
+            f.write(tar.extractfile("base.config").read())
+            f.write(tar.extractfile(os.path.join(os.path.dirname(config),
+                                    "common.config")).read())
+            f.write(tar.extractfile(config).read())
+
     def run(self, jopt=None, verbose=False, opts=None):
         """Make the kernel config
 
@@ -1141,6 +1157,9 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
 
         if target.startswith("cip://"):
             self._create_cip_config(target)
+            res = self._make('olddefconfig', jopt, verbose, opts)
+        elif target.startswith("cros://"):
+            self._create_cros_config(target)
             res = self._make('olddefconfig', jopt, verbose, opts)
         else:
             res = self._make(target, jopt, verbose, opts)
