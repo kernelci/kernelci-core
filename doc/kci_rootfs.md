@@ -86,7 +86,7 @@ rootfs name along with its architecture.
     ```
     ./kci_rootfs build \
         --rootfs-config buster \
-        --data-path jenkins/debian/debos \
+        --data-path config/rootfs/debos \
         --arch i386
     ```
 
@@ -100,10 +100,10 @@ rootfs name along with its architecture.
     Powering off.
     ==== Recipe done ====
     ```
-    Finally newly built rootfs images can be found under the directory pointed by `--data-path`. In our case, its `jenkins/debian/debos/buster/i386/`
+    Finally newly built rootfs images can be found under the directory pointed by `--data-path`. In our case, its `config/rootfs/debos/buster/i386/`
 
     ```
-    $ ls jenkins/debian/debos/buster/i386/
+    $ ls config/rootfs/debos/buster/i386/
     build_info.json  full.rootfs.cpio.gz  full.rootfs.tar.xz  initrd.cpio.gz  rootfs.cpio.gz  rootfs.ext4.xz
     ```
 
@@ -148,14 +148,14 @@ Now you know how to build default `kci_rootfs` images. Let's look at how to add 
     ```
     ./kci_rootfs build \
         --rootfs-config buster-example \
-        --data-path jenkins/debian/debos \
+        --data-path config/rootfs/debos \
         --arch amd64
     ```
     and wait for its completion. If everything went fine you should see
-    something like below under `jenkins/debian/debos/buster-example/amd64/`
+    something like below under `config/rootfs/debos/buster-example/amd64/`
     directory.
 
     ```
-    ls jenkins/debian/debos/buster-example/amd64/
+    ls config/rootfs/debos/buster-example/amd64/
     build_info.json  full.rootfs.cpio.gz  full.rootfs.tar.xz  initrd.cpio.gz  rootfs.cpio.gz  rootfs.ext4.xz
     ```
