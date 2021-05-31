@@ -193,6 +193,7 @@ test_plans:
     params:
       job_timeout: '10'
       kselftest_collections: "futex"
+      kselftest_skipfile: "skipfile-futex.yaml"
 
   kselftest-lib:
     <<: *kselftest
