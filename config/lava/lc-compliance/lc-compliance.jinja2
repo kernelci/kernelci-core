@@ -1,0 +1,19 @@
+- test:
+    timeout:
+      minutes: 15
+    definitions:
+    - repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: {{ plan }}
+          description: "lc-compliance test plan"
+          os:
+          - debian
+          scope:
+          - functional
+        run:
+          steps:
+          - /usr/bin/lc-compliance-parser.sh
+      from: inline
+      name: {{ plan }}
+      path: inline/{{ plan }}.yaml
