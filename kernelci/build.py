@@ -540,7 +540,7 @@ class Metadata:
         """
         self._steps.append(data)
         total_duration = sum(s['duration'] for s in self._steps)
-        all_status = set(s['status'] for s in self._steps)
+        all_status = set(s['status'] for s in self._steps if s['critical'])
         self._bmeta['build'] = {
             'duration': total_duration,
             'status': 'PASS' if all_status == {'PASS'} else 'FAIL'
@@ -726,7 +726,7 @@ class Step:
                 res = False
         return res
 
-    def _add_run_step(self, status, jopt=None, action=''):
+    def _add_run_step(self, status, jopt=None, action='', critical=True):
         start_time = datetime.fromtimestamp(self._start_time).isoformat()
         run_data = {
             'name': ' '.join([self.name, action]) if action else self.name,
@@ -739,6 +739,7 @@ class Step:
             run_data['threads'] = str(jopt)
         if self._log_path and os.path.exists(self._log_path):
             run_data['log_file'] = self._log_file
+        run_data['critical'] = critical
         run_data['status'] = "PASS" if status is True else "FAIL"
         self._meta.add_step(run_data)
         self._meta.save(save_artifacts=False)
@@ -787,8 +788,6 @@ class Step:
     def _get_make_opts(self, opts, make_path):
         env = self._meta.get('bmeta', 'environment')
         make_opts = env['make_opts'].copy()
-        if opts:
-            make_opts.update(opts)
 
         arch = env['arch']
         make_opts['ARCH'] = arch
@@ -818,6 +817,9 @@ class Step:
         if self._output_path and (self._output_path != make_path):
             # due to kselftest Makefile issues, O= cannot be a relative path
             make_opts['O'] = format(os.path.abspath(self._output_path))
+
+        if opts:
+            make_opts.update(opts)
 
         return make_opts
 
@@ -871,7 +873,7 @@ class Step:
         """
         raise NotImplementedError("Step.run() needs to be implemented.")
 
-    def install(self, verbose=False, status=True):
+    def install(self, verbose=False, status=True, critical=True):
         """Base method to install the build artifacts.
 
         The default behaviour is to install bmeta.json and steps.json in the
@@ -881,7 +883,7 @@ class Step:
         *verbose* is whether to show what is being installed
         *status* is True if install commands succeeded, False otherwise
         """
-        self._add_run_step(status, action='install')
+        self._add_run_step(status, action='install', critical=critical)
         files = [
             (self._meta.bmeta_path, '', ''),
             (self._meta.steps_path, '', ''),
@@ -983,6 +985,7 @@ class EnvironmentData(Step):
             'platform': platform_data,
             'use_ccache': shell_cmd("which ccache > /dev/null", True),
             'make_opts': make_opts,
+            'build_perf': build_env.get_build_perf(arch)
         }
         return self._add_run_step(True)
 
@@ -1383,6 +1386,55 @@ class MakeDeviceTrees(Step):
         dtb_list = self._install_dtbs(verbose)
         self._add_artifact_contents('directory', 'dtbs', dtb_list)
         return super().install(verbose)
+
+
+class MakePerf(Step):
+
+    @property
+    def name(self):
+        return 'perf'
+
+    def is_enabled(self):
+        """Check whether the perf is enabled in .config
+
+        Return True if CONFIG_PERF_EVENTS is in kernel config and build_perf
+        is enabled in enviromnent, or False otherwise.
+        """
+        env = self._meta.get('bmeta', 'environment')
+        return self._kernel_config_enabled('PERF_EVENTS') and env['build_perf']
+
+    def run(self, jopt=None, verbose=False, opts=None):
+        """Make the perf tool
+
+        Make the kernel perf tool and produce a binary.
+
+        *jopt* is the `make -j` option which will default to `nproc + 2`
+        *verbose* is whether the build output should be shown
+        """
+        # requires output to be in tools/perf so overwrite it here.
+        opts = {
+            'O': '',
+        }
+        res = self._make('perf', jopt, verbose, opts, 'tools/perf')
+        return self._add_run_step(res, jopt, critical=False)
+
+    def install(self, verbose=False):
+        """Install the perf binary
+
+        Install the perf binary
+
+        *verbose* is whether the build output should be shown
+        """
+        perf = os.path.join(self._kdir, 'tools/perf/perf')
+
+        res = os.path.exists(perf)
+        if res:
+            cc = self._meta.get('bmeta', 'environment', 'cross_compile')
+            shell_cmd("{cc}strip {target}".format(cc=cc, target=perf))
+            base = self._install_file(perf, verbose=verbose)
+            self._add_artifact_contents('binary', base, ['perf'])
+
+        return super().install(verbose, res, critical=False)
 
 
 class MakeSelftests(Step):

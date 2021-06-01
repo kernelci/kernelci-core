@@ -398,6 +398,11 @@ class cmd_make_kselftest(MakeCommand):
     step_cls = kernelci.build.MakeSelftests
 
 
+class cmd_make_perf(MakeCommand):
+    help = "Build perf"
+    step_cls = kernelci.build.MakePerf
+
+
 class cmd_push_kernel(Command):
     help = "Push the kernel build artifacts"
     args = [Args.kdir, Args.api, Args.db_token]

@@ -252,6 +252,10 @@ class BuildEnvironment(YAMLObject):
         params = self._arch_params.get(arch) or dict()
         return params.get('cross_compile_compat', '')
 
+    def get_build_perf(self, arch):
+        params = self._arch_params.get(arch) or dict()
+        return params.get('build_perf', False)
+
 
 class BuildVariant(YAMLObject):
     """A variant of a given build configuration."""

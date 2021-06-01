@@ -278,15 +278,19 @@ build_environments:
         cross_compile: 'arc-elf32-'
       arm: &arm_params
         cross_compile: 'arm-linux-gnueabihf-'
+        build_perf: true
       arm64: &arm64_params
         cross_compile: 'aarch64-linux-gnu-'
         cross_compile_compat: 'arm-linux-gnueabihf-'
+        build_perf: true
       i386: &i386_params
         name: 'x86'
+        build_perf: true
       mips: &mips_params
         cross_compile: 'mips-linux-gnu-'
       x86_64: &x86_64_params
         name: 'x86'
+        build_perf: true
       riscv: &riscv_params
         name: 'riscv64'
         cross_compile: 'riscv64-linux-gnu-'
@@ -297,9 +301,11 @@ build_environments:
     arch_params: &clang_arch_params
       arm:
         <<: *arm_params
+        build_perf: false
         name:
       arm64:
         <<: *arm64_params
+        build_perf: false
         name:
       i386:
         <<: *i386_params

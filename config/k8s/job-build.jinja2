@@ -94,7 +94,8 @@ set -x; \
 ./kci_build make_kernel && \
 ./kci_build make_modules && \
 ./kci_build make_dtbs && \
-./kci_build make_kselftest; \
+./kci_build make_kselftest && \
+./kci_build make_perf; \
 export KERNEL_BUILD_RESULT=$?;
 \
 set +x; \

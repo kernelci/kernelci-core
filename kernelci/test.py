@@ -115,6 +115,11 @@ def get_params(meta, target, plan_config, storage):
         urllib.parse.urljoin(storage, '/'.join([url_px, kselftests]))
         if kselftests else None
     )
+    perf = meta.get_single_artifact('perf', attr='path')
+    perf_url = (
+        urllib.parse.urljoin(storage, '/'.join([url_px, perf]))
+        if perf else None
+    )
 
     params = {
         'name': job_name,
@@ -150,6 +155,7 @@ def get_params(meta, target, plan_config, storage):
         'file_server_resource': publish_path,
         'build_environment': meta.get('bmeta', 'environment', 'name'),
         'kselftests_url': kselftests_url,
+        'perf': perf_url,
     }
 
     params.update(rootfs.params)
