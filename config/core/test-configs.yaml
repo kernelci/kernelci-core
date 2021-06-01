@@ -63,6 +63,12 @@ file_systems:
     type: debian
     ramdisk: 'buster-v4l2/20210520.0/{arch}/rootfs.cpio.gz'
 
+  debian_buster-libcamera_nfs:
+    type: debian
+    ramdisk: 'buster-libcamera/20210611.1/{arch}/initrd.cpio.gz'
+    nfs: 'buster-libcamera/20210611.1/{arch}/full.rootfs.tar.xz'
+    root_type: nfs
+
   debian_buster-ltp_nfs:
     type: debian
     ramdisk: 'buster-ltp/20210520.0/{arch}/initrd.cpio.gz'
@@ -290,6 +296,11 @@ test_plans:
             - 'defconfig+virtualvideo'
             - 'multi_v7_defconfig+virtualvideo'
 
+  lc-compliance:
+    rootfs: debian_buster-libcamera_nfs
+    pattern: 'lc-compliance/{category}-{method}-{protocol}-{rootfs}-lc-compliance-template.jinja2'
+    params:
+      job_timeout: '45'
 
 device_default_filters:
 
@@ -2066,6 +2077,7 @@ test_configs:
       - baseline
       - baseline-nfs
       - cros-ec
+      - lc-compliance
       - sleep
       - v4l2-compliance-uvc
 
