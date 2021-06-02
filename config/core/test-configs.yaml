@@ -20,6 +20,11 @@ file_system_types:
       armhf: [{arch: arm}]
       amd64: [{arch: x86_64}]
 
+  debian-staging:
+    url: 'http://storage.staging.kernelci.org/images/rootfs/debian'
+    arch_map:
+      armhf: [{arch: arm}]
+      amd64: [{arch: x86_64}]
 
 file_systems:
 
@@ -60,9 +65,9 @@ file_systems:
     ramdisk: 'buster-v4l2/20210520.0/{arch}/rootfs.cpio.gz'
 
   debian_buster-ltp_nfs:
-    type: debian
-    ramdisk: 'buster-ltp/20210520.0/{arch}/initrd.cpio.gz'
-    nfs: 'buster-ltp/20210520.0/{arch}/full.rootfs.tar.xz'
+    type: debian-staging
+    ramdisk: 'buster-ltp/20210601.0/{arch}/initrd.cpio.gz'
+    nfs: 'buster-ltp/20210601.0/{arch}/full.rootfs.tar.xz'
     root_type: nfs
 
 
