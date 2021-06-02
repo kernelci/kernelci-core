@@ -21,6 +21,6 @@
       name: {{ plan }}
       parameters:
         TESTPROG_URL: {{ kselftests_url }}
-        SKIPFILE: {{ kselftest_skipfile }}
+        SKIPFILE: {{ kselftest_skipfile|default("skipfile-lkft.yaml", true) }}
         TST_CMDFILES: {{ kselftest_collections }}
         TST_CASENAME: {{ kselftest_tests }}
