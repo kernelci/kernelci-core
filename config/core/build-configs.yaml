@@ -237,7 +237,7 @@ build_environments:
   clang-12:
     cc: clang
     cc_version: 12
-    arch_params:
+    arch_params: &clang_12_arch_params
       <<: *clang_arch_params
       riscv:
         <<: *riscv_params
@@ -246,6 +246,11 @@ build_environments:
           LLVM_IAS: '1'
           LD: 'riscv64-linux-gnu-ld'
 
+  clang-13:
+    cc: clang
+    cc_version: 13
+    arch_params:
+      <<: *clang_12_arch_params
 
 # Default config with full build coverage
 build_configs_defaults:
