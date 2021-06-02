@@ -59,6 +59,12 @@ file_systems:
     nfs: 'buster-kselftest/20210520.0/{arch}/full.rootfs.tar.xz'
     root_type: nfs
 
+  debian_buster-libcamera_nfs:
+    type: debian-staging
+    ramdisk: 'buster-libcamera/20210603.0/{arch}/initrd.cpio.gz'
+    nfs: 'buster-libcamera/20210603.0/{arch}/full.rootfs.tar.gz'
+    rootfs_type: nfs
+
   debian_buster-v4l2_ramdisk:
     type: debian
     ramdisk: 'buster-v4l2/20210520.0/{arch}/rootfs.cpio.gz'
