@@ -14,12 +14,16 @@ file_system_types:
       x86:     [{arch: i386}, {arch: x86_64}]
       mipsel:  [{arch: mips}]
 
-  debian:
+  debian: &debian
     url: 'http://storage.kernelci.org/images/rootfs/debian'
     arch_map:
       armhf: [{arch: arm}]
       amd64: [{arch: x86_64}]
 
+  # Convenience to test new rootfs images on staging.kernelci.org
+  debian-staging:
+    <<: *debian
+    url: 'http://storage.staging.kernelci.org/images/rootfs/debian'
 
 file_systems:
 
