@@ -731,6 +731,26 @@ build_configs:
       clang-13:
         build_environment: clang-13
         architectures: *arch_clang_configs
+      chromeos-configs: &chromeos_configs
+        build_environment: clang-13
+        architectures:
+            arm:
+              base_defconfig: 'cros://chromeos-5.10/armel/chromiumos-arm.flavour.config'
+              extra_configs:
+                - 'cros://chromeos-5.10/armel/chromiumos-rockchip.flavour.config'
+            arm64:
+              base_defconfig: 'cros://chromeos-5.10/arm64/chromiumos-arm64.flavour.config'
+              extra_configs:
+                - 'cros://chromeos-5.10/arm64/chromiumos-mediatek.flavour.config'
+                - 'cros://chromeos-5.10/arm64/chromiumos-qualcomm.flavour.config'
+                - 'cros://chromeos-5.10/arm64/chromiumos-rockchip64.flavour.config'
+            x86_64:
+              base_defconfig: 'cros://chromeos-5.10/x86_64/chromiumos-x86_64.flavour.config'
+              extra_configs:
+                - 'cros://chromeos-5.10/x86_64/chromeos-amd-stoneyridge.flavour.config'
+                - 'cros://chromeos-5.10/x86_64/chromeos-intel-denverton.flavour.config'
+                - 'cros://chromeos-5.10/x86_64/chromeos-intel-pineview.flavour.config'
+
 
   media:
     tree: media
@@ -794,6 +814,10 @@ build_configs:
             filters:
               - passlist:
                   defconfig: *riscv_clang_configs
+
+      # ChromeOS configs
+      chromeos_configs:
+        <<: *chromeos_configs
 
   next_pending-fixes:
     tree: next
