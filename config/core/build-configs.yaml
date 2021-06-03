@@ -849,26 +849,28 @@ build_configs:
         fragments: [kselftest]
         architectures:
           arc: *arc_defconfig
-          arm: *arm_defconfig
-          arm64: *arm64_defconfig
+          arm:
+            <<: *arm_defconfig
+            fragments: [crypto]
+          arm64:
+            <<: *arm64_defconfig
+            fragments: [crypto]
           i386: *i386_defconfig
           mips: *mips_defconfig
           riscv: *riscv_defconfig
-          x86_64:
+          x86_64: &x86_64_defconfig-staging
             <<: *x86_64_defconfig
-            fragments: [x86-chromebook]
-            extra_configs: ['x86_64_defconfig+x86-chromebook+kselftest']
+            fragments: [x86-chromebook, crypto]
+            extra_configs:
+              - x86_64_defconfig+x86-chromebook+kselftest
+              - x86_64_defconfig+x86-chromebook+crypto
       clang-10: &staging_clang
         build_environment: clang-10
         fragments: [kselftest]
         architectures:
           arm: *arm_defconfig
           arm64: *arm64_defconfig
-          x86_64:
-            <<: *x86_64_defconfig
-            fragments: [x86-chromebook]
-            extra_configs: ['x86_64_defconfig+x86-chromebook+kselftest']
-
+          x86_64: *x86_64_defconfig-staging
 
   kernelci_staging-next:
     tree: kernelci
