@@ -251,6 +251,15 @@ test_plans:
       <<: *ltp-params
       tst_cmdfiles: "fcntl-locktests"
 
+  ltp-ima:
+    <<: *ltp
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "ima"
+    filters:
+      - passlist:
+          defconfig:
+            - 'defconfig+ltp-ima'
   ltp-mm:
     <<: *ltp
     params:
@@ -1731,6 +1740,7 @@ test_configs:
       - kselftest-lkdtm
       - kselftest-seccomp
       - ltp-crypto
+      - ltp-ima
       - ltp-ipc
       - ltp-mm
       - sleep_mem
