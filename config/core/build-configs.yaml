@@ -154,6 +154,13 @@ fragments:
   kselftest:
     path: "kernel/configs/kselftest.config"
 
+  ltp-ima:
+    path: "kernel/configs/ltp-ima.config"
+    configs:
+      - 'CONFIG_INTEGRITY=y'
+      - 'CONFIG_IMA=y'
+      - 'CONFIG_IMA_READ_POLICY=y'
+
   preempt_rt:
     path: "kernel/configs/preempt_rt.config"
     configs:
@@ -261,6 +268,7 @@ build_configs_defaults:
         - 'debug'
         - 'kselftest'
         - 'tinyconfig'
+        - 'ltp-ima'
 
       architectures: &default_architectures
 
