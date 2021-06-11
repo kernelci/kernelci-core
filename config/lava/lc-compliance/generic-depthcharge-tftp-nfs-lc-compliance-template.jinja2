@@ -1,0 +1,8 @@
+{% extends 'boot-nfs/generic-depthcharge-tftp-nfs-template.jinja2' %}
+
+{% block actions %}
+{{ super () }}
+
+{% include 'lc-compliance/lc-compliance.jinja2' %}
+
+{% endblock %}
