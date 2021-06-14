@@ -1110,16 +1110,16 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
 
         bmeta = self._meta.get('bmeta')
         rev, env = (bmeta[cat] for cat in ('revision', 'environment'))
-        publish_path = '/'.join(item.replace('/', '-') for item in [
-            rev['tree'],
-            rev['branch'],
-            rev['describe'],
-            env['arch'],
-            defconfig,
-            env['name'],
-        ])
-
-        publish_path = publish_path.replace(':', '-')
+        publish_path = '/'.join((
+            re.sub(r'[\/:]', '-', item).lower() for item in [
+                rev['tree'],
+                rev['branch'],
+                rev['describe'],
+                env['arch'],
+                defconfig,
+                env['name'],
+            ])
+        )
 
         bmeta['kernel'] = {
             'defconfig': target,
