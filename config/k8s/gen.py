@@ -27,7 +27,7 @@ if frag:
     job_name += "-{}".format(frag)
 
 # job name can only have '-'
-job_name = re.sub('[\./_+=]', '-', job_name).lower()
+job_name = re.sub('[\./_+=:]', '-', job_name).lower()
 
 # k8s limits job-name to max 63 chars (and be sure it doesn't end with '-')
 job_name = job_name[0:63].rstrip('-')
