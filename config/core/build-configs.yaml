@@ -454,8 +454,6 @@ android_variants: &android_variants
       i386: *i386_arch
       riscv: *riscv_arch
 
-
-
 chromeos_variants:
   clang-13: &chromeos-configs
     build_environment: clang-13
@@ -476,9 +474,10 @@ chromeos_variants:
       x86_64:
         base_defconfig: 'cros://chromeos-5.10/x86_64/chromiumos-x86_64.flavour.config'
         extra_configs:
-          - 'cros://chromeos-5.10/x86_64/chromeos-amd-stoneyridge.flavour.config'
-          - 'cros://chromeos-5.10/x86_64/chromeos-intel-denverton.flavour.config'
-          - 'cros://chromeos-5.10/x86_64/chromeos-intel-pineview.flavour.config'
+          - 'cros://chromeos-5.10/x86_64/chromeos-amd-stoneyridge.flavour.config+x86-chromebook'
+          - 'cros://chromeos-5.10/x86_64/chromeos-intel-denverton.flavour.config+x86-chromebook'
+          - 'cros://chromeos-5.10/x86_64/chromeos-intel-pineview.flavour.config+x86-chromebook'
+        fragments: [x86-chromebook]
         filters: *cros-filters
 
 
