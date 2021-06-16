@@ -62,6 +62,8 @@ labs:
             - kselftest-filesystems
             - kselftest-futex
             - kselftest-lib
+            - kselftest-lkdtm
+            - kselftest-seccomp
             - lc-compliance
             - ltp-crypto
             - ltp-fcntl-locktests
