@@ -1709,6 +1709,8 @@ test_configs:
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
+      - kselftest-lkdtm
+      - kselftest-seccomp
       - ltp-crypto
       - ltp-ipc
       - ltp-mm
@@ -1831,6 +1833,8 @@ test_configs:
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
+      - kselftest-lkdtm
+      - kselftest-seccomp
       - ltp-crypto
       - ltp-fcntl-locktests
       - ltp-ipc
