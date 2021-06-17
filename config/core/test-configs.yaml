@@ -216,7 +216,7 @@ test_plans:
       job_timeout: '10'
       kselftest_collections: "lkdtm"
 
-kselftest-seccomp:
+  kselftest-seccomp:
     <<: *kselftest
     params:
       job_timeout: '10'
