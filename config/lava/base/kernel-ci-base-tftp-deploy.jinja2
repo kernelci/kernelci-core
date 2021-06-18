@@ -35,5 +35,5 @@ actions:
     dtb:
       url: {{ dtb_url }}
 {%- endif %}
-    os: oe
+    os: {{ os_config|default("oe") }}
 {% endblock %}
