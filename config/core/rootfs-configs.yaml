@@ -105,6 +105,7 @@ rootfs_configs:
       - arm64
       - armhf
     extra_packages:
+      - bc
       - ca-certificates
       - iproute2
       - jdim
