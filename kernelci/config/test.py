@@ -212,7 +212,7 @@ class RootFS(YAMLObject):
     """Root file system model."""
 
     def __init__(self, url_formats, fs_type, boot_protocol='tftp',
-                 root_type=None, prompt="/ #"):
+                 root_type=None, prompt="/ #", params=None):
         """A root file system is any user-space that can be used in test jobs.
 
         *url_formats* are a dictionary with a format string for each type of
@@ -231,18 +231,22 @@ class RootFS(YAMLObject):
 
         *prompt* is a string used in the job definition to tell when the
                  user-space is available to run some commands.
+
+        *params" is a dictionary with parameters to pass to the test job
+                 generator.
         """
         self._url_format = url_formats
         self._fs_type = fs_type
         self._root_type = root_type or list(url_formats.keys())[0]
         self._boot_protocol = boot_protocol
         self._prompt = prompt
+        self._params = params or dict()
         self._arch_dict = {}
 
     @classmethod
     def from_yaml(cls, file_system_types, rootfs):
         kw = cls._kw_from_yaml(rootfs, [
-            'boot_protocol', 'root_type', 'prompt'])
+            'boot_protocol', 'root_type', 'prompt', 'params'])
         fs_type = file_system_types[rootfs['type']]
         base_url = fs_type.url
         kw['fs_type'] = fs_type
@@ -264,6 +268,10 @@ class RootFS(YAMLObject):
     @property
     def root_type(self):
         return self._root_type
+
+    @property
+    def params(self):
+        return dict(self._params)
 
     def get_url(self, fs_type, arch, endian):
         """Get the URL of the file system for the given variant and arch.

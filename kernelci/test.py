@@ -152,6 +152,7 @@ def get_params(meta, target, plan_config, storage):
         'kselftests_url': kselftests_url,
     }
 
+    params.update(rootfs.params)
     params.update(plan_config.params)
     params.update(target.params)
 
