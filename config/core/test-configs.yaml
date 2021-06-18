@@ -58,6 +58,8 @@ file_systems:
     ramdisk: 'buster-kselftest/20210520.0/{arch}/initrd.cpio.gz'
     nfs: 'buster-kselftest/20210520.0/{arch}/full.rootfs.tar.xz'
     root_type: nfs
+    params:
+      os_config: 'debian'
 
   debian_buster-v4l2_ramdisk:
     type: debian
@@ -189,8 +191,6 @@ test_plans:
     pattern: 'kselftest/{category}-{method}-{protocol}-{rootfs}-kselftest-template.jinja2'
     filters:
       - passlist: {defconfig: ['kselftest']}
-    params:
-      job_timeout: '120'
 
   kselftest-filesystems:
     <<: *kselftest
