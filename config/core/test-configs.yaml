@@ -642,6 +642,13 @@ device_types:
       - blocklist:
           kernel: ['v4.14']
 
+  i945gsex-qs:
+    mach: x86
+    arch: i386
+    boot_method: grub
+    filters:
+      - passlist: {defconfig: ['i386_defconfig']}
+
   imx23-olinuxino:
     mach: imx
     class: arm-dtb
@@ -1858,6 +1865,10 @@ test_configs:
       - sleep_mem
 
   - device_type: hsdk
+    test_plans:
+      - baseline
+
+  - device_type: i945gsex-qs
     test_plans:
       - baseline
 
