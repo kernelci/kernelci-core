@@ -1828,6 +1828,7 @@ test_configs:
       - baseline
       - baseline-nfs
       - cros-ec
+      - igt-gpu-i915
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
