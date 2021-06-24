@@ -54,9 +54,9 @@ file_systems:
     ramdisk: 'buster-igt/20210520.0/{arch}/rootfs.cpio.gz'
 
   debian_buster_kselftest:
-    type: debian
-    ramdisk: 'buster-kselftest/20210520.0/{arch}/initrd.cpio.gz'
-    nfs: 'buster-kselftest/20210520.0/{arch}/full.rootfs.tar.xz'
+    type: debian-staging
+    ramdisk: 'buster-kselftest/20210618.0/{arch}/initrd.cpio.gz'
+    nfs: 'buster-kselftest/20210618.0/{arch}/full.rootfs.tar.xz'
     root_type: nfs
 
   debian_buster-v4l2_ramdisk:
