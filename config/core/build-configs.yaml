@@ -737,6 +737,17 @@ build_configs:
           arm64: *arm64_arch
           x86_64: *x86_64_arch
 
+  cip_5.10:
+    tree: cip
+    branch: 'linux-5.10.y-cip'
+    variants:
+      gcc-8:
+        build_environment: gcc-8
+        architectures:
+          arm: *arm_arch
+          arm64: *arm64_arch
+          x86_64: *x86_64_arch
+
   clk:
     tree: clk
     branch: 'clk-next'
