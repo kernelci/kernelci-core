@@ -722,9 +722,12 @@ build_configs:
       gcc-8:
         build_environment: gcc-8
         architectures:
-          arm: *arm_arch
-          arm64: *arm64_arch
-          x86_64: *x86_64_arch
+          arm:
+            base_defconfig: 'cip://4.19.y-cip/arm/qemu_arm_defconfig'
+          arm64:
+            base_defconfig: 'cip://4.19.y-cip/arm64/qemu_arm64_defconfig'
+          x86_64:
+            base_defconfig: 'cip://4.19.y-cip/x86/cip_qemu_defconfig'
 
   cip_4.19-rt:
     tree: cip
@@ -733,9 +736,12 @@ build_configs:
       gcc-8:
         build_environment: gcc-8
         architectures:
-          arm: *arm_arch
-          arm64: *arm64_arch
-          x86_64: *x86_64_arch
+          arm:
+            base_defconfig: 'cip://4.19.y-cip-rt/arm/qemu_arm_defconfig'
+          arm64:
+            base_defconfig: 'cip://4.19.y-cip-rt/arm64/qemu_arm64_defconfig'
+          x86_64:
+            base_defconfig: 'cip://4.19.y-cip-rt/x86/cip_qemu_defconfig'
 
   clk:
     tree: clk
