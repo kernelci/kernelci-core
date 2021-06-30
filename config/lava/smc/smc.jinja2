@@ -1,0 +1,12 @@
+- test:
+    name: {{ plan }}
+    description: "Spectre meltdown test plan"
+    timeout:
+      minutes: 15
+    definitions:
+       - repository: https://github.com/kernelci/test-definitions
+         from: git
+         revision: kernelci.org
+         path: automated/linux/spectre-meltdown-checker-test/spectre-meltdown-checker-test.yaml
+         name: {{ plan }}
+         lava-signal: kmsg
