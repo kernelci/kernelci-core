@@ -1,0 +1,7 @@
+{% extends 'boot/generic-depthcharge-tftp-ramdisk-boot-template.jinja2' %}
+{% block actions %}
+{{ super () }}
+
+{% include 'smc/smc.jinja2' %}
+
+{% endblock %}
