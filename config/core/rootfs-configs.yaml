@@ -28,6 +28,7 @@ rootfs_configs:
     extra_files_remove: &extra_files_remove_buster
       - '*networkd*'
       - '*resolved*'
+      - nosuspend.conf
       - tar
       - patch
       - dir
