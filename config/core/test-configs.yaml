@@ -36,13 +36,13 @@ file_systems:
     ramdisk: '{arch}/baseline/rootfs.cpio.gz'
 
   debian_buster_ramdisk:
-    type: debian
-    ramdisk: 'buster/20210520.0/{arch}/rootfs.cpio.gz'
+    type: debian-staging
+    ramdisk: 'buster/gtucker-20210702-001/{arch}/rootfs.cpio.gz'
 
   debian_buster_nfs:
-    type: debian
-    ramdisk: 'buster/20210520.0/{arch}/initrd.cpio.gz'
-    nfs: 'buster/20210520.0/{arch}/full.rootfs.tar.xz'
+    type: debian-staging
+    ramdisk: 'buster/gtucker-20210702-001/{arch}/initrd.cpio.gz'
+    nfs: 'buster/gtucker-20210702-001/{arch}/full.rootfs.tar.xz'
     root_type: nfs
 
   debian_buster-cros-ec_ramdisk:
@@ -54,9 +54,9 @@ file_systems:
     ramdisk: 'buster-igt/20210628.5/{arch}/rootfs.cpio.gz'
 
   debian_buster_kselftest:
-    type: debian
-    ramdisk: 'buster-kselftest/20210628.3/{arch}/initrd.cpio.gz'
-    nfs: 'buster-kselftest/20210628.3/{arch}/full.rootfs.tar.xz'
+    type: debian-staging
+    ramdisk: 'buster-kselftest/gtucker-20210702-001/{arch}/initrd.cpio.gz'
+    nfs: 'buster-kselftest/gtucker-20210702-001/{arch}/full.rootfs.tar.xz'
     root_type: nfs
     params:
       os_config: 'debian'
