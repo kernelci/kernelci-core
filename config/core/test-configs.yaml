@@ -2101,6 +2101,11 @@ test_configs:
       - baseline
       - baseline-nfs
       - cros-ec
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
+      - kselftest-lkdtm
+      - kselftest-seccomp
       - lc-compliance
       - sleep
       - v4l2-compliance-uvc
