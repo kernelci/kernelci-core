@@ -90,6 +90,10 @@ actions:
     description: Add /var/tmp
     source: overlays/minimal
 
+  - action: overlay
+    description: Disable suspend in systemd
+    source: overlays/nosuspend
+
 {{ if $test_overlay }}
   - action: overlay
     description: Add test overlay {{ $test_overlay }}
