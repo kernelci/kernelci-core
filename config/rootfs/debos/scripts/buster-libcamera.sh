@@ -40,11 +40,10 @@ echo '{  "tests_suites": [' >> $BUILDFILE
 # Build libcamera and lc-compliance
 ########################################################################
 
-LIBCAMERA_URL=https://gitlab.collabora.com/nfraprado/libcamera.git
+LIBCAMERA_URL=https://git.linuxtv.org/libcamera.git
 mkdir -p /tmp/tests/libcamera && cd /tmp/tests/libcamera
 
-# Use my fork until it gets merged
-git clone --single-branch --branch lcc-gtest-v5 --depth=1 $LIBCAMERA_URL .
+git clone --depth=1 $LIBCAMERA_URL .
 
 echo '    {"name": "lc-compliance", "git_url": "'$LIBCAMERA_URL'", "git_commit": ' \"`git rev-parse HEAD`\" '}' >> $BUILDFILE
 
