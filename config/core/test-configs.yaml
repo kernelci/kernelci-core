@@ -1004,6 +1004,18 @@ device_types:
     class: arm-dtb
     boot_method: uboot
 
+  minnowboard-max-E3825:
+    mach: x86
+    arch: x86_64
+    boot_method: grub
+    filters:
+      - blocklist:
+          defconfig:
+            - 'allmodconfig'
+            - 'allnoconfig'
+            - 'tinyconfig'
+            - 'kvm_guest.config'
+
   minnowboard-turbot-E3826:
     mach: x86
     arch: x86_64
@@ -2090,6 +2102,11 @@ test_configs:
   - device_type: meson8b-odroidc1
     test_plans:
       - baseline
+
+  - device_type: minnowboard-max-E3825
+    test_plans:
+      - baseline
+      - baseline-nfs
 
   - device_type: minnowboard-turbot-E3826
     test_plans:
