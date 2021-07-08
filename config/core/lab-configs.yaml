@@ -45,7 +45,7 @@ labs:
     lab_type: lava
     url: 'https://lava.collabora.co.uk/RPC2/'
     priority: '45'
-    filters:
+    filters: &collabora-filters
       - blocklist:
           tree: [android]
           plan: [baseline-qemu-docker]
@@ -75,6 +75,12 @@ labs:
             - usb
             - v4l2-compliance-uvc
             - v4l2-compliance-vivid
+
+  lab-collabora-staging:
+    lab_type: lava
+    url: 'https://staging.lava.collabora.dev/RPC2/'
+    priority: '45'
+    filters: *collabora-filters
 
   lab-kontron:
     lab_type: lava
