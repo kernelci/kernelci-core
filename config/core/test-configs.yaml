@@ -1740,9 +1740,12 @@ test_configs:
       - kselftest-lkdtm
       - kselftest-seccomp
       - ltp-crypto
+      - ltp-fcntl-locktests
       - ltp-ima
       - ltp-ipc
       - ltp-mm
+      - ltp-pty
+      - ltp-timers
       - sleep_mem
 
   - device_type: at91-sama5d2_xplained
