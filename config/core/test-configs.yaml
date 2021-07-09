@@ -2313,6 +2313,7 @@ test_configs:
       - ltp-ipc
       - ltp-mm
       - ltp-pty
+      - ltp-timers
       - sleep
       - v4l2-compliance-uvc
 
