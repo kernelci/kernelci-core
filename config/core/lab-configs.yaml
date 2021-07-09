@@ -49,32 +49,6 @@ labs:
       - blocklist:
           tree: [android]
           plan: [baseline-qemu-docker]
-      - passlist:
-          plan:
-            - baseline
-            - baseline-nfs
-            - cros-ec
-            - igt-kms-rockchip
-            - igt-kms-exynos
-            - igt-kms-tegra
-            - igt-gpu-i915
-            - igt-gpu-panfrost
-            - kselftest-filesystems
-            - kselftest-futex
-            - kselftest-lib
-            - kselftest-lkdtm
-            - kselftest-seccomp
-            - lc-compliance
-            - ltp-crypto
-            - ltp-fcntl-locktests
-            - ltp-ipc
-            - ltp-mm
-            - ltp-timers
-            - ltp-pty
-            - sleep
-            - usb
-            - v4l2-compliance-uvc
-            - v4l2-compliance-vivid
 
   lab-kontron:
     lab_type: lava
