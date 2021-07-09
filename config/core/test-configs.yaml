@@ -2124,6 +2124,12 @@ test_configs:
       - kselftest-lkdtm
       - kselftest-seccomp
       - lc-compliance
+      - ltp-crypto
+      - ltp-fcntl-locktests
+      - ltp-ipc
+      - ltp-mm
+      - ltp-pty
+      - ltp-timers
       - sleep
       - v4l2-compliance-uvc
 
