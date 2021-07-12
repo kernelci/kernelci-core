@@ -23,6 +23,7 @@
 # -p = push to dockerhub
 # -b = also rebuild kernel builders
 # -d = also rebuild debos
+# -r = also rebuild buildroot
 # -i = also rebuild dt-validation
 # -q = make the builds quiet
 # -Q = also rebuild qemu docker image
@@ -31,7 +32,7 @@
 set -e
 tag_px='kernelci/'
 
-options='npbdikqQt:'
+options='npbdrikqQt:'
 while getopts $options option
 do
   case $option in
@@ -39,6 +40,7 @@ do
     p )  push=true;;
     b )  builders=true;;
     d )  debos=true;;
+    r )  buildroot=true;;
     i )  dt_validation=true;;
     k )  k8s=true;;
     q )  quiet="--quiet";;
@@ -91,6 +93,18 @@ fi
 if [ "x${debos}" == "xtrue" ]
 then
   tag=${tag_px}debos
+  echo_build $tag
+  docker build ${quiet} ${cache_args} debos -t $tag
+  if [ "x${push}" == "xtrue" ]
+  then
+    echo_push $tag
+    docker push $tag
+  fi
+fi
+
+if [ "x${buildroot}" == "xtrue" ]
+then
+  tag=${tag_px}buildroot
   echo_build $tag
   docker build ${quiet} ${cache_args} debos -t $tag
   if [ "x${push}" == "xtrue" ]
