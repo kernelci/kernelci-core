@@ -259,7 +259,7 @@ test_plans:
     filters:
       - passlist:
           defconfig:
-            - 'defconfig+ltp-ima'
+            - '+ima'
   ltp-mm:
     <<: *ltp
     params:
