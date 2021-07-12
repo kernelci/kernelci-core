@@ -32,6 +32,7 @@
 set -e
 tag_px='kernelci/'
 
+
 options='npbdrikqQt:'
 while getopts $options option
 do
@@ -66,86 +67,51 @@ echo_push() {
   echo "Pushing [$1]"
 }
 
+docker_push() {
+    echo_push $1
+    docker push $1
+}
+
+docker_build_and_tag() {
+  tag=${tag_px}$2
+  echo_build $tag
+  docker build ${quiet} ${cache_args} $1 -t $tag
+  if [ "x${push}" == "xtrue" ]
+  then
+    docker_push $tag
+  fi
+}
 
 if [ "x${builders}" == "xtrue" ]
 then
-  tag=${tag_px}build-base
-  echo_build $tag
-  docker build ${quiet} ${cache_args} build-base -t $tag
-  if [ "x${push}" == "xtrue" ]
-  then
-    echo_push $tag
-    docker push $tag
-  fi
+  docker_build_and_tag build-base build-base
   for c in {gcc,clang}-*
   do
-      tag=${tag_px}build-$c
-      echo_build $tag
-      docker build ${quiet} ${cache_args} $c -t $tag
-      if [ "x${push}" == "xtrue" ]
-      then
-          echo_push $tag
-          docker push $tag
-      fi
+      docker_build_and_tag $c build-$c
   done
 fi
 
 if [ "x${debos}" == "xtrue" ]
 then
-  tag=${tag_px}debos
-  echo_build $tag
-  docker build ${quiet} ${cache_args} debos -t $tag
-  if [ "x${push}" == "xtrue" ]
-  then
-    echo_push $tag
-    docker push $tag
-  fi
+  docker_build_and_tag debos debos
 fi
 
 if [ "x${buildroot}" == "xtrue" ]
 then
-  tag=${tag_px}buildroot
-  echo_build $tag
-  docker build ${quiet} ${cache_args} debos -t $tag
-  if [ "x${push}" == "xtrue" ]
-  then
-    echo_push $tag
-    docker push $tag
-  fi
+  docker_build_and_tag buildroot buildroot
 fi
 
 if [ "x${dt_validation}" == "xtrue" ]
 then
-  tag=${tag_px}dt-validation
-  echo_build $tag
-  docker build ${quiet} ${cache_args} dt-validation -t $tag
-  if [ "x${push}" == "xtrue" ]
-  then
-    echo_push $tag
-    docker push $tag
-  fi
+  docker_build_and_tag dt-validation dt-validation
 fi
 
 if [ "x${k8s}" == "xtrue" ]
 then
-  tag=${tag_px}build-k8s
-  echo_build $tag
-  docker build ${quiet} ${cache_args} build-k8s -t $tag
-  if [ "x${push}" == "xtrue" ]
-  then
-    echo_push $tag
-    docker push $tag
-  fi
+  docker_build_and_tag build-k8s build-k8s
 fi
 
 if [ "x${qemu}" == "xtrue" ]
 then
-  tag=${tag_px}qemu
-  echo_build $tag
-  docker build ${quiet} ${cache_args} qemu -t $tag
-  if [ "x${push}" == "xtrue" ]
-  then
-    echo_push $tag
-    docker push $tag
-  fi
+  docker_build_and_tag qemu qemu
 fi
