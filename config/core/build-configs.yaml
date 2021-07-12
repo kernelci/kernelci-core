@@ -205,15 +205,15 @@ fragments:
   debug:
     path: "kernel/configs/debug.config"
 
-  kselftest:
-    path: "kernel/configs/kselftest.config"
-
-  ltp-ima:
-    path: "kernel/configs/ltp-ima.config"
+  ima:
+    path: "kernel/configs/ima.config"
     configs:
       - 'CONFIG_INTEGRITY=y'
       - 'CONFIG_IMA=y'
       - 'CONFIG_IMA_READ_POLICY=y'
+
+  kselftest:
+    path: "kernel/configs/kselftest.config"
 
   preempt_rt:
     path: "kernel/configs/preempt_rt.config"
@@ -327,7 +327,6 @@ build_configs_defaults:
         - 'debug'
         - 'kselftest'
         - 'tinyconfig'
-        - 'ltp-ima'
 
       architectures: &default_architectures
 
@@ -352,7 +351,7 @@ build_configs_defaults:
             - 'multi_v7_defconfig+CONFIG_CPU_BIG_ENDIAN=y'
             - 'multi_v7_defconfig+CONFIG_SMP=n'
             - 'multi_v7_defconfig+CONFIG_EFI=y+CONFIG_ARM_LPAE=y'
-          fragments: [crypto]
+          fragments: [crypto, ima]
 
         arm64: &arm64_arch
           extra_configs:
@@ -360,7 +359,7 @@ build_configs_defaults:
             - 'allnoconfig'
             - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
             - 'defconfig+CONFIG_RANDOMIZE_BASE=y'
-          fragments: [crypto]
+          fragments: [crypto, ima]
 
         i386: &i386_arch
           base_defconfig: 'i386_defconfig'
@@ -384,7 +383,7 @@ build_configs_defaults:
             - 'allmodconfig'
             - 'allnoconfig'
             - 'x86_64_defconfig+x86-chromebook+kselftest'
-          fragments: [crypto, x86_kvm_guest, x86-chromebook]
+          fragments: [crypto, ima, x86_kvm_guest, x86-chromebook]
 
   reference:
     tree: mainline
