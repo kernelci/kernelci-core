@@ -238,6 +238,10 @@ test_plans:
     params:
       <<: *ltp-params
       tst_cmdfiles: "crypto"
+    filters:
+      - passlist:
+          defconfig:
+            - '+crypto'
 
   ltp-ipc:
     <<: *ltp
