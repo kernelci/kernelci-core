@@ -1053,6 +1053,11 @@ device_types:
     class: arm64-dtb
     boot_method: depthcharge
 
+  mt8183-kukui-jacuzzi-juniper-sku16:
+    mach: mediatek
+    class: arm64-dtb
+    boot_method: depthcharge
+
   mustang:
     mach: apm
     class: arm64-dtb
@@ -2161,6 +2166,16 @@ test_configs:
       - ltp-timers
       - sleep
       - v4l2-compliance-uvc
+
+  - device_type: mt8183-kukui-jacuzzi-juniper-sku16
+    test_plans:
+      - baseline
+      - baseline-nfs
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
+      - kselftest-lkdtm
+      - kselftest-seccomp
 
   - device_type: mustang
     test_plans:
