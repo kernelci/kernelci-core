@@ -480,6 +480,13 @@ device_types:
     filters:
       - passlist: {defconfig: ['x86-chromebook']}
 
+  asus-C436FA-Flip-hatch:
+    mach: x86
+    arch: x86_64
+    boot_method: depthcharge
+    filters:
+      - passlist: {defconfig: ['x86-chromebook']}
+
   asus-C523NA-A20057-coral:
     mach: x86
     arch: x86_64
@@ -1752,6 +1759,16 @@ test_configs:
       - kselftest-seccomp
       - ltp-fcntl-locktests
       - ltp-pty
+      - ltp-timers
+
+  - device_type: asus-C436FA-Flip-hatch
+    test_plans:
+      - baseline
+      - baseline-nfs
+      - kselftest-filesystems
+      - kselftest-futex
+      - ltp-ipc
+      - ltp-mm
       - ltp-timers
 
   - device_type: asus-C523NA-A20057-coral
