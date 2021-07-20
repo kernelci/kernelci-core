@@ -473,6 +473,13 @@ device_types:
       - blocklist: *allmodconfig_filter
       - blocklist: {defconfig: ['multi_v7_defconfig+CONFIG_SMP=n']}
 
+  asus-C433TA-AJ0005-rammus:
+    mach: x86
+    arch: x86_64
+    boot_method: depthcharge
+    filters:
+      - passlist: {defconfig: ['x86-chromebook']}
+
   asus-C523NA-A20057-coral:
     mach: x86
     arch: x86_64
@@ -1731,6 +1738,16 @@ test_configs:
   - device_type: arndale
     test_plans:
       - baseline
+
+  - device_type: asus-C433TA-AJ0005-rammus
+    test_plans:
+      - baseline
+      - baseline-nfs
+      - kselftest-lkdtm
+      - kselftest-seccomp
+      - ltp-fcntl-locktests
+      - ltp-pty
+      - ltp-timers
 
   - device_type: asus-C523NA-A20057-coral
     test_plans:
