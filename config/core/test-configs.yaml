@@ -1859,7 +1859,6 @@ test_configs:
       - baseline
       - baseline-nfs
       - kselftest-futex
-      - ltp-pty
 
   - device_type: hp-11A-G6-EE-grunt
     test_plans:
@@ -2012,9 +2011,6 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - ltp-crypto
-      - ltp-ipc
-      - ltp-mm
 
   - device_type: kirkwood-db-88f6282
     test_plans:
@@ -2330,10 +2326,7 @@ test_configs:
       - baseline
       - baseline-nfs
       - cros-ec
-      - ltp-crypto
       - ltp-fcntl-locktests
-      - ltp-ipc
-      - ltp-mm
       - ltp-pty
       - ltp-timers
       - sleep
