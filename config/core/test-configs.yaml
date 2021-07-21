@@ -2394,6 +2394,8 @@ test_configs:
   - device_type: sun50i-h6-pine-h64
     test_plans:
       - baseline
+      - kselftest-filesystems
+      - kselftest-seccomp
       - ltp-crypto
       - ltp-ipc
       - ltp-mm
