@@ -16,6 +16,12 @@ labs:
     lab_type: lava.lava_xmlrpc
     url: 'https://lava.sirena.org.uk/RPC2/'
     priority: low
+    filters:
+      - passlist:
+          plan:
+            - baseline
+            - kselftest
+            - ltp
 
   lab-cip:
     lab_type: lava.lava_xmlrpc
