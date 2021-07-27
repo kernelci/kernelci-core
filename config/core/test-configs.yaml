@@ -198,6 +198,12 @@ test_plans:
       job_timeout: '10'
       kselftest_collections: "filesystems"
 
+  kselftest-ftrace:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "ftrace"
+
   kselftest-futex:
     <<: *kselftest
     params:
@@ -215,6 +221,18 @@ test_plans:
     params:
       job_timeout: '10'
       kselftest_collections: "lkdtm"
+
+  kselftest-mqueue:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "mqueue"
+
+  kselftest-netfilter:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "netfilter"
 
   kselftest-seccomp:
     <<: *kselftest
@@ -1866,9 +1884,12 @@ test_configs:
       - baseline-nfs
       - cros-ec
       - kselftest-filesystems
+      - kselftest-ftrace
       - kselftest-futex
       - kselftest-lib
       - kselftest-lkdtm
+      - kselftest-mqueue
+      - kselftest-netfilter
       - kselftest-seccomp
       - ltp-crypto
       - ltp-fcntl-locktests
