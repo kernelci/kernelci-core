@@ -25,6 +25,7 @@ labs:
       - passlist:
           plan:
             - baseline
+            - smc
 
   lab-clabbe:
     lab_type: lava
