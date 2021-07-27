@@ -102,6 +102,8 @@ labs:
       - passlist:
           plan:
             - baseline
+            - kselftest
+            - ltp
           tree:
             - kernelci
             - next

@@ -2254,6 +2254,18 @@ test_configs:
   - device_type: qcom-qdf2400
     test_plans:
       - baseline
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
+      - kselftest-lkdtm
+      - kselftest-seccomp
+      - ltp-crypto
+      - ltp-fcntl-locktests
+      - ltp-ima
+      - ltp-ipc
+      - ltp-mm
+      - ltp-pty
+      - ltp-timers
 
   - device_type: qemu_arm-versatilepb
     test_plans:
