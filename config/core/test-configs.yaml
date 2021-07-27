@@ -1673,6 +1673,16 @@ device_types:
       - blocklist: *allmodconfig_filter
       - blocklist: {defconfig: ['multi_v7_defconfig+linaro-base+distribution']}
 
+  zynqmp-zcu102:
+    name: 'zynqmp-zcu102'
+    mach: zynqmp
+    arch: arm64
+    class: arm64-dtb
+    boot_method: uboot
+    dtb: 'xilinx/zynqmp-zcu102-rev1.0.dtb'
+    filters:
+      - passlist: {defconfig: ['defconfig']}
+
 
 test_configs:
 
@@ -2580,3 +2590,8 @@ test_configs:
   - device_type: zynq-zc702
     test_plans:
       - baseline
+
+  - device_type: zynqmp-zcu102
+    test_plans:
+      - baseline
+      - smc
