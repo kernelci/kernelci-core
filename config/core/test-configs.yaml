@@ -2215,6 +2215,18 @@ test_configs:
     test_plans:
       - baseline_qemu
       - baseline-qemu-docker
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
+      - kselftest-lkdtm
+      - kselftest-seccomp
+      - ltp-crypto
+      - ltp-fcntl-locktests
+      - ltp-ima
+      - ltp-ipc
+      - ltp-mm
+      - ltp-pty
+      - ltp-timers
       - v4l2-compliance-vivid
 
   - device_type: qemu_arm-virt-gicv3-uefi
@@ -2233,6 +2245,18 @@ test_configs:
     test_plans:
       - baseline_qemu
       - baseline-qemu-docker
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
+      - kselftest-lkdtm
+      - kselftest-seccomp
+      - ltp-crypto
+      - ltp-fcntl-locktests
+      - ltp-ima
+      - ltp-ipc
+      - ltp-mm
+      - ltp-pty
+      - ltp-timers
       - v4l2-compliance-vivid
 
   - device_type: qemu_arm64-virt-gicv3-uefi
@@ -2256,6 +2280,18 @@ test_configs:
     test_plans:
       - baseline_qemu
       - baseline-qemu-docker
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
+      - kselftest-lkdtm
+      - kselftest-seccomp
+      - ltp-crypto
+      - ltp-fcntl-locktests
+      - ltp-ima
+      - ltp-ipc
+      - ltp-mm
+      - ltp-pty
+      - ltp-timers
       - v4l2-compliance-vivid
 
   - device_type: qemu_x86_64-uefi
