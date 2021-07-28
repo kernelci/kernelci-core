@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+#
+# Copyright (C) 2021 Collabora Limited
+# Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+#
+# This module is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+
+import sys
+
+from kernelci.cli import Args, Command, parse_opts
+import kernelci.bisect
+import kernelci.config
+
+
+class cmd_get_recipients(Command):
+    help = "Get the list of email recipients as JSON lists for To: and Cc:"
+    args = [Args.kdir, Args.commit]
+    opt_args = [Args.to, Args.cc]
+
+    def __call__(self, configs, args):
+        to, cc = (
+            set(arg.split(' ') if arg else []) for arg in (args.to, args.cc)
+        )
+        rcpts = kernelci.bisect.get_recipients(args.kdir, args.commit, to, cc)
+        for header, category in [("To:", 'to'), ("Cc:", 'cc')]:
+            print(header)
+            for rcpt in rcpts[category]:
+                print("  {}".format(rcpt))
+        return True
+
+
+if __name__ == '__main__':
+    opts = parse_opts("kci_bisect", globals())
+    configs = kernelci.config.load(opts.yaml_config)
+    status = opts.command(configs, opts)
+    sys.exit(0 if status is True else 1)
