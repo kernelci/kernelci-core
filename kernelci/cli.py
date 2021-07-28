@@ -96,6 +96,11 @@ class Args:
         'section': SECTION_DB,
     }
 
+    cc = {
+        'name': '--cc',
+        'help': "Recipients to be added as Cc:",
+    }
+
     commit = {
         'name': '--commit',
         'help': "Git commit checksum",
@@ -262,6 +267,11 @@ class Args:
     target = {
         'name': '--target',
         'help': "Name of a target platform",
+    }
+
+    to = {
+        'name': '--to',
+        'help': "Recipients to be added as To:",
     }
 
     tree_name = {
