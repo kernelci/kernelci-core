@@ -14,6 +14,7 @@
         run:
           steps:
             - python3 -m cros.runners.lava_runner
+      lava-signal: kmsg
       from: inline
       name: {{ plan }}
       path: inline/{{ plan }}.yaml
