@@ -2,23 +2,24 @@
 title: "Build configurations"
 date: 2021-08-03
 draft: false
-description: "YAML build configurations"
+description: "How to configure kernel builds"
 ---
 
 All the top-level build configurations are contained in a YAML file:
 [`build-configs.yaml`](https://github.com/kernelci/kernelci-core/blob/main/config/core/build-configs.yaml). This
 defines all the kernels that need to be built, with some attributes to cover
-all the details and variants.
+all the details and variants.  The primary use-case for this data is to build
+kernels using [`kci_build`](../../kci_build).
 
 There are several types of entries in this file:
 
- - *trees* are git repositories
- - *config fragments* are modular lists of kernel config values
- - *build environments* define the available compilers
- - *architectures* are to keep all the properties related to each CPU
-   architecture build variants are to define a set of builds done within a
-   build configuration
- - *build configurations* are combinations of all of the above
+* **trees** are git repositories
+* **config fragments** are modular lists of kernel config values
+* **build environments** define the available compilers
+* **architectures** are to keep all the properties related to each CPU
+  architecture build variants are to define a set of builds done within a build
+  configuration
+* **build configurations** are combinations of all of the above
 
 The build configurations are the main entries as they define what is actually
 going to be built. They must have one tree and one branch defined, and
