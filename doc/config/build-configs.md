@@ -1,11 +1,9 @@
 ---
-title: "YAML Configuration"
-date: 2021-02-10T11:48:13Z
-draft: true
-description: "How to use the YAML configuration"
+title: "Build configurations"
+date: 2021-08-03
+draft: false
+description: "YAML build configurations"
 ---
-
-## Builds Configuration
 
 All the top-level build configurations are contained in a YAML file:
 [`build-configs.yaml`](https://github.com/kernelci/kernelci-core/blob/main/config/core/build-configs.yaml). This
