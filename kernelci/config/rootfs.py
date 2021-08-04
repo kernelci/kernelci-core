@@ -115,9 +115,32 @@ class RootFS_Debos(RootFS):
         return self._keyring_file
 
 
+class RootFS_Buildroot(RootFS):
+    def __init__(self, name, rootfs_type, arch_list=None, frags=None):
+        super().__init__(name, rootfs_type)
+        self._arch_list = arch_list or list()
+        self._frags = frags or list()
+
+    @classmethod
+    def from_yaml(cls, config, name):
+        kw = name
+        kw.update(cls._kw_from_yaml(
+            config, ['name', 'arch_list', 'frags']))
+        return cls(**kw)
+
+    @property
+    def frags(self):
+        return self._frags
+
+    @property
+    def arch_list(self):
+        return list(self._arch_list)
+
+
 class RootFSFactory(YAMLObject):
     _rootfs_types = {
-        'debos': RootFS_Debos
+        'debos': RootFS_Debos,
+        'buildroot': RootFS_Buildroot
     }
 
     @classmethod

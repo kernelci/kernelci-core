@@ -1,5 +1,6 @@
-# Copyright (C) 2019 Collabora Limited
+# Copyright (C) 2019, 2020, 2021 Collabora Limited
 # Author: Lakshmipathi G <lakshmipathi.ganapathi@collabora.com>
+# Author: Michal Galka <michal.galka@collabora.com>
 #
 # This module is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -52,16 +53,27 @@ rootfs.yaml'.format(
     return shell_cmd(cmd, True)
 
 
+def _build_buildroot(name, config, data_path, arch, frag='baseline'):
+    cmd = 'cd {data_path} && ./configs/frags/build {arch} {frag}'.format(
+        data_path=data_path,
+        arch=arch,
+        frag=frag
+    )
+    return shell_cmd(cmd, True)
+
+
 def build(name, config, data_path, arch):
     """Build rootfs images.
 
     *name* is the rootfs config
     *config* contains rootfs-configs.yaml entries
-    *data_path* points to debos location
+    *data_path* points to debos or buildroot location
     *arch* required architecture
     """
     if config.rootfs_type == "debos":
         return _build_debos(name, config, data_path, arch)
+    elif config.rootfs_type == "buildroot":
+        return _build_buildroot(name, config, data_path, arch)
     else:
         raise ValueError("rootfs_type not supported: {}"
                          .format(config.rootfs_type))
