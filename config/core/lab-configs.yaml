@@ -26,6 +26,10 @@ labs:
           plan:
             - baseline
             - baseline-cip-nfs
+            - baseline-nfs
+            - kselftest
+            - ltp
+            - preempt-rt
             - smc
 
   lab-clabbe:
