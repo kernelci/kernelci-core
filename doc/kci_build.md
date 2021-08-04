@@ -18,9 +18,9 @@ more details.
 
 The `kci_build` command is self-contained and does not require to access any
 KernelCI services.  If a `kernelci-backend` instance is available, build
-binaries and meta-data can be sent to it to share them.  This is however not
-strictly required to build kernels and run tests using binaries stored locally,
-such as in an individual developer environment.
+binaries can be sent to it to share them.  This is however not strictly
+required to build kernels and run tests using binaries stored locally, such as
+in an individual developer environment.
 
 ## Example: build linux-next
 
@@ -174,7 +174,7 @@ can be done with the following command:
 ```
 
 Then sending the build meta-data to the database can be done in a similar way
-using `kci_data`:
+using [`kci_data`](../kci_data):
 
 ```
 ./kci_data submit_build
