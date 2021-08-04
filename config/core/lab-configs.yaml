@@ -25,6 +25,10 @@ labs:
       - passlist:
           plan:
             - baseline
+            - baseline-nfs
+            - kselftest
+            - ltp
+            - preempt-rt
             - smc
 
   lab-clabbe:
