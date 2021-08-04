@@ -18,6 +18,7 @@
 import sys
 import yaml
 
+from kernelci import sort_check
 from kernelci.config.base import YAMLObject
 
 
@@ -170,3 +171,94 @@ def from_yaml(data):
     }
 
     return config_data
+
+
+def validate(configs):
+    """Validate rootfs config
+
+        *configs* contains rootfs-configs.yaml entries
+    """
+    err = sort_check(configs['rootfs_configs'])
+    if err:
+        print("Rootfs broken order: '{}' before '{}".format(*err))
+        return False
+    for name, config in configs['rootfs_configs'].items():
+        if config.rootfs_type == 'debos':
+            return _validate_debos(name, config)
+        elif config.rootfs_type == 'buildroot':
+            return _validate_buildroot(name, config)
+        else:
+            print('Invalid rootfs type {} for config name {}'
+                  .format(config.rootfs_type, name))
+            return False
+
+
+def _validate_debos(name, config):
+    err = sort_check(config.arch_list)
+    if err:
+        print("Arch order broken for {}: '{}' before '{}".format(
+            name, err[0], err[1]))
+        return False
+    err = sort_check(config.extra_packages)
+    if err:
+        print("Packages order broken for {}: '{}' before '{}".format(
+            name, err[0], err[1]))
+        return False
+    err = sort_check(config.extra_packages_remove)
+    if err:
+        print("Packages order broken for {}: '{}' before '{}".format(
+            name, err[0], err[1]))
+        return False
+    return True
+
+
+def _validate_buildroot(name, config):
+    err = sort_check(config.arch_list)
+    if err:
+        print("Arch order broken for {}: '{}' before '{}".format(
+            name, err[0], err[1]))
+        return False
+    err = sort_check(config.frags)
+    if err:
+        print("Frags order broken for {}: '{}' before '{}".format(
+            name, err[0], err[1]))
+        return False
+    return True
+
+
+def dump_configs(configs):
+    """Prints rootfs configs to stdout
+
+        *configs* contains rootfs-configs.yaml entries
+    """
+    for config_name, config in configs['rootfs_configs'].items():
+        if config.rootfs_type == 'debos':
+            _dump_config_debos(config_name, config)
+        elif config.rootfs_type == 'buildroot':
+            _dump_config_buildroot(config_name, config)
+
+
+def _dump_config_debos(config_name, config):
+    print(config_name)
+    print('\trootfs_type: {}'.format(config.rootfs_type))
+    print('\tarch_list: {}'.format(config.arch_list))
+    print('\tdebian_release: {}'.format(config.debian_release))
+    print('\textra_packages: {}'.format(config.extra_packages))
+    print('\textra_packages_remove: {}'.format(
+        config.extra_packages_remove))
+    print('\textra_files_remove: {}'.format(
+        config.extra_files_remove))
+    print('\tscript: {}'.format(config.script))
+    print('\ttest_overlay: {}'.format(config.test_overlay))
+    print('\tcrush_image_options: {}'.format(
+        config.crush_image_options))
+    print('\tdebian_mirror: {}'.format(config.debian_mirror))
+    print('\tkeyring_package: {}'.format(config.keyring_package))
+    print('\tkeyring_file: {}'.format(config.keyring_file))
+
+
+def _dump_config_buildroot(config_name, config):
+    print(config_name)
+    print('\trootfs_type: {}'.format(config.rootfs_type))
+    print('\tarch_list: {}'.format(config.arch_list))
+    print('\tfrags: {}'.format(config.frags))

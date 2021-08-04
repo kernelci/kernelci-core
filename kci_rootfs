@@ -35,48 +35,10 @@ class cmd_validate(Command):
     def __call__(self, config_data, args, **kwargs):
         # ToDo: Use jsonschema
 
-        err = kernelci.sort_check(configs['rootfs_configs'])
-        if err:
-            print("Rootfs broken order: '{}' before '{}".format(*err))
-            return False
-        for name, config in configs['rootfs_configs'].items():
-            err = kernelci.sort_check(config.arch_list)
-            if err:
-                print("Arch order broken for {}: '{}' before '{}".format(
-                    name, err[0], err[1]))
-                return False
-            err = kernelci.sort_check(config.extra_packages)
-            if err:
-                print("Packages order broken for {}: '{}' before '{}".format(
-                    name, err[0], err[1]))
-                return False
-            err = kernelci.sort_check(config.extra_packages_remove)
-            if err:
-                print("Packages order broken for {}: '{}' before '{}".format(
-                    name, err[0], err[1]))
-                return False
-
-        if args.verbose:
-            rootfs_configs = config_data['rootfs_configs']
-            for config_name, config in rootfs_configs.items():
-                print(config_name)
-                print('\trootfs_type: {}'.format(config.rootfs_type))
-                print('\tarch_list: {}'.format(config.arch_list))
-                print('\tdebian_release: {}'.format(config.debian_release))
-                print('\textra_packages: {}'.format(config.extra_packages))
-                print('\textra_packages_remove: {}'.format(
-                    config.extra_packages_remove))
-                print('\textra_files_remove: {}'.format(
-                    config.extra_files_remove))
-                print('\tscript: {}'.format(config.script))
-                print('\ttest_overlay: {}'.format(config.test_overlay))
-                print('\tcrush_image_options: {}'.format(
-                    config.crush_image_options))
-                print('\tdebian_mirror: {}'.format(config.debian_mirror))
-                print('\tkeyring_package: {}'.format(config.keyring_package))
-                print('\tkeyring_file: {}'.format(config.keyring_file))
-
-        return True
+        result = kernelci.config.rootfs.validate(configs)
+        if args.verbose and result:
+            kernelci.config.rootfs.dump_configs(configs)
+        return result
 
 
 class cmd_list_configs(Command):
