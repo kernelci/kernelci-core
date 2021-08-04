@@ -259,6 +259,13 @@ class Args:
         'help': "Path to the rootfs images directory",
     }
 
+    rootfs_type = {
+        'name': '--rootfs-type',
+        'help': "Rootfs type",
+        'type': str,
+        'choices': ('debos', 'buildroot')
+    }
+
     storage = {
         'name': '--storage',
         'help': "Storage URL",

@@ -81,10 +81,17 @@ class cmd_validate(Command):
 
 class cmd_list_configs(Command):
     help = "List all rootfs config names"
+    opt_args = [Args.rootfs_type]
 
-    def __call__(self, config_data, *args, **kwargs):
+    def __call__(self, config_data, args, **kwargs):
         rootfs_configs = config_data['rootfs_configs']
-        for config_name in rootfs_configs:
+        if args.rootfs_type is None:
+            config_names = rootfs_configs
+        else:
+            config_names = (name
+                            for name, config_data in rootfs_configs.items()
+                            if config_data.rootfs_type == args.rootfs_type)
+        for config_name in config_names:
             print(config_name)
         return True
 
