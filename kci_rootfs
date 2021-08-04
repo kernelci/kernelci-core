@@ -98,12 +98,13 @@ class cmd_list_configs(Command):
 
 class cmd_list_variants(Command):
     help = "List all rootfs variants"
-    opt_args = [Args.rootfs_config, Args.arch]
+    opt_args = [Args.rootfs_config, Args.arch, Args.rootfs_type]
 
     def __call__(self, config_data, args, **kwargs):
         rootfs_configs = config_data['rootfs_configs']
         config_name = args.rootfs_config
         arch = args.arch
+        rootfs_type = args.rootfs_type
 
         if config_name and config_name not in rootfs_configs:
             print("{} : invalid config entry".format(config_name))
@@ -114,8 +115,10 @@ class cmd_list_variants(Command):
             print("{} : invalid arch entry".format(arch))
             return False
 
-        configs = (config for config in rootfs_configs
-                   if config == config_name or config_name is None)
+        configs = (name for name, config in rootfs_configs.items()
+                   if (name == config_name or config_name is None) and
+                   (config.rootfs_type == rootfs_type or rootfs_type is None)
+                   )
         for config in configs:
             for arch_type in rootfs_configs[config].arch_list:
                 if arch_type == arch or arch is None:
