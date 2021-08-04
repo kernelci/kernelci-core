@@ -1,4 +1,18 @@
 rootfs_configs:
+  buildroot-baseline:
+    rootfs_type: buildroot
+    arch_list:
+      - arc
+      - arm64
+      - arm64be
+      - armeb
+      - armel
+      - mipsel
+      - riscv
+      - x86
+    frags:
+      - baseline
+
   buster:
     rootfs_type: debos
     debian_release: buster
