@@ -118,7 +118,8 @@ class cmd_list_variants(Command):
 
 class cmd_build(Command):
     help = "Build a rootfs image"
-    args = [Args.rootfs_config, Args.data_path, Args.arch]
+    args = [Args.rootfs_config, Args.arch]
+    opt_args = [Args.data_path]
 
     def __call__(self, config_data, args, **kwargs):
         config_name = args.rootfs_config
@@ -127,8 +128,10 @@ class cmd_build(Command):
             print("{} invalid. Check 'kci_rootfs list_configs' for valid \
                     entries".format(config_name))
             return False
-        return kernelci.rootfs.build(config_name, config,
-                                     args.data_path, args.arch)
+        data_path = (
+            args.data_path or 'config/rootfs/{}'.format(config.rootfs_type)
+        )
+        return kernelci.rootfs.build(config_name, config, data_path, args.arch)
 
 
 class cmd_upload(Command):
