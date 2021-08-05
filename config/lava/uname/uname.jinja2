@@ -1,0 +1,20 @@
+- test:
+    timeout:
+      minutes: 1
+    definitions:
+    - repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: {{ plan }}
+          description: "uname"
+          os:
+          - debian
+          scope:
+          - functional
+        run:
+          steps:
+          - lava-test-case uname-os --shell '[ $(uname -o) = "GNU/Linux" ]'
+      from: inline
+      name: {{ plan }}
+      path: inline/{{ plan }}.yaml
+      lava-signal: kmsg
