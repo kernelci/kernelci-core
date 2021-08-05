@@ -13,7 +13,12 @@
           - functional
         run:
           steps:
-          - lava-test-case uname-os --shell '[ $(uname -o) = "GNU/Linux" ]'
+          - apt update
+          - apt install -y wget gcc
+          - wget https://raw.githubusercontent.com/kernelci/kernelci-core/how-to-bullseye/config/lava/uname/uname-os.c
+          - gcc -o uname-os uname-os.c
+          - lava-test-case uname-os-shell --shell '[ $(uname -o) = "GNU/Linux" ]'
+          - lava-test-case uname-os-c --shell './uname-os'
       from: inline
       name: {{ plan }}
       path: inline/{{ plan }}.yaml
