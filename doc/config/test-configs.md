@@ -3,6 +3,7 @@ title: "Test Configurations"
 date: 2021-08-03
 draft: false
 description: "How to configure tests"
+weight: 3
 ---
 
 All the top-level test configurations are contained in a YAML file:

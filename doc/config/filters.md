@@ -3,6 +3,7 @@ title: "Filters"
 date: 2021-08-03
 draft: false
 description: "Configuration filters"
+weight: 1
 ---
 
 Filters are implemented in

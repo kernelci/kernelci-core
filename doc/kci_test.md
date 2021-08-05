@@ -1,8 +1,9 @@
 ---
 title: "kci_test"
-date: 2021-02-10T11:48:13Z
-draft: true
+date: 2021-08-05
+draft: false
 description: "Command line tool to generate and run tests"
+weight: 6
 ---
 
 ## `kci_test`
