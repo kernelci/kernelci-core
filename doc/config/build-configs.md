@@ -3,6 +3,7 @@ title: "Build configurations"
 date: 2021-08-03
 draft: false
 description: "How to configure kernel builds"
+weight: 2
 ---
 
 All the top-level build configurations are contained in a YAML file:
