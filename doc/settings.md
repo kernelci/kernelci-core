@@ -1,8 +1,8 @@
 ---
-title: "Settings"
+title: "User settings"
 date: 2021-08-05
 draft: false
-description: "User-defined settings"
+description: "User-defined local settings"
 weight: 2
 ---
 
