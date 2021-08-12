@@ -926,6 +926,7 @@ build_configs:
             extra_configs:
               - 'allmodconfig'
               - 'allnoconfig'
+              - 'defconfig+CONFIG_ARM64_16K_PAGES=y'
               - 'defconfig+CONFIG_ARM64_64K_PAGES=y'
               - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
               - 'defconfig+CONFIG_RANDOMIZE_BASE=y'
