@@ -1173,6 +1173,11 @@ class MakeKernel(Step):
         if target:
             kbmeta['image'] = target
 
+        if self._kernel_config_enabled('CPU_BIG_ENDIAN'):
+            kbmeta['endianness'] = 'big'
+        else:
+            kbmeta['endianness'] = 'little'
+
         res = self._make(target, jopt, verbose)
 
         if res:
