@@ -840,6 +840,13 @@ device_types:
     dtb: 'freescale/imx8mq-zii-ultra-zest.dtb'
     boot_method: barebox
 
+  intel-ixp42x-welltech-epbx100:
+    mach: ixp4xx
+    class: arm-dtb
+    cpu: xscale
+    boot_method: uboot
+    flags: ['big_endian']
+
   jetson-tk1:
     mach: tegra
     class: arm-dtb
@@ -2049,6 +2056,10 @@ test_configs:
       - baseline
 
   - device_type: imx8mq-zii-ultra-zest
+    test_plans:
+      - baseline
+
+  - device_type: intel-ixp42x-welltech-epbx100
     test_plans:
       - baseline
 
