@@ -38,6 +38,7 @@ setuptools.setup(
         'kci_test',
         'kci_rootfs',
         'kci_data',
+        'kci_bisect',
     ],
     long_description=open('README.md', 'rb').read().decode('utf8'),
     long_description_content_type='text/markdown',
