@@ -37,6 +37,7 @@ setuptools.setup(
         'kci_build',
         'kci_test',
         'kci_rootfs',
+        'kci_data',
     ],
     long_description=open('README.md', 'rb').read().decode('utf8'),
     long_description_content_type='text/markdown',
