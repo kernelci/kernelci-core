@@ -1119,6 +1119,8 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
             env['name'],
         ])
 
+        publish_path = publish_path.replace(':', '-')
+
         bmeta['kernel'] = {
             'defconfig': target,
             'defconfig_full': defconfig,
