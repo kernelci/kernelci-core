@@ -19,6 +19,7 @@ import glob
 import os
 import yaml
 
+import kernelci
 import kernelci.config
 import kernelci.config.build
 import kernelci.config.data
@@ -27,7 +28,36 @@ import kernelci.config.rootfs
 import kernelci.config.test
 
 
-def load_yaml(config_path):
+def _find_yaml_files(config_path):
+    if config_path.endswith('.yaml'):
+        yaml_files = [config_path]
+    else:
+        yaml_files = glob.glob(os.path.join(config_path, "*.yaml"))
+    return yaml_files
+
+
+def validate_yaml(config_path, entries):
+    yaml_files = _find_yaml_files(config_path)
+    for yaml_path in yaml_files:
+        with open(yaml_path) as yaml_file:
+            data = yaml.safe_load(yaml_file)
+            for name, value in data.items():
+                if name not in entries:
+                    continue
+                if hasattr(value, 'update'):
+                    keys = value.keys()
+                elif hasattr(value, 'extend'):
+                    keys = value
+                else:
+                    keys = []
+                err = kernelci.sort_check(keys)
+                if err:
+                    return "Broken order in {} {}: '{}' is before '{}'".format(
+                        yaml_path, name, err[0], err[1])
+    return None
+
+
+def load_yaml(config_path, validate_entries=None):
     """Load the YAML configuration
 
     Load all the YAML files found in the configuration directory into a single
@@ -37,10 +67,7 @@ def load_yaml(config_path):
     *config_path* is the path to the YAML config directory, or alternative a
                   single YAML file
     """
-    if config_path.endswith('.yaml'):
-        yaml_files = [config_path]
-    else:
-        yaml_files = glob.glob(os.path.join(config_path, "*.yaml"))
+    yaml_files = _find_yaml_files(config_path)
     config = dict()
     for yaml_path in yaml_files:
         with open(yaml_path) as yaml_file:
