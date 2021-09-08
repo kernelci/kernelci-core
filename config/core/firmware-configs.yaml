@@ -1,0 +1,17 @@
+firmware_archives:
+
+  # include all device firmware in a single archive
+  firmware-all.tar.xz:
+    - '*'
+
+  # include all i195 firmware in one archive
+  firmware-i915.tar.xz:
+    - i915/*
+
+  # only include octopus specific fw in this archive
+  firmware-hp-x360-12b-n4000-octopus.tar.xz:
+    - rtl_nic/rtl8153b-2.fw
+    - i915/kbl_dmc_ver1_04.bin
+    - i915/glk_dmc_ver1_04.bin
+
+  # add below more device-specific firmware archives as needed

@@ -25,6 +25,7 @@ import kernelci.config.data
 import kernelci.config.lab
 import kernelci.config.rootfs
 import kernelci.config.test
+import kernelci.config.firmware
 
 
 def load_yaml(config_path):
@@ -70,6 +71,7 @@ def from_data(data):
     config.update(kernelci.config.lab.from_yaml(data))
     config.update(kernelci.config.rootfs.from_yaml(data))
     config.update(kernelci.config.test.from_yaml(data))
+    config.update(kernelci.config.firmware.from_yaml(data))
     return config
 
 

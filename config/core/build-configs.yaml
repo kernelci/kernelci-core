@@ -55,6 +55,9 @@ trees:
   evalenti:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/evalenti/linux-soc-thermal.git"
 
+  firmware:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git"
+
   gtucker:
     url: 'https://gitlab.collabora.com/gtucker/linux.git'
 
@@ -854,6 +857,10 @@ build_configs:
   evalenti:
     tree: evalenti
     branch: 'for-kernelci'
+
+  firmware:
+    tree: firmware
+    branch: main
 
   gtucker_stable:
     tree: gtucker

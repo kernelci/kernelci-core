@@ -1319,6 +1319,90 @@ class MakeModules(Step):
         return super().install(verbose, res)
 
 
+class MakeFirmware(Step):
+    fw_config = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._fw_path = os.path.join(self._output_path, '_firmware_')
+
+    @property
+    def name(self):
+        return 'firmware'
+
+    def run(self, jopt=None, verbose=False, opts=None):
+        """Run the default sanity check on firmware files
+
+        *jopt* is the `make -j` option which will default to `nproc + 2`
+        *verbose* is whether the build output should be shown
+        """
+        res = self._make('all', jopt, verbose)
+        return self._add_run_step(res, jopt)
+
+    def _make_fw_install(self, verbose):
+        if os.path.exists(self._fw_path):
+            shutil.rmtree(self._fw_path)
+        os.makedirs(self._fw_path)
+        opts = {
+            'DESTDIR': os.path.abspath(self._fw_path),
+        }
+        return self._make('install', None, verbose, opts)
+
+    def _get_fw_artifacts(self, fw_tarball):
+        with tarfile.open(fw_tarball, 'r:xz') as tarball:
+            fw = sorted(list(set(
+                path for path in (
+                    os.path.basename(entry.name)
+                    for entry in tarball
+                )
+            )))
+        return fw
+
+    def _create_fw_tarball(self, verbose, fw_config, compr='J'):
+        fw_tarball_path = os.path.join(self._install_path, fw_config.name)
+        file_filter = ""
+        for f in fw_config.files:
+            fw_path = '{}/lib/firmware'.format(self._fw_path)
+            if os.path.isfile('{}/{}'.format(fw_path, f)):
+                file_filter += 'lib/firmware/{}\n'.format(f)
+            else:
+                from pathlib import Path
+                for path in Path(fw_path).rglob(f):
+                    file_filter += os.path.relpath(path, self._fw_path) + '\n'
+        if not file_filter:
+            raise ValueError("Could not find files included in {}: {}".format(
+                fw_config.name, ",".join(fw_config.files)
+            ))
+        if verbose:
+            print("Creating {}".format(fw_tarball_path))
+        shell_cmd("echo '{}' | XZ_DEFAULTS=-T0 tar -C{} -c{}f {} -T-".format(
+            file_filter, self._fw_path, compr, fw_tarball_path))
+        return fw_tarball_path
+
+    def install(self, verbose=False):
+        """Install the kernel firmware
+
+        Install the firmware files inside a _firmware_ build subdirectory.
+        Also install a big generic tarball containing all firmware files
+        together with smaller device-specific tarballs containing subsets of
+        firmware to minimize rootfs sizes and list all files as artifacts.
+
+        *verbose* is whether the build output should be shown
+        """
+        res = self._make_fw_install(verbose)
+
+        if res:
+            for dev_config in self.fw_config:
+                fw_tar = self._create_fw_tarball(verbose,
+                                                 self.fw_config[dev_config])
+                fw_files = self._get_fw_artifacts(fw_tar)
+                self._add_artifact_contents('tarball',
+                                            self.fw_config[dev_config].name,
+                                            fw_files)
+
+        return super().install(verbose, res)
+
+
 class MakeDeviceTrees(Step):
 
     @property

@@ -388,6 +388,15 @@ class cmd_make_modules(MakeCommand):
         return step.install(args.verbose, args.j)
 
 
+class cmd_make_firmware(MakeCommand):
+    help = "Package kernel firmware"
+    step_cls = kernelci.build.MakeFirmware
+
+    def __call__(self, configs, args):
+        self.step_cls.fw_config = configs['firmware_configs']
+        return super().__call__(configs, args)
+
+
 class cmd_make_dtbs(MakeCommand):
     help = "Build device trees"
     step_cls = kernelci.build.MakeDeviceTrees
