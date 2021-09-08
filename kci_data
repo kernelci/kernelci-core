@@ -33,6 +33,15 @@ class cmd_validate(Command):
 
     def __call__(self, configs, args):
         # ToDo: Use jsonschema
+
+        entries = [
+            'db_configs',
+        ]
+        err = kernelci.config.validate_yaml(opts.yaml_config, entries)
+        if err:
+            print(err)
+            return False
+
         return True
 
 
