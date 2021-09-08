@@ -42,19 +42,21 @@ class cmd_validate(Command):
 
     def __call__(self, configs, args):
         # ToDo: Use jsonschema
-        err = kernelci.sort_check(configs['device_types'].keys())
+
+        entries = [
+            'device_types',
+            'file_system_types',
+            'test_plans',
+            'labs',
+        ]
+        err = kernelci.config.validate_yaml(opts.yaml_config, entries)
         if err:
-            print("Device types broken order: '{}' before '{}'".format(*err))
+            print(err)
             return False
 
         test_config_devices = list(
             str(config.device_type) for config in configs['test_configs']
         )
-        err = kernelci.sort_check(test_config_devices)
-        if err:
-            print("Test configs broken order: '{}' before '{}'".format(*err))
-            return False
-
         for device_type in configs['device_types'].keys():
             if device_type not in test_config_devices:
                 print("Device type has no test config: {}".format(device_type))
@@ -66,11 +68,6 @@ class cmd_validate(Command):
                 print("Plans broken order for {}: '{}' before '{}'".format(
                     config.device_type, err[0], err[1]))
                 return False
-
-        err = kernelci.sort_check(configs['labs'].keys())
-        if err:
-            print("Labs broken order: '{}' before '{}'".format(*err))
-            return False
 
         return True
 
