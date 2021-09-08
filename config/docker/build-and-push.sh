@@ -26,6 +26,7 @@
 # -r = also rebuild buildroot
 # -i = also rebuild dt-validation
 # -c = also rebuild coccinelle
+# -e = also rebuild cvehound
 # -q = make the builds quiet
 # -Q = also rebuild qemu docker image
 # -t = the prefix to use in docker tags (default is kernelci/)
@@ -34,7 +35,7 @@ set -e
 tag_px='kernelci/'
 
 
-options='npbdrikqQct:'
+options='npbdrikqQcet:'
 while getopts $options option
 do
   case $option in
@@ -46,6 +47,7 @@ do
     i )  dt_validation=true;;
     k )  k8s=true;;
     c )  coccinelle=true;;
+    e )  cvehound=true;;
     q )  quiet="--quiet";;
     Q )  qemu=true;;
     t )  tag_px=$OPTARG;;
@@ -111,6 +113,11 @@ fi
 if [ "x${coccinelle}" == "xtrue" ]
 then
   docker_build_and_tag coccinelle coccinelle
+fi
+
+if [ "x${cvehound}" == "xtrue" ]
+then
+  docker_build_and_tag cvehound cvehound
 fi
 
 if [ "x${k8s}" == "xtrue" ]
