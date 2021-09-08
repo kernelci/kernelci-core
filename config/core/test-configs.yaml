@@ -99,6 +99,18 @@ test_plans:
     filters:
       - blocklist: *kselftest_defconfig_filter
 
+  baseline-fastboot:
+    rootfs: buildroot_baseline_ramdisk
+    pattern: 'baseline/generic-fastboot-baseline-template.jinja2'
+    params:
+      job_timeout: '50'
+
+  baseline-nfs:
+    rootfs: debian_buster_nfs
+    pattern: 'baseline/{category}-{method}-{protocol}-nfs-baseline-template.jinja2'
+    filters:
+      - blocklist: *kselftest_defconfig_filter
+
   baseline_qemu:
     base_name: baseline
     rootfs: buildroot_baseline_ramdisk
@@ -112,56 +124,12 @@ test_plans:
     filters:
       - blocklist: *kselftest_defconfig_filter
 
-  baseline-fastboot:
-    rootfs: buildroot_baseline_ramdisk
-    pattern: 'baseline/generic-fastboot-baseline-template.jinja2'
-    params:
-      job_timeout: '50'
-
-  baseline-nfs:
-    rootfs: debian_buster_nfs
-    pattern: 'baseline/{category}-{method}-{protocol}-nfs-baseline-template.jinja2'
-    filters:
-      - blocklist: *kselftest_defconfig_filter
-
   cros-ec:
     rootfs: debian_buster-cros-ec_ramdisk
 
-  igt-kms: &igt
+  igt: &igt
     rootfs: debian_buster-igt_ramdisk
     pattern: 'igt/{category}-{method}-{protocol}-{rootfs}-igt.jinja2'
-    params: &igt-kms-test-list
-      tests: >
-        core_auth
-        core_getclient
-        core_getstats
-        core_getversion
-        core_setmaster_vs_auth
-        drm_read
-        kms_addfb_basic
-        kms_atomic
-        kms_flip_event_leak
-        kms_prop_blob
-        kms_setmode
-        kms_vblank
-
-  igt-kms-rockchip:
-    <<: *igt
-    params:
-      <<: *igt-kms-test-list
-      drm_driver: "rockchip"
-
-  igt-kms-tegra:
-    <<: *igt
-    params:
-      <<: *igt-kms-test-list
-      drm_driver: "tegra"
-
-  igt-kms-exynos:
-    <<: *igt
-    params:
-      <<: *igt-kms-test-list
-      drm_driver: "exynos"
 
   igt-gpu-i915:
     <<: *igt
@@ -185,6 +153,41 @@ test_plans:
         panfrost_get_param
         panfrost_prime
         panfrost_submit
+
+  igt-kms: &igt-kms
+    <<: *igt
+    params: &igt-kms-test-list
+      tests: >
+        core_auth
+        core_getclient
+        core_getstats
+        core_getversion
+        core_setmaster_vs_auth
+        drm_read
+        kms_addfb_basic
+        kms_atomic
+        kms_flip_event_leak
+        kms_prop_blob
+        kms_setmode
+        kms_vblank
+
+  igt-kms-exynos:
+    <<: *igt-kms
+    params:
+      <<: *igt-kms-test-list
+      drm_driver: "exynos"
+
+  igt-kms-rockchip:
+    <<: *igt-kms
+    params:
+      <<: *igt-kms-test-list
+      drm_driver: "rockchip"
+
+  igt-kms-tegra:
+    <<: *igt-kms
+    params:
+      <<: *igt-kms-test-list
+      drm_driver: "tegra"
 
   kselftest: &kselftest
     rootfs: debian_buster_kselftest
@@ -222,6 +225,12 @@ test_plans:
       job_timeout: '10'
       kselftest_collections: "seccomp"
 
+  lc-compliance:
+    rootfs: debian_buster-libcamera_nfs
+    pattern: 'lc-compliance/{category}-{method}-{protocol}-{rootfs}-lc-compliance-template.jinja2'
+    params:
+      job_timeout: '45'
+
   ltp: &ltp
     rootfs: debian_buster-ltp_nfs
     pattern: 'ltp/{category}-{method}-{protocol}-{rootfs}-ltp-template.jinja2'
@@ -243,12 +252,6 @@ test_plans:
           defconfig:
             - '+crypto'
 
-  ltp-ipc:
-    <<: *ltp
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "ipc"
-
   ltp-fcntl-locktests:
     <<: *ltp
     params:
@@ -264,6 +267,12 @@ test_plans:
       - passlist:
           defconfig:
             - '+ima'
+  ltp-ipc:
+    <<: *ltp
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "ipc"
+
   ltp-mm:
     <<: *ltp
     params:
@@ -323,12 +332,6 @@ test_plans:
           defconfig:
             - 'defconfig+virtualvideo'
             - 'multi_v7_defconfig+virtualvideo'
-
-  lc-compliance:
-    rootfs: debian_buster-libcamera_nfs
-    pattern: 'lc-compliance/{category}-{method}-{protocol}-{rootfs}-lc-compliance-template.jinja2'
-    params:
-      job_timeout: '45'
 
 device_default_filters:
 
