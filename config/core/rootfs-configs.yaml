@@ -179,6 +179,7 @@ rootfs_configs:
       - arm64
       - armhf
     extra_packages:
+      - gdb-minimal
       - libnuma-dev
     script: "scripts/buster-ltp.sh"
 
