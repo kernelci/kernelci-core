@@ -28,32 +28,30 @@ import kernelci.config.rootfs
 import kernelci.config.test
 
 
-def _find_yaml_files(config_path):
+def _iterate_yaml_files(config_path):
     if config_path.endswith('.yaml'):
         yaml_files = [config_path]
     else:
         yaml_files = glob.glob(os.path.join(config_path, "*.yaml"))
-    return yaml_files
-
-
-def validate_yaml(config_path, entries):
-    yaml_files = _find_yaml_files(config_path)
     for yaml_path in yaml_files:
         with open(yaml_path) as yaml_file:
             data = yaml.safe_load(yaml_file)
-            for name, value in data.items():
-                if name not in entries:
-                    continue
-                if hasattr(value, 'update'):
-                    keys = value.keys()
-                elif hasattr(value, 'extend'):
-                    keys = value
-                else:
-                    keys = []
-                err = kernelci.sort_check(keys)
-                if err:
-                    return "Broken order in {} {}: '{}' is before '{}'".format(
-                        yaml_path, name, err[0], err[1])
+            yield yaml_path, data
+
+
+def validate_yaml(config_path, entries):
+    for yaml_path, data in _iterate_yaml_files(config_path):
+        for name, value in ((k, v) for k, v in data.items() if k in entries):
+            if isinstance(value, dict):
+                keys = value.keys()
+            elif isinstance(value, list):
+                keys = value
+            else:
+                keys = []
+            err = kernelci.sort_check(keys)
+            if err:
+                return "Broken order in {} {}: '{}' is before '{}'".format(
+                    yaml_path, name, err[0], err[1])
     return None
 
 
@@ -67,19 +65,16 @@ def load_yaml(config_path, validate_entries=None):
     *config_path* is the path to the YAML config directory, or alternative a
                   single YAML file
     """
-    yaml_files = _find_yaml_files(config_path)
     config = dict()
-    for yaml_path in yaml_files:
-        with open(yaml_path) as yaml_file:
-            data = yaml.safe_load(yaml_file)
-            for k, v in data.items():
-                config_value = config.setdefault(k, v.__class__())
-                if hasattr(config_value, 'update'):
-                    config_value.update(v)
-                elif hasattr(config_value, 'extend'):
-                    config_value.extend(v)
-                else:
-                    config[k] = v
+    for yaml_path, data in _iterate_yaml_files(config_path):
+        for name, value in data.items():
+            config_value = config.setdefault(name, value.__class__())
+            if hasattr(config_value, 'update'):
+                config_value.update(value)
+            elif hasattr(config_value, 'extend'):
+                config_value.extend(value)
+            else:
+                config[k] = v
     return config
 
 
