@@ -47,9 +47,9 @@ You will be using `kernelci/staging-debos` docker image for this purpose.
 
     ```
     $ ./kci_rootfs list_configs
-    buster
-    buster-v4l2
-    buster-igt
+    bullseye
+    bullseye-v4l2
+    bullseye-igt
     ```
    By default `kci_rootfs` reads entries from `rootfs-configs.yaml`. This file acts as a rootfs config file.
 
@@ -57,25 +57,25 @@ You will be using `kernelci/staging-debos` docker image for this purpose.
 rootfs name along with its architecture.
 
     ```
-    buster amd64
-    buster arm64
+    bullseye amd64
+    bullseye arm64
     ```
 
     It also comes with couple of options `--rootfs-config` and `--arch` to
     filter the results based on config name or arch type.
 
     ```
-    $ ./kci_rootfs list_variants --rootfs-config buster --arch i386
-    buster i386
+    $ ./kci_rootfs list_variants --rootfs-config bullseye --arch i386
+    bullseye i386
 
-    $ ./kci_rootfs list_variants --rootfs-config buster
-    buster amd64
-    buster arm64
+    $ ./kci_rootfs list_variants --rootfs-config bullseye
+    bullseye amd64
+    bullseye arm64
 
     $ ./kci_rootfs list_variants --arch amd64
-    buster amd64
-    buster-v4l2 amd64
-    buster-igt amd64
+    bullseye amd64
+    bullseye-v4l2 amd64
+    bullseye-igt amd64
     ```
 7. Now it's time to re-build existing rootfs image using `kci_rootfs build`. It
    takes three arguments:
@@ -83,10 +83,10 @@ rootfs name along with its architecture.
     * `--data-path` points to debos files location
     * `--arch` refers to CPU arch you want to build
 
-    For example, to build a buster rootfs image for i386, you can run
+    For example, to build a bullseye rootfs image for i386, you can run
     ```
     ./kci_rootfs build \
-        --rootfs-config buster \
+        --rootfs-config bullseye \
         --data-path config/rootfs/debos \
         --arch i386
     ```
@@ -96,28 +96,28 @@ rootfs name along with its architecture.
 8. If build is successful you should see message like
 
     ```
-    cd ${ROOTDIR} ; find -H  |  cpio -H newc -v -o | gzip -c - > ${ARTIFACTDIR}/buster/i386/rootfs.cpio.gz | ./build_info.json
-    cd ${ROOTDIR} ; find -H  |  cpio -H newc -v -o | gzip -c - > ${ARTIFACTDIR}/buster/i386/rootfs.cpio.gz | 79539 blocks
+    cd ${ROOTDIR} ; find -H  |  cpio -H newc -v -o | gzip -c - > ${ARTIFACTDIR}/bullseye/i386/rootfs.cpio.gz | ./build_info.json
+    cd ${ROOTDIR} ; find -H  |  cpio -H newc -v -o | gzip -c - > ${ARTIFACTDIR}/bullseye/i386/rootfs.cpio.gz | 79539 blocks
     Powering off.
     ==== Recipe done ====
     ```
-    Finally newly built rootfs images can be found under the directory pointed by `--data-path`. In our case, its `config/rootfs/debos/buster/i386/`
+    Finally newly built rootfs images can be found under the directory pointed by `--data-path`. In our case, its `config/rootfs/debos/bullseye/i386/`
 
     ```
-    $ ls config/rootfs/debos/buster/i386/
+    $ ls config/rootfs/debos/bullseye/i386/
     build_info.json  full.rootfs.cpio.gz  full.rootfs.tar.xz  initrd.cpio.gz  rootfs.cpio.gz  rootfs.ext4.xz
     ```
 
 ### Create a new rootfs image
 
-Now you know how to build default `kci_rootfs` images. Let's look at how to add simple `buster` rootfs image.
+Now you know how to build default `kci_rootfs` images. Let's look at how to add simple `bullseye` rootfs image.
 
 1. First you need to add appropriate entries to `rootfs_config.yml` file.
 
     ```
-      buster-example:
+      bullseye-example:
         rootfs_type: debos
-        debian_release: buster
+        debian_release: bullseye
         arch_list:
           - amd64
           - arm64
@@ -126,11 +126,11 @@ Now you know how to build default `kci_rootfs` images. Let's look at how to add 
           - e2fsprogs
     ```
 
-  Above entry will create rootfs named `buster-example` for CPU amd64 and arm64 architectures without `e2fslibs` and  `e2fsprogs` packages. List of possible `rootfs-config` yaml entries and its description are listed below:
+  Above entry will create rootfs named `bullseye-example` for CPU amd64 and arm64 architectures without `e2fslibs` and  `e2fsprogs` packages. List of possible `rootfs-config` yaml entries and its description are listed below:
 
   | Entry                 | Description |
   | ----------------------| ----------- |
-  | buster-example        | Unique rootfs configuration name. |
+  | bullseye-example        | Unique rootfs configuration name. |
   | rootfs_type           | Tool used for rootfs creation. |
   | debian_release        | Desired Debian OS version. |
   | arch_list             | Desired list of CPU architecture. |
@@ -148,15 +148,15 @@ Now you know how to build default `kci_rootfs` images. Let's look at how to add 
 
     ```
     ./kci_rootfs build \
-        --rootfs-config buster-example \
+        --rootfs-config bullseye-example \
         --data-path config/rootfs/debos \
         --arch amd64
     ```
     and wait for its completion. If everything went fine you should see
-    something like below under `config/rootfs/debos/buster-example/amd64/`
+    something like below under `config/rootfs/debos/bullseye-example/amd64/`
     directory.
 
     ```
-    ls config/rootfs/debos/buster-example/amd64/
+    ls config/rootfs/debos/bullseye-example/amd64/
     build_info.json  full.rootfs.cpio.gz  full.rootfs.tar.xz  initrd.cpio.gz  rootfs.cpio.gz  rootfs.ext4.xz
     ```

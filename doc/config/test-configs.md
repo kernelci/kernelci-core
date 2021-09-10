@@ -23,7 +23,7 @@ There are several sections in this file:
 The test configurations are the main entries as they define which tests
 actually have to be run.  They refer to entries in other sections of the file
 in order to provide some full combinations, for example to define that an
-`igt-kms-exynos` test plan using a `buster-igt` file system should be run on an
+`igt-kms-exynos` test plan using a `bullseye-igt` file system should be run on an
 `odroid-xu3` device.
 
 In addition to those sections, there are some filters (passlist, blocklist) to
@@ -141,14 +141,14 @@ Test plans rely on rootfs definitions, so here's a simplified example:
 ```yaml
 file_systems:
 
-  debian_buster_ramdisk:
+  debian_bullseye_ramdisk:
     type: debian
-    ramdisk: 'buster/20210730.6/{arch}/rootfs.cpio.gz'
+    ramdisk: 'bullseye/20210909/{arch}/rootfs.cpio.gz'
 
 test_plans:
 
   sleep:
-    rootfs: debian_buster_ramdisk
+    rootfs: debian_bullseye_ramdisk
     params:
       sleep_params: mem freeze
 ```
@@ -267,10 +267,10 @@ file_systems:
     type: buildroot
     ramdisk: '{arch}/base/rootfs.cpio.gz'
 
-  debian_buster_nfs:
+  debian_bullseye_nfs:
     type: debian
-    ramdisk: 'buster/20210730.6/{arch}/initrd.cpio.gz'
-    nfs: 'buster/20210730.6/{arch}/full.rootfs.tar.xz'
+    ramdisk: 'bullseye/20210909/{arch}/initrd.cpio.gz'
+    nfs: 'bullseye/20210909/{arch}/full.rootfs.tar.xz'
     root_type: nfs
 ```
 

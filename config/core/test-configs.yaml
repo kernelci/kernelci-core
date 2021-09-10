@@ -35,46 +35,46 @@ file_systems:
     type: buildroot
     ramdisk: '{arch}/baseline/rootfs.cpio.gz'
 
-  debian_buster_ramdisk:
+  debian_bullseye_ramdisk:
     type: debian
-    ramdisk: 'buster/20210827.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'bullseye/20210909/{arch}/rootfs.cpio.gz'
 
-  debian_buster_nfs:
+  debian_bullseye_nfs:
     type: debian
-    ramdisk: 'buster/20210827.0/{arch}/initrd.cpio.gz'
-    nfs: 'buster/20210827.0/{arch}/full.rootfs.tar.xz'
+    ramdisk: 'bullseye/20210909/{arch}/initrd.cpio.gz'
+    nfs: 'bullseye/20210909/{arch}/full.rootfs.tar.xz'
     root_type: nfs
 
-  debian_buster-cros-ec_ramdisk:
+  debian_bullseye-cros-ec_ramdisk:
     type: debian
-    ramdisk: 'buster-cros-ec/20210827.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'bullseye-cros-ec/20210909/{arch}/rootfs.cpio.gz'
 
-  debian_buster-igt_ramdisk:
+  debian_bullseye-igt_ramdisk:
     type: debian
-    ramdisk: 'buster-igt/20210827.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'bullseye-igt/20210909/{arch}/rootfs.cpio.gz'
 
-  debian_buster_kselftest:
+  debian_bullseye_kselftest:
     type: debian
-    ramdisk: 'buster-kselftest/20210827.0/{arch}/initrd.cpio.gz'
-    nfs: 'buster-kselftest/20210827.0/{arch}/full.rootfs.tar.xz'
+    ramdisk: 'bullseye-kselftest/20210909/{arch}/initrd.cpio.gz'
+    nfs: 'bullseye-kselftest/20210909/{arch}/full.rootfs.tar.xz'
     root_type: nfs
     params:
       os_config: 'debian'
 
-  debian_buster-v4l2_ramdisk:
+  debian_bullseye-v4l2_ramdisk:
     type: debian
-    ramdisk: 'buster-v4l2/20210827.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'bullseye-v4l2/20210909/{arch}/rootfs.cpio.gz'
 
-  debian_buster-libcamera_nfs:
+  debian_bullseye-libcamera_nfs:
     type: debian
-    ramdisk: 'buster-libcamera/20210827.0/{arch}/initrd.cpio.gz'
-    nfs: 'buster-libcamera/20210827.0/{arch}/full.rootfs.tar.xz'
+    ramdisk: 'bullseye-libcamera/20210909/{arch}/initrd.cpio.gz'
+    nfs: 'bullseye-libcamera/20210909/{arch}/full.rootfs.tar.xz'
     root_type: nfs
 
-  debian_buster-ltp_nfs:
+  debian_bullseye-ltp_nfs:
     type: debian
-    ramdisk: 'buster-ltp/20210827.0/{arch}/initrd.cpio.gz'
-    nfs: 'buster-ltp/20210827.0/{arch}/full.rootfs.tar.xz'
+    ramdisk: 'bullseye-ltp/20210909/{arch}/initrd.cpio.gz'
+    nfs: 'bullseye-ltp/20210909/{arch}/full.rootfs.tar.xz'
     root_type: nfs
 
 
@@ -106,7 +106,7 @@ test_plans:
       job_timeout: '50'
 
   baseline-nfs:
-    rootfs: debian_buster_nfs
+    rootfs: debian_bullseye_nfs
     pattern: 'baseline/{category}-{method}-{protocol}-nfs-baseline-template.jinja2'
     filters:
       - blocklist: *kselftest_defconfig_filter
@@ -125,10 +125,10 @@ test_plans:
       - blocklist: *kselftest_defconfig_filter
 
   cros-ec:
-    rootfs: debian_buster-cros-ec_ramdisk
+    rootfs: debian_bullseye-cros-ec_ramdisk
 
   igt: &igt
-    rootfs: debian_buster-igt_ramdisk
+    rootfs: debian_bullseye-igt_ramdisk
     pattern: 'igt/{category}-{method}-{protocol}-{rootfs}-igt.jinja2'
 
   igt-gpu-i915:
@@ -190,7 +190,7 @@ test_plans:
       drm_driver: "tegra"
 
   kselftest: &kselftest
-    rootfs: debian_buster_kselftest
+    rootfs: debian_bullseye_kselftest
     pattern: 'kselftest/{category}-{method}-{protocol}-{rootfs}-kselftest-template.jinja2'
     filters:
       - passlist: {defconfig: ['kselftest']}
@@ -226,13 +226,13 @@ test_plans:
       kselftest_collections: "seccomp"
 
   lc-compliance:
-    rootfs: debian_buster-libcamera_nfs
+    rootfs: debian_bullseye-libcamera_nfs
     pattern: 'lc-compliance/{category}-{method}-{protocol}-{rootfs}-lc-compliance-template.jinja2'
     params:
       job_timeout: '45'
 
   ltp: &ltp
-    rootfs: debian_buster-ltp_nfs
+    rootfs: debian_bullseye-ltp_nfs
     pattern: 'ltp/{category}-{method}-{protocol}-{rootfs}-ltp-template.jinja2'
     filters:
       - blocklist: *kselftest_defconfig_filter
@@ -295,18 +295,18 @@ test_plans:
       job_timeout: '30'
 
   preempt-rt:
-    rootfs: debian_buster_nfs
+    rootfs: debian_bullseye_nfs
     filters:
       - passlist: {defconfig: ['preempt_rt']}
 
   sleep:
-    rootfs: debian_buster_ramdisk
+    rootfs: debian_bullseye_ramdisk
     params:
       sleep_params: mem freeze
 
   sleep_mem:
     base_name: sleep
-    rootfs: debian_buster_ramdisk
+    rootfs: debian_bullseye_ramdisk
     pattern: 'sleep/{category}-{method}-{protocol}-{rootfs}-sleep-template.jinja2'
     params:
       sleep_params: mem
@@ -315,16 +315,16 @@ test_plans:
     rootfs: buildroot_baseline_ramdisk
 
   usb:
-    rootfs: debian_buster_ramdisk
+    rootfs: debian_bullseye_ramdisk
 
   v4l2-compliance-uvc:
-    rootfs: debian_buster-v4l2_ramdisk
+    rootfs: debian_bullseye-v4l2_ramdisk
     # FIXME - this is not very sustainable, improve template naming scheme
     pattern: 'v4l2-compliance/{category}-{method}-{protocol}-{rootfs}-v4l2-compliance-template.jinja2'
     params: {v4l2_driver: "uvcvideo"}
 
   v4l2-compliance-vivid:
-    rootfs: debian_buster-v4l2_ramdisk
+    rootfs: debian_bullseye-v4l2_ramdisk
     pattern: 'v4l2-compliance/generic-qemu-v4l2-compliance-template.jinja2'
     params: {v4l2_driver: "vivid"}
     filters:

@@ -13,9 +13,9 @@ rootfs_configs:
     frags:
       - baseline
 
-  buster:
+  bullseye:
     rootfs_type: debos
-    debian_release: buster
+    debian_release: bullseye
     arch_list:
       - amd64
       - arm64
@@ -27,7 +27,7 @@ rootfs_configs:
       - mipsel
     extra_packages:
       - isc-dhcp-client
-    extra_packages_remove: &extra_packages_remove_buster
+    extra_packages_remove: &extra_packages_remove_bullseye
       - bash
       - e2fslibs
       - e2fsprogs
@@ -39,7 +39,7 @@ rootfs_configs:
       - libp11-kit0
       - libunistring2
       - sensible-utils
-    extra_files_remove: &extra_files_remove_buster
+    extra_files_remove: &extra_files_remove_bullseye
       - '*networkd*'
       - '*resolved*'
       - nosuspend.conf
@@ -51,9 +51,9 @@ rootfs_configs:
     script: "scripts/install-bootrr.sh"
     test_overlay: "overlays/baseline"
 
-  buster-cros-ec:
+  bullseye-cros-ec:
     rootfs_type: debos
-    debian_release: buster
+    debian_release: bullseye
     arch_list:
       - amd64
       - arm64
@@ -66,12 +66,12 @@ rootfs_configs:
       - e2fslibs
       - e2fsprogs
       - libext2fs2
-    script: "scripts/buster-cros-ec-tests.sh"
+    script: "scripts/bullseye-cros-ec-tests.sh"
     test_overlay: ""
 
-  buster-igt:
+  bullseye-igt:
     rootfs_type: debos
-    debian_release: buster
+    debian_release: bullseye
     arch_list:
         - amd64
         - arm64
@@ -109,12 +109,12 @@ rootfs_configs:
         - dir
         - partx
         - find
-    script: "scripts/buster-igt.sh"
+    script: "scripts/bullseye-igt.sh"
     test_overlay: "overlays/igt"
 
-  buster-kselftest:
+  bullseye-kselftest:
     rootfs_type: debos
-    debian_release: buster
+    debian_release: bullseye
     arch_list:
       - amd64
       - arm64
@@ -144,9 +144,9 @@ rootfs_configs:
       - wget
       - xz-utils
 
-  buster-libcamera:
+  bullseye-libcamera:
     rootfs_type: debos
-    debian_release: buster
+    debian_release: bullseye
     arch_list:
       - amd64
       - arm64
@@ -157,21 +157,21 @@ rootfs_configs:
       - bash
       - e2fslibs
       - e2fsprogs
-    script: "scripts/buster-libcamera.sh"
+    script: "scripts/bullseye-libcamera.sh"
     test_overlay: "overlays/libcamera"
 
-  buster-ltp:
+  bullseye-ltp:
     rootfs_type: debos
-    debian_release: buster
+    debian_release: bullseye
     arch_list:
       - amd64
       - arm64
       - armhf
-    script: "scripts/buster-ltp.sh"
+    script: "scripts/bullseye-ltp.sh"
 
-  buster-v4l2:
+  bullseye-v4l2:
     rootfs_type: debos
-    debian_release: buster
+    debian_release: bullseye
     arch_list:
       - amd64
       - arm64
@@ -185,7 +185,7 @@ rootfs_configs:
       - bash
       - e2fslibs
       - e2fsprogs
-    script: "scripts/buster-v4l2.sh"
+    script: "scripts/bullseye-v4l2.sh"
     test_overlay: "overlays/v4l2"
 
   sid:
@@ -207,4 +207,4 @@ rootfs_configs:
       - libncursesw6
       - libp11-kit0
       - sensible-utils
-    extra_files_remove: *extra_files_remove_buster
+    extra_files_remove: *extra_files_remove_bullseye
