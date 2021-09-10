@@ -75,7 +75,7 @@ docker_push() {
 docker_build_and_tag() {
   tag=${tag_px}$2
   echo_build $tag
-  docker build ${quiet} ${cache_args} $1 -t $tag
+  docker build --build-arg PREFIX=$tag_px ${quiet} ${cache_args} $1 -t $tag
   if [ "x${push}" == "xtrue" ]
   then
     docker_push $tag

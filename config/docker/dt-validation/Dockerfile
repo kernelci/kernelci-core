@@ -1,4 +1,5 @@
-FROM kernelci/build-base
+ARG PREFIX=kernelci/
+FROM ${PREFIX}build-base
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
     gcc-8 \
