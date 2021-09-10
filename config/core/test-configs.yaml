@@ -127,6 +127,9 @@ test_plans:
   cros-ec:
     rootfs: debian_buster-cros-ec_ramdisk
 
+  iec-security:
+    rootfs: buildroot_baseline_ramdisk
+
   igt: &igt
     rootfs: debian_buster-igt_ramdisk
     pattern: 'igt/{category}-{method}-{protocol}-{rootfs}-igt.jinja2'
@@ -1782,6 +1785,7 @@ test_configs:
       - baseline
       - baseline-nfs
       - cros-ec
+      - iec-security
       - igt-gpu-i915
       - kselftest-filesystems
       - kselftest-futex
@@ -1911,6 +1915,7 @@ test_configs:
       - baseline
       - baseline-nfs
       - cros-ec
+      - iec-security
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
@@ -2178,6 +2183,7 @@ test_configs:
       - baseline
       - baseline-nfs
       - cros-ec
+      - iec-security
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
@@ -2316,6 +2322,7 @@ test_configs:
     test_plans:
       - baseline_qemu
       - baseline-qemu-docker
+      - iec-security
       - smc
       - v4l2-compliance-vivid
 
