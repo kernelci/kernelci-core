@@ -1,0 +1,7 @@
+{% extends 'boot/generic-uboot-tftp-ramdisk-boot-template.jinja2' %}
+{% block actions %}
+{{ super () }}
+
+{% include 'iec-security/iec-security.jinja2' %}
+
+{% endblock %}
