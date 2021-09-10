@@ -1,7 +1,8 @@
 #
 # Container to drive Kubernetes cluster from KernelCI
 #
-FROM kernelci/build-base
+ARG PREFIX=kernelci/
+FROM ${PREFIX}build-base
 MAINTAINER "Kevin Hilman <khilmnan@baylibre.com>"
 
 #

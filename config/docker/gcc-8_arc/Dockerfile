@@ -1,4 +1,5 @@
-FROM kernelci/build-base
+ARG PREFIX=kernelci/
+FROM ${PREFIX}build-base
 
 # 
 # pre-built toolchains for ARC available here:
