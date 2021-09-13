@@ -2207,11 +2207,6 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - kselftest-filesystems
-      - kselftest-futex
-      - kselftest-lib
-      - kselftest-lkdtm
-      - kselftest-seccomp
 
   - device_type: mustang
     test_plans:
