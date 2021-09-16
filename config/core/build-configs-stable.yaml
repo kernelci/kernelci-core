@@ -1,7 +1,7 @@
 # Build fewer kernel configs with stable branches
 stable_variants: &stable_variants
-  gcc-8:
-    build_environment: gcc-8
+  gcc-9:
+    build_environment: gcc-9
     fragments: ['tinyconfig']
     architectures:
       arc:
