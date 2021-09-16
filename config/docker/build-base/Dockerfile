@@ -1,4 +1,4 @@
-FROM debian:buster
+FROM debian:bullseye
 MAINTAINER "Matt Hart" <matt@mattface.org>
 
 ARG DEBIAN_FRONTEND=noninteractive
