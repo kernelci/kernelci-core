@@ -9,5 +9,6 @@ RUN apt-get update && \
 	qemu-system-ppc \
 	qemu-system-s390x \
 	qemu-system-sparc \
-	qemu-system-x86 && \
+	qemu-system-x86 \
+	qemu-utils && \
 	apt-get clean
