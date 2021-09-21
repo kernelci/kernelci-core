@@ -8,9 +8,9 @@ weight: 5
 
 ### How to build a rootfs image using kci_rootfs
 
-You will be using `kernelci/staging-debos` docker image for this purpose.
+You will be using `kernelci/debos` docker image for this purpose.
 
-1. Pull the docker image `docker pull kernelci/staging-debos`
+1. Pull the docker image `docker pull kernelci/debos`
 
 2. Clone the kernelci-core repo.
 
@@ -20,7 +20,7 @@ You will be using `kernelci/staging-debos` docker image for this purpose.
 3. Start the docker and get into it.
 
    ```
-   sudo docker run -itd -v $(pwd)/kernelci-core:/kernelci-core --device /dev/kvm --privileged kernelci/staging-debos
+   sudo docker run -itd -v $(pwd)/kernelci-core:/kernelci-core --device /dev/kvm --privileged kernelci/debos
    sudo docker exec -it <container_id> bash
    cd /kernelci-core/
    ```
