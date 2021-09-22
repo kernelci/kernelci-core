@@ -66,6 +66,8 @@ rootfs_configs:
       - e2fslibs
       - e2fsprogs
       - libext2fs2
+    extra_firmware:
+      - rtl_nic/rtl8153b-2.fw
     script: "scripts/buster-cros-ec-tests.sh"
     test_overlay: ""
 
@@ -109,6 +111,9 @@ rootfs_configs:
         - dir
         - partx
         - find
+    extra_firmware:
+        - i915/kbl_dmc_ver1_04.bin
+        - i915/glk_dmc_ver1_04.bin
     script: "scripts/buster-igt.sh"
     test_overlay: "overlays/igt"
 
