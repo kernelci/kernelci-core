@@ -42,7 +42,7 @@ class RootFS(YAMLObject):
 
 class RootFS_Debos(RootFS):
     def __init__(self, name, rootfs_type, debian_release=None,
-                 arch_list=None, extra_packages=None,
+                 arch_list=None, extra_packages=None, extra_firmware=None,
                  extra_packages_remove=None,
                  extra_files_remove=None, script="",
                  test_overlay="", crush_image_options=None, debian_mirror="",
@@ -52,6 +52,7 @@ class RootFS_Debos(RootFS):
         self._arch_list = arch_list or list()
         self._extra_packages = extra_packages or list()
         self._extra_packages_remove = extra_packages_remove or list()
+        self._extra_firmware = extra_firmware or list()
         self._extra_files_remove = extra_files_remove or list()
         self._script = script
         self._test_overlay = test_overlay
@@ -68,7 +69,8 @@ class RootFS_Debos(RootFS):
                      'extra_packages', 'extra_packages_remove',
                      'extra_files_remove', 'script', 'test_overlay',
                      'crush_image_options', 'debian_mirror',
-                     'keyring_package', 'keyring_file']))
+                     'keyring_package', 'keyring_file',
+                     'extra_firmware']))
         return cls(**kw)
 
     @property
@@ -90,6 +92,10 @@ class RootFS_Debos(RootFS):
     @property
     def extra_files_remove(self):
         return list(self._extra_files_remove)
+
+    @property
+    def extra_firmware(self):
+        return list(self._extra_firmware)
 
     @property
     def script(self):
@@ -248,6 +254,7 @@ def _dump_config_debos(config_name, config):
         config.extra_packages_remove))
     print('\textra_files_remove: {}'.format(
         config.extra_files_remove))
+    print('\textra_firmware: {}'.format(config.extra_firmware))
     print('\tscript: {}'.format(config.script))
     print('\ttest_overlay: {}'.format(config.test_overlay))
     print('\tcrush_image_options: {}'.format(
