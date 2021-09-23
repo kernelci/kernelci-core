@@ -1,5 +1,6 @@
 #!/bin/sh
 
+set -e
 FIRMWARE_SITE=https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
 FIRMWARE_VERSION=d526e044bddaa2c2ad855c7296147e49be0ab03c
 
