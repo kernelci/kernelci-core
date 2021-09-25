@@ -27,6 +27,7 @@ rootfs_configs:
       - mipsel
     extra_packages:
       - isc-dhcp-client
+      - tpm2-tools
     extra_packages_remove: &extra_packages_remove_buster
       - bash
       - e2fslibs
