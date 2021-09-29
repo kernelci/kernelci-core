@@ -1,4 +1,4 @@
-FROM debian:buster
+FROM debian:bullseye
 MAINTAINER "Matt Hart" <matt@mattface.org>
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -36,7 +36,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 
 # Python 3.7
 RUN apt-get update && apt-get install --no-install-recommends -y \
-    python3.7 \
+    python3.9 \
     python3-jinja2 \
     python3-keyring \
     python3-pyelftools \
