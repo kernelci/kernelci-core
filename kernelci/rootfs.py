@@ -29,6 +29,7 @@ def _build_debos(name, config, data_path, arch):
 -t extra_packages:"{extra_packages}" \
 -t extra_packages_remove:"{extra_packages_remove}" \
 -t extra_files_remove:"{extra_files_remove}" \
+-t extra_firmware:"{extra_firmware}" \
 -t script:"{script}" \
 -t test_overlay:"{test_overlay}" \
 -t crush_image_options:"{crush_image_options}" \
@@ -43,6 +44,7 @@ rootfs.yaml'.format(
             extra_packages=" ".join(config.extra_packages),
             extra_packages_remove=" ".join(config.extra_packages_remove),
             extra_files_remove=" ".join(config.extra_files_remove),
+            extra_firmware=" ".join(config.extra_firmware),
             script=config.script,
             test_overlay=config.test_overlay,
             crush_image_options=" ".join(config.crush_image_options),
