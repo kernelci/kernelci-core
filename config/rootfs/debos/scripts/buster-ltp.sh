@@ -16,6 +16,7 @@ BUILD_DEPS="\
     flex \
     m4 \
     libc6-dev \
+    libnuma-dev \
 "
 
 apt-get install --no-install-recommends -y  ${BUILD_DEPS}
