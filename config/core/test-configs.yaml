@@ -2392,6 +2392,21 @@ test_configs:
   - device_type: r8a774a1-hihope-rzg2m-ex
     test_plans:
       - baseline
+      - baseline-nfs
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
+      - kselftest-lkdtm
+      - kselftest-seccomp
+      - ltp-crypto
+      - ltp-fcntl-locktests
+      - ltp-ima
+      - ltp-ipc
+      - ltp-mm
+      - ltp-pty
+      - ltp-timers
+      - preempt-rt
+      - smc
 
   - device_type: r8a774b1-hihope-rzg2n-ex
     test_plans:
