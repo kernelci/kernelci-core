@@ -239,6 +239,12 @@ test_plans:
       job_timeout: '10'
       kselftest_collections: "lib"
 
+  kselftest-livepatch:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "livepatch"
+
   kselftest-lkdtm:
     <<: *kselftest
     params:
@@ -1989,6 +1995,7 @@ test_configs:
       - kselftest-ftrace
       - kselftest-futex
       - kselftest-lib
+      - kselftest-livepatch
       - kselftest-lkdtm
       - kselftest-mqueue
       - kselftest-netfilter

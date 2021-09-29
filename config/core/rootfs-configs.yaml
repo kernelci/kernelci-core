@@ -140,6 +140,7 @@ rootfs_configs:
       - openssl
       - perl
       - perl-modules-5.28
+      - procps
       - publicsuffix
       - wget
       - xz-utils
