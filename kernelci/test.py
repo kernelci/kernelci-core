@@ -108,7 +108,8 @@ def get_params(meta, target, plan_config, storage):
     rootfs = plan_config.rootfs
     defconfig_full = kernel['defconfig_full']
     defconfig = ''.join(defconfig_full.split('+')[:1])
-    endian = 'big' if 'BIG_ENDIAN' in defconfig_full else 'little'
+
+    endian = kernel["endianness"]
     describe = rev['describe']
     kselftests = meta.get_single_artifact('kselftest', attr='path')
     kselftests_url = (
