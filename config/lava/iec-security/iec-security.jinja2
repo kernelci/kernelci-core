@@ -1,0 +1,13 @@
+- test:
+    name: {{ plan }}
+    description: "cyber security standard tests such as IEC-62443-4-2"
+    timeout:
+      minutes: 20
+    definitions:
+    - repository: https://github.com/kernelci/iec-security.git
+      from: git
+      branch: master
+      path: iec-security-tests/Singlenode-TestDefinition.yaml
+      name: {{ plan }}
+      lava-signal: kmsg
+
