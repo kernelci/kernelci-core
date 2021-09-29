@@ -6,6 +6,7 @@ rootfs_configs:
       - arm64
       - arm64be
       - armeb
+      - armeb-xscale
       - armel
       - mipsel
       - riscv

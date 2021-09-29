@@ -24,7 +24,8 @@ class DeviceType(YAMLObject):
     """Device type model."""
 
     def __init__(self, name, mach, arch, boot_method, dtb=None, base_name=None,
-                 flags=None, filters=None, context=None, params=None):
+                 flags=None, filters=None, context=None, params=None,
+                 cpu=None):
         """A device type describes a category of equivalent hardware devices.
 
         *name* is unique for the device type, typically as used by LAVA.
@@ -44,6 +45,7 @@ class DeviceType(YAMLObject):
         self._arch = arch
         self._boot_method = boot_method
         self._dtb = dtb
+        self._cpu = cpu
         self._base_name = base_name or name
         self._params = params or dict()
         self._flags = flags or list()
@@ -72,6 +74,10 @@ class DeviceType(YAMLObject):
     @property
     def boot_method(self):
         return self._boot_method
+
+    @property
+    def cpu(self):
+        return self._cpu
 
     @property
     def dtb(self):
@@ -151,7 +157,7 @@ class DeviceTypeFactory(YAMLObject):
     def from_yaml(cls, name, device_type, default_filters=None):
         kw = cls._kw_from_yaml(device_type, [
             'mach', 'arch', 'boot_method',
-            'dtb', 'flags', 'context', 'params',
+            'dtb', 'flags', 'context', 'params', 'cpu'
         ])
         kw.update({
             'name': name,
@@ -200,11 +206,13 @@ class RootFSType(YAMLObject):
     def url(self):
         return self._url
 
-    def get_arch_name(self, arch, endian):
+    def get_arch_name(self, arch, endian, cpu=None):
         arch_key = ('arch', arch)
         endian_key = ('endian', endian)
         arch_name = (self._arch_dict.get((arch_key, endian_key)) or
                      self._arch_dict.get((arch_key,), arch))
+        if cpu is not None:
+            arch_name += "-%s" % cpu
         return arch_name
 
 
@@ -273,7 +281,7 @@ class RootFS(YAMLObject):
     def params(self):
         return dict(self._params)
 
-    def get_url(self, fs_type, arch, endian):
+    def get_url(self, fs_type, arch, endian, cpu=None):
         """Get the URL of the file system for the given variant and arch.
 
         The *fs_type* should match one of the URL patterns known to this root
@@ -282,7 +290,7 @@ class RootFS(YAMLObject):
         fmt = self._url_format.get(fs_type)
         if not fmt:
             return None
-        arch_name = self._fs_type.get_arch_name(arch, endian)
+        arch_name = self._fs_type.get_arch_name(arch, endian, cpu)
         return fmt.format(arch=arch_name)
 
 
