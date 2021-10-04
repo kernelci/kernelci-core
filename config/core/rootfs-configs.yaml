@@ -67,7 +67,11 @@ rootfs_configs:
       - e2fsprogs
       - libext2fs2
     extra_firmware:
+      - mrvl/pcieusb8997_combo_v4.bin
+      - mrvl/sd8897_uapsta.bin
+      - qca/rampatch_00440302.bin
       - rtl_nic/rtl8153b-2.fw
+      - rockchip/dptx.bin
     script: "scripts/buster-cros-ec-tests.sh"
     test_overlay: ""
 
@@ -112,6 +116,7 @@ rootfs_configs:
         - partx
         - find
     extra_firmware:
+        - i915/bxt_dmc_ver1_07.bin
         - i915/kbl_dmc_ver1_04.bin
         - i915/glk_dmc_ver1_04.bin
     script: "scripts/buster-igt.sh"
