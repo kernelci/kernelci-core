@@ -16,6 +16,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import yaml
+import os
 
 from kernelci.config.base import FilterFactory, YAMLObject
 
@@ -212,7 +213,7 @@ class RootFS(YAMLObject):
     """Root file system model."""
 
     def __init__(self, url_formats, fs_type, boot_protocol='tftp',
-                 root_type=None, prompt="/ #", params=None):
+                 root_type=None, compression=None, prompt="/ #", params=None):
         """A root file system is any user-space that can be used in test jobs.
 
         *url_formats* are a dictionary with a format string for each type of
@@ -229,6 +230,9 @@ class RootFS(YAMLObject):
         *root_type* is the name of the file system type (ramdisk, ...) as used
                     in the job template naming scheme.
 
+        *compression* is the compression of the nfs file system as used in the
+                      job template naming scheme.
+
         *prompt* is a string used in the job definition to tell when the
                  user-space is available to run some commands.
 
@@ -238,6 +242,7 @@ class RootFS(YAMLObject):
         self._url_format = url_formats
         self._fs_type = fs_type
         self._root_type = root_type or list(url_formats.keys())[0]
+        self._compression = compression
         self._boot_protocol = boot_protocol
         self._prompt = prompt
         self._params = params or dict()
@@ -255,6 +260,11 @@ class RootFS(YAMLObject):
                 (fs, rootfs.get(fs)) for fs in ['ramdisk', 'nfs'])
             if url
         }
+        # get compression format for nfs
+        if 'nfs' in kw['url_formats']:
+            compression = os.path.splitext(kw['url_formats']['nfs'])[1]\
+                .replace('.', '')
+            kw['compression'] = compression
         return cls(**kw)
 
     @property
@@ -268,6 +278,10 @@ class RootFS(YAMLObject):
     @property
     def root_type(self):
         return self._root_type
+
+    @property
+    def compression(self):
+        return self._compression
 
     @property
     def params(self):
@@ -366,6 +380,7 @@ class TestPlan(YAMLObject):
             method=boot_method,
             protocol=self.rootfs.boot_protocol,
             rootfs=self.rootfs.root_type,
+            compression=self.rootfs.compression,
             plan=self.name)
 
     def match(self, config):

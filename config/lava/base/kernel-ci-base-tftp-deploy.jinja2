@@ -19,7 +19,11 @@ actions:
 {%- if nfsrootfs_url %}
     nfsrootfs:
       url: {{ nfsrootfs_url }}
-      compression: xz
+      {% if compression %}
+        compression: {{ compression }}
+      {% else %}
+        compression: xz
+      {% endif  %}
 {%- endif %}
 {%- if initrd_url %}
     ramdisk:
