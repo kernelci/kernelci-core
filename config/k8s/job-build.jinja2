@@ -26,7 +26,7 @@ spec:
 
       initContainers:
       - name: kernelci-core-setup
-        image: {{ "FIXME" | env_override('DOCKER_BASE') }}build-{{ "FIXME" | env_override('DOCKER_IMAGE') }}
+        image: {{ "FIXME" | env_override('DOCKER_BASE') }}{{ "FIXME" | env_override('DOCKER_IMAGE') }}
 
         volumeMounts:
         - mountPath: "/scratch"
@@ -43,7 +43,7 @@ spec:
 
       containers:
       - name: kci-build
-        image: {{ "FIXME" | env_override('DOCKER_BASE') }}build-{{ "FIXME" | env_override('DOCKER_IMAGE') }}
+        image: {{ "FIXME" | env_override('DOCKER_BASE') }}{{ "FIXME" | env_override('DOCKER_IMAGE') }}
 
         volumeMounts:
         - mountPath: "/scratch"
