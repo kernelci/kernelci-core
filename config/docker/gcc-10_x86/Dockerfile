@@ -2,10 +2,10 @@ ARG PREFIX=kernelci/
 FROM ${PREFIX}build-base
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
-    gcc-9 \
-    gcc-9-plugin-dev
+    gcc-10 \
+    gcc-10-plugin-dev
 
-RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 500
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 500
 
 # kselftest
 RUN apt-get update && apt-get install --no-install-recommends -y \
