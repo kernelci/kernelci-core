@@ -91,7 +91,7 @@ then
   docker_build_and_tag build-base build-base
   for c in {gcc,clang}-*
   do
-      docker_build_and_tag $c build-$c
+      docker_build_and_tag $c $c
   done
 fi
 
