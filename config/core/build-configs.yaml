@@ -277,9 +277,9 @@ fragments:
 
 build_environments:
 
-  gcc-9:
+  gcc-10:
     cc: gcc
-    cc_version: 9
+    cc_version: 10
     arch_params: &gcc_arch_params
       arc: &arc_params
         cross_compile: 'arc-elf32-'
@@ -339,8 +339,8 @@ build_environments:
 # Default config with full build coverage
 build_configs_defaults:
   variants:
-    gcc-9: &default_gcc-9
-      build_environment: gcc-9
+    gcc-10: &default_gcc-10
+      build_environment: gcc-10
 
       fragments: &default_fragments
         - 'debug'
@@ -474,14 +474,14 @@ arch_defconfigs: &arch_defconfigs
 
 # Small subset of builds, only defconfigs
 minimal_variants: &minimal_variants
-  gcc-9: &gcc_9_minimal
-    build_environment: gcc-9
+  gcc-10: &gcc_10_minimal
+    build_environment: gcc-10
     architectures: *arch_defconfigs
 
 # Medium subset of builds
 medium_variants: &medium_variants
-  gcc-9:
-    build_environment: gcc-9
+  gcc-10:
+    build_environment: gcc-10
     architectures:
       x86_64: *x86_64_arch
       i386: *i386_arch
@@ -491,13 +491,13 @@ medium_variants: &medium_variants
 
 preempt_rt_variants: &preempt_rt_variants
   <<: *minimal_variants
-  gcc-9:
-    <<: *gcc_9_minimal
+  gcc-10:
+    <<: *gcc_10_minimal
     fragments: [preempt_rt]
 
 android_variants: &android_variants
-  gcc-9:
-    build_environment: gcc-9
+  gcc-10:
+    build_environment: gcc-10
     architectures:
       arm: *arm_arch
       arm64: *arm64_arch
@@ -672,8 +672,8 @@ build_configs:
     tree: ardb
     branch: 'arm-kaslr-latest'
     variants:
-      gcc-9:
-        build_environment: gcc-9
+      gcc-10:
+        build_environment: gcc-10
         architectures:
           x86_64: *x86_64_arch
           arm64: *arm64_arch
@@ -691,8 +691,8 @@ build_configs:
     tree: arm64
     branch: 'for-kernelci'
     variants:
-      gcc-9:
-        build_environment: gcc-9
+      gcc-10:
+        build_environment: gcc-10
         architectures:
           arm64:
             base_defconfig: 'defconfig'
@@ -708,8 +708,8 @@ build_configs:
     tree: broonie-misc
     branch: 'for-kernelci'
     variants:
-      gcc-9:
-        build_environment: gcc-9
+      gcc-10:
+        build_environment: gcc-10
         architectures:
           arm: {base_defconfig: 'multi_v7_defconfig'}
           arm64:
@@ -735,8 +735,8 @@ build_configs:
     tree: chrome-platform
     branch: 'for-kernelci'
     variants:
-      gcc-9:
-        build_environment: gcc-9
+      gcc-10:
+        build_environment: gcc-10
         architectures:
           arm: *arm_defconfig
           arm64: *arm64_defconfig
@@ -748,8 +748,8 @@ build_configs:
     tree: cip
     branch: 'linux-4.4.y-cip'
     variants:
-      gcc-9:
-        build_environment: gcc-9
+      gcc-10:
+        build_environment: gcc-10
         architectures:
           arm: *arm_arch
           i386: *i386_arch
@@ -759,8 +759,8 @@ build_configs:
     tree: cip
     branch: 'linux-4.4.y-cip-rt'
     variants:
-      gcc-9:
-        build_environment: gcc-9
+      gcc-10:
+        build_environment: gcc-10
         architectures:
           arm: *arm_arch
           i386: *i386_arch
@@ -770,8 +770,8 @@ build_configs:
     tree: cip
     branch: 'linux-4.19.y-cip'
     variants:
-      gcc-9:
-        build_environment: gcc-9
+      gcc-10:
+        build_environment: gcc-10
         architectures:
           arm:
             <<: *arm_arch
@@ -790,8 +790,8 @@ build_configs:
     tree: cip
     branch: 'linux-4.19.y-cip-rt'
     variants:
-      gcc-9:
-        build_environment: gcc-9
+      gcc-10:
+        build_environment: gcc-10
         architectures:
           arm: *arm_arch
           arm64: *arm64_arch
@@ -801,8 +801,8 @@ build_configs:
     tree: cip
     branch: 'linux-5.10.y-cip'
     variants:
-      gcc-9:
-        build_environment: gcc-9
+      gcc-10:
+        build_environment: gcc-10
         architectures:
           arm: *arm_arch
           arm64: *arm64_arch
@@ -816,8 +816,8 @@ build_configs:
     tree: efi
     branch: 'next'
     variants:
-      gcc-9:
-        build_environment: gcc-9
+      gcc-10:
+        build_environment: gcc-10
         architectures:
           arm: *arm_defconfig
           arm64: *arm64_defconfig
@@ -828,8 +828,8 @@ build_configs:
     tree: efi
     branch: 'urgent'
     variants:
-      gcc-9:
-        build_environment: gcc-9
+      gcc-10:
+        build_environment: gcc-10
         architectures:
           arm: *arm_defconfig
           arm64: *arm64_defconfig
@@ -844,8 +844,8 @@ build_configs:
     tree: kernelci
     branch: 'staging-mainline'
     variants:
-      gcc-9: &staging_gcc
-        build_environment: gcc-9
+      gcc-10: &staging_gcc
+        build_environment: gcc-10
         fragments: [kselftest]
         architectures:
           arc: *arc_defconfig
@@ -877,7 +877,7 @@ build_configs:
     tree: kernelci
     branch: 'staging-next'
     variants:
-      gcc-9: *staging_gcc
+      gcc-10: *staging_gcc
       clang-13:
         <<: *staging_clang
         build_environment: clang-13
@@ -886,7 +886,7 @@ build_configs:
     tree: kernelci
     branch: 'staging-stable'
     variants:
-      gcc-9: *staging_gcc
+      gcc-10: *staging_gcc
       clang-10: *staging_clang
 
   khilman:
@@ -921,8 +921,8 @@ build_configs:
     tree: mainline
     branch: 'master'
     variants:
-      gcc-9:
-        build_environment: gcc-9
+      gcc-10:
+        build_environment: gcc-10
         architectures:
           arm: *arm_defconfig
           arm64: *arm64_defconfig
@@ -938,8 +938,8 @@ build_configs:
     tree: media
     branch: 'master'
     variants:
-      gcc-9:
-        build_environment: gcc-9
+      gcc-10:
+        build_environment: gcc-10
         fragments: [virtualvideo]
         architectures:
           i386: *i386_arch
@@ -955,8 +955,8 @@ build_configs:
     tree: next
     branch: 'master'
     variants:
-      gcc-9:
-        build_environment: gcc-9
+      gcc-10:
+        build_environment: gcc-10
         fragments: *default_fragments
         architectures:
           i386: *i386_arch
