@@ -924,8 +924,8 @@ build_configs:
         architectures: *arch_clang_configs
 
       # Latest clang release
-      clang-12:
-        build_environment: clang-12
+      clang-13:
+        build_environment: clang-13
         architectures:
           <<: *arch_clang_configs
           riscv:
