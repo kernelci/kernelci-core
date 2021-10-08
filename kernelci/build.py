@@ -1204,14 +1204,18 @@ class MakeKernel(Step):
 
     def _find_kernel_images(self, image):
         arch = self._meta.get('bmeta', 'environment', 'arch')
-        boot_dir = os.path.join(self._output_path, 'arch', arch, 'boot')
         kimage_names = KERNEL_IMAGE_NAMES[arch]
         kimages = dict()
 
         if image:
             kimage_names.add(image)
 
-        for path in boot_dir, self._output_path:
+        image_paths = [
+            os.path.join(self._output_path, 'arch', arch, 'boot'),
+            self._output_path
+        ]
+
+        for path in (p for p in image_paths if os.path.isdir(p)):
             files = set(os.listdir(path))
             image_files = files.intersection(kimage_names)
             kimages.update({im: os.path.join(path, im) for im in image_files})
