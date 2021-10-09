@@ -222,6 +222,13 @@ fragments:
       - 'CONFIG_PREEMPT_RT=y'
       - 'CONFIG_PREEMPT_RT_FULL=y' # <= v4.19
 
+  rockpi4_nfs:
+    path: "kernel/configs/rockpi4_nfs.config"
+    configs:
+    - 'CONFIG_STMMAC_ETH=y'
+    - 'CONFIG_STMMAC_PLATFORM=y'
+    - 'CONFIG_DWMAC_ROCKCHIP=y'
+
   tinyconfig:
     path: "kernel/configs/tiny.config"
     defconfig: 'tinyconfig'
@@ -840,6 +847,16 @@ build_configs:
   krzysztof:
     tree: krzysztof
     branch: 'for-next'
+
+  lc-compliance-rockpi4:
+    tree: media
+    branch: 'master'
+    variants:
+      gcc-10:
+        build_environment: gcc-10
+        fragments: [rockpi4_nfs]
+        architectures:
+          arm64: *arm64_arch
 
   lee_android_3.18:
     tree: lee
