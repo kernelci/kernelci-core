@@ -48,7 +48,8 @@ package_management()  {
    remove_packages "${UNNEEDED_PACKAGES}"
 
    # Show what's left package-wise before dropping dpkg itself
-   COLUMNS=300 dpkg -l
+   # ToDo: Investigate why it's hanging with Debian Bullseye as host
+   # COLUMNS=300 dpkg -l
 
    # Drop dpkg
    dpkg --purge --force-remove-essential --force-depends  dpkg
