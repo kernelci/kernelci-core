@@ -5,7 +5,7 @@
 file_system_types:
 
   buildroot:
-    url: 'http://storage.kernelci.org/images/rootfs/buildroot/kci-2020.05-6-g8983f3b738df'
+    url: 'http://storage.kernelci.org/images/rootfs/buildroot'
 
     arch_map:
       arm64be: [{arch: arm64, endian: big}]
@@ -32,13 +32,9 @@ file_system_types:
 
 file_systems:
 
-  buildroot_ramdisk:
-    type: buildroot
-    ramdisk: '{arch}/base/rootfs.cpio.gz'
-
   buildroot_baseline_ramdisk:
     type: buildroot
-    ramdisk: '{arch}/baseline/rootfs.cpio.gz'
+    ramdisk: 'buildroot-baseline/20211210.0/{arch}/rootfs.cpio.gz'
 
   cip_nfs:
     type: cip
