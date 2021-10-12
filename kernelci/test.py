@@ -18,6 +18,8 @@
 import os
 import urllib.parse
 
+COMPRESSION_FORMATS = ['gz', 'bz2', 'xz']
+
 
 def match_configs(configs, meta, lab):
     """Filter the test configs for a given kernel build and lab.
@@ -79,6 +81,11 @@ def get_params(meta, target, plan_config, storage):
     *plan_config* is a TestPlan object for the test plan to run
     *storage* is the URL of the storage server
     """
+
+    def _get_compression(url):
+        fmt = os.path.splitext(url)[1].replace('.', '') if url else ''
+        return fmt if fmt in COMPRESSION_FORMATS else ''
+
     kernel, rev = (meta.get('bmeta', key) for key in ['kernel', 'revision'])
     arch = target.arch
     dtb = dtb_full = target.dtb
@@ -105,6 +112,7 @@ def get_params(meta, target, plan_config, storage):
         urllib.parse.urljoin(storage, '/'.join([url_px, modules]))
         if modules else None
     )
+    modules_compression = _get_compression(modules_url)
     rootfs = plan_config.rootfs
     defconfig_full = kernel['defconfig_full']
     defconfig = ''.join(defconfig_full.split('+')[:1])
@@ -115,6 +123,10 @@ def get_params(meta, target, plan_config, storage):
         urllib.parse.urljoin(storage, '/'.join([url_px, kselftests]))
         if kselftests else None
     )
+    initrd_url = rootfs.get_url('ramdisk', arch, endian)
+    initrd_compression = _get_compression(initrd_url)
+    nfsroot_url = rootfs.get_url('nfs', arch, endian)
+    nfsroot_compression = _get_compression(nfsroot_url)
 
     params = {
         'name': job_name,
@@ -126,6 +138,7 @@ def get_params(meta, target, plan_config, storage):
         'image_type': 'kernel-ci',
         'image_url': base_url,
         'modules_url': modules_url,
+        'modules_compression': modules_compression,
         'plan': plan_config.base_name,
         'plan_variant': plan_config.name,
         'kernel': describe,
@@ -142,9 +155,11 @@ def get_params(meta, target, plan_config, storage):
         'git_commit': rev['commit'],
         'git_describe': describe,
         'git_url': rev['url'],
-        'initrd_url': rootfs.get_url('ramdisk', arch, endian),
+        'initrd_url': initrd_url,
+        'initrd_compression': initrd_compression,
         'kernel_image': os.path.basename(kernel_img),
-        'nfsrootfs_url': rootfs.get_url('nfs', arch, endian),
+        'nfsrootfs_url': nfsroot_url,
+        'nfsroot_compression': nfsroot_compression,
         'context': target.context,
         'rootfs_prompt': rootfs.prompt,
         'file_server_resource': publish_path,
