@@ -41,7 +41,7 @@ echo '{  "tests_suites": [' >> $BUILDFILE
 ########################################################################
 
 LIBCAMERA_URL=https://git.linuxtv.org/libcamera.git
-mkdir -p /tmp/tests/libcamera && cd /tmp/tests/libcamera
+mkdir -p /var/tests/libcamera && cd /var/tests/libcamera
 
 git clone --depth=1 $LIBCAMERA_URL .
 
@@ -55,7 +55,7 @@ echo '  ]}' >> $BUILDFILE
 ########################################################################
 # Cleanup: remove files and packages we don't want in the images       #
 ########################################################################
-rm -rf /tmp/tests
+rm -rf /var/tests
 
 apt-get remove --purge -y ${BUILD_DEPS}
 apt-get remove --purge -y libgtest-dev
