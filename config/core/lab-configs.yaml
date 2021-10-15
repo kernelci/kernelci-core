@@ -13,12 +13,12 @@ labs:
             - preempt-rt
 
   lab-broonie:
-    lab_type: lava
+    lab_type: lava_rest
     url: 'https://lava.sirena.org.uk/'
     priority: low
 
   lab-cip:
-    lab_type: lava
+    lab_type: lava_rest
     url: 'https://lava.ciplatform.org/'
     filters:
       - blocklist: {tree: [android]}
@@ -43,7 +43,7 @@ labs:
             - stable
 
   lab-collabora:
-    lab_type: lava
+    lab_type: lava_rest
     url: 'https://lava.collabora.co.uk/'
     priority: '45'
     filters: &collabora-filters
@@ -52,13 +52,13 @@ labs:
           plan: [baseline-qemu-docker]
 
   lab-collabora-staging:
-    lab_type: lava
+    lab_type: lava_rest
     url: 'https://staging.lava.collabora.dev/'
     priority: '45'
     filters: *collabora-filters
 
   lab-kontron:
-    lab_type: lava
+    lab_type: lava_rest
     url: 'https://lavalab.kontron.com/'
     filters:
       - passlist:
@@ -66,7 +66,7 @@ labs:
             - baseline
 
   lab-linaro-lkft:
-    lab_type: lava
+    lab_type: lava_rest
     url: 'https://lkft.validation.linaro.org/'
     priority: low
     filters:
@@ -89,7 +89,7 @@ labs:
             - baseline
 
   lab-nxp:
-    lab_type: lava
+    lab_type: lava_rest
     url: 'https://lavalab.nxp.com/'
     filters:
       - passlist:
@@ -98,7 +98,7 @@ labs:
       - blocklist: {plan: [baseline-qemu-docker]}
 
   lab-pengutronix:
-    lab_type: lava
+    lab_type: lava_rest
     url: 'https://hekla.openlab.pengutronix.de/'
     filters:
       - passlist:
