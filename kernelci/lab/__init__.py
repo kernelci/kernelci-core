@@ -54,7 +54,7 @@ class LabAPI:
         """
         if user and token:
             url = urllib.parse.urlparse(self.config.url)
-            api_url = "{scheme}://{user}:{token}@{loc}{path}".format(
+            api_url = "{scheme}://{user}:{token}@{loc}{path}RPC2".format(
                 scheme=url.scheme, user=user, token=token,
                 loc=url.netloc, path=url.path)
         else:

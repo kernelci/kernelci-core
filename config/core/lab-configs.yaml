@@ -3,7 +3,7 @@ labs:
   # ToDo: also run jobs with callbacks sent to BayLibre's KernelCI backend
   lab-baylibre:
     lab_type: lava
-    url: 'https://lava.baylibre.com/RPC2/'
+    url: 'https://lava.baylibre.com/'
     filters:
       - blocklist: {tree: [drm-tip]}
       - passlist:
@@ -14,12 +14,12 @@ labs:
 
   lab-broonie:
     lab_type: lava
-    url: 'https://lava.sirena.org.uk/RPC2/'
+    url: 'https://lava.sirena.org.uk/'
     priority: low
 
   lab-cip:
     lab_type: lava
-    url: 'https://lava.ciplatform.org/RPC2'
+    url: 'https://lava.ciplatform.org/'
     filters:
       - blocklist: {tree: [android]}
       - passlist:
@@ -29,7 +29,7 @@ labs:
 
   lab-clabbe:
     lab_type: lava
-    url: 'https://lava.montjoie.ovh/RPC2/'
+    url: 'https://lava.montjoie.ovh/'
     filters:
       - passlist:
           plan:
@@ -44,7 +44,7 @@ labs:
 
   lab-collabora:
     lab_type: lava
-    url: 'https://lava.collabora.co.uk/RPC2/'
+    url: 'https://lava.collabora.co.uk/'
     priority: '45'
     filters: &collabora-filters
       - blocklist:
@@ -53,13 +53,13 @@ labs:
 
   lab-collabora-staging:
     lab_type: lava
-    url: 'https://staging.lava.collabora.dev/RPC2/'
+    url: 'https://staging.lava.collabora.dev/'
     priority: '45'
     filters: *collabora-filters
 
   lab-kontron:
     lab_type: lava
-    url: 'https://lavalab.kontron.com/RPC2/'
+    url: 'https://lavalab.kontron.com/'
     filters:
       - passlist:
           plan:
@@ -67,7 +67,7 @@ labs:
 
   lab-linaro-lkft:
     lab_type: lava
-    url: 'https://lkft.validation.linaro.org/RPC2/'
+    url: 'https://lkft.validation.linaro.org/'
     priority: low
     filters:
       - passlist:
@@ -81,7 +81,7 @@ labs:
 
   lab-mhart:
     lab_type: lava
-    url: 'http://lava.streamtester.net/RPC2/'
+    url: 'http://lava.streamtester.net/'
     filters:
       - blocklist: {tree: ['android', 'drm-tip', 'linaro-android']}
       - passlist:
@@ -90,7 +90,7 @@ labs:
 
   lab-nxp:
     lab_type: lava
-    url: 'https://lavalab.nxp.com/RPC2'
+    url: 'https://lavalab.nxp.com/'
     filters:
       - passlist:
           plan:
@@ -99,7 +99,7 @@ labs:
 
   lab-pengutronix:
     lab_type: lava
-    url: 'https://hekla.openlab.pengutronix.de/RPC2/'
+    url: 'https://hekla.openlab.pengutronix.de/'
     filters:
       - passlist:
           plan:
@@ -108,7 +108,7 @@ labs:
 
   lab-theobroma-systems:
     lab_type: lava
-    url: 'https://lava.theobroma-systems.com/RPC2/'
+    url: 'https://lava.theobroma-systems.com/'
     filters:
       - passlist:
           plan:
