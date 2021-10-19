@@ -73,8 +73,9 @@ def handle_boot(cb, verbose):
 def _add_login_case(results, tests):
     tests_map = {t['name']: t for t in tests}
     login = tests_map.get('auto-login-action') or tests_map.get('login-action')
-    if login:
-        results['login'] = login['result']
+    job_result = tests_map['job']['result']
+    result = login and login['result'] == 'pass' and job_result == 'pass'
+    results['login'] = 'pass' if result else 'fail'
 
 
 def _add_test_results(results, tests, suite_name):
