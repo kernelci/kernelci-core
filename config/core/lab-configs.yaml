@@ -15,7 +15,7 @@ labs:
   lab-broonie:
     lab_type: lava_rest
     url: 'https://lava.sirena.org.uk/'
-    priority: low
+    priority: high
 
   lab-cip:
     lab_type: lava_rest
@@ -45,7 +45,7 @@ labs:
   lab-collabora:
     lab_type: lava_rest
     url: 'https://lava.collabora.co.uk/'
-    priority: '45'
+    priority: high
     filters: &collabora-filters
       - blocklist:
           tree: [android]
