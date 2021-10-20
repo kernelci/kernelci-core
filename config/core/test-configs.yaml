@@ -651,6 +651,12 @@ device_types:
     class: arm-dtb
     boot_method: uboot
 
+  de0-nano-soc:
+    mach: socfpga
+    class: arm-dtb
+    boot_method: uboot
+    dtb: 'socfpga_cyclone5_de0_nano_soc.dtb'
+
   dove-cubox:
     mach: mvebu
     class: arm-dtb
@@ -1871,6 +1877,11 @@ test_configs:
   - device_type: da850-lcdk
     test_plans:
       - baseline
+
+  - device_type: de0-nano-soc
+    test_plans:
+      - baseline
+      - baseline-nfs
 
   - device_type: dove-cubox
     test_plans:
