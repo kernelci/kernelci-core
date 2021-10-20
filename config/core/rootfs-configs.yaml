@@ -151,6 +151,8 @@ rootfs_configs:
         - i915/bxt_dmc_ver1_07.bin
         - i915/kbl_dmc_ver1_04.bin
         - i915/glk_dmc_ver1_04.bin
+        - qcom/a630_gmu.bin
+        - qcom/a630_sqe.fw
     linux_fw_version: d526e044bddaa2c2ad855c7296147e49be0ab03c
     script: "scripts/bullseye-igt.sh"
     test_overlay: "overlays/igt"
