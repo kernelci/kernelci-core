@@ -2452,6 +2452,7 @@ test_configs:
   - device_type: sc7180-trogdor-lazor-limozeen
     test_plans:
       - baseline
+      - cros-ec
 
   - device_type: snow
     test_plans:
