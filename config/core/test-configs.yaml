@@ -1414,6 +1414,11 @@ device_types:
       - blocklist: *device_config_filter
       - blocklist: {kernel: ['v3.', 'v4.4', 'v4.9']}
 
+  sc7180-trogdor-lazor-limozeen:
+    mach: qcom
+    class: arm64-dtb
+    boot_method: depthcharge
+
   snow:
     mach: exynos
     class: arm-dtb
@@ -2441,6 +2446,10 @@ test_configs:
       - blocklist: {kernel: ['v3.', 'v4.4', 'v4.9', 'v4.14']}
 
   - device_type: rk3399-puma-haikou
+    test_plans:
+      - baseline
+
+  - device_type: sc7180-trogdor-lazor-limozeen
     test_plans:
       - baseline
 
