@@ -363,6 +363,7 @@ build_configs_defaults:
             - 'multi_v7_defconfig+CONFIG_CPU_BIG_ENDIAN=y'
             - 'multi_v7_defconfig+CONFIG_SMP=n'
             - 'multi_v7_defconfig+CONFIG_EFI=y+CONFIG_ARM_LPAE=y'
+            - 'multi_v7_defconfig+CONFIG_THUMB2_KERNEL=y'
           fragments: [crypto, ima]
 
         arm64: &arm64_arch
@@ -896,6 +897,7 @@ build_configs:
               - 'multi_v7_defconfig+CONFIG_CPU_BIG_ENDIAN=y'
               - 'multi_v7_defconfig+CONFIG_SMP=n'
               - 'multi_v7_defconfig+CONFIG_EFI=y+CONFIG_ARM_LPAE=y'
+              - 'multi_v7_defconfig+CONFIG_THUMB2_KERNEL=y'
               - 'allnoconfig'
               - 'allmodconfig'
 
