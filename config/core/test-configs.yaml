@@ -37,26 +37,26 @@ file_systems:
 
   debian_buster_ramdisk:
     type: debian
-    ramdisk: 'buster/20211022.1/{arch}/rootfs.cpio.gz'
+    ramdisk: 'buster/20211030.0/{arch}/rootfs.cpio.gz'
 
   debian_buster_nfs:
     type: debian
-    ramdisk: 'buster/20211022.1/{arch}/initrd.cpio.gz'
-    nfs: 'buster/20211022.1/{arch}/full.rootfs.tar.xz'
+    ramdisk: 'buster/20211030.0/{arch}/initrd.cpio.gz'
+    nfs: 'buster/20211030.0/{arch}/full.rootfs.tar.xz'
     root_type: nfs
 
   debian_buster-cros-ec_ramdisk:
     type: debian
-    ramdisk: 'buster-cros-ec/20211022.1/{arch}/rootfs.cpio.gz'
+    ramdisk: 'buster-cros-ec/20211030.1/{arch}/rootfs.cpio.gz'
 
   debian_buster-igt_ramdisk:
     type: debian
-    ramdisk: 'buster-igt/20211022.1/{arch}/rootfs.cpio.gz'
+    ramdisk: 'buster-igt/20211030.2/{arch}/rootfs.cpio.gz'
 
   debian_buster_kselftest:
     type: debian
-    ramdisk: 'buster-kselftest/20211022.1/{arch}/initrd.cpio.gz'
-    nfs: 'buster-kselftest/20211022.1/{arch}/full.rootfs.tar.xz'
+    ramdisk: 'buster-kselftest/20211030.3/{arch}/initrd.cpio.gz'
+    nfs: 'buster-kselftest/20211030.3/{arch}/full.rootfs.tar.xz'
     root_type: nfs
     params:
       os_config: 'debian'
@@ -67,8 +67,8 @@ file_systems:
 
   debian_buster-libcamera_nfs:
     type: debian
-    ramdisk: 'buster-libcamera/20211022.1/{arch}/initrd.cpio.gz'
-    nfs: 'buster-libcamera/20211022.1/{arch}/full.rootfs.tar.xz'
+    ramdisk: 'buster-libcamera/20211030.4/{arch}/initrd.cpio.gz'
+    nfs: 'buster-libcamera/20211030.4/{arch}/full.rootfs.tar.xz'
     root_type: nfs
 
   debian_buster-ltp_nfs:
