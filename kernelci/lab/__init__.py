@@ -17,20 +17,18 @@
 
 import importlib
 import json
-import urllib.parse
-import xmlrpc.client
 
 
 class LabAPI:
     """Remote API to a test lab"""
 
-    def __init__(self, config):
+    def __init__(self, config, **kwargs):
         """A test lab API object can be used to remotely interact with a lab
 
         *config* is a kernelci.config.lab.Lab object
         """
         self._config = config
-        self._server = None
+        self._server = self._connect(**kwargs)
         self._devices = None
 
     @property
@@ -46,20 +44,8 @@ class LabAPI:
     def _get_devices(self):
         return list()
 
-    def connect(self, user=None, token=None):
-        """Connect to the remote server API
-
-        *user* is the name of the user to connect to the lab
-        *token* is the token associated with the user to connect to the lab
-        """
-        if user and token:
-            url = urllib.parse.urlparse(self.config.url)
-            api_url = "{scheme}://{user}:{token}@{loc}{path}RPC2/".format(
-                scheme=url.scheme, user=user, token=token,
-                loc=url.netloc, path=url.path)
-        else:
-            api_url = self.config.url
-        self._server = xmlrpc.client.ServerProxy(api_url)
+    def _connect(self, *args, **kwargs):
+        return None
 
     def import_devices(self, data):
         """Import devices information
@@ -106,11 +92,9 @@ def get_api(lab, user=None, token=None, lab_json=None):
     *lab_json* is the path to a JSON file with cached lab information
     """
     m = importlib.import_module('.'.join(['kernelci', 'lab', lab.lab_type]))
-    api = m.get_api(lab)
+    api = m.get_api(lab, user=user, token=token)
     if lab_json:
         with open(lab_json) as json_file:
             devices = json.load(json_file)['devices']
             api.import_devices(devices)
-    if user and token:
-        api.connect(user, token)
     return api

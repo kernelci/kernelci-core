@@ -1,5 +1,6 @@
-# Copyright (C) 2019 Collabora Limited
+# Copyright (C) 2019,2021 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+# Author: Michal Galka <michal.galka@collabora.com>
 #
 # Copyright (C) 2019 Linaro Limited
 # Author: Dan Rue <dan.rue@linaro.org>
@@ -18,14 +19,14 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-from jinja2 import Environment, FileSystemLoader
-import os
-from kernelci.lab import LabAPI
+import xmlrpc.client
+import urllib.parse
+from kernelci.lab.lava import LavaAPI
 
 DEVICE_ONLINE_STATUS = ['idle', 'running', 'reserved']
 
 
-class LAVA(LabAPI):
+class LAVA(LavaAPI):
     """Interface to a LAVA lab
 
     This implementation of kernelci.lab.LabAPI is to communicate with LAVA
@@ -63,21 +64,21 @@ class LAVA(LabAPI):
             'aliases': all_aliases,
         }
 
-    def _add_callback_params(self, params, opts):
-        callback_id = opts.get('id')
-        if not callback_id:
-            return
-        callback_type = opts.get('type')
-        if callback_type == 'kernelci':
-            lava_cb = 'boot' if params['plan'] == 'boot' else 'test'
-            # ToDo: consolidate this to just have to pass the callback_url
-            params['callback_name'] = '/'.join(['lava', lava_cb])
-        params.update({
-            'callback': callback_id,
-            'callback_url': opts['url'],
-            'callback_dataset': opts['dataset'],
-            'callback_type': callback_type,
-        })
+    def _connect(self, user=None, token=None, **kwargs):
+        """Connect to the remote server API
+
+        *user* is the name of the user to connect to the lab
+        *token* is the token associated with the user to connect to the lab
+        """
+        if user and token:
+            url = urllib.parse.urlparse(self.config.url)
+            api_url = "{scheme}://{user}:{token}@{loc}{path}".format(
+                scheme=url.scheme, user=user, token=token,
+                loc=url.netloc, path=url.path)
+        else:
+            api_url = self.config.url
+        self._server = xmlrpc.client.ServerProxy(api_url)
+        return self._server
 
     def _alias_device_type(self, device_type):
         aliases = self.devices.get('aliases', dict())
@@ -91,30 +92,10 @@ class LAVA(LabAPI):
     def job_file_name(self, params):
         return '.'.join([params['name'], 'yaml'])
 
-    def generate(self, params, target, plan, callback_opts):
-        short_template_file = plan.get_template_path(target.boot_method)
-        template_file = os.path.join('config/lava', short_template_file)
-        if not os.path.exists(template_file):
-            print("Template not found: {}".format(template_file))
-            return None
-        base_name = params['base_device_type']
-        params.update({
-            'template_file': template_file,
-            'priority': self.config.priority,
-            'lab_name': self.config.name,
-            'base_device_type': self._alias_device_type(base_name),
-        })
-        self._add_callback_params(params, callback_opts)
-        jinja2_env = Environment(loader=FileSystemLoader('config/lava'),
-                                 extensions=["jinja2.ext.do"])
-        template = jinja2_env.get_template(short_template_file)
-        data = template.render(params)
-        return data
-
     def submit(self, job):
         return self._server.scheduler.submit_job(job)
 
 
-def get_api(lab):
+def get_api(lab, **kwargs):
     """Get a LAVA lab API object"""
-    return LAVA(lab)
+    return LAVA(lab, **kwargs)

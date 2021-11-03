@@ -79,8 +79,8 @@ class LabFactory(YAMLObject):
     """Factory to create lab objects from YAML data."""
 
     _lab_types = {
-        'lava': Lab_LAVA,
         'lava_rest': Lab_LAVA,
+        'lava.lava_xmlrpc': Lab_LAVA,
     }
 
     @classmethod
