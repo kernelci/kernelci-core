@@ -426,38 +426,40 @@ class TestConfig(YAMLObject):
 def from_yaml(data):
     fs_types = {
         name: RootFSType.from_yaml(fs_type)
-        for name, fs_type in data['file_system_types'].items()
+        for name, fs_type in data.get('file_system_types', {}).items()
     }
 
     file_systems = {
         name: RootFS.from_yaml(fs_types, rootfs)
-        for name, rootfs in data['file_systems'].items()
+        for name, rootfs in data.get('file_systems', {}).items()
     }
 
-    plan_filters = FilterFactory.from_yaml(data['test_plan_default_filters'])
+    plan_filters = FilterFactory.from_yaml(
+        data.get('test_plan_default_filters', {})
+    )
 
     test_plans = {
         name: TestPlan.from_yaml(name, test_plan, file_systems, plan_filters)
-        for name, test_plan in data['test_plans'].items()
+        for name, test_plan in data.get('test_plans', {}).items()
     }
 
-    device_filters = FilterFactory.from_yaml(data['device_default_filters'])
+    device_filters = FilterFactory.from_yaml(
+        data.get('device_default_filters', {})
+    )
 
     device_types = {
         name: DeviceTypeFactory.from_yaml(name, device_type, device_filters)
-        for name, device_type in data['device_types'].items()
+        for name, device_type in data.get('device_types', {}).items()
     }
 
     test_configs = [
         TestConfig.from_yaml(test_config, device_types, test_plans)
-        for test_config in data['test_configs']
+        for test_config in data.get('test_configs', [])
     ]
 
-    config_data = {
+    return {
         'file_systems': file_systems,
         'test_plans': test_plans,
         'device_types': device_types,
         'test_configs': test_configs,
     }
-
-    return config_data

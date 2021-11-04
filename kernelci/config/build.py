@@ -400,7 +400,7 @@ class BuildConfig(YAMLObject):
 def from_yaml(data):
     trees = {
         name: Tree.from_yaml(config, name)
-        for name, config in data['trees'].items()
+        for name, config in data.get('trees', {}).items()
     }
 
     fragments = {
@@ -410,7 +410,7 @@ def from_yaml(data):
 
     build_environments = {
         name: BuildEnvironment.from_yaml(config, name)
-        for name, config in data['build_environments'].items()
+        for name, config in data.get('build_environments', {}).items()
     }
 
     defaults = data.get('build_configs_defaults', {})
@@ -418,14 +418,12 @@ def from_yaml(data):
     build_configs = {
         name: BuildConfig.from_yaml(config, name, trees, fragments,
                                     build_environments, defaults)
-        for name, config in data['build_configs'].items()
+        for name, config in data.get('build_configs', {}).items()
     }
 
-    config_data = {
+    return {
         'trees': trees,
         'fragments': fragments,
         'build_environments': build_environments,
         'build_configs': build_configs,
     }
-
-    return config_data
