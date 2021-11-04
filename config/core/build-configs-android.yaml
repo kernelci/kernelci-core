@@ -44,26 +44,6 @@ android_variants: &android_variants
 
 build_configs:
 
-  android_3.18:
-    tree: android
-    branch: 'android-3.18'
-    variants: *android_variants
-
-  android_3.18-o-mr1:
-    tree: android
-    branch: 'android-3.18-o-mr1'
-    variants: *android_variants
-
-  android_4.4-o:
-    tree: android
-    branch: 'android-4.4-o'
-    variants: *android_variants
-
-  android_4.4-o-mr1:
-    tree: android
-    branch: 'android-4.4-o-mr1'
-    variants: *android_variants
-
   android_4.4-p:
     tree: android
     branch: 'android-4.4-p'
@@ -72,16 +52,6 @@ build_configs:
   android_4.4-p-release:
     tree: android
     branch: 'android-4.4-p-release'
-    variants: *android_variants
-
-  android_4.9-o:
-    tree: android
-    branch: 'android-4.9-o'
-    variants: *android_variants
-
-  android_4.9-o-mr1:
-    tree: android
-    branch: 'android-4.9-o-mr1'
     variants: *android_variants
 
   android_4.9-p:
