@@ -13,9 +13,6 @@ trees:
   amlogic:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/amlogic/linux.git"
 
-  android:
-    url: "https://android.googlesource.com/kernel/common"
-
   ardb:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/ardb/linux.git"
 
@@ -489,16 +486,6 @@ preempt_rt_variants: &preempt_rt_variants
     <<: *gcc_10_minimal
     fragments: [preempt_rt]
 
-android_variants: &android_variants
-  gcc-10:
-    build_environment: gcc-10
-    architectures:
-      arm: *arm_arch
-      arm64: *arm64_arch
-      x86_64: *x86_64_arch
-      i386: *i386_arch
-      riscv: *riscv_arch
-
 
 build_configs:
 
@@ -517,146 +504,6 @@ build_configs:
   amlogic_integ:
     tree: amlogic
     branch: 'integ'
-
-  android_3.18:
-    tree: android
-    branch: 'android-3.18'
-    variants: *android_variants
-
-  android_3.18-o-mr1:
-    tree: android
-    branch: 'android-3.18-o-mr1'
-    variants: *android_variants
-
-  android_4.4-o:
-    tree: android
-    branch: 'android-4.4-o'
-    variants: *android_variants
-
-  android_4.4-o-mr1:
-    tree: android
-    branch: 'android-4.4-o-mr1'
-    variants: *android_variants
-
-  android_4.4-p:
-    tree: android
-    branch: 'android-4.4-p'
-    variants: *android_variants
-
-  android_4.4-p-release:
-    tree: android
-    branch: 'android-4.4-p-release'
-    variants: *android_variants
-
-  android_4.9-o:
-    tree: android
-    branch: 'android-4.9-o'
-    variants: *android_variants
-
-  android_4.9-o-mr1:
-    tree: android
-    branch: 'android-4.9-o-mr1'
-    variants: *android_variants
-
-  android_4.9-p:
-    tree: android
-    branch: 'android-4.9-p'
-    variants: *android_variants
-
-  android_4.9-p-release:
-    tree: android
-    branch: 'android-4.9-p-release'
-    variants: *android_variants
-
-  android_4.9-q:
-    tree: android
-    branch: 'android-4.9-q'
-    variants: *android_variants
-
-  android_4.9-q-release:
-    tree: android
-    branch: 'android-4.9-q-release'
-    variants: *android_variants
-
-  android_4.14-p:
-    tree: android
-    branch: 'android-4.14-p'
-    variants: *android_variants
-
-  android_4.14-p-release:
-    tree: android
-    branch: 'android-4.14-p-release'
-    variants: *android_variants
-
-  android_4.14-q:
-    tree: android
-    branch: 'android-4.14-q'
-    variants: *android_variants
-
-  android_4.14-q-release:
-    tree: android
-    branch: 'android-4.14-q-release'
-    variants: *android_variants
-
-  android_4.14-stable:
-    tree: android
-    branch: 'android-4.14-stable'
-    variants: *android_variants
-
-  android_4.19-q:
-    tree: android
-    branch: 'android-4.19-q'
-    variants: *android_variants
-
-  android_4.19-q-release:
-    tree: android
-    branch: 'android-4.19-q-release'
-    variants: *android_variants
-
-  android_4.19-stable:
-    tree: android
-    branch: 'android-4.19-stable'
-    variants: *android_variants
-
-  android_mainline:
-    tree: android
-    branch: 'android-mainline'
-    variants: *android_variants
-
-  android_mainline_tracking:
-    tree: android
-    branch: 'android-mainline-tracking'
-    variants: *android_variants
-
-  android11-5.4:
-    tree: android
-    branch: 'android11-5.4'
-    variants: *android_variants
-
-  android12-5.4:
-    tree: android
-    branch: 'android12-5.4'
-    variants: *android_variants
-
-  android12-5.4-lts:
-    tree: android
-    branch: 'android12-5.4-lts'
-    variants: *android_variants
-
-  android12-5.10:
-    tree: android
-    branch: 'android12-5.10'
-    variants: *android_variants
-
-  android12-5.10-lts:
-    tree: android
-    branch: 'android12-5.10-lts'
-    variants: *android_variants
-
-  android13-5.10:
-    tree: android
-    branch: 'android13-5.10'
-    variants: *android_variants
 
   ardb:
     tree: ardb
