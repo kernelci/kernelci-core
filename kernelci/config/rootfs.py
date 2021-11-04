@@ -181,14 +181,12 @@ class RootFSFactory(YAMLObject):
 def from_yaml(data):
     rootfs_configs = {
         name: RootFSFactory.from_yaml(name, rootfs)
-        for name, rootfs in data['rootfs_configs'].items()
+        for name, rootfs in data.get('rootfs_configs', {}).items()
     }
 
-    config_data = {
+    return {
         'rootfs_configs': rootfs_configs,
     }
-
-    return config_data
 
 
 def validate(configs):

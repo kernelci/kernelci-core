@@ -79,10 +79,9 @@ class DatabaseFactory(YAMLObject):
 def from_yaml(data):
     db_configs = {
         name: DatabaseFactory.from_yaml(name, db)
-        for name, db in data['db_configs'].items()
+        for name, db in data.get('db_configs', {}).items()
     }
 
-    config_data = {
+    return {
         'db_configs': db_configs,
     }
-    return config_data

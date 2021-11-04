@@ -102,11 +102,9 @@ class LabFactory(YAMLObject):
 def from_yaml(data):
     labs = {
         name: LabFactory.from_yaml(name, lab)
-        for name, lab in data['labs'].items()
+        for name, lab in data.get('labs', {}).items()
     }
 
-    config_data = {
+    return {
         'labs': labs,
     }
-
-    return config_data
