@@ -1,5 +1,5 @@
 FROM debian:bullseye
-MAINTAINER "Matt Hart" <matt@mattface.org>
+MAINTAINER "KernelCI TSC" <kernelci-tsc@groups.io>
 
 ARG DEBIAN_FRONTEND=noninteractive
 

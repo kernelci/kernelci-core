@@ -3,7 +3,7 @@
 #
 ARG PREFIX=kernelci/
 FROM ${PREFIX}build-base
-MAINTAINER "Kevin Hilman <khilmnan@baylibre.com>"
+MAINTAINER "KernelCI TSC" <kernelci-tsc@groups.io>
 
 #
 # Install gcloud-sdk
