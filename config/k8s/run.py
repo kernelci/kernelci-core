@@ -5,7 +5,7 @@ import sys
 import time
 import argparse
 import yaml
-from kubernetes import client, config, utils
+from kubernetes import client, config, utils, watch
 from pprint import pprint
 from jinja2 import Environment, FileSystemLoader
 import re
@@ -144,46 +144,38 @@ def main(args):
 
     job_name = job_create(yaml_output=args.yaml, namespace=args.namespace)
 
-    print("Waiting for job completion. (recheck every {} sec) ".format(sleep_secs))
+    print("Waiting for job completion.")
 
     #
     # wait for job to finish
     #
-    retries = 3  # max API failure retries
-    while retries:
-        job_found = False
-        try:
-            job = batch.read_namespaced_job(name=job_name,
-                                            namespace=args.namespace)
-        except client.rest.ApiException as e:
-            print("x:", e)
-            time.sleep(sleep_secs)
-            retries = retries - 1
-            sleep_secs = sleep_secs * 2
+    w = watch.Watch()
+    for event in w.stream(batch.list_namespaced_job,
+                          label_selector=("job-name=="+job_name),
+                          namespace=args.namespace):
+        event_job_name = event['object'].metadata.name
+        print("Event: %s %s" % (event['type'], event_job_name))
+
+        # Don't explode if we got the label_selector wrong...
+        if event_job_name != job_name:
             continue
 
-        job_found = True
-        if job.status.active or not job.status.conditions:
-            print(".")
-            time.sleep(sleep_secs)
-            continue
-
-        build_success = job_succeeded(job)
-        if build_success:
-            print("PASS")
-        else:
-            print("FAIL")
+        # Job finished?
+        job = event['object']
+        if job.status.completion_time:
+            print("%s finished at %s".format(job_name,
+                                             job.status.completion_time))
+            build_success = job_succeeded(job)
+            if build_success:
+                print("PASS")
+            else:
+                print("FAIL")
             if job.status.conditions:
                 print("Reason:", job.status.conditions[0].reason)
             else:
                 print("Reason: Unknown: job status:")
                 pprint(job.status)
-
-        break
-
-    if not job_found:
-        print("ERROR: unable to find job {}".format(job_name))
-        sys.exit(1)
+            w.stop()
 
     #
     # Find pod where job ran
