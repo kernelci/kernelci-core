@@ -15,7 +15,7 @@ file_system_types:
       mipsel:  [{arch: mips}]
 
   cip:
-    url: 'https://storage.staging.kernelci.org/images/rootfs/cip/20211104/'
+    url: 'https://storage.kernelci.org/images/rootfs/cip/20211105/'
 
   debian: &debian
     url: 'http://storage.kernelci.org/images/rootfs/debian'
