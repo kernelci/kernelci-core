@@ -80,6 +80,7 @@ class LabFactory(YAMLObject):
 
     _lab_types = {
         'lava': Lab_LAVA,
+        'lava_rest': Lab_LAVA,
     }
 
     @classmethod

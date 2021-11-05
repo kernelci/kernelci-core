@@ -23,7 +23,10 @@
 # -p = push to dockerhub
 # -b = also rebuild kernel builders
 # -d = also rebuild debos
+# -r = also rebuild buildroot
 # -i = also rebuild dt-validation
+# -c = also rebuild coccinelle
+# -e = also rebuild cvehound
 # -q = make the builds quiet
 # -Q = also rebuild qemu docker image
 # -t = the prefix to use in docker tags (default is kernelci/)
@@ -31,7 +34,8 @@
 set -e
 tag_px='kernelci/'
 
-options='npbdikqQt:'
+
+options='npbdrikqQcet:'
 while getopts $options option
 do
   case $option in
@@ -39,8 +43,11 @@ do
     p )  push=true;;
     b )  builders=true;;
     d )  debos=true;;
+    r )  buildroot=true;;
     i )  dt_validation=true;;
     k )  k8s=true;;
+    c )  coccinelle=true;;
+    e )  cvehound=true;;
     q )  quiet="--quiet";;
     Q )  qemu=true;;
     t )  tag_px=$OPTARG;;
@@ -64,74 +71,61 @@ echo_push() {
   echo "Pushing [$1]"
 }
 
+docker_push() {
+    echo_push $1
+    docker push $1
+}
+
+docker_build_and_tag() {
+  tag=${tag_px}$2
+  echo_build $tag
+  docker build --build-arg PREFIX=$tag_px ${quiet} ${cache_args} $1 -t $tag
+  if [ "x${push}" == "xtrue" ]
+  then
+    docker_push $tag
+  fi
+}
 
 if [ "x${builders}" == "xtrue" ]
 then
-  tag=${tag_px}build-base
-  echo_build $tag
-  docker build ${quiet} ${cache_args} build-base -t $tag
-  if [ "x${push}" == "xtrue" ]
-  then
-    echo_push $tag
-    docker push $tag
-  fi
+  docker_build_and_tag build-base build-base
   for c in {gcc,clang}-*
   do
-      tag=${tag_px}build-$c
-      echo_build $tag
-      docker build ${quiet} ${cache_args} $c -t $tag
-      if [ "x${push}" == "xtrue" ]
-      then
-          echo_push $tag
-          docker push $tag
-      fi
+      docker_build_and_tag $c $c
   done
 fi
 
 if [ "x${debos}" == "xtrue" ]
 then
-  tag=${tag_px}debos
-  echo_build $tag
-  docker build ${quiet} ${cache_args} debos -t $tag
-  if [ "x${push}" == "xtrue" ]
-  then
-    echo_push $tag
-    docker push $tag
-  fi
+  docker_build_and_tag debos debos
+fi
+
+if [ "x${buildroot}" == "xtrue" ]
+then
+  docker_build_and_tag buildroot buildroot
 fi
 
 if [ "x${dt_validation}" == "xtrue" ]
 then
-  tag=${tag_px}dt-validation
-  echo_build $tag
-  docker build ${quiet} ${cache_args} dt-validation -t $tag
-  if [ "x${push}" == "xtrue" ]
-  then
-    echo_push $tag
-    docker push $tag
-  fi
+  docker_build_and_tag dt-validation dt-validation
+fi
+
+if [ "x${coccinelle}" == "xtrue" ]
+then
+  docker_build_and_tag coccinelle coccinelle
+fi
+
+if [ "x${cvehound}" == "xtrue" ]
+then
+  docker_build_and_tag cvehound cvehound
 fi
 
 if [ "x${k8s}" == "xtrue" ]
 then
-  tag=${tag_px}build-k8s
-  echo_build $tag
-  docker build ${quiet} ${cache_args} build-k8s -t $tag
-  if [ "x${push}" == "xtrue" ]
-  then
-    echo_push $tag
-    docker push $tag
-  fi
+  docker_build_and_tag k8s k8s
 fi
 
 if [ "x${qemu}" == "xtrue" ]
 then
-  tag=${tag_px}qemu
-  echo_build $tag
-  docker build ${quiet} ${cache_args} qemu -t $tag
-  if [ "x${push}" == "xtrue" ]
-  then
-    echo_push $tag
-    docker push $tag
-  fi
+  docker_build_and_tag qemu qemu
 fi

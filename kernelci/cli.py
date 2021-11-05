@@ -96,6 +96,11 @@ class Args:
         'section': SECTION_DB,
     }
 
+    cc = {
+        'name': '--cc',
+        'help': "Recipients to be added as Cc:",
+    }
+
     commit = {
         'name': '--commit',
         'help': "Git commit checksum",
@@ -254,6 +259,13 @@ class Args:
         'help': "Path to the rootfs images directory",
     }
 
+    rootfs_type = {
+        'name': '--rootfs-type',
+        'help': "Rootfs type",
+        'type': str,
+        'choices': ('debos', 'buildroot')
+    }
+
     storage = {
         'name': '--storage',
         'help': "Storage URL",
@@ -262,6 +274,11 @@ class Args:
     target = {
         'name': '--target',
         'help': "Name of a target platform",
+    }
+
+    to = {
+        'name': '--to',
+        'help': "Recipients to be added as To:",
     }
 
     tree_name = {

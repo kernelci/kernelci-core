@@ -1,11 +1,10 @@
 ---
-title: "settings"
-date: 2021-02-10T11:48:13Z
-draft: true
-description: "User-defined settings"
+title: "User settings"
+date: 2021-08-05
+draft: false
+description: "User-defined local settings"
+weight: 2
 ---
-
-## User Settings File
 
 The user settings file is intended to be created by end-users with options
 specific to their local setup.  It can also be used by automated CI systems, in
@@ -48,7 +47,7 @@ To get started quickly, see the [kernelci.conf.sample](../kernelci.conf.sample)
 file.  You can copy it as `kernelci.conf` into a suitable location as described
 above and edit it to suit your particular needs.
 
-### Command sections
+## Command sections
 
 Each command line tool will be looking for a section with a matching name in
 the settings file, such as `[kci_build]`, `[kci_test]` or `[kci_data]`.  These
@@ -73,7 +72,7 @@ you can now omit the `--mirror` argument:
 kci_build update_mirror --build-config=mainline
 ```
 
-### Component sections
+## Component sections
 
 Other sections are specific to a component, such as a test lab or a database
 backend.  This is to allow different values to be set for a same option
@@ -108,7 +107,7 @@ user: user-name
 lab_token: 1234-5678
 ```
 
-### `[DEFAULT]` section
+## `[DEFAULT]` section
 
 As per the INI file standard specifications, the `[DEFAULT]` section is where
 catch-all default values can be set regardless of the settings section being

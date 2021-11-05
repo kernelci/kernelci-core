@@ -29,6 +29,7 @@ setuptools.setup(
         "kernelci",
         "kernelci.config",
         "kernelci.lab",
+        "kernelci.data",
     ],
     package_data={
         '': ['../doc/*.md'],
@@ -37,6 +38,8 @@ setuptools.setup(
         'kci_build',
         'kci_test',
         'kci_rootfs',
+        'kci_data',
+        'kci_bisect',
     ],
     long_description=open('README.md', 'rb').read().decode('utf8'),
     long_description_content_type='text/markdown',

@@ -7,6 +7,10 @@
 {% set console_dev = console_dev|default('ttyAMA0') %}
 {% set qemu_binary = 'qemu-system-aarch64' %}
 {% endif %}
+{% if arch == 'riscv' %}
+{% set console_dev = console_dev|default('ttyS0') %}
+{% set qemu_binary = 'qemu-system-riscv64' %}
+{% endif %}
 {% if arch == 'x86_64' %}
 {% set console_dev = console_dev|default('ttyS0') %}
 {% set qemu_binary = 'qemu-system-x86_64' %}

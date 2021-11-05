@@ -1,15 +1,16 @@
 ---
 title: "kci_rootfs"
-date: 2021-02-10T11:48:13Z
-draft: true
+date: 2021-08-05
+draft: false
 description: "Command line tool to build rootfs images"
+weight: 5
 ---
 
 ### How to build a rootfs image using kci_rootfs
 
-You will be using `kernelci/staging-debos` docker image for this purpose.
+You will be using `kernelci/debos` docker image for this purpose.
 
-1. Pull the docker image `docker pull kernelci/staging-debos`
+1. Pull the docker image `docker pull kernelci/debos`
 
 2. Clone the kernelci-core repo.
 
@@ -19,7 +20,7 @@ You will be using `kernelci/staging-debos` docker image for this purpose.
 3. Start the docker and get into it.
 
    ```
-   sudo docker run -itd -v $(pwd)/kernelci-core:/kernelci-core --device /dev/kvm --privileged kernelci/staging-debos
+   sudo docker run -itd -v $(pwd)/kernelci-core:/kernelci-core --device /dev/kvm --privileged kernelci/debos
    sudo docker exec -it <container_id> bash
    cd /kernelci-core/
    ```
@@ -86,7 +87,7 @@ rootfs name along with its architecture.
     ```
     ./kci_rootfs build \
         --rootfs-config buster \
-        --data-path jenkins/debian/debos \
+        --data-path config/rootfs/debos \
         --arch i386
     ```
 
@@ -100,10 +101,10 @@ rootfs name along with its architecture.
     Powering off.
     ==== Recipe done ====
     ```
-    Finally newly built rootfs images can be found under the directory pointed by `--data-path`. In our case, its `jenkins/debian/debos/buster/i386/`
+    Finally newly built rootfs images can be found under the directory pointed by `--data-path`. In our case, its `config/rootfs/debos/buster/i386/`
 
     ```
-    $ ls jenkins/debian/debos/buster/i386/
+    $ ls config/rootfs/debos/buster/i386/
     build_info.json  full.rootfs.cpio.gz  full.rootfs.tar.xz  initrd.cpio.gz  rootfs.cpio.gz  rootfs.ext4.xz
     ```
 
@@ -137,6 +138,7 @@ Now you know how to build default `kci_rootfs` images. Let's look at how to add 
   | script                | Custom script to be executed during rootfs image creation. |
   | test_overlay          | Create a directory layout on final rootfs image as provided. |
   | extra_packages        | Installs specified packages on rootfs image. |
+  | extra_firmware        | Installs specified linux-firmware files into rootfs image. |
   | extra_files_remove    | Removes specified files from rootfs image. |
 
   Please note at the moment, only `debos` is supported as `rootfs_type` and above options are debos specific.
@@ -148,14 +150,14 @@ Now you know how to build default `kci_rootfs` images. Let's look at how to add 
     ```
     ./kci_rootfs build \
         --rootfs-config buster-example \
-        --data-path jenkins/debian/debos \
+        --data-path config/rootfs/debos \
         --arch amd64
     ```
     and wait for its completion. If everything went fine you should see
-    something like below under `jenkins/debian/debos/buster-example/amd64/`
+    something like below under `config/rootfs/debos/buster-example/amd64/`
     directory.
 
     ```
-    ls jenkins/debian/debos/buster-example/amd64/
+    ls config/rootfs/debos/buster-example/amd64/
     build_info.json  full.rootfs.cpio.gz  full.rootfs.tar.xz  initrd.cpio.gz  rootfs.cpio.gz  rootfs.ext4.xz
     ```

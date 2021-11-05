@@ -1,4 +1,18 @@
 rootfs_configs:
+  buildroot-baseline:
+    rootfs_type: buildroot
+    arch_list:
+      - arc
+      - arm64
+      - arm64be
+      - armeb
+      - armel
+      - mipsel
+      - riscv
+      - x86
+    frags:
+      - baseline
+
   buster:
     rootfs_type: debos
     debian_release: buster
@@ -28,6 +42,7 @@ rootfs_configs:
     extra_files_remove: &extra_files_remove_buster
       - '*networkd*'
       - '*resolved*'
+      - nosuspend.conf
       - tar
       - patch
       - dir
@@ -51,6 +66,12 @@ rootfs_configs:
       - e2fslibs
       - e2fsprogs
       - libext2fs2
+    extra_firmware:
+      - mrvl/pcieusb8997_combo_v4.bin
+      - mrvl/sd8897_uapsta.bin
+      - qca/rampatch_00440302.bin
+      - rtl_nic/rtl8153b-2.fw
+      - rockchip/dptx.bin
     script: "scripts/buster-cros-ec-tests.sh"
     test_overlay: ""
 
@@ -94,6 +115,10 @@ rootfs_configs:
         - dir
         - partx
         - find
+    extra_firmware:
+        - i915/bxt_dmc_ver1_07.bin
+        - i915/kbl_dmc_ver1_04.bin
+        - i915/glk_dmc_ver1_04.bin
     script: "scripts/buster-igt.sh"
     test_overlay: "overlays/igt"
 
@@ -105,6 +130,7 @@ rootfs_configs:
       - arm64
       - armhf
     extra_packages:
+      - bc
       - ca-certificates
       - iproute2
       - jdim
@@ -124,9 +150,26 @@ rootfs_configs:
       - openssl
       - perl
       - perl-modules-5.28
+      - procps
       - publicsuffix
       - wget
       - xz-utils
+
+  buster-libcamera:
+    rootfs_type: debos
+    debian_release: buster
+    arch_list:
+      - amd64
+      - arm64
+      - armhf
+    extra_packages:
+      - libevent-dev
+    extra_packages_remove:
+      - bash
+      - e2fslibs
+      - e2fsprogs
+    script: "scripts/buster-libcamera.sh"
+    test_overlay: "overlays/libcamera"
 
   buster-ltp:
     rootfs_type: debos

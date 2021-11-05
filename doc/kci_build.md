@@ -1,8 +1,9 @@
 ---
 title: "kci_build"
-date: 2021-02-10T11:48:13Z
+date: 2021-08-05
 draft: false
 description: "Command line tool to build the Linux kernel"
+weight: 3
 ---
 
 The
@@ -12,13 +13,15 @@ extras: getting the source, creating the config file, building the binaries,
 generating meta-data files and pushing the binaries to a storage server.  The
 [`build-configs.yaml`](https://github.com/kernelci/kernelci-core/blob/main/config/core/build-configs.yaml)
 file contains the definitions of which kernel branches should be built and with
-which combinations of compilers, architectures, kernel configurations.
+which combinations of compilers, architectures, kernel configurations.  See
+also the [YAML configuration documentation](../config/#builds-configuration) for
+more details.
 
 The `kci_build` command is self-contained and does not require to access any
 KernelCI services.  If a `kernelci-backend` instance is available, build
-binaries and meta-data can be sent to it to share them.  This is however not
-strictly required to build kernels and run tests using binaries stored locally,
-such as in an individual developer environment.
+binaries can be sent to it to share them.  This is however not strictly
+required to build kernels and run tests using binaries stored locally, such as
+in an individual developer environment.
 
 ## Example: build linux-next
 
@@ -172,7 +175,7 @@ can be done with the following command:
 ```
 
 Then sending the build meta-data to the database can be done in a similar way
-using `kci_data`:
+using [`kci_data`](../kci_data):
 
 ```
 ./kci_data submit_build

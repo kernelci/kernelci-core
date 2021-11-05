@@ -1,6 +1,7 @@
 {{- $architecture := or .architecture "arm64" -}}
 {{- $basename := or .basename "." -}}
 {{- $extra_packages := or .extra_packages "" -}}
+{{- $extra_firmware := or .extra_firmware "" -}}
 {{- $suite := or .suite "stretch" -}}
 {{- $script := or .script "scripts/nothing.sh" -}}
 {{- $test_overlay := .test_overlay -}}
@@ -54,6 +55,13 @@ actions:
     chroot: true
     command: apt-get update && apt-get -y install --no-install-recommends {{ $extra_packages }}
 
+{{ if $extra_firmware }}
+  - action: run
+    description: add firmware files
+    chroot: false
+    script: scripts/install-firmware.sh {{ $extra_firmware }}
+{{ end }}
+
   - action: run
     description: Set hostname
     chroot: true
@@ -89,6 +97,10 @@ actions:
   - action: overlay
     description: Add /var/tmp
     source: overlays/minimal
+
+  - action: overlay
+    description: Disable suspend in systemd
+    source: overlays/nosuspend
 
 {{ if $test_overlay }}
   - action: overlay

@@ -32,19 +32,13 @@ class cmd_validate(Command):
 
     def __call__(self, configs, args):
         # ToDo: Use jsonschema
-        err = kernelci.sort_check(configs['trees'].keys())
-        if err:
-            print("Trees broken order: '{}' before '{}".format(*err))
-            return False
 
-        err = kernelci.sort_check(configs['fragments'].keys())
+        entries = [
+            'trees', 'fragments', 'build_configs',
+        ]
+        err = kernelci.config.validate_yaml(opts.yaml_config, entries)
         if err:
-            print("Fragments broken order: '{}' before '{}'".format(*err))
-            return False
-
-        err = kernelci.sort_check(configs['build_configs'].keys())
-        if err:
-            print("Build configs broken order: '{}' before '{}'".format(*err))
+            print(err)
             return False
 
         return True

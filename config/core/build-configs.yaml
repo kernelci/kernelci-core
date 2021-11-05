@@ -148,8 +148,69 @@ trees:
 
 fragments:
 
+  crypto:
+    path: "kernel/configs/crypto.config"
+    configs:
+      - 'CONFIG_CRYPTO_CHACHA20POLY1305=y'
+      - 'CONFIG_CRYPTO_CHACHA20=y'
+      - 'CONFIG_CRYPTO_POLY1305=y'
+      - 'CONFIG_CRYPTO_AEAD=y'
+      - 'CONFIG_CRYPTO_MANAGER=y'
+      - 'CONFIG_CRYPTO_LIB_CHACHA_GENERIC=y'
+      - 'CONFIG_CRYPTO_SKCIPHER=y'
+      - 'CONFIG_CRYPTO_HASH=y'
+      - 'CONFIG_CRYPTO_LIB_POLY1305_GENERIC=y'
+      - 'CONFIG_CRYPTO_AEAD2=y'
+      - 'CONFIG_CRYPTO_ALGAPI=y'
+      - 'CONFIG_CRYPTO_MANAGER2=y'
+      - 'CONFIG_CRYPTO_SKCIPHER2=y'
+      - 'CONFIG_CRYPTO_HASH2=y'
+      - 'CONFIG_CRYPTO_ALGAPI2=y'
+      - 'CONFIG_CRYPTO_NULL2=y'
+      - 'CONFIG_CRYPTO_RNG2=y'
+      - 'CONFIG_CRYPTO_AKCIPHER2=y'
+      - 'CONFIG_CRYPTO_KPP2=y'
+      - 'CONFIG_CRYPTO_ACOMP2=y'
+      - 'CONFIG_SGL_ALLOC=y'
+      - 'CONFIG_CRYPTO_VMAC=y'
+      - 'CONFIG_CRYPTO_PCRYPT=y'
+      - 'CONFIG_PADATA=y'
+      - 'CONFIG_CRYPTO_HMAC=y'
+      - 'CONFIG_CRYPTO_AES=y'
+      - 'CONFIG_CRYPTO_LIB_AES=y'
+      - 'CONFIG_CRYPTO_SHA256=y'
+      - 'CONFIG_CRYPTO_CBC=y'
+      - 'CONFIG_CRYPTO_MD5=y'
+      - 'CONFIG_CRYPTO_SHA1=y'
+      - 'CONFIG_CRYPTO_AUTHENC=y'
+      - 'CONFIG_CRYPTO_USER=y'
+      - 'CONFIG_CRYPTO_USER_API_HASH=y'
+      - 'CONFIG_CRYPTO_USER_API_SKCIPHER=y'
+      - 'CONFIG_CRYPTO_USER_API_RNG=y'
+      - 'CONFIG_CRYPTO_USER_API_AEAD=y'
+      - 'CONFIG_CRYPTO_SHA3=y'
+      - 'CONFIG_CRYPTO_LIB_CHACHA20POLY1305=y'
+      - 'CONFIG_CRYPTO_DEV_FSL_CAAM_CRYPTO_API=y'
+      - 'CONFIG_CRYPTO_DEV_FSL_CAAM_CRYPTO_API_DESC=y'
+      - 'CONFIG_CRYPTO_AEAD=y'
+      - 'CONFIG_CRYPTO_AUTHENC=y'
+      - 'CONFIG_CRYPTO_SKCIPHER=y'
+      - 'CONFIG_CRYPTO_LIB_DES=y'
+      - 'CONFIG_CRYPTO_XTS=y'
+      - 'CONFIG_CRYPTO_DEV_FSL_CAAM_CRYPTO_API_QI=y'
+      - 'CONFIG_CRYPTO_DEV_FSL_CAAM_CRYPTO_API_DESC=y'
+      - 'CONFIG_CRYPTO_DES=y'
+      - 'CONFIG_CRYPTO_ECB=y'
+
   debug:
     path: "kernel/configs/debug.config"
+
+  ima:
+    path: "kernel/configs/ima.config"
+    configs:
+      - 'CONFIG_INTEGRITY=y'
+      - 'CONFIG_IMA=y'
+      - 'CONFIG_IMA_READ_POLICY=y'
 
   kselftest:
     path: "kernel/configs/kselftest.config"
@@ -168,6 +229,7 @@ fragments:
   virtualvideo:
     path: "kernel/configs/virtualvideo.config"
     configs:
+      - 'CONFIG_FB=y'
       - 'CONFIG_MEDIA_SUPPORT=y'
       - 'CONFIG_MEDIA_CAMERA_SUPPORT=y'
       - 'CONFIG_MEDIA_TEST_SUPPORT=y'
@@ -186,6 +248,21 @@ fragments:
       - 'CONFIG_USB_GADGET=y'
       - 'CONFIG_USB_ETH=y'
       - 'CONFIG_USB_RTL8152=y'
+      - 'CONFIG_MMC=y'
+      - 'CONFIG_MMC_SDHCI=y'
+      - 'CONFIG_MMC_SDHCI_PCI=y'
+      - 'CONFIG_MMC_SDHCI_ACPI=y'
+      - 'CONFIG_CHROME_PLATFORMS=y'
+      - 'CONFIG_CHROMEOS_LAPTOP=y'
+      - 'CONFIG_CHROMEOS_TBMC=y'
+      - 'CONFIG_CROS_EC=y'
+      - 'CONFIG_CROS_EC_LPC=y'
+      - 'CONFIG_CROS_EC_I2C=y'
+      - 'CONFIG_IIO=m'
+      - 'CONFIG_IIO_CROS_EC_SENSORS_CORE=m'
+      - 'CONFIG_IIO_CROS_EC_SENSORS=m'
+      - 'CONFIG_MFD_CROS_EC_DEV=m'
+      - 'CONFIG_I2C_DESIGNWARE_PLATFORM=y'
 
   x86_kvm_guest:
     path: "kernel/configs/kvm_guest.config"
@@ -193,9 +270,9 @@ fragments:
 
 build_environments:
 
-  gcc-8:
+  gcc-10:
     cc: gcc
-    cc_version: 8
+    cc_version: 10
     arch_params: &gcc_arch_params
       arc: &arc_params
         cross_compile: 'arc-elf32-'
@@ -237,7 +314,7 @@ build_environments:
   clang-12:
     cc: clang
     cc_version: 12
-    arch_params:
+    arch_params: &clang_12_arch_params
       <<: *clang_arch_params
       riscv:
         <<: *riscv_params
@@ -246,12 +323,17 @@ build_environments:
           LLVM_IAS: '1'
           LD: 'riscv64-linux-gnu-ld'
 
+  clang-13:
+    cc: clang
+    cc_version: 13
+    arch_params:
+      <<: *clang_12_arch_params
 
 # Default config with full build coverage
 build_configs_defaults:
   variants:
-    gcc-8: &default_gcc-8
-      build_environment: gcc-8
+    gcc-10: &default_gcc-10
+      build_environment: gcc-10
 
       fragments: &default_fragments
         - 'debug'
@@ -281,6 +363,8 @@ build_configs_defaults:
             - 'multi_v7_defconfig+CONFIG_CPU_BIG_ENDIAN=y'
             - 'multi_v7_defconfig+CONFIG_SMP=n'
             - 'multi_v7_defconfig+CONFIG_EFI=y+CONFIG_ARM_LPAE=y'
+            - 'multi_v7_defconfig+CONFIG_THUMB2_KERNEL=y'
+          fragments: [crypto, ima]
 
         arm64: &arm64_arch
           extra_configs:
@@ -288,6 +372,7 @@ build_configs_defaults:
             - 'allnoconfig'
             - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
             - 'defconfig+CONFIG_RANDOMIZE_BASE=y'
+          fragments: [crypto, ima]
 
         i386: &i386_arch
           base_defconfig: 'i386_defconfig'
@@ -311,7 +396,7 @@ build_configs_defaults:
             - 'allmodconfig'
             - 'allnoconfig'
             - 'x86_64_defconfig+x86-chromebook+kselftest'
-          fragments: [x86_kvm_guest, x86-chromebook]
+          fragments: [crypto, ima, x86_kvm_guest, x86-chromebook]
 
   reference:
     tree: mainline
@@ -383,14 +468,14 @@ arch_defconfigs: &arch_defconfigs
 
 # Small subset of builds, only defconfigs
 minimal_variants: &minimal_variants
-  gcc-8: &gcc_8_minimal
-    build_environment: gcc-8
+  gcc-10: &gcc_10_minimal
+    build_environment: gcc-10
     architectures: *arch_defconfigs
 
 # Medium subset of builds
 medium_variants: &medium_variants
-  gcc-8:
-    build_environment: gcc-8
+  gcc-10:
+    build_environment: gcc-10
     architectures:
       x86_64: *x86_64_arch
       i386: *i386_arch
@@ -398,46 +483,15 @@ medium_variants: &medium_variants
       arm: *arm_arch
 
 
-# Build fewer kernel configs with stable branches
-stable_variants: &stable_variants
-  gcc-8:
-    build_environment: gcc-8
-    fragments: ['tinyconfig']
-    architectures:
-      arc:
-        base_defconfig: 'haps_hs_smp_defconfig'
-        extra_configs: ['allnoconfig']
-        filters: *arc_default_filters
-      arm:
-        base_defconfig: 'multi_v7_defconfig'
-        extra_configs: ['allnoconfig']
-      arm64:
-        extra_configs: ['allnoconfig']
-      i386:
-        base_defconfig: 'i386_defconfig'
-        extra_configs: ['allnoconfig']
-      mips:
-        base_defconfig: '32r2el_defconfig'
-        extra_configs: ['allnoconfig']
-        filters: *mips_default_filters
-      riscv:
-        extra_configs: ['allnoconfig']
-        filters:
-          - blocklist: *riscv_kernel_filter
-      x86_64:
-        base_defconfig: 'x86_64_defconfig'
-        extra_configs: ['allnoconfig']
-        fragments: [x86-chromebook]
-
 preempt_rt_variants: &preempt_rt_variants
   <<: *minimal_variants
-  gcc-8:
-    <<: *gcc_8_minimal
+  gcc-10:
+    <<: *gcc_10_minimal
     fragments: [preempt_rt]
 
 android_variants: &android_variants
-  gcc-8:
-    build_environment: gcc-8
+  gcc-10:
+    build_environment: gcc-10
     architectures:
       arm: *arm_arch
       arm64: *arm64_arch
@@ -608,31 +662,12 @@ build_configs:
     tree: ardb
     branch: 'for-kernelci'
 
-  ardb_arm-kaslr-latest:
-    tree: ardb
-    branch: 'arm-kaslr-latest'
-    variants:
-      gcc-8:
-        build_environment: gcc-8
-        architectures:
-          x86_64: *x86_64_arch
-          arm64: *arm64_arch
-          arm:
-            base_defconfig: 'multi_v7_defconfig'
-            extra_configs:
-              - 'multi_v7_defconfig+CONFIG_CPU_BIG_ENDIAN=y'
-              - 'multi_v7_defconfig+CONFIG_SMP=n'
-              - 'multi_v7_defconfig+CONFIG_EFI=y+CONFIG_ARM_LPAE=y'
-              - 'multi_v7_defconfig+CONFIG_RANDOMIZE_BASE=y'
-              - 'multi_v7_defconfig+CONFIG_THUMB2_KERNEL=y+CONFIG_RANDOMIZE_BASE=y'
-              - 'omap2plus_defconfig+CONFIG_RANDOMIZE_BASE=y'
-
   arm64:
     tree: arm64
     branch: 'for-kernelci'
     variants:
-      gcc-8:
-        build_environment: gcc-8
+      gcc-10:
+        build_environment: gcc-10
         architectures:
           arm64:
             base_defconfig: 'defconfig'
@@ -648,8 +683,8 @@ build_configs:
     tree: broonie-misc
     branch: 'for-kernelci'
     variants:
-      gcc-8:
-        build_environment: gcc-8
+      gcc-10:
+        build_environment: gcc-10
         architectures:
           arm: {base_defconfig: 'multi_v7_defconfig'}
           arm64:
@@ -675,8 +710,8 @@ build_configs:
     tree: chrome-platform
     branch: 'for-kernelci'
     variants:
-      gcc-8:
-        build_environment: gcc-8
+      gcc-10:
+        build_environment: gcc-10
         architectures:
           arm: *arm_defconfig
           arm64: *arm64_defconfig
@@ -688,8 +723,8 @@ build_configs:
     tree: cip
     branch: 'linux-4.4.y-cip'
     variants:
-      gcc-8:
-        build_environment: gcc-8
+      gcc-10:
+        build_environment: gcc-10
         architectures:
           arm: *arm_arch
           i386: *i386_arch
@@ -699,8 +734,8 @@ build_configs:
     tree: cip
     branch: 'linux-4.4.y-cip-rt'
     variants:
-      gcc-8:
-        build_environment: gcc-8
+      gcc-10:
+        build_environment: gcc-10
         architectures:
           arm: *arm_arch
           i386: *i386_arch
@@ -710,19 +745,39 @@ build_configs:
     tree: cip
     branch: 'linux-4.19.y-cip'
     variants:
-      gcc-8:
-        build_environment: gcc-8
+      gcc-10:
+        build_environment: gcc-10
         architectures:
-          arm: *arm_arch
-          arm64: *arm64_arch
-          x86_64: *x86_64_arch
+          arm:
+            <<: *arm_arch
+            extra_configs:
+              - 'cip://4.19.y-cip/arm/qemu_arm_defconfig'
+          arm64:
+            <<: *arm64_arch
+            extra_configs:
+              - 'cip://4.19.y-cip/arm64/qemu_arm64_defconfig'
+          x86_64:
+            <<: *x86_64_arch
+            extra_configs:
+              - 'cip://4.19.y-cip/x86/cip_qemu_defconfig'
 
   cip_4.19-rt:
     tree: cip
     branch: 'linux-4.19.y-cip-rt'
     variants:
-      gcc-8:
-        build_environment: gcc-8
+      gcc-10:
+        build_environment: gcc-10
+        architectures:
+          arm: *arm_arch
+          arm64: *arm64_arch
+          x86_64: *x86_64_arch
+
+  cip_5.10:
+    tree: cip
+    branch: 'linux-5.10.y-cip'
+    variants:
+      gcc-10:
+        build_environment: gcc-10
         architectures:
           arm: *arm_arch
           arm64: *arm64_arch
@@ -736,8 +791,8 @@ build_configs:
     tree: efi
     branch: 'next'
     variants:
-      gcc-8:
-        build_environment: gcc-8
+      gcc-10:
+        build_environment: gcc-10
         architectures:
           arm: *arm_defconfig
           arm64: *arm64_defconfig
@@ -748,8 +803,8 @@ build_configs:
     tree: efi
     branch: 'urgent'
     variants:
-      gcc-8:
-        build_environment: gcc-8
+      gcc-10:
+        build_environment: gcc-10
         architectures:
           arm: *arm_defconfig
           arm64: *arm64_defconfig
@@ -759,16 +814,6 @@ build_configs:
   evalenti:
     tree: evalenti
     branch: 'for-kernelci'
-
-  gtucker_stable:
-    tree: gtucker
-    branch: 'kernelci-stable'
-    variants: *stable_variants
-
-  kernelci:
-    tree: kernelci
-    branch: 'kernelci.org'
-    variants: *stable_variants
 
   khilman:
     tree: khilman
@@ -802,7 +847,7 @@ build_configs:
     tree: mainline
     branch: 'master'
     variants:
-      gcc-8: *default_gcc-8
+      gcc-10: *default_gcc-10
       clang-10:
         build_environment: clang-10
         architectures: *arch_clang_configs
@@ -811,8 +856,8 @@ build_configs:
     tree: media
     branch: 'master'
     variants:
-      gcc-8:
-        build_environment: gcc-8
+      gcc-10:
+        build_environment: gcc-10
         fragments: [virtualvideo]
         architectures:
           i386: *i386_arch
@@ -828,8 +873,8 @@ build_configs:
     tree: next
     branch: 'master'
     variants:
-      gcc-8:
-        build_environment: gcc-8
+      gcc-10:
+        build_environment: gcc-10
         fragments: *default_fragments
         architectures:
           i386: *i386_arch
@@ -842,6 +887,7 @@ build_configs:
             extra_configs:
               - 'allmodconfig'
               - 'allnoconfig'
+              - 'defconfig+CONFIG_ARM64_16K_PAGES=y'
               - 'defconfig+CONFIG_ARM64_64K_PAGES=y'
               - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
               - 'defconfig+CONFIG_RANDOMIZE_BASE=y'
@@ -851,6 +897,7 @@ build_configs:
               - 'multi_v7_defconfig+CONFIG_CPU_BIG_ENDIAN=y'
               - 'multi_v7_defconfig+CONFIG_SMP=n'
               - 'multi_v7_defconfig+CONFIG_EFI=y+CONFIG_ARM_LPAE=y'
+              - 'multi_v7_defconfig+CONFIG_THUMB2_KERNEL=y'
               - 'allnoconfig'
               - 'allmodconfig'
 
@@ -860,8 +907,8 @@ build_configs:
         architectures: *arch_clang_configs
 
       # Latest clang release
-      clang-12:
-        build_environment: clang-12
+      clang-13:
+        build_environment: clang-13
         architectures:
           <<: *arch_clang_configs
           riscv:
@@ -967,11 +1014,6 @@ build_configs:
     tree: samsung
     branch: 'for-next'
 
-  sashal_stable-next:
-    tree: sashal
-    branch: 'stable-next'
-    variants: *stable_variants
-
   soc_fixes:
     tree: soc
     branch: 'arm/fixes'
@@ -979,418 +1021,6 @@ build_configs:
   soc_for-next:
     tree: soc
     branch: 'for-next'
-
-  stable_3.16:
-    tree: stable
-    branch: 'linux-3.16.y'
-    variants: *stable_variants
-
-  stable_4.4:
-    tree: stable
-    branch: 'linux-4.4.y'
-    variants: *stable_variants
-
-  stable_4.9:
-    tree: stable
-    branch: 'linux-4.9.y'
-    variants: *stable_variants
-
-  stable_4.14:
-    tree: stable
-    branch: 'linux-4.14.y'
-    variants: *stable_variants
-
-  stable_4.19:
-    tree: stable
-    branch: 'linux-4.19.y'
-    variants: *stable_variants
-
-  stable_5.4:
-    tree: stable
-    branch: 'linux-5.4.y'
-    variants: *stable_variants
-
-  stable_5.6:
-    tree: stable
-    branch: 'linux-5.6.y'
-    variants: *stable_variants
-
-  stable_5.7:
-    tree: stable
-    branch: 'linux-5.7.y'
-    variants: *stable_variants
-
-  stable_5.8:
-    tree: stable
-    branch: 'linux-5.8.y'
-    variants: *stable_variants
-
-  stable_5.10:
-    tree: stable
-    branch: 'linux-5.10.y'
-    variants: *stable_variants
-
-  stable_5.11:
-    tree: stable
-    branch: 'linux-5.11.y'
-    variants: *stable_variants
-
-  stable_5.12:
-    tree: stable
-    branch: 'linux-5.12.y'
-    variants: *stable_variants
-
-  stable_5.13:
-    tree: stable
-    branch: 'linux-5.13.y'
-    variants: *stable_variants
-
-  stable_5.14:
-    tree: stable
-    branch: 'linux-5.14.y'
-    variants: *stable_variants
-
-  stable_5.15:
-    tree: stable
-    branch: 'linux-5.15.y'
-    variants: *stable_variants
-
-  stable_5.16:
-    tree: stable
-    branch: 'linux-5.16.y'
-    variants: *stable_variants
-
-  stable_5.17:
-    tree: stable
-    branch: 'linux-5.17.y'
-    variants: *stable_variants
-
-  stable_5.18:
-    tree: stable
-    branch: 'linux-5.18.y'
-    variants: *stable_variants
-
-  stable_5.19:
-    tree: stable
-    branch: 'linux-5.19.y'
-    variants: *stable_variants
-
-  stable_5.20:
-    tree: stable
-    branch: 'linux-5.20.y'
-    variants: *stable_variants
-
-  stable-rc_3.16:
-    tree: stable-rc
-    branch: 'linux-3.16.y'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-3.16.y'
-
-  stable-rc_4.4:
-    tree: stable-rc
-    branch: 'linux-4.4.y'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-4.4.y'
-
-  stable-rc_4.9:
-    tree: stable-rc
-    branch: 'linux-4.9.y'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-4.9.y'
-
-  stable-rc_4.14:
-    tree: stable-rc
-    branch: 'linux-4.14.y'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-4.14.y'
-
-  stable-rc_4.19:
-    tree: stable-rc
-    branch: 'linux-4.19.y'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-4.19.y'
-
-  stable-rc_5.4:
-    tree: stable-rc
-    branch: 'linux-5.4.y'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.4.y'
-
-  stable-rc_5.6:
-    tree: stable-rc
-    branch: 'linux-5.6.y'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.6.y'
-
-  stable-rc_5.7:
-    tree: stable-rc
-    branch: 'linux-5.7.y'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.7.y'
-
-  stable-rc_5.8:
-    tree: stable-rc
-    branch: 'linux-5.8.y'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.8.y'
-
-  stable-rc_5.10:
-    tree: stable-rc
-    branch: 'linux-5.10.y'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.10.y'
-
-  stable-rc_5.11:
-    tree: stable-rc
-    branch: 'linux-5.11.y'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.11.y'
-
-  stable-rc_5.12:
-    tree: stable-rc
-    branch: 'linux-5.12.y'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.12.y'
-
-  stable-rc_5.13:
-    tree: stable-rc
-    branch: 'linux-5.13.y'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.13.y'
-
-  stable-rc_5.14:
-    tree: stable-rc
-    branch: 'linux-5.14.y'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.14.y'
-
-  stable-rc_5.15:
-    tree: stable-rc
-    branch: 'linux-5.15.y'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.15.y'
-
-  stable-rc_5.16:
-    tree: stable-rc
-    branch: 'linux-5.16.y'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.16.y'
-
-  stable-rc_5.17:
-    tree: stable-rc
-    branch: 'linux-5.17.y'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.17.y'
-
-  stable-rc_5.18:
-    tree: stable-rc
-    branch: 'linux-5.18.y'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.18.y'
-
-  stable-rc_5.19:
-    tree: stable-rc
-    branch: 'linux-5.19.y'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.19.y'
-
-  stable-rc_5.20:
-    tree: stable-rc
-    branch: 'linux-5.20.y'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.20.y'
-
-  stable-rc_queue-4.4:
-    tree: stable-rc
-    branch: 'queue/4.4'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-4.4.y'
-
-  stable-rc_queue-4.9:
-    tree: stable-rc
-    branch: 'queue/4.9'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-4.9.y'
-
-  stable-rc_queue-4.14:
-    tree: stable-rc
-    branch: 'queue/4.14'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-4.14.y'
-
-  stable-rc_queue-4.19:
-    tree: stable-rc
-    branch: 'queue/4.19'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-4.19.y'
-
-  stable-rc_queue-5.4:
-    tree: stable-rc
-    branch: 'queue/5.4'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.4.y'
-
-  stable-rc_queue-5.6:
-    tree: stable-rc
-    branch: 'queue/5.6'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.6.y'
-
-  stable-rc_queue-5.7:
-    tree: stable-rc
-    branch: 'queue/5.7'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.7.y'
-
-  stable-rc_queue-5.8:
-    tree: stable-rc
-    branch: 'queue/5.8'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.8.y'
-
-  stable-rc_queue-5.10:
-    tree: stable-rc
-    branch: 'queue/5.10'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.10.y'
-
-  stable-rc_queue-5.11:
-    tree: stable-rc
-    branch: 'queue/5.11'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.11.y'
-
-  stable-rc_queue-5.12:
-    tree: stable-rc
-    branch: 'queue/5.12'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.12.y'
-
-  stable-rc_queue-5.13:
-    tree: stable-rc
-    branch: 'queue/5.13'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.13.y'
-
-  stable-rc_queue-5.14:
-    tree: stable-rc
-    branch: 'queue/5.14'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.14.y'
-
-  stable-rc_queue-5.15:
-    tree: stable-rc
-    branch: 'queue/5.15'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.15.y'
-
-  stable-rc_queue-5.16:
-    tree: stable-rc
-    branch: 'queue/5.16'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.16.y'
-
-  stable-rc_queue-5.17:
-    tree: stable-rc
-    branch: 'queue/5.17'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.17.y'
-
-  stable-rc_queue-5.18:
-    tree: stable-rc
-    branch: 'queue/5.18'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.18.y'
-
-  stable-rc_queue-5.19:
-    tree: stable-rc
-    branch: 'queue/5.19'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.19.y'
-
-  stable-rc_queue-5.20:
-    tree: stable-rc
-    branch: 'queue/5.20'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.20.y'
 
   tegra:
     tree: tegra

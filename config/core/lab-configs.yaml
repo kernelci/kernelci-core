@@ -3,7 +3,7 @@ labs:
   # ToDo: also run jobs with callbacks sent to BayLibre's KernelCI backend
   lab-baylibre:
     lab_type: lava
-    url: 'https://lava.baylibre.com/RPC2/'
+    url: 'https://lava.baylibre.com/'
     filters:
       - blocklist: {tree: [drm-tip]}
       - passlist:
@@ -13,22 +13,23 @@ labs:
             - preempt-rt
 
   lab-broonie:
-    lab_type: lava
-    url: 'https://lava.sirena.org.uk/RPC2/'
+    lab_type: lava_rest
+    url: 'https://lava.sirena.org.uk/'
     priority: low
 
   lab-cip:
-    lab_type: lava
-    url: 'https://lava.ciplatform.org/RPC2'
+    lab_type: lava_rest
+    url: 'https://lava.ciplatform.org/'
     filters:
       - blocklist: {tree: [android]}
       - passlist:
           plan:
             - baseline
+            - smc
 
   lab-clabbe:
     lab_type: lava
-    url: 'https://lava.montjoie.ovh/RPC2/'
+    url: 'https://lava.montjoie.ovh/'
     filters:
       - passlist:
           plan:
@@ -42,48 +43,31 @@ labs:
             - stable
 
   lab-collabora:
-    lab_type: lava
-    url: 'https://lava.collabora.co.uk/RPC2/'
+    lab_type: lava_rest
+    url: 'https://lava.collabora.co.uk/'
     priority: '45'
-    filters:
+    filters: &collabora-filters
       - blocklist:
           tree: [android]
           plan: [baseline-qemu-docker]
-      - passlist:
-          plan:
-            - baseline
-            - baseline-nfs
-            - cros-ec
-            - igt-kms-rockchip
-            - igt-kms-exynos
-            - igt-kms-tegra
-            - igt-gpu-i915
-            - igt-gpu-panfrost
-            - kselftest-filesystems
-            - kselftest-futex
-            - kselftest-lib
-            - ltp-crypto
-            - ltp-fcntl-locktests
-            - ltp-ipc
-            - ltp-mm
-            - ltp-timers
-            - ltp-pty
-            - sleep
-            - usb
-            - v4l2-compliance-uvc
-            - v4l2-compliance-vivid
+
+  lab-collabora-staging:
+    lab_type: lava_rest
+    url: 'https://staging.lava.collabora.dev/'
+    priority: '45'
+    filters: *collabora-filters
 
   lab-kontron:
-    lab_type: lava
-    url: 'https://lavalab.kontron.com/RPC2/'
+    lab_type: lava_rest
+    url: 'https://lavalab.kontron.com/'
     filters:
       - passlist:
           plan:
             - baseline
 
   lab-linaro-lkft:
-    lab_type: lava
-    url: 'https://lkft.validation.linaro.org/RPC2/'
+    lab_type: lava_rest
+    url: 'https://lkft.validation.linaro.org/'
     priority: low
     filters:
       - passlist:
@@ -97,7 +81,7 @@ labs:
 
   lab-mhart:
     lab_type: lava
-    url: 'http://lava.streamtester.net/RPC2/'
+    url: 'http://lava.streamtester.net/'
     filters:
       - blocklist: {tree: ['android', 'drm-tip', 'linaro-android']}
       - passlist:
@@ -105,8 +89,8 @@ labs:
             - baseline
 
   lab-nxp:
-    lab_type: lava
-    url: 'https://lavalab.nxp.com/RPC2'
+    lab_type: lava_rest
+    url: 'https://lavalab.nxp.com/'
     filters:
       - passlist:
           plan:
@@ -114,8 +98,8 @@ labs:
       - blocklist: {plan: [baseline-qemu-docker]}
 
   lab-pengutronix:
-    lab_type: lava
-    url: 'https://hekla.openlab.pengutronix.de/RPC2/'
+    lab_type: lava_rest
+    url: 'https://hekla.openlab.pengutronix.de/'
     filters:
       - passlist:
           plan:
@@ -124,7 +108,7 @@ labs:
 
   lab-theobroma-systems:
     lab_type: lava
-    url: 'https://lava.theobroma-systems.com/RPC2/'
+    url: 'https://lava.theobroma-systems.com/'
     filters:
       - passlist:
           plan:

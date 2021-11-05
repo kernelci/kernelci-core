@@ -35,68 +35,38 @@ class cmd_validate(Command):
     def __call__(self, config_data, args, **kwargs):
         # ToDo: Use jsonschema
 
-        err = kernelci.sort_check(configs['rootfs_configs'])
-        if err:
-            print("Rootfs broken order: '{}' before '{}".format(*err))
-            return False
-        for name, config in configs['rootfs_configs'].items():
-            err = kernelci.sort_check(config.arch_list)
-            if err:
-                print("Arch order broken for {}: '{}' before '{}".format(
-                    name, err[0], err[1]))
-                return False
-            err = kernelci.sort_check(config.extra_packages)
-            if err:
-                print("Packages order broken for {}: '{}' before '{}".format(
-                    name, err[0], err[1]))
-                return False
-            err = kernelci.sort_check(config.extra_packages_remove)
-            if err:
-                print("Packages order broken for {}: '{}' before '{}".format(
-                    name, err[0], err[1]))
-                return False
-
-        if args.verbose:
-            rootfs_configs = config_data['rootfs_configs']
-            for config_name, config in rootfs_configs.items():
-                print(config_name)
-                print('\trootfs_type: {}'.format(config.rootfs_type))
-                print('\tarch_list: {}'.format(config.arch_list))
-                print('\tdebian_release: {}'.format(config.debian_release))
-                print('\textra_packages: {}'.format(config.extra_packages))
-                print('\textra_packages_remove: {}'.format(
-                    config.extra_packages_remove))
-                print('\textra_files_remove: {}'.format(
-                    config.extra_files_remove))
-                print('\tscript: {}'.format(config.script))
-                print('\ttest_overlay: {}'.format(config.test_overlay))
-                print('\tcrush_image_options: {}'.format(
-                    config.crush_image_options))
-                print('\tdebian_mirror: {}'.format(config.debian_mirror))
-                print('\tkeyring_package: {}'.format(config.keyring_package))
-                print('\tkeyring_file: {}'.format(config.keyring_file))
-
-        return True
+        result = kernelci.config.rootfs.validate(configs)
+        if args.verbose and result:
+            kernelci.config.rootfs.dump_configs(configs)
+        return result
 
 
 class cmd_list_configs(Command):
     help = "List all rootfs config names"
+    opt_args = [Args.rootfs_type]
 
-    def __call__(self, config_data, *args, **kwargs):
+    def __call__(self, config_data, args, **kwargs):
         rootfs_configs = config_data['rootfs_configs']
-        for config_name in rootfs_configs:
+        if args.rootfs_type is None:
+            config_names = rootfs_configs
+        else:
+            config_names = (name
+                            for name, config_data in rootfs_configs.items()
+                            if config_data.rootfs_type == args.rootfs_type)
+        for config_name in config_names:
             print(config_name)
         return True
 
 
 class cmd_list_variants(Command):
     help = "List all rootfs variants"
-    opt_args = [Args.rootfs_config, Args.arch]
+    opt_args = [Args.rootfs_config, Args.arch, Args.rootfs_type]
 
     def __call__(self, config_data, args, **kwargs):
         rootfs_configs = config_data['rootfs_configs']
         config_name = args.rootfs_config
         arch = args.arch
+        rootfs_type = args.rootfs_type
 
         if config_name and config_name not in rootfs_configs:
             print("{} : invalid config entry".format(config_name))
@@ -107,8 +77,10 @@ class cmd_list_variants(Command):
             print("{} : invalid arch entry".format(arch))
             return False
 
-        configs = (config for config in rootfs_configs
-                   if config == config_name or config_name is None)
+        configs = (name for name, config in rootfs_configs.items()
+                   if (name == config_name or config_name is None) and
+                   (config.rootfs_type == rootfs_type or rootfs_type is None)
+                   )
         for config in configs:
             for arch_type in rootfs_configs[config].arch_list:
                 if arch_type == arch or arch is None:
@@ -118,7 +90,8 @@ class cmd_list_variants(Command):
 
 class cmd_build(Command):
     help = "Build a rootfs image"
-    args = [Args.rootfs_config, Args.data_path, Args.arch]
+    args = [Args.rootfs_config, Args.arch]
+    opt_args = [Args.data_path]
 
     def __call__(self, config_data, args, **kwargs):
         config_name = args.rootfs_config
@@ -127,8 +100,10 @@ class cmd_build(Command):
             print("{} invalid. Check 'kci_rootfs list_configs' for valid \
                     entries".format(config_name))
             return False
-        return kernelci.rootfs.build(config_name, config,
-                                     args.data_path, args.arch)
+        data_path = (
+            args.data_path or 'config/rootfs/{}'.format(config.rootfs_type)
+        )
+        return kernelci.rootfs.build(config_name, config, data_path, args.arch)
 
 
 class cmd_upload(Command):

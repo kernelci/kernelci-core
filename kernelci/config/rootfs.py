@@ -18,6 +18,7 @@
 import sys
 import yaml
 
+from kernelci import sort_check
 from kernelci.config.base import YAMLObject
 
 
@@ -41,7 +42,7 @@ class RootFS(YAMLObject):
 
 class RootFS_Debos(RootFS):
     def __init__(self, name, rootfs_type, debian_release=None,
-                 arch_list=None, extra_packages=None,
+                 arch_list=None, extra_packages=None, extra_firmware=None,
                  extra_packages_remove=None,
                  extra_files_remove=None, script="",
                  test_overlay="", crush_image_options=None, debian_mirror="",
@@ -51,6 +52,7 @@ class RootFS_Debos(RootFS):
         self._arch_list = arch_list or list()
         self._extra_packages = extra_packages or list()
         self._extra_packages_remove = extra_packages_remove or list()
+        self._extra_firmware = extra_firmware or list()
         self._extra_files_remove = extra_files_remove or list()
         self._script = script
         self._test_overlay = test_overlay
@@ -67,7 +69,8 @@ class RootFS_Debos(RootFS):
                      'extra_packages', 'extra_packages_remove',
                      'extra_files_remove', 'script', 'test_overlay',
                      'crush_image_options', 'debian_mirror',
-                     'keyring_package', 'keyring_file']))
+                     'keyring_package', 'keyring_file',
+                     'extra_firmware']))
         return cls(**kw)
 
     @property
@@ -89,6 +92,10 @@ class RootFS_Debos(RootFS):
     @property
     def extra_files_remove(self):
         return list(self._extra_files_remove)
+
+    @property
+    def extra_firmware(self):
+        return list(self._extra_firmware)
 
     @property
     def script(self):
@@ -115,9 +122,32 @@ class RootFS_Debos(RootFS):
         return self._keyring_file
 
 
+class RootFS_Buildroot(RootFS):
+    def __init__(self, name, rootfs_type, arch_list=None, frags=None):
+        super().__init__(name, rootfs_type)
+        self._arch_list = arch_list or list()
+        self._frags = frags or list()
+
+    @classmethod
+    def from_yaml(cls, config, name):
+        kw = name
+        kw.update(cls._kw_from_yaml(
+            config, ['name', 'arch_list', 'frags']))
+        return cls(**kw)
+
+    @property
+    def frags(self):
+        return self._frags
+
+    @property
+    def arch_list(self):
+        return list(self._arch_list)
+
+
 class RootFSFactory(YAMLObject):
     _rootfs_types = {
-        'debos': RootFS_Debos
+        'debos': RootFS_Debos,
+        'buildroot': RootFS_Buildroot
     }
 
     @classmethod
@@ -147,3 +177,95 @@ def from_yaml(data):
     }
 
     return config_data
+
+
+def validate(configs):
+    """Validate rootfs config
+
+        *configs* contains rootfs-configs.yaml entries
+    """
+    err = sort_check(configs['rootfs_configs'])
+    if err:
+        print("Rootfs broken order: '{}' before '{}".format(*err))
+        return False
+    for name, config in configs['rootfs_configs'].items():
+        if config.rootfs_type == 'debos':
+            return _validate_debos(name, config)
+        elif config.rootfs_type == 'buildroot':
+            return _validate_buildroot(name, config)
+        else:
+            print('Invalid rootfs type {} for config name {}'
+                  .format(config.rootfs_type, name))
+            return False
+
+
+def _validate_debos(name, config):
+    err = sort_check(config.arch_list)
+    if err:
+        print("Arch order broken for {}: '{}' before '{}".format(
+            name, err[0], err[1]))
+        return False
+    err = sort_check(config.extra_packages)
+    if err:
+        print("Packages order broken for {}: '{}' before '{}".format(
+            name, err[0], err[1]))
+        return False
+    err = sort_check(config.extra_packages_remove)
+    if err:
+        print("Packages order broken for {}: '{}' before '{}".format(
+            name, err[0], err[1]))
+        return False
+    return True
+
+
+def _validate_buildroot(name, config):
+    err = sort_check(config.arch_list)
+    if err:
+        print("Arch order broken for {}: '{}' before '{}".format(
+            name, err[0], err[1]))
+        return False
+    err = sort_check(config.frags)
+    if err:
+        print("Frags order broken for {}: '{}' before '{}".format(
+            name, err[0], err[1]))
+        return False
+    return True
+
+
+def dump_configs(configs):
+    """Prints rootfs configs to stdout
+
+        *configs* contains rootfs-configs.yaml entries
+    """
+    for config_name, config in configs['rootfs_configs'].items():
+        if config.rootfs_type == 'debos':
+            _dump_config_debos(config_name, config)
+        elif config.rootfs_type == 'buildroot':
+            _dump_config_buildroot(config_name, config)
+
+
+def _dump_config_debos(config_name, config):
+    print(config_name)
+    print('\trootfs_type: {}'.format(config.rootfs_type))
+    print('\tarch_list: {}'.format(config.arch_list))
+    print('\tdebian_release: {}'.format(config.debian_release))
+    print('\textra_packages: {}'.format(config.extra_packages))
+    print('\textra_packages_remove: {}'.format(
+        config.extra_packages_remove))
+    print('\textra_files_remove: {}'.format(
+        config.extra_files_remove))
+    print('\textra_firmware: {}'.format(config.extra_firmware))
+    print('\tscript: {}'.format(config.script))
+    print('\ttest_overlay: {}'.format(config.test_overlay))
+    print('\tcrush_image_options: {}'.format(
+        config.crush_image_options))
+    print('\tdebian_mirror: {}'.format(config.debian_mirror))
+    print('\tkeyring_package: {}'.format(config.keyring_package))
+    print('\tkeyring_file: {}'.format(config.keyring_file))
+
+
+def _dump_config_buildroot(config_name, config):
+    print(config_name)
+    print('\trootfs_type: {}'.format(config.rootfs_type))
+    print('\tarch_list: {}'.format(config.arch_list))
+    print('\tfrags: {}'.format(config.frags))

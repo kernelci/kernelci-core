@@ -19,21 +19,27 @@ actions:
 {%- if nfsrootfs_url %}
     nfsrootfs:
       url: {{ nfsrootfs_url }}
-      compression: xz
+      {%- if nfsroot_compression %}
+      compression: {{ nfsroot_compression }}
+      {%- endif %}
 {%- endif %}
 {%- if initrd_url %}
     ramdisk:
       url: {{ initrd_url }}
-      compression: gz
+      {%- if initrd_compression %}
+      compression: {{ initrd_compression }}
+      {%- endif %}
 {%- endif %}
 {%- if modules_url %}
     modules:
       url: {{ modules_url }}
-      compression: xz
+      {%- if modules_compression %}
+      compression: {{ modules_compression }}
+      {%- endif %}
 {%- endif %}
 {%- if dtb_url %}
     dtb:
       url: {{ dtb_url }}
 {%- endif %}
-    os: oe
+    os: {{ os_config|default("oe") }}
 {% endblock %}
