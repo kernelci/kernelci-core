@@ -38,7 +38,7 @@ class Database(YAMLObject):
         return self._db_type
 
 
-class Backend(Database):
+class DatabaseAPI(Database):
     def __init__(self, name, db_type, url):
         super().__init__(name, db_type)
         self._url = url
@@ -60,7 +60,8 @@ class Backend(Database):
 
 class DatabaseFactory(YAMLObject):
     _db_types = {
-        "kernelci_backend": Backend
+        "kernelci_backend": DatabaseAPI,
+        "kernelci_api": DatabaseAPI,
     }
 
     @classmethod
