@@ -25,6 +25,7 @@ labs:
       - passlist:
           plan:
             - baseline
+            - baseline-cip-nfs
             - smc
 
   lab-clabbe:
