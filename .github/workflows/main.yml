@@ -29,7 +29,7 @@ jobs:
       - name: Install Debian dependencies
         run: |
           sudo apt update
-          sudo apt install -y python3-setuptools pycodestyle
+          sudo apt install -y python3-setuptools pycodestyle libgit2-dev
 
       - name: Install pip3 dependencies
         run: |

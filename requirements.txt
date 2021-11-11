@@ -1,5 +1,7 @@
 cloudevents==1.2.0
 jinja2
+kubernetes
+pygit2
 pyelftools
 pytest
 pyyaml

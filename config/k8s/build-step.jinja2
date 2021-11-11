@@ -1,0 +1,17 @@
+./kci_build init_bmeta \
+  --build-config={{ build_config }} \
+  --commit={{ commit_id }} \
+  --describe={{ git_describe }} \
+  --describe-verbose={{ git_describe_verbose }}; \
+\
+./kci_build make_config --defconfig={{ config_name }} && \
+./kci_build make_kernel && \
+./kci_build make_modules && \
+./kci_build make_dtbs && \
+./kci_build make_kselftest; \
+export KERNEL_BUILD_RESULT=$?; \
+\
+set +x; \
+echo Build result: ${KERNEL_BUILD_RESULT}; \
+echo; echo bmeta.json; cat ${KDIR}/build/bmeta.json; \
+echo; echo _install_; ls -l ${KDIR}/build/_install_; \

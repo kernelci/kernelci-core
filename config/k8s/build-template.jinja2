@@ -1,0 +1,96 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ job_name }}
+spec:
+  completions: 1
+  # Clean up after 48 hours
+  ttlSecondsAfterFinished: 172800
+  template:
+    spec:
+      restartPolicy: OnFailure
+
+      # in-memory tmpfs
+      volumes:
+      - name: scratch-volume
+        emptyDir: { medium: "Memory" }
+
+      # only run on preemptible nods
+      #nodeSelector:
+      #  cloud.google.com/gke-preemptible: "true"
+
+      # tolerate Azure spot instances
+      tolerations:
+      - key: "kubernetes.azure.com/scalesetpriority"
+        operator: "Equal"
+        value: "spot"
+        effect: "NoSchedule"
+
+      initContainers:
+      - name: kernelci-core-setup
+        image: {{ base_container }}
+
+        volumeMounts:
+        - mountPath: "/scratch"
+          name: scratch-volume
+
+        command: ["/bin/bash", "-x", "-c"]
+        args: ["mkdir -p /tmp/kci && cd /scratch && git clone --depth=1 --branch ${KCI_CORE_BRANCH} ${KCI_CORE_URL} &&\
+cd /scratch/kernelci-core &&  \
+\
+set +x; \
+echo -e \"\
+[DEFAULT]\n\
+kdir: /scratch/linux\n\
+verbose: true\n\
+db_config: ${KCI_DB_CONFIG}\n\
+j: ${JOBS}\n\
+\n\
+[db:${KCI_DB_CONFIG}]\n\
+db_token: ${KCI_API_TOKEN}\n\
+api: ${KCI_API_URL}\n\
+\n\
+[kci_build]\n\
+build_env: ${BUILD_ENVIRONMENT}\n\
+arch: ${ARCH}\n\
+output: /scratch/build\n\
+install: true\n\
+\n\
+[kci_data]\n\
+output: /scratch/build\n\
+\" > kernelci.conf && cat kernelci.conf\
+"]
+
+        env:
+        - name: KCI_CORE_URL
+          value: "{{ kernelci_core_repo }}"
+        - name: KCI_CORE_BRANCH
+          value: "{{ kernelci_core_branch }}"
+        - name: BUILD_ENVIRONMENT
+          value: "{{ build_environment }}"
+        - name: ARCH
+          value: "{{ arch }}"
+        - name: JOBS
+          value: "{{ cpu_limit }}"
+
+      containers:
+      - name: kci-build
+        image: {{ build_container }}
+
+        volumeMounts:
+        - mountPath: "/scratch"
+          name: scratch-volume
+
+        command: ["/bin/bash", "-x", "-c"]
+        args: ["\
+cd /scratch/kernelci-core ; \
+{{ build_commands }}
+exit 0 \
+"]
+
+        resources:
+          limits:
+            cpu: {{ cpu_limit }}
+          requests:
+            cpu: {{ cpu_request }}
+            memory: {{ mem_request }}

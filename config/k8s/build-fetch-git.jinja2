@@ -1,0 +1,19 @@
+# Inserted into build-template.jinja2 as an initContainer
+- name: fetch-tree
+  image: {{ base_container }}
+
+  volumeMounts:
+  - mountPath: "/scratch"
+    name: scratch-volume
+
+  command: ["/usr/bin/git", "clone", "--single-branch",
+      {{ git_url }},
+      "--branch", {{ git_branch }},
+      "--depth", "{{ commit_count }}",
+      "/scratch/linux",
+      ]
+
+  resources:
+    requests:
+      cpu: 0.875
+      memory: 1Gi

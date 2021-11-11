@@ -1,0 +1,16 @@
+# Inserted into build-template.jinja2 as an initContainer
+- name: fetch-tree
+  image: {{ base_container }}
+
+  volumeMounts:
+  - mountPath: "/scratch"
+    name: scratch-volume
+
+  command: ["/bin/bash", "-x", "-c"]
+  args: [ " cd /scratch/kernelci-core && ./kci_build pull_tarball \
+	--url {{ kernel_tarball }} --retries 3 --delete" ]
+
+  resources:
+    requests:
+      cpu: 0.875
+      memory: 1Gi

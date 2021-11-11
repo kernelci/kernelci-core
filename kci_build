@@ -23,6 +23,7 @@ from kernelci.cli import Args, Command, parse_opts
 import kernelci
 import kernelci.build
 import kernelci.config
+import kernelci.k8s
 import kernelci.storage
 
 
@@ -207,6 +208,24 @@ class cmd_arch_list(Command):
         variant = conf.get_variant(args.variant)
         for arch in variant.arch_list:
             print(arch)
+        return True
+
+
+class cmd_k8s_build(Command):
+    help = "Schedule builds for a given tree in Kubernetes"
+    args = [Args.build_config, Args.build_id, Args.kdir]
+    opt_args = [Args.k8s_context, Args.output]
+
+    def __call__(self, configs, args):
+        k8s = kernelci.k8s.k8s(context=args.k8s_context)
+
+        conf = configs['build_configs'][args.build_config]
+        for variant in conf.variants:
+            for config in kernelci.build.list_kernel_configs(
+                              conf, args.kdir, None, None):
+                k8s.start_build(args.kdir,
+                                conf.tree, conf.branch, config,
+                                None, args.output)
         return True
 
 

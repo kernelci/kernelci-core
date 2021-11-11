@@ -47,6 +47,11 @@ class Args:
         'section': SECTION_DB,
     }
 
+    build_id = {
+        'name': '--build-id',
+        'help': "Identifier to be used for the build",
+    }
+
     build_output = {
         'name': '--build-output',
         'help': "Path to the build output directory",
@@ -188,6 +193,11 @@ class Args:
     kernel_tarball = {
         'name': '--kernel-tarball',
         'help': "Kernel source tarball destination filename",
+    }
+
+    k8s_context = {
+        'name': '--kubernetes',
+        'help': 'Kubernetes context to work with',
     }
 
     lab_config = {

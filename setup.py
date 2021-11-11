@@ -61,6 +61,7 @@ setuptools.setup(
         "cloudevents",
         "jinja2",
         "pyelftools",
+        "pygit2",
         "pytest",
         "pyyaml",
         "requests",
