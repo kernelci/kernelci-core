@@ -36,11 +36,7 @@ class KernelCIBackend(Database):
         try:
             resp.raise_for_status()
         except requests.exceptions.HTTPError as ex:
-            print(ex)
-            if verbose:
-                errors = json.loads(ex.response.content).get("errors", [])
-                for err in errors:
-                    print(err)
+            self._print_http_error(ex, verbose)
             return False
         if verbose:
             print(resp.text)

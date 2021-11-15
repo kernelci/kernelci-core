@@ -71,6 +71,13 @@ class Database:
         """
         raise NotImplementedError("Database.submit_test() not implemented")
 
+    def _print_http_error(self, http_error):
+        print(http_error)
+        if verbose:
+            errors = json.loads(http_error.response.content).get("errors", [])
+            for err in errors:
+                print(err)
+
 
 def get_db(config, token=None):
     m = importlib.import_module('.'.join(['kernelci', 'data', config.db_type]))
