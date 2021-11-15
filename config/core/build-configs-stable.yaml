@@ -81,39 +81,9 @@ build_configs:
     branch: 'linux-5.4.y'
     variants: *stable_variants
 
-  stable_5.6:
-    tree: stable
-    branch: 'linux-5.6.y'
-    variants: *stable_variants
-
-  stable_5.7:
-    tree: stable
-    branch: 'linux-5.7.y'
-    variants: *stable_variants
-
-  stable_5.8:
-    tree: stable
-    branch: 'linux-5.8.y'
-    variants: *stable_variants
-
   stable_5.10:
     tree: stable
     branch: 'linux-5.10.y'
-    variants: *stable_variants
-
-  stable_5.11:
-    tree: stable
-    branch: 'linux-5.11.y'
-    variants: *stable_variants
-
-  stable_5.12:
-    tree: stable
-    branch: 'linux-5.12.y'
-    variants: *stable_variants
-
-  stable_5.13:
-    tree: stable
-    branch: 'linux-5.13.y'
     variants: *stable_variants
 
   stable_5.14:
@@ -199,30 +169,6 @@ build_configs:
       tree: stable
       branch: 'linux-5.4.y'
 
-  stable-rc_5.6:
-    tree: stable-rc
-    branch: 'linux-5.6.y'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.6.y'
-
-  stable-rc_5.7:
-    tree: stable-rc
-    branch: 'linux-5.7.y'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.7.y'
-
-  stable-rc_5.8:
-    tree: stable-rc
-    branch: 'linux-5.8.y'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.8.y'
-
   stable-rc_5.10:
     tree: stable-rc
     branch: 'linux-5.10.y'
@@ -230,30 +176,6 @@ build_configs:
     reference:
       tree: stable
       branch: 'linux-5.10.y'
-
-  stable-rc_5.11:
-    tree: stable-rc
-    branch: 'linux-5.11.y'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.11.y'
-
-  stable-rc_5.12:
-    tree: stable-rc
-    branch: 'linux-5.12.y'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.12.y'
-
-  stable-rc_5.13:
-    tree: stable-rc
-    branch: 'linux-5.13.y'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.13.y'
 
   stable-rc_5.14:
     tree: stable-rc
@@ -351,30 +273,6 @@ build_configs:
       tree: stable
       branch: 'linux-5.4.y'
 
-  stable-rc_queue-5.6:
-    tree: stable-rc
-    branch: 'queue/5.6'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.6.y'
-
-  stable-rc_queue-5.7:
-    tree: stable-rc
-    branch: 'queue/5.7'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.7.y'
-
-  stable-rc_queue-5.8:
-    tree: stable-rc
-    branch: 'queue/5.8'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.8.y'
-
   stable-rc_queue-5.10:
     tree: stable-rc
     branch: 'queue/5.10'
@@ -382,30 +280,6 @@ build_configs:
     reference:
       tree: stable
       branch: 'linux-5.10.y'
-
-  stable-rc_queue-5.11:
-    tree: stable-rc
-    branch: 'queue/5.11'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.11.y'
-
-  stable-rc_queue-5.12:
-    tree: stable-rc
-    branch: 'queue/5.12'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.12.y'
-
-  stable-rc_queue-5.13:
-    tree: stable-rc
-    branch: 'queue/5.13'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.13.y'
 
   stable-rc_queue-5.14:
     tree: stable-rc
