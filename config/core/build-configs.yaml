@@ -55,9 +55,6 @@ trees:
   gtucker:
     url: 'https://gitlab.collabora.com/gtucker/linux.git'
 
-  kernelci:
-    url: "https://github.com/kernelci/linux.git"
-
   khilman:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/khilman/linux.git"
 
@@ -115,17 +112,8 @@ trees:
   samsung:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/kgene/linux-samsung.git"
 
-  sashal:
-    url: "https://git.kernel.org/pub/scm/linux/kernel/git/sashal/linux-stable.git"
-
   soc:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/soc/soc.git"
-
-  stable:
-    url: "https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
-
-  stable-rc:
-    url: "https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git"
 
   tegra:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/tegra/linux.git"

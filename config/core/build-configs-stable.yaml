@@ -1,3 +1,17 @@
+trees:
+
+  kernelci:
+    url: "https://github.com/kernelci/linux.git"
+
+  sashal:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/sashal/linux-stable.git"
+
+  stable:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git"
+
+  stable-rc:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git"
+
 # Build fewer kernel configs with stable branches
 stable_variants: &stable_variants
   gcc-10:
