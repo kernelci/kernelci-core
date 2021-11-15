@@ -87,12 +87,14 @@ class LabFactory(YAMLObject):
     @classmethod
     def from_yaml(cls, name, lab):
         lab_type = lab.get('lab_type')
-        kw = cls._kw_from_yaml(lab, ['url'])
-        kw.update({
+        kw = {
             'name': name,
             'lab_type': lab_type,
             'filters': FilterFactory.from_data(lab),
-        })
+        }
+        kw.update(cls._kw_from_yaml(lab, [
+            'url',
+        ]))
         lab_cls = cls._lab_types[lab_type] if lab_type else Lab
         return lab_cls.from_yaml(lab, kw)
 

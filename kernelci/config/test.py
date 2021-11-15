@@ -149,15 +149,15 @@ class DeviceTypeFactory(YAMLObject):
 
     @classmethod
     def from_yaml(cls, name, device_type, default_filters=None):
-        kw = cls._kw_from_yaml(device_type, [
-            'mach', 'arch', 'boot_method',
-            'dtb', 'flags', 'context', 'params',
-        ])
-        kw.update({
+        kw = {
             'name': name,
             'base_name': device_type.get('base_name'),
             'filters': FilterFactory.from_data(device_type, default_filters),
-        })
+        }
+        kw.update(cls._kw_from_yaml(device_type, [
+            'mach', 'arch', 'boot_method',
+            'dtb', 'flags', 'context', 'params',
+        ]))
         cls_name = device_type.get('class')
         device_cls = cls._classes[cls_name] if cls_name else DeviceType
         return device_cls(**kw)

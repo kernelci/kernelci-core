@@ -63,14 +63,26 @@ class RootFS_Debos(RootFS):
 
     @classmethod
     def from_yaml(cls, config, name):
-        kw = name
-        kw.update(cls._kw_from_yaml(
-            config, ['name', 'debian_release', 'arch_list',
-                     'extra_packages', 'extra_packages_remove',
-                     'extra_files_remove', 'script', 'test_overlay',
-                     'crush_image_options', 'debian_mirror',
-                     'keyring_package', 'keyring_file',
-                     'extra_firmware']))
+        kw = {
+            'name': name,
+        }
+        # ToDo: use a single RootFS class and move specific options to a
+        # "params" dictionary in YAML
+        kw.update(cls._kw_from_yaml(config, [
+            'rootfs_type',
+            'debian_release',
+            'arch_list',
+            'debian_mirror',
+            'keyring_package',
+            'keyring_file',
+            'extra_packages',
+            'extra_packages_remove',
+            'extra_files_remove',
+            'extra_firmware',
+            'script',
+            'test_overlay',
+            'crush_image_options',
+        ]))
         return cls(**kw)
 
     @property
@@ -130,9 +142,12 @@ class RootFS_Buildroot(RootFS):
 
     @classmethod
     def from_yaml(cls, config, name):
-        kw = name
-        kw.update(cls._kw_from_yaml(
-            config, ['name', 'arch_list', 'frags']))
+        kw = {
+            'name': name,
+        }
+        kw.update(cls._kw_from_yaml(config, [
+            'rootfs_type', 'arch_list', 'frags',
+        ]))
         return cls(**kw)
 
     @property
@@ -147,7 +162,7 @@ class RootFS_Buildroot(RootFS):
 class RootFSFactory(YAMLObject):
     _rootfs_types = {
         'debos': RootFS_Debos,
-        'buildroot': RootFS_Buildroot
+        'buildroot': RootFS_Buildroot,
     }
 
     @classmethod
@@ -155,15 +170,12 @@ class RootFSFactory(YAMLObject):
         rootfs_type = rootfs.get('rootfs_type')
         if rootfs_type is None:
             raise TypeError("rootfs_type cannot be Empty")
-        elif rootfs_type not in cls._rootfs_types:
+
+        rootfs_cls = cls._rootfs_types.get(rootfs_type)
+        if rootfs_cls is None:
             raise ValueError("Unsupported value {}".format(rootfs_type))
-        else:
-            kw = {
-                'name': name,
-                'rootfs_type': rootfs_type,
-                }
-        rootfs_cls = cls._rootfs_types[rootfs_type] if rootfs_type else RootFS
-        return rootfs_cls.from_yaml(rootfs, kw)
+
+        return rootfs_cls.from_yaml(rootfs, name)
 
 
 def from_yaml(data):
