@@ -3,7 +3,7 @@ labs:
   # ToDo: also run jobs with callbacks sent to BayLibre's KernelCI backend
   lab-baylibre:
     lab_type: lava.lava_xmlrpc
-    url: 'https://lava.baylibre.com/RPC2'
+    url: 'https://lava.baylibre.com/RPC2/'
     filters:
       - blocklist: {tree: [drm-tip]}
       - passlist:
@@ -14,12 +14,12 @@ labs:
 
   lab-broonie:
     lab_type: lava.lava_xmlrpc
-    url: 'https://lava.sirena.org.uk/RPC2'
+    url: 'https://lava.sirena.org.uk/RPC2/'
     priority: low
 
   lab-cip:
     lab_type: lava.lava_xmlrpc
-    url: 'https://lava.ciplatform.org/RPC2'
+    url: 'https://lava.ciplatform.org/RPC2/'
     filters:
       - blocklist: {tree: [android]}
       - passlist:
@@ -30,7 +30,7 @@ labs:
 
   lab-clabbe:
     lab_type: lava.lava_xmlrpc
-    url: 'https://lava.montjoie.ovh/RPC2'
+    url: 'https://lava.montjoie.ovh/RPC2/'
     filters:
       - passlist:
           plan:
@@ -82,7 +82,7 @@ labs:
 
   lab-mhart:
     lab_type: lava.lava_xmlrpc
-    url: 'http://lava.streamtester.net/RPC2'
+    url: 'http://lava.streamtester.net/RPC2/'
     filters:
       - blocklist: {tree: ['android', 'drm-tip', 'linaro-android']}
       - passlist:
@@ -109,7 +109,7 @@ labs:
 
   lab-theobroma-systems:
     lab_type: lava.lava_xmlrpc
-    url: 'https://lava.theobroma-systems.com/RPC2'
+    url: 'https://lava.theobroma-systems.com/RPC2/'
     filters:
       - passlist:
           plan:
