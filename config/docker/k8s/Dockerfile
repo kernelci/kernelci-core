@@ -30,3 +30,11 @@ RUN apt-get update && apt-get install -y azure-cli
 RUN apt-get update && apt-get install -y python3-pip python3-setuptools
 RUN apt-get remove -y python3-urllib3 python3-requests && apt-get autoremove -y
 RUN python3 -m pip install --upgrade kubernetes
+
+#
+# pygit2
+# - Could use Debian package python3-pygit2 but follow the Kubernetes 
+#   library to avoid confusion with multiple package managers.
+#
+RUN apt-get install -y libgit2-dev
+RUN python3 -m pip install --upgrade pygit2
