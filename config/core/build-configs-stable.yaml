@@ -14,10 +14,10 @@ trees:
 
 # Build fewer kernel configs with stable branches
 stable_variants: &stable_variants
-  gcc-10:
+  gcc-10: &stable_gcc_10
     build_environment: gcc-10
-    fragments: ['tinyconfig']
-    architectures:
+    fragments: [tinyconfig]
+    architectures: &stable_architectures
       arc:
         base_defconfig: 'haps_hs_smp_defconfig'
         extra_configs: ['allnoconfig']
@@ -53,12 +53,33 @@ stable_variants: &stable_variants
         extra_configs: ['allnoconfig']
         fragments: [x86-chromebook]
 
+
+stable_variants_kselftest: &stable_variants_kselftest
+  gcc-10:
+    <<: *stable_gcc_10
+    architectures:
+      <<: *stable_architectures
+      arm:
+        base_defconfig: 'multi_v7_defconfig'
+        extra_configs: ['allnoconfig']
+        fragments: [kselftest]
+      arm64:
+        extra_configs: ['allnoconfig']
+        fragments: [kselftest]
+      x86_64:
+        base_defconfig: 'x86_64_defconfig'
+        extra_configs:
+          - 'allnoconfig'
+          - 'x86_64_defconfig+x86-chromebook+kselftest'
+        fragments: [x86-chromebook, kselftest]
+
+
 build_configs:
 
   kernelci:
     tree: kernelci
     branch: 'kernelci.org'
-    variants: *stable_variants
+    variants: *stable_variants_kselftest
 
   sashal_stable-next:
     tree: sashal
@@ -103,7 +124,7 @@ build_configs:
   stable_5.14:
     tree: stable
     branch: 'linux-5.14.y'
-    variants: *stable_variants
+    variants: *stable_variants_kselftest
 
   stable_5.15:
     tree: stable
@@ -194,7 +215,7 @@ build_configs:
   stable-rc_5.14:
     tree: stable-rc
     branch: 'linux-5.14.y'
-    variants: *stable_variants
+    variants: *stable_variants_kselftest
     reference:
       tree: stable
       branch: 'linux-5.14.y'
@@ -298,7 +319,7 @@ build_configs:
   stable-rc_queue-5.14:
     tree: stable-rc
     branch: 'queue/5.14'
-    variants: *stable_variants
+    variants: *stable_variants_kselftest
     reference:
       tree: stable
       branch: 'linux-5.14.y'
