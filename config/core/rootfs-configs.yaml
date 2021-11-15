@@ -66,8 +66,14 @@ rootfs_configs:
       - e2fsprogs
       - libext2fs2
     extra_firmware:
+      - i915/bxt_dmc_ver1_07.bin
+      - i915/glk_dmc_ver1_04.bin
+      - i915/kbl_dmc_ver1_04.bin
+      - imx/sdma/sdma-imx6q.bin
       - mrvl/pcieusb8997_combo_v4.bin
+      - qca/rampatch_00440302.bin
       - rockchip/dptx.bin
+      - rtl_nic/rtl8153b-2.fw
     test_overlay: "overlays/firmware"
 
   bullseye-igt:
