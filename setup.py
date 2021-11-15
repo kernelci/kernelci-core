@@ -58,6 +58,7 @@ setuptools.setup(
     ],
     python_requires='>=3.6',
     install_requires=[
+        "cloudevents",
         "jinja2",
         "pyelftools",
         "pytest",
