@@ -77,6 +77,8 @@ class LAVA(LavaAPI):
                 loc=url.netloc, path=url.path)
         else:
             api_url = self.config.url
+        if api_url.strip()[-1] != '/':
+            api_url = f'{api_url}/'
         self._server = xmlrpc.client.ServerProxy(api_url)
         return self._server
 
