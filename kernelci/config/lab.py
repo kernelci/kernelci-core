@@ -89,6 +89,7 @@ class LabFactory(YAMLObject):
     _lab_types = {
         'lava.lava_xmlrpc': Lab_LAVA,
         'lava.lava_rest': Lab_LAVA,
+        'shell': Lab,
     }
 
     @classmethod
