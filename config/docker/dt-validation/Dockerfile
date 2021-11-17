@@ -1,15 +1,17 @@
-FROM kernelci/build-base
+ARG PREFIX=kernelci/
+FROM ${PREFIX}build-base
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
-    gcc-8 \
-    gcc-8-plugin-dev \
+    gcc-10 \
+    gcc-10-plugin-dev \
     python3-pip \
     python3-setuptools \
     python3-wheel
 
-RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 500
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 500
 
-RUN pip3 install --system git+https://github.com/devicetree-org/dt-schema.git@master
+RUN pip3 install --system \
+    git+https://github.com/devicetree-org/dt-schema.git@master
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     bison \
@@ -17,4 +19,4 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     flex \
     libyaml-dev \
     pkg-config \
-    python-yaml
+    python3-yaml

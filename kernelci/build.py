@@ -21,6 +21,7 @@ import itertools
 import json
 import os
 import platform
+import re
 import shutil
 import tarfile
 import time
@@ -34,6 +35,10 @@ from kernelci.storage import upload_files
 # This is used to get the mainline tags as a minimum for git describe
 TORVALDS_GIT_URL = \
     "git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
+
+CIP_CONFIG_URL = \
+    "https://gitlab.com/cip-project/cip-kernel/cip-kernel-config/-\
+/raw/master/{branch}/{config}"
 
 # Hard-coded make targets for each CPU architecture
 MAKE_TARGETS = {
@@ -1065,6 +1070,13 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
             cmd = self._output_to_file(cmd, self._log_path, self._kdir)
         return shell_cmd(cmd, True)
 
+    def _create_cip_config(self, config):
+        [(branch, config)] = re.findall(r"cip://([\w\-.]+)/(.*)", config)
+        cip_config = os.path.join(self._output_path, ".config")
+        url = CIP_CONFIG_URL.format(branch=branch, config=config)
+        if not _download_file(url, cip_config):
+            raise FileNotFoundError("Error reading {}".format(url))
+
     def run(self, jopt=None, verbose=False, opts=None):
         """Make the kernel config
 
@@ -1107,6 +1119,8 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
             env['name'],
         ])
 
+        publish_path = publish_path.replace(':', '-')
+
         bmeta['kernel'] = {
             'defconfig': target,
             'defconfig_full': defconfig,
@@ -1115,7 +1129,11 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
             'publish_path': publish_path,
         }
 
-        res = self._make(target, jopt, verbose, opts)
+        if target.startswith("cip://"):
+            self._create_cip_config(target)
+            res = self._make('olddefconfig', jopt, verbose, opts)
+        else:
+            res = self._make(target, jopt, verbose, opts)
 
         if res and kci_frag_name:
             # ToDo: treat kernelci.config as an implementation detail and list
@@ -1186,14 +1204,18 @@ class MakeKernel(Step):
 
     def _find_kernel_images(self, image):
         arch = self._meta.get('bmeta', 'environment', 'arch')
-        boot_dir = os.path.join(self._output_path, 'arch', arch, 'boot')
         kimage_names = KERNEL_IMAGE_NAMES[arch]
         kimages = dict()
 
         if image:
             kimage_names.add(image)
 
-        for path in boot_dir, self._output_path:
+        image_paths = [
+            os.path.join(self._output_path, 'arch', arch, 'boot'),
+            self._output_path
+        ]
+
+        for path in (p for p in image_paths if os.path.isdir(p)):
             files = set(os.listdir(path))
             image_files = files.intersection(kimage_names)
             kimages.update({im: os.path.join(path, im) for im in image_files})

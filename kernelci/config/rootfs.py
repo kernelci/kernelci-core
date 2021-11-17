@@ -42,7 +42,7 @@ class RootFS(YAMLObject):
 
 class RootFS_Debos(RootFS):
     def __init__(self, name, rootfs_type, debian_release=None,
-                 arch_list=None, extra_packages=None,
+                 arch_list=None, extra_packages=None, extra_firmware=None,
                  extra_packages_remove=None,
                  extra_files_remove=None, script="",
                  test_overlay="", crush_image_options=None, debian_mirror="",
@@ -52,6 +52,7 @@ class RootFS_Debos(RootFS):
         self._arch_list = arch_list or list()
         self._extra_packages = extra_packages or list()
         self._extra_packages_remove = extra_packages_remove or list()
+        self._extra_firmware = extra_firmware or list()
         self._extra_files_remove = extra_files_remove or list()
         self._script = script
         self._test_overlay = test_overlay
@@ -62,13 +63,26 @@ class RootFS_Debos(RootFS):
 
     @classmethod
     def from_yaml(cls, config, name):
-        kw = name
-        kw.update(cls._kw_from_yaml(
-            config, ['name', 'debian_release', 'arch_list',
-                     'extra_packages', 'extra_packages_remove',
-                     'extra_files_remove', 'script', 'test_overlay',
-                     'crush_image_options', 'debian_mirror',
-                     'keyring_package', 'keyring_file']))
+        kw = {
+            'name': name,
+        }
+        # ToDo: use a single RootFS class and move specific options to a
+        # "params" dictionary in YAML
+        kw.update(cls._kw_from_yaml(config, [
+            'rootfs_type',
+            'debian_release',
+            'arch_list',
+            'debian_mirror',
+            'keyring_package',
+            'keyring_file',
+            'extra_packages',
+            'extra_packages_remove',
+            'extra_files_remove',
+            'extra_firmware',
+            'script',
+            'test_overlay',
+            'crush_image_options',
+        ]))
         return cls(**kw)
 
     @property
@@ -90,6 +104,10 @@ class RootFS_Debos(RootFS):
     @property
     def extra_files_remove(self):
         return list(self._extra_files_remove)
+
+    @property
+    def extra_firmware(self):
+        return list(self._extra_firmware)
 
     @property
     def script(self):
@@ -124,9 +142,12 @@ class RootFS_Buildroot(RootFS):
 
     @classmethod
     def from_yaml(cls, config, name):
-        kw = name
-        kw.update(cls._kw_from_yaml(
-            config, ['name', 'arch_list', 'frags']))
+        kw = {
+            'name': name,
+        }
+        kw.update(cls._kw_from_yaml(config, [
+            'rootfs_type', 'arch_list', 'frags',
+        ]))
         return cls(**kw)
 
     @property
@@ -141,7 +162,7 @@ class RootFS_Buildroot(RootFS):
 class RootFSFactory(YAMLObject):
     _rootfs_types = {
         'debos': RootFS_Debos,
-        'buildroot': RootFS_Buildroot
+        'buildroot': RootFS_Buildroot,
     }
 
     @classmethod
@@ -149,15 +170,12 @@ class RootFSFactory(YAMLObject):
         rootfs_type = rootfs.get('rootfs_type')
         if rootfs_type is None:
             raise TypeError("rootfs_type cannot be Empty")
-        elif rootfs_type not in cls._rootfs_types:
+
+        rootfs_cls = cls._rootfs_types.get(rootfs_type)
+        if rootfs_cls is None:
             raise ValueError("Unsupported value {}".format(rootfs_type))
-        else:
-            kw = {
-                'name': name,
-                'rootfs_type': rootfs_type,
-                }
-        rootfs_cls = cls._rootfs_types[rootfs_type] if rootfs_type else RootFS
-        return rootfs_cls.from_yaml(rootfs, kw)
+
+        return rootfs_cls.from_yaml(rootfs, name)
 
 
 def from_yaml(data):
@@ -248,6 +266,7 @@ def _dump_config_debos(config_name, config):
         config.extra_packages_remove))
     print('\textra_files_remove: {}'.format(
         config.extra_files_remove))
+    print('\textra_firmware: {}'.format(config.extra_firmware))
     print('\tscript: {}'.format(config.script))
     print('\ttest_overlay: {}'.format(config.test_overlay))
     print('\tcrush_image_options: {}'.format(

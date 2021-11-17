@@ -1,11 +1,13 @@
-FROM kernelci/build-base
+ARG PREFIX=kernelci/
+FROM ${PREFIX}build-base
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
     software-properties-common \
     gnupg2
 
 RUN wget -q -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
-RUN apt-add-repository 'deb http://apt.llvm.org/buster/ llvm-toolchain-buster-13 main'
+RUN echo 'deb http://apt.llvm.org/bullseye/ llvm-toolchain-bullseye-13 main' \
+   >> /etc/apt/sources.list.d/clang.list
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
     binutils-aarch64-linux-gnu \

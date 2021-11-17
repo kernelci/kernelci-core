@@ -37,7 +37,9 @@ class Tree(YAMLObject):
         kw = {
             'name': name,
         }
-        kw.update(cls._kw_from_yaml(config, ['url', 'name']))
+        kw.update(cls._kw_from_yaml(config, [
+            'url', 'name',
+        ]))
         return cls(**kw)
 
     @property
@@ -157,16 +159,16 @@ class Architecture(YAMLObject):
         self._filters = filters or list()
 
     @classmethod
-    def from_yaml(cls, data, name, fragments):
+    def from_yaml(cls, config, name, fragments):
         kw = {
             'name': name,
         }
-        kw.update(cls._kw_from_yaml(data, [
+        kw.update(cls._kw_from_yaml(config, [
             'name', 'base_defconfig', 'extra_configs',
         ]))
-        cf = data.get('fragments')
+        cf = config.get('fragments')
         kw['fragments'] = [fragments[name] for name in cf] if cf else None
-        kw['filters'] = FilterFactory.from_data(data)
+        kw['filters'] = FilterFactory.from_data(config)
         return cls(**kw)
 
     @property
@@ -220,8 +222,9 @@ class BuildEnvironment(YAMLObject):
         kw = {
             'name': name,
         }
-        kw.update(cls._kw_from_yaml(
-            config, ['name', 'cc', 'cc_version', 'arch_params']))
+        kw.update(cls._kw_from_yaml(config, [
+            'name', 'cc', 'cc_version', 'arch_params',
+        ]))
         return cls(**kw)
 
     @property
@@ -284,8 +287,9 @@ class BuildVariant(YAMLObject):
         kw = {
             'name': name,
         }
-        kw.update(cls._kw_from_yaml(
-            config, ['name', 'build_environment', 'fragments']))
+        kw.update(cls._kw_from_yaml(config, [
+            'name', 'build_environment', 'fragments',
+        ]))
         kw['build_environment'] = build_environments[kw['build_environment']]
         kw['architectures'] = list(
             Architecture.from_yaml(data or {}, name, fragments)
@@ -353,8 +357,9 @@ class BuildConfig(YAMLObject):
         kw = {
             'name': name,
         }
-        kw.update(cls._kw_from_yaml(
-            config, ['name', 'tree', 'branch']))
+        kw.update(cls._kw_from_yaml(config, [
+            'name', 'tree', 'branch',
+        ]))
         kw['tree'] = trees[kw['tree']]
         default_variants = defaults.get('variants', {})
         config_variants = config.get('variants', default_variants)

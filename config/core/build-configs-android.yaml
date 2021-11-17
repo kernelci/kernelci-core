@@ -1,0 +1,160 @@
+trees:
+
+  android:
+    url: "https://android.googlesource.com/kernel/common"
+
+
+android_variants: &android_variants
+  gcc-10:
+    build_environment: gcc-10
+    architectures:
+        arm: &arm_arch
+          base_defconfig: 'multi_v7_defconfig'
+          extra_configs:
+            - 'allmodconfig'
+            - 'allnoconfig'
+            - 'multi_v7_defconfig+CONFIG_CPU_BIG_ENDIAN=y'
+            - 'multi_v7_defconfig+CONFIG_SMP=n'
+            - 'multi_v7_defconfig+CONFIG_EFI=y+CONFIG_ARM_LPAE=y'
+            - 'multi_v7_defconfig+CONFIG_THUMB2_KERNEL=y'
+
+        arm64: &arm64_arch
+          extra_configs:
+            - 'allmodconfig'
+            - 'allnoconfig'
+            - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
+            - 'defconfig+CONFIG_RANDOMIZE_BASE=y'
+
+        i386: &i386_arch
+          base_defconfig: 'i386_defconfig'
+          extra_configs: ['allnoconfig']
+
+        riscv: &riscv_arch
+          extra_configs: ['allnoconfig']
+          filters:
+            - blocklist:
+                kernel: ['v3.', 'v4.4', 'v4.9', 'v4.14']
+
+        x86_64: &x86_64_arch
+          base_defconfig: 'x86_64_defconfig'
+          extra_configs:
+            - 'allmodconfig'
+            - 'allnoconfig'
+
+
+build_configs:
+
+  android_4.4-p:
+    tree: android
+    branch: 'android-4.4-p'
+    variants: *android_variants
+
+  android_4.4-p-release:
+    tree: android
+    branch: 'android-4.4-p-release'
+    variants: *android_variants
+
+  android_4.9-p:
+    tree: android
+    branch: 'android-4.9-p'
+    variants: *android_variants
+
+  android_4.9-p-release:
+    tree: android
+    branch: 'android-4.9-p-release'
+    variants: *android_variants
+
+  android_4.9-q:
+    tree: android
+    branch: 'android-4.9-q'
+    variants: *android_variants
+
+  android_4.9-q-release:
+    tree: android
+    branch: 'android-4.9-q-release'
+    variants: *android_variants
+
+  android_4.14-p:
+    tree: android
+    branch: 'android-4.14-p'
+    variants: *android_variants
+
+  android_4.14-p-release:
+    tree: android
+    branch: 'android-4.14-p-release'
+    variants: *android_variants
+
+  android_4.14-q:
+    tree: android
+    branch: 'android-4.14-q'
+    variants: *android_variants
+
+  android_4.14-q-release:
+    tree: android
+    branch: 'android-4.14-q-release'
+    variants: *android_variants
+
+  android_4.14-stable:
+    tree: android
+    branch: 'android-4.14-stable'
+    variants: *android_variants
+
+  android_4.19-q:
+    tree: android
+    branch: 'android-4.19-q'
+    variants: *android_variants
+
+  android_4.19-q-release:
+    tree: android
+    branch: 'android-4.19-q-release'
+    variants: *android_variants
+
+  android_4.19-stable:
+    tree: android
+    branch: 'android-4.19-stable'
+    variants: *android_variants
+
+  android_mainline:
+    tree: android
+    branch: 'android-mainline'
+    variants: *android_variants
+
+  android_mainline_tracking:
+    tree: android
+    branch: 'android-mainline-tracking'
+    variants: *android_variants
+
+  android11-5.4:
+    tree: android
+    branch: 'android11-5.4'
+    variants: *android_variants
+
+  android12-5.4:
+    tree: android
+    branch: 'android12-5.4'
+    variants: *android_variants
+
+  android12-5.4-lts:
+    tree: android
+    branch: 'android12-5.4-lts'
+    variants: *android_variants
+
+  android12-5.10:
+    tree: android
+    branch: 'android12-5.10'
+    variants: *android_variants
+
+  android12-5.10-lts:
+    tree: android
+    branch: 'android12-5.10-lts'
+    variants: *android_variants
+
+  android13-5.10:
+    tree: android
+    branch: 'android13-5.10'
+    variants: *android_variants
+
+  android13-5.15:
+    tree: android
+    branch: 'android13-5.15'
+    variants: *android_variants

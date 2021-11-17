@@ -8,9 +8,9 @@ weight: 5
 
 ### How to build a rootfs image using kci_rootfs
 
-You will be using `kernelci/staging-debos` docker image for this purpose.
+You will be using `kernelci/debos` docker image for this purpose.
 
-1. Pull the docker image `docker pull kernelci/staging-debos`
+1. Pull the docker image `docker pull kernelci/debos`
 
 2. Clone the kernelci-core repo.
 
@@ -20,7 +20,7 @@ You will be using `kernelci/staging-debos` docker image for this purpose.
 3. Start the docker and get into it.
 
    ```
-   sudo docker run -itd -v $(pwd)/kernelci-core:/kernelci-core --device /dev/kvm --privileged kernelci/staging-debos
+   sudo docker run -itd -v $(pwd)/kernelci-core:/kernelci-core --device /dev/kvm --privileged kernelci/debos
    sudo docker exec -it <container_id> bash
    cd /kernelci-core/
    ```
@@ -138,6 +138,7 @@ Now you know how to build default `kci_rootfs` images. Let's look at how to add 
   | script                | Custom script to be executed during rootfs image creation. |
   | test_overlay          | Create a directory layout on final rootfs image as provided. |
   | extra_packages        | Installs specified packages on rootfs image. |
+  | extra_firmware        | Installs specified linux-firmware files into rootfs image. |
   | extra_files_remove    | Removes specified files from rootfs image. |
 
   Please note at the moment, only `debos` is supported as `rootfs_type` and above options are debos specific.

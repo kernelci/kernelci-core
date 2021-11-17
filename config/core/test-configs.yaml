@@ -14,6 +14,11 @@ file_system_types:
       x86:     [{arch: i386}, {arch: x86_64}]
       mipsel:  [{arch: mips}]
 
+  cip:
+    url: 'https://storage.kernelci.org/images/rootfs/cip/20211105'
+    arch_map:
+      amd64: [{arch: x86_64}]
+
   debian: &debian
     url: 'http://storage.kernelci.org/images/rootfs/debian'
     arch_map:
@@ -35,46 +40,52 @@ file_systems:
     type: buildroot
     ramdisk: '{arch}/baseline/rootfs.cpio.gz'
 
+  cip_nfs:
+    type: cip
+    ramdisk: 'qemu-{arch}/cip-core-image-kernelci-cip-core-buster-qemu-{arch}-initrd.img.gz'
+    nfs: 'qemu-{arch}/cip-core-image-kernelci-cip-core-buster-qemu-{arch}.tar.gz'
+    root_type: nfs
+
   debian_buster_ramdisk:
     type: debian
-    ramdisk: 'buster/20210827.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'buster/20211112.0/{arch}/rootfs.cpio.gz'
 
   debian_buster_nfs:
     type: debian
-    ramdisk: 'buster/20210827.0/{arch}/initrd.cpio.gz'
-    nfs: 'buster/20210827.0/{arch}/full.rootfs.tar.xz'
+    ramdisk: 'buster/20211112.0/{arch}/initrd.cpio.gz'
+    nfs: 'buster/20211112.0/{arch}/full.rootfs.tar.xz'
     root_type: nfs
 
   debian_buster-cros-ec_ramdisk:
     type: debian
-    ramdisk: 'buster-cros-ec/20210827.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'buster-cros-ec/20211112.0/{arch}/rootfs.cpio.gz'
 
   debian_buster-igt_ramdisk:
     type: debian
-    ramdisk: 'buster-igt/20210827.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'buster-igt/20211112.0/{arch}/rootfs.cpio.gz'
 
   debian_buster_kselftest:
     type: debian
-    ramdisk: 'buster-kselftest/20210827.0/{arch}/initrd.cpio.gz'
-    nfs: 'buster-kselftest/20210827.0/{arch}/full.rootfs.tar.xz'
+    ramdisk: 'buster-kselftest/20211112.0/{arch}/initrd.cpio.gz'
+    nfs: 'buster-kselftest/20211112.0/{arch}/full.rootfs.tar.xz'
     root_type: nfs
     params:
       os_config: 'debian'
 
   debian_buster-v4l2_ramdisk:
     type: debian
-    ramdisk: 'buster-v4l2/20210827.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'buster-v4l2/20211112.0/{arch}/rootfs.cpio.gz'
 
   debian_buster-libcamera_nfs:
     type: debian
-    ramdisk: 'buster-libcamera/20210827.0/{arch}/initrd.cpio.gz'
-    nfs: 'buster-libcamera/20210827.0/{arch}/full.rootfs.tar.xz'
+    ramdisk: 'buster-libcamera/20211112.0/{arch}/initrd.cpio.gz'
+    nfs: 'buster-libcamera/20211112.0/{arch}/full.rootfs.tar.xz'
     root_type: nfs
 
   debian_buster-ltp_nfs:
     type: debian
-    ramdisk: 'buster-ltp/20210827.0/{arch}/initrd.cpio.gz'
-    nfs: 'buster-ltp/20210827.0/{arch}/full.rootfs.tar.xz'
+    ramdisk: 'buster-ltp/20211008.0/{arch}/initrd.cpio.gz'
+    nfs: 'buster-ltp/20211008.0/{arch}/full.rootfs.tar.xz'
     root_type: nfs
 
 
@@ -99,16 +110,9 @@ test_plans:
     filters:
       - blocklist: *kselftest_defconfig_filter
 
-  baseline_qemu:
-    base_name: baseline
-    rootfs: buildroot_baseline_ramdisk
-    pattern: 'baseline/generic-qemu-baseline-template.jinja2'
-    filters:
-      - blocklist: *kselftest_defconfig_filter
-
-  baseline-qemu-docker:
-    rootfs: buildroot_baseline_ramdisk
-    pattern: 'baseline/generic-qemu-baseline-docker-template.jinja2'
+  baseline-cip-nfs:
+    rootfs: cip_nfs
+    pattern: 'baseline/{category}-{method}-{protocol}-nfs-baseline-template.jinja2'
     filters:
       - blocklist: *kselftest_defconfig_filter
 
@@ -124,44 +128,25 @@ test_plans:
     filters:
       - blocklist: *kselftest_defconfig_filter
 
+  baseline_qemu:
+    base_name: baseline
+    rootfs: buildroot_baseline_ramdisk
+    pattern: 'baseline/generic-qemu-baseline-template.jinja2'
+    filters:
+      - blocklist: *kselftest_defconfig_filter
+
+  baseline-qemu-docker:
+    rootfs: buildroot_baseline_ramdisk
+    pattern: 'baseline/generic-qemu-baseline-docker-template.jinja2'
+    filters:
+      - blocklist: *kselftest_defconfig_filter
+
   cros-ec:
     rootfs: debian_buster-cros-ec_ramdisk
 
-  igt-kms: &igt
+  igt: &igt
     rootfs: debian_buster-igt_ramdisk
     pattern: 'igt/{category}-{method}-{protocol}-{rootfs}-igt.jinja2'
-    params: &igt-kms-test-list
-      tests: >
-        core_auth
-        core_getclient
-        core_getstats
-        core_getversion
-        core_setmaster_vs_auth
-        drm_read
-        kms_addfb_basic
-        kms_atomic
-        kms_flip_event_leak
-        kms_prop_blob
-        kms_setmode
-        kms_vblank
-
-  igt-kms-rockchip:
-    <<: *igt
-    params:
-      <<: *igt-kms-test-list
-      drm_driver: "rockchip"
-
-  igt-kms-tegra:
-    <<: *igt
-    params:
-      <<: *igt-kms-test-list
-      drm_driver: "tegra"
-
-  igt-kms-exynos:
-    <<: *igt
-    params:
-      <<: *igt-kms-test-list
-      drm_driver: "exynos"
 
   igt-gpu-i915:
     <<: *igt
@@ -185,6 +170,41 @@ test_plans:
         panfrost_get_param
         panfrost_prime
         panfrost_submit
+
+  igt-kms: &igt-kms
+    <<: *igt
+    params: &igt-kms-test-list
+      tests: >
+        core_auth
+        core_getclient
+        core_getstats
+        core_getversion
+        core_setmaster_vs_auth
+        drm_read
+        kms_addfb_basic
+        kms_atomic
+        kms_flip_event_leak
+        kms_prop_blob
+        kms_setmode
+        kms_vblank
+
+  igt-kms-exynos:
+    <<: *igt-kms
+    params:
+      <<: *igt-kms-test-list
+      drm_driver: "exynos"
+
+  igt-kms-rockchip:
+    <<: *igt-kms
+    params:
+      <<: *igt-kms-test-list
+      drm_driver: "rockchip"
+
+  igt-kms-tegra:
+    <<: *igt-kms
+    params:
+      <<: *igt-kms-test-list
+      drm_driver: "tegra"
 
   kselftest: &kselftest
     rootfs: debian_buster_kselftest
@@ -210,6 +230,12 @@ test_plans:
       job_timeout: '10'
       kselftest_collections: "lib"
 
+  kselftest-livepatch:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "livepatch"
+
   kselftest-lkdtm:
     <<: *kselftest
     params:
@@ -221,6 +247,12 @@ test_plans:
     params:
       job_timeout: '10'
       kselftest_collections: "seccomp"
+
+  lc-compliance:
+    rootfs: debian_buster-libcamera_nfs
+    pattern: 'lc-compliance/{category}-{method}-{protocol}-{rootfs}-lc-compliance-template.jinja2'
+    params:
+      job_timeout: '45'
 
   ltp: &ltp
     rootfs: debian_buster-ltp_nfs
@@ -243,12 +275,6 @@ test_plans:
           defconfig:
             - '+crypto'
 
-  ltp-ipc:
-    <<: *ltp
-    params:
-      <<: *ltp-params
-      tst_cmdfiles: "ipc"
-
   ltp-fcntl-locktests:
     <<: *ltp
     params:
@@ -264,6 +290,12 @@ test_plans:
       - passlist:
           defconfig:
             - '+ima'
+  ltp-ipc:
+    <<: *ltp
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "ipc"
+
   ltp-mm:
     <<: *ltp
     params:
@@ -323,12 +355,6 @@ test_plans:
           defconfig:
             - 'defconfig+virtualvideo'
             - 'multi_v7_defconfig+virtualvideo'
-
-  lc-compliance:
-    rootfs: debian_buster-libcamera_nfs
-    pattern: 'lc-compliance/{category}-{method}-{protocol}-{rootfs}-lc-compliance-template.jinja2'
-    params:
-      job_timeout: '45'
 
 device_default_filters:
 
@@ -1670,6 +1696,16 @@ device_types:
       - blocklist: *allmodconfig_filter
       - blocklist: {defconfig: ['multi_v7_defconfig+linaro-base+distribution']}
 
+  zynqmp-zcu102:
+    name: 'zynqmp-zcu102'
+    mach: zynqmp
+    arch: arm64
+    class: arm64-dtb
+    boot_method: uboot
+    dtb: 'xilinx/zynqmp-zcu102-rev1.0.dtb'
+    filters:
+      - passlist: {defconfig: ['defconfig']}
+
 
 test_configs:
 
@@ -1830,6 +1866,7 @@ test_configs:
   - device_type: beaglebone-black
     test_plans:
       - baseline
+      - baseline-cip-nfs
       - baseline-nfs
       - ltp-ipc
 
@@ -1906,11 +1943,13 @@ test_configs:
   - device_type: hp-11A-G6-EE-grunt
     test_plans:
       - baseline
+      - baseline-cip-nfs
       - baseline-nfs
       - cros-ec
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
+      - kselftest-livepatch
       - kselftest-lkdtm
       - kselftest-seccomp
       - ltp-crypto
@@ -1925,6 +1964,7 @@ test_configs:
   - device_type: hp-x360-12b-n4000-octopus
     test_plans:
       - baseline
+      - baseline-cip-nfs
       - baseline-nfs
       - cros-ec
       - igt-gpu-i915
@@ -2173,6 +2213,7 @@ test_configs:
   - device_type: mt8173-elm-hana
     test_plans:
       - baseline
+      - baseline-cip-nfs
       - baseline-nfs
       - cros-ec
       - kselftest-filesystems
@@ -2194,11 +2235,6 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - kselftest-filesystems
-      - kselftest-futex
-      - kselftest-lib
-      - kselftest-lkdtm
-      - kselftest-seccomp
 
   - device_type: mustang
     test_plans:
@@ -2327,6 +2363,7 @@ test_configs:
   - device_type: r8a774a1-hihope-rzg2m-ex
     test_plans:
       - baseline
+      - baseline-cip-nfs
       - baseline-nfs
       - kselftest-filesystems
       - kselftest-futex
@@ -2346,10 +2383,12 @@ test_configs:
   - device_type: r8a774b1-hihope-rzg2n-ex
     test_plans:
       - baseline
+      - baseline-cip-nfs
 
   - device_type: r8a774c0-ek874
     test_plans:
       - baseline
+      - baseline-cip-nfs
 
   - device_type: r8a7791-porter
     test_plans:
@@ -2592,3 +2631,8 @@ test_configs:
   - device_type: zynq-zc702
     test_plans:
       - baseline
+
+  - device_type: zynqmp-zcu102
+    test_plans:
+      - baseline
+      - smc

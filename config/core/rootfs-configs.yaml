@@ -13,6 +13,86 @@ rootfs_configs:
     frags:
       - baseline
 
+  bullseye:
+    rootfs_type: debos
+    debian_release: bullseye
+    arch_list:
+      - amd64
+      - arm64
+      - armel
+      - armhf
+      - i386
+      - mips
+      - mips64el
+      - mipsel
+    extra_packages:
+      - isc-dhcp-client
+    extra_packages_remove: &extra_packages_remove_bullseye
+      - bash
+      - e2fslibs
+      - e2fsprogs
+      - klibc-utils
+      - libext2fs2
+      - libgnutls30
+      - libklibc
+      - libncursesw6
+      - libp11-kit0
+      - libunistring2
+      - sensible-utils
+    extra_files_remove: &extra_files_remove_bullseye
+      - '*networkd*'
+      - '*resolved*'
+      - nosuspend.conf
+      - tar
+      - patch
+      - dir
+      - partx
+      - find
+    script: "scripts/install-bootrr.sh"
+    test_overlay: "overlays/baseline"
+
+  bullseye-igt:
+    rootfs_type: debos
+    debian_release: bullseye
+    arch_list:
+        - amd64
+        - arm64
+        - armhf
+    extra_packages:
+        - libcairo2
+        - libdw1
+        - libglib2.0-0
+        - libpciaccess0
+        - libprocps8
+        - libudev1
+        - libunwind8
+    extra_packages_remove:
+        - bash
+        - e2fslibs
+        - e2fsprogs
+        - fonts-dejavu-core
+        - klibc-utils
+        - libext2fs2
+        - libgio3.0-cil
+        - libgnutls30
+        - libklibc
+        - libncursesw6
+        - libp11-kit0
+        - libunistring2
+        - libx11-data
+        - sensible-utils
+    extra_files_remove:
+        - '*networkd*'
+        - '*resolved*'
+        - tar
+        - patch
+        - diff
+        - dir
+        - partx
+        - find
+    script: "scripts/bullseye-igt.sh"
+    test_overlay: "overlays/igt"
+
   buster:
     rootfs_type: debos
     debian_release: buster
@@ -66,6 +146,12 @@ rootfs_configs:
       - e2fslibs
       - e2fsprogs
       - libext2fs2
+    extra_firmware:
+      - mrvl/pcieusb8997_combo_v4.bin
+      - mrvl/sd8897_uapsta.bin
+      - qca/rampatch_00440302.bin
+      - rtl_nic/rtl8153b-2.fw
+      - rockchip/dptx.bin
     script: "scripts/buster-cros-ec-tests.sh"
     test_overlay: ""
 
@@ -109,6 +195,10 @@ rootfs_configs:
         - dir
         - partx
         - find
+    extra_firmware:
+        - i915/bxt_dmc_ver1_07.bin
+        - i915/kbl_dmc_ver1_04.bin
+        - i915/glk_dmc_ver1_04.bin
     script: "scripts/buster-igt.sh"
     test_overlay: "overlays/igt"
 
@@ -140,6 +230,7 @@ rootfs_configs:
       - openssl
       - perl
       - perl-modules-5.28
+      - procps
       - publicsuffix
       - wget
       - xz-utils
@@ -167,6 +258,9 @@ rootfs_configs:
       - amd64
       - arm64
       - armhf
+    extra_packages:
+      - gdb-minimal
+      - libnuma-dev
     script: "scripts/buster-ltp.sh"
 
   buster-v4l2:

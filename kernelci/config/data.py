@@ -45,9 +45,12 @@ class Backend(Database):
 
     @classmethod
     def from_yaml(cls, config, name):
-        kw = name
-        kw.update(cls._kw_from_yaml(
-            config, ['name', 'url']))
+        kw = {
+            'name': name,
+        }
+        kw.update(cls._kw_from_yaml(config, [
+            'db_type', 'url',
+        ]))
         return cls(**kw)
 
     @property
@@ -65,15 +68,12 @@ class DatabaseFactory(YAMLObject):
         db_type = db.get('db_type')
         if db_type is None:
             raise TypeError("db_type cannot be Empty")
-        elif db_type not in cls._db_types:
+
+        db_cls = cls._db_types.get(db_type)
+        if db_cls is None:
             raise ValueError("Unsupported database type: {}".format(db_type))
-        else:
-            kw = {
-                'name': name,
-                'db_type': db_type,
-                }
-        db_cls = cls._db_types[db_type] if db_type else Database
-        return db_cls.from_yaml(db, kw)
+
+        return db_cls.from_yaml(db, name)
 
 
 def from_yaml(data):
