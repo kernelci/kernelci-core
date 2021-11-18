@@ -137,6 +137,7 @@ fragments:
     path: "kernel/configs/amdgpu.config"
     configs:
       - 'CONFIG_DRM_AMDGPU=y'
+      - 'CONFIG_DRM_AMDGPU_USERPTR=y'
 
   crypto:
     path: "kernel/configs/crypto.config"
