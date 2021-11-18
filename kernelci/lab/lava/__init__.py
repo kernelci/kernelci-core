@@ -25,6 +25,7 @@ from kernelci.lab import LabAPI
 
 
 class LavaAPI(LabAPI):
+
     def generate(self, params, target, plan, callback_opts):
         short_template_file = plan.get_template_path(target.boot_method)
         template_file = os.path.join('config/lava', short_template_file)
@@ -44,6 +45,12 @@ class LavaAPI(LabAPI):
         template = jinja2_env.get_template(short_template_file)
         data = template.render(params)
         return data
+
+    def submit(self, job_path):
+        with open(job_path, 'r') as job_file:
+            job = job_file.read()
+            job_id = self._submit(job)
+            return job_id
 
     def _add_callback_params(self, params, opts):
         callback_id = opts.get('id')
