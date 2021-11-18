@@ -328,9 +328,10 @@ class TestPlan(YAMLObject):
 
     @classmethod
     def from_yaml(cls, name, test_plan, file_systems, default_filters=None):
+        rootfs_name = test_plan.get('rootfs')
         kw = {
             'name': name,
-            'rootfs': file_systems[test_plan['rootfs']],
+            'rootfs': file_systems[rootfs_name] if rootfs_name else None,
             'base_name': test_plan.get('base_name'),
             'filters': FilterFactory.from_data(test_plan, default_filters),
         }
@@ -364,8 +365,8 @@ class TestPlan(YAMLObject):
         return self._pattern.format(
             category=self._category,
             method=boot_method,
-            protocol=self.rootfs.boot_protocol,
-            rootfs=self.rootfs.root_type,
+            protocol=self.rootfs.boot_protocol if self.rootfs else None,
+            rootfs=self.rootfs.root_type if self.rootfs else None,
             plan=self.name)
 
     def match(self, config):
