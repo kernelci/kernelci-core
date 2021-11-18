@@ -2,7 +2,7 @@
 {{- $basename := or .basename "." -}}
 {{- $extra_packages := or .extra_packages "" -}}
 {{- $extra_firmware := or .extra_firmware "" -}}
-{{- $suite := or .suite "stretch" -}}
+{{- $suite := or .suite "buster" -}}
 {{- $script := or .script "scripts/nothing.sh" -}}
 {{- $test_overlay := .test_overlay -}}
 {{- $extra_packages_remove := or .extra_packages_remove -}}
