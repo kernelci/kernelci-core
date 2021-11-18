@@ -239,14 +239,12 @@ class cmd_submit(Command):
         for path in job_paths:
             if not os.path.isfile(path):
                 continue
-            with open(path, 'r') as job_file:
-                job = job_file.read()
-                try:
-                    job_id = lab_api.submit(job)
-                    print("{} {}".format(job_id, path))
-                except Exception as e:
-                    print("ERROR {}: {}".format(path, e))
-                    res = False
+            try:
+                job_id = lab_api.submit(path)
+                print("{} {}".format(job_id, path))
+            except Exception as e:
+                print("ERROR {}: {}".format(path, e))
+                res = False
         return res
 
 

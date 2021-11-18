@@ -78,7 +78,7 @@ class LabAPI:
         """Generate a test job definition."""
         raise NotImplementedError("Lab.generate() is required")
 
-    def submit(self, job):
+    def submit(self, job_path):
         """Submit a test job definition in a lab."""
         raise NotImplementedError("Lab.submit() is required")
 

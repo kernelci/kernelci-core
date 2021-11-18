@@ -100,10 +100,11 @@ class LavaRest(LavaAPI):
     def job_file_name(self, params):
         return '.'.join([params['name'], 'yaml'])
 
-    def submit(self, job):
+    def _submit(self, job):
         jobs_url = urljoin(self._server.url, 'jobs/')
-        job_data = {'definition': yaml.dump(yaml.load(job,
-                                                      Loader=yaml.CLoader))}
+        job_data = {
+            'definition': yaml.dump(yaml.load(job, Loader=yaml.CLoader)),
+        }
         resp = self._server.session.post(jobs_url, json=job_data,
                                          allow_redirects=False)
         resp.raise_for_status()

@@ -94,7 +94,7 @@ class LAVA(LavaAPI):
     def job_file_name(self, params):
         return '.'.join([params['name'], 'yaml'])
 
-    def submit(self, job):
+    def _submit(self, job):
         return self._server.scheduler.submit_job(job)
 
 
