@@ -17,6 +17,7 @@
 
 import importlib
 import json
+import os
 
 
 class LabAPI:
@@ -77,6 +78,21 @@ class LabAPI:
     def generate(self, params, target, plan, callback_opts):
         """Generate a test job definition."""
         raise NotImplementedError("Lab.generate() is required")
+
+    def save_file(self, job, output_path, params):
+        """Save a test job definition in a file.
+
+        *job* is the job definition data
+        *output_path* is the directory where the file should be saved
+        *params* is a dictionary with template parameters
+
+        Return the full path where the job definition file was saved.
+        """
+        file_name = self.job_file_name(params)
+        output_file = os.path.join(output_path, file_name)
+        with open(output_file, 'w') as output:
+            output.write(job)
+        return output_file
 
     def submit(self, job_path):
         """Submit a test job definition in a lab."""
