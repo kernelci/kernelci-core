@@ -133,6 +133,11 @@ trees:
 
 fragments:
 
+  amdgpu:
+    path: "kernel/configs/amdgpu.config"
+    configs:
+      - 'CONFIG_DRM_AMDGPU=y'
+
   crypto:
     path: "kernel/configs/crypto.config"
     configs:
@@ -381,7 +386,7 @@ build_configs_defaults:
             - 'allmodconfig'
             - 'allnoconfig'
             - 'x86_64_defconfig+x86-chromebook+kselftest'
-          fragments: [crypto, ima, x86_kvm_guest, x86-chromebook]
+          fragments: [amdgpu, crypto, ima, x86_kvm_guest, x86-chromebook]
 
   reference:
     tree: mainline
