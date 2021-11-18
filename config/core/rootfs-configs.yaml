@@ -90,6 +90,14 @@ rootfs_configs:
         - partx
         - find
     extra_firmware:
+        - amdgpu/stoney_ce.bin
+        - amdgpu/stoney_me.bin
+        - amdgpu/stoney_mec.bin
+        - amdgpu/stoney_pfp.bin
+        - amdgpu/stoney_rlc.bin
+        - amdgpu/stoney_sdma.bin
+        - amdgpu/stoney_uvd.bin
+        - amdgpu/stoney_vce.bin
         - i915/bxt_dmc_ver1_07.bin
         - i915/kbl_dmc_ver1_04.bin
         - i915/glk_dmc_ver1_04.bin
