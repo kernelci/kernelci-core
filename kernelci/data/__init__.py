@@ -71,7 +71,7 @@ class Database:
         """
         raise NotImplementedError("Database.submit_test() not implemented")
 
-    def _print_http_error(self, http_error):
+    def _print_http_error(self, http_error, verbose=False):
         print(http_error)
         if verbose:
             errors = json.loads(http_error.response.content).get("errors", [])
