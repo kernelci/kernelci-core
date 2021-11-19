@@ -148,6 +148,25 @@ test_plans:
     rootfs: debian_buster-igt_ramdisk
     pattern: 'igt/{category}-{method}-{protocol}-{rootfs}-igt.jinja2'
 
+  igt-gpu-amd:
+    <<: *igt
+    params:
+      drm_driver: "amdgpu"
+      tests: >
+        core_auth
+        core_getclient
+        core_getstats
+        core_getversion
+        core_setmaster_vs_auth
+        amd_basic
+        amd_bypass
+        amd_color
+        amd_cs_nop
+        amd_info
+        amd_link_settings
+    filters:
+      - passlist: {defconfig: ['amdgpu']}
+
   igt-gpu-i915:
     <<: *igt
     params:
