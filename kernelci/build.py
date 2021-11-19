@@ -538,12 +538,21 @@ class Metadata:
                 break
         return value
 
-    def add_step(self, data):
-        """Add meta-data for a build step
+    def update_step(self, data):
+        """Update meta-data for a build step
+
+        Update meta-data for a build step so that if there is already a step
+        with the same name, the new data overwrites the old one, otherwise the
+        data is appended at the end.
 
         *data* is the data for the step, following the schema
         """
-        self._steps.append(data)
+        for i, item in enumerate(self._steps):
+            if item['name'] == data['name']:
+                self._steps[i] = data
+                break
+        else:
+            self._steps.append(data)
         total_duration = sum(s['duration'] for s in self._steps)
         all_status = set(s['status'] for s in self._steps)
         self._bmeta['build'] = {
@@ -745,7 +754,7 @@ class Step:
         if self._log_path and os.path.exists(self._log_path):
             run_data['log_file'] = self._log_file
         run_data['status'] = "PASS" if status is True else "FAIL"
-        self._meta.add_step(run_data)
+        self._meta.update_step(run_data)
         self._meta.save(save_artifacts=False)
         return status
 
