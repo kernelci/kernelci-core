@@ -1,0 +1,33 @@
+chromeos_variants: &chromeos-variants
+  clang-13:
+    build_environment: clang-13
+    architectures:
+      arm:
+        base_defconfig: 'cros://chromeos-5.10/armel/chromiumos-arm.flavour.config'
+        extra_configs:
+          - 'cros://chromeos-5.10/armel/chromiumos-rockchip.flavour.config'
+        filters: &cros-filters
+          - regex: { defconfig: 'cros' }
+      arm64:
+        base_defconfig: 'cros://chromeos-5.10/arm64/chromiumos-arm64.flavour.config'
+        extra_configs:
+          - 'cros://chromeos-5.10/arm64/chromiumos-mediatek.flavour.config'
+          - 'cros://chromeos-5.10/arm64/chromiumos-qualcomm.flavour.config'
+          - 'cros://chromeos-5.10/arm64/chromiumos-rockchip64.flavour.config'
+        filters: *cros-filters
+      x86_64:
+        base_defconfig: 'cros://chromeos-5.10/x86_64/chromiumos-x86_64.flavour.config'
+        extra_configs:
+          - 'cros://chromeos-5.10/x86_64/chromeos-amd-stoneyridge.flavour.config+x86-chromebook'
+          - 'cros://chromeos-5.10/x86_64/chromeos-intel-denverton.flavour.config+x86-chromebook'
+          - 'cros://chromeos-5.10/x86_64/chromeos-intel-pineview.flavour.config+x86-chromebook'
+        fragments: [x86-chromebook]
+        filters: *cros-filters
+
+
+build_configs:
+
+  chromeos-next:
+    tree: next
+    branch: 'master'
+    variants: *chromeos-variants
