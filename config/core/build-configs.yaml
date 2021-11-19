@@ -387,6 +387,7 @@ build_configs_defaults:
             - 'allmodconfig'
             - 'allnoconfig'
             - 'x86_64_defconfig+x86-chromebook+kselftest'
+            - 'x86_64_defconfig+x86-chromebook+amdgpu'
           fragments: [amdgpu, crypto, ima, x86_kvm_guest, x86-chromebook]
 
   reference:
