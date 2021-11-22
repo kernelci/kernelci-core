@@ -1,0 +1,87 @@
+trees:
+  cip:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/cip/linux-cip.git"
+
+
+# Build fewer kernel configs with cip branches
+cip_variants: &cip_variants
+  gcc-10: &cip_gcc_10
+    build_environment: gcc-10
+    fragments: [tinyconfig]
+    architectures: &cip_architectures
+      arc:
+        base_defconfig: 'haps_hs_smp_defconfig'
+        extra_configs: ['allnoconfig']
+        filters:
+          # remove any non-ARCv2 defconfigs since we only have ARCv2 toolchain
+          - blocklist:
+              defconfig:
+                - 'axs101_defconfig'
+                - 'nps_defconfig'
+                - 'nsim_700_defconfig'
+                - 'nsimosci_defconfig'
+                - 'tb10x_defconfig'
+      arm:
+        base_defconfig: 'multi_v7_defconfig'
+        extra_configs: ['allnoconfig']
+      arm64:
+        extra_configs: ['allnoconfig']
+      i386:
+        base_defconfig: 'i386_defconfig'
+        extra_configs: ['allnoconfig']
+      mips:
+        base_defconfig: '32r2el_defconfig'
+        extra_configs: ['allnoconfig']
+        filters:
+          - blocklist: {defconfig: ['generic_defconfig']}
+      riscv:
+        extra_configs: ['allnoconfig']
+        filters:
+          - blocklist:
+              kernel: ['v3.', 'v4.4', 'v4.9', 'v4.14']
+      x86_64:
+        base_defconfig: 'x86_64_defconfig'
+        extra_configs: ['allnoconfig']
+        fragments: [x86-chromebook]
+
+
+build_configs:
+  cip_4.4:
+    tree: cip
+    branch: 'linux-4.4.y-cip'
+    variants: *cip_variants
+
+  cip_4.4-rt:
+    tree: cip
+    branch: 'linux-4.4.y-cip-rt'
+    variants: *cip_variants
+
+  cip_4.19:
+    tree: cip
+    branch: 'linux-4.19.y-cip'
+    variants:
+      gcc-10:
+        build_environment: gcc-10
+        architectures:
+          arm:
+            <<: *cip_variants
+            extra_configs:
+              - 'cip://4.19.y-cip/arm/qemu_arm_defconfig'
+          arm64:
+            <<: *cip_variants
+            extra_configs:
+              - 'cip://4.19.y-cip/arm64/qemu_arm64_defconfig'
+          x86_64:
+            <<: *cip_variants
+            extra_configs:
+              - 'cip://4.19.y-cip/x86/cip_qemu_defconfig'
+
+  cip_4.19-rt:
+    tree: cip
+    branch: 'linux-4.19.y-cip-rt'
+    variants: *cip_variants
+
+  cip_5.10:
+    tree: cip
+    branch: 'linux-5.10.y-cip'
+    variants: *cip_variants
