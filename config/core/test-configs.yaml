@@ -1100,6 +1100,8 @@ device_types:
     mach: mediatek
     class: arm64-dtb
     boot_method: depthcharge
+    filters:
+      - passlist: {defconfig: ['arm64-chromebook']}
 
   mt8183-kukui-jacuzzi-juniper-sku16:
     mach: mediatek
