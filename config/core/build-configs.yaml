@@ -136,6 +136,11 @@ fragments:
       - 'CONFIG_DRM_AMDGPU=y'
       - 'CONFIG_DRM_AMDGPU_USERPTR=y'
 
+  arm64-chromebook:
+    path: "kernel/configs/arm64-chromebook.config"
+    configs:
+      - 'CONFIG_REGULATOR_DA9211=y'
+
   crypto:
     path: "kernel/configs/crypto.config"
     configs:
@@ -360,7 +365,8 @@ build_configs_defaults:
             - 'allnoconfig'
             - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
             - 'defconfig+CONFIG_RANDOMIZE_BASE=y'
-          fragments: [crypto, ima]
+            - 'defconfig+arm64-chromebook+kselftest'
+          fragments: [arm64-chromebook, crypto, ima]
 
         i386: &i386_arch
           base_defconfig: 'i386_defconfig'
@@ -553,7 +559,9 @@ build_configs:
         build_environment: gcc-10
         architectures:
           arm: *arm_defconfig
-          arm64: *arm64_defconfig
+          arm64:
+            <<: *arm64_defconfig
+            fragments: [arm64-chromebook]
           x86_64:
             <<: *x86_64_defconfig
             fragments: [x86-chromebook]
@@ -666,6 +674,7 @@ build_configs:
               - 'defconfig+CONFIG_ARM64_64K_PAGES=y'
               - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
               - 'defconfig+CONFIG_RANDOMIZE_BASE=y'
+              - 'defconfig+arm64-chromebook+kselftest'
           arm:
             base_defconfig: 'multi_v7_defconfig'
             extra_configs:
