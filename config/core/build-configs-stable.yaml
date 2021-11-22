@@ -35,6 +35,7 @@ stable_variants: &stable_variants
         extra_configs: ['allnoconfig']
       arm64:
         extra_configs: ['allnoconfig']
+        fragments: [arm64-chromebook]
       i386:
         base_defconfig: 'i386_defconfig'
         extra_configs: ['allnoconfig']
@@ -64,8 +65,10 @@ stable_variants_kselftest: &stable_variants_kselftest
         extra_configs: ['allnoconfig']
         fragments: [kselftest]
       arm64:
-        extra_configs: ['allnoconfig']
-        fragments: [kselftest]
+        extra_configs:
+          - 'allnoconfig'
+          - 'defconfig+arm64-chromebook+kselftest'
+        fragments: [arm64-chromebook, kselftest]
       x86_64:
         base_defconfig: 'x86_64_defconfig'
         extra_configs:
