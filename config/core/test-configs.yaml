@@ -390,13 +390,6 @@ device_types:
             - 'allnoconfig'
             - 'defconfig+CONFIG_KASAN=y'
 
-  ar9331-dpt-module:
-    mach: ar9331
-    class: mips-dtb
-    boot_method: barebox
-    filters:
-      - blocklist: *allmodconfig_filter
-
   armada-370-db:
     mach: mvebu
     class: arm-dtb
@@ -1722,12 +1715,6 @@ test_configs:
   - device_type: apq8016-sbc
     test_plans:
       - baseline
-
-  - device_type: ar9331-dpt-module
-    test_plans:
-      - baseline
-      - baseline-nfs
-      - sleep
 
   - device_type: armada-370-db
     test_plans:
