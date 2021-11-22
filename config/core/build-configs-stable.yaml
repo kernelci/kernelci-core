@@ -124,12 +124,12 @@ build_configs:
   stable_5.14:
     tree: stable
     branch: 'linux-5.14.y'
-    variants: *stable_variants_kselftest
+    variants: *stable_variants
 
   stable_5.15:
     tree: stable
     branch: 'linux-5.15.y'
-    variants: *stable_variants
+    variants: *stable_variants_kselftest
 
   stable_5.16:
     tree: stable
