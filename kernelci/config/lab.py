@@ -23,18 +23,16 @@ from kernelci.config.base import FilterFactory, YAMLObject
 class Lab(YAMLObject):
     """Test lab model."""
 
-    def __init__(self, name, lab_type, url, filters=None):
+    def __init__(self, name, lab_type, filters=None):
         """A lab object contains all the information relative to a test lab.
 
         *name* is the name used to refer to the lab in meta-data.
         *lab_type* is the name of the type of lab, essentially indicating the
                    type of software used by the lab.
-        *url* is the URL to reach the lab API.
         *filters* is a list of Filter objects associated with this lab.
         """
         self._name = name
         self._lab_type = lab_type
-        self._url = url
         self._filters = filters or list()
 
     @classmethod
@@ -49,15 +47,25 @@ class Lab(YAMLObject):
     def lab_type(self):
         return self._lab_type
 
-    @property
-    def url(self):
-        return self._url
-
     def match(self, data):
         return all(f.match(**data) for f in self._filters)
 
 
-class Lab_LAVA(Lab):
+class LabAPI(Lab):
+
+    def __init__(self, url, *args, **kwargs):
+        """
+        *url* is the URL to reach the lab API.
+        """
+        super().__init__(*args, **kwargs)
+        self._url = url
+
+    @property
+    def url(self):
+        return self._url
+
+
+class Lab_LAVA(LabAPI):
 
     def __init__(self, priority='medium', *args, **kwargs):
         super().__init__(*args, **kwargs)
