@@ -22,7 +22,6 @@ rootfs_configs:
       - armel
       - armhf
       - i386
-      - mips
       - mips64el
       - mipsel
     extra_packages:
