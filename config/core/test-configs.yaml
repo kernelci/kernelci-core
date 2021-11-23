@@ -46,14 +46,14 @@ file_systems:
     nfs: 'qemu-{arch}/cip-core-image-kernelci-cip-core-buster-qemu-{arch}.tar.gz'
     root_type: nfs
 
-  debian_buster_ramdisk:
+  debian_bullseye_ramdisk:
     type: debian
-    ramdisk: 'buster/20211118.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'bullseye/20211118.0/{arch}/rootfs.cpio.gz'
 
-  debian_buster_nfs:
+  debian_bullseye_nfs:
     type: debian
-    ramdisk: 'buster/20211118.0/{arch}/initrd.cpio.gz'
-    nfs: 'buster/20211118.0/{arch}/full.rootfs.tar.xz'
+    ramdisk: 'bullseye/20211118.0/{arch}/initrd.cpio.gz'
+    nfs: 'bullseye/20211118.0/{arch}/full.rootfs.tar.xz'
     root_type: nfs
 
   debian_buster-cros-ec_ramdisk:
@@ -123,7 +123,7 @@ test_plans:
       job_timeout: '50'
 
   baseline-nfs:
-    rootfs: debian_buster_nfs
+    rootfs: debian_bullseye_nfs
     pattern: 'baseline/{category}-{method}-{protocol}-nfs-baseline-template.jinja2'
     filters:
       - blocklist: *kselftest_defconfig_filter
@@ -318,18 +318,18 @@ test_plans:
       job_timeout: '30'
 
   preempt-rt:
-    rootfs: debian_buster_nfs
+    rootfs: debian_bullseye_nfs
     filters:
       - passlist: {defconfig: ['preempt_rt']}
 
   sleep:
-    rootfs: debian_buster_ramdisk
+    rootfs: debian_bullseye_ramdisk
     params:
       sleep_params: mem freeze
 
   sleep_mem:
     base_name: sleep
-    rootfs: debian_buster_ramdisk
+    rootfs: debian_bullseye_ramdisk
     pattern: 'sleep/{category}-{method}-{protocol}-{rootfs}-sleep-template.jinja2'
     params:
       sleep_params: mem
@@ -338,7 +338,7 @@ test_plans:
     rootfs: buildroot_baseline_ramdisk
 
   usb:
-    rootfs: debian_buster_ramdisk
+    rootfs: debian_bullseye_ramdisk
 
   v4l2-compliance-uvc:
     rootfs: debian_buster-v4l2_ramdisk
