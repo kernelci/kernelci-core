@@ -22,7 +22,8 @@ class Shell(LabAPI):
         return output_file
 
     def submit(self, job_path):
-        return subprocess.call(job_path)
+        process = subprocess.Popen(job_path, shell=True)
+        return process.pid
 
 
 def get_api(lab, **kwargs):
