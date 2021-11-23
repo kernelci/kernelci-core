@@ -92,44 +92,6 @@ rootfs_configs:
     script: "scripts/bullseye-igt.sh"
     test_overlay: "overlays/igt"
 
-  buster:
-    rootfs_type: debos
-    debian_release: buster
-    arch_list:
-      - amd64
-      - arm64
-      - armel
-      - armhf
-      - i386
-      - mips
-      - mips64el
-      - mipsel
-    extra_packages:
-      - isc-dhcp-client
-    extra_packages_remove: &extra_packages_remove_buster
-      - bash
-      - e2fslibs
-      - e2fsprogs
-      - klibc-utils
-      - libext2fs2
-      - libgnutls30
-      - libklibc
-      - libncursesw6
-      - libp11-kit0
-      - libunistring2
-      - sensible-utils
-    extra_files_remove: &extra_files_remove_buster
-      - '*networkd*'
-      - '*resolved*'
-      - nosuspend.conf
-      - tar
-      - patch
-      - dir
-      - partx
-      - find
-    script: "scripts/install-bootrr.sh"
-    test_overlay: "overlays/baseline"
-
   buster-cros-ec:
     rootfs_type: debos
     debian_release: buster
@@ -300,4 +262,4 @@ rootfs_configs:
       - libncursesw6
       - libp11-kit0
       - sensible-utils
-    extra_files_remove: *extra_files_remove_buster
+    extra_files_remove: *extra_files_remove_bullseye
