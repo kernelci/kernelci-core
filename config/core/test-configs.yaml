@@ -60,9 +60,9 @@ file_systems:
     type: debian
     ramdisk: 'buster-cros-ec/20211118.0/{arch}/rootfs.cpio.gz'
 
-  debian_buster-igt_ramdisk:
+  debian_bullseye-igt_ramdisk:
     type: debian
-    ramdisk: 'buster-igt/20211118.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'bullseye-igt/20211118.0/{arch}/rootfs.cpio.gz'
 
   debian_buster_kselftest:
     type: debian
@@ -145,7 +145,7 @@ test_plans:
     rootfs: debian_buster-cros-ec_ramdisk
 
   igt: &igt
-    rootfs: debian_buster-igt_ramdisk
+    rootfs: debian_bullseye-igt_ramdisk
     pattern: 'igt/{category}-{method}-{protocol}-{rootfs}-igt.jinja2'
 
   igt-gpu-i915:
