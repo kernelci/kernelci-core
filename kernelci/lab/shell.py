@@ -20,8 +20,9 @@ class Shell(LabAPI):
         os.chmod(output_file, 0o775)
         return output_file
 
-    def submit(self, job_path):
-        return subprocess.call(job_path)
+    def submit(self, job_path, get_process=False):
+        process = subprocess.Popen(job_path)
+        return process if get_process else process.pid
 
 
 def get_api(lab, **kwargs):
