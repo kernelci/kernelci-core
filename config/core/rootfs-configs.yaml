@@ -89,6 +89,10 @@ rootfs_configs:
         - dir
         - partx
         - find
+    extra_firmware:
+        - i915/bxt_dmc_ver1_07.bin
+        - i915/kbl_dmc_ver1_04.bin
+        - i915/glk_dmc_ver1_04.bin
     script: "scripts/bullseye-igt.sh"
     test_overlay: "overlays/igt"
 
