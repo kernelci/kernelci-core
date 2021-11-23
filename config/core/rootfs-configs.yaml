@@ -120,53 +120,6 @@ rootfs_configs:
     script: "scripts/buster-cros-ec-tests.sh"
     test_overlay: ""
 
-  buster-igt:
-    rootfs_type: debos
-    debian_release: buster
-    arch_list:
-        - amd64
-        - arm64
-        - armhf
-        - mips
-    extra_packages:
-        - libcairo2
-        - libdw1
-        - libglib2.0-0
-        - libpciaccess0
-        - libprocps7
-        - libudev1
-        - libunwind8
-    extra_packages_remove:
-        - bash
-        - e2fslibs
-        - e2fsprogs
-        - fonts-dejavu-core
-        - klibc-utils
-        - libext2fs2
-        - libgio3.0-cil
-        - libgnutls30
-        - libklibc
-        - libncursesw6
-        - libp11-kit0
-        - libunistring2
-        - libx11-data
-        - sensible-utils
-    extra_files_remove:
-        - '*networkd*'
-        - '*resolved*'
-        - tar
-        - patch
-        - diff
-        - dir
-        - partx
-        - find
-    extra_firmware:
-        - i915/bxt_dmc_ver1_07.bin
-        - i915/kbl_dmc_ver1_04.bin
-        - i915/glk_dmc_ver1_04.bin
-    script: "scripts/buster-igt.sh"
-    test_overlay: "overlays/igt"
-
   buster-kselftest:
     rootfs_type: debos
     debian_release: buster
