@@ -16,6 +16,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import re
+import yaml
 
 
 # -----------------------------------------------------------------------------
@@ -39,6 +40,31 @@ class YAMLObject:
         return {
             k: v for k, v in ((k, data.get(k)) for k in args) if v
         } if data else dict()
+
+    def _get_attrs(self):
+        """Return a set of attribute names for .to_dict() and .to_yaml()"""
+        return set()
+
+    def to_dict(self):
+        """Create a dictionary with the configuration data
+
+        Create a Python dictionary object with key-values representing the
+        configuration data originally imported from YAML.  This may not include
+        non-serialisable objects such as Filters.
+        """
+        return {
+            attr: getattr(self, attr) for attr in self._get_attrs()
+        }
+
+    def to_yaml(self):
+        """Recreate a YAML representation of the configuration data
+
+        Recreate a YAML text representation of the key-values made available
+        via the .to_dict() method.  This can be used to serialise a
+        configuration object and load it again without access to the full
+        original YAML files.
+        """
+        return yaml.dump(self.to_dict())
 
 
 class Filter:
