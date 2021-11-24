@@ -22,7 +22,6 @@ labs:
     url: 'https://lava.ciplatform.org/RPC2/'
     priority: low
     filters:
-      - blocklist: {tree: [android]}
       - passlist:
           plan:
             - baseline
@@ -32,6 +31,24 @@ labs:
             - ltp
             - preempt-rt
             - smc
+      - combination:
+          keys: ['tree', 'branch']
+          values:
+            - ['cip', 'linux-4.4.y-cip']
+            - ['cip', 'linux-4.4.y-cip-rt']
+            - ['cip', 'linux-4.19.y-cip']
+            - ['cip', 'linux-4.19.y-cip-rt']
+            - ['cip', 'linux-5.10.y-cip']
+            - ['kernelci', 'staging-cip']
+            - ['mainline', 'master']
+            - ['next', 'master']
+            - ['next', 'pending-fixes']
+            - ['stable', 'linux-4.4.y']
+            - ['stable', 'linux-4.19.y']
+            - ['stable', 'linux-5.10.y']
+            - ['stable-rc', 'linux-4.4.y']
+            - ['stable-rc', 'linux-4.19.y']
+            - ['stable-rc', 'linux-5.10.y']
 
   lab-clabbe:
     lab_type: lava.lava_xmlrpc
