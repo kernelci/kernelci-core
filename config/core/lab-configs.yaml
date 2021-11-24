@@ -20,6 +20,7 @@ labs:
   lab-cip:
     lab_type: lava.lava_xmlrpc
     url: 'https://lava.ciplatform.org/RPC2/'
+    priority: low
     filters:
       - blocklist: {tree: [android]}
       - passlist:
