@@ -84,6 +84,9 @@ set -x; \
   --retries 3 \
   --delete; \
 \
+./kci_build generate_fragments \
+  --build-config=${BUILD_CONFIG}; \
+\
 ./kci_build init_bmeta \
   --build-config=${BUILD_CONFIG} \
   --commit=${COMMIT_ID} \
