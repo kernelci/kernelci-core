@@ -62,7 +62,7 @@ file_systems:
 
   debian_bullseye-igt_ramdisk:
     type: debian
-    ramdisk: 'bullseye-igt/20211118.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'bullseye-igt/20211124.0/{arch}/rootfs.cpio.gz'
 
   debian_buster_kselftest:
     type: debian
