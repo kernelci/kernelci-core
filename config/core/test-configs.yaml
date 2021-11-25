@@ -926,6 +926,11 @@ device_types:
     dtb: 'freescale/fsl-ls1028a-kontron-sl28-var3-ads2.dtb'
     boot_method: uboot
 
+  lenovo-hr330a-7x33cto1ww-emag:
+    mach: arm64
+    arch: arm64
+    boot_method: grub
+
   meson-g12a-sei510:
     mach: amlogic
     class: arm64-dtb
@@ -2056,6 +2061,10 @@ test_configs:
   - device_type: kontron-sl28-var3-ads2
     test_plans:
       - baseline
+      - baseline-nfs
+
+  - device_type: lenovo-hr330a-7x33cto1ww-emag
+    test_plans:
       - baseline-nfs
 
   - device_type: meson-g12a-sei510
