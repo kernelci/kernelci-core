@@ -45,6 +45,25 @@ cip_variants: &cip_variants
         fragments: [x86-chromebook]
 
 
+cip_variants_kselftest: &cip_variants_kselftest
+  gcc-10:
+    <<: *cip_gcc_10
+    architectures:
+      <<: *cip_architectures
+      arm:
+        base_defconfig: 'multi_v7_defconfig'
+        extra_configs: ['allnoconfig']
+        fragments: [kselftest]
+      arm64:
+        extra_configs: ['allnoconfig']
+        fragments: [kselftest]
+      x86_64:
+        base_defconfig: 'x86_64_defconfig'
+        extra_configs:
+          - 'allnoconfig'
+          - 'x86_64_defconfig+x86-chromebook+kselftest'
+        fragments: [x86-chromebook, kselftest]
+
 build_configs:
   cip_4.4:
     tree: cip
@@ -84,4 +103,4 @@ build_configs:
   cip_5.10:
     tree: cip
     branch: 'linux-5.10.y-cip'
-    variants: *cip_variants
+    variants: *cip_variants_kselftest
