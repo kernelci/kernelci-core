@@ -1,0 +1,7 @@
+{% extends 'boot/generic-grub-tftp-ramdisk-boot-template.jinja2' %}
+{% block actions %}
+{{ super () }}
+
+{% include 'sleep/sleep.jinja2' %}
+
+{% endblock %}
