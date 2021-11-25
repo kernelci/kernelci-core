@@ -68,7 +68,7 @@ build_configs:
   cip_4.4:
     tree: cip
     branch: 'linux-4.4.y-cip'
-    variants: *cip_variants
+    variants: *cip_variants_kselftest
 
   cip_4.4-rt:
     tree: cip
@@ -83,15 +83,15 @@ build_configs:
         build_environment: gcc-10
         architectures:
           arm:
-            <<: *cip_variants
+            <<: *cip_variants_kselftest
             extra_configs:
               - 'cip://4.19.y-cip/arm/qemu_arm_defconfig'
           arm64:
-            <<: *cip_variants
+            <<: *cip_variants_kselftest
             extra_configs:
               - 'cip://4.19.y-cip/arm64/qemu_arm64_defconfig'
           x86_64:
-            <<: *cip_variants
+            <<: *cip_variants_kselftest
             extra_configs:
               - 'cip://4.19.y-cip/x86/cip_qemu_defconfig'
 
