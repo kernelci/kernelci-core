@@ -69,37 +69,30 @@ else
 fi
 echo "targets: $targets"
 
-echo_build() {
-  echo "Building [$1]"
-}
-
-echo_push() {
-  echo "Pushing [$1]"
-}
-
-docker_push() {
-    echo_push $1
-    docker push $1
-}
 
 docker_build_and_tag() {
-  tag=${tag_px}$2
-  echo_build $tag
-  docker build --build-arg PREFIX=$tag_px ${quiet} ${cache_args} $1 -t $tag
-  if [ "x${push}" == "xtrue" ]
-  then
-    docker_push $tag
-  fi
+    local target="$1"
+    local tag=${tag_px}"$target"
+
+    echo "Building [$tag]"
+
+    docker build --build-arg PREFIX="$tag_px" ${quiet} ${cache_args} $1 -t $tag
+
+    if [ "x${push}" == "xtrue" ]
+    then
+        echo "Pushing [$1]"
+        docker push "$tag"
+    fi
 }
 
 for target in $targets; do
     if [ "$target" = "compilers" ]; then
         for cc in {gcc,clang}-*
         do
-            docker_build_and_tag "$cc" "$cc"
+            docker_build_and_tag "$cc"
         done
     else
-        docker_build_and_tag "$target" "$target"
+        docker_build_and_tag "$target"
     fi
 done
 
