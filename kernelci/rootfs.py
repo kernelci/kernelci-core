@@ -23,6 +23,7 @@ import os
 
 def _build_debos(name, config, data_path, arch):
     cmd = 'cd {data_path} && debos \
+--memory=4G \
 -t architecture:{arch} \
 -t suite:{release_name} \
 -t basename:{name}/{arch} \
