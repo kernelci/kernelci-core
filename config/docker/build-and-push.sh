@@ -3,6 +3,9 @@
 # Copyright (C) 2019 Linaro Limited
 # Author: Matt Hart <matthew.hart@linaro.org>
 #
+# Copyright (C) 2021 Collabora Limited
+# Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+#
 # This module is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
 # Software Foundation; either version 2.1 of the License, or (at your option)
@@ -17,39 +20,23 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-# Rebuild all of the docker images for kernelci
-# You will need push privileges to kernelci namespace on dockerhub
-# -n = disable cache (for when rebuilding a moving target image e.g. clang-8)
-# -p = push to dockerhub
-# -b = also rebuild kernel builders
-# -d = also rebuild debos
-# -r = also rebuild buildroot
-# -i = also rebuild dt-validation
-# -c = also rebuild coccinelle
-# -e = also rebuild cvehound
+# Build all of the Docker images for kernelci
+# -n = disable cache (for when rebuilding a moving target image e.g. clang)
+# -p = push to Docker Hub
 # -q = make the builds quiet
-# -Q = also rebuild qemu docker image
 # -t = the prefix to use in docker tags (default is kernelci/)
 
 set -e
+
 tag_px='kernelci/'
 
-
-options='npbdrikqQcet:'
+options='npqt:'
 while getopts $options option
 do
   case $option in
     n )  cache_args="--no-cache";;
     p )  push=true;;
-    b )  builders=true;;
-    d )  debos=true;;
-    r )  buildroot=true;;
-    i )  dt_validation=true;;
-    k )  k8s=true;;
-    c )  coccinelle=true;;
-    e )  cvehound=true;;
     q )  quiet="--quiet";;
-    Q )  qemu=true;;
     t )  tag_px=$OPTARG;;
     \? )
         echo "Invalid Option: -$OPTARG" 1>&2
@@ -62,6 +49,25 @@ do
   esac
 done
 shift $((OPTIND -1))
+
+all_targets="\
+build-base \
+buildroot \
+compilers \
+coccinelle \
+cvehound \
+debos \
+dt-validation \
+k8s \
+qemu \
+"
+
+if [ -n "$*" ]; then
+    targets="$*"
+else
+    targets="$all_targets"
+fi
+echo "targets: $targets"
 
 echo_build() {
   echo "Building [$1]"
@@ -86,46 +92,15 @@ docker_build_and_tag() {
   fi
 }
 
-if [ "x${builders}" == "xtrue" ]
-then
-  docker_build_and_tag build-base build-base
-  for c in {gcc,clang}-*
-  do
-      docker_build_and_tag $c $c
-  done
-fi
+for target in $targets; do
+    if [ "$target" = "compilers" ]; then
+        for cc in {gcc,clang}-*
+        do
+            docker_build_and_tag "$cc" "$cc"
+        done
+    else
+        docker_build_and_tag "$target" "$target"
+    fi
+done
 
-if [ "x${debos}" == "xtrue" ]
-then
-  docker_build_and_tag debos debos
-fi
-
-if [ "x${buildroot}" == "xtrue" ]
-then
-  docker_build_and_tag buildroot buildroot
-fi
-
-if [ "x${dt_validation}" == "xtrue" ]
-then
-  docker_build_and_tag dt-validation dt-validation
-fi
-
-if [ "x${coccinelle}" == "xtrue" ]
-then
-  docker_build_and_tag coccinelle coccinelle
-fi
-
-if [ "x${cvehound}" == "xtrue" ]
-then
-  docker_build_and_tag cvehound cvehound
-fi
-
-if [ "x${k8s}" == "xtrue" ]
-then
-  docker_build_and_tag k8s k8s
-fi
-
-if [ "x${qemu}" == "xtrue" ]
-then
-  docker_build_and_tag qemu qemu
-fi
+exit 0
