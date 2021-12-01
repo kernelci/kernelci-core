@@ -137,3 +137,6 @@ labs:
           plan:
             - baseline
       - blocklist: {plan: [baseline-qemu-docker]}
+
+  shell:
+    lab_type: shell
