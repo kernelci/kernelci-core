@@ -82,8 +82,27 @@ class DeviceType(YAMLObject):
         return dict(self._params)
 
     @property
+    def flags(self):
+        return list(self._flags)
+
+    @property
     def context(self):
         return self._context
+
+    def _get_attrs(self):
+        attrs = super()._get_attrs()
+        attrs.update({
+            'arch',
+            'base_name',
+            'boot_method',
+            'context',
+            'dtb',
+            'flags',
+            'mach',
+            'name',
+            'params',
+        })
+        return attrs
 
     def get_flag(self, name):
         return name in self._flags
@@ -200,6 +219,11 @@ class RootFSType(YAMLObject):
     def url(self):
         return self._url
 
+    def _get_attrs(self):
+        attrs = super()._get_attrs()
+        attrs.update({'url', 'arch_map'})
+        return attrs
+
     def get_arch_name(self, arch, endian):
         arch_key = ('arch', arch)
         endian_key = ('endian', endian)
@@ -272,6 +296,17 @@ class RootFS(YAMLObject):
     @property
     def params(self):
         return dict(self._params)
+
+    def _get_attrs(self):
+        attrs = super()._get_attrs()
+        attrs.update({
+            'boot_protocol',
+            'params',
+            'prompt',
+            'root_type',
+            'type',
+        })
+        return attrs
 
     def get_url(self, fs_type, arch, endian):
         """Get the URL of the file system for the given variant and arch.
@@ -354,6 +389,18 @@ class TestPlan(YAMLObject):
     @property
     def params(self):
         return dict(self._params)
+
+    def _get_attrs(self):
+        attrs = super()._get_attrs()
+        attrs.update({
+            'base_name',
+            'category'
+            'name',
+            'params',
+            'pattern',
+            'rootfs',
+        })
+        return attrs
 
     def get_template_path(self, boot_method):
         """Get the path to the template file for the given *boot_method*
