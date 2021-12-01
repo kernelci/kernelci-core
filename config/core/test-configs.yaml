@@ -1257,7 +1257,7 @@ device_types:
       arch: arm64
       cpu: 'max'
       guestfs_interface: 'virtio'
-      machine: 'virt,gic-version=2,accel=kvm:tcg'
+      machine: 'virt,gic-version=2,mte=on,accel=kvm:tcg'
     filters:
       - regex: { defconfig: 'defconfig' }
 
@@ -1275,7 +1275,7 @@ device_types:
       arch: arm64
       cpu: 'max'
       guestfs_interface: 'virtio'
-      machine: 'virt,gic-version=3,accel=kvm:tcg'
+      machine: 'virt,gic-version=3,mte=on,accel=kvm:tcg'
     filters:
       - passlist: {defconfig: ['defconfig']}
 
