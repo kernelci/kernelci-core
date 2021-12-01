@@ -414,7 +414,9 @@ class TestConfig(YAMLObject):
                 plan in self._test_plans and
                 self._test_plans[plan].match(config)
             )) and
-            self.device_type.arch == arch and
+            (self.device_type.arch is None or (
+                self.device_type.arch == arch
+            )) and
             self.device_type.match(flags, config) and
             all(f.match(**config) for f in self._filters)
         )
