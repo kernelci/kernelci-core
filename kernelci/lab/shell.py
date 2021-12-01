@@ -7,13 +7,15 @@ from kernelci.lab import LabAPI
 class Shell(LabAPI):
     BASE_PATH = 'config/scripts'
 
-    def generate(self, params, target, plan,
-                 callback_opts=None, base_path=None):
+    def generate(self, params, target_config, plan_config, callback_opts=None,
+                 db_config=None, base_path=None):
         jinja2_env = Environment(loader=FileSystemLoader(
             base_path or self.BASE_PATH
         ))
-        template_path = plan.get_template_path(None)
+        template_path = plan_config.get_template_path(None)
         template = jinja2_env.get_template(template_path)
+        if db_config:
+            params['db_config_yaml'] = db_config.to_yaml()
         return template.render(params)
 
     def save_file(self, *args, **kwargs):
