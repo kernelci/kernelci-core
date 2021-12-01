@@ -142,6 +142,9 @@ test_plans:
     filters:
       - blocklist: *kselftest_defconfig_filter
 
+  check-describe:
+    pattern: 'check-describe.jinja2'
+
   cros-ec:
     rootfs: debian_buster-cros-ec_ramdisk
 
@@ -1436,6 +1439,12 @@ device_types:
       - blocklist: *allmodconfig_filter
       - blocklist: {kernel: ['v3.', 'v4.4', 'v4.9']}
 
+  shell_python:
+    base_name: shell
+    class: shell
+    params:
+      shebang: '/usr/bin/env python3'
+
   snow:
     mach: exynos
     class: arm-dtb
@@ -2468,6 +2477,10 @@ test_configs:
   - device_type: rk3399-puma-haikou
     test_plans:
       - baseline
+
+  - device_type: shell_python
+    test_plans:
+      - check-describe
 
   - device_type: snow
     test_plans:
