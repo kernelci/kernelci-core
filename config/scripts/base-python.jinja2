@@ -3,11 +3,45 @@
 {%- extends 'base.jinja2' %}
 
 {% block script_init -%}
+import os
 import sys
+import yaml
+
+import kernelci.data
+import kernelci.config
+
+DB_CONFIG_YAML = """
+{{ db_config_yaml }}"""
+NODE_ID = "{{ node_id }}"
 {% endblock %}
 
 {% block script_exit -%}
+def _get_db():
+    if not DB_CONFIG_YAML:
+        return None
+
+    db_config = kernelci.config.data.DatabaseFactory.from_yaml(
+        'db', yaml.load(DB_CONFIG_YAML, Loader=yaml.CLoader)
+    )
+    if not db_config:
+        return None
+
+    api_token = os.getenv('API_TOKEN')
+    if not api_token:
+        return None
+
+    return kernelci.data.get_db(db_config, api_token)
+
+
 if __name__ == '__main__':
-    ret = main(sys.argv)
-    sys.exit(0 if ret is True else 1)
+    res = main(sys.argv)
+
+    if NODE_ID:
+        db = _get_db()
+        if db:
+            node = db.get_node(NODE_ID)
+            node['status'] = res
+            db.submit({'node': node})
+
+    sys.exit(0 if res is True else 1)
 {% endblock %}
