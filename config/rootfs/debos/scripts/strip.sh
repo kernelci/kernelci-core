@@ -10,8 +10,7 @@ rm -rf /etc/localtime
 cp /usr/share/zoneinfo/Etc/UTC /etc/localtime
 
 
-UNNEEDED_PACKAGES=" libfdisk1"\
-" tzdata"\
+UNNEEDED_PACKAGES=" libfdisk1"
 
 export DEBIAN_FRONTEND=noninteractive
 
