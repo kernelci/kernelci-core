@@ -37,6 +37,11 @@ class Database(YAMLObject):
     def db_type(self):
         return self._db_type
 
+    def _get_attrs(self):
+        attrs = super()._get_attrs()
+        attrs.update({'name', 'db_type'})
+        return attrs
+
 
 class DatabaseAPI(Database):
     def __init__(self, name, db_type, url):
@@ -56,6 +61,11 @@ class DatabaseAPI(Database):
     @property
     def url(self):
         return self._url
+
+    def _get_attrs(self):
+        attrs = super()._get_attrs()
+        attrs.update({'url'})
+        return attrs
 
 
 class DatabaseFactory(YAMLObject):
