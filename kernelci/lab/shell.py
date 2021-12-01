@@ -14,6 +14,8 @@ class Shell(LabAPI):
         ))
         template_path = plan_config.get_template_path(None)
         template = jinja2_env.get_template(template_path)
+        if db_config:
+            params['db_config_yaml'] = db_config.to_yaml()
         return template.render(params)
 
     def save_file(self, *args, **kwargs):
