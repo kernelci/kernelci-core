@@ -1273,7 +1273,7 @@ device_types:
     boot_method: qemu
     context:
       arch: arm64
-      cpu: 'max'
+      cpu: 'max,pauth-impdef=on'
       guestfs_interface: 'virtio'
       machine: 'virt,gic-version=2'
     filters:
@@ -1291,7 +1291,7 @@ device_types:
     boot_method: qemu
     context:
       arch: arm64
-      cpu: 'max'
+      cpu: 'max,pauth-impdef=on'
       guestfs_interface: 'virtio'
       machine: 'virt,gic-version=3'
     filters:
