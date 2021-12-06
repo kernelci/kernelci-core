@@ -1667,6 +1667,19 @@ device_types:
     arch: i386
     boot_method: ipxe
 
+  x86-openblocks-iot-vx2:
+    mach: x86
+    arch: i386
+    boot_method: grub
+    filters:
+      - blocklist:
+          defconfig:
+            - 'allmodconfig'
+            - 'allnoconfig'
+            - 'x86_64_defconfig'
+            - 'tinyconfig'
+            - 'kvm_guest.config'
+
   x86-pentium4:
     mach: x86
     arch: i386
@@ -2636,6 +2649,11 @@ test_configs:
       - baseline-nfs
 
   - device_type: x86-celeron
+    test_plans:
+      - baseline
+      - baseline-nfs
+
+  - device_type: x86-openblocks-iot-vx2
     test_plans:
       - baseline
       - baseline-nfs
