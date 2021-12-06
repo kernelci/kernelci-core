@@ -1672,6 +1672,19 @@ device_types:
     arch: i386
     boot_method: grub
 
+  x86-simatic-ipc227e:
+    mach: x86
+    arch: i386
+    boot_method: grub
+    filters:
+      - blocklist:
+          defconfig:
+            - 'allmodconfig'
+            - 'allnoconfig'
+            - 'x86_64_defconfig'
+            - 'tinyconfig'
+            - 'kvm_guest.config'
+
   x86-x5-z8350:
     mach: x86
     arch: x86_64
@@ -2641,6 +2654,11 @@ test_configs:
       - baseline-nfs
 
   - device_type: x86-pentium4
+    test_plans:
+      - baseline
+      - baseline-nfs
+
+  - device_type: x86-simatic-ipc227e
     test_plans:
       - baseline
       - baseline-nfs
