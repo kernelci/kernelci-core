@@ -1,4 +1,4 @@
-FROM debian:bullseye-slim
+FROM debian:buster-slim
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -45,7 +45,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 
 # Extra packages needed by kernelCI
 RUN apt-get update && apt-get install --no-install-recommends -y \
-    python3.9 \
+    python3.7 \
     python3-requests \
     python3-yaml \
     xz-utils
