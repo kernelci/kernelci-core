@@ -18,6 +18,9 @@ class Shell(LabAPI):
             params['db_config_yaml'] = db_config.to_yaml()
         return template.render(params)
 
+    def job_file_name(self, params):
+        return '-'.join([params['node_id'], params['name']])
+
     def save_file(self, *args, **kwargs):
         output_file = super().save_file(*args, **kwargs)
         os.chmod(output_file, 0o775)
