@@ -704,6 +704,13 @@ device_types:
     boot_method: depthcharge
     filters: *x86-chromebook-filters
 
+  # Alphabetical order exception: 14 is an int but 12b is a string
+  hp-x360-14-G1-sona:
+    mach: x86
+    arch: x86_64
+    boot_method: depthcharge
+    filters: *x86-chromebook-filters
+
   hp-x360-12b-n4000-octopus:
     mach: x86
     arch: x86_64
@@ -1902,6 +1909,12 @@ test_configs:
       - preempt-rt
       - sleep
       - smc
+
+  - device_type: hp-x360-14-G1-sona
+    test_plans:
+      - baseline
+      - baseline-nfs
+      - cros-ec
 
   - device_type: hp-x360-12b-n4000-octopus
     test_plans:
