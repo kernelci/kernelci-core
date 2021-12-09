@@ -1435,6 +1435,12 @@ device_types:
       - blocklist: *allmodconfig_filter
       - blocklist: {kernel: ['v3.', 'v4.4', 'v4.9']}
 
+  sc7180-trogdor-lazor-limozeen:
+    mach: qcom
+    class: arm64-dtb
+    boot_method: depthcharge
+    dtb: 'qcom/sc7180-trogdor-lazor-limozeen-nots-r9.dtb'
+
   snow:
     mach: exynos
     class: arm-dtb
@@ -2464,6 +2470,12 @@ test_configs:
   - device_type: rk3399-puma-haikou
     test_plans:
       - baseline
+
+  - device_type: sc7180-trogdor-lazor-limozeen
+    test_plans:
+      - baseline
+      - baseline-nfs
+      - cros-ec
 
   - device_type: snow
     test_plans:
