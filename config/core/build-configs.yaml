@@ -794,6 +794,16 @@ build_configs:
     branch: 'v5.4-rt'
     variants: *preempt_rt_variants
 
+  rt-stable_v5.10-rt:
+    tree: rt-stable
+    branch: 'v5.10-rt'
+    variants: *preempt_rt_variants
+
+  rt-stable_v5.15-rt:
+    tree: rt-stable
+    branch: 'v5.15-rt'
+    variants: *preempt_rt_variants
+
   samsung:
     tree: samsung
     branch: 'for-next'
