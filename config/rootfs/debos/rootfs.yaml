@@ -119,6 +119,11 @@ actions:
     command: cd ${ROOTDIR} ; tar cvfJ  ${ARTIFACTDIR}/{{ $basename -}}/full.rootfs.tar.xz .
 
   - action: run
+    description: Set symbolic link to init
+    chroot: true
+    command: ln -s /usr/bin/systemd /init
+
+  - action: run
     description: Create full cpio archive
     chroot: false
     command: cd ${ROOTDIR} ; find -H  |  cpio -H newc -v -o | gzip -c - > ${ARTIFACTDIR}/{{ $basename -}}/full.rootfs.cpio.gz
@@ -184,11 +189,6 @@ actions:
         done
       done
 {{ end }}
-
-  - action: run
-    description: Set symbolic link to init
-    chroot: true
-    command: ln -s /usr/bin/systemd /init
 
   - action: run
     description: Create cpio archive
