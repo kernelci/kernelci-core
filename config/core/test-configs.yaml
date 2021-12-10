@@ -72,6 +72,10 @@ file_systems:
     nfs: 'bullseye-ltp/20220121.0/{arch}/full.rootfs.tar.xz'
     root_type: nfs
 
+  debian_bullseye-ltp_ramdisk:
+    type: debian
+    ramdisk: 'bullseye-ltp/20211221.0/{arch}/rootfs.cpio.gz'
+
   debian_bullseye-rt_ramdisk:
     type: debian
     ramdisk: 'bullseye-rt/20220121.0/{arch}/rootfs.cpio.gz'
@@ -357,6 +361,16 @@ test_plans:
   ltp-timers:
     <<: *ltp
     pattern: 'ltp/{category}-{method}-{protocol}-{rootfs}-ltp-open-posix-template.jinja2'
+    params:
+      <<: *ltp-params
+      grp_test: "TMR"
+      job_timeout: '30'
+
+  ltp-timers_qemu:
+    <<: *ltp
+    base_name: ltp-timers
+    rootfs: debian_bullseye-ltp_ramdisk
+    pattern: 'ltp/{category}-{method}-{rootfs}-ltp-open-posix-template.jinja2'
     params:
       <<: *ltp-params
       grp_test: "TMR"
@@ -2348,6 +2362,7 @@ test_configs:
     test_plans:
       - baseline_qemu
       - baseline-qemu-docker
+      - ltp-timers_qemu
       - smc
       - v4l2-compliance-vivid
 
