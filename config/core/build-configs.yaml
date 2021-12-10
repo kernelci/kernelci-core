@@ -479,10 +479,26 @@ medium_variants: &medium_variants
 
 
 preempt_rt_variants: &preempt_rt_variants
-  <<: *minimal_variants
   gcc-10:
-    <<: *gcc_10_minimal
+    build_environment: gcc-10
     fragments: [preempt_rt]
+    architectures:
+      arm:
+        <<: *arm_defconfig
+        extra_configs:
+          - 'multi_v7_defconfig+preempt_rt'
+      arm64:
+        <<: *arm64_defconfig
+        fragments: [arm64-chromebook]
+        extra_configs:
+          - 'defconfig+preempt_rt'
+          - 'defconfig+preempt_rt+arm64-chromebook'
+      x86_64:
+        <<: *x86_64_defconfig
+        fragments: [x86-chromebook]
+        extra_configs:
+          - 'x86_64_defconfig+preempt_rt'
+          - 'x86_64_defconfig+preempt_rt+x86-chromebook'
 
 
 build_configs:
