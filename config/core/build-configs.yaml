@@ -651,8 +651,13 @@ build_configs:
     branch: 'master'
     variants:
       gcc-10: *default_gcc-10
+      # Minimum version
       clang-10:
         build_environment: clang-10
+        architectures: *arch_clang_configs
+      # Latest stable release
+      clang-13:
+        build_environment: clang-13
         architectures: *arch_clang_configs
 
   media:
@@ -704,11 +709,6 @@ build_configs:
               - 'multi_v7_defconfig+CONFIG_THUMB2_KERNEL=y'
               - 'allnoconfig'
               - 'allmodconfig'
-
-      # clang-11 is the current minium clang version for -next
-      clang-11:
-        build_environment: clang-11
-        architectures: *arch_clang_configs
 
       # Latest clang release
       clang-13:
