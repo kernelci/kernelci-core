@@ -87,6 +87,7 @@ docker_build_and_tag() {
 
 for target in $targets; do
     if [ "$target" = "compilers" ]; then
+        docker_build_and_tag clang-base
         for cc in {gcc,clang}-*
         do
             docker_build_and_tag "$cc"
