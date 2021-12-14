@@ -104,6 +104,18 @@ rootfs_configs:
     script: "scripts/bullseye-igt.sh"
     test_overlay: "overlays/igt"
 
+  bullseye-ltp:
+    rootfs_type: debos
+    debian_release: bullseye
+    arch_list:
+      - amd64
+      - arm64
+      - armhf
+    extra_packages:
+      - gdb-minimal
+      - libnuma-dev
+    script: "scripts/bullseye-ltp.sh"
+
   buster-cros-ec:
     rootfs_type: debos
     debian_release: buster
