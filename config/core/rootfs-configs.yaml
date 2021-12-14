@@ -116,6 +116,19 @@ rootfs_configs:
       - libnuma-dev
     script: "scripts/bullseye-ltp.sh"
 
+  bullseye-rt:
+    rootfs_type: debos
+    debian_release: bullseye
+    arch_list:
+      - amd64
+      - arm64
+      - armhf
+    extra_packages:
+      - libnuma1
+      - procps
+      - python
+    script: "scripts/bullseye-rt.sh"
+
   buster-cros-ec:
     rootfs_type: debos
     debian_release: buster
