@@ -19,6 +19,10 @@
 {% set console_dev = console_dev|default('ttyS0') %}
 {% set qemu_binary = 'qemu-system-i386' %}
 {% endif %}
+{% if arch == 'mips' %}
+{% set console_dev = console_dev|default('ttyS0') %}
+{% set qemu_binary = 'qemu-system-mipsel' %}
+{% endif %}
 {% block metadata %}
 {{ super() }}
 {% endblock %}
