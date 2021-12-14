@@ -1832,6 +1832,7 @@ test_configs:
       - ltp-mm
       - ltp-pty
       - ltp-timers
+      - preempt-rt
       - sleep_mem
       - smc
 
@@ -1963,6 +1964,7 @@ test_configs:
       - ltp-mm
       - ltp-pty
       - ltp-timers
+      - preempt-rt
       - sleep
       - smc
 
@@ -2233,6 +2235,7 @@ test_configs:
       - ltp-mm
       - ltp-pty
       - ltp-timers
+      - preempt-rt
       - sleep
       - v4l2-compliance-uvc
 
