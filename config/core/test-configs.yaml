@@ -60,6 +60,10 @@ file_systems:
     type: debian
     ramdisk: 'bullseye-igt/20211210.0/{arch}/rootfs.cpio.gz'
 
+  debian_bullseye-rt_ramdisk:
+    type: debian
+    ramdisk: 'bullseye-rt/20211216.0/{arch}/rootfs.cpio.gz'
+
   debian_buster_kselftest:
     type: debian
     ramdisk: 'buster-kselftest/20211210.0/{arch}/initrd.cpio.gz'
@@ -333,7 +337,7 @@ test_plans:
       job_timeout: '30'
 
   preempt-rt:
-    rootfs: debian_bullseye_nfs
+    rootfs: debian_bullseye-rt_ramdisk
     filters:
       - passlist: {defconfig: ['preempt_rt']}
 
