@@ -38,8 +38,8 @@ LTP_SHA=$(git ls-remote ${LTP_URL} | head -n 1 | cut -f 1)
 echo '    {"name": "ltp-tests", "git_url": "'$LTP_URL'", "git_commit": "'$LTP_SHA'" }' >> $BUILDFILE
 echo '  ]}' >> $BUILDFILE
 
-git clone --depth=1 -b 20200515 ${LTP_URL}
-cd ltp && make autotools 
+git clone --depth=1 -b master ${LTP_URL}
+cd ltp && make autotools
 ./configure
 make all
 find . -executable -type f -exec strip {} \;
@@ -56,4 +56,3 @@ make install prefix=/opt/ltp
 rm -rf ${BUILD_DIR}
 apt-get autoremove --purge -y ${BUILD_DEPS}
 apt-get clean
-
