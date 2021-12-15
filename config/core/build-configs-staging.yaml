@@ -1,0 +1,115 @@
+# Minimum architecture defconfigs
+arch_defconfigs: &arch_defconfigs
+  arm: &arm_defconfig
+    base_defconfig: 'multi_v7_defconfig'
+    filters:
+      - regex: { defconfig: 'multi_v7_defconfig' }
+  arm64: &arm64_defconfig
+    base_defconfig: 'defconfig'
+    filters:
+      - regex: { defconfig: 'defconfig' }
+  riscv: &riscv_defconfig
+    base_defconfig: 'defconfig'
+    filters:
+      - regex: { defconfig: 'defconfig' }
+      - blocklist: { kernel: ['v3.', 'v4.'] }
+  x86_64: &x86_64_defconfig
+    base_defconfig: 'x86_64_defconfig'
+    filters:
+      - regex: { defconfig: 'x86_64_defconfig' }
+
+
+# Staging build configurations using GCC
+staging-gcc-10: &staging-gcc-10
+  build_environment: gcc-10
+  fragments: [kselftest]
+  architectures:
+    arm:
+      <<: *arm_defconfig
+      extra_configs:
+        - 'multi_v5_defconfig'
+      filters:
+        - passlist: {defconfig: ['multi_v7_defconfig', 'multi_v5_defconfig']}
+    arm64:
+      <<: *arm64_defconfig
+      fragments: [arm64-chromebook]
+      extra_configs:
+        - 'defconfig+arm64-chromebook+kselftest'
+    riscv: *riscv_defconfig
+    x86_64: &x86_64_defconfig-staging
+      <<: *x86_64_defconfig
+      fragments: [x86-board]
+      extra_configs:
+        - 'x86_64_defconfig+x86-board+kselftest'
+
+
+# Staging build configurations using LLVM/Clang
+staging-clang-17: &staging-clang-17
+  build_environment: clang-17
+  fragments: [kselftest]
+  architectures:
+    arm64: *arm64_defconfig
+    x86_64: *x86_64_defconfig-staging
+
+
+build_configs:
+
+  kernelci_staging-android:
+    tree: kernelci
+    branch: 'staging-android'
+    variants:
+      gcc-10: *staging-gcc-10
+      clang-17: *staging-clang-17
+
+  kernelci_staging-cip:
+    tree: kernelci
+    branch: 'staging-cip'
+    variants:
+      gcc-10: *staging-gcc-10
+
+  kernelci_staging-mainline:
+    tree: kernelci
+    branch: 'staging-mainline'
+    variants:
+      gcc-10: *staging-gcc-10
+
+  kernelci_staging-next:
+    tree: kernelci
+    branch: 'staging-next'
+    variants:
+      gcc-10: *staging-gcc-10
+      clang-17: *staging-clang-17
+      rustc-1.75:
+        build_environment: rustc-1.75
+        fragments: [rust]
+        architectures:
+          x86_64:
+            base_defconfig: 'x86_64_defconfig'
+            filters:
+              - regex: {defconfig: '^x86_64_defconfig\+rust$'}
+
+  kernelci_staging-stable:
+    tree: kernelci
+    branch: 'staging-stable'
+    variants:
+      gcc-10:
+        build_environment: gcc-10
+        architectures:
+          arm: *arm_defconfig
+          arm64:
+            <<: *arm64_defconfig
+            fragments: [arm64-chromebook]
+            extra_configs:
+              - 'defconfig+arm64-chromebook'
+          riscv: *riscv_defconfig
+          x86_64:
+            <<: *x86_64_defconfig
+            fragments: [x86-board]
+            extra_configs:
+              - 'x86_64_defconfig+x86-board'
+
+  mainline-staging:
+    tree: mainline
+    branch: 'master'
+    variants:
+      gcc-10: *staging-gcc-10
