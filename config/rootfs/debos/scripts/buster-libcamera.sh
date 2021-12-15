@@ -43,7 +43,19 @@ echo '{  "tests_suites": [' >> $BUILDFILE
 LIBCAMERA_URL=https://git.linuxtv.org/libcamera.git
 mkdir -p /var/tests/libcamera && cd /var/tests/libcamera
 
-git clone --depth=1 $LIBCAMERA_URL .
+git clone $LIBCAMERA_URL .
+
+git config --global user.email "bot@kernelci.org"
+git config --global user.name "KernelCI Bot"
+
+########################################################################
+# To be removed once qemu begins support this                          #
+# After removing libgtest-dev, libcamera is not being built using qemu #
+# 6 on Bullseye this commit reverts the code from libcamera to the     #
+# point that is working.                                               #
+########################################################################
+
+git revert --no-edit 0d50a04cc918e5122d1b22201cc949c2cfd337a5
 
 echo '    {"name": "lc-compliance", "git_url": "'$LIBCAMERA_URL'", "git_commit": ' \"`git rev-parse HEAD`\" '}' >> $BUILDFILE
 
