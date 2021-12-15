@@ -547,9 +547,10 @@ class Metadata:
 
         *data* is the data for the step, following the schema
         """
-        for i, item in enumerate(self._steps):
-            if item['name'] == data['name']:
-                self._steps[i] = data
+        for step in self._steps:
+            if step['name'] == data['name']:
+                step.clear()
+                step.update(data)
                 break
         else:
             self._steps.append(data)
