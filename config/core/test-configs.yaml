@@ -2191,6 +2191,7 @@ test_configs:
       - kselftest-futex
       - kselftest-lib
       - kselftest-lkdtm
+      - kselftest-rtc
       - kselftest-seccomp
       - lc-compliance
       - ltp-crypto
