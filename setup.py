@@ -29,6 +29,7 @@ setuptools.setup(
         "kernelci",
         "kernelci.config",
         "kernelci.lab",
+        "kernelci.lab.lava",
         "kernelci.data",
     ],
     package_data={
