@@ -92,6 +92,7 @@ test_plan_default_filters:
       values:
         - ['arm', 'multi_v7_defconfig']
         - ['arm64', 'defconfig']
+        - ['arm64', 'defconfig+arm64-chromebook']
         - ['i386', 'i386_defconfig']
         - ['x86_64', 'x86_64_defconfig']
         - ['x86_64', 'x86_64_defconfig+x86-chromebook']
