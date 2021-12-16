@@ -78,8 +78,8 @@ file_systems:
 
   debian_buster-libcamera_nfs:
     type: debian
-    ramdisk: 'buster-libcamera/20211126.0/{arch}/initrd.cpio.gz'
-    nfs: 'buster-libcamera/20211126.0/{arch}/full.rootfs.tar.xz'
+    ramdisk: 'buster-libcamera/20211112.0/{arch}/initrd.cpio.gz'
+    nfs: 'buster-libcamera/20211112.0/{arch}/full.rootfs.tar.xz'
     root_type: nfs
 
   debian_buster-ltp_nfs:
