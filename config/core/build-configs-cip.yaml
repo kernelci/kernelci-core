@@ -130,3 +130,8 @@ build_configs:
     tree: cip
     branch: 'linux-5.10.y-cip'
     variants: *cip_variants_kselftest
+
+  cip_5.10-rt:
+    tree: cip
+    branch: 'linux-5.10.y-cip-rt'
+    variants: *cip_variants_kselftest
