@@ -227,6 +227,12 @@ test_plans:
     filters:
       - passlist: {defconfig: ['kselftest']}
 
+  kselftest-cpufreq:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "cpufreq"
+
   kselftest-filesystems:
     <<: *kselftest
     params:
