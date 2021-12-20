@@ -98,7 +98,7 @@ class LabFactory(YAMLObject):
         return lab_cls.from_yaml(lab, kw)
 
 
-def from_yaml(data):
+def from_yaml(data, filters):
     labs = {
         name: LabFactory.from_yaml(name, lab)
         for name, lab in data.get('labs', {}).items()

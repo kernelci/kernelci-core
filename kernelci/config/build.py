@@ -397,7 +397,7 @@ class BuildConfig(YAMLObject):
         return self._reference
 
 
-def from_yaml(data):
+def from_yaml(data, filters):
     trees = {
         name: Tree.from_yaml(config, name)
         for name, config in data.get('trees', {}).items()
