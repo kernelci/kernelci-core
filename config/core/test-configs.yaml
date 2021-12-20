@@ -89,20 +89,28 @@ file_systems:
     root_type: nfs
 
 
-test_plan_default_filters:
+default_filters:
 
-  - combination: &arch_defconfig_filter
-      keys: ['arch', 'defconfig']
-      values:
-        - ['arm', 'multi_v7_defconfig']
-        - ['arm64', 'defconfig']
-        - ['arm64', 'defconfig+arm64-chromebook']
-        - ['i386', 'i386_defconfig']
-        - ['x86_64', 'x86_64_defconfig']
-        - ['x86_64', 'x86_64_defconfig+x86-chromebook']
+  test_plans:
 
-  - blocklist: &kselftest_defconfig_filter
-      defconfig: ['kselftest']
+    - combination: &arch_defconfig_filter
+        keys: ['arch', 'defconfig']
+        values:
+          - ['arm', 'multi_v7_defconfig']
+          - ['arm64', 'defconfig']
+          - ['arm64', 'defconfig+arm64-chromebook']
+          - ['i386', 'i386_defconfig']
+          - ['x86_64', 'x86_64_defconfig']
+          - ['x86_64', 'x86_64_defconfig+x86-chromebook']
+
+    - blocklist: &kselftest_defconfig_filter
+        defconfig: ['kselftest']
+
+  device_types:
+
+    - blocklist: &allmodconfig_filter
+        defconfig: ['allmodconfig']
+
 
 test_plans:
 
@@ -375,11 +383,6 @@ test_plans:
           defconfig:
             - 'defconfig+virtualvideo'
             - 'multi_v7_defconfig+virtualvideo'
-
-device_default_filters:
-
-  - blocklist: &allmodconfig_filter
-      defconfig: ['allmodconfig']
 
 
 device_types:

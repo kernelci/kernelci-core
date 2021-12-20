@@ -26,7 +26,7 @@ import kernelci.config.test
 def test_build_configs_parsing():
     """ Verify build configs from YAML"""
     data = kernelci.config.load_yaml("config/core")
-    configs = kernelci.config.build.from_yaml(data)
+    configs = kernelci.config.build.from_yaml(data, {})
     assert len(configs) == 4
     for key in ['build_configs', 'build_environments', 'fragments', 'trees']:
         assert key in configs
@@ -35,7 +35,7 @@ def test_build_configs_parsing():
 
 def test_build_configs_parsing_minimal():
     data = kernelci.config.load_yaml("tests/configs/builds-minimal.yaml")
-    configs = kernelci.config.build.from_yaml(data)
+    configs = kernelci.config.build.from_yaml(data, {})
     assert 'agross' in configs['build_configs']
     assert 'agross' in configs['trees']
     assert 'gcc-7' in configs['build_environments']
@@ -44,7 +44,7 @@ def test_build_configs_parsing_minimal():
 
 def test_build_configs_parsing_empty_architecture():
     data = kernelci.config.load_yaml("tests/configs/builds-empty-arch.yaml")
-    configs = kernelci.config.build.from_yaml(data)
+    configs = kernelci.config.build.from_yaml(data, {})
     assert len(configs) == 4
 
 

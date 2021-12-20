@@ -178,7 +178,7 @@ class RootFSFactory(YAMLObject):
         return rootfs_cls.from_yaml(rootfs, name)
 
 
-def from_yaml(data):
+def from_yaml(data, filters):
     rootfs_configs = {
         name: RootFSFactory.from_yaml(name, rootfs)
         for name, rootfs in data.get('rootfs_configs', {}).items()

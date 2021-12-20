@@ -473,7 +473,7 @@ class TestConfig(YAMLObject):
         return test_plan.get_template_path(self._device_type.boot_method)
 
 
-def from_yaml(data):
+def from_yaml(data, filters):
     fs_types = {
         name: RootFSType.from_yaml(fs_type)
         for name, fs_type in data.get('file_system_types', {}).items()
@@ -484,19 +484,13 @@ def from_yaml(data):
         for name, rootfs in data.get('file_systems', {}).items()
     }
 
-    plan_filters = FilterFactory.from_yaml(
-        data.get('test_plan_default_filters', {})
-    )
-
+    plan_filters = filters.get('test_plans')
     test_plans = {
         name: TestPlan.from_yaml(name, test_plan, file_systems, plan_filters)
         for name, test_plan in data.get('test_plans', {}).items()
     }
 
-    device_filters = FilterFactory.from_yaml(
-        data.get('device_default_filters', {})
-    )
-
+    device_filters = filters.get('device_types')
     device_types = {
         name: DeviceTypeFactory.from_yaml(name, device_type, device_filters)
         for name, device_type in data.get('device_types', {}).items()

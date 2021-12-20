@@ -185,3 +185,10 @@ class FilterFactory(YAMLObject):
         """
         params = data.get('filters')
         return cls.from_yaml(params) if params else default_filters
+
+
+def default_filters_from_yaml(data):
+    return {
+        entry_type: FilterFactory.from_yaml(filters_data)
+        for entry_type, filters_data in data.get('default_filters').items()
+    }
