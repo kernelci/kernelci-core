@@ -109,8 +109,12 @@ default_filters:
 
   device_types:
 
-    - blocklist: &allmodconfig_filter
-        defconfig: ['allmodconfig']
+    - blocklist: &device_config_filter
+        defconfig:
+          - 'allmodconfig'
+          - 'allnoconfig'
+          - 'tinyconfig'
+          - '-chromebook'
 
 
 test_plans:
@@ -398,7 +402,7 @@ device_types:
     class: arm-dtb
     boot_method: uboot
     filters:
-      - blocklist: *allmodconfig_filter
+      - blocklist: *device_config_filter
       # This board could boot v4.* if CONFIG_SERIAL_8250_OMAP is set. It was
       # added to multi_v7_defconfig as of 5.0.
       - blocklist: {kernel: ['v3.', 'v4.']}
@@ -412,6 +416,8 @@ device_types:
           defconfig:
             - 'allmodconfig'
             - 'allnoconfig'
+            - 'tinyconfig'
+            - '-chromebook'
             - 'defconfig+CONFIG_KASAN=y'
 
   armada-370-db:
@@ -419,7 +425,7 @@ device_types:
     class: arm-dtb
     boot_method: uboot
     filters:
-      - blocklist: *allmodconfig_filter
+      - blocklist: *device_config_filter
       - blocklist: {kernel: ['v3.']}
 
   armada-370-rd:
@@ -427,7 +433,7 @@ device_types:
     class: arm-dtb
     boot_method: uboot
     filters:
-      - blocklist: *allmodconfig_filter
+      - blocklist: *device_config_filter
       - combination:
           keys: ['kernel', 'defconfig']
           values:
@@ -452,7 +458,7 @@ device_types:
     class: arm-dtb
     boot_method: uboot
     filters:
-      - blocklist: *allmodconfig_filter
+      - blocklist: *device_config_filter
       - blocklist: {defconfig: ['multi_v7_defconfig+CONFIG_SMP=n']}
 
   armada-388-gp:
@@ -475,7 +481,7 @@ device_types:
     class: arm64-dtb
     boot_method: uboot
     filters:
-      - blocklist: *allmodconfig_filter
+      - blocklist: *device_config_filter
       - blocklist: {kernel: ['v4.6']}
 
   armada-8040-db:
@@ -498,7 +504,7 @@ device_types:
     class: arm-dtb
     boot_method: uboot
     filters:
-      - blocklist: *allmodconfig_filter
+      - blocklist: *device_config_filter
       - blocklist: {defconfig: ['multi_v7_defconfig+CONFIG_SMP=n']}
 
   armada-xp-openblocks-ax3-4:
@@ -506,7 +512,7 @@ device_types:
     class: arm-dtb
     boot_method: uboot
     filters:
-      - blocklist: *allmodconfig_filter
+      - blocklist: *device_config_filter
       - blocklist: {defconfig: ['multi_v7_defconfig+CONFIG_SMP=n']}
 
   arndale:
@@ -516,29 +522,28 @@ device_types:
     dtb: 'exynos5250-arndale.dtb'
     flags: ['fastboot']
     filters:
-      - blocklist: *allmodconfig_filter
+      - blocklist: *device_config_filter
       - blocklist: {defconfig: ['multi_v7_defconfig+CONFIG_SMP=n']}
 
   asus-C433TA-AJ0005-rammus:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
-    filters:
+    filters: &x86-chromebook-filters
       - passlist: {defconfig: ['x86-chromebook']}
+      - blocklist: {defconfig: ['allmodconfig', 'allnoconfig']}
 
   asus-C436FA-Flip-hatch:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
-    filters:
-      - passlist: {defconfig: ['x86-chromebook']}
+    filters: *x86-chromebook-filters
 
   asus-C523NA-A20057-coral:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
-    filters:
-      - passlist: {defconfig: ['x86-chromebook']}
+    filters: *x86-chromebook-filters
 
   at91-sama5d2_xplained:
     mach: at91
@@ -567,7 +572,7 @@ device_types:
     context: {console_device: 'ttyS1', test_character_delay: 10}
     filters:
       - blocklist:
-          defconfig: ['allnoconfig', 'allmodconfig']
+          defconfig: *device_config_filter
           kernel: ['v3.', '4.4-', '4.9-', 'v4.13']
 
   bcm2837-rpi-3-b-32:
@@ -586,7 +591,7 @@ device_types:
     boot_method: uboot
     dtb: 'omap3-beagle-xm.dtb'
     filters:
-      - blocklist: *allmodconfig_filter
+      - blocklist: *device_config_filter
       - blocklist: {kernel: ['v3.14']}
 
   beaglebone-black:
@@ -595,7 +600,7 @@ device_types:
     boot_method: uboot
     dtb: 'am335x-boneblack.dtb'
     filters:
-      - blocklist: *allmodconfig_filter
+      - blocklist: *device_config_filter
       - blocklist: {lab: ['lab-baylibre']}
 
   cubietruck:
@@ -609,15 +614,11 @@ device_types:
     class: arm64-dtb
     boot_method: grub
     dtb: 'hisilicon/hip06-d03.dtb'
-    filters:
-      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   d2500cc:
     mach: x86
     arch: x86_64
     boot_method: grub
-    filters:
-      - blocklist: {defconfig: ['allnoconfig', 'tinyconfig']}
 
   da850-lcdk:
     mach: davinci
@@ -629,7 +630,7 @@ device_types:
     class: arm-dtb
     boot_method: barebox
     filters:
-      - blocklist: *allmodconfig_filter
+      - blocklist: *device_config_filter
 
   dra7-evm:
     mach: omap2
@@ -690,22 +691,18 @@ device_types:
     mach: hisilicon
     class: arm64-dtb
     boot_method: grub
-    filters:
-      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   hp-11A-G6-EE-grunt:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
-    filters:
-      - passlist: {defconfig: ['x86-chromebook']}
+    filters: *x86-chromebook-filters
 
   hp-x360-12b-n4000-octopus:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
-    filters:
-      - passlist: {defconfig: ['x86-chromebook']}
+    filters: *x86-chromebook-filters
 
   hsdk:
     mach: arc
@@ -727,21 +724,21 @@ device_types:
     class: arm-dtb
     boot_method: barebox
     filters:
-      - blocklist: *allmodconfig_filter
+      - blocklist: *device_config_filter
 
   imx27-phytec-phycard-s-rdk:
     mach: imx
     class: arm-dtb
     boot_method: barebox
     filters:
-      - blocklist: *allmodconfig_filter
+      - blocklist: *device_config_filter
 
   imx28-duckbill:
     mach: imx
     class: arm-dtb
     boot_method: barebox
     filters:
-      - blocklist: *allmodconfig_filter
+      - blocklist: *device_config_filter
 
   imx53-qsrb:
     mach: imx
@@ -890,7 +887,7 @@ device_types:
     flags: ['lpae']
     dtb: 'tegra124-jetson-tk1.dtb'
     filters:
-      - blocklist: *allmodconfig_filter
+      - blocklist: *device_config_filter
       - blocklist: {defconfig: ['multi_v7_defconfig+kselftest']}
 
   kirkwood-db-88f6282:
@@ -933,8 +930,6 @@ device_types:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
-    filters:
-      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
     flags: ['fastboot']
     params:
       kernel_addr: '0x01080000'
@@ -946,37 +941,27 @@ device_types:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
-    filters:
-      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson-g12a-x96-max:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
     flags: ['fastboot']
-    filters:
-      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson-g12b-a311d-khadas-vim3:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
-    filters:
-      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson-g12b-odroid-n2:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
-    filters:
-      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson-gxbb-nanopi-k2:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
-    filters:
-      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
     flags: ['big_endian']
 
   meson-gxbb-odroidc2:
@@ -984,87 +969,65 @@ device_types:
     class: arm64-dtb
     boot_method: uboot
     flags: ['big_endian', 'fastboot']
-    filters:
-      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson-gxbb-p200:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
     flags: ['big_endian']
-    filters:
-      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson-gxl-s805x-libretech-ac:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
     flags: ['big_endian']
-    filters:
-      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson-gxl-s805x-p241:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
     flags: ['big_endian']
-    filters:
-      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson-gxl-s905d-p230:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
     flags: ['big_endian']
-    filters:
-      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson-gxl-s905x-khadas-vim:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
     flags: ['big_endian']
-    filters:
-      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson-gxl-s905x-libretech-cc:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
     flags: ['big_endian']
-    filters:
-      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson-gxm-khadas-vim2:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
     flags: ['big_endian']
-    filters:
-      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson-gxm-q200:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
     flags: ['big_endian']
-    filters:
-      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson-sm1-khadas-vim3l:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
     flags: ['big_endian']
-    filters:
-      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   meson-sm1-sei610:
     mach: amlogic
     class: arm64-dtb
     boot_method: uboot
-    filters:
-      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
     flags: ['fastboot']
     params:
       kernel_addr: '0x01080000'
@@ -1081,37 +1044,25 @@ device_types:
     mach: x86
     arch: x86_64
     boot_method: grub
-    filters:
-      - blocklist:
-          defconfig:
-            - 'allmodconfig'
-            - 'allnoconfig'
-            - 'tinyconfig'
-            - 'kvm_guest.config'
 
   minnowboard-turbot-E3826:
     mach: x86
     arch: x86_64
     boot_method: grub
-    filters:
-      - blocklist:
-          defconfig:
-            - 'allmodconfig'
-            - 'allnoconfig'
-            - 'tinyconfig'
-            - 'kvm_guest.config'
 
   mt8173-elm-hana:
     mach: mediatek
     class: arm64-dtb
     boot_method: depthcharge
-    filters:
+    filters: &arm64-chromebook-filters
       - passlist: {defconfig: ['arm64-chromebook']}
+      - blocklist: {defconfig: ['allmodconfig', 'allnoconfig']}
 
   mt8183-kukui-jacuzzi-juniper-sku16:
     mach: mediatek
     class: arm64-dtb
     boot_method: depthcharge
+    filters: *arm64-chromebook-filters
 
   mustang:
     mach: apm
@@ -1123,6 +1074,8 @@ device_types:
           defconfig:
             - 'allmodconfig'
             - 'allnoconfig'
+            - 'tinyconfig'
+            - '-chromebook'
             - 'defconfig+CONFIG_RAMDOMIZE_BASE=y'
           kernel: ['v3.']
 
@@ -1174,7 +1127,7 @@ device_types:
     dtb: 'exynos5800-peach-pi.dtb'
     flags: ['lpae']
     filters:
-      - blocklist: *allmodconfig_filter
+      - blocklist: *device_config_filter
       - blocklist: {kernel: ['v3.']}
 
   qcom-qdf2400:
@@ -1282,7 +1235,7 @@ device_types:
       guestfs_interface: 'virtio'
       machine: 'virt,gic-version=2'
     filters:
-      - passlist: {defconfig: ['defconfig']}
+      - regex: { defconfig: 'defconfig' }
 
   qemu_arm64-virt-gicv2-uefi:
     <<: *qemu_arm64-virt-gicv2
@@ -1392,8 +1345,6 @@ device_types:
     class: arm64-dtb
     boot_method: uboot
     flags: ['big_endian']
-    filters:
-      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   r8a77950-salvator-x: *r8a7795-salvator-x # same device as r8a7795-salvator-x
 
@@ -1402,8 +1353,6 @@ device_types:
     mach: renesas
     class: arm64-dtb
     boot_method: uboot
-    filters:
-      - blocklist: {defconfig: ['allnoconfig', 'allmodconfig']}
 
   r8a77960-ulcb: *r8a7796-m3ulcb # same device as r8a7796-m3ulcb
 
@@ -1424,20 +1373,21 @@ device_types:
     class: arm64-dtb
     boot_method: uboot
     filters:
-      - blocklist: *allmodconfig_filter
+      - blocklist: *device_config_filter
       - blocklist: {kernel: ['v3.', 'v4.4', 'v4.9']}
 
   rk3399-gru-kevin:
     mach: rockchip
     class: arm64-dtb
     boot_method: depthcharge
+    filters: *arm64-chromebook-filters
 
   rk3399-puma-haikou:
     mach: rockchip
     class: arm64-dtb
     boot_method: uboot
     filters:
-      - blocklist: *allmodconfig_filter
+      - blocklist: *device_config_filter
       - blocklist: {kernel: ['v3.', 'v4.4', 'v4.9']}
 
   snow:
@@ -1447,7 +1397,7 @@ device_types:
     dtb: 'exynos5250-snow.dtb'
     flags: ['fastboot']
     filters:
-      - blocklist: *allmodconfig_filter
+      - blocklist: *device_config_filter
       - blocklist: {defconfig: ['multi_v7_defconfig+CONFIG_SMP=n']}
 
   socfpga-cyclone5-socrates:
@@ -1455,7 +1405,7 @@ device_types:
     class: arm-dtb
     boot_method: barebox
     filters:
-      - blocklist: *allmodconfig_filter
+      - blocklist: *device_config_filter
 
   stm32mp157c-dk2:
     mach: stm32
@@ -1550,7 +1500,7 @@ device_types:
     class: arm-dtb
     boot_method: uboot
     filters:
-      - blocklist: *allmodconfig_filter
+      - blocklist: *device_config_filter
       - blocklist: {defconfig: ['multi_v7_defconfig+CONFIG_LKDTM=n']}
 
   sun7i-a20-cubieboard2:
@@ -1578,7 +1528,7 @@ device_types:
     class: arm-dtb
     boot_method: uboot
     filters:
-      - blocklist: *allmodconfig_filter
+      - blocklist: *device_config_filter
       - blocklist: {kernel: ['v3.', 'v4.4', 'v4.9']}
 
   sun8i-a83t-allwinner-h8homlet-v2:
@@ -1661,58 +1611,28 @@ device_types:
     mach: x86
     arch: x86
     boot_method: ipxe
-    filters:
-      - blocklist:
-          defconfig:
-            - 'allmodconfig'
-            - 'allnoconfig'
-            - 'tinyconfig'
-            - 'kvm_guest.config'
 
   x86-celeron:
     mach: x86
     arch: i386
     boot_method: ipxe
-    filters:
-      - blocklist:
-          defconfig:
-            - 'allmodconfig'
-            - 'allnoconfig'
-            - 'x86_64_defconfig'
-            - 'tinyconfig'
-            - 'kvm_guest.config'
 
   x86-pentium4:
     mach: x86
     arch: i386
     boot_method: grub
-    filters:
-      - blocklist:
-          defconfig:
-            - 'allmodconfig'
-            - 'allnoconfig'
-            - 'x86_64_defconfig'
-            - 'tinyconfig'
-            - 'kvm_guest.config'
 
   x86-x5-z8350:
     mach: x86
     arch: x86_64
     boot_method: grub
-    filters:
-      - blocklist:
-          defconfig:
-            - 'allmodconfig'
-            - 'allnoconfig'
-            - 'tinyconfig'
-            - 'kvm_guest.config'
 
   zynq-zc702:
     mach: zynq
     class: arm-dtb
     boot_method: uboot
     filters:
-      - blocklist: *allmodconfig_filter
+      - blocklist: *device_config_filter
       - blocklist: {defconfig: ['multi_v7_defconfig+linaro-base+distribution']}
 
   zynqmp-zcu102:
