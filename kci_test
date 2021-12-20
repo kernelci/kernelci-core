@@ -177,28 +177,28 @@ class cmd_generate(Command):
         if meta.get('bmeta', 'build', 'status') != "PASS":
             return True
 
-        lab = configs['labs'][args.lab_config]
-        api = kernelci.lab.get_api(
-            lab, args.user, args.lab_token, args.lab_json)
+        lab_config = configs['labs'][args.lab_config]
+        lab_api = kernelci.lab.get_api(
+            lab_config, args.user, args.lab_token, args.lab_json)
 
         if args.target and args.plan:
-            target = configs['device_types'][args.target]
-            plan = configs['test_plans'][args.plan]
-            jobs_list = [(target, plan)]
+            device_config = configs['device_types'][args.target]
+            plan_config = configs['test_plans'][args.plan]
+            jobs_list = [(device_config, plan_config)]
         else:
             jobs_list = []
-            configs = kernelci.test.match_configs(
-                configs['test_configs'], meta, lab)
-            for device_type, plan in configs:
-                if not api.device_type_online(device_type):
+            test_configs = kernelci.test.match_configs(
+                configs['test_configs'], meta, lab_config)
+            for device_config, plan_config in test_configs:
+                if not lab_api.device_type_online(device_config):
                     continue
-                if args.target and device_type.name != args.target:
+                if args.target and device_config.name != args.target:
                     continue
-                if args.plan and plan.name != args.plan:
+                if args.plan and plan_config.name != args.plan:
                     continue
-                if args.mach and device_type.mach != args.mach:
+                if args.mach and device_config.mach != args.mach:
                     continue
-                jobs_list.append((device_type, plan))
+                jobs_list.append((device_config, plan_config))
 
         callback_opts = {
             'id': args.callback_id,
@@ -208,14 +208,16 @@ class cmd_generate(Command):
         }
         if args.output and not os.path.exists(args.output):
             os.makedirs(args.output)
-        for target, plan in jobs_list:
-            params = kernelci.test.get_params(meta, target, plan, args.storage)
-            job = api.generate(params, target, plan, callback_opts)
+        for device_config, plan_config in jobs_list:
+            params = kernelci.test.get_params(
+                meta, device_config, plan_config, args.storage)
+            job = lab_api.generate(params, device_config, plan_config,
+                                   callback_opts)
             if job is None:
                 print("Failed to generate the job definition")
                 return False
             if args.output:
-                output_file = api.save_file(job, args.output, params)
+                output_file = lab_api.save_file(job, args.output, params)
                 print(output_file)
             else:
                 print("# Job: {}".format(params['name']))
