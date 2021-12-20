@@ -75,8 +75,24 @@ class LabAPI:
         """Apply filters and return True if they match, False otherwise."""
         return self.config.match(filter_data)
 
-    def generate(self, params, target, plan, callback_opts):
-        """Generate a test job definition."""
+    def generate(self, params, device_config, plan_config,
+                 callback_opts=None, templates_path=None):
+        """Generate a test job definition.
+
+        *params* is a dictionary with the test parameters which can be used
+             when generating a job definition using templates
+
+        *device_config* is a DeviceType configuration object for the target
+             device type
+
+        *plan_config* is a TestPlan configuration object for the target test
+             plan
+
+        *callback_opts* is a dictionary with extra options used for callbacks
+
+        *templates_path* is an optional argument to specify the path where the
+            template files should be found, when not in the standard location
+        """
         raise NotImplementedError("Lab.generate() is required")
 
     def save_file(self, job, output_path, params):
