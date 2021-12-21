@@ -38,7 +38,7 @@ LTP_SHA=$(git ls-remote ${LTP_URL} | head -n 1 | cut -f 1)
 echo '    {"name": "ltp-tests", "git_url": "'$LTP_URL'", "git_commit": "'$LTP_SHA'" }' >> $BUILDFILE
 echo '  ]}' >> $BUILDFILE
 
-git clone --depth=1 -b 20200515 ${LTP_URL}
+git clone --depth=1 -b 20210927 ${LTP_URL}
 cd ltp && make autotools 
 ./configure
 make all
