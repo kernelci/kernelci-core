@@ -218,18 +218,6 @@ rootfs_configs:
     script: "scripts/buster-libcamera.sh"
     test_overlay: "overlays/libcamera"
 
-  buster-ltp:
-    rootfs_type: debos
-    debian_release: buster
-    arch_list:
-      - amd64
-      - arm64
-      - armhf
-    extra_packages:
-      - gdb-minimal
-      - libnuma-dev
-    script: "scripts/buster-ltp.sh"
-
   buster-v4l2:
     rootfs_type: debos
     debian_release: buster
