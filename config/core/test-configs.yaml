@@ -2520,9 +2520,6 @@ test_configs:
   - device_type: sun50i-h6-pine-h64
     test_plans:
       - baseline
-      - ltp-crypto
-      - ltp-ipc
-      - ltp-mm
 
   - device_type: sun50i-h6-pine-h64-model-b
     test_plans:
