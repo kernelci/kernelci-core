@@ -210,13 +210,16 @@ class cmd_generate(Command):
             'type': args.callback_type or 'kernelci',
             'url': args.callback_url,
         }
+        db_config = (
+            configs['db_configs'][args.db_config] if args.db_config else None
+        )
         if args.output and not os.path.exists(args.output):
             os.makedirs(args.output)
         for device_config, plan_config in jobs_list:
             params = kernelci.test.get_params(
                 meta, device_config, plan_config, args.storage)
             job = lab_api.generate(params, device_config, plan_config,
-                                   callback_opts)
+                                   callback_opts, db_config=db_config)
             if job is None:
                 print("Failed to generate the job definition")
                 return False
