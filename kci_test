@@ -93,16 +93,20 @@ class cmd_list_jobs(Command):
         if meta.get('bmeta', 'build', 'status') != "PASS":
             return True
 
-        lab = configs['labs'][args.lab_config]
-        api = kernelci.lab.get_api(
-            lab, args.user, args.lab_token, args.lab_json)
+        lab_config = configs['labs'][args.lab_config]
+        lab_api = kernelci.lab.get_api(
+            lab_config, args.user, args.lab_token, args.lab_json)
 
         configs = kernelci.test.match_configs(
-            configs['test_configs'], meta, lab)
+            configs['test_configs'], meta, lab_config)
+        jobs = list()
         for device_type, plan in configs:
-            if not api.device_type_online(device_type):
+            if not lab_api.device_type_online(device_type):
                 continue
-            print(' '.join([device_type.name, plan.name]))
+            jobs.append((device_type.name, plan.name))
+
+        for job in sorted(jobs):
+            print(' '.join(job))
 
         return True
 
