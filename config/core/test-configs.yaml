@@ -14,6 +14,11 @@ file_system_types:
       x86:     [{arch: i386}, {arch: x86_64}]
       mipsel:  [{arch: mips}]
 
+  chrome-os:
+    url: 'to be defined'
+    arch_map:
+      amd64: [{arch: x86_64}]
+
   cip:
     url: 'https://storage.kernelci.org/images/rootfs/cip/20211105'
     arch_map:
@@ -41,6 +46,12 @@ file_systems:
     ramdisk: 'qemu-{arch}/cip-core-image-kernelci-cip-core-buster-qemu-{arch}-initrd.img.gz'
     nfs: 'qemu-{arch}/cip-core-image-kernelci-cip-core-buster-qemu-{arch}.tar.gz'
     root_type: nfs
+
+  chrome_version:
+    type: chrome-os
+    ramdisk: 'to be defined'
+    emmc: 'to be defined'
+    root_type: emmc
 
   debian_bullseye_ramdisk:
     type: debian
@@ -356,6 +367,12 @@ test_plans:
 
   smc:
     rootfs: buildroot_baseline_ramdisk
+
+  tast:
+    rootfs: chrome_version
+    pattern: 'chromeos/{category}-{method}-{protocol}-{rootfs}-chromeos-template.jinja2'
+    filters:
+      - passlist: {defconfig: ['x86_64_defconfig+x86-chromebook']}
 
   usb:
     rootfs: debian_bullseye_ramdisk
@@ -1988,6 +2005,7 @@ test_configs:
       - ltp-mm
       - sleep_mem
       - smc
+      - tast
 
   - device_type: hsdk
     test_plans:

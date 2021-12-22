@@ -1,0 +1,35 @@
+- test:
+    timeout:
+      minutes: 45
+    docker:
+      image: kernelci/chromeos-tast
+      volumes:
+        - /tmp/octupos:/home/cros-tast/octupos
+      wait:
+        device: true
+    results:
+      location: /home/cros-tast/lava
+    definitions:
+      repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: docker-ping
+          description: "chromeos-flash"
+        run:
+          steps:
+            - uname -a
+            - pwd
+            - ls -l
+            - ls -l /home/cros-tast
+#             - 'cd /home/cros-tast; curl -s http://172.17.0.1/chromeos/autotest_server_package_octopus_R92_13981.0.0.tar.bz2 | tar xjf -'
+#             - 'chown -R cros-tast: /home/cros-tast'
+            - ls -l /home/cros-tast
+            - ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i /home/cros-tast/.ssh/id_rsa root@$(lava-target-ip) whoami
+#             - 'cd /home/cros-tast/tast; ./tast list -build=false root@$(lava-target-ip)'
+#             - while true; do date; sleep 15; done
+      from: inline
+      name: docker-ping-inline
+      path: inline/docker-ping.yaml
+
+    - repository: tast tarball?
+      name: {{ specific_tast_test }}

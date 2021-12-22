@@ -1,0 +1,8 @@
+{% extends 'boot/generic-emmc-tftp-chromebook-boot-template.jinja2' %}
+
+{% block actions %}
+{{ super () }}
+
+{% include 'chromeos/chromeos.jinja2' %}
+
+{% endblock %}

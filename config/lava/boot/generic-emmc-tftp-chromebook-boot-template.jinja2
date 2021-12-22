@@ -1,0 +1,20 @@
+{% extends 'base/kernel-ci-base-tftp-deploy.jinja2' %}
+
+tags: ['cbg-0']
+
+{% block actions %}
+{%- block deploy %}
+{{ super () }}
+{%- endblock %}
+{% block kernel_image_type %}
+{%- endblock %}
+
+- boot:
+    timeout:
+      minutes: 30
+    method: depthcharge
+    commands: emmc
+    prompts:
+      - 'sof-audio-pci'
+
+{% endblock %}
