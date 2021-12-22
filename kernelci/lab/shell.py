@@ -7,7 +7,8 @@ from kernelci.lab import LabAPI
 class Shell(LabAPI):
 
     def generate(self, params, device_config, plan_config,
-                 callback_opts=None, templates_path='config/scripts'):
+                 callback_opts=None, templates_path='config/scripts',
+                 db_config=None):
         jinja2_env = Environment(loader=FileSystemLoader(
             templates_path or self.TEMPLATES_PATH
         ))
