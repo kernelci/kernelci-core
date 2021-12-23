@@ -60,6 +60,12 @@ file_systems:
     type: debian
     ramdisk: 'bullseye-igt/20211210.0/{arch}/rootfs.cpio.gz'
 
+  debian_bullseye-libcamera_nfs:
+    type: debian
+    ramdisk: 'bullseye-libcamera/20211223.0/{arch}/initrd.cpio.gz'
+    nfs: 'bullseye-libcamera/20211223.0/{arch}/full.rootfs.tar.xz'
+    root_type: nfs
+
   debian_bullseye-rt_ramdisk:
     type: debian
     ramdisk: 'bullseye-rt/20211216.0/{arch}/rootfs.cpio.gz'
@@ -75,12 +81,6 @@ file_systems:
   debian_buster-v4l2_ramdisk:
     type: debian
     ramdisk: 'buster-v4l2/20211210.0/{arch}/rootfs.cpio.gz'
-
-  debian_buster-libcamera_nfs:
-    type: debian
-    ramdisk: 'buster-libcamera/20211112.0/{arch}/initrd.cpio.gz'
-    nfs: 'buster-libcamera/20211112.0/{arch}/full.rootfs.tar.xz'
-    root_type: nfs
 
   debian_buster-ltp_nfs:
     type: debian
@@ -269,7 +269,7 @@ test_plans:
       kselftest_collections: "seccomp"
 
   lc-compliance:
-    rootfs: debian_buster-libcamera_nfs
+    rootfs: debian_bullseye-libcamera_nfs
     pattern: 'lc-compliance/{category}-{method}-{protocol}-{rootfs}-lc-compliance-template.jinja2'
     params:
       job_timeout: '45'
