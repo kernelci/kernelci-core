@@ -322,6 +322,12 @@ build_environments:
     arch_params:
       <<: *clang_12_arch_params
 
+  clang-14:
+    cc: clang
+    cc_version: 14
+    arch_params:
+      <<: *clang_12_arch_params
+
 # Default config with full build coverage
 build_configs_defaults:
   variants:
@@ -707,8 +713,8 @@ build_configs:
         architectures: *arch_clang_configs
 
       # Latest clang release
-      clang-13:
-        build_environment: clang-13
+      clang-14:
+        build_environment: clang-14
         architectures:
           <<: *arch_clang_configs
           riscv:
