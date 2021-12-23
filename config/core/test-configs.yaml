@@ -66,6 +66,12 @@ file_systems:
     nfs: 'bullseye-libcamera/20211223.0/{arch}/full.rootfs.tar.xz'
     root_type: nfs
 
+  debian_bullseye-ltp_nfs:
+    type: debian
+    ramdisk: 'bullseye-ltp/20211221.0/{arch}/initrd.cpio.gz'
+    nfs: 'bullseye-ltp/20211221.0/{arch}/full.rootfs.tar.xz'
+    root_type: nfs
+
   debian_bullseye-rt_ramdisk:
     type: debian
     ramdisk: 'bullseye-rt/20211216.0/{arch}/rootfs.cpio.gz'
@@ -82,11 +88,6 @@ file_systems:
     type: debian
     ramdisk: 'buster-v4l2/20211210.0/{arch}/rootfs.cpio.gz'
 
-  debian_buster-ltp_nfs:
-    type: debian
-    ramdisk: 'buster-ltp/20211210.0/{arch}/initrd.cpio.gz'
-    nfs: 'buster-ltp/20211210.0/{arch}/full.rootfs.tar.xz'
-    root_type: nfs
 
 
 test_plan_default_filters:
@@ -275,7 +276,7 @@ test_plans:
       job_timeout: '45'
 
   ltp: &ltp
-    rootfs: debian_buster-ltp_nfs
+    rootfs: debian_bullseye-ltp_nfs
     pattern: 'ltp/{category}-{method}-{protocol}-{rootfs}-ltp-template.jinja2'
     filters:
       - blocklist: *kselftest_defconfig_filter
