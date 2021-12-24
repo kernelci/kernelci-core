@@ -140,6 +140,7 @@ fragments:
     path: "kernel/configs/arm64-chromebook.config"
     configs:
       - 'CONFIG_REGULATOR_DA9211=y'
+      - 'CONFIG_ARM_MEDIATEK_CPUFREQ=y'
 
   crypto:
     path: "kernel/configs/crypto.config"
