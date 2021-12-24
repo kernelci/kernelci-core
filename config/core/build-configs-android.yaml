@@ -41,6 +41,27 @@ android_variants: &android_variants
             - 'allmodconfig'
             - 'allnoconfig'
 
+clang_android_variants: &clang_android_variants
+  clang-14:
+    build_environment: clang-14
+    architectures:
+        arm: *arm_arch
+        arm64:
+          <<: *arm64_arch
+          extra_configs:
+            - 'allmodconfig'
+            - 'allnoconfig'
+            - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
+            - 'defconfig+CONFIG_RANDOMIZE_BASE=y'
+            - 'gki_config'
+        i386: *i386_arch
+        riscv: *riscv_arch
+        x86_64:
+          <<: *x86_64_arch
+          extra_configs:
+            - 'allmodconfig'
+            - 'allnoconfig'
+            - 'gki_config'
 
 build_configs:
 
@@ -142,19 +163,27 @@ build_configs:
   android12-5.10:
     tree: android
     branch: 'android12-5.10'
-    variants: *android_variants
+    variants:
+      <<: *android_variants
+      <<: *clang_android_variants
 
   android12-5.10-lts:
     tree: android
     branch: 'android12-5.10-lts'
-    variants: *android_variants
+    variants:
+      <<: *android_variants
+      <<: *clang_android_variants
 
   android13-5.10:
     tree: android
     branch: 'android13-5.10'
-    variants: *android_variants
+    variants:
+      <<: *android_variants
+      <<: *clang_android_variants
 
   android13-5.15:
     tree: android
     branch: 'android13-5.15'
-    variants: *android_variants
+    variants:
+      <<: *android_variants
+      <<: *clang_android_variants
