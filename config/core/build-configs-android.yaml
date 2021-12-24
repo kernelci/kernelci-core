@@ -41,6 +41,25 @@ android_variants: &android_variants
             - 'allmodconfig'
             - 'allnoconfig'
 
+  clang-14:
+    build_environment: clang-14
+    architectures:
+        arm: *arm_arch
+        arm64:
+          extra_configs:
+            - 'allmodconfig'
+            - 'allnoconfig'
+            - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
+            - 'defconfig+CONFIG_RANDOMIZE_BASE=y'
+            - 'gki_config'
+        i386: *i386_arch
+        riscv: *riscv_arch
+        x86_64:
+          base_defconfig: 'x86_64_defconfig'
+          extra_configs:
+            - 'allmodconfig'
+            - 'allnoconfig'
+            - 'gki_config'
 
 build_configs:
 
