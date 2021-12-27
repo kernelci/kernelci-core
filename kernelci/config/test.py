@@ -316,13 +316,16 @@ class RootFS(YAMLObject):
         })
         return attrs
 
+    def get_url_format(self, fs_type):
+        return self._url_format.get(fs_type)
+
     def get_url(self, fs_type, arch, endian):
         """Get the URL of the file system for the given variant and arch.
 
         The *fs_type* should match one of the URL patterns known to this root
         file system.
         """
-        fmt = self._url_format.get(fs_type)
+        fmt = self.get_url_format(fs_type)
         if not fmt:
             return None
         arch_name = self._fs_type.get_arch_name(arch, endian)
