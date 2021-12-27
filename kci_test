@@ -21,6 +21,7 @@ import argparse
 import glob
 import json
 import os
+import requests
 import sys
 
 from kernelci.cli import Args, Command, parse_opts
@@ -81,15 +82,30 @@ class cmd_validate_rootfs_urls(Command):
         rootfs_configs = config_data['rootfs_configs']
         for fs, fs_config in file_systems_config.items():
             fs_parts = fs.split('_')
-            print(fs_parts)
             if fs_parts[0] == 'debian':
                 fs_name = fs_parts[1]
+                root_type = fs_parts[2]
             elif fs_parts[0].startswith('buildroot'):
                 fs_name = fs_parts[0]
+                root_type = fs_parts[1]
             else:
                 continue
-            fs_config = rootfs_configs.get(fs_name)
-            print(fs_config)
+            rootfs_config = rootfs_configs.get(fs_name)
+            url_formats = list(
+                url_fmt for url_fmt in (
+                    fs_config.get_url_format(fmt_type)
+                    for fmt_type in set({root_type}).union({'nfs', 'ramdisk'})
+                ) if url_fmt
+            )
+            if args.verbose:
+                print(fs)
+            for arch in rootfs_config.arch_list:
+                for url_format in url_formats:
+                    url = url_format.format(arch=arch)
+                    resp = requests.head(url)
+                    if args.verbose:
+                        print(f"  {resp.status_code} {url}")
+                    resp.raise_for_status()
         return True
 
 
