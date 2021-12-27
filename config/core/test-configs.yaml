@@ -76,7 +76,7 @@ file_systems:
     type: debian
     ramdisk: 'bullseye-rt/20211216.0/{arch}/rootfs.cpio.gz'
 
-  debian_buster_kselftest:
+  debian_buster-kselftest_nfs:
     type: debian
     ramdisk: 'buster-kselftest/20211224.2/{arch}/initrd.cpio.gz'
     nfs: 'buster-kselftest/20211224.2/{arch}/full.rootfs.tar.xz'
@@ -240,7 +240,7 @@ test_plans:
       drm_driver: "tegra"
 
   kselftest: &kselftest
-    rootfs: debian_buster_kselftest
+    rootfs: debian_buster-kselftest_nfs
     pattern: 'kselftest/{category}-{method}-{protocol}-{rootfs}-kselftest-template.jinja2'
     filters:
       - passlist: {defconfig: ['kselftest']}

@@ -72,6 +72,27 @@ class cmd_validate(Command):
         return True
 
 
+class cmd_validate_rootfs_urls(Command):
+    help = "Check that all the rootfs URLs are valid"
+    opt_args = [Args.verbose]
+
+    def __call__(self, config_data, args, **kwargs):
+        file_systems_config = config_data['file_systems']
+        rootfs_configs = config_data['rootfs_configs']
+        for fs, fs_config in file_systems_config.items():
+            fs_parts = fs.split('_')
+            print(fs_parts)
+            if fs_parts[0] == 'debian':
+                fs_name = fs_parts[1]
+            elif fs_parts[0].startswith('buildroot'):
+                fs_name = fs_parts[0]
+            else:
+                continue
+            fs_config = rootfs_configs.get(fs_name)
+            print(fs_config)
+        return True
+
+
 class cmd_list_jobs(Command):
     help = "List all the jobs that need to be run for a given build and lab"
     args = [Args.lab_config]
