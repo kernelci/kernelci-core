@@ -32,7 +32,7 @@ file_system_types:
 
 file_systems:
 
-  buildroot_baseline_ramdisk:
+  buildroot-baseline_ramdisk:
     type: buildroot
     ramdisk: 'buildroot-baseline/20211210.0/{arch}/rootfs.cpio.gz'
 
@@ -120,7 +120,7 @@ default_filters:
 test_plans:
 
   baseline:
-    rootfs: buildroot_baseline_ramdisk
+    rootfs: buildroot-baseline_ramdisk
     filters:
       - blocklist: *kselftest_defconfig_filter
 
@@ -131,7 +131,7 @@ test_plans:
       - blocklist: *kselftest_defconfig_filter
 
   baseline-fastboot:
-    rootfs: buildroot_baseline_ramdisk
+    rootfs: buildroot-baseline_ramdisk
     pattern: 'baseline/generic-fastboot-baseline-template.jinja2'
     params:
       job_timeout: '50'
@@ -144,13 +144,13 @@ test_plans:
 
   baseline_qemu:
     base_name: baseline
-    rootfs: buildroot_baseline_ramdisk
+    rootfs: buildroot-baseline_ramdisk
     pattern: 'baseline/generic-qemu-baseline-template.jinja2'
     filters:
       - blocklist: *kselftest_defconfig_filter
 
   baseline-qemu-docker:
-    rootfs: buildroot_baseline_ramdisk
+    rootfs: buildroot-baseline_ramdisk
     pattern: 'baseline/generic-qemu-baseline-docker-template.jinja2'
     filters:
       - blocklist: *kselftest_defconfig_filter
@@ -380,7 +380,7 @@ test_plans:
       sleep_params: mem
 
   smc:
-    rootfs: buildroot_baseline_ramdisk
+    rootfs: buildroot-baseline_ramdisk
 
   usb:
     rootfs: debian_bullseye_ramdisk
