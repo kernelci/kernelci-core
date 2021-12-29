@@ -1402,6 +1402,7 @@ device_types:
     mach: qcom
     class: arm64-dtb
     boot_method: depthcharge
+    filters: *arm64-chromebook-filters
 
   snow:
     mach: exynos
