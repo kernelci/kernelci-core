@@ -1751,6 +1751,10 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
+      - kselftest-livepatch
       - kselftest-lkdtm
       - kselftest-seccomp
       - ltp-fcntl-locktests
@@ -1763,6 +1767,10 @@ test_configs:
       - baseline-nfs
       - kselftest-filesystems
       - kselftest-futex
+      - kselftest-lib
+      - kselftest-livepatch
+      - kselftest-lkdtm
+      - kselftest-seccomp
       - ltp-ipc
       - ltp-mm
       - ltp-timers
@@ -1776,6 +1784,7 @@ test_configs:
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
+      - kselftest-livepatch
       - kselftest-lkdtm
       - kselftest-seccomp
       - ltp-crypto
@@ -1800,10 +1809,22 @@ test_configs:
   - device_type: bcm2711-rpi-4-b
     test_plans:
       - baseline
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
+      - kselftest-livepatch
+      - kselftest-lkdtm
+      - kselftest-seccomp
 
   - device_type: bcm2836-rpi-2-b
     test_plans:
-      - baseline
+      - baseline      
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
+      - kselftest-livepatch
+      - kselftest-lkdtm
+      - kselftest-seccomp
       - ltp-crypto
       - sleep
       - usb
@@ -1826,6 +1847,12 @@ test_configs:
       - baseline
       - baseline-cip-nfs
       - baseline-nfs
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
+      - kselftest-livepatch
+      - kselftest-lkdtm
+      - kselftest-seccomp
       - ltp-ipc
 
   - device_type: cubietruck
@@ -1896,7 +1923,12 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - kselftest-filesystems
       - kselftest-futex
+      - kselftest-lib
+      - kselftest-livepatch
+      - kselftest-lkdtm
+      - kselftest-seccomp
 
   - device_type: hp-11A-G6-EE-grunt
     test_plans:
@@ -1988,6 +2020,12 @@ test_configs:
   - device_type: imx6q-sabrelite
     test_plans:
       - baseline
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
+      - kselftest-livepatch
+      - kselftest-lkdtm
+      - kselftest-seccomp
 
   - device_type: imx6q-sabrelite
     test_plans:
@@ -2062,6 +2100,12 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
+      - kselftest-livepatch
+      - kselftest-lkdtm
+      - kselftest-seccomp
 
   - device_type: kirkwood-db-88f6282
     test_plans:
@@ -2109,6 +2153,12 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
+      - kselftest-livepatch
+      - kselftest-lkdtm
+      - kselftest-seccomp
 
   - device_type: meson-g12b-odroid-n2
     test_plans:
@@ -2179,6 +2229,12 @@ test_configs:
   - device_type: minnowboard-turbot-E3826
     test_plans:
       - baseline
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
+      - kselftest-livepatch
+      - kselftest-lkdtm
+      - kselftest-seccomp
 
   - device_type: mt8173-elm-hana
     test_plans:
@@ -2190,6 +2246,7 @@ test_configs:
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
+      - kselftest-livepatch
       - kselftest-lkdtm
       - kselftest-rtc
       - kselftest-seccomp
@@ -2208,6 +2265,12 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
+      - kselftest-livepatch
+      - kselftest-lkdtm
+      - kselftest-seccomp
 
   - device_type: mustang
     test_plans:
@@ -2217,12 +2280,24 @@ test_configs:
   - device_type: odroid-x2
     test_plans:
       - baseline
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
+      - kselftest-livepatch
+      - kselftest-lkdtm
+      - kselftest-seccomp
 
   - device_type: odroid-xu3
     test_plans:
       - baseline
       - baseline-nfs
       - igt-kms-exynos
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
+      - kselftest-livepatch
+      - kselftest-lkdtm
+      - kselftest-seccomp
       - sleep
       - usb
 
@@ -2239,6 +2314,12 @@ test_configs:
   - device_type: panda
     test_plans:
       - baseline
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
+      - kselftest-livepatch
+      - kselftest-lkdtm
+      - kselftest-seccomp
 
   - device_type: panda-es
     test_plans:
@@ -2248,6 +2329,12 @@ test_configs:
     test_plans:
       - baseline
       - cros-ec
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
+      - kselftest-livepatch
+      - kselftest-lkdtm
+      - kselftest-seccomp
       - sleep
       - usb
 
@@ -2378,6 +2465,12 @@ test_configs:
   - device_type: r8a7796-m3ulcb
     test_plans: &r8a7796-m3ulcb_test-plans
       - baseline
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
+      - kselftest-livepatch
+      - kselftest-lkdtm
+      - kselftest-seccomp
 
   - device_type: r8a77960-ulcb  # same as r8a7796-m3ulcb
     test_plans: *r8a7796-m3ulcb_test-plans
@@ -2386,6 +2479,12 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
+      - kselftest-livepatch
+      - kselftest-lkdtm
+      - kselftest-seccomp
       - ltp-mm
       - sleep
       - usb
@@ -2397,7 +2496,12 @@ test_configs:
       - cros-ec
       - igt-gpu-panfrost
       - igt-kms-rockchip
+      - kselftest-filesystems
+      - kselftest-futex
       - kselftest-lib
+      - kselftest-livepatch
+      - kselftest-lkdtm
+      - kselftest-seccomp
       - ltp-timers
       - sleep
       - usb
@@ -2411,6 +2515,12 @@ test_configs:
       - baseline
       - baseline-nfs
       - cros-ec
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
+      - kselftest-livepatch
+      - kselftest-lkdtm
+      - kselftest-seccomp
       - ltp-fcntl-locktests
       - ltp-pty
       - ltp-timers
@@ -2433,6 +2543,12 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
+      - kselftest-livepatch
+      - kselftest-lkdtm
+      - kselftest-seccomp
 
   - device_type: socfpga-cyclone5-socrates
     test_plans:
@@ -2478,16 +2594,20 @@ test_configs:
       - baseline
 
   - device_type: sun50i-h6-pine-h64
-    test_plans:
+    test_plans: &sun50i-h6-pine-h64_test_plan
       - baseline
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
+      - kselftest-livepatch
+      - kselftest-lkdtm
+      - kselftest-seccomp
 
   - device_type: sun50i-h6-pine-h64-model-b
-    test_plans:
-      - baseline
+    test_plans: *sun50i-h6-pine-h64_test_plan
 
   - device_type: sun50i-h6-pine-h64-model-b_5.4
-    test_plans:
-      - baseline
+    test_plans: *sun50i-h6-pine-h64_test_plan
 
   - device_type: sun5i-a13-olinuxino-micro
     test_plans:
@@ -2571,6 +2691,12 @@ test_configs:
       - baseline
       - cros-ec
       - igt-kms-tegra
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
+      - kselftest-livepatch
+      - kselftest-lkdtm
+      - kselftest-seccomp
       - sleep
       - usb
 
