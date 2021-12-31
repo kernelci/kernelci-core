@@ -145,6 +145,26 @@ rootfs_configs:
       - python
     script: "scripts/bullseye-rt.sh"
 
+  bullseye-v4l2:
+    rootfs_type: debos
+    debian_release: buster
+    arch_list:
+      - amd64
+      - arm64
+      - armhf
+    extra_packages:
+      - libasound2
+      - libelf1
+      - libjpeg62-turbo
+      - libudev1
+    extra_packages_remove:
+      - bash
+      - e2fslibs
+      - e2fsprogs
+    script: "scripts/bullseye-v4l2.sh"
+    test_overlay: "overlays/v4l2"
+
+
   buster-cros-ec:
     rootfs_type: debos
     debian_release: buster
