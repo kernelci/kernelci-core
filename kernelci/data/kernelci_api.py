@@ -50,6 +50,12 @@ class KernelCI_API(Database):
         resp.raise_for_status()
         return resp
 
+    def _put(self, path, data=None):
+        url = self._make_url(path)
+        resp = requests.put(url, headers=self._headers, data=data)
+        resp.raise_for_status()
+        return resp
+
     def subscribe(self, channel):
         resp = self._post(f'subscribe/{channel}')
         return json.loads(resp.text)['id']
