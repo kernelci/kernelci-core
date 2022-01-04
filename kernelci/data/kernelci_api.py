@@ -79,7 +79,10 @@ class KernelCI_API(Database):
         obj_list = []
         for path, item in data.items():
             try:
-                resp = self._post(path, json.dumps(item))
+                if 'id' in item.keys():
+                    resp = self._put(path, json.dumps(item))
+                else:
+                    resp = self._post(path, json.dumps(item))
             except requests.exceptions.HTTPError as ex:
                 self._print_http_error(ex, verbose)
                 raise(ex)
