@@ -19,6 +19,10 @@
 
 import re
 import subprocess
+import urllib.parse
+import xml.dom.minidom
+
+import requests
 
 from kernelci import shell_cmd
 
@@ -26,6 +30,11 @@ RE_ADDR = r'.*@.*\.[a-z]+'
 RE_TRAILER = re.compile(r'^(?P<tag>[A-Z][a-z-]*)\: (?P<value>.*)$')
 RE_EMAIL = re.compile(r'^(?P<name>.*)(?P<email><{}>)'.format(RE_ADDR))
 RE_MAILING_LIST = re.compile(r'^(?P<email>{}) \('.format(RE_ADDR))
+RE_SUBJECT = re.compile(
+    r'^\[PATCH[\ ]?(?P<prefix>[^\d^\ ]*)?[\ ]?'
+    r'(v(?P<pver>\d+))?[\ ]?(?P<pnum>\d+\/\d+)?]'
+    r'\ (?P<title>.*)$'
+)
 
 
 def _git_show_fmt(kdir, revision, fmt):
@@ -120,3 +129,67 @@ def get_recipients(kdir, commit, to=set(), cc=set()):
     cc = cc.difference(to)
 
     return {'to': list(to), 'cc': list(cc)}
+
+
+def _lore_atom_query(subject):
+    query = urllib.parse.urlencode({'x': 'A', 'q': subject})
+    url = 'https://lore.kernel.org/lkml/?' + query
+    resp = requests.get(url)
+    resp.raise_for_status()
+    return xml.dom.minidom.parseString(resp.text)
+
+
+def _lore_get_entries(dom):
+    entries = dict()
+    feed = dom.childNodes[0]
+    for feed_node in feed.childNodes:
+        if feed_node.tagName == 'entry':
+            entry = feed_node
+            title = None
+            url = None
+            for entry_node in entry.childNodes:
+                if entry_node.tagName == 'title':
+                    title = entry_node.firstChild.nodeValue
+                elif entry_node.tagName == 'link':
+                    url = entry_node.getAttribute('href')
+            if title and url:
+                entries[title] = url
+    return entries
+
+
+def _lore_url_match(entries, subject):
+    matches = dict()
+    for title, url in entries.items():
+        match = RE_SUBJECT.match(title)
+        if match is None:
+            continue
+        groups = match.groupdict()
+        if not groups['title'].startswith(subject):
+            continue
+        matches[int(groups['pver'] or 0)] = url
+    urls = list(matches[x] for x in sorted(matches.keys()))
+    if not urls:
+        return None
+    return urls[-1]
+
+
+def _lore_mbox(url):
+    split = list(urllib.parse.urlsplit(url))
+    split[0] = 'https'
+    split[2] = urllib.parse.urljoin(split[2], 'raw')
+    mbox_url = urllib.parse.urlunsplit(split)
+    resp = requests.get(mbox_url)
+    resp.raise_for_status()
+    return resp.text
+
+
+def get_mbox(kdir, commit):
+    subject = _git_show_fmt(kdir, commit, '%s')
+    dom = _lore_atom_query(subject)
+    entries = _lore_get_entries(dom)
+    if not entries:
+        return None
+    lore_url = _lore_url_match(entries, subject)
+    if not lore_url:
+        return None
+    return _lore_mbox(lore_url)
