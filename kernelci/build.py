@@ -1121,7 +1121,7 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
         bmeta = self._meta.get('bmeta')
         rev, env = (bmeta[cat] for cat in ('revision', 'environment'))
         publish_path = '/'.join((
-            re.sub(r'[\/:]', '-', item).lower() for item in [
+            re.sub(r'[\/:]', '-', item) for item in [
                 rev['tree'],
                 rev['branch'],
                 rev['describe'],
