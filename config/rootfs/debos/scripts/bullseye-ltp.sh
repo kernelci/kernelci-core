@@ -38,8 +38,13 @@ LTP_SHA=$(git ls-remote ${LTP_URL} | head -n 1 | cut -f 1)
 echo '    {"name": "ltp-tests", "git_url": "'$LTP_URL'", "git_commit": "'$LTP_SHA'" }' >> $BUILDFILE
 echo '  ]}' >> $BUILDFILE
 
-git clone --depth=1 -b 20200515 ${LTP_URL}
-cd ltp && make autotools 
+git clone -b master ${LTP_URL}
+cd ltp
+
+# Temporary revert due https://github.com/kernelci/kernelci-core/issues/948
+git revert -n 02b2899046240d98d0e3293d95119cf621ef0ca6
+
+make autotools
 ./configure
 make all
 find . -executable -type f -exec strip {} \;
