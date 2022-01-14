@@ -44,9 +44,16 @@ class cmd_get_recipients(Command):
 class cmd_get_mbox(Command):
     help = "Get an mbox email for a given commit"
     args = [Args.kdir, Args.commit]
+    opt_args = [
+        {
+            'name': '--base-url',
+            'default': 'https://lore.kernel.org/all/?',
+            'help': "Skip git pull",
+        },
+    ]
 
     def __call__(self, configs, args):
-        mbox = kernelci.bisect.get_mbox(args.kdir, args.commit)
+        mbox = kernelci.bisect.get_mbox(args.kdir, args.commit, args.base_url)
         if not mbox:
             return False
         print(mbox)

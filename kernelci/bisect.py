@@ -131,9 +131,9 @@ def get_recipients(kdir, commit, to=set(), cc=set()):
     return {'to': list(to), 'cc': list(cc)}
 
 
-def _lore_atom_query(subject):
+def _lore_atom_query(subject, base_url):
     query = urllib.parse.urlencode({'x': 'A', 'q': subject})
-    url = 'https://lore.kernel.org/lkml/?' + query
+    url = base_url + query
     resp = requests.get(url)
     resp.raise_for_status()
     return xml.dom.minidom.parseString(resp.text)
@@ -183,9 +183,9 @@ def _lore_mbox(url):
     return resp.text
 
 
-def get_mbox(kdir, commit):
+def get_mbox(kdir, commit, base_url):
     subject = _git_show_fmt(kdir, commit, '%s')
-    dom = _lore_atom_query(subject)
+    dom = _lore_atom_query(subject, base_url)
     entries = _lore_get_entries(dom)
     if not entries:
         return None
