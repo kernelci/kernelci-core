@@ -1763,6 +1763,7 @@ test_configs:
       - baseline-nfs
       - kselftest-filesystems
       - kselftest-futex
+      - kselftest-rtc
       - ltp-ipc
       - ltp-mm
       - ltp-timers
