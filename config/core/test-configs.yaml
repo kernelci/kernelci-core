@@ -1910,6 +1910,7 @@ test_configs:
       - kselftest-lib
       - kselftest-livepatch
       - kselftest-lkdtm
+      - kselftest-rtc
       - kselftest-seccomp
       - ltp-crypto
       - ltp-fcntl-locktests
