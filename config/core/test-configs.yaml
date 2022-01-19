@@ -1402,7 +1402,7 @@ device_types:
     mach: qcom
     class: arm64-dtb
     boot_method: depthcharge
-    dtb: 'sc7180-trogdor-lazor-limozeen-nots-r5.dtb'
+    dtb: 'qcom/sc7180-trogdor-lazor-limozeen-nots-r5.dtb'
     filters: *arm64-chromebook-filters
 
   snow:
