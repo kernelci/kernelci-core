@@ -7,7 +7,7 @@ trees:
 android_variants: &android_variants
   gcc-10:
     build_environment: gcc-10
-    architectures:
+    architectures: &architectures
         arm: &arm_arch
           base_defconfig: 'multi_v7_defconfig'
           extra_configs:
@@ -44,24 +44,7 @@ android_variants: &android_variants
 clang_android_variants: &clang_android_variants
   clang-14:
     build_environment: clang-14
-    architectures:
-        arm: *arm_arch
-        arm64:
-          <<: *arm64_arch
-          extra_configs:
-            - 'allmodconfig'
-            - 'allnoconfig'
-            - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
-            - 'defconfig+CONFIG_RANDOMIZE_BASE=y'
-            - 'gki_config'
-        i386: *i386_arch
-        riscv: *riscv_arch
-        x86_64:
-          <<: *x86_64_arch
-          extra_configs:
-            - 'allmodconfig'
-            - 'allnoconfig'
-            - 'gki_config'
+    architectures: *architectures
 
 build_configs:
 
