@@ -138,27 +138,37 @@ build_configs:
   android_mainline:
     tree: android
     branch: 'android-mainline'
-    variants: *android_variants
+    variants:
+      <<: *android_variants
+      <<: *clang_android_variants
 
   android_mainline_tracking:
     tree: android
     branch: 'android-mainline-tracking'
-    variants: *android_variants
+    variants:
+      <<: *android_variants
+      <<: *clang_android_variants
 
   android11-5.4:
     tree: android
     branch: 'android11-5.4'
-    variants: *android_variants
+    variants:
+      <<: *android_variants
+      <<: *clang_android_variants
 
   android12-5.4:
     tree: android
     branch: 'android12-5.4'
-    variants: *android_variants
+    variants:
+      <<: *android_variants
+      <<: *clang_android_variants
 
   android12-5.4-lts:
     tree: android
     branch: 'android12-5.4-lts'
-    variants: *android_variants
+    variants:
+      <<: *android_variants
+      <<: *clang_android_variants
 
   android12-5.10:
     tree: android
