@@ -1399,8 +1399,8 @@ device_types:
       - blocklist: {kernel: ['v3.', 'v4.4', 'v4.9']}
 
   sc7180-trogdor-lazor-limozeen:
-    mach: qcom-dtb
-    class: arm64
+    mach: qcom
+    class: arm64-dtb
     boot_method: depthcharge
     dtb: 'sc7180-trogdor-lazor-limozeen-nots-r5.dtb'
     filters: *arm64-chromebook-filters
