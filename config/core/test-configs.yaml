@@ -1414,6 +1414,11 @@ device_types:
       - blocklist: *device_config_filter
       - blocklist: {kernel: ['v3.', 'v4.4', 'v4.9']}
 
+  rk3399-rock-pi-4b:
+    mach: rockchip
+    class: arm64-dtb
+    boot_method: uboot
+
   sc7180-trogdor-lazor-limozeen:
     mach: qcom
     class: arm64-dtb
@@ -2450,6 +2455,11 @@ test_configs:
   - device_type: rk3399-puma-haikou
     test_plans:
       - baseline
+
+  - device_type: rk3399-rock-pi-4b
+    test_plans:
+      - baseline
+      - baseline-nfs
 
   - device_type: sc7180-trogdor-lazor-limozeen
     test_plans:
