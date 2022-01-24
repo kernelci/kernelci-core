@@ -160,7 +160,7 @@ actions:
 
   - action: run
     chroot: true
-    script: scripts/strip.sh
+    script: scripts/strip.sh "{{ $extra_packages }}"
 
 {{ if $extra_packages_remove }}
   - action: run

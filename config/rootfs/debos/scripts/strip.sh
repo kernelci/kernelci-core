@@ -9,13 +9,26 @@ set -e
 rm -rf /etc/localtime
 cp /usr/share/zoneinfo/Etc/UTC /etc/localtime
 
+EXTRA_PACKAGES=$(echo "${1}" | xargs -n1)
+EXTRA_TEMP_FILE=`mktemp strip_extra_packages.XXXXXX`
+exec 3>"$EXTRA_TEMP_FILE"
+echo "$EXTRA_PACKAGES" | sort | uniq >&3
 
-UNNEEDED_PACKAGES=" libfdisk1"
+UNNEEDED_PACKAGES=" libfdisk1 \
+tzdata"
+UNNEEDED_TEMP_FILE=$(mktemp strip_unneeded_packages.XXXXXX)
+exec 4>"$UNNEEDED_TEMP_FILE"
+echo "$UNNEEDED_PACKAGES" | xargs -n1 | sort | uniq >&4
+
+PACKAGES_TO_REMOVE=$(comm  -23  "$UNNEEDED_TEMP_FILE" "$EXTRA_TEMP_FILE")
 
 export DEBIAN_FRONTEND=noninteractive
 
+exec 3>&-
+exec 4>&-
+
 # Removing unused packages
-for PACKAGE in ${UNNEEDED_PACKAGES}
+for PACKAGE in ${PACKAGES_TO_REMOVE}
 do
 	echo ${PACKAGE}
 	if ! apt-get remove --purge --yes "${PACKAGE}"
