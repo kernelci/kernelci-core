@@ -16,7 +16,7 @@ The main instance of KernelCI is available on
 
 There is also a separate instance used for KernelCI development available on
 [staging.kernelci.org](https://staging.kernelci.org), see [Development
-workflow](doc/staging.md) for all the details about it.
+workflow](https://kernelci.org/docs/instances/staging/) for all the details about it.
 
 This repository provides core functions to monitor upstream Linux kernel
 branches, build many kernel variants, run tests, run bisections and schedule
@@ -26,7 +26,7 @@ It is also possible to set up an independent instance to build any arbitrary
 kernel and run any arbitrary tests.
 
 You can find some more general information about the KernelCI project on the
-[wiki](https://github.com/kernelci/kernelci-doc/wiki/KernelCI).
+[website](https://kernelci.org/docs).
 
 
 ## User guide
@@ -84,18 +84,18 @@ this works.
 ## YAML Configuration files
 
 All the builds are configured in
-[`build-configs.yaml`](https://github.com/kernelci/kernelci-core/blob/master/build-configs.yaml),
+[`build-configs.yaml`](https://github.com/kernelci/kernelci-core/blob/main/config/core/build-configs.yaml),
 with the list of branches to monitor and which kernel variants to build for
 each of them.
 
 Then all the tests are configured in
-[`test-configs.yaml`](https://github.com/kernelci/kernelci-core/blob/master/test-configs.yaml)
+[`test-configs.yaml`](https://github.com/kernelci/kernelci-core/blob/main/config/core/test-configs.yaml)
 with the list of devices, test suites and which tests to run on which devices.
 
-Details for the format of these files can be found on the wiki pages for [build
-configurations](https://github.com/kernelci/kernelci-doc/wiki/Build-configurations)
+Details for the format of these files can be found on the documentation pages for [build
+configurations](https://kernelci.org/docs/core/config/build-configs/)
 and [test
-configurations](https://github.com/kernelci/kernelci-doc/wiki/Test-configurations).
+configurations](https://kernelci.org/docs/core/config/test-configs/).
 
 
 ## Python package on PyPI
@@ -121,5 +121,5 @@ repositories`](https://cloud.docker.com/u/kernelci/repository/list).
 The majority of [kernelci.org](https://kernelci.org) tests get run in
 [LAVA](https://lavasoftware.org/), although this is not a requirement.  Each
 LAVA test is generated using template files which can be found in the
-[`templates`](https://github.com/kernelci/kernelci-core/tree/master/templates)
+[`templates`](https://github.com/kernelci/kernelci-core/tree/main/config/lava)
 directory.
