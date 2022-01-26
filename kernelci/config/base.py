@@ -190,5 +190,5 @@ class FilterFactory(YAMLObject):
 def default_filters_from_yaml(data):
     return {
         entry_type: FilterFactory.from_yaml(filters_data)
-        for entry_type, filters_data in data.get('default_filters').items()
+        for entry_type, filters_data in data.get('default_filters', {}).items()
     }
