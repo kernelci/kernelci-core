@@ -74,7 +74,7 @@ file_systems:
 
   debian_bullseye-ltp_ramdisk:
     type: debian
-    ramdisk: 'bullseye-ltp/20211221.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'bullseye-ltp/20220121.0/{arch}/rootfs.cpio.gz'
 
   debian_bullseye-rt_ramdisk:
     type: debian
