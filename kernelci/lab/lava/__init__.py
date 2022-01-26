@@ -43,7 +43,7 @@ class LavaAPI(LabAPI):
         })
         if callback_opts:
             self._add_callback_params(params, callback_opts)
-        jinja2_env = Environment(loader=FileSystemLoader('config/lava'),
+        jinja2_env = Environment(loader=FileSystemLoader(templates_path),
                                  extensions=["jinja2.ext.do"])
         template = jinja2_env.get_template(short_template_file)
         data = template.render(params)
