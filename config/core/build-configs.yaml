@@ -655,6 +655,12 @@ build_configs:
             <<: *x86_64_defconfig
             fragments: [x86-chromebook]
             extra_configs: ['x86_64+defconfig+kselftest+x86-chromebook']
+      clang-14:
+        build_environment: clang-14
+        fragments: [kselftest]
+        architectures:
+          arm64: *arm64_defconfig
+          x86_64: *x86_64_defconfig
 
   lee_android_3.18:
     tree: lee
