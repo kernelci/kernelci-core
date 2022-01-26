@@ -9,9 +9,7 @@ class Shell(LabAPI):
     def generate(self, params, device_config, plan_config,
                  callback_opts=None, templates_path='config/scripts',
                  db_config=None):
-        jinja2_env = Environment(loader=FileSystemLoader(
-            templates_path or self.TEMPLATES_PATH
-        ))
+        jinja2_env = Environment(loader=FileSystemLoader(templates_path))
         template_path = plan_config.get_template_path(None)
         template = jinja2_env.get_template(template_path)
         if db_config:
