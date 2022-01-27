@@ -27,6 +27,9 @@ export DEBIAN_FRONTEND=noninteractive
 exec 3>&-
 exec 4>&-
 
+rm "$UNNEEDED_TEMP_FILE"
+rm "$EXTRA_TEMP_FILE"
+
 # Removing unused packages
 for PACKAGE in ${PACKAGES_TO_REMOVE}
 do
