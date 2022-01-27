@@ -1351,6 +1351,13 @@ device_types:
     <<: *qemu_x86_64
     params: *uefi_i386
 
+  r8a7745-iwg22d-sodimm:
+    mach: renesas
+    class: arm-dtb
+    boot_method: uboot
+    filters:
+      - passlist: {defconfig: ['defconfig']}
+
   r8a774a1-hihope-rzg2m-ex:
     mach: renesas
     class: arm64-dtb
@@ -2373,6 +2380,10 @@ test_configs:
   - device_type: qemu_x86_64-uefi-mixed
     test_plans:
       - baseline_qemu
+
+  - device_type: r8a7745-iwg22d-sodimm
+    test_plans:
+      - baseline
 
   - device_type: r8a774a1-hihope-rzg2m-ex
     test_plans:
