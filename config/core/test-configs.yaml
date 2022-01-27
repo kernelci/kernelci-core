@@ -52,9 +52,9 @@ file_systems:
     nfs: 'bullseye/20220121.0/{arch}/full.rootfs.tar.xz'
     root_type: nfs
 
-  debian_buster-cros-ec_ramdisk:
+  debian_bullseye-cros-ec_ramdisk:
     type: debian
-    ramdisk: 'buster-cros-ec/20220121.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'bullseye-cros-ec/20220127.0/{arch}/rootfs.cpio.gz'
 
   debian_bullseye-igt_ramdisk:
     type: debian
@@ -160,7 +160,7 @@ test_plans:
       - blocklist: *kselftest_defconfig_filter
 
   cros-ec:
-    rootfs: debian_buster-cros-ec_ramdisk
+    rootfs: debian_bullseye-cros-ec_ramdisk
 
   igt: &igt
     rootfs: debian_bullseye-igt_ramdisk
