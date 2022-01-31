@@ -48,24 +48,9 @@ clang_android_variants: &clang_android_variants
 
 build_configs:
 
-  android_4.4-p:
-    tree: android
-    branch: 'android-4.4-p'
-    variants: *android_variants
-
-  android_4.4-p-release:
-    tree: android
-    branch: 'android-4.4-p-release'
-    variants: *android_variants
-
   android_4.9-p:
     tree: android
     branch: 'android-4.9-p'
-    variants: *android_variants
-
-  android_4.9-p-release:
-    tree: android
-    branch: 'android-4.9-p-release'
     variants: *android_variants
 
   android_4.9-q:
@@ -81,11 +66,6 @@ build_configs:
   android_4.14-p:
     tree: android
     branch: 'android-4.14-p'
-    variants: *android_variants
-
-  android_4.14-p-release:
-    tree: android
-    branch: 'android-4.14-p-release'
     variants: *android_variants
 
   android_4.14-q:
