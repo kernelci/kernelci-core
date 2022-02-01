@@ -181,10 +181,42 @@ class RootFS_Buildroot(RootFS):
         return attrs
 
 
+class RootFS_ChromiumOS(RootFS):
+    def __init__(self, name, rootfs_type, arch_list=None, board=None,
+                 branch=None):
+        super().__init__(name, rootfs_type)
+        self._arch_list = arch_list or list()
+        self._board = board
+        self._branch = branch
+
+    @classmethod
+    def from_yaml(cls, config, name):
+        kw = {
+            'name': name,
+        }
+        kw.update(cls._kw_from_yaml(config, [
+            'rootfs_type', 'arch_list', 'board', 'branch'
+        ]))
+        return cls(**kw)
+
+    @property
+    def arch_list(self):
+        return list(self._arch_list)
+
+    @property
+    def board(self):
+        return self._board
+
+    @property
+    def branch(self):
+        return self._branch
+
+
 class RootFSFactory(YAMLObject):
     _rootfs_types = {
         'debos': RootFS_Debos,
         'buildroot': RootFS_Buildroot,
+        'chromiumos': RootFS_ChromiumOS,
     }
 
     @classmethod
@@ -225,6 +257,8 @@ def validate(configs):
             return _validate_debos(name, config)
         elif config.rootfs_type == 'buildroot':
             return _validate_buildroot(name, config)
+        elif config.rootfs_type == 'chromiumos':
+            return _validate_chromiumos(name, config)
         else:
             print('Invalid rootfs type {} for config name {}'
                   .format(config.rootfs_type, name))
@@ -264,6 +298,15 @@ def _validate_buildroot(name, config):
     return True
 
 
+def _validate_chromiumos(name, config):
+    err = sort_check(config.arch_list)
+    if err:
+        print("Arch order broken for {}: '{}' before '{}".format(
+            name, err[0], err[1]))
+        return False
+    return True
+
+
 def dump_configs(configs):
     """Prints rootfs configs to stdout
 
@@ -274,6 +317,8 @@ def dump_configs(configs):
             _dump_config_debos(config_name, config)
         elif config.rootfs_type == 'buildroot':
             _dump_config_buildroot(config_name, config)
+        elif config.rootfs_type == 'chromiumos':
+            _dump_config_chromiumos(config_name, config)
 
 
 def _dump_config_debos(config_name, config):
@@ -301,3 +346,11 @@ def _dump_config_buildroot(config_name, config):
     print('\trootfs_type: {}'.format(config.rootfs_type))
     print('\tarch_list: {}'.format(config.arch_list))
     print('\tfrags: {}'.format(config.frags))
+
+
+def _dump_config_chromiumos(config_name, config):
+    print(config_name)
+    print('\trootfs_type: {}'.format(config.rootfs_type))
+    print('\tarch_list: {}'.format(config.arch_list))
+    print('\board: {}'.format(config.board))
+    print('\branch: {}'.format(config.branch))
