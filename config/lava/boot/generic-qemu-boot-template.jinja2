@@ -58,11 +58,9 @@ actions:
       minutes: 5
     method: qemu
     media: tmpfs
-{%- if qemu_docker %}
     docker:
       image: kernelci/qemu
       binary: {{ qemu_binary }}
-{%- endif %}
     prompts:
       - '{{ rootfs_prompt }}'
 {% endblock %}
