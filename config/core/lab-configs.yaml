@@ -85,7 +85,6 @@ labs:
     filters: &collabora-filters
       - blocklist:
           tree: [android]
-          plan: [baseline-qemu-docker]
 
   lab-collabora-staging:
     lab_type: lava.lava_rest
@@ -133,7 +132,6 @@ labs:
       - passlist:
           plan:
             - baseline
-      - blocklist: {plan: [baseline-qemu-docker]}
 
   lab-pengutronix:
     lab_type: lava.lava_rest
@@ -142,7 +140,6 @@ labs:
       - passlist:
           plan:
             - baseline
-      - blocklist: {plan: [baseline-qemu-docker]}
 
   lab-theobroma-systems:
     lab_type: lava.lava_xmlrpc
@@ -151,7 +148,6 @@ labs:
       - passlist:
           plan:
             - baseline
-      - blocklist: {plan: [baseline-qemu-docker]}
 
   shell:
     lab_type: shell
