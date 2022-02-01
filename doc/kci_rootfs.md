@@ -22,7 +22,7 @@ You will be using `kernelci/debos` docker image for this purpose.
    ```
    sudo docker run -itd \
      -v $(pwd)/kernelci-core:/kernelci-core \
-     --device /dev/kvm \
+     --device /dev/kvm -v /dev:/dev \
      --privileged kernelci/debos
    sudo docker exec -it <container_id> bash
    cd /kernelci-core/
