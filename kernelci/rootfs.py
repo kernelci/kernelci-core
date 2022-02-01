@@ -119,9 +119,26 @@ class BuildrootBuilder(RootfsBuilder):
         return shell_cmd(cmd, True)
 
 
+class ChromiumosBuilder(RootfsBuilder):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._frag = 'baseline'  # ToDo: add to configuration
+
+    def build(self, config, data_path, arch):
+        cmd = 'cd {data_path} && ./scripts/build_board.sh \
+              {board} {branch}'.format(
+            data_path=data_path,
+            board=config.board,
+            branch=config.branch
+        )
+        return shell_cmd(cmd, True)
+
+
 ROOTFS_BUILDERS = {
     'debos': DebosBuilder,
     'buildroot': BuildrootBuilder,
+    'chromiumos': ChromiumosBuilder,
 }
 
 
