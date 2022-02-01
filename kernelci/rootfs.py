@@ -65,6 +65,15 @@ def _build_buildroot(name, config, data_path, arch, frag='baseline'):
     return shell_cmd(cmd, True)
 
 
+def _build_chromiumos(name, config, data_path, arch):
+    cmd = 'cd {data_path} && ./scripts/build_board.sh {board} {branch}'.format(
+        data_path=data_path,
+        board=config.board,
+        branch=config.branch
+    )
+    return shell_cmd(cmd, True)
+
+
 def build(name, config, data_path, arch):
     """Build rootfs images.
 
@@ -77,6 +86,8 @@ def build(name, config, data_path, arch):
         return _build_debos(name, config, data_path, arch)
     elif config.rootfs_type == "buildroot":
         return _build_buildroot(name, config, data_path, arch)
+    elif config.rootfs_type == "chromiumos":
+        return _build_chromiumos(name, config, data_path, arch)
     else:
         raise ValueError("rootfs_type not supported: {}"
                          .format(config.rootfs_type))

@@ -60,6 +60,7 @@ debos \
 dt-validation \
 k8s \
 qemu \
+chromiumos \
 "
 
 if [ -n "$*" ]; then

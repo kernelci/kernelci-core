@@ -255,6 +255,13 @@ rootfs_configs:
       - wget
       - xz-utils
 
+  chromiumos-amd64-generic:
+    rootfs_type: chromiumos
+    board: amd64-generic
+    branch: release-R99-14469.B
+    arch_list:
+      - amd64
+
   sid:
     rootfs_type: debos
     debian_release: sid
