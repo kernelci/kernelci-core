@@ -270,7 +270,7 @@ class Args:
         'name': '--rootfs-type',
         'help': "Rootfs type",
         'type': str,
-        'choices': ('debos', 'buildroot')
+        'choices': ('debos', 'buildroot', 'chromiumos')
     }
 
     storage = {
