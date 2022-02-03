@@ -73,6 +73,11 @@ build_configs:
     branch: 'linux-4.4.y-cip'
     variants: *cip_variants
 
+  cip_4.4-rc:
+    tree: cip
+    branch: 'ci/iwamatsu/linux-4.4.y-cip-rc'
+    variants: *cip_variants
+
   cip_4.4-rt:
     tree: cip
     branch: 'linux-4.4.y-cip-rt'
@@ -102,6 +107,11 @@ build_configs:
               - 'allnoconfig'
               - 'cip://4.19.y-cip/x86/cip_qemu_defconfig'
 
+  cip_4.19-rc:
+    tree: cip
+    branch: 'ci/iwamatsu/linux-4.19.y-cip-rc'
+    variants: *cip_variants
+
   cip_4.19-rt:
     tree: cip
     branch: 'linux-4.19.y-cip-rt'
@@ -112,7 +122,17 @@ build_configs:
     branch: 'linux-5.10.y-cip'
     variants: *cip_variants_kselftest
 
+  cip_5.10-rc:
+    tree: cip
+    branch: 'ci/iwamatsu/linux-5.10.y-cip-rc'
+    variants: *cip_variants_kselftest
+
   cip_5.10-rt:
     tree: cip
     branch: 'linux-5.10.y-cip-rt'
     variants: *cip_variants_kselftest
+
+  cip_pavel-test:
+    tree: cip
+    branch: 'ci/pavel/linux-test'
+    variants: *cip_variants
