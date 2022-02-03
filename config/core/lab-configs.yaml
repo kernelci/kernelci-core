@@ -45,6 +45,7 @@ labs:
             - ['cip', 'linux-4.19.y-cip']
             - ['cip', 'linux-4.19.y-cip-rt']
             - ['cip', 'linux-5.10.y-cip']
+            - ['cip', 'linux-5.10.y-cip-rt']
             - ['kernelci', 'staging-cip']
             - ['mainline', 'master']
             - ['next', 'master']
