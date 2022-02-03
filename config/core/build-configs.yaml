@@ -570,17 +570,33 @@ build_configs:
     tree: broonie-regmap
     branch: 'for-next'
 
+  broonie-regmap-fixes:
+    tree: broonie-regmap
+    branch: 'for-linus'
+
   broonie-regulator:
     tree: broonie-regulator
     branch: 'for-next'
+
+  broonie-regulator-fixes:
+    tree: broonie-regulator
+    branch: 'for-linus'
 
   broonie-sound:
     tree: broonie-sound
     branch: 'for-next'
 
+  broonie-sound-fixes:
+    tree: broonie-sound
+    branch: 'for-next-linus'
+
   broonie-spi:
     tree: broonie-spi
     branch: 'for-next'
+
+  broonie-spi-fixes:
+    tree: broonie-spi
+    branch: 'for-linus'
 
   chrome-platform:
     tree: chrome-platform
