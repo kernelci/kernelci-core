@@ -159,6 +159,8 @@ rootfs_configs:
       - perl-modules-5.32
       - procps
       - publicsuffix
+      - python3-minimal
+      - python3-unittest2
       - wget
       - xz-utils
 
