@@ -637,7 +637,7 @@ build_configs:
     tree: krzysztof
     branch: 'for-next'
 
-  kselftest_fixes:
+  kselftest_fixes: &kselftest-tree
     tree: kselftest
     branch: 'fixes'
     variants:
@@ -645,22 +645,33 @@ build_configs:
         build_environment: gcc-10
         fragments: [kselftest]
         architectures:
-          arm: *arm_defconfig
-          arm64:
+          arm:
+            <<: *arm_defconfig
+            filters: &kselftest-only
+              - regex: { defconfig: '.*kselftest.*' }
+          arm64: &arm64-kselftest
             <<: *arm64_defconfig
             fragments: [arm64-chromebook]
             extra_configs: ['defconfig+kselftest+arm64-chromebook']
-          i386: *i386_defconfig
-          x86_64:
+            filters: *kselftest-only
+          i386:
+            <<: *i386_defconfig
+            filters: *kselftest-only
+          x86_64: &x86_64-kselftest
             <<: *x86_64_defconfig
             fragments: [x86-chromebook]
             extra_configs: ['x86_64+defconfig+kselftest+x86-chromebook']
+            filters: *kselftest-only
       clang-14:
         build_environment: clang-14
         fragments: [kselftest]
         architectures:
-          arm64: *arm64_defconfig
-          x86_64: *x86_64_defconfig
+          arm64: *arm64-kselftest
+          x86_64: *x86_64-kselftest
+
+  kselftest_next:
+    <<: *kselftest-tree
+    branch: 'next'
 
   lee_android_3.18:
     tree: lee
