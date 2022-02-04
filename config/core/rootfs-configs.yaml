@@ -129,6 +129,39 @@ rootfs_configs:
     script: "scripts/bullseye-igt.sh"
     test_overlay: "overlays/igt"
 
+  bullseye-kselftest:
+    rootfs_type: debos
+    debian_release: bullseye
+    arch_list:
+      - amd64
+      - arm64
+      - armhf
+    extra_packages:
+      - bc
+      - ca-certificates
+      - iproute2
+      - jdim
+      - libatm1
+      - libcap2-bin
+      - libelf1
+      - libgdbm-compat4
+      - libgdbm6
+      - libhugetlbfs0
+      - libmnl0
+      - libpam-cap
+      - libpcre2-8-0
+      - libperl5.32
+      - libpsl5
+      - libxtables12
+      - netbase
+      - openssl
+      - perl
+      - perl-modules-5.32
+      - procps
+      - publicsuffix
+      - wget
+      - xz-utils
+
   bullseye-libcamera:
     rootfs_type: debos
     debian_release: bullseye
