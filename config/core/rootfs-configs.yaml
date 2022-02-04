@@ -222,22 +222,6 @@ rootfs_configs:
       - wget
       - xz-utils
 
-  buster-libcamera:
-    rootfs_type: debos
-    debian_release: buster
-    arch_list:
-      - amd64
-      - arm64
-      - armhf
-    extra_packages:
-      - libevent-dev
-    extra_packages_remove:
-      - bash
-      - e2fslibs
-      - e2fsprogs
-    script: "scripts/buster-libcamera.sh"
-    test_overlay: "overlays/libcamera"
-
   sid:
     rootfs_type: debos
     debian_release: sid
