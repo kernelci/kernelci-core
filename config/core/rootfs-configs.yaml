@@ -222,39 +222,6 @@ rootfs_configs:
     script: "scripts/bullseye-v4l2.sh"
     test_overlay: "overlays/v4l2"
 
-  buster-kselftest:
-    rootfs_type: debos
-    debian_release: buster
-    arch_list:
-      - amd64
-      - arm64
-      - armhf
-    extra_packages:
-      - bc
-      - ca-certificates
-      - iproute2
-      - jdim
-      - libatm1
-      - libcap2-bin
-      - libelf1
-      - libgdbm-compat4
-      - libgdbm6
-      - libhugetlbfs0
-      - libmnl0
-      - libpam-cap
-      - libpcre2-8-0
-      - libperl5.28
-      - libpsl5
-      - libxtables12
-      - netbase
-      - openssl
-      - perl
-      - perl-modules-5.28
-      - procps
-      - publicsuffix
-      - wget
-      - xz-utils
-
   buster-libcamera:
     rootfs_type: debos
     debian_release: buster
