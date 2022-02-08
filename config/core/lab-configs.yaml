@@ -54,6 +54,8 @@ labs:
             - ['mainline', 'master']
             - ['next', 'master']
             - ['next', 'pending-fixes']
+            - ['renesas', 'master']
+            - ['renesas-next', 'next']
             - ['stable', 'linux-4.4.y']
             - ['stable', 'linux-4.19.y']
             - ['stable', 'linux-5.10.y']
