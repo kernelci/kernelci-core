@@ -337,6 +337,12 @@ build_environments:
     arch_params:
       <<: *clang_12_arch_params
 
+  clang-15:
+    cc: clang
+    cc_version: 15
+    arch_params:
+      <<: *clang_12_arch_params
+
 # Default config with full build coverage
 build_configs_defaults:
   variants:
