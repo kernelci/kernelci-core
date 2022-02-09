@@ -152,6 +152,8 @@ test_plans:
     pattern: 'baseline/generic-qemu-baseline-template.jinja2'
     filters:
       - blocklist: *kselftest_defconfig_filter
+      - passlist: &qemu_labs_filter
+          lab: ['lab-baylibre', 'lab-collabora-staging']
 
   cros-ec:
     rootfs: debian_bullseye-cros-ec_ramdisk
@@ -369,6 +371,10 @@ test_plans:
       <<: *ltp-params
       grp_test: "TMR"
       job_timeout: '30'
+    filters:
+      - combination: *arch_defconfig_filter
+      - blocklist: *kselftest_defconfig_filter
+      - passlist: *qemu_labs_filter
 
   preempt-rt:
     rootfs: debian_bullseye-rt_ramdisk
@@ -389,6 +395,15 @@ test_plans:
 
   smc:
     rootfs: buildroot-baseline_ramdisk
+
+  smc_qemu:
+    base_name: smc
+    rootfs: buildroot-baseline_ramdisk
+    pattern: 'smc/{category}-{method}-{protocol}-{rootfs}-smc-template.jinja2'
+    filters:
+      - combination: *arch_defconfig_filter
+      - blocklist: *kselftest_defconfig_filter
+      - passlist: *qemu_labs_filter
 
   usb:
     rootfs: debian_bullseye_ramdisk
@@ -2312,7 +2327,7 @@ test_configs:
   - device_type: qemu_arm-virt-gicv3
     test_plans:
       - baseline_qemu
-      - smc
+      - smc_qemu
       - v4l2-compliance-vivid
 
   - device_type: qemu_arm-virt-gicv3-uefi
@@ -2330,7 +2345,7 @@ test_configs:
   - device_type: qemu_arm64-virt-gicv3
     test_plans:
       - baseline_qemu
-      - smc
+      - smc_qemu
       - v4l2-compliance-vivid
 
   - device_type: qemu_arm64-virt-gicv3-uefi
@@ -2353,7 +2368,7 @@ test_configs:
     test_plans:
       - baseline_qemu
       - ltp-timers_qemu
-      - smc
+      - smc_qemu
       - v4l2-compliance-vivid
 
   - device_type: qemu_x86_64-uefi
