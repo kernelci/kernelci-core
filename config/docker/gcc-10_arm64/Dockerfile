@@ -36,4 +36,6 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    libhugetlbfs-dev:arm64 \
    libmnl-dev:arm64 \
    libnuma-dev:arm64 \
-   libpopt-dev:arm64
+   libpopt-dev:arm64 \
+   libasound2-dev:arm64 \
+   pkg-config:arm64

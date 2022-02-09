@@ -17,4 +17,6 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    libhugetlbfs-dev \
    libmnl-dev \
    libnuma-dev \
-   libpopt-dev
+   libpopt-dev \
+   libasound2-dev \
+   pkg-config

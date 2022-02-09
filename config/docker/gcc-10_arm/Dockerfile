@@ -25,4 +25,6 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    libhugetlbfs-dev:armhf \
    libmnl-dev:armhf \
    libnuma-dev:armhf \
-   libpopt-dev:armhf
+   libpopt-dev:armhf \
+   libasound2-dev:armhf \
+   pkg-config:armhf
