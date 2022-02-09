@@ -1954,6 +1954,7 @@ test_configs:
       - baseline
       - baseline-nfs
       - cros-ec
+      - kselftest-tpm2
 
   - device_type: hp-x360-12b-n4000-octopus
     test_plans:
