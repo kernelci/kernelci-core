@@ -62,29 +62,34 @@ class cmd_list_variants(Command):
     help = "List all rootfs variants"
     opt_args = [Args.rootfs_config, Args.arch, Args.rootfs_type]
 
-    def __call__(self, config_data, args, **kwargs):
-        rootfs_configs = config_data['rootfs_configs']
-        config_name = args.rootfs_config
-        arch = args.arch
-        rootfs_type = args.rootfs_type
+    def __call__(self, configs, args, **kwargs):
+        rootfs_configs = configs['rootfs_configs']
 
-        if config_name and config_name not in rootfs_configs:
-            print("{} : invalid config entry".format(config_name))
+        if args.rootfs_config and args.rootfs_type:
+            print("--rootfs-config and --rootfs-type can't be used at once")
             return False
 
-        if arch and config_name and \
-           arch not in rootfs_configs[config_name].arch_list:
-            print("{} : invalid arch entry".format(arch))
-            return False
+        if args.rootfs_config:
+            config = rootfs_configs.get(args.rootfs_config)
+            if not config:
+                print("{} : invalid config entry".format(args.rootfs_config))
+                return False
+            build_configs = [config]
+        elif args.rootfs_type:
+            build_configs = list(
+                config
+                for config in rootfs_configs.values()
+                if config.rootfs_type == args.rootfs_type
+            )
+        else:
+            build_configs = list(rootfs_configs.values())
 
-        configs = (name for name, config in rootfs_configs.items()
-                   if (name == config_name or config_name is None) and
-                   (config.rootfs_type == rootfs_type or rootfs_type is None)
-                   )
-        for config in configs:
-            for arch_type in rootfs_configs[config].arch_list:
-                if arch_type == arch or arch is None:
-                    print(' '.join([config, arch_type]))
+        for config in build_configs:
+            for arch in config.arch_list:
+                if args.arch and args.arch != arch:
+                    continue
+                print(' '.join([config.name, arch, config.rootfs_type]))
+
         return True
 
 
