@@ -21,48 +21,68 @@ from kernelci.storage import upload_files
 import os
 
 
-def _build_debos(name, config, data_path, arch):
-    cmd = 'cd {data_path} && debos \
---memory=4G \
--t architecture:{arch} \
--t suite:{release_name} \
--t basename:{name}/{arch} \
--t extra_packages:"{extra_packages}" \
--t extra_packages_remove:"{extra_packages_remove}" \
--t extra_files_remove:"{extra_files_remove}" \
--t extra_firmware:"{extra_firmware}" \
--t script:"{script}" \
--t test_overlay:"{test_overlay}" \
--t crush_image_options:"{crush_image_options}" \
--t debian_mirror:"{debian_mirror}" \
--t keyring_package:"{keyring_package}" \
--t keyring_file:"{keyring_file}" \
-rootfs.yaml'.format(
-            name=name,
+class RootfsBuilder:
+
+    def __init__(self, name):
+        self._name = name
+
+    @property
+    def name(self):
+        return self._name
+
+    def build(self, config, data_path, arch):
+        raise NotImplementedError("build() needs to be implemented")
+
+
+class DebosBuilder(RootfsBuilder):
+
+    def build(self, config, data_path, arch):
+        debos_params = {
+            'architecture': arch,
+            'suite': config.debian_release,
+            'basename': '/'.join([self.name, arch]),
+            'extra_packages': ' '.join(config.extra_packages),
+            'extra_packages_remove': ' '.join(config.extra_packages_remove),
+            'extra_files_remove':  ' '.join(config.extra_files_remove),
+            'extra_firmware': ' '.join(config.extra_firmware),
+            'script': config.script,
+            'test_overlay': config.test_overlay,
+            'crush_image_options': ' '.join(config.crush_image_options),
+            'debian_mirror': config.debian_mirror,
+            'keyring_package': config.keyring_package,
+            'keyring_file': config.keyring_file,
+        }
+        debos_opts = ' '.join(
+            opt for opt in (
+                '-t {key}:"{value}"'.format(key=key, value=value)
+                for key, value in debos_params.items()
+            )
+        )
+        cmd = "cd {path} && debos --memory=4G {opts} rootfs.yaml".format(
+            path=data_path, opts=debos_opts
+        )
+        return shell_cmd(cmd, True)
+
+
+class BuildrootBuilder(RootfsBuilder):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._frag = 'baseline'  # ToDo: add to configuration
+
+    def build(self, config, data_path, arch):
+        cmd = 'cd {data_path} && ./configs/frags/build {arch} {frag}'.format(
             data_path=data_path,
             arch=arch,
-            release_name=config.debian_release,
-            extra_packages=" ".join(config.extra_packages),
-            extra_packages_remove=" ".join(config.extra_packages_remove),
-            extra_files_remove=" ".join(config.extra_files_remove),
-            extra_firmware=" ".join(config.extra_firmware),
-            script=config.script,
-            test_overlay=config.test_overlay,
-            crush_image_options=" ".join(config.crush_image_options),
-            debian_mirror=config.debian_mirror,
-            keyring_package=config.keyring_package,
-            keyring_file=config.keyring_file,
-    )
-    return shell_cmd(cmd, True)
+            frag=self._frag
+        )
+        return shell_cmd(cmd, True)
 
 
-def _build_buildroot(name, config, data_path, arch, frag='baseline'):
-    cmd = 'cd {data_path} && ./configs/frags/build {arch} {frag}'.format(
-        data_path=data_path,
-        arch=arch,
-        frag=frag
-    )
-    return shell_cmd(cmd, True)
+ROOTFS_BUILDERS = {
+    'debos': DebosBuilder,
+    'buildroot': BuildrootBuilder,
+}
 
 
 def build(name, config, data_path, arch):
@@ -73,13 +93,13 @@ def build(name, config, data_path, arch):
     *data_path* points to debos or buildroot location
     *arch* required architecture
     """
-    if config.rootfs_type == "debos":
-        return _build_debos(name, config, data_path, arch)
-    elif config.rootfs_type == "buildroot":
-        return _build_buildroot(name, config, data_path, arch)
-    else:
-        raise ValueError("rootfs_type not supported: {}"
-                         .format(config.rootfs_type))
+    builder_cls = ROOTFS_BUILDERS.get(config.rootfs_type)
+    if builder_cls is None:
+        raise ValueError("rootfs_type not supported: {}".format(
+            config.rootfs_type))
+
+    builder = builder_cls(name)
+    return builder.build(config, data_path, arch)
 
 
 def upload(api, token, upload_path, input_dir):
