@@ -1963,6 +1963,7 @@ test_configs:
       - baseline
       - baseline-nfs
       - cros-ec
+      - kselftest-cpufreq
 
   - device_type: hp-x360-12b-n4000-octopus
     test_plans:
