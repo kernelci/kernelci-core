@@ -61,6 +61,7 @@ dt-validation \
 k8s \
 qemu \
 chromiumos \
+chromeos-flash \
 "
 
 if [ -n "$*" ]; then
