@@ -23,9 +23,15 @@ metadata:
   job.name: {{ name }}
   job.kernel_url: {{ kernel_url }}
   job.kernel_image: {{ kernel_image }}
+{%- if modules_url %}
   job.modules_url: {{ modules_url }}
+{% endif %}
+{%- if initrd_url %}
   job.initrd_url: {{ initrd_url }}
+{% endif %}
+{%- if nfsrootfs_url %}
   job.nfsrootfs_url: {{ nfsrootfs_url }}
+{% endif %}
   job.dtb_url: {{ dtb_url }}
   job.file_server_resource: {{ file_server_resource }}
   job.build_environment: {{ build_environment }}
