@@ -158,6 +158,14 @@ test_plans:
             - 'lab-broonie'
             - 'lab-collabora-staging'
 
+  chromeos-tast:
+    pattern: 'chromeos/chromeos-tast-template.jinja2'
+    params:
+      job_timeout: '60'
+      prompt_command: 'sof-audio-pci'
+      docker_image: 'kernelci/chromeos-tast'
+      cros_tast_tarball: 'http://172.17.0.1/chromeos/autotest_server_package_octopus_R92_13981.0.0.tar.bz2'
+
   cros-ec:
     rootfs: debian_bullseye-cros-ec_ramdisk
 
@@ -2021,6 +2029,7 @@ test_configs:
       - baseline
       - baseline-cip-nfs
       - baseline-nfs
+      - chromeos-tast
       - cros-ec
       - igt-gpu-i915
       - kselftest-filesystems
