@@ -2025,6 +2025,12 @@ test_configs:
   - device_type: imx6q-sabrelite
     test_plans:
       - baseline
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
+      - kselftest-livepatch
+      - kselftest-lkdtm
+      - kselftest-seccomp
 
   - device_type: imx6q-sabrelite
     test_plans:
@@ -2146,6 +2152,9 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-lib
 
   - device_type: meson-g12b-odroid-n2
     test_plans:
@@ -2227,6 +2236,7 @@ test_configs:
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
+      - kselftest-livepatch
       - kselftest-lkdtm
       - kselftest-rtc
       - kselftest-seccomp
@@ -2245,6 +2255,8 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - kselftest-lkdtm
+      - kselftest-seccomp
 
   - device_type: mustang
     test_plans:
@@ -2443,7 +2455,6 @@ test_configs:
       - cros-ec
       - igt-gpu-panfrost
       - igt-kms-rockchip
-      - kselftest-lib
       - ltp-timers
       - sleep
       - usb
