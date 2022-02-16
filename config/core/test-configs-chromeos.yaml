@@ -5,6 +5,13 @@ test_plans:
     params:
       job_timeout: '60'
 
+  cros-tast:
+    pattern: 'chromeos/cros-tast.jinja2'
+    params:
+      job_timeout: '60'
+      prompt_command: 'sof-audio-pci'
+      docker_image: 'kernelci/cros-tast'
+
 
 device_types:
 
@@ -29,7 +36,9 @@ device_types:
 test_configs:
 
   - device_type: hp-x360-12b-ca0010nr-n4020-octopus_chromeos
-    test_plans: []
+    test_plans:
+      - cros-tast
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus_chromeos
-    test_plans: []
+    test_plans:
+      - cros-tast
