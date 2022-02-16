@@ -52,6 +52,17 @@ rootfs_configs:
     script: "scripts/install-bootrr.sh"
     test_overlay: "overlays/baseline"
 
+  bullseye-chromeos-flash:
+    rootfs_type: debos
+    debian_release: bullseye
+    arch_list:
+      - amd64
+    extra_packages:
+      - wget
+      - openssh-server
+      - parted
+    test_overlay: "overlays/chromeos-flash"
+
   bullseye-cros-ec:
     rootfs_type: debos
     debian_release: bullseye
