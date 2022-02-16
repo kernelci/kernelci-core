@@ -1,0 +1,48 @@
+{% extends 'base/kernel-ci-base.jinja2' %}
+{% block main %}
+{% do context.update({"extra_kernel_args": "console_msg_format=syslog earlycon cros_debug cros_secure root=/dev/mmcblk0p3" }) %}
+{{ super() }}
+{% endblock %}
+{% block actions %}
+actions:
+  - deploy:
+      timeout:
+        minutes: {{ job_timeout }}
+      to: tftp
+      kernel:
+        url: {{ kernel_url }}
+      os: oe
+
+  - boot:
+      timeout:
+        minutes: 30
+      method: depthcharge
+      commands: emmc
+      prompts:
+        - {{ prompt_command }}
+
+  - test:
+      timeout:
+        minutes: 45
+      docker:
+        image: {{ docker_image }}
+        wait:
+          device: true
+      results:
+          location: /home/cros-tast/lava
+      definitions:
+      - repository:
+          metadata:
+            format: Lava-Test Test Definition 1.0
+            name: docker-chromeos-tast
+          run:
+            steps:
+              - 'cd /home/cros-tast; curl -s {{cros_tast_tarball}} | tar xjf -'
+              - 'chown -R cros-tast: /home/cros-tast'
+              - 'ls -l /home/cros-tast'
+              - 'ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i /home/cros-tast/.ssh/id_rsa root@$(lava-target-ip) whoami'
+              - 'cd /home/cros-tast/tast; ./tast list -build=false root@$(lava-target-ip)'
+        from: inline
+        name: docker-chromeos-tast
+        path: inline/docker-chromeos-tast.yaml
+{% endblock %}
