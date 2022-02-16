@@ -1,0 +1,14 @@
+rootfs_configs:
+
+  bullseye-cros-flash:
+    rootfs_type: debos
+    debian_release: bullseye
+    arch_list:
+      - amd64
+    extra_packages:
+      - bzip2
+      - ca-certificates
+      - parted
+      - wget
+      - xz-utils
+    test_overlay: "overlays/cros-flash"
