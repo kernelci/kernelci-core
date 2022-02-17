@@ -2,6 +2,9 @@ trees:
   cip:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/cip/linux-cip.git"
 
+  cip-gitlab:
+    url: "https://gitlab.com/cip-project/cip-kernel/linux-cip.git"
+
 
 # Build fewer kernel configs with cip branches
 cip_variants: &cip_variants
@@ -74,7 +77,7 @@ build_configs:
     variants: *cip_variants
 
   cip_4.4-rc:
-    tree: cip
+    tree: cip-gitlab
     branch: 'ci/iwamatsu/linux-4.4.y-cip-rc'
     variants: *cip_variants
 
@@ -108,7 +111,7 @@ build_configs:
               - 'cip://4.19.y-cip/x86/cip_qemu_defconfig'
 
   cip_4.19-rc:
-    tree: cip
+    tree: cip-gitlab
     branch: 'ci/iwamatsu/linux-4.19.y-cip-rc'
     variants: *cip_variants
 
@@ -123,7 +126,7 @@ build_configs:
     variants: *cip_variants_kselftest
 
   cip_5.10-rc:
-    tree: cip
+    tree: cip-gitlab
     branch: 'ci/iwamatsu/linux-5.10.y-cip-rc'
     variants: *cip_variants_kselftest
 
@@ -133,6 +136,6 @@ build_configs:
     variants: *cip_variants_kselftest
 
   cip_pavel-test:
-    tree: cip
+    tree: cip-gitlab
     branch: 'ci/pavel/linux-test'
     variants: *cip_variants
