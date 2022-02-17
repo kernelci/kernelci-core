@@ -580,6 +580,12 @@ device_types:
     boot_method: depthcharge
     filters: *x86-chromebook-filters
 
+  asus-cx9400-volteer:
+    mach: x86
+    arch: x86_64
+    boot_method: depthcharge
+    filters: *x86-chromebook-filters
+
   at91-sama5d2_xplained:
     mach: at91
     class: arm-dtb
@@ -1824,6 +1830,14 @@ test_configs:
       - preempt-rt
       - sleep_mem
       - smc
+
+  - device_type: asus-cx9400-volteer
+    test_plans:
+      - baseline
+      - baseline-nfs
+      - cros-ec
+      - kselftest-lib
+      - ltp-ipc
 
   - device_type: at91-sama5d2_xplained
     test_plans:
