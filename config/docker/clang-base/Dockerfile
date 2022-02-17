@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    libcap-dev \
    libcap-ng-dev \
    libelf-dev \
+   libhugetlbfs-dev \
    libpopt-dev \
    libasound2-dev \
    pkg-config
@@ -28,6 +29,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    libcap-dev:arm64 \
    libcap-ng-dev:arm64 \
    libelf-dev:arm64 \
+   libhugetlbfs-dev:arm64 \
    libpopt-dev:arm64 \
    libasound2-dev:arm64 \
    pkg-config:arm64
@@ -39,6 +41,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    libcap-dev:armhf \
    libcap-ng-dev:armhf \
    libelf-dev:armhf \
+   libhugetlbfs-dev:armhf \
    libpopt-dev:armhf \
    libasound2-dev:armhf \
    pkg-config:armhf
