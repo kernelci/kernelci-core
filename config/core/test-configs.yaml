@@ -293,6 +293,12 @@ test_plans:
       job_timeout: '10'
       kselftest_collections: "seccomp"
 
+  kselftest-vm:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "vm"
+
   lc-compliance:
     rootfs: debian_bullseye-libcamera_nfs
     pattern: 'lc-compliance/{category}-{method}-{protocol}-{rootfs}-lc-compliance-template.jinja2'
@@ -1837,6 +1843,7 @@ test_configs:
       - baseline-nfs
       - cros-ec
       - kselftest-lib
+      - kselftest-vm
       - ltp-ipc
 
   - device_type: at91-sama5d2_xplained
@@ -1962,6 +1969,7 @@ test_configs:
       - kselftest-lkdtm
       - kselftest-rtc
       - kselftest-seccomp
+      - kselftest-vm
       - ltp-crypto
       - ltp-fcntl-locktests
       - ltp-ipc
