@@ -34,6 +34,7 @@ class KernelCI_API(Database):
             'Authorization': f'Bearer {self._token}',
             'Content-Type': 'application/json',
         }
+        self._filters = {}
 
     def _make_url(self, path):
         return urllib.parse.urljoin(self.config.url, path)
@@ -60,7 +61,15 @@ class KernelCI_API(Database):
         resp = self._post(f'subscribe/{channel}')
         return json.loads(resp.text)['id']
 
+    def subscribe_node_channel(self, filters=None):
+        resp = self._post(f'subscribe/node')
+        sub_id = json.loads(resp.text)['id']
+        self._filters[sub_id] = filters
+        return sub_id
+
     def unsubscribe(self, sub_id):
+        if sub_id in self._filters:
+            self._filters.pop(sub_id)
         self._post(f'unsubscribe/{sub_id}')
 
     def get_event(self, sub_id):
