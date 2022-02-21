@@ -148,6 +148,7 @@ rootfs_configs:
       - libgdbm6
       - libhugetlbfs0
       - libmnl0
+      - libnuma1
       - libpam-cap
       - libpcre2-8-0
       - libperl5.32
