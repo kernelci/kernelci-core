@@ -90,6 +90,10 @@ class KernelCI_API(Database):
     def get_node_from_event(self, event):
         return self.get_node(event.data['id'])
 
+    def get_root_node(self, node_id):
+        resp = self._get('/'.join(['get_root_node', node_id]))
+        return json.loads(resp.text)
+
     def submit(self, data, verbose=False):
         obj_list = []
         for path, item in data.items():
