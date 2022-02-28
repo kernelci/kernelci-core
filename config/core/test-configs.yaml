@@ -981,6 +981,12 @@ device_types:
       - blocklist: *device_config_filter
       - blocklist: {defconfig: ['multi_v7_defconfig+kselftest']}
 
+  juno-uboot:
+    mach: vexpress
+    class: arm64-dtb
+    dtb: 'arm/juno.dtb'
+    boot_method: uboot
+
   kirkwood-db-88f6282:
     mach: mvebu
     class: arm-dtb
@@ -2184,6 +2190,24 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+
+  - device_type: juno-uboot
+    test_plans:
+      - baseline
+      - baseline-nfs
+      - kselftest-cpufreq
+      - kselftest-futex
+      - kselftest-lib
+      - kselftest-lkdtm
+      - kselftest-rtc
+      - kselftest-seccomp
+      - ltp-crypto
+      - ltp-fcntl-locktests
+      - ltp-ipc
+      # ltp-mm - runs system out of memory
+      - ltp-pty
+      - ltp-timers
+      - smc
 
   - device_type: kirkwood-db-88f6282
     test_plans:
