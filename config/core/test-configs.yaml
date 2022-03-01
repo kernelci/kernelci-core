@@ -273,6 +273,12 @@ test_plans:
       <<: *igt-kms-test-list
       drm_driver: "exynos"
 
+  igt-kms-mediatek:
+    <<: *igt-kms
+    params:
+      <<: *igt-kms-test-list
+      drm_driver: "mediatek"
+
   igt-kms-rockchip:
     <<: *igt-kms
     params:
