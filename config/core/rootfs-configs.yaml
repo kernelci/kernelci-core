@@ -241,3 +241,10 @@ rootfs_configs:
       - e2fsprogs
     script: "scripts/bullseye-v4l2.sh"
     test_overlay: "overlays/v4l2"
+
+  chromiumos-amd64-generic:
+    rootfs_type: chromiumos
+    board: amd64-generic
+    branch: release-R100-14526.B
+    arch_list:
+      - amd64
