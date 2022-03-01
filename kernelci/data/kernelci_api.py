@@ -38,9 +38,9 @@ class KernelCI_API(Database):
     def _make_url(self, path):
         return urllib.parse.urljoin(self.config.url, path)
 
-    def _get(self, path):
+    def _get(self, path, *args, **kwargs):
         url = self._make_url(path)
-        resp = requests.get(url, headers=self._headers)
+        resp = requests.get(url, *args, headers=self._headers, **kwargs)
         resp.raise_for_status()
         return resp
 
@@ -65,8 +65,12 @@ class KernelCI_API(Database):
 
     def get_event(self, sub_id):
         path = '/'.join(['listen', str(sub_id)])
-        resp = self._get(path)
-        return from_json(resp.json().get('data'))
+        while True:
+            try:
+                resp = self._get(path, timeout=30)
+                return from_json(resp.json().get('data'))
+            except requests.exceptions.Timeout:
+                pass
 
     def get_node(self, node_id):
         resp = self._get('/'.join(['node', node_id]))
