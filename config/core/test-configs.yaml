@@ -2606,6 +2606,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - igt-kms-mediatek
       - kselftest-lkdtm
       - kselftest-seccomp
 
