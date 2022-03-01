@@ -4,24 +4,18 @@ BOARD=$1
 BRANCH=$2
 DATA_DIR=$(pwd)
 
-# Building SDK itself
-if [ ! -d chromiumos-sdk ]; then
-  sudo mkdir chromiumos-sdk
-  sudo chown user chromiumos-sdk
-  cd chromiumos-sdk
-  git config --global user.email "bot@kernelci.org"
-  git config --global user.name "KernelCI Bot"
-  git config --global color.ui false
-  repo init --repo-url https://chromium.googlesource.com/external/repo --manifest-url https://chromium.googlesource.com/chromiumos/manifest --manifest-name default.xml --manifest-branch ${BRANCH} --depth=1
-  repo sync -j$(nproc)
-  cros_sdk --create
-else
-  cd chromiumos-sdk
-  # We might have different branch
-  repo init --repo-url https://chromium.googlesource.com/external/repo --manifest-url https://chromium.googlesource.com/chromiumos/manifest --manifest-name default.xml --manifest-branch ${BRANCH} --depth=1
-  repo sync -j$(nproc)
-  cros_sdk --create
-fi
+# Delete old SDK if present
+[ -d "${DATA_DIR}/chromiumos-sdk" ] && sudo rm -rf ${DATA_DIR}/chromiumos-sdk && echo Old SDK deleted
+
+sudo mkdir chromiumos-sdk
+sudo chown user chromiumos-sdk
+cd chromiumos-sdk
+git config --global user.email "bot@kernelci.org"
+git config --global user.name "KernelCI Bot"
+git config --global color.ui false
+repo init --repo-url https://chromium.googlesource.com/external/repo --manifest-url https://chromium.googlesource.com/chromiumos/manifest --manifest-name default.xml --manifest-branch ${BRANCH} --depth=1
+repo sync -j$(nproc)
+cros_sdk --create
 
 # Compiling ChromiumOS image
 # Future possible option --profile=x, for example kernel-5_15, profiles are at /mnt/host/source/src/overlays/overlay-${BOARD}/profiles/
@@ -36,6 +30,3 @@ sudo mkdir -p ${DATA_DIR}/${BOARD}
 sudo cp src/build/images/${BOARD}/latest/chromiumos_test_image.bin ${DATA_DIR}/${BOARD}
 sudo cp ./chroot/usr/bin/remote_test_runner ${DATA_DIR}/${BOARD}
 sudo cp ./chroot/usr/bin/tast ${DATA_DIR}/${BOARD}
-
-# Delete build directory
-[ -d "${DATA_DIR}/chromiumos-sdk/chroot/build" ] && sudo rm -rf ${DATA_DIR}/chromiumos-sdk/chroot/build && echo Build directory deleted
