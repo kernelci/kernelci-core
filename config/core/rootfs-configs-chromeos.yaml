@@ -12,3 +12,10 @@ rootfs_configs:
       - wget
       - xz-utils
     test_overlay: "overlays/cros-flash"
+
+  chromiumos-amd64-generic:
+    rootfs_type: chromiumos
+    board: amd64-generic
+    branch: release-R100-14526.B
+    arch_list:
+      - amd64
