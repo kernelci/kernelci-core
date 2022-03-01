@@ -223,6 +223,13 @@ rootfs_configs:
     script: "scripts/bullseye-v4l2.sh"
     test_overlay: "overlays/v4l2"
 
+  chromiumos-amd64-generic:
+    rootfs_type: chromiumos
+    board: amd64-generic
+    branch: release-R99-14469.B
+    arch_list:
+      - amd64
+
   sid:
     rootfs_type: debos
     debian_release: sid
