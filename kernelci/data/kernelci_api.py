@@ -65,8 +65,15 @@ class KernelCI_API(Database):
 
     def get_event(self, sub_id):
         path = '/'.join(['listen', str(sub_id)])
-        resp = self._get(path)
-        return from_json(resp.json().get('data'))
+        while True:
+            resp = self._get(path)
+            data = resp.json().get('data')
+            if not data:
+                continue
+            event = from_json(data)
+            if event.data == 'BEEP':
+                continue
+            return event
 
     def get_node(self, node_id):
         resp = self._get('/'.join(['node', node_id]))
