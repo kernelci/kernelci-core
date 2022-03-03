@@ -1,3 +1,6 @@
+{% if v4l2_driver %}
+    {% set v4l2_driver_arg = "-d " + v4l2_driver %}
+{% endif %}
 - test:
     timeout:
       minutes: 10
@@ -13,7 +16,7 @@
           - functional
         run:
           steps:
-          - /usr/bin/v4l2-parser.sh {{ v4l2_driver }}
+          - /usr/bin/v4l2-parser.sh {{ v4l2_driver_arg }}
       from: inline
       name: {{ plan }}
       path: inline/{{ plan }}.yaml
