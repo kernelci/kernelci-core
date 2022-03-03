@@ -1,6 +1,12 @@
 {% if v4l2_driver %}
     {% set v4l2_driver_arg = "-d " + v4l2_driver %}
 {% endif %}
+{% if v4l2_capture_format %}
+    {% set v4l2_capture_format_arg = "-f " + v4l2_capture_format %}
+{% endif %}
+{% if v4l2_output_format %}
+    {% set v4l2_output_format_arg = "-F " + v4l2_output_format %}
+{% endif %}
 - test:
     timeout:
       minutes: 10
@@ -16,7 +22,7 @@
           - functional
         run:
           steps:
-          - /usr/bin/v4l2-parser.sh {{ v4l2_driver_arg }}
+          - /usr/bin/v4l2-parser.sh {{ v4l2_driver_arg }} {{ v4l2_capture_format_arg }} {{ v4l2_output_format_arg }}
       from: inline
       name: {{ plan }}
       path: inline/{{ plan }}.yaml
