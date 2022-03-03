@@ -19,33 +19,24 @@
 
 set -e
 
-# Video driver name
-driver_name="${1}"
-
-[ -z "$driver_name" ] && {
-    echo "No driver name provided"
-    echo "Usage: v4l2-parser.sh <DRIVER_NAME>"
-    exit 1
-}
-
-IFS=''
-
 # Test set name
 test_set=""
 
 # io index for streaming tests
 test_io=""
 
-device_path=$(v4l2-get-device -d $driver_name | head -n1)
+device_path=$(v4l2-get-device $@ | head -n1)
 
 [ -z "$device_path" ] && {
-    echo "No device found for driver $driver_name"
+    echo "No device found for arguments '$@'"
     lava-test-case device-presence --result fail
     exit 1
 }
 
 lava-test-case device-presence --result pass
 echo "device: $device_path"
+
+IFS=''
 
 v4l2-compliance -s -d $device_path | sed s/'\r'/'\n'/g | while read line; do
     # Skip noisy video capture progress messages
