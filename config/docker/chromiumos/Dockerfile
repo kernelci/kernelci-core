@@ -18,7 +18,7 @@ RUN apt-get update \
     && apt-get autoremove \
     && rm -rf /var/lib/apt/lists/*
 
-RUN useradd -u 1000 -ms /bin/sh user && adduser user sudo && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+RUN useradd -u 996 -ms /bin/sh user && adduser user sudo && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 RUN mkdir -p /home/user/chromiumos && chown -R user /home/user/chromiumos
 
 # Extra packages needed by kernelCI
