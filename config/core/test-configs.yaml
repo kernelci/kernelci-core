@@ -962,6 +962,12 @@ device_types:
       - blocklist: {defconfig: ['allmodconfig', 'multi_v5_defconfig']}
       - blocklist: {kernel: ['v3.']}
 
+  kontron-bl-imx8mm:
+    mach: freescale
+    class: arm64-dtb
+    dtb: 'freescale/imx8mm-kontron-n801x-s.dtb'
+    boot_method: uboot
+
   kontron-kbox-a-230-ls:
     mach: freescale
     class: arm64-dtb
@@ -2129,6 +2135,11 @@ test_configs:
       - baseline-nfs
 
   - device_type: kirkwood-openblocks_a7
+    test_plans:
+      - baseline
+      - baseline-nfs
+
+  - device_type: kontron-bl-imx8mm
     test_plans:
       - baseline
       - baseline-nfs
