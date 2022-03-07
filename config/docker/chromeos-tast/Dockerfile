@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 RUN apt-get update && apt-get install -y \
     curl \
     git \
+    inetutils-ping \
     python3 \
     python-pkg-resources \
     vim \
