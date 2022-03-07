@@ -1,5 +1,18 @@
 test_plans:
 
+  chromiumosvm-tast-fixed-kernel:
+    pattern: 'chromeos/cros-tast-qemu.jinja2'
+    filters:
+      - blocklist: &kselftest_defconfig_filter
+          defconfig: ['kselftest']
+      - passlist: &qemu_chromiumos_labs_filter
+          lab: ['lab-collabora-staging', 'lab-collabora']
+    params:
+      job_timeout: '60'
+      docker_image: 'kernelci/chromeos-tast'
+      rootfs_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220429.0/chromiumos-amd64-generic/amd64/'
+      fixed_kernel: true
+
   cros-flash:
     pattern: 'chromeos/cros-flash.jinja2'
     params:
@@ -33,6 +46,31 @@ device_types:
 
   hp-x360-12b-ca0500na-n4000-octopus_chromeos: *octopus
 
+  qemu_x86_64-uefi-chromiumos:
+    base_name: qemu
+    mach: qemu
+    arch: x86_64
+    boot_method: qemu
+    params:
+      bios_url: 'http://storage.kernelci.org/images/uefi/edk2-stable202005/x86_64/OVMF.fd'
+    context:
+      arch: x86_64
+      cpu: 'qemu64'
+      guestfs_interface: 'virtio'
+      extra_options:
+        - '-device pcie-root-port,port=0x10,chassis=1,id=pci.1,bus=pcie.0,multifunction=on,addr=0x2'
+        - '-device pcie-root-port,port=0x15,chassis=6,id=pci.6,bus=pcie.0,addr=0x2.0x5'
+        - '-device qemu-xhci,p2=15,p3=15,id=usb,bus=pci.6,addr=0x0'
+        - '-device usb-storage,bus=usb.0,drive=lavatest2'
+        - '-m 2048'
+        - '-device usb-tablet,id=input0,bus=usb.0,port=2'
+        - '-device pcie-root-port,port=0x11,chassis=2,id=pci.2,bus=pcie.0,addr=0x2.0x1'
+        - '-device virtio-vga,id=video0,virgl=on,max_outputs=1,bus=pcie.0,addr=0x3'
+        - '-device ich9-intel-hda,id=sound0,bus=pcie.0,addr=0x1b'
+        - '-machine pc-q35-5.2,accel=kvm,usb=off,vmport=off,dump-guest-core=off'
+    filters:
+      - passlist: {}
+
 
 test_configs:
 
@@ -43,3 +81,7 @@ test_configs:
   - device_type: hp-x360-12b-ca0500na-n4000-octopus_chromeos
     test_plans:
       - cros-tast
+
+  - device_type: qemu_x86_64-uefi-chromiumos
+    test_plans:
+      - chromiumosvm-tast-fixed-kernel
