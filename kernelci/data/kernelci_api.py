@@ -133,10 +133,8 @@ class KernelCI_API(Database):
         Listen to all the events on 'node' channel and apply filter on it.
         Return node if event matches with the filter.
         """
-        path = '/'.join(['listen', str(sub_id)])
         while True:
-            resp = self._get(path)
-            event = from_json(resp.json().get('data'))
+            event = self.get_event(sub_id)
             node = self.get_node_from_event(event)
             if all(self.pubsub_event_filter(sub_id, obj) for obj in [
                                                                 node,
