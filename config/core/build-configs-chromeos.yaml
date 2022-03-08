@@ -1,5 +1,5 @@
 chromeos_variants: &chromeos-variants
-  clang-13:
+  chromeos-clang-13:
     build_environment: clang-13
     architectures:
       arm:
@@ -24,6 +24,19 @@ chromeos_variants: &chromeos-variants
         fragments: [x86-chromebook]
         filters: *cros-filters
 
+  clang-13:
+    build_environment: clang-13
+    architectures:
+      arm64: &arm64_defconfig
+        base_defconfig: 'defconfig'
+        fragments: [arm64-chromebook]
+        filters:
+          - passlist: { defconfig: ['arm64-chromebook'] }
+      x86_64: &x86_64_defconfig
+        base_defconfig: 'x86_64_defconfig'
+        fragments: [x86-chromebook]
+        filters:
+          - passlist: { defconfig: ['x86-chromebook'] }
 
 build_configs:
 
