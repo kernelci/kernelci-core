@@ -206,7 +206,7 @@ rootfs_configs:
 
   bullseye-v4l2:
     rootfs_type: debos
-    debian_release: buster
+    debian_release: bullseye
     arch_list:
       - amd64
       - arm64
