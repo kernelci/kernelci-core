@@ -1097,11 +1097,15 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
         if not _download_file(url, cros_config):
             raise FileNotFoundError("Error reading {}".format(url))
         tar = tarfile.open(cros_config)
+        subdir = 'chromeos'
         with open(os.path.join(self._output_path, ".config"), 'wb') as f:
-            f.write(tar.extractfile("base.config").read())
-            f.write(tar.extractfile(os.path.join(os.path.dirname(config),
-                                    "common.config")).read())
-            f.write(tar.extractfile(config).read())
+            config_file_names = [
+                os.path.join(subdir, 'base.config'),
+                os.path.join(subdir, os.path.dirname(config), "common.config"),
+                os.path.join(subdir, config),
+            ]
+            for file_name in config_file_names:
+                f.write(tar.extractfile(file_name).read())
 
     def run(self, jopt=None, verbose=False, opts=None):
         """Make the kernel config
