@@ -89,8 +89,8 @@ file_systems:
     ramdisk: 'bullseye-rt/20220228.1/{arch}/rootfs.cpio.gz'
 
   debian_bullseye-v4l2_ramdisk:
-    type: debian
-    ramdisk: 'bullseye-v4l2/20220228.1/{arch}/rootfs.cpio.gz'
+    type: debian-staging
+    ramdisk: 'bullseye-v4l2/20220309.1/{arch}/rootfs.cpio.gz'
 
 
 
