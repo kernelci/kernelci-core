@@ -61,9 +61,9 @@ file_systems:
     ramdisk: 'bullseye-igt/20220228.1/{arch}/rootfs.cpio.gz'
 
   debian_bullseye-kselftest_nfs:
-    type: debian
-    ramdisk: 'bullseye-kselftest/20220228.1/{arch}/initrd.cpio.gz'
-    nfs: 'bullseye-kselftest/20220228.1/{arch}/full.rootfs.tar.xz'
+    type: debian-staging
+    ramdisk: 'bullseye-kselftest/20220310.0/{arch}/initrd.cpio.gz'
+    nfs: 'bullseye-kselftest/20220310.0/{arch}/full.rootfs.tar.xz'
     root_type: nfs
     params:
       os_config: 'debian'
