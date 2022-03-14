@@ -4,9 +4,11 @@ FROM ${PREFIX}build-base
 RUN apt-get update && apt-get install --no-install-recommends -y \
     gcc-10 \
     gcc-10-plugin-dev \
+    python3-dev \
     python3-pip \
     python3-setuptools \
-    python3-wheel
+    python3-wheel \
+    swig
 
 RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 500
 
