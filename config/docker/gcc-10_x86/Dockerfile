@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    libnuma-dev \
    libpopt-dev \
    libasound2-dev \
+   patch \
    pkg-config
 
 # 32-bit support for kselftest
@@ -26,3 +27,6 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    gcc-multilib \
    libc6-i386 \
    libc6-dev-i386
+
+ADD gcc-header-fix.patch /
+RUN cd / && patch -p1 </gcc-header-fix.patch
