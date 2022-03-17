@@ -854,7 +854,6 @@ device_types:
             - 'imx_v6_v7_defconfig'
             - 'multi_v5_defconfig'
             - 'allmodconfig'
-            - 'multi_v7_defconfig+kselftest'
           kernel: ['v3.18']
 
   imx6q-sabresd:
