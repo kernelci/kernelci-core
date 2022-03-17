@@ -2076,6 +2076,7 @@ test_configs:
   - device_type: imx6q-sabrelite
     test_plans:
       - baseline
+      - baseline-nfs
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
