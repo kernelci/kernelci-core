@@ -43,8 +43,7 @@ echo Moving artifacts
 # Create artifacts dir and copy generated image and tast files
 sudo mkdir -p "${DATA_DIR}/${BOARD}"
 sudo cp "src/build/images/${BOARD}/latest/chromiumos_test_image.bin" "${DATA_DIR}/${BOARD}"
-sudo cp ./chroot/usr/bin/remote_test_runner "${DATA_DIR}/${BOARD}"
-sudo cp ./chroot/usr/bin/tast "${DATA_DIR}/${BOARD}"
+sudo tar -czf "${DATA_DIR}/${BOARD}/tast.tgz" -C ./chroot/usr/bin/ remote_test_runner tast
 sudo chown -R "${USERNAME}" "${DATA_DIR}/${BOARD}"
 gzip -1 "${DATA_DIR}/${BOARD}/chromiumos_test_image.bin"
 
