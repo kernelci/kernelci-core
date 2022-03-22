@@ -321,7 +321,7 @@ rootfs_configs:
   buildroot-baseline:
     rootfs_type: buildroot
     git_url: https://github.com/kernelci/buildroot
-    git_branch: main
+    git_branch: staging.kernelci.org
     arch_list:
       - arc
       - arm64
