@@ -135,8 +135,11 @@ class RootFS_Debos(RootFS):
 
 
 class RootFS_Buildroot(RootFS):
-    def __init__(self, name, rootfs_type, arch_list=None, frags=None):
+    def __init__(self, name, rootfs_type, git_url, git_branch,
+                 arch_list=None, frags=None):
         super().__init__(name, rootfs_type)
+        self._git_url = git_url
+        self._git_branch = git_branch
         self._arch_list = arch_list or list()
         self._frags = frags or list()
         self._attrs = set()
@@ -147,11 +150,19 @@ class RootFS_Buildroot(RootFS):
             'name': name,
         }
         kw.update(cls._kw_from_yaml(config, [
-            'rootfs_type', 'arch_list', 'frags',
+            'rootfs_type', 'arch_list', 'git_url', 'git_branch', 'frags',
         ]))
         obj = cls(**kw)
         obj._set_attrs(kw.keys())
         return obj
+
+    @property
+    def git_url(self):
+        return self._git_url
+
+    @property
+    def git_branch(self):
+        return self._git_branch
 
     @property
     def frags(self):
