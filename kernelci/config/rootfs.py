@@ -139,6 +139,7 @@ class RootFS_Buildroot(RootFS):
         super().__init__(name, rootfs_type)
         self._arch_list = arch_list or list()
         self._frags = frags or list()
+        self._attrs = set()
 
     @classmethod
     def from_yaml(cls, config, name):
@@ -148,7 +149,9 @@ class RootFS_Buildroot(RootFS):
         kw.update(cls._kw_from_yaml(config, [
             'rootfs_type', 'arch_list', 'frags',
         ]))
-        return cls(**kw)
+        obj = cls(**kw)
+        obj._set_attrs(kw.keys())
+        return obj
 
     @property
     def frags(self):
@@ -157,6 +160,14 @@ class RootFS_Buildroot(RootFS):
     @property
     def arch_list(self):
         return list(self._arch_list)
+
+    def _set_attrs(self, attrs):
+        self._attrs = set(attrs)
+
+    def _get_attrs(self):
+        attrs = super()._get_attrs()
+        attrs.update(self._attrs)
+        return attrs
 
 
 class RootFSFactory(YAMLObject):
