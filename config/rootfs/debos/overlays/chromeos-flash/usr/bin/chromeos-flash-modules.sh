@@ -76,6 +76,24 @@ enable_rw()
     partprobe /dev/mmcblk0
 }
 
+fixup_root()
+{
+    cd /root
+    mkdir -p chromeos
+    ls -ld chromeos
+    mount /dev/mmcblk0p3 chromeos
+    ls -ld chromeos
+    chown root: chromeos
+    ls -ld chromeos
+    umount chromeos
+    ls -ld chromeos
+    mount /dev/mmcblk0p3 chromeos
+    ls -ld chromeos
+    umount chromeos
+    ls -ld chromeos
+    sync
+}
+
 fixup_tmpfiles()
 {
     local mount_dir=$(basename "$IMAGE_MOUNTPOINT")
