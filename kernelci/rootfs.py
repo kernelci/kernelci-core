@@ -92,31 +92,45 @@ class BuildrootBuilder(RootfsBuilder):
         absoutput_dir = os.path.abspath(output)
         artifact_dir = os.path.join(absoutput_dir, '_install_',
                                     self.name, arch)
-        temp_dir = os.path.join(absoutput_dir, 'temp')
+        repo_dir = os.path.join(absoutput_dir, 'buildroot')
 
-        # Create directories if missing
-        if not os.path.isdir(artifact_dir):
-            os.makedirs(artifact_dir, exist_ok=True)
-        if not os.path.isdir(temp_dir):
-            os.makedirs(temp_dir, exist_ok=True)
-        os.chdir(temp_dir)
+        # Hard-coded here for now, should eventually be in YAML config
+        git_url = 'https://github.com/kernelci/buildroot'
+        git_branch = "main"
 
-        if os.path.isdir("buildroot"):
-            shutil.rmtree("buildroot")
-        cmd = 'git clone https://github.com/kernelci/buildroot'
-        ret = shell_cmd(cmd, True)
-        if not ret:
-            return False
-        os.chdir('buildroot')
+        if not os.path.exists(repo_dir):
+            shell_cmd(f"""
+set -ex
+git clone {git_url} {repo_dir}
+cd {repo_dir}
+git checkout -q origin/{git_branch}
+""")
+        else:
+            shell_cmd(f"""
+set -ex
+cd {repo_dir}
+if [ $(git remote get-url origin) != "{git_url}" ]; then
+  git remote set-url origin {git_url}
+fi
+git remote update origin
+git checkout -q origin/{git_branch}
+git clean -fd
+""")
 
-        cmd = f"./configs/frags/build {arch} {self._frag}"
-        ret = shell_cmd(cmd, True)
-        if not ret:
-            return False
+        shell_cmd(f"""
+set -ex
+cd {repo_dir}
+./configs/frags/build {arch} {self._frag}
+""")
 
-        os.chdir('..')
-        cmd = f"mv buildroot/output/images/* {artifact_dir}"
-        return shell_cmd(cmd, True)
+        shell_cmd(f"""
+set -ex
+rm -rf {artifact_dir}
+mkdir -p {artifact_dir}
+mv {repo_dir}/output/images/* {artifact_dir}
+""")
+
+        return True
 
 
 ROOTFS_BUILDERS = {
