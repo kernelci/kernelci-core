@@ -94,26 +94,22 @@ class BuildrootBuilder(RootfsBuilder):
                                     self.name, arch)
         repo_dir = os.path.join(absoutput_dir, 'buildroot')
 
-        # Hard-coded here for now, should eventually be in YAML config
-        git_url = 'https://github.com/kernelci/buildroot'
-        git_branch = "main"
-
         if not os.path.exists(repo_dir):
             shell_cmd(f"""
 set -ex
-git clone {git_url} {repo_dir}
+git clone {config.git_url} {repo_dir}
 cd {repo_dir}
-git checkout -q origin/{git_branch}
+git checkout -q origin/{config.git_branch}
 """)
         else:
             shell_cmd(f"""
 set -ex
 cd {repo_dir}
-if [ $(git remote get-url origin) != "{git_url}" ]; then
-  git remote set-url origin {git_url}
+if [ $(git remote get-url origin) != "{config.git_url}" ]; then
+  git remote set-url origin {config.git_url}
 fi
 git remote update origin
-git checkout -q origin/{git_branch}
+git checkout -q origin/{config.git_branch}
 git clean -fd
 """)
 
