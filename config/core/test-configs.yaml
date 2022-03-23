@@ -153,7 +153,10 @@ test_plans:
     filters:
       - blocklist: *kselftest_defconfig_filter
       - passlist: &qemu_labs_filter
-          lab: ['lab-baylibre', 'lab-collabora-staging']
+          lab:
+            - 'lab-baylibre'
+            - 'lab-broonie'
+            - 'lab-collabora-staging'
 
   cros-ec:
     rootfs: debian_bullseye-cros-ec_ramdisk
