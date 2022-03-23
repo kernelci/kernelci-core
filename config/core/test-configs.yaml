@@ -248,6 +248,12 @@ test_plans:
     filters:
       - passlist: {defconfig: ['kselftest']}
 
+  kselftest-alsa:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "alsa"
+
   kselftest-cpufreq:
     <<: *kselftest
     params:
@@ -1813,6 +1819,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - kselftest-alsa
       - kselftest-lkdtm
       - kselftest-seccomp
       - ltp-fcntl-locktests
@@ -1823,6 +1830,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - kselftest-alsa
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-rtc
@@ -1836,6 +1844,7 @@ test_configs:
       - baseline-nfs
       - cros-ec
       - igt-gpu-i915
+      - kselftest-alsa
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
@@ -1857,6 +1866,7 @@ test_configs:
       - baseline
       - baseline-nfs
       - cros-ec
+      - kselftest-alsa
       - kselftest-lib
       - kselftest-vm
       - ltp-ipc
@@ -1981,6 +1991,7 @@ test_configs:
       - baseline-nfs
       - cros-ec
       - igt-gpu-amd
+      - kselftest-alsa
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
@@ -2005,6 +2016,7 @@ test_configs:
       - baseline
       - baseline-nfs
       - cros-ec
+      - kselftest-alsa
       - kselftest-cpufreq
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus
@@ -2272,6 +2284,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      # kselftest-alsa - Board capacity in a lab
 
   - device_type: minnowboard-turbot-E3826
     test_plans:
@@ -2323,6 +2336,7 @@ test_configs:
       - baseline
       - baseline-nfs
       - igt-kms-exynos
+      - kselftest-alsa
       - sleep
       - usb
 
@@ -2480,6 +2494,7 @@ test_configs:
     test_plans: &r8a7795-salvator-x_test-plans
       - baseline
       - baseline-nfs
+      # kselftest-alsa - Lab networking issue
 
   - device_type: r8a77950-salvator-x  # same as r8a7795-salvator-x
     test_plans: *r8a7795-salvator-x_test-plans
@@ -2506,6 +2521,7 @@ test_configs:
       - cros-ec
       - igt-gpu-panfrost
       - igt-kms-rockchip
+      # kselftest-alsa - Basic boot issue preventing testing
       - ltp-timers
       - sleep
       - usb
@@ -2513,12 +2529,15 @@ test_configs:
   - device_type: rk3328-rock64
     test_plans:
       - baseline
+      - baseline-nfs
+      # kselftest-alsa - lab stability/availability issue
 
   - device_type: rk3399-gru-kevin
     test_plans:
       - baseline
       - baseline-nfs
       - cros-ec
+      - kselftest-alsa
       - kselftest-rtc
       - ltp-fcntl-locktests
       - ltp-pty
@@ -2546,7 +2565,9 @@ test_configs:
   - device_type: sc7180-trogdor-lazor-limozeen
     test_plans:
       - baseline
+      # baseline-nfs - Current configs lack networking
       - cros-ec
+      # kselftest-alsa - Current configs lack networking
 
   - device_type: snow
     test_plans:
