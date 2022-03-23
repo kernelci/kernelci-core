@@ -38,6 +38,7 @@ class LavaAPI(LabAPI):
         params.update({
             'template_file': template_file,
             'priority': self.config.priority,
+            'queue_timeout': self.config.queue_timeout,
             'lab_name': self.config.name,
             'base_device_type': self._alias_device_type(base_name),
         })

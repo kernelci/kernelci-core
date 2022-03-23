@@ -67,19 +67,27 @@ class LabAPI(Lab):
 
 class Lab_LAVA(LabAPI):
 
-    def __init__(self, priority='medium', *args, **kwargs):
+    def __init__(self, priority='medium', queue_timeout=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._priority = priority
+        self._queue_timeout = queue_timeout
 
     @property
     def priority(self):
         return self._priority
+
+    @property
+    def queue_timeout(self):
+        return self._queue_timeout
 
     @classmethod
     def from_yaml(cls, lab, kw):
         priority = lab.get('priority')
         if priority:
             kw['priority'] = priority
+        queue_timeout = lab.get('queue_timeout')
+        if queue_timeout:
+            kw['queue_timeout'] = queue_timeout
         return cls(**kw)
 
 
