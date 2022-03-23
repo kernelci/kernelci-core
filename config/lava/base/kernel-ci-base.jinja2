@@ -64,6 +64,15 @@ timeouts:
   actions:
     power-off:
       seconds: 30
+{%- if queue_timeout %}
+  queue:
+    {%- if queue_timeout.hours %}
+    hours: {{ queue_timeout.hours }}
+    {% endif %}
+    {%- if queue_timeout.days %}
+    days: {{ queue_timeout.days }}
+    {% endif %}
+{% endif %}
 priority: {{ priority }}
 visibility: public
 {% endblock %}

@@ -4,6 +4,8 @@ labs:
   lab-baylibre:
     lab_type: lava.lava_xmlrpc
     url: 'https://lava.baylibre.com/RPC2/'
+    queue_timeout:
+      days: 1
     filters:
       - blocklist: {tree: [drm-tip]}
       - passlist:
@@ -69,6 +71,8 @@ labs:
   lab-clabbe:
     lab_type: lava.lava_xmlrpc
     url: 'https://lava.montjoie.ovh/RPC2/'
+    queue_timeout:
+      hours: 24
     filters:
       - passlist:
           plan:
