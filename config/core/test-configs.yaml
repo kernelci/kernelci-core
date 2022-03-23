@@ -611,6 +611,12 @@ device_types:
     class: arm-dtb
     boot_method: uboot
 
+  at91sam9g20ek:
+    mach: at91
+    arch: armel
+    class: arm-dtb
+    boot_method: uboot
+
   bcm2711-rpi-4-b:
     mach: broadcom
     class: arm64-dtb
@@ -1862,6 +1868,10 @@ test_configs:
       - baseline
 
   - device_type: at91-sama5d4_xplained
+    test_plans:
+      - baseline
+
+  - device_type: at91sam9g20ek
     test_plans:
       - baseline
 
