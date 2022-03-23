@@ -2012,6 +2012,8 @@ test_configs:
   - device_type: bcm2711-rpi-4-b
     test_plans:
       - baseline
+      - baseline-nfs
+      - kselftest-arm64
 
   - device_type: bcm2836-rpi-2-b
     test_plans:
@@ -2366,6 +2368,8 @@ test_configs:
   - device_type: meson-g12b-odroid-n2
     test_plans:
       - baseline
+      - baseline-nfs
+      - kselftest-arm64
       - kselftest-lib
 
   - device_type: meson-gxbb-nanopi-k2
@@ -2401,6 +2405,7 @@ test_configs:
       - baseline
       - baseline-nfs
       - kselftest-alsa
+      - kselftest-arm64
       - kselftest-cpufreq
       - kselftest-futex
       - kselftest-lib
@@ -2761,6 +2766,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - kselftest-arm64
       - kselftest-cpufreq
       - kselftest-filesystems
       - kselftest-futex
