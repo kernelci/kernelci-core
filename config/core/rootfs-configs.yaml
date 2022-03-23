@@ -143,6 +143,7 @@ rootfs_configs:
       - ca-certificates
       - iproute2
       - jdim
+      - libasound2
       - libatm1
       - libcap2-bin
       - libelf1
