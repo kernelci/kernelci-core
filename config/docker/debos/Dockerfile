@@ -48,4 +48,5 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     python3.9 \
     python3-requests \
     python3-yaml \
+    ssh \
     xz-utils
