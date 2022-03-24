@@ -61,6 +61,7 @@ dt-validation \
 kernelci \
 k8s \
 qemu \
+chromiumos \
 "
 
 if [ -n "$*" ]; then
