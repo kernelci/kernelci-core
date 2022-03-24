@@ -2459,6 +2459,7 @@ test_configs:
       - baseline-cip-nfs
       - baseline-nfs
       - cros-ec
+      - kselftest-arm64
       - kselftest-cpufreq
       - kselftest-filesystems
       - kselftest-futex
