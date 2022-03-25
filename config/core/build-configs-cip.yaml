@@ -86,9 +86,10 @@ cip_variants_preempt_rt: &cip_variants_preempt_rt
         extra_configs:
           - 'defconfig+preempt_rt'
       x86_64:
-        fragments: [preempt_rt]
+        fragments: [preempt_rt, x86-chromebook]
         extra_configs:
           - 'x86_64_defconfig+preempt_rt'
+          - 'x86_64_defconfig+x86-chromebook+preempt_rt'
 
 
 build_configs:
