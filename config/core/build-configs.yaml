@@ -212,6 +212,8 @@ fragments:
 
   kselftest:
     path: "kernel/configs/kselftest.config"
+    configs:
+      - '# CONFIG_DUMMY is not set'
 
   preempt_rt:
     path: "kernel/configs/preempt_rt.config"
