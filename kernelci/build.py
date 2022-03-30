@@ -256,24 +256,6 @@ git describe --always --match=v[1-9]\*
     return describe.strip()
 
 
-def add_kselftest_fragment(path, frag_path='kernel/configs/kselftest.config'):
-    """Create a config fragment file for kselftest
-
-    *path* is the path to the local kernel git repository
-    *frag_path* is the path where to create the fragment within the repo
-    """
-    shell_cmd(r"""
-set -e
-cd {path}
-find \
-  tools/testing/selftests \
-  -name config \
-  -printf "#\n# %h/%f\n#\n" \
-  -exec cat {{}} \; \
-> {frag_path}
-""".format(path=path, frag_path=frag_path))
-
-
 def make_tarball(kdir, tarball_name):
     """Make a kernel source tarball
 
@@ -291,6 +273,27 @@ def make_tarball(kdir, tarball_name):
         for item in itertools.chain(dirs, files):
             tarball.add(item, filter=lambda f: f if f.name != '.git' else None)
     os.chdir(cwd)
+
+
+def generate_kselftest_fragment(frag, kdir):
+    """Create a config fragment file for kselftest
+
+    *frag* is a Fragment object
+    *kdir* is the path to a kernel source directory
+    """
+    shell_cmd(r"""
+set -e
+cd {kdir}
+find \
+  tools/testing/selftests \
+  -name config \
+  -printf "#\n# %h/%f\n#\n" \
+  -exec cat {{}} \; \
+> {frag_path}
+""".format(kdir=kdir, frag_path=frag.path))
+    with open(os.path.join(kdir, frag.path), 'a') as f:
+        for kernel_config in frag.configs:
+            f.write(kernel_config + '\n')
 
 
 def generate_config_fragment(frag, kdir):
@@ -318,7 +321,7 @@ def generate_fragments(config, kdir):
     for frag in frag_list:
         print(frag.path)
         if frag.name == 'kselftest':
-            add_kselftest_fragment(kdir)
+            generate_kselftest_fragment(frag, kdir)
         elif frag.configs:
             generate_config_fragment(frag, kdir)
 
