@@ -94,60 +94,9 @@ fixup_root()
     sync
 }
 
-fixup_tmpfiles()
-{
-    local mount_dir=$(basename "$IMAGE_MOUNTPOINT")
-    local root_path=$(dirname "$IMAGE_MOUNTPOINT")
-
-    echo "Fixing up tmpfiles..."
-    mkdir -p "$IMAGE_MOUNTPOINT"
-    cd "$root_path"
-    mount /dev/mmcblk0p3 "$mount_dir"
-    mount_special_fs "$IMAGE_MOUNTPOINT"
-    cd "$mount_dir"
-    mount /dev/mmcblk0p1 mnt/stateful_partition
-    chroot . chown root: .
-    ls -l mnt/stateful_partition
-    chroot . \
-        /bin/systemd-tmpfiles \
-        --create --remove --boot --prefix /mnt/stateful_partition
-    chroot . ls -la .
-    ls -l mnt/stateful_partition
-    umount mnt/stateful_partition
-    cd "$root_path"
-    umount_special_fs "$IMAGE_MOUNTPOINT"
-    umount "$mount_dir"
-    sync
-}
-
-install_modules()
-{
-    local mount_dir=$(basename "$IMAGE_MOUNTPOINT")
-    local root_path=$(dirname "$IMAGE_MOUNTPOINT")
-    local modules_tarball=$(basename "$MODULES_URL")
-
-    echo "Downloading modules from $MODULES_URL..."
-    mkdir -p "$IMAGE_MOUNTPOINT"
-    cd "$root_path"
-    wget --no-check-certificate "$MODULES_URL"
-    mount /dev/mmcblk0p3 "$mount_dir"
-
-    echo "Installing modules..."
-    cd "$mount_dir"
-    ls -l lib/modules
-    rm -rf lib/modules
-    tar xzf "$root_path/$modules_tarball"
-    chown root: -R lib
-    ls -l lib/modules
-    cd "$root_path"
-    umount "$mount_dir"
-    sync
-}
-
-commands="${*:-flash_chromeos enable_rw fixup_tmpfiles install_modules}"
+commands="${*:-flash_chromeos enable_rw fixup_root}"
 IMAGE_NAME="${IMAGE_NAME:-octopus-chromiumos-test-image.bin}"
 IMAGE_MOUNTPOINT="${IMAGE_MOUNTPOINT:-/root/chromeos}"
-MODULES_URL="${MODULES_URL:-http://images.collabora.com/lava/chromeos/modules-4.14.243.tar.gz}"
 
 for cmd in $commands; do
     echo "Running [$cmd]"
