@@ -1,0 +1,38 @@
+#!/bin/bash
+
+set -xe
+
+install_modules()
+{
+    local mount_dir=$(basename "$IMAGE_MOUNTPOINT")
+    local root_path=$(dirname "$IMAGE_MOUNTPOINT")
+    local modules_tarball=$(basename "$MODULES_URL")
+
+    echo "Downloading modules from $MODULES_URL..."
+    mkdir -p "$IMAGE_MOUNTPOINT"
+    cd "$root_path"
+    wget --no-check-certificate "$MODULES_URL"
+    mount /dev/mmcblk0p3 "$mount_dir"
+
+    echo "Installing modules..."
+    cd "$mount_dir"
+    ls -l lib/modules
+    rm -rf lib/modules
+    tar xzf "$root_path/$modules_tarball"
+    chown root: -R lib
+    ls -l lib/modules
+    cd "$root_path"
+    umount "$mount_dir"
+    sync
+}
+
+commands="${*:-install_modules}"
+IMAGE_MOUNTPOINT="${IMAGE_MOUNTPOINT:-/root/chromeos}"
+MODULES_URL="${MODULES_URL:-http://images.collabora.com/lava/chromeos/modules-4.14.243.tar.gz}"
+
+for cmd in $commands; do
+    echo "Running [$cmd]"
+    $cmd
+done
+
+exit 0
