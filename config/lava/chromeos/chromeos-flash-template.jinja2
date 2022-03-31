@@ -75,7 +75,7 @@ actions:
           steps:
             - lsblk
             - ls -l /root
-            - IMAGE_NAME={{ chromeos_image }}  /bin/bash /usr/bin/chromeos-flash-modules.sh flash_chromeos enable_rw fixup_root
+            - IMAGE_NAME={{ chromeos_image }}  /bin/bash /opt/chromeos/flash
       lava-signal: kmsg
       from: inline
       name: chromeos-flash
