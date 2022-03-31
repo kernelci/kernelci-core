@@ -761,11 +761,13 @@ device_types:
     boot_method: depthcharge
     filters: *x86-chromebook-filters
 
-  hp-x360-12b-n4000-octopus:
+  hp-x360-12b-ca0500na-n4000-octopus: &octopus
     mach: x86
     arch: x86_64
     boot_method: depthcharge
     filters: *x86-chromebook-filters
+
+  hp-x360-12b-n4000-octopus: *octopus
 
   hsdk:
     mach: arc
@@ -1996,6 +1998,14 @@ test_configs:
       - baseline-nfs
       - cros-ec
       - kselftest-cpufreq
+
+  - device_type: hp-x360-12b-ca0500na-n4000-octopus
+    test_plans:
+      - baseline
+      - baseline-nfs
+      - cros-ec
+      - igt-gpu-i915
+      - kselftest-lib
 
   - device_type: hp-x360-12b-n4000-octopus
     test_plans:
