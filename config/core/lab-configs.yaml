@@ -89,6 +89,8 @@ labs:
     lab_type: lava.lava_rest
     url: 'https://lava.collabora.co.uk/'
     priority: '45'
+    queue_timeout:
+      days: 2
     filters: &collabora-filters
       - blocklist:
           tree: [android]
@@ -97,6 +99,8 @@ labs:
     lab_type: lava.lava_rest
     url: 'https://staging.lava.collabora.dev/'
     priority: '45'
+    queue_timeout:
+      hours: 1
     filters: *collabora-filters
 
   lab-kontron:
