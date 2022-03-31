@@ -613,7 +613,6 @@ device_types:
 
   at91sam9g20ek:
     mach: at91
-    arch: armel
     class: arm-dtb
     boot_method: uboot
 
