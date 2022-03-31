@@ -10,18 +10,19 @@ chromeos_variants: &chromeos-variants
           - regex: { defconfig: 'cros' }
       arm64:
         base_defconfig: 'cros://chromeos-5.10/arm64/chromiumos-arm64.flavour.config'
+        fragments: [arm64-chromebook]
         extra_configs:
-          - 'cros://chromeos-5.10/arm64/chromiumos-mediatek.flavour.config'
-          - 'cros://chromeos-5.10/arm64/chromiumos-qualcomm.flavour.config'
-          - 'cros://chromeos-5.10/arm64/chromiumos-rockchip64.flavour.config'
+          - 'cros://chromeos-5.10/arm64/chromiumos-mediatek.flavour.config+arm64-chromebook'
+          - 'cros://chromeos-5.10/arm64/chromiumos-qualcomm.flavour.config+arm64-chromebook'
+          - 'cros://chromeos-5.10/arm64/chromiumos-rockchip64.flavour.config+arm64-chromebook'
         filters: *cros-filters
       x86_64:
         base_defconfig: 'cros://chromeos-5.10/x86_64/chromiumos-x86_64.flavour.config'
+        fragments: [x86-chromebook]
         extra_configs:
           - 'cros://chromeos-5.10/x86_64/chromeos-amd-stoneyridge.flavour.config+x86-chromebook'
           - 'cros://chromeos-5.10/x86_64/chromeos-intel-denverton.flavour.config+x86-chromebook'
           - 'cros://chromeos-5.10/x86_64/chromeos-intel-pineview.flavour.config+x86-chromebook'
-        fragments: [x86-chromebook]
         filters: *cros-filters
 
   clang-13:
