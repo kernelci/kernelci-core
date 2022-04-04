@@ -7,6 +7,31 @@
 {{ super () }}
 
 actions:
+
+- deploy:
+    to: downloads
+    images:
+        rootfs:
+             url: {{ rootfs_url }}chromiumos_test_image.bin.gz
+             compression: gz
+        kernel:
+{% if fixed_kernel is not defined %}
+             url: {{ kernel_url }}
+{% else %}
+             url: {{ rootfs_url }}bzImage
+{% endif %}
+        modules:
+{% if fixed_kernel is not defined %}
+             url: {{ modules_url }}
+{% else %}
+             url: {{ rootfs_url }}modules.tar.xz
+{% endif %}
+             compression: xz
+    postprocess:
+        docker:
+            image: kernelci/chromeos-lavapost
+            steps:
+                - /add_modules.sh
 - deploy:
     images:
       bios:
@@ -14,11 +39,10 @@ actions:
         url: http://storage.kernelci.org/images/uefi/edk2-stable202005/x86_64/OVMF.fd
       rootfs:
         image_arg: -drive format=raw,file={rootfs},id=lavatest2,if=none
-        url: {{ rootfs_url }}chromiumos_test_image.bin.gz
-        compression: gz
-{% if fixed_kernel is not defined %}
-# FIXME not supported yet
-{% endif %}
+        url: downloads://chromiumos_test_image.bin
+      kernel:
+        image_arg: -kernel {kernel} --append 'init=/sbin/init boot=local rootwait ro noresume noswap loglevel=7 earlyprintk=serial,keep console=tty0 console=ttyS0 i915.modeset=1 cros_efi cros_debug root=/dev/sda3 tsc=unstable'
+        url: downloads://./bzImage
     os: oe
     timeout:
       minutes: {{ job_timeout }}
