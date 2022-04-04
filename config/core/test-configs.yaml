@@ -2078,7 +2078,6 @@ test_configs:
       - baseline
       - baseline-nfs
       - kselftest-filesystems
-      - kselftest-futex
       - kselftest-lib
       - kselftest-livepatch
       - kselftest-lkdtm
