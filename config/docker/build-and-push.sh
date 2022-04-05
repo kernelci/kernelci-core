@@ -62,6 +62,7 @@ k8s \
 qemu \
 chromiumos \
 chromeos-flash \
+chromeos-lavapost \
 "
 
 if [ -n "$*" ]; then
