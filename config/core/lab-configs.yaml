@@ -115,7 +115,8 @@ labs:
   lab-linaro-lkft:
     lab_type: lava.lava_rest
     url: 'https://lkft.validation.linaro.org/'
-    priority: low
+    priority_min: 0
+    priority_max: 25
     queue_timeout:
       days: 1
     filters:
