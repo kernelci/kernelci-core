@@ -2,6 +2,7 @@
 {{- $basename := or .basename "." -}}
 {{- $extra_packages := or .extra_packages "" -}}
 {{- $extra_firmware := or .extra_firmware "" -}}
+{{- $linux_fw_version := or .linux_fw_version "" -}}
 {{- $suite := or .suite "buster" -}}
 {{- $script := or .script "scripts/nothing.sh" -}}
 {{- $test_overlay := .test_overlay -}}
@@ -59,7 +60,11 @@ actions:
   - action: run
     description: add firmware files
     chroot: false
-    script: scripts/install-firmware.sh {{ $extra_firmware }}
+    {{ if $linux_fw_version }}
+    script: scripts/install-firmware.sh -v {{ $linux_fw_version }} -f {{ $extra_firmware }}
+    {{ else}}
+    script: scripts/install-firmware.sh -f {{ $extra_firmware }}
+    {{ end }}
 {{ end }}
 
   - action: run

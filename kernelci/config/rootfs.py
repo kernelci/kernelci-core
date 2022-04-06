@@ -43,6 +43,7 @@ class RootFS(YAMLObject):
 class RootFS_Debos(RootFS):
     def __init__(self, name, rootfs_type, debian_release=None,
                  arch_list=None, extra_packages=None, extra_firmware=None,
+                 linux_fw_version="",
                  extra_packages_remove=None,
                  extra_files_remove=None, script="",
                  test_overlay="", crush_image_options=None, debian_mirror="",
@@ -53,6 +54,7 @@ class RootFS_Debos(RootFS):
         self._extra_packages = extra_packages or list()
         self._extra_packages_remove = extra_packages_remove or list()
         self._extra_firmware = extra_firmware or list()
+        self._linux_fw_version = linux_fw_version
         self._extra_files_remove = extra_files_remove or list()
         self._script = script
         self._test_overlay = test_overlay
@@ -79,6 +81,7 @@ class RootFS_Debos(RootFS):
             'extra_packages_remove',
             'extra_files_remove',
             'extra_firmware',
+            'linux_fw_version',
             'script',
             'test_overlay',
             'crush_image_options',
@@ -108,6 +111,10 @@ class RootFS_Debos(RootFS):
     @property
     def extra_firmware(self):
         return list(self._extra_firmware)
+
+    @property
+    def linux_fw_version(self):
+        return self._linux_fw_version
 
     @property
     def script(self):
@@ -287,6 +294,7 @@ def _dump_config_debos(config_name, config):
     print('\textra_files_remove: {}'.format(
         config.extra_files_remove))
     print('\textra_firmware: {}'.format(config.extra_firmware))
+    print('\tlinux_fw_version: {}'.format(config.linux_fw_version))
     print('\tscript: {}'.format(config.script))
     print('\ttest_overlay: {}'.format(config.test_overlay))
     print('\tcrush_image_options: {}'.format(
