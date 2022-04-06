@@ -67,14 +67,20 @@ class LabAPI(Lab):
 
 class Lab_LAVA(LabAPI):
 
-    def __init__(self, priority='medium', queue_timeout=None, *args, **kwargs):
+    def __init__(self, priority_min=50, priority_max=50,
+                 queue_timeout=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._priority = priority
+        self._priority_min = priority_min
+        self._priority_max = priority_max
         self._queue_timeout = queue_timeout
 
     @property
-    def priority(self):
-        return self._priority
+    def priority_min(self):
+        return self._priority_min
+
+    @property
+    def priority_max(self):
+        return self._priority_max
 
     @property
     def queue_timeout(self):
@@ -84,7 +90,27 @@ class Lab_LAVA(LabAPI):
     def from_yaml(cls, lab, kw):
         priority = lab.get('priority')
         if priority:
-            kw['priority'] = priority
+            if priority == 'low':
+                priority = 0
+            elif priority == 'medium':
+                priority = 50
+            elif priority == 'high':
+                priority = 100
+            else:
+                priority = int(priority)
+
+            # If min/max are specified these will be overridden
+            kw['priority_min'] = priority
+            kw['priority_max'] = priority
+
+        # 0 is a valid value so explicitly check for None
+        priority_min = lab.get('priority_min')
+        if priority_min is not None:
+            kw['priority_min'] = int(priority_min)
+        priority_max = lab.get('priority_max')
+        if priority_max is not None:
+            kw['priority_max'] = int(priority_max)
+
         queue_timeout = lab.get('queue_timeout')
         if queue_timeout:
             kw['queue_timeout'] = queue_timeout
