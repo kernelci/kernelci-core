@@ -125,6 +125,8 @@ test_plans:
 
   baseline:
     rootfs: buildroot-baseline_ramdisk
+    params:
+      priority: 90
     filters:
       - blocklist: *kselftest_defconfig_filter
 
