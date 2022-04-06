@@ -62,6 +62,7 @@ class DebosBuilder(RootfsBuilder):
             'extra_packages_remove': ' '.join(config.extra_packages_remove),
             'extra_files_remove':  ' '.join(config.extra_files_remove),
             'extra_firmware': ' '.join(config.extra_firmware),
+            'linux_fw_version': config.linux_fw_version,
             'script': config.script,
             'test_overlay': config.test_overlay,
             'crush_image_options': ' '.join(config.crush_image_options),

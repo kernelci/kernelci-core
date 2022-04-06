@@ -167,6 +167,7 @@ Now you know how to build default `kci_rootfs` images. Let's look at how to add 
   | test_overlay          | Create a directory layout on final rootfs image as provided. |
   | extra_packages        | Installs specified packages on rootfs image. |
   | extra_firmware        | Installs specified linux-firmware files into rootfs image. |
+  | linux_fw_version      | If `extra_firmware` is specified, selects the linux-firmware version to fetch. |
   | extra_files_remove    | Removes specified files from rootfs image. |
 
   Please note at the moment, only `debos` is supported as `rootfs_type` and above options are debos specific.
