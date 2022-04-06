@@ -76,7 +76,8 @@ class LabAPI:
         return self.config.match(filter_data)
 
     def generate(self, params, device_config, plan_config,
-                 callback_opts=None, templates_path=None, db_config=None):
+                 callback_opts=None, templates_path=None, db_config=None,
+                 lab_config=None):
         """Generate a test job definition.
 
         *params* is a dictionary with the test parameters which can be used
@@ -95,6 +96,9 @@ class LabAPI:
 
         *db_config* is a Database configuration object for the database or API
             where the results should be sent
+
+        *lab_config* is a configuration object for the API
+            where the tests should be run
         """
         raise NotImplementedError("Lab.generate() is required")
 

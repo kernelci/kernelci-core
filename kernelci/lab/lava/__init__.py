@@ -35,12 +35,26 @@ class LavaAPI(LabAPI):
             print("Template not found: {}".format(template_file))
             return None
         base_name = params['base_device_type']
+
+        # Scale the job priority (from 0-100) within the available levels
+        # for the lab, or use the lowest by default.
+        if 'priority' in plan_config.params:
+            priority = plan_config.params['priority']
+            if priority > 100:
+                priority = 100
+        else:
+            priority = 0
+
+        prio_range = self.config._priority_max - self.config._priority_min
+        priority = int(((priority * prio_range) / 100) +
+                       self.config._priority_min)
+
         params.update({
             'template_file': template_file,
-            'priority': self.config.priority,
             'queue_timeout': self.config.queue_timeout,
             'lab_name': self.config.name,
             'base_device_type': self._alias_device_type(base_name),
+            'priority': priority,
         })
         if callback_opts:
             self._add_callback_params(params, callback_opts)
