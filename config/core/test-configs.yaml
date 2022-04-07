@@ -727,6 +727,7 @@ device_types:
 
   at91sam9g20ek:
     mach: at91
+    variant: v5
     class: arm-dtb
     boot_method: uboot
 
@@ -2043,6 +2044,7 @@ test_configs:
   - device_type: at91sam9g20ek
     test_plans:
       - baseline
+      - baseline-nfs
 
   - device_type: bcm2711-rpi-4-b
     test_plans:
