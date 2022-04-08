@@ -24,7 +24,8 @@ class DeviceType(YAMLObject):
     """Device type model."""
 
     def __init__(self, name, mach, arch, boot_method, dtb=None, base_name=None,
-                 flags=None, filters=None, context=None, params=None):
+                 flags=None, filters=None, context=None, params=None,
+                 variant=None):
         """A device type describes a category of equivalent hardware devices.
 
         *name* is unique for the device type, typically as used by LAVA.
@@ -38,10 +39,13 @@ class DeviceType(YAMLObject):
         *context* is an arbirary dictionary used when scheduling tests.
         *params* is a dictionary with parameters to pass to the test job
                  generator.
+        *variant* is the variant of the CPU architecture following the Linux
+                  kernel convention.
         """
         self._name = name
         self._mach = mach
         self._arch = arch
+        self._variant = variant
         self._boot_method = boot_method
         self._dtb = dtb
         self._base_name = base_name or name
@@ -70,6 +74,10 @@ class DeviceType(YAMLObject):
         return self._arch
 
     @property
+    def variant(self):
+        return self._variant
+
+    @property
     def boot_method(self):
         return self._boot_method
 
@@ -93,6 +101,7 @@ class DeviceType(YAMLObject):
         attrs = super()._get_attrs()
         attrs.update({
             'arch',
+            'variant',
             'base_name',
             'boot_method',
             'context',
@@ -159,7 +168,8 @@ class DeviceType_shell(DeviceType):
 
     def __init__(self, name, mach=None, arch=None, boot_method=None,
                  *args, **kwargs):
-        super().__init__(name, mach, arch, boot_method, *args, **kwargs)
+        super().__init__(name, mach, arch, boot_method,
+                         *args, **kwargs)
 
 
 class DeviceType_kubernetes(DeviceType):
@@ -190,7 +200,7 @@ class DeviceTypeFactory(YAMLObject):
             'filters': FilterFactory.from_data(device_type, default_filters),
         }
         kw.update(cls._kw_from_yaml(device_type, [
-            'mach', 'arch', 'boot_method',
+            'mach', 'arch', 'variant', 'boot_method',
             'dtb', 'flags', 'context', 'params',
         ]))
         cls_name = device_type.get('class')
@@ -240,10 +250,14 @@ class RootFSType(YAMLObject):
         attrs.update({'url', 'arch_map'})
         return attrs
 
-    def get_arch_name(self, arch, endian):
+    def get_arch_name(self, arch, variant, endian):
         arch_key = ('arch', arch)
+        variant_key = ('variant', variant)
         endian_key = ('endian', endian)
-        arch_name = (self._arch_dict.get((arch_key, endian_key)) or
+        arch_name = (self._arch_dict.get((arch_key, variant_key,
+                                          endian_key)) or
+                     self._arch_dict.get((arch_key, variant_key)) or
+                     self._arch_dict.get((arch_key, endian_key)) or
                      self._arch_dict.get((arch_key,), arch))
         return arch_name
 
@@ -327,7 +341,7 @@ class RootFS(YAMLObject):
     def get_url_format(self, fs_type):
         return self._url_format.get(fs_type)
 
-    def get_url(self, fs_type, arch, endian):
+    def get_url(self, fs_type, arch, variant, endian):
         """Get the URL of the file system for the given variant and arch.
 
         The *fs_type* should match one of the URL patterns known to this root
@@ -336,7 +350,7 @@ class RootFS(YAMLObject):
         fmt = self.get_url_format(fs_type)
         if not fmt:
             return None
-        arch_name = self._fs_type.get_arch_name(arch, endian)
+        arch_name = self._fs_type.get_arch_name(arch, variant, endian)
         return fmt.format(arch=arch_name)
 
 

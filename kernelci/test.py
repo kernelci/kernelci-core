@@ -89,6 +89,7 @@ def get_params(meta, target, plan_config, storage, device_id):
 
     kernel, rev = (meta.get('bmeta', key) for key in ['kernel', 'revision'])
     arch = target.arch
+    variant = target.variant
     dtb = dtb_full = target.dtb
     if dtb:
         dtb_dir = meta.get_single_artifact('dtbs', attr='path')
@@ -160,9 +161,9 @@ def get_params(meta, target, plan_config, storage, device_id):
 
     rootfs = plan_config.rootfs
     if rootfs:
-        initrd_url = rootfs.get_url('ramdisk', arch, endian)
+        initrd_url = rootfs.get_url('ramdisk', arch, variant, endian)
         initrd_compression = _get_compression(initrd_url)
-        nfsroot_url = rootfs.get_url('nfs', arch, endian)
+        nfsroot_url = rootfs.get_url('nfs', arch, variant, endian)
         nfsroot_compression = _get_compression(nfsroot_url)
         params.update({
             'initrd_url': initrd_url,
