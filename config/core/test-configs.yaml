@@ -248,6 +248,12 @@ test_plans:
     filters:
       - passlist: {defconfig: ['kselftest']}
 
+  kselftest-basic: &kselftest-basic
+    rootfs: debian_bullseye-kselftest_nfs
+    pattern: 'kselftest/{category}-{method}-{protocol}-{rootfs}-kselftest-template.jinja2'
+    filters:
+      - blocklist: *kselftest_defconfig_filter
+
   kselftest-cpufreq:
     <<: *kselftest
     params:
@@ -255,13 +261,13 @@ test_plans:
       kselftest_collections: "cpufreq"
 
   kselftest-filesystems:
-    <<: *kselftest
+    <<: *kselftest-basic
     params:
       job_timeout: '10'
       kselftest_collections: "filesystems"
 
   kselftest-futex:
-    <<: *kselftest
+    <<: *kselftest-basic
     params:
       job_timeout: '10'
       kselftest_collections: "futex"
@@ -285,7 +291,7 @@ test_plans:
       kselftest_collections: "lkdtm"
 
   kselftest-rtc:
-    <<: *kselftest
+    <<: *kselftest-basic
     params:
       job_timeout: '10'
       kselftest_collections: "rtc"
@@ -297,7 +303,7 @@ test_plans:
       kselftest_collections: "seccomp"
 
   kselftest-tpm2:
-    <<: *kselftest
+    <<: *kselftest-basic
     params:
       job_timeout: '10'
       kselftest_collections: "tpm2"
