@@ -965,20 +965,20 @@ device_types:
 
   kirkwood-db-88f6282:
     mach: mvebu
+    variant: v5
     class: arm-dtb
     boot_method: uboot
     filters:
-        # To be removed once NFS is working with multi_v5_defconfig
-      - blocklist: {defconfig: ['allmodconfig', 'multi_v5_defconfig']}
+      - blocklist: {defconfig: ['allmodconfig']}
       - blocklist: {kernel: ['v3.']}
 
   kirkwood-openblocks_a7:
     mach: mvebu
+    variant: v5
     class: arm-dtb
     boot_method: uboot
     filters:
-        # To be removed once NFS is working with multi_v5_defconfig
-      - blocklist: {defconfig: ['allmodconfig', 'multi_v5_defconfig']}
+      - blocklist: {defconfig: ['allmodconfig']}
       - blocklist: {kernel: ['v3.']}
 
   kontron-kbox-a-230-ls:
