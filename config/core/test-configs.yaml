@@ -255,6 +255,8 @@ test_plans:
     params:
       job_timeout: '10'
       kselftest_collections: "alsa"
+    filters: &kselftest_no_fragment
+      - combination: *arch_defconfig_filter
 
   kselftest-cpufreq:
     <<: *kselftest
@@ -267,12 +269,14 @@ test_plans:
     params:
       job_timeout: '10'
       kselftest_collections: "filesystems"
+    filters: *kselftest_no_fragment
 
   kselftest-futex:
     <<: *kselftest
     params:
       job_timeout: '10'
       kselftest_collections: "futex"
+    filters: *kselftest_no_fragment
 
   kselftest-lib:
     <<: *kselftest
@@ -297,6 +301,7 @@ test_plans:
     params:
       job_timeout: '10'
       kselftest_collections: "rtc"
+    filters: *kselftest_no_fragment
 
   kselftest-seccomp:
     <<: *kselftest
@@ -309,6 +314,7 @@ test_plans:
     params:
       job_timeout: '10'
       kselftest_collections: "tpm2"
+    filters: *kselftest_no_fragment
 
   kselftest-vm:
     <<: *kselftest
