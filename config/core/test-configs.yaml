@@ -368,6 +368,12 @@ test_plans:
     params:
       <<: *ltp-params
       tst_cmdfiles: "pty"
+  
+  ltp-syscalls:
+    <<: *ltp
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "syscalls"
 
   ltp-timers:
     <<: *ltp
@@ -1847,6 +1853,7 @@ test_configs:
       - ltp-ipc
       - ltp-mm
       - ltp-pty
+      - ltp-syscalls
       - ltp-timers
       - preempt-rt
       - sleep_mem
@@ -1995,6 +2002,7 @@ test_configs:
       - ltp-ipc
       - ltp-mm
       - ltp-pty
+      - ltp-syscalls
       - ltp-timers
       - preempt-rt
       - sleep
@@ -2297,6 +2305,7 @@ test_configs:
       - ltp-ipc
       - ltp-mm
       - ltp-pty
+      - ltp-syscalls
       - ltp-timers
       - preempt-rt
       - sleep
@@ -2365,6 +2374,7 @@ test_configs:
       - ltp-ipc
       - ltp-mm
       - ltp-pty
+      - ltp-syscalls
       - ltp-timers
 
   - device_type: qemu_arm-versatilepb
@@ -2458,6 +2468,7 @@ test_configs:
       - ltp-ipc
       - ltp-mm
       - ltp-pty
+      - ltp-syscalls
       - ltp-timers
       - preempt-rt
       - smc
