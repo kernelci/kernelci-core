@@ -1,5 +1,8 @@
 labs:
 
+  k8s-gke-eu-west4:
+    lab_type: kubernetes
+
   # ToDo: also run jobs with callbacks sent to BayLibre's KernelCI backend
   lab-baylibre:
     lab_type: lava.lava_xmlrpc
