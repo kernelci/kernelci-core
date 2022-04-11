@@ -162,6 +162,13 @@ class DeviceType_shell(DeviceType):
         super().__init__(name, mach, arch, boot_method, *args, **kwargs)
 
 
+class DeviceType_kubernetes(DeviceType):
+
+    def __init__(self, name, mach=None, arch=None, boot_method=None,
+                 *args, **kwargs):
+        super().__init__(name, mach, arch, boot_method, *args, **kwargs)
+
+
 class DeviceTypeFactory(YAMLObject):
     """Factory to create device types from YAML data."""
 
@@ -172,6 +179,7 @@ class DeviceTypeFactory(YAMLObject):
         'arm64-dtb': DeviceType_arm64,
         'riscv-dtb': DeviceType_riscv,
         'shell': DeviceType_shell,
+        'kubernetes': DeviceType_kubernetes,
     }
 
     @classmethod
