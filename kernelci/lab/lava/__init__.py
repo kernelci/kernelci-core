@@ -70,6 +70,9 @@ class LavaAPI(LabAPI):
             job_id = self._submit(job)
             return job_id
 
+    def job_file_name(self, params):
+        return '.'.join([params['name'], 'yaml'])
+
     def _add_callback_params(self, params, opts):
         callback_id = opts.get('id')
         if not callback_id:

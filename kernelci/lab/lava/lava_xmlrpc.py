@@ -91,9 +91,6 @@ class LAVA(LavaAPI):
         online_status = self.devices.get('online_status', dict())
         return online_status.get(device_type, False)
 
-    def job_file_name(self, params):
-        return '.'.join([params['name'], 'yaml'])
-
     def _submit(self, job):
         return self._server.scheduler.submit_job(job)
 
