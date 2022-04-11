@@ -1454,16 +1454,6 @@ class MakeSelftests(Step):
     def name(self):
         return 'kselftest'
 
-    def is_enabled(self):
-        """Check whether the kselftest fragment is enabled
-
-        Return True if the kselftest config fragment is enabled in the build
-        meta-data, or False otherwise.
-        """
-        return 'kselftest' in self._meta.get(
-            'bmeta', 'kernel', 'defconfig_extras'
-        )
-
     def run(self, jopt=None, verbose=False, opts=None):
         """Make the kernel selftests
 
