@@ -300,6 +300,13 @@ test_plans:
       kselftest_collections: "futex"
     filters: *kselftest_no_fragment
 
+  kselftest-kcmp:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "kcmp"
+    filters: *kselftest_no_fragment
+
   kselftest-lib:
     <<: *kselftest
     params:
