@@ -303,6 +303,12 @@ test_plans:
       job_timeout: '10'
       kselftest_collections: "lkdtm"
 
+  kselftest-net:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "net"
+
   kselftest-openat2:
     <<: *kselftest
     params:
