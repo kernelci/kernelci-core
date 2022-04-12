@@ -286,6 +286,13 @@ test_plans:
       job_timeout: '10'
       kselftest_collections: "cpufreq"
 
+  kselftest-exec:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "exec"
+    filters: *kselftest_no_fragment
+
   kselftest-filesystems:
     <<: *kselftest
     params:
