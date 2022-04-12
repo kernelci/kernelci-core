@@ -318,6 +318,13 @@ test_plans:
       job_timeout: '10'
       kselftest_collections: "lkdtm"
 
+  kselftest-membarrier:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "membarrier"
+    filters: *kselftest_no_fragment
+
   kselftest-mincore:
     <<: *kselftest
     params:
