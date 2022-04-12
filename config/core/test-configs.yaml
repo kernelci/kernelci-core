@@ -273,6 +273,13 @@ test_plans:
       kselftest_collections: "capabilities"
     filters: *kselftest_no_fragment
 
+  kselftest-clone3:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "clone3"
+    filters: *kselftest_no_fragment
+
   kselftest-cpufreq:
     <<: *kselftest
     params:
