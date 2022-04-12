@@ -336,6 +336,13 @@ test_plans:
       job_timeout: '10'
       kselftest_collections: "seccomp"
 
+  kselftest-timers:
+    <<: *kselftest
+    params:
+      job_timeout: '15'
+      kselftest_collections: "timers"
+    filters: *kselftest_no_fragment
+
   kselftest-tpm2:
     <<: *kselftest
     params:
