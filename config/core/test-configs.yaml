@@ -258,6 +258,13 @@ test_plans:
     filters: &kselftest_no_fragment
       - combination: *arch_defconfig_filter
 
+  kselftest-capabilities:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "capabilities"
+    filters: *kselftest_no_fragment
+
   kselftest-cpufreq:
     <<: *kselftest
     params:
