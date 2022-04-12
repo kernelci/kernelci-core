@@ -175,10 +175,10 @@ test_plans:
       job_timeout: '60'
       docker_image: 'kernelci/chromeos-flash'
       chromeos_image: 'chromiumos_test_image-R94-14150.19.0-octopus.bin'
-      flashing_kernel: https://people.collabora.com/~mgalka/stable/linux-5.10.y/v5.10.95/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/kernel/bzImage
-      flashing_modules: https://people.collabora.com/~mgalka/stable/linux-5.10.y/v5.10.95/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/modules.tar.xz
-      flashing_rootfs: http://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220328.0/bullseye-chromeos-flash/amd64/full.rootfs.tar.xz
-      flashing_ramdisk: http://storage.kernelci.org/images/rootfs/debian/buster/20210503.0/amd64/initrd.cpio.gz
+      flashing_kernel: http://storage.chromeos.kernelci.org/images/kernel/v5.17.2-x86_64+x86_chromebook/kernel/bzImage
+      flashing_modules: http://storage.chromeos.kernelci.org/images/kernel/v5.17.2-x86_64+x86_chromebook/modules.tar.xz
+      flashing_rootfs: http://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220412.0/bullseye-chromeos-flash/amd64/full.rootfs.tar.xz
+      flashing_ramdisk: http://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220412.0/bullseye-chromeos-flash/amd64/initrd.cpio.gz
 
   chromeos-tast:
     pattern: 'chromeos/chromeos-tast-template.jinja2'
