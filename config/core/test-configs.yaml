@@ -2579,6 +2579,7 @@ test_configs:
   - device_type: sun50i-a64-pine64-plus
     test_plans:
       - baseline
+      - baseline-nfs
 
   - device_type: sun50i-h5-libretech-all-h3-cc
     test_plans:
