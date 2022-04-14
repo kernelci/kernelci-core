@@ -2587,6 +2587,7 @@ test_configs:
       # ltp-mm - runs system out of memory
       - ltp-pty
       - ltp-timers
+      - smc
 
   - device_type: sun50i-h5-libretech-all-h3-cc
     test_plans:
