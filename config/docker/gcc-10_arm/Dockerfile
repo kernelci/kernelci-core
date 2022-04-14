@@ -27,4 +27,4 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    libnuma-dev:armhf \
    libpopt-dev:armhf \
    libasound2-dev:armhf \
-   pkg-config:armhf
+   pkg-config

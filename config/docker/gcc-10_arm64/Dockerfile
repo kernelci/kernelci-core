@@ -38,4 +38,4 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    libnuma-dev:arm64 \
    libpopt-dev:arm64 \
    libasound2-dev:arm64 \
-   pkg-config:arm64
+   pkg-config
