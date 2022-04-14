@@ -32,6 +32,17 @@ echo Board ${BOARD} setup
 # Compiling ChromiumOS image
 # Future possible option --profile=x, for example kernel-5_15, profiles are at /mnt/host/source/src/overlays/overlay-${BOARD}/profiles/
 cros_sdk setup_board --board=${BOARD}
+
+# Without workarounds hatch and octopus build failing
+if [ "${BOARD}" == "hatch" ]; then
+echo Patching hatch specific issue
+sed -i 's/EC_BOARDS=()/EC_BOARDS=(hatch)/' src/third_party/chromiumos-overlay/eclass/cros-ec-board.eclass
+fi
+if [ "${BOARD}" == "octopus" ]; then
+echo Patching octopus specific issue
+sed -i s,'use fuzzer || die',"#use fuzzer || die", src/third_party/chromiumos-overlay/eclass/cros-ec-board.eclass
+fi
+
 # Add serial support
 echo Add serial support
 cros_sdk USE=pcserial build_packages --board=${BOARD}
