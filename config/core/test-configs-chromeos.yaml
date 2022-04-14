@@ -1,5 +1,9 @@
 test_plans:
 
+  cros-boot:
+    pattern: 'chromeos/cros-boot.jinja2'
+    prompt_command: 'NETDEV_UP'
+
   cros-flash:
     pattern: 'chromeos/cros-flash.jinja2'
     params:
