@@ -271,6 +271,8 @@ fragments:
       - 'CONFIG_SPI=y'
       - 'CONFIG_SPI_PXA2XX=y'
       - 'CONFIG_PINCTRL_AMD=y'
+      - 'CONFIG_NVME_CORE=y'
+      - 'CONFIG_BLK_DEV_NVME=y'
 
   x86_kvm_guest:
     path: "kernel/configs/kvm_guest.config"
