@@ -32,7 +32,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    libhugetlbfs-dev:arm64 \
    libpopt-dev:arm64 \
    libasound2-dev:arm64 \
-   pkg-config:arm64
+   pkg-config
 
 # kselftest arm
 RUN dpkg --add-architecture armhf
@@ -44,6 +44,6 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    libhugetlbfs-dev:armhf \
    libpopt-dev:armhf \
    libasound2-dev:armhf \
-   pkg-config:armhf
+   pkg-config
 
 RUN apt-get autoremove -y gcc
