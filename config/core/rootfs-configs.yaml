@@ -78,6 +78,28 @@ rootfs_configs:
     script: "scripts/bullseye-cros-ec-tests.sh"
     test_overlay: ""
 
+  bullseye-gst-fluster:
+    rootfs_type: debos
+    debian_release: bullseye
+    arch_list:
+      - amd64
+      - arm64
+      - armhf
+    extra_packages_remove:
+      - bash
+      - e2fslibs
+      - e2fsprogs
+      - klibc-utils
+      - libext2fs2
+      - libgnutls30
+      - libklibc
+      - libncursesw6
+      - libp11-kit0
+      - libunistring2
+      - sensible-utils
+    script: "scripts/bullseye-gst-fluster.sh"
+    test_overlay: "overlays/fluster"
+
   bullseye-igt:
     rootfs_type: debos
     debian_release: bullseye
