@@ -1,5 +1,9 @@
 test_plans:
 
+  chromeos-boot:
+    pattern: 'chromeos/chromeos-boot-chromebook-template.jinja2'
+    prompt_command: 'NETDEV_UP'
+
   chromeos-flash:
     pattern: 'chromeos/chromeos-flash-template.jinja2'
     params:
