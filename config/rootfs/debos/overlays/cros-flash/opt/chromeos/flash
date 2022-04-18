@@ -38,12 +38,13 @@ flash_chromeos()
     mount_special_fs "$IMAGE_MOUNTPOINT"
     mount --bind . "$mount_dir"/mnt/empty
     ls -l "$mount_dir"/mnt/empty/"$IMAGE_NAME"
-    ls -l "$mount_dir"/dev/mmc*
+    ls -l "$mount_dir"/dev/{mmc*,nvme*} || true
 
     echo "Starting to flash..."
     chroot "$mount_dir" \
          /usr/sbin/chromeos-install \
-        --dst /dev/mmcblk0 \
+        --debug \
+        --dst /dev/${FLASH_DEVICE} \
         --payload_image /mnt/empty/"$IMAGE_NAME" \
         --yes
     sync
@@ -62,7 +63,7 @@ enable_rw()
     echo "Making the rootfs writeable..."
     mkdir -p "$IMAGE_MOUNTPOINT"
     cd "$root_path"
-    mount /dev/mmcblk0p3 "$mount_dir" -o ro
+    mount /dev/${FLASH_DEVICE}p3 "$mount_dir" -o ro
     mount_special_fs "$IMAGE_MOUNTPOINT"
     cd "$mount_dir"
     chroot . \
@@ -73,7 +74,8 @@ enable_rw()
     umount_special_fs "$IMAGE_MOUNTPOINT"
     umount "$mount_dir"
     sync
-    partprobe /dev/mmcblk0
+    # Partprobe fails on NVMe chromebooks, ignore it
+    partprobe -s /dev/${FLASH_DEVICE} || true
 }
 
 fixup_root()
@@ -81,13 +83,13 @@ fixup_root()
     cd /root
     mkdir -p chromeos
     ls -ld chromeos
-    mount /dev/mmcblk0p3 chromeos
+    mount /dev/${FLASH_DEVICE}p3 chromeos
     ls -ld chromeos
     chown root: chromeos
     ls -ld chromeos
     umount chromeos
     ls -ld chromeos
-    mount /dev/mmcblk0p3 chromeos
+    mount /dev/${FLASH_DEVICE}p3 chromeos
     ls -ld chromeos
     umount chromeos
     ls -ld chromeos
@@ -97,6 +99,19 @@ fixup_root()
 commands="${*:-flash_chromeos enable_rw fixup_root}"
 IMAGE_NAME="${IMAGE_NAME:-octopus-chromiumos-test-image.bin}"
 IMAGE_MOUNTPOINT="${IMAGE_MOUNTPOINT:-/root/chromeos}"
+FLASH_DEVICE="${FLASH_DEVICE:-mmcblk0}"
+
+if [ "${FLASH_DEVICE}" == "detect" ]; then
+    echo "Detecting storage device"
+    if [ -e "/dev/mmcblk0" ]; then
+       FLASH_DEVICE="mmcblk0"
+    elif [ -e "/dev/mmcblk1" ]; then
+       FLASH_DEVICE="mmcblk1"
+    else
+       echo "MMC device not detected!"
+       exit 1
+    fi
+fi
 
 for cmd in $commands; do
     echo "Running [$cmd]"
