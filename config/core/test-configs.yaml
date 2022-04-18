@@ -2258,10 +2258,17 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - kselftest-alsa
       - kselftest-cpufreq
       - kselftest-futex
       - kselftest-lib
       - kselftest-seccomp
+      - ltp-crypto
+      - ltp-fcntl-locktests
+      - ltp-ipc
+      # ltp-mm - Runs board out of memory
+      - ltp-pty
+      - ltp-timers
 
   - device_type: meson-gxm-khadas-vim2
     test_plans:
