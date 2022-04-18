@@ -2258,6 +2258,10 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - kselftest-cpufreq
+      - kselftest-futex
+      - kselftest-lib
+      - kselftest-seccomp
 
   - device_type: meson-gxm-khadas-vim2
     test_plans:
