@@ -2263,6 +2263,7 @@ test_configs:
   - device_type: meson-gxl-s905x-libretech-cc
     test_plans:
       - baseline
+      - baseline-nfs
 
   - device_type: meson-gxm-khadas-vim2
     test_plans:
