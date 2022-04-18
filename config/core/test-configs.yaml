@@ -266,6 +266,13 @@ test_plans:
     filters: &kselftest_no_fragment
       - combination: *arch_defconfig_filter
 
+  kselftest-arm64:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "arm64"
+    filters: *kselftest_no_fragment
+
   kselftest-capabilities:
     <<: *kselftest
     params:
