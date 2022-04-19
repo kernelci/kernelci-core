@@ -27,7 +27,7 @@ from kernelci.lab import LabAPI
 class LavaAPI(LabAPI):
 
     def generate(self, params, device_config, plan_config, callback_opts=None,
-                 templates_path='config/lava', db_config=None):
+                 templates_path='config/lava'):
         short_template_file = plan_config.get_template_path(
             device_config.boot_method)
         template_file = os.path.join(templates_path, short_template_file)
