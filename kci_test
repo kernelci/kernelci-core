@@ -256,7 +256,7 @@ class cmd_generate(Command):
             params = kernelci.test.get_params(
                 meta, device_config, plan_config, args.storage)
             job = lab_api.generate(params, device_config, plan_config,
-                                   callback_opts, db_config=db_config)
+                                   callback_opts)
             if job is None:
                 print("Failed to generate the job definition")
                 return False
