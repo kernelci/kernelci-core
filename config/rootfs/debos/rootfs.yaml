@@ -60,11 +60,7 @@ actions:
   - action: run
     description: add firmware files
     chroot: false
-    {{ if $linux_fw_version }}
-    script: scripts/install-firmware.sh -v {{ $linux_fw_version }} -f {{ $extra_firmware }}
-    {{ else}}
-    script: scripts/install-firmware.sh -f {{ $extra_firmware }}
-    {{ end }}
+    script: scripts/install-firmware.sh -f {{ $extra_firmware }} {{ if $linux_fw_version }} -v {{ $linux_fw_version }} {{ end }}
 {{ end }}
 
   - action: run
