@@ -299,6 +299,13 @@ test_plans:
       kselftest_collections: "kcmp"
     filters: *kselftest_no_fragment
 
+  kselftest-kvm:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "kvm"
+    filters: *kselftest_no_fragment
+
   kselftest-lib:
     <<: *kselftest
     params:
