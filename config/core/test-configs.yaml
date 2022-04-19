@@ -101,6 +101,7 @@ default_filters:
     - combination: &arch_defconfig_filter
         keys: ['arch', 'defconfig']
         values:
+          - ['arm', 'multi_v5_defconfig']
           - ['arm', 'multi_v7_defconfig']
           - ['arm64', 'defconfig']
           - ['arm64', 'defconfig+arm64-chromebook']
