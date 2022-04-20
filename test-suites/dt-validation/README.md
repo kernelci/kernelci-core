@@ -1,3 +1,7 @@
+# notes
+
+make dt_binding_check; make dtbs_check
+
 # *format.py*
 
 ## Description of the function of this file:
