@@ -1,4 +1,4 @@
-# Copyright (C) 2020 Collabora Limited
+# Copyright (C) 2020, 2021, 2022 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 #
 # This module is free software; you can redistribute it and/or modify it under
@@ -15,8 +15,22 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+import fnmatch
+from glob import glob
+import os
 import setuptools
 import kernelci
+
+
+def _list_files(path, match):
+    all_files = []
+    for root, _, files in os.walk(path):
+        dir_files = []
+        for f in fnmatch.filter(files, match):
+            dir_files.append(os.path.join(root, f))
+        all_files.append((root, dir_files))
+    return all_files
+
 
 setuptools.setup(
     name='kernelci',
@@ -32,9 +46,10 @@ setuptools.setup(
         "kernelci.lab.lava",
         "kernelci.data",
     ],
-    package_data={
-        '': ['../doc/*.md'],
-    },
+    data_files=(
+        [('doc', glob('doc/*.md'))]
+        + _list_files('config/lava', '*.jinja2')
+    ),
     scripts=[
         'kci_build',
         'kci_test',
