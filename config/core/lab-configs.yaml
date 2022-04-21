@@ -3,6 +3,7 @@ labs:
   # ToDo: also run jobs with callbacks sent to BayLibre's KernelCI backend
   lab-baylibre:
     lab_type: lava.lava_xmlrpc
+    config_path: 'lava'
     url: 'https://lava.baylibre.com/RPC2/'
     queue_timeout:
       days: 1
@@ -16,6 +17,7 @@ labs:
 
   lab-broonie:
     lab_type: lava.lava_xmlrpc
+    config_path: 'lava'
     url: 'https://lava.sirena.org.uk/RPC2/'
     priority_min: 0
     priority_max: 40
@@ -31,6 +33,7 @@ labs:
 
   lab-cip:
     lab_type: lava.lava_xmlrpc
+    config_path: 'lava'
     url: 'https://lava.ciplatform.org/RPC2/'
     priority: low
     filters:
@@ -71,6 +74,7 @@ labs:
 
   lab-clabbe:
     lab_type: lava.lava_xmlrpc
+    config_path: 'lava'
     url: 'https://lava.montjoie.ovh/RPC2/'
     queue_timeout:
       hours: 24
@@ -88,6 +92,7 @@ labs:
 
   lab-collabora:
     lab_type: lava.lava_rest
+    config_path: 'lava'
     url: 'https://lava.collabora.co.uk/'
     priority: '45'
     queue_timeout:
@@ -98,6 +103,7 @@ labs:
 
   lab-collabora-staging:
     lab_type: lava.lava_rest
+    config_path: 'lava'
     url: 'https://staging.lava.collabora.dev/'
     priority: '45'
     queue_timeout:
@@ -106,6 +112,7 @@ labs:
 
   lab-kontron:
     lab_type: lava.lava_rest
+    config_path: 'lava'
     url: 'https://lavalab.kontron.com/'
     filters:
       - passlist:
@@ -114,6 +121,7 @@ labs:
 
   lab-linaro-lkft:
     lab_type: lava.lava_rest
+    config_path: 'lava'
     url: 'https://lkft.validation.linaro.org/'
     priority_min: 0
     priority_max: 25
@@ -133,6 +141,7 @@ labs:
 
   lab-mhart:
     lab_type: lava.lava_xmlrpc
+    config_path: 'lava'
     url: 'http://lava.streamtester.net/RPC2/'
     filters:
       - blocklist: {tree: ['android', 'drm-tip', 'linaro-android']}
@@ -142,6 +151,7 @@ labs:
 
   lab-nxp:
     lab_type: lava.lava_rest
+    config_path: 'lava'
     url: 'https://lavalab.nxp.com/'
     filters:
       - passlist:
@@ -150,6 +160,7 @@ labs:
 
   lab-pengutronix:
     lab_type: lava.lava_rest
+    config_path: 'lava'
     url: 'https://hekla.openlab.pengutronix.de/'
     filters:
       - passlist:
@@ -158,6 +169,7 @@ labs:
 
   lab-theobroma-systems:
     lab_type: lava.lava_xmlrpc
+    config_path: 'lava'
     url: 'https://lava.theobroma-systems.com/RPC2/'
     filters:
       - passlist:
@@ -166,3 +178,4 @@ labs:
 
   shell:
     lab_type: shell
+    config_path: 'scripts'
