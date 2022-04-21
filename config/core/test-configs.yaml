@@ -133,6 +133,8 @@ test_plans:
   baseline-cip-nfs:
     rootfs: cip_nfs
     pattern: 'baseline/{category}-{method}-{protocol}-nfs-baseline-template.jinja2'
+    params:
+      priority: 85
     filters:
       - blocklist: *kselftest_defconfig_filter
 
@@ -141,10 +143,13 @@ test_plans:
     pattern: 'baseline/generic-fastboot-baseline-template.jinja2'
     params:
       job_timeout: '50'
+      priority: 90
 
   baseline-nfs:
     rootfs: debian_bullseye_nfs
     pattern: 'baseline/{category}-{method}-{protocol}-nfs-baseline-template.jinja2'
+    params:
+      priority: 85
     filters:
       - blocklist: *kselftest_defconfig_filter
 
@@ -152,6 +157,8 @@ test_plans:
     base_name: baseline
     rootfs: buildroot-baseline_ramdisk
     pattern: 'baseline/generic-qemu-baseline-template.jinja2'
+    params:
+      priority: 90
     filters:
       - blocklist: *kselftest_defconfig_filter
       - passlist: &qemu_labs_filter
