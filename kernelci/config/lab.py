@@ -23,16 +23,19 @@ from kernelci.config.base import FilterFactory, YAMLObject
 class Lab(YAMLObject):
     """Test lab model."""
 
-    def __init__(self, name, lab_type, filters=None):
+    def __init__(self, name, lab_type, config_path=None, filters=None):
         """A lab object contains all the information relative to a test lab.
 
         *name* is the name used to refer to the lab in meta-data.
         *lab_type* is the name of the type of lab, essentially indicating the
                    type of software used by the lab.
+        *config_path* is the relative path where config files for the lab type
+                      are stored
         *filters* is a list of Filter objects associated with this lab.
         """
         self._name = name
         self._lab_type = lab_type
+        self._config_path = config_path
         self._filters = filters or list()
 
     @classmethod
@@ -46,6 +49,10 @@ class Lab(YAMLObject):
     @property
     def lab_type(self):
         return self._lab_type
+
+    @property
+    def config_path(self):
+        return self._config_path
 
     def match(self, data):
         return all(f.match(**data) for f in self._filters)
@@ -135,7 +142,7 @@ class LabFactory(YAMLObject):
             'filters': FilterFactory.from_data(lab),
         }
         kw.update(cls._kw_from_yaml(lab, [
-            'url',
+            'url', 'config_path',
         ]))
         lab_cls = cls._lab_types[lab_type] if lab_type else Lab
         return lab_cls.from_yaml(lab, kw)
