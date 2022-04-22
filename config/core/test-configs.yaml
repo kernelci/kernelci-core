@@ -383,6 +383,7 @@ test_plans:
     params:
       <<: *ltp-params
       tst_cmdfiles: "pty"
+      job_timeout: '25'
 
   ltp-timers:
     <<: *ltp
