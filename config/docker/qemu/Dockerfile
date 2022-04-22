@@ -3,8 +3,8 @@ FROM debian:bullseye
 RUN echo deb http://deb.debian.org/debian bullseye-backports main \
 	> /etc/apt/sources.list.d/backports.list
 
-RUN apt-get update && apt-get install -t bullseye-backports --yes
-	--no-install-recommends \
+RUN apt-get update && \
+    apt-get install -t bullseye-backports --yes --no-install-recommends \
 	qemu-system \
 	qemu-system-arm \
 	qemu-system-mips \
