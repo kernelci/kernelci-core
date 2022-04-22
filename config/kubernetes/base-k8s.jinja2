@@ -1,0 +1,48 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ k8s_job_name }}
+
+spec:
+  completions: 1
+  template:
+    spec:
+      restartPolicy: OnFailure
+
+      volumes:
+      - name: scratch-volume
+        emptyDir: { medium: "Memory" }
+
+      tolerations:
+      - key: "kubernetes.azure.com/scalesetpriority"
+        operator: "Equal"
+        value: "spot"
+        effect: "NoSchedule"
+
+      initContainers:
+      - name: kernelci-setup
+        image: debian:bullseye-slim
+
+        volumeMounts:
+        - mountPath: "/scratch"
+          name: scratch-volume
+
+        command: ["/bin/bash", "-x", "-c"]
+        args: ["mkdir -p /tmp/kci"]
+
+      containers:
+      - name: kernelci
+        image: kernelci/staging-kernelci
+
+        volumeMounts:
+        - mountPath: "/scratch"
+          name: scratch-volume
+
+        env:
+        - name: API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: {{ "kci-api-jwt-staging" }}
+              key: token
+{% block commands %}
+{% endblock %}
