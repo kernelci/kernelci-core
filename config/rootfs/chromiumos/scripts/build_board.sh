@@ -57,6 +57,8 @@ sudo cp "src/build/images/${BOARD}/latest/chromiumos_test_image.bin" "${DATA_DIR
 sudo tar -czf "${DATA_DIR}/${BOARD}/tast.tgz" -C ./chroot/usr/bin/ remote_test_runner tast
 sudo chown -R "${USERNAME}" "${DATA_DIR}/${BOARD}"
 gzip -1 "${DATA_DIR}/${BOARD}/chromiumos_test_image.bin"
+sudo tar -cJf "${DATA_DIR}/${BOARD}/modules.tar.xz" -C ./chroot/build/${BOARD} lib/modules
+sudo cp "./chroot/build/${BOARD}/boot/vmlinuz" "${DATA_DIR}/${BOARD}/bzImage"
 
 # Probably redundant, but better safe than sorry
 cleanup
