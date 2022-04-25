@@ -58,6 +58,7 @@ coccinelle \
 cvehound \
 debos \
 dt-validation \
+kernelci \
 k8s \
 qemu \
 "
@@ -72,11 +73,18 @@ echo "targets: $targets"
 
 docker_build_and_tag() {
     local target="$1"
+    local extra_args="$2"
     local tag=${tag_px}"$target"
 
     echo "Building [$tag]"
 
-    docker build --build-arg PREFIX="$tag_px" ${quiet} ${cache_args} $1 -t $tag
+    docker build \
+           --build-arg PREFIX="$tag_px" \
+           ${quiet} \
+           ${cache_args} \
+           ${extra_args} \
+           ${target} \
+           -t ${tag}
 
     if [ "x${push}" == "xtrue" ]
     then
@@ -92,6 +100,10 @@ for target in $targets; do
         do
             docker_build_and_tag "$cc"
         done
+    elif [ "$target" = "kernelci" ]; then
+        core_rev=$(git show --pretty=format:%H -s origin/main)
+        echo "kernelci-core revision: ${core_rev}"
+        docker_build_and_tag kernelci "--build-arg core_rev=${core_rev}"
     else
         docker_build_and_tag "$target"
     fi
