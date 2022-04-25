@@ -46,39 +46,16 @@ actions:
     - repository:
         metadata:
           format: Lava-Test Test Definition 1.0
-          name: docker-network
+          name: docker-network-flashing
         run:
           steps:
             - ping -c 1 172.17.0.1
-            - lava-test-case wget --shell  "wget http://172.17.0.1/chromeos/{{ chromeos_image }}"
-            - lava-test-case scp --shell "scp -i /keys/id_rsa_chromeos_flash -o ConnectTimeout=3 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null {{ chromeos_image }} root@$(lava-target-ip):/root"
+            - lava-test-case wget --shell "wget --no-check-certificate -O chromiumos_test_image.bin.gz {{ chromeos_image }}"
+            - lava-test-case unpack --shell "gzip -d chromiumos_test_image.bin.gz || mv chromiumos_test_image.bin.gz chromiumos_test_image.bin"
+            - lava-test-case scp --shell "scp -C -i /keys/id_rsa_chromeos_flash -o ConnectTimeout=3 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null chromiumos_test_image.bin root@$(lava-target-ip):/root"
+            - ssh -i /keys/id_rsa_chromeos_flash -o ConnectTimeout=3 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$(lava-target-ip) "IMAGE_NAME=chromiumos_test_image.bin FLASH_DEVICE={{ flashing_device }} /bin/bash /opt/chromeos/flash"
       from: inline
-      name: docker-network
+      name: docker-network-flashing
       path: inline/docker-network.yaml
-
-- test:
-    timeout:
-      minutes: 60
-    definitions:
-    - repository:
-        metadata:
-          format: Lava-Test Test Definition 1.0
-          name: chromeos-flash
-          description: "Flash Chrome OS image"
-          os:
-            - debian
-          scope:
-            - functional
-          environment:
-            - lava-test-shell
-        run:
-          steps:
-            - lsblk
-            - ls -l /root
-            - IMAGE_NAME={{ chromeos_image }}  /bin/bash /opt/chromeos/flash
-      lava-signal: kmsg
-      from: inline
-      name: chromeos-flash
-      path: inline/chromeos-flash.yaml
 
 {% endblock %}
