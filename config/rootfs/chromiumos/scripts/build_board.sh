@@ -45,7 +45,7 @@ fi
 
 # Add serial support
 echo Add serial support
-cros_sdk USE=pcserial ./build_packages --board=${BOARD}
+cros_sdk USE=pcserial build_packages --board=${BOARD}
 cros_sdk USE="tty_console_ttyS0" emerge-"${BOARD}" chromeos-base/tty
 echo Building image
 cros_sdk ./build_image --enable_serial ttyS0 --board="${BOARD}" --boot_args "earlyprintk=serial,keep console=tty0" --noenable_rootfs_verification test
