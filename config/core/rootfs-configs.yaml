@@ -247,3 +247,23 @@ rootfs_configs:
     arch_list:
       - amd64
 
+  chromiumos-grunt:
+    rootfs_type: chromiumos
+    board: grunt
+    branch: release-R100-14526.B
+    arch_list:
+      - amd64
+
+  chromiumos-hatch:
+    rootfs_type: chromiumos
+    board: hatch
+    branch: release-R100-14526.B
+    arch_list:
+      - amd64
+
+  chromiumos-octopus:
+    rootfs_type: chromiumos
+    board: octopus
+    branch: release-R100-14526.B
+    arch_list:
+      - amd64
