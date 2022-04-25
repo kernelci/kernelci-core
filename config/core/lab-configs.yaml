@@ -21,6 +21,8 @@ labs:
     url: 'https://lava.sirena.org.uk/RPC2/'
     priority_min: 0
     priority_max: 40
+    queue_timeout:
+      days: 1
     filters:
       - passlist:
           plan:
