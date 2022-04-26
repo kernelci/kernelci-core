@@ -72,6 +72,24 @@ class LabAPI(Lab):
         return self._url
 
 
+class Lab_Kubernetes(Lab):
+
+    def __init__(self, context=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._context = context
+
+    @property
+    def context(self):
+        return self._context
+
+    @classmethod
+    def from_yaml(cls, config, kw):
+        kw.update(cls._kw_from_yaml(config, [
+            'context',
+        ]))
+        return cls(**kw)
+
+
 class Lab_LAVA(LabAPI):
 
     def __init__(self, priority_min=50, priority_max=50,
@@ -128,7 +146,7 @@ class LabFactory(YAMLObject):
     """Factory to create lab objects from YAML data."""
 
     _lab_types = {
-        'kubernetes': Lab,
+        'kubernetes': Lab_Kubernetes,
         'lava.lava_xmlrpc': Lab_LAVA,
         'lava.lava_rest': Lab_LAVA,
         'shell': Lab,
