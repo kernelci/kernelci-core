@@ -18,7 +18,7 @@
 
 import requests
 import urllib
-from kernelci.data import Database
+from kernelci.db import Database
 
 
 class KernelCIBackend(Database):

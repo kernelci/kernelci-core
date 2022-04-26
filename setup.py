@@ -44,7 +44,7 @@ setuptools.setup(
         "kernelci.config",
         "kernelci.lab",
         "kernelci.lab.lava",
-        "kernelci.data",
+        "kernelci.db",
     ],
     data_files=(
         [('doc', glob('doc/*.md'))]

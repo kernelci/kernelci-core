@@ -21,7 +21,7 @@ import urllib.parse
 
 from cloudevents.http import from_json
 
-from kernelci.data import Database
+from kernelci.db import Database
 
 
 class KernelCI_API(Database):
