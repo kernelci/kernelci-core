@@ -25,7 +25,7 @@ def _get_db():
     if not DB_CONFIG_YAML:
         return None
 
-    db_config = kernelci.config.data.DatabaseFactory.from_yaml(
+    db_config = kernelci.config.db.DatabaseFactory.from_yaml(
         'db', yaml.load(DB_CONFIG_YAML, Loader=yaml.CLoader)
     )
     if not db_config:

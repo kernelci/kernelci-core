@@ -22,7 +22,7 @@ import yaml
 import kernelci
 import kernelci.config
 import kernelci.config.build
-import kernelci.config.data
+import kernelci.config.db
 import kernelci.config.lab
 import kernelci.config.rootfs
 import kernelci.config.test
@@ -89,7 +89,7 @@ def from_data(data):
     config = dict()
     filters = kernelci.config.base.default_filters_from_yaml(data)
     config.update(kernelci.config.build.from_yaml(data, filters))
-    config.update(kernelci.config.data.from_yaml(data, filters))
+    config.update(kernelci.config.db.from_yaml(data, filters))
     config.update(kernelci.config.lab.from_yaml(data, filters))
     config.update(kernelci.config.rootfs.from_yaml(data, filters))
     config.update(kernelci.config.test.from_yaml(data, filters))
