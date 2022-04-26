@@ -10,7 +10,7 @@ import tarfile
 import urllib.parse
 import yaml
 
-import kernelci.data
+import kernelci.db
 import kernelci.config
 
 DB_CONFIG_YAML = """
@@ -35,7 +35,7 @@ def _get_db():
     if not api_token:
         return None
 
-    return kernelci.data.get_db(db_config, api_token)
+    return kernelci.db.get_db(db_config, api_token)
 
 
 def _get_source(url):

@@ -81,6 +81,6 @@ class Database:
 
 
 def get_db(config, token=None):
-    m = importlib.import_module('.'.join(['kernelci', 'data', config.db_type]))
+    m = importlib.import_module('.'.join(['kernelci', 'db', config.db_type]))
     db = m.get_db(config, token)
     return db
