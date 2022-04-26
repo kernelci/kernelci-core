@@ -46,11 +46,6 @@ setuptools.setup(
         "kernelci.lab.lava",
         "kernelci.db",
     ],
-    data_files=(
-        [('doc', glob('doc/*.md'))]
-        + _list_files('config/lava', '*.jinja2')
-        + _list_files('config/scripts', '*.jinja2')
-    ),
     scripts=[
         'kci_build',
         'kci_test',
