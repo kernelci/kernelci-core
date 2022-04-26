@@ -15,6 +15,7 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+import kubernetes
 import random
 import re
 import string
@@ -43,7 +44,9 @@ class Kubernetes(LabAPI):
         return '.'.join([params['k8s_job_name'], 'yaml'])
 
     def submit(self, job_path, get_process=False):
-        raise NotImplementedError("ToDo")
+        kubernetes.config.load_kube_config(context=self.config.context)
+        client = kubernetes.client.ApiClient()
+        return kubernetes.utils.create_from_yaml(client, job_path)
 
 
 def get_api(lab, **kwargs):
