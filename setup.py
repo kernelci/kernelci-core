@@ -72,6 +72,7 @@ setuptools.setup(
     install_requires=[
         "cloudevents",
         "jinja2",
+        "kubernetes",
         "pyelftools",
         "pytest",
         "pyyaml",
