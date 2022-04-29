@@ -130,6 +130,9 @@ trees:
   vireshk:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/vireshk/linux.git"
 
+  weiny2:
+    url: "https://github.com/weiny2/linux-kernel"
+
 
 fragments:
 
@@ -932,4 +935,9 @@ build_configs:
   vireshk:
     tree: vireshk
     branch: 'for-kernelci'
+    variants: *minimal_variants
+
+  weiny2:
+    tree: weiny2
+    branch: 'kernelci'
     variants: *minimal_variants
