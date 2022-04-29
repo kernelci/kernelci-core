@@ -63,5 +63,5 @@ if __name__ == '__main__':
             node['status'] = "pass" if res else "fail"
             db.submit({'node': node})
 
-    sys.exit(0 if res is True else 1)
+    sys.exit(0)
 {% endblock %}
