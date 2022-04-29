@@ -22,6 +22,7 @@ labs:
     priority_min: 0
     priority_max: 40
     filters:
+      - blocklist: {tree: [android]}
       - passlist:
           plan:
             - baseline
