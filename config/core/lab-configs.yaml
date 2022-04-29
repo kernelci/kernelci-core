@@ -24,6 +24,7 @@ labs:
     queue_timeout:
       days: 1
     filters:
+      - blocklist: {tree: [android]}
       - passlist:
           plan:
             - baseline
