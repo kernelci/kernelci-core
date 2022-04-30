@@ -2,6 +2,7 @@ ARG PREFIX=kernelci/
 FROM ${PREFIX}build-base
 
 RUN apt-get update && apt-get install --no-install-recommends -y \
+    dwarves \
     gcc-10-arm-linux-gnueabihf \
     gcc-10-plugin-dev-arm-linux-gnueabihf
 

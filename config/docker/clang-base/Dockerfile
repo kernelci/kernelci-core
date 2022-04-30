@@ -9,7 +9,11 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     binutils-aarch64-linux-gnu \
     binutils-arm-linux-gnueabihf \
     binutils-riscv64-linux-gnu \
-    binutils
+    binutils \
+    dwarves \
+    lz4 \
+    python3 \
+    python
 
 # kselftest x86
 RUN apt-get update && apt-get install --no-install-recommends -y \
