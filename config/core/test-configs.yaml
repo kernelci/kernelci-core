@@ -943,6 +943,11 @@ device_types:
             - 'multi_v5_defconfig'
             - 'allmodconfig'
 
+  imx6dl-udoo:
+    mach: imx
+    class: arm-dtb
+    boot_method: uboot
+
   imx6q-nitrogen6x:
     mach: imx
     class: arm-dtb
@@ -968,6 +973,11 @@ device_types:
           kernel: ['v3.18']
 
   imx6q-sabresd:
+    mach: imx
+    class: arm-dtb
+    boot_method: uboot
+
+  imx6q-udoo:
     mach: imx
     class: arm-dtb
     boot_method: uboot
@@ -2211,6 +2221,13 @@ test_configs:
       - baseline-nfs
       - sleep
 
+  - device_type: imx6dl-udoo
+    test_plans:
+      - baseline
+      - baseline-nfs
+      - kselftest-alsa
+      - ltp-crypto
+
   - device_type: imx6q-nitrogen6x
     test_plans:
       - baseline
@@ -2235,6 +2252,13 @@ test_configs:
   - device_type: imx6q-sabresd
     test_plans:
       - baseline
+
+  - device_type: imx6q-udoo
+    test_plans:
+      - baseline
+      - baseline-nfs
+      - kselftest-alsa
+      - ltp-crypto
 
   - device_type: imx6q-var-dt6customboard
     test_plans:
