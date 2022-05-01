@@ -643,6 +643,13 @@ device_types:
     class: arm64-dtb
     boot_method: uboot
 
+  bcm2835-rpi-b-rev2:
+    mach: broadcom
+    class: arm-dtb
+    boot_method: uboot
+    filters:
+      - passlist: {defconfig: ['bcm2835_defconfig']}
+
   bcm2836-rpi-2-b:
     mach: broadcom
     class: arm-dtb
@@ -1906,6 +1913,10 @@ test_configs:
       - baseline
 
   - device_type: bcm2711-rpi-4-b
+    test_plans:
+      - baseline
+
+  - device_type: bcm2835-rpi-b-rev2
     test_plans:
       - baseline
 
