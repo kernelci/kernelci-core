@@ -1450,6 +1450,10 @@ class MakeDeviceTrees(Step):
 
 class MakeSelftests(Step):
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._kver_re = re.compile(r'^v([\d]+)\.([\d]+)')
+
     @property
     def name(self):
         return 'kselftest'
@@ -1460,9 +1464,12 @@ class MakeSelftests(Step):
         Return True if the kselftest config fragment is enabled in the build
         meta-data, or False otherwise.
         """
-        return 'kselftest' in self._meta.get(
-            'bmeta', 'kernel', 'defconfig_extras'
-        )
+        kver = self._meta.get('bmeta', 'revision', 'describe_verbose')
+        m = self._kver_re.match(kver)
+        if m and len(m.groups()) == 2:
+            major, minor = (int(g) for g in m.groups())
+            return major >= 5 and minor >= 10
+        return False
 
     def run(self, jopt=None, verbose=False, opts=None):
         """Make the kernel selftests
