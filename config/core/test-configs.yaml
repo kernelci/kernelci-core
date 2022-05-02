@@ -201,8 +201,19 @@ test_plans:
     params:
       job_timeout: '60'
       docker_image: 'kernelci/chromeos-tast'
-      rootfs_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/crostest006/chromiumos-amd64-generic/amd64/'
+      rootfs_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220429.0/chromiumos-amd64-generic/amd64/'
       fixed_kernel: true
+
+  chromiumosvm-tast-upstream-kernel:
+    pattern: 'chromeos/chromiumosvm-tast-template.jinja2'
+    filters:
+      - blocklist: *kselftest_defconfig_filter
+      - passlist:
+          lab: ['lab-collabora-staging', 'lab-collabora']
+    params:
+      job_timeout: '60'
+      docker_image: 'kernelci/chromeos-tast'
+      rootfs_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220429.0/chromiumos-amd64-generic/amd64/'
 
   cros-ec:
     rootfs: debian_bullseye-cros-ec_ramdisk
@@ -2682,6 +2693,7 @@ test_configs:
   - device_type: qemu_x86_64-uefi-chromiumos
     test_plans:
       - chromiumosvm-tast-fixed-kernel
+      - chromiumosvm-tast-upstream-kernel
 
   - device_type: r8a774a1-hihope-rzg2m-ex
     test_plans:
