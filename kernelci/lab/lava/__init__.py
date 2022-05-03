@@ -43,7 +43,7 @@ class LavaAPI(LabAPI):
             if priority > 100:
                 priority = 100
         else:
-            priority = 0
+            priority = 20
 
         prio_range = self.config._priority_max - self.config._priority_min
         priority = int(((priority * prio_range) / 100) +
