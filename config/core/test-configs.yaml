@@ -506,6 +506,7 @@ test_plans:
       <<: *ltp-params
       tst_cmdfiles: "pty"
       job_timeout: '25'
+      priority: 0
 
   ltp-timers:
     <<: *ltp
@@ -514,6 +515,7 @@ test_plans:
       <<: *ltp-params
       grp_test: "TMR"
       job_timeout: '30'
+      priority: 0
 
   ltp-timers_qemu:
     <<: *ltp
@@ -524,6 +526,7 @@ test_plans:
       <<: *ltp-params
       grp_test: "TMR"
       job_timeout: '30'
+      priority: 0
     filters:
       - combination: *arch_defconfig_filter
       - blocklist: *kselftest_defconfig_filter
