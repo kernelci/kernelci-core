@@ -2038,6 +2038,8 @@ test_configs:
       - baseline
       - baseline-cip-nfs
       - baseline-nfs
+      - kselftest-alsa
+      - ltp-crypto
       - ltp-ipc
 
   - device_type: cubietruck
