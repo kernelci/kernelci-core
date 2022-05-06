@@ -46,7 +46,7 @@ actions:
     - repository:
         metadata:
           format: Lava-Test Test Definition 1.0
-          name: docker-network-flashing
+          name: chromeos-flash
         run:
           steps:
             - ping -c 1 172.17.0.1
@@ -55,7 +55,7 @@ actions:
             - lava-test-case scp --shell "scp -C -i /keys/id_rsa_chromeos_flash -o ConnectTimeout=3 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null chromiumos_test_image.bin root@$(lava-target-ip):/root"
             - ssh -i /keys/id_rsa_chromeos_flash -o ConnectTimeout=3 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$(lava-target-ip) "IMAGE_NAME=chromiumos_test_image.bin FLASH_DEVICE={{ flashing_device }} /bin/bash /opt/chromeos/flash"
       from: inline
-      name: docker-network-flashing
-      path: inline/docker-network.yaml
+      name: chromeos-flash
+      path: inline/chromeos-flash.yaml
 
 {% endblock %}
