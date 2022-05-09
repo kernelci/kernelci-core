@@ -53,12 +53,12 @@ file_systems:
     root_type: nfs
 
   debian_bullseye-cros-ec_ramdisk:
-    type: debian
-    ramdisk: 'bullseye-cros-ec/20220506.0/{arch}/rootfs.cpio.gz'
+    type: debian-staging
+    ramdisk: 'bullseye-cros-ec/20220502-gtucker-001/{arch}/rootfs.cpio.gz'
 
   debian_bullseye-igt_ramdisk:
-    type: debian
-    ramdisk: 'bullseye-igt/20220506.0/{arch}/rootfs.cpio.gz'
+    type: debian-staging
+    ramdisk: 'bullseye-igt/20220502.0/{arch}/rootfs.cpio.gz'
 
   debian_bullseye-kselftest_nfs:
     type: debian
