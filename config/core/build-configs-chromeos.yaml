@@ -1,6 +1,6 @@
 chromeos_variants: &chromeos-variants
-  chromeos-clang-13:
-    build_environment: clang-13
+  chromeos-clang-14:
+    build_environment: clang-14
     architectures:
       arm:
         base_defconfig: 'cros://chromeos-5.10/armel/chromiumos-arm.flavour.config'
@@ -25,8 +25,8 @@ chromeos_variants: &chromeos-variants
           - 'cros://chromeos-5.10/x86_64/chromeos-intel-pineview.flavour.config+x86-chromebook'
         filters: *cros-filters
 
-  clang-13:
-    build_environment: clang-13
+  clang-14:
+    build_environment: clang-14
     architectures:
       arm64: &arm64_defconfig
         base_defconfig: 'defconfig'
