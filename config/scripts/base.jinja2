@@ -3,12 +3,5 @@
 
 #!{{ shebang|default("/bin/sh") }}
 
-{% block script_init -%}
-set -e
-{% endblock -%}
-
-{%- block commands %}{% endblock %}
-
-{% block script_exit -%}
-exit 0
-{%- endblock %}
+{%- block commands %}
+{% endblock %}
