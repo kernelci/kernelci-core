@@ -1,3 +1,9 @@
+trees:
+
+  kernelci:
+    url: "https://github.com/kernelci/linux.git"
+
+
 chromeos_variants: &chromeos-variants
   chromeos-clang-14:
     build_environment: clang-14
@@ -49,4 +55,9 @@ build_configs:
   chromeos-stable:
     tree: stable
     branch: 'linux-5.10.y'
+    variants: *chromeos-variants
+
+  kernelci_chromeos-stable:
+    tree: kernelci
+    branch: 'chromeos-stable'
     variants: *chromeos-variants
