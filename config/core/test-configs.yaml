@@ -169,47 +169,6 @@ test_plans:
             - 'lab-broonie'
             - 'lab-collabora-staging'
 
-  chromeos-flash:
-    pattern: 'chromeos/chromeos-flash-template.jinja2'
-    params:
-      job_timeout: '60'
-      docker_image: 'kernelci/chromeos-flash'
-      flashing_kernel: https://storage.chromeos.kernelci.org/images/kernel/v5.10.112-x86-chromebook/kernel/bzImage
-      flashing_modules: https://storage.chromeos.kernelci.org/images/kernel/v5.10.112-x86-chromebook/modules.tar.xz
-      flashing_rootfs: http://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220412.0/bullseye-chromeos-flash/amd64/full.rootfs.tar.xz
-      flashing_ramdisk: http://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220412.0/bullseye-chromeos-flash/amd64/initrd.cpio.gz
-
-  chromeos-tast:
-    pattern: 'chromeos/chromeos-tast-template.jinja2'
-    params:
-      job_timeout: '60'
-      prompt_command: 'sof-audio-pci'
-      docker_image: 'kernelci/chromeos-tast'
-      cros_tast_tarball: 'http://172.17.0.1/chromeos/autotest_server_package_octopus_R92_13981.0.0.tar.bz2'
-
-  chromiumosvm-tast-fixed-kernel:
-    pattern: 'chromeos/chromiumosvm-tast-template.jinja2'
-    filters:
-      - blocklist: *kselftest_defconfig_filter
-      - passlist: &qemu_chromiumos_labs_filter
-          lab: ['lab-collabora-staging', 'lab-collabora']
-    params:
-      job_timeout: '60'
-      docker_image: 'kernelci/chromeos-tast'
-      rootfs_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220429.0/chromiumos-amd64-generic/amd64/'
-      fixed_kernel: true
-
-  chromiumosvm-tast-upstream-kernel:
-    pattern: 'chromeos/chromiumosvm-tast-template.jinja2'
-    filters:
-      - blocklist: *kselftest_defconfig_filter
-      - passlist:
-          lab: ['lab-collabora-staging', 'lab-collabora']
-    params:
-      job_timeout: '60'
-      docker_image: 'kernelci/chromeos-tast'
-      rootfs_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220429.0/chromiumos-amd64-generic/amd64/'
-
   cros-ec:
     rootfs: debian_bullseye-cros-ec_ramdisk
 
@@ -1546,31 +1505,6 @@ device_types:
     params: &uefi_x86_64
       bios_url: 'http://storage.kernelci.org/images/uefi/edk2-stable202005/x86_64/OVMF.fd'
 
-  qemu_x86_64-uefi-chromiumos:
-    base_name: qemu
-    mach: qemu
-    arch: x86_64
-    boot_method: qemu
-    params:
-      bios_url: 'http://storage.kernelci.org/images/uefi/edk2-stable202005/x86_64/OVMF.fd'
-    context:
-      arch: x86_64
-      cpu: 'qemu64'
-      guestfs_interface: 'virtio'
-      extra_options:
-        - '-device pcie-root-port,port=0x10,chassis=1,id=pci.1,bus=pcie.0,multifunction=on,addr=0x2'
-        - '-device pcie-root-port,port=0x15,chassis=6,id=pci.6,bus=pcie.0,addr=0x2.0x5'
-        - '-device qemu-xhci,p2=15,p3=15,id=usb,bus=pci.6,addr=0x0'
-        - '-device usb-storage,bus=usb.0,drive=lavatest2'
-        - '-m 2048'
-        - '-device usb-tablet,id=input0,bus=usb.0,port=2'
-        - '-device pcie-root-port,port=0x11,chassis=2,id=pci.2,bus=pcie.0,addr=0x2.0x1'
-        - '-device virtio-vga,id=video0,virgl=on,max_outputs=1,bus=pcie.0,addr=0x3'
-        - '-device ich9-intel-hda,id=sound0,bus=pcie.0,addr=0x1b'
-        - '-machine pc-q35-5.2,accel=kvm,usb=off,vmport=off,dump-guest-core=off'
-    filters:
-      - passlist: {}
-
   qemu_x86_64-uefi-mixed:
     <<: *qemu_x86_64
     params: *uefi_i386
@@ -2214,7 +2148,6 @@ test_configs:
       - baseline
       - baseline-cip-nfs
       - baseline-nfs
-      - chromeos-tast
       - cros-ec
       - igt-gpu-i915
       - kselftest-filesystems
@@ -2668,11 +2601,6 @@ test_configs:
   - device_type: qemu_x86_64-uefi-mixed
     test_plans:
       - baseline_qemu
-
-  - device_type: qemu_x86_64-uefi-chromiumos
-    test_plans:
-      - chromiumosvm-tast-fixed-kernel
-      - chromiumosvm-tast-upstream-kernel
 
   - device_type: r8a774a1-hihope-rzg2m-ex
     test_plans:
