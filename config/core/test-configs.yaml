@@ -138,6 +138,7 @@ test_plans:
       priority: 85
     filters:
       - blocklist: *kselftest_defconfig_filter
+      - passlist: {'tree': ['cip']}
 
   baseline-fastboot:
     rootfs: buildroot-baseline_ramdisk
