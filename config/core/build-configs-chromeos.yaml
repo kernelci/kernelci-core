@@ -45,3 +45,8 @@ build_configs:
     tree: next
     branch: 'master'
     variants: *chromeos-variants
+
+  chromeos-stable:
+    tree: stable
+    branch: 'linux-5.10.y'
+    variants: *chromeos-variants
