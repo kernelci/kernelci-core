@@ -3,7 +3,8 @@
 
 {%- extends 'base.jinja2' %}
 
-{% block script_init -%}
+{% block commands %}
+{%- block python_imports -%}
 import os
 import sys
 import tarfile
@@ -12,15 +13,19 @@ import yaml
 
 import kernelci.db
 import kernelci.config
-
-DB_CONFIG_YAML = """
-{{ db_config_yaml }}"""
-NODE_ID = "{{ node_id }}"
-TARBALL_URL = "{{ tarball_url }}"
-WORKSPACE = "{{ workspace }}"
 {% endblock %}
 
-{% block script_exit -%}
+{%- block python_globals %}
+DB_CONFIG_YAML = """
+{{ db_config_yaml }}"""
+NODE_ID = '{{ node_id }}'
+TARBALL_URL = '{{ tarball_url }}'
+WORKSPACE = '/tmp/kci'
+{% endblock %}
+
+{%- block python_body %}{% endblock %}
+
+{% block python_main -%}
 def _get_db():
     if not DB_CONFIG_YAML:
         return None
@@ -65,3 +70,4 @@ if __name__ == '__main__':
 
     sys.exit(0)
 {% endblock %}
+{%- endblock %}
