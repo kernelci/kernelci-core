@@ -336,7 +336,7 @@ test_plans:
   kselftest-kvm:
     <<: *kselftest
     params:
-      job_timeout: '10'
+      job_timeout: '15'
       kselftest_collections: "kvm"
     filters: *kselftest_no_fragment
 
@@ -2534,6 +2534,7 @@ test_configs:
       - baseline
       - kselftest-filesystems
       - kselftest-futex
+      - kselftest-kvm
       - kselftest-lib
       - kselftest-lkdtm
       - kselftest-seccomp
