@@ -18,7 +18,7 @@ install_modules()
     cd "$mount_dir"
     ls -l lib/modules
     rm -rf lib/modules
-    tar xzf "$root_path/$modules_tarball"
+    tar xf "$root_path/$modules_tarball"
     chown root: -R lib
     ls -l lib/modules
     cd "$root_path"
