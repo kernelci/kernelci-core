@@ -61,6 +61,8 @@ rootfs_configs:
       - wget
       - openssh-server
       - parted
+      - xz-utils
+      - bzip2
     test_overlay: "overlays/chromeos-flash"
 
   bullseye-cros-ec:
