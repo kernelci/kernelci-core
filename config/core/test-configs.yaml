@@ -37,8 +37,8 @@ file_system_types:
 file_systems:
 
   buildroot-baseline_ramdisk:
-    type: buildroot
-    ramdisk: 'buildroot-baseline/20220506.0/{arch}/rootfs.cpio.gz'
+    type: buildroot-staging
+    ramdisk: 'buildroot-baseline/20220510.0/{arch}/rootfs.cpio.gz'
 
   cip_nfs:
     type: cip
