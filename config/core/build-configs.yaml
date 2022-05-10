@@ -61,9 +61,6 @@ trees:
   kselftest:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/shuah/linux-kselftest.git'
 
-  lee:
-    url: "https://git.kernel.org/pub/scm/linux/kernel/git/lee/linux.git"
-
   linusw:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/linusw/linux-gpio.git/"
 
@@ -705,11 +702,6 @@ build_configs:
   kselftest_next:
     <<: *kselftest-tree
     branch: 'next'
-
-  lee_android_3.18:
-    tree: lee
-    branch: 'android-3.18-preview'
-    variants: *medium_variants
 
   linusw_devel:
     tree: linusw
