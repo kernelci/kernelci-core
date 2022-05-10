@@ -61,6 +61,7 @@ KERNEL_IMAGE_NAMES = {
     'i386': {'bzImage'},
     'mips': {'uImage.gz', 'vmlinux.gz.itb', 'vmlinuz'},
     'riscv': {'Image', 'Image.gz'},
+    'sparc64': {'vmlinux'},
     'x86_64': {'bzImage'},
     'x86': {'bzImage'},
 }
