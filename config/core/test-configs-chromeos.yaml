@@ -21,6 +21,16 @@ test_plans:
       flashing_rootfs: http://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220412.0/bullseye-chromeos-flash/amd64/full.rootfs.tar.xz
       flashing_ramdisk: http://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220412.0/bullseye-chromeos-flash/amd64/initrd.cpio.gz
 
+  chromeos-install-modules:
+    pattern: 'chromeos/chromeos-install-modules-template.jinja2'
+    params:
+      job_timeout: '60'
+      modules_url: http://storage.chromeos.kernelci.org/images/kernel/chromeos-octopus-4.14.243/modules-4.14.243.tar.gz
+      flashing_kernel: http://storage.chromeos.kernelci.org/images/kernel/v5.17.2-x86_64+x86_chromebook/kernel/bzImage
+      flashing_modules: http://storage.chromeos.kernelci.org/images/kernel/v5.17.2-x86_64+x86_chromebook/modules.tar.xz
+      flashing_rootfs: http://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220505.0/bullseye-chromeos-flash/amd64/full.rootfs.tar.xz
+      flashing_ramdisk: http://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220505.0/bullseye-chromeos-flash/amd64/initrd.cpio.gz
+
   chromeos-tast: &chromeos-tast
     pattern: 'chromeos/chromeos-tast-template.jinja2'
     params: &chromeos-tast-params
