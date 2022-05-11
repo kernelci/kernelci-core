@@ -2,7 +2,7 @@
 {% block main %}
 {{ super () }}
 context:
-  extra_kernel_args: console_msg_format=syslog cros_secure cros_debug boot=/dev/{{ flashing_device }}p3
+  extra_kernel_args: console_msg_format=syslog cros_secure cros_debug root=/dev/{{ flashing_device }}p3
 {% endblock %}
 
 {% block actions %}
@@ -15,7 +15,12 @@ actions:
         minutes: 60
       to: tftp
       kernel:
+{%- if fixed_kernel is not defined %}
         url: {{ kernel_url }}
+{%- else %}
+        # Fixed reference kernel
+        url: {{ reference_kernel.image }}
+{%- endif %}
       os: oe
 
 - boot:
