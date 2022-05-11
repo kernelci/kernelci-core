@@ -126,11 +126,17 @@ test_configs:
 
   - device_type: hp-x360-12b-ca0010nr-n4020-octopus_chromeos
     test_plans:
+      - cros-boot
+      - cros-boot-fixed
       - cros-tast
+      - cros-tast-fixed
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus_chromeos
     test_plans:
+      - cros-boot
+      - cros-boot-fixed
       - cros-tast
+      - cros-tast-fixed
 
   - device_type: qemu_x86_64-uefi-chromeos
     test_plans:
