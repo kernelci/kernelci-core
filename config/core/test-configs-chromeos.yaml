@@ -1,8 +1,15 @@
 test_plans:
 
-  chromeos-boot:
+  chromeos-boot: &chromeos-boot
     pattern: 'chromeos/chromeos-boot-chromebook-template.jinja2'
-    prompt_command: 'NETDEV_UP'
+    params: &chromeos-boot-params
+      prompt_command: 'sof-audio-pci'
+
+  chromeos-boot-fixed:
+    <<: *chromeos-boot
+    params:
+      <<: *chromeos-boot-params
+      fixed_kernel: true
 
   chromeos-flash:
     pattern: 'chromeos/chromeos-flash-template.jinja2'
@@ -14,13 +21,19 @@ test_plans:
       flashing_rootfs: http://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220412.0/bullseye-chromeos-flash/amd64/full.rootfs.tar.xz
       flashing_ramdisk: http://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220412.0/bullseye-chromeos-flash/amd64/initrd.cpio.gz
 
-  chromeos-tast:
+  chromeos-tast: &chromeos-tast
     pattern: 'chromeos/chromeos-tast-template.jinja2'
-    params:
+    params: &chromeos-tast-params
       job_timeout: '60'
       prompt_command: 'sof-audio-pci'
       docker_image: 'kernelci/chromeos-tast'
       cros_tast_tarball: 'http://172.17.0.1/chromeos/autotest_server_package_octopus_R92_13981.0.0.tar.bz2'
+
+  chromeos-tast-fixed:
+    <<: *chromeos-tast
+    params:
+      <<: *chromeos-tast-params
+      fixed_kernel: true
 
   chromeos-tast-qemu: &chromeos-tast-qemu
     pattern: 'chromeos/chromeos-tast-qemu.jinja2'
