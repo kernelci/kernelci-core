@@ -284,8 +284,23 @@ class cmd_submit(Command):
             try:
                 job_id = lab_api.submit(path)
                 print("{} {}".format(job_id, path))
+            except requests.exceptions.HTTPError as e:
+                print(f'HTTPError: {e}')
+                r = e.response
+                if r.headers.get('content-type') == 'application/json':
+                    try:
+                        jobj = json.loads(r.text)
+                        if jobj is not None and "message" in jobj:
+                            print(jobj["message"], file=sys.stderr)
+                        else:
+                            print(json.dumps(jobj), file=sys.stderr)
+                    except json.decoder.JSONDecodeError as e:
+                        print(f'Broken json: {r.text}', file=sys.stderr)
+                else:
+                    print(f'Reply body: {r.text}', file=sys.stderr)
+                res = False
             except Exception as e:
-                print("ERROR {}: {}".format(path, e))
+                print("ERROR {}: {}".format(path, e), file=sys.stderr)
                 res = False
         return res
 
