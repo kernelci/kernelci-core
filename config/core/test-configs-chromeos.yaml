@@ -24,21 +24,34 @@ test_plans:
       docker_image: 'kernelci/chromeos-tast'
       rootfs_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220429.0/chromiumos-amd64-generic/amd64/'
 
-  cros-boot:
+  cros-boot: &cros-boot
     pattern: 'chromeos/cros-boot.jinja2'
-    prompt_command: 'NETDEV_UP'
+    params: &cros-boot-params
+      prompt_command: 'sof-audio-pci'
+
+  cros-boot-fixed:
+    <<: *cros-boot
+    params:
+      <<: *cros-boot-params
+      fixed_kernel: true
 
   cros-flash:
     pattern: 'chromeos/cros-flash.jinja2'
     params:
       job_timeout: '60'
 
-  cros-tast:
+  cros-tast: &cros-tast
     pattern: 'chromeos/cros-tast.jinja2'
-    params:
+    params: &cros-tast-params
       job_timeout: '60'
       prompt_command: 'sof-audio-pci'
       docker_image: 'kernelci/cros-tast'
+
+  cros-tast-fixed:
+    <<: *cros-tast
+    params:
+      <<: *cros-tast-params
+      fixed_kernel: true
 
   cros-tast-qemu: &cros-tast-qemu
     pattern: 'chromeos/cros-tast-qemu.jinja2'
