@@ -71,6 +71,10 @@ device_types:
 
 test_configs:
 
+  - device_type: hp-x360-12b-ca0500na-n4000-octopus
+    test_plans:
+      - chromeos-tast
+
   - device_type: hp-x360-12b-n4000-octopus
     test_plans:
       - chromeos-tast
