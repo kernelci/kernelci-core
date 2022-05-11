@@ -86,11 +86,17 @@ test_configs:
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus
     test_plans:
+      - chromeos-boot
+      - chromeos-boot-fixed
       - chromeos-tast
+      - chromeos-tast-fixed
 
   - device_type: hp-x360-12b-n4000-octopus
     test_plans:
+      - chromeos-boot
+      - chromeos-boot-fixed
       - chromeos-tast
+      - chromeos-tast-fixed
 
   - device_type: qemu_x86_64-uefi-chromeos
     test_plans:
