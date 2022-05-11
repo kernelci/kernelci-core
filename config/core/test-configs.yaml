@@ -887,6 +887,9 @@ device_types:
     params:
       chromeos_image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/crostest007/chromiumos-octopus/amd64/chromiumos_test_image.bin.gz'
       flashing_device: mmcblk0
+      reference_kernel:
+        image: 'https://storage.chromeos.kernelci.org/images/kernel/chromeos-octopus-4.14.243/vmlinuz-4.14.243'
+        modules: 'https://storage.chromeos.kernelci.org/images/kernel/chromeos-octopus-4.14.243/modules-4.14.243.tar.gz'
 
   hp-x360-12b-n4000-octopus: *octopus
 
