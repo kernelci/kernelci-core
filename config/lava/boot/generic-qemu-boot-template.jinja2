@@ -11,6 +11,14 @@
 {% set console_dev = console_dev|default('ttyS0') %}
 {% set qemu_binary = 'qemu-system-riscv64' %}
 {% endif %}
+{% if arch == 'sparc' %}
+{% set console_dev = console_dev|default('ttyS0') %}
+{% set qemu_binary = 'qemu-system-sparc64' %}
+{% endif %}
+{% if arch == 'sparc64' %}
+{% set console_dev = console_dev|default('ttyS0') %}
+{% set qemu_binary = 'qemu-system-sparc64' %}
+{% endif %}
 {% if arch == 'x86_64' %}
 {% set console_dev = console_dev|default('ttyS0') %}
 {% set qemu_binary = 'qemu-system-x86_64' %}

@@ -14,6 +14,7 @@ file_system_types:
       armel:   [{arch: arm}]
       x86:     [{arch: i386}, {arch: x86_64}]
       mipsel:  [{arch: mips}]
+      sparc64:   [{arch: sparc}]
 
   buildroot-staging:
     <<: *buildroot
@@ -1813,6 +1814,19 @@ device_types:
       - blocklist: *device_config_filter
       - regex: {defconfig: '^defconfig'}
 
+  qemu_sparc64:
+    base_name: qemu
+    mach: qemu
+    arch: sparc
+    boot_method: qemu
+    context:
+      arch: sparc64
+      guestfs_interface: 'ide'
+      machine: 'sun4u'
+      no_kvm: True
+      memory: 384
+      model: 'model=sunhme'
+
   qemu_x86_64: &qemu_x86_64
     base_name: qemu
     mach: qemu
@@ -3139,6 +3153,10 @@ test_configs:
 
   - device_type: qemu_smp8_riscv64
     test_plans: *qemu_riscv64_test-plans
+
+  - device_type: qemu_sparc64
+    test_plans:
+      - baseline_qemu
 
   - device_type: qemu_x86_64
     test_plans:
