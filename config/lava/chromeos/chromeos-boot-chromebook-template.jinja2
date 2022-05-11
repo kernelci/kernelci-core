@@ -15,7 +15,12 @@ actions:
         minutes: 60
       to: tftp
       kernel:
+{%- if fixed_kernel is not defined %}
         url: {{ kernel_url }}
+{%- else %}
+        # Fixed reference kernel
+        url: {{ reference_kernel.image }}
+{%- endif %}
       os: oe
 
 - boot:
