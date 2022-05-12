@@ -199,6 +199,18 @@ test_plans:
     filters:
       - passlist: {defconfig: ['amdgpu']}
 
+  igt-gpu-etnaviv:
+    <<: *igt
+    params:
+      drm_driver: "etnaviv"
+      tests: >
+        core_auth
+        core_getclient
+        core_getstats
+        core_getversion
+        core_setmaster
+        core_setmaster_vs_auth
+
   igt-gpu-i915:
     <<: *igt
     params:
@@ -2247,6 +2259,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - igt-gpu-etnaviv
       - kselftest-alsa
       - ltp-crypto
 
@@ -2279,6 +2292,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - igt-gpu-etnaviv
       - kselftest-alsa
       - ltp-crypto
 
