@@ -215,6 +215,18 @@ test_plans:
         gem_create
         i915_selftest
 
+  igt-gpu-lima:
+    <<: *igt
+    params:
+      drm_driver: "lima"
+      tests: >
+        core_auth
+        core_getclient
+        core_getstats
+        core_getversion
+        core_setmaster
+        core_setmaster_vs_auth
+
   igt-gpu-panfrost:
     <<: *igt
     params:
@@ -2826,6 +2838,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - igt-gpu-lima
       - kselftest-arm64
       - kselftest-cpufreq
       - kselftest-filesystems
