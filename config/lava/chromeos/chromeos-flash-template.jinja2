@@ -50,7 +50,7 @@ actions:
         run:
           steps:
             - ping -c 1 172.17.0.1
-            - lava-test-case wget --shell "wget --no-check-certificate -O chromiumos_test_image.bin.gz {{ chromeos_image }}"
+            - lava-test-case wget --shell "wget -q --no-check-certificate -O chromiumos_test_image.bin.gz {{ chromeos_image }}"
             - lava-test-case unpack --shell "gzip -d chromiumos_test_image.bin.gz || mv chromiumos_test_image.bin.gz chromiumos_test_image.bin"
             - lava-test-case scp --shell "scp -C -i /keys/id_rsa_chromeos_flash -o ConnectTimeout=3 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null chromiumos_test_image.bin root@$(lava-target-ip):/root"
             - ssh -i /keys/id_rsa_chromeos_flash -o ConnectTimeout=3 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$(lava-target-ip) "IMAGE_NAME=chromiumos_test_image.bin FLASH_DEVICE={{ flashing_device }} /bin/bash /opt/chromeos/flash"
