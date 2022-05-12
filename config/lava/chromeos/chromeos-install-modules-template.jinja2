@@ -57,7 +57,12 @@ actions:
           steps:
             - lsblk
             - ls -l /root
+{%- if fixed_kernel is not defined %}
             - MODULES_URL="{{ modules_url }}"  /bin/bash /opt/chromeos/install-modules
+{%- else %}
+            # Fixed reference kernel
+            - MODULES_URL="{{ reference_kernel.modules }}"  /bin/bash /opt/chromeos/install-modules
+{%- endif %}
       lava-signal: kmsg
       from: inline
       name: chromeos-install-modules
