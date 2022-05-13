@@ -15,13 +15,8 @@
           run:
             steps:
               - 'cd /home/cros-tast'
-{%- if cros_tast_tarball %}
-              - 'curl -s {{cros_tast_tarball}} | tar xjf -'
-{% endif %}
-{%- if rootfs_url %}
-              - 'curl -s {{rootfs_url}}tast.tgz | tar xzf -'
+              - 'curl -s {{ tast_tarball }} | tar xzf -'
               - 'cp remote_test_runner /usr/bin/remote_test_runner'
-{% endif %}
               - 'while ! ping -c 1 -w 1 $(lava-target-ip); do sleep 1; done'
               - 'ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i /home/cros-tast/.ssh/id_rsa root@$(lava-target-ip) whoami'
               - './tast-parser.py example.ARCFixture example.ManyParams.arc_state example.Param.dog example.Pass example.Fail'
