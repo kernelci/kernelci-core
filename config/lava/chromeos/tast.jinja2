@@ -14,11 +14,11 @@
             name: tast-tests
           run:
             steps:
+              - 'ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i /home/cros-tast/.ssh/id_rsa root@$(lava-target-ip) cat /etc/os-release'
               - 'cd /home/cros-tast'
               - 'curl -s {{ tast_tarball }} | tar xzf -'
               - 'cp remote_test_runner /usr/bin/remote_test_runner'
               - 'while ! ping -c 1 -w 1 $(lava-target-ip); do sleep 1; done'
-              - 'ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i /home/cros-tast/.ssh/id_rsa root@$(lava-target-ip) whoami'
               - './tast-parser.py example.ARCFixture example.ManyParams.arc_state example.Param.dog example.Pass example.Fail'
         from: inline
         name: docker-tast-tests
