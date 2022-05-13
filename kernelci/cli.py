@@ -148,6 +148,11 @@ class Args:
         'help': "Verbose version of git describe",
     }
 
+    device_id = {
+        'name': '--device-id',
+        'help': "Limit test job to run on a specific device",
+    }
+
     dtbs_json = {
         'name': '--dtbs-json',
         'help': "Path to the dtbs.json file",
