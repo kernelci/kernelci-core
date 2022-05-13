@@ -73,13 +73,14 @@ def match_configs(configs, meta, lab):
     return match
 
 
-def get_params(meta, target, plan_config, storage):
+def get_params(meta, target, plan_config, storage, device_id):
     """Get a dictionary with all the test parameters to run a test job
 
     *meta* is a MetaStep object
     *target* is the name of the target platform to run the test
     *plan_config* is a TestPlan object for the test plan to run
     *storage* is the URL of the storage server
+    *device_id* is the id of the device to run the test
     """
 
     def _get_compression(url):
@@ -174,5 +175,7 @@ def get_params(meta, target, plan_config, storage):
 
     params.update(plan_config.params)
     params.update(target.params)
+    if device_id:
+        params['device_id'] = device_id
 
     return params
