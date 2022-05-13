@@ -879,12 +879,12 @@ device_types:
     boot_method: depthcharge
     filters: *x86-chromebook-filters
 
-  hp-x360-12b-ca0500na-n4000-octopus: &octopus
+  hp-x360-12b-ca0010nr-n4020-octopus: &octopus
     mach: x86
     arch: x86_64
     boot_method: depthcharge
     filters: *x86-chromebook-filters
-    params:
+    params: &octopus-params
       chromeos_image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220427.0/chromiumos-octopus/amd64/chromiumos_test_image.bin.gz'
       tast_tarball: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220427.0/chromiumos-octopus/amd64/tast.tgz'
       flashing_device: mmcblk0
@@ -892,7 +892,7 @@ device_types:
         image: 'https://storage.chromeos.kernelci.org/images/kernel/chromeos-octopus-4.14.243/vmlinuz-4.14.243'
         modules: 'https://storage.chromeos.kernelci.org/images/kernel/chromeos-octopus-4.14.243/modules-4.14.243.tar.gz'
 
-  hp-x360-12b-n4000-octopus: *octopus
+  hp-x360-12b-ca0500na-n4000-octopus: *octopus
 
   hsdk:
     mach: arc
@@ -2147,7 +2147,7 @@ test_configs:
       - igt-gpu-i915
       - kselftest-lib
 
-  - device_type: hp-x360-12b-n4000-octopus
+  - device_type: hp-x360-12b-ca0010nr-n4020-octopus
     test_plans:
       - baseline
       - baseline-cip-nfs
