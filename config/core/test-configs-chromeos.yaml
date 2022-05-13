@@ -105,7 +105,7 @@ test_configs:
       - chromeos-tast
       - chromeos-tast-fixed
 
-  - device_type: hp-x360-12b-n4000-octopus
+  - device_type: hp-x360-12b-ca0010nr-n4020-octopus
     test_plans:
       - chromeos-boot
       - chromeos-boot-fixed
