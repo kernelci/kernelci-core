@@ -782,9 +782,9 @@ build_configs:
               - 'allnoconfig'
               - 'allmodconfig'
 
-      # Latest clang release
-      clang-14:
-        build_environment: clang-14
+      # Current development clang release
+      clang-15:
+        build_environment: clang-15
         architectures:
           <<: *arch_clang_configs
           riscv:
