@@ -2501,8 +2501,6 @@ test_configs:
       - baseline-nfs
       - igt-kms-exynos
       - kselftest-alsa
-      - sleep
-      - usb
 
   - device_type: orion5x-rd88f5182-nas
     test_plans:
