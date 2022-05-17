@@ -2,7 +2,7 @@
 {% block main %}
 {{ super () }}
 context:
-  extra_kernel_args: console_msg_format=syslog cros_secure cros_debug root=/dev/{{ flashing_device }}p3
+  extra_kernel_args: console_msg_format=syslog cros_secure cros_debug root=/dev/{{ flashing_device }}p3 rootwait
 {%- if device_id %}
 tags: ['{{ device_id }}']
 {%- endif %}
