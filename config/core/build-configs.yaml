@@ -728,8 +728,8 @@ build_configs:
         build_environment: clang-11
         architectures: *arch_clang_configs
       # Latest stable release
-      clang-13:
-        build_environment: clang-13
+      clang-14:
+        build_environment: clang-14
         architectures: *arch_clang_configs
 
   media:
