@@ -1,6 +1,6 @@
 {% extends 'base/kernel-ci-base.jinja2' %}
 {% block main %}
-{% do context.update({"extra_kernel_args": "console_msg_format=syslog earlycon cros_debug cros_secure root=/dev/mmcblk0p3" }) %}
+{% do context.update({"extra_kernel_args": "console_msg_format=syslog earlycon cros_debug cros_secure root=/dev/mmcblk0p3 rootwait" }) %}
 {{ super() }}
 {%- if device_id %}
 tags: ['{{ device_id }}']
