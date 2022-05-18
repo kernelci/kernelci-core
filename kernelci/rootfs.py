@@ -151,7 +151,7 @@ class ChromiumosBuilder(RootfsBuilder):
             os.makedirs(temp_dir, exist_ok=True)
 
         cmd = f'cd {temp_dir} && {build_script} \
-              {config.board} {config.branch}'
+              {config.board} {config.branch} {config.serial}'
         ret = shell_cmd(cmd, True)
         if not ret:
             return False
