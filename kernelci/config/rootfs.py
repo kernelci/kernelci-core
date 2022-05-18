@@ -183,11 +183,12 @@ class RootFS_Buildroot(RootFS):
 
 class RootFS_ChromiumOS(RootFS):
     def __init__(self, name, rootfs_type, arch_list=None, board=None,
-                 branch=None):
+                 branch=None, serial=None):
         super().__init__(name, rootfs_type)
         self._arch_list = arch_list or list()
         self._board = board
         self._branch = branch
+        self._serial = serial
 
     @classmethod
     def from_yaml(cls, config, name):
@@ -195,7 +196,7 @@ class RootFS_ChromiumOS(RootFS):
             'name': name,
         }
         kw.update(cls._kw_from_yaml(config, [
-            'rootfs_type', 'arch_list', 'board', 'branch'
+            'rootfs_type', 'arch_list', 'board', 'branch', 'serial'
         ]))
         return cls(**kw)
 
@@ -206,6 +207,10 @@ class RootFS_ChromiumOS(RootFS):
     @property
     def board(self):
         return self._board
+
+    @property
+    def serial(self):
+        return self._serial
 
     @property
     def branch(self):
@@ -354,3 +359,4 @@ def _dump_config_chromiumos(config_name, config):
     print('\tarch_list: {}'.format(config.arch_list))
     print('\board: {}'.format(config.board))
     print('\branch: {}'.format(config.branch))
+    print('\tserial: {}'.format(config.serial))
