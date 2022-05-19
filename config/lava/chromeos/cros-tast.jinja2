@@ -5,7 +5,7 @@
 {% endblock %}
 {% block actions %}
 actions:
-  - deploy:
+- deploy:
       timeout:
         minutes: {{ job_timeout }}
       to: tftp
@@ -13,7 +13,7 @@ actions:
         url: {{ kernel_url }}
       os: oe
 
-  - boot:
+- boot:
       timeout:
         minutes: 30
       method: depthcharge
@@ -21,28 +21,6 @@ actions:
       prompts:
         - {{ prompt_command }}
 
-  - test:
-      timeout:
-        minutes: 45
-      docker:
-        image: {{ docker_image }}
-        wait:
-          device: true
-      results:
-          location: /home/cros-tast/lava
-      definitions:
-      - repository:
-          metadata:
-            format: Lava-Test Test Definition 1.0
-            name: docker-chromeos-tast
-          run:
-            steps:
-              - 'cd /home/cros-tast; curl -s {{ tast_tarball }} | tar xjf -'
-              - 'chown -R cros-tast: /home/cros-tast'
-              - 'ls -l /home/cros-tast'
-              - 'ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i /home/cros-tast/.ssh/id_rsa root@$(lava-target-ip) whoami'
-              - 'cd /home/cros-tast/tast; ./tast list -build=false root@$(lava-target-ip)'
-        from: inline
-        name: docker-chromeos-tast
-        path: inline/docker-chromeos-tast.yaml
+{% include 'chromeos/tast.jinja2' %}
+
 {% endblock %}
