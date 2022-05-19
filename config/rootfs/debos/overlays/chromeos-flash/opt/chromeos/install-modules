@@ -18,7 +18,7 @@ install_modules()
     cd "$mount_dir"
     ls -l lib/modules
     rm -rf lib/modules
-    tar xf "$root_path/$modules_tarball"
+    tar --no-same-owner --no-same-permissions --no-xattrs --no-selinux --no-acls -xf "$root_path/$modules_tarball"
     chown root: -R lib
     ls -l lib/modules
     cd "$root_path"
