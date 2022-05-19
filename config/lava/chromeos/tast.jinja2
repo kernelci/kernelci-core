@@ -1,0 +1,25 @@
+- test:
+      timeout:
+        minutes: 45
+      docker:
+        image: {{ docker_image }}
+        wait:
+          device: true
+      results:
+          location: /home/cros-tast/lava
+      definitions:
+      - repository:
+          metadata:
+            format: Lava-Test Test Definition 1.0
+            name: tast-tests
+          run:
+            steps:
+              - 'cd /home/cros-tast'
+              - 'curl -s {{ tast_tarball }} | tar xzf -'
+              - 'cp remote_test_runner /usr/bin/remote_test_runner'
+              - 'while ! ping -c 1 -w 1 $(lava-target-ip); do sleep 1; done'
+              - 'ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i /home/cros-tast/.ssh/id_rsa root@$(lava-target-ip) whoami'
+              - './tast-parser.py example.ARCFixture example.ManyParams.arc_state example.Param.dog example.Pass example.Fail'
+        from: inline
+        name: docker-tast-tests
+        path: inline/docker-tast-tests.yaml
