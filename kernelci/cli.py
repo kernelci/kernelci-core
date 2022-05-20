@@ -151,8 +151,6 @@ class Args:
     device_id = {
         'name': '--device-id',
         'help': "Limit test job to run on a specific device",
-        'action': 'append',
-        'dest': 'device_ids'
     }
 
     dtbs_json = {
