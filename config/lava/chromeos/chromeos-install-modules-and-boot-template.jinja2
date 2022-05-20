@@ -1,0 +1,97 @@
+{% extends 'base/kernel-ci-base.jinja2' %}
+{% block main %}
+{{ super () }}
+{% do context.update({"extra_kernel_args": "console_msg_format=syslog earlycon cros_debug cros_secure rootwait" }) %}
+{%- if device_id %}
+tags: ['{{ device_id }}']
+{%- endif %}
+{% endblock %}
+
+{% block actions %}
+{{ super () }}
+
+actions:
+- deploy:
+    namespace: install_modules
+    kernel:
+      url: {{ flashing_kernel }}
+    modules:
+      url: {{ flashing_modules }}
+      compression: xz
+    nfsrootfs:
+      url: {{ flashing_rootfs }}
+      compression: xz
+    ramdisk:
+      url: {{ flashing_ramdisk }}
+      compression: gz
+    os: oe
+    timeout:
+      minutes: 60
+    to: tftp
+
+
+- boot:
+    namespace: install_modules
+    timeout:
+      minutes: 60
+    method: depthcharge
+    commands: nfs
+    prompts:
+      - '/ #'
+
+- test:
+    namespace: install_modules
+    timeout:
+      minutes: 60
+    definitions:
+    - repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: chromeos-install-modules
+          description: "Install Chrome OS kernel modules"
+          os:
+            - debian
+          scope:
+            - functional
+          environment:
+            - lava-test-shell
+        run:
+          steps:
+            - lsblk
+            - ls -l /root
+{%- if fixed_kernel is not defined %}
+            - MODULES_URL="{{ modules_url }}"  /bin/bash /opt/chromeos/install-modules
+{%- else %}
+            # Fixed reference kernel
+            - MODULES_URL="{{ reference_kernel.modules }}"  /bin/bash /opt/chromeos/install-modules
+{%- endif %}
+      lava-signal: kmsg
+      from: inline
+      name: chromeos-install-modules
+      path: inline/chromeos-install-modules.yaml
+
+- deploy:
+      namespace: boot_chromeos
+      timeout:
+        minutes: 60
+      to: tftp
+      kernel:
+{%- if fixed_kernel is not defined %}
+        url: {{ kernel_url }}
+{%- else %}
+        # Fixed reference kernel
+        url: {{ reference_kernel.image }}
+{%- endif %}
+      os: oe
+
+- boot:
+    namespace: boot_chromeos
+    timeout:
+        minutes: 30
+    method: depthcharge
+    commands: emmc
+    extra_kernel_args: root=/dev/{{ flashing_device }}p3 rootwait ro
+    prompts:
+        - {{ prompt_command }}
+
+{% endblock %}
