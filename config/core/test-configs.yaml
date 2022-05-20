@@ -890,6 +890,7 @@ device_types:
     filters: *x86-chromebook-filters
     params:
       chromeos_image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220427.0/chromiumos-octopus/amd64/chromiumos_test_image.bin.gz'
+      tast_tarball: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220427.0/chromiumos-octopus/amd64/tast.tgz'
       flashing_device: mmcblk0
       reference_kernel:
         image: 'https://storage.chromeos.kernelci.org/images/kernel/chromeos-octopus-4.14.243/vmlinuz-4.14.243'
