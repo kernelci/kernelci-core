@@ -24,5 +24,6 @@ rootfs_configs:
     rootfs_type: chromiumos
     board: octopus
     branch: release-R100-14526.B
+    serial: ttyS1
     arch_list:
       - amd64
