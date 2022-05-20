@@ -97,6 +97,22 @@ class cmd_submit_test(Command):
         return db.submit_test(data, args.verbose)
 
 
+class cmd_create_user(Command):
+    help = "Create new user"
+    args = [Args.db_config, Args.username, Args.password]
+    opt_args = [Args.is_admin, Args.db_token, Args.verbose]
+
+    def __call__(self, config_data, args):
+        config = config_data['db_configs'][args.db_config]
+        db = kernelci.db.get_db(config, args.db_token)
+        resp = db.create_user(
+            args.username, args.password, args.is_admin, args.verbose
+        )
+        if args.verbose:
+            print(resp)
+        return resp
+
+
 if __name__ == '__main__':
     opts = parse_opts("kci_data", globals())
     configs = kernelci.config.load(opts.yaml_config)
