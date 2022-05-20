@@ -30,6 +30,19 @@ test_plans:
       flashing_rootfs: http://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220505.0/bullseye-chromeos-flash/amd64/full.rootfs.tar.xz
       flashing_ramdisk: http://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220505.0/bullseye-chromeos-flash/amd64/initrd.cpio.gz
 
+  chromeos-install-modules-and-boot:
+    pattern: 'chromeos/chromeos-install-modules-and-boot-template.jinja2'
+    params:
+      <<: *chromeos-install-modules-params
+      <<: *chromeos-boot-params
+
+  chromeos-install-modules-and-boot-fixed:
+    pattern: 'chromeos/chromeos-install-modules-and-boot-template.jinja2'
+    params:
+      <<: *chromeos-install-modules-params
+      <<: *chromeos-boot-params
+      fixed_kernel: true
+
   chromeos-install-modules-fixed:
     <<: *chromeos-install-modules
     params:
