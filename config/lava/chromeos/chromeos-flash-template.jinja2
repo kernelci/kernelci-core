@@ -3,6 +3,9 @@
 {{ super () }}
 context:
   extra_kernel_args: console_msg_format=syslog cros_secure cros_debug
+{%- if device_id %}
+tags: ['{{ device_id }}']
+{%- endif %}
 {% endblock %}
 
 {% block actions %}
