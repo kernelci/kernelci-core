@@ -170,6 +170,12 @@ class Args:
         "Path to the install directory, or _install_ inside kdir by default",
     }
 
+    is_admin = {
+        'name': '--is-admin',
+        'help': "Create an admin user",
+        'action': 'store_true',
+    }
+
     j = {
         'name': '-j',
         'help': "Number of parallel build processes",
@@ -236,6 +242,11 @@ class Args:
     output = {
         'name': '--output',
         'help': "Path the output directory",
+    }
+
+    password = {
+        'name': '--password',
+        'help': "Password of a new user",
     }
 
     plan = {
@@ -310,6 +321,11 @@ class Args:
         'name': '--user',
         'help': "Test lab user name",
         'section': SECTION_LAB,
+    }
+
+    username = {
+        'name': '--username',
+        'help': "Name of a new user",
     }
 
     variant = {
