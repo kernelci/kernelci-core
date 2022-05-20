@@ -18,34 +18,28 @@ test_plans:
       docker_image: 'kernelci/chromeos-tast'
       cros_tast_tarball: 'http://172.17.0.1/chromeos/autotest_server_package_octopus_R92_13981.0.0.tar.bz2'
 
-  chromiumosvm-tast-fixed-kernel:
-    pattern: 'chromeos/chromiumosvm-tast-template.jinja2'
+  chromeos-tast-qemu: &chromeos-tast-qemu
+    pattern: 'chromeos/chromeos-tast-qemu.jinja2'
     filters:
       - blocklist: &kselftest_defconfig_filter
           defconfig: ['kselftest']
-      - passlist: &qemu_chromiumos_labs_filter
-          lab: ['lab-collabora-staging', 'lab-collabora']
-    params:
-      job_timeout: '60'
-      docker_image: 'kernelci/chromeos-tast'
-      rootfs_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220429.0/chromiumos-amd64-generic/amd64/'
-      fixed_kernel: true
-
-  chromiumosvm-tast-upstream-kernel:
-    pattern: 'chromeos/chromiumosvm-tast-template.jinja2'
-    filters:
-      - blocklist: *kselftest_defconfig_filter
       - passlist:
           lab: ['lab-collabora-staging', 'lab-collabora']
-    params:
+    params: &chromeos-tast-qemu-params
       job_timeout: '60'
       docker_image: 'kernelci/chromeos-tast'
       rootfs_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220429.0/chromiumos-amd64-generic/amd64/'
+
+  chromeos-tast-qemu-fixed:
+    <<: *chromeos-tast-qemu
+    params:
+      <<: *chromeos-tast-qemu-params
+      fixed_kernel: true
 
 
 device_types:
 
-  qemu_x86_64-uefi-chromiumos:
+  qemu_x86_64-uefi-chromeos:
     base_name: qemu
     mach: qemu
     arch: x86_64
@@ -77,7 +71,7 @@ test_configs:
     test_plans:
       - chromeos-tast
 
-  - device_type: qemu_x86_64-uefi-chromiumos
+  - device_type: qemu_x86_64-uefi-chromeos
     test_plans:
-      - chromiumosvm-tast-fixed-kernel
-      - chromiumosvm-tast-upstream-kernel
+      - chromeos-tast-qemu
+      - chromeos-tast-qemu-fixed
