@@ -178,7 +178,6 @@ test_plans:
     params:
       job_timeout: '60'
       docker_image: 'kernelci/chromeos-flash'
-      chromeos_image: 'chromiumos_test_image-R94-14150.19.0-octopus.bin'
       flashing_kernel: https://storage.chromeos.kernelci.org/images/kernel/v5.10.112-x86-chromebook/kernel/bzImage
       flashing_modules: https://storage.chromeos.kernelci.org/images/kernel/v5.10.112-x86-chromebook/modules.tar.xz
       flashing_rootfs: http://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220412.0/bullseye-chromeos-flash/amd64/full.rootfs.tar.xz
@@ -741,6 +740,9 @@ device_types:
     arch: x86_64
     boot_method: depthcharge
     filters: *x86-chromebook-filters
+    params:
+      chromeos_image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/crostest007/chromiumos-hatch/amd64/chromiumos_test_image.bin.gz'
+      flashing_device: nvme0n1
 
   asus-C523NA-A20057-coral:
     mach: x86
@@ -911,6 +913,9 @@ device_types:
     arch: x86_64
     boot_method: depthcharge
     filters: *x86-chromebook-filters
+    params:
+      chromeos_image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/crostest007/chromiumos-grunt/amd64/chromiumos_test_image.bin.gz'
+      flashing_device: detect
 
   # Alphabetical order exception: 14 is an int but 12b is a string
   hp-x360-14-G1-sona:
@@ -924,6 +929,9 @@ device_types:
     arch: x86_64
     boot_method: depthcharge
     filters: *x86-chromebook-filters
+    params:
+      chromeos_image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/crostest007/chromiumos-octopus/amd64/chromiumos_test_image.bin.gz'
+      flashing_device: mmcblk0
 
   hp-x360-12b-n4000-octopus: *octopus
 
