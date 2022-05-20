@@ -40,6 +40,24 @@ test_plans:
       prompt_command: 'sof-audio-pci'
       docker_image: 'kernelci/cros-tast'
 
+  cros-tast-qemu: &cros-tast-qemu
+    pattern: 'chromeos/cros-tast-qemu.jinja2'
+    filters:
+      - blocklist: &kselftest_defconfig_filter
+          defconfig: ['kselftest']
+      - passlist:
+          lab: ['lab-collabora-staging', 'lab-collabora']
+    params: &cros-tast-qemu-params
+      job_timeout: '60'
+      docker_image: 'kernelci/cros-tast'
+      rootfs_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220429.0/chromiumos-amd64-generic/amd64/'
+
+  cros-tast-qemu-fixed:
+    <<: *cros-tast-qemu
+    params:
+      <<: *cros-tast-qemu-params
+      fixed_kernel: true
+
 
 device_types:
 
@@ -61,7 +79,7 @@ device_types:
 
   hp-x360-12b-ca0500na-n4000-octopus_chromeos: *octopus
 
-  qemu_x86_64-uefi-chromiumos:
+  qemu_x86_64-uefi-chromeos:
     base_name: qemu
     mach: qemu
     arch: x86_64
@@ -97,7 +115,7 @@ test_configs:
     test_plans:
       - cros-tast
 
-  - device_type: qemu_x86_64-uefi-chromiumos
+  - device_type: qemu_x86_64-uefi-chromeos
     test_plans:
-      - chromiumosvm-tast-fixed-kernel
-      - chromiumosvm-tast-upstream-kernel
+      - cros-tast-qemu
+      - cros-tast-qemu-fixed
