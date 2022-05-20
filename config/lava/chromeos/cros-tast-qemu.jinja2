@@ -1,6 +1,9 @@
 {% extends 'base/kernel-ci-base.jinja2' %}
 {% block main %}
 {{ super () }}
+{%- if device_id %}
+tags: ['{{ device_id }}']
+{%- endif %}
 {% endblock %}
 
 {% block actions %}
