@@ -256,7 +256,7 @@ class cmd_generate(Command):
         for device_config, plan_config in jobs_list:
             params = kernelci.test.get_params(
                 meta, device_config, plan_config, args.storage,
-                args.device_ids)
+                args.device_id)
             job = lab_api.generate(params, device_config, plan_config,
                                    callback_opts)
             if job is None:
