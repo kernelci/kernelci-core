@@ -889,7 +889,8 @@ device_types:
     boot_method: depthcharge
     filters: *x86-chromebook-filters
     params: &octopus-params
-      chromeos_image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220427.0/chromiumos-octopus/amd64/chromiumos_test_image.bin.gz'
+      cros_flash_image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-octopus/20220520.0/amd64/cros-flash.tar.gz'
+      cros_flash_initrd: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-octopus/20220520.0/amd64/cros-flash.cpio.gz'
       tast_tarball: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220427.0/chromiumos-octopus/amd64/tast.tgz'
       flashing_device: mmcblk0
       reference_kernel:
