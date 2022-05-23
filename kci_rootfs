@@ -35,10 +35,15 @@ class cmd_validate(Command):
     def __call__(self, config_data, args, **kwargs):
         # ToDo: Use jsonschema
 
-        result = kernelci.config.rootfs.validate(configs)
-        if args.verbose and result:
-            kernelci.config.rootfs.dump_configs(configs)
-        return result
+        entries = [
+            'rootfs_configs',
+        ]
+        err = kernelci.config.validate_yaml(args.yaml_config, entries)
+        if err:
+            print(err)
+            return False
+
+        return True
 
 
 class cmd_list_configs(Command):
