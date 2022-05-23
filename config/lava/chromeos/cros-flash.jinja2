@@ -14,25 +14,24 @@ tags: ['{{ device_id }}']
 actions:
 - deploy:
     kernel:
-      url: {{ flashing_kernel }}
+      url: {{ cros_flash_kernel }}
     modules:
-      url: {{ flashing_modules }}
+      url: {{ cros_flash_modules }}
       compression: xz
     nfsrootfs:
-      url: {{ flashing_rootfs }}
-      compression: xz
+      url: {{ cros_flash_image }}
+      compression: gz
     ramdisk:
-      url: {{ flashing_ramdisk }}
+      url: {{ cros_flash_initrd }}
       compression: gz
     os: oe
     timeout:
-      minutes: 60
+      minutes: 15
     to: tftp
-
 
 - boot:
     timeout:
-      minutes: 60
+      minutes: 5
     method: depthcharge
     commands: nfs
     prompts:
@@ -40,11 +39,7 @@ actions:
 
 - test:
     timeout:
-      minutes: 60
-    docker:
-      image: {{ docker_image }}
-      wait:
-        device: true
+      minutes: 30
     definitions:
     - repository:
         metadata:
@@ -52,13 +47,8 @@ actions:
           name: cros-flash
         run:
           steps:
-            - ping -c 1 172.17.0.1
-            - lava-test-case wget --shell "wget --no-check-certificate -O chromiumos_test_image.bin.gz {{ chromeos_image }}"
-            - lava-test-case unpack --shell "gzip -d chromiumos_test_image.bin.gz || mv chromiumos_test_image.bin.gz chromiumos_test_image.bin"
-            - lava-test-case scp --shell "scp -C -i /keys/id_rsa_chromeos_flash -o ConnectTimeout=3 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null chromiumos_test_image.bin root@$(lava-target-ip):/root"
-            - ssh -i /keys/id_rsa_chromeos_flash -o ConnectTimeout=3 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$(lava-target-ip) "IMAGE_NAME=chromiumos_test_image.bin FLASH_DEVICE={{ flashing_device }} /bin/bash /opt/chromeos/flash"
+            - lava-test-case flash --shell "/opt/chromeos/flash chromiumos_test_image.bin {{ flashing_device }}"
       from: inline
       name: cros-flash
       path: inline/cros-flash.yaml
-
 {% endblock %}
