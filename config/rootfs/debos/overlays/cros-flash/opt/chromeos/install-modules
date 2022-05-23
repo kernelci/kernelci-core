@@ -1,38 +1,67 @@
 #!/bin/bash
+#
+# Copyright (C) 2021, 2022 Collabora Limited
+# Author: Michal Galka <michal.galka@collabora.com>
+# Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+#
+# This module is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 set -xe
 
+MODULES_URL="$1"
+IMAGE_MOUNTPOINT="${2:-/root/chromeos}"
+
 install_modules()
 {
-    local mount_dir=$(basename "$IMAGE_MOUNTPOINT")
-    local root_path=$(dirname "$IMAGE_MOUNTPOINT")
-    local modules_tarball=$(basename "$MODULES_URL")
+    local modules_url="$1"
+    local image_mountpoint="$2"
 
-    echo "Downloading modules from $MODULES_URL..."
-    mkdir -p "$IMAGE_MOUNTPOINT"
+    local mount_dir=$(basename "$image_mountpoint")
+    local root_path=$(dirname "$image_mountpoint")
+    local modules_tarball=$(basename "$modules_url")
+
+    echo "Downloading modules from $modules_url..."
+    mkdir -p "$image_mountpoint"
     cd "$root_path"
-    wget "$MODULES_URL"
+    wget "$modules_url"
     mount /dev/mmcblk0p3 "$mount_dir"
 
     echo "Installing modules..."
     cd "$mount_dir"
     ls -l lib/modules
     rm -rf lib/modules
-    tar --no-same-owner --no-same-permissions --no-xattrs --no-selinux --no-acls -xf "$root_path/$modules_tarball"
-    chown root: -R lib
+    tar \
+        --no-same-owner \
+        --no-same-permissions \
+        --no-xattrs \
+        --no-selinux \
+        --no-acls \
+        -xf \
+        "$root_path/$modules_tarball"
     ls -l lib/modules
     cd "$root_path"
     umount "$mount_dir"
     sync
 }
 
-commands="${*:-install_modules}"
-IMAGE_MOUNTPOINT="${IMAGE_MOUNTPOINT:-/root/chromeos}"
-MODULES_URL="${MODULES_URL:-http://images.collabora.com/lava/chromeos/modules-4.14.243.tar.gz}"
+if [ -z "$MODULES_URL" ]; then
+    echo "Missing modules URL"
+    echo "Usage: install-modules MODULES_URL IMAGE_MOUNTPOINT"
+    exit 1
+fi
 
-for cmd in $commands; do
-    echo "Running [$cmd]"
-    $cmd
-done
+install_modules "$MODULES_URL" "$IMAGE_MOUNTPOINT"
 
 exit 0
