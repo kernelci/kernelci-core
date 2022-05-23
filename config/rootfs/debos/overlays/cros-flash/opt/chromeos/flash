@@ -1,6 +1,28 @@
 #!/bin/bash
+#
+# Copyright (C) 2021, 2022 Collabora Limited
+# Author: Michal Galka <michal.galka@collabora.com>
+# Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+#
+# This module is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 set -xe
+
+IMAGE_NAME="${1:-chromiumos_test_image.bin}"
+BLOCK_DEVICE="${2:-mmcblk0}"
+IMAGE_MOUNTPOINT="${3:-/root/chromeos}"
 
 mount_special_fs()
 {
@@ -26,16 +48,20 @@ umount_special_fs()
 
 flash_chromeos()
 {
+    local block_device="$1"
+    local image_mountpoint="$2"
+    local image_name="$3"
     local dev
-    local mount_dir=$(basename "$IMAGE_MOUNTPOINT")
-    local root_path=$(dirname "$IMAGE_MOUNTPOINT")
+
+    local mount_dir=$(basename "$image_mountpoint")
+    local root_path=$(dirname "$image_mountpoint")
 
     echo "Setting up Chrome OS chroot..."
-    mkdir -p "$IMAGE_MOUNTPOINT"
+    mkdir -p "$image_mountpoint"
     cd "$root_path"
     dev=$(losetup -P -f --show "$IMAGE_NAME")
     mount "$dev"p3 "$mount_dir" -o ro
-    mount_special_fs "$IMAGE_MOUNTPOINT"
+    mount_special_fs "$image_mountpoint"
     mount --bind . "$mount_dir"/mnt/empty
     ls -l "$mount_dir"/mnt/empty/"$IMAGE_NAME"
     ls -l "$mount_dir"/dev/{mmc*,nvme*} || true
@@ -44,12 +70,12 @@ flash_chromeos()
     chroot "$mount_dir" \
          /usr/sbin/chromeos-install \
         --debug \
-        --dst /dev/${FLASH_DEVICE} \
+        --dst /dev/${block_device} \
         --payload_image /mnt/empty/"$IMAGE_NAME" \
         --yes
     sync
 
-    umount_special_fs "$IMAGE_MOUNTPOINT"
+    umount_special_fs "$image_mountpoint"
     umount "$mount_dir"/mnt/empty
     umount "$mount_dir"
     losetup -d "$dev"
@@ -57,65 +83,50 @@ flash_chromeos()
 
 enable_rw()
 {
-    local mount_dir=$(basename "$IMAGE_MOUNTPOINT")
-    local root_path=$(dirname "$IMAGE_MOUNTPOINT")
+    local block_device="$1"
+    local image_mountpoint="$2"
+
+    local mount_dir=$(basename "$image_mountpoint")
+    local root_path=$(dirname "$image_mountpoint")
 
     echo "Making the rootfs writeable..."
-    mkdir -p "$IMAGE_MOUNTPOINT"
+    mkdir -p "$image_mountpoint"
     cd "$root_path"
-    mount /dev/${FLASH_DEVICE}p3 "$mount_dir" -o ro
-    mount_special_fs "$IMAGE_MOUNTPOINT"
+    mount /dev/${block_device}p3 "$mount_dir" -o ro
+    mount_special_fs "$image_mountpoint"
     cd "$mount_dir"
     chroot . \
         /usr/share/vboot/bin/make_dev_ssd.sh \
         --remove_rootfs_verification \
         --force
     cd "$root_path"
-    umount_special_fs "$IMAGE_MOUNTPOINT"
+    umount_special_fs "$image_mountpoint"
     umount "$mount_dir"
     sync
     # Partprobe fails on NVMe chromebooks, ignore it
-    partprobe -s /dev/${FLASH_DEVICE} || true
+    partprobe -s /dev/${block_device} || true
 }
 
-fixup_root()
-{
-    cd /root
-    mkdir -p chromeos
-    ls -ld chromeos
-    mount /dev/${FLASH_DEVICE}p3 chromeos
-    ls -ld chromeos
-    chown root: chromeos
-    ls -ld chromeos
-    umount chromeos
-    ls -ld chromeos
-    mount /dev/${FLASH_DEVICE}p3 chromeos
-    ls -ld chromeos
-    umount chromeos
-    ls -ld chromeos
-    sync
-}
-
-commands="${*:-flash_chromeos enable_rw fixup_root}"
-IMAGE_NAME="${IMAGE_NAME:-octopus-chromiumos-test-image.bin}"
-IMAGE_MOUNTPOINT="${IMAGE_MOUNTPOINT:-/root/chromeos}"
-FLASH_DEVICE="${FLASH_DEVICE:-mmcblk0}"
-
-if [ "${FLASH_DEVICE}" == "detect" ]; then
-    echo "Detecting storage device"
-    if [ -e "/dev/mmcblk0" ]; then
-       FLASH_DEVICE="mmcblk0"
-    elif [ -e "/dev/mmcblk1" ]; then
-       FLASH_DEVICE="mmcblk1"
-    else
-       echo "MMC device not detected!"
-       exit 1
-    fi
+if [ -z "$IMAGE_NAME" ]; then
+    echo "Missing image name"
+    echo "Usage: flash IMAGE_NAME BLOCK_DEVICE image_mountpoint"
+    exit 1
 fi
 
-for cmd in $commands; do
-    echo "Running [$cmd]"
-    $cmd
-done
+if [ "${BLOCK_DEVICE}" == "detect" ]; then
+    echo "Detecting block device"
+    if [ -e "/dev/mmcblk0" ]; then
+       BLOCK_DEVICE="mmcblk0"
+    elif [ -e "/dev/mmcblk1" ]; then
+       BLOCK_DEVICE="mmcblk1"
+    else
+       echo "Block device not detected!"
+       exit 1
+    fi
+    echo "Block device: $BLOCK_DEVICE"
+fi
+
+flash_chromeos "$BLOCK_DEVICE" "$IMAGE_MOUNTPOINT" "$IMAGE_NAME"
+enable_rw "$BLOCK_DEVICE" "$IMAGE_MOUNTPOINT"
 
 exit 0
