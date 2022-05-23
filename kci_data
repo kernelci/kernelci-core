@@ -37,7 +37,7 @@ class cmd_validate(Command):
         entries = [
             'db_configs',
         ]
-        err = kernelci.config.validate_yaml(opts.yaml_config, entries)
+        err = kernelci.config.validate_yaml(args.yaml_config, entries)
         if err:
             print(err)
             return False
