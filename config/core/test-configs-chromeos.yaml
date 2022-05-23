@@ -58,6 +58,7 @@ device_types:
     boot_method: qemu
     params:
       bios_url: 'http://storage.kernelci.org/images/uefi/edk2-stable202005/x86_64/OVMF.fd'
+      tast_tarball: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220429.0/chromiumos-amd64-generic/amd64/tast.tgz'
     context:
       arch: x86_64
       cpu: 'qemu64'
