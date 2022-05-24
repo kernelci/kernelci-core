@@ -32,5 +32,10 @@ actions:
     method: depthcharge
     commands: emmc
     prompts:
-      - {{ prompt_command }}
+      - 'localhost(.*)~(.*)#'
+    auto_login:
+      login_prompt: "login:"
+      username: "root"
+      password_prompt: "Password:"
+      password: "test0000"
 {% endblock %}
