@@ -24,19 +24,6 @@ test_plans:
       <<: *chromeos-install-modules-params
       fixed_kernel: true
 
-  chromeos-tast: &chromeos-tast
-    pattern: 'chromeos/chromeos-tast-template.jinja2'
-    params: &chromeos-tast-params
-      job_timeout: '60'
-      prompt_command: 'sof-audio-pci'
-      docker_image: 'kernelci/chromeos-tast'
-
-  chromeos-tast-fixed:
-    <<: *chromeos-tast
-    params:
-      <<: *chromeos-tast-params
-      fixed_kernel: true
-
   chromeos-tast-qemu: &chromeos-tast-qemu
     pattern: 'chromeos/chromeos-tast-qemu.jinja2'
     filters:
@@ -67,6 +54,18 @@ test_plans:
     pattern: 'chromeos/cros-flash.jinja2'
     params:
       job_timeout: '60'
+
+  cros-tast: &cros-tast
+    pattern: 'chromeos/cros-tast.jinja2'
+    params: &cros-tast-params
+      job_timeout: '60'
+      docker_image: 'kernelci/cros-tast'
+
+  cros-tast-fixed:
+    <<: *cros-tast
+    params:
+      <<: *cros-tast-params
+      fixed_kernel: true
 
 
 device_types:
@@ -130,17 +129,17 @@ test_configs:
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus_chromeos
     test_plans:
-      - chromeos-tast
-      - chromeos-tast-fixed
       - cros-boot
       - cros-boot-fixed
+      - cros-tast
+      - cros-tast-fixed
 
   - device_type: hp-x360-12b-ca0010nr-n4020-octopus_chromeos
     test_plans:
-      - chromeos-tast
-      - chromeos-tast-fixed
       - cros-boot
       - cros-boot-fixed
+      - cros-tast
+      - cros-tast-fixed
 
   - device_type: qemu_x86_64-uefi-chromeos
     test_plans:
