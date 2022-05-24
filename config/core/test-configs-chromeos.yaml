@@ -38,20 +38,17 @@ test_plans:
       <<: *cros-tast-params
       fixed_kernel: true
 
-  cros-tast-qemu: &cros-tast-qemu
-    pattern: 'chromeos/cros-tast-qemu.jinja2'
-    filters:
-      - blocklist: &kselftest_defconfig_filter
-          defconfig: ['kselftest']
-      - passlist:
-          lab: ['lab-collabora-staging', 'lab-collabora']
+  cros-tast_qemu: &cros-tast-qemu
+    <<: *cros-tast
+    base_name: cros-tast
+    filters: *cros-qemu-filters
     params: &cros-tast-qemu-params
-      job_timeout: '60'
-      docker_image: 'kernelci/cros-tast'
-      rootfs_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220429.0/chromiumos-amd64-generic/amd64/'
+      <<: *cros-tast-params
+      base_template: 'chromeos/cros-boot-qemu.jinja2'
 
-  cros-tast-qemu-fixed:
+  cros-tast_qemu-fixed:
     <<: *cros-tast-qemu
+    base_name: cros-tast-fixed
     params:
       <<: *cros-tast-qemu-params
       fixed_kernel: true
@@ -145,5 +142,5 @@ test_configs:
     test_plans:
       - cros-boot_qemu
       - cros-boot_qemu-fixed
-      - cros-tast-qemu
-      - cros-tast-qemu-fixed
+      - cros-tast_qemu
+      - cros-tast_qemu-fixed
