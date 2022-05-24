@@ -8,6 +8,19 @@ test_plans:
     params:
       fixed_kernel: true
 
+  cros-boot_qemu: &cros-boot_qemu
+    base_name: cros-boot
+    pattern: 'chromeos/cros-boot-qemu.jinja2'
+    filters: &cros-qemu-filters
+      - blocklist: { defconfig: ['kselftest'] }
+      - passlist: { lab: ['lab-collabora-staging', 'lab-collabora'] }
+
+  cros-boot_qemu-fixed:
+    <<: *cros-boot_qemu
+    base_name: cros-boot-fixed
+    params:
+      fixed_kernel: true
+
   cros-flash:
     pattern: 'chromeos/cros-flash.jinja2'
     params:
@@ -88,7 +101,11 @@ device_types:
     boot_method: qemu
     params:
       bios_url: 'http://storage.kernelci.org/images/uefi/edk2-stable202005/x86_64/OVMF.fd'
-      tast_tarball: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220429.0/chromiumos-amd64-generic/amd64/tast.tgz'
+      rootfs_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-amd64-generic/20220523.0/amd64/chromiumos_test_image.bin.gz'
+      tast_tarball: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-amd64-generic/20220523.0/amd64/tast.tgz'
+      reference_kernel:
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-amd64-generic/20220523.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-amd64-generic/20220523.0/amd64/modules.tar.xz'
     context:
       arch: x86_64
       cpu: 'qemu64'
@@ -126,5 +143,7 @@ test_configs:
 
   - device_type: qemu_x86_64-uefi-chromeos
     test_plans:
+      - cros-boot_qemu
+      - cros-boot_qemu-fixed
       - cros-tast-qemu
       - cros-tast-qemu-fixed
