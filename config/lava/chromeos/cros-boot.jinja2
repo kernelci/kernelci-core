@@ -1,8 +1,9 @@
 {% extends 'base/kernel-ci-base.jinja2' %}
 {% block main %}
+{%- if extra_kernel_args %}
+{% do context.update({"extra_kernel_args": extra_kernel_args}) %}
+{% endif %}
 {{ super () }}
-context:
-  extra_kernel_args: console_msg_format=syslog cros_secure cros_debug root=/dev/{{ flashing_device }}p3 rootwait
 {%- if device_id %}
 tags: ['{{ device_id }}']
 {%- endif %}
@@ -92,6 +93,7 @@ actions:
       minutes: 5
     method: depthcharge
     commands: emmc
+    extra_kernel_args: cros_secure cros_debug root=/dev/{{ flashing_device }}p3 rootwait ro
     prompts:
       - 'localhost(.*)~(.*)#'
     auto_login:
