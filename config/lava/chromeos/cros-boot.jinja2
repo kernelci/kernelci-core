@@ -11,8 +11,69 @@ tags: ['{{ device_id }}']
 {% block actions %}
 {{ super () }}
 actions:
+
+# Debian NFS to install kernel modules
+
 - deploy:
-    namespace: boot_chromeos
+    namespace: modules
+    timeout:
+      minutes: 5
+    to: tftp
+    kernel:
+      url: {{ cros_flash_kernel }}
+    modules:
+      url: {{ cros_flash_modules }}
+      compression: xz
+    nfsrootfs:
+      url: {{ cros_flash_nfs }}
+      compression: xz
+    ramdisk:
+      url: {{ cros_flash_initrd }}
+      compression: gz
+    os: oe
+
+- boot:
+    namespace: modules
+    timeout:
+      minutes: 5
+    method: depthcharge
+    commands: nfs
+    prompts:
+      - '/ #'
+
+- test:
+    namespace: modules
+    timeout:
+      minutes: 5
+    definitions:
+    - repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: modules
+          description: modules
+          os:
+            - oe
+          scope:
+            - functional
+          environment:
+            - lava-test-shell
+        run:
+          steps:
+            - >-
+              lava-test-case modules --shell /opt/chromeos/install-modules
+{%- if fixed_kernel is not defined %}
+              {{ modules_url }}
+{%- else %}
+              {{ reference_kernel.modules }}
+{%- endif %}
+      from: inline
+      name: modules
+      path: inline/modules.yaml
+
+# Chrome OS
+
+- deploy:
+    namespace: chromeos
     timeout:
       minutes: 10
     to: tftp
@@ -26,7 +87,7 @@ actions:
     os: oe
 
 - boot:
-    namespace: boot_chromeos
+    namespace: chromeos
     timeout:
       minutes: 5
     method: depthcharge
