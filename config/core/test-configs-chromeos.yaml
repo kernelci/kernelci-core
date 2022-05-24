@@ -61,13 +61,10 @@ test_plans:
 
   cros-boot: &cros-boot
     pattern: 'chromeos/cros-boot.jinja2'
-    params: &cros-boot-params
-      prompt_command: 'sof-audio-pci'
 
   cros-boot-fixed:
     <<: *cros-boot
     params:
-      <<: *cros-boot-params
       fixed_kernel: true
 
   cros-flash:
