@@ -84,7 +84,7 @@ device_types:
       cros_flash_kernel: 'http://storage.chromeos.kernelci.org/images/kernel/v5.10.112-x86-chromebook/kernel/bzImage'
       cros_flash_modules: 'http://storage.chromeos.kernelci.org/images/kernel/v5.10.112-x86-chromebook/modules.tar.xz'
       tast_tarball: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220427.0/chromiumos-octopus/amd64/tast.tgz'
-      flashing_device: mmcblk0
+      block_device: mmcblk0
       reference_kernel:
         image: 'https://storage.chromeos.kernelci.org/images/kernel/chromeos-octopus-4.14.243/vmlinuz-4.14.243'
         modules: 'https://storage.chromeos.kernelci.org/images/kernel/chromeos-octopus-4.14.243/modules-4.14.243.tar.gz'
