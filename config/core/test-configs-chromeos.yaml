@@ -29,6 +29,8 @@ test_plans:
 
   cros-boot-fixed:
     <<: *cros-boot
+    filters:
+      - blocklist: { defconfig: ['cros'] }
     params:
       fixed_kernel: true
 
@@ -42,6 +44,10 @@ test_plans:
   cros-boot_qemu-fixed:
     <<: *cros-boot_qemu
     base_name: cros-boot-fixed
+    filters: &cros-qemu-filters-fixed
+      - blocklist: { defconfig: ['kselftest'] }
+      - blocklist: { defconfig: ['cros'] }
+      - passlist: { lab: ['lab-collabora-staging', 'lab-collabora'] }
     params:
       fixed_kernel: true
 
@@ -73,6 +79,7 @@ test_plans:
   cros-tast_qemu-fixed:
     <<: *cros-tast-qemu
     base_name: cros-tast-fixed
+    filters: *cros-qemu-filters-fixed
     params:
       <<: *cros-tast-qemu-params
       fixed_kernel: true
