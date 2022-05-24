@@ -15,9 +15,9 @@ tags: ['{{ device_id }}']
 actions:
 - deploy:
     kernel:
-      url: {{ flashing_kernel }}
+      url: {{ cros_flash_kernel }}
     modules:
-      url: {{ flashing_modules }}
+      url: {{ cros_flash_modules }}
       compression: xz
     nfsrootfs:
       url: {{ cros_flash_image }}
