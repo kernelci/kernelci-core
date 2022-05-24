@@ -54,7 +54,7 @@ actions:
           name: cros-flash
         run:
           steps:
-            - lava-test-case flash --shell "/opt/chromeos/flash chromiumos_test_image.bin {{ flashing_device }}"
+            - lava-test-case flash --shell "/opt/chromeos/flash chromiumos_test_image.bin {{ block_device }}"
       from: inline
       name: cros-flash
       path: inline/cros-flash.yaml
