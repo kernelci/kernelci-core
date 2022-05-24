@@ -701,7 +701,7 @@ device_types:
     filters: *x86-chromebook-filters
     params:
       chromeos_image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/crostest007/chromiumos-hatch/amd64/chromiumos_test_image.bin.gz'
-      flashing_device: nvme0n1
+      block_device: nvme0n1
 
   asus-C523NA-A20057-coral:
     mach: x86
@@ -874,7 +874,7 @@ device_types:
     filters: *x86-chromebook-filters
     params:
       chromeos_image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/crostest007/chromiumos-grunt/amd64/chromiumos_test_image.bin.gz'
-      flashing_device: detect
+      block_device: detect
 
   # Alphabetical order exception: 14 is an int but 12b is a string
   hp-x360-14-G1-sona:
@@ -895,7 +895,7 @@ device_types:
       cros_flash_kernel: 'http://storage.chromeos.kernelci.org/images/kernel/v5.10.112-x86-chromebook/kernel/bzImage'
       cros_flash_modules: 'http://storage.chromeos.kernelci.org/images/kernel/v5.10.112-x86-chromebook/modules.tar.xz'
       tast_tarball: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220427.0/chromiumos-octopus/amd64/tast.tgz'
-      flashing_device: mmcblk0
+      block_device: mmcblk0
       reference_kernel:
         image: 'https://storage.chromeos.kernelci.org/images/kernel/chromeos-octopus-4.14.243/vmlinuz-4.14.243'
         modules: 'https://storage.chromeos.kernelci.org/images/kernel/chromeos-octopus-4.14.243/modules-4.14.243.tar.gz'
