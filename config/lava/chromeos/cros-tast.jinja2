@@ -1,4 +1,4 @@
-{% extends 'chromeos/cros-boot.jinja2' %}
+{% extends base_template|default('chromeos/cros-boot.jinja2') %}
 {% block actions %}
 {{ super() }}
 - test:
