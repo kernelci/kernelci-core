@@ -10,29 +10,27 @@ tags: ['{{ device_id }}']
 
 {% block actions %}
 {{ super () }}
-
 actions:
 - deploy:
-      namespace: boot_chromeos
-      timeout:
-        minutes: 60
-      to: tftp
-      kernel:
+    namespace: boot_chromeos
+    timeout:
+      minutes: 10
+    to: tftp
+    kernel:
 {%- if fixed_kernel is not defined %}
-        url: {{ kernel_url }}
+      url: {{ kernel_url }}
 {%- else %}
-        # Fixed reference kernel
-        url: {{ reference_kernel.image }}
+      # Fixed reference kernel
+      url: {{ reference_kernel.image }}
 {%- endif %}
-      os: oe
+    os: oe
 
 - boot:
-      namespace: boot_chromeos
-      timeout:
-        minutes: 30
-      method: depthcharge
-      commands: emmc
-      prompts:
-        - {{ prompt_command }}
-
+    namespace: boot_chromeos
+    timeout:
+      minutes: 5
+    method: depthcharge
+    commands: emmc
+    prompts:
+      - {{ prompt_command }}
 {% endblock %}
