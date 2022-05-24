@@ -1,16 +1,5 @@
 test_plans:
 
-  chromeos-boot: &chromeos-boot
-    pattern: 'chromeos/chromeos-boot-chromebook-template.jinja2'
-    params: &chromeos-boot-params
-      prompt_command: 'sof-audio-pci'
-
-  chromeos-boot-fixed:
-    <<: *chromeos-boot
-    params:
-      <<: *chromeos-boot-params
-      fixed_kernel: true
-
   chromeos-install-modules: &chromeos-install-modules
     pattern: 'chromeos/chromeos-install-modules-template.jinja2'
     params: &chromeos-install-modules-params
@@ -24,13 +13,13 @@ test_plans:
     pattern: 'chromeos/chromeos-install-modules-and-boot-template.jinja2'
     params:
       <<: *chromeos-install-modules-params
-      <<: *chromeos-boot-params
+      prompt_command: 'sof-audio-pci'
 
   chromeos-install-modules-and-boot-fixed:
     pattern: 'chromeos/chromeos-install-modules-and-boot-template.jinja2'
     params:
       <<: *chromeos-install-modules-params
-      <<: *chromeos-boot-params
+      prompt_command: 'sof-audio-pci'
       fixed_kernel: true
 
   chromeos-install-modules-fixed:
@@ -68,6 +57,17 @@ test_plans:
     <<: *chromeos-tast-qemu
     params:
       <<: *chromeos-tast-qemu-params
+      fixed_kernel: true
+
+  cros-boot: &cros-boot
+    pattern: 'chromeos/cros-boot.jinja2'
+    params: &cros-boot-params
+      prompt_command: 'sof-audio-pci'
+
+  cros-boot-fixed:
+    <<: *cros-boot
+    params:
+      <<: *cros-boot-params
       fixed_kernel: true
 
   cros-flash:
@@ -111,17 +111,17 @@ test_configs:
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus
     test_plans:
-      - chromeos-boot
-      - chromeos-boot-fixed
       - chromeos-tast
       - chromeos-tast-fixed
+      - cros-boot
+      - cros-boot-fixed
 
   - device_type: hp-x360-12b-ca0010nr-n4020-octopus
     test_plans:
-      - chromeos-boot
-      - chromeos-boot-fixed
       - chromeos-tast
       - chromeos-tast-fixed
+      - cros-boot
+      - cros-boot-fixed
 
   - device_type: qemu_x86_64-uefi-chromeos
     test_plans:
