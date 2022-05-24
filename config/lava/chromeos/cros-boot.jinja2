@@ -93,7 +93,7 @@ actions:
       minutes: 5
     method: depthcharge
     commands: emmc
-    extra_kernel_args: cros_secure cros_debug root=/dev/{{ flashing_device }}p3 rootwait ro
+    extra_kernel_args: cros_secure cros_debug root=/dev/{{ block_device }}p3 rootwait ro
     prompts:
       - 'localhost(.*)~(.*)#'
     auto_login:
