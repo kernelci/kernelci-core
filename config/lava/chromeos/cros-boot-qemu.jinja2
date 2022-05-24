@@ -14,6 +14,7 @@ tags: ['{{ device_id }}']
 actions:
 
 - deploy:
+    namespace: chromeos
     to: downloads
     images:
       rootfs:
@@ -39,6 +40,7 @@ actions:
           - /add_modules.sh
 
 - deploy:
+    namespace: chromeos
     images:
       bios:
         image_arg: -bios {bios}
@@ -55,6 +57,7 @@ actions:
     to: tmpfs
 
 - boot:
+    namespace: chromeos
     method: qemu
     media: tmpfs
     timeout:
