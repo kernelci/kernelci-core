@@ -4,3 +4,32 @@ test_plans:
     pattern: 'chromeos/cros-flash.jinja2'
     params:
       job_timeout: '60'
+
+
+device_types:
+
+  hp-x360-12b-ca0010nr-n4020-octopus_chromeos: &octopus
+    base_name: hp-x360-12b-ca0010nr-n4020-octopus
+    mach: x86
+    arch: x86_64
+    boot_method: depthcharge
+    filters: &x86-chromebook-filters
+      - passlist: {defconfig: ['x86-chromebook']}
+    params: &octopus-params
+      cros_flash_initrd: 'https://storage.staging.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20220523.1/amd64/initrd.cpio.gz'
+      cros_flash_nfs: 'https://storage.staging.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20220523.1/amd64/full.rootfs.tar.xz'
+      cros_flash_image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-octopus/20220520.0/amd64/cros-flash.tar.gz'
+      cros_flash_kernel: 'http://storage.chromeos.kernelci.org/images/kernel/v5.10.112-x86-chromebook/kernel/bzImage'
+      cros_flash_modules: 'http://storage.chromeos.kernelci.org/images/kernel/v5.10.112-x86-chromebook/modules.tar.xz'
+      flashing_device: mmcblk0
+
+  hp-x360-12b-ca0500na-n4000-octopus_chromeos: *octopus
+
+
+test_configs:
+
+  - device_type: hp-x360-12b-ca0010nr-n4020-octopus_chromeos
+    test_plans: []
+
+  - device_type: hp-x360-12b-ca0500na-n4000-octopus_chromeos
+    test_plans: []
