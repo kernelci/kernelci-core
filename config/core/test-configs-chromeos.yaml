@@ -71,6 +71,34 @@ test_plans:
 
 device_types:
 
+  hp-x360-12b-ca0010nr-n4020-octopus_chromeos: &octopus
+    base_name: hp-x360-12b-ca0010nr-n4020-octopus
+    mach: x86
+    arch: x86_64
+    boot_method: depthcharge
+    filters: &x86-chromebook-filters
+      - passlist: {defconfig: ['x86-chromebook']}
+      - blocklist: {defconfig: ['allmodconfig', 'allnoconfig']}
+    params: &octopus-params
+      cros_flash_initrd: 'https://storage.staging.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20220523.1/amd64/initrd.cpio.gz'
+      cros_flash_nfs: 'https://storage.staging.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20220523.1/amd64/full.rootfs.tar.xz'
+      cros_flash_image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-octopus/20220520.0/amd64/cros-flash.tar.gz'
+      cros_flash_kernel: 'http://storage.chromeos.kernelci.org/images/kernel/v5.10.112-x86-chromebook/kernel/bzImage'
+      cros_flash_modules: 'http://storage.chromeos.kernelci.org/images/kernel/v5.10.112-x86-chromebook/modules.tar.xz'
+      tast_tarball: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220427.0/chromiumos-octopus/amd64/tast.tgz'
+      block_device: mmcblk0
+      reference_kernel:
+        image: 'https://storage.chromeos.kernelci.org/images/kernel/chromeos-octopus-4.14.243/vmlinuz-4.14.243'
+        modules: 'https://storage.chromeos.kernelci.org/images/kernel/chromeos-octopus-4.14.243/modules-4.14.243.tar.gz'
+      device_id: cbg-4
+
+  hp-x360-12b-ca0500na-n4000-octopus_chromeos:
+    <<: *octopus
+    base_name: hp-x360-12b-ca0500na-n4000-octopus
+    params:
+      <<: *octopus-params
+      device_id: cbg-0
+
   qemu_x86_64-uefi-chromeos:
     base_name: qemu
     mach: qemu
@@ -100,14 +128,14 @@ device_types:
 
 test_configs:
 
-  - device_type: hp-x360-12b-ca0500na-n4000-octopus
+  - device_type: hp-x360-12b-ca0500na-n4000-octopus_chromeos
     test_plans:
       - chromeos-tast
       - chromeos-tast-fixed
       - cros-boot
       - cros-boot-fixed
 
-  - device_type: hp-x360-12b-ca0010nr-n4020-octopus
+  - device_type: hp-x360-12b-ca0010nr-n4020-octopus_chromeos
     test_plans:
       - chromeos-tast
       - chromeos-tast-fixed
