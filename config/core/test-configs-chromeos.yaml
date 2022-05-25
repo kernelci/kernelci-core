@@ -1,18 +1,5 @@
 test_plans:
 
-  chromeos-install-modules-and-boot:
-    pattern: 'chromeos/chromeos-install-modules-and-boot-template.jinja2'
-    params:
-      <<: *chromeos-install-modules-params
-      prompt_command: 'sof-audio-pci'
-
-  chromeos-install-modules-and-boot-fixed:
-    pattern: 'chromeos/chromeos-install-modules-and-boot-template.jinja2'
-    params:
-      <<: *chromeos-install-modules-params
-      prompt_command: 'sof-audio-pci'
-      fixed_kernel: true
-
   cros-boot: &cros-boot
     pattern: 'chromeos/cros-boot.jinja2'
 
