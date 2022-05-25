@@ -21,7 +21,8 @@
             - cd /home/cros-tast
             - >-
               lava-test-case tast-tarball --shell
-              curl -s {{ tast_tarball }} \| tar xzvf -
+              curl -s {{ cros_image.base_url }}{{ cros_image.tast_tarball }}
+              \| tar xzvf -
               && cp remote_test_runner /usr/bin/remote_test_runner
             - while ! ping -c 1 -w 1 $(lava-target-ip); do sleep 1; done
             - >-
