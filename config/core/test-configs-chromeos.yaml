@@ -72,16 +72,26 @@ device_types:
       - passlist: {defconfig: ['x86-chromebook']}
       - blocklist: {defconfig: ['allmodconfig', 'allnoconfig']}
     params: &octopus-params
-      cros_flash_initrd: 'https://storage.staging.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20220523.1/amd64/initrd.cpio.gz'
-      cros_flash_nfs: 'https://storage.staging.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20220523.1/amd64/full.rootfs.tar.xz'
-      cros_flash_image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-octopus/20220520.0/amd64/cros-flash.tar.gz'
-      cros_flash_kernel: 'http://storage.chromeos.kernelci.org/images/kernel/v5.10.112-x86-chromebook/kernel/bzImage'
-      cros_flash_modules: 'http://storage.chromeos.kernelci.org/images/kernel/v5.10.112-x86-chromebook/modules.tar.xz'
-      tast_tarball: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220427.0/chromiumos-octopus/amd64/tast.tgz'
-      block_device: mmcblk0
+      cros_flash_nfs:
+        base_url: 'https://storage.staging.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20220523.1/amd64/'
+        initrd: 'initrd.cpio.gz'
+        initrd_compression: 'gz'
+        rootfs: 'full.rootfs.tar.xz'
+        rootfs_compression: 'xz'
+      cros_flash_kernel:
+        base_url: 'http://storage.chromeos.kernelci.org/images/kernel/v5.10.112-x86-chromebook/'
+        image: 'kernel/bzImage'
+        modules: 'modules.tar.xz'
+        modules_compression: 'xz'
+      cros_image:
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-octopus/20220520.0/amd64/'
+        flash_tarball: 'cros-flash.tar.gz'
+        flash_tarball_compression: 'gz'
+        tast_tarball: 'tast.tgz'
       reference_kernel:
         image: 'https://storage.chromeos.kernelci.org/images/kernel/chromeos-octopus-4.14.243/vmlinuz-4.14.243'
         modules: 'https://storage.chromeos.kernelci.org/images/kernel/chromeos-octopus-4.14.243/modules-4.14.243.tar.gz'
+      block_device: mmcblk0
       device_id: cbg-4
 
   hp-x360-12b-ca0500na-n4000-octopus_chromeos:
@@ -98,8 +108,10 @@ device_types:
     boot_method: qemu
     params:
       bios_url: 'http://storage.kernelci.org/images/uefi/edk2-stable202005/x86_64/OVMF.fd'
-      rootfs_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-amd64-generic/20220523.0/amd64/chromiumos_test_image.bin.gz'
-      tast_tarball: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-amd64-generic/20220523.0/amd64/tast.tgz'
+      cros_image:
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-amd64-generic/20220523.0/amd64/'
+        image: 'chromiumos_test_image.bin.gz'
+        tast_tarball: 'tast.tgz'
       reference_kernel:
         image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-amd64-generic/20220523.0/amd64/bzImage'
         modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-amd64-generic/20220523.0/amd64/modules.tar.xz'
