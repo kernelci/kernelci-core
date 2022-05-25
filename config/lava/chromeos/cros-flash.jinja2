@@ -21,16 +21,16 @@ tags: ['{{ device_id }}']
 actions:
 - deploy:
     kernel:
-      url: {{ cros_flash_kernel }}
+      url: {{ cros_flash_kernel.base_url }}{{ cros_flash_kernel.image }}
     modules:
-      url: {{ cros_flash_modules }}
-      compression: xz
+      url: {{ cros_flash_kernel.base_url }}{{ cros_flash_kernel.modules }}
+      compression: {{ cros_flash_kernel.modules_compression }}
     nfsrootfs:
-      url: {{ cros_flash_image }}
-      compression: gz
+      url: {{ cros_image.base_url }}{{ cros_image.flash_tarball }}
+      compression: {{ cros_image.flash_tarball_compression }}
     ramdisk:
-      url: {{ cros_flash_initrd }}
-      compression: gz
+      url: {{ cros_flash_nfs.base_url }}{{ cros_flash_nfs.initrd }}
+      compression: {{ cros_flash_nfs.initrd_compression }}
     os: oe
     timeout:
       minutes: 15
