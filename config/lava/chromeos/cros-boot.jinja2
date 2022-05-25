@@ -21,16 +21,16 @@ actions:
       minutes: 5
     to: tftp
     kernel:
-      url: {{ cros_flash_kernel }}
+      url: {{ cros_flash_kernel.base_url }}{{ cros_flash_kernel.image }}
     modules:
-      url: {{ cros_flash_modules }}
-      compression: xz
+      url: {{ cros_flash_kernel.base_url }}{{ cros_flash_kernel.modules }}
+      compression: {{ cros_flash_kernel.modules_compression }}
     nfsrootfs:
-      url: {{ cros_flash_nfs }}
-      compression: xz
+      url: {{ cros_flash_nfs.base_url }}{{ cros_flash_nfs.rootfs }}
+      compression: {{ cros_flash_nfs.rootfs_compression }}
     ramdisk:
-      url: {{ cros_flash_initrd }}
-      compression: gz
+      url: {{ cros_flash_nfs.base_url }}{{ cros_flash_nfs.initrd }}
+      compression: {{ cros_flash_nfs.initrd_compression }}
     os: oe
 
 - boot:
