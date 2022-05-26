@@ -35,7 +35,7 @@ actions:
     prompts:
     - 'root@(.*):/#'
     timeout:
-      minutes: 5
+      minutes: {{ boot_timeout|default('5') }}
     method: lxc
 {%- endblock %}
 {%- block deploy_url %}
@@ -86,7 +86,7 @@ actions:
     prompts:
     - '/ #'
     timeout:
-      minutes: 15
+      minutes: {{ boot_timeout|default('15') }}
     method: fastboot
     transfer_overlay:
       download_command: udhcpc ; ip addr show ; wget
