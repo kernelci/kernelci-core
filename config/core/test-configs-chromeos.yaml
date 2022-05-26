@@ -26,10 +26,13 @@ test_plans:
 
   cros-boot: &cros-boot
     pattern: 'chromeos/cros-boot.jinja2'
+    filters: &cros-filters
+      - blocklist: { defconfig: ['kselftest'] }
 
   cros-boot-fixed:
     <<: *cros-boot
-    filters:
+    filters: &cros-filters-fixed
+      - blocklist: { defconfig: ['kselftest'] }
       - blocklist: { defconfig: ['cros'] }
     params:
       fixed_kernel: true
@@ -58,12 +61,14 @@ test_plans:
 
   cros-tast: &cros-tast
     pattern: 'chromeos/cros-tast.jinja2'
+    filters: *cros-filters
     params: &cros-tast-params
       job_timeout: '60'
       docker_image: 'kernelci/cros-tast'
 
   cros-tast-fixed:
     <<: *cros-tast
+    filters: *cros-filters-fixed
     params:
       <<: *cros-tast-params
       fixed_kernel: true
@@ -94,7 +99,6 @@ device_types:
     boot_method: depthcharge
     filters: &x86-chromebook-filters
       - passlist: {defconfig: ['x86-chromebook']}
-      - blocklist: {defconfig: ['allmodconfig', 'allnoconfig']}
     params: &octopus-params
       cros_flash_nfs:
         base_url: 'https://storage.staging.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20220523.1/amd64/'
