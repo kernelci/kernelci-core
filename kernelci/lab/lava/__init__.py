@@ -21,7 +21,29 @@
 
 from jinja2 import Environment, FileSystemLoader
 import os
+import re
 from kernelci.lab import add_kci_raise, LabAPI
+
+CROS_CONFIG_RE = re.compile(r'cros://chromeos-([0-9.]+)/([a-z0-9_]+)/([a-z-.]+).flavour.config(\+[a-z0-9-+]+)?')  # noqa
+
+CROS_FLAVOURS = {
+    'chromeos-amd-stoneyridge': 'ston',
+    'chromeos-intel-denverton': 'denv',
+    'chromeos-intel-pineview': 'pine',
+    'chromiumos-arm': 'arm',
+    'chromiumos-arm64': 'arm64',
+    'chromiumos-mediatek': 'mtk',
+    'chromiumos-qualcomm': 'qcom',
+    'chromiumos-rockchip': 'rk32',
+    'chromiumos-rockchip64': 'rk64',
+    'chromiumos-x86_64': 'x86',
+}
+
+CROS_DEVICE_TYPES = {
+    'hp-x360-12b-ca0500na-n4000-octopus_chromeos': 'octopus-n4000',
+    'hp-x360-12b-ca0010nr-n4020-octopus_chromeos': 'octopus-n4020',
+    'qemu_x86_64-uefi-chromeos': 'qemu-x86',
+}
 
 
 class LavaAPI(LabAPI):
@@ -53,6 +75,7 @@ class LavaAPI(LabAPI):
             'lab_name': self.config.name,
             'base_device_type': self._alias_device_type(base_name),
             'priority': priority,
+            'name': self._shorten_cros_name(params),
         })
         if callback_opts:
             self._add_callback_params(params, callback_opts)
@@ -68,6 +91,32 @@ class LavaAPI(LabAPI):
             job = job_file.read()
             job_id = self._submit(job)
             return job_id
+
+    def _shorten_cros_defconfig(self, defconfig):
+        kver, arch, flav, frag = CROS_CONFIG_RE.match(defconfig).groups()
+        frag = frag.strip('+').replace('+', '-')
+        flav = CROS_FLAVOURS.get(flav) or flav
+        return '-'.join((arch, flav, kver, frag))
+
+    def _shorten_cros_device_type(self, device_type):
+        return CROS_DEVICE_TYPES.get(device_type) or device_type
+
+    def _shorten_cros_name(self, params):
+        defconfig_full = params['defconfig_full']
+        if defconfig_full.startswith('cros:'):
+            return '-'.join((
+                params['tree'],
+                params['git_branch'],
+                params['git_describe'],
+                params['arch'],
+                self._shorten_cros_defconfig(defconfig_full),
+                params['build_environment'],
+                params.get('dtb_full') or 'no-dtb',
+                self._shorten_cros_device_type(params['device_type']),
+                params['plan'],
+            )).replace('/', '-')
+        else:
+            return params['name']
 
     def job_file_name(self, params):
         return '.'.join([params['name'], 'yaml'])
