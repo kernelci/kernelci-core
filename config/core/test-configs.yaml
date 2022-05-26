@@ -1338,6 +1338,8 @@ device_types:
     filters:
       - passlist: {defconfig: ['defconfig']}
       - blocklist: {kernel: ['v3.']}
+    params:
+      boot_timeout: '10'
 
   qemu_arm-versatilepb:
     base_name: qemu
