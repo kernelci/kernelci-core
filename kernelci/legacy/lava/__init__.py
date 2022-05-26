@@ -10,7 +10,29 @@
 from jinja2 import Environment, FileSystemLoader
 import json
 import os
+import re
 import sys
+
+CROS_CONFIG_RE = re.compile(r'cros://chromeos-([0-9.]+)/([a-z0-9_]+)/([a-z0-9-._]+).flavour.config(\+[a-z0-9-+]+)?')  # noqa
+
+CROS_FLAVOURS = {
+    'chromeos-amd-stoneyridge': 'ston',
+    'chromeos-intel-denverton': 'denv',
+    'chromeos-intel-pineview': 'pine',
+    'chromiumos-arm': 'arm',
+    'chromiumos-arm64': 'arm64',
+    'chromiumos-mediatek': 'mtk',
+    'chromiumos-qualcomm': 'qcom',
+    'chromiumos-rockchip': 'rk32',
+    'chromiumos-rockchip64': 'rk64',
+    'chromiumos-x86_64': 'x86',
+}
+
+CROS_DEVICE_TYPES = {
+    'hp-x360-12b-ca0500na-n4000-octopus_chromeos': 'octopus-n4000',
+    'hp-x360-12b-ca0010nr-n4020-octopus_chromeos': 'octopus-n4020',
+    'qemu_x86_64-uefi-chromeos': 'qemu-x86',
+}
 
 
 def add_kci_raise(jinja2_env):
@@ -75,6 +97,7 @@ class LavaRuntime:
             'lab_name': self.config.name,
             'base_device_type': self._alias_device_type(base_name),
             'priority': priority,
+            'name': self._shorten_cros_name(params),
         })
         if callback_opts:
             self._add_callback_params(params, callback_opts)
@@ -102,6 +125,31 @@ class LavaRuntime:
             job = job_file.read()
             job_id = self._submit(job)
             return job_id
+
+    def _shorten_cros_defconfig(self, defconfig):
+        kver, arch, flav, frag = CROS_CONFIG_RE.match(defconfig).groups()
+        frag = frag.strip('+').replace('+', '-') if frag else ''
+        flav = CROS_FLAVOURS.get(flav) or flav
+        return '-'.join((arch, flav, kver, frag))
+
+    def _shorten_cros_device_type(self, device_type):
+        return CROS_DEVICE_TYPES.get(device_type) or device_type
+
+    def _shorten_cros_name(self, params):
+        defconfig_full = params['defconfig_full']
+        if defconfig_full.startswith('cros:'):
+            return '-'.join((
+                params['tree'],
+                params['git_branch'],
+                params['git_describe'],
+                params['arch'],
+                self._shorten_cros_defconfig(defconfig_full),
+                params['build_environment'],
+                self._shorten_cros_device_type(params['device_type']),
+                params['plan'],
+            )).replace('/', '-')
+        else:
+            return params['name']
 
     def _get_priority(self, plan_config):
         # Scale the job priority (from 0-100) within the available levels
