@@ -15,7 +15,7 @@
 
 - boot:
     timeout:
-      minutes: 5
+      minutes: {{ boot_timeout|default('5') }}
     method: u-boot
     commands: ramdisk
     prompts:

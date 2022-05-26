@@ -12,7 +12,7 @@
 
 - boot:
     timeout:
-      minutes: 5
+      minutes: {{ boot_timeout|default('5') }}
     method: grub
     commands: nfs
     prompts:
