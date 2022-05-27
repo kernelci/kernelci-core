@@ -2473,7 +2473,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      # kselftest-alsa - Board capacity in a lab
+      - kselftest-alsa
 
   - device_type: minnowboard-turbot-E3826
     test_plans:
