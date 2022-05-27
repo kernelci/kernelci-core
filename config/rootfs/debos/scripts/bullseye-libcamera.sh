@@ -10,6 +10,7 @@ set -e
 BUILD_DEPS="\
       g++ \
       ninja-build \
+      cmake \
       python3-yaml \
       python3-ply \
       python3-jinja2 \
@@ -18,7 +19,6 @@ BUILD_DEPS="\
       openssl \
       pkg-config \
       libevent-dev \
-
       python3-pip \
       git \
       ca-certificates \
