@@ -293,6 +293,7 @@ fragments:
     path: "kernel/configs/x86-chromebook.config"
     configs:
       - 'CONFIG_SERIAL_8250=y'
+      - 'CONFIG_SERIAL_8250_CONSOLE=y'
       - 'CONFIG_SERIAL_8250_DW=y'
       - 'CONFIG_X86_AMD_PLATFORM_DEVICE=y'
       - 'CONFIG_MFD_INTEL_LPSS_PCI=y'
