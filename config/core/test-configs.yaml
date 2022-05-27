@@ -1250,6 +1250,8 @@ device_types:
     mach: x86
     arch: x86_64
     boot_method: grub
+    filters:
+      - blocklist: {lab: ['lab-collabora']}
 
   mt8173-elm-hana:
     mach: mediatek
