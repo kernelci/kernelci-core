@@ -863,6 +863,12 @@ device_types:
     mach: hisilicon
     class: arm64-dtb
     boot_method: grub
+    filters:
+      - passlist:
+          # A regression was introduced between v5.4 and v5.10 so only run
+          # kernels earlier than v5.10 for now.
+          # https://github.com/kernelci/kernelci-project/issues/113
+          kernel: ['v4.', 'v5.4']
 
   hp-11A-G6-EE-grunt:
     mach: x86
