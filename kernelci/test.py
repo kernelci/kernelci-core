@@ -43,7 +43,7 @@ def match_configs(configs, meta, lab):
     filters = {
         'arch': arch,
         'defconfig': defconfig,
-        'kernel': rev['describe'],
+        'kernel': rev['describe_verbose'],
         'build_environment': env['name'],
         'tree': rev['tree'],
         'branch': rev['branch'],
