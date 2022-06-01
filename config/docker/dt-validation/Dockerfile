@@ -21,4 +21,5 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     flex \
     libyaml-dev \
     pkg-config \
-    python3-yaml
+    python3-yaml \
+    yamllint
