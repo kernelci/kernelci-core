@@ -12,7 +12,7 @@ import os
 import re
 from kernelci.runtime import add_kci_raise, Runtime
 
-CROS_CONFIG_RE = re.compile(r'cros://chromeos-([0-9.]+)/([a-z0-9_]+)/([a-z-.]+).flavour.config(\+[a-z0-9-+]+)?')  # noqa
+CROS_CONFIG_RE = re.compile(r'cros://chromeos-([0-9.]+)/([a-z0-9_]+)/([a-z0-9-._]+).flavour.config(\+[a-z0-9-+]+)?')  # noqa
 
 CROS_FLAVOURS = {
     'chromeos-amd-stoneyridge': 'ston',
