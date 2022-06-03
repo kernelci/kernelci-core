@@ -291,6 +291,12 @@ test_plans:
       kselftest_collections: "kvm"
     filters: *kselftest_no_fragment
 
+  kselftest-landlock:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "landlock"
+
   kselftest-lib:
     <<: *kselftest
     params:
