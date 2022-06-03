@@ -20,6 +20,10 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    libhugetlbfs-dev \
    libpopt-dev \
    libasound2-dev \
+   libnuma-dev \
+   libmnl-dev \
+   libfuse-dev \
+   libpopt-dev \
    pkg-config
 
 # kselftest arm64
@@ -32,6 +36,10 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    libhugetlbfs-dev:arm64 \
    libpopt-dev:arm64 \
    libasound2-dev:arm64 \
+   libnuma-dev:arm64 \
+   libmnl-dev:arm64 \
+   libfuse-dev:arm64 \
+   libpopt-dev:arm64 \
    pkg-config
 
 # kselftest arm
@@ -44,6 +52,10 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    libhugetlbfs-dev:armhf \
    libpopt-dev:armhf \
    libasound2-dev:armhf \
+   libnuma-dev:armhf \
+   libmnl-dev:armhf \
+   libfuse-dev:armhf \
+   libpopt-dev:armhf \
    pkg-config
 
 RUN apt-get autoremove -y gcc
