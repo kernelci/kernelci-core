@@ -1656,6 +1656,11 @@ device_types:
       - blocklist: *device_config_filter
       - blocklist: {kernel: ['v3.', 'v4.4', 'v4.9']}
 
+  rk3399-roc-pc:
+    mach: rockchip
+    class: arm64-dtb
+    boot_method: uboot
+
   rk3399-rock-pi-4b:
     mach: rockchip
     class: arm64-dtb
@@ -2807,6 +2812,16 @@ test_configs:
   - device_type: rk3399-puma-haikou
     test_plans:
       - baseline
+
+  - device_type: rk3399-roc-pc
+    test_plans:
+      - baseline
+      - baseline-nfs
+      - igt-gpu-panfrost
+      - igt-kms-rockchip
+      - kselftest-alsa
+      - kselftest-cpufreq
+      - kselftest-rtc
 
   - device_type: rk3399-rock-pi-4b
     test_plans:
