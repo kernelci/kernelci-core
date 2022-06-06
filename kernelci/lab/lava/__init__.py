@@ -96,7 +96,7 @@ class LavaAPI(LabAPI):
 
     def _shorten_cros_defconfig(self, defconfig):
         kver, arch, flav, frag = CROS_CONFIG_RE.match(defconfig).groups()
-        frag = frag.strip('+').replace('+', '-')
+        frag = frag.strip('+').replace('+', '-') if frag else ''
         flav = CROS_FLAVOURS.get(flav) or flav
         return '-'.join((arch, flav, kver, frag))
 
