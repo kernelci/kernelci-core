@@ -39,9 +39,9 @@ class KernelCI_API(Database):
     def _make_url(self, path):
         return urllib.parse.urljoin(self.config.url, path)
 
-    def _get(self, path):
+    def _get(self, path, params=None):
         url = self._make_url(path)
-        resp = requests.get(url, headers=self._headers)
+        resp = requests.get(url, params=params, headers=self._headers)
         resp.raise_for_status()
         return resp
 
