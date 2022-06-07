@@ -1,4 +1,8 @@
 {% set priority = 'high' %}
+{% set kernel_url = cros_flash_kernel %}
+{% set modules_url = cros_flash_modules %}
+{% set initrd_url = cros_flash_initrd %}
+{% set nfsrootfs_url = cros_flash_image %}
 {% extends 'base/kernel-ci-base.jinja2' %}
 {% block main %}
 {{ super () }}
