@@ -15,3 +15,5 @@ RUN apt-get update && \
 	qemu-system-x86 \
 	qemu-utils && \
 	apt-get clean
+
+RUN mkdir -p /etc/qemu && echo allow all > /etc/qemu/bridge.conf
