@@ -126,8 +126,15 @@ class KernelCI_API(Database):
                 for sub_key, sub_value in value.items():
                     if sub_key not in event.get(key):
                         continue
-                    if sub_value != event.get(key).get(sub_key):
+                    if isinstance(sub_value, tuple):
+                        if not any(sub_sub_value == event.get(key).get(sub_key)
+                                   for sub_sub_value in sub_value):
+                            return False
+                    elif sub_value != event.get(key).get(sub_key):
                         return False
+            elif isinstance(value, tuple):
+                if not any(sub_value == event[key] for sub_value in value):
+                    return False
             elif value != event[key]:
                 return False
 
