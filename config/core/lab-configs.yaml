@@ -142,16 +142,6 @@ labs:
             - stable-rc
             - stable
 
-  lab-mhart:
-    lab_type: lava.lava_xmlrpc
-    config_path: 'lava'
-    url: 'http://lava.streamtester.net/RPC2/'
-    filters:
-      - blocklist: {tree: ['android', 'drm-tip', 'linaro-android']}
-      - passlist:
-          plan:
-            - baseline
-
   lab-nxp:
     lab_type: lava.lava_rest
     config_path: 'lava'
