@@ -10,6 +10,8 @@ context:
   extra_kernel_args: console_msg_format=syslog cros_secure cros_debug
 {% if device_id %}
 tags: ['{{ device_id }}']
+{%- else %}
+{{ kci_raise("No device id provided") }}
 {%- endif %}
 {%- endblock %}
 
