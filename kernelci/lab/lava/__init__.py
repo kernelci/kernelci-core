@@ -21,7 +21,7 @@
 
 from jinja2 import Environment, FileSystemLoader
 import os
-from kernelci.lab import LabAPI
+from kernelci.lab import add_kci_raise, LabAPI
 
 
 class LavaAPI(LabAPI):
@@ -60,6 +60,7 @@ class LavaAPI(LabAPI):
             self._add_callback_params(params, callback_opts)
         jinja2_env = Environment(loader=FileSystemLoader(templates_path),
                                  extensions=["jinja2.ext.do"])
+        add_kci_raise(jinja2_env)
         template = jinja2_env.get_template(short_template_file)
         data = template.render(params)
         return data
