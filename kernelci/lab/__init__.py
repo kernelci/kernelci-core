@@ -20,6 +20,12 @@ import json
 import os
 
 
+def add_kci_raise(env):
+    def template_exception(msg):
+        raise Exception(msg)
+    env.globals['kci_raise'] = template_exception
+
+
 class LabAPI:
     """Remote API to a test lab"""
 
