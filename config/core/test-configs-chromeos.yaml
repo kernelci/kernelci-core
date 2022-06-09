@@ -68,6 +68,24 @@ test_plans:
 
 device_types:
 
+  # Placeholder
+  # asus-C436FA-Flip-hatch_chromeos:
+  #   base_name: asus-C436FA-Flip-hatch
+  #   mach: x86
+  #   arch: x86_64
+  #   boot_method: depthcharge
+  #   params:
+  #     block_device: nvme0n1
+
+  # Placeholder
+  # hp-11A-G6-EE-grunt_chromeos:
+  #   base_name: hp-11A-G6-EE-grunt
+  #   mach: x86
+  #   arch: x86_64
+  #   boot_method: depthcharge
+  #   params:
+  #     block_device: detect
+
   hp-x360-12b-ca0010nr-n4020-octopus_chromeos: &octopus
     base_name: hp-x360-12b-ca0010nr-n4020-octopus
     mach: x86
