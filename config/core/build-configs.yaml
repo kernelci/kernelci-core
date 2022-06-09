@@ -145,6 +145,7 @@ fragments:
       - 'CONFIG_REGULATOR_DA9211=y'
       - 'CONFIG_ARM_MEDIATEK_CPUFREQ=y'
       - 'CONFIG_RTC_DRV_MT6397=y'
+      - 'CONFIG_SPI_MT65XX=y'
 
   crypto:
     path: "kernel/configs/crypto.config"
