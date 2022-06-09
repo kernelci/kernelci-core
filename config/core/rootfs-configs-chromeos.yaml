@@ -19,3 +19,10 @@ rootfs_configs:
     branch: release-R100-14526.B
     arch_list:
       - amd64
+
+  chromiumos-octopus:
+    rootfs_type: chromiumos
+    board: octopus
+    branch: release-R100-14526.B
+    arch_list:
+      - amd64
