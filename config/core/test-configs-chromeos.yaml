@@ -146,6 +146,15 @@ device_types:
         image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-hatch/20220621.0/amd64/bzImage'
         modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-hatch/20220621.0/amd64/modules.tar.xz'
 
+  # Placeholder
+  # hp-11A-G6-EE-grunt_chromeos:
+  #   base_name: hp-11A-G6-EE-grunt
+  #   mach: x86
+  #   arch: x86_64
+  #   boot_method: depthcharge
+  #   params:
+  #     block_device: detect
+
   hp-x360-12b-ca0010nr-n4020-octopus_chromeos: &octopus
     base_name: hp-x360-12b-ca0010nr-n4020-octopus
     mach: x86
