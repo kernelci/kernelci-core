@@ -29,6 +29,7 @@ chromeos_variants: &chromeos-variants
           - 'cros://chromeos-5.10/x86_64/chromeos-amd-stoneyridge.flavour.config+x86-chromebook'
           - 'cros://chromeos-5.10/x86_64/chromeos-intel-denverton.flavour.config+x86-chromebook'
           - 'cros://chromeos-5.10/x86_64/chromeos-intel-pineview.flavour.config+x86-chromebook'
+          - 'cros://chromeos-5.10/x86_64/chromiumos-x86_64.flavour.config+x86-chromebook'
         filters: *cros-filters
 
   clang-14:
