@@ -1,0 +1,30 @@
+{% extends 'base/kernel-ci-base.jinja2' %}
+{% block main %}
+{{ super () }}
+context:
+  extra_kernel_args: console_msg_format=syslog cros_secure cros_debug boot=/dev/{{ flashing_device }}p3
+{% endblock %}
+
+{% block actions %}
+{{ super () }}
+
+actions:
+- deploy:
+      namespace: boot_chromeos
+      timeout:
+        minutes: 60
+      to: tftp
+      kernel:
+        url: {{ kernel_url }}
+      os: oe
+
+- boot:
+      namespace: boot_chromeos
+      timeout:
+        minutes: 30
+      method: depthcharge
+      commands: emmc
+      prompts:
+        - {{ prompt_command }}
+
+{% endblock %}
