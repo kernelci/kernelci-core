@@ -146,6 +146,30 @@ device_types:
         image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-hatch/20220621.0/amd64/bzImage'
         modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-hatch/20220621.0/amd64/modules.tar.xz'
 
+  hp-11A-G6-EE-grunt_chromeos:
+    base_name: hp-11A-G6-EE-grunt
+    mach: x86
+    arch: x86_64
+    boot_method: depthcharge
+    params: &grunt-params
+      cros_flash_nfs:
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20220711.0/amd64/'
+        initrd: 'cros-flash.cpio.gz'
+        initrd_compression: 'gz'
+        rootfs: 'cros-flash-fixup.tar.gz'
+        rootfs_compression: 'gz'
+      cros_flash_kernel:
+        base_url: 'http://storage.chromeos.kernelci.org/images/kernel/v5.10.112-x86-chromebook/'
+        image: 'kernel/bzImage'
+        modules: 'modules.tar.xz'
+        modules_compression: 'xz'
+      cros_image:
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20220711.0/amd64/'
+        flash_tarball: 'cros-flash-fixup.tar.gz'
+        flash_tarball_compression: 'gz'
+        tast_tarball: 'tast.tgz'
+      block_device: mmcblk1
+
   hp-x360-12b-ca0010nr-n4020-octopus_chromeos: &octopus
     base_name: hp-x360-12b-ca0010nr-n4020-octopus
     mach: x86
@@ -213,6 +237,9 @@ device_types:
 
 
 test_configs:
+
+  - device_type: hp-11A-G6-EE-grunt_chromeos
+    test_plans: []
 
   - device_type: asus-C436FA-Flip-hatch_chromeos
     test_plans:
