@@ -91,8 +91,8 @@ device_types:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
-    filters: &x86-chromebook-filters
-      - passlist: {defconfig: ['x86-chromebook']}
+    filters:
+      - passlist: {defconfig: ['chromeos-intel-pineview']}
     params: &octopus-params
       cros_flash_nfs:
         base_url: 'https://storage.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20220527.0/amd64/'
