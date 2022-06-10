@@ -58,7 +58,7 @@ meson build \
 	-Dgst-plugins-base:playback=enabled \
 	-Dgst-plugins-base:tools=enabled \
 	-Dgst-plugins-base:typefind=enabled \
-	-Dgst-plugins-base:videoconvert=enabled \
+	-Dgst-plugins-base:videoconvertscale=enabled \
 	-Dgst-plugins-good:matroska=enabled \
 	-Dtools=enabled
 
