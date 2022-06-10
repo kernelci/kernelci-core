@@ -96,14 +96,10 @@ device_types:
         image: 'https://storage.chromeos.kernelci.org/images/kernel/chromeos-octopus-4.14.243/vmlinuz-4.14.243'
         modules: 'https://storage.chromeos.kernelci.org/images/kernel/chromeos-octopus-4.14.243/modules-4.14.243.tar.gz'
       block_device: mmcblk0
-      device_id: cbg-4
 
   hp-x360-12b-ca0500na-n4000-octopus_chromeos:
     <<: *octopus
     base_name: hp-x360-12b-ca0500na-n4000-octopus
-    params:
-      <<: *octopus-params
-      device_id: cbg-0
 
   qemu_x86_64-uefi-chromeos:
     base_name: qemu
