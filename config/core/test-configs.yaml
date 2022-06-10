@@ -94,7 +94,7 @@ file_systems:
 
   debian_bullseye-v4l2_ramdisk:
     type: debian
-    ramdisk: 'bullseye-v4l2/20220610.2/{arch}/rootfs.cpio.gz'
+    ramdisk: 'bullseye-v4l2/20220610.3/{arch}/rootfs.cpio.gz'
 
 
 
