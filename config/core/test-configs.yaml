@@ -2842,6 +2842,9 @@ test_configs:
   - device_type: sun50i-h5-libretech-all-h3-cc
     test_plans:
       - baseline
+      - baseline-nfs
+      - kselftest-alsa
+      - ltp-crypto
 
   - device_type: sun50i-h5-nanopi-neo-plus2
     test_plans:
