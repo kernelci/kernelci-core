@@ -2359,8 +2359,6 @@ test_configs:
       - ltp-fcntl-locktests
       - ltp-ipc
       # ltp-mm - runs system out of memory
-      - ltp-pty
-      - ltp-timers
       - smc
 
   - device_type: kirkwood-db-88f6282
