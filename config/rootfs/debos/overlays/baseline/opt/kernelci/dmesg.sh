@@ -9,7 +9,7 @@ else
 fi
 
 for level in crit alert emerg; do
-    dmesg --level=$level --notime -x -k > dmesg.$level
+    ${cmdwrapper} dmesg --level=$level --notime -x -k > dmesg.$level
     test -s dmesg.$level && res=fail || res=pass
     count=$(cat dmesg.$level | wc -l)
     cat dmesg.$level
