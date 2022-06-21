@@ -20,6 +20,14 @@ rootfs_configs:
     arch_list:
       - amd64
 
+  chromiumos-grunt:
+    rootfs_type: chromiumos
+    board: grunt
+    branch: release-R100-14526.B
+    serial: ttyS0
+    arch_list:
+      - amd64
+
   chromiumos-hatch:
     rootfs_type: chromiumos
     board: hatch
