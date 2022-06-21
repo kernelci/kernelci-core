@@ -39,9 +39,9 @@ class KernelCI_API(Database):
     def _make_url(self, path):
         return urllib.parse.urljoin(self.config.url, path)
 
-    def _get(self, path):
+    def _get(self, path, params=None):
         url = self._make_url(path)
-        resp = requests.get(url, headers=self._headers)
+        resp = requests.get(url, params=params, headers=self._headers)
         resp.raise_for_status()
         return resp
 
@@ -87,6 +87,11 @@ class KernelCI_API(Database):
     def get_node(self, node_id):
         resp = self._get('/'.join(['node', node_id]))
         return json.loads(resp.text)
+
+    def get_nodes(self, attributes: dict = None):
+        """Get all nodes matching attributes"""
+        resp = self._get('nodes', params=attributes)
+        return resp.json()
 
     def get_nodes_by_commit_hash(self, commit_hash):
         """
