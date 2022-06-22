@@ -90,6 +90,33 @@ test_plans:
 
 device_types:
 
+  asus-C436FA-Flip-hatch_chromeos:
+    base_name: asus-C436FA-Flip-hatch
+    mach: x86
+    arch: x86_64
+    boot_method: depthcharge
+    params:
+      block_device: nvme0n1
+      cros_flash_nfs:
+        base_url: 'https://storage.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20220623.0/amd64/'
+        initrd: 'initrd.cpio.gz'
+        initrd_compression: 'gz'
+        rootfs: 'full.rootfs.tar.xz'
+        rootfs_compression: 'xz'
+      cros_flash_kernel:
+        base_url: 'http://storage.chromeos.kernelci.org/images/kernel/v5.10.112-x86-chromebook/'
+        image: 'kernel/bzImage'
+        modules: 'modules.tar.xz'
+        modules_compression: 'xz'
+      cros_image:
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-hatch/20220621.0/amd64/'
+        flash_tarball: 'cros-flash.tar.gz'
+        flash_tarball_compression: 'gz'
+        tast_tarball: 'tast.tgz'
+      reference_kernel:
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-hatch/20220621.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-hatch/20220621.0/amd64/modules.tar.xz'
+
   hp-x360-12b-ca0010nr-n4020-octopus_chromeos: &octopus
     base_name: hp-x360-12b-ca0010nr-n4020-octopus
     mach: x86
@@ -157,6 +184,13 @@ device_types:
 
 
 test_configs:
+
+  - device_type: asus-C436FA-Flip-hatch_chromeos
+    test_plans:
+      - cros-boot
+      - cros-boot-fixed
+      - cros-tast
+      - cros-tast-fixed
 
   - device_type: hp-x360-12b-ca0010nr-n4020-octopus_chromeos
     test_plans:
