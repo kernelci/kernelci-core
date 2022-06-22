@@ -39,9 +39,9 @@ class KernelCI_API(Database):
     def _make_url(self, path):
         return urllib.parse.urljoin(self.config.url, path)
 
-    def _get(self, path):
+    def _get(self, path, params=None):
         url = self._make_url(path)
-        resp = requests.get(url, headers=self._headers)
+        resp = requests.get(url, params=params, headers=self._headers)
         resp.raise_for_status()
         return resp
 
@@ -103,10 +103,14 @@ class KernelCI_API(Database):
         resp = self._get('/'.join(['get_root_node', node_id]))
         return json.loads(resp.text)
 
-    def get_regressions(self, regression_name):
-        """ Get a list of regressions matching regression name"""
-        resp = self._get('?'.join(['regressions', 'name=' + regression_name]))
-        return json.loads(resp.text)
+    def get_regressions_by_node_id(self, node_id):
+        """ Get a list of regressions matching node_id"""
+        params = {
+            "kind": "regression",
+            "parent": node_id
+        }
+        resp = self._get('nodes', params=params)
+        return resp.json()
 
     def pubsub_event_filter(self, sub_id, event):
         """Filter Pub/Sub events
