@@ -125,34 +125,32 @@ having an API token for the KernelCI staging API.  This was useful to be able
 to show the results on the web dashboard.  The same command can be run with a
 local instance using `--db-config=localhost`.
 
-## Creating user
+## Creating new API user (experimental)
 
-We can create new users of KernelCI-API using `kci_data`.
+We can create users for the new [KernelCI API](/docs/api) using `kci_data`.
+This is still under development and it's not used in production by KernelCI.
 
-We need to provide an API token to access `/user` endpoint of API.
-Please refer the instructions [here](https://kernelci.org/docs/api/api-details/#create-an-api-token-with-security-scopes) to create token for admin user.
+An API token with admin permissions is required in order to do this, please see
+the documentation about [how to create
+one](/docs/api/api-details/#create-an-api-token-with-security-scopes).
 
-For security purpose, instead of providing `--db-token` from the comman line we can add `db_token` in settings file i.e. `kernelci.conf`.
+For security reasons, instead of providing `--db-token` from the command line
+we can add `db_token` in the [settings file](../settings) e.g. `kernelci.conf`:
 
-```
+```ini
 [db:api]
 
 db_token: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
 ```
 
-> **Note** Only admin users are permitted to use this utility of creating users.
-
-
-Command to create a regular user would be:
+Here's a sample command to create a regular user:
 
 ```
 ./kci_data create_user --username test --password test --db-config api
-{'_id': '628c81e641616ced4e31a10b', 'username': 'test', 'hashed_password': '$2b$12$Ev72ythf0jViigUOtHuifOW6Mtrr0RmwQx0zO1CIy5XMwrN57bhuW', 'active': True, 'is_admin': False}
 ```
 
-Command to create an admin user would be:
+To create an admin user, add the `--is-admin` argument:
 
 ```
-./kci_data create_user --username admin --password admin --db-config api --is-admin 1
-{'_id': '628c81f541616ced4e31a10c', 'username': 'admin', 'hashed_password': '$2b$12$BZ/doNFOHlOnMKXDbVXHluviZf4yneB62O8H5uCiPaKRBO4YrKmZO', 'active': True, 'is_admin': True}
+./kci_data create_user --username admin --password admin --db-config api --is-admin
 ```
