@@ -25,14 +25,6 @@ labs:
       days: 1
     filters:
       - blocklist: {tree: [android]}
-      - passlist:
-          plan:
-            - baseline
-            - kselftest
-            - ltp
-            - preempt-rt
-            - sleep
-            - smc
 
   lab-cip:
     lab_type: lava.lava_xmlrpc
