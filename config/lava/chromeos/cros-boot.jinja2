@@ -67,6 +67,7 @@ actions:
 {%- else %}
               {{ reference_kernel.modules }}
 {%- endif %}
+              {{ block_device }}
       from: inline
       name: modules
       path: inline/modules.yaml
