@@ -95,7 +95,7 @@ device_types:
       - passlist: {defconfig: ['chromeos-intel-pineview']}
     params: &octopus-params
       cros_flash_nfs:
-        base_url: 'https://storage.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20220527.0/amd64/'
+        base_url: 'https://storage.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20220623.0/amd64/'
         initrd: 'initrd.cpio.gz'
         initrd_compression: 'gz'
         rootfs: 'full.rootfs.tar.xz'
@@ -127,7 +127,7 @@ device_types:
     params:
       bios_url: 'http://storage.kernelci.org/images/uefi/edk2-stable202005/x86_64/OVMF.fd'
       cros_image:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-amd64-generic/20220523.0/amd64/'
+        base_url: 'https://storage.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20220623.0/amd64/'
         image: 'chromiumos_test_image.bin.gz'
         tast_tarball: 'tast.tgz'
       reference_kernel:
