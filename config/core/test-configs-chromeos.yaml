@@ -1,32 +1,61 @@
 test_plans:
 
-  cros-boot: &cros-boot
-    pattern: 'chromeos/cros-boot.jinja2'
+  cros-baseline: &cros-baseline
+    pattern: 'chromeos/cros-baseline.jinja2'
     filters: &cros-filters
       - blocklist: { defconfig: ['kselftest'] }
+    params:
+      docker_image: 'kernelci/cros-baseline'
 
-  cros-boot-fixed:
-    <<: *cros-boot
+  cros-baseline-fixed:
+    <<: *cros-baseline
     filters: &cros-filters-fixed
       - blocklist: { defconfig: ['kselftest'] }
       - blocklist: { defconfig: ['cros'] }
+    params:
+      docker_image: 'kernelci/cros-baseline'
+      fixed_kernel: true
+
+  cros-baseline_qemu: &cros-baseline_qemu
+    base_name: cros-baseline
+    pattern: 'chromeos/cros-baseline.jinja2'
+    filters: &cros-qemu-filters
+      - blocklist: { defconfig: ['kselftest'] }
+      - passlist: { lab: ['lab-collabora-staging', 'lab-collabora'] }
+    params: &cros-baseline-qemu-params
+      base_template: 'chromeos/cros-boot-qemu.jinja2'
+      docker_image: 'kernelci/cros-baseline'
+
+  cros-baseline_qemu-fixed:
+    <<: *cros-baseline_qemu
+    base_name: cros-baseline-fixed
+    filters: &cros-qemu-filters-fixed
+      - blocklist: { defconfig: ['kselftest'] }
+      - blocklist: { defconfig: ['cros'] }
+      - passlist: { lab: ['lab-collabora-staging', 'lab-collabora'] }
+    params:
+      <<: *cros-baseline-qemu-params
+      fixed_kernel: true
+
+  cros-boot: &cros-boot
+    pattern: 'chromeos/cros-boot.jinja2'
+    filters: *cros-filters
+
+  cros-boot-fixed:
+    <<: *cros-boot
+    filters: *cros-filters-fixed
     params:
       fixed_kernel: true
 
   cros-boot_qemu: &cros-boot_qemu
     base_name: cros-boot
     pattern: 'chromeos/cros-boot-qemu.jinja2'
-    filters: &cros-qemu-filters
-      - blocklist: { defconfig: ['kselftest'] }
-      - passlist: { lab: ['lab-collabora-staging', 'lab-collabora'] }
+    filters: *cros-qemu-filters
 
   cros-boot_qemu-fixed:
     <<: *cros-boot_qemu
     base_name: cros-boot-fixed
-    filters: &cros-qemu-filters-fixed
-      - blocklist: { defconfig: ['kselftest'] }
-      - blocklist: { defconfig: ['cros'] }
-      - passlist: { lab: ['lab-collabora-staging', 'lab-collabora'] }
+    filters: *cros-qemu-filters-fixed
     params:
       fixed_kernel: true
 
@@ -156,6 +185,8 @@ test_configs:
 
   - device_type: hp-x360-12b-ca0010nr-n4020-octopus_chromeos
     test_plans:
+      - cros-baseline
+      - cros-baseline-fixed
       - cros-boot
       - cros-boot-fixed
       - cros-tast
@@ -163,6 +194,8 @@ test_configs:
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus_chromeos
     test_plans:
+      - cros-baseline
+      - cros-baseline-fixed
       - cros-boot
       - cros-boot-fixed
       - cros-tast
@@ -170,6 +203,8 @@ test_configs:
 
   - device_type: qemu_x86_64-uefi-chromeos
     test_plans:
+      - cros-baseline_qemu
+      - cros-baseline_qemu-fixed
       - cros-boot_qemu
       - cros-boot_qemu-fixed
       - cros-tast_qemu

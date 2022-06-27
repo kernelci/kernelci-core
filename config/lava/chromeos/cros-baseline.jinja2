@@ -1,0 +1,30 @@
+{% extends base_template|default('chromeos/cros-boot.jinja2') %}
+{% block actions %}
+{{ super() }}
+- test:
+    namespace: chromeos
+    timeout:
+      minutes: 5
+    docker:
+      image: {{ docker_image }}
+      wait:
+        device: true
+    results:
+      location: /home/cros/lava
+    definitions:
+    - repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: cros-baseline
+        run:
+          steps:
+            - cd /home/cros
+            - while ! ping -c 1 -w 1 $(lava-target-ip); do sleep 1; done
+            - >-
+              KERNELCI_LAVA=y
+              cmdwrapper="ssh -i /home/cros/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$(lava-target-ip)"
+              /bin/sh dmesg.sh
+      from: inline
+      name: cros-baseline
+      path: inline/cros-baseline.yaml
+{% endblock %}
