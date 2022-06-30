@@ -2817,11 +2817,12 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - igt-gpu-panfrost
-      - igt-kms-rockchip
-      - kselftest-alsa
-      - kselftest-cpufreq
-      - kselftest-rtc
+      # wishlist for when this device becomes online in a lab that allows them to run
+      # - igt-gpu-panfrost
+      # - igt-kms-rockchip
+      # - kselftest-alsa
+      # - kselftest-cpufreq
+      # - kselftest-rtc
 
   - device_type: rk3399-rock-pi-4b
     test_plans:
