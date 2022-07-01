@@ -41,8 +41,22 @@ echo '  ]}' >> $BUILDFILE
 git clone -b master ${LTP_URL}
 cd ltp
 
-# Temporary revert due https://github.com/kernelci/kernelci-core/issues/948
-git revert -n 02b2899046240d98d0e3293d95119cf621ef0ca6
+# See https://github.com/kernelci/kernelci-core/issues/948
+echo -e "\
+diff --git a/testcases/open_posix_testsuite/bin/run-posix-option-group-test.sh b/testcases/open_posix_testsuite/bin/run-posix-option-group-test.sh
+index 1bbdddfd5..de84b9e6f 100755
+--- a/testcases/open_posix_testsuite/bin/run-posix-option-group-test.sh
++++ b/testcases/open_posix_testsuite/bin/run-posix-option-group-test.sh
+@@ -25,7 +25,7 @@ run_option_group_tests()
+ {
+\tlocal list_of_tests
+
+-\tlist_of_tests=\`find \$1 -name '*.run-test' | sort\`
++\tlist_of_tests=\`find \$1 -name run.sh | sort\`
+
+\tif [ -z \"\$list_of_tests\" ]; then
+\t\techo \".run-test files not found under \$1, have been the tests compiled?\"
+" | patch -p1
 
 make autotools
 ./configure
@@ -61,4 +75,3 @@ make install prefix=/opt/ltp
 rm -rf ${BUILD_DIR}
 apt-get autoremove --purge -y ${BUILD_DEPS}
 apt-get clean
-
