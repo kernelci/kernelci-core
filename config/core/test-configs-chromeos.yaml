@@ -9,7 +9,6 @@ test_plans:
     <<: *cros-boot
     filters: &cros-filters-fixed
       - blocklist: { defconfig: ['kselftest'] }
-      - blocklist: { defconfig: ['cros'] }
     params:
       fixed_kernel: true
 
@@ -25,7 +24,6 @@ test_plans:
     base_name: cros-boot-fixed
     filters: &cros-qemu-filters-fixed
       - blocklist: { defconfig: ['kselftest'] }
-      - blocklist: { defconfig: ['cros'] }
       - passlist: { lab: ['lab-collabora-staging', 'lab-collabora'] }
     params:
       fixed_kernel: true
