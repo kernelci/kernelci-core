@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y \
     inetutils-ping \
     python3 \
     python-pkg-resources \
+    sudo \
     vim \
     xz-utils
 
@@ -23,6 +24,7 @@ RUN \
   useradd cros-tast -d /home/cros-tast && \
   chown cros-tast: -R /home/cros-tast && \
   adduser cros-tast sudo && \
+  echo 'PATH=/home/cros-tast/trunk/chromite/scripts:$PATH' >/home/cros-tast/.profile && \
   echo "cros-tast ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 USER cros-tast
 ENV HOME=/home/cros-tast
