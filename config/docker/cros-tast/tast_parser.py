@@ -21,6 +21,7 @@ import subprocess
 import sys
 import os
 import json
+import pwd
 
 RESULTS_DIR = "/tmp/results"
 TAST_PATH = "./tast"
@@ -37,10 +38,16 @@ def report_lava(testname, result):
 
 
 def run_tests(args):
+    uid = pwd.getpwnam("cros-tast").pw_uid
     if not os.path.isdir(RESULTS_DIR):
         os.makedirs(RESULTS_DIR, exist_ok=True)
+    os.chown(RESULTS_DIR, uid, 0)
     remote_ip = fetch_dut()
     tast_cmd = [
+        'sudo',
+        '-u',
+        'cros-tast',
+        '--login',
         TAST_PATH,
         'run',
         f'-resultsdir={RESULTS_DIR}',
