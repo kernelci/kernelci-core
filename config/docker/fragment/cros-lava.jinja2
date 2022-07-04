@@ -1,8 +1,11 @@
+RUN apt-get update && apt-get install --no-install-recommends -y sudo
+
 RUN \
   mkdir -p /home/cros && \
   useradd cros -d /home/cros && \
   chown cros: -R /home/cros && \
   adduser cros sudo && \
+  echo 'PATH=/home/cros-tast/trunk/chromite/scripts:$PATH' >/home/cros-tast/.profile && \
   echo "cros ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 USER cros
 ENV HOME=/home/cros
