@@ -2916,7 +2916,24 @@ test_configs:
       - baseline-nfs
       - igt-gpu-lima
       - kselftest-alsa
+      - kselftest-arm64
+      - kselftest-capabilities
+      - kselftest-cgroup
+      - kselftest-clone3
+      - kselftest-cpufreq
+      - kselftest-exec
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-kcmp
+      - kselftest-kvm
+      - kselftest-lib
+      - kselftest-membarrier
+      - kselftest-mincore
+      - kselftest-openat2
+      - kselftest-seccomp
+      - kselftest-timers
       - ltp-crypto
+      - preempt-rt
 
   - device_type: sun50i-h5-nanopi-neo-plus2
     test_plans:
