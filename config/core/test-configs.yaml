@@ -2110,8 +2110,22 @@ test_configs:
       - baseline-cip-nfs
       - baseline-nfs
       - kselftest-alsa
+      - kselftest-capabilities
+      - kselftest-cgroup
+      - kselftest-clone3
+      - kselftest-exec
+      - kselftest-filesystems
+      - kselftest-futex
+      - kselftest-kcmp
+      - kselftest-lib
+      - kselftest-membarrier
+      - kselftest-mincore
+      - kselftest-openat2
+      - kselftest-seccomp
+      - kselftest-timers
       - ltp-crypto
       - ltp-ipc
+      - preempt-rt
 
   - device_type: cubietruck
     test_plans:
