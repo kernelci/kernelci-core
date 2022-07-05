@@ -2889,6 +2889,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - igt-gpu-lima
       - kselftest-alsa
       - ltp-crypto
 
