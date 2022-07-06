@@ -24,6 +24,8 @@ GST_DEPS="\
 	  libgudev-1.0-dev
 "
 
+CACHING_SERVICE="http://kernelci7.westus2.cloudapp.azure.com:8888/cache?uri="
+
 # Install dependencies
 echo 'deb http://deb.debian.org/debian bullseye-backports main' >>/etc/apt/sources.list
 apt-get update
@@ -131,7 +133,11 @@ download_fluster_testsuite() {
 		mkdir --parents "${vector_name}" && pushd "$_" || exit
 
 		# Download the test vector
-		wget --no-verbose --inet4-only --no-clobber --tries 5 "${vector_url}" || exit
+		if [ -z ${CACHING_SERVICE} ]; then
+		  wget --no-verbose --inet4-only --no-clobber --tries 5 "${vector_url}" || exit
+		else
+		  wget --no-verbose --inet4-only --no-clobber --tries 5 "${CACHING_SERVICE}${vector_url}" -O  "${vector_archive}" || exit
+		fi
 
 		# Verify checksum
 		if [ "${vector_md5}" != "$(md5sum "${vector_archive}" | cut -d' ' -f1)" ]; then
