@@ -69,7 +69,8 @@ if __name__ == '__main__':
         db = _get_db()
         if db:
             node = db.get_node(NODE_ID)
-            node['status'] = "pass" if res else "fail"
+            node['result'] = "pass" if res else "fail"
+            node['status'] = "completed"
             db.submit({'node': node})
 
     sys.exit(0)
