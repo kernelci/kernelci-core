@@ -160,3 +160,9 @@ build_configs:
     variants:
       <<: *android_variants
       <<: *clang_android_variants
+
+  android14-5.15:
+    tree: android
+    branch: 'android14-5.15'
+    variants:
+      <<: *android_variants
