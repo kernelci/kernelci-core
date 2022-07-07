@@ -9,7 +9,14 @@ RUN apt-get update && apt-get install --no-install-recommends -y procps
 # SSL / HTTPS support
 RUN apt-get update && apt-get install --no-install-recommends -y \
     apt-transport-https \
-    ca-certificates
+    ca-certificates \
+    wget
+
+# Add custom build tools repository
+RUN echo 'deb https://repositories.collabora.com/kernelci/ bullseye tools' \
+   >> /etc/apt/sources.list.d/tools.list
+RUN wget https://repositories.collabora.com/kernelci/pool/tools/c/collabora-archive-keyring/collabora-archive-keyring_0.3+debian11.3_all.deb && \
+    dpkg -i collabora-archive-keyring_0.3+debian11.3_all.deb
 
 # Host build tools
 RUN apt-get update && apt-get install --no-install-recommends -y \
