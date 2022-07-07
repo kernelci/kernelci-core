@@ -32,9 +32,5 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 
 USER cros
 ENV HOME=/home/cros
-WORKDIR $HOME/chromiumos
-
-RUN git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
-ENV PATH="/home/cros/chromiumos/depot_tools:${PATH}"
 
 WORKDIR /kernelci-core
