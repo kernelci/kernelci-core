@@ -4,7 +4,7 @@
 - test:
     namespace: chromeos
     timeout:
-      minutes: 5
+      minutes: 30
     docker:
       image: {{ docker_image }}
       wait:
@@ -38,6 +38,8 @@
               example.ARCFixture
               example.ManyParams.arc_state example.Param.dog
               example.Pass example.Fail
+              video.ChromeStackDecoding.*
+              ui.WindowCyclePerf
       from: inline
       name: cros-tast
       path: inline/cros-tast.yaml
