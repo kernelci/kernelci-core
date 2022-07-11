@@ -5,21 +5,24 @@ MAINTAINER "KernelCI TSC" <kernelci-tsc@groups.io>
 RUN apt-get update \
     && apt-get upgrade -y \
     && apt-get install -y --no-install-recommends \
-        sudo \
+        build-essential \
         ca-certificates \
+        curl \
+        git \
         netbase \
-	git \
-	build-essential \
-	python3 \
-	curl \
-	wget \
-	ssh \
-    && apt-get clean \
+        python3 \
+        sudo \
+        ssh \
+        wget
+
+RUN apt-get clean \
     && apt-get autoremove \
     && rm -rf /var/lib/apt/lists/*
 
-RUN useradd -u 996 -ms /bin/sh user && adduser user sudo && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
-RUN mkdir -p /home/user/chromiumos && chown -R user /home/user/chromiumos
+RUN useradd -u 996 -ms /bin/sh cros
+RUN adduser cros sudo && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+RUN mkdir -p /home/cros/chromiumos
+RUN chown -R cros /home/cros/chromiumos
 
 # Extra packages needed by kernelCI
 RUN apt-get update && apt-get install --no-install-recommends -y \
@@ -27,11 +30,11 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     python3-requests \
     python3-yaml
 
-USER user
-ENV HOME=/home/user
+USER cros
+ENV HOME=/home/cros
 WORKDIR $HOME/chromiumos
 
 RUN git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
-ENV PATH="/home/user/chromiumos/depot_tools:${PATH}"
+ENV PATH="/home/cros/chromiumos/depot_tools:${PATH}"
 
 WORKDIR /kernelci-core
