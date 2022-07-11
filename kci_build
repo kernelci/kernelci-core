@@ -18,6 +18,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import sys
+import os
+import lzma as xz
 
 from kernelci.cli import Args, Command, parse_opts
 import kernelci
@@ -401,6 +403,23 @@ class cmd_push_kernel(Command):
         install = kernelci.build.Step.get_install_path(args.kdir, args.output)
         meta = kernelci.build.Metadata(install)
         publish_path = meta.get('bmeta', 'kernel', 'publish_path')
+        defconfig = meta.get('bmeta', 'kernel', 'defconfig')
+        # gki_defconfig is exceptional and generate hundreds of megabytes
+        # several files, which require compression
+        # to workaround current upload limits
+        if defconfig == "gki_defconfig":
+            kernel_image_name = meta.get('bmeta', 'kernel', 'image')
+            compressed_artifacts = ["logs/kernel.log"]
+            compressed_artifacts.append('/'.join(["kernel",
+                                        kernel_image_name]))
+            for e in compressed_artifacts:
+                source_filename = os.path.join(install, e)
+                data = open(source_filename, 'rb').read()
+                zf = xz.open(f'{source_filename}.xz', mode='wb',
+                             format=xz.FORMAT_XZ, preset=9)
+                zf.write(data)
+                zf.close()
+                os.unlink(source_filename)
         artifacts = kernelci.storage.discover_files(install)
         print("Upload path: {}".format(publish_path))
         kernelci.storage.upload_files(
