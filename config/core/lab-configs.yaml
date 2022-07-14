@@ -88,7 +88,7 @@ labs:
   lab-collabora:
     lab_type: lava.lava_rest
     config_path: 'lava'
-    url: 'https://lava.collabora.co.uk/'
+    url: 'https://lava.collabora.dev/'
     priority: '45'
     queue_timeout:
       days: 2
