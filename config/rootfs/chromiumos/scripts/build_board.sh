@@ -19,7 +19,7 @@ trap cleanup EXIT
 
 echo "Preparing environment, branch ${BRANCH}"
 sudo mkdir chromiumos-sdk
-sudo chown user chromiumos-sdk
+sudo chown ${USERNAME} chromiumos-sdk
 cd chromiumos-sdk
 git config --global user.email "bot@kernelci.org"
 git config --global user.name "KernelCI Bot"
