@@ -24,7 +24,7 @@ cip_variants: &cip_variants
                 - 'nsim_700_defconfig'
                 - 'nsimosci_defconfig'
                 - 'tb10x_defconfig'
-      arm:
+      arm: &cip_variants_arch_arm
         base_defconfig: 'multi_v7_defconfig'
         extra_configs: ['allnoconfig']
       arm64:
@@ -33,7 +33,7 @@ cip_variants: &cip_variants
       i386:
         base_defconfig: 'i386_defconfig'
         extra_configs: ['allnoconfig']
-      mips:
+      mips: &cip_variants_arch_mips
         base_defconfig: '32r2el_defconfig'
         extra_configs: ['allnoconfig']
         filters:
@@ -75,9 +75,9 @@ cip_variants_preempt_rt: &cip_variants_preempt_rt
   gcc-10:
     <<: *cip_gcc_10
     fragments: [preempt_rt]
-    architectures:
+    architectures: &cip_architectures_preempt_rt
       <<: *cip_architectures
-      arm:
+      arm: &cip_variants_preempt_rt_arch_arm
         fragments: [preempt_rt]
         extra_configs:
           - 'multi_v7_defconfig+preempt_rt'
@@ -91,22 +91,57 @@ cip_variants_preempt_rt: &cip_variants_preempt_rt
           - 'x86_64_defconfig+preempt_rt'
           - 'x86_64_defconfig+x86-chromebook+preempt_rt'
 
+cip_variants_4_4: &cip_variants_4_4
+  gcc-10: &cip_variants_4_4_gcc-10
+    <<: *cip_gcc_10
+    architectures:
+      <<: *cip_architectures
+      arm:
+        <<: *cip_variants_arch_arm
+        filters: &cip_4_4_arm_filters
+          - blocklist:
+              defconfig:
+                - 'rpc_defconfig' # gcc-10 not supported
+      mips:
+        <<: *cip_variants_arch_mips
+        filters: &cip_4_4_mips_filters
+          - blocklist:
+              defconfig:
+                - 'generic_defconfig'
+                - 'fuloong2e_defconfig' # gcc-10 not supported
+                - 'ip27_defconfig' # unknown target uImage.gz
+                - 'ip28_defconfig' # unknown target uImage.gz
+                - 'lemote2f_defconfig' # gcc-10 not supported
+
+cip_variants_4_4_preempt_rt: &cip_variants_4_4_preempt_rt
+  <<: *cip_variants_preempt_rt
+  gcc-10:
+    <<: *cip_variants_4_4_gcc-10
+    fragments: [preempt_rt]
+    architectures:
+      <<: *cip_architectures_preempt_rt
+      arm:
+        <<: *cip_variants_preempt_rt_arch_arm
+        filters: *cip_4_4_arm_filters
+      mips:
+        <<: *cip_variants_arch_mips
+        filters: *cip_4_4_mips_filters
 
 build_configs:
   cip_4.4:
     tree: cip
     branch: 'linux-4.4.y-cip'
-    variants: *cip_variants
+    variants: *cip_variants_4_4
 
   cip_4.4-rc:
     tree: cip-gitlab
     branch: 'ci/iwamatsu/linux-4.4.y-cip-rc'
-    variants: *cip_variants
+    variants: *cip_variants_4_4
 
   cip_4.4-rt:
     tree: cip
     branch: 'linux-4.4.y-cip-rt'
-    variants: *cip_variants_preempt_rt
+    variants: *cip_variants_4_4_preempt_rt
 
   cip_4.19:
     tree: cip
