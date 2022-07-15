@@ -1490,8 +1490,16 @@ class MakeSelftests(Step):
         opts = {
             'FORMAT': '.xz',
         }
-        res = self._make('gen_tar', jopt, verbose, opts,
-                         'tools/testing/selftests')
+        if self._check_min_kver(5, 20):
+            # Once v5.20 has been released and a new LTS has been declared then
+            # we can always run this command and bump the v5.10 version test
+            # for kselftest altogether.
+            res = self._make('kselftest-gen_tar', jopt, verbose, opts)
+        else:
+            res = self._make('headers', jopt, verbose)
+            if res:
+                res = self._make('gen_tar', jopt, verbose, opts,
+                                 'tools/testing/selftests')
         return self._add_run_step(res, jopt)
 
     def _get_kselftests(self, kselftest_tarball):
