@@ -5,6 +5,9 @@ BRANCH=$2
 SERIAL=$3
 DATA_DIR=$(pwd)
 USERNAME=$(/usr/bin/id -run)
+SCRIPT=$(realpath "$0")
+SCRIPTPATH=$(dirname "$SCRIPT")
+MANIFESTDIR=$(dirname "$SCRIPTPATH")
 
 function cleanup()
 {
@@ -30,7 +33,13 @@ cd chromiumos-sdk
 git config --global user.email "bot@kernelci.org"
 git config --global user.name "KernelCI Bot"
 git config --global color.ui false
-repo init --repo-url https://chromium.googlesource.com/external/repo --manifest-url https://chromium.googlesource.com/chromiumos/manifest --manifest-name default.xml --manifest-branch ${BRANCH}
+
+# To generate manifest snapshot:
+# repo init --repo-url https://chromium.googlesource.com/external/repo --manifest-url https://chromium.googlesource.com/chromiumos/manifest --manifest-name default.xml --manifest-branch ${BRANCH}
+# repo manifest -r -o cros-snapshot.xml
+
+# Fetching current manifest snapshot
+repo init -u https://github.com/kernelci/kernelci-core -b chromeos.kernelci.org -m "config/rootfs/chromiumos/cros-snapshot-$2.xml"
 repo sync -j$(nproc)
 echo Building SDK
 cros_sdk --create
