@@ -9,11 +9,9 @@ MAINTAINER "KernelCI TSC" <kernelci-tsc@groups.io>
 # Upgrade pip3 - never mind the warning about running this as root
 RUN pip3 install --upgrade pip
 
+ARG core_url=https://github.com/kernelci/kernelci-core.git
 ARG core_rev=main
-RUN git clone \
-    --depth=1 \
-    https://github.com/kernelci/kernelci-core.git \
-    /tmp/kernelci-core
+RUN git clone --depth=1 $core_url /tmp/kernelci-core
 WORKDIR /tmp/kernelci-core
 RUN git fetch origin $core_rev
 RUN git checkout FETCH_HEAD
