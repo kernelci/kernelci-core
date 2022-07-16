@@ -27,7 +27,7 @@ class Kubernetes(LabAPI):
     RANDOM_CHARACTERS = string.ascii_lowercase + string.digits
 
     def generate(self, params, device_config, plan_config,
-                 callback_opts=None, templates_path='config/kubernetes'):
+                 callback_opts=None, templates_path='config/runtime'):
         jinja2_env = Environment(loader=FileSystemLoader(templates_path))
         template_path = plan_config.get_template_path(None)
         template = jinja2_env.get_template(template_path)

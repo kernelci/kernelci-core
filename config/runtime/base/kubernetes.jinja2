@@ -47,5 +47,11 @@ spec:
             secretKeyRef:
               name: {{ "kci-api-jwt-staging" }}
               key: token
-{% block commands %}
+{% block k8s_command %}
+        command: ["/bin/sh", "-c"]
 {% endblock %}
+        args:
+          - |
+{%- filter indent(width=12) -%}
+{% block commands %}{% endblock %}
+{%- endfilter %}
