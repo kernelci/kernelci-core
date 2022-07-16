@@ -1,7 +1,8 @@
 {# -*- mode: Python -*- -#}
 {# SPDX-License-Identifier: LGPL-2.1-or-later -#}
 
-{%- extends 'base.jinja2' %}
+{% set base_template = 'base/' + runtime + '-python.jinja2' %}
+{%- extends base_template %}
 
 {% block commands %}
 {%- block python_imports -%}
@@ -10,10 +11,12 @@ import sys
 import tarfile
 import urllib.parse
 import yaml
+{% endblock %}
 
+{%- block python_local_imports %}
 import kernelci.db
 import kernelci.config
-{% endblock %}
+{%- endblock %}
 
 {%- block python_globals %}
 DB_CONFIG_YAML = """
@@ -21,9 +24,9 @@ DB_CONFIG_YAML = """
 NODE_ID = '{{ node_id }}'
 TARBALL_URL = '{{ tarball_url }}'
 WORKSPACE = '/tmp/kci'
-{% endblock %}
+{%- endblock %}
 
-{%- block python_body %}{% endblock %}
+{% block python_body %}{% endblock %}
 
 {% block python_main -%}
 def _get_db():

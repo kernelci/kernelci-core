@@ -1,7 +1,7 @@
 {# -*- mode: sh -*- -#}
 {# SPDX-License-Identifier: LGPL-2.1-or-later -#}
 
-#!{{ shebang|default("/bin/sh") }}
+#!{% block shebang %}/bin/sh{% endblock %}
 
 {%- block commands %}
 {% endblock %}

@@ -1,0 +1,8 @@
+{# -*- mode: Python -*- -#}
+{# SPDX-License-Identifier: LGPL-2.1-or-later -#}
+
+{% extends 'base/kubernetes.jinja2' %}
+
+{%- block k8s_command %}
+        command: ["/usr/bin/env", "python3", "-c"]
+{%- endblock %}
