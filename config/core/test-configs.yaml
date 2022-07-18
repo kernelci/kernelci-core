@@ -41,7 +41,7 @@ file_systems:
 
   buildroot-baseline_ramdisk:
     type: buildroot
-    ramdisk: 'buildroot-baseline/20220708.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'buildroot-baseline/20220716.0/{arch}/rootfs.cpio.gz'
 
   cip_nfs:
     type: cip
@@ -51,53 +51,53 @@ file_systems:
 
   debian_bullseye_ramdisk:
     type: debian
-    ramdisk: 'bullseye/20220708.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'bullseye/20220716.0/{arch}/rootfs.cpio.gz'
 
   debian_bullseye_nfs:
     type: debian
-    ramdisk: 'bullseye/20220708.0/{arch}/initrd.cpio.gz'
-    nfs: 'bullseye/20220708.0/{arch}/full.rootfs.tar.xz'
+    ramdisk: 'bullseye/20220716.0/{arch}/initrd.cpio.gz'
+    nfs: 'bullseye/20220716.0/{arch}/full.rootfs.tar.xz'
     root_type: nfs
 
   debian_bullseye-cros-ec_ramdisk:
     type: debian
-    ramdisk: 'bullseye-cros-ec/20220708.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'bullseye-cros-ec/20220716.0/{arch}/rootfs.cpio.gz'
 
   debian_bullseye-igt_ramdisk:
     type: debian
-    ramdisk: 'bullseye-igt/20220708.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'bullseye-igt/20220716.0/{arch}/rootfs.cpio.gz'
 
   debian_bullseye-kselftest_nfs:
     type: debian
-    ramdisk: 'bullseye-kselftest/20220708.0/{arch}/initrd.cpio.gz'
-    nfs: 'bullseye-kselftest/20220708.0/{arch}/full.rootfs.tar.xz'
+    ramdisk: 'bullseye-kselftest/20220716.0/{arch}/initrd.cpio.gz'
+    nfs: 'bullseye-kselftest/20220716.0/{arch}/full.rootfs.tar.xz'
     root_type: nfs
     params:
       os_config: 'debian'
 
   debian_bullseye-libcamera_nfs:
     type: debian
-    ramdisk: 'bullseye-libcamera/20220708.0/{arch}/initrd.cpio.gz'
-    nfs: 'bullseye-libcamera/20220708.0/{arch}/full.rootfs.tar.xz'
+    ramdisk: 'bullseye-libcamera/20220716.0/{arch}/initrd.cpio.gz'
+    nfs: 'bullseye-libcamera/20220716.0/{arch}/full.rootfs.tar.xz'
     root_type: nfs
 
   debian_bullseye-ltp_nfs:
     type: debian
-    ramdisk: 'bullseye-ltp/20220708.0/{arch}/initrd.cpio.gz'
-    nfs: 'bullseye-ltp/20220708.0/{arch}/full.rootfs.tar.xz'
+    ramdisk: 'bullseye-ltp/20220716.0/{arch}/initrd.cpio.gz'
+    nfs: 'bullseye-ltp/20220716.0/{arch}/full.rootfs.tar.xz'
     root_type: nfs
 
   debian_bullseye-ltp_ramdisk:
     type: debian
-    ramdisk: 'bullseye-ltp/20220708.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'bullseye-ltp/20220716.0/{arch}/rootfs.cpio.gz'
 
   debian_bullseye-rt_ramdisk:
     type: debian
-    ramdisk: 'bullseye-rt/20220708.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'bullseye-rt/20220716.0/{arch}/rootfs.cpio.gz'
 
   debian_bullseye-v4l2_ramdisk:
     type: debian
-    ramdisk: 'bullseye-v4l2/20220708.0/{arch}/rootfs.cpio.gz'
+    ramdisk: 'bullseye-v4l2/20220716.0/{arch}/rootfs.cpio.gz'
 
 
 
