@@ -100,6 +100,8 @@ device_types:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
+    filters: &pineview-filter
+      - passlist: {defconfig: ['chromeos-intel-pineview']}
     params:
       block_device: nvme0n1
       cros_flash_nfs:
@@ -136,8 +138,7 @@ device_types:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
-    filters:
-      - passlist: {defconfig: ['chromeos-intel-pineview']}
+    filters: *pineview-filter
     params: &octopus-params
       cros_flash_nfs:
         base_url: 'https://storage.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20220623.0/amd64/'
