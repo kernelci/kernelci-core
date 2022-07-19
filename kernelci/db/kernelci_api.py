@@ -108,6 +108,14 @@ class KernelCI_API(Database):
         resp = self._get('?'.join(['regressions', 'name=' + regression_name]))
         return json.loads(resp.text)
 
+    def get_child_nodes_from_parent(self, node_id):
+        """Get child nodes from parent"""
+        params = {
+            "parent": node_id
+        }
+        resp = self._get('nodes', params=params)
+        return resp.json()
+
     def pubsub_event_filter(self, sub_id, event):
         """Filter Pub/Sub events
 
