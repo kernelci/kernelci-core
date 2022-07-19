@@ -1,0 +1,7 @@
+{% extends 'boot/generic-uboot-tftp-ramdisk-boot-template.jinja2' %}
+{% block actions %}
+{{ super () }}
+
+{% include 'preempt-rt/preempt-rt.jinja2' %}
+
+{% endblock %}
