@@ -1315,6 +1315,12 @@ device_types:
     boot_method: depthcharge
     filters: *arm64-chromebook-filters
 
+  mt8192-asurada-spherion-r0:
+    mach: mediatek
+    class: arm64-dtb
+    boot_method: depthcharge
+    filters: *arm64-chromebook-filters
+
   mustang:
     mach: apm
     class: arm64-dtb
@@ -2627,6 +2633,11 @@ test_configs:
       - baseline-nfs
       - kselftest-lkdtm
       - kselftest-seccomp
+
+  - device_type: mt8192-asurada-spherion-r0
+    test_plans:
+      - baseline
+      - baseline-nfs
 
   - device_type: mustang
     test_plans:
