@@ -40,3 +40,18 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    libasound2-dev:arm64 \
    libasound2-dev \
    pkg-config
+
+# perf
+RUN apt-get update && apt-get install --no-install-recommends -y \
+   libbabeltrace-dev:arm64 \
+   libcap-dev:arm64 \
+   libdw-dev:arm64 \
+   libnuma-dev:arm64 \
+   libopencsd-dev:arm64 \
+   libperl-dev:arm64 \
+   libpython3-dev:arm64 \
+   libslang2-dev:arm64 \
+   libssl-dev:arm64 \
+   libunwind-dev:arm64 \
+   libzstd-dev:arm64 \
+   systemtap-sdt-dev:arm64

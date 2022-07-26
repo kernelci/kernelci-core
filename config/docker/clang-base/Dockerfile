@@ -58,4 +58,49 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    libpopt-dev:armhf \
    pkg-config
 
+# perf x86
+RUN apt-get update && apt-get install --no-install-recommends -y \
+   libbabeltrace-dev \
+   libcap-dev \
+   libdw-dev \
+   libnuma-dev \
+   libopencsd-dev \
+   libperl-dev \
+   libpython3-dev \
+   libslang2-dev \
+   libssl-dev \
+   libunwind-dev \
+   libzstd-dev \
+   systemtap-sdt-dev
+
+# perf arm
+RUN apt-get update && apt-get install --no-install-recommends -y \
+   libbabeltrace-dev:armhf \
+   libcap-dev:armhf \
+   libdw-dev:armhf \
+   libnuma-dev:armhf \
+   libopencsd-dev:armhf \
+   libperl-dev:armhf \
+   libpython3-dev:armhf \
+   libslang2-dev:armhf \
+   libssl-dev:armhf \
+   libunwind-dev:armhf \
+   libzstd-dev:armhf \
+   systemtap-sdt-dev:armhf
+
+# perf arm64
+RUN apt-get update && apt-get install --no-install-recommends -y \
+   libbabeltrace-dev:arm64 \
+   libcap-dev:arm64 \
+   libdw-dev:arm64 \
+   libnuma-dev:arm64 \
+   libopencsd-dev:arm64 \
+   libperl-dev:arm64 \
+   libpython3-dev:arm64 \
+   libslang2-dev:arm64 \
+   libssl-dev:arm64 \
+   libunwind-dev:arm64 \
+   libzstd-dev:arm64 \
+   systemtap-sdt-dev:arm64
+
 RUN apt-get autoremove -y gcc

@@ -29,3 +29,18 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    libasound2-dev:armel \
    libasound2-dev \
    pkg-config
+
+# perf
+RUN apt-get update && apt-get install --no-install-recommends -y \
+   libbabeltrace-dev:armel \
+   libcap-dev:armel \
+   libdw-dev:armel \
+   libnuma-dev:armel \
+   libopencsd-dev:armel \
+   libperl-dev:armel \
+   libpython3-dev:armel \
+   libslang2-dev:armel \
+   libssl-dev:armel \
+   libunwind-dev:armel \
+   libzstd-dev:armel \
+   systemtap-sdt-dev:armel

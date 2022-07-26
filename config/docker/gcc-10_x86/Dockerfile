@@ -28,5 +28,20 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    libc6-i386 \
    libc6-dev-i386
 
+# perf
+RUN apt-get update && apt-get install --no-install-recommends -y \
+   libbabeltrace-dev \
+   libcap-dev \
+   libdw-dev \
+   libnuma-dev \
+   libopencsd-dev \
+   libperl-dev \
+   libpython3-dev \
+   libslang2-dev \
+   libssl-dev \
+   libunwind-dev \
+   libzstd-dev \
+   systemtap-sdt-dev
+
 ADD gcc-header-fix.patch /
 RUN cd / && patch -p1 </gcc-header-fix.patch

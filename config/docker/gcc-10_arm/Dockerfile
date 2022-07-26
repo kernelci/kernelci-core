@@ -29,3 +29,18 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    libasound2-dev:armhf \
    libasound2-dev \
    pkg-config
+
+# perf
+RUN apt-get update && apt-get install --no-install-recommends -y \
+   libbabeltrace-dev:armhf \
+   libcap-dev:armhf \
+   libdw-dev:armhf \
+   libnuma-dev:armhf \
+   libopencsd-dev:armhf \
+   libperl-dev:armhf \
+   libpython3-dev:armhf \
+   libslang2-dev:armhf \
+   libssl-dev:armhf \
+   libunwind-dev:armhf \
+   libzstd-dev:armhf \
+   systemtap-sdt-dev:armhf
