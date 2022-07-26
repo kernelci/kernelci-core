@@ -1,0 +1,19 @@
+# kselftest
+{%- if sub_arch %}
+{%- set pkgarch = ':' + sub_arch %}
+RUN dpkg --add-architecture {{ sub_arch }}
+{%- endif %}
+RUN apt-get update && apt-get install --no-install-recommends -y \
+   libc6-dev{{ pkgarch }} \
+   libcap-dev{{ pkgarch }} \
+   libcap-ng-dev{{ pkgarch }} \
+   libelf-dev{{ pkgarch }} \
+   libfuse-dev{{ pkgarch }} \
+   libhugetlbfs-dev{{ pkgarch }} \
+   libmnl-dev{{ pkgarch }} \
+   libnuma-dev{{ pkgarch }} \
+   libpopt-dev{{ pkgarch }} \
+   libasound2-dev{{ pkgarch }} \
+   libasound2-dev \
+   patch \
+   pkg-config
