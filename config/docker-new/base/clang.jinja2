@@ -1,0 +1,16 @@
+{%- extends 'base/host-tools.jinja2' %}
+
+{%- block packages %}
+{{ super() }}
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    software-properties-common \
+    gnupg2
+
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    binutils-aarch64-linux-gnu \
+    binutils-arm-linux-gnueabihf \
+    binutils-riscv64-linux-gnu \
+    binutils
+
+RUN apt-get autoremove -y gcc
+{%- endblock %}
