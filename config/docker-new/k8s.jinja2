@@ -1,0 +1,14 @@
+{# SPDX-License-Identifier: LGPL-2.1-or-later
+ #
+ # Copyright (C) 2021, 2022 Collabora Limited
+ # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+-#}
+
+{%- set fragments = [
+  'fragment/kubernetes.jinja2',
+  'fragment/gcloud.jinja2',
+  'fragment/azure-cli.jinja2']
+  + fragments
+-%}
+
+{%- include 'base/debian.jinja2' %}

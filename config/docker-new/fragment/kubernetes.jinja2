@@ -1,0 +1,6 @@
+# Install pip3
+RUN apt-get update && apt-get install --no-install-recommends -y python3-pip
+RUN pip3 install --upgrade pip
+
+# Install Kubernetes Python package
+RUN python3 -m pip install --upgrade kubernetes
