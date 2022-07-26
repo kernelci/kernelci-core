@@ -1,0 +1,102 @@
+#!/usr/bin/env python3
+#
+# Copyright (C) 2022 Collabora Limited
+# Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+#
+# This module is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this library; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+
+import argparse
+import io
+import sys
+
+from jinja2 import Environment, FileSystemLoader
+import docker
+
+
+def _gen_dockerfile(img_name, params):
+    jinja2_env = Environment(loader=FileSystemLoader('.'))
+    template = jinja2_env.get_template(f"{img_name}.jinja2")
+    return template.render(params)
+
+
+def _build_image(dockerfile, tag_name):
+    client = docker.from_env()
+    dockerfile_obj = io.BytesIO(dockerfile.encode())
+    return client.images.build(fileobj=dockerfile_obj, tag=tag_name)
+
+
+def _dump_dockerfile(dockerfile):
+    sep = '--------------------------------------------------' * 2
+    print()
+    print(sep)
+    print(dockerfile)
+    print(sep)
+    print()
+
+
+def _dump_log(build_log):
+    for chunk in build_log:
+        stream = chunk.get('stream') or ""
+        for line in stream.splitlines():
+            print(line)
+
+
+def main(args):
+    base_name = args.prefix + args.image
+    tag_strings = ([args.arch] if args.arch else []) + (args.fragment or [])
+    tag_name = '-'.join(tag_strings)
+    name = ':'.join((base_name, tag_name)) if tag_name else base_name
+    if args.command == 'name':
+        print(name)
+        return
+
+    params = {
+        'prefix': args.prefix,
+        'fragments': [
+            f'fragment/{fragment}.jinja2'
+            for fragment in args.fragment
+        ] if args.fragment else []
+    }
+
+    template = '-'.join((args.image, args.arch)) if args.arch else args.image
+    dockerfile = _gen_dockerfile(template, params)
+    if args.command == 'generate':
+        print(dockerfile)
+        return
+    if args.verbose:
+        _dump_dockerfile(dockerfile)
+
+    print(f"Building {name}")
+    _, build_log = _build_image(dockerfile, name)
+    if args.verbose:
+        _dump_log(build_log)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser("KernelCI Docker image builder")
+    parser.add_argument('command', choices=['build', 'generate', 'name'],
+                        help="Command to run")
+    parser.add_argument('image',
+                        help="Docker image name, e.g. gcc-10:x86")
+    parser.add_argument('--prefix', default='kernelci/',
+                        help="Docker image tag prefix")
+    parser.add_argument('--arch',
+                        help="CPU architecture, e.g. x86")
+    parser.add_argument('--fragment', action='append',
+                        help="Extra fragments, e.g. kernelci")
+    parser.add_argument('--verbose', action='store_true',
+                        help="Verbose output")
+    main(parser.parse_args())
+    sys.exit(0)
