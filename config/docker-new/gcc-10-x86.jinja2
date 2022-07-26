@@ -1,0 +1,25 @@
+{% extends 'base/host-tools.jinja2' %}
+
+{% block packages %}
+{{ super() }}
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    gcc-10 \
+    gcc-10-plugin-dev
+
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 500
+
+# 32-bit support for host tools and kselftest
+RUN apt-get update && apt-get install --no-install-recommends -y \
+   gcc-multilib \
+   libc6-i386 \
+   libc6-dev-i386
+
+# GCC i386.h header fix for the Debian package
+RUN apt-get update && apt-get install --no-install-recommends -y curl patch
+RUN \
+    cd / && \
+    curl -s https://raw.githubusercontent.com/kernelci/kernelci-core/\
+1c801889144969f8c0e6f736baaf8276e44bd882/\
+config/docker/gcc-10_x86/gcc-header-fix.patch \
+    | patch -p1
+{%- endblock %}
