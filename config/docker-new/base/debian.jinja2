@@ -20,3 +20,11 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     ca-certificates
 
 {%- block packages %}{% endblock %}
+
+{%- block fragments %}
+{%- for fragment in fragments %}
+{% with is_debian = true, sub_arch = sub_arch %}
+{% include fragment %}
+{%- endwith %}
+{%- endfor %}
+{%- endblock %}
