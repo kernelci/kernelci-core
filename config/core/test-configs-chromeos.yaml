@@ -244,8 +244,8 @@ test_configs:
 
   - device_type: asus-C436FA-Flip-hatch_chromeos
     test_plans:
-      - cros-boot
-      - cros-boot-fixed
+      - cros-baseline
+      - cros-baseline-fixed
       - cros-tast
       - cros-tast-fixed
 
@@ -253,8 +253,6 @@ test_configs:
     test_plans:
       - cros-baseline
       - cros-baseline-fixed
-      - cros-boot
-      - cros-boot-fixed
       - cros-tast
       - cros-tast-fixed
 
@@ -262,8 +260,6 @@ test_configs:
     test_plans:
       - cros-baseline
       - cros-baseline-fixed
-      - cros-boot
-      - cros-boot-fixed
       - cros-tast
       - cros-tast-fixed
 
@@ -271,7 +267,5 @@ test_configs:
     test_plans:
       - cros-baseline_qemu
       - cros-baseline_qemu-fixed
-      - cros-boot_qemu
-      - cros-boot_qemu-fixed
       - cros-tast_qemu
       - cros-tast_qemu-fixed
