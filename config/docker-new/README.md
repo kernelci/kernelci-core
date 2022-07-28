@@ -73,3 +73,7 @@ installed, as well as the KernelCI core tools:
 
     $ ./kci_docker build clang-14 --prefix=my-stuff/ --fragment=kselftest --fragment=kernelci
     Building my-stuff/clang-14:kselftest-kernelci
+
+Build the `kernelci` image with a particular revision using `--build-arg`:
+
+    ./kci_docker build kernelci --build-arg core_rev=staging-20220728.1
