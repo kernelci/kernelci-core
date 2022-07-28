@@ -58,7 +58,6 @@ coccinelle \
 cvehound \
 debos \
 dt-validation \
-k8s \
 qemu \
 "
 
