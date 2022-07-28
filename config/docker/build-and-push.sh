@@ -3,7 +3,7 @@
 # Copyright (C) 2019 Linaro Limited
 # Author: Matt Hart <matthew.hart@linaro.org>
 #
-# Copyright (C) 2021 Collabora Limited
+# Copyright (C) 2021, 2022 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 #
 # This module is free software; you can redistribute it and/or modify it under
@@ -58,7 +58,6 @@ coccinelle \
 cvehound \
 debos \
 dt-validation \
-kernelci \
 k8s \
 qemu \
 "
@@ -100,10 +99,6 @@ for target in $targets; do
         do
             docker_build_and_tag "$cc"
         done
-    elif [ "$target" = "kernelci" ]; then
-        core_rev=$(git show --pretty=format:%H -s origin/main)
-        echo "kernelci-core revision: ${core_rev}"
-        docker_build_and_tag kernelci "--build-arg core_rev=${core_rev}"
     else
         docker_build_and_tag "$target"
     fi
