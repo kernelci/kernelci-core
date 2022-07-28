@@ -31,10 +31,12 @@ def _gen_dockerfile(img_name, params):
     return template.render(params)
 
 
-def _build_image(dockerfile, tag_name):
+def _build_image(dockerfile, tag_name, buildargs):
     client = docker.from_env()
     dockerfile_obj = io.BytesIO(dockerfile.encode())
-    return client.images.build(fileobj=dockerfile_obj, tag=tag_name)
+    return client.images.build(
+        fileobj=dockerfile_obj, tag=tag_name, buildargs=buildargs
+    )
 
 
 def _dump_dockerfile(dockerfile):
@@ -79,7 +81,12 @@ def main(args):
         _dump_dockerfile(dockerfile)
 
     print(f"Building {name}")
-    _, build_log = _build_image(dockerfile, name)
+    buildargs = {
+        name: value for (name, value) in (
+            barg.split('=') for barg in args.build_arg
+        )
+    }
+    _, build_log = _build_image(dockerfile, name, buildargs)
     if args.verbose:
         _dump_log(build_log)
 
@@ -98,5 +105,7 @@ if __name__ == '__main__':
                         help="Extra fragments, e.g. kernelci")
     parser.add_argument('--verbose', action='store_true',
                         help="Verbose output")
+    parser.add_argument('--build-arg', action='append',
+                        help="Build argument to pass to docker build")
     main(parser.parse_args())
     sys.exit(0)
