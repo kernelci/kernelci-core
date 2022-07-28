@@ -360,7 +360,7 @@ class TestPlan(YAMLObject):
     _pattern = \
         '{plan}/{category}-{method}-{protocol}-{rootfs}-{plan}-template.jinja2'
 
-    def __init__(self, name, rootfs, base_name=None, params=None,
+    def __init__(self, name, rootfs, image=None, base_name=None, params=None,
                  category='generic', filters=None, pattern=None):
         """A test plan is an arbitrary group of test cases to be run.
 
@@ -368,6 +368,8 @@ class TestPlan(YAMLObject):
                job template files.
 
         *rootfs* is a RootFS object to be used to run this test plan.
+
+        *image* is the name of a runtime image to use for the test.
 
         *base_name* is the name of the base test plan which this test plan
                     configuration refers to.
@@ -387,6 +389,7 @@ class TestPlan(YAMLObject):
         """
         self._name = name
         self._rootfs = rootfs
+        self._image = image
         self._base_name = base_name or name
         self._params = params or dict()
         self._category = category
@@ -404,7 +407,7 @@ class TestPlan(YAMLObject):
             'filters': FilterFactory.from_data(test_plan, default_filters),
         }
         kw.update(cls._kw_from_yaml(test_plan, [
-            'name', 'category', 'pattern', 'params']))
+            'name', 'category', 'image', 'pattern', 'params']))
         return cls(**kw)
 
     @property
@@ -414,6 +417,10 @@ class TestPlan(YAMLObject):
     @property
     def rootfs(self):
         return self._rootfs
+
+    @property
+    def image(self):
+        return self._image
 
     @property
     def base_name(self):
@@ -432,6 +439,7 @@ class TestPlan(YAMLObject):
             'params',
             'pattern',
             'rootfs',
+            'image',
         })
         return attrs
 
