@@ -38,7 +38,7 @@ spec:
 
       containers:
       - name: kernelci
-        image: kernelci/staging-kernelci
+        image: {{ runtime_image }}
 
         volumeMounts:
         - mountPath: "/scratch"
