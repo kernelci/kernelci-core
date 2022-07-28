@@ -16,6 +16,9 @@ spec:
       - name: scratch-volume
         emptyDir: { medium: "Memory" }
 
+      - name: dev-shm
+        emptyDir: { medium: "Memory" }
+
       tolerations:
       - key: "kubernetes.azure.com/scalesetpriority"
         operator: "Equal"
@@ -40,6 +43,10 @@ spec:
         volumeMounts:
         - mountPath: "/scratch"
           name: scratch-volume
+
+        volumeMounts:
+        - mountPath: "/dev/shm"
+          name: dev-shm
 
         env:
         - name: API_TOKEN
