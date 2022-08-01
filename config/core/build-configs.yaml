@@ -297,7 +297,7 @@ build_environments:
       mips: &mips_params
         cross_compile: 'mips-linux-gnu-'
       sparc64: &sparc64_params
-        cross_compile: 'sparc64-buildroot-linux-gnu-'
+        cross_compile: 'sparc64-linux-gnu-'
       x86_64: &x86_64_params
         name: 'x86'
       riscv: &riscv_params
