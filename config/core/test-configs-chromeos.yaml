@@ -170,6 +170,9 @@ device_types:
         flash_tarball: 'cros-flash-fixup.tar.gz'
         flash_tarball_compression: 'gz'
         tast_tarball: 'tast.tgz'
+      reference_kernel:
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20220711.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20220711.0/amd64/modules.tar.xz'
       block_device: mmcblk1
 
   hp-x360-12b-ca0010nr-n4020-octopus_chromeos: &octopus
@@ -240,7 +243,11 @@ device_types:
 test_configs:
 
   - device_type: hp-11A-G6-EE-grunt_chromeos
-    test_plans: []
+    test_plans:
+      - cros-baseline
+      - cros-baseline-fixed
+      - cros-tast
+      - cros-tast-fixed
 
   - device_type: asus-C436FA-Flip-hatch_chromeos
     test_plans:
