@@ -492,6 +492,8 @@ arch_defconfigs: &arch_defconfigs
       - blocklist: *riscv_kernel_filter
   sparc: &sparc_defconfig
     base_defconfig: 'sparc64_defconfig'
+    filters:
+      - regex: { defconfig: 'sparc64_defconfig' }
   x86_64: &x86_64_defconfig
     base_defconfig: 'x86_64_defconfig'
     filters:
