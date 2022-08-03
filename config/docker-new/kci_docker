@@ -85,7 +85,7 @@ def main(args):
         name: value for (name, value) in (
             barg.split('=') for barg in args.build_arg
         )
-    }
+    } if args.build_arg else {}
     _, build_log = _build_image(dockerfile, name, buildargs)
     if args.verbose:
         _dump_log(build_log)
