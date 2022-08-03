@@ -25,6 +25,6 @@
               cmdwrapper="ssh -i /home/cros/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$(lava-target-ip)"
               /bin/sh dmesg.sh
       from: inline
-      name: cros-baseline
+      name: dmesg
       path: inline/cros-baseline.yaml
 {% endblock %}
