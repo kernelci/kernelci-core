@@ -296,7 +296,7 @@ build_environments:
         name: 'x86'
       mips: &mips_params
         cross_compile: 'mips-linux-gnu-'
-      sparc64: &sparc64_params
+      sparc: &sparc_params
         cross_compile: 'sparc64-linux-gnu-'
       x86_64: &x86_64_params
         name: 'x86'
@@ -415,7 +415,7 @@ build_configs_defaults:
             - blocklist: &riscv_kernel_filter
                 kernel: ['v3.', 'v4.4', 'v4.9', 'v4.14']
 
-        sparc64: &sparc64_arch
+        sparc: &sparc_arch
           base_defconfig: 'sparc64_defconfig'
           extra_configs: ['allnoconfig']
 
@@ -490,7 +490,7 @@ arch_defconfigs: &arch_defconfigs
     filters:
       - regex: { defconfig: 'defconfig' }
       - blocklist: *riscv_kernel_filter
-  sparc64: &sparc64_defconfig
+  sparc: &sparc_defconfig
     base_defconfig: 'sparc64_defconfig'
   x86_64: &x86_64_defconfig
     base_defconfig: 'x86_64_defconfig'
@@ -769,7 +769,7 @@ build_configs:
           x86_64: *x86_64_arch
           mips: *mips_arch
           riscv: *riscv_arch
-          sparc64: *sparc64_arch
+          sparc: *sparc_arch
           arc: *arc_arch
           arm64:
             <<: *arm64_arch
