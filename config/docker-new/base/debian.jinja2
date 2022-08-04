@@ -8,8 +8,9 @@
 
 FROM debian:bullseye
 MAINTAINER "KernelCI TSC" <kernelci-tsc@groups.io>
-
 ENV DEBIAN_FRONTEND=noninteractive
+
+{%- block multistage %}{% endblock %}
 
 # Docker for jenkins really needs procps otherwise the jenkins side fails
 RUN apt-get update && apt-get install --no-install-recommends -y procps
