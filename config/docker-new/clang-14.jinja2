@@ -1,6 +1,6 @@
 {% extends 'base/clang.jinja2' %}
 
-{%- block packages -%}
+{% block packages %}
 {{ super() }}
 RUN wget -q -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
 RUN echo 'deb http://apt.llvm.org/bullseye/ llvm-toolchain-bullseye-14 main' \
