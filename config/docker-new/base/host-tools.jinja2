@@ -1,6 +1,52 @@
 {%- extends 'base/debian.jinja2' -%}
 
+{% block multistage %}
+# Build custom kmod package with compression enabled
+
+# SSL / HTTPS support
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    apt-transport-https \
+    ca-certificates
+
+# Prepare environment for building packages
+RUN sed -i -- 's/# deb-src/deb-src/g' /etc/apt/sources.list
+RUN echo "deb-src http://deb.debian.org/debian bullseye main non-free contrib" \
+    >> /etc/apt/sources.list
+RUN echo "deb-src http://deb.debian.org/debian-security/ bullseye-security main contrib non-free" \
+    >> /etc/apt/sources.list
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    cdbs \
+    devscripts \
+    equivs \
+    fakeroot \
+    wget
+
+WORKDIR /root/debs
+
+# Get patch to enable compression
+RUN wget -q https://raw.githubusercontent.com/kernelci/kernelci-core/\
+f8a03576724cdb78c94e75bf150b6e493d725cdb/\
+config/docker/build-base/kmod_kci.patch
+
+# Prepare kmod sources, patch, install dependencies, build
+RUN apt-get source kmod
+WORKDIR kmod-28
+RUN patch -p1 < ../kmod_kci.patch
+RUN mk-build-deps -ir \
+    -t "apt-get -o Debug::pkgProblemResolver=yes -y --no-install-recommends"
+RUN debuild -b -uc -us
+
+FROM debian:bullseye
+MAINTAINER "KernelCI TSC" <kernelci-tsc@groups.io>
+ENV DEBIAN_FRONTEND=noninteractive
+{%- endblock %}
+
 {%- block packages %}
+# Fetch kmod deb package from previous stage
+COPY --from=0 /root/debs/*.deb /root/
+RUN dpkg -i /root/*.deb && rm /root/*.deb
+
 # Host build tools
 RUN apt-get update && apt-get install --no-install-recommends -y \
     bash \
