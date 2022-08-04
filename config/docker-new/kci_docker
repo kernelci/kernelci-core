@@ -19,6 +19,7 @@
 
 import argparse
 import io
+import json
 import sys
 
 from jinja2 import Environment, FileSystemLoader
@@ -55,6 +56,18 @@ def _dump_log(build_log):
             print(line)
 
 
+def _push_image(base_name, tag_name):
+    client = docker.from_env()
+    return client.images.push(base_name, tag_name)
+
+
+def _dump_push_log(log):
+    for json_line in log.splitlines():
+        line = json.loads(json_line)
+        if 'status' in line and 'progressDetail' not in line:
+            print(line['status'])
+
+
 def main(args):
     base_name = args.prefix + args.image
     tag_strings = ([args.arch] if args.arch else []) + (args.fragment or [])
@@ -89,6 +102,11 @@ def main(args):
     _, build_log = _build_image(dockerfile, name, buildargs)
     if args.verbose:
         _dump_log(build_log)
+    if args.push:
+        print(f"Pushing {name} to Docker Hub")
+        push_log = _push_image(base_name, tag_name)
+        if args.verbose:
+            _dump_push_log(push_log)
 
 
 if __name__ == '__main__':
@@ -103,9 +121,11 @@ if __name__ == '__main__':
                         help="CPU architecture, e.g. x86")
     parser.add_argument('--fragment', action='append',
                         help="Extra fragments, e.g. kernelci")
-    parser.add_argument('--verbose', action='store_true',
-                        help="Verbose output")
     parser.add_argument('--build-arg', action='append',
                         help="Build argument to pass to docker build")
+    parser.add_argument('--verbose', action='store_true',
+                        help="Verbose output")
+    parser.add_argument('--push', action='store_true',
+                        help="Push the image to Docker Hub after building")
     main(parser.parse_args())
     sys.exit(0)
