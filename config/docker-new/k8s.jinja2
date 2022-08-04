@@ -11,4 +11,10 @@
   + fragments
 -%}
 
-{%- include 'base/debian.jinja2' %}
+{% extends 'base/debian.jinja2' %}
+
+{% block packages %}
+{{ super() }}
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    wget
+{%- endblock %}
