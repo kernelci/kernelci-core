@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y curl patch
 RUN \
     cd / && \
     curl -s https://raw.githubusercontent.com/kernelci/kernelci-core/\
-1c801889144969f8c0e6f736baaf8276e44bd882/\
-config/docker/gcc-10_x86/gcc-header-fix.patch \
+fa6ae5ed63e9f2b22d0996af4d9fa60cb3def79f/\
+config/docker-new/data/gcc-header-fix.patch \
     | patch -p1
 {%- endblock %}
