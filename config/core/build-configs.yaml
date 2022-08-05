@@ -157,6 +157,24 @@ fragments:
       # This is required for sc7180-trogdor-lazor-limozeen and it hasn't been
       # merged upstream yet.
       - 'CONFIG_INTERCONNECT_QCOM_SC7180=y'
+      - 'CONFIG_MTK_CMDQ=m'
+      - 'CONFIG_DRM_ANALOGIX_ANX7625=m'
+      - 'CONFIG_SND_SOC_MT8183=y'
+      - 'CONFIG_SND_SOC_MT8183_MT6358_TS3A227E_MAX98357A=y'
+      - 'CONFIG_SND_SOC_TS3A227E=m'
+      - 'CONFIG_SPI_MT65XX=y'
+      - 'CONFIG_TOUCHSCREEN_ELAN=m'
+      - 'CONFIG_MTK_SCP=m'
+      - 'CONFIG_VIDEO_MEDIATEK_JPEG=m'
+      - 'CONFIG_TCG_TIS=m'
+      - 'CONFIG_TCG_TIS_SPI=m'
+      - 'CONFIG_TCG_TIS_SPI_CR50=y'
+      - 'CONFIG_TCG_TIS_I2C_CR50=m'
+      - 'CONFIG_ARM_MEDIATEK_CCI_DEVFREQ=m'
+      - 'CONFIG_MEDIATEK_MT6577_AUXADC=m'
+      - 'CONFIG_GENERIC_ADC_THERMAL=m'
+      - 'CONFIG_MTK_SVS=m'
+      - 'CONFIG_ATH10K_SDIO=m'
 
   crypto:
     path: "kernel/configs/crypto.config"
