@@ -153,6 +153,8 @@ device_types:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
+    filters: &stoneyridge-filter
+      - passlist: {defconfig: ['chromeos-amd-stoneyridge']}
     params: &grunt-params
       cros_flash_nfs:
         base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20220711.0/amd64/'
