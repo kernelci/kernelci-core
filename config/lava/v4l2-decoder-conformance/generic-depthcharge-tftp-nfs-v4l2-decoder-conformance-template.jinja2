@@ -1,0 +1,8 @@
+{% extends 'boot-nfs/generic-depthcharge-tftp-nfs-template.jinja2' %}
+
+{% block actions %}
+{{ super () }}
+
+{% include 'v4l2-decoder-conformance/v4l2-decoder-conformance.jinja2' %}
+
+{% endblock %}

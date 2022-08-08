@@ -1,0 +1,19 @@
+- test:
+    timeout:
+      minutes: {{ job_timeout }}
+    definitions:
+    - repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: {{ plan }}
+          description: "V4L2 decoder conformance test plan"
+          os:
+          - debian
+          scope:
+          - functional
+        run:
+          steps:
+          - python3 /usr/bin/fluster_parser.py -ts {{ testsuite }}
+      from: inline
+      name: {{ plan }}
+      path: inline/{{ plan }}.yaml
