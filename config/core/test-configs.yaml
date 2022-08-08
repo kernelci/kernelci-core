@@ -99,6 +99,12 @@ file_systems:
     type: debian
     ramdisk: 'bullseye-v4l2/20220718.0/{arch}/rootfs.cpio.gz'
 
+  debian_bullseye-gst-fluster_nfs:
+    type: debian
+    ramdisk: 'bullseye-gst-fluster/20220708.0/{arch}/initrd.cpio.gz'
+    nfs: 'bullseye-gst-fluster/20220708.0/{arch}/full.rootfs.tar.xz'
+    root_type: nfs
+
 
 
 default_filters:
@@ -581,6 +587,50 @@ test_plans:
             - 'defconfig+virtualvideo'
             - 'multi_v7_defconfig+virtualvideo'
 
+  v4l2-decoder-conformance-av1:
+    rootfs: debian_bullseye-gst-fluster_nfs
+    pattern: 'v4l2-decoder-conformance/{category}-{method}-{protocol}-{rootfs}-v4l2-decoder-conformance-template.jinja2'
+    params:
+      job_timeout: '30'
+      testsuite: 'AV1-TEST-VECTORS'
+    filters:
+      - passlist: {'tree': ['next', 'mainline', 'media']}
+
+  v4l2-decoder-conformance-h264:
+    rootfs: debian_bullseye-gst-fluster_nfs
+    pattern: 'v4l2-decoder-conformance/{category}-{method}-{protocol}-{rootfs}-v4l2-decoder-conformance-template.jinja2'
+    params:
+      job_timeout: '30'
+      testsuite: 'JVT-AVC_V1'
+    filters:
+      - passlist: {'tree': ['next', 'mainline', 'media']}
+
+  v4l2-decoder-conformance-h265:
+    rootfs: debian_bullseye-gst-fluster_nfs
+    pattern: 'v4l2-decoder-conformance/{category}-{method}-{protocol}-{rootfs}-v4l2-decoder-conformance-template.jinja2'
+    params:
+      job_timeout: '30'
+      testsuite: 'JCT-VC-HEVC-V1'
+    filters:
+      - passlist: {'tree': ['next', 'mainline', 'media']}
+
+  v4l2-decoder-conformance-vp8:
+    rootfs: debian_bullseye-gst-fluster_nfs
+    pattern: 'v4l2-decoder-conformance/{category}-{method}-{protocol}-{rootfs}-v4l2-decoder-conformance-template.jinja2'
+    params:
+      job_timeout: '30'
+      testsuite: 'VP8-TEST-VECTORS'
+    filters:
+      - passlist: {'tree': ['next', 'mainline', 'media']}
+
+  v4l2-decoder-conformance-vp9:
+    rootfs: debian_bullseye-gst-fluster_nfs
+    pattern: 'v4l2-decoder-conformance/{category}-{method}-{protocol}-{rootfs}-v4l2-decoder-conformance-template.jinja2'
+    params:
+      job_timeout: '30'
+      testsuite: 'VP9-TEST-VECTORS'
+    filters:
+      - passlist: {'tree': ['next', 'mainline', 'media']}
 
 device_types:
 
