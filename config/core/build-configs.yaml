@@ -226,6 +226,11 @@ fragments:
     path: "kernel/configs/tiny.config"
     defconfig: 'tinyconfig'
 
+  videodec:
+    path: "kernel/configs/videodec.config"
+    configs:
+      - 'CONFIG_VIDEO_ROCKCHIP_VDEC=m'
+
   virtualvideo:
     path: "kernel/configs/virtualvideo.config"
     configs:
@@ -395,7 +400,8 @@ build_configs_defaults:
             - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
             - 'defconfig+CONFIG_RANDOMIZE_BASE=y'
             - 'defconfig+arm64-chromebook+kselftest'
-          fragments: [arm64-chromebook, crypto, ima]
+            - 'defconfig+arm64-chromebook+videodec'
+          fragments: [arm64-chromebook, crypto, ima, videodec]
 
         i386: &i386_arch
           base_defconfig: 'i386_defconfig'
