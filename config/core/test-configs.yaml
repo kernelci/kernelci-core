@@ -2886,6 +2886,14 @@ test_configs:
     filters:
       - blocklist: {kernel: ['v3.', 'v4.4', 'v4.9', 'v4.14']}
 
+  - device_type: rk3399-gru-kevin
+    test_plans:
+      - v4l2-decoder-conformance-h264
+      - v4l2-decoder-conformance-vp8
+      - v4l2-decoder-conformance-vp9
+    filters:
+      - passlist: {defconfig: ['videodec']}
+
   - device_type: rk3399-puma-haikou
     test_plans:
       - baseline
