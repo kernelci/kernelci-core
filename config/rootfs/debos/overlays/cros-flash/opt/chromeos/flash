@@ -105,6 +105,8 @@ enable_rw()
     sync
     # Partprobe fails on NVMe chromebooks, ignore it
     partprobe -s /dev/${block_device} || true
+    # Set an UUID
+    tune2fs /dev/${block_device} -U 2dc32764-6303-9e41-8ee0-164634dd1da2
 }
 
 if [ -z "$IMAGE_NAME" ]; then
