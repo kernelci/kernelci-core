@@ -42,7 +42,7 @@ verbose: true
 [kci_build]
 kdir: linux
 output: linux/build-x86
-build_env: gcc-8
+build_env: gcc-10
 arch: x86_64
 install: true
 ```
@@ -120,7 +120,7 @@ with all the kernels on kernelci.org so they help with reproducing the same
 builds.  To use Docker with this example, first run these commands:
 
 ```
-$ docker run -it -v $PWD:/root/kernelci-core kernelci/build-gcc-8_x86 /bin/bash
+$ docker run -it -v $PWD:/root/kernelci-core kernelci/build-gcc-10_x86 /bin/bash
 # cd /root/kernelci-core
 ```
 

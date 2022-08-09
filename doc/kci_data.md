@@ -71,7 +71,7 @@ file with the results, for example:
     "git_commit": "d012a7190fc1fd72ed48911e77ca97ba4521bccd",
     "kernel" : "v5.9-rc2",
 
-    "build_environment": "gcc-8",
+    "build_environment": "gcc-10",
     "arch": "arm64",
     "defconfig": "defconfig",
     "defconfig_full": "defconfig",

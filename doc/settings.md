@@ -59,7 +59,7 @@ for command line arguments.  For example:
 
 mirror: linux-mirror.git
 kdir: linux
-build_env: gcc-8
+build_env: gcc-10
 j: 3
 ```
 
@@ -143,7 +143,7 @@ callback_url: http://localhost:5001
 [kci_build]
 
 kdir: linux
-build_env: gcc-8
+build_env: gcc-10
 ```
 
 you can then run these commands:
