@@ -58,12 +58,15 @@ def _dump_log(build_log):
 
 def _push_image(base_name, tag_name):
     client = docker.from_env()
-    return client.images.push(base_name, tag_name)
+    push_log_json = client.images.push(base_name, tag_name)
+    return list(
+        json.loads(json_line)
+        for json_line in push_log_json.splitlines()
+    )
 
 
 def _dump_push_log(log):
-    for json_line in log.splitlines():
-        line = json.loads(json_line)
+    for line in log:
         if 'status' in line and 'progressDetail' not in line:
             print(line['status'])
 
@@ -107,6 +110,11 @@ def main(args):
         push_log = _push_image(base_name, tag_name)
         if args.verbose:
             _dump_push_log(push_log)
+        for line in push_log:
+            error = line.get('errorDetail')
+            if error:
+                print(error['message'])
+                sys.exit(1)
 
 
 if __name__ == '__main__':
