@@ -238,7 +238,7 @@ device_types:
       reference_kernel:
         image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20220811.0/amd64/bzImage'
         modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20220811.0/amd64/modules.tar.xz'
-      block_device: mmcblk1
+      block_device: detect
 
   hp-x360-12b-ca0010nr-n4020-octopus_chromeos: &octopus
     base_name: hp-x360-12b-ca0010nr-n4020-octopus
