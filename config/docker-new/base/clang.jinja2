@@ -12,5 +12,11 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     binutils-riscv64-linux-gnu \
     binutils
 
+# 32-bit support for host tools and kselftest
+RUN apt-get update && apt-get install --no-install-recommends -y \
+   gcc-multilib \
+   libc6-i386 \
+   libc6-dev-i386
+
 RUN apt-get autoremove -y gcc
 {%- endblock %}
