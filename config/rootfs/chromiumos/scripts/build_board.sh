@@ -59,6 +59,9 @@ echo "Patching octopus specific issue"
 sed -i s,'use fuzzer || die',"#use fuzzer || die", src/third_party/chromiumos-overlay/eclass/cros-ec-board.eclass
 fi
 
+# Temporary workaround as chrome-icu build fails at 10/08/2022 due corrupt git cache
+cros_sdk sync_chrome --tag=102.0.5005.171 --reset --gclient=/mnt/host/depot_tools/gclient /var/cache/chromeos-cache/distfiles/chrome-src --skip_cache
+
 # Add serial support
 echo "Add serial ${SERIAL} support"
 cros_sdk USE=pcserial build_packages --board=${BOARD}
