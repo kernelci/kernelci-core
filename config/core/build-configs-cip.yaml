@@ -30,6 +30,9 @@ cip_variants: &cip_variants
       arm64:
         fragments: [arm64-chromebook]
         extra_configs: ['allnoconfig']
+        filters:
+          - blocklist:
+              kernel: ['v4.4']
       i386:
         base_defconfig: 'i386_defconfig'
         extra_configs: ['allnoconfig']
