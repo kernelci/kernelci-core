@@ -157,11 +157,11 @@ device_types:
       - passlist: {defconfig: ['chromeos-amd-stoneyridge']}
     params: &grunt-params
       cros_flash_nfs:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20220711.0/amd64/'
-        initrd: 'cros-flash.cpio.gz'
+        base_url: 'https://storage.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20220718.0/amd64/'
+        initrd: 'initrd.cpio.gz'
         initrd_compression: 'gz'
-        rootfs: 'cros-flash-fixup.tar.gz'
-        rootfs_compression: 'gz'
+        rootfs: 'full.rootfs.tar.xz'
+        rootfs_compression: 'xz'
       cros_flash_kernel:
         base_url: 'http://storage.chromeos.kernelci.org/images/kernel/v5.10.112-x86-chromebook/'
         image: 'kernel/bzImage'
