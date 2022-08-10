@@ -49,9 +49,14 @@ spec:
         - mountPath: "/scratch"
           name: scratch-volume
 
+        # Run as root so the build artifacts have root uid:gid set on them
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+
         command: ["/bin/bash", "-x", "-c"]
         args: ["\
-echo nproc=$(nproc); df; free; \
+echo nproc=$(nproc); df; free; whoami; \
 export KDIR=/tmp/kci/linux && export CCACHE_DISABLE=true && \
 cd /scratch/kernelci-core &&  \
 \
