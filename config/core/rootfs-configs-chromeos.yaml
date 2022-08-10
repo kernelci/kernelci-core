@@ -16,14 +16,14 @@ rootfs_configs:
   chromiumos-amd64-generic:
     rootfs_type: chromiumos
     board: amd64-generic
-    branch: release-R100-14526.B
+    branch: release-R102-14695.B
     arch_list:
       - amd64
 
   chromiumos-grunt:
     rootfs_type: chromiumos
     board: grunt
-    branch: release-R100-14526.B
+    branch: release-R102-14695.B
     serial: ttyS0
     arch_list:
       - amd64
@@ -31,7 +31,7 @@ rootfs_configs:
   chromiumos-hatch:
     rootfs_type: chromiumos
     board: hatch
-    branch: release-R100-14526.B
+    branch: release-R102-14695.B
     serial: ttyS0
     arch_list:
       - amd64
@@ -39,7 +39,7 @@ rootfs_configs:
   chromiumos-octopus:
     rootfs_type: chromiumos
     board: octopus
-    branch: release-R100-14526.B
+    branch: release-R102-14695.B
     serial: ttyS1
     arch_list:
       - amd64
