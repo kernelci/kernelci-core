@@ -2,6 +2,12 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: {{ job_name }}
+  labels:
+    kernelci/build: "{{ "FIXME" | env_override('BUILD_ID') }}"
+    kernelci/arch: "{{ "FIXME" | env_override('ARCH') }}"
+    kernelci/buildenv: "{{ "FIXME" | env_override('BUILD_ENVIRONMENT') }}"
+    kernelci/commit: "{{ "FIXME" | env_override('COMMIT_ID') }}"
+    kernelci/buildconfig: "{{ "FIXME" | env_override('BUILD_CONFIG') }}"
 spec:
   completions: 1
   template:
