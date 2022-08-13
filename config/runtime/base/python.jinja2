@@ -28,53 +28,79 @@ TARBALL_URL = '{{ tarball_url }}'
 WORKSPACE = '/tmp/kci'
 {%- endblock %}
 
-{% block python_body %}{% endblock %}
+{% block python_base_job -%}
+class BaseJob:
+
+    def __init__(self, workspace):
+        self._workspace = workspace
+
+    def _get_db(self, db_config_yaml):
+        db_config = kernelci.config.db.DatabaseFactory.from_yaml(
+            'db', yaml.load(db_config_yaml, Loader=yaml.CLoader)
+        )
+        if not db_config:
+            return None
+
+        api_token = os.getenv('API_TOKEN')
+        if not api_token:
+            return None
+
+        return kernelci.db.get_db(db_config, api_token)
+
+    def _get_source(self, url):
+        resp = requests.get(url, stream=True)
+        resp.raise_for_status()
+        tarball_name = os.path.basename(urllib.parse.urlparse(url).path)
+        base, ext = tarball_name.split('.tar.')
+        with tarfile.open(fileobj=resp.raw, mode=f'r|{ext}') as tarball:
+            tarball.extractall(path=self._workspace)
+        return os.path.join(self._workspace, base)
+
+    def _run(self, src_path):
+        raise NotImplementedError("_run() method required to run job")
+
+    def _submit(self, results, node_id, db):
+        node = db.get_node(node_id)
+        node['result'] = "pass" if results else "fail"
+        node['status'] = "complete"
+        db.submit({'node': node})
+        return node
+
+    def run(self, tarball_url):
+        print("Getting kernel source tree...")
+        src_path = self._get_source(tarball_url)
+        print(f"Source directory: {src_path}")
+        print("Running job...")
+        return self._run(src_path)
+
+    def submit(self, results, node_id, db_config_yaml):
+        db = self._get_db(db_config_yaml)
+        if db:
+            self._submit(results, node_id, db)
+{% endblock %}
+
+{% block python_job -%}
+class Job(BaseJob):
+    pass
+{% endblock %}
 
 {% block python_main -%}
-def _get_db():
-    if not DB_CONFIG_YAML:
-        return None
+def main(args):
+    job = Job(workspace=WORKSPACE)
+    try:
+        results = job.run(TARBALL_URL)
+    except Exception:
+        print(traceback.format_exc())
+        results = None
 
-    db_config = kernelci.config.db.DatabaseFactory.from_yaml(
-        'db', yaml.load(DB_CONFIG_YAML, Loader=yaml.CLoader)
-    )
-    if not db_config:
-        return None
+    if NODE_ID and DB_CONFIG_YAML:
+        job.submit(results, NODE_ID, DB_CONFIG_YAML)
 
-    api_token = os.getenv('API_TOKEN')
-    if not api_token:
-        return None
-
-    return kernelci.db.get_db(db_config, api_token)
-
-
-def _get_source(url):
-    resp = requests.get(url, stream=True)
-    resp.raise_for_status()
-    tarball_name = os.path.basename(urllib.parse.urlparse(url).path)
-    base, ext = tarball_name.split('.tar.')
-    with tarfile.open(fileobj=resp.raw, mode=f'r|{ext}') as tarball:
-        tarball.extractall(path=WORKSPACE)
-    return os.path.join(WORKSPACE, base)
+    return results
 
 
 if __name__ == '__main__':
-    print("Getting kernel source tree")
-    try:
-        src_path = _get_source(TARBALL_URL)
-        res = main(sys.argv + [src_path])
-    except Exception:
-        print(traceback.format_exc())
-        res = False
-
-    if NODE_ID:
-        db = _get_db()
-        if db:
-            node = db.get_node(NODE_ID)
-            node['result'] = "pass" if res else "fail"
-            node['status'] = "complete"
-            db.submit({'node': node})
-
-    sys.exit(0)
+    results = main(sys.argv)
+    sys.exit(1 if results is None else 0)
 {% endblock %}
 {%- endblock %}
