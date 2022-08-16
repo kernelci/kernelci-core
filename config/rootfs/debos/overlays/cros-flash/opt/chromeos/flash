@@ -109,6 +109,13 @@ enable_rw()
     blkid
     sgdisk --partition-guid=3:566F7961-6765-7220-746F-20756E697665 /dev/${block_device}
     blkid
+    # Ignore lid state, do not sleep if lid closed
+    mount -o rw /dev/${block_device}p3 "$mount_dir"
+    cd "$mount_dir"
+    echo 0 > usr/share/power_manager/use_lid
+    cd "$root_path"
+    umount "$mount_dir"
+    sync
 }
 
 if [ -z "$IMAGE_NAME" ]; then
