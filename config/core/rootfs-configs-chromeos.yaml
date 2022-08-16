@@ -17,6 +17,7 @@ rootfs_configs:
     rootfs_type: chromiumos
     board: amd64-generic
     branch: release-R102-14695.B
+    serial: ttyS0
     arch_list:
       - amd64
 
