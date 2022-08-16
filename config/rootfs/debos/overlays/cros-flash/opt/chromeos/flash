@@ -105,6 +105,10 @@ enable_rw()
     sync
     # Partprobe fails on NVMe chromebooks, ignore it
     partprobe -s /dev/${block_device} || true
+    # Set fixed PARTUUID value
+    blkid
+    sgdisk --partition-guid=3:566F7961-6765-7220-746F-20756E697665 /dev/${block_device}
+    blkid
 }
 
 if [ -z "$IMAGE_NAME" ]; then
