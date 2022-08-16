@@ -8,6 +8,7 @@ rootfs_configs:
     extra_packages:
       - bzip2
       - ca-certificates
+      - gdisk
       - parted
       - wget
       - xz-utils
