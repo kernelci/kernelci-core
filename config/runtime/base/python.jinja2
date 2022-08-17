@@ -86,7 +86,7 @@ class Job(BaseJob):
 
 {% block python_main -%}
 def main(args):
-    job = Job(workspace=WORKSPACE)
+    job = Job({% block python_job_constr %}workspace=WORKSPACE{% endblock %})
     try:
         results = job.run(TARBALL_URL)
     except Exception:
