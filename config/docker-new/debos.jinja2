@@ -1,0 +1,44 @@
+{# SPDX-License-Identifier: LGPL-2.1-or-later
+ #
+ # Copyright (C) 2022 Collabora Limited
+ # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+-#}
+
+{% extends 'base/debian.jinja2' %}
+
+{% block packages %}
+ENV HOME=/tmp
+ENV GOPATH=/usr/local/go
+ENV PATH=$PATH:/usr/local/go/bin
+
+# Dependencies to build debos
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    gcc \
+    git \
+    golang-go \
+    libc6-dev \
+    libostree-dev
+
+# Build debos
+RUN go get github.com/go-debos/debos/cmd/debos && \
+    go install github.com/go-debos/debos/cmd/debos
+
+# Dependencies to run debos
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    binfmt-support \
+    busybox \
+    debian-ports-archive-keyring \
+    debootstrap \
+    dosfstools \
+    e2fsprogs \
+    linux-image-amd64 \
+    parted \
+    pkg-config \
+    qemu-system-x86 \
+    qemu-user-static \
+    systemd-container \
+    xz-utils
+
+# Jenkins hacks
+RUN useradd -u 996 -ms /bin/sh jenkins
+{%- endblock %}
