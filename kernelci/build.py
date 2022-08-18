@@ -756,7 +756,7 @@ class Step:
         m = self.KVER_RE.match(kver)
         if m and len(m.groups()) == 2:
             k_major, k_minor = (int(g) for g in m.groups())
-            return k_major >= major and k_minor >= minor
+            return (k_major, k_minor) >= (major, minor)
         return False
 
     def _add_run_step(self, status, jopt=None, action=''):
