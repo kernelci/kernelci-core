@@ -22,6 +22,14 @@ rootfs_configs:
     arch_list:
       - amd64
 
+  chromiumos-coral:
+    rootfs_type: chromiumos
+    board: coral
+    branch: release-R100-14526.B
+    serial: ttyS2
+    arch_list:
+      - amd64
+
   chromiumos-grunt:
     rootfs_type: chromiumos
     board: grunt
