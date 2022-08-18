@@ -1,0 +1,12 @@
+{# SPDX-License-Identifier: LGPL-2.1-or-later
+ #
+ # Copyright (C) 2022 Collabora Limited
+ # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+-#}
+
+{% extends 'base/debian.jinja2' %}
+
+{% block packages %}
+
+{% include 'fragment/coccinelle.jinja2' %}
+{%- endblock %}
