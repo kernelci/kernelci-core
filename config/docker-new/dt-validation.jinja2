@@ -1,0 +1,34 @@
+{# SPDX-License-Identifier: LGPL-2.1-or-later
+ #
+ # Copyright (C) 2022 Collabora Limited
+ # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+-#}
+
+{% extends 'base/debian.jinja2' %}
+
+{% block packages %}
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    gcc-10 \
+    gcc-10-plugin-dev \
+    git \
+    python3-dev \
+    python3-pip \
+    python3-setuptools \
+    python3-wheel \
+    swig
+
+RUN update-alternatives --install \
+    /usr/bin/x86_64-linux-gnu-gcc x86_64-linux-gnu-gcc /usr/bin/gcc-10 500
+
+RUN pip3 install --system \
+    git+https://github.com/devicetree-org/dt-schema.git@master
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    bison \
+    device-tree-compiler \
+    flex \
+    libyaml-dev \
+    pkg-config \
+    python3-yaml \
+    yamllint
+{%- endblock %}
