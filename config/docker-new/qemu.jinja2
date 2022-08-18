@@ -1,0 +1,26 @@
+{# SPDX-License-Identifier: LGPL-2.1-or-later
+ #
+ # Copyright (C) 2022 Collabora Limited
+ # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+-#}
+
+{% extends 'base/debian.jinja2' %}
+
+{% block packages %}
+RUN echo deb http://deb.debian.org/debian bullseye-backports main \
+    > /etc/apt/sources.list.d/backports.list
+
+RUN apt-get update && \
+    apt-get install -t bullseye-backports --yes --no-install-recommends \
+        qemu-system \
+        qemu-system-arm \
+        qemu-system-mips \
+        qemu-system-misc \
+        qemu-system-ppc \
+        qemu-system-s390x \
+        qemu-system-sparc \
+        qemu-system-x86 \
+        qemu-utils
+
+RUN mkdir -p /etc/qemu && echo allow all > /etc/qemu/bridge.conf
+{%- endblock %}
