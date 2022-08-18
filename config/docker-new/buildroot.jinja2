@@ -1,0 +1,29 @@
+{# SPDX-License-Identifier: LGPL-2.1-or-later
+ #
+ # Copyright (C) 2022 Collabora Limited
+ # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+-#}
+
+{% extends 'base/debian.jinja2' %}
+
+{% block packages %}
+{{ super() }}
+
+ENV FORCE_UNSAFE_CONFIGURE=1
+
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    bc \
+    bzip2 \
+    cpio \
+    file \
+    gcc \
+    g++ \
+    git \
+    make \
+    rsync \
+    patch \
+    python3 \
+    unzip \
+    wget \
+    xz-utils
+{%- endblock %}
