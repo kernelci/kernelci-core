@@ -140,13 +140,13 @@ device_types:
         modules: 'modules.tar.xz'
         modules_compression: 'xz'
       cros_image:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-hatch/20220621.0/amd64/'
-        flash_tarball: 'cros-flash.tar.gz'
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-hatch/20220811.0/amd64/'
+        flash_tarball: 'full-cros-flash.tar.gz'
         flash_tarball_compression: 'gz'
         tast_tarball: 'tast.tgz'
       reference_kernel:
-        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-hatch/20220621.0/amd64/bzImage'
-        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-hatch/20220621.0/amd64/modules.tar.xz'
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-hatch/20220811.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-hatch/20220811.0/amd64/modules.tar.xz'
 
   hp-11A-G6-EE-grunt_chromeos:
     base_name: hp-11A-G6-EE-grunt
@@ -168,13 +168,13 @@ device_types:
         modules: 'modules.tar.xz'
         modules_compression: 'xz'
       cros_image:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20220711.0/amd64/'
-        flash_tarball: 'cros-flash-fixup.tar.gz'
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20220811.0/amd64/'
+        flash_tarball: 'full-cros-flash.tar.gz'
         flash_tarball_compression: 'gz'
         tast_tarball: 'tast.tgz'
       reference_kernel:
-        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20220711.0/amd64/bzImage'
-        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20220711.0/amd64/modules.tar.xz'
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20220811.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20220811.0/amd64/modules.tar.xz'
       block_device: mmcblk1
 
   hp-x360-12b-ca0010nr-n4020-octopus_chromeos: &octopus
@@ -196,8 +196,8 @@ device_types:
         modules: 'modules.tar.xz'
         modules_compression: 'xz'
       cros_image:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-octopus/20220520.0/amd64/'
-        flash_tarball: 'cros-flash.tar.gz'
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-octopus/20220810.0/amd64/'
+        flash_tarball: 'full-cros-flash.tar.gz'
         flash_tarball_compression: 'gz'
         tast_tarball: 'tast.tgz'
       reference_kernel:
@@ -217,12 +217,12 @@ device_types:
     params:
       bios_url: 'http://storage.kernelci.org/images/uefi/edk2-stable202005/x86_64/OVMF.fd'
       cros_image:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-amd64-generic/20220523.0/amd64/'
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-amd64-generic/20220816.0/amd64/'
         image: 'chromiumos_test_image.bin.gz'
         tast_tarball: 'tast.tgz'
       reference_kernel:
-        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-amd64-generic/20220523.0/amd64/bzImage'
-        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-amd64-generic/20220523.0/amd64/modules.tar.xz'
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-amd64-generic/20220816.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-amd64-generic/20220816.0/amd64/modules.tar.xz'
     context:
       arch: x86_64
       cpu: 'qemu64'
