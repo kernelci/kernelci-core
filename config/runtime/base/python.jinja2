@@ -59,10 +59,12 @@ class BaseJob:
     def _run(self, src_path):
         raise NotImplementedError("_run() method required to run job")
 
-    def _submit(self, results, node_id, db):
+    def _submit(self, result, node_id, db):
         node = db.get_node(node_id)
-        node['result'] = "pass" if results else "fail"
-        node['status'] = "complete"
+        node.update({
+            'result': result,
+            'status': 'complete',
+        })
         db.submit({'node': node})
         return node
 
@@ -73,10 +75,10 @@ class BaseJob:
         print("Running job...")
         return self._run(src_path)
 
-    def submit(self, results, node_id, db_config_yaml):
+    def submit(self, result, node_id, db_config_yaml):
         db = self._get_db(db_config_yaml)
         if db:
-            self._submit(results, node_id, db)
+            self._submit(result, node_id, db)
 {% endblock %}
 
 {% block python_job -%}
