@@ -49,7 +49,7 @@ actions:
         image_arg: -drive format=raw,file={rootfs},id=lavatest2,if=none
         url: downloads://chromiumos_test_image.bin
       kernel:
-        image_arg: -kernel {kernel} --append 'init=/sbin/init boot=local rootwait ro noresume noswap loglevel=7 earlyprintk=serial,keep console=tty0 console=ttyS0 i915.modeset=1 cros_efi cros_debug root=/dev/sda3 tsc=unstable'
+        image_arg: -kernel {kernel} --append 'init=/sbin/init boot=local rootwait ro noresume noswap loglevel=7 earlyprintk=serial,keep console=tty0 console=ttyS0 i915.modeset=1 cros_efi cros_debug root=/dev/sda3 tsc=unstable selinux=0'
         url: downloads://./bzImage
     os: oe
     timeout:
