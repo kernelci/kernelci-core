@@ -35,9 +35,35 @@
               cat /etc/os-release
             - >-
               ./tast_parser.py
-              example.ARCFixture
-              example.ManyParams.arc_state example.Param.dog
-              example.Pass example.Fail
+              kernel.*
+              platform.CheckDiskSpace
+              platform.CheckProcesses
+              platform.CheckTracefsInstances
+              platform.ChromeMlocked
+              platform.CrosDisks
+              platform.CrosDisksArchive
+              platform.CrosDisksFilesystem
+              platform.CrosDisksFormat
+              platform.CrosDisksRename
+              platform.CrosDisksSSHFS
+              platform.CrosID
+              platform.Crossystem
+              platform.DLCService
+              platform.DLCServiceCrosDeploy
+              platform.DLCServicePreloading
+              platform.DMVerity
+              platform.DumpVPDLog
+              platform.Firewall
+              platform.HeavyMemoryUser
+              platform.HeavyMemoryUser.vm
+              platform.Histograms
+              platform.LocalPerfettoTBMTracedProbes
+              platform.Memd
+              platform.Mosys
+              platform.Mosys.ec
+              platform.Mosys.memory
+              platform.Mtpd
+              platform.TPMResponsive
               video.ChromeStackDecoding.*
               ui.WindowCyclePerf
       from: inline
