@@ -86,36 +86,99 @@ test_plans:
     params:
       job_timeout: '60'
 
-  cros-tast: &cros-tast
+  cros-tast-base: &cros-tast-base
     pattern: 'chromeos/cros-tast.jinja2'
     filters: *cros-filters
-    params: &cros-tast-params
+    params: &cros-tast-base-params
       job_timeout: '60'
       docker_image: 'kernelci/cros-tast'
 
-  cros-tast-fixed:
-    <<: *cros-tast
-    filters: *cros-filters-fixed
-    params:
-      <<: *cros-tast-params
-      fixed_kernel: true
-
-  cros-tast_qemu: &cros-tast-qemu
-    <<: *cros-tast
+  cros-tast-base_qemu: &cros-tast-base-qemu
+    <<: *cros-tast-base
     base_name: cros-tast
     filters: *cros-qemu-filters
-    params: &cros-tast-qemu-params
-      <<: *cros-tast-params
+    params: &cros-tast-base-qemu-params
+      <<: *cros-tast-base-params
       base_template: 'chromeos/cros-boot-qemu.jinja2'
 
-  cros-tast_qemu-fixed:
-    <<: *cros-tast-qemu
-    base_name: cros-tast-fixed
-    filters: *cros-qemu-filters-fixed
+  cros-tast-kernel:
+    <<: *cros-tast-base
     params:
-      <<: *cros-tast-qemu-params
-      fixed_kernel: true
+      <<: *cros-tast-base-params
+      tests: &cros-tast-kernel-tests >
+        kernel.*
 
+  cros-tast-kernel_qemu:
+    <<: *cros-tast-base-qemu
+    params: 
+      <<: *cros-tast-base-qemu-params
+      tests: *cros-tast-kernel-tests
+
+  cros-tast-perf:
+    <<: *cros-tast-base
+    params:
+      <<: *cros-tast-base-params
+      tests: &cros-tast-perf-tests >
+        ui.WindowCyclePerf
+
+  cros-tast-perf_qemu:
+    <<: *cros-tast-base-qemu
+    params: 
+      <<: *cros-tast-base-qemu-params
+      tests: *cros-tast-perf-tests
+
+  cros-tast-platform:
+    <<: *cros-tast-base
+    params:
+      <<: *cros-tast-base-params
+      tests: &cros-tast-platform-tests >
+        platform.CheckDiskSpace
+        platform.CheckProcesses
+        platform.CheckTracefsInstances
+        platform.ChromeMlocked
+        platform.CrosDisks
+        platform.CrosDisksArchive
+        platform.CrosDisksFilesystem
+        platform.CrosDisksFormat
+        platform.CrosDisksRename
+        platform.CrosDisksSSHFS
+        platform.CrosID
+        platform.Crossystem
+        platform.DLCService
+        platform.DLCServiceCrosDeploy
+        platform.DLCServicePreloading
+        platform.DMVerity
+        platform.DumpVPDLog
+        platform.Firewall
+        platform.HeavyMemoryUser
+        platform.HeavyMemoryUser.vm
+        platform.Histograms
+        platform.LocalPerfettoTBMTracedProbes
+        platform.Memd
+        platform.Mosys
+        platform.Mosys.ec
+        platform.Mosys.memory
+        platform.Mtpd
+        platform.TPMResponsive
+
+  cros-tast-platform_qemu:
+    <<: *cros-tast-base-qemu
+    params:
+      <<: *cros-tast-base-qemu-params
+      tests: *cros-tast-platform-tests
+
+  cros-tast-video:
+    <<: *cros-tast-base
+    params:
+      <<: *cros-tast-base-params
+      tests: &cros-tast-video-tests >
+        video.ChromeStackDecoding.*
+
+  cros-tast-video_qemu:
+    <<: *cros-tast-base-qemu
+    params:
+      <<: *cros-tast-base-qemu-params
+      tests: *cros-tast-video-tests
 
 device_types:
 
@@ -248,33 +311,42 @@ test_configs:
     test_plans:
       - cros-baseline
       - cros-baseline-fixed
-      - cros-tast
-      - cros-tast-fixed
+      - cros-tast-kernel
+      - cros-tast-perf
+      - cros-tast-platform
+      - cros-tast-video
 
   - device_type: asus-C436FA-Flip-hatch_chromeos
     test_plans:
       - cros-baseline
       - cros-baseline-fixed
-      - cros-tast
-      - cros-tast-fixed
+      - cros-tast-kernel
+      - cros-tast-perf
+      - cros-tast-platform
+      - cros-tast-video
 
   - device_type: hp-x360-12b-ca0010nr-n4020-octopus_chromeos
     test_plans:
       - cros-baseline
       - cros-baseline-fixed
-      - cros-tast
-      - cros-tast-fixed
+      - cros-tast-kernel
+      - cros-tast-perf
+      - cros-tast-platform
+      - cros-tast-video
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus_chromeos
     test_plans:
       - cros-baseline
       - cros-baseline-fixed
-      - cros-tast
-      - cros-tast-fixed
+      - cros-tast-kernel
+      - cros-tast-perf
+      - cros-tast-platform
+      - cros-tast-video
 
   - device_type: qemu_x86_64-uefi-chromeos
     test_plans:
       - cros-baseline_qemu
-      - cros-baseline_qemu-fixed
-      - cros-tast_qemu
-      - cros-tast_qemu-fixed
+      - cros-tast-kernel_qemu
+      - cros-tast-perf_qemu
+      - cros-tast-platform_qemu
+      - cros-tast-video_qemu

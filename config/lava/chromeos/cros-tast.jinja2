@@ -35,11 +35,7 @@
               cat /etc/os-release
             - >-
               ./tast_parser.py
-              example.ARCFixture
-              example.ManyParams.arc_state example.Param.dog
-              example.Pass example.Fail
-              video.ChromeStackDecoding.*
-              ui.WindowCyclePerf
+              {{ tests|wordwrap(1, False, "\n              ") }}
       from: inline
       name: tast
       path: inline/cros-tast.yaml
