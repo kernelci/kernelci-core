@@ -896,7 +896,7 @@ device_types:
     # no console in tinyconfig
       - blocklist:
           defconfig: ['tinyconfig']
-          kernel: ['v4.', 'v5.1', 'v5.2']
+          kernel: ['v4.']
 
   hip07-d05:
     mach: hisilicon
