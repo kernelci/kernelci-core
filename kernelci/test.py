@@ -99,8 +99,8 @@ def get_params(meta, target, plan_config, storage, device_id):
     publish_path = kernel['publish_path']
     job_px = publish_path.replace('/', '-')
     url_px = publish_path
-    job_name = '-'.join([job_px, dtb or 'no-dtb',
-                         target.name, plan_config.name])
+    # Truncate to <200 characters, LAVA limit
+    job_name = '-'.join([job_px, target.name, plan_config.name])[:199]
     base_url = urllib.parse.urljoin(storage, '/'.join([url_px, '']))
     kernel_img = meta.get_single_artifact('kernel', 'image', 'path')
     kernel_url = urllib.parse.urljoin(storage, '/'.join([url_px, kernel_img]))
