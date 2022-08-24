@@ -43,6 +43,7 @@ RUN cp "$HOME/trunk/chromite/ssh_keys/testing_rsa" "$HOME/.ssh/id_rsa"
 RUN chmod 0600 "$HOME/.ssh/id_rsa"
 
 ADD tast_parser.py /home/cros-tast/tast_parser.py
+ADD ssh_retry.sh /home/cros-tast/ssh_retry.sh
 
 # Needed by LAVA to install the overlay
 USER root
