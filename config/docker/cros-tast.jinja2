@@ -26,6 +26,11 @@ ADD https://raw.githubusercontent.com/kernelci/kernelci-core/\
 config/docker/data/tast_parser.py \
 /home/cros/tast_parser.py
 
+ADD https://raw.githubusercontent.com/kernelci/kernelci-core/\
+7f58ddf26d08bd046ddff553681b59a0e7b48bc6/\
+config/docker/data/ssh_retry.sh \
+/home/cros/ssh_retry.sh
+
 # Needed by LAVA to install the overlay
 USER root
 RUN chmod +x /home/cros/tast_parser.py /home/cros/ssh_retry.sh
