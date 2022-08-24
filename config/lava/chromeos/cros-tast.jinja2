@@ -27,7 +27,7 @@
             - while ! ping -c 1 -w 1 $(lava-target-ip); do sleep 1; done
             - >-
               lava-test-case os-release --shell
-              ssh
+              ./ssh_retry.sh
               -o StrictHostKeyChecking=no
               -o UserKnownHostsFile=/dev/null
               -i /home/cros-tast/.ssh/id_rsa
