@@ -253,3 +253,24 @@ rootfs_configs:
       - e2fsprogs
     script: "scripts/bullseye-v4l2.sh"
     test_overlay: "overlays/v4l2"
+
+  sid:
+    rootfs_type: debos
+    debian_release: sid
+    debian_mirror: http://deb.debian.org/debian-ports
+    keyring_package: debian-ports-archive-keyring
+    keyring_file: /usr/share/keyrings/debian-ports-archive-keyring.gpg
+    arch_list:
+      - riscv64
+    extra_packages_remove: &extra_packages_remove_sid
+      - bash
+      - e2fslibs
+      - e2fsprogs
+      - klibc-utils
+      - libext2fs2
+      - libgnutls30
+      - libklibc
+      - libncursesw6
+      - libp11-kit0
+      - sensible-utils
+    extra_files_remove: *extra_files_remove_bullseye
