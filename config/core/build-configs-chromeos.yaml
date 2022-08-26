@@ -4,10 +4,10 @@ trees:
     url: "https://github.com/kernelci/linux.git"
 
 
-chromeos_variants: &chromeos-variants
+chromeos_5.10_variants: &chromeos_5_10_variants
   chromeos-clang-14:
     build_environment: clang-14
-    architectures: &variants_architectures
+    architectures:
       arm:
         base_defconfig: 'cros://chromeos-5.10/armel/chromiumos-arm.flavour.config'
         extra_configs:
@@ -22,17 +22,17 @@ chromeos_variants: &chromeos-variants
           - 'cros://chromeos-5.10/arm64/chromiumos-qualcomm.flavour.config+arm64-chromebook'
           - 'cros://chromeos-5.10/arm64/chromiumos-rockchip64.flavour.config+arm64-chromebook'
         filters: *cros-filters
-      x86_64: &cros-arch_x86_64
+      x86_64:
         base_defconfig: 'cros://chromeos-5.10/x86_64/chromiumos-x86_64.flavour.config'
         fragments: [x86-chromebook]
         extra_configs:
-          - 'cros://chromeos-5.10/x86_64/chromeos-amd-stoneyridge.flavour.config+x86-chromebook'
-          - 'cros://chromeos-5.10/x86_64/chromeos-intel-denverton.flavour.config+x86-chromebook'
-          - 'cros://chromeos-5.10/x86_64/chromeos-intel-pineview.flavour.config+x86-chromebook'
-          - 'cros://chromeos-5.10/x86_64/chromiumos-x86_64.flavour.config+x86-chromebook'
+          - 'cros://chromeos-5.10/x86_64/chromeos-amd-stoneyridge.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS=n'
+          - 'cros://chromeos-5.10/x86_64/chromeos-intel-denverton.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS=n'
+          - 'cros://chromeos-5.10/x86_64/chromeos-intel-pineview.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS=n'
+          - 'cros://chromeos-5.10/x86_64/chromiumos-x86_64.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS=n'
         filters: *cros-filters
 
-  clang-14:
+  clang-14: &clang-14
     build_environment: clang-14
     architectures:
       arm64:
@@ -46,19 +46,36 @@ chromeos_variants: &chromeos-variants
         filters:
           - passlist: { defconfig: ['x86-chromebook'] }
 
-chromeos_nocompress_variants: &chromeos-nocompress-variants
-  << : *chromeos-variants
+
+chromeos_5.15_variants: &chromeos_5_15_variants
   chromeos-clang-14:
     build_environment: clang-14
     architectures:
-      << : *variants_architectures
-      x86_64:
-        << : *cros-arch_x86_64
+      arm:
+        base_defconfig: 'cros://chromeos-5.15/armel/chromiumos-arm.flavour.config'
         extra_configs:
-          - 'cros://chromeos-5.10/x86_64/chromeos-amd-stoneyridge.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS=n'
-          - 'cros://chromeos-5.10/x86_64/chromeos-intel-denverton.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS=n'
-          - 'cros://chromeos-5.10/x86_64/chromeos-intel-pineview.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS=n'
-          - 'cros://chromeos-5.10/x86_64/chromiumos-x86_64.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS=n'
+          - 'cros://chromeos-5.15/armel/chromiumos-rockchip.flavour.config'
+        filters: *cros-filters
+      arm64:
+        base_defconfig: 'cros://chromeos-5.15/arm64/chromiumos-arm64.flavour.config'
+        fragments: [arm64-chromebook]
+        extra_configs:
+          - 'cros://chromeos-5.15/arm64/chromiumos-mediatek.flavour.config+arm64-chromebook'
+          - 'cros://chromeos-5.15/arm64/chromiumos-qualcomm.flavour.config+arm64-chromebook'
+          - 'cros://chromeos-5.15/arm64/chromiumos-rockchip64.flavour.config+arm64-chromebook'
+        filters: *cros-filters
+      x86_64:
+        base_defconfig: 'cros://chromeos-5.15/x86_64/chromiumos-x86_64.flavour.config'
+        fragments: [x86-chromebook]
+        extra_configs:
+          - 'cros://chromeos-5.15/x86_64/chromeos-amd-stoneyridge.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
+          - 'cros://chromeos-5.15/x86_64/chromeos-intel-denverton.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
+          - 'cros://chromeos-5.15/x86_64/chromeos-intel-pineview.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
+          - 'cros://chromeos-5.15/x86_64/chromiumos-x86_64.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
+        filters: *cros-filters
+
+  clang-14: *clang-14
+
 
 
 build_configs:
@@ -66,19 +83,19 @@ build_configs:
   chromeos-next:
     tree: next
     branch: 'master'
-    variants: *chromeos-variants
+    variants: *chromeos_5_15_variants
 
   chromeos-stable_5.10:
     tree: stable
     branch: 'linux-5.10.y'
-    variants: *chromeos-nocompress-variants
+    variants: *chromeos_5_10_variants
 
   chromeos-stable_5.15:
     tree: stable
     branch: 'linux-5.15.y'
-    variants: *chromeos-variants
+    variants: *chromeos_5_15_variants
 
   kernelci_chromeos-stable:
     tree: kernelci
     branch: 'chromeos-stable'
-    variants: *chromeos-nocompress-variants
+    variants: *chromeos_5_15_variants
