@@ -119,14 +119,14 @@ test_plans:
 
 device_types:
 
-  asus-C436FA-Flip-hatch_chromeos:
+  asus-C436FA-Flip-hatch_chromeos: &chromebook-generic-type
     base_name: asus-C436FA-Flip-hatch
     mach: x86
     arch: x86_64
     boot_method: depthcharge
     filters: &pineview-filter
       - passlist: {defconfig: ['chromeos-intel-pineview']}
-    params:
+    params: &chromebook-generic-params
       block_device: nvme0n1
       cros_flash_nfs:
         base_url: 'https://storage.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20220718.0/amd64/'
@@ -149,24 +149,12 @@ device_types:
         modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-hatch/20220811.0/amd64/modules.tar.xz'
 
   hp-11A-G6-EE-grunt_chromeos:
+    <<: *chromebook-generic-type
     base_name: hp-11A-G6-EE-grunt
-    mach: x86
-    arch: x86_64
-    boot_method: depthcharge
     filters: &stoneyridge
       - passlist: {defconfig: ['chromeos-amd-stoneyridge']}
-    params: &grunt-params
-      cros_flash_nfs:
-        base_url: 'https://storage.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20220718.0/amd64/'
-        initrd: 'initrd.cpio.gz'
-        initrd_compression: 'gz'
-        rootfs: 'full.rootfs.tar.xz'
-        rootfs_compression: 'xz'
-      cros_flash_kernel:
-        base_url: 'http://storage.chromeos.kernelci.org/images/kernel/v5.10.112-x86-chromebook/'
-        image: 'kernel/bzImage'
-        modules: 'modules.tar.xz'
-        modules_compression: 'xz'
+    params:
+      <<: *chromebook-generic-params
       cros_image:
         base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20220811.0/amd64/'
         flash_tarball: 'full-cros-flash.tar.gz'
@@ -183,18 +171,8 @@ device_types:
     arch: x86_64
     boot_method: depthcharge
     filters: *pineview-filter
-    params: &octopus-params
-      cros_flash_nfs:
-        base_url: 'https://storage.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20220718.0/amd64/'
-        initrd: 'initrd.cpio.gz'
-        initrd_compression: 'gz'
-        rootfs: 'full.rootfs.tar.xz'
-        rootfs_compression: 'xz'
-      cros_flash_kernel:
-        base_url: 'http://storage.chromeos.kernelci.org/images/kernel/v5.10.112-x86-chromebook/'
-        image: 'kernel/bzImage'
-        modules: 'modules.tar.xz'
-        modules_compression: 'xz'
+    params:
+      <<: *chromebook-generic-params
       cros_image:
         base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-octopus/20220810.0/amd64/'
         flash_tarball: 'full-cros-flash.tar.gz'
