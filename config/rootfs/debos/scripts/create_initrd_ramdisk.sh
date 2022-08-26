@@ -21,4 +21,8 @@ index 4ec926c..ca06c0b 100644
 EOF
 
 KVER=min
+
+# update-initramfs uses kernel config to decide how to compress ramdisk
+echo "CONFIG_RD_GZIP=y" > /boot/config-$KVER
+
 update-initramfs -c -k $KVER
