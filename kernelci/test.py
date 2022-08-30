@@ -73,6 +73,20 @@ def match_configs(configs, meta, lab):
     return match
 
 
+def urljoin_with_query(lhs, rhs):
+    lhs_query_part = urllib.parse.parse_qsl(urllib.parse.urlparse(lhs).query)
+    rhs_query_part = urllib.parse.parse_qsl(urllib.parse.urlparse(rhs).query)
+
+    joined_paths = urllib.parse.urljoin(lhs, rhs)
+    joined_queries = lhs_query_part + rhs_query_part
+
+    parts = urllib.parse.urlsplit(joined_paths)
+    replaced = list(parts[0:3]) + [
+        '&'.join([f"{k}={v}" for (k, v) in joined_queries])
+    ] + list(parts[4:])
+    return urllib.parse.urlunsplit(replaced)
+
+
 def get_params(meta, target, plan_config, storage, device_id,
                storage_header=None):
     """Get a dictionary with all the test parameters to run a test job
@@ -102,17 +116,18 @@ def get_params(meta, target, plan_config, storage, device_id,
     url_px = publish_path
     # Truncate to <200 characters, LAVA limit
     job_name = '-'.join([job_px, target.name, plan_config.name])[:199]
-    base_url = urllib.parse.urljoin(storage, '/'.join([url_px, '']))
+    base_url = urljoin_with_query(storage, '/'.join([url_px, '']))
     kernel_img = meta.get_single_artifact('kernel', 'image', 'path')
-    kernel_url = urllib.parse.urljoin(storage, '/'.join([url_px, kernel_img]))
+    kernel_url = urljoin_with_query(storage, '/'.join([url_px, kernel_img]))
+
     if dtb_full and dtb_full.endswith('.dtb'):
-        dtb_url = urllib.parse.urljoin(
+        dtb_url = urljoin_with_query(
             storage, '/'.join([url_px, dtb_full]))
     else:
         dtb_url = None
     modules = meta.get_single_artifact('modules', attr='path')
     modules_url = (
-        urllib.parse.urljoin(storage, '/'.join([url_px, modules]))
+        urljoin_with_query(storage, '/'.join([url_px, modules]))
         if modules else None
     )
     modules_compression = _get_compression(modules_url)
@@ -122,7 +137,7 @@ def get_params(meta, target, plan_config, storage, device_id,
     describe = rev['describe']
     kselftests = meta.get_single_artifact('kselftest', attr='path')
     kselftests_url = (
-        urllib.parse.urljoin(storage, '/'.join([url_px, kselftests]))
+        urljoin_with_query(storage, '/'.join([url_px, kselftests]))
         if kselftests else None
     )
 
