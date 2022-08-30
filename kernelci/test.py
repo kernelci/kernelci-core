@@ -73,7 +73,8 @@ def match_configs(configs, meta, lab):
     return match
 
 
-def get_params(meta, target, plan_config, storage, device_id):
+def get_params(meta, target, plan_config, storage, device_id,
+               storage_header=None):
     """Get a dictionary with all the test parameters to run a test job
 
     *meta* is a MetaStep object
@@ -158,6 +159,14 @@ def get_params(meta, target, plan_config, storage, device_id):
         'build_environment': meta.get('bmeta', 'environment', 'name'),
         'kselftests_url': kselftests_url,
     }
+
+    if storage_header:
+        if "storage_headers" not in params:
+            params["storage_headers"] = {}
+
+        for header in storage_header:
+            k, v = header.split('=', 1)
+            params["storage_headers"][k] = v
 
     rootfs = plan_config.rootfs
     if rootfs:

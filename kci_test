@@ -275,7 +275,7 @@ class cmd_generate(Command):
                 Args.lab_json, Args.user, Args.lab_token, Args.db_config,
                 Args.callback_id, Args.callback_dataset,
                 Args.callback_type, Args.callback_url, Args.mach,
-                Args.device_id]
+                Args.device_id, Args.storage_header]
 
     def __call__(self, configs, args):
         if args.callback_id and not args.callback_url:
@@ -333,7 +333,7 @@ class cmd_generate(Command):
         for device_config, plan_config in jobs_list:
             params = kernelci.test.get_params(
                 meta, device_config, plan_config, args.storage,
-                args.device_id)
+                args.device_id, args.storage_header)
             job = lab_api.generate(params, device_config, plan_config,
                                    callback_opts)
             if job is None:

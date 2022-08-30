@@ -287,6 +287,12 @@ class Args:
         'section': SECTION_STORAGE,
     }
 
+    storage_header = {
+        'name': '--storage-header',
+        'help': "A KEY=VALUE pair to provide when accessing storage",
+        'action': 'append'
+    }
+
     target = {
         'name': '--target',
         'help': "Name of a target platform",
