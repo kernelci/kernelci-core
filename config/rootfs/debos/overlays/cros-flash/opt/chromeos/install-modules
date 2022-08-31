@@ -38,7 +38,7 @@ install_modules()
     mkdir -p "$image_mountpoint"
     cd "$root_path"
     wget "$modules_url"
-    mount /dev/${block_device}p3 "$mount_dir"
+    mount PARTUUID=566f7961-6765-7220-746f-20756e697665 "$mount_dir"
 
     echo "Installing modules..."
     cd "$mount_dir"
