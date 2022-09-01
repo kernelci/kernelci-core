@@ -88,7 +88,6 @@ class LavaRuntime(Runtime):
                 params['arch'],
                 self._shorten_cros_defconfig(defconfig_full),
                 params['build_environment'],
-                params.get('dtb_full') or 'no-dtb',
                 self._shorten_cros_device_type(params['device_type']),
                 params['plan'],
             )).replace('/', '-')
