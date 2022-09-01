@@ -170,6 +170,50 @@ class KernelCI_API(Database):
             obj_list.append(obj)
         return obj_list
 
+    def _prepare_results(self, results, parent, base):
+        node = results['node'].copy()
+        node.update(base)
+        node['path'] = (parent['path'] if parent else []) + [node['name']]
+        child_nodes = []
+        for child_node in results['child_nodes']:
+            child_nodes.append(self._prepare_results(child_node, node, base))
+        return {
+            'node': node,
+            'child_nodes': child_nodes,
+        }
+
+    def submit_results(self, results, root, path='nodes', verbose=False):
+        """Submit a hierarchy of results
+
+        Submit a hierarchy of test results with 'node' containing data for a
+        particular result or parent entry for sub-tests and 'child_nodes'
+        containing a list of sub-results.  The root node needs to have been
+        previously retrieved from the API with an existing _id.
+        """
+        parent = self.get_node(root['parent'])
+        base = {
+            'revision': root['revision'],
+            'group': root['name'],
+            'state': 'done',
+        }
+        root_node = results['node'].copy()
+        root_node.update({
+            '_id': root['_id'],
+            'parent': root['parent'],
+        })
+        root_results = {
+            'node': root_node,
+            'child_nodes': results['child_nodes'],
+        }
+        data = self._prepare_results(root_results, parent, base)
+        try:
+            node_id = data['node']['_id']
+            resp = self._put(f'{path}/{node_id}', json.dumps(data))
+        except requests.exceptions.HTTPError as ex:
+            self._print_http_error(ex, verbose)
+            raise(ex)
+        return json.loads(resp.text)
+
 
 def get_db(config, token):
     """Get a KernelCI API database object"""
