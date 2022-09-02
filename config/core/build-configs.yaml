@@ -282,6 +282,12 @@ fragments:
       - 'CONFIG_PINCTRL_AMD=y'
       - 'CONFIG_NVME_CORE=y'
       - 'CONFIG_BLK_DEV_NVME=y'
+      - 'CONFIG_NFS_FS=y'
+      - 'CONFIG_NFS_V2=y'
+      - 'CONFIG_NFS_V3=y'
+      - 'CONFIG_NFS_V3_ACL=y'
+      - 'CONFIG_NFS_V4=y'
+      - 'CONFIG_ROOT_NFS=y'
       - 'CONFIG_EXTRA_FIRMWARE="
       amdgpu/stoney_ce.bin
       amdgpu/stoney_me.bin
