@@ -371,6 +371,11 @@ class cmd_make_config(MakeCommand):
         }
 
 
+class cmd_fetch_firmware(MakeCommand):
+    help = "Fetch firmware"
+    step_cls = kernelci.build.FetchFirmware
+
+
 class cmd_make_kernel(MakeCommand):
     help = "Make a kernel image"
     step_cls = kernelci.build.MakeKernel

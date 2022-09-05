@@ -31,6 +31,7 @@ import requests
 from kernelci import shell_cmd, print_flush, __version__ as kernelci_version
 import kernelci.elf
 from kernelci.storage import upload_files
+import kernelci.config
 
 # This is used to get the mainline tags as a minimum for git describe
 TORVALDS_GIT_URL = \
@@ -176,6 +177,24 @@ git init --bare
 """.format(path=path))
 
     _update_remote(config, path)
+
+
+def clone_git(url, path, branch, shallow=True):
+    """Lightweight git repo clone
+    *url*  git repo url
+    *path*  destination directory
+    *shallow* shallow (depth=1) git clone
+    """
+    if not os.path.exists(path):
+        shell_cmd(f"git clone {url} {path}")
+    shell_cmd("""
+set -e
+cd {path}
+git reset --hard
+git clean -fd
+git fetch origin
+git checkout --detach origin/{branch}
+""".format(path=path, branch=branch))
 
 
 def update_repo(config, path, ref=None):
@@ -802,6 +821,22 @@ class Step:
         cmd = 'grep -cq CONFIG_{}=y {}'.format(config_name, dot_config)
         return shell_cmd(cmd, True)
 
+    def _kernel_config_getkey(self, opt_name):
+        dot_config = os.path.join(self._output_path, '.config')
+        with open(dot_config, 'r') as fp:
+            for line in fp:
+                if line.startswith(opt_name):
+                    pcfg = line.strip().split('=')
+                    if len(pcfg) > 1 and pcfg[0] == opt_name:
+                        return pcfg[1]
+        return None
+
+    def _kernel_config_setkey(self, opt_name, opt_value):
+        dot_config = os.path.join(self._output_path, '.config')
+        cmd = f'{self._kdir}/scripts/config --file {dot_config} \
+--set-str {opt_name} {opt_value}'
+        return shell_cmd(cmd, True)
+
     def _output_to_file(self, cmd, file_path, rel_path=None):
         with open(file_path, 'a') as output_file:
             output = ["#\n"]
@@ -1209,6 +1244,42 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
             )
             self._add_artifact('config', item, 'fragment')
         return super().install(verbose)
+
+
+class FetchFirmware(Step):
+
+    @property
+    def name(self):
+        return 'firmware'
+
+    def run(self, jopt=None, verbose=False, opts=None):
+        """Fetch linux-firmware repository
+
+        If kernel have CONFIG_EXTRA_FIRMWARE enabled we need to fetch
+        fresh snapshot of linux-firmware git repository, otherwise
+        kernel will not be able to build
+        """
+        # CONFIG_EXTRA_FIRMWARE_DIR need absolute path
+        full_path = os.path.abspath(self._output_path)
+        fwdir = os.path.join(full_path, 'linux-firmware')
+        key = self._kernel_config_getkey('CONFIG_EXTRA_FIRMWARE')
+        if key and key == '""':
+            if verbose:
+                print("External firmware not required")
+            return self._add_run_step(True)
+        if verbose:
+            print("Fetching firmware")
+        repourl = 'git://git.kernel.org/pub/scm/linux/kernel/git/\
+firmware/linux-firmware.git'
+        clone_git(repourl, fwdir, 'main')
+        # We need to override directory where firmware stored
+        self._kernel_config_setkey('CONFIG_EXTRA_FIRMWARE_DIR',
+                                   f'"{fwdir}"')
+        bmeta = self._meta.get('bmeta')
+        fbmeta = bmeta.setdefault('firmware', dict())
+        fbmeta['commit'] = kernelci.build.head_commit(fwdir)
+
+        return self._add_run_step(True)
 
 
 class MakeKernel(Step):
