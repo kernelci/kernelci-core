@@ -99,6 +99,7 @@ set -x; \
   --describe-verbose=${GIT_DESCRIBE_VERBOSE}; \
 \
 ./kci_build make_config --defconfig=${DEFCONFIG} && \
+./kci_build fetch_firmware && \
 ./kci_build make_kernel && \
 ./kci_build make_modules && \
 ./kci_build make_dtbs && \
