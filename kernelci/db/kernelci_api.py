@@ -91,7 +91,7 @@ class KernelCI_API(Database):
     def get_nodes(self, attributes: dict = None):
         """Get all nodes matching attributes"""
         resp = self._get('nodes', params=attributes)
-        return resp.json()
+        return resp.json()['items']
 
     def get_node_from_event(self, event):
         return self.get_node(event.data['id'])
