@@ -892,6 +892,12 @@ device_types:
     class: arm-dtb
     boot_method: uboot
 
+  dell-latitude-5400-4305U-sarien:
+    mach: x86
+    arch: x86_64
+    boot_method: depthcharge
+    filters: *x86-chromebook-filters
+
   dove-cubox:
     mach: mvebu
     class: arm-dtb
@@ -2216,6 +2222,11 @@ test_configs:
   - device_type: da850-lcdk
     test_plans:
       - baseline
+
+  - device_type: dell-latitude-5400-4305U-sarien
+    test_plans:
+      - baseline
+      - baseline-nfs
 
   - device_type: dove-cubox
     test_plans:
