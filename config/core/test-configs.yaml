@@ -634,6 +634,14 @@ test_plans:
 
 device_types:
 
+  acer-cb317-1h-c3z6-dedede:
+    mach: x86
+    arch: x86_64
+    boot_method: depthcharge
+    filters: &x86-chromebook-filters
+      - passlist: {defconfig: ['x86-chromebook']}
+      - blocklist: {defconfig: ['allmodconfig', 'allnoconfig']}
+
   alpine-db:
     mach: alpine
     class: arm-dtb
@@ -771,9 +779,7 @@ device_types:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
-    filters: &x86-chromebook-filters
-      - passlist: {defconfig: ['x86-chromebook']}
-      - blocklist: {defconfig: ['allmodconfig', 'allnoconfig']}
+    filters: *x86-chromebook-filters
 
   asus-C436FA-Flip-hatch:
     mach: x86
@@ -1991,6 +1997,11 @@ device_types:
 
 
 test_configs:
+
+  - device_type: acer-cb317-1h-c3z6-dedede
+    test_plans:
+      - baseline
+      - baseline-nfs
 
   - device_type: alpine-db
     test_plans:
