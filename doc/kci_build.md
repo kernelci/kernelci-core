@@ -124,11 +124,13 @@ $ docker run -it -v $PWD:/root/kernelci-core kernelci/build-gcc-10_x86 /bin/bash
 # cd /root/kernelci-core
 ```
 
-Then to generate the kernel configuration, build the main image and the
-modules:
+Then to generate the kernel configuration, optionally fetch firmware for embedding
+in kernel if CONFIG_EXTRA_FIRMWARE defined in configuration, build the main image 
+and the modules:
 
 ```
 ./kci_build make_config --defconfig=defconfig
+./kci_build fetch_firmware
 ./kci_build make_kernel
 ./kci_build make_modules
 ```
