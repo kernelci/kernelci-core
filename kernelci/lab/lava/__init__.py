@@ -25,15 +25,14 @@ from kernelci.lab import add_kci_raise, LabAPI
 
 
 class LavaAPI(LabAPI):
+    DEFAULT_TEMPLATE_PATHS = ['config/lava', '/etc/kernelci/lava']
 
     def generate(self, params, device_config, plan_config, callback_opts=None,
-                 templates_path='config/lava'):
+                 templates_paths=None):
+        if templates_paths is None:
+            templates_paths = self.DEFAULT_TEMPLATE_PATHS
         short_template_file = plan_config.get_template_path(
             device_config.boot_method)
-        template_file = os.path.join(templates_path, short_template_file)
-        if not os.path.exists(template_file):
-            print("Template not found: {}".format(template_file))
-            return None
         base_name = params['base_device_type']
 
         # Scale the job priority (from 0-100) within the available levels
@@ -50,7 +49,6 @@ class LavaAPI(LabAPI):
                        self.config._priority_min)
 
         params.update({
-            'template_file': template_file,
             'queue_timeout': self.config.queue_timeout,
             'lab_name': self.config.name,
             'base_device_type': self._alias_device_type(base_name),
@@ -58,7 +56,7 @@ class LavaAPI(LabAPI):
         })
         if callback_opts:
             self._add_callback_params(params, callback_opts)
-        jinja2_env = Environment(loader=FileSystemLoader(templates_path),
+        jinja2_env = Environment(loader=FileSystemLoader(templates_paths),
                                  extensions=["jinja2.ext.do"])
         add_kci_raise(jinja2_env)
         template = jinja2_env.get_template(short_template_file)

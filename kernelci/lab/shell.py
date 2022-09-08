@@ -22,10 +22,13 @@ from kernelci.lab import LabAPI
 
 
 class Shell(LabAPI):
+    DEFAULT_TEMPLATE_PATHS = ['config/runtime', '/etc/kernelci/runtime']
 
     def generate(self, params, device_config, plan_config,
-                 callback_opts=None, templates_path='config/runtime'):
-        jinja2_env = Environment(loader=FileSystemLoader(templates_path))
+                 callback_opts=None, templates_paths=None):
+        if templates_paths is None:
+            templates_paths = self.DEFAULT_TEMPLATE_PATHS
+        jinja2_env = Environment(loader=FileSystemLoader(templates_paths))
         template_path = plan_config.get_template_path(None)
         template = jinja2_env.get_template(template_path)
         return template.render(params)
