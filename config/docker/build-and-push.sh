@@ -52,7 +52,6 @@ shift $((OPTIND -1))
 
 all_targets="\
 build-base \
-compilers \
 "
 
 if [ -n "$*" ]; then
@@ -86,15 +85,7 @@ docker_build_and_tag() {
 }
 
 for target in $targets; do
-    if [ "$target" = "compilers" ]; then
-        docker_build_and_tag clang-base
-        for cc in clang-*
-        do
-            docker_build_and_tag "$cc"
-        done
-    else
-        docker_build_and_tag "$target"
-    fi
+    docker_build_and_tag "$target"
 done
 
 exit 0
