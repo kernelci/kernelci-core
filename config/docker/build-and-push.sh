@@ -55,7 +55,6 @@ build-base \
 buildroot \
 compilers \
 debos \
-qemu \
 "
 
 if [ -n "$*" ]; then
