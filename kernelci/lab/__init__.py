@@ -82,7 +82,7 @@ class LabAPI:
         return self.config.match(filter_data)
 
     def generate(self, params, device_config, plan_config,
-                 callback_opts=None, templates_path=None, lab_config=None):
+                 callback_opts=None, templates_paths=None, lab_config=None):
         """Generate a test job definition.
 
         *params* is a dictionary with the test parameters which can be used
@@ -96,11 +96,14 @@ class LabAPI:
 
         *callback_opts* is a dictionary with extra options used for callbacks
 
-        *templates_path* is an optional argument to specify the path where the
-            template files should be found, when not in the standard location
+        *templates_paths* is an optional argument to specify the path(s) where
+            the template files should be found, when not in the standard
+            location.  This could be either a string or a list of strings to
+            provide several paths.
 
         *lab_config* is a configuration object for the API
             where the tests should be run
+
         """
         raise NotImplementedError("Lab.generate() is required")
 
