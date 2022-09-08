@@ -52,9 +52,7 @@ shift $((OPTIND -1))
 
 all_targets="\
 build-base \
-buildroot \
 compilers \
-debos \
 "
 
 if [ -n "$*" ]; then
