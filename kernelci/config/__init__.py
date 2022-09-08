@@ -104,5 +104,7 @@ def load(config_path):
 
     *config_path* is the path to the YAML config directory
     """
+    if config_path is None:
+        return {}
     data = load_yaml(config_path)
     return from_data(data)
