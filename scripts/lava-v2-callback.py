@@ -58,7 +58,7 @@ TEST_CASE_STATUS_MAP = {
 
 def is_infra_error(cb):
     lava_yaml = cb['results']['lava']
-    lava = yaml.load(lava_yaml)
+    lava = yaml.load(lava_yaml, Loader=yaml.CLoader)
     stages = {s['name']: s for s in lava}
     job_meta = stages['job']['metadata']
     return job_meta.get('error_type') == "Infrastructure"
