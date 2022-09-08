@@ -192,7 +192,7 @@ device_types:
     params: &chromebook-generic-params
       block_device: nvme0n1
       cros_flash_nfs:
-        base_url: 'https://storage.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20220718.0/amd64/'
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20220901.0/amd64/'
         initrd: 'initrd.cpio.gz'
         initrd_compression: 'gz'
         rootfs: 'full.rootfs.tar.xz'
