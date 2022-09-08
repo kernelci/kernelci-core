@@ -59,7 +59,7 @@ params = {
     'cpu_request': cpu_request,
     'mem_request': "{}Gi".format(mem_request)
 }
-env = Environment(loader=FileSystemLoader(['config/k8s']),
+env = Environment(loader=FileSystemLoader(['config/k8s', '/etc/kernelci/k8s']),
                   extensions=["jinja2.ext.do"])
 env.filters['env_override'] = env_override
 template = env.get_template("job-build.jinja2")
