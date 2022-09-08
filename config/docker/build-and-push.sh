@@ -54,10 +54,7 @@ all_targets="\
 build-base \
 buildroot \
 compilers \
-coccinelle \
-cvehound \
 debos \
-dt-validation \
 qemu \
 "
 
