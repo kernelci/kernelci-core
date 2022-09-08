@@ -561,7 +561,7 @@ def make_options(args, prog):
     return opts
 
 
-def parse_opts(prog, glob, default_config_path="config/core"):
+def parse_opts(prog, glob, yaml_config_path=None):
     """Return an Options object with command line arguments and settings
 
     This will create a parser and automatically add the sub-commands from the
@@ -570,12 +570,17 @@ def parse_opts(prog, glob, default_config_path="config/core"):
 
     *prog* is the command line program name
 
-    *default_config_path* is the name of the default YAML configuration
-                          directory to use with the command line utility
+    *yaml_config_path* is the name of a particular YAML configuration directory
+                       to use with the command line utility
 
     *glob* is the dictionary with all the global attributes where to look for
            commands starting with `cmd_`
     """
-    parser = make_parser(prog, default_config_path)
+    if yaml_config_path is None:
+        for config_path in ['config/core', '/etc/kernelci/core']:
+            if os.path.isdir(config_path):
+                yaml_config_path = config_path
+                break
+    parser = make_parser(prog, yaml_config_path)
     args = parse_args_with_parser(parser, glob)
     return make_options(args, prog)
