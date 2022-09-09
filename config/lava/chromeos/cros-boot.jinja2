@@ -13,6 +13,10 @@ tags: ['{{ device_id }}']
 {{ super () }}
 actions:
 
+{% if not cros_flash_kernel %}
+{{ kci_raise("CrOS parameter cros_flash_kernel missing. Invalid target?") }}
+{%- endif %}
+
 # Debian NFS to install kernel modules
 
 - deploy:
