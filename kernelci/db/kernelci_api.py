@@ -26,7 +26,7 @@ from kernelci.db import Database
 
 class KernelCI_API(Database):
 
-    def __init__(self, config, token):
+    def __init__(self, config, token, limit=100, offset=0):
         super().__init__(config, token)
         if self._token is None:
             raise ValueError("API token required for kernelci_api")
@@ -35,6 +35,8 @@ class KernelCI_API(Database):
             'Content-Type': 'application/json',
         }
         self._filters = {}
+        self._limit = limit
+        self._offset = offset
 
     def _make_url(self, path):
         return urllib.parse.urljoin(self.config.url, path)
@@ -90,6 +92,23 @@ class KernelCI_API(Database):
 
     def get_nodes(self, attributes: dict = None):
         """Get all nodes matching attributes"""
+        if not attributes or all(param not in attributes for param in (
+                                 'limit', 'offset')):
+            if not attributes:
+                attributes = {}
+            attributes['limit'] = self._limit
+            attributes['offset'] = self._offset
+
+            nodes = []
+
+            while True:
+                resp = self._get('nodes', params=attributes)
+                nodes.extend(resp.json()['items'])
+                if len(resp.json()['items']) < self._limit:
+                    break
+                attributes['offset'] += attributes['limit']
+            return nodes
+
         resp = self._get('nodes', params=attributes)
         return resp.json()['items']
 
