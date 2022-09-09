@@ -25,7 +25,7 @@ spec:
         effect: "NoSchedule"
 
       initContainers:
-      - name: kernelci-core-setup
+      - name: scratch-setup
         image: {{ "FIXME" | env_override('DOCKER_BASE') }}{{ "FIXME" | env_override('DOCKER_IMAGE') }}
 
         volumeMounts:
@@ -33,13 +33,7 @@ spec:
           name: scratch-volume
 
         command: ["/bin/bash", "-x", "-c"]
-        args: ["mkdir -p /tmp/kci && cd /scratch && git clone --depth=1 --branch ${KCI_CORE_BRANCH} ${KCI_CORE_URL}"]
-
-        env:
-        - name: KCI_CORE_URL
-          value: "{{ "FIXME" | env_override('KCI_CORE_URL') }}"
-        - name: KCI_CORE_BRANCH
-          value: "{{ "FIXME" | env_override('KCI_CORE_BRANCH') }}"
+        args: ["mkdir -p /tmp/kci"]
 
       containers:
       - name: kci-build
@@ -58,7 +52,7 @@ spec:
         args: ["\
 echo nproc=$(nproc); df; free; whoami; \
 export KDIR=/tmp/kci/linux && export CCACHE_DISABLE=true && \
-cd /scratch/kernelci-core &&  \
+cd /scratch &&  \
 \
 set +x; \
 [ -n \"${PARALLEL_JOPT}\" ] && jopt=\"j: ${PARALLEL_JOPT}\n\" || jopt=; \
@@ -84,26 +78,26 @@ output: ${KDIR}/build\n\
 \" > kernelci.conf; \
 set -x; \
 \
-./kci_build pull_tarball \
+kci_build pull_tarball \
   --url ${SRC_TARBALL} \
   --retries 3 \
   --delete; \
 \
-./kci_build generate_fragments \
+kci_build generate_fragments \
   --build-config=${BUILD_CONFIG}; \
 \
-./kci_build init_bmeta \
+kci_build init_bmeta \
   --build-config=${BUILD_CONFIG} \
   --commit=${COMMIT_ID} \
   --describe=${GIT_DESCRIBE} \
   --describe-verbose=${GIT_DESCRIBE_VERBOSE}; \
 \
-./kci_build make_config --defconfig=${DEFCONFIG} && \
-./kci_build fetch_firmware && \
-./kci_build make_kernel && \
-./kci_build make_modules && \
-./kci_build make_dtbs && \
-./kci_build make_kselftest; \
+kci_build make_config --defconfig=${DEFCONFIG} && \
+kci_build fetch_firmware && \
+kci_build make_kernel && \
+kci_build make_modules && \
+kci_build make_dtbs && \
+kci_build make_kselftest; \
 export KERNEL_BUILD_RESULT=$?;
 \
 set +x; \
@@ -111,8 +105,8 @@ echo Build result: ${KERNEL_BUILD_RESULT}; \
 echo; echo bmeta.json; cat ${KDIR}/build/bmeta.json; \
 echo; echo _install_; ls -l ${KDIR}/build/_install_; \
 \
-./kci_build push_kernel; \
-./kci_data submit_build; \
+kci_build push_kernel; \
+kci_data submit_build; \
 \
 exit 0; \
 "]
