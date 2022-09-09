@@ -263,6 +263,12 @@ test_plans:
       job_timeout: '10'
       kselftest_collections: "cpufreq"
 
+  kselftest-drivers-dmabuf:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "drivers/dma-buf"
+
   kselftest-exec:
     <<: *kselftest
     params:
