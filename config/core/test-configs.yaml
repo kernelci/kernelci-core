@@ -2026,6 +2026,7 @@ test_configs:
       - baseline-nfs
       - kselftest-alsa
       - kselftest-capabilities
+      - kselftest-cgroup
       - kselftest-lkdtm
       - kselftest-seccomp
       - ltp-fcntl-locktests
@@ -2038,6 +2039,7 @@ test_configs:
       - baseline-nfs
       - kselftest-alsa
       - kselftest-capabilities
+      - kselftest-cgroup
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-rtc
@@ -2053,6 +2055,7 @@ test_configs:
       - igt-gpu-i915
       - kselftest-alsa
       - kselftest-capabilities
+      - kselftest-cgroup
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
@@ -2076,6 +2079,7 @@ test_configs:
       - cros-ec
       - kselftest-alsa
       - kselftest-capabilities
+      - kselftest-cgroup
       - kselftest-lib
       - kselftest-vm
       - ltp-ipc
@@ -2233,6 +2237,7 @@ test_configs:
       - igt-gpu-amd
       - kselftest-alsa
       - kselftest-capabilities
+      - kselftest-cgroup
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
@@ -2259,6 +2264,7 @@ test_configs:
       - cros-ec
       - kselftest-alsa
       - kselftest-capabilities
+      - kselftest-cgroup
       - kselftest-cpufreq
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus
@@ -2269,6 +2275,7 @@ test_configs:
       - igt-gpu-i915
       - kselftest-alsa
       - kselftest-capabilities
+      - kselftest-cgroup
       - kselftest-lib
 
   - device_type: hp-x360-12b-ca0010nr-n4020-octopus
@@ -2279,6 +2286,7 @@ test_configs:
       - igt-gpu-i915
       - kselftest-alsa
       - kselftest-capabilities
+      - kselftest-cgroup
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
@@ -2614,6 +2622,7 @@ test_configs:
       - kselftest-alsa
       - kselftest-arm64
       - kselftest-capabilities
+      - kselftest-cgroup
       - kselftest-cpufreq
       - kselftest-filesystems
       - kselftest-futex
@@ -2639,6 +2648,7 @@ test_configs:
       - baseline-nfs
       - kselftest-alsa
       - kselftest-capabilities
+      - kselftest-cgroup
       - kselftest-lkdtm
       - kselftest-seccomp
 
@@ -2846,6 +2856,7 @@ test_configs:
       - igt-kms-rockchip
       # kselftest-alsa - Basic boot issue preventing testing
       - kselftest-capabilities
+      - kselftest-cgroup
       - ltp-timers
       - sleep
       - usb
@@ -2863,6 +2874,7 @@ test_configs:
       - cros-ec
       - kselftest-alsa
       - kselftest-capabilities
+      - kselftest-cgroup
       - kselftest-rtc
       - ltp-fcntl-locktests
       - ltp-pty
@@ -2913,6 +2925,7 @@ test_configs:
       - cros-ec
       # kselftest-alsa - Current configs lack networking
       - kselftest-capabilities
+      - kselftest-cgroup
 
   - device_type: snow
     test_plans:
