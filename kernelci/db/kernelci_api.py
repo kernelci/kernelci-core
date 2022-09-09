@@ -26,7 +26,7 @@ from kernelci.db import Database
 
 class KernelCI_API(Database):
 
-    def __init__(self, config, token, limit=100, offset=0):
+    def __init__(self, config, token):
         super().__init__(config, token)
         if self._token is None:
             raise ValueError("API token required for kernelci_api")
@@ -35,8 +35,6 @@ class KernelCI_API(Database):
             'Content-Type': 'application/json',
         }
         self._filters = {}
-        self._limit = limit
-        self._offset = offset
 
     def _make_url(self, path):
         return urllib.parse.urljoin(self.config.url, path)
@@ -90,27 +88,32 @@ class KernelCI_API(Database):
         resp = self._get('/'.join(['node', node_id]))
         return json.loads(resp.text)
 
-    def get_nodes(self, attributes: dict = None):
+    def get_nodes(self, attributes: dict = None,
+                  offset: int = None, limit: int = None):
         """Get all nodes matching attributes"""
-        if not attributes or all(param not in attributes for param in (
-                                 'limit', 'offset')):
-            if not attributes:
-                attributes = {}
-            attributes['limit'] = self._limit
-            attributes['offset'] = self._offset
+        params = attributes.copy() if attributes else {}
 
-            nodes = []
+        if any((offset, limit)):
+            params.update({
+                'offset': offset or None,
+                'limit': limit or None,
+            })
+            resp = self._get('nodes', params=params)
+            return resp.json()['items']
 
-            while True:
-                resp = self._get('nodes', params=attributes)
-                nodes.extend(resp.json()['items'])
-                if len(resp.json()['items']) < self._limit:
-                    break
-                attributes['offset'] += attributes['limit']
-            return nodes
-
-        resp = self._get('nodes', params=attributes)
-        return resp.json()['items']
+        offset = 0
+        limit = 100
+        params['limit'] = limit
+        nodes = []
+        while True:
+            params['offset'] = offset
+            resp = self._get('nodes', params=params)
+            items = resp.json()['items']
+            nodes.extend(items)
+            if len(items) < limit:
+                break
+            offset += limit
+        return nodes
 
     def get_node_from_event(self, event):
         return self.get_node(event.data['id'])
