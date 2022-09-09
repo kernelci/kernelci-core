@@ -2027,6 +2027,7 @@ test_configs:
       - kselftest-alsa
       - kselftest-capabilities
       - kselftest-cgroup
+      - kselftest-clone3
       - kselftest-lkdtm
       - kselftest-seccomp
       - ltp-fcntl-locktests
@@ -2040,6 +2041,7 @@ test_configs:
       - kselftest-alsa
       - kselftest-capabilities
       - kselftest-cgroup
+      - kselftest-clone3
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-rtc
@@ -2056,6 +2058,7 @@ test_configs:
       - kselftest-alsa
       - kselftest-capabilities
       - kselftest-cgroup
+      - kselftest-clone3
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
@@ -2080,6 +2083,7 @@ test_configs:
       - kselftest-alsa
       - kselftest-capabilities
       - kselftest-cgroup
+      - kselftest-clone3
       - kselftest-lib
       - kselftest-vm
       - ltp-ipc
@@ -2238,6 +2242,7 @@ test_configs:
       - kselftest-alsa
       - kselftest-capabilities
       - kselftest-cgroup
+      - kselftest-clone3
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
@@ -2265,6 +2270,7 @@ test_configs:
       - kselftest-alsa
       - kselftest-capabilities
       - kselftest-cgroup
+      - kselftest-clone3
       - kselftest-cpufreq
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus
@@ -2276,6 +2282,7 @@ test_configs:
       - kselftest-alsa
       - kselftest-capabilities
       - kselftest-cgroup
+      - kselftest-clone3
       - kselftest-lib
 
   - device_type: hp-x360-12b-ca0010nr-n4020-octopus
@@ -2287,6 +2294,7 @@ test_configs:
       - kselftest-alsa
       - kselftest-capabilities
       - kselftest-cgroup
+      - kselftest-clone3
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
@@ -2623,6 +2631,7 @@ test_configs:
       - kselftest-arm64
       - kselftest-capabilities
       - kselftest-cgroup
+      - kselftest-clone3
       - kselftest-cpufreq
       - kselftest-filesystems
       - kselftest-futex
@@ -2649,6 +2658,7 @@ test_configs:
       - kselftest-alsa
       - kselftest-capabilities
       - kselftest-cgroup
+      - kselftest-clone3
       - kselftest-lkdtm
       - kselftest-seccomp
 
@@ -2857,6 +2867,7 @@ test_configs:
       # kselftest-alsa - Basic boot issue preventing testing
       - kselftest-capabilities
       - kselftest-cgroup
+      - kselftest-clone3
       - ltp-timers
       - sleep
       - usb
@@ -2875,6 +2886,7 @@ test_configs:
       - kselftest-alsa
       - kselftest-capabilities
       - kselftest-cgroup
+      - kselftest-clone3
       - kselftest-rtc
       - ltp-fcntl-locktests
       - ltp-pty
@@ -2926,6 +2938,7 @@ test_configs:
       # kselftest-alsa - Current configs lack networking
       - kselftest-capabilities
       - kselftest-cgroup
+      - kselftest-clone3
 
   - device_type: snow
     test_plans:
