@@ -269,6 +269,12 @@ test_plans:
       job_timeout: '10'
       kselftest_collections: "drivers/dma-buf"
 
+  kselftest-efivarfs:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "efivarfs"
+
   kselftest-exec:
     <<: *kselftest
     params:
@@ -2043,6 +2049,7 @@ test_configs:
       - kselftest-clone3
       - kselftest-core
       - kselftest-cpufreq
+      - kselftest-efivarfs
       - kselftest-lkdtm
       - kselftest-seccomp
       - ltp-fcntl-locktests
@@ -2059,6 +2066,7 @@ test_configs:
       - kselftest-clone3
       - kselftest-core
       - kselftest-cpufreq
+      - kselftest-efivarfs
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-rtc
@@ -2078,6 +2086,7 @@ test_configs:
       - kselftest-clone3
       - kselftest-core
       - kselftest-cpufreq
+      - kselftest-efivarfs
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
@@ -2105,6 +2114,7 @@ test_configs:
       - kselftest-clone3
       - kselftest-core
       - kselftest-cpufreq
+      - kselftest-efivarfs
       - kselftest-lib
       - kselftest-vm
       - ltp-ipc
@@ -2266,6 +2276,7 @@ test_configs:
       - kselftest-clone3
       - kselftest-core
       - kselftest-cpufreq
+      - kselftest-efivarfs
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
@@ -2296,6 +2307,7 @@ test_configs:
       - kselftest-clone3
       - kselftest-core
       - kselftest-cpufreq
+      - kselftest-efivarfs
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus
     test_plans:
@@ -2309,6 +2321,7 @@ test_configs:
       - kselftest-clone3
       - kselftest-core
       - kselftest-cpufreq
+      - kselftest-efivarfs
       - kselftest-lib
 
   - device_type: hp-x360-12b-ca0010nr-n4020-octopus
@@ -2323,6 +2336,7 @@ test_configs:
       - kselftest-clone3
       - kselftest-core
       - kselftest-cpufreq
+      - kselftest-efivarfs
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
