@@ -2036,6 +2036,7 @@ test_configs:
       - kselftest-cgroup
       - kselftest-clone3
       - kselftest-core
+      - kselftest-cpufreq
       - kselftest-lkdtm
       - kselftest-seccomp
       - ltp-fcntl-locktests
@@ -2051,6 +2052,7 @@ test_configs:
       - kselftest-cgroup
       - kselftest-clone3
       - kselftest-core
+      - kselftest-cpufreq
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-rtc
@@ -2069,6 +2071,7 @@ test_configs:
       - kselftest-cgroup
       - kselftest-clone3
       - kselftest-core
+      - kselftest-cpufreq
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
@@ -2095,6 +2098,7 @@ test_configs:
       - kselftest-cgroup
       - kselftest-clone3
       - kselftest-core
+      - kselftest-cpufreq
       - kselftest-lib
       - kselftest-vm
       - ltp-ipc
@@ -2255,6 +2259,7 @@ test_configs:
       - kselftest-cgroup
       - kselftest-clone3
       - kselftest-core
+      - kselftest-cpufreq
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
@@ -2297,6 +2302,7 @@ test_configs:
       - kselftest-cgroup
       - kselftest-clone3
       - kselftest-core
+      - kselftest-cpufreq
       - kselftest-lib
 
   - device_type: hp-x360-12b-ca0010nr-n4020-octopus
@@ -2310,6 +2316,7 @@ test_configs:
       - kselftest-cgroup
       - kselftest-clone3
       - kselftest-core
+      - kselftest-cpufreq
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
@@ -2676,6 +2683,7 @@ test_configs:
       - kselftest-cgroup
       - kselftest-clone3
       - kselftest-core
+      - kselftest-cpufreq
       - kselftest-lkdtm
       - kselftest-seccomp
 
@@ -2886,6 +2894,7 @@ test_configs:
       - kselftest-cgroup
       - kselftest-clone3
       - kselftest-core
+      - kselftest-cpufreq
       - ltp-timers
       - sleep
       - usb
@@ -2906,6 +2915,7 @@ test_configs:
       - kselftest-cgroup
       - kselftest-clone3
       - kselftest-core
+      - kselftest-cpufreq
       - kselftest-rtc
       - ltp-fcntl-locktests
       - ltp-pty
@@ -2959,6 +2969,7 @@ test_configs:
       - kselftest-cgroup
       - kselftest-clone3
       - kselftest-core
+      - kselftest-cpufreq
 
   - device_type: snow
     test_plans:
