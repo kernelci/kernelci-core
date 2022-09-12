@@ -289,6 +289,13 @@ test_plans:
       kselftest_collections: "filesystems"
     filters: *kselftest_no_fragment
 
+  kselftest-filesystems-epoll:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "filesystems/epoll"
+    filters: *kselftest_no_fragment
+
   kselftest-futex:
     <<: *kselftest
     params:
@@ -2052,6 +2059,7 @@ test_configs:
       - kselftest-efivarfs
       - kselftest-exec
       - kselftest-filesystems
+      - kselftest-filesystems-epoll
       - kselftest-lkdtm
       - kselftest-seccomp
       - ltp-fcntl-locktests
@@ -2071,6 +2079,7 @@ test_configs:
       - kselftest-efivarfs
       - kselftest-exec
       - kselftest-filesystems
+      - kselftest-filesystems-epoll
       - kselftest-futex
       - kselftest-rtc
       - ltp-ipc
@@ -2092,6 +2101,7 @@ test_configs:
       - kselftest-efivarfs
       - kselftest-exec
       - kselftest-filesystems
+      - kselftest-filesystems-epoll
       - kselftest-futex
       - kselftest-lib
       - kselftest-lkdtm
@@ -2121,6 +2131,7 @@ test_configs:
       - kselftest-efivarfs
       - kselftest-exec
       - kselftest-filesystems
+      - kselftest-filesystems-epoll
       - kselftest-lib
       - kselftest-vm
       - ltp-ipc
@@ -2285,6 +2296,7 @@ test_configs:
       - kselftest-efivarfs
       - kselftest-exec
       - kselftest-filesystems
+      - kselftest-filesystems-epoll
       - kselftest-futex
       - kselftest-lib
       - kselftest-livepatch
@@ -2317,6 +2329,7 @@ test_configs:
       - kselftest-efivarfs
       - kselftest-exec
       - kselftest-filesystems
+      - kselftest-filesystems-epoll
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus
     test_plans:
@@ -2333,6 +2346,7 @@ test_configs:
       - kselftest-efivarfs
       - kselftest-exec
       - kselftest-filesystems
+      - kselftest-filesystems-epoll
       - kselftest-lib
 
   - device_type: hp-x360-12b-ca0010nr-n4020-octopus
@@ -2350,6 +2364,7 @@ test_configs:
       - kselftest-efivarfs
       - kselftest-exec
       - kselftest-filesystems
+      - kselftest-filesystems-epoll
       - kselftest-futex
       - kselftest-lib
       - ltp-crypto
@@ -2690,6 +2705,7 @@ test_configs:
       - kselftest-cpufreq
       - kselftest-exec
       - kselftest-filesystems
+      - kselftest-filesystems-epoll
       - kselftest-futex
       - kselftest-lib
       - kselftest-livepatch
@@ -2719,6 +2735,7 @@ test_configs:
       - kselftest-cpufreq
       - kselftest-exec
       - kselftest-filesystems
+      - kselftest-filesystems-epoll
       - kselftest-lkdtm
       - kselftest-seccomp
 
@@ -2932,6 +2949,7 @@ test_configs:
       - kselftest-cpufreq
       - kselftest-exec
       - kselftest-filesystems
+      - kselftest-filesystems-epoll
       - ltp-timers
       - sleep
       - usb
@@ -2955,6 +2973,7 @@ test_configs:
       - kselftest-cpufreq
       - kselftest-exec
       - kselftest-filesystems
+      - kselftest-filesystems-epoll
       - kselftest-rtc
       - ltp-fcntl-locktests
       - ltp-pty
@@ -3011,6 +3030,7 @@ test_configs:
       - kselftest-cpufreq
       - kselftest-exec
       - kselftest-filesystems
+      - kselftest-filesystems-epoll
 
   - device_type: snow
     test_plans:
