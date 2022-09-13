@@ -2103,6 +2103,7 @@ test_configs:
       - kselftest-livepatch
       - kselftest-lkdtm
       - kselftest-membarrier
+      - kselftest-mincore
       - kselftest-seccomp
       - ltp-fcntl-locktests
       - ltp-pty
@@ -2134,6 +2135,7 @@ test_configs:
       - kselftest-livepatch
       - kselftest-lkdtm
       - kselftest-membarrier
+      - kselftest-mincore
       - kselftest-rtc
       - ltp-ipc
       - ltp-mm
@@ -2167,6 +2169,7 @@ test_configs:
       - kselftest-livepatch
       - kselftest-lkdtm
       - kselftest-membarrier
+      - kselftest-mincore
       - kselftest-seccomp
       - ltp-crypto
       - ltp-fcntl-locktests
@@ -2206,6 +2209,7 @@ test_configs:
       - kselftest-livepatch
       - kselftest-lkdtm
       - kselftest-membarrier
+      - kselftest-mincore
       - kselftest-vm
       - ltp-ipc
 
@@ -2382,6 +2386,7 @@ test_configs:
       - kselftest-livepatch
       - kselftest-lkdtm
       - kselftest-membarrier
+      - kselftest-mincore
       - kselftest-rtc
       - kselftest-seccomp
       - kselftest-tpm2
@@ -2422,6 +2427,7 @@ test_configs:
       - kselftest-lib
       - kselftest-livepatch
       - kselftest-membarrier
+      - kselftest-mincore
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus
     test_plans:
@@ -2451,6 +2457,7 @@ test_configs:
       - kselftest-livepatch
       - kselftest-lkdtm
       - kselftest-membarrier
+      - kselftest-mincore
 
   - device_type: hp-x360-12b-ca0010nr-n4020-octopus
     test_plans:
@@ -2480,6 +2487,7 @@ test_configs:
       - kselftest-livepatch
       - kselftest-lkdtm
       - kselftest-membarrier
+      - kselftest-mincore
       - ltp-crypto
       - ltp-ipc
       - ltp-mm
@@ -2830,6 +2838,7 @@ test_configs:
       - kselftest-livepatch
       - kselftest-lkdtm
       - kselftest-membarrier
+      - kselftest-mincore
       - kselftest-rtc
       - kselftest-seccomp
       - lc-compliance
@@ -2867,6 +2876,7 @@ test_configs:
       - kselftest-livepatch
       - kselftest-lkdtm
       - kselftest-membarrier
+      - kselftest-mincore
       - kselftest-seccomp
 
   - device_type: mustang
@@ -3090,6 +3100,7 @@ test_configs:
       - kselftest-livepatch
       - kselftest-lkdtm
       - kselftest-membarrier
+      - kselftest-mincore
       - ltp-timers
       - sleep
       - usb
@@ -3125,6 +3136,7 @@ test_configs:
       - kselftest-livepatch
       - kselftest-lkdtm
       - kselftest-membarrier
+      - kselftest-mincore
       - kselftest-rtc
       - ltp-fcntl-locktests
       - ltp-pty
@@ -3193,6 +3205,7 @@ test_configs:
       - kselftest-livepatch
       - kselftest-lkdtm
       - kselftest-membarrier
+      - kselftest-mincore
 
   - device_type: snow
     test_plans:
