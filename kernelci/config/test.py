@@ -211,8 +211,10 @@ class DeviceTypeFactory(YAMLObject):
 class RootFSType(YAMLObject):
     """Root file system type model."""
 
-    def __init__(self, url, arch_dict=None):
+    def __init__(self, name, url, arch_dict=None):
         """A root file system type covers common file system features.
+
+        *name* is the file system type name e.g. 'debian' or 'buildroot'
 
         *url* is the base URL for file system binaries.  Each file system
               variant will have some URLs based on this one with various
@@ -225,12 +227,16 @@ class RootFSType(YAMLObject):
                     dictionaries with kernel architecture names and other
                     properties such as the endinanness.
         """
+        self._name = name
         self._url = url
         self._arch_dict = arch_dict or dict()
 
     @classmethod
-    def from_yaml(cls, fs_type):
-        kw = cls._kw_from_yaml(fs_type, ['url'])
+    def from_yaml(cls, name, fs_type):
+        kw = {
+            'name': name,
+        }
+        kw.update(cls._kw_from_yaml(fs_type, ['url']))
         arch_map = fs_type.get('arch_map')
         if arch_map:
             arch_dict = {}
@@ -240,6 +246,10 @@ class RootFSType(YAMLObject):
                     arch_dict[key] = arch_name
             kw['arch_dict'] = arch_dict
         return cls(**kw)
+
+    @property
+    def name(self):
+        return self._name
 
     @property
     def url(self):
@@ -322,6 +332,10 @@ class RootFS(YAMLObject):
     @property
     def root_type(self):
         return self._root_type
+
+    @property
+    def type(self):
+        return self._fs_type.name
 
     @property
     def params(self):
@@ -516,7 +530,7 @@ class TestConfig(YAMLObject):
 
 def from_yaml(data, filters):
     fs_types = {
-        name: RootFSType.from_yaml(fs_type)
+        name: RootFSType.from_yaml(name, fs_type)
         for name, fs_type in data.get('file_system_types', {}).items()
     }
 
