@@ -386,6 +386,13 @@ test_plans:
       job_timeout: '10'
       kselftest_collections: "mount"
 
+  kselftest-mqueue:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "mqueue"
+    filters: *kselftest_no_fragment
+
   kselftest-net:
     <<: *kselftest
     params:
@@ -2111,6 +2118,7 @@ test_configs:
       - kselftest-membarrier
       - kselftest-mincore
       - kselftest-mount
+      - kselftest-mqueue
       - kselftest-seccomp
       - ltp-fcntl-locktests
       - ltp-pty
@@ -2144,6 +2152,7 @@ test_configs:
       - kselftest-membarrier
       - kselftest-mincore
       - kselftest-mount
+      - kselftest-mqueue
       - kselftest-rtc
       - ltp-ipc
       - ltp-mm
@@ -2179,6 +2188,7 @@ test_configs:
       - kselftest-membarrier
       - kselftest-mincore
       - kselftest-mount
+      - kselftest-mqueue
       - kselftest-seccomp
       - ltp-crypto
       - ltp-fcntl-locktests
@@ -2219,6 +2229,7 @@ test_configs:
       - kselftest-lkdtm
       - kselftest-membarrier
       - kselftest-mount
+      - kselftest-mqueue
       - kselftest-mincore
       - kselftest-vm
       - ltp-ipc
@@ -2398,6 +2409,7 @@ test_configs:
       - kselftest-membarrier
       - kselftest-mincore
       - kselftest-mount
+      - kselftest-mqueue
       - kselftest-rtc
       - kselftest-seccomp
       - kselftest-tpm2
@@ -2440,6 +2452,7 @@ test_configs:
       - kselftest-membarrier
       - kselftest-mincore
       - kselftest-mount
+      - kselftest-mqueue
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus
     test_plans:
@@ -2471,6 +2484,7 @@ test_configs:
       - kselftest-membarrier
       - kselftest-mincore
       - kselftest-mount
+      - kselftest-mqueue
 
   - device_type: hp-x360-12b-ca0010nr-n4020-octopus
     test_plans:
@@ -2502,6 +2516,7 @@ test_configs:
       - kselftest-membarrier
       - kselftest-mincore
       - kselftest-mount
+      - kselftest-mqueue
       - ltp-crypto
       - ltp-ipc
       - ltp-mm
@@ -2854,6 +2869,7 @@ test_configs:
       - kselftest-membarrier
       - kselftest-mincore
       - kselftest-mount
+      - kselftest-mqueue
       - kselftest-rtc
       - kselftest-seccomp
       - lc-compliance
@@ -2893,6 +2909,7 @@ test_configs:
       - kselftest-membarrier
       - kselftest-mincore
       - kselftest-mount
+      - kselftest-mqueue
       - kselftest-seccomp
 
   - device_type: mustang
@@ -3118,6 +3135,7 @@ test_configs:
       - kselftest-membarrier
       - kselftest-mincore
       - kselftest-mount
+      - kselftest-mqueue
       - ltp-timers
       - sleep
       - usb
@@ -3155,6 +3173,7 @@ test_configs:
       - kselftest-membarrier
       - kselftest-mincore
       - kselftest-mount
+      - kselftest-mqueue
       - kselftest-rtc
       - ltp-fcntl-locktests
       - ltp-pty
@@ -3225,6 +3244,7 @@ test_configs:
       - kselftest-membarrier
       - kselftest-mincore
       - kselftest-mount
+      - kselftest-mqueue
 
   - device_type: snow
     test_plans:
