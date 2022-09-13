@@ -21,8 +21,10 @@ import argparse
 import glob
 import json
 import os
+import re
 import requests
 import sys
+import yaml
 
 from kernelci.cli import Args, Command, parse_opts
 import kernelci
@@ -31,6 +33,8 @@ import kernelci.config.test
 import kernelci.build
 import kernelci.lab
 import kernelci.test
+
+RELEASE_RE = re.compile(r'(.*)([0-9.]{10})(.*)')
 
 
 # -----------------------------------------------------------------------------
@@ -73,40 +77,112 @@ class cmd_validate(Command):
         return True
 
 
+def _iterate_fs_configs(file_systems_config):
+    for fs, config in file_systems_config.items():
+        fs_parts = fs.split('_')
+        if fs_parts[0] == 'debian':
+            name = fs_parts[1]
+            root_type = fs_parts[2]
+        elif fs_parts[0].startswith('buildroot'):
+            name = fs_parts[0]
+            root_type = fs_parts[1]
+        else:
+            continue
+        yield fs, config, name, root_type
+
+
+def _check_rootfs_urls(fs_config, rootfs_config, root_type, verbose):
+    url_formats = [
+        url_fmt for url_fmt in (
+            fs_config.get_url_format(fmt_type)
+            for fmt_type in set({root_type}).union({'nfs', 'ramdisk'})
+        ) if url_fmt
+    ]
+    for arch in rootfs_config.arch_list:
+        for url_format in url_formats:
+            url = url_format.format(arch=arch)
+            resp = requests.head(url)
+            if verbose:
+                print(f"  {resp.status_code} {url}")
+            resp.raise_for_status()
+
+
+def _get_fs_config_dicts(config, release):
+    old_config_dict = config.to_dict()
+    new_config_dict = old_config_dict.copy()
+    for image in ['ramdisk', 'nfs']:
+        path = old_config_dict.get(image)
+        if path:
+            p_start, p_rel, p_end = RELEASE_RE.match(path).groups()
+            new_config_dict[image] = ''.join([p_start, release, p_end])
+    return old_config_dict, new_config_dict
+
+
+def _check_new_config_urls(new_config, rootfs, root_type, verbose):
+    try:
+        _check_rootfs_urls(new_config, rootfs, root_type, verbose)
+        if verbose:
+            print("  OK")
+        return True
+    except Exception as e:
+        if verbose:
+            print(f"  FAIL: {e}")
+        return False
+
+
 class cmd_validate_rootfs_urls(Command):
     help = "Check that all the rootfs URLs are valid"
     opt_args = [Args.verbose]
 
     def __call__(self, config_data, args, **kwargs):
-        file_systems_config = config_data['file_systems']
         rootfs_configs = config_data['rootfs_configs']
-        for fs, fs_config in file_systems_config.items():
-            fs_parts = fs.split('_')
-            if fs_parts[0] == 'debian':
-                fs_name = fs_parts[1]
-                root_type = fs_parts[2]
-            elif fs_parts[0].startswith('buildroot'):
-                fs_name = fs_parts[0]
-                root_type = fs_parts[1]
-            else:
-                continue
-            rootfs_config = rootfs_configs.get(fs_name)
-            url_formats = list(
-                url_fmt for url_fmt in (
-                    fs_config.get_url_format(fmt_type)
-                    for fmt_type in set({root_type}).union({'nfs', 'ramdisk'})
-                ) if url_fmt
-            )
+        fs_configs = config_data['file_systems']
+        for fs, config, name, root_type in _iterate_fs_configs(fs_configs):
             if args.verbose:
                 print(fs)
-            for arch in rootfs_config.arch_list:
-                for url_format in url_formats:
-                    url = url_format.format(arch=arch)
-                    resp = requests.head(url)
-                    if args.verbose:
-                        print(f"  {resp.status_code} {url}")
-                    resp.raise_for_status()
+            rootfs_config = rootfs_configs.get(name)
+            _check_rootfs_urls(config, rootfs_config, root_type, args.verbose)
         return True
+
+
+class cmd_update_rootfs_urls(Command):
+    help = "Update the rootfs URLs for those that are valid"
+    args = [
+        {
+            'name': '--release',
+            'help': 'Release name used in the path e.g. 20220913.0',
+        },
+        {
+            'name': '--output',
+            'help': 'Ouput YAML file name to store the new configuration',
+        },
+    ]
+    opt_args = [Args.verbose]
+
+    def __call__(self, config_data, args):
+        fs_types = config_data['file_system_types']
+        fs_configs = config_data['file_systems']
+        rootfs_configs = config_data['rootfs_configs']
+        new_configs = {}
+        for fs, config, name, root_type in _iterate_fs_configs(fs_configs):
+            if args.verbose:
+                print(fs)
+            rootfs_config = rootfs_configs.get(name)
+            old_dict, new_dict = _get_fs_config_dicts(config, args.release)
+            new_config = kernelci.config.test.RootFS.from_yaml(
+                fs_types, new_dict
+            )
+            new_configs[fs] = (
+                new_dict if _check_new_config_urls(
+                    new_config, rootfs_config, root_type, args.verbose)
+                else old_dict
+            )
+        if args.verbose:
+            print(f"Writing output to {args.output}")
+        with open(args.output, 'w') as output_file:
+            output_file.write(f"# Automatically generated ({args.release})\n")
+            data = {'file_systems': new_configs}
+            yaml.dump(data, output_file, default_flow_style=False)
 
 
 class cmd_list_jobs(Command):
