@@ -276,7 +276,8 @@ class RootFS(YAMLObject):
     """Root file system model."""
 
     def __init__(self, url_formats, fs_type, boot_protocol='tftp',
-                 root_type=None, prompt="/ #", params=None):
+                 root_type=None, prompt="/ #", params=None,
+                 ramdisk=None, nfs=None):
         """A root file system is any user-space that can be used in test jobs.
 
         *url_formats* are a dictionary with a format string for each type of
@@ -306,6 +307,8 @@ class RootFS(YAMLObject):
         self._prompt = prompt
         self._params = params or dict()
         self._arch_dict = {}
+        self._ramdisk = ramdisk
+        self._nfs = nfs
 
     @classmethod
     def from_yaml(cls, file_system_types, rootfs):
@@ -314,6 +317,9 @@ class RootFS(YAMLObject):
         fs_type = file_system_types[rootfs['type']]
         base_url = fs_type.url
         kw['fs_type'] = fs_type
+        for fs, url in ((fs, rootfs.get(fs)) for fs in ['ramdisk', 'nfs']):
+            if url:
+                kw[fs] = url
         kw['url_formats'] = {
             fs: '/'.join([base_url, url]) for fs, url in (
                 (fs, rootfs.get(fs)) for fs in ['ramdisk', 'nfs'])
@@ -328,6 +334,14 @@ class RootFS(YAMLObject):
     @property
     def boot_protocol(self):
         return self._boot_protocol
+
+    @property
+    def ramdisk(self):
+        return self._ramdisk
+
+    @property
+    def nfs(self):
+        return self._nfs
 
     @property
     def root_type(self):
@@ -345,8 +359,10 @@ class RootFS(YAMLObject):
         attrs = super()._get_attrs()
         attrs.update({
             'boot_protocol',
+            'nfs',
             'params',
             'prompt',
+            'ramdisk',
             'root_type',
             'type',
         })
