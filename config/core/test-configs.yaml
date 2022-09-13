@@ -2100,6 +2100,7 @@ test_configs:
       - kselftest-kcmp
       - kselftest-kvm
       - kselftest-lib
+      - kselftest-livepatch
       - kselftest-lkdtm
       - kselftest-seccomp
       - ltp-fcntl-locktests
@@ -2129,6 +2130,7 @@ test_configs:
       - kselftest-kcmp
       - kselftest-kvm
       - kselftest-lib
+      - kselftest-livepatch
       - kselftest-rtc
       - ltp-ipc
       - ltp-mm
@@ -2159,6 +2161,7 @@ test_configs:
       - kselftest-kcmp
       - kselftest-kvm
       - kselftest-lib
+      - kselftest-livepatch
       - kselftest-lkdtm
       - kselftest-seccomp
       - ltp-crypto
@@ -2196,6 +2199,7 @@ test_configs:
       - kselftest-kcmp
       - kselftest-kvm
       - kselftest-lib
+      - kselftest-livepatch
       - kselftest-vm
       - ltp-ipc
 
@@ -2409,6 +2413,7 @@ test_configs:
       - kselftest-kcmp
       - kselftest-kvm
       - kselftest-lib
+      - kselftest-livepatch
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus
     test_plans:
@@ -2435,6 +2440,7 @@ test_configs:
       - kselftest-kcmp
       - kselftest-kvm
       - kselftest-lib
+      - kselftest-livepatch
 
   - device_type: hp-x360-12b-ca0010nr-n4020-octopus
     test_plans:
@@ -2461,6 +2467,7 @@ test_configs:
       - kselftest-kcmp
       - kselftest-kvm
       - kselftest-lib
+      - kselftest-livepatch
       - ltp-crypto
       - ltp-ipc
       - ltp-mm
@@ -2844,6 +2851,7 @@ test_configs:
       - kselftest-kcmp
       - kselftest-kvm
       - kselftest-lib
+      - kselftest-livepatch
       - kselftest-lkdtm
       - kselftest-seccomp
 
@@ -3065,6 +3073,7 @@ test_configs:
       - kselftest-ipc
       - kselftest-kcmp
       - kselftest-lib
+      - kselftest-livepatch
       - ltp-timers
       - sleep
       - usb
@@ -3097,6 +3106,7 @@ test_configs:
       - kselftest-kcmp
       - kselftest-kvm
       - kselftest-lib
+      - kselftest-livepatch
       - kselftest-rtc
       - ltp-fcntl-locktests
       - ltp-pty
@@ -3162,6 +3172,7 @@ test_configs:
       - kselftest-kcmp
       - kselftest-kvm
       - kselftest-lib
+      - kselftest-livepatch
 
   - device_type: snow
     test_plans:
