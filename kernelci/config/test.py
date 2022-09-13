@@ -543,6 +543,7 @@ def from_yaml(data, filters):
     ]
 
     return {
+        'file_system_types': fs_types,
         'file_systems': file_systems,
         'test_plans': test_plans,
         'device_types': device_types,
