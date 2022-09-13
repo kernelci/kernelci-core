@@ -53,7 +53,9 @@ class YAMLObject:
         non-serialisable objects such as Filters.
         """
         return {
-            attr: getattr(self, attr) for attr in self._get_attrs()
+            attr: value for attr, value in (
+                (attr, getattr(self, attr)) for attr in self._get_attrs()
+            ) if value is not None
         }
 
     def to_yaml(self):
