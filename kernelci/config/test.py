@@ -275,16 +275,9 @@ class RootFSType(YAMLObject):
 class RootFS(YAMLObject):
     """Root file system model."""
 
-    def __init__(self, url_formats, fs_type, boot_protocol='tftp',
-                 root_type=None, prompt="/ #", params=None,
-                 ramdisk=None, nfs=None):
+    def __init__(self, fs_type, boot_protocol='tftp', root_type=None,
+                 prompt="/ #", params=None, ramdisk=None, nfs=None):
         """A root file system is any user-space that can be used in test jobs.
-
-        *url_formats* are a dictionary with a format string for each type of
-                      file system available (ramdisk, nfs...).  There is
-                      typically only one entry here for the main *root_type*,
-                      but multiple entries are possible in particular to boot
-                      with first a ramdisk and then pivot to nfs root.
 
         *fs_type* is a RootFSType instance.
 
@@ -300,15 +293,19 @@ class RootFS(YAMLObject):
         *params" is a dictionary with parameters to pass to the test job
                  generator.
         """
-        self._url_format = url_formats
         self._fs_type = fs_type
-        self._root_type = root_type or list(url_formats.keys())[0]
         self._boot_protocol = boot_protocol
         self._prompt = prompt
         self._params = params or dict()
         self._arch_dict = {}
         self._ramdisk = ramdisk
         self._nfs = nfs
+        self._url_format = {
+            fs: '/'.join([fs_type.url, url]) for fs, url in (
+                (fs, getattr(self, fs)) for fs in ['ramdisk', 'nfs']
+            ) if url
+        }
+        self._root_type = root_type or list(self._url_format.keys())[0]
 
     @classmethod
     def from_yaml(cls, file_system_types, rootfs):
@@ -317,14 +314,11 @@ class RootFS(YAMLObject):
         fs_type = file_system_types[rootfs['type']]
         base_url = fs_type.url
         kw['fs_type'] = fs_type
-        for fs, url in ((fs, rootfs.get(fs)) for fs in ['ramdisk', 'nfs']):
-            if url:
-                kw[fs] = url
-        kw['url_formats'] = {
-            fs: '/'.join([base_url, url]) for fs, url in (
-                (fs, rootfs.get(fs)) for fs in ['ramdisk', 'nfs'])
-            if url
-        }
+        kw.update({
+            fs: url for (fs, url) in (
+                (fs, rootfs.get(fs)) for fs in ['ramdisk', 'nfs']
+            ) if url
+        })
         return cls(**kw)
 
     @property
