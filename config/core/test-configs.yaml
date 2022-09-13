@@ -2099,6 +2099,7 @@ test_configs:
       - kselftest-ipc
       - kselftest-kcmp
       - kselftest-kvm
+      - kselftest-lib
       - kselftest-lkdtm
       - kselftest-seccomp
       - ltp-fcntl-locktests
@@ -2127,6 +2128,7 @@ test_configs:
       - kselftest-ipc
       - kselftest-kcmp
       - kselftest-kvm
+      - kselftest-lib
       - kselftest-rtc
       - ltp-ipc
       - ltp-mm
@@ -2406,6 +2408,7 @@ test_configs:
       - kselftest-ipc
       - kselftest-kcmp
       - kselftest-kvm
+      - kselftest-lib
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus
     test_plans:
@@ -2840,6 +2843,7 @@ test_configs:
       - kselftest-ipc
       - kselftest-kcmp
       - kselftest-kvm
+      - kselftest-lib
       - kselftest-lkdtm
       - kselftest-seccomp
 
@@ -3060,6 +3064,7 @@ test_configs:
       - kselftest-gpio
       - kselftest-ipc
       - kselftest-kcmp
+      - kselftest-lib
       - ltp-timers
       - sleep
       - usb
@@ -3091,6 +3096,7 @@ test_configs:
       - kselftest-ipc
       - kselftest-kcmp
       - kselftest-kvm
+      - kselftest-lib
       - kselftest-rtc
       - ltp-fcntl-locktests
       - ltp-pty
@@ -3155,6 +3161,7 @@ test_configs:
       - kselftest-ipc
       - kselftest-kcmp
       - kselftest-kvm
+      - kselftest-lib
 
   - device_type: snow
     test_plans:
