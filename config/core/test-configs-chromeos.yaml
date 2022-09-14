@@ -119,7 +119,19 @@ test_plans:
     params:
       <<: *cros-tast-base-params
       tests: &cros-tast-perf-tests >
+        ui.IdlePerf
         ui.WindowCyclePerf
+        ui.WindowResizePerf
+        ui.BubbleLauncherAnimationPerf
+        ui.DesksAnimationPerf
+        ui.DragMaximizedWindowPerf
+        ui.DragTabInClamshellPerf
+        ui.DragTabInTabletPerf
+        ui.DragTabInTabletPerf.touch
+        filemanager.UIPerf
+        filemanager.UIPerf.swa
+        filemanager.ZipPerf
+        filemanager.ZipPerf.swa
 
   cros-tast-perf_qemu:
     <<: *cros-tast-base-qemu
