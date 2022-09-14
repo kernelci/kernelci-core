@@ -134,7 +134,7 @@ class KernelCI_API(Database):
             "parent": node_id
         }
         resp = self._get('nodes', params=params)
-        return resp.json()
+        return resp.json()['items']
 
     def pubsub_event_filter(self, sub_id, event):
         """Filter Pub/Sub events
