@@ -101,8 +101,8 @@ file_systems:
 
   debian_bullseye-gst-fluster_nfs:
     type: debian
-    ramdisk: 'bullseye-gst-fluster/20220708.0/{arch}/initrd.cpio.gz'
-    nfs: 'bullseye-gst-fluster/20220708.0/{arch}/full.rootfs.tar.xz'
+    ramdisk: 'bullseye-gst-fluster/20220913.0/{arch}/initrd.cpio.gz'
+    nfs: 'bullseye-gst-fluster/20220913.0//{arch}/full.rootfs.tar.xz'
     root_type: nfs
 
 
