@@ -2152,6 +2152,7 @@ test_configs:
       - kselftest-mqueue
       - kselftest-nci
       - kselftest-nsfs
+      - kselftest-openat2
       - kselftest-pidfd
       - kselftest-pid-namespace
       - kselftest-ptrace
@@ -2232,6 +2233,7 @@ test_configs:
       - kselftest-mqueue
       - kselftest-nci
       - kselftest-nsfs
+      - kselftest-openat2
       - kselftest-pidfd
       - kselftest-pid-namespace
       - kselftest-ptrace
@@ -2279,6 +2281,7 @@ test_configs:
       - kselftest-mincore
       - kselftest-nci
       - kselftest-nsfs
+      - kselftest-openat2
       - kselftest-pidfd
       - kselftest-pid-namespace
       - kselftest-ptrace
@@ -2464,6 +2467,7 @@ test_configs:
       - kselftest-mqueue
       - kselftest-nci
       - kselftest-nsfs
+      - kselftest-openat2
       - kselftest-pidfd
       - kselftest-pid-namespace
       - kselftest-ptrace
@@ -2512,6 +2516,7 @@ test_configs:
       - kselftest-mqueue
       - kselftest-nci
       - kselftest-nsfs
+      - kselftest-openat2
       - kselftest-pidfd
       - kselftest-pid-namespace
       - kselftest-ptrace
@@ -2549,6 +2554,7 @@ test_configs:
       - kselftest-mqueue
       - kselftest-nci
       - kselftest-nsfs
+      - kselftest-openat2
       - kselftest-pidfd
       - kselftest-pid-namespace
       - kselftest-ptrace
@@ -2586,6 +2592,7 @@ test_configs:
       - kselftest-mqueue
       - kselftest-nci
       - kselftest-nsfs
+      - kselftest-openat2
       - kselftest-pidfd
       - kselftest-pid-namespace
       - kselftest-ptrace
@@ -2944,6 +2951,7 @@ test_configs:
       - kselftest-mqueue
       - kselftest-nci
       - kselftest-nsfs
+      - kselftest-openat2
       - kselftest-pidfd
       - kselftest-pid-namespace
       - kselftest-ptrace
@@ -2989,6 +2997,7 @@ test_configs:
       - kselftest-mqueue
       - kselftest-nci
       - kselftest-nsfs
+      - kselftest-openat2
       - kselftest-pidfd
       - kselftest-pid-namespace
       - kselftest-ptrace
@@ -3220,6 +3229,7 @@ test_configs:
       - kselftest-mqueue
       - kselftest-nci
       - kselftest-nsfs
+      - kselftest-openat2
       - kselftest-pidfd
       - kselftest-pid-namespace
       - kselftest-ptrace
@@ -3263,6 +3273,7 @@ test_configs:
       - kselftest-mqueue
       - kselftest-nci
       - kselftest-nsfs
+      - kselftest-openat2
       - kselftest-pidfd
       - kselftest-pid-namespace
       - kselftest-ptrace
@@ -3339,6 +3350,7 @@ test_configs:
       - kselftest-mqueue
       - kselftest-nci
       - kselftest-nsfs
+      - kselftest-openat2
       - kselftest-pidfd
       - kselftest-pid-namespace
       - kselftest-ptrace
