@@ -2209,6 +2209,7 @@ test_configs:
       - kselftest-timens
       - kselftest-timers
       - kselftest-tmpfs
+      - kselftest-tpm2
       - ltp-fcntl-locktests
       - ltp-pty
       - ltp-timers
@@ -2257,6 +2258,7 @@ test_configs:
       - kselftest-timens
       - kselftest-timers
       - kselftest-tmpfs
+      - kselftest-tpm2
       - ltp-ipc
       - ltp-mm
       - ltp-timers
@@ -2308,6 +2310,7 @@ test_configs:
       - kselftest-timens
       - kselftest-timers
       - kselftest-tmpfs
+      - kselftest-tpm2
       - ltp-crypto
       - ltp-fcntl-locktests
       - ltp-ima
@@ -2365,6 +2368,7 @@ test_configs:
       - kselftest-timens
       - kselftest-timers
       - kselftest-tmpfs
+      - kselftest-tpm2
       - kselftest-vm
       - ltp-ipc
 
@@ -2618,6 +2622,7 @@ test_configs:
       - kselftest-timens
       - kselftest-timers
       - kselftest-tmpfs
+      - kselftest-tpm2
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus
     test_plans:
@@ -2666,6 +2671,7 @@ test_configs:
       - kselftest-timens
       - kselftest-timers
       - kselftest-tmpfs
+      - kselftest-tpm2
 
   - device_type: hp-x360-12b-ca0010nr-n4020-octopus
     test_plans:
@@ -2714,6 +2720,7 @@ test_configs:
       - kselftest-timens
       - kselftest-timers
       - kselftest-tmpfs
+      - kselftest-tpm2
       - ltp-crypto
       - ltp-ipc
       - ltp-mm
@@ -3083,6 +3090,7 @@ test_configs:
       - kselftest-timens
       - kselftest-timers
       - kselftest-tmpfs
+      - kselftest-tpm2
       - lc-compliance
       - ltp-crypto
       - ltp-fcntl-locktests
@@ -3137,6 +3145,7 @@ test_configs:
       - kselftest-timens
       - kselftest-timers
       - kselftest-tmpfs
+      - kselftest-tpm2
 
   - device_type: mustang
     test_plans:
@@ -3378,6 +3387,7 @@ test_configs:
       - kselftest-timens
       - kselftest-timers
       - kselftest-tmpfs
+      - kselftest-tpm2
       - ltp-timers
       - sleep
       - usb
@@ -3432,6 +3442,7 @@ test_configs:
       - kselftest-timens
       - kselftest-timers
       - kselftest-tmpfs
+      - kselftest-tpm2
       - ltp-fcntl-locktests
       - ltp-pty
       - ltp-timers
@@ -3518,6 +3529,7 @@ test_configs:
       - kselftest-timens
       - kselftest-timers
       - kselftest-tmpfs
+      - kselftest-tpm2
 
   - device_type: snow
     test_plans:
