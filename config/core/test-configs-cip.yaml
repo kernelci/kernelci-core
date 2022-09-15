@@ -1,0 +1,58 @@
+file_system_types:
+
+  cip:
+    url: 'https://storage.kernelci.org/images/rootfs/cip/20211105'
+    arch_map:
+      amd64: [{arch: x86_64}]
+
+
+file_systems:
+
+  cip_nfs:
+    type: cip
+    ramdisk: 'qemu-{arch}/cip-core-image-kernelci-cip-core-buster-qemu-{arch}-initrd.img.gz'
+    nfs: 'qemu-{arch}/cip-core-image-kernelci-cip-core-buster-qemu-{arch}.tar.gz'
+    root_type: nfs
+
+
+test_plans:
+
+  baseline-cip-nfs:
+    rootfs: cip_nfs
+    pattern: 'baseline/{category}-{method}-{protocol}-nfs-baseline-template.jinja2'
+    params:
+      priority: 85
+    filters:
+      - blocklist: {'defconfig': ['kselftest']}
+      - passlist: {'tree': ['cip']}
+
+
+test_configs:
+
+  - device_type: beaglebone-black
+    test_plans:
+      - baseline-cip-nfs
+
+  - device_type: hp-11A-G6-EE-grunt
+    test_plans:
+      - baseline-cip-nfs
+
+  - device_type: hp-x360-12b-ca0010nr-n4020-octopus
+    test_plans:
+      - baseline-cip-nfs
+
+  - device_type: mt8173-elm-hana
+    test_plans:
+      - baseline-cip-nfs
+
+  - device_type: r8a774a1-hihope-rzg2m-ex
+    test_plans:
+      - baseline-cip-nfs
+
+  - device_type: r8a774b1-hihope-rzg2n-ex
+    test_plans:
+      - baseline-cip-nfs
+
+  - device_type: r8a774c0-ek874
+    test_plans:
+      - baseline-cip-nfs
