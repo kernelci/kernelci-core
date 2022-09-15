@@ -507,6 +507,12 @@ test_plans:
       kselftest_collections: "tpm2"
     filters: *kselftest_no_fragment
 
+  kselftest-user:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "user"
+
   kselftest-vm:
     <<: *kselftest
     params:
@@ -2210,6 +2216,7 @@ test_configs:
       - kselftest-timers
       - kselftest-tmpfs
       - kselftest-tpm2
+      - kselftest-user
       - ltp-fcntl-locktests
       - ltp-pty
       - ltp-timers
@@ -2259,6 +2266,7 @@ test_configs:
       - kselftest-timers
       - kselftest-tmpfs
       - kselftest-tpm2
+      - kselftest-user
       - ltp-ipc
       - ltp-mm
       - ltp-timers
@@ -2311,6 +2319,7 @@ test_configs:
       - kselftest-timers
       - kselftest-tmpfs
       - kselftest-tpm2
+      - kselftest-user
       - ltp-crypto
       - ltp-fcntl-locktests
       - ltp-ima
@@ -2369,6 +2378,7 @@ test_configs:
       - kselftest-timers
       - kselftest-tmpfs
       - kselftest-tpm2
+      - kselftest-user
       - kselftest-vm
       - ltp-ipc
 
@@ -2566,6 +2576,7 @@ test_configs:
       - kselftest-timers
       - kselftest-tmpfs
       - kselftest-tpm2
+      - kselftest-user
       - kselftest-vm
       - ltp-crypto
       - ltp-fcntl-locktests
@@ -2623,6 +2634,7 @@ test_configs:
       - kselftest-timers
       - kselftest-tmpfs
       - kselftest-tpm2
+      - kselftest-user
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus
     test_plans:
@@ -2672,6 +2684,7 @@ test_configs:
       - kselftest-timers
       - kselftest-tmpfs
       - kselftest-tpm2
+      - kselftest-user
 
   - device_type: hp-x360-12b-ca0010nr-n4020-octopus
     test_plans:
@@ -2721,6 +2734,7 @@ test_configs:
       - kselftest-timers
       - kselftest-tmpfs
       - kselftest-tpm2
+      - kselftest-user
       - ltp-crypto
       - ltp-ipc
       - ltp-mm
@@ -3091,6 +3105,7 @@ test_configs:
       - kselftest-timers
       - kselftest-tmpfs
       - kselftest-tpm2
+      - kselftest-user
       - lc-compliance
       - ltp-crypto
       - ltp-fcntl-locktests
@@ -3146,6 +3161,7 @@ test_configs:
       - kselftest-timers
       - kselftest-tmpfs
       - kselftest-tpm2
+      - kselftest-user
 
   - device_type: mustang
     test_plans:
@@ -3388,6 +3404,7 @@ test_configs:
       - kselftest-timers
       - kselftest-tmpfs
       - kselftest-tpm2
+      - kselftest-user
       - ltp-timers
       - sleep
       - usb
@@ -3443,6 +3460,7 @@ test_configs:
       - kselftest-timers
       - kselftest-tmpfs
       - kselftest-tpm2
+      - kselftest-user
       - ltp-fcntl-locktests
       - ltp-pty
       - ltp-timers
@@ -3530,6 +3548,7 @@ test_configs:
       - kselftest-timers
       - kselftest-tmpfs
       - kselftest-tpm2
+      - kselftest-user
 
   - device_type: snow
     test_plans:
