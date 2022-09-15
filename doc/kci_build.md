@@ -120,7 +120,7 @@ with all the kernels on kernelci.org so they help with reproducing the same
 builds.  To use Docker with this example, first run these commands:
 
 ```
-$ docker run -it -v $PWD:/root/kernelci-core kernelci/build-gcc-10_x86 /bin/bash
+$ docker run -it -v $PWD:/root/kernelci-core kernelci/gcc-10:x86-kselftest-kernelci /bin/bash
 # cd /root/kernelci-core
 ```
 
