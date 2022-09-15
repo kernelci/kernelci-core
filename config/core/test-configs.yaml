@@ -18,11 +18,6 @@ file_system_types:
     <<: *buildroot
     url: 'http://storage.staging.kernelci.org/images/rootfs/buildroot'
 
-  cip:
-    url: 'https://storage.kernelci.org/images/rootfs/cip/20211105'
-    arch_map:
-      amd64: [{arch: x86_64}]
-
   debian: &debian
     url: 'http://storage.kernelci.org/images/rootfs/debian'
     arch_map:
@@ -42,12 +37,6 @@ file_systems:
   buildroot-baseline_ramdisk:
     type: buildroot
     ramdisk: 'buildroot-baseline/20220805.0/{arch}/rootfs.cpio.gz'
-
-  cip_nfs:
-    type: cip
-    ramdisk: 'qemu-{arch}/cip-core-image-kernelci-cip-core-buster-qemu-{arch}-initrd.img.gz'
-    nfs: 'qemu-{arch}/cip-core-image-kernelci-cip-core-buster-qemu-{arch}.tar.gz'
-    root_type: nfs
 
   debian_bullseye_ramdisk:
     type: debian
@@ -143,15 +132,6 @@ test_plans:
       priority: 90
     filters:
       - blocklist: *kselftest_defconfig_filter
-
-  baseline-cip-nfs:
-    rootfs: cip_nfs
-    pattern: 'baseline/{category}-{method}-{protocol}-nfs-baseline-template.jinja2'
-    params:
-      priority: 85
-    filters:
-      - blocklist: *kselftest_defconfig_filter
-      - passlist: {'tree': ['cip']}
 
   baseline-fastboot:
     rootfs: buildroot-baseline_ramdisk
@@ -2198,7 +2178,6 @@ test_configs:
   - device_type: beaglebone-black
     test_plans:
       - baseline
-      - baseline-cip-nfs
       - baseline-nfs
       - kselftest-alsa
       - kselftest-capabilities
@@ -2301,7 +2280,6 @@ test_configs:
   - device_type: hp-11A-G6-EE-grunt
     test_plans:
       - baseline
-      - baseline-cip-nfs
       - baseline-nfs
       - cros-ec
       - igt-gpu-amd
@@ -2344,7 +2322,6 @@ test_configs:
   - device_type: hp-x360-12b-ca0010nr-n4020-octopus
     test_plans:
       - baseline
-      - baseline-cip-nfs
       - baseline-nfs
       - cros-ec
       - igt-gpu-i915
@@ -2678,7 +2655,6 @@ test_configs:
   - device_type: mt8173-elm-hana
     test_plans:
       - baseline
-      - baseline-cip-nfs
       - baseline-nfs
       - cros-ec
       - kselftest-arm64
@@ -2848,7 +2824,6 @@ test_configs:
   - device_type: r8a774a1-hihope-rzg2m-ex
     test_plans:
       - baseline
-      - baseline-cip-nfs
       - baseline-nfs
       - kselftest-filesystems
       - kselftest-futex
@@ -2868,12 +2843,10 @@ test_configs:
   - device_type: r8a774b1-hihope-rzg2n-ex
     test_plans:
       - baseline
-      - baseline-cip-nfs
 
   - device_type: r8a774c0-ek874
     test_plans:
       - baseline
-      - baseline-cip-nfs
 
   - device_type: r8a7791-porter
     test_plans:
