@@ -2207,6 +2207,7 @@ test_configs:
       - kselftest-syscall-user-dispatch
       - kselftest-sysctl
       - kselftest-timens
+      - kselftest-timers
       - kselftest-tmpfs
       - ltp-fcntl-locktests
       - ltp-pty
@@ -2254,6 +2255,7 @@ test_configs:
       - kselftest-syscall-user-dispatch
       - kselftest-sysctl
       - kselftest-timens
+      - kselftest-timers
       - kselftest-tmpfs
       - ltp-ipc
       - ltp-mm
@@ -2304,6 +2306,7 @@ test_configs:
       - kselftest-syscall-user-dispatch
       - kselftest-sysctl
       - kselftest-timens
+      - kselftest-timers
       - kselftest-tmpfs
       - ltp-crypto
       - ltp-fcntl-locktests
@@ -2360,6 +2363,7 @@ test_configs:
       - kselftest-syscall-user-dispatch
       - kselftest-sysctl
       - kselftest-timens
+      - kselftest-timers
       - kselftest-tmpfs
       - kselftest-vm
       - ltp-ipc
@@ -2555,6 +2559,7 @@ test_configs:
       - kselftest-syscall-user-dispatch
       - kselftest-sysctl
       - kselftest-timens
+      - kselftest-timers
       - kselftest-tmpfs
       - kselftest-tpm2
       - kselftest-vm
@@ -2611,6 +2616,7 @@ test_configs:
       - kselftest-syscall-user-dispatch
       - kselftest-sysctl
       - kselftest-timens
+      - kselftest-timers
       - kselftest-tmpfs
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus
@@ -2658,6 +2664,7 @@ test_configs:
       - kselftest-syscall-user-dispatch
       - kselftest-sysctl
       - kselftest-timens
+      - kselftest-timers
       - kselftest-tmpfs
 
   - device_type: hp-x360-12b-ca0010nr-n4020-octopus
@@ -2705,6 +2712,7 @@ test_configs:
       - kselftest-syscall-user-dispatch
       - kselftest-sysctl
       - kselftest-timens
+      - kselftest-timers
       - kselftest-tmpfs
       - ltp-crypto
       - ltp-ipc
@@ -3073,6 +3081,7 @@ test_configs:
       - kselftest-syscall-user-dispatch
       - kselftest-sysctl
       - kselftest-timens
+      - kselftest-timers
       - kselftest-tmpfs
       - lc-compliance
       - ltp-crypto
@@ -3126,6 +3135,7 @@ test_configs:
       - kselftest-syscall-user-dispatch
       - kselftest-sysctl
       - kselftest-timens
+      - kselftest-timers
       - kselftest-tmpfs
 
   - device_type: mustang
@@ -3366,6 +3376,7 @@ test_configs:
       - kselftest-syscall-user-dispatch
       - kselftest-sysctl
       - kselftest-timens
+      - kselftest-timers
       - kselftest-tmpfs
       - ltp-timers
       - sleep
@@ -3419,6 +3430,7 @@ test_configs:
       - kselftest-syscall-user-dispatch
       - kselftest-sysctl
       - kselftest-timens
+      - kselftest-timers
       - kselftest-tmpfs
       - ltp-fcntl-locktests
       - ltp-pty
@@ -3504,6 +3516,7 @@ test_configs:
       - kselftest-syscall-user-dispatch
       - kselftest-sysctl
       - kselftest-timens
+      - kselftest-timers
       - kselftest-tmpfs
 
   - device_type: snow
