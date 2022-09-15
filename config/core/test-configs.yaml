@@ -2205,6 +2205,7 @@ test_configs:
       - kselftest-ptrace
       - kselftest-rlimits
       - kselftest-rtc
+      - kselftest-seccomp
       - ltp-ipc
       - ltp-mm
       - ltp-timers
@@ -2298,6 +2299,7 @@ test_configs:
       - kselftest-ptrace
       - kselftest-rlimits
       - kselftest-rtc
+      - kselftest-seccomp
       - kselftest-vm
       - ltp-ipc
 
@@ -2536,6 +2538,7 @@ test_configs:
       - kselftest-ptrace
       - kselftest-rlimits
       - kselftest-rtc
+      - kselftest-seccomp
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus
     test_plans:
@@ -2576,6 +2579,7 @@ test_configs:
       - kselftest-ptrace
       - kselftest-rlimits
       - kselftest-rtc
+      - kselftest-seccomp
 
   - device_type: hp-x360-12b-ca0010nr-n4020-octopus
     test_plans:
@@ -2616,6 +2620,7 @@ test_configs:
       - kselftest-ptrace
       - kselftest-rlimits
       - kselftest-rtc
+      - kselftest-seccomp
       - ltp-crypto
       - ltp-ipc
       - ltp-mm
@@ -3258,6 +3263,7 @@ test_configs:
       - kselftest-ptrace
       - kselftest-rlimits
       - kselftest-rtc
+      - kselftest-seccomp
       - ltp-timers
       - sleep
       - usb
@@ -3304,6 +3310,7 @@ test_configs:
       - kselftest-ptrace
       - kselftest-rlimits
       - kselftest-rtc
+      - kselftest-seccomp
       - ltp-fcntl-locktests
       - ltp-pty
       - ltp-timers
@@ -3382,6 +3389,7 @@ test_configs:
       - kselftest-ptrace
       - kselftest-rlimits
       - kselftest-rtc
+      - kselftest-seccomp
 
   - device_type: snow
     test_plans:
