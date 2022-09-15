@@ -437,6 +437,12 @@ test_plans:
       kselftest_collections: "openat2"
     filters: *kselftest_no_fragment
 
+  kselftest-rlimits:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "rlimits"
+
   kselftest-rtc:
     <<: *kselftest
     params:
@@ -2156,6 +2162,7 @@ test_configs:
       - kselftest-pidfd
       - kselftest-pid-namespace
       - kselftest-ptrace
+      - kselftest-rlimits
       - kselftest-seccomp
       - ltp-fcntl-locktests
       - ltp-pty
@@ -2195,6 +2202,7 @@ test_configs:
       - kselftest-pidfd
       - kselftest-pid-namespace
       - kselftest-ptrace
+      - kselftest-rlimits
       - kselftest-rtc
       - ltp-ipc
       - ltp-mm
@@ -2237,6 +2245,7 @@ test_configs:
       - kselftest-pidfd
       - kselftest-pid-namespace
       - kselftest-ptrace
+      - kselftest-rlimits
       - kselftest-seccomp
       - ltp-crypto
       - ltp-fcntl-locktests
@@ -2285,6 +2294,7 @@ test_configs:
       - kselftest-pidfd
       - kselftest-pid-namespace
       - kselftest-ptrace
+      - kselftest-rlimits
       - kselftest-vm
       - ltp-ipc
 
@@ -2471,6 +2481,7 @@ test_configs:
       - kselftest-pidfd
       - kselftest-pid-namespace
       - kselftest-ptrace
+      - kselftest-rlimits
       - kselftest-rtc
       - kselftest-seccomp
       - kselftest-tpm2
@@ -2520,6 +2531,7 @@ test_configs:
       - kselftest-pidfd
       - kselftest-pid-namespace
       - kselftest-ptrace
+      - kselftest-rlimits
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus
     test_plans:
@@ -2558,6 +2570,7 @@ test_configs:
       - kselftest-pidfd
       - kselftest-pid-namespace
       - kselftest-ptrace
+      - kselftest-rlimits
 
   - device_type: hp-x360-12b-ca0010nr-n4020-octopus
     test_plans:
@@ -2596,6 +2609,7 @@ test_configs:
       - kselftest-pidfd
       - kselftest-pid-namespace
       - kselftest-ptrace
+      - kselftest-rlimits
       - ltp-crypto
       - ltp-ipc
       - ltp-mm
@@ -2955,6 +2969,7 @@ test_configs:
       - kselftest-pidfd
       - kselftest-pid-namespace
       - kselftest-ptrace
+      - kselftest-rlimits
       - kselftest-rtc
       - kselftest-seccomp
       - lc-compliance
@@ -3001,6 +3016,7 @@ test_configs:
       - kselftest-pidfd
       - kselftest-pid-namespace
       - kselftest-ptrace
+      - kselftest-rlimits
       - kselftest-seccomp
 
   - device_type: mustang
@@ -3233,6 +3249,7 @@ test_configs:
       - kselftest-pidfd
       - kselftest-pid-namespace
       - kselftest-ptrace
+      - kselftest-rlimits
       - ltp-timers
       - sleep
       - usb
@@ -3277,6 +3294,7 @@ test_configs:
       - kselftest-pidfd
       - kselftest-pid-namespace
       - kselftest-ptrace
+      - kselftest-rlimits
       - kselftest-rtc
       - ltp-fcntl-locktests
       - ltp-pty
@@ -3354,6 +3372,7 @@ test_configs:
       - kselftest-pidfd
       - kselftest-pid-namespace
       - kselftest-ptrace
+      - kselftest-rlimits
 
   - device_type: snow
     test_plans:
