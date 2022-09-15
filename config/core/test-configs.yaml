@@ -526,6 +526,13 @@ test_plans:
       job_timeout: '10'
       kselftest_collections: "vm"
 
+  kselftest-x86:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "x86"
+    filters: *kselftest_no_fragment
+
   lc-compliance:
     rootfs: debian_bullseye-libcamera_nfs
     pattern: 'lc-compliance/{category}-{method}-{protocol}-{rootfs}-lc-compliance-template.jinja2'
@@ -2226,6 +2233,7 @@ test_configs:
       - kselftest-user
       - kselftest-vdso
       - kselftest-vm
+      - kselftest-x86
       - ltp-fcntl-locktests
       - ltp-pty
       - ltp-timers
@@ -2278,6 +2286,7 @@ test_configs:
       - kselftest-user
       - kselftest-vdso
       - kselftest-vm
+      - kselftest-x86
       - ltp-ipc
       - ltp-mm
       - ltp-timers
@@ -2333,6 +2342,7 @@ test_configs:
       - kselftest-user
       - kselftest-vdso
       - kselftest-vm
+      - kselftest-x86
       - ltp-crypto
       - ltp-fcntl-locktests
       - ltp-ima
@@ -2394,6 +2404,7 @@ test_configs:
       - kselftest-user
       - kselftest-vdso
       - kselftest-vm
+      - kselftest-x86
       - ltp-ipc
 
   - device_type: at91-sama5d2_xplained
@@ -2593,6 +2604,7 @@ test_configs:
       - kselftest-user
       - kselftest-vdso
       - kselftest-vm
+      - kselftest-x86
       - ltp-crypto
       - ltp-fcntl-locktests
       - ltp-ipc
@@ -2652,6 +2664,7 @@ test_configs:
       - kselftest-user
       - kselftest-vdso
       - kselftest-vm
+      - kselftest-x86
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus
     test_plans:
@@ -2704,6 +2717,7 @@ test_configs:
       - kselftest-user
       - kselftest-vdso
       - kselftest-vm
+      - kselftest-x86
 
   - device_type: hp-x360-12b-ca0010nr-n4020-octopus
     test_plans:
@@ -2756,6 +2770,7 @@ test_configs:
       - kselftest-user
       - kselftest-vdso
       - kselftest-vm
+      - kselftest-x86
       - ltp-crypto
       - ltp-ipc
       - ltp-mm
