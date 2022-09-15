@@ -423,6 +423,13 @@ test_plans:
       job_timeout: '10'
       kselftest_collections: "pid_namespace"
 
+  kselftest-ptrace:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "ptrace"
+    filters: *kselftest_no_fragment
+
   kselftest-openat2:
     <<: *kselftest
     params:
@@ -2147,6 +2154,7 @@ test_configs:
       - kselftest-nsfs
       - kselftest-pidfd
       - kselftest-pid-namespace
+      - kselftest-ptrace
       - kselftest-seccomp
       - ltp-fcntl-locktests
       - ltp-pty
@@ -2185,6 +2193,7 @@ test_configs:
       - kselftest-nsfs
       - kselftest-pidfd
       - kselftest-pid-namespace
+      - kselftest-ptrace
       - kselftest-rtc
       - ltp-ipc
       - ltp-mm
@@ -2225,6 +2234,7 @@ test_configs:
       - kselftest-nsfs
       - kselftest-pidfd
       - kselftest-pid-namespace
+      - kselftest-ptrace
       - kselftest-seccomp
       - ltp-crypto
       - ltp-fcntl-locktests
@@ -2271,6 +2281,7 @@ test_configs:
       - kselftest-nsfs
       - kselftest-pidfd
       - kselftest-pid-namespace
+      - kselftest-ptrace
       - kselftest-vm
       - ltp-ipc
 
@@ -2455,6 +2466,7 @@ test_configs:
       - kselftest-nsfs
       - kselftest-pidfd
       - kselftest-pid-namespace
+      - kselftest-ptrace
       - kselftest-rtc
       - kselftest-seccomp
       - kselftest-tpm2
@@ -2502,6 +2514,7 @@ test_configs:
       - kselftest-nsfs
       - kselftest-pidfd
       - kselftest-pid-namespace
+      - kselftest-ptrace
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus
     test_plans:
@@ -2538,6 +2551,7 @@ test_configs:
       - kselftest-nsfs
       - kselftest-pidfd
       - kselftest-pid-namespace
+      - kselftest-ptrace
 
   - device_type: hp-x360-12b-ca0010nr-n4020-octopus
     test_plans:
@@ -2574,6 +2588,7 @@ test_configs:
       - kselftest-nsfs
       - kselftest-pidfd
       - kselftest-pid-namespace
+      - kselftest-ptrace
       - ltp-crypto
       - ltp-ipc
       - ltp-mm
@@ -2931,6 +2946,7 @@ test_configs:
       - kselftest-nsfs
       - kselftest-pidfd
       - kselftest-pid-namespace
+      - kselftest-ptrace
       - kselftest-rtc
       - kselftest-seccomp
       - lc-compliance
@@ -2975,6 +2991,7 @@ test_configs:
       - kselftest-nsfs
       - kselftest-pidfd
       - kselftest-pid-namespace
+      - kselftest-ptrace
       - kselftest-seccomp
 
   - device_type: mustang
@@ -3205,6 +3222,7 @@ test_configs:
       - kselftest-nsfs
       - kselftest-pidfd
       - kselftest-pid-namespace
+      - kselftest-ptrace
       - ltp-timers
       - sleep
       - usb
@@ -3247,6 +3265,7 @@ test_configs:
       - kselftest-nsfs
       - kselftest-pidfd
       - kselftest-pid-namespace
+      - kselftest-ptrace
       - kselftest-rtc
       - ltp-fcntl-locktests
       - ltp-pty
@@ -3322,6 +3341,7 @@ test_configs:
       - kselftest-nsfs
       - kselftest-pidfd
       - kselftest-pid-namespace
+      - kselftest-ptrace
 
   - device_type: snow
     test_plans:
