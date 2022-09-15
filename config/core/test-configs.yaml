@@ -474,6 +474,12 @@ test_plans:
       job_timeout: '10'
       kselftest_collections: "syscall_user_dispatch"
 
+  kselftest-sysctl:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "sysctl"
+
   kselftest-timers:
     <<: *kselftest
     params:
@@ -2186,6 +2192,7 @@ test_configs:
       - kselftest-static-keys
       - kselftest-sync
       - kselftest-syscall-user-dispatch
+      - kselftest-sysctl
       - ltp-fcntl-locktests
       - ltp-pty
       - ltp-timers
@@ -2230,6 +2237,7 @@ test_configs:
       - kselftest-static-keys
       - kselftest-sync
       - kselftest-syscall-user-dispatch
+      - kselftest-sysctl
       - ltp-ipc
       - ltp-mm
       - ltp-timers
@@ -2277,6 +2285,7 @@ test_configs:
       - kselftest-static-keys
       - kselftest-sync
       - kselftest-syscall-user-dispatch
+      - kselftest-sysctl
       - ltp-crypto
       - ltp-fcntl-locktests
       - ltp-ima
@@ -2330,6 +2339,7 @@ test_configs:
       - kselftest-static-keys
       - kselftest-sync
       - kselftest-syscall-user-dispatch
+      - kselftest-sysctl
       - kselftest-vm
       - ltp-ipc
 
@@ -2522,6 +2532,7 @@ test_configs:
       - kselftest-static-keys
       - kselftest-sync
       - kselftest-syscall-user-dispatch
+      - kselftest-sysctl
       - kselftest-tpm2
       - kselftest-vm
       - ltp-crypto
@@ -2575,6 +2586,7 @@ test_configs:
       - kselftest-static-keys
       - kselftest-sync
       - kselftest-syscall-user-dispatch
+      - kselftest-sysctl
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus
     test_plans:
@@ -2619,6 +2631,7 @@ test_configs:
       - kselftest-static-keys
       - kselftest-sync
       - kselftest-syscall-user-dispatch
+      - kselftest-sysctl
 
   - device_type: hp-x360-12b-ca0010nr-n4020-octopus
     test_plans:
@@ -2663,6 +2676,7 @@ test_configs:
       - kselftest-static-keys
       - kselftest-sync
       - kselftest-syscall-user-dispatch
+      - kselftest-sysctl
       - ltp-crypto
       - ltp-ipc
       - ltp-mm
@@ -3028,6 +3042,7 @@ test_configs:
       - kselftest-static-keys
       - kselftest-sync
       - kselftest-syscall-user-dispatch
+      - kselftest-sysctl
       - lc-compliance
       - ltp-crypto
       - ltp-fcntl-locktests
@@ -3078,6 +3093,7 @@ test_configs:
       - kselftest-static-keys
       - kselftest-sync
       - kselftest-syscall-user-dispatch
+      - kselftest-sysctl
 
   - device_type: mustang
     test_plans:
@@ -3315,6 +3331,7 @@ test_configs:
       - kselftest-static-keys
       - kselftest-sync
       - kselftest-syscall-user-dispatch
+      - kselftest-sysctl
       - ltp-timers
       - sleep
       - usb
@@ -3365,6 +3382,7 @@ test_configs:
       - kselftest-static-keys
       - kselftest-sync
       - kselftest-syscall-user-dispatch
+      - kselftest-sysctl
       - ltp-fcntl-locktests
       - ltp-pty
       - ltp-timers
@@ -3447,6 +3465,7 @@ test_configs:
       - kselftest-static-keys
       - kselftest-sync
       - kselftest-syscall-user-dispatch
+      - kselftest-sysctl
 
   - device_type: snow
     test_plans:
