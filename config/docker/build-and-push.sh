@@ -50,15 +50,7 @@ do
 done
 shift $((OPTIND -1))
 
-all_targets="\
-build-base \
-"
-
-if [ -n "$*" ]; then
-    targets="$*"
-else
-    targets="$all_targets"
-fi
+targets="$*"
 echo "targets: $targets"
 
 
