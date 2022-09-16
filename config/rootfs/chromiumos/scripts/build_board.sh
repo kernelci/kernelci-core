@@ -7,7 +7,6 @@ DATA_DIR=$(pwd)
 USERNAME=$(/usr/bin/id -run)
 SCRIPT=$(realpath "$0")
 SCRIPTPATH=$(dirname "$SCRIPT")
-MANIFESTDIR=$(dirname "$SCRIPTPATH")
 
 function cleanup()
 {
@@ -78,6 +77,8 @@ sudo chown -R "${USERNAME}" "${DATA_DIR}/${BOARD}"
 gzip -1 "${DATA_DIR}/${BOARD}/chromiumos_test_image.bin"
 sudo tar -cJf "${DATA_DIR}/${BOARD}/modules.tar.xz" -C ./chroot/build/${BOARD} lib/modules
 sudo cp "./chroot/build/${BOARD}/boot/vmlinuz" "${DATA_DIR}/${BOARD}/bzImage"
+sudo cp ./chroot/build/${BOARD}/boot/config* "${DATA_DIR}/${BOARD}/kernel.config"
+python3 "${SCRIPTPATH}/create_manifest.py" "${BOARD}" "${DATA_DIR}/${BOARD}"
 
 # Probably redundant, but better safe than sorry
 cleanup
