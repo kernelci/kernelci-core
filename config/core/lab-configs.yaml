@@ -88,7 +88,7 @@ labs:
   lab-collabora:
     lab_type: lava.lava_rest
     url: 'https://lava.collabora.dev/'
-    priority: 45
+    priority: 90
     queue_timeout:
       days: 2
     filters: &collabora-filters
@@ -98,7 +98,7 @@ labs:
   lab-collabora-staging:
     lab_type: lava.lava_rest
     url: 'https://staging.lava.collabora.dev/'
-    priority: 45
+    priority: 90
     queue_timeout:
       hours: 1
     filters: *collabora-filters
