@@ -1,0 +1,41 @@
+build_configs:
+
+  gtucker_staging:
+    tree: gtucker
+    branch: 'kernelci-staging'
+    variants:
+      clang-16:
+        build_environment: clang-16
+        fragments: [kselftest]
+        architectures:
+          arm64: &arm64_defconfig
+            base_defconfig: 'defconfig'
+            fragments: [arm64-chromebook]
+            extra_configs:
+              - 'defconfig+kselftest+arm64-chromebook'
+            filters:
+              - regex: { defconfig: '.*arm64-chromebook' }
+          x86_64: &x86_64_defconfig
+            base_defconfig: 'x86_64_defconfig'
+            fragments: [x86-chromebook]
+            extra_configs:
+              - 'x86_64_defconfig+kselftest+x86-chromebook'
+            filters:
+              - regex: { defconfig: '.*x86-chromebook' }
+
+
+test_configs:
+
+  - device_type: hp-x360-14-G1-sona
+    test_plans:
+      - baseline
+      - baseline-nfs
+
+  - device_type: mt8173-elm-hana
+    test_plans:
+      - baseline
+      - baseline-nfs
+
+  - device_type: qemu_arm64-virt-gicv3
+    test_plans:
+      - baseline_qemu
