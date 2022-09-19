@@ -65,10 +65,18 @@ class cmd_list_configs(Command):
 
 class cmd_list_variants(Command):
     help = "List all rootfs variants"
-    opt_args = [Args.rootfs_config, Args.arch, Args.rootfs_type]
+    append_action = {
+        'action': 'append'
+    }
+    arch_arg = Args.arch.copy()
+    arch_arg.update(append_action)
+    rootfs_type_arg = Args.rootfs_type.copy()
+    rootfs_type_arg.update(append_action)
+    opt_args = [Args.rootfs_config, arch_arg, rootfs_type_arg]
 
     def __call__(self, configs, args, **kwargs):
         rootfs_configs = configs['rootfs_configs']
+        arch_requested = set(args.arch) if args.arch else set()
 
         if args.rootfs_config and args.rootfs_type:
             print("--rootfs-config and --rootfs-type can't be used at once")
@@ -84,15 +92,16 @@ class cmd_list_variants(Command):
             build_configs = list(
                 config
                 for config in rootfs_configs.values()
-                if config.rootfs_type == args.rootfs_type
+                if config.rootfs_type in args.rootfs_type
             )
         else:
             build_configs = list(rootfs_configs.values())
-
         for config in build_configs:
-            for arch in config.arch_list:
-                if args.arch and args.arch != arch:
-                    continue
+            arch_available = set(config.arch_list)
+            arch_set = (arch_requested & arch_available
+                        if arch_requested
+                        else arch_available)
+            for arch in arch_set:
                 print(' '.join([config.name, arch, config.rootfs_type]))
 
         return True
