@@ -2085,7 +2085,7 @@ device_types:
       - passlist: {defconfig: ['defconfig']}
 
 
-test_configs:
+_OFF_test_configs:
 
   - device_type: acer-cb317-1h-c3z6-dedede
     test_plans:
