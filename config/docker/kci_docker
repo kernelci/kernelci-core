@@ -32,11 +32,11 @@ def _gen_dockerfile(img_name, params):
     return template.render(params)
 
 
-def _build_image(dockerfile, tag_name, buildargs):
+def _build_image(dockerfile, tag, buildargs, nocache):
     client = docker.from_env()
     dockerfile_obj = io.BytesIO(dockerfile.encode())
     return client.images.build(
-        fileobj=dockerfile_obj, tag=tag_name, buildargs=buildargs
+        fileobj=dockerfile_obj, tag=tag, buildargs=buildargs, nocache=nocache,
     )
 
 
@@ -100,7 +100,7 @@ def main(args):
     buildargs = dict(
         barg.split('=') for barg in args.build_arg
     ) if args.build_arg else {}
-    _, build_log = _build_image(dockerfile, name, buildargs)
+    _, build_log = _build_image(dockerfile, name, buildargs, args.no_cache)
     if args.verbose:
         _dump_log(build_log)
     if args.push:
@@ -129,6 +129,8 @@ if __name__ == '__main__':
                         help="Extra fragments, e.g. kernelci")
     parser.add_argument('--build-arg', action='append',
                         help="Build argument to pass to docker build")
+    parser.add_argument('--no-cache', action='store_true',
+                        help="Disable Docker cache when building the image")
     parser.add_argument('--verbose', action='store_true',
                         help="Verbose output")
     parser.add_argument('--push', action='store_true',
