@@ -1,3 +1,9 @@
+trees:
+
+  tglx:
+    url: 'https://git.kernel.org/pub/scm/linux/kernel/git/tglx/devel.git'
+
+
 build_configs:
 
   gtucker_staging:
@@ -20,6 +26,21 @@ build_configs:
             fragments: [x86-chromebook]
             extra_configs:
               - 'x86_64_defconfig+kselftest+x86-chromebook'
+            filters:
+              - regex: { defconfig: '.*x86-chromebook' }
+
+  tglx_printk:
+    tree: tglx
+    branch: 'printk'
+    variants:
+      gcc-10:
+        build_environment: gcc-10
+        architectures:
+          x86_64:
+            base_defconfig: 'x86_64_defconfig'
+            fragments: [x86-chromebook]
+            extra_configs:
+              - 'x86_64_defconfig+x86-chromebook'
             filters:
               - regex: { defconfig: '.*x86-chromebook' }
 
