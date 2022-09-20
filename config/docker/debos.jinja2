@@ -20,8 +20,8 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     libostree-dev
 
 # Build debos
-RUN go get github.com/go-debos/debos/cmd/debos && \
-    go install github.com/go-debos/debos/cmd/debos
+RUN go get github.com/go-debos/debos/cmd/debos
+RUN go install github.com/go-debos/debos/cmd/debos
 
 # Dependencies to run debos
 RUN apt-get update && apt-get install --no-install-recommends -y \
