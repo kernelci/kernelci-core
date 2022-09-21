@@ -506,10 +506,6 @@ arch_clang_configs: &arch_clang_configs
   riscv:
     extra_configs: &riscv_clang_configs
       - 'allnoconfig'
-      - 'defconfig+CONFIG_EFI=n'
-    filters:
-      - passlist:
-          defconfig: *riscv_clang_configs
 
 # Minimum architecture defconfigs
 arch_defconfigs: &arch_defconfigs
