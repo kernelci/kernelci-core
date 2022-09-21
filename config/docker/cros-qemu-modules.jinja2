@@ -1,0 +1,25 @@
+{# SPDX-License-Identifier: LGPL-2.1-or-later
+ #
+ # Copyright (C) 2021, 2022 Collabora Limited
+ # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+-#}
+
+{% extends 'base/debian.jinja2' %}
+
+{% block packages %}
+
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y \
+          libguestfs-tools \
+          linux-image-generic \
+          qemu-utils
+
+ENV LIBGUESTFS_BACKEND=direct \
+    HOME=/root
+
+ADD https://raw.githubusercontent.com/kernelci/kernelci-core/chromeos.kernelci.org/config/docker/data/add_modules.sh /add_modules.sh
+
+# Needed by LAVA to install the overlay
+USER root
+RUN chmod +x /add_modules.sh
+{%- endblock %}
