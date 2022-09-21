@@ -1,0 +1,27 @@
+{# SPDX-License-Identifier: LGPL-2.1-or-later
+ #
+ # Copyright (C) 2021, 2022 Collabora Limited
+ # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+-#}
+
+{% extends 'base/debian.jinja2' %}
+
+{% block packages %}
+{{ super() }}
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && apt-get install -y --no-install-recommends \
+        build-essential \
+        curl \
+        git \
+        netbase \
+        sudo \
+        ssh \
+        wget
+
+RUN useradd -u 996 -ms /bin/sh cros
+RUN adduser cros sudo && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+RUN mkdir -p /home/cros/chromiumos
+RUN chown -R cros /home/cros/chromiumos
+
+{%- endblock %}
