@@ -190,7 +190,8 @@ class cmd_list_jobs(Command):
     help = "List all the jobs that need to be run for a given build and lab"
     args = [Args.lab_config]
     opt_args = [Args.user, Args.lab_token, Args.lab_json,
-                Args.build_output, Args.install_path]
+                Args.build_output, Args.install_path,
+                Args.ignore_online]
 
     def __call__(self, configs, args):
         path_args = (args.build_output, args.install_path)
@@ -208,14 +209,16 @@ class cmd_list_jobs(Command):
             return True
 
         lab_config = configs['labs'][args.lab_config]
-        lab_api = kernelci.lab.get_api(
-            lab_config, args.user, args.lab_token, args.lab_json)
+        if not args.ignore_online:
+            lab_api = kernelci.lab.get_api(
+                lab_config, args.user, args.lab_token, args.lab_json)
 
         configs = kernelci.test.match_configs(
             configs['test_configs'], meta, lab_config)
         jobs = list()
         for device_type, plan in configs:
-            if not lab_api.device_type_online(device_type):
+            if not args.ignore_online and \
+               not lab_api.device_type_online(device_type):
                 continue
             jobs.append((device_type.name, plan.name))
 
@@ -275,7 +278,7 @@ class cmd_generate(Command):
                 Args.lab_json, Args.user, Args.lab_token, Args.db_config,
                 Args.callback_id, Args.callback_dataset,
                 Args.callback_type, Args.callback_url, Args.mach,
-                Args.device_id]
+                Args.device_id, Args.ignore_online]
 
     def __call__(self, configs, args):
         if args.callback_id and not args.callback_url:
@@ -298,8 +301,10 @@ class cmd_generate(Command):
 
         lab_config = configs['labs'][args.lab_config]
         lab_gen_api = kernelci.lab.get_generator(lab_config)
-        lab_api = kernelci.lab.get_api(
-            lab_config, args.user, args.lab_token, args.lab_json)
+
+        if not args.ignore_online:
+            lab_api = kernelci.lab.get_api(
+                lab_config, args.user, args.lab_token, args.lab_json)
 
         if args.target and args.plan:
             device_config = configs['device_types'][args.target]
@@ -310,7 +315,8 @@ class cmd_generate(Command):
             test_configs = kernelci.test.match_configs(
                 configs['test_configs'], meta, lab_config)
             for device_config, plan_config in test_configs:
-                if not lab_api.device_type_online(device_config):
+                if not args.ignore_online and \
+                   not lab_api.device_type_online(device_config):
                     continue
                 if args.target and device_config.name != args.target:
                     continue

@@ -147,6 +147,12 @@ class Args:
         'help': "Path to the dtbs.json file",
     }
 
+    ignore_online = {
+        'name': '--ignore-online',
+        'help': "Do not check which device types are online",
+        'action': 'store_true'
+    }
+
     install = {
         'name': '--install',
         'action': 'store_true',
