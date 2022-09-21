@@ -498,7 +498,13 @@ arch_clang_configs: &arch_clang_configs
     extra_configs:
       - 'allmodconfig'
       - 'allnoconfig'
-
+  riscv:
+    extra_configs: &riscv_clang_configs
+      - 'allnoconfig'
+      - 'defconfig+CONFIG_EFI=n'
+    filters:
+      - passlist:
+          defconfig: *riscv_clang_configs
 
 # Minimum architecture defconfigs
 arch_defconfigs: &arch_defconfigs
@@ -835,13 +841,6 @@ build_configs:
         build_environment: clang-16
         architectures:
           <<: *arch_clang_configs
-          riscv:
-            extra_configs: &riscv_clang_configs
-              - 'allnoconfig'
-              - 'defconfig+CONFIG_EFI=n'
-            filters:
-              - passlist:
-                  defconfig: *riscv_clang_configs
 
   next_pending-fixes:
     tree: next
