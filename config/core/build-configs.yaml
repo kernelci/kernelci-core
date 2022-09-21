@@ -380,8 +380,6 @@ build_environments:
       riscv:
         <<: *riscv_params
         name:
-        opts:
-          LLVM_IAS: '1'
 
   clang-16:
     cc: clang
