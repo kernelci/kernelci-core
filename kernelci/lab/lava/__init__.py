@@ -21,10 +21,10 @@
 
 from jinja2 import Environment, FileSystemLoader
 import os
-from kernelci.lab import add_kci_raise, LabAPI
+from kernelci.lab import add_kci_raise, LabAPI, GeneratorAPI
 
 
-class LavaAPI(LabAPI):
+class LavaGeneratorAPI(GeneratorAPI):
     DEFAULT_TEMPLATE_PATHS = ['config/lava', '/etc/kernelci/lava']
 
     def generate(self, params, device_config, plan_config, callback_opts=None,
@@ -62,12 +62,6 @@ class LavaAPI(LabAPI):
         data = template.render(params)
         return data
 
-    def submit(self, job_path):
-        with open(job_path, 'r') as job_file:
-            job = job_file.read()
-            job_id = self._submit(job)
-            return job_id
-
     def job_file_name(self, params):
         return '.'.join([params['name'], 'yaml'])
 
@@ -86,3 +80,12 @@ class LavaAPI(LabAPI):
             'callback_dataset': opts['dataset'],
             'callback_type': callback_type,
         })
+
+
+class LavaAPI(LabAPI):
+
+    def submit(self, job_path):
+        with open(job_path, 'r') as job_file:
+            job = job_file.read()
+            job_id = self._submit(job)
+            return job_id

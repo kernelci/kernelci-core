@@ -297,6 +297,7 @@ class cmd_generate(Command):
             return True
 
         lab_config = configs['labs'][args.lab_config]
+        lab_gen_api = kernelci.lab.get_generator(lab_config)
         lab_api = kernelci.lab.get_api(
             lab_config, args.user, args.lab_token, args.lab_json)
 
@@ -334,13 +335,13 @@ class cmd_generate(Command):
             params = kernelci.test.get_params(
                 meta, device_config, plan_config, args.storage,
                 args.device_id)
-            job = lab_api.generate(params, device_config, plan_config,
-                                   callback_opts)
+            job = lab_gen_api.generate(params, device_config, plan_config,
+                                       callback_opts)
             if job is None:
                 print("Failed to generate the job definition")
                 return False
             if args.output:
-                output_file = lab_api.save_file(job, args.output, params)
+                output_file = lab_gen_api.save_file(job, args.output, params)
                 print(output_file)
             else:
                 print("# Job: {}".format(params['name']))

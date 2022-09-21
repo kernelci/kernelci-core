@@ -20,7 +20,7 @@ import json
 import requests
 from urllib.parse import urljoin
 import yaml
-from kernelci.lab.lava import LavaAPI
+from kernelci.lab.lava import LavaAPI, LavaGeneratorAPI
 
 RestAPIServer = namedtuple('RestAPIServer', ['url', 'session'])
 
@@ -111,3 +111,8 @@ class LavaRest(LavaAPI):
 def get_api(lab, **kwargs):
     """Get a LAVA lab API object"""
     return LavaRest(lab, **kwargs)
+
+
+def get_generator(lab, **kwargs):
+    """Get a LAVA generator API object"""
+    return LavaGeneratorAPI(lab, **kwargs)

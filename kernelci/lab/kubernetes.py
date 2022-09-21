@@ -20,10 +20,10 @@ import random
 import re
 import string
 from jinja2 import Environment, FileSystemLoader
-from kernelci.lab import LabAPI
+from kernelci.lab import LabAPI, GeneratorAPI
 
 
-class Kubernetes(LabAPI):
+class KubernetesGeneratorAPI(GeneratorAPI):
     DEFAULT_TEMPLATE_PATHS = ['config/runtime', '/etc/kernelci/runtime']
     RANDOM_CHARACTERS = string.ascii_lowercase + string.digits
 
@@ -46,6 +46,9 @@ class Kubernetes(LabAPI):
     def job_file_name(self, params):
         return '.'.join([params['k8s_job_name'], 'yaml'])
 
+
+class Kubernetes(LabAPI):
+
     def submit(self, job_path, get_process=False):
         kubernetes.config.load_kube_config(context=self.config.context)
         client = kubernetes.client.ApiClient()
@@ -55,3 +58,8 @@ class Kubernetes(LabAPI):
 def get_api(lab, **kwargs):
     """Get a Kubernetes object"""
     return Kubernetes(lab, **kwargs)
+
+
+def get_generator(lab, **kwargs):
+    """Get a Kubernetes generator object"""
+    return KubernetesGeneratorAPI(lab, **kwargs)

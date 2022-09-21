@@ -26,6 +26,70 @@ def add_kci_raise(env):
     env.globals['kci_raise'] = template_exception
 
 
+class GeneratorAPI:
+    """Generator API for creating job files"""
+
+    def __init__(self, config):
+        """A generator API object can be used to create job files for a lab
+
+        *config* is a kernelci.config.lab.Lab object
+        """
+        self._config = config
+
+    @property
+    def config(self):
+        return self._config
+
+    def job_file_name(self, params):
+        """Get the file name where to store the generated job definition."""
+        return params['name']
+
+    def match(self, filter_data):
+        """Apply filters and return True if they match, False otherwise."""
+        return self.config.match(filter_data)
+
+    def generate(self, params, device_config, plan_config,
+                 callback_opts=None, templates_paths=None, lab_config=None):
+        """Generate a test job definition.
+
+        *params* is a dictionary with the test parameters which can be used
+             when generating a job definition using templates
+
+        *device_config* is a DeviceType configuration object for the target
+             device type
+
+        *plan_config* is a TestPlan configuration object for the target test
+             plan
+
+        *callback_opts* is a dictionary with extra options used for callbacks
+
+        *templates_paths* is an optional argument to specify the path(s) where
+            the template files should be found, when not in the standard
+            location.  This could be either a string or a list of strings to
+            provide several paths.
+
+        *lab_config* is a configuration object for the API
+            where the tests should be run
+
+        """
+        raise NotImplementedError("Generator.generate() is required")
+
+    def save_file(self, job, output_path, params):
+        """Save a test job definition in a file.
+
+        *job* is the job definition data
+        *output_path* is the directory where the file should be saved
+        *params* is a dictionary with template parameters
+
+        Return the full path where the job definition file was saved.
+        """
+        file_name = self.job_file_name(params)
+        output_file = os.path.join(output_path, file_name)
+        with open(output_file, 'w') as output:
+            output.write(job)
+        return output_file
+
+
 class LabAPI:
     """Remote API to a test lab"""
 
@@ -73,55 +137,6 @@ class LabAPI:
         """
         return True
 
-    def job_file_name(self, params):
-        """Get the file name where to store the generated job definition."""
-        return params['name']
-
-    def match(self, filter_data):
-        """Apply filters and return True if they match, False otherwise."""
-        return self.config.match(filter_data)
-
-    def generate(self, params, device_config, plan_config,
-                 callback_opts=None, templates_paths=None, lab_config=None):
-        """Generate a test job definition.
-
-        *params* is a dictionary with the test parameters which can be used
-             when generating a job definition using templates
-
-        *device_config* is a DeviceType configuration object for the target
-             device type
-
-        *plan_config* is a TestPlan configuration object for the target test
-             plan
-
-        *callback_opts* is a dictionary with extra options used for callbacks
-
-        *templates_paths* is an optional argument to specify the path(s) where
-            the template files should be found, when not in the standard
-            location.  This could be either a string or a list of strings to
-            provide several paths.
-
-        *lab_config* is a configuration object for the API
-            where the tests should be run
-
-        """
-        raise NotImplementedError("Lab.generate() is required")
-
-    def save_file(self, job, output_path, params):
-        """Save a test job definition in a file.
-
-        *job* is the job definition data
-        *output_path* is the directory where the file should be saved
-        *params* is a dictionary with template parameters
-
-        Return the full path where the job definition file was saved.
-        """
-        file_name = self.job_file_name(params)
-        output_file = os.path.join(output_path, file_name)
-        with open(output_file, 'w') as output:
-            output.write(job)
-        return output_file
-
     def submit(self, job_path):
         """Submit a test job definition in a lab."""
         raise NotImplementedError("Lab.submit() is required")
@@ -141,4 +156,14 @@ def get_api(lab, user=None, token=None, lab_json=None):
         with open(lab_json) as json_file:
             devices = json.load(json_file)['devices']
             api.import_devices(devices)
+    return api
+
+
+def get_generator(lab):
+    """Get the GeneratorAPI object for a given lab config.
+
+    *lab* is a kernelci.config.lab.Lab object
+    """
+    m = importlib.import_module('.'.join(['kernelci', 'lab', lab.lab_type]))
+    api = m.get_generator(lab)
     return api

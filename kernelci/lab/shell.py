@@ -18,10 +18,10 @@
 import os
 import subprocess
 from jinja2 import Environment, FileSystemLoader
-from kernelci.lab import LabAPI
+from kernelci.lab import LabAPI, GeneratorAPI
 
 
-class Shell(LabAPI):
+class ShellGeneratorAPI(GeneratorAPI):
     DEFAULT_TEMPLATE_PATHS = ['config/runtime', '/etc/kernelci/runtime']
 
     def generate(self, params, device_config, plan_config,
@@ -38,6 +38,9 @@ class Shell(LabAPI):
         os.chmod(output_file, 0o775)
         return output_file
 
+
+class Shell(LabAPI):
+
     def submit(self, job_path):
         return subprocess.Popen(job_path)
 
@@ -45,3 +48,8 @@ class Shell(LabAPI):
 def get_api(lab, **kwargs):
     """Get a Shell object"""
     return Shell(lab, **kwargs)
+
+
+def get_generator(lab, **kwargs):
+    """Get a shell script generator object"""
+    return ShellGeneratorAPI(lab, **kwargs)

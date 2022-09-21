@@ -21,7 +21,7 @@
 
 import xmlrpc.client
 import urllib.parse
-from kernelci.lab.lava import LavaAPI
+from kernelci.lab.lava import LavaAPI, LavaGeneratorAPI
 
 DEVICE_ONLINE_STATUS = ['idle', 'running', 'reserved']
 
@@ -98,3 +98,8 @@ class LAVA(LavaAPI):
 def get_api(lab, **kwargs):
     """Get a LAVA lab API object"""
     return LAVA(lab, **kwargs)
+
+
+def get_generator(lab, **kwargs):
+    """Get a LAVA generator API object"""
+    return LavaGeneratorAPI(lab, **kwargs)
