@@ -1,7 +1,7 @@
 file_system_types:
 
   cip:
-    url: 'https://storage.kernelci.org/images/rootfs/cip/20211105'
+    url: 'https://storage.kernelci.org/images/rootfs/cip/20220920'
     arch_map:
       amd64: [{arch: x86_64}]
 
