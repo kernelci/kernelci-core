@@ -1,0 +1,28 @@
+{# SPDX-License-Identifier: LGPL-2.1-or-later
+ #
+ # Copyright (C) 2021, 2022 Collabora Limited
+ # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+-#}
+
+{% extends 'base/debian.jinja2' %}
+
+{% block packages %}
+
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    curl \
+    git \
+    inetutils-ping \
+    sudo \
+    ssh \
+    wget
+
+{% include 'fragment/cros-lava.jinja2' %}
+
+{{ super() }}
+
+ADD https://raw.githubusercontent.com/kernelci/kernelci-core/chromeos.kernelci.org/config/rootfs/debos/overlays/baseline/opt/kernelci/dmesg.sh /home/cros/dmesg.sh
+
+# Needed by LAVA to install the overlay
+USER root
+RUN chmod +x /home/cros/dmesg.sh
+{%- endblock %}
