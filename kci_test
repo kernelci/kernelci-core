@@ -390,6 +390,6 @@ class cmd_submit(Command):
 
 if __name__ == '__main__':
     opts = parse_opts("kci_test", globals())
-    configs = kernelci.config.load(opts.yaml_config)
+    configs = kernelci.config.load_all(opts.get_yaml_configs())
     status = opts.command(configs, opts)
     sys.exit(0 if status is True else 1)
