@@ -1,0 +1,27 @@
+{%- if is_debian -%}
+# Install pip3 on Debian
+RUN apt-get update && apt-get install --no-install-recommends -y python3-pip
+RUN pip3 install --upgrade pip
+{%- endif %}
+
+# Install kernelci Python package from kernelci-core
+ARG core_url=https://github.com/kernelci/kernelci-core.git
+ARG core_rev=chromeos.kernelci.org
+RUN apt-get update && apt-get install --no-install-recommends -y git
+RUN git clone --depth=1 $core_url /tmp/kernelci-core
+WORKDIR /tmp/kernelci-core
+RUN git fetch origin $core_rev
+RUN git checkout FETCH_HEAD
+RUN pip3 install -r requirements-dev.txt
+RUN python3 setup.py install
+RUN cp -R config /etc/kernelci/
+WORKDIR /root
+RUN rm -rf /tmp/kernelci-core
+
+# Set up kernelci user
+RUN useradd kernelci -u 1000 -d /home/kernelci -s /bin/bash
+RUN mkdir -p /home/kernelci
+RUN chown kernelci: /home/kernelci
+USER kernelci
+ENV PATH=$PATH:/home/kernelci/.local/bin
+WORKDIR /home/kernelci
