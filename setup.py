@@ -52,6 +52,8 @@ setuptools.setup(
         'kci_rootfs',
         'kci_data',
         'kci_bisect',
+        'scripts/kci-bisect-lava-v2-callback',
+        'scripts/kci-bisect-push-results',
     ],
     long_description=open('README.md', 'rb').read().decode('utf8'),
     long_description_content_type='text/markdown',
