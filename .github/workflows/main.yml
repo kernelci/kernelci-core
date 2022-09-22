@@ -45,7 +45,7 @@ jobs:
         run: |
           pycodestyle kernelci
           pycodestyle kci_*
-          pycodestyle scripts/*.py
+          pycodestyle scripts/*
 
       - name: Run YAML config validation
         run: |
