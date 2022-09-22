@@ -495,6 +495,10 @@ class Options:
                 missing_args.append(arg_name)
         return missing_args
 
+    def get_yaml_configs(self):
+        """Get a list of all the YAML configuration files."""
+        return [self._cli_args.yaml_config] + self._cli_args.extra_config
+
 
 def make_parser(title, default_config_path):
     """Helper to make a parser object from argparse.
@@ -503,10 +507,21 @@ def make_parser(title, default_config_path):
     *default_config_path* is the default YAML config directory to use
     """
     parser = argparse.ArgumentParser(title)
-    parser.add_argument("--yaml-config", default=default_config_path,
-                        help="Path to the directory with YAML config files")
-    parser.add_argument("--settings",
-                        help="Path to the settings file")
+    parser.add_argument(
+        "--yaml-config",
+        default=default_config_path,
+        help="Path to the Kernel CI directory with YAML config files",
+    )
+    parser.add_argument(
+        "--extra-config",
+        action='append',
+        default=list(),
+        help="Path to additional YAML site config files",
+    )
+    parser.add_argument(
+        "--settings",
+        help="Path to the settings file",
+    )
     return parser
 
 
