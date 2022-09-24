@@ -80,6 +80,31 @@ class Filter:
         """Return True if the given *kw* keywords match the filter."""
         raise NotImplementedError("Filter.match() is not implemented")
 
+    def combine(self, items):
+        """Try to avoid making a new filter if we can make a combined
+        filter matching both our existing data and the new items.
+
+        The *items* can be any data used to filter configurations.
+        Return True if we can combine, False otherwise.
+        """
+        return False
+
+
+def _merge_filter_lists(old, update):
+    """Merge the items for a Blocklist or Passlist.
+
+    *old*    is the items from the existing filter list that we
+             have already created.
+
+    *update* are the items of a new filter list, of the same type as
+             *old*, loaded from another configuration source. We are
+             going represent this second filter list declaration by
+             updating *old*, rather than by having a new object to
+             represent it.
+    """
+    for key, value in update.items():
+        old.setdefault(key, list()).extend(value)
+
 
 class Blocklist(Filter):
     """Blocklist filter to discard certain configurations.
@@ -99,6 +124,10 @@ class Blocklist(Filter):
 
         return True
 
+    def combine(self, items):
+        _merge_filter_lists(self._items, items)
+        return True
+
 
 class Passlist(Filter):
     """Passlist filter to only accept certain configurations.
@@ -116,6 +145,10 @@ class Passlist(Filter):
             if not any(x in v for x in wl):
                 return False
 
+        return True
+
+    def combine(self, items):
+        _merge_filter_lists(self._items, items)
         return True
 
 
@@ -156,6 +189,14 @@ class Combination(Filter):
         filter_values = tuple(kw.get(k) for k in self._keys)
         return filter_values in self._values
 
+    def combine(self, items):
+        keys = tuple(items['keys'])
+        if keys != self._keys:
+            return False
+
+        self._values.extend([tuple(values) for values in items['values']])
+        return True
+
 
 class FilterFactory(YAMLObject):
     """Factory to create filters from YAML data."""
@@ -171,10 +212,20 @@ class FilterFactory(YAMLObject):
     def from_yaml(cls, filter_params):
         """Iterate through the YAML filters and return Filter objects."""
         filter_list = []
+        filters = {}
+
         for f in filter_params:
             for filter_type, items in f.items():
-                filter_cls = cls._classes[filter_type]
-                filter_list.append(filter_cls(items))
+                for g in filters.get(filter_type, []):
+                    if g.combine(items):
+                        break
+                else:
+                    filter_cls = cls._classes[filter_type]
+                    filter_instance = filter_cls(items)
+                    filters.setdefault(filter_type, list()).append(
+                        filter_instance)
+                    filter_list.append(filter_instance)
+
         return filter_list
 
     @classmethod
