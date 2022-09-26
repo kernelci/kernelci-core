@@ -1,10 +1,10 @@
-# Automatically generated (20220920.1)
+# Automatically generated (20220923.0)
 file_systems:
   buildroot-baseline_ramdisk:
     boot_protocol: tftp
     params: {}
     prompt: '/ #'
-    ramdisk: buildroot-baseline/20220919.0/{arch}/rootfs.cpio.gz
+    ramdisk: buildroot-baseline/20220923.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
     type: buildroot
   debian_bullseye-cros-ec_ramdisk:
