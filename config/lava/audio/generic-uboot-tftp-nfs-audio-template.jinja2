@@ -1,0 +1,8 @@
+{% extends 'boot-nfs/generic-uboot-tftp-nfs-template.jinja2' %}
+
+{% block actions %}
+{{ super () }}
+
+{% include 'audio/audio.jinja2' %}
+
+{% endblock %}

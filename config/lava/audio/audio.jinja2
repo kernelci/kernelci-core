@@ -1,0 +1,19 @@
+- test:
+    timeout:
+      minutes: {{ job_timeout }}
+    definitions:
+    - repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: {{ plan }}
+          description: "Audio test plan"
+          os:
+          - debian
+          scope:
+          - functional
+        run:
+          steps:
+          - lava-test-case audio-init --shell alsactl init
+      from: inline
+      name: {{ plan }}
+      path: inline/{{ plan }}.yaml

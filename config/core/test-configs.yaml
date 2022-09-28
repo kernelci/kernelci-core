@@ -63,6 +63,10 @@ default_filters:
 
 test_plans:
 
+  audio:
+    rootfs: debian_bullseye-audio_nfs
+    pattern: 'audio/{category}-{method}-{protocol}-{rootfs}-audio-template.jinja2'
+
   baseline:
     rootfs: buildroot-baseline_ramdisk
     params:
