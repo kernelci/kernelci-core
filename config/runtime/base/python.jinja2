@@ -25,6 +25,7 @@ DB_CONFIG_YAML = """
 {{ db_config_yaml }}"""
 NODE_ID = '{{ node_id }}'
 TARBALL_URL = '{{ tarball_url }}'
+SRC_DIR = '{{ src_dir if src_dir is not none else NONE}}'
 WORKSPACE = '/tmp/kci'
 {%- endblock %}
 
@@ -68,9 +69,12 @@ class BaseJob:
         db.submit({'node': node})
         return node
 
-    def run(self, tarball_url):
-        print("Getting kernel source tree...")
-        src_path = self._get_source(tarball_url)
+    def run(self, src, local_src = False):
+        if local_src:
+            src_path = src
+        else:
+            print("Getting kernel source tree...")
+            src_path = self._get_source(src)
         print(f"Source directory: {src_path}")
         print("Running job...")
         return self._run(src_path)
@@ -90,7 +94,11 @@ class Job(BaseJob):
 def main(args):
     job = Job({% block python_job_constr %}workspace=WORKSPACE{% endblock %})
     try:
-        results = job.run(TARBALL_URL)
+        if SRC_DIR:
+            # Kernel source is already extracted to a local path
+            results = job.run(SRC_DIR, local_src = True)
+        else:
+            results = job.run(TARBALL_URL)
     except Exception:
         print(traceback.format_exc())
         results = None
