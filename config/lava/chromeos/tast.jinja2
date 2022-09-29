@@ -6,7 +6,7 @@
         wait:
           device: true
       results:
-          location: /home/cros-tast/lava
+          location: /home/cros/lava
       definitions:
       - repository:
           metadata:
@@ -14,8 +14,8 @@
             name: tast-tests
           run:
             steps:
-              - 'ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i /home/cros-tast/.ssh/id_rsa root@$(lava-target-ip) cat /etc/os-release'
-              - 'cd /home/cros-tast'
+              - 'ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i /home/cros/.ssh/id_rsa root@$(lava-target-ip) cat /etc/os-release'
+              - 'cd /home/cros'
               - 'curl -s {{ tast_tarball }} | tar xzf -'
               - 'cp remote_test_runner /usr/bin/remote_test_runner'
               - 'while ! ping -c 1 -w 1 $(lava-target-ip); do sleep 1; done'
