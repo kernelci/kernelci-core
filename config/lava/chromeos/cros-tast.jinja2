@@ -10,7 +10,7 @@
       wait:
         device: true
     results:
-      location: /home/cros-tast/lava
+      location: /home/cros/lava
     definitions:
     - repository:
         metadata:
@@ -18,7 +18,7 @@
           name: cros-tast
         run:
           steps:
-            - cd /home/cros-tast
+            - cd /home/cros
             - >-
               lava-test-case tast-tarball --shell
               curl -s {{ cros_image.base_url }}{{ cros_image.tast_tarball }}
@@ -30,7 +30,7 @@
               ./ssh_retry.sh
               -o StrictHostKeyChecking=no
               -o UserKnownHostsFile=/dev/null
-              -i /home/cros-tast/.ssh/id_rsa
+              -i /home/cros/.ssh/id_rsa
               root@$(lava-target-ip)
               cat /etc/os-release
             - >-
