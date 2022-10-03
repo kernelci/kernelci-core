@@ -22,7 +22,7 @@ hostname_tool() {
 }
 
 filesystem()  {
-   UNNEEDED_PACKAGES="libfdisk1 "
+   UNNEEDED_PACKAGES=""
 
    remove_packages "${UNNEEDED_PACKAGES}"
 
