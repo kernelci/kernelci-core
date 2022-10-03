@@ -381,14 +381,29 @@ def _download_file(url, dest_filename, chunk_size=1024):
     headers = {
         'User-Agent': 'kernelci {}'.format(kernelci_version),
     }
-    resp = requests.get(url, stream=True, headers=headers)
-    if resp.status_code == 200:
-        with open(dest_filename, 'wb') as out_file:
-            for chunk in resp.iter_content(chunk_size):
-                out_file.write(chunk)
-        return True
-    else:
-        return False
+    # Retry 10 times with backoff, as often nature of failure is
+    # either slow network stack due load on Kubernetes node,
+    # or storage server is overloaded, so backoff is necessary
+    max_tries = 10
+    for i in range(max_tries):
+        try:
+            resp = requests.get(url, stream=True, headers=headers)
+            if resp.status_code == 200:
+                with open(dest_filename, 'wb') as out_file:
+                    for chunk in resp.iter_content(chunk_size):
+                        out_file.write(chunk)
+                    return True
+            else:
+                print(f'_download_file http code {resp.status_code}, \
+retrying in {i} seconds')
+                time.sleep(2*i)
+                continue
+        except requests.exceptions.RequestException as e:
+            print(f'_download_file exception {e}, retrying in {i} seconds')
+            time.sleep(2*i)
+            continue
+
+    return False
 
 
 def pull_tarball(kdir, url, dest_filename, retries, delete):
