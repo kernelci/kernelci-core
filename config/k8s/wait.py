@@ -32,6 +32,28 @@ def context_valid(c):
     return valid
 
 
+def find_pod(core, args):
+    retries = 10
+    while retries:
+        try:
+            pod = core.list_namespaced_pod(namespace=args.namespace,
+                                           watch=False,
+                                           label_selector="job-name={}".
+                                           format(args.job_name))
+            return pod
+        except client.rest.ApiException as e:
+            print("ERROR: Exception on list_namespaced_pod, ", e)
+            retries -= 1
+            time.sleep(5)
+            # One of solutions to reload config
+            # https://github.com/DataBiosphere/toil/issues/2867
+            config.load_kube_config(context=args.context,
+                                    persist_config=False)
+            core = client.CoreV1Api()
+            continue
+    return None
+
+
 def main(args):
     build_success = True
     k8s_success = True
@@ -46,7 +68,7 @@ def main(args):
     print("Using context:", args.context)
     while retries:
         try:
-            config.load_kube_config(context=args.context)
+            config.load_kube_config(context=args.context, persist_config=False)
             break
         except (TypeError, config.ConfigException) as e:
             print("WARNING: unable to load context {}: {}.  Retrying.".format(args.context, e))
@@ -101,9 +123,13 @@ def main(args):
     #
     # Find pod where job ran
     #
+    # Reload credentials to reduce risk of token expiration
+    config.load_kube_config(context=args.context, persist_config=False)    
     core = client.CoreV1Api()
-    pod = core.list_namespaced_pod(namespace=args.namespace, watch=False,
-                                   label_selector="job-name={}".format(args.job_name))
+    pod = find_pod(core, args)
+    if pod is None:
+        print("ERROR: Failed to find pod")
+        sys.exit(1)
     if len(pod.items) < 1:
         print("WARNING: no pods found with job name {}".format(args.job_name))
         sys.exit(0)
