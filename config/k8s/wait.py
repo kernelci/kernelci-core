@@ -96,6 +96,12 @@ def main(args):
             retries = retries - 1
             sleep_secs = sleep_secs * 2
             continue
+        except:
+            print("ERROR read_namespaced_job exception")
+            time.sleep(sleep_secs)
+            retries = retries - 1
+            sleep_secs = sleep_secs * 2
+            continue
 
         job_found = True
         if job.status.active or not job.status.conditions:
