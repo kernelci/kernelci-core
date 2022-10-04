@@ -136,7 +136,6 @@ def main(args):
         print(log)
     except client.rest.ApiException as e:
         print("Exception: Unable to get pod log", e)
-        k8s_success = False
 
     #
     # Delete job
