@@ -2381,9 +2381,9 @@ test_configs:
       - kselftest-livepatch
       - kselftest-lkdtm
       - kselftest-membarrier
+      - kselftest-mincore
       - kselftest-mount
       - kselftest-mqueue
-      - kselftest-mincore
       - kselftest-nci
       - kselftest-nsfs
       - kselftest-openat2
