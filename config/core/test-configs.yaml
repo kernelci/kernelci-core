@@ -418,17 +418,17 @@ test_plans:
       kselftest_collections: "openat2"
     filters: *kselftest_no_fragment
 
-  kselftest-pidfd:
-    <<: *kselftest
-    params:
-      job_timeout: '10'
-      kselftest_collections: "pidfd"
-
   kselftest-pid-namespace:
     <<: *kselftest
     params:
       job_timeout: '10'
       kselftest_collections: "pid_namespace"
+
+  kselftest-pidfd:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "pidfd"
 
   kselftest-ptrace:
     <<: *kselftest
@@ -2216,8 +2216,8 @@ test_configs:
       - kselftest-nci
       - kselftest-nsfs
       - kselftest-openat2
-      - kselftest-pidfd
       - kselftest-pid-namespace
+      - kselftest-pidfd
       - kselftest-ptrace
       - kselftest-rlimits
       - kselftest-rtc
@@ -2269,8 +2269,8 @@ test_configs:
       - kselftest-mqueue
       - kselftest-nci
       - kselftest-nsfs
-      - kselftest-pidfd
       - kselftest-pid-namespace
+      - kselftest-pidfd
       - kselftest-ptrace
       - kselftest-rlimits
       - kselftest-rtc
@@ -2325,8 +2325,8 @@ test_configs:
       - kselftest-nci
       - kselftest-nsfs
       - kselftest-openat2
-      - kselftest-pidfd
       - kselftest-pid-namespace
+      - kselftest-pidfd
       - kselftest-ptrace
       - kselftest-rlimits
       - kselftest-rtc
@@ -2387,8 +2387,8 @@ test_configs:
       - kselftest-nci
       - kselftest-nsfs
       - kselftest-openat2
-      - kselftest-pidfd
       - kselftest-pid-namespace
+      - kselftest-pidfd
       - kselftest-ptrace
       - kselftest-rlimits
       - kselftest-rtc
@@ -2587,8 +2587,8 @@ test_configs:
       - kselftest-nci
       - kselftest-nsfs
       - kselftest-openat2
-      - kselftest-pidfd
       - kselftest-pid-namespace
+      - kselftest-pidfd
       - kselftest-ptrace
       - kselftest-rlimits
       - kselftest-rtc
@@ -2647,8 +2647,8 @@ test_configs:
       - kselftest-nci
       - kselftest-nsfs
       - kselftest-openat2
-      - kselftest-pidfd
       - kselftest-pid-namespace
+      - kselftest-pidfd
       - kselftest-ptrace
       - kselftest-rlimits
       - kselftest-rtc
@@ -2700,8 +2700,8 @@ test_configs:
       - kselftest-nci
       - kselftest-nsfs
       - kselftest-openat2
-      - kselftest-pidfd
       - kselftest-pid-namespace
+      - kselftest-pidfd
       - kselftest-ptrace
       - kselftest-rlimits
       - kselftest-rtc
@@ -2753,8 +2753,8 @@ test_configs:
       - kselftest-nci
       - kselftest-nsfs
       - kselftest-openat2
-      - kselftest-pidfd
       - kselftest-pid-namespace
+      - kselftest-pidfd
       - kselftest-ptrace
       - kselftest-rlimits
       - kselftest-rtc
@@ -3127,8 +3127,8 @@ test_configs:
       - kselftest-nci
       - kselftest-nsfs
       - kselftest-openat2
-      - kselftest-pidfd
       - kselftest-pid-namespace
+      - kselftest-pidfd
       - kselftest-ptrace
       - kselftest-rlimits
       - kselftest-rtc
@@ -3184,8 +3184,8 @@ test_configs:
       - kselftest-nci
       - kselftest-nsfs
       - kselftest-openat2
-      - kselftest-pidfd
       - kselftest-pid-namespace
+      - kselftest-pidfd
       - kselftest-ptrace
       - kselftest-rlimits
       - kselftest-rtc
@@ -3428,8 +3428,8 @@ test_configs:
       - kselftest-nci
       - kselftest-nsfs
       - kselftest-openat2
-      - kselftest-pidfd
       - kselftest-pid-namespace
+      - kselftest-pidfd
       - kselftest-ptrace
       - kselftest-rlimits
       - kselftest-rtc
@@ -3485,8 +3485,8 @@ test_configs:
       - kselftest-nci
       - kselftest-nsfs
       - kselftest-openat2
-      - kselftest-pidfd
       - kselftest-pid-namespace
+      - kselftest-pidfd
       - kselftest-ptrace
       - kselftest-rlimits
       - kselftest-rtc
@@ -3574,8 +3574,8 @@ test_configs:
       - kselftest-nci
       - kselftest-nsfs
       - kselftest-openat2
-      - kselftest-pidfd
       - kselftest-pid-namespace
+      - kselftest-pidfd
       - kselftest-ptrace
       - kselftest-rlimits
       - kselftest-rtc
