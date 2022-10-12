@@ -88,7 +88,7 @@ def urljoin_with_query(lhs, rhs):
 
 
 def get_params(meta, target, plan_config, storage, device_id,
-               storage_header=None):
+               omit_publish_path=False, storage_header=None):
     """Get a dictionary with all the test parameters to run a test job
 
     *meta* is a MetaStep object
@@ -116,18 +116,20 @@ def get_params(meta, target, plan_config, storage, device_id,
     url_px = publish_path
     # Truncate to <200 characters, LAVA limit
     job_name = '-'.join([job_px, target.name, plan_config.name])[:199]
-    base_url = urljoin_with_query(storage, '/'.join([url_px, '']))
+    if not omit_publish_path:
+        storage = urljoin_with_query(storage, '/'.join([url_px, '']))
+
+    base_url = storage
     kernel_img = meta.get_single_artifact('kernel', 'image', 'path')
-    kernel_url = urljoin_with_query(storage, '/'.join([url_px, kernel_img]))
+    kernel_url = urljoin_with_query(storage, kernel_img)
 
     if dtb_full and dtb_full.endswith('.dtb'):
-        dtb_url = urljoin_with_query(
-            storage, '/'.join([url_px, dtb_full]))
+        dtb_url = urljoin_with_query(storage, dtb_full)
     else:
         dtb_url = None
     modules = meta.get_single_artifact('modules', attr='path')
     modules_url = (
-        urljoin_with_query(storage, '/'.join([url_px, modules]))
+        urljoin_with_query(storage, modules)
         if modules else None
     )
     modules_compression = _get_compression(modules_url)
@@ -137,7 +139,7 @@ def get_params(meta, target, plan_config, storage, device_id,
     describe = rev['describe']
     kselftests = meta.get_single_artifact('kselftest', attr='path')
     kselftests_url = (
-        urljoin_with_query(storage, '/'.join([url_px, kselftests]))
+        urljoin_with_query(storage, kselftests)
         if kselftests else None
     )
 
