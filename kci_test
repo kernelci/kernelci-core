@@ -199,10 +199,8 @@ class cmd_list_jobs(Command):
             print("Either --build-output or --install-path is required")
             return False
 
-        install = (
-            args.install_path if args.install_path else
-            kernelci.build.Step.get_install_path(None, args.build_output)
-        )
+        install = kernelci.build.Step.get_install_path(None, args.build_output,
+                                                       args.install_path)
         meta = kernelci.build.Metadata(install)
 
         if meta.get('bmeta', 'build', 'status') != "PASS":
@@ -288,10 +286,8 @@ class cmd_generate(Command):
             print("Either --build-output or --install-path is required")
             return False
 
-        install = (
-            args.install_path
-            or kernelci.build.Step.get_install_path(None, args.build_output)
-        )
+        install = kernelci.build.Step.get_install_path(None, args.build_output,
+                                                       args.install_path)
         meta = kernelci.build.Metadata(install)
 
         if meta.get('bmeta', 'build', 'status') != "PASS":

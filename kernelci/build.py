@@ -609,7 +609,8 @@ class Step:
 
     KVER_RE = re.compile(r'^v([\d]+)\.([\d]+)')
 
-    def __init__(self, kdir, output_path=None, log=None, reset=False):
+    def __init__(self, kdir, output_path=None, log=None, reset=False,
+                 install_path=None):
         """Each Step deals with a part of the build and its related meta-data
 
         This abstract class handles the common code to run any kernel build
@@ -631,7 +632,8 @@ class Step:
         self._output_path = output_path or self.get_default_output_path(kdir)
         if not os.path.exists(self._output_path):
             os.mkdir(self._output_path)
-        self._install_path = self.get_install_path(kdir, self._output_path)
+        self._install_path = self.get_install_path(kdir, self._output_path,
+                                                   install_path)
         self._create_install_dir(reset)
         self._meta = Metadata(self._output_path, reset)
         self._meta.clear_artifacts(self.name)
@@ -666,7 +668,7 @@ class Step:
         return os.path.join(kdir, 'build')
 
     @classmethod
-    def get_install_path(cls, kdir=None, output_path=None):
+    def get_install_path(cls, kdir=None, output_path=None, install_path=None):
         """Get the default build install path
 
         Get the default path where the kernel build artifacts get installed
@@ -679,6 +681,9 @@ class Step:
         *kdir* is the optional path to the kernel source directory
         *output_path* is the optional path to the kernel build output
         """
+        if install_path:
+            return install_path
+
         if output_path is None:
             if kdir is None:
                 output_path = ''
