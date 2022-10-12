@@ -411,6 +411,13 @@ test_plans:
       job_timeout: '10'
       kselftest_collections: "nsfs"
 
+  kselftest-openat2:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "openat2"
+    filters: *kselftest_no_fragment
+
   kselftest-pidfd:
     <<: *kselftest
     params:
@@ -428,13 +435,6 @@ test_plans:
     params:
       job_timeout: '10'
       kselftest_collections: "ptrace"
-    filters: *kselftest_no_fragment
-
-  kselftest-openat2:
-    <<: *kselftest
-    params:
-      job_timeout: '10'
-      kselftest_collections: "openat2"
     filters: *kselftest_no_fragment
 
   kselftest-rlimits:
