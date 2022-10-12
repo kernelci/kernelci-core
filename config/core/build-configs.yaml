@@ -109,6 +109,9 @@ trees:
   rt-stable:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/rt/linux-stable-rt.git"
 
+  rust-for-linux:
+    url: "https://github.com/Rust-for-Linux/linux.git"
+
   samsung:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/kgene/linux-samsung.git"
 
@@ -227,6 +230,42 @@ fragments:
       - 'CONFIG_EXPERT=y'
       - 'CONFIG_PREEMPT_RT=y'
       - 'CONFIG_PREEMPT_RT_FULL=y' # <= v4.19
+
+  rust:
+    path: "kernel/configs/rust.config"
+    configs:
+      - 'CONFIG_RUST=y'
+
+  rust-for-linux-samples:
+    path: "kernel/configs/rust-for-linux-samples.config"
+    configs:
+      - 'CONFIG_SAMPLES=y'
+      - 'CONFIG_SAMPLES_RUST=y'
+      - 'CONFIG_SAMPLE_RUST_MINIMAL=m'
+      - 'CONFIG_SAMPLE_RUST_HOSTPROGS=m'
+      - 'CONFIG_SAMPLE_RUST_PRINT=m'
+      - 'CONFIG_SAMPLE_RUST_MODULE_PARAMETERS=m'
+      - 'CONFIG_SAMPLE_RUST_SYNC=m'
+      - 'CONFIG_SAMPLE_RUST_CHRDEV=m'
+      - 'CONFIG_SAMPLE_RUST_MISCDEV=m'
+      - 'CONFIG_SAMPLE_RUST_STACK_PROBING=m'
+      - 'CONFIG_SAMPLE_RUST_SEMAPHORE=m'
+      - 'CONFIG_SAMPLE_RUST_SEMAPHORE_C=m'
+      - 'CONFIG_SAMPLE_RUST_RANDOM=m'
+      - 'CONFIG_SAMPLE_RUST_PLATFORM=m'
+      - 'CONFIG_SAMPLE_RUST_FS=m'
+      - 'CONFIG_SAMPLE_RUST_NETFILTER=m'
+      - 'CONFIG_SAMPLE_RUST_ECHO_SERVER=m'
+      - 'CONFIG_SAMPLE_RUST_HOSTPROGS=m'
+      - 'CONFIG_SAMPLE_RUST_SELFTESTS=m'
+
+  rust-samples:
+    path: "kernel/configs/rust-samples.config"
+    configs:
+      - 'CONFIG_SAMPLES=y'
+      - 'CONFIG_SAMPLES_RUST=y'
+      - 'CONFIG_SAMPLE_RUST_HOSTPROGS=y'
+      - 'CONFIG_SAMPLE_RUST_MINIMAL=m'
 
   tinyconfig:
     path: "kernel/configs/tiny.config"
@@ -395,6 +434,14 @@ build_environments:
     cc_version: 16
     arch_params:
       <<: *clang_15_arch_params
+
+  rustc-1.62:
+    cc: clang
+    cc_version: 15
+    arch_params:
+      x86_64:
+        <<: *x86_64_params
+        name:
 
 # Default config with full build coverage
 build_configs_defaults:
@@ -959,6 +1006,26 @@ build_configs:
     tree: rt-stable
     branch: 'v5.15-rt'
     variants: *preempt_rt_variants
+
+  rust:
+    tree: mainline
+    branch: 'master'
+    variants:
+      rustc-1.62:
+        build_environment: rustc-1.62
+        fragments: [rust, rust-samples, kselftest]
+        architectures:
+          x86_64: *x86_64_arch
+
+  rust-for-linux:
+    tree: rust-for-linux
+    branch: 'rust'
+    variants:
+      rustc-1.62:
+        build_environment: rustc-1.62
+        fragments: [rust, rust-for-linux-samples, kselftest]
+        architectures:
+          x86_64: *x86_64_arch
 
   samsung:
     tree: samsung
