@@ -19,6 +19,9 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     wget
 
 {% include 'fragment/cros-lava.jinja2' %}
+# Update gsutil to latest version, so it doesnt download it in LAVA
+# docker each time
+RUN gsutil update -n
 
 {{ super() }}
 
@@ -28,4 +31,7 @@ ADD https://raw.githubusercontent.com/kernelci/kernelci-core/chromeos.kernelci.o
 # Needed by LAVA to install the overlay
 USER root
 RUN chmod +x /home/cros/tast_parser.py /home/cros/ssh_retry.sh
+
+# Create symlink to /usr/local/bin for tast gs:// downloads
+RUN ln -s /home/cros/trunk/chromite/scripts/gsutil /usr/local/bin/
 {%- endblock %}
