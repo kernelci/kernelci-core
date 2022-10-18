@@ -36,6 +36,7 @@ actions:
       - usbutils
       - initramfs-tools
       - patch
+      - systemd-timesyncd
 
   - action: run
     description: Build testsuite

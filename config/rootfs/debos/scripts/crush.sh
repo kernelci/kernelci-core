@@ -105,9 +105,6 @@ systemd_dns_nw_ntp_tools() {
 
    # Systemd network configuration
    find usr etc -name '*networkd*' -prune -exec rm -r {} \;
-
-   # systemd ntp client (connman is in use)
-   find usr etc -name '*timesyncd*' -prune -exec rm -r {} \;
 }
 
 ncurses()  {
