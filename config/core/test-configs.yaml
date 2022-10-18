@@ -1556,7 +1556,7 @@ device_types:
       machine: 'virt'
       no_kvm: True
       memory: 1024
-      extra_options: ['-bios default']
+      extra_options: ['-bios default -device virtio-net,netdev=main -netdev user,id=main']
     filters:
       - passlist: {defconfig: ['defconfig']}
 
