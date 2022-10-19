@@ -33,9 +33,12 @@ git config --global user.email "bot@kernelci.org"
 git config --global user.name "KernelCI Bot"
 git config --global color.ui false
 
-# To generate manifest snapshot:
+# To generate manifest snapshot, install less by apt, then uncomment:
 # repo init --repo-url https://chromium.googlesource.com/external/repo --manifest-url https://chromium.googlesource.com/chromiumos/manifest --manifest-name default.xml --manifest-branch ${BRANCH}
+# repo sync -j$(nproc)
 # repo manifest -r -o cros-snapshot.xml
+# mv cros-snapshot.xml /kernelci-core
+# exit
 
 # Fetching current manifest snapshot
 repo init -u https://github.com/kernelci/kernelci-core -b chromeos.kernelci.org -m "config/rootfs/chromiumos/cros-snapshot-$2.xml"
@@ -79,16 +82,28 @@ cros_sdk USE="tty_console_${SERIAL}" emerge-"${BOARD}" chromeos-base/tty
 echo "Building image (${SERIAL})"
 cros_sdk ./build_image --enable_serial ${SERIAL} --board="${BOARD}" --boot_args "earlyprintk=serial,keep console=tty0" --noenable_rootfs_verification test
 
-echo "Moving artifacts"
-# Create artifacts dir and copy generated image and tast files
+echo "Creating artifacts dir and copy generated image"
 sudo mkdir -p "${DATA_DIR}/${BOARD}"
 sudo cp "src/build/images/${BOARD}/latest/chromiumos_test_image.bin" "${DATA_DIR}/${BOARD}"
-sudo tar -czf "${DATA_DIR}/${BOARD}/tast.tgz" -C ./chroot/usr/bin/ remote_test_runner tast
+
+echo "Packing Tast files"
+sudo tar -cf "${DATA_DIR}/${BOARD}/tast.tar" -C ./chroot/usr/bin/ remote_test_runner tast
+sudo tar -uf "${DATA_DIR}/${BOARD}/tast.tar" -C ./chroot/usr/libexec/tast/bundles/remote/ cros
+sudo gzip -9 "${DATA_DIR}/${BOARD}/tast.tar"
+sudo mv "${DATA_DIR}/${BOARD}/tast.tar.gz" "${DATA_DIR}/${BOARD}/tast.tgz"
+
+echo "Updating ownership"
 sudo chown -R "${USERNAME}" "${DATA_DIR}/${BOARD}"
+
+echo "Compressing image"
 gzip -1 "${DATA_DIR}/${BOARD}/chromiumos_test_image.bin"
+
+echo "Extracting additional artifacts"
 sudo tar -cJf "${DATA_DIR}/${BOARD}/modules.tar.xz" -C ./chroot/build/${BOARD} lib/modules
 sudo cp "./chroot/build/${BOARD}/boot/vmlinuz" "${DATA_DIR}/${BOARD}/bzImage"
 sudo cp ./chroot/build/${BOARD}/boot/config* "${DATA_DIR}/${BOARD}/kernel.config"
+
+echo "Creating manifest file"
 python3 "${SCRIPTPATH}/create_manifest.py" "${BOARD}" "${DATA_DIR}/${BOARD}"
 
 # Probably redundant, but better safe than sorry
