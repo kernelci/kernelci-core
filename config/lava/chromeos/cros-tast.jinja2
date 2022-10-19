@@ -24,6 +24,8 @@
               curl -s {{ cros_image.base_url }}{{ cros_image.tast_tarball }}
               \| tar xzvf -
               && cp remote_test_runner /usr/bin/remote_test_runner
+              && mkdir -p /usr/libexec/tast/bundles/remote/
+              && cp cros /usr/libexec/tast/bundles/remote/
             - while ! ping -c 1 -w 1 $(lava-target-ip); do sleep 1; done
             - >-
               lava-test-case os-release --shell
