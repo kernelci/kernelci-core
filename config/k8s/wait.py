@@ -44,6 +44,8 @@ def find_pod(core, args):
         except client.rest.ApiException as e:
             print("ERROR: Exception on list_namespaced_pod, ", e)
             retries -= 1
+            if retries == 0:
+                raise e
             time.sleep(5)
             # One of solutions to reload config
             # https://github.com/DataBiosphere/toil/issues/2867
@@ -51,6 +53,16 @@ def find_pod(core, args):
                                     persist_config=False)
             core = client.CoreV1Api()
             continue
+        # exception might happen deep inside kubernetes, example:
+        # https://github.com/kernelci/kernelci-core/issues/1470#issue-1408983064
+        except Exception as e:
+            print(f"ERROR: find_pod generic exception: {e!r}")
+            retries -= 1
+            if retries == 0:
+                raise e
+            time.sleep(5)
+            continue
+
     return None
 
 
@@ -136,38 +148,47 @@ def main(args):
     if pod is None:
         print("ERROR: Failed to find pod")
         sys.exit(1)
-    if len(pod.items) < 1:
+    pods_num = len(pod.items)
+    if pods_num < 1:
         print("WARNING: no pods found with job name {}".format(args.job_name))
         sys.exit(0)
-    if len(pod.items) > 1:
+    # Do not quit job even if more than 1 pod found, one might be successfull
+    # Check last one
+    if pods_num > 1:
         print("WARNING: >1 pod found with job name {}".format(args.job_name))
-        sys.exit(0)
-    pod_name = pod.items[0].metadata.name
-    print("Found job on pod {}".format(pod_name))
 
-    #
-    # Get logs (from pod)
-    #
+    log = ""
+    # Try to collect logs from all pods created by this job
+    for jpod in pod.items:
+        pod_name = jpod.metadata.name
+        print("Found job on pod {}".format(pod_name))
 
-    # default: check the main container logs
-    cont_name = pod.items[0].spec.containers[0].name
+        #
+        # Get logs (from pod)
+        #
 
-    # unless the initContainer failed, get that log, because if the
-    # initContainer failed, the main container will not have run
-    if (pod.items[0].spec.init_containers):
-        init_cont_name = pod.items[0].spec.init_containers[0].name
-        if not pod.items[0].status.init_container_statuses[0].ready:
-            print("ERROR: initContainer {} not ready / failed.".format(init_cont_name))
-            cont_name = init_cont_name
-            k8s_success = False
-    try:
-        log = core.read_namespaced_pod_log(name=pod_name,
-                                           namespace=args.namespace,
-                                           container=cont_name)
-        print("Container Log:")
-        print(log)
-    except client.rest.ApiException as e:
-        print("Exception: Unable to get pod log", e)
+        # default: check the main container logs
+        cont_name = jpod.spec.containers[0].name
+
+        # unless the initContainer failed, get that log, because if the
+        # initContainer failed, the main container will not have run
+        if jpod.spec.init_containers:
+            init_cont_name = jpod.spec.init_containers[0].name
+            if not jpod.status.init_container_statuses[0].ready:
+                print("ERROR: initContainer {} not ready / failed.".
+                      format(init_cont_name))
+                cont_name = init_cont_name
+                if pods_num == 1:
+                    k8s_success = False
+        try:
+            jlog = core.read_namespaced_pod_log(name=pod_name,
+                                                namespace=args.namespace,
+                                                container=cont_name)
+            print("Container Log:")
+            print(jlog)
+            log += jlog
+        except client.rest.ApiException as e:
+            print("Exception: Unable to get pod log", e)
 
     #
     # Delete job
