@@ -58,14 +58,16 @@ index 1bbdddfd5..de84b9e6f 100755
 \t\techo \".run-test files not found under \$1, have been the tests compiled?\"
 " | patch -p1
 
+NBCPU=$(grep ^processor /proc/cpuinfo | wc -l)
+
 make autotools
 ./configure
-make all
+make all -j$NBCPU
 find . -executable -type f -exec strip {} \;
 make install
 
 cd testcases/open_posix_testsuite/ && ./configure
-make all
+make all -j$NBCPU
 make install prefix=/opt/ltp
 
 ########################################################################
