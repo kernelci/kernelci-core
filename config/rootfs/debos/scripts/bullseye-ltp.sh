@@ -64,7 +64,7 @@ make all
 find . -executable -type f -exec strip {} \;
 make install
 
-cd testcases/open_posix_testsuite/ && make generate-makefiles prefix=/opt/ltp
+cd testcases/open_posix_testsuite/ && ./configure
 make all
 make install prefix=/opt/ltp
 
