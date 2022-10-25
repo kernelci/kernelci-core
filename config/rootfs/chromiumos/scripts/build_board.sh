@@ -73,7 +73,7 @@ fi
 sed -i 's/selinux/-selinux/g' src/third_party/chromiumos-overlay/profiles/features/selinux/package.use
 
 # Temporary workaround as chrome-icu build fails at 10/08/2022 due corrupt git cache
-cros_sdk sync_chrome --tag=102.0.5005.171 --reset --gclient=/mnt/host/depot_tools/gclient /var/cache/chromeos-cache/distfiles/chrome-src --skip_cache
+cros_sdk sync_chrome --tag=106.0.5249.134 --reset --gclient=/mnt/host/depot_tools/gclient /var/cache/chromeos-cache/distfiles/chrome-src --skip_cache
 
 # Add serial support
 echo "Add serial ${SERIAL} support"
