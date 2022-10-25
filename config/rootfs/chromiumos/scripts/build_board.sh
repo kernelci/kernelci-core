@@ -56,9 +56,12 @@ if [ "${BOARD}" == "hatch" ]; then
 echo "Patching hatch specific issue"
 sed -i 's/EC_BOARDS=()/EC_BOARDS=(hatch)/' src/third_party/chromiumos-overlay/eclass/cros-ec-board.eclass
 fi
+
 if [ "${BOARD}" == "octopus" ]; then
 echo "Patching octopus specific issue"
 sed -i s,'use fuzzer || die',"#use fuzzer || die", src/third_party/chromiumos-overlay/eclass/cros-ec-board.eclass
+# Workaround b/244460939 T38487 - octopus missing proper tpm USE flags
+echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-octopus/profiles/base/make.defaults
 fi
 
 if [ "${BOARD}" == "coral" ]; then
