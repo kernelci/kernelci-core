@@ -2595,6 +2595,7 @@ test_configs:
 
   - device_type: mt8173-elm-hana
     test_plans:
+      - audio
       - baseline
       - baseline-nfs
       - cros-ec
