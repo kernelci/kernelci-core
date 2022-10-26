@@ -145,6 +145,8 @@ fragments:
       - 'CONFIG_REGULATOR_DA9211=y'
       - 'CONFIG_ARM_MEDIATEK_CPUFREQ=y'
       - 'CONFIG_RTC_DRV_MT6397=y'
+      - 'CONFIG_SND_SOC_MT8173=m'
+      - 'CONFIG_SND_SOC_MT8173_RT5650=m'
       # This is required for sc7180-trogdor-lazor-limozeen and it hasn't been
       # merged upstream yet.
       - 'CONFIG_INTERCONNECT_QCOM_SC7180=y'
