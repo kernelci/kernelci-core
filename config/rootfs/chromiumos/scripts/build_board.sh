@@ -72,6 +72,11 @@ sed -i s,'media-libs/apl-hotword-support','# media-libs/apl-hotword-support', sr
 sed -i s,'USE="${USE} cros_ec"','# USE="${USE} cros_ec"', src/overlays/baseboard-coral/profiles/base/make.defaults
 fi
 
+if [ "${BOARD}" == "grunt" ]; then
+echo "Patching grunt specific issue"
+echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-grunt/profiles/base/make.defaults
+fi
+
 # Disable SELinux in upstart and other packages to allow booting newer kernels on
 # CrOS images which don't define all selinux policies
 sed -i 's/selinux/-selinux/g' src/third_party/chromiumos-overlay/profiles/features/selinux/package.use
