@@ -52,6 +52,7 @@ cros_sdk setup_board --board=${BOARD}
 if [ "${BOARD}" == "hatch" ]; then
 echo "Patching hatch specific issue"
 sed -i 's/EC_BOARDS=()/EC_BOARDS=(hatch)/' src/third_party/chromiumos-overlay/eclass/cros-ec-board.eclass
+echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-hatch/profiles/base/make.defaults
 fi
 
 if [ "${BOARD}" == "octopus" ]; then
