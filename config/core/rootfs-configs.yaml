@@ -273,3 +273,55 @@ rootfs_configs:
       - libp11-kit0
       - sensible-utils
     extra_files_remove: *extra_files_remove_bullseye
+
+  sid-kselftest:
+    rootfs_type: debos
+    debian_release: sid
+    debian_mirror: http://deb.debian.org/debian-ports
+    keyring_package: debian-ports-archive-keyring
+    keyring_file: /usr/share/keyrings/debian-ports-archive-keyring.gpg
+    arch_list:
+      - riscv64
+    extra_packages:
+      - bc
+      - ca-certificates
+      - iproute2
+      - jdim
+      - libasound2
+      - libatm1
+      - libcap2-bin
+      - libelf1
+      - libgdbm-compat4
+      - libgdbm6
+      - libhugetlbfs0
+      - libmnl0
+      - libnuma1
+      - libpam-cap
+      - libpcre2-8-0
+      - libperl5.36
+      - libpsl5
+      - libxtables12
+      - netbase
+      - openssl
+      - perl
+      - perl-modules-5.36
+      - procps
+      - publicsuffix
+      - python3-minimal
+      - python3-unittest2
+      - tpm2-tools
+      - wget
+      - xz-utils
+
+  sid-ltp:
+    rootfs_type: debos
+    debian_release: sid
+    debian_mirror: http://deb.debian.org/debian-ports
+    keyring_package: debian-ports-archive-keyring
+    keyring_file: /usr/share/keyrings/debian-ports-archive-keyring.gpg
+    arch_list:
+      - riscv64
+    extra_packages:
+      - gdb-minimal
+      - libnuma-dev
+    script: "scripts/bullseye-ltp.sh"
