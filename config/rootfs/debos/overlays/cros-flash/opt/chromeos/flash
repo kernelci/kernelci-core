@@ -116,6 +116,15 @@ enable_rw()
     cd "$root_path"
     umount "$mount_dir"
     sync
+    # Enable factory testing mode by special flag T38487
+    echo "Enable factory testing mode flag..."
+    mount -o rw /dev/${block_device}p1 "$mount_dir"
+    cd "$mount_dir"
+    mkdir -p dev_image/factory
+    echo 1 > dev_image/factory/enabled
+    cd "$root_path"
+    umount "$mount_dir"
+    sync
 }
 
 if [ -z "$IMAGE_NAME" ]; then
