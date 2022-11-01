@@ -67,6 +67,9 @@ trees:
   mainline:
     url: 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git'
 
+  matthiasbgg:
+    url: 'https://git.kernel.org/pub/scm/linux/kernel/git/matthias.bgg/linux.git'
+
   media:
     url: "https://git.linuxtv.org/media_tree.git"
 
@@ -773,6 +776,20 @@ build_configs:
       clang-15:
         build_environment: clang-15
         architectures: *arch_clang_configs
+
+  matthiasbgg-for-next:
+    tree: matthiasbgg
+    branch: 'for-next'
+    variants:
+      gcc-10:
+        build_environment: gcc-10
+        architectures:
+          arm64:
+            <<: *arm64_defconfig
+            fragments: [arm64-chromebook]
+          x86_64:
+            <<: *x86_64_defconfig
+            fragments: [x86-chromebook]
 
   media:
     tree: media
