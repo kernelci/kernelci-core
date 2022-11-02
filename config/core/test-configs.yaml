@@ -868,6 +868,14 @@ device_types:
     class: arm64-dtb
     boot_method: uboot
 
+  fvp:
+    mach: vexpress
+    arch: arm64
+    dtb: 'arm/fvp-base-revc.dtb'
+    boot_method: uboot
+    filters:
+      - passlist: {defconfig: ['defconfig']}
+
   hi6220-hikey:
     mach: hisilicon
     class: arm64-dtb
@@ -2205,6 +2213,12 @@ test_configs:
   - device_type: fsl-lx2160a-rdb
     test_plans:
       - baseline
+
+  - device_type: fvp
+    test_plans:
+      - baseline
+      - kselftest-seccomp
+
 
   - device_type: hi6220-hikey
     test_plans:
