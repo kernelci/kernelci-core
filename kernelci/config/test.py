@@ -164,6 +164,14 @@ class DeviceType_riscv(DeviceType):
         super().__init__(name, mach, arch, *args, **kw)
 
 
+class DeviceType_riscv64(DeviceType):
+
+    def __init__(self, name, mach, arch='riscv64', *args, **kw):
+        """RISCV device type with a device tree."""
+        kw.setdefault('dtb', '{}/{}.dtb'.format(mach, name))
+        super().__init__(name, mach, arch, *args, **kw)
+
+
 class DeviceType_shell(DeviceType):
 
     def __init__(self, name, mach=None, arch=None, boot_method=None,
@@ -188,6 +196,7 @@ class DeviceTypeFactory(YAMLObject):
         'arm-dtb': DeviceType_arm,
         'arm64-dtb': DeviceType_arm64,
         'riscv-dtb': DeviceType_riscv,
+        'riscv64-dtb': DeviceType_riscv64,
         'shell': DeviceType_shell,
         'kubernetes': DeviceType_kubernetes,
     }
