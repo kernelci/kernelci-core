@@ -10,7 +10,7 @@ test_plans:
     params:
       job_timeout: '60'
       docker_image: 'kernelci/chromeos-tast'
-      rootfs_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220429.0/chromiumos-amd64-generic/amd64/'
+      rootfs_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-amd64-generic/20221102.0/amd64/'
       fixed_kernel: true
 
   chromiumosvm-tast-upstream-kernel:
@@ -22,7 +22,7 @@ test_plans:
     params:
       job_timeout: '60'
       docker_image: 'kernelci/chromeos-tast'
-      rootfs_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/20220429.0/chromiumos-amd64-generic/amd64/'
+      rootfs_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-amd64-generic/20221102.0/amd64/'
 
   cros-baseline: &cros-baseline
     pattern: 'chromeos/cros-baseline.jinja2'
