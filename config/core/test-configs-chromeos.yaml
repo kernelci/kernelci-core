@@ -184,7 +184,7 @@ test_plans:
     params:
       <<: *cros-tast-base-params
       tests: &cros-tast-video-tests >
-        video.ChromeStackDecoding.*
+        video.ChromeStackDecoder.*
 
   cros-tast-video_qemu:
     <<: *cros-tast-base-qemu
