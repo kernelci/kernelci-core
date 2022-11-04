@@ -289,6 +289,7 @@ fragments:
       - 'CONFIG_NFS_V4=y'
       - 'CONFIG_ROOT_NFS=y'
       - 'CONFIG_EXTRA_FIRMWARE="
+      amdgpu/raven2_gpu_info.bin
       amdgpu/stoney_ce.bin
       amdgpu/stoney_me.bin
       amdgpu/stoney_mec.bin
@@ -297,6 +298,9 @@ fragments:
       amdgpu/stoney_sdma.bin
       amdgpu/stoney_uvd.bin
       amdgpu/stoney_vce.bin
+      i915/glk_dmc_ver1_04.bin
+      i915/kbl_dmc_ver1_04.bin
+      rtl_nic/rtl8153a-4.fw
       rtl_nic/rtl8153b-2.fw
       "'
 
