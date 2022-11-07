@@ -10,6 +10,7 @@ metadata:
     kernelci/buildconfig: "{{ "FIXME" | env_override('BUILD_CONFIG') }}"
 spec:
   completions: 1
+  backoffLimit: 20
   template:
     spec:
       restartPolicy: OnFailure
