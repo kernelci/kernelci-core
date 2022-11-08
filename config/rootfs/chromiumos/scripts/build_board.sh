@@ -51,11 +51,28 @@ echo "Board ${BOARD} setup"
 # Future possible option --profile=x, for example kernel-5_15, profiles are at /mnt/host/source/src/overlays/overlay-${BOARD}/profiles/
 cros_sdk setup_board --board=${BOARD}
 
-# Without workarounds hatch and octopus build failing
+# Certain boards need temporary fixes/patches to build successully
+if [ "${BOARD}" == "coral" ]; then
+echo "Patching coral specific issues"
+sed ':a;N;$!ba;s/DEPEND="\n\tchromeos-base\/fibocom-firmware\n"/# DEPEND="\n\t# chromeos-base\/fibocom-firmware\n# "/g' -i src/overlays/overlay-coral/chromeos-base/modemfwd-helpers/modemfwd-helpers-0.0.1.ebuild
+sed -i s,'media-libs/apl-hotword-support','# media-libs/apl-hotword-support', src/overlays/overlay-coral/media-libs/lpe-support-topology/lpe-support-topology-0.0.1.ebuild
+sed -i s,'USE="${USE} cros_ec"','# USE="${USE} cros_ec"', src/overlays/baseboard-coral/profiles/base/make.defaults
+fi
+
+if [ "${BOARD}" == "dedede" ]; then
+echo "Patching dedede specific issue"
+echo 'USE="${USE} -tpm tpm2 cr50_onboard"' >>src/overlays/baseboard-dedede/profiles/base/make.defaults
+fi
+
 if [ "${BOARD}" == "hatch" ]; then
 echo "Patching hatch specific issue"
 sed -i 's/EC_BOARDS=()/EC_BOARDS=(hatch)/' src/third_party/chromiumos-overlay/eclass/cros-ec-board.eclass
 echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-hatch/profiles/base/make.defaults
+fi
+
+if [ "${BOARD}" == "nami" ]; then
+echo "Patching nami specific issue"
+echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-nami/profiles/base/make.defaults
 fi
 
 if [ "${BOARD}" == "octopus" ]; then
@@ -65,11 +82,21 @@ sed -i s,'use fuzzer || die',"#use fuzzer || die", src/third_party/chromiumos-ov
 echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-octopus/profiles/base/make.defaults
 fi
 
-if [ "${BOARD}" == "coral" ]; then
-echo "Patching coral specific issues"
-sed ':a;N;$!ba;s/DEPEND="\n\tchromeos-base\/fibocom-firmware\n"/# DEPEND="\n\t# chromeos-base\/fibocom-firmware\n# "/g' -i src/overlays/overlay-coral/chromeos-base/modemfwd-helpers/modemfwd-helpers-0.0.1.ebuild
-sed -i s,'media-libs/apl-hotword-support','# media-libs/apl-hotword-support', src/overlays/overlay-coral/media-libs/lpe-support-topology/lpe-support-topology-0.0.1.ebuild
-sed -i s,'USE="${USE} cros_ec"','# USE="${USE} cros_ec"', src/overlays/baseboard-coral/profiles/base/make.defaults
+# rammus doesn't require any fixes
+
+if [ "${BOARD}" == "sarien" ]; then
+echo "Patching sarien specific issues"
+sed ':a;N;$!ba;s/DEPEND="\n\tchromeos-base\/fibocom-firmware\n"/# DEPEND="\n\t# chromeos-base\/fibocom-firmware\n# "/g' -i src/overlays/overlay-sarien/chromeos-base/modemfwd-helpers/modemfwd-helpers-0.0.1.ebuild
+fi
+
+if [ "${BOARD}" == "volteer" ]; then
+echo "Patching volteer specific issues"
+echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-volteer/profiles/base/make.defaults
+fi
+
+if [ "${BOARD}" == "zork" ]; then
+echo "Patching zork specific issues"
+echo 'USE="${USE} -tpm tpm2"' >>src/overlays/overlay-zork/profiles/base/make.defaults
 fi
 
 if [ "${BOARD}" == "grunt" ]; then
