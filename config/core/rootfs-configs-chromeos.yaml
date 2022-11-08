@@ -30,6 +30,14 @@ rootfs_configs:
     arch_list:
       - amd64
 
+  chromiumos-dedede:
+    rootfs_type: chromiumos
+    board: dedede
+    branch: release-R106-15054.B
+    serial: ttyS0
+    arch_list:
+      - amd64
+
   chromiumos-grunt:
     rootfs_type: chromiumos
     board: grunt
@@ -46,10 +54,50 @@ rootfs_configs:
     arch_list:
       - amd64
 
+  chromiumos-nami:
+    rootfs_type: chromiumos
+    board: nami
+    branch: release-R106-15054.B
+    serial: ttyS0
+    arch_list:
+      - amd64
+
   chromiumos-octopus:
     rootfs_type: chromiumos
     board: octopus
     branch: release-R106-15054.B
     serial: ttyS1
+    arch_list:
+      - amd64
+
+  chromiumos-rammus:
+    rootfs_type: chromiumos
+    board: rammus
+    branch: release-R106-15054.B
+    serial: ttyS0
+    arch_list:
+      - amd64
+
+  chromiumos-sarien:
+    rootfs_type: chromiumos
+    board: sarien
+    branch: release-R106-15054.B
+    serial: ttyS0
+    arch_list:
+      - amd64
+
+  chromiumos-volteer:
+    rootfs_type: chromiumos
+    board: volteer
+    branch: release-R106-15054.B
+    serial: ttyS0
+    arch_list:
+      - amd64
+
+  chromiumos-zork:
+    rootfs_type: chromiumos
+    board: zork
+    branch: release-R106-15054.B
+    serial: ttyS0
     arch_list:
       - amd64
