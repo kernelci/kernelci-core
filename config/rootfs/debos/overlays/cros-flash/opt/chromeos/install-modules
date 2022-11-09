@@ -21,14 +21,12 @@
 set -xe
 
 MODULES_URL="$1"
-BLOCK_DEVICE="${2:-mmcblk0}"
-IMAGE_MOUNTPOINT="${3:-/root/chromeos}"
+IMAGE_MOUNTPOINT="${2:-/root/chromeos}"
 
 install_modules()
 {
     local modules_url="$1"
-    local block_device="$2"
-    local image_mountpoint="$3"
+    local image_mountpoint="$2"
 
     local mount_dir=$(basename "$image_mountpoint")
     local root_path=$(dirname "$image_mountpoint")
@@ -60,10 +58,10 @@ install_modules()
 
 if [ -z "$MODULES_URL" ]; then
     echo "Missing modules URL"
-    echo "Usage: install-modules MODULES_URL BLOCK_DEVICE IMAGE_MOUNTPOINT"
+    echo "Usage: install-modules MODULES_URL IMAGE_MOUNTPOINT"
     exit 1
 fi
 
-install_modules "$MODULES_URL" "$BLOCK_DEVICE" "$IMAGE_MOUNTPOINT"
+install_modules "$MODULES_URL" "$IMAGE_MOUNTPOINT"
 
 exit 0
