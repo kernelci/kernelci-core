@@ -45,6 +45,7 @@ spec:
       containers:
       - name: kci-build
         image: {{ "FIXME" | env_override('DOCKER_BASE') }}{{ "FIXME" | env_override('DOCKER_IMAGE') }}
+        imagePullPolicy: Always
 
         volumeMounts:
         - mountPath: "/scratch"
