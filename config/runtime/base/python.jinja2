@@ -13,6 +13,7 @@ import tarfile
 import traceback
 import urllib.parse
 import yaml
+import shutil
 {% endblock %}
 
 {%- block python_local_imports %}
@@ -23,7 +24,9 @@ import kernelci.config
 {%- block python_globals %}
 DB_CONFIG_YAML = """
 {{ db_config_yaml }}"""
+KERNEL = '{{ kernel if kernel is not none else ""}}'
 NODE_ID = '{{ node_id }}'
+SRC_DIR = '{{ src_dir if src_dir is not none else ""}}'
 TARBALL_URL = '{{ tarball_url }}'
 WORKSPACE = '/tmp/kci'
 {%- endblock %}
@@ -47,16 +50,52 @@ class BaseJob:
 
         return kernelci.db.get_db(db_config, api_token)
 
-    def _get_source(self, url):
-        resp = requests.get(url, stream=True)
-        resp.raise_for_status()
-        tarball_name = os.path.basename(urllib.parse.urlparse(url).path)
-        base, ext = tarball_name.split('.tar.')
-        with tarfile.open(fileobj=resp.raw, mode=f'r|{ext}') as tarball:
-            tarball.extractall(path=self._workspace)
-        return os.path.join(self._workspace, base)
+    def _get_kernel(self, path_url):
+        """Downloads and/or copies a kernel image or tarball to the job
+        workspace. This method detects whether the kernel provided in
+        <path_url> is a local or a remote file and also if it's a
+        tarball or a kernel image and does the right thing:
+          - remote kernel image: download to workspace dir
+          - remote tarball: download and extract to workspace dir
+          - local kernel image: copy to worspace dir
+          - local tarball file: extract to workspace dir
 
-    def _run(self, src_path):
+        Args:
+            path_url (str): the local path or remote URL of the kernel
+
+        Returns:
+            (str) The absolute path of the kernel image or source in the
+            workspace.
+
+        Notes:
+            any raised exception is supposed to be handled by the caller.
+        """
+        local_path = None
+        if path_url.startswith(('http', 'ftp')):
+            resp = requests.get(path_url, stream=True)
+            resp.raise_for_status()
+            if '.tar.' in path_url:
+                # tarball: download and extract
+                tarball_name = os.path.basename(urllib.parse.urlparse(path_url).path)
+                base, ext = tarball_name.split('.tar.')
+                with tarfile.open(fileobj=resp.raw, mode=f'r|{ext}') as tarball:
+                    tarball.extractall(path=self._workspace)
+                local_path = os.path.join(self._workspace, base)
+            else:
+                # kernel image: download and copy
+                image_name = os.path.basename(urllib.parse.urlparse(path_url).path)
+                local_path = os.path.join(self._workspace, image_name)
+                urllib.request.urlretrieve(path_url, local_path)
+        else:
+            if '.tar.' in path_url:
+                with tarfile.open(path_url) as tarball:
+                    tarball.extractall(path=self._workspace)
+                    local_path = os.path.join(self._workspace, base)
+            else:
+                local_path = shutil.copy(path_url, self._workspace)
+        return local_path
+
+    def _run(self, kernel):
         raise NotImplementedError("_run() method required to run job")
 
     def _submit(self, result, node_id, db):
@@ -68,12 +107,18 @@ class BaseJob:
         db.submit({'node': node})
         return node
 
-    def run(self, tarball_url):
-        print("Getting kernel source tree...")
-        src_path = self._get_source(tarball_url)
-        print(f"Source directory: {src_path}")
+    def run(self, kernel, local_src_dir=False):
+        # local_src_dir==True means that the kernel is already extracted
+        # to a local path. This is indented mostly for development and
+        # debugging purposes.
+        print(f"Getting kernel: {kernel}")
+        if local_src_dir:
+            kernel_path = kernel
+        else:
+            kernel_path = self._get_kernel(kernel)
+        print(f"Kernel path: {kernel_path}")
         print("Running job...")
-        return self._run(src_path)
+        return self._run(kernel_path)
 
     def submit(self, result, node_id, db_config_yaml):
         db = self._get_db(db_config_yaml)
@@ -90,7 +135,15 @@ class Job(BaseJob):
 def main(args):
     job = Job({% block python_job_constr %}workspace=WORKSPACE{% endblock %})
     try:
-        results = job.run(TARBALL_URL)
+        # Default case: fetch the kernel from a remote tarball
+        local_src_dir = False
+        kernel = TARBALL_URL
+        if KERNEL:
+            kernel = KERNEL
+        if SRC_DIR:
+            kernel = SRC_DIR
+            local_src_dir = True
+        results = job.run(kernel, local_src_dir)
     except Exception:
         print(traceback.format_exc())
         results = None
