@@ -194,15 +194,15 @@ test_plans:
 
 device_types:
 
-  asus-C436FA-Flip-hatch_chromeos: &chromebook-generic-type
-    base_name: asus-C436FA-Flip-hatch
+  asus-C433TA-AJ0005-rammus_chromeos: &chromebook-x86-type
+    base_name: asus-C433TA-AJ0005-rammus
     mach: x86
     arch: x86_64
     boot_method: depthcharge
     filters: &pineview-filter
       - passlist: {defconfig: ['chromeos-intel-pineview']}
+    params:
     params: &chromebook-generic-params
-      block_device: nvme0n1
       cros_flash_nfs:
         base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20221031.0/amd64/'
         initrd: 'initrd.cpio.gz'
@@ -215,6 +215,22 @@ device_types:
         modules: 'modules.tar.xz'
         modules_compression: 'xz'
       cros_image:
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-rammus/20221116.0/amd64/'
+        flash_tarball: 'full-cros-flash.tar.gz'
+        flash_tarball_compression: 'gz'
+        tast_tarball: 'tast.tgz'
+      reference_kernel:
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-rammus/20221116.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-rammus/20221116.0/amd64/modules.tar.xz'
+      block_device: detect
+
+  asus-C436FA-Flip-hatch_chromeos:
+    <<: *chromebook-x86-type
+    base_name: asus-C436FA-Flip-hatch
+    filters: *pineview-filter
+    params:
+      <<: *chromebook-generic-params
+      cros_image:
         base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-hatch/20221027.0/amd64/'
         flash_tarball: 'full-cros-flash.tar.gz'
         flash_tarball_compression: 'gz'
@@ -222,12 +238,11 @@ device_types:
       reference_kernel:
         image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-hatch/20221027.0/amd64/bzImage'
         modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-hatch/20221027.0/amd64/modules.tar.xz'
+      block_device: nvme0n1
 
   asus-C523NA-A20057-coral_chromeos:
+    <<: *chromebook-x86-type
     base_name: asus-C523NA-A20057-coral
-    mach: x86
-    arch: x86_64
-    boot_method: depthcharge
     filters: *pineview-filter
     params:
       <<: *chromebook-generic-params
@@ -241,11 +256,75 @@ device_types:
         modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-coral/20221026.0/amd64/modules.tar.xz'
       block_device: detect
 
-  hp-11A-G6-EE-grunt_chromeos:
-    <<: *chromebook-generic-type
-    base_name: hp-11A-G6-EE-grunt
-    filters: &stoneyridge
+  asus-CM1400CXA-dalboz_chromeos:
+    <<: *chromebook-x86-type
+    base_name: asus-CM1400CXA-dalboz
+    filters: &stoneyridge-filter
       - passlist: {defconfig: ['chromeos-amd-stoneyridge']}
+    params:
+      <<: *chromebook-generic-params
+      cros_image:
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20221115.0/amd64/'
+        flash_tarball: 'full-cros-flash.tar.gz'
+        flash_tarball_compression: 'gz'
+        tast_tarball: 'tast.tgz'
+      reference_kernel:
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20221115.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20221115.0/amd64/modules.tar.xz'
+      block_device: detect
+
+  asus-cx9400-volteer_chromeos:
+    <<: *chromebook-x86-type
+    base_name: asus-cx9400-volteer
+    filters: *pineview-filter
+    params:
+      <<: *chromebook-generic-params
+      cros_image:
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-volteer/20221115.0/amd64/'
+        flash_tarball: 'full-cros-flash.tar.gz'
+        flash_tarball_compression: 'gz'
+        tast_tarball: 'tast.tgz'
+      reference_kernel:
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-volteer/20221115.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-volteer/20221115.0/amd64/modules.tar.xz'
+      block_device: nvme0n1
+
+  dell-latitude-5400-4305U-sarien_chromeos:
+    <<: *chromebook-x86-type
+    base_name: dell-latitude-5400-4305U-sarien
+    filters: *pineview-filter
+    params:
+      <<: *chromebook-generic-params
+      cros_image:
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-sarien/20221111.0/amd64/'
+        flash_tarball: 'full-cros-flash.tar.gz'
+        flash_tarball_compression: 'gz'
+        tast_tarball: 'tast.tgz'
+      reference_kernel:
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-sarien/20221111.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-sarien/20221111.0/amd64/modules.tar.xz'
+      block_device: nvme0n1
+
+  dell-latitude-5400-8665U-sarien_chromeos:
+    <<: *chromebook-x86-type
+    base_name: dell-latitude-5400-8665U-sarien
+    filters: *pineview-filter
+    params:
+      <<: *chromebook-generic-params
+      cros_image:
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-sarien/20221111.0/amd64/'
+        flash_tarball: 'full-cros-flash.tar.gz'
+        flash_tarball_compression: 'gz'
+        tast_tarball: 'tast.tgz'
+      reference_kernel:
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-sarien/20221111.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-sarien/20221111.0/amd64/modules.tar.xz'
+      block_device: detect
+
+  hp-11A-G6-EE-grunt_chromeos:
+    <<: *chromebook-x86-type
+    base_name: hp-11A-G6-EE-grunt
+    filters: *stoneyridge-filter
     params:
       <<: *chromebook-generic-params
       cros_image:
@@ -258,11 +337,25 @@ device_types:
         modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20221028.0/amd64/modules.tar.xz'
       block_device: detect
 
+  hp-x360-14-G1-sona_chromeos:
+    <<: *chromebook-x86-type
+    base_name: hp-x360-14-G1-sona
+    filters: *pineview-filter
+    params:
+      <<: *chromebook-generic-params
+      cros_image:
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-nami/20221120.0/amd64/'
+        flash_tarball: 'full-cros-flash.tar.gz'
+        flash_tarball_compression: 'gz'
+        tast_tarball: 'tast.tgz'
+      reference_kernel:
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-nami/20221120.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-nami/20221120.0/amd64/modules.tar.xz'
+      block_device: detect
+
   hp-x360-12b-ca0010nr-n4020-octopus_chromeos: &octopus
+    <<: *chromebook-x86-type
     base_name: hp-x360-12b-ca0010nr-n4020-octopus
-    mach: x86
-    arch: x86_64
-    boot_method: depthcharge
     filters: *pineview-filter
     params:
       <<: *chromebook-generic-params
@@ -279,6 +372,22 @@ device_types:
   hp-x360-12b-ca0500na-n4000-octopus_chromeos:
     <<: *octopus
     base_name: hp-x360-12b-ca0500na-n4000-octopus
+
+  lenovo-TPad-C13-Yoga-zork_chromeos:
+    <<: *chromebook-x86-type
+    base_name: lenovo-TPad-C13-Yoga-zork
+    filters: *stoneyridge-filter
+    params:
+      <<: *chromebook-generic-params
+      cros_image:
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20221115.0/amd64/'
+        flash_tarball: 'full-cros-flash.tar.gz'
+        flash_tarball_compression: 'gz'
+        tast_tarball: 'tast.tgz'
+      reference_kernel:
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20221115.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20221115.0/amd64/modules.tar.xz'
+      block_device: nvme0n1
 
   qemu_x86_64-uefi-chromeos:
     base_name: qemu
@@ -316,49 +425,46 @@ device_types:
 test_configs:
 
   - device_type: hp-11A-G6-EE-grunt_chromeos
-    test_plans:
+    test_plans: &chromebook-test-plans
       - cros-baseline
       - cros-baseline-fixed
       - cros-tast-kernel
       - cros-tast-perf
       - cros-tast-platform
       - cros-tast-video
+
+  - device_type: asus-C433TA-AJ0005-rammus_chromeos
+    test_plans: *chromebook-test-plans
 
   - device_type: asus-C436FA-Flip-hatch_chromeos
-    test_plans:
-      - cros-baseline
-      - cros-baseline-fixed
-      - cros-tast-kernel
-      - cros-tast-perf
-      - cros-tast-platform
-      - cros-tast-video
-    
+    test_plans: *chromebook-test-plans
+
   - device_type: asus-C523NA-A20057-coral_chromeos
-    test_plans:
-      - cros-baseline
-      - cros-baseline-fixed
-      - cros-tast-kernel
-      - cros-tast-perf
-      - cros-tast-platform
-      - cros-tast-video
+    test_plans: *chromebook-test-plans
+
+  - device_type: asus-CM1400CXA-dalboz_chromeos
+    test_plans: *chromebook-test-plans
+
+  - device_type: asus-cx9400-volteer_chromeos
+    test_plans: *chromebook-test-plans
+
+  - device_type: dell-latitude-5400-4305U-sarien_chromeos
+    test_plans: *chromebook-test-plans
+
+  - device_type: dell-latitude-5400-8665U-sarien_chromeos
+    test_plans: *chromebook-test-plans
+
+  - device_type: hp-x360-14-G1-sona_chromeos
+    test_plans: *chromebook-test-plans
 
   - device_type: hp-x360-12b-ca0010nr-n4020-octopus_chromeos
-    test_plans:
-      - cros-baseline
-      - cros-baseline-fixed
-      - cros-tast-kernel
-      - cros-tast-perf
-      - cros-tast-platform
-      - cros-tast-video
+    test_plans: *chromebook-test-plans
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus_chromeos
-    test_plans:
-      - cros-baseline
-      - cros-baseline-fixed
-      - cros-tast-kernel
-      - cros-tast-perf
-      - cros-tast-platform
-      - cros-tast-video
+    test_plans: *chromebook-test-plans
+
+  - device_type: lenovo-TPad-C13-Yoga-zork_chromeos
+    test_plans: *chromebook-test-plans
 
   - device_type: qemu_x86_64-uefi-chromeos
     test_plans:
