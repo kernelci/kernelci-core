@@ -2731,7 +2731,6 @@ test_configs:
   - device_type: qemu_arm-virt-gicv3
     test_plans:
       - baseline_qemu
-      - smc_qemu
       - v4l2-compliance-vivid
 
   - device_type: qemu_arm-virt-gicv3-uefi
@@ -2749,7 +2748,6 @@ test_configs:
   - device_type: qemu_arm64-virt-gicv3
     test_plans:
       - baseline_qemu
-      - smc_qemu
       - v4l2-compliance-vivid
 
   - device_type: qemu_arm64-virt-gicv3-uefi
@@ -2776,7 +2774,6 @@ test_configs:
     test_plans:
       - baseline_qemu
       - ltp-timers_qemu
-      - smc_qemu
       - v4l2-compliance-vivid
 
   - device_type: qemu_x86_64-uefi
