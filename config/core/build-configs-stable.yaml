@@ -33,6 +33,10 @@ stable_variants: &stable_variants
       arm:
         base_defconfig: 'multi_v7_defconfig'
         extra_configs: ['allnoconfig']
+        filters:
+          - blocklist:
+              defconfig:
+                - 'rpc_defconfig'
       arm64:
         extra_configs: ['allnoconfig']
         fragments: [arm64-chromebook]
