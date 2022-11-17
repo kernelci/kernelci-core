@@ -154,11 +154,6 @@ build_configs:
     branch: 'linux-5.19.y'
     variants: *stable_variants
 
-  stable_5.20:
-    tree: stable
-    branch: 'linux-5.20.y'
-    variants: *stable_variants
-
   stable-rc_3.16:
     tree: stable-rc
     branch: 'linux-3.16.y'
@@ -263,14 +258,6 @@ build_configs:
       tree: stable
       branch: 'linux-5.19.y'
 
-  stable-rc_5.20:
-    tree: stable-rc
-    branch: 'linux-5.20.y'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.20.y'
-
   stable-rc_queue-4.4:
     tree: stable-rc
     branch: 'queue/4.4'
@@ -366,11 +353,3 @@ build_configs:
     reference:
       tree: stable
       branch: 'linux-5.19.y'
-
-  stable-rc_queue-5.20:
-    tree: stable-rc
-    branch: 'queue/5.20'
-    variants: *stable_variants
-    reference:
-      tree: stable
-      branch: 'linux-5.20.y'
