@@ -651,7 +651,7 @@ build_configs:
 
   broonie-sound-fixes:
     tree: broonie-sound
-    branch: 'for-next-linus'
+    branch: 'for-linus'
 
   broonie-spi:
     tree: broonie-spi
