@@ -2272,6 +2272,7 @@ test_configs:
       - cros-ec
       - kselftest-alsa
       - kselftest-cpufreq
+      - kselftest-landlock
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus
     test_plans:
