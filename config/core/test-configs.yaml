@@ -2670,9 +2670,13 @@ test_configs:
   - device_type: odroid-xu3
     test_plans:
       - baseline
-      - baseline-nfs
-      - igt-kms-exynos
-      - kselftest-alsa
+# Only one device available in lab-collabora
+#      - baseline-nfs
+#      - igt-kms-exynos
+#      - kselftest-alsa
+    filters:
+      - passlist: {defconfig: ['defconfig']}
+
 
   - device_type: orion5x-rd88f5182-nas
     test_plans:
