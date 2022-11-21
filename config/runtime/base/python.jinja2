@@ -24,10 +24,8 @@ import kernelci.config
 {%- block python_globals %}
 DB_CONFIG_YAML = """
 {{ db_config_yaml }}"""
-KERNEL = '{{ kernel if kernel is not none else ""}}'
 NODE_ID = '{{ node_id }}'
-SRC_DIR = '{{ src_dir if src_dir is not none else ""}}'
-TARBALL_URL = '{{ tarball_url }}'
+KERNEL_URL = '{{ kernel_url }}'
 WORKSPACE = '/tmp/kci'
 {%- endblock %}
 
@@ -107,15 +105,8 @@ class BaseJob:
         db.submit({'node': node})
         return node
 
-    def run(self, kernel, local_src_dir=False):
-        # local_src_dir==True means that the kernel is already extracted
-        # to a local path. This is indented mostly for development and
-        # debugging purposes.
-        print(f"Getting kernel: {kernel}")
-        if local_src_dir:
-            kernel_path = kernel
-        else:
-            kernel_path = self._get_kernel(kernel)
+    def run(self, kernel):
+        kernel_path = self._get_kernel(kernel)
         print(f"Kernel path: {kernel_path}")
         print("Running job...")
         return self._run(kernel_path)
@@ -135,15 +126,7 @@ class Job(BaseJob):
 def main(args):
     job = Job({% block python_job_constr %}workspace=WORKSPACE{% endblock %})
     try:
-        # Default case: fetch the kernel from a remote tarball
-        local_src_dir = False
-        kernel = TARBALL_URL
-        if KERNEL:
-            kernel = KERNEL
-        if SRC_DIR:
-            kernel = SRC_DIR
-            local_src_dir = True
-        results = job.run(kernel, local_src_dir)
+        results = job.run(KERNEL_URL)
     except Exception:
         print(traceback.format_exc())
         results = None
