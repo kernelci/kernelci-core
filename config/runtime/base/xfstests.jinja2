@@ -1,0 +1,14 @@
+{# -*- mode: Python -*- -#}
+{# SPDX-License-Identifier: LGPL-2.1-or-later -#}
+
+{% extends 'base/python.jinja2' %}
+
+{%- block python_globals %}
+{{ super() }}
+GCE_PROJECT = 'rcn-xfstests'
+GCE_ZONE = 'europe-southwest1-a'
+GS_BUCKET = 'rcn-xfstests-bucket'
+# TBD: Set this path properly when deploying or find a better place for this
+XFSTESTS_BLD_PATH = '/home/rcn/work/repos/kernelci/xfstests-bld'
+GCE_DEFAULT_MACHTYPE = 'e2-standard-2'
+{%- endblock %}
