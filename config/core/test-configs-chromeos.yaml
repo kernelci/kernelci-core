@@ -106,7 +106,17 @@ test_plans:
     params:
       <<: *cros-tast-base-params
       tests: &cros-tast-kernel-tests >
-        kernel.*
+        kernel.Bloat
+        kernel.ConfigVerify
+        kernel.CPUCgroup
+        kernel.Cpuidle
+        kernel.CryptoAPI
+        kernel.CryptoDigest
+        kernel.ECDeviceNode
+        kernel.HighResTimers
+        kernel.Limits
+        kernel.LoopDeviceBehaviour
+        kernel.PerfCallgraph
 
   cros-tast-kernel_qemu:
     <<: *cros-tast-base-qemu
