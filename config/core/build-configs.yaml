@@ -292,7 +292,9 @@ fragments:
       - 'CONFIG_NFS_V4=y'
       - 'CONFIG_ROOT_NFS=y'
       - 'CONFIG_EXTRA_FIRMWARE="
+      amdgpu/raven2_asd.bin
       amdgpu/raven2_gpu_info.bin
+      amdgpu/raven2_sdma.bin
       amdgpu/stoney_ce.bin
       amdgpu/stoney_me.bin
       amdgpu/stoney_mec.bin
