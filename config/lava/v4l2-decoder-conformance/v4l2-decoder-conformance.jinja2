@@ -13,7 +13,7 @@
           - functional
         run:
           steps:
-          - python3 /usr/bin/fluster_parser.py -ts {{ testsuite }}
+          - python3 /usr/bin/fluster_parser.py -ts {{ testsuite }} -t {{ videodec_timeout|default('30') }}
       from: inline
       name: {{ plan }}
       path: inline/{{ plan }}.yaml
