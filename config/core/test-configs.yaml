@@ -1668,6 +1668,8 @@ device_types:
     class: arm64-dtb
     boot_method: depthcharge
     filters: *arm64-chromebook-filters
+    params:
+      videodec_timeout: 90
 
   rk3399-puma-haikou:
     mach: rockchip
