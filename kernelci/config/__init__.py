@@ -74,7 +74,7 @@ def load_yaml(config_path, validate_entries=None):
             elif hasattr(config_value, 'extend'):
                 config_value.extend(value)
             else:
-                config[k] = v
+                config[name] = value
     return config
 
 
