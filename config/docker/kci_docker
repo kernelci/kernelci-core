@@ -74,7 +74,10 @@ def _dump_push_log(log):
 def main(args):
     base_name = args.prefix + args.image
     tag_strings = ([args.arch] if args.arch else []) + (args.fragment or [])
+    if args.image_version:
+        tag_strings.append(args.image_version)
     tag_name = '-'.join(tag_strings)
+
     name = ':'.join((base_name, tag_name)) if tag_name else base_name
     if args.command == 'name':
         print(name)
@@ -123,6 +126,8 @@ if __name__ == '__main__':
                         help="Docker image name, e.g. gcc-10:x86")
     parser.add_argument('--prefix', default='kernelci/',
                         help="Docker image tag prefix")
+    parser.add_argument('--image-version', '-V',
+                        help='Docker image version tag e.g. 20221011.0')
     parser.add_argument('--arch',
                         help="CPU architecture, e.g. x86")
     parser.add_argument('--fragment', action='append',
