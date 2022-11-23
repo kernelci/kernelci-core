@@ -80,5 +80,10 @@ setuptools.setup(
         "pytest",
         "pyyaml",
         "requests",
-    ]
+    ],
+    extras_require={
+        'dev': [
+            'pycodestyle'
+        ]
+    }
 )
