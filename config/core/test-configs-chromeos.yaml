@@ -189,6 +189,16 @@ test_plans:
       <<: *cros-tast-base-qemu-params
       tests: *cros-tast-platform-tests
 
+  cros-tast-sound:
+    <<: *cros-tast-base
+    params:
+      <<: *cros-tast-base-params
+      tests: &cros-tast-sound-tests >
+        audio.DevicePlay
+        audio.UCMSequences.section_device
+        audio.UCMSequences.section_modifier
+        audio.UCMSequences.section_verb
+
   cros-tast-video:
     <<: *cros-tast-base
     params:
@@ -456,6 +466,7 @@ test_configs:
       - cros-tast-kernel
       - cros-tast-perf
       - cros-tast-platform
+      - cros-tast-sound
       - cros-tast-video
 
   - device_type: acer-cb317-1h-c3z6-dedede_chromeos
