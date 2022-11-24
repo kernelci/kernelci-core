@@ -154,9 +154,23 @@ build_configs:
       <<: *android_variants
       <<: *clang_android_variants
 
+  android13-5.10-lts:
+    tree: android
+    branch: 'android13-5.10-lts'
+    variants:
+      <<: *android_variants
+      <<: *clang_android_variants
+
   android13-5.15:
     tree: android
     branch: 'android13-5.15'
+    variants:
+      <<: *android_variants
+      <<: *clang_android_variants
+
+  android13-5.15-lts:
+    tree: android
+    branch: 'android13-5.15-lts'
     variants:
       <<: *android_variants
       <<: *clang_android_variants
