@@ -204,14 +204,13 @@ test_plans:
 
 device_types:
 
-  asus-C433TA-AJ0005-rammus_chromeos: &chromebook-x86-type
+  acer-cb317-1h-c3z6-dedede_chromeos: &chromebook-x86-type
     base_name: asus-C433TA-AJ0005-rammus
     mach: x86
     arch: x86_64
     boot_method: depthcharge
     filters: &pineview-filter
       - passlist: {defconfig: ['chromeos-intel-pineview']}
-    params:
     params: &chromebook-generic-params
       cros_flash_nfs:
         base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20221031.0/amd64/'
@@ -224,6 +223,22 @@ device_types:
         image: 'kernel/bzImage'
         modules: 'modules.tar.xz'
         modules_compression: 'xz'
+      cros_image:
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-dedede/20221113.0/amd64/'
+        flash_tarball: 'full-cros-flash.tar.gz'
+        flash_tarball_compression: 'gz'
+        tast_tarball: 'tast.tgz'
+      reference_kernel:
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-dedede/20221113.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-dedede/20221113.0/amd64/modules.tar.xz'
+      block_device: detect
+
+  asus-C433TA-AJ0005-rammus_chromeos:
+    <<: *chromebook-x86-type
+    base_name: asus-C433TA-AJ0005-rammus
+    filters: *pineview-filter
+    params:
+      <<: *chromebook-generic-params
       cros_image:
         base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-rammus/20221116.0/amd64/'
         flash_tarball: 'full-cros-flash.tar.gz'
@@ -442,6 +457,9 @@ test_configs:
       - cros-tast-perf
       - cros-tast-platform
       - cros-tast-video
+
+  - device_type: acer-cb317-1h-c3z6-dedede_chromeos
+    test_plans: *chromebook-test-plans
 
   - device_type: asus-C433TA-AJ0005-rammus_chromeos
     test_plans: *chromebook-test-plans
