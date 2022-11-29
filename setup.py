@@ -45,6 +45,7 @@ setuptools.setup(
         "kernelci.lab",
         "kernelci.lab.lava",
         "kernelci.db",
+        "kernelci.storage",
     ],
     scripts=[
         'kci_build',
