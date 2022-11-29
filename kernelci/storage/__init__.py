@@ -1,5 +1,6 @@
-# Copyright (C) 2020 Collabora Limited
+# Copyright (C) 2020, 2021, 2022 Collabora Limited
 # Author: Lakshmipathi Ganapathi <lakshmipathi.ganapathi@collabora.com>
+# Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 #
 # This module is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
