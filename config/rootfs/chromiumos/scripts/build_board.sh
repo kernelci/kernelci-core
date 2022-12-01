@@ -51,58 +51,44 @@ echo "Board ${BOARD} setup"
 # Future possible option --profile=x, for example kernel-5_15, profiles are at /mnt/host/source/src/overlays/overlay-${BOARD}/profiles/
 cros_sdk setup_board --board=${BOARD}
 
-# Certain boards need temporary fixes/patches to build successully
-if [ "${BOARD}" == "coral" ]; then
-echo "Patching coral specific issues"
-sed ':a;N;$!ba;s/DEPEND="\n\tchromeos-base\/fibocom-firmware\n"/# DEPEND="\n\t# chromeos-base\/fibocom-firmware\n# "/g' -i src/overlays/overlay-coral/chromeos-base/modemfwd-helpers/modemfwd-helpers-0.0.1.ebuild
-sed -i s,'media-libs/apl-hotword-support','# media-libs/apl-hotword-support', src/overlays/overlay-coral/media-libs/lpe-support-topology/lpe-support-topology-0.0.1.ebuild
-sed -i s,'USE="${USE} cros_ec"','# USE="${USE} cros_ec"', src/overlays/baseboard-coral/profiles/base/make.defaults
-fi
-
-if [ "${BOARD}" == "dedede" ]; then
-echo "Patching dedede specific issue"
-echo 'USE="${USE} -tpm tpm2 cr50_onboard"' >>src/overlays/baseboard-dedede/profiles/base/make.defaults
-fi
-
-if [ "${BOARD}" == "hatch" ]; then
-echo "Patching hatch specific issue"
-sed -i 's/EC_BOARDS=()/EC_BOARDS=(hatch)/' src/third_party/chromiumos-overlay/eclass/cros-ec-board.eclass
-echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-hatch/profiles/base/make.defaults
-fi
-
-if [ "${BOARD}" == "nami" ]; then
-echo "Patching nami specific issue"
-echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-nami/profiles/base/make.defaults
-fi
-
-if [ "${BOARD}" == "octopus" ]; then
-echo "Patching octopus specific issue"
-sed -i s,'use fuzzer || die',"#use fuzzer || die", src/third_party/chromiumos-overlay/eclass/cros-ec-board.eclass
-# Workaround b/244460939 T38487 - octopus missing proper tpm USE flags
-echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-octopus/profiles/base/make.defaults
-fi
-
-# rammus doesn't require any fixes
-
-if [ "${BOARD}" == "sarien" ]; then
-echo "Patching sarien specific issues"
-sed ':a;N;$!ba;s/DEPEND="\n\tchromeos-base\/fibocom-firmware\n"/# DEPEND="\n\t# chromeos-base\/fibocom-firmware\n# "/g' -i src/overlays/overlay-sarien/chromeos-base/modemfwd-helpers/modemfwd-helpers-0.0.1.ebuild
-fi
-
-if [ "${BOARD}" == "volteer" ]; then
-echo "Patching volteer specific issues"
-echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-volteer/profiles/base/make.defaults
-fi
-
-if [ "${BOARD}" == "zork" ]; then
-echo "Patching zork specific issues"
-echo 'USE="${USE} -tpm tpm2"' >>src/overlays/overlay-zork/profiles/base/make.defaults
-fi
-
-if [ "${BOARD}" == "grunt" ]; then
-echo "Patching grunt specific issue"
-echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-grunt/profiles/base/make.defaults
-fi
+echo "Patching ${BOARD} specific issues"
+case ${BOARD} in
+    coral)
+    sed ':a;N;$!ba;s/DEPEND="\n\tchromeos-base\/fibocom-firmware\n"/# DEPEND="\n\t# chromeos-base\/fibocom-firmware\n# "/g' -i src/overlays/overlay-coral/chromeos-base/modemfwd-helpers/modemfwd-helpers-0.0.1.ebuild
+    sed -i s,'media-libs/apl-hotword-support','# media-libs/apl-hotword-support', src/overlays/overlay-coral/media-libs/lpe-support-topology/lpe-support-topology-0.0.1.ebuild
+    sed -i s,'USE="${USE} cros_ec"','# USE="${USE} cros_ec"', src/overlays/baseboard-coral/profiles/base/make.defaults
+    ;;
+    dedede)
+    echo 'USE="${USE} -tpm tpm2 cr50_onboard"' >>src/overlays/baseboard-dedede/profiles/base/make.defaults
+    ;;
+    hatch)
+    sed -i 's/EC_BOARDS=()/EC_BOARDS=(hatch)/' src/third_party/chromiumos-overlay/eclass/cros-ec-board.eclass
+    echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-hatch/profiles/base/make.defaults
+    ;;
+    nami)
+    echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-nami/profiles/base/make.defaults
+    ;;
+    octopus)
+    sed -i s,'use fuzzer || die',"#use fuzzer || die", src/third_party/chromiumos-overlay/eclass/cros-ec-board.eclass
+    # Workaround b/244460939 T38487 - octopus missing proper tpm USE flags
+    echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-octopus/profiles/base/make.defaults
+    ;;
+    sarien)
+    sed ':a;N;$!ba;s/DEPEND="\n\tchromeos-base\/fibocom-firmware\n"/# DEPEND="\n\t# chromeos-base\/fibocom-firmware\n# "/g' -i src/overlays/overlay-sarien/chromeos-base/modemfwd-helpers/modemfwd-helpers-0.0.1.ebuild
+    ;;
+    volteer)
+    echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-volteer/profiles/base/make.defaults
+    ;;
+    zork)
+    echo 'USE="${USE} -tpm tpm2"' >>src/overlays/overlay-zork/profiles/base/make.defaults
+    ;;
+    grunt)
+    echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-grunt/profiles/base/make.defaults
+    ;;
+    *)
+    echo "No issues found for this board"
+    ;;
+esac
 
 # Disable SELinux in upstart and other packages to allow booting newer kernels on
 # CrOS images which don't define all selinux policies
@@ -138,6 +124,21 @@ echo "Extracting additional artifacts"
 sudo tar -cJf "${DATA_DIR}/${BOARD}/modules.tar.xz" -C ./chroot/build/${BOARD} lib/modules
 sudo cp "./chroot/build/${BOARD}/boot/vmlinuz" "${DATA_DIR}/${BOARD}/bzImage"
 sudo cp ./chroot/build/${BOARD}/boot/config* "${DATA_DIR}/${BOARD}/kernel.config"
+
+echo "Extracting ${BOARD} specific artifacts"
+case ${BOARD} in
+    trogdor)
+    # arm64 needs dtb to boot
+    mkdir -p ${DATA_DIR}/${BOARD}/dtbs/qcom
+    sudo cp ./chroot/build/trogdor/var/cache/portage/sys-kernel/chromeos-kernel-*/arch/arm64/boot/dts/qcom/*.dtb ${DATA_DIR}/${BOARD}/dtbs/qcom
+    # ARM64 depthcharge need different kernel image file
+    sudo cp "./chroot/build/${BOARD}/boot/Image*" "${DATA_DIR}/${BOARD}/Image"
+    ;;
+    *)
+    echo "No issues found for this board"
+    ;;
+esac
+
 
 echo "Creating manifest file"
 python3 "${SCRIPTPATH}/create_manifest.py" "${BOARD}" "${DATA_DIR}/${BOARD}"
