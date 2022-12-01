@@ -1,5 +1,8 @@
 trees:
 
+  cip:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/cip/linux-cip.git"
+
   kernelci:
     url: "https://github.com/kernelci/linux.git"
 
@@ -82,6 +85,26 @@ stable_variants_kselftest: &stable_variants_kselftest
 
 
 build_configs:
+
+  cip_stable_4.4:
+    tree: cip
+    branch: 'linux-4.4.y-st'
+    variants: *stable_variants
+
+  cip_stable_4.4-rc:
+    tree: cip
+    branch: 'linux-4.4.y-st-rc'
+    variants: *stable_variants
+
+  cip_stable_4.4-rt:
+    tree: cip
+    branch: 'linux-4.4.y-st-rt'
+    variants: *stable_variants
+
+  cip_stable_4.4-rt-rebase:
+    tree: cip
+    branch: 'linux-4.4.y-st-rt-rebase'
+    variants: *stable_variants
 
   kernelci:
     tree: kernelci
