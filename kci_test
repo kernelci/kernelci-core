@@ -183,6 +183,7 @@ class cmd_update_rootfs_urls(Command):
             output_file.write(f"# Automatically generated ({args.release})\n")
             data = {'file_systems': new_configs}
             yaml.dump(data, output_file, default_flow_style=False)
+        return True
 
 
 class cmd_list_jobs(Command):
