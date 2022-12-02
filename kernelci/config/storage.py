@@ -70,11 +70,50 @@ class Storage_backend(Storage):
         return self._api_url
 
 
+class Storage_ssh(Storage):
+
+    def __init__(self, host, port=22, user='kernelci', path='~/data',
+                 *args, **kwargs):
+        """Configuration for SSH storage
+
+        *host* is the hostname of the SSH server
+        *port* is the port number of the SSH server
+        *user* is the user name to connect to the SSH server
+        *path* is the base destination path on the SSH server
+        """
+        super().__init__(*args, **kwargs)
+        self._host = host
+        self._port = port
+        self._user = user
+        self._path = path
+
+    @classmethod
+    def get_kwargs(cls, config):
+        return cls._kw_from_yaml(config, ['host', 'port', 'user', 'path'])
+
+    @property
+    def host(self):
+        return self._host
+
+    @property
+    def port(self):
+        return self._port
+
+    @property
+    def user(self):
+        return self._user
+
+    @property
+    def path(self):
+        return self._path
+
+
 class StorageFactory(YAMLObject):
     """Factory to create storage objects from YAML data."""
 
     _storage_types = {
         'backend': Storage_backend,
+        'ssh': Storage_ssh,
     }
 
     @classmethod
