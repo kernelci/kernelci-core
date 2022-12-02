@@ -1,0 +1,121 @@
+default_filters:
+
+  test_plans:
+
+    - blocklist: &kselftest_defconfig_filter
+        defconfig: ['kselftest']
+
+
+test_plans:
+
+  kselftest-all_riscv: &kselftest_riscv
+    base_name: kselftest
+    rootfs: debian_sid-kselftest_nfs
+    pattern: 'kselftest/{category}-{method}-{protocol}-{rootfs}-kselftest-template.jinja2'
+    filters:
+      - passlist: {defconfig: ['kselftest']}
+
+  kselftest-cgroup_riscv:
+    <<: *kselftest_riscv
+    base_name: kselftest-cgroup
+    params:
+      job_timeout: '10'
+      kselftest_collections: "cgroup"
+
+  kselftest-filesystems_riscv:
+    <<: *kselftest_riscv
+    base_name: kselftest-filesystems
+    params:
+      job_timeout: '10'
+      kselftest_collections: "filesystems"
+
+  kselftest-futex_riscv:
+    <<: *kselftest_riscv
+    base_name: kselftest-futex
+    params:
+      job_timeout: '10'
+      kselftest_collections: "futex"
+
+  kselftest-kcmp_riscv:
+    <<: *kselftest_riscv
+    base_name: kselftest-kcmp
+    params:
+      job_timeout: '10'
+      kselftest_collections: "kcmp"
+
+  kselftest-membarrier_riscv:
+    <<: *kselftest_riscv
+    base_name: kselftest-membarrier
+    params:
+      job_timeout: '10'
+      kselftest_collections: "membarrier"
+
+  kselftest-mincore_riscv:
+    <<: *kselftest_riscv
+    base_name: kselftest-mincore
+    params:
+      job_timeout: '10'
+      kselftest_collections: "mincore"
+
+  kselftest-timers_riscv:
+    <<: *kselftest_riscv
+    base_name: kselftest-timers
+    params:
+      job_timeout: '15'
+      kselftest_collections: "timers"
+
+  ltp-all_riscv: &ltp_riscv
+    base_name: ltp
+    rootfs: debian_sid-ltp_nfs
+    pattern: 'ltp/{category}-{method}-{protocol}-{rootfs}-ltp-template.jinja2'
+    filters:
+      - blocklist: *kselftest_defconfig_filter
+    params: &ltp-params_riscv
+      skip_install: "true"
+      tst_cmdfiles: ""
+      job_timeout: '15'
+      skipfile: skipfile-lkft.yaml
+
+  ltp-crypto_riscv:
+    <<: *ltp_riscv
+    base_name: ltp-crypto
+    params:
+      <<: *ltp-params_riscv
+      tst_cmdfiles: "crypto"
+    filters:
+      - passlist:
+          defconfig:
+            - '+crypto'
+
+  ltp-fcntl-locktests_riscv:
+    <<: *ltp_riscv
+    base_name: ltp-fcntl-locktests
+    params:
+      <<: *ltp-params_riscv
+      tst_cmdfiles: "fcntl-locktests"
+
+  ltp-ipc_riscv:
+    <<: *ltp_riscv
+    base_name: ltp-ipc
+    params:
+      <<: *ltp-params_riscv
+      tst_cmdfiles: "ipc"
+
+  ltp-pty_riscv:
+    <<: *ltp_riscv
+    base_name: ltp-pty
+    params:
+      <<: *ltp-params_riscv
+      tst_cmdfiles: "pty"
+      job_timeout: '25'
+      priority: 0
+
+  ltp-timers_riscv:
+    <<: *ltp_riscv
+    base_name: ltp-timers
+    pattern: 'ltp/{category}-{method}-{protocol}-{rootfs}-ltp-open-posix-template.jinja2'
+    params:
+      <<: *ltp-params_riscv
+      grp_test: "TMR"
+      job_timeout: '30'
+      priority: 0
