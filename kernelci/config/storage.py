@@ -51,10 +51,30 @@ class Storage(YAMLObject):
         return self._base_url
 
 
+class Storage_backend(Storage):
+
+    def __init__(self, api_url, *args, **kwargs):
+        """Configuration for kernelci_backend storage
+
+        *api_url* is the URL to access the kernelci-backend API
+        """
+        super().__init__(*args, **kwargs)
+        self._api_url = api_url
+
+    @classmethod
+    def get_kwargs(cls, config):
+        return cls._kw_from_yaml(config, ['api_url'])
+
+    @property
+    def api_url(self):
+        return self._api_url
+
+
 class StorageFactory(YAMLObject):
     """Factory to create storage objects from YAML data."""
 
     _storage_types = {
+        'backend': Storage_backend,
     }
 
     @classmethod
