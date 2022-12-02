@@ -921,6 +921,13 @@ build_configs:
         architectures:
           <<: *arch_clang_configs
 
+      rustc-1.62:
+        build_environment: rustc-1.62
+        fragments: [rust, rust-samples, kselftest]
+        architectures:
+          x86_64:
+            base_defconfig: 'x86_64_defconfig'
+
   next_pending-fixes:
     tree: next
     branch: 'pending-fixes'
@@ -1029,6 +1036,17 @@ build_configs:
       rustc-1.62:
         build_environment: rustc-1.62
         fragments: [rust, rust-for-linux-samples, kselftest]
+        architectures:
+          x86_64:
+            base_defconfig: 'x86_64_defconfig'
+
+  rust-for-linux_rust-next:
+    tree: rust-for-linux
+    branch: 'rust-next'
+    variants:
+      rustc-1.62:
+        build_environment: rustc-1.62
+        fragments: [rust, rust-samples, kselftest]
         architectures:
           x86_64:
             base_defconfig: 'x86_64_defconfig'
