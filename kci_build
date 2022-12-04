@@ -147,25 +147,6 @@ class cmd_expand_fragments(Command):
         return True
 
 
-class cmd_push_tarball(Command):
-    help = "Create and up a source tarball to the remote storage server"
-    args = [Args.build_config, Args.kdir, Args.storage,
-            Args.api, Args.db_token]
-    opt_args = [Args.db_config]  # This should become mandatory
-
-    def __call__(self, configs, args):
-        conf = configs['build_configs'][args.build_config]
-        func_args = (conf, args.kdir, args.storage, args.api, args.db_token)
-        if not all(func_args):
-            print("Invalid arguments")
-            return False
-        tarball_url = kernelci.build.push_tarball(*func_args)
-        if not tarball_url:
-            return False
-        print(tarball_url)
-        return True
-
-
 class cmd_list_variants(Command):
     help = "Print the list of build variants for a given build configuration"
     args = [Args.build_config]
@@ -451,6 +432,25 @@ class cmd_update_last_commit(Command):
         conf = configs['build_configs'][args.build_config]
         kernelci.legacy.set_last_commit(
             conf, args.api, args.db_token, args.commit)
+        return True
+
+
+class cmd_push_tarball(Command):
+    help = "Create and up a source tarball to the remote storage server"
+    args = [Args.build_config, Args.kdir, Args.storage,
+            Args.api, Args.db_token]
+    opt_args = [Args.db_config]  # This should become mandatory
+
+    def __call__(self, configs, args):
+        conf = configs['build_configs'][args.build_config]
+        func_args = (conf, args.kdir, args.storage, args.api, args.db_token)
+        if not all(func_args):
+            print("Invalid arguments")
+            return False
+        tarball_url = kernelci.legacy.push_tarball(*func_args)
+        if not tarball_url:
+            return False
+        print(tarball_url)
         return True
 
 
