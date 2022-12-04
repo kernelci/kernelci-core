@@ -18,32 +18,8 @@
 
 import importlib
 import os
-import requests
 from urllib.parse import urljoin
 from kernelci import shell_cmd
-
-
-def upload_files(api, token, path, input_files):
-    """Upload rootfs to KernelCI backend.
-
-    *api* is the URL of the KernelCI backend API
-    *token* is the backend API token to use
-    *path* is the target on KernelCI backend
-    *input_files* dictionary of input files
-    """
-    headers = {
-        'Authorization': token,
-    }
-    data = {
-        'path': path,
-    }
-    files = {
-        'file{}'.format(i): (name, fobj)
-        for i, (name, fobj) in enumerate(input_files.items())
-    }
-    url = urljoin(api, 'upload')
-    resp = requests.post(url, headers=headers, data=data, files=files)
-    resp.raise_for_status()
 
 
 class Storage:
