@@ -19,7 +19,6 @@
 import importlib
 import os
 from urllib.parse import urljoin
-from kernelci import shell_cmd
 
 
 class Storage:
