@@ -1,4 +1,4 @@
-# Copyright (C) 2019, 2020, 2021 Collabora Limited
+# Copyright (C) 2019, 2020, 2021, 2022 Collabora Limited
 # Author: Lakshmipathi G <lakshmipathi.ganapathi@collabora.com>
 # Author: Michal Galka <michal.galka@collabora.com>
 #
@@ -17,7 +17,6 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 from kernelci import shell_cmd
-from kernelci.storage import upload_files
 import os
 import shutil
 
@@ -185,17 +184,18 @@ def build(name, config, data_path, arch, output):
     return builder.build(config, data_path, arch, output)
 
 
-def upload(api, token, upload_path, input_dir):
+def upload(storage, upload_path, input_dir):
     """Upload rootfs to KernelCI backend.
 
-    *api* is the URL of the KernelCI backend API
-    *token* is the backend API token to use
+    *storage* is a Storage object
     *upload_path* is the target on KernelCI backend
     *input_dir* is the local rootfs directory path to upload
     """
-    artifacts = {}
+    paths = []
     for root, _, files in os.walk(input_dir):
         for f in files:
+            src = os.path.join(root, f)
             px = os.path.relpath(root, input_dir)
-            artifacts[os.path.join(px, f)] = open(os.path.join(root, f), "rb")
-    upload_files(api, token, upload_path, artifacts)
+            dst = os.path.join(px, f)
+            paths.append((src, dst))
+    storage.upload_multiple(paths, upload_path)
