@@ -22,7 +22,7 @@ import sys
 from kernelci.cli import Args, Command, parse_opts
 import kernelci.config
 import kernelci.rootfs
-import kernelci.config.rootfs
+import kernelci.storage
 
 
 # -----------------------------------------------------------------------------
@@ -129,11 +129,13 @@ class cmd_build(Command):
 
 class cmd_upload(Command):
     help = "Upload a rootfs image"
-    args = [Args.rootfs_dir, Args.upload_path, Args.api, Args.db_token]
+    args = [Args.rootfs_dir, Args.upload_path, Args.storage_config]
+    opt_args = [Args.storage_cred]
 
-    def __call__(self, config_data, args):
-        kernelci.rootfs.upload(args.api, args.db_token, args.upload_path,
-                               args.rootfs_dir)
+    def __call__(self, configs, args):
+        storage_conf = configs['storage_configs'][args.storage_config]
+        storage = kernelci.storage.get_storage(storage_conf, args.storage_cred)
+        kernelci.rootfs.upload(storage, args.upload_path, args.rootfs_dir)
         return True
 
 
