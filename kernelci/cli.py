@@ -35,6 +35,7 @@ class Args:
     """
     SECTION_DB = ('db', 'db_config')
     SECTION_LAB = ('lab', 'lab_config')
+    SECTION_STORAGE = ('storage', 'storage_config')
 
     arch = {
         'name': '--arch',
@@ -285,6 +286,17 @@ class Args:
     storage = {
         'name': '--storage',
         'help': "Storage URL",
+    }
+
+    storage_config = {
+        'name': '--storage-config',
+        'help': "Storage configuration name",
+    }
+
+    storage_cred = {
+        'name': '--storage-cred',
+        'help': "Credentials to be used with the storage service",
+        'section': SECTION_STORAGE,
     }
 
     target = {
