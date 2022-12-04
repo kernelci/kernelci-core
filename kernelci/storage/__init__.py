@@ -23,24 +23,6 @@ from urllib.parse import urljoin
 from kernelci import shell_cmd
 
 
-def discover_files(path):
-    """Discover files recustively so they can then be uploaded
-
-    Recursively walk through a file hierarchy and return a dictionary with the
-    file paths and open file objects which can then be passed directly to
-    upload_files().
-
-    *path* is the path to the file hierarchy where to look for files
-    """
-    artifacts = {}
-    for root, _, files in os.walk(path):
-        for fname in files:
-            px = os.path.relpath(root, path)
-            artifacts[os.path.join(px, fname)] = open(
-                os.path.join(root, fname), "rb")
-    return artifacts
-
-
 def upload_files(api, token, path, input_files):
     """Upload rootfs to KernelCI backend.
 
