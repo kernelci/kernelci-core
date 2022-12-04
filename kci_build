@@ -25,6 +25,7 @@ from kernelci.cli import Args, Command, parse_opts
 import kernelci
 import kernelci.build
 import kernelci.config
+import kernelci.legacy
 import kernelci.storage
 
 
@@ -52,30 +53,6 @@ class cmd_list_configs(Command):
     def __call__(self, configs, args):
         for conf_name in list(configs['build_configs'].keys()):
             print(conf_name)
-        return True
-
-
-class cmd_check_new_commit(Command):
-    help = "Check if a new commit is available on a branch"
-    args = [Args.build_config, Args.storage]
-
-    def __call__(self, configs, args):
-        conf = configs['build_configs'][args.build_config]
-        update = kernelci.build.check_new_commit(conf, args.storage)
-        if update is False or update is True:
-            return update
-        print(update)
-        return True
-
-
-class cmd_update_last_commit(Command):
-    help = "Update the last commit file on the remote storage server"
-    args = [Args.build_config, Args.api, Args.db_token, Args.commit]
-
-    def __call__(self, configs, args):
-        conf = configs['build_configs'][args.build_config]
-        kernelci.build.set_last_commit(
-            conf, args.api, args.db_token, args.commit)
         return True
 
 
@@ -443,6 +420,38 @@ class cmd_pull_tarball(Command):
         tarball = args.kernel_tarball or 'linux-src.tar.gz'
         return kernelci.build.pull_tarball(
             args.kdir, args.url, tarball, retries, args.delete)
+
+# -----------------------------------------------------------------------------
+# Legacy commands
+#
+# These commands don't follow the new API design with a separate storage, so
+# they may use the kernelci-backend API to upload files directly.  Still they
+# should be using the Storage configuration object to get the base URL rather
+# than --storage which is now deprecated.
+
+
+class cmd_check_new_commit(Command):
+    help = "Check if a new commit is available on a branch"
+    args = [Args.build_config, Args.storage]
+
+    def __call__(self, configs, args):
+        conf = configs['build_configs'][args.build_config]
+        update = kernelci.legacy.check_new_commit(conf, args.storage)
+        if update is False or update is True:
+            return update
+        print(update)
+        return True
+
+
+class cmd_update_last_commit(Command):
+    help = "Update the last commit file on the remote storage server"
+    args = [Args.build_config, Args.api, Args.db_token, Args.commit]
+
+    def __call__(self, configs, args):
+        conf = configs['build_configs'][args.build_config]
+        kernelci.legacy.set_last_commit(
+            conf, args.api, args.db_token, args.commit)
+        return True
 
 
 if __name__ == '__main__':
