@@ -359,35 +359,49 @@ class cmd_make_kselftest(MakeCommand):
 
 class cmd_push_kernel(Command):
     help = "Push the kernel build artifacts"
-    args = [Args.kdir, Args.api, Args.db_token]
-    opt_args = [Args.output, Args.db_config]
+    args = [Args.kdir, Args.storage_config]
+    opt_args = [Args.storage_cred, Args.output]
+
+    def _compress_gki_artifacts(self, install):
+        # gki_defconfig kernel builds are exceptional and generate hundreds of
+        # megabytes in several files.  This requires compression to work around
+        # upload limits with kernelci-backend.
+        kernel_image_name = meta.get('bmeta', 'kernel', 'image')
+        artifacts = ["logs/kernel.log"]
+        artifacts.append('/'.join(["kernel", kernel_image_name]))
+        for e in artifacts:
+            source_filename = os.path.join(install, e)
+            data = open(source_filename, 'rb').read()
+            zf = xz.open(f'{source_filename}.xz', mode='wb',
+                         format=xz.FORMAT_XZ, preset=9)
+            zf.write(data)
+            zf.close()
+            os.unlink(source_filename)
+
+    def _discover_files(self, path):
+        artifacts = []
+        for root, _, files in os.walk(path):
+            for fname in files:
+                px = os.path.relpath(root, path)
+                artifacts.append(
+                    (os.path.join(root, fname), os.path.join(px, fname))
+                )
+        return artifacts
 
     def __call__(self, configs, args):
         install = kernelci.build.Step.get_install_path(args.kdir, args.output)
         meta = kernelci.build.Metadata(install)
-        publish_path = meta.get('bmeta', 'kernel', 'publish_path')
+
         defconfig = meta.get('bmeta', 'kernel', 'defconfig')
-        # gki_defconfig is exceptional and generate hundreds of megabytes
-        # several files, which require compression
-        # to workaround current upload limits
         if defconfig == "gki_defconfig":
-            kernel_image_name = meta.get('bmeta', 'kernel', 'image')
-            compressed_artifacts = ["logs/kernel.log"]
-            compressed_artifacts.append('/'.join(["kernel",
-                                        kernel_image_name]))
-            for e in compressed_artifacts:
-                source_filename = os.path.join(install, e)
-                data = open(source_filename, 'rb').read()
-                zf = xz.open(f'{source_filename}.xz', mode='wb',
-                             format=xz.FORMAT_XZ, preset=9)
-                zf.write(data)
-                zf.close()
-                os.unlink(source_filename)
-        artifacts = kernelci.storage.discover_files(install)
+            self._compress_gki_artifacts(install)
+
+        storage_conf = configs['storage_configs'][args.storage_config]
+        storage = kernelci.storage.get_storage(storage_conf, args.storage_cred)
+        artifacts = self._discover_files(install)
+        publish_path = meta.get('bmeta', 'kernel', 'publish_path')
         print("Upload path: {}".format(publish_path))
-        kernelci.storage.upload_files(
-            args.api, args.db_token, publish_path, artifacts
-        )
+        storage.upload_multiple(artifacts, publish_path)
         return True
 
 
