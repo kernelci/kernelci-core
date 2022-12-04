@@ -19,7 +19,29 @@ import os
 import requests
 from urllib.parse import urljoin
 from kernelci.build import get_branch_head, git_describe, make_tarball
-from kernelci.storage import upload_files
+
+
+def _upload_files(api, token, path, input_files):
+    """Upload rootfs to KernelCI backend.
+
+    *api* is the URL of the KernelCI backend API
+    *token* is the backend API token to use
+    *path* is the target on KernelCI backend
+    *input_files* dictionary of input files
+    """
+    headers = {
+        'Authorization': token,
+    }
+    data = {
+        'path': path,
+    }
+    files = {
+        'file{}'.format(i): (name, fobj)
+        for i, (name, fobj) in enumerate(input_files.items())
+    }
+    url = urljoin(api, 'upload')
+    resp = requests.post(url, headers=headers, data=data, files=files)
+    resp.raise_for_status()
 
 
 def _get_last_commit_file_name(config):
@@ -52,8 +74,8 @@ def set_last_commit(config, api, token, commit):
     *token* is the backend API token to use
     *commit* is the git SHA to send
     """
-    upload_files(api, token, config.tree.name,
-                 {_get_last_commit_file_name(config): commit})
+    _upload_files(api, token, config.tree.name,
+                  {_get_last_commit_file_name(config): commit})
 
 
 def check_new_commit(config, storage):
@@ -101,6 +123,6 @@ def push_tarball(config, kdir, storage, api, token):
         return tarball_url
     tarball = "{}.tar.gz".format(config.name)
     make_tarball(kdir, tarball)
-    upload_files(api, token, path, {tarball_name: open(tarball, 'rb')})
+    _upload_files(api, token, path, {tarball_name: open(tarball, 'rb')})
     os.unlink(tarball)
     return tarball_url
