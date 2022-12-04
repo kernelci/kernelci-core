@@ -30,7 +30,6 @@ import urllib.parse
 import requests
 from kernelci import shell_cmd, print_flush, __version__ as kernelci_version
 import kernelci.elf
-from kernelci.storage import upload_files
 import kernelci.config
 
 # This is used to get the mainline tags as a minimum for git describe
@@ -291,36 +290,6 @@ def generate_fragments(config, kdir):
             generate_kselftest_fragment(frag, kdir)
         elif frag.configs:
             generate_config_fragment(frag, kdir)
-
-
-def push_tarball(config, kdir, storage, api, token):
-    """Create and push a linux kernel source tarball to the storage server
-
-    If a tarball with a same name is already on the storage server, no new
-    tarball is uploaded.  Otherwise, a tarball is created
-
-    *config* is a BuildConfig object
-    *kdir* is the path to a kernel source directory
-    *storage* is the base URL of the storage server
-    *api* is the URL of the KernelCI backend API
-    *token* is the token to use with the KernelCI backend API
-
-    The returned value is the URL of the uploaded tarball.
-    """
-    tarball_name = "linux-src_{}.tar.gz".format(config.name)
-    describe = git_describe(config.tree.name, kdir)
-    path = '/'.join(list(item.replace('/', '-') for item in [
-        config.tree.name, config.branch, describe
-    ]))
-    tarball_url = urllib.parse.urljoin(storage, '/'.join([path, tarball_name]))
-    resp = requests.head(tarball_url)
-    if resp.status_code == 200:
-        return tarball_url
-    tarball = "{}.tar.gz".format(config.name)
-    make_tarball(kdir, tarball)
-    upload_files(api, token, path, {tarball_name: open(tarball, 'rb')})
-    os.unlink(tarball)
-    return tarball_url
 
 
 def _download_file(url, dest_filename, chunk_size=1024):
