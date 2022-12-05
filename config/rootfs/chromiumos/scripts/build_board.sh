@@ -130,9 +130,9 @@ case ${BOARD} in
     trogdor)
     # arm64 needs dtb to boot
     mkdir -p ${DATA_DIR}/${BOARD}/dtbs/qcom
-    sudo cp ./chroot/build/trogdor/var/cache/portage/sys-kernel/chromeos-kernel-*/arch/arm64/boot/dts/qcom/*.dtb ${DATA_DIR}/${BOARD}/dtbs/qcom
+    sudo cp ./chroot/build/${BOARD}/var/cache/portage/sys-kernel/chromeos-kernel-*/arch/arm64/boot/dts/qcom/*.dtb ${DATA_DIR}/${BOARD}/dtbs/qcom
     # ARM64 depthcharge need different kernel image file
-    sudo cp "./chroot/build/${BOARD}/boot/Image*" "${DATA_DIR}/${BOARD}/Image"
+    sudo cp ./chroot/build/${BOARD}/boot/Image* "${DATA_DIR}/${BOARD}/Image"
     ;;
     *)
     echo "No issues found for this board"

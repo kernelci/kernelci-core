@@ -86,6 +86,14 @@ rootfs_configs:
     arch_list:
       - amd64
 
+  chromiumos-trogdor:
+    rootfs_type: chromiumos
+    board: trogdor
+    branch: release-R106-15054.B
+    serial: ttyMSM0
+    arch_list:
+      - arm64
+
   chromiumos-volteer:
     rootfs_type: chromiumos
     board: volteer
