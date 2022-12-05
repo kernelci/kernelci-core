@@ -1,6 +1,6 @@
 #!/bin/sh
 
-BOOTRR_SITE=https://github.com/kernelci/bootrr.git
+BOOTRR_SITE=https://github.com/nuclearcat/bootrr.git
 BOOTRR_VERSION=e0a316de59153ecd4373b14063b0280505ce6e2e
 
 BUILD_DEPS="\
@@ -16,7 +16,7 @@ mkdir -p $DEST
 cd /tmp
 git clone $BOOTRR_SITE
 cd bootrr
-git checkout -f $BOOTRR_VERSION
+git checkout denys/main2
 DESTDIR=$DEST make install
 
 ########################################################################
