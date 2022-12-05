@@ -468,6 +468,8 @@ build_configs_defaults:
                   - 'nsim_700_defconfig'
                   - 'nsimosci_defconfig'
                   - 'tb10x_defconfig'
+            # haps_hs_smp_defconfig not available in some old kernels
+                kernel: ['v3.', 'v4.4', 'v4.9']
 
         arm: &arm_arch
           base_defconfig: 'multi_v7_defconfig'
