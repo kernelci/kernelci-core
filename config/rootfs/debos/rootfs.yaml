@@ -116,6 +116,11 @@ actions:
     command: rm /usr/lib/tmpfiles.d/dbus.conf
 
   - action: run
+    description: Set symbolic link to init
+    chroot: true
+    command: ln -s /usr/bin/systemd /init
+
+  - action: run
     description: Create full archive
     chroot: false
     command: cd ${ROOTDIR} ; tar cvfJ  ${ARTIFACTDIR}/{{ $basename -}}/full.rootfs.tar.xz .
@@ -186,11 +191,6 @@ actions:
         done
       done
 {{ end }}
-
-  - action: run
-    description: Set symbolic link to init
-    chroot: true
-    command: ln -s /usr/bin/systemd /init
 
   - action: run
     description: Create cpio archive
