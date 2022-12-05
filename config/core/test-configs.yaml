@@ -1117,6 +1117,12 @@ device_types:
       - blocklist: *device_config_filter
       - blocklist: {defconfig: ['multi_v7_defconfig+kselftest']}
 
+  jh7100-starfive-visionfive-v1:
+    mach: starfive
+    class: riscv-dtb
+    boot_method: uboot
+    dtb: 'starfive/jh7100-starfive-visionfive-v1.dtb'
+
   juno-uboot:
     mach: vexpress
     class: arm64-dtb
@@ -2449,6 +2455,10 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+
+  - device_type: jh7100-starfive-visionfive-v1
+    test_plans:
+      - baseline
 
   - device_type: juno-uboot
     test_plans:
