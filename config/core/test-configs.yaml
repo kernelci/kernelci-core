@@ -2233,6 +2233,18 @@ test_configs:
   - device_type: hifive-unleashed-a00
     test_plans:
       - baseline
+      - kselftest-cgroup_riscv
+      - kselftest-filesystems_riscv
+      - kselftest-futex_riscv
+      - kselftest-kcmp_riscv
+      - kselftest-membarrier_riscv
+      - kselftest-mincore_riscv
+      - kselftest-timers_riscv
+      - ltp-crypto_riscv
+      - ltp-fcntl-locktests_riscv
+      - ltp-ipc_riscv
+      - ltp-pty_riscv
+      - ltp-timers_riscv
 
   - device_type: hip07-d05
     test_plans:
