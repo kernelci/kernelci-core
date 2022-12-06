@@ -36,4 +36,8 @@ RUN git clone --recurse-submodules --branch $RUST_VER \
 
 RUN cargo install --locked --version ${BINDGEN_VER} bindgen
 
+# kernel build generates some rust code and tries to format it, if rustfmt is
+# missing it will print non-fatal error noise
+RUN cargo install rustfmt
+
 {%- endblock %}
