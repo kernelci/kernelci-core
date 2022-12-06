@@ -834,6 +834,12 @@ build_configs:
       clang-15:
         build_environment: clang-15
         architectures: *arch_clang_configs
+      rustc-1.62:
+        build_environment: rustc-1.62
+        fragments: [rust, rust-samples, kselftest]
+        architectures:
+          x86_64:
+            base_defconfig: 'x86_64_defconfig'
 
   matthiasbgg-for-next:
     tree: matthiasbgg
@@ -1007,16 +1013,6 @@ build_configs:
     branch: 'v5.15-rt'
     variants: *preempt_rt_variants
 
-  rust:
-    tree: mainline
-    branch: 'master'
-    variants:
-      rustc-1.62:
-        build_environment: rustc-1.62
-        fragments: [rust, rust-samples, kselftest]
-        architectures:
-          x86_64: *x86_64_arch
-
   rust-for-linux:
     tree: rust-for-linux
     branch: 'rust'
@@ -1025,7 +1021,8 @@ build_configs:
         build_environment: rustc-1.62
         fragments: [rust, rust-for-linux-samples, kselftest]
         architectures:
-          x86_64: *x86_64_arch
+          x86_64:
+            base_defconfig: 'x86_64_defconfig'
 
   samsung:
     tree: samsung
