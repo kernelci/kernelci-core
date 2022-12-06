@@ -24,11 +24,11 @@ RUN tar -xf ${RUST_TRIPLE}.tar.gz  -C /tmp/ && \
     rm -rf /tmp/${RUST_TRIPLE} && \
     rm /${RUST_TRIPLE}*
 
-# This image is based on clang-*jinja2 which only has clang installed but rustc
-# defaults to linker "cc" which calls the non-existing GNU stack (gcc, libgcc).
-# So we point cargo/rustc to use the LLVM stack via the clang linker entrypoint.
-RUN mkdir -p ${CARGO_HOME} && \
-    printf '[build]\nrustflags = ["-C", "linker=clang"]' > ${CARGO_HOME}/config.toml
+# This image is based on clang-*jinja2 which only has clang installed, but rustc
+# defaults to linker "cc" which usually points to the GNU/GCC stack. Pointing cc
+# to clang ensures both cargo and kernel build rustc invocations use llvm/clang.
+RUN update-alternatives --install /usr/bin/cc cc $(which clang) 30 && \
+    update-alternatives --set cc $(which clang)
 
 RUN git clone --recurse-submodules --branch $RUST_VER \
         https://github.com/rust-lang/rust \
