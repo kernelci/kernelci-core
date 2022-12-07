@@ -46,8 +46,8 @@
             - lava-test-shell
         run:
           steps:
-            - export PATH=/opt/bootrr/helpers:$PATH
-            - cd /opt/bootrr && sh helpers/bootrr-auto
+            - export PATH=/opt/bootrr/libexec/bootrr/helpers:$PATH
+            - cd /opt/bootrr/libexec/bootrr && sh helpers/bootrr-auto
       lava-signal: kmsg
       from: inline
       name: bootrr
