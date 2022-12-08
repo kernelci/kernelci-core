@@ -3,7 +3,7 @@ title: "kci_build"
 date: 2021-08-05
 draft: false
 description: "Command line tool to build the Linux kernel"
-weight: 3
+weight: 4
 ---
 
 The

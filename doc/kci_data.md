@@ -3,7 +3,7 @@ title: "kci_data"
 date: 2021-08-04
 draft: false
 description: "Command line tool to handle KernelCI data"
-weight: 4
+weight: 5
 ---
 
 The [`kci_data`](https://github.com/kernelci/kernelci-core/blob/main/kci_data)

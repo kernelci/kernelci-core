@@ -3,7 +3,7 @@ title: "kci_test"
 date: 2021-08-05
 draft: false
 description: "Command line tool to generate and run tests"
-weight: 6
+weight: 7
 ---
 
 ## `kci_test`

@@ -3,7 +3,7 @@ title: "kci_rootfs"
 date: 2021-08-05
 draft: false
 description: "Command line tool to build rootfs images"
-weight: 5
+weight: 6
 ---
 
 ### How to build a rootfs image using kci_rootfs
