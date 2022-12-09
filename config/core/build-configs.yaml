@@ -1029,7 +1029,7 @@ build_configs:
     branch: 'v5.15-rt'
     variants: *preempt_rt_variants
 
-  rust-for-linux:
+  rust-for-linux_rust:
     tree: rust-for-linux
     branch: 'rust'
     variants:
