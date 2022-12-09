@@ -15,8 +15,27 @@ test_plans:
     filters:
       - passlist: {defconfig: ['kselftest']}
 
+  kselftest-all_riscv_qemu: &kselftest_riscv_qemu
+    rootfs: debian_sid-kselftest_ramdisk
+    pattern: 'kselftest/{category}-{method}-{rootfs}-kselftest-template.jinja2'
+    filters:
+      - passlist: {defconfig: ['kselftest']}
+      - passlist: &qemu_labs_filter
+          lab:
+            - 'lab-baylibre'
+            - 'lab-broonie'
+            - 'lab-collabora'
+            - 'lab-collabora-staging'
+
   kselftest-cgroup_riscv:
     <<: *kselftest_riscv
+    base_name: kselftest-cgroup
+    params:
+      job_timeout: '10'
+      kselftest_collections: "cgroup"
+
+  kselftest-cgroup_riscv_qemu:
+    <<: *kselftest_riscv_qemu
     base_name: kselftest-cgroup
     params:
       job_timeout: '10'
@@ -29,8 +48,22 @@ test_plans:
       job_timeout: '10'
       kselftest_collections: "filesystems"
 
+  kselftest-filesystems_riscv_qemu:
+    <<: *kselftest_riscv_qemu
+    base_name: kselftest-filesystems
+    params:
+      job_timeout: '10'
+      kselftest_collections: "filesystems"
+
   kselftest-futex_riscv:
     <<: *kselftest_riscv
+    base_name: kselftest-futex
+    params:
+      job_timeout: '10'
+      kselftest_collections: "futex"
+
+  kselftest-futex_riscv_qemu:
+    <<: *kselftest_riscv_qemu
     base_name: kselftest-futex
     params:
       job_timeout: '10'
@@ -43,8 +76,22 @@ test_plans:
       job_timeout: '10'
       kselftest_collections: "kcmp"
 
+  kselftest-kcmp_riscv_qemu:
+    <<: *kselftest_riscv_qemu
+    base_name: kselftest-kcmp
+    params:
+      job_timeout: '10'
+      kselftest_collections: "kcmp"
+
   kselftest-membarrier_riscv:
     <<: *kselftest_riscv
+    base_name: kselftest-membarrier
+    params:
+      job_timeout: '10'
+      kselftest_collections: "membarrier"
+
+  kselftest-membarrier_riscv_qemu:
+    <<: *kselftest_riscv_qemu
     base_name: kselftest-membarrier
     params:
       job_timeout: '10'
@@ -57,8 +104,22 @@ test_plans:
       job_timeout: '10'
       kselftest_collections: "mincore"
 
+  kselftest-mincore_riscv_qemu:
+    <<: *kselftest_riscv_qemu
+    base_name: kselftest-mincore
+    params:
+      job_timeout: '10'
+      kselftest_collections: "mincore"
+
   kselftest-timers_riscv:
     <<: *kselftest_riscv
+    base_name: kselftest-timers
+    params:
+      job_timeout: '15'
+      kselftest_collections: "timers"
+
+  kselftest-timers_riscv_qemu:
+    <<: *kselftest_riscv_qemu
     base_name: kselftest-timers
     params:
       job_timeout: '15'
@@ -82,12 +143,7 @@ test_plans:
     pattern: 'ltp/{category}-{method}-{rootfs}-ltp-template.jinja2'
     filters:
       - blocklist: *kselftest_defconfig_filter
-      - passlist: &qemu_labs_filter
-          lab:
-            - 'lab-baylibre'
-            - 'lab-broonie'
-            - 'lab-collabora'
-            - 'lab-collabora-staging'
+      - passlist: *qemu_labs_filter
     params:
       <<: *ltp-params_riscv
 
