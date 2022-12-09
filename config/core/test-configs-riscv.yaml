@@ -76,6 +76,21 @@ test_plans:
       job_timeout: '15'
       skipfile: skipfile-lkft.yaml
 
+  ltp-all_riscv_qemu: &ltp_riscv_qemu
+    base_name: ltp
+    rootfs: debian_sid-ltp_ramdisk
+    pattern: 'ltp/{category}-{method}-{rootfs}-ltp-template.jinja2'
+    filters:
+      - blocklist: *kselftest_defconfig_filter
+      - passlist: &qemu_labs_filter
+          lab:
+            - 'lab-baylibre'
+            - 'lab-broonie'
+            - 'lab-collabora'
+            - 'lab-collabora-staging'
+    params:
+      <<: *ltp-params_riscv
+
   ltp-crypto_riscv:
     <<: *ltp_riscv
     base_name: ltp-crypto
@@ -94,8 +109,22 @@ test_plans:
       <<: *ltp-params_riscv
       tst_cmdfiles: "fcntl-locktests"
 
+  ltp-fcntl-locktests_riscv_qemu:
+    <<: *ltp_riscv_qemu
+    base_name: ltp-fcntl-locktests
+    params:
+      <<: *ltp-params_riscv
+      tst_cmdfiles: "fcntl-locktests"
+
   ltp-ipc_riscv:
     <<: *ltp_riscv
+    base_name: ltp-ipc
+    params:
+      <<: *ltp-params_riscv
+      tst_cmdfiles: "ipc"
+
+  ltp-ipc_riscv_qemu:
+    <<: *ltp_riscv_qemu
     base_name: ltp-ipc
     params:
       <<: *ltp-params_riscv
@@ -110,10 +139,29 @@ test_plans:
       job_timeout: '25'
       priority: 0
 
+  ltp-pty_riscv_qemu:
+    <<: *ltp_riscv_qemu
+    base_name: ltp-pty
+    params:
+      <<: *ltp-params_riscv
+      tst_cmdfiles: "pty"
+      job_timeout: '25'
+      priority: 0
+
   ltp-timers_riscv:
     <<: *ltp_riscv
     base_name: ltp-timers
     pattern: 'ltp/{category}-{method}-{protocol}-{rootfs}-ltp-open-posix-template.jinja2'
+    params:
+      <<: *ltp-params_riscv
+      grp_test: "TMR"
+      job_timeout: '30'
+      priority: 0
+
+  ltp-timers_riscv_qemu:
+    <<: *ltp_riscv_qemu
+    base_name: ltp-timers
+    pattern: 'ltp/{category}-{method}-{rootfs}-ltp-open-posix-template.jinja2'
     params:
       <<: *ltp-params_riscv
       grp_test: "TMR"

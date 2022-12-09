@@ -107,3 +107,10 @@ file_systems:
     ramdisk: sid-ltp/20221125.0/{arch}/initrd.cpio.gz
     root_type: nfs
     type: debian
+  debian_sid-ltp_ramdisk:
+    boot_protocol: tftp
+    params: {}
+    prompt: '/ #'
+    ramdisk: sid-ltp/20221125.0/{arch}/rootfs.cpio.gz
+    root_type: ramdisk
+    type: debian
