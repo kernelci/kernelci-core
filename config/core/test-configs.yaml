@@ -2793,6 +2793,13 @@ test_configs:
   - device_type: qemu_riscv64
     test_plans:
       - baseline_qemu
+      - kselftest-cgroup_riscv_qemu
+      - kselftest-filesystems_riscv_qemu
+      - kselftest-futex_riscv_qemu
+      - kselftest-kcmp_riscv_qemu
+      - kselftest-membarrier_riscv_qemu
+      - kselftest-mincore_riscv_qemu
+      - kselftest-timers_riscv_qemu
       - ltp-fcntl-locktests_riscv_qemu
       - ltp-ipc_riscv_qemu
       - ltp-pty_riscv_qemu
