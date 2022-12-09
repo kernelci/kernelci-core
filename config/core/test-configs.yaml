@@ -2803,6 +2803,10 @@ test_configs:
   - device_type: qemu_riscv64
     test_plans:
       - baseline_qemu
+      - ltp-fcntl-locktests_riscv_qemu
+      - ltp-ipc_riscv_qemu
+      - ltp-pty_riscv_qemu
+      - ltp-timers_riscv_qemu
 
   - device_type: qemu_x86_64
     test_plans:
