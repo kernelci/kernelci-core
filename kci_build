@@ -427,11 +427,13 @@ class cmd_pull_tarball(Command):
 
 class cmd_check_new_commit(Command):
     help = "Check if a new commit is available on a branch"
-    args = [Args.build_config, Args.storage]
+    args = [Args.build_config, Args.storage_config]
 
     def __call__(self, configs, args):
-        conf = configs['build_configs'][args.build_config]
-        update = kernelci.legacy.check_new_commit(conf, args.storage)
+        build_conf = configs['build_configs'][args.build_config]
+        storage_conf = configs['storage_configs'][args.storage_config]
+        storage_url = storage_conf.base_url
+        update = kernelci.legacy.check_new_commit(build_conf, storage_url)
         if update is False or update is True:
             return update
         print(update)
