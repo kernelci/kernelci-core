@@ -69,11 +69,14 @@ echo -e \"\
 kdir: ${KDIR}\n\
 verbose: true\n\
 db_config: ${KCI_DB_CONFIG}\n\
+storage_config: ${KCI_STORAGE_CONFIG}\n\
 \n\
 [db:${KCI_DB_CONFIG}]\n\
 db_token: ${KCI_API_TOKEN}\n\
 api: ${KCI_API_URL}\n\
 \n\
+[storage:${KCI_STORAGE_CONFIG}]\n\
+storage_cred: ${KCI_API_TOKEN}\n\
 [kci_build]\n\
 ${jopt}\
 build_env: ${BUILD_ENVIRONMENT}\n\
@@ -138,6 +141,8 @@ exit 0; \
           value: "{{ "FIXME" | env_override('BUILD_CONFIG') }}"
         - name: KCI_DB_CONFIG
           value: "{{ "FIXME" | env_override('KCI_DB_CONFIG') }}"
+        - name: KCI_STORAGE_CONFIG
+          value: "{{ "FIXME" | env_override('KCI_STORAGE_CONFIG') }}"
         - name: KCI_API_URL
           value: "{{ "FIXME" | env_override('KCI_API_URL') }}"
         - name: KCI_API_TOKEN
