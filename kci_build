@@ -453,13 +453,17 @@ class cmd_update_last_commit(Command):
 
 class cmd_push_tarball(Command):
     help = "Create and up a source tarball to the remote storage server"
-    args = [Args.build_config, Args.kdir, Args.storage,
+    args = [Args.build_config, Args.kdir, Args.storage_config,
             Args.api, Args.db_token]
     opt_args = [Args.db_config]  # This should become mandatory
 
     def __call__(self, configs, args):
-        conf = configs['build_configs'][args.build_config]
-        func_args = (conf, args.kdir, args.storage, args.api, args.db_token)
+        build_conf = configs['build_configs'][args.build_config]
+        storage_conf = configs['storage_configs'][args.storage_config]
+        func_args = (
+            build_conf, args.kdir, storage_conf.base_url,
+            args.api, args.db_token
+        )
         if not all(func_args):
             print("Invalid arguments")
             return False
