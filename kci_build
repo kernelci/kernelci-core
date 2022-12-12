@@ -379,6 +379,9 @@ class cmd_push_kernel(Command):
             os.unlink(source_filename)
 
     def _discover_files(self, path):
+        # ToDo: return artifacts = {local_path: dest_path}
+        # with local_path to the local file to upload
+        # and dest_path the relative path where to store the file on the server
         artifacts = []
         for root, _, files in os.walk(path):
             for fname in files:
