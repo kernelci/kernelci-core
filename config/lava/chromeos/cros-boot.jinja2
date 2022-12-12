@@ -35,6 +35,10 @@ actions:
     ramdisk:
       url: {{ cros_flash_nfs.base_url }}{{ cros_flash_nfs.initrd }}
       compression: {{ cros_flash_nfs.initrd_compression }}
+{%- if cros_flash_kernel.dtb %}
+    dtb:
+      url: {{ cros_flash_kernel.base_url }}{{ cros_flash_kernel.dtb }}
+{%- endif %}
     os: oe
 
 - boot:
@@ -88,6 +92,18 @@ actions:
 {%- else %}
       # Fixed reference kernel
       url: {{ reference_kernel.image }}
+{%- endif %}
+
+{%- if dtb_url %}
+# If dtb_url present, this arch need dtb
+{%- if fixed_kernel is not defined %}
+    dtb:
+      url: {{ dtb_url }}
+{%- else %}
+    # Fixed reference dtb
+    dtb:
+      url: {{ reference_kernel.dtb }}
+{%- endif %}
 {%- endif %}
     os: oe
 
