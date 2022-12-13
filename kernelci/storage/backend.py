@@ -36,8 +36,8 @@ class Storage_backend(Storage):
             'path': dest_path,
         }
         files = {
-            f'file{i}': (os.path.basename(file_path), open(file_path, 'rb'))
-            for i, file_path in enumerate(file_paths)
+            f'file{i}': (file_dst, open(file_src, 'rb'))
+            for i, (file_src, file_dst) in enumerate(file_paths)
         }
         url = urljoin(self.config.api_url, 'upload')
         resp = requests.post(url, headers=headers, data=data, files=files)
