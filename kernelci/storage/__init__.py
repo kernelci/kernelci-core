@@ -80,6 +80,7 @@ class Storage:
                 'data/path'
             )
         """
+        # ToDo: take dictionary and return dictionary with {file_src: url}?
         self._upload(file_paths, dest_path)
         return [
             urljoin(self.config.base_url, '/'.join([dest_path, file_dst]))
