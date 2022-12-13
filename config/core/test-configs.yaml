@@ -26,6 +26,7 @@ file_system_types:
               {arch: arm, variant: v6}]
       armhf: [{arch: arm}]
       amd64: [{arch: x86_64}]
+      riscv64: [{arch: riscv}]
 
   # Convenience to test new rootfs images on staging.kernelci.org
   debian-staging:
