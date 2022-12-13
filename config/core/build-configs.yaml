@@ -97,6 +97,9 @@ trees:
   renesas:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/geert/renesas-devel.git"
 
+  riscv:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/riscv/linux.git"
+
   rmk:
     url: "git://git.armlinux.org.uk/~rmk/linux-arm.git"
 
@@ -965,6 +968,20 @@ build_configs:
   renesas_next:
     tree: renesas
     branch: 'next'
+
+  riscv-fixes: &riscv-tree
+    tree: riscv
+    branch: 'fixes'
+    variants:
+      gcc-10:
+        build_environment: gcc-10
+        architectures:
+          riscv:
+            base_defconfig: 'defconfig'
+
+  riscv-for-next:
+    <<: *riscv-tree
+    branch: 'for-next'
 
   rmk_for-next:
     tree: rmk
