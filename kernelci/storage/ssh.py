@@ -28,19 +28,27 @@ class Storage_ssh(Storage):
     """
 
     def _upload(self, file_paths, dest_path):
-        cmd = """\
+        for src, dst in file_paths:
+            dst_file = os.path.join(self.config.path, dest_path, dst)
+            dst_dir = os.path.dirname(dst_file)
+            kernelci.shell_cmd("""\
+ssh \
+  -i {key} \
+  -p {port} \
+  -o StrictHostKeyChecking=no \
+  -o UserKnownHostsFile=/dev/null \
+  {user}@{host} \
+  mkdir -p {dst_dir} && \
 scp \
   -i {key} \
   -P {port} \
   -o StrictHostKeyChecking=no \
   -o UserKnownHostsFile=/dev/null \
   {src} \
-  {user}@{host}:{dst}
-""".format(host=self.config.host, port=self.config.port,
+  {user}@{host}:{dst_file}
+""".format(host=self.config.host, port=self.config.port,  # noqa
            key=self.credentials, user=self.config.user,
-           src=' '.join(file_paths),
-           dst=os.path.join(self.config.path, dest_path))
-        kernelci.shell_cmd(cmd)
+           src=src, dst_dir=dst_dir, dst_file=dst_file))
 
 
 def get_storage(config, credentials):

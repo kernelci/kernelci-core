@@ -91,33 +91,46 @@ class Storage:
     def upload_single(self, file_path, dest_path=''):
         """Upload a single file to storage
 
-        Upload the file located in *file_path* to the storage at the
-        destination specified by *dest_path*.  Path elements from *file_path*
-        are not included in the destination path.  The returned value is the
+        Upload the file specified by the *file_path* 2-tuple as (local, remote)
+        file names to the storage at the destination directory specified by
+        *dest_path*.  Any path elements in the 2nd item of *file_path* will be
+        used as part as the full destination path.  The returned value is the
         full public URL that can be used to retrieve the file again.
+
+        For example:
+
+            s.upload_single(('path/to/local-file.txt', 'file.txt'), '.')
         """
         self._upload([file_path], dest_path)
         return urljoin(
             self.config.base_url,
-            '/'.join([dest_path, os.path.basename(file_path)])
+            '/'.join([dest_path, file_path[1]])
         )
 
     def upload_multiple(self, file_paths, dest_path=''):
         """Upload multiple files to storage
 
-        Upload all the files listed in *file_paths* to storage at the
-        destination speciified by *dest_path*.  The path elements in the file
-        paths are not included in the destination paths.  The returned value is
-        a list with the public URL to retrieve each file matching the input
-        list in *file_paths*.
+        Upload all the files *file_paths* as a list of 2-tuples with (local,
+        remote) file names to storage at the destination directory specified by
+        *dest_path*.  Any path elements in the remove file paths will be
+        included in the final destination paths.  The returned value is a list
+        with the public URL to retrieve each file matching the input list in
+        *file_paths*.
+
+        For example:
+
+            s.upload_multiple(
+                [
+                    ('path/to/local-file.txt', 'file.txt'),
+                    ('path/to/other-file.txt', 'subdir/other.txt'),
+                ],
+                'data/path'
+            )
         """
         self._upload(file_paths, dest_path)
         return [
-            urljoin(
-                self.config.base_url,
-                '/'.join([dest_path, os.path.basename(file_path)])
-            )
-            for file_path in file_paths
+            urljoin(self.config.base_url, '/'.join([dest_path, file_dst]))
+            for (file_src, file_dst) in file_paths
         ]
 
 
