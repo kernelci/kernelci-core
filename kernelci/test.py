@@ -58,17 +58,20 @@ def match_configs(configs, meta, lab):
     match = set()
 
     for test_config in configs:
+        dtb_missing = False
         if not test_config.match(arch, flags, filters):
             continue
         dtb = test_config.device_type.dtb
         if dtb and (not dtbs or dtb not in dtbs):
-            continue
+            dtb_missing = True
         for plan_name, plan in test_config.test_plans.items():
             if not plan.match(filters):
                 continue
             filters['plan'] = plan_name
             if lab.match(filters):
-                match.add((test_config.device_type, plan))
+                if not dtb_missing or \
+                   'fixed_kernel' in plan.params:
+                    match.add((test_config.device_type, plan))
 
     return match
 
