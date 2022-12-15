@@ -14,7 +14,7 @@
           - functional
         run:
           steps:
-            - python3 -m cros.runners.lava_runner
+            - python3 -m cros.runners.lava_runner --verbosity 2
       lava-signal: kmsg
       from: inline
       name: {{ plan }}
