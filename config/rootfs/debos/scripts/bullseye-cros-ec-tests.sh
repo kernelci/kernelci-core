@@ -26,7 +26,7 @@ echo '{  "tests_suites": [' >> $BUILDFILE
 # Build and install tests                                              #
 ########################################################################
 
-CROS_URL="https://git.kernel.org/pub/scm/linux/kernel/git/chrome-platform/cros-ec-tests.git"
+CROS_URL="https://github.com/hardboprobot/cros-ec-tests.git"
 CROS_SHA=$(git ls-remote ${CROS_URL} | head -n 1 | cut -f 1)
 
 pip3 install git+${CROS_URL}@${CROS_SHA}
