@@ -3,6 +3,10 @@
 # https://cloud.google.com/sdk/docs/downloads-apt-get
 #
 
+# To deal with "error: The gcp auth plugin has been removed" in Google Cloud SDK 393.0.0, use the gke-gcloud-auth-plugin.
+# See https://cloud.google.com/blog/products/containers-kubernetes/kubectl-auth-changes-in-gke
+ENV USE_GKE_GCLOUD_AUTH_PLUGIN=true
+
 RUN apt-get update && apt-get install -y --no-install-recommends curl gnupg
 
 RUN echo "\
@@ -13,4 +17,4 @@ https://packages.cloud.google.com/apt cloud-sdk main" | \
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
     apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
 
-RUN apt-get update && apt-get install -y google-cloud-sdk kubectl
+RUN apt-get update && apt-get install -y google-cloud-sdk kubectl google-cloud-sdk-gke-gcloud-auth-plugin
