@@ -989,7 +989,7 @@ build_configs:
     tree: renesas
     branch: 'next'
 
-  riscv-fixes: &riscv-tree
+  riscv_fixes: &riscv-tree
     tree: riscv
     branch: 'fixes'
     variants:
@@ -1001,7 +1001,7 @@ build_configs:
             extra_configs:
               - 'defconfig+CONFIG_SMP=n'
 
-  riscv-for-next:
+  riscv_for-next:
     <<: *riscv-tree
     branch: 'for-next'
 
