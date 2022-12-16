@@ -49,6 +49,7 @@ setuptools.setup(
         "kernelci.storage",
     ],
     scripts=[
+        'kci',
         'kci_build',
         'kci_test',
         'kci_rootfs',
