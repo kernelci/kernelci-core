@@ -885,10 +885,8 @@ device_types:
     class: riscv-dtb
     boot_method: uboot
     filters:
-    # no console in tinyconfig
-      - blocklist:
-          defconfig: ['tinyconfig']
-          kernel: ['v4.']
+      - blocklist: *device_config_filter
+      - regex: {defconfig: '^defconfig'}
 
   hip07-d05:
     mach: hisilicon
@@ -1122,6 +1120,9 @@ device_types:
     class: riscv-dtb
     boot_method: uboot
     dtb: 'starfive/jh7100-starfive-visionfive-v1.dtb'
+    filters:
+      - blocklist: *device_config_filter
+      - regex: {defconfig: '^defconfig'}
 
   juno-uboot:
     mach: vexpress
@@ -1583,7 +1584,8 @@ device_types:
       memory: 1024
       extra_options: ['-bios default -device virtio-net,netdev=main -netdev user,id=main']
     filters:
-      - passlist: {defconfig: ['defconfig']}
+      - blocklist: *device_config_filter
+      - regex: {defconfig: '^defconfig'}
 
   qemu_x86_64: &qemu_x86_64
     base_name: qemu
