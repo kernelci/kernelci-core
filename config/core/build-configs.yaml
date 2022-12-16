@@ -980,6 +980,8 @@ build_configs:
         architectures:
           riscv:
             base_defconfig: 'defconfig'
+            extra_configs:
+              - 'defconfig+CONFIG_SMP=n'
 
   riscv-for-next:
     <<: *riscv-tree
