@@ -41,6 +41,7 @@ setuptools.setup(
     url="https://github.com/kernelci/kernelci-core",
     packages=[
         "kernelci",
+        "kernelci.cli",
         "kernelci.config",
         "kernelci.lab",
         "kernelci.lab.lava",
