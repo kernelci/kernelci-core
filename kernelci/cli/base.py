@@ -561,16 +561,20 @@ def add_subparsers(parser, glob):
                 obj(sub_parsers, cmd_name)
 
 
-def parse_args_with_parser(parser, glob):
+def parse_args_with_parser(parser, glob, args=None):
     """Parse the command line arguments with a provided parser
+
+    *parser* is an `ArgumentParser` instance used to parse the command line.
 
     *glob* is the dictionary with all the global attributes where to look for
            commands starting with `cmd_`
 
-    *parser* is an `ArgumentParser` instance used to parse the command line.
+    *args* is the list of arguments to parse.  When not provided, the default
+           set of arguments from sys.argv will be used as per argparse's
+           implementation
     """
     add_subparsers(parser, glob)
-    args = parser.parse_args()
+    args = parser.parse_args(args)
     if not hasattr(args, 'func'):
         parser.print_help()
         exit(1)
@@ -592,7 +596,7 @@ def make_options(args, prog):
     return opts
 
 
-def parse_opts(prog, glob, yaml_config_path=None):
+def parse_opts(prog, glob, yaml_config_path=None, args=None):
     """Return an Options object with command line arguments and settings
 
     This will create a parser and automatically add the sub-commands from the
@@ -601,11 +605,14 @@ def parse_opts(prog, glob, yaml_config_path=None):
 
     *prog* is the command line program name
 
+    *glob* is the dictionary with all the global attributes where to look for
+           commands starting with `cmd_`
+
     *yaml_config_path* is the name of a particular YAML configuration directory
                        to use with the command line utility
 
-    *glob* is the dictionary with all the global attributes where to look for
-           commands starting with `cmd_`
+    *args* is the list of arguments to parse, or by default all the command
+           line arguments from sys.argv
     """
     if yaml_config_path is None:
         for config_path in ['config/core', '/etc/kernelci/core']:
@@ -613,5 +620,5 @@ def parse_opts(prog, glob, yaml_config_path=None):
                 yaml_config_path = config_path
                 break
     parser = make_parser(prog, yaml_config_path)
-    args = parse_args_with_parser(parser, glob)
+    args = parse_args_with_parser(parser, glob, args)
     return make_options(args, prog)
