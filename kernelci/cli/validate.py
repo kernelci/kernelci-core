@@ -5,7 +5,7 @@
 
 import sys
 
-from .base import Args, Command, parse_opts
+from .base import Args, Command, parse_opts, sub_main
 import kernelci.config
 
 
@@ -29,7 +29,4 @@ class cmd_yaml(Command):
 
 
 def main(args=None):
-    opts = parse_opts("validate", globals(), args=args)
-    configs = kernelci.config.load(opts.yaml_config)
-    status = opts.command(configs, opts)
-    sys.exit(0 if status is True else 1)
+    sub_main("validate", globals(), args)
