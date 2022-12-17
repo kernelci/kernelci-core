@@ -237,6 +237,9 @@ fragments:
   rust:
     path: "kernel/configs/rust.config"
     configs:
+      - '# CONFIG_X86_KERNEL_IBT is not set'
+      - '# CONFIG_RETPOLINE is not set'
+      - '# CONFIG_RETHUNK is not set'
       - 'CONFIG_RUST=y'
 
   rust-for-linux-samples:
