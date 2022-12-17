@@ -8,9 +8,13 @@
 import sys
 
 from .base import Args, Command, parse_opts, sub_main
-from . import validate
+from . import (
+    node,
+    validate,
+)
 
 _COMMANDS = {
+    'node': node.main,
     'validate': validate.main,
 }
 
