@@ -6,6 +6,9 @@
 import argparse
 import configparser
 import os.path
+import sys
+
+import kernelci.config
 
 
 # -----------------------------------------------------------------------------
@@ -622,3 +625,20 @@ def parse_opts(prog, glob, yaml_config_path=None, args=None):
     parser = make_parser(prog, yaml_config_path)
     args = parse_args_with_parser(parser, glob, args)
     return make_options(args, prog)
+
+
+def sub_main(name, glob, args=None):
+    """Standard main function for sub-commands
+
+    This can be called as a default implementation for a sub-command main
+    function.  It will load the YAML config and settings, call the command and
+    exit with a status code based on the returned value from the command.
+
+    *name* is passed to the parser as the command name for the help message
+    *glob* is a dictionary with global variables, typically globals()
+    *args* is an optional list of arguments to override sys.argv
+    """
+    opts = parse_opts(name, glob, args=args)
+    configs = kernelci.config.load(opts.yaml_config)
+    status = opts.command(configs, opts)
+    sys.exit(0 if status is True else 1)

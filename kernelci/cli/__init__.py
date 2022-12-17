@@ -5,7 +5,7 @@
 
 import sys
 
-from .base import Args, Command, parse_opts
+from .base import Args, Command, parse_opts, sub_main
 from . import validate
 
 _COMMANDS = {
