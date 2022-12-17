@@ -6,8 +6,10 @@
 import sys
 
 from .base import Args, Command, parse_opts
+from . import validate
 
 _COMMANDS = {
+    'validate': validate.main,
 }
 
 
