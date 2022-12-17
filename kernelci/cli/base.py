@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-2.1-or-later
 #
-# Copyright (C) 2018-2022 Collabora Limited
+# Copyright (C) 2018-2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
 """Common definitions for KernelCI command line tools
@@ -31,6 +31,7 @@ class Args:  # pylint: disable=too-few-public-methods
     add_argument() method of the parser object from argparse.  There should
     also always be a `help` attribute, as this is needed by the Command class.
     """
+    SECTION_API = ('api', 'api_config')
     SECTION_DB = ('db', 'db_config')
     SECTION_LAB = ('lab', 'lab_config')
     SECTION_STORAGE = ('storage', 'storage_config')
@@ -44,6 +45,17 @@ class Args:  # pylint: disable=too-few-public-methods
         'name': '--api',
         'help': "Backend API URL",
         'section': SECTION_DB,
+    }
+
+    api_config = {
+        'name': '--api-config',
+        'help': "KernelCI API configuration",
+    }
+
+    api_token = {
+        'name': '--api-token',
+        'help': "KernelCI API token",
+        'section': SECTION_API,
     }
 
     build_output = {
