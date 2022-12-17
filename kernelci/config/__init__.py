@@ -168,7 +168,7 @@ def load(config_path):
     unified file
 
     """
-    if config_path is None:
+    if not config_path:
         return {}
     data = load_yaml(config_path)
     return from_data(data)
