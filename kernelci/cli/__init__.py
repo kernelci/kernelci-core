@@ -3,6 +3,8 @@
 # Copyright (C) 2022 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
+"""KernelCI command line utility package"""
+
 import sys
 
 from .base import Args, Command, parse_opts, sub_main
