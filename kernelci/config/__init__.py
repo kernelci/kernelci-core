@@ -21,6 +21,7 @@ import yaml
 
 import kernelci
 import kernelci.config
+import kernelci.config.api
 import kernelci.config.build
 import kernelci.config.db
 import kernelci.config.lab
@@ -149,6 +150,7 @@ def from_data(data):
     """
     config = dict()
     filters = kernelci.config.base.default_filters_from_yaml(data)
+    config.update(kernelci.config.api.from_yaml(data, filters))
     config.update(kernelci.config.build.from_yaml(data, filters))
     config.update(kernelci.config.db.from_yaml(data, filters))
     config.update(kernelci.config.lab.from_yaml(data, filters))
