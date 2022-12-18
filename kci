@@ -5,6 +5,13 @@
 # Copyright (C) 2022 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
+"""KernelCI Command Line Tool
+
+This executable script is the entry point for all the new KernelCI command line
+tools which support the new API & Pipeline design.  See the documentation for
+more details: https://kernelci.org/docs/api/.
+"""
+
 import argparse
 import sys
 
