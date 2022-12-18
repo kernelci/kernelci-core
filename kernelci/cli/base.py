@@ -3,6 +3,13 @@
 # Copyright (C) 2018-2022 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
+"""Common definitions for KernelCI command line tools
+
+This module contains common utilities for implementing command line tools that
+can't be defined in __init__.py as it would create a circular dependency due to
+the commands registration mechanism.
+"""
+
 import argparse
 import configparser
 import os.path
@@ -15,7 +22,7 @@ import kernelci.config
 # Standard arguments that can be used in sub-commands
 #
 
-class Args:
+class Args:  # pylint: disable=too-few-public-methods
     """A list of all the common command line argument options
 
     All the members of this class are arguments that can be reused in various
@@ -377,7 +384,7 @@ class Command:
                 for arg in arg_list:
                     self._add_arg(arg)
         self._parser.set_defaults(func=self)
-        self._args_dict = dict()
+        self._args_dict = {}
         for arg_list in [self.args, self.opt_args]:
             if arg_list:
                 self._args_dict.update({
@@ -394,10 +401,10 @@ class Command:
         raise NotImplementedError("Command not implemented")
 
     def _add_arg(self, arg):
-        kw = dict(arg)
-        arg_name = kw.pop('name')
-        kw.pop('section', None)
-        self._parser.add_argument(arg_name, **kw)
+        kwargs = arg.copy()
+        arg_name = kwargs.pop('name')
+        kwargs.pop('section', None)
+        self._parser.add_argument(arg_name, **kwargs)
 
     def get_arg_data(self, arg_name):
         """Get the data associated with an argument definition
@@ -450,7 +457,6 @@ class Options:
 
         *section* is a section name to use in the settings file, to provide a
                   way to have default values for each CLI tool
-
         """
         if path is None:
             default_paths = [
@@ -458,8 +464,9 @@ class Options:
                 os.path.expanduser('~/.config/kernelci/kernelci.conf'),
                 '/etc/kernelci/kernelci.conf',
             ]
-            for path in default_paths:
-                if os.path.exists(path):
+            for default_path in default_paths:
+                if os.path.exists(default_path):
+                    path = default_path
                     break
         self._settings = configparser.ConfigParser()
         if path and os.path.exists(path):
@@ -539,7 +546,7 @@ def make_parser(title, default_config_path):
     parser.add_argument(
         "--extra-config",
         action='append',
-        default=list(),
+        default=[],
         help="Path to additional YAML site config files",
     )
     parser.add_argument(
@@ -585,7 +592,7 @@ def parse_args_with_parser(parser, glob, args=None):
     args = parser.parse_args(args)
     if not hasattr(args, 'func'):
         parser.print_help()
-        exit(1)
+        sys.exit(1)
     return args
 
 
@@ -598,9 +605,9 @@ def make_options(args, prog):
     opts = Options(args.settings, args.func, args, prog)
     missing_args = opts.get_missing_args()
     if missing_args:
-        print("The following arguments or settings are required: {}".format(
-            ', '.join(missing_args)))
-        exit(1)
+        print("The following arguments or settings are required: "
+              + ', '.join(missing_args))
+        sys.exit(1)
     return opts
 
 
