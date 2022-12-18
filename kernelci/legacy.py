@@ -21,6 +21,14 @@ from urllib.parse import urljoin
 from kernelci.build import get_branch_head, git_describe, make_tarball
 
 
+class Args:
+
+    storage = {
+        'name': '--storage',
+        'help': "Storage URL",
+    }
+
+
 def _upload_files(api, token, path, input_files):
     """Upload rootfs to KernelCI backend.
 
