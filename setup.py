@@ -85,7 +85,8 @@ setuptools.setup(
     ],
     extras_require={
         'dev': [
-            'pycodestyle'
+            'pycodestyle',
+            'pylint',
         ]
     }
 )
