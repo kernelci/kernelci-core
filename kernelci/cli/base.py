@@ -370,7 +370,7 @@ class Command:
 
         """
         if not self.help:
-            raise AttributeError("Missing help message for {}".format(name))
+            self.help = self.__doc__
         self._parser = sub_parser.add_parser(name, help=self.help)
         for arg_list in [self.args, self.opt_args]:
             if arg_list:
