@@ -48,6 +48,10 @@ jobs:
           pycodestyle kci_*
           pycodestyle scripts/*
 
+      - name: Run pylint
+        run: |
+          pylint kci
+
       - name: Run YAML config validation
         run: |
           ./kci validate yaml
