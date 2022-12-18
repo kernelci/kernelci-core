@@ -1,0 +1,7 @@
+api_configs:
+
+  docker-host:
+    url: http://172.17.0.1:8001
+
+  staging.kernelci.org:
+    url: https://staging.kernelci.org:9000
