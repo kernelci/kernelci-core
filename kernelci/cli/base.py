@@ -385,7 +385,12 @@ class Command:
                     for arg in arg_list
                 })
 
-    def __call__(self, *args, **kw):
+    def __call__(self, configs, args):
+        """Call the command
+
+        *configs* is a dictionary with configuration objects parsed from YAML
+        *args* is the parsed command line arguments
+        """
         raise NotImplementedError("Command not implemented")
 
     def _add_arg(self, arg):
