@@ -16,12 +16,25 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import json
+import enum
 import requests
 import urllib.parse
 
 from cloudevents.http import from_json
 
 from kernelci.db import Database
+
+
+class NodeStates(enum.Enum):
+    """Enumeration for node states
+    This is a temporary implementation until we have API versioning
+    in place. Once we have it, we can directly use a version specific
+    endpoint to get node states"""
+
+    RUNNING = 'running'
+    AVAILABLE = 'available'
+    CLOSING = 'closing'
+    DONE = 'done'
 
 
 class KernelCI_API(Database):
