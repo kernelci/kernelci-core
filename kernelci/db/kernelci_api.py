@@ -48,6 +48,12 @@ class KernelCI_API(Database):
             'Content-Type': 'application/json',
         }
         self._filters = {}
+        self._node_states = NodeStates
+
+    @property
+    def node_states(self):
+        """Get node states"""
+        return self._node_states
 
     def _make_url(self, path):
         return urllib.parse.urljoin(self.config.url, path)
