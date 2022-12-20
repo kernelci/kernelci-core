@@ -2957,9 +2957,9 @@ test_configs:
   - device_type: sc7180-trogdor-lazor-limozeen
     test_plans:
       - baseline
-      # baseline-nfs - Current configs lack networking
+      - baseline-nfs
       - cros-ec
-      # kselftest-alsa - Current configs lack networking
+      - kselftest-alsa
 
   - device_type: snow
     test_plans:
