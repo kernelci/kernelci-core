@@ -164,6 +164,13 @@ test_plans:
         core_setmaster
         core_setmaster_vs_auth
 
+  igt-gpu-msm:
+    <<: *igt
+    params:
+      drm_driver: "msm"
+      tests: >
+        msm_submit
+
   igt-gpu-panfrost:
     <<: *igt
     params:
@@ -196,6 +203,12 @@ test_plans:
     params:
       <<: *igt-kms-test-list
       drm_driver: "exynos"
+
+  igt-kms-msm:
+    <<: *igt-kms
+    params:
+      <<: *igt-kms-test-list
+      drm_driver: "msm"
 
   igt-kms-rockchip:
     <<: *igt-kms
