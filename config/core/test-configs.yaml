@@ -1700,6 +1700,13 @@ device_types:
     class: arm64-dtb
     boot_method: uboot
 
+  sc7180-trogdor-kingoftown:
+    mach: qcom
+    class: arm64-dtb
+    boot_method: depthcharge
+    dtb: 'qcom/sc7180-trogdor-kingoftown-r1.dtb'
+    filters: *arm64-chromebook-filters
+
   sc7180-trogdor-lazor-limozeen:
     mach: qcom
     class: arm64-dtb
@@ -2953,6 +2960,13 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+
+  - device_type: sc7180-trogdor-kingoftown
+    test_plans:
+      - baseline
+      - baseline-nfs
+      - cros-ec
+      - kselftest-alsa
 
   - device_type: sc7180-trogdor-lazor-limozeen
     test_plans:
