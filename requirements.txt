@@ -1,7 +1,9 @@
 cloudevents==1.2.0
 jinja2==3.1.1
 kubernetes==23.3.0
+paramiko==2.12.0
 pyelftools==0.28
 pytest==7.1.2
 pyyaml==6.0
 requests==2.27.1
+scp==0.14.4

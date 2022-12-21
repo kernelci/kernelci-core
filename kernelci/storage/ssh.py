@@ -1,5 +1,6 @@
 # Copyright (C) 2022 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+# Author: Michal Galka <michal.galka@collabora.com>
 #
 # This module is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -16,7 +17,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 import os
-import kernelci
+from paramiko import client, SSHClient
+from scp import SCPClient
 from . import Storage
 
 
@@ -28,19 +30,17 @@ class Storage_ssh(Storage):
     """
 
     def _upload(self, file_paths, dest_path):
-        cmd = """\
-scp \
-  -i {key} \
-  -P {port} \
-  -o StrictHostKeyChecking=no \
-  -o UserKnownHostsFile=/dev/null \
-  {src} \
-  {user}@{host}:{dst}
-""".format(host=self.config.host, port=self.config.port,
-           key=self.credentials, user=self.config.user,
-           src=' '.join(file_paths),
-           dst=os.path.join(self.config.path, dest_path))
-        kernelci.shell_cmd(cmd)
+        with SSHClient() as ssh:
+            ssh.set_missing_host_key_policy(client.AutoAddPolicy)
+            ssh.connect(hostname=self.config.host,
+                        port=self.config.port,
+                        username=self.config.user,
+                        key_filename=self.credentials,
+                        timeout=5000
+                        )
+            with SCPClient(ssh.get_transport()) as scp:
+                scp.put(file_paths,
+                        os.path.join(self.config.path, dest_path))
 
 
 def get_storage(config, credentials):
