@@ -75,10 +75,12 @@ setuptools.setup(
         "cloudevents",
         "jinja2",
         "kubernetes",
+        "paramiko",
         "pyelftools",
         "pytest",
         "pyyaml",
         "requests",
+        "scp",
     ],
     extras_require={
         'dev': [
