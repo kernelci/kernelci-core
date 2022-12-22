@@ -1,7 +1,7 @@
 #!/bin/sh
 
 BOOTRR_SITE=https://github.com/kernelci/bootrr.git
-BOOTRR_VERSION=e0a316de59153ecd4373b14063b0280505ce6e2e
+BOOTRR_VERSION=94dbf0b19d6e01489ce71c98cd3613b63c15f661
 
 BUILD_DEPS="\
     build-essential \
