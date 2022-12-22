@@ -4,9 +4,9 @@ file_systems:
     boot_protocol: tftp
     params: {}
     prompt: '/ #'
-    ramdisk: buildroot-baseline/20221216.0/{arch}/rootfs.cpio.gz
+    ramdisk: buildroot-baseline/20221220.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
-    type: buildroot
+    type: buildroot-staging
   debian_bullseye-cros-ec_ramdisk:
     boot_protocol: tftp
     params: {}
