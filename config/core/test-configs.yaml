@@ -369,6 +369,13 @@ test_plans:
       job_timeout: '10'
       kselftest_collections: "seccomp"
 
+  kselftest-timens:
+    <<: *kselftest
+    params:
+      job_timeout: '15'
+      kselftest_collections: "timens"
+    filters: *kselftest_no_fragment
+
   kselftest-timers:
     <<: *kselftest
     params:
@@ -2993,6 +3000,12 @@ test_configs:
       - igt-gpu-msm
       - igt-kms-msm
       - kselftest-alsa
+      - kselftest-arm64
+      - kselftest-cpufreq
+      - kselftest-rtc
+      - kselftest-timens
+      - kselftest-timers
+      - usb
 
   - device_type: snow
     test_plans:
