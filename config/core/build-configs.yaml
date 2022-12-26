@@ -1106,8 +1106,8 @@ build_configs:
     tree: rust-for-linux
     branch: 'rust'
     variants:
-      rustc-1.62:
-        build_environment: rustc-1.62
+      rustc-1.66:
+        build_environment: rustc-1.66
         fragments: [rust, rust-for-linux-samples, kselftest]
         architectures:
           x86_64:
