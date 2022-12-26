@@ -1,0 +1,43 @@
+{% extends 'clang-15.jinja2' %}
+
+{% block packages %}
+{{ super() }}
+
+ARG RUST_VER=1.66.0
+ARG BINDGEN_VER=0.56.0
+
+ARG RUST_TRIPLE=rust-${RUST_VER}-x86_64-unknown-linux-gnu
+
+ENV CARGO_HOME=/home/kernelci/.cargo
+ENV PATH=/usr/${RUST_TRIPLE}/bin:${CARGO_HOME}/bin:${PATH}
+
+ARG SHA256SUM=f6ff8b7a38bab7d8f3cb7b70c7201494a5485c2cf12e84a13c9e232fa51ebfe7
+
+# fetch, verify the toolchain
+RUN wget https://static.rust-lang.org/dist/${RUST_TRIPLE}.tar.gz && \
+    echo "${SHA256SUM} ${RUST_TRIPLE}.tar.gz" | sha256sum --check --quiet
+
+# install & cleanup tmp files
+RUN tar -xf ${RUST_TRIPLE}.tar.gz  -C /tmp/ && \
+    /tmp/${RUST_TRIPLE}/install.sh --prefix=/usr/${RUST_TRIPLE} \
+        --components=rustc,cargo,rust-std-x86_64-unknown-linux-gnu && \
+    rm -rf /tmp/${RUST_TRIPLE} && \
+    rm /${RUST_TRIPLE}*
+
+# This image is based on clang-*jinja2 which only has clang installed, but rustc
+# defaults to linker "cc" which usually points to the GNU/GCC stack. Pointing cc
+# to clang ensures both cargo and kernel build rustc invocations use llvm/clang.
+RUN update-alternatives --install /usr/bin/cc cc $(which clang) 30 && \
+    update-alternatives --set cc $(which clang)
+
+RUN git clone --recurse-submodules --branch $RUST_VER \
+        https://github.com/rust-lang/rust \
+        $(rustc --print sysroot)/lib/rustlib/src/rust
+
+RUN cargo install --locked --version ${BINDGEN_VER} bindgen
+
+# kernel build generates some rust code and tries to format it, if rustfmt is
+# missing it will print non-fatal error noise
+RUN cargo install rustfmt
+
+{%- endblock %}
