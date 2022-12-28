@@ -124,6 +124,72 @@ test_plans:
       <<: *cros-tast-base-qemu-params
       tests: *cros-tast-kernel-tests
 
+  cros-tast-mm-decode:
+    <<: *cros-tast-base
+    params:
+      <<: *cros-tast-base-params
+      tests: &cros-tast-mm-decode-tests >
+        video.PlatformDecoding.ffmpeg_vaapi_vp9_0_group1_buf
+        video.PlatformDecoding.ffmpeg_vaapi_vp9_0_group2_buf
+        video.PlatformDecoding.ffmpeg_vaapi_vp9_0_group3_buf
+        video.PlatformDecoding.ffmpeg_vaapi_vp9_0_group4_buf
+        video.PlatformDecoding.ffmpeg_vaapi_vp9_0_level5_0_buf
+        video.PlatformDecoding.ffmpeg_vaapi_vp9_0_level5_1_buf
+        video.PlatformDecoding.ffmpeg_vaapi_av1
+        video.PlatformDecoding.ffmpeg_vaapi_vp8_inter
+        video.ChromeStackDecoder.av1_global_vaapi_lock_disabled
+        video.ChromeStackDecoder.h264_global_vaapi_lock_disabled
+        video.ChromeStackDecoder.hevc_global_vaapi_lock_disabled
+        video.ChromeStackDecoder.vp8_global_vaapi_lock_disabled
+        video.ChromeStackDecoder.vp9_global_vaapi_lock_disabled
+        video.PlatformDecoding.vaapi_vp9_0_group1_buf
+        video.PlatformDecoding.vaapi_vp9_0_group2_buf
+        video.PlatformDecoding.vaapi_vp9_0_group3_buf
+        video.PlatformDecoding.vaapi_vp9_0_group4_buf
+        video.PlatformDecoding.vaapi_vp9_0_level5_0_buf
+        video.PlatformDecoding.vaapi_vp9_0_level5_1_buf
+
+  cros-tast-mm-encode:
+    <<: *cros-tast-base
+    params:
+      <<: *cros-tast-base-params
+      tests: &cros-tast-mm-encode-tests >
+        video.EncodeAccel.h264_1080p_global_vaapi_lock_disabled
+        video.EncodeAccel.vp8_1080p_global_vaapi_lock_disabled
+        video.EncodeAccel.vp9_1080p_global_vaapi_lock_disabled
+        video.EncodeAccelPerf.h264_1080p_global_vaapi_lock_disabled
+        video.EncodeAccelPerf.vp8_1080p_global_vaapi_lock_disabled
+        video.EncodeAccelPerf.vp9_1080p_global_vaapi_lock_disabled
+        video.PlatformEncoding.vaapi_vp8_720
+        video.PlatformEncoding.vaapi_vp8_720_meet
+        video.PlatformEncoding.vaapi_vp9_720
+        video.PlatformEncoding.vaapi_vp9_720_meet
+        video.PlatformEncoding.vaapi_h264_720
+        video.PlatformEncoding.vaapi_h264_720_meet
+        webrtc.MediaRecorderMulti.vp8_vp8_global_vaapi_lock_disabled
+        webrtc.MediaRecorderMulti.vp8_h264_global_vaapi_lock_disabled
+        webrtc.MediaRecorderMulti.h264_h264_global_vaapi_lock_disabled
+        webrtc.RTCPeerConnectionPerf.vp8_hw_multi_vp9_3x3_global_vaapi_lock_disabled
+        webrtc.RTCPeerConnectionPerf.vp8_hw_multi_vp9_4x4_global_vaapi_lock_disabled
+        webrtc.RTCPeerConnectionPerf.vp9_hw_multi_vp9_3x3_global_vaapi_lock_disabled
+
+  cros-tast-mm-misc:
+    <<: *cros-tast-base
+    params:
+      <<: *cros-tast-base-params
+      tests: &cros-tast-mm-misc-tests >
+        camera.V4L2.certification
+        camera.V4L2Compliance
+        graphics.VAAPIUnittest.webp_decoder
+        graphics.VAAPIUnittest.jpeg_decoder
+        graphics.VAAPIUnittest.common
+        video.PlatformVAAPIUnittest
+        graphics.Clvk.api_tests
+        graphics.Clvk.simple_test
+        security.GPUSandboxed
+        video.ImageProcessor.image_processor_unit_test
+        video.MemCheck.av1_hw
+
   cros-tast-perf:
     <<: *cros-tast-base
     params:
@@ -197,7 +263,7 @@ test_plans:
         audio.DevicePlay
         audio.UCMSequences.section_device
         audio.UCMSequences.section_modifier
-        audio.UCMSequences.section_verb
+        audio.UCMSequences.section_verb      
 
   cros-tast-video:
     <<: *cros-tast-base
@@ -491,50 +557,53 @@ device_types:
 test_configs:
 
   - device_type: hp-11A-G6-EE-grunt_chromeos
-    test_plans: &chromebook-test-plans
+    test_plans: &chromebook-x86-test-plans
       - cros-baseline
       - cros-baseline-fixed
       - cros-tast-kernel
+      - cros-tast-mm-decode
+      - cros-tast-mm-encode
+      - cros-tast-mm-misc
       - cros-tast-perf
       - cros-tast-platform
       - cros-tast-sound
       - cros-tast-video
 
   - device_type: acer-cb317-1h-c3z6-dedede_chromeos
-    test_plans: *chromebook-test-plans
+    test_plans: *chromebook-x86-test-plans
 
   - device_type: asus-C433TA-AJ0005-rammus_chromeos
-    test_plans: *chromebook-test-plans
+    test_plans: *chromebook-x86-test-plans
 
   - device_type: asus-C436FA-Flip-hatch_chromeos
-    test_plans: *chromebook-test-plans
+    test_plans: *chromebook-x86-test-plans
 
   - device_type: asus-C523NA-A20057-coral_chromeos
-    test_plans: *chromebook-test-plans
+    test_plans: *chromebook-x86-test-plans
 
   - device_type: asus-CM1400CXA-dalboz_chromeos
-    test_plans: *chromebook-test-plans
+    test_plans: *chromebook-x86-test-plans
 
   - device_type: asus-cx9400-volteer_chromeos
-    test_plans: *chromebook-test-plans
+    test_plans: *chromebook-x86-test-plans
 
   - device_type: dell-latitude-5400-4305U-sarien_chromeos
-    test_plans: *chromebook-test-plans
+    test_plans: *chromebook-x86-test-plans
 
   - device_type: dell-latitude-5400-8665U-sarien_chromeos
-    test_plans: *chromebook-test-plans
+    test_plans: *chromebook-x86-test-plans
 
   - device_type: hp-x360-14-G1-sona_chromeos
-    test_plans: *chromebook-test-plans
+    test_plans: *chromebook-x86-test-plans
 
   - device_type: hp-x360-12b-ca0010nr-n4020-octopus_chromeos
-    test_plans: *chromebook-test-plans
+    test_plans: *chromebook-x86-test-plans
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus_chromeos
-    test_plans: *chromebook-test-plans
+    test_plans: *chromebook-x86-test-plans
 
   - device_type: lenovo-TPad-C13-Yoga-zork_chromeos
-    test_plans: *chromebook-test-plans
+    test_plans: *chromebook-x86-test-plans
 
   - device_type: qemu_x86_64-uefi-chromeos
     test_plans:
@@ -545,4 +614,13 @@ test_configs:
       - cros-tast-video_qemu
 
   - device_type: sc7180-trogdor-lazor-limozeen_chromeos
-    test_plans: *chromebook-test-plans
+    test_plans: &chromebook-arm64-test-plans
+      - cros-baseline
+      - cros-baseline-fixed
+      - cros-tast-kernel
+      - cros-tast-mm-misc
+      - cros-tast-perf
+      - cros-tast-platform
+      - cros-tast-sound
+      - cros-tast-video
+
