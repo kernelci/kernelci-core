@@ -113,11 +113,7 @@ actions:
       minutes: 5
     method: depthcharge
     commands: emmc
-{%- if block_device == 'detect' %}
     extra_kernel_args: cros_secure cros_debug root=PARTUUID=566f7961-6765-7220-746f-20756e697665 rootwait ro
-{%- else %}
-    extra_kernel_args: cros_secure cros_debug root=/dev/{{ block_device }}p3 rootwait ro
-{%- endif %}
     prompts:
       - 'localhost(.*)~(.*)#'
     auto_login:
