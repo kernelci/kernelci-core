@@ -69,12 +69,13 @@ actions:
         run:
           steps:
             - >-
-              lava-test-case modules --shell /opt/chromeos/install-modules
+              /opt/chromeos/install-modules
 {%- if fixed_kernel is not defined %}
               {{ modules_url }}
 {%- else %}
               {{ reference_kernel.modules }}
 {%- endif %}
+              || lava-test-raise "modules-install"
       from: inline
       name: modules
       path: inline/modules.yaml
