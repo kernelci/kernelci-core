@@ -531,7 +531,7 @@ test_plans:
       job_timeout: '30'
       testsuite: 'AV1-TEST-VECTORS'
     filters:
-      - passlist: {'tree': ['next', 'mainline', 'media']}
+      - regex: {'tree': '(next|mainline|media)'}
 
   v4l2-decoder-conformance-h264:
     rootfs: debian_bullseye-gst-fluster_nfs
@@ -540,7 +540,7 @@ test_plans:
       job_timeout: '30'
       testsuite: 'JVT-AVC_V1'
     filters:
-      - passlist: {'tree': ['next', 'mainline', 'media']}
+      - regex: {'tree': '(next|mainline|media)'}
 
   v4l2-decoder-conformance-h265:
     rootfs: debian_bullseye-gst-fluster_nfs
@@ -549,7 +549,7 @@ test_plans:
       job_timeout: '30'
       testsuite: 'JCT-VC-HEVC-V1'
     filters:
-      - passlist: {'tree': ['next', 'mainline', 'media']}
+      - regex: {'tree': '(next|mainline|media)'}
 
   v4l2-decoder-conformance-vp8:
     rootfs: debian_bullseye-gst-fluster_nfs
@@ -558,7 +558,7 @@ test_plans:
       job_timeout: '30'
       testsuite: 'VP8-TEST-VECTORS'
     filters:
-      - passlist: {'tree': ['next', 'mainline', 'media']}
+      - regex: {'tree': '(next|mainline|media)'}
 
   v4l2-decoder-conformance-vp9:
     rootfs: debian_bullseye-gst-fluster_nfs
@@ -567,7 +567,7 @@ test_plans:
       job_timeout: '30'
       testsuite: 'VP9-TEST-VECTORS'
     filters:
-      - passlist: {'tree': ['next', 'mainline', 'media']}
+      - regex: {'tree': '(next|mainline|media)'}
 
 device_types:
 
