@@ -255,6 +255,9 @@ fragments:
       - 'CONFIG_CRYPTO_DEV_FSL_CAAM_CRYPTO_API_DESC=y'
       - 'CONFIG_CRYPTO_DES=y'
       - 'CONFIG_CRYPTO_ECB=y'
+      - 'CONFIG_CRYPTO_TEST=m'
+      - 'CONFIG_CRYPTO_MANAGER_EXTRA_TESTS=y'
+      - '# CONFIG_CRYPTO_MANAGER_DISABLE_TESTS is not set'
 
   debug:
     path: "kernel/configs/debug.config"
