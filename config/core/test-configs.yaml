@@ -69,7 +69,7 @@ test_plans:
     params:
       priority: 90
     filters:
-      - blocklist: *kselftest_defconfig_filter
+      - blocklist: {}
 
   baseline-fastboot:
     rootfs: buildroot-baseline_ramdisk
@@ -84,7 +84,7 @@ test_plans:
     params:
       priority: 85
     filters:
-      - blocklist: *kselftest_defconfig_filter
+      - blocklist: {}
 
   baseline_qemu:
     base_name: baseline
