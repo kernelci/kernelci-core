@@ -18,6 +18,7 @@
 import importlib
 import json
 import os
+from warnings import warn
 
 
 def add_kci_raise(env):
@@ -140,6 +141,37 @@ class LabAPI:
     def submit(self, job_path):
         """Submit a test job definition in a lab."""
         raise NotImplementedError("Lab.submit() is required")
+
+    def __getattr__(self, attr):
+        """This is a temporary measure to ease clients through the
+        transition to separate Lab and Generator APIs. It will issue a
+        deprecation warning when it fires. At some point it can be
+        removed.
+
+        It relies on the standard `get_generator` structure being
+        present for all lab backends (which it is for all the ones
+        built into kernelci).
+
+        """
+        if attr == "_generator":
+            raise AttributeError(attr)
+
+        if not hasattr(self, "_generator"):
+            m = importlib.import_module(self.__class__.__module__)
+            g = m.get_generator(self.config)
+            setattr(self, "_generator", g)
+
+        if hasattr(self._generator, attr):
+            candidate = getattr(self._generator, attr)
+            if callable(candidate):
+                def delegate_method(*args, **kwargs):
+                    return candidate(*args, **kwargs)
+                setattr(self, attr, delegate_method)
+                warn(f"The {attr} method in the LabAPI is deprecated, "
+                     "please use GeneratorAPI instead.",
+                     DeprecationWarning,
+                     stacklevel=2)
+                return delegate_method
 
 
 def get_api(lab, user=None, token=None, lab_json=None):
