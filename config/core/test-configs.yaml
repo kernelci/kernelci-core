@@ -3148,6 +3148,15 @@ test_configs:
 # Disabling to reduce load
 #      - v4l2-compliance-uvc
 
+  - device_type: mt8192-asurada-spherion-r0
+    test_plans:
+      - v4l2-decoder-conformance-h264
+      - v4l2-decoder-conformance-vp8
+      - v4l2-decoder-conformance-vp9
+    filters: &chromebook-decoders-filter
+      - passlist: {defconfig: ['videodec']}
+      - regex: {'tree': '(next|mainline|media)'}
+
   - device_type: mt8365-evk
     test_plans:
       - baseline
@@ -3406,9 +3415,7 @@ test_configs:
       - v4l2-decoder-conformance-h264
       - v4l2-decoder-conformance-vp8
       - v4l2-decoder-conformance-vp9
-    filters: &chromebook-decoders-filter
-      - passlist: {defconfig: ['videodec']}
-      - regex: {'tree': '(next|mainline|media)'}
+    filters: *chromebook-decoders-filter
 
   - device_type: rk3399-puma-haikou
     test_plans:
