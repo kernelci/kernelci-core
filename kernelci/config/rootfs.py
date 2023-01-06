@@ -182,8 +182,9 @@ class RootFS_Buildroot(RootFS):
     def _set_attrs(self, attrs):
         self._attrs = set(attrs)
 
-    def _get_attrs(self):
-        attrs = super()._get_attrs()
+    @classmethod
+    def _get_yaml_attributes(cls):
+        attrs = super()._get_yaml_attributes()
         attrs.update(self._attrs)
         return attrs
 
