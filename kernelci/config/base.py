@@ -44,8 +44,15 @@ class YAMLObject:
             if v is not None
         } if data else dict()
 
-    def _get_attrs(self):
-        """Return a set of attribute names for .to_dict() and .to_yaml()"""
+    @classmethod
+    def _get_yaml_attributes(cls):
+        """Get a set of YAML attribute names
+
+        Get a set object with all the YAML configuration attribute names for
+        the configuration class.  This can be used to make keyword arguments
+        when creating a configuration object as well as when serialising it
+        back to YAML.
+        """
         return set()
 
     def to_dict(self):
@@ -57,7 +64,8 @@ class YAMLObject:
         """
         return {
             attr: value for attr, value in (
-                (attr, getattr(self, attr)) for attr in self._get_attrs()
+                (attr, getattr(self, attr))
+                for attr in self._get_yaml_attributes()
             ) if value is not None
         }
 

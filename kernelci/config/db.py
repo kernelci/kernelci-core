@@ -37,8 +37,9 @@ class Database(YAMLObject):
     def db_type(self):
         return self._db_type
 
-    def _get_attrs(self):
-        attrs = super()._get_attrs()
+    @classmethod
+    def _get_yaml_attributes(cls):
+        attrs = super()._get_yaml_attributes()
         attrs.update({'name', 'db_type'})
         return attrs
 
@@ -62,8 +63,9 @@ class DatabaseAPI(Database):
     def url(self):
         return self._url
 
-    def _get_attrs(self):
-        attrs = super()._get_attrs()
+    @classmethod
+    def _get_yaml_attributes(cls):
+        attrs = super()._get_yaml_attributes()
         attrs.update({'url'})
         return attrs
 

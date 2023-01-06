@@ -97,8 +97,9 @@ class DeviceType(YAMLObject):
     def context(self):
         return self._context
 
-    def _get_attrs(self):
-        attrs = super()._get_attrs()
+    @classmethod
+    def _get_yaml_attributes(cls):
+        attrs = super()._get_yaml_attributes()
         attrs.update({
             'arch',
             'variant',
@@ -255,8 +256,9 @@ class RootFSType(YAMLObject):
     def url(self):
         return self._url
 
-    def _get_attrs(self):
-        attrs = super()._get_attrs()
+    @classmethod
+    def _get_yaml_attributes(cls):
+        attrs = super()._get_yaml_attributes()
         attrs.update({'url', 'arch_map'})
         return attrs
 
@@ -349,8 +351,9 @@ class RootFS(YAMLObject):
     def params(self):
         return dict(self._params)
 
-    def _get_attrs(self):
-        attrs = super()._get_attrs()
+    @classmethod
+    def _get_yaml_attributes(cls):
+        attrs = super()._get_yaml_attributes()
         attrs.update({
             'boot_protocol',
             'nfs',
@@ -454,8 +457,9 @@ class TestPlan(YAMLObject):
     def params(self):
         return dict(self._params)
 
-    def _get_attrs(self):
-        attrs = super()._get_attrs()
+    @classmethod
+    def _get_yaml_attributes(cls):
+        attrs = super()._get_yaml_attributes()
         attrs.update({
             'base_name',
             'category'
