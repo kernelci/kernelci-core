@@ -666,9 +666,14 @@ test_configs:
       - cros-baseline
       - cros-baseline-fixed
       - cros-tast-kernel
+      - cros-tast-kernel-fixed
       - cros-tast-mm-misc
+      - cros-tast-mm-misc-fixed
       - cros-tast-perf
+      - cros-tast-perf-fixed
       - cros-tast-platform
+      - cros-tast-platform-fixed
       - cros-tast-sound
+      - cros-tast-sound-fixed
       - cros-tast-video
-
+      - cros-tast-video-fixed
