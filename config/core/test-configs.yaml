@@ -3081,6 +3081,7 @@ test_configs:
       - kselftest-membarrier
       - kselftest-mincore
       - kselftest-openat2
+      - kselftest-rseq
       - kselftest-seccomp
       - kselftest-timers
       - ltp-crypto
