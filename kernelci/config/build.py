@@ -32,16 +32,6 @@ class Tree(YAMLObject):
         self._name = name
         self._url = url
 
-    @classmethod
-    def from_yaml(cls, config, name):
-        kw = {
-            'name': name,
-        }
-        kw.update(cls._kw_from_yaml(config, [
-            'url', 'name',
-        ]))
-        return cls(**kw)
-
     @property
     def name(self):
         return self._name
@@ -49,6 +39,12 @@ class Tree(YAMLObject):
     @property
     def url(self):
         return self._url
+
+    @classmethod
+    def _get_yaml_attributes(cls):
+        attrs = super()._get_yaml_attributes()
+        attrs.update({'url'})
+        return attrs
 
 
 class Reference(YAMLObject):
@@ -103,16 +99,6 @@ class Fragment(YAMLObject):
         self._configs = configs or list()
         self._defconfig = defconfig
 
-    @classmethod
-    def from_yaml(cls, config, name):
-        kw = {
-            'name': name,
-        }
-        kw.update(cls._kw_from_yaml(config, [
-            'name', 'path', 'configs', 'defconfig',
-        ]))
-        return cls(**kw)
-
     @property
     def name(self):
         return self._name
@@ -128,6 +114,12 @@ class Fragment(YAMLObject):
     @property
     def defconfig(self):
         return self._defconfig
+
+    @classmethod
+    def _get_yaml_attributes(cls):
+        attrs = super()._get_yaml_attributes()
+        attrs.update({'path', 'configs', 'defconfig'})
+        return attrs
 
 
 class Architecture(YAMLObject):
@@ -217,16 +209,6 @@ class BuildEnvironment(YAMLObject):
         self._cc_version = str(cc_version)
         self._arch_params = arch_params or dict()
 
-    @classmethod
-    def from_yaml(cls, config, name):
-        kw = {
-            'name': name,
-        }
-        kw.update(cls._kw_from_yaml(config, [
-            'name', 'cc', 'cc_version', 'arch_params',
-        ]))
-        return cls(**kw)
-
     @property
     def name(self):
         return self._name
@@ -238,6 +220,16 @@ class BuildEnvironment(YAMLObject):
     @property
     def cc_version(self):
         return self._cc_version
+
+    @property
+    def arch_params(self):
+        return self._arch_params.copy()
+
+    @classmethod
+    def _get_yaml_attributes(cls):
+        attrs = super()._get_yaml_attributes()
+        attrs.update({'cc', 'cc_version', 'arch_params'})
+        return attrs
 
     def get_arch_name(self, kernel_arch):
         params = self._arch_params.get(kernel_arch) or dict()
@@ -399,17 +391,17 @@ class BuildConfig(YAMLObject):
 
 def from_yaml(data, filters):
     trees = {
-        name: Tree.from_yaml(config, name)
+        name: Tree.from_yaml(config, name=name)
         for name, config in data.get('trees', {}).items()
     }
 
     fragments = {
-        name: Fragment.from_yaml(config, name)
+        name: Fragment.from_yaml(config, name=name)
         for name, config in data.get('fragments', {}).items()
     }
 
     build_environments = {
-        name: BuildEnvironment.from_yaml(config, name)
+        name: BuildEnvironment.from_yaml(config, name=name)
         for name, config in data.get('build_environments', {}).items()
     }
 
