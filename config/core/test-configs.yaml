@@ -356,6 +356,13 @@ test_plans:
       kselftest_collections: "openat2"
     filters: *kselftest_no_fragment
 
+  kselftest-rseq:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "rseq"
+    filters: *kselftest_no_fragment
+
   kselftest-rtc:
     <<: *kselftest
     params:
