@@ -1,4 +1,4 @@
-# Copyright (C) 2018, 2019, 2021 Collabora Limited
+# Copyright (C) 2018-2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 #
 # This module is free software; you can redistribute it and/or modify it under
@@ -26,6 +26,18 @@ import copy
 
 class YAMLObject:
     """Base class with helper methods to initialise objects from YAML data."""
+
+    @classmethod
+    def from_yaml(cls, config, **kwargs):
+        """Load the YAML configuration
+
+        Load the YAML configuration passed as a *config* data structure with a
+        given *name*.  This method should return an instance of a YAMLObject
+        subclass.
+        """
+        yaml_attributes = cls._get_yaml_attributes()
+        kwargs.update(cls._kw_from_yaml(config, yaml_attributes))
+        return cls(**kwargs)
 
     @classmethod
     def _kw_from_yaml(cls, data, attributes):
