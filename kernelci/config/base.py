@@ -28,18 +28,19 @@ class YAMLObject:
     """Base class with helper methods to initialise objects from YAML data."""
 
     @classmethod
-    def _kw_from_yaml(cls, data, args):
+    def _kw_from_yaml(cls, data, attributes):
         """Create some keyword arguments based on a YAML dictionary
 
         Return a dictionary suitable to be used as Python keyword arguments in
-        an object constructor using values from some YAML *data*.  The *args*
-        is a list of keys to look up from the *data* and convert to a
-        dictionary.  Keys that are not in the YAML data are simply omitted from
-        the returned keywords, relying on default values in object
+        an object constructor using values from some YAML *data*.  The
+        *attributes* are a list of keys to look up from the *data* and convert
+        to a dictionary.  Keys that are not in the YAML data are simply omitted
+        from the returned keywords, relying on default values in object
         constructors.
+
         """
         return {
-            k: v for k, v in ((k, data.get(k)) for k in args)
+            k: v for k, v in ((k, data.get(k))for k in attributes)
             if v is not None
         } if data else dict()
 
