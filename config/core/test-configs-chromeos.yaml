@@ -101,9 +101,9 @@ test_plans:
       <<: *cros-tast-base-params
       base_template: 'chromeos/cros-boot-qemu.jinja2'
 
-  cros-tast-kernel:
+  cros-tast-kernel: &cros-tast-kernel
     <<: *cros-tast-base
-    params:
+    params: &cros-tast-kernel-params
       <<: *cros-tast-base-params
       tests: &cros-tast-kernel-tests >
         kernel.Bloat
@@ -118,15 +118,21 @@ test_plans:
         kernel.LoopDeviceBehaviour
         kernel.PerfCallgraph
 
+  cros-tast-kernel-fixed:
+    <<: *cros-tast-kernel
+    params:
+      <<: *cros-tast-kernel-params
+      fixed_kernel: true
+
   cros-tast-kernel_qemu:
     <<: *cros-tast-base-qemu
     params: 
       <<: *cros-tast-base-qemu-params
       tests: *cros-tast-kernel-tests
 
-  cros-tast-mm-decode:
+  cros-tast-mm-decode: &cros-tast-mm-decode
     <<: *cros-tast-base
-    params:
+    params: &cros-tast-mm-decode-params
       <<: *cros-tast-base-params
       tests: &cros-tast-mm-decode-tests >
         video.PlatformDecoding.ffmpeg_vaapi_vp9_0_group1_buf
@@ -149,9 +155,15 @@ test_plans:
         video.PlatformDecoding.vaapi_vp9_0_level5_0_buf
         video.PlatformDecoding.vaapi_vp9_0_level5_1_buf
 
-  cros-tast-mm-encode:
-    <<: *cros-tast-base
+  cros-tast-mm-decode-fixed:
+    <<: *cros-tast-mm-decode
     params:
+      <<: *cros-tast-mm-decode-params
+      fixed_kernel: true
+
+  cros-tast-mm-encode: &cros-tast-mm-encode
+    <<: *cros-tast-base
+    params: &cros-tast-mm-encode-params
       <<: *cros-tast-base-params
       tests: &cros-tast-mm-encode-tests >
         video.EncodeAccel.h264_1080p_global_vaapi_lock_disabled
@@ -173,9 +185,15 @@ test_plans:
         webrtc.RTCPeerConnectionPerf.vp8_hw_multi_vp9_4x4_global_vaapi_lock_disabled
         webrtc.RTCPeerConnectionPerf.vp9_hw_multi_vp9_3x3_global_vaapi_lock_disabled
 
-  cros-tast-mm-misc:
-    <<: *cros-tast-base
+  cros-tast-mm-encode-fixed:
+    <<: *cros-tast-mm-encode
     params:
+      <<: *cros-tast-mm-encode-params
+      fixed_kernel: true
+
+  cros-tast-mm-misc: &cros-tast-mm-misc
+    <<: *cros-tast-base
+    params: &cros-tast-mm-misc-params
       <<: *cros-tast-base-params
       tests: &cros-tast-mm-misc-tests >
         camera.V4L2.certification
@@ -190,9 +208,15 @@ test_plans:
         video.ImageProcessor.image_processor_unit_test
         video.MemCheck.av1_hw
 
-  cros-tast-perf:
-    <<: *cros-tast-base
+  cros-tast-mm-misc-fixed:
+    <<: *cros-tast-mm-misc
     params:
+      <<: *cros-tast-mm-misc-params
+      fixed_kernel: true
+
+  cros-tast-perf: &cros-tast-perf
+    <<: *cros-tast-base
+    params: &cros-tast-perf-params
       <<: *cros-tast-base-params
       tests: &cros-tast-perf-tests >
         ui.IdlePerf
@@ -209,15 +233,21 @@ test_plans:
         filemanager.ZipPerf
         filemanager.ZipPerf.swa
 
+  cros-tast-perf-fixed:
+    <<: *cros-tast-perf
+    params:
+      <<: *cros-tast-perf-params
+      fixed_kernel: true
+
   cros-tast-perf_qemu:
     <<: *cros-tast-base-qemu
     params: 
       <<: *cros-tast-base-qemu-params
       tests: *cros-tast-perf-tests
 
-  cros-tast-platform:
+  cros-tast-platform: &cros-tast-platform
     <<: *cros-tast-base
-    params:
+    params: &cros-tast-platform-params
       <<: *cros-tast-base-params
       tests: &cros-tast-platform-tests >
         platform.CheckDiskSpace
@@ -249,15 +279,21 @@ test_plans:
         platform.Mtpd
         platform.TPMResponsive
 
+  cros-tast-platform-fixed:
+    <<: *cros-tast-platform
+    params:
+      <<: *cros-tast-platform-params
+      fixed_kernel: true
+
   cros-tast-platform_qemu:
     <<: *cros-tast-base-qemu
     params:
       <<: *cros-tast-base-qemu-params
       tests: *cros-tast-platform-tests
 
-  cros-tast-sound:
+  cros-tast-sound: &cros-tast-sound
     <<: *cros-tast-base
-    params:
+    params: &cros-tast-sound-params
       <<: *cros-tast-base-params
       tests: &cros-tast-sound-tests >
         audio.DevicePlay
@@ -265,12 +301,24 @@ test_plans:
         audio.UCMSequences.section_modifier
         audio.UCMSequences.section_verb      
 
-  cros-tast-video:
-    <<: *cros-tast-base
+  cros-tast-sound-fixed:
+    <<: *cros-tast-sound
     params:
+      <<: *cros-tast-sound-params
+      fixed_kernel: true
+
+  cros-tast-video: &cros-tast-video
+    <<: *cros-tast-base
+    params: &cros-tast-video-params
       <<: *cros-tast-base-params
       tests: &cros-tast-video-tests >
         video.ChromeStackDecoder.*
+
+  cros-tast-video-fixed:
+    <<: *cros-tast-video
+    params:
+      <<: *cros-tast-video-params
+      fixed_kernel: true
 
   cros-tast-video_qemu:
     <<: *cros-tast-base-qemu
