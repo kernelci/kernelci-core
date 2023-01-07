@@ -1,4 +1,4 @@
-# Copyright (C) 2019 Collabora Limited
+# Copyright (C) 2019, 2021-2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 #
 # This module is free software; you can redistribute it and/or modify it under
@@ -35,10 +35,6 @@ class Lab(YAMLObject):
         self._lab_type = lab_type
         self._filters = filters or list()
 
-    @classmethod
-    def from_yaml(cls, lab, kw):
-        return cls(**kw)
-
     @property
     def name(self):
         return self._name
@@ -47,28 +43,40 @@ class Lab(YAMLObject):
     def lab_type(self):
         return self._lab_type
 
+    @classmethod
+    def _get_yaml_attributes(cls):
+        attrs = super()._get_yaml_attributes()
+        attrs.update({'lab_type'})
+        return attrs
+
     def match(self, data):
         return all(f.match(**data) for f in self._filters)
 
 
 class LabAPI(Lab):
 
-    def __init__(self, url, *args, **kwargs):
+    def __init__(self, url, **kwargs):
         """
         *url* is the URL to reach the lab API.
         """
-        super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
         self._url = url
 
     @property
     def url(self):
         return self._url
 
+    @classmethod
+    def _get_yaml_attributes(cls):
+        attrs = super()._get_yaml_attributes()
+        attrs.update({'url'})
+        return attrs
+
 
 class Lab_Kubernetes(Lab):
 
-    def __init__(self, context=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, context=None, **kwargs):
+        super().__init__(**kwargs)
         self._context = context
 
     @property
@@ -76,21 +84,37 @@ class Lab_Kubernetes(Lab):
         return self._context
 
     @classmethod
-    def from_yaml(cls, config, kw):
-        kw.update(cls._kw_from_yaml(config, [
-            'context',
-        ]))
-        return cls(**kw)
+    def _get_yaml_attributes(cls):
+        attrs = super()._get_yaml_attributes()
+        attrs.update({'context'})
+        return attrs
 
 
 class Lab_LAVA(LabAPI):
 
-    def __init__(self, priority_min=50, priority_max=50,
-                 queue_timeout=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._priority_min = priority_min
-        self._priority_max = priority_max
+    PRIORITIES = {
+        'low': 0,
+        'medium': 50,
+        'high': 100,
+    }
+
+    def __init__(self, priority=None, priority_min=None, priority_max=None,
+                 queue_timeout=None, **kwargs):
+        super().__init__(**kwargs)
+
+        def _set_priority_value(value, default):
+            return max(min(value, 100), 0) if value is not None else default
+
+        self._priority = (
+            self.PRIORITIES.get(priority, priority)
+        )
+        self._priority_min = _set_priority_value(priority_min, self._priority)
+        self._priority_max = _set_priority_value(priority_max, self._priority)
         self._queue_timeout = queue_timeout
+
+    @property
+    def priority(self):
+        return self._priority
 
     @property
     def priority_min(self):
@@ -105,34 +129,15 @@ class Lab_LAVA(LabAPI):
         return self._queue_timeout
 
     @classmethod
-    def from_yaml(cls, lab, kw):
-        priority = lab.get('priority')
-        if priority:
-            if priority == 'low':
-                priority = 0
-            elif priority == 'medium':
-                priority = 50
-            elif priority == 'high':
-                priority = 100
-            else:
-                priority = int(priority)
-
-            # If min/max are specified these will be overridden
-            kw['priority_min'] = priority
-            kw['priority_max'] = priority
-
-        # 0 is a valid value so explicitly check for None
-        priority_min = lab.get('priority_min')
-        if priority_min is not None:
-            kw['priority_min'] = int(priority_min)
-        priority_max = lab.get('priority_max')
-        if priority_max is not None:
-            kw['priority_max'] = int(priority_max)
-
-        queue_timeout = lab.get('queue_timeout')
-        if queue_timeout:
-            kw['queue_timeout'] = queue_timeout
-        return cls(**kw)
+    def _get_yaml_attributes(cls):
+        attrs = super()._get_yaml_attributes()
+        attrs.update({
+            'priority',
+            'priority_min',
+            'priority_max',
+            'queue_timeout',
+        })
+        return attrs
 
 
 class LabFactory(YAMLObject):
@@ -146,18 +151,15 @@ class LabFactory(YAMLObject):
     }
 
     @classmethod
-    def from_yaml(cls, name, lab):
-        lab_type = lab.get('lab_type')
+    def from_yaml(cls, name, config):
+        lab_type = config.get('lab_type')
         kw = {
             'name': name,
             'lab_type': lab_type,
-            'filters': FilterFactory.from_data(lab),
+            'filters': FilterFactory.from_data(config),
         }
-        kw.update(cls._kw_from_yaml(lab, [
-            'url',
-        ]))
         lab_cls = cls._lab_types[lab_type] if lab_type else Lab
-        return lab_cls.from_yaml(lab, kw)
+        return lab_cls.from_yaml(config, **kw)
 
 
 def from_yaml(data, filters):
