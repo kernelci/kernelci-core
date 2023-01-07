@@ -1,5 +1,6 @@
-# Copyright (C) 2020 Collabora Limited
+# Copyright (C) 2020-2023 Collabora Limited
 # Author: Michal Galka <michal.galka@collabora.com>
+# Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 #
 # This module is free software; you can redistribute it and/or modify it under
 # the terms of the GNU Lesser General Public License as published by the Free
@@ -15,19 +16,14 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-import yaml
-
 from kernelci.config.base import YAMLObject
 
 
 class Database(YAMLObject):
+
     def __init__(self, name, db_type):
         self._name = name
         self._db_type = db_type
-
-    @classmethod
-    def from_yaml(cls, db, kw):
-        return cls(**kw)
 
     @property
     def name(self):
@@ -40,24 +36,15 @@ class Database(YAMLObject):
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({'name', 'db_type'})
+        attrs.update({'db_type'})
         return attrs
 
 
 class DatabaseAPI(Database):
+
     def __init__(self, name, db_type, url):
         super().__init__(name, db_type)
         self._url = url
-
-    @classmethod
-    def from_yaml(cls, config, name):
-        kw = {
-            'name': name,
-        }
-        kw.update(cls._kw_from_yaml(config, [
-            'db_type', 'url',
-        ]))
-        return cls(**kw)
 
     @property
     def url(self):
@@ -77,8 +64,8 @@ class DatabaseFactory(YAMLObject):
     }
 
     @classmethod
-    def from_yaml(cls, name, db):
-        db_type = db.get('db_type')
+    def from_yaml(cls, config, name):
+        db_type = config.get('db_type')
         if db_type is None:
             raise TypeError("db_type cannot be Empty")
 
@@ -86,12 +73,12 @@ class DatabaseFactory(YAMLObject):
         if db_cls is None:
             raise ValueError("Unsupported database type: {}".format(db_type))
 
-        return db_cls.from_yaml(db, name)
+        return db_cls.from_yaml(config, name=name)
 
 
 def from_yaml(data, filters):
     db_configs = {
-        name: DatabaseFactory.from_yaml(name, db)
+        name: DatabaseFactory.from_yaml(db, name)
         for name, db in data.get('db_configs', {}).items()
     }
 
