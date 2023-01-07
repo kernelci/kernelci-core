@@ -592,7 +592,7 @@ device_types:
         modules_compression: 'xz'
         dtb: 'dtbs/qcom/sc7180-trogdor-lazor-limozeen-nots-r5.dtb'
       cros_image:
-        base_url: 'https://storage.staging.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20221205.0/arm64/'
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-trogdor/20221212.0/arm64/'
         flash_tarball: 'full-cros-flash.tar.gz'
         flash_tarball_compression: 'gz'
         tast_tarball: 'tast.tgz'
