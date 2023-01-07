@@ -38,7 +38,8 @@ class YAMLObject:
         constructors.
         """
         return {
-            k: v for k, v in ((k, data.get(k)) for k in args) if v
+            k: v for k, v in ((k, data.get(k)) for k in args)
+            if v is not None
         } if data else dict()
 
     def _get_attrs(self):
