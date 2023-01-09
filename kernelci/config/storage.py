@@ -34,10 +34,6 @@ class Storage(YAMLObject):
         self._storage_type = storage_type
         self._base_url = base_url
 
-    @classmethod
-    def get_kwargs(cls, config):
-        return {}
-
     @property
     def name(self):
         return self._name
@@ -50,6 +46,12 @@ class Storage(YAMLObject):
     def base_url(self):
         return self._base_url
 
+    @classmethod
+    def _get_yaml_attributes(cls):
+        attrs = super()._get_yaml_attributes()
+        attrs.update({'storage_type', 'base_url'})
+        return attrs
+
 
 class Storage_backend(Storage):
 
@@ -61,13 +63,15 @@ class Storage_backend(Storage):
         super().__init__(*args, **kwargs)
         self._api_url = api_url
 
-    @classmethod
-    def get_kwargs(cls, config):
-        return cls._kw_from_yaml(config, ['api_url'])
-
     @property
     def api_url(self):
         return self._api_url
+
+    @classmethod
+    def _get_yaml_attributes(cls):
+        attrs = super()._get_yaml_attributes()
+        attrs.update({'api_url'})
+        return attrs
 
 
 class Storage_ssh(Storage):
@@ -87,10 +91,6 @@ class Storage_ssh(Storage):
         self._user = user
         self._path = path
 
-    @classmethod
-    def get_kwargs(cls, config):
-        return cls._kw_from_yaml(config, ['host', 'port', 'user', 'path'])
-
     @property
     def host(self):
         return self._host
@@ -106,6 +106,12 @@ class Storage_ssh(Storage):
     @property
     def path(self):
         return self._path
+
+    @classmethod
+    def _get_yaml_attributes(cls):
+        attrs = super()._get_yaml_attributes()
+        attrs.update({'host', 'port', 'user', 'path'})
+        return attrs
 
 
 class StorageFactory(YAMLObject):
@@ -124,9 +130,7 @@ class StorageFactory(YAMLObject):
             'name': name,
             'storage_type': storage_type,
         }
-        kw.update(cls._kw_from_yaml(config, ['base_url']))
-        kw.update(storage_cls.get_kwargs(config))
-        return storage_cls(**kw)
+        return storage_cls.from_yaml(config, **kw)
 
 
 def from_yaml(data, filters):
