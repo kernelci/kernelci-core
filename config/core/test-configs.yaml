@@ -628,6 +628,7 @@ test_plans:
     params:
       job_timeout: '30'
       testsuite: 'AV1-TEST-VECTORS'
+      videodec_parallel_jobs: '1'
     filters:
       - regex: {'tree': '(next|mainline|media)'}
 
@@ -637,6 +638,7 @@ test_plans:
     params:
       job_timeout: '30'
       testsuite: 'JVT-AVC_V1'
+      videodec_parallel_jobs: '1'
     filters:
       - regex: {'tree': '(next|mainline|media)'}
 
@@ -646,6 +648,7 @@ test_plans:
     params:
       job_timeout: '30'
       testsuite: 'JCT-VC-HEVC-V1'
+      videodec_parallel_jobs: '1'
     filters:
       - regex: {'tree': '(next|mainline|media)'}
 
@@ -655,6 +658,7 @@ test_plans:
     params:
       job_timeout: '30'
       testsuite: 'VP8-TEST-VECTORS'
+      videodec_parallel_jobs: '1'
     filters:
       - regex: {'tree': '(next|mainline|media)'}
 
@@ -664,6 +668,7 @@ test_plans:
     params:
       job_timeout: '30'
       testsuite: 'VP9-TEST-VECTORS'
+      videodec_parallel_jobs: '1'
     filters:
       - regex: {'tree': '(next|mainline|media)'}
 
