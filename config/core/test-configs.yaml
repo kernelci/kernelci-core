@@ -228,6 +228,14 @@ test_plans:
     filters:
       - passlist: {defconfig: ['kselftest']}
 
+  # Add _a_ into the name so we can keep this before the individual
+  # definitions
+  kselftest_a_qemu: &kselftest_qemu
+    rootfs: debian_bullseye-kselftest_ramdisk
+    pattern: 'kselftest/{category}-{method}-{rootfs}-kselftest-template.jinja2'
+    filters:
+      - passlist: {defconfig: ['kselftest']}
+
   kselftest-alsa:
     <<: *kselftest
     params:
@@ -238,6 +246,13 @@ test_plans:
 
   kselftest-arm64:
     <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "arm64"
+    filters: *kselftest_no_fragment
+
+  kselftest-arm64_qemu:
+    <<: *kselftest_qemu
     params:
       job_timeout: '10'
       kselftest_collections: "arm64"
@@ -2820,6 +2835,7 @@ test_configs:
   - device_type: qemu_arm64-virt-gicv3
     test_plans:
       - baseline_qemu
+      - kselftest-arm64_qemu
       - v4l2-compliance-vivid
 
   - device_type: qemu_arm64-virt-gicv3-uefi

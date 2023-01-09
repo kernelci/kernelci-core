@@ -38,6 +38,14 @@ file_systems:
     ramdisk: bullseye-kselftest/20230109.0/{arch}/initrd.cpio.gz
     root_type: nfs
     type: debian
+  debian_bullseye-kselftest_ramdisk:
+    boot_protocol: ramdisk
+    params:
+      os_config: debian
+    prompt: '/ #'
+    ramdisk: bullseye-kselftest/20221230.0/{arch}/rootfs.cpio.gz
+    root_type: ramdisk
+    type: debian
   debian_bullseye-libcamera_nfs:
     boot_protocol: tftp
     nfs: bullseye-libcamera/20230109.0/{arch}/full.rootfs.tar.xz
