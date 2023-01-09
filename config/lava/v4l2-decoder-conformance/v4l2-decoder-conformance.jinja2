@@ -4,6 +4,9 @@
 {%- if videodec_timeout -%}
     {% set videodec_timeout_arg = "-t " + videodec_timeout|string %}
 {%- endif -%}
+{%- if videodec_parallel_jobs -%}
+    {% set videodec_parallel_jobs_arg = "-j " + videodec_parallel_jobs|string %}
+{%- endif -%}
 - test:
     timeout:
       minutes: {{ job_timeout }}
@@ -19,7 +22,7 @@
           - functional
         run:
           steps:
-          - python3 /usr/bin/fluster_parser.py {{ testsuite_arg }} {{ videodec_timeout_arg }}
+          - python3 /usr/bin/fluster_parser.py {{ testsuite_arg }} {{ videodec_timeout_arg }} {{ videodec_parallel_jobs_arg }}
       from: inline
       name: {{ plan }}
       path: inline/{{ plan }}.yaml
