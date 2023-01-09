@@ -1,3 +1,9 @@
+{%- if testsuite -%}
+    {% set testsuite_arg = "-ts " + testsuite %}
+{%- endif -%}
+{%- if videodec_timeout -%}
+    {% set videodec_timeout_arg = "-t " + videodec_timeout|string %}
+{%- endif -%}
 - test:
     timeout:
       minutes: {{ job_timeout }}
@@ -13,7 +19,7 @@
           - functional
         run:
           steps:
-          - python3 /usr/bin/fluster_parser.py -ts {{ testsuite }} -t {{ videodec_timeout|default('30') }}
+          - python3 /usr/bin/fluster_parser.py {{ testsuite_arg }} {{ videodec_timeout_arg }}
       from: inline
       name: {{ plan }}
       path: inline/{{ plan }}.yaml
