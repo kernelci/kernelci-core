@@ -2333,6 +2333,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - kselftest-alsa
 
   - device_type: bcm2711-rpi-4-b
     test_plans:
