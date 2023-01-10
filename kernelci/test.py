@@ -167,6 +167,7 @@ def get_params(meta, target, plan_config, storage, device_id):
         'base_url': base_url,
         'endian': endian,
         'arch': arch,
+        'arch_variant': variant,
         'git_branch': rev['branch'],
         'git_commit': rev['commit'],
         'git_describe': describe,
