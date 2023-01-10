@@ -9,6 +9,9 @@
   <remote name="cros" fetch="https://chromium.googlesource.com" review="https://chromium-review.googlesource.com">
     <annotation name="public" value="true"/>
   </remote>
+  <remote name="cros-kernelci-dev" fetch="https://gitlab.collabora.com/aratiu" alias="cros">
+    <annotation name="public" value="true"/>
+  </remote>
   
   <default remote="cros" sync-j="8"/>
   
@@ -70,8 +73,8 @@
   <project name="chromiumos/infra/test_analyzer" path="infra/test_analyzer" revision="14119cc21c146544791fe387f64a4b809c4ea789" upstream="refs/heads/release-R106-15054.B" dest-branch="refs/heads/release-R106-15054.B"/>
   <project name="chromiumos/infra_virtualenv" path="infra_virtualenv" revision="cab8a95f2961561eb56a95d6f2bfc685686db75a" upstream="refs/heads/release-R106-15054.B" dest-branch="refs/heads/release-R106-15054.B" groups="minilayout,paygen,firmware,buildtools,chromeos-admin,labtools,sysmon,devserver"/>
   <project name="chromiumos/manifest" path="manifest" revision="9d54e1e24f3ce54baec8e5b483eed2d52dddb5b1" upstream="refs/heads/release-R106-15054.B" dest-branch="refs/heads/release-R106-15054.B"/>
-  <project name="chromiumos/overlays/board-overlays" path="src/overlays" revision="2e4cfc31172542c771583fd85dd6d192987f0a1e" upstream="refs/heads/release-R106-15054.B" dest-branch="refs/heads/release-R106-15054.B" groups="minilayout,paygen,firmware"/>
-  <project name="chromiumos/overlays/chromiumos-overlay" path="src/third_party/chromiumos-overlay" revision="869a043ba27159b606ca97197718b888d65b3f19" upstream="refs/heads/release-R106-15054.B" dest-branch="refs/heads/release-R106-15054.B" groups="minilayout,paygen,firmware,labtools" sync-c="true"/>
+  <project remote="cros-kernelci-dev" name="board-overlays" path="src/overlays" revision="f96aa385ef594d48bc7602ebdb1b45d298961175" upstream="refs/heads/dev/kernelci/R106-15054.B" dest-branch="refs/heads/release-R106-15054.B" groups="minilayout,paygen,firmware"/>
+  <project remote="cros-kernelci-dev" name="chromiumos-overlay" path="src/third_party/chromiumos-overlay" revision="368d296bc518e803cd50d4cc35e51b077f97c3b2" upstream="refs/heads/dev/kernelci/R106-15054.B" dest-branch="refs/heads/release-R106-15054.B" groups="minilayout,paygen,firmware,labtools" sync-c="true"/>
   <project name="chromiumos/overlays/eclass-overlay" path="src/third_party/eclass-overlay" revision="e9e78ef1eaa6a78e05df5af2dd3f9fd7dd8883f0" upstream="refs/heads/release-R106-15054.B" dest-branch="refs/heads/release-R106-15054.B" groups="minilayout,paygen,firmware,labtools"/>
   <project name="chromiumos/overlays/portage-stable" path="src/third_party/portage-stable" revision="5588c0f87d858b5c46f6bb1fc6f5e555959ab0b7" upstream="refs/heads/release-R106-15054.B" dest-branch="refs/heads/release-R106-15054.B" groups="minilayout,paygen,firmware,labtools"/>
   <project name="chromiumos/platform/assets" path="src/platform/assets" revision="8a2276f22f0678bee89b8ac6c46d9dd597c6d549" upstream="refs/heads/release-R106-15054.B" dest-branch="refs/heads/release-R106-15054.B"/>
@@ -127,7 +130,7 @@
   <project name="chromiumos/platform/libva-fake-driver" path="src/platform/libva-fake-driver" revision="7754dd6e00355bb0d7bb5f597b482b6d5ff5cab5" upstream="refs/heads/release-R106-15054.B" dest-branch="refs/heads/release-R106-15054.B"/>
   <project name="chromiumos/platform/lithium" path="src/platform/lithium" revision="1b54b0fa69bb183ed19945a79b72bc17145eafe4" upstream="refs/heads/release-R106-15054.B" dest-branch="refs/heads/release-R106-15054.B" groups="firmware"/>
   <project name="chromiumos/platform/microbenchmarks" path="src/platform/microbenchmarks" revision="ec4ae6c0d54618c01a5e1c78d80c44bc80af6ad6" upstream="refs/heads/release-R106-15054.B" dest-branch="refs/heads/release-R106-15054.B"/>
-  <project name="chromiumos/platform/minigbm" path="src/platform/minigbm" revision="64de5175a02f9a36a4b0aa6fa54e0dd1d64985bf" upstream="refs/heads/release-R106-15054.B" dest-branch="refs/heads/release-R106-15054.B" groups="crosvm"/>
+  <project remote="cros-kernelci-dev" name="minigbm" path="src/platform/minigbm" revision="6d5857cfc853d165b73ce04013df879b048d055d" upstream="refs/heads/dev/kernelci/R106-15054.B" dest-branch="refs/heads/release-R106-15054.B" groups="crosvm"/>
   <project name="chromiumos/platform/minijail" path="src/platform/minijail" revision="485c8a098c5b1a63f079461826ed45571f2a0032" upstream="refs/heads/release-R106-15054.B" dest-branch="refs/heads/release-R106-15054.B" groups="crosvm"/>
   <project name="chromiumos/platform/mosys" path="src/platform/mosys" revision="f5a6d1de0179bc3b1583861befd111b7b74dd876" upstream="refs/heads/release-R106-15054.B" dest-branch="refs/heads/release-R106-15054.B"/>
   <project name="chromiumos/platform/mttools" path="src/platform/mttools" revision="957a434f10b7663bbafc85fb19afe1a3318c0a10" upstream="refs/heads/release-R106-15054.B" dest-branch="refs/heads/release-R106-15054.B"/>
@@ -195,7 +198,7 @@
   <project name="chromiumos/third_party/huddly-updater" path="src/third_party/huddly-updater" revision="13f5da57bf04915c58c06de760565583b883b915" upstream="refs/heads/release-R106-15054.B" dest-branch="refs/heads/release-R106-15054.B"/>
   <project name="chromiumos/third_party/igt-gpu-tools" path="src/third_party/igt-gpu-tools" revision="c8edfca649da71b296d882bb0319181d94e619eb" upstream="refs/heads/release-R106-15054.B" dest-branch="refs/heads/release-R106-15054.B"/>
   <project name="chromiumos/third_party/intel-wifi-fw-dump" path="src/third_party/intel-wifi-fw-dump" revision="d4dd3967c51e3d255fb9beb5581e6d9a3938ca07" upstream="refs/heads/release-R106-15054.B" dest-branch="refs/heads/release-R106-15054.B"/>
-  <project name="chromiumos/third_party/kernel" path="src/third_party/kernel/upstream" revision="3ce3e1c35030861b8a5a60a9367109d885703471">
+  <project remote="cros-kernelci-dev" name="linux-public" path="src/third_party/kernel/upstream" revision="5058a4681471915260d2b52b9a0e619716193e82">
     <annotation name="branch-mode" value="pin"/>
   </project>
   <project name="chromiumos/third_party/kernel" path="src/third_party/kernel/v4.4" revision="eed01c3898b21ecc590cff0fab71f13ca9b8f034" upstream="refs/heads/release-R106-15054.B-chromeos-4.4" dest-branch="refs/heads/release-R106-15054.B-chromeos-4.4"/>
