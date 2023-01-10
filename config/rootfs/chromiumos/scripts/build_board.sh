@@ -11,6 +11,12 @@ SCRIPTPATH=$(dirname "$SCRIPT")
 function cleanup()
 {
   rc=$?
+  # During development we might need to keep SDK for debugging
+  # then please "touch .keep" in --output directory
+  if [ -f "$DATA_DIR/../.keep" ]; then
+    echo "Keeping SDK as required by .keep file flag"
+    exit $rc
+  fi
   echo Cleanup on exit
   # Delete old SDK directory to not waste space
   [ -d "${DATA_DIR}/chromiumos-sdk" ] && sudo rm -rf ${DATA_DIR}/chromiumos-sdk && echo Old SDK deleted
@@ -21,12 +27,14 @@ trap cleanup EXIT
 
 echo "Preparing depot tools"
 cd "/home/${USERNAME}/chromiumos"
-git clone --depth=1 https://chromium.googlesource.com/chromium/tools/depot_tools.git
+if [ ! -d depot_tools ] ; then
+  git clone --depth=1 https://chromium.googlesource.com/chromium/tools/depot_tools.git
+fi
 export PATH="/home/${USERNAME}/chromiumos/depot_tools:${PATH}"
 cd ${DATA_DIR}
 
 echo "Preparing environment, branch ${BRANCH}"
-sudo mkdir chromiumos-sdk
+sudo mkdir -p chromiumos-sdk
 sudo chown ${USERNAME} chromiumos-sdk
 cd chromiumos-sdk
 git config --global user.email "bot@kernelci.org"
@@ -59,31 +67,31 @@ case ${BOARD} in
     sed -i s,'USE="${USE} cros_ec"','# USE="${USE} cros_ec"', src/overlays/baseboard-coral/profiles/base/make.defaults
     ;;
     dedede)
-    echo 'USE="${USE} -tpm tpm2 cr50_onboard"' >>src/overlays/baseboard-dedede/profiles/base/make.defaults
+    grep -q "tpm2" src/overlays/baseboard-dedede/profiles/base/make.defaults || echo 'USE="${USE} -tpm tpm2 cr50_onboard"' >>src/overlays/baseboard-dedede/profiles/base/make.defaults
     ;;
     hatch)
     sed -i 's/EC_BOARDS=()/EC_BOARDS=(hatch)/' src/third_party/chromiumos-overlay/eclass/cros-ec-board.eclass
-    echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-hatch/profiles/base/make.defaults
+    grep -q "tpm2" src/overlays/baseboard-hatch/profiles/base/make.defaults || echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-hatch/profiles/base/make.defaults
     ;;
     nami)
-    echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-nami/profiles/base/make.defaults
+    grep -q "tpm2" src/overlays/baseboard-nami/profiles/base/make.defaults || echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-nami/profiles/base/make.defaults
     ;;
     octopus)
     sed -i s,'use fuzzer || die',"#use fuzzer || die", src/third_party/chromiumos-overlay/eclass/cros-ec-board.eclass
     # Workaround b/244460939 T38487 - octopus missing proper tpm USE flags
-    echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-octopus/profiles/base/make.defaults
+    grep -q "tpm2" src/overlays/baseboard-octopus/profiles/base/make.defaults || echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-octopus/profiles/base/make.defaults
     ;;
     sarien)
     sed ':a;N;$!ba;s/DEPEND="\n\tchromeos-base\/fibocom-firmware\n"/# DEPEND="\n\t# chromeos-base\/fibocom-firmware\n# "/g' -i src/overlays/overlay-sarien/chromeos-base/modemfwd-helpers/modemfwd-helpers-0.0.1.ebuild
     ;;
     volteer)
-    echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-volteer/profiles/base/make.defaults
+    grep -q "tpm2" src/overlays/baseboard-volteer/profiles/base/make.defaults || echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-volteer/profiles/base/make.defaults
     ;;
     zork)
-    echo 'USE="${USE} -tpm tpm2"' >>src/overlays/overlay-zork/profiles/base/make.defaults
+    grep -q "tpm2" src/overlays/overlay-zork/profiles/base/make.defaults || echo 'USE="${USE} -tpm tpm2"' >>src/overlays/overlay-zork/profiles/base/make.defaults
     ;;
     grunt)
-    echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-grunt/profiles/base/make.defaults
+    grep -q "tpm2" src/overlays/baseboard-grunt/profiles/base/make.defaults || echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-grunt/profiles/base/make.defaults
     ;;
     *)
     echo "No issues found for this board"
@@ -92,10 +100,12 @@ esac
 
 # Disable SELinux in upstart and other packages to allow booting newer kernels on
 # CrOS images which don't define all selinux policies
-sed -i 's/selinux/-selinux/g' src/third_party/chromiumos-overlay/profiles/features/selinux/package.use
+sed -i 's/ selinux/ -selinux/g' src/third_party/chromiumos-overlay/profiles/features/selinux/package.use
 
 # Temporary workaround as chrome-icu build fails at 10/08/2022 due corrupt git cache
-cros_sdk sync_chrome --tag=106.0.5249.134 --reset --gclient=/mnt/host/depot_tools/gclient /var/cache/chromeos-cache/distfiles/chrome-src --skip_cache
+if [ ! -f .cache/distfiles/chrome-src/.gclient ]; then
+  cros_sdk sync_chrome --tag=106.0.5249.134 --reset --gclient=/mnt/host/depot_tools/gclient /var/cache/chromeos-cache/distfiles/chrome-src --skip_cache
+fi
 
 # Add serial support
 echo "Add serial ${SERIAL} support"
