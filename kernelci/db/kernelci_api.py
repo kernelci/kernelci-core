@@ -35,6 +35,11 @@ class KernelCI_API(Database):
             'Content-Type': 'application/json',
         }
         self._filters = {}
+        self._api_version = 'latest'
+
+    def _get_path_with_version_prefix(self, path):
+        """Insert API version prefix to the URL path"""
+        return self._api_version + '/' + path
 
     def _make_url(self, path):
         return urllib.parse.urljoin(self.config.url, path)
