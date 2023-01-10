@@ -42,6 +42,7 @@ class KernelCI_API(Database):
         return self._api_version + '/' + path
 
     def _make_url(self, path):
+        path = self._get_path_with_version_prefix(path)
         return urllib.parse.urljoin(self.config.url, path)
 
     def _print_http_error(self, http_error, verbose=False):
