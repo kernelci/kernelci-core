@@ -18,6 +18,8 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+import yaml
+
 import kernelci.config
 import kernelci.config.build
 import kernelci.config.test
@@ -55,3 +57,25 @@ def test_architecture_init_name_only():
     assert architecture.extra_configs == []
     assert architecture.fragments == []
     assert architecture._filters == []  # filters does not have a property..
+
+
+def test_trees():
+    # ToDo: use relative path to test module 'configs/trees.yaml'
+    yaml_file_path = 'tests/configs/trees.yaml'
+    with open(yaml_file_path) as yaml_file:
+        ref_data = yaml.safe_load(yaml_file)
+    tree_names = ['kselftest', 'mainline', 'next']
+    assert all(name in ref_data['trees'] for name in tree_names)
+    config = kernelci.config.load(yaml_file_path)
+    trees_dump = {
+        name: config.to_yaml() for name, config in config['trees'].items()
+    }
+    trees_config = {
+        name: yaml.safe_load(config) for name, config in trees_dump.items()
+    }
+    assert all(name in trees_config for name in tree_names)
+    assert ref_data['trees'] == trees_config
+    assert (
+        trees_config['next']['url'] ==
+        'https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git'
+    )
