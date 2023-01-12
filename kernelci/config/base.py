@@ -195,6 +195,7 @@ class Blocklist(Filter):
     """
 
     yaml_tag = u'!BlockList'
+    name = 'blocklist'
 
     def match(self, **kw):
         for k, v in kw.items():
@@ -220,6 +221,7 @@ class Passlist(Filter):
     """
 
     yaml_tag = u'!PassList'
+    name = 'passlist'
 
     def match(self, **kw):
         for k, wl in self._items.items():
@@ -246,6 +248,7 @@ class Regex(Filter):
     """
 
     yaml_tag = u'!Regex'
+    name = 'regex'
 
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)
@@ -268,6 +271,7 @@ class Combination(Filter):
     """
 
     yaml_tag = u'!Combination'
+    name = 'combination'
 
     def __init__(self, items):
         super().__init__(items)
@@ -291,10 +295,12 @@ class FilterFactory:
     """Factory to create filters from YAML data."""
 
     _classes = {
-        'blocklist': Blocklist,
-        'passlist': Passlist,
-        'regex': Regex,
-        'combination': Combination,
+        cls.name: cls for cls in [
+            Blocklist,
+            Passlist,
+            Regex,
+            Combination,
+        ]
     }
 
     @classmethod
