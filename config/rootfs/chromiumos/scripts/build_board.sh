@@ -98,10 +98,6 @@ case ${BOARD} in
     ;;
 esac
 
-# Disable SELinux in upstart and other packages to allow booting newer kernels on
-# CrOS images which don't define all selinux policies
-sed -i 's/ selinux/ -selinux/g' src/third_party/chromiumos-overlay/profiles/features/selinux/package.use
-
 # Temporary workaround as chrome-icu build fails at 10/08/2022 due corrupt git cache
 if [ ! -f .cache/distfiles/chrome-src/.gclient ]; then
   cros_sdk sync_chrome --tag=106.0.5249.134 --reset --gclient=/mnt/host/depot_tools/gclient /var/cache/chromeos-cache/distfiles/chrome-src --skip_cache
