@@ -1,9 +1,7 @@
-default_filters:
+riscv_default_filters:
 
-  test_plans:
-
-    - blocklist: &kselftest_defconfig_filter
-        defconfig: ['kselftest']
+  - blocklist: &kselftest_defconfig_filter
+      defconfig: ['kselftest']
 
 
 test_plans:
