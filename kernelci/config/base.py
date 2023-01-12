@@ -141,12 +141,20 @@ class _YAMLObject:
         return yaml.dump(self.to_dict())
 
 
-class Filter:
+class Filter(YAMLConfigObject):
     """Base class to implement arbitrary configuration filters."""
 
     def __init__(self, items):
         """The *items* can be any data used to filter configurations."""
         self._items = items
+
+    @classmethod
+    def to_yaml(cls, dumper, data):
+        return dumper.represent_mapping(
+            u'tag:yaml.org,2002:map', {
+                key: value for key, value in data._items.items()
+            }
+        )
 
     def match(self, **kw):
         """Return True if the given *kw* keywords match the filter."""
@@ -186,6 +194,8 @@ class Blocklist(Filter):
     rejected.
     """
 
+    yaml_tag = u'!BlockList'
+
     def match(self, **kw):
         for k, v in kw.items():
             bl = self._items.get(k)
@@ -208,6 +218,8 @@ class Passlist(Filter):
     For a configuration to be accepted, there must be a value found in each of
     these lists.
     """
+
+    yaml_tag = u'!PassList'
 
     def match(self, **kw):
         for k, wl in self._items.items():
@@ -233,6 +245,8 @@ class Regex(Filter):
     for each key specified in the filter items.
     """
 
+    yaml_tag = u'!Regex'
+
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)
         self._re_items = {k: re.compile(v) for k, v in self._items.items()}
@@ -253,7 +267,10 @@ class Combination(Filter):
     the order of the keys.
     """
 
+    yaml_tag = u'!Combination'
+
     def __init__(self, items):
+        super().__init__(items)
         self._keys = tuple(items['keys'])
         self._values = list(tuple(values) for values in items['values'])
 
@@ -270,7 +287,7 @@ class Combination(Filter):
         return True
 
 
-class FilterFactory(_YAMLObject):
+class FilterFactory:
     """Factory to create filters from YAML data."""
 
     _classes = {
@@ -281,7 +298,7 @@ class FilterFactory(_YAMLObject):
     }
 
     @classmethod
-    def from_yaml(cls, filter_params):
+    def load_from_yaml(cls, filter_params):
         """Iterate through the YAML filters and return Filter objects."""
         filter_list = []
         filters = {}
@@ -315,11 +332,11 @@ class FilterFactory(_YAMLObject):
         Otherwise, return *default_filters*.
         """
         params = data.get('filters')
-        return cls.from_yaml(params) if params else default_filters
+        return cls.load_from_yaml(params) if params else default_filters
 
 
 def default_filters_from_yaml(data):
     return {
-        entry_type: FilterFactory.from_yaml(filters_data)
+        entry_type: FilterFactory.load_from_yaml(filters_data)
         for entry_type, filters_data in data.get('default_filters', {}).items()
     }
