@@ -17,10 +17,10 @@
 
 import yaml
 
-from kernelci.config.base import FilterFactory, YAMLObject
+from kernelci.config.base import FilterFactory, _YAMLObject
 
 
-class Tree(YAMLObject):
+class Tree(_YAMLObject):
     """Kernel git tree model."""
 
     def __init__(self, name, url):
@@ -47,7 +47,7 @@ class Tree(YAMLObject):
         return attrs
 
 
-class Reference(YAMLObject):
+class Reference(_YAMLObject):
     """Kernel reference tree and branch model."""
 
     def __init__(self, tree, branch):
@@ -74,7 +74,7 @@ class Reference(YAMLObject):
         return self._branch
 
 
-class Fragment(YAMLObject):
+class Fragment(_YAMLObject):
     """Kernel config fragment model."""
 
     def __init__(self, name, path, configs=None, defconfig=None):
@@ -122,7 +122,7 @@ class Fragment(YAMLObject):
         return attrs
 
 
-class Architecture(YAMLObject):
+class Architecture(_YAMLObject):
     """CPU architecture attributes."""
 
     def __init__(self, name, base_defconfig='defconfig', extra_configs=None,
@@ -183,7 +183,7 @@ class Architecture(YAMLObject):
         return all(f.match(**params) for f in self._filters)
 
 
-class BuildEnvironment(YAMLObject):
+class BuildEnvironment(_YAMLObject):
     """Kernel build environment model."""
 
     def __init__(self, name, cc, cc_version, arch_params=None):
@@ -248,7 +248,7 @@ class BuildEnvironment(YAMLObject):
         return params.get('cross_compile_compat', '')
 
 
-class BuildVariant(YAMLObject):
+class BuildVariant(_YAMLObject):
     """A variant of a given build configuration."""
 
     def __init__(self, name, architectures, build_environment, fragments=None):
@@ -315,7 +315,7 @@ class BuildVariant(YAMLObject):
         return list(self._fragments)
 
 
-class BuildConfig(YAMLObject):
+class BuildConfig(_YAMLObject):
     """Build configuration model."""
 
     def __init__(self, name, tree, branch, variants, reference=None):

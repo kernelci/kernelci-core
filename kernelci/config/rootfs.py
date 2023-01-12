@@ -19,10 +19,10 @@ import sys
 import yaml
 
 from kernelci import sort_check
-from kernelci.config.base import YAMLObject
+from kernelci.config.base import _YAMLObject
 
 
-class RootFS(YAMLObject):
+class RootFS(_YAMLObject):
     def __init__(self, name, rootfs_type):
         self._name = name
         self._rootfs_type = rootfs_type
@@ -241,7 +241,7 @@ class RootFS_ChromiumOS(RootFS):
         return attrs
 
 
-class RootFSFactory(YAMLObject):
+class RootFSFactory(_YAMLObject):
     _rootfs_types = {
         'debos': RootFS_Debos,
         'buildroot': RootFS_Buildroot,
