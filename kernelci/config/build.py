@@ -203,8 +203,10 @@ class Architecture(_YAMLObject):
         return all(f.match(**params) for f in self._filters)
 
 
-class BuildEnvironment(_YAMLObject):
+class BuildEnvironment(YAMLConfigObject):
     """Kernel build environment model."""
+
+    yaml_tag = u'!BuildEnvironment'
 
     def __init__(self, name, cc, cc_version, arch_params=None):
         """A build environment is a compiler and tools to build a kernel.
@@ -250,6 +252,16 @@ class BuildEnvironment(_YAMLObject):
         attrs = super()._get_yaml_attributes()
         attrs.update({'cc', 'cc_version', 'arch_params'})
         return attrs
+
+    @classmethod
+    def to_yaml(cls, dumper, data):
+        return dumper.represent_mapping(
+            u'tag:yaml.org,2002:map', {
+                'cc': data.cc,
+                'cc_version': data.cc_version,
+                'arch_params': data.arch_params,
+            }
+        )
 
     def get_arch_name(self, kernel_arch):
         params = self._arch_params.get(kernel_arch) or dict()
@@ -421,7 +433,7 @@ def from_yaml(data, filters):
     }
 
     build_environments = {
-        name: BuildEnvironment.from_yaml(config, name=name)
+        name: BuildEnvironment.load_from_yaml(config, name=name)
         for name, config in data.get('build_environments', {}).items()
     }
 
