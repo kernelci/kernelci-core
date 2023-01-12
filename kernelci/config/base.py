@@ -24,6 +24,55 @@ import copy
 # Common classes for all config types
 #
 
+class YAMLConfigObject(yaml.YAMLObject):
+    """Base class with helper methods to handle configuration YAML data
+
+    This class contains methods to help constructing configuration objects from
+    YAML data.  Then each subclass should implement its standard `to_yaml()`
+    method to be able to dump the whole configuration hierarchy back to YAML.
+    """
+
+    @classmethod
+    def load_from_yaml(cls, config, **kwargs):
+        """Load the YAML configuration
+
+        Load the YAML configuration passed as a *config* data structure with a
+        given *name*.  This method should return an instance of a _YAMLObject
+        subclass.
+        """
+        yaml_attributes = cls._get_yaml_attributes()
+        kwargs.update(cls._kw_from_yaml(config, yaml_attributes))
+        return cls(**kwargs)
+
+    @classmethod
+    def _kw_from_yaml(cls, data, attributes):
+        """Create some keyword arguments based on a YAML dictionary
+
+        Return a dictionary suitable to be used as Python keyword arguments in
+        an object constructor using values from some YAML *data*.  The
+        *attributes* are a list of keys to look up from the *data* and convert
+        to a dictionary.  Keys that are not in the YAML data are simply omitted
+        from the returned keywords, relying on default values in object
+        constructors.
+
+        """
+        return {
+            k: v for k, v in ((k, data.get(k))for k in attributes)
+            if v is not None
+        } if data else dict()
+
+    @classmethod
+    def _get_yaml_attributes(cls):
+        """Get a set of YAML attribute names
+
+        Get a set object with all the YAML configuration attribute names for
+        the configuration class.  This can be used to make keyword arguments
+        when creating a configuration object as well as when serialising it
+        back to YAML.
+        """
+        return set()
+
+
 class _YAMLObject:
     """Base class with helper methods to initialise objects from YAML data."""
 
