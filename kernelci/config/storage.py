@@ -17,10 +17,10 @@
 
 import yaml
 
-from kernelci.config.base import YAMLObject
+from kernelci.config.base import _YAMLObject
 
 
-class Storage(YAMLObject):
+class Storage(_YAMLObject):
     """Base configuration class for Storage implementations"""
 
     def __init__(self, name, storage_type, base_url):
@@ -114,7 +114,7 @@ class Storage_ssh(Storage):
         return attrs
 
 
-class StorageFactory(YAMLObject):
+class StorageFactory(_YAMLObject):
     """Factory to create storage objects from YAML data."""
 
     _storage_types = {

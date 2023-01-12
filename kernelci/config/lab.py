@@ -17,10 +17,10 @@
 
 import yaml
 
-from kernelci.config.base import FilterFactory, YAMLObject
+from kernelci.config.base import FilterFactory, _YAMLObject
 
 
-class Lab(YAMLObject):
+class Lab(_YAMLObject):
     """Test lab model."""
 
     def __init__(self, name, lab_type, filters=None):
@@ -140,7 +140,7 @@ class Lab_LAVA(LabAPI):
         return attrs
 
 
-class LabFactory(YAMLObject):
+class LabFactory(_YAMLObject):
     """Factory to create lab objects from YAML data."""
 
     _lab_types = {
