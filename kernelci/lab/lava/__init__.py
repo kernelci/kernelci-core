@@ -37,22 +37,17 @@ class LavaAPI(LabAPI):
 
         # Scale the job priority (from 0-100) within the available levels
         # for the lab, or use the lowest by default.
-        if 'priority' in plan_config.params:
-            priority = plan_config.params['priority']
-            if priority > 100:
-                priority = 100
-        else:
-            priority = 20
-
-        prio_range = self.config._priority_max - self.config._priority_min
-        priority = int(((priority * prio_range) / 100) +
-                       self.config._priority_min)
+        plan_priority = plan_config.params.get('priority', 20)
+        if all((self.config.priority_max, self.config.priority_min)):
+            prio_range = self.config.priority_max - self.config.priority_min
+            prio_min = self.config.priority_min
+            plan_priority = int((plan_priority * prio_range / 100) + prio_min)
 
         params.update({
             'queue_timeout': self.config.queue_timeout,
             'lab_name': self.config.name,
             'base_device_type': self._alias_device_type(base_name),
-            'priority': priority,
+            'priority': plan_priority,
         })
         if callback_opts:
             self._add_callback_params(params, callback_opts)
