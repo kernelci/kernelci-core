@@ -67,12 +67,8 @@ def test_trees():
     tree_names = ['kselftest', 'mainline', 'next']
     assert all(name in ref_data['trees'] for name in tree_names)
     config = kernelci.config.load(yaml_file_path)
-    trees_dump = {
-        name: config.to_yaml() for name, config in config['trees'].items()
-    }
-    trees_config = {
-        name: yaml.safe_load(config) for name, config in trees_dump.items()
-    }
+    trees_dump = yaml.dump(config['trees'])
+    trees_config = yaml.safe_load(trees_dump)
     assert all(name in trees_config for name in tree_names)
     assert ref_data['trees'] == trees_config
     assert (
