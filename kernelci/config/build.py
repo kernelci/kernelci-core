@@ -153,8 +153,10 @@ class Fragment(YAMLConfigObject):
         )
 
 
-class Architecture(_YAMLObject):
+class Architecture(YAMLConfigObject):
     """CPU architecture attributes."""
+
+    yaml_tag = u'!Architecture'
 
     def __init__(self, name, base_defconfig='defconfig', extra_configs=None,
                  fragments=None, filters=None):
@@ -182,7 +184,7 @@ class Architecture(_YAMLObject):
         self._filters = filters or list()
 
     @classmethod
-    def from_yaml(cls, config, name, fragments):
+    def load_from_yaml(cls, config, name, fragments):
         kw = {
             'name': name,
         }
@@ -209,6 +211,17 @@ class Architecture(_YAMLObject):
     @property
     def fragments(self):
         return list(self._fragments)
+
+    @classmethod
+    def to_yaml(cls, dumper, data):
+        return dumper.represent_mapping(
+            u'tag:yaml.org,2002:map', {
+                'base_defconfig': data.base_defconfig,
+                'extra_configs': data.extra_configs,
+                'fragments': [frag.name for frag in data.fragments],
+                'filters': [{fil.name: fil} for fil in data._filters],
+            }
+        )
 
     def match(self, params):
         return all(f.match(**params) for f in self._filters)
@@ -327,7 +340,7 @@ class BuildVariant(_YAMLObject):
         ]))
         kw['build_environment'] = build_environments[kw['build_environment']]
         kw['architectures'] = list(
-            Architecture.from_yaml(data or {}, name, fragments)
+            Architecture.load_from_yaml(data or {}, name, fragments)
             for name, data in config['architectures'].items()
         )
         cf = kw.get('fragments')
