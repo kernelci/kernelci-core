@@ -304,8 +304,10 @@ class BuildEnvironment(YAMLConfigObject):
         return params.get('cross_compile_compat', '')
 
 
-class BuildVariant(_YAMLObject):
+class BuildVariant(YAMLConfigObject):
     """A variant of a given build configuration."""
+
+    yaml_tag = u'!BuildVariant'
 
     def __init__(self, name, architectures, build_environment, fragments=None):
         """A build variant is a sub-section of a build configuration.
@@ -331,7 +333,7 @@ class BuildVariant(_YAMLObject):
         self._fragments = fragments or list()
 
     @classmethod
-    def from_yaml(cls, config, name, fragments, build_environments):
+    def load_from_yaml(cls, config, name, fragments, build_environments):
         kw = {
             'name': name,
         }
@@ -369,6 +371,16 @@ class BuildVariant(_YAMLObject):
     @property
     def fragments(self):
         return list(self._fragments)
+
+    @classmethod
+    def to_yaml(cls, dumper, data):
+        return dumper.represent_mapping(
+            u'tag:yaml.org,2002:map', {
+                'build_environment': data.build_environment.name,
+                'fragments': [frag.name for frag in data.fragments],
+                'architectures': {arc.name: arc for arc in data.architectures},
+            }
+        )
 
 
 class BuildConfig(_YAMLObject):
@@ -412,7 +424,7 @@ class BuildConfig(_YAMLObject):
         default_variants = defaults.get('variants', {})
         config_variants = config.get('variants', default_variants)
         variants = [
-            BuildVariant.from_yaml(variant, name, fragments, build_envs)
+            BuildVariant.load_from_yaml(variant, name, fragments, build_envs)
             for name, variant in config_variants.items()
         ]
         kw['variants'] = {v.name: v for v in variants}
