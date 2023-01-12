@@ -82,8 +82,10 @@ class Reference(_YAMLObject):
         return self._branch
 
 
-class Fragment(_YAMLObject):
+class Fragment(YAMLConfigObject):
     """Kernel config fragment model."""
+
+    yaml_tag = u'!Fragment'
 
     def __init__(self, name, path, configs=None, defconfig=None):
         """A kernel config fragment is a list of config options in file.
@@ -128,6 +130,16 @@ class Fragment(_YAMLObject):
         attrs = super()._get_yaml_attributes()
         attrs.update({'path', 'configs', 'defconfig'})
         return attrs
+
+    @classmethod
+    def to_yaml(cls, dumper, data):
+        return dumper.represent_mapping(
+            u'tag:yaml.org,2002:map', {
+                'path': data.path,
+                'configs': data.configs,
+                'defconfig': data.defconfig,
+            }
+        )
 
 
 class Architecture(_YAMLObject):
@@ -404,7 +416,7 @@ def from_yaml(data, filters):
     }
 
     fragments = {
-        name: Fragment.from_yaml(config, name=name)
+        name: Fragment.load_from_yaml(config, name=name)
         for name, config in data.get('fragments', {}).items()
     }
 
