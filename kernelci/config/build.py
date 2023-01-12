@@ -383,8 +383,10 @@ class BuildVariant(YAMLConfigObject):
         )
 
 
-class BuildConfig(_YAMLObject):
+class BuildConfig(YAMLConfigObject):
     """Build configuration model."""
+
+    yaml_tag = u'!BuildConfig'
 
     def __init__(self, name, tree, branch, variants, reference=None):
         """A build configuration defines the actual kernels to be built.
@@ -413,7 +415,7 @@ class BuildConfig(_YAMLObject):
         self._reference = reference
 
     @classmethod
-    def from_yaml(cls, config, name, trees, fragments, build_envs, defaults):
+    def load_from_yaml(cls, config, name, trees, fragments, b_envs, defaults):
         kw = {
             'name': name,
         }
@@ -424,7 +426,7 @@ class BuildConfig(_YAMLObject):
         default_variants = defaults.get('variants', {})
         config_variants = config.get('variants', default_variants)
         variants = [
-            BuildVariant.load_from_yaml(variant, name, fragments, build_envs)
+            BuildVariant.load_from_yaml(variant, name, fragments, b_envs)
             for name, variant in config_variants.items()
         ]
         kw['variants'] = {v.name: v for v in variants}
@@ -456,6 +458,17 @@ class BuildConfig(_YAMLObject):
     def reference(self):
         return self._reference
 
+    @classmethod
+    def to_yaml(cls, dumper, data):
+        return dumper.represent_mapping(
+            u'tag:yaml.org,2002:map', {
+                'tree': data.tree.name,
+                'branch': data.branch,
+                'variants': {var.name: var for var in data.variants},
+                'reference': data.reference,
+            }
+        )
+
 
 def from_yaml(data, filters):
     trees = {
@@ -476,8 +489,9 @@ def from_yaml(data, filters):
     defaults = data.get('build_configs_defaults', {})
 
     build_configs = {
-        name: BuildConfig.from_yaml(config, name, trees, fragments,
-                                    build_environments, defaults)
+        name: BuildConfig.load_from_yaml(
+            config, name, trees, fragments, build_environments, defaults
+        )
         for name, config in data.get('build_configs', {}).items()
     }
 
