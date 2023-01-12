@@ -24,7 +24,7 @@ import copy
 # Common classes for all config types
 #
 
-class YAMLObject:
+class _YAMLObject:
     """Base class with helper methods to initialise objects from YAML data."""
 
     @classmethod
@@ -32,7 +32,7 @@ class YAMLObject:
         """Load the YAML configuration
 
         Load the YAML configuration passed as a *config* data structure with a
-        given *name*.  This method should return an instance of a YAMLObject
+        given *name*.  This method should return an instance of a _YAMLObject
         subclass.
         """
         yaml_attributes = cls._get_yaml_attributes()
@@ -221,7 +221,7 @@ class Combination(Filter):
         return True
 
 
-class FilterFactory(YAMLObject):
+class FilterFactory(_YAMLObject):
     """Factory to create filters from YAML data."""
 
     _classes = {

@@ -17,10 +17,10 @@
 
 import yaml
 
-from kernelci.config.base import FilterFactory, YAMLObject
+from kernelci.config.base import FilterFactory, _YAMLObject
 
 
-class DeviceType(YAMLObject):
+class DeviceType(_YAMLObject):
     """Device type model."""
 
     def __init__(self, name, mach, arch, boot_method, dtb=None, base_name=None,
@@ -180,7 +180,7 @@ class DeviceType_kubernetes(DeviceType):
         super().__init__(name, mach, arch, boot_method, *args, **kwargs)
 
 
-class DeviceTypeFactory(YAMLObject):
+class DeviceTypeFactory(_YAMLObject):
     """Factory to create device types from YAML data."""
 
     _classes = {
@@ -205,7 +205,7 @@ class DeviceTypeFactory(YAMLObject):
         return device_cls.from_yaml(config, **kw)
 
 
-class RootFSType(YAMLObject):
+class RootFSType(_YAMLObject):
     """Root file system type model."""
 
     def __init__(self, name, url, arch_map=None):
@@ -265,7 +265,7 @@ class RootFSType(YAMLObject):
         return arch_name
 
 
-class RootFS(YAMLObject):
+class RootFS(_YAMLObject):
     """Root file system model."""
 
     def __init__(self, fs_type, boot_protocol='tftp', root_type=None,
@@ -372,7 +372,7 @@ class RootFS(YAMLObject):
         return fmt.format(arch=arch_name)
 
 
-class TestPlan(YAMLObject):
+class TestPlan(_YAMLObject):
     """Test plan model."""
 
     _pattern = \
@@ -480,7 +480,7 @@ class TestPlan(YAMLObject):
         return all(f.match(**config) for f in self._filters)
 
 
-class TestConfig(YAMLObject):
+class TestConfig(_YAMLObject):
     """Test configuration model."""
 
     def __init__(self, device_type, test_plans, filters=None):
