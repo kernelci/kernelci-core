@@ -55,8 +55,10 @@ class Tree(YAMLConfigObject):
         )
 
 
-class Reference(_YAMLObject):
+class Reference(YAMLConfigObject):
     """Kernel reference tree and branch model."""
+
+    yaml_tag = u'!Reference'
 
     def __init__(self, tree, branch):
         """Reference is a tree and branch used for bisections
@@ -68,7 +70,7 @@ class Reference(_YAMLObject):
         self._branch = branch
 
     @classmethod
-    def from_yaml(cls, reference, trees):
+    def load_from_yaml(cls, reference, trees):
         kw = cls._kw_from_yaml(reference, ['tree', 'branch'])
         kw['tree'] = trees[kw['tree']]
         return cls(**kw)
@@ -80,6 +82,15 @@ class Reference(_YAMLObject):
     @property
     def branch(self):
         return self._branch
+
+    @classmethod
+    def to_yaml(cls, dumper, data):
+        return dumper.represent_mapping(
+            u'tag:yaml.org,2002:map', {
+                'tree': data.tree.name,
+                'branch': data.branch,
+            }
+        )
 
 
 class Fragment(YAMLConfigObject):
@@ -394,7 +405,7 @@ class BuildConfig(_YAMLObject):
         kw['variants'] = {v.name: v for v in variants}
         reference = config.get('reference', defaults.get('reference'))
         if reference:
-            kw['reference'] = Reference.from_yaml(reference, trees)
+            kw['reference'] = Reference.load_from_yaml(reference, trees)
         return cls(**kw)
 
     @property
