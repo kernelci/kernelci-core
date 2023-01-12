@@ -235,7 +235,7 @@ class cmd_list_kernel_configs(Command):
 class cmd_init_bmeta(Command):
     help = "Create initial bmeta.json"
     args = [Args.kdir]
-    opt_args = [Args.output, Args.build_config, Args.install,
+    opt_args = [Args.output, Args.build_config,
                 Args.tree_name, Args.tree_url, Args.branch,
                 Args.commit, Args.describe, Args.describe_verbose,
                 Args.build_env, Args.arch, Args.install_path]
@@ -272,9 +272,8 @@ or
             'describe_verbose': args.describe_verbose
         })
 
-        if args.install:
-            print("Install directory: {}".format(step.install_path))
-            step.install()
+        print("Install directory: {}".format(step.install_path))
+        step.install()
 
         if res and (args.build_env or args.arch):
             if not (args.build_env and args.arch):
@@ -285,15 +284,14 @@ Invalid arguments, --build-env and --arch need to be used together.""")
             step = kernelci.build.EnvironmentData(
                 args.kdir, args.output, install_path=args.install_path)
             res = step.run(opts={'build_env': build_env, 'arch': args.arch})
-            if args.install:
-                step.install()
+            step.install()
 
         return res
 
 
 class MakeCommand(Command):
     args = [Args.kdir]
-    opt_args = [Args.verbose, Args.output, Args.j, Args.log, Args.install,
+    opt_args = [Args.verbose, Args.output, Args.j, Args.log,
                 Args.install_path]
     step_cls = None
 
@@ -304,9 +302,8 @@ class MakeCommand(Command):
             return True
         opts = self._get_opts(args, configs)
         res = step.run(args.j, args.verbose, opts)
-        if args.install:
-            install_res = self._install_step(step, args)
-            res = res and install_res
+        install_res = self._install_step(step, args)
+        res = res and install_res
         return res
 
     def _get_step(self, args):
