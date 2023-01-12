@@ -17,11 +17,13 @@
 
 import yaml
 
-from kernelci.config.base import FilterFactory, _YAMLObject
+from kernelci.config.base import FilterFactory, _YAMLObject, YAMLConfigObject
 
 
-class Tree(_YAMLObject):
+class Tree(YAMLConfigObject):
     """Kernel git tree model."""
+
+    yaml_tag = u'!Tree'
 
     def __init__(self, name, url):
         """A kernel git tree is essentially a repository with kernel branches.
@@ -45,6 +47,12 @@ class Tree(_YAMLObject):
         attrs = super()._get_yaml_attributes()
         attrs.update({'url'})
         return attrs
+
+    @classmethod
+    def to_yaml(cls, dumper, data):
+        return dumper.represent_mapping(
+            u'tag:yaml.org,2002:map', {'url': data.url}
+        )
 
 
 class Reference(_YAMLObject):
@@ -391,7 +399,7 @@ class BuildConfig(_YAMLObject):
 
 def from_yaml(data, filters):
     trees = {
-        name: Tree.from_yaml(config, name=name)
+        name: Tree.load_from_yaml(config, name=name)
         for name, config in data.get('trees', {}).items()
     }
 
