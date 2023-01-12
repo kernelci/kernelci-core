@@ -68,15 +68,21 @@ class ConfigTest(unittest.TestCase):
         config = kernelci.config.load(yaml_file_path)
         return ref_data, config
 
+    def _reload(self, ref_data, config, name):
+        assert name in config
+        assert name in ref_data
+        dump = yaml.dump(config[name])
+        loaded = yaml.safe_load(dump)
+        assert ref_data[name] == loaded
+        return loaded
+
     def test_trees(self):
         # ToDo: use relative path to test module 'configs/trees.yaml'
         ref_data, config = self._load_config('tests/configs/trees.yaml')
+        trees_config = self._reload(ref_data, config, 'trees')
         tree_names = ['kselftest', 'mainline', 'next']
         assert all(name in ref_data['trees'] for name in tree_names)
-        trees_dump = yaml.dump(config['trees'])
-        trees_config = yaml.safe_load(trees_dump)
         assert all(name in trees_config for name in tree_names)
-        assert ref_data['trees'] == trees_config
         assert (
             trees_config['next']['url'] ==
             'https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git'  # noqa
@@ -86,12 +92,10 @@ class ConfigTest(unittest.TestCase):
         ref_data, config = self._load_config(
             'tests/configs/file-system-types.yaml'
         )
+        fs_config = self._reload(ref_data, config, 'file_system_types')
         fs_names = ['buildroot', 'debian']
         assert all(name in ref_data['file_system_types'] for name in fs_names)
-        fs_dump = yaml.dump(config['file_system_types'])
-        fs_config = yaml.safe_load(fs_dump)
         assert all(name in fs_config for name in fs_names)
-        assert ref_data['file_system_types'] == fs_config
         assert (
             fs_config['debian']['url'] ==
             'http://storage.kernelci.org/images/rootfs/debian'
