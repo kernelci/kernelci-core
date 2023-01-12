@@ -84,13 +84,8 @@ def test_file_system_types():
     fs_names = ['buildroot', 'debian']
     assert all(name in ref_data['file_system_types'] for name in fs_names)
     config = kernelci.config.load(yaml_file_path)
-    fs_dump = {
-        name: config.to_yaml()
-        for name, config in config['file_system_types'].items()
-    }
-    fs_config = {
-        name: yaml.safe_load(config) for name, config in fs_dump.items()
-    }
+    fs_dump = yaml.dump(config['file_system_types'])
+    fs_config = yaml.safe_load(fs_dump)
     assert all(name in fs_config for name in fs_names)
     assert ref_data['file_system_types'] == fs_config
     assert (

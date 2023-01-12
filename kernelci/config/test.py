@@ -17,7 +17,7 @@
 
 import yaml
 
-from kernelci.config.base import FilterFactory, _YAMLObject
+from kernelci.config.base import FilterFactory, _YAMLObject, YAMLConfigObject
 
 
 class DeviceType(_YAMLObject):
@@ -205,8 +205,10 @@ class DeviceTypeFactory(_YAMLObject):
         return device_cls.from_yaml(config, **kw)
 
 
-class RootFSType(_YAMLObject):
+class RootFSType(YAMLConfigObject):
     """Root file system type model."""
+
+    yaml_tag = u'!RootFSType'
 
     def __init__(self, name, url, arch_map=None):
         """A root file system type covers common file system features.
@@ -252,6 +254,15 @@ class RootFSType(_YAMLObject):
         attrs = super()._get_yaml_attributes()
         attrs.update({'url', 'arch_map'})
         return attrs
+
+    @classmethod
+    def to_yaml(cls, dumper, data):
+        return dumper.represent_mapping(
+            u'tag:yaml.org,2002:map', {
+                'url': data.url,
+                'arch_map': data.arch_map,
+            }
+        )
 
     def get_arch_name(self, arch, variant, endian):
         arch_key = ('arch', arch)
@@ -535,7 +546,7 @@ class TestConfig(_YAMLObject):
 
 def from_yaml(data, filters):
     fs_types = {
-        name: RootFSType.from_yaml(fs_type, name=name)
+        name: RootFSType.load_from_yaml(fs_type, name=name)
         for name, fs_type in data.get('file_system_types', {}).items()
     }
 
