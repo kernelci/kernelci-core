@@ -1,0 +1,88 @@
+fragments:
+
+  debug:
+    path: "kernel/configs/debug.config"
+    configs: []
+    defconfig:
+
+  ima:
+    path: "kernel/configs/ima.config"
+    defconfig:
+    configs:
+      - 'CONFIG_INTEGRITY=y'
+      - 'CONFIG_IMA=y'
+      - 'CONFIG_IMA_READ_POLICY=y'
+
+  x86-chromebook:
+    path: "kernel/configs/x86-chromebook.config"
+    defconfig:
+    configs:
+      - 'CONFIG_SERIAL_8250=y'
+      - 'CONFIG_SERIAL_8250_DW=y'
+      - 'CONFIG_X86_AMD_PLATFORM_DEVICE=y'
+      - 'CONFIG_MFD_INTEL_LPSS_PCI=y'
+      - 'CONFIG_USB_GADGET=y'
+      - 'CONFIG_USB_ETH=y'
+      - 'CONFIG_USB_RTL8152=y'
+      - 'CONFIG_MMC=y'
+      - 'CONFIG_MMC_SDHCI=y'
+      - 'CONFIG_MMC_SDHCI_PCI=y'
+      - 'CONFIG_MMC_SDHCI_ACPI=y'
+      - 'CONFIG_CHROME_PLATFORMS=y'
+      - 'CONFIG_CHROMEOS_LAPTOP=y'
+      - 'CONFIG_CHROMEOS_TBMC=y'
+      - 'CONFIG_CROS_EC=y'
+      - 'CONFIG_CROS_EC_LPC=y'
+      - 'CONFIG_CROS_EC_I2C=y'
+      - 'CONFIG_IIO=m'
+      - 'CONFIG_IIO_CROS_EC_SENSORS_CORE=m'
+      - 'CONFIG_IIO_CROS_EC_SENSORS=m'
+      - 'CONFIG_MFD_CROS_EC_DEV=m'
+      - 'CONFIG_I2C_DESIGNWARE_PLATFORM=y'
+      - 'CONFIG_TCG_TPM=y'
+      - 'CONFIG_TCG_TIS=y'
+      - 'CONFIG_TCG_TIS_SPI=y'
+      - 'CONFIG_TCG_TIS_SPI_CR50=y'
+      - 'CONFIG_TCG_TIS_I2C_CR50=y'
+      - 'CONFIG_SPI=y'
+      - 'CONFIG_SPI_PXA2XX=y'
+      - 'CONFIG_PINCTRL_AMD=y'
+      - 'CONFIG_NVME_CORE=y'
+      - 'CONFIG_BLK_DEV_NVME=y'
+      - 'CONFIG_NFS_FS=y'
+      - 'CONFIG_NFS_V2=y'
+      - 'CONFIG_NFS_V3=y'
+      - 'CONFIG_NFS_V3_ACL=y'
+      - 'CONFIG_NFS_V4=y'
+      - 'CONFIG_ROOT_NFS=y'
+      - 'CONFIG_EXTRA_FIRMWARE="
+      amdgpu/raven2_asd.bin
+      amdgpu/raven2_ce.bin
+      amdgpu/raven2_gpu_info.bin
+      amdgpu/raven2_me.bin
+      amdgpu/raven2_mec2.bin
+      amdgpu/raven2_mec.bin
+      amdgpu/raven2_pfp.bin
+      amdgpu/raven2_rlc.bin
+      amdgpu/raven2_sdma.bin
+      amdgpu/raven2_ta.bin
+      amdgpu/raven2_vcn.bin
+      amdgpu/raven_kicker_rlc.bin
+      amdgpu/stoney_ce.bin
+      amdgpu/stoney_me.bin
+      amdgpu/stoney_mec.bin
+      amdgpu/stoney_pfp.bin
+      amdgpu/stoney_rlc.bin
+      amdgpu/stoney_sdma.bin
+      amdgpu/stoney_uvd.bin
+      amdgpu/stoney_vce.bin
+      i915/glk_dmc_ver1_04.bin
+      i915/kbl_dmc_ver1_04.bin
+      rtl_nic/rtl8153a-4.fw
+      rtl_nic/rtl8153b-2.fw
+      "'
+
+  x86_kvm_guest:
+    path: "kernel/configs/kvm_guest.config"
+    configs: []
+    defconfig:
