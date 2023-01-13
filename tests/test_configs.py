@@ -88,6 +88,14 @@ class ConfigTest(unittest.TestCase):
             'https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git'  # noqa
         )
 
+    def test_fragments(self):
+        ref_data, config = self._load_config('tests/configs/fragments.yaml')
+        frag_config = self._reload(ref_data, config, 'fragments')
+        frag_names = ['debug', 'ima', 'x86-chromebook', 'x86_kvm_guest']
+        assert all(name in ref_data['fragments'] for name in frag_names)
+        assert all(name in frag_config for name in frag_names)
+        assert frag_config['debug']['path'] == 'kernel/configs/debug.config'
+
     def test_file_system_types(self):
         ref_data, config = self._load_config(
             'tests/configs/file-system-types.yaml'
