@@ -359,7 +359,8 @@ class BuildConfig(YAMLConfigObject):
 
     yaml_tag = u'!BuildConfig'
 
-    def __init__(self, name, tree, branch, variants, reference=None):
+    def __init__(self, name, tree, branch, variants, reference=None,
+                 install_vmlinux=False):
         """A build configuration defines the actual kernels to be built.
 
         *name* is the name of the build configuration.  It is arbitrary and
@@ -378,12 +379,15 @@ class BuildConfig(YAMLConfigObject):
                     bisections when no base commit is found for the good and
                     bad revisions.  It can also be None if no reference branch
                     can be used with this build configuration.
+
+        *install_vmlinux* is True if vmlinux should be installed
         """
         self._name = name
         self._tree = tree
         self._branch = branch
         self._variants = variants
         self._reference = reference
+        self._install_vmlinux = install_vmlinux
 
     @classmethod
     def load_from_yaml(cls, config, name, trees, fragments, b_envs, defaults):
@@ -391,7 +395,7 @@ class BuildConfig(YAMLConfigObject):
             'name': name,
         }
         kw.update(cls._kw_from_yaml(config, [
-            'name', 'tree', 'branch',
+            'name', 'tree', 'branch', 'install_vmlinux'
         ]))
         kw['tree'] = trees[kw['tree']]
         default_variants = defaults.get('variants', {})
@@ -428,6 +432,10 @@ class BuildConfig(YAMLConfigObject):
     @property
     def reference(self):
         return self._reference
+
+    @property
+    def install_vmlinux(self):
+        return self._install_vmlinux
 
     @classmethod
     def to_yaml(cls, dumper, data):

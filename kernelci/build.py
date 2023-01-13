@@ -19,6 +19,7 @@ from datetime import datetime
 import fnmatch
 import itertools
 import json
+import lzma as xz
 import os
 import platform
 import re
@@ -869,7 +870,7 @@ class Step:
         """
         raise NotImplementedError("Step.run() needs to be implemented.")
 
-    def install(self, verbose=False, status=True):
+    def install(self, verbose=False, status=True, configs=None):
         """Base method to install the build artifacts.
 
         The default behaviour is to install bmeta.json and steps.json in the
@@ -878,6 +879,7 @@ class Step:
 
         *verbose* is whether to show what is being installed
         *status* is True if install commands succeeded, False otherwise
+        *configs* a BuildConfigs object
         """
         self._add_run_step(status, action='install')
         files = [
@@ -1292,7 +1294,26 @@ class MakeKernel(Step):
             self._add_artifact('kernel', file_name, 'system_map')
             kbmeta['text_offset'] = '0x{:08x}'.format(text_offset)
 
-    def install(self, verbose=False):
+    def _install_vmlinux(self, kbmeta, verbose):
+        file_name = 'vmlinux'
+        vmlinux = os.path.join(self._output_path, file_name)
+        file_name_xz = 'vmlinux.xz'
+        vmlinux_xz = os.path.join(self._output_path, file_name_xz)
+        if os.path.exists(vmlinux):
+            if verbose:
+                print("Creating {}".format(file_name_xz))
+
+            data = open(vmlinux, 'rb').read()
+            zf = xz.open(vmlinux_xz, mode='wb',
+                         format=xz.FORMAT_XZ, preset=9)
+            zf.write(data)
+            zf.close()
+        if os.path.exists(vmlinux_xz):
+            item = self._install_file(vmlinux_xz, 'kernel', file_name_xz,
+                                      verbose)
+            self._add_artifact('kernel', file_name_xz, 'vmlinux.xz')
+
+    def install(self, verbose=False, configs=None):
         """Install the kernel image
 
         Install the Linux kernel image as well as System.map.
@@ -1304,10 +1325,15 @@ class MakeKernel(Step):
         kimages = self._find_kernel_images(image)
         res = bool(kimages)
 
+        tree = self._meta.get('bmeta', 'revision')['tree']
+        install_vmlinux = configs['build_configs'][tree].install_vmlinux
+
         if not res:
             print_flush("No kernel image found")
         else:
             self._install_system_map(kbmeta, verbose)
+            if install_vmlinux:
+                self._install_vmlinux(kbmeta, verbose)
             if image not in kimages:
                 image = sorted(kimages.keys())[0]
                 kbmeta['image'] = image

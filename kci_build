@@ -301,7 +301,7 @@ class MakeCommand(Command):
         opts = self._get_opts(args, configs)
         res = step.run(args.j, args.verbose, opts)
         if args.install:
-            install_res = self._install_step(step, args)
+            install_res = self._install_step(step, configs, args)
             res = res and install_res
         return res
 
@@ -313,8 +313,8 @@ class MakeCommand(Command):
     def _get_opts(self, args, configs):
         return dict()
 
-    def _install_step(self, step, args):
-        return step.install(args.verbose)
+    def _install_step(self, step, configs, args):
+        return step.install(args.verbose, configs)
 
 
 class cmd_make_config(MakeCommand):
@@ -343,7 +343,7 @@ class cmd_make_modules(MakeCommand):
     help = "Build kernel modules"
     step_cls = kernelci.build.MakeModules
 
-    def _install_step(self, step, args):
+    def _install_step(self, step, configs, args):
         return step.install(args.verbose, args.j)
 
 
