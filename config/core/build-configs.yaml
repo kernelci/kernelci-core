@@ -1026,6 +1026,13 @@ build_configs:
             base_defconfig: 'defconfig'
             extra_configs:
               - 'defconfig+CONFIG_SMP=n'
+      clang-15:
+        build_environment: clang-15
+        architectures:
+          riscv:
+            base_defconfig: 'defconfig'
+            extra_configs:
+              - 'defconfig+CONFIG_SMP=n'
 
   riscv_for-next:
     <<: *riscv-tree
