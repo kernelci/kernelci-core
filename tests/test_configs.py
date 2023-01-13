@@ -96,6 +96,16 @@ class ConfigTest(unittest.TestCase):
         assert all(name in frag_config for name in frag_names)
         assert frag_config['debug']['path'] == 'kernel/configs/debug.config'
 
+    def test_build_environments(self):
+        ref_data, config = self._load_config(
+            'tests/configs/build-environments.yaml'
+        )
+        be_config = self._reload(ref_data, config, 'build_environments')
+        be_names = ['gcc-10', 'clang-11', 'clang-15', 'rustc-1.62']
+        assert all(name in ref_data['build_environments'] for name in be_names)
+        assert all(name in be_config for name in be_names)
+        assert be_config['clang-15']['cc_version'] == '15'
+
     def test_file_system_types(self):
         ref_data, config = self._load_config(
             'tests/configs/file-system-types.yaml'
