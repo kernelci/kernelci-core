@@ -22,6 +22,22 @@ rootfs_configs:
     arch_list:
       - amd64
 
+  chromiumos-asurada:
+    rootfs_type: chromiumos
+    board: asurada
+    branch: release-R106-15054.B
+    serial: ttyS0
+    arch_list:
+      - arm64
+
+  chromiumos-cherry:
+    rootfs_type: chromiumos
+    board: cherry
+    branch: release-R106-15054.B
+    serial: ttyS0
+    arch_list:
+      - arm64
+
   chromiumos-coral:
     rootfs_type: chromiumos
     board: coral
@@ -38,6 +54,14 @@ rootfs_configs:
     arch_list:
       - amd64
 
+  chromiumos-geralt:
+    rootfs_type: chromiumos
+    board: geralt
+    branch: release-R106-15054.B
+    serial: ttyS0
+    arch_list:
+      - arm64
+
   chromiumos-grunt:
     rootfs_type: chromiumos
     board: grunt
@@ -53,6 +77,14 @@ rootfs_configs:
     serial: ttyS0
     arch_list:
       - amd64
+
+  chromiumos-jacuzzi:
+    rootfs_type: chromiumos
+    board: jacuzzi
+    branch: release-R106-15054.B
+    serial: ttyS0
+    arch_list:
+      - arm64
 
   chromiumos-nami:
     rootfs_type: chromiumos
