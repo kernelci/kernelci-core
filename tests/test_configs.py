@@ -75,6 +75,9 @@ class TestConfigs:
         assert ref_data[name] == loaded
         return loaded
 
+
+class TestBuildConfigs(TestConfigs):
+
     def test_trees(self):
         # ToDo: use relative path to test module 'configs/trees.yaml'
         ref_data, config = self._load_config('tests/configs/trees.yaml')
@@ -126,6 +129,17 @@ class TestConfigs:
         reference_dump = yaml.dump(reference_config)
         reference_check = yaml.safe_load(reference_dump)
         assert reference == reference_check
+
+    def test_build_configs(self):
+        ref_data, config = self._load_config('tests/configs/builds.yaml')
+        build_configs = self._reload(ref_data, config, 'build_configs')
+        config_names = ['arm64', 'mainline']
+        assert all(name in ref_data['build_configs'] for name in config_names)
+        assert all(name in build_configs for name in config_names)
+        assert build_configs['mainline']['tree'] == 'mainline'
+
+
+class TestTestConfigs(TestConfigs):
 
     def test_file_system_types(self):
         ref_data, config = self._load_config(
