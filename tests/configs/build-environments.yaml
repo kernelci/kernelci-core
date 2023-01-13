@@ -1,0 +1,61 @@
+build_environments:
+
+  gcc-10:
+    cc: 'gcc'
+    cc_version: '10'
+    arch_params:
+      arc:
+        cross_compile: 'arc-elf32-'
+      arm:
+        cross_compile: 'arm-linux-gnueabihf-'
+      arm64:
+        cross_compile: 'aarch64-linux-gnu-'
+        cross_compile_compat: 'arm-linux-gnueabihf-'
+      i386:
+        name: 'x86'
+      mips:
+        cross_compile: 'mips-linux-gnu-'
+      sparc:
+        cross_compile: 'sparc64-linux-gnu-'
+      x86_64:
+        name: 'x86'
+      riscv:
+        name: 'riscv64'
+        cross_compile: 'riscv64-linux-gnu-'
+
+  clang-11:
+    cc: 'clang'
+    cc_version: '11'
+    arch_params: &clang_11_arch_params
+      arm:
+        cross_compile: 'arm-linux-gnueabihf-'
+        name:
+      arm64:
+        cross_compile: 'aarch64-linux-gnu-'
+        cross_compile_compat: 'arm-linux-gnueabihf-'
+        name:
+      i386:
+        name:
+      mips:
+        cross_compile: 'mips-linux-gnu-'
+        name:
+      x86_64:
+        name:
+
+  clang-12:
+    cc: clang
+    cc_version: '12'
+    arch_params:
+      <<: *clang_11_arch_params
+      riscv:
+        name:
+        opts:
+          LLVM_IAS: '1'
+          LD: 'riscv64-linux-gnu-ld'
+
+  rustc-1.62:
+    cc: 'clang'
+    cc_version: '15'
+    arch_params:
+      x86_64:
+        name:
