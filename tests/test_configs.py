@@ -106,6 +106,20 @@ class ConfigTest(unittest.TestCase):
         assert all(name in be_config for name in be_names)
         assert be_config['clang-15']['cc_version'] == '15'
 
+    def test_reference_tree(self):
+        ref_data, config = self._load_config('tests/configs/builds.yaml')
+        assert 'build_configs' in ref_data
+        build_configs = ref_data['build_configs']
+        assert 'arm64' in build_configs
+        arm64 = build_configs['arm64']
+        assert 'reference' in arm64
+        reference = arm64['reference']
+        reference_config = config['build_configs']['arm64'].reference
+        assert reference_config.tree.name == 'mainline'
+        reference_dump = yaml.dump(reference_config)
+        reference_check = yaml.safe_load(reference_dump)
+        assert reference == reference_check
+
     def test_file_system_types(self):
         ref_data, config = self._load_config(
             'tests/configs/file-system-types.yaml'

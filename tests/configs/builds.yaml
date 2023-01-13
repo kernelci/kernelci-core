@@ -1,0 +1,39 @@
+trees:
+
+  arm64:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/arm64/linux.git"
+
+  mainline:
+    url: 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git'
+
+
+build_environments:
+
+  gcc-10:
+    cc: gcc
+    cc_version: 10
+    arch_params:
+      arm64:
+        cross_compile: 'aarch64-linux-gnu-'
+        cross_compile_compat: 'arm-linux-gnueabihf-'
+      x86_64:
+        name: 'x86'
+
+
+build_configs:
+
+  arm64:
+    tree: arm64
+    branch: 'for-kernelci'
+    reference:
+      tree: mainline
+      branch: 'master'
+    variants:
+      gcc-10:
+        build_environment: gcc-10
+        architectures:
+          arm64:
+            base_defconfig: 'defconfig'
+            extra_configs:
+              - 'allmodconfig'
+              - 'allnoconfig'
