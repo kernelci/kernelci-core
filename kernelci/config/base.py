@@ -17,6 +17,7 @@
 
 import re
 import yaml
+import copy
 
 
 # -----------------------------------------------------------------------------
@@ -222,7 +223,13 @@ class FilterFactory(YAMLObject):
                         break
                 else:
                     filter_cls = cls._classes[filter_type]
-                    filter_instance = filter_cls(items)
+                    # We need to provide the new filter with its own
+                    # item arrays, so that we don't accidentally
+                    # corrupt the initial dictionary we were
+                    # passed. That can cause bleed-through, where our
+                    # filter terms start being applied in other places
+                    # unexpectedly.
+                    filter_instance = filter_cls(copy.deepcopy(items))
                     filters.setdefault(filter_type, list()).append(
                         filter_instance)
                     filter_list.append(filter_instance)
