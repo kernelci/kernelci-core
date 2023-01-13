@@ -95,6 +95,24 @@ class TestConfigs:
         assert all(name in frag_config for name in frag_names)
         assert frag_config['debug']['path'] == 'kernel/configs/debug.config'
 
+    def test_build_environments(self):
+        ref_data, config = self._load_config(
+            'tests/configs/build-environments.yaml'
+        )
+        be_config = self._reload(ref_data, config, 'build_environments')
+        be_names = ['gcc-10', 'clang-11', 'clang-12', 'rustc-1.62']
+        assert all(name in ref_data['build_environments'] for name in be_names)
+        assert all(name in be_config for name in be_names)
+        assert be_config['clang-12']['cc_version'] == '12'
+        clang12 = config['build_environments']['clang-12']
+        assert (
+            clang12.get_cross_compile_compat('arm64') ==
+            'arm-linux-gnueabihf-'
+        )
+        assert (
+            clang12.get_arch_opts('riscv')['LLVM_IAS'] == '1'
+        )
+
     def test_file_system_types(self):
         ref_data, config = self._load_config(
             'tests/configs/file-system-types.yaml'
