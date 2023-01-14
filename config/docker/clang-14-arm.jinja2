@@ -1,0 +1,13 @@
+{%- set sub_arch = 'armhf' %}
+{% extends 'clang-14.jinja2' %}
+
+{% block packages %}
+{{ super() }}
+
+RUN dpkg --add-architecture armhf
+
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    libgcc-10-dev:armhf
+
+{%- endblock %}
+
