@@ -54,6 +54,23 @@ file_systems:
     ramdisk: bullseye-libcamera/20230114.0/{arch}/initrd.cpio.gz
     root_type: nfs
     type: debian
+  debian_bullseye-libhugetlbfs_nfs:
+    boot_protocol: tftp
+    nfs: bullseye-libhugetlbfs/20230116.1/{arch}/full.rootfs.tar.xz
+    params:
+      os_config: debian
+    prompt: '/ #'
+    ramdisk: bullseye-libhugetlbfs/20230116.1/{arch}/initrd.cpio.gz
+    root_type: nfs
+    type: debian
+  debian_bullseye-libhugetlbfs_ramdisk:
+    boot_protocol: ramdisk
+    params:
+      os_config: debian
+    prompt: '/ #'
+    ramdisk: bullseye-libhugetlbfs/20230116.1/{arch}/rootfs.cpio.gz
+    root_type: ramdisk
+    type: debian
   debian_bullseye-ltp_nfs:
     boot_protocol: tftp
     nfs: bullseye-ltp/20230114.0/{arch}/full.rootfs.tar.xz
