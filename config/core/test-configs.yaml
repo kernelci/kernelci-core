@@ -2350,6 +2350,7 @@ test_configs:
       - ltp-io
       - ltp-ipc
       - ltp-smoketest
+      - ltp-syscalls
       - preempt-rt
       - vdso
 
