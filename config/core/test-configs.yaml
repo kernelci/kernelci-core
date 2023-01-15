@@ -3106,6 +3106,7 @@ test_configs:
       - kselftest-rseq
       - kselftest-seccomp
       - kselftest-timers
+      - libhugetlbfs
       - ltp-crypto
       - preempt-rt
 
