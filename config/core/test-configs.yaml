@@ -2805,6 +2805,7 @@ test_configs:
       - ltp-ipc
       # ltp-mm - Runs board out of memory
       - ltp-pty
+      - ltp-syscalls
       - ltp-timers
 
   - device_type: meson-gxm-khadas-vim2
