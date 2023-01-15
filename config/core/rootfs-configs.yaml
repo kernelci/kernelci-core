@@ -219,8 +219,10 @@ rootfs_configs:
       - arm64
       - armhf
     extra_packages:
+      - dosfstools
       - gdb-minimal
       - libnuma-dev
+      - ntfs-3g
     script: "scripts/bullseye-ltp.sh"
 
   bullseye-rt:
