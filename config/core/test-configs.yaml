@@ -441,6 +441,18 @@ test_plans:
       job_timeout: '15'
       skipfile: skipfile-lkft.yaml
 
+  ltp-cap-bounds:
+    <<: *ltp
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "cap_bounds"
+
+  ltp-cpuhotplug:
+    <<: *ltp
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "cpuhotplug"
+
   ltp-crypto:
     <<: *ltp
     params:
@@ -451,11 +463,35 @@ test_plans:
           defconfig:
             - '+crypto'
 
+  ltp-dio:
+    <<: *ltp
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "dio"
+
   ltp-fcntl-locktests:
     <<: *ltp
     params:
       <<: *ltp-params
       tst_cmdfiles: "fcntl-locktests"
+
+  ltp-filecaps:
+    <<: *ltp
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "filecaps"
+
+  ltp-fsx:
+    <<: *ltp
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "fsx"
+
+  ltp-hugetlb:
+    <<: *ltp
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "hugetlb"
 
   ltp-ima:
     <<: *ltp
@@ -466,6 +502,13 @@ test_plans:
       - passlist:
           defconfig:
             - '+ima'
+
+  ltp-io:
+    <<: *ltp
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "io"
+
   ltp-ipc:
     <<: *ltp
     params:
@@ -486,6 +529,18 @@ test_plans:
       tst_cmdfiles: "pty"
       job_timeout: '25'
       priority: 0
+
+  ltp-sched:
+    <<: *ltp
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "sched"
+
+  ltp-smoketest:
+    <<: *ltp
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "smoketest"
 
   ltp-syscalls:
     <<: *ltp
