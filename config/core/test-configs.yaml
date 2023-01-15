@@ -3170,7 +3170,14 @@ test_configs:
       - kselftest-seccomp
       - kselftest-timers
       - libhugetlbfs
+      - ltp-cpuhotplug
       - ltp-crypto
+      - ltp-dio
+      - ltp-fsx
+      - ltp-hugetlb
+      - ltp-io
+      - ltp-sched
+      - ltp-smoketest
       - preempt-rt
 
   - device_type: sun50i-h5-nanopi-neo-plus2
