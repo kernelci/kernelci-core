@@ -424,6 +424,12 @@ test_plans:
     params:
       job_timeout: '45'
 
+  libhugetlbfs:
+    rootfs: debian_bullseye-libhugetlbfs_nfs
+    pattern: 'libhugetlbfs/{category}-{method}-{protocol}-{rootfs}-libhugetlbfs-template.jinja2'
+    params:
+      job_timeout: '20'
+
   ltp: &ltp
     rootfs: debian_bullseye-ltp_nfs
     pattern: 'ltp/{category}-{method}-{protocol}-{rootfs}-ltp-template.jinja2'
