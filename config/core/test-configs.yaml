@@ -487,6 +487,14 @@ test_plans:
       job_timeout: '25'
       priority: 0
 
+  ltp-syscalls:
+    <<: *ltp
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "syscalls"
+      job_timeout: '120'
+      priority: 0
+
   ltp-timers:
     <<: *ltp
     pattern: 'ltp/{category}-{method}-{protocol}-{rootfs}-ltp-open-posix-template.jinja2'
