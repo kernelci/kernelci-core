@@ -2285,7 +2285,11 @@ test_configs:
       - kselftest-seccomp
       - kselftest-timers
       - ltp-crypto
+      - ltp-dio
+      - ltp-fsx
+      - ltp-io
       - ltp-ipc
+      - ltp-smoketest
       - preempt-rt
 
   - device_type: cubietruck
