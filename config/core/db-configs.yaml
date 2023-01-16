@@ -19,6 +19,12 @@ db_configs:
 
 storage_configs:
 
+  chromeos.kernelci.org:
+    storage_type: backend
+    host: chromeos.kernelci.org
+    base_url: http://storage.chromeos.kernelci.org/
+    api_url: https://api.chromeos.kernelci.org
+
   kernelci.org:
     storage_type: backend
     host: kernelci.org
