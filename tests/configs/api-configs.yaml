@@ -1,0 +1,4 @@
+api_configs:
+
+  docker-host:
+    url: http://172.17.0.1:8001
