@@ -1,27 +1,19 @@
-# Copyright (C) 2022 Collabora Limited
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Copyright (C) 2022, 2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
-#
-# This module is free software; you can redistribute it and/or modify it under
-# the terms of the GNU Lesser General Public License as published by the Free
-# Software Foundation; either version 2.1 of the License, or (at your option)
-# any later version.
-#
-# This library is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
-# details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with this library; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-import os
-import requests
+# Needed to use open() in dictionary comprehension
+# pylint: disable=consider-using-with
+
+"""KernelCI storage implementation for kernelci-backend"""
+
 from urllib.parse import urljoin
+import requests
 from . import Storage
 
 
-class Storage_backend(Storage):
+class StorageBackend(Storage):
     """Storage implementation for kernelci-backend
 
     This class implements the Storage interface for the kernelci-backend API.
@@ -46,4 +38,4 @@ class Storage_backend(Storage):
 
 def get_storage(config, credentials):
     """Get a Storage_backend object"""
-    return Storage_backend(config, credentials)
+    return StorageBackend(config, credentials)
