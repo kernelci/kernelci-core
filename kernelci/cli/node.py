@@ -9,10 +9,25 @@ from kernelci.db import kernelci_api
 from .base import Args, Command, sub_main
 
 
-class cmd_get(Command):  # pylint: disable=invalid-name
-    """Get a node with a given ID"""
+class NodeCommand(Command):  # pylint: disable=too-few-public-methods
+    """Base command class for interacting with the KernelCI API"""
     args = [
         Args.api_config, Args.api_token,
+    ]
+    opt_args = []
+
+    @classmethod
+    def _get_api(cls, configs, args):
+        config = configs['api_configs'][args.api_config]
+        return kernelci_api.KernelCI_API(config, args.api_token)
+
+    def __call__(self, configs, args):
+        pass
+
+
+class cmd_get(NodeCommand):  # pylint: disable=invalid-name
+    """Get a node with a given ID"""
+    args = NodeCommand.args + [
         {
             'name': 'id',
             'help': "Node id",
@@ -20,24 +35,22 @@ class cmd_get(Command):  # pylint: disable=invalid-name
     ]
 
     def __call__(self, configs, args):
-        config = configs['api_configs'][args.api_config]
-        api = kernelci_api.KernelCI_API(config, args.api_token)
+        api = self._get_api(configs, args)
         node = api.get_node(args.id)
         print(node)
         return True
 
 
-class cmd_find(Command):  # pylint: disable=invalid-name
+class cmd_find(NodeCommand):  # pylint: disable=invalid-name
     """Find nodes with arbitrary parameters"""
-    args = [
-        Args.api_config, Args.api_token,
+    args = NodeCommand.args + [
         {
             'name': 'params',
             'nargs': '+',
             'help': "Parameters to find nodes in param=value format",
         },
     ]
-    opt_args = [
+    opt_args = NodeCommand.opt_args + [
         {
             'name': '--limit',
             'type': int,
@@ -51,8 +64,7 @@ class cmd_find(Command):  # pylint: disable=invalid-name
     ]
 
     def __call__(self, configs, args):
-        config = configs['api_configs'][args.api_config]
-        api = kernelci_api.KernelCI_API(config, args.api_token)
+        api = self._get_api(configs, args)
         params = dict(
             tuple(param.split('=')) for param in args.params
         )
