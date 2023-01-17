@@ -52,6 +52,7 @@ jobs:
         run: |
           pylint kci
           pylint kernelci.cli
+          pylint kernelci.storage
 
       - name: Run YAML config validation
         run: |
