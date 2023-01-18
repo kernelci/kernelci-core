@@ -115,6 +115,23 @@ file_systems:
     ramdisk: bullseye/20230203.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
     type: debian
+  debian_bullseye-vdso_nfs:
+    boot_protocol: tftp
+    nfs: bullseye-vdso/20230116.1/{arch}/full.rootfs.tar.xz
+    params:
+      os_config: debian
+    prompt: '/ #'
+    ramdisk: bullseye-vdso/20230116.1/{arch}/initrd.cpio.gz
+    root_type: nfs
+    type: debian
+  debian_bullseye-vdso_ramdisk:
+    boot_protocol: ramdisk
+    params:
+      os_config: debian
+    prompt: '/ #'
+    ramdisk: bullseye-vdso/20230116.1/{arch}/rootfs.cpio.gz
+    root_type: ramdisk
+    type: debian
   debian_sid-kselftest_nfs:
     boot_protocol: tftp
     nfs: sid-kselftest/20230127.0/{arch}/full.rootfs.tar.xz
