@@ -667,6 +667,12 @@ test_plans:
     filters:
       - regex: {'tree': '(next|mainline|media)'}
 
+  vdso:
+    rootfs: debian_bullseye-vdso_nfs
+    pattern: 'vdso/{category}-{method}-{protocol}-{rootfs}-vdso-template.jinja2'
+    params:
+      job_timeout: '20'
+
 device_types:
 
   acer-R721T-grunt:
