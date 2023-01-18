@@ -31,6 +31,23 @@ class NodeCommand(Command):  # pylint: disable=too-few-public-methods
         pass
 
 
+class NodeParamsCommand(NodeCommand):
+    """Base command class for node queries with arbitrary parameters"""
+    args = NodeCommand.args + [
+        {
+            'name': 'params',
+            'nargs': '+',
+            'help': "Parameters to find nodes in param=value format",
+        },
+    ]
+
+    @classmethod
+    def _split_params(cls, params):
+        return dict(
+            tuple(param.split('=')) for param in params
+        )
+
+
 class cmd_get(NodeCommand):  # pylint: disable=invalid-name
     """Get a node with a given ID"""
     args = NodeCommand.args + [
@@ -47,16 +64,9 @@ class cmd_get(NodeCommand):  # pylint: disable=invalid-name
         return True
 
 
-class cmd_find(NodeCommand):  # pylint: disable=invalid-name
+class cmd_find(NodeParamsCommand):  # pylint: disable=invalid-name
     """Find nodes with arbitrary parameters"""
-    args = NodeCommand.args + [
-        {
-            'name': 'params',
-            'nargs': '+',
-            'help': "Parameters to find nodes in param=value format",
-        },
-    ]
-    opt_args = NodeCommand.opt_args + [
+    opt_args = NodeParamsCommand.opt_args + [
         {
             'name': '--limit',
             'type': int,
@@ -71,11 +81,21 @@ class cmd_find(NodeCommand):  # pylint: disable=invalid-name
 
     def __call__(self, configs, args):
         api = self._get_api(configs, args)
-        params = dict(
-            tuple(param.split('=')) for param in args.params
-        )
+        params = self._split_params(args.params)
         nodes = api.get_nodes(params, args.offset, args.limit)
         print(json.dumps(nodes, indent=args.indent))
+        return True
+
+
+class cmd_count(NodeParamsCommand):  # pylint: disable=invalid-name
+    """Count nodes with arbitrary parameters"""
+    opt_args = None
+
+    def __call__(self, configs, args):
+        api = self._get_api(configs, args)
+        params = self._split_params(args.params)
+        count = api.count_nodes(params)
+        print(count)
         return True
 
 
