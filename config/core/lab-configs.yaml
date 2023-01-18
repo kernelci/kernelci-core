@@ -7,7 +7,10 @@ labs:
     queue_timeout:
       days: 1
     filters:
-      - blocklist: {tree: [drm-tip]}
+      - blocklist:
+          tree:
+            - drm-tip
+            - android
       - passlist:
           plan:
             - baseline
