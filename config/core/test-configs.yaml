@@ -2347,6 +2347,7 @@ test_configs:
       - ltp-ipc
       - ltp-smoketest
       - preempt-rt
+      - vdso
 
   - device_type: cubietruck
     test_plans:
