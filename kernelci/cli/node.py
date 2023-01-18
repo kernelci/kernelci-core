@@ -32,6 +32,23 @@ class NodeCommand(Command):  # pylint: disable=too-few-public-methods
         pass
 
 
+class NodeAttributesCommand(NodeCommand):
+    """Base command class for node queries with arbitrary attributes"""
+    args = NodeCommand.args + [
+        {
+            'name': 'attributes',
+            'nargs': '+',
+            'help': "Attributes to find nodes in name=value format",
+        },
+    ]
+
+    @classmethod
+    def _split_attributes(cls, attributes):
+        return dict(
+            tuple(attr.split('=')) for attr in attributes
+        )
+
+
 class cmd_get(NodeCommand):  # pylint: disable=invalid-name
     """Get a node with a given ID"""
     args = NodeCommand.args + [
@@ -48,16 +65,9 @@ class cmd_get(NodeCommand):  # pylint: disable=invalid-name
         return True
 
 
-class cmd_find(NodeCommand):  # pylint: disable=invalid-name
-    """Find nodes with arbitrary parameters"""
-    args = NodeCommand.args + [
-        {
-            'name': 'params',
-            'nargs': '+',
-            'help': "Parameters to find nodes in param=value format",
-        },
-    ]
-    opt_args = NodeCommand.opt_args + [
+class cmd_find(NodeAttributesCommand):  # pylint: disable=invalid-name
+    """Find nodes with arbitrary attributes"""
+    opt_args = NodeAttributesCommand.opt_args + [
         {
             'name': '--limit',
             'type': int,
@@ -72,11 +82,21 @@ class cmd_find(NodeCommand):  # pylint: disable=invalid-name
 
     def __call__(self, configs, args):
         api = self._get_api(configs, args)
-        params = dict(
-            tuple(param.split('=')) for param in args.params
-        )
-        nodes = api.get_nodes(params, args.offset, args.limit)
+        attributes = self._split_attributes(args.attributes)
+        nodes = api.get_nodes(attributes, args.offset, args.limit)
         print(json.dumps(nodes, indent=args.indent))
+        return True
+
+
+class cmd_count(NodeAttributesCommand):  # pylint: disable=invalid-name
+    """Count nodes with arbitrary attributes"""
+    opt_args = None
+
+    def __call__(self, configs, args):
+        api = self._get_api(configs, args)
+        attributes = self._split_attributes(args.attributes)
+        count = api.count_nodes(attributes)
+        print(count)
         return True
 
 
