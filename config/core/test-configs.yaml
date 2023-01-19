@@ -2883,6 +2883,7 @@ test_configs:
       - kselftest-kvm
       - kselftest-lib
       - kselftest-seccomp
+      - kvm-unit-tests
       - ltp-crypto
       - ltp-fcntl-locktests
       - ltp-ipc
