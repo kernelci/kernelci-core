@@ -43,6 +43,22 @@ rootfs_configs:
       - xz-utils
     script: "scripts/bookworm-kselftest.sh"
 
+  bookworm-kvm-unit-tests:
+    rootfs_type: debos
+    debian_release: bookworm
+    arch_list:
+      - amd64
+      - arm64
+    extra_packages:
+      - python3-minimal
+      - qemu-system
+    extra_packages_remove:
+      - bash
+      - e2fslibs
+      - e2fsprogs
+    debos_scratchsize: "10G"
+    script: "scripts/bookworm-kvm-unit-tests.sh"
+
   buildroot-baseline:
     rootfs_type: buildroot
     git_url: https://github.com/kernelci/buildroot
