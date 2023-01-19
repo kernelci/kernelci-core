@@ -5,6 +5,8 @@
 
 """Tool to manage KernelCI API node objects"""
 
+import json
+
 from kernelci.db import kernelci_api
 from .base import Args, Command, sub_main
 
@@ -14,7 +16,12 @@ class NodeCommand(Command):  # pylint: disable=too-few-public-methods
     args = [
         Args.api_config, Args.api_token,
     ]
-    opt_args = []
+    opt_args = [
+        {
+            'name': '--indent',
+            'help': "Indentation string in JSON output",
+        },
+    ]
 
     @classmethod
     def _get_api(cls, configs, args):
@@ -37,7 +44,7 @@ class cmd_get(NodeCommand):  # pylint: disable=invalid-name
     def __call__(self, configs, args):
         api = self._get_api(configs, args)
         node = api.get_node(args.id)
-        print(node)
+        print(json.dumps(node, indent=args.indent))
         return True
 
 
@@ -69,7 +76,7 @@ class cmd_find(NodeCommand):  # pylint: disable=invalid-name
             tuple(param.split('=')) for param in args.params
         )
         nodes = api.get_nodes(params, args.offset, args.limit)
-        print(nodes)
+        print(json.dumps(nodes, indent=args.indent))
         return True
 
 
