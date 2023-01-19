@@ -1698,6 +1698,23 @@ device_types:
       - blocklist: *device_config_filter
       - regex: {defconfig: '^defconfig'}
 
+  qemu_smp8_riscv64:
+    base_name: qemu
+    mach: qemu
+    arch: riscv
+    boot_method: qemu
+    context:
+      arch: riscv64
+      cpu: 'rv64'
+      guestfs_interface: 'virtio'
+      machine: 'virt'
+      no_kvm: True
+      memory: 1024
+      extra_options: ['-bios default -device virtio-net,netdev=main -netdev user,id=main -smp 8']
+    filters:
+      - blocklist: *device_config_filter
+      - regex: {defconfig: '^defconfig'}
+
   qemu_x86_64: &qemu_x86_64
     base_name: qemu
     mach: qemu
@@ -2928,7 +2945,7 @@ test_configs:
       - baseline_qemu
 
   - device_type: qemu_riscv64
-    test_plans:
+    test_plans: &qemu_riscv64_test-plans
       - baseline_qemu
       - kselftest-cgroup_riscv_qemu
       - kselftest-filesystems_riscv_qemu
@@ -2941,6 +2958,9 @@ test_configs:
       - ltp-ipc_riscv_qemu
       - ltp-pty_riscv_qemu
       - ltp-timers_riscv_qemu
+
+  - device_type: qemu_smp8_riscv64
+    test_plans: *qemu_riscv64_test-plans
 
   - device_type: qemu_x86_64
     test_plans:
