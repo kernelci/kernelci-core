@@ -2546,6 +2546,7 @@ test_configs:
       - kselftest-alsa
       - kselftest-arm64
       - kselftest-dt
+      - kvm-unit-tests
       - ltp-dio
       - ltp-fsx
       - ltp-smoketest
@@ -3106,6 +3107,7 @@ test_configs:
       - kselftest-kvm
       - kselftest-lib
       - kselftest-seccomp
+      - kvm-unit-tests
       - ltp-crypto
       - ltp-fcntl-locktests
       - ltp-ipc
