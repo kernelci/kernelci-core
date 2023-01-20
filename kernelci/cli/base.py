@@ -281,11 +281,6 @@ class Args:  # pylint: disable=too-few-public-methods
         'choices': ('debos', 'buildroot', 'chromiumos')
     }
 
-    storage = {
-        'name': '--storage',
-        'help': "Storage URL",
-    }
-
     storage_config = {
         'name': '--storage-config',
         'help': "Storage configuration name",
