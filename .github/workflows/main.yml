@@ -51,10 +51,11 @@ jobs:
 
       - name: Run pylint
         run: |
-          pylint kci
-          pylint kernelci.cli
-          pylint kernelci.config.api
-          pylint kernelci.storage
+          pylint --reports=y \
+            kci \
+            kernelci.cli \
+            kernelci.config.api \
+            kernelci.storage
 
       - name: Run YAML config validation
         run: |
