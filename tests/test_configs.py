@@ -76,6 +76,9 @@ class ConfigTest(unittest.TestCase):
         assert ref_data[name] == loaded
         return loaded
 
+
+class BuildConfigTest(ConfigTest):
+
     def test_trees(self):
         # ToDo: use relative path to test module 'configs/trees.yaml'
         ref_data, config = self._load_config('tests/configs/trees.yaml')
@@ -87,6 +90,49 @@ class ConfigTest(unittest.TestCase):
             trees_config['next']['url'] ==
             'https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git'  # noqa
         )
+
+    def test_fragments(self):
+        ref_data, config = self._load_config('tests/configs/fragments.yaml')
+        frag_config = self._reload(ref_data, config, 'fragments')
+        frag_names = ['debug', 'ima', 'x86-chromebook', 'x86_kvm_guest']
+        assert all(name in ref_data['fragments'] for name in frag_names)
+        assert all(name in frag_config for name in frag_names)
+        assert frag_config['debug']['path'] == 'kernel/configs/debug.config'
+
+    def test_build_environments(self):
+        ref_data, config = self._load_config(
+            'tests/configs/build-environments.yaml'
+        )
+        be_config = self._reload(ref_data, config, 'build_environments')
+        be_names = ['gcc-10', 'clang-11', 'clang-15', 'rustc-1.62']
+        assert all(name in ref_data['build_environments'] for name in be_names)
+        assert all(name in be_config for name in be_names)
+        assert be_config['clang-15']['cc_version'] == '15'
+
+    def test_reference_tree(self):
+        ref_data, config = self._load_config('tests/configs/builds.yaml')
+        assert 'build_configs' in ref_data
+        build_configs = ref_data['build_configs']
+        assert 'arm64' in build_configs
+        arm64 = build_configs['arm64']
+        assert 'reference' in arm64
+        reference = arm64['reference']
+        reference_config = config['build_configs']['arm64'].reference
+        assert reference_config.tree.name == 'mainline'
+        reference_dump = yaml.dump(reference_config)
+        reference_check = yaml.safe_load(reference_dump)
+        assert reference == reference_check
+
+    def test_build_configs(self):
+        ref_data, config = self._load_config('tests/configs/builds.yaml')
+        build_configs = self._reload(ref_data, config, 'build_configs')
+        config_names = ['arm64', 'mainline']
+        assert all(name in ref_data['build_configs'] for name in config_names)
+        assert all(name in build_configs for name in config_names)
+        assert build_configs['mainline']['tree'] == 'mainline'
+
+
+class TestConfigTest(ConfigTest):
 
     def test_file_system_types(self):
         ref_data, config = self._load_config(
