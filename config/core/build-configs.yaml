@@ -142,6 +142,13 @@ trees:
 
 fragments:
 
+  # from roxell, to build an allmodconfig kernel that boots on arm64
+  allmodconfig-arm64-boot:
+    path: "kernel/configs/allmodconfig-fixup.config"
+    configs:
+      - '# CONFIG_PROVE_RAW_LOCK_NESTING is not set'
+      - '# CONFIG_RCU_STRICT_GRACE_PERIOD is not set'
+
   amdgpu:
     path: "kernel/configs/amdgpu.config"
     configs:
@@ -1087,7 +1094,7 @@ build_configs:
           arm64:
             <<: *arm64_arch
             extra_configs:
-              - 'allmodconfig'
+              - 'allmodconfig+KCONFIG_ALLCONFIG=arch/arm64/configs/defconfig'
               - 'allnoconfig'
               - 'defconfig+CONFIG_ARM64_16K_PAGES=y'
               - 'defconfig+CONFIG_ARM64_64K_PAGES=y'
