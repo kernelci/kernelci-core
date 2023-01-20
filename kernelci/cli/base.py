@@ -10,6 +10,7 @@ can't be defined in __init__.py as it would create a circular dependency due to
 the commands registration mechanism.
 """
 
+import abc
 import argparse
 import configparser
 import os.path
@@ -357,7 +358,7 @@ class Args:  # pylint: disable=too-few-public-methods
     }
 
 
-class Command:
+class Command(abc.ABC):
     """A command helper class.
 
     It contains several class attributes:
@@ -399,13 +400,13 @@ class Command:
                     for arg in arg_list
                 })
 
+    @abc.abstractmethod
     def __call__(self, configs, args):
         """Call the command
 
         *configs* is a dictionary with configuration objects parsed from YAML
         *args* is the parsed command line arguments
         """
-        raise NotImplementedError("Command not implemented")
 
     def _add_arg(self, arg):
         kwargs = arg.copy()
