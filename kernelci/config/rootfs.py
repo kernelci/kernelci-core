@@ -27,10 +27,6 @@ class RootFS(YAMLObject):
         self._name = name
         self._rootfs_type = rootfs_type
 
-    @classmethod
-    def from_yaml(cls, rootfs, kw):
-        return cls(**kw)
-
     @property
     def name(self):
         return self._name
@@ -38,6 +34,12 @@ class RootFS(YAMLObject):
     @property
     def rootfs_type(self):
         return self._rootfs_type
+
+    @classmethod
+    def _get_yaml_attributes(cls):
+        attrs = super()._get_yaml_attributes()
+        attrs.update({'rootfs_type'})
+        return attrs
 
 
 class RootFS_Debos(RootFS):
@@ -140,6 +142,26 @@ class RootFS_Debos(RootFS):
     def keyring_file(self):
         return self._keyring_file
 
+    @classmethod
+    def _get_yaml_attributes(cls):
+        attrs = super()._get_yaml_attributes()
+        attrs.update({
+            'debian_release',
+            'arch_list',
+            'debian_mirror',
+            'keyring_package',
+            'keyring_file',
+            'extra_packages',
+            'extra_packages_remove',
+            'extra_files_remove',
+            'extra_firmware',
+            'linux_fw_version',
+            'script',
+            'test_overlay',
+            'crush_image_options',
+        })
+        return attrs
+
 
 class RootFS_Buildroot(RootFS):
     def __init__(self, name, rootfs_type, git_url, git_branch,
@@ -150,18 +172,6 @@ class RootFS_Buildroot(RootFS):
         self._arch_list = arch_list or list()
         self._frags = frags or list()
         self._attrs = set()
-
-    @classmethod
-    def from_yaml(cls, config, name):
-        kw = {
-            'name': name,
-        }
-        kw.update(cls._kw_from_yaml(config, [
-            'rootfs_type', 'arch_list', 'git_url', 'git_branch', 'frags',
-        ]))
-        obj = cls(**kw)
-        obj._set_attrs(kw.keys())
-        return obj
 
     @property
     def git_url(self):
@@ -182,9 +192,15 @@ class RootFS_Buildroot(RootFS):
     def _set_attrs(self, attrs):
         self._attrs = set(attrs)
 
-    def _get_attrs(self):
-        attrs = super()._get_attrs()
-        attrs.update(self._attrs)
+    @classmethod
+    def _get_yaml_attributes(cls):
+        attrs = super()._get_yaml_attributes()
+        attrs.update({
+            'arch_list',
+            'git_url',
+            'git_branch',
+            'frags',
+        })
         return attrs
 
 
@@ -197,16 +213,6 @@ class RootFS_ChromiumOS(RootFS):
         self._branch = branch
         self._serial = serial
 
-    @classmethod
-    def from_yaml(cls, config, name):
-        kw = {
-            'name': name,
-        }
-        kw.update(cls._kw_from_yaml(config, [
-            'rootfs_type', 'arch_list', 'board', 'branch', 'serial'
-        ]))
-        return cls(**kw)
-
     @property
     def arch_list(self):
         return list(self._arch_list)
@@ -216,12 +222,23 @@ class RootFS_ChromiumOS(RootFS):
         return self._board
 
     @property
+    def branch(self):
+        return self._branch
+
+    @property
     def serial(self):
         return self._serial
 
-    @property
-    def branch(self):
-        return self._branch
+    @classmethod
+    def _get_yaml_attributes(cls):
+        attrs = super()._get_yaml_attributes()
+        attrs.update({
+            'arch_list',
+            'board',
+            'branch',
+            'serial',
+        })
+        return attrs
 
 
 class RootFSFactory(YAMLObject):
@@ -241,7 +258,7 @@ class RootFSFactory(YAMLObject):
         if rootfs_cls is None:
             raise ValueError("Unsupported value {}".format(rootfs_type))
 
-        return rootfs_cls.from_yaml(rootfs, name)
+        return rootfs_cls.from_yaml(rootfs, name=name)
 
 
 def from_yaml(data, filters):

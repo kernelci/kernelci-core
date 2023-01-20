@@ -1,4 +1,4 @@
-# Copyright (C) 2018, 2019, 2021 Collabora Limited
+# Copyright (C) 2018-2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 #
 # This module is free software; you can redistribute it and/or modify it under
@@ -28,23 +28,43 @@ class YAMLObject:
     """Base class with helper methods to initialise objects from YAML data."""
 
     @classmethod
-    def _kw_from_yaml(cls, data, args):
+    def from_yaml(cls, config, **kwargs):
+        """Load the YAML configuration
+
+        Load the YAML configuration passed as a *config* data structure with a
+        given *name*.  This method should return an instance of a YAMLObject
+        subclass.
+        """
+        yaml_attributes = cls._get_yaml_attributes()
+        kwargs.update(cls._kw_from_yaml(config, yaml_attributes))
+        return cls(**kwargs)
+
+    @classmethod
+    def _kw_from_yaml(cls, data, attributes):
         """Create some keyword arguments based on a YAML dictionary
 
         Return a dictionary suitable to be used as Python keyword arguments in
-        an object constructor using values from some YAML *data*.  The *args*
-        is a list of keys to look up from the *data* and convert to a
-        dictionary.  Keys that are not in the YAML data are simply omitted from
-        the returned keywords, relying on default values in object
+        an object constructor using values from some YAML *data*.  The
+        *attributes* are a list of keys to look up from the *data* and convert
+        to a dictionary.  Keys that are not in the YAML data are simply omitted
+        from the returned keywords, relying on default values in object
         constructors.
+
         """
         return {
-            k: v for k, v in ((k, data.get(k)) for k in args)
+            k: v for k, v in ((k, data.get(k))for k in attributes)
             if v is not None
         } if data else dict()
 
-    def _get_attrs(self):
-        """Return a set of attribute names for .to_dict() and .to_yaml()"""
+    @classmethod
+    def _get_yaml_attributes(cls):
+        """Get a set of YAML attribute names
+
+        Get a set object with all the YAML configuration attribute names for
+        the configuration class.  This can be used to make keyword arguments
+        when creating a configuration object as well as when serialising it
+        back to YAML.
+        """
         return set()
 
     def to_dict(self):
@@ -56,7 +76,8 @@ class YAMLObject:
         """
         return {
             attr: value for attr, value in (
-                (attr, getattr(self, attr)) for attr in self._get_attrs()
+                (attr, getattr(self, attr))
+                for attr in self._get_yaml_attributes()
             ) if value is not None
         }
 
