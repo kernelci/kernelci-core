@@ -28,9 +28,6 @@ class NodeCommand(Command):  # pylint: disable=too-few-public-methods
         config = configs['api_configs'][args.api_config]
         return kernelci_api.KernelCI_API(config, args.api_token)
 
-    def __call__(self, configs, args):
-        pass
-
 
 class NodeAttributesCommand(NodeCommand):
     """Base command class for node queries with arbitrary attributes"""
