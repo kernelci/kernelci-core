@@ -18,6 +18,9 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+import unittest
+import yaml
+
 import kernelci.config
 import kernelci.config.build
 import kernelci.config.test
@@ -55,3 +58,45 @@ def test_architecture_init_name_only():
     assert architecture.extra_configs == []
     assert architecture.fragments == []
     assert architecture._filters == []  # filters does not have a property..
+
+
+class ConfigTest(unittest.TestCase):
+
+    def _load_config(self, yaml_file_path):
+        with open(yaml_file_path) as yaml_file:
+            ref_data = yaml.safe_load(yaml_file)
+        config = kernelci.config.load(yaml_file_path)
+        return ref_data, config
+
+    def _reload(self, ref_data, config, name):
+        assert name in config
+        assert name in ref_data
+        dump = yaml.dump(config[name])
+        loaded = yaml.safe_load(dump)
+        assert ref_data[name] == loaded
+        return loaded
+
+    def test_trees(self):
+        # ToDo: use relative path to test module 'configs/trees.yaml'
+        ref_data, config = self._load_config('tests/configs/trees.yaml')
+        trees_config = self._reload(ref_data, config, 'trees')
+        tree_names = ['kselftest', 'mainline', 'next']
+        assert all(name in ref_data['trees'] for name in tree_names)
+        assert all(name in trees_config for name in tree_names)
+        assert (
+            trees_config['next']['url'] ==
+            'https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git'  # noqa
+        )
+
+    def test_file_system_types(self):
+        ref_data, config = self._load_config(
+            'tests/configs/file-system-types.yaml'
+        )
+        fs_config = self._reload(ref_data, config, 'file_system_types')
+        fs_names = ['buildroot', 'debian']
+        assert all(name in ref_data['file_system_types'] for name in fs_names)
+        assert all(name in fs_config for name in fs_names)
+        assert (
+            fs_config['debian']['url'] ==
+            'http://storage.kernelci.org/images/rootfs/debian'
+        )
