@@ -109,11 +109,11 @@ class TestBuildConfigs(TestConfigs):
         assert be_config['clang-12']['cc_version'] == '12'
         clang12 = config['build_environments']['clang-12']
         assert (
-            clang12.get_cross_compile_compat('arm64') ==
+            clang12.get_arch_param('arm64', 'cross_compile_compat') ==
             'arm-linux-gnueabihf-'
         )
         assert (
-            clang12.get_arch_opts('riscv')['LLVM_IAS'] == '1'
+            clang12.get_arch_param('riscv', 'opts')['LLVM_IAS'] == '1'
         )
 
     def test_reference_tree(self):

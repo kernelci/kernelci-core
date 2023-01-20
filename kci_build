@@ -175,9 +175,9 @@ def _show_build_env(build_env, arch=None):
     print(build_env.cc)
     print(build_env.cc_version)
     if arch:
-        print(build_env.get_arch_name(arch) or '')
-        print(build_env.get_cross_compile(arch) or '')
-        print(build_env.get_cross_compile_compat(arch) or '')
+        print(build_env.get_arch_param(arch, 'name') or arch)
+        for param in 'cross_compile', 'cross_compile_compat':
+            print(build_env.get_arch_param(arch, param) or '')
 
 
 class cmd_get_build_env(Command):

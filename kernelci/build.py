@@ -960,14 +960,16 @@ class EnvironmentData(Step):
             return False
 
         build_env, arch = (opts[key] for key in keys)
-        cross_compile = build_env.get_cross_compile(arch) or ''
-        cross_compile_compat = build_env.get_cross_compile_compat(arch) or ''
+        cross_compile, cross_compile_compat = (
+            build_env.get_arch_param(arch, param) or ''
+            for param in ('cross_compile', 'cross_compile_compat')
+        )
         cc = build_env.cc
         cc_version_cmd = "{}{} --version 2>&1".format(
             cross_compile if cross_compile and cc == 'gcc' else '', cc)
         cc_version_full = shell_cmd(cc_version_cmd).splitlines()[0]
         make_opts = {'KBUILD_BUILD_USER': 'KernelCI'}
-        make_opts.update(build_env.get_arch_opts(arch))
+        make_opts.update(build_env.get_arch_param(arch, 'opts') or {})
         platform_data = {'uname': platform.uname()}
 
         self._meta.get('bmeta')['environment'] = {

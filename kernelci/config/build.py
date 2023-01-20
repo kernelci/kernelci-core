@@ -267,10 +267,6 @@ class BuildEnvironment(YAMLConfigObject):
     def cc_version(self):
         return self._cc_version
 
-    @property
-    def arch_params(self):
-        return self._arch_params.copy()
-
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
@@ -283,25 +279,16 @@ class BuildEnvironment(YAMLConfigObject):
             u'tag:yaml.org,2002:map', {
                 'cc': data.cc,
                 'cc_version': data.cc_version,
-                'arch_params': data.arch_params,
+                'arch_params': data._arch_params,
             }
         )
 
-    def get_arch_name(self, kernel_arch):
-        params = self._arch_params.get(kernel_arch) or dict()
-        return params.get('name', kernel_arch)
-
-    def get_arch_opts(self, arch):
-        params = self._arch_params.get(arch) or dict()
-        return params.get('opts') or dict()
-
-    def get_cross_compile(self, arch):
-        params = self._arch_params.get(arch) or dict()
-        return params.get('cross_compile', '')
-
-    def get_cross_compile_compat(self, arch):
-        params = self._arch_params.get(arch) or dict()
-        return params.get('cross_compile_compat', '')
+    def get_arch_param(self, arch, param):
+        arch_params = self._arch_params.get(arch, dict())
+        param = arch_params.get(param)
+        if isinstance(param, dict):
+            return param.copy()
+        return param
 
 
 class BuildVariant(YAMLConfigObject):
