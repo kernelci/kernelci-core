@@ -410,6 +410,8 @@ fragments:
     path: "kernel/configs/kselftest.config"
     configs:
       - '# CONFIG_DUMMY is not set'
+      - 'CONFIG_NET_IPGRE=m'
+      - 'CONFIG_NET_IPGRE_DEMUX=m'
 
   preempt_rt:
     path: "kernel/configs/preempt_rt.config"
