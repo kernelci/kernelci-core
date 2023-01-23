@@ -31,10 +31,10 @@ class NodeCommand(Command):  # pylint: disable=too-few-public-methods
 
 class NodeAttributesCommand(NodeCommand):
     """Base command class for node queries with arbitrary attributes"""
-    args = NodeCommand.args + [
+    opt_args = NodeCommand.opt_args + [
         {
             'name': 'attributes',
-            'nargs': '+',
+            'nargs': '*',
             'help': "Attributes to find nodes in name=value format",
         },
     ]
@@ -43,7 +43,7 @@ class NodeAttributesCommand(NodeCommand):
     def _split_attributes(cls, attributes):
         return dict(
             tuple(attr.split('=')) for attr in attributes
-        )
+        ) if attributes else {}
 
 
 class cmd_get(NodeCommand):  # pylint: disable=invalid-name
