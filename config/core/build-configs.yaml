@@ -569,21 +569,11 @@ build_environments:
     cc: clang
     cc_version: 11
     arch_params: &clang_11_arch_params
-      arm:
-        <<: *arm_params
-        name:
-      arm64:
-        <<: *arm64_params
-        name:
-      i386:
-        <<: *i386_params
-        name:
-      mips:
-        <<: *mips_params
-        name:
-      x86_64:
-        <<: *x86_64_params
-        name:
+      arm: *arm_params
+      arm64: *arm64_params
+      i386: *i386_params
+      mips: *mips_params
+      x86_64: *x86_64_params
 
   clang-12:
     cc: clang
@@ -592,7 +582,6 @@ build_environments:
       <<: *clang_11_arch_params
       riscv:
         <<: *riscv_params
-        name:
         opts:
           LLVM_IAS: '1'
           LD: 'riscv64-linux-gnu-ld'
@@ -605,39 +594,32 @@ build_environments:
   clang-14:
     cc: clang
     cc_version: 14
-    arch_params:
-      <<: *clang_12_arch_params
+    arch_params: *clang_12_arch_params
 
   clang-15:
     cc: clang
     cc_version: 15
     arch_params: &clang_15_arch_params
       <<: *clang_11_arch_params
-      riscv:
-        <<: *riscv_params
-        name:
+      riscv: *riscv_params
 
   clang-16:
     cc: clang
     cc_version: 16
-    arch_params:
-      <<: *clang_15_arch_params
+    arch_params: *clang_15_arch_params
 
   rustc-1.62:
     cc: clang
     cc_version: 15
     arch_params:
-      x86_64:
-        <<: *x86_64_params
-        name:
+      x86_64: *x86_64_params
 
   rustc-1.66:
     cc: clang
     cc_version: 15
     arch_params:
-      x86_64:
-        <<: *x86_64_params
-        name:
+      x86_64: *x86_64_params
+
 
 # Default config with full build coverage
 build_configs_defaults:
