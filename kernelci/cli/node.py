@@ -68,7 +68,11 @@ class cmd_find(NodeAttributesCommand):  # pylint: disable=invalid-name
         {
             'name': '--limit',
             'type': int,
-            'help': "Maximum number of nodes to retrieve",
+            'help': """\
+Maximum number of nodes to retrieve. When set to 0, no limit is used and all
+the matching nodes are retrieved.\
+""",
+            'default': 10,
         },
         {
             'name': '--offset',
