@@ -7,11 +7,17 @@ labs:
     queue_timeout:
       days: 1
     filters:
-      - blocklist:
-          tree:
-            - drm-tip
-            - android
       - passlist:
+          tree:
+            - staging
+            - mainline
+            - next
+            - stable
+            - arm64
+            - riscv
+            - soc
+            - amlogic
+            - matthiasbgg
           plan:
             - baseline
             - kselftest
