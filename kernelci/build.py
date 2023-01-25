@@ -1192,6 +1192,7 @@ class FetchFirmware(Step):
         # CONFIG_EXTRA_FIRMWARE_DIR need absolute path
         full_path = os.path.abspath(self._output_path)
         fwdir = os.path.join(full_path, 'linux-firmware')
+        fwfiles = os.path.join(full_path, 'firmware-files')
         key = self._kernel_config_getkey('CONFIG_EXTRA_FIRMWARE')
         if key and key == '""':
             if verbose:
@@ -1202,9 +1203,12 @@ class FetchFirmware(Step):
         repourl = 'git://git.kernel.org/pub/scm/linux/kernel/git/\
 firmware/linux-firmware.git'
         clone_git(repourl, fwdir, 'main')
+        # We need to extract files and symlinks using copy-firmware.sh
+        shell_cmd(f"mkdir {fwfiles}")
+        shell_cmd(f"cd {fwdir};./copy-firmware.sh {fwfiles};cd -")
         # We need to override directory where firmware stored
         self._kernel_config_setkey('CONFIG_EXTRA_FIRMWARE_DIR',
-                                   f'"{fwdir}"')
+                                   f'"{fwfiles}"')
         bmeta = self._meta.get('bmeta')
         fbmeta = bmeta.setdefault('firmware', dict())
         fbmeta['commit'] = kernelci.build.head_commit(fwdir)
