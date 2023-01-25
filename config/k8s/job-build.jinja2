@@ -87,7 +87,7 @@ install: true\n\
 [kci_data]\n\
 output: ${KDIR}/build\n\
 \" > kernelci.conf; \
-set -xe; \
+set -x; \
 \
 kci_build pull_tarball \
   --url ${SRC_TARBALL} \
