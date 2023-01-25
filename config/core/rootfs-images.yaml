@@ -31,21 +31,21 @@ file_systems:
     type: debian
   debian_bullseye-kselftest_nfs:
     boot_protocol: tftp
-    nfs: bullseye-kselftest/20230120.0/{arch}/full.rootfs.tar.xz
+    nfs: bullseye-kselftest/20230124.1/{arch}/full.rootfs.tar.xz
     params:
       os_config: debian
     prompt: '/ #'
-    ramdisk: bullseye-kselftest/20230120.0/{arch}/initrd.cpio.gz
+    ramdisk: bullseye-kselftest/20230124.1/{arch}/initrd.cpio.gz
     root_type: nfs
-    type: debian
+    type: debian-staging
   debian_bullseye-kselftest_ramdisk:
     boot_protocol: ramdisk
     params:
       os_config: debian
     prompt: '/ #'
-    ramdisk: bullseye-kselftest/20230120.0/{arch}/rootfs.cpio.gz
+    ramdisk: bullseye-kselftest/20230124.1/{arch}/rootfs.cpio.gz
     root_type: ramdisk
-    type: debian
+    type: debian-staging
   debian_bullseye-libcamera_nfs:
     boot_protocol: tftp
     nfs: bullseye-libcamera/20230120.0/{arch}/full.rootfs.tar.xz
