@@ -40,11 +40,19 @@ mkdir -p $DEST
 # git init hack to fetch a single shallow commit to minimize time,
 # space and network bandwidth
 TMP_REPO=/tmp/linux-firmware
+# As we cannot use git "as-is" we need to "process" git to
+# intermediate directory by using copy-firmware.sh script
+TMP_FW=/tmp/linux-firmware-parsed
+mkdir -p $TMP_FW
 mkdir -p $TMP_REPO && cd $TMP_REPO
+
 git init
 git remote add origin $FIRMWARE_SITE
 git fetch --depth 1 origin $version
 git checkout FETCH_HEAD
+
+./copy-firmware.sh ${TMP_FW}
+cd ${TMP_FW}
 
 for fw_file in "${files[@]}"
 do
@@ -55,3 +63,4 @@ done
 # Cleanup: remove downloaded firmware files
 ########################################################################
 rm -rf $TMP_REPO
+rm -rf $TMP_FW
