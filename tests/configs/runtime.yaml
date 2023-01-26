@@ -1,0 +1,67 @@
+labs:
+
+  lab-baylibre:
+    lab_type: lava.lava_xmlrpc
+    url: 'https://lava.baylibre.com/RPC2/'
+    queue_timeout:
+      days: 1
+    filters:
+      - blocklist:
+          tree:
+            - drm-tip
+            - android
+      - passlist:
+          plan:
+            - baseline
+            - kselftest
+            - preempt-rt
+            - ltp
+
+  lab-broonie-min-max:
+    lab_type: lava.lava_xmlrpc
+    url: 'https://lava.sirena.org.uk/RPC2/'
+    priority_min: 12
+    priority_max: 40
+    queue_timeout:
+      days: 1
+    filters:
+      - blocklist: {tree: [android]}
+
+  lab-collabora-staging:
+    lab_type: lava.lava_rest
+    url: 'https://staging.lava.collabora.dev/'
+    priority: 45
+    queue_timeout:
+      hours: 1
+    filters:
+      - blocklist:
+          tree: [android]
+
+
+file_system_types:
+
+  buildroot:
+    url: 'http://storage.kernelci.org/images/rootfs/buildroot'
+
+
+file_systems:
+
+  buildroot-baseline_ramdisk:
+    boot_protocol: tftp
+    prompt: '/ #'
+    ramdisk: buildroot-baseline/20230120.0/{arch}/rootfs.cpio.gz
+    root_type: ramdisk
+    type: buildroot
+
+
+test_plans:
+
+  baseline:
+    rootfs: buildroot-baseline_ramdisk
+    params:
+      priority: 90
+
+  baseline-nfs:
+    rootfs: buildroot-baseline_ramdisk
+    params:
+      priority: 85
