@@ -1,0 +1,38 @@
+labs:
+
+  lab-baylibre:
+    lab_type: lava.lava_xmlrpc
+    url: 'https://lava.baylibre.com/RPC2/'
+    queue_timeout:
+      days: 1
+    filters:
+      - blocklist:
+          tree:
+            - drm-tip
+            - android
+      - passlist:
+          plan:
+            - baseline
+            - kselftest
+            - preempt-rt
+            - ltp
+
+  lab-broonie:
+    lab_type: lava.lava_xmlrpc
+    url: 'https://lava.sirena.org.uk/RPC2/'
+    priority_min: 0
+    priority_max: 40
+    queue_timeout:
+      days: 1
+    filters:
+      - blocklist: {tree: [android]}
+
+  lab-collabora-staging:
+    lab_type: lava.lava_rest
+    url: 'https://staging.lava.collabora.dev/'
+    priority: 45
+    queue_timeout:
+      hours: 1
+    filters:
+      - blocklist:
+          tree: [android]
