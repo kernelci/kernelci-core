@@ -34,20 +34,7 @@ class LavaAPI(LabAPI):
         short_template_file = plan_config.get_template_path(
             device_config.boot_method)
         base_name = params['base_device_type']
-
-        # Scale the job priority (from 0-100) within the available levels
-        # for the lab, or use the lowest by default.
-        if 'priority' in plan_config.params:
-            priority = plan_config.params['priority']
-            if priority > 100:
-                priority = 100
-        else:
-            priority = 20
-
-        prio_range = self.config._priority_max - self.config._priority_min
-        priority = int(((priority * prio_range) / 100) +
-                       self.config._priority_min)
-
+        priority = self._get_priority(plan_config)
         params.update({
             'queue_timeout': self.config.queue_timeout,
             'lab_name': self.config.name,
@@ -71,6 +58,21 @@ class LavaAPI(LabAPI):
 
     def job_file_name(self, params):
         return '.'.join([params['name'], 'yaml'])
+
+    def _get_priority(self, plan_config):
+        # Scale the job priority (from 0-100) within the available levels
+        # for the lab, or use the lowest by default.
+        if 'priority' in plan_config.params:
+            priority = plan_config.params['priority']
+            if priority > 100:
+                priority = 100
+        else:
+            priority = 20
+
+        prio_range = self.config._priority_max - self.config._priority_min
+        priority = int(((priority * prio_range) / 100) +
+                       self.config._priority_min)
+        return priority
 
     def _add_callback_params(self, params, opts):
         callback_id = opts.get('id')
