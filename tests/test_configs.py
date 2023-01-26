@@ -166,3 +166,21 @@ class TestAPIConfigs(ConfigTest):
         assert (
             api_config['docker-host']['url'] == 'http://172.17.0.1:8001'
         )
+
+
+class TestRuntimeConfigs(ConfigTest):
+
+    def test_lab(self):
+        ref_data, config = self._load_config('tests/configs/labs.yaml')
+        labs = config['labs']
+        lab_prio = {
+            'lab-baylibre': (None, None, None),
+            'lab-broonie': (None, 0, 40),
+            'lab-collabora-staging': (45, 45, 45),
+        }
+        assert all(name in labs for name in lab_prio.keys())
+        for lab_name, (fixed_p, min_p, max_p) in lab_prio.items():
+            lab_config = labs[lab_name]
+            assert lab_config.priority == fixed_p
+            assert lab_config.priority_min == min_p
+            assert lab_config.priority_max == max_p
