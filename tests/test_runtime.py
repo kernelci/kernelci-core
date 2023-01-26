@@ -26,8 +26,8 @@ def test_lava_priority_scale():
             'baseline-nfs': 12 + (40 - 12) * 85 / 100,
         },
         'lab-collabora-staging': {
-            'baseline': 45,
-            'baseline-nfs': 45,
+            'baseline': 45 * 90 / 100,
+            'baseline-nfs': 45 * 85 / 100,
         },
     }
 

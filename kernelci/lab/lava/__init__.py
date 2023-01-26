@@ -64,7 +64,7 @@ class LavaAPI(LabAPI):
         # for the lab, or use the lowest by default.
         priority = plan_config.params.get('priority', 20)
         if self.config.priority:
-            priority = self.config.priority
+            priority = int(priority * self.config.priority / 100)
         elif (self.config.priority_max is not None and
               self.config.priority_min is not None):
             prio_range = self.config.priority_max - self.config.priority_min
