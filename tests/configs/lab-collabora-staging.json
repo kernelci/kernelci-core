@@ -1,0 +1,19 @@
+{
+    "devices": {
+        "aliases": {},
+        "online_status": {
+            "aaeon-UPN-EHLX4RE-A10-0864": true,
+            "asus-C523NA-A20057-coral": false,
+            "hp-x360-12b-ca0500na-n4000-octopus": true,
+            "hp-x360-14a-cb0001xx-zork": false,
+            "minnowboard-max-E3825": true,
+            "mt8173-elm-hana": true,
+            "mt8195-cherry-tomato-r2": false,
+            "qemu": true,
+            "rk3399-gru-kevin": true
+        }
+    },
+    "lab": "lab-collabora-staging",
+    "lab_type": "lava.lava_rest",
+    "url": "https://staging.lava.collabora.dev/"
+}
