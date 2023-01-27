@@ -332,6 +332,11 @@ fragments:
       - 'CONFIG_VIDEO_OV02A10=m'
       - 'CONFIG_VIDEO_OV5695=m'
       - 'CONFIG_VIDEO_OV8856=m'
+      - 'CONFIG_EXTRA_FIRMWARE="
+      mediatek/mt8173/vpu_d.bin
+      mediatek/mt8173/vpu_p.bin
+      rockchip/dptx.bin
+      "'
 
 
   crypto:
