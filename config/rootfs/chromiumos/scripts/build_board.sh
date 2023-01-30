@@ -102,7 +102,8 @@ if [ ! -f .cache/distfiles/chrome-src/.gclient ]; then
 fi
 
 echo "Building packages (${SERIAL})"
-cros_sdk USE="tty_console_${SERIAL} pcserial" build_packages --board=${BOARD}
+cros_sdk USE="tty_console_${SERIAL} pcserial cr50_skip_update" \
+	 build_packages --board=${BOARD}
 
 echo "Building image (${SERIAL})"
 cros_sdk ./build_image --enable_serial ${SERIAL} --board="${BOARD}" --boot_args "earlyprintk=serial,keep console=tty0" --noenable_rootfs_verification test
