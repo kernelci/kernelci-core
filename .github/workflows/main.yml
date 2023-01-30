@@ -55,7 +55,8 @@ jobs:
             kci \
             kernelci.cli \
             kernelci.config.api \
-            kernelci.storage
+            kernelci.storage \
+            tests
 
       - name: Run YAML config validation
         run: |
