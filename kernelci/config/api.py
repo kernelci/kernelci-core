@@ -13,9 +13,10 @@ class API(YAMLConfigObject):
 
     yaml_tag = '!API'
 
-    def __init__(self, name, url):
+    def __init__(self, name, url, version='latest'):
         self._name = name
         self._url = url
+        self._version = version
 
     @property
     def name(self):
@@ -27,16 +28,24 @@ class API(YAMLConfigObject):
         """Full URL to use the API"""
         return self._url
 
+    @property
+    def version(self):
+        """API version"""
+        return self._version
+
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({'url'})
+        attrs.update({'url', 'version'})
         return attrs
 
     @classmethod
     def to_yaml(cls, dumper, data):
         return dumper.represent_mapping(
-            'tag:yaml.org,2002:map', {'url': data.url}
+            'tag:yaml.org,2002:map', {
+                'url': data.url,
+                'version': data.version,
+            }
         )
 
 
