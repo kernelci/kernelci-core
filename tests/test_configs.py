@@ -59,7 +59,7 @@ def test_architecture_init_name_only():
     assert architecture._filters == []  # filters does not have a property..
 
 
-class TestConfigs:
+class ConfigTest:
 
     def _load_config(self, yaml_file_path):
         with open(yaml_file_path) as yaml_file:
@@ -76,7 +76,7 @@ class TestConfigs:
         return loaded
 
 
-class TestBuildConfigs(TestConfigs):
+class TestBuildConfigs(ConfigTest):
 
     def test_trees(self):
         # ToDo: use relative path to test module 'configs/trees.yaml'
@@ -139,7 +139,7 @@ class TestBuildConfigs(TestConfigs):
         assert build_configs['mainline']['tree'] == 'mainline'
 
 
-class TestTestConfigs(TestConfigs):
+class TestTestConfigs(ConfigTest):
 
     def test_file_system_types(self):
         ref_data, config = self._load_config(
@@ -155,7 +155,7 @@ class TestTestConfigs(TestConfigs):
         )
 
 
-class TestAPIConfigs(TestConfigs):
+class TestAPIConfigs(ConfigTest):
 
     def test_apis(self):
         ref_data, config = self._load_config('tests/configs/api-configs.yaml')
