@@ -6,6 +6,15 @@
 # Copyright (C) 2019, 2021, 2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
+"""Unit test for KernelCI YAML config handling"""
+
+# This is normal practice for tests in order to cover parts of the
+# implementation.
+# pylint: disable=protected-access
+#
+# For the test classes with only one test case...
+# pylint: disable=too-few-public-methods
+
 import yaml
 
 import kernelci.config
@@ -14,7 +23,7 @@ import kernelci.config.test
 
 
 def test_build_configs_parsing():
-    """ Verify build configs from YAML"""
+    """Verify build configs from YAML"""
     data = kernelci.config.load_yaml("config/core")
     configs = kernelci.config.build.from_yaml(data, {})
     assert len(configs) == 4
@@ -24,6 +33,7 @@ def test_build_configs_parsing():
 
 
 def test_build_configs_parsing_minimal():
+    """Test that minimal build configs can be parsed from YAML"""
     data = kernelci.config.load_yaml("tests/configs/builds-minimal.yaml")
     configs = kernelci.config.build.from_yaml(data, {})
     assert 'agross' in configs['build_configs']
@@ -33,29 +43,34 @@ def test_build_configs_parsing_minimal():
 
 
 def test_build_configs_parsing_empty_architecture():
+    """Test that build configs with empty architectures can be parsed"""
     data = kernelci.config.load_yaml("tests/configs/builds-empty-arch.yaml")
     configs = kernelci.config.build.from_yaml(data, {})
     assert len(configs) == 4
 
 
 def test_architecture_init_name_only():
+    """Test that build config objects can be created with just a name"""
     architecture = kernelci.config.build.Architecture("arm")
     assert architecture.name == 'arm'
     assert architecture.base_defconfig == 'defconfig'
-    assert architecture.extra_configs == []
-    assert architecture.fragments == []
-    assert architecture._filters == []  # filters does not have a property..
+    assert len(architecture.extra_configs) == 0
+    assert len(architecture.fragments) == 0
+    assert len(architecture._filters) == 0
 
 
-class ConfigTest:
+class ConfigTest:  # pylint: disable=too-few-public-methods
+    """Base class with helpers for all YAML configuration tests"""
 
-    def _load_config(self, yaml_file_path):
-        with open(yaml_file_path) as yaml_file:
+    @classmethod
+    def _load_config(cls, yaml_file_path):
+        with open(yaml_file_path, encoding='utf-8') as yaml_file:
             ref_data = yaml.safe_load(yaml_file)
         config = kernelci.config.load(yaml_file_path)
         return ref_data, config
 
-    def _reload(self, ref_data, config, name):
+    @classmethod
+    def _reload(cls, ref_data, config, name):
         assert name in config
         assert name in ref_data
         dump = yaml.dump(config[name])
@@ -65,9 +80,10 @@ class ConfigTest:
 
 
 class TestBuildConfigs(ConfigTest):
+    """Tests for configs related to builds"""
 
     def test_trees(self):
-        # ToDo: use relative path to test module 'configs/trees.yaml'
+        """Test the tree configs"""
         ref_data, config = self._load_config('tests/configs/trees.yaml')
         trees_config = self._reload(ref_data, config, 'trees')
         tree_names = ['kselftest', 'mainline', 'next']
@@ -79,6 +95,7 @@ class TestBuildConfigs(ConfigTest):
         )
 
     def test_fragments(self):
+        """Test the fragments configs"""
         ref_data, config = self._load_config('tests/configs/fragments.yaml')
         frag_config = self._reload(ref_data, config, 'fragments')
         frag_names = ['debug', 'ima', 'x86-chromebook', 'x86_kvm_guest']
@@ -87,6 +104,7 @@ class TestBuildConfigs(ConfigTest):
         assert frag_config['debug']['path'] == 'kernel/configs/debug.config'
 
     def test_build_environments(self):
+        """Test the build_environments configs"""
         ref_data, config = self._load_config(
             'tests/configs/build-environments.yaml'
         )
@@ -105,6 +123,7 @@ class TestBuildConfigs(ConfigTest):
         )
 
     def test_reference_tree(self):
+        """Test the build_configs reference tree configs"""
         ref_data, config = self._load_config('tests/configs/builds.yaml')
         assert 'build_configs' in ref_data
         build_configs = ref_data['build_configs']
@@ -119,6 +138,7 @@ class TestBuildConfigs(ConfigTest):
         assert reference == reference_check
 
     def test_build_configs(self):
+        """Test the build_configs"""
         ref_data, config = self._load_config('tests/configs/builds.yaml')
         build_configs = self._reload(ref_data, config, 'build_configs')
         config_names = ['arm64', 'mainline']
@@ -128,8 +148,10 @@ class TestBuildConfigs(ConfigTest):
 
 
 class TestTestConfigs(ConfigTest):
+    """Tests for configs related to runtime tests"""
 
     def test_file_system_types(self):
+        """Test the file_system_types configs"""
         ref_data, config = self._load_config(
             'tests/configs/file-system-types.yaml'
         )
@@ -144,8 +166,10 @@ class TestTestConfigs(ConfigTest):
 
 
 class TestAPIConfigs(ConfigTest):
+    """Tests for configs related to the KernelCI API"""
 
     def test_apis(self):
+        """Test the api_configs"""
         ref_data, config = self._load_config('tests/configs/api-configs.yaml')
         api_config = self._reload(ref_data, config, 'api_configs')
         api_names = ['docker-host']
@@ -157,16 +181,18 @@ class TestAPIConfigs(ConfigTest):
 
 
 class TestRuntimeConfigs(ConfigTest):
+    """Tests related to runtime configs"""
 
     def test_lab(self):
-        ref_data, config = self._load_config('tests/configs/labs.yaml')
+        """Test the labs configs"""
+        _, config = self._load_config('tests/configs/labs.yaml')
         labs = config['labs']
         lab_prio = {
             'lab-baylibre': (None, None, None),
             'lab-broonie': (None, 0, 40),
             'lab-collabora-staging': (45, 45, 45),
         }
-        assert all(name in labs for name in lab_prio.keys())
+        assert all(name in labs for name, _ in lab_prio.items())
         for lab_name, (fixed_p, min_p, max_p) in lab_prio.items():
             lab_config = labs[lab_name]
             assert lab_config.priority == fixed_p
