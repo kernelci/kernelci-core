@@ -11,6 +11,7 @@ import json
 import kernelci.config
 import kernelci.lab
 
+
 def test_lava_priority_scale():
     config = kernelci.config.load('tests/configs/runtime.yaml')
     labs = config['labs']
