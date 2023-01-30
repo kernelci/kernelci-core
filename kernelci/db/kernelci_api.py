@@ -96,6 +96,11 @@ class KernelCI_API(Database):
             raise(ex)
         return resp.json()
 
+    def me(self):
+        path = '/'.join(['me'])
+        resp = self._get(path)
+        return resp.json()
+
     def subscribe(self, channel):
         resp = self._post(f'subscribe/{channel}')
         return json.loads(resp.text)['id']
