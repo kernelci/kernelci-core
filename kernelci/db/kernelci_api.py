@@ -37,7 +37,8 @@ class KernelCI_API(Database):
         self._filters = {}
 
     def _make_url(self, path):
-        return urllib.parse.urljoin(self.config.url, path)
+        version_path = '/'.join((self.config.version, path))
+        return urllib.parse.urljoin(self.config.url, version_path)
 
     def _print_http_error(self, http_error, verbose=False):
         print(http_error)
