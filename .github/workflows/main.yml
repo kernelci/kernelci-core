@@ -47,6 +47,7 @@ jobs:
           pycodestyle kci
           pycodestyle kci_*
           pycodestyle scripts/*
+          pycodestyle tests/*
 
       - name: Run pylint
         run: |
