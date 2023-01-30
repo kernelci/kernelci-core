@@ -6,13 +6,18 @@
 # Copyright (C) 2019, 2021, 2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
-import json
+"""Unit test for KernelCI Runtime implementation"""
+
+# This is normal practice for tests in order to cover parts of the
+# implementation.
+# pylint: disable=protected-access
 
 import kernelci.config
 import kernelci.lab
 
 
 def test_lava_priority_scale():
+    """Test the logic for determining the priority of LAVA jobs"""
     config = kernelci.config.load('tests/configs/runtime.yaml')
     labs = config['labs']
     plans = config['test_plans']
@@ -34,10 +39,12 @@ def test_lava_priority_scale():
 
     for lab_name, specs in prio_specs.items():
         lab_config = labs[lab_name]
-        print("{}: {} {} {}".format(
-            lab_name, lab_config.priority,
-            lab_config.priority_min, lab_config.priority_max
-        ))
+        priorities = ' '.join(str(prio) for prio in [
+            lab_config.priority,
+            lab_config.priority_min,
+            lab_config.priority_max,
+        ])
+        print(f"{lab_name}: {priorities}")
         lab = kernelci.lab.get_api(
             lab_config, lab_json=f'tests/configs/{lab_name}.json'
         )
