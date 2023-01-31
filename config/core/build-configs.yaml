@@ -629,6 +629,11 @@ build_environments:
     cc_version: 16
     arch_params: *clang_15_arch_params
 
+  clang-17:
+    cc: clang
+    cc_version: 17
+    arch_params: *clang_15_arch_params
+
   rustc-1.62:
     cc: clang
     cc_version: 15
@@ -996,8 +1001,8 @@ build_configs:
             fragments: [x86-chromebook]
             extra_configs: ['x86_64+defconfig+kselftest+x86-chromebook']
             filters: *kselftest-only
-      clang-15:
-        build_environment: clang-15
+      clang-16:
+        build_environment: clang-16
         fragments: [kselftest]
         architectures:
           arm64: *arm64-kselftest
@@ -1042,8 +1047,8 @@ build_configs:
         build_environment: clang-11
         architectures: *arch_clang_configs
       # Latest stable release
-      clang-15:
-        build_environment: clang-15
+      clang-16:
+        build_environment: clang-16
         architectures: *arch_clang_configs
       rustc-1.62:
         build_environment: rustc-1.62
@@ -1118,8 +1123,8 @@ build_configs:
               - 'allmodconfig'
 
       # Current development clang release
-      clang-16:
-        build_environment: clang-16
+      clang-17:
+        build_environment: clang-17
         architectures:
           <<: *arch_clang_configs
 
@@ -1179,8 +1184,8 @@ build_configs:
             base_defconfig: 'defconfig'
             extra_configs:
               - 'defconfig+CONFIG_SMP=n'
-      clang-15:
-        build_environment: clang-15
+      clang-16:
+        build_environment: clang-16
         architectures:
           riscv:
             base_defconfig: 'defconfig'
