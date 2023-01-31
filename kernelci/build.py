@@ -1204,7 +1204,7 @@ class FetchFirmware(Step):
 firmware/linux-firmware.git'
         clone_git(repourl, fwdir, 'main')
         # We need to extract files and symlinks using copy-firmware.sh
-        shell_cmd(f"mkdir {fwfiles}")
+        shell_cmd(f"rm -rf {fwfiles} && mkdir {fwfiles}")
         shell_cmd(f"cd {fwdir};./copy-firmware.sh {fwfiles};cd -")
         # We need to override directory where firmware stored
         self._kernel_config_setkey('CONFIG_EXTRA_FIRMWARE_DIR',
