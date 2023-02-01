@@ -2842,13 +2842,35 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - cros-ec
+      - igt-gpu-panfrost
+      - kselftest-alsa
+      - kselftest-arm64
+      - kselftest-cpufreq
       - kselftest-lkdtm
+      - kselftest-rtc
       - kselftest-seccomp
+      - lc-compliance
+      - preempt-rt
+      - sleep
+      - v4l2-compliance-uvc
 
   - device_type: mt8192-asurada-spherion-r0
     test_plans:
       - baseline
       - baseline-nfs
+      - cros-ec
+      - igt-gpu-panfrost
+      - kselftest-alsa
+      - kselftest-arm64
+      - kselftest-cpufreq
+      - kselftest-lkdtm
+      - kselftest-rtc
+      - kselftest-seccomp
+      - lc-compliance
+      - preempt-rt
+      - sleep
+      - v4l2-compliance-uvc
 
   - device_type: mustang
     test_plans:
