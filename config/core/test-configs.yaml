@@ -669,13 +669,19 @@ test_plans:
 
 device_types:
 
-  acer-cb317-1h-c3z6-dedede:
+  acer-R721T-grunt:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
     filters: &x86-chromebook-filters
       - passlist: {defconfig: ['x86-chromebook']}
       - blocklist: {defconfig: ['allmodconfig', 'allnoconfig']}
+
+  acer-cb317-1h-c3z6-dedede:
+    mach: x86
+    arch: x86_64
+    boot_method: depthcharge
+    filters: *x86-chromebook-filters
 
   alpine-db:
     mach: alpine
@@ -823,6 +829,12 @@ device_types:
     filters: *x86-chromebook-filters
 
   asus-C523NA-A20057-coral:
+    mach: x86
+    arch: x86_64
+    boot_method: depthcharge
+    filters: *x86-chromebook-filters
+
+  asus-CM1400CXA-dalboz:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
@@ -1010,6 +1022,12 @@ device_types:
           # https://github.com/kernelci/kernelci-project/issues/113
           kernel: ['v4.', 'v5.4']
 
+  hp-14-db0003na-grunt:
+    mach: x86
+    arch: x86_64
+    boot_method: depthcharge
+    filters: *x86-chromebook-filters
+
   hp-11A-G6-EE-grunt:
     mach: x86
     arch: x86_64
@@ -1030,6 +1048,12 @@ device_types:
     filters: *x86-chromebook-filters
 
   hp-x360-12b-ca0500na-n4000-octopus: *octopus
+
+  hp-x360-14a-cb0001xx-zork:
+    mach: x86
+    arch: x86_64
+    boot_method: depthcharge
+    filters: *x86-chromebook-filters
 
   hsdk:
     mach: arc
@@ -2103,6 +2127,11 @@ device_types:
 
 test_configs:
 
+  - device_type: acer-R721T-grunt
+    test_plans:
+      - baseline
+      - baseline-nfs
+
   - device_type: acer-cb317-1h-c3z6-dedede
     test_plans:
       - baseline
@@ -2228,6 +2257,11 @@ test_configs:
       - preempt-rt
       - sleep_mem
       - smc
+
+  - device_type: asus-CM1400CXA-dalboz
+    test_plans:
+      - baseline
+      - baseline-nfs
 
   - device_type: asus-cx9400-volteer
     test_plans:
@@ -2426,6 +2460,11 @@ test_configs:
       - sleep
       - smc
 
+  - device_type: hp-14-db0003na-grunt
+    test_plans:
+      - baseline
+      - baseline-nfs
+
   - device_type: hp-x360-14-G1-sona
     test_plans:
       - baseline
@@ -2457,6 +2496,11 @@ test_configs:
       - ltp-mm
       - sleep_mem
       - smc
+
+  - device_type: hp-x360-14a-cb0001xx-zork
+    test_plans:
+      - baseline
+      - baseline-nfs
 
   - device_type: hsdk
     test_plans:
