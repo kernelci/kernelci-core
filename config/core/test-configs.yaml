@@ -3010,21 +3010,10 @@ test_configs:
   - device_type: rk3288-rock2-square
     test_plans:
       - baseline
-      - baseline-nfs
-      - sleep
-      - usb
 
   - device_type: rk3288-veyron-jaq
     test_plans:
       - baseline
-      - baseline-nfs
-      - cros-ec
-      - igt-gpu-panfrost
-      - igt-kms-rockchip
-      # kselftest-alsa - Basic boot issue preventing testing
-      - ltp-timers
-      - sleep
-      - usb
 
   - device_type: rk3328-rock64
     test_plans:
