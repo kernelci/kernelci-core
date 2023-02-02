@@ -10,6 +10,8 @@
     {%- endif %}
 {%- endif %}
 RUN apt-get update && apt-get install --no-install-recommends -y \
+   libasound2-dev \
+   libasound2-dev{{ pkgarch }} \
    libc6-dev{{ libc6_pkgarch }} \
    libcap-dev{{ pkgarch }} \
    libcap-ng-dev{{ pkgarch }} \
@@ -19,7 +21,5 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    libmnl-dev{{ pkgarch }} \
    libnuma-dev{{ pkgarch }} \
    libpopt-dev{{ pkgarch }} \
-   libasound2-dev{{ pkgarch }} \
-   libasound2-dev \
    patch \
    pkg-config
