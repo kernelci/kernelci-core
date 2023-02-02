@@ -326,7 +326,6 @@ test_plans:
     params:
       job_timeout: '15'
       kselftest_collections: "kvm"
-    filters: *kselftest_no_fragment
 
   kselftest-landlock:
     <<: *kselftest
