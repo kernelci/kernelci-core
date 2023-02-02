@@ -53,11 +53,6 @@ build_configs:
     branch: 'android-4.9-p'
     variants: *android_variants
 
-  android_4.9-q:
-    tree: android
-    branch: 'android-4.9-q'
-    variants: *android_variants
-
   android_4.9-q-release:
     tree: android
     branch: 'android-4.9-q-release'
@@ -68,11 +63,6 @@ build_configs:
     branch: 'android-4.14-p'
     variants: *android_variants
 
-  android_4.14-q:
-    tree: android
-    branch: 'android-4.14-q'
-    variants: *android_variants
-
   android_4.14-q-release:
     tree: android
     branch: 'android-4.14-q-release'
@@ -81,11 +71,6 @@ build_configs:
   android_4.14-stable:
     tree: android
     branch: 'android-4.14-stable'
-    variants: *android_variants
-
-  android_4.19-q:
-    tree: android
-    branch: 'android-4.19-q'
     variants: *android_variants
 
   android_4.19-q-release:
@@ -178,5 +163,11 @@ build_configs:
   android14-5.15:
     tree: android
     branch: 'android14-5.15'
+    variants:
+      <<: *android_variants
+
+  android14-6.1:
+    tree: android
+    branch: 'android14-6.1'
     variants:
       <<: *android_variants
