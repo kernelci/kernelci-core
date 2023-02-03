@@ -1523,8 +1523,7 @@ device_types:
     arch: arm64
     boot_method: grub
     filters:
-      - passlist: {defconfig: ['defconfig']}
-      - blocklist: {kernel: ['v3.']}
+      - regex: {'tree': '(next|mainline)'}
     params:
       boot_timeout: '10'
 
