@@ -1,17 +1,17 @@
-# Automatically generated (20230127.0)
+# Automatically generated (20230203.0)
 file_systems:
   buildroot-baseline_ramdisk:
     boot_protocol: tftp
     params: {}
     prompt: '/ #'
-    ramdisk: buildroot-baseline/20230127.0/{arch}/rootfs.cpio.gz
+    ramdisk: buildroot-baseline/20230203.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
     type: buildroot
   debian_bullseye-cros-ec_ramdisk:
     boot_protocol: tftp
     params: {}
     prompt: '/ #'
-    ramdisk: bullseye-cros-ec/20230127.0/{arch}/rootfs.cpio.gz
+    ramdisk: bullseye-cros-ec/20230203.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
     type: debian
   debian_bullseye-gst-fluster_nfs:
@@ -26,16 +26,16 @@ file_systems:
     boot_protocol: tftp
     params: {}
     prompt: '/ #'
-    ramdisk: bullseye-igt/20230127.0/{arch}/rootfs.cpio.gz
+    ramdisk: bullseye-igt/20230203.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
     type: debian
   debian_bullseye-kselftest_nfs:
     boot_protocol: tftp
-    nfs: bullseye-kselftest/20230127.0/{arch}/full.rootfs.tar.xz
+    nfs: bullseye-kselftest/20230203.0/{arch}/full.rootfs.tar.xz
     params:
       os_config: debian
     prompt: '/ #'
-    ramdisk: bullseye-kselftest/20230127.0/{arch}/initrd.cpio.gz
+    ramdisk: bullseye-kselftest/20230203.0/{arch}/initrd.cpio.gz
     root_type: nfs
     type: debian
   debian_bullseye-kselftest_ramdisk:
@@ -43,24 +43,24 @@ file_systems:
     params:
       os_config: debian
     prompt: '/ #'
-    ramdisk: bullseye-kselftest/20230127.0/{arch}/rootfs.cpio.gz
+    ramdisk: bullseye-kselftest/20230203.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
     type: debian
   debian_bullseye-libcamera_nfs:
     boot_protocol: tftp
-    nfs: bullseye-libcamera/20230127.0/{arch}/full.rootfs.tar.xz
+    nfs: bullseye-libcamera/20230203.0/{arch}/full.rootfs.tar.xz
     params: {}
     prompt: '/ #'
-    ramdisk: bullseye-libcamera/20230127.0/{arch}/initrd.cpio.gz
+    ramdisk: bullseye-libcamera/20230203.0/{arch}/initrd.cpio.gz
     root_type: nfs
     type: debian
   debian_bullseye-libhugetlbfs_nfs:
     boot_protocol: tftp
-    nfs: bullseye-libhugetlbfs/20230127.0/{arch}/full.rootfs.tar.xz
+    nfs: bullseye-libhugetlbfs/20230203.0/{arch}/full.rootfs.tar.xz
     params:
       os_config: debian
     prompt: '/ #'
-    ramdisk: bullseye-libhugetlbfs/20230127.0/{arch}/initrd.cpio.gz
+    ramdisk: bullseye-libhugetlbfs/20230203.0/{arch}/initrd.cpio.gz
     root_type: nfs
     type: debian
   debian_bullseye-libhugetlbfs_ramdisk:
@@ -68,51 +68,51 @@ file_systems:
     params:
       os_config: debian
     prompt: '/ #'
-    ramdisk: bullseye-libhugetlbfs/20230127.0/{arch}/rootfs.cpio.gz
+    ramdisk: bullseye-libhugetlbfs/20230203.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
     type: debian
   debian_bullseye-ltp_nfs:
     boot_protocol: tftp
-    nfs: bullseye-ltp/20230127.0/{arch}/full.rootfs.tar.xz
+    nfs: bullseye-ltp/20230203.0/{arch}/full.rootfs.tar.xz
     params: {}
     prompt: '/ #'
-    ramdisk: bullseye-ltp/20230127.0/{arch}/initrd.cpio.gz
+    ramdisk: bullseye-ltp/20230203.0/{arch}/initrd.cpio.gz
     root_type: nfs
     type: debian
   debian_bullseye-ltp_ramdisk:
     boot_protocol: tftp
     params: {}
     prompt: '/ #'
-    ramdisk: bullseye-ltp/20230127.0/{arch}/rootfs.cpio.gz
+    ramdisk: bullseye-ltp/20230203.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
     type: debian
   debian_bullseye-rt_ramdisk:
     boot_protocol: tftp
     params: {}
     prompt: '/ #'
-    ramdisk: bullseye-rt/20230127.0/{arch}/rootfs.cpio.gz
+    ramdisk: bullseye-rt/20230203.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
     type: debian
   debian_bullseye-v4l2_ramdisk:
     boot_protocol: tftp
     params: {}
     prompt: '/ #'
-    ramdisk: bullseye-v4l2/20230127.0/{arch}/rootfs.cpio.gz
+    ramdisk: bullseye-v4l2/20230203.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
     type: debian
   debian_bullseye_nfs:
     boot_protocol: tftp
-    nfs: bullseye/20230127.0/{arch}/full.rootfs.tar.xz
+    nfs: bullseye/20230203.0/{arch}/full.rootfs.tar.xz
     params: {}
     prompt: '/ #'
-    ramdisk: bullseye/20230127.0/{arch}/initrd.cpio.gz
+    ramdisk: bullseye/20230203.0/{arch}/initrd.cpio.gz
     root_type: nfs
     type: debian
   debian_bullseye_ramdisk:
     boot_protocol: tftp
     params: {}
     prompt: '/ #'
-    ramdisk: bullseye/20230127.0/{arch}/rootfs.cpio.gz
+    ramdisk: bullseye/20230203.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
     type: debian
   debian_sid-kselftest_nfs:
