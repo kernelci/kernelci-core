@@ -233,6 +233,7 @@ fragments:
       - 'CONFIG_SX9310=m'
       - 'CONFIG_SX9324=m'
       - 'CONFIG_TCG_TIS_I2C_CR50=y'
+      - 'CONFIG_QCOM_OCMEM=y'
       # Mediatek specific options start here
       - 'CONFIG_RTC_DRV_PM8XXX=y'
       - 'CONFIG_SND_SOC_MT8183=y'
