@@ -2843,6 +2843,7 @@ test_configs:
       - kselftest-lkdtm
       - kselftest-rtc
       - kselftest-seccomp
+      - kselftest-tpm2
       - lc-compliance
       - ltp-crypto
       - ltp-fcntl-locktests
@@ -2866,6 +2867,7 @@ test_configs:
       - kselftest-lkdtm
       - kselftest-rtc
       - kselftest-seccomp
+      - kselftest-tpm2
       - lc-compliance
       - preempt-rt
       - sleep
@@ -2883,6 +2885,7 @@ test_configs:
       - kselftest-lkdtm
       - kselftest-rtc
       - kselftest-seccomp
+      - kselftest-tpm2
       - lc-compliance
       - preempt-rt
       - sleep
@@ -3161,6 +3164,7 @@ test_configs:
       - baseline-nfs
       - cros-ec
       - kselftest-alsa
+      - kselftest-tpm2
 
   - device_type: sc7180-trogdor-lazor-limozeen
     test_plans:
@@ -3175,6 +3179,7 @@ test_configs:
       - kselftest-rtc
       - kselftest-timens
       - kselftest-timers
+      - kselftest-tpm2
       - usb
 
   - device_type: snow
