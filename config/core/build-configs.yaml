@@ -157,6 +157,12 @@ fragments:
   arm64-chromebook:
     path: "kernel/configs/arm64-chromebook.config"
     configs:
+      - 'CONFIG_NFS_FS=y'
+      - 'CONFIG_NFS_V2=y'
+      - 'CONFIG_NFS_V3=y'
+      - 'CONFIG_NFS_V3_ACL=y'
+      - 'CONFIG_NFS_V4=y'
+      - 'CONFIG_ROOT_NFS=y'
       - 'CONFIG_REGULATOR_DA9211=y'
       - 'CONFIG_ARM_MEDIATEK_CPUFREQ=y'
       - 'CONFIG_RTC_DRV_MT6397=y'
