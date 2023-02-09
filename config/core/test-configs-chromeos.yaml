@@ -538,6 +538,38 @@ device_types:
         modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20221115.0/amd64/modules.tar.xz'
       block_device: nvme0n1
 
+  mt8183-kukui-jacuzzi-juniper-sku16_chromeos: &chromebook-arm64-type
+    base_name: mt8183-kukui-jacuzzi-juniper-sku16
+    mach: mediatek
+    class: arm64-dtb
+    boot_method: depthcharge
+    dtb: 'mediatek/mt8183-kukui-jacuzzi-juniper-sku16.dtb'
+    filters: &mediatek-filter
+      - passlist: {defconfig: ['chromiumos-mediatek']}
+    params: &chromebook-arm64-params
+      cros_flash_nfs:
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20221230.0/arm64/'
+        initrd: 'initrd.cpio.gz'
+        initrd_compression: 'gz'
+        rootfs: 'full.rootfs.tar.xz'
+        rootfs_compression: 'xz'
+      cros_flash_kernel:
+        base_url: 'https://storage.chromeos.kernelci.org/images/kernel/v6.1-mediatek/'
+        image: 'kernel/Image'
+        modules: 'modules.tar.xz'
+        modules_compression: 'xz'
+        dtb: 'dtbs/mediatek/mt8183-kukui-jacuzzi-juniper-sku16.dtb'
+      cros_image:
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-jacuzzi/20230206.0/arm64/'
+        flash_tarball: 'full-cros-flash.tar.gz'
+        flash_tarball_compression: 'gz'
+        tast_tarball: 'tast.tgz'
+      reference_kernel:
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-jacuzzi/20230206.0/arm64/Image'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-jacuzzi/20230206.0/arm64/modules.tar.xz'
+        dtb: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-jacuzzi/20230206.0/arm64/dtbs/mediatek/mt8183-kukui-jacuzzi-juniper-sku16.dtb'
+      block_device: detect
+
   qemu_x86_64-uefi-chromeos:
     base_name: qemu
     mach: qemu
@@ -570,21 +602,15 @@ device_types:
     filters:
       - passlist: {defconfig: ['chromiumos-x86_64']}
 
-  sc7180-trogdor-lazor-limozeen_chromeos: &chromebook-arm64-type
+  sc7180-trogdor-lazor-limozeen_chromeos:
+    <<: *chromebook-arm64-type
     base_name: sc7180-trogdor-lazor-limozeen
     mach: qcom
-    class: arm64-dtb
-    boot_method: depthcharge
     dtb: 'qcom/sc7180-trogdor-lazor-limozeen-nots-r5.dtb'
     filters: &qualcomm-filter
       - passlist: {defconfig: ['chromiumos-qualcomm']}
-    params: &chromebook-arm64-params
-      cros_flash_nfs:
-        base_url: 'https://storage.staging.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20221205.0/arm64/'
-        initrd: 'initrd.cpio.gz'
-        initrd_compression: 'gz'
-        rootfs: 'full.rootfs.tar.xz'
-        rootfs_compression: 'xz'
+    params:
+      <<: *chromebook-arm64-params
       cros_flash_kernel:
         base_url: 'https://storage.chromeos.kernelci.org/images/kernel/v5.19-qualcomm/'
         image: 'kernel/Image'
@@ -650,6 +676,23 @@ test_configs:
   - device_type: lenovo-TPad-C13-Yoga-zork_chromeos
     test_plans: *chromebook-test-plans
 
+  - device_type: mt8183-kukui-jacuzzi-juniper-sku16_chromeos
+    test_plans: &chromebook-arm64-test-plans
+      - cros-baseline
+      - cros-baseline-fixed
+      - cros-tast-kernel
+      - cros-tast-kernel-fixed
+      - cros-tast-mm-misc
+      - cros-tast-mm-misc-fixed
+      - cros-tast-perf
+      - cros-tast-perf-fixed
+      - cros-tast-platform
+      - cros-tast-platform-fixed
+      - cros-tast-sound
+      - cros-tast-sound-fixed
+      - cros-tast-video
+      - cros-tast-video-fixed
+
   - device_type: qemu_x86_64-uefi-chromeos
     test_plans:
       - cros-baseline_qemu
@@ -659,4 +702,4 @@ test_configs:
       - cros-tast-video_qemu
 
   - device_type: sc7180-trogdor-lazor-limozeen_chromeos
-    test_plans: *chromebook-test-plans
+    test_plans: *chromebook-arm64-test-plans
