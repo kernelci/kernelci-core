@@ -134,7 +134,21 @@ build_configs:
   cip_4.4:
     tree: cip
     branch: 'linux-4.4.y-cip'
-    variants: *cip_variants_4_4
+    variants:
+      gcc-10:
+        build_environment: gcc-10
+        architectures:
+          arm:
+            base_defconfig: 'multi_v7_defconfig'
+            extra_configs:
+              - 'allnoconfig'
+              - 'cip://4.4.y-cip/arm/qemu_arm_defconfig'
+          x86_64:
+            base_defconfig: 'x86_64_defconfig'
+            fragments: [x86-chromebook]
+            extra_configs:
+              - 'allnoconfig'
+              - 'cip://4.4.y-cip/x86/cip_qemu_defconfig'
 
   cip_4.4-rc:
     tree: cip-gitlab
