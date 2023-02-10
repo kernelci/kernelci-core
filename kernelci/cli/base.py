@@ -17,6 +17,7 @@ import os.path
 import sys
 
 import kernelci.config
+from kernelci.db import kernelci_api
 
 
 # -----------------------------------------------------------------------------
@@ -433,6 +434,19 @@ class Command(abc.ABC):
         namespace.  For example, `--db-token` gets convereted to `db_token`.
         """
         return arg_name.strip('-').replace('-', '_')
+
+
+class APICommand(Command):  # pylint: disable=too-few-public-methods
+    """Base command class for interacting with the KernelCI API"""
+    args = [
+        Args.api_config, Args.api_token,
+    ]
+    opt_args = []
+
+    @classmethod
+    def _get_api(cls, configs, args):
+        config = configs['api_configs'][args.api_config]
+        return kernelci_api.KernelCI_API(config, args.api_token)
 
 
 class Options:

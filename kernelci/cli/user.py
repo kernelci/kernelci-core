@@ -7,26 +7,17 @@
 
 import json
 
-from kernelci.db import kernelci_api
-from .base import Args, Command, sub_main
+from .base import APICommand, sub_main
 
 
-class cmd_me(Command):  # pylint: disable=invalid-name
+class cmd_me(APICommand):  # pylint: disable=invalid-name
     """Use the /me entry point to get the current user's data"""
-    args = [
-        Args.api_config, Args.api_token,
-    ]
     opt_args = [
         {
             'name': '--indent',
             'help': "Indentation string in JSON output",
         },
     ]
-
-    @classmethod
-    def _get_api(cls, configs, args):
-        config = configs['api_configs'][args.api_config]
-        return kernelci_api.KernelCI_API(config, args.api_token)
 
     def __call__(self, configs, args):
         api = self._get_api(configs, args)
