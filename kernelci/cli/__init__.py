@@ -9,12 +9,14 @@ import sys
 
 from .base import Args, Command, parse_opts, sub_main
 from . import (
+    job,
     node,
     user,
     validate,
 )
 
 _COMMANDS = {
+    'job': job.main,
     'node': node.main,
     'user': user.main,
     'validate': validate.main,
