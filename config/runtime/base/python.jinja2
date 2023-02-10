@@ -16,13 +16,13 @@ import yaml
 {% endblock %}
 
 {%- block python_local_imports %}
-import kernelci.db
+from kernelci.db import kernelci_api
 import kernelci.config
 {%- endblock %}
 
 {%- block python_globals %}
-DB_CONFIG_YAML = """
-{{ db_config_yaml }}"""
+API_CONFIG_YAML = """
+{{ api_config_yaml }}"""
 NODE_ID = '{{ node_id }}'
 TARBALL_URL = '{{ tarball_url }}'
 WORKSPACE = '/tmp/kci'
@@ -34,18 +34,18 @@ class BaseJob:
     def __init__(self, workspace):
         self._workspace = workspace
 
-    def _get_db(self, db_config_yaml):
-        db_config = kernelci.config.db.DatabaseFactory.from_yaml(
-            'db', yaml.load(db_config_yaml, Loader=yaml.CLoader)
+    def _get_api(self, api_config_yaml):
+        api_config = kernelci.config.api.API.load_from_yaml(
+            yaml.safe_load(api_config_yaml), name='api'
         )
-        if not db_config:
-            return None
+        if not api_config:
+            raise ValueError("API configuration not found")
 
         api_token = os.getenv('API_TOKEN')
         if not api_token:
-            return None
+            raise ValueError("API_TOKEN environment variable not found")
 
-        return kernelci.db.get_db(db_config, api_token)
+        return kernelci_api.KernelCI_API(api_config, api_token)
 
     def _get_source(self, url):
         resp = requests.get(url, stream=True)
@@ -59,13 +59,13 @@ class BaseJob:
     def _run(self, src_path):
         raise NotImplementedError("_run() method required to run job")
 
-    def _submit(self, result, node_id, db):
-        node = db.get_node(node_id)
+    def _submit(self, result, node_id, api):
+        node = api.get_node(node_id)
         node.update({
             'result': result,
             'state': 'done',
         })
-        db.submit({'node': node})
+        api.submit({'node': node})
         return node
 
     def run(self, tarball_url):
@@ -75,10 +75,9 @@ class BaseJob:
         print("Running job...")
         return self._run(src_path)
 
-    def submit(self, result, node_id, db_config_yaml):
-        db = self._get_db(db_config_yaml)
-        if db:
-            self._submit(result, node_id, db)
+    def submit(self, result, node_id, api_config_yaml):
+        api = self._get_api(api_config_yaml)
+        self._submit(result, node_id, api)
 {% endblock %}
 
 {% block python_job -%}
@@ -95,8 +94,8 @@ def main(args):
         print(traceback.format_exc())
         results = None
 
-    if NODE_ID and DB_CONFIG_YAML:
-        job.submit(results, NODE_ID, DB_CONFIG_YAML)
+    if NODE_ID and API_CONFIG_YAML:
+        job.submit(results, NODE_ID, API_CONFIG_YAML)
 
     return results
 
