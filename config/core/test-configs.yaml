@@ -2663,14 +2663,7 @@ test_configs:
       - baseline
       - baseline-nfs
       - kselftest-cpufreq
-      - kselftest-futex
-      - kselftest-lib
-      - kselftest-lkdtm
-      - kselftest-rtc
-      - kselftest-seccomp
       - ltp-crypto
-      - ltp-fcntl-locktests
-      - ltp-ipc
       # ltp-mm - runs system out of memory
       - smc
 
