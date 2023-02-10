@@ -7,26 +7,17 @@
 
 import json
 
-from kernelci.db import kernelci_api
-from .base import Args, Command, sub_main
+from .base import APICommand, sub_main
 
 
-class NodeCommand(Command):  # pylint: disable=too-few-public-methods
+class NodeCommand(APICommand):  # pylint: disable=too-few-public-methods
     """Base command class for interacting with the KernelCI API"""
-    args = [
-        Args.api_config, Args.api_token,
-    ]
     opt_args = [
         {
             'name': '--indent',
             'help': "Indentation string in JSON output",
         },
     ]
-
-    @classmethod
-    def _get_api(cls, configs, args):
-        config = configs['api_configs'][args.api_config]
-        return kernelci_api.KernelCI_API(config, args.api_token)
 
 
 class NodeAttributesCommand(NodeCommand):
