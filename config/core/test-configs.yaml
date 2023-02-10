@@ -1409,6 +1409,8 @@ device_types:
     class: arm64-dtb
     boot_method: uboot
     flags: ['big_endian']
+    filters:
+      - blocklist: {kernel: ['v4.']}
 
   meson-gxm-khadas-vim2:
     mach: amlogic
