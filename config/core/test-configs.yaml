@@ -255,6 +255,7 @@ test_plans:
     filters:
       - passlist: {defconfig: ['kselftest']}
 
+  # Supported from v5.17 on but the latest v5.x stable is v5.15
   kselftest-alsa:
     <<: *kselftest
     rootfs: debian_bookworm-kselftest_nfs
@@ -263,6 +264,7 @@ test_plans:
       kselftest_collections: "alsa"
     filters: &kselftest_no_fragment
       - combination: *arch_defconfig_filter
+      - blocklist: {kernel: ['v3.', 'v4.', 'v5.']}
 
   kselftest-arm64:
     <<: *kselftest
