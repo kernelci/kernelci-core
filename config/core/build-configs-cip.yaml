@@ -143,6 +143,10 @@ build_configs:
             extra_configs:
               - 'allnoconfig'
               - 'cip://4.4.y-cip/arm/qemu_arm_defconfig'
+            filters:
+              - blocklist: {
+                defconfig: ['rpc_defconfig'] # gcc-10 not supported
+              }
           x86_64:
             base_defconfig: 'x86_64_defconfig'
             fragments: [x86-chromebook]
@@ -172,6 +176,10 @@ build_configs:
             extra_configs:
               - 'allnoconfig'
               - 'cip://4.19.y-cip/arm/qemu_arm_defconfig'
+            filters:
+              - blocklist: {
+                defconfig: ['rpc_defconfig'] # gcc-10 not supported
+              }
           arm64:
             fragments: [arm64-chromebook]
             extra_configs:
@@ -206,6 +214,10 @@ build_configs:
             extra_configs:
               - 'allnoconfig'
               - 'cip://5.10.y-cip/arm/qemu_arm_defconfig'
+            filters:
+              - blocklist: {
+                defconfig: ['rpc_defconfig'] # gcc-10 not supported
+              }
           arm64:
             fragments: [arm64-chromebook]
             extra_configs:
