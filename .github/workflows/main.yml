@@ -59,16 +59,23 @@ jobs:
     steps:
       - name: Check out source code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 32  # This is necessary to get the commits
 
       - name: Set up Python environment
         uses: actions/setup-python@v3
         with:
           python-version: "3.10"
 
-      - name: Run linter annotations
+      - name: Get changed python files between base and head
+        run: >
+          echo CHANGED_FILES=$(echo $(git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} -- | grep '\.py\|kci$')) >> $GITHUB_ENV
+
+      - if: env.CHANGED_FILES
         uses: marian-code/python-lint-annotate@v3
+        name: Run linter annotations
         with:
-          python-root-list: "kci"
+          python-root-list: ${{ env.CHANGED_FILES }}
           use-black: false
           use-flake8: false
           use-isort: false
