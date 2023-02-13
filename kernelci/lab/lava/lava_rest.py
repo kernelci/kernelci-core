@@ -32,7 +32,7 @@ class LavaRest(LavaAPI):
     labs.  It can retrieve some information such as the list of devices and
     their online status, generate and submit jobs with callback parameters.
     One special thing it can deal with is job priorities, which is only
-    available in kernelci.config.lab.lab_LAVA objects.
+    available in kernelci.config.runtime.lab_LAVA objects.
     """
     API_VERSION = 'v0.2'
 

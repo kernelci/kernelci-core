@@ -19,7 +19,6 @@ import yaml
 
 import kernelci.config
 import kernelci.config.build
-import kernelci.config.test
 
 
 def test_build_configs_parsing():

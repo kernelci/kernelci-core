@@ -24,7 +24,7 @@ import kernelci.config
 import kernelci.config.api
 import kernelci.config.build
 import kernelci.config.db
-import kernelci.config.lab
+import kernelci.config.runtime
 import kernelci.config.rootfs
 import kernelci.config.storage
 import kernelci.config.test
@@ -153,7 +153,7 @@ def from_data(data):
     config.update(kernelci.config.api.from_yaml(data, filters))
     config.update(kernelci.config.build.from_yaml(data, filters))
     config.update(kernelci.config.db.from_yaml(data, filters))
-    config.update(kernelci.config.lab.from_yaml(data, filters))
+    config.update(kernelci.config.runtime.from_yaml(data, filters))
     config.update(kernelci.config.rootfs.from_yaml(data, filters))
     config.update(kernelci.config.storage.from_yaml(data, filters))
     config.update(kernelci.config.test.from_yaml(data, filters))
