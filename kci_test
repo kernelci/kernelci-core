@@ -28,7 +28,6 @@ import yaml
 
 from kernelci.cli import Args, Command, parse_opts
 import kernelci
-import kernelci.config.lab
 import kernelci.config.test
 import kernelci.build
 import kernelci.lab
