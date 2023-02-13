@@ -9,10 +9,10 @@ from kernelci.config.base import FilterFactory, _YAMLObject
 
 
 class Runtime(_YAMLObject):
-    """Test lab model."""
+    """Runtime environment configuration"""
 
     def __init__(self, name, lab_type, filters=None):
-        """A lab object contains all the information relative to a test lab.
+        """A runtime environment configuration object
 
         *name* is the name used to refer to the lab in meta-data.
         *lab_type* is the name of the type of lab, essentially indicating the
@@ -154,12 +154,12 @@ class RuntimeFactory:  # pylint: disable=too-few-public-methods
 
 def from_yaml(data, filters):
     """Load the runtime environment from YAML based on its type"""
-    lab_filters = filters.get('labs')
-    labs = {
-        name: RuntimeFactory.from_yaml(name, lab, lab_filters)
-        for name, lab in data.get('labs', {}).items()
+    runtimes_filters = filters.get('runtimes')
+    runtimes = {
+        name: RuntimeFactory.from_yaml(name, runtime, runtimes_filters)
+        for name, runtime in data.get('runtimes', {}).items()
     }
 
     return {
-        'labs': labs,
+        'runtimes': runtimes,
     }

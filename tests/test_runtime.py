@@ -18,8 +18,8 @@ import kernelci.lab
 
 def test_lava_priority_scale():
     """Test the logic for determining the priority of LAVA jobs"""
-    config = kernelci.config.load('tests/configs/runtime.yaml')
-    labs = config['labs']
+    config = kernelci.config.load('tests/configs/runtimes.yaml')
+    runtimes = config['runtimes']
     plans = config['test_plans']
 
     prio_specs = {
@@ -27,18 +27,22 @@ def test_lava_priority_scale():
             'baseline': 90,
             'baseline-nfs': 85,
         },
-        'lab-broonie-min-max': {
-            'baseline': 12 + (40 - 12) * 90 / 100,
-            'baseline-nfs': 12 + (40 - 12) * 85 / 100,
+        'lab-broonie': {
+            'baseline': 40 * 90 / 100,
+            'baseline-nfs': 40 * 85 / 100,
         },
         'lab-collabora-staging': {
             'baseline': 45 * 90 / 100,
             'baseline-nfs': 45 * 85 / 100,
         },
+        'lab-min-12-max-40': {
+            'baseline': 12 + (40 - 12) * 90 / 100,
+            'baseline-nfs': 12 + (40 - 12) * 85 / 100,
+        },
     }
 
     for lab_name, specs in prio_specs.items():
-        lab_config = labs[lab_name]
+        lab_config = runtimes[lab_name]
         priorities = ' '.join(str(prio) for prio in [
             lab_config.priority,
             lab_config.priority_min,

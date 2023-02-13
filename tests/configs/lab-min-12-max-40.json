@@ -1,0 +1,11 @@
+{
+    "devices": {
+        "aliases": {},
+        "online_status": {
+            "qemu": true
+        }
+    },
+    "lab": "lab-min-12-max-40",
+    "lab_type": "lava.lava_xmlrpc",
+    "url": "https://fake.kernelci.org/RPC2/"
+}
