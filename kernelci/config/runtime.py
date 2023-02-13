@@ -1,21 +1,9 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
 # Copyright (C) 2019, 2021-2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
-#
-# This module is free software; you can redistribute it and/or modify it under
-# the terms of the GNU Lesser General Public License as published by the Free
-# Software Foundation; either version 2.1 of the License, or (at your option)
-# any later version.
-#
-# This library is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
-# details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with this library; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
-import yaml
+"""KernelCI Runtime environment configuration"""
 
 from kernelci.config.base import FilterFactory, _YAMLObject
 
@@ -33,14 +21,16 @@ class Runtime(_YAMLObject):
         """
         self._name = name
         self._lab_type = lab_type
-        self._filters = filters or list()
+        self._filters = filters or []
 
     @property
     def name(self):
+        """Configuration name"""
         return self._name
 
     @property
     def lab_type(self):
+        """Runtime environment name"""
         return self._lab_type
 
     @classmethod
@@ -50,10 +40,12 @@ class Runtime(_YAMLObject):
         return attrs
 
     def match(self, data):
+        """Match configuration filters with provided input data"""
         return all(f.match(**data) for f in self._filters)
 
 
-class Runtime_LAVA(Runtime):
+class RuntimeLAVA(Runtime):
+    """Configuration for LAVA runtime environments"""
 
     PRIORITIES = {
         'low': 0,
@@ -61,6 +53,8 @@ class Runtime_LAVA(Runtime):
         'high': 100,
     }
 
+    # This should be solved by dropping the "priority" attribute
+    # pylint: disable=too-many-arguments
     def __init__(self, url, priority=None, priority_min=None,
                  priority_max=None, queue_timeout=None, **kwargs):
         super().__init__(**kwargs)
@@ -76,22 +70,31 @@ class Runtime_LAVA(Runtime):
 
     @property
     def url(self):
+        """URL of the LAVA API"""
         return self._url
 
     @property
     def priority(self):
+        """Job priority for the lab"""
         return self._priority
 
     @property
     def priority_min(self):
+        """Minimum job priority for the lab"""
         return self._priority_min
 
     @property
     def priority_max(self):
+        """Maximum job priority for the lab"""
         return self._priority_max
 
     @property
     def queue_timeout(self):
+        """Queue timeout duration for the lab
+
+        The units are passed as a dictionary e.g. days and hours attributes
+        with respective values.
+        """
         return self._queue_timeout
 
     @classmethod
@@ -107,7 +110,8 @@ class Runtime_LAVA(Runtime):
         return attrs
 
 
-class Runtime_Kubernetes(Runtime):
+class RuntimeKubernetes(Runtime):
+    """Configuration for Kubernetes runtime environments"""
 
     def __init__(self, context=None, **kwargs):
         super().__init__(**kwargs)
@@ -115,6 +119,7 @@ class Runtime_Kubernetes(Runtime):
 
     @property
     def context(self):
+        """Name of the Kubernetes context to use e.g. with kubectl"""
         return self._context
 
     @classmethod
@@ -124,31 +129,34 @@ class Runtime_Kubernetes(Runtime):
         return attrs
 
 
-class RuntimeFactory(_YAMLObject):
+class RuntimeFactory:  # pylint: disable=too-few-public-methods
     """Factory to create lab objects from YAML data."""
 
     _lab_types = {
-        'kubernetes': Runtime_Kubernetes,
-        'lava.lava_xmlrpc': Runtime_LAVA,
-        'lava.lava_rest': Runtime_LAVA,
+        'kubernetes': RuntimeKubernetes,
+        'lava.lava_xmlrpc': RuntimeLAVA,
+        'lava.lava_rest': RuntimeLAVA,
         'shell': Runtime,
     }
 
     @classmethod
-    def from_yaml(cls, name, config):
+    def from_yaml(cls, name, config, default_filters):
+        """Load the configuration from YAML data"""
         lab_type = config.get('lab_type')
-        kw = {
+        kwargs = {
             'name': name,
             'lab_type': lab_type,
-            'filters': FilterFactory.from_data(config),
+            'filters': FilterFactory.from_data(config, default_filters),
         }
         lab_cls = cls._lab_types[lab_type] if lab_type else Runtime
-        return lab_cls.from_yaml(config, **kw)
+        return lab_cls.from_yaml(config, **kwargs)
 
 
 def from_yaml(data, filters):
+    """Load the runtime environment from YAML based on its type"""
+    lab_filters = filters.get('labs')
     labs = {
-        name: RuntimeFactory.from_yaml(name, lab)
+        name: RuntimeFactory.from_yaml(name, lab, lab_filters)
         for name, lab in data.get('labs', {}).items()
     }
 
