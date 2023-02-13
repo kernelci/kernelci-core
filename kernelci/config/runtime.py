@@ -20,7 +20,7 @@ import yaml
 from kernelci.config.base import FilterFactory, _YAMLObject
 
 
-class Lab(_YAMLObject):
+class Runtime(_YAMLObject):
     """Test lab model."""
 
     def __init__(self, name, lab_type, filters=None):
@@ -53,44 +53,7 @@ class Lab(_YAMLObject):
         return all(f.match(**data) for f in self._filters)
 
 
-class LabAPI(Lab):
-
-    def __init__(self, url, **kwargs):
-        """
-        *url* is the URL to reach the lab API.
-        """
-        super().__init__(**kwargs)
-        self._url = url
-
-    @property
-    def url(self):
-        return self._url
-
-    @classmethod
-    def _get_yaml_attributes(cls):
-        attrs = super()._get_yaml_attributes()
-        attrs.update({'url'})
-        return attrs
-
-
-class Lab_Kubernetes(Lab):
-
-    def __init__(self, context=None, **kwargs):
-        super().__init__(**kwargs)
-        self._context = context
-
-    @property
-    def context(self):
-        return self._context
-
-    @classmethod
-    def _get_yaml_attributes(cls):
-        attrs = super()._get_yaml_attributes()
-        attrs.update({'context'})
-        return attrs
-
-
-class Lab_LAVA(LabAPI):
+class Runtime_LAVA(Runtime):
 
     PRIORITIES = {
         'low': 0,
@@ -98,19 +61,22 @@ class Lab_LAVA(LabAPI):
         'high': 100,
     }
 
-    def __init__(self, priority=None, priority_min=None, priority_max=None,
-                 queue_timeout=None, **kwargs):
+    def __init__(self, url, priority=None, priority_min=None,
+                 priority_max=None, queue_timeout=None, **kwargs):
         super().__init__(**kwargs)
 
         def _set_priority_value(value, default):
             return max(min(value, 100), 0) if value is not None else default
 
-        self._priority = (
-            self.PRIORITIES.get(priority, priority)
-        )
+        self._url = url
+        self._priority = self.PRIORITIES.get(priority, priority)
         self._priority_min = _set_priority_value(priority_min, self._priority)
         self._priority_max = _set_priority_value(priority_max, self._priority)
         self._queue_timeout = queue_timeout
+
+    @property
+    def url(self):
+        return self._url
 
     @property
     def priority(self):
@@ -136,18 +102,36 @@ class Lab_LAVA(LabAPI):
             'priority_min',
             'priority_max',
             'queue_timeout',
+            'url',
         })
         return attrs
 
 
-class LabFactory(_YAMLObject):
+class Runtime_Kubernetes(Runtime):
+
+    def __init__(self, context=None, **kwargs):
+        super().__init__(**kwargs)
+        self._context = context
+
+    @property
+    def context(self):
+        return self._context
+
+    @classmethod
+    def _get_yaml_attributes(cls):
+        attrs = super()._get_yaml_attributes()
+        attrs.update({'context'})
+        return attrs
+
+
+class RuntimeFactory(_YAMLObject):
     """Factory to create lab objects from YAML data."""
 
     _lab_types = {
-        'kubernetes': Lab_Kubernetes,
-        'lava.lava_xmlrpc': Lab_LAVA,
-        'lava.lava_rest': Lab_LAVA,
-        'shell': Lab,
+        'kubernetes': Runtime_Kubernetes,
+        'lava.lava_xmlrpc': Runtime_LAVA,
+        'lava.lava_rest': Runtime_LAVA,
+        'shell': Runtime,
     }
 
     @classmethod
@@ -158,13 +142,13 @@ class LabFactory(_YAMLObject):
             'lab_type': lab_type,
             'filters': FilterFactory.from_data(config),
         }
-        lab_cls = cls._lab_types[lab_type] if lab_type else Lab
+        lab_cls = cls._lab_types[lab_type] if lab_type else Runtime
         return lab_cls.from_yaml(config, **kw)
 
 
 def from_yaml(data, filters):
     labs = {
-        name: LabFactory.from_yaml(name, lab)
+        name: RuntimeFactory.from_yaml(name, lab)
         for name, lab in data.get('labs', {}).items()
     }
 

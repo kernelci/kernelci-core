@@ -32,7 +32,7 @@ class LabAPI:
     def __init__(self, config, **kwargs):
         """A test lab API object can be used to remotely interact with a lab
 
-        *config* is a kernelci.config.runtime.Lab object
+        *config* is a kernelci.config.runtime.Runtime object
         """
         self._config = config
         self._server = self._connect(**kwargs)
@@ -130,7 +130,7 @@ class LabAPI:
 def get_api(lab, user=None, token=None, lab_json=None):
     """Get the LabAPI object for a given lab config.
 
-    *lab* is a kernelci.config.runtime.Lab object
+    *lab* is a kernelci.config.runtime.Runtime object
     *user* is the name of the user to connect to the remote lab
     *token* is the associated token to connect to the remote lab
     *lab_json* is the path to a JSON file with cached lab information
