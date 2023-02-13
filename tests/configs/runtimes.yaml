@@ -1,4 +1,4 @@
-labs:
+runtimes:
 
   lab-baylibre:
     lab_type: lava.lava_xmlrpc
@@ -17,10 +17,10 @@ labs:
             - preempt-rt
             - ltp
 
-  lab-broonie-min-max:
+  lab-broonie:
     lab_type: lava.lava_xmlrpc
     url: 'https://lava.sirena.org.uk/RPC2/'
-    priority_min: 12
+    priority_min: 0
     priority_max: 40
     queue_timeout:
       days: 1
@@ -36,6 +36,12 @@ labs:
     filters:
       - blocklist:
           tree: [android]
+
+  lab-min-12-max-40:
+    lab_type: lava.lava_xmlrpc
+    url: 'https://fake.kernelci.org/RPC2/'
+    priority_min: 12
+    priority_max: 40
 
 
 file_system_types:

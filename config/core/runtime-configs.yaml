@@ -1,4 +1,4 @@
-labs:
+runtimes:
 
   # ToDo: also run jobs with callbacks sent to BayLibre's KernelCI backend
   lab-baylibre:

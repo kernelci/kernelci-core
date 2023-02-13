@@ -52,7 +52,7 @@ class cmd_validate(Command):
             'device_types',
             'file_system_types',
             'test_plans',
-            'labs',
+            'runtimes',
         ]
         err = kernelci.config.validate_yaml(args.yaml_config, entries)
         if err:
@@ -207,7 +207,7 @@ class cmd_list_jobs(Command):
         if meta.get('bmeta', 'build', 'status') != "PASS":
             return True
 
-        lab_config = configs['labs'][args.lab_config]
+        lab_config = configs['runtimes'][args.lab_config]
         lab_api = kernelci.lab.get_api(
             lab_config, args.user, args.lab_token, args.lab_json)
 
@@ -240,7 +240,7 @@ class cmd_list_labs(Command):
     help = "List all the existing lab names"
 
     def __call__(self, configs, args):
-        for lab in sorted(configs['labs'].keys()):
+        for lab in sorted(configs['runtimes'].keys()):
             print(lab)
         return True
 
@@ -251,7 +251,7 @@ class cmd_get_lab_info(Command):
     opt_args = [Args.user, Args.lab_token]
 
     def __call__(self, configs, args):
-        lab = configs['labs'][args.lab_config]
+        lab = configs['runtimes'][args.lab_config]
         lab_api = kernelci.lab.get_api(lab, args.user, args.lab_token)
         data = {
             'lab': lab.name,
@@ -296,7 +296,7 @@ class cmd_generate(Command):
         if meta.get('bmeta', 'build', 'status') != "PASS":
             return True
 
-        lab_config = configs['labs'][args.lab_config]
+        lab_config = configs['runtimes'][args.lab_config]
         lab_api = kernelci.lab.get_api(
             lab_config, args.user, args.lab_token, args.lab_json)
 
@@ -353,7 +353,7 @@ class cmd_submit(Command):
     args = [Args.lab_config, Args.user, Args.lab_token, Args.jobs]
 
     def __call__(self, configs, args):
-        lab = configs['labs'][args.lab_config]
+        lab = configs['runtimes'][args.lab_config]
         lab_api = kernelci.lab.get_api(lab, args.user, args.lab_token)
         job_paths = glob.glob(args.jobs)
         res = True

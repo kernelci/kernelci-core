@@ -182,18 +182,19 @@ class TestAPIConfigs(ConfigTest):
 class TestRuntimeConfigs(ConfigTest):
     """Tests related to runtime configs"""
 
-    def test_lab(self):
-        """Test the labs configs"""
-        _, config = self._load_config('tests/configs/labs.yaml')
-        labs = config['labs']
-        lab_prio = {
+    def test_runtimes(self):
+        """Test the runtime configs"""
+        _, config = self._load_config('tests/configs/runtimes.yaml')
+        runtimes = config['runtimes']
+        lava_lab_prio = {
             'lab-baylibre': (None, None, None),
             'lab-broonie': (None, 0, 40),
             'lab-collabora-staging': (45, 45, 45),
+            'lab-min-12-max-40': (None, 12, 40),
         }
-        assert all(name in labs for name, _ in lab_prio.items())
-        for lab_name, (fixed_p, min_p, max_p) in lab_prio.items():
-            lab_config = labs[lab_name]
+        assert all(name in runtimes for name, _ in lava_lab_prio.items())
+        for lab_name, (fixed_p, min_p, max_p) in lava_lab_prio.items():
+            lab_config = runtimes[lab_name]
             assert lab_config.priority == fixed_p
             assert lab_config.priority_min == min_p
             assert lab_config.priority_max == max_p
