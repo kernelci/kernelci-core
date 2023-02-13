@@ -6,6 +6,12 @@
 # Copyright (C) 2019, 2020, 2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
+checks: \
+	pylint \
+	pycodestyle \
+	test \
+	validate-yaml
+
 pylint:
 	pylint --reports=y \
 		kci \
