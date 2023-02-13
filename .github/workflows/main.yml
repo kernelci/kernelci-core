@@ -51,12 +51,7 @@ jobs:
 
       - name: Run pylint
         run: |
-          pylint --reports=y \
-            kci \
-            kernelci.cli \
-            kernelci.config.api \
-            kernelci.storage \
-            tests
+          make pylint
 
       - name: Run YAML config validation
         run: |
