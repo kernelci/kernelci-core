@@ -1,6 +1,12 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Copyright (C) 2019, 2023 Linaro Limited
+# Author: Dan Rue <dan.rue@linaro.org>
+#
+# Copyright (C) 2019, 2020, 2023 Collabora Limited
+# Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+
 test:
-       # Note that just running 'pytest' will not work here because there is no setup.py. See
-       # https://docs.pytest.org/en/latest/pythonpath.html#invoking-pytest-versus-python-m-pytest
 	python3 -m pytest tests
 
 pylint:
