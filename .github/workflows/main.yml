@@ -39,7 +39,7 @@ jobs:
 
       - name: Run unit tests
         run: |
-          make test
+          make unit-tests
 
       - name: Run pycodestyle
         run: |
