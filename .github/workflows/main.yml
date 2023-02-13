@@ -51,8 +51,4 @@ jobs:
 
       - name: Run YAML config validation
         run: |
-          ./kci validate yaml
-          ./kci_build validate
-          ./kci_test validate
-          ./kci_data validate
-          ./kci_rootfs validate
+          make validate-yaml

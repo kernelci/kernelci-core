@@ -23,3 +23,10 @@ pycodestyle:
 
 test:
 	python3 -m pytest tests
+
+validate-yaml:
+	./kci validate yaml
+	./kci_build validate
+	./kci_test validate
+	./kci_data validate
+	./kci_rootfs validate
