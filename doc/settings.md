@@ -80,9 +80,9 @@ depending on the component being used, and also to allow these values to be
 used by all the command line tools.
 
 The component names are derived from entries defined in the YAML configuration
-files, such as `lab-configs.yaml` or `db-configs.yaml`.  However, the settings
-file can be used to keep values that don't belong in the YAML configuration
-such as secret API tokens or arbitrary user-specific choices.
+files, such as `runtime-configs.yaml` or `db-configs.yaml`.  However, the
+settings file can be used to keep values that don't belong in the YAML
+configuration such as secret API tokens or arbitrary user-specific choices.
 
 Each component section name in the settings file will be composed of two parts,
 separated by a colon `:` character:
@@ -90,11 +90,11 @@ separated by a colon `:` character:
 * a prefix with the type of component such as `lab` or `db`
 * the name of the component
 
-For example, if you define a lab called `my-lava-lab` in `lab-configs.yaml`,
-you can create a section called `[lab:my-lava-lab]` in the settings file.  You
-can refer to it with `--lab-config=my-lava-lab` on the command line, or even
-set `lab_config: my-lava-lab` in the `[DEFAULT]` section to always pick this
-one by default.  Here's an example:
+For example, if you define a lab called `my-lava-lab` in
+`runtime-configs.yaml`, you can create a section called `[lab:my-lava-lab]` in
+the settings file.  You can refer to it with `--lab-config=my-lava-lab` on the
+command line, or even set `lab_config: my-lava-lab` in the `[DEFAULT]` section
+to always pick this one by default.  Here's an example:
 
 ```ini
 [DEFAULT]

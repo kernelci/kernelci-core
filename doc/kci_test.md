@@ -19,7 +19,7 @@ configurations can be found in
 [`test-configs.yaml`](https://github.com/kernelci/kernelci-core/blob/main/config/core/test-configs.yaml)
 with the list of test plans and which devices should run them.  Likewise, the
 lab configurations can be found in
-[`lab-configs.yaml`](https://github.com/kernelci/kernelci-core/blob/main/config/core/lab-configs.yaml)
+[`runtime-configs.yaml`](https://github.com/kernelci/kernelci-core/blob/main/config/core/runtime-configs.yaml)
 and database backend configurations in
 [`db-configs.yaml`](https://github.com/kernelci/kernelci-core/blob/main/config/core/db-configs.yaml)
 
