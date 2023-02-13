@@ -238,6 +238,7 @@ test_plans:
 
   kselftest-alsa:
     <<: *kselftest
+    rootfs: debian_bookworm-kselftest_nfs
     params:
       job_timeout: '10'
       kselftest_collections: "alsa"
