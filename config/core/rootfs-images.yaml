@@ -7,6 +7,23 @@ file_systems:
     ramdisk: buildroot-baseline/20230211.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
     type: buildroot
+  debian_bookworm-kselftest_nfs:
+    boot_protocol: tftp
+    nfs: bookworm-kselftest/20230211.0/{arch}/full.rootfs.tar.xz
+    params:
+      os_config: debian
+    prompt: '/ #'
+    ramdisk: bookworm-kselftest/20230211.0/{arch}/initrd.cpio.gz
+    root_type: nfs
+    type: debian
+  debian_bookworm-kselftest_ramdisk:
+    boot_protocol: ramdisk
+    params:
+      os_config: debian
+    prompt: '/ #'
+    ramdisk: bookworm-kselftest/20230211.0/{arch}/rootfs.cpio.gz
+    root_type: ramdisk
+    type: debian
   debian_bullseye-cros-ec_ramdisk:
     boot_protocol: tftp
     params: {}
