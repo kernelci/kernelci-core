@@ -17,6 +17,7 @@ pylint:
 		kci \
 		kernelci.cli \
 		kernelci.config.api \
+		kernelci.config.runtime \
 		kernelci.storage \
 		tests
 
