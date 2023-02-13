@@ -6,9 +6,6 @@
 # Copyright (C) 2019, 2020, 2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
-test:
-	python3 -m pytest tests
-
 pylint:
 	pylint --reports=y \
 		kci \
@@ -16,3 +13,13 @@ pylint:
 		kernelci.config.api \
 		kernelci.storage \
 		tests
+
+pycodestyle:
+	pycodestyle kernelci
+	pycodestyle kci
+	pycodestyle kci_*
+	pycodestyle scripts/*
+	pycodestyle tests/*
+
+test:
+	python3 -m pytest tests

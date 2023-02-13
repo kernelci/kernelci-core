@@ -43,11 +43,7 @@ jobs:
 
       - name: Run pycodestyle
         run: |
-          pycodestyle kernelci
-          pycodestyle kci
-          pycodestyle kci_*
-          pycodestyle scripts/*
-          pycodestyle tests/*
+          make pycodestyle
 
       - name: Run pylint
         run: |
