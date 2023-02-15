@@ -34,7 +34,7 @@ class Args:  # pylint: disable=too-few-public-methods
     """
     SECTION_API = ('api', 'api_config')
     SECTION_DB = ('db', 'db_config')
-    SECTION_LAB = ('lab', 'lab_config')
+    SECTION_RUNTIME = ('runtime', 'runtime_config')
     SECTION_STORAGE = ('storage', 'storage_config')
 
     arch = {
@@ -86,7 +86,7 @@ class Args:  # pylint: disable=too-few-public-methods
 
     callback_dataset = {
         'name': '--callback-dataset',
-        'help': "Dataset to include in a lab callback",
+        'help': "Dataset to include in a LAVA callback",
         'section': SECTION_DB,
     }
 
@@ -213,21 +213,21 @@ class Args:  # pylint: disable=too-few-public-methods
         'help': "Kernel source tarball destination filename",
     }
 
-    lab_config = {
-        'name': '--lab-config',
-        'help': 'Test lab config name',
+    runtime_config = {
+        'name': '--runtime-config',
+        'help': 'Runtime environment config name',
     }
 
-    lab_json = {
-        'name': '--lab-json',
-        'help': "Path to a JSON file with lab-specific info",
-        'section': SECTION_LAB,
+    runtime_json = {
+        'name': '--runtime-json',
+        'help': "Path to a JSON file with runtime-specific info",
+        'section': SECTION_RUNTIME,
     }
 
-    lab_token = {
-        'name': '--lab-token',
-        'help': "Test lab token",
-        'section': SECTION_LAB,
+    runtime_token = {
+        'name': '--runtime-token',
+        'help': "Runtime environment token or credentials",
+        'section': SECTION_RUNTIME,
     }
 
     log = {
@@ -337,8 +337,8 @@ class Args:  # pylint: disable=too-few-public-methods
 
     user = {
         'name': '--user',
-        'help': "Test lab user name",
-        'section': SECTION_LAB,
+        'help': "Runtime environment user name",
+        'section': SECTION_RUNTIME,
     }
 
     username = {

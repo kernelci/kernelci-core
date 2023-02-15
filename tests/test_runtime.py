@@ -41,16 +41,16 @@ def test_lava_priority_scale():
         },
     }
 
-    for lab_name, specs in prio_specs.items():
-        lab_config = runtimes[lab_name]
+    for runtime_name, specs in prio_specs.items():
+        runtime_config = runtimes[runtime_name]
         priorities = ' '.join(str(prio) for prio in [
-            lab_config.priority,
-            lab_config.priority_min,
-            lab_config.priority_max,
+            runtime_config.priority,
+            runtime_config.priority_min,
+            runtime_config.priority_max,
         ])
-        print(f"{lab_name}: {priorities}")
+        print(f"{runtime_name}: {priorities}")
         lab = kernelci.lab.get_api(
-            lab_config, lab_json=f'tests/configs/{lab_name}.json'
+            runtime_config, runtime_json=f'tests/configs/{runtime_name}.json'
         )
         for plan_name, priority in specs.items():
             plan_config = plans[plan_name]
