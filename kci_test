@@ -188,8 +188,8 @@ class cmd_update_rootfs_urls(Command):
 
 class cmd_list_jobs(Command):
     help = "List all the jobs that need to be run for a given build and lab"
-    args = [Args.lab_config]
-    opt_args = [Args.user, Args.lab_token, Args.lab_json,
+    args = [Args.runtime_config]
+    opt_args = [Args.user, Args.runtime_token, Args.runtime_json,
                 Args.build_output, Args.install_path]
 
     def __call__(self, configs, args):
@@ -207,12 +207,12 @@ class cmd_list_jobs(Command):
         if meta.get('bmeta', 'build', 'status') != "PASS":
             return True
 
-        lab_config = configs['runtimes'][args.lab_config]
+        runtime_config = configs['runtimes'][args.runtime_config]
         lab_api = kernelci.lab.get_api(
-            lab_config, args.user, args.lab_token, args.lab_json)
+            runtime_config, args.user, args.runtime_token, args.runtime_json)
 
         configs = kernelci.test.match_configs(
-            configs['test_configs'], meta, lab_config)
+            configs['test_configs'], meta, runtime_config)
         jobs = list()
         for device_type, plan in configs:
             if not lab_api.device_type_online(device_type):
@@ -247,33 +247,33 @@ class cmd_list_labs(Command):
 
 class cmd_get_lab_info(Command):
     help = "Get the information about a lab into a JSON file"
-    args = [Args.lab_config, Args.lab_json]
-    opt_args = [Args.user, Args.lab_token]
+    args = [Args.runtime_config, Args.runtime_json]
+    opt_args = [Args.user, Args.runtime_token]
 
     def __call__(self, configs, args):
-        lab = configs['runtimes'][args.lab_config]
-        lab_api = kernelci.lab.get_api(lab, args.user, args.lab_token)
+        lab = configs['runtimes'][args.runtime_config]
+        lab_api = kernelci.lab.get_api(lab, args.user, args.runtime_token)
         data = {
             'lab': lab.name,
             'lab_type': lab.lab_type,
             'url': lab.url,
             'devices': lab_api.devices,
         }
-        dir = os.path.dirname(args.lab_json)
+        dir = os.path.dirname(args.runtime_json)
         if dir and not os.path.exists(dir):
             os.makedirs(dir)
-        with open(args.lab_json, 'w') as json_file:
+        with open(args.runtime_json, 'w') as json_file:
             json.dump(data, json_file, indent=4, sort_keys=True)
         return True
 
 
 class cmd_generate(Command):
     help = "Generate the job definition for a given build"
-    args = [Args.lab_config, kernelci.legacy.Args.storage]
+    args = [Args.runtime_config, kernelci.legacy.Args.storage]
     opt_args = [Args.plan, Args.target, Args.output,
                 Args.build_output, Args.install_path,
-                Args.lab_json, Args.user, Args.lab_token, Args.db_config,
-                Args.callback_id, Args.callback_dataset,
+                Args.runtime_json, Args.user, Args.runtime_token,
+                Args.db_config, Args.callback_id, Args.callback_dataset,
                 Args.callback_type, Args.callback_url, Args.mach,
                 Args.device_id]
 
@@ -296,9 +296,9 @@ class cmd_generate(Command):
         if meta.get('bmeta', 'build', 'status') != "PASS":
             return True
 
-        lab_config = configs['runtimes'][args.lab_config]
+        runtime_config = configs['runtimes'][args.runtime_config]
         lab_api = kernelci.lab.get_api(
-            lab_config, args.user, args.lab_token, args.lab_json)
+            runtime_config, args.user, args.runtime_token, args.runtime_json)
 
         if args.target and args.plan:
             device_config = configs['device_types'][args.target]
@@ -307,7 +307,7 @@ class cmd_generate(Command):
         else:
             jobs_list = []
             test_configs = kernelci.test.match_configs(
-                configs['test_configs'], meta, lab_config)
+                configs['test_configs'], meta, runtime_config)
             for device_config, plan_config in test_configs:
                 if not lab_api.device_type_online(device_config):
                     continue
@@ -350,11 +350,11 @@ class cmd_generate(Command):
 
 class cmd_submit(Command):
     help = "Submit job definitions to a lab"
-    args = [Args.lab_config, Args.user, Args.lab_token, Args.jobs]
+    args = [Args.runtime_config, Args.user, Args.runtime_token, Args.jobs]
 
     def __call__(self, configs, args):
-        lab = configs['runtimes'][args.lab_config]
-        lab_api = kernelci.lab.get_api(lab, args.user, args.lab_token)
+        lab = configs['runtimes'][args.runtime_config]
+        lab_api = kernelci.lab.get_api(lab, args.user, args.runtime_token)
         job_paths = glob.glob(args.jobs)
         res = True
         for path in job_paths:

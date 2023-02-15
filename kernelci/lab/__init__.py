@@ -81,8 +81,8 @@ class LabAPI:
         """Apply filters and return True if they match, False otherwise."""
         return self.config.match(filter_data)
 
-    def generate(self, params, device_config, plan_config,
-                 callback_opts=None, templates_paths=None, lab_config=None):
+    def generate(self, params, device_config, plan_config, callback_opts=None,
+                 templates_paths=None, runtime_config=None):
         """Generate a test job definition.
 
         *params* is a dictionary with the test parameters which can be used
@@ -101,9 +101,7 @@ class LabAPI:
             location.  This could be either a string or a list of strings to
             provide several paths.
 
-        *lab_config* is a configuration object for the API
-            where the tests should be run
-
+        *runtime_config* is a configuration object for the runtime environment
         """
         raise NotImplementedError("Lab.generate() is required")
 
@@ -127,18 +125,18 @@ class LabAPI:
         raise NotImplementedError("Lab.submit() is required")
 
 
-def get_api(lab, user=None, token=None, lab_json=None):
+def get_api(lab, user=None, token=None, runtime_json=None):
     """Get the LabAPI object for a given lab config.
 
     *lab* is a kernelci.config.runtime.Runtime object
     *user* is the name of the user to connect to the remote lab
     *token* is the associated token to connect to the remote lab
-    *lab_json* is the path to a JSON file with cached lab information
+    *runtime_json* is the path to a JSON file with cached lab information
     """
     m = importlib.import_module('.'.join(['kernelci', 'lab', lab.lab_type]))
     api = m.get_api(lab, user=user, token=token)
-    if lab_json:
-        with open(lab_json) as json_file:
+    if runtime_json:
+        with open(runtime_json) as json_file:
             devices = json.load(json_file)['devices']
             api.import_devices(devices)
     return api
