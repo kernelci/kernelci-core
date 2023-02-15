@@ -272,8 +272,7 @@ class cmd_generate(Command):
     args = [Args.runtime_config, kernelci.legacy.Args.storage]
     opt_args = [Args.plan, Args.target, Args.output,
                 Args.build_output, Args.install_path,
-                Args.runtime_json, Args.user, Args.runtime_token,
-                Args.db_config, Args.callback_id, Args.callback_dataset,
+                Args.runtime_json, Args.user, Args.runtime_token, Args.db_config, Args.callback_id, Args.callback_dataset,
                 Args.callback_type, Args.callback_url, Args.mach,
                 Args.device_id]
 
