@@ -47,7 +47,7 @@ mkdir -p /var/tests/gstreamer && cd /var/tests/gstreamer
 
 git clone --depth 1 $GSTREAMER_URL .
 
-meson build \
+meson setup build \
 	--wrap-mode=nofallback \
 	-Dauto_features=disabled \
 	-Dbad=enabled \
