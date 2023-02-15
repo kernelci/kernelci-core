@@ -53,7 +53,9 @@ meson setup build \
 	-Dbad=enabled \
 	-Dbase=enabled \
 	-Dgood=enabled \
+	-Dugly=disabled \
 	-Dgst-plugins-bad:ivfparse=enabled \
+	-Dgst-plugins-bad:debugutils=enabled \
 	-Dgst-plugins-bad:v4l2codecs=enabled \
 	-Dgst-plugins-bad:videoparsers=enabled \
 	-Dgst-plugins-base:app=enabled \
@@ -62,7 +64,11 @@ meson setup build \
 	-Dgst-plugins-base:typefind=enabled \
 	-Dgst-plugins-base:videoconvertscale=enabled \
 	-Dgst-plugins-good:matroska=enabled \
-	-Dtools=enabled
+	-Dtools=enabled \
+	-Ddevtools=disabled \
+	-Dges=disabled \
+	-Dlibav=disabled \
+	-Drtsp_server=disabled
 
 ninja -C build
 ninja -C build install
