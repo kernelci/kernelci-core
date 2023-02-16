@@ -570,6 +570,31 @@ device_types:
         dtb: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-jacuzzi/20230206.0/arm64/dtbs/mediatek/mt8183-kukui-jacuzzi-juniper-sku16.dtb'
       block_device: detect
 
+  mt8192-asurada-spherion-r0_chromeos:
+    <<: *chromebook-arm64-type
+    base_name: mt8192-asurada-spherion-r0
+    mach: mediatek
+    dtb: 'mediatek/mt8192-asurada-spherion-r0.dtb'
+    filters: *mediatek-filter
+    params:
+      <<: *chromebook-arm64-params
+      cros_flash_kernel:
+        base_url: 'https://storage.chromeos.kernelci.org/images/kernel/v6.1-mediatek/'
+        image: 'kernel/Image'
+        modules: 'modules.tar.xz'
+        modules_compression: 'xz'
+        dtb: 'dtbs/mediatek/mt8192-asurada-spherion-r0.dtb'
+      cros_image:
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-asurada/20230208.0/arm64/'
+        flash_tarball: 'full-cros-flash.tar.gz'
+        flash_tarball_compression: 'gz'
+        tast_tarball: 'tast.tgz'
+      reference_kernel:
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-asurada/20230208.0/arm64/Image'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-asurada/20230208.0/arm64/modules.tar.xz'
+        dtb: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-asurada/20230208.0/arm64/dtbs/mediatek/mt8192-asurada-spherion-r0.dtb'
+      block_device: detect
+
   qemu_x86_64-uefi-chromeos:
     base_name: qemu
     mach: qemu
@@ -692,6 +717,9 @@ test_configs:
       - cros-tast-sound-fixed
       - cros-tast-video
       - cros-tast-video-fixed
+
+  - device_type: mt8192-asurada-spherion-r0_chromeos
+    test_plans: *chromebook-arm64-test-plans
 
   - device_type: qemu_x86_64-uefi-chromeos
     test_plans:
