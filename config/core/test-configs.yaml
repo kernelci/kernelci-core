@@ -2931,6 +2931,8 @@ test_configs:
   - device_type: qcom-qdf2400
     test_plans:
       - baseline
+      - baseline-nfs
+      - kselftest-arm64
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-kvm
