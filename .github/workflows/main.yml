@@ -82,3 +82,20 @@ jobs:
           use-mypy: false
           use-pydocstyle: false
           use-vulture: false
+
+      - name: Get changed kci scripts between base and head
+        run: >
+          echo CHANGED_KCI_FILES=$(echo $(git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} -- | grep -v '.*\.md' | grep '^kci_\|^scripts/kci-')) >> $GITHUB_ENV
+
+      - if: env.CHANGED_KCI_FILES
+        uses: marian-code/python-lint-annotate@v3
+        name: Run pycodestyle annotations on kci scripts
+        with:
+          python-root-list: ${{ env.CHANGED_KCI_FILES }}
+          use-black: false
+          use-flake8: false
+          use-isort: false
+          use-mypy: false
+          use-pydocstyle: false
+          use-pylint: false
+          use-vulture: false
