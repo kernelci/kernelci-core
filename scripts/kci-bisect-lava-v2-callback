@@ -40,7 +40,7 @@ LAVA_JOB_RESULT_NAMES = {
     COMPLETE: "PASS",
     INCOMPLETE: "FAIL",
     CANCELED: "UNKNOWN",
-    CANCELING: "UNKNOWN",
+     CANCELING: "UNKNOWN",
 }
 
 # git bisect and LAVA job status map
