@@ -128,6 +128,8 @@ echo "Extracting additional artifacts"
 sudo tar -cJf "${DATA_DIR}/${BOARD}/modules.tar.xz" -C ./chroot/build/${BOARD} lib/modules
 sudo cp "./chroot/build/${BOARD}/boot/vmlinuz" "${DATA_DIR}/${BOARD}/bzImage"
 sudo cp ./chroot/build/${BOARD}/boot/config* "${DATA_DIR}/${BOARD}/kernel.config"
+# Extract CR50 firmware, but dont crash in case it is missing
+sudo mv ./chroot/build/${BOARD}/opt/google/cr50/firmware/* "${DATA_DIR}/${BOARD}/" || true
 
 echo "Extracting ${BOARD} specific artifacts"
 case ${BOARD} in
