@@ -12,6 +12,7 @@ tools which support the new API & Pipeline design.  See the documentation for
 more details: https://kernelci.org/docs/api/.
 """
 
+import abc
 import argparse
 import sys
 
@@ -20,10 +21,6 @@ import kernelci.cli
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("KernelCI Command Line Tools")
-    parser.add_argument(
-        'command',
-        choices=kernelci.cli.list_command_names(),
-        help="Command to run"
-    )
+    parser.add_argument('command', choices=kernelci.cli.list_command_names(), help="Command to run")
     args = parser.parse_args(sys.argv[1:2])
     kernelci.cli.call(args.command, sys.argv[2:])
