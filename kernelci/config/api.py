@@ -5,8 +5,8 @@
 
 """KernelCI API object configuration"""
 
+import abc
 from kernelci.config.base import YAMLConfigObject
-
 
 class API(YAMLConfigObject):
     """Base KernelCI API configuration object"""
