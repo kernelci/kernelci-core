@@ -2303,6 +2303,7 @@ test_configs:
   - device_type: bcm2835-rpi-b-rev2
     test_plans:
       - baseline
+      - baseline-nfs
 
   - device_type: bcm2836-rpi-2-b
     test_plans:
