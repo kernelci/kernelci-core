@@ -208,7 +208,7 @@ class cmd_list_jobs(Command):
             return True
 
         runtime_config = configs['runtimes'][args.runtime_config]
-        lab_api = kernelci.lab.get_api(
+        lab_api = kernelci.lab.get_runtime(
             runtime_config, args.user, args.runtime_token, args.runtime_json)
 
         configs = kernelci.test.match_configs(
@@ -252,7 +252,7 @@ class cmd_get_lab_info(Command):
 
     def __call__(self, configs, args):
         lab = configs['runtimes'][args.runtime_config]
-        lab_api = kernelci.lab.get_api(lab, args.user, args.runtime_token)
+        lab_api = kernelci.lab.get_runtime(lab, args.user, args.runtime_token)
         data = {
             'lab': lab.name,
             'lab_type': lab.lab_type,
@@ -297,7 +297,7 @@ class cmd_generate(Command):
             return True
 
         runtime_config = configs['runtimes'][args.runtime_config]
-        lab_api = kernelci.lab.get_api(
+        lab_api = kernelci.lab.get_runtime(
             runtime_config, args.user, args.runtime_token, args.runtime_json)
 
         if args.target and args.plan:
@@ -354,7 +354,7 @@ class cmd_submit(Command):
 
     def __call__(self, configs, args):
         lab = configs['runtimes'][args.runtime_config]
-        lab_api = kernelci.lab.get_api(lab, args.user, args.runtime_token)
+        lab_api = kernelci.lab.get_runtime(lab, args.user, args.runtime_token)
         job_paths = glob.glob(args.jobs)
         res = True
         for path in job_paths:

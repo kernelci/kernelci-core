@@ -21,10 +21,10 @@
 
 from jinja2 import Environment, FileSystemLoader
 import os
-from kernelci.lab import add_kci_raise, LabAPI
+from kernelci.lab import add_kci_raise, Runtime
 
 
-class LavaAPI(LabAPI):
+class LavaRuntime(Runtime):
     DEFAULT_TEMPLATE_PATHS = ['config/lava', '/etc/kernelci/lava']
 
     def generate(self, params, device_config, plan_config, callback_opts=None,

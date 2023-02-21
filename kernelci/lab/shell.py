@@ -18,10 +18,10 @@
 import os
 import subprocess
 from jinja2 import Environment, FileSystemLoader
-from kernelci.lab import LabAPI
+from kernelci.lab import Runtime
 
 
-class Shell(LabAPI):
+class Shell(Runtime):
     DEFAULT_TEMPLATE_PATHS = ['config/runtime', '/etc/kernelci/runtime']
 
     def generate(self, params, device_config, plan_config,
@@ -42,6 +42,6 @@ class Shell(LabAPI):
         return subprocess.Popen(job_path)
 
 
-def get_api(lab, **kwargs):
-    """Get a Shell object"""
-    return Shell(lab, **kwargs)
+def get_runtime(runtime_config, **kwargs):
+    """Get a Shell runtime object"""
+    return Shell(runtime_config, **kwargs)

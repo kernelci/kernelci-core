@@ -20,10 +20,10 @@ import random
 import re
 import string
 from jinja2 import Environment, FileSystemLoader
-from kernelci.lab import LabAPI
+from kernelci.lab import Runtime
 
 
-class Kubernetes(LabAPI):
+class Kubernetes(Runtime):
     DEFAULT_TEMPLATE_PATHS = ['config/runtime', '/etc/kernelci/runtime']
     RANDOM_CHARACTERS = string.ascii_lowercase + string.digits
 
@@ -52,6 +52,6 @@ class Kubernetes(LabAPI):
         return kubernetes.utils.create_from_yaml(client, job_path)
 
 
-def get_api(lab, **kwargs):
-    """Get a Kubernetes object"""
-    return Kubernetes(lab, **kwargs)
+def get_runtime(runtime_config, **kwargs):
+    """Get a Kubernetes runtime object"""
+    return Kubernetes(runtime_config, **kwargs)

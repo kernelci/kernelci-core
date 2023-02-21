@@ -21,12 +21,12 @@
 
 import xmlrpc.client
 import urllib.parse
-from kernelci.lab.lava import LavaAPI
+from kernelci.lab.lava import LavaRuntime
 
 DEVICE_ONLINE_STATUS = ['idle', 'running', 'reserved']
 
 
-class LAVA(LavaAPI):
+class LAVA(LavaRuntime):
     """Interface to a LAVA lab
 
     This implementation of kernelci.lab.LabAPI is to communicate with LAVA
@@ -95,6 +95,6 @@ class LAVA(LavaAPI):
         return self._server.scheduler.submit_job(job)
 
 
-def get_api(lab, **kwargs):
-    """Get a LAVA lab API object"""
-    return LAVA(lab, **kwargs)
+def get_runtime(runtime_config, **kwargs):
+    """Get a LAVA runtime object"""
+    return LAVA(runtime_config, **kwargs)
