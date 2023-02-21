@@ -99,21 +99,21 @@ file_systems:
     type: debian
   debian_bullseye-kvm-unit-tests_nfs:
     boot_protocol: tftp
-    nfs: bullseye-kvm-unit-tests/20230114.0/{arch}/full.rootfs.tar.xz
+    nfs: bullseye-kvm-unit-tests/20230314.0/{arch}/full.rootfs.tar.xz
     params:
       os_config: debian
     prompt: '/ #'
-    ramdisk: bullseye-kvm-unit-tests/20230114.0/{arch}/initrd.cpio.gz
+    ramdisk: bullseye-kvm-unit-tests/20230314.0/{arch}/initrd.cpio.gz
     root_type: nfs
-    type: debian
+    type: debian-staging
   debian_bullseye-kvm-unit-tests_ramdisk:
     boot_protocol: ramdisk
     params:
       os_config: debian
     prompt: '/ #'
-    ramdisk: bullseye-kvm-unit-tests/20221230.0/{arch}/rootfs.cpio.gz
+    ramdisk: bullseye-kvm-unit-tests/20230314.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
-    type: debian
+    type: debian-staging
   debian_bullseye-libcamera_nfs:
     boot_protocol: tftp
     nfs: bullseye-libcamera/20230519.0/{arch}/full.rootfs.tar.xz
