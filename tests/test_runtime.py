@@ -16,6 +16,15 @@ import kernelci.config
 import kernelci.lab
 
 
+def test_runtimes_init():
+    """Test that all the runtimes can be initialised (offline)"""
+    config = kernelci.config.load('tests/configs/runtimes.yaml')
+    runtimes = config['runtimes']
+    for runtime_name, runtime_config in runtimes.items():
+        print(f"Runtime name: {runtime_name}")
+        kernelci.lab.get_api(runtime_config)
+
+
 def test_lava_priority_scale():
     """Test the logic for determining the priority of LAVA jobs"""
     config = kernelci.config.load('tests/configs/runtimes.yaml')
