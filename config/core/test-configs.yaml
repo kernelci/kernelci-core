@@ -628,6 +628,7 @@ test_plans:
     params:
       job_timeout: '30'
       testsuite: 'AV1-TEST-VECTORS'
+      decoder: 'GStreamer-AV1-V4L2SL-Gst1.0'
       videodec_parallel_jobs: '1'
     filters:
       - regex: {'tree': '(next|mainline|media)'}
@@ -638,6 +639,7 @@ test_plans:
     params:
       job_timeout: '30'
       testsuite: 'JVT-AVC_V1'
+      decoder: 'GStreamer-H.264-V4L2SL-Gst1.0'
       videodec_parallel_jobs: '1'
     filters:
       - regex: {'tree': '(next|mainline|media)'}
@@ -648,6 +650,7 @@ test_plans:
     params:
       job_timeout: '30'
       testsuite: 'JCT-VC-HEVC-V1'
+      decoder: 'GStreamer-H.265-V4L2SL-Gst1.0'
       videodec_parallel_jobs: '1'
     filters:
       - regex: {'tree': '(next|mainline|media)'}
@@ -658,6 +661,7 @@ test_plans:
     params:
       job_timeout: '30'
       testsuite: 'VP8-TEST-VECTORS'
+      decoder: 'GStreamer-VP8-V4L2SL-Gst1.0'
       videodec_parallel_jobs: '1'
     filters:
       - regex: {'tree': '(next|mainline|media)'}
@@ -668,6 +672,7 @@ test_plans:
     params:
       job_timeout: '30'
       testsuite: 'VP9-TEST-VECTORS'
+      decoder: 'GStreamer-VP9-V4L2SL-Gst1.0'
       videodec_parallel_jobs: '1'
     filters:
       - regex: {'tree': '(next|mainline|media)'}
