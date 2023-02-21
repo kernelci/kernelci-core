@@ -241,11 +241,12 @@ def make_tarball(kdir, tarball_name):
     os.chdir(cwd)
 
 
-def generate_kselftest_fragment(frag, kdir):
+def generate_kselftest_fragment(frag, kdir, skip=[]):
     """Create a config fragment file for kselftest
 
     *frag* is a Fragment object
     *kdir* is the path to a kernel source directory
+    *skip* is a list of kselftests to skip
     """
     shell_cmd(r"""
 set -e
@@ -259,6 +260,8 @@ find \
 """.format(kdir=kdir, frag_path=frag.path))
     with open(os.path.join(kdir, frag.path), 'a') as f:
         for kernel_config in frag.configs:
+            if kernel_config in enumerate(skip):
+                continue
             f.write(kernel_config + '\n')
 
 
@@ -271,6 +274,12 @@ def generate_config_fragment(frag, kdir):
     with open(os.path.join(kdir, frag.path), 'w') as f:
         for kernel_config in frag.configs:
             f.write(kernel_config + '\n')
+
+
+slim_skip_frags = [
+    "tools/testing/selftests/lkdtm/config",
+    "tools/testing/selftests/cpufreq/config"
+]
 
 
 def generate_fragments(config, kdir):
@@ -288,6 +297,8 @@ def generate_fragments(config, kdir):
         print(frag.path)
         if frag.name == 'kselftest':
             generate_kselftest_fragment(frag, kdir)
+        elif frag.name == 'kselftest-slim':
+            generate_kselftest_fragment(frag, kdir, skip=slim_skip_frags)
         elif frag.configs:
             generate_config_fragment(frag, kdir)
 
