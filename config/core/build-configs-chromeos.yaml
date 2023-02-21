@@ -1,5 +1,8 @@
 trees:
 
+  collabora-chromeos-kernel:
+    url: "https://gitlab.collabora.com/google/chromeos-kernel.git"
+
   kernelci:
     url: "https://github.com/kernelci/linux.git"
 
@@ -94,6 +97,19 @@ build_configs:
     tree: stable
     branch: 'linux-6.1.y'
     variants: *chromeos_6_1_variants
+
+  collabora-chromeos-kernel:
+    tree: collabora-chromeos-kernel
+    branch: 'for-kernelci'
+    variants:
+      gcc-10:
+        build_environment: gcc-10
+        architectures:
+          arm64:
+            base_defconfig: 'defconfig'
+            fragments: [arm64-chromebook]
+            filters:
+              - passlist: { defconfig: ['arm64-chromebook'] }
 
   kernelci_chromeos-stable:
     tree: kernelci
