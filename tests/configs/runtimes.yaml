@@ -1,5 +1,9 @@
 runtimes:
 
+  k8s-gke-eu-west4:
+    lab_type: kubernetes
+    context: 'gke_android-kernelci-external_europe-west4-c_kci-eu-west4'
+
   lab-baylibre:
     lab_type: lava.lava_xmlrpc
     url: 'https://lava.baylibre.com/RPC2/'
@@ -42,6 +46,9 @@ runtimes:
     url: 'https://fake.kernelci.org/RPC2/'
     priority_min: 12
     priority_max: 40
+
+  shell:
+    lab_type: shell
 
 
 file_system_types:
