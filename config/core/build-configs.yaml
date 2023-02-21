@@ -418,7 +418,7 @@ fragments:
       - 'CONFIG_IMA=y'
       - 'CONFIG_IMA_READ_POLICY=y'
 
-  kselftest:
+  kselftest: &kselftest-fragment
     path: "kernel/configs/kselftest.config"
     configs:
       - '# CONFIG_DUMMY is not set'
@@ -426,11 +426,8 @@ fragments:
       - 'CONFIG_NET_IPGRE_DEMUX=m'
 
   kselftest-slim:
+    <<: *kselftest-fragment
     path: "kernel/configs/kselftest-slim.config"
-    configs:
-      - '# CONFIG_DUMMY is not set'
-      - 'CONFIG_NET_IPGRE=m'
-      - 'CONFIG_NET_IPGRE_DEMUX=m'
 
   preempt_rt:
     path: "kernel/configs/preempt_rt.config"
@@ -723,7 +720,6 @@ build_configs_defaults:
 
       fragments: &default_fragments
         - 'debug'
-        - 'kselftest'
         - 'kselftest-slim'
         - 'tinyconfig'
 
@@ -761,7 +757,6 @@ build_configs_defaults:
             - 'allnoconfig'
             - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
             - 'defconfig+CONFIG_RANDOMIZE_BASE=y'
-            - 'defconfig+arm64-chromebook+kselftest'
             - 'defconfig+arm64-chromebook+kselftest-slim'
             - 'defconfig+arm64-chromebook+videodec'
           fragments: [arm64-chromebook, crypto, ima, videodec]
@@ -791,7 +786,6 @@ build_configs_defaults:
           extra_configs:
             - 'allmodconfig'
             - 'allnoconfig'
-            - 'x86_64_defconfig+x86-chromebook+kselftest'
             - 'x86_64_defconfig+x86-chromebook+kselftest-slim'
             - 'x86_64_defconfig+x86-chromebook+amdgpu'
           fragments: [amdgpu, crypto, ima, x86_kvm_guest, x86-chromebook]
@@ -1116,15 +1110,46 @@ build_configs:
     tree: mainline
     branch: 'master'
     variants:
-      gcc-10: *default_gcc-10
+      gcc-10:
+        <<: *default_gcc-10
+        fragments: &fragments-kselftest
+          - 'debug'
+          - 'kselftest'
+          - 'kselftest-slim'
+          - 'tinyconfig'
+
+        architectures:
+          <<: *default_architectures
+          arm64: &arm64_arch-kselftest
+            <<: *arm64_arch
+            extra_configs:
+              - 'allmodconfig'
+              - 'allnoconfig'
+              - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
+              - 'defconfig+CONFIG_RANDOMIZE_BASE=y'
+              - 'defconfig+arm64-chromebook+kselftest'
+              - 'defconfig+arm64-chromebook+kselftest-slim'
+              - 'defconfig+arm64-chromebook+videodec'
+
+          x86_64: &x86_64_arch-kselftest
+            <<: *x86_64_arch
+            extra_configs:
+              - 'allmodconfig'
+              - 'allnoconfig'
+              - 'x86_64_defconfig+x86-chromebook+kselftest'
+              - 'x86_64_defconfig+x86-chromebook+kselftest-slim'
+              - 'x86_64_defconfig+x86-chromebook+amdgpu'
+
       # Minimum version
       clang-11:
         build_environment: clang-11
         architectures: *arch_clang_configs
+
       # Latest stable release
       clang-16:
         build_environment: clang-16
         architectures: *arch_clang_configs
+
       rustc-1.62:
         build_environment: rustc-1.62
         fragments: [rust, rust-samples, kselftest, kselftest-slim]
@@ -1169,14 +1194,14 @@ build_configs:
     variants:
       gcc-10:
         build_environment: gcc-10
-        fragments: *default_fragments
+        fragments: *fragments-kselftest
         architectures:
           i386: *i386_arch
-          x86_64: *x86_64_arch
+          x86_64: *x86_64_arch-kselftest
           mips: *mips_arch
           riscv: *riscv_arch
           sparc: *sparc_arch
-          arc: *arc_arch
+          arc:: *arc_arch
           arm64:
             <<: *arm64_arch
             extra_configs:
@@ -1188,6 +1213,8 @@ build_configs:
               - 'defconfig+CONFIG_RANDOMIZE_BASE=y'
               - 'defconfig+arm64-chromebook+kselftest'
               - 'defconfig+arm64-chromebook+kselftest-slim'
+              - 'kselftest'
+              - 'kselftest-slim'
           arm:
             base_defconfig: 'multi_v7_defconfig'
             extra_configs:
@@ -1197,6 +1224,8 @@ build_configs:
               - 'multi_v7_defconfig+CONFIG_THUMB2_KERNEL=y'
               - 'allnoconfig'
               - 'allmodconfig'
+              - 'kselftest'
+              - 'kselftest-slim'
 
       # Current development clang release
       clang-17:
