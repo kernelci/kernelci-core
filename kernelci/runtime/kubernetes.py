@@ -8,7 +8,7 @@ import random
 import re
 import string
 from jinja2 import Environment, FileSystemLoader
-from kernelci.lab import Runtime
+from kernelci.runtime import Runtime
 
 
 class Kubernetes(Runtime):

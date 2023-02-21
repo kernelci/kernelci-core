@@ -6,7 +6,7 @@
 import os
 import subprocess
 from jinja2 import Environment, FileSystemLoader
-from kernelci.lab import Runtime
+from kernelci.runtime import Runtime
 
 
 class Shell(Runtime):

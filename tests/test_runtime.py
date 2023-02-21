@@ -13,7 +13,7 @@
 # pylint: disable=protected-access
 
 import kernelci.config
-import kernelci.lab
+import kernelci.runtime
 
 
 def test_runtimes_init():
@@ -22,7 +22,7 @@ def test_runtimes_init():
     runtimes = config['runtimes']
     for runtime_name, runtime_config in runtimes.items():
         print(f"Runtime name: {runtime_name}")
-        kernelci.lab.get_runtime(runtime_config)
+        kernelci.runtime.get_runtime(runtime_config)
 
 
 def test_lava_priority_scale():
@@ -58,7 +58,7 @@ def test_lava_priority_scale():
             runtime_config.priority_max,
         ])
         print(f"{runtime_name}: {priorities}")
-        lab = kernelci.lab.get_runtime(
+        lab = kernelci.runtime.get_runtime(
             runtime_config, runtime_json=f'tests/configs/{runtime_name}.json'
         )
         for plan_name, priority in specs.items():

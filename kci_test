@@ -30,7 +30,7 @@ from kernelci.cli import Args, Command, parse_opts
 import kernelci
 import kernelci.config.test
 import kernelci.build
-import kernelci.lab
+import kernelci.runtime
 import kernelci.legacy
 import kernelci.test
 
@@ -208,14 +208,14 @@ class cmd_list_jobs(Command):
             return True
 
         runtime_config = configs['runtimes'][args.runtime_config]
-        lab_api = kernelci.lab.get_runtime(
-            runtime_config, args.user, args.runtime_token, args.runtime_json)
-
+        runtime = kernelci.runtime.get_runtime(
+            runtime_config, args.user, args.runtime_token, args.runtime_json
+        )
         configs = kernelci.test.match_configs(
             configs['test_configs'], meta, runtime_config)
         jobs = list()
         for device_type, plan in configs:
-            if not lab_api.device_type_online(device_type):
+            if not runtime.device_type_online(device_type):
                 continue
             jobs.append((device_type.name, plan.name))
 
@@ -251,13 +251,15 @@ class cmd_get_lab_info(Command):
     opt_args = [Args.user, Args.runtime_token]
 
     def __call__(self, configs, args):
-        lab = configs['runtimes'][args.runtime_config]
-        lab_api = kernelci.lab.get_runtime(lab, args.user, args.runtime_token)
+        runtime_config = configs['runtimes'][args.runtime_config]
+        runtime = kernelci.runtime.get_runtime(
+            runtime_config, args.user, args.runtime_token
+        )
         data = {
-            'lab': lab.name,
-            'lab_type': lab.lab_type,
-            'url': lab.url,
-            'devices': lab_api.devices,
+            'lab': runtime_config.name,
+            'lab_type': runtime_config.lab_type,
+            'url': runtime_config.url,
+            'devices': runtime.devices,
         }
         dir = os.path.dirname(args.runtime_json)
         if dir and not os.path.exists(dir):
@@ -297,9 +299,9 @@ class cmd_generate(Command):
             return True
 
         runtime_config = configs['runtimes'][args.runtime_config]
-        lab_api = kernelci.lab.get_runtime(
-            runtime_config, args.user, args.runtime_token, args.runtime_json)
-
+        runtime = kernelci.runtime.get_runtime(
+            runtime_config, args.user, args.runtime_token, args.runtime_json
+        )
         if args.target and args.plan:
             device_config = configs['device_types'][args.target]
             plan_config = configs['test_plans'][args.plan]
@@ -309,7 +311,7 @@ class cmd_generate(Command):
             test_configs = kernelci.test.match_configs(
                 configs['test_configs'], meta, runtime_config)
             for device_config, plan_config in test_configs:
-                if not lab_api.device_type_online(device_config):
+                if not runtime.device_type_online(device_config):
                     continue
                 if args.target and device_config.name != args.target:
                     continue
@@ -334,13 +336,14 @@ class cmd_generate(Command):
             params = kernelci.test.get_params(
                 meta, device_config, plan_config, args.storage,
                 args.device_id)
-            job = lab_api.generate(params, device_config, plan_config,
-                                   callback_opts)
+            job = runtime.generate(
+                params, device_config, plan_config, callback_opts
+            )
             if job is None:
                 print("Failed to generate the job definition")
                 return False
             if args.output:
-                output_file = lab_api.save_file(job, args.output, params)
+                output_file = runtime.save_file(job, args.output, params)
                 print(output_file)
             else:
                 print("# Job: {}".format(params['name']))
@@ -349,19 +352,21 @@ class cmd_generate(Command):
 
 
 class cmd_submit(Command):
-    help = "Submit job definitions to a lab"
+    help = "Submit job definitions to a runtime environment"
     args = [Args.runtime_config, Args.user, Args.runtime_token, Args.jobs]
 
     def __call__(self, configs, args):
-        lab = configs['runtimes'][args.runtime_config]
-        lab_api = kernelci.lab.get_runtime(lab, args.user, args.runtime_token)
+        runtime_config = configs['runtimes'][args.runtime_config]
+        runtime = kernelci.runtime.get_runtime(
+            runtime_config, args.user, args.runtime_token
+        )
         job_paths = glob.glob(args.jobs)
         res = True
         for path in job_paths:
             if not os.path.isfile(path):
                 continue
             try:
-                job_id = lab_api.submit(path)
+                job_id = runtime.submit(path)
                 print("{} {}".format(job_id, path))
             except requests.exceptions.HTTPError as e:
                 print(f'HTTPError: {e}')

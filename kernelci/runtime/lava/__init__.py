@@ -9,7 +9,7 @@
 
 from jinja2 import Environment, FileSystemLoader
 import os
-from kernelci.lab import add_kci_raise, Runtime
+from kernelci.runtime import add_kci_raise, Runtime
 
 
 class LavaRuntime(Runtime):

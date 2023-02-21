@@ -121,7 +121,7 @@ def get_runtime(config, user=None, token=None, runtime_json=None):
     *token* is the associated token to connect to the runtime
     *runtime_json* is the path to a JSON file with cached runtime information
     """
-    module_name = '.'.join(['kernelci', 'lab', config.lab_type])
+    module_name = '.'.join(['kernelci', 'runtime', config.lab_type])
     runtime_module = importlib.import_module(module_name)
     runtime = runtime_module.get_runtime(config, user=user, token=token)
     if runtime_json:
