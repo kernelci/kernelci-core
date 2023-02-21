@@ -425,6 +425,13 @@ fragments:
       - 'CONFIG_NET_IPGRE=m'
       - 'CONFIG_NET_IPGRE_DEMUX=m'
 
+  kselftest-slim:
+    path: "kernel/configs/kselftest-slim.config"
+    configs:
+      - '# CONFIG_DUMMY is not set'
+      - 'CONFIG_NET_IPGRE=m'
+      - 'CONFIG_NET_IPGRE_DEMUX=m'
+
   preempt_rt:
     path: "kernel/configs/preempt_rt.config"
     configs:
@@ -717,6 +724,7 @@ build_configs_defaults:
       fragments: &default_fragments
         - 'debug'
         - 'kselftest'
+        - 'kselftest-slim'
         - 'tinyconfig'
 
       architectures: &default_architectures
@@ -754,6 +762,7 @@ build_configs_defaults:
             - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
             - 'defconfig+CONFIG_RANDOMIZE_BASE=y'
             - 'defconfig+arm64-chromebook+kselftest'
+            - 'defconfig+arm64-chromebook+kselftest-slim'
             - 'defconfig+arm64-chromebook+videodec'
           fragments: [arm64-chromebook, crypto, ima, videodec]
 
@@ -783,6 +792,7 @@ build_configs_defaults:
             - 'allmodconfig'
             - 'allnoconfig'
             - 'x86_64_defconfig+x86-chromebook+kselftest'
+            - 'x86_64_defconfig+x86-chromebook+kselftest-slim'
             - 'x86_64_defconfig+x86-chromebook+amdgpu'
           fragments: [amdgpu, crypto, ima, x86_kvm_guest, x86-chromebook]
 
@@ -1052,7 +1062,9 @@ build_configs:
           arm64: &arm64-kselftest
             <<: *arm64_defconfig
             fragments: [arm64-chromebook]
-            extra_configs: ['defconfig+kselftest+arm64-chromebook']
+            extra_configs: [
+                    'defconfig+kselftest+arm64-chromebook',
+                    'defconfig+kselftest-slim+arm64-chromebook']
             filters: *kselftest-only
           i386:
             <<: *i386_defconfig
@@ -1060,7 +1072,9 @@ build_configs:
           x86_64: &x86_64-kselftest
             <<: *x86_64_defconfig
             fragments: [x86-chromebook]
-            extra_configs: ['x86_64+defconfig+kselftest+x86-chromebook']
+            extra_configs: [
+                    'x86_64+defconfig+kselftest+x86-chromebook',
+                    'x86_64+defconfig+kselftest-slim+x86-chromebook']
             filters: *kselftest-only
       clang-16:
         build_environment: clang-16
@@ -1113,7 +1127,7 @@ build_configs:
         architectures: *arch_clang_configs
       rustc-1.62:
         build_environment: rustc-1.62
-        fragments: [rust, rust-samples, kselftest]
+        fragments: [rust, rust-samples, kselftest, kselftest-slim]
         architectures:
           x86_64:
             base_defconfig: 'x86_64_defconfig'
@@ -1173,6 +1187,7 @@ build_configs:
               - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
               - 'defconfig+CONFIG_RANDOMIZE_BASE=y'
               - 'defconfig+arm64-chromebook+kselftest'
+              - 'defconfig+arm64-chromebook+kselftest-slim'
           arm:
             base_defconfig: 'multi_v7_defconfig'
             extra_configs:
@@ -1341,7 +1356,7 @@ build_configs:
     variants:
       rustc-1.66:
         build_environment: rustc-1.66
-        fragments: [rust, rust-for-linux-samples, kselftest]
+        fragments: [rust, rust-for-linux-samples, kselftest, kselftest-slim]
         architectures:
           x86_64:
             base_defconfig: 'x86_64_defconfig'
@@ -1352,7 +1367,7 @@ build_configs:
     variants:
       rustc-1.68:
         build_environment: rustc-1.68
-        fragments: [rust, rust-samples, kselftest]
+        fragments: [rust, rust-samples, kselftest, kselftest-slim]
         architectures:
           x86_64:
             base_defconfig: 'x86_64_defconfig'
