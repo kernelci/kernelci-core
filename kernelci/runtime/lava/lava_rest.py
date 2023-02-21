@@ -9,7 +9,7 @@ import json
 import requests
 from urllib.parse import urljoin
 import yaml
-from kernelci.lab.lava import LavaRuntime
+from kernelci.runtime.lava import LavaRuntime
 
 RestAPIServer = namedtuple('RestAPIServer', ['url', 'session'])
 
@@ -17,7 +17,7 @@ RestAPIServer = namedtuple('RestAPIServer', ['url', 'session'])
 class LavaRest(LavaRuntime):
     """Interface to a LAVA lab
 
-    This implementation of kernelci.lab.LabAPI is to communicate with LAVA
+    This implementation of kernelci.runtime.LabAPI is to communicate with LAVA
     labs.  It can retrieve some information such as the list of devices and
     their online status, generate and submit jobs with callback parameters.
     One special thing it can deal with is job priorities, which is only

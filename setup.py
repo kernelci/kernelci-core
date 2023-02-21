@@ -43,9 +43,9 @@ setuptools.setup(
         "kernelci",
         "kernelci.cli",
         "kernelci.config",
-        "kernelci.lab",
-        "kernelci.lab.lava",
         "kernelci.db",
+        "kernelci.runtime",
+        "kernelci.runtime.lava",
         "kernelci.storage",
     ],
     scripts=[
