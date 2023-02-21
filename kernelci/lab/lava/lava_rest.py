@@ -20,12 +20,12 @@ import json
 import requests
 from urllib.parse import urljoin
 import yaml
-from kernelci.lab.lava import LavaAPI
+from kernelci.lab.lava import LavaRuntime
 
 RestAPIServer = namedtuple('RestAPIServer', ['url', 'session'])
 
 
-class LavaRest(LavaAPI):
+class LavaRest(LavaRuntime):
     """Interface to a LAVA lab
 
     This implementation of kernelci.lab.LabAPI is to communicate with LAVA
@@ -108,6 +108,6 @@ class LavaRest(LavaAPI):
         return resp.json()['job_ids'][0]
 
 
-def get_api(lab, **kwargs):
-    """Get a LAVA lab API object"""
-    return LavaRest(lab, **kwargs)
+def get_runtime(runtime_config, **kwargs):
+    """Get a lavaRest runtime object"""
+    return LavaRest(runtime_config, **kwargs)

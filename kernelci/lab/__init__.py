@@ -26,11 +26,11 @@ def add_kci_raise(env):
     env.globals['kci_raise'] = template_exception
 
 
-class LabAPI:
-    """Remote API to a test lab"""
+class Runtime:
+    """Runtime environment"""
 
     def __init__(self, config, **kwargs):
-        """A test lab API object can be used to remotely interact with a lab
+        """A Runtime object can be used to run jobs in a runtime environment
 
         *config* is a kernelci.config.runtime.Runtime object
         """
@@ -58,7 +58,7 @@ class LabAPI:
         """Import devices information
 
         Import an arbitrary data structure describing the devices available in
-        the lab.
+        the runtime environment.
 
         *data* is the devices data structure to import
         """
@@ -103,7 +103,7 @@ class LabAPI:
 
         *runtime_config* is a configuration object for the runtime environment
         """
-        raise NotImplementedError("Lab.generate() is required")
+        raise NotImplementedError("Runtime.generate() is required")
 
     def save_file(self, job, output_path, params):
         """Save a test job definition in a file.
@@ -121,22 +121,23 @@ class LabAPI:
         return output_file
 
     def submit(self, job_path):
-        """Submit a test job definition in a lab."""
-        raise NotImplementedError("Lab.submit() is required")
+        """Submit a test job definition in a runtime."""
+        raise NotImplementedError("Runtime.submit() is required")
 
 
-def get_api(lab, user=None, token=None, runtime_json=None):
-    """Get the LabAPI object for a given lab config.
+def get_runtime(config, user=None, token=None, runtime_json=None):
+    """Get the Runtime object for a given runtime config.
 
-    *lab* is a kernelci.config.runtime.Runtime object
-    *user* is the name of the user to connect to the remote lab
-    *token* is the associated token to connect to the remote lab
-    *runtime_json* is the path to a JSON file with cached lab information
+    *config* is a kernelci.config.runtime.Runtime object
+    *user* is the name of the user to connect to the runtime
+    *token* is the associated token to connect to the runtime
+    *runtime_json* is the path to a JSON file with cached runtime information
     """
-    m = importlib.import_module('.'.join(['kernelci', 'lab', lab.lab_type]))
-    api = m.get_api(lab, user=user, token=token)
+    module_name = '.'.join(['kernelci', 'lab', config.lab_type])
+    runtime_module = importlib.import_module(module_name)
+    runtime = runtime_module.get_runtime(config, user=user, token=token)
     if runtime_json:
         with open(runtime_json) as json_file:
             devices = json.load(json_file)['devices']
-            api.import_devices(devices)
-    return api
+            runtime.import_devices(devices)
+    return runtime
