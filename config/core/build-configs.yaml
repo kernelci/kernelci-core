@@ -746,6 +746,7 @@ build_configs_defaults:
           extra_configs:
             - 'allmodconfig'
             - 'allnoconfig'
+            - 'virtconfig'
             - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
             - 'defconfig+CONFIG_RANDOMIZE_BASE=y'
             - 'defconfig+arm64-chromebook+kselftest'
@@ -1163,6 +1164,7 @@ build_configs:
             extra_configs:
               - 'allmodconfig'
               - 'allnoconfig'
+              - 'virtconfig'
               - 'defconfig+CONFIG_ARM64_16K_PAGES=y'
               - 'defconfig+CONFIG_ARM64_64K_PAGES=y'
               - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
