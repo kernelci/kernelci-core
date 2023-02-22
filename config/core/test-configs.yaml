@@ -1696,7 +1696,7 @@ device_types:
       machine: 'virt,gic-version=2,mte=on,accel=tcg'
       memory: 1g
     filters:
-      - regex: { defconfig: 'defconfig' }
+      - regex: { defconfig: '(def|virt)config' }
 
   qemu_arm64-virt-gicv2-uefi:
     <<: *qemu_arm64-virt-gicv2
@@ -1715,7 +1715,7 @@ device_types:
       machine: 'virt,gic-version=3,mte=on,accel=tcg'
       memory: 1g
     filters:
-      - passlist: {defconfig: ['defconfig']}
+      - passlist: {defconfig: ['defconfig', 'virtconfig']}
 
   qemu_arm64-virt-gicv3-uefi:
     <<: *qemu_arm64-virt-gicv3

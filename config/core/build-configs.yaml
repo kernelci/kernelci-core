@@ -794,6 +794,7 @@ arch_clang_configs: &arch_clang_configs
       - 'allmodconfig'
       - 'allnoconfig'
       - 'defconfig+CONFIG_ARM64_64K_PAGES=y'
+      - 'virtconfig'
   arm:
     base_defconfig: 'multi_v7_defconfig'
     filters:
