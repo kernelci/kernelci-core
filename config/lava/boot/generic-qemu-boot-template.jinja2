@@ -48,6 +48,12 @@ actions:
         image_arg: '-kernel {kernel} -append "console={{ console_dev }},115200 root=/dev/ram0 debug verbose {{ extra_kernel_args }}"'
 {%- endblock %}
         url: {{ kernel_url }}
+{%- if storage_headers %}
+        headers:
+{%- for header, value in storage_headers.items() %}
+          {{ header }}: {{ value }}
+{%- endfor %}
+{%- endif %}
       ramdisk:
         image_arg: '-initrd {ramdisk}'
         url: {{ initrd_url }}
@@ -55,6 +61,12 @@ actions:
       dtb:
         image_arg: '-dtb {dtb}'
         url: {{ dtb_url }}
+{%- if storage_headers %}
+        headers:
+{%- for header, value in storage_headers.items() %}
+          {{ header }}: {{ value }}
+{%- endfor %}
+{%- endif %}
 {% endif %}
 
 - boot:

@@ -235,6 +235,12 @@ class Args:  # pylint: disable=too-few-public-methods
         'help': "Path to log file",
     }
 
+    omit_publish_path = {
+        'name': '--omit-publish-path',
+        'help': "Do not extend the given storage URL with the publish path",
+        'action': 'store_true',
+    }
+
     mach = {
         'name': '--mach',
         'help': "Mach name (aka SoC family)",
@@ -303,6 +309,12 @@ class Args:  # pylint: disable=too-few-public-methods
         'name': '--storage-cred',
         'help': "Credentials to be used with the storage service",
         'section': SECTION_STORAGE,
+    }
+
+    storage_header = {
+        'name': '--storage-header',
+        'help': "A KEY=VALUE pair to provide when accessing storage",
+        'action': 'append'
     }
 
     target = {

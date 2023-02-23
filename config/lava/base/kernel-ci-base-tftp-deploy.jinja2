@@ -22,6 +22,12 @@ actions:
     to: tftp
     kernel:
       url: {{ kernel_url }}
+{%- if storage_headers %}
+      headers:
+{%- for header, value in storage_headers.items() %}
+        {{ header }}: {{ value }}
+{%- endfor %}
+{%- endif %}
 {%- block kernel_image_type %}
       type: {{ kernel_image.lower() }}
 {%- endblock %}
@@ -42,6 +48,12 @@ actions:
 {%- if modules_url %}
     modules:
       url: {{ modules_url }}
+{%- if storage_headers %}
+      headers:
+{%- for header, value in storage_headers.items() %}
+        {{ header }}: {{ value }}
+{%- endfor %}
+{%- endif %}
       {%- if modules_compression %}
       compression: {{ modules_compression }}
       {%- endif %}
@@ -49,6 +61,12 @@ actions:
 {%- if dtb_url %}
     dtb:
       url: {{ dtb_url }}
+{%- if storage_headers %}
+      headers:
+{%- for header, value in storage_headers.items() %}
+        {{ header }}: {{ value }}
+{%- endfor %}
+{%- endif %}
 {%- endif %}
     os: {{ os_config|default("oe") }}
 {% endblock %}
