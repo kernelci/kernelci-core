@@ -171,6 +171,11 @@ class Args:  # pylint: disable=too-few-public-methods
         'help': "Path to the dtbs.json file",
     }
 
+    indent = {
+        'name': '--indent',
+        'help': "Indentation string in JSON output",
+    }
+
     install = {
         'name': '--install',
         'action': 'store_true',
