@@ -7,17 +7,12 @@
 
 import json
 
-from .base import APICommand, sub_main
+from .base import Args, APICommand, sub_main
 
 
 class cmd_me(APICommand):  # pylint: disable=invalid-name
     """Use the /me entry point to get the current user's data"""
-    opt_args = [
-        {
-            'name': '--indent',
-            'help': "Indentation string in JSON output",
-        },
-    ]
+    opt_args = APICommand.opt_args + [Args.indent]
 
     def __call__(self, configs, args):
         api = self._get_api(configs, args)
