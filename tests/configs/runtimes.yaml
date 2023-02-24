@@ -5,7 +5,7 @@ runtimes:
     context: 'gke_android-kernelci-external_europe-west4-c_kci-eu-west4'
 
   lab-baylibre:
-    lab_type: lava.lava_xmlrpc
+    lab_type: legacy.lava_xmlrpc
     url: 'https://lava.baylibre.com/RPC2/'
     queue_timeout:
       days: 1
@@ -22,7 +22,7 @@ runtimes:
             - ltp
 
   lab-broonie:
-    lab_type: lava.lava_xmlrpc
+    lab_type: legacy.lava_xmlrpc
     url: 'https://lava.sirena.org.uk/RPC2/'
     priority_min: 0
     priority_max: 40
@@ -32,7 +32,7 @@ runtimes:
       - blocklist: {tree: [android]}
 
   lab-collabora-staging:
-    lab_type: lava.lava_rest
+    lab_type: legacy.lava_rest
     url: 'https://staging.lava.collabora.dev/'
     priority: 45
     queue_timeout:
@@ -42,6 +42,12 @@ runtimes:
           tree: [android]
 
   lab-min-12-max-40:
+    lab_type: legacy.lava_xmlrpc
+    url: 'https://fake.kernelci.org/RPC2/'
+    priority_min: 12
+    priority_max: 40
+
+  lab-min-12-max-40-new-runtime:
     lab_type: lava.lava_xmlrpc
     url: 'https://fake.kernelci.org/RPC2/'
     priority_min: 12

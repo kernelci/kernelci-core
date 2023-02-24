@@ -2,7 +2,7 @@ runtimes:
 
   # ToDo: also run jobs with callbacks sent to BayLibre's KernelCI backend
   lab-baylibre:
-    lab_type: lava.lava_xmlrpc
+    lab_type: legacy.lava_xmlrpc
     url: 'https://lava.baylibre.com/RPC2/'
     queue_timeout:
       days: 1
@@ -25,7 +25,7 @@ runtimes:
             - ltp
 
   lab-broonie:
-    lab_type: lava.lava_xmlrpc
+    lab_type: legacy.lava_xmlrpc
     url: 'https://lava.sirena.org.uk/RPC2/'
     priority_min: 0
     priority_max: 40
@@ -35,7 +35,7 @@ runtimes:
       - blocklist: {tree: [android]}
 
   lab-cip:
-    lab_type: lava.lava_xmlrpc
+    lab_type: legacy.lava_xmlrpc
     url: 'https://lava.ciplatform.org/RPC2/'
     priority: low
     filters:
@@ -75,7 +75,7 @@ runtimes:
             - ['stable-rc', 'linux-5.10.y']
 
   lab-clabbe:
-    lab_type: lava.lava_xmlrpc
+    lab_type: legacy.lava_xmlrpc
     url: 'https://lava.montjoie.ovh/RPC2/'
     queue_timeout:
       hours: 24
@@ -92,7 +92,7 @@ runtimes:
             - stable
 
   lab-collabora:
-    lab_type: lava.lava_rest
+    lab_type: legacy.lava_rest
     url: 'https://lava.collabora.dev/'
     priority: 45
     queue_timeout:
@@ -102,7 +102,7 @@ runtimes:
           tree: [android]
 
   lab-collabora-staging:
-    lab_type: lava.lava_rest
+    lab_type: legacy.lava_rest
     url: 'https://staging.lava.collabora.dev/'
     priority: 45
     queue_timeout:
@@ -110,7 +110,7 @@ runtimes:
     filters: *collabora-filters
 
   lab-kontron:
-    lab_type: lava.lava_rest
+    lab_type: legacy.lava_rest
     url: 'https://lavalab.kontron.com/'
     filters:
       - passlist:
@@ -118,7 +118,7 @@ runtimes:
             - baseline
 
   lab-linaro-lkft:
-    lab_type: lava.lava_rest
+    lab_type: legacy.lava_rest
     url: 'https://lkft.validation.linaro.org/'
     priority_min: 0
     priority_max: 25
@@ -137,7 +137,7 @@ runtimes:
             - stable
 
   lab-nxp:
-    lab_type: lava.lava_rest
+    lab_type: legacy.lava_rest
     url: 'https://lavalab.nxp.com/'
     filters:
       - passlist:
@@ -145,7 +145,7 @@ runtimes:
             - baseline
 
   lab-pengutronix:
-    lab_type: lava.lava_rest
+    lab_type: legacy.lava_rest
     url: 'https://hekla.openlab.pengutronix.de/'
     filters:
       - passlist:
@@ -153,7 +153,7 @@ runtimes:
             - baseline
 
   lab-theobroma-systems:
-    lab_type: lava.lava_xmlrpc
+    lab_type: legacy.lava_xmlrpc
     url: 'https://lava.theobroma-systems.com/RPC2/'
     filters:
       - passlist:
