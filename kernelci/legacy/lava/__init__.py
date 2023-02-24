@@ -9,11 +9,45 @@
 
 from jinja2 import Environment, FileSystemLoader
 import os
-from kernelci.runtime import add_kci_raise, Runtime
+
+from kernelci.runtime import add_kci_raise
 
 
-class LavaRuntime(Runtime):
+class LavaRuntime:
     DEFAULT_TEMPLATE_PATHS = ['config/lava', '/etc/kernelci/lava']
+
+    def __init__(self, config, **kwargs):
+        self._config = config
+        self._server = self._connect(**kwargs)
+        self._devices = None
+
+    @property
+    def config(self):
+        return self._config
+
+    @property
+    def devices(self):
+        if self._devices is None:
+            self._devices = self._get_devices()
+        return self._devices
+
+    def _get_devices(self):
+        return list()
+
+    def _connect(self, *args, **kwargs):
+        return None
+
+    def import_devices(self, data):
+        self._devices = data
+
+    def device_type_online(self, device_type_config):
+        return True
+
+    def job_file_name(self, params):
+        return '.'.join([params['name'], 'yaml'])
+
+    def match(self, filter_data):
+        return self.config.match(filter_data)
 
     def generate(self, params, device_config, plan_config, callback_opts=None,
                  templates_paths=None):
@@ -38,14 +72,18 @@ class LavaRuntime(Runtime):
         data = template.render(params)
         return data
 
+    def save_file(self, job, output_path, params):
+        file_name = self.job_file_name(params)
+        output_file = os.path.join(output_path, file_name)
+        with open(output_file, 'w') as output:
+            output.write(job)
+        return output_file
+
     def submit(self, job_path):
         with open(job_path, 'r') as job_file:
             job = job_file.read()
             job_id = self._submit(job)
             return job_id
-
-    def job_file_name(self, params):
-        return '.'.join([params['name'], 'yaml'])
 
     def _get_priority(self, plan_config):
         # Scale the job priority (from 0-100) within the available levels
