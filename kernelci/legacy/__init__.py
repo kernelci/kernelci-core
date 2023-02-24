@@ -1,4 +1,4 @@
-# Copyright (C) 2022 Collabora Limited
+# Copyright (C) 2022-2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 #
 # This module is free software; you can redistribute it and/or modify it under
