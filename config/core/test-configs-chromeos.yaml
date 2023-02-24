@@ -637,11 +637,11 @@ device_types:
     params:
       <<: *chromebook-arm64-params
       cros_flash_kernel:
-        base_url: 'https://storage.chromeos.kernelci.org/images/kernel/v5.19-qualcomm/'
+        base_url: 'https://storage.chromeos.kernelci.org/images/kernel/v6.1-qualcomm/'
         image: 'kernel/Image'
         modules: 'modules.tar.xz'
         modules_compression: 'xz'
-        dtb: 'qcom/sc7180-trogdor-kingoftown-r1.dtb'
+        dtb: 'dtbs/qcom/sc7180-trogdor-kingoftown-r1.dtb'
       cros_image:
         base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-trogdor/20221212.0/arm64/'
         flash_tarball: 'full-cros-flash.tar.gz'
@@ -662,7 +662,7 @@ device_types:
     params:
       <<: *chromebook-arm64-params
       cros_flash_kernel:
-        base_url: 'https://storage.chromeos.kernelci.org/images/kernel/v5.19-qualcomm/'
+        base_url: 'https://storage.chromeos.kernelci.org/images/kernel/v6.1-qualcomm/'
         image: 'kernel/Image'
         modules: 'modules.tar.xz'
         modules_compression: 'xz'
