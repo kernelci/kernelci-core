@@ -549,8 +549,6 @@ test_plans:
       tst_cmdfiles: "syscalls"
       job_timeout: '150'
       priority: 0
-    filters:
-      - regex: {'tree': '(next|mainline)'}
 
   ltp-timers:
     <<: *ltp
