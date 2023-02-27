@@ -3,15 +3,13 @@
 # Copyright (C) 2022 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
-# pylint: disable=C0103
-
-"""Tool to validate the KernelCI configuration"""
+"""Tool to manage the KernelCI YAML configuration"""
 
 import kernelci.config
 from .base import Args, Command, sub_main
 
 
-class cmd_yaml(Command):
+class cmd_validate(Command):  # pylint: disable=invalid-name
     """Validate the YAML configuration"""
     opt_args = [Args.verbose]
 
@@ -32,4 +30,4 @@ class cmd_yaml(Command):
 
 def main(args=None):
     """Entry point for the command line tool"""
-    sub_main("validate", globals(), args)
+    sub_main("config", globals(), args)
