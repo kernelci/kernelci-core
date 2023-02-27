@@ -9,6 +9,16 @@ import kernelci.config
 from .base import Args, Command, sub_main
 
 
+class cmd_list_files(Command):  # pylint: disable=invalid-name
+    """List the YAML configuration files"""
+
+    def __call__(self, configs, args):
+        paths = kernelci.config.get_config_paths(args.get_yaml_configs())
+        for path in paths:
+            for yaml_file, _ in kernelci.config.iterate_yaml_files(path):
+                print(yaml_file)
+
+
 class cmd_validate(Command):  # pylint: disable=invalid-name
     """Validate the YAML configuration"""
     opt_args = [Args.verbose]
