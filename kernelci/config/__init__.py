@@ -152,7 +152,7 @@ def load_yaml(config_paths):
     return config
 
 
-def from_data(data):
+def load_data(data):
     """Create configuration objects from the YAML data
 
     Create a top-level dictionary with all the configuration objects using the
@@ -186,4 +186,4 @@ def load(config_paths):
     if not config_paths:
         return {}
     data = load_yaml(config_paths)
-    return from_data(data)
+    return load_data(data)
