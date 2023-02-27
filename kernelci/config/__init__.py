@@ -41,33 +41,48 @@ def _iterate_yaml_files(config_path):
             yield yaml_path, data
 
 
-def validate_yaml(config_path, entries):
-    for yaml_path, data in _iterate_yaml_files(config_path):
-        for name, value in ((k, v) for k, v in data.items() if k in entries):
-            if isinstance(value, dict):
-                keys = value.keys()
-            elif isinstance(value, list):
-                keys = value
-            else:
-                keys = []
-            err = kernelci.sort_check(keys)
-            if err:
-                return "Broken order in {} {}: '{}' is before '{}'".format(
-                    yaml_path, name, err[0], err[1])
+def get_config_paths(config_paths):
+    if not config_paths:
+        config_paths = []
+        for config_path in ['config/core', '/etc/kernelci/core']:
+            if os.path.isdir(config_path):
+                config_paths.append(config_path)
+                break
+    return config_paths
+
+
+def validate_yaml(config_paths, entries):
+    config_paths = get_config_paths(config_paths)
+    if not config_paths:
+        return None
+    for path in config_paths:
+        for yaml_path, data in _iterate_yaml_files(path):
+            for name, value in (
+                    (k, v) for k, v in data.items() if k in entries):
+                if isinstance(value, dict):
+                    keys = value.keys()
+                elif isinstance(value, list):
+                    keys = value
+                else:
+                    keys = []
+                err = kernelci.sort_check(keys)
+                if err:
+                    return "Broken order in {} {}: '{}' is before '{}'".format(
+                        yaml_path, name, err[0], err[1])
     return None
 
 
-def load_yaml(config_path, validate_entries=None):
-    """Load the YAML configuration
+def load_single_yaml(config_path, validate_entries=None):
+    """Load the YAML configuration from a single directory or file
 
-    Load all the YAML files found in the configuration directory into a single
-    dictionary and return it.  Entries that have a same name in multiple files
-    will be merged together under the same top-level dictionary key.
+    Load all the YAML files found in a configuration directory or single file
+    into a dictionary and return it.  Entries that have a same name in multiple
+    files will be merged together under the same top-level dictionary key.
 
     *config_path* is the path to the YAML config directory, or alternative a
                   single YAML file.
 
-    *validate_entries* is currently unused.
+    *validate_entries* is not used
     """
     config = dict()
     for yaml_path, data in _iterate_yaml_files(config_path):
@@ -118,24 +133,25 @@ def _merge_trees(old, update):
         return update
 
 
-def load_all_yaml(config_paths, validate_entries=None):
+def load_yaml(config_paths, validate_entries=None):
     """Load the YAML configuration
 
-    Load all the YAML files in all the specific configuration
-    directories and aggregate them together. Later directories take
-    precedence over earlier ones. This enables combining sources of
-    configuration data from multiple places.
+    Load all the YAML files in all the specific configuration directories or
+    files and aggregate them together.  Later paths take precedence over
+    earlier ones.  This enables combining sources of configuration data from
+    multiple places.
 
-    *config_paths* is an ordered list of YAML configuration
-                   directories or YAML files, with later entries
-                   having higher priority.
+    *config_paths* is a single string or an ordered list of YAML configuration
+                   directories or YAML files, with later entries having higher
+                   priority.
 
-    *validate_entries* is passed to `load_yaml()`
-
+    *validate_entries* is not used
     """
+    if not isinstance(config_paths, list):
+        config_paths = [config_paths]
     config = dict()
     for path in config_paths:
-        data = load_yaml(path, validate_entries)
+        data = load_single_yaml(path, validate_entries)
         config = _merge_trees(config, data)
     return config
 
@@ -160,33 +176,18 @@ def from_data(data):
     return config
 
 
-def load(config_path):
+def load(config_paths):
     """Load the configuration from YAML files
 
-    Load all the YAML files found in the configuration directory then create
-    a dictionary containing the configuration objects and return it.
+    Load all the YAML files found in the configuration directories then create
+    a dictionary containing the configuration objects and return it.  Note that
+    the config paths are in priority order, with later entries overriding
+    earlier ones.
 
-    *config_path* is the path to the YAML config directory or a
-    unified file
-
+    *config_paths* is a list of YAML config directories or unified files
     """
-    if not config_path:
+    config_paths = get_config_paths(config_paths)
+    if not config_paths:
         return {}
-    data = load_yaml(config_path)
-    return from_data(data)
-
-
-def load_all(config_paths):
-    """Load the configuration from YAML files
-
-    Load all the YAML files found in all the configuration
-    directories, then create a dictionary containing the configuration
-    objects and return it. Note that the config paths are in priority
-    order, with later entries overriding earlier ones.
-
-    *config_paths* is a list of YAML config directories (or unified
-     files)
-
-    """
-    data = load_all_yaml(config_paths)
+    data = load_yaml(config_paths)
     return from_data(data)

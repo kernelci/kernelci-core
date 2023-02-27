@@ -554,20 +554,23 @@ class Options:
         return missing_args
 
     def get_yaml_configs(self):
-        """Get a list of all the YAML configuration files."""
-        return [self._cli_args.yaml_config] + self._cli_args.extra_config
+        """Get a list of all the YAML configuration paths."""
+        config_paths = []
+        if self.yaml_config:
+            config_paths.append(self.yaml_config)
+        if self.extra_config:
+            config_paths.extend(self.extra_config)
+        return config_paths
 
 
-def make_parser(title, default_config_path):
+def make_parser(title):
     """Helper to make a parser object from argparse.
 
     *title* is the title of the parser
-    *default_config_path* is the default YAML config directory to use
     """
     parser = argparse.ArgumentParser(title)
     parser.add_argument(
         "--yaml-config",
-        default=default_config_path,
         help="Path to the Kernel CI directory with YAML config files",
     )
     parser.add_argument(
@@ -638,7 +641,7 @@ def make_options(args, prog):
     return opts
 
 
-def parse_opts(prog, glob, yaml_config_path=None, args=None):
+def parse_opts(prog, glob, args=None):
     """Return an Options object with command line arguments and settings
 
     This will create a parser and automatically add the sub-commands from the
@@ -650,18 +653,10 @@ def parse_opts(prog, glob, yaml_config_path=None, args=None):
     *glob* is the dictionary with all the global attributes where to look for
            commands starting with `cmd_`
 
-    *yaml_config_path* is the name of a particular YAML configuration directory
-                       to use with the command line utility
-
     *args* is the list of arguments to parse, or by default all the command
            line arguments from sys.argv
     """
-    if yaml_config_path is None:
-        for config_path in ['config/core', '/etc/kernelci/core']:
-            if os.path.isdir(config_path):
-                yaml_config_path = config_path
-                break
-    parser = make_parser(prog, yaml_config_path)
+    parser = make_parser(prog)
     args = parse_args_with_parser(parser, glob, args)
     return make_options(args, prog)
 
@@ -678,6 +673,6 @@ def sub_main(name, glob, args=None):
     *args* is an optional list of arguments to override sys.argv
     """
     opts = parse_opts(name, glob, args=args)
-    configs = kernelci.config.load(opts.yaml_config)
+    configs = kernelci.config.load(opts.get_yaml_configs())
     status = opts.command(configs, opts)
     sys.exit(0 if status is True else 1)
