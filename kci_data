@@ -74,11 +74,12 @@ class cmd_submit(Command):
 class cmd_submit_build(Command):
     help = "Submit meta-data for a kernel build"
     args = [Args.kdir, Args.db_config]
-    opt_args = [Args.db_token, Args.output, Args.verbose]
+    opt_args = [Args.db_token, Args.output, Args.verbose, Args.install_path]
 
     def __call__(self, config_data, args):
         config = config_data['db_configs'][args.db_config]
-        install = kernelci.build.Step.get_install_path(args.kdir, args.output)
+        install = kernelci.build.Step.get_install_path(args.kdir, args.output,
+                                                       args.install_path)
         meta = kernelci.build.Metadata(install)
         db = kernelci.db.get_db(config, args.db_token)
         return db.submit_build(meta, args.verbose)
