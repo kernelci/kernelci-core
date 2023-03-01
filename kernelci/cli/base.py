@@ -377,8 +377,8 @@ class Command(abc.ABC):
     """
 
     help = None
-    args = None
-    opt_args = None
+    args = []
+    opt_args = []
 
     def __init__(self, sub_parser, name):
         """This class is to facilitate creating command line utilities
@@ -445,10 +445,9 @@ class Command(abc.ABC):
 
 class APICommand(Command):  # pylint: disable=too-few-public-methods
     """Base command class for interacting with the KernelCI API"""
-    args = [
+    args = Command.args + [
         Args.api_config, Args.api_token,
     ]
-    opt_args = []
 
     @classmethod
     def _get_api(cls, configs, args):
