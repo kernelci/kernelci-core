@@ -13,6 +13,7 @@ the commands registration mechanism.
 import abc
 import argparse
 import configparser
+import json
 import os.path
 import sys
 
@@ -453,6 +454,11 @@ class APICommand(Command):  # pylint: disable=too-few-public-methods
     def _get_api(cls, configs, args):
         config = configs['api_configs'][args.api_config]
         return kernelci.api.get_api(config, args.api_token)
+
+    @classmethod
+    def _print_json(cls, data, indent=None):
+        n_indent = 0 if indent is None else int(indent)
+        print(json.dumps(data, indent=n_indent))
 
 
 class Options:

@@ -5,8 +5,6 @@
 
 """Tool to manage KernelCI API node objects"""
 
-import json
-
 from .base import APICommand, Args, sub_main
 
 
@@ -44,7 +42,7 @@ class cmd_get(NodeCommand):  # pylint: disable=invalid-name
     def __call__(self, configs, args):
         api = self._get_api(configs, args)
         node = api.get_node(args.id)
-        print(json.dumps(node, indent=args.indent))
+        self._print_json(node, args.indent)
         return True
 
 
@@ -71,7 +69,7 @@ the matching nodes are retrieved.\
         api = self._get_api(configs, args)
         attributes = self._split_attributes(args.attributes)
         nodes = api.get_nodes(attributes, args.offset, args.limit)
-        print(json.dumps(nodes, indent=args.indent))
+        self._print_json(nodes, args.indent)
         return True
 
 

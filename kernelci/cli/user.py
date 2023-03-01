@@ -5,8 +5,6 @@
 
 """Tool to manage KernelCI API users"""
 
-import json
-
 from .base import Args, APICommand, sub_main
 
 
@@ -17,7 +15,7 @@ class cmd_me(APICommand):  # pylint: disable=invalid-name
     def __call__(self, configs, args):
         api = self._get_api(configs, args)
         data = api.me()
-        print(json.dumps(data, indent=args.indent))
+        self._print_json(data, args.indent)
         return True
 
 
