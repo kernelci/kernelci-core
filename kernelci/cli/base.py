@@ -173,7 +173,8 @@ class Args:  # pylint: disable=too-few-public-methods
 
     indent = {
         'name': '--indent',
-        'help': "Indentation string in JSON output",
+        'type': int,
+        'help': "Number of indentation spaces in JSON output",
     }
 
     install = {
