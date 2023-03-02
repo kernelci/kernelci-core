@@ -5,8 +5,6 @@
 
 """Tool to generate and run KernelCI jobs"""
 
-import yaml
-
 import kernelci.runtime
 from .base import APICommand, Args, Command, sub_main
 
@@ -105,18 +103,9 @@ Invalid arguments.  Either --node-id or --node-json is required.")
         platform_config = configs['device_types'][args.platform]
         runtime_config = configs['runtimes'][args.runtime_config]
         runtime = kernelci.runtime.get_runtime(runtime_config)
-
-        # This should be part of the Runtime implementation
-        params = {
-            'api_config_yaml': yaml.dump(api.config),
-            'name': plan_config.name,
-            'revision': job_node['revision'],
-            'runtime': runtime_config.lab_type,
-            'runtime_image': plan_config.image,
-            'tarball_url': job_node['artifacts']['tarball'],
-        }
-        params.update(plan_config.params)
-        params.update(platform_config.params)
+        params = runtime.get_params(
+            job_node, plan_config, platform_config, api.config
+        )
         job = runtime.generate(params, platform_config, plan_config)
         if args.output:
             output_file = runtime.save_file(job, args.output, params)
