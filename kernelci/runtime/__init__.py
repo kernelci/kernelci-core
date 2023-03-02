@@ -3,6 +3,7 @@
 # Copyright (C) 2019, 2021-2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
+import abc
 import importlib
 import json
 import os
@@ -15,7 +16,7 @@ def add_kci_raise(env):
     env.globals['kci_raise'] = template_exception
 
 
-class Runtime:
+class Runtime(abc.ABC):
     """Runtime environment"""
 
     def __init__(self, config, **kwargs):
@@ -85,6 +86,7 @@ class Runtime:
         params.update(platform_config.params)
         return params
 
+    @abc.abstractmethod
     def generate(self, params, device_config, plan_config, callback_opts=None,
                  templates_paths=None, runtime_config=None):
         """Generate a test job definition.
@@ -107,7 +109,6 @@ class Runtime:
 
         *runtime_config* is a configuration object for the runtime environment
         """
-        raise NotImplementedError("Runtime.generate() is required")
 
     def save_file(self, job, output_path, params):
         """Save a test job definition in a file.
@@ -124,9 +125,9 @@ class Runtime:
             output.write(job)
         return output_file
 
+    @abc.abstractmethod
     def submit(self, job_path):
-        """Submit a test job definition in a runtime."""
-        raise NotImplementedError("Runtime.submit() is required")
+        """Submit a test job definition to run."""
 
 
 def get_runtime(config, user=None, token=None, runtime_json=None):
