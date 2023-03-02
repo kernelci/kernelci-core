@@ -459,6 +459,11 @@ class APICommand(Command):  # pylint: disable=too-few-public-methods
         n_indent = 0 if indent is None else int(indent)
         print(json.dumps(data, indent=n_indent))
 
+    @classmethod
+    def _load_json(cls, json_path, encoding='utf-8'):
+        with open(json_path, encoding=encoding) as json_file:
+            return json.load(json_file)
+
 
 class Options:
     """Options based on user settings with CLI override."""
