@@ -10,13 +10,9 @@ from kernelci.runtime import Runtime
 
 
 class Shell(Runtime):
-    DEFAULT_TEMPLATE_PATHS = ['config/runtime', '/etc/kernelci/runtime']
 
-    def generate(self, params, device_config, plan_config,
-                 templates_paths=None):
-        if templates_paths is None:
-            templates_paths = self.DEFAULT_TEMPLATE_PATHS
-        jinja2_env = Environment(loader=FileSystemLoader(templates_paths))
+    def generate(self, params, device_config, plan_config):
+        jinja2_env = Environment(loader=FileSystemLoader(self.templates))
         template_path = plan_config.get_template_path(None)
         template = jinja2_env.get_template(template_path)
         return template.render(params)

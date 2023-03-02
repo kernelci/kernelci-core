@@ -13,12 +13,12 @@ from kernelci.runtime import add_kci_raise, Runtime
 
 
 class LavaRuntime(Runtime):
-    DEFAULT_TEMPLATE_PATHS = ['config/lava', '/etc/kernelci/lava']
+    LAVA_TEMPLATE_PATHS = ['config/lava', '/etc/kernelci/lava']
 
     def generate(self, params, device_config, plan_config,
                  templates_paths=None, callback_opts=None):
         if templates_paths is None:
-            templates_paths = self.DEFAULT_TEMPLATE_PATHS
+            templates_paths = self.LAVA_TEMPLATE_PATHS
         short_template_file = plan_config.get_template_path(
             device_config.boot_method)
         base_name = params['base_device_type']
