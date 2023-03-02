@@ -27,7 +27,7 @@ class Kubernetes(Runtime):
     def job_file_name(self, params):
         return '.'.join([params['k8s_job_name'], 'yaml'])
 
-    def submit(self, job_path, get_process=False):
+    def submit(self, job_path):
         kubernetes.config.load_kube_config(context=self.config.context)
         client = kubernetes.client.ApiClient()
         return kubernetes.utils.create_from_yaml(client, job_path)
