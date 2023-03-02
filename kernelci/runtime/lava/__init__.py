@@ -15,8 +15,8 @@ from kernelci.runtime import add_kci_raise, Runtime
 class LavaRuntime(Runtime):
     DEFAULT_TEMPLATE_PATHS = ['config/lava', '/etc/kernelci/lava']
 
-    def generate(self, params, device_config, plan_config, callback_opts=None,
-                 templates_paths=None):
+    def generate(self, params, device_config, plan_config,
+                 templates_paths=None, callback_opts=None):
         if templates_paths is None:
             templates_paths = self.DEFAULT_TEMPLATE_PATHS
         short_template_file = plan_config.get_template_path(

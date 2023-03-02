@@ -87,8 +87,8 @@ class Runtime(abc.ABC):
         return params
 
     @abc.abstractmethod
-    def generate(self, params, device_config, plan_config, callback_opts=None,
-                 templates_paths=None, runtime_config=None):
+    def generate(self, params, device_config, plan_config,
+                 templates_paths=None):
         """Generate a test job definition.
 
         *params* is a dictionary with the test parameters which can be used
@@ -100,14 +100,10 @@ class Runtime(abc.ABC):
         *plan_config* is a TestPlan configuration object for the target test
              plan
 
-        *callback_opts* is a dictionary with extra options used for callbacks
-
         *templates_paths* is an optional argument to specify the path(s) where
             the template files should be found, when not in the standard
             location.  This could be either a string or a list of strings to
             provide several paths.
-
-        *runtime_config* is a configuration object for the runtime environment
         """
 
     def save_file(self, job, output_path, params):

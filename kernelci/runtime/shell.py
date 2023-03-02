@@ -13,7 +13,7 @@ class Shell(Runtime):
     DEFAULT_TEMPLATE_PATHS = ['config/runtime', '/etc/kernelci/runtime']
 
     def generate(self, params, device_config, plan_config,
-                 callback_opts=None, templates_paths=None):
+                 templates_paths=None):
         if templates_paths is None:
             templates_paths = self.DEFAULT_TEMPLATE_PATHS
         jinja2_env = Environment(loader=FileSystemLoader(templates_paths))
