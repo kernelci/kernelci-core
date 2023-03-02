@@ -8,7 +8,7 @@
 import yaml
 
 import kernelci.runtime
-from .base import APICommand, Args, sub_main
+from .base import APICommand, Args, Command, sub_main
 
 
 class cmd_register(APICommand):  # pylint: disable=invalid-name
@@ -125,6 +125,25 @@ Invalid arguments.  Either --node-id or --node-json is required.")
             print(job)
 
         return True
+
+
+class cmd_submit(Command):  # pylint: disable=invalid-name
+    """Submit a job definition from a file"""
+    args = Command.args + [
+        {
+            'name': '--runtime-config',
+            'help': "Name of the runtime config",
+        },
+        {
+            'name': 'job_path',
+            'help': "Path of the job file to submit",
+        },
+    ]
+
+    def __call__(self, configs, args):
+        runtime_config = configs['runtimes'][args.runtime_config]
+        runtime = kernelci.runtime.get_runtime(runtime_config)
+        runtime.submit(args.job_path)
 
 
 def main(args=None):
