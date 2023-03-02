@@ -15,9 +15,7 @@ class Kubernetes(Runtime):
 
     def generate(self, params, device_config, plan_config):
         template = self._get_template(plan_config)
-        job_name = '-'.join([
-            'kci', params['node_id'], params['name'][:24]
-        ])
+        job_name = '-'.join(['kci', params['node_id'], params['name'][:24]])
         safe_name = re.sub(r'[\:/_+=]', '-', job_name).lower()
         rand_sx = ''.join(random.sample(self.RANDOM_CHARACTERS, 8))
         k8s_job_name = '-'.join([safe_name[:(62 - len(rand_sx))], rand_sx])
