@@ -41,6 +41,7 @@ setuptools.setup(
     url="https://github.com/kernelci/kernelci-core",
     packages=[
         "kernelci",
+        "kernelci.api",
         "kernelci.cli",
         "kernelci.config",
         "kernelci.db",

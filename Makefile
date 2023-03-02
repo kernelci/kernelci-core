@@ -15,6 +15,7 @@ test: \
 pylint:
 	pylint --reports=y \
 		kci \
+		kernelci.api \
 		kernelci.cli \
 		kernelci.config.api \
 		kernelci.config.runtime \
