@@ -1,22 +1,11 @@
-# Copyright (C) 2020, 2021, 2022 Collabora Limited
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Copyright (C) 2020-2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
-#
-# This module is free software; you can redistribute it and/or modify it under
-# the terms of the GNU Lesser General Public License as published by the Free
-# Software Foundation; either version 2.1 of the License, or (at your option)
-# any later version.
-#
-# This library is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
-# details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with this library; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+
+"""Python package setup"""
 
 import fnmatch
-from glob import glob
 import os
 import setuptools
 import kernelci
@@ -26,10 +15,15 @@ def _list_files(path, match):
     all_files = []
     for root, _, files in os.walk(path):
         dir_files = []
-        for f in fnmatch.filter(files, match):
-            dir_files.append(os.path.join(root, f))
+        for fname in fnmatch.filter(files, match):
+            dir_files.append(os.path.join(root, fname))
         all_files.append((root, dir_files))
     return all_files
+
+
+def _load_readme():
+    with open('README.md', 'rb') as readme:
+        return readme.read().decode('utf8')
 
 
 setuptools.setup(
@@ -61,13 +55,13 @@ setuptools.setup(
         'scripts/kci-bisect-lava-v2-callback',
         'scripts/kci-bisect-push-results',
     ],
-    long_description=open('README.md', 'rb').read().decode('utf8'),
+    long_description=_load_readme(),
     long_description_content_type='text/markdown',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: GNU Lesser General Public License v2 or later (LGPLv2+)',  # noqa
+        'License :: OSI Approved :: GNU Lesser General Public License v2 or later (LGPLv2+)',  # noqa pylint: disable=line-too-long
         'Operating System :: OS Independent',
         'Operating System :: POSIX :: Linux',
         'Programming Language :: C',
