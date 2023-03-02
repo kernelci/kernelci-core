@@ -6,6 +6,7 @@
 import importlib
 import json
 import os
+import yaml
 
 
 def add_kci_raise(env):
@@ -68,6 +69,21 @@ class Runtime:
     def match(self, filter_data):
         """Apply filters and return True if they match, False otherwise."""
         return self.config.match(filter_data)
+
+    def get_params(self, node, plan_config, platform_config, api_config=None):
+        """Get job template parameters"""
+        params = {
+            'api_config_yaml': yaml.dump(api_config),
+            'name': plan_config.name,
+            'node_id': node['_id'],
+            'revision': node['revision'],
+            'runtime': self.config.lab_type,
+            'runtime_image': plan_config.image,
+            'tarball_url': node['artifacts']['tarball'],
+        }
+        params.update(plan_config.params)
+        params.update(platform_config.params)
+        return params
 
     def generate(self, params, device_config, plan_config, callback_opts=None,
                  templates_paths=None, runtime_config=None):
