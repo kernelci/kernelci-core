@@ -19,6 +19,8 @@ def add_kci_raise(env):
 class Runtime(abc.ABC):
     """Runtime environment"""
 
+    TEMPLATES = ['config/runtime', '/etc/kernelci/runtime']
+
     def __init__(self, config, **kwargs):
         """A Runtime object can be used to run jobs in a runtime environment
 
@@ -27,6 +29,7 @@ class Runtime(abc.ABC):
         self._config = config
         self._server = self._connect(**kwargs)
         self._devices = None
+        self._templates = self.TEMPLATES
 
     @property
     def config(self):
@@ -37,6 +40,10 @@ class Runtime(abc.ABC):
         if self._devices is None:
             self._devices = self._get_devices()
         return self._devices
+
+    @property
+    def templates(self):
+        return self._templates
 
     def _get_devices(self):
         return list()
@@ -87,8 +94,7 @@ class Runtime(abc.ABC):
         return params
 
     @abc.abstractmethod
-    def generate(self, params, device_config, plan_config,
-                 templates_paths=None):
+    def generate(self, params, device_config, plan_config):
         """Generate a test job definition.
 
         *params* is a dictionary with the test parameters which can be used
@@ -99,11 +105,6 @@ class Runtime(abc.ABC):
 
         *plan_config* is a TestPlan configuration object for the target test
              plan
-
-        *templates_paths* is an optional argument to specify the path(s) where
-            the template files should be found, when not in the standard
-            location.  This could be either a string or a list of strings to
-            provide several paths.
         """
 
     def save_file(self, job, output_path, params):
