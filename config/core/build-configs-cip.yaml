@@ -173,6 +173,7 @@ build_configs:
         architectures:
           arm:
             base_defconfig: 'multi_v7_defconfig'
+            fragments: [kselftest]
             extra_configs:
               - 'allnoconfig'
               - 'cip://4.19.y-cip/arm/qemu_arm_defconfig'
@@ -181,13 +182,13 @@ build_configs:
                 defconfig: ['rpc_defconfig'] # gcc-10 not supported
               }
           arm64:
-            fragments: [arm64-chromebook]
+            fragments: [kselftest, arm64-chromebook]
             extra_configs:
               - 'allnoconfig'
               - 'cip://4.19.y-cip/arm64/qemu_arm64_defconfig'
           x86_64:
             base_defconfig: 'x86_64_defconfig'
-            fragments: [x86-chromebook]
+            fragments: [kselftest, x86-chromebook]
             extra_configs:
               - 'allnoconfig'
               - 'cip://4.19.y-cip/x86/cip_qemu_defconfig'
@@ -219,18 +220,19 @@ build_configs:
                 defconfig: ['rpc_defconfig'] # gcc-10 not supported
               }
           arm64:
-            fragments: [arm64-chromebook]
+            fragments: [kselftest, arm64-chromebook]
             extra_configs:
               - 'allnoconfig'
               - 'cip://5.10.y-cip/arm64/qemu_arm64_defconfig'
           x86_64:
             base_defconfig: 'x86_64_defconfig'
-            fragments: [x86-chromebook]
+            fragments: [kselftest, x86-chromebook]
             extra_configs:
               - 'allnoconfig'
               - 'cip://5.10.y-cip/x86/cip_qemu_defconfig'
           riscv:
             base_defconfig: 'riscv_defconfig'
+            fragments: [kselftest]
             extra_configs:
               - 'allnoconfig'
               - 'cip://5.10.y-cip/riscv/qemu_riscv64_defconfig'
