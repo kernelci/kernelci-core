@@ -16,8 +16,8 @@ import configparser
 import os.path
 import sys
 
+import kernelci.api
 import kernelci.config
-from kernelci.db import kernelci_api
 
 
 # -----------------------------------------------------------------------------
@@ -451,7 +451,7 @@ class APICommand(Command):  # pylint: disable=too-few-public-methods
     @classmethod
     def _get_api(cls, configs, args):
         config = configs['api_configs'][args.api_config]
-        return kernelci_api.KernelCI_API(config, args.api_token)
+        return kernelci.api.get_api(config, args.api_token)
 
 
 class Options:
