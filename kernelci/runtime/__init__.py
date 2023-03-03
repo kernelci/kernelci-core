@@ -9,6 +9,8 @@ import json
 import os
 import yaml
 
+from jinja2 import Environment, FileSystemLoader
+
 
 def add_kci_raise(env):
     def template_exception(msg):
@@ -50,6 +52,11 @@ class Runtime(abc.ABC):
 
     def _connect(self, *args, **kwargs):
         return None
+
+    def _get_template(self, plan_config):
+        jinja2_env = Environment(loader=FileSystemLoader(self.templates))
+        template_path = plan_config.get_template_path(None)
+        return jinja2_env.get_template(template_path)
 
     def import_devices(self, data):
         """Import devices information

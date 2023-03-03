@@ -5,16 +5,13 @@
 
 import os
 import subprocess
-from jinja2 import Environment, FileSystemLoader
 from kernelci.runtime import Runtime
 
 
 class Shell(Runtime):
 
     def generate(self, params, device_config, plan_config):
-        jinja2_env = Environment(loader=FileSystemLoader(self.templates))
-        template_path = plan_config.get_template_path(None)
-        template = jinja2_env.get_template(template_path)
+        template = self._get_template(plan_config)
         return template.render(params)
 
     def save_file(self, *args, **kwargs):
