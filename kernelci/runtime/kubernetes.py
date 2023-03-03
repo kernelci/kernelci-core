@@ -7,7 +7,6 @@ import kubernetes
 import random
 import re
 import string
-from jinja2 import Environment, FileSystemLoader
 from kernelci.runtime import Runtime
 
 
@@ -15,9 +14,7 @@ class Kubernetes(Runtime):
     RANDOM_CHARACTERS = string.ascii_lowercase + string.digits
 
     def generate(self, params, device_config, plan_config):
-        jinja2_env = Environment(loader=FileSystemLoader(self.templates))
-        template_path = plan_config.get_template_path(None)
-        template = jinja2_env.get_template(template_path)
+        template = self._get_template(plan_config)
         job_name = '-'.join([
             'kci', params['node_id'], params['name'][:24]
         ])
