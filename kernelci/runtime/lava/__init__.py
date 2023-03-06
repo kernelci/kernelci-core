@@ -7,6 +7,8 @@
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 # Author: Michal Galka <michal.galka@collabora.com>
 
+# pylint: disable=all
+
 from jinja2 import Environment, FileSystemLoader
 import os
 from kernelci.runtime import add_kci_raise, Runtime
