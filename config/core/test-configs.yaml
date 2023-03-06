@@ -2843,6 +2843,7 @@ test_configs:
       - baseline
       - baseline-nfs
       - cros-ec
+      - igt-kms-mediatek
       - kselftest-arm64
       - kselftest-cpufreq
       - kselftest-filesystems
@@ -2870,6 +2871,7 @@ test_configs:
       - baseline-nfs
       - cros-ec
       - igt-gpu-panfrost
+      - igt-kms-mediatek
       - kselftest-alsa
       - kselftest-arm64
       - kselftest-cpufreq
@@ -2888,6 +2890,7 @@ test_configs:
       - baseline-nfs
       - cros-ec
       - igt-gpu-panfrost
+      - igt-kms-mediatek
       - kselftest-alsa
       - kselftest-arm64
       - kselftest-cpufreq
