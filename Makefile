@@ -20,6 +20,7 @@ pylint:
 		kernelci.config.api \
 		kernelci.config.runtime \
 		kernelci.storage \
+		kernelci.runtime \
 		setup.py \
 		tests
 
