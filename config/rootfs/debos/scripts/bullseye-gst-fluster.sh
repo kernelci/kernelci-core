@@ -29,11 +29,24 @@ CACHING_SERVICE="http://kernelci1.eastus.cloudapp.azure.com:8888/cache?uri="
 # Install dependencies
 echo 'deb http://deb.debian.org/debian bullseye-backports main' >>/etc/apt/sources.list
 apt-get update
-apt-get install --no-install-recommends -y ${BUILD_DEPS} ${GST_DEPS}
+apt-get install --no-install-recommends -y ${BUILD_DEPS} ${GST_DEPS} curl
 apt-mark manual python3 libpython3-stdlib libpython3.9-stdlib python3.9 libglib2.0-0 libgudev-1.0
 
 # Get latest meson from pip
 pip3 install meson
+
+# Verify if CACHING_SERVICE is reachable by curl, if not, unset it
+if [ ! -z ${CACHING_SERVICE} ]; then
+  # disable set -e
+  set +e
+  curl -s --head --request GET ${CACHING_SERVICE}
+  # if exit code is not 0, unset CACHING_SERVICE
+  if [ $? -ne 0 ]; then
+	echo "CACHING_SERVICE is not reachable, unset it"
+	unset CACHING_SERVICE
+  fi
+  set -e
+fi
 
 # Configure git
 git config --global user.email "bot@kernelci.org"
