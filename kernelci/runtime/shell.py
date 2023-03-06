@@ -10,7 +10,7 @@ from kernelci.runtime import Runtime
 
 class Shell(Runtime):
 
-    def generate(self, params, device_config, plan_config):
+    def generate(self, params, plan_config):
         template = self._get_template(plan_config)
         return template.render(params)
 

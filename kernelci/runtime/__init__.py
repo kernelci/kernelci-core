@@ -101,14 +101,11 @@ class Runtime(abc.ABC):
         return params
 
     @abc.abstractmethod
-    def generate(self, params, device_config, plan_config):
+    def generate(self, params, plan_config):
         """Generate a test job definition.
 
         *params* is a dictionary with the test parameters which can be used
              when generating a job definition using templates
-
-        *device_config* is a DeviceType configuration object for the target
-             device type
 
         *plan_config* is a TestPlan configuration object for the target test
              plan

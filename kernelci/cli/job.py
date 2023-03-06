@@ -106,7 +106,7 @@ Invalid arguments.  Either --node-id or --node-json is required.")
         params = runtime.get_params(
             job_node, plan_config, platform_config, api.config
         )
-        job = runtime.generate(params, platform_config, plan_config)
+        job = runtime.generate(params, plan_config)
         if args.output:
             output_file = runtime.save_file(job, args.output, params)
             print(f"Job saved in {output_file}")

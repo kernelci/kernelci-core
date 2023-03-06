@@ -13,7 +13,7 @@ from kernelci.runtime import Runtime
 class Kubernetes(Runtime):
     JOB_NAME_CHARACTERS = string.ascii_lowercase + string.digits
 
-    def generate(self, params, device_config, plan_config):
+    def generate(self, params, plan_config):
         template = self._get_template(plan_config)
         job_name = '-'.join(['kci', params['node_id'], params['name'][:24]])
         safe_name = re.sub(r'[\:/_+=]', '-', job_name).lower()
