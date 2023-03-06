@@ -3,14 +3,23 @@
 # Copyright (C) 2022-2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
-import kubernetes
+"""Kubernetes runtime implementation"""
+
 import random
 import re
 import string
-from kernelci.runtime import Runtime
+
+import kubernetes
+from . import Runtime
 
 
 class Kubernetes(Runtime):
+    """Runtime implementation to run jobs in a Kubernetes cluster
+
+    This Runtime implementation generates a Kubernetes YAML job definition and
+    submits it or "applies" it in a cluster.
+    """
+
     JOB_NAME_CHARACTERS = string.ascii_lowercase + string.digits
 
     def generate(self, params, plan_config):
