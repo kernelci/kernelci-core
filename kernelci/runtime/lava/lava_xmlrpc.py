@@ -7,6 +7,8 @@
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 # Author: Michal Galka <michal.galka@collabora.com>
 
+# pylint: disable=all
+
 import xmlrpc.client
 import urllib.parse
 

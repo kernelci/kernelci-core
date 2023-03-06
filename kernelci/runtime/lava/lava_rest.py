@@ -4,6 +4,8 @@
 # Author: Michal Galka <michal.galka@collabora.com>
 # Guillaume Tucker <guillaume.tucker@collabora.com>
 
+# pylint: disable=all
+
 from collections import namedtuple
 import json
 import requests
