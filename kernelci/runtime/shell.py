@@ -3,12 +3,20 @@
 # Copyright (C) 2021-2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
+"""Shell runtime implementation"""
+
 import os
 import subprocess
-from kernelci.runtime import Runtime
+from . import Runtime
 
 
 class Shell(Runtime):
+    """Runtime implementation to run jobs in a local shell
+
+    The Shell runtime is a simple one to start a subprocess and launch the
+    generated script or any executable in it.  It then returns the subprocess
+    Popen object so the caller can wait for it to complete and get its output.
+    """
 
     def generate(self, params, plan_config):
         template = self._get_template(plan_config)
