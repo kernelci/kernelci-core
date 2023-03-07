@@ -4,9 +4,9 @@ file_systems:
     boot_protocol: tftp
     params: {}
     prompt: '/ #'
-    ramdisk: buildroot-baseline/20230303.0/{arch}/rootfs.cpio.gz
+    ramdisk: buildroot-baseline/20230307.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
-    type: buildroot
+    type: buildroot-staging
   debian_bookworm-kselftest_nfs:
     boot_protocol: tftp
     nfs: bookworm-kselftest/20230211.0/{arch}/full.rootfs.tar.xz
@@ -136,19 +136,19 @@ file_systems:
     type: debian
   debian_bullseye_nfs:
     boot_protocol: tftp
-    nfs: bullseye/20230303.0/{arch}/full.rootfs.tar.xz
+    nfs: bullseye/20230307.0/{arch}/full.rootfs.tar.xz
     params: {}
     prompt: '/ #'
-    ramdisk: bullseye/20230303.0/{arch}/initrd.cpio.gz
+    ramdisk: bullseye/20230307.0/{arch}/initrd.cpio.gz
     root_type: nfs
-    type: debian
+    type: debian-staging
   debian_bullseye_ramdisk:
     boot_protocol: tftp
     params: {}
     prompt: '/ #'
-    ramdisk: bullseye/20230303.0/{arch}/rootfs.cpio.gz
+    ramdisk: bullseye/20230307.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
-    type: debian
+    type: debian-staging
   debian_sid-kselftest_nfs:
     boot_protocol: tftp
     nfs: sid-kselftest/20230303.0/{arch}/full.rootfs.tar.xz
