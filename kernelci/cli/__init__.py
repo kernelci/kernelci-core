@@ -9,6 +9,7 @@ import sys
 
 from .base import Args, Command, parse_opts, sub_main
 from . import (
+    api,
     job,
     node,
     user,
@@ -16,6 +17,7 @@ from . import (
 )
 
 _COMMANDS = {
+    'api': api.main,
     'job': job.main,
     'node': node.main,
     'user': user.main,
