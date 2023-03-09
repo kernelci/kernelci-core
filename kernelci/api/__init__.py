@@ -10,6 +10,7 @@ import enum
 import importlib
 import json
 import urllib
+from typing import Optional, Sequence
 
 import requests
 
@@ -45,6 +46,11 @@ class API(abc.ABC):
     def node_states(self):
         """An enum with all the valid node state names"""
 
+    @property
+    @abc.abstractmethod
+    def security_scopes(self) -> Sequence[str]:
+        """All the user token security scope names"""
+
     @abc.abstractmethod
     def hello(self) -> dict:
         """Get the hello message"""
@@ -52,6 +58,17 @@ class API(abc.ABC):
     @abc.abstractmethod
     def whoami(self) -> dict:
         """Get information about the current user"""
+
+    @abc.abstractmethod
+    def create_token(self, username: str, password: str,
+                     scopes: Optional[Sequence[str]] = None) -> str:
+        """Create a new API token for the current user
+
+        `scopes` contains optional security scope names which needs to be part
+        of API.security_scopes.  Please note that user permissions can limit
+        the available scopes, for example only admin users can create admin
+        tokens.
+        """
 
     # -------------------------------------------------------------------------
     # Private methods
