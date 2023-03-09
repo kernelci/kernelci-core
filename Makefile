@@ -12,6 +12,11 @@ test: \
 	unit-tests \
 	validate-yaml
 
+mypy:
+	mypy \
+		-m kernelci.api \
+		-m kernelci.api.latest
+
 pylint:
 	pylint --reports=y \
 		kci \
