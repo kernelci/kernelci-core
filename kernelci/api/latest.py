@@ -6,6 +6,9 @@
 """KernelCI API bindings for the latest version"""
 
 import enum
+from typing import Optional, Sequence
+
+import requests
 
 from . import API
 
@@ -34,11 +37,31 @@ class LatestAPI(API):
     def node_states(self):
         return NodeStates
 
+    @property
+    def security_scopes(self) -> Sequence[str]:
+        return ['users', 'admin']
+
     def hello(self) -> dict:
         return self._get('/').json()
 
     def whoami(self) -> dict:
         return self._get('/whoami').json()
+
+    def create_token(self, username: str, password: str,
+                     scopes: Optional[Sequence[str]] = None) -> str:
+        data = {
+            'username': username,
+            'password': password,
+        }
+        # The form field name is scope (in singular), but it is actually a long
+        # string with "scopes" separated by spaces.
+        # https://fastapi.tiangolo.com/tutorial/security/simple-oauth2/#scope
+        if scopes:
+            data['scope'] = ' '.join(scopes)
+        url = self._make_url('/token')
+        resp = requests.post(url, data)
+        resp.raise_for_status()
+        return resp.json()
 
 
 def get_api(config, token):
