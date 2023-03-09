@@ -30,7 +30,7 @@ import kernelci.config.storage
 import kernelci.config.test
 
 
-def _iterate_yaml_files(config_path):
+def iterate_yaml_files(config_path):
     if config_path.endswith('.yaml'):
         yaml_files = [config_path]
     else:
@@ -55,8 +55,9 @@ def validate_yaml(config_paths, entries):
     config_paths = get_config_paths(config_paths)
     if not config_paths:
         return None
+
     for path in config_paths:
-        for yaml_path, data in _iterate_yaml_files(path):
+        for yaml_path, data in iterate_yaml_files(path):
             for name, value in (
                     (k, v) for k, v in data.items() if k in entries):
                 if isinstance(value, dict):
@@ -83,7 +84,7 @@ def load_single_yaml(config_path):
                   single YAML file.
     """
     config = dict()
-    for yaml_path, data in _iterate_yaml_files(config_path):
+    for yaml_path, data in iterate_yaml_files(config_path):
         for name, value in data.items():
             config_value = config.setdefault(name, value.__class__())
             if hasattr(config_value, 'update'):
