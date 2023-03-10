@@ -444,10 +444,12 @@ class Command(abc.ABC):
 
 
 class APICommand(Command):  # pylint: disable=too-few-public-methods
-    """Base command class for interacting with the KernelCI API"""
-    args = Command.args + [
-        Args.api_config, Args.api_token,
-    ]
+    """Base command class for interacting with the KernelCI API
+
+    The Args.api_token argument needs to be added for commands that require
+    authentication with the API.
+    """
+    args = Command.args + [Args.api_config]
 
     @classmethod
     def _get_api(cls, configs, args):
