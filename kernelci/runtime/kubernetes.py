@@ -11,13 +11,13 @@ from kernelci.runtime import Runtime
 
 
 class Kubernetes(Runtime):
-    RANDOM_CHARACTERS = string.ascii_lowercase + string.digits
+    JOB_NAME_CHARACTERS = string.ascii_lowercase + string.digits
 
     def generate(self, params, device_config, plan_config):
         template = self._get_template(plan_config)
         job_name = '-'.join(['kci', params['node_id'], params['name'][:24]])
         safe_name = re.sub(r'[\:/_+=]', '-', job_name).lower()
-        rand_sx = ''.join(random.sample(self.RANDOM_CHARACTERS, 8))
+        rand_sx = ''.join(random.sample(self.JOB_NAME_CHARACTERS, 8))
         k8s_job_name = '-'.join([safe_name[:(62 - len(rand_sx))], rand_sx])
         params['k8s_job_name'] = k8s_job_name
         return template.render(params)
