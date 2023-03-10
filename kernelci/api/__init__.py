@@ -98,6 +98,25 @@ class API(abc.ABC):
     def receive_event(self, sub_id: int) -> CloudEvent:
         """Listen and receive an event from a given subscription id"""
 
+    # -----
+    # Nodes
+    # -----
+
+    @abc.abstractmethod
+    def get_node(self, node_id: str) -> dict:
+        """Get the node matching the given node id"""
+
+    @abc.abstractmethod
+    def get_nodes(
+        self, attributes: dict,
+        offset: Optional[int] = None, limit: Optional[int] = None
+    ) -> Sequence[dict]:
+        """Get nodes that match the provided attributes"""
+
+    @abc.abstractmethod
+    def count_nodes(self, attributes: dict) -> int:
+        """Count nodes that match the provided attributes"""
+
     # -------------------------------------------------------------------------
     # Private methods
     #
