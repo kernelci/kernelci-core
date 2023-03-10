@@ -13,8 +13,7 @@ class cmd_hello(APICommand):  # pylint: disable=invalid-name
 
     opt_args = APICommand.opt_args + [Args.indent]
 
-    def __call__(self, configs, args):
-        api = self._get_api(configs, args)
+    def _api_call(self, api, configs, args):
         hello = api.hello()
         self._print_json(hello, args.indent)
         return True
@@ -23,8 +22,7 @@ class cmd_hello(APICommand):  # pylint: disable=invalid-name
 class cmd_version(APICommand):  # pylint: disable=invalid-name
     """Get the API version"""
 
-    def __call__(self, configs, args):
-        api = self._get_api(configs, args)
+    def _api_call(self, api, configs, args):  # pylint: disable=no-self-use
         print(api.version)
         return True
 
