@@ -39,8 +39,7 @@ class cmd_get(NodeCommand):  # pylint: disable=invalid-name
         },
     ]
 
-    def __call__(self, configs, args):
-        api = self._get_api(configs, args)
+    def _api_call(self, api, configs, args):
         node = api.get_node(args.id)
         self._print_json(node, args.indent)
         return True
@@ -65,8 +64,7 @@ the matching nodes are retrieved.\
         },
     ]
 
-    def __call__(self, configs, args):
-        api = self._get_api(configs, args)
+    def _api_call(self, api, configs, args):
         attributes = self._split_attributes(args.attributes)
         nodes = api.get_nodes(attributes, args.offset, args.limit)
         self._print_json(nodes, args.indent)
@@ -77,8 +75,7 @@ class cmd_count(NodeAttributesCommand):  # pylint: disable=invalid-name
     """Count nodes with arbitrary attributes"""
     opt_args = None
 
-    def __call__(self, configs, args):
-        api = self._get_api(configs, args)
+    def _api_call(self, api, configs, args):
         attributes = self._split_attributes(args.attributes)
         count = api.count_nodes(attributes)
         print(count)

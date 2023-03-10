@@ -15,8 +15,7 @@ class cmd_whoami(APICommand):  # pylint: disable=invalid-name
     args = APICommand.args + [Args.api_token]
     opt_args = APICommand.opt_args + [Args.indent]
 
-    def __call__(self, configs, args):
-        api = self._get_api(configs, args)
+    def _api_call(self, api, configs, args):
         data = api.whoami()
         self._print_json(data, args.indent)
         return True
@@ -33,9 +32,8 @@ class cmd_get_token(APICommand):  # pylint: disable=invalid-name
         },
     ]
 
-    def __call__(self, configs, args):
+    def _api_call(self, api, configs, args):
         password = getpass.getpass()
-        api = self._get_api(configs, args)
         token = api.create_token(args.username, password, args.scopes)
         self._print_json(token, args.indent)
         return True
@@ -44,9 +42,8 @@ class cmd_get_token(APICommand):  # pylint: disable=invalid-name
 class cmd_password_hash(APICommand):  # pylint: disable=invalid-name
     """Get an encryption hash for an arbitrary password"""
 
-    def __call__(self, configs, args):
+    def _api_call(self, api, configs, args):
         password = getpass.getpass()
-        api = self._get_api(configs, args)
         print(api.password_hash(password))
         return True
 

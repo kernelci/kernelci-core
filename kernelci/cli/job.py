@@ -43,7 +43,7 @@ class cmd_register(APICommand):  # pylint: disable=invalid-name
         }
         return api.submit({'node': job_node})[0]
 
-    def __call__(self, configs, args):
+    def _api_call(self, api, configs, args):
         api = self._get_api(configs, args)
         if args.input_node_id:
             input_node = api.get_node(args.input_node_id)
@@ -89,7 +89,7 @@ class cmd_generate(APICommand):  # pylint: disable=invalid-name
         },
     ]
 
-    def __call__(self, configs, args):
+    def _api_call(self, api, configs, args):
         api = self._get_api(configs, args)
         if args.node_id:
             job_node = api.get_node(args.node_id)
