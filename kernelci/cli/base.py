@@ -17,6 +17,8 @@ import json
 import os.path
 import sys
 
+from requests.exceptions import HTTPError
+
 import kernelci.api
 import kernelci.config
 
@@ -366,6 +368,20 @@ class Args:  # pylint: disable=too-few-public-methods
     }
 
 
+def catch_http_error(func):
+    """Decorator to catch HTTPError exceptions and print the error"""
+    def call(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except HTTPError as ex:
+            print(ex, file=sys.stderr)
+            detail = ex.response.json().get('detail')
+            if detail:
+                print(detail, file=sys.stderr)
+            return False
+    return call
+
+
 class Command(abc.ABC):
     """A command helper class.
 
@@ -465,6 +481,15 @@ class APICommand(Command):  # pylint: disable=too-few-public-methods
     def _load_json(cls, json_path, encoding='utf-8'):
         with open(json_path, encoding=encoding) as json_file:
             return json.load(json_file)
+
+    @abc.abstractmethod
+    def _api_call(self, api, configs, args):
+        """Entry point to implement commands that use the API"""
+
+    @catch_http_error
+    def __call__(self, configs, args):
+        api = self._get_api(configs, args)
+        return self._api_call(api, configs, args)
 
 
 class Options:
