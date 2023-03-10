@@ -41,6 +41,16 @@ class cmd_get_token(APICommand):  # pylint: disable=invalid-name
         return True
 
 
+class cmd_password_hash(APICommand):  # pylint: disable=invalid-name
+    """Get an encryption hash for an arbitrary password"""
+
+    def __call__(self, configs, args):
+        password = getpass.getpass()
+        api = self._get_api(configs, args)
+        print(api.password_hash(password))
+        return True
+
+
 def main(args=None):
     """Entry point for the command line tool"""
     sub_main("user", globals(), args)
