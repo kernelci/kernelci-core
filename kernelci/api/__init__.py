@@ -12,6 +12,7 @@ import json
 import urllib
 from typing import Optional, Sequence
 
+from cloudevents.http import CloudEvent
 import requests
 
 import kernelci.config.api
@@ -73,6 +74,29 @@ class API(abc.ABC):
         the available scopes, for example only admin users can create admin
         tokens.
         """
+
+    # -------
+    # Pub/Sub
+    # -------
+
+    @abc.abstractmethod
+    def subscribe(self, channel: str) -> int:
+        """Subscribe to a pub/sub channel
+
+        Subscribe to the given `channel` and get the subscription id.
+        """
+
+    @abc.abstractmethod
+    def unsubscribe(self, sub_id: int):
+        """Unsubscribe from the given subscription id"""
+
+    @abc.abstractmethod
+    def send_event(self, channel: str, data):
+        """Send an event to a given pub/sub channel"""
+
+    @abc.abstractmethod
+    def receive_event(self, sub_id: int) -> CloudEvent:
+        """Listen and receive an event from a given subscription id"""
 
     # -------------------------------------------------------------------------
     # Private methods

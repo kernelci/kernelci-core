@@ -8,6 +8,7 @@
 import enum
 from typing import Optional, Sequence
 
+from cloudevents.http import from_json
 import requests
 
 from . import API
@@ -65,6 +66,28 @@ class LatestAPI(API):
         resp = requests.post(url, data)
         resp.raise_for_status()
         return resp.json()
+
+    def subscribe(self, channel: str) -> int:
+        resp = self._post(f'subscribe/{channel}')
+        return resp.json()['id']
+
+    def unsubscribe(self, sub_id: int):
+        self._post(f'unsubscribe/{sub_id}')
+
+    def send_event(self, channel: str, data):
+        self._post('/'.join(['publish', channel]), data)
+
+    def receive_event(self, sub_id: int):
+        path = '/'.join(['listen', str(sub_id)])
+        while True:
+            resp = self._get(path)
+            data = resp.json().get('data')
+            if not data:
+                continue
+            event = from_json(data)
+            if event.data == 'BEEP':
+                continue
+            return event
 
 
 def get_api(config, token):
