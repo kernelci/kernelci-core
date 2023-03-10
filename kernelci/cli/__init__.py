@@ -13,6 +13,7 @@ from . import (
     config,
     job,
     node,
+    pubsub,
     user,
 )
 
@@ -21,6 +22,7 @@ _COMMANDS = {
     'config': config.main,
     'job': job.main,
     'node': node.main,
+    'pubsub': pubsub.main,
     'user': user.main,
 }
 

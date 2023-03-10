@@ -117,6 +117,11 @@ class Args:  # pylint: disable=too-few-public-methods
         'help': "Recipients to be added as Cc:",
     }
 
+    channel = {
+        'name': 'channel',
+        'help': "Name of the Pub/Sub channel to subscribe to",
+    }
+
     commit = {
         'name': '--commit',
         'help': "Git commit checksum",
@@ -313,6 +318,12 @@ class Args:  # pylint: disable=too-few-public-methods
         'name': '--storage-cred',
         'help': "Credentials to be used with the storage service",
         'section': SECTION_STORAGE,
+    }
+
+    sub_id = {
+        'name': 'sub_id',
+        'help': "Pub/Sub subscription id",
+        'type': int,
     }
 
     target = {
