@@ -11,7 +11,7 @@ from .base import APICommand, Args, Command, sub_main
 
 class cmd_register(APICommand):  # pylint: disable=invalid-name
     """Create a new node before running a job"""
-    args = APICommand.args + [Args.plan]
+    args = APICommand.args + [Args.api_token, Args.plan]
 
     opt_args = APICommand.opt_args + [
         Args.indent,
@@ -119,6 +119,7 @@ Invalid arguments.  Either --node-id or --node-json is required.")
 class cmd_submit(Command):  # pylint: disable=invalid-name
     """Submit a job definition from a file"""
     args = Command.args + [
+        Args.api_token,
         {
             'name': '--runtime-config',
             'help': "Name of the runtime config",

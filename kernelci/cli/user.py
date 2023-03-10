@@ -10,6 +10,7 @@ from .base import Args, APICommand, sub_main
 
 class cmd_whoami(APICommand):  # pylint: disable=invalid-name
     """Use the /whoami entry point to get the current user's data"""
+    args = APICommand.args + [Args.api_token]
     opt_args = APICommand.opt_args + [Args.indent]
 
     def __call__(self, configs, args):
