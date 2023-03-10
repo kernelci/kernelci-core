@@ -66,11 +66,11 @@ setuptools.setup(
         'Operating System :: POSIX :: Linux',
         'Programming Language :: C',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Topic :: Software Development :: Build Tools',
         'Topic :: Software Development :: Testing',
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.7',
     install_requires=[
         "cloudevents",
         "jinja2",
