@@ -47,6 +47,9 @@ class LatestAPI(API):
     def whoami(self) -> dict:
         return self._get('/whoami').json()
 
+    def password_hash(self, password: str) -> dict:
+        return self._post('/hash', {'password': password}).json()
+
     def create_token(self, username: str, password: str,
                      scopes: Optional[Sequence[str]] = None) -> str:
         data = {

@@ -60,6 +60,10 @@ class API(abc.ABC):
         """Get information about the current user"""
 
     @abc.abstractmethod
+    def password_hash(self, password: str) -> dict:
+        """Get an encryption hash for a given password"""
+
+    @abc.abstractmethod
     def create_token(self, username: str, password: str,
                      scopes: Optional[Sequence[str]] = None) -> str:
         """Create a new API token for the current user
