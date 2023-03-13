@@ -41,7 +41,7 @@ class cmd_register(APICommand):  # pylint: disable=invalid-name
             'artifacts': input_node['artifacts'],
             'revision': input_node['revision'],
         }
-        return api.submit({'node': job_node})[0]
+        return api.create_node(job_node)
 
     def _api_call(self, api, configs, args):
         api = self._get_api(configs, args)
