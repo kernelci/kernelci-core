@@ -76,7 +76,6 @@ the matching nodes are retrieved.\
 
 class cmd_count(NodeAttributesCommand):  # pylint: disable=invalid-name
     """Count nodes with arbitrary attributes"""
-    opt_args = None
 
     def _api_call(self, api, configs, args):
         attributes = self._split_attributes(args.attributes)
