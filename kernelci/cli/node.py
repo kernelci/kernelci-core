@@ -5,6 +5,9 @@
 
 """Tool to manage KernelCI API node objects"""
 
+import json
+import sys
+
 from .base import APICommand, Args, sub_main
 
 
@@ -79,6 +82,21 @@ class cmd_count(NodeAttributesCommand):  # pylint: disable=invalid-name
         attributes = self._split_attributes(args.attributes)
         count = api.count_nodes(attributes)
         print(count)
+        return True
+
+
+class cmd_submit(APICommand):  # pylint: disable=invalid-name
+    """Submit a new node or update an existing one from stdin"""
+    args = APICommand.args + [Args.api_token]
+    opt_args = APICommand.opt_args + [Args.id_only]
+
+    def _api_call(self, api, configs, args):
+        data = json.load(sys.stdin)
+        if '_id' in data:
+            node = api.update_node(data)
+        else:
+            node = api.create_node(data)
+        self._print_node(node, args.id_only, args.indent)
         return True
 
 
