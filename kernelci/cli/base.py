@@ -179,6 +179,12 @@ class Args:  # pylint: disable=too-few-public-methods
         'help': "Path to the dtbs.json file",
     }
 
+    id_only = {
+        'name': '--id-only',
+        'action': 'store_true',
+        'help': "Only print the node ID rather than the full node data",
+    }
+
     indent = {
         'name': '--indent',
         'type': int,

@@ -14,7 +14,7 @@ class cmd_register(APICommand):  # pylint: disable=invalid-name
     args = APICommand.args + [Args.api_token, Args.plan]
 
     opt_args = APICommand.opt_args + [
-        Args.indent,
+        Args.indent, Args.id_only,
         {
             'name': '--input-node-id',
             'help': "ID of the input node",
@@ -22,11 +22,6 @@ class cmd_register(APICommand):  # pylint: disable=invalid-name
         {
             'name': '--input-node-json',
             'help': "Alternatively, path to the input node JSON file",
-        },
-        {
-            'name': '--id-only',
-            'action': 'store_true',
-            'help': "Only print the node ID rather than the full node data",
         },
     ]
 
