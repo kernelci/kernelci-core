@@ -12,7 +12,7 @@ from .base import APICommand, Args, sub_main
 
 
 class NodeCommand(APICommand):  # pylint: disable=too-few-public-methods
-    """Base command class for interacting with the KernelCI API"""
+    """Base command class for interacting with Node objects"""
     opt_args = APICommand.opt_args + [Args.indent]
 
 
