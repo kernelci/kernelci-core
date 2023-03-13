@@ -9,8 +9,8 @@ import kernelci.runtime
 from .base import APICommand, Args, Command, sub_main
 
 
-class cmd_register(APICommand):  # pylint: disable=invalid-name
-    """Create a new node before running a job"""
+class cmd_init(APICommand):  # pylint: disable=invalid-name
+    """Initialise job data before running it"""
     args = APICommand.args + [Args.api_token, Args.plan]
 
     opt_args = APICommand.opt_args + [
