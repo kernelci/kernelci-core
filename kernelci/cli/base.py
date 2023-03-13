@@ -499,6 +499,13 @@ class APICommand(Command):  # pylint: disable=too-few-public-methods
         with open(json_path, encoding=encoding) as json_file:
             return json.load(json_file)
 
+    @classmethod
+    def _print_node(cls, node, id_only, indent):
+        if id_only:
+            print(node['_id'])
+        else:
+            cls._print_json(node, indent)
+
     @abc.abstractmethod
     def _api_call(self, api, configs, args):
         """Entry point to implement commands that use the API"""
