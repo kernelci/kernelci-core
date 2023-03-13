@@ -50,10 +50,7 @@ Invalid arguments.  Either --input-node-id or --input-node-json is required.")
             return False
         plan_config = configs['test_plans'][args.plan]
         node = self._create_node(api, input_node, plan_config)
-        if args.id_only:
-            print(node['_id'])
-        else:
-            self._print_json(node, args.indent)
+        self._print_node(node, args.id_only, args.indent)
         return True
 
 
