@@ -16,7 +16,7 @@ import yaml
 {% endblock %}
 
 {%- block python_local_imports %}
-from kernelci.db import kernelci_api
+import kernelci.api
 import kernelci.config
 {%- endblock %}
 
@@ -45,7 +45,7 @@ class BaseJob:
         if not api_token:
             raise ValueError("API_TOKEN environment variable not found")
 
-        return kernelci_api.KernelCI_API(api_config, api_token)
+        return kernelci.api.get_api(api_config, api_token)
 
     def _get_source(self, url):
         resp = requests.get(url, stream=True)
@@ -65,7 +65,7 @@ class BaseJob:
             'result': result,
             'state': 'done',
         })
-        api.submit({'node': node})
+        api.update_node(node)
         return node
 
     def run(self, tarball_url):
