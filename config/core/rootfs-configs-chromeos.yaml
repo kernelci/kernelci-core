@@ -5,6 +5,7 @@ rootfs_configs:
     debian_release: bullseye
     arch_list:
       - amd64
+      - arm64
     extra_packages:
       - bzip2
       - ca-certificates
