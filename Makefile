@@ -15,7 +15,8 @@ test: \
 mypy:
 	mypy \
 		-m kernelci.api \
-		-m kernelci.api.latest
+		-m kernelci.api.latest \
+		-m kernelci.api.helper
 
 pylint:
 	pylint --reports=y \
