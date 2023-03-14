@@ -86,3 +86,14 @@ class APIHelper:
             if all(self.pubsub_event_filter(sub_id, obj)
                    for obj in [node, event.data]):
                 return node
+
+    def submit_regression(self, regression):
+        """Post a regression object
+
+        It is still unclear whether regressions should have their own separate
+        endpoint or just be added to the nodes collection with a different
+        'kind' field.  For now, treat this as a middleware feature on top of
+        the established API endpoints.
+        """
+        # pylint: disable=protected-access
+        return self.api._post('regression', regression)
