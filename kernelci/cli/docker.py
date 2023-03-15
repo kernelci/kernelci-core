@@ -35,8 +35,8 @@ class DockerCommand(Command):
             'help': "CPU architecture, e.g. x86",
         },
         {
-            'name': '--fragment',
-            'action': 'append',
+            'name': 'fragments',
+            'nargs': '*',
             'help': "Extra fragments, e.g. kernelci",
         },
         {
@@ -49,7 +49,7 @@ class DockerCommand(Command):
     def _gen_image_name(cls, args):
         base_name = args.prefix + args.image
         tag_strings = ([args.arch] if args.arch else []) + (
-            args.fragment or [])
+            args.fragments or [])
         if args.image_version:
             tag_strings.append(args.image_version)
         tag_name = '-'.join(tag_strings)
@@ -63,13 +63,13 @@ class DockerBuildGenerateCommand(DockerCommand):
     TEMPLATE_PATH = 'config/docker'
 
     @classmethod
-    def _get_template_params(cls, prefix, fragment):
+    def _get_template_params(cls, prefix, fragments):
         params = {
                 'prefix': prefix,
                 'fragments': [
                     f'fragment/{fragment}.jinja2'
-                    for fragment in fragment
-                ] if fragment else []
+                    for fragment in fragments
+                ] if fragments else []
             }
         return params
 
@@ -79,7 +79,7 @@ class DockerBuildGenerateCommand(DockerCommand):
         return template.render(params)
 
     def _get_dockerfile(self, args):
-        params = self._get_template_params(args.prefix, args.fragment)
+        params = self._get_template_params(args.prefix, args.fragments)
         template = (
             '-'.join((args.image, args.arch)) if args.arch else args.image
         )
