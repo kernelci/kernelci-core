@@ -97,3 +97,63 @@ class APIHelper:
         """
         # pylint: disable=protected-access
         return self.api._post('regression', regression)
+
+    def _prepare_results(self, results, parent, base):
+        node = results['node'].copy()
+        node.update(base)
+        node['path'] = (parent['path'] if parent else []) + [node['name']]
+        child_nodes = []
+        for child_node in results['child_nodes']:
+            child_nodes.append(self._prepare_results(child_node, node, base))
+        return {
+            'node': node,
+            'child_nodes': child_nodes,
+        }
+
+    def submit_results(self, results, root):
+        """Submit a hierarchy of results
+
+        Submit a hierarchy of test results with 'node' containing data for a
+        particular result or parent entry for sub-tests and 'child_nodes'
+        containing a list of sub-results.  The root node needs to have been
+        previously retrieved from the API with an existing _id.
+
+        `root` is the root node for all the child results
+        `results` are the child results with the following recursive format:
+        {
+            "node": {
+                "name": "group name",
+                "result": "pass",
+            },
+            "child_nodes": [
+                {
+                    "node": {
+                        "name": "test name",
+                        "result": "fail",
+                    },
+                    "child_nodes": [],
+                }
+            ]
+        }
+        """
+        parent = self.api.get_node(root['parent'])
+        base = {
+            'revision': root['revision'],
+            'group': root['name'],
+            'state': 'done',
+        }
+        root_node = results['node'].copy()
+        root_node.update({
+            '_id': root['_id'],
+            'parent': root['parent'],
+        })
+        root_results = {
+            'node': root_node,
+            'child_nodes': results['child_nodes'],
+        }
+        data = self._prepare_results(root_results, parent, base)
+        # Once this has been consolidated at the API level:
+        # self.api.create_node_hierarchy(data)
+        node_id = data['node']['_id']
+        # pylint: disable=protected-access
+        return self.api._put(f'nodes/{node_id}', data).json()
