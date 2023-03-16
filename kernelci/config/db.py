@@ -60,7 +60,6 @@ class DatabaseAPI(Database):
 class DatabaseFactory(_YAMLObject):
     _db_types = {
         "kernelci_backend": DatabaseAPI,
-        "kernelci_api": DatabaseAPI,
     }
 
     @classmethod
