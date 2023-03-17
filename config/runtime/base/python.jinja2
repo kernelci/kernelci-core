@@ -18,11 +18,14 @@ import yaml
 {%- block python_local_imports %}
 import kernelci.api
 import kernelci.config
+import kernelci.storage
 {%- endblock %}
 
 {%- block python_globals %}
 API_CONFIG_YAML = """
 {{ api_config_yaml }}"""
+STORAGE_CONFIG_YAML = """
+{{ storage_config_yaml }}"""
 NODE_ID = '{{ node_id }}'
 TARBALL_URL = '{{ tarball_url }}'
 WORKSPACE = '/tmp/kci'
@@ -46,6 +49,15 @@ class BaseJob:
             raise ValueError("API_TOKEN environment variable not found")
 
         return kernelci.api.get_api(api_config, api_token)
+
+    def _get_storage(self):
+        storage_config = kernelci.config.storage.StorageFactory.from_yaml(
+            name='storage', config=yaml.safe_load(STORAGE_CONFIG_YAML)
+        )
+        if not storage_config:
+            return None
+        storage_cred = os.getenv('KCI_STORAGE_CREDENTIALS')
+        return kernelci.storage.get_storage(storage_config, storage_cred)
 
     def _get_source(self, url):
         resp = requests.get(url, stream=True)
