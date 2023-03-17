@@ -116,7 +116,9 @@ class cmd_submit(Command):  # pylint: disable=invalid-name
     def __call__(self, configs, args):
         runtime_config = configs['runtimes'][args.runtime_config]
         runtime = kernelci.runtime.get_runtime(runtime_config)
-        runtime.submit(args.job_path)
+        job = runtime.submit(args.job_path)
+        print(runtime.get_job_id(job))
+        return True
 
 
 def main(args=None):
