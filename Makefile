@@ -25,6 +25,7 @@ pylint:
 		kernelci.cli \
 		kernelci.config.api \
 		kernelci.config.runtime \
+		kernelci.config.storage \
 		kernelci.storage \
 		kernelci.runtime \
 		setup.py \
