@@ -39,6 +39,9 @@ class Kubernetes(Runtime):
         client = kubernetes.client.ApiClient()
         return kubernetes.utils.create_from_yaml(client, job_path)
 
+    def get_job_id(self, job_object):
+        return job_object[0][0].metadata.labels['job-name']
+
 
 def get_runtime(runtime_config, **kwargs):
     """Get a Kubernetes runtime object"""

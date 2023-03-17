@@ -30,6 +30,9 @@ class Shell(Runtime):
     def submit(self, job_path):
         return subprocess.Popen(job_path)
 
+    def get_job_id(self, job_object):
+        return job_object.pid
+
 
 def get_runtime(runtime_config, **kwargs):
     """Get a Shell runtime object"""
