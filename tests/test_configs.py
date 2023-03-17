@@ -198,3 +198,19 @@ class TestRuntimeConfigs(ConfigTest):
             assert lab_config.priority == fixed_p
             assert lab_config.priority_min == min_p
             assert lab_config.priority_max == max_p
+
+
+class TestStorageConfigs(ConfigTest):
+    """Tests related to storage configs"""
+
+    def test_storage_configs(self):
+        """Test the storage configs"""
+        ref_data, config = self._load_config(
+            'tests/configs/storage-configs.yaml'
+        )
+        ref_configs = ref_data['storage_configs']
+        storage_configs = self._reload(ref_data, config, 'storage_configs')
+        config_names = ['local', 'staging.kernelci.org', 'staging-backend']
+        assert all(name in ref_configs for name in config_names)
+        assert all(name in storage_configs for name in config_names)
+        assert storage_configs['local']['host'] == '172.17.0.1'
