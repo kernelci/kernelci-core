@@ -14,6 +14,7 @@ from . import (
     job,
     node,
     pubsub,
+    show,
     user,
 )
 
@@ -23,6 +24,7 @@ _COMMANDS = {
     'job': job.main,
     'node': node.main,
     'pubsub': pubsub.main,
+    'show': show.main,
     'user': user.main,
 }
 
