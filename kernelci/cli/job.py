@@ -39,7 +39,6 @@ class cmd_init(APICommand):  # pylint: disable=invalid-name
         return api.create_node(job_node)
 
     def _api_call(self, api, configs, args):
-        api = self._get_api(configs, args)
         if args.input_node_id:
             input_node = api.get_node(args.input_node_id)
         elif args.input_node_json:
@@ -79,7 +78,6 @@ class cmd_generate(APICommand):  # pylint: disable=invalid-name
     ]
 
     def _api_call(self, api, configs, args):
-        api = self._get_api(configs, args)
         if args.node_id:
             job_node = api.get_node(args.node_id)
         elif args.node_json:
