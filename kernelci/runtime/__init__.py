@@ -139,6 +139,10 @@ class Runtime(abc.ABC):
     def submit(self, job_path):
         """Submit a test job definition to run."""
 
+    @abc.abstractmethod
+    def get_job_id(self, job_object):
+        """Get an id for a given job object as returned by submit()."""
+
 
 def get_runtime(config, user=None, token=None, runtime_json=None):
     """Get the Runtime object for a given runtime config.

@@ -49,6 +49,9 @@ class LavaRuntime(Runtime):
     def job_file_name(self, params):
         return '.'.join([params['name'], 'yaml'])
 
+    def get_job_id(self, job_object):
+        return job_object
+
     def _get_priority(self, plan_config):
         # Scale the job priority (from 0-100) within the available levels
         # for the lab, or use the lowest by default.
