@@ -94,10 +94,14 @@ class Runtime(abc.ABC):
         """Apply filters and return True if they match, False otherwise."""
         return self.config.match(filter_data)
 
-    def get_params(self, node, plan_config, platform_config, api_config=None):
+    # This could be refactored with a Job object containing all the config data
+    # pylint: disable=too-many-arguments
+    def get_params(self, node, plan_config, platform_config,
+                   api_config=None, storage_config=None):
         """Get job template parameters"""
         params = {
-            'api_config_yaml': yaml.dump(api_config),
+            'api_config_yaml': yaml.dump(api_config or {}),
+            'storage_config_yaml': yaml.dump(storage_config or {}),
             'name': plan_config.name,
             'node_id': node['_id'],
             'revision': node['revision'],
