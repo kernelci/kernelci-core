@@ -63,6 +63,7 @@ class cmd_generate(APICommand):  # pylint: disable=invalid-name
         },
     ]
     opt_args = APICommand.opt_args + [
+        Args.storage_config,
         {
             'name': '--node-id',
             'help': "ID of the job's node",
@@ -90,8 +91,12 @@ Invalid arguments.  Either --node-id or --node-json is required.")
         platform_config = configs['device_types'][args.platform]
         runtime_config = configs['runtimes'][args.runtime_config]
         runtime = kernelci.runtime.get_runtime(runtime_config)
+        storage_config = (
+            configs['storage_configs'][args.storage_config]
+            if args.storage_config else None
+        )
         params = runtime.get_params(
-            job_node, plan_config, platform_config, api.config
+            job_node, plan_config, platform_config, api.config, storage_config
         )
         job = runtime.generate(params, plan_config)
         if args.output:
