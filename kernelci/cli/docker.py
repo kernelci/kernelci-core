@@ -48,8 +48,9 @@ class DockerCommand(Command):
     @classmethod
     def _gen_image_name(cls, args):
         base_name = args.prefix + args.image
-        tag_strings = ([args.arch] if args.arch else []) + (
-            args.fragments or [])
+        tag_strings = [args.arch] if args.arch else []
+        if args.fragments:
+            tag_strings.extend(args.fragments)
         if args.image_version:
             tag_strings.append(args.image_version)
         tag_name = '-'.join(tag_strings)
