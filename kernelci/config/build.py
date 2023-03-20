@@ -48,12 +48,6 @@ class Tree(YAMLConfigObject):
         attrs.update({'url'})
         return attrs
 
-    @classmethod
-    def to_yaml(cls, dumper, data):
-        return dumper.represent_mapping(
-            u'tag:yaml.org,2002:map', {'url': data.url}
-        )
-
 
 class Reference(YAMLConfigObject):
     """Kernel reference tree and branch model."""
@@ -141,16 +135,6 @@ class Fragment(YAMLConfigObject):
         attrs = super()._get_yaml_attributes()
         attrs.update({'path', 'configs', 'defconfig'})
         return attrs
-
-    @classmethod
-    def to_yaml(cls, dumper, data):
-        return dumper.represent_mapping(
-            u'tag:yaml.org,2002:map', {
-                'path': data.path,
-                'configs': data.configs,
-                'defconfig': data.defconfig,
-            }
-        )
 
 
 class Architecture(YAMLConfigObject):
