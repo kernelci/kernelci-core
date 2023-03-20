@@ -102,12 +102,11 @@ def main(args):
     job = Job({% block python_job_constr %}workspace=WORKSPACE{% endblock %})
     try:
         results = job.run(TARBALL_URL)
+        if NODE_ID and API_CONFIG_YAML:
+            job.submit(results, NODE_ID, API_CONFIG_YAML)
     except Exception:
         print(traceback.format_exc())
         results = None
-
-    if NODE_ID and API_CONFIG_YAML:
-        job.submit(results, NODE_ID, API_CONFIG_YAML)
 
     return results
 
