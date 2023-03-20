@@ -17,6 +17,7 @@ from . import (
     node,
     pubsub,
     show,
+    storage,
     user,
 )
 
@@ -28,6 +29,7 @@ _COMMANDS = {
     'node': node.main,
     'pubsub': pubsub.main,
     'show': show.main,
+    'storage': storage.main,
     'user': user.main,
 }
 
