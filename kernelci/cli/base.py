@@ -359,7 +359,7 @@ class Args:  # pylint: disable=too-few-public-methods
 
     upload_path = {
         'name': '--upload-path',
-        'help': "Upload path on Storage where rootfs stored",
+        'help': "Destination upload path on storage",
     }
 
     url = {
