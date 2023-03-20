@@ -1,0 +1,147 @@
+#!/bin/sh
+# SPDX-License-Identifier: LGPL-2.1-or-later
+# Copyright (C) 2023 Collabora Ltd.
+# Author: Denys Fedoryshchenko <denys.f@collabora.com>
+
+if [ -z "$1" ]; then
+    echo "Error: no URL for firmware" >&2
+    echo "Usage: $0 <URL>" >&2
+    echo "The <URL> is base URL for both prod and prepvt, e.g. https://storage..../dir" >&2
+    echo "Both <URL>/cr50.bin.prod and cr50.bin.prepvt must be available" >&2
+    exit 1
+fi
+
+expr "x$1" : 'x.*[^/]$' >/dev/null || {
+    echo "Error: URL must not end with slash" >&2
+    exit 1
+}
+
+# Download both images
+wget -O cr50.bin.prod $1/cr50.bin.prod
+if [ $? -ne 0 ]; then
+    echo "Error: failed to download prod firmware" >&2
+    exit 1
+fi
+wget -O cr50.bin.prepvt $1/cr50.bin.prepvt
+if [ $? -ne 0 ]; then
+    echo "Error: failed to download prepvt firmware" >&2
+    exit 1
+fi
+
+# Retrieve bin version of prod and prepvt with gsctool -b fw.bin
+# Answer usually: RO_A:0.0.11 RW_A:0.5.151[00000000:00000000:00000000] RO_B:0.0.11 RW_B:0.5.151[00000000:00000000:00000000]
+# We do lengthy checks here, because we don't want to flash broken firmware
+fw_bin_prod=$(gsctool -b cr50.bin.prod | grep "^RO_A:" | awk '{print $2}' | sed 's/\[.*//')
+if [ $? -ne 0 ]; then
+    echo "Error: failed to get prod version (gsctool error)" >&2
+    exit 1
+fi
+if [ -z "$fw_bin_prod" ]; then
+    echo "Error: failed to get prod version (empty)" >&2
+    exit 1
+fi
+
+fw_bin_prepvt=$(gsctool -b cr50.bin.prepvt | grep "^RO_A:" | awk '{print $2}' | sed 's/\[.*//')
+if [ $? -ne 0 ]; then
+    echo "Error: failed to get prepvt version (gsctool error)" >&2
+    exit 1
+fi
+if [ -z "$fw_bin_prepvt" ]; then
+    echo "Error: failed to get prepvt version (empty)"
+    exit 1
+fi
+
+# It must be like RW_A:0.5.151
+# Verify at least RW_A:X.X.X
+expr "x$fw_bin_prod" : 'xRW_A:[0-9]*\.[0-9]*\.[0-9]*' >/dev/null || {
+    echo "Error: prod version is not RW_A:X.X.X" >&2
+    exit 1
+}
+expr "x$fw_bin_prepvt" : 'xRW_A:[0-9]*\.[0-9]*\.[0-9]*' >/dev/null || {
+    echo "Error: prepvt version is not RW_A:X.X.X" >&2
+    exit 1
+}
+# Extract X.X.X to var BIN_VER
+BIN_VER=$(echo $fw_bin_prod | awk -F: '{print $2}')
+echo "File firmware version: $BIN_VER"
+
+fw_rw_ver=$(gsctool -f -s | grep "^RW " | awk '{print $2}')
+# if error, exit
+if [ $? -ne 0 ]; then
+    echo "Error: failed to get RW version (gsctool error))" >&2
+    exit 1
+fi
+# if empty, exit
+if [ -z "$fw_rw_ver" ]; then
+    echo "Error: failed to get RW version (empty)" >&2
+    exit 1
+fi
+
+board_id_space=$(gsctool -i -s | grep "Board ID space" | awk '{print $4}')
+# aaa:bbb:ccc, where ccc is mask of board
+board_mask=$(echo $board_id_space | awk -F: '{print $3}')
+
+echo "Current RW version: $fw_rw_ver"
+echo "Board ID space: $board_id_space"
+echo "Current board mask: $board_mask"
+
+# check if board mask is hex (nonbash way)
+expr "x$board_mask" : 'x[0-9a-fA-F]*$' >/dev/null || {
+    echo "Error: board mask is not hex" >&2
+    exit 1
+}
+
+# add 0x prefix to board mask
+board_mask=0x$board_mask
+
+SUFFIX=""
+# board mask is hex, check if 0x10 bit is set, it means prepvt image
+if [ $((board_mask & 0x10)) -ne 0 ]; then
+    echo "Prepvt board detected"
+    SUFFIX=".prepvt"
+else
+    echo "prod board detected"
+    SUFFIX=".prod"
+fi
+
+# if forceflash set - show warning
+if [ "$2" = "forceflash" ]; then
+    echo "Warning: forceflash is set, flashing even if versions are the same" 
+fi
+
+# Compare to be not same and not set to forceflash
+if [ "$fw_rw_ver" = "$BIN_VER" ] && [ "$2" != "forceflash" ]; then
+    echo "Error: current onboard RW version is the same as file version" >&2
+    exit 1
+fi
+
+# Flash firmware!
+echo "Flashing firmware..."
+echo gsctool -s -u "cr50.bin$SUFFIX"
+
+# if $2 is set to flash or forceflash, then flash
+if [ "$2" = "flash" ] || [ "$2" = "forceflash" ]; then
+    gsctool -s -u "cr50.bin$SUFFIX"
+    exit_status="$?"
+    if [ $exit_status -le 2 ]; then
+        echo "Success: flashed firmware ${exit_status}"
+        exit 1
+    else 
+        # 70 seconds delay required according to google scripts
+        echo "Warning: failed to flash firmware ${exit_status}, retrying after 70 seconds"
+        sleep 70
+        gsctool -s -u "cr50.bin$SUFFIX"
+        exit_status="$?"
+        if [ $exit_status -le 2 ]; then
+            echo "Success: flashed firmware ${exit_status} on second attempt"
+            exit 1
+        else 
+            echo "Error: on_retry failed to flash firmware ${exit_status}" >&2
+            exit 1
+        fi
+        exit 1
+    fi
+else 
+    echo "Not flashing firmware, use '$0 <URL> [flash|forceflash]' to flash"
+    exit 0
+fi
