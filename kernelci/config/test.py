@@ -255,15 +255,6 @@ class RootFSType(YAMLConfigObject):
         attrs.update({'url', 'arch_map'})
         return attrs
 
-    @classmethod
-    def to_yaml(cls, dumper, data):
-        return dumper.represent_mapping(
-            u'tag:yaml.org,2002:map', {
-                'url': data.url,
-                'arch_map': data.arch_map,
-            }
-        )
-
     def get_arch_name(self, arch, variant, endian):
         arch_key = ('arch', arch)
         variant_key = ('variant', variant)

@@ -39,15 +39,6 @@ class API(YAMLConfigObject):
         attrs.update({'url', 'version'})
         return attrs
 
-    @classmethod
-    def to_yaml(cls, dumper, data):
-        return dumper.represent_mapping(
-            'tag:yaml.org,2002:map', {
-                'url': data.url,
-                'version': data.version,
-            }
-        )
-
 
 def from_yaml(data, _):
     """Create the API configs using data loaded from YAML"""
