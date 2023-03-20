@@ -74,6 +74,15 @@ class YAMLConfigObject(yaml.YAMLObject):
         """
         return set()
 
+    @classmethod
+    def to_yaml(cls, dumper, data):
+        return dumper.represent_mapping(
+            'tag:yaml.org,2002:map', {
+                key: getattr(data, key)
+                for key in cls._get_yaml_attributes()
+            }
+        )
+
 
 class _YAMLObject:
     """Base class with helper methods to initialise objects from YAML data."""
