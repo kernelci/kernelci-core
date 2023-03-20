@@ -20,12 +20,11 @@ You will be using `kernelci/debos:kernelci` docker image for this purpose.
 3. Start the docker and get into it.
 
    ```
-   sudo docker run -itd \
+   $ sudo docker run -it \
      -v $(pwd)/kernelci-core:/kernelci-core \
      --device /dev/kvm -v /dev:/dev \
-     --privileged kernelci/debos:kernelci
-   sudo docker exec -it <container_id> bash
-   cd /kernelci-core/
+     --privileged kernelci/debos:kernelci /bin/bash
+   $ cd /kernelci-core/
    ```
 
 4. Now to check if everything works, type `./kci_rootfs --help` it should
