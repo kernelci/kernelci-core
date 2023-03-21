@@ -7,7 +7,7 @@
 
 from datetime import datetime
 
-from .base import APICommand, sub_main
+from .base import APICommand, Args, sub_main
 
 
 class cmd_results(APICommand):  # pylint: disable=invalid-name
@@ -29,12 +29,7 @@ class cmd_results(APICommand):  # pylint: disable=invalid-name
         '----': 'yellow',
     }
 
-    args = APICommand.args + [
-        {
-            'name': 'id',
-            'help': "Node id",
-        },
-    ]
+    args = APICommand.args + [Args.id]
 
     def _color(self, msg, color):
         return ''.join([self.COLORS[color], msg, self.COLORS['clear']])
