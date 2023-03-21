@@ -116,7 +116,12 @@ def main(args):
 
 
 if __name__ == '__main__':
+{%- if always_exit_0 %}
+    main(sys.argv)
+    sys.exit(0)
+{%- else %}
     results = main(sys.argv)
     sys.exit(1 if results is None else 0)
+{%- endif %}
 {% endblock %}
 {%- endblock %}
