@@ -22,6 +22,12 @@ spec:
       - name: dev-shm
         emptyDir: { medium: "Memory" }
 
+      # FIXME: add template conditional based on storage type
+      - name: ssh-key
+        secret:
+          # FIXME: convert to template parameter
+          secretName: {{ "kci-storage-ssh-staging" }}
+
       tolerations:
       - key: "kubernetes.azure.com/scalesetpriority"
         operator: "Equal"
@@ -52,12 +58,23 @@ spec:
         - mountPath: "/dev/shm"
           name: dev-shm
 
+        # FIXME: add template conditional based on storage type
+        volumeMounts:
+        - mountPath: "/home/kernelci/.ssh"
+          name: ssh-key
+          readOnly: true
+
         env:
         - name: API_TOKEN
           valueFrom:
             secretKeyRef:
+              # FIXME: convert to template parameter
               name: {{ "kci-api-jwt-staging" }}
               key: token
+
+        - name: KCI_STORAGE_CREDENTIALS
+          # FIXME: convert to template parameter
+          value: {{ "/home/kernelci/.ssh/id_rsa_tarball-staging" }}
 {% block k8s_command %}
         command: ["/bin/sh", "-c"]
 {% endblock %}
