@@ -7,13 +7,16 @@
 {% block commands %}
 {% block python_imports %}
 import os
-import requests
 import sys
 import tarfile
 import traceback
 import urllib.parse
-import yaml
 {% endblock %}
+
+{%- block python_thirdparty_imports %}
+import requests
+import yaml
+{%- endblock %}
 
 {%- block python_local_imports %}
 import kernelci.api
