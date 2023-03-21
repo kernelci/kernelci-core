@@ -61,7 +61,10 @@ class DockerCommand(Command):
 class DockerBuildGenerateCommand(DockerCommand):
     """Base command class for docker generate and build sub-commands"""
 
-    TEMPLATE_PATH = 'config/docker'
+    TEMPLATE_PATHS = [
+        'config/docker',
+        '/etc/kernelci/config/docker',
+    ]
 
     @classmethod
     def _get_template_params(cls, prefix, fragments):
@@ -75,7 +78,7 @@ class DockerBuildGenerateCommand(DockerCommand):
         return params
 
     def _gen_dockerfile(self, img_name, params):
-        jinja2_env = Environment(loader=FileSystemLoader(self.TEMPLATE_PATH))
+        jinja2_env = Environment(loader=FileSystemLoader(self.TEMPLATE_PATHS))
         template = jinja2_env.get_template(f"{img_name}.jinja2")
         return template.render(params)
 
