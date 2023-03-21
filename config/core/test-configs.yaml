@@ -2312,6 +2312,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - kselftest-capabilities
 
   - device_type: bcm2711-rpi-4-b
     test_plans:
