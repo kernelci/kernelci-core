@@ -35,12 +35,7 @@ class NodeAttributesCommand(NodeCommand):
 
 class cmd_get(NodeCommand):  # pylint: disable=invalid-name
     """Get a node with a given ID"""
-    args = NodeCommand.args + [
-        {
-            'name': 'id',
-            'help': "Node id",
-        },
-    ]
+    args = NodeCommand.args + [Args.id]
 
     def _api_call(self, api, configs, args):
         node = api.get_node(args.id)
