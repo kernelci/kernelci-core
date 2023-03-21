@@ -8,9 +8,12 @@ metadata:
 
 spec:
   completions: 1
+  ttlSecondsAfterFinished: 30
   template:
     spec:
-      restartPolicy: OnFailure
+      backoffLimit: 1
+      restartPolicy: Never
+      terminationGracePeriodSeconds: 10
 
       volumes:
       - name: scratch-volume
