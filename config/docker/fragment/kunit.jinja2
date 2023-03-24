@@ -2,3 +2,8 @@
 RUN apt-get update && apt-get install --no-install-recommends -y g++-10
 RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 500
 RUN apt-get update && apt-get install --no-install-recommends -y python3
+
+# Install minimal QEMU packages to run KUnit on x86
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    qemu-system \
+    qemu-system-x86
