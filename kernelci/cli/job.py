@@ -6,7 +6,8 @@
 """Tool to generate and run KernelCI jobs"""
 
 import kernelci.runtime
-from .base import APICommand, Args, Command, sub_main
+from .base import Args, Command, sub_main
+from .base_api import APICommand
 
 
 class cmd_init(APICommand):  # pylint: disable=invalid-name

@@ -8,7 +8,8 @@
 import json
 import sys
 
-from .base import APICommand, Args, sub_main
+from .base import Args, sub_main
+from .base_api import APICommand
 
 
 class NodeCommand(APICommand):  # pylint: disable=too-few-public-methods

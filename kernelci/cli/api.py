@@ -5,7 +5,8 @@
 
 """Tool to interact with the KernelCI API"""
 
-from .base import APICommand, Args, sub_main
+from .base import Args, sub_main
+from .base_api import APICommand
 
 
 class cmd_hello(APICommand):  # pylint: disable=invalid-name

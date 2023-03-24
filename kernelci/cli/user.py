@@ -7,7 +7,8 @@
 
 import getpass
 
-from .base import Args, APICommand, sub_main
+from .base import Args, sub_main
+from .base_api import APICommand
 
 
 class cmd_whoami(APICommand):  # pylint: disable=invalid-name
