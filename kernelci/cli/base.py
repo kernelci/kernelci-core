@@ -13,13 +13,11 @@ the commands registration mechanism.
 import abc
 import argparse
 import configparser
-import json
 import os.path
 import sys
 
 from requests.exceptions import HTTPError
 
-import kernelci.api
 import kernelci.config
 
 
@@ -479,46 +477,6 @@ class Command(abc.ABC):
         namespace.  For example, `--db-token` gets convereted to `db_token`.
         """
         return arg_name.strip('-').replace('-', '_')
-
-
-class APICommand(Command):  # pylint: disable=too-few-public-methods
-    """Base command class for interacting with the KernelCI API
-
-    The Args.api_token argument needs to be added for commands that require
-    authentication with the API.
-    """
-    args = Command.args + [Args.api_config]
-
-    @classmethod
-    def _get_api(cls, configs, args):
-        config = configs['api_configs'][args.api_config]
-        return kernelci.api.get_api(config, args.api_token)
-
-    @classmethod
-    def _print_json(cls, data, indent=None):
-        n_indent = 0 if indent is None else int(indent)
-        print(json.dumps(data, indent=n_indent))
-
-    @classmethod
-    def _load_json(cls, json_path, encoding='utf-8'):
-        with open(json_path, encoding=encoding) as json_file:
-            return json.load(json_file)
-
-    @classmethod
-    def _print_node(cls, node, id_only, indent):
-        if id_only:
-            print(node['_id'])
-        else:
-            cls._print_json(node, indent)
-
-    @abc.abstractmethod
-    def _api_call(self, api, configs, args):
-        """Entry point to implement commands that use the API"""
-
-    @catch_http_error
-    def __call__(self, configs, args):
-        api = self._get_api(configs, args)
-        return self._api_call(api, configs, args)
 
 
 class Options:
