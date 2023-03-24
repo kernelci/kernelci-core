@@ -43,6 +43,11 @@ class cmd_results(APICommand):  # pylint: disable=invalid-name
             node = api.get_node(node['parent'])
         return node
 
+    def _dump_artifacts(self, artifacts):
+        for name, url in artifacts.items():
+            print(f"  {self._color(name, 'blue')}")
+            print(f"    {url}")
+
     def _dump_results(self, api, node, indent=0):
         fmt = f"{{space}}{{path:{64-indent*2}s}}{{result:6}}{{node_id}}"
         node_id = node['_id']
@@ -64,9 +69,9 @@ class cmd_results(APICommand):  # pylint: disable=invalid-name
     def _dump(self, api, args):
         node = api.get_node(args.id)
         parent_id = node['parent'] or '----'
-        checkout = self._get_checkout(api, node)
         revision = node['revision']
         created = datetime.fromisoformat(node['created'])
+        artifacts = node.get('artifacts')
         print(f"""\
 {self._color('Node', 'bold')}
   {self._color('path', 'blue')}      {'.'.join(node['path'])}
@@ -79,9 +84,13 @@ class cmd_results(APICommand):  # pylint: disable=invalid-name
   {self._color('branch', 'blue')}    {revision['branch']}
   {self._color('commit', 'blue')}    {revision['commit']}
   {self._color('describe', 'blue')}  {revision['describe']}
-  {self._color('tarball', 'blue')}   {checkout['artifacts'].get('tarball')}
+""")
 
-{self._color('Results', 'bold')}""")
+        if artifacts:
+            print(f"{self._color('Artifacts', 'bold')}")
+            self._dump_artifacts(artifacts)
+
+        print(f"{self._color('Results', 'bold')}")
         self._dump_results(api, node)
 
     def _api_call(self, api, configs, args):
