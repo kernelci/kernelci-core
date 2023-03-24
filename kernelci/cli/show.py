@@ -78,6 +78,7 @@ class cmd_results(APICommand):  # pylint: disable=invalid-name
   {self._color('id', 'blue')}        {args.id}
   {self._color('parent', 'blue')}    {parent_id}
   {self._color('created', 'blue')}   {created.strftime('%Y-%m-%d at %H:%M:%S')}
+  {self._color('state', 'blue')}     {node['state']}
 
 {self._color('Kernel', 'bold')}
   {self._color('tree', 'blue')}      {revision['tree']}
