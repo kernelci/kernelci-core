@@ -30,6 +30,13 @@ class cmd_results(APICommand):  # pylint: disable=invalid-name
     }
 
     args = APICommand.args + [Args.id]
+    opt_args = APICommand.opt_args + [
+        {
+            'name': '--max-depth',
+            'type': int,
+            'help': "Maximum depth when recursing through child results",
+        },
+    ]
 
     def _color(self, msg, color):
         return ''.join([self.COLORS[color], msg, self.COLORS['clear']])
@@ -48,7 +55,7 @@ class cmd_results(APICommand):  # pylint: disable=invalid-name
             print(f"  {self._color(name, 'blue')}")
             print(f"    {url}")
 
-    def _dump_results(self, api, node, indent=0):
+    def _dump_results(self, api, node, indent=0, max_depth=0):
         fmt = f"{{space}}{{path:{64-indent*2}s}}{{result:6}}{{node_id}}"
         node_id = node['_id']
         result = node['result'] or '----'
@@ -63,8 +70,10 @@ class cmd_results(APICommand):  # pylint: disable=invalid-name
             line = self._color(line, color)
         print(line)
         child_nodes = api.get_nodes({'parent': node_id})
+        if max_depth and indent == max_depth:
+            return
         for child in child_nodes:
-            self._dump_results(api, child, indent+1)
+            self._dump_results(api, child, indent+1, max_depth)
 
     def _dump(self, api, args):
         node = api.get_node(args.id)
@@ -92,7 +101,7 @@ class cmd_results(APICommand):  # pylint: disable=invalid-name
             self._dump_artifacts(artifacts)
 
         print(f"{self._color('Results', 'bold')}")
-        self._dump_results(api, node)
+        self._dump_results(api, node, 0, args.max_depth)
 
     def _api_call(self, api, configs, args):
         self._dump(api, args)
