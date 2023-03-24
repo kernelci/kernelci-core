@@ -136,20 +136,18 @@ class APIHelper:
             ]
         }
         """
+        root_node = root.copy()
+        root_node['result'] = results['node']['result']
+        root_node['artifacts'].update(results['node']['artifacts'])
+        root_results = {
+            'node': root_node,
+            'child_nodes': results['child_nodes'],
+        }
         parent = self.api.get_node(root['parent'])
         base = {
             'revision': root['revision'],
             'group': root['name'],
             'state': 'done',
-        }
-        root_node = results['node'].copy()
-        root_node.update({
-            '_id': root['_id'],
-            'parent': root['parent'],
-        })
-        root_results = {
-            'node': root_node,
-            'child_nodes': results['child_nodes'],
         }
         data = self._prepare_results(root_results, parent, base)
         # Once this has been consolidated at the API level:
