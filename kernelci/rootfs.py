@@ -53,6 +53,14 @@ class DebosBuilder(RootfsBuilder):
         if not os.path.isdir(artifact_dir):
             os.makedirs(artifact_dir, exist_ok=True)
 
+        debos_config = {
+            '--cpus':  config.debos_cpus,
+            '--memory': config.debos_memory or '4G',
+            '--scratchsize': config.debos_scratchsize
+        }
+        debos_opts = ' '.join([f'{opt}={value}' for opt, value in
+                              debos_config.items() if value])
+
         debos_params = {
             'architecture': arch,
             'suite': config.debian_release,
@@ -69,13 +77,15 @@ class DebosBuilder(RootfsBuilder):
             'keyring_package': config.keyring_package,
             'keyring_file': config.keyring_file,
         }
-        debos_opts = ' '.join(
+
+        debos_opts += ' ' + ' '.join(
             opt for opt in (
                 '-t {key}:"{value}"'.format(key=key, value=value)
                 for key, value in debos_params.items()
             )
         )
-        cmd = f"debos --memory=4G {debos_opts}"\
+
+        cmd = f"debos {debos_opts}"\
             f" --artifactdir={artifact_dir} {rootfs_yaml}"\
 
         print(cmd)
