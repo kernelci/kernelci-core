@@ -77,6 +77,10 @@ class cmd_results(APICommand):  # pylint: disable=invalid-name
 
     def _dump(self, api, args):
         node = api.get_node(args.id)
+        if node is None:
+            print(f"Node not found: {args.id}")
+            return False
+
         parent_id = node['parent'] or '----'
         revision = node['revision']
         created = datetime.fromisoformat(node['created'])
@@ -103,9 +107,10 @@ class cmd_results(APICommand):  # pylint: disable=invalid-name
         print(f"{self._color('Results', 'bold')}")
         self._dump_results(api, node, 0, args.max_depth)
 
-    def _api_call(self, api, configs, args):
-        self._dump(api, args)
         return True
+
+    def _api_call(self, api, configs, args):
+        return self._dump(api, args)
 
 
 def main(args=None):
