@@ -1,5 +1,9 @@
 runtimes:
 
+  docker:
+    lab_type: docker
+    env_file: '.docker-env'
+
   # ToDo: also run jobs with callbacks sent to BayLibre's KernelCI backend
   lab-baylibre:
     lab_type: legacy.lava_xmlrpc
