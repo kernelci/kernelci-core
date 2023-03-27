@@ -48,9 +48,9 @@ class BaseJob:
         if not api_config:
             raise ValueError("API configuration not found")
 
-        api_token = os.getenv('API_TOKEN')
+        api_token = os.getenv('KCI_API_TOKEN')
         if not api_token:
-            raise ValueError("API_TOKEN environment variable not found")
+            raise ValueError("KCI_API_TOKEN environment variable not found")
 
         return kernelci.api.get_api(api_config, api_token)
 
