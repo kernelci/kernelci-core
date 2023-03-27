@@ -110,6 +110,37 @@ class RuntimeLAVA(Runtime):
         return attrs
 
 
+class RuntimeDocker(Runtime):
+    """Configuration for Docker runtime environments"""
+
+    def __init__(self, env_file=None, volumes=None, user=None, **kwargs):
+        super().__init__(**kwargs)
+        self._env_file = env_file
+        self._volumes = volumes or []
+        self._user = user
+
+    @property
+    def env_file(self):
+        """Path to the environment file"""
+        return self._env_file
+
+    @property
+    def volumes(self):
+        """List of Docker volumes to mount"""
+        return self._volumes
+
+    @property
+    def user(self):
+        """Specified user to run in the container"""
+        return self._user
+
+    @classmethod
+    def _get_yaml_attributes(cls):
+        attrs = super()._get_yaml_attributes()
+        attrs.update({'env_file', 'volumes', 'user'})
+        return attrs
+
+
 class RuntimeKubernetes(Runtime):
     """Configuration for Kubernetes runtime environments"""
 
@@ -133,6 +164,7 @@ class RuntimeFactory:  # pylint: disable=too-few-public-methods
     """Factory to create lab objects from YAML data."""
 
     _lab_types = {
+        'docker': RuntimeDocker,
         'kubernetes': RuntimeKubernetes,
         'lava.lava_xmlrpc': RuntimeLAVA,
         'lava.lava_rest': RuntimeLAVA,
