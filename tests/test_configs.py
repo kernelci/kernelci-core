@@ -184,7 +184,7 @@ class TestRuntimeConfigs(ConfigTest):
 
     def test_runtimes(self):
         """Test the runtime configs"""
-        _, config = self._load_config('tests/configs/runtimes.yaml')
+        ref_data, config = self._load_config('tests/configs/runtimes.yaml')
         runtimes = config['runtimes']
         lava_lab_prio = {
             'lab-baylibre': (None, None, None),
@@ -198,6 +198,14 @@ class TestRuntimeConfigs(ConfigTest):
             assert lab_config.priority == fixed_p
             assert lab_config.priority_min == min_p
             assert lab_config.priority_max == max_p
+        runtime_names = [
+            'docker',
+            'k8s-gke-eu-west4',
+            'lab-min-12-max-40-new-runtime',
+            'shell',
+        ]
+        runtime_names.extend(lava_lab_prio)
+        assert all(name in ref_data['runtimes'] for name in runtime_names)
 
 
 class TestStorageConfigs(ConfigTest):
