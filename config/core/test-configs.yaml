@@ -1501,6 +1501,11 @@ device_types:
     boot_method: depthcharge
     filters: *arm64-chromebook-filters
 
+  mt8365-evk:
+    mach: mediatek
+    class: arm64-dtb
+    boot_method: uboot
+
   mustang:
     mach: apm
     class: arm64-dtb
@@ -2904,6 +2909,10 @@ test_configs:
       - preempt-rt
       - sleep
       - v4l2-compliance-uvc
+
+  - device_type: mt8365-evk
+    test_plans:
+      - baseline
 
   - device_type: mustang
     test_plans:
