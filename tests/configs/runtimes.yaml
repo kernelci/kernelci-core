@@ -1,5 +1,12 @@
 runtimes:
 
+  docker:
+    lab_type: docker
+    env_file: 'docker-env'
+    user: 'root'
+    volumes:
+      - 'data:/home/kernelci/data'
+
   k8s-gke-eu-west4:
     lab_type: kubernetes
     context: 'gke_android-kernelci-external_europe-west4-c_kci-eu-west4'
