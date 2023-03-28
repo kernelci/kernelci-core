@@ -599,8 +599,7 @@ device_types:
     class: arm64-dtb
     boot_method: depthcharge
     dtb: 'mediatek/mt8183-kukui-jacuzzi-juniper-sku16.dtb'
-    filters: &mediatek-filter
-      - passlist: {defconfig: ['chromiumos-mediatek']}
+    filters: [blocklist: {}]
     params: &chromebook-arm64-params
       cros_flash_nfs:
         base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20221230.0/arm64/'
@@ -630,7 +629,7 @@ device_types:
     base_name: mt8192-asurada-spherion-r0
     mach: mediatek
     dtb: 'mediatek/mt8192-asurada-spherion-r0.dtb'
-    filters: *mediatek-filter
+    filters: [blocklist: {}]
     params:
       <<: *chromebook-arm64-params
       cros_flash_kernel:
@@ -792,6 +791,8 @@ test_configs:
     test_plans: *chromebook-test-plans
 
   - device_type: mt8183-kukui-jacuzzi-juniper-sku16_chromeos
+    filters: &mediatek-filter
+      - passlist: {defconfig: ['chromiumos-mediatek']}
     test_plans: &chromebook-arm64-test-plans
       - cros-baseline
       - cros-baseline-fixed
@@ -808,7 +809,17 @@ test_configs:
       - cros-tast-video
       - cros-tast-video-fixed
 
+  - device_type: mt8183-kukui-jacuzzi-juniper-sku16_chromeos
+    filters: &collabora-chromeos-kernel-filter
+      - passlist: {tree: ['collabora-chromeos-kernel'], branch: ['for-kernelci']}
+    test_plans: *chromebook-arm64-test-plans
+
   - device_type: mt8192-asurada-spherion-r0_chromeos
+    filters: *mediatek-filter
+    test_plans: *chromebook-arm64-test-plans
+
+  - device_type: mt8192-asurada-spherion-r0_chromeos
+    filters: *collabora-chromeos-kernel-filter
     test_plans: *chromebook-arm64-test-plans
 
 # Test plans temporarily disabled as QEMU build doesnt work
