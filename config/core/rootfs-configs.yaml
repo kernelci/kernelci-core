@@ -7,7 +7,6 @@ rootfs_configs:
       - arm64
       - armhf
     extra_packages:
-      - alsa-ucm-conf
       - alsa-utils
       - bc
       - ca-certificates
@@ -38,6 +37,7 @@ rootfs_configs:
       - tpm2-tools
       - wget
       - xz-utils
+    script: "scripts/bookworm-kselftest.sh"
 
   buildroot-baseline:
     rootfs_type: buildroot
