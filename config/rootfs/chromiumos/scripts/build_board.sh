@@ -143,7 +143,7 @@ case ${BOARD} in
     ;;
     asurada|jacuzzi|cherry|geralt)
     mkdir -p ${DATA_DIR}/${BOARD}/dtbs/mediatek
-    sudo cp ./chroot/build/${BOARD}/var/cache/portage/sys-kernel/chromeos-kernel-*/arch/arm64/boot/dts/mediatek/*.dtb \
+    sudo cp ./chroot/build/${BOARD}/var/cache/portage/sys-kernel/*kernel*/arch/arm64/boot/dts/mediatek/*.dtb \
 	 ${DATA_DIR}/${BOARD}/dtbs/mediatek
     sudo cp ./chroot/build/${BOARD}/boot/Image* "${DATA_DIR}/${BOARD}/Image"
     ;;
