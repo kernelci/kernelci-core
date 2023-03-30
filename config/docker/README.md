@@ -18,7 +18,7 @@ is composed of an optional kernel CPU architecture name when applicable
 prefix can be used to specify the Docker Hub account where the image should be
 pushed, or for local name spaces.  The overall pattern looks like this:
 
-    {{ prefix }}{{ image }}:{{ arch }}{{ -fragment2 }}{{ -fragment2 }}{{ ... }}
+    {{ prefix }}{{ image }}:{{ arch }}{{ -fragment1 }}{{ -fragment2 }}{{ ... }}
 
 The fragment names are additional features to be added to the image.  These are
 typically useful when running jobs in a local shell all in the same container.
