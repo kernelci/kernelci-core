@@ -22,7 +22,7 @@ pushed, or for local name spaces.  The overall pattern looks like this:
 
 The fragment names are additional features to be added to the image.  These are
 typically useful when running jobs in a local shell all in the same container.
-For Kubernetes deployment in produciton, each step should be run in a separate
+For Kubernetes deployment in production, each step should be run in a separate
 container which would only include one application.
 
 Here are a few image names examples:
