@@ -1275,9 +1275,19 @@ build_configs:
     branch: 'v4.14-rt'
     variants: *preempt_rt_variants
 
+  rt-stable_v4.14-rt-next:
+    tree: rt-stable
+    branch: 'v4.14-rt-next'
+    variants: *preempt_rt_variants
+
   rt-stable_v4.19-rt:
     tree: rt-stable
     branch: 'v4.19-rt'
+    variants: *preempt_rt_variants
+
+  rt-stable_v4.19-rt-next:
+    tree: rt-stable
+    branch: 'v4.19-rt-next'
     variants: *preempt_rt_variants
 
   rt-stable_v5.4-rt:
@@ -1285,9 +1295,19 @@ build_configs:
     branch: 'v5.4-rt'
     variants: *preempt_rt_variants
 
+  rt-stable_v5.4-rt-next:
+    tree: rt-stable
+    branch: 'v5.4-rt-next'
+    variants: *preempt_rt_variants
+
   rt-stable_v5.10-rt:
     tree: rt-stable
     branch: 'v5.10-rt'
+    variants: *preempt_rt_variants
+
+  rt-stable_v5.10-rt-next:
+    tree: rt-stable
+    branch: 'v5.10-rt-next'
     variants: *preempt_rt_variants
 
   rt-stable_v5.15-rt:
@@ -1295,9 +1315,19 @@ build_configs:
     branch: 'v5.15-rt'
     variants: *preempt_rt_variants
 
+  rt-stable_v5.15-rt-next:
+    tree: rt-stable
+    branch: 'v5.15-rt-next'
+    variants: *preempt_rt_variants
+
   rt-stable_v6.1-rt:
     tree: rt-stable
     branch: 'v6.1-rt'
+    variants: *preempt_rt_variants
+
+  rt-stable_v6.1-rt-next:
+    tree: rt-stable
+    branch: 'v6.1-rt-next'
     variants: *preempt_rt_variants
 
   rust-for-linux_rust:
