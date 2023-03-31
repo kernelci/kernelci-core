@@ -164,6 +164,22 @@ class TestTestConfigs(ConfigTest):
         )
 
 
+class TestJobConfigs(ConfigTest):
+    """Tests for pipeline job definitions"""
+
+    def test_jobs(self):
+        """Test the job configs"""
+        ref_data, config = self._load_config('tests/configs/jobs.yaml')
+        jobs = self._reload(ref_data, config, 'jobs')
+        job_names = ['kbuild-gcc-10-x86', 'kunit', 'kunit-x86_64', 'kver']
+        assert all(name in ref_data['jobs'] for name in job_names)
+        assert all(name in jobs for name in job_names)
+        assert (
+            jobs['kunit-x86_64']['image'] ==
+            'kernelci/staging-gcc-10:x86-kunit-qemu-kernelci'
+        )
+
+
 class TestAPIConfigs(ConfigTest):
     """Tests for configs related to the KernelCI API"""
 
