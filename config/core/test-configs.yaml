@@ -1,3 +1,4 @@
+
 # See the KernelCI wiki page regarding the format of this file:
 # https://github.com/kernelci/kernelci-doc/wiki/Test-configurations
 
@@ -1286,6 +1287,21 @@ device_types:
     mach: vexpress
     class: arm64-dtb
     dtb: 'arm/juno.dtb'
+    boot_method: uboot
+
+  k3-am625-sk:
+    mach: ti
+    class: arm64-dtb
+    boot_method: uboot
+
+  k3-j721e-beagleboneai64:
+    mach: ti
+    class: arm64-dtb
+    boot_method: uboot
+
+  k3-j721e-sk:
+    mach: ti
+    class: arm64-dtb
     boot_method: uboot
 
   kirkwood-db-88f6282:
@@ -2689,6 +2705,18 @@ test_configs:
       - ltp-crypto
       # ltp-mm - runs system out of memory
       - smc
+
+  - device_type: k3-am625-sk
+    test_plans:
+      - baseline
+
+  - device_type: k3-j721e-beagleboneai64
+    test_plans:
+      - baseline
+
+  - device_type: k3-j721e-sk
+    test_plans:
+      - baseline
 
   - device_type: kirkwood-db-88f6282
     test_plans:
