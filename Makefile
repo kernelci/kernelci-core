@@ -24,6 +24,7 @@ pylint:
 		kernelci.api \
 		kernelci.cli \
 		kernelci.config.api \
+		kernelci.config.job \
 		kernelci.config.runtime \
 		kernelci.config.storage \
 		kernelci.storage \

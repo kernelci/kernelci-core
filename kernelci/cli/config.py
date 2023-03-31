@@ -26,7 +26,7 @@ class cmd_validate(Command):  # pylint: disable=invalid-name
     def __call__(self, configs, args):
         entries = [
             'device_types',
-            'test_plans',
+            'jobs',
             'storage_configs',
         ]
         err = kernelci.config.validate_yaml(args.yaml_config, entries)
