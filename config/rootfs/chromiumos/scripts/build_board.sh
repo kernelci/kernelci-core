@@ -102,7 +102,8 @@ if [ ! -f .cache/distfiles/chrome-src/.gclient ]; then
 fi
 
 echo "Building packages (${SERIAL})"
-cros_sdk USE="tty_console_${SERIAL} pcserial cr50_skip_update" \
+# Disable `builtin_fw_mali_g57` flag as it is not required when `panfrost` is enabled
+cros_sdk USE="tty_console_${SERIAL} pcserial cr50_skip_update -builtin_fw_mali_g57" \
 	 build_packages --board=${BOARD}
 
 echo "Building image (${SERIAL})"
