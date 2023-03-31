@@ -22,8 +22,8 @@ class Kubernetes(Runtime):
 
     JOB_NAME_CHARACTERS = string.ascii_lowercase + string.digits
 
-    def generate(self, params, plan_config):
-        template = self._get_template(plan_config)
+    def generate(self, params, job_config):
+        template = self._get_template(job_config)
         job_name = '-'.join(['kci', params['node_id'], params['name'][:24]])
         safe_name = re.sub(r'[\:/_+=]', '-', job_name).lower()
         rand_sx = ''.join(random.sample(self.JOB_NAME_CHARACTERS, 8))

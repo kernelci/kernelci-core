@@ -12,7 +12,13 @@ from .base_api import APICommand
 
 class cmd_init(APICommand):  # pylint: disable=invalid-name
     """Initialise job data before running it"""
-    args = APICommand.args + [Args.api_token, Args.plan]
+    args = APICommand.args + [
+        Args.api_token,
+        {
+            'name': 'job',
+            'help': "Job name",
+        },
+    ]
 
     opt_args = APICommand.opt_args + [
         Args.indent, Args.id_only,
@@ -28,12 +34,12 @@ class cmd_init(APICommand):  # pylint: disable=invalid-name
 
     # This should in fact be using a generic method in the API class
     # pylint: disable=no-self-use
-    def _create_node(self, api, input_node, plan_config):
+    def _create_node(self, api, input_node, job_config):
         job_node = {
             'parent': input_node['_id'],
-            'name': plan_config.name,
-            'path': input_node['path'] + [plan_config.name],
-            'group': plan_config.name,
+            'name': job_config.name,
+            'path': input_node['path'] + [job_config.name],
+            'group': job_config.name,
             'artifacts': input_node['artifacts'],
             'revision': input_node['revision'],
         }
@@ -48,8 +54,8 @@ class cmd_init(APICommand):  # pylint: disable=invalid-name
             print("\
 Invalid arguments.  Either --input-node-id or --input-node-json is required.")
             return False
-        plan_config = configs['test_plans'][args.plan]
-        node = self._create_node(api, input_node, plan_config)
+        job_config = configs['jobs'][args.job]
+        node = self._create_node(api, input_node, job_config)
         self._print_node(node, args.id_only, args.indent)
         return True
 
@@ -88,7 +94,7 @@ class cmd_generate(APICommand):  # pylint: disable=invalid-name
             print("\
 Invalid arguments.  Either --node-id or --node-json is required.")
             return False
-        plan_config = configs['test_plans'][job_node['name']]
+        job_config = configs['jobs'][job_node['name']]
         platform_config = configs['device_types'][args.platform]
         runtime_config = configs['runtimes'][args.runtime_config]
         runtime = kernelci.runtime.get_runtime(runtime_config)
@@ -97,9 +103,9 @@ Invalid arguments.  Either --node-id or --node-json is required.")
             if args.storage_config else None
         )
         params = runtime.get_params(
-            job_node, plan_config, platform_config, api.config, storage_config
+            job_node, job_config, platform_config, api.config, storage_config
         )
-        job = runtime.generate(params, plan_config)
+        job = runtime.generate(params, job_config)
         if args.output:
             output_file = runtime.save_file(job, args.output, params)
             print(f"Job saved in {output_file}")

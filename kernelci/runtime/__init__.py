@@ -61,10 +61,9 @@ class Runtime(abc.ABC):
     def _get_devices(self):  # pylint: disable=no-self-use
         return []
 
-    def _get_template(self, plan_config):
+    def _get_template(self, job_config):
         jinja2_env = Environment(loader=FileSystemLoader(self.templates))
-        template_path = plan_config.get_template_path(None)
-        return jinja2_env.get_template(template_path)
+        return jinja2_env.get_template(job_config.template)
 
     def import_devices(self, data):
         """Import devices information
@@ -96,32 +95,31 @@ class Runtime(abc.ABC):
 
     # This could be refactored with a Job object containing all the config data
     # pylint: disable=too-many-arguments
-    def get_params(self, node, plan_config, platform_config,
+    def get_params(self, node, job_config, platform_config,
                    api_config=None, storage_config=None):
         """Get job template parameters"""
         params = {
             'api_config_yaml': yaml.dump(api_config or {}),
             'storage_config_yaml': yaml.dump(storage_config or {}),
-            'name': plan_config.name,
+            'name': job_config.name,
             'node_id': node['_id'],
             'revision': node['revision'],
             'runtime': self.config.lab_type,
-            'runtime_image': plan_config.image,
+            'runtime_image': job_config.image,
             'tarball_url': node['artifacts']['tarball'],
         }
-        params.update(plan_config.params)
+        params.update(job_config.params)
         params.update(platform_config.params)
         return params
 
     @abc.abstractmethod
-    def generate(self, params, plan_config):
+    def generate(self, params, job_config):
         """Generate a test job definition.
 
         *params* is a dictionary with the test parameters which can be used
              when generating a job definition using templates
 
-        *plan_config* is a TestPlan configuration object for the target test
-             plan
+        *job_config* is a Job configuration object for the target job
         """
 
     def save_file(self, job, output_path, params, encoding='utf-8'):
