@@ -1270,26 +1270,6 @@ build_configs:
     branch: 'for-kernelci'
     variants: *medium_variants
 
-  rt-stable_v3.18-rt:
-    tree: rt-stable
-    branch: 'v3.18-rt'
-    variants: *preempt_rt_variants
-
-  rt-stable_v4.1-rt:
-    tree: rt-stable
-    branch: 'v4.1-rt'
-    variants: *preempt_rt_variants
-
-  rt-stable_v4.4-rt:
-    tree: rt-stable
-    branch: 'v4.4-rt'
-    variants: *preempt_rt_variants
-
-  rt-stable_v4.9-rt:
-    tree: rt-stable
-    branch: 'v4.9-rt'
-    variants: *preempt_rt_variants
-
   rt-stable_v4.14-rt:
     tree: rt-stable
     branch: 'v4.14-rt'
