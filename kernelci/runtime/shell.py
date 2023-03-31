@@ -18,8 +18,8 @@ class Shell(Runtime):
     Popen object so the caller can wait for it to complete and get its output.
     """
 
-    def generate(self, params, plan_config):
-        template = self._get_template(plan_config)
+    def generate(self, params, job_config):
+        template = self._get_template(job_config)
         return template.render(params)
 
     def save_file(self, *args, **kwargs):
