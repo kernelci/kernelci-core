@@ -22,6 +22,10 @@ class Kubernetes(Runtime):
 
     JOB_NAME_CHARACTERS = string.ascii_lowercase + string.digits
 
+    @classmethod
+    def _get_job_file_name(cls, params):
+        return '.'.join([params['k8s_job_name'], 'yaml'])
+
     def generate(self, params, job_config):
         template = self._get_template(job_config)
         job_name = '-'.join(['kci', params['node_id'], params['name'][:24]])
@@ -30,9 +34,6 @@ class Kubernetes(Runtime):
         k8s_job_name = '-'.join([safe_name[:(62 - len(rand_sx))], rand_sx])
         params['k8s_job_name'] = k8s_job_name
         return template.render(params)
-
-    def job_file_name(self, params):
-        return '.'.join([params['k8s_job_name'], 'yaml'])
 
     def submit(self, job_path):
         kubernetes.config.load_kube_config(context=self.config.context)
