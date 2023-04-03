@@ -54,11 +54,6 @@ class Runtime(abc.ABC):
         jinja2_env = Environment(loader=FileSystemLoader(self.templates))
         return jinja2_env.get_template(job_config.template)
 
-    # pylint: disable=no-self-use
-    def job_file_name(self, params):
-        """Get the file name where to store the generated job definition."""
-        return params['name']
-
     def match(self, filter_data):
         """Apply filters and return True if they match, False otherwise."""
         return self.config.match(filter_data)
@@ -82,6 +77,11 @@ class Runtime(abc.ABC):
         params.update(platform_config.params)
         return params
 
+    @classmethod
+    def _get_job_file_name(cls, params):
+        """Get the file name where to store the generated job definition."""
+        return params['name']
+
     def save_file(self, job, output_path, params, encoding='utf-8'):
         """Save a test job definition in a file.
 
@@ -91,7 +91,7 @@ class Runtime(abc.ABC):
 
         Return the full path where the job definition file was saved.
         """
-        file_name = self.job_file_name(params)
+        file_name = self._get_job_file_name(params)
         output_file = os.path.join(output_path, file_name)
         with open(output_file, 'w', encoding=encoding) as output:
             output.write(job)
