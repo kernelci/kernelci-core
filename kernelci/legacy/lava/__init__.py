@@ -8,6 +8,7 @@
 # Author: Michal Galka <michal.galka@collabora.com>
 
 from jinja2 import Environment, FileSystemLoader
+import json
 import os
 
 from kernelci.runtime import add_kci_raise
@@ -37,8 +38,9 @@ class LavaRuntime:
     def _connect(self, *args, **kwargs):
         return None
 
-    def import_devices(self, data):
-        self._devices = data
+    def import_devices(self, runtime_json):
+        with open(runtime_json, encoding='utf-8') as json_file:
+            self._devices = json.load(json_file)['devices']
 
     def device_type_online(self, device_type_config):
         return True

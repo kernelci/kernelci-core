@@ -209,8 +209,10 @@ class cmd_list_jobs(Command):
 
         runtime_config = configs['runtimes'][args.runtime_config]
         runtime = kernelci.runtime.get_runtime(
-            runtime_config, args.user, args.runtime_token, args.runtime_json
+            runtime_config, args.user, args.runtime_token
         )
+        if args.runtime_json:
+            runtime.import_devices(args.runtime_json)
         configs = kernelci.test.match_configs(
             configs['test_configs'], meta, runtime_config)
         jobs = list()
@@ -300,8 +302,10 @@ class cmd_generate(Command):
 
         runtime_config = configs['runtimes'][args.runtime_config]
         runtime = kernelci.runtime.get_runtime(
-            runtime_config, args.user, args.runtime_token, args.runtime_json
+            runtime_config, args.user, args.runtime_token
         )
+        if args.runtime_json:
+            runtime.import_devices(args.runtime_json)
         if args.target and args.plan:
             device_config = configs['device_types'][args.target]
             plan_config = configs['test_plans'][args.plan]
