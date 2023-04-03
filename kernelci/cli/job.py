@@ -5,6 +5,7 @@
 
 """Tool to generate and run KernelCI jobs"""
 
+import kernelci.api.helper
 import kernelci.runtime
 from .base import Args, Command, sub_main
 from .base_api import APICommand
@@ -32,19 +33,6 @@ class cmd_init(APICommand):  # pylint: disable=invalid-name
         },
     ]
 
-    # This should in fact be using a generic method in the API class
-    # pylint: disable=no-self-use
-    def _create_node(self, api, input_node, job_config):
-        job_node = {
-            'parent': input_node['_id'],
-            'name': job_config.name,
-            'path': input_node['path'] + [job_config.name],
-            'group': job_config.name,
-            'artifacts': input_node['artifacts'],
-            'revision': input_node['revision'],
-        }
-        return api.create_node(job_node)
-
     def _api_call(self, api, configs, args):
         if args.input_node_id:
             input_node = api.get_node(args.input_node_id)
@@ -54,9 +42,11 @@ class cmd_init(APICommand):  # pylint: disable=invalid-name
             print("\
 Invalid arguments.  Either --input-node-id or --input-node-json is required.")
             return False
+
+        helper = kernelci.api.helper.APIHelper(api)
         job_config = configs['jobs'][args.job]
-        node = self._create_node(api, input_node, job_config)
-        self._print_node(node, args.id_only, args.indent)
+        job_node = helper.create_job_node(job_config, input_node)
+        self._print_node(job_node, args.id_only, args.indent)
         return True
 
 
