@@ -26,6 +26,58 @@ def add_kci_raise(jinja2_env):
     jinja2_env.globals['kci_raise'] = template_exception
 
 
+class Job:
+    """Pipeline job"""
+
+    def __init__(self, node, job_config):
+        """A Job object can be run using a Runtime environment
+
+        A pipeline Job object can be used with a Runtime to generate a job
+        definition and keep track of all the related pieces of data such as the
+        configuration from YAML and the API node.
+
+        *node* is the node data for the job from the API
+        *job_config* is the Job configuration object loaded from YAML
+        """
+        self._node = node
+        self._config = job_config
+        self._platform_config = None  # node['extra']['platform'] ?
+        self._storage_config = None  # node['extra']['storage'] ?
+
+    @property
+    def node(self):
+        """Node data for this job"""
+        return self._node
+
+    @property
+    def config(self):
+        """Configuration for this job loaded from YAML"""
+        return self._config
+
+    @property
+    def name(self):
+        """Name of the job"""
+        return self.config.name
+
+    @property
+    def platform_config(self):
+        """Target platform configuration loaded from YAML"""
+        return self._platform_config
+
+    @platform_config.setter
+    def platform_config(self, platform_config):
+        self._platform_config = platform_config
+
+    @property
+    def storage_config(self):
+        """Storage configuration loaded from YAML"""
+        return self._storage_config
+
+    @storage_config.setter
+    def storage_config(self, storage_config):
+        self._storage_config = storage_config
+
+
 class Runtime(abc.ABC):
     """Runtime environment"""
 
@@ -58,23 +110,20 @@ class Runtime(abc.ABC):
         """Apply filters and return True if they match, False otherwise."""
         return self.config.match(filter_data)
 
-    # This could be refactored with a Job object containing all the config data
-    # pylint: disable=too-many-arguments
-    def get_params(self, node, job_config, platform_config,
-                   api_config=None, storage_config=None):
+    def get_params(self, job, api_config=None):
         """Get job template parameters"""
         params = {
             'api_config_yaml': yaml.dump(api_config or {}),
-            'storage_config_yaml': yaml.dump(storage_config or {}),
-            'name': job_config.name,
-            'node_id': node['_id'],
-            'revision': node['revision'],
+            'storage_config_yaml': yaml.dump(job.storage_config or {}),
+            'name': job.name,
+            'node_id': job.node['_id'],
+            'revision': job.node['revision'],
             'runtime': self.config.lab_type,
-            'runtime_image': job_config.image,
-            'tarball_url': node['artifacts']['tarball'],
+            'runtime_image': job.config.image,
+            'tarball_url': job.node['artifacts']['tarball'],
         }
-        params.update(job_config.params)
-        params.update(platform_config.params)
+        params.update(job.config.params)
+        params.update(job.platform_config.params)
         return params
 
     @classmethod
@@ -98,13 +147,12 @@ class Runtime(abc.ABC):
         return output_file
 
     @abc.abstractmethod
-    def generate(self, params, job_config):
+    def generate(self, job, params):
         """Generate a test job definition.
 
+        *job* is a Job object for the target job
         *params* is a dictionary with the test parameters which can be used
              when generating a job definition using templates
-
-        *job_config* is a Job configuration object for the target job
         """
 
     @abc.abstractmethod
