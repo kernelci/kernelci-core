@@ -26,8 +26,8 @@ class Kubernetes(Runtime):
     def _get_job_file_name(cls, params):
         return '.'.join([params['k8s_job_name'], 'yaml'])
 
-    def generate(self, params, job_config):
-        template = self._get_template(job_config)
+    def generate(self, job, params):
+        template = self._get_template(job.config)
         job_name = '-'.join(['kci', params['node_id'], params['name'][:24]])
         safe_name = re.sub(r'[\:/_+=]', '-', job_name).lower()
         rand_sx = ''.join(random.sample(self.JOB_NAME_CHARACTERS, 8))

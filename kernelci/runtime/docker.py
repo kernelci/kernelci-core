@@ -39,13 +39,13 @@ class Docker(Runtime):
     def _meta_path(cls, script_file_path):
         return '.'.join((script_file_path, 'meta'))
 
-    def generate(self, params, job_config):
-        template = self._get_template(job_config)
+    def generate(self, job, params):
+        template = self._get_template(job.config)
         return {
             'job': template.render(params),
             'metadata': {
                 'runtime': self.config.name,
-                'image': job_config.image,
+                'image': job.config.image,
             },
         }
 

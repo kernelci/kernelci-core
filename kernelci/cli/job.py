@@ -94,24 +94,21 @@ class cmd_generate(APICommand):  # pylint: disable=invalid-name
             print("\
 Invalid arguments.  Either --node-id or --node-json is required.")
             return False
-        job_config = configs['jobs'][job_node['name']]
-        platform_config = configs['device_types'][args.platform]
-        runtime_config = configs['runtimes'][args.runtime_config]
-        runtime = kernelci.runtime.get_runtime(runtime_config)
-        storage_config = (
+        job = kernelci.runtime.Job(job_node, configs['jobs'][job_node['name']])
+        job.platform_config = configs['device_types'][args.platform]
+        job.storage_config = (
             configs['storage_configs'][args.storage_config]
             if args.storage_config else None
         )
-        params = runtime.get_params(
-            job_node, job_config, platform_config, api.config, storage_config
-        )
-        job = runtime.generate(params, job_config)
+        runtime_config = configs['runtimes'][args.runtime_config]
+        runtime = kernelci.runtime.get_runtime(runtime_config)
+        params = runtime.get_params(job, api.config)
+        job_data = runtime.generate(job, params)
         if args.output:
-            output_file = runtime.save_file(job, args.output, params)
+            output_file = runtime.save_file(job_data, args.output, params)
             print(f"Job saved in {output_file}")
         else:
-            print(job)
-
+            print(job_data)
         return True
 
 
