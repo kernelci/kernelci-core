@@ -38,7 +38,6 @@ class Runtime(abc.ABC):
         *config* is a kernelci.config.runtime.Runtime object
         """
         self._config = config
-        self._devices = None
         self._templates = self.TEMPLATES
 
     @property
@@ -47,44 +46,15 @@ class Runtime(abc.ABC):
         return self._config
 
     @property
-    def devices(self):
-        """List of devices available in this runtime"""
-        if self._devices is None:
-            self._devices = self._get_devices()
-        return self._devices
-
-    @property
     def templates(self):
         """List of template directories used with this runtime"""
         return self._templates
-
-    def _get_devices(self):  # pylint: disable=no-self-use
-        return []
 
     def _get_template(self, job_config):
         jinja2_env = Environment(loader=FileSystemLoader(self.templates))
         return jinja2_env.get_template(job_config.template)
 
-    def import_devices(self, data):
-        """Import devices information
-
-        Import an arbitrary data structure describing the devices available in
-        the runtime environment.
-
-        *data* is the devices data structure to import
-        """
-        self._devices = data
-
-    # pylint: disable=unused-argument disable=no-self-use
-    def device_type_online(self, device_type_config):
-        """Check whether a given device type is online
-
-        Return True if the device type is online in the lab, False otherwise.
-
-        *device_type_config* is a config.test.DeviceType object
-        """
-        return True
-
+    # pylint: disable=no-self-use
     def job_file_name(self, params):
         """Get the file name where to store the generated job definition."""
         return params['name']
@@ -146,19 +116,13 @@ class Runtime(abc.ABC):
         """Get an id for a given job object as returned by submit()."""
 
 
-def get_runtime(config, user=None, token=None, runtime_json=None):
+def get_runtime(config, user=None, token=None):
     """Get the Runtime object for a given runtime config.
 
     *config* is a kernelci.config.runtime.Runtime object
     *user* is the name of the user to connect to the runtime
     *token* is the associated token to connect to the runtime
-    *runtime_json* is the path to a JSON file with cached runtime information
     """
     module_name = '.'.join(['kernelci', 'runtime', config.lab_type])
     runtime_module = importlib.import_module(module_name)
-    runtime = runtime_module.get_runtime(config, user=user, token=token)
-    if runtime_json:
-        with open(runtime_json, encoding='utf-8') as json_file:
-            devices = json.load(json_file)['devices']
-            runtime.import_devices(devices)
-    return runtime
+    return runtime_module.get_runtime(config, user=user, token=token)
