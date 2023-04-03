@@ -87,6 +87,18 @@ class APIHelper:
                    for obj in [node, event.data]):
                 return node
 
+    def create_job_node(self, job_config, input_node):
+        """Create a new job node based on input and configuration"""
+        job_node = {
+            'parent': input_node['_id'],
+            'name': job_config.name,
+            'path': input_node['path'] + [job_config.name],
+            'group': job_config.name,
+            'artifacts': input_node['artifacts'],
+            'revision': input_node['revision'],
+        }
+        return self._api.create_node(job_node)
+
     def submit_regression(self, regression):
         """Post a regression object
 
