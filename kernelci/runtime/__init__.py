@@ -82,16 +82,6 @@ class Runtime(abc.ABC):
         params.update(platform_config.params)
         return params
 
-    @abc.abstractmethod
-    def generate(self, params, job_config):
-        """Generate a test job definition.
-
-        *params* is a dictionary with the test parameters which can be used
-             when generating a job definition using templates
-
-        *job_config* is a Job configuration object for the target job
-        """
-
     def save_file(self, job, output_path, params, encoding='utf-8'):
         """Save a test job definition in a file.
 
@@ -106,6 +96,16 @@ class Runtime(abc.ABC):
         with open(output_file, 'w', encoding=encoding) as output:
             output.write(job)
         return output_file
+
+    @abc.abstractmethod
+    def generate(self, params, job_config):
+        """Generate a test job definition.
+
+        *params* is a dictionary with the test parameters which can be used
+             when generating a job definition using templates
+
+        *job_config* is a Job configuration object for the target job
+        """
 
     @abc.abstractmethod
     def submit(self, job_path):
