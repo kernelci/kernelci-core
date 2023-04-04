@@ -26,7 +26,7 @@ class Docker(Runtime):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._client = docker.from_env()
+        self._client = docker.from_env(timeout=self.config.timeout)
         self._env = self._load_env()
 
     def _load_env(self):

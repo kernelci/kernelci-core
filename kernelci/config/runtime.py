@@ -113,11 +113,13 @@ class RuntimeLAVA(Runtime):
 class RuntimeDocker(Runtime):
     """Configuration for Docker runtime environments"""
 
-    def __init__(self, env_file=None, volumes=None, user=None, **kwargs):
+    def __init__(self, env_file=None, volumes=None, user=None, timeout=None,
+                 **kwargs):
         super().__init__(**kwargs)
         self._env_file = env_file
         self._volumes = volumes or []
         self._user = user
+        self._timeout = timeout
 
     @property
     def env_file(self):
@@ -134,10 +136,15 @@ class RuntimeDocker(Runtime):
         """Specified user to run in the container"""
         return self._user
 
+    @property
+    def timeout(self):
+        """Timeout for Docker API calls in seconds"""
+        return self._timeout
+
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({'env_file', 'volumes', 'user'})
+        attrs.update({'env_file', 'volumes', 'user', 'timeout'})
         return attrs
 
 
