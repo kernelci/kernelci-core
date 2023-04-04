@@ -198,9 +198,9 @@ class TestAPIConfigs(ConfigTest):
 class TestRuntimeConfigs(ConfigTest):
     """Tests related to runtime configs"""
 
-    def test_runtimes(self):
-        """Test the runtime configs"""
-        ref_data, config = self._load_config('tests/configs/runtimes.yaml')
+    def test_lava_runtime(self):
+        """Test the LAVA runtime configs"""
+        _, config = self._load_config('tests/configs/lava-runtimes.yaml')
         runtimes = config['runtimes']
         lava_lab_prio = {
             'lab-baylibre': (None, None, None),
@@ -214,14 +214,22 @@ class TestRuntimeConfigs(ConfigTest):
             assert lab_config.priority == fixed_p
             assert lab_config.priority_min == min_p
             assert lab_config.priority_max == max_p
+
+    def test_runtimes(self):
+        """Test all the runtime configs"""
+        ref_data, config = self._load_config('tests/configs/runtimes.yaml')
+        ref_configs = ref_data['runtimes']
+        runtimes = self._reload(ref_data, config, 'runtimes')
         runtime_names = [
             'docker',
             'k8s-gke-eu-west4',
-            'lab-min-12-max-40-new-runtime',
+            'lab-baylibre',
+            'lab-collabora-staging',
             'shell',
         ]
-        runtime_names.extend(lava_lab_prio)
-        assert all(name in ref_data['runtimes'] for name in runtime_names)
+        assert all(name in ref_configs for name in runtime_names)
+        assert all(name in runtimes for name in runtime_names)
+        assert runtimes['docker']['user'] == 'root'
 
 
 class TestStorageConfigs(ConfigTest):
