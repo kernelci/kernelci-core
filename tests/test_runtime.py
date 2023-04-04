@@ -27,7 +27,7 @@ def test_runtimes_init():
 
 def test_lava_priority_scale():
     """Test the logic for determining the priority of LAVA jobs"""
-    config = kernelci.config.load('tests/configs/runtimes.yaml')
+    config = kernelci.config.load('tests/configs/lava-runtimes.yaml')
     runtimes = config['runtimes']
     plans = config['test_plans']
 

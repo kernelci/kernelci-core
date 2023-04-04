@@ -2,18 +2,24 @@ runtimes:
 
   docker:
     lab_type: docker
+    filters: []
     env_file: 'docker-env'
     user: 'root'
+    timeout: 123
     volumes:
       - 'data:/home/kernelci/data'
 
   k8s-gke-eu-west4:
     lab_type: kubernetes
+    filters: []
     context: 'gke_android-kernelci-external_europe-west4-c_kci-eu-west4'
 
   lab-baylibre:
     lab_type: legacy.lava_xmlrpc
     url: 'https://lava.baylibre.com/RPC2/'
+    priority: 0
+    priority_min: 0
+    priority_max: 100
     queue_timeout:
       days: 1
     filters:
@@ -28,66 +34,18 @@ runtimes:
             - preempt-rt
             - ltp
 
-  lab-broonie:
-    lab_type: legacy.lava_xmlrpc
-    url: 'https://lava.sirena.org.uk/RPC2/'
-    priority_min: 0
-    priority_max: 40
-    queue_timeout:
-      days: 1
-    filters:
-      - blocklist: {tree: [android]}
-
   lab-collabora-staging:
     lab_type: legacy.lava_rest
     url: 'https://staging.lava.collabora.dev/'
     priority: 45
+    priority_min: 45
+    priority_max: 45
     queue_timeout:
       hours: 1
     filters:
       - blocklist:
           tree: [android]
 
-  lab-min-12-max-40:
-    lab_type: legacy.lava_xmlrpc
-    url: 'https://fake.kernelci.org/RPC2/'
-    priority_min: 12
-    priority_max: 40
-
-  lab-min-12-max-40-new-runtime:
-    lab_type: lava.lava_xmlrpc
-    url: 'https://fake.kernelci.org/RPC2/'
-    priority_min: 12
-    priority_max: 40
-
   shell:
     lab_type: shell
-
-
-file_system_types:
-
-  buildroot:
-    url: 'http://storage.kernelci.org/images/rootfs/buildroot'
-
-
-file_systems:
-
-  buildroot-baseline_ramdisk:
-    boot_protocol: tftp
-    prompt: '/ #'
-    ramdisk: buildroot-baseline/20230120.0/{arch}/rootfs.cpio.gz
-    root_type: ramdisk
-    type: buildroot
-
-
-test_plans:
-
-  baseline:
-    rootfs: buildroot-baseline_ramdisk
-    params:
-      priority: 90
-
-  baseline-nfs:
-    rootfs: buildroot-baseline_ramdisk
-    params:
-      priority: 85
+    filters: []
