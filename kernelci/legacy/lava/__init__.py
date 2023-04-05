@@ -9,6 +9,7 @@
 
 from jinja2 import Environment, FileSystemLoader
 import os
+import sys
 
 from kernelci.runtime import add_kci_raise
 
@@ -75,6 +76,11 @@ class LavaRuntime:
     def save_file(self, job, output_path, params):
         file_name = self.job_file_name(params)
         output_file = os.path.join(output_path, file_name)
+        if os.path.isfile(output_file):
+            # print error message to stderr
+            print("ERROR: file already exists: %s" % output_file,
+                  file=sys.stderr)
+            return None
         with open(output_file, 'w') as output:
             output.write(job)
         return output_file
