@@ -348,6 +348,9 @@ class cmd_generate(Command):
                 return False
             if args.output:
                 output_file = runtime.save_file(job, args.output, params)
+                if output_file is None:
+                    print("Failed to save the job definition, file collision")
+                    return False
                 print(output_file)
             else:
                 print("# Job: {}".format(params['name']))
