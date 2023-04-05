@@ -20,6 +20,22 @@ import urllib.parse
 
 COMPRESSION_FORMATS = ['gz', 'bz2', 'xz']
 
+SHORTEN_KEYWORDS = {
+    'chromeos-amd-stoneyridge.flavour.config': 'ston',
+    'chromeos-intel-denverton.flavour.config': 'denv',
+    'chromeos-intel-pineview.flavour.config': 'pine',
+    'chromiumos-arm.flavour.config': 'arm',
+    'chromiumos-arm64.flavour.config': 'arm64',
+    'chromiumos-mediatek.flavour.config': 'mtk',
+    'chromiumos-qualcomm.flavour.config': 'qcom',
+    'chromiumos-rockchip.flavour.config': 'rk32',
+    'chromiumos-rockchip64.flavour.config': 'rk64',
+    'chromiumos-x86_64.flavour.config': 'x86',
+    'cros---chromeos-5.15': 'cros-5.15',
+    'cros---chromeos-6.1': 'cros-6.1',
+    'CONFIG_MODULE_COMPRESS_GZIP=n': 'no-gz',
+}
+
 
 def match_configs(configs, meta, lab):
     """Filter the test configs for a given kernel build and lab.
@@ -99,6 +115,9 @@ def get_params(meta, target, plan_config, storage, device_id):
     publish_path = kernel['publish_path']
     job_px = publish_path.replace('/', '-')
     url_px = publish_path
+    # replace keywords by SHORTEN_KEYWORDS lookup
+    for key, value in SHORTEN_KEYWORDS.items():
+        job_px = job_px.replace(key, value)
     # Truncate to <200 characters, LAVA limit
     job_name = '-'.join([job_px, target.name, plan_config.name])[:199]
     base_url = urllib.parse.urljoin(storage, '/'.join([url_px, '']))
