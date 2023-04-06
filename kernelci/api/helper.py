@@ -90,6 +90,7 @@ class APIHelper:
     def create_job_node(self, job_config, input_node):
         """Create a new job node based on input and configuration"""
         job_node = {
+            'kind': job_config.kind,
             'parent': input_node['_id'],
             'name': job_config.name,
             'path': input_node['path'] + [job_config.name],
