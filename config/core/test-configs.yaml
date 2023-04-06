@@ -537,6 +537,12 @@ test_plans:
       tst_cmdfiles: "pty"
       job_timeout: '25'
       priority: 0
+    filters:
+      - passlist:
+          defconfig:
+          - 'defconfig'
+          - 'multi_v5_defconfig'
+          - 'multi_v7_defconfig'
 
   ltp-sched:
     <<: *ltp
