@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     inetutils-ping \
     python3 \
     python-pkg-resources \
+    python3-pip \
     sudo \
     ssh \
     wget
@@ -27,10 +28,11 @@ RUN gsutil update -n || true
 
 ADD https://raw.githubusercontent.com/kernelci/kernelci-core/chromeos.kernelci.org/config/docker/data/tast_parser.py /home/cros/tast_parser.py
 ADD https://raw.githubusercontent.com/kernelci/kernelci-core/chromeos.kernelci.org/config/docker/data/ssh_retry.sh /home/cros/ssh_retry.sh
+ADD https://raw.githubusercontent.com/kernelci/kernelci-core/chromeos.kernelci.org/config/docker/data/tast_test_list.py /home/cros/tast_test_list.py
 
 # Needed by LAVA to install the overlay
 USER root
-RUN chmod +x /home/cros/tast_parser.py /home/cros/ssh_retry.sh
+RUN chmod +x /home/cros/tast_parser.py /home/cros/ssh_retry.sh /home/cros/tast_test_list.py
 
 # Create symlink to /usr/local/bin for tast gs:// downloads
 RUN ln -s /home/cros/trunk/chromite/scripts/gsutil /usr/local/bin/
