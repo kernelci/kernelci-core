@@ -12,6 +12,7 @@ jobs:
     template: 'kbuild.jinja2'
     image: 'gcc-10:{arch}{fragments}'
     conditions: *checkout
+    kind: kbuild
     params:
       config: x86_64_defconfig
 
@@ -19,6 +20,7 @@ jobs:
     template: 'kunit.jinja2'
     image: 'gcc-10:x86-kunit-kernelci'
     conditions: *checkout
+    kind: node
     params: {}
 
   kunit-x86_64:
@@ -31,4 +33,5 @@ jobs:
     template: 'kver.jinja2'
     image: 'kernelci'
     conditions: *checkout
+    kind: node
     params: {}

@@ -14,10 +14,11 @@ class Job(YAMLConfigObject):
     yaml_tag = '!Job'
 
     # pylint: disable=too-many-arguments
-    def __init__(self, name, template, image=None,
+    def __init__(self, name, template, kind='node', image=None,
                  conditions=None, params=None):
         self._name = name
         self._template = template
+        self._kind = kind
         self._image = image
         self._conditions = conditions or []
         self._params = params or {}
@@ -31,6 +32,11 @@ class Job(YAMLConfigObject):
     def template(self):
         """Template file name"""
         return self._template
+
+    @property
+    def kind(self):
+        """Kind of node"""
+        return self._kind
 
     @property
     def image(self):
@@ -50,7 +56,7 @@ class Job(YAMLConfigObject):
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({'template', 'image', 'conditions', 'params'})
+        attrs.update({'template', 'kind', 'image', 'conditions', 'params'})
         return attrs
 
 
