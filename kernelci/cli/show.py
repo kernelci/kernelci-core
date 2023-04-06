@@ -56,6 +56,13 @@ class cmd_results(APICommand):  # pylint: disable=invalid-name
             print(f"  {self._color(name, 'blue')}")
             print(f"    {url}")
 
+    def _dump_data(self, data):
+        max_len = max(len(key) for key in data)
+        width = max(max_len, 9) + 9
+        fmt = f"  {{key:{width}s}} {{value}}"
+        for key, value in data.items():
+            print(fmt.format(key=self._color(key, 'blue'), value=value))
+
     def _dump_results(self, api, node, indent=0, max_depth=0):
         fmt = f"{{space}}{{path:{64-indent*2}s}}{{result:6}}{{node_id}}"
         node_id = node['_id']
@@ -86,6 +93,8 @@ class cmd_results(APICommand):  # pylint: disable=invalid-name
         revision = node['revision']
         created = datetime.fromisoformat(node['created'])
         artifacts = node.get('artifacts')
+        data = node.get('data')
+
         print(f"""\
 {self._color('Node', 'bold')}
   {self._color('path', 'blue')}      {'.'.join(node['path'])}
@@ -104,6 +113,12 @@ class cmd_results(APICommand):  # pylint: disable=invalid-name
         if artifacts:
             print(f"{self._color('Artifacts', 'bold')}")
             self._dump_artifacts(artifacts)
+            print()
+
+        if data:
+            print(f"{self._color('Data', 'bold')}")
+            self._dump_data(data)
+            print()
 
         print(f"{self._color('Results', 'bold')}")
         self._dump_results(api, node, 0, args.max_depth)
