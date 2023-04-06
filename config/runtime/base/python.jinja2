@@ -108,6 +108,12 @@ def main(args):
         results = job.run(TARBALL_URL)
         if NODE_ID and API_CONFIG_YAML:
             job.submit(results, NODE_ID, API_CONFIG_YAML)
+    except requests.exceptions.HTTPError as ex:
+        print(ex, file=sys.stderr)
+        detail = ex.response.json().get('detail')
+        if detail:
+            print(detail, file=sys.stderr)
+        results = None
     except Exception:
         print(traceback.format_exc())
         results = None
