@@ -13,6 +13,8 @@ import kernelci.api
 import kernelci.api.helper
 import kernelci.config
 
+from .conftest import get_test_cloud_event
+
 
 def test_api_init():
     """Test that all the API configurations can be initialised (offline)"""
@@ -59,3 +61,29 @@ def test_unsubscribe(mock_api_unsubscribe):
         api = kernelci.api.get_api(api_config)
         helper = kernelci.api.helper.APIHelper(api)
         helper.unsubscribe_filters(sub_id=1)
+
+
+def test_get_node_from_event(mock_api_get_node_from_id):
+    "Test method to get node from CloudEvent data"
+    config = kernelci.config.load('tests/configs/api-configs.yaml')
+    api_configs = config['api_configs']
+    for _, api_config in api_configs.items():
+        api = kernelci.api.get_api(api_config)
+        helper = kernelci.api.helper.APIHelper(api)
+        node = helper.get_node_from_event(event=get_test_cloud_event())
+        assert node.keys() == {
+            '_id',
+            'artifacts',
+            'created',
+            'group',
+            'holdoff',
+            'kind',
+            'name',
+            'path',
+            'parent',
+            'result',
+            'revision',
+            'state',
+            'timeout',
+            'updated',
+        }
