@@ -119,6 +119,19 @@ sudo tar -uf "${DATA_DIR}/${BOARD}/tast.tar" -C ./chroot/usr/libexec/tast/bundle
 sudo gzip -9 "${DATA_DIR}/${BOARD}/tast.tar"
 sudo mv "${DATA_DIR}/${BOARD}/tast.tar.gz" "${DATA_DIR}/${BOARD}/tast.tgz"
 
+echo "Removing CR50 firmware from rootfs"
+cd "${DATA_DIR}/${BOARD}"
+# This is guestfish commands, even they are similar to bash, it is not shell
+# rm-rf is for example guestfish specific command
+sudo guestfish <<_EOF_
+add chromiumos_test_image.bin
+run
+mount /dev/sda3 /
+rm-rf /opt/google/cr50/firmware
+_EOF_
+# End of guestfish commands
+cd -
+
 echo "Updating ownership"
 sudo chown -R "${USERNAME}" "${DATA_DIR}/${BOARD}"
 
