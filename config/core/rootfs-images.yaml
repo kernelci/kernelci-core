@@ -4,9 +4,9 @@ file_systems:
     boot_protocol: tftp
     params: {}
     prompt: '/ #'
-    ramdisk: buildroot-baseline/20230421.0/{arch}/rootfs.cpio.gz
+    ramdisk: buildroot-baseline/20230418.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
-    type: buildroot
+    type: buildroot-staging
   debian_bookworm-kselftest_nfs:
     boot_protocol: tftp
     nfs: bookworm-kselftest/20230421.0/{arch}/full.rootfs.tar.xz
