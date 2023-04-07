@@ -145,3 +145,30 @@ def test_pubsub_event_filter_positive(mock_api_subscribe):
             event=event_data
         )
         assert ret is True
+
+
+def test_pubsub_event_filter_negative(mock_api_subscribe):
+    """Test PubSub event filter
+    This is a negative test where pubsub event does not matche provided
+    subscription filter. Hence, `helper.pubsub_event_filter` is
+    expected to return `False`."""
+    config = kernelci.config.load('tests/configs/api-configs.yaml')
+    api_configs = config['api_configs']
+    for _, api_config in api_configs.items():
+        api = kernelci.api.get_api(api_config)
+        helper = kernelci.api.helper.APIHelper(api)
+        sub_id = helper.subscribe_filters(
+            filters={
+                "op": "created"
+            },
+        )
+
+        event_data = {
+            "op": "updated",
+            "id": "6332d8f51a45d41c279e7a01",
+        }
+        ret = helper.pubsub_event_filter(
+            sub_id=sub_id,
+            event=event_data
+        )
+        assert ret is False
