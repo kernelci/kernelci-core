@@ -16,3 +16,9 @@ def mock_api_subscribe(mocker):
         'kernelci.api.latest.LatestAPI.subscribe',
         return_value=1
     )
+
+
+@pytest.fixture
+def mock_api_unsubscribe(mocker):
+    """Mocks call to LatestAPI class method used to unsubscribe"""
+    mocker.patch('kernelci.api.latest.LatestAPI.unsubscribe')
