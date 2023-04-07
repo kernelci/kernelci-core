@@ -49,3 +49,13 @@ def test_subscribe_with_filter(mock_api_subscribe):
             channel="test"
         )
         assert isinstance(sub_id, int)
+
+
+def test_unsubscribe(mock_api_unsubscribe):
+    "Test method used to unsubscribe"
+    config = kernelci.config.load('tests/configs/api-configs.yaml')
+    api_configs = config['api_configs']
+    for _, api_config in api_configs.items():
+        api = kernelci.api.get_api(api_config)
+        helper = kernelci.api.helper.APIHelper(api)
+        helper.unsubscribe_filters(sub_id=1)
