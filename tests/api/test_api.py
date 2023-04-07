@@ -13,7 +13,10 @@ import kernelci.api
 import kernelci.api.helper
 import kernelci.config
 
-from .conftest import get_test_cloud_event
+from .conftest import (
+    get_test_cloud_event,
+    test_regression_node,
+)
 
 
 def test_api_init():
@@ -83,6 +86,34 @@ def test_get_node_from_event(mock_api_get_node_from_id):
             'parent',
             'result',
             'revision',
+            'state',
+            'timeout',
+            'updated',
+        }
+
+
+def test_submit_regression(mock_api_post_regression):
+    """Test method to submit regression object to API"""
+    config = kernelci.config.load('tests/configs/api-configs.yaml')
+    api_configs = config['api_configs']
+    for _, api_config in api_configs.items():
+        api = kernelci.api.get_api(api_config)
+        helper = kernelci.api.helper.APIHelper(api)
+        resp = helper.submit_regression(regression=test_regression_node)
+        assert resp.status_code == 200
+        assert resp.json().keys() == {
+            '_id',
+            'artifacts',
+            'created',
+            'group',
+            'holdoff',
+            'kind',
+            'name',
+            'path',
+            'parent',
+            'result',
+            'revision',
+            'regression_data',
             'state',
             'timeout',
             'updated',
