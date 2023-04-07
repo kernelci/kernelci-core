@@ -35,3 +35,17 @@ def test_subscribe_without_filter(mock_api_subscribe):
         helper = kernelci.api.helper.APIHelper(api)
         sub_id = helper.subscribe_filters()
         assert isinstance(sub_id, int)
+
+
+def test_subscribe_with_filter(mock_api_subscribe):
+    """Test method used to subscribe the `test` channel with filter"""
+    config = kernelci.config.load('tests/configs/api-configs.yaml')
+    api_configs = config['api_configs']
+    for _, api_config in api_configs.items():
+        api = kernelci.api.get_api(api_config)
+        helper = kernelci.api.helper.APIHelper(api)
+        sub_id = helper.subscribe_filters(
+            filters={"name": "checkout"},
+            channel="test"
+        )
+        assert isinstance(sub_id, int)
