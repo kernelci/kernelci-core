@@ -53,10 +53,16 @@ class cmd_send_event(APICommand):  # pylint: disable=invalid-name
 class cmd_receive_event(APICommand):  # pylint: disable=invalid-name
     """Wait and receive an event from a subscription and print on stdout"""
     args = APICommand.args + [Args.api_token, Args.sub_id]
+    opt_args = APICommand.opt_args + [Args.indent]
 
     def _api_call(self, api, configs, args):
         event = api.receive_event(args.sub_id)
-        print(event.data.strip())
+        if isinstance(event.data, str):
+            print(event.data.strip())
+        elif isinstance(event.data, dict):
+            self._print_json(event.data, args.indent)
+        else:
+            print(event.data)
         return True
 
 
