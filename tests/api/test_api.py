@@ -16,6 +16,8 @@ import kernelci.config
 from .conftest import (
     get_test_cloud_event,
     test_regression_node,
+    test_kunit_node,
+    test_kunit_child_node,
 )
 
 
@@ -172,3 +174,42 @@ def test_pubsub_event_filter_negative(mock_api_subscribe):
             event=event_data
         )
         assert ret is False
+
+
+def test_submit_results(mock_api_put_nodes, mock_api_get_node_from_id):
+    """Test method to submit a hierarchy of results"""
+    config = kernelci.config.load('tests/configs/api-configs.yaml')
+    api_configs = config['api_configs']
+    for _, api_config in api_configs.items():
+        api = kernelci.api.get_api(api_config)
+        helper = kernelci.api.helper.APIHelper(api)
+        results = {
+            "node": test_kunit_node,
+            "child_nodes": [
+                {
+                    "node": test_kunit_child_node,
+                    "child_nodes": []
+                }
+            ]
+        }
+        resp = helper.submit_results(
+                results=results,
+                root=test_kunit_node,
+            )
+        assert len(resp) == 2
+        assert resp[1].keys() == {
+            '_id',
+            'artifacts',
+            'created',
+            'group',
+            'holdoff',
+            'kind',
+            'name',
+            'path',
+            'parent',
+            'result',
+            'revision',
+            'state',
+            'timeout',
+            'updated',
+        }
