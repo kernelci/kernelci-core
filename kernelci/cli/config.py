@@ -5,6 +5,8 @@
 
 """Tool to manage the KernelCI YAML configuration"""
 
+import yaml
+
 import kernelci.config
 from .base import Args, Command, sub_main
 
@@ -37,6 +39,32 @@ class cmd_validate(Command):  # pylint: disable=invalid-name
             return False
         if args.verbose:
             print("YAML configuration validation completed.")
+        return True
+
+
+class cmd_list(Command):  # pylint: disable=invalid-name
+    """List entries from the YAML configuration"""
+    args = Command.args + [
+        {
+            'name': 'config',
+            'help': "Name of the YAML config to list, e.g. jobs or runtimes",
+        },
+    ]
+    opt_args = Command.opt_args + [Args.indent]
+
+    def __call__(self, configs, args):
+        config_data = configs.get(args.config)
+        if not config_data:
+            print(f"Configs not found: {args.config}")
+            return False
+        if isinstance(config_data, dict):
+            for name, data in config_data.items():
+                print(name)
+                print('-' * len(name))
+                print(yaml.dump(data, indent=args.indent))
+        else:
+            for data in config_data:
+                print(yaml.dump(data, indent=args.indent))
         return True
 
 
