@@ -119,6 +119,48 @@ kernelci-staging-mainline-staging-mainline-20221101.1.tar.gz"
     ]
 }
 
+test_kunit_node = {
+        "_id": "6332d92f1a45d41c279e7a06",
+        "kind": "node",
+        "name": "kunit",
+        "path": [
+            "checkout",
+            "kunit"
+        ],
+        "group": "kunit",
+        "revision": {
+            "tree": "kernelci",
+            "url": "https://github.com/kernelci/linux.git",
+            "branch": "staging-mainline",
+            "commit": "7f036eb8d7a5ff2f655c5d949343bac6a2928bce",
+            "describe": "staging-mainline-20220927.0",
+            "version": {
+                "version": 6,
+                "patchlevel": 0,
+                "sublevel": None,
+                "extra": "-rc7-36-g7f036eb8d7a5",
+                "name": None
+            }
+        },
+        "parent": "6332d8f51a45d41c279e7a01",
+        "state": "done",
+        "result": None,
+        "artifacts": {
+            "tarball": "http://staging.kernelci.org:9080/linux-kernelci-\
+staging-mainline-staging-mainline-20220927.0.tar.gz"
+        },
+    }
+
+test_kunit_child_node = {
+    "name": "time_test_cases",
+    "parent": "6332d92f1a45d41c279e7a06",
+    "result": "pass",
+    "artifacts": {
+        "tarball": "http://staging.kernelci.org:9080/linux-kernelci-\
+staging-mainline-staging-mainline-20220927.0.tar.gz"
+    },
+}
+
 
 def get_test_cloud_event():
     """Get test CloudEvent instance"""
@@ -168,5 +210,37 @@ def mock_api_post_regression(mocker):
 
     mocker.patch(
         'kernelci.api.API._post',
+        return_value=resp,
+    )
+
+
+@pytest.fixture
+def mock_api_put_nodes(mocker):
+    """
+    Mocks call to LatestAPI class method used to submit hierarchy of node
+    results
+    """
+    test_kunit_child_node["_id"] = "6332d9741a45d41c279e7a07"
+
+    for node in [test_kunit_node, test_kunit_child_node]:
+        node["created"] = "2022-11-01T16:06:39.509000"
+        node["updated"] = "2022-11-01T16:07:09.633000"
+        node["timeout"] = "2022-11-02T16:06:39.509000"
+        node["holdoff"] = None
+
+    prepare_node_fields = ["kind", "path", "revision", "state", "group"]
+    for field in prepare_node_fields:
+        test_kunit_child_node[field] = test_kunit_node[field]
+
+    resp = Response()
+    resp.status_code = 200
+    resp_data = [
+        test_kunit_node,
+        test_kunit_child_node
+    ]
+    resp._content = json.dumps(  # pylint: disable=protected-access
+        resp_data).encode('utf-8')
+    mocker.patch(
+        'kernelci.api.API._put',
         return_value=resp,
     )
