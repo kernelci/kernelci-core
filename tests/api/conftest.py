@@ -9,6 +9,7 @@
 import json
 import pytest
 from cloudevents.http import CloudEvent
+from cloudevents.conversion import to_json
 from requests import Response
 
 
@@ -243,4 +244,19 @@ def mock_api_put_nodes(mocker):
     mocker.patch(
         'kernelci.api.API._put',
         return_value=resp,
+    )
+
+
+@pytest.fixture
+def mock_receive_event(mocker):
+    """
+    Mocks call to LatestAPI class method used to receive CloudEvent
+    """
+    resp = Response()
+    resp.status_code = 200
+    event = get_test_cloud_event()
+    resp._content = to_json(event)  # pylint: disable=protected-access
+    mocker.patch(
+        'kernelci.api.latest.LatestAPI.receive_event',
+        return_value=event,
     )
