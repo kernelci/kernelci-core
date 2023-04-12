@@ -213,3 +213,35 @@ def test_submit_results(mock_api_put_nodes, mock_api_get_node_from_id):
             'timeout',
             'updated',
         }
+
+
+def test_receive_event_node(mock_receive_event, mock_api_get_node_from_id,
+                            mock_api_subscribe):
+    """Test method to receive node from event"""
+    config = kernelci.config.load('tests/configs/api-configs.yaml')
+    api_configs = config['api_configs']
+    for _, api_config in api_configs.items():
+        api = kernelci.api.get_api(api_config)
+        helper = kernelci.api.helper.APIHelper(api)
+        sub_id = helper.subscribe_filters(
+            filters={
+                "op": "created"
+            },
+        )
+        resp = helper.receive_event_node(sub_id=sub_id)
+        assert resp.keys() == {
+            '_id',
+            'artifacts',
+            'created',
+            'group',
+            'holdoff',
+            'kind',
+            'name',
+            'path',
+            'parent',
+            'result',
+            'revision',
+            'state',
+            'timeout',
+            'updated',
+        }
