@@ -43,6 +43,21 @@ class Kubernetes(Runtime):
     def get_job_id(self, job_object):
         return job_object[0][0].metadata.labels['job-name']
 
+    def wait(self, job_object):
+        watch = kubernetes.watch.Watch()
+        core_v1 = kubernetes.client.CoreV1Api()
+        job_name = job_object[0][0].metadata.labels['job-name']
+        for event in watch.stream(
+                func=core_v1.list_namespaced_pod, namespace='default'):
+            if event['type'] != 'MODIFIED':
+                continue
+            if job_name not in event['object'].metadata.name:
+                continue
+            state = event['object'].status.container_statuses[0].state
+            if not state.terminated:
+                continue
+            return 0 if state.terminated.reason == 'Completed' else 1
+
 
 def get_runtime(runtime_config, **kwargs):
     """Get a Kubernetes runtime object"""

@@ -33,6 +33,10 @@ class Shell(Runtime):
     def get_job_id(self, job_object):
         return job_object.pid
 
+    def wait(self, job_object):
+        job_object.wait()
+        return job_object.returncode
+
 
 def get_runtime(runtime_config, **kwargs):
     """Get a Shell runtime object"""

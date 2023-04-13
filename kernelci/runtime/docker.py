@@ -78,6 +78,10 @@ class Docker(Runtime):
     def get_job_id(self, job_object):
         return job_object.id
 
+    def wait(self, job_object):
+        ret = job_object.wait()
+        return ret['StatusCode']
+
 
 def get_runtime(runtime_config, **kwargs):
     """Get a Docker runtime object"""
