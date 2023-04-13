@@ -163,6 +163,10 @@ class Runtime(abc.ABC):
     def get_job_id(self, job_object):
         """Get an id for a given job object as returned by submit()."""
 
+    @abc.abstractmethod
+    def wait(self, job_object):
+        """Wait for a job to complete and get the exit status code"""
+
 
 def get_runtime(config, user=None, token=None):
     """Get the Runtime object for a given runtime config.
