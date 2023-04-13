@@ -111,12 +111,22 @@ class cmd_submit(Command):  # pylint: disable=invalid-name
             'help': "Path of the job file to submit",
         },
     ]
+    opt_args = Command.opt_args + [
+        {
+            'name': '--wait',
+            'action': 'store_true',
+            'help': "Wait for job to complete and get exit status code",
+        },
+    ]
 
     def __call__(self, configs, args):
         runtime_config = configs['runtimes'][args.runtime_config]
         runtime = kernelci.runtime.get_runtime(runtime_config)
         job = runtime.submit(args.job_path)
         print(runtime.get_job_id(job))
+        if args.wait:
+            ret = runtime.wait(job)
+            return ret == 0
         return True
 
 
