@@ -366,6 +366,15 @@ test_plans:
       kselftest_collections: "mincore"
     filters: *kselftest_no_fragment
 
+  kselftest-mm:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "mm"
+    filters:
+      - passlist: {defconfig: ['kselftest']}
+      - blocklist: {kernel: ['v3.', 'v4.', 'v5.', 'v6.0', 'v6,1', 'v6.2']}
+
   kselftest-net:
     <<: *kselftest
     params:
@@ -425,6 +434,10 @@ test_plans:
     params:
       job_timeout: '10'
       kselftest_collections: "vm"
+    filters:
+      - passlist:
+          defconfig: ['kselftest']
+          kernel: ['v3.', 'v4.', 'v5.', 'v6.0', 'v6,1', 'v6.2']
 
   lc-compliance:
     rootfs: debian_bullseye-libcamera_nfs
@@ -2325,6 +2338,7 @@ test_configs:
       - cros-ec
       - kselftest-alsa
       - kselftest-lib
+      - kselftest-mm
       - kselftest-vm
       - ltp-ipc
 
@@ -2503,6 +2517,7 @@ test_configs:
       - kselftest-lib
       - kselftest-livepatch
       - kselftest-lkdtm
+      - kselftest-mm
       - kselftest-rtc
       - kselftest-seccomp
       - kselftest-tpm2
