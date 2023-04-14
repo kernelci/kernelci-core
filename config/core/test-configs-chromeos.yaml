@@ -107,7 +107,7 @@ test_plans:
       <<: *cros-tast-base-params
       tests: &cros-tast-kernel-tests >
         kernel.Bloat
-        kernel.ConfigVerify
+        kernel.ConfigVerify.chromeos_kernelci
         kernel.CPUCgroup
         kernel.Cpuidle
         kernel.CryptoAPI
@@ -115,7 +115,6 @@ test_plans:
         kernel.ECDeviceNode
         kernel.HighResTimers
         kernel.Limits
-        kernel.LoopDeviceBehaviour
         kernel.PerfCallgraph
 
   cros-tast-kernel-fixed:
@@ -143,11 +142,15 @@ test_plans:
         video.PlatformDecoding.ffmpeg_vaapi_vp9_0_level5_1_buf
         video.PlatformDecoding.ffmpeg_vaapi_av1
         video.PlatformDecoding.ffmpeg_vaapi_vp8_inter
+        video.PlatformDecoding.ffmpeg_vaapi_h264_baseline
+        video.PlatformDecoding.ffmpeg_vaapi_h264_main
+        video.PlatformDecoding.ffmpeg_vaapi_hevc_main
         video.ChromeStackDecoder.av1_global_vaapi_lock_disabled
         video.ChromeStackDecoder.h264_global_vaapi_lock_disabled
         video.ChromeStackDecoder.hevc_global_vaapi_lock_disabled
         video.ChromeStackDecoder.vp8_global_vaapi_lock_disabled
         video.ChromeStackDecoder.vp9_global_vaapi_lock_disabled
+        video.ChromeStackDecoderVerification.hevc_main
         video.PlatformDecoding.vaapi_vp9_0_group1_buf
         video.PlatformDecoding.vaapi_vp9_0_group2_buf
         video.PlatformDecoding.vaapi_vp9_0_group3_buf
@@ -198,6 +201,7 @@ test_plans:
       tests: &cros-tast-mm-misc-tests >
         camera.V4L2.certification
         camera.V4L2Compliance
+        camera.V4L2.supported_formats
         graphics.VAAPIUnittest.webp_decoder
         graphics.VAAPIUnittest.jpeg_decoder
         graphics.VAAPIUnittest.common
@@ -228,10 +232,9 @@ test_plans:
         ui.DragTabInClamshellPerf
         ui.DragTabInTabletPerf
         ui.DragTabInTabletPerf.touch
-        filemanager.UIPerf
-        filemanager.UIPerf.swa
+        filemanager.UIPerf.directory_list
+        filemanager.UIPerf.list_apps
         filemanager.ZipPerf
-        filemanager.ZipPerf.swa
 
   cros-tast-perf-fixed:
     <<: *cros-tast-perf
@@ -273,7 +276,6 @@ test_plans:
         platform.Histograms
         platform.LocalPerfettoTBMTracedProbes
         platform.Memd
-        platform.Mosys
         platform.Mosys.ec
         platform.Mosys.memory
         platform.Mtpd
@@ -297,6 +299,8 @@ test_plans:
       <<: *cros-tast-base-params
       tests: &cros-tast-sound-tests >
         audio.DevicePlay
+        audio.DevicePlay.unstable_platform
+        audio.DevicePlay.unstable_model
         audio.UCMSequences.section_device
         audio.UCMSequences.section_modifier
         audio.UCMSequences.section_verb
