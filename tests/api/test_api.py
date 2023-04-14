@@ -13,12 +13,7 @@ import kernelci.api
 import kernelci.api.helper
 import kernelci.config
 
-from .conftest import (
-    get_test_cloud_event,
-    test_regression_node,
-    test_kunit_node,
-    test_kunit_child_node,
-)
+from .conftest import APIHelperTestData
 
 
 def test_api_init(get_api_config):
@@ -65,7 +60,9 @@ def test_get_node_from_event(get_api_config, mock_api_get_node_from_id):
     for _, api_config in get_api_config.items():
         api = kernelci.api.get_api(api_config)
         helper = kernelci.api.helper.APIHelper(api)
-        node = helper.get_node_from_event(event=get_test_cloud_event())
+        node = helper.get_node_from_event(
+            event=APIHelperTestData().get_test_cloud_event()
+        )
         assert node.keys() == {
             '_id',
             'artifacts',
@@ -89,7 +86,9 @@ def test_submit_regression(get_api_config, mock_api_post_regression):
     for _, api_config in get_api_config.items():
         api = kernelci.api.get_api(api_config)
         helper = kernelci.api.helper.APIHelper(api)
-        resp = helper.submit_regression(regression=test_regression_node)
+        resp = helper.submit_regression(
+            regression=APIHelperTestData().regression_node
+        )
         assert resp.status_code == 200
         assert resp.json().keys() == {
             '_id',
@@ -167,17 +166,17 @@ def test_submit_results(get_api_config, mock_api_put_nodes,
         api = kernelci.api.get_api(api_config)
         helper = kernelci.api.helper.APIHelper(api)
         results = {
-            "node": test_kunit_node,
+            "node": APIHelperTestData().kunit_node,
             "child_nodes": [
                 {
-                    "node": test_kunit_child_node,
+                    "node": APIHelperTestData().kunit_child_node,
                     "child_nodes": []
                 }
             ]
         }
         resp = helper.submit_results(
                 results=results,
-                root=test_kunit_node,
+                root=APIHelperTestData().kunit_node,
             )
         assert len(resp) == 2
         assert resp[1].keys() == {
