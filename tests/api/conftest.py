@@ -12,6 +12,8 @@ from cloudevents.http import CloudEvent
 from cloudevents.conversion import to_json
 from requests import Response
 
+import kernelci.config
+
 
 test_checkout_node = {
         "_id": "6332d8f51a45d41c279e7a01",
@@ -161,6 +163,14 @@ test_kunit_child_node = {
 staging-mainline-staging-mainline-20220927.0.tar.gz"
     },
 }
+
+
+@pytest.fixture
+def get_api_config():
+    """Fixture to get API configurations"""
+    config = kernelci.config.load('tests/configs/api-configs.yaml')
+    api_configs = config['api_configs']
+    return api_configs
 
 
 def get_test_cloud_event():

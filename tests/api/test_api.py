@@ -21,11 +21,9 @@ from .conftest import (
 )
 
 
-def test_api_init():
+def test_api_init(get_api_config):
     """Test that all the API configurations can be initialised (offline)"""
-    config = kernelci.config.load('tests/configs/api-configs.yaml')
-    api_configs = config['api_configs']
-    for api_name, api_config in api_configs.items():
+    for api_name, api_config in get_api_config.items():
         print(f"API config name: {api_name}")
         api = kernelci.api.get_api(api_config)
         assert isinstance(api, kernelci.api.API)
@@ -33,22 +31,18 @@ def test_api_init():
         assert isinstance(helper, kernelci.api.helper.APIHelper)
 
 
-def test_subscribe_without_filter(mock_api_subscribe):
+def test_subscribe_without_filter(get_api_config, mock_api_subscribe):
     """Test method used to subscribe the `node` channel without any filters"""
-    config = kernelci.config.load('tests/configs/api-configs.yaml')
-    api_configs = config['api_configs']
-    for _, api_config in api_configs.items():
+    for _, api_config in get_api_config.items():
         api = kernelci.api.get_api(api_config)
         helper = kernelci.api.helper.APIHelper(api)
         sub_id = helper.subscribe_filters()
         assert isinstance(sub_id, int)
 
 
-def test_subscribe_with_filter(mock_api_subscribe):
+def test_subscribe_with_filter(get_api_config, mock_api_subscribe):
     """Test method used to subscribe the `test` channel with filter"""
-    config = kernelci.config.load('tests/configs/api-configs.yaml')
-    api_configs = config['api_configs']
-    for _, api_config in api_configs.items():
+    for _, api_config in get_api_config.items():
         api = kernelci.api.get_api(api_config)
         helper = kernelci.api.helper.APIHelper(api)
         sub_id = helper.subscribe_filters(
@@ -58,21 +52,17 @@ def test_subscribe_with_filter(mock_api_subscribe):
         assert isinstance(sub_id, int)
 
 
-def test_unsubscribe(mock_api_unsubscribe):
+def test_unsubscribe(get_api_config, mock_api_unsubscribe):
     "Test method used to unsubscribe"
-    config = kernelci.config.load('tests/configs/api-configs.yaml')
-    api_configs = config['api_configs']
-    for _, api_config in api_configs.items():
+    for _, api_config in get_api_config.items():
         api = kernelci.api.get_api(api_config)
         helper = kernelci.api.helper.APIHelper(api)
         helper.unsubscribe_filters(sub_id=1)
 
 
-def test_get_node_from_event(mock_api_get_node_from_id):
+def test_get_node_from_event(get_api_config, mock_api_get_node_from_id):
     "Test method to get node from CloudEvent data"
-    config = kernelci.config.load('tests/configs/api-configs.yaml')
-    api_configs = config['api_configs']
-    for _, api_config in api_configs.items():
+    for _, api_config in get_api_config.items():
         api = kernelci.api.get_api(api_config)
         helper = kernelci.api.helper.APIHelper(api)
         node = helper.get_node_from_event(event=get_test_cloud_event())
@@ -94,11 +84,9 @@ def test_get_node_from_event(mock_api_get_node_from_id):
         }
 
 
-def test_submit_regression(mock_api_post_regression):
+def test_submit_regression(get_api_config, mock_api_post_regression):
     """Test method to submit regression object to API"""
-    config = kernelci.config.load('tests/configs/api-configs.yaml')
-    api_configs = config['api_configs']
-    for _, api_config in api_configs.items():
+    for _, api_config in get_api_config.items():
         api = kernelci.api.get_api(api_config)
         helper = kernelci.api.helper.APIHelper(api)
         resp = helper.submit_regression(regression=test_regression_node)
@@ -122,14 +110,12 @@ def test_submit_regression(mock_api_post_regression):
         }
 
 
-def test_pubsub_event_filter_positive(mock_api_subscribe):
+def test_pubsub_event_filter_positive(get_api_config, mock_api_subscribe):
     """Test PubSub event filter
     This is a positive test where pubsub event matches provided
     subscription filter. Hence, `helper.pubsub_event_filter` is
     expected to return `True`."""
-    config = kernelci.config.load('tests/configs/api-configs.yaml')
-    api_configs = config['api_configs']
-    for _, api_config in api_configs.items():
+    for _, api_config in get_api_config.items():
         api = kernelci.api.get_api(api_config)
         helper = kernelci.api.helper.APIHelper(api)
         sub_id = helper.subscribe_filters(
@@ -149,14 +135,12 @@ def test_pubsub_event_filter_positive(mock_api_subscribe):
         assert ret is True
 
 
-def test_pubsub_event_filter_negative(mock_api_subscribe):
+def test_pubsub_event_filter_negative(get_api_config, mock_api_subscribe):
     """Test PubSub event filter
     This is a negative test where pubsub event does not matche provided
     subscription filter. Hence, `helper.pubsub_event_filter` is
     expected to return `False`."""
-    config = kernelci.config.load('tests/configs/api-configs.yaml')
-    api_configs = config['api_configs']
-    for _, api_config in api_configs.items():
+    for _, api_config in get_api_config.items():
         api = kernelci.api.get_api(api_config)
         helper = kernelci.api.helper.APIHelper(api)
         sub_id = helper.subscribe_filters(
@@ -176,11 +160,10 @@ def test_pubsub_event_filter_negative(mock_api_subscribe):
         assert ret is False
 
 
-def test_submit_results(mock_api_put_nodes, mock_api_get_node_from_id):
+def test_submit_results(get_api_config, mock_api_put_nodes,
+                        mock_api_get_node_from_id):
     """Test method to submit a hierarchy of results"""
-    config = kernelci.config.load('tests/configs/api-configs.yaml')
-    api_configs = config['api_configs']
-    for _, api_config in api_configs.items():
+    for _, api_config in get_api_config.items():
         api = kernelci.api.get_api(api_config)
         helper = kernelci.api.helper.APIHelper(api)
         results = {
@@ -215,12 +198,10 @@ def test_submit_results(mock_api_put_nodes, mock_api_get_node_from_id):
         }
 
 
-def test_receive_event_node(mock_receive_event, mock_api_get_node_from_id,
-                            mock_api_subscribe):
+def test_receive_event_node(get_api_config, mock_receive_event,
+                            mock_api_get_node_from_id, mock_api_subscribe):
     """Test method to receive node from event"""
-    config = kernelci.config.load('tests/configs/api-configs.yaml')
-    api_configs = config['api_configs']
-    for _, api_config in api_configs.items():
+    for _, api_config in get_api_config.items():
         api = kernelci.api.get_api(api_config)
         helper = kernelci.api.helper.APIHelper(api)
         sub_id = helper.subscribe_filters(
