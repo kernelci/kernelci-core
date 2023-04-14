@@ -5,6 +5,7 @@
 
 """Tool to interact with the Pub/Sub interface"""
 
+import json
 import sys
 
 from .base import Args, sub_main
@@ -42,10 +43,17 @@ class cmd_send_event(APICommand):  # pylint: disable=invalid-name
             'name': '--source',
             'help': "CloudEvent source, https://api.kernelci.org/ by default",
         },
+        {
+            'name': '--json',
+            'action': 'store_true',
+            'help': "Parse input data as JSON",
+        },
     ]
 
     def _api_call(self, api, configs, args):
         data = sys.stdin.read()
+        if args.json:
+            data = json.loads(data)
         api.send_event(args.channel, {'data': data})
         return True
 
