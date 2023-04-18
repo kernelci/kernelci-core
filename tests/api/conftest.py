@@ -210,7 +210,9 @@ class APIHelperTestData:
             "group": self._kunit_node["group"],
             "holdoff": None,
             "kind": self._kunit_node["kind"],
-            "path": self._kunit_node["path"],
+            "path": (
+                self._kunit_node["path"] + [self._kunit_child_node["name"]]
+            ),
             "revision": self._kunit_node["revision"],
             "state": self._kunit_node["state"],
             "timeout": "2022-11-02T16:06:39.509000",
