@@ -692,6 +692,10 @@ test_plans:
       job_timeout: '20'
 
 device_types:
+  aaeon-UPN-EHLX4RE-A10-0864:
+    mach: x86
+    arch: x86_64
+    boot_method: grub
 
   acer-R721T-grunt:
     mach: x86
@@ -2181,6 +2185,10 @@ device_types:
 
 
 test_configs:
+  - device_type: aaeon-UPN-EHLX4RE-A10-0864
+    test_plans:
+      - baseline
+      - baseline-nfs
 
   - device_type: acer-R721T-grunt
     test_plans:
