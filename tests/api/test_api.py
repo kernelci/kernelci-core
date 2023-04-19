@@ -225,3 +225,41 @@ def test_receive_event_node(get_api_config, mock_receive_event,
             'timeout',
             'updated',
         }
+
+
+def test_prepare_results(get_api_config, mock_api_get_node_from_id):
+    """Test method to prepare hierarchy of test results"""
+    for _, api_config in get_api_config.items():
+        api = kernelci.api.get_api(api_config)
+        helper = kernelci.api.helper.APIHelper(api)
+        root = APIHelperTestData().kunit_node
+        child_node = APIHelperTestData().kunit_child_node
+        results = {
+            "node": root,
+            "child_nodes": [
+                {
+                    "node": child_node,
+                    "child_nodes": []
+                }
+            ]
+        }
+        base = {
+            'revision': root['revision'],
+            'group': root['name'],
+            'state': 'done',
+        }
+        parent = api.get_node(root['parent'])
+        resp = helper._prepare_results(  # pylint: disable=protected-access
+            results, parent, base
+        )
+        assert resp["node"] == root
+        assert set(resp["child_nodes"][0]["node"]) == {
+            'artifacts',
+            'group',
+            'name',
+            'parent',
+            'path',
+            'result',
+            'revision',
+            'state',
+        }
