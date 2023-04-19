@@ -15,12 +15,13 @@ class Job(YAMLConfigObject):
 
     # pylint: disable=too-many-arguments
     def __init__(self, name, template, image=None,
-                 conditions=None, params=None):
+                 conditions=None, params=None, runtimes=None):
         self._name = name
         self._template = template
         self._image = image
         self._conditions = conditions or []
         self._params = params or {}
+        self._runtimes = runtimes or []
 
     @property
     def name(self):
@@ -47,10 +48,15 @@ class Job(YAMLConfigObject):
         """Arbitrary parameters passed to the template"""
         return dict(self._params)
 
+    @property
+    def runtimes(self):
+        """List of runtimes configured to run this job"""
+        return list(dict(runtime) for runtime in self._runtimes)
+
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({'template', 'image', 'conditions', 'params'})
+        attrs.update({'template', 'image', 'conditions', 'params', 'runtimes'})
         return attrs
 
 

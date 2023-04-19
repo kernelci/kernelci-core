@@ -14,21 +14,35 @@ jobs:
     conditions: *checkout
     params:
       config: x86_64_defconfig
+    runtimes:
+      - type: kubernetes
+        platform: kubernetes
 
   kunit: &kunit-job
     template: 'kunit.jinja2'
     image: 'gcc-10:x86-kunit-kernelci'
     conditions: *checkout
     params: {}
+    runtimes:
+      - type: kubernetes
+        platform: kubernetes
 
   kunit-x86_64:
     <<: *kunit-job
     image: 'kernelci/staging-gcc-10:x86-kunit-qemu-kernelci'
     params:
       arch: x86_64
+    runtimes:
+      - type: shell
+        platform: shell
 
   kver:
     template: 'kver.jinja2'
     image: 'kernelci'
     conditions: *checkout
     params: {}
+    runtimes:
+      - type: shell
+        platform: shell
+      - type: docker
+        platform: docker
