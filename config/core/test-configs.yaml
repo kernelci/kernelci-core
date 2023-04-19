@@ -1562,11 +1562,6 @@ device_types:
     class: arm-dtb
     boot_method: uboot
 
-  ox820-cloudengines-pogoplug-series-3:
-    mach: oxnas
-    class: arm-dtb
-    boot_method: uboot
-
   panda:
     mach: omap2
     class: arm-dtb
@@ -2975,11 +2970,6 @@ test_configs:
 
 
   - device_type: orion5x-rd88f5182-nas
-    test_plans:
-      - baseline
-      - baseline-nfs
-
-  - device_type: ox820-cloudengines-pogoplug-series-3
     test_plans:
       - baseline
       - baseline-nfs
