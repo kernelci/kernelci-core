@@ -19,9 +19,6 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
     wget
 
 {% include 'fragment/cros-lava.jinja2' %}
-# Update gsutil to latest version, so it doesnt download it in LAVA
-# docker each time
-RUN gsutil update -n
 
 {{ super() }}
 
