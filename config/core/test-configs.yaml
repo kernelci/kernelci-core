@@ -1905,6 +1905,11 @@ device_types:
     class: arm64-dtb
     boot_method: uboot
 
+  rk3588-rock-5b:
+    mach: rockchip
+    class: arm64-dtb
+    boot_method: uboot
+
   sc7180-trogdor-kingoftown:
     mach: qcom
     class: arm64-dtb
@@ -3210,6 +3215,10 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+
+  - device_type: rk3588-rock-5b
+    test_plans:
+      - baseline
 
   - device_type: sc7180-trogdor-kingoftown
     test_plans:
