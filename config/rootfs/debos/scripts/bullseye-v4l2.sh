@@ -6,10 +6,6 @@ set -e
 
 # Build-depends needed to build the test suites, they'll be removed later
 BUILD_DEPS="\
-    autoconf \
-    autogen \
-    automake \
-    autopoint \
     build-essential \
     ca-certificates \
     git \
@@ -20,6 +16,7 @@ BUILD_DEPS="\
     libjpeg62-turbo-dev \
     libtool \
     libudev-dev  \
+    meson \
 "
 
 apt-get install --no-install-recommends -y  ${BUILD_DEPS}
@@ -36,12 +33,11 @@ git clone --depth=1 git://linuxtv.org/v4l-utils.git .
 
 echo '    {"name": "v4l2-compliance", "git_url": "git://linuxtv.org/v4l-utils.git", "git_commit": ' \"`git rev-parse HEAD`\" '}' >> $BUILDFILE
 
-sh bootstrap.sh
-./configure --prefix=/tmp/tests/v4l2/usr/ --with-udevdir=/tmp/tests/v4l2/usr/lib/udev
+meson build/ -Dprefix=/tmp/tests/v4l2/usr/ -Dudevdir=/tmp/tests/v4l2/usr/lib/udev
+ninja -C build/
+ninja -C build/ install
 
-make V=1
-make V=1 install
-strip /tmp/tests/v4l2/usr/bin/* /tmp/tests/v4l2/usr/lib/*.so* /tmp/tests/v4l2/usr/lib/libv4l/*.so*
+strip /tmp/tests/v4l2/usr/bin/* /tmp/tests/v4l2/usr/lib/**/*.so*
 
 # Copy files in the image
 rm -rf  /tmp/tests/v4l2/usr/include /tmp/tests/v4l2/usr/share /tmp/tests/v4l2/usr/lib/udev /tmp/tests/v4l2/usr/lib/pkgconfig/
