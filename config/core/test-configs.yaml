@@ -2186,6 +2186,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - kselftest-cpufreq
 
   - device_type: acer-cb317-1h-c3z6-dedede
     test_plans:
@@ -2272,6 +2273,7 @@ test_configs:
       - baseline
       - baseline-nfs
       - kselftest-alsa
+      - kselftest-cpufreq
       - kselftest-lkdtm
       - kselftest-seccomp
       - ltp-fcntl-locktests
@@ -2283,6 +2285,7 @@ test_configs:
       - baseline
       - baseline-nfs
       - kselftest-alsa
+      - kselftest-cpufreq
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-rtc
@@ -2297,6 +2300,7 @@ test_configs:
       - cros-ec
       - igt-gpu-i915
       - kselftest-alsa
+      - kselftest-cpufreq
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
@@ -2317,6 +2321,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - kselftest-cpufreq
 
   - device_type: asus-cx9400-volteer
     test_plans:
@@ -2324,6 +2329,7 @@ test_configs:
       - baseline-nfs
       - cros-ec
       - kselftest-alsa
+      - kselftest-cpufreq
       - kselftest-lib
       - kselftest-vm
       - ltp-ipc
@@ -2420,11 +2426,13 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - kselftest-cpufreq
 
   - device_type: dell-latitude-5400-8665U-sarien
     test_plans:
       - baseline
       - baseline-nfs
+      - kselftest-cpufreq
 
   - device_type: dove-cubox
     test_plans:
@@ -2521,6 +2529,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - kselftest-cpufreq
 
   - device_type: hp-x360-14-G1-sona
     test_plans:
@@ -2558,6 +2567,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - kselftest-cpufreq
 
   - device_type: hsdk
     test_plans:
@@ -2778,6 +2788,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - kselftest-cpufreq
 
   - device_type: meson-g12a-sei510
     test_plans:
@@ -2795,6 +2806,7 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+      - kselftest-cpufreq
       - kselftest-filesystems
       - kselftest-futex
       - kselftest-lib
