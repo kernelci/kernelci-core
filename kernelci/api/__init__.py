@@ -119,11 +119,11 @@ class API(abc.ABC):
 
     @abc.abstractmethod
     def create_node(self, node: dict) -> dict:
-        """Create a new node object (no _id)"""
+        """Create a new node object (no id)"""
 
     @abc.abstractmethod
     def update_node(self, node: dict) -> dict:
-        """Update an existing node object (with _id)"""
+        """Update an existing node object (with id)"""
 
     # -------------------------------------------------------------------------
     # Private methods

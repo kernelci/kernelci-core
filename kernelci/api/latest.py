@@ -128,7 +128,7 @@ class LatestAPI(API):
         return self._post('node', node).json()
 
     def update_node(self, node: dict) -> dict:
-        return self._put('/'.join(['node', node['_id']]), node).json()
+        return self._put('/'.join(['node', node['id']]), node).json()
 
 
 def get_api(config, token):

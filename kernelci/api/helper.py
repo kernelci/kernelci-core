@@ -90,7 +90,7 @@ class APIHelper:
     def create_job_node(self, job_config, input_node):
         """Create a new job node based on input and configuration"""
         job_node = {
-            'parent': input_node['_id'],
+            'parent': input_node['id'],
             'name': job_config.name,
             'path': input_node['path'] + [job_config.name],
             'group': job_config.name,
@@ -128,7 +128,7 @@ class APIHelper:
         Submit a hierarchy of test results with 'node' containing data for a
         particular result or parent entry for sub-tests and 'child_nodes'
         containing a list of sub-results.  The root node needs to have been
-        previously retrieved from the API with an existing _id.
+        previously retrieved from the API with an existing id.
 
         `root` is the root node for all the child results
         `results` are the child results with the following recursive format:
@@ -164,6 +164,6 @@ class APIHelper:
         data = self._prepare_results(root_results, parent, base)
         # Once this has been consolidated at the API level:
         # self.api.create_node_hierarchy(data)
-        node_id = data['node']['_id']
+        node_id = data['node']['id']
         # pylint: disable=protected-access
         return self.api._put(f'nodes/{node_id}', data).json()
