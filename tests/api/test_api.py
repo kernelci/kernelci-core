@@ -64,7 +64,7 @@ def test_get_node_from_event(get_api_config, mock_api_get_node_from_id):
             event=APIHelperTestData().get_test_cloud_event()
         )
         assert node.keys() == {
-            '_id',
+            'id',
             'artifacts',
             'created',
             'group',
@@ -91,7 +91,7 @@ def test_submit_regression(get_api_config, mock_api_post_regression):
         )
         assert resp.status_code == 200
         assert resp.json().keys() == {
-            '_id',
+            'id',
             'artifacts',
             'created',
             'group',
@@ -180,7 +180,7 @@ def test_submit_results(get_api_config, mock_api_put_nodes,
             )
         assert len(resp) == 2
         assert resp[1].keys() == {
-            '_id',
+            'id',
             'artifacts',
             'created',
             'group',
@@ -210,7 +210,7 @@ def test_receive_event_node(get_api_config, mock_receive_event,
         )
         resp = helper.receive_event_node(sub_id=sub_id)
         assert resp.keys() == {
-            '_id',
+            'id',
             'artifacts',
             'created',
             'group',
