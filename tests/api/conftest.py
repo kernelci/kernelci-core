@@ -19,7 +19,7 @@ class APIHelperTestData:
     """Sample test data for APIHelper unit tests"""
     def __init__(self):
         self._checkout_node = {
-            "_id": "6332d8f51a45d41c279e7a01",
+            "id": "6332d8f51a45d41c279e7a01",
             "kind": "node",
             "name": "checkout",
             "path": [
@@ -87,7 +87,7 @@ class APIHelperTestData:
             "holdoff": None,
             "regression_data": [
                 {
-                    "_id": "6361440f8f94e20c6826b0b7",
+                    "id": "6361440f8f94e20c6826b0b7",
                     "kind": "node",
                     "name": "kver",
                     "path": [
@@ -124,7 +124,7 @@ class APIHelperTestData:
             ]
         }
         self._kunit_node = {
-            "_id": "6332d92f1a45d41c279e7a06",
+            "id": "6332d92f1a45d41c279e7a06",
             "kind": "node",
             "name": "kunit",
             "path": [
@@ -187,7 +187,7 @@ class APIHelperTestData:
     def get_regression_node_with_id(self):
         """Get regression node with node ID"""
         self._regression_node.update({
-            "_id": "6361442d8f94e20c6826b0b9"
+            "id": "6361442d8f94e20c6826b0b9"
         })
         return self._regression_node
 
@@ -205,7 +205,7 @@ class APIHelperTestData:
         """Update kunit child node with timestamp fields and other fields set
         from parent kunit"""
         self._kunit_child_node.update({
-            "_id": "6332d9741a45d41c279e7a07",
+            "id": "6332d9741a45d41c279e7a07",
             "created": "2022-11-01T16:06:39.509000",
             "group": self._kunit_node["group"],
             "holdoff": None,
@@ -228,7 +228,7 @@ class APIHelperTestData:
         }
         data = {
             "op": "created",
-            "id": self.checkout_node["_id"],
+            "id": self.checkout_node["id"],
         }
         return CloudEvent(attributes=attributes, data=data)
 
