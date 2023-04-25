@@ -114,9 +114,9 @@ file_systems:
     boot_protocol: tftp
     params: {}
     prompt: '/ #'
-    ramdisk: bullseye-v4l2/20230303.0/{arch}/rootfs.cpio.gz
+    ramdisk: bullseye-v4l2/20230425.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
-    type: debian
+    type: debian-staging
   debian_bullseye-vdso_nfs:
     boot_protocol: tftp
     nfs: bullseye-vdso/20230421.0/{arch}/full.rootfs.tar.xz
