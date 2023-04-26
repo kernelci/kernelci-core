@@ -366,6 +366,15 @@ test_plans:
       kselftest_collections: "mincore"
     filters: *kselftest_no_fragment
 
+  kselftest-mm:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "mm"
+    filters:
+      - passlist: {defconfig: ['kselftest']}
+      - blocklist: {kernel: ['v3.', 'v4.', 'v5.', 'v6.0', 'v6,1', 'v6.2']}
+
   kselftest-net:
     <<: *kselftest
     params:
@@ -425,6 +434,10 @@ test_plans:
     params:
       job_timeout: '10'
       kselftest_collections: "vm"
+    filters:
+      - passlist:
+          defconfig: ['kselftest']
+          kernel: ['v3.', 'v4.', 'v5.', 'v6.0', 'v6,1', 'v6.2']
 
   lc-compliance:
     rootfs: debian_bullseye-libcamera_nfs
@@ -894,6 +907,7 @@ device_types:
   bcm2835-rpi-b-rev2:
     mach: broadcom
     class: arm-dtb
+    variant: v6
     boot_method: uboot
     filters:
       - passlist: {defconfig: ['bcm2835_defconfig']}
@@ -1246,6 +1260,12 @@ device_types:
     dtb: 'freescale/imx8mm-ddr4-evk.dtb'
     boot_method: uboot
 
+  imx8mm-innocomm-wb15-evk:
+    mach: imx
+    arch: arm64
+    dtb: 'freescale/imx8mm-innocomm-wb15-evk.dtb'
+    boot_method: barebox
+
   imx8mn-ddr4-evk:
     mach: imx
     arch: arm64
@@ -1552,11 +1572,6 @@ device_types:
 
   orion5x-rd88f5182-nas:
     mach: mvebu
-    class: arm-dtb
-    boot_method: uboot
-
-  ox820-cloudengines-pogoplug-series-3:
-    mach: oxnas
     class: arm-dtb
     boot_method: uboot
 
@@ -1899,6 +1914,11 @@ device_types:
     boot_method: uboot
 
   rk3399-rock-pi-4b:
+    mach: rockchip
+    class: arm64-dtb
+    boot_method: uboot
+
+  rk3588-rock-5b:
     mach: rockchip
     class: arm64-dtb
     boot_method: uboot
@@ -2318,6 +2338,7 @@ test_configs:
       - cros-ec
       - kselftest-alsa
       - kselftest-lib
+      - kselftest-mm
       - kselftest-vm
       - ltp-ipc
 
@@ -2343,6 +2364,7 @@ test_configs:
   - device_type: bcm2835-rpi-b-rev2
     test_plans:
       - baseline
+      - baseline-nfs
 
   - device_type: bcm2836-rpi-2-b
     test_plans:
@@ -2495,6 +2517,7 @@ test_configs:
       - kselftest-lib
       - kselftest-livepatch
       - kselftest-lkdtm
+      - kselftest-mm
       - kselftest-rtc
       - kselftest-seccomp
       - kselftest-tpm2
@@ -2673,6 +2696,10 @@ test_configs:
       - baseline
 
   - device_type: imx8mm-ddr4-evk
+    test_plans:
+      - baseline
+
+  - device_type: imx8mm-innocomm-wb15-evk
     test_plans:
       - baseline
 
@@ -2967,11 +2994,6 @@ test_configs:
       - baseline
       - baseline-nfs
 
-  - device_type: ox820-cloudengines-pogoplug-series-3
-    test_plans:
-      - baseline
-      - baseline-nfs
-
   - device_type: panda
     test_plans:
       - baseline
@@ -3208,6 +3230,10 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
+
+  - device_type: rk3588-rock-5b
+    test_plans:
+      - baseline
 
   - device_type: sc7180-trogdor-kingoftown
     test_plans:

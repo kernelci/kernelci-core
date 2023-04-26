@@ -120,10 +120,13 @@ class cmd_build(DockerBuildGenerateCommand):  # pylint: disable=invalid-name
     def _build_image(cls, dockerfile, tag, buildargs, nocache):
         client = docker.from_env()
         dockerfile_obj = io.BytesIO(dockerfile.encode())
-        return client.images.build(
-            fileobj=dockerfile_obj, tag=tag, buildargs=buildargs,
-            nocache=nocache,
-        )
+        try:
+            return client.images.build(
+                fileobj=dockerfile_obj, tag=tag, buildargs=buildargs,
+                nocache=nocache,
+            )
+        except docker.errors.BuildError as exc:
+            return exc.msg, exc.build_log
 
     @classmethod
     def _dump_dockerfile(cls, dockerfile):
