@@ -116,7 +116,7 @@ class Runtime(abc.ABC):
             'api_config_yaml': yaml.dump(api_config or {}),
             'storage_config_yaml': yaml.dump(job.storage_config or {}),
             'name': job.name,
-            'node_id': job.node['_id'],
+            'node_id': job.node['id'],
             'revision': job.node['revision'],
             'runtime': self.config.lab_type,
             'runtime_image': job.config.image,
