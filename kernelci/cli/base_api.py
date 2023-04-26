@@ -43,7 +43,7 @@ class APICommand(Command):  # pylint: disable=too-few-public-methods
     @classmethod
     def _print_node(cls, node, id_only, indent):
         if id_only:
-            print(node['_id'])
+            print(node['id'])
         else:
             cls._print_json(node, indent)
 
