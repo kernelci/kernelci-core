@@ -87,7 +87,7 @@ class cmd_submit(APICommand):  # pylint: disable=invalid-name
 
     def _api_call(self, api, configs, args):
         data = json.load(sys.stdin)
-        if '_id' in data:
+        if 'id' in data:
             node = api.update_node(data)
         else:
             node = api.create_node(data)
