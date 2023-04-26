@@ -15,11 +15,11 @@ class Job(YAMLConfigObject):
 
     # pylint: disable=too-many-arguments
     def __init__(self, name, template, image=None,
-                 conditions=None, params=None):
+                 run_on=None, params=None):
         self._name = name
         self._template = template
         self._image = image
-        self._conditions = conditions or []
+        self._run_on = run_on or []
         self._params = params or {}
 
     @property
@@ -38,9 +38,9 @@ class Job(YAMLConfigObject):
         return self._image
 
     @property
-    def conditions(self):
-        """Conditions for the job to be run"""
-        return list(dict(cond) for cond in self._conditions)
+    def run_on(self):
+        """Criteria for the job to be run"""
+        return list(dict(crit) for crit in self._run_on)
 
     @property
     def params(self):
@@ -50,7 +50,7 @@ class Job(YAMLConfigObject):
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({'template', 'image', 'conditions', 'params'})
+        attrs.update({'template', 'image', 'run_on', 'params'})
         return attrs
 
 
