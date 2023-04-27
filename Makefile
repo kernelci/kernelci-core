@@ -30,6 +30,7 @@ pylint:
 		kernelci.config.scheduler \
 		kernelci.storage \
 		kernelci.runtime \
+		kernelci.scheduler \
 		setup.py \
 		tests
 
