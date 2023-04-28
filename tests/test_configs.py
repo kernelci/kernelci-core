@@ -246,3 +246,18 @@ class TestStorageConfigs(ConfigTest):
         assert all(name in ref_configs for name in config_names)
         assert all(name in storage_configs for name in config_names)
         assert storage_configs['local']['host'] == '172.17.0.1'
+
+
+class TestSchedulerConfigs(ConfigTest):
+    """Tests related to the scheduler configs"""
+
+    def test_scheduler_conigs(self):
+        """Test all the scheduler config entries"""
+        ref_data, config = self._load_config('tests/configs/scheduler.yaml')
+        scheduler_config = self._reload(ref_data, config, 'scheduler')
+        kunit_job = None
+        for entry in scheduler_config:
+            if entry['job'] == 'kunit':
+                kunit_job = entry
+        assert kunit_job is not None
+        assert kunit_job['runtime']['name'] == 'k8s-gke-eu-west4'
