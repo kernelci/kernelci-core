@@ -66,7 +66,10 @@ def validate_yaml(config_paths, entries):
                 if isinstance(value, dict):
                     keys = value.keys()
                 elif isinstance(value, list):
-                    keys = value
+                    keys = (
+                        [] if len(value) and isinstance(value[0], dict)
+                        else value
+                    )
                 else:
                     keys = []
                 err = kernelci.sort_check(keys)
