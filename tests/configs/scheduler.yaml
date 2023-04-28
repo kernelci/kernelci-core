@@ -1,0 +1,16 @@
+scheduler:
+
+  - job: baseline-x86
+    runtime:
+      type: lava
+    platforms: [qemu-x86]
+
+  - job: kunit
+    runtime:
+      name: k8s-gke-eu-west4
+    platforms: []
+
+  - job: kbuild-gcc-10-x86
+    runtime:
+      type: kubernetes
+    platforms: []

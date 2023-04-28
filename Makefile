@@ -27,6 +27,7 @@ pylint:
 		kernelci.config.job \
 		kernelci.config.runtime \
 		kernelci.config.storage \
+		kernelci.config.scheduler \
 		kernelci.storage \
 		kernelci.runtime \
 		setup.py \

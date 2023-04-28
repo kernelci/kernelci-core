@@ -31,6 +31,7 @@ class cmd_validate(Command):  # pylint: disable=invalid-name
             'device_types',
             'jobs',
             'runtimes',
+            'scheduler',
             'storage_configs',
         ]
         err = kernelci.config.validate_yaml(args.yaml_config, entries)
