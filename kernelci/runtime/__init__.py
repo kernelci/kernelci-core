@@ -91,6 +91,8 @@ class Runtime(abc.ABC):
         """
         self._config = config
         self._templates = self.TEMPLATES
+        self._user = user
+        self._token = token
 
     @property
     def config(self):
