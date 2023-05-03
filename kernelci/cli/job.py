@@ -60,7 +60,7 @@ class cmd_generate(APICommand):  # pylint: disable=invalid-name
         },
     ]
     opt_args = APICommand.opt_args + [
-        Args.storage_config,
+        Args.storage_config, Args.runtime_token,
         {
             'name': '--node-id',
             'help': "ID of the job's node",
@@ -91,7 +91,9 @@ Invalid arguments.  Either --node-id or --node-json is required.")
             if args.storage_config else None
         )
         runtime_config = configs['runtimes'][args.runtime_config]
-        runtime = kernelci.runtime.get_runtime(runtime_config)
+        runtime = kernelci.runtime.get_runtime(
+            runtime_config, token=args.runtime_token
+        )
         params = runtime.get_params(job, api.config)
         job_data = runtime.generate(job, params)
         if args.output:
@@ -112,6 +114,7 @@ class cmd_submit(Command):  # pylint: disable=invalid-name
         },
     ]
     opt_args = Command.opt_args + [
+        Args.runtime_token,
         {
             'name': '--wait',
             'action': 'store_true',
@@ -121,7 +124,9 @@ class cmd_submit(Command):  # pylint: disable=invalid-name
 
     def __call__(self, configs, args):
         runtime_config = configs['runtimes'][args.runtime_config]
-        runtime = kernelci.runtime.get_runtime(runtime_config)
+        runtime = kernelci.runtime.get_runtime(
+            runtime_config, token=args.runtime_token
+        )
         job = runtime.submit(args.job_path)
         print(runtime.get_job_id(job))
         if args.wait:
