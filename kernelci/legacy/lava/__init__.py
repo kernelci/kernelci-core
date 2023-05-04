@@ -12,7 +12,17 @@ import json
 import os
 import sys
 
-from kernelci.runtime import add_kci_raise
+
+def add_kci_raise(jinja2_env):
+    """Add a kci_raise function to use in templates
+
+    This adds a `kci_raise` function to a given Jinja2 environment `jinja2_env`
+    so it can be used to raise exceptions from template files when for example
+    some template parameters are not valid.
+    """
+    def template_exception(msg):
+        raise Exception(msg)
+    jinja2_env.globals['kci_raise'] = template_exception
 
 
 class LavaRuntime:
