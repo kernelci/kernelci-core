@@ -29,8 +29,7 @@ API_CONFIG_YAML = """
 {{ kci_yaml_dump(api_config) }}"""
 STORAGE_CONFIG_YAML = """
 {{ kci_yaml_dump(storage_config) }}"""
-NODE_ID = '{{ node_id }}'
-TARBALL_URL = '{{ tarball_url }}'
+NODE = {{ node }}
 JOB_NAME = '{{ name }}'
 WORKSPACE = '/tmp/kci'
 {%- endblock %}
@@ -75,8 +74,8 @@ class BaseJob:
     def _run(self, src_path):
         raise NotImplementedError("_run() method required to run job")
 
-    def _submit(self, result, node_id, api):
-        node = api.get_node(node_id)
+    def _submit(self, result, node, api):
+        node = node.copy()
         node.update({
             'result': result,
             'state': 'done',
@@ -91,9 +90,9 @@ class BaseJob:
         print("Running job...")
         return self._run(src_path)
 
-    def submit(self, result, node_id, api_config_yaml):
+    def submit(self, result, node, api_config_yaml):
         api = self._get_api(api_config_yaml)
-        self._submit(result, node_id, api)
+        self._submit(result, node, api)
 {% endblock %}
 
 {% block python_job -%}
@@ -105,9 +104,10 @@ class Job(BaseJob):
 def main(args):
     job = Job({% block python_job_constr %}workspace=WORKSPACE{% endblock %})
     try:
-        results = job.run(TARBALL_URL)
-        if NODE_ID and API_CONFIG_YAML:
-            job.submit(results, NODE_ID, API_CONFIG_YAML)
+        tarball_url = NODE['artifacts'].get('tarball')
+        results = job.run(tarball_url)
+        if NODE and API_CONFIG_YAML:
+            job.submit(results, NODE, API_CONFIG_YAML)
     except requests.exceptions.HTTPError as ex:
         print(ex, file=sys.stderr)
         detail = ex.response.json().get('detail')
