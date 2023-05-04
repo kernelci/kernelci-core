@@ -105,7 +105,10 @@ class Runtime(abc.ABC):
         return self._templates
 
     def _get_template(self, job_config):
-        jinja2_env = Environment(loader=FileSystemLoader(self.templates))
+        jinja2_env = Environment(
+            loader=FileSystemLoader(self.templates),
+            extensions=["jinja2.ext.do"]
+        )
         return jinja2_env.get_template(job_config.template)
 
     def match(self, filter_data):
