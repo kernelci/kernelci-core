@@ -126,11 +126,9 @@ class Runtime(abc.ABC):
             'api_config': api_config or {},
             'storage_config': job.storage_config or {},
             'name': job.name,
-            'node_id': job.node['id'],
-            'revision': job.node['revision'],
+            'node': job.node,
             'runtime': self.config.lab_type,
             'runtime_image': job.config.image,
-            'tarball_url': job.node['artifacts']['tarball'],
         }
         params.update(job.config.params)
         params.update(job.platform_config.params)
