@@ -26,9 +26,9 @@ import kernelci.storage
 
 {%- block python_globals %}
 API_CONFIG_YAML = """
-{{ api_config_yaml }}"""
+{{ kci_yaml_dump(api_config) }}"""
 STORAGE_CONFIG_YAML = """
-{{ storage_config_yaml }}"""
+{{ kci_yaml_dump(storage_config) }}"""
 NODE_ID = '{{ node_id }}'
 TARBALL_URL = '{{ tarball_url }}'
 JOB_NAME = '{{ name }}'
