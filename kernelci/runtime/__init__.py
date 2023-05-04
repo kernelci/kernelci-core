@@ -98,6 +98,7 @@ class Runtime(abc.ABC):
             extensions=["jinja2.ext.do"]
         )
         self._add_kci_raise(jinja2_env)
+        self._add_kci_yaml_dump(jinja2_env)
         return jinja2_env.get_template(job_config.template)
 
     @classmethod
@@ -111,6 +112,13 @@ class Runtime(abc.ABC):
         def kci_raise(msg):
             raise Exception(msg)
         jinja2_env.globals['kci_raise'] = kci_raise
+
+    @classmethod
+    def _add_kci_yaml_dump(cls, jinja2_env):
+        """Add a yaml_dump function to use in Jinja2 templates"""
+        def kci_yaml_dump(data):
+            return yaml.dump(data, indent=2)
+        jinja2_env.globals['kci_yaml_dump'] = kci_yaml_dump
 
     def match(self, filter_data):
         """Apply filters and return True if they match, False otherwise."""
