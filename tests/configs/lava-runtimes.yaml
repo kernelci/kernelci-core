@@ -44,7 +44,7 @@ runtimes:
     priority_max: 40
 
   lab-min-12-max-40-new-runtime:
-    lab_type: lava.lava_xmlrpc
+    lab_type: lava
     url: 'https://fake.kernelci.org/RPC2/'
     priority_min: 12
     priority_max: 40
