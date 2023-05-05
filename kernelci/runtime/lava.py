@@ -38,6 +38,11 @@ class LAVA(Runtime):
         super().__init__(configs, **kwargs)
         self._server = self._connect()
 
+    def get_params(self, job, api_config=None):
+        params = super().get_params(job, api_config)
+        params['notify'] = self.config.notify
+        return params
+
     def generate(self, job, params):
         template = self._get_template(job.config)
         return template.render(params)
