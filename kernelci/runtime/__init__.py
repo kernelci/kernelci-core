@@ -97,28 +97,24 @@ class Runtime(abc.ABC):
             loader=FileSystemLoader(self.templates),
             extensions=["jinja2.ext.do"]
         )
-        self._add_kci_raise(jinja2_env)
-        self._add_kci_yaml_dump(jinja2_env)
+        jinja2_env.globals.update(self._get_jinja2_functions())
         return jinja2_env.get_template(job_config.template)
 
     @classmethod
-    def _add_kci_raise(cls, jinja2_env):
-        """Add a kci_raise function to use in templates
-
-        This adds a `kci_raise` function to a given Jinja2 environment
-        `jinja2_env` so it can be used to raise exceptions from template files
-        when for example some template parameters are not valid.
-        """
+    def _get_jinja2_functions(cls):
+        """Add custom functions to use in Jinja2 templates"""
         def kci_raise(msg):
+            """Raise an exception"""
             raise Exception(msg)
-        jinja2_env.globals['kci_raise'] = kci_raise
 
-    @classmethod
-    def _add_kci_yaml_dump(cls, jinja2_env):
-        """Add a yaml_dump function to use in Jinja2 templates"""
         def kci_yaml_dump(data):
+            """Dump data to YAML"""
             return yaml.dump(data, indent=2)
-        jinja2_env.globals['kci_yaml_dump'] = kci_yaml_dump
+
+        return {
+            'kci_raise': kci_raise,
+            'kci_yaml_dump': kci_yaml_dump,
+        }
 
     def match(self, filter_data):
         """Apply filters and return True if they match, False otherwise."""
