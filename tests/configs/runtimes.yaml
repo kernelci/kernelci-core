@@ -22,6 +22,7 @@ runtimes:
     priority_max: 100
     queue_timeout:
       days: 1
+    notify: {}
     filters:
       - blocklist:
           tree:
@@ -42,6 +43,10 @@ runtimes:
     priority_max: 45
     queue_timeout:
       hours: 1
+    notify:
+      callback:
+        token: some-token-name
+        url: https://somewhere.com:12345
     filters:
       - blocklist:
           tree: [android]

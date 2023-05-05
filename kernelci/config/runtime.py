@@ -78,7 +78,8 @@ class RuntimeLAVA(Runtime):
     # This should be solved by dropping the "priority" attribute
     # pylint: disable=too-many-arguments
     def __init__(self, url, priority=None, priority_min=None,
-                 priority_max=None, queue_timeout=None, **kwargs):
+                 priority_max=None, queue_timeout=None, notify=None,
+                 **kwargs):
         super().__init__(**kwargs)
 
         def _set_priority_value(value, default):
@@ -88,6 +89,7 @@ class RuntimeLAVA(Runtime):
         self._priority = self.PRIORITIES.get(priority, priority)
         self._priority_min = _set_priority_value(priority_min, self._priority)
         self._priority_max = _set_priority_value(priority_max, self._priority)
+        self._notify = notify or {}
         self._queue_timeout = queue_timeout
 
     @property
@@ -119,6 +121,11 @@ class RuntimeLAVA(Runtime):
         """
         return self._queue_timeout
 
+    @property
+    def notify(self):
+        """Callback parameters for the `notify` part of the jobs"""
+        return self._notify.copy()
+
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
@@ -128,6 +135,7 @@ class RuntimeLAVA(Runtime):
             'priority_max',
             'queue_timeout',
             'url',
+            'notify',
         })
         return attrs
 
