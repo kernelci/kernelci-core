@@ -15,7 +15,6 @@
 # * UEFI binaries for QEMU etc.
 # * rootfs URL
 # * Docker image for QEMU
-# * callback
 
 job_name: "[KernelCI API] {{ node.id }} {{ node.name }} {{ node.revision.describe }}"
 
@@ -40,6 +39,22 @@ timeouts:
     minutes: 10
   queue:
     days: 2
+
+{% if notify %}
+notify:
+  callback:
+    content-type: {{ notify.callback['content-type']|default('json') }}
+    dataset: {{ notify.callback.dataset|default('all') }}
+    method: {{ notify.callback.method|default('POST') }}
+    {%- if notify.callback.token %}
+    token: {{ notify.callback.token }}
+    {%- endif %}
+    {%- if notify.callback.url %}
+    url: {{ notify.callback.url }}/node/{{ node.id }}
+    {%- else %}{{ kci_raise("Callback URL not provided") }}{%- endif %}
+  criteria:
+    status: finished
+{% endif %}
 
 actions:
 
