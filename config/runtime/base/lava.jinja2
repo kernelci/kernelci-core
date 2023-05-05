@@ -16,7 +16,6 @@
 # * rootfs URL
 # * Docker image for QEMU
 # * callback
-# * commands from job template
 
 job_name: "[KernelCI API] {{ node.id }} {{ node.name }} {{ node.revision.describe }}"
 
@@ -88,6 +87,10 @@ actions:
             - functional
         run:
           steps:
-            - echo "KernelCI was here"
+            - |
+{%- filter indent(width=16) -%}
+{% block commands %}{% endblock %}
+{%- endfilter %}
+
     timeout:
       minutes: 1
