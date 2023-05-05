@@ -19,6 +19,104 @@ import yaml
 from kernelci.runtime import Runtime
 
 
+class Callback:
+    """LAVA callback handler"""
+
+    # copied from lava-server/lava_scheduler_app/models.py
+    SUBMITTED = 0
+    RUNNING = 1
+    COMPLETE = 2
+    INCOMPLETE = 3
+    CANCELED = 4
+    CANCELING = 5
+
+    # LAVA job result names
+    LAVA_JOB_RESULT_NAMES = {
+        COMPLETE: "PASS",
+        INCOMPLETE: "FAIL",
+        CANCELED: "UNKNOWN",
+        CANCELING: "UNKNOWN",
+    }
+
+    def __init__(self, data):
+        """This class can be used to parse LAVA callback data"""
+        self._data = data
+        self._meta = None
+
+    def get_meta(self, key):
+        """Get a metadata value from the job definition"""
+        if self._meta is None:
+            self._meta = yaml.safe_load(self._data['definition'])['metadata']
+        return self._meta.get(key)
+
+    def is_infra_error(self):
+        """Determine wether the job has hit an infrastructure error"""
+        lava_yaml = self._data['results']['lava']
+        lava = yaml.safe_load(lava_yaml)
+        stages = {stage['name']: stage for stage in lava}
+        job_meta = stages['job']['metadata']
+        return job_meta.get('error_type') == "Infrastructure"
+
+    @classmethod
+    def _get_login_case(cls, tests):
+        tests_map = {test['name']: test for test in tests}
+        login = (
+            tests_map.get('auto-login-action') or tests_map.get('login-action')
+        )
+        job_result = tests_map['job']['result']
+        result = login and login['result'] == 'pass' and job_result == 'pass'
+        return 'pass' if result else 'fail'
+
+    @classmethod
+    def _get_suite_results(cls, tests):
+        suite_results = {}
+        for test in reversed(tests):
+            test_set_name = test['metadata'].get('set')
+            if test_set_name:
+                test_cases = suite_results.setdefault(test_set_name, {})
+            else:
+                test_cases = suite_results
+            test_cases[test['name']] = test['result']
+        return suite_results
+
+    def get_results(self):
+        """Parse the results and return them as a plain dictionary"""
+        results = {}
+        for suite_name, suite_results in self._data['results'].items():
+            tests = yaml.safe_load(suite_results)
+            if suite_name == 'lava':
+                results['login'] = self._get_login_case(tests)
+            else:
+                suite_name = suite_name.partition("_")[2]
+                results[suite_name] = self._get_suite_results(tests)
+        return results
+
+    @classmethod
+    def _get_results_hierarchy(cls, results):
+        hierarchy = []
+        for name, value in results.items():
+            node = {'name': name}
+            child_nodes = []
+            item = {'node': node, 'child_nodes': child_nodes}
+            if isinstance(value, dict):
+                item['child_nodes'] = cls._get_results_hierarchy(value)
+            elif isinstance(value, str):
+                node['result'] = value
+            hierarchy.append(item)
+        return hierarchy
+
+    def get_hierarchy(self, results, job_node):
+        """Convert the plain results dictionary to a hierarchy for the API"""
+        return {
+            'node': {
+                'name': job_node['name'],
+                'result': 'fail' if self.is_infra_error() else 'pass',
+                'artifacts': {},
+            },
+            'child_nodes': self._get_results_hierarchy(results),
+        }
+
+
 class LAVA(Runtime):
     """Runtime implementation to run jobs in a LAVA lab
 
