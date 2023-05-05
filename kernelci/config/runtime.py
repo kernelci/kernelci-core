@@ -200,8 +200,6 @@ class RuntimeFactory:  # pylint: disable=too-few-public-methods
         'docker': RuntimeDocker,
         'kubernetes': RuntimeKubernetes,
         'lava': RuntimeLAVA,
-        'lava.lava_xmlrpc': RuntimeLAVA,
-        'lava.lava_rest': RuntimeLAVA,
         'legacy.lava_xmlrpc': RuntimeLAVA,
         'legacy.lava_rest': RuntimeLAVA,
         'shell': Runtime,
