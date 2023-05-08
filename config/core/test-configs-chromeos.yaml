@@ -486,6 +486,22 @@ device_types:
         modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20221028.0/amd64/modules.tar.xz'
       block_device: detect
 
+  hp-14b-na0052xx-zork_chromeos:
+    <<: *chromebook-x86-type
+    base_name: hp-14b-na0052xx-zork
+    filters: *stoneyridge-filter
+    params:
+      <<: *chromebook-generic-params
+      cros_image:
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20221115.0/amd64/'
+        flash_tarball: 'full-cros-flash.tar.gz'
+        flash_tarball_compression: 'gz'
+        tast_tarball: 'tast.tgz'
+      reference_kernel:
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20221115.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20221115.0/amd64/modules.tar.xz'
+      block_device: detect
+
   hp-x360-14-G1-sona_chromeos:
     <<: *chromebook-x86-type
     base_name: hp-x360-14-G1-sona
@@ -713,6 +729,9 @@ test_configs:
     test_plans: *chromebook-test-plans
 
   - device_type: dell-latitude-5400-8665U-sarien_chromeos
+    test_plans: *chromebook-test-plans
+
+  - device_type: hp-14b-na0052xx-zork_chromeos
     test_plans: *chromebook-test-plans
 
   - device_type: hp-x360-14-G1-sona_chromeos
