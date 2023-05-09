@@ -96,11 +96,6 @@ case ${BOARD} in
     ;;
 esac
 
-# Temporary workaround as chrome-icu build fails at 10/08/2022 due corrupt git cache
-if [ ! -f .cache/distfiles/chrome-src/.gclient ]; then
-  cros_sdk sync_chrome --tag=106.0.5249.134 --reset --gclient=/mnt/host/depot_tools/gclient /var/cache/chromeos-cache/distfiles/chrome-src --skip_cache
-fi
-
 echo "Building packages (${SERIAL})"
 # Disable `builtin_fw_mali_g57` flag as it is not required when `panfrost` is enabled
 cros_sdk USE="tty_console_${SERIAL} pcserial cr50_skip_update -builtin_fw_mali_g57" \
