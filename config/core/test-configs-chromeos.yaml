@@ -536,6 +536,7 @@ device_types:
         modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-nami/20230511.0/amd64/modules.tar.xz'
       block_device: detect
 
+
   hp-x360-12b-ca0010nr-n4020-octopus_chromeos: &octopus
     <<: *chromebook-x86-type
     base_name: hp-x360-12b-ca0010nr-n4020-octopus
@@ -555,6 +556,22 @@ device_types:
   hp-x360-12b-ca0500na-n4000-octopus_chromeos:
     <<: *octopus
     base_name: hp-x360-12b-ca0500na-n4000-octopus
+
+  hp-x360-14a-cb0001xx-zork_chromeos:
+    <<: *chromebook-x86-type
+    base_name: hp-x360-14a-cb0001xx-zork
+    filters: *stoneyridge-filter
+    params:
+      <<: *chromebook-generic-params
+      cros_image:
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20230511.0/amd64/'
+        flash_tarball: 'full-cros-flash.tar.gz'
+        flash_tarball_compression: 'gz'
+        tast_tarball: 'tast.tgz'
+      reference_kernel:
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20230511.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20230511.0/amd64/modules.tar.xz'
+      block_device: detect
 
   lenovo-TPad-C13-Yoga-zork_chromeos:
     <<: *chromebook-x86-type
@@ -762,6 +779,9 @@ test_configs:
     test_plans: *chromebook-test-plans
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus_chromeos
+    test_plans: *chromebook-test-plans
+
+  - device_type: hp-x360-14a-cb0001xx-zork_chromeos
     test_plans: *chromebook-test-plans
 
   - device_type: lenovo-TPad-C13-Yoga-zork_chromeos
