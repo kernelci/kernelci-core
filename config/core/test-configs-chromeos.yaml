@@ -10,7 +10,7 @@ test_plans:
     params:
       job_timeout: '60'
       docker_image: 'kernelci/chromeos-tast'
-      rootfs_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-amd64-generic/20221102.0/amd64/'
+      rootfs_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-amd64-generic/20230511.0/amd64/'
       fixed_kernel: true
 
   chromiumosvm-tast-upstream-kernel:
@@ -22,7 +22,7 @@ test_plans:
     params:
       job_timeout: '60'
       docker_image: 'kernelci/chromeos-tast'
-      rootfs_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-amd64-generic/20221102.0/amd64/'
+      rootfs_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-amd64-generic/20230511.0/amd64/'
 
   cros-baseline: &cros-baseline
     pattern: 'chromeos/cros-baseline.jinja2'
@@ -348,13 +348,13 @@ device_types:
         modules: 'modules.tar.xz'
         modules_compression: 'xz'
       cros_image:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-dedede/20221113.0/amd64/'
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-dedede/20230511.0/amd64/'
         flash_tarball: 'full-cros-flash.tar.gz'
         flash_tarball_compression: 'gz'
         tast_tarball: 'tast.tgz'
       reference_kernel:
-        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-dedede/20221113.0/amd64/bzImage'
-        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-dedede/20221113.0/amd64/modules.tar.xz'
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-dedede/20230511.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-dedede/20230511.0/amd64/modules.tar.xz'
       block_device: detect
 
   asus-C433TA-AJ0005-rammus_chromeos:
@@ -364,13 +364,13 @@ device_types:
     params:
       <<: *chromebook-generic-params
       cros_image:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-rammus/20221116.0/amd64/'
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-rammus/20230511.0/amd64/'
         flash_tarball: 'full-cros-flash.tar.gz'
         flash_tarball_compression: 'gz'
         tast_tarball: 'tast.tgz'
       reference_kernel:
-        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-rammus/20221116.0/amd64/bzImage'
-        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-rammus/20221116.0/amd64/modules.tar.xz'
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-rammus/20230511.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-rammus/20230511.0/amd64/modules.tar.xz'
       block_device: detect
 
   asus-C436FA-Flip-hatch_chromeos:
@@ -380,13 +380,13 @@ device_types:
     params:
       <<: *chromebook-generic-params
       cros_image:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-hatch/20221027.0/amd64/'
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-hatch/20230511.0/amd64/'
         flash_tarball: 'full-cros-flash.tar.gz'
         flash_tarball_compression: 'gz'
         tast_tarball: 'tast.tgz'
       reference_kernel:
-        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-hatch/20221027.0/amd64/bzImage'
-        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-hatch/20221027.0/amd64/modules.tar.xz'
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-hatch/20230511.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-hatch/20230511.0/amd64/modules.tar.xz'
       block_device: nvme0n1
 
   asus-C523NA-A20057-coral_chromeos:
@@ -396,13 +396,13 @@ device_types:
     params:
       <<: *chromebook-generic-params
       cros_image:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-coral/20221026.0/amd64/'
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-coral/20230511.0/amd64/'
         flash_tarball: 'full-cros-flash.tar.gz'
         flash_tarball_compression: 'gz'
         tast_tarball: 'tast.tgz'
       reference_kernel:
-        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-coral/20221026.0/amd64/bzImage'
-        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-coral/20221026.0/amd64/modules.tar.xz'
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-coral/20230511.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-coral/20230511.0/amd64/modules.tar.xz'
       block_device: detect
 
   asus-CM1400CXA-dalboz_chromeos:
@@ -413,13 +413,13 @@ device_types:
     params:
       <<: *chromebook-generic-params
       cros_image:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20221115.0/amd64/'
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20230511.0/amd64/'
         flash_tarball: 'full-cros-flash.tar.gz'
         flash_tarball_compression: 'gz'
         tast_tarball: 'tast.tgz'
       reference_kernel:
-        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20221115.0/amd64/bzImage'
-        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20221115.0/amd64/modules.tar.xz'
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20230511.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20230511.0/amd64/modules.tar.xz'
       block_device: detect
 
   asus-cx9400-volteer_chromeos:
@@ -429,13 +429,13 @@ device_types:
     params:
       <<: *chromebook-generic-params
       cros_image:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-volteer/20221115.0/amd64/'
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-volteer/20230511.0/amd64/'
         flash_tarball: 'full-cros-flash.tar.gz'
         flash_tarball_compression: 'gz'
         tast_tarball: 'tast.tgz'
       reference_kernel:
-        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-volteer/20221115.0/amd64/bzImage'
-        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-volteer/20221115.0/amd64/modules.tar.xz'
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-volteer/20230511.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-volteer/20230511.0/amd64/modules.tar.xz'
       block_device: nvme0n1
 
   dell-latitude-5400-4305U-sarien_chromeos:
@@ -445,13 +445,13 @@ device_types:
     params:
       <<: *chromebook-generic-params
       cros_image:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-sarien/20221111.0/amd64/'
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-sarien/20230511.0/amd64/'
         flash_tarball: 'full-cros-flash.tar.gz'
         flash_tarball_compression: 'gz'
         tast_tarball: 'tast.tgz'
       reference_kernel:
-        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-sarien/20221111.0/amd64/bzImage'
-        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-sarien/20221111.0/amd64/modules.tar.xz'
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-sarien/20230511.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-sarien/20230511.0/amd64/modules.tar.xz'
       block_device: nvme0n1
 
   dell-latitude-5400-8665U-sarien_chromeos:
@@ -461,13 +461,13 @@ device_types:
     params:
       <<: *chromebook-generic-params
       cros_image:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-sarien/20221111.0/amd64/'
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-sarien/20230511.0/amd64/'
         flash_tarball: 'full-cros-flash.tar.gz'
         flash_tarball_compression: 'gz'
         tast_tarball: 'tast.tgz'
       reference_kernel:
-        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-sarien/20221111.0/amd64/bzImage'
-        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-sarien/20221111.0/amd64/modules.tar.xz'
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-sarien/20230511.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-sarien/20230511.0/amd64/modules.tar.xz'
       block_device: detect
 
   hp-11A-G6-EE-grunt_chromeos:
@@ -477,13 +477,13 @@ device_types:
     params:
       <<: *chromebook-generic-params
       cros_image:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20221028.0/amd64/'
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20230511.0/amd64/'
         flash_tarball: 'full-cros-flash.tar.gz'
         flash_tarball_compression: 'gz'
         tast_tarball: 'tast.tgz'
       reference_kernel:
-        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20221028.0/amd64/bzImage'
-        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20221028.0/amd64/modules.tar.xz'
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20230511.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20230511.0/amd64/modules.tar.xz'
       block_device: detect
 
   hp-14b-na0052xx-zork_chromeos:
@@ -493,13 +493,13 @@ device_types:
     params:
       <<: *chromebook-generic-params
       cros_image:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20221115.0/amd64/'
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20230511.0/amd64/'
         flash_tarball: 'full-cros-flash.tar.gz'
         flash_tarball_compression: 'gz'
         tast_tarball: 'tast.tgz'
       reference_kernel:
-        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20221115.0/amd64/bzImage'
-        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20221115.0/amd64/modules.tar.xz'
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20230511.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20230511.0/amd64/modules.tar.xz'
       block_device: detect
 
   hp-x360-14-G1-sona_chromeos:
@@ -509,13 +509,13 @@ device_types:
     params:
       <<: *chromebook-generic-params
       cros_image:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-nami/20221120.0/amd64/'
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-nami/20230511.0/amd64/'
         flash_tarball: 'full-cros-flash.tar.gz'
         flash_tarball_compression: 'gz'
         tast_tarball: 'tast.tgz'
       reference_kernel:
-        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-nami/20221120.0/amd64/bzImage'
-        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-nami/20221120.0/amd64/modules.tar.xz'
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-nami/20230511.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-nami/20230511.0/amd64/modules.tar.xz'
       block_device: detect
 
   hp-x360-12b-ca0010nr-n4020-octopus_chromeos: &octopus
@@ -525,13 +525,13 @@ device_types:
     params:
       <<: *chromebook-generic-params
       cros_image:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-octopus/20221025.0/amd64/'
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-octopus/20230511.0/amd64/'
         flash_tarball: 'full-cros-flash.tar.gz'
         flash_tarball_compression: 'gz'
         tast_tarball: 'tast.tgz'
       reference_kernel:
-        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-octopus/20221025.0/amd64/bzImage'
-        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-octopus/20221025.0/amd64/modules.tar.xz'
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-octopus/20230511.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-octopus/20230511.0/amd64/modules.tar.xz'
       block_device: mmcblk0
 
   hp-x360-12b-ca0500na-n4000-octopus_chromeos:
@@ -545,13 +545,13 @@ device_types:
     params:
       <<: *chromebook-generic-params
       cros_image:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20221115.0/amd64/'
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20230511.0/amd64/'
         flash_tarball: 'full-cros-flash.tar.gz'
         flash_tarball_compression: 'gz'
         tast_tarball: 'tast.tgz'
       reference_kernel:
-        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20221115.0/amd64/bzImage'
-        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20221115.0/amd64/modules.tar.xz'
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20230511.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-zork/20230511.0/amd64/modules.tar.xz'
       block_device: nvme0n1
 
   mt8183-kukui-jacuzzi-juniper-sku16_chromeos: &chromebook-arm64-type
@@ -576,14 +576,14 @@ device_types:
         modules_compression: 'xz'
         dtb: 'dtbs/mediatek/mt8183-kukui-jacuzzi-juniper-sku16.dtb'
       cros_image:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-jacuzzi/20230206.0/arm64/'
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-jacuzzi/20230511.0/arm64/'
         flash_tarball: 'full-cros-flash.tar.gz'
         flash_tarball_compression: 'gz'
         tast_tarball: 'tast.tgz'
       reference_kernel:
-        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-jacuzzi/20230206.0/arm64/Image'
-        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-jacuzzi/20230206.0/arm64/modules.tar.xz'
-        dtb: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-jacuzzi/20230206.0/arm64/dtbs/mediatek/mt8183-kukui-jacuzzi-juniper-sku16.dtb'
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-jacuzzi/20230511.0/arm64/Image'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-jacuzzi/20230511.0/arm64/modules.tar.xz'
+        dtb: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-jacuzzi/20230511.0/arm64/dtbs/mediatek/mt8183-kukui-jacuzzi-juniper-sku16.dtb'
       block_device: detect
 
   mt8192-asurada-spherion-r0_chromeos:
@@ -601,14 +601,14 @@ device_types:
         modules_compression: 'xz'
         dtb: 'dtbs/mediatek/mt8192-asurada-spherion-r0.dtb'
       cros_image:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-asurada/20230208.0/arm64/'
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-asurada/20230511.0/arm64/'
         flash_tarball: 'full-cros-flash.tar.gz'
         flash_tarball_compression: 'gz'
         tast_tarball: 'tast.tgz'
       reference_kernel:
-        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-asurada/20230208.0/arm64/Image'
-        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-asurada/20230208.0/arm64/modules.tar.xz'
-        dtb: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-asurada/20230208.0/arm64/dtbs/mediatek/mt8192-asurada-spherion-r0.dtb'
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-asurada/20230511.0/arm64/Image'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-asurada/20230511.0/arm64/modules.tar.xz'
+        dtb: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-asurada/20230511.0/arm64/dtbs/mediatek/mt8192-asurada-spherion-r0.dtb'
       block_device: detect
 
 # Test plans temporarily disabled as QEMU build doesnt work
@@ -620,12 +620,12 @@ device_types:
 #    params:
 #      bios_url: 'http://storage.kernelci.org/images/uefi/edk2-stable202005/x86_64/OVMF.fd'
 #      cros_image:
-#        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-amd64-generic/20220816.0/amd64/'
+#        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-amd64-generic/20230511.0/amd64/'
 #        image: 'chromiumos_test_image.bin.gz'
 #        tast_tarball: 'tast.tgz'
 #      reference_kernel:
-#        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-amd64-generic/20220816.0/amd64/bzImage'
-#        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-amd64-generic/20220816.0/amd64/modules.tar.xz'
+#        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-amd64-generic/20230511.0/amd64/bzImage'
+#        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-amd64-generic/20230511.0/amd64/modules.tar.xz'
 #    context:
 #      arch: x86_64
 #      cpu: 'qemu64'
@@ -660,14 +660,14 @@ device_types:
         modules_compression: 'xz'
         dtb: 'dtbs/qcom/sc7180-trogdor-kingoftown-r1.dtb'
       cros_image:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-trogdor/20221212.0/arm64/'
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-trogdor/20230511.0/arm64/'
         flash_tarball: 'full-cros-flash.tar.gz'
         flash_tarball_compression: 'gz'
         tast_tarball: 'tast.tgz'
       reference_kernel:
-        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-trogdor/20221212.0/arm64/Image'
-        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-trogdor/20221212.0/arm64/modules.tar.xz'
-        dtb: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-trogdor/20221212.0/arm64/dtbs/qcom/sc7180-trogdor-kingoftown-r1.dtb'
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-trogdor/20230511.0/arm64/Image'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-trogdor/20230511.0/arm64/modules.tar.xz'
+        dtb: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-trogdor/20230511.0/arm64/dtbs/qcom/sc7180-trogdor-kingoftown-r1.dtb'
       block_device: detect
 
   sc7180-trogdor-lazor-limozeen_chromeos:
@@ -685,14 +685,14 @@ device_types:
         modules_compression: 'xz'
         dtb: 'dtbs/qcom/sc7180-trogdor-lazor-limozeen-nots-r5.dtb'
       cros_image:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-trogdor/20221212.0/arm64/'
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-trogdor/20230511.0/arm64/'
         flash_tarball: 'full-cros-flash.tar.gz'
         flash_tarball_compression: 'gz'
         tast_tarball: 'tast.tgz'
       reference_kernel:
-        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-trogdor/20221212.0/arm64/Image'
-        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-trogdor/20221212.0/arm64/modules.tar.xz'
-        dtb: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-trogdor/20221212.0/arm64/dtbs/qcom/sc7180-trogdor-lazor-limozeen-nots-r5.dtb'
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-trogdor/20230511.0/arm64/Image'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-trogdor/20230511.0/arm64/modules.tar.xz'
+        dtb: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-trogdor/20230511.0/arm64/dtbs/qcom/sc7180-trogdor-lazor-limozeen-nots-r5.dtb'
       block_device: detect
 
 test_configs:
