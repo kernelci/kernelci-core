@@ -329,7 +329,7 @@ test_plans:
 device_types:
 
   acer-cb317-1h-c3z6-dedede_chromeos: &chromebook-x86-type
-    base_name: asus-C433TA-AJ0005-rammus
+    base_name: acer-cb317-1h-c3z6-dedede
     mach: x86
     arch: x86_64
     boot_method: depthcharge
