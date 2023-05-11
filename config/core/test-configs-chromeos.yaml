@@ -328,13 +328,13 @@ test_plans:
 
 device_types:
 
-  acer-cb317-1h-c3z6-dedede_chromeos: &chromebook-x86-type
-    base_name: acer-cb317-1h-c3z6-dedede
+  acer-R721T-grunt_chromeos:
+    base_name: acer-R721T-grunt
     mach: x86
     arch: x86_64
     boot_method: depthcharge
-    filters: &pineview-filter
-      - passlist: {defconfig: ['chromeos-intel-pineview']}
+    filters: &stoneyridge-filter
+      - passlist: {defconfig: ['chromeos-amd-stoneyridge']}
     params: &chromebook-generic-params
       cros_flash_nfs:
         base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20221031.0/amd64/'
@@ -347,6 +347,25 @@ device_types:
         image: 'kernel/bzImage'
         modules: 'modules.tar.xz'
         modules_compression: 'xz'
+      cros_image:
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20230511.0/amd64/'
+        flash_tarball: 'full-cros-flash.tar.gz'
+        flash_tarball_compression: 'gz'
+        tast_tarball: 'tast.tgz'
+      reference_kernel:
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20230511.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-grunt/20230511.0/amd64/modules.tar.xz'
+      block_device: detect
+
+  acer-cb317-1h-c3z6-dedede_chromeos: &chromebook-x86-type
+    base_name: acer-cb317-1h-c3z6-dedede
+    mach: x86
+    arch: x86_64
+    boot_method: depthcharge
+    filters: &pineview-filter
+      - passlist: {defconfig: ['chromeos-intel-pineview']}
+    params:
+      <<: *chromebook-generic-params
       cros_image:
         base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-dedede/20230511.0/amd64/'
         flash_tarball: 'full-cros-flash.tar.gz'
@@ -408,8 +427,7 @@ device_types:
   asus-CM1400CXA-dalboz_chromeos:
     <<: *chromebook-x86-type
     base_name: asus-CM1400CXA-dalboz
-    filters: &stoneyridge-filter
-      - passlist: {defconfig: ['chromeos-amd-stoneyridge']}
+    filters: *stoneyridge-filter
     params:
       <<: *chromebook-generic-params
       cros_image:
@@ -706,6 +724,9 @@ test_configs:
       - cros-tast-platform
       - cros-tast-sound
       - cros-tast-video
+
+  - device_type: acer-R721T-grunt_chromeos
+    test_plans: *chromebook-test-plans
 
   - device_type: acer-cb317-1h-c3z6-dedede_chromeos
     test_plans: *chromebook-test-plans
