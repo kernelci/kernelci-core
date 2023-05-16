@@ -58,6 +58,10 @@ notify:
 
 metadata:
   node_id: {{ node.id }}
+  # The full YAML configuration can't yet be added as-is, only strings and
+  # integers are accepted by the schema.  See this issue for more details:
+  # https://git.lavasoftware.org/lava/lava/-/issues/610
+  api_config_name: {{ api_config.name }}
 
 actions:
 
