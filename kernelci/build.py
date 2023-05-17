@@ -165,7 +165,11 @@ cd {path}
 git reset --hard
 git clean -fd
 git checkout --detach {remote}/{branch}
-""".format(path=path, remote=config.tree.name, branch=config.branch))
+sed -i s,'{line1}','{line2}', {test_file}
+""".format(path=path, remote=config.tree.name, branch=config.branch,
+           line1='PROPERTY_ENTRY_U16("prop-u16"\\, 16)',
+           line2='PROPERTY_ENTRY_U16("prop-u16"\\, 17)',
+           test_file='drivers/base/test/property-entry-test.c'))
 
 
 def head_commit(path):
