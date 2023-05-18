@@ -237,6 +237,40 @@ build_configs:
               - 'allnoconfig'
               - 'cip://5.10.y-cip/riscv/qemu_riscv64_defconfig'
 
+  cip_6.1:
+    tree: cip
+    branch: 'linux-6.1.y-cip'
+    variants:
+      gcc-10:
+        build_environment: gcc-10
+        architectures:
+          arm:
+            base_defconfig: 'multi_v7_defconfig'
+            extra_configs:
+              - 'allnoconfig'
+              - 'cip://6.1.y-cip/arm/qemu_arm_defconfig'
+            filters:
+              - blocklist: {
+                defconfig: ['rpc_defconfig'] # gcc-10 not supported
+              }
+          arm64:
+            fragments: [kselftest, arm64-chromebook]
+            extra_configs:
+              - 'allnoconfig'
+              - 'cip://6.1.y-cip/arm64/qemu_arm64_defconfig'
+          x86_64:
+            base_defconfig: 'x86_64_defconfig'
+            fragments: [kselftest, x86-chromebook]
+            extra_configs:
+              - 'allnoconfig'
+              - 'cip://6.1.y-cip/x86/cip_qemu_defconfig'
+          riscv:
+            base_defconfig: 'riscv_defconfig'
+            fragments: [kselftest]
+            extra_configs:
+              - 'allnoconfig'
+              - 'cip://6.1.y-cip/riscv/qemu_riscv64_defconfig'
+
   cip_5.10-rc:
     tree: cip-gitlab
     branch: 'ci/iwamatsu/linux-5.10.y-cip-rc'
