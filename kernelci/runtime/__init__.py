@@ -123,14 +123,12 @@ class Runtime(abc.ABC):
     def get_params(self, job, api_config=None):
         """Get job template parameters"""
         params = {
-            'api_config_yaml': yaml.dump(api_config or {}),
-            'storage_config_yaml': yaml.dump(job.storage_config or {}),
+            'api_config': api_config or {},
+            'storage_config': job.storage_config or {},
             'name': job.name,
-            'node_id': job.node['id'],
-            'revision': job.node['revision'],
+            'node': job.node,
             'runtime': self.config.lab_type,
             'runtime_image': job.config.image,
-            'tarball_url': job.node['artifacts']['tarball'],
         }
         params.update(job.config.params)
         params.update(job.platform_config.params)
