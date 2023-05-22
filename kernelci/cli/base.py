@@ -15,6 +15,7 @@ import argparse
 import configparser
 import os.path
 import sys
+import toml
 
 from requests.exceptions import HTTPError
 
@@ -510,8 +511,12 @@ class Options:
         *section* is a section name to use in the settings file, to provide a
                   way to have default values for each CLI tool
         """
+        self._deprecated_settings = False
         if path is None:
             default_paths = [
+                'kernelci.toml',
+                os.path.expanduser('~/.config/kernelci/kernelci.toml'),
+                '/etc/kernelci/kernelci.toml',
                 'kernelci.conf',
                 os.path.expanduser('~/.config/kernelci/kernelci.conf'),
                 '/etc/kernelci/kernelci.conf',
@@ -520,9 +525,24 @@ class Options:
                 if os.path.exists(default_path):
                     path = default_path
                     break
-        self._settings = configparser.ConfigParser()
+
+        if path and path.endswith('.conf'):
+            self._deprecated_settings = True
+
+        if self._deprecated_settings:
+            print("Warning: user settings file format '.conf' will soon be \
+deprecated. Please use '.toml' file format and provide 'kernelci.toml' file \
+instead.", file=sys.stderr)
+            self._settings = configparser.ConfigParser()
+        else:
+            self._settings = {}
+
         if path and os.path.exists(path):
-            self._settings.read(path)
+            if self._deprecated_settings:
+                self._settings.read(path)
+            else:
+                self._settings = toml.load(path)
+
         self._command = command
         self._cli_args = cli_args
         self._section = section
@@ -560,11 +580,19 @@ class Options:
             section = ':'.join([section_name, section_config])
         else:
             section = self._section
-        if not self._settings.has_option(section, option):
-            return None
-        value = self._settings.get(section, option).split()
-        if not as_list and len(value) == 1:
-            value = value[0]
+        if self._deprecated_settings:
+            if not self._settings.has_option(section, option):
+                return None
+            value = self._settings.get(section, option).split()
+            if not as_list and len(value) == 1:
+                value = value[0]
+        else:
+            value = None
+            section_data = self._settings.get(section)
+            if section_data:
+                value = section_data.get(option)
+            if value is None and self._settings.get('DEFAULT'):
+                value = self._settings.get('DEFAULT').get(option)
         return value
 
     def get_missing_args(self):
