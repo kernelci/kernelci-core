@@ -39,9 +39,13 @@ class APIHelper:
             self._filters.pop(sub_id)
         self.api.unsubscribe(sub_id)
 
-    def get_node_from_event(self, event):
+    def receive_event_data(self, sub_id):
+        """Receive CloudEvent from Pub/Sub and return its data payload"""
+        return self.api.receive_event(sub_id).data
+
+    def get_node_from_event(self, event_data):
         """Listen for an event and get the matching node object from it"""
-        return self.api.get_node(event.data['id'])
+        return self.api.get_node(event_data['id'])
 
     def pubsub_event_filter(self, sub_id, event):
         """Filter Pub/Sub events
@@ -81,10 +85,10 @@ class APIHelper:
         Return node if event matches with the filter.
         """
         while True:
-            event = self.api.receive_event(sub_id)
+            event = self.receive_event_data(sub_id)
             node = self.get_node_from_event(event)
             if all(self.pubsub_event_filter(sub_id, obj)
-                   for obj in [node, event.data]):
+                   for obj in [node, event]):
                 return node
 
     def create_job_node(self, job_config, input_node):

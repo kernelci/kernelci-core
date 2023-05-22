@@ -61,7 +61,7 @@ def test_get_node_from_event(get_api_config, mock_api_get_node_from_id):
         api = kernelci.api.get_api(api_config)
         helper = kernelci.api.helper.APIHelper(api)
         node = helper.get_node_from_event(
-            event=APIHelperTestData().get_test_cloud_event()
+            APIHelperTestData().get_test_cloud_event()
         )
         assert node.keys() == {
             'id',
