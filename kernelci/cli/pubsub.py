@@ -8,6 +8,8 @@
 import json
 import sys
 
+import kernelci
+
 from .base import Args, sub_main
 from .base_api import APICommand
 
@@ -64,13 +66,14 @@ class cmd_receive_event(APICommand):  # pylint: disable=invalid-name
     opt_args = APICommand.opt_args + [Args.indent]
 
     def _api_call(self, api, configs, args):
-        event = api.receive_event(args.sub_id)
-        if isinstance(event.data, str):
-            print(event.data.strip())
-        elif isinstance(event.data, dict):
-            self._print_json(event.data, args.indent)
+        helper = kernelci.api.helper.APIHelper(api)
+        event = helper.receive_event_data(args.sub_id)
+        if isinstance(event, str):
+            print(event.strip())
+        elif isinstance(event, dict):
+            self._print_json(event, args.indent)
         else:
-            print(event.data)
+            print(event)
         return True
 
 
