@@ -3401,6 +3401,9 @@ test_configs:
 # Disabling to reduce load
 #      - kselftest-alsa
 #      - kselftest-tpm2
+      - v4l2-decoder-conformance-h264
+      - v4l2-decoder-conformance-vp8
+      - v4l2-decoder-conformance-vp9
 
   - device_type: sc7180-trogdor-kingoftown-r1
     test_plans:
@@ -3410,6 +3413,9 @@ test_configs:
 #      - cros-ec
 #      - kselftest-alsa
 #      - kselftest-tpm2
+      - v4l2-decoder-conformance-h264
+      - v4l2-decoder-conformance-vp8
+      - v4l2-decoder-conformance-vp9
 
   - device_type: sc7180-trogdor-lazor-limozeen
     test_plans:
@@ -3427,6 +3433,9 @@ test_configs:
 #      - kselftest-timers
 #      - kselftest-tpm2
 #      - usb
+      - v4l2-decoder-conformance-h264
+      - v4l2-decoder-conformance-vp8
+      - v4l2-decoder-conformance-vp9
 
   - device_type: snow
     test_plans:
