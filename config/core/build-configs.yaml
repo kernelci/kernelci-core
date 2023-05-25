@@ -348,6 +348,8 @@ fragments:
       mediatek/mt8173/vpu_d.bin
       mediatek/mt8173/vpu_p.bin
       rockchip/dptx.bin
+      qcom/venus-5.4/venus.mdt
+      qcom/venus-5.4/venus.mbn
       "'
 
 
