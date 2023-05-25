@@ -311,8 +311,6 @@ rootfs_configs:
       - e2fslibs
       - e2fsprogs
     extra_firmware:
-        - qcom/venus-5.4/venus.mdt
-        - qcom/venus-5.4/venus.mbn
         - mediatek/mt8173/vpu_d.bin
         - mediatek/mt8173/vpu_p.bin
         - mediatek/mt8183/scp.img
