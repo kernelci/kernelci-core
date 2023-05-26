@@ -7,8 +7,6 @@
 
 import random
 
-import kernelci.runtime
-
 
 class Scheduler:
     """Core logic for implementing a pipeline scheduler
@@ -19,16 +17,12 @@ class Scheduler:
     API via the Pub/Sub interface.
     """
 
-    def __init__(self, configs, runtimes_list=None):
+    def __init__(self, configs, runtimes):
         self._scheduler = configs['scheduler']
         self._jobs = configs['jobs']
-        self._runtimes_by_name = {
-            config_name: kernelci.runtime.get_runtime(config)
-            for config_name, config in configs['runtimes'].items()
-            if not runtimes_list or config_name in runtimes_list
-        }
+        self._runtimes = runtimes
         self._runtimes_by_type = {}
-        for _, runtime in self._runtimes_by_name.items():
+        for _, runtime in self._runtimes.items():
             runtime_type = self._runtimes_by_type.setdefault(
                 runtime.config.lab_type, []
             )
@@ -59,7 +53,7 @@ class Scheduler:
             runtime_name = config.runtime.get('name')
             runtime_type = config.runtime.get('type')
             if runtime_name:
-                runtime = self._runtimes_by_name.get(runtime_name)
+                runtime = self._runtimes.get(runtime_name)
             elif runtime_type:
                 # Pick one at random until there's more criteria
                 runtimes = self._runtimes_by_type.get(runtime_type)
