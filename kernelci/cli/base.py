@@ -580,6 +580,21 @@ instead.", file=sys.stderr)
             section = ':'.join([section_name, section_config])
         else:
             section = self._section
+        return self.get_from_section(section, option, as_list)
+
+    def get_from_section(self, section, option, as_list=False):
+        """Get an option from an arbitrary section
+
+        While the .get() method will use other arguments such as --api-config
+        to look up the matching section in the settings file, this makes it
+        possible to retrieve values from any arbitrary section.  It is
+        primarily useful when the code needs to get options from multiple
+        sections, for example to iterate over all the runtimes.
+
+        *section* is the name of the section in the settings
+        *option* is the name of the option within that sectino
+        *as_list* is like for .get() for options with multiple values
+        """
         if self._deprecated_settings:
             if not self._settings.has_option(section, option):
                 return None
