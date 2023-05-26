@@ -8,6 +8,7 @@
 import json
 import sys
 
+import kernelci.runtime
 import kernelci.scheduler
 from .base import Args, Command, sub_main
 
@@ -22,7 +23,9 @@ class cmd_list_jobs(Command):  # pylint: disable=invalid-name
     ]
 
     def __call__(self, configs, args):
-        sched = kernelci.scheduler.Scheduler(configs)
+        rconfigs = configs['runtimes']
+        runtimes = dict(kernelci.runtime.get_all_runtimes(rconfigs, args))
+        sched = kernelci.scheduler.Scheduler(configs, runtimes)
         event = json.loads(sys.stdin.read())
         channel = args.channel or 'node'
         for job in sched.get_jobs(event, channel):
@@ -41,7 +44,9 @@ class cmd_get_schedule(Command):  # pylint: disable=invalid-name
     ]
 
     def __call__(self, configs, args):
-        sched = kernelci.scheduler.Scheduler(configs)
+        rconfigs = configs['runtimes']
+        runtimes = dict(kernelci.runtime.get_all_runtimes(rconfigs, args))
+        sched = kernelci.scheduler.Scheduler(configs, runtimes)
         event = json.loads(sys.stdin.read())
         channel = args.channel or 'node'
         for job, runtime, platform in sched.get_schedule(event, channel):
