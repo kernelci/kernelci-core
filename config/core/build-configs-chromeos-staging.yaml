@@ -1,0 +1,6 @@
+# build configs for chromeos.staging.kernelci.org instance
+
+  kernelci_chromeos-staging:
+    tree: kernelci
+    branch: 'chromeos-staging'
+    variants: *chromeos_6_1_variants
