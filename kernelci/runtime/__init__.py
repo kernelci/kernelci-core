@@ -186,3 +186,22 @@ def get_runtime(config, user=None, token=None):
     module_name = '.'.join(['kernelci', 'runtime', config.lab_type])
     runtime_module = importlib.import_module(module_name)
     return runtime_module.get_runtime(config, user=user, token=token)
+
+
+def get_all_runtimes(runtime_configs, opts):
+    """Get all the Runtime objects based on the runtime configs and options
+
+    This will iterate over all the runtimes configs and yield a (name, runtime)
+    2-tuple for each Runtime object being constructed.  The options are used to
+    find the user name and token for each runtime, if applicable.
+
+    *runtime_configs* is the 'runtimes' config loaded from YAML
+    *opts* is an Options object loaded from the CLI args and settings file
+    """
+    for config_name, config in runtime_configs.items():
+        section = ':'.join(('runtime', config_name))
+        user, token = (
+            opts.get_from_section(section, opt)
+            for opt in ('user', 'runtime_token')
+        )
+        yield config_name, get_runtime(config, user, token)
