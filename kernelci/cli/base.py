@@ -528,6 +528,8 @@ class Options:
         self._section = section
 
     def __getattr__(self, name):
+        if name.startswith('_'):
+            return super().__getattr__(name)
         return self.get(name)
 
     @property
