@@ -77,6 +77,7 @@ meson setup build \
 	-Dgst-plugins-base:typefind=enabled \
 	-Dgst-plugins-base:videoconvertscale=enabled \
 	-Dgst-plugins-good:matroska=enabled \
+	-Dgst-plugins-good:v4l2=enabled \
 	-Dtools=enabled \
 	-Ddevtools=disabled \
 	-Dges=disabled \
