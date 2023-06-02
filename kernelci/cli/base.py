@@ -543,6 +543,9 @@ instead.", file=sys.stderr)
             else:
                 self._settings = toml.load(path)
 
+        if not self._deprecated_settings:
+            self._default_section = self._settings.get('DEFAULT')
+
         self._command = command
         self._cli_args = cli_args
         self._section = section
@@ -606,8 +609,8 @@ instead.", file=sys.stderr)
             section_data = self._settings.get(section)
             if section_data:
                 value = section_data.get(option)
-            if value is None and self._settings.get('DEFAULT'):
-                value = self._settings.get('DEFAULT').get(option)
+            if value is None and self._default_section:
+                value = self._default_section.get(option)
         return value
 
     def get_missing_args(self):
