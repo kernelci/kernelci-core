@@ -107,7 +107,7 @@ Invalid arguments.  Either --node-id or --node-json is required.")
 class cmd_submit(Command):  # pylint: disable=invalid-name
     """Submit a job definition from a file"""
     args = Command.args + [
-        Args.api_token, Args.runtime_config,
+        Args.runtime_config,
         {
             'name': 'job_path',
             'help': "Path of the job file to submit",
