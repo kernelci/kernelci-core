@@ -54,6 +54,15 @@ repo sync -j$(nproc)
 echo Building SDK
 cros_sdk --create
 
+# if board trogdor we need to revert patch early, here
+if [ "${BOARD}" == "trogdor" ]; then
+    # issue/284169814 revert caf6c399cb013fb44b767d32853a7ba181a59c23 in chromiumos/overlays/board-overlays
+    echo "Reverting issue/284169814 commit caf6c399cb013fb44b767d32853a7ba181a59c23 for trogdor"
+    cd src/overlays
+    git revert caf6c399cb013fb44b767d32853a7ba181a59c23
+    cd -
+fi
+
 echo "Board ${BOARD} setup"
 cros_sdk setup_board --board=${BOARD}
 
