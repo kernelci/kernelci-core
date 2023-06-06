@@ -63,6 +63,9 @@ if [ "${BOARD}" == "trogdor" ]; then
     cd -
 fi
 
+# grunt/StoneyRidge kernel 4.14 broken, so switch to 5.10
+sed -i 's/kernel-4_14/kernel-5_10/g' src/overlays/chipset-stnyridge/profiles/base/make.defaults
+
 echo "Board ${BOARD} setup"
 cros_sdk setup_board --board=${BOARD}
 
