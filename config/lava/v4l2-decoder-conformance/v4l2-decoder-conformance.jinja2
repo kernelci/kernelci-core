@@ -1,8 +1,12 @@
 {%- if testsuite -%}
     {% set testsuite_arg = "-ts " + testsuite %}
 {%- endif -%}
-{%- if decoder -%}
-    {% set decoder_arg = "-d " + decoder|string %}
+{%- if decoders -%}
+    {%- set decoder_list = [ ] -%}
+    {%- for decoder in decoders -%}
+        {{ decoder_list.append(decoder) or "" }}
+    {%- endfor -%}
+    {%- set decoders_arg = "-d " + decoder_list|join(" ") -%}
 {%- endif -%}
 {%- if videodec_timeout -%}
     {% set videodec_timeout_arg = "-t " + videodec_timeout|string %}
@@ -25,7 +29,7 @@
           - functional
         run:
           steps:
-          - python3 /usr/bin/fluster_parser.py {{ testsuite_arg }} {{ decoder_arg }} {{ videodec_timeout_arg }} {{ videodec_parallel_jobs_arg }}
+          - python3 /usr/bin/fluster_parser.py {{ testsuite_arg }} {{ decoders_arg }} {{ videodec_timeout_arg }} {{ videodec_parallel_jobs_arg }}
       from: inline
       name: {{ plan }}
       path: inline/{{ plan }}.yaml

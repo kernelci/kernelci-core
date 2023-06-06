@@ -661,7 +661,8 @@ test_plans:
     params:
       job_timeout: '30'
       testsuite: 'AV1-TEST-VECTORS'
-      decoder: 'GStreamer-AV1-V4L2SL-Gst1.0'
+      decoders:
+        - 'GStreamer-AV1-V4L2SL-Gst1.0'
       videodec_parallel_jobs: '1'
       videodec_timeout: 90
 
@@ -671,7 +672,9 @@ test_plans:
     params:
       job_timeout: '30'
       testsuite: 'JVT-AVC_V1'
-      decoder: 'GStreamer-H.264-V4L2SL-Gst1.0'
+      decoders:
+        - 'GStreamer-H.264-V4L2-Gst1.0'
+        - 'GStreamer-H.264-V4L2SL-Gst1.0'
       videodec_parallel_jobs: '1'
       videodec_timeout: 90
 
@@ -681,7 +684,9 @@ test_plans:
     params:
       job_timeout: '30'
       testsuite: 'JCT-VC-HEVC-V1'
-      decoder: 'GStreamer-H.265-V4L2SL-Gst1.0'
+      decoders:
+        - 'GStreamer-H.265-V4L2-Gst1.0'
+        - 'GStreamer-H.265-V4L2SL-Gst1.0'
       videodec_parallel_jobs: '1'
       videodec_timeout: 90
 
@@ -691,7 +696,9 @@ test_plans:
     params:
       job_timeout: '30'
       testsuite: 'VP8-TEST-VECTORS'
-      decoder: 'GStreamer-VP8-V4L2SL-Gst1.0'
+      decoders:
+        - 'GStreamer-VP8-V4L2-Gst1.0'
+        - 'GStreamer-VP8-V4L2SL-Gst1.0'
       videodec_parallel_jobs: '1'
       videodec_timeout: 90
 
@@ -701,7 +708,8 @@ test_plans:
     params:
       job_timeout: '30'
       testsuite: 'VP9-TEST-VECTORS'
-      decoder: 'GStreamer-VP9-V4L2SL-Gst1.0'
+      decoders:
+        - 'GStreamer-VP9-V4L2SL-Gst1.0'
       videodec_parallel_jobs: '1'
       videodec_timeout: 90
 

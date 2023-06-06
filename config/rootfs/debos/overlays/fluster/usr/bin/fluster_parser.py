@@ -77,8 +77,8 @@ def _run_fluster(test_suite=None, timeout=None, jobs=None, decoders=None):
         cmd.extend(['-t', timeout])
     if jobs:
         cmd.extend(['-j', jobs])
-    if decoders:
-        cmd.extend(['-d', decoders])
+    for index, dec in enumerate(decoders):
+        cmd.extend(['-d', dec] if not index else [dec])
 
     subprocess.run(cmd, cwd=FLUSTER_PATH, check=False)
 
@@ -127,6 +127,6 @@ if __name__ == '__main__':
     parser.add_argument('-ts', '--test-suite')
     parser.add_argument('-t', '--timeout')
     parser.add_argument('-j', '--jobs')
-    parser.add_argument('-d', '--decoders')
+    parser.add_argument('-d', '--decoders', nargs='+')
     args = parser.parse_args()
     sys.exit(main(args))
