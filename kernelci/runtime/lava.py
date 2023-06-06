@@ -19,6 +19,40 @@ import yaml
 from kernelci.runtime import Runtime
 
 
+# This will go away when adding get_html_log()
+# pylint: disable=too-few-public-methods
+class LogParser:
+    """LAVA log parser
+
+    This class can be used to parse LAVA logs as received in a callback, in
+    YAML format via *log_data_yaml*.  It can then produce a plain text version
+    with just the serial output from the test platform.
+    """
+
+    def __init__(self, log_data_yaml):
+        self._raw_log = self._get_raw_log(log_data_yaml)
+
+    @classmethod
+    def _get_raw_log(cls, log_data_yaml):
+        log = yaml.safe_load(log_data_yaml)
+        raw_log = []
+        for line in log:
+            dtime, level, msg = (line.get(key) for key in ['dt', 'lvl', 'msg'])
+            if not isinstance(msg, str):
+                continue
+            msg = msg.strip()
+            if msg:
+                raw_log.append((dtime, level, msg))
+        return raw_log
+
+    def get_text_log(self, output):
+        """Get the plain text serial console output log from the plaform"""
+        for _, level, msg in self._raw_log:
+            if level == 'target':
+                output.write(msg)
+                output.write('\n')
+
+
 class Callback:
     """LAVA callback handler"""
 
@@ -115,6 +149,10 @@ class Callback:
             },
             'child_nodes': self._get_results_hierarchy(results),
         }
+
+    def get_log_parser(self):
+        """Get a LogParser object from the callback data"""
+        return LogParser(self._data['log'])
 
 
 class LAVA(Runtime):
