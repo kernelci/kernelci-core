@@ -57,7 +57,7 @@ class Storage:
         self._upload([file_path], dest_path)
         return urljoin(
             self.config.base_url,
-            '/'.join([dest_path, file_path[1]])
+            '/'.join(['.', dest_path, file_path[1]])
         )
 
     def upload_multiple(self, file_paths, dest_path=''):
@@ -82,7 +82,7 @@ class Storage:
         """
         self._upload(file_paths, dest_path)
         return [
-            urljoin(self.config.base_url, '/'.join([dest_path, file_dst]))
+            urljoin(self.config.base_url, '/'.join(['.', dest_path, file_dst]))
             for (file_src, file_dst) in file_paths
         ]
 
