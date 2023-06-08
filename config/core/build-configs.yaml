@@ -712,6 +712,12 @@ build_environments:
     arch_params:
       x86_64: *x86_64_params
 
+  rustc-1.70:
+    cc: clang
+    cc_version: 16
+    arch_params:
+      x86_64: *x86_64_params
+
 # Default config with full build coverage
 build_configs_defaults:
   variants:
