@@ -40,7 +40,7 @@ class LogParser:
             dtime, level, msg = (line.get(key) for key in ['dt', 'lvl', 'msg'])
             if not isinstance(msg, str):
                 continue
-            msg = msg.strip()
+            msg = msg.strip().replace('\x1b', '^[')
             if msg:
                 raw_log.append((dtime, level, msg))
         return raw_log
