@@ -1606,6 +1606,12 @@ device_types:
     boot_method: depthcharge
     filters: *arm64-chromebook-filters
 
+  mt8195-cherry-tomato-r2:
+    mach: mediatek
+    class: arm64-dtb
+    boot_method: depthcharge
+    filters: *arm64-chromebook-filters
+
   mt8365-evk:
     mach: mediatek
     class: arm64-dtb
@@ -3170,6 +3176,10 @@ test_configs:
     filters: &chromebook-decoders-filter
       - passlist: {defconfig: ['videodec']}
       - regex: {'tree': '(next|mainline|media)'}
+
+  - device_type: mt8195-cherry-tomato-r2
+    test_plans:
+      - baseline
 
   - device_type: mt8365-evk
     test_plans:
