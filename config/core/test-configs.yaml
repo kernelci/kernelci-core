@@ -1877,6 +1877,12 @@ device_types:
 
   r8a77960-ulcb: *r8a7796-m3ulcb # same device as r8a7796-m3ulcb
 
+  r8a779m1-ulcb:
+    base_name: r8a779m1-ulcb
+    mach: renesas
+    class: arm64-dtb
+    boot_method: uboot
+
   rk3288-rock2-square:
     mach: rockchip
     class: arm-dtb
@@ -3190,6 +3196,11 @@ test_configs:
 
   - device_type: r8a77960-ulcb  # same as r8a7796-m3ulcb
     test_plans: *r8a7796-m3ulcb_test-plans
+
+  - device_type: r8a779m1-ulcb
+    test_plans:
+      - baseline
+      - baseline-nfs
 
   - device_type: rk3288-rock2-square
     test_plans:
