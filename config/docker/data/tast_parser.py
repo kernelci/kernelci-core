@@ -66,7 +66,7 @@ def report_lava(test_data):
 
 
 def run_tests(args):
-    uid = pwd.getpwnam("cros-tast").pw_uid
+    uid = pwd.getpwnam("cros").pw_uid
     if not os.path.isdir(RESULTS_DIR):
         os.makedirs(RESULTS_DIR, exist_ok=True)
     os.chown(RESULTS_DIR, uid, 0)
@@ -74,7 +74,7 @@ def run_tests(args):
     tast_cmd = [
         'sudo',
         '-u',
-        'cros-tast',
+        'cros',
         '--login',
         TAST_PATH,
         'run',
