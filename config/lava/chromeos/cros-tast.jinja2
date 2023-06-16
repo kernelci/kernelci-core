@@ -38,6 +38,13 @@
             - >-
               ./tast_parser.py
               {{ tests|wordwrap(1, False, "\n              ") }}
+            - >-
+              ./ssh_retry.sh
+              -o StrictHostKeyChecking=no
+              -o UserKnownHostsFile=/dev/null
+              -i /home/cros/.ssh/id_rsa
+              root@$(lava-target-ip)
+              sync && poweroff && exit 0
       from: inline
       name: tast
       path: inline/cros-tast.yaml
