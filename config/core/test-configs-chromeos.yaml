@@ -164,6 +164,108 @@ test_plans:
       <<: *cros-tast-mm-decode-params
       fixed_kernel: true
 
+  cros-tast-mm-decode-v4l2-stateful-h264: &cros-tast-mm-decode-v4l2-stateful-h264
+    <<: *cros-tast-base
+    params: &cros-tast-mm-decode-v4l2-stateful-h264-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-mm-decode-v4l2-stateful-h264-tests >
+        video.PlatformDecoding.v4l2_h264_baseline
+        video.PlatformDecoding.v4l2_h264_main
+        video.PlatformDecoding.v4l2_h264_first_mb_in_slice
+
+  cros-tast-mm-decode-v4l2-stateful-hevc: &cros-tast-mm-decode-v4l2-stateful-hevc
+    <<: *cros-tast-base
+    params: &cros-tast-mm-decode-v4l2-stateful-hevc-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-mm-decode-v4l2-stateful-hevc-tests >
+        video.PlatformDecoding.v4l2_hevc_main
+
+  cros-tast-mm-decode-v4l2-stateful-vp8: &cros-tast-mm-decode-v4l2-stateful-vp8
+    <<: *cros-tast-base
+    params: &cros-tast-mm-decode-v4l2-stateful-vp8-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-mm-decode-v4l2-stateful-vp8-tests >
+        video.PlatformDecoding.v4l2_vp8_inter
+        video.PlatformDecoding.v4l2_vp8_inter_multi_coeff
+        video.PlatformDecoding.v4l2_vp8_inter_segment
+        video.PlatformDecoding.v4l2_vp8_intra
+        video.PlatformDecoding.v4l2_vp8_intra_multi_coeff
+        video.PlatformDecoding.v4l2_vp8_intra_segment
+        video.PlatformDecoding.v4l2_vp8_comprehensive
+
+  cros-tast-mm-decode-v4l2-stateful-vp9: &cros-tast-mm-decode-v4l2-stateful-vp9
+    <<: *cros-tast-base
+    params: &cros-tast-mm-decode-v4l2-stateful-vp9-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-mm-decode-v4l2-stateful-vp9-tests >
+        video.PlatformDecoding.v4l2_vp9_0_svc
+
+  cros-tast-mm-decode-v4l2-stateful-vp9-group1: &cros-tast-mm-decode-v4l2-stateful-vp9-group1
+    <<: *cros-tast-base
+    params: &cros-tast-mm-decode-v4l2-stateful-vp9-group1-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-mm-decode-v4l2-stateful-vp9-group1-tests >
+        video.PlatformDecoding.v4l2_vp9_0_group1_buf
+        video.PlatformDecoding.v4l2_vp9_0_group1_frm_resize
+        video.PlatformDecoding.v4l2_vp9_0_group1_gf_dist
+        video.PlatformDecoding.v4l2_vp9_0_group1_odd_size
+        video.PlatformDecoding.v4l2_vp9_0_group1_sub8x8
+        video.PlatformDecoding.v4l2_vp9_0_group1_sub8x8_sf
+
+  cros-tast-mm-decode-v4l2-stateful-vp9-group2: &cros-tast-mm-decode-v4l2-stateful-vp9-group2
+    <<: *cros-tast-base
+    params: &cros-tast-mm-decode-v4l2-stateful-vp9-group2-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-mm-decode-v4l2-stateful-vp9-group2-tests >
+        video.PlatformDecoding.v4l2_vp9_0_group2_buf
+        video.PlatformDecoding.v4l2_vp9_0_group2_frm_resize
+        video.PlatformDecoding.v4l2_vp9_0_group2_gf_dist
+        video.PlatformDecoding.v4l2_vp9_0_group2_odd_size
+        video.PlatformDecoding.v4l2_vp9_0_group2_sub8x8
+        video.PlatformDecoding.v4l2_vp9_0_group2_sub8x8_sf
+
+  cros-tast-mm-decode-v4l2-stateful-vp9-group3: &cros-tast-mm-decode-v4l2-stateful-vp9-group3
+    <<: *cros-tast-base
+    params: &cros-tast-mm-decode-v4l2-stateful-vp9-group3-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-mm-decode-v4l2-stateful-vp9-group3-tests >
+        video.PlatformDecoding.v4l2_vp9_0_group3_buf
+        video.PlatformDecoding.v4l2_vp9_0_group3_frm_resize
+        video.PlatformDecoding.v4l2_vp9_0_group3_gf_dist
+        video.PlatformDecoding.v4l2_vp9_0_group3_odd_size
+        video.PlatformDecoding.v4l2_vp9_0_group3_sub8x8
+        video.PlatformDecoding.v4l2_vp9_0_group3_sub8x8_sf
+
+  cros-tast-mm-decode-v4l2-stateful-vp9-group4: &cros-tast-mm-decode-v4l2-stateful-vp9-group4
+    <<: *cros-tast-base
+    params: &cros-tast-mm-decode-v4l2-stateful-vp9-group4-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-mm-decode-v4l2-stateful-vp9-group4-tests >
+        video.PlatformDecoding.v4l2_vp9_0_group4_buf
+        video.PlatformDecoding.v4l2_vp9_0_group4_frm_resize
+        video.PlatformDecoding.v4l2_vp9_0_group4_gf_dist
+        video.PlatformDecoding.v4l2_vp9_0_group4_odd_size
+        video.PlatformDecoding.v4l2_vp9_0_group4_sub8x8
+        video.PlatformDecoding.v4l2_vp9_0_group4_sub8x8_sf
+
+  cros-tast-mm-decode-v4l2-stateful-vp9-level5: &cros-tast-mm-decode-v4l2-stateful-vp9-level5
+    <<: *cros-tast-base
+    params: &cros-tast-mm-decode-v4l2-stateful-vp9-level5-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-mm-decode-v4l2-stateful-vp9-level5-tests >
+        video.PlatformDecoding.v4l2_vp9_0_level5_0_buf
+        video.PlatformDecoding.v4l2_vp9_0_level5_0_frm_resize
+        video.PlatformDecoding.v4l2_vp9_0_level5_0_gf_dist
+        video.PlatformDecoding.v4l2_vp9_0_level5_0_odd_size
+        video.PlatformDecoding.v4l2_vp9_0_level5_0_sub8x8
+        video.PlatformDecoding.v4l2_vp9_0_level5_0_sub8x8_sf
+        video.PlatformDecoding.v4l2_vp9_0_level5_1_buf
+        video.PlatformDecoding.v4l2_vp9_0_level5_1_frm_resize
+        video.PlatformDecoding.v4l2_vp9_0_level5_1_gf_dist
+        video.PlatformDecoding.v4l2_vp9_0_level5_1_odd_size
+        video.PlatformDecoding.v4l2_vp9_0_level5_1_sub8x8
+        video.PlatformDecoding.v4l2_vp9_0_level5_1_sub8x8_sf
+
   cros-tast-mm-encode: &cros-tast-mm-encode
     <<: *cros-tast-base
     params: &cros-tast-mm-encode-params
