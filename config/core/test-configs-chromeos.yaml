@@ -936,5 +936,29 @@ test_configs:
   - device_type: sc7180-trogdor-kingoftown_chromeos
     test_plans: *chromebook-arm64-test-plans
 
+  - device_type: sc7180-trogdor-kingoftown_chromeos
+    test_plans:
+      - cros-tast-mm-decode-v4l2-stateful-h264
+      - cros-tast-mm-decode-v4l2-stateful-hevc
+      - cros-tast-mm-decode-v4l2-stateful-vp8
+      - cros-tast-mm-decode-v4l2-stateful-vp9
+      - cros-tast-mm-decode-v4l2-stateful-vp9-group1
+      - cros-tast-mm-decode-v4l2-stateful-vp9-group2
+      - cros-tast-mm-decode-v4l2-stateful-vp9-group3
+      - cros-tast-mm-decode-v4l2-stateful-vp9-group4
+      - cros-tast-mm-decode-v4l2-stateful-vp9-level5
+
   - device_type: sc7180-trogdor-lazor-limozeen_chromeos
     test_plans: *chromebook-arm64-test-plans
+
+  - device_type: sc7180-trogdor-lazor-limozeen_chromeos
+    test_plans:
+      - cros-tast-mm-decode-v4l2-stateful-h264
+      - cros-tast-mm-decode-v4l2-stateful-hevc
+      - cros-tast-mm-decode-v4l2-stateful-vp8
+      - cros-tast-mm-decode-v4l2-stateful-vp9
+      - cros-tast-mm-decode-v4l2-stateful-vp9-group1
+      - cros-tast-mm-decode-v4l2-stateful-vp9-group2
+      - cros-tast-mm-decode-v4l2-stateful-vp9-group3
+      - cros-tast-mm-decode-v4l2-stateful-vp9-group4
+      - cros-tast-mm-decode-v4l2-stateful-vp9-level5
