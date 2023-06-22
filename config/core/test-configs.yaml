@@ -732,6 +732,12 @@ device_types:
     boot_method: depthcharge
     filters: *x86-chromebook-filters
 
+  acer-cbv514-1h-34uz-brya:
+    mach: x86
+    arch: x86_64
+    boot_method: depthcharge
+    filters: *x86-chromebook-filters
+
   acer-chromebox-cxi4-puff:
     mach: x86
     arch: x86_64
@@ -2237,6 +2243,11 @@ test_configs:
       - kselftest-cpufreq
 
   - device_type: acer-cb317-1h-c3z6-dedede
+    test_plans:
+      - baseline
+      - baseline-nfs
+
+  - device_type: acer-cbv514-1h-34uz-brya
     test_plans:
       - baseline
       - baseline-nfs
