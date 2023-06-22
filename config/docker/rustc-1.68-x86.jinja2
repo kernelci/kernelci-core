@@ -1,9 +1,0 @@
-{%- set sub_arch = 'amd64' %}
-{% extends 'rustc-1.68.jinja2' %}
-
-{% block packages %}
-{{ super() }}
-
-RUN dpkg --add-architecture amd64
-
-{%- endblock %}
