@@ -694,24 +694,6 @@ build_environments:
     cc_version: 17
     arch_params: *clang_15_arch_params
 
-  rustc-1.62:
-    cc: clang
-    cc_version: 15
-    arch_params:
-      x86_64: *x86_64_params
-
-  rustc-1.66:
-    cc: clang
-    cc_version: 15
-    arch_params:
-      x86_64: *x86_64_params
-
-  rustc-1.68:
-    cc: clang
-    cc_version: 15
-    arch_params:
-      x86_64: *x86_64_params
-
   rustc-1.70:
     cc: clang
     cc_version: 16
