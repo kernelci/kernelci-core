@@ -29,22 +29,14 @@ class Scheduler:
             runtime_type.append(runtime)
         self._platforms = configs['device_types']
 
-    def get_jobs(self, event, channel='node'):
-        """Get the job configs matching a given event"""
-        for _, job in self._jobs.items():
-            for run_on in job.run_on:
-                run_on_channel = run_on.get('channel')
-                if run_on_channel == channel:
-                    run_on = run_on.copy()
-                    run_on.pop('channel')
-                    if run_on.items() <= event.items():
-                        yield job
-
     def get_configs(self, event, channel='node'):
-        """Get the scheduler configs to run jobs matching a given event"""
-        for job in self.get_jobs(event, channel):
-            for entry in self._scheduler:
-                if entry.job == job.name:
+        """Get the scheduler configs matching a given event"""
+        for entry in self._scheduler:
+            sched_event_channel = entry.event.get('channel')
+            if sched_event_channel == channel:
+                sched_event = entry.event.copy()
+                sched_event.pop('channel')
+                if sched_event.items() <= event.items():
                     yield entry
 
     def get_schedule(self, event, channel='node'):
