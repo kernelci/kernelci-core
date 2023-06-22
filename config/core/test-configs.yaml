@@ -732,6 +732,12 @@ device_types:
     boot_method: depthcharge
     filters: *x86-chromebook-filters
 
+  acer-cp514-3wh-r0qs-guybrush:
+    mach: x86
+    arch: x86_64
+    boot_method: depthcharge
+    filters: *x86-chromebook-filters
+
   alpine-db:
     mach: alpine
     class: arm-dtb
@@ -2225,6 +2231,11 @@ test_configs:
       - kselftest-cpufreq
 
   - device_type: acer-cb317-1h-c3z6-dedede
+    test_plans:
+      - baseline
+      - baseline-nfs
+
+  - device_type: acer-cp514-3wh-r0qs-guybrush
     test_plans:
       - baseline
       - baseline-nfs
