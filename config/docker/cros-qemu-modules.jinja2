@@ -18,9 +18,9 @@ ENV LIBGUESTFS_BACKEND=direct \
     HOME=/root
 
 ADD https://raw.githubusercontent.com/kernelci/kernelci-core/\
-7f58ddf26d08bd046ddff553681b59a0e7b48bc6/\
-config/docker/data/add_modules.sh \
-/add_modules.sh
+    kernelci.org/\
+    config/docker/data/add_modules.sh \
+    /add_modules.sh
 
 # Needed by LAVA to install the overlay
 USER root

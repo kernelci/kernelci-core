@@ -19,15 +19,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     cdbs \
     devscripts \
     equivs \
-    fakeroot \
-    wget
+    fakeroot
 
 WORKDIR /root/debs
 
 # Get patch to enable compression
-RUN wget -q https://raw.githubusercontent.com/kernelci/kernelci-core/\
-8642bf83db5a26ddc22ec738586b435499d01137/\
-config/docker-new/data/kmod_kci.patch
+ADD https://raw.githubusercontent.com/kernelci/kernelci-core/\
+    kernelci.org/\
+    config/docker/data/kmod_kci.patch \
+    .
 
 # Prepare kmod sources, patch, install dependencies, build
 RUN apt-get source kmod

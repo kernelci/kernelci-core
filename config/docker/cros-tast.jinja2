@@ -22,14 +22,14 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 {{ super() }}
 
 ADD https://raw.githubusercontent.com/kernelci/kernelci-core/\
-7f58ddf26d08bd046ddff553681b59a0e7b48bc6/\
-config/docker/data/tast_parser.py \
-/home/cros/tast_parser.py
+    kernelci.org/\
+    config/docker/data/tast_parser.py \
+    /home/cros/tast_parser.py
 
 ADD https://raw.githubusercontent.com/kernelci/kernelci-core/\
-7f58ddf26d08bd046ddff553681b59a0e7b48bc6/\
-config/docker/data/ssh_retry.sh \
-/home/cros/ssh_retry.sh
+    kernelci.org/\
+    config/docker/data/ssh_retry.sh \
+    /home/cros/ssh_retry.sh
 
 # Needed by LAVA to install the overlay
 USER root
