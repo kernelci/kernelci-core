@@ -13,26 +13,6 @@ import kernelci.scheduler
 from .base import Args, Command, sub_main
 
 
-class cmd_list_jobs(Command):  # pylint: disable=invalid-name
-    """List the jobs to run matching an event provided on stdin"""
-    opt_args = Command.opt_args + [
-        {
-            'name': '--channel',
-            'help': "Name of the pub/sub channel, or 'node' by default",
-        },
-    ]
-
-    def __call__(self, configs, args):
-        rconfigs = configs['runtimes']
-        runtimes = dict(kernelci.runtime.get_all_runtimes(rconfigs, args))
-        sched = kernelci.scheduler.Scheduler(configs, runtimes)
-        event = json.loads(sys.stdin.read())
-        channel = args.channel or 'node'
-        for job in sched.get_jobs(event, channel):
-            print(job.name)
-        return True
-
-
 class cmd_get_schedule(Command):  # pylint: disable=invalid-name
     """Get scheduler configs matching an event provided on stdin"""
     opt_args = Command.opt_args + [
