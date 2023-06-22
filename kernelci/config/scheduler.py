@@ -13,9 +13,10 @@ class SchedulerEntry(YAMLConfigObject):
 
     yaml_tag = '!SchedulerEntry'
 
-    def __init__(self, job, runtime, platforms=None):
+    def __init__(self, job, runtime, event, platforms=None):
         self._job = job
         self._runtime = runtime
+        self._event = event
         self._platforms = platforms or []
 
     @property
@@ -29,6 +30,11 @@ class SchedulerEntry(YAMLConfigObject):
         return dict(self._runtime)
 
     @property
+    def event(self):
+        """Criteria for an event to cause the job to be run"""
+        return dict(self._event)
+
+    @property
     def platforms(self):
         """List of platform names"""
         return list(self._platforms)
@@ -36,7 +42,7 @@ class SchedulerEntry(YAMLConfigObject):
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({'job', 'runtime', 'platforms'})
+        attrs.update({'job', 'runtime', 'event', 'platforms'})
         return attrs
 
 
