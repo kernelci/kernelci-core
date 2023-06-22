@@ -124,29 +124,8 @@ class LatestAPI(API):
         offset: Optional[int] = None, limit: Optional[int] = None
     ) -> Sequence[dict]:
         params = attributes.copy() if attributes else {}
-        nodes = []
-
-        if any((offset, limit)):
-            params.update({
-                'offset': offset or None,
-                'limit': limit or None,
-            })
-            resp = self._get('nodes', params=params)
-            nodes = resp.json()['items']
-        else:
-            offset = 0
-            limit = 100
-            params['limit'] = limit
-            while True:
-                params['offset'] = offset
-                resp = self._get('nodes', params=params)
-                items = resp.json()['items']
-                nodes.extend(items)
-                if len(items) < limit:
-                    break
-                offset += limit
-
-        return nodes
+        return self._get_api_objs(params=params, path='nodes',
+                                  limit=limit, offset=offset)
 
     def count_nodes(self, attributes: dict) -> int:
         return self._get('count', params=attributes).json()
