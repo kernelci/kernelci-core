@@ -89,6 +89,33 @@ class LatestAPI(API):
                 continue
             return event
 
+    def _get_api_objs(self, params: dict, path: str,
+                      limit: Optional[int] = None,
+                      offset: Optional[int] = None) -> list:
+        """Helper function for getting objects from API with pagination
+        parameters"""
+        objs = []
+        if any((offset, limit)):
+            params.update({
+                'offset': offset or None,
+                'limit': limit or None,
+            })
+            resp = self._get(path, params=params)
+            objs = resp.json()['items']
+        else:
+            offset = 0
+            limit = 100
+            params['limit'] = limit
+            while True:
+                params['offset'] = offset
+                resp = self._get(path, params=params)
+                items = resp.json()['items']
+                objs.extend(items)
+                if len(items) < limit:
+                    break
+                offset += limit
+        return objs
+
     def get_node(self, node_id: str) -> dict:
         return self._get(f'node/{node_id}').json()
 
@@ -132,6 +159,14 @@ class LatestAPI(API):
 
     def get_group(self, group_id: str) -> dict:
         return self._get(f'group/{group_id}').json()
+
+    def get_groups(
+        self, attributes: dict,
+        offset: Optional[int] = None, limit: Optional[int] = None
+    ) -> Sequence[dict]:
+        params = attributes.copy() if attributes else {}
+        return self._get_api_objs(params=params, path='groups',
+                                  limit=limit, offset=offset)
 
 
 def get_api(config, token):
