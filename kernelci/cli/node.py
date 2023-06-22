@@ -9,29 +9,12 @@ import json
 import sys
 
 from .base import Args, sub_main
-from .base_api import APICommand
+from .base_api import APICommand, AttributesCommand
 
 
 class NodeCommand(APICommand):  # pylint: disable=too-few-public-methods
     """Base command class for interacting with Node objects"""
     opt_args = APICommand.opt_args + [Args.indent]
-
-
-class NodeAttributesCommand(NodeCommand):
-    """Base command class for node queries with arbitrary attributes"""
-    opt_args = NodeCommand.opt_args + [
-        {
-            'name': 'attributes',
-            'nargs': '*',
-            'help': "Attributes to find nodes in name=value format",
-        },
-    ]
-
-    @classmethod
-    def _split_attributes(cls, attributes):
-        return dict(
-            tuple(attr.split('=')) for attr in attributes
-        ) if attributes else {}
 
 
 class cmd_get(NodeCommand):  # pylint: disable=invalid-name
@@ -44,9 +27,9 @@ class cmd_get(NodeCommand):  # pylint: disable=invalid-name
         return True
 
 
-class cmd_find(NodeAttributesCommand):  # pylint: disable=invalid-name
+class cmd_find(AttributesCommand):  # pylint: disable=invalid-name
     """Find nodes with arbitrary attributes"""
-    opt_args = NodeAttributesCommand.opt_args + [
+    opt_args = AttributesCommand.opt_args + [
         {
             'name': '--limit',
             'type': int,
@@ -70,7 +53,7 @@ the matching nodes are retrieved.\
         return True
 
 
-class cmd_count(NodeAttributesCommand):  # pylint: disable=invalid-name
+class cmd_count(AttributesCommand):  # pylint: disable=invalid-name
     """Count nodes with arbitrary attributes"""
 
     def _api_call(self, api, configs, args):

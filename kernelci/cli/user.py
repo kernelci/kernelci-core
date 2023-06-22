@@ -8,24 +8,7 @@
 import getpass
 
 from .base import Args, sub_main
-from .base_api import APICommand
-
-
-class UserAttributesCommand(APICommand):
-    """Base command class for user queries with arbitrary attributes"""
-    opt_args = APICommand.opt_args + [
-        {
-            'name': 'attributes',
-            'nargs': '*',
-            'help': "Attributes to find users or groups in name=value format",
-        },
-    ]
-
-    @classmethod
-    def _split_attributes(cls, attributes):
-        return dict(
-            tuple(attr.split('=')) for attr in attributes
-        ) if attributes else {}
+from .base_api import APICommand, AttributesCommand
 
 
 class cmd_whoami(APICommand):  # pylint: disable=invalid-name
@@ -77,9 +60,9 @@ class cmd_get_group(APICommand):  # pylint: disable=invalid-name
         return True
 
 
-class cmd_find_groups(UserAttributesCommand):  # pylint: disable=invalid-name
+class cmd_find_groups(AttributesCommand):  # pylint: disable=invalid-name
     """Find user groups with arbitrary attributes"""
-    opt_args = UserAttributesCommand.opt_args + [
+    opt_args = AttributesCommand.opt_args + [
         {
             'name': '--limit',
             'type': int,

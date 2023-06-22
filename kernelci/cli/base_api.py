@@ -55,3 +55,20 @@ class APICommand(Command):  # pylint: disable=too-few-public-methods
     def __call__(self, configs, args):
         api = self._get_api(configs, args)
         return self._api_call(api, configs, args)
+
+
+class AttributesCommand(APICommand):
+    """Base command class for API queries with arbitrary attributes"""
+    opt_args = APICommand.opt_args + [
+        {
+            'name': 'attributes',
+            'nargs': '*',
+            'help': "Attributes in name=value format",
+        },
+    ]
+
+    @classmethod
+    def _split_attributes(cls, attributes):
+        return dict(
+            tuple(attr.split('=')) for attr in attributes
+        ) if attributes else {}
