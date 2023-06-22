@@ -1256,8 +1256,8 @@ build_configs:
         architectures:
           <<: *arch_clang_configs
 
-      rustc-1.68:
-        build_environment: rustc-1.68
+      rustc-1.70:
+        build_environment: rustc-1.70
         fragments: [rust, rust-samples, kselftest]
         architectures:
           x86_64:
