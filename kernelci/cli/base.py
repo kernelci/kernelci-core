@@ -178,6 +178,11 @@ class Args:  # pylint: disable=too-few-public-methods
         'help': "Path to the dtbs.json file",
     }
 
+    group_id = {
+        'name': 'group_id',
+        'help': "User group id",
+    }
+
     id = {
             'name': 'id',
             'help': "Node id",
