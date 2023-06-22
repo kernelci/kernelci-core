@@ -49,6 +49,17 @@ class cmd_password_hash(APICommand):  # pylint: disable=invalid-name
         return True
 
 
+class cmd_get_group(APICommand):  # pylint: disable=invalid-name
+    """Get a user group with a given ID"""
+    args = APICommand.args + [Args.group_id]
+    opt_args = APICommand.opt_args + [Args.indent]
+
+    def _api_call(self, api, configs, args):
+        group = api.get_group(args.group_id)
+        self._print_json(group, args.indent)
+        return True
+
+
 def main(args=None):
     """Entry point for the command line tool"""
     sub_main("user", globals(), args)
