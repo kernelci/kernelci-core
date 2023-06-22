@@ -19,7 +19,10 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 
 {{ super() }}
 
-ADD https://raw.githubusercontent.com/kernelci/kernelci-core/chromeos.kernelci.org/config/rootfs/debos/overlays/baseline/opt/kernelci/dmesg.sh /home/cros/dmesg.sh
+ADD https://raw.githubusercontent.com/kernelci/kernelci-core/\
+    kernelci.org/\
+    config/rootfs/debos/overlays/baseline/opt/kernelci/dmesg.sh \
+    /home/cros/dmesg.sh
 
 # Needed by LAVA to install the overlay
 USER root
