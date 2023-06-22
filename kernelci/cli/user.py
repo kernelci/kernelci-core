@@ -11,6 +11,23 @@ from .base import Args, sub_main
 from .base_api import APICommand
 
 
+class UserAttributesCommand(APICommand):
+    """Base command class for user queries with arbitrary attributes"""
+    opt_args = APICommand.opt_args + [
+        {
+            'name': 'attributes',
+            'nargs': '*',
+            'help': "Attributes to find users or groups in name=value format",
+        },
+    ]
+
+    @classmethod
+    def _split_attributes(cls, attributes):
+        return dict(
+            tuple(attr.split('=')) for attr in attributes
+        ) if attributes else {}
+
+
 class cmd_whoami(APICommand):  # pylint: disable=invalid-name
     """Use the /whoami entry point to get the current user's data"""
     args = APICommand.args + [Args.api_token]
@@ -57,6 +74,32 @@ class cmd_get_group(APICommand):  # pylint: disable=invalid-name
     def _api_call(self, api, configs, args):
         group = api.get_group(args.group_id)
         self._print_json(group, args.indent)
+        return True
+
+
+class cmd_find_groups(UserAttributesCommand):  # pylint: disable=invalid-name
+    """Find user groups with arbitrary attributes"""
+    opt_args = UserAttributesCommand.opt_args + [
+        {
+            'name': '--limit',
+            'type': int,
+            'help': """\
+Maximum number of groups to retrieve. When set to 0, no limit is used and all
+the matching groups are retrieved.\
+""",
+            'default': 10,
+        },
+        {
+            'name': '--offset',
+            'type': int,
+            'help': "Offset when paginating results with a number of groups",
+        },
+    ]
+
+    def _api_call(self, api, configs, args):
+        attributes = self._split_attributes(args.attributes)
+        groups = api.get_groups(attributes, args.offset, args.limit)
+        self._print_json(groups, args.indent)
         return True
 
 
