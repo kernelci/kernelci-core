@@ -130,6 +130,9 @@ class LatestAPI(API):
     def update_node(self, node: dict) -> dict:
         return self._put('/'.join(['node', node['id']]), node).json()
 
+    def get_group(self, group_id: str) -> dict:
+        return self._get(f'group/{group_id}').json()
+
 
 def get_api(config, token):
     """Get an API object for the latest version"""

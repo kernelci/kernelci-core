@@ -126,6 +126,14 @@ class API(abc.ABC):
     def update_node(self, node: dict) -> dict:
         """Update an existing node object (with id)"""
 
+    # -----------
+    # User groups
+    # -----------
+
+    @abc.abstractmethod
+    def get_group(self, group_id: str) -> dict:
+        """Get the user group matching the given group id"""
+
     # -------------------------------------------------------------------------
     # Private methods
     #
