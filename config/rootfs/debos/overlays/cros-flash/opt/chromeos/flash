@@ -133,6 +133,17 @@ if [ -z "$IMAGE_NAME" ]; then
     exit 1
 fi
 
+# If image name begins with http and ends with .gz, download with "live" unpack
+if [[ "$IMAGE_NAME" =~ ^http.*\.gz$ ]]; then
+    echo "Downloading image..."
+    wget --progress=dot:giga -O- $IMAGE_NAME | gzip -d > /root/chromiumos_test_image.bin
+    if [ $? -ne 0 ]; then
+        echo "Failed to download image!"
+        exit 1
+    fi
+    IMAGE_NAME="chromiumos_test_image.bin"
+fi
+
 if [ "${BLOCK_DEVICE}" == "detect" ]; then
     echo "Detecting block device"
     if [ -e "/dev/mmcblk0" ]; then
