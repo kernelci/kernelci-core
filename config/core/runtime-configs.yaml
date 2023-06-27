@@ -28,6 +28,29 @@ runtimes:
             - preempt-rt
             - ltp
 
+  lab-dev:
+    lab_type: legacy.lava_xmlrpc
+    url: 'http://lava-ci-dev.baylibre/RPC2/'
+    queue_timeout:
+      days: 1
+    filters:
+      - passlist:
+          tree:
+            - staging
+            - mainline
+            - next
+            - stable
+            - arm64
+            - riscv
+            - soc
+            - amlogic
+            - matthiasbgg
+          plan:
+            - baseline
+            - kselftest
+            - preempt-rt
+            - ltp
+
   lab-broonie:
     lab_type: legacy.lava_xmlrpc
     url: 'https://lava.sirena.org.uk/RPC2/'
