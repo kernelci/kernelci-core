@@ -663,6 +663,7 @@ test_plans:
       testsuite: 'AV1-TEST-VECTORS'
       decoder: 'GStreamer-AV1-V4L2SL-Gst1.0'
       videodec_parallel_jobs: '1'
+      videodec_timeout: 90
     filters:
       - regex: {'tree': '(next|mainline|media)'}
 
@@ -674,6 +675,7 @@ test_plans:
       testsuite: 'JVT-AVC_V1'
       decoder: 'GStreamer-H.264-V4L2SL-Gst1.0'
       videodec_parallel_jobs: '1'
+      videodec_timeout: 90
     filters:
       - regex: {'tree': '(next|mainline|media)'}
 
@@ -685,6 +687,7 @@ test_plans:
       testsuite: 'JCT-VC-HEVC-V1'
       decoder: 'GStreamer-H.265-V4L2SL-Gst1.0'
       videodec_parallel_jobs: '1'
+      videodec_timeout: 90
     filters:
       - regex: {'tree': '(next|mainline|media)'}
 
@@ -696,6 +699,7 @@ test_plans:
       testsuite: 'VP8-TEST-VECTORS'
       decoder: 'GStreamer-VP8-V4L2SL-Gst1.0'
       videodec_parallel_jobs: '1'
+      videodec_timeout: 90
     filters:
       - regex: {'tree': '(next|mainline|media)'}
 
@@ -707,6 +711,7 @@ test_plans:
       testsuite: 'VP9-TEST-VECTORS'
       decoder: 'GStreamer-VP9-V4L2SL-Gst1.0'
       videodec_parallel_jobs: '1'
+      videodec_timeout: 90
     filters:
       - regex: {'tree': '(next|mainline|media)'}
 
@@ -1933,8 +1938,6 @@ device_types:
     class: arm64-dtb
     boot_method: depthcharge
     filters: *arm64-chromebook-filters
-    params:
-      videodec_timeout: 90
 
   rk3399-puma-haikou:
     mach: rockchip
