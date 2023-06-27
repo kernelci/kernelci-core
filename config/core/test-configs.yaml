@@ -2986,6 +2986,13 @@ test_configs:
   - device_type: mt8365-evk
     test_plans:
       - baseline
+      - kselftest-alsa
+      - kselftest-arm64
+      - kselftest-cpufreq
+      - kselftest-lkdtm
+      - kselftest-rtc
+      - kselftest-seccomp
+      - kselftest-tpm2
 
   - device_type: mustang
     test_plans:
