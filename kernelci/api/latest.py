@@ -63,7 +63,7 @@ class LatestAPI(API):
         if scopes:
             data['scope'] = ' '.join(scopes)
         url = self._make_url('/token')
-        resp = requests.post(url, data)
+        resp = requests.post(url, data, timeout=self._timeout)
         resp.raise_for_status()
         return resp.json()
 
