@@ -27,6 +27,7 @@ class API(abc.ABC):
         self._headers = {'Content-Type': 'application/json'}
         if self._token:
             self._headers['Authorization'] = f'Bearer {self._token}'
+        self._timeout = float(config.timeout)
 
     @property
     def config(self) -> kernelci.config.api.API:
@@ -135,21 +136,29 @@ class API(abc.ABC):
 
     def _get(self, path, params=None):
         url = self._make_url(path)
-        resp = requests.get(url, params, headers=self._headers)
+        resp = requests.get(
+            url, params, headers=self._headers, timeout=self._timeout
+        )
         resp.raise_for_status()
         return resp
 
     def _post(self, path, data=None, params=None):
         url = self._make_url(path)
         jdata = json.dumps(data)
-        resp = requests.post(url, jdata, headers=self._headers, params=params)
+        resp = requests.post(
+            url, jdata, headers=self._headers,
+            params=params, timeout=self._timeout
+        )
         resp.raise_for_status()
         return resp
 
     def _put(self, path, data=None, params=None):
         url = self._make_url(path)
         jdata = json.dumps(data)
-        resp = requests.put(url, jdata, headers=self._headers, params=params)
+        resp = requests.put(
+            url, jdata, headers=self._headers,
+            params=params, timeout=self._timeout
+        )
         resp.raise_for_status()
         return resp
 
