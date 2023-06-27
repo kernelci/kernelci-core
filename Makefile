@@ -7,6 +7,7 @@
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
 test: \
+	mypy \
 	pylint \
 	pycodestyle \
 	unit-tests \
