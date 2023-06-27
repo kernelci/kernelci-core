@@ -26,7 +26,7 @@ class Docker(Runtime):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._client = docker.from_env(timeout=self.config.timeout)
+        self._docker_client = None
         self._env = self._load_env()
 
     def _load_env(self):
@@ -38,6 +38,12 @@ class Docker(Runtime):
     @classmethod
     def _meta_path(cls, script_file_path):
         return '.'.join((script_file_path, 'meta'))
+
+    @property
+    def _client(self):
+        if self._docker_client is None:
+            self._docker_client = docker.from_env(timeout=self.config.timeout)
+        return self._docker_client
 
     def generate(self, job, params):
         template = self._get_template(job.config)
