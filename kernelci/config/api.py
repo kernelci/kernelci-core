@@ -13,10 +13,11 @@ class API(YAMLConfigObject):
 
     yaml_tag = '!API'
 
-    def __init__(self, name, url, version='latest'):
+    def __init__(self, name, url, version='latest', timeout=60):
         self._name = name
         self._url = url
         self._version = version
+        self._timeout = timeout
 
     @property
     def name(self):
@@ -33,10 +34,15 @@ class API(YAMLConfigObject):
         """API version"""
         return self._version
 
+    @property
+    def timeout(self):
+        """HTTP request timeout in seconds"""
+        return self._timeout
+
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({'url', 'version'})
+        attrs.update({'url', 'version', 'timeout'})
         return attrs
 
 
