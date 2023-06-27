@@ -23,7 +23,7 @@ class cmd_hello(APICommand):  # pylint: disable=invalid-name
 class cmd_version(APICommand):  # pylint: disable=invalid-name
     """Get the API version"""
 
-    def _api_call(self, api, configs, args):  # pylint: disable=no-self-use
+    def _api_call(self, api, configs, args):
         print(api.version)
         return True
 

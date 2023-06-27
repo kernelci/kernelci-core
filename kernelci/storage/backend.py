@@ -32,7 +32,9 @@ class StorageBackend(Storage):
             for i, (file_src, file_dst) in enumerate(file_paths)
         }
         url = urljoin(self.config.api_url, 'upload')
-        resp = requests.post(url, headers=headers, data=data, files=files)
+        resp = requests.post(
+            url, headers=headers, data=data, files=files, timeout=60
+        )
         resp.raise_for_status()
 
 
