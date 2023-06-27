@@ -105,7 +105,7 @@ class Runtime(abc.ABC):
         """Add custom functions to use in Jinja2 templates"""
         def kci_raise(msg):
             """Raise an exception"""
-            raise Exception(msg)
+            raise Exception(msg)  # pylint: disable=broad-exception-raised
 
         def kci_yaml_dump(data):
             """Dump data to YAML"""
