@@ -53,6 +53,8 @@ install_modules()
         -xf \
         "$root_path/$modules_tarball"
     ls -l lib/modules
+    # Ensure proper permissions and ownership
+    chown -R root:root lib/modules
     cd "$root_path"
     umount "$mount_dir"
     sync
