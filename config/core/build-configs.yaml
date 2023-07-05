@@ -741,23 +741,28 @@ build_configs_defaults:
         arm: &arm_arch
           base_defconfig: 'multi_v7_defconfig'
           extra_configs:
-            - 'allmodconfig'
+# Disabling to reduce load
+#            - 'allmodconfig'
             - 'allnoconfig'
             - 'multi_v7_defconfig+CONFIG_CPU_BIG_ENDIAN=y'
             - 'multi_v7_defconfig+CONFIG_SMP=n'
             - 'multi_v7_defconfig+CONFIG_EFI=y+CONFIG_ARM_LPAE=y'
             - 'multi_v7_defconfig+CONFIG_THUMB2_KERNEL=y'
-          fragments: [crypto, ima]
+# Disabling to reduce load
+#          fragments: [crypto, ima]
 
         arm64: &arm64_arch
           extra_configs:
-            - 'allmodconfig'
+# Disabling to reduce load
+#            - 'allmodconfig'
             - 'allnoconfig'
             - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
-            - 'defconfig+CONFIG_RANDOMIZE_BASE=y'
             - 'defconfig+arm64-chromebook+kselftest'
-            - 'defconfig+arm64-chromebook+videodec'
-          fragments: [arm64-chromebook, crypto, ima, videodec]
+# Disabling to reduce load
+#            - 'defconfig+CONFIG_RANDOMIZE_BASE=y'
+#            - 'defconfig+arm64-chromebook+videodec'
+#          fragments: [arm64-chromebook, crypto, ima, videodec]
+          fragments: [arm64-chromebook]
 
         i386: &i386_arch
           base_defconfig: 'i386_defconfig'
@@ -782,11 +787,14 @@ build_configs_defaults:
         x86_64: &x86_64_arch
           base_defconfig: 'x86_64_defconfig'
           extra_configs:
-            - 'allmodconfig'
+# Disabling to reduce load
+#            - 'allmodconfig'
             - 'allnoconfig'
             - 'x86_64_defconfig+x86-chromebook+kselftest'
-            - 'x86_64_defconfig+x86-chromebook+amdgpu'
-          fragments: [amdgpu, crypto, ima, x86_kvm_guest, x86-chromebook]
+# Disabling to reduce load
+#            - 'x86_64_defconfig+x86-chromebook+amdgpu'
+#          fragments: [amdgpu, crypto, ima, x86_kvm_guest, x86-chromebook]
+          fragments: [x86-chromebook]
 
   reference:
     tree: mainline
@@ -797,29 +805,35 @@ build_configs_defaults:
 arch_clang_configs: &arch_clang_configs
   arm64:
     extra_configs:
-      - 'allmodconfig'
+# Disabling to reduce load
+#      - 'allmodconfig'
       - 'allnoconfig'
       - 'defconfig+CONFIG_ARM64_64K_PAGES=y'
   arm:
     base_defconfig: 'multi_v7_defconfig'
     filters:
       - regex: {
-          defconfig: '(?:aspeed_g5_def|multi_v5_def|multi_v7_def|allmod|allno)config',
+# Disabling to reduce load
+#          defconfig: '(?:aspeed_g5_def|multi_v5_def|multi_v7_def|allmod|allno)config',
+          defconfig: '(?:aspeed_g5_def|multi_v5_def|multi_v7_def|allno)config',
           }
     extra_configs:
       - 'aspeed_g5_defconfig'
       - 'multi_v5_defconfig'
-      - 'allmodconfig'
+# Disabling to reduce load
+#      - 'allmodconfig'
       - 'allnoconfig'
   x86_64:
     base_defconfig: 'x86_64_defconfig'
     extra_configs:
-      - 'allmodconfig'
+# Disabling to reduce load
+#      - 'allmodconfig'
       - 'allnoconfig'
   i386:
     base_defconfig: 'i386_defconfig'
     extra_configs:
-      - 'allmodconfig'
+# Disabling to reduce load
+#      - 'allmodconfig'
       - 'allnoconfig'
   riscv:
     extra_configs: &riscv_clang_configs
@@ -907,22 +921,27 @@ build_configs:
   agross:
     tree: agross
     branch: 'ci-next'
+    variants: *minimal_variants
 
   alex:
     tree: alex
     branch: 'kernel-ci'
+    variants: *minimal_variants
 
   amlogic:
     tree: amlogic
     branch: 'for-next'
+    variants: *minimal_variants
 
   amlogic_integ:
     tree: amlogic
     branch: 'integ'
+    variants: *minimal_variants
 
   ardb:
     tree: ardb
     branch: 'for-kernelci'
+    variants: *minimal_variants
 
   arm64:
     tree: arm64
@@ -934,12 +953,14 @@ build_configs:
           arm64:
             base_defconfig: 'defconfig'
             extra_configs:
-              - 'allmodconfig'
+# Disabling to reduce load
+#              - 'allmodconfig'
               - 'allnoconfig'
 
   arnd:
     tree: arnd
     branch: 'to-build'
+    variants: *minimal_variants
 
   broonie-misc:
     tree: broonie-misc
@@ -955,34 +976,42 @@ build_configs:
   broonie-regmap:
     tree: broonie-regmap
     branch: 'for-next'
+    variants: *minimal_variants
 
   broonie-regmap-fixes:
     tree: broonie-regmap
     branch: 'for-linus'
+    variants: *minimal_variants
 
   broonie-regulator:
     tree: broonie-regulator
     branch: 'for-next'
+    variants: *minimal_variants
 
   broonie-regulator-fixes:
     tree: broonie-regulator
     branch: 'for-linus'
+    variants: *minimal_variants
 
   broonie-sound:
     tree: broonie-sound
     branch: 'for-next'
+    variants: *minimal_variants
 
   broonie-sound-fixes:
     tree: broonie-sound
     branch: 'for-linus'
+    variants: *minimal_variants
 
   broonie-spi:
     tree: broonie-spi
     branch: 'for-next'
+    variants: *minimal_variants
 
   broonie-spi-fixes:
     tree: broonie-spi
     branch: 'for-linus'
+    variants: *minimal_variants
 
   chrome-platform:
     tree: chrome-platform
@@ -1002,6 +1031,7 @@ build_configs:
   clk:
     tree: clk
     branch: 'clk-next'
+    variants: *minimal_variants
 
   efi:
     tree: efi
@@ -1030,14 +1060,17 @@ build_configs:
   evalenti:
     tree: evalenti
     branch: 'for-kernelci'
+    variants: *minimal_variants
 
   khilman:
     tree: khilman
     branch: 'to-build'
+    variants: *minimal_variants
 
   krzysztof:
     tree: krzysztof
     branch: 'for-next'
+    variants: *minimal_variants
 
   kselftest_fixes: &kselftest-tree
     tree: kselftest
@@ -1150,6 +1183,7 @@ build_configs:
   net-next:
     tree: net-next
     branch: 'master'
+    variants: *minimal_variants
 
   next:
     tree: next
@@ -1168,7 +1202,8 @@ build_configs:
           arm64:
             <<: *arm64_arch
             extra_configs:
-              - 'allmodconfig'
+# Disabling to reduce load
+#              - 'allmodconfig'
               - 'allnoconfig'
               - 'defconfig+CONFIG_ARM64_16K_PAGES=y'
               - 'defconfig+CONFIG_ARM64_64K_PAGES=y'
@@ -1183,7 +1218,8 @@ build_configs:
               - 'multi_v7_defconfig+CONFIG_EFI=y+CONFIG_ARM_LPAE=y'
               - 'multi_v7_defconfig+CONFIG_THUMB2_KERNEL=y'
               - 'allnoconfig'
-              - 'allmodconfig'
+# Disabling to reduce load
+#              - 'allmodconfig'
 
       # Current development clang release
       clang-17:
@@ -1201,10 +1237,12 @@ build_configs:
   next_pending-fixes:
     tree: next
     branch: 'pending-fixes'
+    variants: *minimal_variants
 
   omap:
     tree: omap
     branch: 'for-next'
+    variants: *minimal_variants
 
   peterz:
     tree: peterz
@@ -1219,22 +1257,27 @@ build_configs:
   pmwg:
     tree: pmwg
     branch: 'integ'
+    variants: *minimal_variants
 
   qcom-lt:
     tree: qcom-lt
     branch: 'integration-linux-qcomlt'
+    variants: *minimal_variants
 
   qcom-lt_experimental:
     tree: qcom-lt
     branch: 'integration-experimental'
+    variants: *minimal_variants
 
   renesas:
     tree: renesas
     branch: 'master'
+    variants: *minimal_variants
 
   renesas_next:
     tree: renesas
     branch: 'next'
+    variants: *minimal_variants
 
   riscv_fixes: &riscv-tree
     tree: riscv
@@ -1262,10 +1305,12 @@ build_configs:
   rmk_for-next:
     tree: rmk
     branch: 'for-next'
+    variants: *minimal_variants
 
   rmk_to-build:
     tree: rmk
     branch: 'to-build'
+    variants: *minimal_variants
 
   robh:
     tree: robh
@@ -1362,18 +1407,22 @@ build_configs:
   samsung:
     tree: samsung
     branch: 'for-next'
+    variants: *minimal_variants
 
   soc_fixes:
     tree: soc
     branch: 'arm/fixes'
+    variants: *minimal_variants
 
   soc_for-next:
     tree: soc
     branch: 'for-next'
+    variants: *minimal_variants
 
   tegra:
     tree: tegra
     branch: 'for-next'
+    variants: *minimal_variants
 
   thermal:
     tree: thermal
@@ -1383,10 +1432,12 @@ build_configs:
   tip:
     tree: tip
     branch: 'master'
+    variants: *minimal_variants
 
   ulfh:
     tree: ulfh
     branch: 'next'
+    variants: *minimal_variants
 
   vireshk:
     tree: vireshk

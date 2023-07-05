@@ -26,13 +26,21 @@ stable_variants: &stable_variants
         extra_configs: ['allnoconfig']
         filters:
           # remove any non-ARCv2 defconfigs since we only have ARCv2 toolchain
-          - blocklist:
+# Disabling to reduce load
+#          - blocklist:
+#              defconfig:
+#                - 'axs101_defconfig'
+#                - 'nps_defconfig'
+#                - 'nsim_700_defconfig'
+#                - 'nsimosci_defconfig'
+#                - 'tb10x_defconfig'
+          - passlist:
               defconfig:
-                - 'axs101_defconfig'
-                - 'nps_defconfig'
-                - 'nsim_700_defconfig'
-                - 'nsimosci_defconfig'
-                - 'tb10x_defconfig'
+                - 'imx_v6_v7_defconfig'
+                - 'multi_v5_defconfig'
+                - 'multi_v7_defconfig'
+                - 'omap2plus_defconfig'
+                - 'vexpress_defconfig'
       arm:
         base_defconfig: 'multi_v7_defconfig'
         extra_configs: ['allnoconfig']
