@@ -51,7 +51,7 @@ default_filters:
           - ['x86_64', 'x86_64_defconfig+x86-chromebook']
 
     - blocklist: &kselftest_defconfig_filter
-        defconfig: ['kselftest']
+        defconfig: ['kselftest', 'kselftest-slim']
 
   device_types:
 
@@ -233,7 +233,7 @@ test_plans:
     rootfs: debian_bullseye-kselftest_nfs
     pattern: 'kselftest/{category}-{method}-{protocol}-{rootfs}-kselftest-template.jinja2'
     filters:
-      - passlist: {defconfig: ['kselftest']}
+      - passlist: {defconfig: ['kselftest-slim']}
 
   # Add _a_ into the name so we can keep this before the individual
   # definitions
@@ -241,7 +241,7 @@ test_plans:
     rootfs: debian_bullseye-kselftest_ramdisk
     pattern: 'kselftest/{category}-{method}-{rootfs}-kselftest-template.jinja2'
     filters:
-      - passlist: {defconfig: ['kselftest']}
+      - passlist: {defconfig: ['kselftest-slim']}
 
   kselftest-alsa:
     <<: *kselftest
@@ -292,6 +292,9 @@ test_plans:
     params:
       job_timeout: '10'
       kselftest_collections: "cpufreq"
+    filters: &kselftest_full_fragment
+      - passlist: {defconfig: ['kselftest']}
+      - blocklist: {defconfig: ['kselftest-slim']}
 
   kselftest-exec:
     <<: *kselftest
@@ -351,6 +354,7 @@ test_plans:
     params:
       job_timeout: '10'
       kselftest_collections: "lkdtm"
+    filters: *kselftest_full_fragment
 
   kselftest-membarrier:
     <<: *kselftest

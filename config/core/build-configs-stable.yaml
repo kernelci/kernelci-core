@@ -70,18 +70,20 @@ stable_variants_kselftest: &stable_variants_kselftest
       arm:
         base_defconfig: 'multi_v7_defconfig'
         extra_configs: ['allnoconfig']
-        fragments: [kselftest]
+        fragments: [kselftest, kselftest-slim]
       arm64:
         extra_configs:
           - 'allnoconfig'
           - 'defconfig+arm64-chromebook+kselftest'
+          - 'defconfig+arm64-chromebook+kselftest-slim'
         fragments: [arm64-chromebook, kselftest]
       x86_64:
         base_defconfig: 'x86_64_defconfig'
         extra_configs:
           - 'allnoconfig'
           - 'x86_64_defconfig+x86-chromebook+kselftest'
-        fragments: [x86-chromebook, kselftest]
+          - 'x86_64_defconfig+x86-chromebook+kselftest-slim'
+        fragments: [x86-chromebook, kselftest, kselftest-slim]
 
 
 build_configs:

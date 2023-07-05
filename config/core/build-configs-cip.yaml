@@ -59,19 +59,21 @@ cip_variants_kselftest: &cip_variants_kselftest
       <<: *cip_architectures
       arm:
         base_defconfig: 'multi_v7_defconfig'
-        fragments: [kselftest]
+        fragments: [kselftest, kselftest-slim]
         extra_configs: ['allnoconfig']
       arm64:
         fragments: [kselftest, arm64-chromebook]
         extra_configs:
           - 'allnoconfig'
           - 'defconfig+arm64-chromebook+kselftest'
+          - 'defconfig+arm64-chromebook+kselftest-slim'
       x86_64:
         base_defconfig: 'x86_64_defconfig'
         fragments: [kselftest, x86-chromebook]
         extra_configs:
           - 'allnoconfig'
           - 'x86_64_defconfig+x86-chromebook+kselftest'
+          - 'x86_64_defconfig+x86-chromebook+kselftest-slim'
 
 
 cip_variants_preempt_rt: &cip_variants_preempt_rt
