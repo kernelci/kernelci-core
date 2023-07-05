@@ -2245,22 +2245,26 @@ test_configs:
   - device_type: acer-cb317-1h-c3z6-dedede
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: acer-cbv514-1h-34uz-brya
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: acer-chromebox-cxi4-puff
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: acer-cp514-3wh-r0qs-guybrush
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: alpine-db
     test_plans:
@@ -2342,25 +2346,30 @@ test_configs:
       - baseline
       - baseline-nfs
       - kselftest-alsa
-      - kselftest-cpufreq
-      - kselftest-lkdtm
-      - kselftest-seccomp
+# Disabling to reduce load
+#      - kselftest-cpufreq
+#      - kselftest-lkdtm
+#      - kselftest-seccomp
       - ltp-fcntl-locktests
-      - ltp-pty
-      - ltp-timers
+# Disabling to reduce load
+#      - ltp-pty
+#      - ltp-timers
 
   - device_type: asus-C436FA-Flip-hatch
     test_plans:
       - baseline
       - baseline-nfs
-      - kselftest-alsa
-      - kselftest-cpufreq
+# Disabling to reduce load
+#      - kselftest-alsa
+#      - kselftest-cpufreq
       - kselftest-filesystems
-      - kselftest-futex
-      - kselftest-rtc
+# Disabling to reduce load
+#      - kselftest-futex
+#      - kselftest-rtc
       - ltp-ipc
-      - ltp-mm
-      - ltp-timers
+# Disabling to reduce load
+#      - ltp-mm
+#      - ltp-timers
 
   - device_type: asus-C523NA-A20057-coral
     test_plans:
@@ -2368,20 +2377,23 @@ test_configs:
       - baseline-nfs
       - cros-ec
       - igt-gpu-i915
-      - kselftest-alsa
+# Disabling to reduce load
+#      - kselftest-alsa
       - kselftest-cpufreq
-      - kselftest-filesystems
-      - kselftest-futex
-      - kselftest-lib
-      - kselftest-lkdtm
-      - kselftest-seccomp
+# Disabling to reduce load
+#      - kselftest-filesystems
+#      - kselftest-futex
+#      - kselftest-lib
+#      - kselftest-lkdtm
+#      - kselftest-seccomp
       - ltp-crypto
-      - ltp-fcntl-locktests
-      - ltp-ima
-      - ltp-ipc
-      - ltp-mm
-      - ltp-pty
-      - ltp-timers
+# Disabling to reduce load
+#      - ltp-fcntl-locktests
+#      - ltp-ima
+#      - ltp-ipc
+#      - ltp-mm
+#      - ltp-pty
+#      - ltp-timers
       - preempt-rt
       - sleep_mem
       - smc
@@ -2389,20 +2401,23 @@ test_configs:
   - device_type: asus-CM1400CXA-dalboz
     test_plans:
       - baseline
-      - baseline-nfs
-      - kselftest-cpufreq
+# Disabling to reduce load
+#      - baseline-nfs
+#      - kselftest-cpufreq
 
   - device_type: asus-cx9400-volteer
     test_plans:
       - baseline
       - baseline-nfs
       - cros-ec
-      - kselftest-alsa
-      - kselftest-cpufreq
+# Disabling to reduce load
+#      - kselftest-alsa
+#      - kselftest-cpufreq
       - kselftest-lib
-      - kselftest-mm
-      - kselftest-vm
-      - ltp-ipc
+# Disabling to reduce load
+#      - kselftest-mm
+#      - kselftest-vm
+#      - ltp-ipc
 
   - device_type: at91-sama5d2_xplained
     test_plans:
@@ -2415,7 +2430,8 @@ test_configs:
   - device_type: at91sam9g20ek
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: bcm2711-rpi-4-b
     test_plans:
@@ -2426,12 +2442,14 @@ test_configs:
   - device_type: bcm2835-rpi-b-rev2
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: bcm2836-rpi-2-b
     test_plans:
       - baseline
-      - ltp-crypto
+# Disabling to reduce load
+#      - ltp-crypto
       - sleep
       - usb
 
@@ -2452,33 +2470,37 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - kselftest-alsa
+# Disabling to reduce load
+#      - kselftest-alsa
       - kselftest-capabilities
-      - kselftest-cgroup
-      - kselftest-clone3
-      - kselftest-exec
-      - kselftest-filesystems
-      - kselftest-futex
-      - kselftest-kcmp
-      - kselftest-lib
-      - kselftest-membarrier
-      - kselftest-mincore
-      - kselftest-openat2
-      - kselftest-seccomp
-      - kselftest-sigaltstack
-      - kselftest-timers
-      - ltp-crypto
+# Disabling to reduce load
+#      - kselftest-cgroup
+#      - kselftest-clone3
+#      - kselftest-exec
+#      - kselftest-filesystems
+#      - kselftest-futex
+#      - kselftest-kcmp
+#      - kselftest-lib
+#      - kselftest-membarrier
+#      - kselftest-mincore
+#      - kselftest-openat2
+#      - kselftest-seccomp
+#      - kselftest-sigaltstack
+#      - kselftest-timers
+#      - ltp-crypto
       - ltp-dio
-      - ltp-fsx
-      - ltp-io
-      - ltp-ipc
-      - ltp-smoketest
+# Disabling to reduce load
+#      - ltp-fsx
+#      - ltp-io
+#      - ltp-ipc
+#      - ltp-smoketest
       - preempt-rt
       - vdso
 
   - device_type: cubietruck
     test_plans:
       - baseline
+# Disabling to reduce load
       - baseline-nfs
 
   - device_type: d03
@@ -2496,19 +2518,22 @@ test_configs:
   - device_type: dell-latitude-5400-4305U-sarien
     test_plans:
       - baseline
-      - baseline-nfs
-      - kselftest-cpufreq
+# Disabling to reduce load
+#      - baseline-nfs
+#      - kselftest-cpufreq
 
   - device_type: dell-latitude-5400-8665U-sarien
     test_plans:
       - baseline
-      - baseline-nfs
-      - kselftest-cpufreq
+# Disabling to reduce load
+#      - baseline-nfs
+#      - kselftest-cpufreq
 
   - device_type: dove-cubox
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
       - sleep
 
   - device_type: dra7-evm
@@ -2546,7 +2571,8 @@ test_configs:
   - device_type: hi6220-hikey
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: hifive-unleashed-a00
     test_plans:
@@ -2576,40 +2602,45 @@ test_configs:
       - baseline-nfs
       - cros-ec
       - igt-gpu-amd
-      - kselftest-alsa
-      - kselftest-filesystems
-      - kselftest-futex
+# Disabling to reduce load
+#      - kselftest-alsa
+#      - kselftest-filesystems
+#      - kselftest-futex
       - kselftest-lib
-      - kselftest-livepatch
-      - kselftest-lkdtm
-      - kselftest-mm
-      - kselftest-rtc
-      - kselftest-seccomp
-      - kselftest-tpm2
-      - kselftest-vm
-      - ltp-crypto
-      - ltp-fcntl-locktests
-      - ltp-ipc
+# Disabling to reduce load
+#      - kselftest-livepatch
+#      - kselftest-lkdtm
+#      - kselftest-mm
+#      - kselftest-rtc
+#      - kselftest-seccomp
+#      - kselftest-tpm2
+#      - kselftest-vm
+#      - ltp-crypto
+#      - ltp-fcntl-locktests
+#      - ltp-ipc
       - ltp-mm
-      - ltp-pty
-      - ltp-timers
-      - preempt-rt
+# Disabling to reduce load
+#      - ltp-pty
+#      - ltp-timers
+#      - preempt-rt
       - sleep
       - smc
 
   - device_type: hp-14-db0003na-grunt
     test_plans:
       - baseline
-      - baseline-nfs
-      - kselftest-cpufreq
+# Disabling to reduce load
+#      - baseline-nfs
+#      - kselftest-cpufreq
 
   - device_type: hp-x360-14-G1-sona
     test_plans:
       - baseline
       - baseline-nfs
       - cros-ec
-      - kselftest-alsa
-      - kselftest-cpufreq
+# Disabling to reduce load
+#      - kselftest-alsa
+#      - kselftest-cpufreq
       - kselftest-landlock
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus
@@ -2618,28 +2649,31 @@ test_configs:
       - baseline-nfs
       - cros-ec
       - igt-gpu-i915
-      - kselftest-lib
+# Disabling to reduce load
+#      - kselftest-lib
 
   - device_type: hp-x360-12b-ca0010nr-n4020-octopus
     test_plans:
       - baseline
       - baseline-nfs
       - cros-ec
-      - igt-gpu-i915
-      - kselftest-filesystems
-      - kselftest-futex
-      - kselftest-lib
-      - ltp-crypto
-      - ltp-ipc
-      - ltp-mm
+# Disabling to reduce load
+#      - igt-gpu-i915
+#      - kselftest-filesystems
+#      - kselftest-futex
+#      - kselftest-lib
+#      - ltp-crypto
+#      - ltp-ipc
+#      - ltp-mm
       - sleep_mem
       - smc
 
   - device_type: hp-x360-14a-cb0001xx-zork
     test_plans:
       - baseline
-      - baseline-nfs
-      - kselftest-cpufreq
+# Disabling to reduce load
+#      - baseline-nfs
+#      - kselftest-cpufreq
 
   - device_type: hsdk
     test_plans:
@@ -2652,40 +2686,47 @@ test_configs:
   - device_type: imx23-olinuxino
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
       - sleep
 
   - device_type: imx27-phytec-phycard-s-rdk
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
       - sleep
 
   - device_type: imx28-duckbill
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
       - sleep
 
   - device_type: imx53-qsrb
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
       - sleep
 
   - device_type: imx6dl-riotboard
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
       - sleep
 
   - device_type: imx6dl-udoo
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
       - igt-gpu-etnaviv
-      - kselftest-alsa
-      - ltp-crypto
+# Disabling to reduce load
+#      - kselftest-alsa
+#      - ltp-crypto
 
   - device_type: imx6q-nitrogen6x
     test_plans:
@@ -2695,11 +2736,13 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - kselftest-filesystems
-      - kselftest-lib
+# Disabling to reduce load
+#      - kselftest-filesystems
+#      - kselftest-lib
       - kselftest-livepatch
-      - kselftest-lkdtm
-      - kselftest-seccomp
+# Disabling to reduce load
+#      - kselftest-lkdtm
+#      - kselftest-seccomp
 
   - device_type: imx6q-sabrelite
     test_plans:
@@ -2717,8 +2760,9 @@ test_configs:
       - baseline
       - baseline-nfs
       - igt-gpu-etnaviv
-      - kselftest-alsa
-      - ltp-crypto
+# Disabling to reduce load
+#      - kselftest-alsa
+#      - ltp-crypto
 
   - device_type: imx6q-var-dt6customboard
     test_plans:
@@ -2747,7 +2791,8 @@ test_configs:
   - device_type: imx6ul-pico-hobbit
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
       - sleep
 
   - device_type: imx6ull-14x14-evk
@@ -2777,9 +2822,10 @@ test_configs:
   - device_type: imx8mp-evk
     test_plans:
       - baseline
-      - baseline-nfs
-      - igt-gpu-etnaviv
-      - kselftest-alsa
+# Disabling to reduce load
+#      - baseline-nfs
+#      - igt-gpu-etnaviv
+#      - kselftest-alsa
 
   - device_type: imx8mq-zii-ultra-zest
     test_plans:
@@ -2788,7 +2834,8 @@ test_configs:
   - device_type: jetson-tk1
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: jh7100-starfive-visionfive-v1
     test_plans:
@@ -2797,11 +2844,12 @@ test_configs:
   - device_type: juno-uboot
     test_plans:
       - baseline
-      - baseline-nfs
-      - kselftest-cpufreq
-      - ltp-crypto
+# Disabling to reduce load
+#      - baseline-nfs
+#      - kselftest-cpufreq
+#      - ltp-crypto
       # ltp-mm - runs system out of memory
-      - smc
+#      - smc
 
   - device_type: k3-am625-sk
     test_plans:
@@ -2818,42 +2866,50 @@ test_configs:
   - device_type: kirkwood-db-88f6282
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: kirkwood-openblocks_a7
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: kontron-bl-imx8mm
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: kontron-kbox-a-230-ls
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: kontron-kswitch-d10-mmt-6g-2gs
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: kontron-kswitch-d10-mmt-8g
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: kontron-pitx-imx8m
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: kontron-sl28-var3-ads2
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: lenovo-hr330a-7x33cto1ww-emag
     test_plans:
@@ -2862,8 +2918,9 @@ test_configs:
   - device_type: lenovo-TPad-C13-Yoga-zork
     test_plans:
       - baseline
-      - baseline-nfs
-      - kselftest-cpufreq
+# Disabling to reduce load
+#      - baseline-nfs
+#      - kselftest-cpufreq
 
   - device_type: meson-g12a-sei510
     test_plans:
@@ -2881,17 +2938,20 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - kselftest-cpufreq
-      - kselftest-filesystems
+# Disabling to reduce load
+#      - kselftest-cpufreq
+#      - kselftest-filesystems
       - kselftest-futex
-      - kselftest-lib
+# Disabling to reduce load
+#      - kselftest-lib
 
   - device_type: meson-g12b-odroid-n2
     test_plans:
       - baseline
       - baseline-nfs
       - kselftest-arm64
-      - kselftest-lib
+# Disabling to reduce load
+#      - kselftest-lib
 
   - device_type: meson-gxbb-nanopi-k2
     test_plans:
@@ -2925,29 +2985,34 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - kselftest-alsa
-      - kselftest-arm64
-      - kselftest-cpufreq
-      - kselftest-futex
+# Disabling to reduce load
+#      - kselftest-alsa
+#      - kselftest-arm64
+#      - kselftest-cpufreq
+#      - kselftest-futex
       - kselftest-kvm
-      - kselftest-lib
-      - kselftest-seccomp
-      - ltp-crypto
-      - ltp-fcntl-locktests
-      - ltp-ipc
+# Disabling to reduce load
+#      - kselftest-lib
+#      - kselftest-seccomp
+#      - ltp-crypto
+#      - ltp-fcntl-locktests
+#      - ltp-ipc
       # ltp-mm - Runs board out of memory
       - ltp-pty
-      - ltp-timers
+# Disabling to reduce load
+#      - ltp-timers
 
   - device_type: meson-gxm-khadas-vim2
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: meson-gxm-q200
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: meson-sm1-khadas-vim3l
     test_plans:
@@ -2965,8 +3030,9 @@ test_configs:
   - device_type: minnowboard-max-E3825
     test_plans:
       - baseline
-      - baseline-nfs
-      - kselftest-alsa
+# Disabling to reduce load
+#      - baseline-nfs
+#      - kselftest-alsa
 
   - device_type: minnowboard-turbot-E3826
     test_plans:
@@ -2978,25 +3044,28 @@ test_configs:
       - baseline-nfs
       - cros-ec
       - igt-kms-mediatek
-      - kselftest-arm64
-      - kselftest-cpufreq
-      - kselftest-filesystems
-      - kselftest-futex
-      - kselftest-lib
-      - kselftest-livepatch
-      - kselftest-lkdtm
-      - kselftest-rtc
+# Disabling to reduce load
+#      - kselftest-arm64
+#      - kselftest-cpufreq
+#      - kselftest-filesystems
+#      - kselftest-futex
+#      - kselftest-lib
+#      - kselftest-livepatch
+#      - kselftest-lkdtm
+#      - kselftest-rtc
       - kselftest-seccomp
-      - kselftest-tpm2
+# Disabling to reduce load
+#      - kselftest-tpm2
       - lc-compliance
-      - ltp-crypto
-      - ltp-fcntl-locktests
-      - ltp-ipc
-      - ltp-mm
-      - ltp-pty
-      - ltp-timers
-      - preempt-rt
-      - sleep
+# Disabling to reduce load
+#      - ltp-crypto
+#      - ltp-fcntl-locktests
+#      - ltp-ipc
+#      - ltp-mm
+#      - ltp-pty
+#      - ltp-timers
+#      - preempt-rt
+#      - sleep
       - v4l2-compliance-uvc
 
   - device_type: mt8183-kukui-jacuzzi-juniper-sku16
@@ -3006,12 +3075,13 @@ test_configs:
       - cros-ec
       - igt-gpu-panfrost
       - igt-kms-mediatek
-      - kselftest-alsa
-      - kselftest-arm64
-      - kselftest-cpufreq
-      - kselftest-lkdtm
-      - kselftest-rtc
-      - kselftest-seccomp
+# Disabling to reduce load
+#      - kselftest-alsa
+#      - kselftest-arm64
+#      - kselftest-cpufreq
+#      - kselftest-lkdtm
+#      - kselftest-rtc
+#      - kselftest-seccomp
       - kselftest-tpm2
       - lc-compliance
       - preempt-rt
@@ -3023,20 +3093,23 @@ test_configs:
       - baseline
       - baseline-nfs
       - cros-ec
-      - igt-gpu-panfrost
-      - igt-kms-mediatek
-      - kselftest-alsa
-      - kselftest-arm64
-      - kselftest-cpufreq
-      - kselftest-lkdtm
-      - kselftest-rtc
+# Disabling to reduce load
+#      - igt-gpu-panfrost
+#      - igt-kms-mediatek
+#      - kselftest-alsa
+#      - kselftest-arm64
+#      - kselftest-cpufreq
+#      - kselftest-lkdtm
+#      - kselftest-rtc
       - kselftest-seccomp
-      - kselftest-tpm2
-      - lc-compliance
+# Disabling to reduce load
+#      - kselftest-tpm2
+#      - lc-compliance
       - preempt-rt
       - sleep
       - v4l2-compliance-mtk-vcodec-enc
-      - v4l2-compliance-uvc
+# Disabling to reduce load
+#      - v4l2-compliance-uvc
 
   - device_type: mt8365-evk
     test_plans:
@@ -3045,7 +3118,8 @@ test_configs:
   - device_type: mustang
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: odroid-x2
     test_plans:
@@ -3065,7 +3139,8 @@ test_configs:
   - device_type: orion5x-rd88f5182-nas
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: panda
     test_plans:
@@ -3085,19 +3160,20 @@ test_configs:
   - device_type: qcom-qdf2400
     test_plans:
       - baseline
-      - kselftest-filesystems
-      - kselftest-futex
-      - kselftest-kvm
-      - kselftest-lib
-      - kselftest-lkdtm
-      - kselftest-seccomp
-      - ltp-crypto
-      - ltp-fcntl-locktests
-      - ltp-ima
-      - ltp-ipc
-      - ltp-mm
-      - ltp-pty
-      - ltp-timers
+# Disabling to reduce load
+#      - kselftest-filesystems
+#      - kselftest-futex
+#      - kselftest-kvm
+#      - kselftest-lib
+#      - kselftest-lkdtm
+#      - kselftest-seccomp
+#      - ltp-crypto
+#      - ltp-fcntl-locktests
+#      - ltp-ima
+#      - ltp-ipc
+#      - ltp-mm
+#      - ltp-pty
+#      - ltp-timers
 
   - device_type: qemu_arm-versatilepb
     test_plans:
@@ -3198,20 +3274,23 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - kselftest-filesystems
-      - kselftest-futex
-      - kselftest-lib
-      - kselftest-lkdtm
-      - kselftest-seccomp
-      - ltp-crypto
-      - ltp-fcntl-locktests
+# Disabling to reduce load
+#      - kselftest-filesystems
+#      - kselftest-futex
+#      - kselftest-lib
+#      - kselftest-lkdtm
+#      - kselftest-seccomp
+#      - ltp-crypto
+#      - ltp-fcntl-locktests
       - ltp-ima
-      - ltp-ipc
-      - ltp-mm
-      - ltp-pty
-      - ltp-timers
+# Disabling to reduce load
+#      - ltp-ipc
+#      - ltp-mm
+#      - ltp-pty
+#      - ltp-timers
       - preempt-rt
-      - smc
+# Disabling to reduce load
+#      - smc
 
   - device_type: r8a774b1-hihope-rzg2n-ex
     test_plans:
@@ -3228,7 +3307,8 @@ test_configs:
   - device_type: r8a7795-salvator-x
     test_plans: &r8a7795-salvator-x_test-plans
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
       # kselftest-alsa - Lab networking issue
 
   - device_type: r8a77950-salvator-x  # same as r8a7795-salvator-x
@@ -3244,7 +3324,8 @@ test_configs:
   - device_type: r8a779m1-ulcb
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: rk3288-rock2-square
     test_plans:
@@ -3257,7 +3338,8 @@ test_configs:
   - device_type: rk3328-rock64
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
       # kselftest-alsa - lab stability/availability issue
 
   - device_type: rk3399-gru-kevin
@@ -3265,14 +3347,15 @@ test_configs:
       - baseline
       - baseline-nfs
       - cros-ec
-      - kselftest-alsa
-      - kselftest-rtc
-      - ltp-fcntl-locktests
-      - ltp-pty
-      - ltp-timers
-      - sleep
-      - smc
-      - v4l2-compliance-uvc
+# Disabling to reduce load
+#      - kselftest-alsa
+#      - kselftest-rtc
+#      - ltp-fcntl-locktests
+#      - ltp-pty
+#      - ltp-timers
+#      - sleep
+#      - smc
+#      - v4l2-compliance-uvc
 
   - device_type: rk3399-gru-kevin
     test_plans:
@@ -3296,7 +3379,8 @@ test_configs:
   - device_type: rk3399-roc-pc
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
       # wishlist for when this device becomes online in a lab that allows them to run
       # - igt-gpu-panfrost
       # - igt-kms-rockchip
@@ -3307,7 +3391,8 @@ test_configs:
   - device_type: rk3399-rock-pi-4b
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: rk3588-rock-5b
     test_plans:
@@ -3316,44 +3401,50 @@ test_configs:
   - device_type: sc7180-trogdor-kingoftown
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
       - cros-ec
-      - kselftest-alsa
-      - kselftest-tpm2
+# Disabling to reduce load
+#      - kselftest-alsa
+#      - kselftest-tpm2
 
   - device_type: sc7180-trogdor-kingoftown-r1
     test_plans:
       - baseline
-      - baseline-nfs
-      - cros-ec
-      - kselftest-alsa
-      - kselftest-tpm2
+# Disabling to reduce load
+#      - baseline-nfs
+#      - cros-ec
+#      - kselftest-alsa
+#      - kselftest-tpm2
 
   - device_type: sc7180-trogdor-lazor-limozeen
     test_plans:
       - baseline
-      - baseline-nfs
-      - cros-ec
-      - igt-gpu-msm
-      - igt-kms-msm
-      - kselftest-alsa
-      - kselftest-arm64
-      - kselftest-cpufreq
-      - kselftest-rtc
-      - kselftest-timens
-      - kselftest-timers
-      - kselftest-tpm2
-      - usb
+# Disabling to reduce load
+#      - baseline-nfs
+#      - cros-ec
+#      - igt-gpu-msm
+#      - igt-kms-msm
+#      - kselftest-alsa
+#      - kselftest-arm64
+#      - kselftest-cpufreq
+#      - kselftest-rtc
+#      - kselftest-timens
+#      - kselftest-timers
+#      - kselftest-tpm2
+#      - usb
 
   - device_type: snow
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: socfpga-cyclone5-socrates
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
       - sleep
 
   - device_type: stm32mp157c-dk2
@@ -3367,7 +3458,8 @@ test_configs:
   - device_type: sun4i-a10-olinuxino-lime
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: sun50i-a64-bananapi-m64
     test_plans:
@@ -3376,33 +3468,39 @@ test_configs:
   - device_type: sun50i-a64-pine64-plus
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
       - igt-gpu-lima
-      - kselftest-arm64
-      - kselftest-cpufreq
-      - kselftest-rtc
-      - ltp-crypto
+# Disabling to reduce load
+#      - kselftest-arm64
+#      - kselftest-cpufreq
+#      - kselftest-rtc
+#      - ltp-crypto
       # ltp-mm - runs system out of memory
 
   - device_type: sun50i-h5-libretech-all-h3-cc
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
       - igt-gpu-lima
-      - kselftest-alsa
-      - kselftest-arm64
-      - kselftest-capabilities
-      - kselftest-cpufreq
-      - kselftest-kvm
-      - kselftest-rseq
+# Disabling to reduce load
+#      - kselftest-alsa
+#      - kselftest-arm64
+#      - kselftest-capabilities
+#      - kselftest-cpufreq
+#      - kselftest-kvm
+#      - kselftest-rseq
       - kselftest-sigaltstack
-      - kselftest-timers
+# Disabling to reduce load
+#      - kselftest-timers
       - libhugetlbfs
       - ltp-cpuhotplug
-      - ltp-crypto
-      - ltp-hugetlb
-      - ltp-smoketest
-      - preempt-rt
+# Disabling to reduce load
+#      - ltp-crypto
+#      - ltp-hugetlb
+#      - ltp-smoketest
+#      - preempt-rt
 
   - device_type: sun50i-h5-nanopi-neo-plus2
     test_plans:
@@ -3447,7 +3545,8 @@ test_configs:
   - device_type: sun7i-a20-olinuxino-lime2
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: sun8i-a23-evb
     test_plans:
@@ -3525,17 +3624,20 @@ test_configs:
   - device_type: x86-celeron
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: x86-pentium4
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: x86-x5-z8350
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: zynq-zc702
     test_plans:
