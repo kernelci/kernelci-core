@@ -96,6 +96,13 @@ case ${BOARD} in
     ;;
 esac
 
+# if environment variable SANDBOX_BUG is set, then we need to use sandbox workaround
+# This is very strange floating bug that appears only on some builders
+if [ -n "${SANDBOX_BUG}" ]; then
+  echo "Applying sandbox workaround for Chromium"
+  cros_sdk FEATURES="-usersandbox" USE="tty_console_${SERIAL} pcserial cr50_skip_update -builtin_fw_mali_g57" emerge-${BOARD} chromeos-chrome
+fi
+
 echo "Building packages (${SERIAL})"
 # Disable `builtin_fw_mali_g57` flag as it is not required when `panfrost` is enabled
 cros_sdk USE="tty_console_${SERIAL} pcserial cr50_skip_update -builtin_fw_mali_g57" \
