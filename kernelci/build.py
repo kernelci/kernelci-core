@@ -26,6 +26,9 @@ import shutil
 import tarfile
 import time
 import urllib.parse
+import sys
+sys.path.insert(0, './snippets.py')
+from snippet import build_and_install_OpenCSD, build_and_install_XXXXXX, name, run
 
 import requests
 from kernelci import shell_cmd, print_flush, __version__ as kernelci_version
