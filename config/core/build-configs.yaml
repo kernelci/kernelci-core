@@ -345,6 +345,11 @@ fragments:
       - 'CONFIG_VIDEO_OV5695=m'
       - 'CONFIG_VIDEO_OV8856=m'
       - '# CONFIG_ARM_DSU_PMU is not set'
+      - 'CONFIG_CROS_KBD_LED_BACKLIGHT=m'
+      - 'CONFIG_SND_SOC_MT8195=m'
+      - 'CONFIG_SND_SOC_MT8195_MT6359=m'
+      - 'CONFIG_DRM_MEDIATEK_DP=m'
+      - 'CONFIG_SND_SOC_SOF_MT8195=m'
       - 'CONFIG_EXTRA_FIRMWARE="
       mediatek/mt8173/vpu_d.bin
       mediatek/mt8173/vpu_p.bin
