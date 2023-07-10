@@ -443,7 +443,7 @@ device_types:
       - passlist: {defconfig: ['chromeos-amd-stoneyridge']}
     params: &chromebook-generic-params
       cros_flash_nfs:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20221031.0/amd64/'
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20230623.0/amd64/'
         initrd: 'initrd.cpio.gz'
         initrd_compression: 'gz'
         rootfs: 'full.rootfs.tar.xz'
