@@ -66,6 +66,18 @@ flash_chromeos()
     ls -l "$mount_dir"/mnt/empty/"$IMAGE_NAME"
     ls -l "$mount_dir"/dev/{mmc*,nvme*} || true
 
+    # guybrush/R114 fails without this on:
+    # ```
+    # pvcreate -ff --yes /dev/nvme0n1p1
+    # File-based locking initialisation failed.
+    # ```
+    # In our case because we use a file-based image over loop device.
+    # ChromeOS use /run/lock/lvm as a lock directory, but it's R/O in our case.
+    absolute_mount_dir=$(readlink -f "$mount_dir")
+    echo "Fixing /run/lock/lvm in chroot..."
+    mount --bind /run "$absolute_mount_dir"/run
+    mkdir -p "$absolute_mount_dir"/run/lock/lvm
+
     echo "Starting to flash..."
     chroot "$mount_dir" \
          /usr/sbin/chromeos-install \
@@ -77,6 +89,7 @@ flash_chromeos()
 
     umount_special_fs "$image_mountpoint"
     umount "$mount_dir"/mnt/empty
+    umount "$mount_dir"/run
     umount "$mount_dir"
     losetup -d "$dev"
 }
@@ -116,15 +129,6 @@ enable_rw()
     cd "$root_path"
     umount "$mount_dir"
     sync
-    # Enable factory testing mode by special flag T38487
-    echo "Enable factory testing mode flag..."
-    mount -o rw /dev/${block_device}p1 "$mount_dir"
-    cd "$mount_dir"
-    mkdir -p dev_image/factory
-    echo 1 > dev_image/factory/enabled
-    cd "$root_path"
-    umount "$mount_dir"
-    sync
 }
 
 if [ -z "$IMAGE_NAME" ]; then
@@ -146,7 +150,9 @@ fi
 
 if [ "${BLOCK_DEVICE}" == "detect" ]; then
     echo "Detecting block device"
-    if [ -e "/dev/mmcblk0" ]; then
+    if [ -e "/dev/nvme0n1" ]; then
+       BLOCK_DEVICE="nvme0n1"
+    elif [ -e "/dev/mmcblk0" ]; then
        BLOCK_DEVICE="mmcblk0"
     elif [ -e "/dev/mmcblk1" ]; then
        BLOCK_DEVICE="mmcblk1"
