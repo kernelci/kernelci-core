@@ -168,9 +168,32 @@ build_configs:
     branch: 'android14-5.15'
     variants:
       <<: *android_variants
+      <<: *clang_android_variants
+
+  android14-5.15-lts:
+    tree: android
+    branch: 'android14-5.15-lts'
+    variants:
+      <<: *android_variants
+      <<: *clang_android_variants
 
   android14-6.1:
     tree: android
     branch: 'android14-6.1'
     variants:
       <<: *android_variants
+      <<: *clang_android_variants
+
+  android14-6.1-lts:
+    tree: android
+    branch: 'android14-6.1-lts'
+    variants:
+      <<: *android_variants
+      <<: *clang_android_variants
+
+  android15-6.1:
+    tree: android
+    branch: 'android15-6.1'
+    variants:
+      <<: *android_variants
+      <<: *clang_android_variants
