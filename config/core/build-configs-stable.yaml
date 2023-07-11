@@ -23,8 +23,10 @@ stable_variants: &stable_variants
     architectures: &stable_architectures
       arc:
         base_defconfig: 'haps_hs_smp_defconfig'
-        extra_configs: ['allnoconfig']
+# Disabling to reduce load
+#        extra_configs: ['allnoconfig']
         filters:
+          - regex: { defconfig: 'haps_hs_smp_defconfig' }
           # remove any non-ARCv2 defconfigs since we only have ARCv2 toolchain
 # Disabling to reduce load
 #          - blocklist:
@@ -34,6 +36,12 @@ stable_variants: &stable_variants
 #                - 'nsim_700_defconfig'
 #                - 'nsimosci_defconfig'
 #                - 'tb10x_defconfig'
+      arm:
+        base_defconfig: 'multi_v7_defconfig'
+# Disabling to reduce load
+#        extra_configs: ['allnoconfig']
+
+        filters:
           - passlist:
               defconfig:
                 - 'imx_v6_v7_defconfig'
@@ -41,13 +49,10 @@ stable_variants: &stable_variants
                 - 'multi_v7_defconfig'
                 - 'omap2plus_defconfig'
                 - 'vexpress_defconfig'
-      arm:
-        base_defconfig: 'multi_v7_defconfig'
-        extra_configs: ['allnoconfig']
-        filters:
-          - blocklist:
-              defconfig:
-                - 'rpc_defconfig'
+# Disabling to reduce load
+#          - blocklist:
+#              defconfig:
+#                - 'rpc_defconfig'
       arm64:
         extra_configs: ['allnoconfig']
         fragments: [arm64-chromebook]
@@ -58,7 +63,9 @@ stable_variants: &stable_variants
         base_defconfig: '32r2el_defconfig'
         extra_configs: ['allnoconfig']
         filters:
-          - blocklist: {defconfig: ['generic_defconfig']}
+          - regex: { defconfig: '32r2el_defconfig' }
+# Disabling to reduce load
+#          - blocklist: {defconfig: ['generic_defconfig']}
       riscv:
         extra_configs: ['allnoconfig']
         filters:
