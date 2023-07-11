@@ -141,6 +141,17 @@ class API(abc.ABC):
     ) -> Sequence[dict]:
         """Get user groups that match the provided attributes"""
 
+    # -------------
+    # User profiles
+    # -------------
+
+    @abc.abstractmethod
+    def get_user_profiles(
+        self, attributes: dict,
+        offset: Optional[int] = None, limit: Optional[int] = None
+    ) -> Sequence[dict]:
+        """Get user profiles that match the provided attributes"""
+
     # -------------------------------------------------------------------------
     # Private methods
     #
