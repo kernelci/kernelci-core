@@ -147,6 +147,14 @@ class LatestAPI(API):
         return self._get_api_objs(params=params, path='groups',
                                   limit=limit, offset=offset)
 
+    def get_user_profiles(
+        self, attributes: dict,
+        offset: Optional[int] = None, limit: Optional[int] = None
+    ) -> Sequence[dict]:
+        params = attributes.copy() if attributes else {}
+        return self._get_api_objs(params=params, path='users/profile',
+                                  limit=limit, offset=offset)
+
 
 def get_api(config, token):
     """Get an API object for the latest version"""
