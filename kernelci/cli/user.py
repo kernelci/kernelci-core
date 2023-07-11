@@ -2,6 +2,7 @@
 #
 # Copyright (C) 2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+# Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 
 """Tool to manage KernelCI API users"""
 
@@ -83,6 +84,32 @@ the matching groups are retrieved.\
         attributes = self._split_attributes(args.attributes)
         groups = api.get_groups(attributes, args.offset, args.limit)
         self._print_json(groups, args.indent)
+        return True
+
+
+class cmd_find_users(AttributesCommand):  # pylint: disable=invalid-name
+    """Find user profiles with arbitrary attributes"""
+    opt_args = AttributesCommand.opt_args + [
+        {
+            'name': '--limit',
+            'type': int,
+            'help': """\
+Maximum number of user profiles to retrieve. When set to 0, no limit is used and all
+the matching profiles are retrieved.\
+""",
+            'default': 10,
+        },
+        {
+            'name': '--offset',
+            'type': int,
+            'help': "Offset when paginating results with a number of profiles",
+        },
+    ]
+
+    def _api_call(self, api, configs, args):
+        attributes = self._split_attributes(args.attributes)
+        profiles = api.get_user_profiles(attributes, args.offset, args.limit)
+        self._print_json(profiles, args.indent)
         return True
 
 
