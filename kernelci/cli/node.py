@@ -2,6 +2,7 @@
 #
 # Copyright (C) 2022-2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+# Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 
 """Tool to manage KernelCI API node objects"""
 
@@ -30,20 +31,7 @@ class cmd_get(NodeCommand):  # pylint: disable=invalid-name
 class cmd_find(AttributesCommand):  # pylint: disable=invalid-name
     """Find nodes with arbitrary attributes"""
     opt_args = AttributesCommand.opt_args + [
-        {
-            'name': '--limit',
-            'type': int,
-            'help': """\
-Maximum number of nodes to retrieve. When set to 0, no limit is used and all
-the matching nodes are retrieved.\
-""",
-            'default': 10,
-        },
-        {
-            'name': '--offset',
-            'type': int,
-            'help': "Offset when paginating results with a number of nodes",
-        },
+        Args.limit, Args.offset
     ]
 
     def _api_call(self, api, configs, args):

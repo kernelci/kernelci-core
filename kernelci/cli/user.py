@@ -64,20 +64,7 @@ class cmd_get_group(APICommand):  # pylint: disable=invalid-name
 class cmd_find_groups(AttributesCommand):  # pylint: disable=invalid-name
     """Find user groups with arbitrary attributes"""
     opt_args = AttributesCommand.opt_args + [
-        {
-            'name': '--limit',
-            'type': int,
-            'help': """\
-Maximum number of groups to retrieve. When set to 0, no limit is used and all
-the matching groups are retrieved.\
-""",
-            'default': 10,
-        },
-        {
-            'name': '--offset',
-            'type': int,
-            'help': "Offset when paginating results with a number of groups",
-        },
+        Args.limit, Args.offset
     ]
 
     def _api_call(self, api, configs, args):
@@ -90,20 +77,7 @@ the matching groups are retrieved.\
 class cmd_find_users(AttributesCommand):  # pylint: disable=invalid-name
     """Find user profiles with arbitrary attributes"""
     opt_args = AttributesCommand.opt_args + [
-        {
-            'name': '--limit',
-            'type': int,
-            'help': """\
-Maximum number of user profiles to retrieve. When set to 0, no limit is used and all
-the matching profiles are retrieved.\
-""",
-            'default': 10,
-        },
-        {
-            'name': '--offset',
-            'type': int,
-            'help': "Offset when paginating results with a number of profiles",
-        },
+       Args.limit, Args.offset
     ]
 
     def _api_call(self, api, configs, args):

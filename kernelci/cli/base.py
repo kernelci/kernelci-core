@@ -2,6 +2,7 @@
 #
 # Copyright (C) 2018-2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+# Author: Jeny Sadadia <jeny.sadadia@collabora.com>
 
 """Common definitions for KernelCI command line tools
 
@@ -265,6 +266,15 @@ class Args:  # pylint: disable=too-few-public-methods
         'help': "Path to log file",
     }
 
+    limit = {
+        'name': '--limit',
+        'type': int,
+        'help': """\
+Maximum number of results to retrieve. When set to 0, no limit is used and all
+the matching results are retrieved.""",
+        'default': 10,
+    }
+
     mach = {
         'name': '--mach',
         'help': "Mach name (aka SoC family)",
@@ -284,6 +294,12 @@ class Args:  # pylint: disable=too-few-public-methods
     output = {
         'name': '--output',
         'help': "Path the output directory",
+    }
+
+    offset = {
+        'name': '--offset',
+        'type': int,
+        'help': "Offset for paginated results",
     }
 
     password = {
