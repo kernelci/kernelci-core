@@ -449,7 +449,7 @@ device_types:
         rootfs: 'full.rootfs.tar.xz'
         rootfs_compression: 'xz'
       cros_flash_kernel:
-        base_url: 'http://storage.chromeos.kernelci.org/images/kernel/v5.10.112-x86-chromebook/'
+        base_url: 'https://storage.chromeos.kernelci.org/images/kernel/cros---chromeos-6.1-x86_64-chromiumos-x86_64.flavour.config+x86-chromebook/clang-14/'
         image: 'kernel/bzImage'
         modules: 'modules.tar.xz'
         modules_compression: 'xz'
