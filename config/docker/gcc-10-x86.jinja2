@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 RUN apt-get update && apt-get install --no-install-recommends -y curl patch
 RUN cd / && \
     curl -s https://raw.githubusercontent.com/kernelci/kernelci-core/\
-    kernelci.org/\
-    config/docker/data/gcc-header-fix.patch \
+kernelci.org/\
+config/docker/data/gcc-header-fix.patch \
     | patch -p1
 {%- endblock %}
