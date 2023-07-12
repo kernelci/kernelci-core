@@ -362,7 +362,7 @@ class cmd_push_kernel(Command):
     args = [Args.kdir, Args.storage_config]
     opt_args = [Args.storage_cred, Args.output]
 
-    def _compress_gki_artifacts(self, install):
+    def _compress_gki_artifacts(self, install, meta):
         # gki_defconfig kernel builds are exceptional and generate hundreds of
         # megabytes in several files.  This requires compression to work around
         # upload limits with kernelci-backend.
@@ -394,7 +394,7 @@ class cmd_push_kernel(Command):
 
         defconfig = meta.get('bmeta', 'kernel', 'defconfig')
         if defconfig == "gki_defconfig":
-            self._compress_gki_artifacts(install)
+            self._compress_gki_artifacts(install, meta)
 
         storage_conf = configs['storage_configs'][args.storage_config]
         storage = kernelci.storage.get_storage(storage_conf, args.storage_cred)
