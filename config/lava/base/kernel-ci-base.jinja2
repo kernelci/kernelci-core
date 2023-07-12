@@ -1,4 +1,4 @@
-{% set extra_kernel_args = "console_msg_format=syslog earlycon" %}
+{% set extra_kernel_args = "console_msg_format=syslog earlycon deferred_probe_timeout=60" %}
 
 {%- block metadata %}
 metadata:
