@@ -350,6 +350,8 @@ fragments:
       rockchip/dptx.bin
       qcom/venus-5.4/venus.mdt
       qcom/venus-5.4/venus.mbn
+      mediatek/mt8192/scp.img
+      mediatek/mt8195/scp.img
       "'
 
 
