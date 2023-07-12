@@ -25,9 +25,9 @@ WORKDIR /root/debs
 
 # Get patch to enable compression
 ADD https://raw.githubusercontent.com/kernelci/kernelci-core/\
-    kernelci.org/\
-    config/docker/data/kmod_kci.patch \
-    .
+kernelci.org/\
+config/docker/data/kmod_kci.patch \
+.
 
 # Prepare kmod sources, patch, install dependencies, build
 RUN apt-get source kmod
