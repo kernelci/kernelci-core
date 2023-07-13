@@ -243,6 +243,12 @@ test_plans:
 
   # Add _a_ into the name so we can keep this before the individual
   # definitions
+  kselftest_a_fvp: &kselftest_fvp
+    rootfs: debian_bullseye-kselftest_diskfile
+    pattern: 'kselftest/generic-fvp-diskfile-kselftest-template.jinja2'
+    filters:
+      - passlist: {defconfig: ['kselftest']}
+
   kselftest_a_qemu: &kselftest_qemu
     rootfs: debian_bullseye-kselftest_ramdisk
     pattern: 'kselftest/{category}-{method}-{rootfs}-kselftest-template.jinja2'
@@ -262,6 +268,13 @@ test_plans:
     <<: *kselftest
     params:
       job_timeout: '10'
+      kselftest_collections: "arm64"
+    filters: *kselftest_no_fragment
+
+  kselftest-arm64_fvp:
+    <<: *kselftest_fvp
+    params:
+      job_timeout: '70'
       kselftest_collections: "arm64"
     filters: *kselftest_no_fragment
 
@@ -331,6 +344,13 @@ test_plans:
     <<: *kselftest
     params:
       job_timeout: '15'
+      kselftest_collections: "kvm"
+    filters: *kselftest_no_fragment
+
+  kselftest-kvm_fvp:
+    <<: *kselftest_fvp
+    params:
+      job_timeout: '420'
       kselftest_collections: "kvm"
     filters: *kselftest_no_fragment
 
@@ -2582,6 +2602,8 @@ test_configs:
   - device_type: fvp
     test_plans:
       - baseline_fvp
+      - kselftest-arm64_fvp
+      - kselftest-kvm_fvp
 
   - device_type: hi6220-hikey
     test_plans:

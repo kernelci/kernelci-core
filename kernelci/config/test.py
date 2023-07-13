@@ -278,7 +278,8 @@ class RootFS(_YAMLObject):
     """Root file system model."""
 
     def __init__(self, fs_type, boot_protocol='tftp', root_type=None,
-                 prompt="/ #", params=None, ramdisk=None, nfs=None, diskfile=None):
+                 prompt="/ #", params=None, ramdisk=None,
+                 nfs=None, diskfile=None):
         """A root file system is any user-space that can be used in test jobs.
 
         *fs_type* is a RootFSType instance.
@@ -305,7 +306,8 @@ class RootFS(_YAMLObject):
         self._diskfile = diskfile
         self._url_format = {
             fs: '/'.join([fs_type.url, url]) for fs, url in (
-                (fs, getattr(self, fs)) for fs in ['ramdisk', 'nfs', 'diskfile']
+                (fs, getattr(self, fs)) for fs in ['ramdisk',
+                                                   'nfs', 'diskfile']
             ) if url
         }
         self._root_type = root_type or list(self._url_format.keys())[0]
