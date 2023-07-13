@@ -278,7 +278,7 @@ class RootFS(_YAMLObject):
     """Root file system model."""
 
     def __init__(self, fs_type, boot_protocol='tftp', root_type=None,
-                 prompt="/ #", params=None, ramdisk=None, nfs=None):
+                 prompt="/ #", params=None, ramdisk=None, nfs=None, diskfile=None):
         """A root file system is any user-space that can be used in test jobs.
 
         *fs_type* is a RootFSType instance.
@@ -302,9 +302,10 @@ class RootFS(_YAMLObject):
         self._arch_dict = {}
         self._ramdisk = ramdisk
         self._nfs = nfs
+        self._diskfile = diskfile
         self._url_format = {
             fs: '/'.join([fs_type.url, url]) for fs, url in (
-                (fs, getattr(self, fs)) for fs in ['ramdisk', 'nfs']
+                (fs, getattr(self, fs)) for fs in ['ramdisk', 'nfs', 'diskfile']
             ) if url
         }
         self._root_type = root_type or list(self._url_format.keys())[0]
@@ -318,7 +319,7 @@ class RootFS(_YAMLObject):
         kw['fs_type'] = fs_type
         kw.update({
             fs: url for (fs, url) in (
-                (fs, rootfs.get(fs)) for fs in ['ramdisk', 'nfs']
+                (fs, rootfs.get(fs)) for fs in ['ramdisk', 'nfs', 'diskfile']
             ) if url
         })
         return cls(**kw)
@@ -338,6 +339,10 @@ class RootFS(_YAMLObject):
     @property
     def nfs(self):
         return self._nfs
+
+    @property
+    def diskfile(self):
+        return self._diskfile
 
     @property
     def root_type(self):
@@ -362,6 +367,7 @@ class RootFS(_YAMLObject):
             'ramdisk',
             'root_type',
             'type',
+            'diskfile',
         })
         return attrs
 
