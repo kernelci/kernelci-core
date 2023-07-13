@@ -4,6 +4,7 @@
 {%- endif %}
     timeout:
       minutes: 1
+    failure_retry: 5
     definitions:
     - repository:
         metadata:
@@ -30,6 +31,7 @@
 {%- endif %}
     timeout:
       minutes: 1
+    failure_retry: 5
     definitions:
     - repository:
         metadata:
@@ -44,8 +46,8 @@
             - lava-test-shell
         run:
           steps:
-            - export PATH=/opt/bootrr/helpers:$PATH
-            - cd /opt/bootrr && sh helpers/bootrr-auto
+            - export PATH=/opt/bootrr/libexec/bootrr/helpers:$PATH
+            - cd /opt/bootrr/libexec/bootrr && sh helpers/bootrr-auto
       lava-signal: kmsg
       from: inline
       name: bootrr

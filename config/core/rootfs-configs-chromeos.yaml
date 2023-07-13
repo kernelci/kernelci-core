@@ -5,25 +5,69 @@ rootfs_configs:
     debian_release: bullseye
     arch_list:
       - amd64
+      - arm64
     extra_packages:
       - bzip2
       - ca-certificates
+      - gdisk
       - parted
       - wget
       - xz-utils
     test_overlay: "overlays/cros-flash"
+    script: "scripts/bullseye-cros-flash.sh"
 
   chromiumos-amd64-generic:
     rootfs_type: chromiumos
     board: amd64-generic
-    branch: release-R100-14526.B
+    branch: release-R114-15437.B
+    serial: ttyS0
     arch_list:
       - amd64
+
+  chromiumos-asurada:
+    rootfs_type: chromiumos
+    board: asurada
+    branch: release-R114-15437.B
+    serial: ttyS0
+    arch_list:
+      - arm64
+
+  chromiumos-cherry:
+    rootfs_type: chromiumos
+    board: cherry
+    branch: release-R114-15437.B
+    serial: ttyS0
+    arch_list:
+      - arm64
+
+  chromiumos-coral:
+    rootfs_type: chromiumos
+    board: coral
+    branch: release-R114-15437.B
+    serial: ttyS2
+    arch_list:
+      - amd64
+
+  chromiumos-dedede:
+    rootfs_type: chromiumos
+    board: dedede
+    branch: release-R114-15437.B
+    serial: ttyS0
+    arch_list:
+      - amd64
+
+  chromiumos-geralt:
+    rootfs_type: chromiumos
+    board: geralt
+    branch: release-R114-15437.B
+    serial: ttyS0
+    arch_list:
+      - arm64
 
   chromiumos-grunt:
     rootfs_type: chromiumos
     board: grunt
-    branch: release-R100-14526.B
+    branch: release-R114-15437.B
     serial: ttyS0
     arch_list:
       - amd64
@@ -31,7 +75,23 @@ rootfs_configs:
   chromiumos-hatch:
     rootfs_type: chromiumos
     board: hatch
-    branch: release-R100-14526.B
+    branch: release-R114-15437.B
+    serial: ttyS0
+    arch_list:
+      - amd64
+
+  chromiumos-jacuzzi:
+    rootfs_type: chromiumos
+    board: jacuzzi
+    branch: release-R114-15437.B
+    serial: ttyS0
+    arch_list:
+      - arm64
+
+  chromiumos-nami:
+    rootfs_type: chromiumos
+    board: nami
+    branch: release-R114-15437.B
     serial: ttyS0
     arch_list:
       - amd64
@@ -39,7 +99,47 @@ rootfs_configs:
   chromiumos-octopus:
     rootfs_type: chromiumos
     board: octopus
-    branch: release-R100-14526.B
+    branch: release-R114-15437.B
     serial: ttyS1
+    arch_list:
+      - amd64
+
+  chromiumos-rammus:
+    rootfs_type: chromiumos
+    board: rammus
+    branch: release-R114-15437.B
+    serial: ttyS0
+    arch_list:
+      - amd64
+
+  chromiumos-sarien:
+    rootfs_type: chromiumos
+    board: sarien
+    branch: release-R114-15437.B
+    serial: ttyS0
+    arch_list:
+      - amd64
+
+  chromiumos-trogdor:
+    rootfs_type: chromiumos
+    board: trogdor
+    branch: release-R114-15437.B
+    serial: ttyMSM0
+    arch_list:
+      - arm64
+
+  chromiumos-volteer:
+    rootfs_type: chromiumos
+    board: volteer
+    branch: release-R114-15437.B
+    serial: ttyS0
+    arch_list:
+      - amd64
+
+  chromiumos-zork:
+    rootfs_type: chromiumos
+    board: zork
+    branch: release-R114-15437.B
+    serial: ttyS0
     arch_list:
       - amd64

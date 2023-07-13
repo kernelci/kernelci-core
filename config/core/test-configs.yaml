@@ -1,3 +1,4 @@
+
 # See the KernelCI wiki page regarding the format of this file:
 # https://github.com/kernelci/kernelci-doc/wiki/Test-configurations
 
@@ -26,6 +27,7 @@ file_system_types:
               {arch: arm, variant: v6}]
       armhf: [{arch: arm}]
       amd64: [{arch: x86_64}]
+      riscv64: [{arch: riscv}]
 
   # Convenience to test new rootfs images on staging.kernelci.org
   debian-staging:
@@ -68,7 +70,7 @@ test_plans:
     params:
       priority: 90
     filters:
-      - blocklist: *kselftest_defconfig_filter
+      - blocklist: {}
 
   baseline-fastboot:
     rootfs: buildroot-baseline_ramdisk
@@ -83,7 +85,7 @@ test_plans:
     params:
       priority: 85
     filters:
-      - blocklist: *kselftest_defconfig_filter
+      - blocklist: {}
 
   baseline_qemu:
     base_name: baseline
@@ -163,6 +165,13 @@ test_plans:
         core_setmaster
         core_setmaster_vs_auth
 
+  igt-gpu-msm:
+    <<: *igt
+    params:
+      drm_driver: "msm"
+      tests: >
+        msm_submit
+
   igt-gpu-panfrost:
     <<: *igt
     params:
@@ -196,6 +205,18 @@ test_plans:
       <<: *igt-kms-test-list
       drm_driver: "exynos"
 
+  igt-kms-mediatek:
+    <<: *igt-kms
+    params:
+      <<: *igt-kms-test-list
+      drm_driver: "mediatek"
+
+  igt-kms-msm:
+    <<: *igt-kms
+    params:
+      <<: *igt-kms-test-list
+      drm_driver: "msm"
+
   igt-kms-rockchip:
     <<: *igt-kms
     params:
@@ -214,8 +235,17 @@ test_plans:
     filters:
       - passlist: {defconfig: ['kselftest']}
 
+  # Add _a_ into the name so we can keep this before the individual
+  # definitions
+  kselftest_a_qemu: &kselftest_qemu
+    rootfs: debian_bullseye-kselftest_ramdisk
+    pattern: 'kselftest/{category}-{method}-{rootfs}-kselftest-template.jinja2'
+    filters:
+      - passlist: {defconfig: ['kselftest']}
+
   kselftest-alsa:
     <<: *kselftest
+    rootfs: debian_bookworm-kselftest_nfs
     params:
       job_timeout: '10'
       kselftest_collections: "alsa"
@@ -224,6 +254,13 @@ test_plans:
 
   kselftest-arm64:
     <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "arm64"
+    filters: *kselftest_no_fragment
+
+  kselftest-arm64_qemu:
+    <<: *kselftest_qemu
     params:
       job_timeout: '10'
       kselftest_collections: "arm64"
@@ -291,6 +328,12 @@ test_plans:
       kselftest_collections: "kvm"
     filters: *kselftest_no_fragment
 
+  kselftest-landlock:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "landlock"
+
   kselftest-lib:
     <<: *kselftest
     params:
@@ -323,6 +366,15 @@ test_plans:
       kselftest_collections: "mincore"
     filters: *kselftest_no_fragment
 
+  kselftest-mm:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "mm"
+    filters:
+      - passlist: {defconfig: ['kselftest']}
+      - blocklist: {kernel: ['v3.', 'v4.', 'v5.', 'v6.0', 'v6,1', 'v6.2']}
+
   kselftest-net:
     <<: *kselftest
     params:
@@ -334,6 +386,13 @@ test_plans:
     params:
       job_timeout: '10'
       kselftest_collections: "openat2"
+    filters: *kselftest_no_fragment
+
+  kselftest-rseq:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "rseq"
     filters: *kselftest_no_fragment
 
   kselftest-rtc:
@@ -348,6 +407,20 @@ test_plans:
     params:
       job_timeout: '10'
       kselftest_collections: "seccomp"
+
+  kselftest-sigaltstack:
+    <<: *kselftest
+    params:
+      job_timeout: '10'
+      kselftest_collections: "sigaltstack"
+    filters: *kselftest_no_fragment
+
+  kselftest-timens:
+    <<: *kselftest
+    params:
+      job_timeout: '15'
+      kselftest_collections: "timens"
+    filters: *kselftest_no_fragment
 
   kselftest-timers:
     <<: *kselftest
@@ -368,12 +441,22 @@ test_plans:
     params:
       job_timeout: '10'
       kselftest_collections: "vm"
+    filters:
+      - passlist:
+          defconfig: ['kselftest']
+          kernel: ['v3.', 'v4.', 'v5.', 'v6.0', 'v6,1', 'v6.2']
 
   lc-compliance:
     rootfs: debian_bullseye-libcamera_nfs
     pattern: 'lc-compliance/{category}-{method}-{protocol}-{rootfs}-lc-compliance-template.jinja2'
     params:
       job_timeout: '45'
+
+  libhugetlbfs:
+    rootfs: debian_bullseye-libhugetlbfs_nfs
+    pattern: 'libhugetlbfs/{category}-{method}-{protocol}-{rootfs}-libhugetlbfs-template.jinja2'
+    params:
+      job_timeout: '20'
 
   ltp: &ltp
     rootfs: debian_bullseye-ltp_nfs
@@ -386,6 +469,18 @@ test_plans:
       job_timeout: '15'
       skipfile: skipfile-lkft.yaml
 
+  ltp-cap-bounds:
+    <<: *ltp
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "cap_bounds"
+
+  ltp-cpuhotplug:
+    <<: *ltp
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "cpuhotplug"
+
   ltp-crypto:
     <<: *ltp
     params:
@@ -396,11 +491,35 @@ test_plans:
           defconfig:
             - '+crypto'
 
+  ltp-dio:
+    <<: *ltp
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "dio"
+
   ltp-fcntl-locktests:
     <<: *ltp
     params:
       <<: *ltp-params
       tst_cmdfiles: "fcntl-locktests"
+
+  ltp-filecaps:
+    <<: *ltp
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "filecaps"
+
+  ltp-fsx:
+    <<: *ltp
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "fsx"
+
+  ltp-hugetlb:
+    <<: *ltp
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "hugetlb"
 
   ltp-ima:
     <<: *ltp
@@ -411,6 +530,13 @@ test_plans:
       - passlist:
           defconfig:
             - '+ima'
+
+  ltp-io:
+    <<: *ltp
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "io"
+
   ltp-ipc:
     <<: *ltp
     params:
@@ -430,6 +556,26 @@ test_plans:
       <<: *ltp-params
       tst_cmdfiles: "pty"
       job_timeout: '25'
+      priority: 0
+
+  ltp-sched:
+    <<: *ltp
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "sched"
+
+  ltp-smoketest:
+    <<: *ltp
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "smoketest"
+
+  ltp-syscalls:
+    <<: *ltp
+    params:
+      <<: *ltp-params
+      tst_cmdfiles: "syscalls"
+      job_timeout: '120'
       priority: 0
 
   ltp-timers:
@@ -488,6 +634,11 @@ test_plans:
   usb:
     rootfs: debian_bullseye_ramdisk
 
+  v4l2-compliance-mtk-vcodec-enc:
+    rootfs: debian_bullseye-v4l2_ramdisk
+    pattern: 'v4l2-compliance/{category}-{method}-{protocol}-{rootfs}-v4l2-compliance-template.jinja2'
+    params: {v4l2_driver: "mtk-vcodec-enc"}
+
   v4l2-compliance-uvc:
     rootfs: debian_bullseye-v4l2_ramdisk
     # FIXME - this is not very sustainable, improve template naming scheme
@@ -510,8 +661,10 @@ test_plans:
     params:
       job_timeout: '30'
       testsuite: 'AV1-TEST-VECTORS'
+      decoder: 'GStreamer-AV1-V4L2SL-Gst1.0'
+      videodec_parallel_jobs: '1'
     filters:
-      - passlist: {'tree': ['next', 'mainline', 'media']}
+      - regex: {'tree': '(next|mainline|media)'}
 
   v4l2-decoder-conformance-h264:
     rootfs: debian_bullseye-gst-fluster_nfs
@@ -519,8 +672,10 @@ test_plans:
     params:
       job_timeout: '30'
       testsuite: 'JVT-AVC_V1'
+      decoder: 'GStreamer-H.264-V4L2SL-Gst1.0'
+      videodec_parallel_jobs: '1'
     filters:
-      - passlist: {'tree': ['next', 'mainline', 'media']}
+      - regex: {'tree': '(next|mainline|media)'}
 
   v4l2-decoder-conformance-h265:
     rootfs: debian_bullseye-gst-fluster_nfs
@@ -528,8 +683,10 @@ test_plans:
     params:
       job_timeout: '30'
       testsuite: 'JCT-VC-HEVC-V1'
+      decoder: 'GStreamer-H.265-V4L2SL-Gst1.0'
+      videodec_parallel_jobs: '1'
     filters:
-      - passlist: {'tree': ['next', 'mainline', 'media']}
+      - regex: {'tree': '(next|mainline|media)'}
 
   v4l2-decoder-conformance-vp8:
     rootfs: debian_bullseye-gst-fluster_nfs
@@ -537,8 +694,10 @@ test_plans:
     params:
       job_timeout: '30'
       testsuite: 'VP8-TEST-VECTORS'
+      decoder: 'GStreamer-VP8-V4L2SL-Gst1.0'
+      videodec_parallel_jobs: '1'
     filters:
-      - passlist: {'tree': ['next', 'mainline', 'media']}
+      - regex: {'tree': '(next|mainline|media)'}
 
   v4l2-decoder-conformance-vp9:
     rootfs: debian_bullseye-gst-fluster_nfs
@@ -546,18 +705,50 @@ test_plans:
     params:
       job_timeout: '30'
       testsuite: 'VP9-TEST-VECTORS'
+      decoder: 'GStreamer-VP9-V4L2SL-Gst1.0'
+      videodec_parallel_jobs: '1'
     filters:
-      - passlist: {'tree': ['next', 'mainline', 'media']}
+      - regex: {'tree': '(next|mainline|media)'}
+
+  vdso:
+    rootfs: debian_bullseye-vdso_nfs
+    pattern: 'vdso/{category}-{method}-{protocol}-{rootfs}-vdso-template.jinja2'
+    params:
+      job_timeout: '20'
 
 device_types:
 
-  acer-cb317-1h-c3z6-dedede:
+  acer-R721T-grunt:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
     filters: &x86-chromebook-filters
       - passlist: {defconfig: ['x86-chromebook']}
       - blocklist: {defconfig: ['allmodconfig', 'allnoconfig']}
+
+  acer-cb317-1h-c3z6-dedede:
+    mach: x86
+    arch: x86_64
+    boot_method: depthcharge
+    filters: *x86-chromebook-filters
+
+  acer-cbv514-1h-34uz-brya:
+    mach: x86
+    arch: x86_64
+    boot_method: depthcharge
+    filters: *x86-chromebook-filters
+
+  acer-chromebox-cxi4-puff:
+    mach: x86
+    arch: x86_64
+    boot_method: depthcharge
+    filters: *x86-chromebook-filters
+
+  acer-cp514-3wh-r0qs-guybrush:
+    mach: x86
+    arch: x86_64
+    boot_method: depthcharge
+    filters: *x86-chromebook-filters
 
   alpine-db:
     mach: alpine
@@ -710,6 +901,12 @@ device_types:
     boot_method: depthcharge
     filters: *x86-chromebook-filters
 
+  asus-CM1400CXA-dalboz:
+    mach: x86
+    arch: x86_64
+    boot_method: depthcharge
+    filters: *x86-chromebook-filters
+
   asus-cx9400-volteer:
     mach: x86
     arch: x86_64
@@ -740,6 +937,7 @@ device_types:
   bcm2835-rpi-b-rev2:
     mach: broadcom
     class: arm-dtb
+    variant: v6
     boot_method: uboot
     filters:
       - passlist: {defconfig: ['bcm2835_defconfig']}
@@ -886,10 +1084,8 @@ device_types:
     class: riscv-dtb
     boot_method: uboot
     filters:
-    # no console in tinyconfig
-      - blocklist:
-          defconfig: ['tinyconfig']
-          kernel: ['v4.']
+      - blocklist: *device_config_filter
+      - regex: {defconfig: '^defconfig'}
 
   hip07-d05:
     mach: hisilicon
@@ -901,6 +1097,12 @@ device_types:
           # kernels earlier than v5.10 for now.
           # https://github.com/kernelci/kernelci-project/issues/113
           kernel: ['v4.', 'v5.4']
+
+  hp-14-db0003na-grunt:
+    mach: x86
+    arch: x86_64
+    boot_method: depthcharge
+    filters: *x86-chromebook-filters
 
   hp-11A-G6-EE-grunt:
     mach: x86
@@ -922,6 +1124,12 @@ device_types:
     filters: *x86-chromebook-filters
 
   hp-x360-12b-ca0500na-n4000-octopus: *octopus
+
+  hp-x360-14a-cb0001xx-zork:
+    mach: x86
+    arch: x86_64
+    boot_method: depthcharge
+    filters: *x86-chromebook-filters
 
   hsdk:
     mach: arc
@@ -1090,6 +1298,12 @@ device_types:
     dtb: 'freescale/imx8mm-ddr4-evk.dtb'
     boot_method: uboot
 
+  imx8mm-innocomm-wb15-evk:
+    mach: imx
+    arch: arm64
+    dtb: 'freescale/imx8mm-innocomm-wb15-evk.dtb'
+    boot_method: barebox
+
   imx8mn-ddr4-evk:
     mach: imx
     arch: arm64
@@ -1118,10 +1332,34 @@ device_types:
       - blocklist: *device_config_filter
       - blocklist: {defconfig: ['multi_v7_defconfig+kselftest']}
 
+  jh7100-starfive-visionfive-v1:
+    mach: starfive
+    class: riscv-dtb
+    boot_method: uboot
+    dtb: 'starfive/jh7100-starfive-visionfive-v1.dtb'
+    filters:
+      - blocklist: *device_config_filter
+      - regex: {defconfig: '^defconfig'}
+
   juno-uboot:
     mach: vexpress
     class: arm64-dtb
     dtb: 'arm/juno.dtb'
+    boot_method: uboot
+
+  k3-am625-sk:
+    mach: ti
+    class: arm64-dtb
+    boot_method: uboot
+
+  k3-j721e-beagleboneai64:
+    mach: ti
+    class: arm64-dtb
+    boot_method: uboot
+
+  k3-j721e-sk:
+    mach: ti
+    class: arm64-dtb
     boot_method: uboot
 
   kirkwood-db-88f6282:
@@ -1158,6 +1396,12 @@ device_types:
     mach: at91
     class: arm-dtb
     dtb: 'lan966x-kontron-kswitch-d10-mmt-6g-2gs.dtb'
+    boot_method: uboot
+
+  kontron-kswitch-d10-mmt-8g:
+    mach: at91
+    class: arm-dtb
+    dtb: 'lan966x-kontron-kswitch-d10-mmt-8g.dtb'
     boot_method: uboot
 
   kontron-pitx-imx8m:
@@ -1262,6 +1506,8 @@ device_types:
     class: arm64-dtb
     boot_method: uboot
     flags: ['big_endian']
+    filters:
+      - blocklist: {kernel: ['v4.']}
 
   meson-gxm-khadas-vim2:
     mach: amlogic
@@ -1323,6 +1569,17 @@ device_types:
     boot_method: depthcharge
     filters: *arm64-chromebook-filters
 
+  mt8192-asurada-spherion-r0:
+    mach: mediatek
+    class: arm64-dtb
+    boot_method: depthcharge
+    filters: *arm64-chromebook-filters
+
+  mt8365-evk:
+    mach: mediatek
+    class: arm64-dtb
+    boot_method: uboot
+
   mustang:
     mach: apm
     class: arm64-dtb
@@ -1353,11 +1610,6 @@ device_types:
 
   orion5x-rd88f5182-nas:
     mach: mvebu
-    class: arm-dtb
-    boot_method: uboot
-
-  ox820-cloudengines-pogoplug-series-3:
-    mach: oxnas
     class: arm-dtb
     boot_method: uboot
 
@@ -1394,8 +1646,7 @@ device_types:
     arch: arm64
     boot_method: grub
     filters:
-      - passlist: {defconfig: ['defconfig']}
-      - blocklist: {kernel: ['v3.']}
+      - regex: {'tree': '(next|mainline)'}
     params:
       boot_timeout: '10'
 
@@ -1495,6 +1746,7 @@ device_types:
       cpu: 'max,pauth-impdef=on'
       guestfs_interface: 'virtio'
       machine: 'virt,gic-version=2,mte=on,accel=tcg'
+      memory: 1g
     filters:
       - regex: { defconfig: 'defconfig' }
 
@@ -1513,6 +1765,7 @@ device_types:
       cpu: 'max,pauth-impdef=on'
       guestfs_interface: 'virtio'
       machine: 'virt,gic-version=3,mte=on,accel=tcg'
+      memory: 1g
     filters:
       - passlist: {defconfig: ['defconfig']}
 
@@ -1564,9 +1817,27 @@ device_types:
       machine: 'virt'
       no_kvm: True
       memory: 1024
-      extra_options: ['-bios default']
+      extra_options: ['-bios default -device virtio-net,netdev=main -netdev user,id=main']
     filters:
-      - passlist: {defconfig: ['defconfig']}
+      - blocklist: *device_config_filter
+      - regex: {defconfig: '^defconfig'}
+
+  qemu_smp8_riscv64:
+    base_name: qemu
+    mach: qemu
+    arch: riscv
+    boot_method: qemu
+    context:
+      arch: riscv64
+      cpu: 'rv64'
+      guestfs_interface: 'virtio'
+      machine: 'virt'
+      no_kvm: True
+      memory: 1024
+      extra_options: ['-bios default -device virtio-net,netdev=main -netdev user,id=main -smp 8']
+    filters:
+      - blocklist: *device_config_filter
+      - regex: {defconfig: '^defconfig'}
 
   qemu_x86_64: &qemu_x86_64
     base_name: qemu
@@ -1639,6 +1910,12 @@ device_types:
 
   r8a77960-ulcb: *r8a7796-m3ulcb # same device as r8a7796-m3ulcb
 
+  r8a779m1-ulcb:
+    base_name: r8a779m1-ulcb
+    mach: renesas
+    class: arm64-dtb
+    boot_method: uboot
+
   rk3288-rock2-square:
     mach: rockchip
     class: arm-dtb
@@ -1664,6 +1941,8 @@ device_types:
     class: arm64-dtb
     boot_method: depthcharge
     filters: *arm64-chromebook-filters
+    params:
+      videodec_timeout: 90
 
   rk3399-puma-haikou:
     mach: rockchip
@@ -1682,6 +1961,23 @@ device_types:
     mach: rockchip
     class: arm64-dtb
     boot_method: uboot
+
+  rk3588-rock-5b:
+    mach: rockchip
+    class: arm64-dtb
+    boot_method: uboot
+
+  sc7180-trogdor-kingoftown: &sc7180-trogdor-kingoftown
+    mach: qcom
+    class: arm64-dtb
+    boot_method: depthcharge
+    dtb: 'qcom/sc7180-trogdor-kingoftown.dtb'
+    filters: *arm64-chromebook-filters
+
+  sc7180-trogdor-kingoftown-r1:
+    <<: *sc7180-trogdor-kingoftown
+    base_name: sc7180-trogdor-kingoftown
+    dtb: 'qcom/sc7180-trogdor-kingoftown-r1.dtb'
 
   sc7180-trogdor-lazor-limozeen:
     mach: qcom
@@ -1948,10 +2244,35 @@ device_types:
 
 test_configs:
 
-  - device_type: acer-cb317-1h-c3z6-dedede
+  - device_type: acer-R721T-grunt
     test_plans:
       - baseline
       - baseline-nfs
+      - kselftest-cpufreq
+
+  - device_type: acer-cb317-1h-c3z6-dedede
+    test_plans:
+      - baseline
+# Disabling to reduce load
+#      - baseline-nfs
+
+  - device_type: acer-cbv514-1h-34uz-brya
+    test_plans:
+      - baseline
+# Disabling to reduce load
+#      - baseline-nfs
+
+  - device_type: acer-chromebox-cxi4-puff
+    test_plans:
+      - baseline
+# Disabling to reduce load
+#      - baseline-nfs
+
+  - device_type: acer-cp514-3wh-r0qs-guybrush
+    test_plans:
+      - baseline
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: alpine-db
     test_plans:
@@ -2033,23 +2354,30 @@ test_configs:
       - baseline
       - baseline-nfs
       - kselftest-alsa
-      - kselftest-lkdtm
-      - kselftest-seccomp
+# Disabling to reduce load
+#      - kselftest-cpufreq
+#      - kselftest-lkdtm
+#      - kselftest-seccomp
       - ltp-fcntl-locktests
-      - ltp-pty
-      - ltp-timers
+# Disabling to reduce load
+#      - ltp-pty
+#      - ltp-timers
 
   - device_type: asus-C436FA-Flip-hatch
     test_plans:
       - baseline
       - baseline-nfs
-      - kselftest-alsa
+# Disabling to reduce load
+#      - kselftest-alsa
+#      - kselftest-cpufreq
       - kselftest-filesystems
-      - kselftest-futex
-      - kselftest-rtc
+# Disabling to reduce load
+#      - kselftest-futex
+#      - kselftest-rtc
       - ltp-ipc
-      - ltp-mm
-      - ltp-timers
+# Disabling to reduce load
+#      - ltp-mm
+#      - ltp-timers
 
   - device_type: asus-C523NA-A20057-coral
     test_plans:
@@ -2057,32 +2385,47 @@ test_configs:
       - baseline-nfs
       - cros-ec
       - igt-gpu-i915
-      - kselftest-alsa
-      - kselftest-filesystems
-      - kselftest-futex
-      - kselftest-lib
-      - kselftest-lkdtm
-      - kselftest-seccomp
+# Disabling to reduce load
+#      - kselftest-alsa
+      - kselftest-cpufreq
+# Disabling to reduce load
+#      - kselftest-filesystems
+#      - kselftest-futex
+#      - kselftest-lib
+#      - kselftest-lkdtm
+#      - kselftest-seccomp
       - ltp-crypto
-      - ltp-fcntl-locktests
-      - ltp-ima
-      - ltp-ipc
-      - ltp-mm
-      - ltp-pty
-      - ltp-timers
+# Disabling to reduce load
+#      - ltp-fcntl-locktests
+#      - ltp-ima
+#      - ltp-ipc
+#      - ltp-mm
+#      - ltp-pty
+#      - ltp-timers
       - preempt-rt
       - sleep_mem
       - smc
+
+  - device_type: asus-CM1400CXA-dalboz
+    test_plans:
+      - baseline
+# Disabling to reduce load
+#      - baseline-nfs
+#      - kselftest-cpufreq
 
   - device_type: asus-cx9400-volteer
     test_plans:
       - baseline
       - baseline-nfs
       - cros-ec
-      - kselftest-alsa
+# Disabling to reduce load
+#      - kselftest-alsa
+#      - kselftest-cpufreq
       - kselftest-lib
-      - kselftest-vm
-      - ltp-ipc
+# Disabling to reduce load
+#      - kselftest-mm
+#      - kselftest-vm
+#      - ltp-ipc
 
   - device_type: at91-sama5d2_xplained
     test_plans:
@@ -2095,7 +2438,8 @@ test_configs:
   - device_type: at91sam9g20ek
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: bcm2711-rpi-4-b
     test_plans:
@@ -2106,11 +2450,14 @@ test_configs:
   - device_type: bcm2835-rpi-b-rev2
     test_plans:
       - baseline
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: bcm2836-rpi-2-b
     test_plans:
       - baseline
-      - ltp-crypto
+# Disabling to reduce load
+#      - ltp-crypto
       - sleep
       - usb
 
@@ -2131,27 +2478,37 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - kselftest-alsa
+# Disabling to reduce load
+#      - kselftest-alsa
       - kselftest-capabilities
-      - kselftest-cgroup
-      - kselftest-clone3
-      - kselftest-exec
-      - kselftest-filesystems
-      - kselftest-futex
-      - kselftest-kcmp
-      - kselftest-lib
-      - kselftest-membarrier
-      - kselftest-mincore
-      - kselftest-openat2
-      - kselftest-seccomp
-      - kselftest-timers
-      - ltp-crypto
-      - ltp-ipc
+# Disabling to reduce load
+#      - kselftest-cgroup
+#      - kselftest-clone3
+#      - kselftest-exec
+#      - kselftest-filesystems
+#      - kselftest-futex
+#      - kselftest-kcmp
+#      - kselftest-lib
+#      - kselftest-membarrier
+#      - kselftest-mincore
+#      - kselftest-openat2
+#      - kselftest-seccomp
+#      - kselftest-sigaltstack
+#      - kselftest-timers
+#      - ltp-crypto
+      - ltp-dio
+# Disabling to reduce load
+#      - ltp-fsx
+#      - ltp-io
+#      - ltp-ipc
+#      - ltp-smoketest
       - preempt-rt
+      - vdso
 
   - device_type: cubietruck
     test_plans:
       - baseline
+# Disabling to reduce load
       - baseline-nfs
 
   - device_type: d03
@@ -2169,17 +2526,22 @@ test_configs:
   - device_type: dell-latitude-5400-4305U-sarien
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
+#      - kselftest-cpufreq
 
   - device_type: dell-latitude-5400-8665U-sarien
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
+#      - kselftest-cpufreq
 
   - device_type: dove-cubox
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
       - sleep
 
   - device_type: dra7-evm
@@ -2223,11 +2585,24 @@ test_configs:
   - device_type: hi6220-hikey
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: hifive-unleashed-a00
     test_plans:
       - baseline
+      - kselftest-cgroup_riscv
+      - kselftest-filesystems_riscv
+      - kselftest-futex_riscv
+      - kselftest-kcmp_riscv
+      - kselftest-membarrier_riscv
+      - kselftest-mincore_riscv
+      - kselftest-timers_riscv
+      - ltp-crypto_riscv
+      - ltp-fcntl-locktests_riscv
+      - ltp-ipc_riscv
+      - ltp-pty_riscv
+      - ltp-timers_riscv
 
   - device_type: hip07-d05
     test_plans:
@@ -2241,33 +2616,46 @@ test_configs:
       - baseline-nfs
       - cros-ec
       - igt-gpu-amd
-      - kselftest-alsa
-      - kselftest-filesystems
-      - kselftest-futex
+# Disabling to reduce load
+#      - kselftest-alsa
+#      - kselftest-filesystems
+#      - kselftest-futex
       - kselftest-lib
-      - kselftest-livepatch
-      - kselftest-lkdtm
-      - kselftest-rtc
-      - kselftest-seccomp
-      - kselftest-tpm2
-      - kselftest-vm
-      - ltp-crypto
-      - ltp-fcntl-locktests
-      - ltp-ipc
+# Disabling to reduce load
+#      - kselftest-livepatch
+#      - kselftest-lkdtm
+#      - kselftest-mm
+#      - kselftest-rtc
+#      - kselftest-seccomp
+#      - kselftest-tpm2
+#      - kselftest-vm
+#      - ltp-crypto
+#      - ltp-fcntl-locktests
+#      - ltp-ipc
       - ltp-mm
-      - ltp-pty
-      - ltp-timers
-      - preempt-rt
+# Disabling to reduce load
+#      - ltp-pty
+#      - ltp-timers
+#      - preempt-rt
       - sleep
       - smc
+
+  - device_type: hp-14-db0003na-grunt
+    test_plans:
+      - baseline
+# Disabling to reduce load
+#      - baseline-nfs
+#      - kselftest-cpufreq
 
   - device_type: hp-x360-14-G1-sona
     test_plans:
       - baseline
       - baseline-nfs
       - cros-ec
-      - kselftest-alsa
-      - kselftest-cpufreq
+# Disabling to reduce load
+#      - kselftest-alsa
+#      - kselftest-cpufreq
+      - kselftest-landlock
 
   - device_type: hp-x360-12b-ca0500na-n4000-octopus
     test_plans:
@@ -2275,22 +2663,31 @@ test_configs:
       - baseline-nfs
       - cros-ec
       - igt-gpu-i915
-      - kselftest-lib
+# Disabling to reduce load
+#      - kselftest-lib
 
   - device_type: hp-x360-12b-ca0010nr-n4020-octopus
     test_plans:
       - baseline
       - baseline-nfs
       - cros-ec
-      - igt-gpu-i915
-      - kselftest-filesystems
-      - kselftest-futex
-      - kselftest-lib
-      - ltp-crypto
-      - ltp-ipc
-      - ltp-mm
+# Disabling to reduce load
+#      - igt-gpu-i915
+#      - kselftest-filesystems
+#      - kselftest-futex
+#      - kselftest-lib
+#      - ltp-crypto
+#      - ltp-ipc
+#      - ltp-mm
       - sleep_mem
       - smc
+
+  - device_type: hp-x360-14a-cb0001xx-zork
+    test_plans:
+      - baseline
+# Disabling to reduce load
+#      - baseline-nfs
+#      - kselftest-cpufreq
 
   - device_type: hsdk
     test_plans:
@@ -2303,45 +2700,47 @@ test_configs:
   - device_type: imx23-olinuxino
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
       - sleep
 
   - device_type: imx27-phytec-phycard-s-rdk
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
       - sleep
 
   - device_type: imx28-duckbill
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
       - sleep
 
   - device_type: imx53-qsrb
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
       - sleep
 
   - device_type: imx6dl-riotboard
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
       - sleep
 
   - device_type: imx6dl-udoo
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
       - igt-gpu-etnaviv
-      - kselftest-alsa
-      - kselftest-capabilities
-      - kselftest-cgroup
-      - kselftest-exec
-      - kselftest-futex
-      - kselftest-kcmp
-      - ltp-crypto
+# Disabling to reduce load
+#      - kselftest-alsa
+#      - ltp-crypto
 
   - device_type: imx6q-nitrogen6x
     test_plans:
@@ -2351,11 +2750,13 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - kselftest-filesystems
-      - kselftest-lib
+# Disabling to reduce load
+#      - kselftest-filesystems
+#      - kselftest-lib
       - kselftest-livepatch
-      - kselftest-lkdtm
-      - kselftest-seccomp
+# Disabling to reduce load
+#      - kselftest-lkdtm
+#      - kselftest-seccomp
 
   - device_type: imx6q-sabrelite
     test_plans:
@@ -2373,13 +2774,9 @@ test_configs:
       - baseline
       - baseline-nfs
       - igt-gpu-etnaviv
-      - kselftest-alsa
-      - kselftest-capabilities
-      - kselftest-cgroup
-      - kselftest-exec
-      - kselftest-futex
-      - kselftest-kcmp
-      - ltp-crypto
+# Disabling to reduce load
+#      - kselftest-alsa
+#      - ltp-crypto
 
   - device_type: imx6q-var-dt6customboard
     test_plans:
@@ -2408,7 +2805,8 @@ test_configs:
   - device_type: imx6ul-pico-hobbit
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
       - sleep
 
   - device_type: imx6ull-14x14-evk
@@ -2427,6 +2825,10 @@ test_configs:
     test_plans:
       - baseline
 
+  - device_type: imx8mm-innocomm-wb15-evk
+    test_plans:
+      - baseline
+
   - device_type: imx8mn-ddr4-evk
     test_plans:
       - baseline
@@ -2434,6 +2836,10 @@ test_configs:
   - device_type: imx8mp-evk
     test_plans:
       - baseline
+# Disabling to reduce load
+#      - baseline-nfs
+#      - igt-gpu-etnaviv
+#      - kselftest-alsa
 
   - device_type: imx8mq-zii-ultra-zest
     test_plans:
@@ -2442,58 +2848,82 @@ test_configs:
   - device_type: jetson-tk1
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
+
+  - device_type: jh7100-starfive-visionfive-v1
+    test_plans:
+      - baseline
 
   - device_type: juno-uboot
     test_plans:
       - baseline
-      - baseline-nfs
-      - kselftest-cpufreq
-      - kselftest-futex
-      - kselftest-lib
-      - kselftest-lkdtm
-      - kselftest-rtc
-      - kselftest-seccomp
-      - ltp-crypto
-      - ltp-fcntl-locktests
-      - ltp-ipc
+# Disabling to reduce load
+#      - baseline-nfs
+#      - kselftest-cpufreq
+#      - ltp-crypto
       # ltp-mm - runs system out of memory
-      - smc
+#      - smc
+
+  - device_type: k3-am625-sk
+    test_plans:
+      - baseline
+
+  - device_type: k3-j721e-beagleboneai64
+    test_plans:
+      - baseline
+
+  - device_type: k3-j721e-sk
+    test_plans:
+      - baseline
 
   - device_type: kirkwood-db-88f6282
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: kirkwood-openblocks_a7
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: kontron-bl-imx8mm
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: kontron-kbox-a-230-ls
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: kontron-kswitch-d10-mmt-6g-2gs
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
+
+  - device_type: kontron-kswitch-d10-mmt-8g
+    test_plans:
+      - baseline
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: kontron-pitx-imx8m
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: kontron-sl28-var3-ads2
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: lenovo-hr330a-7x33cto1ww-emag
     test_plans:
@@ -2502,7 +2932,9 @@ test_configs:
   - device_type: lenovo-TPad-C13-Yoga-zork
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
+#      - kselftest-cpufreq
 
   - device_type: meson-g12a-sei510
     test_plans:
@@ -2520,16 +2952,20 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - kselftest-filesystems
+# Disabling to reduce load
+#      - kselftest-cpufreq
+#      - kselftest-filesystems
       - kselftest-futex
-      - kselftest-lib
+# Disabling to reduce load
+#      - kselftest-lib
 
   - device_type: meson-g12b-odroid-n2
     test_plans:
       - baseline
       - baseline-nfs
       - kselftest-arm64
-      - kselftest-lib
+# Disabling to reduce load
+#      - kselftest-lib
 
   - device_type: meson-gxbb-nanopi-k2
     test_plans:
@@ -2563,29 +2999,34 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - kselftest-alsa
-      - kselftest-arm64
-      - kselftest-cpufreq
-      - kselftest-futex
+# Disabling to reduce load
+#      - kselftest-alsa
+#      - kselftest-arm64
+#      - kselftest-cpufreq
+#      - kselftest-futex
       - kselftest-kvm
-      - kselftest-lib
-      - kselftest-seccomp
-      - ltp-crypto
-      - ltp-fcntl-locktests
-      - ltp-ipc
+# Disabling to reduce load
+#      - kselftest-lib
+#      - kselftest-seccomp
+#      - ltp-crypto
+#      - ltp-fcntl-locktests
+#      - ltp-ipc
       # ltp-mm - Runs board out of memory
       - ltp-pty
-      - ltp-timers
+# Disabling to reduce load
+#      - ltp-timers
 
   - device_type: meson-gxm-khadas-vim2
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: meson-gxm-q200
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: meson-sm1-khadas-vim3l
     test_plans:
@@ -2603,8 +3044,9 @@ test_configs:
   - device_type: minnowboard-max-E3825
     test_plans:
       - baseline
-      - baseline-nfs
-      - kselftest-alsa
+# Disabling to reduce load
+#      - baseline-nfs
+#      - kselftest-alsa
 
   - device_type: minnowboard-turbot-E3826
     test_plans:
@@ -2615,37 +3057,83 @@ test_configs:
       - baseline
       - baseline-nfs
       - cros-ec
-      - kselftest-arm64
-      - kselftest-cpufreq
-      - kselftest-filesystems
-      - kselftest-futex
-      - kselftest-lib
-      - kselftest-livepatch
-      - kselftest-lkdtm
-      - kselftest-rtc
+      - igt-kms-mediatek
+# Disabling to reduce load
+#      - kselftest-arm64
+#      - kselftest-cpufreq
+#      - kselftest-filesystems
+#      - kselftest-futex
+#      - kselftest-lib
+#      - kselftest-livepatch
+#      - kselftest-lkdtm
+#      - kselftest-rtc
       - kselftest-seccomp
+# Disabling to reduce load
+#      - kselftest-tpm2
       - lc-compliance
-      - ltp-crypto
-      - ltp-fcntl-locktests
-      - ltp-ipc
-      - ltp-mm
-      - ltp-pty
-      - ltp-timers
-      - preempt-rt
-      - sleep
+# Disabling to reduce load
+#      - ltp-crypto
+#      - ltp-fcntl-locktests
+#      - ltp-ipc
+#      - ltp-mm
+#      - ltp-pty
+#      - ltp-timers
+#      - preempt-rt
+#      - sleep
       - v4l2-compliance-uvc
 
   - device_type: mt8183-kukui-jacuzzi-juniper-sku16
     test_plans:
       - baseline
       - baseline-nfs
-      - kselftest-lkdtm
+      - cros-ec
+      - igt-gpu-panfrost
+      - igt-kms-mediatek
+# Disabling to reduce load
+#      - kselftest-alsa
+#      - kselftest-arm64
+#      - kselftest-cpufreq
+#      - kselftest-lkdtm
+#      - kselftest-rtc
+#      - kselftest-seccomp
+      - kselftest-tpm2
+      - lc-compliance
+      - preempt-rt
+      - sleep
+      - v4l2-compliance-uvc
+
+  - device_type: mt8192-asurada-spherion-r0
+    test_plans:
+      - baseline
+      - baseline-nfs
+      - cros-ec
+# Disabling to reduce load
+#      - igt-gpu-panfrost
+#      - igt-kms-mediatek
+#      - kselftest-alsa
+#      - kselftest-arm64
+#      - kselftest-cpufreq
+#      - kselftest-lkdtm
+#      - kselftest-rtc
       - kselftest-seccomp
+# Disabling to reduce load
+#      - kselftest-tpm2
+#      - lc-compliance
+      - preempt-rt
+      - sleep
+      - v4l2-compliance-mtk-vcodec-enc
+# Disabling to reduce load
+#      - v4l2-compliance-uvc
+
+  - device_type: mt8365-evk
+    test_plans:
+      - baseline
 
   - device_type: mustang
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: odroid-x2
     test_plans:
@@ -2654,19 +3142,19 @@ test_configs:
   - device_type: odroid-xu3
     test_plans:
       - baseline
-      - baseline-nfs
-      - igt-kms-exynos
-      - kselftest-alsa
+# Only one device available in lab-collabora
+#      - baseline-nfs
+#      - igt-kms-exynos
+#      - kselftest-alsa
+    filters:
+      - passlist: {defconfig: ['defconfig']}
+
 
   - device_type: orion5x-rd88f5182-nas
     test_plans:
       - baseline
-      - baseline-nfs
-
-  - device_type: ox820-cloudengines-pogoplug-series-3
-    test_plans:
-      - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: panda
     test_plans:
@@ -2686,19 +3174,20 @@ test_configs:
   - device_type: qcom-qdf2400
     test_plans:
       - baseline
-      - kselftest-filesystems
-      - kselftest-futex
-      - kselftest-kvm
-      - kselftest-lib
-      - kselftest-lkdtm
-      - kselftest-seccomp
-      - ltp-crypto
-      - ltp-fcntl-locktests
-      - ltp-ima
-      - ltp-ipc
-      - ltp-mm
-      - ltp-pty
-      - ltp-timers
+# Disabling to reduce load
+#      - kselftest-filesystems
+#      - kselftest-futex
+#      - kselftest-kvm
+#      - kselftest-lib
+#      - kselftest-lkdtm
+#      - kselftest-seccomp
+#      - ltp-crypto
+#      - ltp-fcntl-locktests
+#      - ltp-ima
+#      - ltp-ipc
+#      - ltp-mm
+#      - ltp-pty
+#      - ltp-timers
 
   - device_type: qemu_arm-versatilepb
     test_plans:
@@ -2723,7 +3212,6 @@ test_configs:
   - device_type: qemu_arm-virt-gicv3
     test_plans:
       - baseline_qemu
-      - smc_qemu
       - v4l2-compliance-vivid
 
   - device_type: qemu_arm-virt-gicv3-uefi
@@ -2741,7 +3229,7 @@ test_configs:
   - device_type: qemu_arm64-virt-gicv3
     test_plans:
       - baseline_qemu
-      - smc_qemu
+      - kselftest-arm64_qemu
       - v4l2-compliance-vivid
 
   - device_type: qemu_arm64-virt-gicv3-uefi
@@ -2761,14 +3249,27 @@ test_configs:
       - baseline_qemu
 
   - device_type: qemu_riscv64
-    test_plans:
+    test_plans: &qemu_riscv64_test-plans
       - baseline_qemu
+      - kselftest-cgroup_riscv_qemu
+      - kselftest-filesystems_riscv_qemu
+      - kselftest-futex_riscv_qemu
+      - kselftest-kcmp_riscv_qemu
+      - kselftest-membarrier_riscv_qemu
+      - kselftest-mincore_riscv_qemu
+      - kselftest-timers_riscv_qemu
+      - ltp-fcntl-locktests_riscv_qemu
+      - ltp-ipc_riscv_qemu
+      - ltp-pty_riscv_qemu
+      - ltp-timers_riscv_qemu
+
+  - device_type: qemu_smp8_riscv64
+    test_plans: *qemu_riscv64_test-plans
 
   - device_type: qemu_x86_64
     test_plans:
       - baseline_qemu
       - ltp-timers_qemu
-      - smc_qemu
       - v4l2-compliance-vivid
 
   - device_type: qemu_x86_64-uefi
@@ -2787,20 +3288,23 @@ test_configs:
     test_plans:
       - baseline
       - baseline-nfs
-      - kselftest-filesystems
-      - kselftest-futex
-      - kselftest-lib
-      - kselftest-lkdtm
-      - kselftest-seccomp
-      - ltp-crypto
-      - ltp-fcntl-locktests
+# Disabling to reduce load
+#      - kselftest-filesystems
+#      - kselftest-futex
+#      - kselftest-lib
+#      - kselftest-lkdtm
+#      - kselftest-seccomp
+#      - ltp-crypto
+#      - ltp-fcntl-locktests
       - ltp-ima
-      - ltp-ipc
-      - ltp-mm
-      - ltp-pty
-      - ltp-timers
+# Disabling to reduce load
+#      - ltp-ipc
+#      - ltp-mm
+#      - ltp-pty
+#      - ltp-timers
       - preempt-rt
-      - smc
+# Disabling to reduce load
+#      - smc
 
   - device_type: r8a774b1-hihope-rzg2n-ex
     test_plans:
@@ -2817,7 +3321,8 @@ test_configs:
   - device_type: r8a7795-salvator-x
     test_plans: &r8a7795-salvator-x_test-plans
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
       # kselftest-alsa - Lab networking issue
 
   - device_type: r8a77950-salvator-x  # same as r8a7795-salvator-x
@@ -2830,29 +3335,25 @@ test_configs:
   - device_type: r8a77960-ulcb  # same as r8a7796-m3ulcb
     test_plans: *r8a7796-m3ulcb_test-plans
 
+  - device_type: r8a779m1-ulcb
+    test_plans:
+      - baseline
+# Disabling to reduce load
+#      - baseline-nfs
+
   - device_type: rk3288-rock2-square
     test_plans:
       - baseline
-      - baseline-nfs
-      - sleep
-      - usb
 
   - device_type: rk3288-veyron-jaq
     test_plans:
       - baseline
-      - baseline-nfs
-      - cros-ec
-      - igt-gpu-panfrost
-      - igt-kms-rockchip
-      # kselftest-alsa - Basic boot issue preventing testing
-      - ltp-timers
-      - sleep
-      - usb
 
   - device_type: rk3328-rock64
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
       # kselftest-alsa - lab stability/availability issue
 
   - device_type: rk3399-gru-kevin
@@ -2860,14 +3361,15 @@ test_configs:
       - baseline
       - baseline-nfs
       - cros-ec
-      - kselftest-alsa
-      - kselftest-rtc
-      - ltp-fcntl-locktests
-      - ltp-pty
-      - ltp-timers
-      - sleep
-      - smc
-      - v4l2-compliance-uvc
+# Disabling to reduce load
+#      - kselftest-alsa
+#      - kselftest-rtc
+#      - ltp-fcntl-locktests
+#      - ltp-pty
+#      - ltp-timers
+#      - sleep
+#      - smc
+#      - v4l2-compliance-uvc
 
   - device_type: rk3399-gru-kevin
     test_plans:
@@ -2891,7 +3393,8 @@ test_configs:
   - device_type: rk3399-roc-pc
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
       # wishlist for when this device becomes online in a lab that allows them to run
       # - igt-gpu-panfrost
       # - igt-kms-rockchip
@@ -2902,24 +3405,60 @@ test_configs:
   - device_type: rk3399-rock-pi-4b
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
+
+  - device_type: rk3588-rock-5b
+    test_plans:
+      - baseline
+
+  - device_type: sc7180-trogdor-kingoftown
+    test_plans:
+      - baseline
+# Disabling to reduce load
+#      - baseline-nfs
+      - cros-ec
+# Disabling to reduce load
+#      - kselftest-alsa
+#      - kselftest-tpm2
+
+  - device_type: sc7180-trogdor-kingoftown-r1
+    test_plans:
+      - baseline
+# Disabling to reduce load
+#      - baseline-nfs
+#      - cros-ec
+#      - kselftest-alsa
+#      - kselftest-tpm2
 
   - device_type: sc7180-trogdor-lazor-limozeen
     test_plans:
       - baseline
-      # baseline-nfs - Current configs lack networking
-      - cros-ec
-      # kselftest-alsa - Current configs lack networking
+# Disabling to reduce load
+#      - baseline-nfs
+#      - cros-ec
+#      - igt-gpu-msm
+#      - igt-kms-msm
+#      - kselftest-alsa
+#      - kselftest-arm64
+#      - kselftest-cpufreq
+#      - kselftest-rtc
+#      - kselftest-timens
+#      - kselftest-timers
+#      - kselftest-tpm2
+#      - usb
 
   - device_type: snow
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: socfpga-cyclone5-socrates
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
       - sleep
 
   - device_type: stm32mp157c-dk2
@@ -2933,7 +3472,8 @@ test_configs:
   - device_type: sun4i-a10-olinuxino-lime
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: sun50i-a64-bananapi-m64
     test_plans:
@@ -2942,46 +3482,39 @@ test_configs:
   - device_type: sun50i-a64-pine64-plus
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
       - igt-gpu-lima
-      - kselftest-arm64
-      - kselftest-cpufreq
-      - kselftest-filesystems
-      - kselftest-futex
-      - kselftest-lib
-      - kselftest-rtc
-      - kselftest-seccomp
-      - ltp-crypto
-      - ltp-fcntl-locktests
-      - ltp-ima
-      - ltp-ipc
+# Disabling to reduce load
+#      - kselftest-arm64
+#      - kselftest-cpufreq
+#      - kselftest-rtc
+#      - ltp-crypto
       # ltp-mm - runs system out of memory
-      - smc
 
   - device_type: sun50i-h5-libretech-all-h3-cc
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
       - igt-gpu-lima
-      - kselftest-alsa
-      - kselftest-arm64
-      - kselftest-capabilities
-      - kselftest-cgroup
-      - kselftest-clone3
-      - kselftest-cpufreq
-      - kselftest-exec
-      - kselftest-filesystems
-      - kselftest-futex
-      - kselftest-kcmp
-      - kselftest-kvm
-      - kselftest-lib
-      - kselftest-membarrier
-      - kselftest-mincore
-      - kselftest-openat2
-      - kselftest-seccomp
-      - kselftest-timers
-      - ltp-crypto
-      - preempt-rt
+# Disabling to reduce load
+#      - kselftest-alsa
+#      - kselftest-arm64
+#      - kselftest-capabilities
+#      - kselftest-cpufreq
+#      - kselftest-kvm
+#      - kselftest-rseq
+      - kselftest-sigaltstack
+# Disabling to reduce load
+#      - kselftest-timers
+      - libhugetlbfs
+      - ltp-cpuhotplug
+# Disabling to reduce load
+#      - ltp-crypto
+#      - ltp-hugetlb
+#      - ltp-smoketest
+#      - preempt-rt
 
   - device_type: sun50i-h5-nanopi-neo-plus2
     test_plans:
@@ -3026,7 +3559,8 @@ test_configs:
   - device_type: sun7i-a20-olinuxino-lime2
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: sun8i-a23-evb
     test_plans:
@@ -3104,17 +3638,20 @@ test_configs:
   - device_type: x86-celeron
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: x86-pentium4
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: x86-x5-z8350
     test_plans:
       - baseline
-      - baseline-nfs
+# Disabling to reduce load
+#      - baseline-nfs
 
   - device_type: zynq-zc702
     test_plans:

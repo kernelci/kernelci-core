@@ -1,0 +1,120 @@
+trees:
+
+  arm64:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/arm64/linux.git"
+
+  mainline:
+    url: 'https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git'
+
+
+fragments:
+
+  debug:
+    path: "kernel/configs/debug.config"
+    configs: []
+    defconfig:
+
+  amdgpu:
+    path: "kernel/configs/amdgpu.config"
+    defconfig:
+    configs:
+      - 'CONFIG_DRM_AMDGPU=y'
+      - 'CONFIG_DRM_AMDGPU_USERPTR=y'
+
+  ima:
+    path: "kernel/configs/ima.config"
+    defconfig:
+    configs:
+      - 'CONFIG_INTEGRITY=y'
+      - 'CONFIG_IMA=y'
+      - 'CONFIG_IMA_READ_POLICY=y'
+
+  x86_kvm_guest:
+    path: "kernel/configs/kvm_guest.config"
+    defconfig:
+    configs: []
+
+
+build_environments:
+
+  gcc-10:
+    cc: gcc
+    cc_version: 10
+    arch_params:
+      arm64:
+        cross_compile: 'aarch64-linux-gnu-'
+        cross_compile_compat: 'arm-linux-gnueabihf-'
+      x86_64:
+        name: 'x86'
+
+  clang-11:
+    cc: 'clang'
+    cc_version: '11'
+    arch_params:
+      arm64:
+        cross_compile: 'aarch64-linux-gnu-'
+        cross_compile_compat: 'arm-linux-gnueabihf-'
+        name:
+      x86_64:
+        name:
+
+
+build_configs:
+
+  arm64:
+    tree: arm64
+    branch: 'for-kernelci'
+    reference:
+      tree: mainline
+      branch: 'master'
+    variants:
+      gcc-10:
+        build_environment: gcc-10
+        fragments: []
+        architectures:
+          arc:
+            base_defconfig: 'haps_hs_smp_defconfig'
+            extra_configs: ['allnoconfig']
+            fragments: []
+            filters:
+              - blocklist:
+                  defconfig: ['axs101_defconfig', 'nps_defconfig']
+                  kernel: ['v3.', 'v4.4', 'v4.9']
+          arm64:
+            base_defconfig: 'defconfig'
+            extra_configs:
+              - 'allmodconfig'
+              - 'allnoconfig'
+            fragments: []
+            filters: []
+          x86_64:
+            base_defconfig: 'x86_64_defconfig'
+            extra_configs: ['allmodconfig']
+            fragments: [amdgpu, ima, x86_kvm_guest]
+            filters: []
+
+  mainline:
+    tree: mainline
+    branch: 'master'
+    reference:
+      tree: mainline
+      branch: 'master'
+    variants:
+      gcc-10:
+        build_environment: gcc-10
+        fragments: []
+        architectures:
+          x86_64:
+            base_defconfig: 'x86_64_defconfig'
+            extra_configs: ['allmodconfig']
+            fragments: [amdgpu, ima, x86_kvm_guest]
+            filters: []
+      clang-11:
+        build_environment: clang-11
+        fragments: []
+        architectures:
+          arm64:
+            base_defconfig: 'defconfig'
+            extra_configs: ['allmodconfig']
+            fragments: [debug]
+            filters: []

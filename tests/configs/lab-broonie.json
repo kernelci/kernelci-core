@@ -1,0 +1,21 @@
+{
+    "devices": {
+        "aliases": {},
+        "online_status": {
+            "at91sam9g20ek": true,
+            "bcm2835-rpi-b-rev2": true,
+            "beaglebone-black": true,
+            "fvp": true,
+            "imx6dl-udoo": true,
+            "imx6q-udoo": true,
+            "juno-uboot": true,
+            "meson-gxl-s905x-libretech-cc": true,
+            "qemu": true,
+            "sun50i-a64-pine64-plus": true,
+            "sun50i-h5-libretech-all-h3-cc": true
+        }
+    },
+    "lab": "lab-broonie",
+    "lab_type": "lava.lava_xmlrpc",
+    "url": "https://lava.sirena.org.uk/RPC2/"
+}

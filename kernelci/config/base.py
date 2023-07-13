@@ -1,4 +1,4 @@
-# Copyright (C) 2018, 2019, 2021 Collabora Limited
+# Copyright (C) 2018-2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 #
 # This module is free software; you can redistribute it and/or modify it under
@@ -15,34 +15,116 @@
 # along with this library; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
+# mypy: ignore-errors
+
 import re
 import yaml
+import copy
 
 
 # -----------------------------------------------------------------------------
 # Common classes for all config types
 #
 
-class YAMLObject:
-    """Base class with helper methods to initialise objects from YAML data."""
+class YAMLConfigObject(yaml.YAMLObject):
+    """Base class with helper methods to handle configuration YAML data
+
+    This class contains methods to help constructing configuration objects from
+    YAML data.  Then each subclass should implement its standard `to_yaml()`
+    method to be able to dump the whole configuration hierarchy back to YAML.
+    """
 
     @classmethod
-    def _kw_from_yaml(cls, data, args):
+    def load_from_yaml(cls, config, **kwargs):
+        """Load the YAML configuration
+
+        Load the YAML configuration passed as a *config* data structure with a
+        given *name*.  This method should return an instance of a
+        YAMLConfigObject subclass.
+        """
+        yaml_attributes = cls._get_yaml_attributes()
+        kwargs.update(cls._kw_from_yaml(config, yaml_attributes))
+        return cls(**kwargs)
+
+    @classmethod
+    def _kw_from_yaml(cls, data, attributes):
         """Create some keyword arguments based on a YAML dictionary
 
         Return a dictionary suitable to be used as Python keyword arguments in
-        an object constructor using values from some YAML *data*.  The *args*
-        is a list of keys to look up from the *data* and convert to a
-        dictionary.  Keys that are not in the YAML data are simply omitted from
-        the returned keywords, relying on default values in object
+        an object constructor using values from some YAML *data*.  The
+        *attributes* are a list of keys to look up from the *data* and convert
+        to a dictionary.  Keys that are not in the YAML data are simply omitted
+        from the returned keywords, relying on default values in object
         constructors.
+
         """
         return {
-            k: v for k, v in ((k, data.get(k)) for k in args) if v
+            k: v for k, v in ((k, data.get(k))for k in attributes)
+            if v is not None
         } if data else dict()
 
-    def _get_attrs(self):
-        """Return a set of attribute names for .to_dict() and .to_yaml()"""
+    @classmethod
+    def _get_yaml_attributes(cls):
+        """Get a set of YAML attribute names
+
+        Get a set object with all the YAML configuration attribute names for
+        the configuration class.  This can be used to make keyword arguments
+        when creating a configuration object as well as when serialising it
+        back to YAML.
+        """
+        return set()
+
+    @classmethod
+    def to_yaml(cls, dumper, data):
+        return dumper.represent_mapping(
+            'tag:yaml.org,2002:map', {
+                key: getattr(data, key)
+                for key in cls._get_yaml_attributes()
+            }
+        )
+
+
+class _YAMLObject:
+    """Base class with helper methods to initialise objects from YAML data."""
+
+    @classmethod
+    def from_yaml(cls, config, **kwargs):
+        """Load the YAML configuration
+
+        Load the YAML configuration passed as a *config* data structure with a
+        given *name*.  This method should return an instance of a _YAMLObject
+        subclass.
+        """
+        yaml_attributes = cls._get_yaml_attributes()
+        kwargs.update(cls._kw_from_yaml(config, yaml_attributes))
+        return cls(**kwargs)
+
+    @classmethod
+    def _kw_from_yaml(cls, data, attributes):
+        """Create some keyword arguments based on a YAML dictionary
+
+        Return a dictionary suitable to be used as Python keyword arguments in
+        an object constructor using values from some YAML *data*.  The
+        *attributes* are a list of keys to look up from the *data* and convert
+        to a dictionary.  Keys that are not in the YAML data are simply omitted
+        from the returned keywords, relying on default values in object
+        constructors.
+
+        """
+        return {
+            k: v for k, v in ((k, data.get(k))for k in attributes)
+            if v is not None
+        } if data else dict()
+
+    @classmethod
+    def _get_yaml_attributes(cls):
+        """Get a set of YAML attribute names
+
+        Get a set object with all the YAML configuration attribute names for
+        the configuration class.  This can be used to make keyword arguments
+        when creating a configuration object as well as when serialising it
+        back to YAML.
+        """
         return set()
 
     def to_dict(self):
@@ -54,7 +136,8 @@ class YAMLObject:
         """
         return {
             attr: value for attr, value in (
-                (attr, getattr(self, attr)) for attr in self._get_attrs()
+                (attr, getattr(self, attr))
+                for attr in self._get_yaml_attributes()
             ) if value is not None
         }
 
@@ -69,16 +152,49 @@ class YAMLObject:
         return yaml.dump(self.to_dict())
 
 
-class Filter:
+class Filter(YAMLConfigObject):
     """Base class to implement arbitrary configuration filters."""
 
     def __init__(self, items):
         """The *items* can be any data used to filter configurations."""
         self._items = items
 
+    @classmethod
+    def to_yaml(cls, dumper, data):
+        return dumper.represent_mapping(
+            u'tag:yaml.org,2002:map', {
+                key: value for key, value in data._items.items()
+            }
+        )
+
     def match(self, **kw):
         """Return True if the given *kw* keywords match the filter."""
         raise NotImplementedError("Filter.match() is not implemented")
+
+    def combine(self, items):
+        """Try to avoid making a new filter if we can make a combined
+        filter matching both our existing data and the new items.
+
+        The *items* can be any data used to filter configurations.
+        Return True if we can combine, False otherwise.
+        """
+        return False
+
+
+def _merge_filter_lists(old, update):
+    """Merge the items for a Blocklist or Passlist.
+
+    *old*    is the items from the existing filter list that we
+             have already created.
+
+    *update* are the items of a new filter list, of the same type as
+             *old*, loaded from another configuration source. We are
+             going represent this second filter list declaration by
+             updating *old*, rather than by having a new object to
+             represent it.
+    """
+    for key, value in update.items():
+        old.setdefault(key, list()).extend(value)
 
 
 class Blocklist(Filter):
@@ -88,6 +204,9 @@ class Blocklist(Filter):
     Any configuration with a key-value pair present in these lists will be
     rejected.
     """
+
+    yaml_tag = u'!BlockList'
+    name = 'blocklist'
 
     def match(self, **kw):
         for k, v in kw.items():
@@ -99,6 +218,10 @@ class Blocklist(Filter):
 
         return True
 
+    def combine(self, items):
+        _merge_filter_lists(self._items, items)
+        return True
+
 
 class Passlist(Filter):
     """Passlist filter to only accept certain configurations.
@@ -107,6 +230,9 @@ class Passlist(Filter):
     For a configuration to be accepted, there must be a value found in each of
     these lists.
     """
+
+    yaml_tag = u'!PassList'
+    name = 'passlist'
 
     def match(self, **kw):
         for k, wl in self._items.items():
@@ -118,6 +244,10 @@ class Passlist(Filter):
 
         return True
 
+    def combine(self, items):
+        _merge_filter_lists(self._items, items)
+        return True
+
 
 class Regex(Filter):
     """Regex filter to only accept certain configurations.
@@ -127,6 +257,9 @@ class Regex(Filter):
     a configuration to be accepted, its value must match the regular expression
     for each key specified in the filter items.
     """
+
+    yaml_tag = u'!Regex'
+    name = 'regex'
 
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)
@@ -148,7 +281,11 @@ class Combination(Filter):
     the order of the keys.
     """
 
+    yaml_tag = u'!Combination'
+    name = 'combination'
+
     def __init__(self, items):
+        super().__init__(items)
         self._keys = tuple(items['keys'])
         self._values = list(tuple(values) for values in items['values'])
 
@@ -156,25 +293,51 @@ class Combination(Filter):
         filter_values = tuple(kw.get(k) for k in self._keys)
         return filter_values in self._values
 
+    def combine(self, items):
+        keys = tuple(items['keys'])
+        if keys != self._keys:
+            return False
 
-class FilterFactory(YAMLObject):
+        self._values.extend([tuple(values) for values in items['values']])
+        return True
+
+
+class FilterFactory:
     """Factory to create filters from YAML data."""
 
     _classes = {
-        'blocklist': Blocklist,
-        'passlist': Passlist,
-        'regex': Regex,
-        'combination': Combination,
+        cls.name: cls for cls in [
+            Blocklist,
+            Passlist,
+            Regex,
+            Combination,
+        ]
     }
 
     @classmethod
-    def from_yaml(cls, filter_params):
+    def load_from_yaml(cls, filter_params):
         """Iterate through the YAML filters and return Filter objects."""
         filter_list = []
+        filters = {}
+
         for f in filter_params:
             for filter_type, items in f.items():
-                filter_cls = cls._classes[filter_type]
-                filter_list.append(filter_cls(items))
+                for g in filters.get(filter_type, []):
+                    if g.combine(items):
+                        break
+                else:
+                    filter_cls = cls._classes[filter_type]
+                    # We need to provide the new filter with its own
+                    # item arrays, so that we don't accidentally
+                    # corrupt the initial dictionary we were
+                    # passed. That can cause bleed-through, where our
+                    # filter terms start being applied in other places
+                    # unexpectedly.
+                    filter_instance = filter_cls(copy.deepcopy(items))
+                    filters.setdefault(filter_type, list()).append(
+                        filter_instance)
+                    filter_list.append(filter_instance)
+
         return filter_list
 
     @classmethod
@@ -186,11 +349,11 @@ class FilterFactory(YAMLObject):
         Otherwise, return *default_filters*.
         """
         params = data.get('filters')
-        return cls.from_yaml(params) if params else default_filters
+        return cls.load_from_yaml(params) if params else default_filters
 
 
 def default_filters_from_yaml(data):
     return {
-        entry_type: FilterFactory.from_yaml(filters_data)
+        entry_type: FilterFactory.load_from_yaml(filters_data)
         for entry_type, filters_data in data.get('default_filters', {}).items()
     }

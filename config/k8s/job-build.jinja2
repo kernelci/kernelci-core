@@ -2,8 +2,15 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: {{ job_name }}
+  labels:
+    kernelci/build: "{{ "FIXME" | env_override('BUILD_ID') }}"
+    kernelci/arch: "{{ "FIXME" | env_override('ARCH') }}"
+    kernelci/buildenv: "{{ "FIXME" | env_override('BUILD_ENVIRONMENT') }}"
+    kernelci/commit: "{{ "FIXME" | env_override('COMMIT_ID') }}"
+    kernelci/buildconfig: "{{ "FIXME" | env_override('BUILD_CONFIG') }}"
 spec:
   completions: 1
+  backoffLimit: 20
   template:
     spec:
       restartPolicy: OnFailure
@@ -38,6 +45,7 @@ spec:
       containers:
       - name: kci-build
         image: {{ "FIXME" | env_override('DOCKER_BASE') }}{{ "FIXME" | env_override('DOCKER_IMAGE') }}
+        imagePullPolicy: Always
 
         volumeMounts:
         - mountPath: "/scratch"
@@ -61,11 +69,14 @@ echo -e \"\
 kdir: ${KDIR}\n\
 verbose: true\n\
 db_config: ${KCI_DB_CONFIG}\n\
+storage_config: ${KCI_STORAGE_CONFIG}\n\
 \n\
 [db:${KCI_DB_CONFIG}]\n\
 db_token: ${KCI_API_TOKEN}\n\
 api: ${KCI_API_URL}\n\
 \n\
+[storage:${KCI_STORAGE_CONFIG}]\n\
+storage_cred: ${KCI_API_TOKEN}\n\
 [kci_build]\n\
 ${jopt}\
 build_env: ${BUILD_ENVIRONMENT}\n\
@@ -130,6 +141,8 @@ exit 0; \
           value: "{{ "FIXME" | env_override('BUILD_CONFIG') }}"
         - name: KCI_DB_CONFIG
           value: "{{ "FIXME" | env_override('KCI_DB_CONFIG') }}"
+        - name: KCI_STORAGE_CONFIG
+          value: "{{ "FIXME" | env_override('KCI_STORAGE_CONFIG') }}"
         - name: KCI_API_URL
           value: "{{ "FIXME" | env_override('KCI_API_URL') }}"
         - name: KCI_API_TOKEN

@@ -30,7 +30,6 @@ import urllib.parse
 import requests
 from kernelci import shell_cmd, print_flush, __version__ as kernelci_version
 import kernelci.elf
-from kernelci.storage import upload_files
 import kernelci.config
 
 # This is used to get the mainline tags as a minimum for git describe
@@ -69,40 +68,6 @@ KERNEL_IMAGE_NAMES = {
 }
 
 
-def _get_last_commit_file_name(config):
-    return '_'.join(['last-commit', config.name])
-
-
-def get_last_commit(config, storage):
-    """Get the last commit SHA that was built for a given build configuration
-
-    *config* is a BuildConfig object
-    *storage* is the base URL for the storage server
-
-    The returned value is the SHA of the last git commit that was built, or
-    None if an error occurred or if the configuration has never been built.
-    """
-    last_commit_url = "{storage}/{tree}/{file_name}".format(
-        storage=storage, tree=config.tree.name,
-        file_name=_get_last_commit_file_name(config))
-    last_commit_resp = requests.get(last_commit_url)
-    if last_commit_resp.status_code != 200:
-        return False
-    return last_commit_resp.text.strip()
-
-
-def set_last_commit(config, api, token, commit):
-    """Set the last commit SHA that was built for a given build configuration
-
-    *config* is a BuildConfig object
-    *api* is the URL of the KernelCI backend API
-    *token* is the backend API token to use
-    *commit* is the git SHA to send
-    """
-    upload_files(api, token, config.tree.name,
-                 {_get_last_commit_file_name(config): commit})
-
-
 def get_branch_head(config):
     """Get the commit SHA for the head of the branch of a given configuration
 
@@ -117,26 +82,6 @@ def get_branch_head(config):
     if not head:
         return False
     return head.split()[0]
-
-
-def check_new_commit(config, storage):
-    """Check if there is a new commit that hasn't been built yet
-
-    *config* is a BuildConfig object
-    *storage* is the base URL of the storage server
-
-    The returned value is the git SHA of a new commit to be built if there is
-    one, or True if the last built commit is the same as the branch head
-    (nothing to do), or False if an error occurred.
-    """
-    last_commit = get_last_commit(config, storage)
-    branch_head = get_branch_head(config)
-    if not branch_head:
-        return False
-    elif last_commit == branch_head:
-        return True
-    else:
-        return branch_head
 
 
 def _update_remote(config, path):
@@ -345,36 +290,6 @@ def generate_fragments(config, kdir):
             generate_kselftest_fragment(frag, kdir)
         elif frag.configs:
             generate_config_fragment(frag, kdir)
-
-
-def push_tarball(config, kdir, storage, api, token):
-    """Create and push a linux kernel source tarball to the storage server
-
-    If a tarball with a same name is already on the storage server, no new
-    tarball is uploaded.  Otherwise, a tarball is created
-
-    *config* is a BuildConfig object
-    *kdir* is the path to a kernel source directory
-    *storage* is the base URL of the storage server
-    *api* is the URL of the KernelCI backend API
-    *token* is the token to use with the KernelCI backend API
-
-    The returned value is the URL of the uploaded tarball.
-    """
-    tarball_name = "linux-src_{}.tar.gz".format(config.name)
-    describe = git_describe(config.tree.name, kdir)
-    path = '/'.join(list(item.replace('/', '-') for item in [
-        config.tree.name, config.branch, describe
-    ]))
-    tarball_url = urllib.parse.urljoin(storage, '/'.join([path, tarball_name]))
-    resp = requests.head(tarball_url)
-    if resp.status_code == 200:
-        return tarball_url
-    tarball = "{}.tar.gz".format(config.name)
-    make_tarball(kdir, tarball)
-    upload_files(api, token, path, {tarball_name: open(tarball, 'rb')})
-    os.unlink(tarball)
-    return tarball_url
 
 
 def _download_file(url, dest_filename, chunk_size=1024):
@@ -1045,14 +960,16 @@ class EnvironmentData(Step):
             return False
 
         build_env, arch = (opts[key] for key in keys)
-        cross_compile = build_env.get_cross_compile(arch) or ''
-        cross_compile_compat = build_env.get_cross_compile_compat(arch) or ''
+        cross_compile, cross_compile_compat = (
+            build_env.get_arch_param(arch, param) or ''
+            for param in ('cross_compile', 'cross_compile_compat')
+        )
         cc = build_env.cc
         cc_version_cmd = "{}{} --version 2>&1".format(
             cross_compile if cross_compile and cc == 'gcc' else '', cc)
         cc_version_full = shell_cmd(cc_version_cmd).splitlines()[0]
         make_opts = {'KBUILD_BUILD_USER': 'KernelCI'}
-        make_opts.update(build_env.get_arch_opts(arch))
+        make_opts.update(build_env.get_arch_param(arch, 'opts') or {})
         platform_data = {'uname': platform.uname()}
 
         self._meta.get('bmeta')['environment'] = {
@@ -1277,6 +1194,7 @@ class FetchFirmware(Step):
         # CONFIG_EXTRA_FIRMWARE_DIR need absolute path
         full_path = os.path.abspath(self._output_path)
         fwdir = os.path.join(full_path, 'linux-firmware')
+        fwfiles = os.path.join(full_path, 'firmware-files')
         key = self._kernel_config_getkey('CONFIG_EXTRA_FIRMWARE')
         if key and key == '""':
             if verbose:
@@ -1287,9 +1205,12 @@ class FetchFirmware(Step):
         repourl = 'git://git.kernel.org/pub/scm/linux/kernel/git/\
 firmware/linux-firmware.git'
         clone_git(repourl, fwdir, 'main')
+        # We need to extract files and symlinks using copy-firmware.sh
+        shell_cmd(f"rm -rf {fwfiles} && mkdir {fwfiles}")
+        shell_cmd(f"cd {fwdir};./copy-firmware.sh {fwfiles};cd -")
         # We need to override directory where firmware stored
         self._kernel_config_setkey('CONFIG_EXTRA_FIRMWARE_DIR',
-                                   f'"{fwdir}"')
+                                   f'"{fwfiles}"')
         bmeta = self._meta.get('bmeta')
         fbmeta = bmeta.setdefault('firmware', dict())
         fbmeta['commit'] = kernelci.build.head_commit(fwdir)

@@ -43,7 +43,7 @@
 
 [kci_test]
 
-# lab_config: localhost
+# runtime_config: localhost
 # bmeta_json: linux/_install_/bmeta.json
 # dtbs_json: linux/_install_/dtbs.json
 

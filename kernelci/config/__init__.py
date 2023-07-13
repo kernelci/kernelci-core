@@ -21,14 +21,18 @@ import yaml
 
 import kernelci
 import kernelci.config
+import kernelci.config.api
 import kernelci.config.build
 import kernelci.config.db
-import kernelci.config.lab
+import kernelci.config.job
+import kernelci.config.runtime
 import kernelci.config.rootfs
+import kernelci.config.scheduler
+import kernelci.config.storage
 import kernelci.config.test
 
 
-def _iterate_yaml_files(config_path):
+def iterate_yaml_files(config_path):
     if config_path.endswith('.yaml'):
         yaml_files = [config_path]
     else:
@@ -39,34 +43,55 @@ def _iterate_yaml_files(config_path):
             yield yaml_path, data
 
 
-def validate_yaml(config_path, entries):
-    for yaml_path, data in _iterate_yaml_files(config_path):
-        for name, value in ((k, v) for k, v in data.items() if k in entries):
-            if isinstance(value, dict):
-                keys = value.keys()
-            elif isinstance(value, list):
-                keys = value
-            else:
-                keys = []
-            err = kernelci.sort_check(keys)
-            if err:
-                return "Broken order in {} {}: '{}' is before '{}'".format(
-                    yaml_path, name, err[0], err[1])
+def get_config_paths(config_paths):
+    if not config_paths:
+        config_paths = []
+        for config_path in ['config/core', '/etc/kernelci/core']:
+            if os.path.isdir(config_path):
+                config_paths.append(config_path)
+                break
+    elif isinstance(config_paths, str):
+        config_paths = [config_paths]
+    return config_paths
+
+
+def validate_yaml(config_paths, entries):
+    config_paths = get_config_paths(config_paths)
+    if not config_paths:
+        return None
+
+    for path in config_paths:
+        for yaml_path, data in iterate_yaml_files(path):
+            for name, value in (
+                    (k, v) for k, v in data.items() if k in entries):
+                if isinstance(value, dict):
+                    keys = value.keys()
+                elif isinstance(value, list):
+                    keys = (
+                        [] if len(value) and isinstance(value[0], dict)
+                        else value
+                    )
+                else:
+                    keys = []
+                err = kernelci.sort_check(keys)
+                if err:
+                    return "Broken order in {} {}: '{}' is before '{}'".format(
+                        yaml_path, name, err[0], err[1])
     return None
 
 
-def load_yaml(config_path, validate_entries=None):
-    """Load the YAML configuration
+def load_single_yaml(config_path):
+    """Load the YAML configuration from a single directory or file
 
-    Load all the YAML files found in the configuration directory into a single
-    dictionary and return it.  Entries that have a same name in multiple files
-    will be merged together under the same top-level dictionary key.
+    Load all the YAML files found in a configuration directory or single file
+    into a dictionary and return it.  Entries that have a same name in multiple
+    files will be merged together under the same top-level dictionary key.
 
     *config_path* is the path to the YAML config directory, or alternative a
-                  single YAML file
+                  single YAML file.
     """
     config = dict()
-    for yaml_path, data in _iterate_yaml_files(config_path):
+    for yaml_path, data in iterate_yaml_files(config_path):
         for name, value in data.items():
             config_value = config.setdefault(name, value.__class__())
             if hasattr(config_value, 'update'):
@@ -74,11 +99,68 @@ def load_yaml(config_path, validate_entries=None):
             elif hasattr(config_value, 'extend'):
                 config_value.extend(value)
             else:
-                config[k] = v
+                config[name] = value
     return config
 
 
-def from_data(data):
+def _merge_trees(old, update):
+    """Merge two values loaded from YAML
+
+    This combines two values recursively that have been loaded from
+    YAML.  The data from *update* will be overlaid onto *old*
+    according to the rules:
+
+    - If *old* and *update* are dictionaries, their keys will be
+      unified, with the values for any keys present in both
+      dictionaries being merged recursively.
+
+    - If *old* and *update* are lists, the result is the concatenation
+      of the two lists.
+
+    - Otherwise, *update* replaces *old*.
+
+    Neither *old* nor *update* is modified; any modifications required
+    lead to a new value being returned.
+
+    """
+    if isinstance(old, dict) and isinstance(update, dict):
+        res = dict()
+        for k in (set(old) | set(update)):
+            if (k in old) and (k in update):
+                res[k] = _merge_trees(old[k], update[k])
+            elif k in old:
+                res[k] = old[k]
+            else:
+                res[k] = update[k]
+        return res
+    elif isinstance(old, list) and isinstance(update, list):
+        return old + update
+    else:
+        return update
+
+
+def load_yaml(config_paths):
+    """Load the YAML configuration
+
+    Load all the YAML files in all the specific configuration directories or
+    files and aggregate them together.  Later paths take precedence over
+    earlier ones.  This enables combining sources of configuration data from
+    multiple places.
+
+    *config_paths* is a single string or an ordered list of YAML configuration
+                   directories or YAML files, with later entries having higher
+                   priority.
+    """
+    if not isinstance(config_paths, list):
+        config_paths = [config_paths]
+    config = dict()
+    for path in config_paths:
+        data = load_single_yaml(path)
+        config = _merge_trees(config, data)
+    return config
+
+
+def load_data(data):
     """Create configuration objects from the YAML data
 
     Create a top-level dictionary with all the configuration objects using the
@@ -88,23 +170,30 @@ def from_data(data):
     """
     config = dict()
     filters = kernelci.config.base.default_filters_from_yaml(data)
+    config.update(kernelci.config.api.from_yaml(data, filters))
     config.update(kernelci.config.build.from_yaml(data, filters))
     config.update(kernelci.config.db.from_yaml(data, filters))
-    config.update(kernelci.config.lab.from_yaml(data, filters))
+    config.update(kernelci.config.job.from_yaml(data, filters))
+    config.update(kernelci.config.runtime.from_yaml(data, filters))
+    config.update(kernelci.config.scheduler.from_yaml(data, filters))
     config.update(kernelci.config.rootfs.from_yaml(data, filters))
+    config.update(kernelci.config.storage.from_yaml(data, filters))
     config.update(kernelci.config.test.from_yaml(data, filters))
     return config
 
 
-def load(config_path):
+def load(config_paths):
     """Load the configuration from YAML files
 
-    Load all the YAML files found in the configuration directory then create
-    a dictionary containing the configuration objects and return it.
+    Load all the YAML files found in the configuration directories then create
+    a dictionary containing the configuration objects and return it.  Note that
+    the config paths are in priority order, with later entries overriding
+    earlier ones.
 
-    *config_path* is the path to the YAML config directory
+    *config_paths* is a list of YAML config directories or unified files
     """
-    if config_path is None:
+    config_paths = get_config_paths(config_paths)
+    if not config_paths:
         return {}
-    data = load_yaml(config_path)
-    return from_data(data)
+    data = load_yaml(config_paths)
+    return load_data(data)

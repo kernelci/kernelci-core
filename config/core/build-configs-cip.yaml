@@ -134,7 +134,25 @@ build_configs:
   cip_4.4:
     tree: cip
     branch: 'linux-4.4.y-cip'
-    variants: *cip_variants_4_4
+    variants:
+      gcc-10:
+        build_environment: gcc-10
+        architectures:
+          arm:
+            base_defconfig: 'multi_v7_defconfig'
+            extra_configs:
+              - 'allnoconfig'
+              - 'cip://4.4.y-cip/arm/qemu_arm_defconfig'
+            filters:
+              - blocklist: {
+                defconfig: ['rpc_defconfig'] # gcc-10 not supported
+              }
+          x86_64:
+            base_defconfig: 'x86_64_defconfig'
+            fragments: [x86-chromebook]
+            extra_configs:
+              - 'allnoconfig'
+              - 'cip://4.4.y-cip/x86/cip_qemu_defconfig'
 
   cip_4.4-rc:
     tree: cip-gitlab
@@ -155,17 +173,22 @@ build_configs:
         architectures:
           arm:
             base_defconfig: 'multi_v7_defconfig'
+            fragments: [kselftest]
             extra_configs:
               - 'allnoconfig'
               - 'cip://4.19.y-cip/arm/qemu_arm_defconfig'
+            filters:
+              - blocklist: {
+                defconfig: ['rpc_defconfig'] # gcc-10 not supported
+              }
           arm64:
-            fragments: [arm64-chromebook]
+            fragments: [kselftest, arm64-chromebook]
             extra_configs:
               - 'allnoconfig'
               - 'cip://4.19.y-cip/arm64/qemu_arm64_defconfig'
           x86_64:
             base_defconfig: 'x86_64_defconfig'
-            fragments: [x86-chromebook]
+            fragments: [kselftest, x86-chromebook]
             extra_configs:
               - 'allnoconfig'
               - 'cip://4.19.y-cip/x86/cip_qemu_defconfig'
@@ -183,7 +206,36 @@ build_configs:
   cip_5.10:
     tree: cip
     branch: 'linux-5.10.y-cip'
-    variants: *cip_variants_kselftest
+    variants:
+      gcc-10:
+        build_environment: gcc-10
+        architectures:
+          arm:
+            base_defconfig: 'multi_v7_defconfig'
+            extra_configs:
+              - 'allnoconfig'
+              - 'cip://5.10.y-cip/arm/qemu_arm_defconfig'
+            filters:
+              - blocklist: {
+                defconfig: ['rpc_defconfig'] # gcc-10 not supported
+              }
+          arm64:
+            fragments: [kselftest, arm64-chromebook]
+            extra_configs:
+              - 'allnoconfig'
+              - 'cip://5.10.y-cip/arm64/qemu_arm64_defconfig'
+          x86_64:
+            base_defconfig: 'x86_64_defconfig'
+            fragments: [kselftest, x86-chromebook]
+            extra_configs:
+              - 'allnoconfig'
+              - 'cip://5.10.y-cip/x86/cip_qemu_defconfig'
+          riscv:
+            base_defconfig: 'riscv_defconfig'
+            fragments: [kselftest]
+            extra_configs:
+              - 'allnoconfig'
+              - 'cip://5.10.y-cip/riscv/qemu_riscv64_defconfig'
 
   cip_5.10-rc:
     tree: cip-gitlab
@@ -194,6 +246,40 @@ build_configs:
     tree: cip
     branch: 'linux-5.10.y-cip-rt'
     variants: *cip_variants_preempt_rt
+
+  cip_6.1:
+    tree: cip
+    branch: 'linux-6.1.y-cip'
+    variants:
+      gcc-10:
+        build_environment: gcc-10
+        architectures:
+          arm:
+            base_defconfig: 'multi_v7_defconfig'
+            extra_configs:
+              - 'allnoconfig'
+              - 'cip://6.1.y-cip/arm/qemu_arm_defconfig'
+            filters:
+              - blocklist: {
+                defconfig: ['rpc_defconfig'] # gcc-10 not supported
+              }
+          arm64:
+            fragments: [kselftest, arm64-chromebook]
+            extra_configs:
+              - 'allnoconfig'
+              - 'cip://6.1.y-cip/arm64/qemu_arm64_defconfig'
+          x86_64:
+            base_defconfig: 'x86_64_defconfig'
+            fragments: [kselftest, x86-chromebook]
+            extra_configs:
+              - 'allnoconfig'
+              - 'cip://6.1.y-cip/x86/cip_qemu_defconfig'
+          riscv:
+            base_defconfig: 'riscv_defconfig'
+            fragments: [kselftest]
+            extra_configs:
+              - 'allnoconfig'
+              - 'cip://6.1.y-cip/riscv/qemu_riscv64_defconfig'
 
   cip_pavel-test:
     tree: cip-gitlab

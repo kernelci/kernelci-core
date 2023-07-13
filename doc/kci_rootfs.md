@@ -20,12 +20,11 @@ You will be using `kernelci/debos:kernelci` docker image for this purpose.
 3. Start the docker and get into it.
 
    ```
-   sudo docker run -itd \
+   $ sudo docker run -it \
      -v $(pwd)/kernelci-core:/kernelci-core \
      --device /dev/kvm -v /dev:/dev \
-     --privileged kernelci/debos:kernelci
-   sudo docker exec -it <container_id> bash
-   cd /kernelci-core/
+     --privileged kernelci/debos:kernelci /bin/bash
+   $ cd /kernelci-core/
    ```
 
 4. Now to check if everything works, type `./kci_rootfs --help` it should
@@ -116,7 +115,8 @@ You will be using `kernelci/debos:kernelci` docker image for this purpose.
     ./kci_rootfs build \
         --rootfs-config bullseye \
         --data-path config/rootfs/debos \
-        --arch i386
+        --arch i386 \
+        --output /tmp
     ```
 
    depending on your network speed, this will take some time to complete.
@@ -129,10 +129,10 @@ You will be using `kernelci/debos:kernelci` docker image for this purpose.
     Powering off.
     ==== Recipe done ====
     ```
-    Finally newly built rootfs images can be found under the directory pointed by `--data-path`. In our case, its `config/rootfs/debos/bullseye/i386/`
+    Finally newly built rootfs images can be found under the directory pointed by `--output`. In our case, its `/tmp`.
 
     ```
-    $ ls config/rootfs/debos/bullseye/i386/
+    $ ls /tmp/_install_/bullseye/i386/
     build_info.json  full.rootfs.cpio.gz  full.rootfs.tar.xz  initrd.cpio.gz  rootfs.cpio.gz  rootfs.ext4.xz
     ```
 

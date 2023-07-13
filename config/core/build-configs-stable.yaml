@@ -1,5 +1,8 @@
 trees:
 
+  cip:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/cip/linux-cip.git"
+
   kernelci:
     url: "https://github.com/kernelci/linux.git"
 
@@ -20,19 +23,36 @@ stable_variants: &stable_variants
     architectures: &stable_architectures
       arc:
         base_defconfig: 'haps_hs_smp_defconfig'
-        extra_configs: ['allnoconfig']
+# Disabling to reduce load
+#        extra_configs: ['allnoconfig']
         filters:
+          - regex: { defconfig: 'haps_hs_smp_defconfig' }
           # remove any non-ARCv2 defconfigs since we only have ARCv2 toolchain
-          - blocklist:
-              defconfig:
-                - 'axs101_defconfig'
-                - 'nps_defconfig'
-                - 'nsim_700_defconfig'
-                - 'nsimosci_defconfig'
-                - 'tb10x_defconfig'
+# Disabling to reduce load
+#          - blocklist:
+#              defconfig:
+#                - 'axs101_defconfig'
+#                - 'nps_defconfig'
+#                - 'nsim_700_defconfig'
+#                - 'nsimosci_defconfig'
+#                - 'tb10x_defconfig'
       arm:
         base_defconfig: 'multi_v7_defconfig'
-        extra_configs: ['allnoconfig']
+# Disabling to reduce load
+#        extra_configs: ['allnoconfig']
+
+        filters:
+          - passlist:
+              defconfig:
+                - 'imx_v6_v7_defconfig'
+                - 'multi_v5_defconfig'
+                - 'multi_v7_defconfig'
+                - 'omap2plus_defconfig'
+                - 'vexpress_defconfig'
+# Disabling to reduce load
+#          - blocklist:
+#              defconfig:
+#                - 'rpc_defconfig'
       arm64:
         extra_configs: ['allnoconfig']
         fragments: [arm64-chromebook]
@@ -43,7 +63,9 @@ stable_variants: &stable_variants
         base_defconfig: '32r2el_defconfig'
         extra_configs: ['allnoconfig']
         filters:
-          - blocklist: {defconfig: ['generic_defconfig']}
+          - regex: { defconfig: '32r2el_defconfig' }
+# Disabling to reduce load
+#          - blocklist: {defconfig: ['generic_defconfig']}
       riscv:
         extra_configs: ['allnoconfig']
         filters:
@@ -78,6 +100,26 @@ stable_variants_kselftest: &stable_variants_kselftest
 
 
 build_configs:
+
+  cip_stable_4.4:
+    tree: cip
+    branch: 'linux-4.4.y-st'
+    variants: *stable_variants
+
+  cip_stable_4.4-rc:
+    tree: cip
+    branch: 'linux-4.4.y-st-rc'
+    variants: *stable_variants
+
+  cip_stable_4.4-rt:
+    tree: cip
+    branch: 'linux-4.4.y-st-rt'
+    variants: *stable_variants
+
+  cip_stable_4.4-rt-rebase:
+    tree: cip
+    branch: 'linux-4.4.y-st-rt-rebase'
+    variants: *stable_variants
 
   kernelci:
     tree: kernelci
@@ -154,9 +196,14 @@ build_configs:
     branch: 'linux-5.19.y'
     variants: *stable_variants
 
-  stable_5.20:
+  stable_6.1:
     tree: stable
-    branch: 'linux-5.20.y'
+    branch: 'linux-6.1.y'
+    variants: *stable_variants
+
+  stable_6.3:
+    tree: stable
+    branch: 'linux-6.3.y'
     variants: *stable_variants
 
   stable-rc_3.16:
@@ -263,13 +310,21 @@ build_configs:
       tree: stable
       branch: 'linux-5.19.y'
 
-  stable-rc_5.20:
+  stable-rc_6.1:
     tree: stable-rc
-    branch: 'linux-5.20.y'
+    branch: 'linux-6.1.y'
     variants: *stable_variants
     reference:
       tree: stable
-      branch: 'linux-5.20.y'
+      branch: 'linux-6.1.y'
+
+  stable-rc_6.3:
+    tree: stable-rc
+    branch: 'linux-6.3.y'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-6.3.y'
 
   stable-rc_queue-4.4:
     tree: stable-rc
@@ -367,10 +422,18 @@ build_configs:
       tree: stable
       branch: 'linux-5.19.y'
 
-  stable-rc_queue-5.20:
+  stable-rc_queue-6.1:
     tree: stable-rc
-    branch: 'queue/5.20'
+    branch: 'queue/6.1'
     variants: *stable_variants
     reference:
       tree: stable
-      branch: 'linux-5.20.y'
+      branch: 'linux-6.1.y'
+
+  stable-rc_queue-6.3:
+    tree: stable-rc
+    branch: 'queue/6.3'
+    variants: *stable_variants
+    reference:
+      tree: stable
+      branch: 'linux-6.3.y'

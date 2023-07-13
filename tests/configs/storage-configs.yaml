@@ -1,0 +1,22 @@
+storage_configs:
+
+  local:
+    storage_type: ssh
+    base_url: http://172.17.0.1:8002/
+    host: 172.17.0.1
+    port: 8022
+    user: kernelci
+    path: ~/data
+
+  staging.kernelci.org:
+    storage_type: ssh
+    base_url: http://staging.kernelci.org:9080/
+    host: staging.kernelci.org
+    port: 9022
+    user: kernelci
+    path: ~/data
+
+  staging-backend:
+    storage_type: backend
+    base_url: http://storage.staging.kernelci.org/
+    api_url: https://api.staging.kernelci.org

@@ -1,4 +1,44 @@
 rootfs_configs:
+  bookworm-kselftest:
+    rootfs_type: debos
+    debian_release: bookworm
+    arch_list:
+      - amd64
+      - arm64
+      - armhf
+    extra_packages:
+      - alsa-utils
+      - bc
+      - ca-certificates
+      - iproute2
+      - jdim
+      - libasound2
+      - libatm1
+      - libcap2-bin
+      - libelf1
+      - libgdbm-compat4
+      - libgdbm6
+      - libhugetlbfs0
+      - libmnl0
+      - libnuma1
+      - libpam-cap
+      - libpcre2-8-0
+      - libperl5.36
+      - libpsl5
+      - libxtables12
+      - netbase
+      - openssl
+      - perl
+      - perl-modules-5.36
+      - procps
+      - publicsuffix
+      - python3-minimal
+      - python3-unittest2
+      - tpm2-tools
+      - wget
+      - xz-utils
+    script: "scripts/bookworm-kselftest.sh"
+
   buildroot-baseline:
     rootfs_type: buildroot
     git_url: https://github.com/kernelci/buildroot
@@ -151,6 +191,8 @@ rootfs_configs:
         - i915/bxt_dmc_ver1_07.bin
         - i915/kbl_dmc_ver1_04.bin
         - i915/glk_dmc_ver1_04.bin
+        - qcom/a630_gmu.bin
+        - qcom/a630_sqe.fw
     linux_fw_version: d526e044bddaa2c2ad855c7296147e49be0ab03c
     script: "scripts/bullseye-igt.sh"
     test_overlay: "overlays/igt"
@@ -161,6 +203,7 @@ rootfs_configs:
     arch_list:
       - amd64
       - arm64
+      - armel
       - armhf
     extra_packages:
       - bc
@@ -209,6 +252,21 @@ rootfs_configs:
     script: "scripts/bullseye-libcamera.sh"
     test_overlay: "overlays/libcamera"
 
+  bullseye-libhugetlbfs:
+    rootfs_type: debos
+    debian_release: bullseye
+    arch_list:
+      - amd64
+      - arm64
+      - armhf
+    extra_packages:
+      - python-is-python2
+    extra_packages_remove:
+      - bash
+      - e2fslibs
+      - e2fsprogs
+    script: "scripts/bullseye-libhugetlbfs.sh"
+
   bullseye-ltp:
     rootfs_type: debos
     debian_release: bullseye
@@ -217,8 +275,10 @@ rootfs_configs:
       - arm64
       - armhf
     extra_packages:
+      - dosfstools
       - gdb-minimal
       - libnuma-dev
+      - ntfs-3g
     script: "scripts/bullseye-ltp.sh"
 
   bullseye-rt:
@@ -250,8 +310,29 @@ rootfs_configs:
       - bash
       - e2fslibs
       - e2fsprogs
+    extra_firmware:
+        - mediatek/mt8173/vpu_d.bin
+        - mediatek/mt8173/vpu_p.bin
+        - mediatek/mt8183/scp.img
+        - mediatek/mt8186/scp.img
+        - mediatek/mt8192/scp.img
+        - mediatek/mt8195/scp.img
     script: "scripts/bullseye-v4l2.sh"
     test_overlay: "overlays/v4l2"
+
+  bullseye-vdso:
+    rootfs_type: debos
+    debian_release: bullseye
+    arch_list:
+      - amd64
+      - arm64
+      - armel
+      - armhf
+    extra_packages_remove:
+      - bash
+      - e2fslibs
+      - e2fsprogs
+    script: "scripts/bullseye-vdso.sh"
 
   sid:
     rootfs_type: debos
@@ -273,3 +354,55 @@ rootfs_configs:
       - libp11-kit0
       - sensible-utils
     extra_files_remove: *extra_files_remove_bullseye
+
+  sid-kselftest:
+    rootfs_type: debos
+    debian_release: sid
+    debian_mirror: http://deb.debian.org/debian-ports
+    keyring_package: debian-ports-archive-keyring
+    keyring_file: /usr/share/keyrings/debian-ports-archive-keyring.gpg
+    arch_list:
+      - riscv64
+    extra_packages:
+      - bc
+      - ca-certificates
+      - iproute2
+      - jdim
+      - libasound2
+      - libatm1
+      - libcap2-bin
+      - libelf1
+      - libgdbm-compat4
+      - libgdbm6
+      - libhugetlbfs0
+      - libmnl0
+      - libnuma1
+      - libpam-cap
+      - libpcre2-8-0
+      - libperl5.36
+      - libpsl5
+      - libxtables12
+      - netbase
+      - openssl
+      - perl
+      - perl-modules-5.36
+      - procps
+      - publicsuffix
+      - python3-minimal
+      - python3-unittest2
+      - tpm2-tools
+      - wget
+      - xz-utils
+
+  sid-ltp:
+    rootfs_type: debos
+    debian_release: sid
+    debian_mirror: http://deb.debian.org/debian-ports
+    keyring_package: debian-ports-archive-keyring
+    keyring_file: /usr/share/keyrings/debian-ports-archive-keyring.gpg
+    arch_list:
+      - riscv64
+    extra_packages:
+      - gdb-minimal
+      - libnuma-dev
+    script: "scripts/bullseye-ltp.sh"

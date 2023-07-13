@@ -1,0 +1,8 @@
+{% extends 'boot-nfs/generic-barebox-tftp-nfs-template.jinja2' %}
+
+{% block actions %}
+{{ super () }}
+
+{% include 'vdso/vdso.jinja2' %}
+
+{% endblock %}

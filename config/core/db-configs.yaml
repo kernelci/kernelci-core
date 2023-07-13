@@ -15,3 +15,18 @@ db_configs:
   staging.kernelci.org:
     db_type: kernelci_backend
     url: https://api.staging.kernelci.org/
+
+
+storage_configs:
+
+  kernelci.org:
+    storage_type: backend
+    host: kernelci.org
+    base_url: http://storage.kernelci.org/
+    api_url: https://api.kernelci.org
+
+  staging.kernelci.org:
+    storage_type: backend
+    host: staging.kernelci.org
+    base_url: http://storage.staging.kernelci.org/
+    api_url: https://api.staging.kernelci.org

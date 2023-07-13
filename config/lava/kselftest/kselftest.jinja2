@@ -21,8 +21,9 @@
       name: {{ plan }}
       parameters:
         TESTPROG_URL: {{ kselftests_url }}
-        SKIPFILE: skipfile-lkft.yaml
+        SKIPFILE: /dev/null
         TST_CMDFILES: {{ kselftest_collections }}
         TST_CASENAME: {{ kselftest_tests }}
         BOARD: {{ device_type }}
         BRANCH: {{ tree }}
+        SKIP_INSTALL: True

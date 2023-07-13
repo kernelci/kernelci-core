@@ -1,0 +1,4 @@
+# Sample Docker runtime environment to be copied as .docker-env
+#
+# KCI_API_TOKEN=
+# KCI_STORAGE_CREDENTIALS=

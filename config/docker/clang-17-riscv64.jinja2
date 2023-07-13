@@ -1,0 +1,11 @@
+{%- set sub_arch = 'riscv64' %}
+{% extends 'clang-17.jinja2' %}
+
+{% block packages %}
+{{ super() }}
+
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    libgcc-10-dev-riscv64-cross
+
+{%- endblock %}
+

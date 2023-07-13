@@ -1,0 +1,30 @@
+_aliases:
+
+  checkout: &checkout
+    event: node
+    name: checkout
+    result: pass
+
+
+scheduler:
+
+  - job: baseline-x86
+    event:
+      channel: node
+      name: kbuild-gcc-10-x86
+      result: pass
+    runtime:
+      type: lava
+    platforms: [qemu-x86]
+
+  - job: kunit
+    event: *checkout
+    runtime:
+      name: k8s-gke-eu-west4
+    platforms: []
+
+  - job: kbuild-gcc-10-x86
+    event: *checkout
+    runtime:
+      type: kubernetes
+    platforms: []

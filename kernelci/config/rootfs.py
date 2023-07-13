@@ -19,17 +19,13 @@ import sys
 import yaml
 
 from kernelci import sort_check
-from kernelci.config.base import YAMLObject
+from kernelci.config.base import _YAMLObject
 
 
-class RootFS(YAMLObject):
+class RootFS(_YAMLObject):
     def __init__(self, name, rootfs_type):
         self._name = name
         self._rootfs_type = rootfs_type
-
-    @classmethod
-    def from_yaml(cls, rootfs, kw):
-        return cls(**kw)
 
     @property
     def name(self):
@@ -39,6 +35,12 @@ class RootFS(YAMLObject):
     def rootfs_type(self):
         return self._rootfs_type
 
+    @classmethod
+    def _get_yaml_attributes(cls):
+        attrs = super()._get_yaml_attributes()
+        attrs.update({'rootfs_type'})
+        return attrs
+
 
 class RootFS_Debos(RootFS):
     def __init__(self, name, rootfs_type, debian_release=None,
@@ -47,7 +49,8 @@ class RootFS_Debos(RootFS):
                  extra_packages_remove=None,
                  extra_files_remove=None, script="",
                  test_overlay="", crush_image_options=None, debian_mirror="",
-                 keyring_package="", keyring_file=""):
+                 keyring_package="", keyring_file="", debos_memory="",
+                 debos_cpus="", debos_scratchsize=""):
         super().__init__(name, rootfs_type)
         self._debian_release = debian_release
         self._arch_list = arch_list or list()
@@ -62,6 +65,9 @@ class RootFS_Debos(RootFS):
         self._debian_mirror = debian_mirror
         self._keyring_package = keyring_package
         self._keyring_file = keyring_file
+        self._debos_memory = debos_memory
+        self._debos_cpus = debos_cpus
+        self._debos_scratchsize = debos_scratchsize
 
     @classmethod
     def from_yaml(cls, config, name):
@@ -85,6 +91,9 @@ class RootFS_Debos(RootFS):
             'script',
             'test_overlay',
             'crush_image_options',
+            'debos_memory',
+            'debos_cpus',
+            'debos_scratchsize',
         ]))
         return cls(**kw)
 
@@ -140,6 +149,41 @@ class RootFS_Debos(RootFS):
     def keyring_file(self):
         return self._keyring_file
 
+    @property
+    def debos_memory(self):
+        return self._debos_memory
+
+    @property
+    def debos_cpus(self):
+        return self._debos_cpus
+
+    @property
+    def debos_scratchsize(self):
+        return self._debos_scratchsize
+
+    @classmethod
+    def _get_yaml_attributes(cls):
+        attrs = super()._get_yaml_attributes()
+        attrs.update({
+            'debian_release',
+            'arch_list',
+            'debian_mirror',
+            'keyring_package',
+            'keyring_file',
+            'extra_packages',
+            'extra_packages_remove',
+            'extra_files_remove',
+            'extra_firmware',
+            'linux_fw_version',
+            'script',
+            'test_overlay',
+            'crush_image_options',
+            'debos_memory',
+            'debos_cpus',
+            'debos_scratchsize',
+        })
+        return attrs
+
 
 class RootFS_Buildroot(RootFS):
     def __init__(self, name, rootfs_type, git_url, git_branch,
@@ -150,18 +194,6 @@ class RootFS_Buildroot(RootFS):
         self._arch_list = arch_list or list()
         self._frags = frags or list()
         self._attrs = set()
-
-    @classmethod
-    def from_yaml(cls, config, name):
-        kw = {
-            'name': name,
-        }
-        kw.update(cls._kw_from_yaml(config, [
-            'rootfs_type', 'arch_list', 'git_url', 'git_branch', 'frags',
-        ]))
-        obj = cls(**kw)
-        obj._set_attrs(kw.keys())
-        return obj
 
     @property
     def git_url(self):
@@ -182,9 +214,15 @@ class RootFS_Buildroot(RootFS):
     def _set_attrs(self, attrs):
         self._attrs = set(attrs)
 
-    def _get_attrs(self):
-        attrs = super()._get_attrs()
-        attrs.update(self._attrs)
+    @classmethod
+    def _get_yaml_attributes(cls):
+        attrs = super()._get_yaml_attributes()
+        attrs.update({
+            'arch_list',
+            'git_url',
+            'git_branch',
+            'frags',
+        })
         return attrs
 
 
@@ -197,16 +235,6 @@ class RootFS_ChromiumOS(RootFS):
         self._branch = branch
         self._serial = serial
 
-    @classmethod
-    def from_yaml(cls, config, name):
-        kw = {
-            'name': name,
-        }
-        kw.update(cls._kw_from_yaml(config, [
-            'rootfs_type', 'arch_list', 'board', 'branch', 'serial'
-        ]))
-        return cls(**kw)
-
     @property
     def arch_list(self):
         return list(self._arch_list)
@@ -216,15 +244,26 @@ class RootFS_ChromiumOS(RootFS):
         return self._board
 
     @property
-    def serial(self):
-        return self._serial
-
-    @property
     def branch(self):
         return self._branch
 
+    @property
+    def serial(self):
+        return self._serial
 
-class RootFSFactory(YAMLObject):
+    @classmethod
+    def _get_yaml_attributes(cls):
+        attrs = super()._get_yaml_attributes()
+        attrs.update({
+            'arch_list',
+            'board',
+            'branch',
+            'serial',
+        })
+        return attrs
+
+
+class RootFSFactory(_YAMLObject):
     _rootfs_types = {
         'debos': RootFS_Debos,
         'buildroot': RootFS_Buildroot,
@@ -241,7 +280,7 @@ class RootFSFactory(YAMLObject):
         if rootfs_cls is None:
             raise ValueError("Unsupported value {}".format(rootfs_type))
 
-        return rootfs_cls.from_yaml(rootfs, name)
+        return rootfs_cls.from_yaml(rootfs, name=name)
 
 
 def from_yaml(data, filters):
@@ -352,6 +391,9 @@ def _dump_config_debos(config_name, config):
     print('\tdebian_mirror: {}'.format(config.debian_mirror))
     print('\tkeyring_package: {}'.format(config.keyring_package))
     print('\tkeyring_file: {}'.format(config.keyring_file))
+    print('\tdebos_memory: {}'.format(config.debos_memory))
+    print('\tdebos_cpu: {}'.format(config.debos_cpu))
+    print('\tdebos_scratchsize: {}'.format(config.debos_scratchsize))
 
 
 def _dump_config_buildroot(config_name, config):

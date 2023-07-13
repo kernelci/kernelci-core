@@ -1,0 +1,56 @@
+runtimes:
+
+  docker:
+    lab_type: docker
+    filters: []
+    env_file: 'docker-env'
+    user: 'root'
+    timeout: 123
+    volumes:
+      - 'data:/home/kernelci/data'
+
+  k8s-gke-eu-west4:
+    lab_type: kubernetes
+    filters: []
+    context: 'gke_android-kernelci-external_europe-west4-c_kci-eu-west4'
+
+  lab-baylibre:
+    lab_type: legacy.lava_xmlrpc
+    url: 'https://lava.baylibre.com/RPC2/'
+    priority: 0
+    priority_min: 0
+    priority_max: 100
+    queue_timeout:
+      days: 1
+    notify: {}
+    filters:
+      - blocklist:
+          tree:
+            - drm-tip
+            - android
+      - passlist:
+          plan:
+            - baseline
+            - kselftest
+            - preempt-rt
+            - ltp
+
+  lab-collabora-staging:
+    lab_type: legacy.lava_rest
+    url: 'https://staging.lava.collabora.dev/'
+    priority: 45
+    priority_min: 45
+    priority_max: 45
+    queue_timeout:
+      hours: 1
+    notify:
+      callback:
+        token: some-token-name
+        url: https://somewhere.com:12345
+    filters:
+      - blocklist:
+          tree: [android]
+
+  shell:
+    lab_type: shell
+    filters: []

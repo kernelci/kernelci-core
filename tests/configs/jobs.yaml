@@ -1,0 +1,23 @@
+jobs:
+
+  kbuild-gcc-10-x86:
+    template: 'kbuild.jinja2'
+    image: 'gcc-10:{arch}{fragments}'
+    params:
+      config: x86_64_defconfig
+
+  kunit: &kunit-job
+    template: 'kunit.jinja2'
+    image: 'gcc-10:x86-kunit-kernelci'
+    params: {}
+
+  kunit-x86_64:
+    <<: *kunit-job
+    image: 'kernelci/staging-gcc-10:x86-kunit-qemu-kernelci'
+    params:
+      arch: x86_64
+
+  kver:
+    template: 'kver.jinja2'
+    image: 'kernelci'
+    params: {}

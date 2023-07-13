@@ -1,10 +1,18 @@
 # kselftest
 {%- if sub_arch %}
-{%- set pkgarch = ':' + sub_arch %}
-RUN dpkg --add-architecture {{ sub_arch }}
+    {%- if sub_arch == 'riscv64' %}
+        {%- set libc6_pkgarch = '-' + sub_arch + '-cross' %}
+        {%- set pkgarch = '' %}
+    {% else %}
+        {%- set libc6_pkgarch = ':' + sub_arch %}
+        {%- set pkgarch = libc6_pkgarch %}
+        RUN dpkg --add-architecture {{ sub_arch }}
+    {%- endif %}
 {%- endif %}
 RUN apt-get update && apt-get install --no-install-recommends -y \
-   libc6-dev{{ pkgarch }} \
+   libasound2-dev \
+   libasound2-dev{{ pkgarch }} \
+   libc6-dev{{ libc6_pkgarch }} \
    libcap-dev{{ pkgarch }} \
    libcap-ng-dev{{ pkgarch }} \
    libelf-dev{{ pkgarch }} \
@@ -12,8 +20,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
    libhugetlbfs-dev{{ pkgarch }} \
    libmnl-dev{{ pkgarch }} \
    libnuma-dev{{ pkgarch }} \
+   liburing-dev{{ pkgarch }} \
    libpopt-dev{{ pkgarch }} \
-   libasound2-dev{{ pkgarch }} \
-   libasound2-dev \
    patch \
    pkg-config

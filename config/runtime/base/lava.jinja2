@@ -1,0 +1,119 @@
+{# -*- mode: yaml -*- -#}
+
+# KernelCI API & Pipeline experiments
+#
+# This is a work-in-progress template to add LAVA support with the new KernelCI
+# API & Pipeline.
+#
+# Things left to add:
+# * device type
+# * context
+# * priority
+# * timeout
+# * modules
+# * kernel image name
+# * UEFI binaries for QEMU etc.
+# * rootfs URL
+# * Docker image for QEMU
+
+job_name: "[KernelCI API] {{ node.id }} {{ node.name }} {{ node.revision.describe }}"
+
+device_type: qemu
+
+visibility: public
+
+priority: medium
+
+context:
+  arch: x86_64
+  cpu: qemu64
+  guestfs_interface: ide
+
+timeouts:
+  action:
+    minutes: 10
+  actions:
+    power-off:
+      seconds: 30
+  job:
+    minutes: 10
+  queue:
+    days: 2
+
+{% if notify %}
+notify:
+  callback:
+    content-type: {{ notify.callback['content-type']|default('json') }}
+    dataset: {{ notify.callback.dataset|default('all') }}
+    method: {{ notify.callback.method|default('POST') }}
+    {%- if notify.callback.token %}
+    token: {{ notify.callback.token }}
+    {%- endif %}
+    {%- if notify.callback.url %}
+    url: {{ notify.callback.url }}/node/{{ node.id }}
+    {%- else %}{{ kci_raise("Callback URL not provided") }}{%- endif %}
+  criteria:
+    status: finished
+{% endif %}
+
+metadata:
+  node_id: {{ node.id }}
+  # The full YAML configuration can't yet be added as-is, only strings and
+  # integers are accepted by the schema.  See this issue for more details:
+  # https://git.lavasoftware.org/lava/lava/-/issues/610
+  api_config_name: {{ api_config.name }}
+  storage_config_name: {{ storage_config.name }}
+
+actions:
+
+- deploy:
+    images:
+      kernel:
+        image_arg: -kernel {kernel} -append "console=ttyS0,115200 root=/dev/ram0 debug
+          verbose console_msg_format=syslog earlycon"
+        url: {{ node.artifacts.bzImage }}
+      ramdisk:
+        image_arg: -initrd {ramdisk}
+        url: http://storage.kernelci.org/images/rootfs/buildroot/buildroot-baseline/20230421.0/x86/rootfs.cpio.gz
+    os: oe
+    timeout:
+      minutes: 3
+    to: tmpfs
+
+- boot:
+    docker:
+      binary: qemu-system-x86_64
+      image: kernelci/qemu
+    media: tmpfs
+    method: qemu
+    prompts:
+      - '/ #'
+    timeout:
+      minutes: 5
+
+- test:
+    definitions:
+    - from: inline
+      lava-signal: kmsg
+      name: dmesg
+      path: inline/dmesg.yaml
+      repository:
+        metadata:
+          description: baseline test plan
+          environment:
+            - lava-test-shell
+          format: Lava-Test Test Definition 1.0
+          name: baseline
+          os:
+            - debian
+          scope:
+            - functional
+        run:
+          steps:
+            - |
+{%- filter indent(width=16) -%}
+{% block commands %}{% endblock %}
+{%- endfilter %}
+
+    timeout:
+      minutes: 1

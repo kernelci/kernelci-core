@@ -3,6 +3,8 @@
 
 {% extends 'base/kubernetes.jinja2' %}
 
+{%- set always_exit_0 = true %}
+
 {%- block k8s_command %}
         command: ["/usr/bin/env", "python3", "-c"]
 {%- endblock %}

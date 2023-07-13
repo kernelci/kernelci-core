@@ -1,0 +1,25 @@
+- test:
+    timeout:
+      minutes: {{ job_timeout }}
+    definitions:
+    - from: inline
+      repository:
+        metadata:
+          format: Lava-Test Test Definition 1.0
+          name: timesync-off
+          description: Disable systemd time sync services
+        run:
+          steps:
+          - systemctl stop systemd-timesyncd || true
+      name: timesync-off
+      path: inline/timesync-off.yaml
+
+    - repository: https://github.com/kernelci/test-definitions.git
+      from: git
+      revision: kernelci.org
+      path: automated/linux/vdsotest/vdsotest.yaml
+      name: vdsotest
+      parameters:
+        SKIP_INSTALL: True
+        VDSOTESTALL: all
+        VDSO_INSTALL_PATH: /opt/vdso

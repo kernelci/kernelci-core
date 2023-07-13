@@ -7,6 +7,15 @@
 {% endblock %}
 {% block deploy %}
 actions:
+{%- if recovery_image_url %}
+- deploy:
+    timeout:
+      minutes: 10
+    to: {{ recovery_deploy }}
+    images:
+      recovery_image:
+        url: {{ recovery_image_url }}
+{%- endif %}
 - deploy:
     timeout:
       minutes: 10

@@ -67,12 +67,18 @@ def _load_results_file(filename):
     return ret
 
 
-def _run_fluster(test_suite=None):
+def _run_fluster(test_suite=None, timeout=None, jobs=None, decoders=None):
     cmd = ['python3', 'fluster.py', '-ne', 'run',
-           '-j1', '-f', 'junitxml', '-so', RESULTS_FILE]
+           '-f', 'junitxml', '-so', RESULTS_FILE]
 
     if test_suite:
         cmd.extend(['-ts', test_suite])
+    if timeout:
+        cmd.extend(['-t', timeout])
+    if jobs:
+        cmd.extend(['-j', jobs])
+    if decoders:
+        cmd.extend(['-d', decoders])
 
     subprocess.run(cmd, cwd=FLUSTER_PATH, check=False)
 
@@ -87,7 +93,7 @@ def main(args):
         cmd = cmd.fromkeys(cmd, 'echo')
 
     # run fluster tests
-    _run_fluster(args.test_suite)
+    _run_fluster(args.test_suite, args.timeout, args.jobs, args.decoders)
 
     # load test results
     junitxml = _load_results_file(f'{FLUSTER_PATH}/{RESULTS_FILE}')
@@ -119,5 +125,8 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-ts', '--test-suite')
+    parser.add_argument('-t', '--timeout')
+    parser.add_argument('-j', '--jobs')
+    parser.add_argument('-d', '--decoders')
     args = parser.parse_args()
     sys.exit(main(args))

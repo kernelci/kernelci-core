@@ -1,0 +1,13 @@
+{%- set sub_arch = 'arm64' %}
+{% extends 'clang-16.jinja2' %}
+
+{% block packages %}
+{{ super() }}
+
+RUN dpkg --add-architecture arm64
+
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    libgcc-10-dev:arm64
+
+{%- endblock %}
+

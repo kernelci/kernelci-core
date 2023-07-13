@@ -1,6 +1,7 @@
 - test:
     timeout:
       minutes: 5
+    failure_retry: 5
     definitions:
     - repository:
         metadata:
@@ -13,7 +14,7 @@
           - functional
         run:
           steps:
-            - python3 -m cros.runners.lava_runner
+            - python3 -m cros.runners.lava_runner -v
       lava-signal: kmsg
       from: inline
       name: {{ plan }}
