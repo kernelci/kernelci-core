@@ -1,0 +1,123 @@
+{% extends 'base/kernel-ci-base.jinja2' %}
+{% block metadata %}
+{{ super() }}
+{% endblock %}
+{% block main %}
+{{ super() }}
+{% endblock %}
+{% block actions %}
+
+actions:
+- deploy:
+    timeout:
+      minutes: 5
+    to: fvp
+    images:
+{%- if fip_uefi_url %}
+     fip_uefi:
+      url: {{ fip_uefi_url }}
+{%- endif %}
+{%- if uefi_cfg_url %}
+     uefi_cfg:
+      url: {{ uefi_cfg_url }}
+{%- endif %}
+{%- if bl1_url %}
+     bl1:
+      url: {{ bl1_url }}
+{%- endif %}
+{%- if startup_nsh_url %}
+     startup_nsh:
+      url: {{ startup_nsh_url }}
+{%- endif %}
+{%- if initrd_url %}
+     ramdisk:
+      url: {{ initrd_url }}
+      {%- if initrd_compression %}
+      compression: {{ initrd_compression }}
+      {%- endif %}
+{%- endif %}
+{%- if diskfile_url %}
+     diskfile:
+      url: {{ diskfile_url }}
+      {%- if diskfile_compression %}
+      compression: {{ diskfile_compression }}
+      {%- endif %}
+      format: ext4
+      partition: 0
+      overlays:
+       lava: true
+       {%- if modules_url %}
+       modules:
+         url: {{ modules_url }}
+         {%- if modules_compression %}
+         compression: {{ modules_compression }}
+         {%- endif %}
+         format: tar
+         path: /usr
+       {%- endif %}
+{%- endif %}
+     kernel:
+      url: {{ kernel_url }}
+
+- boot:
+    timeout:
+      minutes: {{ boot_timeout|default('20') }}
+    method: fvp
+    docker:
+      name: shrinkwraptool/base-slim:latest
+    image: /tools/Base_RevC_AEMvA_pkg/models/Linux64_GCC-9.3/FVP_Base_RevC-2xAEMvA
+    console_string: 'terminal_0: Listening for serial connection on port (?P<PORT>\d+)'
+    arguments:
+      - "--plugin /tools/Base_RevC_AEMvA_pkg/plugins/Linux64_GCC-9.3/ScalableVectorExtension.so"
+      - "-C SVE.ScalableVectorExtension.has_sme2=0"
+      - "-C SVE.ScalableVectorExtension.has_sme=1"
+      - "-C SVE.ScalableVectorExtension.has_sve2=1"
+      - "-C bp.secure_memory=0"
+      - "-C cluster0.NUM_CORES=4"
+      - "-C cluster1.NUM_CORES=4"
+      - "-C cache_state_modelled=0"
+      - "-C bp.ve_sysregs.mmbSiteDefault=0"
+      - "-C bp.pl011_uart0.untimed_fifos=1"
+      - "-C bp.smsc_91c111.enabled=true"
+      - "-C bp.pl011_uart0.untimed_fifos=1"
+      - "-C bp.secureflashloader.fname='{BL1}'"
+      - "-C bp.flashloader0.fname='{FIP_UEFI}'"
+      - "-C bp.flashloader1.fname='{UEFI_CFG}'"
+      - "--data 'cluster0.cpu0={RAMDISK}@0x84000000'"
+      - "-C bp.hostbridge.interfaceName='tap01'"
+      - "-C bp.dram_metadata.is_enabled=1"
+      - "-C semihosting-enable=true"
+      - "-C cluster0.cpu0.semihosting-cwd='{ARTIFACT_DIR}'"
+      - "-C cluster0.has_large_system_ext=1"
+      - "-C cluster1.has_large_system_ext=1"
+      - "-C cluster0.has_16k_granule=1"
+      - "-C cluster1.has_16k_granule=1"
+      - "-C cluster0.has_branch_target_exception=1"
+      - "-C cluster1.has_branch_target_exception=1"
+      - "-C cluster0.has_rndr=1"
+      - "-C cluster1.has_rndr=1"
+      - "-C cluster0.memory_tagging_support_level=3"
+      - "-C cluster1.memory_tagging_support_level=3"
+      - "-C cluster0.has_arm_v8-1=1"
+      - "-C cluster0.has_arm_v8-2=1"
+      - "-C cluster0.has_arm_v8-3=1"
+      - "-C cluster0.has_arm_v8-4=1"
+      - "-C cluster0.has_arm_v8-5=1"
+      - "-C cluster0.has_arm_v8-6=1"
+      - "-C cluster0.has_arm_v8-7=1"
+      - "-C cluster1.has_arm_v8-1=1"
+      - "-C cluster1.has_arm_v8-2=1"
+      - "-C cluster1.has_arm_v8-3=1"
+      - "-C cluster1.has_arm_v8-4=1"
+      - "-C cluster1.has_arm_v8-5=1"
+      - "-C cluster1.has_arm_v8-6=1"
+      - "-C cluster1.has_arm_v8-7=1"
+      - "-C bp.virtioblockdevice.image_path={DISKFILE}"
+      - "-C bp.hostbridge.userNetPorts=8022=22"
+      - "-C bp.hostbridge.userNetworking=1"
+
+    prompts:
+      - '{{ rootfs_prompt }}'
+
+{% endblock %}
+
