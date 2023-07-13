@@ -3412,6 +3412,7 @@ test_configs:
       - v4l2-decoder-conformance-h264
       - v4l2-decoder-conformance-vp8
       - v4l2-decoder-conformance-vp9
+    filters: *chromebook-decoders-filter
 
   - device_type: sc7180-trogdor-kingoftown-r1
     test_plans:
@@ -3424,6 +3425,7 @@ test_configs:
       - v4l2-decoder-conformance-h264
       - v4l2-decoder-conformance-h265
       - v4l2-decoder-conformance-vp8
+    filters: *chromebook-decoders-filter
 
   - device_type: sc7180-trogdor-lazor-limozeen
     test_plans:
@@ -3444,6 +3446,7 @@ test_configs:
       - v4l2-decoder-conformance-h264
       - v4l2-decoder-conformance-h265
       - v4l2-decoder-conformance-vp8
+    filters: *chromebook-decoders-filter
 
   - device_type: snow
     test_plans:
