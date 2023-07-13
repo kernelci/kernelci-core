@@ -661,10 +661,10 @@ test_plans:
     params:
       job_timeout: '30'
       testsuite: 'AV1-TEST-VECTORS'
-      decoder: 'GStreamer-AV1-V4L2SL-Gst1.0'
+      decoders:
+        - 'GStreamer-AV1-V4L2SL-Gst1.0'
       videodec_parallel_jobs: '1'
-    filters:
-      - regex: {'tree': '(next|mainline|media)'}
+      videodec_timeout: 90
 
   v4l2-decoder-conformance-h264:
     rootfs: debian_bullseye-gst-fluster_nfs
@@ -672,10 +672,11 @@ test_plans:
     params:
       job_timeout: '30'
       testsuite: 'JVT-AVC_V1'
-      decoder: 'GStreamer-H.264-V4L2SL-Gst1.0'
+      decoders:
+        - 'GStreamer-H.264-V4L2-Gst1.0'
+        - 'GStreamer-H.264-V4L2SL-Gst1.0'
       videodec_parallel_jobs: '1'
-    filters:
-      - regex: {'tree': '(next|mainline|media)'}
+      videodec_timeout: 90
 
   v4l2-decoder-conformance-h265:
     rootfs: debian_bullseye-gst-fluster_nfs
@@ -683,10 +684,11 @@ test_plans:
     params:
       job_timeout: '30'
       testsuite: 'JCT-VC-HEVC-V1'
-      decoder: 'GStreamer-H.265-V4L2SL-Gst1.0'
+      decoders:
+        - 'GStreamer-H.265-V4L2-Gst1.0'
+        - 'GStreamer-H.265-V4L2SL-Gst1.0'
       videodec_parallel_jobs: '1'
-    filters:
-      - regex: {'tree': '(next|mainline|media)'}
+      videodec_timeout: 90
 
   v4l2-decoder-conformance-vp8:
     rootfs: debian_bullseye-gst-fluster_nfs
@@ -694,10 +696,11 @@ test_plans:
     params:
       job_timeout: '30'
       testsuite: 'VP8-TEST-VECTORS'
-      decoder: 'GStreamer-VP8-V4L2SL-Gst1.0'
+      decoders:
+        - 'GStreamer-VP8-V4L2-Gst1.0'
+        - 'GStreamer-VP8-V4L2SL-Gst1.0'
       videodec_parallel_jobs: '1'
-    filters:
-      - regex: {'tree': '(next|mainline|media)'}
+      videodec_timeout: 90
 
   v4l2-decoder-conformance-vp9:
     rootfs: debian_bullseye-gst-fluster_nfs
@@ -705,10 +708,10 @@ test_plans:
     params:
       job_timeout: '30'
       testsuite: 'VP9-TEST-VECTORS'
-      decoder: 'GStreamer-VP9-V4L2SL-Gst1.0'
+      decoders:
+        - 'GStreamer-VP9-V4L2SL-Gst1.0'
       videodec_parallel_jobs: '1'
-    filters:
-      - regex: {'tree': '(next|mainline|media)'}
+      videodec_timeout: 90
 
   vdso:
     rootfs: debian_bullseye-vdso_nfs
@@ -1941,8 +1944,6 @@ device_types:
     class: arm64-dtb
     boot_method: depthcharge
     filters: *arm64-chromebook-filters
-    params:
-      videodec_timeout: 90
 
   rk3399-puma-haikou:
     mach: rockchip
@@ -3383,8 +3384,9 @@ test_configs:
       - v4l2-decoder-conformance-h264
       - v4l2-decoder-conformance-vp8
       - v4l2-decoder-conformance-vp9
-    filters:
+    filters: &chromebook-decoders-filter
       - passlist: {defconfig: ['videodec']}
+      - regex: {'tree': '(next|mainline|media)'}
 
   - device_type: rk3399-puma-haikou
     test_plans:
@@ -3421,6 +3423,9 @@ test_configs:
 # Disabling to reduce load
 #      - kselftest-alsa
 #      - kselftest-tpm2
+      - v4l2-decoder-conformance-h264
+      - v4l2-decoder-conformance-vp8
+      - v4l2-decoder-conformance-vp9
 
   - device_type: sc7180-trogdor-kingoftown-r1
     test_plans:
@@ -3430,6 +3435,9 @@ test_configs:
 #      - cros-ec
 #      - kselftest-alsa
 #      - kselftest-tpm2
+      - v4l2-decoder-conformance-h264
+      - v4l2-decoder-conformance-h265
+      - v4l2-decoder-conformance-vp8
 
   - device_type: sc7180-trogdor-lazor-limozeen
     test_plans:
@@ -3447,6 +3455,9 @@ test_configs:
 #      - kselftest-timers
 #      - kselftest-tpm2
 #      - usb
+      - v4l2-decoder-conformance-h264
+      - v4l2-decoder-conformance-h265
+      - v4l2-decoder-conformance-vp8
 
   - device_type: snow
     test_plans:
