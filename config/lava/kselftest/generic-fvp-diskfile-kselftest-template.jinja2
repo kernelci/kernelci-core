@@ -1,0 +1,7 @@
+{% extends 'boot/generic-fvp-boot-template.jinja2' %}
+{% block actions %}
+{{ super () }}
+
+{% include 'kselftest/kselftest.jinja2' %}
+
+{% endblock %}
