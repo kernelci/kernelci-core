@@ -184,11 +184,15 @@ def get_params(meta, target, plan_config, storage, device_id):
         initrd_compression = _get_compression(initrd_url)
         nfsroot_url = rootfs.get_url('nfs', arch, variant, endian)
         nfsroot_compression = _get_compression(nfsroot_url)
+        diskfile_url = rootfs.get_url('diskfile', arch, variant, endian)
+        diskfile_compression = _get_compression(diskfile_url)
         params.update({
             'initrd_url': initrd_url,
             'initrd_compression': initrd_compression,
             'nfsrootfs_url': nfsroot_url,
             'nfsroot_compression': nfsroot_compression,
+            'diskfile_url': diskfile_url,
+            'diskfile_compression': diskfile_compression,
             'rootfs_prompt': rootfs.prompt,
         })
         params.update(rootfs.params)
