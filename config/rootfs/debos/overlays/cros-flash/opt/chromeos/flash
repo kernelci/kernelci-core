@@ -60,6 +60,16 @@ flash_chromeos()
     mkdir -p "$image_mountpoint"
     cd "$root_path"
     dev=$(losetup -P -f --show "$IMAGE_NAME")
+    # Sometimes partition table propagation takes few seconds
+    limit_retry=10
+    while [ ! -e "$dev"p3 ]; do
+        sleep 1
+        limit_retry=$((limit_retry - 1))
+        if [ $limit_retry -eq 0 ]; then
+            echo "Partition table not found!"
+            exit 1
+        fi
+    done
     mount "$dev"p3 "$mount_dir" -o ro
     mount_special_fs "$image_mountpoint"
     mount --bind . "$mount_dir"/mnt/empty
