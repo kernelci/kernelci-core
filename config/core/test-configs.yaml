@@ -79,6 +79,12 @@ test_plans:
       job_timeout: '50'
       priority: 90
 
+  baseline_fvp:
+    rootfs: debian_bullseye-diskfile
+    pattern: 'baseline/generic-fvp-diskfile-baseline-template.jinja2'
+    params:
+      job_timeout: '30'
+
   baseline-nfs:
     rootfs: debian_bullseye_nfs
     pattern: 'baseline/{category}-{method}-{protocol}-nfs-baseline-template.jinja2'
@@ -1070,12 +1076,18 @@ device_types:
     boot_method: uboot
 
   fvp:
+    base_name: fvp
     mach: vexpress
     arch: arm64
-    dtb: 'arm/fvp-base-revc.dtb'
-    boot_method: uboot
+    params:
+      bl1_url: ' https://storage.kernelci.org/images/fvp/fvp-1.0.0/bl1.bin'
+      fip_uefi_url: 'https://storage.kernelci.org/images/fvp/fvp-1.0.0/fip.bin'
+      uefi_cfg_url: ' https://storage.kernelci.org/images/fvp/fvp-1.0.0/edk2-flash.img'
+      startup_nsh_url: ' https://storage.kernelci.org/images/fvp/fvp-1.0.0/startup.nsh'
+    boot_method: fvp
     filters:
       - passlist: {defconfig: ['defconfig']}
+
 
   hi6220-hikey:
     mach: hisilicon
@@ -2579,9 +2591,7 @@ test_configs:
 
   - device_type: fvp
     test_plans:
-      - baseline
-      - kselftest-seccomp
-
+      - baseline_fvp
 
   - device_type: hi6220-hikey
     test_plans:
