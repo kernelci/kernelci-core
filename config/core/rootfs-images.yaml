@@ -31,6 +31,14 @@ file_systems:
     ramdisk: bullseye-cros-ec/20230623.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
     type: debian
+  debian_bullseye-diskfile:
+    boot_protocol: tftp
+    diskfile: bullseye/20230623.0/{arch}/rootfs.ext4.xz
+    params: {}
+    prompt: '/ #'
+    ramdisk: bullseye/20230623.0/{arch}/initrd.cpio.gz
+    root_type: diskfile
+    type: debian
   debian_bullseye-gst-fluster_nfs:
     boot_protocol: tftp
     nfs: bullseye-gst-fluster/20230717.0/{arch}/full.rootfs.tar.xz
@@ -45,6 +53,15 @@ file_systems:
     prompt: '/ #'
     ramdisk: bullseye-igt/20230623.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
+    type: debian
+  debian_bullseye-kselftest_diskfile:
+    boot_protocol: tftp
+    diskfile: bullseye-kselftest/20230623.0/{arch}/rootfs.ext4.xz
+    params:
+      os_config: debian
+    prompt: '/ #'
+    ramdisk: bullseye-kselftest/20230623.0/{arch}/initrd.cpio.gz
+    root_type: diskfile
     type: debian
   debian_bullseye-kselftest_nfs:
     boot_protocol: tftp
@@ -87,6 +104,14 @@ file_systems:
     prompt: '/ #'
     ramdisk: bullseye-libhugetlbfs/20230623.0/{arch}/rootfs.cpio.gz
     root_type: ramdisk
+    type: debian
+  debian_bullseye-ltp_diskfile:
+    boot_protocol: tftp
+    diskfile: bullseye-ltp/20230623.0/{arch}/rootfs.ext4.xz
+    params: {}
+    prompt: '/ #'
+    ramdisk: bullseye-ltp/20230623.0/{arch}/initrd.cpio.gz
+    root_type: diskfile
     type: debian
   debian_bullseye-ltp_nfs:
     boot_protocol: tftp
