@@ -33,7 +33,7 @@ fi
 export PATH="/home/${USERNAME}/chromiumos/depot_tools:${PATH}"
 cd ${DATA_DIR}
 
-echo "Preparing environment, branch ${BRANCH}"
+echo "Preparing environment"
 sudo mkdir -p chromiumos-sdk
 sudo chown ${USERNAME} chromiumos-sdk
 cd chromiumos-sdk
@@ -48,8 +48,15 @@ git config --global color.ui false
 # mv cros-snapshot.xml /kernelci-core
 # exit
 
-# Fetching current manifest snapshot
-repo init -u https://github.com/kernelci/kernelci-core -b chromeos.kernelci.org -m "config/rootfs/chromiumos/cros-snapshot-$2.xml"
+
+if [ -n "${VANILLA_MANIFEST}" ]; then
+  echo "Fetching vanilla manifest ${VANILLA_MANIFEST}"
+  repo init --repo-url https://chromium.googlesource.com/external/repo --manifest-url https://chromium.googlesource.com/chromiumos/manifest --manifest-name default.xml --manifest-branch ${VANILLA_MANIFEST}
+else
+  echo "Fetching KernelCI manifest snapshot $2"
+  repo init -u https://github.com/kernelci/kernelci-core -b chromeos.kernelci.org -m "config/rootfs/chromiumos/cros-snapshot-$2.xml"
+fi
+
 repo sync -j$(nproc)
 echo Building SDK
 cros_sdk --create
