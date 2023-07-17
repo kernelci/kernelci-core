@@ -443,7 +443,7 @@ device_types:
       - passlist: {defconfig: ['chromeos-amd-stoneyridge']}
     params: &chromebook-generic-params
       cros_flash_nfs:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20230623.0/amd64/'
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20230717.0/amd64/'
         initrd: 'initrd.cpio.gz'
         initrd_compression: 'gz'
         rootfs: 'full.rootfs.tar.xz'
@@ -720,7 +720,7 @@ device_types:
     filters: [blocklist: {}]
     params: &chromebook-arm64-params
       cros_flash_nfs:
-        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20221230.0/arm64/'
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20230717.0/arm64/'
         initrd: 'initrd.cpio.gz'
         initrd_compression: 'gz'
         rootfs: 'full.rootfs.tar.xz'
