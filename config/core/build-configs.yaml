@@ -1139,7 +1139,19 @@ build_configs:
     tree: mainline
     branch: 'master'
     variants:
-      gcc-10: *default_gcc-10
+      gcc-10:
+        <<: *default_gcc-10
+        architectures:
+          <<: *default_architectures
+          arm64:
+            <<: *arm64_arch
+            extra_configs:
+              - 'allnoconfig'
+              - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
+              - 'defconfig+arm64-chromebook+kselftest'
+              - 'defconfig+arm64-chromebook+videodec'
+            fragments: [arm64-chromebook, videodec]
+
       # Minimum version
       clang-11:
         build_environment: clang-11
@@ -1180,7 +1192,14 @@ build_configs:
           i386: *i386_arch
           x86_64: *x86_64_arch
           arm: *arm_arch
-          arm64: *arm64_arch
+          arm64:
+            <<: *arm64_arch
+            extra_configs:
+              - 'allnoconfig'
+              - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
+              - 'defconfig+arm64-chromebook+kselftest'
+              - 'defconfig+arm64-chromebook+videodec'
+            fragments: [arm64-chromebook, videodec]
 
   net-next:
     tree: net-next
@@ -1212,6 +1231,8 @@ build_configs:
               - 'defconfig+CONFIG_CPU_BIG_ENDIAN=y'
               - 'defconfig+CONFIG_RANDOMIZE_BASE=y'
               - 'defconfig+arm64-chromebook+kselftest'
+              - 'defconfig+arm64-chromebook+videodec'
+            fragments: [arm64-chromebook, videodec]
           arm:
             base_defconfig: 'multi_v7_defconfig'
             extra_configs:
