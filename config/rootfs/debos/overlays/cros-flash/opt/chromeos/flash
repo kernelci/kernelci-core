@@ -61,8 +61,15 @@ flash_chromeos()
     cd "$root_path"
     dev=$(losetup -P -f --show "$IMAGE_NAME")
     # Sometimes partition table propagation takes few seconds
+    # Try to mount 10 times with 1 second sleep
     limit_retry=10
-    while [ ! -e "$dev"p3 ]; do
+    while true; do
+        mount "$dev"p3 "$mount_dir" -o ro || true
+        # if mounted properly, mount_dir should have directory dev
+        if [ -d "$mount_dir"/dev ]; then
+            break
+        fi
+        echo "Mount failure, retrying..."
         sleep 1
         limit_retry=$((limit_retry - 1))
         if [ $limit_retry -eq 0 ]; then
@@ -70,7 +77,6 @@ flash_chromeos()
             exit 1
         fi
     done
-    mount "$dev"p3 "$mount_dir" -o ro
     mount_special_fs "$image_mountpoint"
     mount --bind . "$mount_dir"/mnt/empty
     ls -l "$mount_dir"/mnt/empty/"$IMAGE_NAME"
