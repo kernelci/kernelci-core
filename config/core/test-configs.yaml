@@ -683,7 +683,7 @@ test_plans:
     pattern: 'v4l2-decoder-conformance/{category}-{method}-{protocol}-{rootfs}-v4l2-decoder-conformance-template.jinja2'
     params:
       job_timeout: '30'
-      testsuite: 'JCT-VC-HEVC-V1'
+      testsuite: 'JCT-VC-HEVC_V1'
       decoders:
         - 'GStreamer-H.265-V4L2-Gst1.0'
         - 'GStreamer-H.265-V4L2SL-Gst1.0'
