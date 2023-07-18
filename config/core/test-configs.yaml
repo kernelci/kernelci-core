@@ -655,10 +655,10 @@ test_plans:
             - 'defconfig+virtualvideo'
             - 'multi_v7_defconfig+virtualvideo'
 
-  v4l2-decoder-conformance-av1:
+  v4l2-decoder-conformance-av1: &v4l2-decoder-conformance
     rootfs: debian_bullseye-gst-fluster_nfs
     pattern: 'v4l2-decoder-conformance/{category}-{method}-{protocol}-{rootfs}-v4l2-decoder-conformance-template.jinja2'
-    params:
+    params: &v4l2-decoder-conformance-params
       job_timeout: '30'
       testsuite: 'AV1-TEST-VECTORS'
       decoders:
@@ -669,59 +669,39 @@ test_plans:
       - passlist: {defconfig: ['videodec']}
 
   v4l2-decoder-conformance-h264:
-    rootfs: debian_bullseye-gst-fluster_nfs
-    pattern: 'v4l2-decoder-conformance/{category}-{method}-{protocol}-{rootfs}-v4l2-decoder-conformance-template.jinja2'
+    <<: *v4l2-decoder-conformance
     params:
-      job_timeout: '30'
+      <<: *v4l2-decoder-conformance-params
       testsuite: 'JVT-AVC_V1'
       decoders:
         - 'GStreamer-H.264-V4L2-Gst1.0'
         - 'GStreamer-H.264-V4L2SL-Gst1.0'
-      videodec_parallel_jobs: '1'
-      videodec_timeout: 90
-    filters:
-      - passlist: {defconfig: ['videodec']}
 
   v4l2-decoder-conformance-h265:
-    rootfs: debian_bullseye-gst-fluster_nfs
-    pattern: 'v4l2-decoder-conformance/{category}-{method}-{protocol}-{rootfs}-v4l2-decoder-conformance-template.jinja2'
+    <<: *v4l2-decoder-conformance
     params:
-      job_timeout: '30'
+      <<: *v4l2-decoder-conformance-params
       testsuite: 'JCT-VC-HEVC_V1'
       decoders:
         - 'GStreamer-H.265-V4L2-Gst1.0'
         - 'GStreamer-H.265-V4L2SL-Gst1.0'
-      videodec_parallel_jobs: '1'
-      videodec_timeout: 90
-    filters:
-      - passlist: {defconfig: ['videodec']}
 
   v4l2-decoder-conformance-vp8:
-    rootfs: debian_bullseye-gst-fluster_nfs
-    pattern: 'v4l2-decoder-conformance/{category}-{method}-{protocol}-{rootfs}-v4l2-decoder-conformance-template.jinja2'
+    <<: *v4l2-decoder-conformance
     params:
-      job_timeout: '30'
+      <<: *v4l2-decoder-conformance-params
       testsuite: 'VP8-TEST-VECTORS'
       decoders:
         - 'GStreamer-VP8-V4L2-Gst1.0'
         - 'GStreamer-VP8-V4L2SL-Gst1.0'
-      videodec_parallel_jobs: '1'
-      videodec_timeout: 90
-    filters:
-      - passlist: {defconfig: ['videodec']}
 
   v4l2-decoder-conformance-vp9:
-    rootfs: debian_bullseye-gst-fluster_nfs
-    pattern: 'v4l2-decoder-conformance/{category}-{method}-{protocol}-{rootfs}-v4l2-decoder-conformance-template.jinja2'
+    <<: *v4l2-decoder-conformance
     params:
-      job_timeout: '30'
+      <<: *v4l2-decoder-conformance-params
       testsuite: 'VP9-TEST-VECTORS'
       decoders:
         - 'GStreamer-VP9-V4L2SL-Gst1.0'
-      videodec_parallel_jobs: '1'
-      videodec_timeout: 90
-    filters:
-      - passlist: {defconfig: ['videodec']}
 
   vdso:
     rootfs: debian_bullseye-vdso_nfs
