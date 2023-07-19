@@ -3400,8 +3400,8 @@ test_configs:
 #      - kselftest-alsa
 #      - kselftest-tpm2
       - v4l2-decoder-conformance-h264
+      - v4l2-decoder-conformance-h265
       - v4l2-decoder-conformance-vp8
-      - v4l2-decoder-conformance-vp9
     filters: *chromebook-decoders-filter
 
   - device_type: sc7180-trogdor-kingoftown-r1
