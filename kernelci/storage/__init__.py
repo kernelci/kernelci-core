@@ -37,7 +37,10 @@ class Storage:
         """Implementation method to upload files
 
         The *file_paths* and *dest_path* arguments are of the same form as
-        passed to .upload_multiple().
+        passed to .upload_multiple().  The returned value is either a
+        dictionary with the destination files and their URLs or None, in which
+        case the default implementation will use the base URL and append the
+        destination path and files names.
         """
         raise NotImplementedError("_upload() needs to be implemented")
 
@@ -54,7 +57,9 @@ class Storage:
 
             s.upload_single(('path/to/local-file.txt', 'file.txt'), '.')
         """
-        self._upload([file_path], dest_path)
+        urls = self._upload([file_path], dest_path)
+        if urls:
+            return urls[file_path[1]]
         return urljoin(
             self.config.base_url,
             '/'.join(['.', dest_path, file_path[1]])
@@ -80,8 +85,8 @@ class Storage:
                 'data/path'
             )
         """
-        self._upload(file_paths, dest_path)
-        return [
+        urls = self._upload(file_paths, dest_path)
+        return urls or [
             urljoin(self.config.base_url, '/'.join(['.', dest_path, file_dst]))
             for (file_src, file_dst) in file_paths
         ]
