@@ -39,5 +39,5 @@ class StorageBackend(Storage):
 
 
 def get_storage(config, credentials):
-    """Get a Storage_backend object"""
+    """Get a StorageBackend object"""
     return StorageBackend(config, credentials)

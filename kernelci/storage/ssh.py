@@ -40,5 +40,5 @@ class StorageSSH(Storage):
 
 
 def get_storage(config, credentials):
-    """Get a Storage_ssh object"""
+    """Get a StorageSSH object"""
     return StorageSSH(config, credentials)
