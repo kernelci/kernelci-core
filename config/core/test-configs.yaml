@@ -1341,6 +1341,12 @@ device_types:
     dtb: 'freescale/imx8mp-evk.dtb'
     boot_method: uboot
 
+  imx8mp-verdin-nonwifi-dahlia:
+    mach: imx
+    arch: arm64
+    dtb: 'freescale/imx8mp-verdin-nonwifi-dahlia.dtb'
+    boot_method: uboot
+
   imx8mq-zii-ultra-zest:
     mach: imx
     arch: arm64
@@ -2857,6 +2863,14 @@ test_configs:
       - baseline
 
   - device_type: imx8mp-evk
+    test_plans:
+      - baseline
+# Disabling to reduce load
+#      - baseline-nfs
+#      - igt-gpu-etnaviv
+#      - kselftest-alsa
+
+  - device_type: imx8mp-verdin-nonwifi-dahlia
     test_plans:
       - baseline
 # Disabling to reduce load
