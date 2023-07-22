@@ -6,12 +6,13 @@
 
 """KernelCI storage abstraction package"""
 
+import abc
 import importlib
 import os
 from urllib.parse import urljoin
 
 
-class Storage:
+class Storage(abc.ABC):
     """Storage abstraction interface class"""
 
     def __init__(self, config, credentials):
@@ -33,6 +34,7 @@ class Storage:
         """Credentials data"""
         return self._credentials
 
+    @abc.abstractmethod
     def _upload(self, file_paths, dest_path):
         """Implementation method to upload files
 
@@ -42,7 +44,6 @@ class Storage:
         case the default implementation will use the base URL and append the
         destination path and files names.
         """
-        raise NotImplementedError("_upload() needs to be implemented")
 
     def upload_single(self, file_path, dest_path=''):
         """Upload a single file to storage
