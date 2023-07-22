@@ -11,6 +11,8 @@ from kernelci.config.base import YAMLConfigObject
 class Storage(YAMLConfigObject):
     """Base configuration class for Storage implementations"""
 
+    yaml_tag = '!Storage'
+
     def __init__(self, name, storage_type, base_url):
         """Storage configuration class
 
@@ -50,7 +52,7 @@ class BackendStorage(Storage):
     *api_url* is the URL to access the kernelci-backend API
     """
 
-    yaml_tag = '!Storage_backend'
+    yaml_tag = '!BackendStorage'
 
     def __init__(self, api_url, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -77,7 +79,7 @@ class SSHStorage(Storage):
     *path* is the base destination path on the SSH server
     """
 
-    yaml_tag = '!Storage_ssh'
+    yaml_tag = '!SSHStorage'
 
     def __init__(self, host, *args, port=22, user='kernelci', path='~/data',
                  **kwargs):
