@@ -34,6 +34,13 @@ class Storage(abc.ABC):
         """Credentials data"""
         return self._credentials
 
+    def _connect(self):
+        """Connect to the remote storage service
+
+        This gets called before uploading files.  The implementation should
+        take care of keeping track whether it's already connected.
+        """
+
     @abc.abstractmethod
     def _upload(self, file_paths, dest_path):
         """Implementation method to upload files
@@ -58,6 +65,7 @@ class Storage(abc.ABC):
 
             s.upload_single(('path/to/local-file.txt', 'file.txt'), '.')
         """
+        self._connect()
         urls = self._upload([file_path], dest_path)
         if urls:
             return urls[file_path[1]]
@@ -86,6 +94,7 @@ class Storage(abc.ABC):
                 'data/path'
             )
         """
+        self._connect()
         urls = self._upload(file_paths, dest_path)
         return urls or [
             urljoin(self.config.base_url, '/'.join(['.', dest_path, file_dst]))
