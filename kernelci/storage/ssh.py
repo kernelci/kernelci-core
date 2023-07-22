@@ -21,22 +21,31 @@ class StorageSSH(Storage):
     It requires the path to an SSH private key (identity) as credentials.
     """
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._ssh = None
+        self._scp = None
+
+    def _connect(self):
+        if self._ssh is not None:
+            return
+        self._ssh = SSHClient()
+        self._ssh.set_missing_host_key_policy(client.AutoAddPolicy)
+        self._ssh.connect(
+            hostname=self.config.host,
+            port=self.config.port,
+            username=self.config.user,
+            key_filename=self.credentials,
+            timeout=5000
+        )
+        self._scp = SCPClient(self._ssh.get_transport())
+
     def _upload(self, file_paths, dest_path):
-        with SSHClient() as ssh:
-            ssh.set_missing_host_key_policy(client.AutoAddPolicy)
-            ssh.connect(
-                hostname=self.config.host,
-                port=self.config.port,
-                username=self.config.user,
-                key_filename=self.credentials,
-                timeout=5000
-            )
-            with SCPClient(ssh.get_transport()) as scp:
-                for src, dst in file_paths:
-                    dst_file = os.path.join(self.config.path, dest_path, dst)
-                    dst_dir = os.path.dirname(dst_file)
-                    ssh.exec_command(f'mkdir -p {dst_dir}')
-                    scp.put(src, dst_file)
+        for src, dst in file_paths:
+            dst_file = os.path.join(self.config.path, dest_path, dst)
+            dst_dir = os.path.dirname(dst_file)
+            self._ssh.exec_command(f'mkdir -p {dst_dir}')
+            self._scp.put(src, dst_file)
 
 
 def get_storage(config, credentials):
