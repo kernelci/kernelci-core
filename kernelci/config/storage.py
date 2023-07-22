@@ -46,6 +46,38 @@ class Storage(YAMLConfigObject):
         return attrs
 
 
+class AzureFilesStorage(Storage):
+    """Azure Files storage configuration
+
+    *share* is the name of the Azure Files share
+    *sas_public_token* is the read-only SAS token used in public URLs for
+    downloads
+    """
+
+    yaml_tag = '!AzureFilesStorage'
+
+    def __init__(self, share, sas_public_token, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._share = share
+        self._sas_public_token = sas_public_token
+
+    @property
+    def share(self):
+        """Name of the Azure Files share to use"""
+        return self._share
+
+    @property
+    def sas_public_token(self):
+        """Public SAS token used in download URLs"""
+        return self._sas_public_token
+
+    @classmethod
+    def _get_yaml_attributes(cls):
+        attrs = super()._get_yaml_attributes()
+        attrs.update({'share', 'sas_public_token'})
+        return attrs
+
+
 class BackendStorage(Storage):
     """Storage configuration for the legacy kernelci-backend
 
@@ -120,6 +152,7 @@ class StorageFactory:  # pylint: disable=too-few-public-methods
     """Factory to create storage objects from YAML data."""
 
     _storage_types = {
+        'azure': AzureFilesStorage,
         'backend': BackendStorage,
         'ssh': SSHStorage,
     }
