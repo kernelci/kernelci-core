@@ -53,8 +53,24 @@ if [ -n "${VANILLA_MANIFEST}" ]; then
   echo "Fetching vanilla manifest ${VANILLA_MANIFEST}"
   repo init --repo-url https://chromium.googlesource.com/external/repo --manifest-url https://chromium.googlesource.com/chromiumos/manifest --manifest-name default.xml --manifest-branch ${VANILLA_MANIFEST}
 else
+  if [ -z "${KCICORE_BRANCH}" ]; then
+    KCICORE_BRANCH="$(git -C /kernelci-core branch --show-current 2>/dev/null || true)"
+  fi
+
+  if [ -z "${KCICORE_URL}" ]; then
+    KCICORE_URL="$(git -C /kernelci-core remote get-url origin 2>/dev/null || true)"
+  fi
+
+  if [ -z "${KCICORE_URL}" ] || [ -z "${KCICORE_BRANCH}" ]; then
+    KCICORE_URL="https://github.com/kernelci/kernelci-core"
+    KCICORE_BRANCH="chromeos.kernelci.org"
+  elif echo "${KCICORE_URL}" | grep -q "^git@"; then
+    # Transform repo URL to its https:// equivalent if needed
+    KCICORE_URL="$(echo ${KCICORE_URL} | sed -e 's%:%/%g' -e 's%^git@%https://%')"
+  fi
+
   echo "Fetching KernelCI manifest snapshot $2"
-  repo init -u https://github.com/kernelci/kernelci-core -b chromeos.kernelci.org -m "config/rootfs/chromiumos/cros-snapshot-$2.xml"
+  repo init -u "${KCICORE_URL}" -b "${KCICORE_BRANCH}" -m "config/rootfs/chromiumos/cros-snapshot-$2.xml"
 fi
 
 repo sync -j$(nproc)
