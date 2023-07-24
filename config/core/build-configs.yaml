@@ -1474,8 +1474,8 @@ build_configs:
     tree: rust-for-linux
     branch: 'rust-next'
     variants:
-      rustc-1.70:
-        build_environment: rustc-1.70
+      rustc-1.71:
+        build_environment: rustc-1.71
         fragments: [rust, rust-samples, kselftest]
         architectures:
           x86_64:
