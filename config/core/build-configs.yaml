@@ -906,6 +906,19 @@ preempt_rt_variants: &preempt_rt_variants
           - 'x86_64_defconfig+preempt_rt+x86-chromebook'
 
 
+chrome_platform_variants: &chrome_platform_variants
+  gcc-10:
+    build_environment: gcc-10
+    architectures:
+      arm: *arm_defconfig
+      arm64:
+        <<: *arm64_defconfig
+        fragments: [arm64-chromebook]
+      x86_64:
+        <<: *x86_64_defconfig
+        fragments: [x86-chromebook]
+
+
 build_configs:
 
   agross:
@@ -1006,17 +1019,12 @@ build_configs:
   chrome-platform:
     tree: chrome-platform
     branch: 'for-kernelci'
-    variants:
-      gcc-10:
-        build_environment: gcc-10
-        architectures:
-          arm: *arm_defconfig
-          arm64:
-            <<: *arm64_defconfig
-            fragments: [arm64-chromebook]
-          x86_64:
-            <<: *x86_64_defconfig
-            fragments: [x86-chromebook]
+    variants: *chrome_platform_variants
+
+  chrome-platform-firmware:
+    tree: chrome-platform
+    branch: 'for-firmware-kernelci'
+    variants: *chrome_platform_variants
 
   clk:
     tree: clk
