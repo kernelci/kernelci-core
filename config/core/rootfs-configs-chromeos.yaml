@@ -33,6 +33,14 @@ rootfs_configs:
     arch_list:
       - arm64
 
+  chromiumos-brya:
+    rootfs_type: chromiumos
+    board: brya
+    branch: release-R114-15437.B
+    serial: ttyS0
+    arch_list:
+      - amd64
+
   chromiumos-cherry:
     rootfs_type: chromiumos
     board: cherry
@@ -110,6 +118,14 @@ rootfs_configs:
     board: octopus
     branch: release-R114-15437.B
     serial: ttyS1
+    arch_list:
+      - amd64
+
+  chromiumos-puff:
+    rootfs_type: chromiumos
+    board: puff
+    branch: release-R114-15437.B
+    serial: ttyS0
     arch_list:
       - amd64
 
