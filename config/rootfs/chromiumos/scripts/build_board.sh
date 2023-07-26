@@ -25,6 +25,27 @@ function cleanup()
 
 trap cleanup EXIT
 
+# if VANILLA_MANIFEST is set, update BRANCH
+if [ -n "${VANILLA_MANIFEST}" ]; then
+  BRANCH=${VANILLA_MANIFEST}
+fi
+
+# Verify if all fixup files exist
+if [ ! -f "${SCRIPTPATH}/fixes/presetup-${BRANCH}.sh" ]; then
+  echo "WARNING: fixes/presetup-${BRANCH}.sh not found, please check if you need to apply any workarounds or remove old ones"
+  echo "If you are doing uprev, take in consideration this warning(make sure old workarounds still needed or already fixed) and comment it out"
+  echo "Add new ones, and when completed, update this warning to new release"
+  echo "For example: touch kernelci-core/config/rootfs/chromiumos/scripts/fixes/presetup-${BRANCH}.sh"
+  exit 1
+fi
+if [ ! -f "${SCRIPTPATH}/fixes/packagefix-${BRANCH}.sh" ]; then
+  echo "WARNING: fixes/packagefix-${BRANCH}.sh not found, please check if you need to apply any workarounds or remove old ones"
+  echo "If you are doing uprev, take in consideration this warning(make sure old workarounds still needed or already fixed) and comment it out"
+  echo "Add new ones, and when completed, update this warning to new release"
+  echo "For example: touch kernelci-core/config/rootfs/chromiumos/scripts/fixes/packagefix-${BRANCH}.sh
+  exit 1
+fi
+
 echo "Preparing depot tools"
 cd "/home/${USERNAME}/chromiumos"
 if [ ! -d depot_tools ] ; then
@@ -69,59 +90,14 @@ repo sync -j$(nproc)
 echo Building SDK
 cros_sdk --create
 
-# if board trogdor we need to revert patch early, here
-if [ "${BOARD}" == "trogdor" ]; then
-    # issue/284169814 revert caf6c399cb013fb44b767d32853a7ba181a59c23 in chromiumos/overlays/board-overlays
-    echo "Reverting issue/284169814 commit caf6c399cb013fb44b767d32853a7ba181a59c23 for trogdor"
-    cd src/overlays
-    git revert caf6c399cb013fb44b767d32853a7ba181a59c23
-    cd -
-fi
-
-# grunt/StoneyRidge kernel 4.14 broken, so switch to 5.10
-sed -i 's/kernel-4_14/kernel-5_10/g' src/overlays/chipset-stnyridge/profiles/base/make.defaults
+echo "Applying presetup-${BRANCH}.sh"
+source "${SCRIPTPATH}/fixes/presetup-${BRANCH}.sh"
 
 echo "Board ${BOARD} setup"
 cros_sdk setup_board --board=${BOARD}
 
-echo "Patching ${BOARD} specific issues"
-case ${BOARD} in
-    coral)
-    sed ':a;N;$!ba;s/DEPEND="\n\tchromeos-base\/fibocom-firmware\n"/# DEPEND="\n\t# chromeos-base\/fibocom-firmware\n# "/g' -i src/overlays/overlay-coral/chromeos-base/modemfwd-helpers/modemfwd-helpers-0.0.1.ebuild
-    sed -i s,'media-libs/apl-hotword-support','# media-libs/apl-hotword-support', src/overlays/overlay-coral/media-libs/lpe-support-topology/lpe-support-topology-0.0.1.ebuild
-    sed -i s,'USE="${USE} cros_ec"','# USE="${USE} cros_ec"', src/overlays/baseboard-coral/profiles/base/make.defaults
-    ;;
-    dedede)
-    grep -q "tpm2" src/overlays/baseboard-dedede/profiles/base/make.defaults || echo 'USE="${USE} -tpm tpm2 cr50_onboard"' >>src/overlays/baseboard-dedede/profiles/base/make.defaults
-    ;;
-    hatch)
-    sed -i 's/EC_BOARDS=()/EC_BOARDS=(hatch)/' src/third_party/chromiumos-overlay/eclass/cros-ec-board.eclass
-    grep -q "tpm2" src/overlays/baseboard-hatch/profiles/base/make.defaults || echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-hatch/profiles/base/make.defaults
-    ;;
-    nami)
-    grep -q "tpm2" src/overlays/baseboard-nami/profiles/base/make.defaults || echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-nami/profiles/base/make.defaults
-    ;;
-    octopus)
-    sed -i s,'use fuzzer || die',"#use fuzzer || die", src/third_party/chromiumos-overlay/eclass/cros-ec-board.eclass
-    # Workaround b/244460939 T38487 - octopus missing proper tpm USE flags
-    grep -q "tpm2" src/overlays/baseboard-octopus/profiles/base/make.defaults || echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-octopus/profiles/base/make.defaults
-    ;;
-    sarien)
-    sed ':a;N;$!ba;s/DEPEND="\n\tchromeos-base\/fibocom-firmware\n"/# DEPEND="\n\t# chromeos-base\/fibocom-firmware\n# "/g' -i src/overlays/overlay-sarien/chromeos-base/modemfwd-helpers/modemfwd-helpers-0.0.1.ebuild
-    ;;
-    volteer)
-    grep -q "tpm2" src/overlays/baseboard-volteer/profiles/base/make.defaults || echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-volteer/profiles/base/make.defaults
-    ;;
-    zork)
-    grep -q "tpm2" src/overlays/overlay-zork/profiles/base/make.defaults || echo 'USE="${USE} -tpm tpm2"' >>src/overlays/overlay-zork/profiles/base/make.defaults
-    ;;
-    grunt)
-    grep -q "tpm2" src/overlays/baseboard-grunt/profiles/base/make.defaults || echo 'USE="${USE} -tpm tpm2"' >>src/overlays/baseboard-grunt/profiles/base/make.defaults
-    ;;
-    *)
-    echo "No issues found for this board"
-    ;;
-esac
+echo "Applying fixes for ${BRANCH} packages"
+source "${SCRIPTPATH}/fixes/packagefix-${BRANCH}.sh"
 
 echo "Building packages (${SERIAL})"
 # Disable `builtin_fw_mali_g57` flag as it is not required when `panfrost` is enabled
