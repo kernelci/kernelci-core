@@ -41,14 +41,6 @@ git config --global user.email "bot@kernelci.org"
 git config --global user.name "KernelCI Bot"
 git config --global color.ui false
 
-# To generate manifest snapshot, install less by apt, then uncomment:
-# repo init --repo-url https://chromium.googlesource.com/external/repo --manifest-url https://chromium.googlesource.com/chromiumos/manifest --manifest-name default.xml --manifest-branch ${BRANCH}
-# repo sync -j$(nproc)
-# repo manifest -r -o cros-snapshot.xml
-# mv cros-snapshot.xml /kernelci-core
-# exit
-
-
 if [ -n "${VANILLA_MANIFEST}" ]; then
   echo "Fetching vanilla manifest ${VANILLA_MANIFEST}"
   repo init --repo-url https://chromium.googlesource.com/external/repo --manifest-url https://chromium.googlesource.com/chromiumos/manifest --manifest-name default.xml --manifest-branch ${VANILLA_MANIFEST}
