@@ -5,8 +5,9 @@
 # are typical ones that shouldn't change in every command line call when used
 # manually for local development purposes.  Any command line argument can have
 # a default value stored in this file.  Components such as databases and labs
-# have their own section too, with a naming convention of the form ["db:db-name"]
-# or ["lab:lab-name"].
+# have their own section too, with a naming convention of the form [db.db-name]
+# or [lab.lab-name]. Make sure to surround sub-section name with "" (double-quotes)
+# if it contains "." (dot) in the name e.g [db."staging.kernelci.org"].
 
 [DEFAULT]
 
@@ -17,20 +18,23 @@
 
 # -- Sample test lab --
 #
-["lab:my-lava-lab"]
+# [lab.my-lava-lab]
 #
 # user = "user-name"
 # lab_token = "1234-5678"
 
 # -- Sample database --
 #
-["db:localhost"]
+[db.localhost]
 #
 # db_token = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
 # api = "http://192.168.122.1:5001"
 # callback_id = "kernelci-callback-local"
 # callback_url = "http://localhost:5001"
 
+# [db."staging.kernelci.org"]
+
+# db_token = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
 
 # -- Sample command line defaults --
 
