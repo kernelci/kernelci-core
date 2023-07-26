@@ -199,7 +199,7 @@ def get_all_runtimes(runtime_configs, opts):
     *opts* is an Options object loaded from the CLI args and settings file
     """
     for config_name, config in runtime_configs.items():
-        section = ':'.join(('runtime', config_name))
+        section = ('runtime', config_name)
         user, token = (
             opts.get_from_section(section, opt)
             for opt in ('user', 'runtime_token')
