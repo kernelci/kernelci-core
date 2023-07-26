@@ -188,8 +188,8 @@ case ${BOARD} in
 esac
 
 
-echo "Creating manifest file"
-python3 "${SCRIPTPATH}/create_manifest.py" "${BOARD}" "${DATA_DIR}/${BOARD}"
+echo "Creating artifacts manifest file"
+python3 "${SCRIPTPATH}/create_artifacts_manifest.py" "${BOARD}" "${DATA_DIR}/${BOARD}"
 
 # Probably redundant, but better safe than sorry
 cleanup
