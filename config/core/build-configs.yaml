@@ -597,6 +597,18 @@ fragments:
       - 'CONFIG_X86_AMD_PLATFORM_DEVICE=y'
       - 'CONFIG_X86_INTEL_LPSS=y'
       - 'CONFIG_EXTRA_FIRMWARE="
+      amdgpu/green_sardine_asd.bin
+      amdgpu/green_sardine_ce.bin
+      amdgpu/green_sardine_sdma.bin
+      amdgpu/green_sardine_dmcub.bin
+      amdgpu/green_sardine_pfp.bin
+      amdgpu/green_sardine_vcn.bin
+      amdgpu/green_sardine_ta.bin
+      amdgpu/green_sardine_dmcub.bin
+      amdgpu/green_sardine_me.bin
+      amdgpu/green_sardine_mec.bin
+      amdgpu/green_sardine_mec2.bin
+      amdgpu/green_sardine_rlc.bin
       amdgpu/raven2_asd.bin
       amdgpu/raven2_ce.bin
       amdgpu/raven2_gpu_info.bin
