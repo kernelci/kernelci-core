@@ -601,7 +601,7 @@ instead.", file=sys.stderr)
             section_config = self.get(section_config_option)
             if not section_config:
                 return None
-            section = ':'.join([section_name, section_config])
+            section = (section_name, section_config)
         else:
             section = self._section
         return self.get_from_section(section, option, as_list)
@@ -620,6 +620,8 @@ instead.", file=sys.stderr)
         *as_list* is like for .get() for options with multiple values
         """
         if self._deprecated_settings:
+            if isinstance(section, tuple):
+                section = ':'.join([section[0], section[1]])
             if not self._settings.has_option(section, option):
                 return None
             value = self._settings.get(section, option).split()
@@ -627,7 +629,11 @@ instead.", file=sys.stderr)
                 value = value[0]
         else:
             value = None
-            section_data = self._settings.get(section)
+            if isinstance(section, tuple):
+                section_data = self._settings.get(
+                    section[0], {}).get(section[1])
+            else:
+                section_data = self._settings.get(section)
             if section_data:
                 value = section_data.get(option)
             if value is None and self._default_section:
