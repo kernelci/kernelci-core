@@ -74,7 +74,11 @@ spec:
 
         - name: KCI_STORAGE_CREDENTIALS
           # FIXME: convert to template parameter
-          value: {{ "/home/kernelci/.ssh/id_rsa_tarball-staging" }}
+          #value: {{ "/home/kernelci/.ssh/id_rsa_tarball-staging" }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ "kci-api-azure-files-sas-staging" }}
+              key: azure-files-sas
 {% block k8s_command %}
         command: ["/bin/sh", "-c"]
 {% endblock %}
