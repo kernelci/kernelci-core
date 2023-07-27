@@ -1151,7 +1151,41 @@ build_configs:
       # Minimum version
       clang-11:
         build_environment: clang-11
-        architectures: *arch_clang_configs
+        architectures:
+          arm64:
+            extra_configs:
+# Disabling to reduce load
+#            - 'allmodconfig'
+            - 'allnoconfig'
+            - 'defconfig+CONFIG_ARM64_64K_PAGES=y'
+          arm:
+            base_defconfig: 'multi_v7_defconfig'
+            filters:
+              - regex: {
+
+# Disabling to reduce load
+#                  defconfig: '(?:aspeed_g5_def|multi_v5_def|multi_v7_def|allmod|allno)config',
+                  defconfig: '(?:aspeed_g5_def|multi_v5_def|multi_v7_def|allno)config',
+              }
+            extra_configs:
+              - 'aspeed_g5_defconfig'
+              - 'multi_v5_defconfig'
+# Disabling to reduce load
+#              - 'allmodconfig'
+              - 'allnoconfig'
+          x86_64:
+            base_defconfig: 'x86_64_defconfig'
+            extra_configs:
+# Disabling to reduce load
+#              - 'allmodconfig'
+              - 'allnoconfig'
+          i386:
+            base_defconfig: 'i386_defconfig'
+            extra_configs:
+# Disabling to reduce load
+#              - 'allmodconfig'
+              - 'allnoconfig'
+
       # Latest stable release
       clang-16:
         build_environment: clang-16
