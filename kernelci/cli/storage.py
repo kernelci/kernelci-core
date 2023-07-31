@@ -3,7 +3,7 @@
 # Copyright (C) 2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
-"""Tool to manage KernelCI API users"""
+"""Tool to interact with storage services supported by KernelCI"""
 
 import os.path
 
