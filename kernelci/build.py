@@ -24,6 +24,7 @@ import platform
 import re
 import shutil
 import tarfile
+import tempfile
 import time
 import urllib.parse
 
@@ -319,6 +320,37 @@ retrying in {i} seconds')
             continue
 
     return False
+
+
+def apply_patch_mbox(
+    kdir,
+    mbox_url,
+    git_username="kernelci-tsc",
+    git_email="kernelci-tsc@groups.io"
+):
+    """Download patch mbox from URL and apply with 3-way merge
+
+    *kdir* is the path to a kernel source directory
+    *mbox_url* is the URL to patch mbox content
+    *git_username* is the username used to apply the patch
+    *git_email* is the email used to apply the patch
+    """
+    with tempfile.NamedTemporaryFile(prefix="kernel-patch-") as tmp_f:
+        if not _download_file(mbox_url, tmp_f.name):
+            raise FileNotFoundError(f"Error downloading patch mbox {mbox_url}")
+
+        shell_cmd("""
+set -e
+cd {kdir}
+git config user.name "{git_username}"
+git config user.email "{git_email}"
+git am --3way {mbox_file}
+""".format(
+            kdir=kdir,
+            mbox_file=tmp_f.name,
+            git_username=git_username,
+            git_email=git_email
+        ))
 
 
 def pull_tarball(kdir, url, dest_filename, retries, delete):
