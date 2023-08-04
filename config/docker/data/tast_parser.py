@@ -48,6 +48,11 @@ def report_lava_test_set(action, name):
     subprocess.run(opts, check=False)
 
 
+def report_lava_critical(message):
+    opts = ['lava-test-raise', message]
+    subprocess.run(opts, check=False)
+
+
 lava_test_set_start = partial(report_lava_test_set, 'start')
 lava_test_set_stop = partial(report_lava_test_set, 'stop')
 
@@ -84,7 +89,13 @@ def run_tests(args):
         remote_ip
     ]
     tast_cmd.extend(args)
-    subprocess.run(tast_cmd, check=True)
+    try:
+        subprocess.run(tast_cmd, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to run tast tests: {e}")
+        return e.returncode
+
+    return 0
 
 
 def _get_result(test_case):
@@ -124,7 +135,9 @@ def parse_measurements(results_chart):
 
 
 def main(tests):
-    run_tests(tests)
+    if (run_tests(tests) != 0):
+        report_lava_critical("Tast tests run_tests failed")
+        sys.exit(1)
     json_file = os.path.join(RESULTS_DIR, RESULTS_FILE)
     with open(json_file, "r") as results_file:
         results = json.load(results_file)
