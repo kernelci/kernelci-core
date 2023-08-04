@@ -135,7 +135,7 @@ def parse_measurements(results_chart):
 
 
 def main(tests):
-    if (run_tests(tests) != 0):
+    if run_tests(tests) != 0:
         report_lava_critical("Tast tests run_tests failed")
         sys.exit(1)
     json_file = os.path.join(RESULTS_DIR, RESULTS_FILE)
