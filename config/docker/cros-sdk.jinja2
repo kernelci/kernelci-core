@@ -21,7 +21,11 @@ RUN apt-get update \
         ssh \
         wget
 
-RUN useradd -u 996 -ms /bin/sh cros
+# We have uid conflict with jenkins useradd, WORKAROUND
+RUN userdel -r jenkins || true
+RUN userdel -r buildslave || true
+
+RUN useradd -ou 996 -ms /bin/sh cros
 RUN adduser cros sudo && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 RUN mkdir -p /home/cros/chromiumos
 RUN chown -R cros /home/cros/chromiumos
