@@ -126,6 +126,7 @@ add chromiumos_test_image.bin
 run
 mount /dev/sda3 /
 rm-rf /opt/google/cr50/firmware
+write /usr/lib/tmpfiles.d/kernelci.conf "f= /run/dont-modify-ps1-for-testing"
 _EOF_
 # End of guestfish commands
 cd -
