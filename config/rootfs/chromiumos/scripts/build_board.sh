@@ -42,7 +42,7 @@ if [ ! -f "${SCRIPTPATH}/fixes/packagefix-${BRANCH}.sh" ]; then
   echo "WARNING: fixes/packagefix-${BRANCH}.sh not found, please check if you need to apply any workarounds or remove old ones"
   echo "If you are doing uprev, take in consideration this warning(make sure old workarounds still needed or already fixed) and comment it out"
   echo "Add new ones, and when completed, update this warning to new release"
-  echo "For example: touch kernelci-core/config/rootfs/chromiumos/scripts/fixes/packagefix-${BRANCH}.sh
+  echo "For example: touch kernelci-core/config/rootfs/chromiumos/scripts/fixes/packagefix-${BRANCH}.sh"
   exit 1
 fi
 
