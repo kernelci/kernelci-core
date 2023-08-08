@@ -50,6 +50,21 @@ class cmd_password_hash(APICommand):  # pylint: disable=invalid-name
         return True
 
 
+class cmd_change_password(APICommand):  # pylint: disable=invalid-name
+    """Change a password for a given user"""
+    args = APICommand.args + [Args.username]
+
+    def _api_call(self, api, configs, args):
+        current = getpass.getpass("Current password: ")
+        new = getpass.getpass("New password: ")
+        retyped = getpass.getpass("Retype new password: ")
+        if new != retyped:
+            print("Sorry, passwords do not match.")
+            return False
+        api.change_password(args.username, current, new)
+        return True
+
+
 class cmd_get_group(APICommand):  # pylint: disable=invalid-name
     """Get a user group with a given ID"""
     args = APICommand.args + [Args.group_id]

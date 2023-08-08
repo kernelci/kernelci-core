@@ -52,6 +52,7 @@ class LatestAPI(API):
         return self._post('/hash', {'password': password}).json()
 
     def change_password(self, username: str, current: str, new: str) -> dict:
+        """Change a password for a given user"""
         return self._post(
             '/password',
             {
