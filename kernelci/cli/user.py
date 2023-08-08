@@ -55,11 +55,12 @@ class cmd_change_password(APICommand):  # pylint: disable=invalid-name
     args = APICommand.args + [Args.username]
 
     def _api_call(self, api, configs, args):
-        # TODO(pawiecz): Add a prefix to clarify which password is requested
-        current = getpass.getpass()
-        # TODO(pawiecz): Request new password twice to ensure it has been
-        # typed properly
-        new = getpass.getpass()
+        current = getpass.getpass("Current password: ")
+        new = getpass.getpass("New password: ")
+        retyped = getpass.getpass("Retype new password: ")
+        if new != retyped:
+            print("Sorry, passwords do not match.")
+            return False
         api.change_password(args.username, current, new)
         return True
 
