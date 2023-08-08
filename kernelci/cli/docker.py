@@ -9,6 +9,7 @@
 
 import io
 import json
+import sys
 
 from jinja2 import Environment, FileSystemLoader
 import docker
@@ -171,13 +172,15 @@ class cmd_build(DockerBuildGenerateCommand):  # pylint: disable=invalid-name
             _, build_log = self._build_image(
                 dockerfile, name, buildargs, args.no_cache
             )
+            build_status = True
         except docker.errors.BuildError as exc:
-            if args.verbose:
-                self._dump_log(exc.build_log)
-            print("Build failed, exception: "+str(exc.msg))
-            return False
+            print(exc.msg, file=sys.stderr)
+            build_log = exc.build_log
+            build_status = False
         if args.verbose:
             self._dump_log(build_log)
+        if build_status is not True:
+            return build_status
         if args.push:
             print(f"Pushing {name} to Docker Hub")
             push_log = self._push_image(base_name, tag_name)
