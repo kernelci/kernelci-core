@@ -18,7 +18,7 @@ import requests
 import kernelci.config.api
 
 
-class API(abc.ABC):
+class API(abc.ABC):  # pylint: disable=too-many-public-methods
     """Base class for the KernelCI API Python bindings"""
 
     def __init__(self, config: kernelci.config.api.API, token: str):
@@ -64,6 +64,10 @@ class API(abc.ABC):
     @abc.abstractmethod
     def password_hash(self, password: str) -> dict:
         """Get an encryption hash for a given password"""
+
+    @abc.abstractmethod
+    def change_password(self, username: str, current: str, new: str) -> dict:
+        """Change a password for a given user"""
 
     @abc.abstractmethod
     def create_token(self, username: str, password: str,
