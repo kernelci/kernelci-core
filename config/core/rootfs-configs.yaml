@@ -137,6 +137,21 @@ rootfs_configs:
       - libp11-kit0
       - libunistring2
       - sensible-utils
+    extra_packages:
+      - ca-certificates
+      - libgbm1
+      - libdrm2
+      - libva2
+      - libva-drm2
+      - libwayland-server0
+      - libxau6
+      - libxcb1
+      - libxdmcp6
+      - mesa-va-drivers
+      - python3-requests
+      - python3-yaml
+      - unzip
+      - wget
     script: "scripts/bullseye-gst-fluster.sh"
     test_overlay: "overlays/fluster"
 
