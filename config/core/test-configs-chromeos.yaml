@@ -856,7 +856,7 @@ test_configs:
   - device_type: hp-11A-G6-EE-grunt_chromeos
     test_plans: &chromebook-test-plans
       - cros-baseline
-      - cros-baseline-fixed
+#      - cros-baseline-fixed
       - cros-tast-kernel
       - cros-tast-perf
       - cros-tast-platform
@@ -916,19 +916,19 @@ test_configs:
       - passlist: {defconfig: ['chromiumos-mediatek']}
     test_plans: &chromebook-arm64-test-plans
       - cros-baseline
-      - cros-baseline-fixed
+#      - cros-baseline-fixed
       - cros-tast-kernel
-      - cros-tast-kernel-fixed
+#      - cros-tast-kernel-fixed
       - cros-tast-mm-misc
-      - cros-tast-mm-misc-fixed
+#      - cros-tast-mm-misc-fixed
       - cros-tast-perf
-      - cros-tast-perf-fixed
+#      - cros-tast-perf-fixed
       - cros-tast-platform
-      - cros-tast-platform-fixed
+#      - cros-tast-platform-fixed
       - cros-tast-sound
-      - cros-tast-sound-fixed
+#      - cros-tast-sound-fixed
       - cros-tast-video
-      - cros-tast-video-fixed
+#      - cros-tast-video-fixed
 
   - device_type: mt8183-kukui-jacuzzi-juniper-sku16_chromeos
     filters: &collabora-chromeos-kernel-filter
