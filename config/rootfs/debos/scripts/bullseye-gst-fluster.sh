@@ -16,7 +16,8 @@ BUILD_DEPS="\
 	  ca-certificates \
 	  jq \
 	  wget \
-	  unzip
+	  unzip \
+	  software-properties-common
 "
 
 GST_DEPS="\
@@ -34,6 +35,13 @@ apt-mark manual python3 libpython3-stdlib libpython3.9-stdlib python3.9 libglib2
 
 # Get latest meson from pip
 pip3 install meson
+
+if [ "$(uname -m)" == "x86_64" ]; then
+  # Install non-free intel media-driver
+  apt-add-repository -y non-free
+  apt-get update
+  apt-get install -y intel-media-va-driver-non-free
+fi
 
 # Verify if CACHING_SERVICE is reachable by curl, if not, unset it
 if [ ! -z ${CACHING_SERVICE} ]; then
