@@ -67,7 +67,7 @@ def _load_results_file(filename):
     return ret
 
 
-def _run_fluster(test_suite=None, timeout=None, jobs=None, decoders=None):
+def _run_fluster(test_suite=None, timeout=None, jobs=None, decoders=None, skips=None):
     cmd = ['python3', 'fluster.py', '-ne', 'run',
            '-f', 'junitxml', '-so', RESULTS_FILE]
 
@@ -77,6 +77,9 @@ def _run_fluster(test_suite=None, timeout=None, jobs=None, decoders=None):
         cmd.extend(['-t', timeout])
     if jobs:
         cmd.extend(['-j', jobs])
+    if skips:
+        for index, skip in enumerate(skips):
+            cmd.extend(['-sv', skip] if not index else [skip])
     for index, dec in enumerate(decoders):
         cmd.extend(['-d', dec] if not index else [dec])
 
@@ -93,7 +96,7 @@ def main(args):
         cmd = cmd.fromkeys(cmd, 'echo')
 
     # run fluster tests
-    _run_fluster(args.test_suite, args.timeout, args.jobs, args.decoders)
+    _run_fluster(args.test_suite, args.timeout, args.jobs, args.decoders, args.skip_vectors)
 
     # load test results
     junitxml = _load_results_file(f'{FLUSTER_PATH}/{RESULTS_FILE}')
@@ -128,5 +131,6 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--timeout')
     parser.add_argument('-j', '--jobs')
     parser.add_argument('-d', '--decoders', nargs='+')
+    parser.add_argument('-sv', '--skip-vectors', nargs='+')
     args = parser.parse_args()
     sys.exit(main(args))
