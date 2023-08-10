@@ -4,9 +4,9 @@
 # by any user to match a particular installation.  The options mentioned here
 # are typical ones that shouldn't change in every command line call when used
 # manually for local development purposes.  Any command line argument can have
-# a default value stored in this file.  Components such as databases and labs
+# a default value stored in this file.  Components such as databases and runtimes
 # have their own section too, with a naming convention of the form [db.db-name]
-# or [lab.lab-name]. Make sure to surround sub-section name with "" (double-quotes)
+# or [runtime.runtime-name]. Make sure to surround sub-section name with "" (double-quotes)
 # if it contains "." (dot) in the name e.g [db."staging.kernelci.org"].
 
 [DEFAULT]
@@ -16,12 +16,12 @@
 # storage = "http://localhost:5002"
 # db_config = "localhost"
 
-# -- Sample test lab --
+# -- Sample runtime --
 #
-# [lab.my-lava-lab]
+# [runtime.my-lava-lab]
 #
 # user = "user-name"
-# lab_token = "1234-5678"
+# runtime_token = "1234-5678"
 
 # -- Sample database --
 #
