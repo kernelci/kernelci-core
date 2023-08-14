@@ -1097,7 +1097,7 @@ device_types:
     boot_method: fvp
     filters:
       - passlist: {defconfig: ['defconfig']}
-
+      - regex: {'tree': '^(next|mainline|stable|arm64)$'}
 
   hi6220-hikey:
     mach: hisilicon
