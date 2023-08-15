@@ -1697,7 +1697,7 @@ device_types:
     arch: arm64
     boot_method: grub
     filters:
-      - regex: {'tree': '(next|mainline)'}
+      - regex: {'tree': '^(next|mainline)'}
     params:
       boot_timeout: '10'
 
@@ -1799,7 +1799,7 @@ device_types:
       machine: 'virt,gic-version=2,mte=on,accel=tcg'
       memory: 1g
     filters:
-      - regex: { defconfig: 'defconfig' }
+      - regex: { defconfig: '^defconfig' }
 
   qemu_arm64-virt-gicv2-uefi:
     <<: *qemu_arm64-virt-gicv2
@@ -3131,7 +3131,7 @@ test_configs:
       - v4l2-decoder-conformance-vp8
       - v4l2-decoder-conformance-vp9
     filters: &chromebook-decoders-filter
-      - regex: {'tree': '(next|mainline|media)'}
+      - regex: {'tree': '^(next|mainline|media)'}
 
   - device_type: mt8195-cherry-tomato-r2
     test_plans:
