@@ -101,6 +101,18 @@ test_plans:
       <<: *cros-tast-base-params
       base_template: 'chromeos/cros-boot-qemu.jinja2'
 
+  cros-tast-hardware:
+    <<: *cros-tast-base
+    params:
+      <<: *cros-tast-base-params
+      tests: >
+        hardware.DiskErrors
+        hardware.SensorAccel
+        hardware.SensorIioservice
+        hardware.SensorIioserviceHard
+        hardware.SensorLight
+        hardware.SensorPresence
+
   cros-tast-kernel: &cros-tast-kernel
     <<: *cros-tast-base
     params: &cros-tast-kernel-params
@@ -108,6 +120,7 @@ test_plans:
       tests: &cros-tast-kernel-tests >
         kernel.Bloat
         kernel.ConfigVerify.chromeos_kernelci
+        kernel.ConfigVerify.chromeos
         kernel.CPUCgroup
         kernel.Cpuidle
         kernel.CryptoAPI
@@ -304,6 +317,8 @@ test_plans:
         camera.V4L2.certification
         camera.V4L2Compliance
         camera.V4L2.supported_formats
+        camera.Suspend
+        camera.V4L2
         graphics.VAAPIUnittest.webp_decoder
         graphics.VAAPIUnittest.jpeg_decoder
         graphics.VAAPIUnittest.common
@@ -313,6 +328,25 @@ test_plans:
         security.GPUSandboxed
         video.ImageProcessor.image_processor_unit_test
         video.MemCheck.av1_hw
+        graphics.DRM.atomic_test_overlay_upscaling
+        graphics.DRM.atomic_test_plane_alpha
+        graphics.DRM.atomic_test_plane_ctm
+        graphics.DRM.atomic_test_primary_pageflip
+        graphics.DRM.atomic_test_rgba_primary
+        graphics.DRM.atomic_test_video_overlay
+        graphics.DRM.atomic_test_video_underlay
+        graphics.DRM.dmabuf_test
+        graphics.DRM.drm_cursor_test
+        graphics.DRM.gbm_test
+        graphics.DRM.linear_bo_test
+        graphics.DRM.mapped_access_perf_test
+        graphics.DRM.mmap_test
+        graphics.DRM.null_platform_test
+        graphics.DRM.swrast_test
+        graphics.DRM.vk_glow
+        graphics.DRM.yuv_to_rgb_test
+        graphics.GLBench
+
 
   cros-tast-mm-misc-fixed:
     <<: *cros-tast-mm-misc
@@ -366,22 +400,20 @@ test_plans:
         platform.CrosDisksRename
         platform.CrosDisksSSHFS
         platform.CrosID
-        platform.Crossystem
         platform.DLCService
         platform.DLCServiceCrosDeploy
         platform.DLCServicePreloading
         platform.DMVerity
         platform.DumpVPDLog
         platform.Firewall
-        platform.HeavyMemoryUser
-        platform.HeavyMemoryUser.vm
         platform.Histograms
         platform.LocalPerfettoTBMTracedProbes
         platform.Memd
-        platform.Mosys.ec
-        platform.Mosys.memory
         platform.Mtpd
         platform.TPMResponsive
+        platform.CheckDiskSpace
+        platform.CheckProcesses
+
 
   cros-tast-platform-fixed:
     <<: *cros-tast-platform
@@ -395,6 +427,21 @@ test_plans:
       <<: *cros-tast-base-qemu-params
       tests: *cros-tast-platform-tests
 
+  cros-tast-power:
+    <<: *cros-tast-base
+    params:
+      <<: *cros-tast-base-params
+      tests: >
+        power.CheckStatus
+        power.CpufreqConf
+        power.TabletModePowerOffMenu.close_menu
+        power.TabletModePowerOffMenu.shut_down
+        power.TabletModePowerOffMenu.sign_out
+        power.SmartDim.flatbuffer
+        power.SmartDim
+        power.SmartDim.lacros
+        typec.Basic
+
   cros-tast-sound: &cros-tast-sound
     <<: *cros-tast-base
     params: &cros-tast-sound-params
@@ -406,12 +453,37 @@ test_plans:
         audio.UCMSequences.section_device
         audio.UCMSequences.section_modifier
         audio.UCMSequences.section_verb
+        audio.ALSAConformance
+        audio.CheckingAudioFormats
+        audio.CrasPlay
+        audio.CrasRecord
+        audio.CrasRecordQuality
+        audio.DeviceRecord
+        audio.AloopLoadedFixture
+        audio.BrowserShellAudioToneCheck
+        audio.UCMSequences.section_verb
+        audio.AloopLoadedFixture.stereo
+
 
   cros-tast-sound-fixed:
     <<: *cros-tast-sound
     params:
       <<: *cros-tast-sound-params
       fixed_kernel: true
+
+  cros-tast-ui:
+    <<: *cros-tast-base
+    params:
+      <<: *cros-tast-base-params
+      tests: >
+        ui.DesktopControl
+        ui.WindowControl
+        ui.HotseatAnimation.shelf_with_navigation_widget
+        ui.HotseatAnimation.non_overflow_shelf
+        ui.HotseatAnimation.overflow_shelf
+        ui.HotseatAnimation.shelf_with_navigation_widget_lacros
+        ui.HotseatAnimation.non_overflow_shelf_lacros
+        ui.HotseatAnimation.overflow_shelf_lacros
 
   cros-tast-video: &cros-tast-video
     <<: *cros-tast-base
@@ -857,10 +929,13 @@ test_configs:
     test_plans: &chromebook-test-plans
       - cros-baseline
 #      - cros-baseline-fixed
+      - cros-tast-hardware
       - cros-tast-kernel
       - cros-tast-perf
       - cros-tast-platform
+      - cros-tast-power
       - cros-tast-sound
+      - cros-tast-ui
       - cros-tast-video
 
   - device_type: acer-R721T-grunt_chromeos
@@ -917,6 +992,7 @@ test_configs:
     test_plans: &chromebook-arm64-test-plans
       - cros-baseline
 #      - cros-baseline-fixed
+      - cros-tast-hardware
       - cros-tast-kernel
 #      - cros-tast-kernel-fixed
       - cros-tast-mm-misc
@@ -925,8 +1001,10 @@ test_configs:
 #      - cros-tast-perf-fixed
       - cros-tast-platform
 #      - cros-tast-platform-fixed
+      - cros-tast-power
       - cros-tast-sound
 #      - cros-tast-sound-fixed
+      - cros-tast-ui
       - cros-tast-video
 #      - cros-tast-video-fixed
 
