@@ -111,6 +111,9 @@ echo "Creating artifacts dir and copy generated image"
 sudo mkdir -p "${DATA_DIR}/${BOARD}"
 sudo cp "src/build/images/${BOARD}/latest/chromiumos_test_image.bin" "${DATA_DIR}/${BOARD}"
 
+echo "Applying postbuild-${BRANCH}.sh"
+source "${SCRIPTPATH}/fixes/postbuild-${BRANCH}.sh"
+
 echo "Packing Tast files"
 sudo tar -cf "${DATA_DIR}/${BOARD}/tast.tar" -C ./chroot/usr/bin/ remote_test_runner tast
 sudo tar -uf "${DATA_DIR}/${BOARD}/tast.tar" -C ./chroot/usr/libexec/tast/bundles/remote/ cros
