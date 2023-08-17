@@ -992,6 +992,7 @@ test_configs:
 
   - device_type: sc7180-trogdor-kingoftown_chromeos
     test_plans:
+      - cros-tast-mm-decode
       - cros-tast-mm-decode-v4l2-stateful-h264
       - cros-tast-mm-decode-v4l2-stateful-hevc
       - cros-tast-mm-decode-v4l2-stateful-vp8
@@ -1007,6 +1008,7 @@ test_configs:
 
   - device_type: sc7180-trogdor-lazor-limozeen_chromeos
     test_plans:
+      - cros-tast-mm-decode
       - cros-tast-mm-decode-v4l2-stateful-h264
       - cros-tast-mm-decode-v4l2-stateful-hevc
       - cros-tast-mm-decode-v4l2-stateful-vp8
