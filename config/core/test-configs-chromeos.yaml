@@ -572,6 +572,38 @@ device_types:
         modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-dedede/20230620.0/amd64/modules.tar.xz'
       block_device: detect
 
+  acer-cbv514-1h-34uz-brya_chromeos:
+    <<: *chromebook-x86-type
+    base_name: acer-cbv514-1h-34uz-brya
+    filters: *pineview-filter
+    params:
+      <<: *chromebook-generic-params
+      cros_image:
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-brya/20230825.0/amd64/'
+        flash_tarball: 'full-cros-flash.tar.gz'
+        flash_tarball_compression: 'gz'
+        tast_tarball: 'tast.tgz'
+      reference_kernel:
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-brya/20230825.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-brya/20230825.0/amd64/modules.tar.xz'
+      block_device: detect
+
+  acer-chromebox-cxi4-puff_chromeos:
+    <<: *chromebook-x86-type
+    base_name: acer-chromebox-cxi4-puff
+    filters: *pineview-filter
+    params:
+      <<: *chromebook-generic-params
+      cros_image:
+        base_url: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-puff/20230825.0/amd64/'
+        flash_tarball: 'full-cros-flash.tar.gz'
+        flash_tarball_compression: 'gz'
+        tast_tarball: 'tast.tgz'
+      reference_kernel:
+        image: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-puff/20230825.0/amd64/bzImage'
+        modules: 'https://storage.chromeos.kernelci.org/images/rootfs/chromeos/chromiumos-puff/20230825.0/amd64/modules.tar.xz'
+      block_device: detect
+
   acer-cp514-3wh-r0qs-guybrush_chromeos:
     <<: *chromebook-x86-type
     base_name: acer-cp514-3wh-r0qs-guybrush
@@ -960,6 +992,12 @@ test_configs:
     test_plans: *chromebook-test-plans
 
   - device_type: acer-cb317-1h-c3z6-dedede_chromeos
+    test_plans: *chromebook-test-plans
+
+  - device_type: acer-cbv514-1h-34uz-brya_chromeos
+    test_plans: *chromebook-test-plans
+
+  - device_type: acer-chromebox-cxi4-puff_chromeos
     test_plans: *chromebook-test-plans
 
   - device_type: acer-cp514-3wh-r0qs-guybrush_chromeos
