@@ -6,6 +6,7 @@
 
 {%- set fragments = [
   'fragment/kubernetes.jinja2',
+  'fragment/helm.jinja2',
   'fragment/gcloud.jinja2',
   'fragment/azure-cli.jinja2']
   + fragments
@@ -16,5 +17,6 @@
 {% block packages %}
 {{ super() }}
 RUN apt-get update && apt-get install --no-install-recommends -y \
+    curl \
     wget
 {%- endblock %}
