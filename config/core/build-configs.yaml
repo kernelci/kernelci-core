@@ -22,6 +22,9 @@ trees:
   arnd:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/arnd/playground.git"
 
+  bpf-next:
+    url: "https://git.kernel.org/pub/scm/linux/kernel/git/bpf/bpf-next.git"
+
   broonie-misc:
     url: "https://git.kernel.org/pub/scm/linux/kernel/git/broonie/misc.git"
 
@@ -144,7 +147,6 @@ trees:
 
   weiny2:
     url: "https://github.com/weiny2/linux-kernel"
-
 
 fragments:
 
@@ -360,6 +362,31 @@ fragments:
       mediatek/mt8195/scp.img
       "'
 
+  bpf:
+    path: "kernel/configs/bpf.config"
+    configs:
+      - "CONFIG_BPF=y"
+      - "CONFIG_HAVE_EBPF_JIT=y"
+      - "CONFIG_ARCH_WANT_DEFAULT_BPF_JIT=y"
+      - "CONFIG_BPF_SYSCALL=y"
+      - "CONFIG_BPF_JIT=y"
+      - "CONFIG_BPF_JIT_DEFAULT_ON=y"
+      - "CONFIG_BPF_PRELOAD=y"
+      - "CONFIG_BPF_PRELOAD_UMD=m"
+      - "CONFIG_BPF_LSM=y"
+      - "CONFIG_CGROUP_BPF=y"
+      - "CONFIG_IPV6_SEG6_BPF=y"
+      - "CONFIG_NETFILTER_XT_MATCH_BPF=y"
+      - "CONFIG_BPFILTER=y"
+      - "CONFIG_BPFILTER_UMH=m"
+      - "CONFIG_NET_CLS_BPF=m"
+      - "CONFIG_NET_ACT_BPF=y"
+      - "CONFIG_BPF_STREAM_PARSER=y"
+      - "CONFIG_LWTUNNEL_BPF=y"
+      - "CONFIG_BPF_LIRC_MODE2=y"
+      - "CONFIG_BPF_EVENTS=y"
+      - "CONFIG_BPF_KPROBE_OVERRIDE=y"
+      - "CONFIG_TEST_BPF=m"
 
   crypto:
     path: "kernel/configs/crypto.config"
@@ -936,6 +963,15 @@ chrome_platform_variants: &chrome_platform_variants
         <<: *x86_64_defconfig
         fragments: [x86-chromebook]
 
+bpf_variants: &bpf_variants
+  clang-17:
+    build_environment: clang-17
+    architectures:
+      x86_64:
+        <<: *x86_64_defconfig
+        extra_configs:
+          - "allnoconfig"
+        fragments: [bpf]
 
 build_configs:
 
@@ -982,6 +1018,11 @@ build_configs:
     tree: arnd
     branch: 'to-build'
     variants: *minimal_variants
+
+  bpf-next:
+    tree: bpf-next
+    branch: 'for-next'
+    variants: *bpf_variants
 
   broonie-misc:
     tree: broonie-misc
