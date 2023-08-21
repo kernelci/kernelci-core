@@ -236,6 +236,55 @@ test_plans:
       tests: &cros-tast-mm-decode-v4l2-stateful-vp9-tests >
         video.PlatformDecoding.v4l2_stateful_vp9_0_svc
 
+  cros-tast-mm-decode-v4l2-stateless-h264: &cros-tast-mm-decode-v4l2-stateless-h264
+    <<: *cros-tast-base
+    params: &cros-tast-mm-decode-v4l2-stateless-h264-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-mm-decode-v4l2-stateless-h264-tests >
+        video.PlatformDecoding.v4l2_stateless_h264_*
+
+  cros-tast-mm-decode-v4l2-stateless-vp8: &cros-tast-mm-decode-v4l2-stateless-vp8
+    <<: *cros-tast-base
+    params: &cros-tast-mm-decode-v4l2-stateless-vp8-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-mm-decode-v4l2-stateless-vp8-tests >
+        video.PlatformDecoding.v4l2_stateless_vp8_*
+
+  cros-tast-mm-decode-v4l2-stateless-vp9-group1: &cros-tast-mm-decode-v4l2-stateless-vp9-group1
+    <<: *cros-tast-base
+    params: &cros-tast-mm-decode-v4l2-stateless-vp9-group1-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-mm-decode-v4l2-stateless-vp9-group1-tests >
+        video.PlatformDecoding.v4l2_stateless_vp9_0_group1_*
+
+  cros-tast-mm-decode-v4l2-stateless-vp9-group2: &cros-tast-mm-decode-v4l2-stateless-vp9-group2
+    <<: *cros-tast-base
+    params: &cros-tast-mm-decode-v4l2-stateless-vp9-group2-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-mm-decode-v4l2-stateless-vp9-group2-tests >
+        video.PlatformDecoding.v4l2_stateless_vp9_0_group2_*
+
+  cros-tast-mm-decode-v4l2-stateless-vp9-group3: &cros-tast-mm-decode-v4l2-stateless-vp9-group3
+    <<: *cros-tast-base
+    params: &cros-tast-mm-decode-v4l2-stateless-vp9-group3-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-mm-decode-v4l2-stateless-vp9-group3-tests >
+          video.PlatformDecoding.v4l2_stateless_vp9_0_group3_*
+
+  cros-tast-mm-decode-v4l2-stateless-vp9-group4: &cros-tast-mm-decode-v4l2-stateless-vp9-group4
+    <<: *cros-tast-base
+    params: &cros-tast-mm-decode-v4l2-stateless-vp9-group4-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-mm-decode-v4l2-stateless-vp9-group4-tests >
+          video.PlatformDecoding.v4l2_stateless_vp9_0_group4_*
+
+  cros-tast-mm-decode-v4l2-stateless-vp9-level5: &cros-tast-mm-decode-v4l2-stateless-vp9-level5
+    <<: *cros-tast-base
+    params: &cros-tast-mm-decode-v4l2-stateless-vp9-level5-params
+      <<: *cros-tast-base-params
+      tests: &cros-tast-mm-decode-v4l2-stateless-vp9-level5-tests >
+        video.PlatformDecoding.v4l2_stateless_vp9_0_level5_*
+
   cros-tast-mm-encode: &cros-tast-mm-encode
     <<: *cros-tast-base
     params: &cros-tast-mm-encode-params
