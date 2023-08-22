@@ -4,7 +4,7 @@
 {{ super() }}
 
 ARG RUST_VER=1.71.1
-ARG BINDGEN_VER=0.56.0
+ARG BINDGEN_VER=0.65.1
 
 ARG RUST_TRIPLE=rust-${RUST_VER}-x86_64-unknown-linux-gnu
 
@@ -34,7 +34,7 @@ RUN git clone --recurse-submodules --branch $RUST_VER \
         https://github.com/rust-lang/rust \
         $(rustc --print sysroot)/lib/rustlib/src/rust
 
-RUN cargo install --locked --version ${BINDGEN_VER} bindgen
+RUN cargo install --locked --version ${BINDGEN_VER} bindgen-cli
 
 # kernel build generates some rust code and tries to format it, if rustfmt is
 # missing it will print non-fatal error noise
