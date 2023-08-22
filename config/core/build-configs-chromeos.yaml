@@ -8,8 +8,8 @@ trees:
 
 
 chromeos_5.15_variants: &chromeos_5_15_variants
-  chromeos-clang-14:
-    build_environment: clang-14
+  chromeos-clang-17:
+    build_environment: clang-17
     architectures:
       arm:
         base_defconfig: 'cros://chromeos-5.15/armel/chromiumos-arm.flavour.config'
@@ -35,8 +35,8 @@ chromeos_5.15_variants: &chromeos_5_15_variants
           - 'cros://chromeos-5.15/x86_64/chromiumos-x86_64.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
         filters: *cros-filters
 
-  clang-14: &clang-14
-    build_environment: clang-14
+  clang-17: &clang-17
+    build_environment: clang-17
     architectures:
       arm64:
         base_defconfig: 'defconfig'
@@ -51,8 +51,8 @@ chromeos_5.15_variants: &chromeos_5_15_variants
 
 
 chromeos_6.1_variants: &chromeos_6_1_variants
-  chromeos-clang-14:
-    build_environment: clang-14
+  chromeos-clang-17:
+    build_environment: clang-17
     architectures:
       arm:
         base_defconfig: 'cros://chromeos-6.1/armel/chromiumos-arm.flavour.config'
@@ -77,7 +77,7 @@ chromeos_6.1_variants: &chromeos_6_1_variants
           - 'cros://chromeos-6.1/x86_64/chromiumos-x86_64.flavour.config+x86-chromebook+CONFIG_MODULE_COMPRESS_GZIP=n'
         filters: *cros-filters
 
-  clang-14: *clang-14
+  clang-17: *clang-17
 
 
 
