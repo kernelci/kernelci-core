@@ -99,10 +99,16 @@ cros_sdk setup_board --board=${BOARD}
 echo "Applying fixes for ${BRANCH} packages"
 source "${SCRIPTPATH}/fixes/packagefix-${BRANCH}.sh"
 
-echo "Building packages (${SERIAL})"
+# Enable serial console for Chromebook
+USE="tty_console_${SERIAL} pcserial"
+# Skip mali firmware (TODO: Only for boards with Mali GPU?)
 # Disable `builtin_fw_mali_g57` flag as it is not required when `panfrost` is enabled
-cros_sdk USE="tty_console_${SERIAL} pcserial cr50_skip_update -builtin_fw_mali_g57" \
-	 build_packages --board=${BOARD}
+USE="${USE} -builtin_fw_mali_g57"
+# Enable kernelci builder SoftwareDep
+USE="${USE} chromeos_kernelci_builder"
+
+echo "Building packages ${BOARD} (Serial port: ${SERIAL}) USE=${USE}"
+cros_sdk build_packages --board=${BOARD}
 
 echo "Building image (${SERIAL})"
 cros_sdk ./build_image --enable_serial ${SERIAL} --board="${BOARD}" --boot_args "earlyprintk=serial,keep console=tty0" --noenable_rootfs_verification test
