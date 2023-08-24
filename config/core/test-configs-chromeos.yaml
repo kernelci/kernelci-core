@@ -112,6 +112,18 @@ test_plans:
         hardware.SensorIioserviceHard
         hardware.SensorLight
         hardware.SensorPresence
+        hardware.SensorActivity
+        graphics.HardwareProbe
+        health.ProbeSensorInfo
+        health.DiagnosticsRun.*
+        health.ProbeAudioHardwareInfo
+        health.ProbeAudioInfo
+        health.ProbeBacklightInfo
+        health.ProbeCPUInfo
+        health.ProbeFanInfo
+        inputs.PhysicalKeyboardKernelMode
+        graphics.KernelConfig
+        graphics.KernelMemory
 
   cros-tast-kernel: &cros-tast-kernel
     <<: *cros-tast-base
