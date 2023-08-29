@@ -6,3 +6,5 @@ pytest-mock==3.11.1
 types-PyYAML==6.0.12.10
 types-requests==2.31.0.1
 types-urllib3==1.26.25.13
+black==23.3.0
+pre-commit==2.21.0
