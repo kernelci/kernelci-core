@@ -25,14 +25,14 @@ import xml
 
 from junitparser import JUnitXml, Skipped
 
-FLUSTER_PATH = '/opt/fluster'
-RESULTS_FILE = 'results.xml'
+FLUSTER_PATH = "/opt/fluster"
+RESULTS_FILE = "results.xml"
 
 
 def _check(path, match):
-    paths = os.environ['PATH'].split(':')
+    paths = os.environ["PATH"].split(":")
     if os.getuid() != 0:
-        paths.extend(['/usr/local/sbin', '/usr/sbin', '/sbin'])
+        paths.extend(["/usr/local/sbin", "/usr/sbin", "/sbin"])
     for dirname in paths:
         candidate = os.path.join(dirname, path)
         if match(candidate):
@@ -43,22 +43,22 @@ def _check(path, match):
 def _parse_vector_result(vector):
     if vector.result:
         if isinstance(vector.result[0], Skipped):
-            res = 'skip'
+            res = "skip"
         else:
-            res = 'fail'
+            res = "fail"
     else:
-        res = 'pass'
+        res = "pass"
     return vector.name, res
 
 
 def _load_results_file(filename):
     ret = None
     try:
-        f = open(filename, 'r')
+        f = open(filename, "r")
         try:
             ret = JUnitXml.fromfile(f)
         except xml.etree.ElementTree.ParseError as e:
-            print(f'Error parsing {filename} file: {e}')
+            print(f"Error parsing {filename} file: {e}")
         finally:
             f.close()
     except IOError as e:
@@ -68,65 +68,73 @@ def _load_results_file(filename):
 
 
 def _run_fluster(test_suite=None, timeout=None, jobs=None, decoders=None):
-    cmd = ['python3', 'fluster.py', '-ne', 'run',
-           '-f', 'junitxml', '-so', RESULTS_FILE]
+    cmd = [
+        "python3",
+        "fluster.py",
+        "-ne",
+        "run",
+        "-f",
+        "junitxml",
+        "-so",
+        RESULTS_FILE,
+    ]
 
     if test_suite:
-        cmd.extend(['-ts', test_suite])
+        cmd.extend(["-ts", test_suite])
     if timeout:
-        cmd.extend(['-t', timeout])
+        cmd.extend(["-t", timeout])
     if jobs:
-        cmd.extend(['-j', jobs])
+        cmd.extend(["-j", jobs])
     for index, dec in enumerate(decoders):
-        cmd.extend(['-d', dec] if not index else [dec])
+        cmd.extend(["-d", dec] if not index else [dec])
 
     subprocess.run(cmd, cwd=FLUSTER_PATH, check=False)
 
 
 def main(args):
-    cmd = {
-        'set': 'lava-test-set',
-        'case': 'lava-test-case'
-    }
+    cmd = {"set": "lava-test-set", "case": "lava-test-case"}
 
-    if not _check(path=cmd['case'], match=os.path.isfile):
-        cmd = cmd.fromkeys(cmd, 'echo')
+    if not _check(path=cmd["case"], match=os.path.isfile):
+        cmd = cmd.fromkeys(cmd, "echo")
 
     # run fluster tests
     _run_fluster(args.test_suite, args.timeout, args.jobs, args.decoders)
 
     # load test results
-    junitxml = _load_results_file(f'{FLUSTER_PATH}/{RESULTS_FILE}')
+    junitxml = _load_results_file(f"{FLUSTER_PATH}/{RESULTS_FILE}")
 
     if not junitxml:
-        subprocess.check_call([
-            cmd['case'], 'validate-fluster-results', '--result', 'fail'])
+        subprocess.check_call(
+            [cmd["case"], "validate-fluster-results", "--result", "fail"]
+        )
         return 1
 
-    subprocess.check_call([
-        cmd['case'], 'validate-fluster-results', '--result', 'pass'])
+    subprocess.check_call(
+        [cmd["case"], "validate-fluster-results", "--result", "pass"]
+    )
 
     # parse test results
     for test_suite in junitxml:
         decoder = next(test_suite.properties()).value
-        subprocess.check_call([
-            cmd['set'], 'start', f'{test_suite.name}-{decoder}'])
+        subprocess.check_call(
+            [cmd["set"], "start", f"{test_suite.name}-{decoder}"]
+        )
 
         for res in map(_parse_vector_result, test_suite):
             case_name, case_res = res
-            subprocess.check_call([
-                cmd['case'], f'{case_name}', '--result', f'{case_res}'])
+            subprocess.check_call(
+                [cmd["case"], f"{case_name}", "--result", f"{case_res}"]
+            )
 
-        subprocess.check_call([
-            cmd['set'], 'stop'])
+        subprocess.check_call([cmd["set"], "stop"])
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-ts', '--test-suite')
-    parser.add_argument('-t', '--timeout')
-    parser.add_argument('-j', '--jobs')
-    parser.add_argument('-d', '--decoders', nargs='+')
+    parser.add_argument("-ts", "--test-suite")
+    parser.add_argument("-t", "--timeout")
+    parser.add_argument("-j", "--jobs")
+    parser.add_argument("-d", "--decoders", nargs="+")
     args = parser.parse_args()
     sys.exit(main(args))

@@ -13,23 +13,25 @@ from .base_api import APICommand
 
 class cmd_init(APICommand):  # pylint: disable=invalid-name
     """Initialise job data before running it"""
+
     args = APICommand.args + [
         Args.api_token,
         {
-            'name': 'job',
-            'help': "Job name",
+            "name": "job",
+            "help": "Job name",
         },
     ]
 
     opt_args = APICommand.opt_args + [
-        Args.indent, Args.id_only,
+        Args.indent,
+        Args.id_only,
         {
-            'name': '--input-node-id',
-            'help': "ID of the input node",
+            "name": "--input-node-id",
+            "help": "ID of the input node",
         },
         {
-            'name': '--input-node-json',
-            'help': "Alternatively, path to the input node JSON file",
+            "name": "--input-node-json",
+            "help": "Alternatively, path to the input node JSON file",
         },
     ]
 
@@ -39,12 +41,14 @@ class cmd_init(APICommand):  # pylint: disable=invalid-name
         elif args.input_node_json:
             input_node = self._load_json(args.input_node_json)
         else:
-            print("\
-Invalid arguments.  Either --input-node-id or --input-node-json is required.")
+            print(
+                "\
+Invalid arguments.  Either --input-node-id or --input-node-json is required."
+            )
             return False
 
         helper = kernelci.api.helper.APIHelper(api)
-        job_config = configs['jobs'][args.job]
+        job_config = configs["jobs"][args.job]
         job_node = helper.create_job_node(job_config, input_node)
         self._print_node(job_node, args.id_only, args.indent)
         return True
@@ -52,26 +56,28 @@ Invalid arguments.  Either --input-node-id or --input-node-json is required.")
 
 class cmd_generate(APICommand):  # pylint: disable=invalid-name
     """Generate a job definition file"""
+
     args = APICommand.args + [
         Args.runtime_config,
         {
-            'name': '--platform',
-            'help': "Name of the platform to run the job",
+            "name": "--platform",
+            "help": "Name of the platform to run the job",
         },
     ]
     opt_args = APICommand.opt_args + [
-        Args.storage_config, Args.runtime_token,
+        Args.storage_config,
+        Args.runtime_token,
         {
-            'name': '--node-id',
-            'help': "ID of the job's node",
+            "name": "--node-id",
+            "help": "ID of the job's node",
         },
         {
-            'name': '--node-json',
-            'help': "Alternatively, path to the job's node JSON file",
+            "name": "--node-json",
+            "help": "Alternatively, path to the job's node JSON file",
         },
         {
-            'name': '--output',
-            'help': "Path of the directory where to generate the job data",
+            "name": "--output",
+            "help": "Path of the directory where to generate the job data",
         },
     ]
 
@@ -81,16 +87,19 @@ class cmd_generate(APICommand):  # pylint: disable=invalid-name
         elif args.node_json:
             job_node = self._load_json(args.node_json)
         else:
-            print("\
-Invalid arguments.  Either --node-id or --node-json is required.")
+            print(
+                "\
+Invalid arguments.  Either --node-id or --node-json is required."
+            )
             return False
-        job = kernelci.runtime.Job(job_node, configs['jobs'][job_node['name']])
-        job.platform_config = configs['device_types'][args.platform]
+        job = kernelci.runtime.Job(job_node, configs["jobs"][job_node["name"]])
+        job.platform_config = configs["device_types"][args.platform]
         job.storage_config = (
-            configs['storage_configs'][args.storage_config]
-            if args.storage_config else None
+            configs["storage_configs"][args.storage_config]
+            if args.storage_config
+            else None
         )
-        runtime_config = configs['runtimes'][args.runtime_config]
+        runtime_config = configs["runtimes"][args.runtime_config]
         runtime = kernelci.runtime.get_runtime(
             runtime_config, token=args.runtime_token
         )
@@ -106,24 +115,25 @@ Invalid arguments.  Either --node-id or --node-json is required.")
 
 class cmd_submit(Command):  # pylint: disable=invalid-name
     """Submit a job definition from a file"""
+
     args = Command.args + [
         Args.runtime_config,
         {
-            'name': 'job_path',
-            'help': "Path of the job file to submit",
+            "name": "job_path",
+            "help": "Path of the job file to submit",
         },
     ]
     opt_args = Command.opt_args + [
         Args.runtime_token,
         {
-            'name': '--wait',
-            'action': 'store_true',
-            'help': "Wait for job to complete and get exit status code",
+            "name": "--wait",
+            "action": "store_true",
+            "help": "Wait for job to complete and get exit status code",
         },
     ]
 
     def __call__(self, configs, args):
-        runtime_config = configs['runtimes'][args.runtime_config]
+        runtime_config = configs["runtimes"][args.runtime_config]
         runtime = kernelci.runtime.get_runtime(
             runtime_config, token=args.runtime_token
         )

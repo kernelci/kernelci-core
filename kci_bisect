@@ -31,10 +31,10 @@ class cmd_get_recipients(Command):
 
     def __call__(self, configs, args):
         to, cc = (
-            set(arg.split(' ') if arg else []) for arg in (args.to, args.cc)
+            set(arg.split(" ") if arg else []) for arg in (args.to, args.cc)
         )
         rcpts = kernelci.bisect.get_recipients(args.kdir, args.commit, to, cc)
-        for header, category in [("To:", 'to'), ("Cc:", 'cc')]:
+        for header, category in [("To:", "to"), ("Cc:", "cc")]:
             print(header)
             for rcpt in rcpts[category]:
                 print("  {}".format(rcpt))
@@ -46,9 +46,9 @@ class cmd_get_mbox(Command):
     args = [Args.kdir, Args.commit]
     opt_args = [
         {
-            'name': '--base-url',
-            'default': 'https://lore.kernel.org/all/?',
-            'help': "Skip git pull",
+            "name": "--base-url",
+            "default": "https://lore.kernel.org/all/?",
+            "help": "Skip git pull",
         },
     ]
 
@@ -60,7 +60,7 @@ class cmd_get_mbox(Command):
         return True
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     opts = parse_opts("kci_bisect", globals())
     configs = kernelci.config.load(opts.get_yaml_configs())
     status = opts.command(configs, opts)

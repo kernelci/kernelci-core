@@ -16,6 +16,7 @@ from .base_api import APICommand
 
 class cmd_subscribe(APICommand):  # pylint: disable=invalid-name
     """Subscribe to a Pub/Sub channel"""
+
     args = APICommand.args + [Args.api_token, Args.channel]
 
     def _api_call(self, api, configs, args):
@@ -26,6 +27,7 @@ class cmd_subscribe(APICommand):  # pylint: disable=invalid-name
 
 class cmd_unsubscribe(APICommand):  # pylint: disable=invalid-name
     """Unscribe from a Pub/Sub channel"""
+
     args = APICommand.args + [Args.api_token, Args.sub_id]
 
     def _api_call(self, api, configs, args):
@@ -35,20 +37,21 @@ class cmd_unsubscribe(APICommand):  # pylint: disable=invalid-name
 
 class cmd_send_event(APICommand):  # pylint: disable=invalid-name
     """Read some data on stdin and send it as an event on a channel"""
+
     args = APICommand.args + [Args.api_token, Args.channel]
     opt_args = [
         {
-            'name': '--type',
-            'help': "CloudEvent type, api.kernelci.org by default",
+            "name": "--type",
+            "help": "CloudEvent type, api.kernelci.org by default",
         },
         {
-            'name': '--source',
-            'help': "CloudEvent source, https://api.kernelci.org/ by default",
+            "name": "--source",
+            "help": "CloudEvent source, https://api.kernelci.org/ by default",
         },
         {
-            'name': '--json',
-            'action': 'store_true',
-            'help': "Parse input data as JSON",
+            "name": "--json",
+            "action": "store_true",
+            "help": "Parse input data as JSON",
         },
     ]
 
@@ -56,12 +59,13 @@ class cmd_send_event(APICommand):  # pylint: disable=invalid-name
         data = sys.stdin.read()
         if args.json:
             data = json.loads(data)
-        api.send_event(args.channel, {'data': data})
+        api.send_event(args.channel, {"data": data})
         return True
 
 
 class cmd_receive_event(APICommand):  # pylint: disable=invalid-name
     """Wait and receive an event from a subscription and print on stdout"""
+
     args = APICommand.args + [Args.api_token, Args.sub_id]
     opt_args = APICommand.opt_args + [Args.indent]
 

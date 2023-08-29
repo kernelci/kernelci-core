@@ -11,7 +11,7 @@ from kernelci.config.base import YAMLConfigObject
 class Job(YAMLConfigObject):
     """Pipeline job definition"""
 
-    yaml_tag = '!Job'
+    yaml_tag = "!Job"
 
     # pylint: disable=too-many-arguments
     def __init__(self, name, template, image=None, params=None):
@@ -43,7 +43,7 @@ class Job(YAMLConfigObject):
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({'template', 'image', 'params'})
+        attrs.update({"template", "image", "params"})
         return attrs
 
 
@@ -51,9 +51,9 @@ def from_yaml(data, _):
     """Create the pipeline job definitions using data loaded from YAML"""
     jobs = {
         name: Job.load_from_yaml(config, name=name)
-        for name, config in data.get('jobs', {}).items()
+        for name, config in data.get("jobs", {}).items()
     }
 
     return {
-        'jobs': jobs,
+        "jobs": jobs,
     }

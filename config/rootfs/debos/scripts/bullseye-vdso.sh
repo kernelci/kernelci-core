@@ -33,7 +33,7 @@ make install
 cd /tmp
 rm -r ./vdso
 
-# Cleanup: remove files and packages we don't want in the images 
+# Cleanup: remove files and packages we don't want in the images
 apt-get remove --purge -y ${BUILD_DEPS}
 apt-get remove --purge -y libgtest-dev
 apt-get autoremove --purge -y

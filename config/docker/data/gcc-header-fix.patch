@@ -6,12 +6,12 @@ Apply with cd / && patch -p1 < /path/to/patch
 --- a/usr/lib/gcc/x86_64-linux-gnu/10/plugin/include/config/i386/i386.h.orig	2021-01-10 12:35:39.000000000 +0100
 +++ b/usr/lib/gcc/x86_64-linux-gnu/10/plugin/include/config/i386/i386.h	2022-01-23 10:22:59.579197064 +0100
 @@ -2497,7 +2497,7 @@
- 
+
  #include "insn-attr-common.h"
- 
+
 -#include "common/config/i386/i386-cpuinfo.h"
 +#include "config/i386/i386-cpuinfo.h"
- 
+
  class pta
  {
 --- /dev/null
@@ -151,4 +151,3 @@ Apply with cd / && patch -p1 < /path/to/patch
 +#define M_VENDOR(a) (a)
 +#define M_CPU_TYPE(a) (M_CPU_TYPE_START + a)
 +#define M_CPU_SUBTYPE(a) (M_CPU_SUBTYPE_START + a)
-

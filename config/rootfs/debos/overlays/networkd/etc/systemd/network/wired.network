@@ -4,4 +4,3 @@ KernelCommandLine=!nfsroot
 
 [Network]
 DHCP=yes
-

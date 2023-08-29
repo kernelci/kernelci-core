@@ -9,7 +9,7 @@ diff -Naur kmod-28/debian/changelog kmod-28-kernelci/debian/changelog
 + -- Denys Fedoryshchenko <denys.f@collabora.com>  Fri, 22 Jul 2022 11:37:04 +0300
 +
  kmod (28-1) unstable; urgency=medium
- 
+
    * New upstream release.
 diff -Naur kmod-28/debian/control kmod-28-kernelci/debian/control
 --- kmod-28/debian/control	2021-01-08 01:23:24.000000000 +0100

@@ -27,7 +27,7 @@ class APIHelper:
         """API object"""
         return self._api
 
-    def subscribe_filters(self, filters=None, channel='node'):
+    def subscribe_filters(self, filters=None, channel="node"):
         """Subscribe to a channel with some added filters"""
         sub_id = self.api.subscribe(channel)
         self._filters[sub_id] = filters
@@ -45,7 +45,7 @@ class APIHelper:
 
     def get_node_from_event(self, event_data):
         """Listen for an event and get the matching node object from it"""
-        return self.api.get_node(event_data['id'])
+        return self.api.get_node(event_data["id"])
 
     def pubsub_event_filter(self, sub_id, event):
         """Filter Pub/Sub events
@@ -66,8 +66,10 @@ class APIHelper:
                     if sub_key not in event.get(key):
                         continue
                     if isinstance(sub_value, tuple):
-                        if not any(sub_sub_value == event.get(key).get(sub_key)
-                                   for sub_sub_value in sub_value):
+                        if not any(
+                            sub_sub_value == event.get(key).get(sub_key)
+                            for sub_sub_value in sub_value
+                        ):
                             return False
                     elif sub_value != event.get(key).get(sub_key):
                         return False
@@ -87,19 +89,20 @@ class APIHelper:
         while True:
             event = self.receive_event_data(sub_id)
             node = self.get_node_from_event(event)
-            if all(self.pubsub_event_filter(sub_id, obj)
-                   for obj in [node, event]):
+            if all(
+                self.pubsub_event_filter(sub_id, obj) for obj in [node, event]
+            ):
                 return node
 
     def create_job_node(self, job_config, input_node):
         """Create a new job node based on input and configuration"""
         job_node = {
-            'parent': input_node['id'],
-            'name': job_config.name,
-            'path': input_node['path'] + [job_config.name],
-            'group': job_config.name,
-            'artifacts': input_node['artifacts'],
-            'revision': input_node['revision'],
+            "parent": input_node["id"],
+            "name": job_config.name,
+            "path": input_node["path"] + [job_config.name],
+            "group": job_config.name,
+            "artifacts": input_node["artifacts"],
+            "revision": input_node["revision"],
         }
         return self._api.create_node(job_node)
 
@@ -112,18 +115,18 @@ class APIHelper:
         the established API endpoints.
         """
         # pylint: disable=protected-access
-        return self.api._post('regression', regression)
+        return self.api._post("regression", regression)
 
     def _prepare_results(self, results, parent, base):
-        node = results['node'].copy()
+        node = results["node"].copy()
         node.update(base)
-        node['path'] = (parent['path'] if parent else []) + [node['name']]
+        node["path"] = (parent["path"] if parent else []) + [node["name"]]
         child_nodes = []
-        for child_node in results['child_nodes']:
+        for child_node in results["child_nodes"]:
             child_nodes.append(self._prepare_results(child_node, node, base))
         return {
-            'node': node,
-            'child_nodes': child_nodes,
+            "node": node,
+            "child_nodes": child_nodes,
         }
 
     def submit_results(self, results, root):
@@ -153,21 +156,21 @@ class APIHelper:
         }
         """
         root_node = root.copy()
-        root_node['result'] = results['node']['result']
-        root_node['artifacts'].update(results['node']['artifacts'])
+        root_node["result"] = results["node"]["result"]
+        root_node["artifacts"].update(results["node"]["artifacts"])
         root_results = {
-            'node': root_node,
-            'child_nodes': results['child_nodes'],
+            "node": root_node,
+            "child_nodes": results["child_nodes"],
         }
-        parent = self.api.get_node(root['parent'])
+        parent = self.api.get_node(root["parent"])
         base = {
-            'revision': root['revision'],
-            'group': root['name'],
-            'state': 'done',
+            "revision": root["revision"],
+            "group": root["name"],
+            "state": "done",
         }
         data = self._prepare_results(root_results, parent, base)
         # Once this has been consolidated at the API level:
         # self.api.create_node_hierarchy(data)
-        node_id = data['node']['id']
+        node_id = data["node"]["id"]
         # pylint: disable=protected-access
-        return self.api._put(f'nodes/{node_id}', data).json()
+        return self.api._put(f"nodes/{node_id}", data).json()

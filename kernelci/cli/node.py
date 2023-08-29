@@ -15,11 +15,13 @@ from .base_api import APICommand, AttributesCommand
 
 class NodeCommand(APICommand):  # pylint: disable=too-few-public-methods
     """Base command class for interacting with Node objects"""
+
     opt_args = APICommand.opt_args + [Args.indent]
 
 
 class cmd_get(NodeCommand):  # pylint: disable=invalid-name
     """Get a node with a given ID"""
+
     args = NodeCommand.args + [Args.id]
 
     def _api_call(self, api, configs, args):
@@ -30,9 +32,8 @@ class cmd_get(NodeCommand):  # pylint: disable=invalid-name
 
 class cmd_find(AttributesCommand):  # pylint: disable=invalid-name
     """Find nodes with arbitrary attributes"""
-    opt_args = AttributesCommand.opt_args + [
-        Args.limit, Args.offset
-    ]
+
+    opt_args = AttributesCommand.opt_args + [Args.limit, Args.offset]
 
     def _api_call(self, api, configs, args):
         attributes = self._split_attributes(args.attributes)
@@ -53,12 +54,13 @@ class cmd_count(AttributesCommand):  # pylint: disable=invalid-name
 
 class cmd_submit(APICommand):  # pylint: disable=invalid-name
     """Submit a new node or update an existing one from stdin"""
+
     args = APICommand.args + [Args.api_token]
     opt_args = APICommand.opt_args + [Args.id_only]
 
     def _api_call(self, api, configs, args):
         data = json.load(sys.stdin)
-        if 'id' in data:
+        if "id" in data:
             node = api.update_node(data)
         else:
             node = api.create_node(data)

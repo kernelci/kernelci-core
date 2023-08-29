@@ -15,20 +15,21 @@ from .base import Args, Command, sub_main
 
 class cmd_get_schedule(Command):  # pylint: disable=invalid-name
     """Get scheduler configs matching an event provided on stdin"""
+
     opt_args = Command.opt_args + [
         Args.indent,
         {
-            'name': '--channel',
-            'help': "Name of the pub/sub channel, or 'node' by default",
+            "name": "--channel",
+            "help": "Name of the pub/sub channel, or 'node' by default",
         },
     ]
 
     def __call__(self, configs, args):
-        rconfigs = configs['runtimes']
+        rconfigs = configs["runtimes"]
         runtimes = dict(kernelci.runtime.get_all_runtimes(rconfigs, args))
         sched = kernelci.scheduler.Scheduler(configs, runtimes)
         event = json.loads(sys.stdin.read())
-        channel = args.channel or 'node'
+        channel = args.channel or "node"
         for job, runtime, platform in sched.get_schedule(event, channel):
             print(f"{job.name:32} {runtime.config.name:32} {platform.name}")
         return True

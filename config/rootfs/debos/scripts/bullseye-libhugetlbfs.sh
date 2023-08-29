@@ -26,7 +26,7 @@ cd libhugetlbfs
 git reset --hard ${RELEASE}
 make BUILDTYPE=NATIVEONLY
 
-# Cleanup: remove files and packages we don't want in the images 
+# Cleanup: remove files and packages we don't want in the images
 apt-get remove --purge -y ${BUILD_DEPS}
 apt-get remove --purge -y libgtest-dev
 apt-get autoremove --purge -y

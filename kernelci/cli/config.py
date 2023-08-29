@@ -23,16 +23,17 @@ class cmd_list_files(Command):  # pylint: disable=invalid-name
 
 class cmd_validate(Command):  # pylint: disable=invalid-name
     """Validate the YAML configuration"""
+
     opt_args = [Args.verbose]
 
     def __call__(self, configs, args):
         entries = [
-            'api_configs',
-            'device_types',
-            'jobs',
-            'runtimes',
-            'scheduler',
-            'storage_configs',
+            "api_configs",
+            "device_types",
+            "jobs",
+            "runtimes",
+            "scheduler",
+            "storage_configs",
         ]
         err = kernelci.config.validate_yaml(args.yaml_config, entries)
         if err:
@@ -45,10 +46,11 @@ class cmd_validate(Command):  # pylint: disable=invalid-name
 
 class cmd_list(Command):  # pylint: disable=invalid-name
     """List entries from the YAML configuration"""
+
     args = Command.args + [
         {
-            'name': 'config',
-            'help': "Name of the YAML config to list, e.g. jobs or runtimes",
+            "name": "config",
+            "help": "Name of the YAML config to list, e.g. jobs or runtimes",
         },
     ]
     opt_args = Command.opt_args + [Args.indent]
@@ -61,7 +63,7 @@ class cmd_list(Command):  # pylint: disable=invalid-name
         if isinstance(config_data, dict):
             for name, data in config_data.items():
                 print(name)
-                print('-' * len(name))
+                print("-" * len(name))
                 print(yaml.dump(data, indent=args.indent))
         else:
             for data in config_data:

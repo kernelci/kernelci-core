@@ -22,12 +22,12 @@ def _list_files(path, match):
 
 
 def _load_readme():
-    with open('README.md', 'rb') as readme:
-        return readme.read().decode('utf8')
+    with open("README.md", "rb") as readme:
+        return readme.read().decode("utf8")
 
 
 setuptools.setup(
-    name='kernelci',
+    name="kernelci",
     version=kernelci.__version__,
     description="KernelCI core functions",
     author="kernelci.org",
@@ -46,31 +46,31 @@ setuptools.setup(
         "kernelci.storage",
     ],
     scripts=[
-        'kci',
-        'kci_build',
-        'kci_test',
-        'kci_rootfs',
-        'kci_data',
-        'kci_bisect',
-        'scripts/kci-bisect-lava-v2-callback',
-        'scripts/kci-bisect-push-results',
+        "kci",
+        "kci_build",
+        "kci_test",
+        "kci_rootfs",
+        "kci_data",
+        "kci_bisect",
+        "scripts/kci-bisect-lava-v2-callback",
+        "scripts/kci-bisect-push-results",
     ],
     long_description=_load_readme(),
-    long_description_content_type='text/markdown',
+    long_description_content_type="text/markdown",
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Environment :: Console',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: GNU Lesser General Public License v2 or later (LGPLv2+)',  # noqa pylint: disable=line-too-long
-        'Operating System :: OS Independent',
-        'Operating System :: POSIX :: Linux',
-        'Programming Language :: C',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3.7',
-        'Topic :: Software Development :: Build Tools',
-        'Topic :: Software Development :: Testing',
+        "Development Status :: 5 - Production/Stable",
+        "Environment :: Console",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: GNU Lesser General Public License v2 or later (LGPLv2+)",  # noqa pylint: disable=line-too-long
+        "Operating System :: OS Independent",
+        "Operating System :: POSIX :: Linux",
+        "Programming Language :: C",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3.7",
+        "Topic :: Software Development :: Build Tools",
+        "Topic :: Software Development :: Testing",
     ],
-    python_requires='>=3.7',
+    python_requires=">=3.7",
     install_requires=[
         "cloudevents",
         "jinja2",
@@ -83,9 +83,9 @@ setuptools.setup(
         "scp",
     ],
     extras_require={
-        'dev': [
-            'pycodestyle',
-            'pylint',
+        "dev": [
+            "pycodestyle",
+            "pylint",
         ]
-    }
+    },
 )

@@ -10,47 +10,49 @@ from pprint import pprint
 from jinja2 import Environment, FileSystemLoader
 import re
 
+
 def env_override(value, key):
     return os.getenv(key, value)
 
+
 def job_create(yaml_output, namespace):
-    d = os.getenv('DEFCONFIG').split('+')
+    d = os.getenv("DEFCONFIG").split("+")
     defconfig = d[0]
     frag = None
     if len(d) > 1:
         frag = d[1]
 
-    job_name = 'build-j{}-{}-{}-{}'.format(
-        os.getenv('BUILD_ID'),
-        os.getenv('ARCH'),
-        os.getenv('BUILD_ENVIRONMENT'),
+    job_name = "build-j{}-{}-{}-{}".format(
+        os.getenv("BUILD_ID"),
+        os.getenv("ARCH"),
+        os.getenv("BUILD_ENVIRONMENT"),
         defconfig,
-        )
+    )
 
     if frag:
         frag = os.path.splitext(os.path.basename(frag))[0]
         job_name += "-{}".format(frag)
 
     # job name can only have '-'
-    job_name = re.sub('[\.:/_+=]', '-', job_name).lower()
+    job_name = re.sub("[\.:/_+=]", "-", job_name).lower()
 
     # k8s limits job-name to max 63 chars (and be sure it doesn't end with '-')
-    job_name = job_name[0:63].rstrip('-')
+    job_name = job_name[0:63].rstrip("-")
 
     # FIXME: needs to be tweaked according to k8s cluster VMs
-    cpu_limit = int(os.getenv('K8S_CPU_LIMIT', 8))
-    parallel_builds = os.getenv('PARALLEL_BUILDS')
+    cpu_limit = int(os.getenv("K8S_CPU_LIMIT", 8))
+    parallel_builds = os.getenv("PARALLEL_BUILDS")
     if parallel_builds:
         parallel_builds = int(parallel_builds)
         cpu_limit = min(cpu_limit, parallel_builds)
-        os.environ['PARALLEL_JOPT'] = "{}".format(parallel_builds)
+        os.environ["PARALLEL_JOPT"] = "{}".format(parallel_builds)
 
-    if (cpu_limit < 8):
+    if cpu_limit < 8:
         cpu_request = cpu_limit * 0.875
         # HACK: Azure nodes with 32 vCPUs refuse jobs with
         #       CPU request > 30.  Support ticket open with
         #       Azure
-    elif (cpu_limit == 32):
+    elif cpu_limit == 32:
         cpu_request = 30
     else:
         cpu_request = cpu_limit - 0.9
@@ -59,18 +61,19 @@ def job_create(yaml_output, namespace):
     mem_request = cpu_limit
 
     params = {
-        'job_name': job_name,
-        'cpu_limit': cpu_limit,
-        'cpu_request': cpu_request,
-        'mem_request': "{}Gi".format(mem_request)
-        }
-    env = Environment(loader=FileSystemLoader(['config/k8s']),
-                      extensions=["jinja2.ext.do"])
-    env.filters['env_override'] = env_override
+        "job_name": job_name,
+        "cpu_limit": cpu_limit,
+        "cpu_request": cpu_request,
+        "mem_request": "{}Gi".format(mem_request),
+    }
+    env = Environment(
+        loader=FileSystemLoader(["config/k8s"]), extensions=["jinja2.ext.do"]
+    )
+    env.filters["env_override"] = env_override
     template = env.get_template("job-build.jinja2")
     job_yaml_text = template.render(params)
 
-    if (yaml_output):
+    if yaml_output:
         print("Writing job to ".format(yaml_output))
         fp = open(yaml_output, "w")
         fp.write(job_yaml_text)
@@ -80,8 +83,9 @@ def job_create(yaml_output, namespace):
     job_dict = yaml.safe_load(job_yaml_text)
     try:
         k8s_client = client.ApiClient()
-        job = utils.create_from_dict(k8s_client, data=job_dict,
-                               namespace=namespace)
+        job = utils.create_from_dict(
+            k8s_client, data=job_dict, namespace=namespace
+        )
     except utils.FailToCreateError as e:
         print("Failed to create job: ", e)
         sys.exit(1)
@@ -109,11 +113,12 @@ def context_valid(c):
     print("Available contexts:")
     contexts, active_context = config.list_kube_config_contexts()
     for ctx in contexts:
-        print("   {}".format(ctx['name']))
-        if c == ctx['name']:
+        print("   {}".format(ctx["name"]))
+        if c == ctx["name"]:
             valid = True
 
     return valid
+
 
 def main(args):
     build_success = True
@@ -132,11 +137,19 @@ def main(args):
             config.load_kube_config(context=args.context)
             break
         except (TypeError, config.ConfigException) as e:
-            print("WARNING: unable to load context {}: {}.  Retrying.".format(args.context, e))
+            print(
+                "WARNING: unable to load context {}: {}.  Retrying.".format(
+                    args.context, e
+                )
+            )
             time.sleep(sleep_secs)
             retries = retries - 1
     if retries == 0:
-        print("ERROR: unable to load context {}.  Giving up.".format(args.context))
+        print(
+            "ERROR: unable to load context {}.  Giving up.".format(
+                args.context
+            )
+        )
         sys.exit(1)
 
     core = client.CoreV1Api()
@@ -150,21 +163,26 @@ def main(args):
     # wait for job to finish
     #
     w = watch.Watch()
-    for event in w.stream(batch.list_namespaced_job,
-                          label_selector=("job-name=="+job_name),
-                          namespace=args.namespace):
-        event_job_name = event['object'].metadata.name
-        print("Event: %s %s" % (event['type'], event_job_name))
+    for event in w.stream(
+        batch.list_namespaced_job,
+        label_selector=("job-name==" + job_name),
+        namespace=args.namespace,
+    ):
+        event_job_name = event["object"].metadata.name
+        print("Event: %s %s" % (event["type"], event_job_name))
 
         # Don't explode if we got the label_selector wrong...
         if event_job_name != job_name:
             continue
 
         # Job finished?
-        job = event['object']
+        job = event["object"]
         if job.status.completion_time:
-            print("%s finished at %s".format(job_name,
-                                             job.status.completion_time))
+            print(
+                "%s finished at %s".format(
+                    job_name, job.status.completion_time
+                )
+            )
             build_success = job_succeeded(job)
             if build_success:
                 print("PASS")
@@ -180,8 +198,11 @@ def main(args):
     #
     # Find pod where job ran
     #
-    pod = core.list_namespaced_pod(namespace=args.namespace, watch=False,
-                                   label_selector="job-name={}".format(job_name))
+    pod = core.list_namespaced_pod(
+        namespace=args.namespace,
+        watch=False,
+        label_selector="job-name={}".format(job_name),
+    )
     if len(pod.items) < 1:
         print("WARNING: no pods found with job name {}".format(job_name))
         sys.exit(0)
@@ -200,16 +221,20 @@ def main(args):
 
     # unless the initContainer failed, get that log, because if the
     # initContainer failed, the main container will not have run
-    if (pod.items[0].spec.init_containers):
+    if pod.items[0].spec.init_containers:
         init_cont_name = pod.items[0].spec.init_containers[0].name
         if not pod.items[0].status.init_container_statuses[0].ready:
-            print("ERROR: initContainer {} not ready / failed.".format(init_cont_name))
+            print(
+                "ERROR: initContainer {} not ready / failed.".format(
+                    init_cont_name
+                )
+            )
             cont_name = init_cont_name
             k8s_success = False
     try:
-        log = core.read_namespaced_pod_log(name=pod_name,
-                                           namespace=args.namespace,
-                                           container=cont_name)
+        log = core.read_namespaced_pod_log(
+            name=pod_name, namespace=args.namespace, container=cont_name
+        )
         print("Container Log:")
         print(log)
     except client.rest.ApiException as e:
@@ -223,9 +248,9 @@ def main(args):
         # important: propagation_policy is important so any pods
         # created for a job deleted
         body = client.V1DeleteOptions(propagation_policy="Foreground")
-        ret = batch.delete_namespaced_job(name=job_name,
-                                          namespace=args.namespace,
-                                          body=body)
+        ret = batch.delete_namespaced_job(
+            name=job_name, namespace=args.namespace, body=body
+        )
         print("job {} deleted.  job.status:".format(job_name))
         pprint(ret.status)
 
@@ -233,12 +258,15 @@ def main(args):
     # be reported to the backend/
     sys.exit(not k8s_success)
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--context')
-    parser.add_argument('--save-yaml', dest='yaml', default=None)
-    parser.add_argument('--namespace', default='default')
-    parser.add_argument('--sleep', type=int, default=60)
-    parser.add_argument('--no-delete', dest='delete', default=True, action='store_false')
+    parser.add_argument("--context")
+    parser.add_argument("--save-yaml", dest="yaml", default=None)
+    parser.add_argument("--namespace", default="default")
+    parser.add_argument("--sleep", type=int, default=60)
+    parser.add_argument(
+        "--no-delete", dest="delete", default=True, action="store_false"
+    )
     args = parser.parse_args()
     main(args)

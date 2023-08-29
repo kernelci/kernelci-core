@@ -11,7 +11,7 @@ from kernelci.config.base import YAMLConfigObject
 class SchedulerEntry(YAMLConfigObject):
     """Scheduler entry definition"""
 
-    yaml_tag = '!SchedulerEntry'
+    yaml_tag = "!SchedulerEntry"
 
     def __init__(self, job, runtime, event, platforms=None):
         self._job = job
@@ -42,7 +42,7 @@ class SchedulerEntry(YAMLConfigObject):
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({'job', 'runtime', 'event', 'platforms'})
+        attrs.update({"job", "runtime", "event", "platforms"})
         return attrs
 
 
@@ -50,9 +50,9 @@ def from_yaml(data, _):
     """Create the pipeline scheduler definitions using data loaded from YAML"""
     scheduler = [
         SchedulerEntry.load_from_yaml(config)
-        for config in data.get('scheduler', {})
+        for config in data.get("scheduler", {})
     ]
 
     return {
-        'scheduler': scheduler,
+        "scheduler": scheduler,
     }

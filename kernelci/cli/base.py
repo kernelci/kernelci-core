@@ -27,6 +27,7 @@ import kernelci.config
 # Standard arguments that can be used in sub-commands
 #
 
+
 class Args:  # pylint: disable=too-few-public-methods
     """A list of all the common command line argument options
 
@@ -36,391 +37,398 @@ class Args:  # pylint: disable=too-few-public-methods
     add_argument() method of the parser object from argparse.  There should
     also always be a `help` attribute, as this is needed by the Command class.
     """
-    SECTION_API = ('api', 'api_config')
-    SECTION_DB = ('db', 'db_config')
-    SECTION_RUNTIME = ('runtime', 'runtime_config')
-    SECTION_STORAGE = ('storage', 'storage_config')
+
+    SECTION_API = ("api", "api_config")
+    SECTION_DB = ("db", "db_config")
+    SECTION_RUNTIME = ("runtime", "runtime_config")
+    SECTION_STORAGE = ("storage", "storage_config")
 
     arch = {
-        'name': '--arch',
-        'help': "CPU architecture name",
+        "name": "--arch",
+        "help": "CPU architecture name",
     }
 
     api = {
-        'name': '--api',
-        'help': "Backend API URL",
-        'section': SECTION_DB,
+        "name": "--api",
+        "help": "Backend API URL",
+        "section": SECTION_DB,
     }
 
     api_config = {
-        'name': '--api-config',
-        'help': "KernelCI API configuration",
+        "name": "--api-config",
+        "help": "KernelCI API configuration",
     }
 
     api_token = {
-        'name': '--api-token',
-        'help': "KernelCI API token",
-        'section': SECTION_API,
+        "name": "--api-token",
+        "help": "KernelCI API token",
+        "section": SECTION_API,
     }
 
     build_output = {
-        'name': '--build-output',
-        'help': "Path to the build output directory",
+        "name": "--build-output",
+        "help": "Path to the build output directory",
     }
 
     bmeta_json = {
-        'name': '--bmeta-json',
-        'help': "Path to the build.json file",
+        "name": "--bmeta-json",
+        "help": "Path to the build.json file",
     }
 
     branch = {
-        'name': '--branch',
-        'help': "Name of a kernel branch in a tree",
+        "name": "--branch",
+        "help": "Name of a kernel branch in a tree",
     }
 
     build_config = {
-        'name': '--build-config',
-        'help': "Build config name",
+        "name": "--build-config",
+        "help": "Build config name",
     }
 
     build_env = {
-        'name': '--build-env',
-        'help': "Build environment name",
+        "name": "--build-env",
+        "help": "Build environment name",
     }
 
     callback_dataset = {
-        'name': '--callback-dataset',
-        'help': "Dataset to include in a LAVA callback",
-        'section': SECTION_DB,
+        "name": "--callback-dataset",
+        "help": "Dataset to include in a LAVA callback",
+        "section": SECTION_DB,
     }
 
     callback_id = {
-        'name': '--callback-id',
-        'help': "Callback identifier used to look up an authentication token",
-        'section': SECTION_DB,
+        "name": "--callback-id",
+        "help": "Callback identifier used to look up an authentication token",
+        "section": SECTION_DB,
     }
 
     callback_type = {
-        'name': '--callback-type',
-        'help': "Type of callback URL",
-        'section': SECTION_DB,
+        "name": "--callback-type",
+        "help": "Type of callback URL",
+        "section": SECTION_DB,
     }
 
     callback_url = {
-        'name': '--callback-url',
-        'help': "Base URL for the callback",
-        'section': SECTION_DB,
+        "name": "--callback-url",
+        "help": "Base URL for the callback",
+        "section": SECTION_DB,
     }
 
     cc = {
-        'name': '--cc',
-        'help': "Recipients to be added as Cc:",
+        "name": "--cc",
+        "help": "Recipients to be added as Cc:",
     }
 
     channel = {
-        'name': 'channel',
-        'help': "Name of the Pub/Sub channel to subscribe to",
+        "name": "channel",
+        "help": "Name of the Pub/Sub channel to subscribe to",
     }
 
     commit = {
-        'name': '--commit',
-        'help': "Git commit checksum",
+        "name": "--commit",
+        "help": "Git commit checksum",
     }
 
     data_file = {
-        'name': '--data-file',
-        'help': "Path to the file with data to be submitted to storage",
+        "name": "--data-file",
+        "help": "Path to the file with data to be submitted to storage",
     }
 
     data_path = {
-        'name': '--data-path',
-        'help': "Path to the debos files",
+        "name": "--data-path",
+        "help": "Path to the debos files",
     }
 
     db_config = {
-        'name': '--db-config',
-        'help': 'Database config name',
+        "name": "--db-config",
+        "help": "Database config name",
     }
 
     db_token = {
-        'name': '--db-token',
-        'help': "Database token",
-        'section': SECTION_DB,
+        "name": "--db-token",
+        "help": "Database token",
+        "section": SECTION_DB,
     }
 
     defconfig = {
-        'name': '--defconfig',
-        'help': "Kernel defconfig name",
+        "name": "--defconfig",
+        "help": "Kernel defconfig name",
     }
 
     delete = {
-        'name': '--delete',
-        'help': "Delete the tarball after extracting",
-        'action': 'store_true'
+        "name": "--delete",
+        "help": "Delete the tarball after extracting",
+        "action": "store_true",
     }
 
     describe = {
-        'name': '--describe',
-        'help': "Git describe",
+        "name": "--describe",
+        "help": "Git describe",
     }
 
     describe_verbose = {
-        'name': '--describe-verbose',
-        'help': "Verbose version of git describe",
+        "name": "--describe-verbose",
+        "help": "Verbose version of git describe",
     }
 
     device_id = {
-        'name': '--device-id',
-        'help': "Limit test job to run on a specific device",
+        "name": "--device-id",
+        "help": "Limit test job to run on a specific device",
     }
 
     dtbs_json = {
-        'name': '--dtbs-json',
-        'help': "Path to the dtbs.json file",
+        "name": "--dtbs-json",
+        "help": "Path to the dtbs.json file",
     }
 
     group_id = {
-        'name': 'group_id',
-        'help': "User group id",
+        "name": "group_id",
+        "help": "User group id",
     }
 
     id = {
-            'name': 'id',
-            'help': "Node id",
+        "name": "id",
+        "help": "Node id",
     }
 
     id_only = {
-        'name': '--id-only',
-        'action': 'store_true',
-        'help': "Only print the node ID rather than the full node data",
+        "name": "--id-only",
+        "action": "store_true",
+        "help": "Only print the node ID rather than the full node data",
     }
 
     indent = {
-        'name': '--indent',
-        'type': int,
-        'help': "Number of indentation spaces in JSON output",
+        "name": "--indent",
+        "type": int,
+        "help": "Number of indentation spaces in JSON output",
     }
 
     install = {
-        'name': '--install',
-        'action': 'store_true',
-        'help': "Install the build artifacts ",
+        "name": "--install",
+        "action": "store_true",
+        "help": "Install the build artifacts ",
     }
 
     install_path = {
-        'name': '--install-path',
-        'help':
-        "Path to the install directory, or _install_ inside kdir by default",
+        "name": "--install-path",
+        "help": (
+            "Path to the install directory, "
+            "or _install_ inside kdir by default"
+        ),
     }
 
     is_admin = {
-        'name': '--is-admin',
-        'help': "Create an admin user",
-        'action': 'store_true',
+        "name": "--is-admin",
+        "help": "Create an admin user",
+        "action": "store_true",
     }
 
     j = {
-        'name': '-j',
-        'help': "Number of parallel build processes",
+        "name": "-j",
+        "help": "Number of parallel build processes",
     }
 
     jobs = {
-        'name': '--jobs',
-        'help': "File pattern with jobs to submit",
+        "name": "--jobs",
+        "help": "File pattern with jobs to submit",
     }
 
     json_path = {
-        'name': '--json-path',
-        'help': "Path to the JSON file",
+        "name": "--json-path",
+        "help": "Path to the JSON file",
     }
 
     kdir = {
-        'name': '--kdir',
-        'help': "Path to the kernel checkout directory",
+        "name": "--kdir",
+        "help": "Path to the kernel checkout directory",
     }
 
     kernel_tarball = {
-        'name': '--kernel-tarball',
-        'help': "Kernel source tarball destination filename",
+        "name": "--kernel-tarball",
+        "help": "Kernel source tarball destination filename",
     }
 
     runtime_config = {
-        'name': '--runtime-config',
-        'help': 'Runtime environment config name',
+        "name": "--runtime-config",
+        "help": "Runtime environment config name",
     }
 
     runtime_json = {
-        'name': '--runtime-json',
-        'help': "Path to a JSON file with runtime-specific info",
-        'section': SECTION_RUNTIME,
+        "name": "--runtime-json",
+        "help": "Path to a JSON file with runtime-specific info",
+        "section": SECTION_RUNTIME,
     }
 
     runtime_token = {
-        'name': '--runtime-token',
-        'help': "Runtime environment token or credentials",
-        'section': SECTION_RUNTIME,
+        "name": "--runtime-token",
+        "help": "Runtime environment token or credentials",
+        "section": SECTION_RUNTIME,
     }
 
     log = {
-        'name': '--log',
-        'help': "Path to log file",
+        "name": "--log",
+        "help": "Path to log file",
     }
 
     limit = {
-        'name': '--limit',
-        'type': int,
-        'help': """\
+        "name": "--limit",
+        "type": int,
+        "help": """\
 Maximum number of results to retrieve. When set to 0, no limit is used and all
 the matching results are retrieved.""",
-        'default': 10,
+        "default": 10,
     }
 
     mach = {
-        'name': '--mach',
-        'help': "Mach name (aka SoC family)",
+        "name": "--mach",
+        "help": "Mach name (aka SoC family)",
     }
 
     mirror = {
-        'name': '--mirror',
-        'help': "Path to the local kernel git mirror",
+        "name": "--mirror",
+        "help": "Path to the local kernel git mirror",
     }
 
     mod_path = {
-        'name': '--mod-path',
-        'help':
-        "Path to the installed modules, or _modules_ inside output by default",
+        "name": "--mod-path",
+        "help": (
+            "Path to the installed modules, "
+            "or _modules_ inside output by default"
+        ),
     }
 
     output = {
-        'name': '--output',
-        'help': "Path the output directory",
+        "name": "--output",
+        "help": "Path the output directory",
     }
 
     offset = {
-        'name': '--offset',
-        'type': int,
-        'help': "Offset for paginated results",
+        "name": "--offset",
+        "type": int,
+        "help": "Offset for paginated results",
     }
 
     password = {
-        'name': '--password',
-        'help': "Password of a new user",
+        "name": "--password",
+        "help": "Password of a new user",
     }
 
     plan = {
-        'name': '--plan',
-        'help': "Test plan name",
+        "name": "--plan",
+        "help": "Test plan name",
     }
 
     publish_path = {
-        'name': '--publish-path',
-        'help': "Relative path where build artifacts are published",
+        "name": "--publish-path",
+        "help": "Relative path where build artifacts are published",
     }
 
     retries = {
-        'name': '--retries',
-        'help': 'Number of retries before download fails',
-        'type': int,
+        "name": "--retries",
+        "help": "Number of retries before download fails",
+        "type": int,
     }
 
     rootfs_config = {
-        'name': '--rootfs-config',
-        'help': "Root file system config name",
+        "name": "--rootfs-config",
+        "help": "Root file system config name",
     }
 
     rootfs_dir = {
-        'name': '--rootfs-dir',
-        'help': "Path to the rootfs images directory",
+        "name": "--rootfs-dir",
+        "help": "Path to the rootfs images directory",
     }
 
     rootfs_type = {
-        'name': '--rootfs-type',
-        'help': "Rootfs type",
-        'type': str,
-        'choices': ('debos', 'buildroot', 'chromiumos')
+        "name": "--rootfs-type",
+        "help": "Rootfs type",
+        "type": str,
+        "choices": ("debos", "buildroot", "chromiumos"),
     }
 
     storage_config = {
-        'name': '--storage-config',
-        'help': "Storage configuration name",
+        "name": "--storage-config",
+        "help": "Storage configuration name",
     }
 
     storage_cred = {
-        'name': '--storage-cred',
-        'help': "Credentials to be used with the storage service",
-        'section': SECTION_STORAGE,
+        "name": "--storage-cred",
+        "help": "Credentials to be used with the storage service",
+        "section": SECTION_STORAGE,
     }
 
     sub_id = {
-        'name': 'sub_id',
-        'help': "Pub/Sub subscription id",
-        'type': int,
+        "name": "sub_id",
+        "help": "Pub/Sub subscription id",
+        "type": int,
     }
 
     target = {
-        'name': '--target',
-        'help': "Name of a target platform",
+        "name": "--target",
+        "help": "Name of a target platform",
     }
 
     to = {
-        'name': '--to',
-        'help': "Recipients to be added as To:",
+        "name": "--to",
+        "help": "Recipients to be added as To:",
     }
 
     tree_name = {
-        'name': '--tree-name',
-        'help': "Name of a kernel tree",
+        "name": "--tree-name",
+        "help": "Name of a kernel tree",
     }
 
     tree_url = {
-        'name': '--tree-url',
-        'help': "URL of a kernel tree",
+        "name": "--tree-url",
+        "help": "URL of a kernel tree",
     }
 
     upload_path = {
-        'name': '--upload-path',
-        'help': "Destination upload path on storage",
+        "name": "--upload-path",
+        "help": "Destination upload path on storage",
     }
 
     url = {
-        'name': '--url',
-        'help': "Kernel sources download URL",
+        "name": "--url",
+        "help": "Kernel sources download URL",
     }
 
     user = {
-        'name': '--user',
-        'help': "Runtime environment user name",
-        'section': SECTION_RUNTIME,
+        "name": "--user",
+        "help": "Runtime environment user name",
+        "section": SECTION_RUNTIME,
     }
 
     username = {
-        'name': '--username',
-        'help': "Name of a new user",
+        "name": "--username",
+        "help": "Name of a new user",
     }
 
     variant = {
-        'name': '--variant',
-        'help': "Build config variant name",
+        "name": "--variant",
+        "help": "Build config variant name",
     }
 
     verbose = {
-        'name': '--verbose',
-        'help': "Verbose output",
-        'action': 'store_true',
+        "name": "--verbose",
+        "help": "Verbose output",
+        "action": "store_true",
     }
 
 
 def catch_http_error(func):
     """Decorator to catch HTTPError exceptions and print the error"""
+
     def call(*args, **kwargs):
         try:
             return func(*args, **kwargs)
         except HTTPError as ex:
             print(ex, file=sys.stderr)
-            detail = ex.response.json().get('detail')
+            detail = ex.response.json().get("detail")
             if detail:
                 print(detail, file=sys.stderr)
             return False
+
     return call
 
 
@@ -461,10 +469,9 @@ class Command(abc.ABC):
         self._args_dict = {}
         for arg_list in [self.args, self.opt_args]:
             if arg_list:
-                self._args_dict.update({
-                    self.to_opt_name(arg['name']): arg
-                    for arg in arg_list
-                })
+                self._args_dict.update(
+                    {self.to_opt_name(arg["name"]): arg for arg in arg_list}
+                )
 
     @abc.abstractmethod
     def __call__(self, configs, args):
@@ -476,8 +483,8 @@ class Command(abc.ABC):
 
     def _add_arg(self, arg):
         kwargs = arg.copy()
-        arg_name = kwargs.pop('name')
-        kwargs.pop('section', None)
+        arg_name = kwargs.pop("name")
+        kwargs.pop("section", None)
         self._parser.add_argument(arg_name, **kwargs)
 
     def get_arg_data(self, arg_name):
@@ -498,7 +505,7 @@ class Command(abc.ABC):
         a Python attribute in the same way as `argparse` adds options to a
         namespace.  For example, `--db-token` gets convereted to `db_token`.
         """
-        return arg_name.strip('-').replace('-', '_')
+        return arg_name.strip("-").replace("-", "_")
 
 
 class Options:
@@ -535,25 +542,28 @@ class Options:
         self._deprecated_settings = False
         if path is None:
             default_paths = [
-                'kernelci.toml',
-                os.path.expanduser('~/.config/kernelci/kernelci.toml'),
-                '/etc/kernelci/kernelci.toml',
-                'kernelci.conf',
-                os.path.expanduser('~/.config/kernelci/kernelci.conf'),
-                '/etc/kernelci/kernelci.conf',
+                "kernelci.toml",
+                os.path.expanduser("~/.config/kernelci/kernelci.toml"),
+                "/etc/kernelci/kernelci.toml",
+                "kernelci.conf",
+                os.path.expanduser("~/.config/kernelci/kernelci.conf"),
+                "/etc/kernelci/kernelci.conf",
             ]
             for default_path in default_paths:
                 if os.path.exists(default_path):
                     path = default_path
                     break
 
-        if path and path.endswith('.conf'):
+        if path and path.endswith(".conf"):
             self._deprecated_settings = True
 
         if self._deprecated_settings:
-            print("Warning: user settings file format '.conf' will soon be \
+            print(
+                "Warning: user settings file format '.conf' will soon be \
 deprecated. Please use '.toml' file format and provide 'kernelci.toml' file \
-instead.", file=sys.stderr)
+instead.",
+                file=sys.stderr,
+            )
             self._settings = configparser.ConfigParser()
         else:
             self._settings = {}
@@ -565,7 +575,7 @@ instead.", file=sys.stderr)
                 self._settings = toml.load(path)
 
         if not self._deprecated_settings:
-            self._default_section = self._settings.get('DEFAULT')
+            self._default_section = self._settings.get("DEFAULT")
 
         self._command = command
         self._cli_args = cli_args
@@ -595,7 +605,7 @@ instead.", file=sys.stderr)
         if value:
             return value
         opt_data = self._command.get_arg_data(option)
-        section_data = opt_data.get('section') if opt_data else None
+        section_data = opt_data.get("section") if opt_data else None
         if section_data:
             section_name, section_config_option = section_data
             section_config = self.get(section_config_option)
@@ -621,7 +631,7 @@ instead.", file=sys.stderr)
         """
         if self._deprecated_settings:
             if isinstance(section, tuple):
-                section = ':'.join([section[0], section[1]])
+                section = ":".join([section[0], section[1]])
             if not self._settings.has_option(section, option):
                 return None
             value = self._settings.get(section, option).split()
@@ -630,8 +640,9 @@ instead.", file=sys.stderr)
         else:
             value = None
             if isinstance(section, tuple):
-                section_data = self._settings.get(
-                    section[0], {}).get(section[1])
+                section_data = self._settings.get(section[0], {}).get(
+                    section[1]
+                )
             else:
                 section_data = self._settings.get(section)
             if section_data:
@@ -645,7 +656,7 @@ instead.", file=sys.stderr)
         if not self.command.args:
             return None
         missing_args = []
-        for arg_name in (arg['name'] for arg in self.command.args):
+        for arg_name in (arg["name"] for arg in self.command.args):
             opt_name = self.command.to_opt_name(arg_name)
             if self.get(opt_name) is None:
                 missing_args.append(arg_name)
@@ -673,7 +684,7 @@ def make_parser(title):
     )
     parser.add_argument(
         "--extra-config",
-        action='append',
+        action="append",
         default=[],
         help="Path to additional YAML site config files",
     )
@@ -693,10 +704,11 @@ def add_subparsers(parser, glob):
     *parser* is the main parser object from argparse
     *glob* is the globals dictionary
     """
-    sub_parsers = parser.add_subparsers(title="Commands",
-                                        help="List of available commands")
+    sub_parsers = parser.add_subparsers(
+        title="Commands", help="List of available commands"
+    )
     for k in list(glob.keys()):
-        split = k.split('cmd_')
+        split = k.split("cmd_")
         if len(split) == 2:
             obj = glob.get(k)
             if issubclass(obj, Command):
@@ -718,7 +730,7 @@ def parse_args_with_parser(parser, glob, args=None):
     """
     add_subparsers(parser, glob)
     args = parser.parse_args(args)
-    if not hasattr(args, 'func'):
+    if not hasattr(args, "func"):
         parser.print_help()
         sys.exit(1)
     return args
@@ -733,8 +745,10 @@ def make_options(args, prog):
     opts = Options(args.settings, args.func, args, prog)
     missing_args = opts.get_missing_args()
     if missing_args:
-        print("The following arguments or settings are required: "
-              + ', '.join(missing_args))
+        print(
+            "The following arguments or settings are required: "
+            + ", ".join(missing_args)
+        )
         sys.exit(1)
     return opts
 

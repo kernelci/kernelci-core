@@ -22,16 +22,16 @@ class StorageBackend(Storage):
 
     def _upload(self, file_paths, dest_path):
         headers = {
-            'Authorization': self.credentials,
+            "Authorization": self.credentials,
         }
         data = {
-            'path': dest_path,
+            "path": dest_path,
         }
         files = {
-            f'file{i}': (file_dst, open(file_src, 'rb'))
+            f"file{i}": (file_dst, open(file_src, "rb"))
             for i, (file_src, file_dst) in enumerate(file_paths)
         }
-        url = urljoin(self.config.api_url, 'upload')
+        url = urljoin(self.config.api_url, "upload")
         resp = requests.post(
             url, headers=headers, data=data, files=files, timeout=60
         )

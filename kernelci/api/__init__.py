@@ -24,9 +24,9 @@ class API(abc.ABC):
     def __init__(self, config: kernelci.config.api.API, token: str):
         self._config = config
         self._token = token
-        self._headers = {'Content-Type': 'application/json'}
+        self._headers = {"Content-Type": "application/json"}
         if self._token:
-            self._headers['Authorization'] = f'Bearer {self._token}'
+            self._headers["Authorization"] = f"Bearer {self._token}"
         self._timeout = float(config.timeout)
 
     @property
@@ -66,8 +66,12 @@ class API(abc.ABC):
         """Get an encryption hash for a given password"""
 
     @abc.abstractmethod
-    def create_token(self, username: str, password: str,
-                     scopes: Optional[Sequence[str]] = None) -> str:
+    def create_token(
+        self,
+        username: str,
+        password: str,
+        scopes: Optional[Sequence[str]] = None,
+    ) -> str:
         """Create a new API token for the current user
 
         `scopes` contains optional security scope names which needs to be part
@@ -109,8 +113,10 @@ class API(abc.ABC):
 
     @abc.abstractmethod
     def get_nodes(
-        self, attributes: dict,
-        offset: Optional[int] = None, limit: Optional[int] = None
+        self,
+        attributes: dict,
+        offset: Optional[int] = None,
+        limit: Optional[int] = None,
     ) -> Sequence[dict]:
         """Get nodes that match the provided attributes"""
 
@@ -136,8 +142,10 @@ class API(abc.ABC):
 
     @abc.abstractmethod
     def get_groups(
-        self, attributes: dict,
-        offset: Optional[int] = None, limit: Optional[int] = None
+        self,
+        attributes: dict,
+        offset: Optional[int] = None,
+        limit: Optional[int] = None,
     ) -> Sequence[dict]:
         """Get user groups that match the provided attributes"""
 
@@ -147,8 +155,10 @@ class API(abc.ABC):
 
     @abc.abstractmethod
     def get_user_profiles(
-        self, attributes: dict,
-        offset: Optional[int] = None, limit: Optional[int] = None
+        self,
+        attributes: dict,
+        offset: Optional[int] = None,
+        limit: Optional[int] = None,
     ) -> Sequence[dict]:
         """Get user profiles that match the provided attributes"""
 
@@ -157,7 +167,7 @@ class API(abc.ABC):
     #
 
     def _make_url(self, path):
-        version_path = '/'.join((self.config.version, path))
+        version_path = "/".join((self.config.version, path))
         return urllib.parse.urljoin(self.config.url, version_path)
 
     def _get(self, path, params=None):
@@ -172,8 +182,11 @@ class API(abc.ABC):
         url = self._make_url(path)
         jdata = json.dumps(data)
         resp = requests.post(
-            url, jdata, headers=self._headers,
-            params=params, timeout=self._timeout
+            url,
+            jdata,
+            headers=self._headers,
+            params=params,
+            timeout=self._timeout,
         )
         resp.raise_for_status()
         return resp
@@ -182,8 +195,11 @@ class API(abc.ABC):
         url = self._make_url(path)
         jdata = json.dumps(data)
         resp = requests.put(
-            url, jdata, headers=self._headers,
-            params=params, timeout=self._timeout
+            url,
+            jdata,
+            headers=self._headers,
+            params=params,
+            timeout=self._timeout,
         )
         resp.raise_for_status()
         return resp
@@ -192,6 +208,6 @@ class API(abc.ABC):
 def get_api(config, token=None):
     """Get a KernelCI API object matching the provided configuration"""
     version = config.version
-    mod = importlib.import_module('.'.join(['kernelci', 'api', version]))
+    mod = importlib.import_module(".".join(["kernelci", "api", version]))
     api = mod.get_api(config, token)
     return api

@@ -24,15 +24,15 @@ class Kubernetes(Runtime):
 
     @classmethod
     def _get_job_file_name(cls, params):
-        return '.'.join([params['k8s_job_name'], 'yaml'])
+        return ".".join([params["k8s_job_name"], "yaml"])
 
     def generate(self, job, params):
         template = self._get_template(job.config)
-        job_name = '-'.join(['kci', job.node['id'], job.name[:24]])
-        safe_name = re.sub(r'[\:/_+=]', '-', job_name).lower()
-        rand_sx = ''.join(random.sample(self.JOB_NAME_CHARACTERS, 8))
-        k8s_job_name = '-'.join([safe_name[:(62 - len(rand_sx))], rand_sx])
-        params['k8s_job_name'] = k8s_job_name
+        job_name = "-".join(["kci", job.node["id"], job.name[:24]])
+        safe_name = re.sub(r"[\:/_+=]", "-", job_name).lower()
+        rand_sx = "".join(random.sample(self.JOB_NAME_CHARACTERS, 8))
+        k8s_job_name = "-".join([safe_name[: (62 - len(rand_sx))], rand_sx])
+        params["k8s_job_name"] = k8s_job_name
         return template.render(params)
 
     def submit(self, job_path):
@@ -41,22 +41,23 @@ class Kubernetes(Runtime):
         return kubernetes.utils.create_from_yaml(client, job_path)
 
     def get_job_id(self, job_object):
-        return job_object[0][0].metadata.labels['job-name']
+        return job_object[0][0].metadata.labels["job-name"]
 
     def wait(self, job_object):
         watch = kubernetes.watch.Watch()
         core_v1 = kubernetes.client.CoreV1Api()
-        job_name = job_object[0][0].metadata.labels['job-name']
+        job_name = job_object[0][0].metadata.labels["job-name"]
         for event in watch.stream(
-                func=core_v1.list_namespaced_pod, namespace='default'):
-            if event['type'] != 'MODIFIED':
+            func=core_v1.list_namespaced_pod, namespace="default"
+        ):
+            if event["type"] != "MODIFIED":
                 continue
-            if job_name not in event['object'].metadata.name:
+            if job_name not in event["object"].metadata.name:
                 continue
-            state = event['object'].status.container_statuses[0].state
+            state = event["object"].status.container_statuses[0].state
             if not state.terminated:
                 continue
-            return 0 if state.terminated.reason == 'Completed' else 1
+            return 0 if state.terminated.reason == "Completed" else 1
 
 
 def get_runtime(runtime_config, **kwargs):

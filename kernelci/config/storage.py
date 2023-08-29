@@ -11,7 +11,7 @@ from kernelci.config.base import YAMLConfigObject
 class Storage(YAMLConfigObject):
     """Base configuration class for Storage implementations"""
 
-    yaml_tag = '!Storage'
+    yaml_tag = "!Storage"
 
     def __init__(self, name, storage_type, base_url):
         """Storage configuration class
@@ -42,7 +42,7 @@ class Storage(YAMLConfigObject):
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({'storage_type', 'base_url'})
+        attrs.update({"storage_type", "base_url"})
         return attrs
 
 
@@ -54,7 +54,7 @@ class AzureFilesStorage(Storage):
     downloads
     """
 
-    yaml_tag = '!AzureFilesStorage'
+    yaml_tag = "!AzureFilesStorage"
 
     def __init__(self, share, sas_public_token, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -74,7 +74,7 @@ class AzureFilesStorage(Storage):
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({'share', 'sas_public_token'})
+        attrs.update({"share", "sas_public_token"})
         return attrs
 
 
@@ -84,7 +84,7 @@ class BackendStorage(Storage):
     *api_url* is the URL to access the kernelci-backend API
     """
 
-    yaml_tag = '!BackendStorage'
+    yaml_tag = "!BackendStorage"
 
     def __init__(self, api_url, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -98,7 +98,7 @@ class BackendStorage(Storage):
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({'api_url'})
+        attrs.update({"api_url"})
         return attrs
 
 
@@ -111,10 +111,11 @@ class SSHStorage(Storage):
     *path* is the base destination path on the SSH server
     """
 
-    yaml_tag = '!SSHStorage'
+    yaml_tag = "!SSHStorage"
 
-    def __init__(self, host, *args, port=22, user='kernelci', path='~/data',
-                 **kwargs):
+    def __init__(
+        self, host, *args, port=22, user="kernelci", path="~/data", **kwargs
+    ):
         super().__init__(*args, **kwargs)
         self._host = host
         self._port = port
@@ -144,7 +145,7 @@ class SSHStorage(Storage):
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({'host', 'port', 'user', 'path'})
+        attrs.update({"host", "port", "user", "path"})
         return attrs
 
 
@@ -152,19 +153,19 @@ class StorageFactory:  # pylint: disable=too-few-public-methods
     """Factory to create storage objects from YAML data."""
 
     _storage_types = {
-        'azure': AzureFilesStorage,
-        'backend': BackendStorage,
-        'ssh': SSHStorage,
+        "azure": AzureFilesStorage,
+        "backend": BackendStorage,
+        "ssh": SSHStorage,
     }
 
     @classmethod
     def from_yaml(cls, name, config):
         """Load configuration for matching storage type from YAML data"""
-        storage_type = config.get('storage_type')
+        storage_type = config.get("storage_type")
         storage_cls = cls._storage_types[storage_type]
         kwargs = {
-            'name': name,
-            'storage_type': storage_type,
+            "name": name,
+            "storage_type": storage_type,
         }
         return storage_cls.load_from_yaml(config, **kwargs)
 
@@ -173,9 +174,9 @@ def from_yaml(data, _):
     """Load storage configuration from YAML data"""
     storage_configs = {
         name: StorageFactory.from_yaml(name, storage)
-        for name, storage in data.get('storage_configs', {}).items()
+        for name, storage in data.get("storage_configs", {}).items()
     }
 
     return {
-        'storage_configs': storage_configs,
+        "storage_configs": storage_configs,
     }

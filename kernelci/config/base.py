@@ -26,6 +26,7 @@ import copy
 # Common classes for all config types
 #
 
+
 class YAMLConfigObject(yaml.YAMLObject):
     """Base class with helper methods to handle configuration YAML data
 
@@ -58,10 +59,15 @@ class YAMLConfigObject(yaml.YAMLObject):
         constructors.
 
         """
-        return {
-            k: v for k, v in ((k, data.get(k))for k in attributes)
-            if v is not None
-        } if data else dict()
+        return (
+            {
+                k: v
+                for k, v in ((k, data.get(k)) for k in attributes)
+                if v is not None
+            }
+            if data
+            else dict()
+        )
 
     @classmethod
     def _get_yaml_attributes(cls):
@@ -77,10 +83,8 @@ class YAMLConfigObject(yaml.YAMLObject):
     @classmethod
     def to_yaml(cls, dumper, data):
         return dumper.represent_mapping(
-            'tag:yaml.org,2002:map', {
-                key: getattr(data, key)
-                for key in cls._get_yaml_attributes()
-            }
+            "tag:yaml.org,2002:map",
+            {key: getattr(data, key) for key in cls._get_yaml_attributes()},
         )
 
 
@@ -111,10 +115,15 @@ class _YAMLObject:
         constructors.
 
         """
-        return {
-            k: v for k, v in ((k, data.get(k))for k in attributes)
-            if v is not None
-        } if data else dict()
+        return (
+            {
+                k: v
+                for k, v in ((k, data.get(k)) for k in attributes)
+                if v is not None
+            }
+            if data
+            else dict()
+        )
 
     @classmethod
     def _get_yaml_attributes(cls):
@@ -135,10 +144,12 @@ class _YAMLObject:
         non-serialisable objects such as Filters.
         """
         return {
-            attr: value for attr, value in (
+            attr: value
+            for attr, value in (
                 (attr, getattr(self, attr))
                 for attr in self._get_yaml_attributes()
-            ) if value is not None
+            )
+            if value is not None
         }
 
     def to_yaml(self):
@@ -162,9 +173,8 @@ class Filter(YAMLConfigObject):
     @classmethod
     def to_yaml(cls, dumper, data):
         return dumper.represent_mapping(
-            u'tag:yaml.org,2002:map', {
-                key: value for key, value in data._items.items()
-            }
+            "tag:yaml.org,2002:map",
+            {key: value for key, value in data._items.items()},
         )
 
     def match(self, **kw):
@@ -205,8 +215,8 @@ class Blocklist(Filter):
     rejected.
     """
 
-    yaml_tag = u'!BlockList'
-    name = 'blocklist'
+    yaml_tag = "!BlockList"
+    name = "blocklist"
 
     def match(self, **kw):
         for k, v in kw.items():
@@ -231,8 +241,8 @@ class Passlist(Filter):
     these lists.
     """
 
-    yaml_tag = u'!PassList'
-    name = 'passlist'
+    yaml_tag = "!PassList"
+    name = "passlist"
 
     def match(self, **kw):
         for k, wl in self._items.items():
@@ -258,8 +268,8 @@ class Regex(Filter):
     for each key specified in the filter items.
     """
 
-    yaml_tag = u'!Regex'
-    name = 'regex'
+    yaml_tag = "!Regex"
+    name = "regex"
 
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)
@@ -281,24 +291,24 @@ class Combination(Filter):
     the order of the keys.
     """
 
-    yaml_tag = u'!Combination'
-    name = 'combination'
+    yaml_tag = "!Combination"
+    name = "combination"
 
     def __init__(self, items):
         super().__init__(items)
-        self._keys = tuple(items['keys'])
-        self._values = list(tuple(values) for values in items['values'])
+        self._keys = tuple(items["keys"])
+        self._values = list(tuple(values) for values in items["values"])
 
     def match(self, **kw):
         filter_values = tuple(kw.get(k) for k in self._keys)
         return filter_values in self._values
 
     def combine(self, items):
-        keys = tuple(items['keys'])
+        keys = tuple(items["keys"])
         if keys != self._keys:
             return False
 
-        self._values.extend([tuple(values) for values in items['values']])
+        self._values.extend([tuple(values) for values in items["values"]])
         return True
 
 
@@ -306,7 +316,8 @@ class FilterFactory:
     """Factory to create filters from YAML data."""
 
     _classes = {
-        cls.name: cls for cls in [
+        cls.name: cls
+        for cls in [
             Blocklist,
             Passlist,
             Regex,
@@ -335,7 +346,8 @@ class FilterFactory:
                     # unexpectedly.
                     filter_instance = filter_cls(copy.deepcopy(items))
                     filters.setdefault(filter_type, list()).append(
-                        filter_instance)
+                        filter_instance
+                    )
                     filter_list.append(filter_instance)
 
         return filter_list
@@ -348,12 +360,12 @@ class FilterFactory:
         is one, iterate over each item to return a list of Filter objects.
         Otherwise, return *default_filters*.
         """
-        params = data.get('filters')
+        params = data.get("filters")
         return cls.load_from_yaml(params) if params else default_filters
 
 
 def default_filters_from_yaml(data):
     return {
         entry_type: FilterFactory.load_from_yaml(filters_data)
-        for entry_type, filters_data in data.get('default_filters', {}).items()
+        for entry_type, filters_data in data.get("default_filters", {}).items()
     }

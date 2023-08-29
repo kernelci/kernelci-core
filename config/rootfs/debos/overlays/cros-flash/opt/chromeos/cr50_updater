@@ -106,7 +106,7 @@ fi
 
 # if forceflash set - show warning
 if [ "$2" = "forceflash" ]; then
-    echo "Warning: forceflash is set, flashing even if versions are the same" 
+    echo "Warning: forceflash is set, flashing even if versions are the same"
 fi
 
 # Compare to be not same and not set to forceflash
@@ -126,7 +126,7 @@ if [ "$2" = "flash" ] || [ "$2" = "forceflash" ]; then
     if [ $exit_status -le 2 ]; then
         echo "Success: flashed firmware ${exit_status}"
         exit 1
-    else 
+    else
         # 70 seconds delay required according to google scripts
         echo "Warning: failed to flash firmware ${exit_status}, retrying after 70 seconds"
         sleep 70
@@ -135,13 +135,13 @@ if [ "$2" = "flash" ] || [ "$2" = "forceflash" ]; then
         if [ $exit_status -le 2 ]; then
             echo "Success: flashed firmware ${exit_status} on second attempt"
             exit 1
-        else 
+        else
             echo "Error: on_retry failed to flash firmware ${exit_status}" >&2
             exit 1
         fi
         exit 1
     fi
-else 
+else
     echo "Not flashing firmware, use '$0 <URL> [flash|forceflash]' to flash"
     exit 0
 fi

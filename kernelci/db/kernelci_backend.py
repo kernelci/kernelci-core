@@ -22,12 +22,11 @@ from kernelci.db import Database
 
 
 class KernelCIBackend(Database):
-
     def __init__(self, config, token):
         super().__init__(config, token)
         if self._token is None:
             raise ValueError("API token required for kernelci_backend")
-        self._headers = {'Authorization': self._token}
+        self._headers = {"Authorization": self._token}
 
     def _submit(self, path, data, verbose):
         url = urllib.parse.urljoin(self.config.url, path)
@@ -48,10 +47,10 @@ class KernelCIBackend(Database):
         return True
 
     def submit_build(self, meta, verbose=False):
-        return self._submit('build', meta.get(), verbose)
+        return self._submit("build", meta.get(), verbose)
 
     def submit_test(self, results, verbose=False):
-        return self._submit('test', results, verbose)
+        return self._submit("test", results, verbose)
 
 
 def get_db(config, token):

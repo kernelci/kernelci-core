@@ -23,9 +23,20 @@ from kernelci.config.base import FilterFactory, _YAMLObject, YAMLConfigObject
 class DeviceType(_YAMLObject):
     """Device type model."""
 
-    def __init__(self, name, mach, arch, boot_method, dtb=None, base_name=None,
-                 flags=None, filters=None, context=None, params=None,
-                 variant=None):
+    def __init__(
+        self,
+        name,
+        mach,
+        arch,
+        boot_method,
+        dtb=None,
+        base_name=None,
+        flags=None,
+        filters=None,
+        context=None,
+        params=None,
+        variant=None,
+    ):
         """A device type describes a category of equivalent hardware devices.
 
         *name* is unique for the device type, typically as used by LAVA.
@@ -100,18 +111,20 @@ class DeviceType(_YAMLObject):
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({
-            'arch',
-            'variant',
-            'base_name',
-            'boot_method',
-            'context',
-            'dtb',
-            'flags',
-            'mach',
-            'name',
-            'params',
-        })
+        attrs.update(
+            {
+                "arch",
+                "variant",
+                "base_name",
+                "boot_method",
+                "context",
+                "dtb",
+                "flags",
+                "mach",
+                "name",
+                "params",
+            }
+        )
         return attrs
 
     def get_flag(self, name):
@@ -119,70 +132,64 @@ class DeviceType(_YAMLObject):
 
     def match(self, flags, config):
         """Checks if the given *flags* and *config* match this device type."""
-        return (
-            all(not v or self.get_flag(k) for k, v in flags.items()) and
-            all(f.match(**config) for f in self._filters)
-        )
+        return all(
+            not v or self.get_flag(k) for k, v in flags.items()
+        ) and all(f.match(**config) for f in self._filters)
 
 
 class DeviceType_arc(DeviceType):
-
-    def __init__(self, name, mach, arch='arc', *args, **kw):
+    def __init__(self, name, mach, arch="arc", *args, **kw):
         """arc device type with a device tree."""
-        kw.setdefault('dtb', '{}.dtb'.format(name))
+        kw.setdefault("dtb", "{}.dtb".format(name))
         super().__init__(name, mach, arch, *args, **kw)
 
 
 class DeviceType_arm(DeviceType):
-
-    def __init__(self, name, mach, arch='arm', *args, **kw):
+    def __init__(self, name, mach, arch="arm", *args, **kw):
         """arm device type with a device tree."""
-        kw.setdefault('dtb', '{}.dtb'.format(name))
+        kw.setdefault("dtb", "{}.dtb".format(name))
         super().__init__(name, mach, arch, *args, **kw)
 
 
 class DeviceType_mips(DeviceType):
-
-    def __init__(self, name, mach, arch='mips', *args, **kw):
+    def __init__(self, name, mach, arch="mips", *args, **kw):
         """mips device type with a device tree."""
-        kw.setdefault('dtb', '{}.dtb'.format(name))
+        kw.setdefault("dtb", "{}.dtb".format(name))
         super().__init__(name, mach, arch, *args, **kw)
 
 
 class DeviceType_arm64(DeviceType):
-
-    def __init__(self, name, mach, arch='arm64', *args, **kw):
+    def __init__(self, name, mach, arch="arm64", *args, **kw):
         """arm64 device type with a device tree."""
-        kw.setdefault('dtb', '{}/{}.dtb'.format(mach, name))
+        kw.setdefault("dtb", "{}/{}.dtb".format(mach, name))
         super().__init__(name, mach, arch, *args, **kw)
 
 
 class DeviceType_riscv(DeviceType):
-
-    def __init__(self, name, mach, arch='riscv', *args, **kw):
+    def __init__(self, name, mach, arch="riscv", *args, **kw):
         """RISCV device type with a device tree."""
-        kw.setdefault('dtb', '{}/{}.dtb'.format(mach, name))
+        kw.setdefault("dtb", "{}/{}.dtb".format(mach, name))
         super().__init__(name, mach, arch, *args, **kw)
 
 
 class DeviceType_shell(DeviceType):
-
-    def __init__(self, name, mach=None, arch=None, boot_method=None,
-                 *args, **kwargs):
+    def __init__(
+        self, name, mach=None, arch=None, boot_method=None, *args, **kwargs
+    ):
         super().__init__(name, mach, arch, boot_method, *args, **kwargs)
 
 
 class DeviceType_docker(DeviceType):
-
-    def __init__(self, name, mach=None, arch=None, boot_method=None,
-                 *args, **kwargs):
+    def __init__(
+        self, name, mach=None, arch=None, boot_method=None, *args, **kwargs
+    ):
         super().__init__(name, mach, arch, boot_method, *args, **kwargs)
 
 
 class DeviceType_kubernetes(DeviceType):
-
-    def __init__(self, name, mach=None, arch=None, boot_method=None,
-                 *args, **kwargs):
+    def __init__(
+        self, name, mach=None, arch=None, boot_method=None, *args, **kwargs
+    ):
         super().__init__(name, mach, arch, boot_method, *args, **kwargs)
 
 
@@ -190,24 +197,24 @@ class DeviceTypeFactory(_YAMLObject):
     """Factory to create device types from YAML data."""
 
     _classes = {
-        'arc-dtb': DeviceType_arc,
-        'mips-dtb': DeviceType_mips,
-        'arm-dtb': DeviceType_arm,
-        'arm64-dtb': DeviceType_arm64,
-        'riscv-dtb': DeviceType_riscv,
-        'shell': DeviceType_shell,
-        'docker': DeviceType_docker,
-        'kubernetes': DeviceType_kubernetes,
+        "arc-dtb": DeviceType_arc,
+        "mips-dtb": DeviceType_mips,
+        "arm-dtb": DeviceType_arm,
+        "arm64-dtb": DeviceType_arm64,
+        "riscv-dtb": DeviceType_riscv,
+        "shell": DeviceType_shell,
+        "docker": DeviceType_docker,
+        "kubernetes": DeviceType_kubernetes,
     }
 
     @classmethod
     def from_yaml(cls, name, config, default_filters=None):
         kw = {
-            'name': name,
-            'base_name': config.get('base_name'),
-            'filters': FilterFactory.from_data(config, default_filters),
+            "name": name,
+            "base_name": config.get("base_name"),
+            "filters": FilterFactory.from_data(config, default_filters),
         }
-        cls_name = config.get('class')
+        cls_name = config.get("class")
         device_cls = cls._classes[cls_name] if cls_name else DeviceType
         return device_cls.from_yaml(config, **kw)
 
@@ -215,7 +222,7 @@ class DeviceTypeFactory(_YAMLObject):
 class RootFSType(YAMLConfigObject):
     """Root file system type model."""
 
-    yaml_tag = u'!RootFSType'
+    yaml_tag = "!RootFSType"
 
     def __init__(self, name, url, arch_map=None):
         """A root file system type covers common file system features.
@@ -259,27 +266,36 @@ class RootFSType(YAMLConfigObject):
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({'url', 'arch_map'})
+        attrs.update({"url", "arch_map"})
         return attrs
 
     def get_arch_name(self, arch, variant, endian):
-        arch_key = ('arch', arch)
-        variant_key = ('variant', variant)
-        endian_key = ('endian', endian)
-        arch_name = (self._arch_dict.get((arch_key, variant_key,
-                                          endian_key)) or
-                     self._arch_dict.get((arch_key, variant_key)) or
-                     self._arch_dict.get((arch_key, endian_key)) or
-                     self._arch_dict.get((arch_key,), arch))
+        arch_key = ("arch", arch)
+        variant_key = ("variant", variant)
+        endian_key = ("endian", endian)
+        arch_name = (
+            self._arch_dict.get((arch_key, variant_key, endian_key))
+            or self._arch_dict.get((arch_key, variant_key))
+            or self._arch_dict.get((arch_key, endian_key))
+            or self._arch_dict.get((arch_key,), arch)
+        )
         return arch_name
 
 
 class RootFS(_YAMLObject):
     """Root file system model."""
 
-    def __init__(self, fs_type, boot_protocol='tftp', root_type=None,
-                 prompt="/ #", params=None, ramdisk=None,
-                 nfs=None, diskfile=None):
+    def __init__(
+        self,
+        fs_type,
+        boot_protocol="tftp",
+        root_type=None,
+        prompt="/ #",
+        params=None,
+        ramdisk=None,
+        nfs=None,
+        diskfile=None,
+    ):
         """A root file system is any user-space that can be used in test jobs.
 
         *fs_type* is a RootFSType instance.
@@ -305,25 +321,33 @@ class RootFS(_YAMLObject):
         self._nfs = nfs
         self._diskfile = diskfile
         self._url_format = {
-            fs: '/'.join([fs_type.url, url]) for fs, url in (
-                (fs, getattr(self, fs)) for fs in ['ramdisk',
-                                                   'nfs', 'diskfile']
-            ) if url
+            fs: "/".join([fs_type.url, url])
+            for fs, url in (
+                (fs, getattr(self, fs))
+                for fs in ["ramdisk", "nfs", "diskfile"]
+            )
+            if url
         }
         self._root_type = root_type or list(self._url_format.keys())[0]
 
     @classmethod
     def from_yaml(cls, file_system_types, rootfs):
-        kw = cls._kw_from_yaml(rootfs, [
-            'boot_protocol', 'root_type', 'prompt', 'params'])
-        fs_type = file_system_types[rootfs['type']]
+        kw = cls._kw_from_yaml(
+            rootfs, ["boot_protocol", "root_type", "prompt", "params"]
+        )
+        fs_type = file_system_types[rootfs["type"]]
         base_url = fs_type.url
-        kw['fs_type'] = fs_type
-        kw.update({
-            fs: url for (fs, url) in (
-                (fs, rootfs.get(fs)) for fs in ['ramdisk', 'nfs', 'diskfile']
-            ) if url
-        })
+        kw["fs_type"] = fs_type
+        kw.update(
+            {
+                fs: url
+                for (fs, url) in (
+                    (fs, rootfs.get(fs))
+                    for fs in ["ramdisk", "nfs", "diskfile"]
+                )
+                if url
+            }
+        )
         return cls(**kw)
 
     @property
@@ -361,16 +385,18 @@ class RootFS(_YAMLObject):
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({
-            'boot_protocol',
-            'nfs',
-            'params',
-            'prompt',
-            'ramdisk',
-            'root_type',
-            'type',
-            'diskfile',
-        })
+        attrs.update(
+            {
+                "boot_protocol",
+                "nfs",
+                "params",
+                "prompt",
+                "ramdisk",
+                "root_type",
+                "type",
+                "diskfile",
+            }
+        )
         return attrs
 
     def get_url_format(self, fs_type):
@@ -392,11 +418,21 @@ class RootFS(_YAMLObject):
 class TestPlan(_YAMLObject):
     """Test plan model."""
 
-    _pattern = \
-        '{plan}/{category}-{method}-{protocol}-{rootfs}-{plan}-template.jinja2'
+    _pattern = (
+        "{plan}/{category}-{method}-{protocol}-{rootfs}-{plan}-template.jinja2"
+    )
 
-    def __init__(self, name, rootfs, image=None, base_name=None, params=None,
-                 category='generic', filters=None, pattern=None):
+    def __init__(
+        self,
+        name,
+        rootfs,
+        image=None,
+        base_name=None,
+        params=None,
+        category="generic",
+        filters=None,
+        pattern=None,
+    ):
         """A test plan is an arbitrary group of test cases to be run.
 
         *name* is the overall arbitrary test plan name, used when looking for
@@ -434,15 +470,18 @@ class TestPlan(_YAMLObject):
 
     @classmethod
     def from_yaml(cls, name, test_plan, file_systems, default_filters=None):
-        rootfs_name = test_plan.get('rootfs')
+        rootfs_name = test_plan.get("rootfs")
         kw = {
-            'name': name,
-            'rootfs': file_systems[rootfs_name] if rootfs_name else None,
-            'base_name': test_plan.get('base_name'),
-            'filters': FilterFactory.from_data(test_plan, default_filters),
+            "name": name,
+            "rootfs": file_systems[rootfs_name] if rootfs_name else None,
+            "base_name": test_plan.get("base_name"),
+            "filters": FilterFactory.from_data(test_plan, default_filters),
         }
-        kw.update(cls._kw_from_yaml(test_plan, [
-            'name', 'category', 'image', 'pattern', 'params']))
+        kw.update(
+            cls._kw_from_yaml(
+                test_plan, ["name", "category", "image", "pattern", "params"]
+            )
+        )
         return cls(**kw)
 
     @property
@@ -468,15 +507,16 @@ class TestPlan(_YAMLObject):
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({
-            'base_name',
-            'category'
-            'name',
-            'params',
-            'pattern',
-            'rootfs',
-            'image',
-        })
+        attrs.update(
+            {
+                "base_name",
+                "category" "name",
+                "params",
+                "pattern",
+                "rootfs",
+                "image",
+            }
+        )
         return attrs
 
     def get_template_path(self, boot_method):
@@ -491,7 +531,8 @@ class TestPlan(_YAMLObject):
             method=boot_method,
             protocol=self.rootfs.boot_protocol if self.rootfs else None,
             rootfs=self.rootfs.root_type if self.rootfs else None,
-            plan=self.name)
+            plan=self.name,
+        )
 
     def match(self, config):
         return all(f.match(**config) for f in self._filters)
@@ -507,19 +548,19 @@ class TestConfig(_YAMLObject):
         *test_plans* is a list of TestPlan objects to run on the device type.
         """
         self._device_type = device_type
-        self._test_plans = {
-            t.name: t for t in test_plans
-        }
+        self._test_plans = {t.name: t for t in test_plans}
         self._filters = filters or list()
 
     @classmethod
-    def from_yaml(cls, test_config, device_types, test_plans,
-                  default_filters=None):
+    def from_yaml(
+        cls, test_config, device_types, test_plans, default_filters=None
+    ):
         kw = {
-            'device_type': device_types[test_config['device_type']],
-            'test_plans': [test_plans[test]
-                           for test in test_config['test_plans']],
-            'filters': FilterFactory.from_data(test_config, default_filters),
+            "device_type": device_types[test_config["device_type"]],
+            "test_plans": [
+                test_plans[test] for test in test_config["test_plans"]
+            ],
+            "filters": FilterFactory.from_data(test_config, default_filters),
         }
 
         return cls(**kw)
@@ -534,15 +575,19 @@ class TestConfig(_YAMLObject):
 
     def match(self, arch, flags, config, plan=None):
         return (
-            (plan is None or (
-                plan in self._test_plans and
-                self._test_plans[plan].match(config)
-            )) and
-            (self.device_type.arch is None or (
-                self.device_type.arch == arch
-            )) and
-            self.device_type.match(flags, config) and
-            all(f.match(**config) for f in self._filters)
+            (
+                plan is None
+                or (
+                    plan in self._test_plans
+                    and self._test_plans[plan].match(config)
+                )
+            )
+            and (
+                self.device_type.arch is None
+                or (self.device_type.arch == arch)
+            )
+            and self.device_type.match(flags, config)
+            and all(f.match(**config) for f in self._filters)
         )
 
     def get_template_path(self, plan):
@@ -553,35 +598,35 @@ class TestConfig(_YAMLObject):
 def from_yaml(data, filters):
     fs_types = {
         name: RootFSType.load_from_yaml(fs_type, name=name)
-        for name, fs_type in data.get('file_system_types', {}).items()
+        for name, fs_type in data.get("file_system_types", {}).items()
     }
 
     file_systems = {
         name: RootFS.from_yaml(fs_types, rootfs)
-        for name, rootfs in data.get('file_systems', {}).items()
+        for name, rootfs in data.get("file_systems", {}).items()
     }
 
-    plan_filters = filters.get('test_plans')
+    plan_filters = filters.get("test_plans")
     test_plans = {
         name: TestPlan.from_yaml(name, test_plan, file_systems, plan_filters)
-        for name, test_plan in data.get('test_plans', {}).items()
+        for name, test_plan in data.get("test_plans", {}).items()
     }
 
-    device_filters = filters.get('device_types')
+    device_filters = filters.get("device_types")
     device_types = {
         name: DeviceTypeFactory.from_yaml(name, device_type, device_filters)
-        for name, device_type in data.get('device_types', {}).items()
+        for name, device_type in data.get("device_types", {}).items()
     }
 
     test_configs = [
         TestConfig.from_yaml(test_config, device_types, test_plans)
-        for test_config in data.get('test_configs', [])
+        for test_config in data.get("test_configs", [])
     ]
 
     return {
-        'file_system_types': fs_types,
-        'file_systems': file_systems,
-        'test_plans': test_plans,
-        'device_types': device_types,
-        'test_configs': test_configs,
+        "file_system_types": fs_types,
+        "file_systems": file_systems,
+        "test_plans": test_plans,
+        "device_types": device_types,
+        "test_configs": test_configs,
     }

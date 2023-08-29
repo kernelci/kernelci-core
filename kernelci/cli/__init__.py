@@ -23,16 +23,16 @@ from . import (
 )
 
 _COMMANDS = {
-    'api': api.main,
-    'config': config.main,
-    'docker': docker.main,
-    'job': job.main,
-    'node': node.main,
-    'pubsub': pubsub.main,
-    'sched': sched.main,
-    'show': show.main,
-    'storage': storage.main,
-    'user': user.main,
+    "api": api.main,
+    "config": config.main,
+    "docker": docker.main,
+    "job": job.main,
+    "node": node.main,
+    "pubsub": pubsub.main,
+    "sched": sched.main,
+    "show": show.main,
+    "storage": storage.main,
+    "user": user.main,
 }
 
 

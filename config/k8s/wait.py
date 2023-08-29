@@ -25,8 +25,8 @@ def context_valid(c):
     print("Available contexts:")
     contexts, active_context = config.list_kube_config_contexts()
     for ctx in contexts:
-        print("   {}".format(ctx['name']))
-        if c == ctx['name']:
+        print("   {}".format(ctx["name"]))
+        if c == ctx["name"]:
             valid = True
 
     return valid
@@ -36,10 +36,11 @@ def find_pod(core, args):
     retries = 10
     while retries:
         try:
-            pod = core.list_namespaced_pod(namespace=args.namespace,
-                                           watch=False,
-                                           label_selector="job-name={}".
-                                           format(args.job_name))
+            pod = core.list_namespaced_pod(
+                namespace=args.namespace,
+                watch=False,
+                label_selector="job-name={}".format(args.job_name),
+            )
             return pod
         except client.rest.ApiException as e:
             print("ERROR: Exception on list_namespaced_pod, ", e)
@@ -49,8 +50,7 @@ def find_pod(core, args):
             time.sleep(5)
             # One of solutions to reload config
             # https://github.com/DataBiosphere/toil/issues/2867
-            config.load_kube_config(context=args.context,
-                                    persist_config=False)
+            config.load_kube_config(context=args.context, persist_config=False)
             core = client.CoreV1Api()
             continue
         # exception might happen deep inside kubernetes, example:
@@ -83,14 +83,26 @@ def main(args):
             config.load_kube_config(context=args.context, persist_config=False)
             break
         except (TypeError, config.ConfigException) as e:
-            print("WARNING: unable to load context {}: {}.  Retrying.".format(args.context, e))
+            print(
+                "WARNING: unable to load context {}: {}.  Retrying.".format(
+                    args.context, e
+                )
+            )
             time.sleep(sleep_secs)
             retries = retries - 1
     if retries == 0:
-        print("ERROR: unable to load context {}.  Giving up.".format(args.context))
+        print(
+            "ERROR: unable to load context {}.  Giving up.".format(
+                args.context
+            )
+        )
         sys.exit(1)
-  
-    print("Waiting for job completion. (recheck every {} sec) ".format(sleep_secs))
+
+    print(
+        "Waiting for job completion. (recheck every {} sec) ".format(
+            sleep_secs
+        )
+    )
 
     #
     # wait for job to finish
@@ -100,8 +112,9 @@ def main(args):
     while retries:
         job_found = False
         try:
-            job = batch.read_namespaced_job(name=args.job_name,
-                                            namespace=args.namespace)
+            job = batch.read_namespaced_job(
+                name=args.job_name, namespace=args.namespace
+            )
         except client.rest.ApiException as e:
             print("x:", e)
             time.sleep(sleep_secs)
@@ -142,7 +155,7 @@ def main(args):
     # Find pod where job ran
     #
     # Reload credentials to reduce risk of token expiration
-    config.load_kube_config(context=args.context, persist_config=False)    
+    config.load_kube_config(context=args.context, persist_config=False)
     core = client.CoreV1Api()
     pod = find_pod(core, args)
     if pod is None:
@@ -175,15 +188,18 @@ def main(args):
         if jpod.spec.init_containers:
             init_cont_name = jpod.spec.init_containers[0].name
             if not jpod.status.init_container_statuses[0].ready:
-                print("ERROR: initContainer {} not ready / failed.".
-                      format(init_cont_name))
+                print(
+                    "ERROR: initContainer {} not ready / failed.".format(
+                        init_cont_name
+                    )
+                )
                 cont_name = init_cont_name
                 if pods_num == 1:
                     k8s_success = False
         try:
-            jlog = core.read_namespaced_pod_log(name=pod_name,
-                                                namespace=args.namespace,
-                                                container=cont_name)
+            jlog = core.read_namespaced_pod_log(
+                name=pod_name, namespace=args.namespace, container=cont_name
+            )
             print("Container Log:")
             print(jlog)
             log += jlog
@@ -197,23 +213,25 @@ def main(args):
         # important: propagation_policy is important so any pods
         # created for a job deleted
         body = client.V1DeleteOptions(propagation_policy="Foreground")
-        ret = batch.delete_namespaced_job(name=args.job_name,
-                                          namespace=args.namespace,
-                                          body=body)
+        ret = batch.delete_namespaced_job(
+            name=args.job_name, namespace=args.namespace, body=body
+        )
         print("job {} deleted.  job.status:".format(args.job_name))
         pprint(ret.status)
 
     # Make jenkins fail only if k8s fails.  Kernel build fails will
     # be reported to the backend/
     sys.exit(not k8s_success)
- 
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--context')
-    parser.add_argument('--job-name')
-    parser.add_argument('--namespace', default='default')
-    parser.add_argument('--sleep', type=int, default=60)
-    parser.add_argument('--no-delete', dest='delete', default=True, action='store_false')
+    parser.add_argument("--context")
+    parser.add_argument("--job-name")
+    parser.add_argument("--namespace", default="default")
+    parser.add_argument("--sleep", type=int, default=60)
+    parser.add_argument(
+        "--no-delete", dest="delete", default=True, action="store_false"
+    )
     args = parser.parse_args()
     main(args)

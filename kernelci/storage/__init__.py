@@ -52,7 +52,7 @@ class Storage(abc.ABC):
         destination path and files names.
         """
 
-    def upload_single(self, file_path, dest_path=''):
+    def upload_single(self, file_path, dest_path=""):
         """Upload a single file to storage
 
         Upload the file specified by the *file_path* 2-tuple as (local, remote)
@@ -70,11 +70,10 @@ class Storage(abc.ABC):
         if urls:
             return urls[file_path[1]]
         return urljoin(
-            self.config.base_url,
-            '/'.join(['.', dest_path, file_path[1]])
+            self.config.base_url, "/".join([".", dest_path, file_path[1]])
         )
 
-    def upload_multiple(self, file_paths, dest_path=''):
+    def upload_multiple(self, file_paths, dest_path=""):
         """Upload multiple files to storage
 
         Upload all the files *file_paths* as a list of 2-tuples with (local,
@@ -97,7 +96,7 @@ class Storage(abc.ABC):
         self._connect()
         urls = self._upload(file_paths, dest_path)
         return urls or [
-            urljoin(self.config.base_url, '/'.join(['.', dest_path, file_dst]))
+            urljoin(self.config.base_url, "/".join([".", dest_path, file_dst]))
             for (file_src, file_dst) in file_paths
         ]
 
@@ -108,7 +107,7 @@ def get_storage(config, credentials):
     Create and return a Storage implementation object instance that matches the
     storage configuration in *config* using the provided *credentials*.
     """
-    module = importlib.import_module('.'.join([
-        'kernelci', 'storage', config.storage_type
-    ]))
+    module = importlib.import_module(
+        ".".join(["kernelci", "storage", config.storage_type])
+    )
     return module.get_storage(config, credentials)

@@ -22,56 +22,68 @@ import sys
 import json
 from optparse import OptionParser
 
+
 def convert(bmeta, report):
-    rev = bmeta['revision']
-    env = bmeta['environment']
-    kernel = bmeta['kernel']
+    rev = bmeta["revision"]
+    env = bmeta["environment"]
+    kernel = bmeta["kernel"]
     kernelci = {
-        'job': 'mainline',
-        'git_branch': rev['branch'],
-        'git_commit': rev['commit'],
-        'kernel': rev['describe_verbose'],
-
-        'build_environment': env['name'],
-        'arch': env['arch'],
-        'defconfig': kernel['defconfig'],
-        'defconfig_full': kernel['defconfig_full'],
-
-        'lab_name': 'manual',
-        'device_type': 'shell',
-
-        'name': 'cvehound',
+        "job": "mainline",
+        "git_branch": rev["branch"],
+        "git_commit": rev["commit"],
+        "kernel": rev["describe_verbose"],
+        "build_environment": env["name"],
+        "arch": env["arch"],
+        "defconfig": kernel["defconfig"],
+        "defconfig_full": kernel["defconfig_full"],
+        "lab_name": "manual",
+        "device_type": "shell",
+        "name": "cvehound",
     }
 
     cves = {}
-    for cve in report['args']['cve']:
-        cves[cve] = 'PASS'
-    for cve in report['results']:
-        cves[cve] = 'FAIL'
+    for cve in report["args"]["cve"]:
+        cves[cve] = "PASS"
+    for cve in report["results"]:
+        cves[cve] = "FAIL"
     if cves:
-        kernelci['test_cases'] = []
+        kernelci["test_cases"] = []
         for name, status in cves.items():
-            kernelci['test_cases'].append({'name': name, 'status': status})
+            kernelci["test_cases"].append({"name": name, "status": status})
     return kernelci
+
 
 def main():
     parser = OptionParser()
-    parser.add_option('-b', '--bmeta',
-                      dest="bmeta", help="kernelci's bmeta", metavar="FILE")
-    parser.add_option('-r', '--report',
-                      dest="report", help="cvehound report", metavar="FILE")
-    parser.add_option('-o', '--output',
-                      dest="output", help="cvehound report suitable for kernelci", metavar="FILE")
+    parser.add_option(
+        "-b", "--bmeta", dest="bmeta", help="kernelci's bmeta", metavar="FILE"
+    )
+    parser.add_option(
+        "-r", "--report", dest="report", help="cvehound report", metavar="FILE"
+    )
+    parser.add_option(
+        "-o",
+        "--output",
+        dest="output",
+        help="cvehound report suitable for kernelci",
+        metavar="FILE",
+    )
     (options, args) = parser.parse_args()
     if args:
         print("Unknown arguments:", args, file=sys.stderr)
         sys.exit(1)
 
     if not options.bmeta:
-        print("Please, specify path to kernelci's bmeta with --bmeta", file=sys.stderr)
+        print(
+            "Please, specify path to kernelci's bmeta with --bmeta",
+            file=sys.stderr,
+        )
         sys.exit(2)
     if not options.report:
-        print("Please, specify path to cvehound's report with --report", file=sys.stderr)
+        print(
+            "Please, specify path to cvehound's report with --report",
+            file=sys.stderr,
+        )
         sys.exit(2)
     if not options.output:
         print("Please, specify --output", file=sys.stderr)
@@ -87,15 +99,16 @@ def main():
         print("File", options.output, "already exists", file=sys.stderr)
         sys.exit(3)
 
-    with open(options.bmeta, 'rt') as fh:
+    with open(options.bmeta, "rt") as fh:
         bmeta = json.load(fh)
-    with open(options.report, 'rt') as fh:
+    with open(options.report, "rt") as fh:
         report = json.load(fh)
 
     output = convert(bmeta, report)
 
-    with open(options.output, 'wt') as fh:
+    with open(options.output, "wt") as fh:
         json.dump(output, fh, sort_keys=True, indent=4)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

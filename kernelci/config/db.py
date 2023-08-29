@@ -20,7 +20,6 @@ from kernelci.config.base import _YAMLObject
 
 
 class Database(_YAMLObject):
-
     def __init__(self, name, db_type):
         self._name = name
         self._db_type = db_type
@@ -36,12 +35,11 @@ class Database(_YAMLObject):
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({'db_type'})
+        attrs.update({"db_type"})
         return attrs
 
 
 class DatabaseAPI(Database):
-
     def __init__(self, name, db_type, url):
         super().__init__(name, db_type)
         self._url = url
@@ -53,7 +51,7 @@ class DatabaseAPI(Database):
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({'url'})
+        attrs.update({"url"})
         return attrs
 
 
@@ -64,7 +62,7 @@ class DatabaseFactory(_YAMLObject):
 
     @classmethod
     def from_yaml(cls, config, name):
-        db_type = config.get('db_type')
+        db_type = config.get("db_type")
         if db_type is None:
             raise TypeError("db_type cannot be Empty")
 
@@ -78,9 +76,9 @@ class DatabaseFactory(_YAMLObject):
 def from_yaml(data, filters):
     db_configs = {
         name: DatabaseFactory.from_yaml(db, name)
-        for name, db in data.get('db_configs', {}).items()
+        for name, db in data.get("db_configs", {}).items()
     }
 
     return {
-        'db_configs': db_configs,
+        "db_configs": db_configs,
     }

@@ -14,7 +14,7 @@
   </remote>
 
   <default remote="cros" sync-j="8"/>
-  
+
   <project name="aosp/platform/external/libutf" path="src/aosp/external/libutf" revision="c17bb435be940edf1aff81469215bb6a071f3c38" upstream="refs/heads/release-R111-15329.B" dest-branch="refs/heads/release-R111-15329.B"/>
   <project name="aosp/platform/external/modp_b64" path="src/third_party/modp_b64" revision="68a503fff7af8fbf6f78cd496830813d41150817" upstream="refs/heads/release-R111-15329.B" dest-branch="refs/heads/release-R111-15329.B"/>
   <project name="aosp/platform/external/uwb" path="src/aosp/external/uwb/local" revision="7723cbad3b599dce7be683d49377fcfa08fac799" upstream="refs/heads/release-R111-15329.B-main" dest-branch="refs/heads/release-R111-15329.B-main"/>
@@ -285,6 +285,6 @@
   </project>
   <project name="platform/external/puffin" path="src/aosp/external/puffin" remote="aosp" revision="b17292ed6a0eb33616d72e0b5559de7b59080eb2" groups="paygen"/>
   <project name="platform/system/keymaster" path="src/aosp/system/keymaster" remote="aosp" revision="49dfc58d6c4c66f5d0b0d06f0161da4e602a1293"/>
-  
+
   <repo-hooks in-project="chromiumos/repohooks" enabled-list="pre-upload"/>
 </manifest>

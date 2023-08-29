@@ -50,32 +50,32 @@ BOOT_STATUS_MAP = {
 }
 
 TEST_CASE_STATUS_MAP = {
-    'pass': BISECT_PASS,
-    'skip': BISECT_SKIP,
-    'fail': BISECT_FAIL,
+    "pass": BISECT_PASS,
+    "skip": BISECT_SKIP,
+    "fail": BISECT_FAIL,
 }
 
 
 def is_infra_error(cb):
-    lava_yaml = cb['results']['lava']
+    lava_yaml = cb["results"]["lava"]
     lava = yaml.load(lava_yaml, Loader=yaml.CLoader)
-    stages = {s['name']: s for s in lava}
-    job_meta = stages['job']['metadata']
-    return job_meta.get('error_type') == "Infrastructure"
+    stages = {s["name"]: s for s in lava}
+    job_meta = stages["job"]["metadata"]
+    return job_meta.get("error_type") == "Infrastructure"
 
 
 def handle_boot(cb, verbose):
-    job_status = cb['status']
+    job_status = cb["status"]
     print("Status: {}".format(LAVA_JOB_RESULT_NAMES[job_status]))
     return BOOT_STATUS_MAP.get(job_status, BISECT_SKIP)
 
 
 def _add_login_case(results, tests):
-    tests_map = {t['name']: t for t in tests}
-    login = tests_map.get('auto-login-action') or tests_map.get('login-action')
-    job_result = tests_map['job']['result']
-    result = login and login['result'] == 'pass' and job_result == 'pass'
-    results['login'] = 'pass' if result else 'fail'
+    tests_map = {t["name"]: t for t in tests}
+    login = tests_map.get("auto-login-action") or tests_map.get("login-action")
+    job_result = tests_map["job"]["result"]
+    result = login and login["result"] == "pass" and job_result == "pass"
+    results["login"] = "pass" if result else "fail"
 
 
 def _add_test_results(results, tests, suite_name):
@@ -83,19 +83,19 @@ def _add_test_results(results, tests, suite_name):
     suite_results = results[suite_name] = dict()
     test_sets = dict()
     for test in reversed(tests):
-        test_set_name = test['metadata'].get('set')
+        test_set_name = test["metadata"].get("set")
         if test_set_name:
             test_cases = suite_results.setdefault(test_set_name, dict())
         else:
             test_cases = suite_results
-        test_cases[test['name']] = test['result']
+        test_cases[test["name"]] = test["result"]
 
 
 def _parse_results(data):
     results = dict()
     for suite_name, suite_results in data.items():
         tests = yaml.load(suite_results, Loader=yaml.CLoader)
-        if suite_name == 'lava':
+        if suite_name == "lava":
             _add_login_case(results, tests)
         else:
             _add_test_results(results, tests, suite_name)
@@ -109,13 +109,13 @@ def _get_dotted_test_names(results, dotted, path=None):
         if isinstance(value, dict):
             _get_dotted_test_names(value, dotted, res_path)
         else:
-            dotted['.'.join(res_path)] = value
+            dotted[".".join(res_path)] = value
 
 
 def handle_test(cb, full_case_name, verbose):
-    results = _parse_results(cb['results'])
+    results = _parse_results(cb["results"])
     groups = list(k for (k, v) in results.items() if isinstance(v, dict))
-    plan_name = yaml.safe_load(cb['definition'])['metadata']['test.plan']
+    plan_name = yaml.safe_load(cb["definition"])["metadata"]["test.plan"]
     if len(groups) == 1 and groups[0] == plan_name:
         group = results[plan_name]
         cases = {k: v for (k, v) in results.items() if not isinstance(v, dict)}
@@ -125,7 +125,7 @@ def handle_test(cb, full_case_name, verbose):
         results = {plan_name: results}
     if verbose:
         print("Results:")
-        print(json.dumps(results, indent='  '))
+        print(json.dumps(results, indent="  "))
     dotted = dict()
     _get_dotted_test_names(results, dotted)
 
@@ -141,7 +141,7 @@ def main(args):
     with open(args.json) as json_file:
         cb = json.load(json_file)
 
-    if args.token and cb['token'] != args.token:
+    if args.token and cb["token"] != args.token:
         print("Token mismatch")
         sys.exit(1)
 
@@ -156,15 +156,13 @@ def main(args):
     sys.exit(ret)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser("Parse LAVA v2 callback data")
-    parser.add_argument("json",
-                        help="Path to the JSON data file")
-    parser.add_argument("--token",
-                        help="Secret authorization token")
-    parser.add_argument("--test-case",
-                        help="Test case path in dotted syntax")
-    parser.add_argument("--verbose", action='store_true',
-                        help="Verbose output")
+    parser.add_argument("json", help="Path to the JSON data file")
+    parser.add_argument("--token", help="Secret authorization token")
+    parser.add_argument("--test-case", help="Test case path in dotted syntax")
+    parser.add_argument(
+        "--verbose", action="store_true", help="Verbose output"
+    )
     args = parser.parse_args()
     main(args)

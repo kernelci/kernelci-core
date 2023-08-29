@@ -18,8 +18,8 @@ class Scheduler:
     """
 
     def __init__(self, configs, runtimes):
-        self._scheduler = configs['scheduler']
-        self._jobs = configs['jobs']
+        self._scheduler = configs["scheduler"]
+        self._jobs = configs["jobs"]
         self._runtimes = runtimes
         self._runtimes_by_type = {}
         for _, runtime in self._runtimes.items():
@@ -27,23 +27,23 @@ class Scheduler:
                 runtime.config.lab_type, []
             )
             runtime_type.append(runtime)
-        self._platforms = configs['device_types']
+        self._platforms = configs["device_types"]
 
-    def get_configs(self, event, channel='node'):
+    def get_configs(self, event, channel="node"):
         """Get the scheduler configs matching a given event"""
         for entry in self._scheduler:
-            sched_event_channel = entry.event.get('channel')
+            sched_event_channel = entry.event.get("channel")
             if sched_event_channel == channel:
                 sched_event = entry.event.copy()
-                sched_event.pop('channel')
+                sched_event.pop("channel")
                 if sched_event.items() <= event.items():
                     yield entry
 
-    def get_schedule(self, event, channel='node'):
+    def get_schedule(self, event, channel="node"):
         """Get the (job, runtime, platform) configs for each job to run"""
         for config in self.get_configs(event, channel):
-            runtime_name = config.runtime.get('name')
-            runtime_type = config.runtime.get('type')
+            runtime_name = config.runtime.get("name")
+            runtime_type = config.runtime.get("type")
             if runtime_name:
                 runtime = self._runtimes.get(runtime_name)
             elif runtime_type:

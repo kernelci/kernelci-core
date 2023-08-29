@@ -38,19 +38,32 @@ class RootFS(_YAMLObject):
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({'rootfs_type'})
+        attrs.update({"rootfs_type"})
         return attrs
 
 
 class RootFS_Debos(RootFS):
-    def __init__(self, name, rootfs_type, debian_release=None,
-                 arch_list=None, extra_packages=None, extra_firmware=None,
-                 linux_fw_version="",
-                 extra_packages_remove=None,
-                 extra_files_remove=None, script="",
-                 test_overlay="", crush_image_options=None, debian_mirror="",
-                 keyring_package="", keyring_file="", debos_memory="",
-                 debos_cpus="", debos_scratchsize=""):
+    def __init__(
+        self,
+        name,
+        rootfs_type,
+        debian_release=None,
+        arch_list=None,
+        extra_packages=None,
+        extra_firmware=None,
+        linux_fw_version="",
+        extra_packages_remove=None,
+        extra_files_remove=None,
+        script="",
+        test_overlay="",
+        crush_image_options=None,
+        debian_mirror="",
+        keyring_package="",
+        keyring_file="",
+        debos_memory="",
+        debos_cpus="",
+        debos_scratchsize="",
+    ):
         super().__init__(name, rootfs_type)
         self._debian_release = debian_release
         self._arch_list = arch_list or list()
@@ -72,29 +85,34 @@ class RootFS_Debos(RootFS):
     @classmethod
     def from_yaml(cls, config, name):
         kw = {
-            'name': name,
+            "name": name,
         }
         # ToDo: use a single RootFS class and move specific options to a
         # "params" dictionary in YAML
-        kw.update(cls._kw_from_yaml(config, [
-            'rootfs_type',
-            'debian_release',
-            'arch_list',
-            'debian_mirror',
-            'keyring_package',
-            'keyring_file',
-            'extra_packages',
-            'extra_packages_remove',
-            'extra_files_remove',
-            'extra_firmware',
-            'linux_fw_version',
-            'script',
-            'test_overlay',
-            'crush_image_options',
-            'debos_memory',
-            'debos_cpus',
-            'debos_scratchsize',
-        ]))
+        kw.update(
+            cls._kw_from_yaml(
+                config,
+                [
+                    "rootfs_type",
+                    "debian_release",
+                    "arch_list",
+                    "debian_mirror",
+                    "keyring_package",
+                    "keyring_file",
+                    "extra_packages",
+                    "extra_packages_remove",
+                    "extra_files_remove",
+                    "extra_firmware",
+                    "linux_fw_version",
+                    "script",
+                    "test_overlay",
+                    "crush_image_options",
+                    "debos_memory",
+                    "debos_cpus",
+                    "debos_scratchsize",
+                ],
+            )
+        )
         return cls(**kw)
 
     @property
@@ -164,30 +182,39 @@ class RootFS_Debos(RootFS):
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({
-            'debian_release',
-            'arch_list',
-            'debian_mirror',
-            'keyring_package',
-            'keyring_file',
-            'extra_packages',
-            'extra_packages_remove',
-            'extra_files_remove',
-            'extra_firmware',
-            'linux_fw_version',
-            'script',
-            'test_overlay',
-            'crush_image_options',
-            'debos_memory',
-            'debos_cpus',
-            'debos_scratchsize',
-        })
+        attrs.update(
+            {
+                "debian_release",
+                "arch_list",
+                "debian_mirror",
+                "keyring_package",
+                "keyring_file",
+                "extra_packages",
+                "extra_packages_remove",
+                "extra_files_remove",
+                "extra_firmware",
+                "linux_fw_version",
+                "script",
+                "test_overlay",
+                "crush_image_options",
+                "debos_memory",
+                "debos_cpus",
+                "debos_scratchsize",
+            }
+        )
         return attrs
 
 
 class RootFS_Buildroot(RootFS):
-    def __init__(self, name, rootfs_type, git_url, git_branch,
-                 arch_list=None, frags=None):
+    def __init__(
+        self,
+        name,
+        rootfs_type,
+        git_url,
+        git_branch,
+        arch_list=None,
+        frags=None,
+    ):
         super().__init__(name, rootfs_type)
         self._git_url = git_url
         self._git_branch = git_branch
@@ -217,18 +244,27 @@ class RootFS_Buildroot(RootFS):
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({
-            'arch_list',
-            'git_url',
-            'git_branch',
-            'frags',
-        })
+        attrs.update(
+            {
+                "arch_list",
+                "git_url",
+                "git_branch",
+                "frags",
+            }
+        )
         return attrs
 
 
 class RootFS_ChromiumOS(RootFS):
-    def __init__(self, name, rootfs_type, arch_list=None, board=None,
-                 branch=None, serial=None):
+    def __init__(
+        self,
+        name,
+        rootfs_type,
+        arch_list=None,
+        board=None,
+        branch=None,
+        serial=None,
+    ):
         super().__init__(name, rootfs_type)
         self._arch_list = arch_list or list()
         self._board = board
@@ -254,25 +290,27 @@ class RootFS_ChromiumOS(RootFS):
     @classmethod
     def _get_yaml_attributes(cls):
         attrs = super()._get_yaml_attributes()
-        attrs.update({
-            'arch_list',
-            'board',
-            'branch',
-            'serial',
-        })
+        attrs.update(
+            {
+                "arch_list",
+                "board",
+                "branch",
+                "serial",
+            }
+        )
         return attrs
 
 
 class RootFSFactory(_YAMLObject):
     _rootfs_types = {
-        'debos': RootFS_Debos,
-        'buildroot': RootFS_Buildroot,
-        'chromiumos': RootFS_ChromiumOS,
+        "debos": RootFS_Debos,
+        "buildroot": RootFS_Buildroot,
+        "chromiumos": RootFS_ChromiumOS,
     }
 
     @classmethod
     def from_yaml(cls, name, rootfs):
-        rootfs_type = rootfs.get('rootfs_type')
+        rootfs_type = rootfs.get("rootfs_type")
         if rootfs_type is None:
             raise TypeError("rootfs_type cannot be Empty")
 
@@ -286,51 +324,63 @@ class RootFSFactory(_YAMLObject):
 def from_yaml(data, filters):
     rootfs_configs = {
         name: RootFSFactory.from_yaml(name, rootfs)
-        for name, rootfs in data.get('rootfs_configs', {}).items()
+        for name, rootfs in data.get("rootfs_configs", {}).items()
     }
 
     return {
-        'rootfs_configs': rootfs_configs,
+        "rootfs_configs": rootfs_configs,
     }
 
 
 def validate(configs):
     """Validate rootfs config
 
-        *configs* contains rootfs-configs.yaml entries
+    *configs* contains rootfs-configs.yaml entries
     """
-    err = sort_check(configs['rootfs_configs'])
+    err = sort_check(configs["rootfs_configs"])
     if err:
         print("Rootfs broken order: '{}' before '{}".format(*err))
         return False
-    for name, config in configs['rootfs_configs'].items():
-        if config.rootfs_type == 'debos':
+    for name, config in configs["rootfs_configs"].items():
+        if config.rootfs_type == "debos":
             return _validate_debos(name, config)
-        elif config.rootfs_type == 'buildroot':
+        elif config.rootfs_type == "buildroot":
             return _validate_buildroot(name, config)
-        elif config.rootfs_type == 'chromiumos':
+        elif config.rootfs_type == "chromiumos":
             return _validate_chromiumos(name, config)
         else:
-            print('Invalid rootfs type {} for config name {}'
-                  .format(config.rootfs_type, name))
+            print(
+                "Invalid rootfs type {} for config name {}".format(
+                    config.rootfs_type, name
+                )
+            )
             return False
 
 
 def _validate_debos(name, config):
     err = sort_check(config.arch_list)
     if err:
-        print("Arch order broken for {}: '{}' before '{}".format(
-            name, err[0], err[1]))
+        print(
+            "Arch order broken for {}: '{}' before '{}".format(
+                name, err[0], err[1]
+            )
+        )
         return False
     err = sort_check(config.extra_packages)
     if err:
-        print("Packages order broken for {}: '{}' before '{}".format(
-            name, err[0], err[1]))
+        print(
+            "Packages order broken for {}: '{}' before '{}".format(
+                name, err[0], err[1]
+            )
+        )
         return False
     err = sort_check(config.extra_packages_remove)
     if err:
-        print("Packages order broken for {}: '{}' before '{}".format(
-            name, err[0], err[1]))
+        print(
+            "Packages order broken for {}: '{}' before '{}".format(
+                name, err[0], err[1]
+            )
+        )
         return False
     return True
 
@@ -338,13 +388,19 @@ def _validate_debos(name, config):
 def _validate_buildroot(name, config):
     err = sort_check(config.arch_list)
     if err:
-        print("Arch order broken for {}: '{}' before '{}".format(
-            name, err[0], err[1]))
+        print(
+            "Arch order broken for {}: '{}' before '{}".format(
+                name, err[0], err[1]
+            )
+        )
         return False
     err = sort_check(config.frags)
     if err:
-        print("Frags order broken for {}: '{}' before '{}".format(
-            name, err[0], err[1]))
+        print(
+            "Frags order broken for {}: '{}' before '{}".format(
+                name, err[0], err[1]
+            )
+        )
         return False
     return True
 
@@ -352,8 +408,11 @@ def _validate_buildroot(name, config):
 def _validate_chromiumos(name, config):
     err = sort_check(config.arch_list)
     if err:
-        print("Arch order broken for {}: '{}' before '{}".format(
-            name, err[0], err[1]))
+        print(
+            "Arch order broken for {}: '{}' before '{}".format(
+                name, err[0], err[1]
+            )
+        )
         return False
     return True
 
@@ -361,52 +420,49 @@ def _validate_chromiumos(name, config):
 def dump_configs(configs):
     """Prints rootfs configs to stdout
 
-        *configs* contains rootfs-configs.yaml entries
+    *configs* contains rootfs-configs.yaml entries
     """
-    for config_name, config in configs['rootfs_configs'].items():
-        if config.rootfs_type == 'debos':
+    for config_name, config in configs["rootfs_configs"].items():
+        if config.rootfs_type == "debos":
             _dump_config_debos(config_name, config)
-        elif config.rootfs_type == 'buildroot':
+        elif config.rootfs_type == "buildroot":
             _dump_config_buildroot(config_name, config)
-        elif config.rootfs_type == 'chromiumos':
+        elif config.rootfs_type == "chromiumos":
             _dump_config_chromiumos(config_name, config)
 
 
 def _dump_config_debos(config_name, config):
     print(config_name)
-    print('\trootfs_type: {}'.format(config.rootfs_type))
-    print('\tarch_list: {}'.format(config.arch_list))
-    print('\tdebian_release: {}'.format(config.debian_release))
-    print('\textra_packages: {}'.format(config.extra_packages))
-    print('\textra_packages_remove: {}'.format(
-        config.extra_packages_remove))
-    print('\textra_files_remove: {}'.format(
-        config.extra_files_remove))
-    print('\textra_firmware: {}'.format(config.extra_firmware))
-    print('\tlinux_fw_version: {}'.format(config.linux_fw_version))
-    print('\tscript: {}'.format(config.script))
-    print('\ttest_overlay: {}'.format(config.test_overlay))
-    print('\tcrush_image_options: {}'.format(
-        config.crush_image_options))
-    print('\tdebian_mirror: {}'.format(config.debian_mirror))
-    print('\tkeyring_package: {}'.format(config.keyring_package))
-    print('\tkeyring_file: {}'.format(config.keyring_file))
-    print('\tdebos_memory: {}'.format(config.debos_memory))
-    print('\tdebos_cpu: {}'.format(config.debos_cpu))
-    print('\tdebos_scratchsize: {}'.format(config.debos_scratchsize))
+    print("\trootfs_type: {}".format(config.rootfs_type))
+    print("\tarch_list: {}".format(config.arch_list))
+    print("\tdebian_release: {}".format(config.debian_release))
+    print("\textra_packages: {}".format(config.extra_packages))
+    print("\textra_packages_remove: {}".format(config.extra_packages_remove))
+    print("\textra_files_remove: {}".format(config.extra_files_remove))
+    print("\textra_firmware: {}".format(config.extra_firmware))
+    print("\tlinux_fw_version: {}".format(config.linux_fw_version))
+    print("\tscript: {}".format(config.script))
+    print("\ttest_overlay: {}".format(config.test_overlay))
+    print("\tcrush_image_options: {}".format(config.crush_image_options))
+    print("\tdebian_mirror: {}".format(config.debian_mirror))
+    print("\tkeyring_package: {}".format(config.keyring_package))
+    print("\tkeyring_file: {}".format(config.keyring_file))
+    print("\tdebos_memory: {}".format(config.debos_memory))
+    print("\tdebos_cpu: {}".format(config.debos_cpu))
+    print("\tdebos_scratchsize: {}".format(config.debos_scratchsize))
 
 
 def _dump_config_buildroot(config_name, config):
     print(config_name)
-    print('\trootfs_type: {}'.format(config.rootfs_type))
-    print('\tarch_list: {}'.format(config.arch_list))
-    print('\tfrags: {}'.format(config.frags))
+    print("\trootfs_type: {}".format(config.rootfs_type))
+    print("\tarch_list: {}".format(config.arch_list))
+    print("\tfrags: {}".format(config.frags))
 
 
 def _dump_config_chromiumos(config_name, config):
     print(config_name)
-    print('\trootfs_type: {}'.format(config.rootfs_type))
-    print('\tarch_list: {}'.format(config.arch_list))
-    print('\board: {}'.format(config.board))
-    print('\branch: {}'.format(config.branch))
-    print('\tserial: {}'.format(config.serial))
+    print("\trootfs_type: {}".format(config.rootfs_type))
+    print("\tarch_list: {}".format(config.arch_list))
+    print("\board: {}".format(config.board))
+    print("\branch: {}".format(config.branch))
+    print("\tserial: {}".format(config.serial))

@@ -22,10 +22,9 @@ from kernelci.build import get_branch_head, git_describe, make_tarball
 
 
 class Args:
-
     storage = {
-        'name': '--storage',
-        'help': "Storage URL",
+        "name": "--storage",
+        "help": "Storage URL",
     }
 
 
@@ -38,22 +37,22 @@ def _upload_files(api, token, path, input_files):
     *input_files* dictionary of input files
     """
     headers = {
-        'Authorization': token,
+        "Authorization": token,
     }
     data = {
-        'path': path,
+        "path": path,
     }
     files = {
-        'file{}'.format(i): (name, fobj)
+        "file{}".format(i): (name, fobj)
         for i, (name, fobj) in enumerate(input_files.items())
     }
-    url = urljoin(api, 'upload')
+    url = urljoin(api, "upload")
     resp = requests.post(url, headers=headers, data=data, files=files)
     resp.raise_for_status()
 
 
 def _get_last_commit_file_name(config):
-    return '_'.join(['last-commit', config.name])
+    return "_".join(["last-commit", config.name])
 
 
 def get_last_commit(config, storage):
@@ -66,8 +65,10 @@ def get_last_commit(config, storage):
     None if an error occurred or if the configuration has never been built.
     """
     last_commit_url = "{storage}/{tree}/{file_name}".format(
-        storage=storage, tree=config.tree.name,
-        file_name=_get_last_commit_file_name(config))
+        storage=storage,
+        tree=config.tree.name,
+        file_name=_get_last_commit_file_name(config),
+    )
     last_commit_resp = requests.get(last_commit_url)
     if last_commit_resp.status_code != 200:
         return False
@@ -82,8 +83,12 @@ def set_last_commit(config, api, token, commit):
     *token* is the backend API token to use
     *commit* is the git SHA to send
     """
-    _upload_files(api, token, config.tree.name,
-                  {_get_last_commit_file_name(config): commit})
+    _upload_files(
+        api,
+        token,
+        config.tree.name,
+        {_get_last_commit_file_name(config): commit},
+    )
 
 
 def check_new_commit(config, storage):
@@ -122,15 +127,18 @@ def push_tarball(config, kdir, storage, api, token):
     """
     tarball_name = "linux-src_{}.tar.gz".format(config.name)
     describe = git_describe(config.tree.name, kdir)
-    path = '/'.join(list(item.replace('/', '-') for item in [
-        config.tree.name, config.branch, describe
-    ]))
-    tarball_url = urljoin(storage, '/'.join([path, tarball_name]))
+    path = "/".join(
+        list(
+            item.replace("/", "-")
+            for item in [config.tree.name, config.branch, describe]
+        )
+    )
+    tarball_url = urljoin(storage, "/".join([path, tarball_name]))
     resp = requests.head(tarball_url)
     if resp.status_code == 200:
         return tarball_url
     tarball = "{}.tar.gz".format(config.name)
     make_tarball(kdir, tarball)
-    _upload_files(api, token, path, {tarball_name: open(tarball, 'rb')})
+    _upload_files(api, token, path, {tarball_name: open(tarball, "rb")})
     os.unlink(tarball)
     return tarball_url

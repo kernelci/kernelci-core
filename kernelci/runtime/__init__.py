@@ -69,7 +69,7 @@ class Job:
 class Runtime(abc.ABC):
     """Runtime environment"""
 
-    TEMPLATES = ['config/runtime', '/etc/kernelci/runtime']
+    TEMPLATES = ["config/runtime", "/etc/kernelci/runtime"]
 
     # pylint: disable=unused-argument
     def __init__(self, config, user=None, token=None):
@@ -95,7 +95,7 @@ class Runtime(abc.ABC):
     def _get_template(self, job_config):
         jinja2_env = Environment(
             loader=FileSystemLoader(self.templates),
-            extensions=["jinja2.ext.do"]
+            extensions=["jinja2.ext.do"],
         )
         jinja2_env.globals.update(self._get_jinja2_functions())
         return jinja2_env.get_template(job_config.template)
@@ -103,6 +103,7 @@ class Runtime(abc.ABC):
     @classmethod
     def _get_jinja2_functions(cls):
         """Add custom functions to use in Jinja2 templates"""
+
         def kci_raise(msg):
             """Raise an exception"""
             raise Exception(msg)  # pylint: disable=broad-exception-raised
@@ -112,8 +113,8 @@ class Runtime(abc.ABC):
             return yaml.dump(data, indent=2)
 
         return {
-            'kci_raise': kci_raise,
-            'kci_yaml_dump': kci_yaml_dump,
+            "kci_raise": kci_raise,
+            "kci_yaml_dump": kci_yaml_dump,
         }
 
     def match(self, filter_data):
@@ -123,12 +124,12 @@ class Runtime(abc.ABC):
     def get_params(self, job, api_config=None):
         """Get job template parameters"""
         params = {
-            'api_config': api_config or {},
-            'storage_config': job.storage_config or {},
-            'name': job.name,
-            'node': job.node,
-            'runtime': self.config.lab_type,
-            'runtime_image': job.config.image,
+            "api_config": api_config or {},
+            "storage_config": job.storage_config or {},
+            "name": job.name,
+            "node": job.node,
+            "runtime": self.config.lab_type,
+            "runtime_image": job.config.image,
         }
         params.update(job.config.params)
         params.update(job.platform_config.params)
@@ -137,9 +138,9 @@ class Runtime(abc.ABC):
     @classmethod
     def _get_job_file_name(cls, params):
         """Get the file name where to store the generated job definition."""
-        return params['name']
+        return params["name"]
 
-    def save_file(self, job, output_path, params, encoding='utf-8'):
+    def save_file(self, job, output_path, params, encoding="utf-8"):
         """Save a test job definition in a file.
 
         *job* is the job definition data
@@ -150,7 +151,7 @@ class Runtime(abc.ABC):
         """
         file_name = self._get_job_file_name(params)
         output_file = os.path.join(output_path, file_name)
-        with open(output_file, 'w', encoding=encoding) as output:
+        with open(output_file, "w", encoding=encoding) as output:
             output.write(job)
         return output_file
 
@@ -183,7 +184,7 @@ def get_runtime(config, user=None, token=None):
     *user* is the name of the user to connect to the runtime
     *token* is the associated token to connect to the runtime
     """
-    module_name = '.'.join(['kernelci', 'runtime', config.lab_type])
+    module_name = ".".join(["kernelci", "runtime", config.lab_type])
     runtime_module = importlib.import_module(module_name)
     return runtime_module.get_runtime(config, user=user, token=token)
 
@@ -199,9 +200,9 @@ def get_all_runtimes(runtime_configs, opts):
     *opts* is an Options object loaded from the CLI args and settings file
     """
     for config_name, config in runtime_configs.items():
-        section = ('runtime', config_name)
+        section = ("runtime", config_name)
         user, token = (
             opts.get_from_section(section, opt)
-            for opt in ('user', 'runtime_token')
+            for opt in ("user", "runtime_token")
         )
         yield config_name, get_runtime(config, user, token)

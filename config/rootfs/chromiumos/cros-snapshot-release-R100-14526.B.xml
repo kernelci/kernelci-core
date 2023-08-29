@@ -12,9 +12,9 @@
   <remote name="pigweed" fetch="https://pigweed.googlesource.com" review="https://pigweed-review.googlesource.com">
     <annotation name="public" value="true"/>
   </remote>
-  
+
   <default remote="cros" sync-j="8"/>
-  
+
   <project name="aosp/platform/external/libchrome" path="src/aosp/external/libchrome" revision="913f66c91436f2cb1a86dc27184897c2e0ab522a" upstream="refs/heads/release-R100-14526.B" dest-branch="refs/heads/release-R100-14526.B"/>
   <project name="aosp/platform/external/libutf" path="src/aosp/external/libutf" revision="c17bb435be940edf1aff81469215bb6a071f3c38" upstream="refs/heads/release-R100-14526.B" dest-branch="refs/heads/release-R100-14526.B"/>
   <project name="aosp/platform/external/modp_b64" path="src/third_party/modp_b64" revision="269b6fb8401617b85e2dff7ae8a7b0f97613e2cd" upstream="refs/heads/release-R100-14526.B" dest-branch="refs/heads/release-R100-14526.B"/>
@@ -271,6 +271,6 @@
   <project name="platform/external/minijail" path="src/aosp/external/minijail" remote="aosp" revision="138761fdcc8c2c074bef7700e39b47b44cc5bcc0" groups="crosvm"/>
   <project name="platform/external/puffin" path="src/aosp/external/puffin" remote="aosp" revision="7b3e4b308362b1c9364e549be8e109c35f028904"/>
   <project name="platform/system/keymaster" path="src/aosp/system/keymaster" remote="aosp" revision="49dfc58d6c4c66f5d0b0d06f0161da4e602a1293"/>
-  
+
   <repo-hooks in-project="chromiumos/repohooks" enabled-list="pre-upload"/>
 </manifest>

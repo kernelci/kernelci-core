@@ -12,9 +12,9 @@
   <remote name="cros-kernelci-dev" fetch="https://gitlab.collabora.com/aratiu" alias="cros">
     <annotation name="public" value="true"/>
   </remote>
-  
+
   <default remote="cros" sync-j="8"/>
-  
+
   <project name="aosp/platform/external/libutf" path="src/aosp/external/libutf" revision="c17bb435be940edf1aff81469215bb6a071f3c38" upstream="refs/heads/release-R106-15054.B" dest-branch="refs/heads/release-R106-15054.B"/>
   <project name="aosp/platform/external/modp_b64" path="src/third_party/modp_b64" revision="269b6fb8401617b85e2dff7ae8a7b0f97613e2cd" upstream="refs/heads/release-R106-15054.B" dest-branch="refs/heads/release-R106-15054.B"/>
   <project name="aosp/platform/frameworks/ml" path="src/aosp/frameworks/ml" revision="dfcc377c44234181a2a3625096ba9dd743385ea3" upstream="refs/heads/release-R106-15054.B" dest-branch="refs/heads/release-R106-15054.B"/>
@@ -279,6 +279,6 @@
   </project>
   <project name="platform/external/puffin" path="src/aosp/external/puffin" remote="aosp" revision="9932c5ede55e8a273ea21c5505a5d7ee141125e6" groups="paygen"/>
   <project name="platform/system/keymaster" path="src/aosp/system/keymaster" remote="aosp" revision="49dfc58d6c4c66f5d0b0d06f0161da4e602a1293"/>
-  
+
   <repo-hooks in-project="chromiumos/repohooks" enabled-list="pre-upload"/>
 </manifest>

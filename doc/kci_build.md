@@ -125,7 +125,7 @@ $ docker run -it -v $PWD:/root/kernelci-core kernelci/gcc-10:x86-kselftest-kerne
 ```
 
 Then to generate the kernel configuration, optionally fetch firmware for embedding
-in kernel if CONFIG_EXTRA_FIRMWARE defined in configuration, build the main image 
+in kernel if CONFIG_EXTRA_FIRMWARE defined in configuration, build the main image
 and the modules:
 
 ```

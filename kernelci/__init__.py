@@ -19,7 +19,7 @@ import re
 import subprocess
 import sys
 
-__version__ = '1.1'
+__version__ = "1.1"
 
 
 def shell_cmd(cmd, ret_code=False):
@@ -35,17 +35,19 @@ def print_flush(msg):
 
 
 def sort_check(keys):
-    parsed_keys = list((tuple(re.split(r'-|_|\.', key)), key) for key in keys)
+    parsed_keys = list((tuple(re.split(r"-|_|\.", key)), key) for key in keys)
     keys_map = dict(parsed_keys)
     split_keys = list(k[0] for k in parsed_keys)
     numeric_keys = []
     for split_key in split_keys:
         numeric_keys.extend(k for k in split_key if k.isdigit())
     max_digits = max(len(k) for k in numeric_keys) if numeric_keys else 0
-    fmt = '{{:0{}d}}'.format(max_digits)
+    fmt = "{{:0{}d}}".format(max_digits)
     sorted_keys = sorted(
         split_keys,
-        key=lambda x: list(fmt.format(int(k)) if k.isdigit() else k for k in x)
+        key=lambda x: list(
+            fmt.format(int(k)) if k.isdigit() else k for k in x
+        ),
     )
     for key_raw, key_sorted in zip(split_keys, sorted_keys):
         if key_raw != key_sorted:

@@ -35,7 +35,7 @@ class cmd_validate(Command):
         # ToDo: Use jsonschema
 
         entries = [
-            'db_configs',
+            "db_configs",
         ]
         err = kernelci.config.validate_yaml(args.yaml_config, entries)
         if err:
@@ -49,7 +49,7 @@ class cmd_list_configs(Command):
     help = "List all database configurations"
 
     def __call__(self, config_data, args):
-        db_configs = config_data['db_configs']
+        db_configs = config_data["db_configs"]
         for config_name in db_configs:
             print(config_name)
         return True
@@ -61,11 +61,11 @@ class cmd_submit(Command):
     opt_args = [Args.db_token, Args.verbose]
 
     def __call__(self, config_data, args):
-        config = config_data['db_configs'][args.db_config]
-        if args.data_file == '-':
+        config = config_data["db_configs"][args.db_config]
+        if args.data_file == "-":
             data = sys.stdin.read()
         else:
-            with open(args.data_file, 'r') as json_file:
+            with open(args.data_file, "r") as json_file:
                 data = json.load(json_file)
         db = kernelci.db.get_db(config, args.db_token)
         return db.submit(data, args.verbose)
@@ -77,7 +77,7 @@ class cmd_submit_build(Command):
     opt_args = [Args.db_token, Args.output, Args.verbose]
 
     def __call__(self, config_data, args):
-        config = config_data['db_configs'][args.db_config]
+        config = config_data["db_configs"][args.db_config]
         install = kernelci.build.Step.get_install_path(args.kdir, args.output)
         meta = kernelci.build.Metadata(install)
         db = kernelci.db.get_db(config, args.db_token)
@@ -90,8 +90,8 @@ class cmd_submit_test(Command):
     opt_args = [Args.db_token, Args.verbose]
 
     def __call__(self, config_data, args):
-        config = config_data['db_configs'][args.db_config]
-        with open(args.data_file, 'r') as json_file:
+        config = config_data["db_configs"][args.db_config]
+        with open(args.data_file, "r") as json_file:
             data = json.load(json_file)
         db = kernelci.db.get_db(config, args.db_token)
         return db.submit_test(data, args.verbose)
@@ -103,7 +103,7 @@ class cmd_create_user(Command):
     opt_args = [Args.is_admin, Args.db_token, Args.verbose]
 
     def __call__(self, config_data, args):
-        config = config_data['db_configs'][args.db_config]
+        config = config_data["db_configs"][args.db_config]
         db = kernelci.db.get_db(config, args.db_token)
         resp = db.create_user(
             args.username, args.password, args.is_admin, args.verbose
@@ -113,7 +113,7 @@ class cmd_create_user(Command):
         return resp
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     opts = parse_opts("kci_data", globals())
     configs = kernelci.config.load(opts.get_yaml_configs())
     status = opts.command(configs, opts)

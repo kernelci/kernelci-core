@@ -15,40 +15,40 @@ class cmd_results(APICommand):  # pylint: disable=invalid-name
     """Show all the results for a given node"""
 
     COLORS = {
-        'green': '\033[92m',
-        'yellow': '\033[93m',
-        'red': '\033[91m',
-        'blue': '\033[94m',
-        'bold': '\033[1m',
-        'underline': '\033[4m',
-        'clear': '\033[0m',
+        "green": "\033[92m",
+        "yellow": "\033[93m",
+        "red": "\033[91m",
+        "blue": "\033[94m",
+        "bold": "\033[1m",
+        "underline": "\033[4m",
+        "clear": "\033[0m",
     }
 
     COLOR_RESULT = {
-        'pass': 'green',
-        'fail': 'red',
-        '----': 'yellow',
+        "pass": "green",
+        "fail": "red",
+        "----": "yellow",
     }
 
     args = APICommand.args + [Args.id]
     opt_args = APICommand.opt_args + [
         {
-            'name': '--max-depth',
-            'type': int,
-            'help': "Maximum depth when recursing through child results",
+            "name": "--max-depth",
+            "type": int,
+            "help": "Maximum depth when recursing through child results",
         },
     ]
 
     def _color(self, msg, color):
-        return ''.join([self.COLORS[color], msg, self.COLORS['clear']])
+        return "".join([self.COLORS[color], msg, self.COLORS["clear"]])
 
     def _print_color(self, msg, color):
         print(self._color(msg, color))
 
     @classmethod
     def _get_checkout(cls, api, node):
-        while node['name'] != 'checkout':
-            node = api.get_node(node['parent'])
+        while node["name"] != "checkout":
+            node = api.get_node(node["parent"])
         return node
 
     def _dump_artifacts(self, artifacts):
@@ -61,15 +61,15 @@ class cmd_results(APICommand):  # pylint: disable=invalid-name
         width = max(max_len, 9) + 9
         fmt = f"  {{key:{width}s}} {{value}}"
         for key, value in data.items():
-            print(fmt.format(key=self._color(key, 'blue'), value=value))
+            print(fmt.format(key=self._color(key, "blue"), value=value))
 
     def _dump_results(self, api, node, indent=0, max_depth=0):
         fmt = f"{{space}}{{path:{64-indent*2}s}}{{result:6}}{{node_id}}"
-        node_id = node['id']
-        result = node['result'] or '----'
+        node_id = node["id"]
+        result = node["result"] or "----"
         line = fmt.format(
-            space='  '*indent,
-            path='.'.join(node['path']),
+            space="  " * indent,
+            path=".".join(node["path"]),
             result=result,
             node_id=node_id,
         )
@@ -77,11 +77,11 @@ class cmd_results(APICommand):  # pylint: disable=invalid-name
         if color:
             line = self._color(line, color)
         print(line)
-        child_nodes = api.get_nodes({'parent': node_id})
+        child_nodes = api.get_nodes({"parent": node_id})
         if max_depth and indent == max_depth:
             return
         for child in child_nodes:
-            self._dump_results(api, child, indent+1, max_depth)
+            self._dump_results(api, child, indent + 1, max_depth)
 
     def _dump(self, api, args):
         node = api.get_node(args.id)
@@ -89,13 +89,14 @@ class cmd_results(APICommand):  # pylint: disable=invalid-name
             print(f"Node not found: {args.id}")
             return False
 
-        parent_id = node['parent'] or '----'
-        revision = node['revision']
-        created = datetime.fromisoformat(node['created'])
-        artifacts = node.get('artifacts')
-        data = node.get('data')
+        parent_id = node["parent"] or "----"
+        revision = node["revision"]
+        created = datetime.fromisoformat(node["created"])
+        artifacts = node.get("artifacts")
+        data = node.get("data")
 
-        print(f"""\
+        print(
+            f"""\
 {self._color('Node', 'bold')}
   {self._color('path', 'blue')}      {'.'.join(node['path'])}
   {self._color('id', 'blue')}        {args.id}
@@ -108,7 +109,8 @@ class cmd_results(APICommand):  # pylint: disable=invalid-name
   {self._color('branch', 'blue')}    {revision['branch']}
   {self._color('commit', 'blue')}    {revision['commit']}
   {self._color('describe', 'blue')}  {revision['describe']}
-""")
+"""
+        )
 
         if artifacts:
             print(f"{self._color('Artifacts', 'bold')}")

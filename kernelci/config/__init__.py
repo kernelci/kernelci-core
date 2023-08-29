@@ -33,7 +33,7 @@ import kernelci.config.test
 
 
 def iterate_yaml_files(config_path):
-    if config_path.endswith('.yaml'):
+    if config_path.endswith(".yaml"):
         yaml_files = [config_path]
     else:
         yaml_files = glob.glob(os.path.join(config_path, "*.yaml"))
@@ -46,7 +46,7 @@ def iterate_yaml_files(config_path):
 def get_config_paths(config_paths):
     if not config_paths:
         config_paths = []
-        for config_path in ['config/core', '/etc/kernelci/core']:
+        for config_path in ["config/core", "/etc/kernelci/core"]:
             if os.path.isdir(config_path):
                 config_paths.append(config_path)
                 break
@@ -63,12 +63,14 @@ def validate_yaml(config_paths, entries):
     for path in config_paths:
         for yaml_path, data in iterate_yaml_files(path):
             for name, value in (
-                    (k, v) for k, v in data.items() if k in entries):
+                (k, v) for k, v in data.items() if k in entries
+            ):
                 if isinstance(value, dict):
                     keys = value.keys()
                 elif isinstance(value, list):
                     keys = (
-                        [] if len(value) and isinstance(value[0], dict)
+                        []
+                        if len(value) and isinstance(value[0], dict)
                         else value
                     )
                 else:
@@ -76,7 +78,8 @@ def validate_yaml(config_paths, entries):
                 err = kernelci.sort_check(keys)
                 if err:
                     return "Broken order in {} {}: '{}' is before '{}'".format(
-                        yaml_path, name, err[0], err[1])
+                        yaml_path, name, err[0], err[1]
+                    )
     return None
 
 
@@ -94,9 +97,9 @@ def load_single_yaml(config_path):
     for yaml_path, data in iterate_yaml_files(config_path):
         for name, value in data.items():
             config_value = config.setdefault(name, value.__class__())
-            if hasattr(config_value, 'update'):
+            if hasattr(config_value, "update"):
                 config_value.update(value)
-            elif hasattr(config_value, 'extend'):
+            elif hasattr(config_value, "extend"):
                 config_value.extend(value)
             else:
                 config[name] = value
@@ -125,7 +128,7 @@ def _merge_trees(old, update):
     """
     if isinstance(old, dict) and isinstance(update, dict):
         res = dict()
-        for k in (set(old) | set(update)):
+        for k in set(old) | set(update):
             if (k in old) and (k in update):
                 res[k] = _merge_trees(old[k], update[k])
             elif k in old:

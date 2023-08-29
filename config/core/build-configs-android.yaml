@@ -95,110 +95,142 @@ build_configs:
     tree: android
     branch: 'android-mainline'
     variants:
-      <<: *android_variants
-      <<: *clang_android_variants
+      <<: [
+        *android_variants,
+        *clang_android_variants
+      ]
 
   android_mainline_tracking:
     tree: android
     branch: 'android-mainline-tracking'
     variants:
-      <<: *android_variants
-      <<: *clang_android_variants
+      <<: [
+        *android_variants,
+        *clang_android_variants
+      ]
 
   android11-5.4:
     tree: android
     branch: 'android11-5.4'
     variants:
-      <<: *android_variants
-      <<: *clang_android_variants
+      <<: [
+        *android_variants,
+        *clang_android_variants
+      ]
 
   android12-5.4:
     tree: android
     branch: 'android12-5.4'
     variants:
-      <<: *android_variants
-      <<: *clang_android_variants
+      <<: [
+        *android_variants,
+        *clang_android_variants
+      ]
 
   android12-5.4-lts:
     tree: android
     branch: 'android12-5.4-lts'
     variants:
-      <<: *android_variants
-      <<: *clang_android_variants
+      <<: [
+        *android_variants,
+        *clang_android_variants
+      ]
 
   android12-5.10:
     tree: android
     branch: 'android12-5.10'
     variants:
-      <<: *android_variants
-      <<: *clang_android_variants
+      <<: [
+        *android_variants,
+        *clang_android_variants
+      ]
 
   android12-5.10-lts:
     tree: android
     branch: 'android12-5.10-lts'
     variants:
-      <<: *android_variants
-      <<: *clang_android_variants
+      <<: [
+        *android_variants,
+        *clang_android_variants
+      ]
 
   android13-5.10:
     tree: android
     branch: 'android13-5.10'
     variants:
-      <<: *android_variants
-      <<: *clang_android_variants
+      <<: [
+        *android_variants,
+        *clang_android_variants
+      ]
 
   android13-5.10-lts:
     tree: android
     branch: 'android13-5.10-lts'
     variants:
-      <<: *android_variants
-      <<: *clang_android_variants
+      <<: [
+        *android_variants,
+        *clang_android_variants
+      ]
 
   android13-5.15:
     tree: android
     branch: 'android13-5.15'
     variants:
-      <<: *android_variants
-      <<: *clang_android_variants
+      <<: [
+        *android_variants,
+        *clang_android_variants
+      ]
 
   android13-5.15-lts:
     tree: android
     branch: 'android13-5.15-lts'
     variants:
-      <<: *android_variants
-      <<: *clang_android_variants
+      <<: [
+        *android_variants,
+        *clang_android_variants
+      ]
 
   android14-5.15:
     tree: android
     branch: 'android14-5.15'
     variants:
-      <<: *android_variants
-      <<: *clang_android_variants
+      <<: [
+        *android_variants,
+        *clang_android_variants
+      ]
 
   android14-5.15-lts:
     tree: android
     branch: 'android14-5.15-lts'
     variants:
-      <<: *android_variants
-      <<: *clang_android_variants
+      <<: [
+        *android_variants,
+        *clang_android_variants
+      ]
 
   android14-6.1:
     tree: android
     branch: 'android14-6.1'
     variants:
-      <<: *android_variants
-      <<: *clang_android_variants
+      <<: [
+        *android_variants,
+        *clang_android_variants
+      ]
 
   android14-6.1-lts:
     tree: android
     branch: 'android14-6.1-lts'
     variants:
-      <<: *android_variants
-      <<: *clang_android_variants
+      <<: [
+        *android_variants,
+        *clang_android_variants
+      ]
 
   android15-6.1:
     tree: android
     branch: 'android15-6.1'
     variants:
-      <<: *android_variants
-      <<: *clang_android_variants
+      <<: [
+        *android_variants,
+        *clang_android_variants
+      ]

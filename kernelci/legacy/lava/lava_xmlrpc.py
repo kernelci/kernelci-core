@@ -12,7 +12,7 @@ import urllib.parse
 
 from . import LavaRuntime
 
-DEVICE_ONLINE_STATUS = ['idle', 'running', 'reserved']
+DEVICE_ONLINE_STATUS = ["idle", "running", "reserved"]
 
 
 class LAVA(LavaRuntime):
@@ -30,7 +30,7 @@ class LAVA(LavaRuntime):
 
         all_aliases = dict()
         for device_type_data in self._server.scheduler.device_types.list():
-            name = device_type_data['name']
+            name = device_type_data["name"]
             aliases = self._server.scheduler.device_types.aliases.list(name)
             for alias in aliases:
                 all_aliases[alias] = name
@@ -39,18 +39,20 @@ class LAVA(LavaRuntime):
         for device in all_devices:
             name, device_type, status, _, _ = device
             device_list = device_types.setdefault(device_type, list())
-            device_list.append({
-                'name': name,
-                'online': status in DEVICE_ONLINE_STATUS,
-            })
+            device_list.append(
+                {
+                    "name": name,
+                    "online": status in DEVICE_ONLINE_STATUS,
+                }
+            )
         online_status = {
-            device_type: any(device['online'] for device in devices)
+            device_type: any(device["online"] for device in devices)
             for device_type, devices in device_types.items()
         }
 
         return {
-            'online_status': online_status,
-            'aliases': all_aliases,
+            "online_status": online_status,
+            "aliases": all_aliases,
         }
 
     def _connect(self, user=None, token=None, **kwargs):
@@ -62,22 +64,26 @@ class LAVA(LavaRuntime):
         if user and token:
             url = urllib.parse.urlparse(self.config.url)
             api_url = "{scheme}://{user}:{token}@{loc}{path}".format(
-                scheme=url.scheme, user=user, token=token,
-                loc=url.netloc, path=url.path)
+                scheme=url.scheme,
+                user=user,
+                token=token,
+                loc=url.netloc,
+                path=url.path,
+            )
         else:
             api_url = self.config.url
-        if api_url.strip()[-1] != '/':
-            api_url = f'{api_url}/'
+        if api_url.strip()[-1] != "/":
+            api_url = f"{api_url}/"
         self._server = xmlrpc.client.ServerProxy(api_url)
         return self._server
 
     def _alias_device_type(self, device_type):
-        aliases = self.devices.get('aliases', dict())
+        aliases = self.devices.get("aliases", dict())
         return aliases.get(device_type, device_type)
 
     def device_type_online(self, device_type_config):
         device_type = self._alias_device_type(device_type_config.base_name)
-        online_status = self.devices.get('online_status', dict())
+        online_status = self.devices.get("online_status", dict())
         return online_status.get(device_type, False)
 
     def _submit(self, job):

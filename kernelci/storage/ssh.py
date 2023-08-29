@@ -36,7 +36,7 @@ class StorageSSH(Storage):
             port=self.config.port,
             username=self.config.user,
             key_filename=self.credentials,
-            timeout=5000
+            timeout=5000,
         )
         self._scp = SCPClient(self._ssh.get_transport())
 
@@ -44,7 +44,7 @@ class StorageSSH(Storage):
         for src, dst in file_paths:
             dst_file = os.path.join(self.config.path, dest_path, dst)
             dst_dir = os.path.dirname(dst_file)
-            self._ssh.exec_command(f'mkdir -p {dst_dir}')
+            self._ssh.exec_command(f"mkdir -p {dst_dir}")
             self._scp.put(src, dst_file)
 
 

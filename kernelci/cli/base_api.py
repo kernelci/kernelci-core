@@ -23,11 +23,12 @@ class APICommand(Command):  # pylint: disable=too-few-public-methods
     The Args.api_token argument needs to be added for commands that require
     authentication with the API.
     """
+
     args = Command.args + [Args.api_config]
 
     @classmethod
     def _get_api(cls, configs, args):
-        config = configs['api_configs'][args.api_config]
+        config = configs["api_configs"][args.api_config]
         return kernelci.api.get_api(config, args.api_token)
 
     @classmethod
@@ -36,14 +37,14 @@ class APICommand(Command):  # pylint: disable=too-few-public-methods
         print(json.dumps(data, indent=n_indent))
 
     @classmethod
-    def _load_json(cls, json_path, encoding='utf-8'):
+    def _load_json(cls, json_path, encoding="utf-8"):
         with open(json_path, encoding=encoding) as json_file:
             return json.load(json_file)
 
     @classmethod
     def _print_node(cls, node, id_only, indent):
         if id_only:
-            print(node['id'])
+            print(node["id"])
         else:
             cls._print_json(node, indent)
 
@@ -59,16 +60,19 @@ class APICommand(Command):  # pylint: disable=too-few-public-methods
 
 class AttributesCommand(APICommand):
     """Base command class for API queries with arbitrary attributes"""
+
     opt_args = APICommand.opt_args + [
         {
-            'name': 'attributes',
-            'nargs': '*',
-            'help': "Attributes in name=value format",
+            "name": "attributes",
+            "nargs": "*",
+            "help": "Attributes in name=value format",
         },
     ]
 
     @classmethod
     def _split_attributes(cls, attributes):
-        return dict(
-            tuple(attr.split('=')) for attr in attributes
-        ) if attributes else {}
+        return (
+            dict(tuple(attr.split("=")) for attr in attributes)
+            if attributes
+            else {}
+        )

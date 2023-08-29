@@ -26,7 +26,7 @@ def test_build_configs_parsing():
     data = kernelci.config.load_yaml("config/core")
     configs = kernelci.config.build.from_yaml(data, {})
     assert len(configs) == 4
-    for key in ['build_configs', 'build_environments', 'fragments', 'trees']:
+    for key in ["build_configs", "build_environments", "fragments", "trees"]:
         assert key in configs
         assert len(configs[key]) > 0
 
@@ -35,10 +35,10 @@ def test_build_configs_parsing_minimal():
     """Test that minimal build configs can be parsed from YAML"""
     data = kernelci.config.load_yaml("tests/configs/builds-minimal.yaml")
     configs = kernelci.config.build.from_yaml(data, {})
-    assert 'agross' in configs['build_configs']
-    assert 'agross' in configs['trees']
-    assert 'gcc-7' in configs['build_environments']
-    assert len(configs['fragments']) == 0
+    assert "agross" in configs["build_configs"]
+    assert "agross" in configs["trees"]
+    assert "gcc-7" in configs["build_environments"]
+    assert len(configs["fragments"]) == 0
 
 
 def test_build_configs_parsing_empty_architecture():
@@ -51,8 +51,8 @@ def test_build_configs_parsing_empty_architecture():
 def test_architecture_init_name_only():
     """Test that build config objects can be created with just a name"""
     architecture = kernelci.config.build.Architecture("arm")
-    assert architecture.name == 'arm'
-    assert architecture.base_defconfig == 'defconfig'
+    assert architecture.name == "arm"
+    assert architecture.base_defconfig == "defconfig"
     assert len(architecture.extra_configs) == 0
     assert len(architecture.fragments) == 0
     assert len(architecture._filters) == 0
@@ -63,7 +63,7 @@ class ConfigTest:  # pylint: disable=too-few-public-methods
 
     @classmethod
     def _load_config(cls, yaml_file_path):
-        with open(yaml_file_path, encoding='utf-8') as yaml_file:
+        with open(yaml_file_path, encoding="utf-8") as yaml_file:
             ref_data = yaml.safe_load(yaml_file)
         config = kernelci.config.load(yaml_file_path)
         return ref_data, config
@@ -83,67 +83,65 @@ class TestBuildConfigs(ConfigTest):
 
     def test_trees(self):
         """Test the tree configs"""
-        ref_data, config = self._load_config('tests/configs/trees.yaml')
-        trees_config = self._reload(ref_data, config, 'trees')
-        tree_names = ['kselftest', 'mainline', 'next']
-        assert all(name in ref_data['trees'] for name in tree_names)
+        ref_data, config = self._load_config("tests/configs/trees.yaml")
+        trees_config = self._reload(ref_data, config, "trees")
+        tree_names = ["kselftest", "mainline", "next"]
+        assert all(name in ref_data["trees"] for name in tree_names)
         assert all(name in trees_config for name in tree_names)
         assert (
-            trees_config['next']['url'] ==
-            'https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git'  # noqa
+            trees_config["next"]["url"]
+            == "https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git"  # noqa
         )
 
     def test_fragments(self):
         """Test the fragments configs"""
-        ref_data, config = self._load_config('tests/configs/fragments.yaml')
-        frag_config = self._reload(ref_data, config, 'fragments')
-        frag_names = ['debug', 'ima', 'x86-chromebook', 'x86_kvm_guest']
-        assert all(name in ref_data['fragments'] for name in frag_names)
+        ref_data, config = self._load_config("tests/configs/fragments.yaml")
+        frag_config = self._reload(ref_data, config, "fragments")
+        frag_names = ["debug", "ima", "x86-chromebook", "x86_kvm_guest"]
+        assert all(name in ref_data["fragments"] for name in frag_names)
         assert all(name in frag_config for name in frag_names)
-        assert frag_config['debug']['path'] == 'kernel/configs/debug.config'
+        assert frag_config["debug"]["path"] == "kernel/configs/debug.config"
 
     def test_build_environments(self):
         """Test the build_environments configs"""
         ref_data, config = self._load_config(
-            'tests/configs/build-environments.yaml'
+            "tests/configs/build-environments.yaml"
         )
-        be_config = self._reload(ref_data, config, 'build_environments')
-        be_names = ['gcc-10', 'clang-11', 'clang-12', 'rustc-1.62']
-        assert all(name in ref_data['build_environments'] for name in be_names)
+        be_config = self._reload(ref_data, config, "build_environments")
+        be_names = ["gcc-10", "clang-11", "clang-12", "rustc-1.62"]
+        assert all(name in ref_data["build_environments"] for name in be_names)
         assert all(name in be_config for name in be_names)
-        assert be_config['clang-12']['cc_version'] == '12'
-        clang12 = config['build_environments']['clang-12']
+        assert be_config["clang-12"]["cc_version"] == "12"
+        clang12 = config["build_environments"]["clang-12"]
         assert (
-            clang12.get_arch_param('arm64', 'cross_compile_compat') ==
-            'arm-linux-gnueabihf-'
+            clang12.get_arch_param("arm64", "cross_compile_compat")
+            == "arm-linux-gnueabihf-"
         )
-        assert (
-            clang12.get_arch_param('riscv', 'opts')['LLVM_IAS'] == '1'
-        )
+        assert clang12.get_arch_param("riscv", "opts")["LLVM_IAS"] == "1"
 
     def test_reference_tree(self):
         """Test the build_configs reference tree configs"""
-        ref_data, config = self._load_config('tests/configs/builds.yaml')
-        assert 'build_configs' in ref_data
-        build_configs = ref_data['build_configs']
-        assert 'arm64' in build_configs
-        arm64 = build_configs['arm64']
-        assert 'reference' in arm64
-        reference = arm64['reference']
-        reference_config = config['build_configs']['arm64'].reference
-        assert reference_config.tree.name == 'mainline'
+        ref_data, config = self._load_config("tests/configs/builds.yaml")
+        assert "build_configs" in ref_data
+        build_configs = ref_data["build_configs"]
+        assert "arm64" in build_configs
+        arm64 = build_configs["arm64"]
+        assert "reference" in arm64
+        reference = arm64["reference"]
+        reference_config = config["build_configs"]["arm64"].reference
+        assert reference_config.tree.name == "mainline"
         reference_dump = yaml.dump(reference_config)
         reference_check = yaml.safe_load(reference_dump)
         assert reference == reference_check
 
     def test_build_configs(self):
         """Test the build_configs"""
-        ref_data, config = self._load_config('tests/configs/builds.yaml')
-        build_configs = self._reload(ref_data, config, 'build_configs')
-        config_names = ['arm64', 'mainline']
-        assert all(name in ref_data['build_configs'] for name in config_names)
+        ref_data, config = self._load_config("tests/configs/builds.yaml")
+        build_configs = self._reload(ref_data, config, "build_configs")
+        config_names = ["arm64", "mainline"]
+        assert all(name in ref_data["build_configs"] for name in config_names)
         assert all(name in build_configs for name in config_names)
-        assert build_configs['mainline']['tree'] == 'mainline'
+        assert build_configs["mainline"]["tree"] == "mainline"
 
 
 class TestTestConfigs(ConfigTest):
@@ -152,15 +150,15 @@ class TestTestConfigs(ConfigTest):
     def test_file_system_types(self):
         """Test the file_system_types configs"""
         ref_data, config = self._load_config(
-            'tests/configs/file-system-types.yaml'
+            "tests/configs/file-system-types.yaml"
         )
-        fs_config = self._reload(ref_data, config, 'file_system_types')
-        fs_names = ['buildroot', 'debian']
-        assert all(name in ref_data['file_system_types'] for name in fs_names)
+        fs_config = self._reload(ref_data, config, "file_system_types")
+        fs_names = ["buildroot", "debian"]
+        assert all(name in ref_data["file_system_types"] for name in fs_names)
         assert all(name in fs_config for name in fs_names)
         assert (
-            fs_config['debian']['url'] ==
-            'http://storage.kernelci.org/images/rootfs/debian'
+            fs_config["debian"]["url"]
+            == "http://storage.kernelci.org/images/rootfs/debian"
         )
 
 
@@ -169,14 +167,14 @@ class TestJobConfigs(ConfigTest):
 
     def test_jobs(self):
         """Test the job configs"""
-        ref_data, config = self._load_config('tests/configs/jobs.yaml')
-        jobs = self._reload(ref_data, config, 'jobs')
-        job_names = ['kbuild-gcc-10-x86', 'kunit', 'kunit-x86_64', 'kver']
-        assert all(name in ref_data['jobs'] for name in job_names)
+        ref_data, config = self._load_config("tests/configs/jobs.yaml")
+        jobs = self._reload(ref_data, config, "jobs")
+        job_names = ["kbuild-gcc-10-x86", "kunit", "kunit-x86_64", "kver"]
+        assert all(name in ref_data["jobs"] for name in job_names)
         assert all(name in jobs for name in job_names)
         assert (
-            jobs['kunit-x86_64']['image'] ==
-            'kernelci/staging-gcc-10:x86-kunit-qemu-kernelci'
+            jobs["kunit-x86_64"]["image"]
+            == "kernelci/staging-gcc-10:x86-kunit-qemu-kernelci"
         )
 
 
@@ -185,14 +183,12 @@ class TestAPIConfigs(ConfigTest):
 
     def test_apis(self):
         """Test the api_configs"""
-        ref_data, config = self._load_config('tests/configs/api-configs.yaml')
-        api_config = self._reload(ref_data, config, 'api_configs')
-        api_names = ['docker-host']
-        assert all(name in ref_data['api_configs'] for name in api_names)
+        ref_data, config = self._load_config("tests/configs/api-configs.yaml")
+        api_config = self._reload(ref_data, config, "api_configs")
+        api_names = ["docker-host"]
+        assert all(name in ref_data["api_configs"] for name in api_names)
         assert all(name in api_config for name in api_names)
-        assert (
-            api_config['docker-host']['url'] == 'http://172.17.0.1:8001'
-        )
+        assert api_config["docker-host"]["url"] == "http://172.17.0.1:8001"
 
 
 class TestRuntimeConfigs(ConfigTest):
@@ -200,13 +196,13 @@ class TestRuntimeConfigs(ConfigTest):
 
     def test_lava_runtime(self):
         """Test the LAVA runtime configs"""
-        _, config = self._load_config('tests/configs/lava-runtimes.yaml')
-        runtimes = config['runtimes']
+        _, config = self._load_config("tests/configs/lava-runtimes.yaml")
+        runtimes = config["runtimes"]
         lava_lab_prio = {
-            'lab-baylibre': (None, None, None),
-            'lab-broonie': (None, 0, 40),
-            'lab-collabora-staging': (45, 45, 45),
-            'lab-min-12-max-40': (None, 12, 40),
+            "lab-baylibre": (None, None, None),
+            "lab-broonie": (None, 0, 40),
+            "lab-collabora-staging": (45, 45, 45),
+            "lab-min-12-max-40": (None, 12, 40),
         }
         assert all(name in runtimes for name, _ in lava_lab_prio.items())
         for lab_name, (fixed_p, min_p, max_p) in lava_lab_prio.items():
@@ -217,19 +213,19 @@ class TestRuntimeConfigs(ConfigTest):
 
     def test_runtimes(self):
         """Test all the runtime configs"""
-        ref_data, config = self._load_config('tests/configs/runtimes.yaml')
-        ref_configs = ref_data['runtimes']
-        runtimes = self._reload(ref_data, config, 'runtimes')
+        ref_data, config = self._load_config("tests/configs/runtimes.yaml")
+        ref_configs = ref_data["runtimes"]
+        runtimes = self._reload(ref_data, config, "runtimes")
         runtime_names = [
-            'docker',
-            'k8s-gke-eu-west4',
-            'lab-baylibre',
-            'lab-collabora-staging',
-            'shell',
+            "docker",
+            "k8s-gke-eu-west4",
+            "lab-baylibre",
+            "lab-collabora-staging",
+            "shell",
         ]
         assert all(name in ref_configs for name in runtime_names)
         assert all(name in runtimes for name in runtime_names)
-        assert runtimes['docker']['user'] == 'root'
+        assert runtimes["docker"]["user"] == "root"
 
 
 class TestStorageConfigs(ConfigTest):
@@ -238,14 +234,14 @@ class TestStorageConfigs(ConfigTest):
     def test_storage_configs(self):
         """Test the storage configs"""
         ref_data, config = self._load_config(
-            'tests/configs/storage-configs.yaml'
+            "tests/configs/storage-configs.yaml"
         )
-        ref_configs = ref_data['storage_configs']
-        storage_configs = self._reload(ref_data, config, 'storage_configs')
-        config_names = ['local', 'staging.kernelci.org', 'staging-backend']
+        ref_configs = ref_data["storage_configs"]
+        storage_configs = self._reload(ref_data, config, "storage_configs")
+        config_names = ["local", "staging.kernelci.org", "staging-backend"]
         assert all(name in ref_configs for name in config_names)
         assert all(name in storage_configs for name in config_names)
-        assert storage_configs['local']['host'] == '172.17.0.1'
+        assert storage_configs["local"]["host"] == "172.17.0.1"
 
 
 class TestSchedulerConfigs(ConfigTest):
@@ -253,11 +249,11 @@ class TestSchedulerConfigs(ConfigTest):
 
     def test_scheduler_conigs(self):
         """Test all the scheduler config entries"""
-        ref_data, config = self._load_config('tests/configs/scheduler.yaml')
-        scheduler_config = self._reload(ref_data, config, 'scheduler')
+        ref_data, config = self._load_config("tests/configs/scheduler.yaml")
+        scheduler_config = self._reload(ref_data, config, "scheduler")
         kunit_job = None
         for entry in scheduler_config:
-            if entry['job'] == 'kunit':
+            if entry["job"] == "kunit":
                 kunit_job = entry
         assert kunit_job is not None
-        assert kunit_job['runtime']['name'] == 'k8s-gke-eu-west4'
+        assert kunit_job["runtime"]["name"] == "k8s-gke-eu-west4"

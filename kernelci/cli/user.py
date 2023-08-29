@@ -14,6 +14,7 @@ from .base_api import APICommand, AttributesCommand
 
 class cmd_whoami(APICommand):  # pylint: disable=invalid-name
     """Use the /whoami entry point to get the current user's data"""
+
     args = APICommand.args + [Args.api_token]
     opt_args = APICommand.opt_args + [Args.indent]
 
@@ -25,12 +26,13 @@ class cmd_whoami(APICommand):  # pylint: disable=invalid-name
 
 class cmd_get_token(APICommand):  # pylint: disable=invalid-name
     """Create a new API token for the current user"""
+
     args = APICommand.args + [Args.username]
     opt_args = APICommand.opt_args + [
         {
-            'name': '--scopes',
-            'action': 'append',
-            'help': "Security scopes",
+            "name": "--scopes",
+            "action": "append",
+            "help": "Security scopes",
         },
     ]
 
@@ -52,6 +54,7 @@ class cmd_password_hash(APICommand):  # pylint: disable=invalid-name
 
 class cmd_change_password(APICommand):  # pylint: disable=invalid-name
     """Change a password for a given user"""
+
     args = APICommand.args + [Args.username]
 
     def _api_call(self, api, configs, args):
@@ -67,6 +70,7 @@ class cmd_change_password(APICommand):  # pylint: disable=invalid-name
 
 class cmd_get_group(APICommand):  # pylint: disable=invalid-name
     """Get a user group with a given ID"""
+
     args = APICommand.args + [Args.group_id]
     opt_args = APICommand.opt_args + [Args.indent]
 
@@ -78,9 +82,8 @@ class cmd_get_group(APICommand):  # pylint: disable=invalid-name
 
 class cmd_find_groups(AttributesCommand):  # pylint: disable=invalid-name
     """Find user groups with arbitrary attributes"""
-    opt_args = AttributesCommand.opt_args + [
-        Args.limit, Args.offset
-    ]
+
+    opt_args = AttributesCommand.opt_args + [Args.limit, Args.offset]
 
     def _api_call(self, api, configs, args):
         attributes = self._split_attributes(args.attributes)
@@ -91,9 +94,8 @@ class cmd_find_groups(AttributesCommand):  # pylint: disable=invalid-name
 
 class cmd_find_users(AttributesCommand):  # pylint: disable=invalid-name
     """Find user profiles with arbitrary attributes"""
-    opt_args = AttributesCommand.opt_args + [
-       Args.limit, Args.offset
-    ]
+
+    opt_args = AttributesCommand.opt_args + [Args.limit, Args.offset]
 
     def _api_call(self, api, configs, args):
         attributes = self._split_attributes(args.attributes)
