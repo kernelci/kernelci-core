@@ -22,7 +22,7 @@ class NodeStates(enum.Enum):
     DONE = 'done'
 
 
-class LatestAPI(API):
+class LatestAPI(API):  # pylint: disable=too-many-public-methods
     """Latest API version
 
     The 'latest' version is used to refer to the current development version,
@@ -166,6 +166,15 @@ class LatestAPI(API):
         params = attributes.copy() if attributes else {}
         return self._get_api_objs(params=params, path='users/profile',
                                   limit=limit, offset=offset)
+
+    def create_user(self, username: str, password: str, profile: dict) -> dict:
+        data = {
+            'password': password,
+        }
+        params = {
+            'email': profile['email'],
+        }
+        return self._post(f'user/{username}', data, params)
 
 
 def get_api(config, token):

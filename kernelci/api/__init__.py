@@ -156,6 +156,10 @@ class API(abc.ABC):  # pylint: disable=too-many-public-methods
     ) -> Sequence[dict]:
         """Get user profiles that match the provided attributes"""
 
+    @abc.abstractmethod
+    def create_user(self, username: str, password: str, profile: dict) -> dict:
+        """Create a new user"""
+
     # -------------------------------------------------------------------------
     # Private methods
     #
