@@ -89,6 +89,29 @@ class cmd_find_groups(AttributesCommand):  # pylint: disable=invalid-name
         return True
 
 
+class cmd_add(APICommand):  # pylint: disable=invalid-name
+    """Add a new user account"""
+    args = APICommand.args + [
+        Args.api_token,
+        {
+            'name': 'username',
+            'help': "Username of the new user",
+        },
+        {
+            'name': 'email',
+            'help': "Email address of the new user",
+        },
+    ]
+
+    def _api_call(self, api, configs, args):
+        profile = {
+            'email': args.email,
+        }
+        password = getpass.getpass()
+        api.create_user(args.username, password, profile)
+        return True
+
+
 class cmd_find_users(AttributesCommand):  # pylint: disable=invalid-name
     """Find user profiles with arbitrary attributes"""
     opt_args = AttributesCommand.opt_args + [
