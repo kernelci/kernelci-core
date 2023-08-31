@@ -3396,6 +3396,9 @@ test_configs:
       - cros-ec
       - kselftest-alsa
       - kselftest-tpm2
+
+  - device_type: sc7180-trogdor-kingoftown
+    test_plans:
       - v4l2-decoder-conformance-h264
       - v4l2-decoder-conformance-h265
       - v4l2-decoder-conformance-vp8
@@ -3408,6 +3411,9 @@ test_configs:
       - cros-ec
       - kselftest-alsa
       - kselftest-tpm2
+
+  - device_type: sc7180-trogdor-kingoftown-r1
+    test_plans:
       - v4l2-decoder-conformance-h264
       - v4l2-decoder-conformance-h265
       - v4l2-decoder-conformance-vp8
@@ -3428,6 +3434,9 @@ test_configs:
       - kselftest-timers
       - kselftest-tpm2
       - usb
+
+  - device_type: sc7180-trogdor-lazor-limozeen
+    test_plans:
       - v4l2-decoder-conformance-h264
       - v4l2-decoder-conformance-h265
       - v4l2-decoder-conformance-vp8
