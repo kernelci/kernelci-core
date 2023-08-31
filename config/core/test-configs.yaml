@@ -3112,7 +3112,6 @@ test_configs:
       - v4l2-decoder-conformance-vp8
       - v4l2-decoder-conformance-vp9
     filters: &chromebook-decoders-filter
-      - passlist: {defconfig: ['videodec']}
       - regex: {'tree': '(next|mainline|media)'}
 
   - device_type: mt8195-cherry-tomato-r2
