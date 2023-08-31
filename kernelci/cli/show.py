@@ -91,6 +91,7 @@ class cmd_results(APICommand):  # pylint: disable=invalid-name
 
         parent_id = node['parent'] or '----'
         revision = node['revision']
+        owner = node['owner']
         created = datetime.fromisoformat(node['created'])
         artifacts = node.get('artifacts')
         data = node.get('data')
@@ -100,6 +101,7 @@ class cmd_results(APICommand):  # pylint: disable=invalid-name
   {self._color('path', 'blue')}      {'.'.join(node['path'])}
   {self._color('id', 'blue')}        {args.id}
   {self._color('parent', 'blue')}    {parent_id}
+  {self._color('owner', 'blue')}     {owner}
   {self._color('created', 'blue')}   {created.strftime('%Y-%m-%d at %H:%M:%S')}
   {self._color('state', 'blue')}     {node['state']}
 
