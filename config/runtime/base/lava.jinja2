@@ -6,6 +6,7 @@
 # API & Pipeline.
 #
 # Things left to add:
+# * instance name (staging, AKS...)
 # * device type
 # * context
 # * priority
@@ -16,7 +17,7 @@
 # * rootfs URL
 # * Docker image for QEMU
 
-job_name: "[KernelCI API] {{ node.id }} {{ node.name }} {{ node.revision.describe }}"
+job_name: "[KernelCI AKS] {{ node.id }} {{ node.name }} {{ node.revision.describe }}"
 
 device_type: qemu
 
