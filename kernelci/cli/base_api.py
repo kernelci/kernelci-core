@@ -32,7 +32,7 @@ class APICommand(Command):  # pylint: disable=too-few-public-methods
 
     @classmethod
     def _print_json(cls, data, indent=None):
-        n_indent = 0 if indent is None else int(indent)
+        n_indent = None if indent is None else int(indent)
         print(json.dumps(data, indent=n_indent))
 
     @classmethod
