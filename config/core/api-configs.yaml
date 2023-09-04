@@ -5,3 +5,6 @@ api_configs:
 
   staging.kernelci.org:
     url: https://staging.kernelci.org:9000
+
+  early-access:
+    url: https://kernelci-api.eastus.cloudapp.azure.com
