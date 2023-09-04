@@ -535,6 +535,52 @@ test_plans:
       <<: *cros-tast-base-qemu-params
       tests: *cros-tast-video-tests
 
+  v4l2-decoder-conformance-av1_chromeos: &v4l2-decoder-conformance_chromeos
+    rootfs: debian_bullseye-gst-fluster_nfs
+    pattern: 'v4l2-decoder-conformance/{category}-{method}-{protocol}-{rootfs}-v4l2-decoder-conformance-template.jinja2'
+    params: &v4l2-decoder-conformance-params_chromeos
+      job_timeout: '30'
+      testsuite: 'AV1-TEST-VECTORS'
+      decoders:
+        - 'GStreamer-AV1-V4L2SL-Gst1.0'
+      videodec_parallel_jobs: '1'
+      videodec_timeout: 90
+
+  v4l2-decoder-conformance-h264_chromeos:
+    <<: *v4l2-decoder-conformance_chromeos
+    params:
+      <<: *v4l2-decoder-conformance-params_chromeos
+      testsuite: 'JVT-AVC_V1'
+      decoders:
+        - 'GStreamer-H.264-V4L2-Gst1.0'
+        - 'GStreamer-H.264-V4L2SL-Gst1.0'
+
+  v4l2-decoder-conformance-h265_chromeos:
+    <<: *v4l2-decoder-conformance_chromeos
+    params:
+      <<: *v4l2-decoder-conformance-params_chromeos
+      testsuite: 'JCT-VC-HEVC_V1'
+      decoders:
+        - 'GStreamer-H.265-V4L2-Gst1.0'
+        - 'GStreamer-H.265-V4L2SL-Gst1.0'
+
+  v4l2-decoder-conformance-vp8_chromeos:
+    <<: *v4l2-decoder-conformance_chromeos
+    params:
+      <<: *v4l2-decoder-conformance-params_chromeos
+      testsuite: 'VP8-TEST-VECTORS'
+      decoders:
+        - 'GStreamer-VP8-V4L2-Gst1.0'
+        - 'GStreamer-VP8-V4L2SL-Gst1.0'
+
+  v4l2-decoder-conformance-vp9_chromeos:
+    <<: *v4l2-decoder-conformance_chromeos
+    params:
+      <<: *v4l2-decoder-conformance-params_chromeos
+      testsuite: 'VP9-TEST-VECTORS'
+      decoders:
+        - 'GStreamer-VP9-V4L2SL-Gst1.0'
+
 device_types:
 
   acer-R721T-grunt_chromeos:
