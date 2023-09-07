@@ -18,7 +18,7 @@ import os.path
 import sys
 import toml
 
-from requests.exceptions import HTTPError
+from requests.exceptions import HTTPError, JSONDecodeError
 
 import kernelci.config
 
@@ -417,9 +417,12 @@ def catch_http_error(func):
             return func(*args, **kwargs)
         except HTTPError as ex:
             print(ex, file=sys.stderr)
-            detail = ex.response.json().get('detail')
-            if detail:
-                print(detail, file=sys.stderr)
+            try:
+                detail = ex.response.json().get('detail')
+                if detail:
+                    print(detail, file=sys.stderr)
+            except JSONDecodeError:
+                pass
             return False
     return call
 
