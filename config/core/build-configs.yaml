@@ -1257,6 +1257,7 @@ build_configs:
   next:
     tree: next
     branch: 'master'
+    install_vmlinux: True
     variants:
       gcc-10:
         build_environment: gcc-10
