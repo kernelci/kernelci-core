@@ -727,6 +727,7 @@ test_plans:
       <<: *v4l2-decoder-conformance-params
       testsuite: 'VP9-TEST-VECTORS'
       decoders:
+        - 'GStreamer-VP9-V4L2-Gst1.0'
         - 'GStreamer-VP9-V4L2SL-Gst1.0'
 
   vdso:
@@ -3479,6 +3480,7 @@ test_configs:
       - v4l2-decoder-conformance-h264
       - v4l2-decoder-conformance-h265
       - v4l2-decoder-conformance-vp8
+      - v4l2-decoder-conformance-vp9
     filters: *chromebook-decoders-filter
 
   - device_type: sc7180-trogdor-kingoftown-r1
@@ -3492,6 +3494,7 @@ test_configs:
       - v4l2-decoder-conformance-h264
       - v4l2-decoder-conformance-h265
       - v4l2-decoder-conformance-vp8
+      - v4l2-decoder-conformance-vp9
     filters: *chromebook-decoders-filter
 
   - device_type: sc7180-trogdor-lazor-limozeen
@@ -3513,6 +3516,7 @@ test_configs:
       - v4l2-decoder-conformance-h264
       - v4l2-decoder-conformance-h265
       - v4l2-decoder-conformance-vp8
+      - v4l2-decoder-conformance-vp9
     filters: *chromebook-decoders-filter
 
   - device_type: snow
