@@ -428,6 +428,8 @@ test_plans:
         platform.TPMResponsive
         platform.CheckDiskSpace
         platform.CheckProcesses
+        platform.DeviceHwid
+        platform.SerialNumber
 
 
   cros-tast-platform-fixed:
@@ -448,6 +450,7 @@ test_plans:
       <<: *cros-tast-base-params
       tests: >
         power.CheckStatus
+        power.UtilCheck
         power.CpufreqConf
         power.TabletModePowerOffMenu.close_menu
         power.TabletModePowerOffMenu.shut_down
@@ -470,6 +473,7 @@ test_plans:
         audio.UCMSequences.section_verb
         audio.ALSAConformance
         audio.CheckingAudioFormats
+        audio.CrasFeatures
         audio.CrasPlay
         audio.CrasRecord
         audio.CrasRecordQuality
