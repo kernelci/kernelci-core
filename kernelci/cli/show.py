@@ -64,12 +64,12 @@ class cmd_results(APICommand):  # pylint: disable=invalid-name
             print(fmt.format(key=self._color(key, 'blue'), value=value))
 
     def _dump_results(self, api, node, indent=0, max_depth=0):
-        fmt = f"{{space}}{{path:{64-indent*2}s}}{{result:6}}{{node_id}}"
+        fmt = f"{{space}}{{name:{64-indent*2}s}}{{result:6}}{{node_id}}"
         node_id = node['id']
         result = node['result'] or '----'
         line = fmt.format(
             space='  '*indent,
-            path='.'.join(node['path']),
+            name=node['name'],
             result=result,
             node_id=node_id,
         )
