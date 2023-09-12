@@ -80,9 +80,9 @@ class cmd_results(APICommand):  # pylint: disable=invalid-name
             line = self._color(line, 'underline')
         print('  '*indent, end='')
         print(line)
-        child_nodes = api.get_nodes({'parent': node_id})
         if max_depth and indent == max_depth:
             return
+        child_nodes = api.get_nodes({'parent': node_id})
         for child in child_nodes:
             self._dump_results(api, child, indent+1, max_depth)
 
