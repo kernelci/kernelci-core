@@ -64,18 +64,21 @@ class cmd_results(APICommand):  # pylint: disable=invalid-name
             print(fmt.format(key=self._color(key, 'blue'), value=value))
 
     def _dump_results(self, api, node, indent=0, max_depth=0):
-        fmt = f"{{space}}{{name:{64-indent*2}s}}{{result:6}}{{node_id}}"
-        node_id = node['id']
+        fmt = f"{{name:{64-indent*2}s}}{{result:6}}{{node_id}}"
+        name = node['name']
         result = node['result'] or '----'
+        node_id = node['id']
         line = fmt.format(
-            space='  '*indent,
-            name=node['name'],
+            name=name,
             result=result,
             node_id=node_id,
         )
         color = self.COLOR_RESULT.get(result)
         if color:
             line = self._color(line, color)
+        if name == node['group']:
+            line = self._color(line, 'underline')
+        print('  '*indent, end='')
         print(line)
         child_nodes = api.get_nodes({'parent': node_id})
         if max_depth and indent == max_depth:
