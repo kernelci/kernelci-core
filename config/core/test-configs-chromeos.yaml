@@ -101,9 +101,9 @@ test_plans:
       <<: *cros-tast-base-params
       base_template: 'chromeos/cros-boot-qemu.jinja2'
 
-  cros-tast-hardware:
+  cros-tast-hardware: &cros-tast-hardware
     <<: *cros-tast-base
-    params:
+    params: &cros-tast-hardware-params
       <<: *cros-tast-base-params
       tests: >
         hardware.DiskErrors
@@ -124,6 +124,12 @@ test_plans:
         inputs.PhysicalKeyboardKernelMode
         graphics.KernelConfig
         graphics.KernelMemory
+
+  cros-tast-hardware-fixed:
+    <<: *cros-tast-hardware
+    params:
+      <<: *cros-tast-hardware-params
+      fixed_kernel: true
 
   cros-tast-kernel: &cros-tast-kernel
     <<: *cros-tast-base
@@ -444,9 +450,9 @@ test_plans:
       <<: *cros-tast-base-qemu-params
       tests: *cros-tast-platform-tests
 
-  cros-tast-power:
+  cros-tast-power: &cros-tast-power
     <<: *cros-tast-base
-    params:
+    params: &cros-tast-power-params
       <<: *cros-tast-base-params
       tests: >
         power.CheckStatus
@@ -459,6 +465,12 @@ test_plans:
         power.SmartDim
         power.SmartDim.lacros
         typec.Basic
+
+  cros-tast-power-fixed:
+    <<: *cros-tast-power
+    params:
+      <<: *cros-tast-power-params
+      fixed_kernel: true
 
   cros-tast-sound: &cros-tast-sound
     <<: *cros-tast-base
@@ -979,15 +991,21 @@ test_configs:
   - device_type: hp-11A-G6-EE-grunt_chromeos
     test_plans: &chromebook-test-plans
       - cros-baseline
-#      - cros-baseline-fixed
+      - cros-baseline-fixed
       - cros-tast-hardware
+      - cros-tast-hardware-fixed
       - cros-tast-kernel
+      - cros-tast-kernel-fixed
       - cros-tast-perf
+      - cros-tast-perf-fixed
       - cros-tast-platform
+      - cros-tast-platform-fixed
       - cros-tast-power
+      - cros-tast-power-fixed
       - cros-tast-sound
       - cros-tast-ui
       - cros-tast-video
+      - cros-tast-video-fixed
 
   - device_type: acer-R721T-grunt_chromeos
     test_plans: *chromebook-test-plans
@@ -1048,22 +1066,24 @@ test_configs:
       - passlist: {defconfig: ['chromiumos-mediatek']}
     test_plans: &chromebook-arm64-test-plans
       - cros-baseline
-#      - cros-baseline-fixed
+      - cros-baseline-fixed
       - cros-tast-hardware
+      - cros-tast-hardware-fixed
       - cros-tast-kernel
-#      - cros-tast-kernel-fixed
+      - cros-tast-kernel-fixed
       - cros-tast-mm-misc
-#      - cros-tast-mm-misc-fixed
+      - cros-tast-mm-misc-fixed
       - cros-tast-perf
-#      - cros-tast-perf-fixed
+      - cros-tast-perf-fixed
       - cros-tast-platform
-#      - cros-tast-platform-fixed
+      - cros-tast-platform-fixed
       - cros-tast-power
+      - cros-tast-power-fixed
       - cros-tast-sound
-#      - cros-tast-sound-fixed
+      - cros-tast-sound-fixed
       - cros-tast-ui
       - cros-tast-video
-#      - cros-tast-video-fixed
+      - cros-tast-video-fixed
 
   - device_type: mt8183-kukui-jacuzzi-juniper-sku16_chromeos
     filters: &collabora-chromeos-kernel-filter
