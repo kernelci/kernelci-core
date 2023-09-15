@@ -25,7 +25,6 @@ class cmd_upload(Command):  # pylint: disable=invalid-name
     opt_args = Command.opt_args + [
         Args.storage_cred,
         Args.upload_path,
-        Args.verbose,
     ]
 
     def __call__(self, configs, args):
@@ -38,8 +37,7 @@ class cmd_upload(Command):  # pylint: disable=invalid-name
                 (file_path, os.path.basename(file_path)),
                 args.upload_path or ''
             )
-            if args.verbose:
-                print(url)
+            print(url)
 
 
 def main(args=None):
