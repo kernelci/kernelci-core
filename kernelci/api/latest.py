@@ -176,6 +176,13 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
         }
         return self._post(f'user/{username}', data, params)
 
+    def update_user(self, username: str, profile: dict) -> dict:
+        params = {
+            'email': profile['email'],
+            'groups': profile['groups']
+        }
+        return self._put(f'user/{username}', params=params)
+
 
 def get_api(config, token):
     """Get an API object for the latest version"""
