@@ -160,6 +160,10 @@ class API(abc.ABC):  # pylint: disable=too-many-public-methods
     def create_user(self, username: str, password: str, profile: dict) -> dict:
         """Create a new user"""
 
+    @abc.abstractmethod
+    def update_user(self, username: str, profile: dict) -> dict:
+        """Update a user"""
+
     # -------------------------------------------------------------------------
     # Private methods
     #
