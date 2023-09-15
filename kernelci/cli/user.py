@@ -125,6 +125,38 @@ class cmd_find_users(AttributesCommand):  # pylint: disable=invalid-name
         return True
 
 
+class cmd_update(APICommand):  # pylint: disable=invalid-name
+    """Update a new user account"""
+    args = APICommand.args + [
+        Args.api_token,
+        {
+            'name': 'username',
+            'help': "Username of the user",
+        },
+    ]
+    opt_args = [
+        Args.indent,
+        {
+            'name': '--email',
+            'help': "New email address of the user",
+        },
+        {
+            'name': '--groups',
+            'nargs': '*',
+            'help': "User group",
+        }
+    ]
+
+    def _api_call(self, api, configs, args):
+        profile = {
+            'email': args.email,
+            'groups': args.groups,
+        }
+        response = api.update_user(args.username, profile)
+        self._print_json(response.json(), args.indent)
+        return True
+
+
 def main(args=None):
     """Entry point for the command line tool"""
     sub_main("user", globals(), args)
