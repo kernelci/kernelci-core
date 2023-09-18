@@ -12,6 +12,7 @@ provided here separately instead.
 
 import abc
 import json
+import re
 
 import kernelci.api
 from .base import Command, Args, catch_http_error
@@ -63,12 +64,42 @@ class AttributesCommand(APICommand):
         {
             'name': 'attributes',
             'nargs': '*',
-            'help': "Attributes in name=value format",
+            'help': "Attributes in 'name=value' format, where = is "
+            "OPERATOR and can be one of: >, <, >=, <=, =",
         },
     ]
 
     @classmethod
     def _split_attributes(cls, attributes):
-        return dict(
-            tuple(attr.split('=')) for attr in attributes
-        ) if attributes else {}
+        """ Split attributes into a dictionary.
+
+        At moment we use small hack, if operator matches one of: >, <, >=, <=
+        then we append to attribute '__gt', '__lt', '__gte', '__lte', '__ne'
+        suffix accordingly to API documentation.
+        """
+        ret = {}
+        if not attributes:
+            return ret
+        for attribute in attributes:
+            pattern = r'^([\S]+)([!=<>]+)([\S]+)$'
+            match = re.match(pattern, attribute)
+            if match:
+                attribute, operator, value = match.groups()
+                switch = {
+                    '>': '__gt',
+                    '<': '__lt',
+                    '>=': '__gte',
+                    '<=': '__lte',
+                    '!=': '__ne',
+                }
+                if operator in switch:
+                    attribute += switch[operator]
+                elif operator != '=':
+                    raise ValueError(f"Invalid operator {operator}")
+                if attribute in ret:
+                    raise ValueError(f"Attribute {attribute} already exists")
+                ret[attribute] = value
+            else:
+                raise ValueError(f"Invalid attribute {attribute}")
+
+        return ret
