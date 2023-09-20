@@ -1,0 +1,225 @@
+#!/usr/bin/env python3
+#
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Copyright (C) 2023 Collabora Limited
+# Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+
+"""KernelCI Command Line Tool
+
+This executable script is the entry point for all the new KernelCI command line
+tools which support the new API & Pipeline design.  See the documentation for
+more details: https://kernelci.org/docs/api/.
+"""
+
+import json
+import os
+from typing_extensions import Annotated
+
+import rich
+import toml
+import typer
+
+import kernelci.api
+import kernelci.config
+
+
+class Settings:
+
+    def __init__(self, path=None, default_group_name='DEFAULT'):
+        """TOML settings
+
+        `path` is the path to the TOML settings file
+        `default_group_name` is the name of the default group
+        """
+        if path is None:
+            default_paths = [
+                os.getenv('KCI_SETTINGS', ''),
+                'kernelci.toml',
+                os.path.expanduser('~/.config/kernelci/kernelci.toml'),
+                '/etc/kernelci/kernelci.toml',
+                'kernelci.conf',
+                os.path.expanduser('~/.config/kernelci/kernelci.conf'),
+                '/etc/kernelci/kernelci.conf',
+            ]
+            for default_path in default_paths:
+                if os.path.exists(default_path):
+                    path = default_path
+                    break
+        self._path = path
+        self._settings = toml.load(path) if os.path.exists(path or '') else {}
+        self._default = self._settings.get(default_group_name, {})
+        self._group = {}
+
+    @property
+    def path(self):
+        """Path to the TOML settings file"""
+        return self._path
+
+    def set_group(self, path):
+        self._group = self.get_raw(*path) or {}
+
+    def get(self, key):
+        """Get a TOML settings value
+
+        `key` is the name of the settings key
+        `group_path` is the name of the group where to find the key
+        """
+        value = self._group.get(key)
+        if value is None:
+            value = self._default.get(key)
+        return value
+
+    def get_section(self, section):
+        """Get a settings group for a particular config section
+
+        `section` is the name of the configuration section e.g. 'api'
+        """
+        section_name = self.get(section)
+        if section_name is None:
+            raise ValueError(f"No section name specified for {section}")
+        section_group = self._settings.get(section, {})
+        return section_group.get(section_name, {})
+
+    def get_from_section(self, section, key):
+        """Get a settings value from a particular config section
+
+        `section` is the name of the configuration section e.g. 'api'
+        `key` is the name of the settings within that group
+        """
+        return self.get_section(section).get(key)
+
+    def get_raw(self, *args):
+        """Get a settings value from an arbitrary series of keys
+
+        The *args are a series of strings for the path, e.g. ('foo', 'bar',
+        'baz') will look for a foo.bar.baz value or baz within [foo.bar] etc.
+        """
+        data = self._settings
+        for arg in args:
+            data = data.get(arg, {})
+        return data
+
+
+class CommandSettings:
+    """Settings object passed to commands via the context"""
+
+    class SectionFinder:
+        """Helper class to find a secrets section"""
+        class Group:
+            """Helper class to find a key within a group"""
+            def __init__(self, group):
+                self._group = group
+
+            def __getattr__(self, key):
+                return self._group.get(key)
+
+        def __init__(self, settings):
+            self._settings = settings
+
+        def __getattr__(self, section):
+            return self.Group(self._settings.get_section(section))
+
+    def __init__(self):
+        self._settings = Settings()
+        self._secrets = self.SectionFinder(self.settings)
+
+    def __getattr__(self, key):
+        """Get a settings value for the current command group"""
+        return self.get(key)
+
+    @property
+    def secrets(self):
+        """Shortcut to get a secrets section"""
+        return self._secrets
+
+    @property
+    def settings(self):
+        """TOML Settings object"""
+        return self._settings
+
+    def set_group(self, path):
+        """Set the group based on the current command name"""
+        self._settings.set_group(path)
+
+    def get(self, key):
+        """Get a settings value like __getattr__()"""
+        return self._settings.get(key)
+
+
+class KciGroup(typer.core.TyperGroup):
+
+    def invoke(self, ctx):
+        ctx.info_name = 'kci'  # HACK because this file is called kci-typer...
+        ctx.obj = CommandSettings()
+        super().invoke(ctx)
+
+
+class KciCommand(typer.core.TyperCommand):
+
+    kci_secrets = False
+
+    def _walk_name(self, ctx):
+        name = (ctx.info_name,)
+        if ctx.parent:
+            return self._walk_name(ctx.parent) + name
+        return name
+
+    def invoke(self, ctx):
+        ctx.obj.set_group(self._walk_name(ctx))
+        if self.kci_secrets:
+            ctx.params['secrets'] = ctx.obj.secrets
+        for key, value in ctx.params.items():
+            if value is None:
+                ctx.params[key] = ctx.obj.get(key)
+        super().invoke(ctx)
+
+
+class KciSecrets(KciCommand):
+    kci_secrets = True
+
+
+kci = typer.Typer(
+    cls=KciGroup,
+    help="Entry point for the kci command line tool"
+)
+
+
+class Args:
+    """Standard command line arguments"""
+    api: str = typer.Option(default=None, help="Name of the API config entry")
+    config: str = typer.Option(default=None, help="Path to the YAML config")
+    secrets = typer.Option(default=None, hidden=True)
+
+
+@kci.command(cls=KciSecrets, help="whoami with API authentication")
+def whoami(config=Args.config, api=Args.api, secrets=Args.secrets):
+    configs = kernelci.config.load(config)
+    api_config = configs['api_configs'][api]
+    api = kernelci.api.get_api(api_config, secrets.api.token)
+    data = api.whoami()
+    rich.print(data)
+
+
+@kci.command(cls=KciCommand)
+def hack(verbose: bool = None, bingo: int = None):
+    text = rich.text.Text()
+    text.append(f"HACK VERBOSE {verbose}\n")
+    text.append((f"HACK BINGO {bingo}"))
+    rich.print(rich.panel.Panel.fit(text))
+
+
+foo = typer.Typer()
+kci.add_typer(foo, name='foo')
+
+
+@foo.command(cls=KciCommand)
+def bar(baz: int = None, verbose: bool = None):
+    if verbose:
+        typer.echo(f"FOO BAR BAZ: {baz}")
+    else:
+        typer.echo(baz)
+
+
+if __name__ == '__main__':
+    kci()
