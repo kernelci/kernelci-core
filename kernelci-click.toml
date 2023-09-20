@@ -1,0 +1,18 @@
+[DEFAULT]
+verbose = true
+api = 'early-access'
+storage = 'staging-azure'
+
+[kci.hack]
+bingo = 1234
+
+[api]
+early-access.token = '1234abcde'
+
+# Alternative:
+# [api.early-access]
+# token = '1234abcd'
+
+[kci.foo.bar]
+baz = 789
+verbose = false
