@@ -1196,6 +1196,13 @@ test_configs:
 #      - cros-tast-platform_qemu
 #      - cros-tast-video_qemu
 
+  - device_type: mt8195-cherry-tomato-r2_chromeos
+    filters: *collabora-chromeos-kernel-filter
+    test_plans:
+      - v4l2-decoder-conformance-h264_chromeos
+      - v4l2-decoder-conformance-vp8_chromeos
+      - v4l2-decoder-conformance-vp9_chromeos
+
   - device_type: sc7180-trogdor-kingoftown_chromeos
     test_plans: *chromebook-arm64-test-plans
 
