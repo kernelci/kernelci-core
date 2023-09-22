@@ -554,6 +554,15 @@ class Options:
                     path = default_path
                     break
 
+        # If path is set, means it is either retrieved from KCI_SETTINGS
+        # environment variable or set by --settings option. In both cases,
+        # check if the file exists. If not, raise FileNotFoundError, so we are
+        # aware file is missing.
+        # If path is not set, this means "default" - it is permitted that
+        # settings file does not exist, it will appear as empty dict.
+        if path and not os.path.exists(path):
+            raise FileNotFoundError(f"Settings file not found: {path}")
+
         if path and path.endswith('.conf'):
             self._deprecated_settings = True
 
