@@ -519,10 +519,14 @@ class Options:
         a section called `db:<db-config-name>` with `db-config-name` the value
         passed in `db_config`, or in the `--db-config` command line argument.
 
-        *path* is the path to the config file, which by default is
-                `kernelci.conf` or
-               `~/.config/kernelci/kernelci.conf` or
-               `/etc/kernelci/kernelci.conf`
+        *path* is the path to the config file, if not provided it will be
+                looked up in the following order:
+                1) from the `KCI_SETTINGS` environment variable
+                2) look for following files in order:
+                     kernelci.toml, ~/.config/kernelci/kernelci.toml,
+                     /etc/kernelci/kernelci.toml, kernelci.conf,
+                     ~/.config/kernelci/kernelci.conf,
+                     /etc/kernelci/kernelci.conf
 
         *command* is a `Command` object for the command being run
 
@@ -533,6 +537,9 @@ class Options:
                   way to have default values for each CLI tool
         """
         self._deprecated_settings = False
+        if path is None:
+            path = os.environ.get('KCI_SETTINGS')
+
         if path is None:
             default_paths = [
                 'kernelci.toml',
