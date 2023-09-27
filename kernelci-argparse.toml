@@ -1,0 +1,19 @@
+[DEFAULT]
+verbose = true
+api = 'early-access'
+storage = 'staging-azure'
+
+[hack]
+bingo = 1234
+
+[foo]
+baz = 789
+verbose = false
+
+[secrets]
+api.early-access.token = 'secret-1234abcde'
+api.dummy.token = 'secret-xyz'
+
+# Alternative:
+# [secrets.api.early-access]
+# token = 'secret-1234abcd'

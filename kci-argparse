@@ -1,0 +1,246 @@
+#!/usr/bin/env python3
+#
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# Copyright (C) 2023 Collabora Limited
+# Author: Guillaume Tucker <guillaume.tucker@collabora.com>
+
+"""KernelCI Command Line Tool
+
+This executable script is the entry point for all the new KernelCI command line
+tools which support the new API & Pipeline design.  See the documentation for
+more details: https://kernelci.org/docs/api/.
+"""
+
+import argparse
+import json
+import os
+import sys
+
+import toml
+
+import kernelci.api
+import kernelci.config
+
+
+class Settings:
+
+    def __init__(self, path=None, default_group_name='DEFAULT'):
+        """TOML settings
+
+        `path` is the path to the TOML settings file
+        `default_group_name` is the name of the default group
+        """
+        if path is None:
+            default_paths = [
+                os.getenv('KCI_SETTINGS', ''),
+                'kernelci.toml',
+                os.path.expanduser('~/.config/kernelci/kernelci.toml'),
+                '/etc/kernelci/kernelci.toml',
+                'kernelci.conf',
+                os.path.expanduser('~/.config/kernelci/kernelci.conf'),
+                '/etc/kernelci/kernelci.conf',
+            ]
+            for default_path in default_paths:
+                if os.path.exists(default_path):
+                    path = default_path
+                    break
+        self._path = path
+        self._settings = toml.load(path) if os.path.exists(path or '') else {}
+        self._default = self._settings.get(default_group_name, {})
+        self._group = {}
+
+    @property
+    def path(self):
+        """Path to the TOML settings file"""
+        return self._path
+
+    def set_group(self, *path):
+        self._group = self.get_raw(*path) or {}
+
+    def get(self, key):
+        """Get a TOML settings value
+
+        `key` is the name of the settings key, either from the group currently
+        set or from the default one
+        """
+        value = self._group.get(key)
+        if value is None:
+            value = self._default.get(key)
+        return value
+
+    def get_raw(self, *args):
+        """Get a settings value from an arbitrary series of keys
+
+        The *args are a series of strings for the path, e.g. ('foo', 'bar',
+        'baz') will look for a foo.bar.baz value or baz within [foo.bar] etc.
+        """
+        data = self._settings
+        for arg in args:
+            data = data.get(arg, {})
+        return data
+
+
+class Secrets:
+    """Helper class to find a secrets section"""
+
+    class Group:
+        """Helper class to find a key within a group"""
+        def __init__(self, group):
+            self._group = group
+
+        def __getattr__(self, key):
+            return self._group.get(key)
+
+    def __init__(self, settings, cli_kwargs):
+        self._settings = settings
+        self._cli_kwargs = cli_kwargs
+
+    def __getattr__(self, section):
+        name = self._cli_kwargs.get(section) or section
+        return self.Group(self._settings.get_raw('secrets', section, name))
+
+
+class Command:
+    command_arg = 'command'
+    help = None
+    args = []
+
+    def __init__(self, subparsers, name):
+        self._parser = subparsers.add_parser(name, help=self.help)
+        for arg in self.args:
+            kwargs = arg.copy()
+            arg_name = kwargs.pop('name')
+            self._parser.add_argument(arg_name, **kwargs)
+
+    def __call__(self, args, settings):
+        kwargs = args.__dict__.copy()
+        command = kwargs.pop(self._command_arg)
+        settings.set_group(command)
+        for key, value in kwargs.items():
+            if value is None:
+                kwargs[key] = settings.get(key)
+        kwargs['settings'] = settings
+        kwargs['secrets'] = Secrets(settings, kwargs)
+        self._run(**kwargs)
+
+    def _run(self, **kwargs):
+        pass
+
+
+class Args:
+    api = {
+        'name': '--api',
+        'help': "Name of the API config entry",
+    }
+
+    verbose = {
+        'name': '--verbose',
+        'action': 'store_true',
+        'default': None,
+        'help': "Print more stuff",
+    }
+
+
+class kci_subcmd_whoami(Command):
+    help = "whoami with API authentication"
+    args = [Args.api]
+
+    def _run(self, yaml_config=None, api=None, secrets=None, **kwargs):
+        configs = kernelci.config.load(yaml_config)
+        api_config = configs['api_configs'][api]
+        api = kernelci.api.get_api(api_config, secrets.api.token)
+        data = api.whoami()
+        print(json.dumps(data, indent=2))
+
+
+class kci_subcmd_hack(Command):
+    help = "Some hacky command"
+    args = [
+        Args.verbose,
+        {
+            'name': '--bingo',
+            'type': int,
+            'help': "Bingo integer value",
+        },
+    ]
+
+    def _run(self, bingo=None, verbose=None, **kwargs):
+        print(f"HACK VERBOSE {verbose}")
+        print(f"HACK BINGO {bingo}")
+
+
+# This is where the limitations of argparse really become apparent.  The
+# interim kci implementation using argparse has a fixed depth of 2 sub-commands
+# as having an arbitrary one is really much more complicated.  The code in
+# main() would need to be integrated in the Command class which would then need
+# to be able to work recursively when embedded inside a parent
+# class... effectively recreating what Click has implemented in a very clean
+# way.
+class kci_subcmd_foo(Command):
+    command_arg = 'foo_command'
+    help = "FOO command group"
+
+    def bar(self, args, settings):
+        print(f"FOO BAR BAZ: {args.baz}")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._subparsers = self._parser.add_subparsers(
+            title='Commands',
+            dest=self.command_arg,
+            help="Name of the sub-command to run"
+        )
+        bar = self._subparsers.add_parser('bar')
+        bar.add_argument('--baz', type=int)
+
+    def __call__(self, args, settings):
+        command_name = getattr(args, self.command_arg)
+        if command_name is None:
+            self._parser.print_help()
+            sys.exit(1)
+        getattr(self, command_name)(args, settings)
+
+
+def main():
+    def get_sub_commands(subcmd_parsers):
+        kci_commands_cls = {}
+        for name, obj in globals().items():
+            split = name.split('kci_subcmd_')
+            if len(split) == 2:
+                kci_commands_cls[split[1]] = obj
+        kci_commands = {}
+        for name, cmd in kci_commands_cls.items():
+            kci_commands[name] = cmd(subcmd_parsers, name)
+        return kci_commands
+
+    parser = argparse.ArgumentParser(
+        "Entry point for the kci command line tool"
+    )
+    parser.add_argument(
+        '--settings',
+        help="Path to the TOML settings file"
+    )
+    parser.add_argument(
+        '--yaml-config',
+        help="Path to the YAML config"
+    )
+
+    subcmd_parsers = parser.add_subparsers(
+        title='Commands',
+        dest='command',
+        help="Name of the sub-command to run"
+    )
+    kci_commands = get_sub_commands(subcmd_parsers)
+    args = parser.parse_args()
+    settings = Settings(args.settings)
+    command = kci_commands.get(args.command)
+    if command is None:
+        parser.print_help()
+        sys.exit(1)
+    command(args, settings)
+    sys.exit(0)
+
+
+if __name__ == '__main__':
+    main()
