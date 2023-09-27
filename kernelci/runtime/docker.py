@@ -32,7 +32,15 @@ class Docker(Runtime):
     def _load_env(self):
         if self.config.env_file and os.path.isfile(self.config.env_file):
             with open(self.config.env_file, encoding='utf-8') as env:
-                return [line.strip() for line in env.readlines()]
+                env_list = []
+                for line in env.readlines():
+                    env_line = line.strip()
+                    # Skip empty lines and comments
+                    if not env_line or env_line.startswith('#'):
+                        continue
+                    env_list.append(env_line)
+
+                return env_list
         return None
 
     @classmethod
