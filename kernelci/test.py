@@ -48,7 +48,7 @@ def match_configs(configs, meta, lab):
     The returned value is a list with a subset of the configs that match the
     provided kernel build meta-data and lab filters.
     """
-    dtbs = meta.get_single_artifact('dtbs', attr='contents')
+    dtbs = meta.get_single_artifact('dtbs', attr='contents') or []
     bmeta = meta.get('bmeta')
     env, kernel, rev = (bmeta.get(key) for key in [
         'environment', 'kernel', 'revision'
@@ -71,13 +71,16 @@ def match_configs(configs, meta, lab):
         'lpae': 'LPAE' in defconfig,
     }
 
+    dtbs_basename = {os.path.basename(x) for x in dtbs}
+
     match = set()
 
     for test_config in configs:
         if not test_config.match(arch, flags, filters):
             continue
         dtb = test_config.device_type.dtb
-        if dtb and (not dtbs or dtb not in dtbs):
+        # compare the basename of the dtb against all dtbs
+        if dtb and os.path.basename(dtb) not in dtbs_basename:
             continue
         for plan_name, plan in test_config.test_plans.items():
             if not plan.match(filters):
