@@ -10,6 +10,7 @@ from typing import Optional, Sequence
 
 from cloudevents.http import from_json
 import requests
+import json
 
 from . import API
 
@@ -93,7 +94,8 @@ class LatestAPI(API):  # pylint: disable=too-many-public-methods
         path = '/'.join(['listen', str(sub_id)])
         while True:
             resp = self._get(path)
-            data = resp.json().get('data')
+            # data = resp.json().get('data')
+            data = json.dumps(resp.json())
             if not data:
                 continue
             event = from_json(data)
