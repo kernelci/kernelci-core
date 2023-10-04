@@ -74,7 +74,7 @@ stable_variants: &stable_variants
       x86_64:
         base_defconfig: 'x86_64_defconfig'
         extra_configs: ['allnoconfig']
-        fragments: [x86-chromebook]
+        fragments: [x86-board]
 
 
 stable_variants_kselftest: &stable_variants_kselftest
@@ -95,8 +95,8 @@ stable_variants_kselftest: &stable_variants_kselftest
         base_defconfig: 'x86_64_defconfig'
         extra_configs:
           - 'allnoconfig'
-          - 'x86_64_defconfig+x86-chromebook+kselftest'
-        fragments: [x86-chromebook, kselftest]
+          - 'x86_64_defconfig+x86-board+kselftest'
+        fragments: [x86-board, kselftest]
 
 
 build_configs:

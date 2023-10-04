@@ -48,7 +48,7 @@ default_filters:
           - ['arm64', 'defconfig+arm64-chromebook']
           - ['i386', 'i386_defconfig']
           - ['x86_64', 'x86_64_defconfig']
-          - ['x86_64', 'x86_64_defconfig+x86-chromebook']
+          - ['x86_64', 'x86_64_defconfig+x86-board']
 
     - blocklist: &kselftest_defconfig_filter
         defconfig: ['kselftest']
@@ -741,39 +741,39 @@ device_types:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
-    filters: &x86-chromebook-filters
-      - passlist: {defconfig: ['x86-chromebook']}
+    filters: &x86-board-filters
+      - passlist: {defconfig: ['x86-board']}
       - blocklist: {defconfig: ['allmodconfig', 'allnoconfig']}
 
   acer-cb317-1h-c3z6-dedede:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
-    filters: *x86-chromebook-filters
+    filters: *x86-board-filters
 
   acer-cbv514-1h-34uz-brya:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
-    filters: *x86-chromebook-filters
+    filters: *x86-board-filters
 
   acer-chromebox-cxi4-puff:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
-    filters: *x86-chromebook-filters
+    filters: *x86-board-filters
 
   acer-chromebox-cxi5-brask:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
-    filters: *x86-chromebook-filters
+    filters: *x86-board-filters
 
   acer-cp514-3wh-r0qs-guybrush:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
-    filters: *x86-chromebook-filters
+    filters: *x86-board-filters
 
   alpine-db:
     mach: alpine
@@ -912,31 +912,31 @@ device_types:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
-    filters: *x86-chromebook-filters
+    filters: *x86-board-filters
 
   asus-C436FA-Flip-hatch:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
-    filters: *x86-chromebook-filters
+    filters: *x86-board-filters
 
   asus-C523NA-A20057-coral:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
-    filters: *x86-chromebook-filters
+    filters: *x86-board-filters
 
   asus-CM1400CXA-dalboz:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
-    filters: *x86-chromebook-filters
+    filters: *x86-board-filters
 
   asus-cx9400-volteer:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
-    filters: *x86-chromebook-filters
+    filters: *x86-board-filters
 
   at91-sama5d2_xplained:
     mach: at91
@@ -1036,13 +1036,13 @@ device_types:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
-    filters: *x86-chromebook-filters
+    filters: *x86-board-filters
 
   dell-latitude-5400-8665U-sarien:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
-    filters: *x86-chromebook-filters
+    filters: *x86-board-filters
 
   dove-cubox:
     mach: mvebu
@@ -1133,26 +1133,26 @@ device_types:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
-    filters: *x86-chromebook-filters
+    filters: *x86-board-filters
 
   hp-11A-G6-EE-grunt:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
-    filters: *x86-chromebook-filters
+    filters: *x86-board-filters
 
   # Alphabetical order exception: 14 is an int but 12b is a string
   hp-x360-14-G1-sona:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
-    filters: *x86-chromebook-filters
+    filters: *x86-board-filters
 
   hp-x360-12b-ca0010nr-n4020-octopus: &octopus
     mach: x86
     arch: x86_64
     boot_method: depthcharge
-    filters: *x86-chromebook-filters
+    filters: *x86-board-filters
 
   hp-x360-12b-ca0500na-n4000-octopus: *octopus
 
@@ -1160,7 +1160,7 @@ device_types:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
-    filters: *x86-chromebook-filters
+    filters: *x86-board-filters
 
   hsdk:
     mach: arc
@@ -1457,7 +1457,7 @@ device_types:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
-    filters: *x86-chromebook-filters
+    filters: *x86-board-filters
 
   lenovo-hr330a-7x33cto1ww-emag:
     mach: arm64

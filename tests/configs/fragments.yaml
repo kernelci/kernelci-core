@@ -13,8 +13,8 @@ fragments:
       - 'CONFIG_IMA=y'
       - 'CONFIG_IMA_READ_POLICY=y'
 
-  x86-chromebook:
-    path: "kernel/configs/x86-chromebook.config"
+  x86-board:
+    path: "kernel/configs/x86-board.config"
     defconfig:
     configs:
       - 'CONFIG_SERIAL_8250=y'
