@@ -13,8 +13,8 @@ device_types:
     mach: x86
     arch: x86_64
     boot_method: depthcharge
-    filters: &x86-chromebook-filters
-      - passlist: {defconfig: ['x86-chromebook']}
+    filters: &x86-board-filters
+      - passlist: {defconfig: ['x86-board']}
     params: &octopus-params
       cros_flash_initrd: 'https://storage.staging.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20220523.1/amd64/initrd.cpio.gz'
       cros_flash_nfs: 'https://storage.staging.kernelci.org/images/rootfs/debian/bullseye-cros-flash/20220523.1/amd64/full.rootfs.tar.xz'

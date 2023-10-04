@@ -503,8 +503,8 @@ fragments:
       - 'CONFIG_VIDEO_VIVID=y'
       - 'CONFIG_VIDEO_VIVID_MAX_DEVS=64'
 
-  x86-chromebook:
-    path: "kernel/configs/x86-chromebook.config"
+  x86-board:
+    path: "kernel/configs/x86-board.config"
     configs:
       - 'CONFIG_BLK_DEV_NVME=y'
       - 'CONFIG_CHARGER_CROS_USBPD=m'
@@ -798,11 +798,11 @@ build_configs_defaults:
 # Disabling to reduce load
 #            - 'allmodconfig'
             - 'allnoconfig'
-            - 'x86_64_defconfig+x86-chromebook+kselftest'
+            - 'x86_64_defconfig+x86-board+kselftest'
 # Disabling to reduce load
-#            - 'x86_64_defconfig+x86-chromebook+amdgpu'
-#          fragments: [amdgpu, crypto, ima, x86_kvm_guest, x86-chromebook]
-          fragments: [x86-chromebook]
+#            - 'x86_64_defconfig+x86-board+amdgpu'
+#          fragments: [amdgpu, crypto, ima, x86_kvm_guest, x86-board]
+          fragments: [x86-board]
 
   reference:
     tree: mainline
@@ -918,10 +918,10 @@ preempt_rt_variants: &preempt_rt_variants
           - 'defconfig+preempt_rt+arm64-chromebook'
       x86_64:
         <<: *x86_64_defconfig
-        fragments: [x86-chromebook]
+        fragments: [x86-board]
         extra_configs:
           - 'x86_64_defconfig+preempt_rt'
-          - 'x86_64_defconfig+preempt_rt+x86-chromebook'
+          - 'x86_64_defconfig+preempt_rt+x86-board'
 
 
 chrome_platform_variants: &chrome_platform_variants
@@ -934,7 +934,7 @@ chrome_platform_variants: &chrome_platform_variants
         fragments: [arm64-chromebook]
       x86_64:
         <<: *x86_64_defconfig
-        fragments: [x86-chromebook]
+        fragments: [x86-board]
 
 
 build_configs:
@@ -1110,8 +1110,8 @@ build_configs:
             filters: *kselftest-only
           x86_64: &x86_64-kselftest
             <<: *x86_64_defconfig
-            fragments: [x86-chromebook]
-            extra_configs: ['x86_64+defconfig+kselftest+x86-chromebook']
+            fragments: [x86-board]
+            extra_configs: ['x86_64+defconfig+kselftest+x86-board']
             filters: *kselftest-only
       clang-16:
         build_environment: clang-16
@@ -1227,7 +1227,7 @@ build_configs:
             fragments: [arm64-chromebook]
           x86_64:
             <<: *x86_64_defconfig
-            fragments: [x86-chromebook]
+            fragments: [x86-board]
 
   media:
     tree: media

@@ -48,7 +48,7 @@ cip_variants: &cip_variants
               kernel: ['v3.', 'v4.4', 'v4.9', 'v4.14']
       x86_64:
         base_defconfig: 'x86_64_defconfig'
-        fragments: [x86-chromebook]
+        fragments: [x86-board]
         extra_configs: ['allnoconfig']
 
 
@@ -68,10 +68,10 @@ cip_variants_kselftest: &cip_variants_kselftest
           - 'defconfig+arm64-chromebook+kselftest'
       x86_64:
         base_defconfig: 'x86_64_defconfig'
-        fragments: [kselftest, x86-chromebook]
+        fragments: [kselftest, x86-board]
         extra_configs:
           - 'allnoconfig'
-          - 'x86_64_defconfig+x86-chromebook+kselftest'
+          - 'x86_64_defconfig+x86-board+kselftest'
 
 
 cip_variants_preempt_rt: &cip_variants_preempt_rt
@@ -89,10 +89,10 @@ cip_variants_preempt_rt: &cip_variants_preempt_rt
         extra_configs:
           - 'defconfig+preempt_rt'
       x86_64:
-        fragments: [preempt_rt, x86-chromebook]
+        fragments: [preempt_rt, x86-board]
         extra_configs:
           - 'x86_64_defconfig+preempt_rt'
-          - 'x86_64_defconfig+x86-chromebook+preempt_rt'
+          - 'x86_64_defconfig+x86-board+preempt_rt'
 
 cip_variants_4_4: &cip_variants_4_4
   gcc-10: &cip_variants_4_4_gcc-10
@@ -149,7 +149,7 @@ build_configs:
               }
           x86_64:
             base_defconfig: 'x86_64_defconfig'
-            fragments: [x86-chromebook]
+            fragments: [x86-board]
             extra_configs:
               - 'allnoconfig'
               - 'cip://4.4.y-cip/x86/cip_qemu_defconfig'
@@ -188,7 +188,7 @@ build_configs:
               - 'cip://4.19.y-cip/arm64/qemu_arm64_defconfig'
           x86_64:
             base_defconfig: 'x86_64_defconfig'
-            fragments: [kselftest, x86-chromebook]
+            fragments: [kselftest, x86-board]
             extra_configs:
               - 'allnoconfig'
               - 'cip://4.19.y-cip/x86/cip_qemu_defconfig'
@@ -226,7 +226,7 @@ build_configs:
               - 'cip://5.10.y-cip/arm64/qemu_arm64_defconfig'
           x86_64:
             base_defconfig: 'x86_64_defconfig'
-            fragments: [kselftest, x86-chromebook]
+            fragments: [kselftest, x86-board]
             extra_configs:
               - 'allnoconfig'
               - 'cip://5.10.y-cip/x86/cip_qemu_defconfig'
@@ -270,7 +270,7 @@ build_configs:
               - 'cip://6.1.y-cip/arm64/qemu_arm64_defconfig'
           x86_64:
             base_defconfig: 'x86_64_defconfig'
-            fragments: [kselftest, x86-chromebook]
+            fragments: [kselftest, x86-board]
             extra_configs:
               - 'allnoconfig'
               - 'cip://6.1.y-cip/x86/cip_qemu_defconfig'

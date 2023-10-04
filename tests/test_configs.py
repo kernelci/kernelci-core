@@ -97,7 +97,7 @@ class TestBuildConfigs(ConfigTest):
         """Test the fragments configs"""
         ref_data, config = self._load_config('tests/configs/fragments.yaml')
         frag_config = self._reload(ref_data, config, 'fragments')
-        frag_names = ['debug', 'ima', 'x86-chromebook', 'x86_kvm_guest']
+        frag_names = ['debug', 'ima', 'x86-board', 'x86_kvm_guest']
         assert all(name in ref_data['fragments'] for name in frag_names)
         assert all(name in frag_config for name in frag_names)
         assert frag_config['debug']['path'] == 'kernel/configs/debug.config'
