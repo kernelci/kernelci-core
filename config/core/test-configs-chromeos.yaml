@@ -1161,6 +1161,16 @@ test_configs:
       - passlist: {tree: ['collabora-chromeos-kernel'], branch: ['for-kernelci']}
     test_plans: *chromebook-arm64-test-plans
 
+  - device_type: mt8183-kukui-jacuzzi-juniper-sku16_chromeos
+    filters: *collabora-chromeos-kernel-filter
+    test_plans:
+      - v4l2-decoder-conformance-h264_chromeos
+
+  - device_type: mt8183-kukui-jacuzzi-juniper-sku16_chromeos
+    filters: *collabora-chromeos-kernel-filter
+    test_plans:
+      - cros-tast-mm-decode-v4l2-stateless-h264
+
   - device_type: mt8192-asurada-spherion-r0_chromeos
     filters: *collabora-chromeos-kernel-filter
     test_plans:
