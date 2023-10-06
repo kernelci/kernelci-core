@@ -1073,9 +1073,9 @@ scripts/kconfig/merge_config.sh -O {output} '{base}' '{frag}' {redir}
             raise FileNotFoundError("Error reading {}".format(url))
 
     def _create_cros_config(self, config):
-        [(branch, config)] = re.findall(r"cros://([\w\-.]+)/(.*)", config)
+        [(branch, config)] = re.findall(r"cros://([\w\-%.]+)/(.*)", config)
         cros_config = os.path.join(self._output_path, "cros-config.tgz")
-        url = CROS_CONFIG_URL.format(branch=branch)
+        url = CROS_CONFIG_URL.format(branch=branch.replace("%", "/"))
         if not _download_file(url, cros_config):
             raise FileNotFoundError("Error reading {}".format(url))
         tar = tarfile.open(cros_config)
