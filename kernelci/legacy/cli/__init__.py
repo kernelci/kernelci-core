@@ -42,7 +42,7 @@ def list_command_names():
 
 
 def call(name, args=None):
-    """Call a command registered with kernelci.cli
+    """Call a command registered with kernelci.legacy.cli
 
     Call the command with the given *name* and optional arguments *args*.
     """

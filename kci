@@ -15,15 +15,15 @@ more details: https://kernelci.org/docs/api/.
 import argparse
 import sys
 
-import kernelci.cli
+import kernelci.legacy.cli
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("KernelCI Command Line Tools")
     parser.add_argument(
         'command',
-        choices=kernelci.cli.list_command_names(),
+        choices=kernelci.legacy.cli.list_command_names(),
         help="Command to run"
     )
     args = parser.parse_args(sys.argv[1:2])
-    kernelci.cli.call(args.command, sys.argv[2:])
+    kernelci.legacy.cli.call(args.command, sys.argv[2:])
