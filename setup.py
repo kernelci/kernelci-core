@@ -36,10 +36,10 @@ setuptools.setup(
     packages=[
         "kernelci",
         "kernelci.api",
-        "kernelci.cli",
         "kernelci.config",
         "kernelci.db",
         "kernelci.legacy",
+        "kernelci.legacy.cli",
         "kernelci.legacy.lava",
         "kernelci.runtime",
         "kernelci.runtime.legacy",
