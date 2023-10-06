@@ -1201,6 +1201,14 @@ test_configs:
 #      - cros-tast-video_qemu
 
   - device_type: mt8195-cherry-tomato-r2_chromeos
+    filters: *mediatek-filter
+    test_plans: *chromebook-arm64-test-plans
+
+  - device_type: mt8195-cherry-tomato-r2_chromeos
+    filters: *collabora-chromeos-kernel-filter
+    test_plans: *chromebook-arm64-test-plans
+
+  - device_type: mt8195-cherry-tomato-r2_chromeos
     filters: *collabora-chromeos-kernel-filter
     test_plans:
       - v4l2-decoder-conformance-h264_chromeos
