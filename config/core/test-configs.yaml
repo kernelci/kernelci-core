@@ -763,6 +763,12 @@ device_types:
     boot_method: depthcharge
     filters: *x86-chromebook-filters
 
+  acer-chromebox-cxi5-brask:
+    mach: x86
+    arch: x86_64
+    boot_method: depthcharge
+    filters: *x86-chromebook-filters
+
   acer-cp514-3wh-r0qs-guybrush:
     mach: x86
     arch: x86_64
@@ -2296,6 +2302,11 @@ test_configs:
       - baseline-nfs
 
   - device_type: acer-chromebox-cxi4-puff
+    test_plans:
+      - baseline
+      - baseline-nfs
+
+  - device_type: acer-chromebox-cxi5-brask
     test_plans:
       - baseline
       - baseline-nfs
