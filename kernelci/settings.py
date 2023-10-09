@@ -70,3 +70,44 @@ class Settings:
                 break
             data = data.get(arg)
         return data
+
+
+class Secrets:
+    """Helper class to find the secrets section in the settings
+
+    This provides a way to access secrets using attributes and sub-group names.
+    For example, when trying to access secrets.api.token, the value of "api"
+    provided when creating the object will be used to look up the matching
+    section e.g. "kci.api.local.token" if --api=local.
+
+    The `config_args` is a dictionary with the key-value pairs used to find
+    sub-gropus, for example {'api': 'local'} which is typically loaded from
+    command-line arguments.
+
+    The default location in the TOML settings for secrets is in [kci.secrets],
+    so the `root` path to this is ('kci', 'secrets').
+    """
+
+    class Group:  # pylint: disable=too-few-public-methods
+        """Helper class to find a key within a group"""
+        def __init__(self, group: dict = None):
+            self._group = group or {}
+
+        def __getattr__(self, key: str):
+            return self._group.get(key)
+
+    def __init__(self, settings: Settings, config_args: dict = None,
+                 root: tuple = None):
+        self._settings = settings
+        self._config_args = config_args or {}
+        self._root = root or ()
+
+    def __getattr__(self, section: str):
+        name = self._config_args.get(section)
+        raw_group = self._settings.get_raw(*self._root, section, name)
+        return self.Group(raw_group)
+
+    @property
+    def root(self):
+        """Get the rootpath for the TOML group containing secrets"""
+        return self._root
