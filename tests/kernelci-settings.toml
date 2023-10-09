@@ -1,0 +1,15 @@
+something = 'hello'
+
+[kci]
+hello = 123
+flag = false
+name = "bingo"
+
+[kci.foo]
+bar = 456
+a.b.c = 'ABC'
+a.b.z = 'XYZ'
+
+[alternative]
+foo.bar = 'baz'
+hello = 456
