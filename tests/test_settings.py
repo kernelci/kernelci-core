@@ -27,8 +27,6 @@ def test_get_raw():
     assert value_str == 'bingo'
     value_sub_command = settings.get_raw('kci', 'foo', 'bar')
     assert value_sub_command == 456
-    value_not_found = settings.get_raw('kci', 'foo', 'baz')
-    assert value_not_found is None
     abc = settings.get_raw('kci', 'foo', 'a', 'b', 'c')
     assert abc == 'ABC'
     xyz = settings.get_raw('kci', 'foo', 'a', 'b', 'z')
@@ -58,6 +56,19 @@ def test_get():
     assert abc == 'def'
     hello = settings.get('alternative', 'hey', 'hello')
     assert hello == 456
+
+
+def test_not_found():
+    """Test all the Settings methods with values that don't exist"""
+    settings = kernelci.settings.Settings('tests/kernelci-settings.toml')
+    assert settings.get_raw('kci', 'foo', 'baz') is None
+    assert settings.get_raw('kci', 'foo', 'baz', 'bingo') is None
+    assert settings.get_raw('kci', 'what') is None
+    assert settings.get_raw('something', 'else') is None
+    assert settings.get('kci', 'what') is None
+    assert settings.get('what') is None
+    assert settings.get('something', 'else') is None
+    assert settings.get() is None
 
 
 def test_secrets_init():
