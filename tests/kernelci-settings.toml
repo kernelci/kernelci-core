@@ -14,6 +14,9 @@ a.b.z = 'XYZ'
 foo.bar = 'baz'
 hello = 456
 
+[alternative.hey]
+abc = 'def'
+
 [kci.secrets]
 storage.foo.password = "abracadabra"
 storage.bar.password = "mickeymouse"

@@ -39,6 +39,27 @@ def test_get_raw():
     assert alt == 'baz'
 
 
+def test_get():
+    """Test the Settings.get() method with various use-cases"""
+    settings = kernelci.settings.Settings('tests/kernelci-settings.toml')
+    raw_flag = settings.get_raw('kci', 'foo', 'flag')
+    assert raw_flag is None
+    parent_flag = settings.get('kci', 'foo', 'flag')
+    assert parent_flag is False
+    raw_name = settings.get_raw('kci', 'foo', 'name')
+    assert raw_name is None
+    parent_name = settings.get('kci', 'foo', 'name')
+    assert parent_name == 'bingo'
+    alt_bar = settings.get('alternative', 'foo', 'bar')
+    assert alt_bar == 'baz'
+    alt_hello = settings.get('alternative', 'hello')
+    assert alt_hello == 456
+    abc = settings.get('alternative', 'hey', 'abc')
+    assert abc == 'def'
+    hello = settings.get('alternative', 'hey', 'hello')
+    assert hello == 456
+
+
 def test_secrets_init():
     """Verify that secrets can be initialised from the TOML settings"""
     settings = kernelci.settings.Settings('tests/kernelci-settings.toml')
