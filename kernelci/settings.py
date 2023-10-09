@@ -71,6 +71,35 @@ class Settings:
             data = data.get(arg)
         return data
 
+    def get(self, *args):
+        """Get a settings value using inheritance
+
+        Unlike .get_raw() which directly returns what is found from the TOML
+        settings, the .get() method will try and find a key within the path as
+        a default value.  For example, if kci.api is defined in TOML but not
+        kci.node.api, when trying to retrieve ('kci', 'node', 'api') it will
+        return the value found in ('kci', 'api') as a default value.  This
+        allows setting values across all the sub-commands.
+
+        This method will also always return a final value and never a group
+        dictionary like .get_raw().  If the requested value is not found and no
+        parent section with the same final key has been found, then this method
+        returns None.
+        """
+        if len(args) < 1:
+            return None
+        key = args[-1]
+        data = self._settings
+        value = data.get(key)
+        for arg in args:
+            if not isinstance(data, dict):
+                data = None
+            if data is None:
+                break
+            value = data.get(key, value)
+            data = data.get(arg)
+        return value
+
 
 class Secrets:
     """Helper class to find the secrets section in the settings
