@@ -13,3 +13,12 @@ a.b.z = 'XYZ'
 [alternative]
 foo.bar = 'baz'
 hello = 456
+
+[kci.secrets]
+storage.foo.password = "abracadabra"
+storage.bar.password = "mickeymouse"
+api.local.token = "my-local-api-token"
+api.main.token = "my-main-api-token"
+
+[secret.bits]
+foo.bar.baz = 'FooBarBaz'

@@ -37,3 +37,41 @@ def test_get_raw():
     assert ab_group == {'c': 'ABC', 'z': 'XYZ'}
     alt = settings.get_raw('alternative', 'foo', 'bar')
     assert alt == 'baz'
+
+
+def test_secrets_init():
+    """Verify that secrets can be initialised from the TOML settings"""
+    settings = kernelci.settings.Settings('tests/kernelci-settings.toml')
+    secrets = kernelci.settings.Secrets(settings)
+    assert secrets.root == ()
+    assert secrets.ding.dong is None
+
+
+def test_secrets():
+    """Test that secrets can be retrieved from the TOML settings"""
+    settings = kernelci.settings.Settings('tests/kernelci-settings.toml')
+
+    args = {
+        'storage': 'foo',
+        'api': 'main',
+    }
+    secrets = kernelci.settings.Secrets(settings, args, ('kci', 'secrets'))
+    assert secrets.storage.password == 'abracadabra'
+    assert secrets.api.token == 'my-main-api-token'
+
+    args = {
+        'storage': 'bar',
+        'api': 'local',
+    }
+    secrets = kernelci.settings.Secrets(settings, args, ('kci', 'secrets'))
+    assert secrets.storage.password == 'mickeymouse'
+    assert secrets.api.token == 'my-local-api-token'
+    assert secrets.storage.nothing is None
+    assert secrets.wrong.path is None
+
+    args = {
+        'foo': 'bar',
+    }
+    secrets = kernelci.settings.Secrets(settings, args, ('secret', 'bits'))
+    assert secrets.foo.baz == 'FooBarBaz'
+    assert secrets.bar.baz is None
