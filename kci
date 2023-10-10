@@ -2,28 +2,37 @@
 #
 # SPDX-License-Identifier: LGPL-2.1-or-later
 #
-# Copyright (C) 2022 Collabora Limited
+# Copyright (C) 2022, 2023 Collabora Limited
 # Author: Guillaume Tucker <guillaume.tucker@collabora.com>
 
 """KernelCI Command Line Tool
 
-This executable script is the entry point for all the new KernelCI command line
-tools which support the new API & Pipeline design.  See the documentation for
-more details: https://kernelci.org/docs/api/.
+This executable module is the entry point for the kci command line tool.  It
+provides a way to manually interact with the KernelCI API and its related
+features.  See the online documentation for more details:
+https://kernelci.org/docs/api/.
 """
 
-import argparse
-import sys
+import json
 
-import kernelci.legacy.cli
+import click
+
+from kernelci.cli import Args, kci
+import kernelci.api
+import kernelci.config
+
+
+@kci.command(secrets=True)
+@Args.config
+@Args.api
+def whoami(config, api, secrets):
+    """Use whoami to get current user info with API authentication"""
+    configs = kernelci.config.load(config)
+    api_config = configs['api_configs'][api]
+    api = kernelci.api.get_api(api_config, secrets.api.token)
+    data = api.whoami()
+    click.echo(json.dumps(data, indent=2))
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser("KernelCI Command Line Tools")
-    parser.add_argument(
-        'command',
-        choices=kernelci.legacy.cli.list_command_names(),
-        help="Command to run"
-    )
-    args = parser.parse_args(sys.argv[1:2])
-    kernelci.legacy.cli.call(args.command, sys.argv[2:])
+    kci()  # pylint: disable=no-value-for-parameter
