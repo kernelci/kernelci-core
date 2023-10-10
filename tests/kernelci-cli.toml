@@ -1,0 +1,5 @@
+["python -m pytest".hey]
+hello = 123
+
+["python -m pytest".secrets]
+foo.bar.baz = 'FooBarBaz'
