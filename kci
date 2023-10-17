@@ -18,6 +18,9 @@ import json
 import click
 
 from kernelci.cli import Args, kci
+from kernelci.cli import (  # pylint: disable=unused-import
+    docker as kci_docker,
+)
 import kernelci.api
 import kernelci.config
 
