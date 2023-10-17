@@ -12,7 +12,6 @@ from .base import Args, Command, parse_opts, sub_main
 from . import (
     api,
     config,
-    docker,
     job,
     node,
     pubsub,
@@ -25,7 +24,6 @@ from . import (
 _COMMANDS = {
     'api': api.main,
     'config': config.main,
-    'docker': docker.main,
     'job': job.main,
     'node': node.main,
     'pubsub': pubsub.main,
