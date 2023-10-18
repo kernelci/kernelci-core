@@ -56,28 +56,26 @@ def get_config_paths(config_paths):
 
 
 def validate_yaml(config_paths, entries):
-    config_paths = get_config_paths(config_paths)
-    if not config_paths:
-        return None
-
-    for path in config_paths:
-        for yaml_path, data in iterate_yaml_files(path):
-            for name, value in (
-                    (k, v) for k, v in data.items() if k in entries):
-                if isinstance(value, dict):
-                    keys = value.keys()
-                elif isinstance(value, list):
-                    keys = (
-                        [] if len(value) and isinstance(value[0], dict)
-                        else value
-                    )
-                else:
-                    keys = []
-                err = kernelci.sort_check(keys)
-                if err:
-                    return "Broken order in {} {}: '{}' is before '{}'".format(
-                        yaml_path, name, err[0], err[1])
-    return None
+    try:
+        for path in get_config_paths(config_paths):
+            for yaml_path, data in iterate_yaml_files(path):
+                for name, value in (
+                        (k, v) for k, v in data.items() if k in entries):
+                    if isinstance(value, dict):
+                        keys = value.keys()
+                    elif isinstance(value, list):
+                        keys = (
+                            [] if len(value) and isinstance(value[0], dict)
+                            else value
+                        )
+                    else:
+                        keys = []
+                    err = kernelci.sort_check(keys)
+                    if err:
+                        return "Broken order in {} {}: '{}' is before '{}'"\
+                            .format(yaml_path, name, err[0], err[1])
+    except yaml.scanner.ScannerError as exc:
+        return str(exc)
 
 
 def load_single_yaml(config_path):
