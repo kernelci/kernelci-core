@@ -8,7 +8,9 @@ metadata:
 
 spec:
   completions: 1
-  ttlSecondsAfterFinished: 30
+  # During development we keep logs a bit longer
+  # TODO: Reduce on production
+  ttlSecondsAfterFinished: 120
   template:
     spec:
       backoffLimit: 1
