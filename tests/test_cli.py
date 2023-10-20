@@ -5,6 +5,8 @@
 
 """Unit test for the KernelCI command line tools"""
 
+import pytest
+
 import click
 
 import kernelci.cli
@@ -60,3 +62,46 @@ def test_kci_command_with_secrets():
     except SystemExit as exc:
         if exc.code != 0:
             raise exc
+
+
+def test_split_valid_attributes():
+    """Test the logic to split valid attribute with operators"""
+    attributes = [
+        (['name=value'], {'name': 'value'}),
+        (['name>value'], {'name__gt': 'value'}),
+        (['name>=value'], {'name__gte': 'value'}),
+        (['name<value'], {'name__lt': 'value'}),
+        (['name<=value'], {'name__lte': 'value'}),
+        (['name = value'], {'name': 'value'}),
+        (['name =value'], {'name': 'value'}),
+        (['name >= value'], {'name__gte': 'value'}),
+        (['name>= value'], {'name__gte': 'value'}),
+        (['a=b', 'c=123', 'x3 = 1.2', 'abc >= 4', 'z != x[2]'], {
+            'a': 'b', 'c': '123', 'x3': '1.2', 'abc__gte': '4', 'z__ne': 'x[2]'
+        }),
+    ]
+    for attrs, parsed in attributes:
+        print(attrs, parsed)
+        result = kernelci.cli.split_attributes(attrs)
+        assert result == parsed
+
+
+def test_split_invalid_attributes():
+    """Test the logic to split invalid attribute with operators"""
+    attributes = [
+        ['key == something'],
+        ['key==else'],
+        ['key== else'],
+        ['x ==a'],
+        ['wr?ong = other'],
+        ['wrong| = other'],
+        ['foo=>bar'],
+        ['foo=<bar'],
+        ['foo<>bar'],
+        ['foo=!bar'],
+        ['a=1', 'a=again'],
+        ['key = 123', 'key >= 456']
+    ]
+    for attrs in attributes:
+        with pytest.raises(click.ClickException):
+            kernelci.cli.split_attributes(attrs)

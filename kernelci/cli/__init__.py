@@ -13,6 +13,9 @@ the Click framework, it adds support for loading default values and secrets
 from TOML settings.
 """
 
+import re
+import typing
+
 import click
 
 import kernelci.settings
@@ -129,3 +132,48 @@ class KciGroup(click.core.Group):
 def kci(ctx, settings):
     """Entry point for the kci command line tool"""
     ctx.obj = CommandSettings(settings)
+
+
+def split_attributes(attributes: typing.List[str]):
+    """Split attributes into a dictionary.
+
+    Split the attributes string into a dictionary using space as a delimiter
+    between key/value pairs and `=` between the key and the value.  The API
+    operators are expected to be part of the key e.g. score__gte=100 to find
+    objects with a 'score' attribute of 100 or more.
+
+    As a syntactic convenience, if the operator matches one of >, <, >=, <=, !=
+    then the corresponding API operator '__gt', '__lt', '__gte', '__lte',
+    '__ne' is added to the key name automatically.
+    """
+    operators = {
+        '>': '__gt',
+        '<': '__lt',
+        '>=': '__gte',
+        '<=': '__lte',
+        '!=': '__ne',
+        '=': '',
+    }
+    pattern = re.compile(r'^([.a-zA-Z0-9_-]+) *([<>!=]+) *(.*)')
+
+    parsed = {}
+    for attribute in attributes:
+        match = pattern.match(attribute)
+        if not match:
+            raise click.ClickException(f"Invalid attribute: {attribute}")
+        name, operator, value = match.groups()
+        ex_op, ex_value = parsed.get(name, (None, None))
+        if ex_value:
+            raise click.ClickException(
+                f"Conflicting values for {name}: \
+                {name}{value}, {ex_op}{ex_value}"
+            )
+        opstr = operators.get(operator)
+        if opstr is None:
+            raise click.ClickException(f"Invalid operator: {operator}")
+        parsed[name] = (opstr, value)
+
+    return {
+        ''.join((key, opstr)): value
+        for key, (opstr, value) in parsed.items()
+    }
