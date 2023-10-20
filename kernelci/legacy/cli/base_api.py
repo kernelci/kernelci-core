@@ -28,7 +28,7 @@ class APICommand(Command):  # pylint: disable=too-few-public-methods
 
     @classmethod
     def _get_api(cls, configs, args):
-        config = configs['api_configs'][args.api_config]
+        config = configs['api'][args.api_config]
         return kernelci.api.get_api(config, args.api_token)
 
     @classmethod
