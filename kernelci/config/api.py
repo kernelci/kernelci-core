@@ -50,9 +50,9 @@ def from_yaml(data, _):
     """Create the API configs using data loaded from YAML"""
     api_configs = {
         name: API.load_from_yaml(config, name=name)
-        for name, config in data.get('api_configs', {}).items()
+        for name, config in data.get('api', {}).items()
     }
 
     return {
-        'api_configs': api_configs,
+        'api': api_configs,
     }

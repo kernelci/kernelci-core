@@ -237,7 +237,7 @@ class APIHelperTestData:
 def get_api_config():
     """Fixture to get API configurations"""
     config = kernelci.config.load('tests/configs/api-configs.yaml')
-    api_configs = config['api_configs']
+    api_configs = config['api']
     return api_configs
 
 

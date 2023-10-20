@@ -184,11 +184,11 @@ class TestAPIConfigs(ConfigTest):
     """Tests for configs related to the KernelCI API"""
 
     def test_apis(self):
-        """Test the api_configs"""
+        """Test the api configs"""
         ref_data, config = self._load_config('tests/configs/api-configs.yaml')
-        api_config = self._reload(ref_data, config, 'api_configs')
+        api_config = self._reload(ref_data, config, 'api')
         api_names = ['docker-host']
-        assert all(name in ref_data['api_configs'] for name in api_names)
+        assert all(name in ref_data['api'] for name in api_names)
         assert all(name in api_config for name in api_names)
         assert (
             api_config['docker-host']['url'] == 'http://172.17.0.1:8001'
