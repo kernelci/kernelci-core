@@ -13,28 +13,12 @@ features.  See the online documentation for more details:
 https://kernelci.org/docs/api/.
 """
 
-import json
 
-import click
-
-from kernelci.cli import Args, kci
+from kernelci.cli import kci
 from kernelci.cli import (  # pylint: disable=unused-import
     docker as kci_docker,
+    user as kci_user,
 )
-import kernelci.api
-import kernelci.config
-
-
-@kci.command(secrets=True)
-@Args.config
-@Args.api
-def whoami(config, api, secrets):
-    """Use whoami to get current user info with API authentication"""
-    configs = kernelci.config.load(config)
-    api_config = configs['api_configs'][api]
-    api = kernelci.api.get_api(api_config, secrets.api.token)
-    data = api.whoami()
-    click.echo(json.dumps(data, indent=2))
 
 
 if __name__ == '__main__':
